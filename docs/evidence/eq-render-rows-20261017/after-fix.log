@@ -1,0 +1,18 @@
+test_compare_exact_and_records_evidence (__main__.ComparisonControls.test_compare_exact_and_records_evidence) ... ok
+test_compare_frozen_append_in_both_directions (__main__.ComparisonControls.test_compare_frozen_append_in_both_directions) ... ok
+test_compare_rejects_appended_nondefault (__main__.ComparisonControls.test_compare_rejects_appended_nondefault) ... ok
+test_compare_rejects_audio_drift (__main__.ComparisonControls.test_compare_rejects_audio_drift) ... ok
+test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) ... ok
+test_compare_rejects_latency_drift (__main__.ComparisonControls.test_compare_rejects_latency_drift) ... ok
+test_compare_rejects_normalized_drift (__main__.ComparisonControls.test_compare_rejects_normalized_drift) ... ok
+test_compare_rejects_serialized_state_drift (__main__.ComparisonControls.test_compare_rejects_serialized_state_drift) ... ok
+test_exact (__main__.RenderControls.test_exact) ... ok
+test_nan_rejected (__main__.RenderControls.test_nan_rejected) ... ok
+test_one_bit_rejected (__main__.RenderControls.test_one_bit_rejected) ... ok
+test_silence_rejected (__main__.RenderControls.test_silence_rejected) ... ok
+test_truncation_rejected (__main__.RenderControls.test_truncation_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.411s
+
+OK

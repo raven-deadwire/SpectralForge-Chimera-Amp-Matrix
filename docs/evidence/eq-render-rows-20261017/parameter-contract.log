@@ -1,0 +1,12 @@
+$ python3 Tests/test_eq_tuner_parameter_contract.py -v
+test_exact_append (__main__.AppendOnlyContracts.test_exact_append) ... ok
+test_missing_extra_or_wrong_new_id_rejected (__main__.AppendOnlyContracts.test_missing_extra_or_wrong_new_id_rejected) ... ok
+test_normalized_values_and_new_defaults_are_exact (__main__.AppendOnlyContracts.test_normalized_values_and_new_defaults_are_exact) ... ok
+test_old_id_order_range_default_flags_and_duplicate_rejected (__main__.AppendOnlyContracts.test_old_id_order_range_default_flags_and_duplicate_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.320s
+
+OK
+
+exit_code=0

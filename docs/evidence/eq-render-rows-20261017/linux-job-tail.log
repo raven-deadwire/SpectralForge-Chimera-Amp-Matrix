@@ -1,0 +1,329 @@
+48:10.4531719Z   154 |         else {transition.makeCopyOf(buffer,true);legacy(buffer);native.processSection(transition,section,state.postNative.sections[section]);for(int n=0;n<buffer.getNumSamples();++n){const float wet=mix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*(1-wet)+transition.getSample(c,n)*wet);}}
+2026-10-16T17:48:10.4534523Z       |                                                                                                                                    ^~~~~~~
+2026-10-16T17:48:13.6299283Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_core/juce_core_CompilationTime.cpp.o
+2026-10-16T17:48:13.6383438Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:13.6384303Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:48:13.6453982Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_utils/juce_audio_utils.cpp.o
+2026-10-16T17:48:13.6535651Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:22.2030756Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:48:22.2032212Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_processors/juce_audio_processors.cpp.o
+2026-10-16T17:48:22.2116731Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:22.2118535Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:48:28.1630143Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
+2026-10-16T17:48:28.1717764Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:28.1718621Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:48:28.1791930Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
+2026-10-16T17:48:28.1877932Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:28.1878757Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:48:28.1946447Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_gui_extra/juce_gui_extra.cpp.o
+2026-10-16T17:48:28.2029621Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:28.2030440Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:48:36.2755685Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_gui_basics/juce_gui_basics.cpp.o
+2026-10-16T17:48:36.2841259Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:36.2842314Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:48:38.0252397Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_graphics/juce_graphics.cpp.o
+2026-10-16T17:48:38.0337942Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:48:38.0338817Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:14.4341901Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
+2026-10-16T17:49:14.4430470Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:14.4431326Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:32.4761961Z [ 97%] Building C object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
+2026-10-16T17:49:32.4839803Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:32.4840894Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:33.0333854Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_events/juce_events.cpp.o
+2026-10-16T17:49:33.0420111Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:33.0421199Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:37.7239678Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_data_structures/juce_data_structures.cpp.o
+2026-10-16T17:49:37.7326161Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:37.7327893Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:41.4728245Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_basics/juce_audio_basics.cpp.o
+2026-10-16T17:49:41.4812461Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:41.4813763Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:50.5413441Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_formats/juce_audio_formats.cpp.o
+2026-10-16T17:49:50.5499368Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:50.5500259Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:51.1870059Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_devices/juce_audio_devices.cpp.o
+2026-10-16T17:49:51.1953695Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:51.1954583Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:49:58.6204658Z [100%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_dsp/juce_dsp.cpp.o
+2026-10-16T17:49:58.6289647Z <command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+2026-10-16T17:49:58.6290535Z <command-line>: note: this is the location of the previous definition
+2026-10-16T17:50:08.0921402Z [100%] Linking CXX executable ChimeraEQSnapshotFreezeTests_artefacts/Release/ChimeraEQSnapshotFreezeTests
+2026-10-16T17:50:09.0448306Z [100%] Built target ChimeraEQSnapshotFreezeTests
+2026-10-16T17:50:09.0554191Z ##[group]Run ctest --test-dir build-legacy -C Release -R "^(ChimeraEQLegacyStateTests|ChimeraEQLegacyFixtureIntegrity|ChimeraEQLegacyEvidenceTests|ChimeraEQNormalizationTests|ChimeraEQNormalizationEvidenceTests|ChimeraEQTunerParameterContractTests|ChimeraGraphicalEQEditingTests|ChimeraEQSnapshotFreezeTests)$" --output-on-failure --no-tests=error --output-junit legacy-results.xml
+2026-10-16T17:50:09.0557096Z [36;1mctest --test-dir build-legacy -C Release -R "^(ChimeraEQLegacyStateTests|ChimeraEQLegacyFixtureIntegrity|ChimeraEQLegacyEvidenceTests|ChimeraEQNormalizationTests|ChimeraEQNormalizationEvidenceTests|ChimeraEQTunerParameterContractTests|ChimeraGraphicalEQEditingTests|ChimeraEQSnapshotFreezeTests)$" --output-on-failure --no-tests=error --output-junit legacy-results.xml[0m
+2026-10-16T17:50:09.0628849Z shell: /usr/bin/bash -e {0}
+2026-10-16T17:50:09.0629100Z ##[endgroup]
+2026-10-16T17:50:09.4683558Z Internal ctest changing into directory: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-legacy
+2026-10-16T17:50:09.5386010Z Test project /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-legacy
+2026-10-16T17:50:09.5752216Z     Start 49: ChimeraGraphicalEQEditingTests
+2026-10-16T17:50:44.6627136Z 1/8 Test #49: ChimeraGraphicalEQEditingTests .........   Passed   35.08 sec
+2026-10-16T17:50:44.6628307Z     Start 51: ChimeraEQSnapshotFreezeTests
+2026-10-16T17:50:47.9475502Z 2/8 Test #51: ChimeraEQSnapshotFreezeTests ...........   Passed    3.28 sec
+2026-10-16T17:50:47.9476007Z     Start 63: ChimeraEQLegacyFixtureIntegrity
+2026-10-16T17:50:48.0755640Z 3/8 Test #63: ChimeraEQLegacyFixtureIntegrity ........   Passed    0.13 sec
+2026-10-16T17:50:48.0756235Z     Start 62: ChimeraEQLegacyStateTests
+2026-10-16T17:50:54.3464408Z 4/8 Test #62: ChimeraEQLegacyStateTests ..............   Passed    6.27 sec
+2026-10-16T17:50:54.3465239Z     Start 64: ChimeraEQLegacyEvidenceTests
+2026-10-16T17:50:54.4305673Z 5/8 Test #64: ChimeraEQLegacyEvidenceTests ...........   Passed    0.08 sec
+2026-10-16T17:50:54.4306587Z     Start 65: ChimeraEQNormalizationTests
+2026-10-16T17:53:11.6846753Z 6/8 Test #65: ChimeraEQNormalizationTests ............   Passed  137.25 sec
+2026-10-16T17:53:11.6847599Z     Start 66: ChimeraEQNormalizationEvidenceTests
+2026-10-16T17:53:13.4450412Z 7/8 Test #66: ChimeraEQNormalizationEvidenceTests ....   Passed    1.76 sec
+2026-10-16T17:53:13.4451262Z     Start 67: ChimeraEQTunerParameterContractTests
+2026-10-16T17:53:13.9444693Z 8/8 Test #67: ChimeraEQTunerParameterContractTests ...   Passed    0.50 sec
+2026-10-16T17:53:13.9448522Z 
+2026-10-16T17:53:13.9448741Z 100% tests passed, 0 tests failed out of 8
+2026-10-16T17:53:13.9449132Z 
+2026-10-16T17:53:13.9449249Z Total Test time (real) = 184.41 sec
+2026-10-16T17:53:13.9878361Z ##[group]Run cmake --build build-legacy --config Release --target ChimeraVST3EQStateHost ChimeraAmpMatrix_VST3 --parallel 2
+2026-10-16T17:53:13.9879289Z [36;1mcmake --build build-legacy --config Release --target ChimeraVST3EQStateHost ChimeraAmpMatrix_VST3 --parallel 2[0m
+2026-10-16T17:53:13.9950512Z shell: /usr/bin/bash -e {0}
+2026-10-16T17:53:13.9950765Z ##[endgroup]
+2026-10-16T17:53:14.1434428Z [  0%] Building CXX object CMakeFiles/ChimeraVST3EQStateHost.dir/Tests/VST3EQStateHost.cpp.o
+2026-10-16T17:53:14.1438327Z [100%] Building CXX object CMakeFiles/ChimeraVST3EQStateHost.dir/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/pluginterfaces/base/funknown.cpp.o
+2026-10-16T17:53:14.3009320Z [100%] Building CXX object CMakeFiles/ChimeraVST3EQStateHost.dir/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/pluginterfaces/base/coreiids.cpp.o
+2026-10-16T17:53:14.3806866Z [100%] Building CXX object CMakeFiles/ChimeraVST3EQStateHost.dir/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/public.sdk/source/vst/vstinitiids.cpp.o
+2026-10-16T17:53:16.4687870Z [100%] Linking CXX executable ChimeraVST3EQStateHost
+2026-10-16T17:53:16.5292624Z [100%] Built target ChimeraVST3EQStateHost
+2026-10-16T17:53:16.5985995Z [  0%] Built target ChimeraManual
+2026-10-16T17:53:16.5986950Z [  0%] Built target ChimeraIRs
+2026-10-16T17:53:16.6074954Z [  0%] Building CXX object CMakeFiles/juce_vst3_helper.dir/_deps/juce-src/modules/juce_audio_plugin_client/VST3/juce_VST3ManifestHelper.cpp.o
+2026-10-16T17:53:16.6366779Z [ 85%] Built target ChimeraArtwork
+2026-10-16T17:53:16.6843357Z [ 94%] Built target ChimeraAmpMatrix
+2026-10-16T17:53:21.8715612Z [ 97%] Linking CXX executable juce_vst3_helper
+2026-10-16T17:53:21.9337053Z [ 97%] Built target juce_vst3_helper
+2026-10-16T17:53:21.9436631Z [ 97%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_AAX.cpp.o
+2026-10-16T17:53:21.9439051Z [ 97%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_AAX_utils.cpp.o
+2026-10-16T17:53:21.9602613Z [ 97%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_ARA.cpp.o
+2026-10-16T17:53:21.9605934Z [ 97%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_LV2.cpp.o
+2026-10-16T17:53:21.9762226Z [ 97%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_Standalone.cpp.o
+2026-10-16T17:53:21.9768043Z [100%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_Unity.cpp.o
+2026-10-16T17:53:21.9918339Z [100%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_VST2.cpp.o
+2026-10-16T17:53:21.9920129Z [100%] Building CXX object CMakeFiles/ChimeraAmpMatrix_VST3.dir/_deps/juce-src/modules/juce_audio_plugin_client/juce_audio_plugin_client_VST3.cpp.o
+2026-10-16T17:53:39.1359377Z [100%] Linking CXX shared module "ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so"
+2026-10-16T17:53:40.0157147Z removing moduleinfo.json
+2026-10-16T17:53:40.0199726Z creating /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-legacy/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json
+2026-10-16T17:53:40.0866392Z [100%] Built target ChimeraAmpMatrix_VST3
+2026-10-16T17:53:40.0955286Z ##[group]Run mkdir -p build-legacy/released
+2026-10-16T17:53:40.0955652Z [36;1mmkdir -p build-legacy/released[0m
+2026-10-16T17:53:40.0956626Z [36;1mcurl --fail --location --retry 3 -o build-legacy/released/beta2.deb https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.1-beta.2/SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.deb[0m
+2026-10-16T17:53:40.0958267Z [36;1mecho '5f7b98efbae81715b40bc572ae6bbaf02ad40ea1f91163110a9ed6469823a7ab  build-legacy/released/beta2.deb' | sha256sum -c -[0m
+2026-10-16T17:53:40.0959004Z [36;1mdpkg-deb -x build-legacy/released/beta2.deb build-legacy/released/root[0m
+2026-10-16T17:53:40.0960517Z [36;1mpython3 Tools/eq_legacy_fixture.py capture --package build-legacy/released/beta2.deb --binary 'build-legacy/released/root/usr/lib/vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so' --host build-legacy/ChimeraVST3EQStateHost --output build-legacy/live-capture[0m
+2026-10-16T17:53:40.0962143Z [36;1mbuild-legacy/ChimeraEQLegacyStateTests_artefacts/Release/ChimeraEQLegacyStateTests "$PWD/build-legacy/live-capture" "$PWD/build-legacy/live-roundtrip"[0m
+2026-10-16T17:53:40.1033018Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-16T17:53:40.1033369Z ##[endgroup]
+2026-10-16T17:53:40.1194430Z   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+2026-10-16T17:53:40.1195273Z                                  Dload  Upload   Total   Spent    Left  Speed
+2026-10-16T17:53:40.1195978Z 
+2026-10-16T17:53:40.2156631Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-10-16T17:53:40.3621623Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-10-16T17:53:40.3622379Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-10-16T17:53:41.2576748Z 
+2026-10-16T17:53:42.2545468Z  16  203M   16 32.8M    0     0  28.8M      0  0:00:07  0:00:01  0:00:06 28.8M
+2026-10-16T17:53:43.2134142Z  29  203M   29 60.0M    0     0  28.1M      0  0:00:07  0:00:02  0:00:05 27.1M
+2026-10-16T17:53:44.2624338Z  51  203M   51  105M    0     0  34.1M      0  0:00:05  0:00:03  0:00:02 37.2M
+2026-10-16T17:53:45.2120751Z  63  203M   63  130M    0     0  31.3M      0  0:00:06  0:00:04  0:00:02 32.3M
+2026-10-16T17:53:46.2119350Z  85  203M   85  173M    0     0  34.1M      0  0:00:05  0:00:05 --:--:-- 35.6M
+2026-10-16T17:53:46.2278805Z  99  203M   99  201M    0     0  33.0M      0  0:00:06  0:00:06 --:--:-- 34.0M
+2026-10-16T17:53:46.2279545Z 100  203M  100  203M    0     0  33.3M      0  0:00:06  0:00:06 --:--:-- 36.0M
+2026-10-16T17:53:47.0587732Z build-legacy/released/beta2.deb: OK
+2026-10-16T17:53:49.4141195Z PASS public binary provenance and three actual serialization captures
+2026-10-16T17:53:54.9324426Z VALUES stored_bits=4967 canonical_bits=0
+2026-10-16T17:53:54.9325002Z STAGE delete/undo/redo
+2026-10-16T17:53:54.9325389Z STAGE deleted save/reopen
+2026-10-16T17:53:54.9325813Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9326234Z STAGE deleted automation
+2026-10-16T17:53:54.9326615Z RESTORE canonical_changes=1
+2026-10-16T17:53:54.9327004Z STAGE reuse fixed slots
+2026-10-16T17:53:54.9327591Z STAGE reused save/reopen
+2026-10-16T17:53:54.9327975Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9328358Z STAGE reused automation
+2026-10-16T17:53:54.9328726Z STAGE automated save/reopen
+2026-10-16T17:53:54.9329114Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9330106Z PASS real beta.2 fixture default.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+2026-10-16T17:53:54.9331197Z VALUES stored_bits=4967 canonical_bits=0
+2026-10-16T17:53:54.9331652Z STAGE delete/undo/redo
+2026-10-16T17:53:54.9332024Z STAGE deleted save/reopen
+2026-10-16T17:53:54.9332418Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9345190Z STAGE deleted automation
+2026-10-16T17:53:54.9345662Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9346071Z STAGE reuse fixed slots
+2026-10-16T17:53:54.9346925Z STAGE reused save/reopen
+2026-10-16T17:53:54.9347754Z RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9348588Z RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9349244Z RESTORE canonical_changes=2
+2026-10-16T17:53:54.9349654Z STAGE reused automation
+2026-10-16T17:53:54.9350028Z STAGE automated save/reopen
+2026-10-16T17:53:54.9350420Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9351398Z PASS real beta.2 fixture pattern.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+2026-10-16T17:53:54.9352742Z VALUES stored_bits=4967 canonical_bits=0
+2026-10-16T17:53:54.9353222Z VALUES stored_bits=4967 canonical_bits=0
+2026-10-16T17:53:54.9353689Z RESTORE canonical_changes=35
+2026-10-16T17:53:54.9354088Z STAGE delete/undo/redo
+2026-10-16T17:53:54.9354454Z STAGE deleted save/reopen
+2026-10-16T17:53:54.9355001Z RETAINED_CONSTRUCTOR id=delaymix saved=0.1999999881 raw=0.200000003
+2026-10-16T17:53:54.9355801Z RETAINED_CONSTRUCTOR id=toneEQ_b1_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9356604Z RETAINED_CONSTRUCTOR id=toneEQ_b2_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9357585Z RETAINED_CONSTRUCTOR id=toneEQ_b3_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9358378Z RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9359169Z RETAINED_CONSTRUCTOR id=toneEQ_b5_frequency saved=480 raw=480.0000305
+2026-10-16T17:53:54.9359955Z RETAINED_CONSTRUCTOR id=toneEQ_b5_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9360749Z RETAINED_CONSTRUCTOR id=toneEQ_b6_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9361538Z RETAINED_CONSTRUCTOR id=toneEQ_b7_frequency saved=1000 raw=999.999939
+2026-10-16T17:53:54.9362340Z RETAINED_CONSTRUCTOR id=toneEQ_b7_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9363143Z RETAINED_CONSTRUCTOR id=toneEQ_b8_frequency saved=2000 raw=1999.999878
+2026-10-16T17:53:54.9363943Z RETAINED_CONSTRUCTOR id=toneEQ_b8_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9364730Z RETAINED_CONSTRUCTOR id=toneEQ_b9_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9365521Z RETAINED_CONSTRUCTOR id=toneEQ_b10_frequency saved=6000 raw=6000.000488
+2026-10-16T17:53:54.9366359Z RETAINED_CONSTRUCTOR id=toneEQ_b10_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9367166Z RETAINED_CONSTRUCTOR id=toneEQ_b11_frequency saved=10000 raw=10000.00098
+2026-10-16T17:53:54.9368155Z RETAINED_CONSTRUCTOR id=toneEQ_b11_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9368961Z RETAINED_CONSTRUCTOR id=toneEQ_b12_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9369749Z RETAINED_CONSTRUCTOR id=finalEQ_b1_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9370537Z RETAINED_CONSTRUCTOR id=finalEQ_b2_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9371352Z RETAINED_CONSTRUCTOR id=finalEQ_b3_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9372150Z RETAINED_CONSTRUCTOR id=finalEQ_b4_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9372950Z RETAINED_CONSTRUCTOR id=finalEQ_b5_frequency saved=480 raw=480.0000305
+2026-10-16T17:53:54.9373749Z RETAINED_CONSTRUCTOR id=finalEQ_b5_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9374548Z RETAINED_CONSTRUCTOR id=finalEQ_b6_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9375355Z RETAINED_CONSTRUCTOR id=finalEQ_b7_frequency saved=1000 raw=999.999939
+2026-10-16T17:53:54.9376186Z RETAINED_CONSTRUCTOR id=finalEQ_b7_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9376979Z RETAINED_CONSTRUCTOR id=finalEQ_b8_frequency saved=2000 raw=1999.999878
+2026-10-16T17:53:54.9377966Z RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9378777Z RETAINED_CONSTRUCTOR id=finalEQ_b9_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9379584Z RETAINED_CONSTRUCTOR id=finalEQ_b10_frequency saved=6000 raw=6000.000488
+2026-10-16T17:53:54.9380615Z RETAINED_CONSTRUCTOR id=finalEQ_b10_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9381461Z RETAINED_CONSTRUCTOR id=finalEQ_b11_frequency saved=10000 raw=10000.00098
+2026-10-16T17:53:54.9382293Z RETAINED_CONSTRUCTOR id=finalEQ_b11_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9383106Z RETAINED_CONSTRUCTOR id=finalEQ_b12_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:54.9383753Z RESTORE canonical_changes=35
+2026-10-16T17:53:54.9384167Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9384566Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9384960Z STAGE deleted automation
+2026-10-16T17:53:54.9385551Z RESTORE canonical_changes=0
+2026-10-16T17:53:54.9385932Z STAGE reuse fixed slots
+2026-10-16T17:53:54.9386302Z STAGE reused save/reopen
+2026-10-16T17:53:54.9386830Z RETAINED_CONSTRUCTOR id=delaymix saved=0.1999999881 raw=0.200000003
+2026-10-16T17:53:55.7674434Z RETAINED_CONSTRUCTOR id=toneEQ_b1_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7675346Z RETAINED_CONSTRUCTOR id=toneEQ_b2_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7676160Z RETAINED_CONSTRUCTOR id=toneEQ_b3_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7676912Z RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7677943Z RETAINED_CONSTRUCTOR id=toneEQ_b5_frequency saved=480 raw=480.0000305
+2026-10-16T17:53:55.7678714Z RETAINED_CONSTRUCTOR id=toneEQ_b5_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7679472Z RETAINED_CONSTRUCTOR id=toneEQ_b6_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7680229Z RETAINED_CONSTRUCTOR id=toneEQ_b7_frequency saved=1000 raw=999.999939
+2026-10-16T17:53:55.7681010Z RETAINED_CONSTRUCTOR id=toneEQ_b7_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7681781Z RETAINED_CONSTRUCTOR id=toneEQ_b8_frequency saved=2000 raw=1999.999878
+2026-10-16T17:53:55.7682553Z RETAINED_CONSTRUCTOR id=toneEQ_b8_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7683316Z RETAINED_CONSTRUCTOR id=toneEQ_b9_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7684071Z RETAINED_CONSTRUCTOR id=toneEQ_b10_frequency saved=6000 raw=6000.000488
+2026-10-16T17:53:55.7684857Z RETAINED_CONSTRUCTOR id=toneEQ_b10_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7685665Z RETAINED_CONSTRUCTOR id=toneEQ_b11_frequency saved=10000 raw=10000.00098
+2026-10-16T17:53:55.7686448Z RETAINED_CONSTRUCTOR id=toneEQ_b11_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7687205Z RETAINED_CONSTRUCTOR id=toneEQ_b12_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7688151Z RETAINED_CONSTRUCTOR id=finalEQ_b1_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7688930Z RETAINED_CONSTRUCTOR id=finalEQ_b2_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7689699Z RETAINED_CONSTRUCTOR id=finalEQ_b3_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7690472Z RETAINED_CONSTRUCTOR id=finalEQ_b4_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7691246Z RETAINED_CONSTRUCTOR id=finalEQ_b5_frequency saved=480 raw=480.0000305
+2026-10-16T17:53:55.7692041Z RETAINED_CONSTRUCTOR id=finalEQ_b5_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7692829Z RETAINED_CONSTRUCTOR id=finalEQ_b6_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7693622Z RETAINED_CONSTRUCTOR id=finalEQ_b7_frequency saved=1000 raw=999.999939
+2026-10-16T17:53:55.7694392Z RETAINED_CONSTRUCTOR id=finalEQ_b7_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7695213Z RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7696018Z RETAINED_CONSTRUCTOR id=finalEQ_b9_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7696850Z RETAINED_CONSTRUCTOR id=finalEQ_b10_frequency saved=6000 raw=6000.000488
+2026-10-16T17:53:55.7697904Z RETAINED_CONSTRUCTOR id=finalEQ_b10_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7698752Z RETAINED_CONSTRUCTOR id=finalEQ_b11_frequency saved=10000 raw=10000.00098
+2026-10-16T17:53:55.7700016Z RETAINED_CONSTRUCTOR id=finalEQ_b11_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7700841Z RETAINED_CONSTRUCTOR id=finalEQ_b12_q saved=0.7070000768 raw=0.7070000172
+2026-10-16T17:53:55.7701505Z RESTORE canonical_changes=34
+2026-10-16T17:53:55.7701933Z STAGE reused automation
+2026-10-16T17:53:55.7702322Z STAGE automated save/reopen
+2026-10-16T17:53:55.7702739Z RESTORE canonical_changes=0
+2026-10-16T17:53:55.7703136Z RESTORE canonical_changes=0
+2026-10-16T17:53:55.7703543Z RESTORE canonical_changes=34
+2026-10-16T17:53:55.7704584Z PASS real beta.2 fixture ab-seeded.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / distinct A-B
+2026-10-16T17:53:55.7706240Z PASS legacy state contracts; value_failures=0; actual DAW modes and DAW projects NOT_ASSESSED
+2026-10-16T17:53:55.7770146Z ##[group]Run build-legacy/ChimeraVST3EQStateHost "$PWD/build-legacy/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so" build-legacy/abi-replay replay "$PWD/build-legacy/live-roundtrip/ab-seeded/reused.chimera" "$PWD/build-legacy/live-capture/lanes.tsv"
+2026-10-16T17:53:55.7772435Z [36;1mbuild-legacy/ChimeraVST3EQStateHost "$PWD/build-legacy/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so" build-legacy/abi-replay replay "$PWD/build-legacy/live-roundtrip/ab-seeded/reused.chimera" "$PWD/build-legacy/live-capture/lanes.tsv"[0m
+2026-10-16T17:53:55.7774452Z [36;1mpython3 Tools/eq_legacy_fixture.py compare --expected build-legacy/live-capture --actual build-legacy/abi-replay --before build-legacy/live-roundtrip/ab-seeded/reused.chimera --automated build-legacy/live-roundtrip/ab-seeded/automated.chimera[0m
+2026-10-16T17:53:55.7775581Z [36;1mfor phase in deleted reused automated; do[0m
+2026-10-16T17:53:55.7776695Z [36;1m  build-legacy/ChimeraVST3EQStateHost "$PWD/build-legacy/released/root/usr/lib/vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so" "build-legacy/old-reopened-$phase" default "$PWD/build-legacy/live-roundtrip/ab-seeded/$phase.chimera"[0m
+2026-10-16T17:53:55.7778614Z [36;1m  python3 Tools/eq_legacy_fixture.py roundtrip --before "build-legacy/live-roundtrip/ab-seeded/$phase.chimera" --after "build-legacy/old-reopened-$phase/component.bin"[0m
+2026-10-16T17:53:55.7779347Z [36;1mdone[0m
+2026-10-16T17:53:55.7850016Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-16T17:53:55.7850370Z ##[endgroup]
+2026-10-16T17:53:56.2694662Z PASS real VST3 state capture, EQ parameters=122 profile=replay
+2026-10-16T17:53:56.4975012Z PASS VST3 numeric contracts and EQ titles; non-EQ display title differences=0 (reported separately)
+2026-10-16T17:53:56.4976282Z PASS actual beta.2 VST3 numeric lane IDs replayed into candidate reused slots; other parameters and inactive B unchanged
+2026-10-16T17:53:56.9630942Z PASS real VST3 state capture, EQ parameters=122 profile=default
+2026-10-16T17:53:57.1282314Z PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+2026-10-16T17:53:57.5891302Z PASS real VST3 state capture, EQ parameters=122 profile=default
+2026-10-16T17:53:57.7559496Z PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+2026-10-16T17:53:58.2189719Z PASS real VST3 state capture, EQ parameters=122 profile=default
+2026-10-16T17:53:58.3800420Z PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+2026-10-16T17:53:58.3904793Z ##[group]Run python3 Tools/eq_normalization_render.py --host build-legacy/ChimeraVST3EQStateHost --released 'build-legacy/released/root/usr/lib/vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so' --candidate 'build-legacy/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so' --states build-legacy/eq-legacy --lanes Tests/fixtures/eq-beta2/lanes.tsv --output build-legacy/normalization-render
+2026-10-16T17:53:58.3908552Z [36;1mpython3 Tools/eq_normalization_render.py --host build-legacy/ChimeraVST3EQStateHost --released 'build-legacy/released/root/usr/lib/vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so' --candidate 'build-legacy/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so' --states build-legacy/eq-legacy --lanes Tests/fixtures/eq-beta2/lanes.tsv --output build-legacy/normalization-render[0m
+2026-10-16T17:53:58.3981522Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-16T17:53:58.3981866Z ##[endgroup]
+2026-10-16T17:54:16.4292123Z {
+2026-10-16T17:54:16.4292533Z   "schema": 1,
+2026-10-16T17:54:16.4292901Z   "status": "PASS",
+2026-10-16T17:54:16.4293178Z   "actual_daw": "NOT_ASSESSED",
+2026-10-16T17:54:16.4293494Z   "release_approved": false,
+2026-10-16T17:54:16.4294006Z   "scope": "Classic isolated EQ via real VST3 process, 48 kHz/256 stereo; fixed midpoint queues",
+2026-10-16T17:54:16.4294744Z   "host_sha256": "ef161dbfd660b984554ee00be8fe5a4ceba6e8dfd62c6acd76676a24c467d586",
+2026-10-16T17:54:16.4295459Z   "released_sha256": "a7be4d98614897b9dd98254f39ba919f5520fdde4649cc73e98a56d12feef486",
+2026-10-16T17:54:16.4296182Z   "candidate_sha256": "e360757f2dd1150f573bc7c165b18a24a96d68e02c9190f921b57ff9dc8a7e3d",
+2026-10-16T17:54:16.4296734Z   "active_eq_automation_effect": "PASS"
+2026-10-16T17:54:16.4297043Z }
+2026-10-16T17:54:16.4297712Z exact comparisons passed: 15/15; actual DAW NOT_ASSESSED
+2026-10-16T17:54:16.4451707Z ##[group]Run actions/upload-artifact@v6
+2026-10-16T17:54:16.4452006Z with:
+2026-10-16T17:54:16.4452321Z   name: EQ-legacy-state-Linux-8b12476623afa8135af7ff8b7ad1d5e428207fff
+2026-10-16T17:54:16.4453827Z   path: build-legacy/render-tool-regression.log
+build-legacy/Testing/Temporary/LastTest.log
+build-legacy/legacy-results.xml
+build-legacy/chimera-build-version.json
+build-legacy/eq-legacy/**
+build-legacy/live-capture/**
+build-legacy/live-roundtrip/**
+build-legacy/abi-replay/**
+build-legacy/old-reopened-*/**
+build-legacy/normalization-render/**
+
+2026-10-16T17:54:16.4455210Z   if-no-files-found: error
+2026-10-16T17:54:16.4455448Z   compression-level: 6
+2026-10-16T17:54:16.4455663Z   overwrite: false
+2026-10-16T17:54:16.4455879Z   include-hidden-files: false
+2026-10-16T17:54:16.4456115Z ##[endgroup]
+2026-10-16T17:54:16.6898293Z With the provided path, there will be 217 files uploaded
+2026-10-16T17:54:16.6899272Z Artifact name is valid!
+2026-10-16T17:54:16.6899797Z Root directory input is valid!
+2026-10-16T17:54:17.0647646Z Beginning upload of artifact content to blob storage
+2026-10-16T17:54:19.0174026Z Uploaded bytes 8388608
+2026-10-16T17:54:19.1128228Z Uploaded bytes 8762324
+2026-10-16T17:54:19.1932193Z Finished uploading artifact content to blob storage!
+2026-10-16T17:54:19.1935314Z SHA256 digest of uploaded artifact zip is de06b90b3a843ac422824ddb98da496a8955135cf8e1b63302ce68e00706b52a
+2026-10-16T17:54:19.1937988Z Finalizing artifact upload
+2026-10-16T17:54:19.6632270Z Artifact EQ-legacy-state-Linux-8b12476623afa8135af7ff8b7ad1d5e428207fff.zip successfully finalized. Artifact ID 12063643718
+2026-10-16T17:54:19.6634386Z Artifact EQ-legacy-state-Linux-8b12476623afa8135af7ff8b7ad1d5e428207fff has been successfully uploaded! Final size is 8762324 bytes. Artifact ID is 12063643718
+2026-10-16T17:54:19.6639430Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845177/artifacts/12063643718
+2026-10-16T17:54:19.6891695Z Post job cleanup.
+2026-10-16T17:54:19.7814924Z [command]/usr/bin/git version
+2026-10-16T17:54:19.7866123Z git version 2.55.0
+2026-10-16T17:54:19.7905507Z Temporarily overriding HOME='/home/runner/work/_temp/ca98cd31-e2f2-4f7c-8615-432e570f99bb' before making global git config changes
+2026-10-16T17:54:19.7906991Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-16T17:54:19.7915790Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-16T17:54:19.7958261Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-16T17:54:19.8010285Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-16T17:54:19.8346881Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-16T17:54:19.8374818Z http.https://github.com/.extraheader
+2026-10-16T17:54:19.8397549Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-16T17:54:19.8430151Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-16T17:54:19.8737876Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-16T17:54:19.8808798Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-16T17:54:19.9311825Z Cleaning up orphan processes

@@ -1,0 +1,140 @@
+4): warning C4244:         with [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.1256464Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244:         [ [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.1575877Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244:             _Ty=int [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.1911213Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244:         ] [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.2236064Z   (compiling source file '../Tests/EQSnapshotFreezeTests.cpp')
+2026-10-16T17:48:06.2552182Z       C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24):
+2026-10-16T17:48:06.2886489Z       the template instantiation context (the oldest one first) is
+2026-10-16T17:48:06.3304038Z           D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\Source\PolyPitch.h(32,14):
+2026-10-16T17:48:06.3739567Z           see reference to function template instantiation 'void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)' being compiled
+2026-10-16T17:48:06.4057445Z           with
+2026-10-16T17:48:06.4381427Z           [
+2026-10-16T17:48:06.4718074Z               _Ty=float,
+2026-10-16T17:48:06.5049506Z               _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+2026-10-16T17:48:06.5366764Z           ]
+2026-10-16T17:48:06.5686215Z   
+2026-10-16T17:48:06.6006987Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244: '=': conversion from 'const _Ty' to 'unsigned char', possible loss of data [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.6342923Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244:         with [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.6679100Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244:         [ [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.7015872Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244:             _Ty=int [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.7334920Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24): warning C4244:         ] [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:06.7672887Z   (compiling source file '../Tests/EQSnapshotFreezeTests.cpp')
+2026-10-16T17:48:06.8008381Z       C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5604,24):
+2026-10-16T17:48:06.8344031Z       the template instantiation context (the oldest one first) is
+2026-10-16T17:48:06.8739214Z           D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\Source\PolyPitch.h(104,144):
+2026-10-16T17:48:06.9103430Z           see reference to function template instantiation 'void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)' being compiled
+2026-10-16T17:48:06.9440805Z           with
+2026-10-16T17:48:06.9765130Z           [
+2026-10-16T17:48:07.0084251Z               _Ty=unsigned char,
+2026-10-16T17:48:07.0419054Z               _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned char>>>
+2026-10-16T17:48:07.0756910Z           ]
+2026-10-16T17:48:07.1073472Z   
+2026-10-16T17:48:08.0458616Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5547,37): warning C4244: 'initializing': conversion from 'const _Ty' to 'unsigned char', possible loss of data [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:08.0797263Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5547,37): warning C4244:         with [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:08.1131577Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5547,37): warning C4244:         [ [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:08.1466400Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5547,37): warning C4244:             _Ty=int [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:08.1795799Z C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5547,37): warning C4244:         ] [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:08.2129429Z   (compiling source file '../Tests/EQSnapshotFreezeTests.cpp')
+2026-10-16T17:48:08.2446046Z       C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5547,37):
+2026-10-16T17:48:08.2769315Z       the template instantiation context (the oldest one first) is
+2026-10-16T17:48:08.3101010Z           D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\Source\PolyPitch.h(104,144):
+2026-10-16T17:48:08.3419948Z           see reference to function template instantiation 'void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)' being compiled
+2026-10-16T17:48:08.3745421Z           with
+2026-10-16T17:48:08.4063905Z           [
+2026-10-16T17:48:08.4382781Z               _Ty=unsigned char,
+2026-10-16T17:48:08.4699546Z               _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned char>>>
+2026-10-16T17:48:08.5018408Z           ]
+2026-10-16T17:48:08.5501624Z           C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\include\xutility(5593,22):
+2026-10-16T17:48:08.5837438Z           see reference to function template instantiation 'void std::_Fill_memset<unsigned char*,_Ty>(_CtgIt,const _Ty,const size_t)' being compiled
+2026-10-16T17:48:08.6172755Z           with
+2026-10-16T17:48:08.6509841Z           [
+2026-10-16T17:48:08.6828795Z               _Ty=int,
+2026-10-16T17:48:08.7153282Z               _CtgIt=unsigned char *
+2026-10-16T17:48:08.7484766Z           ]
+2026-10-16T17:48:08.7818827Z   
+2026-10-16T17:48:10.1235644Z   juce_graphics.cpp
+2026-10-16T17:48:11.7873202Z D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\_deps\juce-src\modules\juce_gui_basics\native\juce_VBlank_windows.cpp(1,1): warning C4335: Mac file format detected: please convert the source file to either DOS or UNIX format [D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests.vcxproj]
+2026-10-16T17:48:11.8528524Z   (compiling source file '_deps/juce-src/modules/juce_gui_basics/juce_gui_basics.cpp')
+2026-10-16T17:48:11.9147886Z   
+2026-10-16T17:48:13.2982867Z   juce_graphics_Harfbuzz.cpp
+2026-10-16T17:48:14.6246781Z   juce_events.cpp
+2026-10-16T17:48:20.0149150Z   juce_data_structures.cpp
+2026-10-16T17:48:24.0758313Z   juce_audio_basics.cpp
+2026-10-16T17:48:43.8726124Z   juce_audio_formats.cpp
+2026-10-16T17:49:03.5505531Z   juce_audio_devices.cpp
+2026-10-16T17:49:13.1065775Z   juce_dsp.cpp
+2026-10-16T17:49:23.7376714Z   juce_graphics_Sheenbidi.c
+2026-10-16T17:49:25.3840291Z   ChimeraEQSnapshotFreezeTests.vcxproj -> D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build-legacy\ChimeraEQSnapshotFreezeTests_artefacts\Release\ChimeraEQSnapshotFreezeTests.exe
+2026-10-16T17:49:25.5270735Z ##[group]Run ctest --test-dir build-legacy -C Release -R "^(ChimeraEQLegacyStateTests|ChimeraEQLegacyFixtureIntegrity|ChimeraEQLegacyEvidenceTests|ChimeraEQNormalizationTests|ChimeraEQNormalizationEvidenceTests|ChimeraEQTunerParameterContractTests|ChimeraGraphicalEQEditingTests|ChimeraEQSnapshotFreezeTests)$" --output-on-failure --no-tests=error --output-junit legacy-results.xml
+2026-10-16T17:49:25.5273048Z [36;1mctest --test-dir build-legacy -C Release -R "^(ChimeraEQLegacyStateTests|ChimeraEQLegacyFixtureIntegrity|ChimeraEQLegacyEvidenceTests|ChimeraEQNormalizationTests|ChimeraEQNormalizationEvidenceTests|ChimeraEQTunerParameterContractTests|ChimeraGraphicalEQEditingTests|ChimeraEQSnapshotFreezeTests)$" --output-on-failure --no-tests=error --output-junit legacy-results.xml[0m
+2026-10-16T17:49:25.5334741Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-16T17:49:25.5335028Z ##[endgroup]
+2026-10-16T17:49:26.6784099Z Test project D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-legacy
+2026-10-16T17:49:26.7479861Z     Start 54: ChimeraGraphicalEQEditingTests
+2026-10-16T17:49:51.5899737Z 1/8 Test #54: ChimeraGraphicalEQEditingTests .........   Passed   24.84 sec
+2026-10-16T17:49:51.5904125Z     Start 56: ChimeraEQSnapshotFreezeTests
+2026-10-16T17:49:54.9344459Z 2/8 Test #56: ChimeraEQSnapshotFreezeTests ...........   Passed    3.34 sec
+2026-10-16T17:49:54.9348571Z     Start 68: ChimeraEQLegacyFixtureIntegrity
+2026-10-16T17:49:55.2840116Z 3/8 Test #68: ChimeraEQLegacyFixtureIntegrity ........   Passed    0.35 sec
+2026-10-16T17:49:55.2842794Z     Start 67: ChimeraEQLegacyStateTests
+2026-10-16T17:50:00.9082159Z 4/8 Test #67: ChimeraEQLegacyStateTests ..............   Passed    5.62 sec
+2026-10-16T17:50:00.9085638Z     Start 69: ChimeraEQLegacyEvidenceTests
+2026-10-16T17:50:01.2407984Z 5/8 Test #69: ChimeraEQLegacyEvidenceTests ...........   Passed    0.33 sec
+2026-10-16T17:50:01.2411231Z     Start 70: ChimeraEQNormalizationTests
+2026-10-16T17:51:40.7050052Z 6/8 Test #70: ChimeraEQNormalizationTests ............   Passed   99.46 sec
+2026-10-16T17:51:40.7053394Z     Start 71: ChimeraEQNormalizationEvidenceTests
+2026-10-16T17:51:43.0744827Z 7/8 Test #71: ChimeraEQNormalizationEvidenceTests ....   Passed    2.37 sec
+2026-10-16T17:51:43.0748050Z     Start 72: ChimeraEQTunerParameterContractTests
+2026-10-16T17:51:43.4066012Z 8/8 Test #72: ChimeraEQTunerParameterContractTests ...   Passed    0.33 sec
+2026-10-16T17:51:43.4073212Z 
+2026-10-16T17:51:43.4073327Z 100% tests passed out of 8
+2026-10-16T17:51:43.4073615Z 
+2026-10-16T17:51:43.4073787Z Total Test time (real) = 136.72 sec
+2026-10-16T17:51:43.6423993Z ##[group]Run actions/upload-artifact@v6
+2026-10-16T17:51:43.6424357Z with:
+2026-10-16T17:51:43.6424676Z   name: EQ-legacy-state-Windows-8b12476623afa8135af7ff8b7ad1d5e428207fff
+2026-10-16T17:51:43.6426014Z   path: build-legacy/render-tool-regression.log
+build-legacy/Testing/Temporary/LastTest.log
+build-legacy/legacy-results.xml
+build-legacy/chimera-build-version.json
+build-legacy/eq-legacy/**
+build-legacy/live-capture/**
+build-legacy/live-roundtrip/**
+build-legacy/abi-replay/**
+build-legacy/old-reopened-*/**
+build-legacy/normalization-render/**
+
+2026-10-16T17:51:43.6427111Z   if-no-files-found: error
+2026-10-16T17:51:43.6427353Z   compression-level: 6
+2026-10-16T17:51:43.6427575Z   overwrite: false
+2026-10-16T17:51:43.6427800Z   include-hidden-files: false
+2026-10-16T17:51:43.6428048Z ##[endgroup]
+2026-10-16T17:51:43.8557679Z With the provided path, there will be 19 files uploaded
+2026-10-16T17:51:43.8562223Z Artifact name is valid!
+2026-10-16T17:51:43.8563531Z Root directory input is valid!
+2026-10-16T17:51:44.1864789Z Beginning upload of artifact content to blob storage
+2026-10-16T17:51:44.9009538Z Uploaded bytes 689302
+2026-10-16T17:51:44.9617662Z Finished uploading artifact content to blob storage!
+2026-10-16T17:51:44.9618548Z SHA256 digest of uploaded artifact zip is c3cc349a20feec2dcd0347a1e7a85e538be92e26492d1ec3511431748af55f46
+2026-10-16T17:51:44.9620417Z Finalizing artifact upload
+2026-10-16T17:51:45.3321737Z Artifact EQ-legacy-state-Windows-8b12476623afa8135af7ff8b7ad1d5e428207fff.zip successfully finalized. Artifact ID 12062874236
+2026-10-16T17:51:45.3323080Z Artifact EQ-legacy-state-Windows-8b12476623afa8135af7ff8b7ad1d5e428207fff has been successfully uploaded! Final size is 689302 bytes. Artifact ID is 12062874236
+2026-10-16T17:51:45.3331800Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845177/artifacts/12062874236
+2026-10-16T17:51:45.3682557Z Post job cleanup.
+2026-10-16T17:51:45.5498710Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-16T17:51:45.5905690Z git version 2.56.0.windows.2
+2026-10-16T17:51:45.5968792Z Temporarily overriding HOME='D:\a\_temp\85057438-fa99-46ab-8198-70c5a7d61618' before making global git config changes
+2026-10-16T17:51:45.5969828Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-16T17:51:45.5977915Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix
+2026-10-16T17:51:45.6368137Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-16T17:51:45.6721164Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-16T17:51:46.2183258Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-16T17:51:46.2494300Z http.https://github.com/.extraheader
+2026-10-16T17:51:46.2537368Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-10-16T17:51:46.2919371Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-16T17:51:46.8305159Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-16T17:51:46.8634113Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-16T17:51:47.3847553Z Cleaning up orphan processes
+2026-10-16T17:51:47.4044409Z Terminate orphan process: pid (8920) (vctip)
+2026-10-16T17:51:47.4083106Z Terminate orphan process: pid (7764) (MSBuild)
+2026-10-16T17:51:47.4143410Z Terminate orphan process: pid (7832) (conhost)

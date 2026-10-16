@@ -1,0 +1,24 @@
+{
+  "source_run": 38906942295,
+  "artifact_id": 12049841619,
+  "scope": "recompare existing captured real VST3 A/A data; no new render or remaining 14 comparisons inferred",
+  "before": {
+    "status": "ERROR_REPRODUCED",
+    "type": "TypeError",
+    "message": "'list' object is not callable"
+  },
+  "after": [
+    {
+      "comparison": "deleted candidate A/A",
+      "status": "PASS",
+      "audio_sha256": "72fc65751fa922fdd56b0f135c65860d125792dc01b0808177858c44bf4784fd",
+      "samples": 32768,
+      "exact_audio_bits": true,
+      "normalized_values_exact": true,
+      "latency_exact": true,
+      "serialized_state_exact": true
+    }
+  ],
+  "actual_daw": "NOT_ASSESSED",
+  "release_approved": false
+}

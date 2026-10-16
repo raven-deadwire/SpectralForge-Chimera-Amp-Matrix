@@ -1,0 +1,28 @@
+2026-10-16T14:13:09.8008020Z     Test #26: ChimeraPostNativeTests ..................   Passed    1.28 sec
+2026-10-16T14:13:11.0341040Z     Test #26: ChimeraPostNativeTests ..................   Passed    1.23 sec
+2026-10-16T14:13:12.5272980Z 1/8 Test #26: ChimeraPostNativeTests ..................   Passed    1.49 sec
+2026-10-16T14:13:15.4289790Z     Test #54: ChimeraPrecisionTunerTests ..............   Passed    2.89 sec
+2026-10-16T14:13:18.4368980Z     Test #54: ChimeraPrecisionTunerTests ..............   Passed    3.02 sec
+2026-10-16T14:13:21.2712730Z 2/8 Test #54: ChimeraPrecisionTunerTests ..............   Passed    2.83 sec
+2026-10-16T14:14:10.2632590Z     Test #55: ChimeraPrecisionTunerIntegrationTests ...   Passed   48.95 sec
+2026-10-16T14:14:19.3187990Z 55: ROUTE FAIL rate=44100 block=256 hz=82.406889 acquire=296.006042 settle=237.959167 error=5.1441265282e-05
+2026-10-16T14:14:59.2802110Z 55: FAIL Native acquisition/settle/accuracy gate failed; all route rows retained
+2026-10-16T14:14:59.2804230Z     Test #55: ChimeraPrecisionTunerIntegrationTests ...***Failed   49.00 sec
+2026-10-16T14:14:59.2903920Z     Test #56: ChimeraTunerTimingTests .................   Passed    0.01 sec
+2026-10-16T14:14:59.2932480Z     Test #56: ChimeraTunerTimingTests .................   Passed    0.00 sec
+2026-10-16T14:14:59.2964000Z 4/8 Test #56: ChimeraTunerTimingTests .................   Passed    0.00 sec
+2026-10-16T14:14:59.7606220Z     Test #57: ChimeraTunerWorkerTimingTests ...........   Passed    0.46 sec
+2026-10-16T14:15:00.1536520Z     Test #57: ChimeraTunerWorkerTimingTests ...........   Passed    0.39 sec
+2026-10-16T14:15:00.4876200Z 5/8 Test #57: ChimeraTunerWorkerTimingTests ...........   Passed    0.34 sec
+2026-10-16T14:15:00.7492900Z     Test #58: ChimeraTunerGenerationReenableTests .....   Passed    0.26 sec
+2026-10-16T14:15:01.0075720Z     Test #58: ChimeraTunerGenerationReenableTests .....   Passed    0.25 sec
+2026-10-16T14:15:01.1853130Z 6/8 Test #58: ChimeraTunerGenerationReenableTests .....   Passed    0.18 sec
+2026-10-16T14:15:01.7652370Z     Test #59: ChimeraTunerGenerationResumeTests .......   Passed    0.58 sec
+2026-10-16T14:15:02.3293040Z     Test #59: ChimeraTunerGenerationResumeTests .......   Passed    0.57 sec
+2026-10-16T14:15:02.8952720Z 7/8 Test #59: ChimeraTunerGenerationResumeTests .......   Passed    0.57 sec
+2026-10-16T14:15:03.4018190Z     Test #60: ChimeraTunerGenerationColdQueueTests ....   Passed    0.51 sec
+2026-10-16T14:15:03.9006720Z     Test #60: ChimeraTunerGenerationColdQueueTests ....   Passed    0.50 sec
+2026-10-16T14:15:04.4208030Z 8/8 Test #60: ChimeraTunerGenerationColdQueueTests ....   Passed    0.52 sec
+2026-10-16T14:15:04.4215750Z The following tests passed:
+2026-10-16T14:15:04.4218930Z 88% tests passed, 1 tests failed out of 8
+2026-10-16T14:15:04.4220010Z The following tests FAILED:

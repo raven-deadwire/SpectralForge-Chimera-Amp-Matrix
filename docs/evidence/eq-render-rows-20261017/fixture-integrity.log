@@ -1,0 +1,4 @@
+$ python3 Tools/eq_legacy_fixture.py verify --output Tests/fixtures/eq-beta2
+PASS fixture digests, released parameter count and missing occupancy
+
+exit_code=0

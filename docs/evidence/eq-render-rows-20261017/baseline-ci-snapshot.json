@@ -1,0 +1,1478 @@
+{
+  "pr90_source": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
+  "eq_run_id": 38906942295,
+  "eq_artifacts": {
+    "artifacts": [
+      {
+        "id": 12051606030,
+        "name": "EQ-legacy-state-macOS-428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
+        "size_in_bytes": 4690,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12051606030",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12051606030/zip",
+        "expired": false,
+        "created_at": "2026-10-16T14:09:19Z",
+        "expires_at": "2027-01-14T13:19:15Z",
+        "updated_at": "2026-10-16T14:09:19Z",
+        "digest": "sha256:303e776170d45b7113b2713be68ff64df0f07eb195fe9458a221867838f2e443",
+        "workflow_run": {
+          "id": 38906942295,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "integration/eq-tuner-oct23-20261016",
+          "head_sha": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9"
+        }
+      },
+      {
+        "id": 12049862209,
+        "name": "EQ-legacy-state-Windows-428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
+        "size_in_bytes": 688834,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12049862209",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12049862209/zip",
+        "expired": false,
+        "created_at": "2026-10-16T13:42:16Z",
+        "expires_at": "2027-01-14T13:19:15Z",
+        "updated_at": "2026-10-16T13:42:16Z",
+        "digest": "sha256:7ccc5180a4804b293f80d446781c3baf1e28401faec4fa5739d55cf6f6f8d9f5",
+        "workflow_run": {
+          "id": 38906942295,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "integration/eq-tuner-oct23-20261016",
+          "head_sha": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9"
+        }
+      },
+      {
+        "id": 12049841619,
+        "name": "EQ-legacy-state-Linux-428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
+        "size_in_bytes": 3182981,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12049841619",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12049841619/zip",
+        "expired": false,
+        "created_at": "2026-10-16T13:40:18Z",
+        "expires_at": "2027-01-14T13:19:15Z",
+        "updated_at": "2026-10-16T13:40:18Z",
+        "digest": "sha256:c1f5ca338707897d171e9670811e1271488fdeeb5c456b3f7743fe973fa7ba16",
+        "workflow_run": {
+          "id": 38906942295,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "integration/eq-tuner-oct23-20261016",
+          "head_sha": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9"
+        }
+      }
+    ]
+  },
+  "other_runs": [
+    {
+      "jobs": [
+        {
+          "id": 116992764133,
+          "name": "native-navigation (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941615,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 3
+            },
+            {
+              "name": "Run cmake -S . -B build-path -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Run ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Collect paired tuner callback observations (not a performance pass)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 116992764373,
+          "name": "precision-tuner-worker (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941615,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraTunerTimingTests ChimeraPostNativeTests --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Retain macOS normal-QoS reference (diagnostic, unchanged gates)",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Run ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraTunerGeneration.*Tests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log build-tuner/tuner-ctest.log --output-junit tuner-results.xml",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 116992764419,
+          "name": "precision-tuner-worker (macos-latest)",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 38906941615,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 3
+            },
+            {
+              "name": "Run cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraTunerTimingTests ChimeraPostNativeTests --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Retain macOS normal-QoS reference (diagnostic, unchanged gates)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraTunerGeneration.*Tests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log build-tuner/tuner-ctest.log --output-junit tuner-results.xml",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 7
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 116992764471,
+          "name": "precision-tuner-worker (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941615,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 3
+            },
+            {
+              "name": "Run cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraTunerTimingTests ChimeraPostNativeTests --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Retain macOS normal-QoS reference (diagnostic, unchanged gates)",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Run ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraTunerGeneration.*Tests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log build-tuner/tuner-ctest.log --output-junit tuner-results.xml",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 116992764506,
+          "name": "native-navigation (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941615,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run cmake -S . -B build-path -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Collect paired tuner callback observations (not a performance pass)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 116992764573,
+          "name": "native-navigation (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941615,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 3
+            },
+            {
+              "name": "Run cmake -S . -B build-path -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Run ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Collect paired tuner callback observations (not a performance pass)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "jobs": [
+        {
+          "id": 116994598384,
+          "name": "validation-contract",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941848,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Assert requested build identity without changing the workflow source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Verify catalog and validation producer contracts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload current-commit release-gate evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 117004648626,
+          "name": "build (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941848,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Resolve source version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Check release packaging and validation syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Check Windows packaging script syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Verify Defender update retry contracts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Configure Windows/Linux",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Configure universal macOS",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Record configured CTest inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Verify integrated EQ and tuner test inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Execute Windows and macOS CTest matrix",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Execute Linux CTest matrix with display supervision",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Produce current-commit CTest validation evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Upload concrete CTest and full-state signature evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload DSP verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Upload Windows UI verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Upload Windows head artwork gallery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Upload Windows pedal and rack gallery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Stage Windows open beta payload",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Package and verify macOS universal installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Package and verify Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Verify signed release cannot fall back to unsigned",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Build Windows installer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Verify Windows install, repair and uninstall",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Upload Windows installer verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Build MSIX review package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            },
+            {
+              "name": "Verify MSIX deployment and application activation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 30
+            },
+            {
+              "name": "Upload MSIX verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 31
+            },
+            {
+              "name": "Scan Windows distribution with Microsoft Defender",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 32
+            },
+            {
+              "name": "Upload Windows security report",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 33
+            },
+            {
+              "name": "Upload Windows test package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 34
+            },
+            {
+              "name": "Upload Windows installer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35
+            },
+            {
+              "name": "Upload MSIX review package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Upload macOS installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Upload Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 38
+            },
+            {
+              "name": "Preserve exact-source platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Upload platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 79
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 80
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 81
+            }
+          ]
+        },
+        {
+          "id": 117004648712,
+          "name": "build (ubuntu-22.04)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38906941848,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Resolve source version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Check release packaging and validation syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Check Windows packaging script syntax",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Verify Defender update retry contracts",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Configure Windows/Linux",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Configure universal macOS",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Record configured CTest inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Verify integrated EQ and tuner test inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Execute Windows and macOS CTest matrix",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Execute Linux CTest matrix with display supervision",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Produce current-commit CTest validation evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Upload concrete CTest and full-state signature evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload DSP verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Upload Windows UI verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Upload Windows head artwork gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Upload Windows pedal and rack gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Stage Windows open beta payload",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Package and verify macOS universal installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Package and verify Linux installers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Verify signed release cannot fall back to unsigned",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Build Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Verify Windows install, repair and uninstall",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 27
+            },
+            {
+              "name": "Upload Windows installer verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 28
+            },
+            {
+              "name": "Build MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 29
+            },
+            {
+              "name": "Verify MSIX deployment and application activation",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 30
+            },
+            {
+              "name": "Upload MSIX verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 31
+            },
+            {
+              "name": "Scan Windows distribution with Microsoft Defender",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 32
+            },
+            {
+              "name": "Upload Windows security report",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 33
+            },
+            {
+              "name": "Upload Windows test package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 34
+            },
+            {
+              "name": "Upload Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 35
+            },
+            {
+              "name": "Upload MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 36
+            },
+            {
+              "name": "Upload macOS installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Upload Linux installers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Preserve exact-source platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Upload platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 79
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 80
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 81
+            }
+          ]
+        },
+        {
+          "id": 117004648714,
+          "name": "build (macos-15)",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 38906941848,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Resolve source version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Check release packaging and validation syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Check Windows packaging script syntax",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Verify Defender update retry contracts",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Configure Windows/Linux",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Configure universal macOS",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Record configured CTest inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Verify integrated EQ and tuner test inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Execute Windows and macOS CTest matrix",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 14
+            },
+            {
+              "name": "Execute Linux CTest matrix with display supervision",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Produce current-commit CTest validation evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Upload concrete CTest and full-state signature evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload DSP verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Upload Windows UI verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Upload Windows head artwork gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Upload Windows pedal and rack gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Stage Windows open beta payload",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Package and verify macOS universal installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Package and verify Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Verify signed release cannot fall back to unsigned",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Build Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Verify Windows install, repair and uninstall",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 27
+            },
+            {
+              "name": "Upload Windows installer verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 28
+            },
+            {
+              "name": "Build MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 29
+            },
+            {
+              "name": "Verify MSIX deployment and application activation",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 30
+            },
+            {
+              "name": "Upload MSIX verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 31
+            },
+            {
+              "name": "Scan Windows distribution with Microsoft Defender",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 32
+            },
+            {
+              "name": "Upload Windows security report",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 33
+            },
+            {
+              "name": "Upload Windows test package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 34
+            },
+            {
+              "name": "Upload Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 35
+            },
+            {
+              "name": "Upload MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 36
+            },
+            {
+              "name": "Upload macOS installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Upload Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 38
+            },
+            {
+              "name": "Preserve exact-source platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Upload platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 79
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 80
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 81
+            }
+          ]
+        },
+        {
+          "id": 117057334518,
+          "name": "consolidate-release-gate",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 38906941848,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Download this run's evidence without merging platform files",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Compute intended release verdict",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 5
+            },
+            {
+              "name": "Upload consolidated exact-source verdict",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Show release eligibility separately from build success",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 117057335048,
+          "name": "assemble-candidate",
+          "status": "completed",
+          "conclusion": "skipped",
+          "run_id": 38906941848,
+          "logs_url": null,
+          "steps": null
+        }
+      ]
+    }
+  ]
+}

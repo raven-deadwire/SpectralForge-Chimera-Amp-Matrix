@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="8"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="184"
+	timestamp="2026-10-16T17:50:09"
+	>
+	<testcase name="ChimeraGraphicalEQEditingTests" classname="ChimeraGraphicalEQEditingTests" time="35.0808" status="run">
+		<properties/>
+		<system-out>PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=0
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=1
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PARAMETER_ROUNDTRIP output requested=-9 expected=-9 actual=-9 literal_equal=1 canonical_bits_equal=1
+UNDO_ISOLATION undone=1 output_before=-9 output_after=-9 epoch_before=1 epoch_after=1
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / ma...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQSnapshotFreezeTests" classname="ChimeraEQSnapshotFreezeTests" time="3.28449" status="run">
+		<properties/>
+		<system-out>PASS 12 rate/FFT pairs: empty/partial Freeze, stale FIFO+overlap purge, first full fresh IN/OUT window and envelope
+PASS 12 rate/FFT pairs: raw/smoothed/pixel identity across Freeze, configuration attempts, reset, overflow and rate changes
+PASS 12 rate/FFT pairs: nonfinite samples/FFT overflow/rate rejected, valid recovery, last normal frame keeps original mapping
+PASS Freeze captures the last real pre-idle frame and the latest valid window before malformed data in one FIFO batch
+PASS 12 rate/FFT pairs: delayed old callback cannot release thaw, disabled callback acknowledgement, final purge, first N callback-fresh samples; stopped/resumed/coalesced requests
+PASS audio identity rate=44100 fft=2048 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=4096 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=8192 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS au...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQLegacyStateTests" classname="ChimeraEQLegacyStateTests" time="6.27063" status="run">
+		<properties/>
+		<system-out>VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=1
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RESTORE canonical_changes=0
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+PASS real beta.2 fixture default.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=0
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+RESTORE canonical_changes=2
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+PASS real beta.2 fixture pattern.chimera: 4967 values / 24 fixed slots / delete-un...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQLegacyFixtureIntegrity" classname="ChimeraEQLegacyFixtureIntegrity" time="0.127806" status="run">
+		<properties/>
+		<system-out>PASS fixture digests, released parameter count and missing occupancy
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQLegacyEvidenceTests" classname="ChimeraEQLegacyEvidenceTests" time="0.0839363" status="run">
+		<properties/>
+		<system-out>.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.031s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQNormalizationTests" classname="ChimeraEQNormalizationTests" time="137.254" status="run">
+		<properties/>
+		<system-out>PASS_NEGATIVE_CONTROLS normalized drift / same-normalized neighbours / NaN / state corruption / audible-path EQ change
+OBSERVE_PRE_SAVE rate=44100 changed_samples=7596 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=48000 changed_samples=7238 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=96000 changed_samples=6136 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=192000 changed_samples=5154 max_abs=1.4901161193847656e-08 bit_identical=0
+PASS_NORMALIZATION /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/fixtures/eq-beta2/default.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-legacy/eq-legacy/default/deleted.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQNormalizationEvidenceTests" classname="ChimeraEQNormalizationEvidenceTests" time="1.76014" status="run">
+		<properties/>
+		<system-out>.............
+----------------------------------------------------------------------
+Ran 13 tests in 1.703s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQTunerParameterContractTests" classname="ChimeraEQTunerParameterContractTests" time="0.499192" status="run">
+		<properties/>
+		<system-out>....
+----------------------------------------------------------------------
+Ran 4 tests in 0.453s
+
+OK
+</system-out>
+	</testcase>
+</testsuite>

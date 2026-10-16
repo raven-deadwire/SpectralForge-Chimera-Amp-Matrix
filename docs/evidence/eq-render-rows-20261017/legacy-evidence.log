@@ -1,0 +1,13 @@
+$ python3 Tests/test_eq_legacy_fixture.py -v
+test_canonical_ignores_attribute_order_only (__main__.EvidenceContracts.test_canonical_ignores_attribute_order_only) ... ok
+test_fixture_corruption_fails (__main__.EvidenceContracts.test_fixture_corruption_fails) ... ok
+test_metadata_loss_is_not_roundtrip (__main__.EvidenceContracts.test_metadata_loss_is_not_roundtrip) ... ok
+test_only_wrapper_trailer_removed (__main__.EvidenceContracts.test_only_wrapper_trailer_removed) ... ok
+test_truncated_or_wrong_binary_rejected (__main__.EvidenceContracts.test_truncated_or_wrong_binary_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.038s
+
+OK
+
+exit_code=0

@@ -1,0 +1,27 @@
+{
+  "execution_sha": "8b12476623afa8135af7ff8b7ad1d5e428207fff",
+  "files": {
+    "README_KO.md": "7dea9c1d067bdeb8d58df776bd0825f44b57be06cb930a6bd4b5f6f19595ea1d",
+    "after-fix.log": "34d16d7e1e569fba7bda46395e4f6c5d7d427b79d1b5110878e18d29c6b92178",
+    "baseline-ci-snapshot.json": "6622d1d0eb26655d86ab93745a45a4e719c563078ac92c8ecc0bf6ecf6724239",
+    "baseline-job-116992764419-results.log": "0f30a212497c9abb0ef0c8e4f8324f250f3f8e1b1bdf67a50bf459b109e3f713",
+    "baseline-job-117004648714-results.log": "17e07be2fda218fe92a5f0116e4cdf1cec87178ad4a8efce0c0210158f5550a3",
+    "baseline-linux-tail.log": "1f55c2580245dfae1a1fe1bc6c6371f1eee71f164f684d55be6c8154b7b03786",
+    "baseline-macos-tail.log": "e6c0e45d1fca8fdc17ec1c71561f4883646b4afe9454dc10dcfb0494216e5759",
+    "before-fix.log": "8a7c30df97440675f88ef1e9047a153bca3f9a13f5b5867a7bcd147575e7cbed",
+    "ci-final-checkpoint.json": "9fae052e7533a2c3281e5ed4e9196ed3688327bdd9053cd99f4c563939cefdde",
+    "ci-python-checkpoint.json": "6fd5a378d7d0928ab51c5a3e12b85aa3401c3a6b5a2bf5ef7daabeca30b2ec1e",
+    "fixture-integrity.log": "37b314d1212f0f96a41be1ba37071de033e90b8bd5dcc4c7e7931b9c1d292d55",
+    "legacy-evidence.log": "c61886b910d2bb802c678adfaa39192b52549aa59eb400c6b2f2839a596b5d52",
+    "linux-build-version.json": "7bec0a0b81e402bdbb047da544d750d73fc6ded56a7c4e2f8af621529ccf6015",
+    "linux-job-tail.log": "bb2a0c83aadb3565ceca0bca4be9c23abbeec0d964928c0f7243d6b63859ea89",
+    "linux-legacy-results.xml": "b5d9b099534e250fd8773f04dfc1746e8035cdbdee2aca9fd4653070d2bdfbf6",
+    "linux-render-summary.json": "f11132d1de9d19d9a2f1ad28727e3059c2b75d3a4df2f0f97cfe510cc1406391",
+    "linux-render-tool-regression.log": "3cd14da4e9442a80ae7da4822f39249c89c79db3d3df89141be5cfc42d946212",
+    "parameter-contract.log": "2e83dac46780a55e5ffed36b0b20732c75ca8a69fea7c5eb3812b48e29b5ec3c",
+    "real-capture-before-after.json": "68562515bc13b31f918095048b17ad3f8e6e4cb088f9ee0a10241f855a81844d",
+    "source-audit.json": "c971ceb783a25d9b930c9d28e435c9882fb72e0a118f40c5ab12e1dd43378bdf",
+    "windows-job-tail.log": "f3d9e645a4f95bb5a7fe46db628abdc377d5b37e0affec6fd9bf1c08c4af49bb",
+    "windows-regression-excerpt.log": "79f289f986d56d1c9bbe851fc3d42487760a564fe558ab47bcd723de976f4d81"
+  }
+}

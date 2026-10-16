@@ -1,0 +1,26 @@
+{
+  "base_sha": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
+  "execution_sha": "8b12476623afa8135af7ff8b7ad1d5e428207fff",
+  "tree_sha": "e1393282b7f559b4616d65d39d4a3da8026551ac",
+  "changed_files": [
+    {
+      "path": ".github/workflows/eq-legacy-state.yml",
+      "sha256": "1a6be7df6a0930d720e6d909cba00737a08fc91818ad8721f5463e7576f2aa7c",
+      "bytes": 6516
+    },
+    {
+      "path": "Tests/test_eq_normalization_render.py",
+      "sha256": "4551a88e985bcf759ec909f2c848b8f9f2ff3937d0879cd2cdab86f8fed1e6a2",
+      "bytes": 5832
+    },
+    {
+      "path": "Tools/eq_normalization_render.py",
+      "sha256": "11a71cac88df1ac732d907c6585010967ba6f01cc3f210fd0ae6e88e43c569ec",
+      "bytes": 7215
+    }
+  ],
+  "source_and_fixtures_unchanged": true,
+  "parameter_and_state_contract_helpers_unchanged": true,
+  "actual_daw": "NOT_ASSESSED",
+  "release_approved": false
+}

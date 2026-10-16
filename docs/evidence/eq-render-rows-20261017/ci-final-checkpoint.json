@@ -1,0 +1,430 @@
+{
+  "source_sha": "8b12476623afa8135af7ff8b7ad1d5e428207fff",
+  "jobs": {
+    "jobs": [
+      {
+        "id": 117107774310,
+        "name": "state (macos-15)",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 38940845177,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Python render-comparison regression controls (no native prerequisites)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 4
+          },
+          {
+            "name": "Verify immutable released fixture provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run cmake -S . -B build-legacy -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run cmake --build build-legacy --config Release --target ChimeraEQLegacyStateTests ChimeraEQNormalizationTests ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests --parallel 2",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 7
+          },
+          {
+            "name": "Existing synthetic contracts and real binary fixture contracts",
+            "status": "pending",
+            "conclusion": null,
+            "number": 8
+          },
+          {
+            "name": "Run cmake --build build-legacy --config Release --target ChimeraVST3EQStateHost ChimeraAmpMatrix_VST3 --parallel 2",
+            "status": "pending",
+            "conclusion": null,
+            "number": 9
+          },
+          {
+            "name": "Download and capture the unchanged public beta.2 binary",
+            "status": "pending",
+            "conclusion": null,
+            "number": 10
+          },
+          {
+            "name": "Replay old numeric VST3 automation IDs and reopen with the old binary",
+            "status": "pending",
+            "conclusion": null,
+            "number": 11
+          },
+          {
+            "name": "Exact canonical-state renders through released and candidate VST3",
+            "status": "pending",
+            "conclusion": null,
+            "number": 12
+          },
+          {
+            "name": "Run actions/upload-artifact@v6",
+            "status": "pending",
+            "conclusion": null,
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "pending",
+            "conclusion": null,
+            "number": 26
+          }
+        ]
+      },
+      {
+        "id": 117107774395,
+        "name": "state (ubuntu-22.04)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38940845177,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Python render-comparison regression controls (no native prerequisites)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Verify immutable released fixture provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run cmake -S . -B build-legacy -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run cmake --build build-legacy --config Release --target ChimeraEQLegacyStateTests ChimeraEQNormalizationTests ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests --parallel 2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Existing synthetic contracts and real binary fixture contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Run cmake --build build-legacy --config Release --target ChimeraVST3EQStateHost ChimeraAmpMatrix_VST3 --parallel 2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Download and capture the unchanged public beta.2 binary",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Replay old numeric VST3 automation IDs and reopen with the old binary",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Exact canonical-state renders through released and candidate VST3",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Run actions/upload-artifact@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          }
+        ]
+      },
+      {
+        "id": 117107774492,
+        "name": "state (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38940845177,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Python render-comparison regression controls (no native prerequisites)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 4
+          },
+          {
+            "name": "Verify immutable released fixture provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run cmake -S . -B build-legacy -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run cmake --build build-legacy --config Release --target ChimeraEQLegacyStateTests ChimeraEQNormalizationTests ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests --parallel 2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Existing synthetic contracts and real binary fixture contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Run cmake --build build-legacy --config Release --target ChimeraVST3EQStateHost ChimeraAmpMatrix_VST3 --parallel 2",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Download and capture the unchanged public beta.2 binary",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10
+          },
+          {
+            "name": "Replay old numeric VST3 automation IDs and reopen with the old binary",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11
+          },
+          {
+            "name": "Exact canonical-state renders through released and candidate VST3",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12
+          },
+          {
+            "name": "Run actions/upload-artifact@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          }
+        ]
+      }
+    ]
+  },
+  "workflows": {
+    "workflow_runs": [
+      {
+        "id": 38940845177,
+        "name": "EQ released beta.2 state compatibility",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 8,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845177/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845177/logs",
+        "workflow_id": 386410865
+      },
+      {
+        "id": 38940844995,
+        "name": "Graphical EQ prototype contracts",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 145,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940844995/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940844995/logs",
+        "workflow_id": 380197945
+      },
+      {
+        "id": 38940845048,
+        "name": "Open Beta Build and Test",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 557,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845048/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845048/logs",
+        "workflow_id": 364798182
+      },
+      {
+        "id": 38940844997,
+        "name": "Beta lifecycle and state preservation",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 70,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940844997/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940844997/logs",
+        "workflow_id": 383014223
+      },
+      {
+        "id": 38940845058,
+        "name": "1.3.1 amplifier head controls",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 135,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845058/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845058/logs",
+        "workflow_id": 381061299
+      },
+      {
+        "id": 38940845036,
+        "name": "Chimera update candidate",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 407,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845036/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845036/logs",
+        "workflow_id": 369022218
+      },
+      {
+        "id": 38940845024,
+        "name": "Chimera release publisher contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 96,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845024/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845024/logs",
+        "workflow_id": 381810224
+      },
+      {
+        "id": 38940845132,
+        "name": "1.3.2 signal path, tuner and dynamics integration contracts",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 141,
+        "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845132/jobs",
+        "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38940845132/logs",
+        "workflow_id": 380188203
+      }
+    ]
+  },
+  "artifacts": {
+    "artifacts": [
+      {
+        "id": 12063643718,
+        "name": "EQ-legacy-state-Linux-8b12476623afa8135af7ff8b7ad1d5e428207fff",
+        "size_in_bytes": 8762324,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12063643718",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12063643718/zip",
+        "expired": false,
+        "created_at": "2026-10-16T17:54:19Z",
+        "expires_at": "2027-01-14T17:35:23Z",
+        "updated_at": "2026-10-16T17:54:19Z",
+        "digest": "sha256:de06b90b3a843ac422824ddb98da496a8955135cf8e1b63302ce68e00706b52a",
+        "workflow_run": {
+          "id": 38940845177,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "fix/eq-render-rows-shadowing-20261017",
+          "head_sha": "8b12476623afa8135af7ff8b7ad1d5e428207fff"
+        }
+      },
+      {
+        "id": 12062874236,
+        "name": "EQ-legacy-state-Windows-8b12476623afa8135af7ff8b7ad1d5e428207fff",
+        "size_in_bytes": 689302,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12062874236",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12062874236/zip",
+        "expired": false,
+        "created_at": "2026-10-16T17:51:45Z",
+        "expires_at": "2027-01-14T17:35:23Z",
+        "updated_at": "2026-10-16T17:51:45Z",
+        "digest": "sha256:c3cc349a20feec2dcd0347a1e7a85e538be92e26492d1ec3511431748af55f46",
+        "workflow_run": {
+          "id": 38940845177,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "fix/eq-render-rows-shadowing-20261017",
+          "head_sha": "8b12476623afa8135af7ff8b7ad1d5e428207fff"
+        }
+      }
+    ]
+  },
+  "actual_daw": "NOT_ASSESSED",
+  "release_approved": false,
+  "recorded_at_utc": "2026-10-16T17:55:55.022710+00:00"
+}

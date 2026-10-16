@@ -1,0 +1,64 @@
+2026-10-16T15:18:42.4685440Z 10/66 Test #10: ChimeraTests ............................   Passed   49.21 sec
+2026-10-16T15:18:42.6288610Z 11/66 Test #11: ChimeraNativeRendererTests ..............   Passed    0.16 sec
+2026-10-16T15:18:43.3566500Z 12/66 Test #12: ChimeraOriginalRendererTests ............   Passed    0.73 sec
+2026-10-16T15:18:43.8163170Z 13/66 Test #13: ChimeraNiflheimrRendererTests ...........   Passed    0.46 sec
+2026-10-16T15:18:43.8388770Z 14/66 Test #14: ChimeraReleaseTests .....................   Passed    0.02 sec
+2026-10-16T15:18:45.4254760Z 15/66 Test #15: ChimeraStabilityTests ...................   Passed    1.59 sec
+2026-10-16T15:18:49.2056010Z 16/66 Test #16: ChimeraPedalBoardTests ..................   Passed    3.78 sec
+2026-10-16T15:18:49.5639030Z 17/66 Test #17: ChimeraIRCollectionTests ................   Passed    0.36 sec
+2026-10-16T15:18:52.3288820Z 18/66 Test #18: ChimeraIRLibraryTests ...................   Passed    2.76 sec
+2026-10-16T15:19:09.5376180Z 19/66 Test #19: ChimeraCabPanelTests ....................   Passed   17.21 sec
+2026-10-16T15:20:41.7487390Z 20/66 Test #20: ChimeraCabPanelStateTests ...............   Passed   92.21 sec
+2026-10-16T15:20:55.7087860Z 21/66 Test #21: ChimeraCabPanelRoutingTests .............   Passed   13.96 sec
+2026-10-16T15:21:10.8499710Z 22/66 Test #22: ChimeraCabPanelIRIsolationTests .........   Passed   15.13 sec
+2026-10-16T15:21:18.0711840Z 23/66 Test #23: ChimeraNewAmpTests ......................   Passed    7.22 sec
+2026-10-16T15:21:20.7298840Z 24/66 Test #24: ChimeraPedalOctaverTests ................   Passed    2.66 sec
+2026-10-16T15:21:30.4763880Z 25/66 Test #25: ChimeraAmpNativeTests ...................   Passed    9.74 sec
+2026-10-16T15:21:31.6001650Z 26/66 Test #26: ChimeraPostNativeTests ..................   Passed    1.12 sec
+2026-10-16T15:22:02.7030530Z 27/66 Test #27: ChimeraGateProcessorTests ...............   Passed   31.10 sec
+2026-10-16T15:22:02.9869180Z 28/66 Test #28: ChimeraGateTests ........................   Passed    0.28 sec
+2026-10-16T15:26:04.9946510Z 29/66 Test #29: ChimeraIntegratedProcessorTests .........   Passed  242.01 sec
+2026-10-16T15:26:32.7478160Z 30/66 Test #30: ChimeraNiflheimrPresetTests .............   Passed   27.75 sec
+2026-10-16T15:26:42.0260660Z 31/66 Test #31: ChimeraPitchRegressionTests .............   Passed    9.28 sec
+2026-10-16T15:26:44.8770210Z 32/66 Test #32: ChimeraCabExpansionModelTests ...........   Passed    2.85 sec
+2026-10-16T15:26:45.7605100Z 33/66 Test #33: ChimeraOriginalCabModelTests ............   Passed    0.88 sec
+2026-10-16T15:26:45.7698060Z 34/66 Test #34: ChimeraCabTimingDiagnosticsTests ........   Passed    0.01 sec
+2026-10-16T15:27:08.1589640Z 35/66 Test #35: ChimeraOriginalCabIntegrationTests ......   Passed   22.39 sec
+2026-10-16T15:27:21.1492920Z 36/66 Test #36: ChimeraOriginalCabRealtimeTests .........   Passed   12.99 sec
+2026-10-16T15:27:43.8666600Z 37/66 Test #37: ChimeraCabExpansionIntegrationTests .....   Passed   22.72 sec
+2026-10-16T15:28:40.4124420Z 38/66 Test #38: ChimeraCabExtendedTimingTests ...........   Passed   56.54 sec
+2026-10-16T15:28:53.0377500Z 39/66 Test #39: ChimeraCabExpansionStateTests ...........   Passed   12.62 sec
+2026-10-16T15:28:54.7488160Z 40/66 Test #40: ChimeraCabLayoutModelTests ..............   Passed    1.71 sec
+2026-10-16T15:28:54.7529870Z 41/66 Test #41: ChimeraCabCameraFramingTests ............   Passed    0.00 sec
+2026-10-16T15:29:18.3043910Z 42/66 Test #42: ChimeraCabLayoutIntegrationTests ........   Passed   23.55 sec
+2026-10-16T15:29:29.5332410Z 43/66 Test #43: ChimeraCabLayoutStateTests ..............   Passed   11.23 sec
+2026-10-16T15:29:42.5877420Z 44/66 Test #44: ChimeraCabDriverVisualTests .............   Passed   13.05 sec
+2026-10-16T15:30:12.6380100Z 45/66 Test #45: ChimeraGraphicalEQTests .................   Passed   30.05 sec
+2026-10-16T15:33:19.4014660Z 46/66 Test #46: ChimeraGraphicalEQUITests ...............   Passed  186.76 sec
+2026-10-16T15:33:42.9052120Z 47/66 Test #47: ChimeraEQAnalyzerTests ..................   Passed   23.50 sec
+2026-10-16T15:34:10.7125340Z 48/66 Test #48: ChimeraGraphicalEQEditingTests ..........   Passed   27.81 sec
+2026-10-16T15:34:12.9347310Z 49/66 Test #49: ChimeraCommonDynamicsTests ..............   Passed    2.22 sec
+2026-10-16T15:34:23.4750040Z 50/66 Test #50: ChimeraEQSnapshotFreezeTests ............   Passed   10.54 sec
+2026-10-16T15:34:34.0673550Z 51/66 Test #51: ChimeraEQAnalyzerPerformanceTests .......   Passed   10.59 sec
+2026-10-16T15:37:33.5896440Z 52/66 Test #52: ChimeraEQHighRateAttributionTests .......   Passed  179.52 sec
+2026-10-16T15:39:49.8176840Z 53/66 Test #53: ChimeraAmpHeadControlTests ..............   Passed  136.22 sec
+2026-10-16T15:39:52.3574760Z 54/66 Test #54: ChimeraPrecisionTunerTests ..............   Passed    2.53 sec
+2026-10-16T15:40:42.2321270Z 55/66 Test #55: ChimeraPrecisionTunerIntegrationTests ...***Failed   49.87 sec
+2026-10-16T15:40:42.3543090Z ROUTE FAIL rate=44100 block=256 hz=27.5 acquire=302.713458 settle=292.023166 error=-1.92065525315e-05
+2026-10-16T15:40:42.4018330Z ROUTE FAIL rate=48000 block=256 hz=27.5 acquire=215.9615 settle=-1 error=-1.92065525315e-05
+2026-10-16T15:40:42.6751510Z FAIL Native acquisition/settle/accuracy gate failed; all route rows retained
+2026-10-16T15:40:42.6751760Z 56/66 Test #56: ChimeraTunerTimingTests .................   Passed    0.01 sec
+2026-10-16T15:40:42.6752050Z 57/66 Test #57: ChimeraTunerWorkerTimingTests ...........   Passed    0.31 sec
+2026-10-16T15:40:42.7782620Z 58/66 Test #58: ChimeraTunerGenerationReenableTests .....   Passed    0.20 sec
+2026-10-16T15:40:43.3244390Z 59/66 Test #59: ChimeraTunerGenerationResumeTests .......   Passed    0.54 sec
+2026-10-16T15:40:43.8499360Z 60/66 Test #60: ChimeraTunerGenerationColdQueueTests ....   Passed    0.53 sec
+2026-10-16T15:40:44.2303060Z 61/66 Test #62: ChimeraEQLegacyFixtureIntegrity .........   Passed    0.38 sec
+2026-10-16T15:40:44.5783380Z 62/66 Test #61: ChimeraEQLegacyStateTests ...............***Failed    0.35 sec
+2026-10-16T15:40:44.5784480Z FAIL legacy stored/canonical value mismatch finalEQ_b10_q
+2026-10-16T15:40:44.7439940Z 63/66 Test #63: ChimeraEQLegacyEvidenceTests ............   Passed    0.17 sec
+2026-10-16T15:40:55.3366520Z 64/66 Test #64: ChimeraEQNormalizationTests .............***Failed   10.59 sec
+2026-10-16T15:40:55.3380310Z FAIL fixture missing /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/eq-legacy/default/deleted.chimera
+2026-10-16T15:40:55.4975700Z 65/66 Test #65: ChimeraEQNormalizationEvidenceTests .....   Passed    0.16 sec
+2026-10-16T15:40:56.0281530Z 66/66 Test #66: ChimeraEQTunerParameterContractTests ....   Passed    0.53 sec
+2026-10-16T15:40:56.0331530Z 95% tests passed, 3 tests failed out of 66
+2026-10-16T15:40:56.0338430Z The following tests FAILED:

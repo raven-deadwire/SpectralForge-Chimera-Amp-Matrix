@@ -1,0 +1,305 @@
+alyzer->frames()==frames && analyzer->lastFFTWindows()==0 && analyzer->fftMicros()==0,
+2026-10-16T14:06:42.5367430Z       |                                                                              ~~~~~~~~~~~~~~~~~~~~~^ ~
+2026-10-16T14:06:42.5368230Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/EQSnapshotFreezeTests.cpp:137:64: warning: comparing floating point with == or != is unsafe [-Wfloat-equal]
+2026-10-16T14:06:42.5369210Z   137 |         check(analyzer->hasData() && analyzer->lastSampleRate()==nextRate,"Thaw did not accept the first fresh frame at the new rate");
+2026-10-16T14:06:42.5369750Z       |                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~^ ~~~~~~~~
+2026-10-16T14:06:42.5370590Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/EQSnapshotFreezeTests.cpp:166:36: warning: comparing floating point with == or != is unsafe [-Wfloat-equal]
+2026-10-16T14:06:42.5371360Z   166 |         analyzer->update(*fifo,rate==48000?96000:48000);
+2026-10-16T14:06:42.5371670Z       |                                ~~~~^ ~~~~~
+2026-10-16T14:06:42.5372390Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/EQSnapshotFreezeTests.cpp:167:90: warning: comparing floating point with == or != is unsafe [-Wfloat-equal]
+2026-10-16T14:06:42.5373320Z   167 |         fill(*fifo,int(EQAnalyzerFIFO::capacity)+1,0,newSize);analyzer->update(*fifo,rate==48000?96000:48000);
+2026-10-16T14:06:42.5373830Z       |                                                                                      ~~~~^ ~~~~~
+2026-10-16T14:06:42.5374810Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/EQSnapshotFreezeTests.cpp:183:58: warning: comparing floating point with == or != is unsafe [-Wfloat-equal]
+2026-10-16T14:06:42.5375700Z   183 |     check(analyzer->isIdle() && analyzer->rawDB(false,43)==EQSpectrumAnalyzer::floorDB &&
+2026-10-16T14:06:42.5376150Z       |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-16T14:06:43.1165040Z In file included from /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/EQSnapshotFreezeTests.cpp:3:
+2026-10-16T14:06:43.1175430Z In file included from /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/PluginProcessor.h:5:
+2026-10-16T14:06:43.1176750Z In file included from /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXParameters.h:2:
+2026-10-16T14:06:43.1178020Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:151:29: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1179070Z   151 |         auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+2026-10-16T14:06:43.1179580Z       |                   ~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1180840Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:166:9: note: in instantiation of function template specialization 'spectralforge::PostFXChain::processRack<(lambda at /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:166:36)>' requested here
+2026-10-16T14:06:43.1182610Z   166 |         processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});
+2026-10-16T14:06:43.1183550Z       |         ^
+2026-10-16T14:06:43.1184340Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:151:85: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1185360Z   151 |         auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+2026-10-16T14:06:43.1185920Z       |                                                           ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1187380Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:152:25: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1188580Z   152 |         if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
+2026-10-16T14:06:43.1189210Z       |             ~~~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1190030Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:152:96: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1191200Z   152 |         if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
+2026-10-16T14:06:43.1191960Z       |                                                                                    ~~~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1192870Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:153:109: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1194320Z   153 |         if(!mix.isSmoothing()) {if(useNative)native.processSection(buffer,section,state.postNative.sections[section]);else legacy(buffer);}
+2026-10-16T14:06:43.1195290Z       |                                                                                   ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1196220Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:154:132: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1202020Z   154 |         else {transition.makeCopyOf(buffer,true);legacy(buffer);native.processSection(transition,section,state.postNative.sections[section]);for(int n=0;n<buffer.getNumSamples();++n){const float wet=mix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*(1-wet)+transition.getSample(c,n)*wet);}}
+2026-10-16T14:06:43.1205710Z       |                                                                                                          ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1208090Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:151:29: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1210560Z   151 |         auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+2026-10-16T14:06:43.1211610Z       |                   ~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1215010Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:168:9: note: in instantiation of function template specialization 'spectralforge::PostFXChain::processRack<(lambda at /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:168:36)>' requested here
+2026-10-16T14:06:43.1217180Z   168 |         processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});
+2026-10-16T14:06:43.1217850Z       |         ^
+2026-10-16T14:06:43.1218530Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:151:85: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1219790Z   151 |         auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+2026-10-16T14:06:43.1220580Z       |                                                           ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1221780Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:152:25: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1222900Z   152 |         if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
+2026-10-16T14:06:43.1223450Z       |             ~~~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1224230Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:152:96: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1225310Z   152 |         if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
+2026-10-16T14:06:43.1225900Z       |                                                                                    ~~~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1226710Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:153:109: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1229140Z   153 |         if(!mix.isSmoothing()) {if(useNative)native.processSection(buffer,section,state.postNative.sections[section]);else legacy(buffer);}
+2026-10-16T14:06:43.1229810Z       |                                                                                   ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1230640Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:154:132: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1232320Z   154 |         else {transition.makeCopyOf(buffer,true);legacy(buffer);native.processSection(transition,section,state.postNative.sections[section]);for(int n=0;n<buffer.getNumSamples();++n){const float wet=mix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*(1-wet)+transition.getSample(c,n)*wet);}}
+2026-10-16T14:06:43.1233880Z       |                                                                                                          ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1234710Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:151:29: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1235620Z   151 |         auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+2026-10-16T14:06:43.1236020Z       |                   ~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1237410Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:170:9: note: in instantiation of function template specialization 'spectralforge::PostFXChain::processRack<(lambda at /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:170:36)>' requested here
+2026-10-16T14:06:43.1239050Z   170 |         processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});
+2026-10-16T14:06:43.1239650Z       |         ^
+2026-10-16T14:06:43.1240330Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:151:85: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1241250Z   151 |         auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+2026-10-16T14:06:43.1241700Z       |                                                           ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1242580Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:152:25: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1243620Z   152 |         if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
+2026-10-16T14:06:43.1244130Z       |             ~~~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1245330Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:152:96: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1246370Z   152 |         if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
+2026-10-16T14:06:43.1246960Z       |                                                                                    ~~~~~~~~~~~ ^~~~~~~
+2026-10-16T14:06:43.1247860Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:153:109: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1249230Z   153 |         if(!mix.isSmoothing()) {if(useNative)native.processSection(buffer,section,state.postNative.sections[section]);else legacy(buffer);}
+2026-10-16T14:06:43.1249820Z       |                                                                                   ~~~~~                     ^~~~~~~
+2026-10-16T14:06:43.1250700Z /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Source/FXChain.h:154:132: warning: implicit conversion changes signedness: 'int' to 'size_type' (aka 'unsigned long') [-Wsign-conversion]
+2026-10-16T14:06:43.1252390Z   154 |         else {transition.makeCopyOf(buffer,true);legacy(buffer);native.processSection(transition,section,state.postNative.sections[section]);for(int n=0;n<buffer.getNumSamples();++n){const float wet=mix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*(1-wet)+transition.getSample(c,n)*wet);}}
+2026-10-16T14:06:43.1254190Z       |                                                                                                          ~~~~~                     ^~~~~~~
+2026-10-16T14:06:44.3219290Z 233 warnings generated.
+2026-10-16T14:06:44.3521650Z [ 94%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_utils/juce_audio_utils.mm.o
+2026-10-16T14:06:44.3976590Z In file included from <built-in>:555:
+2026-10-16T14:06:44.4078940Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:06:44.4182110Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:06:44.4284940Z       |         ^
+2026-10-16T14:06:44.4386120Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:06:44.4416920Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:06:44.4485890Z       |         ^
+2026-10-16T14:06:51.0127760Z 1 warning generated.
+2026-10-16T14:06:51.0649790Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
+2026-10-16T14:06:51.1309360Z In file included from <built-in>:544:
+2026-10-16T14:06:51.1345260Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:06:51.1346030Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:06:51.1346530Z       |         ^
+2026-10-16T14:06:51.1346930Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:06:51.1347570Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:06:51.1348010Z       |         ^
+2026-10-16T14:06:51.1430310Z 1 warning generated.
+2026-10-16T14:06:51.1624130Z [ 94%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
+2026-10-16T14:06:51.2128190Z In file included from <built-in>:544:
+2026-10-16T14:06:51.2129950Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:06:51.2131620Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:06:51.2132810Z       |         ^
+2026-10-16T14:06:51.2133670Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:06:51.2134670Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:06:51.2135630Z       |         ^
+2026-10-16T14:06:51.2160030Z 1 warning generated.
+2026-10-16T14:06:51.2460050Z [ 94%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_processors/juce_audio_processors.mm.o
+2026-10-16T14:06:51.2986140Z In file included from <built-in>:555:
+2026-10-16T14:06:51.2992980Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:06:51.2993720Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:06:51.2994260Z       |         ^
+2026-10-16T14:06:51.2994660Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:06:51.2995790Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:06:51.2998420Z       |         ^
+2026-10-16T14:06:57.9465560Z 1 warning generated.
+2026-10-16T14:06:58.0183390Z [ 94%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_gui_extra/juce_gui_extra.mm.o
+2026-10-16T14:06:58.0991340Z In file included from <built-in>:555:
+2026-10-16T14:06:58.1098380Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:06:58.1196210Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:06:58.1298450Z       |         ^
+2026-10-16T14:06:58.1400170Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:06:58.1502930Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:06:58.1571330Z       |         ^
+2026-10-16T14:07:08.2816870Z 1 warning generated.
+2026-10-16T14:07:08.3415410Z [ 97%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_gui_basics/juce_gui_basics.mm.o
+2026-10-16T14:07:08.4222870Z In file included from <built-in>:555:
+2026-10-16T14:07:08.4326000Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:07:08.4433130Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:07:08.4534780Z       |         ^
+2026-10-16T14:07:08.4636050Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:07:08.4737790Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:07:08.4840360Z       |         ^
+2026-10-16T14:07:10.1792170Z 1 warning generated.
+2026-10-16T14:07:10.2143090Z [ 97%] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
+2026-10-16T14:07:10.2625540Z In file included from <built-in>:544:
+2026-10-16T14:07:10.2628410Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:07:10.2629940Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:07:10.2631050Z       |         ^
+2026-10-16T14:07:10.2631880Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:07:10.2632830Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:07:10.2633810Z       |         ^
+2026-10-16T14:07:39.0985270Z 1 warning generated.
+2026-10-16T14:07:39.2233660Z [ 97%] Building C object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
+2026-10-16T14:07:39.3015450Z In file included from <built-in>:465:
+2026-10-16T14:07:39.3118670Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:07:39.3219580Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:07:39.3321960Z       |         ^
+2026-10-16T14:07:39.3422940Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:07:39.3466700Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:07:39.3467690Z       |         ^
+2026-10-16T14:07:39.9146500Z 1 warning generated.
+2026-10-16T14:07:39.9396550Z [ 97%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_graphics/juce_graphics.mm.o
+2026-10-16T14:07:39.9762230Z In file included from <built-in>:555:
+2026-10-16T14:07:39.9763390Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:07:39.9764880Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:07:39.9766810Z       |         ^
+2026-10-16T14:07:39.9768600Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:07:39.9769180Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:07:39.9769680Z       |         ^
+2026-10-16T14:07:55.0123030Z 1 warning generated.
+2026-10-16T14:07:55.0697480Z [ 97%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_events/juce_events.mm.o
+2026-10-16T14:07:55.1217330Z In file included from <built-in>:555:
+2026-10-16T14:07:55.1218860Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:07:55.1219850Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:07:55.1220610Z       |         ^
+2026-10-16T14:07:55.1319070Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:07:55.1602900Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:07:55.1717750Z       |         ^
+2026-10-16T14:07:58.6662090Z 1 warning generated.
+2026-10-16T14:07:58.6987370Z [ 97%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_data_structures/juce_data_structures.mm.o
+2026-10-16T14:07:58.7500950Z In file included from <built-in>:555:
+2026-10-16T14:07:58.7504580Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:07:58.7550180Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:07:58.7550620Z       |         ^
+2026-10-16T14:07:58.7551010Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:07:58.7551370Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:07:58.7551740Z       |         ^
+2026-10-16T14:08:01.2113690Z 1 warning generated.
+2026-10-16T14:08:01.2302950Z [ 97%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_basics/juce_audio_basics.mm.o
+2026-10-16T14:08:01.2702160Z In file included from <built-in>:555:
+2026-10-16T14:08:01.2704420Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:08:01.2706650Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:08:01.2714480Z       |         ^
+2026-10-16T14:08:01.2714950Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:08:01.2715440Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:08:01.2715810Z       |         ^
+2026-10-16T14:08:02.6125640Z 1 warning generated.
+2026-10-16T14:08:02.6525430Z [ 97%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_formats/juce_audio_formats.mm.o
+2026-10-16T14:08:02.7026830Z In file included from <built-in>:555:
+2026-10-16T14:08:02.7028470Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:08:02.7029720Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:08:02.7030610Z       |         ^
+2026-10-16T14:08:02.7031360Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:08:02.7032190Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:08:02.7032940Z       |         ^
+2026-10-16T14:08:07.9679230Z 1 warning generated.
+2026-10-16T14:08:08.0084190Z [100%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_audio_devices/juce_audio_devices.mm.o
+2026-10-16T14:08:08.0627250Z In file included from <built-in>:555:
+2026-10-16T14:08:08.0628440Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:08:08.0629140Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:08:08.0629460Z       |         ^
+2026-10-16T14:08:08.0629780Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:08:08.0630080Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:08:08.0630390Z       |         ^
+2026-10-16T14:08:14.2051240Z 1 warning generated.
+2026-10-16T14:08:14.2461660Z [100%] Building OBJCXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/_deps/juce-src/modules/juce_dsp/juce_dsp.mm.o
+2026-10-16T14:08:14.3075670Z 1 warning generated.
+2026-10-16T14:08:14.3135930Z In file included from <built-in>:555:
+2026-10-16T14:08:14.3159850Z <command line>:19:9: warning: 'JUCE_STANDALONE_APPLICATION' macro redefined [-Wmacro-redefined]
+2026-10-16T14:08:14.3215820Z    19 | #define JUCE_STANDALONE_APPLICATION JucePlugin_Build_Standalone
+2026-10-16T14:08:14.3221730Z       |         ^
+2026-10-16T14:08:14.3222830Z <command line>:18:9: note: previous definition is here
+2026-10-16T14:08:14.3224470Z    18 | #define JUCE_STANDALONE_APPLICATION 1
+2026-10-16T14:08:14.3225700Z       |         ^
+2026-10-16T14:08:21.2665800Z 1 warning generated.
+2026-10-16T14:08:21.2995660Z [100%] Linking CXX executable ChimeraEQSnapshotFreezeTests_artefacts/Release/ChimeraEQSnapshotFreezeTests
+2026-10-16T14:08:22.1786140Z [100%] Built target ChimeraEQSnapshotFreezeTests
+2026-10-16T14:08:22.2147290Z ##[group]Run ctest --test-dir build-legacy -C Release -R "^(ChimeraEQLegacyStateTests|ChimeraEQLegacyFixtureIntegrity|ChimeraEQLegacyEvidenceTests|ChimeraEQNormalizationTests|ChimeraEQNormalizationEvidenceTests|ChimeraEQTunerParameterContractTests|ChimeraGraphicalEQEditingTests|ChimeraEQSnapshotFreezeTests)$" --output-on-failure --no-tests=error --output-junit legacy-results.xml
+2026-10-16T14:08:22.2150490Z [36;1mctest --test-dir build-legacy -C Release -R "^(ChimeraEQLegacyStateTests|ChimeraEQLegacyFixtureIntegrity|ChimeraEQLegacyEvidenceTests|ChimeraEQNormalizationTests|ChimeraEQNormalizationEvidenceTests|ChimeraEQTunerParameterContractTests|ChimeraGraphicalEQEditingTests|ChimeraEQSnapshotFreezeTests)$" --output-on-failure --no-tests=error --output-junit legacy-results.xml[0m
+2026-10-16T14:08:22.2474760Z shell: /bin/bash -e {0}
+2026-10-16T14:08:22.2475040Z ##[endgroup]
+2026-10-16T14:08:22.4013850Z Test project /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-legacy
+2026-10-16T14:08:22.4064240Z     Start 48: ChimeraGraphicalEQEditingTests
+2026-10-16T14:08:53.9263850Z 1/8 Test #48: ChimeraGraphicalEQEditingTests .........   Passed   31.52 sec
+2026-10-16T14:08:53.9266010Z     Start 50: ChimeraEQSnapshotFreezeTests
+2026-10-16T14:09:04.6693650Z 2/8 Test #50: ChimeraEQSnapshotFreezeTests ...........   Passed   10.74 sec
+2026-10-16T14:09:04.6697060Z     Start 62: ChimeraEQLegacyFixtureIntegrity
+2026-10-16T14:09:05.4353530Z 3/8 Test #62: ChimeraEQLegacyFixtureIntegrity ........   Passed    0.76 sec
+2026-10-16T14:09:05.4455450Z     Start 61: ChimeraEQLegacyStateTests
+2026-10-16T14:09:05.8110480Z 4/8 Test #61: ChimeraEQLegacyStateTests ..............***Failed    0.38 sec
+2026-10-16T14:09:05.8111010Z FAIL legacy stored/canonical value mismatch finalEQ_b10_q
+2026-10-16T14:09:05.8111940Z 
+2026-10-16T14:09:05.8112150Z     Start 63: ChimeraEQLegacyEvidenceTests
+2026-10-16T14:09:06.0255940Z 5/8 Test #63: ChimeraEQLegacyEvidenceTests ...........   Passed    0.21 sec
+2026-10-16T14:09:06.0257890Z     Start 64: ChimeraEQNormalizationTests
+2026-10-16T14:09:17.4593560Z 6/8 Test #64: ChimeraEQNormalizationTests ............***Failed   11.43 sec
+2026-10-16T14:09:17.4597030Z PASS_NEGATIVE_CONTROLS normalized drift / same-normalized neighbours / NaN / state corruption / audible-path EQ change
+2026-10-16T14:09:17.4600380Z OBSERVE_PRE_SAVE rate=44100 changed_samples=7496 max_abs=1.4901161193847656e-08 bit_identical=0
+2026-10-16T14:09:17.4602570Z OBSERVE_PRE_SAVE rate=48000 changed_samples=7216 max_abs=1.4901161193847656e-08 bit_identical=0
+2026-10-16T14:09:17.4605010Z OBSERVE_PRE_SAVE rate=96000 changed_samples=6044 max_abs=1.4901161193847656e-08 bit_identical=0
+2026-10-16T14:09:17.4606300Z OBSERVE_PRE_SAVE rate=192000 changed_samples=5144 max_abs=1.4901161193847656e-08 bit_identical=0
+2026-10-16T14:09:17.4608800Z PASS_NORMALIZATION /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/fixtures/eq-beta2/default.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+2026-10-16T14:09:17.4614520Z FAIL fixture missing /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-legacy/eq-legacy/default/deleted.chimera
+2026-10-16T14:09:17.4616670Z 
+2026-10-16T14:09:17.4619940Z     Start 65: ChimeraEQNormalizationEvidenceTests
+2026-10-16T14:09:17.6347030Z 7/8 Test #65: ChimeraEQNormalizationEvidenceTests ....   Passed    0.18 sec
+2026-10-16T14:09:17.6348690Z     Start 66: ChimeraEQTunerParameterContractTests
+2026-10-16T14:09:17.9684050Z 8/8 Test #66: ChimeraEQTunerParameterContractTests ...   Passed    0.33 sec
+2026-10-16T14:09:17.9787220Z Errors while running CTest
+2026-10-16T14:09:17.9787570Z 
+2026-10-16T14:09:17.9888570Z 75% tests passed, 2 tests failed out of 8
+2026-10-16T14:09:17.9988540Z 
+2026-10-16T14:09:18.0033060Z Total Test time (real) =  55.57 sec
+2026-10-16T14:09:18.0033430Z 
+2026-10-16T14:09:18.0033580Z The following tests FAILED:
+2026-10-16T14:09:18.0035630Z 	 61 - ChimeraEQLegacyStateTests (Failed)
+2026-10-16T14:09:18.0036070Z 	 64 - ChimeraEQNormalizationTests (Failed)
+2026-10-16T14:09:18.0094620Z ##[error]Process completed with exit code 8.
+2026-10-16T14:09:18.0425340Z ##[group]Run actions/upload-artifact@v6
+2026-10-16T14:09:18.0426090Z with:
+2026-10-16T14:09:18.0426530Z   name: EQ-legacy-state-macOS-428d4b9890a015f1fe1545ad737e8ed2c57af9d9
+2026-10-16T14:09:18.0428150Z   path: build-legacy/Testing/Temporary/LastTest.log
+build-legacy/legacy-results.xml
+build-legacy/chimera-build-version.json
+build-legacy/eq-legacy/**
+build-legacy/live-capture/**
+build-legacy/live-roundtrip/**
+build-legacy/abi-replay/**
+build-legacy/old-reopened-*/**
+build-legacy/normalization-render/**
+
+2026-10-16T14:09:18.0429130Z   if-no-files-found: error
+2026-10-16T14:09:18.0429300Z   compression-level: 6
+2026-10-16T14:09:18.0429460Z   overwrite: false
+2026-10-16T14:09:18.0429720Z   include-hidden-files: false
+2026-10-16T14:09:18.0429910Z ##[endgroup]
+2026-10-16T14:09:18.4855440Z With the provided path, there will be 3 files uploaded
+2026-10-16T14:09:18.4856250Z Artifact name is valid!
+2026-10-16T14:09:18.4856540Z Root directory input is valid!
+2026-10-16T14:09:18.9232360Z Beginning upload of artifact content to blob storage
+2026-10-16T14:09:19.0714960Z Uploaded bytes 4690
+2026-10-16T14:09:19.1222710Z Finished uploading artifact content to blob storage!
+2026-10-16T14:09:19.1324670Z SHA256 digest of uploaded artifact zip is 303e776170d45b7113b2713be68ff64df0f07eb195fe9458a221867838f2e443
+2026-10-16T14:09:19.1425110Z Finalizing artifact upload
+2026-10-16T14:09:19.4894410Z Artifact EQ-legacy-state-macOS-428d4b9890a015f1fe1545ad737e8ed2c57af9d9.zip successfully finalized. Artifact ID 12051606030
+2026-10-16T14:09:19.4909360Z Artifact EQ-legacy-state-macOS-428d4b9890a015f1fe1545ad737e8ed2c57af9d9 has been successfully uploaded! Final size is 4690 bytes. Artifact ID is 12051606030
+2026-10-16T14:09:19.4917830Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906942295/artifacts/12051606030
+2026-10-16T14:09:19.5222840Z Post job cleanup.
+2026-10-16T14:09:19.6654800Z [command]/opt/homebrew/bin/git version
+2026-10-16T14:09:19.6958130Z git version 2.55.0
+2026-10-16T14:09:19.7012160Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/4152d723-c533-4504-8be0-1c12fc59b13d/.gitconfig'
+2026-10-16T14:09:19.7013170Z Temporarily overriding HOME='/Users/runner/work/_temp/4152d723-c533-4504-8be0-1c12fc59b13d' before making global git config changes
+2026-10-16T14:09:19.7013940Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-16T14:09:19.7014830Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-16T14:09:19.7155660Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-16T14:09:19.7237550Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-16T14:09:19.9047390Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-16T14:09:19.9084110Z http.https://github.com/.extraheader
+2026-10-16T14:09:19.9100880Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-16T14:09:19.9257300Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-16T14:09:20.0858130Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-16T14:09:20.1162950Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-16T14:09:20.3106200Z Cleaning up orphan processes

@@ -1,0 +1,148 @@
+test_compare_exact_and_records_evidence (__main__.ComparisonControls.test_compare_exact_and_records_evidence) ... ERROR
+test_compare_frozen_append_in_both_directions (__main__.ComparisonControls.test_compare_frozen_append_in_both_directions) ... ERROR
+test_compare_rejects_appended_nondefault (__main__.ComparisonControls.test_compare_rejects_appended_nondefault) ... ERROR
+test_compare_rejects_audio_drift (__main__.ComparisonControls.test_compare_rejects_audio_drift) ... ok
+test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) ... 
+  test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='id') ... ERROR
+  test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='steps') ... ERROR
+  test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='default') ... ERROR
+  test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='flags') ... ERROR
+test_compare_rejects_latency_drift (__main__.ComparisonControls.test_compare_rejects_latency_drift) ... ERROR
+test_compare_rejects_normalized_drift (__main__.ComparisonControls.test_compare_rejects_normalized_drift) ... ERROR
+test_compare_rejects_serialized_state_drift (__main__.ComparisonControls.test_compare_rejects_serialized_state_drift) ... ERROR
+test_exact (__main__.RenderControls.test_exact) ... ok
+test_nan_rejected (__main__.RenderControls.test_nan_rejected) ... ok
+test_one_bit_rejected (__main__.RenderControls.test_one_bit_rejected) ... ok
+test_silence_rejected (__main__.RenderControls.test_silence_rejected) ... ok
+test_truncation_rejected (__main__.RenderControls.test_truncation_rejected) ... ok
+
+======================================================================
+ERROR: test_compare_exact_and_records_evidence (__main__.ComparisonControls.test_compare_exact_and_records_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 81, in test_compare_exact_and_records_evidence
+    compare('candidate A/A', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_frozen_append_in_both_directions (__main__.ComparisonControls.test_compare_frozen_append_in_both_directions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 92, in test_compare_frozen_append_in_both_directions
+    compare('beta2 -> candidate', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_appended_nondefault (__main__.ComparisonControls.test_compare_rejects_appended_nondefault)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 112, in test_compare_rejects_appended_nondefault
+    self.assert_rejected('appended normalized value is not its default')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 119, in test_compare_rejects_invalid_append_metadata
+    self.assert_rejected('duplicate VST3 ParamID|released metadata changed')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='steps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 119, in test_compare_rejects_invalid_append_metadata
+    self.assert_rejected('duplicate VST3 ParamID|released metadata changed')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='default')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 119, in test_compare_rejects_invalid_append_metadata
+    self.assert_rejected('duplicate VST3 ParamID|released metadata changed')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_invalid_append_metadata (__main__.ComparisonControls.test_compare_rejects_invalid_append_metadata) (key='flags')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 119, in test_compare_rejects_invalid_append_metadata
+    self.assert_rejected('duplicate VST3 ParamID|released metadata changed')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_latency_drift (__main__.ComparisonControls.test_compare_rejects_latency_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 123, in test_compare_rejects_latency_drift
+    self.assert_rejected('render.txt mismatch')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_normalized_drift (__main__.ComparisonControls.test_compare_rejects_normalized_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 106, in test_compare_rejects_normalized_drift
+    self.assert_rejected('normalized values changed')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+======================================================================
+ERROR: test_compare_rejects_serialized_state_drift (__main__.ComparisonControls.test_compare_rejects_serialized_state_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 127, in test_compare_rejects_serialized_state_drift
+    self.assert_rejected('serialized state mismatch')
+  File "/workspace/scratch/fd14baa39616/chimera/Tests/test_eq_normalization_render.py", line 76, in assert_rejected
+    compare('negative control', self.a, self.b, results)
+  File "/workspace/scratch/fd14baa39616/chimera/Tools/eq_normalization_render.py", line 58, in compare
+    if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'list' object is not callable
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.838s
+
+FAILED (errors=10)
