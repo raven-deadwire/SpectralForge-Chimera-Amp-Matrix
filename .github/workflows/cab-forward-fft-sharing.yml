@@ -1,0 +1,58 @@
+name: CAB shared forward FFT experiment
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabFFTSharing/**'
+      - '.github/workflows/cab-forward-fft-sharing.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cab-shared-fft-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  native:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Native identity and pinned JUCE
+        run: |
+          test "$(uname -m)" = arm64
+          mkdir evidence
+          system_profiler SPHardwareDataType > evidence/hardware.txt
+          xcodebuild -version > evidence/xcode.txt
+          clang++ --version > evidence/compiler.txt
+          git rev-parse HEAD > evidence/controller.txt
+          git clone --depth 1 --branch 8.0.8 https://github.com/juce-framework/JUCE.git ../juce
+          test "$(git -C ../juce rev-parse HEAD)" = d6181bde38d858c283c3b7bf699ce6340c050b5d
+      - name: Generate isolated variants and build all binaries
+        run: |
+          python Tools/CabFFTSharing/prepare.py ../variants
+          cmake -S Tools/CabFFTSharing -B ../build -DVARIANTS="$PWD/../variants" -DJUCE_SOURCE="$PWD/../juce" -DCMAKE_BUILD_TYPE=Release
+          cmake --build ../build --parallel 3
+          cp ../build/compile_commands.json evidence/
+          cp ../variants/manifest.json evidence/source-manifest.json
+          diff -u ../variants/A/Source/ModeledCabConvolution.h ../variants/B/Source/ModeledCabConvolution.h > evidence/convolution.patch || test "$?" = 1
+          diff -u ../variants/A/Source/Cabinet.h ../variants/B/Source/Cabinet.h > evidence/cab.patch || test "$?" = 1
+          git diff --exit-code -- Source Tests
+      - name: Original contracts, bit comparisons, concurrent owners, then paired timings
+        run: python Tools/CabFFTSharing/run.py --build ../build --output evidence/population
+      - name: Preserve successful and failed populations
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: CAB-shared-forward-FFT-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 90
