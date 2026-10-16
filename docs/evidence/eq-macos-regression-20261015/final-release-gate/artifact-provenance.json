@@ -1,0 +1,17 @@
+{
+  "run_id": 38599009356,
+  "artifact_id": 11918248332,
+  "archive_sha256": "d696e5813736a4faa5c213c94faa6c9c15e31a75e044ab05f81fc1fbb08e9f3f",
+  "source_commit": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "files": [
+    {
+      "path": "release-gate.json",
+      "sha256": "906d9c92b2fd1748d12d8afde11bbdbb8628fa2ff1aed88938c5749b6076f5a3"
+    },
+    {
+      "path": "release-gate.md",
+      "sha256": "71d770c2061ebf06a88d591b7baad3044c47816ba789f6c55d06dd9a5dfc74f9"
+    }
+  ],
+  "selection_note": "Summary reports retained here; their referenced platform raw files are retained under final-*-platform-evidence. Full checks remain in the source artifact."
+}

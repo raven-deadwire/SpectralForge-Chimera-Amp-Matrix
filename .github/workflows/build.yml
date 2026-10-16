@@ -142,6 +142,8 @@ jobs:
       - run: cmake --build build --config Release --parallel 2
       - name: Record configured CTest inventory
         run: ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
+      - name: Verify integrated EQ and tuner test inventory
+        run: python3 Tools/check_eq_tuner_integration.py --inventory build/ctest-inventory.json --output build/eq-tuner-integration.json
       - name: Execute Windows and macOS CTest matrix
         id: ctest_native
         if: runner.os != 'Linux'
@@ -165,6 +167,9 @@ jobs:
             build/validation
             build/ctest-results.xml
             build/ctest-inventory.json
+            build/eq-tuner-integration.json
+            build/chimera-build-version.json
+            build/eq-legacy/**
             build/cab-timing-diagnostics/**
             build/signature-snapshots
           if-no-files-found: warn

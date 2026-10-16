@@ -2,3 +2,8 @@
 /docs/evidence/eq-transient-fix-20261012/** -text
 /docs/evidence/eq-high-rate-attribution-20261012/** -text
 /docs/evidence/eq-editing-oct23/** -text
+/docs/evidence/eq-macos-regression-20261015/** -text
+Tests/fixtures/eq-beta2/*.chimera binary
+Tests/fixtures/eq-beta2/*.tsv -text
+
+/docs/evidence/eq-tuner-oct23-20261016/** -text

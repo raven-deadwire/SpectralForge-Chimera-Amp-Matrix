@@ -1,0 +1,129 @@
+{
+  "version": "1.3.1-beta.1",
+  "product_version": "1.3.1",
+  "installer_version": "1.3.1",
+  "source_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "build_id": "babfecda99",
+  "files": [
+    {
+      "path": "usr/bin/chimera-amp-matrix",
+      "bytes": 130641832,
+      "sha256": "d1d09c88752663e6d699578fd2aae4ab67a9839a6d94a4cc875075de85e025d0"
+    },
+    {
+      "path": "usr/lib/vst3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json",
+      "bytes": 1441,
+      "sha256": "51c54a7b2e26d627fdbf4de0a5882df63574e9ccec483161e8a53a72060ada50"
+    },
+    {
+      "path": "usr/lib/vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so",
+      "bytes": 130737320,
+      "sha256": "c82a863f1fdcb88c8248ca2a9673533f2de9a6ed3b11e35606f02e5a8447b7ee"
+    },
+    {
+      "path": "usr/share/applications/chimera-amp-matrix.desktop",
+      "bytes": 207,
+      "sha256": "2c0724bd4884c09b67cac50d5a32a5d5a5b6254d1eaf80a5bd8c7588a6567b5a"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/AMP_NATIVE_DSP.md",
+      "bytes": 10588,
+      "sha256": "0387af8daf39ee3373396fec2a05f4f14930cf8d236cd3a90d26baf13bb57eb7"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/AMP_VALIDATION.md",
+      "bytes": 12023,
+      "sha256": "1477d4be92eb6bd0904f33f3151469b6e3891fa03ef1848dea9ddedb65acd74f"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/AMP_VOICES_OPEN_BETA.md",
+      "bytes": 7811,
+      "sha256": "c67cb981d1fbbe8b7bf3727addccf9fdc0cf3196cb620b1c145d7695ac210fe8"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/COPYRIGHT.txt",
+      "bytes": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/EXTERNAL_BASS_IRS.md",
+      "bytes": 1714,
+      "sha256": "1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/FACTORY_CAB_VOICING_1_3.md",
+      "bytes": 15969,
+      "sha256": "058ada6a4b6011a3f6330e1552b27b0a974d15cbff18fc8ca58849fd03b284ac"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/INSTALLATION.md",
+      "bytes": 7736,
+      "sha256": "e73d1d098a9f725dc9fff3d279fb985194a12700eb248526ccf36e9d00f9ab94"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/IR_DISTRIBUTION.md",
+      "bytes": 2508,
+      "sha256": "f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/MANUAL.html",
+      "bytes": 266264,
+      "sha256": "97645c9cdbb053d50fc190512d0c5656062685885070c6dbc0e03de71c7d778f"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/OPEN_BETA_RELEASE_NOTES.md",
+      "bytes": 10171,
+      "sha256": "bb5e44699452c10fcd6b610f5de758372417c04feafe010382179119847fa721"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/PEDAL_BOARD_DSP.md",
+      "bytes": 8643,
+      "sha256": "e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/POST_NATIVE_DSP.md",
+      "bytes": 7143,
+      "sha256": "814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/PRESETS.md",
+      "bytes": 13829,
+      "sha256": "204d7770911560aa284fdb27e9edab63d7dcfd92d3a4f7e69bfc7d7f74af2fb7"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/STUDIO_ONE_TEARDOWN.md",
+      "bytes": 5936,
+      "sha256": "1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/THIRD_PARTY_NOTICES.md",
+      "bytes": 3627,
+      "sha256": "05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/UPDATES.md",
+      "bytes": 8181,
+      "sha256": "84d1afcfb2bde692734490544d54ea44f2c2540ea9b05c410cb5687f018b0621"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/VALIDATION_STATUS.md",
+      "bytes": 4435,
+      "sha256": "5f14b6c470b0b67a5d8be78629c499c711c1862f5db11233bbc690ab071a7f3a"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/Verification.txt",
+      "bytes": 400556,
+      "sha256": "0ca055bae9701c72c670d82c1054de94214fc8d7be91d2f45ceb51b593f74c65"
+    },
+    {
+      "path": "usr/share/doc/chimera-amp-matrix/WINDOWS_INSTALL.txt",
+      "bytes": 5290,
+      "sha256": "3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133"
+    },
+    {
+      "path": "usr/share/pixmaps/chimera-amp-matrix.png",
+      "bytes": 1048150,
+      "sha256": "aa4448b13dc8878bf5934afe4ba9ee42fbeb8d3b709ebca92c2473fe6c389b39"
+    }
+  ]
+}

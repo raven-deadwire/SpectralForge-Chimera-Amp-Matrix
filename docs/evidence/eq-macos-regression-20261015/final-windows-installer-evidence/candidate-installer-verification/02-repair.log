@@ -1,0 +1,349 @@
+﻿2026-10-14 17:56:10.462   Log opened. (Time zone: UTC+00:00)
+2026-10-14 17:56:10.462   Setup version: Inno Setup version 6.7.1
+2026-10-14 17:56:10.462   Original Setup EXE: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\installer-candidate\SpectralForge-Chimera-update-babfecda99-win64-Setup.exe
+2026-10-14 17:56:10.462   Setup command line: /SL5="$170024,209529044,962560,D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\installer-candidate\SpectralForge-Chimera-update-babfecda99-win64-Setup.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /LANG=korean /TYPE=custom /COMPONENTS=vst3,standalone,reference /DIR="C:\Program Files\SpectralForge\Chimera Amp Matrix" /LOG="D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\candidate-installer-verification/02-repair.log"
+2026-10-14 17:56:10.463   Windows version: 10.0.26100
+2026-10-14 17:56:10.463   Windows architecture: x64 (64-bit)
+2026-10-14 17:56:10.463   Machine types supported by system: x86 x64
+2026-10-14 17:56:10.463   User privileges: Administrative
+2026-10-14 17:56:10.466   Administrative install mode: Yes
+2026-10-14 17:56:10.466   Install mode root key: HKEY_LOCAL_MACHINE
+2026-10-14 17:56:10.466   64-bit install mode: Yes
+2026-10-14 17:56:10.466   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-14 17:56:10.468   Created protected temporary directory: C:\Users\RUNNER~1\AppData\Local\Temp\is-O0ELL05C6Y.tmp
+2026-10-14 17:56:10.585   Starting the installation process.
+2026-10-14 17:56:10.586   Directory for uninstall files: C:\Program Files\SpectralForge\Chimera Amp Matrix\Uninstall
+2026-10-14 17:56:10.587   Will append to existing uninstall log: C:\Program Files\SpectralForge\Chimera Amp Matrix\Uninstall\unins000.dat
+2026-10-14 17:56:10.589   -- File entry --
+2026-10-14 17:56:10.589   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Uninstall\unins000.exe
+2026-10-14 17:56:10.589   Non-default bitness: 32-bit
+2026-10-14 17:56:10.591   Time stamp of our file: 2026-10-14 17:56:10.404
+2026-10-14 17:56:10.591   Dest file exists.
+2026-10-14 17:56:10.591   Time stamp of existing file: 2026-10-14 17:55:50.413
+2026-10-14 17:56:10.591   Version of our file: 51.1054.0.0
+2026-10-14 17:56:10.591   Version of existing file: 51.1054.0.0
+2026-10-14 17:56:10.591   Installing the file.
+2026-10-14 17:56:10.600   Leaving temporary file in place for now.
+2026-10-14 17:56:10.600   -- File entry --
+2026-10-14 17:56:10.600   Dest filename: C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3\desktop.ini
+2026-10-14 17:56:10.601   Time stamp of our file: 2026-10-14 16:37:40.000
+2026-10-14 17:56:10.601   Dest file exists.
+2026-10-14 17:56:10.601   Time stamp of existing file: 2026-10-14 16:37:40.000
+2026-10-14 17:56:10.601   Installing the file.
+2026-10-14 17:56:10.604   Successfully installed the file.
+2026-10-14 17:56:10.604   -- File entry --
+2026-10-14 17:56:10.604   Dest filename: C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3\Plugin.ico
+2026-10-14 17:56:10.604   Time stamp of our file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:10.604   Dest file exists.
+2026-10-14 17:56:10.604   Time stamp of existing file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:10.604   Installing the file.
+2026-10-14 17:56:10.610   Successfully installed the file.
+2026-10-14 17:56:10.610   -- File entry --
+2026-10-14 17:56:10.610   Dest filename: C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3\Contents\Resources\moduleinfo.json
+2026-10-14 17:56:10.610   Time stamp of our file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:10.610   Dest file exists.
+2026-10-14 17:56:10.610   Time stamp of existing file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:10.610   Installing the file.
+2026-10-14 17:56:10.611   Successfully installed the file.
+2026-10-14 17:56:10.611   -- File entry --
+2026-10-14 17:56:10.612   Dest filename: C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3\Contents\x86_64-win\SpectralForge Chimera.vst3
+2026-10-14 17:56:10.612   Time stamp of our file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:10.612   Dest file exists.
+2026-10-14 17:56:10.612   Time stamp of existing file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:10.612   Installing the file.
+2026-10-14 17:56:16.312   Successfully installed the file.
+2026-10-14 17:56:16.312   -- File entry --
+2026-10-14 17:56:16.313   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\SpectralForge Chimera.exe
+2026-10-14 17:56:16.313   Time stamp of our file: 2026-10-14 16:45:18.000
+2026-10-14 17:56:16.313   Dest file exists.
+2026-10-14 17:56:16.313   Time stamp of existing file: 2026-10-14 16:45:18.000
+2026-10-14 17:56:16.313   Installing the file.
+2026-10-14 17:56:21.862   Successfully installed the file.
+2026-10-14 17:56:21.863   -- File entry --
+2026-10-14 17:56:21.863   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\COPYRIGHT.txt
+2026-10-14 17:56:21.863   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.863   Dest file exists.
+2026-10-14 17:56:21.863   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.863   Installing the file.
+2026-10-14 17:56:21.864   Successfully installed the file.
+2026-10-14 17:56:21.864   -- File entry --
+2026-10-14 17:56:21.864   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\README.txt
+2026-10-14 17:56:21.864   Time stamp of our file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:21.864   Dest file exists.
+2026-10-14 17:56:21.864   Time stamp of existing file: 2026-10-14 17:56:10.249
+2026-10-14 17:56:21.864   Installing the file.
+2026-10-14 17:56:21.865   Successfully installed the file.
+2026-10-14 17:56:21.865   -- File entry --
+2026-10-14 17:56:21.865   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Verification.txt
+2026-10-14 17:56:21.866   Time stamp of our file: 2026-10-14 17:54:34.000
+2026-10-14 17:56:21.866   Dest file exists.
+2026-10-14 17:56:21.866   Time stamp of existing file: 2026-10-14 17:54:34.000
+2026-10-14 17:56:21.866   Installing the file.
+2026-10-14 17:56:21.873   Successfully installed the file.
+2026-10-14 17:56:21.873   -- File entry --
+2026-10-14 17:56:21.874   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\WINDOWS_INSTALL.txt
+2026-10-14 17:56:21.874   Time stamp of our file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:21.874   Dest file exists.
+2026-10-14 17:56:21.874   Time stamp of existing file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:21.874   Installing the file.
+2026-10-14 17:56:21.875   Successfully installed the file.
+2026-10-14 17:56:21.875   -- File entry --
+2026-10-14 17:56:21.875   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\ARTWORK_PROMPTS.json
+2026-10-14 17:56:21.875   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.875   Dest file exists.
+2026-10-14 17:56:21.875   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.875   Installing the file.
+2026-10-14 17:56:21.879   Successfully installed the file.
+2026-10-14 17:56:21.879   -- File entry --
+2026-10-14 17:56:21.879   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\MANUAL.html
+2026-10-14 17:56:21.879   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.879   Dest file exists.
+2026-10-14 17:56:21.879   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.879   Installing the file.
+2026-10-14 17:56:21.883   Successfully installed the file.
+2026-10-14 17:56:21.883   -- File entry --
+2026-10-14 17:56:21.883   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\payload-manifest.json
+2026-10-14 17:56:21.883   Time stamp of our file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:21.883   Dest file exists.
+2026-10-14 17:56:21.883   Time stamp of existing file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:21.883   Installing the file.
+2026-10-14 17:56:21.884   Successfully installed the file.
+2026-10-14 17:56:21.884   -- File entry --
+2026-10-14 17:56:21.884   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\AMP_NATIVE_DSP.md
+2026-10-14 17:56:21.885   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.885   Dest file exists.
+2026-10-14 17:56:21.885   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.885   Installing the file.
+2026-10-14 17:56:21.886   Successfully installed the file.
+2026-10-14 17:56:21.886   -- File entry --
+2026-10-14 17:56:21.886   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\AMP_VALIDATION.md
+2026-10-14 17:56:21.886   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.886   Dest file exists.
+2026-10-14 17:56:21.886   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.886   Installing the file.
+2026-10-14 17:56:21.888   Successfully installed the file.
+2026-10-14 17:56:21.888   -- File entry --
+2026-10-14 17:56:21.888   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\AMP_VOICES_OPEN_BETA.md
+2026-10-14 17:56:21.888   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.888   Dest file exists.
+2026-10-14 17:56:21.888   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.888   Installing the file.
+2026-10-14 17:56:21.889   Successfully installed the file.
+2026-10-14 17:56:21.889   -- File entry --
+2026-10-14 17:56:21.889   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\EXTERNAL_BASS_IRS.md
+2026-10-14 17:56:21.889   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.889   Dest file exists.
+2026-10-14 17:56:21.890   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.890   Installing the file.
+2026-10-14 17:56:21.890   Successfully installed the file.
+2026-10-14 17:56:21.891   -- File entry --
+2026-10-14 17:56:21.891   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\FACTORY_CAB_VOICING_1_3.md
+2026-10-14 17:56:21.891   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.891   Dest file exists.
+2026-10-14 17:56:21.891   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.891   Installing the file.
+2026-10-14 17:56:21.892   Successfully installed the file.
+2026-10-14 17:56:21.892   -- File entry --
+2026-10-14 17:56:21.892   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\GRAPHICS_DSP_UPDATE.md
+2026-10-14 17:56:21.893   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.893   Dest file exists.
+2026-10-14 17:56:21.893   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.893   Installing the file.
+2026-10-14 17:56:21.894   Successfully installed the file.
+2026-10-14 17:56:21.894   -- File entry --
+2026-10-14 17:56:21.894   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\INSTALLATION.md
+2026-10-14 17:56:21.894   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.894   Dest file exists.
+2026-10-14 17:56:21.894   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.894   Installing the file.
+2026-10-14 17:56:21.895   Successfully installed the file.
+2026-10-14 17:56:21.895   -- File entry --
+2026-10-14 17:56:21.895   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\IR_DISTRIBUTION.md
+2026-10-14 17:56:21.895   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.895   Dest file exists.
+2026-10-14 17:56:21.896   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.896   Installing the file.
+2026-10-14 17:56:21.897   Successfully installed the file.
+2026-10-14 17:56:21.897   -- File entry --
+2026-10-14 17:56:21.897   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\NEW_AMP_DSP.md
+2026-10-14 17:56:21.897   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.897   Dest file exists.
+2026-10-14 17:56:21.897   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.897   Installing the file.
+2026-10-14 17:56:21.898   Successfully installed the file.
+2026-10-14 17:56:21.898   -- File entry --
+2026-10-14 17:56:21.898   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\OPEN_BETA_RELEASE_NOTES.md
+2026-10-14 17:56:21.898   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.898   Dest file exists.
+2026-10-14 17:56:21.899   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.899   Installing the file.
+2026-10-14 17:56:21.900   Successfully installed the file.
+2026-10-14 17:56:21.900   -- File entry --
+2026-10-14 17:56:21.900   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\PEDAL_BOARD_DSP.md
+2026-10-14 17:56:21.900   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.900   Dest file exists.
+2026-10-14 17:56:21.900   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.900   Installing the file.
+2026-10-14 17:56:21.901   Successfully installed the file.
+2026-10-14 17:56:21.901   -- File entry --
+2026-10-14 17:56:21.901   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\POST_NATIVE_DSP.md
+2026-10-14 17:56:21.902   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.902   Dest file exists.
+2026-10-14 17:56:21.902   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.902   Installing the file.
+2026-10-14 17:56:21.903   Successfully installed the file.
+2026-10-14 17:56:21.903   -- File entry --
+2026-10-14 17:56:21.903   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\PRESETS.md
+2026-10-14 17:56:21.903   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.903   Dest file exists.
+2026-10-14 17:56:21.903   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.903   Installing the file.
+2026-10-14 17:56:21.904   Successfully installed the file.
+2026-10-14 17:56:21.904   -- File entry --
+2026-10-14 17:56:21.905   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\STUDIO_ONE_TEARDOWN.md
+2026-10-14 17:56:21.905   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.905   Dest file exists.
+2026-10-14 17:56:21.905   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.905   Installing the file.
+2026-10-14 17:56:21.906   Successfully installed the file.
+2026-10-14 17:56:21.906   -- File entry --
+2026-10-14 17:56:21.906   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-14 17:56:21.906   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.906   Dest file exists.
+2026-10-14 17:56:21.906   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.906   Installing the file.
+2026-10-14 17:56:21.907   Successfully installed the file.
+2026-10-14 17:56:21.907   -- File entry --
+2026-10-14 17:56:21.907   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\UPDATES.md
+2026-10-14 17:56:21.908   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.908   Dest file exists.
+2026-10-14 17:56:21.908   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.908   Installing the file.
+2026-10-14 17:56:21.909   Successfully installed the file.
+2026-10-14 17:56:21.909   -- File entry --
+2026-10-14 17:56:21.909   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\UPDATE_TEST_BUILD.md
+2026-10-14 17:56:21.909   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.909   Dest file exists.
+2026-10-14 17:56:21.909   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.909   Installing the file.
+2026-10-14 17:56:21.910   Successfully installed the file.
+2026-10-14 17:56:21.910   -- File entry --
+2026-10-14 17:56:21.910   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\VALIDATION_STATUS.md
+2026-10-14 17:56:21.910   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.910   Dest file exists.
+2026-10-14 17:56:21.911   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.911   Installing the file.
+2026-10-14 17:56:21.912   Successfully installed the file.
+2026-10-14 17:56:21.912   -- File entry --
+2026-10-14 17:56:21.912   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\Documentation\WINDOWS_SIGNING.md
+2026-10-14 17:56:21.912   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.912   Dest file exists.
+2026-10-14 17:56:21.912   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.912   Installing the file.
+2026-10-14 17:56:21.913   Successfully installed the file.
+2026-10-14 17:56:21.913   -- File entry --
+2026-10-14 17:56:21.913   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\ReferenceTools\ChimeraRender.exe
+2026-10-14 17:56:21.913   Time stamp of our file: 2026-10-14 17:22:46.000
+2026-10-14 17:56:21.913   Installing the file.
+2026-10-14 17:56:21.997   Successfully installed the file.
+2026-10-14 17:56:21.997   -- File entry --
+2026-10-14 17:56:21.997   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\ReferenceTools\Trace-Chimera-Session.ps1
+2026-10-14 17:56:21.997   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.997   Dest file exists.
+2026-10-14 17:56:21.997   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.997   Installing the file.
+2026-10-14 17:56:21.999   Successfully installed the file.
+2026-10-14 17:56:21.999   -- File entry --
+2026-10-14 17:56:21.999   Dest filename: C:\Program Files\SpectralForge\Chimera Amp Matrix\ReferenceTools\validate_nam.py
+2026-10-14 17:56:21.999   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.999   Dest file exists.
+2026-10-14 17:56:21.999   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:21.999   Installing the file.
+2026-10-14 17:56:22.000   Successfully installed the file.
+2026-10-14 17:56:22.001   -- File entry --
+2026-10-14 17:56:22.001   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Bass\CI Bass 8x10 MD421.wav
+2026-10-14 17:56:22.001   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:22.001   Dest file exists.
+2026-10-14 17:56:22.001   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.001   -- File entry --
+2026-10-14 17:56:22.001   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Guitar\CI Guitar 4x12 SM57.wav
+2026-10-14 17:56:22.002   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:22.002   Dest file exists.
+2026-10-14 17:56:22.002   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.002   -- File entry --
+2026-10-14 17:56:22.002   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven In.wav
+2026-10-14 17:56:22.002   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:22.002   Dest file exists.
+2026-10-14 17:56:22.002   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.002   -- File entry --
+2026-10-14 17:56:22.003   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Out.wav
+2026-10-14 17:56:22.003   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:22.003   Dest file exists.
+2026-10-14 17:56:22.003   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.003   -- File entry --
+2026-10-14 17:56:22.003   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Ref.wav
+2026-10-14 17:56:22.003   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:22.003   Dest file exists.
+2026-10-14 17:56:22.003   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.003   -- File entry --
+2026-10-14 17:56:22.003   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven V30 Comparison.wav
+2026-10-14 17:56:22.003   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:22.003   Dest file exists.
+2026-10-14 17:56:22.003   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.004   -- File entry --
+2026-10-14 17:56:22.004   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Bass\CI Bass 8x10 MD421.wav.json
+2026-10-14 17:56:22.004   Time stamp of our file: 2026-10-14 17:55:49.756
+2026-10-14 17:56:22.004   Dest file exists.
+2026-10-14 17:56:22.004   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.004   -- File entry --
+2026-10-14 17:56:22.004   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Guitar\CI Guitar 4x12 SM57.wav.json
+2026-10-14 17:56:22.005   Time stamp of our file: 2026-10-14 17:55:49.759
+2026-10-14 17:56:22.005   Dest file exists.
+2026-10-14 17:56:22.005   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.005   -- File entry --
+2026-10-14 17:56:22.005   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven In.wav.json
+2026-10-14 17:56:22.005   Time stamp of our file: 2026-10-14 17:55:49.769
+2026-10-14 17:56:22.005   Dest file exists.
+2026-10-14 17:56:22.005   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.005   -- File entry --
+2026-10-14 17:56:22.005   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Out.wav.json
+2026-10-14 17:56:22.006   Time stamp of our file: 2026-10-14 17:55:49.773
+2026-10-14 17:56:22.006   Dest file exists.
+2026-10-14 17:56:22.006   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.006   -- File entry --
+2026-10-14 17:56:22.006   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Ref.wav.json
+2026-10-14 17:56:22.006   Time stamp of our file: 2026-10-14 17:55:49.937
+2026-10-14 17:56:22.006   Dest file exists.
+2026-10-14 17:56:22.006   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.006   -- File entry --
+2026-10-14 17:56:22.006   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven V30 Comparison.wav.json
+2026-10-14 17:56:22.006   Time stamp of our file: 2026-10-14 17:55:49.939
+2026-10-14 17:56:22.006   Dest file exists.
+2026-10-14 17:56:22.006   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:22.007   -- Icon entry --
+2026-10-14 17:56:22.007   Dest filename: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\SpectralForge Chimera.lnk
+2026-10-14 17:56:22.007   Creating the icon.
+2026-10-14 17:56:22.044   Successfully created the icon.
+2026-10-14 17:56:22.053   -- Icon entry --
+2026-10-14 17:56:22.053   Dest filename: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\Manual.lnk
+2026-10-14 17:56:22.054   Creating the icon.
+2026-10-14 17:56:22.057   Successfully created the icon.
+2026-10-14 17:56:22.061   -- Icon entry --
+2026-10-14 17:56:22.062   Dest filename: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\설치 안내.lnk
+2026-10-14 17:56:22.062   Creating the icon.
+2026-10-14 17:56:22.065   Successfully created the icon.
+2026-10-14 17:56:22.069   -- Icon entry --
+2026-10-14 17:56:22.069   Dest filename: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\SpectralForge Chimera 제거.lnk
+2026-10-14 17:56:22.070   Creating the icon.
+2026-10-14 17:56:22.073   Successfully created the icon.
+2026-10-14 17:56:22.078   Saving uninstall information.
+2026-10-14 17:56:22.078   Renaming uninstaller.
+2026-10-14 17:56:22.079   Deleting uninstall key left over from previous administrative 64-bit install.
+2026-10-14 17:56:22.080   Creating new uninstall key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1
+2026-10-14 17:56:22.080   Writing uninstall key values.
+2026-10-14 17:56:22.081   Detected previous non administrative install? No
+2026-10-14 17:56:22.081   Detected previous administrative 32-bit install? No
+2026-10-14 17:56:22.089   Installation process succeeded.
+2026-10-14 17:56:22.089   Need to restart Windows? No
+2026-10-14 17:56:22.094   Deinitializing Setup.
+2026-10-14 17:56:22.100   Log closed.

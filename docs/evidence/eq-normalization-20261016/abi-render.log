@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "actual_daw": "NOT_ASSESSED",
+  "release_approved": false,
+  "scope": "Classic isolated EQ via real VST3 process, 48 kHz/256 stereo; fixed midpoint queues",
+  "host_sha256": "bf609e027a0b89b0582cb9c411935097346cd4d59b6e519b9b6ca245fc72d37b",
+  "released_sha256": "a7be4d98614897b9dd98254f39ba919f5520fdde4649cc73e98a56d12feef486",
+  "candidate_sha256": "aa7b5aabb98439c3c20f6604550f6e756d69104cbe5b9345176783ce5115f193",
+  "active_eq_automation_effect": "PASS"
+}
+exact comparisons passed: 15/15; actual DAW NOT_ASSESSED

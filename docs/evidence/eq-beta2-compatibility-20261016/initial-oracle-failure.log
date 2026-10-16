@@ -1,0 +1,55 @@
+Start testing: Oct 16 16:18 JST
+----------------------------------------------------------
+49/50 Testing: ChimeraEQLegacyFixtureIntegrity
+49/50 Test: ChimeraEQLegacyFixtureIntegrity
+Command: "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12" "/workspace/scratch/5eb6e40723c6/chimera-eq/Tools/eq_legacy_fixture.py" "verify" "--output" "/workspace/scratch/5eb6e40723c6/chimera-eq/Tests/fixtures/eq-beta2"
+Directory: /workspace/scratch/5eb6e40723c6/build-eq
+"ChimeraEQLegacyFixtureIntegrity" start time: Oct 16 16:18 JST
+Output:
+----------------------------------------------------------
+PASS fixture digests, released parameter count and missing occupancy
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQLegacyFixtureIntegrity" end time: Oct 16 16:18 JST
+"ChimeraEQLegacyFixtureIntegrity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+48/50 Testing: ChimeraEQLegacyStateTests
+48/50 Test: ChimeraEQLegacyStateTests
+Command: "/workspace/scratch/5eb6e40723c6/build-eq/ChimeraEQLegacyStateTests_artefacts/Release/ChimeraEQLegacyStateTests" "/workspace/scratch/5eb6e40723c6/chimera-eq/Tests/fixtures/eq-beta2" "/workspace/scratch/5eb6e40723c6/build-eq/eq-legacy"
+Directory: /workspace/scratch/5eb6e40723c6/build-eq
+"ChimeraEQLegacyStateTests" start time: Oct 16 16:18 JST
+Output:
+----------------------------------------------------------
+FAIL legacy canonical value mismatch busattack
+<end of output>
+Test time =   0.32 sec
+----------------------------------------------------------
+Test Failed.
+"ChimeraEQLegacyStateTests" end time: Oct 16 16:18 JST
+"ChimeraEQLegacyStateTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+50/50 Testing: ChimeraEQLegacyEvidenceTests
+50/50 Test: ChimeraEQLegacyEvidenceTests
+Command: "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12" "/workspace/scratch/5eb6e40723c6/chimera-eq/Tests/test_eq_legacy_fixture.py"
+Directory: /workspace/scratch/5eb6e40723c6/build-eq
+"ChimeraEQLegacyEvidenceTests" start time: Oct 16 16:18 JST
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.031s
+
+OK
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQLegacyEvidenceTests" end time: Oct 16 16:18 JST
+"ChimeraEQLegacyEvidenceTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 16 16:18 JST

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="3"
+	failures="1"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="5"
+	timestamp="2026-10-16T16:26:13"
+	>
+	<testcase name="ChimeraEQLegacyStateTests" classname="ChimeraEQLegacyStateTests" time="5.6577" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=1
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RESTORE canonical_changes=0
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+PASS real beta.2 fixture default.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=0
+STAGE reuse fixed slots
+STAGE reused save/reopen
+FAIL_RESTORE id=toneEQ_b4_q index=4864 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b8_q index=4945 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+RESTORE canonical_changes=2
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+FAIL real beta.2 fixture pattern.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+VALUES stored_bits=4967 canonical_bits=0
+VALUES stored_bits=4967 canonical_bits=0
+RESTORE canonical_changes=35
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+FAIL_RESTORE id=delaymix index=73 before=0.1999999881 canonical=0.1999999881 after=0.200000003 normalized_before=0.3333333135 normalized_after=0.3333333135
+FAIL_RESTORE id=toneEQ_b1_q index=4849 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b2_q index=4854 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b3_q index=4859 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b4_q index=4864 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b5_frequency index=4867 before=480 canonical=480 after=480.0000305 normalized_before=0.4201976955 normalized_after=0.4201976955
+FAIL_RESTORE id=toneEQ_b5_q index=4869 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b6_q index=4874 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b7_frequency index=4877 before=1000 canonical=1000 after=999.999939 normalized_before=0.5 normalized_after=0.5
+FAIL_RESTORE id=toneEQ_b7_q index=4879 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b8_frequency index=4882 before=2000 canonical=2000 after=1999.999878 normalized_before=0.5877489448 normalized_after=0.5877489448
+FAIL_RESTORE id=toneEQ_b8_q index=4884 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b9_q index=4889 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b10_frequency index=4892 before=6000 canonical=6000 after=6000.000488 normalized_before=0.7577995062 normalized_after=0.7577995062
+FAIL_RESTORE id=toneEQ_b10_q index=4894 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b11_frequency index=4897 before=10000 canonical=10000 after=10000.00098 normalized_before=0.8524950147 normalized_after=0.8524950147
+FAIL_RESTORE id=toneEQ_b11_q index=4899 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b12_q index=4904 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b1_q index=4910 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b2_q index=4915 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b3_q index=4920 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b4_q index=4925 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b5_frequency index=4928 before=480 canonical=480 after=480.0000305 normalized_before=0.4201976955 normalized_after=0.4201976955
+FAIL_RESTORE id=finalEQ_b5_q index=4930 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b6_q index=4935 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b7_frequency index=4938 before=1000 canonical=1000 after=999.999939 normalized_before=0.5 normalized_after=0.5
+FAIL_RESTORE id=finalEQ_b7_q index=4940 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b8_frequency index=4943 before=2000 canonical=2000 after=1999.999878 normalized_before=0.5877489448 normalized_after=0.5877489448
+FAIL_RESTORE id=finalEQ_b8_q index=4945 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b9_q index=4950 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b10_frequency index=4953 before=6000 canonical=6000 after=6000.000488 normalized_before=0.7577995062 normalized_after=0.7577995062
+FAIL_RESTORE id=finalEQ_b10_q index=4955 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b11_frequency index=4958 before=10000 canonical=10000 after=10000.00098 normalized_before=0.8524950147 normalized_after=0.8524950147
+FAIL_RESTORE id=finalEQ_b11_q index=4960 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b12_q index=4965 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+RESTORE canonical_changes=35
+RESTORE canonical_changes=0
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=0
+STAGE reuse fixed slots
+STAGE reused save/reopen
+FAIL_RESTORE id=delaymix index=73 before=0.1999999881 canonical=0.1999999881 after=0.200000003 normalized_before=0.3333333135 normalized_after=0.3333333135
+FAIL_RESTORE id=toneEQ_b1_q index=4849 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b2_q index=4854 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b3_q index=4859 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b4_q index=4864 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b5_frequency index=4867 before=480 canonical=480 after=480.0000305 normalized_before=0.4201976955 normalized_after=0.4201976955
+FAIL_RESTORE id=toneEQ_b5_q index=4869 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b6_q index=4874 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b7_frequency index=4877 before=1000 canonical=1000 after=999.999939 normalized_before=0.5 normalized_after=0.5
+FAIL_RESTORE id=toneEQ_b7_q index=4879 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b8_frequency index=4882 before=2000 canonical=2000 after=1999.999878 normalized_before=0.5877489448 normalized_after=0.5877489448
+FAIL_RESTORE id=toneEQ_b8_q index=4884 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b9_q index=4889 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b10_frequency index=4892 before=6000 canonical=6000 after=6000.000488 normalized_before=0.7577995062 normalized_after=0.7577995062
+FAIL_RESTORE id=toneEQ_b10_q index=4894 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b11_frequency index=4897 before=10000 canonical=10000 after=10000.00098 normalized_before=0.8524950147 normalized_after=0.8524950147
+FAIL_RESTORE id=toneEQ_b11_q index=4899 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=toneEQ_b12_q index=4904 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b1_q index=4910 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b2_q index=4915 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b3_q index=4920 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b4_q index=4925 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b5_frequency index=4928 before=480 canonical=480 after=480.0000305 normalized_before=0.4201976955 normalized_after=0.4201976955
+FAIL_RESTORE id=finalEQ_b5_q index=4930 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b6_q index=4935 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b7_frequency index=4938 before=1000 canonical=1000 after=999.999939 normalized_before=0.5 normalized_after=0.5
+FAIL_RESTORE id=finalEQ_b7_q index=4940 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b8_q index=4945 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b9_q index=4950 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b10_frequency index=4953 before=6000 canonical=6000 after=6000.000488 normalized_before=0.7577995062 normalized_after=0.7577995062
+FAIL_RESTORE id=finalEQ_b10_q index=4955 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b11_frequency index=4958 before=10000 canonical=10000 after=10000.00098 normalized_before=0.8524950147 normalized_after=0.8524950147
+FAIL_RESTORE id=finalEQ_b11_q index=4960 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+FAIL_RESTORE id=finalEQ_b12_q index=4965 before=0.7070000768 canonical=0.7070000768 after=0.7070000172 normalized_before=0.4563710988 normalized_after=0.4563710988
+RESTORE canonical_changes=34
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+RESTORE canonical_changes=0
+RESTORE canonical_changes=34
+FAIL real beta.2 fixture ab-seeded.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / distinct A-B
+FAIL legacy state contracts; value_failures=71; actual DAW modes and DAW projects NOT_ASSESSED
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQLegacyFixtureIntegrity" classname="ChimeraEQLegacyFixtureIntegrity" time="0.102253" status="run">
+		<properties/>
+		<system-out>PASS fixture digests, released parameter count and missing occupancy
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQLegacyEvidenceTests" classname="ChimeraEQLegacyEvidenceTests" time="0.0718309" status="run">
+		<properties/>
+		<system-out>.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.022s
+
+OK
+</system-out>
+	</testcase>
+</testsuite>

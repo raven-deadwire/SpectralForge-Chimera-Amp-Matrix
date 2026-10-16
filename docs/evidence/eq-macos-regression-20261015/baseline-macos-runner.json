@@ -1,0 +1,23 @@
+{
+  "source_commit": "e52976f869ea872e3094f3a945d74496665285c5",
+  "runner": {
+    "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "processor": "arm",
+    "logical_cpus": 3,
+    "RUNNER_OS": "macOS",
+    "RUNNER_ARCH": "ARM64",
+    "ImageOS": "macos15",
+    "ImageVersion": "20260907.0337.1",
+    "GITHUB_RUN_ID": "38280760403",
+    "GITHUB_RUN_ATTEMPT": "1"
+  },
+  "build": {
+    "CMAKE_BUILD_TYPE:STRING": "Release",
+    "CMAKE_CXX_COMPILER:FILEPATH": "/usr/bin/c++",
+    "CMAKE_CXX_FLAGS:STRING": "",
+    "CMAKE_CXX_FLAGS_RELEASE:STRING": "-O3 -DNDEBUG",
+    "JUCE_SOURCE_DIR:STATIC": "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq/_deps/juce-src",
+    "CMAKE_GENERATOR:INTERNAL": "Unix Makefiles"
+  }
+}

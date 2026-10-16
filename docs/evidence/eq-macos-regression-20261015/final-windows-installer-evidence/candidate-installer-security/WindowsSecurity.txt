@@ -1,0 +1,13 @@
+RavenForge Luthier Intelligence / Windows artifact malware inspection
+Started UTC: 2026-10-14T17:57:12.7224825Z
+Source revision: babfecda995141ef3001fc6f9c04c05409ff7ad6
+Scope: local Microsoft Defender scan. Not Google Safe Browsing clearance, Store certification, or a guarantee of safety.
+Input files: 1; SHA256 and signature status recorded in FileInventory.json.
+Defender update attempt 1/3: cause=update_completed; exit=0; HRESULT=; error=
+Engine: 1.1.26090.9; signatures: 1.461.26.0; updated: 2026-10-14T13:07:19.0000000Z
+Manual custom scans use -DisableRemediation: ignore path exclusions, scan archives, report detections without altering input files.
+Runner cloud reporting mode: 0; automatic sample submission: 2. These settings are not changed.
+PASS: Defender completed scan with no detections: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\installer-candidate\SpectralForge-Chimera-update-babfecda99-win64-Setup.exe
+PASS: all input hashes unchanged after scanning.
+PASS: completed local Defender inspection. Unsigned files remain unsigned and browser warnings may remain.
+Finished UTC: 2026-10-14T17:57:36.7120319Z

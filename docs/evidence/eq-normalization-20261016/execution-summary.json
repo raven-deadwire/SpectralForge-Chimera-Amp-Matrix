@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "observed_at_utc": "2026-10-16T10:23:55.726567+00:00",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "compiler": "13.3.0",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "product_build_revision": "c837c78545",
+  "source_tree": "d6de02d72f92d550ce131e8ac07109eb9ae99467",
+  "test_sources_sha256": {
+    "Tests/EQLegacyStateTests.cpp": "20ec23c2cf03c2562292bd5a1662014582499ca30b59ba105bb02b9b357b8ab4",
+    "Tests/EQNormalizationContract.h": "bd60e602f85de0e983097edaef14e104f4521f2f2242f3f9151614cab2080d05",
+    "Tests/EQNormalizationTests.cpp": "975816d9c19ee88c2e8dcbc0650a18ff7a43532d450edcda621bff1547f620a1",
+    "Tests/VST3EQStateHost.cpp": "97a4538f84a3e84d16a88aa5f68a610d1b54cf5b9cb3b983ec3db87ec2c2d832",
+    "Tools/eq_normalization_render.py": "c7dc502acbea03c59016563268a734fe11c92372efb28ebe41380d6909082237",
+    "Tests/test_eq_normalization_render.py": "02ccd6070ae80127e9b09292d22caed731ba4378c8eccd5220970d629b764ae6",
+    ".github/workflows/eq-legacy-state.yml": "654a3a66a6a39cea8b03bf9018b07f15247b2f399350cd5731618b55b2c5af12",
+    "CMakeLists.txt": "5a34351b9d525b64884ad29b8c4836f4a4e67819a866c085297e2407f606bbb5"
+  },
+  "binaries_sha256": {
+    "build-eq/ChimeraEQLegacyStateTests_artefacts/Release/ChimeraEQLegacyStateTests": "4a5080c153136c7b27714e61712919bf73b3cfc7b2770151083ed2edec8f61b8",
+    "build-eq/ChimeraEQNormalizationTests_artefacts/Release/ChimeraEQNormalizationTests": "773cd323724b509f85557b46229354706c26968e4a9cdad96529e32c5e049747",
+    "build-eq/ChimeraVST3EQStateHost": "bf609e027a0b89b0582cb9c411935097346cd4d59b6e519b9b6ca245fc72d37b",
+    "build-eq/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so": "aa7b5aabb98439c3c20f6604550f6e756d69104cbe5b9345176783ce5115f193"
+  },
+  "ctest": {
+    "passed": 5,
+    "failed": 0,
+    "seconds": 120.88
+  },
+  "retained_constructor_observations": 71,
+  "retained_constructor_unique_ids": 35,
+  "states": 12,
+  "fresh_cycles_per_state": 8,
+  "same_instance_cycles_per_state": 8,
+  "ab_cycles_per_state": 8,
+  "eq_render_routes": 96,
+  "eq_exact_comparisons": 192,
+  "samples_per_comparison": 32768,
+  "pre_save_observations": [
+    {
+      "sample_rate": 44100.0,
+      "changed_samples": 7596,
+      "max_absolute_error": 1.4901161193847656e-08,
+      "bit_identical": false,
+      "status": "NOT_BIT_IDENTICAL",
+      "audibility": "NOT_ASSESSED"
+    },
+    {
+      "sample_rate": 48000.0,
+      "changed_samples": 7238,
+      "max_absolute_error": 1.4901161193847656e-08,
+      "bit_identical": false,
+      "status": "NOT_BIT_IDENTICAL",
+      "audibility": "NOT_ASSESSED"
+    },
+    {
+      "sample_rate": 96000.0,
+      "changed_samples": 6136,
+      "max_absolute_error": 1.4901161193847656e-08,
+      "bit_identical": false,
+      "status": "NOT_BIT_IDENTICAL",
+      "audibility": "NOT_ASSESSED"
+    },
+    {
+      "sample_rate": 192000.0,
+      "changed_samples": 5154,
+      "max_absolute_error": 1.4901161193847656e-08,
+      "bit_identical": false,
+      "status": "NOT_BIT_IDENTICAL",
+      "audibility": "NOT_ASSESSED"
+    }
+  ],
+  "abi_exact_comparisons": 15,
+  "abi_actual_process_runs": 21,
+  "abi_active_eq_effect": "PASS",
+  "ci": "PENDING_FINAL_HEAD",
+  "actual_daw": "NOT_ASSESSED",
+  "release_approved": false
+}

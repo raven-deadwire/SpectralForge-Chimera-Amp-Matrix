@@ -1,0 +1,460 @@
+{
+  "jobs": [
+    {
+      "id": 116947467538,
+      "name": "precision-tuner-worker (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38893218198,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraTunerTimingTests ChimeraPostNativeTests --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Retain macOS normal-QoS reference (diagnostic, unchanged gates)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6
+        },
+        {
+          "name": "Run ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraTunerGeneration.*Tests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log build-tuner/tuner-ctest.log --output-junit tuner-results.xml",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 116947467735,
+      "name": "precision-tuner-worker (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38893218198,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraTunerTimingTests ChimeraPostNativeTests --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Retain macOS normal-QoS reference (diagnostic, unchanged gates)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6
+        },
+        {
+          "name": "Run ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraTunerGeneration.*Tests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log build-tuner/tuner-ctest.log --output-junit tuner-results.xml",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 116947467793,
+      "name": "precision-tuner-worker (macos-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 38893218198,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraTunerTimingTests ChimeraPostNativeTests --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Retain macOS normal-QoS reference (diagnostic, unchanged gates)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraTunerGeneration.*Tests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log build-tuner/tuner-ctest.log --output-junit tuner-results.xml",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 116947467836,
+      "name": "native-navigation (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38893218198,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run cmake -S . -B build-path -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Run cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6
+        },
+        {
+          "name": "Run ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8
+        },
+        {
+          "name": "Collect paired tuner callback observations (not a performance pass)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21
+        }
+      ]
+    },
+    {
+      "id": 116947467883,
+      "name": "native-navigation (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38893218198,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3
+        },
+        {
+          "name": "Run cmake -S . -B build-path -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Run cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6
+        },
+        {
+          "name": "Run ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8
+        },
+        {
+          "name": "Collect paired tuner callback observations (not a performance pass)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21
+        }
+      ]
+    },
+    {
+      "id": 116947467997,
+      "name": "native-navigation (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38893218198,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run cmake -S . -B build-path -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Run cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7
+        },
+        {
+          "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Collect paired tuner callback observations (not a performance pass)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21
+        }
+      ]
+    }
+  ]
+}

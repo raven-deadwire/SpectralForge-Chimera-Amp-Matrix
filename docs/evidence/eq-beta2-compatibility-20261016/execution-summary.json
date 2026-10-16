@@ -1,0 +1,39 @@
+{
+  "product_source_tree": "d6de02d72f92d550ce131e8ac07109eb9ae99467",
+  "product_embedded_revision": "b07e49b425",
+  "test_sources_sha256": {
+    "Source/PluginProcessor.cpp": "0e61c1c6a2f0e0ae9e1280edb2962d26e4c5b651f68f6f6f304400e951309131",
+    "Source/GraphicalEQ.h": "01a639554e7f04099e010c033ba6c116d495cb1c136a9bb41a490a9b81cb9673",
+    "Source/EQEditState.h": "6a2f56c984dbb69e04e3cbeaefce36dd6eac9dc7095f46a46bfa56ea395745e4",
+    "Tests/EQLegacyStateTests.cpp": "0de31288a27576e071eb18fb9226c1be95bc855803504b5305417cf97677a34f",
+    "Tests/VST3EQStateHost.cpp": "e13c15659414a2df6c36b8468737fc6b4ec01fd5ac897aebb61c394e67bc49e5",
+    "Tests/GraphicalEQEditingTests.cpp": "7e890756ade55f46a36be472479aebe1aa8c15fc281837178e616f7ebbb8ea85",
+    "Tests/EQSnapshotFreezeTests.cpp": "000171db4634103746ffc867abdf686e9d2f96b86299ff7bbaf8170ee278587f",
+    "Tests/EQParameterAssertions.h": "b7beefa4d4f1e869e5ba183148b6dd128bfd9ac08c7674367fa07e0b3938340f",
+    "Tools/eq_legacy_fixture.py": "3024baab5982a5747e2d04498836b4e7b84096669648f25b75be25bb6959e118",
+    "CMakeLists.txt": "40ecaeb9318b7fff4357e5ac84f41b8a9e8b93b5651a4db875163c282e5601a1"
+  },
+  "binary_sha256": {
+    "build-eq/ChimeraEQLegacyStateTests_artefacts/Release/ChimeraEQLegacyStateTests": "34c549b1df3555c253d318e13f8569833ca7140d92d54e2de10fc8e0351e61b6",
+    "build-eq/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so": "4d27fc71a325aeb09d969c4a22b17c0eaf9b6f997d4d57434dfba8142d28a320",
+    "eq-state-host": "066b78ef4ad0a76b2076f6c6b9653fb673042332a973be03422c8efec0d7b6b3"
+  },
+  "evidence_sha256": {
+    "reverse-roundtrip.log": "24b331b4b2f93ac6948e90aefb1c1f26d90ef921520aead977b3f494d21c3b97",
+    "dirty-recall-oracle-failure.log": "3dcdfff3ecdf3d97448eff96e27970cf678a3f1d4ce8687ea8b39e4e7efe90fd",
+    "local-ctest.log": "c245ba34cf66c9a843358cdba5917a5b2f70f8b73bb1a4e0f26b13e7338d5f99",
+    "initial-oracle-failure.log": "ffa210195e2bffe81c8a49a70793205b2a9ef5718f16e98b74583c2f862782b2",
+    "public-beta2-capture.zip": "4519abfccf6c9192eec426931cf3767daabb8af12eb12013811d167defdda661",
+    "local-ctest.xml": "a3b6495867d8b2fa3c3762069aec5b4335b96c0534754727cb9728185125fa51",
+    "initial-ci-macOS.log": "3846fbe2b4b8964596348cda5503a8911db333e26c5a73a761aca0675b26f525",
+    "initial-ci-Windows.log": "29c4d9e719547fad672de67da18898ad80d2db587613f91e3b82aadb12ce8f52",
+    "roundtrip-states.zip": "81151c4f342b5a15779dbe06d616294bd3de0ad9afc4f8afe77c22c38f7e7a2e",
+    "abi-replay.log": "a6c903f4c63dbc5109b14c0f615386301c928e6574bc5c9fe8fa5eb18663c47c",
+    "initial-ci-Linux.log": "dcac8512944d22aa2794ae0cf6350c1c4daca70939f7956deb20af727f29a1c0",
+    "q-recall-first-failure.log": "b370865a20df29a720738548a8afda7717e7919b8bf2be34179317f90d3b66ae"
+  },
+  "strict_raw_state_result": "FAIL: 71 one-ULP observations / 35 distinct parameters; same normalized values",
+  "abi_state_and_lane_result": "PASS",
+  "daw_acceptance": "NOT_ASSESSED",
+  "release_approved": false
+}

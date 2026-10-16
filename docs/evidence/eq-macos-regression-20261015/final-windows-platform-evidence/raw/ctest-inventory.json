@@ -1,0 +1,1433 @@
+{
+  "backtraceGraph" : 
+  {
+    "commands" : 
+    [
+      "add_test"
+    ],
+    "files" : 
+    [
+      "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/CMakeLists.txt"
+    ],
+    "nodes" : 
+    [
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 66,
+        "parent" : 0
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 72,
+        "parent" : 2
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 78,
+        "parent" : 4
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 84,
+        "parent" : 6
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 126,
+        "parent" : 8
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 145,
+        "parent" : 10
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 158,
+        "parent" : 12
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 178,
+        "parent" : 14
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 179,
+        "parent" : 16
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 180,
+        "parent" : 18
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 206,
+        "parent" : 20
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 217,
+        "parent" : 22
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 219,
+        "parent" : 24
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 221,
+        "parent" : 26
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 233,
+        "parent" : 28
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 240,
+        "parent" : 30
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 247,
+        "parent" : 32
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 254,
+        "parent" : 34
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 262,
+        "parent" : 36
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 269,
+        "parent" : 38
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 276,
+        "parent" : 40
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 294,
+        "parent" : 42
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 301,
+        "parent" : 44
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 309,
+        "parent" : 46
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 309,
+        "parent" : 48
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 317,
+        "parent" : 50
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 324,
+        "parent" : 52
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 331,
+        "parent" : 54
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 338,
+        "parent" : 56
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 374,
+        "parent" : 58
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 377,
+        "parent" : 60
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 379,
+        "parent" : 62
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 385,
+        "parent" : 64
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 401,
+        "parent" : 66
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 403,
+        "parent" : 68
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 404,
+        "parent" : 70
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 405,
+        "parent" : 72
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 409,
+        "parent" : 74
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 413,
+        "parent" : 76
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 414,
+        "parent" : 78
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 415,
+        "parent" : 80
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 431,
+        "parent" : 82
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 444,
+        "parent" : 84
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 445,
+        "parent" : 86
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 446,
+        "parent" : 88
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 447,
+        "parent" : 90
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 448,
+        "parent" : 92
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 468,
+        "parent" : 94
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 473,
+        "parent" : 96
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 499,
+        "parent" : 98
+      }
+    ]
+  },
+  "kind" : "ctestInfo",
+  "tests" : 
+  [
+    {
+      "backtrace" : 1,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraOriginalAmpTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraOriginalAmpTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 3,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraOriginalAmpIntegrationTests_artefacts/Release/ChimeraOriginalAmpIntegrationTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraOriginalAmpIntegrationTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 5,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraNiflheimrCoreTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraNiflheimrCoreTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 7,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraNiflheimrIntegrationTests_artefacts/Release/ChimeraNiflheimrIntegrationTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraNiflheimrIntegrationTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 9,
+      "command" : 
+      [
+        "C:/hostedtoolcache/windows/Python/3.12.10/x64/python3.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/test_packaging_version.py"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraPackagingVersionTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 11,
+      "command" : 
+      [
+        "C:/hostedtoolcache/windows/Python/3.12.10/x64/python3.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tools/verify_vblank_failure.py",
+        "--baseline",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraVBlankBaselineProbe.exe",
+        "--patched",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraVBlankPatchedProbe.exe",
+        "--extraction-report",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/vblank-test-generated/extraction.json",
+        "--report",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/vblank-failure-verification.json"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraVBlankFailureTests",
+      "properties" : 
+      [
+        {
+          "name" : "TIMEOUT",
+          "value" : 20.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 13,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraTests_artefacts/Release/ChimeraTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 15,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ui-snapshots"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraUITests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 17,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/signal-path-snapshots",
+        "--signal-path-only"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraSignalPathUITests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 19,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe",
+        "--native-state-only",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/native-state"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraNativeStateTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 21,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraVST3LifecycleTests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraVST3LifecycleTests",
+      "properties" : 
+      [
+        {
+          "name" : "TIMEOUT",
+          "value" : 370.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 23,
+      "command" : 
+      [
+        "C:/hostedtoolcache/windows/Python/3.12.10/x64/python3.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/test_native_renderer.py",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraRender_artefacts/Release/ChimeraRender.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraNativeRendererTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 25,
+      "command" : 
+      [
+        "C:/hostedtoolcache/windows/Python/3.12.10/x64/python3.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/test_original_renderer.py",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraOriginalAmpRender_artefacts/Release/ChimeraOriginalAmpRender.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraOriginalRendererTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 27,
+      "command" : 
+      [
+        "C:/hostedtoolcache/windows/Python/3.12.10/x64/python3.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/test_niflheimr_renderer.py",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraNiflheimrRender_artefacts/Release/ChimeraNiflheimrRender.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraNiflheimrRendererTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 29,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraReleaseTests_artefacts/Release/ChimeraReleaseTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraReleaseTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 31,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraStabilityTests_artefacts/Release/ChimeraStabilityTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraStabilityTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 33,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPedalBoardTests_artefacts/Release/ChimeraPedalBoardTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraPedalBoardTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 35,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraIRCollectionTests_artefacts/Release/ChimeraIRCollectionTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraIRCollectionTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 37,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraIRLibraryTests_artefacts/Release/ChimeraIRLibraryTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraIRLibraryTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 39,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraCabPanelTests_artefacts/Release/ChimeraCabPanelTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabPanelTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 41,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraCabPanelStateTests_artefacts/Release/ChimeraCabPanelStateTests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/cab-panel.png"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabPanelStateTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 43,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraNewAmpTests_artefacts/Release/ChimeraNewAmpTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraNewAmpTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 45,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPedalOctaverTests_artefacts/Release/ChimeraPedalOctaverTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraPedalOctaverTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 47,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraAmpNativeTests_artefacts/Release/ChimeraAmpNativeTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraAmpNativeTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 49,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPostNativeTests_artefacts/Release/ChimeraPostNativeTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraPostNativeTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 51,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraGateProcessorTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 53,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGateTests_artefacts/Release/ChimeraGateTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraGateTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 55,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraIntegratedProcessorTests_artefacts/Release/ChimeraIntegratedProcessorTests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/signature-snapshots"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraIntegratedProcessorTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 57,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPitchRegressionTests_artefacts/Release/ChimeraPitchRegressionTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraPitchRegressionTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 59,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraCabExpansionModelTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabExpansionModelTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 61,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraOriginalCabModelTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraOriginalCabModelTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 63,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraCabTimingDiagnosticsTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabTimingDiagnosticsTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 65,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraOriginalCabIntegrationTests_artefacts/Release/ChimeraOriginalCabIntegrationTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraOriginalCabIntegrationTests",
+      "properties" : 
+      [
+        {
+          "name" : "ENVIRONMENT_MODIFICATION",
+          "value" : 
+          [
+            "CHIMERA_LIFECYCLE_TRACE=unset:"
+          ]
+        },
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 67,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraOriginalCabRealtimeTests_artefacts/Release/ChimeraOriginalCabRealtimeTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraOriginalCabRealtimeTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 69,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraOriginalCabIntegrationTests_artefacts/Release/ChimeraOriginalCabIntegrationTests.exe",
+        "--expanded"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabExpansionIntegrationTests",
+      "properties" : 
+      [
+        {
+          "name" : "ENVIRONMENT_MODIFICATION",
+          "value" : 
+          [
+            "CHIMERA_LIFECYCLE_TRACE=unset:"
+          ]
+        },
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 71,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraOriginalCabIntegrationTests_artefacts/Release/ChimeraOriginalCabIntegrationTests.exe",
+        "--expanded",
+        "--extended-buffers"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabExtendedTimingTests",
+      "properties" : 
+      [
+        {
+          "name" : "ENVIRONMENT_MODIFICATION",
+          "value" : 
+          [
+            "CHIMERA_LIFECYCLE_TRACE=unset:"
+          ]
+        },
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 73,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraCabPanelStateTests_artefacts/Release/ChimeraCabPanelStateTests.exe",
+        "--expansion-only"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabExpansionStateTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 75,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraCabLayoutModelTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabLayoutModelTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 77,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraCabCameraFramingTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabCameraFramingTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 79,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraOriginalCabIntegrationTests_artefacts/Release/ChimeraOriginalCabIntegrationTests.exe",
+        "--layouts"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabLayoutIntegrationTests",
+      "properties" : 
+      [
+        {
+          "name" : "ENVIRONMENT_MODIFICATION",
+          "value" : 
+          [
+            "CHIMERA_LIFECYCLE_TRACE=unset:"
+          ]
+        },
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 81,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraCabPanelStateTests_artefacts/Release/ChimeraCabPanelStateTests.exe",
+        "--layout-only"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabLayoutStateTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 83,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraCabPanelStateTests_artefacts/Release/ChimeraCabPanelStateTests.exe",
+        "--visual-only"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraCabDriverVisualTests",
+      "properties" : 
+      [
+        {
+          "name" : "TIMEOUT",
+          "value" : 1800.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 85,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGraphicalEQTests_artefacts/Release/ChimeraGraphicalEQTests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/eq-cpu.csv"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraGraphicalEQTests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 180.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 87,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraGraphicalEQUITests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 240.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 89,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraEQAnalyzerTests_artefacts/Release/ChimeraEQAnalyzerTests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraEQAnalyzerTests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 180.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 91,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraGraphicalEQEditingTests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 180.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 93,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraEQSnapshotFreezeTests_artefacts/Release/ChimeraEQSnapshotFreezeTests.exe"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraEQSnapshotFreezeTests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 180.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 95,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraEQAnalyzerPerformanceTests_artefacts/Release/ChimeraEQAnalyzerPerformanceTests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraEQAnalyzerPerformanceTests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 180.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 97,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests.exe",
+        "--attribution",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/eq-attribution"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraEQHighRateAttributionTests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 360.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 99,
+      "command" : 
+      [
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraAmpHeadControlTests_artefacts/Release/ChimeraAmpHeadControlTests.exe",
+        "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/amp-head-snapshots"
+      ],
+      "config" : "Release",
+      "name" : "ChimeraAmpHeadControlTests",
+      "properties" : 
+      [
+        {
+          "name" : "RUN_SERIAL",
+          "value" : true
+        },
+        {
+          "name" : "TIMEOUT",
+          "value" : 300.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build"
+        }
+      ]
+    }
+  ],
+  "version" : 
+  {
+    "major" : 1,
+    "minor" : 0
+  }
+}

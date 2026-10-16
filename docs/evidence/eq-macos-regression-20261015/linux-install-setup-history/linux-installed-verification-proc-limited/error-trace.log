@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/c33a51548129/chimera/evidence-local/verify_linux_install.py", line 163, in <module>
+    launch_and_close(config, 'first-launch')
+  File "/workspace/scratch/c33a51548129/chimera/evidence-local/verify_linux_install.py", line 129, in launch_and_close
+    assert pathlib.Path('/proc') .joinpath(str(process.pid), 'exe').resolve() == executable.resolve()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
