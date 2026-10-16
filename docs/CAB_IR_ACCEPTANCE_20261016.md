@@ -23,7 +23,7 @@
 
 ## 증거 소비와 승인 경계
 
-`ChimeraCabIRAcceptance_factory`, `_boundaries`, `_preservation`은 실제 제품 라이브러리에 연결한 CTest이다. `Tools/cab_ir_acceptance.py`는 JUnit 실행 상태·inventory·각 개별 사례와 완료 marker를 함께 확인한다. 누락·중복·스킵·실패·다른 suite의 출력은 통과가 아니다.
+`ChimeraCabIRAcceptance_factory`, `_boundaries`, `_preservation`은 실제 제품 라이브러리에 연결한 CTest이다. `Tools/cab_ir_acceptance.py`는 JUnit 실행 상태·inventory와 별도 해시된 전체 `LastTest.log`의 각 개별 사례 및 완료 marker를 함께 확인한다. 실제 Linux CI의 JUnit 1,024-byte 잘림을 재현 fixture로 보존하고, 기존 `release_evidence.contract_passed`의 완료 구간 검증을 재사용한다. 잘린 JUnit의 앞부분은 전체 로그와 같아야 하고, 완료된 JUnit과 전체 로그가 서로 다르면 차단한다. 누락·중복·스킵·실패·다른 suite의 출력은 통과가 아니다.
 
 집중 workflow `CAB and IR negative acceptance`의 Windows/Linux/macOS 산출물은 **component 결과**다. 이 artifact를 Product 결과로 소비하지 않는다. Product consolidator는 원래 검증된 동일 commit/run/attempt의 native bundle에서 세 플랫폼 모두 해당 검사를 실행·통과했을 때만 여섯 ID를 갱신한다. SHA·원본 파일 해시 검증은 기존 `release_evidence.read_bundle`을 그대로 적용한다.
 

@@ -1,0 +1,98 @@
+Start testing: Oct 16 10:29 UTC
+----------------------------------------------------------
+49/51 Testing: ChimeraCabIRAcceptance_factory
+49/51 Test: ChimeraCabIRAcceptance_factory
+Command: "/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-cab-ir/ChimeraCabIRAcceptanceTests_artefacts/Release/ChimeraCabIRAcceptanceTests" "factory" "/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix"
+Directory: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-cab-ir
+"ChimeraCabIRAcceptance_factory" start time: Oct 16 10:29 UTC
+Output:
+----------------------------------------------------------
+CASE factory preset=31 phase=0 files=0 PASS
+CASE factory preset=32 phase=0 files=0 PASS
+CASE factory preset=33 phase=0 files=0 PASS
+CASE factory preset=31 phase=1 files=26 PASS
+CASE factory preset=32 phase=1 files=26 PASS
+CASE factory preset=33 phase=1 files=26 PASS
+CASE factory preset=31 phase=2 files=26 PASS
+CASE factory preset=32 phase=2 files=26 PASS
+CASE factory preset=33 phase=2 files=26 PASS
+PASS CAB_IR A2.07 A5.01 A6.01 factory_absent_valid_corrupt
+<end of output>
+Test time =   7.54 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraCabIRAcceptance_factory" end time: Oct 16 10:29 UTC
+"ChimeraCabIRAcceptance_factory" time elapsed: 00:00:07
+----------------------------------------------------------
+
+50/51 Testing: ChimeraCabIRAcceptance_boundaries
+50/51 Test: ChimeraCabIRAcceptance_boundaries
+Command: "/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-cab-ir/ChimeraCabIRAcceptanceTests_artefacts/Release/ChimeraCabIRAcceptanceTests" "boundaries" "/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix"
+Directory: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-cab-ir
+"ChimeraCabIRAcceptance_boundaries" start time: Oct 16 10:29 UTC
+Output:
+----------------------------------------------------------
+CASE boundary mono_min_rate_min_frames accepted=1 bytes=76 PASS
+CASE boundary stereo_max_rate_one_second accepted=1 bytes=3072044 PASS
+CASE boundary raw_exact_4MiB accepted=1 bytes=4194304 PASS
+CASE boundary positive_sample_limit accepted=1 bytes=76 PASS
+CASE boundary negative_sample_limit accepted=1 bytes=76 PASS
+CASE boundary raw_over_4MiB accepted=0 bytes=4194306 PASS
+CASE boundary raw_under_header accepted=0 bytes=43 PASS
+CASE boundary corrupt accepted=0 bytes=64 PASS
+CASE boundary silent accepted=0 bytes=76 PASS
+CASE boundary rate_below accepted=0 bytes=76 PASS
+CASE boundary rate_above accepted=0 bytes=76 PASS
+CASE boundary zero_channels accepted=0 bytes=44 PASS
+CASE boundary three_channels accepted=0 bytes=140 PASS
+CASE boundary short_frames accepted=0 bytes=72 PASS
+CASE boundary over_one_second accepted=0 bytes=32048 PASS
+CASE boundary nan_late_right accepted=0 bytes=16428 PASS
+CASE boundary positive_inf_late_right accepted=0 bytes=16428 PASS
+CASE boundary negative_inf_late_right accepted=0 bytes=16428 PASS
+CASE boundary sample_over_positive accepted=0 bytes=76 PASS
+CASE boundary sample_over_negative accepted=0 bytes=76 PASS
+PASS CAB_IR A5.05 A6.05 boundaries_20
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraCabIRAcceptance_boundaries" end time: Oct 16 10:29 UTC
+"ChimeraCabIRAcceptance_boundaries" time elapsed: 00:00:00
+----------------------------------------------------------
+
+51/51 Testing: ChimeraCabIRAcceptance_preservation
+51/51 Test: ChimeraCabIRAcceptance_preservation
+Command: "/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-cab-ir/ChimeraCabIRAcceptanceTests_artefacts/Release/ChimeraCabIRAcceptanceTests" "preservation" "/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix"
+Directory: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-cab-ir
+"ChimeraCabIRAcceptance_preservation" start time: Oct 16 10:29 UTC
+Output:
+----------------------------------------------------------
+CASE preserve lane=0 mic=0 rejected=missing.wav PASS
+CASE preserve lane=0 mic=0 rejected=corrupt.wav PASS
+CASE preserve lane=0 mic=0 rejected=silent.wav PASS
+CASE preserve lane=0 mic=1 rejected=missing.wav PASS
+CASE preserve lane=0 mic=1 rejected=corrupt.wav PASS
+CASE preserve lane=0 mic=1 rejected=silent.wav PASS
+CASE preserve lane=1 mic=0 rejected=missing.wav PASS
+CASE preserve lane=1 mic=0 rejected=corrupt.wav PASS
+CASE preserve lane=1 mic=0 rejected=silent.wav PASS
+CASE preserve lane=1 mic=1 rejected=missing.wav PASS
+CASE preserve lane=1 mic=1 rejected=corrupt.wav PASS
+CASE preserve lane=1 mic=1 rejected=silent.wav PASS
+CASE preserve lane=2 mic=0 rejected=missing.wav PASS
+CASE preserve lane=2 mic=0 rejected=corrupt.wav PASS
+CASE preserve lane=2 mic=0 rejected=silent.wav PASS
+CASE preserve lane=2 mic=1 rejected=missing.wav PASS
+CASE preserve lane=2 mic=1 rejected=corrupt.wav PASS
+CASE preserve lane=2 mic=1 rejected=silent.wav PASS
+PASS CAB_IR A8.02 rejected_load_preserves_six_slots_18
+<end of output>
+Test time =   5.34 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraCabIRAcceptance_preservation" end time: Oct 16 10:30 UTC
+"ChimeraCabIRAcceptance_preservation" time elapsed: 00:00:05
+----------------------------------------------------------
+
+End testing: Oct 16 10:30 UTC

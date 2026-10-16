@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="3"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="12"
+	timestamp="2026-10-16T10:29:48"
+	>
+	<testcase name="ChimeraCabIRAcceptance_factory" classname="ChimeraCabIRAcceptance_factory" time="7.53501" status="run">
+		<properties/>
+		<system-out>CASE factory preset=31 phase=0 files=0 PASS
+CASE factory preset=32 phase=0 files=0 PASS
+CASE factory preset=33 phase=0 files=0 PASS
+CASE factory preset=31 phase=1 files=26 PASS
+CASE factory preset=32 phase=1 files=26 PASS
+CASE factory preset=33 phase=1 files=26 PASS
+CASE factory preset=31 phase=2 files=26 PASS
+CASE factory preset=32 phase=2 files=26 PASS
+CASE factory preset=33 phase=2 files=26 PASS
+PASS CAB_IR A2.07 A5.01 A6.01 factory_absent_valid_corrupt
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabIRAcceptance_boundaries" classname="ChimeraCabIRAcceptance_boundaries" time="0.0714173" status="run">
+		<properties/>
+		<system-out>CASE boundary mono_min_rate_min_frames accepted=1 bytes=76 PASS
+CASE boundary stereo_max_rate_one_second accepted=1 bytes=3072044 PASS
+CASE boundary raw_exact_4MiB accepted=1 bytes=4194304 PASS
+CASE boundary positive_sample_limit accepted=1 bytes=76 PASS
+CASE boundary negative_sample_limit accepted=1 bytes=76 PASS
+CASE boundary raw_over_4MiB accepted=0 bytes=4194306 PASS
+CASE boundary raw_under_header accepted=0 bytes=43 PASS
+CASE boundary corrupt accepted=0 bytes=64 PASS
+CASE boundary silent accepted=0 bytes=76 PASS
+CASE boundary rate_below accepted=0 bytes=76 PASS
+CASE boundary rate_above accepted=0 bytes=76 PASS
+CASE boundary zero_channels accepted=0 bytes=44 PASS
+CASE boundary three_channels accepted=0 bytes=140 PASS
+CASE boundary short_frames accepted=0 bytes=72 PASS
+CASE boundary over_one_second accepted=0 bytes=32048 PASS
+CASE boundary nan_late_right accepted=0 bytes=16428 PASS
+CASE boundary positive_inf_late_right accepted=0 bytes=16428 PASS
+CASE boundary negative_inf_late_right accepted=0 bytes=16428...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabIRAcceptance_preservation" classname="ChimeraCabIRAcceptance_preservation" time="5.3372" status="run">
+		<properties/>
+		<system-out>CASE preserve lane=0 mic=0 rejected=missing.wav PASS
+CASE preserve lane=0 mic=0 rejected=corrupt.wav PASS
+CASE preserve lane=0 mic=0 rejected=silent.wav PASS
+CASE preserve lane=0 mic=1 rejected=missing.wav PASS
+CASE preserve lane=0 mic=1 rejected=corrupt.wav PASS
+CASE preserve lane=0 mic=1 rejected=silent.wav PASS
+CASE preserve lane=1 mic=0 rejected=missing.wav PASS
+CASE preserve lane=1 mic=0 rejected=corrupt.wav PASS
+CASE preserve lane=1 mic=0 rejected=silent.wav PASS
+CASE preserve lane=1 mic=1 rejected=missing.wav PASS
+CASE preserve lane=1 mic=1 rejected=corrupt.wav PASS
+CASE preserve lane=1 mic=1 rejected=silent.wav PASS
+CASE preserve lane=2 mic=0 rejected=missing.wav PASS
+CASE preserve lane=2 mic=0 rejected=corrupt.wav PASS
+CASE preserve lane=2 mic=0 rejected=silent.wav PASS
+CASE preserve lane=2 mic=1 rejected=missing.wav PASS
+CASE preserve lane=2 mic=1 rejected=corrupt.wav PASS
+CASE preserve lane=2 mic=1 rejected=silent.wav PASS
+PASS CAB_IR A8.02 rejected_load_preserves_six_slots_18
+</system-out>
+	</testcase>
+</testsuite>

@@ -16,6 +16,7 @@ class EvidenceTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
         self.folder = Path(self.temp.name)
         self.junit, self.inventory = self.folder/'results.xml', self.folder/'inventory.json'
+        self.full_log = self.folder/'LastTest.log'
         self.root = ET.Element('testsuite')
         for suite in cab.SUITES:
             case = ET.SubElement(self.root, 'testcase', name='ChimeraCabIRAcceptance_'+suite, status='run')
@@ -30,7 +31,12 @@ class EvidenceTests(unittest.TestCase):
 
     def read(self):
         ET.ElementTree(self.root).write(self.junit)
-        return cab.claims(self.junit,self.inventory)
+        sections=[]
+        for i,case in enumerate(self.root,1):
+            name=case.attrib['name'];output=case.findtext('system-out','')
+            sections.append(f'{i}/3 Testing: {name}\n{i}/3 Test: {name}\nOutput:\n----------------------------------------------------------\n{output}\n<end of output>\nTest Passed.\n"{name}" end time: fixture\n')
+        self.full_log.write_text('\n'.join(sections))
+        return cab.claims(self.junit,self.inventory,self.full_log)
 
     def test_crlf_checkout_preserves_the_pinned_definition(self):
         folder=self.folder/'Validation';folder.mkdir()
@@ -48,9 +54,9 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(self.read(), {cid:True for ids in cab.SUITES.values() for cid in ids})
 
     def test_missing_junit_and_inventory_do_not_pass(self):
-        self.assertFalse(any(cab.claims(self.junit,self.inventory).values()))
+        self.assertFalse(any(cab.claims(self.junit,self.inventory,self.full_log).values()))
         self.read();self.inventory.unlink()
-        self.assertFalse(any(cab.claims(self.junit,self.inventory).values()))
+        self.assertFalse(any(cab.claims(self.junit,self.inventory,self.full_log).values()))
 
     def test_skip_failure_error_and_not_run_block(self):
         original=copy.deepcopy(self.root)
@@ -92,6 +98,33 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(cab.bundle_claims({'kind':'linux','outcomes':{'ctest':'failure'}},{'ctest':self.junit,'inventory':self.inventory}),{})
 
 
+    def test_truncated_junit_uses_complete_scoped_log(self):
+        self.read()
+        for case in self.root:
+            case.find('system-out').text=case.findtext('system-out')[:100]+'...\n[This part of the test output was removed since it exceeds the threshold of 100 bytes.]'
+        ET.ElementTree(self.root).write(self.junit)
+        self.assertTrue(all(cab.claims(self.junit,self.inventory,self.full_log).values()))
+
+    def test_duplicate_or_unterminated_full_log_cannot_pass(self):
+        self.read();original=self.full_log.read_text()
+        for text in (original+original,original.replace('Test Passed.','Test Failed.'),original.replace('<end of output>','')):
+            self.full_log.write_text(text)
+            self.assertFalse(any(cab.claims(self.junit,self.inventory,self.full_log).values()))
+
+    def test_missing_full_log_and_contradictory_junit_cannot_pass(self):
+        self.read()
+        for case in self.root:case.find('system-out').text='different completed output'
+        ET.ElementTree(self.root).write(self.junit)
+        self.assertFalse(any(cab.claims(self.junit,self.inventory,self.full_log).values()))
+        self.full_log.unlink()
+        self.assertFalse(any(cab.claims(self.junit,self.inventory,self.full_log).values()))
+
+    def test_actual_ci_truncation_fixture(self):
+        fixtures=cab.ROOT/'Tools/fixtures'
+        junit=fixtures/'cab-ir-4beb5a2-junit.xml'
+        log=fixtures/'cab-ir-4beb5a2-LastTest.log'
+        self.assertTrue(all(cab.claims(junit,self.inventory,log).values()))
+
     def integration_fixture(self):
         from test_release_consolidator import Consolidation
         fixture = Consolidation();fixture.setUp();self.addCleanup(fixture.doCleanups)
@@ -107,6 +140,7 @@ class EvidenceTests(unittest.TestCase):
                 return json.dumps(data)
             fixture.raw_change(platform,'ctest',append_cases)
             fixture.raw_change(platform,'inventory',append_inventory)
+            fixture.raw_change(platform,'dsp_log',lambda text:text+'\n'+self.full_log.read_text())
         return fixture
 
     def test_product_gate_promotes_only_six_ids_with_all_platforms(self):

@@ -101,7 +101,8 @@ def consolidate(inputs, output, revision, profile):
                            'synthetic_only': True, 'actual_daw_acceptance': False,
                            'publication_authorized': False, 'definition_sha256': cab_ir_acceptance.BASELINE_SHA256,
                            'run_id': revision['run_id'], 'run_attempt': revision['run_attempt']},
-                    artifacts=['evidence/' + k + '/raw/ctest-results.xml' for k in platforms])
+                    artifacts=['evidence/' + k + '/raw/' + name for k in platforms
+                               for name in ('ctest-results.xml', 'LastTest.log')])
     if errors:
         # Even an unexpected bundle must prevent a future otherwise-complete PASS.
         reports['A13.07'] = evidence.make_report(policy, 'A13.07', revision['commit_sha'], passed=False,

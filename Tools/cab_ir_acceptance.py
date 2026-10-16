@@ -61,11 +61,11 @@ def complete_output(suite, text):
     return len(rows) == 18 and set(rows) == {(str(l), str(m), f) for l in range(3) for m in range(2) for f in ('missing', 'corrupt', 'silent')}
 
 
-def claims(junit, inventory):
-    """Require executed JUnit cases AND all individual assertion markers, no skip/omission."""
+def claims(junit, inventory, full_log=None):
+    """Bind JUnit/inventory to completed full-log sections (JUnit may be truncated)."""
     validate_definitions()
     result = {cid: False for ids in SUITES.values() for cid in ids}
-    if not junit.is_file() or not inventory.is_file():
+    if not junit.is_file() or not inventory.is_file() or full_log is None or not full_log.is_file():
         return result
     names = [test['name'] for test in json.loads(inventory.read_text(encoding='utf-8-sig'))['tests']]
     cases = list(ET.parse(junit).getroot().iter('testcase'))
@@ -73,12 +73,27 @@ def claims(junit, inventory):
     if len(names) != len(set(names)) or len(case_names) != len(set(case_names)):
         raise ValueError('Duplicate CAB/IR CTest evidence')
     by_name = dict(zip(case_names, cases))
+    import release_evidence
+    log = full_log.read_text(encoding='utf-8-sig')
+    sections = re.split(r'^\d+/\d+ Testing: ', log, flags=re.MULTILINE)[1:]
     for suite, ids in SUITES.items():
         name = 'ChimeraCabIRAcceptance_' + suite
         case = by_name.get(name)
         ok = (name in names and case is not None and case.attrib.get('status') == 'run'
-              and all(case.find(tag) is None for tag in ('failure', 'error', 'skipped'))
-              and complete_output(suite, case.findtext('system-out', '')))
+              and all(case.find(tag) is None for tag in ('failure', 'error', 'skipped')))
+        # Reuse the release consumer's tested duplicate/termination/failure checks.
+        ok = ok and release_evidence.contract_passed(
+            {'tests': {name: [re.escape(MARKERS[suite])]}}, 'linux', {name: ok}, log)
+        if ok:
+            section = next(section for section in sections if section.split('\n', 1)[0] == name)
+            output = section.split('Output:\n----------------------------------------------------------\n')[1].split('\n<end of output>\n')[0]
+            junit_output = case.findtext('system-out', '').strip()
+            truncation = '...\n[This part of the test output was removed since it exceeds the threshold of '
+            # A truncated receipt must still match the prefix of the full output.
+            # A complete but contradictory JUnit output is rejected.
+            compatible = (output.startswith(junit_output.split(truncation)[0]) if truncation in junit_output
+                          else junit_output == output.strip())
+            ok = compatible and complete_output(suite, output)
         for cid in ids:
             result[cid] = ok
     return result
@@ -87,9 +102,9 @@ def claims(junit, inventory):
 def bundle_claims(doc, paths):
     if doc['kind'] not in ('windows', 'linux', 'macos') or doc['outcomes'].get('ctest') != 'success':
         return {}
-    if not {'ctest', 'inventory'}.issubset(paths):
+    if not {'ctest', 'inventory', 'dsp_log'}.issubset(paths):
         return {}
-    return claims(paths['ctest'], paths['inventory'])
+    return claims(paths['ctest'], paths['inventory'], paths['dsp_log'])
 
 
 def main():
@@ -107,10 +122,11 @@ def main():
     if args.output.exists():
         raise ValueError('Refusing stale output')
     junit, inventory = args.build / 'cab-ir-results.xml', args.build / 'cab-ir-inventory.json'
-    verdicts = claims(junit, inventory)
+    full_log = args.build / 'Testing/Temporary/LastTest.log'
+    verdicts = claims(junit, inventory, full_log)
     args.output.mkdir(parents=True)
     files = {}
-    for path in (junit, inventory):
+    for path in (junit, inventory, full_log):
         if path.is_file():
             data = path.read_bytes();(args.output / path.name).write_bytes(data)
             files[path.name] = hashlib.sha256(data).hexdigest()
