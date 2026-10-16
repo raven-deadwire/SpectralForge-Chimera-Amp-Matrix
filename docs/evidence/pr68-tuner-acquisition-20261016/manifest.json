@@ -1,0 +1,24 @@
+{
+  "base_sha": "c2263e4c90bffb9a56cc41285ebf8207e641b3aa",
+  "release_approved": false,
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce_sha": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "source_sha256": {
+    "Source/GlobalDSP.h": "f3b1e9a3eae5d403d81386291d9a1d89054c0db93cc03694107835182f384b2c",
+    "Source/PrecisionTuner.h": "91e67028cfaa5dc57b74ac52aa8904423f796a02c566d88ce622bee63e540d39",
+    "Tests/PrecisionTunerIntegrationTests.cpp": "acfca86a8be5c9ff2fa11045e235c348385025c9725094e7de8f0e9b181ad4e5",
+    "Tests/PrecisionTunerTests.cpp": "0acd6562fbe1b781cfee9053078902d0955d0f674b4917516fd17d3f01964303",
+    "Source/PrecisionTunerPanel.h": "76c9db1fe7cbce1a0605c7a4a9c6c6e44741fafe31ba3b42ee315e3b5e383d9e"
+  },
+  "linux_native": {
+    "routes": 32,
+    "max_acquire_ms": 194.565737,
+    "max_settle_ms": 205.14958,
+    "max_final_abs_cents": 5.144126528e-05
+  },
+  "windows": "PENDING_CI",
+  "macos": "PENDING_CI",
+  "full_product": "NOT_RUN",
+  "cab_realtime": "NOT_RUN"
+}
