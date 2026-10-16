@@ -1,0 +1,21 @@
+test_complete_ledger_replays_original_gate (__main__.DefinitionEvidence.test_complete_ledger_replays_original_gate) ... ok
+test_cross_source_transfer (__main__.DefinitionEvidence.test_cross_source_transfer) ... ok
+test_ctest_identity_and_scope (__main__.DefinitionEvidence.test_ctest_identity_and_scope) ... ok
+test_duplicate_id (__main__.DefinitionEvidence.test_duplicate_id) ... ok
+test_excerpts_must_belong_to_the_named_case (__main__.DefinitionEvidence.test_excerpts_must_belong_to_the_named_case) ... ok
+test_forged_original_definition (__main__.DefinitionEvidence.test_forged_original_definition) ... ok
+test_hard_gate_cannot_be_removed (__main__.DefinitionEvidence.test_hard_gate_cannot_be_removed) ... ok
+test_historical_workflow_failure_not_hidden (__main__.DefinitionEvidence.test_historical_workflow_failure_not_hidden) ... ok
+test_missing_id (__main__.DefinitionEvidence.test_missing_id) ... ok
+test_pass_or_na_is_not_a_proposal (__main__.DefinitionEvidence.test_pass_or_na_is_not_a_proposal) ... ok
+test_platform_coverage_cannot_be_silently_reduced (__main__.DefinitionEvidence.test_platform_coverage_cannot_be_silently_reduced) ... ok
+test_policy_fingerprint (__main__.DefinitionEvidence.test_policy_fingerprint) ... ok
+test_raw_archive_digest (__main__.DefinitionEvidence.test_raw_archive_digest) ... ok
+test_receipt_must_match_raw_bytes (__main__.DefinitionEvidence.test_receipt_must_match_raw_bytes) ... ok
+test_unapproved_scope_cannot_be_approved (__main__.DefinitionEvidence.test_unapproved_scope_cannot_be_approved) ... ok
+test_unknown_evidence (__main__.DefinitionEvidence.test_unknown_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.321s
+
+OK

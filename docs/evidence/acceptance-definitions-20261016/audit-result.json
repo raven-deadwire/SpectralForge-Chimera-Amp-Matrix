@@ -1,0 +1,51 @@
+{
+  "diagnostic_only": true,
+  "integrity": "verified",
+  "audited_product_source_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+  "base_tool_source_sha": "921a9aed8dc3889018a9456f19784abefd57f8b0",
+  "definition_count": 86,
+  "original_id_definitions_recovered": 0,
+  "proposed_not_approved": 86,
+  "definition_basis_counts": {
+    "RECOVERED_BEHAVIOR_NEW_ASSIGNMENT": 53,
+    "CURRENT_SCOPE_REPLACEMENT": 28,
+    "NEW_PROTOCOL_EXTENSION": 5
+  },
+  "stage_counts": {
+    "A1": 6,
+    "A2": 8,
+    "A3": 9,
+    "A4": 5,
+    "A5": 8,
+    "A6": 8,
+    "A7": 7,
+    "A8": 4,
+    "A9": 9,
+    "A10": 6,
+    "A11": 9,
+    "A14": 7
+  },
+  "existing_evidence_records": 16,
+  "reused_evidence": {
+    "pr41_component_cases_reused": 13,
+    "pr41_whole_workflow": "failure",
+    "beta2_to_beta3_installer_assertions_reused": 5
+  },
+  "source_files_verified": 47,
+  "protected_files_verified": 44,
+  "strict_counts": {
+    "total": 128,
+    "pass": 21,
+    "blocked": 107,
+    "not_applicable": 0
+  },
+  "strict_verdict": "BLOCKED",
+  "new_gate_passes": 0,
+  "new_waivers": 0,
+  "publication_authorized": false,
+  "known_gaps": {
+    "beta3_accepts_boolean_metrics": true,
+    "candidate_checklist_still_names_beta2": true,
+    "pr41_evaluator_differs_from_beta3": true
+  }
+}
