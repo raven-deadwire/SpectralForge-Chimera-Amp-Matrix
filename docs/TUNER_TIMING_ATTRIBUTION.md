@@ -6,7 +6,8 @@ Development-only follow-up to PR #71, source
 `CHIMERA_TUNER_TEST_HOOKS` enables a bounded, worker-owned observation buffer.
 The existing integration target already defines this macro. Product targets do
 not: no timing storage, extra clocks, allocation, locks, notification, callback
-work, polling interval or priority change is added to them. The estimator, FIFO,
+work or polling interval change is added by attribution. The macOS active-worker
+QoS correction below is a separate production change. The estimator, FIFO,
 generation transitions and freshness policy are unchanged.
 
 The integration test writes tagged CSV records to stderr while preserving its
@@ -68,3 +69,28 @@ first-activation/channel-change generation semantics and shutdown requirements
 are unchanged. Prior macOS failures remain unresolved until exact-source native
 verification. No merge, push, release, tag, installer or publication is part of
 this change.
+
+## macOS active-worker service correction
+
+At the instrumented source `452489320930bfe4aa19399f84b163c21f8a9d80`, the
+macOS focused run 38868065214 passed 32 routes but recorded 425 estimates.
+The interval between one publication and the next serviced window had median
+27.450875 ms, p95 52.074542 ms and maximum 84.774792 ms despite a requested
+10 ms wait. The local Windows population had median 10.631900 ms. These are
+observations, not an OS scheduler trace proving a unique cause.
+
+The correction requests JUCE `Priority::high` only while tuning is enabled on
+macOS. JUCE 8.0.8 maps this to `QOS_CLASS_USER_INITIATED`, below realtime audio;
+disabling tuning restores `Priority::normal` / `QOS_CLASS_DEFAULT`. Both changes
+occur on the worker itself. The callback, 10 ms wait interval, FIFO and estimator
+remain unchanged. Windows/Linux retain normal priority. If the platform refuses
+the request, processing continues; the macOS focused test checks the actual
+worker priority and will fail rather than certify an unapplied request.
+
+The same binary supports `--normal-qos-reference` for the original normal-QoS
+32-route control. CI retains its complete output and exit code even on timing
+failure, then executes the mandatory candidate tests with unchanged gates. The
+control is diagnostic and cannot convert a failing candidate into PASS. Active
+QoS application and restoration on disable are covered by `--timing-only`.
+New focused and Product results are required before calling this correction
+verified. No realtime hardware or release acceptance is inferred from it.

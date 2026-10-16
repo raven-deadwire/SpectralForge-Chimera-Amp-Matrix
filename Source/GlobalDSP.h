@@ -146,6 +146,8 @@ class Tuner : private juce::Thread {
     std::atomic<double> pitchInputTime{0};
 #if CHIMERA_TUNER_TEST_HOOKS
     tuning::TimingTrace testTiming;
+    bool testNormalQoS{false}; // Set only while stopped, before prepare().
+    std::atomic<int> testWorkerPriority{int(juce::Thread::Priority::normal)};
     std::atomic<int> testPauseMilliseconds{0};
     std::atomic<bool> testWorkerPaused{false};
     std::atomic<unsigned> testCompletedIterations{0};
@@ -164,7 +166,7 @@ public:
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
         hz.store(0); certainty.store(0); pitchInputTime.store(0);
 #if CHIMERA_TUNER_TEST_HOOKS
-        testTiming.reset();
+        testTiming.reset();testWorkerPriority.store(int(juce::Thread::Priority::normal));
 #endif
         // This is a latency-sensitive worker, below the host's realtime audio
         // thread but not a background utility (which macOS may defer).
@@ -223,6 +225,8 @@ public:
 #if CHIMERA_TUNER_TEST_HOOKS
     // Caller must stop/join before reading: no locks or allocation on the worker.
     const tuning::TimingTrace& timingAfterStopForTest() const { jassert(stopped()); return testTiming; }
+    void useNormalQoSForTest(bool normal) { jassert(stopped());testNormalQoS=normal; }
+    int workerPriorityForTest() const { return testWorkerPriority.load(); }
     void pauseWorkerForTest(int milliseconds) { testPauseMilliseconds.store(milliseconds); notify(); }
     bool workerPausedForTest() const { return testWorkerPaused.load(); }
     unsigned completedWorkerIterationsForTest() const { return testCompletedIterations.load(); }
@@ -242,6 +246,9 @@ private:
     {
         const lifecycle::Scope trace("tuner.worker", this);
         unsigned seen=generation.load();double lastReceived=0;
+#if JUCE_MAC
+        bool interactive=false;
+#endif
         while(!threadShouldExit())
         {
 #if CHIMERA_TUNER_TEST_HOOKS
@@ -250,6 +257,22 @@ private:
                 const auto until=juce::Time::getMillisecondCounterHiRes()+pause;
                 while(!threadShouldExit() && juce::Time::getMillisecondCounterHiRes()<until)wait(5);
                 testWorkerPaused.store(false);
+            }
+#endif
+#if JUCE_MAC
+            // Active tuning is user-initiated work. Default QoS can defer this
+            // timed wait far beyond 10 ms on macOS. Change only on this worker,
+            // never on the audio callback, and return to normal while disabled.
+            bool requested=enabled.load();
+#if CHIMERA_TUNER_TEST_HOOKS
+            requested=requested && !testNormalQoS;
+#endif
+            if(requested!=interactive) {
+                setPriority(requested?juce::Thread::Priority::high:juce::Thread::Priority::normal);
+                interactive=requested;
+#if CHIMERA_TUNER_TEST_HOOKS
+                testWorkerPriority.store(int(getPriority()));
+#endif
             }
 #endif
             const auto next=generation.load();

@@ -18,9 +18,14 @@ float tone(double hz,double time,int kind){
     if(kind==2)x*=std::exp(-time*3); // common exponential decay, no pitch drift
     return float(x);
 }
+bool normalQoSReference=false;
 struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{};};
 template<class T> NativeResult native(double rate,int block,double hz){
-    T tuner;tuner.prepare(rate);juce::AudioBuffer<float> audio(2,block);NativeResult result;
+    T tuner;
+#if CHIMERA_TUNER_TEST_HOOKS
+    if constexpr(std::is_same_v<T,spectralforge::Tuner>)tuner.useNormalQoSForTest(normalQoSReference);
+#endif
+    tuner.prepare(rate);juce::AudioBuffer<float> audio(2,block);NativeResult result;
     const double timingEpoch=juce::Time::getMillisecondCounterHiRes();
     const auto start=Clock::now();auto next=start;int offset=0,stable=0;
     const int total=int(rate*.6), step=int(rate*.30);
@@ -181,6 +186,15 @@ void timingAttribution(){
     deadline=Clock::now()+std::chrono::seconds(1);
     while(tuner.frequency()==0 && Clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
     require(std::abs(error(tuner.frequency(),110))<.1,"First queued window failed to acquire");
+#if JUCE_MAC
+    require(tuner.workerPriorityForTest()==int(juce::Thread::Priority::high),"Active tuner QoS not applied");
+    tuner.push(audio,false);
+    deadline=Clock::now()+std::chrono::seconds(1);
+    while(tuner.workerPriorityForTest()!=int(juce::Thread::Priority::normal) && Clock::now()<deadline)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(tuner.workerPriorityForTest()==int(juce::Thread::Priority::normal),"Disabled tuner QoS not restored");
+    require(tuner.frequency()==0 && tuner.confidence()==0,"QoS transition exposed disabled pitch");
+#endif
     tuner.stop();const auto& trace=tuner.timingAfterStopForTest();
     require(trace.size==1 && trace.dropped==0,"One window must yield one observation");
     const auto& r=trace.rows[0];
@@ -194,6 +208,8 @@ void timingAttribution(){
 #endif
 }
 int main(int argc,char** argv){try{
+    normalQoSReference=argc==2 && std::string(argv[1])=="--normal-qos-reference";
+    std::cerr<<"WORKER_QOS_REFERENCE,"<<normalQoSReference<<'\n';
     if(argc==2 && std::string(argv[1])=="--timing-only"){timingAttribution();return 0;}
     if(argc==2 && std::string(argv[1])=="--stale-only"){stalledWorkerFreshness();return 0;}
     std::cout<<std::setprecision(10)<<std::unitbuf;
