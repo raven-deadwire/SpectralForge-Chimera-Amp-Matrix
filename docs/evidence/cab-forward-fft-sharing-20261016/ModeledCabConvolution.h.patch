@@ -1,0 +1,116 @@
+--- ../fft-variants/A/Source/ModeledCabConvolution.h	2026-10-16 10:34:35.284435647 +0900
++++ ../fft-variants/B/Source/ModeledCabConvolution.h	2026-10-16 10:34:35.996125128 +0900
+@@ -1,6 +1,8 @@
+ #pragma once
+ #include <juce_dsp/juce_dsp.h>
+ #include <complex>
++#include <array>
++#include <cstring>
+ #include <memory>
+ #include <vector>
+ #include "CabRealtimeProfile.h"
+@@ -30,6 +32,34 @@
+         for(int i=0;i<bins;++i) {to[i]=from[2*i];to[bins+i]=from[2*i+1];}
+     }
+ public:
++    // EXPERIMENT ONLY: audio-owned scratch, lifetime limited to one Cab callback.
++    // Never share FFT plans, rings, cursors, tails, Prepared ownership or workers.
++    // Full time-domain byte equality is the guard; no approximate signal hashing.
++    struct ForwardCache {
++        static constexpr int capacity=12, floats=2048;
++        struct Entry {int count{},bins{};bool mono{};std::array<float,floats> input{},spectrum{};};
++        std::array<Entry,capacity> entries;
++        int used{};
++        unsigned hits{},misses{},overflow{};
++        void begin() noexcept {used=0;hits=misses=overflow=0;}
++        bool load(const void* input,int count,bool mono,int bins,float* output) noexcept {
++            if(count>floats || 2*bins>floats) {++misses;return false;}
++            for(int i=0;i<used;++i) {
++                const auto& e=entries[size_t(i)];
++                if(e.count==count && e.mono==mono && e.bins==bins
++                    && std::memcmp(e.input.data(),input,size_t(count)*sizeof(float))==0) {
++                    std::memcpy(output,e.spectrum.data(),size_t(2*bins)*sizeof(float));++hits;return true;
++                }
++            }
++            ++misses;return false;
++        }
++        void save(const void* input,int count,bool mono,int bins,const float* spectrum) noexcept {
++            if(used==capacity || count>floats || 2*bins>floats) {++overflow;return;}
++            auto& e=entries[size_t(used++)];e.count=count;e.mono=mono;e.bins=bins;
++            std::memcpy(e.input.data(),input,size_t(count)*sizeof(float));
++            std::memcpy(e.spectrum.data(),spectrum,size_t(2*bins)*sizeof(float));
++        }
++    };
+     // Only immutable authored spectra are shared. Every microphone, channel
+     // pair and fading kernel retains its own FFT object, input ring and tail.
+     // The worker cache keys this response by model, sample rate and block size;
+@@ -148,25 +178,27 @@
+         juce::FloatVectorOperations::copy(outputSpectrum.data(),pastSum.data(),2*bins);
+         accumulate(currentInput,prepared->impulseSpectra.data(),outputSpectrum.data());
+     }
+-    void processMono(juce::AudioBuffer<float>& buffer) noexcept
++    void processMono(juce::AudioBuffer<float>& buffer,ForwardCache* cache) noexcept
+     {
+         auto* channel=buffer.getWritePointer(0);
+         for(int offset=0;offset<buffer.getNumSamples();) {
+             const bool firstChunk=inputPosition==0;
+             const int count=juce::jmin(buffer.getNumSamples()-offset,blockSize-inputPosition);
+             juce::FloatVectorOperations::copy(monoInput.data()+inputPosition,channel+offset,count);
+-            {
++            const auto bank=currentInputBank();
++            auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*bins);
++            const bool reused=cache && cache->load(monoInput.data(),fftSize,true,bins,currentInput);
++            if(!reused) {
+                 SF_CAB_PROFILE_SCOPE(FFTForward);
+                 juce::FloatVectorOperations::copy(monoTransform.data(),monoInput.data(),fftSize);
+                 // Keep the platform's real FFT (notably vDSP on macOS). Only
+                 // non-negative bins, including DC and Nyquist, enter the FDL.
+                 fft.performRealOnlyForwardTransform(monoTransform.data(),true);
++                packRealSpectrum(monoTransform.data(),currentInput,bins);
++                if(cache)cache->save(monoInput.data(),fftSize,true,bins,currentInput);
+             }
+             {
+                 SF_CAB_PROFILE_SCOPE(SpectralMAC);
+-                const auto bank=currentInputBank();
+-                auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*bins);
+-                packRealSpectrum(monoTransform.data(),currentInput,bins);
+                 sumPartitions(currentInput,bank,firstChunk);
+                 for(int i=0;i<bins;++i) {
+                     monoTransform[size_t(2*i)]=outputSpectrum[size_t(i)];
+@@ -217,27 +249,30 @@
+         std::fill(monoOverlap.begin(),monoOverlap.end(),0.f);
+         currentSegment=0;inputPosition=0;
+     }
+-    void process(juce::AudioBuffer<float>& buffer) noexcept
++    void process(juce::AudioBuffer<float>& buffer,ForwardCache* cache=nullptr) noexcept
+     {
+         jassert(buffer.getNumChannels()<=2);
+         jassert(!mono || buffer.getNumChannels()<=1);
+         if(buffer.getNumChannels()==0 || buffer.getNumSamples()==0)return;
+-        if(mono) {processMono(buffer);return;}
++        if(mono) {processMono(buffer,cache);return;}
+         auto* left=buffer.getWritePointer(0);
+         auto* right=buffer.getNumChannels()>1 ? buffer.getWritePointer(1) : nullptr;
+         for(int offset=0;offset<buffer.getNumSamples();) {
+             const bool firstChunk=inputPosition==0;
+             const int count=juce::jmin(buffer.getNumSamples()-offset,blockSize-inputPosition);
+             for(int i=0;i<count;++i)inputTime[size_t(inputPosition+i)]={left[offset+i],right ? right[offset+i] : 0.f};
+-            {
++            const auto bank=currentInputBank();
++            auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*fftSize);
++            static_assert(sizeof(Complex)==2*sizeof(float));
++            const bool reused=cache && cache->load(inputTime.data(),2*fftSize,false,bins,currentInput);
++            if(!reused) {
+                 SF_CAB_PROFILE_SCOPE(FFTForward);
+                 fft.perform(inputTime.data(),transform.data(),false);
++                packSpectrum(transform.data(),currentInput,fftSize);
++                if(cache)cache->save(inputTime.data(),2*fftSize,false,bins,currentInput);
+             }
+             {
+                 SF_CAB_PROFILE_SCOPE(SpectralMAC);
+-                const auto bank=currentInputBank();
+-                auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*fftSize);
+-                packSpectrum(transform.data(),currentInput,fftSize);
+                 sumPartitions(currentInput,bank,firstChunk);
+                 for(int i=0;i<fftSize;++i)transform[size_t(i)]={outputSpectrum[size_t(i)],outputSpectrum[size_t(fftSize+i)]};
+             }
