@@ -36,6 +36,7 @@ jobs:
           python Tools/test_release_gate.py
           python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
+          python Tools/test_signature_calculator_contracts.py
           python Tools/check_catalog_contract.py
           python Tools/check_ir_distribution.py
           python Tests/test_ir_distribution.py
