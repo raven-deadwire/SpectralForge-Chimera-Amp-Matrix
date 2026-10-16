@@ -553,3 +553,10 @@ target_compile_definitions(ChimeraPrecisionTunerIntegrationTests PRIVATE JUCE_US
 target_link_libraries(ChimeraPrecisionTunerIntegrationTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPrecisionTunerIntegrationTests COMMAND ChimeraPrecisionTunerIntegrationTests)
 set_tests_properties(ChimeraPrecisionTunerIntegrationTests PROPERTIES TIMEOUT 120)
+
+# Test-only timing attribution; product targets never enable tuner test hooks.
+add_executable(ChimeraTunerTimingTests Tests/TunerTimingTests.cpp)
+target_include_directories(ChimeraTunerTimingTests PRIVATE Source)
+add_test(NAME ChimeraTunerTimingTests COMMAND ChimeraTunerTimingTests)
+add_test(NAME ChimeraTunerWorkerTimingTests COMMAND ChimeraPrecisionTunerIntegrationTests --timing-only)
+set_tests_properties(ChimeraTunerWorkerTimingTests PROPERTIES TIMEOUT 10)

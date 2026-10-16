@@ -5,6 +5,9 @@
 #include "PrecisionTuner.h"
 #include <atomic>
 #include <array>
+#if CHIMERA_TUNER_TEST_HOOKS
+#include "TunerTiming.h"
+#endif
 
 namespace spectralforge {
 class NoiseGate {
@@ -142,6 +145,7 @@ class Tuner : private juce::Thread {
     std::atomic<float> hz{0}, certainty{0};
     std::atomic<double> pitchInputTime{0};
 #if CHIMERA_TUNER_TEST_HOOKS
+    tuning::TimingTrace testTiming;
     std::atomic<int> testPauseMilliseconds{0};
     std::atomic<bool> testWorkerPaused{false};
     std::atomic<unsigned> testCompletedIterations{0};
@@ -159,6 +163,9 @@ public:
         decimation=juce::jmax(1,juce::roundToInt(rate/24000.0)); analysisRate=rate/decimation;
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
         hz.store(0); certainty.store(0); pitchInputTime.store(0);
+#if CHIMERA_TUNER_TEST_HOOKS
+        testTiming.reset();
+#endif
         // This is a latency-sensitive worker, below the host's realtime audio
         // thread but not a background utility (which macOS may defer).
         startThread(juce::Thread::Priority::normal);
@@ -214,6 +221,8 @@ public:
     float frequency() const { return readingIsFresh()?hz.load():0; }
     float confidence() const { return readingIsFresh()?certainty.load():0; }
 #if CHIMERA_TUNER_TEST_HOOKS
+    // Caller must stop/join before reading: no locks or allocation on the worker.
+    const tuning::TimingTrace& timingAfterStopForTest() const { jassert(stopped()); return testTiming; }
     void pauseWorkerForTest(int milliseconds) { testPauseMilliseconds.store(milliseconds); notify(); }
     bool workerPausedForTest() const { return testWorkerPaused.load(); }
     unsigned completedWorkerIterationsForTest() const { return testCompletedIterations.load(); }
@@ -256,20 +265,43 @@ private:
                 hz.store(0);certainty.store(0);
                 const auto discarded=fifo.read(fifo.getNumReady());
             }
+#if CHIMERA_TUNER_TEST_HOOKS
+            tuning::TimingObservation timing;timing.generation=seen;timing.wake=now;
+#endif
             bool received=false;
             { const auto scope=fifo.read(fifo.getNumReady());int last=-1;
               scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;last=i;});
               if(last>=0)lastReceived=queueInputTimes[size_t(last)];
             }
+#if CHIMERA_TUNER_TEST_HOOKS
+            timing.windowComplete=lastReceived;
+            timing.service=juce::Time::getMillisecondCounterHiRes();
+#endif
             if(!enabled.load() || juce::Time::getMillisecondCounterHiRes()-lastReceived>250) { hz.store(0); certainty.store(0); filled=0; }
             else if(received && filled==frameSize)
             {
                 for(int i=0;i<frameSize;++i) ordered[(size_t)i]=history[(size_t)((writeIndex+i)%frameSize)];
+#if CHIMERA_TUNER_TEST_HOOKS
+                timing.estimateBegin=juce::Time::getMillisecondCounterHiRes();
+#endif
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
+#if CHIMERA_TUNER_TEST_HOOKS
+                timing.estimateEnd=juce::Time::getMillisecondCounterHiRes();
+                timing.hz=pitch.first;timing.confidence=pitch.second;
+#endif
                 // Retain the input's arrival time, never the delayed consumption
                 // or computation completion:
                 // readers must also expire old observations if this worker stalls.
-                if(generation.load()==seen && enabled.load()){hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);pitchInputTime.store(lastReceived);}
+                if(generation.load()==seen && enabled.load()){
+                    hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);pitchInputTime.store(lastReceived);
+#if CHIMERA_TUNER_TEST_HOOKS
+                    timing.published=true;
+#endif
+                }
+#if CHIMERA_TUNER_TEST_HOOKS
+                timing.publish=juce::Time::getMillisecondCounterHiRes();
+                testTiming.append(timing);
+#endif
             }
 #if CHIMERA_TUNER_TEST_HOOKS
             testCompletedIterations.fetch_add(1);

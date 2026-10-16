@@ -21,8 +21,11 @@ float tone(double hz,double time,int kind){
 struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{};};
 template<class T> NativeResult native(double rate,int block,double hz){
     T tuner;tuner.prepare(rate);juce::AudioBuffer<float> audio(2,block);NativeResult result;
+    const double timingEpoch=juce::Time::getMillisecondCounterHiRes();
     const auto start=Clock::now();auto next=start;int offset=0,stable=0;
     const int total=int(rate*.6), step=int(rate*.30);
+    struct FeedObservation {int offset;double push,observed;float hz,confidence;};
+    std::vector<FeedObservation> feed;feed.reserve(size_t((total+block-1)/block));
     for(;offset<total;offset+=block){
         const double wanted=offset>=step?hz*std::exp2(10./1200):hz;
         for(int n=0;n<block;++n){audio.setSample(0,n,tone(wanted,(offset+n)/rate,1));audio.setSample(1,n,-.7f*audio.getSample(0,n));}
@@ -30,13 +33,35 @@ template<class T> NativeResult native(double rate,int block,double hz){
         result.pushUs=std::max(result.pushUs,std::chrono::duration<double,std::micro>(Clock::now()-pushStart).count());
         next=start+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>((offset+block)/rate));std::this_thread::sleep_until(next);
         const double elapsed=std::chrono::duration<double,std::milli>(Clock::now()-start).count();
-        const double e=error(tuner.frequency(),wanted);
-        if(offset<step && std::abs(e)<.5 && tuner.confidence()>.9 && result.acquire<0)result.acquire=elapsed;
-        if(offset>=step){if(std::abs(e)<.5 && tuner.confidence()>.9)++stable;else stable=0;if(stable>=3 && result.settle<0)result.settle=elapsed-1000*step/rate;result.cents=e;}
+        const auto measured=tuner.frequency();const auto confidence=tuner.confidence();
+        const double e=error(measured,wanted);
+        feed.push_back({offset,std::chrono::duration<double,std::milli>(pushStart-start).count(),elapsed,measured,confidence});
+        if(offset<step && std::abs(e)<.5 && confidence>.9 && result.acquire<0)result.acquire=elapsed;
+        if(offset>=step){if(std::abs(e)<.5 && confidence>.9)++stable;else stable=0;if(stable>=3 && result.settle<0)result.settle=elapsed-1000*step/rate;result.cents=e;}
     }
     tuner.push(audio,false); // must hide stale pitch immediately in the candidate
     if constexpr(std::is_same_v<T,spectralforge::Tuner>)require(tuner.frequency()==0,"Disabled tuner exposed stale reading");
-    tuner.stop();require(tuner.stopped(),"Worker did not stop");return result;
+    tuner.stop();require(tuner.stopped(),"Worker did not stop");
+#if CHIMERA_TUNER_TEST_HOOKS
+    if constexpr(std::is_same_v<T,spectralforge::Tuner>) {
+        for(const auto& f:feed)
+            std::cerr<<std::setprecision(12)<<"FEED,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
+                <<1000*f.offset/rate<<','<<f.push<<','<<f.observed<<','<<f.hz<<','<<f.confidence<<'\n';
+        const auto& trace=tuner.timingAfterStopForTest();
+        // Separate tagged CSV stream on stderr; retain every estimate, including
+        // rejected/generation-discarded observations and routes that fail gates.
+        for(size_t i=0;i<trace.size;++i){const auto& r=trace.rows[i];
+            std::cerr<<std::setprecision(12)<<"TIMING,"<<rate<<','<<block<<','<<hz<<','<<i<<','<<r.generation<<','
+                <<r.windowComplete-timingEpoch<<','<<r.wake-timingEpoch<<','<<r.service-timingEpoch<<','
+                <<r.estimateBegin-timingEpoch<<','<<r.estimateEnd-timingEpoch<<','<<r.publish-timingEpoch<<','
+                <<r.wakeDelay()<<','<<r.serviceDelay()<<','<<r.preparation()<<','<<r.compute()<<','<<r.publication()<<','
+                <<r.publishAge()<<','<<r.hz<<','<<r.confidence<<','<<r.published<<'\n';
+        }
+        std::cerr<<"TIMING_END,"<<rate<<','<<block<<','<<hz<<','<<trace.size<<','<<trace.dropped<<'\n';
+        require(trace.size>0 && trace.dropped==0,"Incomplete route timing trace");
+    }
+#endif
+    return result;
 }
 void channelContinuity(){
     spectralforge::Tuner tuner;tuner.prepare(48000);juce::AudioBuffer<float> audio(2,256);
@@ -129,9 +154,50 @@ void stalledWorkerFreshness(){
     std::cerr<<"PASS expired observation hidden through stall/resume, fresh-block and mixed-queue gaps; fresh stream reacquires\n";
 #endif
 }
+void timingAttribution(){
+#if CHIMERA_TUNER_TEST_HOOKS
+    {
+        spectralforge::Tuner partial;partial.prepare(48000);
+        juce::AudioBuffer<float> shortWindow(1,8190); // 4095 decimated samples
+        for(int n=0;n<8190;++n)shortWindow.setSample(0,n,tone(110,n/48000.,1));
+        partial.push(shortWindow,true);
+        const auto deadline=Clock::now()+std::chrono::seconds(1);
+        const auto iteration=partial.completedWorkerIterationsForTest();
+        while(partial.completedWorkerIterationsForTest()<iteration+2 && Clock::now()<deadline)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        require(partial.completedWorkerIterationsForTest()>=iteration+2,"Partial-window worker did not run");
+        partial.stop();require(partial.timingAfterStopForTest().size==0,"Incomplete input window was estimated");
+    }
+    spectralforge::Tuner tuner;tuner.prepare(48000);
+    tuner.pauseWorkerForTest(120);
+    auto deadline=Clock::now()+std::chrono::seconds(1);
+    while(!tuner.workerPausedForTest() && Clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(tuner.workerPausedForTest(),"Timing worker pause not reached");
+    // An entire first window queued before service must survive first activation.
+    juce::AudioBuffer<float> audio(1,8192);
+    for(int n=0;n<8192;++n)audio.setSample(0,n,tone(110,n/48000.,1));
+    const auto before=juce::Time::getMillisecondCounterHiRes();tuner.push(audio,true);
+    const auto after=juce::Time::getMillisecondCounterHiRes();
+    deadline=Clock::now()+std::chrono::seconds(1);
+    while(tuner.frequency()==0 && Clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(std::abs(error(tuner.frequency(),110))<.1,"First queued window failed to acquire");
+    tuner.stop();const auto& trace=tuner.timingAfterStopForTest();
+    require(trace.size==1 && trace.dropped==0,"One window must yield one observation");
+    const auto& r=trace.rows[0];
+    require(r.windowComplete>=before && r.windowComplete<=after,"Completion timestamp not from input publication");
+    require(r.published && r.compute()>0 && r.wakeDelay()>0 && r.serviceDelay()>=0 && r.preparation()>=0 && r.publication()>=0,"Invalid worker attribution");
+    require(std::abs(r.wakeDelay()+r.serviceDelay()+r.preparation()+r.compute()+r.publication()-r.publishAge())<1e-6,"Attribution does not sum to publish age");
+    require(r.publishAge()>r.compute(),"Queue delay lost in estimator time");
+    tuner.prepare(96000);tuner.stop();
+    require(tuner.timingAfterStopForTest().size==0,"Prepare retained previous trace");
+    std::cerr<<"PASS first-window completion, delayed worker, compute, publish age and trace lifecycle\n";
+#endif
+}
 int main(int argc,char** argv){try{
+    if(argc==2 && std::string(argv[1])=="--timing-only"){timingAttribution();return 0;}
     if(argc==2 && std::string(argv[1])=="--stale-only"){stalledWorkerFreshness();return 0;}
     std::cout<<std::setprecision(10)<<std::unitbuf;
+    std::cerr<<"TIMING_HEADER,rate,block,hz,index,generation,window_complete_ms,wake_ms,service_ms,estimate_begin_ms,estimate_end_ms,publish_ms,wake_delay_ms,service_delay_ms,preparation_ms,compute_ms,publication_ms,publish_age_ms,estimated_hz,confidence,published\n";
     std::cout<<"kind,engine,rate,block,hz,fixture,error_ct,confidence,compute_us,acquire_ms,step_settle_ms,push_max_us\n";
     int count=0;double worst[3]{},baselineWorst[3]{};
     for(double host:{44100.,48000.,96000.,192000.})for(double hz:{16.352,23.125,27.5,30.867706,41.203445,82.406889,130.81278,440.,1318.5102})for(int kind=0;kind<3;++kind){
@@ -158,7 +224,7 @@ int main(int argc,char** argv){try{
             ++failedRoutes;std::cerr<<"ROUTE FAIL rate="<<rate<<" block="<<block<<" hz="<<hz<<" acquire="<<b.acquire<<" settle="<<b.settle<<" error="<<b.cents<<'\n';
         }
     }
-    channelContinuity();lifecycle();stalledWorkerFreshness();
+    channelContinuity();lifecycle();stalledWorkerFreshness();timingAttribution();
     require(failedRoutes==0,"Native acquisition/settle/accuracy gate failed; all route rows retained");
     std::cerr<<"PASS "<<count<<" kernel cases and 32 native A/B routes. Synthetic sine/harmonic/exponential-decay maxima: "<<worst[0]<<' '<<worst[1]<<' '<<worst[2]<<" ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.\n";
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

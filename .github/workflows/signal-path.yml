@@ -31,8 +31,8 @@ jobs:
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev
       - run: cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
-      - run: cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraPostNativeTests --parallel 2
-      - run: ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraPostNativeTests)$' --output-on-failure --no-tests=error --output-junit tuner-results.xml
+      - run: cmake --build build-tuner --config Release --target ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraTunerTimingTests ChimeraPostNativeTests --parallel 2
+      - run: ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraPostNativeTests)$' --output-on-failure --no-tests=error --output-junit tuner-results.xml
       - if: always()
         uses: actions/upload-artifact@v6
         with:
