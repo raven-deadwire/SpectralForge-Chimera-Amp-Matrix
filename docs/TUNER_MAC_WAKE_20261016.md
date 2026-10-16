@@ -11,3 +11,6 @@ Apple references:
 - https://developer.apple.com/documentation/dispatch/dispatch_source_set_cancel_handler
 
 Requires fresh native macOS focused and Product results. No pass or release eligibility is inferred from the implementation or Windows tests.
+
+## Bounded-wait follow-up
+Native macOS job 117018731492 on 852bd59 failed with an empty timing trace for the 96 kHz / 64 / 82.406889 Hz route. This does not establish dispatch delivery as the unique cause. Retain a 10 ms timed wait even while the strict timer is active, so dispatch delivery is not the sole source of worker progress. A macOS-only attribution/lifecycle variant suppresses timer notifications while retaining the active source, and still requires acquisition, disable completion, timing attribution and drained shutdown. Timing thresholds, feeder and stale invalidation remain unchanged. Native qualification is required for this follow-up.

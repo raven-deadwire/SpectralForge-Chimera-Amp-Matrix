@@ -8,7 +8,7 @@ namespace spectralforge {
 // it does not run the estimator or change host/process scheduling policy.
 class MacTunerWakeTimer final {
 public:
-    explicit MacTunerWakeTimer(juce::Thread& target) : worker(target) {}
+    explicit MacTunerWakeTimer(juce::Thread& target,bool deliver=true) : worker(target),deliverNotifications(deliver) {}
     ~MacTunerWakeTimer() { stop(); }
     MacTunerWakeTimer(const MacTunerWakeTimer&) = delete;
     MacTunerWakeTimer& operator=(const MacTunerWakeTimer&) = delete;
@@ -20,7 +20,8 @@ public:
         if(!source) return false;
         dispatch_set_context(source,this);
         dispatch_source_set_event_handler_f(source,[](void* context) {
-            static_cast<MacTunerWakeTimer*>(context)->worker.notify();
+            auto& timer=*static_cast<MacTunerWakeTimer*>(context);
+            if(timer.deliverNotifications)timer.worker.notify();
         });
         dispatch_source_set_cancel_handler_f(source,[](void* context) {
             static_cast<MacTunerWakeTimer*>(context)->cancelled.signal();
@@ -41,6 +42,7 @@ public:
     bool active() const noexcept { return source!=nullptr; }
 private:
     juce::Thread& worker;
+    const bool deliverNotifications;
     juce::WaitableEvent cancelled;
     dispatch_source_t source{};
 };

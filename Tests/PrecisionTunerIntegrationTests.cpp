@@ -159,7 +159,7 @@ void stalledWorkerFreshness(){
     std::cerr<<"PASS expired observation hidden through stall/resume, fresh-block and mixed-queue gaps; fresh stream reacquires\n";
 #endif
 }
-void timingAttribution(){
+void timingAttribution(bool suppressTimerNotifications=false){
 #if CHIMERA_TUNER_TEST_HOOKS
     {
         spectralforge::Tuner partial;partial.prepare(48000);
@@ -173,7 +173,7 @@ void timingAttribution(){
         require(partial.completedWorkerIterationsForTest()>=iteration+2,"Partial-window worker did not run");
         partial.stop();require(partial.timingAfterStopForTest().size==0,"Incomplete input window was estimated");
     }
-    spectralforge::Tuner tuner;tuner.prepare(48000);
+    spectralforge::Tuner tuner;tuner.suppressTimerNotificationsForTest(suppressTimerNotifications);tuner.prepare(48000);
     tuner.pauseWorkerForTest(120);
     auto deadline=Clock::now()+std::chrono::seconds(1);
     while(!tuner.workerPausedForTest() && Clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -207,6 +207,10 @@ void timingAttribution(){
     tuner.prepare(96000);tuner.stop();
     require(tuner.timingAfterStopForTest().size==0,"Prepare retained previous trace");
     std::cerr<<"PASS first-window completion, delayed worker, compute, publish age and trace lifecycle\n";
+#if JUCE_MAC
+    if(!suppressTimerNotifications)timingAttribution(true);
+    else std::cerr<<"PASS macOS progress and disable with timer notifications suppressed\n";
+#endif
 #endif
 }
 int main(int argc,char** argv){try{

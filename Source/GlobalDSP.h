@@ -148,6 +148,7 @@ class Tuner : private juce::Thread {
 #if CHIMERA_TUNER_TEST_HOOKS
     tuning::TimingTrace testTiming;
     bool testNormalQoS{false}; // Set only while stopped, before prepare().
+    bool testSuppressTimerNotifications{false};
     std::atomic<int> testWorkerPriority{int(juce::Thread::Priority::normal)};
     std::atomic<int> testPauseMilliseconds{0};
     std::atomic<bool> testWorkerPaused{false};
@@ -229,6 +230,7 @@ public:
     const tuning::TimingTrace& timingAfterStopForTest() const { jassert(stopped()); return testTiming; }
     void useNormalQoSForTest(bool normal) { jassert(stopped());testNormalQoS=normal; }
     bool wakeTimerActiveForTest() const { return testWakeTimerActive.load(); }
+    void suppressTimerNotificationsForTest(bool suppress) { jassert(stopped());testSuppressTimerNotifications=suppress; }
     int workerPriorityForTest() const { return testWorkerPriority.load(); }
     void pauseWorkerForTest(int milliseconds) { testPauseMilliseconds.store(milliseconds); notify(); }
     bool workerPausedForTest() const { return testWorkerPaused.load(); }
@@ -251,7 +253,11 @@ private:
         unsigned seen=generation.load();double lastReceived=0;
 #if JUCE_MAC
         bool interactive=false;
-        MacTunerWakeTimer wakeTimer(*this);
+        MacTunerWakeTimer wakeTimer(*this
+#if CHIMERA_TUNER_TEST_HOOKS
+            ,!testSuppressTimerNotifications
+#endif
+        );
 #endif
         while(!threadShouldExit())
         {
@@ -338,7 +344,9 @@ private:
 #if JUCE_MAC
             // Interruptible by stop(), test pauses and the strict timer. Keep
             // the legacy wait for disabled/normal-reference/failure fallback.
-            wait(wakeTimer.active()?-1:10);
+            // Dispatch delivery can itself be delayed: retain a bounded wait
+            // so an active source never becomes the only route to progress.
+            wait(10);
 #else
             wait(10);
 #endif
