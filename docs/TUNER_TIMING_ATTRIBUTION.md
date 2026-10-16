@@ -79,8 +79,8 @@ The interval between one publication and the next serviced window had median
 10 ms wait. The local Windows population had median 10.631900 ms. These are
 observations, not an OS scheduler trace proving a unique cause.
 
-The correction requests JUCE `Priority::high` only while tuning is enabled on
-macOS. JUCE 8.0.8 maps this to `QOS_CLASS_USER_INITIATED`, below realtime audio;
+The correction requests JUCE `Priority::highest` only while tuning is enabled on
+macOS. JUCE 8.0.8 maps this to `QOS_CLASS_USER_INTERACTIVE`, below realtime audio;
 disabling tuning restores `Priority::normal` / `QOS_CLASS_DEFAULT`. Both changes
 occur on the worker itself. The callback, 10 ms wait interval, FIFO and estimator
 remain unchanged. Windows/Linux retain normal priority. If the platform refuses
@@ -92,5 +92,13 @@ The same binary supports `--normal-qos-reference` for the original normal-QoS
 failure, then executes the mandatory candidate tests with unchanged gates. The
 control is diagnostic and cannot convert a failing candidate into PASS. Active
 QoS application and restoration on disable are covered by `--timing-only`.
+The first USER_INITIATED candidate (`4eef53d`) still failed one macOS route:
+48 kHz/256/27.5 Hz acquired at 293.274 ms. Its first pitch was published at
+282.002 ms and observed at 293.274 ms; the feeder also delivered the first full
+window late (195.241 ms versus its nominal 165.333 ms). This failed run is retained.
+The revised active policy uses USER_INTERACTIVE, which JUCE maps from `highest`,
+for the continuous user-facing tuner update. It is still a non-realtime worker;
+the test feeder and every acceptance threshold remain unchanged.
+
 New focused and Product results are required before calling this correction
 verified. No realtime hardware or release acceptance is inferred from it.

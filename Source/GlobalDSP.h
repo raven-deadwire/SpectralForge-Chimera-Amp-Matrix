@@ -260,7 +260,7 @@ private:
             }
 #endif
 #if JUCE_MAC
-            // Active tuning is user-initiated work. Default QoS can defer this
+            // Active tuning continuously drives interactive pitch feedback. Default QoS can defer this
             // timed wait far beyond 10 ms on macOS. Change only on this worker,
             // never on the audio callback, and return to normal while disabled.
             bool requested=enabled.load();
@@ -268,7 +268,7 @@ private:
             requested=requested && !testNormalQoS;
 #endif
             if(requested!=interactive) {
-                setPriority(requested?juce::Thread::Priority::high:juce::Thread::Priority::normal);
+                setPriority(requested?juce::Thread::Priority::highest:juce::Thread::Priority::normal);
                 interactive=requested;
 #if CHIMERA_TUNER_TEST_HOOKS
                 testWorkerPriority.store(int(getPriority()));
