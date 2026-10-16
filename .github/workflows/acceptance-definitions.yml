@@ -1,0 +1,33 @@
+name: Acceptance definition evidence audit
+on:
+  pull_request:
+    paths:
+      - 'Tools/audit_acceptance_definitions.py'
+      - 'Tools/test_acceptance_definitions.py'
+      - 'docs/ACCEPTANCE_DEFINITION_RECOVERY_20261016.md'
+      - 'docs/evidence/acceptance-definitions-20261016/**'
+      - '.github/workflows/acceptance-definitions.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnostic-integrity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify proposal and raw evidence boundaries
+        shell: bash
+        run: |
+          python Tools/test_acceptance_definitions.py
+          python Tools/audit_acceptance_definitions.py --output build/acceptance-definition-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Acceptance-definition-diagnostic-only
+          path: build/acceptance-definition-audit.json
+          if-no-files-found: error

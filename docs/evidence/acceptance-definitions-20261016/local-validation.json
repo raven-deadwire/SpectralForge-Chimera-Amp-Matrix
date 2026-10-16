@@ -1,0 +1,22 @@
+{
+  "kind": "local-diagnostic-validation-not-product-acceptance",
+  "checked_at_utc": "2026-10-16T06:30:18.126012+00:00",
+  "parent_source_sha": "921a9aed8dc3889018a9456f19784abefd57f8b0",
+  "command": [
+    "python",
+    "Tools/test_acceptance_definitions.py"
+  ],
+  "exit_code": 0,
+  "tests_run": 16,
+  "failures": 0,
+  "errors": 0,
+  "log_path": "docs/evidence/acceptance-definitions-20261016/local-tests.log",
+  "log_sha256": "23908e4034a183208dd4da5c34327574874d6c265580fd499886872c859efe35",
+  "input_sha256": {
+    "Tools/audit_acceptance_definitions.py": "1ce70eb89f0c0bf07de594330086a067e8eccef9623297509fe7523a8b45fb78",
+    "Tools/test_acceptance_definitions.py": "f2773626b126df056804604a92f4d3a7917e3a0ed6d5e90e0d8f20c8b870faa1",
+    ".github/workflows/acceptance-definitions.yml": "1200022c1dd59cca60b30fab0e58277b7f7f1628e098749e8ebfe828c6580e7d"
+  },
+  "policy_changed": false,
+  "new_acceptance_passes": 0
+}
