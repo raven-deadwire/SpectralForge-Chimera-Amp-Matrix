@@ -1,0 +1,103 @@
+POST cache exact parity PASS: sample comparisons=1028160 models=9 mono/stereo automation/bypass/reset/reprepare
+SPATIAL_CONTROL family=0 model=0 control=0 residual=0.0532227
+SPATIAL_CONTROL family=0 model=0 control=1 residual=0.0707196
+SPATIAL_CONTROL family=0 model=0 control=2 residual=0.178913
+SPATIAL_CONTROL family=0 model=1 control=0 residual=0.0498568
+SPATIAL_CONTROL family=0 model=1 control=1 residual=0.069617
+SPATIAL_CONTROL family=0 model=1 control=2 residual=0.205665
+SPATIAL_CONTROL family=0 model=2 control=0 residual=0.0388913
+SPATIAL_CONTROL family=0 model=2 control=1 residual=0.0636954
+SPATIAL_CONTROL family=0 model=2 control=2 residual=0.130578
+SPATIAL_CONTROL family=0 model=3 control=0 residual=0.0437715
+SPATIAL_CONTROL family=0 model=3 control=1 residual=0.0649251
+SPATIAL_CONTROL family=0 model=3 control=2 residual=0.167504
+SPATIAL_CONTROL family=0 model=4 control=0 residual=0.0758478
+SPATIAL_CONTROL family=0 model=4 control=1 residual=0.100959
+SPATIAL_CONTROL family=0 model=4 control=2 residual=0.313923
+SPATIAL_CONTROL family=0 model=5 control=0 residual=0.0116178
+SPATIAL_CONTROL family=0 model=5 control=1 residual=0.0379126
+SPATIAL_CONTROL family=0 model=5 control=2 residual=0.0442314
+SPATIAL_CONTROL family=1 model=0 control=0 residual=0.0702747
+SPATIAL_CONTROL family=1 model=0 control=1 residual=0.0561353
+SPATIAL_CONTROL family=1 model=0 control=2 residual=0.168931
+SPATIAL_CONTROL family=1 model=1 control=0 residual=0.0648317
+SPATIAL_CONTROL family=1 model=1 control=1 residual=0.0522139
+SPATIAL_CONTROL family=1 model=1 control=2 residual=0.162721
+SPATIAL_CONTROL family=1 model=2 control=0 residual=0.0648712
+SPATIAL_CONTROL family=1 model=2 control=1 residual=0.0491547
+SPATIAL_CONTROL family=1 model=2 control=2 residual=0.162752
+SPATIAL_CONTROL family=2 model=0 control=0 residual=0.0123384
+SPATIAL_CONTROL family=2 model=0 control=1 residual=0.00448499
+SPATIAL_CONTROL family=2 model=0 control=2 residual=0.116191
+SPATIAL_CONTROL family=2 model=1 control=0 residual=0.0686175
+SPATIAL_CONTROL family=2 model=1 control=1 residual=0.0295583
+SPATIAL_CONTROL family=2 model=1 control=2 residual=0.134703
+SPATIAL_CONTROL family=2 model=2 control=0 residual=0.109542
+SPATIAL_CONTROL family=2 model=2 control=1 residual=0.0179674
+SPATIAL_CONTROL family=2 model=2 control=2 residual=0.165958
+PASS spatial POST: 12 models, 36 controls
+control 0/0 threshold residual=0.152395
+control 0/0 makeup residual=0.300884
+control 0/0 attack residual=0.0117342
+control 0/0 release residual=0.0110012
+control 0/0 ratio residual=0.0315487
+control 0/0 compressor_in residual=0.126444
+control 0/0 fade_rate residual=0.0100569
+control 0/0 auto_fade residual=0.00102324
+control 0/1 input residual=0.148959
+control 0/1 output residual=0.312522
+control 0/1 attack residual=0.0146242
+control 0/1 release residual=0.0385164
+control 0/1 attack_off residual=0.551554
+control 0/1 ratio residual=0.00957947
+control 0/2 gain residual=0.286101
+control 0/2 peak_reduction residual=0.152504
+control 0/2 mode residual=0.0111841
+control 0/2 r37 residual=0.00604627
+control 1/0 gain residual=2.00092
+control 1/0 phase residual=0.335118
+control 1/1 input residual=1.04729
+control 1/1 boost residual=6.10977
+control 1/1 tone residual=0.12279
+control 1/1 tone_in residual=0.102044
+control 1/1 high_cut residual=0.158283
+control 1/1 phase residual=0.896083
+control 1/1 pad residual=0.403038
+control 1/2 input residual=0.111762
+control 1/2 gain residual=0.157678
+control 1/2 gain_range residual=1.1446
+control 1/2 trim residual=0.440891
+control 1/2 phase residual=0.103504
+control 1/2 high_pass residual=0.0482192
+control 1/2 instrument_gain residual=2.87829
+control 2/0 hf_gain residual=0.120856
+control 2/0 hf_frequency residual=0.0618352
+control 2/0 hf_bell residual=0.0425592
+control 2/0 hmf_gain residual=0.124853
+control 2/0 hmf_frequency residual=0.0953109
+control 2/0 hmf_q residual=0.074122
+control 2/0 lmf_gain residual=0.278298
+control 2/0 lmf_frequency residual=0.0809827
+control 2/0 lmf_q residual=0.0782738
+control 2/0 lf_gain residual=0.389003
+control 2/0 lf_frequency residual=0.132746
+control 2/0 lf_bell residual=0.132566
+control 2/0 black residual=0.0243831
+control 2/0 eq_in residual=0.118527
+control 2/1 hf_gain residual=0.0679893
+control 2/1 mf_gain residual=0.136724
+control 2/1 mf_frequency residual=0.0472533
+control 2/1 lf_gain residual=0.19622
+control 2/1 lf_frequency residual=0.159646
+control 2/1 high_pass residual=0.155241
+control 2/1 eq_in residual=0.0734526
+control 2/2 lf_frequency residual=0.0445731
+control 2/2 lf_boost residual=0.0474135
+control 2/2 lf_atten residual=0.105868
+control 2/2 bandwidth residual=0.0388537
+control 2/2 hf_boost residual=0.0463283
+control 2/2 hf_frequency residual=0.0172447
+control 2/2 hf_atten residual=0.0547503
+control 2/2 hf_atten_frequency residual=0.0276118
+control 2/2 eq_in residual=0.0364931
+POST native PASS: models=9 audio_controls=64 meter_controls=3 min_control_residual=0.00102324 rate_switch_stress_blocks=288 peak=53.0753 stereo_leak=0
