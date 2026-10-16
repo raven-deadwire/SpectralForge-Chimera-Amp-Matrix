@@ -702,6 +702,7 @@ int main(int argc, char** argv)
         if(argc>2 && juce::String(argv[2])=="--common-dynamics-only"){commonDynamicsUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--signal-path-only"){signalPathTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--review-fixes-only"){checkReviewFixes(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--native-panels-only"){runNativeUITests(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
             std::cout<<"RUN suite "<<name<<std::endl;
@@ -1032,3 +1033,4 @@ int main(int argc, char** argv)
     catch (const std::exception& error)
     { std::cerr << "FAIL: " << error.what() << '\n'; return 1; }
 }
+
