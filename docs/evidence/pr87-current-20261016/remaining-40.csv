@@ -1,0 +1,41 @@
+﻿id,title,category,status,required_evidence
+A3.03,binary state 복원,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,Guitar4 및 lifecycle 사례 재사용; Bass3 개별 저장 상태를 수용 증거에 연결한다.
+A3.04,A/B 비교 슬롯,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,기존 A/B 및 expiry processor 증거 재사용; 각 Bass Signature의 구체 슬롯 값 목록을 연결한다.
+A5.02,개인 IR 명시적 선택,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,기존 WAV/UI 및 installed companion 시험은 부분 증거. AIFF 및 각 악기 유형·경로의 실행 사례를 추가 연결한다.
+A5.06,개인·embedded IR 상태 호환,REAL_DAW_AND_PRIVATE_ASSET,BLOCKED,기존 lifecycle/IR isolation 증거는 부분 재사용. Hartke/Marshall 실물 개인 파일 및 실제 DAW 프로젝트의 bit-identical fixture가 없으므로 호환 완료로 주장하지 않는다.
+A5.08,배포·업그레이드 경계,PRIVATE_ASSET_RIGHTS_AND_LISTENING,BLOCKED,분포 allowlist·설치 파일 보존 증거 재사용. private 캡처 청음·권리·정품 hash 인증은 별도 입력이 없으면 BLOCKED.
+A6.02,개인 IR 명시적 선택,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,기존 WAV/UI 및 installed companion 시험은 부분 증거. AIFF 및 각 악기 유형·경로의 실행 사례를 추가 연결한다.
+A6.06,개인·embedded IR 상태 호환,REAL_DAW_AND_PRIVATE_ASSET,BLOCKED,기존 lifecycle/IR isolation 증거는 부분 재사용. Hartke/Marshall 실물 개인 파일 및 실제 DAW 프로젝트의 bit-identical fixture가 없으므로 호환 완료로 주장하지 않는다.
+A6.07,라이브러리 제거·재등록,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,파일 보존/재등록 실행 결과를 재사용. 저장 상태와 결합한 후속 열기 사례는 별도 연결한다.
+A6.08,배포·업그레이드 경계,PRIVATE_ASSET_RIGHTS_AND_LISTENING,BLOCKED,분포 allowlist·설치 파일 보존 증거 재사용. private 캡처 청음·권리·정품 hash 인증은 별도 입력이 없으면 BLOCKED.
+A8.03,외부 경로 누락 시 embedded 복원,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,embedded-only 복원은 기존 증거. 양쪽 모두 무효인 정책·UI 결과를 명시하고 negative fixture를 추가 연결해야 한다.
+A11.06,JSON roundtrip·엄격 파싱,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,PR41 output roundtrip은 재사용. 현재 load는 일반 json.loads이므로 duplicate/nonstandard constant 정책 보강 필요.
+A11.07,CLI 종료 코드·실패 산출물,ADDITIONAL_NATIVE_OR_PROTOCOL_CASES,BLOCKED,원래 exit contract는 코드에서 복구. stale-output 방지 producer와 CLI subprocess negative receipt 추가 필요.
+A11.08,입력·정책·render provenance,MEASUREMENT_AND_REVIEW_PROVENANCE,BLOCKED,현재 evaluator JSON 자체는 provenance를 보증하지 않는다. 실제 외부 입력·측정 producer가 필요하다.
+A11.09,실행·review provenance,MEASUREMENT_AND_REVIEW_PROVENANCE,BLOCKED,PR41은 component receipt 예시일 뿐 release receipt가 아니다. 실제 acceptance producer/검토자는 별도 승인·연결이 필요하다.
+A14.02,EN/DE/KO 설명 동등성,PACKAGE_OR_LANGUAGE_REVIEW,BLOCKED,파일 존재/embedded packaging 증거는 부분 지원. 3개 언어 전체 의미 검토 receipt가 없다.
+A14.03,카탈로그·프리셋 일치,PACKAGE_OR_LANGUAGE_REVIEW,BLOCKED,catalog contract/public naming의 source 및 native 일부 증거 재사용. 문서 전체 의미 일치는 별도 검토.
+A14.04,CAB·IR 정책 설명,PACKAGE_OR_LANGUAGE_REVIEW,BLOCKED,docs/IR_DISTRIBUTION 및 EXTERNAL_BASS_IRS의 현재 설명을 기준으로 3개 언어·체크리스트를 대조.
+A14.06,패키지 문서 일치·개인 주석 보존,PACKAGE_OR_LANGUAGE_REVIEW,BLOCKED,기존 assembly 및 PR78 Windows receipt 재사용. macOS/Linux 실제 출시 패키지 설치 보존은 fixture와 구분하여 연결한다.
+A14.07,출시 제한·사용 안내,PACKAGE_OR_LANGUAGE_REVIEW,BLOCKED,현재 설명·패키지 metadata와 비교한 reviewer receipt가 필요하다. 공개 일정은 승인으로 사용하지 않는다.
+B1.RESULT,Same-DI fixture,별도 DI/레퍼런스,BLOCKED,동일 DI 파일·전처리·레벨·해시를 제품 SHA에 연결
+B10.RESULT,Audio save/restore roundtrip,실제 오디오·프로젝트,BLOCKED,정의된 실제 오디오 저장/복원 왕복 fixture와 원시 비교
+B11.RESULT,Windows host validation,실제 DAW/호스트,BLOCKED,Windows 호스트의 로드·재생·편집·제거·종료 관찰
+B12.RESULT,Studio One 8 validation,실제 DAW/호스트,BLOCKED,Studio One 8 프로젝트/플러그인 수용검사
+B13.RESULT,30 minute soak,실환경 지속시험,BLOCKED,정의된 30분 soak와 장애/CPU/오디오 기록
+B14.RESULT,Release candidate gate,최종 종합 검토,BLOCKED,모든 필수 근거와 별도 공개 승인; 날짜/CI 성공으로 대체 금지
+B2.RESULT,Signature renders,별도 DI/레퍼런스,BLOCKED,Signature 실제 렌더·프리셋/CAB·레이트/블록 및 해시
+B3.RESULT,Audio measurements,실제 오디오 측정,BLOCKED,실제 렌더에서 재현 가능한 원시 측정값·측정구간
+B4.H1,Signature hard gates,실제 오디오 측정,BLOCKED,실측 저역 RMS 순서와 간격; 계산기 fixture로 대체 금지
+B4.H2,Signature hard gates,실제 오디오 측정,BLOCKED,실측 저역 Side 조건
+B4.H3,Signature hard gates,실제 오디오 측정,BLOCKED,실측 고역 Side 조건
+B4.H4,Signature hard gates,실제 오디오 측정,BLOCKED,실측 crest 조건
+B5.RESULT,Signature secondary gates,실제 오디오 측정,BLOCKED,실측 secondary 3/4 조건
+B6.RESULT,Signature score verdict,실제 오디오 측정,BLOCKED,실측 가중 점수·critical·hard gate 전체 결과
+B8.RESULT,Listening A/B,청음,BLOCKED,제품 SHA/DI/레퍼런스에 연결한 Listening A/B 관찰·검토자
+E2.CALIBRATION,E670FE reference and sound acceptance,별도 레퍼런스/캘리브레이션,BLOCKED,E670FE 레퍼런스·레벨·캘리브레이션 인증
+E2.SAME_DI,E670FE reference and sound acceptance,별도 DI/레퍼런스,BLOCKED,E670FE same-DI 실제 비교 렌더
+E2.TD_EQ,E670FE reference and sound acceptance,실측·청음,BLOCKED,E670FE 시간영역/EQ/음질 수용 근거
+I2.GATE_DI,1.1.1 real-input and host acceptance,실제 입력,BLOCKED,실제 DI에 대한 gate 수용 기록
+I2.LIVE_REMOVE_DAW,1.1.1 real-input and host acceptance,실제 DAW/호스트,BLOCKED,재생 중 플러그인 제거·종료 안정성
+I2.UI_AUDIO_TIMING,1.1.1 real-input and host acceptance,실제 호스트 계측,BLOCKED,UI/오디오 timing 실환경 측정과 관찰
