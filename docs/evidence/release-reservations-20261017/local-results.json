@@ -1,0 +1,38 @@
+{
+  "platform": "Linux",
+  "scope": "Release scheduling and existing publisher/approval/provenance/packaging contracts; no product binaries or DAW acceptance",
+  "results": [
+    {
+      "test": "Tools/test_release_calendar.py",
+      "exit_code": 0
+    },
+    {
+      "test": "Tools/test_publish_release.py",
+      "exit_code": 0
+    },
+    {
+      "test": "Tools/test_weekly_publication.py",
+      "exit_code": 0
+    },
+    {
+      "test": "Tools/test_publication_evidence.py",
+      "exit_code": 0
+    },
+    {
+      "test": "Tests/test_packaging_version.py",
+      "exit_code": 0
+    },
+    {
+      "test": "Tools/test_publish_beta131.py",
+      "exit_code": 0
+    },
+    {
+      "test": "Tools/test_beta_publication131.py",
+      "exit_code": 0
+    },
+    {
+      "test": "Tools/test_release_consolidator.py",
+      "exit_code": 0
+    }
+  ]
+}

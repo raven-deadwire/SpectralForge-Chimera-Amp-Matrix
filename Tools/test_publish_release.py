@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+from datetime import date
 from contextlib import redirect_stdout
 import io
 import json
@@ -50,6 +51,9 @@ class SourceFixture(unittest.TestCase):
         patcher = patch.object(publisher, "ROOT", self.root)
         patcher.start()
         self.addCleanup(patcher.stop)
+        clock = patch.object(publisher.check_release_calendar, 'kst_today', return_value=date(2026, 10, 16))
+        clock.start()
+        self.addCleanup(clock.stop)
         self.select_version("1.3.1-beta.2")
 
     def git(self, *args):
@@ -84,16 +88,27 @@ class SourceFixture(unittest.TestCase):
         self.write("docs/OPEN_BETA_RELEASE_NOTES.md", self.notes)
         calendar = json.loads((REAL_ROOT / "Validation/release-calendar.json").read_text(encoding="utf-8"))
         # Synthetic fixture history predates beta.2; it does not alter real history.
+        original_calendar = copy.deepcopy(calendar)
+        calendar['updated_at'] = '2026-10-15'
         calendar['published_releases'] = [r for r in calendar['published_releases'] if r['version'] != '1.3.1-beta.2']
         calendar['source_baseline'].update(release='v1.3.1-beta.1', product_source=calendar['published_releases'][0]['product_source'])
-        calendar['chimera_weekly'][0].update(version=version, tag='v'+version)
-        calendar['development_candidates'][0].update(version=version, tag='v'+version)
+        row = calendar['chimera_weekly'][0]
+        row.update(row.pop('missed_target'))
+        row.update(version=version, tag='v'+version, status='blocked', scope='Synthetic conditional reservation.')
+        row.pop('defer_reason')
+        calendar['development_candidates'][0].update(version=version, tag='v'+version,
+            publication_target=row['publication_target'], reservation_status='blocked')
         self.write_json(self.root / 'Validation/release-calendar.json', calendar)
-        text = (REAL_ROOT / 'docs/RELEASE_CALENDAR_2026_2027.md').read_text(encoding='utf-8').replace('`1.3.1-beta.3` |', '`'+version+'` |')
+        text = (REAL_ROOT / 'docs/RELEASE_CALENDAR_2026_2027.md').read_text(encoding='utf-8')
+        old_row = original_calendar['chimera_weekly'][0]
+        old_line = f"| TBD | TBD | TBD | `{old_row['version']}` | {old_row['scope']} |"
+        new_line = f"| {row['test_build_date']} | {row['candidate_date']} | {row['publication_target']} | `{version}` | {row['scope']} |"
+        text = text.replace(old_line, new_line)
         self.write('docs/RELEASE_CALENDAR_2026_2027.md', text)
+        self.write('docs/DEVELOPMENT_ROADMAP_2026_2027.md', publisher.check_release_calendar.roadmap_status_table(calendar))
         catalog = json.loads((REAL_ROOT / 'Validation/catalog-count-contract.json').read_text(encoding='utf-8'))
         catalog['roadmap']['delivered_baseline']['version'] = '1.3.1-beta.1'
-        catalog['roadmap']['quality_followup']['weekly_versions'][0]['version'] = version
+        catalog['roadmap']['quality_followup']['weekly_versions'] = publisher.check_release_calendar.weekly_mirror(calendar)
         self.write_json(self.root / 'Validation/catalog-count-contract.json', catalog)
         self.source = self.commit("tested " + version)
         self.release = publisher.Release(version, self.source)
@@ -513,17 +528,14 @@ class InvocationContracts(SourceFixture):
         self.assertEqual(outcome, ["staged"])
 
 
-    def test_consumed_tag_after_staging_blocks_final_publication_callback(self):
+    def assert_calendar_change_after_staging_blocks_publication(self, change, message):
         ci = dict(runs={"build.yml": dict(id=RUN, run_attempt=ATTEMPT, head_sha=self.source)},
             candidate=dict(id=1, name=self.release.artifact_name, digest="sha256:" + "a" * 64, size_in_bytes=10),
             gate=dict(id=2, name=publisher.GATE_ARTIFACT_NAME, digest="sha256:" + "b" * 64, size_in_bytes=10))
-        changed = copy.deepcopy(ci)
-        changed["runs"]["build.yml"]["run_attempt"] += 1
         outcome = []
         def staged(api, notes, assets, **kwargs):
             outcome.append("staged")
-            self.api.pages.side_effect = lambda path: ([{"ref": "refs/tags/" + self.release.tag}]
-                if path == "/git/refs/tags" else [])
+            change()
             kwargs["before_publish"]()
             outcome.append("public")
             return {"html_url": self.release.release_url}
@@ -537,9 +549,38 @@ class InvocationContracts(SourceFixture):
              patch.object(publisher, "prepare_assets", return_value=(self.notes, {})), \
              patch.object(publisher.weekly_publication, "render_markdown", return_value="fixture disclosure"), \
              patch.object(publisher.transport, "publish", side_effect=staged):
-            with self.assertRaisesRegex(ValueError, "already consumed"):
+            with self.assertRaisesRegex(ValueError, message):
                 publisher.publish(self.args, self.release, self.policy, self.proof)
         self.assertEqual(outcome, ["staged"])
+
+    def test_consumed_tag_after_staging_blocks_final_publication_callback(self):
+        def change():
+            self.api.pages.side_effect = lambda path: ([{"ref": "refs/tags/" + self.release.tag}]
+                if path == "/git/refs/tags" else [])
+        self.assert_calendar_change_after_staging_blocks_publication(change, 'already consumed')
+
+    def test_higher_release_after_staging_blocks_final_publication_callback(self):
+        def change():
+            # Public release only: a racing tag inventory can omit its tag.
+            self.api.pages.side_effect = lambda path: ([{'tag_name': 'v1.3.2-beta.1', 'draft': False}]
+                if path == '/releases' else [])
+        self.assert_calendar_change_after_staging_blocks_publication(change, 'does not advance')
+
+    def test_kst_midnight_after_staging_blocks_final_publication_callback(self):
+        def change():
+            publisher.check_release_calendar.kst_today.return_value = date(2026, 10, 17)
+        self.assert_calendar_change_after_staging_blocks_publication(change, 'Missed publication target')
+
+    def test_elapsed_target_blocks_before_ci_or_remote_staging(self):
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher.transport, 'GitHub', return_value=self.api), \
+             patch.object(publisher.check_release_calendar, 'kst_today', return_value=date(2026, 10, 17)), \
+             patch.object(publisher, 'wait_for_ci') as ci, \
+             patch.object(publisher.transport, 'publish') as publish:
+            with self.assertRaisesRegex(ValueError, 'Missed publication target'):
+                publisher.publish(self.args, self.release, self.policy, self.proof)
+        ci.assert_not_called()
+        publish.assert_not_called()
 
 
 class GateContracts(SourceFixture):

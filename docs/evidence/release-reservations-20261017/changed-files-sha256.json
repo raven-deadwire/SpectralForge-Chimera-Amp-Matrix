@@ -1,0 +1,10 @@
+{
+  "Tools/check_release_calendar.py": "104e8a47d6b5e7a4b81cf4d15fd8e79b161f3b3ddc1855b3b6ff21b450189d98",
+  "Tools/test_publish_release.py": "777b2c1172f3a94072345d23bae153f499f2b6bbb8112cc11222d352d6b3b5f6",
+  "Tools/test_release_calendar.py": "443311fcec33df76116118155f9391498f8b750836a9cab2a6fb1d05ec25e6d5",
+  "Validation/catalog-count-contract.json": "2243f314c2f23495dabdda2a7ce835c8d2630967d676c56ecf8b240a8f7b7c0c",
+  "Validation/release-calendar.json": "cfbaac8e0ca45118effd6642d1513bc30d0c5baa6b60831a771fa6eeb3a08465",
+  "docs/DEVELOPMENT_ROADMAP_2026_2027.md": "744363921ff1e480fced6fa60ea2ceeb2cf5d7eeb3d57fc043adb2f33931b4b7",
+  "docs/RELEASE_CALENDAR_2026_2027.md": "bd48288d422a22086cd469028e3049eb69e273f78ca53e9652cbab329557012b",
+  "docs/WEEKLY_RELEASE_PIPELINE.md": "51444e5f534640fdd1d0fc165f35ae3edacbaa08e5e4c7b08be8d1b0205d0acf"
+}

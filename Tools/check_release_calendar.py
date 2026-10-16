@@ -7,7 +7,7 @@ remote tags/public releases; neither mode authorizes or performs publication.
 from __future__ import annotations
 import argparse
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 import json
 from pathlib import Path
 import re
@@ -20,6 +20,26 @@ PLAN = Path('Validation/release-calendar.json')
 PREFIXES = {'Chimera': 'v', 'Náströnd': 'nastrond-v', 'Niflheimr': 'niflheimr-v',
             'Náströnd NAM': 'nastrond-nam-v', 'Niflheimr NAM': 'niflheimr-nam-v'}
 PLATFORMS = {'windows_x64', 'macos_universal', 'linux_x86_64'}
+SCHEDULE_FIELDS = ('test_build_date', 'candidate_date', 'publication_target')
+MIRROR_FIELDS = ('version', 'checkpoint_date', 'publication_target', 'status')
+ROADMAP_START = '<!-- release-reservation-status:start -->'
+ROADMAP_END = '<!-- release-reservation-status:end -->'
+
+
+def kst_today():
+    return datetime.now(timezone(timedelta(hours=9))).date()
+
+
+def weekly_mirror(plan):
+    return [{k: r[k] for k in MIRROR_FIELDS} for r in plan['chimera_weekly'][:3]]
+
+
+def roadmap_status_table(plan):
+    lines = [ROADMAP_START, '| Version | Original checkpoint (KST) | Active target (KST) | Reservation status |',
+             '|---|---|---|---|']
+    for row in weekly_mirror(plan):
+        lines.append(f"| `{row['version']}` | {row['checkpoint_date']} | {row['publication_target'] or 'TBD'} | {row['status']} |")
+    return '\n'.join(lines + [ROADMAP_END])
 
 
 def require(condition, message):
@@ -71,12 +91,19 @@ def live_consumed_tags(api):
     return consumed
 
 
-def validate_plan(plan, *, consumed_tags=(), target_version=None, markdown=None, catalog=None):
-    require(plan.get('schema') == 'spectralforge.release-plan' and plan.get('schema_version') == 2,
+def validate_plan(plan, *, consumed_tags=(), target_version=None, markdown=None, catalog=None,
+                  roadmap=None, as_of=None):
+    require(plan.get('schema') == 'spectralforge.release-plan' and type(plan.get('schema_version')) is int
+            and plan['schema_version'] == 3,
             'Unsupported release calendar schema')
+    snapshot_day = date.fromisoformat(plan['updated_at'])
+    as_of = snapshot_day if as_of is None else as_of
+    require(type(as_of) is date and as_of >= snapshot_day, 'Invalid calendar review date')
     require(plan.get('status') == 'planning_only_not_release_or_updater_manifest', 'Calendar must remain planning-only')
     policy = plan['policy']
-    for flag in ('all_dates_are_targets', 'published_tags_immutable', 'empty_update_prohibited', 'calendar_is_not_approval'):
+    for flag in ('all_dates_are_targets', 'published_tags_immutable', 'empty_update_prohibited', 'calendar_is_not_approval',
+                 'missed_targets_not_publishable', 'deferred_requires_reservation_review',
+                 'superseded_unpublished_cancel_required'):
         require(policy.get(flag) is True, f'Unsafe calendar policy: {flag}')
     require(set(policy.get('publication_requirements', [])) >= {
         'substantive_implemented_improvement', 'exact_source_windows_macos_linux_validation',
@@ -104,74 +131,110 @@ def validate_plan(plan, *, consumed_tags=(), target_version=None, markdown=None,
             latest[product] = max(latest.get(product, key), key)
     rows = reservation_rows(plan)
     identities, tags, dates, per_product = set(), set(), set(), defaultdict(list)
-    pending = []
+    pending, deferred, cancelled = [], [], []
     for row in rows:
         product, version, tag = row['product'], row['version'], row['tag']
         key = version_key(version)
         require(tag == PREFIXES[product] + version, f'Tag/version mismatch: {tag}')
         require((product, version) not in identities and tag not in tags, f'Duplicate reservation: {tag}')
         identities.add((product, version)); tags.add(tag)
-        day = date.fromisoformat(row['publication_target'])
-        require((product, day) not in dates, f'Duplicate product/date: {product} {day}')
-        dates.add((product, day))
         require(row.get('conditional') is True, f'Unconditional release target: {tag}')
-        require(row.get('status', 'planned') in ('planned', 'blocked', 'published', 'cancelled'), f'Invalid reservation status: {tag}')
-        if row.get('status') == 'published':
+        status = row.get('status')
+        require(status in ('planned', 'blocked', 'deferred', 'published', 'cancelled'), f'Invalid reservation status: {tag}')
+        if status in ('deferred', 'cancelled'):
+            require(all(field in row and row[field] is None for field in SCHEDULE_FIELDS),
+                    f'Inactive reservation must have no active dates: {tag}')
+            require(row.get('release_approved') is False, f'Inactive reservation cannot approve publication: {tag}')
+            reason = row.get('defer_reason' if status == 'deferred' else 'cancellation_reason')
+            require(isinstance(reason, str) and reason.strip(), f'Inactive reservation needs a reason: {tag}')
+            require(tag not in consumed, f'Inactive reserved tag already consumed; reconcile history: {tag}')
+            if status == 'deferred':
+                require(product not in latest or key > latest[product],
+                        f'Deferred reservation superseded; cancel before proceeding: {tag}')
+                require('missed_target' in row, f'Deferred reservation lacks missed target: {tag}')
+                deferred.append(row)
+            else:
+                cancelled.append(row)
+        else:
+            day = date.fromisoformat(row['publication_target'])
+            require((product, day) not in dates, f'Duplicate product/date: {product} {day}')
+            dates.add((product, day))
+            per_product[product].append((day, key, tag))
+            for field, offset in (('test_build_date', 2), ('candidate_date', 1)):
+                require(date.fromisoformat(row[field]) == day - timedelta(days=offset), f'Invalid {field}: {tag}')
+        if 'missed_target' in row:
+            missed = row['missed_target']
+            missed_day = date.fromisoformat(missed['publication_target'])
+            require(missed_day < snapshot_day, f'Missed target has not elapsed: {tag}')
+            for field, offset in (('test_build_date', 2), ('candidate_date', 1)):
+                require(date.fromisoformat(missed[field]) == missed_day - timedelta(days=offset),
+                        f'Invalid missed {field}: {tag}')
+        if status == 'published':
             require(tag in recorded, f'Published row lacks history: {tag}')
-        elif row.get('status') != 'cancelled':
+        elif status in ('planned', 'blocked'):
             require(tag not in consumed, f'Reserved tag already consumed: {tag}')
             require(product not in latest or key > latest[product], f'Reservation does not advance public version: {tag}')
+            require(day >= as_of, f'Missed publication target requires defer/remap: {tag} ({day})')
             pending.append(row)
-        if row.get('status') != 'cancelled':
-            per_product[product].append((day, key, tag))
-        for field, offset in (('test_build_date', 2), ('candidate_date', 1)):
-            require(date.fromisoformat(row[field]) == day - timedelta(days=offset), f'Invalid {field}: {tag}')
         if product == 'Chimera':
             require(set(row.get('required_platforms', [])) == PLATFORMS, f'Three-OS requirement missing: {tag}')
             require(row.get('publication_requires') == 'applicable_source_platform_host_package_acceptance',
                     f'Publication acceptance requirement missing: {tag}')
         if markdown is not None:
-            prefix = f"| {row['test_build_date']} | {row['candidate_date']} | {row['publication_target']} | `{version}` |"
+            prefix = '| ' + ' | '.join(row[field] or 'TBD' for field in SCHEDULE_FIELDS) + f' | `{version}` |'
             if product == 'Chimera':
                 require(markdown.count(prefix) == 1 and prefix + ' ' + row['scope'] + ' |' in markdown,
                         f'Markdown/JSON row mismatch: {tag}')
     for product, values in per_product.items():
         ordered = sorted(values)
         require(all(a[1] < b[1] for a, b in zip(ordered, ordered[1:])), f'Non-increasing reserved versions: {product}')
-    weekly = [date.fromisoformat(r['publication_target']) for r in plan['chimera_weekly']]
+    # Checkpoints retain the original weekly work history; active dates may be
+    # cleared or explicitly remapped without inventing a new delivery date.
+    weekly = [date.fromisoformat(r['checkpoint_date']) for r in plan['chimera_weekly']]
     require(len(weekly) == 64 and all(day.weekday() == 4 for day in weekly)
             and all(b - a == timedelta(days=7) for a, b in zip(weekly, weekly[1:])), 'Expected 64 consecutive Friday checkpoints')
     for row in plan['dependent_deliveries']:
         if row['kind'] == 'conditional_format' and 'version' in row:
             require(any(r['product'] == row.get('shares_release_with') and r['version'] == row['version']
-                        and r['tag'] == row['tag'] and r['publication_target'] == row['publication_review'] for r in rows),
+                        and r['tag'] == row['tag'] and r['publication_target'] is not None
+                        and r['publication_target'] == row['publication_review'] for r in rows),
                     'Format delivery must reference its same-date product reservation')
     for candidate in plan['development_candidates']:
         require(candidate.get('publication_approved') is False, 'Candidate record is not publication approval')
         require(any(r['tag'] == candidate['tag'] and r['version'] == candidate['version']
                     and r['publication_target'] == candidate['publication_target']
+                    and r['status'] == candidate['reservation_status']
                     and r.get('candidate_pr') == candidate['pr'] for r in rows), 'Development candidate reservation mismatch')
     if catalog is not None:
-        roadmap = catalog['roadmap']
-        expected = [{k:r[k] for k in ('version', 'publication_target')} for r in plan['chimera_weekly'][:3]]
-        require(roadmap['quality_followup']['weekly_versions'] == expected, 'Catalog weekly mirror differs')
-        require('v'+roadmap['delivered_baseline']['version'] == baseline['release'], 'Catalog baseline differs')
-        aax = roadmap['aax_native']['first_publication_review']
+        catalog_roadmap = catalog['roadmap']
+        expected = weekly_mirror(plan)
+        require(catalog_roadmap['quality_followup']['weekly_versions'] == expected, 'Catalog weekly mirror differs')
+        require('v'+catalog_roadmap['delivered_baseline']['version'] == baseline['release'], 'Catalog baseline differs')
+        aax = catalog_roadmap['aax_native']['first_publication_review']
         require(any(r.get('version') == aax['candidate_version'] and r.get('publication_review') == aax['target']
                     for r in plan['dependent_deliveries']), 'Catalog AAX mirror differs')
+    if roadmap is not None:
+        require(roadmap.count(ROADMAP_START) == 1 and roadmap.count(ROADMAP_END) == 1
+                and roadmap_status_table(plan) in roadmap, 'Central roadmap reservation mirror differs')
     if target_version is not None:
         chimera_version.parse_release_version(target_version)
         require(sum(r['product'] == 'Chimera' and r['version'] == target_version for r in pending) == 1,
-                f'Target is not a unique unpublished reservation: {target_version}')
-    return {'reserved': len(pending), 'published': len(history), 'publication_approved': False}
+                f'Target is not a unique unpublished active reservation (deferred/cancelled targets are blocked): {target_version}')
+    return {'reserved': len(pending), 'deferred': len(deferred), 'cancelled': len(cancelled),
+            'published': len(history), 'publication_approved': False, 'as_of_kst': as_of.isoformat()}
 
 
-def check_repository(root=ROOT, *, api=None, target_version=None):
+def check_repository(root=ROOT, *, api=None, target_version=None, as_of=None):
     plan = read_plan(root)
+    # Live inventory and all target checks use today's KST date. Offline plan
+    # audits use the recorded review date so historical CI remains reproducible.
+    if as_of is None and (api is not None or target_version is not None):
+        as_of = kst_today()
     return validate_plan(plan, consumed_tags=live_consumed_tags(api) if api is not None else (),
-                         target_version=target_version,
+                         target_version=target_version, as_of=as_of,
                          markdown=(root/'docs/RELEASE_CALENDAR_2026_2027.md').read_text(encoding='utf-8'),
-                         catalog=json.loads((root/'Validation/catalog-count-contract.json').read_text(encoding='utf-8')))
+                         catalog=json.loads((root/'Validation/catalog-count-contract.json').read_text(encoding='utf-8')),
+                         roadmap=(root/'docs/DEVELOPMENT_ROADMAP_2026_2027.md').read_text(encoding='utf-8'))
 
 
 def main():

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Adversarial reservation and generator contracts; no remote writes."""
 import copy
+from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 import shutil
 import tempfile
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import check_release_calendar as calendar
 import chimera_version
@@ -15,12 +16,17 @@ import chimera_version
 class CalendarContracts(unittest.TestCase):
     def setUp(self):
         self.plan = calendar.read_plan()
+        clock = patch.object(calendar, 'kst_today', return_value=date(2026, 10, 17))
+        clock.start()
+        self.addCleanup(clock.stop)
+        self.today_patcher = clock
 
     def check(self, **kwargs):
         return calendar.validate_plan(self.plan, **kwargs)
 
     def test_real_plan_and_mirrors(self):
-        self.assertEqual(calendar.check_repository()['reserved'], 83)
+        self.assertEqual(calendar.check_repository()['reserved'], 82)
+        self.assertEqual(calendar.check_repository()['deferred'], 1)
         self.assertFalse(calendar.check_repository()['publication_approved'])
 
     def test_consumed_beta2_is_rejected_even_with_no_remote_data(self):
@@ -35,7 +41,7 @@ class CalendarContracts(unittest.TestCase):
             self.check()
 
     def test_duplicate_product_date(self):
-        self.plan['chimera_weekly'][1]['publication_target'] = '2026-10-16'
+        self.plan['chimera_weekly'][2]['publication_target'] = '2026-10-23'
         with self.assertRaisesRegex(ValueError, 'Duplicate product/date'):
             self.check()
 
@@ -45,7 +51,7 @@ class CalendarContracts(unittest.TestCase):
 
     def test_stable_or_early_higher_release_blocks_lower_reserved_beta(self):
         for tag in ('v1.3.1', 'v1.3.2-beta.1', 'v1.3.1-rc.1', 'v1.4.0-beta.1'):
-            with self.subTest(tag=tag), self.assertRaisesRegex(ValueError, 'does not advance'):
+            with self.subTest(tag=tag), self.assertRaisesRegex(ValueError, 'superseded; cancel'):
                 self.check(consumed_tags={tag})
 
     def test_versions_are_numeric_not_lexical(self):
@@ -70,7 +76,7 @@ class CalendarContracts(unittest.TestCase):
                              ('required_platforms', ['windows_x64']), ('conditional', False),
                              ('publication_requires', 'date_only')]:
             plan = copy.deepcopy(self.plan)
-            plan['chimera_weekly'][0][field] = value
+            plan['chimera_weekly'][1][field] = value
             with self.subTest(field=field), self.assertRaises(ValueError):
                 calendar.validate_plan(plan)
 
@@ -89,10 +95,9 @@ class CalendarContracts(unittest.TestCase):
             self.check()
 
     def test_unreserved_or_published_target_fails(self):
-        for version in ('1.3.1-beta.2', '1.3.2-beta.99'):
+        for version in ('1.3.1-beta.2', '1.3.1-beta.3', '1.3.2-beta.99'):
             with self.subTest(version=version), self.assertRaisesRegex(ValueError, 'not a unique unpublished'):
                 self.check(target_version=version)
-        self.check(target_version='1.3.1-beta.3')
         self.check(target_version='1.3.2-beta.1')
 
     def test_markdown_drift(self):
@@ -112,12 +117,19 @@ class CalendarContracts(unittest.TestCase):
             self.check(consumed_tags={'nastrond-v1.0.0-beta.1'})
 
     def test_record_publication_then_next_reservation(self):
-        row = self.plan['chimera_weekly'][0]
+        row = self.plan['chimera_weekly'][1]
         row['status'] = 'published'
+        self.plan['development_candidates'][1]['reservation_status'] = 'published'
         with self.assertRaisesRegex(ValueError, 'lacks history'):
             self.check()
         self.plan['published_releases'].append(dict(product='Chimera',version=row['version'],tag=row['tag'],product_source='a'*40))
-        self.check(target_version='1.3.2-beta.1')
+        with self.assertRaisesRegex(ValueError, 'superseded; cancel'):
+            self.check()
+        self.plan['chimera_weekly'][0].update(status='cancelled', cancellation_reason='Higher version published first')
+        self.plan['development_candidates'][0]['reservation_status'] = 'cancelled'
+        self.check(target_version='1.3.2-beta.2')
+        with self.assertRaisesRegex(ValueError, 'not a unique unpublished'):
+            self.check(target_version='1.3.2-beta.1')
         with self.assertRaisesRegex(ValueError, 'not a unique unpublished'):
             self.check(target_version='1.3.1-beta.3')
 
@@ -142,19 +154,77 @@ class CalendarContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             for name in ('Validation/release-calendar.json','Validation/catalog-count-contract.json',
-                         'docs/RELEASE_CALENDAR_2026_2027.md'):
+                         'docs/RELEASE_CALENDAR_2026_2027.md','docs/DEVELOPMENT_ROADMAP_2026_2027.md'):
                 (root/name).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(calendar.ROOT/name, root/name)
+            (root/'VERSION').write_text('1.3.2\n')
+            (root/'RELEASE_CHANNEL').write_text('beta.1\n')
+            result = chimera_version.validate_reserved_target_version('1.3.2-beta.1', root, 'a'*40)
+            self.assertEqual(result['version'], '1.3.2-beta.1')
+            with self.assertRaisesRegex(ValueError, 'differs from source'):
+                chimera_version.validate_reserved_target_version('1.3.1-beta.3', root, 'a'*40)
             (root/'VERSION').write_text('1.3.1\n')
             (root/'RELEASE_CHANNEL').write_text('beta.3\n')
-            result = chimera_version.validate_reserved_target_version('1.3.1-beta.3', root, 'a'*40)
-            self.assertEqual(result['version'], '1.3.1-beta.3')
-            with self.assertRaisesRegex(ValueError, 'differs from source'):
-                chimera_version.validate_reserved_target_version('1.3.2-beta.1', root, 'a'*40)
+            with self.assertRaisesRegex(ValueError, 'deferred/cancelled'):
+                chimera_version.validate_reserved_target_version('1.3.1-beta.3', root, 'a'*40)
             (root/'RELEASE_CHANNEL').write_text('beta.2\n')
             with self.assertRaisesRegex(ValueError, 'not a unique unpublished'):
                 chimera_version.validate_reserved_target_version('1.3.1-beta.2', root, 'a'*40)
             self.assertEqual((root/'RELEASE_CHANNEL').read_text(), 'beta.2\n')
+
+    def test_inactive_dates_and_reason_cannot_be_silently_restored(self):
+        for field in calendar.SCHEDULE_FIELDS:
+            plan = copy.deepcopy(self.plan)
+            plan['chimera_weekly'][0][field] = '2026-10-23'
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'no active dates'):
+                calendar.validate_plan(plan)
+        del self.plan['chimera_weekly'][0]['defer_reason']
+        with self.assertRaisesRegex(ValueError, 'needs a reason'):
+            self.check()
+
+    def test_elapsed_active_target_is_blocked_and_no_automatic_rollover(self):
+        before = copy.deepcopy(self.plan)
+        self.check(as_of=date(2026, 10, 23), target_version='1.3.2-beta.1')
+        with self.assertRaisesRegex(ValueError, 'Missed publication target'):
+            self.check(as_of=date(2026, 10, 24), target_version='1.3.2-beta.1')
+        self.assertEqual(self.plan, before)
+
+    def test_original_missed_target_cannot_be_reactivated(self):
+        row = self.plan['chimera_weekly'][0]
+        row.update(row['missed_target'], status='blocked')
+        with self.assertRaisesRegex(ValueError, 'Missed publication target'):
+            self.check(target_version=row['version'])
+
+    def test_rescheduling_requires_mirrors_and_increasing_version_order(self):
+        # Hypothetical test dates only: no repository reservation is approved.
+        row = self.plan['chimera_weekly'][0]
+        row.update(test_build_date='2026-10-18', candidate_date='2026-10-19',
+                   publication_target='2026-10-20', status='blocked')
+        with self.assertRaisesRegex(ValueError, 'candidate reservation mismatch'):
+            self.check()
+        self.plan['development_candidates'][0].update(publication_target='2026-10-20', reservation_status='blocked')
+        self.check(target_version=row['version'])
+        row.update(test_build_date='2026-10-22', candidate_date='2026-10-23', publication_target='2026-10-24')
+        with self.assertRaisesRegex(ValueError, 'Non-increasing'):
+            self.check()
+
+    def test_central_roadmap_and_catalog_status_drift(self):
+        roadmap = (calendar.ROOT/'docs/DEVELOPMENT_ROADMAP_2026_2027.md').read_text(encoding='utf-8')
+        self.check(roadmap=roadmap)
+        with self.assertRaisesRegex(ValueError, 'Central roadmap'):
+            self.check(roadmap=roadmap.replace('| TBD | deferred |', '| 2026-10-16 | blocked |'))
+        catalog = json.loads((calendar.ROOT/'Validation/catalog-count-contract.json').read_text(encoding='utf-8'))
+        catalog['roadmap']['quality_followup']['weekly_versions'][0]['status'] = 'blocked'
+        with self.assertRaisesRegex(ValueError, 'Catalog weekly'):
+            self.check(catalog=catalog)
+
+    def test_kst_midnight_boundary(self):
+        self.today_patcher.stop()
+        with patch.object(calendar, 'datetime') as clock:
+            clock.now.side_effect = lambda tz: datetime(2026,10,23,14,59,59,tzinfo=timezone.utc).astimezone(tz)
+            self.assertEqual(calendar.kst_today(), date(2026,10,23))
+            clock.now.side_effect = lambda tz: datetime(2026,10,23,15,0,0,tzinfo=timezone.utc).astimezone(tz)
+            self.assertEqual(calendar.kst_today(), date(2026,10,24))
 
 
 if __name__ == '__main__':
