@@ -28,8 +28,13 @@ def run():
                              if isinstance(n, ast.FunctionDef) and n.name == 'evaluate'))
     assert scoring(original) == scoring((ROOT / PATH).read_bytes())
     policy_bytes = (ROOT / 'Validation/signature-benchmark-policy.json').read_bytes()
-    assert policy_bytes == subprocess.check_output(
+    committed_policy = subprocess.check_output(
+        ['git', 'show', 'HEAD:Validation/signature-benchmark-policy.json'], cwd=ROOT)
+    assert committed_policy == subprocess.check_output(
         ['git', 'show', f'{BASE}:Validation/signature-benchmark-policy.json'], cwd=ROOT)
+    # Git for Windows may check out LF blobs as CRLF. Check committed bytes
+    # exactly, then permit only this checkout translation in the runtime input.
+    assert policy_bytes.replace(b'\r\n', b'\n') == committed_policy.replace(b'\r\n', b'\n')
     policy = json.loads(policy_bytes)
     reference = {'schema': 'spectralforge.chimera.signature-renders', 'schema_version': 1,
                  'dsp_valid': True, 'renders': copy.deepcopy(policy['reference'])}
@@ -66,7 +71,9 @@ def run():
         hashes.append(hashlib.sha256(after.encode()).hexdigest())
     return {'baseline_commit': BASE, 'source_sha256': hashlib.sha256((ROOT / PATH).read_bytes()).hexdigest(),
             'policy_sha256': hashlib.sha256(policy_bytes).hexdigest(),
-            'evaluate_ast_identical': True, 'policy_byte_identical': True,
+            'evaluate_ast_identical': True, 'policy_git_blob_byte_identical': True,
+            'policy_checkout_lf_equivalent': True,
+            'policy_git_blob_sha256': hashlib.sha256(committed_policy).hexdigest(),
             'complete_json_byte_identical': len(fixtures), 'verdict_counts': counts,
             'result_sha256': hashes, 'synthetic_only': True, 'publisher_input': False,
             'policy_claims': [], 'release_approved': False}

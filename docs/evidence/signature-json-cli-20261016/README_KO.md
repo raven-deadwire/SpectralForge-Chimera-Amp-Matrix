@@ -44,6 +44,8 @@ Python 3.12.14 / Linux에서 실행했다. `local-after.json`은 수정 작업 �
 
 `signature-json-cli.yml`은 Windows 2022, macOS 14, Ubuntu 24.04에서 기존/신규 검사와 432개 정상 결과 비교를 실행하고 로그/JSON을 업로드한다. 기존 Product/Windows Candidate 계산기 단계에도 신규 suite를 추가한다. CI 결과는 PR 본문에서 실제 source SHA/run/job에 연결한다.
 
+첫 CI run `38913899883`의 macOS job `117016330307`은 기존 21개·신규 9개·432개 동일성 비교까지 통과했다. Windows job `117016330208`도 21개·9개는 통과했으나 비교 도구가 체크아웃의 CRLF 변환을 정책 변경으로 판단해 실패했다. 후속 수정은 committed policy blob을 기준 소스와 바이트 단위 비교하고, 실행 파일에는 LF/CRLF 변환만 허용하여 확인한다. 정책 내용·평가기·통과 기준은 바꾸지 않았다. 실패 이력을 유지하고 후속 CI를 별도로 확인한다.
+
 ## 승인 및 증거 보존
 
 - `policy_claims=[]`, `review_only=true`, `publisher_input=false`, `release_approved=false`, `expiry_approved=false`.
