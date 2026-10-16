@@ -1,0 +1,3 @@
+PASS 18 weak-fundamental/decay/DC cases; bass string identities, invalid targets and strobe anti-alias
+PASS 576 pitch cases; worst absolute error 0.0599684 ct; profiles, custom/calibration, silence/DC/noise, strobe direction/dead-band
+PASS 1105 exact frequency/confidence comparisons against frozen 52f7 estimator

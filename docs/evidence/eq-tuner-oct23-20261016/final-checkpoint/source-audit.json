@@ -1,0 +1,16 @@
+{
+  "source_sha": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
+  "tree_sha": "3ce5d11ed43d49a965c4b80a9d140966d5bd83b8",
+  "inputs": {
+    "59": "7ef99333ce14315538ec4aed350d802ca0d78e23",
+    "86": "52aadac80c65082e8d50356110eaca29e6bce9ba",
+    "88": "0f859400abfb944fc99ea9cfab842c77a6851a50",
+    "68": "c2263e4c90bffb9a56cc41285ebf8207e641b3aa"
+  },
+  "status": "PASS",
+  "actual_daw": "NOT_ASSESSED",
+  "release_approved": false,
+  "product_source_files_unchanged": 112,
+  "release_baseline_files_preserved": 10,
+  "preserved_literal_registrations": 73
+}

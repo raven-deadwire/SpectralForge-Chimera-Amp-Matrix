@@ -1,0 +1,164 @@
+{
+  "source_sha": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
+  "tree_sha": "3ce5d11ed43d49a965c4b80a9d140966d5bd83b8",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "actual_daw": "NOT_ASSESSED",
+  "release_approved": false,
+  "commands": [
+    {
+      "name": "source-audit",
+      "command": [
+        "python3",
+        "Tools/check_eq_tuner_integration.py",
+        "--output",
+        "/workspace/scratch/cc673f6b43d2/final-evidence/source-audit.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.29552,
+      "log_sha256": "85be33601424d1007f572cd44b79c45c15ae139b5917fa6ce2ed7fe75838f01d"
+    },
+    {
+      "name": "legacy-fixture",
+      "command": [
+        "python3",
+        "Tools/eq_legacy_fixture.py",
+        "verify",
+        "--output",
+        "Tests/fixtures/eq-beta2"
+      ],
+      "exit_code": 0,
+      "seconds": 0.126892,
+      "log_sha256": "dda2c8f771c5713109c3be45bfd0c8f3b8406e26cda9176ba59a11305057cd29"
+    },
+    {
+      "name": "legacy-evidence",
+      "command": [
+        "python3",
+        "Tests/test_eq_legacy_fixture.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08982,
+      "log_sha256": "22d87b30f5f15fd27ec20179828b77d16967ff3a5f323b46e9d37b7e0538bf59"
+    },
+    {
+      "name": "normalization-evidence",
+      "command": [
+        "python3",
+        "Tests/test_eq_normalization_render.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.087489,
+      "log_sha256": "7d674d73acbb43674318c4638a47092ab76cb59a502c175b751e1a2c7d2747c4"
+    },
+    {
+      "name": "append-only-contract",
+      "command": [
+        "python3",
+        "Tests/test_eq_tuner_parameter_contract.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.423385,
+      "log_sha256": "f49496f19b99f6f0385b2c6a536fab43d54a10bdf0228812ab75b1e27e078250"
+    },
+    {
+      "name": "precision-tuner-build",
+      "command": [
+        "g++",
+        "-std=c++20",
+        "-O2",
+        "-ISource",
+        "-ITests",
+        "Tests/PrecisionTunerTests.cpp",
+        "-o",
+        "/workspace/scratch/cc673f6b43d2/final-evidence/precision-tuner"
+      ],
+      "exit_code": 0,
+      "seconds": 0.927954,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "precision-tuner",
+      "command": [
+        "/workspace/scratch/cc673f6b43d2/final-evidence/precision-tuner"
+      ],
+      "exit_code": 0,
+      "seconds": 3.348769,
+      "log_sha256": "f4968f28e84128359b1547698b32c0c967aeda1242d6fc791cc207e950abaf01",
+      "binary_sha256": "712a8750e3d14a610088aac3ff9df10816d6447df95a99acd794002d66af36e3"
+    },
+    {
+      "name": "tuner-timing-build",
+      "command": [
+        "g++",
+        "-std=c++20",
+        "-O2",
+        "-ISource",
+        "-ITests",
+        "Tests/TunerTimingTests.cpp",
+        "-o",
+        "/workspace/scratch/cc673f6b43d2/final-evidence/tuner-timing"
+      ],
+      "exit_code": 0,
+      "seconds": 0.468867,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "tuner-timing",
+      "command": [
+        "/workspace/scratch/cc673f6b43d2/final-evidence/tuner-timing"
+      ],
+      "exit_code": 0,
+      "seconds": 0.003085,
+      "log_sha256": "707f113160c07cfdc901727c7e4da13347962d8959082e06872c9e4bd07f8b20",
+      "binary_sha256": "50b1c9ddd61baf498138e84d52ec5288ee309556fd441de3c7ffcfe089c27f9d"
+    },
+    {
+      "name": "beta-lifecycle-build",
+      "command": [
+        "g++",
+        "-std=c++20",
+        "-O2",
+        "-ISource",
+        "-ITests",
+        "Tests/BetaLifecycleTests.cpp",
+        "-o",
+        "/workspace/scratch/cc673f6b43d2/final-evidence/beta-lifecycle"
+      ],
+      "exit_code": 0,
+      "seconds": 0.377122,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "beta-lifecycle",
+      "command": [
+        "/workspace/scratch/cc673f6b43d2/final-evidence/beta-lifecycle"
+      ],
+      "exit_code": 0,
+      "seconds": 0.002057,
+      "log_sha256": "fe3d94c1dcec034a6842d297b3109b2014102dd0b824e157cdee77da57120a4a",
+      "binary_sha256": "df375775a0d4525504f39f503a12d9701e030ab7a44582ea12fcd47a1092e641"
+    },
+    {
+      "name": "native-configure",
+      "command": [
+        "/workspace/scratch/cc673f6b43d2/build-tools/cmake/data/bin/cmake",
+        "-S",
+        ".",
+        "-B",
+        "/workspace/scratch/cc673f6b43d2/native-build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCHIMERA_BETA_QUALIFICATION_ONLY=ON"
+      ],
+      "exit_code": 1,
+      "seconds": 0.261988,
+      "log_sha256": "bb359a91f3e5aabb499403ed3ac6b5b40cb6c6f364ff0513198ef9fe28eb38f7"
+    }
+  ],
+  "ancestors": {
+    "59": true,
+    "86": true,
+    "88": true,
+    "68": true
+  }
+}
