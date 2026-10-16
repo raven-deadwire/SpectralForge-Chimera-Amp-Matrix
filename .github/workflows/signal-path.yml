@@ -46,7 +46,7 @@ jobs:
           if [ "$result" -gt 1 ]; then exit "$result"; fi
           python3 -c "from pathlib import Path; lines=Path('build-tuner/normal-qos-reference.log').read_text().splitlines(); assert sum(x.startswith('worker,new,') for x in lines)==32, 'Incomplete normal-QoS control'"
           # Preserve a failing control; the candidate CTest gate below remains required.
-      - run: ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log '${{ github.workspace }}/build-tuner/tuner-ctest.log' --output-junit tuner-results.xml
+      - run: ctest --test-dir build-tuner -C Release -R '^(ChimeraPrecisionTuner(Integration)?Tests|ChimeraTuner.*TimingTests|ChimeraTunerGeneration.*Tests|ChimeraPostNativeTests)$' --repeat until-fail:3 --verbose --no-tests=error --output-log build-tuner/tuner-ctest.log --output-junit tuner-results.xml
       - if: always()
         uses: actions/upload-artifact@v6
         with:

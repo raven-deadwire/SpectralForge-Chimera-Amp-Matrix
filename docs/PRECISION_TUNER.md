@@ -135,3 +135,22 @@ of a new dominant channel, alongside the unchanged timing gates.
 After an expired input gap, the worker discards its pending FIFO snapshot and
 retained analysis history before consuming new input. A fresh block therefore
 cannot refresh an old analysis window; subsequent input must fill a new window.
+
+## October 16 acquisition regression candidate
+
+The worker now retains already-published current-generation samples at startup
+and enable/channel transitions. Each SPSC sample carries its producer generation;
+old generations are rejected rather than discarding the entire fresh FIFO snapshot.
+The producer also invalidates across input gaps over 250 ms, including when the
+worker has not consumed its first block. Worker-side expired-gap history/FIFO
+invalidation and reader-side input-age expiry remain unchanged.
+
+The estimator, 4096-sample window, 10 ms polling, normal priority, 290 ms native
+acquisition/step gates and accuracy limits are unchanged. Test-only diagnostics
+record queue occupancy, rejected samples, expired-gap resets, analysis count,
+maximum analysis wall time and worker iteration wall time. These durations include
+scheduling and are not thread CPU measurements. A controlled delayed-enable
+regression and a cold mixed-queue regression supplement the existing lifecycle,
+stereo continuity, accuracy, profile and strobe tests. This candidate is not release
+approval; source-matched macOS/Windows/Linux and full product/CAB acceptance remain
+required. See `docs/evidence/pr68-tuner-acquisition-20261016/`.

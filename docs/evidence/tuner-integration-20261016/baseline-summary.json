@@ -1,0 +1,38 @@
+[
+  {
+    "pr": 71,
+    "scope": "focused",
+    "routes": 32,
+    "failed": 1,
+    "max_acquisition": 256.325209,
+    "max_settle": 316.972334,
+    "max_absolute_cents": 5.144126528e-05
+  },
+  {
+    "pr": 71,
+    "scope": "product",
+    "routes": 32,
+    "failed": 1,
+    "max_acquisition": 286.620125,
+    "max_settle": 310.900625,
+    "max_absolute_cents": 5.144126528e-05
+  },
+  {
+    "pr": 80,
+    "scope": "product",
+    "routes": 32,
+    "failed": 4,
+    "max_acquisition": 306.470458,
+    "max_settle": 273.689042,
+    "max_absolute_cents": 5.144126528e-05
+  },
+  {
+    "pr": 80,
+    "scope": "graphical-eq",
+    "routes": 0,
+    "failed": 0,
+    "max_acquisition": null,
+    "max_settle": null,
+    "max_absolute_cents": null
+  }
+]

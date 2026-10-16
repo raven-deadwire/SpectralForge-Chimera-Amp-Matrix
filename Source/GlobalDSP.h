@@ -129,6 +129,9 @@ class Tuner : private juce::Thread {
     static constexpr int frameSize=4096, queueSize=16384;
     juce::AbstractFifo fifo{queueSize};
     std::array<float,queueSize> queue{};
+    // SPSC-published with each sample: retain fresh input when an enable or
+    // channel transition is observed late, without mixing previous generations.
+    std::array<unsigned,queueSize> queueGenerations{};
     // Only published block ends are stamped. A FIFO snapshot always ends at
     // one of those boundaries; read its stamp before releasing the slots.
     std::array<double,queueSize> queueInputTimes{};
@@ -136,21 +139,20 @@ class Tuner : private juce::Thread {
     int writeIndex{}, filled{}, decimation{2}, phase{};
     float low1{}, low2{}, coefficient{};
     int previousChannel{-1};
-    // prepare() leaves a clean FIFO/history. The first active block belongs to
-    // that clean generation; later active-state transitions invalidate it.
-    bool firstActivation{true};
-    double analysisRate{24000};
+    double analysisRate{24000}, previousInputTime{};
     std::atomic<bool> enabled{false};
     std::atomic<unsigned> generation{0}, pitchGeneration{0};
     std::atomic<float> hz{0}, certainty{0};
     std::atomic<double> pitchInputTime{0};
 #if CHIMERA_TUNER_TEST_HOOKS
     tuning::TimingTrace testTiming;
-    bool testNormalQoS{false}; // Set only while stopped, before prepare().
+    bool testNormalQoS{false};
     std::atomic<int> testWorkerPriority{int(juce::Thread::Priority::normal)};
     std::atomic<int> testPauseMilliseconds{0};
     std::atomic<bool> testWorkerPaused{false};
     std::atomic<unsigned> testCompletedIterations{0};
+    std::atomic<int> testMaxQueue{0}, testDiscarded{0}, testGapResets{0}, testEstimates{0};
+    std::atomic<double> testMaxComputeMs{0}, testMaxIterationMs{0};
 #endif
 public:
     Tuner() : Thread("Chimera tuner") {}
@@ -161,12 +163,14 @@ public:
     void prepare(double rate)
     {
         const lifecycle::Scope trace("tuner.prepare", this);
-        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0; previousChannel=-1;firstActivation=true;
+        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0; previousChannel=-1;previousInputTime=0;
         decimation=juce::jmax(1,juce::roundToInt(rate/24000.0)); analysisRate=rate/decimation;
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
         hz.store(0); certainty.store(0); pitchInputTime.store(0);
 #if CHIMERA_TUNER_TEST_HOOKS
         testTiming.reset();testWorkerPriority.store(int(juce::Thread::Priority::normal));
+        testMaxQueue=0;testDiscarded=0;testGapResets=0;testEstimates=0;
+        testMaxComputeMs=0;testMaxIterationMs=0;testCompletedIterations=0;
 #endif
         // This is a latency-sensitive worker, below the host's realtime audio
         // thread but not a background utility (which macOS may defer).
@@ -174,16 +178,14 @@ public:
     }
     void push(const juce::AudioBuffer<float>& buffer,bool active)
     {
-        const bool wasActive=enabled.exchange(active);
-        if(wasActive!=active) {
-            // No history can precede the first activation after prepare(); do
-            // not create a generation race that discards its fresh FIFO. Every
-            // subsequent disable/re-enable still invalidates queued/history data.
-            if(!(firstActivation && active))generation.fetch_add(1);
-            if(active)firstActivation=false;
-            low1=low2=0;phase=0;previousChannel=-1;
-        }
+        if(enabled.exchange(active)!=active){generation.fetch_add(1);low1=low2=0;phase=0;previousChannel=-1;}
         if(!active || buffer.getNumChannels()==0) return;
+        const auto inputTime=juce::Time::getMillisecondCounterHiRes();
+        // The worker may not have consumed any input before a source gap. Mark
+        // that discontinuity at the producer too, so a fresh block cannot revive
+        // a queued pre-gap window during delayed startup.
+        if(previousInputTime>0 && inputTime-previousInputTime>250){generation.fetch_add(1);low1=low2=0;phase=0;}
+        previousInputTime=inputTime;
         int channel=0;
         if(buffer.getNumChannels()>1){
             const std::array<float,2> rms{buffer.getRMSLevel(0,0,buffer.getNumSamples()),buffer.getRMSLevel(1,0,buffer.getNumSamples())};
@@ -199,16 +201,17 @@ public:
         int first{},firstCount{},second{},secondCount{},written=0;
         fifo.prepareToWrite(produced,first,firstCount,second,secondCount);
         const int available=firstCount+secondCount;
+        auto inputGeneration=generation.load();
         for(int n=0;n<buffer.getNumSamples();++n)
         {
             const auto sample=buffer.getSample(channel,n);
-            if(!std::isfinite(sample)){low1=low2=0;phase=0;generation.fetch_add(1);continue;}
+            if(!std::isfinite(sample)){low1=low2=0;phase=0;inputGeneration=generation.fetch_add(1)+1;continue;}
             low1+=coefficient*(sample-low1); low2+=coefficient*(low1-low2);
             if(++phase<decimation) continue;
             phase=0;
             if(written<available){
                 const int index=written<firstCount?first+written:second+written-firstCount;
-                queue[size_t(index)]=low2;++written;
+                queue[size_t(index)]=low2;queueGenerations[size_t(index)]=inputGeneration;++written;
             }
         }
         // One SPSC publication per audio block, with bounded overflow recovery.
@@ -230,6 +233,7 @@ public:
     void pauseWorkerForTest(int milliseconds) { testPauseMilliseconds.store(milliseconds); notify(); }
     bool workerPausedForTest() const { return testWorkerPaused.load(); }
     unsigned completedWorkerIterationsForTest() const { return testCompletedIterations.load(); }
+    std::array<double,6> diagnosticsForTest() const { return {double(testMaxQueue.load()),double(testDiscarded.load()),double(testGapResets.load()),double(testEstimates.load()),testMaxComputeMs.load(),testMaxIterationMs.load()}; }
 #endif
     static std::pair<float,float> estimate(const float* samples,int count,double rate)
     {
@@ -245,7 +249,10 @@ private:
     void run() override
     {
         const lifecycle::Scope trace("tuner.worker", this);
-        unsigned seen=generation.load();double lastReceived=0;
+        unsigned seen=generation.load();double lastReceived=0;bool observedGeneration=false;
+#if CHIMERA_TUNER_TEST_HOOKS
+        double testLastIteration=juce::Time::getMillisecondCounterHiRes();
+#endif
 #if JUCE_MAC
         bool interactive=false;
 #endif
@@ -277,23 +284,45 @@ private:
 #endif
             const auto next=generation.load();
             const auto now=juce::Time::getMillisecondCounterHiRes();
-            if(next!=seen || (lastReceived>0 && now-lastReceived>250)) {
-                // A fresh block cannot certify an old or mixed queued window.
-                // After an expired input gap, discard the pending snapshot and
-                // reacquire a complete window from subsequently published input.
-                // prepare() already resets the FIFO, so input queued before the
-                // worker's first scheduled iteration is fresh and must not be
-                // discarded merely because thread startup was delayed.
-                seen=next;filled=0;lastReceived=0;
+#if CHIMERA_TUNER_TEST_HOOKS
+            testMaxIterationMs.store(std::max(testMaxIterationMs.load(),now-testLastIteration));testLastIteration=now;
+            testMaxQueue.store(std::max(testMaxQueue.load(),fifo.getNumReady()));
+#endif
+            const bool generationChanged=next!=seen;
+            const bool expiredGap=lastReceived>0 && now-lastReceived>250;
+            if(!observedGeneration || generationChanged || expiredGap) {
+                observedGeneration=true;seen=next;filled=0;lastReceived=0;
                 hz.store(0);certainty.store(0);
-                const auto discarded=fifo.read(fifo.getNumReady());
+                // A fresh block cannot certify retained history or a mixed
+                // stale/fresh queue after an expired gap. Generation changes,
+                // however, must retain already-published current input.
+                // A producer-marked new generation already separates pre-gap
+                // samples. Keep its fresh queued window even if the worker's
+                // previous input has expired; otherwise resuming loses it twice.
+                // Without a generation change, keep the conservative gap reset.
+                if(expiredGap && !generationChanged) {
+#if CHIMERA_TUNER_TEST_HOOKS
+                    testDiscarded.fetch_add(fifo.getNumReady());testGapResets.fetch_add(1);
+#endif
+                    const auto discarded=fifo.read(fifo.getNumReady());
+                }
             }
 #if CHIMERA_TUNER_TEST_HOOKS
             tuning::TimingObservation timing;timing.generation=seen;timing.wake=now;
 #endif
             bool received=false;
             { const auto scope=fifo.read(fifo.getNumReady());int last=-1;
-              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;last=i;});
+              scope.forEach([&](int i){
+                  last=i;
+                  if(queueGenerations[size_t(i)]!=seen) {
+#if CHIMERA_TUNER_TEST_HOOKS
+                      testDiscarded.fetch_add(1);
+#endif
+                      return;
+                  }
+                  history[size_t(writeIndex)]=queue[size_t(i)];writeIndex=(writeIndex+1)%frameSize;
+                  filled=juce::jmin(frameSize,filled+1);received=true;
+              });
               if(last>=0)lastReceived=queueInputTimes[size_t(last)];
             }
 #if CHIMERA_TUNER_TEST_HOOKS
@@ -309,8 +338,10 @@ private:
 #endif
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
 #if CHIMERA_TUNER_TEST_HOOKS
+                testEstimates.fetch_add(1);
                 timing.estimateEnd=juce::Time::getMillisecondCounterHiRes();
                 timing.hz=pitch.first;timing.confidence=pitch.second;
+                testMaxComputeMs.store(std::max(testMaxComputeMs.load(),timing.compute()));
 #endif
                 // Retain the input's arrival time, never the delayed consumption
                 // or computation completion:
