@@ -1,0 +1,11 @@
+2026-10-12T17:27:18.7731251Z Test project /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq
+2026-10-12T17:27:31.8240538Z 1/8 Test #23: ChimeraGateProcessorTests ...........   Passed   13.01 sec
+2026-10-12T17:28:10.7301633Z 2/8 Test #40: ChimeraGraphicalEQTests .............   Passed   38.91 sec
+2026-10-12T17:30:14.6947616Z 3/8 Test #41: ChimeraGraphicalEQUITests ...........   Passed  123.96 sec
+2026-10-12T17:30:55.1549818Z 4/8 Test #42: ChimeraEQAnalyzerTests ..............   Passed   40.46 sec
+2026-10-12T17:31:31.0997653Z 5/8 Test #43: ChimeraGraphicalEQEditingTests ......   Passed   35.94 sec
+2026-10-12T17:31:34.5753075Z 6/8 Test #44: ChimeraEQSnapshotFreezeTests ........   Passed    3.48 sec
+2026-10-12T17:32:51.5221400Z 7/8 Test #45: ChimeraEQAnalyzerPerformanceTests ...   Passed   76.95 sec
+2026-10-12T17:35:22.5148472Z 8/8 Test #46: ChimeraEQHighRateAttributionTests ...   Passed  150.99 sec
+2026-10-12T17:35:22.5152619Z 100% tests passed, 0 tests failed out of 8
+2026-10-12T17:35:22.5154977Z Total Test time (real) = 483.74 sec

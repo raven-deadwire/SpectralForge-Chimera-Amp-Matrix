@@ -1,0 +1,224 @@
+Start testing: Oct 16 19:20 JST
+----------------------------------------------------------
+49/52 Testing: ChimeraEQLegacyFixtureIntegrity
+49/52 Test: ChimeraEQLegacyFixtureIntegrity
+Command: "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12" "/workspace/scratch/5596669c3948/chimera/Tools/eq_legacy_fixture.py" "verify" "--output" "/workspace/scratch/5596669c3948/chimera/Tests/fixtures/eq-beta2"
+Directory: /workspace/scratch/5596669c3948/chimera/build-eq
+"ChimeraEQLegacyFixtureIntegrity" start time: Oct 16 19:20 JST
+Output:
+----------------------------------------------------------
+PASS fixture digests, released parameter count and missing occupancy
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQLegacyFixtureIntegrity" end time: Oct 16 19:20 JST
+"ChimeraEQLegacyFixtureIntegrity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+48/52 Testing: ChimeraEQLegacyStateTests
+48/52 Test: ChimeraEQLegacyStateTests
+Command: "/workspace/scratch/5596669c3948/chimera/build-eq/ChimeraEQLegacyStateTests_artefacts/Release/ChimeraEQLegacyStateTests" "/workspace/scratch/5596669c3948/chimera/Tests/fixtures/eq-beta2" "/workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy"
+Directory: /workspace/scratch/5596669c3948/chimera/build-eq
+"ChimeraEQLegacyStateTests" start time: Oct 16 19:20 JST
+Output:
+----------------------------------------------------------
+VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=1
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RESTORE canonical_changes=0
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+PASS real beta.2 fixture default.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=0
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+RESTORE canonical_changes=2
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+PASS real beta.2 fixture pattern.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+VALUES stored_bits=4967 canonical_bits=0
+VALUES stored_bits=4967 canonical_bits=0
+RESTORE canonical_changes=35
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RETAINED_CONSTRUCTOR id=delaymix saved=0.1999999881 raw=0.200000003
+RETAINED_CONSTRUCTOR id=toneEQ_b1_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b2_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b3_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b5_frequency saved=480 raw=480.0000305
+RETAINED_CONSTRUCTOR id=toneEQ_b5_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b6_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b7_frequency saved=1000 raw=999.999939
+RETAINED_CONSTRUCTOR id=toneEQ_b7_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b8_frequency saved=2000 raw=1999.999878
+RETAINED_CONSTRUCTOR id=toneEQ_b8_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b9_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b10_frequency saved=6000 raw=6000.000488
+RETAINED_CONSTRUCTOR id=toneEQ_b10_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b11_frequency saved=10000 raw=10000.00098
+RETAINED_CONSTRUCTOR id=toneEQ_b11_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b12_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b1_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b2_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b3_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b4_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b5_frequency saved=480 raw=480.0000305
+RETAINED_CONSTRUCTOR id=finalEQ_b5_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b6_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b7_frequency saved=1000 raw=999.999939
+RETAINED_CONSTRUCTOR id=finalEQ_b7_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b8_frequency saved=2000 raw=1999.999878
+RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b9_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b10_frequency saved=6000 raw=6000.000488
+RETAINED_CONSTRUCTOR id=finalEQ_b10_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b11_frequency saved=10000 raw=10000.00098
+RETAINED_CONSTRUCTOR id=finalEQ_b11_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b12_q saved=0.7070000768 raw=0.7070000172
+RESTORE canonical_changes=35
+RESTORE canonical_changes=0
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=0
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RETAINED_CONSTRUCTOR id=delaymix saved=0.1999999881 raw=0.200000003
+RETAINED_CONSTRUCTOR id=toneEQ_b1_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b2_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b3_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b5_frequency saved=480 raw=480.0000305
+RETAINED_CONSTRUCTOR id=toneEQ_b5_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b6_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b7_frequency saved=1000 raw=999.999939
+RETAINED_CONSTRUCTOR id=toneEQ_b7_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b8_frequency saved=2000 raw=1999.999878
+RETAINED_CONSTRUCTOR id=toneEQ_b8_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b9_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b10_frequency saved=6000 raw=6000.000488
+RETAINED_CONSTRUCTOR id=toneEQ_b10_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b11_frequency saved=10000 raw=10000.00098
+RETAINED_CONSTRUCTOR id=toneEQ_b11_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=toneEQ_b12_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b1_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b2_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b3_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b4_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b5_frequency saved=480 raw=480.0000305
+RETAINED_CONSTRUCTOR id=finalEQ_b5_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b6_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b7_frequency saved=1000 raw=999.999939
+RETAINED_CONSTRUCTOR id=finalEQ_b7_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b9_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b10_frequency saved=6000 raw=6000.000488
+RETAINED_CONSTRUCTOR id=finalEQ_b10_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b11_frequency saved=10000 raw=10000.00098
+RETAINED_CONSTRUCTOR id=finalEQ_b11_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b12_q saved=0.7070000768 raw=0.7070000172
+RESTORE canonical_changes=34
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+RESTORE canonical_changes=0
+RESTORE canonical_changes=34
+PASS real beta.2 fixture ab-seeded.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / distinct A-B
+PASS legacy state contracts; value_failures=0; actual DAW modes and DAW projects NOT_ASSESSED
+<end of output>
+Test time =   5.74 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQLegacyStateTests" end time: Oct 16 19:20 JST
+"ChimeraEQLegacyStateTests" time elapsed: 00:00:05
+----------------------------------------------------------
+
+50/52 Testing: ChimeraEQLegacyEvidenceTests
+50/52 Test: ChimeraEQLegacyEvidenceTests
+Command: "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12" "/workspace/scratch/5596669c3948/chimera/Tests/test_eq_legacy_fixture.py"
+Directory: /workspace/scratch/5596669c3948/chimera/build-eq
+"ChimeraEQLegacyEvidenceTests" start time: Oct 16 19:20 JST
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.022s
+
+OK
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQLegacyEvidenceTests" end time: Oct 16 19:20 JST
+"ChimeraEQLegacyEvidenceTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+51/52 Testing: ChimeraEQNormalizationTests
+51/52 Test: ChimeraEQNormalizationTests
+Command: "/workspace/scratch/5596669c3948/chimera/build-eq/ChimeraEQNormalizationTests_artefacts/Release/ChimeraEQNormalizationTests" "/workspace/scratch/5596669c3948/chimera/Tests/fixtures/eq-beta2" "/workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy"
+Directory: /workspace/scratch/5596669c3948/chimera/build-eq
+"ChimeraEQNormalizationTests" start time: Oct 16 19:20 JST
+Output:
+----------------------------------------------------------
+PASS_NEGATIVE_CONTROLS normalized drift / same-normalized neighbours / NaN / state corruption / audible-path EQ change
+OBSERVE_PRE_SAVE rate=44100 changed_samples=7596 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=48000 changed_samples=7238 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=96000 changed_samples=6136 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=192000 changed_samples=5154 max_abs=1.4901161193847656e-08 bit_identical=0
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/Tests/fixtures/eq-beta2/default.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/default/deleted.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/default/reused.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/default/automated.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/Tests/fixtures/eq-beta2/pattern.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/pattern/deleted.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/pattern/reused.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/pattern/automated.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/Tests/fixtures/eq-beta2/ab-seeded.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/ab-seeded/deleted.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/ab-seeded/reused.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/ab-seeded/automated.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS normalization fixed-point and EQ render contracts; actual DAW NOT_ASSESSED; release_approved=false
+<end of output>
+Test time = 114.86 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQNormalizationTests" end time: Oct 16 19:22 JST
+"ChimeraEQNormalizationTests" time elapsed: 00:01:54
+----------------------------------------------------------
+
+52/52 Testing: ChimeraEQNormalizationEvidenceTests
+52/52 Test: ChimeraEQNormalizationEvidenceTests
+Command: "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12" "/workspace/scratch/5596669c3948/chimera/Tests/test_eq_normalization_render.py"
+Directory: /workspace/scratch/5596669c3948/chimera/build-eq
+"ChimeraEQNormalizationEvidenceTests" start time: Oct 16 19:22 JST
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.026s
+
+OK
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQNormalizationEvidenceTests" end time: Oct 16 19:22 JST
+"ChimeraEQNormalizationEvidenceTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 16 19:22 JST

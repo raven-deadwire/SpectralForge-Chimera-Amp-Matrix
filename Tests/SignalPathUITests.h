@@ -369,7 +369,19 @@ inline void run(const juce::File& folder) {
     compactDestination(*editor,*strip,"cab");
     for(const auto scenario:std::array<std::array<int,2>,4>{{{0,0},{1,0},{1,1},{2,0}}}) {
         std::cout<<"Signal Path scenario "<<scenario[0]<<" / "<<scenario[1]<<std::endl;
-        const int mode=scenario[0];set(*p,"mode",float(mode));set(*p,"dualtype",float(scenario[1]));settle(100);
+        const int mode=scenario[0];
+        // October 23 starts with empty persistent-slot banks. Exercise both
+        // legitimate focus targets without weakening the occupied-band check.
+        const bool occupiedEQ=mode==1;
+        for(int bank=0;bank<2;++bank) {
+            auto& edits=p->eqEditing();
+            if(occupiedEQ && !edits.isOccupied(bank,0))
+                require(edits.addBand(bank,1000.f,0.f)==0,"Navigation occupied-bank fixture failed");
+            if(!occupiedEQ && edits.isOccupied(bank,0))
+                require(edits.removeBand(bank,0),"Navigation empty-bank fixture failed");
+            require(edits.occupiedMask(bank)==(occupiedEQ?1:0),"Navigation fixture has unexpected occupancy");
+        }
+        set(*p,"mode",float(mode));set(*p,"dualtype",float(scenario[1]));settle(100);
         compactContract(*strip,mode);globalUtilities(*editor,*strip);automationFocus(*p,*editor,*strip);
         rigPresentation(*p,*editor,*strip,writes);
         // Capture the ordinary rig workflow before opening the detailed graph
@@ -417,8 +429,14 @@ inline void run(const juce::File& folder) {
                 auto* selected=find<spectralforge::GraphicalEQPanel>(*editor,tone?"toneEQ_panel":"finalEQ_panel");
                 auto* other=find<spectralforge::GraphicalEQPanel>(*editor,tone?"finalEQ_panel":"toneEQ_panel");
                 require(selected && other && selected->isShowing() && !other->isShowing() && selected->isNavigationSelected() && !other->isNavigationSelected(),"Expanded EQ click did not open/highlight the requested bank");
-                auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
-                require(selected->selectedBand()<0 ? selected->hasKeyboardFocus(false) : frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus its existing node or empty workspace");
+                if(occupiedEQ) {
+                    require(selected->selectedBand()==0,"EQ navigation lost the occupied persistent slot");
+                    auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
+                    require(frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus the requested bank's frequency control");
+                } else {
+                    require(selected->selectedBand()==-1 && selected->hasKeyboardFocus(false),
+                            "Empty EQ navigation did not focus the requested bank's graph");
+                }
             }
             if(node.target==Target::dynamics)require(find(*editor,"commonDynamics.panel")->isShowing(),"Detailed compressor/limiter navigation did not open dynamics");
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");

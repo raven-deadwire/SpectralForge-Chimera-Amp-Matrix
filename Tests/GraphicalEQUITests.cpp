@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "NativeMessageLoop.h"
+#include "EQParameterAssertions.h"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -247,6 +248,15 @@ void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int ban
     check(std::abs(reusedFrequency-1000.f)<.02f
           && get(processor,eqID(bank,0,"gain"))==neutralGain && std::abs(neutralGain)<1.e-5f,
           "Reused slot did not start neutral");
+    chimeraTest::requireParameterRoundtrip(processor,eqID(bank,0,"frequency"),1000.f,.02f);
+    chimeraTest::requireParameterRoundtrip(processor,eqID(bank,0,"gain"),0.f,.002f);
+    // Q is snapped once by the editor and again by the host parameter. Its
+    // logarithmic roundtrip can reach adjacent float representations of the
+    // same .001 grid point; retain the existing backend default-Q contract.
+    check(std::abs(get(processor,eqID(bank,0,"q"))-.70710678f)<.002f,
+          "Reused slot retained stale Q");
+    check(get(processor,eqID(bank,0,"type"))==0 && get(processor,eqID(bank,0,"enabled"))==1,
+          "Reused slot did not reset filter type before enabling");
     for(int band=1;band<12;++band){add->triggerClick();check(waitFor([&]{return selector->getNumItems()==band+1;}),"Add did not use the next persistent slot");}
     check(!add->isEnabled(),"Full EQ did not disable Add");
     const auto mask=processor.eqEditing().occupiedMask(bank);
@@ -375,6 +385,12 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
     check(waitFor([&]{return panel->fftFrames()>before && panel->spectrumDB(false,256)>-20.2f && panel->spectrumDB(false,86)<-70;}),"Native analyzer did not follow a new real input frequency");
     check(panel->spectrumDB(false,86)<-70,"Native raw spectrum retained the old frequency");
     check(audio.callbacks.load()>100,"Native proof did not run real paced audio callbacks");
+    // Capture the visible peak before stopping. A loaded native dispatcher
+    // may satisfy both requested waits in one long dispatch (observed on macOS),
+    // so sampling the comparison point after the drain can already see -120 dB.
+    // The proof is decay from the last live observation, with no fabricated FFT.
+    const int peakBin=256;
+    const float displayAtStop=panel->displaySpectrumDB(false,peakBin);
     audio.stop();const auto atStop=panel->fftFrames();
     const uint64_t pendingAtStop=processor.graphicalEQ(1).analyzer.pendingSamples();
     const uint64_t hop=uint64_t(panel->analysisFFTSize()/4);
@@ -382,8 +398,9 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
     settle(100);
     const auto drained=panel->fftFrames();
     check(drained<=atStop+maximumDrainWindows,"Stopped producer triggered unbounded catch-up FFT work");
-    const int peakBin=256;const float oldDisplay=panel->displaySpectrumDB(false,peakBin);settle(400);
-    check(panel->fftFrames()==drained && panel->spectrumDB(false,peakBin)<=-119.9f && panel->displaySpectrumDB(false,peakBin)<oldDisplay,
+    settle(400);
+    check(panel->fftFrames()==drained && panel->spectrumDB(false,peakBin)<=-119.9f
+              && panel->displaySpectrumDB(false,peakBin)<displayAtStop,
           "Stopped audio did not decay on the native screen without fabricated FFT frames");
     snapshot(editor,directory.getChildFile("eq-ui-stopped-source.png"));
     std::cout<<"PASS native synthetic anti-phase sine / independent IN-OUT layers / master-off / stopped-source decay\n";

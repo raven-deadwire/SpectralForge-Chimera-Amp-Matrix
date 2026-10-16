@@ -1,0 +1,27 @@
+{
+  "run_id": 38599008997,
+  "artifact_id": 11918820377,
+  "archive_sha256": "460c5714f653ae27d80e16b4ec904120ca989fc0805d075243aac0f1b99ac27b",
+  "source_commit": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "files": {
+    "candidate-installer-verification/01-full-install.log": "e5c6326012d518834056c5ca38a762f41655a96a26394ed79a705c0b1198a23a",
+    "candidate-installer-verification/03-full-uninstall.log": "6121127dc372156ddf32f615ecd430812eacfb4ef108f244c365513f20267c96",
+    "candidate-installer-verification/02-repair.log": "e85bac2deb17ccceaedeae04f27f9854417e4a1f842490aa786fe4a2d1c1d2b8",
+    "candidate-installer-verification/04-vst3-only.log": "3f1dc1bbf702927b8e332ef54c3d05a1ef4d0f4d0d9240e012b514c215c26ea7",
+    "candidate-installer-verification/04b-vst3-remembered-repair.log": "d0d72c72371e0d295ea13c61316e565d1343fdace057190e1ad26e593e510b80",
+    "candidate-installer-verification/04c-vst3-path-move.log": "2b3d6c96eb8ab63a0da40fbb029fe7656088ccb53e9a511c20a591977d3f80c2",
+    "candidate-installer-verification/05-vst3-uninstall.log": "93e7bf687cbbdd260f4209a1b7cdeeb82e9fb19addf57afb916a30c34d7d3a5d",
+    "candidate-installer-verification/06-standalone-only.log": "9b11b7c2b5410c7d0d337c15a28f2a8a9ced2ad91e5fa3e67a0fde4315078b4c",
+    "candidate-installer-verification/07-standalone-uninstall.log": "54e01e7312a842217922a5b7e178f480dcc5e40bc4c8e530446793b4f8c374cc",
+    "candidate-installer-verification/InstallerVerification.json": "bfd0e22edcd1727306597fabd9bae5051dc031fcb08bb8e258518b5a54daf8c4",
+    "candidate-installer-verification/InstallerVerification.txt": "e93f6bd6293eb52212c2ef48a7077548e00889fe83290c7f1ae2c12850f52170",
+    "candidate-installer-verification/runtime-dependencies.txt": "dbb457969d511f747277eeb66f261c7f25da9769be1047b2dec2eacba5aea56c",
+    "candidate-installer-security/DefenderStatus.json": "7a53fd2eaf63b98ea6ec0b38767d9aff7aa389916810b6bcc42014d26db496e4",
+    "candidate-installer-security/FileInventory.json": "2015d0322ee64e1b373aa6690ddb1f8a72ad440eaf72a6e2a68d80f08fc0798a",
+    "candidate-installer-security/Scan-1.log": "f704e8b6b222992872b67f89cd55e8bc3e1feedc041ad7d4342975925321cdc6",
+    "candidate-installer-security/SignatureUpdate-1.log": "fbc777cd875d6bfedd7638c0c9c72a1c8dfa0295dc142f6d85de27216221e035",
+    "candidate-installer-security/SignatureUpdateAttempts.json": "db70f3ad435ea9153a56c40d164fd0b4208b6dd1696998374b537bfa0c3561ce",
+    "candidate-installer-security/WindowsSecurity.txt": "8157756896302b6f1103442a65be87b96add0bddc662b65a5d48a0365fed0f07"
+  },
+  "release_approved": false
+}

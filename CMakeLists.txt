@@ -553,3 +553,53 @@ target_compile_definitions(ChimeraPrecisionTunerIntegrationTests PRIVATE JUCE_US
 target_link_libraries(ChimeraPrecisionTunerIntegrationTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPrecisionTunerIntegrationTests COMMAND ChimeraPrecisionTunerIntegrationTests)
 set_tests_properties(ChimeraPrecisionTunerIntegrationTests PROPERTIES TIMEOUT 120)
+
+# Test-only timing attribution; product targets never enable tuner test hooks.
+add_executable(ChimeraTunerTimingTests Tests/TunerTimingTests.cpp)
+target_include_directories(ChimeraTunerTimingTests PRIVATE Source)
+add_test(NAME ChimeraTunerTimingTests COMMAND ChimeraTunerTimingTests)
+add_test(NAME ChimeraTunerWorkerTimingTests COMMAND ChimeraPrecisionTunerIntegrationTests --timing-only)
+set_tests_properties(ChimeraTunerWorkerTimingTests PROPERTIES TIMEOUT 10)
+
+add_test(NAME ChimeraTunerGenerationReenableTests COMMAND ChimeraPrecisionTunerIntegrationTests --generation-reenable-only)
+add_test(NAME ChimeraTunerGenerationResumeTests COMMAND ChimeraPrecisionTunerIntegrationTests --generation-resume-only)
+add_test(NAME ChimeraTunerGenerationColdQueueTests COMMAND ChimeraPrecisionTunerIntegrationTests --cold-queue-only)
+
+# Real released-state fixtures, independent of synthetic migration tests.
+juce_add_console_app(ChimeraEQLegacyStateTests PRODUCT_NAME "Chimera EQ Legacy State Tests")
+target_sources(ChimeraEQLegacyStateTests PRIVATE Tests/EQLegacyStateTests.cpp)
+target_include_directories(ChimeraEQLegacyStateTests PRIVATE Source)
+target_compile_definitions(ChimeraEQLegacyStateTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
+target_link_libraries(ChimeraEQLegacyStateTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraEQLegacyStateTests COMMAND ChimeraEQLegacyStateTests
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/fixtures/eq-beta2" "${CMAKE_BINARY_DIR}/eq-legacy")
+set_tests_properties(ChimeraEQLegacyStateTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(EQ_VST3_SDK "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
+  add_executable(ChimeraVST3EQStateHost Tests/VST3EQStateHost.cpp
+    "${EQ_VST3_SDK}/pluginterfaces/base/funknown.cpp"
+    "${EQ_VST3_SDK}/pluginterfaces/base/coreiids.cpp"
+    "${EQ_VST3_SDK}/public.sdk/source/vst/vstinitiids.cpp")
+  target_include_directories(ChimeraVST3EQStateHost PRIVATE "${EQ_VST3_SDK}")
+  target_link_libraries(ChimeraVST3EQStateHost PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
+endif()
+add_test(NAME ChimeraEQLegacyFixtureIntegrity COMMAND ${Python3_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tools/eq_legacy_fixture.py" verify
+  --output "${CMAKE_CURRENT_SOURCE_DIR}/Tests/fixtures/eq-beta2")
+add_test(NAME ChimeraEQLegacyEvidenceTests COMMAND ${Python3_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_eq_legacy_fixture.py")
+set_tests_properties(ChimeraEQLegacyStateTests PROPERTIES DEPENDS ChimeraEQLegacyFixtureIntegrity)
+
+juce_add_console_app(ChimeraEQNormalizationTests PRODUCT_NAME "Chimera EQ Normalization Tests")
+target_sources(ChimeraEQNormalizationTests PRIVATE Tests/EQNormalizationTests.cpp)
+target_include_directories(ChimeraEQNormalizationTests PRIVATE Source)
+target_link_libraries(ChimeraEQNormalizationTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraEQNormalizationTests COMMAND ChimeraEQNormalizationTests
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/fixtures/eq-beta2" "${CMAKE_BINARY_DIR}/eq-legacy")
+set_tests_properties(ChimeraEQNormalizationTests PROPERTIES TIMEOUT 240 RUN_SERIAL TRUE DEPENDS ChimeraEQLegacyStateTests)
+
+add_test(NAME ChimeraEQNormalizationEvidenceTests COMMAND ${Python3_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_eq_normalization_render.py")
+
+add_test(NAME ChimeraEQTunerParameterContractTests COMMAND ${Python3_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_eq_tuner_parameter_contract.py")

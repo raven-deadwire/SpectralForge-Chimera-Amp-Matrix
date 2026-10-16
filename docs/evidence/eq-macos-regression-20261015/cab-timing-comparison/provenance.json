@@ -1,0 +1,47 @@
+{
+  "source_commit": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "gate_override": false,
+  "clock_note": "Thread cycle counts are not microseconds; no Windows thread CPU time is available.",
+  "artifacts": [
+    {
+      "label": "failed-full",
+      "run_id": 38599009356,
+      "artifact_id": 11917124376,
+      "archive_sha256": "c52241d059e36a037696cf2dae2572ef3181335662538cb4397bddfc3a8cbbb7",
+      "files": [
+        {
+          "zip_member": "cab-timing-diagnostics/integration/original-v1/48000-256-2.csv",
+          "saved_file": "failed-full-48000-256-2.csv",
+          "sha256": "2d0ba26496f845d9f08a5811d5905b8bc28d21d7dbf57956d8200fa943a29fc3",
+          "callbacks": 1600
+        },
+        {
+          "zip_member": "cab-timing-diagnostics/integration/original-v1/96000-64-1.csv",
+          "saved_file": "failed-full-96000-64-1.csv",
+          "sha256": "25952f47548739c42ad00445760f19dd3aa44c135cd0f79fd3369982bf1c9494",
+          "callbacks": 1600
+        }
+      ]
+    },
+    {
+      "label": "passed-candidate",
+      "run_id": 38599008997,
+      "artifact_id": 11917179795,
+      "archive_sha256": "d9bfb2294b868c039f411d2bc2b0f5463f944bc9e0a66a49f7773ef5d0f80c70",
+      "files": [
+        {
+          "zip_member": "cab-timing-diagnostics/integration/original-v1/48000-256-2.csv",
+          "saved_file": "passed-candidate-48000-256-2.csv",
+          "sha256": "83077b9f1303f51e0e287cccd0c1215e65e3d7931a46ee256aa796dd19042d14",
+          "callbacks": 1600
+        },
+        {
+          "zip_member": "cab-timing-diagnostics/integration/original-v1/96000-64-1.csv",
+          "saved_file": "passed-candidate-96000-64-1.csv",
+          "sha256": "bf3328be703bd65e2076ae5b35f78011abcbe5eaa979084906e9d6d4027e9dce",
+          "callbacks": 1600
+        }
+      ]
+    }
+  ]
+}

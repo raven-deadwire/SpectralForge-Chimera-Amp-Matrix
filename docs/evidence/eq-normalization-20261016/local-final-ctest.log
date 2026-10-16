@@ -1,0 +1,15 @@
+Test project /workspace/scratch/5596669c3948/chimera/build-eq
+    Start 49: ChimeraEQLegacyFixtureIntegrity
+1/5 Test #49: ChimeraEQLegacyFixtureIntegrity .......   Passed    0.11 sec
+    Start 48: ChimeraEQLegacyStateTests
+2/5 Test #48: ChimeraEQLegacyStateTests .............   Passed    5.74 sec
+    Start 50: ChimeraEQLegacyEvidenceTests
+3/5 Test #50: ChimeraEQLegacyEvidenceTests ..........   Passed    0.08 sec
+    Start 51: ChimeraEQNormalizationTests
+4/5 Test #51: ChimeraEQNormalizationTests ...........   Passed  114.86 sec
+    Start 52: ChimeraEQNormalizationEvidenceTests
+5/5 Test #52: ChimeraEQNormalizationEvidenceTests ...   Passed    0.08 sec
+
+100% tests passed out of 5
+
+Total Test time (real) = 120.88 sec

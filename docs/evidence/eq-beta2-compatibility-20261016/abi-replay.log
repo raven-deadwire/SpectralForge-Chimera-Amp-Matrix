@@ -1,0 +1,2 @@
+PASS VST3 numeric contracts and EQ titles; non-EQ display title differences=1078 (reported separately)
+PASS actual beta.2 VST3 numeric lane IDs replayed into candidate reused slots; other parameters and inactive B unchanged

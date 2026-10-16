@@ -1,0 +1,21 @@
+Test project /workspace/scratch/5596669c3948/chimera/build-eq
+    Start 49: ChimeraEQLegacyFixtureIntegrity
+1/5 Test #49: ChimeraEQLegacyFixtureIntegrity .......   Passed    0.10 sec
+    Start 48: ChimeraEQLegacyStateTests
+2/5 Test #48: ChimeraEQLegacyStateTests .............   Passed    5.60 sec
+    Start 50: ChimeraEQLegacyEvidenceTests
+3/5 Test #50: ChimeraEQLegacyEvidenceTests ..........   Passed    0.07 sec
+    Start 51: ChimeraEQNormalizationTests
+4/5 Test #51: ChimeraEQNormalizationTests ...........***Failed    0.04 sec
+FAIL constructor formula must match actual fresh APVTS raw cache toneEQ_b1_frequency predicted=29.9999961853 actual=30.0000000000
+
+    Start 52: ChimeraEQNormalizationEvidenceTests
+5/5 Test #52: ChimeraEQNormalizationEvidenceTests ...   Passed    0.07 sec
+
+80% tests passed, 1 tests failed out of 5
+
+Total Test time (real) =   5.89 sec
+
+The following tests FAILED:
+	 51 - ChimeraEQNormalizationTests (Failed)
+Errors while running CTest

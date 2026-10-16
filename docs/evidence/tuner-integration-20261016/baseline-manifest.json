@@ -1,0 +1,72 @@
+[
+  {
+    "pr": 71,
+    "source_sha": "fd1f222219ee0d90b8ed6b989bd512829b5442a4",
+    "run_id": 38875904343,
+    "job_id": 116891800310,
+    "scope": "focused",
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38875904343/job/116891800310",
+    "file": "pr71-focused-macos-116891800310.log.gz",
+    "sha256": "aee3860b03fcc35c002eb5fe80ec672105654149c496d59e18728278c7b0c1c2",
+    "uncompressed_sha256": "075ebbe279d14ccff7ec30c1056b76b1efc10743ec561fa22573ff91e8aacc7d",
+    "coverage": "Complete CTest step excerpt from GitHub job log; build/package steps excluded",
+    "failures": [
+      "2026-10-16T09:35:37.1594450Z 55: ROUTE FAIL rate=44100 block=256 hz=30.867706 acquire=218.6645 settle=316.972334 error=-3.17067991545e-05",
+      "2026-10-16T09:36:16.4925320Z 55: FAIL Native acquisition/settle/accuracy gate failed; all route rows retained",
+      "2026-10-16T09:36:17.4373990Z 80% tests passed, 1 tests failed out of 5"
+    ]
+  },
+  {
+    "pr": 71,
+    "source_sha": "fd1f222219ee0d90b8ed6b989bd512829b5442a4",
+    "run_id": 38875904365,
+    "job_id": 116901762759,
+    "scope": "product",
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38875904365/job/116901762759",
+    "file": "pr71-product-macos-116901762759.log.gz",
+    "sha256": "597607a6b19dd3da2bcb867bd942a330b663f11a8f63d80209b5dc791ae4a258",
+    "uncompressed_sha256": "81876d44a043da8126b4b62cf49f6828a9b9c5968b49535c7ce9a9f1bffdde8b",
+    "coverage": "Complete CTest step excerpt from GitHub job log; build/package steps excluded",
+    "failures": [
+      "2026-10-16T11:01:28.7545630Z ROUTE FAIL rate=44100 block=256 hz=27.5 acquire=224.259917 settle=310.900625 error=-1.92065525315e-05",
+      "2026-10-16T11:01:29.0270460Z FAIL Native acquisition/settle/accuracy gate failed; all route rows retained",
+      "2026-10-16T11:01:29.0815050Z 98% tests passed, 1 tests failed out of 57"
+    ]
+  },
+  {
+    "pr": 80,
+    "source_sha": "4ce49a07c9c9342b74fb3d008534f12573cae237",
+    "run_id": 38836325616,
+    "job_id": 116766711901,
+    "scope": "product",
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38836325616/job/116766711901",
+    "file": "pr80-product-macos-116766711901.log.gz",
+    "sha256": "259f9d9042032fa39cd01fa19e2f3a7aaa03308039531589eed20db1505ae163",
+    "uncompressed_sha256": "b22655134f9854669049250503ed3437605f2b64362e62a986bff335ce81f874",
+    "coverage": "Complete CTest step excerpt from GitHub job log; build/package steps excluded",
+    "failures": [
+      "2026-10-16T04:10:40.3066740Z ROUTE FAIL rate=44100 block=64 hz=27.5 acquire=297.522 settle=223.068 error=-1.92066e-05",
+      "2026-10-16T04:10:40.3074500Z ROUTE FAIL rate=44100 block=256 hz=27.5 acquire=300.357 settle=239.647 error=-1.92066e-05",
+      "2026-10-16T04:10:40.3091530Z ROUTE FAIL rate=48000 block=256 hz=30.8677 acquire=203.161 settle=-1 error=-3.17068e-05",
+      "2026-10-16T04:10:40.3116770Z ROUTE FAIL rate=96000 block=256 hz=440 acquire=306.47 settle=219.046 error=-1.92066e-05",
+      "2026-10-16T04:10:40.3132410Z FAIL Native acquisition/settle/accuracy gate failed; all route rows retained",
+      "2026-10-16T04:10:40.3132760Z 98% tests passed, 1 tests failed out of 55"
+    ]
+  },
+  {
+    "pr": 80,
+    "source_sha": "4ce49a07c9c9342b74fb3d008534f12573cae237",
+    "run_id": 38836325614,
+    "job_id": 116766187904,
+    "scope": "graphical-eq",
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38836325614/job/116766187904",
+    "file": "pr80-graphical-eq-macos-116766187904.log.gz",
+    "sha256": "b0f75725356a3a2794459110251f7379bc6bb2e6e69c28eaf31faa4c5ce20899",
+    "uncompressed_sha256": "7f71e993b8c3ad702ec2fd7c74e73da503cb55e78be65e0614e71d4329d6cf58",
+    "coverage": "Complete CTest step excerpt from GitHub job log; build/package steps excluded",
+    "failures": [
+      "2026-10-16T02:38:48.2777860Z FAIL Stopped audio did not decay on the native screen without fabricated FFT frames",
+      "2026-10-16T02:42:50.9094890Z 89% tests passed, 1 tests failed out of 9"
+    ]
+  }
+]
