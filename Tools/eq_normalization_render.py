@@ -53,7 +53,7 @@ def isolate(source, target):
     target.write_bytes(struct.pack('<II', 0x21324356, len(encoded)) + encoded + b'\0')
 
 
-def compare(label, a, b, rows, state=True):
+def compare(label, a, b, results, state=True):
     audio_equal((a/'audio.f32').read_bytes(), (b/'audio.f32').read_bytes())
     if len(rows(a/'parameters.tsv')) != len(rows(b/'parameters.tsv')):
         old, new = (a,b) if len(rows(a/'parameters.tsv')) < len(rows(b/'parameters.tsv')) else (b,a)
@@ -64,7 +64,7 @@ def compare(label, a, b, rows, state=True):
             raise ValueError(label + ': ' + name + ' mismatch')
     if state and canonical(xml((a/'component.bin').read_bytes())) != canonical(xml((b/'component.bin').read_bytes())):
         raise ValueError(label + ': serialized state mismatch')
-    rows.append({'comparison': label, 'status': 'PASS', 'audio_sha256': sha(a/'audio.f32'),
+    results.append({'comparison': label, 'status': 'PASS', 'audio_sha256': sha(a/'audio.f32'),
                  'samples': 32768, 'exact_audio_bits': True, 'normalized_values_exact': True,
                  'latency_exact': True, 'serialized_state_exact': state})
 
