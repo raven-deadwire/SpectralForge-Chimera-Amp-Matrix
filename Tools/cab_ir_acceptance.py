@@ -33,7 +33,9 @@ MARKERS = {
 
 
 def validate_definitions():
-    raw = (ROOT / 'Validation/accepted-baseline.json').read_bytes()
+    # Windows Git checkout may convert the committed LF text to CRLF.
+    # Canonicalize only that checkout transformation; every other byte stays bound.
+    raw = (ROOT / 'Validation/accepted-baseline.json').read_bytes().replace(b'\r\n', b'\n')
     if hashlib.sha256(raw).hexdigest() != BASELINE_SHA256:
         raise ValueError('CAB/IR assertions require review against the changed accepted definitions')
     rows = {r['id']: r for r in json.loads(raw)['rows']}

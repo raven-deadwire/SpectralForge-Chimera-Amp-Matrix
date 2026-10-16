@@ -81,6 +81,12 @@ std::vector<float> render(ChimeraProcessor& p) {
         input(b,block);p.processBlock(b,midi);
         for(int c=0;c<2;++c)for(int n=0;n<128;++n)output.push_back(b.getSample(c,n));
     }
+    spectralforge::OriginalCabParameters modeled;modeled.bind(p.parameters());
+    for(int lane=0;lane<3;++lane)for(int slot=0;slot<2;++slot) {
+        const auto key=modeled.read(lane,slot);
+        require(p.micDisplayRevision(lane,slot)[2]==(uint64_t{1}|(key<<4)),
+            "Production audio did not install the factory modeled request");
+    }
     p.releaseResources();return output;
 }
 void factoryRecipe(ChimeraProcessor& p,int index) {

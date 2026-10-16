@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
 import cab_ir_acceptance as cab
@@ -30,6 +31,18 @@ class EvidenceTests(unittest.TestCase):
     def read(self):
         ET.ElementTree(self.root).write(self.junit)
         return cab.claims(self.junit,self.inventory)
+
+    def test_crlf_checkout_preserves_the_pinned_definition(self):
+        folder=self.folder/'Validation';folder.mkdir()
+        raw=(cab.ROOT/'Validation/accepted-baseline.json').read_bytes().replace(b'\r\n',b'\n')
+        path=folder/'accepted-baseline.json';path.write_bytes(raw.replace(b'\n',b'\r\n'))
+        with patch.object(cab,'ROOT',self.folder):cab.validate_definitions()
+
+    def test_changed_definition_is_rejected_even_with_crlf(self):
+        folder=self.folder/'Validation';folder.mkdir()
+        raw=(cab.ROOT/'Validation/accepted-baseline.json').read_bytes().replace(b'\r\n',b'\n')
+        path=folder/'accepted-baseline.json';path.write_bytes(raw.replace(b'4 MiB',b'8 MiB').replace(b'\n',b'\r\n'))
+        with patch.object(cab,'ROOT',self.folder),self.assertRaises(ValueError):cab.validate_definitions()
 
     def test_complete_fixture_maps_exactly_six_ids(self):
         self.assertEqual(self.read(), {cid:True for ids in cab.SUITES.values() for cid in ids})
