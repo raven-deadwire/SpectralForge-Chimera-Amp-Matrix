@@ -1,6 +1,11 @@
 # 1.3.2-beta.1 — integrated candidate, qualification pending
 
-**공개·배포 요청을 받은 통합 후보입니다. 아직 배포 완료가 아닙니다.**
+**2026-10-16 릴리즈·배포 승인을 받았습니다. 최종 소스 검증 중이며 아직 배포 완료가 아닙니다.**
+
+- HEAD에서 CAB 편집을 분리했습니다. LOW도 채널 선택을 표시하고 바로 아래에 BAND TONE / COMP / BLEND 회전 노브를 배치합니다.
+- 튜너를 열면 바로 튜닝을 시작하고, 출력 뮤트를 별도로 선택합니다. 열지 않은 튜너 버튼은 활성 색을 표시하지 않습니다.
+- 모델 마이크 하나만 사용할 때 미선택 마이크의 필터 신호가 섞이지 않도록 수정했습니다.
+- macOS 튜너 작업 깨우기 타이머를 수정했습니다. 최종 지연 검사는 진행 중입니다.
 
 - 시그널 바에서 PRE / HEAD / CAB / TONE EQ / POST / FINAL EQ를 바로 선택합니다. 픽토그램과 강조된 하단 유틸리티, 독립 튜너 화면을 제공합니다.
 - 정밀 추정기와 직선형 가상 스트로브·니들 표시, 보정 튜닝 프로필 및 사용자 오프셋을 추가합니다. 스트로브는 목표음과의 차이가 줄면 느려집니다. 합성 신호 검사는 실제 악기·오디오 인터페이스 정확도 인증이 아닙니다.
@@ -12,18 +17,20 @@ English: this candidate combines direct signal navigation, precision virtual
 strobe tuning, focused EQ/analyzer editing and common live dynamics. Four dynamic
 slots share existing Tone/Final nodes. Clean compression precedes POST; the
 sample-peak limiter follows final output gain. New stages add no lookahead or
-extra audio delay. Exact-source qualification and beta expiry approval remain
-pending; historical release sections below do not describe this candidate's status.
+extra audio delay. Exact-source qualification remains pending. Release is owner-approved, with beta expiry
+at 2027-02-11 23:59 KST (2027-02-11T14:59:00Z); historical release sections below do not describe this candidate's status.
 
 Deutsch: Dieser Kandidat vereint direkte Signalnavigation, präzise virtuelle
 Stroboskopanzeige, den fokussierten EQ/Analyzer und gemeinsame Live-Dynamik.
 Vier dynamische Plätze verwenden vorhandene Tone-/Final-EQ-Bänder. Der saubere
 Kompressor liegt vor POST, der Sample-Peak-Limiter hinter dem Ausgangspegel.
 Die neuen Module fügen kein Lookahead und keine Audioverzögerung hinzu.
-Quellstandsprüfung und Freigabe des Beta-Ablaufdatums stehen noch aus.
+Die Quellstandsprüfung läuft noch. Veröffentlichung und Beta-Ablaufdatum sind freigegeben:
+11. Februar 2027, 14:59 UTC.
 
 The integrated lifecycle behavior is retained from the following development
-candidate. Its old version heading is historical; no expiry date is approved.
+candidate. Its old version heading and approval status are historical; the approved
+1.3.2-beta.1 expiry above applies only to this version.
 
 ---
 

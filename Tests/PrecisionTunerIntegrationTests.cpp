@@ -191,7 +191,7 @@ void timingAttribution(){
     require(tuner.workerPriorityForTest()==int(juce::Thread::Priority::highest),"Active tuner QoS not applied");
     tuner.push(audio,false);
     deadline=Clock::now()+std::chrono::seconds(1);
-    while(tuner.workerPriorityForTest()!=int(juce::Thread::Priority::normal) && Clock::now()<deadline)
+    while((tuner.workerPriorityForTest()!=int(juce::Thread::Priority::normal) || tuner.wakeTimerActiveForTest()) && Clock::now()<deadline)
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     require(tuner.workerPriorityForTest()==int(juce::Thread::Priority::normal),"Disabled tuner QoS not restored");
     require(!tuner.wakeTimerActiveForTest(),"Disabled macOS timer still running");
