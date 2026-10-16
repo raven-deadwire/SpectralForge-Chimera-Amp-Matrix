@@ -26,6 +26,9 @@ LP·마이크 gain/polarity/delay·A/B blend·CAB enable dry/wet는 convolution 
 IR partition=3B, input ring step=3이고 그보다 크면 N=2B, partition=B, step=1이다.
 실제 callback 길이가 B보다 작거나 경계를 가로지르면 누적된 time buffer 전체를 매번 변환한다.
 같은 callback 길이나 같은 cursor만으로 FFT 입력 일치를 보장할 수 없다.
+특히 불규칙 host block 도중 새 커널이 설치되면 새 커널은 position=0에서 시작하고 기존 커널은
+부분 위치를 유지한다. 이후에도 내부 FFT 블록 경계가 어긋날 수 있어 같은 현재 신호와 HP만으로
+재사용이 복구된다고 가정할 수 없다. 전체 time buffer 비교는 이 경우도 안전하게 miss 처리한다.
 IR 길이와 partition 개수는 마이크마다 다를 수 있다. 순방향 FFT 결과 재사용에는 IR 일치가 필요 없지만
 지연 partition 합산·스펙트럼 링·역 FFT·overlap은 각 커널에서 계속 독립 처리해야 한다.
 

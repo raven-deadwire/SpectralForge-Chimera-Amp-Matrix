@@ -11,7 +11,7 @@
 - 같은 CAB의 Mic A/B가 같은 HP 계수와 실제 상태로 계속 처리될 때 동일 forward FFT가 반복된다.
 - 3 rigs/6 mics 정상 경로에서 callback당 실제 forward FFT가 **6 → 3**으로 감소했다. MAC 호출 일정은 12/12 경로 모두 동일하다. 이는 MAC이나 inverse FFT의 50% 감소를 뜻하지 않는다.
 - 원본 버퍼·HP 설정이 같아도 Mic B 재활성화 이후 HP 이력과 부분 블록 누적이 다르면 공유할 수 없다.
-- active/fading은 같은 HP 출력에서 복사되지만 새 커널과 이전 커널의 누적 상태가 다를 수 있다.
+- active/fading은 같은 HP 출력에서 복사되지만 새 커널과 이전 커널의 누적 상태가 다를 수 있다. 불규칙 host block 중 publication되면 내부 블록 경계가 서로 다른 위상으로 진행해 이후에도 공유가 불가능할 수 있다. 현재 샘플/HP 설정/FFT 크기 일치만으로 재사용을 허용하지 않는다.
 - Dual/Matrix의 다른 CAB는 amp/crossover 결과가 달라 rig 간 공유를 제외했다. 개인 IR/legacy fallback은 원래 JUCE 처리를 유지한다.
 
 대표 stress 경로(original-v1, max32, stereo)의 정확 입력 cache 관찰:
