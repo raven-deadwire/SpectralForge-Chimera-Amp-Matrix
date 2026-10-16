@@ -9,6 +9,10 @@ int main() { try {
         TimingObservation r{7,100,wake,115,116,123,124,110,.99f,true};
         check(r.wakeDelay()>=0 && r.serviceDelay()>=0);
         check(r.compute()==7 && r.publishAge()==24);
+        check(r.computeCpu()==-1);
+        r.cpuBegin=20;r.cpuEnd=22;check(r.computeCpu()==2);
+        check(r.compute()-r.computeCpu()==5);
+        r.cpuEnd=19;check(r.computeCpu()==-1);
         check(std::abs(r.wakeDelay()+r.serviceDelay()+r.preparation()+r.compute()+r.publication()-r.publishAge())<1e-10);
     }
     TimingTrace trace;

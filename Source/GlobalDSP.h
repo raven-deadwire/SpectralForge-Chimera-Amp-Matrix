@@ -318,9 +318,11 @@ private:
                 for(int i=0;i<frameSize;++i) ordered[(size_t)i]=history[(size_t)((writeIndex+i)%frameSize)];
 #if CHIMERA_TUNER_TEST_HOOKS
                 timing.estimateBegin=juce::Time::getMillisecondCounterHiRes();
+                timing.cpuBegin=tuning::workerCpuMilliseconds();
 #endif
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
 #if CHIMERA_TUNER_TEST_HOOKS
+                timing.cpuEnd=tuning::workerCpuMilliseconds();
                 timing.estimateEnd=juce::Time::getMillisecondCounterHiRes();
                 timing.hz=pitch.first;timing.confidence=pitch.second;
 #endif

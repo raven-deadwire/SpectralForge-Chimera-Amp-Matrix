@@ -2,8 +2,17 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <ctime>
 
 namespace spectralforge::tuning {
+inline double workerCpuMilliseconds() noexcept {
+#if defined(__APPLE__) || defined(__linux__)
+    timespec value{};
+    if(clock_gettime(CLOCK_THREAD_CPUTIME_ID,&value)==0)
+        return double(value.tv_sec)*1000.+double(value.tv_nsec)*1.e-6;
+#endif
+    return -1.;
+}
 // Test-only, worker-owned storage. Inspect only after stop() joins the worker.
 // Times share JUCE's monotonic millisecond clock; no audio-device timestamp is
 // implied. windowComplete is the arrival of the selected window's final block.
@@ -12,6 +21,8 @@ struct TimingObservation {
     double windowComplete{}, wake{}, service{}, estimateBegin{}, estimateEnd{}, publish{};
     float hz{}, confidence{};
     bool published{};
+    double cpuBegin{-1},cpuEnd{-1};
+    double computeCpu() const { return cpuBegin>=0 && cpuEnd>=cpuBegin?cpuEnd-cpuBegin:-1.; }
     double wakeDelay() const { return std::max(0.0,wake-windowComplete); }
     // A block may arrive after wake but before the FIFO snapshot. Assign that
     // overlap to service, never a negative wake delay.

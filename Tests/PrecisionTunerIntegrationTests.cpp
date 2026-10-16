@@ -56,6 +56,8 @@ template<class T> NativeResult native(double rate,int block,double hz){
         // Separate tagged CSV stream on stderr; retain every estimate, including
         // rejected/generation-discarded observations and routes that fail gates.
         for(size_t i=0;i<trace.size;++i){const auto& r=trace.rows[i];
+            std::cerr<<std::setprecision(12)<<"WORKER_CPU,"<<rate<<','<<block<<','<<hz<<','<<i<<','
+                <<r.compute()<<','<<r.computeCpu()<<','<<(r.computeCpu()>=0?r.compute()-r.computeCpu():-1.)<<'\n';
             std::cerr<<std::setprecision(12)<<"TIMING,"<<rate<<','<<block<<','<<hz<<','<<i<<','<<r.generation<<','
                 <<r.windowComplete-timingEpoch<<','<<r.wake-timingEpoch<<','<<r.service-timingEpoch<<','
                 <<r.estimateBegin-timingEpoch<<','<<r.estimateEnd-timingEpoch<<','<<r.publish-timingEpoch<<','
@@ -204,6 +206,11 @@ void timingAttribution(bool suppressTimerNotifications=false){
     require(r.published && r.compute()>0 && r.wakeDelay()>0 && r.serviceDelay()>=0 && r.preparation()>=0 && r.publication()>=0,"Invalid worker attribution");
     require(std::abs(r.wakeDelay()+r.serviceDelay()+r.preparation()+r.compute()+r.publication()-r.publishAge())<1e-6,"Attribution does not sum to publish age");
     require(r.publishAge()>r.compute(),"Queue delay lost in estimator time");
+#if JUCE_MAC || JUCE_LINUX
+    require(r.computeCpu()>=0 && r.computeCpu()<=r.compute()+.01,"Worker CPU attribution unavailable or exceeds wall interval");
+#else
+    require(r.computeCpu()==-1,"Unavailable CPU clock must remain explicitly unavailable");
+#endif
     tuner.prepare(96000);tuner.stop();
     require(tuner.timingAfterStopForTest().size==0,"Prepare retained previous trace");
     std::cerr<<"PASS first-window completion, delayed worker, compute, publish age and trace lifecycle\n";
