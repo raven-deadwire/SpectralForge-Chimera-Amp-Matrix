@@ -1,0 +1,43 @@
+name: Signature JSON and CLI contracts
+on:
+  pull_request:
+    paths:
+      - 'Tools/evaluate_signature_benchmark.py'
+      - 'Tools/test_signature*.py'
+      - 'Validation/signature-benchmark-policy.json'
+      - '.github/workflows/signature-json-cli.yml'
+      - 'docs/evidence/signature-json-cli-20261016/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signature-contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Original scores, strict JSON and CLI failure regressions
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/signature-json-cli
+          python Tools/test_signature_benchmark.py 2>&1 | tee build/signature-json-cli/original.log
+          python Tools/test_signature_calculator_contracts.py --report build/signature-json-cli/calculator.json 2>&1 | tee build/signature-json-cli/calculator.log
+          python Tools/test_signature_json_cli.py --report build/signature-json-cli/json-cli.json 2>&1 | tee build/signature-json-cli/json-cli.log
+          python docs/evidence/signature-json-cli-20261016/compare_normal_results.py --output build/signature-json-cli/parity.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Signature-json-cli-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/signature-json-cli
+          if-no-files-found: error

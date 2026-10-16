@@ -1,0 +1,1699 @@
+{
+  "schema": "spectralforge.chimera.signature-json-cli-tests",
+  "schema_version": 1,
+  "synthetic_only": true,
+  "review_only": true,
+  "publisher_input": false,
+  "policy_claims": [],
+  "release_approved": false,
+  "source_commit": "d27e0f549e1115d4ae7d918af0e7ea26caa1584d",
+  "worktree_dirty": true,
+  "source_sha256": {
+    "Tools/evaluate_signature_benchmark.py": "051c74093c265ade3fa23f91705f323a5100ff805608717b9f1349041fe564e4",
+    "Tools/test_signature_json_cli.py": "8eaa78314657a4e352c6bf6ca718c5e03ecf92ee1b9251275e2d50199a44acc1",
+    "Tools/test_signature_calculator_contracts.py": "1c3232ec8458cc3c620f65712f4a145c8f368cf3217b562d8dac152cda8cd09e",
+    "Validation/signature-benchmark-policy.json": "bc076ff811891cd168aa446c0333d8d29999b1c15f02a86c5bf1ad4f66c71f15"
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39"
+  },
+  "run_id": null,
+  "run_attempt": null,
+  "tests_run": 9,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "name": "test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "test_cli_exit_codes_replace_previous_output_with_current_result",
+      "status": "PASS"
+    },
+    {
+      "name": "test_cli_input_output_collision_preserves_input",
+      "status": "PASS"
+    },
+    {
+      "name": "test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "test_loader_preserves_bom_unicode_and_valid_json_values",
+      "status": "PASS"
+    },
+    {
+      "name": "test_output_io_and_serialization_errors_leave_no_score",
+      "status": "PASS"
+    },
+    {
+      "name": "test_strict_loader_rejects_constants_including_unused_fields",
+      "status": "PASS"
+    },
+    {
+      "name": "test_strict_loader_rejects_duplicate_keys_at_every_depth",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unremovable_output_is_reported_and_never_evaluated",
+      "status": "PASS"
+    }
+  ],
+  "cli_runs": [
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "1b85d4f2d80c3867668982879917ada458fcb2295bfe148d4607a0a8c1312439"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Unsupported signature render schema\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "dc7be6fad5b0b8a23a7a2070a3954a80d055de1166df4565dc905cecaa6cd1ae"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "0131bc1a93b7f2bd2ac9701a2e10e502b3233e5abb8dff59dac9847fb4370a4a"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Missing render crom\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "22e578702d0f41d7952131d23e33e9ffd15038005873431196d0327e3cd8270a"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: 'list' object has no attribute 'get'\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "93c5bfd95966e620643ff9583dae2aa675bc8673a44c5850b934c710f68c5839"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: 'NoneType' object has no attribute 'get'\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0aab6209b9875f7fedc726bd0e171a3a00276b86d1b30a527e6b97a39c393af3"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": null,
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: [Errno 2] No such file or directory: '/tmp/tmpl91rr6oi/policy.json'\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "abc512d1118dbdbe4f2c5bb9c529262a3d96a5c80addda535d5168111dd57bee"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpl91rr6oi/policy.json",
+        "--renders",
+        "/tmp/tmpl91rr6oi/renders.json",
+        "--output",
+        "/tmp/tmpl91rr6oi/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": null
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: [Errno 2] No such file or directory: '/tmp/tmpl91rr6oi/renders.json'\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d143e9a9010aad282eac1cb292218255736f90fdd9e6b4137ccdffaad5d736b8"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_exit_codes_replace_previous_output_with_current_result",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpphcyf07c/policy.json",
+        "--renders",
+        "/tmp/tmpphcyf07c/renders.json",
+        "--output",
+        "/tmp/tmpphcyf07c/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_exit_codes_replace_previous_output_with_current_result",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpphcyf07c/policy.json",
+        "--renders",
+        "/tmp/tmpphcyf07c/renders.json",
+        "--output",
+        "/tmp/tmpphcyf07c/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "bd7ea14411f0328ba147e31bed4b70cd7abca2041cec13109d81b6e73ef0e58c"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": "403d8ff57ea921531bf391152b97a144f65365d4c5dbbd36e2cd864de001490c",
+      "exit_code": 1,
+      "stdout": "{\n  \"verdict\": \"REVISE\",\n  \"overall_score\": 87.50605835787,\n  \"reasons\": [\n    \"H4 hard gate failed\",\n    \"Critical metric score below threshold: crest_db\"\n  ]\n}\n",
+      "stderr": "",
+      "stdout_sha256": "0c9c6d885dc1248a39ebc59ea359f11082c58601144e39e753a75eacdbcbc858",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_exit_codes_replace_previous_output_with_current_result",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpphcyf07c/policy.json",
+        "--renders",
+        "/tmp/tmpphcyf07c/renders.json",
+        "--output",
+        "/tmp/tmpphcyf07c/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "0da42a41bd15ff03c2257742875510bea437fcd6bffff07dd6b9c2183e11c129"
+      },
+      "previous_output_sha256": "403d8ff57ea921531bf391152b97a144f65365d4c5dbbd36e2cd864de001490c",
+      "output_sha256": "573658a7ba275cfd63c196385771b4fd35403a0b0a6b8deb8776b9d4617e0031",
+      "exit_code": 1,
+      "stdout": "{\n  \"verdict\": \"INVALID\",\n  \"overall_score\": null,\n  \"reasons\": [\n    \"DSP validity gate failed\"\n  ]\n}\n",
+      "stderr": "",
+      "stdout_sha256": "1efd502591c22c3bd6ea6ec6bf13683bb70f6da57946a4a2cfde6a4d027b3675",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_exit_codes_replace_previous_output_with_current_result",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpphcyf07c/policy.json",
+        "--renders",
+        "/tmp/tmpphcyf07c/renders.json",
+        "--output",
+        "/tmp/tmpphcyf07c/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "573658a7ba275cfd63c196385771b4fd35403a0b0a6b8deb8776b9d4617e0031",
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_input_output_collision_preserves_input",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpv7e40zoh/policy.json",
+        "--renders",
+        "/tmp/tmpv7e40zoh/renders.json",
+        "--output",
+        "/tmp/tmpv7e40zoh/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_input_output_collision_preserves_input",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpv7e40zoh/policy.json",
+        "--renders",
+        "/tmp/tmpv7e40zoh/renders.json",
+        "--output",
+        "/tmp/tmpv7e40zoh/policy.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+      "output_sha256": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Output must differ from input policy and renders\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "759b9d4dcd62c2402d97862d4ad49f95c0983eef8fd4eb4d8bf592ad049fbd1e"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_input_output_collision_preserves_input",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpv7e40zoh/policy.json",
+        "--renders",
+        "/tmp/tmpv7e40zoh/renders.json",
+        "--output",
+        "/tmp/tmpv7e40zoh/renders.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60",
+      "output_sha256": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60",
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Output must differ from input policy and renders\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "759b9d4dcd62c2402d97862d4ad49f95c0983eef8fd4eb4d8bf592ad049fbd1e"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c3d116f24fa20b050584f0fce7edd3c0e553e07fb0dab110851f92f777c192a5",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Duplicate JSON key: 'unused'\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ba6e4de1605c9ddb39a0648126a5d2b5489f70e52cd8e179030b03617788bd2e"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "17f9f8a251be4ad846657e1f179c7aa36a97c9f983790d8ee9f5c2b8a5517ce2",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Non-standard JSON constant: NaN\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1cdddc0499f2c47902ee65b9695a0b8fabc9d2c6720375339b93a97dc8cc861d"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "3f3d3d304a6ed81aebbda3995ecb3f2a9f61cf155458f0afed8b366e48165d6f",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Non-standard JSON constant: Infinity\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "114a54c56ff37ca1b6e0ac2301403b7a102de6f64bdfd82da87cef9d796626e8"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "8f3028ff028a1d7e75dbec83324c0b78cd26497edb1544c56331fb2fd414f08c",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Non-standard JSON constant: -Infinity\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e55cd459d97c89f70b9e568c96e9561d510211dbd4733bd54256df0ad0992ffc"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting value: line 1 column 1 (char 0)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d4cae9d2597ef282ff3ab4b7bf362f63a6251899e5e0ba8a527b9bbdf249ca56"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3789451b9fcecb9d98b72040b4bee1c74ad1accffe437a68d5a9b9bf0e57d65"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "dde93f1100e4f08c4ded6dfc33ab6ce1ac1c0c3a353f8195ae02b683f4746586",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting value: line 1 column 6 (char 5)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b1896eca18795a72236a3bdecff763f5eb34965609fb9980cf5ac02c617c6035"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "2e327f7feed574f4e6db9b5ee6db5f1d45634a9af62549a88dd7f6cf9887ea46",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Extra data: line 1 column 2346 (char 2345)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8944f78de279dd17ddf9958b25118f186688f8a66775575df168d899c7d136ff"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "9494e756b4958883d33b48d5240ae5a21cf59d453a9720fbb4dfba20a211b66c",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting property name enclosed in double quotes: line 1 column 8 (char 7)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f44849c4bd9dafeab4b1f17d2f1fe08f8e2b1998a91a37969d883c148f646ac5"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c038d83bdc1c2a5d3c752ce765c20c1c43e98435ecd3dadafbf504e41a8509d1",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Invalid control character at: line 1 column 7 (char 6)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0183c53dd4b7167bb7626aa0e895efd55ef5c28e1362daa32cae910915dcbfad"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b10a83b9b926c92b61600f536fb4be935535c79bec63a8db23faa6bf2021180a"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "cd01383d5360c30e76db8cb7293363819b9e2ff02a1fdf9b5e2f9aff58d4fe5f"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Duplicate JSON key: 'unused'\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ba6e4de1605c9ddb39a0648126a5d2b5489f70e52cd8e179030b03617788bd2e"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "51b11d230af8add9481bce01eed1c232dda99eed34b14806215845cc7258b418"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Non-standard JSON constant: NaN\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1cdddc0499f2c47902ee65b9695a0b8fabc9d2c6720375339b93a97dc8cc861d"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "09a87913e8134319deddc00779fde474a673de4f24aad6bf261c1b75364a34b3"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Non-standard JSON constant: Infinity\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "114a54c56ff37ca1b6e0ac2301403b7a102de6f64bdfd82da87cef9d796626e8"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "8a4a57f57951f81f733706ca10a12379eca5aa7730d8651f4708fd5d7997e1bc"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Non-standard JSON constant: -Infinity\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e55cd459d97c89f70b9e568c96e9561d510211dbd4733bd54256df0ad0992ffc"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting value: line 1 column 1 (char 0)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d4cae9d2597ef282ff3ab4b7bf362f63a6251899e5e0ba8a527b9bbdf249ca56"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3789451b9fcecb9d98b72040b4bee1c74ad1accffe437a68d5a9b9bf0e57d65"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "dde93f1100e4f08c4ded6dfc33ab6ce1ac1c0c3a353f8195ae02b683f4746586"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting value: line 1 column 6 (char 5)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b1896eca18795a72236a3bdecff763f5eb34965609fb9980cf5ac02c617c6035"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "69d81d59e0957cd7847ef9f18f206fb30703469e6ac1e75477f497525d7a557e"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Extra data: line 1 column 734 (char 733)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "66f2a52bfe71f2168ccf72e3e482971e6c8f9712fc0ba288d0ad4d9a4ec18dc1"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "9494e756b4958883d33b48d5240ae5a21cf59d453a9720fbb4dfba20a211b66c"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Expecting property name enclosed in double quotes: line 1 column 8 (char 7)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f44849c4bd9dafeab4b1f17d2f1fe08f8e2b1998a91a37969d883c148f646ac5"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "c038d83bdc1c2a5d3c752ce765c20c1c43e98435ecd3dadafbf504e41a8509d1"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: Invalid control character at: line 1 column 7 (char 6)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0183c53dd4b7167bb7626aa0e895efd55ef5c28e1362daa32cae910915dcbfad"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp_akkq85k/policy.json",
+        "--renders",
+        "/tmp/tmp_akkq85k/renders.json",
+        "--output",
+        "/tmp/tmp_akkq85k/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89"
+      },
+      "previous_output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "output_sha256": null,
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b10a83b9b926c92b61600f536fb4be935535c79bec63a8db23faa6bf2021180a"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_output_io_and_serialization_errors_leave_no_score",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp2vnwiam8/policy.json",
+        "--renders",
+        "/tmp/tmp2vnwiam8/renders.json",
+        "--output",
+        "/tmp/tmp2vnwiam8/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_output_io_and_serialization_errors_leave_no_score",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp2vnwiam8/policy.json",
+        "--renders",
+        "/tmp/tmp2vnwiam8/renders.json",
+        "--output",
+        "/tmp/tmp2vnwiam8/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_output_io_and_serialization_errors_leave_no_score",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp2vnwiam8/policy.json",
+        "--renders",
+        "/tmp/tmp2vnwiam8/renders.json",
+        "--output",
+        "/tmp/tmp2vnwiam8/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_output_io_and_serialization_errors_leave_no_score",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmp2vnwiam8/policy.json",
+        "--renders",
+        "/tmp/tmp2vnwiam8/renders.json",
+        "--output",
+        "/tmp/tmp2vnwiam8/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test": "__main__.JsonCliContracts.test_unremovable_output_is_reported_and_never_evaluated",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/df0f0b256db3/chimera/Tools/evaluate_signature_benchmark.py",
+        "--policy",
+        "/tmp/tmpj6a6zmow/policy.json",
+        "--renders",
+        "/tmp/tmpj6a6zmow/renders.json",
+        "--output",
+        "/tmp/tmpj6a6zmow/result.json"
+      ],
+      "input_sha256": {
+        "policy": "c9ebe924ca24e7dca50a7cda186a3b842bf82374e92b3a47d049db44434e8c35",
+        "renders": "53d2427c30ec405bbbe2093d9e313a1306d043232dfc547641189c0e38eb6b60"
+      },
+      "previous_output_sha256": null,
+      "output_sha256": "a2f9b9702a812852bbb1044ad9b9e946144bf4952fc9aed6e6cb8a23b18a8d5c",
+      "exit_code": 0,
+      "stdout": "{\n  \"verdict\": \"PASS\",\n  \"overall_score\": 99.99999999999999,\n  \"reasons\": []\n}\n",
+      "stderr": "",
+      "stdout_sha256": "7c42a1b64c4b602a61f951ad049731993c010d59c0c8da91903204b3e980c16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

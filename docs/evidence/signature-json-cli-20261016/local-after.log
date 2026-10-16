@@ -1,0 +1,14 @@
+test_cli_evaluation_and_missing_input_errors_remove_previous_pass (__main__.JsonCliContracts.test_cli_evaluation_and_missing_input_errors_remove_previous_pass) ... ok
+test_cli_exit_codes_replace_previous_output_with_current_result (__main__.JsonCliContracts.test_cli_exit_codes_replace_previous_output_with_current_result) ... ok
+test_cli_input_output_collision_preserves_input (__main__.JsonCliContracts.test_cli_input_output_collision_preserves_input) ... ok
+test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass (__main__.JsonCliContracts.test_cli_rejects_bad_json_in_both_inputs_and_removes_previous_pass) ... ok
+test_loader_preserves_bom_unicode_and_valid_json_values (__main__.JsonCliContracts.test_loader_preserves_bom_unicode_and_valid_json_values) ... ok
+test_output_io_and_serialization_errors_leave_no_score (__main__.JsonCliContracts.test_output_io_and_serialization_errors_leave_no_score) ... ok
+test_strict_loader_rejects_constants_including_unused_fields (__main__.JsonCliContracts.test_strict_loader_rejects_constants_including_unused_fields) ... ok
+test_strict_loader_rejects_duplicate_keys_at_every_depth (__main__.JsonCliContracts.test_strict_loader_rejects_duplicate_keys_at_every_depth) ... ok
+test_unremovable_output_is_reported_and_never_evaluated (__main__.JsonCliContracts.test_unremovable_output_is_reported_and_never_evaluated) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.517s
+
+OK

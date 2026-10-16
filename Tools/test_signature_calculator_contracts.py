@@ -196,7 +196,7 @@ class CalculatorContracts(unittest.TestCase):
         source = directory / 'renders.json'
         output = directory / 'result.json'
         # NaN/Infinity are deliberately emitted as Python's non-standard JSON
-        # tokens to check the existing loader's numeric validation boundary.
+        # tokens to check rejection at the strict JSON loading boundary.
         source.write_text(json.dumps(renders), encoding='utf-8')
         if output.exists():
             output.unlink()
@@ -224,7 +224,10 @@ class CalculatorContracts(unittest.TestCase):
                             process, output = self.run_cli(Path(temporary), renders)
                             self.assertEqual(process.returncode, 2, process.stdout + process.stderr)
                             self.assertEqual(process.stdout, '')
-                            self.assertIn(f'Missing/non-finite {song}.{metric}', process.stderr)
+                            if type(value) is float and not math.isfinite(value):
+                                self.assertIn('Non-standard JSON constant', process.stderr)
+                            else:
+                                self.assertIn(f'Missing/non-finite {song}.{metric}', process.stderr)
                             self.assertFalse(output.exists(), 'Invalid input must not produce a new score')
 
     def test_cli_preserves_pass_revise_and_invalid_results(self):
