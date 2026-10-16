@@ -371,7 +371,7 @@ public:
             const juce::String sourceCaption=!cabEnabled ? "CABINET BYPASSED" :
                 rig.original[0] && rig.original[1] ? originalCaption :
                 rig.original[0] || rig.original[1] ?
-                    (rig.source[rig.original[0] ? 1 : 0] ? "CABINET + IR / A-B" : "CABINET + FILTERS / A-B") :
+                    (rig.source[rig.original[0] ? 1 : 0] ? "CABINET + IR / A-B" : (rig.original[0] ? "CABINET / MIC A ONLY" : "CABINET / MIC B ONLY")) :
                 rig.source[0] && rig.source[1] ? "CAPTURED IR / A-B" :
                 rig.source[0] || rig.source[1] ? "CAPTURE + FILTERS / A-B" : "FILTERS ONLY";
             const juce::String caption=muted ? "MUTED" : low ? blend.caption() : sourceCaption;

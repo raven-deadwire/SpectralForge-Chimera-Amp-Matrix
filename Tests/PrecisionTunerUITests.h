@@ -9,12 +9,12 @@ inline void run(const juce::File& directory){
     auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);
     auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
     auto* open=find<juce::TextButton>(*editor,"tunerOpen");require(open&&open->isShowing(),"Tuner dock entry missing");
-    const auto before=signalPathTests::values(*p);open->triggerClick();settle(80);
+    auto expected=signalPathTests::values(*p);expected[size_t(p->parameters().getParameter("tuneron")->getParameterIndex())]=1.f;open->triggerClick();settle(80);
     auto* panel=find<PrecisionTunerPanel>(*editor,"precisionTuner");require(panel&&panel->isShowing(),"Tuner workspace did not open");
-    require(signalPathTests::values(*p)==before,"Opening tuner changed audio state");
+    require(signalPathTests::values(*p)==expected,"Opening tuner changed unrelated audio state");
     require(!find(*editor,"cabRoomOverview")->isShowing(),"Underlying rig remains accessible under tuner");
-    find<juce::TextButton>(*editor,"tunerEnable")->triggerClick();settle(40);
-    require(p->parameters().getRawParameterValue("tuneron")->load()>.5f,"Start tuning did not activate detector");
+    require(find(*editor,"tunerEnable")==nullptr,"Obsolete start/stop tuning control remains");
+    require(p->parameters().getRawParameterValue("tuneron")->load()>.5f,"Opening tuner did not activate detector");
     juce::AudioBuffer<float> audio(2,256);juce::MidiBuffer midi;
     const double hz=spectralforge::tuning::frequency(21,440,.05); // A0, 27.5 Hz + 0.05 cent
     // Audio delivery must not depend on a native UI event pump's scheduling.
