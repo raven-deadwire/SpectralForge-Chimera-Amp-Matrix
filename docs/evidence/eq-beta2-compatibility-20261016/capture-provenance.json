@@ -1,0 +1,10 @@
+{
+  "os": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "architecture": "x86_64",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce": "8.0.8 / d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "capture_zip_sha256": "4519abfccf6c9192eec426931cf3767daabb8af12eb12013811d167defdda661",
+  "candidate_base": "7ef99333ce14315538ec4aed350d802ca0d78e23",
+  "candidate_source_tree": "d6de02d72f92d550ce131e8ac07109eb9ae99467",
+  "release_approved": false
+}

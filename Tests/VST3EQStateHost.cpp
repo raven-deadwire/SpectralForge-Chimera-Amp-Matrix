@@ -230,7 +230,9 @@ std::string ascii (const TChar* value)
 }
 int main(int argc, char** argv) {
     try {
-        require(argc == 5 || argc == 6, "usage: host plugin.so output-dir profile(default|pattern|replay) input-state(or -) [legacy-lanes.tsv]");
+        require(argc == 5 || argc == 6, "usage: host plugin.so output-dir profile(default|pattern|replay|dirty-restore) input-state(or -) [legacy-lanes.tsv]");
+        const std::string profile(argv[3]);
+        require(profile=="default" || profile=="pattern" || profile=="replay" || profile=="dirty-restore", "unknown profile");
         const std::filesystem::path output(argv[2]);
         std::filesystem::create_directories(output);
         void* module = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL);
@@ -286,7 +288,7 @@ int main(int argc, char** argv) {
             const auto name = ascii(info.title);
             contract << i << '\t' << info.id << '\t' << name << '\t' << info.stepCount << '\t' << info.defaultNormalizedValue << '\t' << info.flags << '\n';
             if (name.starts_with("Tone EQ ") || name.starts_with("Final EQ ")) ++eqCount;
-            if (std::string(argv[3]) == "pattern") {
+            if (profile == "pattern" || profile == "dirty-restore") {
                 if (name.starts_with("Tone EQ ") || name.starts_with("Final EQ ")) {
                     double value = (i % 11 + 1) / 13.0;
                     if (name.ends_with("bypass")) value = 0;
@@ -336,6 +338,14 @@ int main(int argc, char** argv) {
         });
         worker.join(); if(error) std::rethrow_exception(error);
         require(component->setActive(false)==kResultOk,"deactivate");
+        if(profile=="dirty-restore") {
+            require(std::string(argv[4])!="-", "dirty restore requires original state");
+            auto* again=new Stream;std::ifstream file(argv[4],std::ios::binary);
+            again->bytes.assign(std::istreambuf_iterator<char>(file),{});
+            require(!again->bytes.empty() && component->setState(again)==kResultOk,"dirty restore");
+            again->position=0;require(controller->setComponentState(again)==kResultOk,"dirty controller restore");
+            release(again);
+        }
         auto* saved = new Stream;
         require(component->getState(saved)==kResultOk && !saved->bytes.empty(), "getState");
         std::ofstream state(output / "component.bin",std::ios::binary);

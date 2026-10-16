@@ -1,0 +1,12 @@
+PASS real VST3 state capture, EQ parameters=122 profile=default
+PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+PASS real VST3 state capture, EQ parameters=122 profile=default
+PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+PASS real VST3 state capture, EQ parameters=122 profile=default
+PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+PASS real VST3 state capture, EQ parameters=122 profile=default
+PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+PASS real VST3 state capture, EQ parameters=122 profile=default
+PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED
+PASS real VST3 state capture, EQ parameters=122 profile=default
+PASS candidate -> public beta.2 -> saved state: all parameters, occupancy metadata, A/B and auxiliary state preserved; old UI occupancy NOT_ASSESSED

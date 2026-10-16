@@ -1,0 +1,8 @@
+2026-10-16T07:19:44.9797766Z 1/5 Test #43: ChimeraGraphicalEQEditingTests ....   Passed   24.82 sec
+2026-10-16T07:19:48.0769142Z 2/5 Test #44: ChimeraEQSnapshotFreezeTests ......   Passed    3.10 sec
+2026-10-16T07:19:48.1782428Z 3/5 Test #49: ChimeraEQLegacyFixtureIntegrity ...   Passed    0.10 sec
+2026-10-16T07:19:48.4407945Z 4/5 Test #48: ChimeraEQLegacyStateTests .........***Failed    0.26 sec
+2026-10-16T07:19:48.4408378Z FAIL legacy canonical value mismatch busattack
+2026-10-16T07:19:48.5134437Z 5/5 Test #50: ChimeraEQLegacyEvidenceTests ......   Passed    0.07 sec
+2026-10-16T07:19:48.5135490Z 80% tests passed, 1 tests failed out of 5
+2026-10-16T07:19:48.5135737Z Total Test time (real) =  28.35 sec

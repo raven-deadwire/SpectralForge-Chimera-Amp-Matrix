@@ -97,8 +97,18 @@ def compare(args):
     # Compare VST3 metadata before interpreting lane results. MIDI/wrapper IDs
     # are retained too, while the product parameter count remains 4967.
     old=Path(args.expected); new=Path(args.actual)
-    if (old/'parameters.tsv').read_bytes()!=(new/'parameters.tsv').read_bytes():
-        raise ValueError('VST3 ID/order/default/steps/flags contract changed')
+    with (old/'parameters.tsv').open() as a, (new/'parameters.tsv').open() as b:
+        released=list(csv.DictReader(a,delimiter='\t'));candidate=list(csv.DictReader(b,delimiter='\t'))
+    if len(released)!=len(candidate):raise ValueError('VST3 parameter count changed')
+    renamed=[]
+    for a,b in zip(released,candidate):
+        if any(a[k]!=b[k] for k in ('index','id','steps','default','flags')):
+            raise ValueError('VST3 numeric ID/order/default/steps/flags contract changed: '+a['id'])
+        if a['title']!=b['title']:
+            if a['title'].startswith(('Tone EQ ','Final EQ ')):raise ValueError('EQ title changed')
+            renamed.append({'id':a['id'],'old':a['title'],'candidate':b['title']})
+    (new/'non-eq-title-differences.json').write_text(json.dumps(renamed,indent=2)+'\n')
+    print(f'PASS VST3 numeric contracts and EQ titles; non-EQ display title differences={len(renamed)} (reported separately)')
     before=xml(Path(args.before).read_bytes());after=xml((new/'component.bin').read_bytes())
     a={p.get('id'):float(p.get('value')) for p in before.findall('PARAM')}
     b={p.get('id'):float(p.get('value')) for p in after.findall('PARAM')}

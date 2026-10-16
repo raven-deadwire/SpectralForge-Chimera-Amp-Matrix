@@ -33,13 +33,14 @@ jobs:
       - name: Verify immutable released fixture provenance
         run: python3 Tools/eq_legacy_fixture.py verify --output Tests/fixtures/eq-beta2
       - run: cmake -S . -B build-legacy -DCMAKE_BUILD_TYPE=Release -DCHIMERA_EQ_DEVELOPMENT_PREVIEW=ON
-      - run: cmake --build build-legacy --config Release --target ChimeraEQLegacyStateTests ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests --parallel 2
+      - id: build_contracts
+        run: cmake --build build-legacy --config Release --target ChimeraEQLegacyStateTests ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests --parallel 2
       - name: Existing synthetic contracts and real binary fixture contracts
         run: ctest --test-dir build-legacy -C Release -R "^(ChimeraEQLegacyStateTests|ChimeraEQLegacyFixtureIntegrity|ChimeraEQLegacyEvidenceTests|ChimeraGraphicalEQEditingTests|ChimeraEQSnapshotFreezeTests)$" --output-on-failure --no-tests=error --output-junit legacy-results.xml
-      - if: runner.os == 'Linux'
+      - if: ${{ !cancelled() && runner.os == 'Linux' && steps.build_contracts.outcome == 'success' }}
         run: cmake --build build-legacy --config Release --target ChimeraVST3EQStateHost ChimeraAmpMatrix_VST3 --parallel 2
       - name: Download and capture the unchanged public beta.2 binary
-        if: runner.os == 'Linux'
+        if: ${{ !cancelled() && runner.os == 'Linux' && steps.build_contracts.outcome == 'success' }}
         shell: bash
         run: |
           mkdir -p build-legacy/released
@@ -49,7 +50,7 @@ jobs:
           python3 Tools/eq_legacy_fixture.py capture --package build-legacy/released/beta2.deb --binary 'build-legacy/released/root/usr/lib/vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so' --host build-legacy/ChimeraVST3EQStateHost --output build-legacy/live-capture
           build-legacy/ChimeraEQLegacyStateTests_artefacts/Release/ChimeraEQLegacyStateTests "$PWD/build-legacy/live-capture" "$PWD/build-legacy/live-roundtrip"
       - name: Replay old numeric VST3 automation IDs and reopen with the old binary
-        if: runner.os == 'Linux'
+        if: ${{ !cancelled() && runner.os == 'Linux' && steps.build_contracts.outcome == 'success' }}
         shell: bash
         run: |
           build-legacy/ChimeraVST3EQStateHost "$PWD/build-legacy/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so" build-legacy/abi-replay replay "$PWD/build-legacy/live-roundtrip/ab-seeded/reused.chimera" "$PWD/build-legacy/live-capture/lanes.tsv"
