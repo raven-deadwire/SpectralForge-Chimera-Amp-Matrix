@@ -33,6 +33,7 @@ def consolidate(inputs, output, revision, profile):
                 reason='No concrete evidence for this source; manual/unowned validation remains unexecuted',
                 scope={'producer': 'unclaimed-baseline', 'profile': profile})
     received = {}
+    cab_ir_received = {}
     errors = []
     provenance = []
     for kind in evidence.KINDS:
@@ -40,6 +41,8 @@ def consolidate(inputs, output, revision, profile):
         try:
             doc, paths = evidence.read_bundle(folder, kind, revision, policy)
             received[kind] = evidence.reports_for_bundle(doc, paths, policy, mapping)
+            import cab_ir_acceptance
+            cab_ir_received[kind] = cab_ir_acceptance.bundle_claims(doc, paths)
             # Keep the original hashed bundle, not only the derived verdict.
             shutil.copytree(folder, output / 'evidence' / kind)
             provenance.append({'kind': kind, 'manifest_sha256': evidence.digest(folder / 'evidence.json'),
@@ -82,6 +85,23 @@ def consolidate(inputs, output, revision, profile):
             scope={'producer': spec['producer'], 'platforms': owners, 'synthetic_only': True,
                    'run_id': revision['run_id'], 'run_attempt': revision['run_attempt']},
             artifacts=['evidence/' + k + '/evidence.json' for k in owners if k in {p['kind'] for p in provenance}])
+    # Supplemental current native evidence owns only these six accepted gaps.
+    # The parent registry and historical source-equivalence guard remain intact.
+    import cab_ir_acceptance
+    for suite, ids in cab_ir_acceptance.SUITES.items():
+        for cid in ids:
+            gate.require(cid not in mapping, 'CAB/IR automatic owner collision')
+            if cid not in reports:
+                continue
+            platforms = list(evidence.PLATFORMS)
+            ok = all(cab_ir_received.get(k, {}).get(cid) is True for k in platforms)
+            if ok:
+                reports[cid] = evidence.make_report(policy, cid, revision['commit_sha'], passed=True,
+                    scope={'producer': 'cab-ir-current-native', 'platforms': platforms,
+                           'synthetic_only': True, 'actual_daw_acceptance': False,
+                           'publication_authorized': False, 'definition_sha256': cab_ir_acceptance.BASELINE_SHA256,
+                           'run_id': revision['run_id'], 'run_attempt': revision['run_attempt']},
+                    artifacts=['evidence/' + k + '/raw/ctest-results.xml' for k in platforms])
     if errors:
         # Even an unexpected bundle must prevent a future otherwise-complete PASS.
         reports['A13.07'] = evidence.make_report(policy, 'A13.07', revision['commit_sha'], passed=False,

@@ -58,6 +58,7 @@ jobs:
           python Tools/test_validation_producer.py
           python Tools/test_ctest_validation.py
           python Tools/test_release_consolidator.py
+          python Tools/test_cab_ir_acceptance.py
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
           python Tools/test_publish_beta13.py
@@ -122,6 +123,7 @@ jobs:
           python Tools/test_validation_producer.py
           python Tools/test_ctest_validation.py
           python Tools/test_release_consolidator.py
+          python Tools/test_cab_ir_acceptance.py
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
           python Tools/test_publish_beta13.py
