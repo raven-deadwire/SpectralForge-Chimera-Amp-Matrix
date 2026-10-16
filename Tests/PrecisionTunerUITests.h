@@ -9,7 +9,9 @@ inline void run(const juce::File& directory){
     auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);
     auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
     auto* open=find<juce::TextButton>(*editor,"tunerOpen");require(open&&open->isShowing(),"Tuner dock entry missing");
-    auto expected=signalPathTests::values(*p);expected[size_t(p->parameters().getParameter("tuneron")->getParameterIndex())]=1.f;open->triggerClick();settle(80);
+    // Exercise the native pointer path, as the routing suite does, instead of
+    // assuming an asynchronously posted triggerClick is delivered in 80 ms.
+    auto expected=signalPathTests::values(*p);expected[size_t(p->parameters().getParameter("tuneron")->getParameterIndex())]=1.f;signalPathTests::click(*open);
     auto* panel=find<PrecisionTunerPanel>(*editor,"precisionTuner");require(panel&&panel->isShowing(),"Tuner workspace did not open");
     require(signalPathTests::values(*p)==expected,"Opening tuner changed unrelated audio state");
     require(!find(*editor,"cabRoomOverview")->isShowing(),"Underlying rig remains accessible under tuner");
@@ -39,7 +41,7 @@ inline void run(const juce::File& directory){
     signalPathTests::capture(*editor,directory,"precision-custom");
     juce::MemoryBlock state;p->getStateInformation(state);auto restored=std::make_unique<ChimeraProcessor>();restored->setStateInformation(state.getData(),int(state.getSize()));
     for(const auto* id:{"tunerProfile","tunerDisplay","tunerString","tunerNote8","tunerOffset8","tunerref"})require(std::abs(p->parameters().getRawParameterValue(id)->load()-restored->parameters().getRawParameterValue(id)->load())<.001,"Tuner settings did not survive project recall");
-    const auto active=signalPathTests::values(*p);find<juce::TextButton>(*editor,"path.pre")->triggerClick();settle(80);
+    const auto active=signalPathTests::values(*p);signalPathTests::click(*find<juce::TextButton>(*editor,"path.pre"));
     require(!panel->isShowing()&&find(*editor,"universalPedalBoard")->isShowing(),"Signal stage did not leave tuner workspace");require(signalPathTests::values(*p)==active,"Leaving tuner workspace changed audio/mute state");
     // Legacy projects must acquire defaults, not inherit the active custom profile.
     auto legacy=p->parameters().copyState();for(int i=legacy.getNumChildren();--i>=0;)if(legacy.getChild(i).getProperty("id").toString().startsWith("tuner")&&legacy.getChild(i).getProperty("id").toString()!="tunerref"&&legacy.getChild(i).getProperty("id").toString()!="tuneron"&&legacy.getChild(i).getProperty("id").toString()!="tunermute")legacy.removeChild(i,nullptr);
@@ -52,3 +54,4 @@ inline void run(const juce::File& directory){
     std::cout<<"PASS tuner workspace, audio-neutral navigation, production low A, four scales, custom recall, legacy defaults and worker teardown\n";
 }
 }
+
