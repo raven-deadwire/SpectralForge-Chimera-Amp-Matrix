@@ -230,9 +230,9 @@ std::string ascii (const TChar* value)
 }
 int main(int argc, char** argv) {
     try {
-        require(argc == 5 || argc == 6, "usage: host plugin.so output-dir profile(default|pattern|replay|dirty-restore) input-state(or -) [legacy-lanes.tsv]");
+        require(argc == 5 || argc == 6, "usage: host plugin.so output-dir profile(default|pattern|replay|dirty-restore|render|render-replay) input-state(or -) [legacy-lanes.tsv]");
         const std::string profile(argv[3]);
-        require(profile=="default" || profile=="pattern" || profile=="replay" || profile=="dirty-restore", "unknown profile");
+        require(profile=="default" || profile=="pattern" || profile=="replay" || profile=="dirty-restore" || profile=="render" || profile=="render-replay", "unknown profile");
         const std::filesystem::path output(argv[2]);
         std::filesystem::create_directories(output);
         void* module = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL);
@@ -300,7 +300,7 @@ int main(int argc, char** argv) {
             if (name == "Tone EQ 4 frequency" || name == "Final EQ 8 frequency") lanes << info.id << "\t0.61\t" << name << '\n';
             if (name == "Tone EQ 4 gain" || name == "Final EQ 8 gain") lanes << info.id << "\t0.31\t" << name << '\n';
         }
-        if (std::string(argv[3]) == "replay") {
+        if (profile == "replay" || profile == "render-replay") {
             require(argc == 6, "replay requires original binary lane IDs");
             std::ifstream laneFile(argv[5]); require(bool(laneFile), "missing legacy lane file");
             std::string line; std::getline(laneFile,line); int count=0;
@@ -317,6 +317,9 @@ int main(int argc, char** argv) {
         component->activateBus(kAudio, kInput, 0, true); component->activateBus(kAudio, kOutput, 0, true);
         ProcessSetup setup{kRealtime, kSample32, 256, 48000};
         require(audio->setupProcessing(setup) == kResultOk && component->setActive(true) == kResultOk, "prepare");
+        const bool rendering = profile == "render" || profile == "render-replay";
+        std::ofstream rendered;
+        if (rendering) rendered.open(output / "audio.f32", std::ios::binary);
         std::exception_ptr error;
         std::thread worker([&] {
             try {
@@ -327,12 +330,25 @@ int main(int argc, char** argv) {
                 input.channelBuffers32=ins; out.channelBuffers32=outs;
                 ProcessData data{}; data.processMode=kRealtime; data.symbolicSampleSize=kSample32;
                 data.numSamples=256; data.numInputs=data.numOutputs=1; data.inputs=&input; data.outputs=&out;
-                data.inputParameterChanges=changes;
-                for(int b=0;b<4;++b) {
+                uint32_t random = 0x13579bdu;
+                const int blocks = rendering ? 64 : 4;
+                for(int b=0;b<blocks;++b) {
+                    if (rendering) for (int n=0;n<256;++n) {
+                        random ^= random << 13; random ^= random >> 17; random ^= random << 5;
+                        left[n] = float(int32_t(random & 0xffffffu) - 0x800000) / 67108864.f;
+                        right[n] = -left[n] * .5f;
+                    }
+                    data.inputParameterChanges = (b == (profile == "render-replay" ? 32 : 0)) ? changes : nullptr;
                     require(audio->process(data)==kResultOk, "process queue");
-                    data.inputParameterChanges=nullptr;
-                    for(auto v:outL) require(std::isfinite(v), "finite output");
+                    for(int n=0;n<256;++n) {
+                        require(std::isfinite(outL[n]) && std::isfinite(outR[n]), "finite stereo output");
+                        if (rendering) {
+                            const float pair[]{outL[n],outR[n]};
+                            rendered.write(reinterpret_cast<const char*>(pair), sizeof pair);
+                        }
+                    }
                 }
+                if (rendering) { rendered.close(); require(bool(rendered), "write render"); }
                 require(audio->setProcessing(false)==kResultOk,"stop");
             } catch(...) { error=std::current_exception(); }
         });
@@ -345,6 +361,17 @@ int main(int argc, char** argv) {
             require(!again->bytes.empty() && component->setState(again)==kResultOk,"dirty restore");
             again->position=0;require(controller->setComponentState(again)==kResultOk,"dirty controller restore");
             release(again);
+        }
+        if (rendering) {
+            std::ofstream metadata(output / "render.txt");
+            metadata << "sample_rate=48000\nblock_size=256\nchannels=2\nframes=16384\nlatency="
+                     << audio->getLatencySamples() << "\nactual_daw=NOT_ASSESSED\n";
+            std::ofstream normalized(output / "normalized.tsv");
+            normalized << "id\tvalue\n" << std::setprecision(17);
+            for(int i=0;i<controller->getParameterCount();++i) {
+                ParameterInfo info{}; require(controller->getParameterInfo(i,info)==kResultOk,"normalized parameter info");
+                normalized << info.id << '\t' << controller->getParamNormalized(info.id) << '\n';
+            }
         }
         auto* saved = new Stream;
         require(component->getState(saved)==kResultOk && !saved->bytes.empty(), "getState");

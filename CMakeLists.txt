@@ -523,3 +523,14 @@ add_test(NAME ChimeraEQLegacyFixtureIntegrity COMMAND ${Python3_EXECUTABLE}
 add_test(NAME ChimeraEQLegacyEvidenceTests COMMAND ${Python3_EXECUTABLE}
   "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_eq_legacy_fixture.py")
 set_tests_properties(ChimeraEQLegacyStateTests PROPERTIES DEPENDS ChimeraEQLegacyFixtureIntegrity)
+
+juce_add_console_app(ChimeraEQNormalizationTests PRODUCT_NAME "Chimera EQ Normalization Tests")
+target_sources(ChimeraEQNormalizationTests PRIVATE Tests/EQNormalizationTests.cpp)
+target_include_directories(ChimeraEQNormalizationTests PRIVATE Source)
+target_link_libraries(ChimeraEQNormalizationTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraEQNormalizationTests COMMAND ChimeraEQNormalizationTests
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/fixtures/eq-beta2" "${CMAKE_BINARY_DIR}/eq-legacy")
+set_tests_properties(ChimeraEQNormalizationTests PROPERTIES TIMEOUT 240 RUN_SERIAL TRUE DEPENDS ChimeraEQLegacyStateTests)
+
+add_test(NAME ChimeraEQNormalizationEvidenceTests COMMAND ${Python3_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_eq_normalization_render.py")

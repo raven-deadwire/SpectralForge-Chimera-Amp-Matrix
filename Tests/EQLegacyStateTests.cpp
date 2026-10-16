@@ -2,6 +2,7 @@
 // corrupt-metadata coverage remains in GraphicalEQEditingTests.cpp.
 #include "PluginProcessor.h"
 #include "EQParameterAssertions.h"
+#include "EQNormalizationContract.h"
 #include "IRStateAssets.h"
 #include <array>
 #include <iostream>
@@ -32,14 +33,16 @@ void restored(const Values& before,ChimeraProcessor& p) {
         auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(p.getParameters()[i]);
         check(parameter!=nullptr,"restore parameter type");
         const float canonical=parameter->convertFrom0to1(parameter->convertTo0to1(before[size_t(i)]));
-        if(!chimeraTest::sameFloatBits(after[size_t(i)],canonical)
-           || std::abs(after[size_t(i)]-before[size_t(i)])>std::max(.0001f,std::abs(before[size_t(i)])*.000002f)) {
+        if(!eqNormalization::restoredRepresentation(*parameter,before[size_t(i)],after[size_t(i)])) {
             ++valueFailures;
             std::cout<<"FAIL_RESTORE id="<<parameter->paramID<<" index="<<i
                      <<std::setprecision(10)<<" before="<<before[size_t(i)]<<" canonical="<<canonical
                      <<" after="<<after[size_t(i)]<<" normalized_before="<<parameter->convertTo0to1(before[size_t(i)])
                      <<" normalized_after="<<parameter->convertTo0to1(after[size_t(i)])<<'\n';
         }
+        if(eqNormalization::retainedConstructor(*parameter,before[size_t(i)],after[size_t(i)]))
+            std::cout<<"RETAINED_CONSTRUCTOR id="<<parameter->paramID<<std::setprecision(10)
+                     <<" saved="<<before[size_t(i)]<<" raw="<<after[size_t(i)]<<"\n";
         ++canonicalChanges;
     }
     std::cout<<"RESTORE canonical_changes="<<canonicalChanges<<'\n';
