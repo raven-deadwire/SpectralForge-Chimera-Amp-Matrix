@@ -1,5 +1,11 @@
 # Tuner worker timing attribution
 
+2026-10-16 integration note: the original instrumentation scope below is retained.
+Generation handling is now reconciled with PR #80 and fixes the simultaneous
+expiry/new-generation discard. See
+[the integration evidence](evidence/tuner-integration-20261016/README_KO.md).
+QoS, estimator, timing semantics and acceptance thresholds are unchanged.
+
 Development-only follow-up to PR #71, source
 `f22b8cd48c0254518df79e070bdeb524ae97f2e7`.
 

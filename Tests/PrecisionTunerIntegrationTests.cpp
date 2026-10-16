@@ -18,6 +18,8 @@ float tone(double hz,double time,int kind){
     if(kind==2)x*=std::exp(-time*3); // common exponential decay, no pitch drift
     return float(x);
 }
+#include "TunerGenerationTests.h"
+
 bool normalQoSReference=false;
 struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{};};
 template<class T> NativeResult native(double rate,int block,double hz){
@@ -52,6 +54,8 @@ template<class T> NativeResult native(double rate,int block,double hz){
         for(const auto& f:feed)
             std::cerr<<std::setprecision(12)<<"FEED,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
                 <<1000*f.offset/rate<<','<<f.push<<','<<f.observed<<','<<f.hz<<','<<f.confidence<<'\n';
+        const auto d=tuner.diagnosticsForTest();
+        std::cerr<<"DIAGNOSTICS rate="<<rate<<" block="<<block<<" hz="<<hz<<" max_queue="<<d[0]<<" discarded="<<d[1]<<" expired_resets="<<d[2]<<" estimates="<<d[3]<<" max_compute_ms="<<d[4]<<" max_iteration_ms="<<d[5]<<'\n';
         const auto& trace=tuner.timingAfterStopForTest();
         // Separate tagged CSV stream on stderr; retain every estimate, including
         // rejected/generation-discarded observations and routes that fail gates.
@@ -67,6 +71,48 @@ template<class T> NativeResult native(double rate,int block,double hz){
     }
 #endif
     return result;
+}
+void coldMixedQueue(){
+#if CHIMERA_TUNER_TEST_HOOKS
+    spectralforge::Tuner tuner;tuner.prepare(48000);juce::AudioBuffer<float> audio(2,256);
+    tuner.pauseWorkerForTest(450);const auto requested=Clock::now();
+    while(!tuner.workerPausedForTest() && Clock::now()-requested<std::chrono::milliseconds(250))
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(tuner.workerPausedForTest(),"Cold queue hook did not reach worker");
+    const auto iteration=tuner.completedWorkerIterationsForTest();
+    for(int block=0;block<40;++block){
+        for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,(block*256+n)/48000.,1));
+        tuner.push(audio,true);
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(280));
+    tuner.push(audio,true); // insufficient fresh input after an unconsumed gap
+    const auto resumed=Clock::now();
+    while(tuner.completedWorkerIterationsForTest()==iteration && Clock::now()-resumed<std::chrono::milliseconds(500))
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(tuner.completedWorkerIterationsForTest()!=iteration,"Cold queue worker did not resume");
+    require(tuner.frequency()==0 && tuner.confidence()==0,"Cold mixed queue revived pre-gap history");
+    tuner.stop();std::cerr<<"PASS cold mixed-generation queued input cannot revive pre-gap pitch\n";
+#endif
+}
+void delayedEnable(){
+#if CHIMERA_TUNER_TEST_HOOKS
+    spectralforge::Tuner tuner;tuner.prepare(48000);juce::AudioBuffer<float> audio(2,256);
+    tuner.pauseWorkerForTest(210);
+    const auto requested=Clock::now();
+    while(!tuner.workerPausedForTest() && Clock::now()-requested<std::chrono::milliseconds(250))
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(tuner.workerPausedForTest(),"Delayed enable hook did not reach worker");
+    const auto start=Clock::now();double acquired=-1;
+    for(int block=0;block<94;++block){
+        for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(27.5,(block*256+n)/48000.,1));
+        tuner.push(audio,true);
+        std::this_thread::sleep_until(start+std::chrono::microseconds((block+1)*5333));
+        if(acquired<0 && std::abs(error(tuner.frequency(),27.5))<.1 && tuner.confidence()>.9)
+            acquired=std::chrono::duration<double,std::milli>(Clock::now()-start).count();
+    }
+    tuner.stop();std::cerr<<"DELAYED_ENABLE acquire_ms="<<acquired<<'\n';
+    require(acquired>0 && acquired<290,"Delayed enable discarded current-generation fresh input");
+#endif
 }
 void channelContinuity(){
     spectralforge::Tuner tuner;tuner.prepare(48000);juce::AudioBuffer<float> audio(2,256);
@@ -208,8 +254,12 @@ void timingAttribution(){
 #endif
 }
 int main(int argc,char** argv){try{
+    if(argc==2 && std::string(argv[1])=="--generation-reenable-only"){generationTransition(false);return 0;}
+    if(argc==2 && std::string(argv[1])=="--generation-resume-only"){generationTransition(true);return 0;}
     normalQoSReference=argc==2 && std::string(argv[1])=="--normal-qos-reference";
     std::cerr<<"WORKER_QOS_REFERENCE,"<<normalQoSReference<<'\n';
+    if(argc==2 && std::string(argv[1])=="--cold-queue-only"){coldMixedQueue();return 0;}
+    if(argc==2 && std::string(argv[1])=="--delayed-enable-only"){delayedEnable();return 0;}
     if(argc==2 && std::string(argv[1])=="--timing-only"){timingAttribution();return 0;}
     if(argc==2 && std::string(argv[1])=="--stale-only"){stalledWorkerFreshness();return 0;}
     std::cout<<std::setprecision(10)<<std::unitbuf;
@@ -240,7 +290,7 @@ int main(int argc,char** argv){try{
             ++failedRoutes;std::cerr<<"ROUTE FAIL rate="<<rate<<" block="<<block<<" hz="<<hz<<" acquire="<<b.acquire<<" settle="<<b.settle<<" error="<<b.cents<<'\n';
         }
     }
-    channelContinuity();lifecycle();stalledWorkerFreshness();timingAttribution();
+    channelContinuity();lifecycle();stalledWorkerFreshness();delayedEnable();coldMixedQueue();generationTransition(false);generationTransition(true);timingAttribution();
     require(failedRoutes==0,"Native acquisition/settle/accuracy gate failed; all route rows retained");
     std::cerr<<"PASS "<<count<<" kernel cases and 32 native A/B routes. Synthetic sine/harmonic/exponential-decay maxima: "<<worst[0]<<' '<<worst[1]<<' '<<worst[2]<<" ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.\n";
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

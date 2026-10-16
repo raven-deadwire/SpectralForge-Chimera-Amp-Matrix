@@ -1,0 +1,24 @@
+{
+  "status": "local_pass_native_ci_pending",
+  "release_approved": false,
+  "source_scope": "Pre-commit local workspace, file hashes below; native CI must bind exact pushed SHA",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce": "8.0.8",
+  "local_ctest_count": 8,
+  "local_ctest_pass": 8,
+  "local_routes": 32,
+  "local_max_acquire_ms": 194.542407,
+  "local_max_settle_ms": 205.167074,
+  "local_max_absolute_error_cent": 5.144126528e-05,
+  "raw_log_sha256": "6b67b2909a78b5944dcf57acb8948fd71ed30634a741931d9b69ab88e6d02cfb",
+  "source_files_sha256": {
+    "Source/GlobalDSP.h": "e36e8cd1660158339d4439cfa139a3d46cb37c4d5aa85cbd219599851f37f269",
+    "Tests/PrecisionTunerIntegrationTests.cpp": "378fd31c584eeb03be0e2fb62dc6bba2d9e9bbbdf0f7902978c860593e456f98",
+    "Tests/TunerGenerationTests.h": "ae705ceeb7cfdccdc9fdd9fec25c3ca1aca4e273c134ac508200580652f837d9",
+    "Source/PrecisionTuner.h": "0da1dcd39288af8bbdb484b6b1ed4621824901be14607206f8fb0837afe2b512",
+    "CMakeLists.txt": "e3939c13ab9e604e609ac053265358ce7e6c14d5912e82590a58e8f3caa30026"
+  },
+  "native_ci": "PENDING; final exact-SHA run IDs and conclusions recorded in Draft PR",
+  "daw_acceptance": "NOT RUN"
+}

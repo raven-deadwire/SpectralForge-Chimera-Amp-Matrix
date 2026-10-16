@@ -1,0 +1,52 @@
+[
+  {
+    "path": "Source/PrecisionTuner.h",
+    "sha256": "0da1dcd39288af8bbdb484b6b1ed4621824901be14607206f8fb0837afe2b512",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "Source/PrecisionTunerPanel.h",
+    "sha256": "76c9db1fe7cbce1a0605c7a4a9c6c6e44741fafe31ba3b42ee315e3b5e383d9e",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "Source/PluginProcessor.cpp",
+    "sha256": "a646ea726a92dd7093379c99f323a749f430b0f33f353de328cd29d3fc3407c0",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "Source/PluginProcessor.h",
+    "sha256": "1924ca4962c4430e726b827483e6f7da7f0a4c994246da7151570a15455f0c45",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "Source/PluginEditor.cpp",
+    "sha256": "8a4256600ad141e2d01b48637a6c0114f65a8f214fbeb95f437fa2ec4bd1d5b6",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "Source/PluginEditor.h",
+    "sha256": "fb48ad0740e10a00f9440b4892a7bebff33a4f80674918655df3c151ae558ce5",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "Tests/PrecisionTunerTests.cpp",
+    "sha256": "64eca9c4b77333b43ae669b8e0231611fa0ce3de5441f5bec09504dd5a61b441",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "Tests/PrecisionTunerInvariantTests.h",
+    "sha256": "2fb9b457ae3d95f24a8de53fcf0269a465923d214b0e5a051262ab83474bb5e1",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "VERSION",
+    "sha256": "33158972a53877b421cfe2598b8d93cab169963a4964b45ee889e85349979018",
+    "unchanged_from_pr71": true
+  },
+  {
+    "path": "RELEASE_CHANNEL",
+    "sha256": "d11a8a9975b043d17eb65d496a998f9f7cf9d0462f1b5b1a9024b7251873c529",
+    "unchanged_from_pr71": true
+  }
+]
