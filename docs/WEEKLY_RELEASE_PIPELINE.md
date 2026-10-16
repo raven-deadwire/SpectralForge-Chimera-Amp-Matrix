@@ -1,9 +1,12 @@
 # Weekly release publication
 
 Implementation follow-up to [planning PR #50](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/50).
-The October 14, 2026 test build, October 15 candidate and October 16
-`v1.3.1-beta.3` publication remain conditional targets. The former beta.2 target was published on October 13; October 16 now reserves beta.3 from #62, subject to approved expiry, fresh binary checks and publication approval. This infrastructure
-change grants no release approval and does not publish or relabel any released beta.
+As of October 17 KST the October 16 `v1.3.1-beta.3` target is missed.
+Its reservation is deferred, all active dates are null, and publisher selection is
+blocked until explicit re-reservation review. The original dates remain history.
+October 23 `1.3.2-beta.1` remains conditional. If that or a higher Chimera version
+ships first, cancel the unpublished beta.3. This change grants no date, expiry or
+publication approval; existing tags, binaries and update feeds remain immutable.
 
 ## Entry points and identity
 
@@ -44,10 +47,14 @@ It has no dependency on `release/open-beta-1.3.1` or another per-version branch.
 Review can run from a development branch. A new default-branch commit supersedes
 an in-flight controller, including a commit that withdraws approval.
 
-## October 14 candidate preparation
+## Candidate preparation after explicit reservation review
+
+The beta.3 commands below are identity examples, not an active reservation.
+They remain blocked while beta.3 is deferred. First review an unused active date
+and the ordering of later versions; update all calendar mirrors together.
 
 1. Integrate the reviewed infrastructure and intended product changes into the
-   candidate source. For the reserved beta.3, set `VERSION` to `1.3.1`, `RELEASE_CHANNEL` to
+   candidate source. If beta.3 is explicitly re-reserved, set `VERSION` to `1.3.1`, `RELEASE_CHANNEL` to
    `beta.3`, and the matching `Validation/release-policy.json.release_scope`
    identity to `1.3.1-beta.3` / `1.3.1` / `beta.3` / `beta_1_3`.
 2. Keep `preparation_authorized=true`, retain the beta check inventory and its two
@@ -203,6 +210,6 @@ in native C++. Historical beta.1 policies used by regression fixtures are frozen
 separately so a legitimate beta.2/RC/stable source bump does not break historical
 contracts or silently change the active approval policy.
 
-## Calendar reservation guard (2026-10-15)
+## Calendar reservation guard (2026-10-17)
 
-The canonical reservations are in `Validation/release-calendar.json`. The publisher validates this plan against recorded history and live GitHub tags/public releases before preparation and again before publication. A reservation is not approval. Newly published rows must be marked published and recorded in the immutable history before the next reservation check. A missed date requires an explicit unpublished reservation remap; no automatic tag reuse, source relabeling or version downgrade is allowed. See [the current calendar](RELEASE_CALENDAR_2026_2027.md).
+The canonical reservations are in `Validation/release-calendar.json`. The publisher validates this plan against recorded history and live GitHub tags/public releases before preparation and again before publication. A reservation is not approval. Newly published rows must be marked published and recorded in the immutable history before the next reservation check. Schema 3 separates original weekly checkpoints from active dates. A missed date is deferred with null active dates until explicit reservation review; deferred/cancelled targets cannot be selected. Target checks and live checks use the current KST date, including the final post-upload callback, so crossing midnight cannot publish an elapsed reservation. Offline plan audits use the recorded review date. Markdown, catalog status/target mirrors and the central roadmap status table are checked together. If a higher version is observed, the lower deferred reservation must be recorded as cancelled; no automatic tag reuse, source relabeling or version downgrade is allowed. See [the current calendar](RELEASE_CALENDAR_2026_2027.md).

@@ -1,6 +1,6 @@
 # Chimera development roadmap, October 2026–December 2027
 
-Updated: **2026-10-15, Asia/Seoul**. The owner requested a new remaining-work
+Updated: **2026-10-17, Asia/Seoul**. The owner requested a new remaining-work
 schedule after using 1.3.1: simplify the signal-chain display, substantially
 improve the EQ analyzer and editing workflow, implement the missing
 [FabFilter reference functions](https://www.fabfilter.com/products), and add
@@ -19,7 +19,7 @@ assumed. The earlier 2028 chat proposal was not applied to this repository.
 
 Dates below are **internal work and candidate targets, not guaranteed public
 release dates**. Weekly changes continue during every larger feature window.
-The October 23 target is the improved EQ/workflow installer; the lifecycle candidate is conditionally targeted at the October 16 weekly checkpoint. Re-estimate
+The October 23 target is the improved EQ/workflow installer; the lifecycle candidate missed the October 16 checkpoint and is deferred with no replacement date. Re-estimate
 the next four weeks using actual results; do not wait for a calendar boundary.
 
 ## Exact versions and deployment calendar
@@ -35,7 +35,7 @@ Assign **1.3.3 to shared Original FX**; Room Core becomes **1.3.4**, retaining
 February 22–March 19. Version 1.4.0 onward keeps its existing windows. Use three
 numeric components for public versions, retain the existing Chimera `v` tags,
 and give the two focused products and two NAM packs separate tag namespaces.
-October conditional targets are 1.3.1-beta.3 (October 16, #62), 1.3.2-beta.1 (October 23, #68) and 1.3.2-beta.2 (October 30). November continues 1.3.2-beta.3 through beta.6. Beta counters increase
+October 16 beta.3 (#62) is deferred with no active date. Conditional targets remain 1.3.2-beta.1 (October 23, #68/#90) and 1.3.2-beta.2 (October 30). November continues 1.3.2-beta.3 through beta.6. Beta counters increase
 per product/base version; already published tags and files remain immutable.
 
 Chimera 1.x stays on its existing public-beta track in this plan. The 1.3.3
@@ -54,7 +54,17 @@ explicitly displaces later work instead of assuming a second full-time team.
 
 Main already implements explicit source/version weekly publication, beta/RC/stable generation and updater transitions. Calendar CI and the publisher now check reservations against immutable public history and live tags/releases. VERSION/RELEASE_CHANNEL remain the source identity, not a value inferred from the calendar. Historical beta.2 approval does not authorize another source/version. Product-specific identities and real installation/host qualification remain required.
 
-#62 has no approved expiry or publication decision. #68 has its own approved expiry but failed current-head native workflows and remains release-blocked. October 16 is conditional on real changes, three-OS checks, install/update/repair/uninstall/user-data acceptance and source-specific approval. On failure defer/remap unpublished targets. If 1.3.2 ships first, cancel the lower unpublished 1.3.1-beta.3 reservation. November is follow-up qualification and substantive improvement of the integrated dynamics, not duplicate delivery credit.
+#62 remains Draft with no approved expiry or publication decision. As of October 17 KST, beta.3 has no public tag/release and its October 16 target is missed. Its active test/candidate/publication dates are null; the original dates remain historical. Resumption requires explicit reservation review before a higher version is published and before publisher selection. If a higher Chimera version ships first, cancel the unpublished beta.3 and retain the missed/cancellation record. Do not silently roll it forward, move it behind 1.3.2-beta.1, or force 1.3.2 to wait for it. If both slip, review their reservations separately without granting dates, expiry or release approval.
+
+#68 retains its version-specific expiry approval. Integration candidate #90 `428d4b98` remains Draft: graphical EQ passed on three OS, but macOS tuner/CAB/product, Linux/macOS EQ state and consolidated gate checks failed. October 23 stays conditional on fresh exact-source platform/package/host acceptance and separate publication approval. This reservation correction grants neither product acceptance nor a new expiry. November remains substantive follow-up, not duplicate delivery credit.
+
+<!-- release-reservation-status:start -->
+| Version | Original checkpoint (KST) | Active target (KST) | Reservation status |
+|---|---|---|---|
+| `1.3.1-beta.3` | 2026-10-16 | TBD | deferred |
+| `1.3.2-beta.1` | 2026-10-23 | 2026-10-23 | blocked |
+| `1.3.2-beta.2` | 2026-10-30 | 2026-10-30 | planned |
+<!-- release-reservation-status:end -->
 
 ## Schedule authority and delivery status
 
@@ -199,7 +209,7 @@ measured carryover explicitly instead of counting unfinished controls as done.
 
 | Week ending, KST | Minimum reviewable weekly increment |
 |---|---|
-| 2026-10-16 | Qualify #62 lifecycle and state preservation with approved expiry, actual code improvement and fresh three-OS/install/update evidence; verify the explicit-version publisher and reservation guard; freeze the October 23 EQ minimum and product shared-core scope |
+| 2026-10-16 | Missed public target: #62 beta.3 deferred, replacement date TBD; retain internal CI scope separately. Expiry, fresh approved-date binary acceptance and publication approval remain unresolved. October 23 EQ/shared-core scope retained. |
 | 2026-10-23 | Improved EQ installer: five-block chain, large EQ, filled IN/OUT, smoothing/resolution/Freeze, persistent-slot add/delete and Undo/Redo |
 | 2026-10-30 | Remaining EQ workflow: multi-selection, band audition, local A/B, peak hold/range controls; full follow-up candidate or explicitly bounded carryover |
 | 2026-11-06 | Substantive Dynamic EQ/GR follow-up to the integrated #68 candidate using existing EQ nodes and repeatable audio |
@@ -569,8 +579,8 @@ because it appears in historical planning text.
 
 Owner instruction: incorporate the ongoing expanded amp research into the next
 update schedule. Register the research/qualification work in the **1.3.1-beta.3
-cycle (test October 14, candidate October 15, conditional publication October
-16, 2026 KST)**. This is not a promise that a newly researched DSP can qualify
+cycle (original test October 14, candidate October 15, missed publication target October
+16, 2026 KST; now deferred, replacement date TBD)**. This is not a promise that a newly researched DSP can qualify
 in that cycle. Preserve the existing UI/EQ, reliability and beta-lifecycle scope;
 research consumes the same bounded capacity.
 
