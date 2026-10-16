@@ -1,0 +1,24 @@
+{
+  "scope": "local synthetic calculator/CLI only",
+  "baseline_commit": "d27e0f549e1115d4ae7d918af0e7ea26caa1584d",
+  "before": {
+    "tests_run": 9,
+    "failures": 47,
+    "errors": 0,
+    "skipped": 0
+  },
+  "before_log_sha256": "4cb31f42dd949ce8120812ee501a1148b3a6d9b0208de499dd65362d480559b4",
+  "original_signature_scenarios": "PASS: PASS/REVISE/INVALID",
+  "release_gate_contracts": "PASS",
+  "release_scope_contracts": "PASS",
+  "release_consolidator": {
+    "tests": 31,
+    "failures": 0,
+    "errors": 0
+  },
+  "policy_claims": [],
+  "review_only": true,
+  "publisher_input": false,
+  "release_approved": false,
+  "expiry_approved": false
+}

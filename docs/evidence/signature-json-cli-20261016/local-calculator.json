@@ -1,0 +1,96 @@
+{
+  "schema": "spectralforge.chimera.calculator-contracts",
+  "schema_version": 1,
+  "synthetic_only": true,
+  "policy_claims": [],
+  "tests_run": 21,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "name": "test_all_measurements_are_required",
+      "status": "PASS"
+    },
+    {
+      "name": "test_all_measurements_reject_non_numeric_and_nonfinite_values",
+      "status": "PASS"
+    },
+    {
+      "name": "test_all_metric_arithmetic_and_clamp_boundaries",
+      "status": "PASS"
+    },
+    {
+      "name": "test_cli_preserves_pass_revise_and_invalid_results",
+      "status": "PASS"
+    },
+    {
+      "name": "test_cli_rejects_invalid_and_missing_measurements",
+      "status": "PASS"
+    },
+    {
+      "name": "test_common_bias_invariance",
+      "status": "PASS"
+    },
+    {
+      "name": "test_exact_tie_and_empty_pair_contract",
+      "status": "PASS"
+    },
+    {
+      "name": "test_full_result_fields_and_bad_schema_cli",
+      "status": "PASS"
+    },
+    {
+      "name": "test_hard_failure_overrides_high_score",
+      "status": "PASS"
+    },
+    {
+      "name": "test_invalid_dsp",
+      "status": "PASS"
+    },
+    {
+      "name": "test_json_roundtrip",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_measurement",
+      "status": "PASS"
+    },
+    {
+      "name": "test_normal_integer_and_float_measurements_are_preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "test_numeric_measurements_exclude_bool_and_nonfinite",
+      "status": "PASS"
+    },
+    {
+      "name": "test_original_hard_gate_boundaries",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_bias_centering_rmse_and_weights",
+      "status": "PASS"
+    },
+    {
+      "name": "test_reference_shape",
+      "status": "PASS"
+    },
+    {
+      "name": "test_schema_and_missing_song",
+      "status": "PASS"
+    },
+    {
+      "name": "test_score_and_critical_boundaries",
+      "status": "PASS"
+    },
+    {
+      "name": "test_secondary_three_of_four",
+      "status": "PASS"
+    },
+    {
+      "name": "test_ties_and_minimum_directional_gap",
+      "status": "PASS"
+    }
+  ]
+}

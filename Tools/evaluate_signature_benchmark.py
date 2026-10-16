@@ -1,14 +1,26 @@
 #!/usr/bin/env python3
 """Evaluate three Deadwire Signature renders against frozen relative master targets."""
 from __future__ import annotations
-import argparse,json,math,sys
+import argparse,json,math,sys,tempfile
 from pathlib import Path
 from itertools import combinations
 
 SONGS=("crom","wild","azhi")
 
 def clamp01(x): return max(0.0,min(1.0,x))
-def load(path): return json.loads(Path(path).read_text(encoding="utf-8-sig"))
+def unique_object(pairs):
+    result={}
+    for key,value in pairs:
+        if key in result: raise ValueError(f"Duplicate JSON key: {key!r}")
+        result[key]=value
+    return result
+
+def reject_constant(value):
+    raise ValueError(f"Non-standard JSON constant: {value}")
+
+def load(path):
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"),
+                      object_pairs_hook=unique_object,parse_constant=reject_constant)
 def finite(x): return type(x) in (int,float) and math.isfinite(float(x))
 
 def evaluate(policy,renders):
@@ -91,12 +103,34 @@ def evaluate(policy,renders):
 def main():
     p=argparse.ArgumentParser();p.add_argument("--policy",required=True);p.add_argument("--renders",required=True);p.add_argument("--output",required=True)
     a=p.parse_args()
+    output=Path(a.output)
+    temporary=None
+    owns_output=False
     try:
+        # Never delete an input when invalidating the previous run's output,
+        # including relative paths, symlinks and hard links to the same file.
+        for source in (Path(a.policy),Path(a.renders)):
+            if output.resolve()==source.resolve() or (output.exists() and source.exists() and output.samefile(source)):
+                raise ValueError("Output must differ from input policy and renders")
+        owns_output=True
+        output.unlink(missing_ok=True)
         result=evaluate(load(a.policy),load(a.renders))
-        Path(a.output).parent.mkdir(parents=True,exist_ok=True)
-        Path(a.output).write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
-        print(json.dumps({"verdict":result["verdict"],"overall_score":result.get("overall_score"),"reasons":result.get("reasons",[])},indent=2))
+        payload=json.dumps(result,indent=2,allow_nan=False)+"\n"
+        output.parent.mkdir(parents=True,exist_ok=True)
+        # Publish only a complete current result; close before replace on Windows.
+        with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",dir=output.parent,
+                                         prefix=f".{output.name}.",suffix=".tmp",delete=False) as stream:
+            temporary=Path(stream.name)
+            stream.write(payload)
+        temporary.replace(output)
+        temporary=None
+        print(json.dumps({"verdict":result["verdict"],"overall_score":result.get("overall_score"),"reasons":result.get("reasons",[])},indent=2,allow_nan=False))
         return 0 if result["verdict"]=="PASS" else 1
     except Exception as exc:
+        for path in (temporary,output if owns_output else None):
+            if path is not None:
+                try: path.unlink(missing_ok=True)
+                except OSError as cleanup_error:
+                    print(f"Could not invalidate output {path}: {cleanup_error}",file=sys.stderr)
         print(f"SIGNATURE BENCHMARK INFRASTRUCTURE ERROR: {exc}",file=sys.stderr);return 2
 if __name__=="__main__": raise SystemExit(main())
