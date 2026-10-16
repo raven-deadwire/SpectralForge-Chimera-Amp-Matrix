@@ -1,0 +1,77 @@
+diff --git a/Source/GraphicalEQ.h b/Source/GraphicalEQ.h
+index 3b71095..855aa80 100644
+--- a/Source/GraphicalEQ.h
++++ b/Source/GraphicalEQ.h
+@@ -59,7 +59,10 @@ inline EQCoefficients eqCoefficients(int type,double frequency,double gain,doubl
+ struct EQAnalyzerFrame {float inputL{},outputL{},inputR{},outputR{};};
+ class EQAnalyzerFIFO {
+ public:
+-    static constexpr uint32_t capacity=8192;
++    // Analysis-only scheduling headroom: 341.33 ms at 192 kHz. The old 8192
++    // frames provided only 2.67 ms spare time beyond the nominal 40 ms UI tick.
++    // A finite queue still reports real losses after longer consumer stalls.
++    static constexpr uint32_t capacity=65536;
+     void push(EQAnalyzerFrame frame) noexcept {
+         const auto w=write.load(std::memory_order_relaxed);
+         if(w-read.load(std::memory_order_acquire)>=capacity) {dropped.fetch_add(1,std::memory_order_relaxed);return;}
+@@ -70,6 +73,16 @@ public:
+         if(r==write.load(std::memory_order_acquire))return false;
+         frame=frames[r%capacity];read.store(r+1,std::memory_order_release);return true;
+     }
++    // Consumer only. Snapshot/drain never reset the producer's index or touch
++    // unpublished sample storage, so the audio producer can continue running.
++    uint32_t pendingSamples() const noexcept {
++        return write.load(std::memory_order_acquire)-read.load(std::memory_order_relaxed);
++    }
++    uint32_t discardPending() noexcept {
++        const auto r=read.load(std::memory_order_relaxed);
++        const auto w=write.load(std::memory_order_acquire);
++        read.store(w,std::memory_order_release);return w-r;
++    }
+     std::atomic<bool> enabled{false};
+     std::atomic<uint64_t> dropped{0};
+ private:
+diff --git a/Source/PluginProcessor.cpp b/Source/PluginProcessor.cpp
+index c856042..532f42a 100644
+--- a/Source/PluginProcessor.cpp
++++ b/Source/PluginProcessor.cpp
+@@ -104,6 +104,7 @@ bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
+ }
+ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
+ {
++    spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
+     const auto started=juce::Time::getHighResolutionTicks();
+     juce::ScopedNoDenormals noDenormals;
+     for(const auto metadata:midi) {
+@@ -344,6 +345,7 @@ juce::ValueTree ChimeraProcessor::captureCore()
+     auto saved=state.copyState();
+     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
+     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
++    eqEditState.saveMetadata(saved);
+     saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",10,nullptr);
+     return saved;
+ }
+@@ -370,6 +372,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
+ {
+     ++headRecallRevision;
+     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
++    spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
+     boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
+     const bool missingNative=!restored.getChildWithProperty("id",spectralforge::ampNativeModelID(0)).isValid();
+     const bool missingPost=!restored.getChildWithProperty("id",spectralforge::postNativeModelID(0)).isValid();
+@@ -429,6 +432,7 @@ void ChimeraProcessor::selectComparison(int slot)
+ }
+ void ChimeraProcessor::copyComparison()
+ {
++    eqEditState.barrier();
+     auto current=captureCore();std::lock_guard<std::mutex> lock(comparisonMutex);
+     comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
+ }
+@@ -454,6 +458,7 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
+             : spectralforge::isGuitarSignature(index)
+             ? spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount)
+             : spectralforge::factoryNativeSnapshot(state,index);
++        spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,snapshot,true);
+         state.replaceState(snapshot);
+         // Canonicalize host values as well as APVTS values. Bool/choice adapters
+         // may already cache the snapped value of a noncanonical host write and

@@ -1,0 +1,29 @@
+{
+  "beta2": "6033236cb81820a43679cbbd34be020804f9658d",
+  "pr83": "c837c7854584031bd22b0dacd4984f46c1262103",
+  "juce": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "files": [
+    {
+      "path": "Source/PluginProcessor.cpp",
+      "beta2_sha256": "5f9f1ef5455d367ea44fd85876028ec1ee6cfec416217ca5a87528a779c4a377",
+      "pr83_sha256": "0e61c1c6a2f0e0ae9e1280edb2962d26e4c5b651f68f6f6f304400e951309131"
+    },
+    {
+      "path": "Source/GraphicalEQ.h",
+      "beta2_sha256": "f4eed603a07c90af1c6e7df76200ad33682341daf6eb3b7636ee58b5cd28924d",
+      "pr83_sha256": "01a639554e7f04099e010c033ba6c116d495cb1c136a9bb41a490a9b81cb9673"
+    },
+    {
+      "path": "Source/FXParameters.h",
+      "beta2_sha256": "4c2d2b318aed5e11268257db792e2d3a6658f9b0fa9eba6fb62f9b4936796d39",
+      "pr83_sha256": "4c2d2b318aed5e11268257db792e2d3a6658f9b0fa9eba6fb62f9b4936796d39"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "beta2_sha256": "ce95e9ab32e89e94cec31f360afa6a990d4d8e8cf34515a7756738b984f47410",
+      "pr83_sha256": "40ecaeb9318b7fff4357e5ac84f41b8a9e8b93b5651a4db875163c282e5601a1"
+    }
+  ],
+  "product_source_tree": "d6de02d72f92d550ce131e8ac07109eb9ae99467",
+  "followup_product_source_changes": false
+}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="5"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="120"
+	timestamp="2026-10-16T19:20:17"
+	>
+	<testcase name="ChimeraEQLegacyStateTests" classname="ChimeraEQLegacyStateTests" time="5.73907" status="run">
+		<properties/>
+		<system-out>VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=1
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RESTORE canonical_changes=0
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+PASS real beta.2 fixture default.chimera: 4967 values / 24 fixed slots / delete-undo-redo / disk reopen / reuse / legacy lane IDs / single A
+VALUES stored_bits=4967 canonical_bits=0
+STAGE delete/undo/redo
+STAGE deleted save/reopen
+RESTORE canonical_changes=0
+STAGE deleted automation
+RESTORE canonical_changes=0
+STAGE reuse fixed slots
+STAGE reused save/reopen
+RETAINED_CONSTRUCTOR id=toneEQ_b4_q saved=0.7070000768 raw=0.7070000172
+RETAINED_CONSTRUCTOR id=finalEQ_b8_q saved=0.7070000768 raw=0.7070000172
+RESTORE canonical_changes=2
+STAGE reused automation
+STAGE automated save/reopen
+RESTORE canonical_changes=0
+PASS real beta.2 fixture pattern.chimera: 4967 values / 24 fixed slots / delete-un...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQLegacyFixtureIntegrity" classname="ChimeraEQLegacyFixtureIntegrity" time="0.110711" status="run">
+		<properties/>
+		<system-out>PASS fixture digests, released parameter count and missing occupancy
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQLegacyEvidenceTests" classname="ChimeraEQLegacyEvidenceTests" time="0.0843096" status="run">
+		<properties/>
+		<system-out>.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.022s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQNormalizationTests" classname="ChimeraEQNormalizationTests" time="114.864" status="run">
+		<properties/>
+		<system-out>PASS_NEGATIVE_CONTROLS normalized drift / same-normalized neighbours / NaN / state corruption / audible-path EQ change
+OBSERVE_PRE_SAVE rate=44100 changed_samples=7596 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=48000 changed_samples=7238 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=96000 changed_samples=6136 max_abs=1.4901161193847656e-08 bit_identical=0
+OBSERVE_PRE_SAVE rate=192000 changed_samples=5154 max_abs=1.4901161193847656e-08 bit_identical=0
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/Tests/fixtures/eq-beta2/default.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/default/deleted.chimera fresh_cycles=8 same_instance_cycles=8 ab_cycles=8 render_routes=8 samples_per_render=32768 exact_bits=true
+PASS_NORMALIZATION /workspace/scratch/5596669c3948/chimera/build-eq/eq-legacy/default/reused.chimera fres...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQNormalizationEvidenceTests" classname="ChimeraEQNormalizationEvidenceTests" time="0.0756912" status="run">
+		<properties/>
+		<system-out>.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.026s
+
+OK
+</system-out>
+	</testcase>
+</testsuite>

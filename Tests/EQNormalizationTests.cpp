@@ -114,9 +114,18 @@ void negativeControls() {
     auto p = std::make_unique<ChimeraProcessor>();
     for (auto* parameter : p->getParameters()) {
         auto* ranged = dynamic_cast<juce::RangedAudioParameter*>(parameter);
-        require(ranged != nullptr && eqNormalization::bits(eqNormalization::constructorRaw(*ranged),
-                    p->parameters().getRawParameterValue(ranged->paramID)->load()),
-                "constructor formula must match actual fresh APVTS raw cache");
+        require(ranged != nullptr, "ranged parameter");
+        if (!eqNormalization::retainedDefaultDomain(*ranged)) continue;
+        const auto initial = eqNormalization::constructorRaw(*ranged);
+        const auto actual = p->parameters().getRawParameterValue(ranged->paramID)->load();
+        if (!eqNormalization::retainsConstructorOnTreeInit(*ranged)) {
+            require(!eqNormalization::retainedConstructor(*ranged, initial, initial),
+                    "non-retained constructor representation must be rejected");
+            continue;
+        }
+        require(eqNormalization::bits(initial, actual),
+                "constructor formula must match actual fresh APVTS raw cache " + ranged->paramID
+                    + " predicted=" + juce::String(initial,10) + " actual=" + juce::String(actual,10));
     }
     auto* q = p->parameters().getParameter("toneEQ_b4_q");
     const float requested = q->convertFrom0to1(q->convertTo0to1(.70710678f));
@@ -137,7 +146,9 @@ void negativeControls() {
     require(rejectedEquivalentNeighbours > 0, "same-normalized negative control coverage");
     require(!eqNormalization::restoredRepresentation(*q, requested, std::numeric_limits<float>::quiet_NaN()), "NaN rejected");
     auto a = save(*p); auto t = tree(a);
-    t.getChildWithProperty("id", "output").setProperty("value", -6.f, nullptr);
+    auto outputNode = t.getChildWithProperty("id", "output");
+    require(outputNode.isValid(), "output parameter for corruption control");
+    outputNode.setProperty("value", float(outputNode.getProperty("value")) + 3.f, nullptr);
     juce::MemoryBlock b; juce::AudioProcessor::copyXmlToBinary(*t.createXml(), b);
     require(!tree(a).isEquivalentTo(tree(b)), "serialized parameter corruption detected");
     const auto dry = render(*p, 48000, 256);
