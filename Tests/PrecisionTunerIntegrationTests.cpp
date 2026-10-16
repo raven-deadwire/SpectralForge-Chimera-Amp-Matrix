@@ -187,15 +187,17 @@ void timingAttribution(){
     while(tuner.frequency()==0 && Clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
     require(std::abs(error(tuner.frequency(),110))<.1,"First queued window failed to acquire");
 #if JUCE_MAC
+    require(tuner.wakeTimerActiveForTest(),"Active macOS wake timer did not start");
     require(tuner.workerPriorityForTest()==int(juce::Thread::Priority::highest),"Active tuner QoS not applied");
     tuner.push(audio,false);
     deadline=Clock::now()+std::chrono::seconds(1);
     while(tuner.workerPriorityForTest()!=int(juce::Thread::Priority::normal) && Clock::now()<deadline)
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     require(tuner.workerPriorityForTest()==int(juce::Thread::Priority::normal),"Disabled tuner QoS not restored");
+    require(!tuner.wakeTimerActiveForTest(),"Disabled macOS timer still running");
     require(tuner.frequency()==0 && tuner.confidence()==0,"QoS transition exposed disabled pitch");
 #endif
-    tuner.stop();const auto& trace=tuner.timingAfterStopForTest();
+    tuner.stop();require(!tuner.wakeTimerActiveForTest(),"Stopped worker retained wake timer");const auto& trace=tuner.timingAfterStopForTest();
     require(trace.size==1 && trace.dropped==0,"One window must yield one observation");
     const auto& r=trace.rows[0];
     require(r.windowComplete>=before && r.windowComplete<=after,"Completion timestamp not from input publication");

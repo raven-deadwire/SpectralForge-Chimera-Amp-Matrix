@@ -3,6 +3,7 @@
 #include "PolyPitch.h"
 #include "LifecycleTrace.h"
 #include "PrecisionTuner.h"
+#include "MacTunerWakeTimer.h"
 #include <atomic>
 #include <array>
 #if CHIMERA_TUNER_TEST_HOOKS
@@ -150,6 +151,7 @@ class Tuner : private juce::Thread {
     std::atomic<int> testWorkerPriority{int(juce::Thread::Priority::normal)};
     std::atomic<int> testPauseMilliseconds{0};
     std::atomic<bool> testWorkerPaused{false};
+    std::atomic<bool> testWakeTimerActive{false};
     std::atomic<unsigned> testCompletedIterations{0};
 #endif
 public:
@@ -226,6 +228,7 @@ public:
     // Caller must stop/join before reading: no locks or allocation on the worker.
     const tuning::TimingTrace& timingAfterStopForTest() const { jassert(stopped()); return testTiming; }
     void useNormalQoSForTest(bool normal) { jassert(stopped());testNormalQoS=normal; }
+    bool wakeTimerActiveForTest() const { return testWakeTimerActive.load(); }
     int workerPriorityForTest() const { return testWorkerPriority.load(); }
     void pauseWorkerForTest(int milliseconds) { testPauseMilliseconds.store(milliseconds); notify(); }
     bool workerPausedForTest() const { return testWorkerPaused.load(); }
@@ -248,6 +251,7 @@ private:
         unsigned seen=generation.load();double lastReceived=0;
 #if JUCE_MAC
         bool interactive=false;
+        MacTunerWakeTimer wakeTimer(*this);
 #endif
         while(!threadShouldExit())
         {
@@ -270,8 +274,10 @@ private:
             if(requested!=interactive) {
                 setPriority(requested?juce::Thread::Priority::highest:juce::Thread::Priority::normal);
                 interactive=requested;
+                if(requested)wakeTimer.start();else wakeTimer.stop();
 #if CHIMERA_TUNER_TEST_HOOKS
                 testWorkerPriority.store(int(getPriority()));
+                testWakeTimerActive.store(wakeTimer.active());
 #endif
             }
 #endif
@@ -329,8 +335,20 @@ private:
 #if CHIMERA_TUNER_TEST_HOOKS
             testCompletedIterations.fetch_add(1);
 #endif
+#if JUCE_MAC
+            // Interruptible by stop(), test pauses and the strict timer. Keep
+            // the legacy wait for disabled/normal-reference/failure fallback.
+            wait(wakeTimer.active()?-1:10);
+#else
             wait(10);
+#endif
         }
+#if JUCE_MAC
+        wakeTimer.stop();
+#if CHIMERA_TUNER_TEST_HOOKS
+        testWakeTimerActive.store(false);
+#endif
+#endif
     }
 };
 }
