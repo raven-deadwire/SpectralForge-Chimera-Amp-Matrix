@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Exact released-binary/candidate ABI renders. No DAW acceptance is inferred."""
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import struct
@@ -29,12 +28,14 @@ def audio_equal(left, right):
 
 def isolate(source, target):
     tree = xml(Path(source).read_bytes())
-    # Test fixture only. Keep all EQ values, occupancy, A/B, and auxiliary nodes.
-    # Disable unrelated amp/cab/time-dependent effects in the active root.
+    # Test fixture only. Keep EQ bands, occupancy, A/B, and auxiliary nodes.
+    # Enable both EQ banks (legacy A defaults bypass them) and disable unrelated
+    # amp/cab/time-dependent effects in the active root. Never mutate originals.
     off = {'gateon', 'transposeon', 'tuneron', 'preon', 'precompon', 'filteron',
            'fuzzon', 'booston', 'boardEnabled', 'buscompon', 'preampon', 'eqon',
            'choruson', 'flangeron', 'phaseron', 'tremoloon', 'delayon', 'reverbon',
-           'doubleron', 'metronome', 'lowcomp', 'mode', 'oversampling'}
+           'doubleron', 'metronome', 'lowcomp', 'mode', 'oversampling',
+           'toneEQ_bypass', 'finalEQ_bypass'}
     off.update(f'{prefix}{i}' for prefix in ('ampon', 'cab', 'level', 'bandtone') for i in range(1, 4))
     off.update({'input', 'output'})
     found = set()
@@ -42,7 +43,7 @@ def isolate(source, target):
         key = node.get('id')
         if key in off or (key.startswith('pn_') and key.endswith('_native')) or (key.startswith('nativeAmp_') and key.endswith('_enabled')):
             node.set('value', '0'); found.add(key)
-    essential = {'mode', 'gateon', 'boardEnabled', 'output', 'oversampling', 'ampon1', 'ampon2', 'ampon3', 'cab1', 'cab2', 'cab3'}
+    essential = {'mode', 'gateon', 'boardEnabled', 'output', 'oversampling', 'ampon1', 'ampon2', 'ampon3', 'cab1', 'cab2', 'cab3', 'toneEQ_bypass', 'finalEQ_bypass'}
     if not essential <= found:
         raise ValueError('isolation parameter missing: ' + repr(essential-found))
     encoded = ET.tostring(tree, encoding='utf-8')
@@ -99,7 +100,10 @@ def main():
             compare(phase+' candidate -> beta2 -> candidate', c1, back, result['comparisons'])
             ca = run(phase+'-candidate-automation', args.candidate, state, True)
             ba = run(phase+'-beta2-automation', args.released, state, True)
+            if phase == 'reused' and (ca/'audio.f32').read_bytes() == (c1/'audio.f32').read_bytes():
+                raise ValueError('automation did not affect active reused-band audio')
             compare(phase+' released numeric automation', ca, ba, result['comparisons'])
+        result['active_eq_automation_effect'] = 'PASS'
         result['status'] = 'PASS'
     except Exception as exc:
         result['error'] = str(exc)

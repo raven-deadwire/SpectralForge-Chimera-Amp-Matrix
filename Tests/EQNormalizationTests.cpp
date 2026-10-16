@@ -78,17 +78,18 @@ std::vector<float> render(ChimeraProcessor& p, double rate, int block) {
 void cycle(const juce::File& path) {
     auto p = std::make_unique<ChimeraProcessor>(); load(*p, read(path));
     const auto baseline = snapshot(*p); const auto canonical = save(*p);
+    auto next = canonical;
     for (int pass = 0; pass < 8; ++pass) {
-        auto fresh = std::make_unique<ChimeraProcessor>(); load(*fresh, canonical);
+        auto fresh = std::make_unique<ChimeraProcessor>(); load(*fresh, next);
         const auto actual = snapshot(*fresh);
         exact(baseline.raw, actual.raw, "fresh raw idempotence");
         exact(baseline.host, actual.host, "host normalized idempotence");
-        storedExact(canonical, save(*fresh));
+        next = save(*fresh); storedExact(canonical, next);
         // Same-instance repeated reload must also be a fixed point.
-        load(*fresh, save(*fresh));
-        exact(actual.raw, snapshot(*fresh).raw, "same-instance raw idempotence");
-        exact(actual.host, snapshot(*fresh).host, "same-instance host idempotence");
-        storedExact(canonical, save(*fresh));
+        load(*p, save(*p));
+        exact(baseline.raw, snapshot(*p).raw, "same-instance raw idempotence");
+        exact(baseline.host, snapshot(*p).host, "same-instance host idempotence");
+        storedExact(canonical, save(*p));
         if (pass == 0) for (double rate : {44100., 48000., 96000., 192000.}) for (int block : {32, 256}) {
             const auto a = render(*p, rate, block);
             exact(a, render(*p, rate, block), "EQ A/A determinism");
@@ -111,6 +112,12 @@ void cycle(const juce::File& path) {
 }
 void negativeControls() {
     auto p = std::make_unique<ChimeraProcessor>();
+    for (auto* parameter : p->getParameters()) {
+        auto* ranged = dynamic_cast<juce::RangedAudioParameter*>(parameter);
+        require(ranged != nullptr && eqNormalization::bits(eqNormalization::constructorRaw(*ranged),
+                    p->parameters().getRawParameterValue(ranged->paramID)->load()),
+                "constructor formula must match actual fresh APVTS raw cache");
+    }
     auto* q = p->parameters().getParameter("toneEQ_b4_q");
     const float requested = q->convertFrom0to1(q->convertTo0to1(.70710678f));
     require(eqNormalization::restoredRepresentation(*q, requested, eqNormalization::constructorRaw(*q)),
