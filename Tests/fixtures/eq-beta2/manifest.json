@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "release": "v1.3.1-beta.2",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "package_sha256": "5f7b98efbae81715b40bc572ae6bbaf02ad40ea1f91163110a9ed6469823a7ab",
+  "binary_sha256": "a7be4d98614897b9dd98254f39ba919f5520fdde4649cc73e98a56d12feef486",
+  "host_sha256": "d3a2e8d01b8ebeec8ffeb599e8cdf04fa48bacd500ac6c02d6debb9a2e6d596d",
+  "platform": "Linux x86_64",
+  "fixtures": {
+    "default": {
+      "component_sha256": "bdfd9db0d974154671f5d5fcca40ebb6b10b328a3583afcd6c86aec744ad6577",
+      "chimera_sha256": "1c50c6676ef190afde764af847e0e61f970e02c972111ee3f9062f53e4135cbf",
+      "origin": "public binary default/real VST3 parameter queue",
+      "command": [
+        "ChimeraVST3EQStateHost",
+        "<verified beta.2 module>",
+        "default",
+        "default",
+        "-"
+      ]
+    },
+    "pattern": {
+      "component_sha256": "363d7e88657151bfeaa83897defc502e30baf5e511a60552f18415b457a392ba",
+      "chimera_sha256": "d8a0106804449fcc74a238d7be4e85fa59a27b46c4a55b8d77e40f26bc344045",
+      "origin": "public binary default/real VST3 parameter queue",
+      "command": [
+        "ChimeraVST3EQStateHost",
+        "<verified beta.2 module>",
+        "pattern",
+        "pattern",
+        "-"
+      ]
+    },
+    "ab-seeded": {
+      "component_sha256": "9071a16758813d6643e2de8a725e67db6ebb6cdca720f23a1ebc792e1c4731ef",
+      "chimera_sha256": "16c4eb76f9890592ac44e6323b5ec4311c7aec3c04d2434e09deb0bc2eb603ac",
+      "origin": "host-seeded A/B, imported and reserialized by public binary",
+      "command": [
+        "ChimeraVST3EQStateHost",
+        "<verified beta.2 module>",
+        "ab-seeded",
+        "default",
+        "ab-input-host-seeded.bin"
+      ]
+    }
+  },
+  "parameters_sha256": "fec07f1317ad799ab1675ec1250ebbad40f824ba9d013777f9947cf837127328",
+  "lanes_sha256": "bcf14b3cf02938a49db7bc8855a92cb75702df1feb8bed4888c54a9522daf0c3",
+  "daw_project": "NOT_ASSESSED",
+  "file_dialog_export": "NOT_ASSESSED",
+  "release_approved": false
+}

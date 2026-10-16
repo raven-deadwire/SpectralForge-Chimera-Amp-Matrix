@@ -498,3 +498,28 @@ if(APPLE)
 endif()
 add_test(NAME ChimeraAmpHeadControlTests COMMAND ChimeraAmpHeadControlTests "${CMAKE_BINARY_DIR}/amp-head-snapshots")
 set_tests_properties(ChimeraAmpHeadControlTests PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
+
+# Real released-state fixtures, independent of synthetic migration tests.
+juce_add_console_app(ChimeraEQLegacyStateTests PRODUCT_NAME "Chimera EQ Legacy State Tests")
+target_sources(ChimeraEQLegacyStateTests PRIVATE Tests/EQLegacyStateTests.cpp)
+target_include_directories(ChimeraEQLegacyStateTests PRIVATE Source)
+target_compile_definitions(ChimeraEQLegacyStateTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
+target_link_libraries(ChimeraEQLegacyStateTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraEQLegacyStateTests COMMAND ChimeraEQLegacyStateTests
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/fixtures/eq-beta2" "${CMAKE_BINARY_DIR}/eq-legacy")
+set_tests_properties(ChimeraEQLegacyStateTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(EQ_VST3_SDK "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
+  add_executable(ChimeraVST3EQStateHost Tests/VST3EQStateHost.cpp
+    "${EQ_VST3_SDK}/pluginterfaces/base/funknown.cpp"
+    "${EQ_VST3_SDK}/pluginterfaces/base/coreiids.cpp"
+    "${EQ_VST3_SDK}/public.sdk/source/vst/vstinitiids.cpp")
+  target_include_directories(ChimeraVST3EQStateHost PRIVATE "${EQ_VST3_SDK}")
+  target_link_libraries(ChimeraVST3EQStateHost PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
+endif()
+add_test(NAME ChimeraEQLegacyFixtureIntegrity COMMAND ${Python3_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tools/eq_legacy_fixture.py" verify
+  --output "${CMAKE_CURRENT_SOURCE_DIR}/Tests/fixtures/eq-beta2")
+add_test(NAME ChimeraEQLegacyEvidenceTests COMMAND ${Python3_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_eq_legacy_fixture.py")
+set_tests_properties(ChimeraEQLegacyStateTests PROPERTIES DEPENDS ChimeraEQLegacyFixtureIntegrity)
