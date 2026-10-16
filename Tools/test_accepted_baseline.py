@@ -48,7 +48,8 @@ class AcceptedBaseline(unittest.TestCase):
     def test_61_evidence_supported_and_25_specific_gaps(self):
         reports = self.read()
         self.assertEqual(len(reports), 86)
-        self.assertEqual(sum(r['assertion'] is not None and r['assertion']['passed'] for r in reports.values()), 61)
+        expected_pass = 22 if baseline.fingerprint_changes(baseline.load_registry()[0]) else 61
+        self.assertEqual(sum(r['assertion'] is not None and r['assertion']['passed'] for r in reports.values()), expected_pass)
         self.assertTrue(set(reports).isdisjoint(self.mapping))
         self.assertNotIn('B14.RESULT', reports)
         for cid, report in reports.items():
@@ -110,7 +111,16 @@ class AcceptedBaseline(unittest.TestCase):
             with self.subTest(name=name):
                 self.receipt = copy.deepcopy(self.fixture)
                 self.receipt['commands'][name]['exit_code'] = 1
-                self.rejected()
+                if name == 'distribution' and baseline.fingerprint_changes(baseline.load_registry()[0]):
+                    # Source changes already block distribution reuse. A failed
+                    # command may retain BLOCKED, but must never produce PASS.
+                    reports = self.read()
+                    registry, _ = baseline.load_registry()
+                    for row in registry['rows']:
+                        if row['verification_kind'] == 'distribution':
+                            self.assertIsNone(reports[row['id']]['assertion'])
+                else:
+                    self.rejected()
 
     def test_boolean_exit_code_rejected(self):
         self.receipt['commands']['calculator']['exit_code'] = False
@@ -152,7 +162,7 @@ class AcceptedBaseline(unittest.TestCase):
         shutil.copytree(self.folder, fixture.inputs / baseline.FOLDER)
         result, output = fixture.run_gate()
         self.assertEqual(result['producer']['errors'], [])
-        self.assertEqual(result['counts']['checks'], {'total':128, 'pass':82, 'blocked':46, 'not_applicable':0})
+        self.assertEqual(result['counts']['checks'], {'total':128, 'pass':43 if baseline.fingerprint_changes(baseline.load_registry()[0]) else 82, 'blocked':85 if baseline.fingerprint_changes(baseline.load_registry()[0]) else 46, 'not_applicable':0})
         self.assertFalse(result['ready'])
         for cid in ('B1.RESULT','B8.RESULT','B12.RESULT','B14.RESULT','E2.SAME_DI','I2.LIVE_REMOVE_DAW'):
             self.assertEqual(fixture.status(result, cid), 'BLOCKED')

@@ -1,0 +1,67 @@
+name: CAB and IR negative acceptance
+on:
+  pull_request:
+    paths:
+      - 'Source/**'
+      - 'Tests/CabIRAcceptanceTests.cpp'
+      - 'Tools/cab_ir_acceptance.py'
+      - 'Tools/test_cab_ir_acceptance.py'
+      - 'Tools/consolidate_release_gate.py'
+      - 'Validation/accepted-baseline.json'
+      - 'CMakeLists.txt'
+      - '.github/workflows/cab-ir-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cab-ir-acceptance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            platform: linux
+          - os: windows-latest
+            platform: windows
+          - os: macos-15
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python Tools/test_cab_ir_acceptance.py
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
+      - name: Configure qualification-only product
+        run: cmake -S . -B build-cab-ir -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
+      - name: Build actual processor and CAB/IR regression target
+        run: cmake --build build-cab-ir --config Release --target ChimeraCabIRAcceptanceTests --parallel 2
+      - name: Record configured suite inventory
+        shell: bash
+        run: ctest --test-dir build-cab-ir -C Release -R '^ChimeraCabIRAcceptance_' --show-only=json-v1 > build-cab-ir/cab-ir-inventory.json
+      - if: runner.os != 'Linux'
+        name: Run direct negative fixtures
+        run: ctest --test-dir build-cab-ir -C Release -R '^ChimeraCabIRAcceptance_' --no-tests=error --output-on-failure --output-junit cab-ir-results.xml
+      - if: runner.os == 'Linux'
+        name: Run direct negative fixtures with display supervision
+        run: python Tools/run_linux_ui_tests.py -- ctest --test-dir build-cab-ir -C Release -R '^ChimeraCabIRAcceptance_' --no-tests=error --output-on-failure --output-junit cab-ir-results.xml
+      - name: Bind raw assertions to source and execution
+        if: always()
+        shell: bash
+        run: python Tools/cab_ir_acceptance.py --build build-cab-ir --output build-cab-ir/component --commit '${{ github.event.pull_request.head.sha || github.sha }}' --run-id '${{ github.run_id }}' --run-attempt '${{ github.run_attempt }}' --platform '${{ matrix.platform }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: CAB-IR-component-${{ matrix.platform }}
+          path: |
+            build-cab-ir/component
+            build-cab-ir/Testing/Temporary/LastTest.log
+          if-no-files-found: error

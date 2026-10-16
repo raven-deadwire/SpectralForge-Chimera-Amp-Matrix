@@ -501,3 +501,13 @@ if(APPLE)
 endif()
 add_test(NAME ChimeraAmpHeadControlTests COMMAND ChimeraAmpHeadControlTests "${CMAKE_BINARY_DIR}/amp-head-snapshots")
 set_tests_properties(ChimeraAmpHeadControlTests PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
+
+# PR #85: synthetic negative fixtures, separate from DI/DAW/release acceptance.
+juce_add_console_app(ChimeraCabIRAcceptanceTests PRODUCT_NAME "Chimera CAB IR Acceptance Tests")
+target_sources(ChimeraCabIRAcceptanceTests PRIVATE Tests/CabIRAcceptanceTests.cpp)
+target_include_directories(ChimeraCabIRAcceptanceTests PRIVATE Source)
+target_link_libraries(ChimeraCabIRAcceptanceTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+foreach(suite factory boundaries preservation)
+  add_test(NAME ChimeraCabIRAcceptance_${suite} COMMAND ChimeraCabIRAcceptanceTests ${suite} "${CMAKE_CURRENT_SOURCE_DIR}")
+  set_tests_properties(ChimeraCabIRAcceptance_${suite} PROPERTIES RUN_SERIAL TRUE TIMEOUT 180)
+endforeach()
