@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""Reproduce PR #71 timing attribution from an unmodified Actions artifact ZIP.
+
+Diagnostic only: does not approve a release, retry a route, or correct clocks.
+Each integration invocation is kept separate; normal-QoS controls are excluded
+from candidate CTest statistics. CPU time unavailable on Windows remains null.
+"""
+import argparse
+import csv
+import hashlib
+import json
+import lzma
+import math
+from pathlib import Path
+import re
+import xml.etree.ElementTree as ET
+import zipfile
+
+
+def analyze(archive, expected_sha):
+    archive = Path(archive)
+    if archive.name.endswith('-ctest.log.xz'):
+        prefix = str(archive).removesuffix('ctest.log.xz')
+        identity = json.loads(Path(prefix+'chimera-build-version.json').read_text())
+        raw = lzma.decompress(archive.read_bytes())
+        suite = ET.parse(prefix+'tuner-results.xml').getroot()
+        control = Path(prefix+'normal-qos-reference.exit')
+        normal_exit = control.read_text().strip() if control.exists() else None
+        artifact_hash = None  # Preserved member, not the original artifact ZIP.
+    else:
+        with zipfile.ZipFile(archive) as z:
+            identity = json.loads(z.read('chimera-build-version.json'))
+            raw = z.read('tuner-ctest.log')
+            suite = ET.fromstring(z.read('tuner-results.xml'))
+            normal_exit = (z.read('normal-qos-reference.exit').decode().strip()
+                           if 'normal-qos-reference.exit' in z.namelist() else None)
+        artifact_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
+    if identity['source_sha'] != expected_sha:
+        raise ValueError('Artifact source SHA does not match requested source')
+    routes = {}
+    trial = 0
+    tagged = []
+    for original in raw.decode('utf-8-sig').splitlines():
+        line = re.sub(r'^\d+: ', '', original)
+        if line.startswith('TIMING_HEADER,'):
+            trial += 1
+        if line.startswith('worker,new,'):
+            fields = line.split(',')[2:]
+            key = (trial, *fields[:3])
+            route = routes.setdefault(key, {})
+            if 'result' in route:
+                raise ValueError('Duplicate candidate route result')
+            route['result'] = list(map(float, fields[3:]))
+        elif line.startswith(('FEED,', 'FEED_WAIT,', 'TIMING,', 'WORKER_CPU,', 'TIMING_END,')):
+            tag, *fields = line.split(',')
+            key = (trial, *fields[:3])
+            routes.setdefault(key, {}).setdefault(tag, []).append(list(map(float, fields[3:])))
+            tagged.append((key, line))
+    if not trial or len(routes) != trial * 32:
+        raise ValueError('Incomplete 32-route integration invocation(s)')
+    output = []
+    failed = set()
+    for key, route in routes.items():
+        result = route['result']
+        feeds, waits, timings, cpus = (route[tag] for tag in ('FEED', 'FEED_WAIT', 'TIMING', 'WORKER_CPU'))
+        ends = route['TIMING_END']
+        if len(ends) != 1 or ends[0] != [len(timings), 0]:
+            raise ValueError('Incomplete/dropped timing trace')
+        if len(timings) != len(cpus) or len(feeds) != len(waits):
+            raise ValueError('Unpaired diagnostic records')
+        if [r[0] for r in timings] != list(range(len(timings))):
+            raise ValueError('Nonsequential timing records')
+        if [r[0] for r in cpus] != [r[0] for r in timings]:
+            raise ValueError('CPU/timing index mismatch')
+        if [r[0] for r in feeds] != [r[0] for r in waits]:
+            raise ValueError('Feed/wait offset mismatch')
+        values = [v for rows in (feeds, waits, timings, cpus, [result]) for row in rows for v in row]
+        if not all(math.isfinite(v) for v in values):
+            raise ValueError('Nonfinite diagnostic field')
+        # Result: fixture,error,confidence,compute,acquisition,settling,push.
+        error, acquire, settle = result[1], result[4], result[5]
+        passed = 0 < acquire < 290 and 0 < settle < 290 and abs(error) < .1
+        if not passed:
+            failed.add(key)
+        cpu_available = all(r[2] >= 0 for r in cpus)
+        row = dict(trial=key[0], rate=float(key[1]), block=int(key[2]), hz=float(key[3]),
+                   acquire_ms=acquire, settle_ms=settle, error_ct=error, route_gate=passed,
+                   max_sleep_ms=max(r[3]-r[2] for r in waits),
+                   max_sleep_overshoot_ms=max(max(0, r[3]-r[1]) for r in waits),
+                   max_read_after_sleep_ms=max(r[4]-r[3] for r in waits),
+                   max_feed_gap_ms=max(b[2]-a[2] for a,b in zip(feeds, feeds[1:])),
+                   max_wake_ms=max(r[8] for r in timings),
+                   max_service_ms=max(r[9] for r in timings),
+                   max_preparation_ms=max(r[10] for r in timings),
+                   max_estimator_wall_ms=max(r[11] for r in timings),
+                   max_estimator_cpu_ms=max(r[2] for r in cpus) if cpu_available else None,
+                   max_estimator_noncpu_ms=max(r[3] for r in cpus) if cpu_available else None,
+                   max_publication_ms=max(r[12] for r in timings),
+                   max_publication_age_ms=max(r[13] for r in timings),
+                   unpublished_estimates=sum(r[16] == 0 for r in timings))
+        output.append(row)
+    summary = dict(source_sha=expected_sha, artifact_sha256=artifact_hash,
+                   ctest_log_sha256=hashlib.sha256(raw).hexdigest(), ctest_junit=suite.attrib,
+                   ctest_pass_executions=len(re.findall(r'Test #\d+:[^\r\n]*\s+Passed\s+[\d.]+ sec', raw.decode())),
+                   normal_qos_control_exit=normal_exit, integration_invocations=trial,
+                   route_rows=len(output), failed_routes=len(failed),
+                   max_acquire_ms=max(r['acquire_ms'] for r in output),
+                   max_settle_ms=max(r['settle_ms'] for r in output),
+                   max_absolute_error_ct=max(abs(r['error_ct']) for r in output),
+                   release_approved=False)
+    return summary, output, '\n'.join(line for key,line in tagged if key in failed) + '\n'
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('archive', type=Path)
+    parser.add_argument('--source-sha', required=True)
+    parser.add_argument('--output-prefix', type=Path, required=True)
+    args = parser.parse_args()
+    summary, rows, failed = analyze(args.archive, args.source_sha)
+    prefix = str(args.output_prefix)
+    args.output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    Path(prefix+'.json').write_text(json.dumps(summary, indent=2)+'\n')
+    with open(prefix+'.csv', 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator='\n')
+        writer.writeheader()
+        writer.writerows(rows)
+    Path(prefix+'-failed-route.log').write_text(failed)
+    print(json.dumps(summary, indent=2))
+
+
+if __name__ == '__main__':
+    main()

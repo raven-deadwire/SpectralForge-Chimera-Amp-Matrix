@@ -1,0 +1,42 @@
+[
+  {
+    "label": "dc57-macos",
+    "source_sha": "dc57c10053fea0534f872818d74c5d6ccab298cc",
+    "artifact_id": 12100126242,
+    "run_id": 39029285672,
+    "artifact_sha256": "4da3bba104a464c7938ff5f586b023c95da5284c7f2d4307cb6a01565b6f00b9",
+    "ctest_log_sha256": "a9b20a4f7f513cc8bb008db147ad449c43a8a213825c3f683a6b7c68de2f8e23",
+    "raw_xz_sha256": "5db07300fd58cd9471f0d3e4e28c1dc3996afc291009ff0ea4da5b9810065f92",
+    "job_id": 117386314109
+  },
+  {
+    "label": "current-windows",
+    "source_sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+    "artifact_id": 12102935236,
+    "run_id": 39036409337,
+    "artifact_sha256": "252be5361084bb6620c3045debe5d7ce5eb571e9c06395441e6e635eb0830757",
+    "ctest_log_sha256": "b5f6a83d21d4f3eed6d681036e56bd2400ed5075b0fe5358b3204c5cbbcb0fdd",
+    "raw_xz_sha256": "8da876f2a745ac588875aa5f900ffc77c2c93e1273d6b21639af7d9b57084f60",
+    "job_id": 117407058127
+  },
+  {
+    "label": "current-linux",
+    "source_sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+    "artifact_id": 12102336841,
+    "run_id": 39036409337,
+    "artifact_sha256": "c6655db31da2130c863f8372a454af0d47391d4895e1737c4b658e693614a181",
+    "ctest_log_sha256": "7dde2e0261cefb3bb96fc3df9f8e831b4b86bc58b119e19e937f31f6c4abbe58",
+    "raw_xz_sha256": "0486fd2fd478a190bb73681e66ac6ddd7eb3646c7dd94ed029ee4fa97b607407",
+    "job_id": 117407057942
+  },
+  {
+    "label": "current-macos",
+    "source_sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+    "artifact_id": 12102811476,
+    "run_id": 39036409337,
+    "artifact_sha256": "2daf5872d380f0056fd19482b7fcd44d7f9b84849018c26c7e79a138cd32fa7e",
+    "ctest_log_sha256": "92f66feb2e0709c09a02fa305aa87ba1ffb46218ad78be321f1aa30b3bd8d80a",
+    "raw_xz_sha256": "b5a1b3a00c1ae90f0df0b00149e79affdbd24c5c8644288d330775d34d85a850",
+    "job_id": 117407057837
+  }
+]
