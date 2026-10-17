@@ -1,34 +1,40 @@
-# SpectralForge Chimera — Open Beta 1.3.1 updates and support
+# SpectralForge Chimera — Open Beta updates and support
 
-## Next development candidate: 1.3.1-beta.3
+## Current public release and lifecycle
 
-The beta lifecycle is implemented for newly built beta.3 candidates. The owner has
-not approved an expiry date or publication. The committed policy leaves the expiry
-unset. CI can use a clearly marked synthetic date to qualify the mechanism; such
-packages cannot pass the publisher. Published beta.2 files and tags are unchanged.
+As of 2026-10-18 KST, the public release is
+[v1.3.2-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1):
+product `1.3.2`, package `1.3.2-beta.1`, product source
+`3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`, build `3bec6c70a5`.
+Its approved expiry is **2027-02-11T14:59:00Z / 2027-02-11 23:59:00 KST**.
+The earlier beta.3 / unapproved-date description was a historical development state.
 
-SETTINGS > Beta / Updates shows BETA, the package version, source/build ID, absolute
-UTC expiry and current state. A non-modal SETTINGS warning appears in the final
-14 days and after expiry. An instance created before expiry keeps its exact audio
-processing until destruction, including transport stops, editor reopening,
-prepare/release, sample-rate changes and offline rendering. A new instance created
-at or after expiry produces muted output while its state, presets, automation,
-A/B and embedded IR remain editable and saveable. It never switches to dry DI or
-inserts noise bursts. Save work and install a qualified successor before restarting.
+SETTINGS > Beta / Updates shows BETA, version, source/build ID, UTC expiry and
+current state. This development branch additionally displays exact KST and
+remaining days/hours/minutes/seconds, refreshed from the existing UTC evaluation.
+At the deadline it displays zero and expired. The non-modal SETTINGS warning
+still begins 14 days before expiry. Clock/timezone handling and test scope are
+specified in [BETA_LIFECYCLE.md](BETA_LIFECYCLE.md).
 
-Offline operation is independent of GitHub. A wrong local clock can be corrected;
-RECHECK CLOCK restores a falsely expired instance with a 50 ms processed-signal
-fade-in. No persistent clock watermark, account, payment, activation server or
-remote revocation is introduced. This is local lifecycle control, not tamper-proof
-DRM. The generated BETA_LIFECYCLE.txt supplies the exact per-build EN/DE/KR notice.
+An instance created before expiry keeps processing until destruction, including
+transport stops, editor reopening, prepare/release and offline rendering. A new
+instance created at or after expiry has muted final output; projects, presets,
+automation, A/B and personal/embedded IRs remain editable and saveable. Save work,
+close the DAW and install a qualified successor, then reopen the project. The
+expiry permission is not saved in the project. Plugin IDs and the
+`SpectralForge/Chimera` data directory remain compatible.
 
-The beta.2 paragraph below records the previous candidate workflow.
+Offline operation does not require GitHub, accounts, payments or an activation
+server. After correcting a mistaken clock, RECHECK CLOCK recovers a falsely
+expired instance with a 50 ms fade-in. The generated `BETA_LIFECYCLE.txt` supplies
+the exact per-build EN/DE/KO notice.
 
-
-Hosted VST3/AU opens the official releases page without creating an HTTP update worker. Automatic update checks and verified downloads described below apply to Standalone.
-
-The next candidate uses product version `1.3.1`, package version `1.3.1-beta.2` and release tag `v1.3.1-beta.2`. It becomes discoverable through the existing update service only after verification of its final source and an approved publication. Preparing these documents does not publish an update. See the [release notes](OPEN_BETA_RELEASE_NOTES.md). Previously published releases retain their original packages and documentation. The 1.1.0 manifest below is a historical schema example; the candidate's package identity is `1.3.1-beta.2`.
-The existing plugin IDs and `SpectralForge/Chimera` data directory remain compatible.
+**The beta.1 date is not approval for any subsequent version.** This branch does
+not select the next version/date or publish an update. Release preparation must
+explicitly match VERSION/RELEASE_CHANNEL, policy, compiled metadata, SETTINGS,
+package notice and release/update version. Historical release artifacts are unchanged.
+Hosted VST3/AU opens the official release page; automatic checks and verified
+downloads below apply to Standalone. The 1.1.0 manifest is a historical schema example.
 
 ## User behavior
 

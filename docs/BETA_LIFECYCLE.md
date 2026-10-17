@@ -1,29 +1,51 @@
-# Beta lifecycle — next-version development contract
+# Beta lifecycle — published policy and SETTINGS development
 
-This work targets `1.3.1-beta.3` in PR #62. The released beta.2 source
-`6033236cb81820a43679cbbd34be020804f9658d`, tag, binaries and update feed are
-unchanged. No new release is authorized. `RELEASE_REVIEW_PENDING` is present.
+## Current public baseline (2026-10-18 KST)
 
-## Configuration and identity
+[v1.3.2-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1)
+was published on 2026-10-18 at 01:51:47 KST. Its product source is
+`3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`, build ID `3bec6c70a5`.
+The former beta.3 development / unapproved-date text described PR #62's
+historical `1.3.1-beta.3` candidate, not the current public release.
 
-`Validation/beta-lifecycle-policy.json` has `expires_at_utc: null` and
-`expiry_approved: false`. The owner must select an absolute UTC timestamp before
-publication. No compilation time, first-run clock or reinstall starts a new trial.
+| Policy field | Approved public v1.3.2-beta.1 value |
+| --- | --- |
+| Product / package version | `1.3.2` / `1.3.2-beta.1` |
+| UTC expiry (inclusive) | `2027-02-11T14:59:00Z` |
+| Korea expiry | `2027-02-11 23:59:00 KST (UTC+09:00)` |
+| Unix expiry | `1802357940` |
+| Approval | `expiry_approved: true` |
+| Advance warning | `1209600` seconds (14 days) |
+| Already active instance | Audio continues until instance destruction |
+| Newly created expired instance | Final output muted, graph and state preserved |
+| Network / payment / account | Not required |
+
+The policy is `Validation/beta-lifecycle-policy.json`. Published tags, binaries,
+release assets and historical evidence remain immutable. This branch adds a
+countdown and documentation corrections for review; it is not a newly published
+release and has no new release approval.
+
+## Configuration and next-version identity
+
 The existing VERSION/RELEASE_CHANNEL, source SHA and ten-character build ID remain
 the only product identity. CMake generates `ChimeraBetaLifecycleBuild.h` and
 `chimera-beta-lifecycle.json` from that identity and policy; the existing
-`chimera-build-version.json` fingerprints the lifecycle JSON.
+`chimera-build-version.json` fingerprints the lifecycle JSON. UTC expiry is the
+source of truth; the KST text in the header and distribution notice is derived
+from it using a fixed +09:00 offset.
 
-Normal unapproved developer builds say that the date is unset and cannot be
-staged as distributions. CI explicitly permits a **qualification-only** synthetic
-2099 date. This is a test fixture, not an approved deadline. Such packages are
-marked in SETTINGS and in the EN/DE/KR notice; the existing publisher rejects
-them even if someone removes the independent review-pending marker.
+**The approved date above applies only to `1.3.2-beta.1`.** This implementation PR
+keeps that baseline version and policy unchanged. When preparing another version,
+update the policy version explicitly and leave `expires_at_utc: null` /
+`expiry_approved: false` until that version's exact date is approved. A changed
+source version with the old policy is rejected; no date or 90/120/180-day period
+is inherited, selected or inferred. Rebuilding/reinstalling never restarts a trial.
 
-After approval, the committed policy contains the real absolute UTC date and the
-approval flag. CMake and packaging reject an elapsed, malformed, mismatched or
-non-UTC date. Qualify a fresh complete source and resulting binary after changing
-that policy. The old beta.2 approval receipt cannot approve the new version.
+Normal unapproved developer builds show an unset date and cannot be staged as
+distributions. CI may explicitly use a marked **qualification-only** synthetic
+2099 fixture, which the publisher rejects. After separate approval, qualification
+must bind the new policy, complete source and binary; earlier release approvals
+and test evidence cannot approve a modified binary.
 
 ## Audio and state boundary
 
@@ -49,7 +71,17 @@ instance. This is basic offline lifecycle control, not tamper-proof DRM.
 
 ## UI, updates and packaging
 
-SETTINGS shows BETA, version/build and UTC expiry. Its existing button gains a
+SETTINGS shows BETA, version/build and exact UTC expiry. This development change
+adds KST (UTC+09:00) and `Remaining: N days HH hours MM minutes SS seconds`.
+The existing `Evaluation.secondsRemaining` supplies the countdown and status
+from one evaluation; no second timer clock, local date subtraction or rounded-up
+day count is introduced. The panel's existing 4 Hz UI refresh resamples UTC at
+one-second precision. At/after the exact expiry the display clamps to zero and
+says expired, while the separate instance latch still determines audio permission.
+Invalid clocks/metadata and unconfigured builds show unavailable, never a
+fabricated remaining duration. OS timezone/DST changes cannot move the deadline;
+a wall-clock correction changes the remaining duration on the next UI refresh.
+A previously muted instance still requires explicit RECHECK CLOCK after correction. Its existing button gains a
 non-modal warning marker in the final 14 days or an expired/error state. Support
 shows the current instance's processing decision and clock recheck. Hosted plugins
 reuse the explicit browser GitHub Releases action; Standalone reuses its existing
@@ -66,7 +98,12 @@ preservation guard covers the new JSON too.
 
 ## Automated evidence and limits
 
-- Pure C++ injected-clock policy tests and Python policy/metadata regressions.
+- Pure C++ injected-clock policy/countdown tests: 14-day, day, hour, minute,
+  final-second and inclusive expiry boundaries; zero clamp and clock correction.
+- Actual SETTINGS timer refresh: compiled UTC/KST/version/build, process timezone
+  changes (UTC/KST/DST/fractional offset), date jumps, active grace and muted recovery.
+- Python policy/metadata tests: UTC/KST day/year/leap-day rollover; a new version
+  cannot inherit the old approved policy; unapproved publication remains rejected.
 - Actual processor mono/stereo Classic, Dual Blend, Dual Crossover and Matrix
   routes; equality to unrestricted audio before/at/after expiry, transport and
   offline render, different sample rates/buffers, editor lifetime and reprepare.
@@ -77,7 +114,13 @@ preservation guard covers the new JSON too.
 - An injected GitHub transport failure runs through the real update worker and
   SETTINGS error path, without writing user update preferences or using a network.
 - Compiled definitions match generated JSON and its configure-time fingerprint.
-- Windows/macOS/Linux CI, plus five consecutive macOS native-state restores.
+- Existing Windows/macOS/Linux CI and five consecutive macOS native-state restores.
+  Concrete results for this change must be read from its own PR/CI, not inferred
+  from previous runs.
+- An expired instance's save is restored into a synthetic successor and resaved /
+  reopened with parameter identities, A/B, MIDI automation and exact embedded IR
+  bytes retained even after the source IR is removed. This synthetic successor
+  does not assign a deadline to a real future release.
 - A separate helper is compiled against the immutable released beta.2 product
   source to generate a real processor state fixture. Candidate binaries on all
   three platforms restore, save and reopen it before, at and after expiry.
@@ -90,10 +133,11 @@ macOS/Linux audio acceptance are not certified by these automated tests. Keep
 unexecuted cases NOT_RUN and retain the existing release gates. PR body/CI results
 record concrete outcomes; this document itself is not a PASS verdict.
 
-## Expiry choices for owner review
+## Review checklist before the next distribution
 
-No option below is selected. Proposed windows measured from the eventual approved
-publication date are 90 days, 120 days (recommended balance), or 180 days. Convert
-the selected window to an explicit absolute UTC date at release preparation and
-obtain approval for that exact date. Each option retains the 14-day advance notice,
-active-instance grace, offline clock recovery and project preservation.
+Compare the exact-source compiled identity, policy JSON, SETTINGS, generated
+`BETA_LIFECYCLE.txt`, package JSON, release note and update manifest version/build.
+The update manifest currently carries version and download identity, not an
+expiry field; the packaged lifecycle JSON and notice carry the deadline. Obtain
+a separate deadline approval for the chosen next version and qualify that source.
+No release gate or installed DAW acceptance is waived by this display change.

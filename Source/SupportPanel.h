@@ -54,13 +54,13 @@ public:
                 component->setVisible(false);
             note.setText("Download updates from the release page or use the Chimera standalone application. Close your DAW before installing an update.",juce::dontSendNotification);
         }
-        setSize(660,(support ? 360 : 300)+(betaNotice ? 240 : 0));refresh();if(support || betaNotice)startTimerHz(4);
+        setSize(660,(support ? 360 : 300)+(betaNotice ? 280 : 0));refresh();if(support || betaNotice)startTimerHz(4);
     }
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff171b1b));}
     void resized() override {
         if(betaNotice) {
             const int top=support ? 360 : 300;
-            lifecycle.setBounds(24,top,612,186);recheck.setBounds(24,top+196,190,30);
+            lifecycle.setBounds(24,top,612,226);recheck.setBounds(24,top+236,190,30);
         }
         title.setBounds(22,18,616,34);manual.setBounds(24,66,182,32);report.setBounds(218,66,182,32);check.setBounds(412,66,224,32);
         automatic.setBounds(24,110,612,28);status.setBounds(24,147,612,84);
@@ -68,6 +68,7 @@ public:
         if(!support) {status.setBounds(24,116,612,90);note.setBounds(24,224,612,59);}
     }
 private:
+    friend struct ChimeraSupportPanelTestAccess;
     void timerCallback() override {refresh();}
     void refresh() {
         if(betaNotice) {const auto message=betaNotice();if(lifecycle.getText()!=message)lifecycle.setText(message,false);}
