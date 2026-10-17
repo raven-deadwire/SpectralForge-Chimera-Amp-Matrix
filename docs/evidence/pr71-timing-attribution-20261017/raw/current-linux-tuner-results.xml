@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="5"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="154"
+	timestamp="2026-10-17T13:29:29"
+	>
+	<testcase name="ChimeraPostNativeTests" classname="ChimeraPostNativeTests" time="2.49249" status="run">
+		<properties/>
+		<system-out>POST cache exact parity PASS: sample comparisons=1028160 models=9 mono/stereo automation/bypass/reset/reprepare
+SPATIAL_CONTROL family=0 model=0 control=0 residual=0.0532227
+SPATIAL_CONTROL family=0 model=0 control=1 residual=0.0707196
+SPATIAL_CONTROL family=0 model=0 control=2 residual=0.178913
+SPATIAL_CONTROL family=0 model=1 control=0 residual=0.0498568
+SPATIAL_CONTROL family=0 model=1 control=1 residual=0.069617
+SPATIAL_CONTROL family=0 model=1 control=2 residual=0.205665
+SPATIAL_CONTROL family=0 model=2 control=0 residual=0.0388913
+SPATIAL_CONTROL family=0 model=2 control=1 residual=0.0636954
+SPATIAL_CONTROL family=0 model=2 control=2 residual=0.130578
+SPATIAL_CONTROL family=0 model=3 control=0 residual=0.0437715
+SPATIAL_CONTROL family=0 model=3 control=1 residual=0.0649251
+SPATIAL_CONTROL family=0 model=3 control=2 residual=0.167504
+SPATIAL_CONTROL family=0 model=4 control=0 residual=0.0758478
+SPATIAL_CONTROL family=0 model=4 control=1 residual=0.100959
+SPATIAL_CONTROL family=0 model=4 control=2 residua...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPrecisionTunerTests" classname="ChimeraPrecisionTunerTests" time="3.06817" status="run">
+		<properties/>
+		<system-out>PASS 18 weak-fundamental/decay/DC cases; bass string identities, invalid targets and strobe anti-alias
+PASS 576 pitch cases; worst absolute error 0.0599684 ct; profiles, custom/calibration, silence/DC/noise, strobe direction/dead-band
+PASS 1105 exact frequency/confidence comparisons against frozen 52f7 estimator
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPrecisionTunerIntegrationTests" classname="ChimeraPrecisionTunerIntegrationTests" time="45.8828" status="run">
+		<properties/>
+		<system-out>WORKER_QOS_REFERENCE,0
+TIMING_HEADER,rate,block,hz,index,generation,window_complete_ms,wake_ms,service_ms,estimate_begin_ms,estimate_end_ms,publish_ms,wake_delay_ms,service_delay_ms,preparation_ms,compute_ms,publication_ms,publish_age_ms,estimated_hz,confidence,published
+kind,engine,rate,block,hz,fixture,error_ct,confidence,compute_us,acquire_ms,step_settle_ms,push_max_us
+kernel,new,44100,0,16.35266118,0,-5.351135493e-06,1,3155.771,-1,-1,-1
+kernel,baseline,44100,0,16.35266118,0,99999,0,0,-1,-1,-1
+kernel,new,44100,0,16.35266118,1,-5.351135493e-06,1,3132.938,-1,-1,-1
+kernel,baseline,44100,0,16.35266118,1,99999,0,0,-1,-1,-1
+kernel,new,44100,0,16.35266118,2,-5.351135493e-06,1,3125.754,-1,-1,-1
+kernel,baseline,44100,0,16.35266118,2,99999,0,0,-1,-1,-1
+kernel,new,44100,0,23.12593505,0,-3.329366218e-05,1,2402.512,-1,-1,-1
+kernel,baseline,44100,0,23.12593505,0,99999,0,0,-1,-1,-1
+kernel,new,44100,0,23.12593505,1,-3.329366218e-05,1,2381.423,-1,-1,-1
+kernel,baseline,44100,0,23.12593505,1,99999,0,0,-1,-1,-1
+kernel,new,441...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraTunerTimingTests" classname="ChimeraTunerTimingTests" time="0.00167676" status="run">
+		<properties/>
+		<system-out>PASS timing decomposition, wake/input overlap, bounded retention and reset
+</system-out>
+	</testcase>
+	<testcase name="ChimeraTunerWorkerTimingTests" classname="ChimeraTunerWorkerTimingTests" time="0.154044" status="run">
+		<properties/>
+		<system-out>WORKER_QOS_REFERENCE,0
+PASS first-window completion, delayed worker, compute, publish age and trace lifecycle
+</system-out>
+	</testcase>
+</testsuite>

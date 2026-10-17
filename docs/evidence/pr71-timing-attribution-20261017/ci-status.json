@@ -1,0 +1,148 @@
+{
+  "observed_at_utc": "2026-10-17T13:57:17.900Z",
+  "product_source_sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+  "release_approved": false,
+  "runs": [
+    {
+      "run_id": 39036409337,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39036409337",
+      "jobs": [
+        {
+          "id": 117407057837,
+          "name": "precision-tuner-worker (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        },
+        {
+          "id": 117407057942,
+          "name": "precision-tuner-worker (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        },
+        {
+          "id": 117407058119,
+          "name": "native-navigation (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        },
+        {
+          "id": 117407058127,
+          "name": "precision-tuner-worker (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        },
+        {
+          "id": 117407058170,
+          "name": "native-navigation (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        },
+        {
+          "id": 117407058241,
+          "name": "native-navigation (macos-latest)",
+          "status": "in_progress",
+          "conclusion": null,
+          "active_steps": [
+            "Run ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 39036409533,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39036409533",
+      "jobs": [
+        {
+          "id": 117407058772,
+          "name": "validation-contract",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        },
+        {
+          "id": 117408021649,
+          "name": "build (windows-latest)",
+          "status": "in_progress",
+          "conclusion": null,
+          "active_steps": [
+            "Run cmake --build build --config Release --parallel 2"
+          ]
+        },
+        {
+          "id": 117408021658,
+          "name": "build (ubuntu-22.04)",
+          "status": "in_progress",
+          "conclusion": null,
+          "active_steps": [
+            "Run cmake --build build --config Release --parallel 2"
+          ]
+        },
+        {
+          "id": 117408021679,
+          "name": "build (macos-15)",
+          "status": "in_progress",
+          "conclusion": null,
+          "active_steps": [
+            "Run cmake --build build --config Release --parallel 2"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 39036409321,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39036409321",
+      "jobs": [
+        {
+          "id": 117407057658,
+          "name": "windows-candidate",
+          "status": "in_progress",
+          "conclusion": null,
+          "active_steps": [
+            "Build product and regression checks"
+          ]
+        },
+        {
+          "id": 117407058010,
+          "name": "preparation-contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        }
+      ]
+    },
+    {
+      "run_id": 39036409386,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39036409386",
+      "jobs": [
+        {
+          "id": 117407058367,
+          "name": "graphical-eq (macos-15)",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        },
+        {
+          "id": 117407058524,
+          "name": "graphical-eq (ubuntu-22.04)",
+          "status": "in_progress",
+          "conclusion": null,
+          "active_steps": [
+            "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-eq -C Release -R \"^(ChimeraGraphicalEQ.*Tests|ChimeraEQSnapshotFreezeTests|ChimeraEQAnalyzer.*Tests|ChimeraEQHighRateAttributionTests|ChimeraGateProcessorTests|ChimeraCommonDynamicsTests)$\" --output-on-failure --no-tests=error --output-junit eq-results.xml"
+          ]
+        },
+        {
+          "id": 117407058552,
+          "name": "graphical-eq (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "active_steps": []
+        }
+      ]
+    }
+  ]
+}
