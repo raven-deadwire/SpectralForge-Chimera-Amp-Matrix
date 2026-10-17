@@ -7,6 +7,10 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
+#if JUCE_MAC
+#include <pthread.h>
+#include <pthread/qos.h>
+#endif
 
 using Clock=std::chrono::steady_clock;
 void require(bool ok,const char* why){if(!ok)throw std::runtime_error(why);}
@@ -19,6 +23,41 @@ float tone(double hz,double time,int kind){
     return float(x);
 }
 bool normalQoSReference=false;
+// Only the synthetic input producer is scoped here. Construct after prepare()
+// so the detector thread cannot inherit this requested QoS. Both A/B engines
+// receive the same producer scheduling; deadlines and gates remain unchanged.
+class ScopedFeederQoS {
+public:
+    ScopedFeederQoS() {
+#if JUCE_MAC
+        require(pthread_get_qos_class_np(pthread_self(),&previous,&relative)==0, "Cannot inspect feeder QoS");
+        require(previous!=QOS_CLASS_UNSPECIFIED,"Feeder QoS cannot be restored exactly");
+        require(pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE,0)==0,
+                "Cannot request feeder QoS");
+        active=true;
+#endif
+    }
+    ~ScopedFeederQoS() {
+#if JUCE_MAC
+        if(active && pthread_set_qos_class_self_np(previous,relative)!=0)std::terminate();
+#endif
+    }
+    void restore() {
+#if JUCE_MAC
+        require(pthread_set_qos_class_self_np(previous,relative)==0,"Cannot restore feeder QoS");
+        active=false;
+        qos_class_t restored{};int restoredRelative{};
+        require(pthread_get_qos_class_np(pthread_self(),&restored,&restoredRelative)==0, "Cannot inspect restored feeder QoS");
+        require(restored==previous && restoredRelative==relative,"Feeder QoS restoration mismatch");
+#endif
+    }
+    ScopedFeederQoS(const ScopedFeederQoS&)=delete;
+    ScopedFeederQoS& operator=(const ScopedFeederQoS&)=delete;
+private:
+#if JUCE_MAC
+    qos_class_t previous{};int relative{};bool active{};
+#endif
+};
 struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{};};
 template<class T> NativeResult native(double rate,int block,double hz){
     T tuner;
@@ -26,6 +65,7 @@ template<class T> NativeResult native(double rate,int block,double hz){
     if constexpr(std::is_same_v<T,spectralforge::Tuner>)tuner.useNormalQoSForTest(normalQoSReference);
 #endif
     tuner.prepare(rate);juce::AudioBuffer<float> audio(2,block);NativeResult result;
+    ScopedFeederQoS feederQoS;
     const double timingEpoch=juce::Time::getMillisecondCounterHiRes();
     const auto start=Clock::now();auto next=start;int offset=0,stable=0;
     const int total=int(rate*.6), step=int(rate*.30);
@@ -51,6 +91,7 @@ template<class T> NativeResult native(double rate,int block,double hz){
         if(offset<step && std::abs(e)<.5 && confidence>.9 && result.acquire<0)result.acquire=elapsed;
         if(offset>=step){if(std::abs(e)<.5 && confidence>.9)++stable;else stable=0;if(stable>=3 && result.settle<0)result.settle=elapsed-1000*step/rate;result.cents=e;}
     }
+    feederQoS.restore();
     tuner.push(audio,false); // must hide stale pitch immediately in the candidate
     if constexpr(std::is_same_v<T,spectralforge::Tuner>)require(tuner.frequency()==0,"Disabled tuner exposed stale reading");
     tuner.stop();require(tuner.stopped(),"Worker did not stop");
