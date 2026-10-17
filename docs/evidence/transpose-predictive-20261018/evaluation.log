@@ -1,0 +1,66 @@
+sineB0 -2
+sineB0 -1
+sineB0 1
+sineB0 2
+sineA0 -2
+sineA0 -1
+sineA0 1
+sineA0 2
+sineE1 -2
+sineE1 -1
+sineE1 1
+sineE1 2
+harmonics -2
+harmonics -1
+harmonics 1
+harmonics 2
+weak -2
+weak -1
+weak 1
+weak 2
+dyad -2
+dyad -1
+dyad 1
+dyad 2
+impulses -2
+impulses -1
+impulses 1
+impulses 2
+riff75 -2
+riff75 -1
+riff75 1
+riff75 2
+riff125 -2
+riff125 -1
+riff125 1
+riff125 2
+{
+  "baseline": {
+    "tone_pass": 12,
+    "tone_total": 20,
+    "latency_pass": 0,
+    "latency_total": 4,
+    "release_eligible": false
+  },
+  "predict1024": {
+    "tone_pass": 0,
+    "tone_total": 20,
+    "latency_pass": 0,
+    "latency_total": 4,
+    "release_eligible": false
+  },
+  "predict2048": {
+    "tone_pass": 6,
+    "tone_total": 20,
+    "latency_pass": 0,
+    "latency_total": 4,
+    "release_eligible": false
+  },
+  "predict4096": {
+    "tone_pass": 12,
+    "tone_total": 20,
+    "latency_pass": 0,
+    "latency_total": 4,
+    "release_eligible": false
+  }
+}
