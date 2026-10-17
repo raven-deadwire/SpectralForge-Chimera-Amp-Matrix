@@ -1,0 +1,78 @@
+{
+  "baseline": {
+    "target_pass": false,
+    "synthetic_screen_pass": false,
+    "reasons": [
+      "coherent_fundamental_outside_1dB",
+      "impulse_spread_gt_2ms",
+      "local_fundamental_outside_1dB",
+      "measured_attack_gt_10ms",
+      "measured_energy95_gt_10ms",
+      "multi_voice_metric_failed_ideal_control_BLOCKED",
+      "nominal_latency_gt_10ms",
+      "pitch_error_gt_10_cents",
+      "warble_gt_20_cents"
+    ],
+    "real_DI": "NOT_AVAILABLE",
+    "DAW_PDC_automation_recall": "NOT_RUN",
+    "controlled_realtime_CPU": "NOT_RUN"
+  },
+  "relative": {
+    "target_pass": false,
+    "synthetic_screen_pass": false,
+    "reasons": [
+      "coherent_fundamental_outside_1dB",
+      "local_fundamental_outside_1dB",
+      "measured_attack_gt_10ms",
+      "measured_energy95_gt_10ms",
+      "multi_voice_metric_failed_ideal_control_BLOCKED",
+      "nominal_latency_gt_10ms",
+      "pitch_error_gt_10_cents",
+      "warble_gt_20_cents"
+    ],
+    "real_DI": "NOT_AVAILABLE",
+    "DAW_PDC_automation_recall": "NOT_RUN",
+    "controlled_realtime_CPU": "NOT_RUN"
+  },
+  "corr10": {
+    "target_pass": false,
+    "synthetic_screen_pass": false,
+    "reasons": [
+      "coherent_fundamental_outside_1dB",
+      "multi_voice_metric_failed_ideal_control_BLOCKED",
+      "pitch_error_gt_10_cents",
+      "variable_delay_no_fixed_PDC_contract",
+      "warble_gt_20_cents"
+    ],
+    "real_DI": "NOT_AVAILABLE",
+    "DAW_PDC_automation_recall": "NOT_RUN",
+    "controlled_realtime_CPU": "NOT_RUN"
+  },
+  "corr40": {
+    "target_pass": false,
+    "synthetic_screen_pass": false,
+    "reasons": [
+      "measured_attack_gt_10ms",
+      "measured_energy95_gt_10ms",
+      "multi_voice_metric_failed_ideal_control_BLOCKED",
+      "variable_delay_no_fixed_PDC_contract"
+    ],
+    "real_DI": "NOT_AVAILABLE",
+    "DAW_PDC_automation_recall": "NOT_RUN",
+    "controlled_realtime_CPU": "NOT_RUN"
+  },
+  "corr40-onset": {
+    "target_pass": false,
+    "synthetic_screen_pass": false,
+    "reasons": [
+      "coherent_fundamental_outside_1dB",
+      "local_fundamental_outside_1dB",
+      "multi_voice_metric_failed_ideal_control_BLOCKED",
+      "pitch_error_gt_10_cents",
+      "variable_delay_no_fixed_PDC_contract"
+    ],
+    "real_DI": "NOT_AVAILABLE",
+    "DAW_PDC_automation_recall": "NOT_RUN",
+    "controlled_realtime_CPU": "NOT_RUN"
+  }
+}
