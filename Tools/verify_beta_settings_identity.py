@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import json
+import subprocess
 from pathlib import Path
 import beta_lifecycle
 import package_release
@@ -13,7 +14,10 @@ def verify(root: Path, build: Path) -> None:
     compiled = json.loads((build / "beta-lifecycle-evidence/compiled-beta-identity.json").read_text(encoding="utf-8"))
     if compiled != metadata:
         raise ValueError("Runtime compiled identity differs from package metadata")
-    beta_lifecycle.validate_metadata(metadata, root, metadata["source_sha"])
+    source_sha = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+    if metadata["source_sha"] != source_sha:
+        raise ValueError("Runtime evidence belongs to another source commit")
+    beta_lifecycle.validate_metadata(metadata, root, source_sha)
     # Exercise the real package stager, including the configure-time fingerprint.
     staged = build / "beta-lifecycle-evidence/staged-documents"
     staged.mkdir(parents=True, exist_ok=True)

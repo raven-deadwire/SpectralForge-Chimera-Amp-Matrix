@@ -22,6 +22,7 @@ public:
         lifecycle.setComponentID("betaLifecycleNotice");
         recheck.setComponentID("betaRecheckClock");
         lifecycle.setMultiLine(true,true);lifecycle.setReadOnly(true);lifecycle.setScrollbarsShown(true);
+        lifecycle.setScrollToShowCursor(false); // A ticking countdown must not jump a scrolled notice.
         lifecycle.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff101615));
         lifecycle.setColour(juce::TextEditor::textColourId,juce::Colour(0xffe1dbce));
         if(betaNotice) {addAndMakeVisible(lifecycle);addAndMakeVisible(recheck);}
