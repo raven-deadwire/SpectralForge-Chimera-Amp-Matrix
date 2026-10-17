@@ -1,11 +1,15 @@
-# SpectralForge Chimera — Open Beta 1.3.1 updates and support
+# SpectralForge Chimera — updates and support
 
-## Next development candidate: 1.3.1-beta.3
+## Integrated development candidate: 1.3.2-beta.1
 
-The beta lifecycle is implemented for newly built beta.3 candidates. The owner has
-not approved an expiry date or publication. The committed policy leaves the expiry
-unset. CI can use a clearly marked synthetic date to qualify the mechanism; such
-packages cannot pass the publisher. Published beta.2 files and tags are unchanged.
+The integrated candidate has an approved expiry of **2027-02-11 23:59 KST /
+2027-02-11T14:59:00Z**, used by both normal and qualification builds. Release
+and deployment were requested, but full source/binary qualification and separate
+release approval remain pending. Expiry approval does not approve publication.
+
+PR #62's separate `1.3.1-beta.3` policy remains unset and unapproved. Its synthetic
+qualification packages cannot pass the publisher or inherit the 1.3.2 deadline.
+Published beta.2 files and tags are unchanged.
 
 SETTINGS > Beta / Updates shows BETA, the package version, source/build ID, absolute
 UTC expiry and current state. A non-modal SETTINGS warning appears in the final

@@ -1,20 +1,29 @@
-# Beta lifecycle — next-version development contract
+# Beta lifecycle — 1.3.2-beta.1 integration contract
 
-This work targets `1.3.1-beta.3` in PR #62. The released beta.2 source
-`6033236cb81820a43679cbbd34be020804f9658d`, tag, binaries and update feed are
-unchanged. No new release is authorized. `RELEASE_REVIEW_PENDING` is present.
+The current integrated candidate is `1.3.2-beta.1` in PR #68. Its approved
+expiry is **2027-02-11T14:59:00Z / 2027-02-11 23:59 KST**. Publication and
+deployment were requested, but source/binary acceptance and release approval
+remain incomplete. `RELEASE_REVIEW_PENDING` is present; expiry approval alone
+does not permit publication.
+
+The `1.3.1-beta.3` development branch in PR #62 remains a separate, unpublished
+policy scope: its expiry is unset and unapproved. The 1.3.2 approval does not
+apply to that branch or its synthetic qualification packages. The released
+beta.2 source `6033236cb81820a43679cbbd34be020804f9658d`, tag, binaries and
+update feed are unchanged.
 
 ## Configuration and identity
 
-`Validation/beta-lifecycle-policy.json` has `expires_at_utc: null` and
-`expiry_approved: false`. The owner must select an absolute UTC timestamp before
-publication. No compilation time, first-run clock or reinstall starts a new trial.
+`Validation/beta-lifecycle-policy.json` binds version `1.3.2-beta.1` to
+`expires_at_utc: "2027-02-11T14:59:00Z"` and `expiry_approved: true`.
+Both normal and qualification configurations use this committed deadline.
+No compilation time, first-run clock or reinstall starts a new trial.
 The existing VERSION/RELEASE_CHANNEL, source SHA and ten-character build ID remain
 the only product identity. CMake generates `ChimeraBetaLifecycleBuild.h` and
 `chimera-beta-lifecycle.json` from that identity and policy; the existing
 `chimera-build-version.json` fingerprints the lifecycle JSON.
 
-Normal unapproved developer builds say that the date is unset and cannot be
+For an unapproved policy such as PR #62, normal developer builds say that the date is unset and cannot be
 staged as distributions. CI explicitly permits a **qualification-only** synthetic
 2099 date. This is a test fixture, not an approved deadline. Such packages are
 marked in SETTINGS and in the EN/DE/KR notice; the existing publisher rejects
@@ -90,10 +99,62 @@ macOS/Linux audio acceptance are not certified by these automated tests. Keep
 unexecuted cases NOT_RUN and retain the existing release gates. PR body/CI results
 record concrete outcomes; this document itself is not a PASS verdict.
 
-## Expiry choices for owner review
+## Historical expiry options — PR #62 only
 
-No option below is selected. Proposed windows measured from the eventual approved
+No option was selected for PR #62. Proposed windows measured from the eventual approved
 publication date are 90 days, 120 days (recommended balance), or 180 days. Convert
 the selected window to an explicit absolute UTC date at release preparation and
 obtain approval for that exact date. Each option retains the 14-day advance notice,
 active-instance grace, offline clock recovery and project preservation.
+These historical options do not replace or extend the approved 1.3.2-beta.1 deadline.
+
+## Integration audit — October 14, 2026
+
+Compared PR #62 at `5c858442d0ed8360703e0ce63241a567736608a9` with PR #68 at
+`ec47f6c09349af9ee5c1b6aa11a287432610b7ef`. The former is an ancestor of the
+latter. Of the 35 files changed by #62, 22 have identical contents at both heads;
+the other 13 were reviewed for their actual differences. File overlap alone was
+not used as the integration verdict. Hashes, CI identities and policy-isolation
+results are in [the audit evidence](evidence/beta-lifecycle-integration-20261014/audit.json).
+
+| Area | Source-level result |
+| --- | --- |
+| Expiry and clock | `BetaLifecycle.h` / `BetaLifecycleRuntime.h` are identical. Inclusive expiry, 14-day warning, lifetime activation latch, nonpositive-clock warning and explicit recovery are retained. |
+| Existing projects | The final mute/fade block and state save/load entry points are identical. The latch is neither reset by state restore nor stored in projects; EQ edit metadata additions do not replace the existing IR/A-B/MIDI paths. |
+| State restoration | All old parameter ID/ordinal/version-hint/value checks remain. The historical fixture test now explicitly preserves the 4,967 released parameters and checks defaults for 19 tuner plus 40 dynamics additions. |
+| Updates | Support panel, update service and beta notice are unchanged. Network failure does not revoke processing; expired instances retain update and clock-recheck actions. |
+| Packaging | The generator, package stagers, installer, installed-document verifier and publisher are identical. Source/version identity, metadata fingerprints, canonical EN/DE/KO notices and synthetic-package rejection remain enforced. |
+| Approval separation | #62 stays unset/unapproved; #68 alone uses the approved date above. Cross-version policy/metadata probes reject mixing. The pending marker, exact-source approval receipt and acceptance gates remain required. |
+
+No missing runtime protection was found. The concrete integration omission was
+documentation: current #68 manual/update/release-note text still described #62's
+unapproved policy. This correction updates those statements and the pending
+marker's explanation without changing runtime, policy JSON, tests or gate logic.
+Historical #62 and beta.2 evidence stays identified as historical.
+
+At the audited #68 source, lifecycle run
+[38500448294](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448294)
+passed all seven jobs: 6/6 focused checks per OS, five consecutive macOS native
+state restores, and beta.2 historical-source restore on all three OSes. The Linux
+artifact's ZIP digest, compiled identity, policy JSON and configure-time fingerprint
+were verified; the binary reports the approved deadline, not the 2099 fixture.
+
+This is not full product clearance. The same source's full build run
+[38500448272](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448272)
+failed three macOS tests (EQ stopped-audio display decay, room cabinet lane,
+tuner acquisition); its release gate was **7 PASS / 121 BLOCKED** and candidate
+assembly was skipped. The tuner test's lifecycle failure concerns tuner input
+acquisition, not the beta expiry latch. Source inspection does not waive any failure.
+
+The documentation correction passed 94 local Python lifecycle/publisher/approval
+checks and the pure C++ policy test. Local packaging checks had 18 passes, one
+environment error (CMake unavailable) and three Windows-only skips; those are not
+reported as a complete local packaging PASS. Public-document checks and manual
+script parsing are recorded separately in the evidence.
+
+Keep #62 open as a Draft with its branch and evidence until the audited successor
+is merged and traceable; it can then be closed as superseded, without implying
+publication approval. No branch is deleted by this audit. A documentation edit
+changes the embedded manual and source identity, so prior native CI/packages do
+not certify the corrected commit: fresh exact-source qualification and a separate
+publication decision are still required. No released asset or live update feed is changed.
