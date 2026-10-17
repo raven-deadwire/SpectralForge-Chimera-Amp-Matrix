@@ -1,0 +1,66 @@
+{
+  "baseline_commit": "aa9e7b9a9f3889f1e42d83de264491e673c38018",
+  "branch": "research/issue8-transpose-bass-lab",
+  "baseline_source_tree": "d4d30394b84fb83b6526f650b4d05be5b870a61b",
+  "baseline_assets_tree": "d555af16056e468e885ecb334dea5333b5351a63",
+  "product_source_diff": "",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "build_type": "Release",
+  "configuration": "standalone Tools/Transpose/CMakeLists.txt, 2 channels",
+  "source_hashes": {
+    "Source/PolyPitch.h": "2582d15ede1755a9d7cc45ffac27fcff69f0aaf75d6aaf50c2bcb26d7ee27173",
+    "Source/GlobalDSP.h": "645b38c7909f26ef4435bfc51fcbbe3b8cdb0130a93740fff6ece8c64a3b042e",
+    "Source/PostRigGate.h": "0948431ee443b202b3dc3cbc7734891521bdc7d794135465b0e6e464c5e23a4c",
+    "Source/PluginProcessor.cpp": "fece95218b64025784566b88e3ef092a86fbbcc7873e8749198cdd03444b1233",
+    "Source/FXChain.h": "e241c054a6a39cf48b6081fc072281b588a6b622fbe9cabf4588ceb67149d077",
+    "Source/ChimeraDSP.h": "bcaa3d7f37ff6c6238b32f60ba81c0f6c0c5f7ee257f6ea1b249448e3dfdb4eb"
+  },
+  "tool_hashes": {
+    "Tools/Transpose/CMakeLists.txt": "9164994d8ebfa5e8158b789a124045189c2ad9e675bed9c83628b14b89f581e0",
+    "Tools/Transpose/README.md": "e726a91b4b8c67e760c64415849ca5e7d3bb9900d62afa9b02d9326fc26882ab",
+    "Tools/Transpose/RelativePhasePitch.h": "a0e68f39e154da6138de4ecf37d140f499f98460ea87674406943fedebfa342a",
+    "Tools/Transpose/TransposeLab.cpp": "33678e8c75b808679953dee058377291bb64aa70378baffb0558d2273a12edc6",
+    "Tools/Transpose/controls.py": "1c1932a96c03265cc501aeeebef858213e15efb925d5f465aeebfae14c9f9b9f",
+    "Tools/Transpose/measure.py": "8dbe71cd36ba2923ea93c1435deb6ecf7acdd1e2f7e174e6675f92cfd94776e9",
+    "Tools/Transpose/plot.py": "1984f12f6689708ea47521f3ebff9710673c0469a73051eb8258e4a127aa52b2"
+  },
+  "dependencies": {
+    "JUCE": {
+      "commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+      "working_tree": "M modules/juce_gui_basics/native/juce_VBlank_windows.cpp",
+      "working_tree_note": "Existing Windows VBlank patch in shared checkout; juce_gui_basics is not compiled by this standalone DSP build."
+    },
+    "SignalsmithStretch": {
+      "commit": "a670068d9aeb64913331d5cc29337b19a457a7df",
+      "working_tree": ""
+    },
+    "SignalsmithLinear": {
+      "commit": "de55e6a50ffcf6f8f43f649692d94691c7025151",
+      "working_tree": ""
+    }
+  },
+  "comparisons": {
+    "detail": 103,
+    "matrix": 405,
+    "controls": 24,
+    "partition_groups": 135,
+    "partition_output_identical_groups": 135
+  },
+  "actual_di_available": false,
+  "real_daw_tested": false,
+  "release_approved": false,
+  "timing_scope": "Shared container; unisolated system load. Each run once. Nominal block-period deadline; final partial offline block uses the same period. Not callback/DAW acceptance.",
+  "evidence_hashes": {
+    "ctest.log": "d51aed2046abdf274d276f42c9bfa31a0ec6c873bf931827c9c706fcddeeca70",
+    "comparison.png": "a699243a76fdc3a2e94de046c416ce595a4293aa2aedb9d17bf8f00c9e1d618f",
+    "matrix.json": "44d7111b7e755d6085ce0ac2eacae2faedfba6b3b076def7dc05daa01f0a68b6",
+    "LastTest.log": "69ef2015813a0fb82ca7a81f6c99f6cad444025c952c0ceebc0a782c975feab3",
+    "detail.json": "75e7cbc750f736c0be0a04610b9f443cd2c52b5e45a168c2f4226d60df8ab168",
+    "controls.json": "317430db9b76ff7f275d92b664b98face3c1f750d2be0424027e22a729b4e3be"
+  }
+}

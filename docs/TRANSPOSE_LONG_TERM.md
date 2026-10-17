@@ -20,3 +20,11 @@ Nominal algorithmic latency remains 2048 samples at 44.1/48 kHz and 4096 at 96 k
 Policy v4 moves `I2.PITCH_LIVE` and `I2.PITCH_DI` to stage `T1`. The `beta_1_1_1` profile excludes only these two improvement goals; `transpose_followup` and `full_release` continue to require their evidence. Deferral does not mean PASS or NOT_APPLICABLE. Gate listening, real DAW lifecycle, callback timing, E670FE reference acceptance and all other existing release checks are retained.
 
 No transpose DSP change is included in the release-preparation commit. Do not advertise low-latency transpose or resolved bass smearing in 1.1.1.
+
+## Independent research — 2026-10-11
+
+[Bass/latency investigation](TRANSPOSE_BASS_RESEARCH_2026_10_11.md) records actual
+core buffer/latency analysis, matched synthetic comparisons, Gate separation and
+rejected candidates on an isolated research branch. Transient improvements do not
+establish bass-DI acceptance or the <=10 ms goal. No research engine is selected by
+the product, and this work adds no gate to the 1.3.0 release path.
