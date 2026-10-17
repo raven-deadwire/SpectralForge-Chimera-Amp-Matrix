@@ -385,6 +385,7 @@ inline void run(const juce::File& folder) {
         capture(*editor,folder,"signal-workflow-head-mode-"+juce::String(mode)+"-dual-"+juce::String(scenario[1])+"-scale-100");
         click(pathButton(*strip,"cab"));compactDestination(*editor,*strip,"cab");
         auto* expand=find<juce::TextButton>(*editor,"signalPathExpand");require(expand,"Path expansion missing");
+        set(*p,"tuneron",0);settle(40);
         const auto before=values(*p);writes.changes=writes.gestures=0;
         compactKeyboardAndAccessibility(*editor,*strip);
         // ROUTING remains available from the same keyboard sequence as editors.
@@ -411,6 +412,18 @@ inline void run(const juce::File& folder) {
         keyboardOrder(*graph,detailOrder);
         for(const auto& node:nodes){auto* b=find<juce::TextButton>(*graph,"path."+node.id);require(b,"Navigation block missing");click(*b);if(!b->getToggleState())throw std::runtime_error("Native pointer click did not select block "+node.id.toStdString());
             accessibleButton(*b,node.label);
+            if(node.target==Target::tuner) {
+                auto expected=before;
+                expected[size_t(p->parameters().getParameter("tuneron")->getParameterIndex())]=1.f;
+                require(values(*p)==expected && writes.changes==1 && writes.gestures==2,
+                    "Tuner route must start detection with exactly one host gesture and no unrelated writes");
+                auto* dock=find<juce::TextButton>(*editor,"tunerOpen");
+                require(dock && dock->getToggleState(),"Tuner route did not open the tuner workspace");
+                click(*dock);
+                require(values(*p)==before && writes.changes==2 && writes.gestures==4 && !dock->getToggleState(),
+                    "Closing routed tuner must stop detection and preserve all other parameters");
+                writes.changes=writes.gestures=0;
+            }
             if(node.target==Target::cab)require(dialog("cabWorkspace"),"CAB click did not open the existing editor");
             if(node.target==Target::toneEQ || node.target==Target::finalEQ){
                 const bool tone=node.target==Target::toneEQ;

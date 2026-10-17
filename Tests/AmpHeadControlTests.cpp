@@ -703,8 +703,12 @@ int main(int argc,char** argv){try {
             check(target && target->displayedContext()==ampNativeContext(mode,lane),"Room opened wrong amplifier bank");
             screenshot(*full,directory,"room-to-head-mode"+juce::String(mode)+"-lane"+juce::String(lane));closeWorkspace();
             int selectedCab=-1;const auto callback=room->onCabinetSelected;
-            room->onCabinetSelected=[&](int selected){selectedCab=selected;};cab->triggerClick();settle(10);
-            check(selectedCab==lane,"Wrong room cabinet lane");room->onCabinetSelected=callback;
+            room->onCabinetSelected=[&](int selected){selectedCab=selected;};cab->triggerClick();
+            // triggerClick is delivered through the native message queue. Do
+            // not restore the production callback before a delayed macOS
+            // dispatch has delivered the selected lane.
+            awaitUI([&]{return selectedCab==lane;},"Wrong room cabinet lane");
+            room->onCabinetSelected=callback;
         }
         check(all.writes==writes && all.begins==begins,"Room navigation changed sound");screenshot(*editor,directory,"room-"+juce::String(mode));}
     editor.reset();

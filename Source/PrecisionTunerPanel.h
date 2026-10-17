@@ -16,10 +16,9 @@ public:
         profileAttachment=std::make_unique<CA>(state,"tunerProfile",profile);displayAttachment=std::make_unique<CA>(state,"tunerDisplay",display);
         stringAttachment=std::make_unique<juce::ParameterAttachment>(*state.getParameter("tunerString"),[this](float v){strings.setSelectedId(int(v)+1,juce::dontSendNotification);},nullptr);
         stringAttachment->sendInitialUpdate();strings.onChange=[this]{stringAttachment->setValueAsCompleteGesture(float(strings.getSelectedId()-1));};
-        for(auto* b:{&enabled,&mute}){b->setClickingTogglesState(true);addAndMakeVisible(*b);}
-        enabled.setComponentID("tunerEnable");mute.setComponentID("tunerMute");
-        enabled.setTooltip("Start pitch detection. Mute output is controlled separately.");mute.setTooltip("Silence the output while tuning; your processing settings are preserved.");
-        onAttachment=std::make_unique<BA>(state,"tuneron",enabled);muteAttachment=std::make_unique<BA>(state,"tunermute",mute);
+        mute.setClickingTogglesState(true);addAndMakeVisible(mute);mute.setComponentID("tunerMute");
+        mute.setTooltip("Silence the output while tuning; your processing settings are preserved.");
+        muteAttachment=std::make_unique<BA>(state,"tunermute",mute);
         reference.setSliderStyle(juce::Slider::LinearHorizontal);reference.setTextBoxStyle(juce::Slider::TextBoxRight,false,70,26);reference.setTextValueSuffix(" Hz");reference.setName("A4 reference");addAndMakeVisible(reference);
         refAttachment=std::make_unique<SA>(state,"tunerref",reference);
         for(int i=0;i<8;++i){
@@ -38,7 +37,7 @@ public:
     static juce::String noteName(int midi){const std::array<const char*,12> names{{"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"}};return juce::String(names[size_t((midi%12+12)%12)])+juce::String(midi/12-1);}
     void resized() override{
         profile.setBounds(18,36,450,30);display.setBounds(480,36,120,30);strings.setBounds(612,36,190,30);
-        enabled.setBounds(820,36,142,30);mute.setBounds(974,36,148,30);
+        mute.setBounds(974,36,148,30);
         reference.setBounds(66,371,300,28);status.setBounds(20,323,752,35);
         for(int i=0;i<8;++i){customNotes[size_t(i)].setBounds(862,108+i*31,116,26);customOffsets[size_t(i)].setBounds(988,108+i*31,132,26);}
     }
@@ -77,14 +76,13 @@ private:
         const auto previousSettings=settings;const auto oldMeasured=measured;const bool oldValid=valid;
         const auto oldPhases=phases;const bool opening=lastTime==0;
         const auto get=[this](const juce::String& id){return processor.parameters().getRawParameterValue(id)->load();};
-        enabled.setButtonText(get("tuneron")>.5f?"STOP TUNING":"START TUNING");
         settings.profile=static_cast<spectralforge::tuning::Profile>(int(get("tunerProfile")));settings.reference=get("tunerref");settings.stringIndex=int(get("tunerString"))-1;
         for(int i=0;i<8;++i){settings.customMidi[size_t(i)]=int(get("tunerNote"+juce::String(i+1)));settings.customCents[size_t(i)]=get("tunerOffset"+juce::String(i+1));const bool show=settings.profile==spectralforge::tuning::Profile::custom;customNotes[size_t(i)].setVisible(show);customOffsets[size_t(i)].setVisible(show);}
         const int count=spectralforge::tuning::strings(settings.profile);strings.setEnabled(count>0);for(int i=1;i<=8;++i)strings.setItemEnabled(i+1,i<=count);
         measured=processor.tuningFrequency();reading=spectralforge::tuning::target(measured,settings);valid=get("tuneron")>.5f&&processor.tuningConfidence()>.9f&&reading.valid;
         const double now=juce::Time::getMillisecondCounterHiRes()*.001,dt=lastTime>0?std::min(.1,now-lastTime):0;lastTime=now;
         if(valid){if(previousTarget!=reading.hz)phases.fill(0);for(int i=0;i<3;++i)phases[size_t(i)]=spectralforge::tuning::advanceDisplayStrobe(phases[size_t(i)],measured,reading.hz,dt,1<<i);previousTarget=reading.hz;}else {phases.fill(0);previousTarget=0;}
-        juce::String message=get("tuneron")<.5f?"TUNER OFF  /  Press START TUNING":!valid?(count>0 && settings.stringIndex>=count?"Select AUTO or a string in this profile":"LISTENING  /  Play one steady note"):(reading.stringIndex>=0?"STRING "+juce::String(reading.stringIndex+1)+"  /  ":"")+juce::String(reading.cents,2)+" ct  /  target "+juce::String(reading.hz,3)+" Hz  /  offset "+juce::String(reading.offset,1)+" ct";
+        juce::String message=get("tuneron")<.5f?"TUNER OFF":!valid?(count>0 && settings.stringIndex>=count?"Select AUTO or a string in this profile":"LISTENING  /  Play one steady note"):(reading.stringIndex>=0?"STRING "+juce::String(reading.stringIndex+1)+"  /  ":"")+juce::String(reading.cents,2)+" ct  /  target "+juce::String(reading.hz,3)+" Hz  /  offset "+juce::String(reading.offset,1)+" ct";
         if(get("tuneron")>.5f)message+=get("tunermute")>.5f?"  /  MUTED":"  /  MONITOR";
         status.setText(message,juce::dontSendNotification);
         const int selectedDisplay=display.getSelectedId();
@@ -97,8 +95,8 @@ private:
         else if(valid!=oldValid || measured!=oldMeasured || phases!=oldPhases)repaint(20,82,752,235);
         lastDisplay=selectedDisplay;
     }
-    ChimeraProcessor& processor;juce::ComboBox profile,display,strings;juce::TextButton enabled{"START TUNING"},mute{"MUTE OUTPUT"};juce::Slider reference;juce::Label status;
+    ChimeraProcessor& processor;juce::ComboBox profile,display,strings;juce::TextButton mute{"MUTE OUTPUT"};juce::Slider reference;juce::Label status;
     std::array<juce::Slider,8> customNotes,customOffsets;std::array<std::unique_ptr<SA>,8> noteAttachments,offsetAttachments;
-    std::unique_ptr<CA> profileAttachment,displayAttachment;std::unique_ptr<juce::ParameterAttachment> stringAttachment;std::unique_ptr<SA> refAttachment;std::unique_ptr<BA> onAttachment,muteAttachment;
+    std::unique_ptr<CA> profileAttachment,displayAttachment;std::unique_ptr<juce::ParameterAttachment> stringAttachment;std::unique_ptr<SA> refAttachment;std::unique_ptr<BA> muteAttachment;
     spectralforge::tuning::Settings settings;spectralforge::tuning::Target reading;bool valid{};int lastDisplay{};double measured{},lastTime{},previousTarget{};std::array<double,3> phases{};
 };

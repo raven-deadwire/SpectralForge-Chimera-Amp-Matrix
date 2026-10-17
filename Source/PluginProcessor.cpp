@@ -104,7 +104,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     for(int i=0;i<3;++i) {
         const auto get=[&](int id){return cabPanelParameters[i][id]->load();};
         auto& cab=engine.cabinet(i);auto* b=cab.secondMic();
-        cab.blend=get(0);cab.gainDb=get(1);cab.delayMs=get(2);cab.invert=get(3)>.5f;
+        cab.blend=spectralforge::cabMicRouting(originalCabParameters.values[i][3]->load()>.5f,originalCabParameters.values[i][8]->load()>.5f,int(laneParameters[i][16]->load()),int(get(9)),get(0)).blend;cab.gainDb=get(1);cab.delayMs=get(2);cab.invert=get(3)>.5f;
         b->gainDb=get(4);b->delayMs=get(5);b->invert=get(6)>.5f;
         cab.enable(laneParameters[i][13]->load()>.5f);
     }
@@ -246,7 +246,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         engine.cabinet(i).requestedSource.store((int)f(16));
         auto get=[&](int id){return cabPanelParameters[i][id]->load();};
         auto& cab=engine.cabinet(i); auto* b=cab.secondMic();
-        cab.blend=get(0);
+        cab.blend=spectralforge::cabMicRouting(originalCabParameters.values[i][3]->load()>.5f,originalCabParameters.values[i][8]->load()>.5f,int(laneParameters[i][16]->load()),int(get(9)),get(0)).blend;
         cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
         b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
         b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));

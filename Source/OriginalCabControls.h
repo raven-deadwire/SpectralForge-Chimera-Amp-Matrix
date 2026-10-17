@@ -85,7 +85,7 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
                     +juce::String(spectralforge::cabLayout::effectiveUnit(target)+1)+")" : ""));
             }
             s.response.setEnabled(on);s.mic.setEnabled(on && s.response.getSelectedId()==1);s.unit.setEnabled(on);s.position.setEnabled(on);s.distance.setEnabled(on);
-            s.mode.setText(on ? "CABINET MIC ACTIVE" : "CAPTURED IR ACTIVE",juce::dontSendNotification);
+            s.mode.setText(on ? "CABINET MIC ACTIVE" : ((&s==&slots[0]?processor.micRouting(lane).offA:processor.micRouting(lane).offB) ? "MIC OFF" : "CAPTURED IR / FILTERS"),juce::dontSendNotification);
             s.mode.setColour(juce::Label::textColourId,juce::Colour(on ? 0xffa9b9b5 : 0xffb99e79));
             const int selected=s.response.getSelectedId()-2;
             if(selected>=0 && selected<int(spectralforge::cabExpansion::microphones.size())) {

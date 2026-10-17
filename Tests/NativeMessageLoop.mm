@@ -29,11 +29,12 @@ bool dispatchFor(int milliseconds) {
         if(remaining<=0)break;
         double beforeAutorelease{};
         @autoreleasepool {
-            // Test-only fairness: JUCE serves four messages per CF source callback.
-            // Keep servicing ready sources for this requested slice before AppKit
-            // polling, whose internal native work may outlast its event deadline.
+            // Return after one ready source so the outer loop can re-check its
+            // deadline and alternate CF and AppKit service. A time slice with
+            // returnAfterSourceHandled=false can drain successive ready sources
+            // without returning control to the test's bounded event pump.
             const auto beforeCF=juce::Time::getMillisecondCounterHiRes();
-            lastCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),false);
+            lastCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),true);
             const auto beforePoll=juce::Time::getMillisecondCounterHiRes();
             cfMilliseconds+=beforePoll-beforeCF;
             if(measured){const double us=(beforePoll-beforeCF)*1000;++telemetry.iterations;telemetry.cfMicros+=us;telemetry.cfMaxMicros=std::max(telemetry.cfMaxMicros,us);}
@@ -79,3 +80,4 @@ bool dispatchFor(int milliseconds) {
     return !messages->hasStopMessageBeenSent();
 }
 }
+

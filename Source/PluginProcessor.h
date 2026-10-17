@@ -1,3 +1,4 @@
+#include "CabMicRouting.h"
 #pragma once
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -59,7 +60,16 @@ public:
     juce::Result loadIR(int lane,const juce::File& file);
     juce::Result loadMicIR(int lane,int slot,const juce::File& file);
     juce::String micName(int lane,int slot) const { return library.userName(lane+3*slot); }
+    spectralforge::CabMicRouting micRouting(int lane) const {
+        const auto n=juce::String(lane+1);
+        return spectralforge::cabMicRouting(
+            state.getRawParameterValue(spectralforge::originalCabID(lane,"Aon"))->load()>.5f,
+            state.getRawParameterValue(spectralforge::originalCabID(lane,"Bon"))->load()>.5f,
+            int(state.getRawParameterValue("cabtype"+n)->load()),int(state.getRawParameterValue("cabBtype"+n)->load()),
+            state.getRawParameterValue("cabblend"+n)->load());
+    }
     juce::String micStatus(int lane,int slot) const {
+        const auto route=micRouting(lane);if(slot?route.offB:route.offA)return "MIC OFF | No fallback filters";
         const auto model=originalCabParameters.read(lane,slot);
         const int source=(int)state.getRawParameterValue((slot ? "cabBtype" : "cabtype")+juce::String(lane+1))->load();
         const auto selected=uint64_t(source+1) | (model<<4);
