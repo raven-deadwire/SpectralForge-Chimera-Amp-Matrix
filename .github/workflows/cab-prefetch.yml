@@ -1,0 +1,72 @@
+name: CAB bounded prefetch independent experiment
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabPrefetch/**'
+      - '.github/workflows/cab-prefetch.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cab-prefetch-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  paired:
+    strategy:
+      fail-fast: false
+      matrix:
+        kind: [prefetch2]
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: controller
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@v5
+        with:
+          ref: c2263e4c90bffb9a56cc41285ebf8207e641b3aa
+          path: parent
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@v5
+        with:
+          ref: c2263e4c90bffb9a56cc41285ebf8207e641b3aa
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate protocol and extracted scalar arithmetic
+        run: |
+          python controller/Tools/CabNeonAB/test_analysis.py
+          python controller/Tools/CabPrefetch/test_contracts.py
+          python controller/Tools/CabPrefetch/check_kernels.py --compiler clang++ --sanitize --output sanitizer-evidence
+          python controller/Tools/CabPrefetch/check_kernels.py --compiler clang++ --output kernel-evidence
+      - name: Generate one isolated scalar treatment
+        run: python controller/Tools/CabPrefetch/prepare.py --candidate candidate --kind ${{ matrix.kind }}
+      - name: Build both arms before crossover measurement
+        run: python controller/Tools/CabPrefetch/run.py --parent parent --candidate candidate --kind ${{ matrix.kind }} --build builds --output evidence
+      - name: Recompute raw summaries and statistical decision
+        if: success()
+        run: |
+          python -m zipfile -c raw-audit.zip evidence/*
+          python controller/Tools/CabPrefetch/audit.py raw-audit.zip statistics-audit.json
+      - name: Preserve every population and failed gate
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: CAB-scalar-memory-${{ matrix.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            evidence/
+            kernel-evidence/
+            sanitizer-evidence/
+            statistics-audit.json
+          if-no-files-found: error
+          retention-days: 90
