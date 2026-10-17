@@ -1,4 +1,5 @@
 #include "PrecisionTuner.h"
+#include "PrecisionTunerInvariantTests.h"
 #include <iostream>
 #include <random>
 #include <stdexcept>
@@ -12,6 +13,7 @@ int main(){try{
         for(size_t n=0;n<samples.size();++n){const double phase=6.283185307179586*hz*n/rate+.7;
             samples[n]=float(.2*std::sin(phase)+(kind? .1*std::sin(2*phase)+.07*std::sin(3*phase):0)+(kind==2? .0002*noise(rng):0));}
         const auto result=estimate(samples.data(),int(samples.size()),rate);const double error=1200*std::log2(result.first/hz);
+        tests::compareFrozen(result,samples.data(),int(samples.size()),rate);
         require(result.second>.9,"Lost tonal lock");const double limit=kind==2?.3:.1;
         if(std::abs(error)>limit){std::cerr<<"FAIL "<<rate<<" Hz rate / "<<hz<<" Hz tone / kind "<<kind<<" / "<<error<<" ct\n";return 1;}
         worst=std::max(worst,std::abs(error));++cases;
@@ -21,7 +23,7 @@ int main(){try{
         std::array<float,4096> samples{};
         for(size_t n=0;n<samples.size();++n){const double t=n/24000.,p=6.283185307179586*hz*t+.4;
             samples[n]=float(kind==0?.015*std::sin(p)+.2*std::sin(2*p):kind==1?(.2*std::sin(p)+.1*std::sin(2*p))*std::exp(-3*t):.2*std::sin(p)+.25);}
-        const auto r=estimate(samples.data(),4096,24000);require(r.second>.9f && std::abs(1200*std::log2(r.first/hz))<.1,"Weak fundamental, decay or DC stress failed");++stressCases;
+        const auto r=estimate(samples.data(),4096,24000);tests::compareFrozen(r,samples.data(),4096,24000);require(r.second>.9f && std::abs(1200*std::log2(r.first/hz))<.1,"Weak fundamental, decay or DC stress failed");++stressCases;
     }
     for(auto profile:{Profile::bass5,Profile::bass6}){Settings bass;bass.profile=profile;for(int i=0;i<strings(profile);++i){bass.stringIndex=i;const int midi=profile==Profile::bass6?(i==0?48:bassMidi[size_t(i-1)]):bassMidi[size_t(i)];auto t=target(frequency(midi,440),bass);require(t.valid&&t.stringIndex==i&&t.offset==0&&t.fret==0&&std::abs(t.cents)<1e-9,"Bass target mapping");}}
     Settings invalid;invalid.profile=static_cast<Profile>(99);require(!target(440,invalid).valid,"Invalid profile accepted");invalid.profile=Profile::tt6;invalid.stringIndex=7;require(!target(440,invalid).valid,"Invalid string accepted");
@@ -39,5 +41,6 @@ int main(){try{
     require(std::abs(target(frequency(33,442,-7.3),s).cents)<1e-9,"Custom target/calibration mismatch");
     require(advanceStrobe(.4,440,440,.1)==.4,"Strobe drifts in tune");require(advanceStrobe(.4,440.1,440,.1)>.4,"Sharp direction");require(advanceStrobe(.4,439.9,440,.1)<.4,"Flat direction");require(advanceStrobe(.4,440.001,440,.1)>.4,"Strobe dead band");
     std::cout<<"PASS "<<cases<<" pitch cases; worst absolute error "<<worst<<" ct; profiles, custom/calibration, silence/DC/noise, strobe direction/dead-band\n";
+    tests::runAdditionalInvariantCases();
     return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

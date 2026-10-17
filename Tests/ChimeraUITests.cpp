@@ -544,6 +544,82 @@ void checkHostedSupportLifetime(const juce::File& directory)
              <<slowestTeardown<<" ms (hosted UI harness, not a Studio One shutdown test)\n";
 }
 }
+void checkReviewFixes(const juce::File& directory) {
+    auto processor=std::make_unique<ChimeraProcessor>();auto& p=*processor;
+    set(p,"mode",2);set(p,"cabtype1",0);set(p,"cabBtype1",0);set(p,"cabblend1",.7f);
+    set(p,"ocab1_Aon",1);set(p,"ocab1_Bon",0);
+    auto editor=std::make_unique<ChimeraEditor>(p);
+    auto* head=nativeUITests::find<juce::TextButton>(*editor,"path.head");
+    require(head!=nullptr,"HEAD navigation missing");head->onClick();
+    juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
+    for(int mode=0;mode<3;++mode) {
+        set(p,"mode",float(mode));juce::MessageManager::getInstance()->runDispatchLoopUntil(80);head->onClick();
+        for(int lane=0;lane<=mode;++lane) {
+            const auto n=juce::String(lane+1);
+            for(auto prefix:{"cabinet","irtags"}) {
+                auto* c=correctionUITests::find(*editor,juce::String(prefix)+n);
+                require(c && !c->isVisible(),"HEAD exposes a cabinet editor");
+            }
+            const auto before=p.parameters().getRawParameterValue("cabtype"+n)->load();
+            const auto cut=p.parameters().getRawParameterValue("cablow"+n)->load();
+            p.setAmpModel(lane,5);
+            require(p.parameters().getRawParameterValue("cabtype"+n)->load()==before && p.parameters().getRawParameterValue("cablow"+n)->load()==cut,"Head selection changed cabinet settings");
+        }
+        checkControls(*editor,mode);
+    }
+    for(float scale:{.75f,1.f,1.25f,1.5f}) {
+        editor->setSize(int(1180*scale),int(780*scale));
+        auto* panel=correctionUITests::find(*editor,"ampNativePanel1");
+        auto* channel=correctionUITests::find(*panel,"ampChannel1");
+        require(channel && channel->isVisible(),"LOW channel selector missing");
+        juce::Rectangle<int> previous;
+        for(auto id:{"bandtone1_control","lowcomp_control","lowampmix_control"}) {
+            auto* c=correctionUITests::find(*panel,id);require(c && c->isVisible(),"LOW control missing");
+            auto* knob=dynamic_cast<NativeControlView*>(c);
+            require(knob && knob->slider.getSliderStyle()==juce::Slider::RotaryHorizontalVerticalDrag,"LOW control is not rotary");
+            const auto bounds=panel->getLocalArea(c,c->getLocalBounds());
+            require(bounds.getY()>=channel->getBottom() && bounds.getY()<channel->getBottom()+10,"LOW knobs must be directly below channel");
+            require(previous.isEmpty() || (bounds.getY()==previous.getY() && bounds.getX()>previous.getX()),"LOW knobs must share one ordered row");
+            require(panel->getLocalBounds().contains(bounds) && !bounds.intersects(previous),"LOW controls clipped or overlapping");previous=bounds;
+        }
+        saveSnapshot(*editor,directory,"HEAD-LOW-"+juce::String(int(scale*100)));
+    }
+    auto* tuner=nativeUITests::find<juce::TextButton>(*editor,"tunerOpen");
+    require(tuner!=nullptr,"Tuner entry missing");
+    // Restored/automated detector state must not light an unopened workspace button.
+    set(p,"tuneron",1);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
+    require(!tuner->getToggleState() && !(bool)tuner->getProperties()["utilityActive"],"Unopened tuner button lights from detector state");
+    for(float muted:{0.f,1.f}) {
+        set(p,"tuneron",0);set(p,"tunermute",muted);tuner->onClick();
+        require(p.parameters().getRawParameterValue("tuneron")->load()==1,"Opening tuner did not start detection");
+        require(tuner->getToggleState() && (bool)tuner->getProperties()["utilityActive"],"Opened tuner button is not active");
+        require(p.parameters().getRawParameterValue("tunermute")->load()==muted,"Opening tuner changed mute preference");
+        require(correctionUITests::find(*editor,"tunerEnable")==nullptr,"Start/stop button remains");
+        auto* mute=nativeUITests::find<juce::TextButton>(*editor,"tunerMute");require(mute && mute->isVisible(),"Tuner mute option missing");
+        mute->setToggleState(muted==0.f,juce::sendNotification);
+        require(p.parameters().getRawParameterValue("tuneron")->load()==1,"Mute toggle stopped tuning");
+        tuner->onClick();require(p.parameters().getRawParameterValue("tuneron")->load()==0,"Closing tuner did not stop detection");
+        require(!tuner->getToggleState() && !(bool)tuner->getProperties()["utilityActive"],"Closed tuner button remains lit");
+    }
+    auto route=p.micRouting(0);require(!route.offA && route.offB && route.blend==0,"Disabled Mic B leaks filters");
+    set(p,"ocab1_Aon",0);set(p,"ocab1_Bon",1);route=p.micRouting(0);
+    require(route.offA && !route.offB && route.blend==1,"Disabled Mic A leaks filters");
+    set(p,"cabtype1",2);route=p.micRouting(0);
+    require(!route.offA && !route.offB && std::abs(route.blend-.7f)<1e-5,"Explicit captured/model hybrid changed");
+    set(p,"cabtype1",0);set(p,"ocab1_Aon",1);route=p.micRouting(0);
+    require(!route.offA && !route.offB && std::abs(route.blend-.7f)<1e-5,"Re-enabling lost stored mic blend");
+    set(p,"ocab1_Aon",0);set(p,"ocab1_Bon",0);route=p.micRouting(0);
+    require(!route.offA && !route.offB && std::abs(route.blend-.7f)<1e-5,"Legacy filters-only rig changed");
+    require(std::abs(p.parameters().getRawParameterValue("cabblend1")->load()-.7f)<1e-5,"Routing rewrote stored blend");
+    set(p,"ocab1_Aon",1);set(p,"ocab1_Bon",0);
+    auto cab=std::make_unique<CabPanel>(p,0);cab->setSize(1100,700);cab->setView(CabPanel::View::irLoader);
+    juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
+    auto* blend=dynamic_cast<juce::Slider*>(correctionUITests::find(*cab,"cabblend1"));
+    require(blend && !blend->isEnabled(),"Single mic exposes an active blend");
+    saveSnapshot(*cab,directory,"CAB-Mic-B-OFF");
+    std::cout<<"PASS HEAD/CAB isolation, LOW bounds at four scales, disabled mic routing, explicit hybrid and stored blend\n";
+}
+
 int main(int argc, char** argv)
 {
     std::cout << std::unitbuf;
@@ -625,6 +701,8 @@ int main(int argc, char** argv)
         if(argc>2 && juce::String(argv[2])=="--precision-tuner-timing"){precisionTunerTimingProbe::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--common-dynamics-only"){commonDynamicsUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--signal-path-only"){signalPathTests::run(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--review-fixes-only"){checkReviewFixes(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--native-panels-only"){runNativeUITests(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
             std::cout<<"RUN suite "<<name<<std::endl;
@@ -955,3 +1033,4 @@ int main(int argc, char** argv)
     catch (const std::exception& error)
     { std::cerr << "FAIL: " << error.what() << '\n'; return 1; }
 }
+

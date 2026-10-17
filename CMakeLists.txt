@@ -213,6 +213,7 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
   add_test(NAME ChimeraPrecisionTunerUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/precision-tuner-snapshots" --precision-tuner-only)
   add_test(NAME ChimeraCommonDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/common-dynamics-snapshots" --common-dynamics-only)
+  add_test(NAME ChimeraHeadCabLowUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/head-cab-low-snapshots" --review-fixes-only)
   add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
@@ -553,3 +554,10 @@ target_compile_definitions(ChimeraPrecisionTunerIntegrationTests PRIVATE JUCE_US
 target_link_libraries(ChimeraPrecisionTunerIntegrationTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPrecisionTunerIntegrationTests COMMAND ChimeraPrecisionTunerIntegrationTests)
 set_tests_properties(ChimeraPrecisionTunerIntegrationTests PROPERTIES TIMEOUT 120)
+
+# Test-only timing attribution; product targets never enable tuner test hooks.
+add_executable(ChimeraTunerTimingTests Tests/TunerTimingTests.cpp)
+target_include_directories(ChimeraTunerTimingTests PRIVATE Source)
+add_test(NAME ChimeraTunerTimingTests COMMAND ChimeraTunerTimingTests)
+add_test(NAME ChimeraTunerWorkerTimingTests COMMAND ChimeraPrecisionTunerIntegrationTests --timing-only)
+set_tests_properties(ChimeraTunerWorkerTimingTests PROPERTIES TIMEOUT 10)
