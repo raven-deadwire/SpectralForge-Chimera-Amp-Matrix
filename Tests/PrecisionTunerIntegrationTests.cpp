@@ -29,18 +29,25 @@ template<class T> NativeResult native(double rate,int block,double hz){
     const double timingEpoch=juce::Time::getMillisecondCounterHiRes();
     const auto start=Clock::now();auto next=start;int offset=0,stable=0;
     const int total=int(rate*.6), step=int(rate*.30);
-    struct FeedObservation {int offset;double push,observed;float hz,confidence;};
+    struct FeedObservation {int offset;double push,observed;float hz,confidence;double sleepBegin,sleepEnd,readEnd;};
     std::vector<FeedObservation> feed;feed.reserve(size_t((total+block-1)/block));
     for(;offset<total;offset+=block){
         const double wanted=offset>=step?hz*std::exp2(10./1200):hz;
         for(int n=0;n<block;++n){audio.setSample(0,n,tone(wanted,(offset+n)/rate,1));audio.setSample(1,n,-.7f*audio.getSample(0,n));}
         const auto pushStart=Clock::now();tuner.push(audio,true);
         result.pushUs=std::max(result.pushUs,std::chrono::duration<double,std::micro>(Clock::now()-pushStart).count());
-        next=start+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>((offset+block)/rate));std::this_thread::sleep_until(next);
+        next=start+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>((offset+block)/rate));
+        const auto sleepBegin=Clock::now();
+        std::this_thread::sleep_until(next);
+        const auto sleepEnd=Clock::now();
         const double elapsed=std::chrono::duration<double,std::milli>(Clock::now()-start).count();
         const auto measured=tuner.frequency();const auto confidence=tuner.confidence();
+        const auto readEnd=Clock::now();
         const double e=error(measured,wanted);
-        feed.push_back({offset,std::chrono::duration<double,std::milli>(pushStart-start).count(),elapsed,measured,confidence});
+        feed.push_back({offset,std::chrono::duration<double,std::milli>(pushStart-start).count(),elapsed,measured,confidence,
+            std::chrono::duration<double,std::milli>(sleepBegin-start).count(),
+            std::chrono::duration<double,std::milli>(sleepEnd-start).count(),
+            std::chrono::duration<double,std::milli>(readEnd-start).count()});
         if(offset<step && std::abs(e)<.5 && confidence>.9 && result.acquire<0)result.acquire=elapsed;
         if(offset>=step){if(std::abs(e)<.5 && confidence>.9)++stable;else stable=0;if(stable>=3 && result.settle<0)result.settle=elapsed-1000*step/rate;result.cents=e;}
     }
@@ -49,9 +56,14 @@ template<class T> NativeResult native(double rate,int block,double hz){
     tuner.stop();require(tuner.stopped(),"Worker did not stop");
 #if CHIMERA_TUNER_TEST_HOOKS
     if constexpr(std::is_same_v<T,spectralforge::Tuner>) {
-        for(const auto& f:feed)
+        for(const auto& f:feed) {
             std::cerr<<std::setprecision(12)<<"FEED,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
                 <<1000*f.offset/rate<<','<<f.push<<','<<f.observed<<','<<f.hz<<','<<f.confidence<<'\n';
+            // Separate diagnostics preserve FEED schema and all gate clocks.
+            // No oversleep is discarded, subtracted or retried.
+            std::cerr<<"FEED_WAIT,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
+                <<1000*(f.offset+block)/rate<<','<<f.sleepBegin<<','<<f.sleepEnd<<','<<f.readEnd<<'\n';
+        }
         const auto& trace=tuner.timingAfterStopForTest();
         // Separate tagged CSV stream on stderr; retain every estimate, including
         // rejected/generation-discarded observations and routes that fail gates.
@@ -257,3 +269,4 @@ int main(int argc,char** argv){try{
     require(failedRoutes==0,"Native acquisition/settle/accuracy gate failed; all route rows retained");
     std::cerr<<"PASS "<<count<<" kernel cases and 32 native A/B routes. Synthetic sine/harmonic/exponential-decay maxima: "<<worst[0]<<' '<<worst[1]<<' '<<worst[2]<<" ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.\n";
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
+
