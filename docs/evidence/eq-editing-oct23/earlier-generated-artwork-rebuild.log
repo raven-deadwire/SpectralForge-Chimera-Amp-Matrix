@@ -1,0 +1,6 @@
+[0/2] Re-checking globbed directories...
+[1/6] Building CXX object CMakeFiles/ChimeraArtwork.dir/juce_binarydata_ChimeraArtwork/JuceLibraryCode/BinaryData233.cpp.o
+[2/6] Building CXX object CMakeFiles/ChimeraArtwork.dir/juce_binarydata_ChimeraArtwork/JuceLibraryCode/BinaryData6.cpp.o
+[3/6] Linking CXX static library libChimeraArtwork.a
+[4/6] Linking CXX executable ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests
+[5/6] Linking CXX executable ChimeraEQSnapshotFreezeTests_artefacts/Release/ChimeraEQSnapshotFreezeTests

@@ -1,3 +1,4 @@
+#include "CabMicRouting.h"
 #pragma once
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -12,11 +13,22 @@
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
 #include "GraphicalEQ.h"
+#include "BetaLifecycleRuntime.h"
+#include "EQEditState.h"
+#include "EQCaptureBoundary.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
     ChimeraProcessor();
     ~ChimeraProcessor() override;
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    std::atomic<int> routingGateObserved{-1};
+    std::atomic<uint64_t> routingBlocks{0};
+#endif
+    spectralforge::beta::Evaluation betaStatus() const noexcept { return betaLifecycle.observe(betaClock()); }
+    bool betaProcessingPermitted() const noexcept { return betaLifecycle.processingPermitted(); }
+    juce::String betaNotice() const;
+    void recheckBetaClock() noexcept { (void)betaLifecycle.recoverFromClockCorrection(betaClock()); }
     void prepareToPlay(double,int) override;
     void releaseResources() override;
     // Diagnostic/test query. Host audio processing must already be stopped.
@@ -48,7 +60,16 @@ public:
     juce::Result loadIR(int lane,const juce::File& file);
     juce::Result loadMicIR(int lane,int slot,const juce::File& file);
     juce::String micName(int lane,int slot) const { return library.userName(lane+3*slot); }
+    spectralforge::CabMicRouting micRouting(int lane) const {
+        const auto n=juce::String(lane+1);
+        return spectralforge::cabMicRouting(
+            state.getRawParameterValue(spectralforge::originalCabID(lane,"Aon"))->load()>.5f,
+            state.getRawParameterValue(spectralforge::originalCabID(lane,"Bon"))->load()>.5f,
+            int(state.getRawParameterValue("cabtype"+n)->load()),int(state.getRawParameterValue("cabBtype"+n)->load()),
+            state.getRawParameterValue("cabblend"+n)->load());
+    }
     juce::String micStatus(int lane,int slot) const {
+        const auto route=micRouting(lane);if(slot?route.offB:route.offA)return "MIC OFF | No fallback filters";
         const auto model=originalCabParameters.read(lane,slot);
         const int source=(int)state.getRawParameterValue((slot ? "cabBtype" : "cabtype")+juce::String(lane+1))->load();
         const auto selected=uint64_t(source+1) | (model<<4);
@@ -80,6 +101,9 @@ public:
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
+    spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
+    spectralforge::EQEditState& eqEditing() noexcept {return eqEditState;}
+    spectralforge::EQCaptureBoundary& eqCaptureBoundary() noexcept {return eqCaptureBoundaryState;}
     float cpuLoad() const { return cpuAverage.load(); }
     float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
@@ -116,6 +140,11 @@ public:
     void activateNativeAmp(int lane);
     void activateNativePost(int section);
 private:
+    friend struct ChimeraBetaTestAccess;
+    ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock);
+    const spectralforge::beta::Clock betaClock;
+    spectralforge::beta::InstanceLatch betaLifecycle;
+    juce::SmoothedValue<float> betaOutputGain;
     spectralforge::AmpSelectionParameterCache ampSelection;
     spectralforge::AmpNativeParameterCache nativeAmps;
     spectralforge::PostNativeParameterCache nativePost;
@@ -144,6 +173,8 @@ private:
     std::atomic<uint64_t> headRecallRevision{0};
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
+    spectralforge::EQEditState eqEditState{state};
+    spectralforge::EQCaptureBoundary eqCaptureBoundaryState;
     std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
     spectralforge::OriginalCabParameters originalCabParameters;
     void syncOriginalCabRequests();
@@ -152,6 +183,7 @@ private:
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
+    spectralforge::CommonDynamics dynamics;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;

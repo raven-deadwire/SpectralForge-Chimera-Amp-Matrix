@@ -1,0 +1,41 @@
+{
+  "base_commit": "3817246f779a50f19b5378ec9661a2275e6b91b2",
+  "unchanged_files": {
+    "Source/PluginProcessor.cpp": {
+      "byte_identical": true,
+      "sha256": "5f9f1ef5455d367ea44fd85876028ec1ee6cfec416217ca5a87528a779c4a377"
+    },
+    "Source/PluginProcessor.h": {
+      "byte_identical": true,
+      "sha256": "165fdec064011936b1ad6c3e9248eeab3d3796fea0fd1929f8d5ff43dce0675b"
+    },
+    "Source/ChimeraDSP.h": {
+      "byte_identical": true,
+      "sha256": "ee35949cdf33f3d47b37f98da93ebde0d2df85f7041cea210f083d9030b5aadd"
+    },
+    "Source/FXParameters.h": {
+      "byte_identical": true,
+      "sha256": "4c2d2b318aed5e11268257db792e2d3a6658f9b0fa9eba6fb62f9b4936796d39"
+    },
+    "VERSION": {
+      "byte_identical": true,
+      "sha256": "10e2e117b01523891ca271a615ae36e9d5e52348fd7d642f66727602c1b8dcbe"
+    },
+    "RELEASE_CHANNEL": {
+      "byte_identical": true,
+      "sha256": "d11a8a9975b043d17eb65d496a998f9f7cf9d0462f1b5b1a9024b7251873c529"
+    },
+    "Validation/release-policy.json": {
+      "byte_identical": true,
+      "sha256": "2cc37b6b355f20bb4cdd7f10a28431b4d20933bc99ae0a8399745b0805fa2c3d"
+    }
+  },
+  "eqID_filter_parameter_helpers": {
+    "byte_identical": true,
+    "sha256": "17b082ce7c3dfaf935a47c41525da03b8e97ad439dd55d0e6b2af30f28912838"
+  },
+  "GraphicalEQ_processing_class": {
+    "byte_identical": true,
+    "sha256": "4c5fe1603ff19c04b04094b555fbb38310173835d4b3a161bf8c4a29020087a9"
+  }
+}

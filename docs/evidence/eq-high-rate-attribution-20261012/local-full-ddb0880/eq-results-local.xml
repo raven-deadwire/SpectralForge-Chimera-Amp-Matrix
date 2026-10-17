@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="4"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="83"
+	timestamp="2026-10-12T20:27:07"
+	>
+	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="13.9648" status="run">
+		<properties/>
+		<system-out>ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.999...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQTests" classname="ChimeraGraphicalEQTests" time="29.9447" status="run">
+		<properties/>
+		<system-out>PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio &lt;= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=11.528 p99=39.82 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=11.878 p99=42.945 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=13.38 p99=41.333 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=13.581 p99=42.625 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=23.686 p99=54.022 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQAnalyzerTests" classname="ChimeraEQAnalyzerTests" time="18.2477" status="run">
+		<properties/>
+		<system-out>COVERAGE rate=44100 FFT=2048 position=early batch=1764 samples windows=3 input_energy=30.4415 raw_last=-18.1941 display_at_40ms=-21.2661 bounded_display=-21.2661 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=2048 position=late batch=1764 samples windows=3 input_energy=30.4415 raw_last=-19.6671 display_at_40ms=-25.1261 bounded_display=-21.5318 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=4096 position=early batch=1764 samples windows=1 input_energy=30.4415 raw_last=-32.7049 display_at_40ms=-35.8482 bounded_display=-26.2139 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=4096 position=late batch=1764 samples windows=1 input_energy=30.4415 raw_last=-57.0214 display_at_40ms=-60.1647 bounded_display=-25.3675 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=8192 position=early batch=1764 samples windows=0 input_energy=30.4415 raw_last=-120 display_at_40ms=-120 bounded_display=-30.1873 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=8192 position=late batch=1764 samples windows=0 input_energy=30.4415 raw_last=-120 display_at_40ms=-120 bounde...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQAnalyzerPerformanceTests" classname="ChimeraEQAnalyzerPerformanceTests" time="20.851" status="run">
+		<properties/>
+		<system-out>Frozen analyzer SHA-256 ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26; same-executable ABBA BAAB; no real audio device or DAW
+PASS 108 baseline/candidate spectral cases, max raw/envelope/display errors 1.52588e-05/1.52588e-05/1.52588e-05 dB; every chronological window and FIFO sample preserved
+PASS nonfinite/overflow containment and fresh-spectrum recovery
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=20 ms median_update=23.9351 -&gt; 21.2456 ms reduction=11.2369%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=40 ms median_update=32.991 -&gt; 27.0785 ms reduction=17.9215%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=80 ms median_update=24.0211 -&gt; 22.1493 ms reduction=7.79234%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=full_capacity_catchup UI= ms median_update=17.4626 -&gt; 16.0584 ms reduction=8.04153%; windows=128; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=4096 fixture=nominal_cadence UI=20 ms median_up...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

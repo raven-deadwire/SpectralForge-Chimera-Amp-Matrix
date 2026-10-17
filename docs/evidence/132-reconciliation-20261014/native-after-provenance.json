@@ -1,0 +1,18 @@
+{
+  "based_on": "e2373d7fbcd3923d4b0f4bd3e09a4cffdf762672",
+  "source_hashes": {
+    "Source/GlobalDSP.h": "b35e675d2847cdc787492d59ad33d2c81b207221b7cc9d922221b97e466095fd",
+    "Source/PrecisionTuner.h": "91e67028cfaa5dc57b74ac52aa8904423f796a02c566d88ce622bee63e540d39",
+    "Source/PrecisionTunerPanel.h": "22e4a609c958d4b84adfb95f0b49c651bc38c75407ebb9e13810ec1d79b9361e",
+    "Tests/PrecisionTunerTests.cpp": "0acd6562fbe1b781cfee9053078902d0955d0f674b4917516fd17d3f01964303",
+    "Tests/PrecisionTunerUITests.h": "fb60b3463e6c90591297fde0d808da59e475fffb49e91ae180287f9a75a29634",
+    "Tests/PrecisionTunerIntegrationTests.cpp": "5d0af8b9a712daab169ac87afa8f1c55a4e8f68158d01ad4792245eea993e077"
+  },
+  "binary_sha256": "c5fdb5fbf1e38cb2528b4105859287b3f27e8d4fc4bd2ba90ba53b3abd14b0bc",
+  "scope": "native worker synthetic route tests, no installed plugin, driver or DAW",
+  "qualification": "FAIL",
+  "concurrent_compilation": true,
+  "threshold_ms": 290,
+  "failed_routes": 10,
+  "channel_continuity_and_switch": "PASS"
+}

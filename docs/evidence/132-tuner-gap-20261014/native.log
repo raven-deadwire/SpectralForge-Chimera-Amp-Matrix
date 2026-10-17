@@ -1,0 +1,6 @@
+ROUTE FAIL rate=48000 block=64 hz=30.8677 acquire=180.077 settle=-1 error=99999
+ROUTE FAIL rate=48000 block=256 hz=82.4069 acquire=187.003 settle=-1 error=5.41929
+ROUTE FAIL rate=96000 block=64 hz=440 acquire=174.089 settle=364.881 error=-1.92066e-05
+PASS stereo balance continuity and true channel-switch invalidation/reacquisition
+PASS expired observation hidden through stall/resume, fresh-block and mixed-queue gaps; fresh stream reacquires
+FAIL Native acquisition/settle/accuracy gate failed; all route rows retained

@@ -267,8 +267,10 @@ juce::Result openManual(const void* html, size_t bytes) {
 }
 
 juce::File ReleaseSupport::settingsFile() { return userRoot().getChildFile("updates.json"); }
-ReleaseSupport::ReleaseSupport() : juce::Thread("SpectralForge Chimera updates") {
-    const auto file = settingsFile();
+ReleaseSupport::ReleaseSupport() : ReleaseSupport(nullptr) {}
+ReleaseSupport::ReleaseSupport(TextReader reader)
+    : juce::Thread("SpectralForge Chimera updates"), injectedReader(reader) {
+    const auto file = injectedReader ? juce::File{} : settingsFile();
     if (file.existsAsFile() && file.getSize() < 8192) {
         const auto settings = juce::JSON::parse(file);
         status.automaticChecks = settings["automaticChecks"].isBool() && static_cast<bool>(settings["automaticChecks"]);
@@ -290,6 +292,7 @@ ReleaseSupport::~ReleaseSupport() {
 ReleaseSupport::Snapshot ReleaseSupport::snapshot() const { const juce::ScopedLock l(mutex); return status; }
 bool ReleaseSupport::automaticChecksEnabled() const { const juce::ScopedLock l(mutex); return status.automaticChecks; }
 juce::Result ReleaseSupport::saveSettings() {
+    if(injectedReader)return juce::Result::ok(); // deterministic test transport owns no user settings
     auto* object = new juce::DynamicObject;
     { const juce::ScopedLock l(mutex); object->setProperty("automaticChecks", status.automaticChecks); object->setProperty("lastCheck", lastCheck); }
     const juce::var json(object);
@@ -362,6 +365,7 @@ std::shared_ptr<juce::WebInputStream> ReleaseSupport::connect(const juce::String
     error = "Update request was cancelled or redirected too many times."; return {};
 }
 juce::Result ReleaseSupport::readText(const juce::String& url, int maximum, juce::String& result) {
+    if(injectedReader)return injectedReader(url,maximum,result);
     juce::String error;
     auto stream = connect(url, error);
     if (!stream) return juce::Result::fail(error);

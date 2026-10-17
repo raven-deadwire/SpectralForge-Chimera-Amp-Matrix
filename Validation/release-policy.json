@@ -639,16 +639,16 @@
     "I2.LIVE_REMOVE_DAW"
   ],
   "release_scope": {
-    "version": "1.3.1-beta.2",
-    "product_version": "1.3.1",
+    "version": "1.3.2-beta.1",
+    "product_version": "1.3.2",
     "profile": "beta_1_3",
-    "channel": "beta.2",
-    "decision_at": "2026-10-12T21:15:02+09:00",
-    "authorization": "The owner requested verification and reviewable fixes for the conditional October 14 test build. This authorizes candidate integration and validation only; it does not approve publication, acceptance of validation gaps, or reuse of beta.1 evidence.",
+    "channel": "beta.1",
+    "decision_at": "2026-10-14T00:34:00+09:00",
+    "authorization": "Owner requested release and deployment including the signal/tuner update and 1.3.2 scope: ㅇㅇ 이거랑 1.3.2 버전 내용까지 포함해서 릴리즈 및 배포까지 진행. Fresh source qualification, an approved beta expiry and the existing acceptance review remain required; no test or gap acceptance is inferred.",
     "preparation_authorized": true,
-    "publication_authorized": false,
+    "publication_authorized": true,
     "release_approved": false,
-    "status": "TEST_BUILD_INTEGRATION_PENDING_EXACT_SOURCE_CI",
+    "status": "INTEGRATED_1_3_2_EXPIRY_APPROVED_QUALIFICATION_AND_ACCEPTANCE_PENDING",
     "deferred_checks": [
       "I2.PITCH_LIVE",
       "I2.PITCH_DI"

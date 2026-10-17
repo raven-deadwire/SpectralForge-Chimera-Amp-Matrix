@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="4"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="257"
+	timestamp="2026-10-12T08:47:33"
+	>
+	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="27.4952" status="run">
+		<properties/>
+		<system-out>ROUNDING level1 field=6 expected=-6.000000000 actual=-6.000000477
+ROUNDING level1 field=7 expected=12.000000000 actual=11.999999046
+ROUNDING bass1 field=6 expected=0.000000000 actual=-0.000000268
+ROUNDING bass1 field=7 expected=12.000000000 actual=11.999999046
+ROUNDING lowmid1 field=6 expected=0.000000000 actual=-0.000000268
+ROUNDING lowmid1 field=7 expected=12.000000000 actual=11.999999046
+ROUNDING highmid1 field=6 expected=0.000000000 actual=-0.000000268
+ROUNDING highmid1 field=7 expected=12.000000000 actual=11.999999046
+PASS legacy parameter contract: 3686 entries SHA256 365253d74967018996c41c7a57715cf39ced3d9f361ef21b9513e2ba95b2fdda approved_112_defaults=111 numeric_rounding_differences=292; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQTests" classname="ChimeraGraphicalEQTests" time="30.2516" status="run">
+		<properties/>
+		<system-out>PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio &lt;= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=6.208 p99=10.458 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=6.792 p99=14.167 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=7.041 p99=11.042 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=7.292 p99=11.875 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=11.75 p99=14.292 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch an...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQUITests" classname="ChimeraGraphicalEQUITests" time="184.542" status="run">
+		<properties/>
+		<system-out>IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+TEST HARNESS: non-blocking macOS native event pump (JUCE #1574)
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank=0
+Numeric 1:0 Hz=200 dB=3.5 Q=1.25
+Numeric 1:1 Hz=517 dB=3.5 Q=1.25
+Numeric 1:2 Hz=834 dB=3.5 Q=1.25
+Numeric 1:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 1:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 1:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 1:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 1:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 1:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 1:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 1:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 1:11 Hz=...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQAnalyzerTests" classname="ChimeraEQAnalyzerTests" time="15.2982" status="run">
+		<properties/>
+		<system-out>COVERAGE rate=48000 FFT=2048 position=early batch=1920 samples windows=3 input_energy=30.8087 raw_last=-18.1228 display_at_40ms=-21.48 bounded_display=-21.48 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=2048 position=late batch=1920 samples windows=3 input_energy=30.8087 raw_last=-21.1046 display_at_40ms=-26.8997 bounded_display=-21.8391 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=early batch=1920 samples windows=1 input_energy=30.8087 raw_last=-32.6143 display_at_40ms=-36.0209 bounded_display=-26.1885 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=late batch=1920 samples windows=1 input_energy=30.8087 raw_last=-63.9 display_at_40ms=-67.3066 bounded_display=-25.4777 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=early batch=1920 samples windows=0 input_energy=30.8087 raw_last=-120 display_at_40ms=-120 bounded_display=-30.2061 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=late batch=1920 samples windows=0 input_energy=30.8087 raw_last=-120 display_at_40ms=-120 bounded_displ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

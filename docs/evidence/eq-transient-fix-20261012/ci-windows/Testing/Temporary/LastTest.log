@@ -1,0 +1,232 @@
+Start testing: Oct 12 08:53 Coordinated Universal Time
+----------------------------------------------------------
+26/46 Testing: ChimeraGateProcessorTests
+26/46 Test: ChimeraGateProcessorTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq
+"ChimeraGateProcessorTests" start time: Oct 12 08:53 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=0 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 1; pre/post, Full/24 dB, compatibility/native high gain
+PASS actual processor POST delay and reverb tails remain audible with Full gate closed
+<end of output>
+Test time =  13.32 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateProcessorTests" end time: Oct 12 08:53 Coordinated Universal Time
+"ChimeraGateProcessorTests" time elapsed: 00:00:13
+----------------------------------------------------------
+
+43/46 Testing: ChimeraGraphicalEQTests
+43/46 Test: ChimeraGraphicalEQTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq/ChimeraGraphicalEQTests_artefacts/Release/ChimeraGraphicalEQTests.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq/eq-cpu.csv"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq
+"ChimeraGraphicalEQTests" start time: Oct 12 08:53 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio <= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=14.6 p99=30.3 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=14.7 p99=30.8 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=17.1 p99=32.9 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=17.2 p99=33.7 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=28.6 p99=45.1 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=1 p50=28.6 p99=46.4 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=0 p50=33.6 p99=49.9 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=1 p50=33.8 p99=50.6 us / 2666.67 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=0 p50=112.5 p99=149.7 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=1 p50=112.9 p99=168.8 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=0 p50=132.4 p99=158.6 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=1 p50=133.5 p99=153.9 us / 10666.7 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=0 p50=14.6 p99=28.3 us / 666.667 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=1 p50=14.6 p99=32.2 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=0 p50=17.1 p99=33.5 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=1 p50=17.2 p99=26.9 us / 666.667 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=0 p50=28.6 p99=50.3 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=1 p50=28.6 p99=48.2 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=0 p50=33.5 p99=52 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=1 p50=33.8 p99=53.3 us / 1333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=0 p50=112.4 p99=139.1 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=1 p50=112.8 p99=136 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=0 p50=132.7 p99=156.8 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=1 p50=133.4 p99=167.6 us / 5333.33 us
+<end of output>
+Test time =  34.66 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQTests" end time: Oct 12 08:54 Coordinated Universal Time
+"ChimeraGraphicalEQTests" time elapsed: 00:00:34
+----------------------------------------------------------
+
+44/46 Testing: ChimeraGraphicalEQUITests
+44/46 Test: ChimeraGraphicalEQUITests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq
+"ChimeraGraphicalEQUITests" start time: Oct 12 08:54 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank=0
+Numeric 1:0 Hz=200 dB=3.5 Q=1.25
+Numeric 1:1 Hz=517 dB=3.5 Q=1.25
+Numeric 1:2 Hz=834 dB=3.5 Q=1.25
+Numeric 1:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 1:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 1:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 1:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 1:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 1:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 1:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 1:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 1:11 Hz=3687 dB=3.5 Q=1.25
+PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank=1
+NATIVE synthetic audio bank=0 FFT=2048 input=-20 output=-14 first_data_observed=74.2221 ms paint_p50=1673.3 us
+NATIVE synthetic audio bank=0 FFT=4096 input=-20 output=-14 first_data_observed=101.31 ms paint_p50=1331.7 us
+NATIVE synthetic audio bank=0 FFT=8192 input=-20 output=-14 first_data_observed=193.462 ms paint_p50=1381.7 us
+NATIVE layer state bank=0 both hasData=1 frames=716 dropped=0
+NATIVE layer state bank=0 in_only hasData=1 frames=716 dropped=0
+NATIVE layer state bank=0 neither hasData=1 frames=718 dropped=0
+NATIVE layer pixels bank=0 OUT both=840 in_only=232 IN in_only=113236 neither=112764
+NATIVE synthetic audio bank=1 FFT=2048 input=-20 output=-14 first_data_observed=81.7973 ms paint_p50=1313.1 us
+NATIVE synthetic audio bank=1 FFT=4096 input=-20 output=-14 first_data_observed=103.459 ms paint_p50=1649.5 us
+NATIVE synthetic audio bank=1 FFT=8192 input=-20 output=-14 first_data_observed=184.147 ms paint_p50=1229.6 us
+NATIVE layer state bank=1 both hasData=1 frames=719 dropped=0
+NATIVE layer state bank=1 in_only hasData=1 frames=719 dropped=0
+NATIVE layer state bank=1 neither hasData=1 frames=720 dropped=0
+NATIVE layer pixels bank=1 OUT both=840 in_only=232 IN in_only=113236 neither=112764
+PASS native synthetic anti-phase sine / independent IN-OUT layers / master-off / stopped-source decay
+PASS32 changing harmonic-pluck native frames through the full processBlock route / live input-output meters
+UI idle 75% = 0% one core (1 second no audio, process CPU)
+UI idle 100% = 14.0503% one core (1 second no audio, process CPU)
+UI idle 125% = 10.9409% one core (1 second no audio, process CPU)
+UI idle 150% = 3.12183% one core (1 second no audio, process CPU)
+PASS native functional coverage / automation / A-B and project recall / mode navigation / 75-150% / hidden analyzer
+OBSERVATION whole processor FFT=0 p50/p99=508.5/1212 us; callbacks=579 total_callbacks=679 callbacks_at_minimum_capture=679 observed_ms=1812.1 production_ratio=0.99921 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=0 performance_acceptance=NOT_ASSESSED
+OBSERVATION whole processor FFT=2048 p50/p99=502.2/1237.1 us; callbacks=580 total_callbacks=680 callbacks_at_minimum_capture=680 observed_ms=1814.57 production_ratio=0.999321 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=0 performance_acceptance=NOT_ASSESSED
+OBSERVATION whole processor FFT=4096 p50/p99=499.6/1363.9 us; callbacks=578 total_callbacks=678 callbacks_at_minimum_capture=678 observed_ms=1809.18 production_ratio=0.999348 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=0 performance_acceptance=NOT_ASSESSED
+OBSERVATION whole processor FFT=8192 p50/p99=510.3/1159.5 us; callbacks=582 total_callbacks=682 callbacks_at_minimum_capture=682 observed_ms=1819.96 production_ratio=0.999291 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=0 performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=96000 FFT=2048 produced/consumed/discarded/dropped/pending=955136/951296/0/0/3840 accounting_error=0 observed/missed_updates=244/0 consumer_gap_p99_ms=43.1457 production_ratio=0.994703 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=96000 FFT=4096 produced/consumed/discarded/dropped/pending=956928/953856/0/0/3072 accounting_error=0 observed/missed_updates=243/0 consumer_gap_p99_ms=43.2344 production_ratio=0.996555 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=96000 FFT=8192 produced/consumed/discarded/dropped/pending=957184/953600/0/0/3584 accounting_error=0 observed/missed_updates=243/0 consumer_gap_p99_ms=43.1133 production_ratio=0.996798 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=192000 FFT=2048 produced/consumed/discarded/dropped/pending=1440256/1433856/0/0/6400 accounting_error=0 observed/missed_updates=243/0 consumer_gap_p99_ms=43.236 production_ratio=0.749928 within_5pct_nominal_rate=0 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=192000 FFT=4096 produced/consumed/discarded/dropped/pending=1451520/1446400/0/0/5120 accounting_error=0 observed/missed_updates=243/0 consumer_gap_p99_ms=43.3274 production_ratio=0.755873 within_5pct_nominal_rate=0 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=192000 FFT=8192 produced/consumed/discarded/dropped/pending=1373568/1370880/0/0/2688 accounting_error=0 observed/missed_updates=243/0 consumer_gap_p99_ms=43.7833 production_ratio=0.714383 within_5pct_nominal_rate=0 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+PASS real native peer / 24 numeric nodes / drag / overlapping selection / Q / host gestures / 7 choices / stereo FFT / 75-150% / hidden and close
+<end of output>
+Test time = 118.89 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQUITests" end time: Oct 12 08:56 Coordinated Universal Time
+"ChimeraGraphicalEQUITests" time elapsed: 00:01:58
+----------------------------------------------------------
+
+45/46 Testing: ChimeraEQAnalyzerTests
+45/46 Test: ChimeraEQAnalyzerTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq/ChimeraEQAnalyzerTests_artefacts/Release/ChimeraEQAnalyzerTests.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq
+"ChimeraEQAnalyzerTests" start time: Oct 12 08:56 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+COVERAGE rate=48000 FFT=2048 position=early batch=1920 samples windows=3 input_energy=30.8087 raw_last=-18.1228 display_at_40ms=-21.48 bounded_display=-21.48 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=2048 position=late batch=1920 samples windows=3 input_energy=30.8087 raw_last=-21.1046 display_at_40ms=-26.8997 bounded_display=-21.8391 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=early batch=1920 samples windows=1 input_energy=30.8087 raw_last=-32.6143 display_at_40ms=-36.0209 bounded_display=-26.1885 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=late batch=1920 samples windows=1 input_energy=30.8087 raw_last=-63.9 display_at_40ms=-67.3066 bounded_display=-25.4777 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=early batch=1920 samples windows=0 input_energy=30.8087 raw_last=-120 display_at_40ms=-120 bounded_display=-30.2061 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=late batch=1920 samples windows=0 input_energy=30.8087 raw_last=-120 display_at_40ms=-120 bounded_display=-30.3639 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=2048 position=early batch=3840 samples windows=7 input_energy=30.8115 raw_last=-120 display_at_40ms=-24.0521 bounded_display=-24.0521 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=2048 position=late batch=3840 samples windows=7 input_energy=30.8115 raw_last=-18.0239 display_at_40ms=-26.3754 bounded_display=-23.8977 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=4096 position=early batch=3840 samples windows=3 input_energy=30.8115 raw_last=-25.6912 display_at_40ms=-27.4693 bounded_display=-27.4693 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=4096 position=late batch=3840 samples windows=3 input_energy=30.8115 raw_last=-26.9543 display_at_40ms=-32.7572 bounded_display=-27.5955 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=8192 position=early batch=3840 samples windows=1 input_energy=30.8115 raw_last=-36.3782 display_at_40ms=-39.7849 bounded_display=-31.9961 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=8192 position=late batch=3840 samples windows=1 input_energy=30.8115 raw_last=-76.0856 display_at_40ms=-79.492 bounded_display=-31.4424 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=2048 position=early batch=7680 samples windows=15 input_energy=30.8122 raw_last=-120 display_at_40ms=-26.851 bounded_display=-26.851 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=2048 position=late batch=7680 samples windows=15 input_energy=30.8122 raw_last=-16.647 display_at_40ms=-27.0404 bounded_display=-26.5473 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=4096 position=early batch=7680 samples windows=7 input_energy=30.8122 raw_last=-120 display_at_40ms=-29.984 bounded_display=-29.984 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=4096 position=late batch=7680 samples windows=7 input_energy=30.8122 raw_last=-23.8456 display_at_40ms=-32.2258 bounded_display=-29.7382 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=8192 position=early batch=7680 samples windows=3 input_energy=30.8122 raw_last=-32.8848 display_at_40ms=-33.5502 bounded_display=-33.5502 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=8192 position=late batch=7680 samples windows=3 input_energy=30.8122 raw_last=-32.891 display_at_40ms=-38.6952 bounded_display=-33.5115 dBFS fifo_drops=0
+PASS 90 transient/boundary/ballistics cases: 96/192 kHz, all FFT sizes, per-hop/25 Hz/irregular consumers agree
+PASS FFT 2048 @ 48000 Hz bin=23.4375 Hz window=42.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 @ 48000 Hz bin=11.7188 Hz window=85.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 @ 48000 Hz bin=5.85938 Hz window=170.667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 2048 @ 96000 Hz bin=46.875 Hz window=21.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 @ 96000 Hz bin=23.4375 Hz window=42.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 @ 96000 Hz bin=11.7188 Hz window=85.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 2048 @ 192000 Hz bin=93.75 Hz window=10.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 @ 192000 Hz bin=46.875 Hz window=21.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 @ 192000 Hz bin=23.4375 Hz window=42.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS 48/96/192 kHz: 31/55 Hz and stepped frequency peaks at honest bin tolerance / deterministic broadband / nonfinite input recovery
+PASS sample-time smoothing / no reset on ballistics changes / idle decay / fresh resumed window
+PASS exact FIFO sample accounting: simulated 100/250/500 ms stalls, full-capacity bounded catch-up, fresh recovery
+FFT CPU 2048 @ 48000 Hz windows/update=3..4 (zero=0) update p50/p99=638.7/1297.8 us; 25 Hz CPU=1.72927%; observation=42.6667 ms
+FFT CPU 4096 @ 48000 Hz windows/update=1..2 (zero=0) update p50/p99=587.9/598.4 us; 25 Hz CPU=1.36579%; observation=85.3333 ms
+FFT CPU 8192 @ 48000 Hz windows/update=0..1 (zero=10) update p50/p99=694.3/783.4 us; 25 Hz CPU=1.63169%; observation=170.667 ms
+FFT CPU 2048 @ 96000 Hz windows/update=7..8 (zero=0) update p50/p99=1253/1559.9 us; 25 Hz CPU=2.99973%; observation=21.3333 ms
+FFT CPU 4096 @ 96000 Hz windows/update=3..4 (zero=0) update p50/p99=1161.2/2081.9 us; 25 Hz CPU=2.8699%; observation=42.6667 ms
+FFT CPU 8192 @ 96000 Hz windows/update=1..2 (zero=0) update p50/p99=1368.3/1453.6 us; 25 Hz CPU=3.24084%; observation=85.3333 ms
+FFT CPU 2048 @ 192000 Hz windows/update=15..15 (zero=0) update p50/p99=2364.4/2593.3 us; 25 Hz CPU=5.94181%; observation=10.6667 ms
+FFT CPU 4096 @ 192000 Hz windows/update=7..8 (zero=0) update p50/p99=2315/4867.3 us; 25 Hz CPU=6.20105%; observation=21.3333 ms
+FFT CPU 8192 @ 192000 Hz windows/update=3..4 (zero=0) update p50/p99=2839.3/5390.5 us; 25 Hz CPU=7.69374%; observation=42.6667 ms
+PASS full processor rate=48000 initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=48000 initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=48000 initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=96000 initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=96000 initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=96000 initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=192000 initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=192000 initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=192000 initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS variable-resolution real-audio analysis, bounded consumer, timing evidence, unchanged processing and host latency
+<end of output>
+Test time =  16.90 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQAnalyzerTests" end time: Oct 12 08:56 Coordinated Universal Time
+"ChimeraEQAnalyzerTests" time elapsed: 00:00:16
+----------------------------------------------------------
+
+End testing: Oct 12 08:56 Coordinated Universal Time

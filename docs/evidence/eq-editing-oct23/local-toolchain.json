@@ -1,0 +1,20 @@
+{
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "cmake": "cmake version 4.4.4",
+  "ninja": "1.13.2.git.kitware.jobserver-pipe-1",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "cpu_limit": "800000 100000",
+  "memory_limit_bytes": 8589934592,
+  "native_transport": "Xvfb + Openbox over authenticated local TCP X11",
+  "build_type": "Release",
+  "preview": true,
+  "physical_daw_device_tested": false,
+  "existing_juce_worktree_patches_sha256": {
+    "modules/juce_gui_basics/native/juce_VBlank_windows.cpp": "102c51f8873823fd5cc5f50a3034bb6c159aaa9ade13430c81b9f0fe8c9ad5a9",
+    "modules/juce_gui_basics/windows/juce_ComponentPeer.cpp": "b8d7987786f107b6101eb8619d6d73d42fd8f8aae3cf282b011fae09acd97278"
+  },
+  "ui_probes": true,
+  "cxx_release_flags": "-O3 -DNDEBUG"
+}

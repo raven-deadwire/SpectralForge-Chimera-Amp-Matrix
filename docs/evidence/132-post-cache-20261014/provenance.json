@@ -1,0 +1,24 @@
+{
+  "reference_commit": "b0bf7192a4d3084f9ffda1f30d10e2bc8f947c83",
+  "qualification": "NOT_QUALIFIED",
+  "compiler": "13.3.0",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "files": {
+    "Source/PostNativeDSP.h": {
+      "sha256": "ad453a7124e162319c31707a6288dfda5b59df4a28b375d3a3aa703cde5bccf4",
+      "git_blob": "a887c6d2f77c81b91c3ea72c04bf11b10047a93f"
+    },
+    "Tests/PostNativeCacheTests.h": {
+      "sha256": "8486e41467255a5016480082bf571af01705f4642fa2fad17082a79a46743ca1",
+      "git_blob": "21afa279f419967f9495e4f1c68820fb44d50d76"
+    },
+    "Tests/PostNativeTests.cpp": {
+      "sha256": "ff9ad32e61a26a2ee9547dfafa4d1c0f043946a89b0b1a05bcc9dd08f4f7af9d",
+      "git_blob": "f4691e38d41823f39eb79a074b775cb422b086b1"
+    },
+    "Tests/reference/PostNativeDSPBeforeCache.h": {
+      "sha256": "dfdd8a432b51a7586f84b3db73b8c15168bd842b5a60941394667f6963dd2aab",
+      "git_blob": "91af84c5195a3108cfa9b7c04bc685f215b50d29"
+    }
+  }
+}

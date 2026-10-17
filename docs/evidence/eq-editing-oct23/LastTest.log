@@ -1,0 +1,484 @@
+Start testing: Oct 13 02:07 KST
+----------------------------------------------------------
+26/50 Testing: ChimeraGateProcessorTests
+26/50 Test: ChimeraGateProcessorTests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraGateProcessorTests" start time: Oct 13 02:07 KST
+Output:
+----------------------------------------------------------
+ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=0 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 1; pre/post, Full/24 dB, compatibility/native high gain
+PASS actual processor POST delay and reverb tails remain audible with Full gate closed
+<end of output>
+Test time =  11.96 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateProcessorTests" end time: Oct 13 02:07 KST
+"ChimeraGateProcessorTests" time elapsed: 00:00:11
+----------------------------------------------------------
+
+43/50 Testing: ChimeraGraphicalEQTests
+43/50 Test: ChimeraGraphicalEQTests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraGraphicalEQTests_artefacts/Release/ChimeraGraphicalEQTests" "/workspace/scratch/11e0fb768feb/build-eq/eq-cpu.csv"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraGraphicalEQTests" start time: Oct 13 02:07 KST
+Output:
+----------------------------------------------------------
+PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio <= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=9.054 p99=41.913 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=9.214 p99=39.77 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=10.827 p99=69.665 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=10.897 p99=32.309 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=17.627 p99=80.973 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=1 p50=17.947 p99=52.53 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=0 p50=21.182 p99=82.364 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=1 p50=21.332 p99=86.861 us / 2666.67 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=0 p50=69.074 p99=191.88 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=1 p50=70.427 p99=164.147 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=0 p50=83.336 p99=207.403 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=1 p50=83.957 p99=145.79 us / 10666.7 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=0 p50=9.054 p99=36.485 us / 666.667 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=1 p50=9.204 p99=20.931 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=0 p50=10.827 p99=28.523 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=1 p50=10.896 p99=23.325 us / 666.667 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=0 p50=17.636 p99=65.068 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=1 p50=17.947 p99=44.968 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=0 p50=21.182 p99=66.16 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=1 p50=21.332 p99=84.447 us / 1333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=0 p50=69.104 p99=122.615 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=1 p50=70.416 p99=117.518 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=0 p50=83.376 p99=171.79 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=1 p50=83.967 p99=162.725 us / 5333.33 us
+<end of output>
+Test time =  28.55 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQTests" end time: Oct 13 02:08 KST
+"ChimeraGraphicalEQTests" time elapsed: 00:00:28
+----------------------------------------------------------
+
+44/50 Testing: ChimeraGraphicalEQUITests
+44/50 Test: ChimeraGraphicalEQUITests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests" "/workspace/scratch/11e0fb768feb/build-eq"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraGraphicalEQUITests" start time: Oct 13 02:08 KST
+Output:
+----------------------------------------------------------
+PASS native graph add/delete / disabled node visibility / numeric and drag undo-redo / persistent reuse / capacity bank=0
+PASS native pending numeric input / equal-valued slot switch / same-values project+host ownership / immediate stale commit rejected bank=0
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank=0
+PASS native graph add/delete / disabled node visibility / numeric and drag undo-redo / persistent reuse / capacity bank=1
+PASS native pending numeric input / equal-valued slot switch / same-values project+host ownership / immediate stale commit rejected bank=1
+Numeric 1:0 Hz=200 dB=3.5 Q=1.25
+Numeric 1:1 Hz=517 dB=3.5 Q=1.25
+Numeric 1:2 Hz=834 dB=3.5 Q=1.25
+Numeric 1:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 1:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 1:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 1:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 1:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 1:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 1:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 1:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 1:11 Hz=3687 dB=3.5 Q=1.25
+PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank=1
+NATIVE synthetic audio bank=0 FFT=2048 input=-20 output=-14 first_data_observed=99.744 ms paint_p50=2225.19 us
+NATIVE synthetic audio bank=0 FFT=4096 input=-20 output=-14 first_data_observed=103.38 ms paint_p50=2301.35 us
+NATIVE synthetic audio bank=0 FFT=8192 input=-20 output=-14 first_data_observed=220.92 ms paint_p50=2117.02 us
+PASS native Snapshot Freeze / exact bins / capture off / hidden bank / fresh thaw bank=0
+NATIVE layer state bank=0 both hasData=1 frames=704 dropped=0
+NATIVE layer state bank=0 in_only hasData=1 frames=704 dropped=0
+NATIVE layer state bank=0 neither hasData=1 frames=705 dropped=0
+NATIVE layer pixels bank=0 OUT both=754 in_only=232 IN in_only=102755 neither=102360
+NATIVE synthetic audio bank=1 FFT=2048 input=-20 output=-14 first_data_observed=59.97 ms paint_p50=2262.8 us
+NATIVE synthetic audio bank=1 FFT=4096 input=-20 output=-14 first_data_observed=100.918 ms paint_p50=2201.71 us
+NATIVE synthetic audio bank=1 FFT=8192 input=-20 output=-14 first_data_observed=223.512 ms paint_p50=2260.81 us
+PASS native Snapshot Freeze / exact bins / capture off / hidden bank / fresh thaw bank=1
+NATIVE layer state bank=1 both hasData=1 frames=701 dropped=0
+NATIVE layer state bank=1 in_only hasData=1 frames=702 dropped=0
+NATIVE layer state bank=1 neither hasData=1 frames=702 dropped=0
+NATIVE layer pixels bank=1 OUT both=754 in_only=232 IN in_only=102755 neither=102360
+PASS native synthetic anti-phase sine / independent IN-OUT layers / master-off / stopped-source decay
+PASS32 changing harmonic-pluck native frames through the full processBlock route / live input-output meters
+UI idle 75% = 5.89337% one core (1 second no audio, process CPU)
+UI idle 100% = 5.19955% one core (1 second no audio, process CPU)
+UI idle 125% = 6.69132% one core (1 second no audio, process CPU)
+UI idle 150% = 7.30313% one core (1 second no audio, process CPU)
+PASS native functional coverage / automation / A-B and project recall / mode navigation / 75-150% / hidden analyzer
+OBSERVATION whole processor FFT=0 p50/p99=410.78/1775.18 us; callbacks=578 total_callbacks=678 callbacks_at_minimum_capture=677 observed_ms=1808.33 production_ratio=0.999818 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=2 performance_acceptance=NOT_ASSESSED
+OBSERVATION whole processor FFT=2048 p50/p99=377.67/711.354 us; callbacks=583 total_callbacks=683 callbacks_at_minimum_capture=683 observed_ms=1821.54 production_ratio=0.999889 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=0 performance_acceptance=NOT_ASSESSED
+OBSERVATION whole processor FFT=4096 p50/p99=391.601/766.327 us; callbacks=576 total_callbacks=676 callbacks_at_minimum_capture=676 observed_ms=1802.95 production_ratio=0.999845 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=0 performance_acceptance=NOT_ASSESSED
+OBSERVATION whole processor FFT=8192 p50/p99=385.402/781.27 us; callbacks=583 total_callbacks=683 callbacks_at_minimum_capture=683 observed_ms=1821.54 production_ratio=0.999886 target_reached=1 minimum_coverage=1 within_5pct_nominal_rate=1 overruns=1 performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=96000 FFT=2048 produced/consumed/discarded/dropped/pending=955904/952576/0/0/3328 accounting_error=0 observed/missed_updates=249/0 consumer_gap_p99_ms=42.5031 production_ratio=0.995517 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=96000 FFT=4096 produced/consumed/discarded/dropped/pending=957696/955392/0/0/2304 accounting_error=0 observed/missed_updates=249/0 consumer_gap_p99_ms=41.7817 production_ratio=0.997546 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=96000 FFT=8192 produced/consumed/discarded/dropped/pending=958336/955776/0/0/2560 accounting_error=0 observed/missed_updates=249/0 consumer_gap_p99_ms=41.6144 production_ratio=0.99815 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=192000 FFT=2048 produced/consumed/discarded/dropped/pending=1909760/1903872/0/0/5888 accounting_error=0 observed/missed_updates=249/0 consumer_gap_p99_ms=41.5417 production_ratio=0.994615 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=192000 FFT=4096 produced/consumed/discarded/dropped/pending=1909120/1901440/0/0/7680 accounting_error=0 observed/missed_updates=249/0 consumer_gap_p99_ms=41.7417 production_ratio=0.994208 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+OBSERVATION high-rate=192000 FFT=8192 produced/consumed/discarded/dropped/pending=1906560/1905664/0/0/896 accounting_error=0 observed/missed_updates=250/0 consumer_gap_p99_ms=42.7162 production_ratio=0.9927 within_5pct_nominal_rate=1 sample_flow_status=NO_LOSS performance_acceptance=NOT_ASSESSED
+PASS pending thaw survives native editor recreation / late old window rejected / actual processBlock acknowledgement
+PASS real native peer / 24 numeric nodes / drag / overlapping selection / Q / host gestures / 7 choices / stereo FFT / 75-150% / hidden and close
+<end of output>
+Test time = 121.47 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQUITests" end time: Oct 13 02:10 KST
+"ChimeraGraphicalEQUITests" time elapsed: 00:02:01
+----------------------------------------------------------
+
+45/50 Testing: ChimeraEQAnalyzerTests
+45/50 Test: ChimeraEQAnalyzerTests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraEQAnalyzerTests_artefacts/Release/ChimeraEQAnalyzerTests" "/workspace/scratch/11e0fb768feb/build-eq"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraEQAnalyzerTests" start time: Oct 13 02:10 KST
+Output:
+----------------------------------------------------------
+COVERAGE rate=44100 FFT=2048 position=early batch=1764 samples windows=3 input_energy=30.4415 raw_last=-18.1941 display_at_40ms=-21.2661 bounded_display=-21.2661 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=2048 position=late batch=1764 samples windows=3 input_energy=30.4415 raw_last=-19.6671 display_at_40ms=-25.1261 bounded_display=-21.5318 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=4096 position=early batch=1764 samples windows=1 input_energy=30.4415 raw_last=-32.7049 display_at_40ms=-35.8482 bounded_display=-26.2139 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=4096 position=late batch=1764 samples windows=1 input_energy=30.4415 raw_last=-57.0214 display_at_40ms=-60.1647 bounded_display=-25.3675 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=8192 position=early batch=1764 samples windows=0 input_energy=30.4415 raw_last=-120 display_at_40ms=-120 bounded_display=-30.1873 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=8192 position=late batch=1764 samples windows=0 input_energy=30.4415 raw_last=-120 display_at_40ms=-120 bounded_display=-30.5391 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=2048 position=early batch=1920 samples windows=3 input_energy=30.8087 raw_last=-18.1228 display_at_40ms=-21.48 bounded_display=-21.48 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=2048 position=late batch=1920 samples windows=3 input_energy=30.8087 raw_last=-21.1046 display_at_40ms=-26.8997 bounded_display=-21.8391 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=early batch=1920 samples windows=1 input_energy=30.8087 raw_last=-32.6143 display_at_40ms=-36.0209 bounded_display=-26.1885 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=late batch=1920 samples windows=1 input_energy=30.8087 raw_last=-63.9 display_at_40ms=-67.3066 bounded_display=-25.4777 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=early batch=1920 samples windows=0 input_energy=30.8087 raw_last=-120 display_at_40ms=-120 bounded_display=-30.2061 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=late batch=1920 samples windows=0 input_energy=30.8087 raw_last=-120 display_at_40ms=-120 bounded_display=-30.3639 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=2048 position=early batch=3840 samples windows=7 input_energy=30.8115 raw_last=-120 display_at_40ms=-24.0521 bounded_display=-24.0521 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=2048 position=late batch=3840 samples windows=7 input_energy=30.8115 raw_last=-18.0239 display_at_40ms=-26.3754 bounded_display=-23.8977 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=4096 position=early batch=3840 samples windows=3 input_energy=30.8115 raw_last=-25.6912 display_at_40ms=-27.4693 bounded_display=-27.4693 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=4096 position=late batch=3840 samples windows=3 input_energy=30.8115 raw_last=-26.9543 display_at_40ms=-32.7572 bounded_display=-27.5955 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=8192 position=early batch=3840 samples windows=1 input_energy=30.8115 raw_last=-36.3782 display_at_40ms=-39.7849 bounded_display=-31.9961 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=8192 position=late batch=3840 samples windows=1 input_energy=30.8115 raw_last=-76.0856 display_at_40ms=-79.492 bounded_display=-31.4424 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=2048 position=early batch=7680 samples windows=15 input_energy=30.8122 raw_last=-120 display_at_40ms=-26.851 bounded_display=-26.851 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=2048 position=late batch=7680 samples windows=15 input_energy=30.8122 raw_last=-16.647 display_at_40ms=-27.0404 bounded_display=-26.5473 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=4096 position=early batch=7680 samples windows=7 input_energy=30.8122 raw_last=-120 display_at_40ms=-29.984 bounded_display=-29.984 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=4096 position=late batch=7680 samples windows=7 input_energy=30.8122 raw_last=-23.8456 display_at_40ms=-32.2258 bounded_display=-29.7382 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=8192 position=early batch=7680 samples windows=3 input_energy=30.8122 raw_last=-32.8848 display_at_40ms=-33.5502 bounded_display=-33.5502 dBFS fifo_drops=0
+COVERAGE rate=192000 FFT=8192 position=late batch=7680 samples windows=3 input_energy=30.8122 raw_last=-32.891 display_at_40ms=-38.6952 bounded_display=-33.5115 dBFS fifo_drops=0
+PASS 180 transient/boundary/ballistics cases: 44.1/48/96/192 kHz, all FFT sizes, per-hop/25 Hz/irregular consumers agree
+PASS FFT 2048 @ 44100 Hz bin=21.5332 Hz window=46.4399 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 @ 44100 Hz bin=10.7666 Hz window=92.8798 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 @ 44100 Hz bin=5.3833 Hz window=185.76 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 2048 @ 48000 Hz bin=23.4375 Hz window=42.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 @ 48000 Hz bin=11.7188 Hz window=85.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 @ 48000 Hz bin=5.85938 Hz window=170.667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 2048 @ 96000 Hz bin=46.875 Hz window=21.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 @ 96000 Hz bin=23.4375 Hz window=42.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 @ 96000 Hz bin=11.7188 Hz window=85.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 2048 @ 192000 Hz bin=93.75 Hz window=10.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 @ 192000 Hz bin=46.875 Hz window=21.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 @ 192000 Hz bin=23.4375 Hz window=42.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS 48/96/192 kHz: 31/55 Hz and stepped frequency peaks at honest bin tolerance / deterministic broadband / nonfinite input recovery
+PASS sample-time smoothing / no reset on ballistics changes / idle decay / fresh resumed window
+PASS exact FIFO sample accounting: simulated 100/250/500 ms stalls, full-capacity bounded catch-up, fresh recovery
+FFT CPU 2048 @ 44100 Hz windows/update=3..4 (zero=0) update p50/p99=471.272/884.085 us; 25 Hz CPU=1.20353%; observation=46.4399 ms
+FFT CPU 4096 @ 44100 Hz windows/update=1..2 (zero=0) update p50/p99=416.9/740.568 us; 25 Hz CPU=1.01206%; observation=92.8798 ms
+FFT CPU 8192 @ 44100 Hz windows/update=0..1 (zero=22) update p50/p99=539.074/1445.23 us; 25 Hz CPU=1.37777%; observation=185.76 ms
+FFT CPU 2048 @ 48000 Hz windows/update=3..4 (zero=0) update p50/p99=484.031/764.475 us; 25 Hz CPU=1.20884%; observation=42.6667 ms
+FFT CPU 4096 @ 48000 Hz windows/update=1..2 (zero=0) update p50/p99=427.576/674.308 us; 25 Hz CPU=1.07314%; observation=85.3333 ms
+FFT CPU 8192 @ 48000 Hz windows/update=0..1 (zero=10) update p50/p99=533.596/745.416 us; 25 Hz CPU=1.29604%; observation=170.667 ms
+FFT CPU 2048 @ 96000 Hz windows/update=7..8 (zero=0) update p50/p99=954.101/1260.6 us; 25 Hz CPU=2.33466%; observation=21.3333 ms
+FFT CPU 4096 @ 96000 Hz windows/update=3..4 (zero=0) update p50/p99=854.741/1149.34 us; 25 Hz CPU=2.11585%; observation=42.6667 ms
+FFT CPU 8192 @ 96000 Hz windows/update=1..2 (zero=0) update p50/p99=1075.03/1451.14 us; 25 Hz CPU=2.65301%; observation=85.3333 ms
+FFT CPU 2048 @ 192000 Hz windows/update=15..15 (zero=0) update p50/p99=1815.94/2914.9 us; 25 Hz CPU=4.99602%; observation=10.6667 ms
+FFT CPU 4096 @ 192000 Hz windows/update=7..8 (zero=0) update p50/p99=1698.79/2484.66 us; 25 Hz CPU=4.42847%; observation=21.3333 ms
+FFT CPU 8192 @ 192000 Hz windows/update=3..4 (zero=0) update p50/p99=2171.89/4330.82 us; 25 Hz CPU=5.73914%; observation=42.6667 ms
+PASS full processor rate=44100 initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=44100 initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=44100 initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=48000 initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=48000 initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=48000 initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=96000 initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=96000 initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=96000 initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=192000 initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=192000 initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor rate=192000 initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS variable-resolution real-audio analysis, bounded consumer, timing evidence, unchanged processing and host latency
+<end of output>
+Test time =  17.89 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQAnalyzerTests" end time: Oct 13 02:10 KST
+"ChimeraEQAnalyzerTests" time elapsed: 00:00:17
+----------------------------------------------------------
+
+46/50 Testing: ChimeraGraphicalEQEditingTests
+46/50 Test: ChimeraGraphicalEQEditingTests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraGraphicalEQEditingTests" start time: Oct 13 02:10 KST
+Output:
+----------------------------------------------------------
+PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / malformed metadata fallback / no hidden enabled band after recall
+PASS all 48 factory occupancy/history resets / bounded 64-operation session history
+PASS audible delete settles exact dry / tuning automation stays hidden / host enable reoccupies / four-rate exact EQ transfer
+PASS October 23 EQ editing backend regression contract
+<end of output>
+Test time =  27.59 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQEditingTests" end time: Oct 13 02:11 KST
+"ChimeraGraphicalEQEditingTests" time elapsed: 00:00:27
+----------------------------------------------------------
+
+47/50 Testing: ChimeraEQSnapshotFreezeTests
+47/50 Test: ChimeraEQSnapshotFreezeTests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraEQSnapshotFreezeTests_artefacts/Release/ChimeraEQSnapshotFreezeTests"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraEQSnapshotFreezeTests" start time: Oct 13 02:11 KST
+Output:
+----------------------------------------------------------
+PASS 12 rate/FFT pairs: empty/partial Freeze, stale FIFO+overlap purge, first full fresh IN/OUT window and envelope
+PASS 12 rate/FFT pairs: raw/smoothed/pixel identity across Freeze, configuration attempts, reset, overflow and rate changes
+PASS 12 rate/FFT pairs: nonfinite samples/FFT overflow/rate rejected, valid recovery, last normal frame keeps original mapping
+PASS Freeze captures the last real pre-idle frame and the latest valid window before malformed data in one FIFO batch
+PASS 12 rate/FFT pairs: delayed old callback cannot release thaw, disabled callback acknowledgement, final purge, first N callback-fresh samples; stopped/resumed/coalesced requests
+PASS audio identity rate=44100 fft=2048 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=4096 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=8192 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=48000 fft=2048 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=48000 fft=4096 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=48000 fft=8192 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=96000 fft=2048 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=96000 fft=4096 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=96000 fft=8192 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=192000 fft=2048 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=192000 fft=4096 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=192000 fft=8192 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS October 23 Snapshot Freeze regression suite; real DAW/editor acceptance remains separate
+<end of output>
+Test time =   2.69 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQSnapshotFreezeTests" end time: Oct 13 02:11 KST
+"ChimeraEQSnapshotFreezeTests" time elapsed: 00:00:02
+----------------------------------------------------------
+
+48/50 Testing: ChimeraEQAnalyzerPerformanceTests
+48/50 Test: ChimeraEQAnalyzerPerformanceTests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraEQAnalyzerPerformanceTests_artefacts/Release/ChimeraEQAnalyzerPerformanceTests" "/workspace/scratch/11e0fb768feb/build-eq"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraEQAnalyzerPerformanceTests" start time: Oct 13 02:11 KST
+Output:
+----------------------------------------------------------
+Frozen analyzer SHA-256 ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26; same-executable ABBA BAAB; no real audio device or DAW
+PASS 108 baseline/candidate spectral cases, max raw/envelope/display errors 1.52588e-05/1.52588e-05/1.52588e-05 dB; every chronological window and FIFO sample preserved
+PASS nonfinite/overflow containment and fresh-spectrum recovery
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=20 ms median_update=24.2871 -> 22.6629 ms reduction=6.68751%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=40 ms median_update=24.6547 -> 22.5165 ms reduction=8.67245%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=80 ms median_update=24.5295 -> 22.8367 ms reduction=6.90074%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=full_capacity_catchup UI= ms median_update=18.0539 -> 16.7285 ms reduction=7.34141%; windows=128; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=4096 fixture=nominal_cadence UI=20 ms median_update=21.464 -> 20.6877 ms reduction=3.61678%; windows=86; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=4096 fixture=nominal_cadence UI=40 ms median_update=21.5177 -> 19.3083 ms reduction=10.2676%; windows=86; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=4096 fixture=nominal_cadence UI=80 ms median_update=21.85 -> 19.1392 ms reduction=12.4066%; windows=86; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=4096 fixture=full_capacity_catchup UI= ms median_update=15.7903 -> 14.3622 ms reduction=9.04436%; windows=64; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=8192 fixture=nominal_cadence UI=20 ms median_update=26.4102 -> 24.7799 ms reduction=6.17306%; windows=43; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=8192 fixture=nominal_cadence UI=40 ms median_update=28.5838 -> 24.8909 ms reduction=12.9196%; windows=43; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=8192 fixture=nominal_cadence UI=80 ms median_update=26.0723 -> 23.9717 ms reduction=8.05705%; windows=43; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=8192 fixture=full_capacity_catchup UI= ms median_update=21.2025 -> 18.5624 ms reduction=12.4517%; windows=32; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=2048 fixture=nominal_cadence UI=20 ms median_update=26.5922 -> 24.0941 ms reduction=9.39408%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=2048 fixture=nominal_cadence UI=40 ms median_update=31.9609 -> 28.9758 ms reduction=9.33991%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=2048 fixture=nominal_cadence UI=80 ms median_update=28.5569 -> 26.5271 ms reduction=7.10781%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=2048 fixture=full_capacity_catchup UI= ms median_update=19.567 -> 17.1296 ms reduction=12.4565%; windows=128; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=4096 fixture=nominal_cadence UI=20 ms median_update=22.2398 -> 20.4117 ms reduction=8.22026%; windows=93; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=4096 fixture=nominal_cadence UI=40 ms median_update=22.0655 -> 20.0608 ms reduction=9.08545%; windows=93; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=4096 fixture=nominal_cadence UI=80 ms median_update=22.4823 -> 20.2392 ms reduction=9.97721%; windows=93; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=4096 fixture=full_capacity_catchup UI= ms median_update=15.2283 -> 13.7786 ms reduction=9.52013%; windows=64; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=8192 fixture=nominal_cadence UI=20 ms median_update=28.0445 -> 25.2638 ms reduction=9.91526%; windows=46; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=8192 fixture=nominal_cadence UI=40 ms median_update=28.6839 -> 25.5491 ms reduction=10.929%; windows=46; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=8192 fixture=nominal_cadence UI=80 ms median_update=26.7962 -> 25.0608 ms reduction=6.47635%; windows=46; DAW=NOT_ASSESSED
+PAIR rate=48000 FFT=8192 fixture=full_capacity_catchup UI= ms median_update=18.7336 -> 17.2684 ms reduction=7.82117%; windows=32; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=2048 fixture=nominal_cadence UI=20 ms median_update=51.023 -> 46.1733 ms reduction=9.505%; windows=375; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=2048 fixture=nominal_cadence UI=40 ms median_update=50.4316 -> 46.8113 ms reduction=7.17872%; windows=375; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=2048 fixture=nominal_cadence UI=80 ms median_update=51.2884 -> 46.0004 ms reduction=10.3104%; windows=375; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=2048 fixture=full_capacity_catchup UI= ms median_update=17.38 -> 15.8478 ms reduction=8.81579%; windows=128; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=4096 fixture=nominal_cadence UI=20 ms median_update=47.1147 -> 40.6621 ms reduction=13.6955%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=4096 fixture=nominal_cadence UI=40 ms median_update=45.5862 -> 40.7565 ms reduction=10.5948%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=4096 fixture=nominal_cadence UI=80 ms median_update=46.8181 -> 41.0236 ms reduction=12.3766%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=4096 fixture=full_capacity_catchup UI= ms median_update=16.0703 -> 14.6396 ms reduction=8.90292%; windows=64; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=8192 fixture=nominal_cadence UI=20 ms median_update=57.4716 -> 51.9346 ms reduction=9.63436%; windows=93; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=8192 fixture=nominal_cadence UI=40 ms median_update=60.2537 -> 54.1291 ms reduction=10.1647%; windows=93; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=8192 fixture=nominal_cadence UI=80 ms median_update=59.7835 -> 56.2622 ms reduction=5.89003%; windows=93; DAW=NOT_ASSESSED
+PAIR rate=96000 FFT=8192 fixture=full_capacity_catchup UI= ms median_update=22.9781 -> 18.4393 ms reduction=19.7529%; windows=32; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=2048 fixture=nominal_cadence UI=20 ms median_update=108.906 -> 105.352 ms reduction=3.26297%; windows=750; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=2048 fixture=nominal_cadence UI=40 ms median_update=118.565 -> 98.0723 ms reduction=17.2843%; windows=750; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=2048 fixture=nominal_cadence UI=80 ms median_update=111.842 -> 95.7363 ms reduction=14.4001%; windows=750; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=2048 fixture=full_capacity_catchup UI= ms median_update=17.3054 -> 16.246 ms reduction=6.12196%; windows=128; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=4096 fixture=nominal_cadence UI=20 ms median_update=92.6819 -> 83.8081 ms reduction=9.57452%; windows=375; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=4096 fixture=nominal_cadence UI=40 ms median_update=91.0634 -> 88.231 ms reduction=3.11032%; windows=375; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=4096 fixture=nominal_cadence UI=80 ms median_update=90.8529 -> 81.8114 ms reduction=9.95188%; windows=375; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=4096 fixture=full_capacity_catchup UI= ms median_update=16.5392 -> 14.271 ms reduction=13.7141%; windows=64; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=8192 fixture=nominal_cadence UI=20 ms median_update=114.065 -> 106.442 ms reduction=6.68242%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=8192 fixture=nominal_cadence UI=40 ms median_update=119.38 -> 110.009 ms reduction=7.85012%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=8192 fixture=nominal_cadence UI=80 ms median_update=122.009 -> 108.554 ms reduction=11.0277%; windows=187; DAW=NOT_ASSESSED
+PAIR rate=192000 FFT=8192 fixture=full_capacity_catchup UI= ms median_update=21.6716 -> 17.8455 ms reduction=17.6549%; windows=32; DAW=NOT_ASSESSED
+<end of output>
+Test time =  20.60 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQAnalyzerPerformanceTests" end time: Oct 13 02:11 KST
+"ChimeraEQAnalyzerPerformanceTests" time elapsed: 00:00:20
+----------------------------------------------------------
+
+49/50 Testing: ChimeraEQHighRateAttributionTests
+49/50 Test: ChimeraEQHighRateAttributionTests
+Command: "/workspace/scratch/11e0fb768feb/build-eq/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests" "--attribution" "/workspace/scratch/11e0fb768feb/build-eq/eq-attribution"
+Directory: /workspace/scratch/11e0fb768feb/build-eq
+"ChimeraEQHighRateAttributionTests" start time: Oct 13 02:11 KST
+Output:
+----------------------------------------------------------
+ATTRIBUTION opt-in matrix direct=22 native=68 duration_scale=1; DAW=NOT_ASSESSED
+ATTRIBUTION case=1 group=stage_clock_control rate=192000 fft=0 stage=producer_noop pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.999907 rebases=0 callback_p99_us=0.031 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=2 group=stage_clock_control rate=192000 fft=0 stage=producer_noop pacing=due_samples_catch_up consumer=headless_direct ratio=0.999941 rebases=0 callback_p99_us=0.04 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=3 group=stage_clock_control rate=192000 fft=0 stage=eq_pair pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.999941 rebases=0 callback_p99_us=17.476 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=4 group=stage_clock_control rate=192000 fft=0 stage=eq_pair pacing=due_samples_catch_up consumer=headless_direct ratio=0.99994 rebases=0 callback_p99_us=57.848 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=5 group=stage_clock_control rate=192000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.997137 rebases=3 callback_p99_us=717.013 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=6 group=stage_clock_control rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999941 rebases=0 callback_p99_us=885.907 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=7 group=source_rate_control rate=44100 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.999889 rebases=0 callback_p99_us=660.918 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=8 group=source_rate_control rate=44100 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999855 rebases=0 callback_p99_us=680.007 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=9 group=source_rate_control rate=48000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.99989 rebases=0 callback_p99_us=648.319 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=10 group=source_rate_control rate=48000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999886 rebases=0 callback_p99_us=749.602 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=11 group=source_rate_control rate=96000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.995171 rebases=1 callback_p99_us=944.246 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=12 group=source_rate_control rate=96000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999879 rebases=0 callback_p99_us=1518.22 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=13 group=generator_control rate=192000 fft=0 stage=producer_noop pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.995271 rebases=3 callback_p99_us=0.031 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=14 group=generator_control rate=192000 fft=0 stage=producer_noop pacing=due_samples_catch_up consumer=headless_direct ratio=0.999914 rebases=0 callback_p99_us=0.031 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=15 group=generator_control rate=192000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.968565 rebases=27 callback_p99_us=1562.18 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=16 group=generator_control rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999904 rebases=0 callback_p99_us=753.097 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=17 group=consumer_control rate=192000 fft=2048 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.989072 rebases=5 callback_p99_us=794.83 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=18 group=consumer_control rate=192000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999942 rebases=0 callback_p99_us=881.501 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=19 group=consumer_control rate=192000 fft=4096 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.998895 rebases=1 callback_p99_us=746.677 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=20 group=consumer_control rate=192000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999933 rebases=0 callback_p99_us=878.046 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=21 group=consumer_control rate=192000 fft=8192 stage=full_processor pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.995705 rebases=5 callback_p99_us=790.673 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=22 group=consumer_control rate=192000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=headless_direct ratio=0.999926 rebases=0 callback_p99_us=700.027 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=23 group=consumer_control rate=192000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=native_panel_paint_suppressed ratio=0.995705 rebases=5 callback_p99_us=773.208 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=24 group=consumer_control rate=192000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=native_paint ratio=0.997781 rebases=3 callback_p99_us=752.356 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=25 group=consumer_control rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_panel_paint_suppressed ratio=0.999928 rebases=0 callback_p99_us=681.84 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=26 group=consumer_control rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999935 rebases=0 callback_p99_us=759.967 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=27 group=consumer_control rate=192000 fft=2048 stage=full_processor pacing=legacy_sleep_rebase consumer=native_panel_paint_suppressed ratio=0.996701 rebases=4 callback_p99_us=723.773 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=28 group=consumer_control rate=192000 fft=2048 stage=full_processor pacing=legacy_sleep_rebase consumer=native_paint ratio=0.997583 rebases=3 callback_p99_us=692.135 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=29 group=consumer_control rate=192000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_panel_paint_suppressed ratio=0.999929 rebases=0 callback_p99_us=661.469 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=30 group=consumer_control rate=192000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999943 rebases=0 callback_p99_us=797.163 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=31 group=consumer_control rate=192000 fft=4096 stage=full_processor pacing=legacy_sleep_rebase consumer=native_panel_paint_suppressed ratio=0.998357 rebases=1 callback_p99_us=783.203 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=32 group=consumer_control rate=192000 fft=4096 stage=full_processor pacing=legacy_sleep_rebase consumer=native_paint ratio=0.994389 rebases=6 callback_p99_us=935.452 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=33 group=consumer_control rate=192000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_panel_paint_suppressed ratio=0.999935 rebases=0 callback_p99_us=2473.04 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=34 group=consumer_control rate=192000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999945 rebases=0 callback_p99_us=733.567 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=35 group=consumer_control rate=192000 fft=8192 stage=full_processor pacing=legacy_sleep_rebase consumer=native_panel_paint_suppressed ratio=0.999025 rebases=1 callback_p99_us=736.683 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=36 group=consumer_control rate=192000 fft=8192 stage=full_processor pacing=legacy_sleep_rebase consumer=native_paint ratio=0.988143 rebases=13 callback_p99_us=828.09 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=37 group=consumer_control rate=192000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_panel_paint_suppressed ratio=0.999941 rebases=0 callback_p99_us=704.604 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=38 group=consumer_control rate=192000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999942 rebases=0 callback_p99_us=890.66 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=39 group=rate_fft_cadence rate=44100 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999894 rebases=0 callback_p99_us=1166.07 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=40 group=rate_fft_cadence rate=44100 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999885 rebases=0 callback_p99_us=759.326 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=41 group=rate_fft_cadence rate=44100 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999892 rebases=0 callback_p99_us=605.093 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=42 group=rate_fft_cadence rate=44100 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999889 rebases=0 callback_p99_us=1473.06 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=43 group=rate_fft_cadence rate=44100 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999893 rebases=0 callback_p99_us=842.221 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=44 group=rate_fft_cadence rate=44100 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.9999 rebases=0 callback_p99_us=649.626 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=45 group=rate_fft_cadence rate=44100 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.99988 rebases=0 callback_p99_us=625.525 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=46 group=rate_fft_cadence rate=44100 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999893 rebases=0 callback_p99_us=641.048 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=47 group=rate_fft_cadence rate=44100 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999904 rebases=0 callback_p99_us=666.356 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=48 group=rate_fft_cadence rate=44100 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999896 rebases=0 callback_p99_us=606.926 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=49 group=rate_fft_cadence rate=44100 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.99989 rebases=0 callback_p99_us=647.828 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=50 group=rate_fft_cadence rate=44100 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999897 rebases=0 callback_p99_us=718.445 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=51 group=rate_fft_cadence rate=48000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999899 rebases=0 callback_p99_us=638.855 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=52 group=rate_fft_cadence rate=48000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.99989 rebases=0 callback_p99_us=715.69 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=53 group=rate_fft_cadence rate=48000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999901 rebases=0 callback_p99_us=698.535 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=54 group=rate_fft_cadence rate=48000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999862 rebases=0 callback_p99_us=694.559 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=55 group=rate_fft_cadence rate=48000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999738 rebases=0 callback_p99_us=2063.39 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=56 group=rate_fft_cadence rate=48000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999906 rebases=0 callback_p99_us=768.841 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=57 group=rate_fft_cadence rate=48000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999898 rebases=0 callback_p99_us=669.571 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=58 group=rate_fft_cadence rate=48000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999893 rebases=0 callback_p99_us=1054.69 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=59 group=rate_fft_cadence rate=48000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999867 rebases=0 callback_p99_us=846.028 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=60 group=rate_fft_cadence rate=48000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999882 rebases=0 callback_p99_us=696.912 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=61 group=rate_fft_cadence rate=48000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999885 rebases=0 callback_p99_us=713.417 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=62 group=rate_fft_cadence rate=48000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.9999 rebases=0 callback_p99_us=851.246 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=63 group=rate_fft_cadence rate=96000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999884 rebases=0 callback_p99_us=735.351 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=64 group=rate_fft_cadence rate=96000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999899 rebases=0 callback_p99_us=707.508 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=65 group=rate_fft_cadence rate=96000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999902 rebases=0 callback_p99_us=770.783 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=66 group=rate_fft_cadence rate=96000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.99989 rebases=0 callback_p99_us=629.24 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=67 group=rate_fft_cadence rate=96000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999897 rebases=0 callback_p99_us=709.541 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=68 group=rate_fft_cadence rate=96000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999903 rebases=0 callback_p99_us=757.634 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=69 group=rate_fft_cadence rate=96000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999901 rebases=0 callback_p99_us=1093.8 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=70 group=rate_fft_cadence rate=96000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999897 rebases=0 callback_p99_us=674.803 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=71 group=rate_fft_cadence rate=96000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999902 rebases=0 callback_p99_us=597.061 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=72 group=rate_fft_cadence rate=96000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999893 rebases=0 callback_p99_us=758.615 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=73 group=rate_fft_cadence rate=96000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999894 rebases=0 callback_p99_us=813.588 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=74 group=rate_fft_cadence rate=96000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999904 rebases=0 callback_p99_us=743.468 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=75 group=rate_fft_cadence rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999893 rebases=0 callback_p99_us=780.438 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=76 group=rate_fft_cadence rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999885 rebases=0 callback_p99_us=793.979 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=77 group=rate_fft_cadence rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999899 rebases=0 callback_p99_us=808.34 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=78 group=rate_fft_cadence rate=192000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999906 rebases=0 callback_p99_us=732.856 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=79 group=rate_fft_cadence rate=192000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999904 rebases=0 callback_p99_us=812.516 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=80 group=rate_fft_cadence rate=192000 fft=2048 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999923 rebases=0 callback_p99_us=879.649 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=81 group=rate_fft_cadence rate=192000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999903 rebases=0 callback_p99_us=1419.01 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=82 group=rate_fft_cadence rate=192000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.998574 rebases=0 callback_p99_us=960.225 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=83 group=rate_fft_cadence rate=192000 fft=4096 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999923 rebases=0 callback_p99_us=793.217 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=84 group=rate_fft_cadence rate=192000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999898 rebases=0 callback_p99_us=668.65 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=85 group=rate_fft_cadence rate=192000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999905 rebases=0 callback_p99_us=701.279 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=86 group=rate_fft_cadence rate=192000 fft=8192 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999903 rebases=0 callback_p99_us=704.935 flow=NO_LOSS DAW=NOT_ASSESSED
+ATTRIBUTION case=87 group=native_off_repeat rate=192000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=native_paint ratio=0.981208 rebases=11 callback_p99_us=854.655 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=88 group=native_off_repeat rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999941 rebases=0 callback_p99_us=792.968 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=89 group=native_off_repeat rate=192000 fft=0 stage=full_processor pacing=legacy_sleep_rebase consumer=native_paint ratio=0.992929 rebases=5 callback_p99_us=721.168 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=90 group=native_off_repeat rate=192000 fft=0 stage=full_processor pacing=due_samples_catch_up consumer=native_paint ratio=0.999931 rebases=0 callback_p99_us=940.61 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+PASS attribution sample-accounting instrumentation; cases=90; performance_acceptance=NOT_ASSESSED
+<end of output>
+Test time = 148.56 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQHighRateAttributionTests" end time: Oct 13 02:13 KST
+"ChimeraEQHighRateAttributionTests" time elapsed: 00:02:28
+----------------------------------------------------------
+
+End testing: Oct 13 02:13 KST

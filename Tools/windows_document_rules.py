@@ -30,7 +30,7 @@ def install_path(path: str) -> str:
     if len(parts) == 1:
         if p.suffix.lower() == ".txt":
             return path
-        if p.suffix.lower() in (".md", ".html") or path in ("ARTWORK_PROMPTS.json", "payload-manifest.json"):
+        if p.suffix.lower() in (".md", ".html") or path in ("ARTWORK_PROMPTS.json", "payload-manifest.json", "chimera-beta-lifecycle.json"):
             return "Documentation\\" + path
     elif parts[0] == "reference" and p.suffix.lower() in (".json", ".md", ".txt", ".csv"):
         return "Documentation\\" + path.replace("/", "\\")
@@ -68,7 +68,7 @@ def document_rules(inventory: dict, stage: Path) -> list[tuple[str, int, str, bo
     # These are precisely the documentation [Files] entries in Chimera.iss.
     # Never recurse into a personal IR, preset, plugin or arbitrary subdirectory.
     for source in stage.iterdir():
-        if source.suffix.lower() not in (".txt", ".md", ".html") and source.name != "payload-manifest.json":
+        if source.suffix.lower() not in (".txt", ".md", ".html") and source.name not in ("payload-manifest.json", "chimera-beta-lifecycle.json"):
             continue
         if source.is_symlink() or not source.is_file() or source.stat().st_nlink != 1:
             raise ValueError(f"unsafe staged documentation: {source.name}")

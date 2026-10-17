@@ -1,0 +1,304 @@
+{
+  "tested_source_commit": "e52976f869ea872e3094f3a945d74496665285c5",
+  "tested_source_tree": "a01663311350c763c01d6122bdb9b5df1247687d",
+  "baseline_pr52": "a2ae89467665b9122b7d1ae744dc52fb8f693bd6",
+  "configuration": {
+    "product_version": "1.3.1",
+    "source_sha": "e52976f869ea872e3094f3a945d74496665285c5",
+    "version": "1.3.1-preview.e52976f869"
+  },
+  "suites": [
+    {
+      "suite": "ChimeraGateProcessorTests",
+      "seconds": 11.9559,
+      "status": "PASS"
+    },
+    {
+      "suite": "ChimeraGraphicalEQTests",
+      "seconds": 28.5499,
+      "status": "PASS"
+    },
+    {
+      "suite": "ChimeraGraphicalEQUITests",
+      "seconds": 121.466,
+      "status": "PASS"
+    },
+    {
+      "suite": "ChimeraEQAnalyzerTests",
+      "seconds": 17.8897,
+      "status": "PASS"
+    },
+    {
+      "suite": "ChimeraGraphicalEQEditingTests",
+      "seconds": 27.5925,
+      "status": "PASS"
+    },
+    {
+      "suite": "ChimeraEQSnapshotFreezeTests",
+      "seconds": 2.68868,
+      "status": "PASS"
+    },
+    {
+      "suite": "ChimeraEQAnalyzerPerformanceTests",
+      "seconds": 20.6022,
+      "status": "PASS"
+    },
+    {
+      "suite": "ChimeraEQHighRateAttributionTests",
+      "seconds": 148.562,
+      "status": "PASS"
+    }
+  ],
+  "binaries": {
+    "ChimeraGateProcessorTests": {
+      "path": "ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests",
+      "sha256": "70e5d397f80c0dde1e17ce924d755691bcb5d36c50c1e9b04fd499ac53c29591",
+      "bytes": 131147960
+    },
+    "ChimeraGraphicalEQTests": {
+      "path": "ChimeraGraphicalEQTests_artefacts/Release/ChimeraGraphicalEQTests",
+      "sha256": "6dea24e4f9750a8124d4f6da2df263e4afda8b900bd97b3b0d22d66b53ad6d22",
+      "bytes": 130846040
+    },
+    "ChimeraGraphicalEQUITests": {
+      "path": "ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests",
+      "sha256": "e1f9b478acfddbd3571fe784b5b653b57f80955d84c7c9d62fa398f3b233e261",
+      "bytes": 130940896
+    },
+    "ChimeraEQAnalyzerTests": {
+      "path": "ChimeraEQAnalyzerTests_artefacts/Release/ChimeraEQAnalyzerTests",
+      "sha256": "f1eb62663eb3b473d81067b0ef2a9bb1c9aeb50c6d9792cc474b31069babd112",
+      "bytes": 130854456
+    },
+    "ChimeraGraphicalEQEditingTests": {
+      "path": "ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests",
+      "sha256": "600f591c8a5b965a528c66d357f0b8f408a1a0f25496ec6477e20edbd6629cea",
+      "bytes": 130842432
+    },
+    "ChimeraEQSnapshotFreezeTests": {
+      "path": "ChimeraEQSnapshotFreezeTests_artefacts/Release/ChimeraEQSnapshotFreezeTests",
+      "sha256": "1f8b451f3b57c71aa949efee8e8aad30697e27e00413898b76cc71163f9cd8b8",
+      "bytes": 130849104
+    },
+    "ChimeraEQAnalyzerPerformanceTests": {
+      "path": "ChimeraEQAnalyzerPerformanceTests_artefacts/Release/ChimeraEQAnalyzerPerformanceTests",
+      "sha256": "d1aa121127a6391ef957b5963a38697e306cbe6d935c935dccaefb10bc04daa6",
+      "bytes": 7126360
+    },
+    "ChimeraEQHighRateAttributionTests": {
+      "path": "ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests",
+      "sha256": "e1f9b478acfddbd3571fe784b5b653b57f80955d84c7c9d62fa398f3b233e261",
+      "bytes": 130940896
+    }
+  },
+  "receipt_sha256": {
+    "eq-results.xml": "e4106566536d7906570dfb8a033e631a5f77cb6f7aa8222371f7c2fd1a66c369",
+    "LastTest.log": "fa3ec8d6aa51320c1094efab6c08787ace10d05151f7966269510860dfe924ad",
+    "ctest-console.log": "99d1a38e97a745ee30eb95dd0c92de5e8d5bc0f036f9cb95854abe7b86619135",
+    "chimera-build-version.json": "054e24e42e4a7d334d20f9aa9e0fa221bfcf1c0f42fe814c9e9ff22489ea7b16",
+    "eq-attribution-provenance.json": "5db009c780aef70438d0a37d4a5c7cbf5f191bcc43b6533faa80d8dcccff53ad",
+    "local-toolchain.json": "aff8eb22695f0b4560e55535c3831df177b48c5bfcbfc16b01abea9c8e60edee",
+    "run_eq_native_local.py": "467a1eabc519f18b1923671d7490b4ceebcaec40af11ebea46df007909fa9202",
+    "focused-results.xml": "8ccb35b61392b72564dfa342c6e3b170f9a5d7352a5b78ee9f24611035fb545c",
+    "focused-LastTest.log": "0c5967be3c2cca0614eeca63aa620ac5fd1dea44e246fd6da44ea01176afd9c2",
+    "focused-console.log": "cd9864c7ce86b573bd08b2b43f1d203de26e77276e039e3fe3946e6f674c5d90",
+    "build-console.log": "7642a2e5561238d64d45239b7fb0b605b71e0d280977c0a0e25366e51d011085",
+    "configure-console.log": "ae304ad201f99c264202be1a638c98dd99da3f0f1b79f39e4fba0b77fc05e393",
+    "eq-cpu.csv": "ee1e97d85edcd7c59a41d199dbd48392b7744b267848217ef14afe693c0c8feb",
+    "eq-analyzer-live-frames.csv": "5823cfabf2167bc9121d19cfe94f31802dd976f3306f944f5a53b968c33fe7d2",
+    "eq-analyzer-performance-parity.csv": "fde96883fe8beba116cdb9f2a221002db6b6f474d134dfae0ba42c6b2b2859e5",
+    "eq-analyzer-performance-summary.csv": "9bba6d79007fc997c421be8c4f3b0e8dbf660a566d20a4d482be6e8a85c603f5",
+    "eq-analyzer-native-ui.csv": "cac020cda07cfad822f2a0a67232476505952d388bf393e6a5cff921f6c2facf",
+    "eq-analyzer-high-rate.csv": "9af1c5c574aed4926530b1ce6b80dfaf294a24af1baa6ceb6a21722537d1905d",
+    "eq-analyzer-high-rate-updates.csv": "e5824cbea5237ebc19e58190a9be641a38be0238fd200789a5dff5781142d4cf",
+    "eq-analyzer-callback.csv": "c6fe06420276788c81f7d23035d66571969838844ba52eb806f5a94c86e3012d",
+    "eq-analyzer-fifo-stalls.csv": "924e05cf0d4b107eb72c9bcb5eca1c78e40551dd99de574607b97b7f788689de",
+    "eq-analyzer-partition-invariance.csv": "318e615eca31dedf3e76c484514356cbc40db56b8f99a2c61291e71d267608ea",
+    "eq-analyzer-full-callback.csv": "ad389298edbf067a86d4666998b5600a98fc110b9d46109e9b90f2d6b2085fc1",
+    "eq-analyzer-audio-invariance.csv": "bb049aa2c08466a8388b80ba8b4ffc8692a14d4213f5d41dff997df605309f04",
+    "eq-analyzer-performance-paired.csv": "9f0f7ccd8d5b100cd80ccd53f260b23d49a240c43b707debcc1a7e9c5bf12082",
+    "eq-analyzer-cpu.csv": "6cd81192a27c24c9c09d07553c3a03c72b0ba6486265280dc10abd02411b6f19",
+    "eq-analyzer-temporal-coverage.csv": "c61c394b32c1b2ffdb0b5c1417a9ae0f1d3204ed5bf7d23a37197f1e2af81b32",
+    "eq-attribution/eq-attribution-method.txt": "85680920eecd77bee14c83d43f9b263c1371f261083bc8dd5f335ac47d5efa5a",
+    "eq-attribution/eq-attribution-updates.csv": "0bee3f8bbea95d710f1cdefe4d8a609a6465e3ea9209b7d6818737dd5fdd89cf",
+    "eq-attribution/eq-attribution-summary.csv": "9b959fb54e297b5662bb7e19169365614b6577c810e5678936be61ddc630cad0",
+    "eq-attribution/eq-attribution-callbacks.csv.gz": "197df083fede205bec9884348139df095dd857311923eeb5fe86b3c7d9d7a7b5"
+  },
+  "raw_receipts": {
+    "eq-results.xml": {
+      "sha256": "e4106566536d7906570dfb8a033e631a5f77cb6f7aa8222371f7c2fd1a66c369",
+      "bytes": 10367,
+      "saved_as": "eq-results.xml"
+    },
+    "LastTest.log": {
+      "sha256": "fa3ec8d6aa51320c1094efab6c08787ace10d05151f7966269510860dfe924ad",
+      "bytes": 57999,
+      "saved_as": "LastTest.log"
+    },
+    "ctest-console.log": {
+      "sha256": "99d1a38e97a745ee30eb95dd0c92de5e8d5bc0f036f9cb95854abe7b86619135",
+      "bytes": 2573,
+      "saved_as": "ctest-console.log"
+    },
+    "chimera-build-version.json": {
+      "sha256": "054e24e42e4a7d334d20f9aa9e0fa221bfcf1c0f42fe814c9e9ff22489ea7b16",
+      "bytes": 126,
+      "saved_as": "chimera-build-version.json"
+    },
+    "eq-attribution-provenance.json": {
+      "sha256": "5db009c780aef70438d0a37d4a5c7cbf5f191bcc43b6533faa80d8dcccff53ad",
+      "bytes": 14426,
+      "saved_as": "eq-attribution-provenance.json"
+    },
+    "local-toolchain.json": {
+      "sha256": "aff8eb22695f0b4560e55535c3831df177b48c5bfcbfc16b01abea9c8e60edee",
+      "bytes": 878,
+      "saved_as": "local-toolchain.json"
+    },
+    "run_eq_native_local.py": {
+      "sha256": "467a1eabc519f18b1923671d7490b4ceebcaec40af11ebea46df007909fa9202",
+      "bytes": 3049,
+      "saved_as": "run_eq_native_local.py"
+    },
+    "focused-results.xml": {
+      "sha256": "8ccb35b61392b72564dfa342c6e3b170f9a5d7352a5b78ee9f24611035fb545c",
+      "bytes": 2619,
+      "saved_as": "focused-results.xml"
+    },
+    "focused-LastTest.log": {
+      "sha256": "0c5967be3c2cca0614eeca63aa620ac5fd1dea44e246fd6da44ea01176afd9c2",
+      "bytes": 4612,
+      "saved_as": "focused-LastTest.log"
+    },
+    "focused-console.log": {
+      "sha256": "cd9864c7ce86b573bd08b2b43f1d203de26e77276e039e3fe3946e6f674c5d90",
+      "bytes": 1878,
+      "saved_as": "focused-console.log"
+    },
+    "build-console.log": {
+      "sha256": "7642a2e5561238d64d45239b7fb0b605b71e0d280977c0a0e25366e51d011085",
+      "bytes": 387,
+      "saved_as": "build-console.log"
+    },
+    "configure-console.log": {
+      "sha256": "ae304ad201f99c264202be1a638c98dd99da3f0f1b79f39e4fba0b77fc05e393",
+      "bytes": 442,
+      "saved_as": "configure-console.log"
+    },
+    "eq-cpu.csv": {
+      "sha256": "ee1e97d85edcd7c59a41d199dbd48392b7744b267848217ef14afe693c0c8feb",
+      "bytes": 907,
+      "saved_as": "eq-cpu.csv"
+    },
+    "eq-analyzer-live-frames.csv": {
+      "sha256": "5823cfabf2167bc9121d19cfe94f31802dd976f3306f944f5a53b968c33fe7d2",
+      "bytes": 3774,
+      "saved_as": "eq-analyzer-live-frames.csv"
+    },
+    "eq-analyzer-performance-parity.csv": {
+      "sha256": "fde96883fe8beba116cdb9f2a221002db6b6f474d134dfae0ba42c6b2b2859e5",
+      "bytes": 15428,
+      "saved_as": "eq-analyzer-performance-parity.csv"
+    },
+    "eq-analyzer-performance-summary.csv": {
+      "sha256": "9bba6d79007fc997c421be8c4f3b0e8dbf660a566d20a4d482be6e8a85c603f5",
+      "bytes": 7249,
+      "saved_as": "eq-analyzer-performance-summary.csv"
+    },
+    "eq-analyzer-native-ui.csv": {
+      "sha256": "cac020cda07cfad822f2a0a67232476505952d388bf393e6a5cff921f6c2facf",
+      "bytes": 1198,
+      "saved_as": "eq-analyzer-native-ui.csv"
+    },
+    "eq-analyzer-high-rate.csv": {
+      "sha256": "9af1c5c574aed4926530b1ce6b80dfaf294a24af1baa6ceb6a21722537d1905d",
+      "bytes": 1871,
+      "saved_as": "eq-analyzer-high-rate.csv"
+    },
+    "eq-analyzer-high-rate-updates.csv": {
+      "sha256": "e5824cbea5237ebc19e58190a9be641a38be0238fd200789a5dff5781142d4cf",
+      "bytes": 113658,
+      "saved_as": "eq-analyzer-high-rate-updates.csv"
+    },
+    "eq-analyzer-callback.csv": {
+      "sha256": "c6fe06420276788c81f7d23035d66571969838844ba52eb806f5a94c86e3012d",
+      "bytes": 3075,
+      "saved_as": "eq-analyzer-callback.csv"
+    },
+    "eq-analyzer-fifo-stalls.csv": {
+      "sha256": "924e05cf0d4b107eb72c9bcb5eca1c78e40551dd99de574607b97b7f788689de",
+      "bytes": 3817,
+      "saved_as": "eq-analyzer-fifo-stalls.csv"
+    },
+    "eq-analyzer-partition-invariance.csv": {
+      "sha256": "318e615eca31dedf3e76c484514356cbc40db56b8f99a2c61291e71d267608ea",
+      "bytes": 7946,
+      "saved_as": "eq-analyzer-partition-invariance.csv"
+    },
+    "eq-analyzer-full-callback.csv": {
+      "sha256": "ad389298edbf067a86d4666998b5600a98fc110b9d46109e9b90f2d6b2085fc1",
+      "bytes": 910,
+      "saved_as": "eq-analyzer-full-callback.csv"
+    },
+    "eq-analyzer-audio-invariance.csv": {
+      "sha256": "bb049aa2c08466a8388b80ba8b4ffc8692a14d4213f5d41dff997df605309f04",
+      "bytes": 686,
+      "saved_as": "eq-analyzer-audio-invariance.csv"
+    },
+    "eq-analyzer-performance-paired.csv": {
+      "sha256": "9f0f7ccd8d5b100cd80ccd53f260b23d49a240c43b707debcc1a7e9c5bf12082",
+      "bytes": 42512,
+      "saved_as": "eq-analyzer-performance-paired.csv"
+    },
+    "eq-analyzer-cpu.csv": {
+      "sha256": "6cd81192a27c24c9c09d07553c3a03c72b0ba6486265280dc10abd02411b6f19",
+      "bytes": 2046,
+      "saved_as": "eq-analyzer-cpu.csv"
+    },
+    "eq-analyzer-temporal-coverage.csv": {
+      "sha256": "c61c394b32c1b2ffdb0b5c1417a9ae0f1d3204ed5bf7d23a37197f1e2af81b32",
+      "bytes": 2672,
+      "saved_as": "eq-analyzer-temporal-coverage.csv"
+    },
+    "eq-attribution/eq-attribution-method.txt": {
+      "sha256": "85680920eecd77bee14c83d43f9b263c1371f261083bc8dd5f335ac47d5efa5a",
+      "bytes": 1222,
+      "saved_as": "eq-attribution/eq-attribution-method.txt"
+    },
+    "eq-attribution/eq-attribution-updates.csv": {
+      "sha256": "0bee3f8bbea95d710f1cdefe4d8a609a6465e3ea9209b7d6818737dd5fdd89cf",
+      "bytes": 151511,
+      "saved_as": "eq-attribution/eq-attribution-updates.csv"
+    },
+    "eq-attribution/eq-attribution-summary.csv": {
+      "sha256": "9b959fb54e297b5662bb7e19169365614b6577c810e5678936be61ddc630cad0",
+      "bytes": 54661,
+      "saved_as": "eq-attribution/eq-attribution-summary.csv"
+    },
+    "eq-attribution/eq-attribution-callbacks.csv": {
+      "sha256": "084b53ad55be3264706922542b89752e30e7a0d9fd8463cadace0447424cdc8e",
+      "bytes": 12772532,
+      "saved_as": "eq-attribution/eq-attribution-callbacks.csv.gz"
+    }
+  },
+  "build_exit_code": 0,
+  "ctest_exit_code": 0,
+  "total_ctest_seconds": 379.31,
+  "native_desktop": "Authenticated local TCP X11; Xvfb1920x1080x24 + Openbox; unchanged native peer/assertions",
+  "scope_limits": [
+    "Cost measurements are observational against retained beb72f, not a PR52 timing regression threshold",
+    "Synthetic legacy schemas are not old-release binary DAW round trips",
+    "No physical DAW/audio interface or installer acceptance",
+    "No Windows/macOS local execution claim",
+    "Focused earlier 2/2 receipts are separate from this exact-source eight-suite run"
+  ],
+  "physical_daw_acceptance": "NOT_ASSESSED",
+  "installer_acceptance": "NOT_ASSESSED",
+  "visual_qa": {
+    "decoded_files": 51,
+    "visually_inspected_files": 5,
+    "retained_captures": 4,
+    "manifest": "native-capture-manifest.json"
+  },
+  "test_registration_note": "Seven distinct executables run eight CTest suites; attribution reuses the native UI executable with --attribution. A read-only CTest inventory after execution replaces the working LastTest.log, so the full receipt was archived first and its exact bytes were restored to the build directory afterward."
+}

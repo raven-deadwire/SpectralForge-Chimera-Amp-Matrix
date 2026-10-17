@@ -17,7 +17,11 @@ template<class T=juce::Component> T* find(juce::Component& root,const juce::Stri
     for(auto* child:root.getChildren())if(auto* result=find<T>(*child,id))return result;return nullptr;
 }
 inline void set(ChimeraProcessor& processor,const juce::String& id,float value){auto* p=processor.parameters().getParameter(id);require(p!=nullptr,"Native UI parameter missing");p->setValueNotifyingHost(p->convertTo0to1(value));}
-inline void tab(juce::Component& root,const char* name){for(auto* child:root.getChildren())if(auto* b=dynamic_cast<juce::TextButton*>(child);b && b->getButtonText()==name){b->triggerClick();settle();return;}throw std::runtime_error("Native UI page tab missing");}
+inline void tab(juce::Component& root,const char* name){
+    const juce::String label(name);const auto id=label=="RIGS"?"head":label=="PRE"?"pre":label=="POST"?"post":"tone.eq";
+    auto* button=find<juce::TextButton>(root,"path."+juce::String(id));require(button && button->isVisible(),"Signal navigation stage missing");button->triggerClick();settle();
+}
+
 inline void snapshot(juce::Component& root,const juce::File& directory,const char* name){auto stream=directory.getChildFile(juce::String(name)+".png").createOutputStream();juce::PNGImageFormat png;require(stream && png.writeImageToStream(root.createComponentSnapshot(root.getLocalBounds()),*stream),"Native UI screenshot failed");}
 inline void views(juce::Component& root,std::vector<NativeControlView*>& result) {
     if(auto* view=dynamic_cast<NativeControlView*>(&root))result.push_back(view);
@@ -74,15 +78,24 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
         std::vector<NativeControlView*> controls;views(*panel,controls);std::vector<NativeControlView*> shown;
         for(auto* view:controls)if(view->isVisible())shown.push_back(view);
         const std::array<const char*,3> ids{"bandtone1","lowcomp","lowampmix"};
-        require(shown.size()==ids.size(),"Matrix LOW overview must expose exactly BAND TONE, LOW DI COMP and DI / AMP MIX");
+        require(shown.size()>ids.size(),"Matrix LOW overview must retain amplifier controls below the shared knobs");
         for(size_t i=0;i<ids.size();++i) {
-            require(shown[i]->getComponentID()==juce::String(ids[i])+"_control","Matrix LOW priority controls are in the wrong order");
-            inside(*panel,*shown[i],"Matrix LOW priority control is clipped");inside(editor,*shown[i],"Matrix LOW priority control exceeds scaled editor");
-            auto* slider=find<juce::Slider>(*shown[i],ids[i]);require(slider!=nullptr,"Matrix LOW priority knob missing");
+            auto* view=find<NativeControlView>(*panel,juce::String(ids[i])+"_control");
+            require(view && view->isVisible(),"Matrix LOW shared control missing");
+            inside(*panel,*view,"Matrix LOW priority control is clipped");inside(editor,*view,"Matrix LOW priority control exceeds scaled editor");
+            auto* slider=find<juce::Slider>(*view,ids[i]);require(slider!=nullptr,"Matrix LOW priority knob missing");
             const double value=i==0?(scale?-3.5:4.5):(scale?.31:.64);slider->setValue(value,juce::sendNotificationSync);
             require(std::abs(processor.parameters().getRawParameterValue(ids[i])->load()-value)<.002,"Matrix LOW priority knob did not reach its host parameter");
         }
-        require(!find<juce::ComboBox>(*panel,"ampChannel1")->isVisible() && !find<juce::ComboBox>(*panel,"ampInput1")->isVisible(),"Matrix LOW overview exposes amplifier selectors before ALL");
+        const auto& overviewSpec=spectralforge::ampNativePanel(processor.selectedAmpModel(0));
+        auto* overviewChannel=find<juce::ComboBox>(*panel,"ampChannel1");
+        require(overviewChannel && overviewChannel->isVisible()==(overviewSpec.channels.size()>1),"Matrix LOW overview lost its amplifier channel selector");
+        auto* overviewInput=find<juce::ComboBox>(*panel,"ampInput1");
+        require(overviewInput && overviewInput->isVisible()==(overviewSpec.routes.size()>1),"Matrix LOW overview lost its amplifier input selector");
+        for(size_t i=0;i<ids.size();++i) {
+            auto* view=find<NativeControlView>(*panel,juce::String(ids[i])+"_control");
+            require(view->getY()==0 && (i==0 || view->getX()>find<NativeControlView>(*panel,juce::String(ids[i-1])+"_control")->getX()),"LOW shared knobs must occupy the first row in tone/comp/blend order");
+        }
         snapshot(editor,directory,scale?"Native-Amp-Matrix-75pct":"Native-Amp-Matrix");
         auto window=open(*panel,"ampExpand1","ampNativePanel1");auto* full=dynamic_cast<AmpNativePanel*>(window->getContentComponent());
         require(full && &full->getLookAndFeel()==&editor.getLookAndFeel(),"Matrix LOW ALL lost the native amplifier panel/style");
@@ -297,3 +310,4 @@ inline void run(const juce::File& directory){
 }
 }
 inline void runNativeUITests(const juce::File& directory){nativeUITests::run(directory);}
+

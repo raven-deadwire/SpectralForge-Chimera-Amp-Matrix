@@ -1,0 +1,21 @@
+{
+  "created_at_utc": "2026-10-14T01:38:47.961676+00:00",
+  "base_source_sha": "1a4a16d48d6ca21c8a3386beaa354d3744e667bf",
+  "source_state": "base plus input-arrival timestamp correction and extended stalled-worker test; exact files fingerprinted below",
+  "native_routes": 32,
+  "maximum_acquire_ms": 195.999349,
+  "maximum_step_settle_ms": 216.723738,
+  "maximum_absolute_final_error_ct": 5.144126528e-05,
+  "maximum_push_wall_us": 465.425,
+  "control_exit": 1,
+  "fixed_exit": 0,
+  "native_exit": 0,
+  "thresholds_changed": false,
+  "source_sha256": {
+    "Source/GlobalDSP.h": "3b0ea419c7f47f9fc4ff156958441052a97267746cb9dedcf7e13170d4455113",
+    "Source/PrecisionTuner.h": "91e67028cfaa5dc57b74ac52aa8904423f796a02c566d88ce622bee63e540d39",
+    "Tests/PrecisionTunerIntegrationTests.cpp": "32e61b92dfdf58f88bb82bef515a0d9550076eac5021ac74d9a857653a5a2059"
+  },
+  "binary_sha256": "22b7ec0f13c03a6db617d71363d69bfd0ebb23edbdb5e765fa133623102613d2",
+  "qualification": "Local regression only, no driver/DAW or callback clearance"
+}

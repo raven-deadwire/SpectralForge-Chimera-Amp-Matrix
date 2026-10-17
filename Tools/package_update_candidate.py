@@ -82,6 +82,7 @@ def main() -> None:
     shutil.copy2(root/'COPYRIGHT.txt',stage/'COPYRIGHT.txt')
     (stage/'INSTALLATION.md').write_text(INSTALLATION,encoding='utf-8')
     release.write_public_verification(stage/'CTest.log', root/'build', version=version)
+    release.lifecycle_documents(stage, root/'build', version=version)
     check_ir_distribution.validate_stage(stage)
     check_public_names.validate_stage(stage)
     manifest={**version,'kind':'experimental-Windows-test-build','run_id':os.environ.get('GITHUB_RUN_ID'),

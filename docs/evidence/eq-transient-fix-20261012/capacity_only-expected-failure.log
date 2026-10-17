@@ -1,0 +1,8 @@
+COVERAGE rate=48000 FFT=2048 position=early batch=1920 samples windows=1 input_energy=30.8087 raw_last=-26.4151 display_at_40ms=-28.083 bounded_display=-28.083 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=2048 position=late batch=1920 samples windows=1 input_energy=30.8087 raw_last=-16.8811 display_at_40ms=-18.549 bounded_display=-18.549 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=early batch=1920 samples windows=1 input_energy=30.8087 raw_last=-23.2947 display_at_40ms=-24.9626 bounded_display=-24.9626 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=4096 position=late batch=1920 samples windows=1 input_energy=30.8087 raw_last=-29.3816 display_at_40ms=-31.0495 bounded_display=-31.0495 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=early batch=1920 samples windows=1 input_energy=30.8087 raw_last=-37.4823 display_at_40ms=-39.1502 bounded_display=-39.1502 dBFS fifo_drops=0
+COVERAGE rate=48000 FFT=8192 position=late batch=1920 samples windows=1 input_energy=30.8087 raw_last=-46.1639 display_at_40ms=-47.8319 bounded_display=-44.1754 dBFS fifo_drops=0
+COVERAGE rate=96000 FFT=2048 position=early batch=3840 samples windows=1 input_energy=30.8115 raw_last=-120 display_at_40ms=-120 bounded_display=-120 dBFS fifo_drops=0
+FAIL Short input attack disappeared from the actual displayed spectrum

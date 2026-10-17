@@ -1,3 +1,55 @@
+# 1.3.2-beta.1 — integrated candidate, qualification pending
+
+**2026-10-16 릴리즈·배포 승인을 받았습니다. 최종 소스 검증 중이며 아직 배포 완료가 아닙니다.**
+
+- HEAD에서 CAB 편집을 분리했습니다. LOW도 채널 선택을 표시하고 바로 아래에 BAND TONE / COMP / BLEND 회전 노브를 배치합니다.
+- 튜너를 열면 바로 튜닝을 시작하고, 출력 뮤트를 별도로 선택합니다. 열지 않은 튜너 버튼은 활성 색을 표시하지 않습니다.
+- 모델 마이크 하나만 사용할 때 미선택 마이크의 필터 신호가 섞이지 않도록 수정했습니다.
+- macOS 튜너 작업 깨우기 타이머를 수정했습니다. 최종 지연 검사는 진행 중입니다.
+
+- 시그널 바에서 PRE / HEAD / CAB / TONE EQ / POST / FINAL EQ를 바로 선택합니다. 픽토그램과 강조된 하단 유틸리티, 독립 튜너 화면을 제공합니다.
+- 정밀 추정기와 직선형 가상 스트로브·니들 표시, 보정 튜닝 프로필 및 사용자 오프셋을 추가합니다. 스트로브는 목표음과의 차이가 줄면 느려집니다. 합성 신호 검사는 실제 악기·오디오 인터페이스 정확도 인증이 아닙니다.
+- EQ를 한 뱅크씩 크게 편집하고, 밴드 추가·삭제·실행 취소·다시 실행과 IN/OUT 애널라이저·해상도·스냅샷 고정을 사용합니다.
+- Tone/Final의 기존 EQ 노드에 총 4개의 Dynamic 슬롯, POST 앞 클린 컴프레서, DI 게이트/익스팬더, 출력 게인 뒤의 샘플 피크 리미터를 추가합니다. 새 다이내믹스는 기본적으로 꺼져 있습니다.
+- AUDIO / PEAK는 전체 PC CPU가 아닌 콜백 처리 시간 비율입니다. 100%를 넘는 피크는 원인 확인이 필요합니다. 성능 검증과 실제 DAW 검증은 아직 완료되지 않았습니다.
+
+English: this candidate combines direct signal navigation, precision virtual
+strobe tuning, focused EQ/analyzer editing and common live dynamics. Four dynamic
+slots share existing Tone/Final nodes. Clean compression precedes POST; the
+sample-peak limiter follows final output gain. New stages add no lookahead or
+extra audio delay. Exact-source qualification remains pending. Release is owner-approved, with beta expiry
+at 2027-02-11 23:59 KST (2027-02-11T14:59:00Z); historical release sections below do not describe this candidate's status.
+
+Deutsch: Dieser Kandidat vereint direkte Signalnavigation, präzise virtuelle
+Stroboskopanzeige, den fokussierten EQ/Analyzer und gemeinsame Live-Dynamik.
+Vier dynamische Plätze verwenden vorhandene Tone-/Final-EQ-Bänder. Der saubere
+Kompressor liegt vor POST, der Sample-Peak-Limiter hinter dem Ausgangspegel.
+Die neuen Module fügen kein Lookahead und keine Audioverzögerung hinzu.
+Die Quellstandsprüfung läuft noch. Veröffentlichung und Beta-Ablaufdatum sind freigegeben:
+11. Februar 2027, 14:59 UTC.
+
+The integrated lifecycle behavior is retained from the following development
+candidate. Its old version heading and approval status are historical; the approved
+1.3.2-beta.1 expiry above applies only to this version.
+
+---
+
+## Historical lifecycle candidate: 1.3.1-beta.3 (not published)
+
+This next-version candidate adds per-build UTC beta lifecycle metadata, SETTINGS
+notices, the existing GitHub update route, active-instance audio grace and
+non-destructive muted output for newly opened expired instances. Existing
+project, preset, automation, A/B and IR identities are retained. A corrected
+system clock can recover audio with a 50 ms fade-in.
+
+**Expiry date: awaiting owner approval. Release approval: not granted.**
+CI may qualify clearly marked synthetic-expiry builds; these cannot be published.
+The exact generated `BETA_LIFECYCLE.txt` is included before installation and with
+the package in English, German and Korean. Existing beta.2 binaries are immutable.
+Fresh complete-source verification is required for the eventual approved build.
+
+---
+
 # SpectralForge Chimera — Open Beta 1.3.1-beta.2 · Room, IR & Niflheimr
 
 **Version: 1.3.1-beta.2 · Windows / macOS / Linux**
@@ -8,6 +60,7 @@ Classic 룸 진입, 모델링 캐비넷과 IR 조작 분리, Niflheimr 프리셋
 
 ## beta.2 후보 변경
 
+- **신호체인 편집 흐름:** 이 별도 개발 후보의 압축 표시는 PRE → HEAD → CAB → TONE EQ → POST → FINAL EQ의 여섯 편집 단계로 정리합니다. HEAD는 현재 모드의 기존 앰프 조작 화면을, CAB은 편집기 안의 기존 캐비넷 룸을 엽니다. 룸에서 원하는 레인을 선택해 상세 편집할 수 있습니다. ROUTING에서 전역 유틸리티의 위치와 전체 분기·합류를 검사합니다. 기존 전역 컨트롤은 각 위치에서 계속 사용할 수 있습니다. HEAD와 CAB을 분리한 새 소스의 검증을 마친 뒤 10월 14일 테스트 빌드 포함 여부를 결정합니다.
 - **Classic 룸:** Classic에서도 헤드와 캐비넷을 룸에서 선택하고 확대할 수 있습니다. 기존 Dual·Matrix 진입과 되돌아가기를 유지합니다.
 - **캐비넷과 IR 상태 표시:** 모델링 마이크를 사용하는 동안 IR 로더에 해당 슬롯을 비활성으로 표시하고, 그 화면의 공유 조절부를 비활성화합니다. 마이크의 게인·딜레이·위상·컷 설정은 유지하며 CABINET에서 조절합니다. IR을 명시적으로 선택하면 해당 마이크의 소스만 전환합니다. IR 목록의 첫 선택이 초기화 콜백으로 지워지던 문제도 수정합니다.
 - **Niflheimr 프리셋:** Metal Clank와 Doom Fuzz는 Classic, Death Grind는 Dual, Heavy Pulse와 Slam Punch는 Matrix를 사용합니다. 표시 이름과 각 리그의 채널·CAB·PRE/POST 구성을 함께 정리하며, 기존 프리셋 ID와 전체 프리셋 수를 유지합니다. 전역 OUTPUT은 0 dB 기준을 유지합니다.
@@ -22,7 +75,7 @@ Classic 룸 진입, 모델링 캐비넷과 IR 조작 분리, Niflheimr 프리셋
 - **헤드 직접 조작:** Classic·Dual·Matrix에서 헤드를 선택해 확대하고 전면 노브를 조절합니다. Niflheimr의 14개 노브·5채널과 Brit Edge의 6개 노브·5개 입력 경로를 포함합니다. 전체 카탈로그 26개 헤드의 전면 배치를 제공하며, 선택 가능한 앰프는 기존과 같은 25종입니다. 검수에 포함한 퇴역 Iron Compact이 선택 목록에 복귀하는 것은 아닙니다.
 - **모델별 노브와 가독성:** 원본 하드웨어의 노브 형태·그립·캡·지시선을 참고해 앰프마다 다른 디자인을 적용합니다. Náströnd와 Niflheimr는 자체 디자인을 유지합니다. Niflheimr를 포함한 노브 크기와 간격, 라벨 크기·대비를 조정하고, 헤드 상단 모서리·손잡이·깊이 표현을 함께 정리합니다. 수치는 조작하거나 직접 입력할 때만 표시합니다.
 - **조작 방법:** 노브를 드래그하고 Shift로 미세 조정합니다. 더블클릭 또는 Enter로 값을 입력할 수 있습니다. 이름이 표시된 버튼으로 채널을 선택하고 DETAILS에서 전체 컨트롤을 엽니다. A/B와 기존 채널별 설정, 호스트 자동화·프로젝트 저장을 함께 사용합니다.
-- **Signal Path:** 현재 모드의 분기·합류, 활성·우회 상태와 Matrix LOW의 DI / AMP+CAB 관계를 표시합니다. 경로의 단계를 선택하면 해당 조작 화면으로 이동합니다. PATH +에서 전체 경로를 펼쳐 볼 수 있으며 화면 이동 자체는 소리 설정을 바꾸지 않습니다.
+- **Signal Path 상세 검사:** 현재 모드의 분기·합류·활성·우회 상태와 Matrix LOW의 DI / AMP+CAB 관계를 표시하는 기존 상세 화면을 유지합니다. 각 단계를 선택하면 해당 조작 화면으로 이동합니다. 새 압축 편집 흐름과 ROUTING 명칭은 위의 beta.2 후보 변경에 해당합니다.
 - **Tone EQ / Final EQ:** 각각 12개 밴드, 7개 필터 종류, 주파수 응답 곡선과 입력·출력 스펙트럼을 제공합니다. Tone EQ는 리그 합산과 선택적 POST Gate 뒤, POST 랙 앞에 있습니다. Final EQ는 POST·Doubler·메트로놈 뒤, OUTPUT 앞에 있습니다. 두 EQ는 기본적으로 우회되며 밴드의 주파수·게인·Q를 그래프와 수치로 조절합니다.
 - **1.3 기능 유지:** Niflheimr, PRE 39종·POST 21종·프리셋 48개, 스피커 14종·마이크 20종·9개 CAB 배치와 Chimera HF를 포함한 4개 트위터 디자인을 유지합니다. 6×10 구성, 팩토리 CAB 레시피, Mic A/B 복원, 캐비넷 외장·그릴과 IR 로더 표현, 작은 블록에서의 중복 FFT 감소 및 IR 배포 범위 수정도 포함합니다. 상세 이력은 [1.3.0 릴리즈 노트](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/OPEN_BETA_1_3_RELEASE_NOTES.md)를 참고하세요.
 

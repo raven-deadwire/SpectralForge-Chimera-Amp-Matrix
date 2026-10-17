@@ -30,7 +30,7 @@ static void set(ChimeraProcessor& p,const char* id,float value) {
     parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
 static juce::TextButton* button(juce::Component& parent,const juce::String& name) {
-    if(auto* b=dynamic_cast<juce::TextButton*>(&parent);b && b->getButtonText()==name)return b;
+    if(auto* b=dynamic_cast<juce::TextButton*>(&parent);b && (b->getButtonText()==name || (name=="RIGS" && b->getComponentID()=="path.cab")))return b;
     for(auto* child:parent.getChildren())if(auto* b=button(*child,name))return b;
     return nullptr;
 }

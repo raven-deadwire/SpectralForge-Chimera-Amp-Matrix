@@ -1,0 +1,400 @@
+{
+  "method": "Pillow Image.verify() followed by Image.load() on a fresh stream for every PNG",
+  "png_count": 49,
+  "live_count": 32,
+  "distinct_live_sha256": 32,
+  "images": [
+    {
+      "file": "eq-live-000.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 540375,
+      "sha256": "709fea01dfe9dda8f688cef8c78f7a1d0c85c241ff4d851eabcee155acc8b398",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-001.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 540860,
+      "sha256": "08bdc50151a2a96e2b178eec506f27e8425a69f0ee827a3f9811253f5bec76dd",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-002.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 541195,
+      "sha256": "95c173e2d883743f33ac35347d5cdfe21a379dd86511c0f52b22507da0b04ab8",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-003.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 541189,
+      "sha256": "74fb04ff4420df2c75be44548d5183331bb17d3c8cbe05dfd6a27695d6a2f3df",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-004.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 542084,
+      "sha256": "79475648f6022d7a2d63965c324fc0020381a62a0c449514045cc7fbade96ac2",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-005.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 541959,
+      "sha256": "f9961ff1ab116a9bf7c62d38bf8fc6b4dc2d5607bd15ba1a6ba8c4bffa36b378",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-006.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 542537,
+      "sha256": "a1a15dee6c1fa540fe3101639c4379b9a3fb7fde4d8555219117e02d92735c4d",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-007.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 542729,
+      "sha256": "887650d3157ed0195413b95ea5fd53251109b8ff30873bf24b77def2f4a91913",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-008.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 542888,
+      "sha256": "e9a8049b69bb2d1701fb7ab40912cd14699cf5f8d381cdc8338b06d55e17a28c",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-009.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 521031,
+      "sha256": "753bf0f99529c8e339bc270f5d2ea20693687894616721dd7bb50cf67c6f8e2d",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-010.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 521551,
+      "sha256": "fd0625891a88c9dc5ac024a302e989e652055176ffb7a353c2d413bb88b15187",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-011.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 522678,
+      "sha256": "240f10b24f8f61b7ddff5227e157bef4ad0d4a70f3aafb7c095229e5c67669e6",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-012.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 536398,
+      "sha256": "8405d65d5788a0d2219c31031071854dd1b59eb5b96505da1ae0e0c30874d4b5",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-013.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 541063,
+      "sha256": "795fe82394c47cd36d51f94359d5930e49ab50583f672e383cefe5cbd3343efc",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-014.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543110,
+      "sha256": "7f3cabdf3e406b129e00e6151d4b5c159f4ebc3237be51e376228cc0f05fa6b0",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-015.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543231,
+      "sha256": "1092f702008f561a1f46b34d398059ae63d1edd6a7f98b54a6506d1a7863d8bc",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-016.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 544078,
+      "sha256": "8e71bebdb5f1e532763c45e0b57923234918855b8fa3c8cc161cede78ba495e3",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-017.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 544158,
+      "sha256": "b2913246347866c24ff7ed990b675cbdd6601f02841445abfae6843c7f6e71ff",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-018.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 544384,
+      "sha256": "dca6bad694d2097d08c21ff927eafb168826eeb3c346ada547e88718ccaadd29",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-019.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 544842,
+      "sha256": "f7c03484bb9e89585fe50fa1630affc6528566c97149fd4337fd3eb969216706",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-020.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 544870,
+      "sha256": "1138bb9677842fd758f0b3a9153b7ed8dffae524fce0f8599ef15b4aca0ac77a",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-021.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 541109,
+      "sha256": "55fd864d1885bb959cd44f2b8feb4d2101d17a3c0a4f285c7887b3e634abed74",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-022.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 542256,
+      "sha256": "56cf6e51ec8fcf8d181cc21d7ab7debdc0cebc017b52bfe9f52fadc439f5ca51",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-023.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 541654,
+      "sha256": "cdb978f46468b48315c8b9e7742a8a4c74fdf8c21ec6de42ef5937dcb96b3287",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-024.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543522,
+      "sha256": "4c0398589c996b6a346117bc346b55ae2b2ddc2b9c04d6274e07f952982176cf",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-025.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543517,
+      "sha256": "ace93dd944b0ea81c9ab0e5b9e3ac8eeb722aa0d1f56db0da1e60d20cf019031",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-026.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543615,
+      "sha256": "fc1faaaf35917084cd5abd8fd6d69ce7d4c9b48f9293edef2b98b793108a6d4b",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-027.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543505,
+      "sha256": "824b4cd6bc8d7745909e8e32d7876fc6336760363381c79cfedb7180c5de1919",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-028.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543911,
+      "sha256": "fdcb4e8eb43b15c3d0ab0d189b2e5cff3b678a4ff44487dfac2f16133e1e08c2",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-029.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543853,
+      "sha256": "114c7e868f6c029e6e634aebd6681dcf86f6e376f624adb68b3ea4b1dc33ff71",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-030.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 543991,
+      "sha256": "c1d6d097f6643200e57d379bd8f605e6b8995f091c429fd28c73226c842eab43",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-live-031.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 544257,
+      "sha256": "7baef17fc6de4a3148cae852cf22d5d622bdea76e41f844b0c7476aaf4ecf700",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-100.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 483341,
+      "sha256": "6c4c3c41d73c17d870182f08138ee876cc87eb8d4aa2c66fff543a2cfcf9d25b",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-125.png",
+      "width": 1475,
+      "height": 975,
+      "bytes": 683598,
+      "sha256": "a955234f5dcd3f4c5ce0bab0a9d45083e6c8c0a5811de837971ed07f89ecb072",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-150.png",
+      "width": 1770,
+      "height": 1170,
+      "bytes": 898346,
+      "sha256": "8a779a53fcfd137c9c7a1d9aaef6a20800bf16d45f55818a95e9d409af44622f",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-75.png",
+      "width": 885,
+      "height": 585,
+      "bytes": 308513,
+      "sha256": "ec788222a07dbe0fbaec9e552e06b9a59541136eb42e70eed8424e01edb9f02f",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-bank0-fft2048.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 484237,
+      "sha256": "12fe20c17a1d873b375364742d2bb2f67fa52ba5956286630efd13bd265babbe",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-bank0-fft4096.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 483559,
+      "sha256": "ae7d2c72b28d03ce2997377319459c35bd3f82867e825bf7003dabb64cb75c2f",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-bank0-fft8192.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 482931,
+      "sha256": "6a5f0eaee1160f540f7c990d1e1a6615dbe7e8859dc229bcd78a5d0d8ceca037",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-bank1-fft2048.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 485370,
+      "sha256": "f3c84de2d643242d00052fbeb5239d354fdee6a42cf34cc705bdfacf25917c4d",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-bank1-fft4096.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 484745,
+      "sha256": "85d8436043b9c66e95c6273912660ca8a83c95d526863a5af1b3ad2c9be00d7d",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-bank1-fft8192.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 484248,
+      "sha256": "894cde2606c6775e4e4be3965c0ffca4e4029e63ea9e1a31ec824a340597eea5",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-stopped-source.png",
+      "width": 1180,
+      "height": 780,
+      "bytes": 483707,
+      "sha256": "fbff17f2bf90db665e6173cdf5e9e1923128d280de1501d61681c01ec0c731a8",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-toggle-bank0-both.png",
+      "width": 1140,
+      "height": 412,
+      "bytes": 42428,
+      "sha256": "b07d30a0b17c915aa7b912f47befa559073e2ddef54061d0995ecb18ed1bf90d",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-toggle-bank0-in-only.png",
+      "width": 1140,
+      "height": 412,
+      "bytes": 42121,
+      "sha256": "e5c0fb6406b2c89064b69166bc1ebb3564e5ce193fb605021b9abf510f756114",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-toggle-bank0-neither.png",
+      "width": 1140,
+      "height": 412,
+      "bytes": 39494,
+      "sha256": "4f5ad842d4e092ab77d3014ab049cfb7da5fab973501235590791b1cfc8c049d",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-toggle-bank1-both.png",
+      "width": 1140,
+      "height": 412,
+      "bytes": 43647,
+      "sha256": "c516315d03bb80bfad390d7d5413eb652eabafb79add22755def59df375b20fa",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-toggle-bank1-in-only.png",
+      "width": 1140,
+      "height": 412,
+      "bytes": 43341,
+      "sha256": "7bd411d5903e77c5374d98a3aba439bd6182a8152228235d875fb7f08e6d8d2c",
+      "full_decode": "passed"
+    },
+    {
+      "file": "eq-ui-toggle-bank1-neither.png",
+      "width": 1140,
+      "height": 412,
+      "bytes": 40678,
+      "sha256": "e86e8b133d2774293433077993ba9027315329be3a4a21aa493e987dec6e5a70",
+      "full_decode": "passed"
+    }
+  ]
+}

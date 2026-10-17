@@ -1,0 +1,53 @@
+{
+  "baseline_commit": "360a2d843981691cc8670f292610dbd7c2816bd7",
+  "checks": [
+    {
+      "path": "Source/PluginProcessor.cpp",
+      "identical": true,
+      "baseline_sha256": "5f9f1ef5455d367ea44fd85876028ec1ee6cfec416217ca5a87528a779c4a377",
+      "current_sha256": "5f9f1ef5455d367ea44fd85876028ec1ee6cfec416217ca5a87528a779c4a377"
+    },
+    {
+      "path": "Source/PluginProcessor.h",
+      "identical": true,
+      "baseline_sha256": "165fdec064011936b1ad6c3e9248eeab3d3796fea0fd1929f8d5ff43dce0675b",
+      "current_sha256": "165fdec064011936b1ad6c3e9248eeab3d3796fea0fd1929f8d5ff43dce0675b"
+    },
+    {
+      "path": "Source/ChimeraDSP.h",
+      "identical": true,
+      "baseline_sha256": "ee35949cdf33f3d47b37f98da93ebde0d2df85f7041cea210f083d9030b5aadd",
+      "current_sha256": "ee35949cdf33f3d47b37f98da93ebde0d2df85f7041cea210f083d9030b5aadd"
+    },
+    {
+      "path": "VERSION",
+      "identical": true,
+      "baseline_sha256": "10e2e117b01523891ca271a615ae36e9d5e52348fd7d642f66727602c1b8dcbe",
+      "current_sha256": "10e2e117b01523891ca271a615ae36e9d5e52348fd7d642f66727602c1b8dcbe"
+    },
+    {
+      "path": "RELEASE_CHANNEL",
+      "identical": true,
+      "baseline_sha256": "d11a8a9975b043d17eb65d496a998f9f7cf9d0462f1b5b1a9024b7251873c529",
+      "current_sha256": "d11a8a9975b043d17eb65d496a998f9f7cf9d0462f1b5b1a9024b7251873c529"
+    },
+    {
+      "path": "Validation/release-policy.json",
+      "identical": true,
+      "baseline_sha256": "2cc37b6b355f20bb4cdd7f10a28431b4d20933bc99ae0a8399745b0805fa2c3d",
+      "current_sha256": "2cc37b6b355f20bb4cdd7f10a28431b4d20933bc99ae0a8399745b0805fa2c3d"
+    },
+    {
+      "section": "GraphicalEQ processing class",
+      "identical": true,
+      "baseline_sha256": "adb6949c26a9a5f810b205c3594aa0c1543047d7404c9797c17bfc377fd7cde6",
+      "current_sha256": "adb6949c26a9a5f810b205c3594aa0c1543047d7404c9797c17bfc377fd7cde6"
+    },
+    {
+      "section": "EQ parameters and coefficients",
+      "identical": true,
+      "baseline_sha256": "7934c6ebb084e0b1f3cd92531639e130ce00f3e9ff1ade8fa66393de94e028e0",
+      "current_sha256": "7934c6ebb084e0b1f3cd92531639e130ce00f3e9ff1ade8fa66393de94e028e0"
+    }
+  ]
+}
