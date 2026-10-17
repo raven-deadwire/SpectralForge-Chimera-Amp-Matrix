@@ -1,0 +1,26 @@
+[
+  {
+    "engine": "baseline",
+    "input": "harmonic.f32",
+    "all_samples_bit_identical": true,
+    "sha256": "ca8d077920227132eadbafcfde2d831c9f8a9fa6b25ddf5694cf4e2532bf3e02"
+  },
+  {
+    "engine": "predict1024",
+    "input": "harmonic.f32",
+    "all_samples_bit_identical": true,
+    "sha256": "730d3496ca91e3886cf12c5f65b208487bd565a7bd6b943d35c49925852422d7"
+  },
+  {
+    "engine": "predict2048",
+    "input": "harmonic.f32",
+    "all_samples_bit_identical": true,
+    "sha256": "371767336a2ddb8a0fd9f0ce2814cf57a74944dc29e517238157509f50a15534"
+  },
+  {
+    "engine": "predict4096",
+    "input": "harmonic.f32",
+    "all_samples_bit_identical": true,
+    "sha256": "7baa04d6595dc22b7e8d48ac6a06f1880b1fd059fb08dbfc27274c7bd29d3730"
+  }
+]
