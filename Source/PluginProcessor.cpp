@@ -6,6 +6,7 @@
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
 #include "ReleaseInfo.h"
+#include "BetaLifecycleDisplay.h"
 
 namespace {
 std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
@@ -56,8 +57,10 @@ juce::String ChimeraProcessor::betaNotice() const
     juce::String text=juce::String("BETA / ")+spectralforge::release::version+" / Build "+CHIMERA_BUILD_REVISION;
     text+="\nSource: "+juce::String(CHIMERA_SOURCE_SHA);
     text+="\nExpiry (UTC): "+juce::String(CHIMERA_BETA_EXPIRY_UTC[0] ? CHIMERA_BETA_EXPIRY_UTC : "Not set - development only");
+    text+="\nExpiry (KST / UTC+09:00): "+juce::String(CHIMERA_BETA_EXPIRY_KST[0] ? CHIMERA_BETA_EXPIRY_KST : "Not set - development only");
     if(juce::String(CHIMERA_BETA_MODE)=="qualification-only")text+="\nTEST ONLY - synthetic CI expiry; not approved for release.";
     const auto current=betaStatus();
+    text+="\n"+juce::String(spectralforge::beta::remainingText(current));
     switch(current.status) {
         case Status::notBeta:
             text+=juce::String(CHIMERA_BETA_MODE)=="pending-approval"
@@ -69,9 +72,14 @@ juce::String ChimeraProcessor::betaNotice() const
             text+=betaProcessingPermitted()
                 ? "\nExpired: this active instance keeps its sound until removed. Newly opened instances will be muted."
                 : "\nExpired: this new instance has muted output. Your project and sounds remain editable and saveable.";break;
-        case Status::clockUntrusted:text+="\nSystem clock is invalid. Check the clock; current processing remains available.";break;
+        case Status::clockUntrusted:
+            text+=betaProcessingPermitted()
+                ? "\nSystem clock is invalid. Check the clock; this instance keeps processing."
+                : "\nSystem clock is invalid. This instance remains muted. Correct the clock and choose RECHECK CLOCK.";break;
         case Status::configurationError:text+="\nInvalid beta build metadata: output is muted. Install a qualified successor.";break;
     }
+    if(!betaProcessingPermitted() && (current.status==Status::valid || current.status==Status::warning))
+        text+="\nThis instance is still muted. After correcting the system clock, choose RECHECK CLOCK.";
     text+="\nProjects, presets, automation, A/B and IR data are preserved. Updates are optional network actions.";
     return text;
 }

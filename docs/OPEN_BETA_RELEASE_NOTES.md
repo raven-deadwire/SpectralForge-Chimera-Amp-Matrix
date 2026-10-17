@@ -1,4 +1,23 @@
-# 1.3.2-beta.1 — integrated candidate, qualification pending
+# Public 1.3.2-beta.1 and subsequent development
+
+Published on **2026-10-18 01:51:47 KST** from product source
+`3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`, build `3bec6c70a5`.
+[Immutable public release and qualification record](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1).
+Approved expiry for this version: **2027-02-11T14:59:00Z / 2027-02-11 23:59:00 KST**.
+The strict report remains 21 PASS / 107 unexecuted BLOCKED, including 42 strict
+hard gates; publication used `OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`.
+Actual DAW/audio-device acceptance, instrument listening and publisher signing /
+macOS notarization remain incomplete. This is not a stable or strict-validation pass.
+
+The SETTINGS countdown / UTC+KST display and lifecycle documentation corrections
+on this branch are development changes, not part of the immutable beta.1 binary.
+They reuse the existing expiry evaluation and preserve the instance latch and
+project/preset/automation/IR behavior. No next-version/date approval is implied.
+
+## Historical 1.3.2-beta.1 candidate preparation notes
+
+The pending-verification wording below records preparation, before the publication
+identified above. It does not describe the current public release status.
 
 **2026-10-16 릴리즈·배포 승인을 받았습니다. 최종 소스 검증 중이며 아직 배포 완료가 아닙니다.**
 

@@ -1,6 +1,13 @@
-# SpectralForge Chimera — Open Beta 1.3.1 installation
+# SpectralForge Chimera — Open Beta 1.3.2 installation
 
-Product version `1.3.1`, package version `1.3.1-beta.1`.
+Current public baseline: product `1.3.2`, package `1.3.2-beta.1` (2026-10-18 KST).
+Approved expiry for this version only: **2027-02-11T14:59:00Z / 2027-02-11 23:59:00 KST**.
+Read the matching `BETA_LIFECYCLE.txt` before installation; SETTINGS shows the
+installed build identity and expiry. The countdown improvement on this development
+branch does not approve or publish a new version or carry this date forward.
+At/after expiry new instances are muted; active instances keep processing until
+closed. Projects, presets, automation and personal/embedded IR state remain
+loadable/saveable. Close the DAW to update, then reopen the preserved project.
 Preparation builds are test artifacts; public publication requires the separate release verdict.
 Close the application and all DAWs before installing or updating. Save a copy of important sessions first.
 Compare the downloaded installer against its adjacent `.sha256.txt` file or `SHA256SUMS.txt` from the same package set.
@@ -32,7 +39,7 @@ The platform/architecture requirements below are release-supported values. CPU a
 
 ## Windows 10/11 · x64
 
-Run `SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe`.
+Run `SpectralForge-Chimera-1.3.2-beta.1-win64-Setup.exe`.
 Select VST3, standalone and optional reference tools. Setup requires administrator privileges for the standard VST3 folder.
 
 - VST3: `C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3`
@@ -48,7 +55,7 @@ Windows Setup에서 앱과 VST3 경로를 각각 선택할 수 있습니다. 사
 
 ## macOS 12 or later · Apple Silicon and Intel
 
-Run `SpectralForge-Chimera-1.3.1-beta.1-macos-universal.pkg`.
+Run `SpectralForge-Chimera-1.3.2-beta.1-macos-universal.pkg`.
 The universal app, VST3 and AU contain both arm64 and x86_64 code. Package installation requires administrator authorization.
 
 - App: `/Applications/SpectralForge Chimera.app`
@@ -69,7 +76,7 @@ The release builder targets Ubuntu 22.04 with glibc 2.35 baseline. Other distrib
 Install the `.deb` with a dependency-resolving package manager:
 
 ```sh
-sudo apt install ./SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.deb
+sudo apt install ./SpectralForge-Chimera-1.3.2-beta.1-linux-x86_64.deb
 ```
 
 - Standalone: `/usr/bin/chimera-amp-matrix`
@@ -82,7 +89,7 @@ The tarball contains the same `usr` layout and a per-user `install.sh`. Extract 
 
 For an old manually copied plugin, remove only the obsolete `Chimera Amp Matrix.vst3` bundle after confirming the renamed bundle works. Avoid simultaneous system and per-user copies of the same plugin.
 
-## Document preservation when upgrading to 1.3.1-beta.2
+## Document preservation (introduced in 1.3.1-beta.2)
 
 The installer retires an obsolete document only when its exact path, byte count and SHA-256 match a verified previous package. Edited or unrecognized documents are retained. Personal presets, IRs and project files are outside this document migration, and required license notices remain available.
 

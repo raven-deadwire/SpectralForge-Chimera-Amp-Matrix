@@ -115,6 +115,39 @@ class BetaLifecycleTests(unittest.TestCase):
         for current in (self.now.astimezone(timezone(timedelta(hours=9))), self.now+timedelta(days=20)):
             self.assertEqual(first, beta_lifecycle.configure_metadata(self.root, SHA, now=current))
 
+    def test_current_approved_date_and_kst_rollover_match_header_and_notice(self):
+        for utc, kst in (("2027-02-11T14:59:00Z", "2027-02-11 23:59:00"),
+                         ("2027-02-11T15:00:00Z", "2027-02-12 00:00:00"),
+                         ("2028-02-29T23:59:59Z", "2028-03-01 08:59:59"),
+                         ("2026-12-31T23:59:59Z", "2027-01-01 08:59:59")):
+            with self.subTest(utc=utc):
+                self.policy(expires_at_utc=utc, expiry_approved=True)
+                value = beta_lifecycle.configure_metadata(self.root, SHA, now=self.now)
+                self.assertEqual(beta_lifecycle.expiry_kst(value), kst)
+                header = self.root / "generated/BetaLifecycleBuild.h"
+                beta_lifecycle.write_header(header, value)
+                self.assertIn(f'#define CHIMERA_BETA_EXPIRY_KST "{kst}"', header.read_text())
+                self.assertIn(f"Beta expiry (KST / UTC+09:00): {kst}", beta_lifecycle.notice(value))
+        self.policy()
+        pending = beta_lifecycle.configure_metadata(self.root, SHA, now=self.now)
+        self.assertEqual(beta_lifecycle.expiry_kst(pending), "")
+        self.assertIn("KST / UTC+09:00): NOT SET", beta_lifecycle.notice(pending))
+
+    def test_next_version_cannot_inherit_current_approved_expiry(self):
+        # Dates here are fixtures only. A source version change invalidates the
+        # old policy even if qualification mode is requested.
+        self.policy(expires_at_utc="2027-02-11T14:59:00Z", expiry_approved=True)
+        (self.root / "RELEASE_CHANNEL").write_text("beta.3\n", encoding="utf-8")
+        for qualification in (False, True):
+            with self.subTest(qualification=qualification), self.assertRaisesRegex(ValueError, "version differs"):
+                beta_lifecycle.configure_metadata(self.root, SHA, qualification, self.now)
+        self.policy(version="1.3.1-beta.3")
+        pending = beta_lifecycle.configure_metadata(self.root, SHA, now=self.now)
+        self.assertEqual(pending["mode"], "pending-approval")
+        self.assertEqual(pending["expires_at_unix"], 0)
+        with self.assertRaisesRegex(ValueError, "unset"):
+            beta_lifecycle.validate_metadata(pending, self.root, SHA, publication=True, now=self.now)
+
     def test_non_beta_build_is_isolated(self):
         (self.root / "RELEASE_CHANNEL").write_text("stable\n", encoding="utf-8")
         value = beta_lifecycle.configure_metadata(self.root, SHA, now=self.now)
