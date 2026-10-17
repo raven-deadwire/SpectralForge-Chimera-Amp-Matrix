@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+  "scalar_parent": "c2263e4c90bffb9a56cc41285ebf8207e641b3aa",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "original_experiments": [
+    {
+      "candidate": "split",
+      "pr": 79,
+      "controller": "740e7b2d4916c8c67a1d0699fca1498cb790799b",
+      "run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38836445224",
+      "artifact_id": 12023886425,
+      "archive_sha256": "16a2698fa033333af6d3d134f6edf0713d2167e4650d5e552c70901785dc9de7",
+      "verified_manifest": 2177,
+      "verified_raw_summaries": 3456,
+      "recomputed_performance_demonstrated": false
+    },
+    {
+      "candidate": "clearhead",
+      "pr": 79,
+      "controller": "740e7b2d4916c8c67a1d0699fca1498cb790799b",
+      "run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38836445224",
+      "artifact_id": 12024316559,
+      "archive_sha256": "c30a696efe5f4a912c3a1e7bafc0d5ca12076e7bf340c1ac339fbd5b6515b80a",
+      "verified_manifest": 2177,
+      "verified_raw_summaries": 3456,
+      "recomputed_performance_demonstrated": false
+    },
+    {
+      "candidate": "fusedlead",
+      "pr": 79,
+      "controller": "740e7b2d4916c8c67a1d0699fca1498cb790799b",
+      "run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38836445224",
+      "artifact_id": 12024302584,
+      "archive_sha256": "f4808ebda21e5770991ec6bae76eb81a79bfa785c21ff5e658e96e5697982fce",
+      "verified_manifest": 2177,
+      "verified_raw_summaries": 3456,
+      "recomputed_performance_demonstrated": false
+    },
+    {
+      "candidate": "tile32",
+      "pr": 79,
+      "controller": "740e7b2d4916c8c67a1d0699fca1498cb790799b",
+      "run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38836445224",
+      "artifact_id": 12025279165,
+      "archive_sha256": "61d9258384352a06246ad64d6f9d4b29b59ffa1abe4c01463212fa9929d4b09b",
+      "verified_manifest": 2177,
+      "verified_raw_summaries": 3456,
+      "recomputed_performance_demonstrated": false
+    },
+    {
+      "candidate": "forward_fft_sharing",
+      "pr": 81,
+      "controller": "b8595a1cc56e60f4ecba944cd7c01f52c2f09a23",
+      "run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38836500865",
+      "artifact_id": 12021354235,
+      "archive_sha256": "63fc5fefb526a76bf7f1651825ccb9c2ffd08de01da06ea4bffd09b3ff12d67c",
+      "verified_manifest": 2767,
+      "verified_output_bit_pairs": 76,
+      "verified_raw_summaries": 1152,
+      "recomputed_performance_demonstrated": false
+    }
+  ],
+  "independent_experiment": {
+    "pr": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/96",
+    "controller": "87523297c63db453f15e6a7b0238f9aefe63f8ca",
+    "run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39053904562",
+    "status": "completed",
+    "integration_eligible": false,
+    "release_approved": false,
+    "job_conclusion": "success",
+    "artifact_id": 12109529952,
+    "archive_sha256": "4b9f93a5386c79ad77db5c9ad608475a8e0f91a4ec7f1c062da3afcf751399c5",
+    "candidate": "a79d76961c0bba5a7aa09a96a828156409335a54",
+    "verified_manifest": 2177,
+    "verified_raw_summaries": 3456,
+    "verified_statistical_rows": 72,
+    "performance_demonstrated": false,
+    "deadline_nonincrease": false,
+    "review_eligible": false,
+    "cab_contracts_pass": true
+  }
+}
