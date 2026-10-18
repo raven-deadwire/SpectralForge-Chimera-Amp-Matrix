@@ -139,11 +139,11 @@ bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 }
 void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
 {
-    // Capture before input gain, routing or effects modify the host's input.
-    hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
+    // Capture before input gain/routing/effects, inside the callback CPU meter.
+    hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     for(const auto metadata:midi) {
         const auto message=metadata.getMessage();if(!message.isController())continue;
         const int cc=message.getControllerNumber(),learn=midiLearn.exchange(-1);
