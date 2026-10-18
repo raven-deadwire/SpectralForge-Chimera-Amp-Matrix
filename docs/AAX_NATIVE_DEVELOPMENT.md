@@ -71,6 +71,40 @@ Tools PDC, automation gestures and session restore remain separate host checks.
 Common preset compatibility does not promise automatic VST3/AU instance
 replacement in a Pro Tools session.
 
+### Master bypass latency correction
+
+The October 18 follow-up found a concrete PDC gap in the shared processor:
+JUCE 8.0.8's AAX wrapper calls `processBlockBypassed` for `MasterBypassID`, but
+Chimera inherited the default immediate dry passthrough while reporting nonzero
+latency. JUCE's `AudioProcessor::processBypassed` explicitly warns about this
+case. A host applying the reported compensation can move bypassed audio early.
+
+`HostBypass` now retains raw input in a ring allocated in `prepareToPlay` and
+returns exactly the current reported number of delayed samples when the host
+calls bypass. Normal processing primes that ring before input gain/effects, so
+entering bypass preserves input history. The capacity covers the maximum
+prepared PRE/board/pitch + engine + POST latency, including variable/oversized
+callbacks. No parameter, preset field, version, beta decision or wet DSP is
+changed. The same callback is available to VST3/AU wrappers. Master bypass
+continues to return dry audio, including on an expired instance, as JUCE did
+previously; it does not re-admit expired **processed** audio. DSP parameter edits
+while host-bypassed take effect on the next wet callback or reprepare; until then
+the dry path follows the still-reported delay. Transition smoothing and actual
+host compensation timing are not established by this correction.
+
+The AAX contract test now checks mono/stereo at 44.1/48/96 kHz, PRE/board paths,
+the actual DSP pitch latency delta, zero semitones, disabled pitch, saved state
+reopen before the first audio callback, and reprepare. It compares bypass output
+sample-for-sample with delayed raw input across wet/bypass transitions and
+64/128/257-sample callbacks. A standalone bounded-ring regression also covers
+zero/dynamic delay, maximum delay, ring wrap and 5,003-sample callbacks. These are
+processor tests, **not Pro Tools PDC acceptance**. Existing full parameter and
+personal/embedded IR + beta lifecycle tests remain in the AAX job.
+
+The AAX workflow also watches version/channel, all CMake inputs, beta policy and
+generation tools, fixtures/tests, embedded assets and the embedded manual so
+future common-code/policy integration cannot silently skip its build.
+
 ## Development package and installation lifecycle
 
 `Tools/aax_native.py` checks the Windows `Contents/x64/*.aaxplugin` PE32+ DLL

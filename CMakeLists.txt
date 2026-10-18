@@ -86,6 +86,9 @@ endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
+add_executable(ChimeraHostBypassTests Tests/HostBypassTests.cpp)
+target_include_directories(ChimeraHostBypassTests PRIVATE Source)
+add_test(NAME ChimeraHostBypassTests COMMAND ChimeraHostBypassTests)
 add_test(NAME ChimeraAAXPackagingTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_aax_native.py")
 if(CHIMERA_BUILD_AAX)
@@ -94,6 +97,7 @@ if(CHIMERA_BUILD_AAX)
   target_link_libraries(ChimeraAAXContractTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual
     juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraAAXContractTests COMMAND ChimeraAAXContractTests)
+  set_tests_properties(ChimeraAAXContractTests PROPERTIES TIMEOUT 180)
 endif()
 
 # Serverless beta lifecycle policy. This target is deliberately independent of

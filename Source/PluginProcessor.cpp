@@ -113,6 +113,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);
     audioBoard=boardParameters.read();
     postRigGate.prepare(spec,juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency());
+    hostBypass.prepare(postFX.latency()+engine.latency()
+        +juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency()));
     preReduction.store(0);postReduction.store(0);for(auto& meter:postPeaks)meter.store(0);
     for(auto& meter:nativePostMeters)meter.store(0);
     std::array<int,3> sources{};
@@ -137,6 +139,8 @@ bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 }
 void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
 {
+    // Capture before input gain, routing or effects modify the host's input.
+    hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
@@ -179,6 +183,14 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         cpuAverage.store(decay*cpuAverage.load()+(1-decay)*load);
         cpuPeak.store(juce::jmax(load,cpuPeak.load()*decay));
     }
+}
+void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
+{
+    // JUCE AAX's MasterBypassID invokes this callback. Its default implementation
+    // passes dry audio immediately even though PDC still uses our nonzero delay.
+    // Use the currently reported delay; parameter changes take effect when the
+    // wet graph next processes (or prepareToPlay is called), as before.
+    hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),getLatencySamples(),true);
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
