@@ -68,6 +68,13 @@ jobs:
         run: python Tools/aax_native.py package --build build-aax --output dist-aax --platform ${{ matrix.platform }}
       - name: Exercise actual bundle installation, update and removal in isolated root
         run: python Tests/test_aax_native.py --native-packages dist-aax
+      - name: Exercise system AAX path on disposable Windows runner
+        if: runner.os == 'Windows'
+        run: python Tests/test_aax_native.py --system-packages dist-aax
+      - name: Exercise system AAX path on disposable macOS runner
+        if: runner.os == 'macOS'
+        shell: bash
+        run: sudo "$(command -v python)" Tests/test_aax_native.py --system-packages dist-aax
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -76,6 +83,7 @@ jobs:
             dist-aax/*.zip
             dist-aax/*.sha256
             dist-aax/native-install-results.json
+            dist-aax/system-install-results.json
             build-aax/aax-tests.xml
             build-aax/aax-exports.txt
             build-aax/chimera-build-version.json

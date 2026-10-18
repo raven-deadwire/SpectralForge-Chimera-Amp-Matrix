@@ -6,9 +6,11 @@ import os
 import plistlib
 import shutil
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Tools"))
@@ -117,34 +119,49 @@ class AAXPackagingTests(unittest.TestCase):
         self.assertEqual(aax.verify_package(self.installed), aax.verify_package(self.package))
 
 
-def native_packages(directory: Path):
+def native_packages(directory: Path, system=False):
     packages = [p for p in directory.iterdir() if p.is_dir() and (p / aax.RECEIPT).exists()]
     if len(packages) != 1: raise ValueError("Expected one actual native package")
-    package = packages[0]
-    receipt = aax.verify_package(package)
+    original = packages[0]
+    receipt = aax.verify_package(original)
     with tempfile.TemporaryDirectory() as temp:
         root = Path(temp).resolve()
-        destination = root / "Avid/Audio/Plug-Ins"
+        package = root / "extracted"
+        # Validate the delivered ZIP, including Unix file modes, not just staging.
+        with zipfile.ZipFile(original.with_name(original.name + ".zip")) as archive:
+            archive.extractall(package)
+            for entry in archive.infolist():
+                mode = entry.external_attr >> 16
+                if mode: (package / entry.filename).chmod(mode & 0o777)
+        assert aax.verify_package(package) == receipt
+        destination = aax.system_root(receipt["platform"]) if system else root / "Avid/Audio/Plug-Ins"
+        if system and ((destination / aax.BUNDLE).exists() or (destination / aax.RECEIPT).exists()):
+            raise ValueError("System test requires a clean disposable runner; existing installation preserved")
         sentinel = root / "SpectralForge/Chimera/IRs/personal.wav"
         sentinel.parent.mkdir(parents=True); sentinel.write_bytes(b"personal-preservation-sentinel")
-        aax.install(package, destination)
+        command = [sys.executable, str(package / "aax_native.py")]
+        install = command + ["install", "--package", str(package), "--root", str(destination), "--acknowledge-developer-only"]
+        remove = command + ["uninstall", "--platform", receipt["platform"], "--root", str(destination), "--acknowledge-developer-only"]
+        subprocess.run(install, check=True)
         assert aax.verify_package(destination) == receipt
-        aax.install(package, destination)
+        subprocess.run(install, check=True)
         assert aax.verify_package(destination) == receipt
-        aax.uninstall(destination)
+        subprocess.run(remove, check=True)
         assert not (destination / aax.BUNDLE).exists()
         assert sentinel.read_bytes() == b"personal-preservation-sentinel"
-    aax.write_json(directory / "native-install-results.json", {
+    aax.write_json(directory / ("system-install-results.json" if system else "native-install-results.json"), {
         "source_sha": receipt["source_sha"], "platform": receipt["platform"],
         "binary_sha256": receipt["binary_sha256"],
         "install": "PASS", "same_build_update": "PASS", "uninstall": "PASS",
-        "personal_data_preserved": True, "installation_scope": "isolated temporary root",
-        "system_installation": "NOT_TESTED", "pro_tools_host": "NOT_TESTED", "pace_signed": False})
-    print("PASS actual native bundle install/update/remove; isolated root, no host acceptance")
+        "personal_data_preserved": True, "installation_scope": str(destination) if system else "isolated temporary root",
+        "system_installation": "PASS" if system else "NOT_TESTED", "pro_tools_host": "NOT_TESTED", "pace_signed": False})
+    print("PASS actual native ZIP install/update/remove; " + ("system root" if system else "isolated root") + ", no host acceptance")
 
 
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--native-packages":
         native_packages(Path(sys.argv[2]))
+    elif len(sys.argv) == 3 and sys.argv[1] == "--system-packages":
+        native_packages(Path(sys.argv[2]), system=True)
     else:
         unittest.main()
