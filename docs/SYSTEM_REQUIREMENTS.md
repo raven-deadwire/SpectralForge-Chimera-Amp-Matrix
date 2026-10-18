@@ -102,12 +102,12 @@ its own source and workload:
 
 | Mode | 1 active instance | 2 active instances | 4 active instances |
 | --- | --- | --- | --- |
-| Classic | NOT_RUN | NOT_RUN | NOT_RUN |
-| Dual (Blend and Crossover recorded separately) | NOT_RUN | NOT_RUN | NOT_RUN |
-| Matrix | NOT_RUN | NOT_RUN | NOT_RUN |
+| Classic | BLOCKED | BLOCKED | BLOCKED |
+| Dual (Blend and Crossover recorded separately) | BLOCKED | BLOCKED | BLOCKED |
+| Matrix | BLOCKED | BLOCKED | BLOCKED |
 
 This matrix means **next integrated Release build, 30-minute actual DAW/interface
-qualification**. It does not erase historical synthetic/CI checks. No unmeasured
+qualification**. The required workstations, integrated binary and callback adapter are unavailable in this execution session. It does not erase historical synthetic/CI checks. No unmeasured
 cell is PASS. Start with 48 kHz, 128/256 samples and 4×; record Transpose bypass/−2
 and editor/analyzer closed/open. Preserve each exercised condition separately.
 Record CPU model/core allocation, RAM, OS/build, DAW/version/format, interface and
@@ -121,6 +121,32 @@ a new automatic release approval or a claim of zero failures for all workloads.
 At 48 kHz, one 128/256-sample block lasts 2.67/5.33 ms. These periods do not
 include driver/converter/roundtrip delay. Public Transpose still adds approximately
 43–46 ms algorithmic latency at 48/44.1 kHz; the ≤10 ms target is not achieved.
+
+## Measurement framework and current environment record
+
+The [source/binary-bound measurement framework](../Tools/SystemPerformance/README.md)
+now defines 36 baseline comparisons, 12 Dual Crossover checks, 12 focused GUI
+checks and two independent representative 30-minute playback/recording checks.
+It records all required hardware/OS/DAW/format/interface/driver/power metadata,
+raw callback wall/thread CPU times, p99/peak, compute and scheduled deadline
+misses separately, and sampled process RSS start/peak/end/growth. Unknown
+counters stay null. Raw logs and identities must revalidate before a result is
+accepted as a measurement; no result automatically certifies requirements.
+
+The current [environment and execution record](evidence/system-performance-20261018/README_KO.md)
+contains observed Linux executor metadata and blocked workstation/format slots.
+**No new Chimera CPU/RAM measurements or 30-minute DAW/device results were obtained.**
+Collector contract tests, including a native C++ clock/overflow test, are tool
+verification only. Physical hardware, the next integrated Release module, an
+actual host callback adapter and the DAW/interface are still required. The
+recorder header is not installed instrumentation in the published plugin.
+
+Use NOT_RUN for a planned condition not yet attempted, BLOCKED for a named
+missing prerequisite, MEASURED for an auditable population and FAILED for a
+failed collection. A MEASURED row may contain misses or failed stability. Keep
+the public OS/format build/package verification above separate from this
+prospective performance table. The earlier 4-core/8 GB and 6–8-core/16 GB figures
+remain unmeasured planning candidates; this framework does not promote them.
 
 ## AAX / Pro Tools — separate, not yet supported
 
@@ -150,3 +176,4 @@ release must refresh its version, sizes and evidence before publication.
 Maintainer evidence, commands and unexecuted qualification records:
 [audit record](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/tree/docs/system-requirements-20261018/docs/evidence/system-requirements-20261018).
 Related [integration issue #97](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/97).
+

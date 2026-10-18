@@ -1,0 +1,155 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "enum": [
+        1
+      ]
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "product_binary_sha256": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "environment_sha256": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "settings_sha256": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "workload_sha256": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "measurement_kind": {
+      "enum": [
+        "offline_processor",
+        "paced_processor",
+        "daw_device"
+      ]
+    },
+    "collector_name_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "telemetry_dropped_rows": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "warmup_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "transport_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "continuous_transport": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "recording_verified": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "xruns": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "glitches": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "crashed": {
+      "type": "boolean"
+    },
+    "session_reopen_status": {
+      "enum": [
+        "NOT_RUN",
+        "BLOCKED",
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "operator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "callback_scope": {
+      "enum": [
+        "full_product_graph"
+      ]
+    },
+    "process_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "settings_verified": {
+      "type": "boolean"
+    },
+    "product_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "product_binary_sha256",
+    "environment_sha256",
+    "settings_sha256",
+    "workload_sha256",
+    "measurement_kind",
+    "collector_name_version",
+    "telemetry_dropped_rows",
+    "warmup_seconds",
+    "transport_seconds",
+    "continuous_transport",
+    "recording_verified",
+    "xruns",
+    "glitches",
+    "crashed",
+    "session_reopen_status",
+    "operator",
+    "observed_utc",
+    "notes",
+    "callback_scope",
+    "process_id",
+    "settings_verified",
+    "product_manifest_sha256"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera callback/transport observation receipt v1",
+  "description": "Completed by the adapter/operator from observations. A generated template is not evidence."
+}

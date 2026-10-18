@@ -1,5 +1,8 @@
 # Public 1.3.2-beta.1 and subsequent development
 
+> Next-build specification status (2026-10-18): representative 30-minute DAW/interface performance measurements remain **BLOCKED**. CPU/RAM values are unmeasured recommendation candidates, not certified minima. See [system requirements](SYSTEM_REQUIREMENTS.md) and the [measurement environment record](evidence/system-performance-20261018/README_KO.md). This source text is for the next download-facing release notes; it does not change published beta.1 assets or its release page.
+
+
 Published on **2026-10-18 01:51:47 KST** from product source
 `3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`, build `3bec6c70a5`.
 [Immutable public release and qualification record](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1).
@@ -38,7 +41,7 @@ plus personal data/dependencies. Native install/update peaks are not measured.
 
 **No certified CPU/RAM floor or maximum instance count.** Next integrated build:
 Classic/Dual/Matrix × 1/2/4 active instances' 30-minute DAW/interface qualification
-is **NOT_RUN**. CAB-only/idle-editor results do not certify full product capacity.
+is **BLOCKED** by unavailable workstations, the integrated binary and callback adapter. CAB-only/idle-editor results do not certify full product capacity.
 The known public Transpose latency remains approximately 43–46 ms.
 
 한국어: CPU·RAM·화면·작업공간은 권장 후보이며 실측 최소사양이 아닙니다.
@@ -171,3 +174,4 @@ Die genaue Quellrevision, nativen Prüfergebnisse und Paketnachweise sind den Re
 [Published releases](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases) · [1.3.0 notes](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/OPEN_BETA_1_3_RELEASE_NOTES.md) · [1.2 notes](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/OPEN_BETA_1_2_RELEASE_NOTES.md) · [1.3.1 pipeline history](RELEASE_1_3_1_PIPELINE.md) · [Manual](MANUAL.html)
 
 Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.
+

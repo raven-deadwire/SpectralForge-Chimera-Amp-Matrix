@@ -15,6 +15,8 @@ The beta packages currently have no verified publisher code signature. The macOS
 
 ## System requirements and recommended configuration
 
+The next integrated build has no completed representative 30-minute DAW/interface measurements (**BLOCKED**). CPU/RAM recommendations remain unmeasured candidates. The [environment/status record](evidence/system-performance-20261018/README_KO.md) keeps these gaps separate from published build/package checks.
+
 Public baseline: **1.3.2-beta.1**. Installation/build compatibility is distinct
 from actual workstation qualification. CPU/RAM numbers are **recommendation
 candidates**, not certified minima. See [the complete requirements and measured
@@ -46,7 +48,7 @@ package sizes](SYSTEM_REQUIREMENTS.md) for evidence and pending tests.
 - Current Transpose algorithmic latency remains approximately **43–46 ms**.
   A smaller device buffer does not remove it or guarantee low roundtrip latency.
 - Classic/Dual/Matrix × **1/2/4 active instances**: next integrated build's
-  30-minute DAW/interface qualification is **NOT_RUN**. Historical CAB-only,
+  30-minute DAW/interface qualification is **BLOCKED** by unavailable workstations, the integrated binary and callback adapter. Historical CAB-only,
   synthetic Matrix and two-idle-editor results do not qualify these cells.
 
 ### Download and installation workspace
@@ -148,3 +150,4 @@ These commands do not remove application or plugin bundles. Saved document copie
 
 설치 전 DAW와 Chimera를 종료합니다. Windows는 Setup, macOS는 universal PKG, Debian/Ubuntu는 DEB를 사용합니다. Linux TAR는 필요한 시스템 라이브러리를 별도로 요구하며 `install.sh`로 사용자 홈에 설치할 수 있습니다.
 공개 베타는 아직 퍼블리셔 코드서명과 macOS 공증이 없습니다. 해시 일치는 파일 무결성 확인이며 서명과는 다릅니다. 기존 프로젝트를 복사해 보관한 뒤 새 버전의 모델 선택, IR과 자동화를 확인하세요. 개인 프리셋/IR은 제거 대상이 아닙니다.
+

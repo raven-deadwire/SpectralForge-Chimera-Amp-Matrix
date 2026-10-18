@@ -1,0 +1,743 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "enum": [
+        1
+      ]
+    },
+    "created_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requirements_certified": {
+      "enum": [
+        false
+      ]
+    },
+    "tool": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "script_sha256": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "script_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "product": {
+      "type": "object",
+      "properties": {
+        "source_sha": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "build_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "build_type": {
+          "enum": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "binary_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "package_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "binary_identity_method": {
+          "enum": [
+            "sha256-loaded-executable"
+          ]
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "source_sha",
+        "version",
+        "build_id",
+        "build_type",
+        "binary_sha256",
+        "package_sha256",
+        "binary_identity_method",
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "os_family": {
+          "enum": [
+            "Windows",
+            "Darwin",
+            "Linux"
+          ]
+        },
+        "os_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "architecture": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "cpu_model": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "physical_cores": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "logical_cores": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "allocated_logical_cores": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "ram_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "virtualization": {
+          "enum": [
+            "physical",
+            "virtual",
+            "container",
+            "UNKNOWN"
+          ]
+        },
+        "resource_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "daw_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "daw_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "plugin_format": {
+          "enum": [
+            "VST3",
+            "AU",
+            "AAX",
+            "Standalone",
+            null
+          ]
+        },
+        "interface_model": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "interface_firmware": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "driver_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "driver_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "power_mode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "power_source": {
+          "enum": [
+            "AC",
+            "battery",
+            "UNKNOWN",
+            null
+          ]
+        },
+        "scheduler": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "id",
+        "os_family",
+        "os_version",
+        "architecture",
+        "cpu_model",
+        "physical_cores",
+        "logical_cores",
+        "allocated_logical_cores",
+        "ram_bytes",
+        "virtualization",
+        "resource_constraints",
+        "daw_name",
+        "daw_version",
+        "plugin_format",
+        "interface_model",
+        "interface_firmware",
+        "driver_name",
+        "driver_version",
+        "power_mode",
+        "power_source",
+        "scheduler",
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "workload": {
+      "type": "object",
+      "properties": {
+        "input_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "preset_bank_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "ir_manifest_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "input_sha256",
+        "preset_bank_sha256",
+        "ir_manifest_sha256",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.-]+$"
+          },
+          "settings": {
+            "type": "object",
+            "properties": {
+              "group": {
+                "enum": [
+                  "core",
+                  "dual_crossover",
+                  "gui_focus",
+                  "soak"
+                ]
+              },
+              "mode": {
+                "enum": [
+                  "Classic",
+                  "Dual",
+                  "Matrix"
+                ]
+              },
+              "dual_mode": {
+                "enum": [
+                  "Blend",
+                  "Crossover",
+                  null
+                ]
+              },
+              "instances": {
+                "enum": [
+                  1,
+                  2,
+                  4
+                ]
+              },
+              "sample_rate_hz": {
+                "enum": [
+                  48000
+                ]
+              },
+              "buffer_samples": {
+                "enum": [
+                  128,
+                  256
+                ]
+              },
+              "oversampling_factor": {
+                "enum": [
+                  4
+                ]
+              },
+              "transpose_semitones": {
+                "enum": [
+                  0,
+                  -2
+                ]
+              },
+              "transpose_bypassed": {
+                "type": "boolean"
+              },
+              "editor": {
+                "enum": [
+                  "open",
+                  "closed"
+                ]
+              },
+              "analyzer": {
+                "enum": [
+                  "on",
+                  "off"
+                ]
+              },
+              "transport": {
+                "enum": [
+                  "playback",
+                  "recording"
+                ]
+              },
+              "warmup_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "duration_seconds": {
+                "type": "number",
+                "minimum": 0.01
+              },
+              "instance_routing": {
+                "enum": [
+                  "parallel_tracks"
+                ]
+              },
+              "repeat": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "cab_paths_per_instance": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3
+              }
+            },
+            "required": [
+              "group",
+              "mode",
+              "dual_mode",
+              "instances",
+              "sample_rate_hz",
+              "buffer_samples",
+              "oversampling_factor",
+              "transpose_semitones",
+              "transpose_bypassed",
+              "editor",
+              "analyzer",
+              "transport",
+              "warmup_seconds",
+              "duration_seconds",
+              "instance_routing",
+              "repeat",
+              "cab_paths_per_instance"
+            ],
+            "additionalProperties": false
+          },
+          "status": {
+            "enum": [
+              "NOT_RUN",
+              "BLOCKED",
+              "MEASURED",
+              "FAILED"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "metrics": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "callback_count": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "audio_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "callback_span_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "callback_wall_mean_us": {
+                "type": "number",
+                "minimum": 0
+              },
+              "callback_wall_p99_us": {
+                "type": "number",
+                "minimum": 0
+              },
+              "callback_wall_peak_us": {
+                "type": "number",
+                "minimum": 0
+              },
+              "callback_wall_load_percent": {
+                "type": "number",
+                "minimum": 0
+              },
+              "callback_thread_cpu_load_percent": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "callback_thread_cpu_p99_us": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "callback_thread_cpu_peak_us": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "compute_over_budget_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "scheduled_deadline_miss_count": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "period_us": {
+                "type": "number",
+                "minimum": 0
+              },
+              "rss_start_bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rss_sampled_peak_bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rss_end_bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rss_growth_bytes": {
+                "type": "integer"
+              },
+              "rss_observed_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "rss_max_sample_gap_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "xruns": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "glitches": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "stability_status": {
+                "enum": [
+                  "NOT_RUN",
+                  "BLOCKED",
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "session_reopen_status": {
+                "enum": [
+                  "NOT_RUN",
+                  "BLOCKED",
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "measurement_kind": {
+                "enum": [
+                  "offline_processor",
+                  "paced_processor",
+                  "daw_device",
+                  null
+                ]
+              }
+            },
+            "required": [
+              "callback_count",
+              "audio_seconds",
+              "callback_span_seconds",
+              "callback_wall_mean_us",
+              "callback_wall_p99_us",
+              "callback_wall_peak_us",
+              "callback_wall_load_percent",
+              "callback_thread_cpu_load_percent",
+              "callback_thread_cpu_p99_us",
+              "callback_thread_cpu_peak_us",
+              "compute_over_budget_count",
+              "scheduled_deadline_miss_count",
+              "period_us",
+              "rss_start_bytes",
+              "rss_sampled_peak_bytes",
+              "rss_end_bytes",
+              "rss_growth_bytes",
+              "rss_observed_seconds",
+              "rss_max_sample_gap_seconds",
+              "xruns",
+              "glitches",
+              "stability_status",
+              "session_reopen_status",
+              "measurement_kind"
+            ],
+            "additionalProperties": false
+          },
+          "evidence": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "callbacks": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              },
+              "memory": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              },
+              "receipt": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "callbacks",
+              "memory",
+              "receipt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "settings",
+          "status",
+          "reason",
+          "metrics",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "created_utc",
+    "requirements_certified",
+    "tool",
+    "product",
+    "environment",
+    "workload",
+    "runs"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:spectralforge:chimera:system-performance:1",
+  "title": "Chimera system performance study v1",
+  "description": "Closed structural schema. Also run performance.py validate for identity, coverage and raw-evidence recomputation."
+}

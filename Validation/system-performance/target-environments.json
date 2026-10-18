@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "scope": "Planning slots; no performance measurements",
+  "targets": [
+    {
+      "environment": {
+        "id": "windows-x86_64-vst3",
+        "os_family": "Windows",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "VST3",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "windows-x86_64-standalone",
+        "os_family": "Windows",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "Standalone",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "windows-x86_64-aax",
+        "os_family": "Windows",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "AAX",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable; signed AAX and Pro Tools acceptance also unavailable"
+    },
+    {
+      "environment": {
+        "id": "darwin-x86_64-vst3",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "VST3",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "darwin-x86_64-au",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "AU",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "darwin-x86_64-standalone",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "Standalone",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "darwin-x86_64-aax",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "AAX",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable; signed AAX and Pro Tools acceptance also unavailable"
+    },
+    {
+      "environment": {
+        "id": "darwin-arm64-vst3",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "arm64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "VST3",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "darwin-arm64-au",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "arm64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "AU",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "darwin-arm64-standalone",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "arm64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "Standalone",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "darwin-arm64-aax",
+        "os_family": "Darwin",
+        "os_version": null,
+        "architecture": "arm64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "AAX",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable; signed AAX and Pro Tools acceptance also unavailable"
+    },
+    {
+      "environment": {
+        "id": "linux-x86_64-vst3",
+        "os_family": "Linux",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "VST3",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    },
+    {
+      "environment": {
+        "id": "linux-x86_64-standalone",
+        "os_family": "Linux",
+        "os_version": null,
+        "architecture": "x86_64",
+        "cpu_model": null,
+        "physical_cores": null,
+        "logical_cores": null,
+        "allocated_logical_cores": null,
+        "ram_bytes": null,
+        "virtualization": "UNKNOWN",
+        "resource_constraints": [],
+        "daw_name": null,
+        "daw_version": null,
+        "plugin_format": "Standalone",
+        "interface_model": null,
+        "interface_firmware": null,
+        "driver_name": null,
+        "driver_version": null,
+        "power_mode": null,
+        "power_source": null,
+        "scheduler": null,
+        "notes": [
+          "Planning slot, not observed hardware."
+        ]
+      },
+      "status": "BLOCKED",
+      "scenario_count": 62,
+      "reason": "Native hardware/DAW/interface unavailable in this execution session"
+    }
+  ]
+}
