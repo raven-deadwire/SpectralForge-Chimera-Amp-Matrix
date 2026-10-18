@@ -1,0 +1,29 @@
+{
+  "as_of": "2026-10-18",
+  "base_sha": "b7923ea8b7a0f85cfbfafb0e0338238adc09b181",
+  "scope": "Documentation and packaging inventory only; no new DSP/DAW acceptance",
+  "checks": {
+    "published_download_hashes": "8/8 MATCH; four product archives plus four verification/checksum files",
+    "windows_zip_crc": "PASS",
+    "windows_payload_manifest": "26/26 file byte counts and hashes MATCH",
+    "macos_payload_manifest": "33/33 file byte counts and hashes MATCH",
+    "archive_file_byte_inventory": "ZIP/PKG/DEB/TAR measured; Windows Setup installed footprint NOT_MEASURED",
+    "public_name_inventory": "14 source documents PASS",
+    "manual_javascript_syntax": "PASS",
+    "manual_localized_table_data": "EN/DE/KO each 14 rows x 4 columns PASS",
+    "existing_ui_raw_summary_recomputation": "exact match; original timing BLOCKED retained",
+    "existing_publisher_regression": "35/35 PASS",
+    "local_document_links": "PASS",
+    "publisher_source_bound_requirements_link": "PASS",
+    "git_diff_whitespace": "PASS with core.whitespace=cr-at-eol; preserve original Windows verification report CRLF bytes and published hash"
+  },
+  "not_run": {
+    "manual_visual_browser_render": "NOT_RUN: browser executable unavailable; two Playwright download versions returned invalid ZIP responses",
+    "native_windows_audio_devices": "NOT_RUN",
+    "physical_daw_realtime_qualification": "NOT_RUN for all nine mode/instance records",
+    "whole_process_ram_peak_growth": "NOT_RUN",
+    "native_install_repair_update_disk_peak": "NOT_RUN",
+    "new_product_build_or_CTest": "NOT_RUN; documentation-only diff, previous product CTest results retained under original SHA",
+    "release_publication": "NOT_PERFORMED"
+  }
+}

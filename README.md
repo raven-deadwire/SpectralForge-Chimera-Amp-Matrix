@@ -19,6 +19,22 @@ With integrated **Pre FX, Post FX, amp models, cabinet/IR processing, and flexib
 **RavenForge Luthier Intelligence**
 *Forge your signal. Build your amp.*
 
+## System requirements — public 1.3.2-beta.1 baseline
+
+| Installation/build target | Practical starting recommendation | Verification boundary |
+| --- | --- | --- |
+| Windows 10/11 x64; macOS 12+ Universal; Ubuntu 22.04 x86_64 baseline, glibc >=2.35 and package dependencies | Modern 64-bit 4+ core CPU / 8 GB entry candidates; 6–8+ cores for multiple instances, 16 GB+ general DAW use; 32 GB optional large-session headroom | No certified CPU/RAM minimum or maximum instance count. CI platforms are not equivalent to all listed consumer OS/hardware. |
+| VST3 + Standalone; macOS also AU | 44.1/48 kHz, 128–256 samples, 2×/4× for live use; 256–512 / 4× for mixing | AAX/Pro Tools not yet supported. Windows Standalone direct ASIO is not enabled in product CMake; DAW ASIO is separate. |
+| Editor 1180×780 at 100%, 885×585 at 75% | 1280×800 entry display candidate, 1920×1080+ preferred; account for OS scaling and host frame | Classic/Dual/Matrix × 1/2/4 active instances: next integrated build's real DAW/interface qualification NOT_RUN. |
+
+Planning free space before download: **1.5 GB Windows/Linux; 4 GB macOS**, plus
+personal IRs/projects/backups and dependencies. These are not measured installer
+peak requirements. Current downloads: Setup 210.84 MB / ZIP 231.66 MB / PKG
+703.02 MB / DEB 213.50 MB / TAR.GZ 234.24 MB. See
+[system requirements, unpacked sizes and actual test scope](docs/SYSTEM_REQUIREMENTS.md)
+and [installation](docs/INSTALLATION.md). Public Transpose retains about 43–46 ms
+algorithmic latency; buffer size is not a roundtrip latency guarantee.
+
 ## Feature overview (includes the 1.3.1 baseline)
 
 Implemented signal path: **input → transpose / PRE pedalboard → rigs/cabinets → merge → Tone EQ → POST rack → doubler/metronome → Final EQ → output**. The gate can operate before transpose or after the rig merge, before Tone EQ. The chromatic tuner taps the input before the gate and transpose; optional auto-mute silences the output while tuning.
@@ -88,7 +104,7 @@ remain part of release validation. See the [preset guide](docs/PRESETS.md).
 See [installation instructions](docs/INSTALLATION.md)
 and [model and workflow guide](docs/MANUAL.html).
 
-Open Beta 1.3.1 publication requires its own three-platform product builds, native head/Signal Path/EQ checks, CAB checks, package checks and installer evidence. The strict product validation inventory still includes unexecuted checks; the separate beta decision and remaining gaps are disclosed in the [1.3.1 publication pipeline](docs/RELEASE_1_3_1_PIPELINE.md). Actual instrument listening and Studio One operation have not been accepted for this version. Windows shutdown changes address a reproduced JUCE VBlank failure loop and release shared image/IR resources earlier. The maintainer’s October 4 acceptance applied to 1.1.1; synthetic voicing measurements do not establish new recorded-DI listening acceptance. Existing sessions retain saved values but may sound different with revised native DSP and the modeled enclosure change described above. See [1.3.1 release validation and known limits](docs/OPEN_BETA_RELEASE_NOTES.md) and [shutdown diagnostics](docs/STUDIO_ONE_TEARDOWN.md). Hardware equivalence is not claimed. **Transpose latency remains about 43–46 ms, and low-B playing at -2 semitones can smear note body and attack; further pitch-engine improvements are deferred.** Windows signing is prepared in `Tools/Sign-WindowsArtifact.ps1`
+The published 1.3.2-beta.1 has source-bound automated build/package checks; the next integrated build needs its own matching evidence. The strict product validation inventory still includes unexecuted checks; the separate beta decision and remaining gaps are disclosed in the [1.3.1 publication pipeline](docs/RELEASE_1_3_1_PIPELINE.md). Actual instrument listening and Studio One operation have not been accepted for this version. Windows shutdown changes address a reproduced JUCE VBlank failure loop and release shared image/IR resources earlier. The maintainer’s October 4 acceptance applied to 1.1.1; synthetic voicing measurements do not establish new recorded-DI listening acceptance. Existing sessions retain saved values but may sound different with revised native DSP and the modeled enclosure change described above. See [release validation and known limits](docs/OPEN_BETA_RELEASE_NOTES.md) and [shutdown diagnostics](docs/STUDIO_ONE_TEARDOWN.md). Hardware equivalence is not claimed. **Transpose latency remains about 43–46 ms, and low-B playing at -2 semitones can smear note body and attack; pitch-engine improvements are a P0 goal for the next build; research candidates are not yet in the public DSP.** Windows signing is prepared in `Tools/Sign-WindowsArtifact.ps1`
 and `Tools/Build-WindowsInstaller.ps1 -Sign`; a CA-validated publisher identity is
 still required. See `docs/WINDOWS_SIGNING.md` for the concrete signing path and the
 difference between publisher identity and SmartScreen reputation.

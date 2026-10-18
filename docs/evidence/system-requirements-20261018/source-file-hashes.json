@@ -1,0 +1,20 @@
+{
+  "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58": {
+    "CMakeLists.txt": "ada323956cbd510a564071a1e318629252c70570d1d6ec8a52146559cac24c0a",
+    "Installer/Chimera.iss": "3e355298c6a4361ae698891892d92d29790c9f7c7cf92f3f53277cce5f9214fb",
+    ".github/workflows/build.yml": "18bac494053a9fd1589cc58550a7dd58c9b620552bc7283c45fe7f445da58075",
+    "Source/PluginEditor.cpp": "a18a51ba9f8359d72efefceee8c348c30acefc9eaf9c6fd0b7f6c3d68c2f1543",
+    "Source/PluginProcessor.cpp": "466c6ff7894c3c7f0e7aabf362751da0299bf438a9f9e16c5364526741776e7b",
+    "Tools/package_release.py": "fde8ddc545babd8d056ef0a38d2b00d3401c18cab1d2bb2a099e07c94fe7ce39",
+    "Tools/install-linux.sh": "388b1bfac8c9fd61cf1cda036d42d55338f650a9b63c1d6441372a6095683ff3"
+  },
+  "b7923ea8b7a0f85cfbfafb0e0338238adc09b181": {
+    "CMakeLists.txt": "ada323956cbd510a564071a1e318629252c70570d1d6ec8a52146559cac24c0a",
+    "Installer/Chimera.iss": "3e355298c6a4361ae698891892d92d29790c9f7c7cf92f3f53277cce5f9214fb",
+    ".github/workflows/build.yml": "18bac494053a9fd1589cc58550a7dd58c9b620552bc7283c45fe7f445da58075",
+    "Source/PluginEditor.cpp": "a18a51ba9f8359d72efefceee8c348c30acefc9eaf9c6fd0b7f6c3d68c2f1543",
+    "Source/PluginProcessor.cpp": "25516630a4f2200a8f3508787a5a86b2236c0387c96f67a9bcbc026cb9b03f7d",
+    "Tools/package_release.py": "fde8ddc545babd8d056ef0a38d2b00d3401c18cab1d2bb2a099e07c94fe7ce39",
+    "Tools/install-linux.sh": "388b1bfac8c9fd61cf1cda036d42d55338f650a9b63c1d6441372a6095683ff3"
+  }
+}
