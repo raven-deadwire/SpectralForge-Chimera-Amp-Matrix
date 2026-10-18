@@ -366,10 +366,10 @@ def measure(study, run, callbacks, memory, receipt):
         # A synthetic long render never becomes a DAW playback/recording pass.
         if receipt['measurement_kind'] != 'daw_device':
             metrics['stability_status'] = 'BLOCKED'
+        elif receipt['continuous_transport'] is False or receipt['xruns'] or receipt['glitches'] or receipt['crashed'] or (metrics['scheduled_deadline_miss_count'] or 0) > 0 or receipt['session_reopen_status'] == 'FAIL' or (settings['transport'] == 'recording' and receipt['recording_verified'] is False):
+            metrics['stability_status'] = 'FAIL'
         elif receipt['transport_seconds'] + tolerance < target or receipt['continuous_transport'] is None or receipt['xruns'] is None or receipt['glitches'] is None:
             metrics['stability_status'] = 'BLOCKED'
-        elif not receipt['continuous_transport'] or receipt['xruns'] or receipt['glitches'] or receipt['crashed'] or (metrics['scheduled_deadline_miss_count'] or 0) > 0 or receipt['session_reopen_status'] == 'FAIL':
-            metrics['stability_status'] = 'FAIL'
         elif settings['transport'] == 'recording' and not receipt['recording_verified']:
             metrics['stability_status'] = 'BLOCKED'
         else:

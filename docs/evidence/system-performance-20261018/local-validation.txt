@@ -5,6 +5,7 @@ test_cpu_wall_and_scheduled_deadlines_are_distinct (test_performance.Performance
 test_debug_cannot_be_requirements_evidence (test_performance.PerformanceContracts.test_debug_cannot_be_requirements_evidence) ... ok
 test_dropped_telemetry_and_warmup_rejected (test_performance.PerformanceContracts.test_dropped_telemetry_and_warmup_rejected) ... ok
 test_invalid_callback_population (test_performance.PerformanceContracts.test_invalid_callback_population) ... ok
+test_known_soak_failure_not_hidden_by_missing_counter (test_performance.PerformanceContracts.test_known_soak_failure_not_hidden_by_missing_counter) ... ok
 test_long_synthetic_render_never_becomes_daw_soak (test_performance.PerformanceContracts.test_long_synthetic_render_never_becomes_daw_soak) ... ok
 test_matrix (test_performance.PerformanceContracts.test_matrix) ... ok
 test_measurement_cannot_outlive_trace (test_performance.PerformanceContracts.test_measurement_cannot_outlive_trace) ... ok
@@ -32,7 +33,7 @@ test_valid_raw_evidence_recomputed (test_performance.PerformanceContracts.test_v
 test_wrong_platform_format_rejected (test_performance.PerformanceContracts.test_wrong_platform_format_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 32 tests in 0.211s
+Ran 33 tests in 0.145s
 
 OK (skipped=1)
 collector-only: 8 rows, 1 retained overflow count, 0 callback C++ allocations

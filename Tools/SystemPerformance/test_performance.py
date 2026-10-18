@@ -238,6 +238,13 @@ class PerformanceContracts(unittest.TestCase):
             self.assertEqual('PASS',self.measure()['stability_status'])
             self.assertFalse(self.study['requirements_certified'])
 
+    def test_known_soak_failure_not_hidden_by_missing_counter(self):
+        with self.soak('daw_device'):
+            self.receipt.update(xruns=None, crashed=True)
+            self.assertEqual('FAIL',self.measure()['stability_status'])
+            self.receipt.update(crashed=False, recording_verified=False)
+            self.assertEqual('FAIL',self.measure()['stability_status'])
+
     def test_real_process_memory_sampler_smoke(self):
         if sys.platform.startswith('linux'):
             try:
