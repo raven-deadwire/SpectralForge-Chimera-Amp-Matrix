@@ -1,0 +1,97 @@
+{
+  "archive_sha256": "e35401f002edb8bb7bbe6fbd91b68534e22137ea456c66cf710b337b905b64cd",
+  "descriptive_only": true,
+  "causal_qos_effect_estimated": false,
+  "order": "BAAB",
+  "formulas": {
+    "balanced_per_route": "(metric_01B + metric_04B) / (metric_02A + metric_03A)",
+    "same_outer_condition_per_route": "metric_04B / metric_01B",
+    "same_inner_condition_per_route": "metric_03A / metric_02A",
+    "aggregation": "Median of 66 within-route ratios; no pooled route quantile."
+  },
+  "limitations": [
+    "Only two trials per condition; callbacks may be dependent.",
+    "Time/context and preparation/worker-state variation remain possible.",
+    "A lower miss count is not a general latency improvement."
+  ],
+  "results": [
+    {
+      "archive": "native-BAAB",
+      "run_id": "38186063935",
+      "phase": "all",
+      "quantile": "p50",
+      "matched_routes": 66,
+      "median_route_ratio_Bmean_to_Amean": 1.0079593272725744,
+      "routes_Bmean_below_Amean": 23,
+      "median_route_ratio_lateB_to_earlyB": 1.839500463548251,
+      "routes_lateB_below_earlyB": 6,
+      "median_route_ratio_secondA_to_firstA": 1.6438396548562322,
+      "routes_secondA_below_firstA": 15
+    },
+    {
+      "archive": "native-BAAB",
+      "run_id": "38186063935",
+      "phase": "all",
+      "quantile": "p99",
+      "matched_routes": 66,
+      "median_route_ratio_Bmean_to_Amean": 1.0310002534482092,
+      "routes_Bmean_below_Amean": 26,
+      "median_route_ratio_lateB_to_earlyB": 1.0114808804671767,
+      "routes_lateB_below_earlyB": 29,
+      "median_route_ratio_secondA_to_firstA": 1.061609956631937,
+      "routes_secondA_below_firstA": 26
+    },
+    {
+      "archive": "native-BAAB",
+      "run_id": "38186063935",
+      "phase": "worker_and_automation",
+      "quantile": "p50",
+      "matched_routes": 66,
+      "median_route_ratio_Bmean_to_Amean": 1.0035589515763927,
+      "routes_Bmean_below_Amean": 31,
+      "median_route_ratio_lateB_to_earlyB": 1.7702285922890035,
+      "routes_lateB_below_earlyB": 6,
+      "median_route_ratio_secondA_to_firstA": 1.3519342168924946,
+      "routes_secondA_below_firstA": 17
+    },
+    {
+      "archive": "native-BAAB",
+      "run_id": "38186063935",
+      "phase": "worker_and_automation",
+      "quantile": "p99",
+      "matched_routes": 66,
+      "median_route_ratio_Bmean_to_Amean": 1.053595683825579,
+      "routes_Bmean_below_Amean": 24,
+      "median_route_ratio_lateB_to_earlyB": 1.0149112368782025,
+      "routes_lateB_below_earlyB": 27,
+      "median_route_ratio_secondA_to_firstA": 1.1062254891977301,
+      "routes_secondA_below_firstA": 26
+    },
+    {
+      "archive": "native-BAAB",
+      "run_id": "38186063935",
+      "phase": "forced_six_slot_publication",
+      "quantile": "p50",
+      "matched_routes": 66,
+      "median_route_ratio_Bmean_to_Amean": 1.0140326896783523,
+      "routes_Bmean_below_Amean": 29,
+      "median_route_ratio_lateB_to_earlyB": 0.9793611267690843,
+      "routes_lateB_below_earlyB": 44,
+      "median_route_ratio_secondA_to_firstA": 0.9799918758537005,
+      "routes_secondA_below_firstA": 45
+    },
+    {
+      "archive": "native-BAAB",
+      "run_id": "38186063935",
+      "phase": "forced_six_slot_publication",
+      "quantile": "p99",
+      "matched_routes": 66,
+      "median_route_ratio_Bmean_to_Amean": 1.236915758056227,
+      "routes_Bmean_below_Amean": 13,
+      "median_route_ratio_lateB_to_earlyB": 0.8743018369185471,
+      "routes_lateB_below_earlyB": 44,
+      "median_route_ratio_secondA_to_firstA": 0.5405440711747466,
+      "routes_secondA_below_firstA": 53
+    }
+  ]
+}

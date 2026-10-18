@@ -1,0 +1,1428 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-12T09:16:22.156326+00:00",
+  "workflow_name": "CAB realtime performance",
+  "workflow_path": ".github/workflows/cab-realtime.yml",
+  "workflow_source_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/35617a2e0a5a599c5bd2b2a13113b6f234cd60a3/.github/workflows/cab-realtime.yml",
+  "run_id": 38225982755,
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38225982755",
+  "candidate_sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+  "candidate_tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+  "fixed_baseline_sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+  "all_expected_jobs_completed_successfully": true,
+  "expected_job_count": 3,
+  "reviewed_job_count": 3,
+  "results": [
+    {
+      "os": "macOS",
+      "job": {
+        "id": 114733484339,
+        "name": "realtime (macos-15)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38225982755,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Check out exact candidate source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Check out fixed baseline source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Verify raw callback evidence contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Install JUCE configure dependencies",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6
+          },
+          {
+            "name": "Build, measure and preserve exact-source evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload performance evidence even when a deadline fails",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Check out fixed baseline source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Check out exact candidate source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ],
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38225982755/job/114733484339"
+      },
+      "environment": {
+        "system": "Darwin",
+        "node": "iad20-fj922-875f943c-8f6e-477a-a74c-30eaf56641a8-C239131D5F43.local",
+        "release": "24.6.0",
+        "version": "Darwin Kernel Version 24.6.0: Tue Jul 21 20:51:34 PDT 2026; root:xnu-11417.140.69.711.44~1/RELEASE_ARM64_VMAPPLE",
+        "machine": "arm64",
+        "processor": "arm"
+      },
+      "runner_architecture": "arm64",
+      "artifact": {
+        "id": 11736884062,
+        "name": "CAB-realtime-macOS-35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+        "size_in_bytes": 2853933,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736884062",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736884062/zip",
+        "expired": false,
+        "created_at": "2026-10-12T09:03:30Z",
+        "expires_at": "2027-01-10T08:49:43Z",
+        "updated_at": "2026-10-12T09:03:30Z",
+        "digest": "sha256:c6bb540f9e76c2d8dcf995a76cd7f687cddc5b5ba2d9dd8057bab0e77cf992e8",
+        "workflow_run": {
+          "id": 38225982755,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "diagnostic/macos-cab-deadline-20261012",
+          "head_sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3"
+        }
+      },
+      "independent_review": {
+        "github_archive_digest_matches": true,
+        "zip_entry_count": 108,
+        "inner_file_sha256_and_size_checks": 107,
+        "inner_file_sha256_and_size_mismatches": 0,
+        "archive_contents_not_in_inner_hash_list": [
+          "SHA256SUMS.json"
+        ],
+        "inner_hash_list_authenticated_by_archive_digest": true,
+        "full_csv_semantic_revalidation_performed": false,
+        "reviewed_receipt_and_log_hashes": {
+          "manifest.json": "06e5c23f450713e9411751af45cc258065adbec52ae1f64e3a55beaec54fcbe2",
+          "SHA256SUMS.json": "51f9d080f4e6a7e0be0797489593611db5bfaac8ae808d9e256b40781a5be1ef",
+          "summary.md": "593132db592680cecc9f2b3de37a47d34b870bf5ce0cb9c488a99dee8d327198",
+          "baseline/receipt.json": "1839f7123675b632e63e433a7191dd6d4cf9fe652950d08c5852fa937afa3b08",
+          "candidate/receipt.json": "f8506a6ac8ae8273a7cf0d9ebca6c6cc900b951bfe62fbc9d62355e0368a557f",
+          "diagnostic/receipt.json": "a59593a2f9590a9ba27f144d3236a2e45f6b8fd598d3b5810e17358f6b5f8e23",
+          "candidate/ctest-results.xml": "6b6d14cd9990791fadb927a3b86e4123b78aa8c70106810da3c5b0c945925ee0",
+          "candidate/ctest-console.log": "b931a6e5368b21c53aea9e0929572662b4c69cdd6edf314116b884e459cfdb1a",
+          "diagnostic/profile.log": "f5a46e40ccf2d620dd1c0d6b7722d3009bcb4574b5ee4f9c8d0a5711ca7fc300"
+        },
+        "decoded_job_log": {
+          "local_file": "job-114733484339.log",
+          "sha256": "0f0ff8e959232b53eab0b54a4aa8133cac6b075fceefdb39413668dc5a9c43f8",
+          "line_endings": "LF; Windows decoded log CRLF normalized for local storage"
+        }
+      },
+      "manifest": {
+        "schema": 1,
+        "started_at": "2026-10-12T08:55:46.805279+00:00",
+        "candidate_sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+        "baseline_sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+        "order": [
+          "baseline",
+          "candidate",
+          "diagnostic"
+        ],
+        "result": "PASS",
+        "evidence_complete": true,
+        "finished_at": "2026-10-12T09:03:27.714352+00:00"
+      },
+      "existing_raw_evidence_contract_tests": {
+        "test_count": 20,
+        "result": "OK",
+        "reported_seconds": 0.364,
+        "job_step_conclusion": "success"
+      },
+      "ordinary_candidate_console_gate": {
+        "source_before": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 66,
+          "p99_within_deadline": 66,
+          "callback_count": 105600,
+          "wall_deadline_misses": 41
+        },
+        "raw_sample_validation_receipt": {
+          "available": true,
+          "route_count": 66,
+          "callback_count": 105600,
+          "thread_cpu_valid_samples": 105600,
+          "thread_cycles_valid_samples": 0,
+          "receipt_origin": "Existing CI raw callback verifier; full row semantics not rerun during this review."
+        },
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 17.5095
+          },
+          {
+            "name": "ChimeraOriginalCabRealtimeTests",
+            "passed": true,
+            "seconds": 11.4589
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 17.9254
+          },
+          {
+            "name": "ChimeraCabExtendedTimingTests",
+            "passed": true,
+            "seconds": 44.9997
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 19.7245
+          }
+        ],
+        "passed": true,
+        "configuration": "Release",
+        "binaries_sha256": {
+          "ChimeraOriginalCabIntegrationTests": "96255b5da85caf4a1b1eb5187ae824685809cb9f95283e38d6f44b211630e244",
+          "ChimeraOriginalCabRealtimeTests": "b2b63784431ffcfd52818f32faf00e7b01a99fe5ae26139201e6df2b9d045837"
+        },
+        "semantic_log_lines": [
+          "30: PASS CAB realtime equivalence routes=144 models=v1,v2,v3,userIR prepared_model_routes=108 modeled_juce_loaders=0 uniform_residual=1.86265e-08 impulse_residual=7.45058e-09 reset_residual=0 latency=0 chunks=fixed,1,17,63,max,3 mic_post_routes=18 mic_post_residual=1.49012e-08 reprepare_routes=4 reprepare_residual=7.45058e-09 six_mic_routes=8 six_mic_residual=5.02914e-08 six_mic_oracle=direct_FIR worker_cases=stale,six_ready,reuse fade_ms=50",
+          "30: PASS residue_bank_reference source=8097ec69594ff728164c77f59e9ea1e39e384643 index_cases=18 index_reads=44288 stream_cases=80 reset_cases=40 private_cases=6 exact_float_samples=2645088 fade_mix_samples=388800 exact_bits=1 immutable_spectra=1 steps=1,3 partial=fixed,1,17,63,max,3 full_wraps=2 active=6 fading=3 fade_ms=50 latency=0"
+        ],
+        "focus_96000_64": {
+          "scope": "Six integration rows plus two separate expanded-v2 extended-timing rows; no repeated row is counted twice.",
+          "aggregate": {
+            "route_count": 8,
+            "p99_within_deadline": 8,
+            "callback_count": 12800,
+            "wall_deadline_misses": 18
+          },
+          "rows": [
+            {
+              "engine": "original-v1",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "20",
+              "p99_us": "79.958",
+              "thread_cpu_p99_us": "73.041",
+              "max_us": "1603.875",
+              "misses": "1/1600",
+              "kernel_residual": "3.72529029846e-09",
+              "peak": "0.0189826991409",
+              "max_step": "0.0060408199206",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraOriginalCabIntegrationTests"
+            },
+            {
+              "engine": "original-v1",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "35.792",
+              "p99_us": "146.541",
+              "thread_cpu_p99_us": "104.125",
+              "max_us": "3477.5",
+              "misses": "4/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0189826991409",
+              "max_step": "0.00604082318023",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraOriginalCabIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "25.041",
+              "p99_us": "110.75",
+              "thread_cpu_p99_us": "114.583",
+              "max_us": "1283.125",
+              "misses": "4/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154514154419",
+              "max_step": "0.00348611944355",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExpansionIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "37.75",
+              "p99_us": "167.125",
+              "thread_cpu_p99_us": "153.167",
+              "max_us": "2910.542",
+              "misses": "2/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154514228925",
+              "max_step": "0.00348611921072",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExpansionIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "22.166",
+              "p99_us": "96.25",
+              "thread_cpu_p99_us": "101.583000001",
+              "max_us": "3642.792",
+              "misses": "3/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154514154419",
+              "max_step": "0.00348611944355",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExtendedTimingTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "39.875",
+              "p99_us": "175.958",
+              "thread_cpu_p99_us": "170.667",
+              "max_us": "1629.042",
+              "misses": "1/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154514228925",
+              "max_step": "0.00348611921072",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExtendedTimingTests"
+            },
+            {
+              "engine": "array-v3-6x10",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "25.125",
+              "p99_us": "134.75",
+              "thread_cpu_p99_us": "130",
+              "max_us": "1960.25",
+              "misses": "1/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154086416587",
+              "max_step": "0.00118450401351",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabLayoutIntegrationTests"
+            },
+            {
+              "engine": "array-v3-6x10",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "39.875",
+              "p99_us": "204.458",
+              "thread_cpu_p99_us": "198.083",
+              "max_us": "2031.083",
+              "misses": "2/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154086416587",
+              "max_step": "0.00118450040463",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabLayoutIntegrationTests"
+            }
+          ]
+        }
+      },
+      "fixed_baseline_reference": {
+        "source_before": {
+          "sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+          "tree": "af81f30e6ec3b340a10a99916a27c86a59e6ef60",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+          "tree": "af81f30e6ec3b340a10a99916a27c86a59e6ef60",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 36,
+          "p99_within_deadline": 36,
+          "callback_count": 57600,
+          "wall_deadline_misses": 6
+        },
+        "raw_sample_validation_receipt": {
+          "available": false,
+          "reason": "The fixed baseline revision has no raw callback sample receipt."
+        },
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 20.3918
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 21.2089
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 22.9542
+          }
+        ],
+        "passed": true,
+        "is_released_1_3_1_beta_1_reference": false
+      },
+      "existing_aggregate_profile_diagnostic": {
+        "source_before": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 12,
+          "p99_within_deadline": 12,
+          "callback_count": 19200,
+          "wall_deadline_misses": 12
+        },
+        "raw_sample_validation_receipt": {
+          "available": true,
+          "route_count": 12,
+          "callback_count": 19200,
+          "thread_cpu_valid_samples": 19200,
+          "thread_cycles_valid_samples": 0,
+          "receipt_origin": "Existing CI raw callback verifier; full row semantics not rerun during this review."
+        },
+        "target": "ChimeraCabProfiling",
+        "arguments": [
+          "--expanded"
+        ],
+        "diagnostic_only": true,
+        "binary_sha256": "8dadb0238b1099b7e4b6885ab821282d9d61e3fd5371d3203d123de2c6b87182",
+        "protocol": [
+          {
+            "lifecycle_trace": "disabled",
+            "measured_blocks": "1600",
+            "worker_blocks": "1200",
+            "forced_publication_blocks": "400"
+          }
+        ],
+        "profile_row_count": 216,
+        "worker_profile_row_count": 60,
+        "is_new_callback_attribution_probe": false,
+        "replaces_candidate_acceptance": false
+      }
+    },
+    {
+      "os": "Windows",
+      "job": {
+        "id": 114733484675,
+        "name": "realtime (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38225982755,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Check out exact candidate source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Check out fixed baseline source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Verify raw callback evidence contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Install JUCE configure dependencies",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6
+          },
+          {
+            "name": "Build, measure and preserve exact-source evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload performance evidence even when a deadline fails",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Check out fixed baseline source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Check out exact candidate source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ],
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38225982755/job/114733484675"
+      },
+      "environment": {
+        "system": "Windows",
+        "node": "runnervmfi6oq",
+        "release": "2025Server",
+        "version": "10.0.26100",
+        "machine": "AMD64",
+        "processor": "Intel64 Family 6 Model 106 Stepping 6, GenuineIntel"
+      },
+      "runner_architecture": "AMD64",
+      "artifact": {
+        "id": 11736414524,
+        "name": "CAB-realtime-Windows-35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+        "size_in_bytes": 2950408,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736414524",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736414524/zip",
+        "expired": false,
+        "created_at": "2026-10-12T09:03:23Z",
+        "expires_at": "2027-01-10T08:49:43Z",
+        "updated_at": "2026-10-12T09:03:23Z",
+        "digest": "sha256:fbd6e70b5812159627480227dc1a5cf597461b75aa8712ccd298d2649fde7812",
+        "workflow_run": {
+          "id": 38225982755,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "diagnostic/macos-cab-deadline-20261012",
+          "head_sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3"
+        }
+      },
+      "independent_review": {
+        "github_archive_digest_matches": true,
+        "zip_entry_count": 108,
+        "inner_file_sha256_and_size_checks": 107,
+        "inner_file_sha256_and_size_mismatches": 0,
+        "archive_contents_not_in_inner_hash_list": [
+          "SHA256SUMS.json"
+        ],
+        "inner_hash_list_authenticated_by_archive_digest": true,
+        "full_csv_semantic_revalidation_performed": false,
+        "reviewed_receipt_and_log_hashes": {
+          "manifest.json": "4a8c94aab87c8a72b4b33732c20463409b5e027a5c985b568ecd148f62babba1",
+          "SHA256SUMS.json": "414814e4bac7099c0aa679762c2870b42c31ac80b48e08ee99b1283506264205",
+          "summary.md": "51f569615847eb9b9411bb0d95e2a119cd2cb5088ef3c93e7235ea6c0a2cd2fe",
+          "baseline/receipt.json": "3583f4af1fb92b206e67cc09fa65294891ada96aca4978274a0401dc5e8c68dc",
+          "candidate/receipt.json": "2fc49535911f374f94f7bb3b76c23a57a7eaeeb6cf5690b08b0d1a37e1cb074f",
+          "diagnostic/receipt.json": "cd599cea2247b979a8ff72aa469d0f1d2ce37b0f4180d024b3509c502a470a4c",
+          "candidate/ctest-results.xml": "7192d1e86595dfe5ba9108a67e4895b2d373f359a276b518dc9688201c2e2146",
+          "candidate/ctest-console.log": "18264e640f0acc6ac31f3ae9a85d70c75cb6379e766d54801c35d5911b1abdaa",
+          "diagnostic/profile.log": "f70516bda488192c784d98d44192bb93ecb14d63857bfa690dc12fcad070c0f6"
+        },
+        "decoded_job_log": {
+          "local_file": "job-114733484675.log",
+          "sha256": "8ec6180b73171ff47a2332e43fdda68d93cb03288fdeaa81278d448faa3167a4",
+          "line_endings": "LF; Windows decoded log CRLF normalized for local storage"
+        }
+      },
+      "manifest": {
+        "schema": 1,
+        "started_at": "2026-10-12T08:54:20.993411+00:00",
+        "candidate_sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+        "baseline_sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+        "order": [
+          "baseline",
+          "candidate",
+          "diagnostic"
+        ],
+        "result": "PASS",
+        "evidence_complete": true,
+        "finished_at": "2026-10-12T09:03:21.445896+00:00"
+      },
+      "existing_raw_evidence_contract_tests": {
+        "test_count": 20,
+        "result": "OK",
+        "reported_seconds": 0.599,
+        "job_step_conclusion": "success"
+      },
+      "ordinary_candidate_console_gate": {
+        "source_before": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 66,
+          "p99_within_deadline": 66,
+          "callback_count": 105600,
+          "wall_deadline_misses": 0
+        },
+        "raw_sample_validation_receipt": {
+          "available": true,
+          "route_count": 66,
+          "callback_count": 105600,
+          "thread_cpu_valid_samples": 0,
+          "thread_cycles_valid_samples": 105600,
+          "receipt_origin": "Existing CI raw callback verifier; full row semantics not rerun during this review."
+        },
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 8.16232
+          },
+          {
+            "name": "ChimeraOriginalCabRealtimeTests",
+            "passed": true,
+            "seconds": 5.39146
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 8.70234
+          },
+          {
+            "name": "ChimeraCabExtendedTimingTests",
+            "passed": true,
+            "seconds": 23.2422
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 10.3175
+          }
+        ],
+        "passed": true,
+        "configuration": "Release",
+        "binaries_sha256": {
+          "ChimeraOriginalCabIntegrationTests": "6396ba52ae079a01f0f5111bddb6a2a51c11c25f7b12ff674dc1338484f13c69",
+          "ChimeraOriginalCabRealtimeTests": "264bc48337d96f30501067461fc0c22b159d7c6bf129bd80b59eb6f13a675ee4"
+        },
+        "semantic_log_lines": [
+          "34: PASS CAB realtime equivalence routes=144 models=v1,v2,v3,userIR prepared_model_routes=108 modeled_juce_loaders=0 uniform_residual=1.25729e-08 impulse_residual=7.45058e-09 reset_residual=0 latency=0 chunks=fixed,1,17,63,max,3 mic_post_routes=18 mic_post_residual=0 reprepare_routes=4 reprepare_residual=0 six_mic_routes=8 six_mic_residual=4.84288e-08 six_mic_oracle=direct_FIR worker_cases=stale,six_ready,reuse fade_ms=50",
+          "34: PASS residue_bank_reference source=8097ec69594ff728164c77f59e9ea1e39e384643 index_cases=18 index_reads=44288 stream_cases=80 reset_cases=40 private_cases=6 exact_float_samples=2645088 fade_mix_samples=388800 exact_bits=1 immutable_spectra=1 steps=1,3 partial=fixed,1,17,63,max,3 full_wraps=2 active=6 fading=3 fade_ms=50 latency=0"
+        ],
+        "focus_96000_64": {
+          "scope": "Six integration rows plus two separate expanded-v2 extended-timing rows; no repeated row is counted twice.",
+          "aggregate": {
+            "route_count": 8,
+            "p99_within_deadline": 8,
+            "callback_count": 12800,
+            "wall_deadline_misses": 0
+          },
+          "rows": [
+            {
+              "engine": "original-v1",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "56.1",
+              "p99_us": "183.5",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "199.6",
+              "misses": "0/1600",
+              "kernel_residual": "2.32830643654e-09",
+              "peak": "0.0189830474555",
+              "max_step": "0.00603867648169",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraOriginalCabIntegrationTests"
+            },
+            {
+              "engine": "original-v1",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "77",
+              "p99_us": "137.9",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "198.5",
+              "misses": "0/1600",
+              "kernel_residual": "2.32830643654e-09",
+              "peak": "0.0189830455929",
+              "max_step": "0.00603867648169",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraOriginalCabIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "55.7",
+              "p99_us": "106.8",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "137.6",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517190531",
+              "max_step": "0.00348461349495",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExpansionIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "76.8",
+              "p99_us": "141.3",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "182.8",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517209157",
+              "max_step": "0.00348461326212",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExpansionIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "56.1",
+              "p99_us": "117.8",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "169.2",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517190531",
+              "max_step": "0.00348461349495",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExtendedTimingTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "78",
+              "p99_us": "238.4",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "290.3",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517209157",
+              "max_step": "0.00348461326212",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExtendedTimingTests"
+            },
+            {
+              "engine": "array-v3-6x10",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "55.9",
+              "p99_us": "129.6",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "184.5",
+              "misses": "0/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154087208211",
+              "max_step": "0.00945739448071",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabLayoutIntegrationTests"
+            },
+            {
+              "engine": "array-v3-6x10",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "77.1",
+              "p99_us": "145.4",
+              "thread_cpu_p99_us": "-1",
+              "max_us": "207.7",
+              "misses": "0/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154087208211",
+              "max_step": "0.00118243903853",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabLayoutIntegrationTests"
+            }
+          ]
+        }
+      },
+      "fixed_baseline_reference": {
+        "source_before": {
+          "sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+          "tree": "af81f30e6ec3b340a10a99916a27c86a59e6ef60",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+          "tree": "af81f30e6ec3b340a10a99916a27c86a59e6ef60",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 36,
+          "p99_within_deadline": 36,
+          "callback_count": 57600,
+          "wall_deadline_misses": 2
+        },
+        "raw_sample_validation_receipt": {
+          "available": false,
+          "reason": "The fixed baseline revision has no raw callback sample receipt."
+        },
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 13.939
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 14.9429
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 17.2409
+          }
+        ],
+        "passed": true,
+        "is_released_1_3_1_beta_1_reference": false
+      },
+      "existing_aggregate_profile_diagnostic": {
+        "source_before": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 12,
+          "p99_within_deadline": 12,
+          "callback_count": 19200,
+          "wall_deadline_misses": 0
+        },
+        "raw_sample_validation_receipt": {
+          "available": true,
+          "route_count": 12,
+          "callback_count": 19200,
+          "thread_cpu_valid_samples": 0,
+          "thread_cycles_valid_samples": 19200,
+          "receipt_origin": "Existing CI raw callback verifier; full row semantics not rerun during this review."
+        },
+        "target": "ChimeraCabProfiling",
+        "arguments": [
+          "--expanded"
+        ],
+        "diagnostic_only": true,
+        "binary_sha256": "f43546f4c3e4e445ebd1f42ccf7be773b6a52371f9b30763465bda0df8f4d79f",
+        "protocol": [
+          {
+            "lifecycle_trace": "disabled",
+            "measured_blocks": "1600",
+            "worker_blocks": "1200",
+            "forced_publication_blocks": "400"
+          }
+        ],
+        "profile_row_count": 216,
+        "worker_profile_row_count": 60,
+        "is_new_callback_attribution_probe": false,
+        "replaces_candidate_acceptance": false
+      }
+    },
+    {
+      "os": "Linux",
+      "job": {
+        "id": 114733484672,
+        "name": "realtime (ubuntu-22.04)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38225982755,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Check out exact candidate source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Check out fixed baseline source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Verify raw callback evidence contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Install JUCE configure dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Build, measure and preserve exact-source evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload performance evidence even when a deadline fails",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Check out fixed baseline source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Check out exact candidate source",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ],
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38225982755/job/114733484672"
+      },
+      "environment": {
+        "system": "Linux",
+        "node": "runnervmwvtoz",
+        "release": "6.8.0-1064-azure",
+        "version": "#72~22.04.1-Ubuntu SMP Wed Jul 22 23:39:45 UTC 2026",
+        "machine": "x86_64",
+        "processor": "x86_64"
+      },
+      "runner_architecture": "x86_64",
+      "artifact": {
+        "id": 11735864656,
+        "name": "CAB-realtime-Linux-35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+        "size_in_bytes": 3909471,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11735864656",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11735864656/zip",
+        "expired": false,
+        "created_at": "2026-10-12T09:08:38Z",
+        "expires_at": "2027-01-10T08:49:43Z",
+        "updated_at": "2026-10-12T09:08:38Z",
+        "digest": "sha256:a269ba65fb1bcaa376568be6c40eb42fb3bf6a2d36d25683cef7034bdfadf1d6",
+        "workflow_run": {
+          "id": 38225982755,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "diagnostic/macos-cab-deadline-20261012",
+          "head_sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3"
+        }
+      },
+      "independent_review": {
+        "github_archive_digest_matches": true,
+        "zip_entry_count": 108,
+        "inner_file_sha256_and_size_checks": 107,
+        "inner_file_sha256_and_size_mismatches": 0,
+        "archive_contents_not_in_inner_hash_list": [
+          "SHA256SUMS.json"
+        ],
+        "inner_hash_list_authenticated_by_archive_digest": true,
+        "full_csv_semantic_revalidation_performed": false,
+        "reviewed_receipt_and_log_hashes": {
+          "manifest.json": "62d1b91d658bc7fe1633523b37e90af4d20d32d3c1ee4f9af001f79da1f1ec4c",
+          "SHA256SUMS.json": "3fe4ea28a3b60bd0427aa59f14decd73cc8aad754604a8da04dc1edccb3b2533",
+          "summary.md": "1fbf319745408590d10d37d39950609614b10d741723587d8fa13a8b0141f14d",
+          "baseline/receipt.json": "7ffe4433b81129a54a8dbd8572b7f98992f3c62a6cef2dd3f98db2644eb47aa8",
+          "candidate/receipt.json": "07b9b5004650c638926fb2b7eecbe542c3ab0ac035beb4b7d417d351feea4519",
+          "diagnostic/receipt.json": "15615c7ac0e9bab86519b2f6bc15d49ec5bcca1152a8d21d3e00d94395be77c1",
+          "candidate/ctest-results.xml": "f86915d01556a32d5641ac50ab82e0a3d0fdf117d4b0c840490acf56ec83c9b7",
+          "candidate/ctest-console.log": "4b7649f4c3142c7cee2fc7dbecaf221e9f647ca34a9f1bda3ebf8986776d36b7",
+          "diagnostic/profile.log": "94671feacab90420bbf7e8d5d2345f8513d2a4c7d4b804b78a893c0f82b8532e"
+        },
+        "decoded_job_log": {
+          "local_file": "job-114733484672.log",
+          "sha256": "a8631d96b51f631075433a849dd0417831c019a14d082008d3a087cb0359fc1b",
+          "line_endings": "LF; Windows decoded log CRLF normalized for local storage"
+        }
+      },
+      "manifest": {
+        "schema": 1,
+        "started_at": "2026-10-12T08:59:12.501171+00:00",
+        "candidate_sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+        "baseline_sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+        "order": [
+          "baseline",
+          "candidate",
+          "diagnostic"
+        ],
+        "result": "PASS",
+        "evidence_complete": true,
+        "finished_at": "2026-10-12T09:08:37.169401+00:00"
+      },
+      "existing_raw_evidence_contract_tests": {
+        "test_count": 20,
+        "result": "OK",
+        "reported_seconds": 0.518,
+        "job_step_conclusion": "success"
+      },
+      "ordinary_candidate_console_gate": {
+        "source_before": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 66,
+          "p99_within_deadline": 66,
+          "callback_count": 105600,
+          "wall_deadline_misses": 0
+        },
+        "raw_sample_validation_receipt": {
+          "available": true,
+          "route_count": 66,
+          "callback_count": 105600,
+          "thread_cpu_valid_samples": 105600,
+          "thread_cycles_valid_samples": 0,
+          "receipt_origin": "Existing CI raw callback verifier; full row semantics not rerun during this review."
+        },
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 12.3557
+          },
+          {
+            "name": "ChimeraOriginalCabRealtimeTests",
+            "passed": true,
+            "seconds": 11.8834
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 13.0051
+          },
+          {
+            "name": "ChimeraCabExtendedTimingTests",
+            "passed": true,
+            "seconds": 37.4608
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 15.0074
+          }
+        ],
+        "passed": true,
+        "configuration": "Release",
+        "binaries_sha256": {
+          "ChimeraOriginalCabIntegrationTests": "db11f4b5c0e5518cb72118158d56a361a5c0c95b5304c14532b895c4badf8017",
+          "ChimeraOriginalCabRealtimeTests": "90a8e874ac9d0fe7934b84f242749df3fccdfc9c555c721453e80af8c9a3780d"
+        },
+        "semantic_log_lines": [
+          "31: PASS CAB realtime equivalence routes=144 models=v1,v2,v3,userIR prepared_model_routes=108 modeled_juce_loaders=0 uniform_residual=1.25729e-08 impulse_residual=7.45058e-09 reset_residual=0 latency=0 chunks=fixed,1,17,63,max,3 mic_post_routes=18 mic_post_residual=0 reprepare_routes=4 reprepare_residual=0 six_mic_routes=8 six_mic_residual=4.84288e-08 six_mic_oracle=direct_FIR worker_cases=stale,six_ready,reuse fade_ms=50",
+          "31: PASS residue_bank_reference source=8097ec69594ff728164c77f59e9ea1e39e384643 index_cases=18 index_reads=44288 stream_cases=80 reset_cases=40 private_cases=6 exact_float_samples=2645088 fade_mix_samples=388800 exact_bits=1 immutable_spectra=1 steps=1,3 partial=fixed,1,17,63,max,3 full_wraps=2 active=6 fading=3 fade_ms=50 latency=0"
+        ],
+        "focus_96000_64": {
+          "scope": "Six integration rows plus two separate expanded-v2 extended-timing rows; no repeated row is counted twice.",
+          "aggregate": {
+            "route_count": 8,
+            "p99_within_deadline": 8,
+            "callback_count": 12800,
+            "wall_deadline_misses": 0
+          },
+          "rows": [
+            {
+              "engine": "original-v1",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "148.059",
+              "p99_us": "235.342",
+              "thread_cpu_p99_us": "236.351",
+              "max_us": "257.875",
+              "misses": "0/1600",
+              "kernel_residual": "2.32830643654e-09",
+              "peak": "0.0189830474555",
+              "max_step": "0.00603867648169",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraOriginalCabIntegrationTests"
+            },
+            {
+              "engine": "original-v1",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "164.649",
+              "p99_us": "281.189",
+              "thread_cpu_p99_us": "282.277",
+              "max_us": "345.269",
+              "misses": "0/1600",
+              "kernel_residual": "2.32830643654e-09",
+              "peak": "0.0189830455929",
+              "max_step": "0.00603867648169",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraOriginalCabIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "148.619",
+              "p99_us": "245.382",
+              "thread_cpu_p99_us": "246.45",
+              "max_us": "268.786",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517190531",
+              "max_step": "0.00348461349495",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExpansionIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "166.794",
+              "p99_us": "272.543",
+              "thread_cpu_p99_us": "273.64",
+              "max_us": "330.752",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517209157",
+              "max_step": "0.00348461326212",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExpansionIntegrationTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "147.688",
+              "p99_us": "237.327",
+              "thread_cpu_p99_us": "238.395",
+              "max_us": "266.421",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517190531",
+              "max_step": "0.00348461349495",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExtendedTimingTests"
+            },
+            {
+              "engine": "expanded-v2",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "164.65",
+              "p99_us": "265.179",
+              "thread_cpu_p99_us": "266.548",
+              "max_us": "308.311",
+              "misses": "0/1600",
+              "kernel_residual": "2.09547579288e-09",
+              "peak": "0.0154517209157",
+              "max_step": "0.00348461326212",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabExtendedTimingTests"
+            },
+            {
+              "engine": "array-v3-6x10",
+              "sr": "96000",
+              "block": "64",
+              "channels": "1",
+              "p50_us": "147.668",
+              "p99_us": "235.874",
+              "thread_cpu_p99_us": "237.001999998",
+              "max_us": "253.757",
+              "misses": "0/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154087208211",
+              "max_step": "0.00118244066834",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabLayoutIntegrationTests"
+            },
+            {
+              "engine": "array-v3-6x10",
+              "sr": "96000",
+              "block": "64",
+              "channels": "2",
+              "p50_us": "165.591",
+              "p99_us": "262.764",
+              "thread_cpu_p99_us": "263.853",
+              "max_us": "302.91",
+              "misses": "0/1600",
+              "kernel_residual": "1.86264514923e-09",
+              "peak": "0.0154087208211",
+              "max_step": "0.00118243903853",
+              "deadline_us": 666.6666666666666,
+              "p99_within_deadline": true,
+              "test": "ChimeraCabLayoutIntegrationTests"
+            }
+          ]
+        }
+      },
+      "fixed_baseline_reference": {
+        "source_before": {
+          "sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+          "tree": "af81f30e6ec3b340a10a99916a27c86a59e6ef60",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+          "tree": "af81f30e6ec3b340a10a99916a27c86a59e6ef60",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 36,
+          "p99_within_deadline": 36,
+          "callback_count": 57600,
+          "wall_deadline_misses": 0
+        },
+        "raw_sample_validation_receipt": {
+          "available": false,
+          "reason": "The fixed baseline revision has no raw callback sample receipt."
+        },
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 19.2422
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 20.5013
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 24.3451
+          }
+        ],
+        "passed": true,
+        "is_released_1_3_1_beta_1_reference": false
+      },
+      "existing_aggregate_profile_diagnostic": {
+        "source_before": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+          "tree": "27e6ea93d1eb810a4ba9646cf6260371aec56cbe",
+          "clean": true
+        },
+        "complete": true,
+        "execution_returncode": 0,
+        "timing": {
+          "route_count": 12,
+          "p99_within_deadline": 12,
+          "callback_count": 19200,
+          "wall_deadline_misses": 0
+        },
+        "raw_sample_validation_receipt": {
+          "available": true,
+          "route_count": 12,
+          "callback_count": 19200,
+          "thread_cpu_valid_samples": 19200,
+          "thread_cycles_valid_samples": 0,
+          "receipt_origin": "Existing CI raw callback verifier; full row semantics not rerun during this review."
+        },
+        "target": "ChimeraCabProfiling",
+        "arguments": [
+          "--expanded"
+        ],
+        "diagnostic_only": true,
+        "binary_sha256": "cdbc954bdfefda04af061d2684a03c7360684624c3656dad83361e738d43eb98",
+        "protocol": [
+          {
+            "lifecycle_trace": "disabled",
+            "measured_blocks": "1600",
+            "worker_blocks": "1200",
+            "forced_publication_blocks": "400"
+          }
+        ],
+        "profile_row_count": 216,
+        "worker_profile_row_count": 60,
+        "is_new_callback_attribution_probe": false,
+        "replaces_candidate_acceptance": false
+      }
+    }
+  ],
+  "scope_limits": {
+    "source_bound_existing_console_acceptance": true,
+    "new_attribution_workflow_run_id": 38225976064,
+    "new_attribution_workflow_results_evaluated_here": false,
+    "new_attribution_workflow_status_at_task_assignment": "in_progress",
+    "product_fix": false,
+    "independently_repeated_performance_effect_demonstrated": false,
+    "audio_host_validation": "not_executed",
+    "host_coverage_not_executed": [
+      "AU",
+      "VST3",
+      "CoreAudio device callbacks",
+      "DAW uninterrupted playback",
+      "editor interaction"
+    ],
+    "notes": [
+      "The candidate p99 gates passed despite 41 individual macOS callback deadline misses. Successful CI does not mean all callbacks met their deadlines.",
+      "The existing workflow executes baseline, candidate, and legacy aggregate profile sequentially. This is not the new independent ABBA/BAAB instrumentation-overhead experiment.",
+      "The fixed baseline has 36 routes and three tests; the candidate has 66 routes and five tests. This reference is not the released 7b20cd9d1f90e3e2969c250712b199e893cf50cd frozen gate.",
+      "Candidate and legacy profile populations remain separate. No timing distribution is pooled across operating systems or measurement modes.",
+      "Windows thread cycles remain cycles; unavailable thread CPU duration is not zero and is not inferred from cycle counts.",
+      "Archive and internal-file integrity were independently checked. CI receipt gate summaries and its existing raw verifier results were reviewed; no local full CSV semantic revalidation was performed.",
+      "These console targets do not exercise real plugin-host or audio-device callbacks."
+    ]
+  }
+}

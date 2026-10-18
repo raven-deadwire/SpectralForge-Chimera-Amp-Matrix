@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "diagnostic_only": true,
+  "product_fix_demonstrated": false,
+  "frozen_product_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+  "planned_order": [
+    [
+      "01-A",
+      "inherited"
+    ],
+    [
+      "02-B",
+      "user-interactive"
+    ],
+    [
+      "03-B",
+      "user-interactive"
+    ],
+    [
+      "04-A",
+      "inherited"
+    ]
+  ],
+  "planned_scope": "one unchanged ordinary CTest gate; 4 CAB and 4 arithmetic-only populations",
+  "commands": [
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller/Tools/CabDeadlineDiagnostic",
+        "-B",
+        "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/macos-deadline-build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCHIMERA_FROZEN_SOURCE=/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/frozen-source",
+        "-DCHIMERA_FROZEN_SHA=7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+        "-DCMAKE_OSX_DEPLOYMENT_TARGET=12.0",
+        "-DCMAKE_OSX_ARCHITECTURES=arm64",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      "cwd": "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller/Tools/CabDeadlineDiagnostic",
+      "returncode": 1,
+      "seconds": 71.43888379200001,
+      "log": "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/macos-deadline-evidence/configure.log",
+      "started_utc": "2026-10-11T23:44:55.554093+00:00",
+      "finished_utc": "2026-10-11T23:46:06.996550+00:00"
+    }
+  ],
+  "trials": [],
+  "complete": false,
+  "limitations": [
+    "No CoreAudio device, DAW, editor, or real-time thread policy is created.",
+    "The caller QoS intervention also covers setup and sleeps; it is not an audio product fix.",
+    "A hosted guest CPU clock cannot identify every host/guest scheduling cause.",
+    "Higher-QoS diagnostics never replace the ordinary test gate.",
+    "No rerun-until-pass, discarded warmup population, or changed deadline."
+  ],
+  "source_before": {
+    "sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "tree": "1b565308db6adc00937f7154905728ba27bcd6d9",
+    "clean": true,
+    "path": "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/frozen-source"
+  },
+  "environment_before": {
+    "recorded_at": "2026-10-11T23:44:54.988678+00:00",
+    "uname": {
+      "system": "Darwin",
+      "node": "sat12-bq167-96d1863d-9749-4625-a7a0-aa82368141ba-7ACC83CBBAD0.local",
+      "release": "24.6.0",
+      "version": "Darwin Kernel Version 24.6.0: Tue Jul 21 20:51:34 PDT 2026; root:xnu-11417.140.69.711.44~1/RELEASE_ARM64_VMAPPLE",
+      "machine": "arm64",
+      "processor": "arm"
+    },
+    "cpu_count": 3,
+    "python": "3.12.10 (v3.12.10:0cc81280367, Apr  8 2025, 08:46:59) [Clang 13.0.0 (clang-1300.0.29.30)]",
+    "runner": {
+      "RUNNER_OS": "macOS",
+      "RUNNER_ARCH": "ARM64",
+      "RUNNER_ENVIRONMENT": "github-hosted",
+      "ImageOS": "macos15",
+      "ImageVersion": "20260907.0337.1",
+      "GITHUB_REPOSITORY": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+      "GITHUB_RUN_ID": "38185416392",
+      "GITHUB_RUN_ATTEMPT": "1",
+      "GITHUB_JOB": "controlled-diagnostic"
+    },
+    "git": "git version 2.55.0",
+    "cmake": "cmake version 4.4.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+    "ctest": "ctest version 4.4.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+    "cpu_details": "      Model Name: Apple Virtual Machine 1\n      Model Identifier: VirtualMac2,1\n      Chip: Apple M1 (Virtual)\n      Total Number of Cores: 3\n      Memory: 7 GB"
+  },
+  "controller": {
+    "CabSchedulingProbe.cpp": "514d2c40afb43ce9e6f3e450339af659530258ff189f5cebf93b4327c5cbf5a2",
+    "CMakeLists.txt": "3a7e46d15c1d418083e68e99cb05bf87644c78dc879aadde375cf5ffcde408db",
+    "README.md": "7598dc5d4d259524fc62ec15689cbd22b5d31676d761c82e628f675e3d1ad787",
+    "run_experiment.py": "b6c8b620c7237ede6cd3ec140593908c6ab19a277046d5d26f7643629acecb93"
+  },
+  "error": "RuntimeError('configure.log failed; original log retained')"
+}

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller/Tools/CabDeadlineDiagnostic/run_experiment.py", line 200, in main
+    raise RuntimeError(f"{log} failed; original log retained")
+RuntimeError: configure.log failed; original log retained

@@ -1,0 +1,17 @@
+{
+  "verifier": "../verifier/analyze_diagnostic_artifacts.py",
+  "verifier_sha256": "27270d49cdc94a1866c22a639b6dd999035d4d077d69381331e9773af0d8022d",
+  "verifier_changed_for_this_run": false,
+  "exit_status": 0,
+  "status": "verified_complete",
+  "original_zip_unchanged": true,
+  "whole_zip_extracted": false,
+  "routes_csv_records": 594,
+  "deadline_miss_csv_records": 116,
+  "cab_callback_misses": 115,
+  "synthetic_interval_misses": 1,
+  "performance_fix_demonstrated": false,
+  "inputs_preserved": true,
+  "contrast_order": "BAAB",
+  "contrast_B_to_A_formula": "(metric_01B + metric_04B) / (metric_02A + metric_03A)"
+}
