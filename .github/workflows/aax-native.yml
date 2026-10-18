@@ -1,0 +1,85 @@
+name: AAX Native Development
+on:
+  pull_request:
+    paths:
+      - 'CMakeLists.txt'
+      - 'cmake/ChimeraAAX.cmake'
+      - 'Source/**'
+      - 'Tools/aax_native.py'
+      - 'Tests/*AAX*'
+      - 'Tests/test_aax_native.py'
+      - '.github/workflows/aax-native.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: aax-native-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+          - os: macos-15
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Configure Windows x64 with bundled AAX SDK
+        if: runner.os == 'Windows'
+        run: cmake -S . -B build-aax -A x64 -DCHIMERA_BUILD_AAX=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
+      - name: Configure macOS Universal with bundled AAX SDK
+        if: runner.os == 'macOS'
+        run: cmake -S . -B build-aax -DCHIMERA_BUILD_AAX=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+      - name: Build AAX and shared compatibility tests
+        run: cmake --build build-aax --config Release --target ChimeraAmpMatrix_AAX ChimeraAAXContractTests ChimeraBetaLifecycleProcessorTests ChimeraGateProcessorTests --parallel 2
+      - name: Shared parameter, automation, IR, beta and latency regressions
+        run: ctest --test-dir build-aax -C Release -R '^(ChimeraAAX.*Tests|ChimeraBetaLifecycleProcessorTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit aax-tests.xml
+      - name: Verify Universal architecture and ad-hoc code seal (not PACE)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          bundle='build-aax/ChimeraAmpMatrix_artefacts/Release/AAX/SpectralForge Chimera.aaxplugin'
+          lipo "$bundle/Contents/MacOS/SpectralForge Chimera" -verify_arch arm64 x86_64
+          codesign --force --sign - "$bundle"
+          codesign --verify --deep --strict "$bundle"
+          nm -gU "$bundle/Contents/MacOS/SpectralForge Chimera" > build-aax/aax-exports.txt
+          grep _ACFRegisterPlugin build-aax/aax-exports.txt
+      - name: Verify Windows DLL exports (no Pro Tools host)
+        if: runner.os == 'Windows'
+        shell: python
+        run: |
+          import ctypes
+          from pathlib import Path
+          binary = Path('build-aax/ChimeraAmpMatrix_artefacts/Release/AAX/SpectralForge Chimera.aaxplugin/Contents/x64/SpectralForge Chimera.aaxplugin').resolve()
+          dll = ctypes.WinDLL(str(binary))
+          assert dll.ACFRegisterPlugin and dll.ACFGetClassFactory
+          Path('build-aax/aax-exports.txt').write_text('PASS: LoadLibrary, ACFRegisterPlugin and ACFGetClassFactory; no host acceptance\n')
+      - name: Stage explicitly unsigned development package
+        run: python Tools/aax_native.py package --build build-aax --output dist-aax --platform ${{ matrix.platform }}
+      - name: Exercise actual bundle installation, update and removal in isolated root
+        run: python Tests/test_aax_native.py --native-packages dist-aax
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: AAX-UNSIGNED-DEVELOPMENT-${{ matrix.platform }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            dist-aax/*.zip
+            dist-aax/*.sha256
+            dist-aax/native-install-results.json
+            build-aax/aax-tests.xml
+            build-aax/aax-exports.txt
+            build-aax/chimera-build-version.json
+            build-aax/chimera-beta-lifecycle.json
+            build-aax/Testing/Temporary/LastTest.log
+            build-aax/beta-lifecycle-evidence/
+          if-no-files-found: warn

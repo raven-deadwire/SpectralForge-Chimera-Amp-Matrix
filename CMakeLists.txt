@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 include(cmake/ChimeraVersion.cmake)
 project(ChimeraAmpMatrix VERSION ${CHIMERA_PRODUCT_VERSION} LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
+include(cmake/ChimeraAAX.cmake)
 if(MSVC)
   add_compile_options(/utf-8)
   # Ship self-contained Windows binaries; no separate VC++ redist installer.
@@ -17,7 +18,16 @@ set(CHIMERA_FORMATS VST3 Standalone)
 if(APPLE)
   list(APPEND CHIMERA_FORMATS AU)
 endif()
-juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
+if(CHIMERA_BUILD_AAX)
+  list(APPEND CHIMERA_FORMATS AAX)
+endif()
+juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 AAX_IDENTIFIER audio.spectralforge.chimera AAX_CATEGORY Effect DISABLE_AAX_MULTI_MONO TRUE FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
+if(CHIMERA_BUILD_AAX)
+  # Restrict first delivery to Native mono/stereo inserts. Host multi-mono and
+  # AudioSuite require separate acceptance; neither affects internal Dual Mono.
+  target_compile_definitions(ChimeraAmpMatrix_AAX PRIVATE
+    JucePlugin_AAXDisableAudioSuite=1 JUCE_FORCE_USE_LEGACY_PARAM_IDS=0)
+endif()
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
 set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png Assets/Artwork/aniflheimr.png)
@@ -76,6 +86,15 @@ endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
+add_test(NAME ChimeraAAXPackagingTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_aax_native.py")
+if(CHIMERA_BUILD_AAX)
+  juce_add_console_app(ChimeraAAXContractTests PRODUCT_NAME "Chimera AAX Contract Tests")
+  target_sources(ChimeraAAXContractTests PRIVATE Tests/AAXContractTests.cpp)
+  target_link_libraries(ChimeraAAXContractTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual
+    juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+  add_test(NAME ChimeraAAXContractTests COMMAND ChimeraAAXContractTests)
+endif()
 
 # Serverless beta lifecycle policy. This target is deliberately independent of
 # JUCE and the audio graph so injected-clock and active-instance latch behavior
