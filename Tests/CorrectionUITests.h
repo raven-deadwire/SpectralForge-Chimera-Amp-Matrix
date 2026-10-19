@@ -31,11 +31,9 @@ inline void snapshot(juce::Component& editor,const juce::File& directory,const c
             "Cannot save correction UI evidence");
 }
 inline void clickTab(juce::Component& canvas,const char* title) {
-    for(auto* child:canvas.getChildren())
-        if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()==title) {
-            button->triggerClick();settle();return;
-        }
-    throw std::runtime_error("Correction UI test could not find a page tab");
+    const juce::String label(title);const auto id=label=="RIGS"?"head":label=="PRE"?"pre":label=="POST"?"post":"tone.eq";
+    auto* button=dynamic_cast<juce::TextButton*>(find(canvas,"path."+juce::String(id)));
+    require(button && button->isVisible(),"Signal stage unavailable");button->triggerClick();settle();
 }
 inline AmpSelector& selector(juce::Component& canvas,int lane) {
     auto* control=dynamic_cast<AmpSelector*>(find(canvas,"ampSelect"+juce::String(lane+1)));

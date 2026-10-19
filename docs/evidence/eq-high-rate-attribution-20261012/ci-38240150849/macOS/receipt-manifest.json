@@ -1,0 +1,196 @@
+{
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "run_id": 38240150849,
+  "artifact_id": 11744007362,
+  "original_artifact_zip_sha256": "cc11f05db6a40e3054d763e1e91678428cb41210f36d2a03fe56a086d170fc47",
+  "scope": "six native CTests; 90-case synthetic attribution",
+  "performance_acceptance": "NOT_ASSESSED",
+  "physical_daw_device_tested": false,
+  "files": [
+    {
+      "source_path": "eq-analyzer-audio-invariance.csv",
+      "path": "eq-analyzer-audio-invariance.csv",
+      "raw_bytes": 686,
+      "raw_sha256": "bb049aa2c08466a8388b80ba8b4ffc8692a14d4213f5d41dff997df605309f04",
+      "stored_sha256": "bb049aa2c08466a8388b80ba8b4ffc8692a14d4213f5d41dff997df605309f04",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-callback.csv",
+      "path": "eq-analyzer-callback.csv",
+      "raw_bytes": 3029,
+      "raw_sha256": "ee60058ccde0dbfc945de2b25d7ed1cd4ebca3ec187a8c5af593b4c40abf77f0",
+      "stored_sha256": "ee60058ccde0dbfc945de2b25d7ed1cd4ebca3ec187a8c5af593b4c40abf77f0",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-cpu.csv",
+      "path": "eq-analyzer-cpu.csv",
+      "raw_bytes": 2031,
+      "raw_sha256": "9c871c4984bf0bf8e67a6d93f920877ba79e902c81b9788911da955129933c4e",
+      "stored_sha256": "9c871c4984bf0bf8e67a6d93f920877ba79e902c81b9788911da955129933c4e",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-fifo-stalls.csv",
+      "path": "eq-analyzer-fifo-stalls.csv",
+      "raw_bytes": 3813,
+      "raw_sha256": "09b4226666a8a70f54f03a997642eb9f47288def7ace1ae15559a3fd292f78f9",
+      "stored_sha256": "09b4226666a8a70f54f03a997642eb9f47288def7ace1ae15559a3fd292f78f9",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-full-callback.csv",
+      "path": "eq-analyzer-full-callback.csv",
+      "raw_bytes": 910,
+      "raw_sha256": "134a0e96b74bd15db33b7d6323bf9e6aaf253da1c8220e93e814a6c5c5753b60",
+      "stored_sha256": "134a0e96b74bd15db33b7d6323bf9e6aaf253da1c8220e93e814a6c5c5753b60",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-high-rate-updates.csv",
+      "path": "eq-analyzer-high-rate-updates.csv",
+      "raw_bytes": 41997,
+      "raw_sha256": "f0744b1df989222081d1c31fb7c9586a79a01dcf8cdb809a2ff7b1f2ea739fad",
+      "stored_sha256": "f0744b1df989222081d1c31fb7c9586a79a01dcf8cdb809a2ff7b1f2ea739fad",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-high-rate.csv",
+      "path": "eq-analyzer-high-rate.csv",
+      "raw_bytes": 1855,
+      "raw_sha256": "5b39d77469cfdd4b19c83b28a1a74639bc242348398936fb5eac3e24ba20352a",
+      "stored_sha256": "5b39d77469cfdd4b19c83b28a1a74639bc242348398936fb5eac3e24ba20352a",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-live-frames.csv",
+      "path": "eq-analyzer-live-frames.csv",
+      "raw_bytes": 3778,
+      "raw_sha256": "ae6cd3af7c2c127e6384d8b2ab5b2742809dabeb113a404a5bb602aab1948666",
+      "stored_sha256": "ae6cd3af7c2c127e6384d8b2ab5b2742809dabeb113a404a5bb602aab1948666",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-native-ui.csv",
+      "path": "eq-analyzer-native-ui.csv",
+      "raw_bytes": 1242,
+      "raw_sha256": "3bb3fcfc4555e354ec8a484779813160ae3e4c0a831d3c732f1a6fa8bc205adc",
+      "stored_sha256": "3bb3fcfc4555e354ec8a484779813160ae3e4c0a831d3c732f1a6fa8bc205adc",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-partition-invariance.csv",
+      "path": "eq-analyzer-partition-invariance.csv",
+      "raw_bytes": 7947,
+      "raw_sha256": "dda1b140a709393137fa0cddcf66fa2bc8732598974f151162344fe586f58633",
+      "stored_sha256": "dda1b140a709393137fa0cddcf66fa2bc8732598974f151162344fe586f58633",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-performance-paired.csv",
+      "path": "eq-analyzer-performance-paired.csv",
+      "raw_bytes": 41094,
+      "raw_sha256": "9622fe134ce10fcd74c52ac5ff65f30994b0b3cd5064512c17ec80a190ed6619",
+      "stored_sha256": "9622fe134ce10fcd74c52ac5ff65f30994b0b3cd5064512c17ec80a190ed6619",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-performance-parity.csv",
+      "path": "eq-analyzer-performance-parity.csv",
+      "raw_bytes": 15428,
+      "raw_sha256": "a0b63db5ab31f3077681b92e1a9f0f4ff42d70218394fd054aa3c5f1be476546",
+      "stored_sha256": "a0b63db5ab31f3077681b92e1a9f0f4ff42d70218394fd054aa3c5f1be476546",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-performance-summary.csv",
+      "path": "eq-analyzer-performance-summary.csv",
+      "raw_bytes": 7136,
+      "raw_sha256": "5c048ede7c50c7deb6a7090b4fac23b4e928abd11725b2ca47829673538cfaa1",
+      "stored_sha256": "5c048ede7c50c7deb6a7090b4fac23b4e928abd11725b2ca47829673538cfaa1",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-temporal-coverage.csv",
+      "path": "eq-analyzer-temporal-coverage.csv",
+      "raw_bytes": 2672,
+      "raw_sha256": "c61c394b32c1b2ffdb0b5c1417a9ae0f1d3204ed5bf7d23a37197f1e2af81b32",
+      "stored_sha256": "c61c394b32c1b2ffdb0b5c1417a9ae0f1d3204ed5bf7d23a37197f1e2af81b32",
+      "compression": null
+    },
+    {
+      "source_path": "eq-cpu.csv",
+      "path": "eq-cpu.csv",
+      "raw_bytes": 886,
+      "raw_sha256": "d7630de27387fe720bf8f5c348a9350eeb1887fbafdb9f3840ba5b03721016bc",
+      "stored_sha256": "d7630de27387fe720bf8f5c348a9350eeb1887fbafdb9f3840ba5b03721016bc",
+      "compression": null
+    },
+    {
+      "source_path": "eq-results.xml",
+      "path": "eq-results.xml",
+      "raw_bytes": 7938,
+      "raw_sha256": "2c3b9f21d64c388015d21fb8873782e77fa790b517feadaa6462fa13433db126",
+      "stored_sha256": "2c3b9f21d64c388015d21fb8873782e77fa790b517feadaa6462fa13433db126",
+      "compression": null
+    },
+    {
+      "source_path": "chimera-build-version.json",
+      "path": "chimera-build-version.json",
+      "raw_bytes": 126,
+      "raw_sha256": "68a717cc8849bf30cee022748016ba82c07127a943039e0008bf25dd9bb159ad",
+      "stored_sha256": "68a717cc8849bf30cee022748016ba82c07127a943039e0008bf25dd9bb159ad",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution-provenance.json",
+      "path": "eq-attribution-provenance.json",
+      "raw_bytes": 13202,
+      "raw_sha256": "e59ecc007ddc707f6b5d54367c90b07b64b658386949891f73924b5190929f9a",
+      "stored_sha256": "e59ecc007ddc707f6b5d54367c90b07b64b658386949891f73924b5190929f9a",
+      "compression": null
+    },
+    {
+      "source_path": "Testing/Temporary/LastTest.log",
+      "path": "Testing/Temporary/LastTest.log",
+      "raw_bytes": 53707,
+      "raw_sha256": "5fad2e3c4050f159154896aad8c5423f53a0bb69e085609f8a21046d397829a6",
+      "stored_sha256": "5fad2e3c4050f159154896aad8c5423f53a0bb69e085609f8a21046d397829a6",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution/eq-attribution-callbacks.csv",
+      "path": "eq-attribution/eq-attribution-callbacks.csv.gz",
+      "raw_bytes": 10072343,
+      "raw_sha256": "9981bd4b7cc7bbb7decdb93d3943b446b74dd1d0e344ca4b0b8de819e8efabb4",
+      "stored_sha256": "ef7f5c8d5ede183bf8cf089a2068a054dae5abb27275821312d49590cb7921f6",
+      "compression": "gzip; mtime=0"
+    },
+    {
+      "source_path": "eq-attribution/eq-attribution-method.txt",
+      "path": "eq-attribution/eq-attribution-method.txt",
+      "raw_bytes": 1222,
+      "raw_sha256": "85680920eecd77bee14c83d43f9b263c1371f261083bc8dd5f335ac47d5efa5a",
+      "stored_sha256": "85680920eecd77bee14c83d43f9b263c1371f261083bc8dd5f335ac47d5efa5a",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution/eq-attribution-summary.csv",
+      "path": "eq-attribution/eq-attribution-summary.csv",
+      "raw_bytes": 57242,
+      "raw_sha256": "755aa0100cbe5caef8c562008a23d8b9fbf44e20bc7ca4339f452204ba6a2f24",
+      "stored_sha256": "755aa0100cbe5caef8c562008a23d8b9fbf44e20bc7ca4339f452204ba6a2f24",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution/eq-attribution-updates.csv",
+      "path": "eq-attribution/eq-attribution-updates.csv",
+      "raw_bytes": 84719,
+      "raw_sha256": "1e2231cb755f3dd8c1dac4b8da110255edf38e41a1520f43a9080b6a53e32b79",
+      "stored_sha256": "1e2231cb755f3dd8c1dac4b8da110255edf38e41a1520f43a9080b6a53e32b79",
+      "compression": null
+    }
+  ],
+  "original_ci_artifact": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38240150849/artifacts/11744007362"
+}

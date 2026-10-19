@@ -10,6 +10,8 @@ extern bool (*isEventBlockedByModalComps)(NSEvent*);
 
 namespace chimeraTest {
 bool dispatchFor(int milliseconds) {
+    auto& telemetry=dispatchTelemetry();const bool measured=telemetry.enabled;
+    const auto dispatchStarted=measured?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
     auto* messages=juce::MessageManager::getInstance();
     jassert(messages->isThisTheMessageThread());
     if(!messages->isThisTheMessageThread())return false;
@@ -27,13 +29,15 @@ bool dispatchFor(int milliseconds) {
         if(remaining<=0)break;
         double beforeAutorelease{};
         @autoreleasepool {
-            // Test-only fairness: JUCE serves four messages per CF source callback.
-            // Keep servicing ready sources for this requested slice before AppKit
-            // polling, whose internal native work may outlast its event deadline.
+            // Return after one ready source so the outer loop can re-check its
+            // deadline and alternate CF and AppKit service. A time slice with
+            // returnAfterSourceHandled=false can drain successive ready sources
+            // without returning control to the test's bounded event pump.
             const auto beforeCF=juce::Time::getMillisecondCounterHiRes();
-            lastCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),false);
+            lastCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),true);
             const auto beforePoll=juce::Time::getMillisecondCounterHiRes();
             cfMilliseconds+=beforePoll-beforeCF;
+            if(measured){const double us=(beforePoll-beforeCF)*1000;++telemetry.iterations;telemetry.cfMicros+=us;telemetry.cfMaxMicros=std::max(telemetry.cfMaxMicros,us);}
             // On Tahoe, JUCE's future untilDate can defer callbacks until a
             // later mouse event: https://github.com/juce-framework/JUCE/issues/1574
             // Poll AppKit without waiting; CFRunLoop above still yields normally.
@@ -43,11 +47,16 @@ bool dispatchFor(int milliseconds) {
                                               dequeue:YES];
             const auto beforeEvent=juce::Time::getMillisecondCounterHiRes();
             pollMilliseconds+=beforeEvent-beforePoll;
+            if(measured){const double us=(beforeEvent-beforePoll)*1000;telemetry.pollMicros+=us;telemetry.pollMaxMicros=std::max(telemetry.pollMaxMicros,us);}
             if(event) {
                 ++nativeEvents;lastNativeEvent=NSInteger(event.type);
                 if(juce::isEventBlockedByModalComps==nullptr
                     || !juce::isEventBlockedByModalComps(event))
+                    {
+                    const auto sendStarted=measured?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
                     [NSApp sendEvent:event];
+                    if(measured){const double us=dispatchMicros(sendStarted);++telemetry.nativeEvents;telemetry.sendMicros+=us;telemetry.sendMaxMicros=std::max(telemetry.sendMaxMicros,us);}
+                }
             }
             beforeAutorelease=juce::Time::getMillisecondCounterHiRes();
             eventMilliseconds+=beforeAutorelease-beforeEvent;
@@ -67,6 +76,8 @@ bool dispatchFor(int milliseconds) {
                  <<" last_cf_result="<<lastCFResult<<" native_events="<<nativeEvents
                  <<" last_native_event="<<lastNativeEvent<<'\n';
     }
+    if(measured){const double us=dispatchMicros(dispatchStarted);++telemetry.calls;telemetry.totalMicros+=us;telemetry.maxMicros=std::max(telemetry.maxMicros,us);}
     return !messages->hasStopMessageBeenSent();
 }
 }
+

@@ -1,0 +1,13 @@
+Frozen performance reference; never compiled into the product.
+
+Baseline source commit: 139e98f2614f516fb97975034eacae4e4dc05098 (PR #52 evidence-only follow-up).
+Original transient-repair commit reported by PR #52: beb72f520721685f3698883297371be7def92198.
+Source path: Source/EQSpectrumAnalyzer.h
+Git blob SHA-1 (both commits, independently verified): 34f31791c005c291c294afc3fb2ab4783830b4bd
+SHA-256: ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26
+
+The header bytes are preserved exactly. The benchmark renames the class only
+while including this fixture, so baseline and candidate run in one executable
+using the same JUCE FFT backend and build configuration. No old transient
+algorithm is restored: this reference already has chronological N/4 overlap
+and the 65,536-frame FIFO contract.

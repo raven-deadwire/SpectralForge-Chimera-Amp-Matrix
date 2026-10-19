@@ -22,6 +22,6 @@ test_windows_builder_rejects_relabelled_binary (__main__.PackagingVersionTests.t
 test_windows_juce_and_inno_resource_layouts (__main__.PackagingVersionTests.test_windows_juce_and_inno_resource_layouts) ... skipped 'PowerShell resource fixtures run in Windows CI'
 
 ----------------------------------------------------------------------
-Ran 22 tests in 3.546s
+Ran 22 tests in 3.362s
 
 OK (skipped=3)

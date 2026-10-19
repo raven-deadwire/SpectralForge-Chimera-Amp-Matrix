@@ -1,0 +1,5 @@
+capture,fft_size,rate,block,channels,mode,latency_samples,callbacks,whole_processor_p50_us,whole_processor_p99_us,whole_processor_max_us,budget_us,overruns,total_callbacks,minimum_capture_ms,capture_timeout_ms,observed_elapsed_ms,callbacks_at_minimum_capture,effective_samples_per_second,production_ratio,sample_target,target_reached,minimum_sample_coverage,within_5pct_nominal_rate,performance_acceptance
+0,0,48000,128,2,0,42,579,525.852,649.854,689.037,2666.67,0,679,1800,8000,1810.92,679,47993.4,0.999863,600,1,1,1,NOT_ASSESSED
+1,2048,48000,128,2,0,42,576,531.162,739.591,897.757,2666.67,0,676,1800,8000,1802.87,676,47994.7,0.999889,600,1,1,1,NOT_ASSESSED
+1,4096,48000,128,2,0,42,582,534.097,704.536,777.793,2666.67,0,682,1800,8000,1818.82,682,47996,0.999916,600,1,1,1,NOT_ASSESSED
+1,8192,48000,128,2,0,42,579,536.091,740.524,778.985,2666.67,0,679,1800,8000,1810.82,679,47996,0.999917,600,1,1,1,NOT_ASSESSED

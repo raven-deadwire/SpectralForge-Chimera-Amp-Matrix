@@ -1,0 +1,13 @@
+Test project /workspace/scratch/af7c830474b5/eq-local-build
+    Start 26: ChimeraGateProcessorTests
+1/4 Test #26: ChimeraGateProcessorTests ...........   Passed   13.96 sec
+    Start 43: ChimeraGraphicalEQTests
+2/4 Test #43: ChimeraGraphicalEQTests .............   Passed   29.94 sec
+    Start 45: ChimeraEQAnalyzerTests
+3/4 Test #45: ChimeraEQAnalyzerTests ..............   Passed   18.25 sec
+    Start 46: ChimeraEQAnalyzerPerformanceTests
+4/4 Test #46: ChimeraEQAnalyzerPerformanceTests ...   Passed   20.85 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =  83.01 sec

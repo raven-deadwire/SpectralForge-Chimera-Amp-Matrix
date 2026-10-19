@@ -1,42 +1,42 @@
 [
   {
-    "suite": "test_beta_publication131",
+    "suite": "Tools/test_release_calendar.py",
     "exit_code": 0,
-    "summary": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 2.067s\n\nOK\n"
+    "summary": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 0.095s\n\nOK\n"
   },
   {
-    "suite": "test_packaging_version",
+    "suite": "Tools/test_publish_release.py",
     "exit_code": 0,
-    "summary": "ed 'actual Windows PE resource check runs in Windows CI'\ntest_windows_juce_and_inno_resource_layouts (__main__.PackagingVersionTests.test_windows_juce_and_inno_resource_layouts) ... skipped 'PowerShell resource fixtures run in Windows CI'\n\n----------------------------------------------------------------------\nRan 22 tests in 3.546s\n\nOK (skipped=3)\n"
+    "summary": "........................................\n----------------------------------------------------------------------\nRan 40 tests in 2.865s\n\nOK\n"
   },
   {
-    "suite": "test_publication_evidence",
+    "suite": "Tools/test_weekly_publication.py",
     "exit_code": 0,
-    "summary": "....................\n----------------------------------------------------------------------\nRan 20 tests in 2.065s\n\nOK\n"
+    "summary": ".............................\n----------------------------------------------------------------------\nRan 29 tests in 2.242s\n\nOK\n"
   },
   {
-    "suite": "test_publish_beta131",
+    "suite": "Tools/test_publication_evidence.py",
     "exit_code": 0,
-    "summary": ".............................................\n----------------------------------------------------------------------\nRan 45 tests in 0.981s\n\nOK\n"
+    "summary": "....................\n----------------------------------------------------------------------\nRan 20 tests in 2.037s\n\nOK\n"
   },
   {
-    "suite": "test_publish_release",
+    "suite": "Tests/test_packaging_version.py",
     "exit_code": 0,
-    "summary": ".....................................\n----------------------------------------------------------------------\nRan 37 tests in 2.333s\n\nOK\n"
+    "summary": "ed 'actual Windows PE resource check runs in Windows CI'\ntest_windows_juce_and_inno_resource_layouts (__main__.PackagingVersionTests.test_windows_juce_and_inno_resource_layouts) ... skipped 'PowerShell resource fixtures run in Windows CI'\n\n----------------------------------------------------------------------\nRan 22 tests in 3.362s\n\nOK (skipped=3)\n"
   },
   {
-    "suite": "test_release_calendar",
+    "suite": "Tools/test_publish_beta131.py",
     "exit_code": 0,
-    "summary": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 0.101s\n\nOK\n"
+    "summary": ".............................................\n----------------------------------------------------------------------\nRan 45 tests in 0.902s\n\nOK\n"
   },
   {
-    "suite": "test_release_consolidator",
+    "suite": "Tools/test_beta_publication131.py",
     "exit_code": 0,
-    "summary": "..............................\n----------------------------------------------------------------------\nRan 30 tests in 3.834s\n\nOK\n"
+    "summary": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 1.835s\n\nOK\n"
   },
   {
-    "suite": "test_weekly_publication",
+    "suite": "Tools/test_release_consolidator.py",
     "exit_code": 0,
-    "summary": ".............................\n----------------------------------------------------------------------\nRan 29 tests in 1.850s\n\nOK\n"
+    "summary": "..............................\n----------------------------------------------------------------------\nRan 30 tests in 2.802s\n\nOK\n"
   }
 ]

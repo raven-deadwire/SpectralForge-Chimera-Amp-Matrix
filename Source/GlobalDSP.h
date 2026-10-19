@@ -2,8 +2,13 @@
 #include <juce_dsp/juce_dsp.h>
 #include "PolyPitch.h"
 #include "LifecycleTrace.h"
+#include "PrecisionTuner.h"
+#include "MacTunerWakeTimer.h"
 #include <atomic>
 #include <array>
+#if CHIMERA_TUNER_TEST_HOOKS
+#include "TunerTiming.h"
+#endif
 
 namespace spectralforge {
 class NoiseGate {
@@ -11,6 +16,7 @@ class NoiseGate {
     float detector{}, gain{1};
     int holdCounter{};
     bool open{true};
+    bool expand{};float expansionRatio{2},attackMs{.5f};
 public:
     // 0..95.9 dB is a finite attenuation floor. 96 is the Full sentinel:
     // the original zero target, approached with the existing release curve.
@@ -23,6 +29,7 @@ public:
     void prepare(double sr) { rate=sr; reset(); }
     void reset() { detector=0; gain=1; holdCounter=0; open=true; }
     float reduction() const { return gain; }
+    void setMode(bool expander,float ratio,float attack) noexcept {expand=expander;expansionRatio=juce::jlimit(1.f,20.f,ratio);attackMs=juce::jlimit(.1f,20.f,attack);}
     void process(juce::AudioBuffer<float>& buffer,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)
     { processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
     // The same input detector can control a later gain stage without altering
@@ -35,7 +42,7 @@ private:
         const float threshold=juce::Decibels::decibelsToGain(thresholdDb);
         const float closeThreshold=threshold*.501187f; // 6 dB hysteresis
         const float envelopeRelease=float(std::exp(-1.0/(rate*.020)));
-        const float attack=float(std::exp(-1.0/(rate*.0005)));
+        const float attack=float(std::exp(-1.0/(rate*(attackMs==.5f?.0005:double(attackMs)*.001))));
         const float release=float(std::exp(-1.0/(rate*juce::jmax(5.f,releaseMs)*.001)));
         const int holdSamples=int(rate*holdMs*.001);
         const float floor=closedGain(rangeDb);
@@ -50,7 +57,11 @@ private:
                 if(holdCounter>0) --holdCounter;
                 else open=false;
             }
-            const float target=(!enabled || open) ? 1.f : floor;
+            float target=(!enabled || open) ? 1.f : floor;
+            if(enabled && !open && expand){
+                const float below=juce::jmax(0.f,thresholdDb-juce::Decibels::gainToDecibels(detector,-120.f));
+                target=juce::jmax(floor,juce::Decibels::decibelsToGain(-below*(expansionRatio-1.f),-120.f));
+            }
             const float coefficient=target>gain ? attack : release;
             gain=target+(gain-target)*coefficient;
             if(envelope) envelope[n]=gain;
@@ -116,108 +127,238 @@ public:
 
 // YIN on a decimated mono input. Analysis runs on a worker, never in processBlock.
 class Tuner : private juce::Thread {
-    static constexpr int frameSize=2048, queueSize=8192;
+    static constexpr int frameSize=4096, queueSize=16384;
     juce::AbstractFifo fifo{queueSize};
     std::array<float,queueSize> queue{};
+    // Only published block ends are stamped. A FIFO snapshot always ends at
+    // one of those boundaries; read its stamp before releasing the slots.
+    std::array<double,queueSize> queueInputTimes{};
     std::array<float,frameSize> history{}, ordered{};
-    int writeIndex{}, filled{}, decimation{4}, phase{};
+    int writeIndex{}, filled{}, decimation{2}, phase{};
     float low1{}, low2{}, coefficient{};
-    double analysisRate{12000};
+    int previousChannel{-1};
+    // prepare() leaves a clean FIFO/history. The first active block belongs to
+    // that clean generation; later active-state transitions invalidate it.
+    bool firstActivation{true};
+    double analysisRate{24000};
     std::atomic<bool> enabled{false};
+    std::atomic<unsigned> generation{0}, pitchGeneration{0};
     std::atomic<float> hz{0}, certainty{0};
+    std::atomic<double> pitchInputTime{0};
+#if CHIMERA_TUNER_TEST_HOOKS
+    tuning::TimingTrace testTiming;
+    bool testNormalQoS{false}; // Set only while stopped, before prepare().
+    bool testSuppressTimerNotifications{false};
+    std::atomic<int> testWorkerPriority{int(juce::Thread::Priority::normal)};
+    std::atomic<int> testPauseMilliseconds{0};
+    std::atomic<bool> testWorkerPaused{false};
+    std::atomic<bool> testWakeTimerActive{false};
+    std::atomic<unsigned> testCompletedIterations{0};
+#endif
 public:
     Tuner() : Thread("Chimera tuner") {}
     ~Tuner() override { stop(); }
     void requestStop() { lifecycle::write("tuner.stop.requested", this); signalThreadShouldExit(); notify(); }
-    void stop() { const lifecycle::Scope trace("tuner.stop", this); requestStop(); stopThread(-1); }
+    void stop() { const lifecycle::Scope trace("tuner.stop", this); requestStop(); stopThread(-1); enabled.store(false);hz.store(0);certainty.store(0); }
     bool stopped() const noexcept { return !isThreadRunning(); }
     void prepare(double rate)
     {
         const lifecycle::Scope trace("tuner.prepare", this);
-        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0;
-        decimation=juce::jmax(1,juce::roundToInt(rate/12000.0)); analysisRate=rate/decimation;
-        coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*2000.0/rate));
-        hz.store(0); certainty.store(0); startThread();
+        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0; previousChannel=-1;firstActivation=true;
+        decimation=juce::jmax(1,juce::roundToInt(rate/24000.0)); analysisRate=rate/decimation;
+        coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
+        hz.store(0); certainty.store(0); pitchInputTime.store(0);
+#if CHIMERA_TUNER_TEST_HOOKS
+        testTiming.reset();testWorkerPriority.store(int(juce::Thread::Priority::normal));
+#endif
+        // This is a latency-sensitive worker, below the host's realtime audio
+        // thread but not a background utility (which macOS may defer).
+        startThread(juce::Thread::Priority::normal);
     }
     void push(const juce::AudioBuffer<float>& buffer,bool active)
     {
-        enabled.store(active);
-        if(!active) return;
+        const bool wasActive=enabled.exchange(active);
+        if(wasActive!=active) {
+            // No history can precede the first activation after prepare(); do
+            // not create a generation race that discards its fresh FIFO. Every
+            // subsequent disable/re-enable still invalidates queued/history data.
+            if(!(firstActivation && active))generation.fetch_add(1);
+            if(active)firstActivation=false;
+            low1=low2=0;phase=0;previousChannel=-1;
+        }
+        if(!active || buffer.getNumChannels()==0) return;
         int channel=0;
-        if(buffer.getNumChannels()>1 && buffer.getRMSLevel(1,0,buffer.getNumSamples())>buffer.getRMSLevel(0,0,buffer.getNumSamples())) channel=1;
+        if(buffer.getNumChannels()>1){
+            const std::array<float,2> rms{buffer.getRMSLevel(0,0,buffer.getNumSamples()),buffer.getRMSLevel(1,0,buffer.getNumSamples())};
+            channel=rms[1]>rms[0]?1:0;
+            // Tiny stereo level changes must not reset the analysis every block.
+            // Switch only when the new input is at least 3 dB stronger; a real
+            // switch still invalidates the old channel's estimate immediately.
+            if(previousChannel>=0 && rms[size_t(channel)]<=rms[size_t(previousChannel)]*1.41421356f)channel=previousChannel;
+        }
+        if(previousChannel>=0 && channel!=previousChannel){generation.fetch_add(1);low1=low2=0;phase=0;}
+        previousChannel=channel;
+        const int produced=(phase+buffer.getNumSamples())/decimation;
+        int first{},firstCount{},second{},secondCount{},written=0;
+        fifo.prepareToWrite(produced,first,firstCount,second,secondCount);
+        const int available=firstCount+secondCount;
         for(int n=0;n<buffer.getNumSamples();++n)
         {
-            low1+=coefficient*(buffer.getSample(channel,n)-low1); low2+=coefficient*(low1-low2);
+            const auto sample=buffer.getSample(channel,n);
+            if(!std::isfinite(sample)){low1=low2=0;phase=0;generation.fetch_add(1);continue;}
+            low1+=coefficient*(sample-low1); low2+=coefficient*(low1-low2);
             if(++phase<decimation) continue;
             phase=0;
-            const auto scope=fifo.write(1);
-            scope.forEach([this](int i){queue[(size_t)i]=low2;});
+            if(written<available){
+                const int index=written<firstCount?first+written:second+written-firstCount;
+                queue[size_t(index)]=low2;++written;
+            }
         }
+        // One SPSC publication per audio block, with bounded overflow recovery.
+        if(written>0) {
+            const int last=written-1;
+            const int index=last<firstCount?first+last:second+last-firstCount;
+            queueInputTimes[size_t(index)]=juce::Time::getMillisecondCounterHiRes();
+        }
+        fifo.finishedWrite(written);
+        if(available<produced)generation.fetch_add(1);
     }
-    float frequency() const { return hz.load(); }
-    float confidence() const { return certainty.load(); }
+    float frequency() const { return readingIsFresh()?hz.load():0; }
+    float confidence() const { return readingIsFresh()?certainty.load():0; }
+#if CHIMERA_TUNER_TEST_HOOKS
+    // Caller must stop/join before reading: no locks or allocation on the worker.
+    const tuning::TimingTrace& timingAfterStopForTest() const { jassert(stopped()); return testTiming; }
+    void useNormalQoSForTest(bool normal) { jassert(stopped());testNormalQoS=normal; }
+    bool wakeTimerActiveForTest() const { return testWakeTimerActive.load(); }
+    void suppressTimerNotificationsForTest(bool suppress) { jassert(stopped());testSuppressTimerNotifications=suppress; }
+    int workerPriorityForTest() const { return testWorkerPriority.load(); }
+    void pauseWorkerForTest(int milliseconds) { testPauseMilliseconds.store(milliseconds); notify(); }
+    bool workerPausedForTest() const { return testWorkerPaused.load(); }
+    unsigned completedWorkerIterationsForTest() const { return testCompletedIterations.load(); }
+#endif
     static std::pair<float,float> estimate(const float* samples,int count,double rate)
     {
-        const int window=count/2;
-        const int minimum=juce::jmax(2,int(rate/1400.0)), maximum=juce::jmin(window-1,int(rate/25.0));
-        double power=0;
-        for(int i=0;i<count;++i) power+=double(samples[i])*samples[i];
-        if(power/count<1e-9) return {0,0};
-        std::array<double,frameSize/2> difference{}, rawDifference{};
-        double sum=0;
-        int selected=0;
-        for(int lag=1;lag<=maximum;++lag)
-        {
-            double delta=0;
-            for(int n=0;n<window;++n) { const double x=samples[n]-samples[n+lag]; delta+=x*x; }
-            rawDifference[(size_t)lag]=delta; sum+=delta; difference[(size_t)lag]=sum>0 ? delta*lag/sum : 1;
-            if(lag>minimum && difference[(size_t)lag-1]<.15 && difference[(size_t)lag]>difference[(size_t)lag-1])
-            { selected=lag-1; break; }
-        }
-        if(selected==0) return {0,0};
-        const double a=rawDifference[(size_t)selected-1], b=rawDifference[(size_t)selected], c=rawDifference[(size_t)selected+1];
-        const double denominator=a-2*b+c;
-        const double refinement=std::abs(denominator)>1e-12 ? .5*(a-c)/denominator : 0;
-        // Refine the period against interpolated samples. Parabolic YIN alone
-        // biases the upper guitar register where a period spans only 8-12 samples.
-        auto cost=[&](double period) {
-            const int base=(int)period; const double t=period-base;
-            const double w0=-.5*t+t*t-.5*t*t*t, w1=1-2.5*t*t+1.5*t*t*t;
-            const double w2=.5*t+2*t*t-1.5*t*t*t, w3=-.5*t*t+.5*t*t*t;
-            double error=0;
-            for(int n=1;n<window-2;++n) {
-                const double shifted=w0*samples[n+base-1]+w1*samples[n+base]+w2*samples[n+base+1]+w3*samples[n+base+2];
-                const double delta=samples[n]-shifted; error+=delta*delta;
-            }
-            return error;
-        };
-        double left=selected+refinement-.65,right=selected+refinement+.65;
-        for(int iteration=0;iteration<18;++iteration) {
-            const double a=left+(right-left)*.38196601125,b=left+(right-left)*.61803398875;
-            if(cost(a)<cost(b)) right=b; else left=a;
-        }
-        return {float(rate/((left+right)*.5)),float(1.0-difference[(size_t)selected])};
+        return tuning::estimate(samples,count,rate);
     }
 private:
+    bool readingIsFresh() const
+    {
+        const auto inputTime=pitchInputTime.load();
+        return enabled.load() && pitchGeneration.load()==generation.load()
+            && inputTime>0 && juce::Time::getMillisecondCounterHiRes()-inputTime<=250;
+    }
     void run() override
     {
         const lifecycle::Scope trace("tuner.worker", this);
+        unsigned seen=generation.load();double lastReceived=0;
+#if JUCE_MAC
+        bool interactive=false;
+        MacTunerWakeTimer wakeTimer(*this
+#if CHIMERA_TUNER_TEST_HOOKS
+            ,!testSuppressTimerNotifications
+#endif
+        );
+#endif
         while(!threadShouldExit())
         {
-            bool received=false;
-            { const auto scope=fifo.read(fifo.getNumReady());
-              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;});
+#if CHIMERA_TUNER_TEST_HOOKS
+            if(const auto pause=testPauseMilliseconds.exchange(0);pause>0) {
+                testWorkerPaused.store(true);
+                const auto until=juce::Time::getMillisecondCounterHiRes()+pause;
+                while(!threadShouldExit() && juce::Time::getMillisecondCounterHiRes()<until)wait(5);
+                testWorkerPaused.store(false);
             }
-            if(!enabled.load()) { hz.store(0); certainty.store(0); filled=0; }
+#endif
+#if JUCE_MAC
+            // Active tuning continuously drives interactive pitch feedback. Default QoS can defer this
+            // timed wait far beyond 10 ms on macOS. Change only on this worker,
+            // never on the audio callback, and return to normal while disabled.
+            bool requested=enabled.load();
+#if CHIMERA_TUNER_TEST_HOOKS
+            requested=requested && !testNormalQoS;
+#endif
+            if(requested!=interactive) {
+                setPriority(requested?juce::Thread::Priority::highest:juce::Thread::Priority::normal);
+                interactive=requested;
+                if(requested)wakeTimer.start();else wakeTimer.stop();
+#if CHIMERA_TUNER_TEST_HOOKS
+                testWorkerPriority.store(int(getPriority()));
+                testWakeTimerActive.store(wakeTimer.active());
+#endif
+            }
+#endif
+            const auto next=generation.load();
+            const auto now=juce::Time::getMillisecondCounterHiRes();
+            if(next!=seen || (lastReceived>0 && now-lastReceived>250)) {
+                // A fresh block cannot certify an old or mixed queued window.
+                // After an expired input gap, discard the pending snapshot and
+                // reacquire a complete window from subsequently published input.
+                // prepare() already resets the FIFO, so input queued before the
+                // worker's first scheduled iteration is fresh and must not be
+                // discarded merely because thread startup was delayed.
+                seen=next;filled=0;lastReceived=0;
+                hz.store(0);certainty.store(0);
+                const auto discarded=fifo.read(fifo.getNumReady());
+            }
+#if CHIMERA_TUNER_TEST_HOOKS
+            tuning::TimingObservation timing;timing.generation=seen;timing.wake=now;
+#endif
+            bool received=false;
+            { const auto scope=fifo.read(fifo.getNumReady());int last=-1;
+              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;last=i;});
+              if(last>=0)lastReceived=queueInputTimes[size_t(last)];
+            }
+#if CHIMERA_TUNER_TEST_HOOKS
+            timing.windowComplete=lastReceived;
+            timing.service=juce::Time::getMillisecondCounterHiRes();
+#endif
+            if(!enabled.load() || juce::Time::getMillisecondCounterHiRes()-lastReceived>250) { hz.store(0); certainty.store(0); filled=0; }
             else if(received && filled==frameSize)
             {
                 for(int i=0;i<frameSize;++i) ordered[(size_t)i]=history[(size_t)((writeIndex+i)%frameSize)];
+#if CHIMERA_TUNER_TEST_HOOKS
+                timing.estimateBegin=juce::Time::getMillisecondCounterHiRes();
+                timing.cpuBegin=tuning::workerCpuMilliseconds();
+#endif
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
-                hz.store(pitch.first); certainty.store(pitch.second);
+#if CHIMERA_TUNER_TEST_HOOKS
+                timing.cpuEnd=tuning::workerCpuMilliseconds();
+                timing.estimateEnd=juce::Time::getMillisecondCounterHiRes();
+                timing.hz=pitch.first;timing.confidence=pitch.second;
+#endif
+                // Retain the input's arrival time, never the delayed consumption
+                // or computation completion:
+                // readers must also expire old observations if this worker stalls.
+                if(generation.load()==seen && enabled.load()){
+                    hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);pitchInputTime.store(lastReceived);
+#if CHIMERA_TUNER_TEST_HOOKS
+                    timing.published=true;
+#endif
+                }
+#if CHIMERA_TUNER_TEST_HOOKS
+                timing.publish=juce::Time::getMillisecondCounterHiRes();
+                testTiming.append(timing);
+#endif
             }
-            else if(!received) { hz.store(0); certainty.store(0); }
-            wait(40);
+#if CHIMERA_TUNER_TEST_HOOKS
+            testCompletedIterations.fetch_add(1);
+#endif
+#if JUCE_MAC
+            // Interruptible by stop(), test pauses and the strict timer. Keep
+            // the legacy wait for disabled/normal-reference/failure fallback.
+            // Dispatch delivery can itself be delayed: retain a bounded wait
+            // so an active source never becomes the only route to progress.
+            wait(10);
+#else
+            wait(10);
+#endif
         }
+#if JUCE_MAC
+        wakeTimer.stop();
+#if CHIMERA_TUNER_TEST_HOOKS
+        testWakeTimerActive.store(false);
+#endif
+#endif
     }
 };
 }

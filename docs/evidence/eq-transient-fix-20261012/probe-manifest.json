@@ -1,0 +1,34 @@
+{
+  "baseline_commit": "360a2d843981691cc8670f292610dbd7c2816bd7",
+  "purpose": "temporary analyzer-only correctness probe; CPU observations during concurrent compilation are not acceptance measurements",
+  "juce_object_source": "/workspace/scratch/f3df933ddf5b/chimera-eq-review/build-eq-review",
+  "variants": {
+    "fixed": {
+      "probe.cpp": "6808b56efaab37d60485b240b9bcccba0411169dc5fac51249f0a545d35f45cf",
+      "EQSpectrumAnalyzer.h": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "GraphicalEQ.h": "01a639554e7f04099e010c033ba6c116d495cb1c136a9bb41a490a9b81cb9673",
+      "exit_code": 0
+    },
+    "original": {
+      "probe.cpp": "ab34daafb196fe95ebd422b9e91892a1bf0db40bb8a25fa9225afdac92819358",
+      "EQSpectrumAnalyzer.h": "02630a635bc0d825b88747695871a7fc77fb21b3345f7c579742294f1e06c184",
+      "GraphicalEQ.h": "912f232a48c0bf858b333f0e31646437fe10e3d68e2b98043e40e245d969a87e",
+      "exit_code": 0,
+      "compiled_detection_gate": {
+        "source_sha256": "5b91b159c6b2ff4b70aa66b2cf784dc040415d8b3b139097f21dcc777f1d92ae",
+        "expected_failure_exit_code": 1
+      }
+    },
+    "capacity_only": {
+      "probe.cpp": "ab34daafb196fe95ebd422b9e91892a1bf0db40bb8a25fa9225afdac92819358",
+      "EQSpectrumAnalyzer.h": "02630a635bc0d825b88747695871a7fc77fb21b3345f7c579742294f1e06c184",
+      "GraphicalEQ.h": "31f071d438597faec35fc80b750fe13f8c3fcce680dfb0e04802e42b30e37af2",
+      "exit_code": 0,
+      "compiled_detection_gate": {
+        "source_sha256": "5b91b159c6b2ff4b70aa66b2cf784dc040415d8b3b139097f21dcc777f1d92ae",
+        "expected_failure_exit_code": 1
+      }
+    }
+  },
+  "regression_tests_sha256": "f9d4e6c5da370c96c0f7aa715511efe28b456d192a0c6f8e50e2b3a984cf8663"
+}

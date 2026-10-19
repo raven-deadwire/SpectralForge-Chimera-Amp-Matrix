@@ -47,5 +47,6 @@ public:
     }
     // Linear gain, matching the existing NoiseGate meter convention.
     float reduction() const {return lastGain;}
+    void setMode(bool expander,float ratio,float attack) noexcept {detector.setMode(expander,ratio,attack);}
 };
 }

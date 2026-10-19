@@ -1,0 +1,130 @@
+{
+  "retrieved_utc": "2026-10-12 08:52:45 UTC",
+  "repository": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+  "expected_source_commit": "beb72f520721685f3698883297371be7def92198",
+  "workflow_run_id": 38224717793,
+  "job": {
+    "id": 114729284316,
+    "name": "graphical-eq (macos-15)",
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 38224717793,
+    "logs_url": null,
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1
+      },
+      {
+        "name": "Run actions/checkout@v5",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2
+      },
+      {
+        "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 3
+      },
+      {
+        "name": "Run cmake -S . -B build-eq -DCMAKE_BUILD_TYPE=Release -DCHIMERA_EQ_DEVELOPMENT_PREVIEW=ON",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4
+      },
+      {
+        "name": "Run cmake --build build-eq --config Release --target ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests ChimeraGateProcessorTests --parallel 2",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Run ctest --test-dir build-eq -C Release -R \"^(ChimeraGraphicalEQ.*Tests|ChimeraEQAnalyzerTests|ChimeraGateProcessorTests)$\" --output-on-failure --no-tests=error --output-junit eq-results.xml",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6
+      },
+      {
+        "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-eq -C Release -R \"^(ChimeraGraphicalEQ.*Tests|ChimeraEQAnalyzerTests|ChimeraGateProcessorTests)$\" --output-on-failure --no-tests=error --output-junit eq-results.xml",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7
+      },
+      {
+        "name": "Verify transient coverage and update-partition invariance",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8
+      },
+      {
+        "name": "Verify transient coverage on the native Linux desktop",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9
+      },
+      {
+        "name": "Run cmake --build build-eq --config Release --target ChimeraAmpMatrix_Standalone --parallel 2",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10
+      },
+      {
+        "name": "Run actions/upload-artifact@v6",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11
+      },
+      {
+        "name": "Run actions/upload-artifact@v6",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12
+      },
+      {
+        "name": "Post Run actions/checkout@v5",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 24
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 25
+      }
+    ]
+  },
+  "artifact": {
+    "id": 11736512112,
+    "name": "EQ-contracts-macOS-beb72f520721685f3698883297371be7def92198",
+    "size_in_bytes": 24456839,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736512112",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736512112/zip",
+    "expired": false,
+    "created_at": "2026-10-12T08:51:58Z",
+    "expires_at": "2027-01-10T08:37:38Z",
+    "updated_at": "2026-10-12T08:51:58Z",
+    "digest": "sha256:2a01bb10c622a2cf4a398044e1751170663ddce35499f0dfb5ae65980e60f7a7",
+    "workflow_run": {
+      "id": 38224717793,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "dev/eq-analyzer-prototype-20261012",
+      "head_sha": "beb72f520721685f3698883297371be7def92198"
+    }
+  },
+  "archive_local_path": "/workspace/scratch/926d030ccf29/ci/macos/EQ-contracts-macOS-beb72f5.zip",
+  "archive_sha256": "2a01bb10c622a2cf4a398044e1751170663ddce35499f0dfb5ae65980e60f7a7",
+  "archive_matches_github_digest": true,
+  "job_log_sha256": "46fa07db4e65dbc4a160b93052cb08a792d1f5e8de5bfa59735d59b1c6ad9121",
+  "log_confirms_source": true,
+  "build_manifest": {
+    "product_version": "1.3.1",
+    "source_sha": "beb72f520721685f3698883297371be7def92198",
+    "version": "1.3.1-preview.beb72f5207"
+  },
+  "build_manifest_matches_expected_source": true
+}

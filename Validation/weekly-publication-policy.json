@@ -2,11 +2,11 @@
   "schema": "spectralforge.chimera.weekly-publication-policy",
   "schema_version": 1,
   "policy_version": 1,
-  "product_version": "1.3.1",
-  "version": "1.3.1-beta.2",
+  "product_version": "1.3.2",
+  "version": "1.3.2-beta.1",
   "profile": "beta_1_3",
-  "approved_product_source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
-  "strict_policy_sha256": "6f42643d0643489cdb75b964c8f76f019a4cd0728a360c14fd709618d7d5052b",
+  "approved_product_source_sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+  "strict_policy_sha256": "111dad8ab396b80fa2d9b2d6beb5a006943090f02ac35b51beb80d2af357153d",
   "ci_check_map_sha256": "d59f7e55cfcd16eaba5b712b959f10fd4d99846053f31fc821fdd5633f85420f",
   "decision": "OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS",
   "release_approved": true,
@@ -15,9 +15,9 @@
     "approved": true,
     "publication_authorized": true,
     "validation_gaps_accepted": true,
-    "instruction": "지금 포함된 것들로 릴리즈까지 진행해",
-    "context": "On 2026-10-13 at 16:10 KST, after being informed that the current #55 candidate 6033236c had completed automated qualification, that beta lifecycle #62 and HEAD/CAB split #60 were not included, and that actual DAW/listening/signing acceptance remained separate, the owner instructed publication of the currently included scope. This is fresh publication authorization for the existing open beta, not an assertion of personal DAW or listening tests.",
-    "scope": "Publish 1.3.1-beta.2 from exact product source 6033236cb81820a43679cbbd34be020804f9658d and its original successful Product run 38350264755, attempt 1. Preserve and disclose the strict 21 PASS / 107 unexecuted BLOCKED checks, including 42 blocked hard gates. Keep transpose deferrals, signing/notarization limitations and actual DAW/listening gaps. Exclude unintegrated #52/#59 EQ work, #60 HEAD/CAB split and #62 beta lifecycle. No missing or failed test is promoted to PASS; no validation rule or waiver changes."
+    "instruction": "이제 배포까지 스트레이트로 진행해라",
+    "context": "On 2026-10-18 at 00:56:35 KST (2026-10-17 15:56:35 UTC), after disclosure that native tuner and full product CI had passed, that the separate Windows candidate Defender update had timed out and was being retried, and that actual Studio One/DAW acceptance remained unverified, the owner explicitly instructed proceeding through publication. This renews publication authorization for the current integrated 1.3.2-beta.1 beta candidate with the existing disclosed validation gaps. It does not report personal DAW/listening testing, assert success of the pending Windows security retry, or waive any exact-source CI requirement.",
+    "scope": "Publish 1.3.2-beta.1 from exact product source 3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58 only after the official publisher verifies every required latest exact-source workflow, package and artifact. The reviewed Product run 39036409533 attempt 1 has a source-bound strict report of 21 PASS / 107 unexecuted BLOCKED checks, including 42 blocked strict hard gates; preserve that report and every individually disclosed validation gap. Keep the existing transpose deferrals, signing/notarization limitations, real DI/listening and actual DAW/device acceptance gaps. Preserve the 290 ms tuner acquisition/settling and accuracy requirements. No unperformed or failed test is promoted to PASS, no required workflow is waived, and no validation rule, platform coverage or waiver inventory is changed. Pending or failed Windows candidate/Defender verification continues to block publication until the required workflow actually succeeds."
   },
   "required_ci_checks": [
     {

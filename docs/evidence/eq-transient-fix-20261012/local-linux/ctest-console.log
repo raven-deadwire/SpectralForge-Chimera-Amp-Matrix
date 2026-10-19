@@ -1,0 +1,16 @@
+Authenticated Xvfb ready; unauthenticated client rejected
+Native desktop ready: DISPLAY=127.0.0.1:27907, Openbox supporting window=0x20011f, WM_PROTOCOLS present
+Internal ctest changing into directory: /workspace/scratch/926d030ccf29/chimera/build-eq
+Test project /workspace/scratch/926d030ccf29/chimera/build-eq
+    Start 23: ChimeraGateProcessorTests
+1/4 Test #23: ChimeraGateProcessorTests ........   Passed   11.94 sec
+    Start 40: ChimeraGraphicalEQTests
+2/4 Test #40: ChimeraGraphicalEQTests ..........   Passed   28.17 sec
+    Start 41: ChimeraGraphicalEQUITests
+3/4 Test #41: ChimeraGraphicalEQUITests ........   Passed  115.78 sec
+    Start 42: ChimeraEQAnalyzerTests
+4/4 Test #42: ChimeraEQAnalyzerTests ...........   Passed   14.89 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) = 170.78 sec

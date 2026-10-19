@@ -1,6 +1,6 @@
 # 2026-10-19 — 조기 공개 후 예약·버전 정합성
 
-기존 Draft #93의 후속 수정이며 상위 Draft #50을 기반으로 한다.
+기존 Draft #93의 후속 수정이다. #50의 일정/검증 변경을 보존하고 최신 main `ec6fd639`를 통합해 main 대상으로 직접 검토한다. publisher import 충돌 한 곳은 `check_release_calendar`와 최신 `beta_lifecycle`를 모두 유지해 해결했다. #50은 이 PR로 통합 대체한다.
 실제 공개 이력: #95 통합, `v1.3.2-beta.1`, 제품 소스
 `3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`, 2026-10-18 01:51:47 KST.
 태그와 공개 릴리스는 각각 9개이고 beta.1 공개 자산은 30개다.
@@ -14,8 +14,8 @@
 
 ## 검증
 
-8개 suite 총 **236 PASS / Windows 전용 3 SKIP / 0 FAIL**.
-Calendar 33, publisher 37, weekly approval 29, evidence 20, packaging 19(+3 skip),
+8개 suite 총 **239 PASS / Windows 전용 3 SKIP / 0 FAIL**.
+Calendar 33, publisher 40, weekly approval 29, evidence 20, packaging 19(+3 skip),
 historical publisher 45, historical approval 23, consolidator 30.
 CMake 미설치로 패키징 한 검사가 최초 실행에서 오류였으며, CMake 4.4.4를 임시 PATH에 제공한 재실행에서 통과했다.
 원시 로그와 최종 suite 결과는 이 디렉터리에 보존한다.
@@ -28,7 +28,9 @@ GitHub connector로 읽은 전체 9개 태그·9개 릴리스 스냅샷을 기�
 **82 active / 0 deferred / 1 cancelled / 9 published**, beta.2 예약 정합성 통과를 확인했다.
 직접 live 네트워크 검사 및 Windows/macOS/Linux calendar·publisher 계약은 기존 Actions에서 별도로 확인한다.
 
-제품 Source, VERSION/RELEASE_CHANNEL, publisher의 준비 전·공개 직전 검사와 transport,
+현재 main 대비 제품 Source, VERSION/RELEASE_CHANNEL, transport, 베타 수명주기 검사를 보존했다.
+#50/#93에서 추가된 publisher 준비 전·공개 직전 예약 검사도 유지했다.
 승인 정책, 공개 태그·바이너리·업데이트 피드는 변경하지 않았다.
 catalog JSON의 roadmap 외 런타임 필드도 원본과 동일하다.
-이번 변경은 일정/검증 수정이며 실제 새 제품 배포나 main 병합을 수행하지 않는다.
+이번 변경은 일정/검증 수정이며 실제 새 제품 배포나 main으로의 병합을 수행하지 않는다.
+main을 Draft 소스에 동기화한 뒤 동일한 8개 suite를 재실행한 최종 로그를 보존한다.

@@ -1,0 +1,2 @@
+rate,block,fft_size,fifo_capacity,requested_capture_ms,observed_elapsed_ms,callbacks,produced_samples,effective_samples_per_second,production_ratio,dropped_samples
+192000,128,8192,8192,2600,2600.4,3891,498048,191527,0.997537,0

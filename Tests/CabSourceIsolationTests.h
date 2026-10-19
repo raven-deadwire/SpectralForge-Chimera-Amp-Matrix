@@ -137,7 +137,7 @@ inline void cabSourceIsolationContracts(const juce::File& folder,const juce::Fil
             "Reselecting the same retained personal IR failed to return only that mic to capture mode");
         slotControls(0,true);slotControls(1,false);blendEnabled(true);
     }
-    // The main rig selector opens a different library callback from CabPanel.
+    // The global IR library opens a different callback from CabPanel.
     // A factory choice there must perform the same single-slot source switch.
     set(*processor,"mode",0);set(*processor,"ocab1_Aon",1);
     {
@@ -150,11 +150,11 @@ inline void cabSourceIsolationContracts(const juce::File& folder,const juce::Fil
             return nullptr;
         };
         navigationUnchanged(*processor,[&] {
-            click(component<juce::TextButton>(canvas,"cabRigControls"),[&]{return component<juce::Component>(canvas,"ampNativePanel1").isVisible();});
+            click(component<juce::TextButton>(canvas,"path.head"),[&]{return component<juce::Component>(canvas,"ampNativePanel1").isVisible();});
             auto& cabinet=component<CabinetSelector>(canvas,"cabinet1");
-            require(cabinet.isVisible() && cabinet.isEnabled(),"Main cabinet selector is unavailable");
-            cabinet.setSelectedId(9000,juce::sendNotificationSync);
-            require(dispatchUntil([&]{return libraryWindow()!=nullptr;}),"Main rig selector did not open the IR library");
+            require(!cabinet.isVisible(),"HEAD exposes cabinet editing");
+            click(component<juce::TextButton>(canvas,"irlibrary"),[&]{return libraryWindow()!=nullptr;});
+            require(libraryWindow()!=nullptr,"Global IR library did not open");
         });
         juce::Component::SafePointer<juce::DialogWindow> window(libraryWindow());
         auto* browser=dynamic_cast<IRBrowserPanel*>(window->getContentComponent());

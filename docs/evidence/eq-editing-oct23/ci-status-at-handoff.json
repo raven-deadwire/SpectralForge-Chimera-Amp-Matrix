@@ -1,0 +1,94 @@
+{
+  "checked_utc": "2026-10-12 17:22:35 UTC",
+  "tested_source_sha": "e52976f869ea872e3094f3a945d74496665285c5",
+  "run_id": 38280760403,
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280760403",
+  "jobs": [
+    {
+      "id": 114917570723,
+      "name": "graphical-eq (macos-15)",
+      "status": "queued",
+      "conclusion": null,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280760403/job/114917570723",
+      "steps": null
+    },
+    {
+      "id": 114917570965,
+      "name": "graphical-eq (ubuntu-22.04)",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280760403/job/114917570965",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run cmake -S . -B build-eq -DCMAKE_BUILD_TYPE=Release -DCHIMERA_EQ_DEVELOPMENT_PREVIEW=ON",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run cmake --build build-eq --config Release --target ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests ChimeraEQAnalyzerTests ChimeraEQAnalyzerPerformanceTests ChimeraGateProcessorTests --parallel 2",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "name": "Record source and runner provenance",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run ctest --test-dir build-eq -C Release -R \"^(ChimeraGraphicalEQ.*Tests|ChimeraEQSnapshotFreezeTests|ChimeraEQAnalyzer.*Tests|ChimeraEQHighRateAttributionTests|ChimeraGateProcessorTests)$\" --output-on-failure --no-tests=error --output-junit eq-results.xml",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-eq -C Release -R \"^(ChimeraGraphicalEQ.*Tests|ChimeraEQSnapshotFreezeTests|ChimeraEQAnalyzer.*Tests|ChimeraEQHighRateAttributionTests|ChimeraGateProcessorTests)$\" --output-on-failure --no-tests=error --output-junit eq-results.xml",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run cmake --build build-eq --config Release --target ChimeraAmpMatrix_Standalone --parallel 2",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "pending",
+          "conclusion": null
+        }
+      ]
+    },
+    {
+      "id": 114917571043,
+      "name": "graphical-eq (windows-latest)",
+      "status": "queued",
+      "conclusion": null,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280760403/job/114917571043",
+      "steps": null
+    }
+  ],
+  "acceptance": "Only the separately recorded local Linux 8/8 has completed; no pending CI job is a PASS."
+}

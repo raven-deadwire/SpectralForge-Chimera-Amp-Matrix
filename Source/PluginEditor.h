@@ -11,6 +11,8 @@
 #include "GraphicalEQPanel.h"
 #include "EffectSelectionCatalog.h"
 #include "SignalPathView.h"
+#include "PrecisionTunerPanel.h"
+#include "CommonDynamicsPanel.h"
 
 class CabRoomOverview;
 
@@ -25,7 +27,8 @@ public:
     juce::Font getComboBoxFont(juce::ComboBox&) override;
 };
 class ChimeraEditor : public juce::AudioProcessorEditor, private juce::Timer,
-                       public juce::FileDragAndDropTarget {
+                       public juce::FileDragAndDropTarget,
+                       private juce::AudioProcessorValueTreeState::Listener, private juce::AsyncUpdater {
 public:
     explicit ChimeraEditor(ChimeraProcessor&);
     ~ChimeraEditor() override;
@@ -34,11 +37,20 @@ public:
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    struct RoutingProbe { uint64_t ticks{}, skipped{}, refreshed{}; double entered{}, finished{}; bool visible{}, messageThread{}; };
+    const RoutingProbe& routingProbe() const noexcept { return routeProbe; }
+#endif
 private:
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    RoutingProbe routeProbe;
+#endif
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
     void timerCallback() override;
+    void parameterChanged(const juce::String&,float) override {triggerAsyncUpdate();}
+    void handleAsyncUpdate() override {updateModeUI();}
     void updateModeUI();
     void updateBandLabels();
     void updateHardwareStyles();
@@ -55,6 +67,7 @@ private:
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
     spectralforge::ui::Changed<juce::String> cpuText,transportText,gateText,pitchText;
+    juce::Label callbackLoad;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
     void openCabWorkspace(int,bool focusRequested=false);
@@ -70,11 +83,11 @@ private:
     void referenceFile(bool save);
     void layoutControls();
     void midiMenu();
-    void navigateSignalPath(const spectralforge::signalPath::Node&);
+    void navigateSignalPath(spectralforge::signalPath::Node);
     void openSignalPath();
     std::unique_ptr<SignalPathView> signalPath;
     juce::Component::SafePointer<juce::DialogWindow> pathDialog;
-    std::array<juce::String,3> pathSelections{{"rigs","rigs","rigs"}};
+    std::array<juce::String,3> pathSelections{{"cab","cab","cab"}};
     ChimeraProcessor& processor;
     // Declared before children so their images/peers die first. The last editor
     // releases native GPU artwork while JUCE and the DLL are still alive.
@@ -106,12 +119,20 @@ private:
     std::unique_ptr<SA> a1,a2;
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;
+    int betaUiTicks{25};
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
-    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"},eqTab{"EQ"};
+    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
+    juce::TextButton toneEQBank{"TONE EQ"},finalEQBank{"FINAL EQ"};
+    juce::TextButton dynamicsOpen{"DYNAMICS"};
+    std::unique_ptr<spectralforge::CommonDynamicsPanel> dynamicsPanel;
+    bool dynamicsViewOpen{};
+    int selectedEQBank{}; // Presentation only; never a host parameter or sound-state edit.
     std::unique_ptr<CabRoomOverview> cabRoom;
-    juce::TextButton rigControls{"RIG CONTROLS"};
+    std::unique_ptr<PrecisionTunerPanel> precisionTuner;
+    juce::TextButton tunerOpen{"TUNER"};
+    bool tunerViewOpen{};
     bool showRigControls{};
     int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.
     juce::Slider lowComp,lowAmpMix;
