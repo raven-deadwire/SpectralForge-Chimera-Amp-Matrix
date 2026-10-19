@@ -1,0 +1,2656 @@
+{
+  "diagnostic_only": true,
+  "physical_device_dropout": "not_tested",
+  "product_fix_demonstrated": false,
+  "pr101_manifest": 107,
+  "pr96_manifest": 2177,
+  "pr101_routes": [
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-128-1.csv",
+      "n": 1600,
+      "budget_us": 2902.4943310657595,
+      "wall_p99_us": 135.541,
+      "cpu_p99_us": 136.45900000003166,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-128-2.csv",
+      "n": 1600,
+      "budget_us": 2902.4943310657595,
+      "wall_p99_us": 250.834,
+      "cpu_p99_us": 250.41699999989942,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-256-1.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 208.875,
+      "cpu_p99_us": 212.45800000010058,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-256-2.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 317.167,
+      "cpu_p99_us": 295.875,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-32-1.csv",
+      "n": 1600,
+      "budget_us": 725.6235827664399,
+      "wall_p99_us": 91.334,
+      "cpu_p99_us": 85.66699999998673,
+      "misses": 1,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 1,
+      "after_sleep": {
+        "n": 150,
+        "misses": 1,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-32-2.csv",
+      "n": 1600,
+      "budget_us": 725.6235827664399,
+      "wall_p99_us": 120.042,
+      "cpu_p99_us": 122.5,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-512-1.csv",
+      "n": 1600,
+      "budget_us": 11609.977324263038,
+      "wall_p99_us": 409.375,
+      "cpu_p99_us": 412.7080000001006,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-512-2.csv",
+      "n": 1600,
+      "budget_us": 11609.977324263038,
+      "wall_p99_us": 802.791,
+      "cpu_p99_us": 804.8330000001006,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-64-1.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 168.042,
+      "cpu_p99_us": 104.16700000001583,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/44100-64-2.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 241.75,
+      "cpu_p99_us": 228.875,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-128-1.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 343.459,
+      "cpu_p99_us": 176.625,
+      "misses": 5,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 4,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 5,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 2,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 3,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-128-2.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 186.458,
+      "cpu_p99_us": 177.91600000020117,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-256-1.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 196.791,
+      "cpu_p99_us": 183.5,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-256-2.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 352.792,
+      "cpu_p99_us": 356.2920000003651,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-32-1.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 152.75,
+      "cpu_p99_us": 150.66699999989942,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 1,
+          "cpu_over_budget": 1
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-32-2.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 138.125,
+      "cpu_p99_us": 142.41699999989942,
+      "misses": 2,
+      "misses_cpu_over_budget": 2,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 2,
+          "cpu_over_budget": 2
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-512-1.csv",
+      "n": 1600,
+      "budget_us": 10666.666666666666,
+      "wall_p99_us": 442.167,
+      "cpu_p99_us": 443.16699999943376,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-512-2.csv",
+      "n": 1600,
+      "budget_us": 10666.666666666666,
+      "wall_p99_us": 291.375,
+      "cpu_p99_us": 289.875,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-64-1.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 224.916,
+      "cpu_p99_us": 175.41700000036508,
+      "misses": 2,
+      "misses_cpu_over_budget": 2,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 1,
+          "cpu_over_budget": 1
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/48000-64-2.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 325.209,
+      "cpu_p99_us": 295.83399999979883,
+      "misses": 2,
+      "misses_cpu_over_budget": 2,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 1,
+          "cpu_over_budget": 1
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-128-1.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 144.25,
+      "cpu_p99_us": 143.375,
+      "misses": 2,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 1,
+      "after_sleep": {
+        "n": 150,
+        "misses": 2,
+        "cpu_over_budget": 1
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 2,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-128-2.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 200.333,
+      "cpu_p99_us": 201.16699999943376,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-256-1.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 209.083,
+      "cpu_p99_us": 206.75,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-256-2.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 291.458,
+      "cpu_p99_us": 293.0,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-32-1.csv",
+      "n": 1600,
+      "budget_us": 333.3333333333333,
+      "wall_p99_us": 132.167,
+      "cpu_p99_us": 109.5,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-32-2.csv",
+      "n": 1600,
+      "budget_us": 333.3333333333333,
+      "wall_p99_us": 348.875,
+      "cpu_p99_us": 284.83399999979883,
+      "misses": 17,
+      "misses_cpu_over_budget": 10,
+      "misses_wall_only": 7,
+      "after_sleep": {
+        "n": 150,
+        "misses": 6,
+        "cpu_over_budget": 3
+      },
+      "other": {
+        "n": 1450,
+        "misses": 11,
+        "cpu_over_budget": 8
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 4,
+          "cpu_over_budget": 4
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 13,
+          "cpu_over_budget": 7
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-512-1.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 230.125,
+      "cpu_p99_us": 229.7079999987036,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-512-2.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 447.084,
+      "cpu_p99_us": 453.2079999987036,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-64-1.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 226.958,
+      "cpu_p99_us": 170.54199999943376,
+      "misses": 2,
+      "misses_cpu_over_budget": 2,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 2,
+        "cpu_over_budget": 2
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 2,
+          "cpu_over_budget": 2
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/extended/expanded-v2/96000-64-2.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 218.709,
+      "cpu_p99_us": 222.7079999987036,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/44100-256-1.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 214.292,
+      "cpu_p99_us": 194.29099999996834,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/44100-256-2.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 279.333,
+      "cpu_p99_us": 242.41700000013225,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/44100-64-1.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 88.834,
+      "cpu_p99_us": 92.29200000001583,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/44100-64-2.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 156.792,
+      "cpu_p99_us": 148.75,
+      "misses": 1,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 1,
+      "after_sleep": {
+        "n": 150,
+        "misses": 1,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/48000-256-1.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 119.791,
+      "cpu_p99_us": 121.25,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/48000-256-2.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 238.666,
+      "cpu_p99_us": 230.95800000010058,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/48000-64-1.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 112.042,
+      "cpu_p99_us": 91.45800000010058,
+      "misses": 4,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 3,
+      "after_sleep": {
+        "n": 150,
+        "misses": 3,
+        "cpu_over_budget": 1
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 4,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/48000-64-2.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 146.292,
+      "cpu_p99_us": 148.66599999996834,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/96000-256-1.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 152.042,
+      "cpu_p99_us": 159.0,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/96000-256-2.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 264.334,
+      "cpu_p99_us": 254.875,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/96000-64-1.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 89.958,
+      "cpu_p99_us": 90.66699999989942,
+      "misses": 2,
+      "misses_cpu_over_budget": 2,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 2,
+          "cpu_over_budget": 2
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/array-v3-6x10/96000-64-2.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 203.167,
+      "cpu_p99_us": 191.79100000020117,
+      "misses": 3,
+      "misses_cpu_over_budget": 3,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "other": {
+        "n": 1450,
+        "misses": 2,
+        "cpu_over_budget": 2
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 3,
+          "cpu_over_budget": 3
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/44100-256-1.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 350.167,
+      "cpu_p99_us": 351.70799999998417,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/44100-256-2.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 467.625,
+      "cpu_p99_us": 462.25,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/44100-64-1.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 114.417,
+      "cpu_p99_us": 110.20800000001327,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/44100-64-2.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 111.334,
+      "cpu_p99_us": 114.33299999998417,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/48000-256-1.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 104.75,
+      "cpu_p99_us": 108.41699999989942,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/48000-256-2.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 188.708,
+      "cpu_p99_us": 191.45800000010058,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/48000-64-1.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 142.833,
+      "cpu_p99_us": 141.125,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/48000-64-2.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 83.75,
+      "cpu_p99_us": 79.0,
+      "misses": 1,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 1,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/96000-256-1.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 372.083,
+      "cpu_p99_us": 223.16699999989942,
+      "misses": 2,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 2,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 2,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 2,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/96000-256-2.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 485.958,
+      "cpu_p99_us": 302.4580000001006,
+      "misses": 2,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 2,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 2,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 1,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/96000-64-1.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 91.291,
+      "cpu_p99_us": 92.58300000010058,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/expanded-v2/96000-64-2.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 195.667,
+      "cpu_p99_us": 196.79199999989942,
+      "misses": 1,
+      "misses_cpu_over_budget": 1,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 1
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 1
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/44100-256-1.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 149.875,
+      "cpu_p99_us": 167.66600000002654,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/44100-256-2.csv",
+      "n": 1600,
+      "budget_us": 5804.988662131519,
+      "wall_p99_us": 267.916,
+      "cpu_p99_us": 224.33299999998417,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/44100-64-1.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 81.333,
+      "cpu_p99_us": 83.08400000000256,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/44100-64-2.csv",
+      "n": 1600,
+      "budget_us": 1451.2471655328798,
+      "wall_p99_us": 117.875,
+      "cpu_p99_us": 113.70899999997346,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/48000-256-1.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 201.333,
+      "cpu_p99_us": 137.20800000010058,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/48000-256-2.csv",
+      "n": 1600,
+      "budget_us": 5333.333333333333,
+      "wall_p99_us": 268.541,
+      "cpu_p99_us": 271.625,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/48000-64-1.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 128.333,
+      "cpu_p99_us": 112.66700000001583,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/48000-64-2.csv",
+      "n": 1600,
+      "budget_us": 1333.3333333333333,
+      "wall_p99_us": 147.916,
+      "cpu_p99_us": 132.04099999996834,
+      "misses": 2,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 2,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 2,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 2,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/96000-256-1.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 195.583,
+      "cpu_p99_us": 197.875,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/96000-256-2.csv",
+      "n": 1600,
+      "budget_us": 2666.6666666666665,
+      "wall_p99_us": 302.375,
+      "cpu_p99_us": 285.625,
+      "misses": 1,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 1,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 1,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 1,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/96000-64-1.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 174.291,
+      "cpu_p99_us": 173.33299999986775,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    },
+    {
+      "file": "candidate/cab-timing-diagnostics/integration/original-v1/96000-64-2.csv",
+      "n": 1600,
+      "budget_us": 666.6666666666666,
+      "wall_p99_us": 217.5,
+      "cpu_p99_us": 208.375,
+      "misses": 0,
+      "misses_cpu_over_budget": 0,
+      "misses_wall_only": 0,
+      "after_sleep": {
+        "n": 150,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "other": {
+        "n": 1450,
+        "misses": 0,
+        "cpu_over_budget": 0
+      },
+      "phases": {
+        "forced_six_slot_publication": {
+          "n": 400,
+          "misses": 0,
+          "cpu_over_budget": 0
+        },
+        "worker_and_automation": {
+          "n": 1200,
+          "misses": 0,
+          "cpu_over_budget": 0
+        }
+      }
+    }
+  ],
+  "failure": {
+    "n": 1600,
+    "budget_us": 333.3333333333333,
+    "wall_p99_us": 348.875,
+    "cpu_p99_us": 284.83399999979883,
+    "misses": 17,
+    "misses_cpu_over_budget": 10,
+    "misses_wall_only": 7,
+    "after_sleep": {
+      "n": 150,
+      "misses": 6,
+      "cpu_over_budget": 3
+    },
+    "other": {
+      "n": 1450,
+      "misses": 11,
+      "cpu_over_budget": 8
+    },
+    "phases": {
+      "forced_six_slot_publication": {
+        "n": 400,
+        "misses": 4,
+        "cpu_over_budget": 4
+      },
+      "worker_and_automation": {
+        "n": 1200,
+        "misses": 13,
+        "cpu_over_budget": 7
+      }
+    },
+    "miss_rows": [
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "1",
+        "phase": "worker_and_automation",
+        "phase_index": "1",
+        "automation_requested": "1",
+        "wall_us": "1088",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "119.25",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7530564.4579999996",
+        "thread_cpu_end_us": "7530683.7079999996",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "155",
+        "phase": "worker_and_automation",
+        "phase_index": "155",
+        "automation_requested": "0",
+        "wall_us": "415.291",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "161.45799999963492",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7540670.875",
+        "thread_cpu_end_us": "7540832.3329999996",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "329",
+        "phase": "worker_and_automation",
+        "phase_index": "329",
+        "automation_requested": "0",
+        "wall_us": "695.45799999999997",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "204.54100000020117",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7552137.125",
+        "thread_cpu_end_us": "7552341.6660000002",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "351",
+        "phase": "worker_and_automation",
+        "phase_index": "351",
+        "automation_requested": "0",
+        "wall_us": "348.875",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "146.625",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7554770.6660000002",
+        "thread_cpu_end_us": "7554917.2910000002",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "419",
+        "phase": "worker_and_automation",
+        "phase_index": "419",
+        "automation_requested": "0",
+        "wall_us": "358.33300000000003",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "360.20899999979883",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7561555.7910000002",
+        "thread_cpu_end_us": "7561916",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "478",
+        "phase": "worker_and_automation",
+        "phase_index": "478",
+        "automation_requested": "0",
+        "wall_us": "519.41600000000005",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "525.33299999963492",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7567331.625",
+        "thread_cpu_end_us": "7567856.9579999996",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "479",
+        "phase": "worker_and_automation",
+        "phase_index": "479",
+        "automation_requested": "0",
+        "wall_us": "375.79199999999997",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "377.58399999979883",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7567861.7910000002",
+        "thread_cpu_end_us": "7568239.375",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "697",
+        "phase": "worker_and_automation",
+        "phase_index": "697",
+        "automation_requested": "0",
+        "wall_us": "349.29199999999997",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "143.95800000056624",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7583398.5829999996",
+        "thread_cpu_end_us": "7583542.5410000002",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "705",
+        "phase": "worker_and_automation",
+        "phase_index": "705",
+        "automation_requested": "0",
+        "wall_us": "343.5",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "67.958000000566244",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7583794.0829999996",
+        "thread_cpu_end_us": "7583862.0410000002",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "711",
+        "phase": "worker_and_automation",
+        "phase_index": "711",
+        "automation_requested": "0",
+        "wall_us": "7649.0420000000004",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "57.583000000566244",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7584033.5829999996",
+        "thread_cpu_end_us": "7584091.1660000002",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "729",
+        "phase": "worker_and_automation",
+        "phase_index": "729",
+        "automation_requested": "0",
+        "wall_us": "1346.5830000000001",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "1351.5839999997988",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7584826.4160000002",
+        "thread_cpu_end_us": "7586178",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "744",
+        "phase": "worker_and_automation",
+        "phase_index": "744",
+        "automation_requested": "0",
+        "wall_us": "2481.375",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "1243.2089999997988",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7587096.9160000002",
+        "thread_cpu_end_us": "7588340.125",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "937",
+        "phase": "worker_and_automation",
+        "phase_index": "937",
+        "automation_requested": "0",
+        "wall_us": "590.66600000000005",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "486.625",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7603078.125",
+        "thread_cpu_end_us": "7603564.75",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "1538",
+        "phase": "forced_six_slot_publication",
+        "phase_index": "338",
+        "automation_requested": "0",
+        "wall_us": "536.83299999999997",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "511.08399999979883",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7691840.4160000002",
+        "thread_cpu_end_us": "7692351.5",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "1553",
+        "phase": "forced_six_slot_publication",
+        "phase_index": "353",
+        "automation_requested": "0",
+        "wall_us": "1178.9590000000001",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "1183.4160000002012",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7692793.75",
+        "thread_cpu_end_us": "7693977.1660000002",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "1559",
+        "phase": "forced_six_slot_publication",
+        "phase_index": "359",
+        "automation_requested": "0",
+        "wall_us": "1222.2090000000001",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "1223.875",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7694319.4579999996",
+        "thread_cpu_end_us": "7695543.3329999996",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      },
+      {
+        "schema_version": "1",
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "sample_rate": "96000",
+        "block_size": "32",
+        "channels": "2",
+        "callback_index": "1584",
+        "phase": "forced_six_slot_publication",
+        "phase_index": "384",
+        "automation_requested": "0",
+        "wall_us": "892.16700000000003",
+        "budget_us": "333.33333333333331",
+        "deadline_miss": "1",
+        "thread_cpu_us": "893.58300000056624",
+        "thread_cpu_valid": "1",
+        "thread_cycles": "0",
+        "thread_cycles_valid": "0",
+        "clock_start_error": "0",
+        "clock_end_error": "0",
+        "thread_cpu_start_us": "7696275.3329999996",
+        "thread_cpu_end_us": "7697168.9160000002",
+        "thread_cycles_start": "0",
+        "thread_cycles_end": "0"
+      }
+    ]
+  },
+  "pr96": {
+    "raw_summaries": 3456,
+    "statistics": 72,
+    "performance_demonstrated": false,
+    "decision_flags": {
+      "cab_contracts_pass": true,
+      "deadline_nonincrease": false,
+      "review_eligible": false,
+      "integration_eligible": false,
+      "release_approved": false
+    },
+    "32_sample_control_AB": {
+      "A": {
+        "n": 115200,
+        "budget_us": 333.3333333333333,
+        "wall_p99_us": 149.875,
+        "cpu_p99_us": 150.83299999998417,
+        "misses": 132,
+        "misses_cpu_over_budget": 108,
+        "misses_wall_only": 24,
+        "after_sleep": {
+          "n": 10800,
+          "misses": 38,
+          "cpu_over_budget": 37
+        },
+        "other": {
+          "n": 104400,
+          "misses": 94,
+          "cpu_over_budget": 75
+        },
+        "phases": {
+          "forced_six_slot_publication": {
+            "n": 28800,
+            "misses": 9,
+            "cpu_over_budget": 2
+          },
+          "worker_and_automation": {
+            "n": 86400,
+            "misses": 123,
+            "cpu_over_budget": 110
+          }
+        }
+      },
+      "B": {
+        "n": 115200,
+        "budget_us": 333.3333333333333,
+        "wall_p99_us": 158.125,
+        "cpu_p99_us": 158.125,
+        "misses": 148,
+        "misses_cpu_over_budget": 128,
+        "misses_wall_only": 20,
+        "after_sleep": {
+          "n": 10800,
+          "misses": 38,
+          "cpu_over_budget": 35
+        },
+        "other": {
+          "n": 104400,
+          "misses": 110,
+          "cpu_over_budget": 97
+        },
+        "phases": {
+          "forced_six_slot_publication": {
+            "n": 28800,
+            "misses": 5,
+            "cpu_over_budget": 1
+          },
+          "worker_and_automation": {
+            "n": 86400,
+            "misses": 143,
+            "cpu_over_budget": 131
+          }
+        }
+      }
+    },
+    "analyzer_sha256": "45ce016e4ed9620f4f3ac2a1ea25f6b8d0fafd57f4917a92786b74e6e27580bd"
+  }
+}

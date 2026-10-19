@@ -4,6 +4,7 @@
 #include <limits>
 #include "LifecycleTrace.h"
 #include "CabRealtimeProfile.h"
+#include "CabCallbackTrace.h"
 #include "ModeledCabConvolution.h"
 
 namespace spectralforge {
@@ -27,6 +28,7 @@ public:
             : source(type), generation(revision), modelKey(model)
         {
             SF_CAB_PROFILE_SCOPE(KernelPrepare);
+            SF_CAB_TRACE_WORKER(KernelPrepare,Prepare);
             // These authored responses are already at the processing rate.
             // Mono retains the native real FFT and only its non-negative bins;
             // packed independent stereo streams share one complex transform.
@@ -48,6 +50,7 @@ public:
         }
         void process(juce::AudioBuffer<float>& buffer)
         {
+            SF_CAB_TRACE_SCOPE(Convolution);
             if (!hasIR) return;
             if(modeledConvolution) {modeledConvolution->process(buffer);return;}
             juce::dsp::AudioBlock<float> block(buffer);
@@ -81,15 +84,45 @@ private:
     float lastGainDb{std::numeric_limits<float>::quiet_NaN()};
     bool lastInvert{};
     int fadeRemaining{}, fadeLength{1};
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+    int traceLane{-1},traceMic{-1};
+#endif
     static void destroyKernel(Kernel* kernel)
     {
         if (kernel == nullptr) return;
+        SF_CAB_TRACE_KERNEL(kernel,None);
+        SF_CAB_TRACE_SCOPE(KernelDestroy);
         const lifecycle::Scope trace("cab.kernel.destroy", kernel);
         delete kernel; // JUCE fallback kernels also join their private loader.
     }
 public:
     explicit Cab(bool child=false) { if(!child) micB=std::make_unique<Cab>(true); else requestedSource.store(0); }
     Cab* secondMic() const noexcept { return micB.get(); }
+    // Configure only while audio and the IR worker are stopped. Hook-off
+    // controls keep this API but introduce no new product members/writes.
+    void setTraceContext(int lane,int mic=0) noexcept
+    {
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+        traceLane=lane;traceMic=mic;if(micB)micB->setTraceContext(lane,1);
+#else
+        (void)lane;(void)mic;
+#endif
+    }
+    // Audio-thread observation only (or after both processing and worker stop).
+    // pending is observed for presence, never dereferenced: worker exchange can
+    // otherwise destroy that pointer immediately after the atomic load.
+    cabTrace::SlotSnapshot traceSnapshot() const noexcept
+    {
+        cabTrace::SlotSnapshot result;
+        if(active) {result.activePresent=true;result.activeModel=active->modelKey;
+            result.activeGeneration=active->generation;result.activeSource=active->source;}
+        if(fading) {result.fadingPresent=true;result.fadingModel=fading->modelKey;
+            result.fadingGeneration=fading->generation;result.fadingSource=fading->source;}
+        result.requestedModel=requestedModel.load();result.requestedSource=requestedSource.load();
+        result.pendingPresent=pending.load()!=nullptr;result.rejected=rejectedModels.load();
+        result.fadeRemaining=fadeRemaining;result.fadeLength=fadeLength;
+        return result;
+    }
     float blend{}, gainDb{}, delayMs{};
     bool invert{};
     ~Cab() { clear(); }
@@ -128,8 +161,18 @@ public:
         enabled.reset(sr,.020); enabled.setCurrentAndTargetValue(on ? 1.f : 0.f);
         fadeLength=juce::jmax(1,int(sr*.050));
     }
-    void publish(std::unique_ptr<Kernel> kernel) { SF_CAB_PROFILE_SCOPE(WorkerPublish); destroyKernel(pending.exchange(kernel.release())); }
-    void collect() { SF_CAB_PROFILE_SCOPE(WorkerCollect); destroyKernel(retired.exchange(nullptr)); }
+    void publish(std::unique_ptr<Kernel> kernel) {
+        SF_CAB_PROFILE_SCOPE(WorkerPublish);
+        SF_CAB_TRACE_CONTEXT(traceLane,traceMic,kernel ? kernel->modelKey : 0,kernel ? kernel->generation : 0,Pending);
+        SF_CAB_TRACE_WORKER(WorkerPublish,Publish);
+        destroyKernel(pending.exchange(kernel.release()));
+    }
+    void collect() {
+        SF_CAB_PROFILE_SCOPE(WorkerCollect);
+        SF_CAB_TRACE_CONTEXT(traceLane,traceMic,0,0,Retired);
+        SF_CAB_TRACE_WORKER(WorkerCollect,Collect);
+        destroyKernel(retired.exchange(nullptr));
+    }
     void install(std::unique_ptr<Kernel> kernel) // prepareToPlay only
     {
         destroyKernel(active); active=kernel.release();
@@ -137,16 +180,21 @@ public:
     }
     void reset()
     {
+        SF_CAB_TRACE_CONTEXT(traceLane,traceMic,0,0,None);
+        SF_CAB_TRACE_SCOPE(Reset);
         hp.reset(); lp.reset();
         if(micB) micB->reset();
-        delayBuffer.clear(); delayWrite=0; bWasRunning=false;
-        if(active) active->reset();
-        if(fading) fading->reset();
+        { SF_CAB_TRACE_BYTES(HistoryClear,std::uint64_t(delayBuffer.getNumChannels())*delayBuffer.getNumSamples()*sizeof(float));
+          delayBuffer.clear(); delayWrite=0; bWasRunning=false; }
+        if(active) {SF_CAB_TRACE_KERNEL(active,Active);active->reset();}
+        if(fading) {SF_CAB_TRACE_KERNEL(fading,Fading);fading->reset();}
     }
     void enable(bool value) { on=value; enabled.setTargetValue(on ? 1.f : 0.f); }
     void setCuts(float low, float high)
     {
         SF_CAB_PROFILE_SCOPE(Parameters);
+        SF_CAB_TRACE_CONTEXT(traceLane,traceMic,0,0,None);
+        SF_CAB_TRACE_SCOPE(Parameters);
         low=juce::jlimit(10.f,float(sr*.44),low);
         high=juce::jlimit(100.f,float(sr*.45),high);
         if(cutRate!=sr || lastLowCut!=low)
@@ -159,7 +207,10 @@ public:
     int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)
     {
+        SF_CAB_TRACE_CONTEXT(traceLane,traceMic,0,0,None);
+        SF_CAB_TRACE_SCOPE(CabProcess);
         SF_CAB_PROFILE_BEGIN(KernelSwap,swapProfile);
+        SF_CAB_TRACE_BEGIN(KernelSwap,swapTrace);
         // Model responses are longer than the legacy captures. Serialize A/B
         // crossfades within each rig: six steady paths plus at most three fading
         // paths. Keep every sample of the authored response and the 50 ms fade.
@@ -172,8 +223,12 @@ public:
             {
                 // A superseded model may have reached pending after the worker's
                 // final check. Retire it here without freeing or blocking audio.
-                if(next->modelKey!=requestedModel.load()) { retired.store(next); ++rejectedModels; }
+                if(next->modelKey!=requestedModel.load()) {
+                    SF_CAB_TRACE_KERNEL(next,Rejected);SF_CAB_TRACE_SCOPE(KernelReject);
+                    retired.store(next); ++rejectedModels;
+                }
                 else {
+                    SF_CAB_TRACE_KERNEL(next,Active);SF_CAB_TRACE_SCOPE(KernelAccept);
                     fading=active; active=next;
                     activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);
                     fadeRemaining=fadeLength;
@@ -181,17 +236,19 @@ public:
                 }
             }
         SF_CAB_PROFILE_END(swapProfile);
+        SF_CAB_TRACE_END(swapTrace);
         // The settled enabled path is the overwhelmingly common case. Avoid
         // copying and blending a dry buffer that cannot contribute; bypass
         // automation still takes the unchanged smoothed path below.
         const bool blendDry=enabled.isSmoothing() || enabled.getCurrentValue()!=1.f
             || enabled.getTargetValue()!=1.f;
-        if(blendDry)dry.makeCopyOf(buffer,true);
+        if(blendDry) {SF_CAB_TRACE_BYTES(CopyDry,2u*std::uint64_t(buffer.getNumSamples())*buffer.getNumChannels()*sizeof(float));dry.makeCopyOf(buffer,true);}
         // Service a muted slot's pending swap so its UI can become ready. Once
         // settled, skip its convolution; clear frozen history before waking it.
         const bool renderB=micB && (blend>0.f || micBlend.getCurrentValue()>0.f || micB->pending.load()!=nullptr || micB->fadeRemaining>0);
         if(renderB) {
-            if(!bWasRunning)micB->reset();second.makeCopyOf(buffer,true);
+            if(!bWasRunning) {SF_CAB_TRACE_CONTEXT(traceLane,1,0,0,None);SF_CAB_TRACE_SCOPE(MicWake);micB->reset();}
+            {SF_CAB_TRACE_BYTES(CopySecond,2u*std::uint64_t(buffer.getNumSamples())*buffer.getNumChannels()*sizeof(float));second.makeCopyOf(buffer,true);}
             const auto* before=micB->active;
             micB->process(second,!serialiseModels || fadeRemaining==0);
             if(serialiseModels && before!=micB->active)preferSecondSwap=false;
@@ -199,22 +256,25 @@ public:
         bWasRunning=renderB;
         juce::dsp::AudioBlock<float> block(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block);
-        { SF_CAB_PROFILE_SCOPE(Filters); hp.process(context); }
-        if(fadeRemaining>0) alternate.makeCopyOf(buffer,true);
-        if(active) { SF_CAB_PROFILE_SCOPE(ActiveConvolution); active->process(buffer); }
+        { SF_CAB_PROFILE_SCOPE(Filters); SF_CAB_TRACE_SCOPE(Filters); hp.process(context); }
+        if(fadeRemaining>0) {SF_CAB_TRACE_BYTES(CopyFade,2u*std::uint64_t(buffer.getNumSamples())*buffer.getNumChannels()*sizeof(float));alternate.makeCopyOf(buffer,true);}
+        if(active) { SF_CAB_PROFILE_SCOPE(ActiveConvolution); SF_CAB_TRACE_KERNEL(active,Active); SF_CAB_TRACE_SCOPE(ActiveConvolution); active->process(buffer); }
         if(fadeRemaining>0)
         {
-            if(fading) { SF_CAB_PROFILE_SCOPE(FadingConvolution); fading->process(alternate); }
+            if(fading) { SF_CAB_PROFILE_SCOPE(FadingConvolution); SF_CAB_TRACE_KERNEL(fading,Fading); SF_CAB_TRACE_SCOPE(FadingConvolution); fading->process(alternate); }
+            { SF_CAB_TRACE_KERNEL(active,Active);SF_CAB_TRACE_BYTES(FadeMix,3u*std::uint64_t(juce::jmin(buffer.getNumSamples(),fadeRemaining))*buffer.getNumChannels()*sizeof(float));
             for(int n=0;n<buffer.getNumSamples() && fadeRemaining>0;++n,--fadeRemaining)
             {
                 const float wet=1.f-float(fadeRemaining)/float(fadeLength);
                 for(int c=0;c<buffer.getNumChannels();++c)
                     buffer.setSample(c,n,wet*buffer.getSample(c,n)+(1.f-wet)*alternate.getSample(c,n));
             }
-            if(fadeRemaining==0) { retired.store(fading); fading=nullptr; }
+            }
+            if(fadeRemaining==0) { SF_CAB_TRACE_KERNEL(fading,Retired); SF_CAB_TRACE_SCOPE(KernelRetire); retired.store(fading); fading=nullptr; }
         }
-        { SF_CAB_PROFILE_SCOPE(Filters); lp.process(context); }
+        { SF_CAB_PROFILE_SCOPE(Filters); SF_CAB_TRACE_SCOPE(Filters); lp.process(context); }
         SF_CAB_PROFILE_SCOPE(MicPost);
+        SF_CAB_TRACE_SCOPE(MicPost);
         if(lastGainDb!=gainDb || lastInvert!=invert) {
             micGain.setTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));
             lastGainDb=gainDb;lastInvert=invert;
@@ -230,6 +290,7 @@ public:
             // an integer modulo and channel switch for every sample. More than
             // one wrap is possible with large host blocks at low sample rates.
             const int samples=buffer.getNumSamples(), size=delayBuffer.getNumSamples();
+            { SF_CAB_TRACE_BYTES(DelayHistory,2u*std::uint64_t(samples)*buffer.getNumChannels()*sizeof(float));
             for(int offset=0;offset<samples;) {
                 const int count=juce::jmin(samples-offset,size-delayWrite);
                 for(int c=0;c<buffer.getNumChannels();++c) {
@@ -239,11 +300,13 @@ public:
                 offset+=count;delayWrite+=count;
                 if(delayWrite==size)delayWrite=0;
             }
+            }
             // History holds the pre-gain mic, exactly as in the fractional
             // delay path. A settled non-unity gain needs only one vector pass.
             const float gain=micGain.getCurrentValue();
-            if(gain!=1.f)buffer.applyGain(gain);
+            if(gain!=1.f) {SF_CAB_TRACE_BYTES(MicGain,2u*std::uint64_t(samples)*buffer.getNumChannels()*sizeof(float));buffer.applyGain(gain);}
             if(micBlend.isSmoothing()) {
+                SF_CAB_TRACE_BYTES(MicBlend,renderB ? 3u*std::uint64_t(samples)*buffer.getNumChannels()*sizeof(float) : 0);
                 // Preserve the existing per-sample ramp, including the exact
                 // smoother progression when the second mic is not rendering.
                 for(int n=0;n<samples;++n) {
@@ -252,6 +315,7 @@ public:
                         buffer.setSample(c,n,(1.f-mix)*buffer.getSample(c,n)+mix*second.getSample(c,n));
                 }
             } else if(renderB) {
+                SF_CAB_TRACE_BYTES(MicBlend,5u*std::uint64_t(samples)*buffer.getNumChannels()*sizeof(float));
                 const float mix=micBlend.getCurrentValue();
                 for(int c=0;c<buffer.getNumChannels();++c) {
                     auto* output=buffer.getWritePointer(c);
@@ -260,6 +324,7 @@ public:
                 }
             }
         } else {
+            SF_CAB_TRACE_BYTES(FractionalDelayMix,(renderB ? 6u : 5u)*std::uint64_t(buffer.getNumSamples())*buffer.getNumChannels()*sizeof(float));
             for(int n=0;n<buffer.getNumSamples();++n) {
                 const float gain=micGain.getNextValue(), mix=micBlend.getNextValue(), delay=micDelay.getNextValue();
                 const int size=delayBuffer.getNumSamples();
@@ -275,11 +340,14 @@ public:
                 if(++delayWrite==size)delayWrite=0;
             }
         }
-        if(blendDry)for(int n=0;n<buffer.getNumSamples();++n)
+        if(blendDry) {
+        SF_CAB_TRACE_BYTES(DryMix,3u*std::uint64_t(buffer.getNumSamples())*buffer.getNumChannels()*sizeof(float));
+        for(int n=0;n<buffer.getNumSamples();++n)
         {
             const float wet=enabled.getNextValue();
             for(int c=0;c<buffer.getNumChannels();++c)
                 buffer.setSample(c,n,wet*buffer.getSample(c,n)+(1.f-wet)*dry.getSample(c,n));
+        }
         }
     }
 };
