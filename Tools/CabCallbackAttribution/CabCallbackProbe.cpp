@@ -76,6 +76,7 @@ struct Options
 {
     std::string mode = "cab", traceLevel = "stages", engine = "all", cadence = "legacy";
     int channels = 0;
+    bool canonicalReset = false;
     std::filesystem::path directory = "cab-callback-attribution";
 };
 
@@ -92,6 +93,10 @@ Options parse(int argc, char** argv)
         else if (argument == "--trace-level") options.traceLevel = value;
         else if (argument == "--engine") options.engine = value;
         else if (argument == "--cadence") options.cadence = value;
+        else if (argument == "--canonical-reset") {
+            require(value == "yes" || value == "no", "--canonical-reset must be yes or no");
+            options.canonicalReset = value == "yes";
+        }
         else if (argument == "--channels")
         {
             require(value == "1" || value == "2" || value == "all", "--channels must be 1, 2 or all");
@@ -541,6 +546,11 @@ void cab(Route& route)
         for (auto& c : cabs) { audio.clear(); processUnmeasured(route, c, audio); }
     for (auto& c : cabs) require(c.transitioningMicCount() == 0, "pre-publication fades drained");
     library.stop();
+    // Optional diagnostic replay boundary. Reset private histories/filters only
+    // after all workers and fades stop; original acceptance/default is intact.
+    // This prevents different convergence lengths from changing the outgoing
+    // signal's floating-point history in the fixed six-publication comparison.
+    if (route.options.canonicalReset) for (auto& c : cabs) c.reset();
     a.position = .85; const auto nextKey = route.key(a); const auto wave = cabLayout::generate(nextKey, sampleRate);
     juce::AudioBuffer<float> referenceSamples(1, int(wave.size()));
     referenceSamples.copyFrom(0, 0, wave.data(), int(wave.size()));
@@ -848,7 +858,8 @@ void write(Route& route)
         << ",\n  \"allocation_guard\": \"thread_local_cpp_new_delete_not_universal_malloc_or_lock_tracing\","
         << "\n  \"callbacks_worker_phase\": 1200,\n  \"callbacks_forced_phase\": 400,\n  \"automation_callbacks\": " << (isCab ? 80 : 0)
         << ",\n  \"parameter_refresh_per_callback\": false"
-        << ",\n  \"cadence\": \"" << route.options.cadence << "\",\n  \"wake_extension_schema\": 1"
+        << ",\n  \"cadence\": \"" << route.options.cadence << "\",\n  \"canonical_reset_before_forced_phase\": " << route.options.canonicalReset
+        << ",\n  \"wake_extension_schema\": 1"
         << ",\n  \"paced_sleep_every\": " << (route.options.cadence == "legacy" ? 8 : 0)
         << ",\n  \"paced_sleep_ms\": " << (route.options.cadence == "legacy" ? 1 : 0)
         << ",\n  \"unmeasured_process_calls\": " << route.unmeasuredProcessCalls
