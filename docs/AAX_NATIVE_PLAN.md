@@ -181,11 +181,7 @@ have a separate AAX version counter. Freeze and sign the matching final source,
 then publish its AAX package with that new product release. Do not append a
 changed-source binary to an already published older version.
 
-The first Chimera public-AAX review is **November 27, 2026**, targeting
-**1.3.2-beta.6** only if the November 20 host/signing checks and applicable
-release gates pass. Otherwise use the first later qualified Chimera version.
-This is a conditional slot, not a forecast of Avid/PACE approval or acquired
-credentials. The November 20 check is not itself a public distribution claim.
+The October 18 owner decision in **issue #97 supersedes the former November 27 / 1.3.2-beta.6 first-publication review**: AAX Native is a mandatory part of the next Chimera update, planned as **1.3.2-beta.2**. October 23 is its development and conditional publication-review target. It does not certify Avid/PACE access, signed packages or normal Pro Tools acceptance. If those prerequisites or any other P0 remain incomplete, the next update remains blocked and its unused reservation must be explicitly reviewed. Do not silently ship other formats without the required AAX, reuse the public beta.1 tag or inherit beta.1 expiry/publication approval. Historical engineering estimates remain estimates, not a later exemption from the next-update requirement.
 
 Focused-product AAX review reservations are **March 26, 2027** for Náströnd
 and **April 9, 2027** for Niflheimr, after their native stable-review targets.

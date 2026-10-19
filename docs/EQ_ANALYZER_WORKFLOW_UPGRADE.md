@@ -35,8 +35,8 @@ visual or editing acceptance below.
 
 ## October follow-up: required quality scope
 
-Targets: **1.3.1-beta.3 on October 16 (lifecycle candidate), 1.3.2-beta.1 on October 23 (integrated EQ/tuner/dynamics candidate), and 1.3.2-beta.2 on October 30**. The release calendar assigns the minimum and remaining scope to each weekly build.
-First installer October 23; validation candidate October 30; scope review
+Targets revised October 19: lifecycle/precision tuner/EQ editing foundation shipped in **1.3.2-beta.1 on October 18** (#95). Unpublished 1.3.1-beta.3 is cancelled. **1.3.2-beta.2 on October 23** is an issue #97 development/conditional review target for all four P0s, not a repeated beta.1 release. **1.3.2-beta.3 on October 30** retains remaining EQ workflow review after P0 completion. No new expiry or publication approval is granted.
+First integrated installer published October 18; next P0 development review October 23; remaining workflow review October 30; scope review
 November 1. The released beta.1 remains the historical base.
 
 October 16 is the scope/capacity commitment checkpoint. Commit the October 23

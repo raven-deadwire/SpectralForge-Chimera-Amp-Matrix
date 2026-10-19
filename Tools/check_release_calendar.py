@@ -123,6 +123,26 @@ def validate_plan(plan, *, consumed_tags=(), target_version=None, markdown=None,
     require(any(r['tag'] == baseline['release'] and r['product_source'] == baseline['product_source'] for r in history),
             'Baseline is not recorded public source')
     consumed = recorded | set(consumed_tags)
+    # Completed reservations are receipts, never active publisher inputs. An
+    # early publication retires its old dates instead of reserving that tag again.
+    completed_tags = set()
+    for row in plan.get('completed_reservations', []):
+        tag = row['tag']
+        require(row.get('status') == 'published' and tag not in completed_tags,
+                f'Invalid completed reservation: {tag}')
+        require(all(row.get(field) is None for field in SCHEDULE_FIELDS),
+                f'Completed reservation must have no active dates: {tag}')
+        require(any(h['tag'] == tag and h['version'] == row['version']
+                    and h['product'] == row['product']
+                    and h['product_source'] == row['product_source']
+                    and h['published_at'] == row['published_at'] for h in history),
+                f'Completed reservation lacks matching public receipt: {tag}')
+        original = row['original_target']
+        original_day = date.fromisoformat(original['publication_target'])
+        for field, offset in (('test_build_date', 2), ('candidate_date', 1)):
+            require(date.fromisoformat(original[field]) == original_day - timedelta(days=offset),
+                    f'Invalid completed original target: {tag}')
+        completed_tags.add(tag)
     latest = {}
     for tag in consumed:
         item = identify_tag(tag)
@@ -137,6 +157,7 @@ def validate_plan(plan, *, consumed_tags=(), target_version=None, markdown=None,
         key = version_key(version)
         require(tag == PREFIXES[product] + version, f'Tag/version mismatch: {tag}')
         require((product, version) not in identities and tag not in tags, f'Duplicate reservation: {tag}')
+        require(tag not in completed_tags, f'Completed tag cannot be reserved again: {tag}')
         identities.add((product, version)); tags.add(tag)
         require(row.get('conditional') is True, f'Unconditional release target: {tag}')
         status = row.get('status')
@@ -216,6 +237,18 @@ def validate_plan(plan, *, consumed_tags=(), target_version=None, markdown=None,
     if roadmap is not None:
         require(roadmap.count(ROADMAP_START) == 1 and roadmap.count(ROADMAP_END) == 1
                 and roadmap_status_table(plan) in roadmap, 'Central roadmap reservation mirror differs')
+    if 'next_release' in plan:
+        next_release = plan['next_release']
+        upcoming = sorted((r for r in pending if r['product'] == 'Chimera'),
+                          key=lambda r: r['publication_target'])
+        require(upcoming and next_release['version'] == upcoming[0]['version']
+                and next_release['publication_target'] == upcoming[0]['publication_target']
+                and next_release['development_target'] == upcoming[0]['checkpoint_date'],
+                'Next release differs from first active reservation')
+        require(next_release.get('publication_approved') is False
+                and next_release.get('expiry_approved') is False
+                and next_release.get('expiry_utc') is None,
+                'Planning cannot grant next release approval or inherit expiry')
     if target_version is not None:
         chimera_version.parse_release_version(target_version)
         require(sum(r['product'] == 'Chimera' and r['version'] == target_version for r in pending) == 1,

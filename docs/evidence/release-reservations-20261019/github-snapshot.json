@@ -1,0 +1,1841 @@
+{
+  "checked_at_kst": "2026-10-19",
+  "tags": [
+    {
+      "ref": "refs/tags/v1.0.0-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMC4wLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.0.0-beta.1",
+      "object": {
+        "sha": "95b4091af2c914188ea32672f05e00544a1d2098",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/95b4091af2c914188ea32672f05e00544a1d2098"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.1.0-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMS4wLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.1.0-beta.1",
+      "object": {
+        "sha": "f5b8ce7d39f69621ffe193fd4be6fbd760a6e6cf",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/f5b8ce7d39f69621ffe193fd4be6fbd760a6e6cf"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.1.1-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMS4xLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.1.1-beta.1",
+      "object": {
+        "sha": "91850fdca0c329983e051b113719699dba9831fd",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/91850fdca0c329983e051b113719699dba9831fd"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.1.2-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMS4yLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.1.2-beta.1",
+      "object": {
+        "sha": "88b62738fdbd9bcdca34f7b6e1092d6ed411eb94",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/88b62738fdbd9bcdca34f7b6e1092d6ed411eb94"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.2.0-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMi4wLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.2.0-beta.1",
+      "object": {
+        "sha": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/d93560445c78552768a0ed592e5ec62c3c648fb6"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.3.0-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMy4wLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.3.0-beta.1",
+      "object": {
+        "sha": "7f692693f942a0f1dd1973062dc4d5d47b9be4ac",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/7f692693f942a0f1dd1973062dc4d5d47b9be4ac"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.3.1-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMy4xLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.3.1-beta.1",
+      "object": {
+        "sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/7b20cd9d1f90e3e2969c250712b199e893cf50cd"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.3.1-beta.2",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMy4xLWJldGEuMg",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.3.1-beta.2",
+      "object": {
+        "sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/6033236cb81820a43679cbbd34be020804f9658d"
+      }
+    },
+    {
+      "ref": "refs/tags/v1.3.2-beta.1",
+      "node_id": "REF_kwDOUmpZsbdyZWZzL3RhZ3MvdjEuMy4yLWJldGEuMQ",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs/tags/v1.3.2-beta.1",
+      "object": {
+        "sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+        "type": "commit",
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58"
+      }
+    }
+  ],
+  "releases": [
+    {
+      "id": 415938432,
+      "tag_name": "v1.3.2-beta.1",
+      "target_commitish": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+      "published_at": "2026-10-17T16:51:47Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1",
+      "assets": [
+        {
+          "id": 651016833,
+          "name": "BETA_LIFECYCLE.txt",
+          "size": 1291,
+          "digest": "sha256:b393650bc8e80688b88028a96ea555c1fc3540a59ce47bc5122582a7d273ca2a",
+          "updated_at": "2026-10-17T16:51:37Z"
+        },
+        {
+          "id": 651016557,
+          "name": "candidate-source.json",
+          "size": 240,
+          "digest": "sha256:4313fe5f5f34f22d2d4ea29f19f33a10995a01632a979e5c944d879b45fb7901",
+          "updated_at": "2026-10-17T16:51:31Z"
+        },
+        {
+          "id": 651016811,
+          "name": "chimera-beta-lifecycle.json",
+          "size": 594,
+          "digest": "sha256:f9426b74c5af23b716849df4fd51455ea74d00cc4b2e43e92401d4e4ffed0935",
+          "updated_at": "2026-10-17T16:51:36Z"
+        },
+        {
+          "id": 651016864,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-10-17T16:51:38Z"
+        },
+        {
+          "id": 651016661,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 1714,
+          "digest": "sha256:1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23",
+          "updated_at": "2026-10-17T16:51:34Z"
+        },
+        {
+          "id": 651014651,
+          "name": "INSTALLATION.md",
+          "size": 9850,
+          "digest": "sha256:e6bf70276e18fe2a97a8e038f432676d666f692184aa36b2f47cc3851700d2dc",
+          "updated_at": "2026-10-17T16:50:46Z"
+        },
+        {
+          "id": 651014723,
+          "name": "InstallerVerification.txt",
+          "size": 2293,
+          "digest": "sha256:b0dcf38ef0d1a1454066ff296b7013744613c64bd144ef96cc590749acb3d36d",
+          "updated_at": "2026-10-17T16:50:47Z"
+        },
+        {
+          "id": 651016685,
+          "name": "IR_DISTRIBUTION.md",
+          "size": 2508,
+          "digest": "sha256:f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e",
+          "updated_at": "2026-10-17T16:51:34Z"
+        },
+        {
+          "id": 651014754,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:33b56a23fe09b6a0c6262d8d5afeb50322633c8dbb820bde369cceda1a581695",
+          "updated_at": "2026-10-17T16:50:47Z"
+        },
+        {
+          "id": 651016574,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-10-17T16:51:32Z"
+        },
+        {
+          "id": 651014782,
+          "name": "MANUAL.html",
+          "size": 274014,
+          "digest": "sha256:5b0d60bd85bd8e828f0a32d74c483be8fc9769b1457e767380c23a7e4a0ecd76",
+          "updated_at": "2026-10-17T16:50:48Z"
+        },
+        {
+          "id": 651016608,
+          "name": "OPEN_BETA_RELEASE_NOTES.md",
+          "size": 19327,
+          "digest": "sha256:74c4e2dbb90167e09fe64af5b9987eefd90ef00a41697d04bb6c580eaaf5540d",
+          "updated_at": "2026-10-17T16:51:33Z"
+        },
+        {
+          "id": 651016636,
+          "name": "PRESETS.md",
+          "size": 13583,
+          "digest": "sha256:d0f6ad555092d3d4a37a0c92ab90df9d435b2aa990bca80191564eeed9f89201",
+          "updated_at": "2026-10-17T16:51:33Z"
+        },
+        {
+          "id": 651016895,
+          "name": "publication-decision.json",
+          "size": 61304,
+          "digest": "sha256:621ad9f51d34326130b2cd527cbf3ae26dc720b07ac006014cca07e1c3141d52",
+          "updated_at": "2026-10-17T16:51:39Z"
+        },
+        {
+          "id": 651016764,
+          "name": "PUBLIC_PRODUCT_NAMING.md",
+          "size": 2963,
+          "digest": "sha256:3bcf936e16b91b505b4b0336624d00217320dfa1a96a8547ca163f7a9f4e5be3",
+          "updated_at": "2026-10-17T16:51:36Z"
+        },
+        {
+          "id": 651016920,
+          "name": "release-acceptance-evidence.zip",
+          "size": 2006667,
+          "digest": "sha256:95b39f0de0a1bdb605fb3094d30d746a855b7291d00ec9f6feed999d5f2ae845",
+          "updated_at": "2026-10-17T16:51:39Z"
+        },
+        {
+          "id": 651016878,
+          "name": "release-gate.json",
+          "size": 83996,
+          "digest": "sha256:3e98afb3e42375bc13a4c24722c66f6f1363c5a5e47d13a50dde9925f1df4466",
+          "updated_at": "2026-10-17T16:51:38Z"
+        },
+        {
+          "id": 651014804,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:41af19c23269e60000469614e752f1c4310be3a39ebfe433c0f0e69e9fd2197d",
+          "updated_at": "2026-10-17T16:50:48Z"
+        },
+        {
+          "id": 651014824,
+          "name": "SpectralForge-Chimera-1.3.2-beta.1-linux-x86_64.deb",
+          "size": 213495586,
+          "digest": "sha256:efb03da9b22d615f35a67c0976627655c633496bdb9a7616e26ea029ceab9840",
+          "updated_at": "2026-10-17T16:50:54Z"
+        },
+        {
+          "id": 651015049,
+          "name": "SpectralForge-Chimera-1.3.2-beta.1-linux-x86_64.tar.gz",
+          "size": 234235310,
+          "digest": "sha256:850a46b2f41f6b287a1912c8c4337abed2501431495dc8502f31380ab1fa9eaf",
+          "updated_at": "2026-10-17T16:51:00Z"
+        },
+        {
+          "id": 651015296,
+          "name": "SpectralForge-Chimera-1.3.2-beta.1-macos-universal.pkg",
+          "size": 703016900,
+          "digest": "sha256:dab9d7ea941dc6a616d93555862e6062edaaf6691fd2cd276d428472c44c1104",
+          "updated_at": "2026-10-17T16:51:19Z"
+        },
+        {
+          "id": 651016090,
+          "name": "SpectralForge-Chimera-1.3.2-beta.1-win64-Setup.exe",
+          "size": 210840300,
+          "digest": "sha256:9ab3299cda3f09a4c255e35234845e85e632dfd1f38150030e760e151a76dba2",
+          "updated_at": "2026-10-17T16:51:25Z"
+        },
+        {
+          "id": 651016273,
+          "name": "SpectralForge-Chimera-1.3.2-beta.1-win64.zip",
+          "size": 231660067,
+          "digest": "sha256:d7fc7d54d5153f70b4b25782341f8d66912365543515357c875bd11b7ca52531",
+          "updated_at": "2026-10-17T16:51:30Z"
+        },
+        {
+          "id": 651016750,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-10-17T16:51:35Z"
+        },
+        {
+          "id": 651016542,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3434,
+          "digest": "sha256:b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c",
+          "updated_at": "2026-10-17T16:51:31Z"
+        },
+        {
+          "id": 651016849,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-10-17T16:51:37Z"
+        },
+        {
+          "id": 651016592,
+          "name": "update-beta.json",
+          "size": 1492,
+          "digest": "sha256:c3f00d57f434dd1bc47bd33e51e82194b9fe70e75a08807b0125418eb2e36030",
+          "updated_at": "2026-10-17T16:51:32Z"
+        },
+        {
+          "id": 651016703,
+          "name": "UPDATES.md",
+          "size": 9569,
+          "digest": "sha256:9c035fa4e5edae4584fefe5b11534434aad6fe2ef8387018d245052c892d7927",
+          "updated_at": "2026-10-17T16:51:35Z"
+        },
+        {
+          "id": 651016958,
+          "name": "VALIDATION_SCOPE.md",
+          "size": 16543,
+          "digest": "sha256:82cf8378a5a3ac84eb7d3de4721e3f7dd2114a29faef3d30de94378b6811c6ce",
+          "updated_at": "2026-10-17T16:51:40Z"
+        },
+        {
+          "id": 651016729,
+          "name": "WINDOWS_INSTALL.txt",
+          "size": 5290,
+          "digest": "sha256:3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133",
+          "updated_at": "2026-10-17T16:51:35Z"
+        }
+      ]
+    },
+    {
+      "id": 411404788,
+      "tag_name": "v1.3.1-beta.2",
+      "target_commitish": "6033236cb81820a43679cbbd34be020804f9658d",
+      "published_at": "2026-10-13T07:30:29Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.2",
+      "assets": [
+        {
+          "id": 636258725,
+          "name": "candidate-source.json",
+          "size": 240,
+          "digest": "sha256:3c2372ceefd9b308c40b9261b6d1f8509bf146112f597d5b486429cf1397132a",
+          "updated_at": "2026-10-13T07:30:05Z"
+        },
+        {
+          "id": 636259072,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-10-13T07:30:14Z"
+        },
+        {
+          "id": 636258860,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 1714,
+          "digest": "sha256:1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23",
+          "updated_at": "2026-10-13T07:30:09Z"
+        },
+        {
+          "id": 636255691,
+          "name": "INSTALLATION.md",
+          "size": 9850,
+          "digest": "sha256:e6bf70276e18fe2a97a8e038f432676d666f692184aa36b2f47cc3851700d2dc",
+          "updated_at": "2026-10-13T07:28:49Z"
+        },
+        {
+          "id": 636255703,
+          "name": "InstallerVerification.txt",
+          "size": 2293,
+          "digest": "sha256:e84a863dff46f45c6b688b79006f195841884b796b418ee01b6ece8627e6b1bf",
+          "updated_at": "2026-10-13T07:28:50Z"
+        },
+        {
+          "id": 636258893,
+          "name": "IR_DISTRIBUTION.md",
+          "size": 2508,
+          "digest": "sha256:f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e",
+          "updated_at": "2026-10-13T07:30:09Z"
+        },
+        {
+          "id": 636255722,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:14a7489f0013597b097a0c465989276a68576d04f10d6d18a3e9587c5bb2ba0e",
+          "updated_at": "2026-10-13T07:28:51Z"
+        },
+        {
+          "id": 636258767,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-10-13T07:30:05Z"
+        },
+        {
+          "id": 636255744,
+          "name": "MANUAL.html",
+          "size": 265808,
+          "digest": "sha256:b831d2059c601ea7cc457d3dc79071b98185857327d20474d2c387cf05e9616e",
+          "updated_at": "2026-10-13T07:28:51Z"
+        },
+        {
+          "id": 636258817,
+          "name": "OPEN_BETA_RELEASE_NOTES.md",
+          "size": 14670,
+          "digest": "sha256:60239a8b70e00a6a3191966e356b3689336527453d9e95e8dc15762a35bb6071",
+          "updated_at": "2026-10-13T07:30:07Z"
+        },
+        {
+          "id": 636258832,
+          "name": "PRESETS.md",
+          "size": 13583,
+          "digest": "sha256:d0f6ad555092d3d4a37a0c92ab90df9d435b2aa990bca80191564eeed9f89201",
+          "updated_at": "2026-10-13T07:30:08Z"
+        },
+        {
+          "id": 636259123,
+          "name": "publication-decision.json",
+          "size": 60714,
+          "digest": "sha256:2c89c1a79110e03da591b0f3c45d321373434e3098584bc38653ff2254e96f96",
+          "updated_at": "2026-10-13T07:30:15Z"
+        },
+        {
+          "id": 636259024,
+          "name": "PUBLIC_PRODUCT_NAMING.md",
+          "size": 2963,
+          "digest": "sha256:3bcf936e16b91b505b4b0336624d00217320dfa1a96a8547ca163f7a9f4e5be3",
+          "updated_at": "2026-10-13T07:30:13Z"
+        },
+        {
+          "id": 636259165,
+          "name": "release-acceptance-evidence.zip",
+          "size": 262810,
+          "digest": "sha256:c3a812f2d28a2b409a5cdbe6594140c0e70ae41ee3310c4a05d7fc1ca348ed01",
+          "updated_at": "2026-10-13T07:30:16Z"
+        },
+        {
+          "id": 636259106,
+          "name": "release-gate.json",
+          "size": 83996,
+          "digest": "sha256:470d72b21bf5cae84df5144f3aae81a191082ea6e3fc3eb375689531b026d7a5",
+          "updated_at": "2026-10-13T07:30:15Z"
+        },
+        {
+          "id": 636255765,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:4f4031f8a32f1d35ea318df696bc758999aff3a8363c3b174f7b20ec71297768",
+          "updated_at": "2026-10-13T07:28:52Z"
+        },
+        {
+          "id": 636255790,
+          "name": "SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.deb",
+          "size": 213314296,
+          "digest": "sha256:5f7b98efbae81715b40bc572ae6bbaf02ad40ea1f91163110a9ed6469823a7ab",
+          "updated_at": "2026-10-13T07:29:02Z"
+        },
+        {
+          "id": 636256252,
+          "name": "SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.tar.gz",
+          "size": 234021556,
+          "digest": "sha256:0b4688804b86f44a6dddeab70cc93a9e48f0a3152b03c0d9b56c3cde4dace28a",
+          "updated_at": "2026-10-13T07:29:12Z"
+        },
+        {
+          "id": 636256703,
+          "name": "SpectralForge-Chimera-1.3.1-beta.2-macos-universal.pkg",
+          "size": 702462352,
+          "digest": "sha256:3687dfc36d758a64823a127791e2a644e250c2037b394d371dcb55e35cf8eaeb",
+          "updated_at": "2026-10-13T07:29:42Z"
+        },
+        {
+          "id": 636257843,
+          "name": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+          "size": 210744980,
+          "digest": "sha256:610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7",
+          "updated_at": "2026-10-13T07:29:51Z"
+        },
+        {
+          "id": 636258245,
+          "name": "SpectralForge-Chimera-1.3.1-beta.2-win64.zip",
+          "size": 231521402,
+          "digest": "sha256:642e4f05a2f5e47fc5863729bb90da45442dd125a801b5ccb03e52e7a32b50d0",
+          "updated_at": "2026-10-13T07:30:02Z"
+        },
+        {
+          "id": 636258984,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-10-13T07:30:12Z"
+        },
+        {
+          "id": 636258677,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3434,
+          "digest": "sha256:b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c",
+          "updated_at": "2026-10-13T07:30:04Z"
+        },
+        {
+          "id": 636259054,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-10-13T07:30:13Z"
+        },
+        {
+          "id": 636258782,
+          "name": "update-beta.json",
+          "size": 1492,
+          "digest": "sha256:fc099064bffb9a5c5c95c8a3e222a180a3add31ba154cb0ac0ddc84afc74ac95",
+          "updated_at": "2026-10-13T07:30:06Z"
+        },
+        {
+          "id": 636258919,
+          "name": "UPDATES.md",
+          "size": 8063,
+          "digest": "sha256:7e1b7ecbbe2e7efdb8c370aac49498aee8a0a1735edcdf9780c52cd1eee8686d",
+          "updated_at": "2026-10-13T07:30:10Z"
+        },
+        {
+          "id": 636259210,
+          "name": "VALIDATION_SCOPE.md",
+          "size": 16543,
+          "digest": "sha256:a3e37c0899506efdb5cb9d1499463cd1397420edc1ccf6c4dfd5e5d4d43b4938",
+          "updated_at": "2026-10-13T07:30:17Z"
+        },
+        {
+          "id": 636258954,
+          "name": "WINDOWS_INSTALL.txt",
+          "size": 5290,
+          "digest": "sha256:3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133",
+          "updated_at": "2026-10-13T07:30:11Z"
+        }
+      ]
+    },
+    {
+      "id": 409968641,
+      "tag_name": "v1.3.1-beta.1",
+      "target_commitish": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+      "published_at": "2026-10-11T22:48:14Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1",
+      "assets": [
+        {
+          "id": 632010909,
+          "name": "AMP_HEAD_KNOB_REFERENCE_REVIEW_1_3_1.md",
+          "size": 14524,
+          "digest": "sha256:d43f985ef3b81fdd0fb1fda2eb19e87f6f2230a544dedd316063b7ab32fc525b",
+          "updated_at": "2026-10-11T22:48:01Z"
+        },
+        {
+          "id": 632010939,
+          "name": "AMP_HEAD_UI_REVIEW_1_3_1.md",
+          "size": 15856,
+          "digest": "sha256:8f8a6474c8338c182571bc0a755a5b6c144deb0b5f29ca5856645971fce9b589",
+          "updated_at": "2026-10-11T22:48:01Z"
+        },
+        {
+          "id": 632011003,
+          "name": "AMP_NATIVE_DSP.md",
+          "size": 10588,
+          "digest": "sha256:0387af8daf39ee3373396fec2a05f4f14930cf8d236cd3a90d26baf13bb57eb7",
+          "updated_at": "2026-10-11T22:48:04Z"
+        },
+        {
+          "id": 632011217,
+          "name": "beta-publication-decision.json",
+          "size": 60096,
+          "digest": "sha256:713aa6fd40aec7078df5736fdbd021c9ada067a77203afcb5e0a153af0e3ba6a",
+          "updated_at": "2026-10-11T22:48:11Z"
+        },
+        {
+          "id": 632011250,
+          "name": "BETA_VALIDATION_SCOPE.md",
+          "size": 16458,
+          "digest": "sha256:6bf7d2474fe0b7e5dec8a65049ffd907eef229b8883dd3300c5c58492c3c6040",
+          "updated_at": "2026-10-11T22:48:12Z"
+        },
+        {
+          "id": 632011143,
+          "name": "CAB_EXPANSION_V2.md",
+          "size": 8733,
+          "digest": "sha256:015f8282d4b486ac5b454aba0e0485d378e22c039b52c8df2f565ec874a2d4ed",
+          "updated_at": "2026-10-11T22:48:08Z"
+        },
+        {
+          "id": 632011134,
+          "name": "CAB_INTEGRATION.md",
+          "size": 8168,
+          "digest": "sha256:d532ba479b227c0346bdaa312efc1c20b30f1a33170be73ffa5cff2ddcef10dd",
+          "updated_at": "2026-10-11T22:48:08Z"
+        },
+        {
+          "id": 632011155,
+          "name": "CAB_LAYOUT_V3.md",
+          "size": 14123,
+          "digest": "sha256:ce266481e60569a77a6417617cb2937ab3392c63cf5a192f63c692525595a928",
+          "updated_at": "2026-10-11T22:48:09Z"
+        },
+        {
+          "id": 632010876,
+          "name": "candidate-source.json",
+          "size": 219,
+          "digest": "sha256:f4b613c53665eb259c06b1d20d2f0ff61af6b710e5168a0a7a4dc97e4f58aa40",
+          "updated_at": "2026-10-11T22:48:00Z"
+        },
+        {
+          "id": 632011178,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-10-11T22:48:10Z"
+        },
+        {
+          "id": 632011052,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 1714,
+          "digest": "sha256:1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23",
+          "updated_at": "2026-10-11T22:48:06Z"
+        },
+        {
+          "id": 632010950,
+          "name": "GRAPHICAL_EQ_1_3_1.md",
+          "size": 4669,
+          "digest": "sha256:f4a852f796182bd1d8ba02c916b07605f75e373c2309d7b268ef5117b1d8a314",
+          "updated_at": "2026-10-11T22:48:02Z"
+        },
+        {
+          "id": 632008971,
+          "name": "INSTALLATION.md",
+          "size": 7736,
+          "digest": "sha256:e73d1d098a9f725dc9fff3d279fb985194a12700eb248526ccf36e9d00f9ab94",
+          "updated_at": "2026-10-11T22:47:02Z"
+        },
+        {
+          "id": 632008986,
+          "name": "InstallerVerification.txt",
+          "size": 2138,
+          "digest": "sha256:e93f6bd6293eb52212c2ef48a7077548e00889fe83290c7f1ae2c12850f52170",
+          "updated_at": "2026-10-11T22:47:03Z"
+        },
+        {
+          "id": 632011078,
+          "name": "IR_DISTRIBUTION.md",
+          "size": 2508,
+          "digest": "sha256:f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e",
+          "updated_at": "2026-10-11T22:48:06Z"
+        },
+        {
+          "id": 632009003,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:63962ae387dadf262ec96e58f548dc748e3b9e9eb2e1b407e1842c001385b7a4",
+          "updated_at": "2026-10-11T22:47:03Z"
+        },
+        {
+          "id": 632010882,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-10-11T22:48:00Z"
+        },
+        {
+          "id": 632009019,
+          "name": "MANUAL.html",
+          "size": 266264,
+          "digest": "sha256:97645c9cdbb053d50fc190512d0c5656062685885070c6dbc0e03de71c7d778f",
+          "updated_at": "2026-10-11T22:47:04Z"
+        },
+        {
+          "id": 632011104,
+          "name": "NASTROND_CHANNEL_FEEDBACK.md",
+          "size": 10562,
+          "digest": "sha256:818edc6ee94f6dbc173ed98be8def68417fa51a349b160ef1ae027032e4f00a9",
+          "updated_at": "2026-10-11T22:48:07Z"
+        },
+        {
+          "id": 632011117,
+          "name": "NIFLHEIMR_NATIVE_PROTOTYPE.md",
+          "size": 13079,
+          "digest": "sha256:27efa6a0479aa18ad8cab3a35b835638fcee712a422cf46e33edf1efed185358",
+          "updated_at": "2026-10-11T22:48:07Z"
+        },
+        {
+          "id": 632010983,
+          "name": "OPEN_BETA_RELEASE_NOTES.md",
+          "size": 10171,
+          "digest": "sha256:bb5e44699452c10fcd6b610f5de758372417c04feafe010382179119847fa721",
+          "updated_at": "2026-10-11T22:48:03Z"
+        },
+        {
+          "id": 632011040,
+          "name": "PEDAL_BOARD_DSP.md",
+          "size": 8643,
+          "digest": "sha256:e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51",
+          "updated_at": "2026-10-11T22:48:05Z"
+        },
+        {
+          "id": 632011025,
+          "name": "POST_NATIVE_DSP.md",
+          "size": 7143,
+          "digest": "sha256:814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372",
+          "updated_at": "2026-10-11T22:48:05Z"
+        },
+        {
+          "id": 632011232,
+          "name": "release-acceptance-evidence.zip",
+          "size": 256309,
+          "digest": "sha256:ebeb7c5e99d5b457a3d567547cea0aa1f31c29248bcc1e17008ef84e78a6662e",
+          "updated_at": "2026-10-11T22:48:11Z"
+        },
+        {
+          "id": 632011206,
+          "name": "release-gate.json",
+          "size": 83996,
+          "digest": "sha256:7f6c5304e226156e845367d01d21b1ecf9ad0bd38e1cf57fd107483e5df24979",
+          "updated_at": "2026-10-11T22:48:10Z"
+        },
+        {
+          "id": 632009043,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:6efd65ee9c0c34f78791a7b6c20fe43fafd6114b1e019ff592c3616df6078394",
+          "updated_at": "2026-10-11T22:47:05Z"
+        },
+        {
+          "id": 632010970,
+          "name": "SIGNAL_EQ_INTEGRATION_1_3_1.md",
+          "size": 8857,
+          "digest": "sha256:df221952f8e4b4d97bcb759bcd757a329cd37e1ee8d062e5d723307a6ca68e27",
+          "updated_at": "2026-10-11T22:48:02Z"
+        },
+        {
+          "id": 632009064,
+          "name": "SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.deb",
+          "size": 213313724,
+          "digest": "sha256:5ca9409186e20e94781f9b8865eb549909c613d09ff635b7f2a23745a0f7fefd",
+          "updated_at": "2026-10-11T22:47:12Z"
+        },
+        {
+          "id": 632009375,
+          "name": "SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.tar.gz",
+          "size": 234056208,
+          "digest": "sha256:7b2bd5ecb84b882340af019af3b4c8aeca48f5af9393909167ab22e0c6a290a9",
+          "updated_at": "2026-10-11T22:47:19Z"
+        },
+        {
+          "id": 632009690,
+          "name": "SpectralForge-Chimera-1.3.1-beta.1-macos-universal.pkg",
+          "size": 702378085,
+          "digest": "sha256:7c935e3bd66d56a01a89b3954cf0f2f92f2cad04c10438ad0c2f3a3c5429da8e",
+          "updated_at": "2026-10-11T22:47:42Z"
+        },
+        {
+          "id": 632010362,
+          "name": "SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe",
+          "size": 210803143,
+          "digest": "sha256:da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a",
+          "updated_at": "2026-10-11T22:47:50Z"
+        },
+        {
+          "id": 632010618,
+          "name": "SpectralForge-Chimera-1.3.1-beta.1-win64.zip",
+          "size": 231613396,
+          "digest": "sha256:de958d33303042be9cd5b99f34cb83090f665e88a24b01ccf06252f4c4dda55a",
+          "updated_at": "2026-10-11T22:47:58Z"
+        },
+        {
+          "id": 632010991,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-10-11T22:48:03Z"
+        },
+        {
+          "id": 632010861,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3627,
+          "digest": "sha256:05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908",
+          "updated_at": "2026-10-11T22:47:59Z"
+        },
+        {
+          "id": 632011171,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-10-11T22:48:09Z"
+        },
+        {
+          "id": 632010896,
+          "name": "update-beta.json",
+          "size": 1432,
+          "digest": "sha256:ad469a366440891f44b7ab575b3f1ce7734877bb36cce5afafc930618e461d7d",
+          "updated_at": "2026-10-11T22:48:00Z"
+        }
+      ]
+    },
+    {
+      "id": 409559334,
+      "tag_name": "v1.3.0-beta.1",
+      "target_commitish": "7f692693f942a0f1dd1973062dc4d5d47b9be4ac",
+      "published_at": "2026-10-11T09:10:21Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.0-beta.1",
+      "assets": [
+        {
+          "id": 630296262,
+          "name": "AMP_NATIVE_DSP.md",
+          "size": 10588,
+          "digest": "sha256:0387af8daf39ee3373396fec2a05f4f14930cf8d236cd3a90d26baf13bb57eb7",
+          "updated_at": "2026-10-11T09:10:11Z"
+        },
+        {
+          "id": 630296526,
+          "name": "beta-publication-decision.json",
+          "size": 59321,
+          "digest": "sha256:f5624ddea9c7bd05dd84f9e32d9f2fa66a5853d4007b377cccf6ae556e621d30",
+          "updated_at": "2026-10-11T09:10:18Z"
+        },
+        {
+          "id": 630296551,
+          "name": "BETA_VALIDATION_SCOPE.md",
+          "size": 16148,
+          "digest": "sha256:e45528ab90002caa3573d23cd351716604f5c36d11399e9f7b9299187c36ca31",
+          "updated_at": "2026-10-11T09:10:19Z"
+        },
+        {
+          "id": 630296397,
+          "name": "CAB_EXPANSION_V2.md",
+          "size": 8733,
+          "digest": "sha256:015f8282d4b486ac5b454aba0e0485d378e22c039b52c8df2f565ec874a2d4ed",
+          "updated_at": "2026-10-11T09:10:16Z"
+        },
+        {
+          "id": 630296385,
+          "name": "CAB_INTEGRATION.md",
+          "size": 8168,
+          "digest": "sha256:d532ba479b227c0346bdaa312efc1c20b30f1a33170be73ffa5cff2ddcef10dd",
+          "updated_at": "2026-10-11T09:10:15Z"
+        },
+        {
+          "id": 630296444,
+          "name": "CAB_LAYOUT_V3.md",
+          "size": 14123,
+          "digest": "sha256:ce266481e60569a77a6417617cb2937ab3392c63cf5a192f63c692525595a928",
+          "updated_at": "2026-10-11T09:10:16Z"
+        },
+        {
+          "id": 630296172,
+          "name": "candidate-source.json",
+          "size": 219,
+          "digest": "sha256:1cb805d3b8b51b6ca64b14b03e363ed4aea30e11eb54615131999e4785bec685",
+          "updated_at": "2026-10-11T09:10:09Z"
+        },
+        {
+          "id": 630296484,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-10-11T09:10:17Z"
+        },
+        {
+          "id": 630296323,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 1714,
+          "digest": "sha256:1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23",
+          "updated_at": "2026-10-11T09:10:13Z"
+        },
+        {
+          "id": 630295076,
+          "name": "INSTALLATION.md",
+          "size": 7734,
+          "digest": "sha256:7d1c33105d7dafda016bba0b3a1e634ce0bbf0945adfa58efc1205bbd0af9143",
+          "updated_at": "2026-10-11T09:09:37Z"
+        },
+        {
+          "id": 630295103,
+          "name": "InstallerVerification.txt",
+          "size": 2138,
+          "digest": "sha256:de2bb2ae4127f297b449ec5b3f1159d4d73521d65c7f5b7bf1d3600f5e42b554",
+          "updated_at": "2026-10-11T09:09:38Z"
+        },
+        {
+          "id": 630296343,
+          "name": "IR_DISTRIBUTION.md",
+          "size": 2508,
+          "digest": "sha256:f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e",
+          "updated_at": "2026-10-11T09:10:14Z"
+        },
+        {
+          "id": 630295131,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:96e60af3a8dd7952185d470e075f759797f081d10d656d771568c5bdedb2ac83",
+          "updated_at": "2026-10-11T09:09:38Z"
+        },
+        {
+          "id": 630296196,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-10-11T09:10:09Z"
+        },
+        {
+          "id": 630295144,
+          "name": "MANUAL.html",
+          "size": 254698,
+          "digest": "sha256:c958a532e49924b77c43388d0b9ba5f9f50c83960ce45e633f0ee1f84cb2beac",
+          "updated_at": "2026-10-11T09:09:39Z"
+        },
+        {
+          "id": 630296358,
+          "name": "NASTROND_CHANNEL_FEEDBACK.md",
+          "size": 10562,
+          "digest": "sha256:818edc6ee94f6dbc173ed98be8def68417fa51a349b160ef1ae027032e4f00a9",
+          "updated_at": "2026-10-11T09:10:14Z"
+        },
+        {
+          "id": 630296369,
+          "name": "NIFLHEIMR_NATIVE_PROTOTYPE.md",
+          "size": 13079,
+          "digest": "sha256:27efa6a0479aa18ad8cab3a35b835638fcee712a422cf46e33edf1efed185358",
+          "updated_at": "2026-10-11T09:10:15Z"
+        },
+        {
+          "id": 630296226,
+          "name": "OPEN_BETA_RELEASE_NOTES.md",
+          "size": 13705,
+          "digest": "sha256:1b7adf52285b8d722527c52ce7aaa06e51f77868c898153c6f2dc5a152cf1de0",
+          "updated_at": "2026-10-11T09:10:10Z"
+        },
+        {
+          "id": 630296298,
+          "name": "PEDAL_BOARD_DSP.md",
+          "size": 8643,
+          "digest": "sha256:e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51",
+          "updated_at": "2026-10-11T09:10:13Z"
+        },
+        {
+          "id": 630296277,
+          "name": "POST_NATIVE_DSP.md",
+          "size": 7143,
+          "digest": "sha256:814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372",
+          "updated_at": "2026-10-11T09:10:12Z"
+        },
+        {
+          "id": 630296534,
+          "name": "release-acceptance-evidence.zip",
+          "size": 247643,
+          "digest": "sha256:9dbed15fbf0446dc7f974f37ea5c296e09d09384244ebe1213374870d602add7",
+          "updated_at": "2026-10-11T09:10:19Z"
+        },
+        {
+          "id": 630296506,
+          "name": "release-gate.json",
+          "size": 83996,
+          "digest": "sha256:b0175e7e99b6c6e7ccb6a9f111294fd3f5f1598fe334644a3a07f39fb62f9ee2",
+          "updated_at": "2026-10-11T09:10:18Z"
+        },
+        {
+          "id": 630295155,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:aa5dc52e9dbc13a60bf6657a7175bf7db7ae4b1dcaa48dc080b9e0f8aca88152",
+          "updated_at": "2026-10-11T09:09:39Z"
+        },
+        {
+          "id": 630295171,
+          "name": "SpectralForge-Chimera-1.3.0-beta.1-linux-x86_64.deb",
+          "size": 119457258,
+          "digest": "sha256:e6ce1b852bdf4e7c19782b6da2d7b186084e50d0e407e1df463c8da26fe5f494",
+          "updated_at": "2026-10-11T09:09:43Z"
+        },
+        {
+          "id": 630295313,
+          "name": "SpectralForge-Chimera-1.3.0-beta.1-linux-x86_64.tar.gz",
+          "size": 130671966,
+          "digest": "sha256:1e6e7873af9d240d7f00fe5b6e081c8d88d832dcf76270c7c336587287f502a0",
+          "updated_at": "2026-10-11T09:09:48Z"
+        },
+        {
+          "id": 630295463,
+          "name": "SpectralForge-Chimera-1.3.0-beta.1-macos-universal.pkg",
+          "size": 388194259,
+          "digest": "sha256:7505e3216f982f1e1d4b86646b75db58f6e4f334c08a0b77b2b162ee63505619",
+          "updated_at": "2026-10-11T09:09:59Z"
+        },
+        {
+          "id": 630295873,
+          "name": "SpectralForge-Chimera-1.3.0-beta.1-win64-Setup.exe",
+          "size": 117887175,
+          "digest": "sha256:7fd926a0db00b415b00d191116af14f71809ff995f805dfb5970a8c3c910b79a",
+          "updated_at": "2026-10-11T09:10:04Z"
+        },
+        {
+          "id": 630296003,
+          "name": "SpectralForge-Chimera-1.3.0-beta.1-win64.zip",
+          "size": 128311517,
+          "digest": "sha256:7d5e441ffe7def69d0e0e1a6fd984cfd2c265f0112c597b9279b4b45d532c056",
+          "updated_at": "2026-10-11T09:10:08Z"
+        },
+        {
+          "id": 630296245,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-10-11T09:10:11Z"
+        },
+        {
+          "id": 630296152,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3627,
+          "digest": "sha256:05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908",
+          "updated_at": "2026-10-11T09:10:08Z"
+        },
+        {
+          "id": 630296465,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-10-11T09:10:17Z"
+        },
+        {
+          "id": 630296207,
+          "name": "update-beta.json",
+          "size": 1432,
+          "digest": "sha256:03b8ec4062dc4ab8e1b248a436b2065efa8bad9fb8b1a1d4f5a217c486e7b863",
+          "updated_at": "2026-10-11T09:10:10Z"
+        }
+      ]
+    },
+    {
+      "id": 403623509,
+      "tag_name": "v1.2.0-beta.1",
+      "target_commitish": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+      "published_at": "2026-10-05T11:04:57Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1",
+      "assets": [
+        {
+          "id": 612321759,
+          "name": "AMP_NATIVE_DSP.md",
+          "size": 10588,
+          "digest": "sha256:0387af8daf39ee3373396fec2a05f4f14930cf8d236cd3a90d26baf13bb57eb7",
+          "updated_at": "2026-10-05T11:04:50Z"
+        },
+        {
+          "id": 612321626,
+          "name": "candidate-source.json",
+          "size": 219,
+          "digest": "sha256:bf995ce97a0ffcb6202801be54ca5caf76b40e50499f4766c32a20b4d7a83453",
+          "updated_at": "2026-10-05T11:04:47Z"
+        },
+        {
+          "id": 612321952,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-10-05T11:04:55Z"
+        },
+        {
+          "id": 612321842,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 3041,
+          "digest": "sha256:74142069f8a9c8159fedc31281810cbc770153660735e8eaa1dfa37f73c5c2a1",
+          "updated_at": "2026-10-05T11:04:52Z"
+        },
+        {
+          "id": 612320800,
+          "name": "INSTALLATION.md",
+          "size": 7647,
+          "digest": "sha256:9919e654f77ca5c23f83003cda98785b7b66e1d30fb8f9fd7c02f1ce19f3e88a",
+          "updated_at": "2026-10-05T11:04:26Z"
+        },
+        {
+          "id": 612320827,
+          "name": "InstallerVerification.txt",
+          "size": 2138,
+          "digest": "sha256:1a9bb780383cef65a393d30c791a30ece7cb0f1dd8ea0f4f49ec2c005820d95d",
+          "updated_at": "2026-10-05T11:04:27Z"
+        },
+        {
+          "id": 612320858,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:e21073753cc7cd06f22d0a983613a665db016af47d5e63583c17218c70fdda43",
+          "updated_at": "2026-10-05T11:04:28Z"
+        },
+        {
+          "id": 612321658,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-10-05T11:04:48Z"
+        },
+        {
+          "id": 612320879,
+          "name": "MANUAL.html",
+          "size": 222953,
+          "digest": "sha256:60a02849a9602fb6644d19ee22f39ca6e8209d06966c56fc40331acaaa4904c4",
+          "updated_at": "2026-10-05T11:04:28Z"
+        },
+        {
+          "id": 612321893,
+          "name": "NASTROND_CHANNEL_FEEDBACK.md",
+          "size": 10562,
+          "digest": "sha256:818edc6ee94f6dbc173ed98be8def68417fa51a349b160ef1ae027032e4f00a9",
+          "updated_at": "2026-10-05T11:04:54Z"
+        },
+        {
+          "id": 612321861,
+          "name": "NATIVE_NAM_CALIBRATION.md",
+          "size": 14773,
+          "digest": "sha256:6ed99a173c6da0afd80e2fa1062d4280480428349594d5006308486ce2193666",
+          "updated_at": "2026-10-05T11:04:53Z"
+        },
+        {
+          "id": 612321715,
+          "name": "OPEN_BETA_RELEASE_NOTES.md",
+          "size": 6641,
+          "digest": "sha256:53f03abb4b87c9b467fc386fb465f1d44fecd83951236f0411e79a747cd8e0a0",
+          "updated_at": "2026-10-05T11:04:49Z"
+        },
+        {
+          "id": 612321815,
+          "name": "PEDAL_BOARD_DSP.md",
+          "size": 8643,
+          "digest": "sha256:e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51",
+          "updated_at": "2026-10-05T11:04:52Z"
+        },
+        {
+          "id": 612321796,
+          "name": "POST_NATIVE_DSP.md",
+          "size": 7143,
+          "digest": "sha256:814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372",
+          "updated_at": "2026-10-05T11:04:51Z"
+        },
+        {
+          "id": 612320903,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:30ec8573d911f0bbee3c38a7becc6ad290b00c1e6d75b0ee67ed740c017acaed",
+          "updated_at": "2026-10-05T11:04:29Z"
+        },
+        {
+          "id": 612320920,
+          "name": "SpectralForge-Chimera-1.2.0-beta.1-linux-x86_64.deb",
+          "size": 49787594,
+          "digest": "sha256:50601ca7478e594ed8e1e6c0a2909dc1893e9abc7284b1f728a0e53831a0f4d7",
+          "updated_at": "2026-10-05T11:04:32Z"
+        },
+        {
+          "id": 612321027,
+          "name": "SpectralForge-Chimera-1.2.0-beta.1-linux-x86_64.tar.gz",
+          "size": 51987044,
+          "digest": "sha256:b966ca8684c32a1d7e0d47797e4d2b8b1f1e2cf4bf489cbaf089efd4a47f3678",
+          "updated_at": "2026-10-05T11:04:34Z"
+        },
+        {
+          "id": 612321119,
+          "name": "SpectralForge-Chimera-1.2.0-beta.1-macos-universal.pkg",
+          "size": 150181221,
+          "digest": "sha256:cc41e04d046e74e9ac2f3ed6c98b0ffeb3419303b0d28128469474814e13ab09",
+          "updated_at": "2026-10-05T11:04:40Z"
+        },
+        {
+          "id": 612321385,
+          "name": "SpectralForge-Chimera-1.2.0-beta.1-win64-Setup.exe",
+          "size": 49670164,
+          "digest": "sha256:6d1a7fac0bd8a0a3e42994920ebd28e5c3b7e5f1be1cbf9f97b1ed1a47eb2490",
+          "updated_at": "2026-10-05T11:04:43Z"
+        },
+        {
+          "id": 612321510,
+          "name": "SpectralForge-Chimera-1.2.0-beta.1-win64.zip",
+          "size": 50996997,
+          "digest": "sha256:16e2aa1d5f8268004c33782bf73d5727d9fbe575e3378a81974d4ece5f209147",
+          "updated_at": "2026-10-05T11:04:45Z"
+        },
+        {
+          "id": 612321737,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-10-05T11:04:50Z"
+        },
+        {
+          "id": 612321601,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3617,
+          "digest": "sha256:d8a1cae85a8dd16faf41358ccd28a47e343a62a3aada879b33c0179e1974ac2e",
+          "updated_at": "2026-10-05T11:04:46Z"
+        },
+        {
+          "id": 612321924,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-10-05T11:04:54Z"
+        },
+        {
+          "id": 612321683,
+          "name": "update-beta.json",
+          "size": 1430,
+          "digest": "sha256:ff3fda86c98334d09928c27be668d3c0546f8bad4725ea62c61f65254c6af088",
+          "updated_at": "2026-10-05T11:04:48Z"
+        }
+      ]
+    },
+    {
+      "id": 403105556,
+      "tag_name": "v1.1.2-beta.1",
+      "target_commitish": "88b62738fdbd9bcdca34f7b6e1092d6ed411eb94",
+      "published_at": "2026-10-04T16:28:48Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.2-beta.1",
+      "assets": [
+        {
+          "id": 610182946,
+          "name": "AMP_NATIVE_DSP.md",
+          "size": 9928,
+          "digest": "sha256:466cb946626d61c27c453dc436c88712747ab543b415bdb0107408a1d21cf4f3",
+          "updated_at": "2026-10-04T16:28:43Z"
+        },
+        {
+          "id": 610182845,
+          "name": "candidate-source.json",
+          "size": 219,
+          "digest": "sha256:75fdcefe42147c5c888ee43dad82e8441aa12fa97621f232c8680b2b99710af2",
+          "updated_at": "2026-10-04T16:28:40Z"
+        },
+        {
+          "id": 610183020,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-10-04T16:28:47Z"
+        },
+        {
+          "id": 610182981,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 3041,
+          "digest": "sha256:74142069f8a9c8159fedc31281810cbc770153660735e8eaa1dfa37f73c5c2a1",
+          "updated_at": "2026-10-04T16:28:45Z"
+        },
+        {
+          "id": 610182346,
+          "name": "INSTALLATION.md",
+          "size": 7647,
+          "digest": "sha256:9919e654f77ca5c23f83003cda98785b7b66e1d30fb8f9fd7c02f1ce19f3e88a",
+          "updated_at": "2026-10-04T16:28:19Z"
+        },
+        {
+          "id": 610182353,
+          "name": "InstallerVerification.txt",
+          "size": 2138,
+          "digest": "sha256:3210f263f6ac56a56d7217866eeadab9c44a6915bf70b9d7186388377f2e9a11",
+          "updated_at": "2026-10-04T16:28:20Z"
+        },
+        {
+          "id": 610182368,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:10049c11f07122dece96c6164feae52db9b715727834577d39877f5c030fc588",
+          "updated_at": "2026-10-04T16:28:20Z"
+        },
+        {
+          "id": 610182879,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-10-04T16:28:41Z"
+        },
+        {
+          "id": 610182386,
+          "name": "MANUAL.html",
+          "size": 218069,
+          "digest": "sha256:b5b214e249c69779358041012737a97551dd927704570dfc15c396c4b17cfbd7",
+          "updated_at": "2026-10-04T16:28:21Z"
+        },
+        {
+          "id": 610182997,
+          "name": "NATIVE_NAM_CALIBRATION.md",
+          "size": 14773,
+          "digest": "sha256:6ed99a173c6da0afd80e2fa1062d4280480428349594d5006308486ce2193666",
+          "updated_at": "2026-10-04T16:28:45Z"
+        },
+        {
+          "id": 610182921,
+          "name": "OPEN_BETA_RELEASE_NOTES.md",
+          "size": 6813,
+          "digest": "sha256:75dbf5284d3859e91b89af19eb2a326dafbfbaf2b15968184c15a30232eb0381",
+          "updated_at": "2026-10-04T16:28:42Z"
+        },
+        {
+          "id": 610182975,
+          "name": "PEDAL_BOARD_DSP.md",
+          "size": 8643,
+          "digest": "sha256:e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51",
+          "updated_at": "2026-10-04T16:28:44Z"
+        },
+        {
+          "id": 610182960,
+          "name": "POST_NATIVE_DSP.md",
+          "size": 7143,
+          "digest": "sha256:814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372",
+          "updated_at": "2026-10-04T16:28:44Z"
+        },
+        {
+          "id": 610182398,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:529df534bad1ce6c77290480f8607b4672d0d18af807a86eba09c8e5afad237c",
+          "updated_at": "2026-10-04T16:28:21Z"
+        },
+        {
+          "id": 610182409,
+          "name": "SpectralForge-Chimera-1.1.2-beta.1-linux-x86_64.deb",
+          "size": 42937126,
+          "digest": "sha256:0267a634e2c18ed9971f68789d03419773a1ed7636627759595d34269d37d252",
+          "updated_at": "2026-10-04T16:28:24Z"
+        },
+        {
+          "id": 610182480,
+          "name": "SpectralForge-Chimera-1.1.2-beta.1-linux-x86_64.tar.gz",
+          "size": 45109406,
+          "digest": "sha256:ecb3062108e0fe539abcd83cb9585b224449b35d5fe06f531eaa33604d6672a9",
+          "updated_at": "2026-10-04T16:28:27Z"
+        },
+        {
+          "id": 610182551,
+          "name": "SpectralForge-Chimera-1.1.2-beta.1-macos-universal.pkg",
+          "size": 129457461,
+          "digest": "sha256:f2a66554e6c48a1d99f059c9b765e3a76faca32d6e254c0e0d5a21dcc33a5cd6",
+          "updated_at": "2026-10-04T16:28:33Z"
+        },
+        {
+          "id": 610182724,
+          "name": "SpectralForge-Chimera-1.1.2-beta.1-win64-Setup.exe",
+          "size": 42821556,
+          "digest": "sha256:e749ebc071063cd3a7aab2d428e2ff72569fe34cd8461f9eb4ebeecfe4fb3e10",
+          "updated_at": "2026-10-04T16:28:36Z"
+        },
+        {
+          "id": 610182775,
+          "name": "SpectralForge-Chimera-1.1.2-beta.1-win64.zip",
+          "size": 44110204,
+          "digest": "sha256:2b6e4d2b33155130b9f2ab0134391a11afd5c30e67c9527d63c8b18a7bf40c40",
+          "updated_at": "2026-10-04T16:28:39Z"
+        },
+        {
+          "id": 610182934,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-10-04T16:28:42Z"
+        },
+        {
+          "id": 610182833,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3617,
+          "digest": "sha256:d8a1cae85a8dd16faf41358ccd28a47e343a62a3aada879b33c0179e1974ac2e",
+          "updated_at": "2026-10-04T16:28:39Z"
+        },
+        {
+          "id": 610183016,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-10-04T16:28:46Z"
+        },
+        {
+          "id": 610182897,
+          "name": "update-beta.json",
+          "size": 1430,
+          "digest": "sha256:ad8a5ae7f28d7b9a3eb607f1ab63d91e1c44de2cde31066534ac26130aff5087",
+          "updated_at": "2026-10-04T16:28:41Z"
+        }
+      ]
+    },
+    {
+      "id": 403034121,
+      "tag_name": "v1.1.1-beta.1",
+      "target_commitish": "91850fdca0c329983e051b113719699dba9831fd",
+      "published_at": "2026-10-04T13:29:43Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.1-beta.1",
+      "assets": [
+        {
+          "id": 609902307,
+          "name": "AMP_NATIVE_DSP.md",
+          "size": 9662,
+          "digest": "sha256:12836796c90ea8093ccdddd736ac737dd36ce103a9f5cc02776993eb7fa28f61",
+          "updated_at": "2026-10-04T13:29:38Z"
+        },
+        {
+          "id": 609902215,
+          "name": "candidate-source.json",
+          "size": 219,
+          "digest": "sha256:df98af7250f61fedd6c32b7b72d713528b52efc26392c456b6f348ca7d0ddf81",
+          "updated_at": "2026-10-04T13:29:35Z"
+        },
+        {
+          "id": 609902383,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-10-04T13:29:41Z"
+        },
+        {
+          "id": 609902344,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 3041,
+          "digest": "sha256:74142069f8a9c8159fedc31281810cbc770153660735e8eaa1dfa37f73c5c2a1",
+          "updated_at": "2026-10-04T13:29:40Z"
+        },
+        {
+          "id": 609901572,
+          "name": "INSTALLATION.md",
+          "size": 7647,
+          "digest": "sha256:9919e654f77ca5c23f83003cda98785b7b66e1d30fb8f9fd7c02f1ce19f3e88a",
+          "updated_at": "2026-10-04T13:29:15Z"
+        },
+        {
+          "id": 609901615,
+          "name": "InstallerVerification.txt",
+          "size": 2138,
+          "digest": "sha256:f7480953117df1ca09a0e9abcf7cba6aec59656effc8b7cc36237b024ace5454",
+          "updated_at": "2026-10-04T13:29:15Z"
+        },
+        {
+          "id": 609901645,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:c8a11a823cfc47267973d2ef35763d3817f05672e653bb229d14bd76d424c676",
+          "updated_at": "2026-10-04T13:29:16Z"
+        },
+        {
+          "id": 609902221,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-10-04T13:29:36Z"
+        },
+        {
+          "id": 609901670,
+          "name": "MANUAL.html",
+          "size": 215227,
+          "digest": "sha256:d4d0e3f9bbc0cc50733f608f89469e7498d2406dd13e3af83578115585d778c8",
+          "updated_at": "2026-10-04T13:29:17Z"
+        },
+        {
+          "id": 609902258,
+          "name": "OPEN_BETA_RELEASE_NOTES.md",
+          "size": 6816,
+          "digest": "sha256:555671a60f1b99482ca94dcb699b9b65770373c6ed67db629cf72e64cf14bc25",
+          "updated_at": "2026-10-04T13:29:37Z"
+        },
+        {
+          "id": 609902330,
+          "name": "PEDAL_BOARD_DSP.md",
+          "size": 8643,
+          "digest": "sha256:e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51",
+          "updated_at": "2026-10-04T13:29:39Z"
+        },
+        {
+          "id": 609902321,
+          "name": "POST_NATIVE_DSP.md",
+          "size": 7143,
+          "digest": "sha256:814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372",
+          "updated_at": "2026-10-04T13:29:39Z"
+        },
+        {
+          "id": 609901698,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:13578682e3ae1e877de2bb75ecd8b2bc975e7fca4e51a8287fee2a3789e695fe",
+          "updated_at": "2026-10-04T13:29:17Z"
+        },
+        {
+          "id": 609901718,
+          "name": "SpectralForge-Chimera-1.1.1-beta.1-linux-x86_64.deb",
+          "size": 42837092,
+          "digest": "sha256:82cc0a2a6f5b913dc5dd941d92bd472b17c5554692b2c7fc3406038b2aa1190b",
+          "updated_at": "2026-10-04T13:29:20Z"
+        },
+        {
+          "id": 609901805,
+          "name": "SpectralForge-Chimera-1.1.1-beta.1-linux-x86_64.tar.gz",
+          "size": 44939875,
+          "digest": "sha256:2eccdbcb68441393a1ed9501682bed140c4fd31ef51a6452ae7708dcdf167c88",
+          "updated_at": "2026-10-04T13:29:23Z"
+        },
+        {
+          "id": 609901920,
+          "name": "SpectralForge-Chimera-1.1.1-beta.1-macos-universal.pkg",
+          "size": 129282142,
+          "digest": "sha256:6872713b4c06e989efd04271f5e4d36bdcb615aa5bb81ab0f994d522788821af",
+          "updated_at": "2026-10-04T13:29:29Z"
+        },
+        {
+          "id": 609902084,
+          "name": "SpectralForge-Chimera-1.1.1-beta.1-win64-Setup.exe",
+          "size": 42791855,
+          "digest": "sha256:c3f1b047e9f8ef17f4fb2dde67cfb846778f3b8ce6e971a833d2ad9cadcb4ca1",
+          "updated_at": "2026-10-04T13:29:32Z"
+        },
+        {
+          "id": 609902154,
+          "name": "SpectralForge-Chimera-1.1.1-beta.1-win64.zip",
+          "size": 43936490,
+          "digest": "sha256:c8f50aa4c8a8d7e8c349e5393932a1deeabf9228facd7510360a7ae68be0c85d",
+          "updated_at": "2026-10-04T13:29:34Z"
+        },
+        {
+          "id": 609902290,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-10-04T13:29:38Z"
+        },
+        {
+          "id": 609902199,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3617,
+          "digest": "sha256:d8a1cae85a8dd16faf41358ccd28a47e343a62a3aada879b33c0179e1974ac2e",
+          "updated_at": "2026-10-04T13:29:35Z"
+        },
+        {
+          "id": 609902359,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-10-04T13:29:41Z"
+        },
+        {
+          "id": 609902242,
+          "name": "update-beta.json",
+          "size": 1430,
+          "digest": "sha256:f409eacd149f2b9b7750c80d007fe7107106da107962485bc41138f313580f65",
+          "updated_at": "2026-10-04T13:29:36Z"
+        }
+      ]
+    },
+    {
+      "id": 398856874,
+      "tag_name": "v1.1.0-beta.1",
+      "target_commitish": "f5b8ce7d39f69621ffe193fd4be6fbd760a6e6cf",
+      "published_at": "2026-09-29T05:51:24Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1",
+      "assets": [
+        {
+          "id": 597392262,
+          "name": "AMP_NATIVE_DSP.md",
+          "size": 9332,
+          "digest": "sha256:c13126c60a2a62bb7650884789e89c70bc76fc4230343e22e9b25e54dfe25181",
+          "updated_at": "2026-09-29T05:51:20Z"
+        },
+        {
+          "id": 597392173,
+          "name": "candidate-source.json",
+          "size": 219,
+          "digest": "sha256:2360dbd1deafeb212c7948dd1dd4e3a05a5b1812acf659b190cb74a0a6927f8c",
+          "updated_at": "2026-09-29T05:51:17Z"
+        },
+        {
+          "id": 597392351,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-09-29T05:51:22Z"
+        },
+        {
+          "id": 597392318,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 3041,
+          "digest": "sha256:74142069f8a9c8159fedc31281810cbc770153660735e8eaa1dfa37f73c5c2a1",
+          "updated_at": "2026-09-29T05:51:21Z"
+        },
+        {
+          "id": 597391517,
+          "name": "INSTALLATION.md",
+          "size": 5243,
+          "digest": "sha256:7d4d53d18bad5e871c90cfc657d313347c0c396599e204f26916b07d473be758",
+          "updated_at": "2026-09-29T05:50:58Z"
+        },
+        {
+          "id": 597391539,
+          "name": "InstallerVerification.txt",
+          "size": 1548,
+          "digest": "sha256:35e6fbde33c70393a3af6d618e0e51fc18460d1fd1b0d24084a140d75f9d5cae",
+          "updated_at": "2026-09-29T05:50:58Z"
+        },
+        {
+          "id": 597391560,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:7074c4494470564c7c8697d412c079bfa59014b288d37ba961b02743ad272f34",
+          "updated_at": "2026-09-29T05:50:59Z"
+        },
+        {
+          "id": 597392194,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-09-29T05:51:17Z"
+        },
+        {
+          "id": 597391583,
+          "name": "MANUAL.html",
+          "size": 30341,
+          "digest": "sha256:40e495a2e55715090b27165653b3d1fab53e48be133968a6ba3dff8bb8d7944f",
+          "updated_at": "2026-09-29T05:51:00Z"
+        },
+        {
+          "id": 597392306,
+          "name": "PEDAL_BOARD_DSP.md",
+          "size": 8643,
+          "digest": "sha256:e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51",
+          "updated_at": "2026-09-29T05:51:21Z"
+        },
+        {
+          "id": 597392287,
+          "name": "POST_NATIVE_DSP.md",
+          "size": 7143,
+          "digest": "sha256:814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372",
+          "updated_at": "2026-09-29T05:51:20Z"
+        },
+        {
+          "id": 597392236,
+          "name": "PUBLISHED_OPEN_BETA_1_1.md",
+          "size": 6389,
+          "digest": "sha256:1c4709caf1e7f89ce8597d10e99f46d641bf5d726836c51257d0ec9802215e8b",
+          "updated_at": "2026-09-29T05:51:19Z"
+        },
+        {
+          "id": 597391601,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:6d3f35bda593d5bbf74b96ae06fe0dbda8eccb189d95965a2a90e80191a78f21",
+          "updated_at": "2026-09-29T05:51:00Z"
+        },
+        {
+          "id": 597391622,
+          "name": "SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb",
+          "size": 41627348,
+          "digest": "sha256:cba3088be8a54642b48010e0cc98458c6f75fbf6f4f58f00dd13bcae172533c9",
+          "updated_at": "2026-09-29T05:51:03Z"
+        },
+        {
+          "id": 597391729,
+          "name": "SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.tar.gz",
+          "size": 43614412,
+          "digest": "sha256:5678d42163c609c88b8b260c3bb5548e6098562288d46469afb1c916fbb0d2e0",
+          "updated_at": "2026-09-29T05:51:05Z"
+        },
+        {
+          "id": 597391792,
+          "name": "SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg",
+          "size": 125426906,
+          "digest": "sha256:0ade7a3fc4e40156ecec4fbe6b723078057cee8c4fddde43ebc5f39395561f00",
+          "updated_at": "2026-09-29T05:51:11Z"
+        },
+        {
+          "id": 597392010,
+          "name": "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
+          "size": 41602683,
+          "digest": "sha256:0f9d97f8aa0160d2828829e7c5d0696fd2e38776cec62882d18f761b3f21ca52",
+          "updated_at": "2026-09-29T05:51:14Z"
+        },
+        {
+          "id": 597392066,
+          "name": "SpectralForge-Chimera-1.1.0-beta.1-win64.zip",
+          "size": 42609995,
+          "digest": "sha256:e6988f9ea05f0c934b2d2ff1e28aea1a2087b1912a91635043e66179d5728776",
+          "updated_at": "2026-09-29T05:51:16Z"
+        },
+        {
+          "id": 597392248,
+          "name": "STUDIO_ONE_TEARDOWN.md",
+          "size": 5936,
+          "digest": "sha256:1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+          "updated_at": "2026-09-29T05:51:19Z"
+        },
+        {
+          "id": 597392160,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3617,
+          "digest": "sha256:d8a1cae85a8dd16faf41358ccd28a47e343a62a3aada879b33c0179e1974ac2e",
+          "updated_at": "2026-09-29T05:51:16Z"
+        },
+        {
+          "id": 597392336,
+          "name": "Trace-Chimera-Session.ps1",
+          "size": 7414,
+          "digest": "sha256:635dfc72849adc3b274a0cce78531ca0cd3db05ce4ce4f48dbf6a25aee52ae6e",
+          "updated_at": "2026-09-29T05:51:22Z"
+        },
+        {
+          "id": 597392212,
+          "name": "update-beta.json",
+          "size": 1430,
+          "digest": "sha256:8234dc88747f9dff1b6d1b1afa1a7e15f09a1b087887c9f7d89aac2ab3912f1a",
+          "updated_at": "2026-09-29T05:51:18Z"
+        }
+      ]
+    },
+    {
+      "id": 396424708,
+      "tag_name": "v1.0.0-beta.1",
+      "target_commitish": "95b4091af2c914188ea32672f05e00544a1d2098",
+      "published_at": "2026-09-25T08:09:07Z",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.0.0-beta.1",
+      "assets": [
+        {
+          "id": 587869716,
+          "name": "candidate-source.json",
+          "size": 219,
+          "digest": "sha256:d145c9f81513a582c2447b72c49a30eacbc2ebe642619bda2d57f075bb0ad933",
+          "updated_at": "2026-09-25T08:09:02Z"
+        },
+        {
+          "id": 587915910,
+          "name": "COPYRIGHT.txt",
+          "size": 174,
+          "digest": "sha256:72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+          "updated_at": "2026-09-25T08:35:11Z"
+        },
+        {
+          "id": 587869833,
+          "name": "EXTERNAL_BASS_IRS.md",
+          "size": 3041,
+          "digest": "sha256:74142069f8a9c8159fedc31281810cbc770153660735e8eaa1dfa37f73c5c2a1",
+          "updated_at": "2026-09-25T08:09:05Z"
+        },
+        {
+          "id": 587869672,
+          "name": "INSTALLATION.md",
+          "size": 4953,
+          "digest": "sha256:943b52381d992f03b73002f5c8e0cc8e5126f604cc39d9395a4411d998f71d66",
+          "updated_at": "2026-09-25T08:09:00Z"
+        },
+        {
+          "id": 587869743,
+          "name": "InstallerVerification.txt",
+          "size": 1160,
+          "digest": "sha256:0f4aa7bf6b93ab7e7f2d31563088b7602ebf38ad392a402ce8f4173c06f7f386",
+          "updated_at": "2026-09-25T08:09:02Z"
+        },
+        {
+          "id": 587869779,
+          "name": "Linux-package-verification.txt",
+          "size": 6648,
+          "digest": "sha256:42a2f5e9a3cf6788f74408aa2546936ee515901760139e729bcbdd1bc981acf5",
+          "updated_at": "2026-09-25T08:09:03Z"
+        },
+        {
+          "id": 587869760,
+          "name": "macOS-package-verification.txt",
+          "size": 314,
+          "digest": "sha256:721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400",
+          "updated_at": "2026-09-25T08:09:03Z"
+        },
+        {
+          "id": 587915923,
+          "name": "MANUAL.html",
+          "size": 25047,
+          "digest": "sha256:0ebed7e000861d2a9db15f31ecf2a6213e4acc072b0cd0616c901225f95a6a12",
+          "updated_at": "2026-09-25T08:35:12Z"
+        },
+        {
+          "id": 587869810,
+          "name": "OPEN_BETA_NAM_VALIDATION.md",
+          "size": 6626,
+          "digest": "sha256:10e5f12ccea4c1c2fad2cc1d4d1f31c3e0885c50d70b605e714a0fbc4ae38e79",
+          "updated_at": "2026-09-25T08:09:05Z"
+        },
+        {
+          "id": 587915940,
+          "name": "PUBLISHED_OPEN_BETA_1.md",
+          "size": 5457,
+          "digest": "sha256:16cc6c6edd3596f60449d987e3521f06b5b1f634f3127995fbc60bd1e12c33df",
+          "updated_at": "2026-09-25T08:35:13Z"
+        },
+        {
+          "id": 587869630,
+          "name": "SHA256SUMS.txt",
+          "size": 588,
+          "digest": "sha256:336f9038c75501955d19d6308f5e6f45c92eb1a620ed3c7a1e76963cd434db1f",
+          "updated_at": "2026-09-25T08:08:59Z"
+        },
+        {
+          "id": 587869504,
+          "name": "SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb",
+          "size": 36154340,
+          "digest": "sha256:16d40d5b0e9c10eaf0f652261ed7401951f5efbe2b49e5ea388d2501afb680e1",
+          "updated_at": "2026-09-25T08:08:56Z"
+        },
+        {
+          "id": 587869553,
+          "name": "SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.tar.gz",
+          "size": 38053476,
+          "digest": "sha256:1ed700ecf8d24482581ae3581f31656186d2b497e3c4621059b7a638c561a4c9",
+          "updated_at": "2026-09-25T08:08:58Z"
+        },
+        {
+          "id": 587869388,
+          "name": "SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg",
+          "size": 108936899,
+          "digest": "sha256:0371fc9bfebd1cb3762c12ab65d8aece6f442e093078d6bc3d70c46ac10178e7",
+          "updated_at": "2026-09-25T08:08:54Z"
+        },
+        {
+          "id": 587869291,
+          "name": "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
+          "size": 36241187,
+          "digest": "sha256:29f1e12501ff64140879b0d17eea15b48aa881969388ad35a5eab2fd0d99c899",
+          "updated_at": "2026-09-25T08:08:46Z"
+        },
+        {
+          "id": 587869333,
+          "name": "SpectralForge-Chimera-1.0.0-beta.1-win64.zip",
+          "size": 37144765,
+          "digest": "sha256:b02e534f48c13078d0e5f7926a3ee568498ddde00ce08a9150c96b4e1cf4b1bb",
+          "updated_at": "2026-09-25T08:08:49Z"
+        },
+        {
+          "id": 587915957,
+          "name": "THIRD_PARTY_NOTICES.md",
+          "size": 3617,
+          "digest": "sha256:d8a1cae85a8dd16faf41358ccd28a47e343a62a3aada879b33c0179e1974ac2e",
+          "updated_at": "2026-09-25T08:35:14Z"
+        },
+        {
+          "id": 587869648,
+          "name": "update-beta.json",
+          "size": 1430,
+          "digest": "sha256:5b091a1addce342ee26b8ed411bf4e5c0f279b10bc3109f029f95b06b5ff7186",
+          "updated_at": "2026-09-25T08:08:59Z"
+        }
+      ]
+    }
+  ]
+}

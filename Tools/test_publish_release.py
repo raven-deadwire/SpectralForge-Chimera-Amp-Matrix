@@ -90,12 +90,16 @@ class SourceFixture(unittest.TestCase):
         # Synthetic fixture history predates beta.2; it does not alter real history.
         original_calendar = copy.deepcopy(calendar)
         calendar['updated_at'] = '2026-10-15'
-        calendar['published_releases'] = [r for r in calendar['published_releases'] if r['version'] != '1.3.1-beta.2']
+        calendar['published_releases'] = [r for r in calendar['published_releases']
+                                        if r['version'] not in ('1.3.1-beta.2', '1.3.2-beta.1')]
+        calendar.pop('completed_reservations', None)
+        calendar.pop('next_release', None)
         calendar['source_baseline'].update(release='v1.3.1-beta.1', product_source=calendar['published_releases'][0]['product_source'])
         row = calendar['chimera_weekly'][0]
         row.update(row.pop('missed_target'))
         row.update(version=version, tag='v'+version, status='blocked', scope='Synthetic conditional reservation.')
-        row.pop('defer_reason')
+        row.pop('defer_reason', None)
+        row.pop('cancellation_reason', None)
         calendar['development_candidates'][0].update(version=version, tag='v'+version,
             publication_target=row['publication_target'], reservation_status='blocked')
         self.write_json(self.root / 'Validation/release-calendar.json', calendar)

@@ -1,6 +1,6 @@
 # Chimera development roadmap, October 2026–December 2027
 
-Updated: **2026-10-17, Asia/Seoul**. The owner requested a new remaining-work
+Updated: **2026-10-19, Asia/Seoul**. The owner requested a new remaining-work
 schedule after using 1.3.1: simplify the signal-chain display, substantially
 improve the EQ analyzer and editing workflow, implement the missing
 [FabFilter reference functions](https://www.fabfilter.com/products), and add
@@ -8,7 +8,7 @@ AAX support. The same-day follow-up makes **five-channel Niflheimr NAM delivery
 required** and adds **separate, simplified Náströnd and Niflheimr VST3 products**,
 using Neural DSP and Odeholm Audio as workflow references.
 
-The verified public baseline is [1.3.1-beta.2](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.2), published **2026-10-13 16:30:29 KST** from `6033236cb81820a43679cbbd34be020804f9658d`. Main is `b4930839a7384a411e6c37e3570d77069f41a024`. Its tags/assets/feed are immutable. The initial EQ/FFT/head controls remain delivered; lifecycle, precision tuner, signal/EQ improvements and dynamics in Draft #62/#68 are development candidates, not public features.
+The verified public baseline is [1.3.2-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1), published **2026-10-18 01:51:47 KST** from `3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`, merged by #95 into main `ec6fd639e2958d34605bfb04bb81ca02c1cfb38f`. Tags, 30 assets and feed remain immutable. Signal navigation, precision tuner, EQ editing/analyzer and common dynamics are public beta features; original-analysis fidelity and actual DAW acceptance remain distinct. The release's strict 21 PASS / 107 BLOCKED outcome is retained, not relabelled as full acceptance.
 
 The owner's latest October 12 correction rejects a roadmap stretched into
 2028 and requires **at least one substantive update or maintenance delivery
@@ -19,7 +19,7 @@ assumed. The earlier 2028 chat proposal was not applied to this repository.
 
 Dates below are **internal work and candidate targets, not guaranteed public
 release dates**. Weekly changes continue during every larger feature window.
-The October 23 target is the improved EQ/workflow installer; the lifecycle candidate missed the October 16 checkpoint and is deferred with no replacement date. Re-estimate
+The October 23 development/conditional review target now covers issue #97 in 1.3.2-beta.2. The lower unpublished lifecycle reservation is cancelled after the higher public release. Re-estimate
 the next four weeks using actual results; do not wait for a calendar boundary.
 
 ## Exact versions and deployment calendar
@@ -35,7 +35,7 @@ Assign **1.3.3 to shared Original FX**; Room Core becomes **1.3.4**, retaining
 February 22–March 19. Version 1.4.0 onward keeps its existing windows. Use three
 numeric components for public versions, retain the existing Chimera `v` tags,
 and give the two focused products and two NAM packs separate tag namespaces.
-October 16 beta.3 (#62) is deferred with no active date. Conditional targets remain 1.3.2-beta.1 (October 23, #68/#90) and 1.3.2-beta.2 (October 30). November continues 1.3.2-beta.3 through beta.6. Beta counters increase
+October 16 beta.3 (#62) is permanently cancelled with missed/deferred/cancellation history. Beta.1 published early on October 18 and its former October 23 reservation is completed history. Conditional targets are beta.2 (October 23, issue #97), beta.3 (October 30), then beta.4–beta.7 in November. Beta counters increase
 per product/base version; already published tags and files remain immutable.
 
 Chimera 1.x stays on its existing public-beta track in this plan. The 1.3.3
@@ -54,16 +54,18 @@ explicitly displaces later work instead of assuming a second full-time team.
 
 Main already implements explicit source/version weekly publication, beta/RC/stable generation and updater transitions. Calendar CI and the publisher now check reservations against immutable public history and live tags/releases. VERSION/RELEASE_CHANNEL remain the source identity, not a value inferred from the calendar. Historical beta.2 approval does not authorize another source/version. Product-specific identities and real installation/host qualification remain required.
 
-#62 remains Draft with no approved expiry or publication decision. As of October 17 KST, beta.3 has no public tag/release and its October 16 target is missed. Its active test/candidate/publication dates are null; the original dates remain historical. Resumption requires explicit reservation review before a higher version is published and before publisher selection. If a higher Chimera version ships first, cancel the unpublished beta.3 and retain the missed/cancellation record. Do not silently roll it forward, move it behind 1.3.2-beta.1, or force 1.3.2 to wait for it. If both slip, review their reservations separately without granting dates, expiry or release approval.
+#62's unpublished 1.3.1-beta.3 reservation is cancelled under the higher-version-first rule. Original October 14/15/16 targets, defer reason and October 19 cancellation are retained. It cannot resume after 1.3.2-beta.1. #68/#90 remain historical implementation/qualification candidates; their old failures and scope are not current release authorization. #95 and the official release are the public receipt.
 
-#68 retains its version-specific expiry approval. Integration candidate #90 `428d4b98` remains Draft: graphical EQ passed on three OS, but macOS tuner/CAB/product, Linux/macOS EQ state and consolidated gate checks failed. October 23 stays conditional on fresh exact-source platform/package/host acceptance and separate publication approval. This reservation correction grants neither product acceptance nor a new expiry. November remains substantive follow-up, not duplicate delivery credit.
+**Next update: issue #97, planned version 1.3.2-beta.2.** Its four P0s are Neural DSP Transpose analysis applied to the product, FabFilter analysis applied to the relevant processing, beta lifecycle/remaining-time improvements and signed AAX Native on Windows/macOS with normal Pro Tools acceptance. System requirements and actual test configurations accompany the build. Existing public features are reused; their mere presence is not evidence of original-analysis completion. October 21/22/23 are test/candidate/development-review targets, not permission to publish. Incomplete P0s require explicit reservation review rather than automatic rollover, an empty bump or omission of AAX. The October 30 remaining EQ scope follows P0 completion.
+
+The public beta.1 expiry **2027-02-11 23:59 KST** is historical and version-specific. Beta.2 expiry and publication approval are undecided; no approval or timestamp is inherited. Continue independent implementation and verification while prerequisites are resolved. The previous November 27 first-AAX review is superseded by #97's next-update requirement; signing and real-host evidence remain required.
 
 <!-- release-reservation-status:start -->
 | Version | Original checkpoint (KST) | Active target (KST) | Reservation status |
 |---|---|---|---|
-| `1.3.1-beta.3` | 2026-10-16 | TBD | deferred |
-| `1.3.2-beta.1` | 2026-10-23 | 2026-10-23 | blocked |
-| `1.3.2-beta.2` | 2026-10-30 | 2026-10-30 | planned |
+| `1.3.1-beta.3` | 2026-10-16 | TBD | cancelled |
+| `1.3.2-beta.2` | 2026-10-23 | 2026-10-23 | blocked |
+| `1.3.2-beta.3` | 2026-10-30 | 2026-10-30 | planned |
 <!-- release-reservation-status:end -->
 
 ## Schedule authority and delivery status
@@ -144,8 +146,8 @@ A first beta does not require every later Original-engine enhancement to exist.
 
 | Version / allocation | Work window, KST | Main deliverable | Retained character-model plan |
 |---|---|---|---:|
-| 1.3.1-beta.3 → 1.3.2-beta.2 | 2026-10-12–2026-11-01 | Lifecycle candidate, then integrated signal/tuner/dynamics and focused EQ/analyzer improvements | 85 |
-| 1.3.2-beta.3 through beta.6 | 2026-11-02–2026-11-27 | Follow-up qualification and substantive improvements to integrated Dynamic EQ, compressor, gate/expander and limiter | 85 |
+| 1.3.2-beta.2 → 1.3.2-beta.3 | 2026-10-12–2026-11-01 | Lifecycle candidate, then integrated signal/tuner/dynamics and focused EQ/analyzer improvements | 85 |
+| 1.3.2-beta.4 through beta.7 | 2026-11-02–2026-11-27 | Follow-up qualification and substantive improvements to integrated Dynamic EQ, compressor, gate/expander and limiter | 85 |
 | 1.3.3 — shared Original FX, first allocation | 2026-11-30–2026-12-25 | Reusable FX interfaces, guitar BOOST and bass Drive/Fuzz behavior, common COMP/EQ integration, PRE board/state foundation; qualified existing pitch/modulation/space reuse | 85 |
 | Náströnd focused VST3 beta | 2026-12-28–2027-01-22 | Five-channel guitar product, full controls, four replaceable PRE slots, focused five-area UI, independent package/presets | 85 |
 | Niflheimr focused VST3 beta | 2027-01-25–2027-02-19 | Five-channel bass product, full controls, four PRE slots, preserved LOW/Blend semantics, independent package/presets | 85 |
@@ -209,7 +211,7 @@ measured carryover explicitly instead of counting unfinished controls as done.
 
 | Week ending, KST | Minimum reviewable weekly increment |
 |---|---|
-| 2026-10-16 | Missed public target: #62 beta.3 deferred, replacement date TBD; retain internal CI scope separately. Expiry, fresh approved-date binary acceptance and publication approval remain unresolved. October 23 EQ/shared-core scope retained. |
+| 2026-10-16 | Historical missed target: #62 beta.3 subsequently cancelled after October 18 beta.1 publication; retain missed/deferred/internal CI history. October 23 now reviews issue #97 beta.2; no inherited expiry or approval. |
 | 2026-10-23 | Improved EQ installer: five-block chain, large EQ, filled IN/OUT, smoothing/resolution/Freeze, persistent-slot add/delete and Undo/Redo |
 | 2026-10-30 | Remaining EQ workflow: multi-selection, band audition, local A/B, peak hold/range controls; full follow-up candidate or explicitly bounded carryover |
 | 2026-11-06 | Substantive Dynamic EQ/GR follow-up to the integrated #68 candidate using existing EQ nodes and repeatable audio |

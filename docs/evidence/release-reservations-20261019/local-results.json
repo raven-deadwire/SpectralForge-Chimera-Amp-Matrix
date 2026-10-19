@@ -1,0 +1,42 @@
+[
+  {
+    "suite": "test_beta_publication131",
+    "exit_code": 0,
+    "summary": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 2.067s\n\nOK\n"
+  },
+  {
+    "suite": "test_packaging_version",
+    "exit_code": 0,
+    "summary": "ed 'actual Windows PE resource check runs in Windows CI'\ntest_windows_juce_and_inno_resource_layouts (__main__.PackagingVersionTests.test_windows_juce_and_inno_resource_layouts) ... skipped 'PowerShell resource fixtures run in Windows CI'\n\n----------------------------------------------------------------------\nRan 22 tests in 3.546s\n\nOK (skipped=3)\n"
+  },
+  {
+    "suite": "test_publication_evidence",
+    "exit_code": 0,
+    "summary": "....................\n----------------------------------------------------------------------\nRan 20 tests in 2.065s\n\nOK\n"
+  },
+  {
+    "suite": "test_publish_beta131",
+    "exit_code": 0,
+    "summary": ".............................................\n----------------------------------------------------------------------\nRan 45 tests in 0.981s\n\nOK\n"
+  },
+  {
+    "suite": "test_publish_release",
+    "exit_code": 0,
+    "summary": ".....................................\n----------------------------------------------------------------------\nRan 37 tests in 2.333s\n\nOK\n"
+  },
+  {
+    "suite": "test_release_calendar",
+    "exit_code": 0,
+    "summary": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 0.101s\n\nOK\n"
+  },
+  {
+    "suite": "test_release_consolidator",
+    "exit_code": 0,
+    "summary": "..............................\n----------------------------------------------------------------------\nRan 30 tests in 3.834s\n\nOK\n"
+  },
+  {
+    "suite": "test_weekly_publication",
+    "exit_code": 0,
+    "summary": ".............................\n----------------------------------------------------------------------\nRan 29 tests in 1.850s\n\nOK\n"
+  }
+]

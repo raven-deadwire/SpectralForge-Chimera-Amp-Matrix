@@ -1,13 +1,13 @@
 {
   "schema": "spectralforge.release-plan",
   "schema_version": 3,
-  "updated_at": "2026-10-17",
+  "updated_at": "2026-10-19",
   "timezone": "Asia/Seoul",
   "status": "planning_only_not_release_or_updater_manifest",
   "source_baseline": {
-    "release": "v1.3.1-beta.2",
-    "product_source": "6033236cb81820a43679cbbd34be020804f9658d",
-    "main": "b4930839a7384a411e6c37e3570d77069f41a024",
+    "release": "v1.3.2-beta.1",
+    "product_source": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+    "main": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
     "planning_parent": "78899a879395d83823f7bf4130c1be632d6be95a"
   },
   "authority": {
@@ -23,7 +23,7 @@
     "beta_counter_per_product_and_base": true,
     "stable_promotion_requires_acceptance": true,
     "empty_update_prohibited": true,
-    "if_missed": "Record the missed checkpoint and internal build scope, set status=deferred and all active dates=null. No automatic rollover or new date/expiry approval. Explicitly review and remap an unused reservation before it can be selected by the publisher; retain the missed_target history. If a higher Chimera version is published first, cancel the lower unpublished reservation and retain its history. If both candidates slip, keep beta.3 deferred and review beta.1 separately; never move beta.3 behind beta.1 or reuse beta.2.",
+    "if_missed": "Record missed targets, defer with null active dates, explicitly review unused reservations; no automatic rollover or expiry/publication approval. Lower unpublished versions superseded by public releases are permanently cancelled with history preserved.",
     "hotfix_reservation": "Use next unused patch after stable; remap later reserved versions before publication. Do not publish lower-precedence betas after a stable base.",
     "baseline_platform_contract": "Chimera current public publisher requires Windows, macOS and Linux packages. Focused products need explicit separate platform matrices; changing names alone does not implement that separation.",
     "preview_upgrade": "Internal preview builds are excluded from public update selection. Provide explicit manual transition to the first beta unless preview-to-beta migration has been implemented and verified.",
@@ -52,10 +52,10 @@
       "test_build_date": null,
       "candidate_date": null,
       "publication_target": null,
-      "scope": "10/16 미공개 목표 경과: PR #62의 수명주기·업데이트 안내·상태 보존 후보는 지연(deferred), 새 공개일 미정이다. 재예약 검토·해당 버전 만료일 승인·승인 날짜를 넣은 새 바이너리의 세 OS/설치/업데이트/호스트 검증·별도 공개 승인 전에는 publisher 대상으로 사용할 수 없다. 상위 Chimera 버전이 먼저 공개되면 이 미공개 예약을 취소한다. 투명·고헤드룸 베이스 및 Avalanche NAM 연구는 별도이며 기능 납품을 대신하지 않는다.",
+      "scope": "10/16 미공개 1.3.1-beta.3 예약 취소(cancelled): 10/18 상위 1.3.2-beta.1 선공개에 따른 기존 정책 적용. 원래 목표·지연 사유와 취소 이력을 보존하며 활성 일정은 null, publisher 선택 및 재예약 금지.",
       "kind": "public_beta",
       "conditional": true,
-      "status": "deferred",
+      "status": "cancelled",
       "tag": "v1.3.1-beta.3",
       "required_platforms": [
         "windows_x64",
@@ -78,39 +78,21 @@
         "candidate_date": "2026-10-15",
         "publication_target": "2026-10-16"
       },
-      "defer_reason": "2026-10-16 KST target elapsed without a public release; beta.3 expiry and publication approval remain undecided. No replacement date assigned."
-    },
-    {
-      "product": "Chimera",
-      "version": "1.3.2-beta.1",
-      "test_build_date": "2026-10-21",
-      "candidate_date": "2026-10-22",
-      "publication_target": "2026-10-23",
-      "scope": "PR #68 및 통합 검증 PR #90의 수명주기·신호체인·정밀/스트로브 튜너·공통 다이내믹스와 EQ 개선을 10/23 조건부로 검증한다. 큰 EQ 화면의 IN/OUT 채움 그래프·스무딩·해상도·Freeze 및 고정 밴드 ID를 유지하는 추가·삭제·Undo/Redo 범위를 유지한다. macOS 튜너·CAB, Linux/macOS EQ 상태 및 전체 제품 CI 실패 해결 후 동일 소스 재검증과 별도 공개 승인이 필요하다. beta.3 지연은 이 버전의 자동 연기나 승인 사유가 아니다.",
-      "kind": "public_beta",
-      "conditional": true,
-      "status": "blocked",
-      "tag": "v1.3.2-beta.1",
-      "required_platforms": [
-        "windows_x64",
-        "macos_universal",
-        "linux_x86_64"
-      ],
-      "publication_requires": "applicable_source_platform_host_package_acceptance",
-      "candidate_pr": 68,
-      "release_approved": false,
-      "checkpoint_date": "2026-10-23"
+      "defer_reason": "2026-10-16 KST target elapsed without a public release; beta.3 expiry and publication approval remain undecided. No replacement date assigned.",
+      "cancellation_reason": "v1.3.2-beta.1 published first on 2026-10-18 01:51:47 KST; lower unpublished beta.3 permanently cancelled.",
+      "cancelled_at": "2026-10-19",
+      "superseded_by": "v1.3.2-beta.1"
     },
     {
       "product": "Chimera",
       "version": "1.3.2-beta.2",
-      "test_build_date": "2026-10-28",
-      "candidate_date": "2026-10-29",
-      "publication_target": "2026-10-30",
-      "scope": "EQ 다중 선택·밴드 청취·로컬 A/B와 peak hold·표시 범위 조절을 추가하고 마우스·키보드 조작 및 노브 가독성을 개선한다.",
+      "test_build_date": "2026-10-21",
+      "candidate_date": "2026-10-22",
+      "publication_target": "2026-10-23",
+      "scope": "이슈 #97의 다음 배포 P0: Neural DSP Transpose 분석 결과 제품 반영, FabFilter 분석 반영, 베타 남은 기간·수명주기 관리, Windows/macOS AAX Native 및 시스템 요구사항·실제 테스트 환경표. 10/23은 개발·검증 목표이자 조건부 공개 검토 슬롯이다. 네 P0 구현·동일 소스 검증·서명된 일반 Pro Tools 수용·버전별 만료일 승인·별도 공개 승인 전 공개 불가. 이전 beta.1의 기능·승인을 중복 납품 또는 자동 승계하지 않는다.",
       "kind": "public_beta",
       "conditional": true,
-      "status": "planned",
+      "status": "blocked",
       "tag": "v1.3.2-beta.2",
       "required_platforms": [
         "windows_x64",
@@ -118,15 +100,19 @@
         "linux_x86_64"
       ],
       "publication_requires": "applicable_source_platform_host_package_acceptance",
-      "checkpoint_date": "2026-10-30"
+      "release_approved": false,
+      "checkpoint_date": "2026-10-23",
+      "requirements_issue": 97,
+      "expiry_approved": false,
+      "expiry_utc": null
     },
     {
       "product": "Chimera",
       "version": "1.3.2-beta.3",
-      "test_build_date": "2026-11-04",
-      "candidate_date": "2026-11-05",
-      "publication_target": "2026-11-06",
-      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: Tone EQ와 Final EQ를 합쳐 최대 네 노드에 동적 검출·감쇠 범위·실제 GR 표시를 추가하고 기존 정적 밴드 상태를 보존한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "test_build_date": "2026-10-28",
+      "candidate_date": "2026-10-29",
+      "publication_target": "2026-10-30",
+      "scope": "EQ 다중 선택·밴드 청취·로컬 A/B와 peak hold·표시 범위 조절을 추가하고 마우스·키보드 조작 및 노브 가독성을 개선한다. 이슈 #97의 필수 범위가 미완료이면 먼저 완료·검증하며 자동 공개나 다음 번호 소비 없이 일정을 재검토한다.",
       "kind": "public_beta",
       "conditional": true,
       "status": "planned",
@@ -137,15 +123,16 @@
         "linux_x86_64"
       ],
       "publication_requires": "applicable_source_platform_host_package_acceptance",
-      "checkpoint_date": "2026-11-06"
+      "checkpoint_date": "2026-10-30",
+      "release_approved": false
     },
     {
       "product": "Chimera",
       "version": "1.3.2-beta.4",
-      "test_build_date": "2026-11-11",
-      "candidate_date": "2026-11-12",
-      "publication_target": "2026-11-13",
-      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 클린 컴프레서의 검출·어택·릴리스·병렬 혼합과 GR 응답을 구현하고 Dynamic EQ의 저역·팜뮤트 반응을 보완한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "test_build_date": "2026-11-04",
+      "candidate_date": "2026-11-05",
+      "publication_target": "2026-11-06",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: Tone EQ와 Final EQ를 합쳐 최대 네 노드에 동적 검출·감쇠 범위·실제 GR 표시를 추가하고 기존 정적 밴드 상태를 보존한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
       "kind": "public_beta",
       "conditional": true,
       "status": "planned",
@@ -156,15 +143,16 @@
         "linux_x86_64"
       ],
       "publication_requires": "applicable_source_platform_host_package_acceptance",
-      "checkpoint_date": "2026-11-13"
+      "checkpoint_date": "2026-11-06",
+      "release_approved": false
     },
     {
       "product": "Chimera",
       "version": "1.3.2-beta.5",
-      "test_build_date": "2026-11-18",
-      "candidate_date": "2026-11-19",
-      "publication_target": "2026-11-20",
-      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 게이트·익스팬더의 DI 검출과 Hold·Release·Range 동작을 개선하고 최종 출력 뒤에 추가 게인이 없는 Live 피크 리미터를 연결한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "test_build_date": "2026-11-11",
+      "candidate_date": "2026-11-12",
+      "publication_target": "2026-11-13",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 클린 컴프레서의 검출·어택·릴리스·병렬 혼합과 GR 응답을 구현하고 Dynamic EQ의 저역·팜뮤트 반응을 보완한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
       "kind": "public_beta",
       "conditional": true,
       "status": "planned",
@@ -175,15 +163,16 @@
         "linux_x86_64"
       ],
       "publication_requires": "applicable_source_platform_host_package_acceptance",
-      "checkpoint_date": "2026-11-20"
+      "checkpoint_date": "2026-11-13",
+      "release_approved": false
     },
     {
       "product": "Chimera",
       "version": "1.3.2-beta.6",
-      "test_build_date": "2026-11-25",
-      "candidate_date": "2026-11-26",
-      "publication_target": "2026-11-27",
-      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 다이내믹스의 bypass 전환·파라미터 자동화·세션 복원과 낮은 음의 어택·서스테인 관련 결함을 수정한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "test_build_date": "2026-11-18",
+      "candidate_date": "2026-11-19",
+      "publication_target": "2026-11-20",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 게이트·익스팬더의 DI 검출과 Hold·Release·Range 동작을 개선하고 최종 출력 뒤에 추가 게인이 없는 Live 피크 리미터를 연결한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
       "kind": "public_beta",
       "conditional": true,
       "status": "planned",
@@ -194,7 +183,28 @@
         "linux_x86_64"
       ],
       "publication_requires": "applicable_source_platform_host_package_acceptance",
-      "checkpoint_date": "2026-11-27"
+      "checkpoint_date": "2026-11-20",
+      "release_approved": false
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.7",
+      "test_build_date": "2026-11-25",
+      "candidate_date": "2026-11-26",
+      "publication_target": "2026-11-27",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 다이내믹스의 bypass 전환·파라미터 자동화·세션 복원과 낮은 음의 어택·서스테인 관련 결함을 수정한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.2-beta.7",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance",
+      "checkpoint_date": "2026-11-27",
+      "release_approved": false
     },
     {
       "product": "Chimera",
@@ -1619,13 +1629,13 @@
     },
     {
       "product": "Chimera AAX",
-      "version": "1.3.2-beta.6",
-      "tag": "v1.3.2-beta.6",
-      "publication_review": "2026-11-27",
+      "version": "1.3.2-beta.2",
+      "tag": "v1.3.2-beta.2",
+      "publication_review": "2026-10-23",
       "kind": "conditional_format",
       "conditional": true,
-      "scope": "10/30 내부 빌드, 11/20 실제 Pro Tools/서명 검증 후 처음 공개할 수 있는 목표 슬롯",
-      "unresolved": "Avid/PACE 접근, 최종 서명, 정상 Pro Tools 및 패키지 검증; 지연 시 다음 검증된 Chimera 버전 사용",
+      "scope": "Issue #97 supersedes the former November 27 review: AAX Native is required in the next update, same product version.",
+      "unresolved": "Windows/macOS PACE/platform signing, normal Pro Tools and package acceptance; this review date is not approval. If blocked, next update remains blocked pending explicit schedule review.",
       "shares_release_with": "Chimera"
     },
     {
@@ -1648,6 +1658,14 @@
     }
   ],
   "published_releases": [
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.1",
+      "tag": "v1.3.2-beta.1",
+      "product_source": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+      "published_at": "2026-10-17T16:51:47Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1"
+    },
     {
       "product": "Chimera",
       "version": "1.3.1-beta.2",
@@ -1725,19 +1743,50 @@
       "publication_approved": false,
       "expiry_approved": false,
       "blockers": [
-        "2026-10-16 KST target elapsed without a public release; beta.3 expiry and publication approval remain undecided. No replacement date assigned.",
-        "Expiry timestamp not approved; fresh approved-date binary and source-specific acceptance required",
-        "12 successful workflows do not approve 107 unexecuted strict acceptance checks"
+        "v1.3.2-beta.1 published first on 2026-10-18 01:51:47 KST; lower unpublished beta.3 permanently cancelled."
       ],
-      "reservation_status": "deferred"
-    },
+      "reservation_status": "cancelled"
+    }
+  ],
+  "completed_reservations": [
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.1",
+      "test_build_date": null,
+      "candidate_date": null,
+      "publication_target": null,
+      "scope": "10/18 01:51:47 KST 실제 공개 완료. 원래 10/23 예약은 종료됐으며 재예약·재배포 금지. 공개 기록은 신규 소스 승인이나 엄격 수용검사 PASS를 뜻하지 않는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "published",
+      "tag": "v1.3.2-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance",
+      "candidate_pr": 68,
+      "release_approved": false,
+      "checkpoint_date": "2026-10-23",
+      "published_at": "2026-10-17T16:51:47Z",
+      "product_source": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+      "publication_pr": 95,
+      "original_target": {
+        "test_build_date": "2026-10-21",
+        "candidate_date": "2026-10-22",
+        "publication_target": "2026-10-23"
+      }
+    }
+  ],
+  "historical_development_candidates": [
     {
       "pr": 68,
       "version": "1.3.2-beta.1",
       "tag": "v1.3.2-beta.1",
       "source_sha": "c2263e4c90bffb9a56cc41285ebf8207e641b3aa",
-      "state": "open_draft",
-      "publication_target": "2026-10-23",
+      "state": "historical_superseded_by_publication_pr_95",
+      "publication_target": null,
       "scope": "Includes #62 lifecycle plus signal navigation, precision/strobe tuner, EQ/analyzer and common dynamics; preserve October 23/30 EQ acceptance scope.",
       "publication_approved": false,
       "expiry_approved": true,
@@ -1746,7 +1795,7 @@
         "Current-head Open Beta Build and Test, CAB realtime performance and signal/tuner/dynamics workflows failed",
         "release_approved=false; RELEASE_REVIEW_PENDING; fresh exact-source platform/package/host acceptance required"
       ],
-      "reservation_status": "blocked",
+      "reservation_status": "published",
       "qualification_candidate": {
         "pr": 90,
         "source_sha": "428d4b9890a015f1fe1545ad737e8ed2c57af9d9",
@@ -1762,7 +1811,26 @@
           "consolidate-release-gate"
         ],
         "successful_scope": "Graphical EQ all three OS and selected platform checks; not full product or DAW acceptance."
-      }
+      },
+      "historical_only": true
     }
-  ]
+  ],
+  "next_release": {
+    "version": "1.3.2-beta.2",
+    "requirements_issue": 97,
+    "development_target": "2026-10-23",
+    "publication_target": "2026-10-23",
+    "publication_approved": false,
+    "expiry_approved": false,
+    "expiry_utc": null,
+    "source_sha": null,
+    "candidate_pr": null,
+    "required_p0": [
+      "transpose_analysis_in_product",
+      "fabfilter_analysis_in_product",
+      "beta_lifecycle_remaining_time",
+      "signed_aax_native_normal_pro_tools"
+    ],
+    "if_incomplete": "Defer and explicitly review the unused reservation; no automatic release, rollover or expiry inheritance."
+  }
 }
