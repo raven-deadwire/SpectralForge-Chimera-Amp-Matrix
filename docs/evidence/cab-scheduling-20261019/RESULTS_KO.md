@@ -176,7 +176,38 @@ focused stages-on worker lifetime의 timeout wait 88회 overshoot는 0.531–155
 측정 밖 준비·drain 중 wait도 포함하며, callback과의 시간 관계는 별도로 join했다.
 이 큰 wait-return 편차도 OS runnable trace를 대체하지 않는다.
 
-BAAB의 완료 상태와 독립 재계산 결과는 같은 소스의 별도 기록으로 추가한다.
+BAAB artifact 12176677291도 완료됐다. SHA256은
+`74c157572e609f1cbe2000a4bc4efd261ef08dc1e938551cc26e9da6d98fc493`이며,
+manifest 723개 및 68개 route associations를 재검증·재계산했다. 13 populations가 완결됐고
+frozen/current 각각의 기존 5 CTest, trace 계약, hooks-on semantic 회귀가 모두 통과했다.
+
+| BAAB의 96k/32/stereo | wall / CPU p99 µs | miss | CPU 동반 / wall-only |
+|---|---:|---:|---:|
+| frozen PR #101 | 117.959 / 120.708 | 0/1600 | 0 / 0 |
+| current hooks-off | 183.833 / 180.917 | 5/1600 | 4 / 1 |
+
+동일 frozen 소스가 ABBA allocation에서는 실패, BAAB allocation에서는 통과했다.
+순서 자체의 효과로 단정할 수 없으며 두 VM 수치를 합쳐 평균 개선율을 만들지 않는다.
+
+BAAB observer의 worker 구간은 A/off 11/2400 대 B/stages 8/2400이었다. ABBA의
+A/off 2 대 B/stages 71과 방향이 다르다. cadence worker 구간은 off legacy 1/2400 대
+continuous 0/2400, stages legacy 1162/2400 대 continuous 7/2400이었다. 그러나 앞서
+확인한 비동기 publication/fade 노출 차이와 state/output checksum 차이가 있어
+sleep 제거·prefetch·QoS 변경의 성능 증거로 사용할 수 없다. 모든 phase별 데이터는
+`mac-baab-audit.json`에 보존했다.
+
+원시 macOS archive는 `CAB_MacOS_ABBA_3fbf547.zip` (133,341,412 bytes)와
+`CAB_MacOS_BAAB_3fbf547.zip` (132,685,929 bytes)이다. 독립 재계산 명령:
+
+```sh
+python Tools/CabScheduling/audit_native.py --input /path/to/extracted-artifact \
+  --output /path/to/audit.json
+```
+
+검증 범위는 명시된 source SHA에 한정한다. 최종 보고·재현 명령 추가 후 head의 CI는
+후속 실행으로 구분한다. optional canonical-v2는 Linux에서 실행했으며, macOS canonical
+replay는 재현 명령을 준비한 상태다. 위 macOS 데이터를 canonical replay 결과로 대체하지
+않는다. 제품 수정 효과·순수 scheduler latency·실장비 dropout은 여전히 미입증이다.
 
 ## 실제 장비가 필요한 검사
 
