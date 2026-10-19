@@ -192,9 +192,11 @@ def install(package_dir: Path, root: Path) -> None:
     if old and old["platform"] != new["platform"]:
         raise ValueError("Installed platform differs")
     root.mkdir(parents=True, exist_ok=True)
-    # Stage on the same volume, validate before touching the installed copy.
-    with tempfile.TemporaryDirectory(prefix=".chimera-aax-", dir=root) as tmp:
-        work = Path(tmp)
+    # Manual cleanup is intentional: TemporaryDirectory would delete the only
+    # previous bundle if the replacement AND its rollback both fail.
+    work = Path(tempfile.mkdtemp(prefix=".chimera-aax-", dir=root)).absolute()
+    preserve_work = False
+    try:
         staged = work / BUNDLE
         shutil.copytree(package_dir / BUNDLE, staged)
         shutil.copy2(package_dir / RECEIPT, work / RECEIPT)
@@ -203,33 +205,104 @@ def install(package_dir: Path, root: Path) -> None:
         backup = work / "previous.aaxplugin"
         prior_receipt = (root / RECEIPT).read_bytes() if old else None
         if old:
-            destination.rename(backup)
+            # Retain receipt bytes even if the bundle is restored successfully
+            # but the subsequent receipt write fails.
+            (work / "previous-receipt.json").write_bytes(prior_receipt)
+        # Preserve before the first rename. A signal can arrive after the OS
+        # completed a move but before Python records a boolean flag.
+        preserve_work = True
         try:
+            if old:
+                destination.rename(backup)
             staged.rename(destination)
             os.replace(work / RECEIPT, root / RECEIPT)
-        except Exception:
-            if destination.exists():
-                shutil.rmtree(destination)
-            if old:
-                backup.rename(destination)
-                (root / RECEIPT).write_bytes(prior_receipt)
+            if verify_package(root) != new:
+                raise ValueError("Installed AAX differs from the verified package")
+            preserve_work = False
+        except BaseException as install_error:
+            # A handled KeyboardInterrupt must not bypass rollback. Abrupt
+            # process termination/power loss are not transactional guarantees.
+            preserve_work = True
+            try:
+                # Same-volume rename is atomic; infer completed moves from
+                # their source paths, including an interrupted syscall return.
+                candidate_installed = not staged.exists()
+                if candidate_installed and destination.exists():
+                    shutil.rmtree(destination)
+                if backup.exists():
+                    backup.rename(destination)
+                    (root / RECEIPT).write_bytes(prior_receipt)
+                elif not old and candidate_installed:
+                    (root / RECEIPT).unlink(missing_ok=True)
+                if old and verify_package(root) != old:
+                    raise ValueError("Restored AAX differs from the previous installation")
+                preserve_work = False
+            except BaseException as rollback_error:
+                raise RuntimeError(
+                    f"AAX installation failed ({install_error!r}); rollback incomplete "
+                    f"({rollback_error!r}). Recovery files retained at: {work}. "
+                    "Do not delete this directory. Close all hosts and inspect the "
+                    "installed bundle, previous.aaxplugin and previous-receipt.json "
+                    "before retrying. No successful install or rollback is claimed."
+                ) from rollback_error
             raise
+    finally:
+        # Never best-effort-delete the recovery directory on rollback failure.
+        if not preserve_work:
+            shutil.rmtree(work)
 
 
 def uninstall(root: Path) -> None:
-    if installed_receipt(root) is None:
+    old = installed_receipt(root)
+    if old is None:
         return
-    # Rename first so a locked binary prevents removal of the receipt on Windows.
-    with tempfile.TemporaryDirectory(prefix=".chimera-aax-remove-", dir=root) as tmp:
-        moved = Path(tmp) / BUNDLE
-        (root / BUNDLE).rename(moved)
+    # rmtree can delete part of a bundle before failing. Keep a verified full
+    # copy until both removal and receipt deletion have committed.
+    work = Path(tempfile.mkdtemp(prefix=".chimera-aax-remove-", dir=root)).absolute()
+    preserve_work = False
+    try:
+        destination = root / BUNDLE
+        moved = work / BUNDLE
+        recovery = work / "recovery"
+        recovery.mkdir()
+        prior_receipt = (root / RECEIPT).read_bytes()
+        shutil.copytree(destination, recovery / BUNDLE)
+        (recovery / RECEIPT).write_bytes(prior_receipt)
+        if verify_package(recovery) != old:
+            raise ValueError("Uninstall recovery copy differs from installed AAX")
+        preserve_work = True
         try:
+            # A failed or interrupted rename must also enter rollback.
+            destination.rename(moved)
             shutil.rmtree(moved)
-        except Exception:
-            if moved.exists():
-                moved.rename(root / BUNDLE)
+            (root / RECEIPT).unlink()
+            if installed_receipt(root) is not None:
+                raise ValueError("AAX removal did not complete")
+            preserve_work = False
+        except BaseException as remove_error:
+            try:
+                if not destination.exists():
+                    # Keep the verified recovery copy even if restoration is
+                    # interrupted. Never retry deletion of a partial original.
+                    restore = work / "restore" / BUNDLE
+                    shutil.copytree(recovery / BUNDLE, restore)
+                    restore.rename(destination)
+                (root / RECEIPT).write_bytes(prior_receipt)
+                if verify_package(root) != old:
+                    raise ValueError("Restored AAX differs after failed removal")
+                preserve_work = False
+            except BaseException as rollback_error:
+                raise RuntimeError(
+                    f"AAX removal failed ({remove_error!r}); rollback incomplete "
+                    f"({rollback_error!r}). Recovery files retained at: {work}. "
+                    "Do not delete this directory. Close all hosts and inspect "
+                    "the installed bundle and recovery package before retrying. "
+                    "No successful removal or rollback is claimed."
+                ) from rollback_error
             raise
-        (root / RECEIPT).unlink()
+    finally:
+        if not preserve_work:
+            shutil.rmtree(work)
 
 
 def main() -> None:
@@ -264,3 +337,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
