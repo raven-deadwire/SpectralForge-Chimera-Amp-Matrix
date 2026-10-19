@@ -163,6 +163,21 @@ class SourceFixture(unittest.TestCase):
 
 
 class SourceContracts(SourceFixture):
+    def test_issue97_unimplemented_scope_stops_before_network_or_staging(self):
+        release = self.select_version("1.3.2-beta.2")
+        with patch.object(publisher.transport, "GitHub") as api, \
+             patch.object(publisher.transport, "publish") as publish, \
+             patch.object(publisher, "prepare_assets") as stage:
+            for mode in ("--dry-run", "--publish"):
+                with self.subTest(mode=mode), self.assertRaisesRegex(
+                        RuntimeError, "ISSUE97_P0_GATE_UNIMPLEMENTED"):
+                    publisher.main([mode, "--target-version", release.version,
+                                    "--source-sha", release.source_sha,
+                                    "--confirm", release.confirm])
+        api.assert_not_called()
+        publish.assert_not_called()
+        stage.assert_not_called()
+
     def test_every_target_requires_both_full_source_and_strict_version(self):
         for version in ("1.3.1-beta.2", "1.3.1-beta.10", "1.3.2-beta.1", "1.3.1-rc.1", "1.3.1"):
             with self.subTest(version=version):

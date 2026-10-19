@@ -1,0 +1,342 @@
+{
+  "schema": "spectralforge.chimera.beta2-readiness-audit.v1",
+  "observed_date_kst": "2026-10-19",
+  "target": "1.3.2-beta.2",
+  "candidate_source_sha": null,
+  "publication_ready": false,
+  "release_approved": false,
+  "expiry_approved": false,
+  "main_sha": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "published_product_source_sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+  "pull_requests": [
+    {
+      "number": 93,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/93",
+      "head_sha": "e1b418e12849b1a32009c2ec585e4b89aa01be8d",
+      "head": "fix/release-reservations-20261017",
+      "base": "main",
+      "draft": true,
+      "merged": false,
+      "updated_at": "2026-10-19T06:26:30Z"
+    },
+    {
+      "number": 98,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/98",
+      "head_sha": "b7923ea8b7a0f85cfbfafb0e0338238adc09b181",
+      "head": "codex/beta-settings-countdown-20261018",
+      "base": "main",
+      "draft": true,
+      "merged": false,
+      "updated_at": "2026-10-18T06:46:44Z"
+    },
+    {
+      "number": 100,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/100",
+      "head_sha": "6ec78c475311827ccfd1949c9ae9ce364f79c0b4",
+      "head": "research/transpose-correlation-20261018",
+      "base": "main",
+      "draft": true,
+      "merged": false,
+      "updated_at": "2026-10-18T06:46:45Z"
+    },
+    {
+      "number": 101,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/101",
+      "head_sha": "1fa3b0ee924e40e1c5e089e0361f7cecaf6adc92",
+      "head": "codex/aax-native-foundation-20261018",
+      "base": "main",
+      "draft": true,
+      "merged": false,
+      "updated_at": "2026-10-18T12:59:04Z"
+    },
+    {
+      "number": 102,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/102",
+      "head_sha": "274d9c383ca34a2bd66b59921d836231f55d36ff",
+      "head": "docs/system-requirements-20261018",
+      "base": "codex/beta-settings-countdown-20261018",
+      "draft": true,
+      "merged": false,
+      "updated_at": "2026-10-18T08:55:07Z"
+    },
+    {
+      "number": 103,
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/103",
+      "head_sha": "8c502f4f924886cd036c8367bc32fa6d123f59bd",
+      "head": "codex/system-performance-framework-20261018",
+      "base": "docs/system-requirements-20261018",
+      "draft": true,
+      "merged": false,
+      "updated_at": "2026-10-19T08:43:03Z"
+    }
+  ],
+  "workflow_snapshots": [
+    {
+      "pr": 93,
+      "head_sha": "e1b418e12849b1a32009c2ec585e4b89aa01be8d",
+      "workflow_runs": [
+        {
+          "id": 39209811172,
+          "name": "Beta lifecycle and state preservation",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209811172"
+        },
+        {
+          "id": 39209811173,
+          "name": "Chimera release publisher contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209811173"
+        },
+        {
+          "id": 39209810984,
+          "name": "Chimera update candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209810984"
+        },
+        {
+          "id": 39209811064,
+          "name": "Open Beta Build and Test",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209811064"
+        },
+        {
+          "id": 39209810045,
+          "name": "Chimera update candidate",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209810045"
+        },
+        {
+          "id": 39209809986,
+          "name": "Chimera release publisher contracts",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209809986"
+        },
+        {
+          "id": 39209810067,
+          "name": "Open Beta Build and Test",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209810067"
+        },
+        {
+          "id": 39209810074,
+          "name": "Beta lifecycle and state preservation",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209810074"
+        }
+      ]
+    },
+    {
+      "pr": 98,
+      "head_sha": "b7923ea8b7a0f85cfbfafb0e0338238adc09b181",
+      "workflow_runs": [
+        {
+          "id": 39073751064,
+          "name": "Graphical EQ prototype contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751064"
+        },
+        {
+          "id": 39073751020,
+          "name": "Chimera release publisher contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751020"
+        },
+        {
+          "id": 39073751041,
+          "name": "1.3.2 signal path, tuner and dynamics integration contracts",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751041"
+        },
+        {
+          "id": 39073751036,
+          "name": "CAB realtime performance",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751036"
+        },
+        {
+          "id": 39073751034,
+          "name": "Niflheimr DI audition contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751034"
+        },
+        {
+          "id": 39073751028,
+          "name": "Beta lifecycle and state preservation",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751028"
+        },
+        {
+          "id": 39073751039,
+          "name": "CAB Panel prototype contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751039"
+        },
+        {
+          "id": 39073751043,
+          "name": "Chimera update candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751043"
+        },
+        {
+          "id": 39073751027,
+          "name": "Open Beta Build and Test",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751027"
+        },
+        {
+          "id": 39073751024,
+          "name": "1.3.1 amplifier head controls",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751024"
+        }
+      ]
+    },
+    {
+      "pr": 100,
+      "head_sha": "6ec78c475311827ccfd1949c9ae9ce364f79c0b4",
+      "workflow_runs": [
+        {
+          "id": 39074028942,
+          "name": "Beta lifecycle and state preservation",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39074028942"
+        },
+        {
+          "id": 39074029042,
+          "name": "Chimera update candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39074029042"
+        },
+        {
+          "id": 39074028939,
+          "name": "Open Beta Build and Test",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39074028939"
+        },
+        {
+          "id": 39074028947,
+          "name": "Chimera release publisher contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39074028947"
+        }
+      ]
+    },
+    {
+      "pr": 101,
+      "head_sha": "1fa3b0ee924e40e1c5e089e0361f7cecaf6adc92",
+      "workflow_runs": [
+        {
+          "id": 39127354214,
+          "name": "Chimera update candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354214"
+        },
+        {
+          "id": 39127354379,
+          "name": "1.3.1 amplifier head controls",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354379"
+        },
+        {
+          "id": 39127354229,
+          "name": "Chimera release publisher contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354229"
+        },
+        {
+          "id": 39127354292,
+          "name": "Niflheimr technical measurements",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354292"
+        },
+        {
+          "id": 39127354198,
+          "name": "CAB realtime performance",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354198"
+        },
+        {
+          "id": 39127354277,
+          "name": "1.3.2 signal path, tuner and dynamics integration contracts",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354277"
+        },
+        {
+          "id": 39127354220,
+          "name": "Graphical EQ prototype contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354220"
+        },
+        {
+          "id": 39127354334,
+          "name": "CAB Panel prototype contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354334"
+        },
+        {
+          "id": 39127354288,
+          "name": "Beta lifecycle and state preservation",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354288"
+        },
+        {
+          "id": 39127354264,
+          "name": "Niflheimr DI audition contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354264"
+        },
+        {
+          "id": 39127354204,
+          "name": "AAX Native Development",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354204"
+        },
+        {
+          "id": 39127354457,
+          "name": "Open Beta Build and Test",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354457"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "PR-triggered workflow run inventory only; no claim of exhaustive workflow_dispatch inventory.",
+    "No native or actual DAW/Pro Tools tests executed by this audit.",
+    "Snapshots describe the PR heads before this audit patch."
+  ]
+}

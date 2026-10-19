@@ -131,6 +131,9 @@ def verify_controller_source(source, controller):
 
 
 def release_policy(release):
+    # Stop unsupported mandatory scope before CI lookup, archive staging or
+    # remote mutations. validate_approval also enforces this for direct callers.
+    weekly_publication.require_supported_acceptance_scope(release.version)
     # Read the selected commit itself. identity(ROOT, arbitrary_sha) alone would
     # attach the requested SHA to the current worktree's version, not prove it.
     source_version = git("show", f"{release.source_sha}:VERSION")

@@ -128,6 +128,34 @@ class WeeklyPublication(unittest.TestCase):
         self.policy = self.approval(weekly.STRICT_DECISION)
         self.rejected()
 
+    def test_issue97_cannot_inherit_the_legacy_beta_gap_exception(self):
+        self.version = "1.3.2-beta.2"
+        self.set_scope()
+        self.policy = self.approval(weekly.GAP_DECISION)
+        with self.assertRaisesRegex(gate.ValidationError, "ISSUE97_P0_GATE_UNIMPLEMENTED"):
+            self.evaluate()
+
+    def test_issue97_cannot_be_satisfied_by_all_legacy_checks_passing(self):
+        for version, profile in (("1.3.2-beta.2", weekly.BETA_PROFILE),
+                                 ("1.3.2-beta.10", weekly.BETA_PROFILE),
+                                 ("1.3.2-rc.1", weekly.FULL_PROFILE),
+                                 ("1.3.2", weekly.FULL_PROFILE),
+                                 ("1.3.3-beta.1", weekly.BETA_PROFILE),
+                                 ("2.0.0", weekly.FULL_PROFILE)):
+            with self.subTest(version=version):
+                self.strict_pass_fixture(version, profile)
+                # The old inventory really is all green. It still has no
+                # measured FabFilter/AAX/Pro Tools acceptance producer.
+                self.assertTrue(self.strict["ready"])
+                self.policy["p0_approved"] = True  # Unverified flags are not evidence.
+                self.policy["owner_acceptance"]["instruction"] = "Synthetic all-P0 approval"
+                with self.assertRaisesRegex(gate.ValidationError, "ISSUE97_P0_GATE_UNIMPLEMENTED"):
+                    self.evaluate()
+
+    def test_issue97_guard_preserves_published_beta1_contract(self):
+        self.strict_pass_fixture("1.3.2-beta.1", weekly.BETA_PROFILE)
+        self.assertTrue(self.evaluate()["publication_allowed"])
+
     def test_copied_historical_beta_approval_cannot_authorize_weekly_publication(self):
         self.policy = gate.load_json(weekly.ROOT / "Validation/beta-publication-policy-1.3.1.json")
         self.policy["approved_product_source_sha"] = HEAD
@@ -334,7 +362,7 @@ class WeeklyPublication(unittest.TestCase):
         self.rejected()
 
     def test_beta_can_publish_with_a_complete_strict_pass(self):
-        self.strict_pass_fixture("1.3.2-beta.10", weekly.BETA_PROFILE)
+        self.strict_pass_fixture("1.3.1-beta.10", weekly.BETA_PROFILE)
         result = self.evaluate()
         self.assertTrue(result["all_required_checks_passed"])
         self.assertEqual(result["strict_validation"]["counts"]["checks"]["pass"], 128)
@@ -342,7 +370,7 @@ class WeeklyPublication(unittest.TestCase):
         self.assertIn("128 PASS / 0 BLOCKED", weekly.render_markdown(result))
 
     def test_rc_and_stable_require_full_strict_pass_including_transpose(self):
-        for version in ("1.3.2-rc.1", "1.3.2"):
+        for version in ("1.3.1-rc.1", "1.3.1"):
             with self.subTest(version=version):
                 self.strict_pass_fixture(version, weekly.FULL_PROFILE)
                 result = self.evaluate()
@@ -353,7 +381,7 @@ class WeeklyPublication(unittest.TestCase):
                 self.rejected()
 
     def test_rc_and_stable_never_use_beta_profile_or_gap_exception(self):
-        for version in ("1.3.2-rc.1", "1.3.2"):
+        for version in ("1.3.1-rc.1", "1.3.1"):
             for profile in (weekly.BETA_PROFILE, weekly.FULL_PROFILE):
                 with self.subTest(version=version, profile=profile):
                     self.version, self.profile = version, profile
@@ -362,7 +390,7 @@ class WeeklyPublication(unittest.TestCase):
                     self.rejected()
 
     def test_strict_pass_requires_a_current_producer_and_evidence_for_former_gaps(self):
-        self.strict_pass_fixture("1.3.2-beta.2", weekly.BETA_PROFILE)
+        self.strict_pass_fixture("1.3.2-beta.1", weekly.BETA_PROFILE)
         original = copy.deepcopy(self.checks["B8.RESULT"])
         changes = [lambda c: c["scope"].update(producer="unclaimed-baseline"),
                    lambda c: c["scope"].update(run_id="999"),

@@ -58,6 +58,31 @@ def _version(version):
     return match[1], channel, match[2] or "stable"
 
 
+def require_supported_acceptance_scope(version):
+    """Reject the next release until its mandatory evidence is implemented.
+
+    Issue #97 supersedes the historical beta Transpose deferral. The existing
+    128/130-check inventory also has no source/binary-bound FabFilter or signed
+    AAX/retail-Pro-Tools acceptance producer. Neither STRICT_PASS nor a fresh
+    legacy-gap receipt certifies those requirements. Keep the published beta.1
+    contract intact; fail closed for every successor, including RC/stable and
+    version jumps. Calendar text, extra approval flags and date changes cannot
+    lift this hold. Replace it only with a reviewed complete P0 evidence gate,
+    including version-specific expiry and actual system/host measurements.
+    """
+    product, channel, kind = _version(version)
+    numeric = tuple(map(int, product.split(".")))
+    historical = numeric < (1, 3, 2) or (
+        numeric == (1, 3, 2) and kind == "beta" and channel == "beta.1")
+    require(historical,
+            "ISSUE97_P0_GATE_UNIMPLEMENTED: publication remains blocked after "
+            "1.3.2-beta.1; the legacy gate does not verify mandatory Transpose "
+            "latency/quality, FabFilter DSP integration, beta lifecycle/expiry, "
+            "signed AAX/retail Pro Tools and actual system measurements. "
+            "A reviewed source/binary-bound P0 evidence gate is required; "
+            "legacy PASS or approval flags cannot replace it.")
+
+
 def _inventory(rows, expected, label):
     require(isinstance(rows, list) and all(isinstance(row, dict) for row in rows),
             f"Malformed {label} inventory")
@@ -83,6 +108,7 @@ def validate_approval(publication_policy, strict_policy, source_sha, *, version,
     """
     require(_sha(source_sha, 40), "Full lowercase product source SHA required")
     product_version, channel, kind = _version(version)
+    require_supported_acceptance_scope(version)
     require(profile in (BETA_PROFILE, FULL_PROFILE)
             and (kind == "beta" or profile == FULL_PROFILE),
             "RC and stable publication require full_release strict validation")
