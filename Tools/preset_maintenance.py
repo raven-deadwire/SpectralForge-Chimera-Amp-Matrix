@@ -37,6 +37,8 @@ RECIPE_PATH = "Source/FactoryPresetFinishing.h"
 OLD_APPROVAL_PATH = "Validation/weekly-publication-policy.json"
 EXPORT_TEST = "ChimeraFactoryPresetExport"
 PACK_MANIFEST = "factory-preset-pack.json"
+# Match the exporter's strict abs(rawOutput) < 1.e-6f, including float32 rounding.
+FACTORY_OUTPUT_TOLERANCE_DB = struct.unpack("<f", struct.pack("<f", 1e-6))[0]
 PLATFORMS = {"windows": "Windows", "linux": "Linux", "macos": "macOS"}
 WRAPPERS = {
     "Source/FactoryNativeVoicing.h": "    voiceFactoryFinishing(index,get,set);\n",
@@ -254,7 +256,9 @@ def validate_state(data):
         number = float(item.attrib["value"])
         require(math.isfinite(number), "Non-finite factory parameter")
         values[name] = number
-    require(values and values.get("output") == 0, "Factory state lost its unity output reference")
+    output = values.get("output")
+    require(output is not None and abs(output) < FACTORY_OUTPUT_TOLERANCE_DB,
+            "Factory state lost its unity output reference")
     return values
 
 

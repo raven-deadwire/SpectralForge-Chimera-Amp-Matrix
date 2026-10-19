@@ -21,13 +21,18 @@ REAL_ROOT = contract.ROOT
 SOURCE = "a" * 40
 
 
-def fixture_pack(source=SOURCE, platform="linux"):
+def fixture_state(output_value="0", ordinal=0):
+    output = "" if output_value is None else f'<PARAM id="output" value="{output_value}"/>'
+    xml = (f'<PARAMS schemaVersion="11">{output}'
+           f'<PARAM id="fixture" value="{ordinal}"/><USER_IRS/><IR_ASSETS/><MIDI_MAP/></PARAMS>').encode()
+    return struct.pack("<II", 0x21324356, len(xml)) + xml + b"\0"
+
+
+def fixture_pack(source=SOURCE, platform="linux", *, output_value="0"):
     rows, files = [], {}
     for ordinal in range(48):
         name = f"{ordinal + 1:02d}-Factory-{ordinal}.chimera"
-        xml = (f'<PARAMS schemaVersion="11"><PARAM id="output" value="0"/>'
-               f'<PARAM id="fixture" value="{ordinal}"/><USER_IRS/><IR_ASSETS/><MIDI_MAP/></PARAMS>').encode()
-        data = struct.pack("<II", 0x21324356, len(xml)) + xml + b"\0"
+        data = fixture_state(output_value, ordinal)
         files[name] = data
         rows.append(dict(ordinal=ordinal, name=f"Factory {ordinal}", category="Fixture", file=name,
             size=len(data), sha256=contract.digest_bytes(data), parameter_count=2,
@@ -176,6 +181,42 @@ class SourceScope(unittest.TestCase):
 
 
 class PackContracts(unittest.TestCase):
+    def test_output_zero_and_values_inside_native_float32_limit_are_accepted(self):
+        # The final pair is the adjacent float32 value below native 1.e-6f.
+        for value in ("0", "-0.0", "-8.046627044677734e-7", "8.046627044677734e-7",
+                      "9.99999883788405e-7", "-9.99999883788405e-7"):
+            with self.subTest(value=value):
+                self.assertEqual(contract.validate_state(fixture_state(value))["output"], float(value))
+
+    def test_actual_macos_output_rounding_passes_full_pack_validation(self):
+        # Actual 4de53 macOS XML: unity is normalized 0.75 and restores exactly.
+        value = "-8.046627044677734e-7"
+        manifest, files = fixture_pack(platform="macos", output_value=value)
+        for row in manifest["presets"]:
+            row["normalized_parameters"][1] = .75
+        self.assertIs(contract.validate_pack(manifest, files, SOURCE, "macos"), manifest)
+        # The manifest retains the authored exact-zero reference, not raw XML rounding.
+        manifest["presets"][0]["output_db"] = float(value)
+        with self.assertRaisesRegex(RuntimeError, "Preset fresh restore failed"):
+            contract.validate_pack(manifest, files, SOURCE, "macos")
+
+    def test_output_at_or_beyond_native_float32_limit_is_rejected(self):
+        # Native 1.e-6f itself is less than Python 1e-6, but must still fail.
+        for magnitude in ("9.999999974752427e-7", "1.0000001111620804e-6", "1e-6", ".01"):
+            for sign in ("", "-"):
+                value = sign + magnitude
+                with self.subTest(value=value), self.assertRaisesRegex(RuntimeError, "unity output reference"):
+                    contract.validate_state(fixture_state(value))
+
+    def test_missing_output_is_rejected(self):
+        with self.assertRaisesRegex(RuntimeError, "unity output reference"):
+            contract.validate_state(fixture_state(None))
+
+    def test_nonfinite_output_is_rejected(self):
+        for value in ("nan", "NaN", "inf", "-inf", "1e309", "-1e309"):
+            with self.subTest(value=value), self.assertRaisesRegex(RuntimeError, "Non-finite factory parameter"):
+                contract.validate_state(fixture_state(value))
+
     def test_all_48_valid_states_and_cross_platform_parameter_bank(self):
         with tempfile.TemporaryDirectory() as temporary:
             manifests, directories = {}, {}
