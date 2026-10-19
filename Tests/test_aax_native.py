@@ -119,6 +119,142 @@ class AAXPackagingTests(unittest.TestCase):
         self.assertEqual(aax.verify_package(self.installed), aax.verify_package(self.package))
 
 
+    def test_failed_rollback_rename_retains_previous_bytes(self):
+        aax.install(self.package, self.installed)
+        old_files = aax.verify_package(self.installed)["files"]
+        old_receipt = (self.installed / aax.RECEIPT).read_bytes()
+        updated = fixture(self.root / "updated", revision=b"second")
+        rename = Path.rename
+
+        def fail_restore(path, destination):
+            if path.name == "previous.aaxplugin":
+                raise PermissionError("injected rollback rename failure")
+            return rename(path, destination)
+
+        with mock.patch.object(aax.os, "replace", side_effect=OSError("injected receipt failure")), \
+                mock.patch.object(Path, "rename", fail_restore):
+            with self.assertRaises((OSError, RuntimeError)):
+                aax.install(updated, self.installed)
+        backups = list(self.installed.glob(".chimera-aax-*/previous.aaxplugin"))
+        self.assertEqual(len(backups), 1, "Rollback failure discarded the only old bundle")
+        actual = {p.relative_to(backups[0]).as_posix(): aax.digest(p)
+                  for p in backups[0].rglob("*") if p.is_file()}
+        self.assertEqual(actual, old_files)
+        self.assertEqual((backups[0].parent / "previous-receipt.json").read_bytes(), old_receipt)
+
+    def test_failed_rollback_cleanup_retains_previous_bytes(self):
+        aax.install(self.package, self.installed)
+        expected = aax.verify_package(self.installed)["binary_sha256"]
+        updated = fixture(self.root / "updated", revision=b"second")
+        remove = shutil.rmtree
+
+        def fail_candidate_removal(path, *args, **kwargs):
+            if Path(path) == self.installed / aax.BUNDLE:
+                raise PermissionError("injected candidate cleanup failure")
+            return remove(path, *args, **kwargs)
+
+        with mock.patch.object(aax.os, "replace", side_effect=OSError("injected receipt failure")), \
+                mock.patch.object(aax.shutil, "rmtree", fail_candidate_removal):
+            with self.assertRaises((OSError, RuntimeError)) as failure:
+                aax.install(updated, self.installed)
+        backups = list(self.installed.glob(".chimera-aax-*/previous.aaxplugin"))
+        self.assertEqual(len(backups), 1, "Failed cleanup discarded the only old bundle")
+        self.assertEqual(aax.digest(backups[0] / "Contents/x64" / aax.BUNDLE), expected)
+        self.assertIn(str(backups[0].parent), str(failure.exception))
+
+    def test_backup_move_failure_preserves_old_installation(self):
+        aax.install(self.package, self.installed)
+        expected = aax.verify_package(self.installed)
+        updated = fixture(self.root / "updated", revision=b"second")
+        rename = Path.rename
+
+        def fail_backup(path, destination):
+            if path == self.installed / aax.BUNDLE:
+                raise PermissionError("injected backup move failure")
+            return rename(path, destination)
+
+        with mock.patch.object(Path, "rename", fail_backup):
+            with self.assertRaises(OSError): aax.install(updated, self.installed)
+        self.assertEqual(aax.verify_package(self.installed), expected)
+        self.assertEqual(list(self.installed.glob(".chimera-aax-*")), [])
+
+    def test_candidate_move_failure_restores_old_installation(self):
+        aax.install(self.package, self.installed)
+        expected = aax.verify_package(self.installed)
+        updated = fixture(self.root / "updated", revision=b"second")
+        rename = Path.rename
+
+        def fail_candidate(path, destination):
+            if path.name == aax.BUNDLE and path.parent.name.startswith(".chimera-aax-"):
+                raise PermissionError("injected candidate move failure")
+            return rename(path, destination)
+
+        with mock.patch.object(Path, "rename", fail_candidate):
+            with self.assertRaises(OSError): aax.install(updated, self.installed)
+        self.assertEqual(aax.verify_package(self.installed), expected)
+        self.assertEqual(list(self.installed.glob(".chimera-aax-*")), [])
+
+    def test_interrupted_update_restores_old_installation(self):
+        aax.install(self.package, self.installed)
+        expected = aax.verify_package(self.installed)
+        updated = fixture(self.root / "updated", revision=b"second")
+        with mock.patch.object(aax.os, "replace", side_effect=KeyboardInterrupt("injected interrupt")):
+            with self.assertRaises(KeyboardInterrupt): aax.install(updated, self.installed)
+        self.assertEqual(aax.verify_package(self.installed), expected)
+        self.assertEqual(list(self.installed.glob(".chimera-aax-*")), [])
+
+    def test_failed_fresh_install_removes_only_candidate(self):
+        self.installed.mkdir(parents=True)
+        sentinel = self.installed / "other.txt"
+        sentinel.write_bytes(b"not ours")
+        with mock.patch.object(aax.os, "replace", side_effect=OSError("injected receipt failure")):
+            with self.assertRaises(OSError): aax.install(self.package, self.installed)
+        self.assertIsNone(aax.installed_receipt(self.installed))
+        self.assertEqual(sentinel.read_bytes(), b"not ours")
+        self.assertEqual(list(self.installed.glob(".chimera-aax-*")), [])
+
+    def test_post_install_verification_failure_restores_previous(self):
+        aax.install(self.package, self.installed)
+        expected = aax.verify_package(self.installed)
+        updated = fixture(self.root / "updated", revision=b"second")
+        changed = aax.verify_package(updated)["binary_sha256"]
+        verify = aax.verify_package
+
+        def reject_installed_candidate(path):
+            result = verify(path)
+            if path == self.installed and result["binary_sha256"] == changed:
+                raise ValueError("injected post-install verification failure")
+            return result
+
+        with mock.patch.object(aax, "verify_package", reject_installed_candidate):
+            with self.assertRaises(ValueError): aax.install(updated, self.installed)
+        self.assertEqual(aax.verify_package(self.installed), expected)
+        self.assertEqual(list(self.installed.glob(".chimera-aax-*")), [])
+
+    def test_failed_rollback_retains_receipt_if_bundle_already_restored(self):
+        aax.install(self.package, self.installed)
+        expected = aax.verify_package(self.installed)
+        prior = (self.installed / aax.RECEIPT).read_bytes()
+        updated = fixture(self.root / "updated", revision=b"second")
+        write = Path.write_bytes
+
+        def fail_receipt_restore(path, data):
+            if path == self.installed / aax.RECEIPT:
+                raise PermissionError("injected receipt restore failure")
+            return write(path, data)
+
+        with mock.patch.object(aax.os, "replace", side_effect=OSError("injected receipt failure")), \
+                mock.patch.object(Path, "write_bytes", fail_receipt_restore):
+            with self.assertRaises((OSError, RuntimeError)) as failure:
+                aax.install(updated, self.installed)
+        receipts = list(self.installed.glob(".chimera-aax-*/previous-receipt.json"))
+        self.assertEqual(len(receipts), 1)
+        self.assertEqual(receipts[0].read_bytes(), prior)
+        self.assertIn(str(receipts[0].parent), str(failure.exception))
+        self.assertEqual(aax.verify_package(self.installed), expected)
+
+
+
 def native_packages(directory: Path, system=False):
     packages = [p for p in directory.iterdir() if p.is_dir() and (p / aax.RECEIPT).exists()]
     if len(packages) != 1: raise ValueError("Expected one actual native package")
