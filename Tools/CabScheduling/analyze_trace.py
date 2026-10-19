@@ -19,7 +19,9 @@ def analyze(prefix):
  work=rows(Path(str(prefix)+'.worker.csv'));stages=defaultdict(lambda:defaultdict(float));accept=defaultdict(int)
  for e in rows(Path(str(prefix)+'.stages.csv')):
   i=int(e['callback_index']);assert 0<=i<1600
-  # Same named scopes are disjoint; different stages remain nested/inclusive.
+  # Raw inclusive scope sums. Recursive cab_process scopes overlap even with
+  # the same name; do not use them as a callback total. The selected FFT/MAC/
+  # swap/fade metrics below have disjoint same-named scopes on the audio thread.
   for clock in ('wall','cpu'):stages[i][e['stage']+'_'+clock+'_us']+=int(e[clock+'_ns'])/1000
   if e['stage']=='kernel_accept':accept[i]+=1
  waits=[]

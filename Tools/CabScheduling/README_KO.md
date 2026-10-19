@@ -57,7 +57,8 @@ CSV를 출력한다. overflow·clock 오류·누락·allocation이 있으면 불
   이 계산에서 제외한다. **OS가 runnable로 만든 시각은 수집하지 못하므로 순수 scheduler
   wake latency로 부르지 않는다.** 실제 scheduler trace가 있어야 해당 구간을 분리할 수 있다.
 - stage 범위는 중첩된다. 서로 다른 stage inclusive 시간을 더해 callback 총비용으로
-  사용하지 않는다. wall-CPU 차이도 순수 scheduler 시간으로 간주하지 않는다.
+  사용하지 않는다. 재귀적인 `cab_process`는 같은 이름의 parent/child도 겹친다.
+  wall-CPU 차이도 순수 scheduler 시간으로 간주하지 않는다.
 - `analyze_trace.py`는 phase별 miss, CPU 초과, sleep 직후, worker build/publish overlap,
   timeout 복귀 직후, 실제 fade·kernel accept와의 연관성을 계산한다. Pearson/point-biserial은
   기술 통계다. 자기상관 callback을 독립 반복으로 간주해 유의확률을 만들지 않는다.
@@ -80,6 +81,47 @@ macos-15의 ABBA / BAAB **각각 별도 allocation**에서 다음을 실행한�
 그 결과를 원본 성능 수치로 대체하지 않는다. 비동기 worker 구간은 실제 publication/fade
 노출이 같지 않을 수 있다. stopped-worker 구간도 실제 slot/출력 checksum 일치 확인 전에는
 동등 노출로 주장하지 않는다.
+
+### 출력·상태를 고정하는 추가 진단
+
+`--canonical-reset yes`는 worker를 정지한 뒤, 측정 밖에서 CAB를 다시 prepare하고
+동일한 outgoing IR 두 개를 각 lane에 설치한다. convolution 이력과 mic swap 순서까지
+고정한다. 단순 `reset()`만으로는 swap 순서가 남아 일부 출력이 달랐다. 초기 실패 시도는
+폐기하지 않고 `portable-canonical`에 보존했다. 수정한 진단은 `portable-canonical-v2`다.
+기본값은 `no`이며 기존 acceptance 또는 제품 상태 흐름을 바꾸지 않는다.
+
+추가 16회 실험의 stopped-worker 400 callbacks는 모든 ABBA/BAAB 조합에서 checksum이
+일치했다. 앞의 비동기 worker 1200 callbacks는 여전히 동등 노출이 아니다. sleep 조작은
+앞 구간에만 적용되므로 뒤 구간의 결과를 직접적인 sleep A/B 효과라고 해석하지 않는다.
+
+모든 컴파일을 마친 후, 다른 벤치마크·컴파일과 겹치지 않게 실행한다.
+
+```sh
+cmake -S Tools/CabCallbackAttribution -B /tmp/cab-attribution-build \
+  -DCMAKE_BUILD_TYPE=Release -DCHIMERA_ATTRIBUTION_BLOCK_SIZE=32
+cmake --build /tmp/cab-attribution-build --config Release --parallel 2 \
+  --target ChimeraCabCallbackProbe ChimeraCabCallbackProbeControl
+python Tools/CabScheduling/run_focused.py \
+  --probe /tmp/cab-attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe \
+  --control /tmp/cab-attribution-build/ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl \
+  --output /tmp/cab-focused-new --experiments cadence --canonical-reset yes
+```
+
+수집 후 각 trial을 독립 검증한다. `off`/`stages`를 해당 trial의 trace level에 맞춘다.
+반복을 합친 디렉터리를 하나의 trial로 검증하지 않는다.
+
+```sh
+python Tools/CabCallbackAttribution/verify_attribution.py \
+  --input /tmp/cab-focused-new/cadence-off-0-0-A --output /tmp/verification.json \
+  --expected-block-size 32 --expected-mode cab --expected-trace-level off \
+  --expected-engines expanded-v2 --expected-channels 2
+python Tools/CabScheduling/analyze_trace.py \
+  --input /tmp/cab-focused-new/cadence-off-0-0-A --output /tmp/associations.json
+```
+
+[수행 결과와 해석 한계](../../docs/evidence/cab-scheduling-20261019/RESULTS_KO.md),
+[portable 반복 요약](../../docs/evidence/cab-scheduling-20261019/portable-summary.json),
+[새 macOS acceptance audit](../../docs/evidence/cab-scheduling-20261019/native-realtime-audit.json).
 
 ## 판단 기준과 실장비 검사
 

@@ -11,7 +11,8 @@ permissions:
   contents: read
 concurrency:
   group: cab-scheduling-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Preserve an in-flight evidence population when its report is updated.
+  cancel-in-progress: false
 jobs:
   attribution:
     strategy:

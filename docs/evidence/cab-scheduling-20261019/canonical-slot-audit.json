@@ -1,0 +1,98 @@
+[
+  {
+    "label": "cadence-off-0-0-A",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-off-0-1-B",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-off-0-2-B",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-off-0-3-A",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-off-1-0-B",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-off-1-1-A",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-off-1-2-A",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-off-1-3-B",
+    "forced_slot_state_available": false,
+    "slot_rows": 0,
+    "forced_slot_state_sha256": null
+  },
+  {
+    "label": "cadence-stages-0-0-A",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  },
+  {
+    "label": "cadence-stages-0-1-B",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  },
+  {
+    "label": "cadence-stages-0-2-B",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  },
+  {
+    "label": "cadence-stages-0-3-A",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  },
+  {
+    "label": "cadence-stages-1-0-B",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  },
+  {
+    "label": "cadence-stages-1-1-A",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  },
+  {
+    "label": "cadence-stages-1-2-A",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  },
+  {
+    "label": "cadence-stages-1-3-B",
+    "forced_slot_state_available": true,
+    "slot_rows": 4800,
+    "forced_slot_state_sha256": "482970148a5db33933a4b2b83b40fc40973892e2dfd495a54d60604f0b7edf4a"
+  }
+]
