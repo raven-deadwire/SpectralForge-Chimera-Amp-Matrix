@@ -1,0 +1,943 @@
+Warning: getifaddrs returns Operation not permitted
+Warning: getifaddrs returns Operation not permitted
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+Openbox-Message: Unable to find a valid menu file "/var/lib/openbox/debian-menu.xml"
+Native desktop ready: DISPLAY=127.0.0.1:201, Openbox supporting window=0x20011f, WM_PROTOCOLS present
+LOCAL_TEST_DESKTOP authenticated X11 TCP loopback; AF_UNIX unavailable; product/test assertions unchanged
+PASS prepared CAB fresh slot=0 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=1 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=0 start=0.252755 middle=0.382945
+PASS prepared CAB fresh slot=1 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=0 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=1 start=0.252755 middle=0.382945
+PRESET_DYNAMICS_HEADER,index,condition,comp_max_db,comp_block_mean_db,limiter_max_db,limiter_block_mean_db,dynamic1_max_db,dynamic1_block_mean_db,dynamic2_max_db,dynamic2_block_mean_db,dynamic3_max_db,dynamic3_block_mean_db,dynamic4_max_db,dynamic4_block_mean_db
+PRESET_EQ_DETECTOR_HEADER,index,condition,bank,frequency_hz,q,bandpass_peak_dbfs,bandpass_stereo_rms_dbfs,envelope_p50_dbfs,envelope_p90_dbfs,envelope_p99_dbfs
+PRESET_COMP_DETECTOR_HEADER,index,condition,detector_hp_hz,detector_mode,level_peak_dbfs,block_level_p50_dbfs,block_level_p90_dbfs,block_level_p99_dbfs
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,maximum_dynamic_cut,-0.0219787
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,maximum_dynamic_cut,-0.0278007
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,maximum_dynamic_cut,-0.0219787
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,maximum_dynamic_cut,-0.0278007
+PRESET_LEVEL,31,Crom Cruach,-24.0226,-11.6761,0
+PRESET_DYNAMICS,31,nominal,0,0,0,0,0.98763,0.546614,0.859454,0.447893,0,0,0,0
+PRESET_EQ_DETECTOR,31,nominal,Tone,240,1.1,-4.16467,-15.1875,-10.3652,-7.30677,-5.26076
+PRESET_EQ_DETECTOR,31,nominal,Final,3400,1.3,-16.8844,-40.2083,-33.8694,-24.3208,-18.7882
+PRESET_COMP_DETECTOR,31,nominal,90,RMS,-9.93451,-14.4469,-11.9147,-10.5043
+PRESET_HOT,31,-12.0388
+PRESET_DYNAMICS,31,input_plus_6_db,0,0,0,0,1.13238,0.741795,0.856615,0.440767,0,0,0,0
+PRESET_EQ_DETECTOR,31,input_plus_6_db,Tone,240,1.1,-3.85209,-14.2228,-9.53682,-6.56773,-4.68979
+PRESET_EQ_DETECTOR,31,input_plus_6_db,Final,3400,1.3,-17.5009,-39.6068,-32.0224,-24.0135,-19.5968
+PRESET_COMP_DETECTOR,31,input_plus_6_db,90,RMS,-9.44286,-13.5727,-11.3156,-10.0821
+PRESET_UNPROTECTED,31,-24.0229,-11.675,-12.0388
+PERFORMANCE_RECALL preset=31 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=31 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=31 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=31 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,32,27.5,static,-0.00385171
+PRESET_LOW_FUNDAMENTAL_EQ,32,27.5,maximum_dynamic_cut,-0.0119987
+PRESET_LOW_FUNDAMENTAL_EQ,32,30.8677,static,-0.00486771
+PRESET_LOW_FUNDAMENTAL_EQ,32,30.8677,maximum_dynamic_cut,-0.0151618
+PRESET_LOW_FUNDAMENTAL_EQ,32,27.5,static,-0.00385171
+PRESET_LOW_FUNDAMENTAL_EQ,32,27.5,maximum_dynamic_cut,-0.0119987
+PRESET_LOW_FUNDAMENTAL_EQ,32,30.8677,static,-0.00486771
+PRESET_LOW_FUNDAMENTAL_EQ,32,30.8677,maximum_dynamic_cut,-0.0151618
+PRESET_LEVEL,32,Wild Hunt,-21.0061,-4.01505,0
+PRESET_DYNAMICS,32,nominal,0,0,0,0,0.76721,0.329832,0.752464,0.330819,0,0,0,0
+PRESET_EQ_DETECTOR,32,nominal,Tone,280,1.1,-4.58681,-15.8047,-10.4958,-7.52091,-5.45144
+PRESET_EQ_DETECTOR,32,nominal,Final,3800,1.3,-12.3557,-34.2647,-28.1433,-18.539,-14.6134
+PRESET_COMP_DETECTOR,32,nominal,90,RMS,-8.66968,-13.803,-10.3863,-9.13645
+PRESET_HOT,32,-2.62586
+PRESET_DYNAMICS,32,input_plus_6_db,0,0,0,0,0.830296,0.44005,0.804835,0.371461,0,0,0,0
+PRESET_EQ_DETECTOR,32,input_plus_6_db,Tone,280,1.1,-4.27073,-14.8964,-9.66864,-6.82572,-5.03927
+PRESET_EQ_DETECTOR,32,input_plus_6_db,Final,3800,1.3,-12.1628,-33.5791,-26.1037,-18.0545,-14.6762
+PRESET_COMP_DETECTOR,32,input_plus_6_db,90,RMS,-8.2897,-12.9281,-9.8506,-8.73881
+PRESET_UNPROTECTED,32,-21.0066,-4.01501,-2.62586
+PERFORMANCE_RECALL preset=32 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=32 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=32 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=32 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,33,27.5,static,-0.00616924
+PRESET_LOW_FUNDAMENTAL_EQ,33,27.5,maximum_dynamic_cut,-0.0261866
+PRESET_LOW_FUNDAMENTAL_EQ,33,30.8677,static,-0.00781188
+PRESET_LOW_FUNDAMENTAL_EQ,33,30.8677,maximum_dynamic_cut,-0.033148
+PRESET_LOW_FUNDAMENTAL_EQ,33,27.5,static,-0.00616924
+PRESET_LOW_FUNDAMENTAL_EQ,33,27.5,maximum_dynamic_cut,-0.0261866
+PRESET_LOW_FUNDAMENTAL_EQ,33,30.8677,static,-0.00781188
+PRESET_LOW_FUNDAMENTAL_EQ,33,30.8677,maximum_dynamic_cut,-0.033148
+PRESET_LEVEL,33,Azhi Dahaka,-23.1249,-8.23013,0
+PRESET_DYNAMICS,33,nominal,0,0,0,0,0.795692,0.445725,0.697187,0.339918,0,0,0,0
+PRESET_EQ_DETECTOR,33,nominal,Tone,220,1.1,-4.97829,-15.3628,-11.182,-7.72877,-6.01114
+PRESET_EQ_DETECTOR,33,nominal,Final,3000,1.3,-17.4153,-40.0991,-33.9999,-25.036,-20.5604
+PRESET_COMP_DETECTOR,33,nominal,90,RMS,-10.9042,-14.0643,-12.2716,-11.2688
+PRESET_HOT,33,-5.33488
+PRESET_DYNAMICS,33,input_plus_6_db,0,0,0,0,0.928358,0.57491,0.870961,0.347043,0,0,0,0
+PRESET_EQ_DETECTOR,33,input_plus_6_db,Tone,220,1.1,-4.63012,-14.7566,-10.7459,-7.24121,-5.30247
+PRESET_EQ_DETECTOR,33,input_plus_6_db,Final,3000,1.3,-15.23,-39.5421,-33.2961,-24.7519,-20.2335
+PRESET_COMP_DETECTOR,33,input_plus_6_db,90,RMS,-10.5655,-13.534,-11.8691,-10.9626
+PRESET_UNPROTECTED,33,-23.1258,-8.25752,-5.33488
+PERFORMANCE_RECALL preset=33 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=33 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=33 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=33 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,34,A Path To Alsatia,-17.1116,-4.11584,0
+PRESET_DYNAMICS,34,nominal,0,0,0,0,0.704226,0.192524,0.889804,0.513813,0,0,0,0
+PRESET_EQ_DETECTOR,34,nominal,Tone,250,1,-9.66779,-17.9682,-14.2054,-11.5149,-10.7728
+PRESET_EQ_DETECTOR,34,nominal,Final,4000,1.3,-16.2371,-37.0514,-23.5675,-20.4171,-18.1733
+PRESET_COMP_DETECTOR,34,nominal,100,RMS,-14.2536,-16.5231,-14.7466,-14.4094
+PRESET_HOT,34,-5.17629
+PRESET_DYNAMICS,34,input_plus_6_db,0,0,0,0,0.703101,0.193765,0.854,0.509744,0,0,0,0
+PRESET_EQ_DETECTOR,34,input_plus_6_db,Tone,250,1,-9.7843,-17.9553,-14.3156,-11.5478,-10.7343
+PRESET_EQ_DETECTOR,34,input_plus_6_db,Final,4000,1.3,-16.3721,-37.0187,-23.836,-20.4632,-18.2866
+PRESET_COMP_DETECTOR,34,input_plus_6_db,100,RMS,-13.9567,-16.5132,-14.6497,-14.2927
+PRESET_UNPROTECTED,34,-17.1118,-4.11584,-5.17629
+PRESET_LEVEL,35,Feel My Wrath,-20.952,-8.78353,0
+PRESET_DYNAMICS,35,nominal,0,0,0,0,1.30076,0.50391,1.66068,0.698815,0,0,0,0
+PRESET_EQ_DETECTOR,35,nominal,Tone,170,1.1,-14.3486,-22.0831,-19.1924,-16.3327,-15.735
+PRESET_EQ_DETECTOR,35,nominal,Final,4200,1.3,-15.451,-33.0747,-21.8685,-19.6602,-17.0678
+PRESET_COMP_DETECTOR,35,nominal,120,RMS,-18.7214,-20.9724,-19.2119,-18.7702
+PRESET_HOT,35,-9.03585
+PRESET_DYNAMICS,35,input_plus_6_db,0,0,0,0,1.32918,0.558707,1.49674,0.782283,0,0,0,0
+PRESET_EQ_DETECTOR,35,input_plus_6_db,Tone,170,1.1,-14.3722,-21.9954,-19.1229,-16.0655,-15.503
+PRESET_EQ_DETECTOR,35,input_plus_6_db,Final,4200,1.3,-14.722,-33.6219,-21.7996,-19.6688,-15.9937
+PRESET_COMP_DETECTOR,35,input_plus_6_db,120,RMS,-18.6487,-20.9489,-19.5009,-18.7919
+PRESET_UNPROTECTED,35,-20.952,-8.78353,-9.03585
+PRESET_LEVEL,36,Blackhearted,-19.5799,-7.59755,0
+PRESET_DYNAMICS,36,nominal,0,0,0,0,1.03429,0.465971,1.45103,0.662839,0,0,0,0
+PRESET_EQ_DETECTOR,36,nominal,Tone,180,1.1,-12.7045,-20.661,-16.252,-15.2081,-14.1196
+PRESET_EQ_DETECTOR,36,nominal,Final,4300,1.3,-13.549,-27.6708,-18.8551,-17.1618,-15.5639
+PRESET_COMP_DETECTOR,36,nominal,120,RMS,-13.6368,-15.3888,-13.9904,-13.7112
+PRESET_HOT,36,-6.11576
+PRESET_DYNAMICS,36,input_plus_6_db,0,0,0,0,1.47473,0.667244,1.74755,0.827052,0,0,0,0
+PRESET_EQ_DETECTOR,36,input_plus_6_db,Tone,180,1.1,-10.5407,-20.3137,-16.0859,-14.3816,-11.7033
+PRESET_EQ_DETECTOR,36,input_plus_6_db,Final,4300,1.3,-14.1619,-27.0487,-18.2013,-16.7529,-15.3355
+PRESET_COMP_DETECTOR,36,input_plus_6_db,120,RMS,-13.5319,-14.9156,-14.0181,-13.7756
+PRESET_UNPROTECTED,36,-19.5799,-7.59755,-6.11576
+PRESET_LEVEL,37,Dark Matters of Throne,-22.9179,-10.7036,0
+PRESET_DYNAMICS,37,nominal,0,0,0,0,1.14384,0.464002,1.09174,0.409185,0,0,0,0
+PRESET_EQ_DETECTOR,37,nominal,Tone,200,1.1,-11.3271,-19.8267,-15.9761,-13.2791,-12.121
+PRESET_EQ_DETECTOR,37,nominal,Final,3800,1.3,-18.8729,-31.1041,-23.7067,-21.1509,-19.6698
+PRESET_COMP_DETECTOR,37,nominal,120,RMS,-13.9298,-15.9588,-14.3089,-14.0719
+PRESET_HOT,37,-9.41805
+PRESET_DYNAMICS,37,input_plus_6_db,0,0,0,0,1.4861,0.803031,1.25779,0.489034,0,0,0,0
+PRESET_EQ_DETECTOR,37,input_plus_6_db,Tone,200,1.1,-9.45207,-19.2093,-15.3016,-12.0577,-10.5871
+PRESET_EQ_DETECTOR,37,input_plus_6_db,Final,3800,1.3,-18.7608,-31.3882,-23.3427,-20.8628,-19.4664
+PRESET_COMP_DETECTOR,37,input_plus_6_db,120,RMS,-13.926,-15.6364,-14.3541,-14.0182
+PRESET_UNPROTECTED,37,-22.9179,-10.7036,-9.41805
+PRESET_LEVEL,0,Clean Sustain,-26.9874,-9.7268,0
+PRESET_DYNAMICS,0,nominal,0,0,0,0,0.90721,0.409296,0.000410026,3.89169e-05,0,0,0,0
+PRESET_EQ_DETECTOR,0,nominal,Tone,300,1,-14.0568,-28.0589,-24.1135,-17.9157,-15.2316
+PRESET_EQ_DETECTOR,0,nominal,Final,3800,1.3,-25.9067,-48.4717,-42.2146,-33.2277,-27.8303
+PRESET_COMP_DETECTOR,0,nominal,100,RMS,-18.9862,-27.7793,-21.6895,-19.6329
+PRESET_HOT,0,-6.50154
+PRESET_DYNAMICS,0,input_plus_6_db,0,0,0,0,0.996859,0.717301,0.761303,0.114648,0,0,0,0
+PRESET_EQ_DETECTOR,0,input_plus_6_db,Tone,300,1,-10.2923,-24.0108,-20.0537,-14.4812,-11.4057
+PRESET_EQ_DETECTOR,0,input_plus_6_db,Final,3800,1.3,-21.3933,-44.6503,-38.376,-28.6957,-23.2251
+PRESET_COMP_DETECTOR,0,input_plus_6_db,100,RMS,-15.2677,-23.9307,-18.1062,-15.8863
+PRESET_UNPROTECTED,0,-26.9875,-9.7268,-6.50154
+PERFORMANCE_RECALL preset=0 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=0 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=0 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=0 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,5,Bell Clean,-25.3323,-10.3952,0
+PRESET_DYNAMICS,5,nominal,1.22065,0.535903,0,0,0.958674,0.304927,0.00208159,0.000200135,0,0,0,0
+PRESET_EQ_DETECTOR,5,nominal,Tone,280,1,-13.0624,-26.0973,-23.2425,-17.4258,-14.3142
+PRESET_EQ_DETECTOR,5,nominal,Final,4000,1.3,-25.7779,-49.2453,-43.7726,-33.2288,-27.6063
+PRESET_COMP_DETECTOR,5,nominal,100,RMS,-18.5982,-26.2579,-20.8189,-18.9064
+PRESET_HOT,5,-8.48961
+PRESET_DYNAMICS,5,input_plus_6_db,2.18285,1.19225,0,0,0.999515,0.544118,0.727912,0.0905249,0,0,0,0
+PRESET_EQ_DETECTOR,5,input_plus_6_db,Tone,280,1,-10.1499,-22.2794,-19.7484,-13.8794,-11.4903
+PRESET_EQ_DETECTOR,5,input_plus_6_db,Final,4000,1.3,-22.0747,-45.931,-38.9338,-28.4831,-23.6737
+PRESET_COMP_DETECTOR,5,input_plus_6_db,100,RMS,-15.7339,-22.8068,-17.5696,-15.9659
+PRESET_UNPROTECTED,5,-25.3324,-10.3952,-8.48961
+PERFORMANCE_RECALL preset=5 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=5 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=5 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=5 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,11,Ambient Clean,-24.4886,-9.51708,0
+PRESET_DYNAMICS,11,nominal,0,0,0,0,0.89218,0.410346,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,11,nominal,Tone,350,1,-19.7134,-33.7933,-29.8105,-23.5037,-20.7361
+PRESET_EQ_DETECTOR,11,nominal,Final,4200,1.3,-27.5648,-48.7738,-42.5473,-34.2937,-28.8356
+PRESET_COMP_DETECTOR,11,nominal,100,RMS,-24.3603,-32.7397,-26.7363,-24.6925
+PRESET_HOT,11,-6.90173
+PRESET_DYNAMICS,11,input_plus_6_db,0,0,0,0,0.998293,0.760786,0.379547,0.037719,0,0,0,0
+PRESET_EQ_DETECTOR,11,input_plus_6_db,Tone,350,1,-15.4203,-29.0002,-24.888,-19.0814,-16.4113
+PRESET_EQ_DETECTOR,11,input_plus_6_db,Final,4200,1.3,-23.5142,-45.6876,-39.3924,-30.774,-25.2236
+PRESET_COMP_DETECTOR,11,input_plus_6_db,100,RMS,-19.9541,-27.871,-22.0259,-20.3323
+PRESET_UNPROTECTED,11,-24.4887,-9.51708,-6.90173
+PERFORMANCE_RECALL preset=11 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=11 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=11 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=11 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,6,Edge Chime,-20.8677,-11.0108,0
+PRESET_DYNAMICS,6,nominal,0.627311,0.287037,0,0,0.948148,0.14453,0.27474,0.0308561,0,0,0,0
+PRESET_EQ_DETECTOR,6,nominal,Tone,300,1,-14.3248,-23.1407,-20.7184,-16.2977,-14.9728
+PRESET_EQ_DETECTOR,6,nominal,Final,3800,1.3,-23.2085,-43.6321,-37.2951,-26.0449,-24.4347
+PRESET_COMP_DETECTOR,6,nominal,90,RMS,-18.3848,-21.4448,-19.0714,-18.5349
+PRESET_HOT,6,-10.4518
+PRESET_DYNAMICS,6,input_plus_6_db,0.687011,0.323279,0,0,0.983996,0.159224,0.405944,0.0507126,0,0,0,0
+PRESET_EQ_DETECTOR,6,input_plus_6_db,Tone,300,1,-14.298,-22.8449,-20.4558,-15.7757,-14.8106
+PRESET_EQ_DETECTOR,6,input_plus_6_db,Final,3800,1.3,-23.1731,-42.6614,-35.334,-25.2741,-24.025
+PRESET_COMP_DETECTOR,6,input_plus_6_db,90,RMS,-18.193,-20.8796,-18.7702,-18.3389
+PRESET_UNPROTECTED,6,-20.8678,-11.0108,-10.4518
+PERFORMANCE_RECALL preset=6 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=6 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=6 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=6 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,7,Classic Crunch,-24.8408,-9.76557,0
+PRESET_DYNAMICS,7,nominal,0.682006,0.15449,0,0,1.0315,0.50259,1.46379,0.337483,0,0,0,0
+PRESET_EQ_DETECTOR,7,nominal,Tone,250,1,-20.3445,-33.5004,-26.9112,-24.1106,-22.1155
+PRESET_EQ_DETECTOR,7,nominal,Final,3600,1.3,-14.2825,-32.8414,-25.9423,-19.0424,-15.5311
+PRESET_COMP_DETECTOR,7,nominal,90,RMS,-17.1619,-25.2002,-19.8767,-17.5643
+PRESET_HOT,7,-8.72702
+PRESET_DYNAMICS,7,input_plus_6_db,1.22024,0.391794,0,0,1.32581,0.786591,1.49914,0.523236,0,0,0,0
+PRESET_EQ_DETECTOR,7,input_plus_6_db,Tone,250,1,-18.3849,-31.6007,-25.3571,-23.0444,-21.1338
+PRESET_EQ_DETECTOR,7,input_plus_6_db,Final,3600,1.3,-13.5512,-29.7246,-22.1899,-17.0328,-14.7998
+PRESET_COMP_DETECTOR,7,input_plus_6_db,90,RMS,-15.1911,-22.4393,-17.4301,-15.4569
+PRESET_UNPROTECTED,7,-24.841,-9.76557,-8.72702
+PERFORMANCE_RECALL preset=7 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=7 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=7 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=7 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,28,Prism Edge,-23.8985,-9.38702,0
+PRESET_DYNAMICS,28,nominal,0,0,0,0,0.938096,0.293132,0.374487,0.0384351,0,0,0,0
+PRESET_EQ_DETECTOR,28,nominal,Tone,300,1,-13.061,-25.8909,-22.8791,-17.0633,-14.1621
+PRESET_EQ_DETECTOR,28,nominal,Final,4000,1.3,-23.6805,-46.8885,-41.2525,-29.9131,-25.3093
+PRESET_COMP_DETECTOR,28,nominal,90,RMS,-18.0315,-25.019,-19.848,-18.3303
+PRESET_HOT,28,-7.14356
+PRESET_DYNAMICS,28,input_plus_6_db,0,0,0,0,0.99878,0.484954,0.958358,0.198329,0,0,0,0
+PRESET_EQ_DETECTOR,28,input_plus_6_db,Tone,300,1,-10.7501,-22.3139,-19.6937,-14.1273,-11.7459
+PRESET_EQ_DETECTOR,28,input_plus_6_db,Final,4000,1.3,-21.154,-43.4688,-35.6727,-25.5282,-22.5982
+PRESET_COMP_DETECTOR,28,input_plus_6_db,90,RMS,-15.3761,-21.6726,-16.9297,-15.579
+PRESET_UNPROTECTED,28,-23.8986,-9.38702,-7.14356
+PERFORMANCE_RECALL preset=28 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=28 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=28 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=28 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,1,Tight Rhythm,-10.1144,-1.90532,0
+PRESET_DYNAMICS,1,nominal,0,0,0,0,1.00567,0.737995,1.14537,0.42515,0,0,0,0
+PRESET_EQ_DETECTOR,1,nominal,Tone,160,1.1,-8.64764,-15.3176,-11.3056,-10.0769,-9.43766
+PRESET_EQ_DETECTOR,1,nominal,Final,4200,1.3,-10.0245,-22.6523,-14.0189,-11.0798,-10.5308
+PRESET_COMP_DETECTOR,1,nominal,120,RMS,-11.894,-13.0733,-12.1652,-11.9973
+PRESET_HOT,1,-1.91443
+PRESET_DYNAMICS,1,input_plus_6_db,0,0,0,0,0.979346,0.734783,1.15431,0.43587,0,0,0,0
+PRESET_EQ_DETECTOR,1,input_plus_6_db,Tone,160,1.1,-8.39617,-15.3397,-11.3149,-10.0968,-9.47733
+PRESET_EQ_DETECTOR,1,input_plus_6_db,Final,4200,1.3,-10.0386,-22.6383,-13.8795,-11.1208,-10.4772
+PRESET_COMP_DETECTOR,1,input_plus_6_db,120,RMS,-11.8974,-13.0658,-12.1705,-11.9975
+PRESET_UNPROTECTED,1,-10.1144,-1.90532,-1.91443
+PERFORMANCE_RECALL preset=1 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=1 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=1 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=1 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,8,Amber Heavy,-13.0251,-1,0
+PRESET_DYNAMICS,8,nominal,0,0,0.240555,0.0201804,1.41161,0.674079,1.26698,0.372199,0,0,0,0
+PRESET_EQ_DETECTOR,8,nominal,Tone,200,1.1,-8.85773,-17.9834,-12.7586,-10.9159,-9.83573
+PRESET_EQ_DETECTOR,8,nominal,Final,3800,1.3,-10.8441,-21.9386,-15.5073,-13.6237,-12.0296
+PRESET_COMP_DETECTOR,8,nominal,120,RMS,-8.03456,-10.6544,-8.53546,-8.15636
+PRESET_HOT,8,-1
+PRESET_DYNAMICS,8,input_plus_6_db,0,0,0.0900414,0.00758601,1.26266,0.63709,1.28924,0.383969,0,0,0,0
+PRESET_EQ_DETECTOR,8,input_plus_6_db,Tone,200,1.1,-8.93374,-18.0572,-12.8034,-11.0317,-10.1014
+PRESET_EQ_DETECTOR,8,input_plus_6_db,Final,3800,1.3,-10.8916,-21.8722,-15.3604,-13.5758,-11.9619
+PRESET_COMP_DETECTOR,8,input_plus_6_db,120,RMS,-8.06768,-10.7075,-8.56759,-8.19321
+PRESET_UNPROTECTED,8,-13.0035,-0.759445,-0.909959
+PERFORMANCE_RECALL preset=8 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=8 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=8 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=8 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,9,Melodic Death Rhythm,-14.2221,-4.77364,0
+PRESET_DYNAMICS,9,nominal,0,0,0,0,1.65379,0.574329,1.48013,0.547688,0,0,0,0
+PRESET_EQ_DETECTOR,9,nominal,Tone,170,1.1,-7.87188,-21.0268,-16.7453,-14.2028,-11.2467
+PRESET_EQ_DETECTOR,9,nominal,Final,4300,1.3,-8.92231,-21.0004,-13.9646,-11.6976,-10.0672
+PRESET_COMP_DETECTOR,9,nominal,120,RMS,-11.097,-12.7507,-11.3479,-11.1926
+PRESET_HOT,9,-4.74221
+PRESET_DYNAMICS,9,input_plus_6_db,0,0,0,0,1.6453,0.557761,1.52458,0.588983,0,0,0,0
+PRESET_EQ_DETECTOR,9,input_plus_6_db,Tone,170,1.1,-7.9383,-21.0979,-16.8319,-14.2101,-11.3041
+PRESET_EQ_DETECTOR,9,input_plus_6_db,Final,4300,1.3,-8.65514,-20.9233,-13.7608,-11.625,-9.85555
+PRESET_COMP_DETECTOR,9,input_plus_6_db,120,RMS,-11.1339,-12.7829,-11.3616,-11.2119
+PRESET_UNPROTECTED,9,-14.2221,-4.77364,-4.74221
+PERFORMANCE_RECALL preset=9 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=9 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=9 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=9 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,3,Filter Lead,-16.2317,-6.14824,0
+PRESET_DYNAMICS,3,nominal,0,0,0,0,0.626251,0.267481,0.721481,0.19661,0,0,0,0
+PRESET_EQ_DETECTOR,3,nominal,Tone,320,1,-15.2042,-24.2706,-19.4556,-17.4639,-16.313
+PRESET_EQ_DETECTOR,3,nominal,Final,4000,1.3,-11.3207,-22.6763,-16.6458,-13.3595,-12.072
+PRESET_COMP_DETECTOR,3,nominal,80,RMS,-12.0603,-14.9187,-12.5125,-12.1615
+PRESET_HOT,3,-6.14478
+PRESET_DYNAMICS,3,input_plus_6_db,0,0,0,0,0.84064,0.352269,0.641123,0.146582,0,0,0,0
+PRESET_EQ_DETECTOR,3,input_plus_6_db,Tone,320,1,-15.113,-23.9562,-19.2649,-16.8384,-15.5744
+PRESET_EQ_DETECTOR,3,input_plus_6_db,Final,4000,1.3,-11.7312,-22.8108,-16.5264,-13.8362,-12.5979
+PRESET_COMP_DETECTOR,3,input_plus_6_db,80,RMS,-12.1584,-14.9261,-12.8134,-12.3371
+PRESET_UNPROTECTED,3,-16.2317,-6.14824,-6.14478
+PERFORMANCE_RECALL preset=3 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=3 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=3 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=3 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,4,Fuzz Texture,-23.9603,-15.092,0
+PRESET_DYNAMICS,4,nominal,0,0,0,0,0.889852,0.119359,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,4,nominal,Tone,350,0.9,-17.0114,-25.4475,-23.5607,-18.0702,-17.5707
+PRESET_EQ_DETECTOR,4,nominal,Final,3500,1.3,-31.8562,-47.306,-37.0908,-33.228,-32.5726
+PRESET_COMP_DETECTOR,4,nominal,90,RMS,-19.92,-22.5009,-20.2938,-19.9869
+PRESET_HOT,4,-15.0736
+PRESET_DYNAMICS,4,input_plus_6_db,0,0,0,0,0.883078,0.118104,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,4,input_plus_6_db,Tone,350,0.9,-17.0115,-25.4499,-23.6807,-18.0925,-17.5885
+PRESET_EQ_DETECTOR,4,input_plus_6_db,Final,3500,1.3,-31.8804,-47.1641,-36.9796,-33.175,-32.5088
+PRESET_COMP_DETECTOR,4,input_plus_6_db,90,RMS,-19.9736,-22.5507,-20.3451,-20.0354
+PRESET_UNPROTECTED,4,-23.9603,-15.092,-15.0736
+PERFORMANCE_RECALL preset=4 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=4 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=4 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=4 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,10,Melodic Lead,-21.9118,-12.0374,0
+PRESET_DYNAMICS,10,nominal,0.804874,0.558179,0,0,0.9601,0.386283,0.977634,0.300707,0,0,0,0
+PRESET_EQ_DETECTOR,10,nominal,Tone,280,1,-13.7279,-21.9503,-17.92,-15.8129,-15.1472
+PRESET_EQ_DETECTOR,10,nominal,Final,3800,1.3,-21.788,-37.0516,-26.3019,-23.8766,-22.7256
+PRESET_COMP_DETECTOR,10,nominal,100,RMS,-18.2806,-19.7748,-18.7771,-18.533
+PRESET_HOT,10,-11.9553
+PRESET_DYNAMICS,10,input_plus_6_db,0.794444,0.529571,0,0,0.962024,0.362415,0.940817,0.286085,0,0,0,0
+PRESET_EQ_DETECTOR,10,input_plus_6_db,Tone,280,1,-13.684,-21.8965,-17.875,-16.0575,-15.2265
+PRESET_EQ_DETECTOR,10,input_plus_6_db,Final,3800,1.3,-21.8468,-37.1975,-26.4353,-23.8902,-22.8028
+PRESET_COMP_DETECTOR,10,input_plus_6_db,100,RMS,-18.5126,-19.9261,-18.8209,-18.5813
+PRESET_UNPROTECTED,10,-21.912,-12.0374,-11.9553
+PERFORMANCE_RECALL preset=10 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=10 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=10 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=10 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,29,Silk Smooth Lead,-20.6339,-9.14492,0
+PRESET_DYNAMICS,29,nominal,1.65893,0.973401,0,0,0.666262,0.124879,1.07224,0.445201,0,0,0,0
+PRESET_EQ_DETECTOR,29,nominal,Tone,300,1,-11.4265,-20.9314,-17.0612,-13.2077,-12.3167
+PRESET_EQ_DETECTOR,29,nominal,Final,3600,1.3,-18.3855,-36.1679,-23.1872,-21.0881,-19.6028
+PRESET_COMP_DETECTOR,29,nominal,100,RMS,-15.64,-18.4174,-16.4251,-15.8913
+PRESET_HOT,29,-9.20954
+PRESET_DYNAMICS,29,input_plus_6_db,1.62004,0.989767,0,0,0.704854,0.124036,1.209,0.434748,0,0,0,0
+PRESET_EQ_DETECTOR,29,input_plus_6_db,Tone,300,1,-11.9012,-20.7936,-17.301,-13.0852,-12.2774
+PRESET_EQ_DETECTOR,29,input_plus_6_db,Final,3600,1.3,-18.4894,-36.2023,-23.267,-21.2493,-19.2196
+PRESET_COMP_DETECTOR,29,input_plus_6_db,100,RMS,-15.7323,-18.4892,-16.4547,-16.0717
+PRESET_UNPROTECTED,29,-20.6343,-9.14492,-9.20954
+PERFORMANCE_RECALL preset=29 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=29 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=29 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=29 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,12,27.5,static,-0.00414265
+PRESET_LOW_FUNDAMENTAL_EQ,12,27.5,maximum_dynamic_cut,-0.0140035
+PRESET_LOW_FUNDAMENTAL_EQ,12,30.8677,static,-0.00523452
+PRESET_LOW_FUNDAMENTAL_EQ,12,30.8677,maximum_dynamic_cut,-0.0176884
+PRESET_LOW_FUNDAMENTAL_EQ,12,27.5,static,-0.00414265
+PRESET_LOW_FUNDAMENTAL_EQ,12,27.5,maximum_dynamic_cut,-0.0140035
+PRESET_LOW_FUNDAMENTAL_EQ,12,30.8677,static,-0.00523452
+PRESET_LOW_FUNDAMENTAL_EQ,12,30.8677,maximum_dynamic_cut,-0.0176884
+PRESET_LEVEL,12,Finger Round,-19.8769,-3.79241,0
+PRESET_DYNAMICS,12,nominal,0,0,0,0,0.786068,0.268382,0.270893,0.0298462,0,0,0,0
+PRESET_EQ_DETECTOR,12,nominal,Tone,280,1,-10.6472,-25.914,-20.8068,-14.5564,-11.8772
+PRESET_EQ_DETECTOR,12,nominal,Final,2800,1.3,-22.852,-46.2357,-42.029,-30.9239,-25.4551
+PRESET_COMP_DETECTOR,12,nominal,70,RMS,-14.2201,-23.2536,-17.1823,-14.7289
+PRESET_HOT,12,-2.11406
+PRESET_DYNAMICS,12,input_plus_6_db,0,0,0,0,0.950799,0.43452,0.804149,0.167525,0,0,0,0
+PRESET_EQ_DETECTOR,12,input_plus_6_db,Tone,280,1,-9.74265,-23.3978,-17.9803,-13.0936,-10.9393
+PRESET_EQ_DETECTOR,12,input_plus_6_db,Final,2800,1.3,-19.7173,-43.3251,-37.3998,-26.7322,-21.8265
+PRESET_COMP_DETECTOR,12,input_plus_6_db,70,RMS,-12.283,-20.2623,-14.7468,-12.7017
+PRESET_UNPROTECTED,12,-19.8769,-3.79241,-2.11406
+PERFORMANCE_RECALL preset=12 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=12 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=12 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=12 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,13,27.5,static,-0.0039768
+PRESET_LOW_FUNDAMENTAL_EQ,13,27.5,maximum_dynamic_cut,-0.0168916
+PRESET_LOW_FUNDAMENTAL_EQ,13,30.8677,static,-0.00502198
+PRESET_LOW_FUNDAMENTAL_EQ,13,30.8677,maximum_dynamic_cut,-0.0213274
+PRESET_LOW_FUNDAMENTAL_EQ,13,27.5,static,-0.0039768
+PRESET_LOW_FUNDAMENTAL_EQ,13,27.5,maximum_dynamic_cut,-0.0168916
+PRESET_LOW_FUNDAMENTAL_EQ,13,30.8677,static,-0.00502198
+PRESET_LOW_FUNDAMENTAL_EQ,13,30.8677,maximum_dynamic_cut,-0.0213274
+PRESET_LEVEL,13,Pick Punch,-23.1383,-7.17673,0
+PRESET_DYNAMICS,13,nominal,0,0,0,0,1.36117,0.498791,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,13,nominal,Tone,300,1,-10.8746,-27.7409,-22.7554,-16.8882,-13.1801
+PRESET_EQ_DETECTOR,13,nominal,Final,3200,1.3,-32.4116,-51.1115,-45.5495,-39.1608,-34.3279
+PRESET_COMP_DETECTOR,13,nominal,85,RMS,-15.8553,-25.6514,-20.4976,-16.8041
+PRESET_HOT,13,-5.87557
+PRESET_DYNAMICS,13,input_plus_6_db,0,0,0,0,1.44277,0.697226,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,13,input_plus_6_db,Tone,300,1,-9.97608,-26.1523,-20.6717,-15.7866,-12.3028
+PRESET_EQ_DETECTOR,13,input_plus_6_db,Final,3200,1.3,-29.2745,-49.5713,-43.7401,-37.7194,-31.8919
+PRESET_COMP_DETECTOR,13,input_plus_6_db,85,RMS,-14.6204,-23.6852,-19.0751,-15.4782
+PRESET_UNPROTECTED,13,-23.1383,-7.17673,-5.87557
+PERFORMANCE_RECALL preset=13 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=13 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=13 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=13 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,14,27.5,static,-0.0022542
+PRESET_LOW_FUNDAMENTAL_EQ,14,27.5,maximum_dynamic_cut,-0.00950454
+PRESET_LOW_FUNDAMENTAL_EQ,14,30.8677,static,-0.00284376
+PRESET_LOW_FUNDAMENTAL_EQ,14,30.8677,maximum_dynamic_cut,-0.0119893
+PRESET_LOW_FUNDAMENTAL_EQ,14,27.5,static,-0.0022542
+PRESET_LOW_FUNDAMENTAL_EQ,14,27.5,maximum_dynamic_cut,-0.00950454
+PRESET_LOW_FUNDAMENTAL_EQ,14,30.8677,static,-0.00284376
+PRESET_LOW_FUNDAMENTAL_EQ,14,30.8677,maximum_dynamic_cut,-0.0119893
+PRESET_LEVEL,14,Slap Studio,-27.7909,-14.3904,0
+PRESET_DYNAMICS,14,nominal,0,0,0,0,0.265369,0.0397933,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,14,nominal,Tone,400,1,-23.496,-39.3938,-35.2024,-29.5417,-25.7224
+PRESET_EQ_DETECTOR,14,nominal,Final,4200,1.3,-40.7649,-62.6273,-58.5592,-51.6681,-43.7054
+PRESET_COMP_DETECTOR,14,nominal,80,Peak,-16.9916,-28.1951,-22.6014,-18.7994
+PRESET_HOT,14,-11.8894
+PRESET_DYNAMICS,14,input_plus_6_db,0,0,0,0,0.790822,0.21433,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,14,input_plus_6_db,Tone,400,1,-20.1289,-37.15,-32.6161,-27.4412,-23.0474
+PRESET_EQ_DETECTOR,14,input_plus_6_db,Final,4200,1.3,-37.2571,-60.3726,-56.1474,-49.3699,-40.1976
+PRESET_COMP_DETECTOR,14,input_plus_6_db,80,Peak,-14.2969,-25.7063,-20.7017,-16.0377
+PRESET_UNPROTECTED,14,-27.7909,-14.3904,-11.8894
+PERFORMANCE_RECALL preset=14 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=14 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=14 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=14 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,30,27.5,static,-0.00400862
+PRESET_LOW_FUNDAMENTAL_EQ,30,27.5,maximum_dynamic_cut,-0.0125725
+PRESET_LOW_FUNDAMENTAL_EQ,30,30.8677,static,-0.00506208
+PRESET_LOW_FUNDAMENTAL_EQ,30,30.8677,maximum_dynamic_cut,-0.0158747
+PRESET_LOW_FUNDAMENTAL_EQ,30,27.5,static,-0.00400862
+PRESET_LOW_FUNDAMENTAL_EQ,30,27.5,maximum_dynamic_cut,-0.0125725
+PRESET_LOW_FUNDAMENTAL_EQ,30,30.8677,static,-0.00506208
+PRESET_LOW_FUNDAMENTAL_EQ,30,30.8677,maximum_dynamic_cut,-0.0158747
+PRESET_LEVEL,30,Modern Clean,-26.9396,-9.01663,0
+PRESET_DYNAMICS,30,nominal,0,0,0,0,0.773591,0.35147,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,30,nominal,Tone,300,1,-15.331,-32.7894,-27.0701,-20.8172,-17.3305
+PRESET_EQ_DETECTOR,30,nominal,Final,3600,1.3,-35.52,-55.7656,-50.2932,-42.2498,-37.9162
+PRESET_COMP_DETECTOR,30,nominal,70,RMS,-20.1758,-29.5012,-24.1386,-21.128
+PRESET_HOT,30,-7.533
+PRESET_DYNAMICS,30,input_plus_6_db,0,0,0,0,0.914286,0.524679,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,30,input_plus_6_db,Tone,300,1,-13.6274,-30.6264,-24.472,-18.8785,-15.0876
+PRESET_EQ_DETECTOR,30,input_plus_6_db,Final,3600,1.3,-34.1595,-53.6975,-47.8707,-40.1466,-35.9103
+PRESET_COMP_DETECTOR,30,input_plus_6_db,70,RMS,-18.5323,-27.0736,-22.0568,-19.1967
+PRESET_UNPROTECTED,30,-26.9396,-9.01663,-7.533
+PERFORMANCE_RECALL preset=30 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=30 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=30 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=30 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,15,27.5,static,-0.00582539
+PRESET_LOW_FUNDAMENTAL_EQ,15,27.5,maximum_dynamic_cut,-0.0244539
+PRESET_LOW_FUNDAMENTAL_EQ,15,30.8677,static,-0.00736345
+PRESET_LOW_FUNDAMENTAL_EQ,15,30.8677,maximum_dynamic_cut,-0.0309039
+PRESET_LOW_FUNDAMENTAL_EQ,15,27.5,static,-0.00582539
+PRESET_LOW_FUNDAMENTAL_EQ,15,27.5,maximum_dynamic_cut,-0.0244539
+PRESET_LOW_FUNDAMENTAL_EQ,15,30.8677,static,-0.00736345
+PRESET_LOW_FUNDAMENTAL_EQ,15,30.8677,maximum_dynamic_cut,-0.0309039
+PRESET_LEVEL,15,Modern Grind,-17.888,-5.00071,0
+PRESET_DYNAMICS,15,nominal,0,0,0,0,1.14824,0.507093,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,15,nominal,Tone,250,1,-10.0669,-22.2563,-17.2259,-13.6686,-11.4295
+PRESET_EQ_DETECTOR,15,nominal,Final,3400,1.3,-25.5511,-47.1239,-41.2098,-34.5892,-27.8779
+PRESET_COMP_DETECTOR,15,nominal,85,RMS,-13.3035,-20.0882,-16.9289,-14.28
+PRESET_HOT,15,-4.09961
+PRESET_DYNAMICS,15,input_plus_6_db,0,0,0,0,1.2912,0.695815,0.0718218,0.0123013,0,0,0,0
+PRESET_EQ_DETECTOR,15,input_plus_6_db,Tone,250,1,-9.64308,-21.1665,-16.0552,-12.8587,-10.8229
+PRESET_EQ_DETECTOR,15,input_plus_6_db,Final,3400,1.3,-23.6438,-45.9278,-39.9501,-32.5966,-26.4907
+PRESET_COMP_DETECTOR,15,input_plus_6_db,85,RMS,-12.4074,-18.9316,-16.0684,-13.5688
+PRESET_UNPROTECTED,15,-17.888,-5.00071,-4.09961
+PERFORMANCE_RECALL preset=15 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=15 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=15 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=15 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,16,27.5,static,-0.00520291
+PRESET_LOW_FUNDAMENTAL_EQ,16,27.5,maximum_dynamic_cut,-0.017597
+PRESET_LOW_FUNDAMENTAL_EQ,16,30.8677,static,-0.00657903
+PRESET_LOW_FUNDAMENTAL_EQ,16,30.8677,maximum_dynamic_cut,-0.0222418
+PRESET_LOW_FUNDAMENTAL_EQ,16,27.5,static,-0.00520291
+PRESET_LOW_FUNDAMENTAL_EQ,16,27.5,maximum_dynamic_cut,-0.017597
+PRESET_LOW_FUNDAMENTAL_EQ,16,30.8677,static,-0.00657903
+PRESET_LOW_FUNDAMENTAL_EQ,16,30.8677,maximum_dynamic_cut,-0.0222418
+PRESET_LEVEL,16,Vintage Bass DI,-21.4217,-5.00894,0
+PRESET_DYNAMICS,16,nominal,0,0,0,0,0.86366,0.261694,0.314376,0.0352057,0,0,0,0
+PRESET_EQ_DETECTOR,16,nominal,Tone,250,1,-10.163,-24.5867,-19.8937,-14.5089,-11.4866
+PRESET_EQ_DETECTOR,16,nominal,Final,2600,1.3,-22.3835,-44.8104,-40.8081,-30.7436,-25.3532
+PRESET_COMP_DETECTOR,16,nominal,70,RMS,-14.5813,-23.4892,-18.3308,-15.4357
+PRESET_HOT,16,-2.81675
+PRESET_DYNAMICS,16,input_plus_6_db,0,0,0,0,0.973862,0.468276,0.861275,0.19016,0,0,0,0
+PRESET_EQ_DETECTOR,16,input_plus_6_db,Tone,250,1,-9.37355,-22.0833,-17.2455,-12.8241,-10.5969
+PRESET_EQ_DETECTOR,16,input_plus_6_db,Final,2600,1.3,-18.6327,-41.5709,-36.1835,-26.0902,-21.1173
+PRESET_COMP_DETECTOR,16,input_plus_6_db,70,RMS,-12.7847,-20.5289,-15.8529,-13.3922
+PRESET_UNPROTECTED,16,-21.4217,-5.00894,-2.81675
+PERFORMANCE_RECALL preset=16 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=16 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=16 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=16 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,17,27.5,static,-0.00399594
+PRESET_LOW_FUNDAMENTAL_EQ,17,27.5,maximum_dynamic_cut,-0.0179567
+PRESET_LOW_FUNDAMENTAL_EQ,17,30.8677,static,-0.00504285
+PRESET_LOW_FUNDAMENTAL_EQ,17,30.8677,maximum_dynamic_cut,-0.0226562
+PRESET_LOW_FUNDAMENTAL_EQ,17,27.5,static,-0.00399594
+PRESET_LOW_FUNDAMENTAL_EQ,17,27.5,maximum_dynamic_cut,-0.0179567
+PRESET_LOW_FUNDAMENTAL_EQ,17,30.8677,static,-0.00504285
+PRESET_LOW_FUNDAMENTAL_EQ,17,30.8677,maximum_dynamic_cut,-0.0226562
+PRESET_LEVEL,17,Wool Bass Fuzz,-18.6396,-7.60822,0
+PRESET_DYNAMICS,17,nominal,0,0,0,0,1.30569,0.293796,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,17,nominal,Tone,320,0.9,-14.0768,-27.4291,-24.3851,-19.0471,-15.5097
+PRESET_EQ_DETECTOR,17,nominal,Final,2800,1.3,-29.7994,-49.2112,-41.834,-37.8639,-32.8847
+PRESET_COMP_DETECTOR,17,nominal,90,RMS,-14.5372,-23.3051,-17.0702,-15.0283
+PRESET_HOT,17,-6.13248
+PRESET_DYNAMICS,17,input_plus_6_db,0,0,0,0,1.45398,0.484626,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,17,input_plus_6_db,Tone,320,0.9,-13.5128,-25.393,-22.3545,-17.3462,-14.6227
+PRESET_EQ_DETECTOR,17,input_plus_6_db,Final,2800,1.3,-26.6326,-46.7184,-39.84,-32.4206,-28.5598
+PRESET_COMP_DETECTOR,17,input_plus_6_db,90,RMS,-13.3785,-21.8857,-15.2436,-13.6906
+PRESET_UNPROTECTED,17,-18.6396,-7.60822,-6.13248
+PERFORMANCE_RECALL preset=17 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=17 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=17 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=17 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,18,27.5,static,-0.00372082
+PRESET_LOW_FUNDAMENTAL_EQ,18,27.5,maximum_dynamic_cut,-0.0112593
+PRESET_LOW_FUNDAMENTAL_EQ,18,30.8677,static,-0.00469685
+PRESET_LOW_FUNDAMENTAL_EQ,18,30.8677,maximum_dynamic_cut,-0.0142123
+PRESET_LOW_FUNDAMENTAL_EQ,18,27.5,static,-0.00372082
+PRESET_LOW_FUNDAMENTAL_EQ,18,27.5,maximum_dynamic_cut,-0.0112593
+PRESET_LOW_FUNDAMENTAL_EQ,18,30.8677,static,-0.00469685
+PRESET_LOW_FUNDAMENTAL_EQ,18,30.8677,maximum_dynamic_cut,-0.0142123
+PRESET_LEVEL,18,Bass Envelope,-25.755,-11.0142,0
+PRESET_DYNAMICS,18,nominal,0,0,0,0,0.765473,0.335268,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,18,nominal,Tone,320,1,-16.1707,-34.0699,-31.0345,-23.1136,-18.46
+PRESET_EQ_DETECTOR,18,nominal,Final,3000,1.3,-34.4397,-56.0148,-52.5576,-43.5222,-37.5149
+PRESET_COMP_DETECTOR,18,nominal,80,RMS,-19.19,-30.0509,-22.8754,-19.927
+PRESET_HOT,18,-5.23313
+PRESET_DYNAMICS,18,input_plus_6_db,0,0,0,0,0.934975,0.580119,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,18,input_plus_6_db,Tone,320,1,-10.4768,-30.3204,-26.8541,-19.6734,-14.2097
+PRESET_EQ_DETECTOR,18,input_plus_6_db,Final,3000,1.3,-29.5833,-52.3475,-48.74,-39.978,-32.4334
+PRESET_COMP_DETECTOR,18,input_plus_6_db,80,RMS,-13.3696,-26.1752,-19.3044,-14.8922
+PRESET_UNPROTECTED,18,-25.755,-11.0142,-5.23313
+PERFORMANCE_RECALL preset=18 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=18 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=18 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=18 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,19,G+G Clean / Crunch,-26.8717,-12.9502,0
+PRESET_DYNAMICS,19,nominal,0.0709867,0.0189511,0,0,0.914842,0.286388,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,19,nominal,Tone,280,1,-16.3656,-28.2194,-25.4966,-20.0628,-17.4385
+PRESET_EQ_DETECTOR,19,nominal,Final,3900,1.3,-25.0346,-45.5235,-37.6779,-28.857,-26.2379
+PRESET_COMP_DETECTOR,19,nominal,90,RMS,-21.3141,-27.7891,-22.9226,-21.6729
+PRESET_HOT,19,-11.6174
+PRESET_DYNAMICS,19,input_plus_6_db,0.338703,0.116896,0,0,0.998099,0.474498,0.0589371,0.00598705,0,0,0,0
+PRESET_EQ_DETECTOR,19,input_plus_6_db,Tone,280,1,-13.9917,-25.276,-22.7617,-17.1739,-14.9951
+PRESET_EQ_DETECTOR,19,input_plus_6_db,Final,3900,1.3,-23.9777,-43.5068,-33.7807,-27.2175,-25.172
+PRESET_COMP_DETECTOR,19,input_plus_6_db,90,RMS,-19.0848,-24.9047,-20.5551,-19.4016
+PRESET_UNPROTECTED,19,-26.8718,-12.9502,-11.6174
+PERFORMANCE_RECALL preset=19 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=19 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=19 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=19 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,20,G+G Tight / Wide,-14.4656,-5.41745,0
+PRESET_DYNAMICS,20,nominal,0,0,0,0,1.51586,0.653997,1.39932,0.544926,0,0,0,0
+PRESET_EQ_DETECTOR,20,nominal,Tone,160,1.1,-11.2309,-23.3805,-18.5345,-16.2828,-14.5731
+PRESET_EQ_DETECTOR,20,nominal,Final,4400,1.3,-10.6904,-22.7698,-15.4393,-13.4957,-12.303
+PRESET_COMP_DETECTOR,20,nominal,120,RMS,-11.0966,-12.856,-11.5044,-11.2705
+PRESET_HOT,20,-5.36854
+PRESET_DYNAMICS,20,input_plus_6_db,0,0,0,0,1.50871,0.631953,1.43275,0.559169,0,0,0,0
+PRESET_EQ_DETECTOR,20,input_plus_6_db,Tone,160,1.1,-11.2698,-23.4188,-18.5936,-16.3659,-14.6384
+PRESET_EQ_DETECTOR,20,input_plus_6_db,Final,4400,1.3,-10.6557,-22.7037,-15.3339,-13.5108,-12.2156
+PRESET_COMP_DETECTOR,20,input_plus_6_db,120,RMS,-11.1482,-12.9099,-11.5416,-11.3171
+PRESET_UNPROTECTED,20,-14.4656,-5.41745,-5.36854
+PERFORMANCE_RECALL preset=20 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=20 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=20 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=20 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,23,27.5,static,-0.00438407
+PRESET_LOW_FUNDAMENTAL_EQ,23,27.5,maximum_dynamic_cut,-0.0142375
+PRESET_LOW_FUNDAMENTAL_EQ,23,30.8677,static,-0.00553875
+PRESET_LOW_FUNDAMENTAL_EQ,23,30.8677,maximum_dynamic_cut,-0.0179833
+PRESET_LOW_FUNDAMENTAL_EQ,23,27.5,static,-0.00438407
+PRESET_LOW_FUNDAMENTAL_EQ,23,27.5,maximum_dynamic_cut,-0.0142375
+PRESET_LOW_FUNDAMENTAL_EQ,23,30.8677,static,-0.00553875
+PRESET_LOW_FUNDAMENTAL_EQ,23,30.8677,maximum_dynamic_cut,-0.0179833
+PRESET_LEVEL,23,B+B Warm / Definition,-22.4427,-6.2821,0
+PRESET_DYNAMICS,23,nominal,0,0,0,0,0.789639,0.316557,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,23,nominal,Tone,280,1,-11.4634,-28.3157,-22.7374,-16.8376,-13.6683
+PRESET_EQ_DETECTOR,23,nominal,Final,3000,1.3,-30.266,-50.2826,-45.1706,-37.6845,-32.478
+PRESET_COMP_DETECTOR,23,nominal,70,RMS,-16.0846,-24.9953,-19.8153,-16.9307
+PRESET_HOT,23,-5.24491
+PRESET_DYNAMICS,23,input_plus_6_db,0,0,0,0,0.920158,0.468891,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,23,input_plus_6_db,Tone,280,1,-10.2787,-26.448,-20.4164,-15.4491,-12.4816
+PRESET_EQ_DETECTOR,23,input_plus_6_db,Final,3000,1.3,-28.9808,-48.4892,-43.2438,-35.8413,-30.9079
+PRESET_COMP_DETECTOR,23,input_plus_6_db,70,RMS,-14.6534,-22.7651,-18.2147,-15.5938
+PRESET_UNPROTECTED,23,-22.4427,-6.2821,-5.24491
+PERFORMANCE_RECALL preset=23 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=23 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=23 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=23 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,21,27.5,static,-0.00627819
+PRESET_LOW_FUNDAMENTAL_EQ,21,27.5,maximum_dynamic_cut,-0.026279
+PRESET_LOW_FUNDAMENTAL_EQ,21,30.8677,static,-0.00794916
+PRESET_LOW_FUNDAMENTAL_EQ,21,30.8677,maximum_dynamic_cut,-0.0332644
+PRESET_LOW_FUNDAMENTAL_EQ,21,27.5,static,-0.00627819
+PRESET_LOW_FUNDAMENTAL_EQ,21,27.5,maximum_dynamic_cut,-0.026279
+PRESET_LOW_FUNDAMENTAL_EQ,21,30.8677,static,-0.00794916
+PRESET_LOW_FUNDAMENTAL_EQ,21,30.8677,maximum_dynamic_cut,-0.0332644
+PRESET_LEVEL,21,G+B Low Anchor,-20.8357,-9.02878,0
+PRESET_DYNAMICS,21,nominal,0,0,0,0,1.0059,0.513294,1.01293,0.366737,0,0,0,0
+PRESET_EQ_DETECTOR,21,nominal,Tone,220,1.1,-14.4851,-22.6868,-19.356,-16.9771,-14.9284
+PRESET_EQ_DETECTOR,21,nominal,Final,3400,1.3,-16.2152,-34.8289,-26.9744,-21.9837,-20.2143
+PRESET_COMP_DETECTOR,21,nominal,90,RMS,-18.8232,-21.5462,-20.3541,-19.1855
+PRESET_HOT,21,-6.03884
+PRESET_DYNAMICS,21,input_plus_6_db,0,0,0,0,1.33075,0.863539,1.21097,0.466392,0,0,0,0
+PRESET_EQ_DETECTOR,21,input_plus_6_db,Tone,220,1.1,-12.704,-22.0294,-18.1418,-15.6837,-14.0719
+PRESET_EQ_DETECTOR,21,input_plus_6_db,Final,3400,1.3,-16.5416,-33.6388,-25.3454,-21.4446,-19.9334
+PRESET_COMP_DETECTOR,21,input_plus_6_db,90,RMS,-15.4428,-20.5129,-17.8891,-15.7096
+PRESET_UNPROTECTED,21,-20.8357,-9.02878,-6.03884
+PERFORMANCE_RECALL preset=21 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=21 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=21 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=21 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,22,27.5,static,-0.00380324
+PRESET_LOW_FUNDAMENTAL_EQ,22,27.5,maximum_dynamic_cut,-0.0119502
+PRESET_LOW_FUNDAMENTAL_EQ,22,30.8677,static,-0.00480663
+PRESET_LOW_FUNDAMENTAL_EQ,22,30.8677,maximum_dynamic_cut,-0.0151007
+PRESET_LOW_FUNDAMENTAL_EQ,22,27.5,static,-0.00380324
+PRESET_LOW_FUNDAMENTAL_EQ,22,27.5,maximum_dynamic_cut,-0.0119502
+PRESET_LOW_FUNDAMENTAL_EQ,22,30.8677,static,-0.00480663
+PRESET_LOW_FUNDAMENTAL_EQ,22,30.8677,maximum_dynamic_cut,-0.0151007
+PRESET_LEVEL,22,G+B Air / Weight,-20.4547,-4.94969,0
+PRESET_DYNAMICS,22,nominal,0.847781,0.284778,0,0,0.754922,0.297223,0.593172,0.092305,0,0,0,0
+PRESET_EQ_DETECTOR,22,nominal,Tone,280,1.1,-9.6935,-25.261,-20.0714,-13.656,-10.9975
+PRESET_EQ_DETECTOR,22,nominal,Final,3800,1.3,-21.7508,-46.6895,-41.6382,-29.4818,-23.6912
+PRESET_COMP_DETECTOR,22,nominal,90,RMS,-14.9474,-23.921,-17.8135,-15.5839
+PRESET_HOT,22,-2.60486
+PRESET_DYNAMICS,22,input_plus_6_db,1.54195,0.691496,0,0,0.976003,0.552548,0.96364,0.320473,0,0,0,0
+PRESET_EQ_DETECTOR,22,input_plus_6_db,Tone,280,1.1,-7.86342,-21.8125,-15.9615,-11.1023,-8.95843
+PRESET_EQ_DETECTOR,22,input_plus_6_db,Final,3800,1.3,-18.593,-42.6887,-36.7519,-24.297,-20.2375
+PRESET_COMP_DETECTOR,22,input_plus_6_db,90,RMS,-12.5286,-20.0358,-14.9427,-12.8872
+PRESET_UNPROTECTED,22,-20.4547,-4.94969,-2.60486
+PERFORMANCE_RECALL preset=22 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=22 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=22 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=22 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,24,27.5,static,-0.004812
+PRESET_LOW_FUNDAMENTAL_EQ,24,27.5,maximum_dynamic_cut,-0.020251
+PRESET_LOW_FUNDAMENTAL_EQ,24,30.8677,static,-0.00608615
+PRESET_LOW_FUNDAMENTAL_EQ,24,30.8677,maximum_dynamic_cut,-0.0256074
+PRESET_LOW_FUNDAMENTAL_EQ,24,27.5,static,-0.004812
+PRESET_LOW_FUNDAMENTAL_EQ,24,27.5,maximum_dynamic_cut,-0.020251
+PRESET_LOW_FUNDAMENTAL_EQ,24,30.8677,static,-0.00608615
+PRESET_LOW_FUNDAMENTAL_EQ,24,30.8677,maximum_dynamic_cut,-0.0256074
+PRESET_LEVEL,24,B+B Clean / Grind,-20.6741,-6.76579,0
+PRESET_DYNAMICS,24,nominal,0,0,0,0,0.993338,0.532486,1.15855,0.192604,0,0,0,0
+PRESET_EQ_DETECTOR,24,nominal,Tone,250,1.1,-7.0451,-22.024,-17.2255,-11.9193,-9.19219
+PRESET_EQ_DETECTOR,24,nominal,Final,3400,1.3,-18.1118,-43.5376,-38.4505,-26.533,-20.9098
+PRESET_COMP_DETECTOR,24,nominal,90,RMS,-14.606,-22.2152,-17.4054,-15.4835
+PRESET_HOT,24,-3.25498
+PRESET_DYNAMICS,24,input_plus_6_db,0,0,0,0,1.44352,1.07731,1.48253,0.564743,0,0,0,0
+PRESET_EQ_DETECTOR,24,input_plus_6_db,Tone,250,1.1,-4.49791,-18.2489,-13.1031,-8.67757,-6.4141
+PRESET_EQ_DETECTOR,24,input_plus_6_db,Final,3400,1.3,-15.2094,-38.9879,-32.8215,-21.1316,-17.2388
+PRESET_COMP_DETECTOR,24,input_plus_6_db,90,RMS,-11.8922,-18.3592,-14.2306,-12.5203
+PRESET_UNPROTECTED,24,-20.6741,-6.76579,-3.25498
+PERFORMANCE_RECALL preset=24 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=24 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=24 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=24 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,2,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,2,27.5,maximum_dynamic_cut,-0.0219863
+PRESET_LOW_FUNDAMENTAL_EQ,2,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,2,30.8677,maximum_dynamic_cut,-0.0278102
+PRESET_LOW_FUNDAMENTAL_EQ,2,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,2,27.5,maximum_dynamic_cut,-0.0219863
+PRESET_LOW_FUNDAMENTAL_EQ,2,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,2,30.8677,maximum_dynamic_cut,-0.0278102
+PRESET_LEVEL,2,Bass Matrix,-21.5742,-7.89377,0
+PRESET_DYNAMICS,2,nominal,0,0,0,0,0.947245,0.55785,1.01661,0.129898,0,0,0,0
+PRESET_EQ_DETECTOR,2,nominal,Tone,240,1.1,-9.21586,-22.8218,-18.4039,-13.3877,-10.4944
+PRESET_EQ_DETECTOR,2,nominal,Final,3200,1.3,-19.701,-45.9694,-40.1245,-29.6698,-22.4154
+PRESET_COMP_DETECTOR,2,nominal,90,RMS,-16.6098,-23.3788,-18.7316,-17.0635
+PRESET_HOT,2,-3.89658
+PRESET_DYNAMICS,2,input_plus_6_db,0,0,0,0,1.31371,0.986075,1.46687,0.445364,0,0,0,0
+PRESET_EQ_DETECTOR,2,input_plus_6_db,Tone,240,1.1,-7.65114,-19.6424,-15.1734,-11.1899,-8.76628
+PRESET_EQ_DETECTOR,2,input_plus_6_db,Final,3200,1.3,-15.9912,-41.7454,-34.6958,-23.1513,-18.1709
+PRESET_COMP_DETECTOR,2,input_plus_6_db,90,RMS,-14.2113,-20.1055,-16.5433,-15.1038
+PRESET_UNPROTECTED,2,-21.5742,-7.89377,-3.89658
+PERFORMANCE_RECALL preset=2 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=2 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=2 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=2 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,25,27.5,static,0.000728413
+PRESET_LOW_FUNDAMENTAL_EQ,25,27.5,maximum_dynamic_cut,-0.015333
+PRESET_LOW_FUNDAMENTAL_EQ,25,30.8677,static,0.000917839
+PRESET_LOW_FUNDAMENTAL_EQ,25,30.8677,maximum_dynamic_cut,-0.019433
+PRESET_LOW_FUNDAMENTAL_EQ,25,27.5,static,0.000728413
+PRESET_LOW_FUNDAMENTAL_EQ,25,27.5,maximum_dynamic_cut,-0.015333
+PRESET_LOW_FUNDAMENTAL_EQ,25,30.8677,static,0.000917839
+PRESET_LOW_FUNDAMENTAL_EQ,25,30.8677,maximum_dynamic_cut,-0.019433
+PRESET_LEVEL,25,Low B Foundation,-19.9922,-7.07569,0
+PRESET_DYNAMICS,25,nominal,0,0,0,0,0.698298,0.412976,0.525394,0.0638825,0,0,0,0
+PRESET_EQ_DETECTOR,25,nominal,Tone,200,1.1,-8.49295,-21.8398,-17.7984,-12.8073,-10.2076
+PRESET_EQ_DETECTOR,25,nominal,Final,2800,1.3,-21.4841,-45.2832,-39.6266,-30.4451,-24.17
+PRESET_COMP_DETECTOR,25,nominal,90,RMS,-15.2819,-22.1106,-17.1291,-15.7711
+PRESET_HOT,25,-3.57406
+PRESET_DYNAMICS,25,input_plus_6_db,0,0,0,0,0.951386,0.735328,0.962158,0.260653,0,0,0,0
+PRESET_EQ_DETECTOR,25,input_plus_6_db,Tone,200,1.1,-6.56123,-18.4185,-14.169,-10.4075,-8.32439
+PRESET_EQ_DETECTOR,25,input_plus_6_db,Final,2800,1.3,-17.7138,-41.3425,-34.37,-24.6271,-19.5276
+PRESET_COMP_DETECTOR,25,input_plus_6_db,90,RMS,-13.106,-18.4179,-14.9073,-13.6887
+PRESET_UNPROTECTED,25,-19.9922,-7.07569,-3.57406
+PERFORMANCE_RECALL preset=25 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=25 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=25 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=25 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,26,27.5,static,-0.00464181
+PRESET_LOW_FUNDAMENTAL_EQ,26,27.5,maximum_dynamic_cut,-0.0194652
+PRESET_LOW_FUNDAMENTAL_EQ,26,30.8677,static,-0.00586351
+PRESET_LOW_FUNDAMENTAL_EQ,26,30.8677,maximum_dynamic_cut,-0.0245843
+PRESET_LOW_FUNDAMENTAL_EQ,26,27.5,static,-0.00464181
+PRESET_LOW_FUNDAMENTAL_EQ,26,27.5,maximum_dynamic_cut,-0.0194652
+PRESET_LOW_FUNDAMENTAL_EQ,26,30.8677,static,-0.00586351
+PRESET_LOW_FUNDAMENTAL_EQ,26,30.8677,maximum_dynamic_cut,-0.0245843
+PRESET_LEVEL,26,Pick Attack Matrix,-20.4351,-5.21275,0
+PRESET_DYNAMICS,26,nominal,0,0,0,0,1.264,0.493747,0.00237993,0.000207816,0,0,0,0
+PRESET_EQ_DETECTOR,26,nominal,Tone,280,1,-5.85888,-21.8063,-17.5095,-10.4937,-7.37713
+PRESET_EQ_DETECTOR,26,nominal,Final,3500,1.3,-24.7621,-45.9189,-40.5244,-32.048,-27.6794
+PRESET_COMP_DETECTOR,26,nominal,85,RMS,-13.3996,-22.9686,-16.6558,-14.2639
+PRESET_HOT,26,-2.84436
+PRESET_DYNAMICS,26,input_plus_6_db,0,0,0,0,1.48319,0.95184,1.00463,0.153994,0,0,0,0
+PRESET_EQ_DETECTOR,26,input_plus_6_db,Tone,280,1,-3.23192,-17.6549,-12.8376,-7.29474,-4.44124
+PRESET_EQ_DETECTOR,26,input_plus_6_db,Final,3500,1.3,-19.6243,-41.9027,-35.586,-26.7373,-22.2385
+PRESET_COMP_DETECTOR,26,input_plus_6_db,85,RMS,-10.8706,-18.4528,-13.412,-11.5613
+PRESET_UNPROTECTED,26,-20.4351,-5.21275,-2.84436
+PERFORMANCE_RECALL preset=26 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=26 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=26 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=26 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LOW_FUNDAMENTAL_EQ,27,27.5,static,-0.00352949
+PRESET_LOW_FUNDAMENTAL_EQ,27,27.5,maximum_dynamic_cut,-0.0112714
+PRESET_LOW_FUNDAMENTAL_EQ,27,30.8677,static,-0.0044527
+PRESET_LOW_FUNDAMENTAL_EQ,27,30.8677,maximum_dynamic_cut,-0.0142182
+PRESET_LOW_FUNDAMENTAL_EQ,27,27.5,static,-0.00352949
+PRESET_LOW_FUNDAMENTAL_EQ,27,27.5,maximum_dynamic_cut,-0.0112714
+PRESET_LOW_FUNDAMENTAL_EQ,27,30.8677,static,-0.0044527
+PRESET_LOW_FUNDAMENTAL_EQ,27,30.8677,maximum_dynamic_cut,-0.0142182
+PRESET_LEVEL,27,Spectral Texture,-25.4205,-9.98515,0
+PRESET_DYNAMICS,27,nominal,0,0,0,0,0.708755,0.314182,0.28731,0.157667,0,0,0,0
+PRESET_EQ_DETECTOR,27,nominal,Tone,350,0.9,-12.1708,-27.3291,-21.5816,-16.8053,-13.9216
+PRESET_EQ_DETECTOR,27,nominal,Final,3600,1.3,-21.4052,-47.1188,-42.9971,-28.8213,-22.9071
+PRESET_COMP_DETECTOR,27,nominal,90,RMS,-18.1193,-25.5922,-21.0825,-18.9412
+PRESET_HOT,27,-6.83161
+PRESET_DYNAMICS,27,input_plus_6_db,0,0,0,0,0.940984,0.631373,0.554113,0.243405,0,0,0,0
+PRESET_EQ_DETECTOR,27,input_plus_6_db,Tone,350,0.9,-9.4374,-24.3081,-18.4102,-14.1627,-11.1522
+PRESET_EQ_DETECTOR,27,input_plus_6_db,Final,3600,1.3,-20.2783,-44.2176,-38.1506,-26.0167,-21.7802
+PRESET_COMP_DETECTOR,27,input_plus_6_db,90,RMS,-14.9291,-21.9567,-17.5749,-15.7142
+PRESET_UNPROTECTED,27,-25.4222,-9.98514,-6.83161
+PERFORMANCE_RECALL preset=27 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=27 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=27 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=27 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,38,Thall Rhythm,-16.0279,-1,0
+PRESET_DYNAMICS,38,nominal,0,0,0.0153487,0.00129614,1.47584,0.769466,1.35481,0.546277,0,0,0,0
+PRESET_EQ_DETECTOR,38,nominal,Tone,160,1.1,-7.483,-16.8757,-12.6928,-10.8578,-9.44608
+PRESET_EQ_DETECTOR,38,nominal,Final,4300,1.3,-9.51134,-23.9796,-14.7816,-12.7904,-10.7022
+PRESET_COMP_DETECTOR,38,nominal,120,RMS,-8.95968,-11.3764,-10.0401,-9.08026
+PRESET_HOT,38,-2.45151
+PRESET_DYNAMICS,38,input_plus_6_db,0,0,0,0,1.45753,0.743126,1.31456,0.627375,0,0,0,0
+PRESET_EQ_DETECTOR,38,input_plus_6_db,Tone,160,1.1,-7.06086,-16.9454,-12.7762,-10.9856,-9.73133
+PRESET_EQ_DETECTOR,38,input_plus_6_db,Final,4300,1.3,-9.5228,-23.8401,-14.557,-12.668,-10.684
+PRESET_COMP_DETECTOR,38,input_plus_6_db,120,RMS,-9.05461,-10.7886,-9.80488,-9.17858
+PRESET_UNPROTECTED,38,-16.0266,-0.984652,-2.45151
+PRESET_LEVEL,39,Molten Lead,-17.6071,-3.705,0
+PRESET_DYNAMICS,39,nominal,0,0,0,0,0.842012,0.464554,1.38067,0.692384,0,0,0,0
+PRESET_EQ_DETECTOR,39,nominal,Tone,280,1,-10.4625,-19.3568,-14.5016,-12.4924,-11.3855
+PRESET_EQ_DETECTOR,39,nominal,Final,3800,1.3,-13.614,-30.3124,-19.0701,-17.863,-14.9481
+PRESET_COMP_DETECTOR,39,nominal,100,RMS,-14.0196,-15.8519,-15.0344,-14.5421
+PRESET_HOT,39,-3.65792
+PRESET_DYNAMICS,39,input_plus_6_db,0,0,0,0,0.842965,0.454894,1.36555,0.755278,0,0,0,0
+PRESET_EQ_DETECTOR,39,input_plus_6_db,Tone,280,1,-10.6453,-19.4266,-14.4514,-12.6495,-11.5907
+PRESET_EQ_DETECTOR,39,input_plus_6_db,Final,3800,1.3,-13.7736,-29.9573,-18.8974,-17.4768,-15.1605
+PRESET_COMP_DETECTOR,39,input_plus_6_db,100,RMS,-13.9489,-15.7205,-14.8154,-14.2344
+PRESET_UNPROTECTED,39,-17.6074,-3.705,-3.65792
+PRESET_LEVEL,40,Rotten Grind,-12.1769,-1.39012,0
+PRESET_DYNAMICS,40,nominal,0,0,0,0,1.23814,0.382069,1.45126,0.423609,0,0,0,0
+PRESET_EQ_DETECTOR,40,nominal,Tone,200,1.1,-3.78741,-11.7841,-8.09043,-5.97026,-4.55678
+PRESET_EQ_DETECTOR,40,nominal,Final,4000,1.3,-11.4503,-24.9502,-16.2664,-13.8915,-12.1043
+PRESET_COMP_DETECTOR,40,nominal,120,RMS,-8.18679,-9.85864,-8.98022,-8.44835
+PRESET_HOT,40,-1.62224
+PRESET_DYNAMICS,40,input_plus_6_db,0,0,0,0,1.26081,0.463502,1.45536,0.379968,0,0,0,0
+PRESET_EQ_DETECTOR,40,input_plus_6_db,Tone,200,1.1,-3.84422,-11.441,-7.72168,-5.48787,-4.6575
+PRESET_EQ_DETECTOR,40,input_plus_6_db,Final,4000,1.3,-11.1538,-25.1827,-16.6642,-13.8833,-11.7644
+PRESET_COMP_DETECTOR,40,input_plus_6_db,120,RMS,-8.4416,-9.61593,-8.97846,-8.61226
+PRESET_UNPROTECTED,40,-12.1769,-1.39012,-1.62224
+PRESET_LEVEL,41,Sludge Mass,-18.1,-8.34849,0
+PRESET_DYNAMICS,41,nominal,0,0,0,0,0.671728,0.474755,0.491299,0.187614,0,0,0,0
+PRESET_EQ_DETECTOR,41,nominal,Tone,350,0.9,-16.8437,-24.6503,-20.7233,-19.4268,-17.9059
+PRESET_EQ_DETECTOR,41,nominal,Final,3000,1.3,-21.9317,-39.5334,-27.233,-26.0507,-22.9674
+PRESET_COMP_DETECTOR,41,nominal,90,RMS,-15.6738,-18.6136,-17.0035,-16.2119
+PRESET_HOT,41,-8.79274
+PRESET_DYNAMICS,41,input_plus_6_db,0,0,0,0,0.67812,0.492223,0.32952,0.176606,0,0,0,0
+PRESET_EQ_DETECTOR,41,input_plus_6_db,Tone,350,0.9,-16.6366,-24.5247,-20.5669,-19.4759,-17.4521
+PRESET_EQ_DETECTOR,41,input_plus_6_db,Final,3000,1.3,-21.3633,-39.5139,-27.0621,-26.0959,-23.1457
+PRESET_COMP_DETECTOR,41,input_plus_6_db,90,RMS,-15.7298,-18.5026,-16.8271,-16.0553
+PRESET_UNPROTECTED,41,-18.1001,-8.34832,-8.79274
+PRESET_LEVEL,42,Slam Impact,-18.1996,-3.62806,0
+PRESET_DYNAMICS,42,nominal,0,0,0,0,1.35838,0.710941,1.67987,0.506944,0,0,0,0
+PRESET_EQ_DETECTOR,42,nominal,Tone,180,1.1,-4.02031,-12.8034,-9.23171,-7.43585,-6.20878
+PRESET_EQ_DETECTOR,42,nominal,Final,4200,1.3,-11.3606,-26.4818,-19.4846,-17.19,-14.2348
+PRESET_COMP_DETECTOR,42,nominal,120,RMS,-7.32634,-9.87358,-8.55088,-7.63715
+PRESET_HOT,42,-3.52291
+PRESET_DYNAMICS,42,input_plus_6_db,0,0,0,0,1.15756,0.605512,1.62459,0.563266,0,0,0,0
+PRESET_EQ_DETECTOR,42,input_plus_6_db,Tone,180,1.1,-4.4809,-13.2216,-9.52573,-7.72677,-6.7431
+PRESET_EQ_DETECTOR,42,input_plus_6_db,Final,4200,1.3,-11.64,-26.3658,-19.2601,-17.44,-13.7464
+PRESET_COMP_DETECTOR,42,input_plus_6_db,120,RMS,-7.69431,-9.82471,-8.52468,-7.97587
+PRESET_UNPROTECTED,42,-18.1996,-3.62806,-3.52291
+PRESET_LOW_FUNDAMENTAL_EQ,43,27.5,static,-0.00487107
+PRESET_LOW_FUNDAMENTAL_EQ,43,27.5,maximum_dynamic_cut,-0.0147324
+PRESET_LOW_FUNDAMENTAL_EQ,43,30.8677,static,-0.00615237
+PRESET_LOW_FUNDAMENTAL_EQ,43,30.8677,maximum_dynamic_cut,-0.0186068
+PRESET_LOW_FUNDAMENTAL_EQ,43,27.5,static,-0.00487107
+PRESET_LOW_FUNDAMENTAL_EQ,43,27.5,maximum_dynamic_cut,-0.0147324
+PRESET_LOW_FUNDAMENTAL_EQ,43,30.8677,static,-0.00615237
+PRESET_LOW_FUNDAMENTAL_EQ,43,30.8677,maximum_dynamic_cut,-0.0186068
+PRESET_LEVEL,43,Metal Clank,-24.58,-9.80293,0
+PRESET_DYNAMICS,43,nominal,0,0,0,0,0.800295,0.383386,0.424652,0.0803902,0,0,0,0
+PRESET_EQ_DETECTOR,43,nominal,Tone,280,1,-12.1149,-27.8809,-21.5023,-16.977,-14.208
+PRESET_EQ_DETECTOR,43,nominal,Final,3400,1.3,-21.1117,-51.1132,-45.0626,-35.2864,-23.9617
+PRESET_COMP_DETECTOR,43,nominal,85,RMS,-18.4459,-25.8659,-21.8267,-19.3982
+PRESET_HOT,43,-6.82437
+PRESET_DYNAMICS,43,input_plus_6_db,0,0,0,0,0.938229,0.622888,0.671358,0.167833,0,0,0,0
+PRESET_EQ_DETECTOR,43,input_plus_6_db,Tone,280,1,-7.59482,-26.0224,-19.2487,-15.2383,-11.5755
+PRESET_EQ_DETECTOR,43,input_plus_6_db,Final,3400,1.3,-19.3157,-49.2228,-43.1837,-32.8071,-22.1658
+PRESET_COMP_DETECTOR,43,input_plus_6_db,85,RMS,-15.314,-24.0175,-20.1796,-17.0448
+PRESET_UNPROTECTED,43,-24.58,-9.80293,-6.82437
+PRESET_LOW_FUNDAMENTAL_EQ,44,27.5,static,-0.00551132
+PRESET_LOW_FUNDAMENTAL_EQ,44,27.5,maximum_dynamic_cut,-0.0222862
+PRESET_LOW_FUNDAMENTAL_EQ,44,30.8677,static,-0.00697143
+PRESET_LOW_FUNDAMENTAL_EQ,44,30.8677,maximum_dynamic_cut,-0.0281881
+PRESET_LOW_FUNDAMENTAL_EQ,44,27.5,static,-0.00551132
+PRESET_LOW_FUNDAMENTAL_EQ,44,27.5,maximum_dynamic_cut,-0.0222862
+PRESET_LOW_FUNDAMENTAL_EQ,44,30.8677,static,-0.00697143
+PRESET_LOW_FUNDAMENTAL_EQ,44,30.8677,maximum_dynamic_cut,-0.0281881
+PRESET_LEVEL,44,Death Grind,-25.4832,-11.9252,0
+PRESET_DYNAMICS,44,nominal,0,0,0,0,0.980258,0.534708,0.30001,0.0837649,0,0,0,0
+PRESET_EQ_DETECTOR,44,nominal,Tone,240,1.1,-15.7062,-26.7462,-22.2381,-18.7804,-17.0714
+PRESET_EQ_DETECTOR,44,nominal,Final,3200,1.3,-21.7102,-40.3107,-32.1548,-27.6277,-23.5692
+PRESET_COMP_DETECTOR,44,nominal,90,RMS,-21.7413,-24.7387,-23.1424,-22.1541
+PRESET_HOT,44,-9.64384
+PRESET_DYNAMICS,44,input_plus_6_db,0,0,0,0,1.19544,0.807083,0.372531,0.115142,0,0,0,0
+PRESET_EQ_DETECTOR,44,input_plus_6_db,Tone,240,1.1,-13.6139,-25.6523,-21.1221,-17.7718,-15.8411
+PRESET_EQ_DETECTOR,44,input_plus_6_db,Final,3200,1.3,-21.1962,-39.3375,-31.1886,-27.3468,-23.0818
+PRESET_COMP_DETECTOR,44,input_plus_6_db,90,RMS,-19.9149,-23.8604,-22.4232,-21.3833
+PRESET_UNPROTECTED,44,-25.4832,-11.9252,-9.64384
+PRESET_LOW_FUNDAMENTAL_EQ,45,27.5,static,-0.00657816
+PRESET_LOW_FUNDAMENTAL_EQ,45,27.5,maximum_dynamic_cut,-0.0198685
+PRESET_LOW_FUNDAMENTAL_EQ,45,30.8677,static,-0.00832712
+PRESET_LOW_FUNDAMENTAL_EQ,45,30.8677,maximum_dynamic_cut,-0.0251495
+PRESET_LOW_FUNDAMENTAL_EQ,45,27.5,static,-0.00657816
+PRESET_LOW_FUNDAMENTAL_EQ,45,27.5,maximum_dynamic_cut,-0.0198685
+PRESET_LOW_FUNDAMENTAL_EQ,45,30.8677,static,-0.00832712
+PRESET_LOW_FUNDAMENTAL_EQ,45,30.8677,maximum_dynamic_cut,-0.0251495
+PRESET_LEVEL,45,Heavy Pulse,-23.683,-9.49292,0
+PRESET_DYNAMICS,45,nominal,0,0,0,0,0.72067,0.370729,0.0809556,0.01746,0,0,0,0
+PRESET_EQ_DETECTOR,45,nominal,Tone,220,1.1,-12.0799,-26.6023,-21.2848,-16.5971,-13.2635
+PRESET_EQ_DETECTOR,45,nominal,Final,3600,1.3,-23.7696,-43.194,-39.7728,-26.6294,-24.7368
+PRESET_COMP_DETECTOR,45,nominal,90,RMS,-18.671,-25.1655,-21.7526,-19.6238
+PRESET_HOT,45,-5.65557
+PRESET_DYNAMICS,45,input_plus_6_db,0,0,0,0,0.950944,0.658487,0.196686,0.0491865,0,0,0,0
+PRESET_EQ_DETECTOR,45,input_plus_6_db,Tone,220,1.1,-9.64994,-24.0318,-18.7762,-13.9574,-10.5998
+PRESET_EQ_DETECTOR,45,input_plus_6_db,Final,3600,1.3,-22.4343,-40.79,-34.212,-25.791,-24.0254
+PRESET_COMP_DETECTOR,45,input_plus_6_db,90,RMS,-16.3096,-22.8164,-19.2245,-17.0358
+PRESET_UNPROTECTED,45,-23.683,-9.49292,-5.65557
+PRESET_LOW_FUNDAMENTAL_EQ,46,27.5,static,-5.10325e-09
+PRESET_LOW_FUNDAMENTAL_EQ,46,27.5,maximum_dynamic_cut,-0.0241444
+PRESET_LOW_FUNDAMENTAL_EQ,46,30.8677,static,-6.58395e-09
+PRESET_LOW_FUNDAMENTAL_EQ,46,30.8677,maximum_dynamic_cut,-0.0305915
+PRESET_LOW_FUNDAMENTAL_EQ,46,27.5,static,-5.10325e-09
+PRESET_LOW_FUNDAMENTAL_EQ,46,27.5,maximum_dynamic_cut,-0.0241444
+PRESET_LOW_FUNDAMENTAL_EQ,46,30.8677,static,-6.58395e-09
+PRESET_LOW_FUNDAMENTAL_EQ,46,30.8677,maximum_dynamic_cut,-0.0305915
+PRESET_LEVEL,46,Slam Punch,-27.3573,-11.0146,0
+PRESET_DYNAMICS,46,nominal,0,0,0,0,0.918415,0.487055,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,46,nominal,Tone,200,1.1,-15.9908,-29.5982,-23.1166,-19.6415,-17.3522
+PRESET_EQ_DETECTOR,46,nominal,Final,3000,1.3,-26.4229,-46.9813,-40.4499,-31.4488,-29.1825
+PRESET_COMP_DETECTOR,46,nominal,90,RMS,-22.3785,-27.1227,-24.2507,-23.0811
+PRESET_HOT,46,-5.85882
+PRESET_DYNAMICS,46,input_plus_6_db,0,0,0,0,1.15879,0.769574,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,46,input_plus_6_db,Tone,200,1.1,-11.8745,-28.1387,-21.662,-18.3836,-15.6185
+PRESET_EQ_DETECTOR,46,input_plus_6_db,Final,3000,1.3,-25.1342,-45.6181,-38.0472,-30.3173,-27.1332
+PRESET_COMP_DETECTOR,46,input_plus_6_db,90,RMS,-18.7263,-25.913,-23.3784,-20.6159
+PRESET_UNPROTECTED,46,-27.3573,-11.0146,-5.85882
+PRESET_LOW_FUNDAMENTAL_EQ,47,27.5,static,-0.00399594
+PRESET_LOW_FUNDAMENTAL_EQ,47,27.5,maximum_dynamic_cut,-0.0179567
+PRESET_LOW_FUNDAMENTAL_EQ,47,30.8677,static,-0.00504285
+PRESET_LOW_FUNDAMENTAL_EQ,47,30.8677,maximum_dynamic_cut,-0.0226562
+PRESET_LOW_FUNDAMENTAL_EQ,47,27.5,static,-0.00399594
+PRESET_LOW_FUNDAMENTAL_EQ,47,27.5,maximum_dynamic_cut,-0.0179567
+PRESET_LOW_FUNDAMENTAL_EQ,47,30.8677,static,-0.00504285
+PRESET_LOW_FUNDAMENTAL_EQ,47,30.8677,maximum_dynamic_cut,-0.0226562
+PRESET_LEVEL,47,Doom Fuzz,-25.1357,-13.3946,0
+PRESET_DYNAMICS,47,nominal,0,0,0,0,0.797877,0.580952,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,47,nominal,Tone,320,0.9,-17.1008,-27.3541,-22.7819,-20.4303,-18.621
+PRESET_EQ_DETECTOR,47,nominal,Final,2800,1.3,-28.3706,-41.5408,-35.989,-31.9066,-29.2239
+PRESET_COMP_DETECTOR,47,nominal,90,RMS,-21.7027,-24.9378,-23.212,-22.1221
+PRESET_HOT,47,-7.63724
+PRESET_DYNAMICS,47,input_plus_6_db,0,0,0,0,1.34581,1.00601,0,0,0,0,0,0
+PRESET_EQ_DETECTOR,47,input_plus_6_db,Tone,320,0.9,-12.8817,-25.9397,-21.5286,-17.8655,-14.6169
+PRESET_EQ_DETECTOR,47,input_plus_6_db,Final,2800,1.3,-28.2043,-40.6894,-35.1239,-31.0933,-29.0828
+PRESET_COMP_DETECTOR,47,input_plus_6_db,90,RMS,-18.4395,-23.858,-21.3615,-19.4064
+PRESET_UNPROTECTED,47,-25.1357,-13.3946,-7.63724
+PASS factory recall, modeled CAB and category navigation: 48 presets (synthetic fixture only)
+PASS Original product dispatch residual=0; six contexts, five preset audio roundtrips, A/B and pre-1.2 migration
+PASS 30 independent Original channel banks / 390 knob values, channel-only switching, DSP cache, binary recall, A/B and legacy audio preservation
+CHANNEL_LEVEL,cab_fenrir,-14.4364,-1.37243,-12.174
+CHANNEL_LEVEL,cab_surtr,-12.252,-1.30415,-10.2297
+CHANNEL_LEVEL,cab_nidhoggr,-12.0106,-1.46802,-9.95208
+CHANNEL_LEVEL,cab_fimbulvetr,-13.2201,-2.05708,-11.2113
+CHANNEL_LEVEL,cab_ragnarok,-11.4936,-1.51068,-9.84905
+CHANNEL_LEVEL,driven_fenrir,-16.0047,-0.987072,-11.473
+CHANNEL_LEVEL,driven_surtr,-16.5388,-3.01726,-12.6177
+CHANNEL_LEVEL,driven_nidhoggr,-16.8909,-3.20825,-13.0171
+CHANNEL_LEVEL,driven_fimbulvetr,-16.8552,-3.55255,-12.7007
+CHANNEL_LEVEL,driven_ragnarok,-17.1422,-3.86764,-12.9744
+PASS full-state A Path To Alsatia parameters=5026 audio_delta=0 energy=336.453 synthetic only
+PASS full-state Feel My Wrath parameters=5026 audio_delta=0 energy=209.386 synthetic only
+PASS full-state Blackhearted parameters=5026 audio_delta=0 energy=286.656 synthetic only
+PASS full-state Dark Matters of Throne parameters=5026 audio_delta=0 energy=127.013 synthetic only
+MEASURE unity mode=0 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=1 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=2 board=0 delta_db=0.000571436 zero_shift_reported=24
+MEASURE unity mode=0 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=1 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=2 board=1 delta_db=-0.00146929 zero_shift_reported=42
+PASS processor pedal GR model=6 active and bypass
+PASS processor pedal GR model=7 active and bypass
+PASS processor pedal GR model=8 active and bypass
+PASS processor pedal GR model=9 active and bypass
+PASS processor pedal GR model=10 active and bypass
+GAIN_REFERENCE,0.461301,0.862484,0.0374776
+GAIN_TIGHT_REFERENCE,0.124535,0.444461,0.302125
+GAIN_DUAL_REFERENCE,0,0.251227,0.569237,0.549699
+GAIN_DUAL_REFERENCE,1,0.20075,0.676596,0.653952
+GAIN_PRESET,1,0,2,0.124532,0.444451,0.302133,PASS
+GAIN_PRESET,3,0,1,0.576477,0.841754,0.123581,PASS
+GAIN_PRESET,4,0,0,0.348555,0.852523,0.219329,PASS
+GAIN_PRESET,8,0,9,0.407864,0.871771,-0.053241,PASS
+GAIN_PRESET,9,0,2,0.4613,0.862483,0.0374764,PASS
+GAIN_PRESET,10,0,4,0.373611,0.955068,0.0012956,PASS
+GAIN_PRESET,20,0,2,0.41185,0.770533,0.129281,PASS
+GAIN_PRESET,20,1,3,0.235506,0.67677,-0.150427,PASS
+GAIN_PRESET,29,0,13,0.414902,0.924857,0.0962955,PASS
+GAIN_PRESET,34,0,21,0.393521,0.925645,0.0155315,PASS
+GAIN_PRESET,34,1,4,0.380015,1.00108,-0.0203662,PASS
+GAIN_PRESET,35,0,17,0.432453,0.896224,0.0257521,PASS
+GAIN_PRESET,35,1,2,0.506491,0.973023,0.000880729,PASS
+GAIN_PRESET,36,1,17,0.450123,0.922367,0.0176819,PASS
+GAIN_PRESET,36,2,20,0.425843,0.907615,0.0204684,PASS
+GAIN_PRESET,37,1,22,0.519562,0.981652,0.0500423,PASS
+GAIN_PRESET,37,2,20,0.43386,0.953037,0.0232316,PASS
+PASS NIFLHEIMR_PRESET,43,Metal Clank,-24.58,-9.80293,-6.82437,0
+PASS NIFLHEIMR_PRESET,44,Death Grind,-25.4832,-11.9252,-9.64384,0
+PASS NIFLHEIMR_PRESET,45,Heavy Pulse,-23.683,-9.49292,-5.65557,0
+PASS NIFLHEIMR_PRESET,46,Slam Punch,-27.3573,-11.0146,-5.85882,0
+PASS NIFLHEIMR_PRESET,47,Doom Fuzz,-25.1357,-13.3946,-7.63724,0

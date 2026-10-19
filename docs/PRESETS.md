@@ -132,3 +132,13 @@ recall and level checks.
 The 6×10 assignments use six sources in two columns and three rows. Existing
 user-loaded 8×10 capture audio is retained; the change applies to the unshipped
 modeled 8×10 cabinet and the new factory recipes.
+
+## EQ and dynamics development candidate (2026-10-19)
+
+This branch adds preset-specific Tone/Final EQ, two bounded dynamic EQ nodes,
+selective common compression and a −1 dBFS sample-peak limiter to all 48 factory
+recalls. Existing PRE/POST/LOW compression is not duplicated by the common
+compressor. Existing gates, routing, output unity, IDs and saved user sounds
+are retained. [Design, test protocol and listening checklist](PRESET_FINISHING_20261019.md).
+This is a separate development candidate; repository changes do not update
+already-installed binaries or saved projects.

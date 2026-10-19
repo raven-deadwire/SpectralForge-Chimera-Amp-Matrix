@@ -477,22 +477,73 @@ void factoryResetAndBounds() {
     auto storage = std::make_unique<ChimeraProcessor>();
     auto& processor = *storage; auto& edits = processor.eqEditing();
     for (int preset = 0; preset < selectablePresetCount; ++preset) {
-        check(edits.addBand(0, 420.f, 5.f) >= 0 && edits.addBand(1, 2400.f, -4.f) >= 0, "Factory dirty-state fixture");
+        // Band 12 is deliberately outside the authored finishing bands. Seed
+        // both its audible state and dynamic assignments before every recall.
+        for (int bank = 0; bank < 2; ++bank) {
+            hostSet(processor, bank, 11, "frequency", 17000.f);
+            hostSet(processor, bank, 11, "gain", 7.f);
+            hostSet(processor, bank, 11, "q", 4.f);
+            hostSet(processor, bank, 11, "type", 0.f);
+            hostSet(processor, bank, 11, "enabled", 1.f);
+            hostSet(processor, bank, -1, "bypass", 0.f);
+            check(edits.isOccupied(bank, 11), "Factory dirty-state Band 12 fixture");
+        }
+        for (int slot = 0; slot < 4; ++slot) {
+            auto* target = processor.parameters().getParameter(dynamicSlotID(slot, "target"));
+            check(target != nullptr, "Factory dirty-state dynamic target missing");
+            target->setValueNotifyingHost(target->convertTo0to1(float((slot % 2 + 1) * graphicalEQBands)));
+        }
+        localSet(processor, 0, 11, "gain", 8.f);
+        localSet(processor, 0, 11, "gain", 9.f);
+        check(edits.undo() && edits.canUndo() && edits.canRedo(), "Factory dirty-state Undo/Redo fixture");
         processor.loadFactoryPreset(preset);
-        check(edits.occupiedMask(0) == 0 && edits.occupiedMask(1) == 0 && !edits.canUndo() && !edits.canRedo(),
-              "Factory preset inherited occupancy/history, index=" + std::to_string(preset));
-        check(get(processor, 0, -1, "bypass") == 1.f && get(processor, 1, -1, "bypass") == 1.f,
-              "Factory reset changed the released bypass defaults");
+        for (int bank = 0; bank < 2; ++bank) {
+            uint16_t enabledMask = 0;
+            for (int band = 0; band < graphicalEQBands; ++band)
+                if (get(processor, bank, band, "enabled") > .5f) enabledMask |= uint16_t(1u << band);
+            check(enabledMask != 0 && edits.occupiedMask(bank) == enabledMask,
+                  "Factory EQ occupancy differs from its active recipe, index=" + std::to_string(preset));
+            check(get(processor, bank, -1, "bypass") == 0.f,
+                  "Factory finishing EQ is bypassed, index=" + std::to_string(preset));
+            check(!edits.isOccupied(bank, 11) && get(processor, bank, 11, "enabled") == 0.f,
+                  "Factory recall retained a previous Band 12, index=" + std::to_string(preset));
+            for (const auto* field : fields) {
+                const auto* parameter = processor.parameters().getParameter(eqID(bank, 11, field));
+                check(near(get(processor, bank, 11, field),
+                           parameter->convertFrom0to1(parameter->getDefaultValue()),
+                           std::string(field) == "frequency" ? .02f : .002f),
+                      "Unused factory EQ slot retained old tuning, index=" + std::to_string(preset));
+            }
+        }
+        std::set<int> assignedTargets;
+        for (int slot = 0; slot < 4; ++slot) {
+            const int target = int(processor.parameters().getRawParameterValue(dynamicSlotID(slot, "target"))->load());
+            if (slot >= 2) {
+                check(target == 0, "Unused factory dynamic slot retained an assignment, index=" + std::to_string(preset));
+                continue;
+            }
+            check(target > 0 && target <= 2 * graphicalEQBands && assignedTargets.insert(target).second,
+                  "Factory dynamic targets are missing, invalid or duplicated, index=" + std::to_string(preset));
+            const int bank = (target - 1) / graphicalEQBands, band = (target - 1) % graphicalEQBands;
+            check(band != 11 && get(processor, bank, band, "enabled") == 1.f
+                  && get(processor, bank, band, "type") <= 2.f,
+                  "Factory dynamic target retained a stale or inactive band, index=" + std::to_string(preset));
+        }
+        check(!edits.canUndo() && !edits.canRedo() && !edits.undo() && !edits.redo(),
+              "Factory preset inherited the previous EQ history, index=" + std::to_string(preset));
     }
-    check(edits.addBand(0, 1000.f, 0.f) == 0, "History-capacity fixture");
-    for (int index = 0; index < 80; ++index) localSet(processor, 0, 0, "gain", index % 2 == 0 ? 5.f : -5.f);
+    // The bounded editing history is independent of a factory recipe's bands.
+    auto historyStorage = std::make_unique<ChimeraProcessor>();
+    auto& historyProcessor = *historyStorage; auto& historyEdits = historyProcessor.eqEditing();
+    check(historyEdits.addBand(0, 1000.f, 0.f) == 0, "History-capacity fixture");
+    for (int index = 0; index < 80; ++index) localSet(historyProcessor, 0, 0, "gain", index % 2 == 0 ? 5.f : -5.f);
     int undone = 0;
-    while (edits.undo()) {
+    while (historyEdits.undo()) {
         check(++undone <= 64, "EQ edit history exceeded its bounded session capacity");
     }
     check(undone == 64, "EQ session history did not retain the most recent 64 operations");
-    check(edits.canRedo(), "Bounded history lost redo after undoing retained entries");
-    std::cout << "PASS all " << selectablePresetCount << " factory occupancy/history resets / bounded 64-operation session history\n";
+    check(historyEdits.canRedo(), "Bounded history lost redo after undoing retained entries");
+    std::cout << "PASS all " << selectablePresetCount << " factory active-band occupancy / stale Band 12 and dynamic-target reset / EQ history barrier / bounded 64-operation session history\n";
 }
 
 void fill(juce::AudioBuffer<float>& buffer, int offset, double rate, double frequency) {

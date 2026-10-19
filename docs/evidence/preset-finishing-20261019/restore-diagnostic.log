@@ -1,0 +1,37 @@
+Warning: getifaddrs returns Operation not permitted
+Warning: getifaddrs returns Operation not permitted
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+Openbox-Message: Unable to find a valid menu file "/var/lib/openbox/debian-menu.xml"
+Native desktop ready: DISPLAY=127.0.0.1:201, Openbox supporting window=0x20011f, WM_PROTOCOLS present
+LOCAL_TEST_DESKTOP authenticated X11 TCP loopback; AF_UNIX unavailable; product/test assertions unchanged
+PRESET_DYNAMICS_HEADER,index,condition,comp_max_db,comp_block_mean_db,limiter_max_db,limiter_block_mean_db,dynamic1_max_db,dynamic1_block_mean_db,dynamic2_max_db,dynamic2_block_mean_db,dynamic3_max_db,dynamic3_block_mean_db,dynamic4_max_db,dynamic4_block_mean_db
+PRESET_EQ_DETECTOR_HEADER,index,condition,bank,frequency_hz,q,bandpass_peak_dbfs,bandpass_stereo_rms_dbfs,envelope_p50_dbfs,envelope_p90_dbfs,envelope_p99_dbfs
+PRESET_COMP_DETECTOR_HEADER,index,condition,detector_hp_hz,detector_mode,level_peak_dbfs,block_level_p50_dbfs,block_level_p90_dbfs,block_level_p99_dbfs
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,maximum_dynamic_cut,-0.0219787
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,maximum_dynamic_cut,-0.0278007
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,maximum_dynamic_cut,-0.0219787
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,maximum_dynamic_cut,-0.0278007
+FACTORY_PROCESSING_RESTORE stage=project id=finalEQ_b1_enabled expected=1 actual=0.81
+FAIL Factory EQ/dynamics project or A/B restore changed an authored parameter

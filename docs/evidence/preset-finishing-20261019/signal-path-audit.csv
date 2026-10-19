@@ -1,0 +1,49 @@
+index,name,mode,active_pre_compressors,post_compressor_on,post_eq_on,post_eq_model,matrix_low_comp,common_comp_on,gate_mode,gate_release_ms
+0,Clean Sustain,0,1,0,0,0,0,0,0,80
+1,Tight Rhythm,0,1,1,1,0,0,0,0,80
+2,Bass Matrix,2,0,0,0,0,0.4,0,0,80
+3,Filter Lead,0,0,0,0,0,0,0,0,80
+4,Fuzz Texture,0,0,0,0,0,0,0,0,80
+5,Bell Clean,0,0,0,0,0,0,1,0,80
+6,Edge Chime,0,0,0,0,0,0,1,0,80
+7,Classic Crunch,0,0,0,0,0,0,1,0,80
+8,Amber Heavy,0,1,1,1,2,0,0,0,80
+9,Melodic Death Rhythm,0,1,1,1,0,0,0,0,80
+10,Melodic Lead,0,0,0,0,0,0,1,0,180
+11,Ambient Clean,0,1,1,0,0,0,0,0,80
+12,Finger Round,0,1,0,0,0,0,0,0,80
+13,Pick Punch,0,1,0,0,0,0,0,0,80
+14,Slap Studio,0,1,0,0,0,0,0,0,80
+15,Modern Grind,0,1,0,0,0,0,0,0,80
+16,Vintage Bass DI,0,1,0,0,0,0,0,0,80
+17,Wool Bass Fuzz,0,0,0,0,0,0,0,0,150
+18,Bass Envelope,0,1,0,0,0,0,0,0,80
+19,G+G Clean / Crunch,1,0,0,0,0,0,1,0,80
+20,G+G Tight / Wide,1,1,1,1,0,0,0,0,80
+21,G+B Low Anchor,1,0,0,0,0,0,0,0,80
+22,G+B Air / Weight,1,0,0,0,0,0,1,0,80
+23,B+B Warm / Definition,1,1,0,0,0,0,0,0,80
+24,B+B Clean / Grind,1,0,0,0,0,0,0,0,80
+25,Low B Foundation,2,0,0,0,0,0.35,0,0,80
+26,Pick Attack Matrix,2,0,0,0,0,0.3,0,0,80
+27,Spectral Texture,2,0,0,0,0,0.15,0,0,80
+28,Prism Edge,0,1,0,0,0,0,0,0,80
+29,Silk Smooth Lead,0,0,0,0,0,0,1,0,160
+30,Modern Clean,0,1,0,0,0,0,0,0,80
+31,Crom Cruach,2,1,1,1,0,0.15,0,0,90
+32,Wild Hunt,2,1,1,1,0,0.14,0,0,65
+33,Azhi Dahaka,2,1,1,1,2,0.3,0,0,100
+34,A Path To Alsatia,1,1,1,1,1,0,0,0,140
+35,Feel My Wrath,1,0,0,0,0,0,0,0,70
+36,Blackhearted,2,0,0,1,0,0,0,0,70
+37,Dark Matters of Throne,2,0,0,1,2,0,0,0,70
+38,Thall Rhythm,0,1,1,1,0,0,0,0,65
+39,Molten Lead,0,1,0,1,1,0,0,0,170
+40,Rotten Grind,1,1,0,1,0,0,0,0,65
+41,Sludge Mass,0,0,0,1,2,0,0,0,240
+42,Slam Impact,2,1,1,1,0,0.5,0,0,65
+43,Metal Clank,0,1,0,1,0,0,0,0,85
+44,Death Grind,1,1,0,1,0,0,0,0,85
+45,Heavy Pulse,2,1,0,1,0,0.25,0,0,65
+46,Slam Punch,2,1,0,1,0,0.5,0,0,55
+47,Doom Fuzz,0,1,0,1,2,0,0,0,280

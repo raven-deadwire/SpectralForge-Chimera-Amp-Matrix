@@ -1,0 +1,31 @@
+{
+  "baseline_commit": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "snapshot_changes": [
+    {
+      "path": "Source/FactoryNativeVoicing.h",
+      "base_sha256": "7224098fbd1763739d85ffa41b86c21a65e114a8c24aae85f422551f59d379bb",
+      "candidate_sha256": "bf38efa5e25041f4cef902f9fdd6e08b6a1fbcad51bf6286e4cad052e92eefeb",
+      "only_new_include_and_finishing_call": true
+    },
+    {
+      "path": "Source/GuitarSignaturePresets.h",
+      "base_sha256": "8a6fcd3d5918fb7f57235c970ad39c895b2c2f182fee8f506266e79504b9fdf7",
+      "candidate_sha256": "1616496795a191001887fa58fd27921fc2da25fded29c23b0999d8f7e3b4dc54",
+      "only_new_include_and_finishing_call": true
+    },
+    {
+      "path": "Source/OriginalPresets.h",
+      "base_sha256": "efd730e7accbebb86e1cb101c639857acbdae6093f187906baee06045fed33df",
+      "candidate_sha256": "d32fa153578409d7b224f20adc4a68216b3cfccacd6c54422d5c5c09fc3d6966",
+      "only_new_include_and_finishing_call": true
+    },
+    {
+      "path": "Source/NiflheimrPresets.h",
+      "base_sha256": "82e91c48dfeee7f7d9bf7107540d3545c9c5db049d3d543e195a3095ba2172c6",
+      "candidate_sha256": "9dff775656f031d91949100bd8be742de214b73bc912052b45074eb373371129",
+      "only_new_include_and_finishing_call": true
+    }
+  ],
+  "all_existing_DSP_parameters_gate_and_original_recipe_data_unchanged": true,
+  "comparison_baseline": "new finishing parameters reset to their unchanged registered defaults; not a prior installed binary comparison"
+}

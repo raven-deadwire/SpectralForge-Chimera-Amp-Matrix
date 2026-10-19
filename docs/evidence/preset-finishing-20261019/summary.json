@@ -1,0 +1,56 @@
+{
+  "baseline_commit": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "comparison_presets": 48,
+  "comparison_metrics": {
+    "rms_delta_db": {
+      "min": -0.8693428988,
+      "max": -0.03098255177
+    },
+    "after_peak_dbfs": {
+      "min": -15.09195978,
+      "max": -1.00000029
+    },
+    "crest_delta_db": {
+      "min": -0.2551598215,
+      "max": 0.5165560284
+    },
+    "matched_attack_delta_db": {
+      "min": -0.2551598215,
+      "max": 0.5290663744
+    },
+    "restore_max_error": {
+      "min": 0.0,
+      "max": 5.960464478e-08
+    }
+  },
+  "comparison_latency_samples": [
+    42
+  ],
+  "automation_routes": 30,
+  "automation_max_audio_restore_error": 2.98023e-07,
+  "automation_max_sample_peak_dbfs": -1.8794008270594649,
+  "wav_pairs": 8,
+  "wav_max_rms_match_error_db": 4.399096583438566e-07,
+  "actual_DI_listening": "NOT_RUN",
+  "installed_DAW_validation": "NOT_RUN",
+  "remote_platform_CI": "PENDING",
+  "gain_staging": {
+    "presets": 48,
+    "lowest_rms_dbfs": -27.7909,
+    "highest_nominal_peak_dbfs": -1.0,
+    "highest_hot_peak_dbfs": -1.0,
+    "limiter_bypassed_lowest_rms_dbfs": -27.7909,
+    "limiter_bypassed_highest_nominal_peak_dbfs": -0.759445,
+    "limiter_bypassed_highest_hot_peak_dbfs": -0.909959
+  },
+  "lowest_bass_low_A_B_EQ_response_db": -0.0332644,
+  "native_regression": "PASS: integrated processor, graphical EQ DSP, graphical EQ UI, graphical EQ editing, common dynamics, gate processor; plus before/after and automation comparison",
+  "compression_audit": {
+    "existing_PRE_compressor_presets": 28,
+    "existing_POST_compressor_presets": 11,
+    "existing_POST_EQ_presets": 20,
+    "existing_Matrix_LOW_compression_presets": 10,
+    "new_common_compressor_presets": 7,
+    "new_common_compressor_overlap": 0
+  }
+}

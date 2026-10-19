@@ -1,0 +1,26 @@
+{
+  "baseline_commit": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "candidate_code_sha256": {
+    "CMakeLists.txt": "efb543d3fe24949e0a34bd6ea94cf3f1118f07cb1e7e0b4d13dfa8ea5ffb7ab2",
+    "Source/FactoryNativeVoicing.h": "bf38efa5e25041f4cef902f9fdd6e08b6a1fbcad51bf6286e4cad052e92eefeb",
+    "Source/FactoryPresetFinishing.h": "4c05bacd3a9584551c1f7c4c09b4a6890500d38394438f79b712ec8d0c296dd7",
+    "Source/GuitarSignaturePresets.h": "1616496795a191001887fa58fd27921fc2da25fded29c23b0999d8f7e3b4dc54",
+    "Source/NiflheimrPresets.h": "9dff775656f031d91949100bd8be742de214b73bc912052b45074eb373371129",
+    "Source/OriginalPresets.h": "d32fa153578409d7b224f20adc4a68216b3cfccacd6c54422d5c5c09fc3d6966",
+    "Tests/GraphicalEQEditingTests.cpp": "b5d2ee11709d6ee1d50206f15fd7b6282496e8654da4bb20cbe1e3073caa07c4",
+    "Tests/GraphicalEQTests.cpp": "94bbf7f791f0c16e932817c13bc4ec8f80bdccc34cfc99f29fa4941e2cd9ea47",
+    "Tests/GraphicalEQUITests.cpp": "a5c7f99e18030e7ee355693df001cd8b28703edd4c64152a7575e85222fbc9db",
+    "Tests/IntegratedProcessorTests.cpp": "66659889a3168a6e7fbdce52892c88ece029df0323a6b38655fad2fd3d48ffff",
+    "Tests/PresetFinishingComparison.h": "0114a4c242e0c6ca46a8c27aef059b3539303fcb9a54ab265a0d3a2a4fc0b621"
+  },
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "system": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "configuration": "CMake Ninja Release; JUCE 8.0.8; CHIMERA_BETA_QUALIFICATION_ONLY=ON",
+  "runtime_native_UI": "Xvfb/Openbox, authenticated TCP X11 because this executor rejects AF_UNIX",
+  "compilation_note": "Initial six-target CMake build; integrated test TU recompiled and linked with identical ninja -t commands into a separate executable after canonicalizing the new dirty-state fixture. No product source or test threshold changed after comparison render.",
+  "initial_review_commit": "a3d926b03b7d30ef591635feaa80c8214107abb9",
+  "tested_integrated_executable_sha256": "1d76a0872f591183f9ee1a1d3af2e204cfb0aa51711e56488a0c64256237d773",
+  "integrated_exit_code": 0,
+  "comparison_exit_code": 0,
+  "initial_six_target_cmake_build_exit_code": 0
+}
