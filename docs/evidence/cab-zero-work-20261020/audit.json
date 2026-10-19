@@ -1,0 +1,11 @@
+{
+  "audit_pass": true,
+  "trials": 96,
+  "callbacks": 2304000,
+  "summaries_recomputed": 5760,
+  "canonical_output_files": 12,
+  "all_output_sha256_equal": true,
+  "all_states_equal": true,
+  "all_clocks_finite": true,
+  "allocation_deletion_observations_zero": true
+}

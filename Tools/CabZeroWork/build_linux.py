@@ -16,6 +16,8 @@ def main():
     a=p.parse_args(); b=a.build.resolve(); j=a.juce.resolve(); b.mkdir(parents=True,exist_ok=True)
     if subprocess.check_output(['git','-C',str(j),'rev-parse','HEAD'],text=True).strip()!='d6181bde38d858c283c3b7bf699ce6340c050b5d':
         raise RuntimeError('JUCE must be exact 8.0.8 commit')
+    if subprocess.check_output(['git','-C',str(j),'status','--porcelain','--untracked-files=no'],text=True).strip():
+        raise RuntimeError('JUCE tracked sources must be clean')
     source=(ROOT/'Source/ModeledCabConvolution.h').read_text()
     if hashlib.sha256(source.encode()).hexdigest()!='b35dff80ddc1de23061666ab7e7bca6e854cbb9d8da05aad09cb888dfc089f33':
         raise RuntimeError('unexpected PR105 baseline')
@@ -23,6 +25,16 @@ def main():
            '-DJUCE_STANDALONE_APPLICATION=1','-DJUCE_USE_CURL=0','-DJUCE_WEB_BROWSER=0',
            '-DJUCE_USE_FLAC=0','-DJUCE_USE_OGGVORBIS=0','-pthread','-I'+str(j/'modules')]
     if a.sanitizer: flags+=['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']
+    compiler=subprocess.check_output(['g++','--version'],text=True)
+    config={'flags':flags,'compiler':compiler,'juce':'d6181bde38d858c283c3b7bf699ce6340c050b5d'}
+    cache=b/'dependency-config.json'
+    if cache.exists() and json.loads(cache.read_text())!=config:
+        raise RuntimeError('dependency flags/compiler changed; use a fresh build directory')
+    if not cache.exists() and list(b.glob('*.o')):
+        old=json.loads((b/'build.json').read_text()) if (b/'build.json').exists() else {}
+        if any(old.get(k)!=v for k,v in config.items()):
+            raise RuntimeError('unidentified dependency objects; use a fresh build directory')
+    cache.write_text(json.dumps(config,indent=2)+'\n')
     commands=[]
     def run(cmd,name):
         commands.append(cmd)
@@ -70,7 +82,7 @@ def main():
         variants[candidate]={'header_sha256':hashlib.sha256(header.encode()).hexdigest(),
             'binaries':{n:hashlib.sha256((v/n).read_bytes()).hexdigest() for n in targets}}
     metadata={'baseline':BASE,'juce':'d6181bde38d858c283c3b7bf699ce6340c050b5d',
-        'compiler':subprocess.check_output(['g++','--version'],text=True),'platform':platform.platform(),
+        'compiler':compiler,'platform':platform.platform(),
         'flags':flags,'variants':variants,'commands':commands,'sanitizer':a.sanitizer,
         'build_kind':'portable manual CAB-only; not official CMake/CTest'}
     (b/'build.json').write_text(json.dumps(metadata,indent=2)+'\n')

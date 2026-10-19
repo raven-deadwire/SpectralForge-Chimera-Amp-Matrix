@@ -1,0 +1,342 @@
+{
+  "commands": [
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-c",
+      "/workspace/scratch/a14432979516/juce/modules/juce_cryptography/juce_cryptography.cpp",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o"
+    ],
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-I/workspace/scratch/bda7e78b5971/cab-build/baseline/Source",
+      "-I/workspace/scratch/bda7e78b5971/chimera/Tests",
+      "-I/workspace/scratch/bda7e78b5971/cab-build",
+      "/workspace/scratch/bda7e78b5971/chimera/Tests/IRLibraryTests.cpp",
+      "/workspace/scratch/bda7e78b5971/cab-build/baseline/IRLibrary.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/irs.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_basics.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_formats.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_core.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_data_structures.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_dsp.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_events.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_stamp.o",
+      "-ldl",
+      "-lrt",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/baseline/ir-state"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/baseline/ir-state"
+    ],
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-I/workspace/scratch/bda7e78b5971/cab-build/empty_partition/Source",
+      "-I/workspace/scratch/bda7e78b5971/chimera/Tests",
+      "-I/workspace/scratch/bda7e78b5971/cab-build",
+      "/workspace/scratch/bda7e78b5971/chimera/Tests/IRLibraryTests.cpp",
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/IRLibrary.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/irs.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_basics.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_formats.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_core.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_data_structures.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_dsp.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_events.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_stamp.o",
+      "-ldl",
+      "-lrt",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/ir-state"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/ir-state"
+    ],
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-O1",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I/workspace/scratch/bda7e78b5971/cab-build/empty_partition/Source",
+      "-I/workspace/scratch/bda7e78b5971/chimera/Tests",
+      "-I/workspace/scratch/bda7e78b5971/cab-build",
+      "/workspace/scratch/bda7e78b5971/chimera/Tools/CabZeroWork/Parity.cpp",
+      "/workspace/scratch/bda7e78b5971/cab-build/irs.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_basics.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_formats.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_core.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_data_structures.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_dsp.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_events.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_stamp.o",
+      "-ldl",
+      "-lrt",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/parity-sanitize"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/parity-sanitize"
+    ],
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-O1",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I/workspace/scratch/bda7e78b5971/cab-build/empty_partition/Source",
+      "-I/workspace/scratch/bda7e78b5971/chimera/Tests",
+      "-I/workspace/scratch/bda7e78b5971/cab-build",
+      "/workspace/scratch/bda7e78b5971/chimera/Tests/CabRealtimeRegressionTests.cpp",
+      "/workspace/scratch/bda7e78b5971/cab-build/irs.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_basics.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_formats.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_core.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_data_structures.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_dsp.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_events.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_stamp.o",
+      "-ldl",
+      "-lrt",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/realtime-sanitize"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/realtime-sanitize"
+    ],
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-I/workspace/scratch/bda7e78b5971/cab-build/zero_history/Source",
+      "-I/workspace/scratch/bda7e78b5971/chimera/Tests",
+      "-I/workspace/scratch/bda7e78b5971/cab-build",
+      "/workspace/scratch/bda7e78b5971/chimera/Tests/IRLibraryTests.cpp",
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/IRLibrary.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/irs.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_basics.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_formats.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_core.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_data_structures.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_dsp.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_events.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_stamp.o",
+      "-ldl",
+      "-lrt",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/ir-state"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/ir-state"
+    ],
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-O1",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I/workspace/scratch/bda7e78b5971/cab-build/zero_history/Source",
+      "-I/workspace/scratch/bda7e78b5971/chimera/Tests",
+      "-I/workspace/scratch/bda7e78b5971/cab-build",
+      "/workspace/scratch/bda7e78b5971/chimera/Tools/CabZeroWork/Parity.cpp",
+      "/workspace/scratch/bda7e78b5971/cab-build/irs.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_basics.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_formats.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_core.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_data_structures.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_dsp.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_events.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_stamp.o",
+      "-ldl",
+      "-lrt",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/parity-sanitize"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/parity-sanitize"
+    ],
+    [
+      "g++",
+      "-std=c++20",
+      "-O3",
+      "-DNDEBUG",
+      "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+      "-DJUCE_STANDALONE_APPLICATION=1",
+      "-DJUCE_USE_CURL=0",
+      "-DJUCE_WEB_BROWSER=0",
+      "-DJUCE_USE_FLAC=0",
+      "-DJUCE_USE_OGGVORBIS=0",
+      "-pthread",
+      "-I/workspace/scratch/a14432979516/juce/modules",
+      "-O1",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I/workspace/scratch/bda7e78b5971/cab-build/zero_history/Source",
+      "-I/workspace/scratch/bda7e78b5971/chimera/Tests",
+      "-I/workspace/scratch/bda7e78b5971/cab-build",
+      "/workspace/scratch/bda7e78b5971/chimera/Tests/CabRealtimeRegressionTests.cpp",
+      "/workspace/scratch/bda7e78b5971/cab-build/irs.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_basics.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_audio_formats.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_core.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_cryptography.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_data_structures.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_dsp.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_events.o",
+      "/workspace/scratch/bda7e78b5971/cab-build/juce_stamp.o",
+      "-ldl",
+      "-lrt",
+      "-o",
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/realtime-sanitize"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/realtime-sanitize"
+    ]
+  ],
+  "results": [
+    {
+      "name": "compile-crypto",
+      "returncode": 0
+    },
+    {
+      "name": "baseline-compile-ir",
+      "returncode": 0
+    },
+    {
+      "name": "baseline-ir-state",
+      "returncode": 0
+    },
+    {
+      "name": "empty_partition-compile-ir",
+      "returncode": 0
+    },
+    {
+      "name": "empty_partition-ir-state",
+      "returncode": 0
+    },
+    {
+      "name": "empty_partition-compile-parity-sanitize",
+      "returncode": 0
+    },
+    {
+      "name": "empty_partition-parity-sanitize",
+      "returncode": 1
+    },
+    {
+      "name": "empty_partition-compile-realtime-sanitize",
+      "returncode": 0
+    },
+    {
+      "name": "empty_partition-realtime-sanitize",
+      "returncode": 1
+    },
+    {
+      "name": "zero_history-compile-ir",
+      "returncode": 0
+    },
+    {
+      "name": "zero_history-ir-state",
+      "returncode": 0
+    },
+    {
+      "name": "zero_history-compile-parity-sanitize",
+      "returncode": 0
+    },
+    {
+      "name": "zero_history-parity-sanitize",
+      "returncode": 1
+    },
+    {
+      "name": "zero_history-compile-realtime-sanitize",
+      "returncode": 0
+    },
+    {
+      "name": "zero_history-realtime-sanitize",
+      "returncode": 1
+    }
+  ],
+  "juce_sanitized": false
+}

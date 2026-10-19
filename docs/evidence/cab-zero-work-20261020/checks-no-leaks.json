@@ -1,0 +1,36 @@
+{
+  "commands": [
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/parity-sanitize"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/empty_partition/realtime-sanitize"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/parity-sanitize"
+    ],
+    [
+      "/workspace/scratch/bda7e78b5971/cab-build/zero_history/realtime-sanitize"
+    ]
+  ],
+  "results": [
+    {
+      "name": "empty_partition-parity-sanitize-no-leaks",
+      "returncode": 0
+    },
+    {
+      "name": "empty_partition-realtime-sanitize-no-leaks",
+      "returncode": 0
+    },
+    {
+      "name": "zero_history-parity-sanitize-no-leaks",
+      "returncode": 0
+    },
+    {
+      "name": "zero_history-realtime-sanitize-no-leaks",
+      "returncode": 0
+    }
+  ],
+  "juce_sanitized": false,
+  "leak_detection": false
+}

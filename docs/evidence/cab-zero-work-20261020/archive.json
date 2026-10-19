@@ -1,0 +1,9 @@
+{
+  "filename": "Chimera_CAB_ZeroWork_Evidence_20261020.zip",
+  "bytes": 83324656,
+  "sha256": "5a2856fc7b36abbcef002a0a3d245e782fdd8d5abc0ac94190898cec69f1d4f3",
+  "files": 1803,
+  "manifest_entries": 1803,
+  "measurements_complete": true,
+  "excluded_files": "redundant decompressed raw CSV and repeated float outputs; complete CSV.gz plus canonical float32 and all per-trial SHA256 retained"
+}
