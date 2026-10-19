@@ -546,11 +546,30 @@ void cab(Route& route)
         for (auto& c : cabs) { audio.clear(); processUnmeasured(route, c, audio); }
     for (auto& c : cabs) require(c.transitioningMicCount() == 0, "pre-publication fades drained");
     library.stop();
-    // Optional diagnostic replay boundary. Reset private histories/filters only
-    // after all workers and fades stop; original acceptance/default is intact.
-    // This prevents different convergence lengths from changing the outgoing
-    // signal's floating-point history in the fixed six-publication comparison.
-    if (route.options.canonicalReset) for (auto& c : cabs) c.reset();
+    // Optional diagnostic replay boundary, entirely outside measurement.
+    // reset() alone retains the mic swap preference from asynchronous history.
+    // Reprepare and install identical outgoing IRs so both private histories and
+    // swap order are fixed. Share only the two immutable spectra, as the worker
+    // cache does. No product/default acceptance path uses this intervention.
+    if (route.options.canonicalReset) {
+        std::array<uint64_t,2> keys{route.key(a),route.key(b)};
+        std::array<juce::AudioBuffer<float>,2> waves;
+        std::array<std::shared_ptr<const ModeledCabConvolution::Prepared>,2> prepared;
+        for (int mic=0;mic<2;++mic) {
+            const auto data=cabLayout::generate(keys[mic],sampleRate);
+            waves[mic].setSize(1,int(data.size()));waves[mic].copyFrom(0,0,data.data(),int(data.size()));
+            prepared[mic]=std::make_shared<const ModeledCabConvolution::Prepared>(waves[mic],blockSize,route.channels==1);
+        }
+        for (auto& c : cabs) {
+            c.prepare(spec);
+            for (int mic=0;mic<2;++mic) {
+                auto* slot=mic==0 ? &c : c.secondMic();
+                juce::AudioBuffer<float> data;data.makeCopyOf(waves[mic]);
+                slot->requestedModel=keys[mic];
+                slot->install(std::make_unique<Cab::Kernel>(std::move(data),sampleRate,spec,0,1,keys[mic],prepared[mic]));
+            }
+        }
+    }
     a.position = .85; const auto nextKey = route.key(a); const auto wave = cabLayout::generate(nextKey, sampleRate);
     juce::AudioBuffer<float> referenceSamples(1, int(wave.size()));
     referenceSamples.copyFrom(0, 0, wave.data(), int(wave.size()));
