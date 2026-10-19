@@ -1,0 +1,14 @@
+{
+  "Source/FactoryPresetFinishing.h": "c6bf2d13b47c8bda6f85e274b10998ee89027785646c53b8f6fc64e63b91fc52",
+  "Source/FactoryNativeVoicing.h": "bf38efa5e25041f4cef902f9fdd6e08b6a1fbcad51bf6286e4cad052e92eefeb",
+  "Source/GuitarSignaturePresets.h": "1616496795a191001887fa58fd27921fc2da25fded29c23b0999d8f7e3b4dc54",
+  "Source/OriginalPresets.h": "d32fa153578409d7b224f20adc4a68216b3cfccacd6c54422d5c5c09fc3d6966",
+  "Source/NiflheimrPresets.h": "9dff775656f031d91949100bd8be742de214b73bc912052b45074eb373371129",
+  "Tests/IntegratedProcessorTests.cpp": "99f4501312915d6032ed062139050ab3cf5f76b8fdc10c468b7bebb998ee976d",
+  "Tests/GraphicalEQEditingTests.cpp": "b5d2ee11709d6ee1d50206f15fd7b6282496e8654da4bb20cbe1e3073caa07c4",
+  "Tests/GraphicalEQUITests.cpp": "a5c7f99e18030e7ee355693df001cd8b28703edd4c64152a7575e85222fbc9db",
+  "Tests/GraphicalEQTests.cpp": "94bbf7f791f0c16e932817c13bc4ec8f80bdccc34cfc99f29fa4941e2cd9ea47",
+  "Tests/GateProcessorTests.cpp": "0c7ab6d2423418b16dda99ba42374fe453ed56a6a45a61624745063e326e56f8",
+  "CMakeLists.txt": "3b1aecd691a1e7bb9b845b5d5bed81468ed49b35c2501c67b76ab91da4fbacbb",
+  "Tools/ExportFactoryPresetPack.cpp": "263916981bf73371994177f68d719504771eb2ac25e5d40c92c2f9e804e1c62a"
+}

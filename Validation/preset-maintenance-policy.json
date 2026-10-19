@@ -1,0 +1,33 @@
+{
+  "schema": "spectralforge.chimera.preset-maintenance-policy.v1",
+  "preset_revision": "2026.10.19.1",
+  "release_tag": "presets-2026.10.19.1",
+  "base_product_version": "1.3.2-beta.1",
+  "base_product_source_sha": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+  "base_publication_controller_sha": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "base_release_id": 415938432,
+  "base_publication_decision_sha256": "621ad9f51d34326130b2cd527cbf3ae26dc720b07ac006014cca07e1c3141d52",
+  "retained_beta_expiry_utc": "2027-02-11T14:59:00Z",
+  "preset_recipe_sha256": "ebd2e57b8dc554f813814a5c1bf3292e53d56cf3955a7634b026e2abce9764bd",
+  "approved_product_source_sha": null,
+  "owner_authorization": {
+    "instruction": "프리셋은 업데이트하면 바로 배포판에 반영",
+    "instruction_date": "2026-10-19",
+    "publication_authorized": true,
+    "scope": "preset-only-beta1-maintenance-installers-and-preset-pack",
+    "new_validation_gaps_accepted": false,
+    "beta2_or_unfinished_p0_approved": false,
+    "expiry_change_approved": false,
+    "context": "The owner requested dynamics/EQ improvements to the factory presets and immediate inclusion in the distribution. This authorizes the five rebuilt beta.1 maintenance packages and the optional 48-preset pack after all existing exact-source CI, package and artifact requirements and the added preset-specific checks succeed. The shipped beta.1 engine, serializer, product identity, expiry and prior limitations are retained. It does not approve beta.2, unfinished P0 features, new validation gaps, changed expiry, or claim actual DAW/listening acceptance, signing or notarization. The exact tested product source is recorded in a separate policy-only controller commit after verification."
+  },
+  "requirements": {
+    "immutable_assets_and_tag": true,
+    "no_update_feed_or_latest_change": true,
+    "preserve_strict_gate_and_each_existing_gap": true,
+    "same_build_five_verified_packages": true,
+    "same_source_all_seven_workflows_success": true,
+    "three_platform_48_preset_export_and_fresh_restore": true,
+    "unchanged_engine_source_bytes": true,
+    "unchanged_product_policies_and_seven_workflows": true
+  }
+}

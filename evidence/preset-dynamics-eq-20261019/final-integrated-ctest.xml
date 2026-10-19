@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="1"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="319"
+	timestamp="2026-10-19T20:33:47"
+	>
+	<testcase name="ChimeraIntegratedProcessorTests" classname="ChimeraIntegratedProcessorTests" time="319.643" status="run">
+		<properties/>
+		<system-out>PASS prepared CAB fresh slot=0 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=1 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=0 start=0.252755 middle=0.382945
+PASS prepared CAB fresh slot=1 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=0 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=1 start=0.252755 middle=0.382945
+PRESET_DYNAMICS_HEADER,index,condition,comp_max_db,comp_block_mean_db,limiter_max_db,limiter_block_mean_db,dynamic1_max_db,dynamic1_block_mean_db,dynamic2_max_db,dynamic2_block_mean_db,dynamic3_max_db,dynamic3_block_mean_db,dynamic4_max_db,dynamic4_block_mean_db
+PRESET_EQ_DETECTOR_HEADER,index,condition,bank,frequency_hz,q,bandpass_peak_dbfs,bandpass_stereo_rms_dbfs,envelope_p50_dbfs,envelope_p90_dbfs,envelope_p99_dbfs
+PRESET_COMP_DETECTOR_HEADER,index,condition,detector_hp_hz,detector_mode,level_peak_dbfs,block_level_p50_dbfs,block_level_p90_dbfs,block_level_p99_dbfs
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

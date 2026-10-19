@@ -16,9 +16,13 @@ shows both new stages in their actual processing positions.
 | Gate/expander | Existing PRE or POST GATE gain stage | Fixed clean input detector before PRE; existing hold, hysteresis and attenuation range; added attack and downward-expander ratio |
 | Live limiter | After Final EQ, final output trim and tuner mute | Stereo-linked sample peak ceiling, immediate gain reduction, controlled release |
 
-All common dynamics start disabled/unassigned. Existing gate mode and 0.5 ms
-attack are preserved. Old states acquire these defaults, including A/B states;
-new parameters append after all released parameters and the new tuner controls.
+Parameter defaults remain disabled/unassigned, with the original gate mode and
+0.5 ms attack. Old states acquire those defaults, including A/B states.
+Selecting a factory preset explicitly applies its authored dynamics/EQ recipe:
+two Dynamic EQ slots, role-specific gate/expander timing, selective common
+compression and the −1 dBFS sample-peak limiter. Saved user sounds keep their
+stored values. See [factory finishing](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/main/docs/PRESET_DYNAMICS_EQ.md).
+The parameters append after all released parameters and the new tuner controls.
 Indices 4986–5025 use version hint 12. No released ID, ordinal or version hint is
 replaced. Dynamic target assignment is structural and not host-automatable;
 its five continuous controls and the other common dynamics controls are.

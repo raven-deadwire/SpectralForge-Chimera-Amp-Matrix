@@ -3,6 +3,7 @@
 #include "FactoryPresets.h"
 #include "FactoryPresetLevels.h"
 #include "FactoryCabVoicing.h"
+#include "FactoryPresetFinishing.h"
 #include "AmpNativeParameters.h"
 #include "PedalBoardParameters.h"
 #include "PostNativeParameters.h"
@@ -127,6 +128,7 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
     metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);snapshot.appendChild(metadata,nullptr);
     const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
     voiceFactoryCab(originalPresetStart+preset,get,set);
+    voiceFactoryFinishing(originalPresetStart+preset,get,set);
     return snapshot;
 }
 }

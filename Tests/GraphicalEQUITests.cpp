@@ -618,9 +618,54 @@ int main(int argc,char** argv){try {
     processor->selectComparison(1);for(int e=0;e<2;++e)for(int b=0;b<12;++b)set(*processor,eqID(e,b,"gain"),12);verifyBanks();
     processor->selectComparison(0);verifyBanks();
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"A/B bank recall changed a node");
-    processor->loadFactoryPreset(0);settle(60);
-    for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");
-        check(processor->eqEditing().occupiedMask(e)==0 && panel->selectedBand()==-1,"Factory reset retained prior editing slots");}
+    // A factory recipe now supplies active EQ bands. Select an unrelated old
+    // Band 12 so the same editor must remove it and display the new recipe.
+    for(int e=0;e<2;++e){
+        set(*processor,eqID(e,11,"enabled"),1);set(*processor,eqID(e,11,"type"),0);set(*processor,eqID(e,11,"gain"),7);
+        auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");
+        auto* selector=find<juce::ComboBox>(*panel,eqID(e,-1,"band"));
+        check(waitFor([&]{return selector->getNumItems()==graphicalEQBands;}),"Factory recall fixture did not expose old Band 12");
+        selector->setSelectedId(graphicalEQBands,juce::sendNotificationSync);
+        check(panel->selectedBand()==11,"Factory recall fixture did not select old Band 12");
+    }
+    for(int slot=0;slot<4;++slot)set(*processor,dynamicSlotID(slot,"target"),float((slot%2+1)*graphicalEQBands));
+    auto& factoryEdits=processor->eqEditing();
+    for(float gain:{8.f,9.f}){
+        check(factoryEdits.beginEdit(0,"Old Band 12 gain"),"Factory UI history fixture could not begin an edit");
+        check(factoryEdits.setValue(0,11,"gain",gain),"Factory UI history fixture could not edit Band 12");
+        factoryEdits.endEdit();
+    }
+    check(factoryEdits.undo() && factoryEdits.canUndo() && factoryEdits.canRedo(),"Factory UI Undo/Redo fixture missing");
+    processor->loadFactoryPreset(0);
+    check(!factoryEdits.canUndo() && !factoryEdits.canRedo(),"Factory UI recall retained the previous EQ history");
+    for(int e=0;e<2;++e){
+        auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");
+        auto* selector=find<juce::ComboBox>(*panel,eqID(e,-1,"band"));
+        auto* undo=find<juce::TextButton>(*panel,eqID(e,-1,"undo"));
+        auto* redo=find<juce::TextButton>(*panel,eqID(e,-1,"redo"));
+        uint16_t enabledMask=0;int enabledCount=0,firstEnabled=-1;
+        for(int b=0;b<graphicalEQBands;++b)if(get(*processor,eqID(e,b,"enabled"))>.5f){
+            enabledMask|=uint16_t(1u<<b);++enabledCount;if(firstEnabled<0)firstEnabled=b;
+        }
+        check(enabledMask!=0 && factoryEdits.occupiedMask(e)==enabledMask,"Factory UI occupancy differs from active EQ recipe");
+        check(get(*processor,eqID(e,-1,"bypass"))==0,"Factory UI finishing EQ is bypassed");
+        check(get(*processor,eqID(e,11,"enabled"))==0 && !panel->isBandVisible(11),"Factory UI retained stale Band 12");
+        check(waitFor([&]{return selector->getNumItems()==enabledCount && panel->selectedBand()==firstEnabled
+            && selector->getSelectedId()==firstEnabled+1 && !undo->isEnabled() && !redo->isEnabled();}),
+            "Factory UI did not display authored bands, replace the stale selection or clear Undo/Redo");
+        for(int b=0;b<graphicalEQBands;++b)
+            check(panel->isBandVisible(b)==((enabledMask&(1u<<b))!=0),"Factory UI has hidden active or stale visible EQ bands");
+        for(const char* field:{"frequency","gain","q"}){
+            auto* control=find<juce::Slider>(*panel,eqID(e,firstEnabled,field));
+            check(control && std::abs(control->getValue()-get(*processor,eqID(e,firstEnabled,field)))<.02,
+                  "Factory UI numeric controls retained the previous band");
+        }
+    }
+    for(int slot=0;slot<4;++slot){
+        const int target=int(get(*processor,dynamicSlotID(slot,"target")));
+        check(slot>=2?target==0:(target>0 && target!=graphicalEQBands && target!=2*graphicalEQBands),
+              "Factory UI recall retained a stale dynamic assignment");
+    }
     processor->setStateInformation(saved.getData(),int(saved.getSize()));verifyBanks();
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"Project recall changed a node");
     for(int mode:{1,2,0}){set(*processor,"mode",float(mode));settle(100);check(find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isNavigationSelected(),"Mode switch lost the global EQ selection");}

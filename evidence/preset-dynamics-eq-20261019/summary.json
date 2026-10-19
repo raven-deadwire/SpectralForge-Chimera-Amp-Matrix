@@ -1,0 +1,554 @@
+{
+  "status": "LOCAL_TARGETED_VALIDATION_PASSED_REMOTE_FULL_MATRIX_PENDING",
+  "baseline_commit": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "source_provenance": {
+    "initial_recipe_sha256": "c6bf2d13b47c8bda6f85e274b10998ee89027785646c53b8f6fc64e63b91fc52",
+    "final_recipe_sha256": "ebd2e57b8dc554f813814a5c1bf3292e53d56cf3955a7634b026e2abce9764bd",
+    "final_integrated_test_sha256": "c52e361e00eab95af831c5ff5f236fd18a6392d75e22f94cc16d78c70fdc343d",
+    "final_exporter_source_sha256": "75f6ddea488c942e2f59d55bfd16bf16f49bab77072fde37ec771646d145df16",
+    "initial_manifest": "initial-input-sha256.json",
+    "final_manifest": "final-input-sha256.json",
+    "note": "Local source was baseline commit plus the explicit working-file hashes. Exporter embedded source_sha remains the baseline and is not release-commit provenance."
+  },
+  "ctest": {
+    "initial_recipe_core_suite": [
+      {
+        "name": "ChimeraGateProcessorTests",
+        "time_seconds": 11.9682,
+        "passed": true
+      },
+      {
+        "name": "ChimeraGraphicalEQTests",
+        "time_seconds": 31.9171,
+        "passed": true
+      },
+      {
+        "name": "ChimeraGraphicalEQUITests",
+        "time_seconds": 122.725,
+        "passed": true
+      },
+      {
+        "name": "ChimeraGraphicalEQEditingTests",
+        "time_seconds": 30.7938,
+        "passed": true
+      },
+      {
+        "name": "ChimeraCommonDynamicsTests",
+        "time_seconds": 2.32503,
+        "passed": true
+      },
+      {
+        "name": "ChimeraFactoryPresetExport",
+        "time_seconds": 40.388,
+        "passed": true
+      }
+    ],
+    "final_recipe_integrated": [
+      {
+        "name": "ChimeraIntegratedProcessorTests",
+        "time_seconds": 319.643,
+        "passed": true
+      }
+    ],
+    "final_recipe_exporter": {
+      "name": "ChimeraFactoryPresetExport",
+      "time_seconds": 44.2324,
+      "passed": true,
+      "batch_note": "The same first batch also exposed a newly added fixture noncanonical bool alias; exporter itself passed. The corrected strict Integrated test was subsequently rerun in full and passed."
+    }
+  },
+  "audio_fixture": {
+    "kind": "deterministic synthetic plucks",
+    "rate_hz": 48000,
+    "channels": 2,
+    "block_samples": 128,
+    "blocks_per_preset_condition": 450,
+    "duration_seconds": 1.2,
+    "harmonics": 8,
+    "input_conditions_db": [
+      0,
+      6
+    ],
+    "acceptance": "gain staging and regression only; no listening or actual DAW acceptance"
+  },
+  "gates": {
+    "factory_count": 48,
+    "output_zero_pass_count": 48,
+    "nominal_rms_minimum_dbfs_exclusive": -30,
+    "peak_maximum_linear_exclusive": 0.95,
+    "peak_maximum_dbfs_exclusive": -0.44552789422304506,
+    "protected_nominal_pass_count": 48,
+    "protected_hot_peak_pass_count": 48,
+    "unprotected_nominal_pass_count": 48,
+    "unprotected_hot_peak_pass_count": 48,
+    "peak_condition_count": 192,
+    "all_pass": true,
+    "hot_rms_note": "The inherited +6 dB fixture gate checks peak; hot RMS is not reported."
+  },
+  "levels": {
+    "minimum_protected_nominal_rms": {
+      "index": 14,
+      "name": "Slap Studio",
+      "rms_dbfs": -28.0467
+    },
+    "maximum_protected_nominal_peak": {
+      "index": 8,
+      "name": "Amber Heavy",
+      "peak_dbfs": -1.0
+    },
+    "maximum_protected_hot_peak": {
+      "index": 8,
+      "name": "Amber Heavy",
+      "peak_dbfs": -1.0
+    },
+    "maximum_unprotected_nominal_peak": {
+      "index": 8,
+      "name": "Amber Heavy",
+      "peak_dbfs": -0.759567
+    },
+    "maximum_unprotected_hot_peak": {
+      "index": 8,
+      "name": "Amber Heavy",
+      "hot_peak_dbfs": -0.909814
+    }
+  },
+  "dynamics": {
+    "meter_mean_definition": "Arithmetic mean of 450 end-of-128-sample-block GR observations; not sample-accurate integrated GR or loudness. COMP meter is the compressed branch before parallel mix.",
+    "near_cap_definition": "nominal block mean / authored maximum cut >= 0.9, counted per active node",
+    "near_cap_counts": {
+      "baseline_nominal": 0,
+      "initial_nominal": 23,
+      "final_nominal": 0,
+      "final_input_plus_6_db": 0
+    },
+    "near_cap_nodes": {
+      "baseline_nominal": [],
+      "initial_nominal": [
+        {
+          "index": 1,
+          "name": "Tight Rhythm",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.97818,
+          "range_db": 2.0
+        },
+        {
+          "index": 1,
+          "name": "Tight Rhythm",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.95135,
+          "range_db": 2.0
+        },
+        {
+          "index": 3,
+          "name": "Filter Lead",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 0.974685,
+          "range_db": 1.0
+        },
+        {
+          "index": 8,
+          "name": "Amber Heavy",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.94982,
+          "range_db": 2.0
+        },
+        {
+          "index": 8,
+          "name": "Amber Heavy",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.48609,
+          "range_db": 1.5
+        },
+        {
+          "index": 9,
+          "name": "Melodic Death Rhythm",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.96758,
+          "range_db": 2.0
+        },
+        {
+          "index": 10,
+          "name": "Melodic Lead",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.38582,
+          "range_db": 1.5
+        },
+        {
+          "index": 20,
+          "name": "G+G Tight / Wide",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.96239,
+          "range_db": 2.0
+        },
+        {
+          "index": 29,
+          "name": "Silk Smooth Lead",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 0.943507,
+          "range_db": 1.0
+        },
+        {
+          "index": 31,
+          "name": "Crom Cruach",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.47199,
+          "range_db": 1.5
+        },
+        {
+          "index": 32,
+          "name": "Wild Hunt",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 0.978704,
+          "range_db": 1.0
+        },
+        {
+          "index": 33,
+          "name": "Azhi Dahaka",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.47167,
+          "range_db": 1.5
+        },
+        {
+          "index": 36,
+          "name": "Blackhearted",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.44461,
+          "range_db": 1.5
+        },
+        {
+          "index": 36,
+          "name": "Blackhearted",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.97947,
+          "range_db": 2.0
+        },
+        {
+          "index": 37,
+          "name": "Dark Matters of Throne",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.46685,
+          "range_db": 1.5
+        },
+        {
+          "index": 38,
+          "name": "Thall Rhythm",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.98034,
+          "range_db": 2.0
+        },
+        {
+          "index": 38,
+          "name": "Thall Rhythm",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.98353,
+          "range_db": 2.0
+        },
+        {
+          "index": 39,
+          "name": "Molten Lead",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.47145,
+          "range_db": 1.5
+        },
+        {
+          "index": 39,
+          "name": "Molten Lead",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.47336,
+          "range_db": 1.5
+        },
+        {
+          "index": 40,
+          "name": "Rotten Grind",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.48191,
+          "range_db": 1.5
+        },
+        {
+          "index": 40,
+          "name": "Rotten Grind",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.48696,
+          "range_db": 1.5
+        },
+        {
+          "index": 42,
+          "name": "Slam Impact",
+          "slot": 1,
+          "bank": "Tone",
+          "mean_db": 1.98069,
+          "range_db": 2.0
+        },
+        {
+          "index": 42,
+          "name": "Slam Impact",
+          "slot": 2,
+          "bank": "Final",
+          "mean_db": 1.98325,
+          "range_db": 2.0
+        }
+      ],
+      "final_nominal": [],
+      "final_input_plus_6_db": []
+    },
+    "initial_nominal": {
+      "maximum_comp_gr": {
+        "index": 12,
+        "name": "Finger Round",
+        "comp_max_db": 0.758511,
+        "condition": "nominal"
+      },
+      "largest_comp_mean": {
+        "index": 39,
+        "name": "Molten Lead",
+        "comp_block_mean_db": 0.474441,
+        "condition": "nominal"
+      },
+      "maximum_limiter_gr": {
+        "index": 31,
+        "name": "Crom Cruach",
+        "limiter_max_db": 0.0,
+        "condition": "nominal"
+      },
+      "largest_limiter_mean": {
+        "index": 31,
+        "name": "Crom Cruach",
+        "limiter_block_mean_db": 0.0,
+        "condition": "nominal"
+      }
+    },
+    "initial_input_plus_6_db": {
+      "maximum_comp_gr": {
+        "index": 12,
+        "name": "Finger Round",
+        "comp_max_db": 1.44155,
+        "condition": "input_plus_6_db"
+      },
+      "largest_comp_mean": {
+        "index": 39,
+        "name": "Molten Lead",
+        "comp_block_mean_db": 0.521869,
+        "condition": "input_plus_6_db"
+      },
+      "maximum_limiter_gr": {
+        "index": 31,
+        "name": "Crom Cruach",
+        "limiter_max_db": 0.0,
+        "condition": "input_plus_6_db"
+      },
+      "largest_limiter_mean": {
+        "index": 31,
+        "name": "Crom Cruach",
+        "limiter_block_mean_db": 0.0,
+        "condition": "input_plus_6_db"
+      }
+    },
+    "final_nominal": {
+      "maximum_comp_gr": {
+        "index": 26,
+        "name": "Pick Attack Matrix",
+        "comp_max_db": 2.22132,
+        "condition": "nominal"
+      },
+      "largest_comp_mean": {
+        "index": 39,
+        "name": "Molten Lead",
+        "comp_block_mean_db": 1.75457,
+        "condition": "nominal"
+      },
+      "maximum_limiter_gr": {
+        "index": 8,
+        "name": "Amber Heavy",
+        "limiter_max_db": 0.240434,
+        "condition": "nominal"
+      },
+      "largest_limiter_mean": {
+        "index": 8,
+        "name": "Amber Heavy",
+        "limiter_block_mean_db": 0.0201702,
+        "condition": "nominal"
+      }
+    },
+    "final_input_plus_6_db": {
+      "maximum_comp_gr": {
+        "index": 26,
+        "name": "Pick Attack Matrix",
+        "comp_max_db": 3.2464,
+        "condition": "input_plus_6_db"
+      },
+      "largest_comp_mean": {
+        "index": 26,
+        "name": "Pick Attack Matrix",
+        "comp_block_mean_db": 2.13276,
+        "condition": "input_plus_6_db"
+      },
+      "maximum_limiter_gr": {
+        "index": 8,
+        "name": "Amber Heavy",
+        "limiter_max_db": 0.0901863,
+        "condition": "input_plus_6_db"
+      },
+      "largest_limiter_mean": {
+        "index": 8,
+        "name": "Amber Heavy",
+        "limiter_block_mean_db": 0.00759819,
+        "condition": "input_plus_6_db"
+      }
+    }
+  },
+  "detector_measurements": {
+    "eq": "Actual Tone/Final analyzer FIFO inputs passed through the same bandpass and stereo-linked 20 ms peak envelope; p50/p90/p99 are block-end observations.",
+    "comp": "Actual Tone output passed through the authored sidechain HP and 10 ms RMS or 20 ms peak detector independently in the test; not a new product DSP tap.",
+    "fifo_drops": 0,
+    "final_eq_rows": 192,
+    "final_comp_rows": 96,
+    "initial_instrumentation_output_check": "All 48 nominal RMS/peak matched the uninstrumented initial candidate exactly at printed precision."
+  },
+  "bass_foundation": {
+    "preset_count": 24,
+    "frequencies_hz": [
+      27.5,
+      30.8677
+    ],
+    "kind": "Combined finishing-EQ linear transfer response at static gain and maximum authored dynamic cut; not full-rig low-note audio power.",
+    "worst_responses": [
+      {
+        "index": 45,
+        "name": "Heavy Pulse",
+        "response_db": -0.00657816,
+        "frequency_hz": 27.5,
+        "mode": "static",
+        "maximum_loss_db": 0.00657816
+      },
+      {
+        "index": 21,
+        "name": "G+B Low Anchor",
+        "response_db": -0.026279,
+        "frequency_hz": 27.5,
+        "mode": "maximum_dynamic_cut",
+        "maximum_loss_db": 0.026279
+      },
+      {
+        "index": 45,
+        "name": "Heavy Pulse",
+        "response_db": -0.00832712,
+        "frequency_hz": 30.8677,
+        "mode": "static",
+        "maximum_loss_db": 0.00832712
+      },
+      {
+        "index": 21,
+        "name": "G+B Low Anchor",
+        "response_db": -0.0332644,
+        "frequency_hz": 30.8677,
+        "mode": "maximum_dynamic_cut",
+        "maximum_loss_db": 0.0332644
+      }
+    ],
+    "maximum_loss_db": 0.0332644
+  },
+  "state_validation": {
+    "factory_count": 48,
+    "processing_parameter_count": 168,
+    "project_and_AB_parameter_error_bound_exclusive": 1e-06,
+    "factory_project_and_AB_exact_maximum_not_logged": true,
+    "occupancy_exact_match": true,
+    "independent_dirty_and_clean_audio_sample_error_bound_exclusive": 1e-06,
+    "original_dirty_factory_host_alias_fixture_preserved": true,
+    "new_helper_fix": "Canonicalize the new dirty helper values through each parameter range and require every selected field to differ before project/A-B restore. The old direct .81 factory recall tests remain unchanged.",
+    "exported_parameter_count": 5026,
+    "exported_factory_count": 48,
+    "exporter_maximum_normalized_error": 0.0,
+    "exporter_metadata_restore_all_passed": true,
+    "rendered_project_restore_errors": [
+      {
+        "name": "A Path To Alsatia",
+        "parameter_count": 5026,
+        "maximum_audio_sample_error": 0.0,
+        "kind": "guitar_signature_project"
+      },
+      {
+        "name": "Feel My Wrath",
+        "parameter_count": 5026,
+        "maximum_audio_sample_error": 0.0,
+        "kind": "guitar_signature_project"
+      },
+      {
+        "name": "Blackhearted",
+        "parameter_count": 5026,
+        "maximum_audio_sample_error": 0.0,
+        "kind": "guitar_signature_project"
+      },
+      {
+        "name": "Dark Matters of Throne",
+        "parameter_count": 5026,
+        "maximum_audio_sample_error": 0.0,
+        "kind": "guitar_signature_project"
+      },
+      {
+        "index": 43,
+        "name": "Metal Clank",
+        "maximum_audio_sample_error": 0.0,
+        "kind": "niflheimr_project"
+      },
+      {
+        "index": 44,
+        "name": "Death Grind",
+        "maximum_audio_sample_error": 0.0,
+        "kind": "niflheimr_project"
+      },
+      {
+        "index": 45,
+        "name": "Heavy Pulse",
+        "maximum_audio_sample_error": 0.0,
+        "kind": "niflheimr_project"
+      },
+      {
+        "index": 46,
+        "name": "Slam Punch",
+        "maximum_audio_sample_error": 0.0,
+        "kind": "niflheimr_project"
+      },
+      {
+        "index": 47,
+        "name": "Doom Fuzz",
+        "maximum_audio_sample_error": 0.0,
+        "kind": "niflheimr_project"
+      }
+    ]
+  },
+  "build_environment": {
+    "compiler": "GNU 13.3.0",
+    "cmake": "3.28.3",
+    "juce": "8.0.8",
+    "build_type": "Release",
+    "desktop": "Xvfb/Openbox via repository run_linux_ui_tests.py",
+    "platform": "linux"
+  },
+  "limitations": [
+    "No listening or real DI/DAW acceptance is claimed.",
+    "Final full remote workflow matrix remains the release gate.",
+    "Core UI/EQ/gate/dynamics CTests passed on the initial recipe; their unchanged structure was rebuilt on the final recipe but not redundantly rerun locally."
+  ]
+}

@@ -561,3 +561,14 @@ target_include_directories(ChimeraTunerTimingTests PRIVATE Source)
 add_test(NAME ChimeraTunerTimingTests COMMAND ChimeraTunerTimingTests)
 add_test(NAME ChimeraTunerWorkerTimingTests COMMAND ChimeraPrecisionTunerIntegrationTests --timing-only)
 set_tests_properties(ChimeraTunerWorkerTimingTests PROPERTIES TIMEOUT 10)
+
+# BEGIN CHIMERA PRESET MAINTENANCE EXPORTER
+# The existing Product build and full CTest matrix produce and verify this pack.
+# build.yml already retains build/validation on Windows, Linux and macOS.
+juce_add_console_app(ChimeraFactoryPresetExport PRODUCT_NAME "Chimera Factory Preset Export")
+target_sources(ChimeraFactoryPresetExport PRIVATE Tools/ExportFactoryPresetPack.cpp)
+target_include_directories(ChimeraFactoryPresetExport PRIVATE Source)
+target_link_libraries(ChimeraFactoryPresetExport PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraFactoryPresetExport COMMAND ChimeraFactoryPresetExport "${CMAKE_BINARY_DIR}/validation/preset-maintenance")
+set_tests_properties(ChimeraFactoryPresetExport PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
+# END CHIMERA PRESET MAINTENANCE EXPORTER

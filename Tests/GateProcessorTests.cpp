@@ -131,7 +131,12 @@ void stateAndAutomation(ChimeraProcessor& p)
     r.getStateInformation(saved);p.setStateInformation(saved.getData(),int(saved.getSize()));
     require(get(p,"gateRangeDb")==12,"Active A/B Range did not survive project recall");
     p.selectComparison(0);require(get(p,"gateRangeDb")==96,"Inactive A/B Range did not survive project recall");
-    set(r,"gateRangeDb",0);r.loadFactoryPreset(0);require(get(r,"gateRangeDb")==96,"Factory recall retained previous Range");
+    set(r,"gateRangeDb",0);r.loadFactoryPreset(0);
+    const float factoryRange=get(r,"gateRangeDb");
+    require(std::isfinite(factoryRange) && factoryRange>0 && factoryRange<96,
+            "Factory recall did not restore its authored finite gate floor");
+    set(r,"gateRangeDb",96);r.loadFactoryPreset(0);
+    require(get(r,"gateRangeDb")==factoryRange,"Factory gate floor depends on the previous session Range");
     struct Listener:juce::AudioProcessorParameter::Listener {
         int values{},gestures{};
         void parameterValueChanged(int,float) override {++values;}
