@@ -25,6 +25,15 @@ class AnalysisTests(unittest.TestCase):
    self.assertEqual([r['wall_only_misses'] for r in result['summaries']],[1,0])
    self.assertEqual(result['waits'][0]['timeout_overshoot_us'],1000)
    self.assertIsNone(result['waits'][1]['timeout_overshoot_us'])
+ def test_noncab_control_phases(self):
+  with tempfile.TemporaryDirectory() as d:
+   p=self.fixture(Path(d));f=Path(str(p)+'.callbacks.csv')
+   f.write_text(f.read_text().replace('worker_and_automation','paced_control').replace('forced_six_slot_publication','burst_control'))
+   self.assertEqual([r['phase'] for r in analyze(p)['summaries']],['paced_control','burst_control'])
+ def test_trace_off_marks_unobserved_stages(self):
+  with tempfile.TemporaryDirectory() as d:
+   p=self.fixture(Path(d));f=Path(str(p)+'.metadata.json');f.write_text(f.read_text().replace('stages','off'))
+   self.assertEqual(analyze(p)['summaries'][0]['associations']['spectral_mac_cpu_us'],{'available':False})
  def test_missing_pacing_rejected(self):
   with tempfile.TemporaryDirectory() as d:
    p=self.fixture(Path(d));Path(str(p)+'.pacing.csv').unlink()

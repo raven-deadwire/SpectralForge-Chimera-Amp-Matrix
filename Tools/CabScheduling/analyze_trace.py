@@ -51,16 +51,21 @@ def analyze(prefix):
  categories=['post_sleep','kernel_accept_count','fading','worker_build_overlap','worker_publish_overlap','post_worker_timeout']
  summaries=[]
  metrics=['fft_forward','fft_inverse','spectral_mac','kernel_swap','fading_convolution','fade_mix']
- for phase in ('worker_and_automation','forced_six_slot_publication'):
+ for phase in dict.fromkeys(r['phase'] for r in joined):
   pop=[r for r in joined if r['phase']==phase]
   summary={'phase':phase,'n':len(pop),'misses':sum(r['miss'] for r in pop),'cpu_over_budget':sum(r['cpu_over_budget'] for r in pop),
    'wall_only_misses':sum(r['wall_only_miss'] for r in pop),'wall_p99_us':sorted(r['wall_us'] for r in pop)[int(.99*len(pop))],
    'cpu_p99_us':sorted(r['cpu_us'] for r in pop)[int(.99*len(pop))],'categories':{},'associations':{}}
   for category in categories:
+   if meta['trace_level']=='off' and category!='post_sleep':
+    summary['categories'][category]={'available':False};continue
    summary['categories'][category]={str(on):{'n':sum(bool(r[category])==on for r in pop),'misses':sum(r['miss'] for r in pop if bool(r[category])==on)} for on in (False,True)}
   for stage in metrics:
    for clock in ('wall','cpu'):
-    key=f'{stage}_{clock}_us';xs=[r.get(key,0) for r in pop]
+    key=f'{stage}_{clock}_us'
+    if meta['trace_level']=='off':
+     summary['associations'][key]={'available':False};continue
+    xs=[r.get(key,0) for r in pop]
     summary['associations'][key]={'mean_us':statistics.mean(xs),'pearson_with_wall':correlation(xs,[r['wall_us'] for r in pop]),
      'point_biserial_with_miss':correlation(xs,[r['miss'] for r in pop])}
   summaries.append(summary)
