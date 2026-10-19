@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="6"
+	failures="1"
+	disabled="0"
+	skipped="1"
+	hostname=""
+	time="215"
+	timestamp="2026-10-19T20:42:44"
+	>
+	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="13.701" status="run">
+		<properties/>
+		<system-out>ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+PASS public presentation: catalog captions, options and fact...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraIntegratedProcessorTests" classname="ChimeraIntegratedProcessorTests" time="3.68365" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>PASS prepared CAB fresh slot=0 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=1 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=0 start=0.252755 middle=0.382945
+PASS prepared CAB fresh slot=1 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=0 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=1 start=0.252755 middle=0.382945
+PRESET_DYNAMICS_HEADER,index,condition,comp_max_db,comp_block_mean_db,limiter_max_db,limiter_block_mean_db,dynamic1_max_db,dynamic1_block_mean_db,dynamic2_max_db,dynamic2_block_mean_db,dynamic3_max_db,dynamic3_block_mean_db,dynamic4_max_db,dynamic4_block_mean_db
+PRESET_EQ_DETECTOR_HEADER,index,condition,bank,frequency_hz,q,bandpass_peak_dbfs,bandpass_stereo_rms_dbfs,envelope_p50_dbfs,envelope_p90_dbfs,envelope_p99_dbfs
+PRESET_COMP_DETECTOR_HEADER,index,condition,detector_hp_hz,detector_mode,level_peak_dbfs,block_level_p50_dbfs,block_level_p90_dbfs,block_level_p99_dbfs
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,maximum_dynamic_cut,-0.0219787
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,maximum_dynamic_cut,-0.0278007
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,static,-0.00521135
+PRESET_LOW_FUNDAMENTAL_EQ,31,27.5,maximum_dynamic_cut,-0.0219787
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,static,-0.00659348
+PRESET_LOW_FUNDAMENTAL_EQ,31,30.8677,maximum_dynamic_cut,-0.0278007
+FAIL Factory EQ/dynamics project or A/B restore changed an authored parameter
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQTests" classname="ChimeraGraphicalEQTests" time="38.8434" status="run">
+		<properties/>
+		<system-out>PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 active factory EQ recipes
+PASS actual project and A/B audio &lt;= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=9.273 p99=160.246 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=9.364 p99=87.75 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=11.026 p99=84.996 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=11.097 p99=72.346 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=17.686 p99=64.005 us / 2666.67 us
+CPU pair24 48000 Hz ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQUITests" classname="ChimeraGraphicalEQUITests" time="126.348" status="run">
+		<properties/>
+		<system-out>MEASURE reused EQ node bank=0 frequency=1000.000000 gain=0.000000
+PASS native graph add/delete / disabled node visibility / numeric and drag undo-redo / persistent reuse / capacity bank=0
+PASS native pending numeric input / equal-valued slot switch / same-values project+host ownership / immediate stale commit rejected bank=0
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank=0
+MEASURE reused EQ node bank=1 frequency=1000.000000 gain=0.000000
+PASS native graph add/delete / disabled node visibility / numeric and drag undo-redo / persistent reuse / capacity b...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQEditingTests" classname="ChimeraGraphicalEQEditingTests" time="33.0674" status="run">
+		<properties/>
+		<system-out>PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / malformed metadata fallback / no hidden enabled band after recall
+PASS all 48 factory active-band occupancy / stale Band 12 and dynamic-target reset / EQ history barrier / bounded 64-operation session history
+PASS audible delete settles exact dry / tuning automation stays hidden / host enable reoccupies / four-rate exact EQ transfer
+PASS October 23 EQ editing backend regression contract
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCommonDynamicsTests" classname="ChimeraCommonDynamicsTests" time="0" status="notrun">
+		<skipped message="Unable to find executable"/>
+		<properties/>
+		<system-out>Unable to find executable: /workspace/scratch/0cbbf1045ecc/build/ChimeraCommonDynamicsTests_artefacts/Release/ChimeraCommonDynamicsTests</system-out>
+	</testcase>
+</testsuite>

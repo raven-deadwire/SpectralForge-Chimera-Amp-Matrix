@@ -159,19 +159,29 @@ void factoryProcessingState(ChimeraProcessor& source,ChimeraProcessor& copy) {
     const auto dirty=[&] {
         require(copy.eqEditing().addBand(0,4700,3)>=0,"Factory EQ dirty-state fixture did not add an editor band");
         for(const auto& [id,value]:expected) {
-            juce::ignoreUnused(value);copy.parameters().getParameter(id)->setValueNotifyingHost(.81f);
+            // Use representable values, including 0/1 for bools. Writing raw
+            // .81 to JUCE's bool setter leaves a noncanonical getValue() even
+            // when APVTS already holds true; that is not a valid dirty preset.
+            auto* parameter=copy.parameters().getParameter(id);
+            const float requested=value<.5f?.81f:.19f;
+            parameter->setValueNotifyingHost(parameter->convertTo0to1(parameter->convertFrom0to1(requested)));
         }
     };
-    const auto restored=[&] {
-        for(const auto& [id,value]:expected)
-            require(std::abs(copy.parameters().getParameter(id)->getValue()-value)<1.e-6f,
+    const auto restored=[&](const char* stage) {
+        for(const auto& [id,value]:expected) {
+            const float actual=copy.parameters().getParameter(id)->getValue();
+            if(std::abs(actual-value)>=1.e-6f)
+                std::cerr<<"FACTORY_PROCESSING_RESTORE stage="<<stage<<" id="<<id
+                         <<" expected="<<value<<" actual="<<actual<<'\n';
+            require(std::abs(actual-value)<1.e-6f,
                     "Factory EQ/dynamics project or A/B restore changed an authored parameter");
+        }
         for(int bank=0;bank<2;++bank)
             require(copy.eqEditing().occupiedMask(bank)==masks[size_t(bank)],"Factory EQ project or A/B restore changed band occupancy");
     };
     juce::MemoryBlock bytes;source.getStateInformation(bytes);dirty();
-    copy.setStateInformation(bytes.getData(),int(bytes.getSize()));restored();
-    copy.copyComparison();copy.selectComparison(1);dirty();copy.selectComparison(0);restored();
+    copy.setStateInformation(bytes.getData(),int(bytes.getSize()));restored("project");
+    copy.copyComparison();copy.selectComparison(1);dirty();copy.selectComparison(0);restored("A/B");
 }
 void factoryProcessingContract(ChimeraProcessor& processor,int index) {
     using namespace spectralforge;

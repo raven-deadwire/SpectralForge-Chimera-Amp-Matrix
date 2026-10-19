@@ -30,6 +30,15 @@ Dynamic EQ 네 슬롯 중 두 개만 할당한다. 각 threshold는 Tone/Final�
 새 공통 COMP 적용을 기록한다. 정적 EQ는 작게 제한했지만 기존 POST와 합쳐진
 톤의 적절성은 실제 DI 청음에서 최종 판단한다.
 
+| 연주 목적 | 설계 의도와 기존 성격 보존 |
+|---|---|
+| 클린·엣지 | 280–350 Hz의 작은 정리와 넓은 존재감 보완. 기존 압축이 없을 때만 느린 attack의 병렬 COMP로 피킹을 남김 |
+| 하이게인·데스 리듬 | 주로 160–200 Hz의 신호 의존 컷과 3.8–4.4 kHz 제어. 추가 공통 압축 없이 기존 드라이브와 POST의 밀도 유지 |
+| 리드 | 1.1–1.4 kHz 근처의 작은 보완, 180 ms dynamic release. 기존 PRE/POST 압축이 있는 시그니처에는 COMP를 추가하지 않음 |
+| 슬램·초저음 | Slam Impact/Slam Punch 및 Low B의 저중역 정적 컷은 0 dB. 강한 순간만 억제하며 기존 LOW dry 경로와 크로스오버 보존 |
+| 둠·퍼즈·엔벌로프 | 220 ms dynamic release와 완만한 ratio. 공통 COMP를 끄고 퍼즈는 limiter release 180 ms로 유지 |
+| 베이스 finger/pick/slap | 기음 HPF를 추가하지 않고 body/클랭크 대역을 분리. 기존 PRE/POST/LOW 압축을 사용하며 slap의 high shelf는 비활성 |
+
 ## 호환성과 P0 분리
 
 네 snapshot 생성 함수에 동일한 후처리를 연결한다. DSP 구현, 5,026개 파라미터의
@@ -39,7 +48,8 @@ ID·순서·범위·기본값·자동화 속성, 상태 schema, preset metadata 
 
 #97의 Transpose, FabFilter 엔진 연구, 베타 수명주기, AAX 제품 소스와 배포 정책은
 수정하지 않는다. #98/#100/#101/#103 변경 경로를 대조했고, 유일한 공통 파일인
-CMakeLists.txt에는 기존 integrated test 바로 뒤에 테스트 등록 3줄만 추가한다.
+CMakeLists.txt에는 기존 integrated test 바로 뒤에 비교 테스트 등록 2줄만 추가한다.
+기존 integrated test가 이미 실행하는 48개 전체 회귀를 CTest에 중복 등록하지 않는다.
 별도 개발 PR이며 main 병합·태그·공개 패키지·updater 변경을 실행하지 않는다.
 이전 작업 공간의 레시피·회귀검사 초안을 재사용하고, PRE/LOW 중복 압축 제거,
 게이트 보존, 음량 정렬 비교·트랜지언트·실제 preset automation 회귀를 추가했다.

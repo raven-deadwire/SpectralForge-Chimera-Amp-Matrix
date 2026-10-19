@@ -369,9 +369,8 @@ target_sources(ChimeraIntegratedProcessorTests PRIVATE Tests/IntegratedProcessor
 target_include_directories(ChimeraIntegratedProcessorTests PRIVATE Source)
 target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
-add_test(NAME ChimeraPresetFinishingTests COMMAND ChimeraIntegratedProcessorTests --preset-finishing-only)
-add_test(NAME ChimeraPresetFinishingComparison COMMAND ChimeraIntegratedProcessorTests --preset-finishing-comparison "${CMAKE_BINARY_DIR}/preset-finishing-comparison")
-set_tests_properties(ChimeraPresetFinishingTests ChimeraPresetFinishingComparison PROPERTIES TIMEOUT 600 RUN_SERIAL TRUE)
+add_test(NAME ChimeraPresetFinishingComparison COMMAND ChimeraIntegratedProcessorTests --preset-finishing-comparison "${CMAKE_BINARY_DIR}/signature-snapshots/preset-finishing-comparison")
+set_tests_properties(ChimeraPresetFinishingComparison PROPERTIES TIMEOUT 600 RUN_SERIAL TRUE)
 add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
 
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")

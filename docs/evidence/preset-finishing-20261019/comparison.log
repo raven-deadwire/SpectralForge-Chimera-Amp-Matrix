@@ -1,0 +1,74 @@
+Warning: getifaddrs returns Operation not permitted
+Warning: getifaddrs returns Operation not permitted
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+Openbox-Message: Unable to find a valid menu file "/var/lib/openbox/debian-menu.xml"
+Native desktop ready: DISPLAY=127.0.0.1:201, Openbox supporting window=0x20011f, WM_PROTOCOLS present
+LOCAL_TEST_DESKTOP authenticated X11 TCP loopback; AF_UNIX unavailable; product/test assertions unchanged
+COMPARE 0 rms_delta=-0.512703 crest_delta=0.310672 matched_attack_delta=0.310672 restore_error=1.49012e-08
+COMPARE 1 rms_delta=-0.285794 crest_delta=0.161491 matched_attack_delta=0.382843 restore_error=5.96046e-08
+COMPARE 2 rms_delta=-0.663483 crest_delta=0.108407 matched_attack_delta=0.385557 restore_error=2.98023e-08
+COMPARE 3 rms_delta=-0.144189 crest_delta=0.120068 matched_attack_delta=0.120068 restore_error=2.98023e-08
+COMPARE 4 rms_delta=-0.261155 crest_delta=0.187448 matched_attack_delta=0.187448 restore_error=1.49012e-08
+COMPARE 5 rms_delta=-0.869343 crest_delta=0.491754 matched_attack_delta=0.491754 restore_error=2.98023e-08
+COMPARE 6 rms_delta=-0.488313 crest_delta=0.302108 matched_attack_delta=0.302108 restore_error=2.98023e-08
+COMPARE 7 rms_delta=-0.0309826 crest_delta=0.26695 matched_attack_delta=0.26695 restore_error=2.98023e-08
+COMPARE 8 rms_delta=-0.0599092 crest_delta=-0.205128 matched_attack_delta=-0.205128 restore_error=5.96046e-08
+COMPARE 9 rms_delta=-0.0870508 crest_delta=-0.205245 matched_attack_delta=-0.205245 restore_error=5.96046e-08
+COMPARE 10 rms_delta=-0.635973 crest_delta=0.369571 matched_attack_delta=0.369571 restore_error=3.72529e-08
+COMPARE 11 rms_delta=-0.321594 crest_delta=0.159186 matched_attack_delta=0.159186 restore_error=1.49012e-08
+COMPARE 12 rms_delta=-0.179227 crest_delta=0.0764081 matched_attack_delta=0.19725 restore_error=2.98023e-08
+COMPARE 13 rms_delta=-0.346618 crest_delta=-0.00737999 matched_attack_delta=-0.00737999 restore_error=2.98023e-08
+COMPARE 14 rms_delta=-0.0379753 crest_delta=-0.0281809 matched_attack_delta=-0.0281809 restore_error=0
+COMPARE 15 rms_delta=-0.332806 crest_delta=-0.00891983 matched_attack_delta=-0.00891983 restore_error=1.49012e-08
+COMPARE 16 rms_delta=-0.325931 crest_delta=0.298939 matched_attack_delta=0.39265 restore_error=2.98023e-08
+COMPARE 17 rms_delta=-0.11761 crest_delta=-0.00290289 matched_attack_delta=0.0162266 restore_error=1.49012e-08
+COMPARE 18 rms_delta=-0.124804 crest_delta=-0.0895479 matched_attack_delta=-0.0895479 restore_error=0
+COMPARE 19 rms_delta=-0.501465 crest_delta=0.41259 matched_attack_delta=0.41259 restore_error=1.49012e-08
+COMPARE 20 rms_delta=-0.0455932 crest_delta=-0.2266 matched_attack_delta=-0.2266 restore_error=2.98023e-08
+COMPARE 21 rms_delta=-0.579242 crest_delta=0.446879 matched_attack_delta=0.529066 restore_error=1.49012e-08
+COMPARE 22 rms_delta=-0.374718 crest_delta=-0.0899805 matched_attack_delta=0.114512 restore_error=2.98023e-08
+COMPARE 23 rms_delta=-0.200686 crest_delta=0.110325 matched_attack_delta=0.110325 restore_error=2.98023e-08
+COMPARE 24 rms_delta=-0.655334 crest_delta=0.108118 matched_attack_delta=-0.0399784 restore_error=2.98023e-08
+COMPARE 25 rms_delta=-0.230116 crest_delta=0.119087 matched_attack_delta=0.109201 restore_error=2.98023e-08
+COMPARE 26 rms_delta=-0.682964 crest_delta=0.0996281 matched_attack_delta=0.297712 restore_error=2.98023e-08
+COMPARE 27 rms_delta=-0.189878 crest_delta=0.249128 matched_attack_delta=0.249128 restore_error=1.49012e-08
+COMPARE 28 rms_delta=-0.459679 crest_delta=0.401052 matched_attack_delta=0.401052 restore_error=2.98023e-08
+COMPARE 29 rms_delta=-0.732397 crest_delta=0.0241722 matched_attack_delta=0.0241722 restore_error=2.98023e-08
+COMPARE 30 rms_delta=-0.211859 crest_delta=0.0429526 matched_attack_delta=0.0429526 restore_error=0
+COMPARE 31 rms_delta=-0.30666 crest_delta=0.473204 matched_attack_delta=0.473204 restore_error=1.49012e-08
+COMPARE 32 rms_delta=-0.223586 crest_delta=0.499708 matched_attack_delta=0.499708 restore_error=0
+COMPARE 33 rms_delta=-0.165451 crest_delta=-0.0448413 matched_attack_delta=-0.0448413 restore_error=1.49012e-08
+COMPARE 34 rms_delta=-0.425148 crest_delta=0.516556 matched_attack_delta=0.516556 restore_error=2.98023e-08
+COMPARE 35 rms_delta=-0.70913 crest_delta=0.509079 matched_attack_delta=0.509079 restore_error=2.98023e-08
+COMPARE 36 rms_delta=-0.116955 crest_delta=0.0700419 matched_attack_delta=0.0700419 restore_error=2.98023e-08
+COMPARE 37 rms_delta=-0.224347 crest_delta=0.279624 matched_attack_delta=0.279624 restore_error=1.49012e-08
+COMPARE 38 rms_delta=-0.0643595 crest_delta=0.0239082 matched_attack_delta=0.0239082 restore_error=2.98023e-08
+COMPARE 39 rms_delta=-0.280636 crest_delta=0.337342 matched_attack_delta=0.337342 restore_error=2.98023e-08
+COMPARE 40 rms_delta=-0.265115 crest_delta=0.151378 matched_attack_delta=0.151378 restore_error=5.96046e-08
+COMPARE 41 rms_delta=-0.163609 crest_delta=0.181946 matched_attack_delta=0.192407 restore_error=2.98023e-08
+COMPARE 42 rms_delta=-0.0622845 crest_delta=-0.25516 matched_attack_delta=-0.25516 restore_error=2.98023e-08
+COMPARE 43 rms_delta=-0.312998 crest_delta=0.157449 matched_attack_delta=0.157449 restore_error=1.49012e-08
+COMPARE 44 rms_delta=-0.479978 crest_delta=0.347601 matched_attack_delta=0.347601 restore_error=1.49012e-08
+COMPARE 45 rms_delta=-0.298244 crest_delta=0.128153 matched_attack_delta=0.128153 restore_error=1.49012e-08
+COMPARE 46 rms_delta=-0.216678 crest_delta=0.216619 matched_attack_delta=0.216619 restore_error=1.49012e-08
+COMPARE 47 rms_delta=-0.402586 crest_delta=0.145924 matched_attack_delta=0.145924 restore_error=1.49012e-08
+PASS 48 before/after renders, level-matched transients, binary audio recall, saved-old-state preservation and no PRE/POST/LOW compressor duplication
+PASS 30 preset automation routes: 44.1/48/96 kHz, mono/stereo, matched restored output and balanced host gestures
