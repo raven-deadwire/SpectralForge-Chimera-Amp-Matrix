@@ -77,7 +77,7 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
         auto* panel=find<AmpNativePanel>(canvas,"ampNativePanel1");require(panel!=nullptr,"Matrix LOW panel missing");
         std::vector<NativeControlView*> controls;views(*panel,controls);std::vector<NativeControlView*> shown;
         for(auto* view:controls)if(view->isVisible())shown.push_back(view);
-        const std::array<const char*,3> ids{"bandtone1","lowcomp","lowampmix"};
+        const std::array<const char*,2> ids{"bandtone1","lowampmix"};
         require(shown.size()>ids.size(),"Matrix LOW overview must retain amplifier controls below the shared knobs");
         for(size_t i=0;i<ids.size();++i) {
             auto* view=find<NativeControlView>(*panel,juce::String(ids[i])+"_control");
@@ -87,6 +87,25 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
             const double value=i==0?(scale?-3.5:4.5):(scale?.31:.64);slider->setValue(value,juce::sendNotificationSync);
             require(std::abs(processor.parameters().getRawParameterValue(ids[i])->load()-value)<.002,"Matrix LOW priority knob did not reach its host parameter");
         }
+        auto* compEntry=find<juce::TextButton>(*panel,"matrixLowCompressor.open");
+        require(compEntry && compEntry->isVisible() && find(*panel,"lowcomp_control")==nullptr,
+                "Matrix LOW compression must open a spectrum editor");
+        inside(*panel,*compEntry,"LOW spectrum editor button is clipped");inside(editor,*compEntry,"LOW spectrum entry exceeds scaled editor");
+        const auto toneBounds=panel->getLocalArea(find(*panel,"bandtone1_control"),find(*panel,"bandtone1_control")->getLocalBounds());
+        const auto blendBounds=panel->getLocalArea(find(*panel,"lowampmix_control"),find(*panel,"lowampmix_control")->getLocalBounds());
+        const auto entryBounds=panel->getLocalArea(compEntry,compEntry->getLocalBounds());
+        require(entryBounds.getX()>=toneBounds.getRight() && entryBounds.getRight()<=blendBounds.getX()
+                && entryBounds.getY()>=toneBounds.getY() && entryBounds.getBottom()<=toneBounds.getBottom(),
+                "LOW shared row must retain tone / compressor spectrum / blend order");
+        const float compBefore=processor.parameters().getRawParameterValue("lowcomp")->load();
+        auto compWindow=open(*panel,"matrixLowCompressor.open","matrixLowCompressor.panel");auto& compFull=*compWindow->getContentComponent();
+        auto* compSpectrum=find<spectralforge::DynamicsSpectrumPanel>(compFull,"matrixLowCompressor.spectrum");
+        require(compSpectrum && compSpectrum->isShowing() && processor.parameters().getRawParameterValue("lowcomp")->load()==compBefore,
+                "Opening LOW spectrum changed compression or omitted its analyzer");
+        auto* compKnob=find<juce::Slider>(compFull,"lowcomp");require(compKnob && compKnob->isShowing(),"LOW spectrum editor has no real compression parameter");
+        compKnob->setValue(scale?.31:.64,juce::sendNotificationSync);
+        require(std::abs(processor.parameters().getRawParameterValue("lowcomp")->load()-compKnob->getValue())<.002,"LOW spectrum compressor callback is disconnected");
+        close(compWindow);
         const auto& overviewSpec=spectralforge::ampNativePanel(processor.selectedAmpModel(0));
         auto* overviewChannel=find<juce::ComboBox>(*panel,"ampChannel1");
         require(overviewChannel && overviewChannel->isVisible()==(overviewSpec.channels.size()>1),"Matrix LOW overview lost its amplifier channel selector");
@@ -117,6 +136,11 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
         }
         require(edited,"Matrix LOW ALL provided no editable original knob");
         for(const auto* id:ids)require(find<NativeControlView>(*full,juce::String(id)+"_control")->isVisible(),"Matrix LOW shared controls missing from ALL");
+        require(find<juce::TextButton>(*full,"matrixLowCompressor.open") && find<juce::TextButton>(*full,"matrixLowCompressor.open")->isVisible()
+                && find(*full,"lowcomp_control")==nullptr,"Expanded LOW panel exposes compression without its spectrum");
+        compWindow=open(*full,"matrixLowCompressor.open","matrixLowCompressor.panel");
+        compSpectrum=find<spectralforge::DynamicsSpectrumPanel>(*compWindow->getContentComponent(),"matrixLowCompressor.spectrum");
+        require(compSpectrum && compSpectrum->isShowing(),"Expanded LOW panel cannot open its compressor spectrum");close(compWindow);
         snapshot(*full,directory,scale?"Native-Amp-Matrix-ALL-75pct":"Native-Amp-Matrix-ALL");close(window);
     }
     editor.setSize(1180,780);settle();
@@ -141,9 +165,17 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                 require((int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load()==model,"POST model did not reach audio state");
                 std::vector<NativeControlView*> overview;views(*compact,overview);int shown=0;
                 for(auto* view:overview)if(view->isVisible()){++shown;inside(*compact,*view,"Compact POST control is clipped");inside(editor,*view,"Compact POST control exceeds scaled editor bounds");}
-                require(shown>=4 && shown<=5,"POST overview must show a compact group of primary controls");
+                require(section==0?shown==0:(shown>=4 && shown<=5),
+                        "POST compressor adjustments must open the spectrum editor; other rows retain primary controls");
                 auto window=open(*compact,"postExpand"+juce::String(section),compact->getComponentID());auto* panel=dynamic_cast<PostNativePanel*>(window->getContentComponent());
                 require(panel && &panel->getLookAndFeel()==&editor.getLookAndFeel(),"Expanded POST lost its original control panel/style");
+                if(section==0) {
+                    auto* spectrum=find<spectralforge::DynamicsSpectrumPanel>(*panel,"postCompressorSpectrum");
+                    require(spectrum && spectrum->isShowing() && spectrum->selectedStage()==spectralforge::DynamicsStage::postCompressor,
+                            "POST compressor controls opened without their own spectrum");
+                    require(spectrum->graphBounds().getHeight()>=140.f,"POST compressor spectrum plot is too small");
+                    inside(*panel,*spectrum,"POST compressor spectrum is clipped");
+                }
                 auto* modelBox=find<juce::ComboBox>(*panel,spectralforge::postNativeModelID(section));require(modelBox && modelBox->getSelectedId()==model+1,"POST ALL opened the wrong model");
                 postModelPresentation(*panel,section,model);
                 std::vector<NativeControlView*> all;views(*panel,all);require((int)all.size()==spec.controlCount+2,"POST ALL omitted original controls or software trim/level");
@@ -202,6 +234,212 @@ inline void dialogTeardown() {
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> windows;
     for(int section=0;section<6;++section){const int family=section==3?10:section==4?1:2;windows.push_back(open(*canvas,"postExpand"+juce::String(section),section<3?"postNativePanel"+juce::String(section):"postEffectDetail"+juce::String(family)));}
     editor.reset();settle();for(auto window:windows)require(window==nullptr,"Editor destruction left an ALL window or live parameter attachment");
+}
+inline void dynamicsEditors(const juce::File& directory) {
+    using namespace spectralforge;
+    auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
+    constexpr std::array<int,5> models{6,7,8,9,10};
+    for(int owner=0;owner<5;++owner)processor.setPedalModel(owner,models[(size_t)owner]);
+    processor.movePedal(1,-1); // Display position zero now belongs to stable owner one.
+    set(processor,"mode",0);set(processor,"oversampling",0);set(processor,"ampon1",0);
+    processor.prepareToPlay(48000,256);
+    auto editor=std::make_unique<ChimeraEditor>(processor);
+    editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(90);
+    auto* canvas=editor->findChildWithID("surface");require(canvas,"Native dynamics canvas missing");
+    auto* board=find<PedalBoardPanel>(*canvas,"universalPedalBoard");require(board,"Native dynamics PRE board missing");
+    const auto values=[&]{std::vector<float> result;for(auto* p:processor.getParameters())result.push_back(p->getValue());return result;};
+    struct Writes final:juce::AudioProcessorListener {
+        ChimeraProcessor& processor;int changes{},gestures{};
+        explicit Writes(ChimeraProcessor& p):processor(p){processor.addListener(this);}
+        ~Writes() override {processor.removeListener(this);}
+        void audioProcessorParameterChanged(juce::AudioProcessor*,int,float) override {++changes;}
+        void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+        void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int) override {++gestures;}
+        void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int) override {++gestures;}
+    };
+    const auto navigate=[&](auto&& action) {
+        const auto before=values();Writes writes(processor);action();settle(60);
+        require(values()==before && writes.changes==0 && writes.gestures==0,
+                "Native dynamics navigation changed an audio parameter or sent a host gesture");
+    };
+    int64_t samplePosition=0;
+    const auto audio=[&] {
+        juce::AudioBuffer<float> block(2,256);juce::MidiBuffer midi;
+        for(int chunk=0;chunk<32;++chunk) {
+            for(int i=0;i<256;++i,++samplePosition) {
+                const double phase=juce::MathConstants<double>::twoPi*double(samplePosition)/48000.;
+                const float value=.16f*float(std::sin(375.*phase))+.04f*float(std::sin(6000.*phase));
+                block.setSample(0,i,value);block.setSample(1,i,-value*.8f);
+            }
+            processor.processBlock(block,midi);
+            if((chunk+1)%8==0)settle(45);
+        }
+    };
+    const auto spectrumIn=[&](juce::Component& panel,const char* id,DynamicsStage stage) {
+        auto* spectrum=find<DynamicsSpectrumPanel>(panel,id);
+        require(spectrum && spectrum->isShowing() && spectrum->selectedStage()==stage,
+                "Native dynamics adjustment lacks the selected module's visible spectrum");
+        require(spectrum->getLocalBounds().toFloat().contains(spectrum->graphBounds()) && spectrum->graphBounds().getHeight()>=120.f,
+                "Native dynamics plot is clipped or too small");
+        inside(panel,*spectrum,"Native dynamics spectrum exceeds its editor");
+        for(const char* key:{"live","input","output","freeze","resolution","smoothing"}) {
+            auto* control=find(*spectrum,"commonDynamics.spectrum."+juce::String(key));
+            require(control && control->isShowing(),"Native dynamics spectrum display control is hidden");
+            inside(*spectrum,*control,"Native dynamics spectrum toolbar is clipped");
+        }
+        return spectrum;
+    };
+    int preCases=0,postCases=0;
+    for(int scale:{75,100,125,150}) {
+        processor.setPedalBoardEnabled(false);settle();
+        navigate([&]{editor->setSize(1180*scale/100,780*scale/100);tab(*canvas,"PRE");board->navigateOwner(-1);});
+        auto* entry=find<juce::TextButton>(*board,"boardCompressorSpectrumAt0");
+        require(entry && entry->isShowing() && entry->isEnabled(),"Reordered PRE compressor has no visible spectrum entry");
+        navigate([&]{entry->triggerClick();});
+        require(processor.dynamicsAnalysis().preOwner.load()==1 && !processor.pedalBoardState().enabled,
+                "PRE spectrum entry selected a display position as owner or activated the disabled board");
+        auto* inactivePre=spectrumIn(*board,"boardCompressorSpectrum",DynamicsStage::preCompressor);audio();
+        auto* preStatus=find<juce::Label>(*board,"boardCompressorStatus");
+        require(!inactivePre->analyzerHasData() && preStatus && preStatus->isShowing() && preStatus->getText().contains("INACTIVE"),
+                "Inactive native PRE compressor displayed the legacy path's audio or omitted its inactive state");
+        navigate([&]{require(!board->openCompressorDetails(5),"Invalid PRE compressor owner was accepted");});
+        require(processor.dynamicsAnalysis().preOwner.load()==1,"Invalid owner navigation changed the displayed compressor");
+        for(int owner=0;owner<5;++owner) {
+            navigate([&]{require(board->openCompressorDetails(owner),"Existing PRE compressor editor is inaccessible");});
+            auto* spectrum=spectrumIn(*board,"boardCompressorSpectrum",DynamicsStage::preCompressor);
+            require(spectrum->preOwner()==owner && processor.dynamicsAnalysis().preOwner.load()==owner && processor.dynamicsAnalysis().uiConsumer==spectrum,
+                    "PRE editor observes a different stable owner or shares its FIFO consumer");
+            require(!spectrum->isSnapshotFrozen() && !spectrum->analyzerHasData(),"PRE owner switch retained another compressor's snapshot");
+            auto* title=find<juce::Label>(*board,"boardDetailTitle");
+            require(title && title->getText()==pedalMenuName(models[(size_t)owner]),"PRE owner editor shows the wrong model caption");
+            auto* viewport=find<juce::Viewport>(*board,"boardDetailViewport");
+            auto* content=find(*board,"boardDetailControls");require(viewport && content,"PRE spectrum editor lost its control viewport");
+            require(viewport->getY()>=spectrum->getBottom(),"PRE controls overlap the spectrum");
+            inside(*editor,*spectrum,"PRE spectrum exceeds the scaled editor");
+            const auto& model=pedalModel(models[(size_t)owner]);
+            for(int c=0;c<model.controlCount;++c) {
+                const auto id=pedalControlID(owner,models[(size_t)owner],c);auto* knob=find<juce::Slider>(*content,id);
+                require(knob && knob->isShowing() && knob->isEnabled()==model.controls[(size_t)c].connected,
+                        "PRE spectrum editor lost an original control or enabled a hardware-only control");
+                navigate([&]{viewport->setViewPosition(0,knob->getY());});
+                require(viewport->getViewArea().contains(knob->getBounds()),"PRE spectrum editor cannot scroll an entire control into view");
+                inside(*editor,*knob,"PRE compressor control exceeds the scaled editor");
+                require(spectrum->isShowing(),"Scrolling PRE controls hid the spectrum");
+                if(model.controls[(size_t)c].connected) {
+                    const auto* parameter=processor.parameters().getRawParameterValue(id);const float before=parameter->load();
+                    const int key=before<model.controls[(size_t)c].maximum?juce::KeyPress::upKey:juce::KeyPress::downKey;
+                    require(knob->keyPressed(juce::KeyPress(key)),"Visible PRE compressor keyboard edit was not accepted");
+                    require(parameter->load()!=before && std::abs(parameter->load()-knob->getValue())<.002f,
+                            "PRE spectrum editor control did not update its exact model/owner bank");
+                    require(processor.pedalBoardState().enabled,"A deliberate PRE compressor edit failed to activate its board");
+                }
+                ++preCases;
+            }
+            navigate([&]{viewport->setViewPosition(0,0);});audio();
+            require(spectrum->analyzerHasData() && spectrum->fftFrames()>0 && spectrum->analysisSampleRate()==48000.,
+                    "PRE spectrum editor did not receive real module input/output audio");
+            snapshot(*editor,directory,("Native-PRE-Spectrum-owner"+juce::String(owner)+"-"+juce::String(scale)).toRawUTF8());
+            navigate([&]{spectrum->setSnapshotFrozen(true);});require(spectrum->isSnapshotFrozen(),"Measured PRE frame could not freeze");
+        }
+        processor.setPedalBoardEnabled(false);settle(160);audio();
+        require(!inactivePre->isSnapshotFrozen() && !inactivePre->analyzerHasData() && preStatus->getText().contains("INACTIVE"),
+                "Disabling the native PRE board retained a frozen frame or captured the legacy compressor");
+        navigate([&]{board->navigateOwner(-1);});
+        require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load(),
+                "Leaving PRE details left an active spectrum consumer");
+        for(int model=0;model<3;++model) {
+            set(processor,postNativeModelID(0),float(model));set(processor,postNativeModeID(0),0);settle();
+            juce::Component::SafePointer<juce::DialogWindow> window;
+            navigate([&]{tab(*canvas,"POST");window=open(*canvas,"postExpand0","postNativePanel0");});
+            auto* full=dynamic_cast<PostNativePanel*>(window->getContentComponent());require(full,"POST spectrum editor content missing");
+            auto* spectrum=spectrumIn(*full,"postCompressorSpectrum",DynamicsStage::postCompressor);
+            require(processor.parameters().getRawParameterValue(postNativeModeID(0))->load()==0,
+                    "Opening POST compressor details activated a compatibility bank");
+            require(spectrum->postNativeSource()==1 && processor.dynamicsAnalysis().postNativeSource.load()==1,
+                    "Native POST editor did not select the native source identity");
+            audio();auto* postStatus=find<juce::Label>(*full,"postCompressorStatus");
+            require(!spectrum->analyzerHasData() && postStatus && postStatus->isShowing() && postStatus->getText().contains("INACTIVE"),
+                    "Inactive native POST editor displayed legacy compressor audio or omitted its inactive state");
+            auto* viewport=find<juce::Viewport>(*full,"postNativeViewport0");require(viewport && viewport->getY()>=spectrum->getBottom(),"POST controls overlap the spectrum");
+            const auto& spec=postNativeModel(0,model);
+            for(int c=0;c<spec.controlCount;++c) {
+                const auto id=postNativeControlID(0,model,c);auto* view=find<NativeControlView>(*full,id+"_control");
+                require(view && view->isShowing() && view->isEnabled()==spec.controls[(size_t)c].connected,
+                        "POST spectrum editor omitted or incorrectly enabled an original control");
+                navigate([&]{viewport->setViewPosition(0,view->getY());});
+                require(viewport->getViewArea().contains(view->getBounds()),"POST spectrum editor cannot expose an entire control");
+                inside(*full,*view,"POST compressor control exceeds its focused editor");
+                if(spec.controls[(size_t)c].connected) {
+                    const auto& control=spec.controls[(size_t)c];float target=0;
+                    if(control.kind==PostNativeControlKind::knob){view->slider.setValue(control.minimum+(control.maximum-control.minimum)*.61f,juce::sendNotificationSync);target=(float)view->slider.getValue();}
+                    else if(control.kind==PostNativeControlKind::choice){target=float(view->choice.getSelectedId()%view->choice.getNumItems());view->choice.setSelectedId((int)target+1,juce::sendNotificationSync);}
+                    else {target=view->toggle.getToggleState()?0.f:1.f;view->toggle.triggerClick();settle(20);}
+                    require(std::abs(processor.parameters().getRawParameterValue(id)->load()-target)<.02f,
+                            "POST spectrum control edit did not reach its selected model bank");
+                    require(spectrum->isShowing(),"POST control adjustment hid its spectrum");
+                }
+                ++postCases;
+            }
+            // Software input/output controls are also real dynamics adjustments.
+            for(const auto& id:{postNativeTrimID(0,model),postNativeLevelID(0,model)}) {
+                auto* view=find<NativeControlView>(*full,id+"_control");require(view && view->isShowing(),"POST spectrum editor omitted software trim/level");
+                navigate([&]{viewport->setViewPosition(0,view->getY());});
+                require(viewport->getViewArea().contains(view->getBounds()),"POST software trim/level is clipped");
+                view->slider.setValue(scale==75?1.5:-1.5,juce::sendNotificationSync);
+                require(std::abs(processor.parameters().getRawParameterValue(id)->load()-view->slider.getValue())<.01f,
+                        "POST software trim/level callback is disconnected");
+            }
+            require(processor.parameters().getRawParameterValue(postNativeModeID(0))->load()>.5f,
+                    "A deliberate POST spectrum control edit failed to activate the native bank");
+            navigate([&]{viewport->setViewPosition(0,0);});audio();
+            require(spectrum->analyzerHasData() && spectrum->fftFrames()>0 && processor.dynamicsAnalysis().uiConsumer==spectrum,
+                    "POST spectrum editor did not capture real input/output from its module");
+            snapshot(*full,directory,("Native-POST-Spectrum-model"+juce::String(model)+"-"+juce::String(scale)).toRawUTF8());
+            navigate([&]{spectrum->setSnapshotFrozen(true);});require(spectrum->isSnapshotFrozen(),"POST measured frame could not freeze");
+            set(processor,postNativeModeID(0),0);settle(160);audio();
+            require(!spectrum->isSnapshotFrozen() && !spectrum->analyzerHasData() && postStatus->getText().contains("INACTIVE"),
+                    "Disabling native POST retained its frozen frame or captured the legacy source");
+            navigate([&]{close(window);});
+            require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load(),
+                    "Closing POST compressor details left an active spectrum consumer");
+        }
+        set(processor,"mode",2);settle();
+        navigate([&]{tab(*canvas,"RIGS");rigViewTests::showControls(*canvas);});
+        auto* lowHead=find<::AmpNativePanel>(*canvas,"ampNativePanel1");require(lowHead,"Matrix LOW head panel missing");
+        auto* lowEntry=find<juce::TextButton>(*lowHead,"matrixLowCompressor.open");
+        require(lowEntry && lowEntry->isShowing() && find(*lowHead,"lowcomp_control")==nullptr,
+                "Matrix LOW overview exposes compression without its spectrum");
+        inside(*editor,*lowEntry,"Matrix LOW spectrum entry exceeds scaled editor");
+        juce::Component::SafePointer<juce::DialogWindow> lowWindow;
+        navigate([&]{lowWindow=open(*lowHead,"matrixLowCompressor.open","matrixLowCompressor.panel");});
+        auto& lowPanel=*lowWindow->getContentComponent();auto* lowSpectrum=spectrumIn(lowPanel,"matrixLowCompressor.spectrum",DynamicsStage::lowCompressor);
+        for(const auto* id:{"lowcomp","lowampmix"}) {
+            auto* control=find<juce::Slider>(lowPanel,id);require(control && control->isShowing(),"LOW spectrum editor lost an existing host control");
+            inside(lowPanel,*control,"LOW spectrum control is clipped");
+            require(control->getY()>=lowSpectrum->getBottom(),"LOW control overlaps its spectrum");
+            control->setValue(juce::String(id)=="lowcomp"?.67:.37,juce::sendNotificationSync);
+            require(std::abs(processor.parameters().getRawParameterValue(id)->load()-control->getValue())<.002f,
+                    "LOW spectrum editor did not update the released parameter ID");
+        }
+        audio();require(lowSpectrum->analyzerHasData() && lowSpectrum->fftFrames()>0,"Matrix LOW spectrum did not receive actual compressor input/output");
+        snapshot(lowPanel,directory,("Native-LOW-Spectrum-"+juce::String(scale)).toRawUTF8());
+        navigate([&]{lowSpectrum->setSnapshotFrozen(true);});require(lowSpectrum->isSnapshotFrozen(),"LOW measured frame could not freeze");
+        set(processor,"mode",0);settle(100);audio();
+        require(lowSpectrum->selectedStage()==DynamicsStage::none && !lowSpectrum->isSnapshotFrozen() && !lowSpectrum->analyzerHasData(),
+                "Inactive Matrix routing retained a LOW compressor spectrum");
+        navigate([&]{close(lowWindow);});
+        require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load(),
+                "Closing LOW compressor editor left analyzer capture active");
+    }
+    for(int owner=0;owner<5;++owner)processor.setPedalModel(owner,0);settle();
+    navigate([&]{tab(*canvas,"PRE");require(!board->openCompressorDetails(),"An absent PRE compressor opened a fabricated editor");});
+    require(find(*board,"boardCompressorSpectrum") && !find(*board,"boardCompressorSpectrum")->isShowing(),
+            "Empty PRE board retained a visible compressor spectrum");
+    editor.reset();processor.releaseResources();
+    require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load(),
+            "Native dynamics editor destruction retained analyzer capture");
+    std::cout<<"PASS native dynamics: 5 PRE compressor models with stable reordered owners / "<<preCases
+             <<" control cases, 3 POST models / "<<postCases<<" original control cases plus trim/level, Matrix LOW compression/blend, real IN/OUT spectra, inactive native/legacy isolation, scrollable controls, frozen source invalidation, navigation without parameter writes or gestures, and 75/100/125/150 percent layouts\n";
 }
 inline void run(const juce::File& directory){
     auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
@@ -303,6 +541,7 @@ inline void run(const juce::File& directory){
     lowOverview(processor,editor,*canvas,directory);
     const int postControlCases=postPanels(processor,editor,*canvas,directory);
     dialogTeardown();
+    dynamicsEditors(directory);
     // Preserve the legacy machine-readable receipt required by Validation/ci-check-map.json.
     // Its historical caption label does not change the sound-description and safeText assertions above.
     std::cout<<"PASS public captions: selected amplifier captions use sound descriptions and satisfy the public-name policy\n";

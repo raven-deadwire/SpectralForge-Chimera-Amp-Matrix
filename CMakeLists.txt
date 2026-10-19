@@ -213,6 +213,7 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
   add_test(NAME ChimeraPrecisionTunerUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/precision-tuner-snapshots" --precision-tuner-only)
   add_test(NAME ChimeraCommonDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/common-dynamics-snapshots" --common-dynamics-only)
+  add_test(NAME ChimeraNativeDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/native-dynamics-snapshots" --native-dynamics-only)
   add_test(NAME ChimeraHeadCabLowUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/head-cab-low-snapshots" --review-fixes-only)
   add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
@@ -474,8 +475,8 @@ add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --vi
 # Bound it separately without changing any real-time audio assertions.
 set_tests_properties(ChimeraCabDriverVisualTests PROPERTIES TIMEOUT 1800)
 
-# EQ editor/analysis prototypes are isolated from release publishing and dynamics.
-foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze CommonDynamics)
+# EQ and dynamics contracts do not publish release artifacts.
+foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze CommonDynamics MultibandDynamics)
   juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
   target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
   target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
@@ -487,6 +488,12 @@ add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMA
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
 add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
+add_test(NAME ChimeraMultibandDynamicsTests COMMAND ChimeraMultibandDynamicsTests)
+add_executable(ChimeraMultibandDynamicsCoreTests Tests/MultibandDynamicsCoreTests.cpp)
+target_include_directories(ChimeraMultibandDynamicsCoreTests PRIVATE Source)
+target_compile_features(ChimeraMultibandDynamicsCoreTests PRIVATE cxx_std_20)
+add_test(NAME ChimeraMultibandDynamicsCoreTests COMMAND ChimeraMultibandDynamicsCoreTests)
+set_tests_properties(ChimeraMultibandDynamicsTests ChimeraMultibandDynamicsCoreTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
 add_test(NAME ChimeraEQSnapshotFreezeTests COMMAND ChimeraEQSnapshotFreezeTests)
 set_tests_properties(ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
 set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)

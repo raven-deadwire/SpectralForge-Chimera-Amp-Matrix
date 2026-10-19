@@ -28,7 +28,9 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
 {
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
-    dynamics.bind(state);
+    dynamics.bind(state);multiband.bind(state);deesser.bind(state);
+    preFX.setAnalysis(&dynamicsAnalysisState);postFX.setAnalysis(&dynamicsAnalysisState);
+    pedalBoard.setAnalysis(&dynamicsAnalysisState);engine.setDynamicsAnalysis(&dynamicsAnalysisState);
     const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
     for(int i=0;i<3;++i) for(size_t j=0;j<cabIds.size();++j) cabPanelParameters[i][j]=state.getRawParameterValue(juce::String(cabIds[j])+juce::String(i+1));
     clearMidi();
@@ -110,7 +112,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
+    dynamicsAnalysisState.prepare(sr,int(spec.maximumBlockSize));
     audioBoard=boardParameters.read();
     postRigGate.prepare(spec,juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency());
     preReduction.store(0);postReduction.store(0);for(auto& meter:postPeaks)meter.store(0);
@@ -182,7 +185,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
-    if(resetPending.exchange(false)) {engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();postFX.reset();utilities.reset();toneEQ.reset();finalEQ.reset();dynamics.reset();}
+    if(resetPending.exchange(false)) {engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();postFX.reset();utilities.reset();toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();}
     if(extras[inputMode]->load()>.5f && buffer.getNumChannels()==2) buffer.copyFrom(1,0,buffer,0,0,buffer.getNumSamples());
     const auto value=[this](Global id){return globals[id]->load();};
     inputGain.setTargetValue(juce::Decibels::decibelsToGain(value(input)));
@@ -211,6 +214,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         if(before==boardEditSequence.load(std::memory_order_acquire)) audioBoard=candidate;
     }
     const bool gateAtOutput=gateAfterRig->load()>.5f;
+    preFX.gate.setAnalysis(gateAtOutput?nullptr:&dynamicsAnalysisState);
 #if CHIMERA_ROUTING_DIAGNOSTICS
     routingGateObserved.store(int(gateAtOutput)); routingBlocks.fetch_add(1);
 #endif
@@ -255,11 +259,13 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
-    if(gateAtOutput)postRigGate.apply(buffer);
+    if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer);}
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     measureStage(2,buffer);
     toneEQ.process(buffer);
-    dynamics.compress(buffer);
+    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer);}
+    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer);}
+    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
     postFX.process(buffer,fx);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
@@ -279,7 +285,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
             buffer.setSample(c,n,std::isfinite(x) ? x : 0.f);
         }
     }
-    dynamics.limit(buffer); // Last gain stage: the limiter sees the final output trim.
+    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::limiter,buffer);dynamics.limit(buffer);} // Last gain stage after output trim.
     for(int c=0;c<buffer.getNumChannels();++c)peak=juce::jmax(peak,buffer.getMagnitude(c,0,buffer.getNumSamples()));
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
     measureStage(4,buffer);
@@ -392,6 +398,9 @@ for(int i=0;i<8;++i){
     p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"tunerOffset"+suffix,11},"Custom tuner string "+suffix+" cents",juce::NormalisableRange<float>{-50,50,.1f},0));
 }
 spectralforge::appendCommonDynamicsParameters(p);
+// New independent dynamics append after the complete released parameter prefix.
+spectralforge::appendMultibandParameters(p);
+spectralforge::appendDeEsserParameters(p);
 return p;
 }
 

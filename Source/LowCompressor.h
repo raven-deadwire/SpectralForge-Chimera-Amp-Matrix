@@ -1,13 +1,16 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
+#include "DynamicsAnalysis.h"
 
 namespace spectralforge {
 // Feed-forward RMS dynamics with a soft knee and linked stereo gain.
 // A VCA-style control law, not a component model of a branded compressor.
 class LowCompressor {
     juce::SmoothedValue<float> amount;
+    DynamicsAnalysis* analysis{};
     float detector{},reductionDb{},rmsCoefficient{},attack{},release{};
 public:
+    void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
     void prepare(double rate) {
         rmsCoefficient=float(std::exp(-1.0/(rate*.030)));
         attack=float(std::exp(-1.0/(rate*.010)));
@@ -17,6 +20,7 @@ public:
     void reset() {detector=0;reductionDb=0;amount.setCurrentAndTargetValue(amount.getTargetValue());}
     float reduction() const {return reductionDb;}
     void process(juce::AudioBuffer<float>& buffer,float control) {
+        DynamicsAnalysis::Scope capture(analysis,DynamicsStage::lowCompressor,buffer);
         amount.setTargetValue(juce::jlimit(0.f,1.f,control));
         for(int n=0;n<buffer.getNumSamples();++n) {
             float power=0;

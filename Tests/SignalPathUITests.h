@@ -28,7 +28,7 @@ inline void topology(ChimeraProcessor& p) {
         int amps=0,cabs=0;for(const auto& n:s.nodes){amps+=n.id.startsWith("amp.context");cabs+=n.target==Target::cab;}
         require(amps==mode+1&&cabs==mode+1,"Path lane count differs from DSP");
         require(edge(s,"post.section0","post.section1")&&edge(s,"post.section4","post.section5")&&edge(s,"post.section5","utilities")&&edge(s,"utilities","final.eq")&&edge(s,"final.eq","output"),"POST / Final EQ order differs from DSP");
-        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
+        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","common.multiband")&&edge(s,"common.multiband","common.deesser")&&edge(s,"common.deesser","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
         require(s.find("tone.eq")->target==Target::toneEQ && s.find("final.eq")->target==Target::finalEQ,"EQ editor target mismatch");
         for(size_t i=0;i<s.nodes.size();++i)for(size_t j=i+1;j<s.nodes.size();++j)require(!s.nodes[i].bounds.intersects(s.nodes[j].bounds),"Expanded path blocks overlap");
         if(mode==2){require(edge(s,"low.comp","low.di")&&edge(s,"low.comp","amp.context3")&&edge(s,"amp.context3","cab.context3")&&edge(s,"cab.context3","low.blend")&&edge(s,"low.di","low.blend")&&edge(s,"low.blend","level.context3"),"Matrix LOW branch/blend order differs from DSP");require(!edge(s,"split","amp.context3"),"Wet PRE falsely feeds LOW");}
@@ -129,10 +129,14 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
         };
         visit(visit,editor);require(count==1,"Existing global utility action was removed or duplicated");
     }
-    for(const auto* name:{"Gate threshold","Gate release","Gate hold","Gate range","Transpose semitones"}) {
+    for(const auto* name:{"Gate threshold","Gate release","Gate hold","Gate range"}) {
         auto* slider=named<juce::Slider>(editor,name);
-        require(slider && slider->isShowing() && slider->isEnabled(),"Existing global utility slider is unavailable");
+        require(slider && !slider->isShowing(),"Gate parameters must be edited in the spectrum workspace");
     }
+    auto* gateEditor=find<juce::TextButton>(editor,"gateSpectrum.open");
+    auto* transpose=named<juce::Slider>(editor,"Transpose semitones");
+    require(gateEditor && gateEditor->isShowing() && gateEditor->isEnabled(),"Gate spectrum editor entry is unavailable");
+    require(transpose && transpose->isShowing() && transpose->isEnabled(),"Transpose control is unavailable");
 }
 inline void key(juce::Component& owner,const juce::KeyPress& press) {
     auto* peer=owner.getPeer();require(peer,"Signal path keyboard test has no native peer");
@@ -433,7 +437,13 @@ inline void run(const juce::File& folder) {
                 auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
                 require(selected->selectedBand()<0 ? selected->hasKeyboardFocus(false) : frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus its existing node or empty workspace");
             }
-            if(node.target==Target::dynamics)require(find(*editor,"commonDynamics.panel")->isShowing(),"Detailed compressor/limiter navigation did not open dynamics");
+            if(node.target==Target::dynamics || node.target==Target::gate || node.id=="low.comp") {
+                auto* panel=find<spectralforge::CommonDynamicsPanel>(*editor,"commonDynamics.panel");
+                require(panel && panel->isShowing(),"Detailed dynamics navigation did not open its spectrum workspace");
+                using Page=spectralforge::CommonDynamicsPanel::Page;
+                const auto expected=node.target==Target::gate?Page::gate:node.id=="low.comp"?Page::lowCompressor:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
+                require(panel->selectedPage()==expected,"Signal path opened a different dynamics module");
+            }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");
             if(node.target==Target::pre || node.target==Target::post || node.target==Target::rigs || node.target==Target::amp || node.target==Target::cab || node.target==Target::low) {
                 const auto stage=node.target==Target::pre?"pre":node.target==Target::post?"post":node.target==Target::cab?"cab":"head";
@@ -444,6 +454,7 @@ inline void run(const juce::File& folder) {
             }
             // Amp and CAB dialogs are independently owned and closed here.
             if(auto* w=dialog("signalPathTuner"))close(w);
+            if(auto* w=dialog("postNativePanel0"))close(w);
             if(auto* w=dialog("ampNativePanel"+juce::String(node.lane+1)))close(w);
             if(auto* w=dialog("cabWorkspace")){auto* workspace=dynamic_cast<CabWorkspace*>(w->getContentComponent());require(workspace && workspace->focusedRig()==node.lane,"CAB navigation opened wrong rig");close(w);}
         }
