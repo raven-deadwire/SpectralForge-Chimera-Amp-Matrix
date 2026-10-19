@@ -86,3 +86,5 @@ Linux 일부 phase의 개선을 96k/32 macOS 실패 해결, 순수 DSP 비용 �
 원시 자료에는 실패·지연 초과·측정 duration과 해당 로그·hash를 관측값 그대로 보존한다.
 이 probe는 clock endpoints 자체 대신 원래 endpoint 차이 duration을 기록하며,
 원래 integration CSV에는 원시 CPU endpoints도 포함한다. 어느 쪽도 scheduler trace가 아니다.
+
+측정 source commit의 공개 Git 객체 및 동일 tree 확인은 [PUBLICATION_KO.md](PUBLICATION_KO.md)에 있다.

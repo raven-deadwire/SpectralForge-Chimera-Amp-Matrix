@@ -1,0 +1,12 @@
+{
+  "method": "connected GitHub Git data API; full tree equality checked",
+  "measurement_local_commit": "c5362688d90649d245753d644693b698b42670a4",
+  "measurement_public_commit": "17430853ebf5455662f2cfd78fd2c25b59ac557d",
+  "measurement_tree": "ca176fb3e60ef6b9348873727dd1f9e03ffa3688",
+  "evidence_local_commit": "bcb9f85c04fe88b5fa20591b547854fdb09932ad",
+  "evidence_public_commit": "71e93f40d137f5b69a92cc9ca3dc55b12e0b45f9",
+  "evidence_tree": "1d4ae14ab60adbf228cfaa22573753a8adac84d7",
+  "integration_eligible": false,
+  "release_approved": false,
+  "aax_approved": false
+}
