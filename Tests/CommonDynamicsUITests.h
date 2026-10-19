@@ -3,7 +3,8 @@
 namespace commonDynamicsUITests {
 using namespace nativeUITests;
 inline void run(const juce::File& directory){
-    auto p=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*p);
+    auto p=std::make_unique<ChimeraProcessor>();p->loadFactoryPreset(0);
+    auto editor=std::make_unique<ChimeraEditor>(*p);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
     auto* tone=find<juce::TextButton>(*editor,"path.tone.eq");require(tone,"Tone EQ navigation missing");signalPathTests::click(*tone);settle(60);
     auto* open=find<juce::TextButton>(*editor,"commonDynamics.open");require(open && open->isShowing(),"Dynamics entry missing");
@@ -16,8 +17,22 @@ inline void run(const juce::File& directory){
         }
         signalPathTests::capture(*editor,directory,"common-dynamics-"+juce::String(scale));
     }
-    editor->setSize(1180,780);settle(60);signalPathTests::click(*find<juce::TextButton>(*panel,"cleanCompOn"));settle(40);
-    require(p->parameters().getRawParameterValue("cleanCompOn")->load()>.5f,"Compressor switch not connected");
+    editor->setSize(1180,780);settle(60);
+    auto* compressor=find<juce::TextButton>(*panel,"cleanCompOn");
+    auto* compressorParameter=p->parameters().getParameter("cleanCompOn");
+    require(compressor && compressorParameter,"Compressor switch/parameter missing");
+    const auto beforeSwitch=signalPathTests::values(*p);
+    const bool initialOn=p->parameters().getRawParameterValue("cleanCompOn")->load()>.5f;
+    require(compressor->getToggleState()==initialOn,"Compressor switch did not show the recalled preset state");
+    for(int toggle=0;toggle<2;++toggle) {
+        const bool expectedOn=toggle==0?!initialOn:initialOn;
+        auto expected=beforeSwitch;
+        expected[size_t(compressorParameter->getParameterIndex())]=expectedOn?1.f:0.f;
+        signalPathTests::click(*compressor);settle(40);
+        require((p->parameters().getRawParameterValue("cleanCompOn")->load()>.5f)==expectedOn
+                    && compressor->getToggleState()==expectedOn && signalPathTests::values(*p)==expected,
+                "Compressor switch did not toggle only its recalled preset parameter");
+    }
     for(int s=0;s<4;++s){auto* target=find<juce::ComboBox>(*panel,spectralforge::dynamicSlotID(s,"target"));target->setSelectedId(s+2,juce::sendNotificationSync);}
     settle(60);auto* second=find<juce::ComboBox>(*panel,"dynamicEQ2_target");second->setSelectedId(2,juce::sendNotificationSync);settle(40);
     require(p->parameters().getRawParameterValue("dynamicEQ1_target")->load()==1 && p->parameters().getRawParameterValue("dynamicEQ2_target")->load()==2,"Duplicate assignment displaced an existing node");

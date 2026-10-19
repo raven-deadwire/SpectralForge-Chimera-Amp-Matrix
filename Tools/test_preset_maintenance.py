@@ -107,6 +107,26 @@ class SourceScope(unittest.TestCase):
         self.assertTrue(proof["engine_source_bytes_unchanged_except_preset_finishing"])
         self.assertEqual(proof["product_source_sha"], self.source)
 
+    def test_reviewed_preset_dependent_ui_fixture_headers_are_accepted(self):
+        for name in ("Tests/SignalPathUITests.h", "Tests/CommonDynamicsUITests.h"):
+            with self.subTest(name=name):
+                self.git("reset", "--hard", self.source)
+                self.write(name, b"// Reviewed preset-dependent UI fixture correction\n")
+                changed = self.commit("reviewed UI fixture")
+                proof = contract.verify_source_scope(changed, self.policy, root=self.root)
+                self.assertIn(name, proof["changed_paths"])
+                self.assertTrue(proof["engine_source_bytes_unchanged_except_preset_finishing"])
+
+    def test_nearby_unreviewed_ui_headers_still_fail_closed(self):
+        for name in ("Tests/GateUITests.h", "Tests/EQPendingInputTests.h",
+                     "Tests/unreviewed/SignalPathUITests.h", "Tests/CommonDynamicsUITestsExtra.h"):
+            with self.subTest(name=name):
+                self.git("reset", "--hard", self.source)
+                self.write(name, b"// Unreviewed UI fixture change\n")
+                changed = self.commit("unreviewed UI fixture")
+                with self.assertRaisesRegex(RuntimeError, "outside preset-only maintenance"):
+                    contract.verify_source_scope(changed, self.policy, root=self.root)
+
     def test_engine_version_expiry_publisher_and_existing_workflow_changes_fail_closed(self):
         for name in ("Source/Engine.h", "VERSION", "RELEASE_CHANNEL", "Validation/beta-lifecycle-policy.json",
                      "Tools/publish_release.py", ".github/workflows/build.yml", "Validation/waivers.json",

@@ -489,7 +489,20 @@ inline void run(const juce::File& folder) {
         compactContract(*strip,int(p->parameters().getRawParameterValue("mode")->load()));compactDestination(*editor,*strip,"pre");
         require(expected==values(*p)&&writes.changes==0&&writes.gestures==0,"Preset navigation changed audio content");
         require(strip->snapshot().mode==int(p->parameters().getRawParameterValue("mode")->load()),"Preset mode/path failed to converge");
-        require(!strip->snapshot().find("tone.eq")->active && !strip->snapshot().find("final.eq")->active,"Factory recall left EQ path enabled");
+        for(int bank=0;bank<2;++bank) {
+            const auto& node=requiredNode(strip->snapshot(),bank==0?"tone.eq":"final.eq","factory recall");
+            const bool active=p->parameters().getRawParameterValue(spectralforge::eqID(bank,-1,"bypass"))->load()<.5f;
+            int enabled=0;
+            for(int band=0;band<spectralforge::graphicalEQBands;++band)
+                enabled+=p->parameters().getRawParameterValue(spectralforge::eqID(bank,band,"enabled"))->load()>.5f;
+            const auto status=juce::String(active?"ACTIVE":"BYPASSED")+" / "+juce::String(enabled)+" BANDS";
+            require(node.active==active && node.status==status,"Factory EQ path differs from the recalled bank/band state");
+        }
+        require(requiredNode(strip->snapshot(),"common.comp","factory recall").active
+                    ==(p->parameters().getRawParameterValue("cleanCompOn")->load()>.5f)
+                && requiredNode(strip->snapshot(),"output.limiter","factory recall").active
+                    ==(p->parameters().getRawParameterValue("liveLimiterOn")->load()>.5f),
+                "Factory dynamics path differs from the recalled compressor/limiter state");
     }
     std::cout<<"Signal Path final automation / A-B restore"<<std::endl;
     // Host changes converge through a presentation read, including inactive tabs.
@@ -497,7 +510,11 @@ inline void run(const juce::File& folder) {
     compactContract(*strip,2);
     require(!requiredNode(strip->snapshot(),"cab.context4","host automation").active && requiredNode(strip->snapshot(),"transpose","host automation").active&&edge(strip->snapshot(),"merge","gate"),"Host automation did not refresh path/bypass");
     {SignalPathView automated(*p,false);capture(automated,folder,"signal-path-matrix-post-gate");}
-    set(*p,"toneEQ_bypass",0);set(*p,"toneEQ_b1_enabled",1);set(*p,"finalEQ_bypass",1);settle(100);
+    // Establish the one-band automation fixture independently of the last
+    // factory recipe, which can supply more than one enabled Tone EQ band.
+    for(int band=0;band<spectralforge::graphicalEQBands;++band)
+        set(*p,spectralforge::eqID(0,band,"enabled"),band==0?1.f:0.f);
+    set(*p,"toneEQ_bypass",0);set(*p,"finalEQ_bypass",1);settle(100);
     require(requiredNode(strip->snapshot(),"tone.eq","EQ automation").active && requiredNode(strip->snapshot(),"tone.eq","EQ automation").status=="ACTIVE / 1 BANDS" && !requiredNode(strip->snapshot(),"final.eq","EQ automation").active,"Automated EQ bypass/band status did not converge");
     p->copyComparison();set(*p,"cab2",1);set(*p,"toneEQ_bypass",1);set(*p,"finalEQ_bypass",0);p->selectComparison(1);settle(100);require(!requiredNode(strip->snapshot(),"cab.context4","A/B restore").active && requiredNode(strip->snapshot(),"tone.eq","A/B restore").active && !requiredNode(strip->snapshot(),"final.eq","A/B restore").active,"A/B did not restore graph CAB/EQ bypass");compactContract(*strip,2);
     restoredRigDestinations(*p,*editor,*strip,writes);

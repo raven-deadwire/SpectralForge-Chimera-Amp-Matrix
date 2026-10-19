@@ -45,7 +45,8 @@ WRAPPERS = {
     "Source/OriginalPresets.h": "    voiceFactoryFinishing(originalPresetStart+preset,get,set);\n",
 }
 ALLOWED_TESTS = frozenset({"Tests/GateProcessorTests.cpp", "Tests/GraphicalEQEditingTests.cpp",
-    "Tests/GraphicalEQTests.cpp", "Tests/GraphicalEQUITests.cpp", "Tests/IntegratedProcessorTests.cpp"})
+    "Tests/GraphicalEQTests.cpp", "Tests/GraphicalEQUITests.cpp", "Tests/IntegratedProcessorTests.cpp",
+    "Tests/SignalPathUITests.h", "Tests/CommonDynamicsUITests.h"})
 ALLOWED_DOCS = frozenset({"docs/PRESETS.md", "docs/MANUAL.html", "docs/COMMON_DYNAMICS_1_3_2.md",
     "docs/GRAPHICAL_EQ_1_3_1.md", "docs/SIGNAL_EQ_INTEGRATION_1_3_1.md", "docs/PRESET_DYNAMICS_EQ.md"})
 ADDITIONS = frozenset({RECIPE_PATH, POLICY_PATH, WORKFLOW_PATH,

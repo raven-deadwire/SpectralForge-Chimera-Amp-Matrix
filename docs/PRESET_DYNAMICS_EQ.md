@@ -121,6 +121,14 @@ input hashes identify those files. Its compiled baseline SHA is not a public
 build identity. Publication still requires the subsequent complete CI matrix
 and package/export artifacts for the actual committed product source.
 
+A subsequent UI follow-up passed `ChimeraCommonDynamicsUITests` and
+`ChimeraSignalPathUITests` locally. It verifies both directions of the compressor
+switch after factory recall and compares all 48 presets' EQ/compressor/limiter
+path display against their actual parameter state. It also retains the
+one-band automation, A/B, project restore and editor-recreation checks. The
+[follow-up evidence](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/main/evidence/preset-dynamics-eq-20261019/ui-verification-followup.md)
+documents the superseded neutral-EQ UI assertion and the corrected fixtures.
+
 ## Distribution behavior
 
 Factory recipes are compiled into the plugin and Standalone. Shipping this

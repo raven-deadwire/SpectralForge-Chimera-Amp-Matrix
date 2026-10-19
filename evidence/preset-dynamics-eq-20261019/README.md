@@ -13,6 +13,17 @@ recipe. Their structure was unchanged by the subsequent threshold adjustment;
 they were rebuilt but not redundantly rerun locally. The remote full matrix is
 required on the actual committed source before distribution.
 
+The first remote Linux signal-path job exposed an old UI assertion that all
+factory EQ banks must remain bypassed. The corrected UI contracts passed both
+targeted local CTests: common dynamics in 6.52 seconds and signal path in 110.24
+seconds. The latter completed all 48 recalls and the final automation, A/B,
+project-restoration and editor-recreation checks. See the
+[UI follow-up](ui-verification-followup.md),
+[JUnit results](ui-followup-ctest.xml) and
+[follow-up input manifest](ui-followup-input-sha256.json) for the exact scope
+and build provenance. The superseding source must still pass the complete
+required remote matrix before publication.
+
 The render fixture contains six deterministic, eight-harmonic plucks over
 1.2 seconds at 48 kHz, with 128-sample blocks. It checks nominal and +6 dB input,
 including a separate render with the new limiter bypassed. All 192 peak
