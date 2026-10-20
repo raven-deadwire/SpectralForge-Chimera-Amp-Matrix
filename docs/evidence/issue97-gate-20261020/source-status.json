@@ -1,0 +1,311 @@
+{
+  "checked_at": "2026-10-20",
+  "scope": "Reference history only; never candidate acceptance.",
+  "prs": [
+    {
+      "number": 93,
+      "source_sha": "7f3a838f5bf1a50bc5949fc3e31141a7da231d40",
+      "branch": "fix/release-reservations-20261017",
+      "draft": true,
+      "runs": []
+    },
+    {
+      "number": 98,
+      "source_sha": "b7923ea8b7a0f85cfbfafb0e0338238adc09b181",
+      "branch": "codex/beta-settings-countdown-20261018",
+      "draft": true,
+      "runs": [
+        {
+          "id": 39073751064,
+          "path": ".github/workflows/graphical-eq.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751020,
+          "path": ".github/workflows/release-publisher.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751041,
+          "path": ".github/workflows/signal-path.yml",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751036,
+          "path": ".github/workflows/cab-realtime.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751034,
+          "path": ".github/workflows/niflheimr-audition.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751028,
+          "path": ".github/workflows/beta-lifecycle.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751039,
+          "path": ".github/workflows/cab-panel.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751043,
+          "path": ".github/workflows/update-candidate.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751027,
+          "path": ".github/workflows/build.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39073751024,
+          "path": ".github/workflows/amp-head-controls.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        }
+      ]
+    },
+    {
+      "number": 100,
+      "source_sha": "6ec78c475311827ccfd1949c9ae9ce364f79c0b4",
+      "branch": "research/transpose-correlation-20261018",
+      "draft": true,
+      "runs": [
+        {
+          "id": 39074028942,
+          "path": ".github/workflows/beta-lifecycle.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39074029042,
+          "path": ".github/workflows/update-candidate.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39074028939,
+          "path": ".github/workflows/build.yml",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
+        },
+        {
+          "id": 39074028947,
+          "path": ".github/workflows/release-publisher.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        }
+      ]
+    },
+    {
+      "number": 101,
+      "source_sha": "8ff4dbf59639f54c751232999da6e78055691703",
+      "branch": "codex/aax-native-foundation-20261018",
+      "draft": true,
+      "runs": [
+        {
+          "id": 39245173935,
+          "path": ".github/workflows/release-publisher.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173843,
+          "path": ".github/workflows/aax-native.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173856,
+          "path": ".github/workflows/amp-head-controls.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173860,
+          "path": ".github/workflows/beta-lifecycle.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173825,
+          "path": ".github/workflows/signal-path.yml",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173814,
+          "path": ".github/workflows/cab-panel.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173828,
+          "path": ".github/workflows/graphical-eq.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173895,
+          "path": ".github/workflows/niflheimr-measurements.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173849,
+          "path": ".github/workflows/build.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173836,
+          "path": ".github/workflows/niflheimr-audition.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173957,
+          "path": ".github/workflows/cab-realtime.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39245173870,
+          "path": ".github/workflows/update-candidate.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        }
+      ]
+    },
+    {
+      "number": 110,
+      "source_sha": "3a942a125d652a234d0f481fca3af2bdf6897635",
+      "branch": "feat/dynamics-spectrum-workspaces-20261020",
+      "draft": true,
+      "runs": [
+        {
+          "id": 39398055119,
+          "path": ".github/workflows/beta-lifecycle.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055175,
+          "path": ".github/workflows/dynamics-spectrum.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055135,
+          "path": ".github/workflows/niflheimr-measurements.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055186,
+          "path": ".github/workflows/graphical-eq.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055159,
+          "path": ".github/workflows/signal-path.yml",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055219,
+          "path": ".github/workflows/release-publisher.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055160,
+          "path": ".github/workflows/cab-realtime.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055113,
+          "path": ".github/workflows/build.yml",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055303,
+          "path": ".github/workflows/amp-head-controls.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055209,
+          "path": ".github/workflows/niflheimr-audition.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055143,
+          "path": ".github/workflows/cab-panel.yml",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
+        },
+        {
+          "id": 39398055191,
+          "path": ".github/workflows/update-candidate.yml",
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
+        }
+      ]
+    }
+  ]
+}

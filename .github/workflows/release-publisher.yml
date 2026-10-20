@@ -24,6 +24,7 @@ jobs:
         run: |
           python Tools/test_publish_release.py
           python Tools/test_weekly_publication.py
+          python Tools/test_issue97_gate.py
           python Tools/test_publication_evidence.py
           python Tests/test_packaging_version.py
           python Tools/test_publish_beta131.py
@@ -50,6 +51,7 @@ jobs:
           python Tools/check_release_calendar.py
           python Tools/test_release_calendar.py
           python Tools/test_weekly_publication.py
+          python Tools/test_issue97_gate.py
           python Tools/test_publish_release.py
   calendar-live:
     runs-on: ubuntu-24.04

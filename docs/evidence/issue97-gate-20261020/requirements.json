@@ -1,0 +1,422 @@
+{
+  "schema": "spectralforge.chimera.issue97-evidence",
+  "requirements_sha256": "3e2e01d2981a500a809516b6c0d55e57c9a724125d5afb77a48ae20fad9460e9",
+  "requirements": {
+    "integration/windows-x64": {
+      "kind": "ci",
+      "assertions": [
+        "transpose_product_path",
+        "fabfilter_product_path",
+        "lifecycle_product_path",
+        "aax_common_dsp",
+        "parameter_order",
+        "legacy_project",
+        "preset_ir_restore"
+      ]
+    },
+    "transpose/windows-x64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "low_b_minus2_same_di",
+        "attack",
+        "fundamental",
+        "clarity",
+        "chord_separation",
+        "artifacts",
+        "algorithmic_latency",
+        "reported_latency",
+        "roundtrip_latency",
+        "pdc"
+      ]
+    },
+    "fabfilter/windows-x64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "response",
+        "detector",
+        "timing",
+        "phase",
+        "latency",
+        "meters",
+        "analyzer",
+        "interaction",
+        "six_editors",
+        "pre_post_instances",
+        "actual_in_out",
+        "dynamic_eq_edit",
+        "independent_multiband",
+        "bypass_transition"
+      ]
+    },
+    "lifecycle/windows-x64": {
+      "kind": "ci",
+      "assertions": [
+        "countdown",
+        "identity_policy_ui_package",
+        "before_boundary_after",
+        "expire_running",
+        "restart",
+        "clock_timezone",
+        "offline",
+        "expired_export",
+        "successor_project_preset_ir_restore"
+      ]
+    },
+    "native_daw/windows-x64": {
+      "kind": "manual",
+      "assertions": [
+        "scan_load",
+        "mono_stereo",
+        "automation",
+        "session_reopen",
+        "preset_ir_restore",
+        "ui_open_close",
+        "instance_delete",
+        "session_close",
+        "app_exit",
+        "expiry"
+      ]
+    },
+    "system/windows-x64": {
+      "kind": "manual",
+      "assertions": [
+        "classic_dual_matrix",
+        "transpose_off_minus2",
+        "gui_analyzer_open_closed",
+        "instances_1_2_4",
+        "session_reopen",
+        "requirements_documents",
+        "standalone_driver"
+      ]
+    },
+    "aax/windows-x64": {
+      "kind": "manual",
+      "assertions": [
+        "build_install",
+        "pace_signature",
+        "platform_signature",
+        "retail_pro_tools",
+        "scan_load",
+        "mono_stereo",
+        "automation",
+        "session_reopen",
+        "preset_ir_restore",
+        "pdc",
+        "ui_open_close",
+        "instance_delete",
+        "session_close",
+        "app_exit",
+        "expiry"
+      ]
+    },
+    "integration/macos-x64": {
+      "kind": "ci",
+      "assertions": [
+        "transpose_product_path",
+        "fabfilter_product_path",
+        "lifecycle_product_path",
+        "aax_common_dsp",
+        "parameter_order",
+        "legacy_project",
+        "preset_ir_restore"
+      ]
+    },
+    "transpose/macos-x64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "low_b_minus2_same_di",
+        "attack",
+        "fundamental",
+        "clarity",
+        "chord_separation",
+        "artifacts",
+        "algorithmic_latency",
+        "reported_latency",
+        "roundtrip_latency",
+        "pdc"
+      ]
+    },
+    "fabfilter/macos-x64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "response",
+        "detector",
+        "timing",
+        "phase",
+        "latency",
+        "meters",
+        "analyzer",
+        "interaction",
+        "six_editors",
+        "pre_post_instances",
+        "actual_in_out",
+        "dynamic_eq_edit",
+        "independent_multiband",
+        "bypass_transition"
+      ]
+    },
+    "lifecycle/macos-x64": {
+      "kind": "ci",
+      "assertions": [
+        "countdown",
+        "identity_policy_ui_package",
+        "before_boundary_after",
+        "expire_running",
+        "restart",
+        "clock_timezone",
+        "offline",
+        "expired_export",
+        "successor_project_preset_ir_restore"
+      ]
+    },
+    "native_daw/macos-x64": {
+      "kind": "manual",
+      "assertions": [
+        "scan_load",
+        "mono_stereo",
+        "automation",
+        "session_reopen",
+        "preset_ir_restore",
+        "ui_open_close",
+        "instance_delete",
+        "session_close",
+        "app_exit",
+        "expiry"
+      ]
+    },
+    "system/macos-x64": {
+      "kind": "manual",
+      "assertions": [
+        "classic_dual_matrix",
+        "transpose_off_minus2",
+        "gui_analyzer_open_closed",
+        "instances_1_2_4",
+        "session_reopen",
+        "requirements_documents",
+        "standalone_driver"
+      ]
+    },
+    "aax/macos-x64": {
+      "kind": "manual",
+      "assertions": [
+        "build_install",
+        "pace_signature",
+        "platform_signature",
+        "retail_pro_tools",
+        "scan_load",
+        "mono_stereo",
+        "automation",
+        "session_reopen",
+        "preset_ir_restore",
+        "pdc",
+        "ui_open_close",
+        "instance_delete",
+        "session_close",
+        "app_exit",
+        "expiry"
+      ]
+    },
+    "integration/macos-arm64": {
+      "kind": "ci",
+      "assertions": [
+        "transpose_product_path",
+        "fabfilter_product_path",
+        "lifecycle_product_path",
+        "aax_common_dsp",
+        "parameter_order",
+        "legacy_project",
+        "preset_ir_restore"
+      ]
+    },
+    "transpose/macos-arm64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "low_b_minus2_same_di",
+        "attack",
+        "fundamental",
+        "clarity",
+        "chord_separation",
+        "artifacts",
+        "algorithmic_latency",
+        "reported_latency",
+        "roundtrip_latency",
+        "pdc"
+      ]
+    },
+    "fabfilter/macos-arm64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "response",
+        "detector",
+        "timing",
+        "phase",
+        "latency",
+        "meters",
+        "analyzer",
+        "interaction",
+        "six_editors",
+        "pre_post_instances",
+        "actual_in_out",
+        "dynamic_eq_edit",
+        "independent_multiband",
+        "bypass_transition"
+      ]
+    },
+    "lifecycle/macos-arm64": {
+      "kind": "ci",
+      "assertions": [
+        "countdown",
+        "identity_policy_ui_package",
+        "before_boundary_after",
+        "expire_running",
+        "restart",
+        "clock_timezone",
+        "offline",
+        "expired_export",
+        "successor_project_preset_ir_restore"
+      ]
+    },
+    "native_daw/macos-arm64": {
+      "kind": "manual",
+      "assertions": [
+        "scan_load",
+        "mono_stereo",
+        "automation",
+        "session_reopen",
+        "preset_ir_restore",
+        "ui_open_close",
+        "instance_delete",
+        "session_close",
+        "app_exit",
+        "expiry"
+      ]
+    },
+    "system/macos-arm64": {
+      "kind": "manual",
+      "assertions": [
+        "classic_dual_matrix",
+        "transpose_off_minus2",
+        "gui_analyzer_open_closed",
+        "instances_1_2_4",
+        "session_reopen",
+        "requirements_documents",
+        "standalone_driver"
+      ]
+    },
+    "aax/macos-arm64": {
+      "kind": "manual",
+      "assertions": [
+        "build_install",
+        "pace_signature",
+        "platform_signature",
+        "retail_pro_tools",
+        "scan_load",
+        "mono_stereo",
+        "automation",
+        "session_reopen",
+        "preset_ir_restore",
+        "pdc",
+        "ui_open_close",
+        "instance_delete",
+        "session_close",
+        "app_exit",
+        "expiry"
+      ]
+    },
+    "integration/linux-x64": {
+      "kind": "ci",
+      "assertions": [
+        "transpose_product_path",
+        "fabfilter_product_path",
+        "lifecycle_product_path",
+        "aax_common_dsp",
+        "parameter_order",
+        "legacy_project",
+        "preset_ir_restore"
+      ]
+    },
+    "transpose/linux-x64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "low_b_minus2_same_di",
+        "attack",
+        "fundamental",
+        "clarity",
+        "chord_separation",
+        "artifacts",
+        "algorithmic_latency",
+        "reported_latency",
+        "roundtrip_latency",
+        "pdc"
+      ]
+    },
+    "fabfilter/linux-x64": {
+      "kind": "ci",
+      "assertions": [
+        "original_capture",
+        "response",
+        "detector",
+        "timing",
+        "phase",
+        "latency",
+        "meters",
+        "analyzer",
+        "interaction",
+        "six_editors",
+        "pre_post_instances",
+        "actual_in_out",
+        "dynamic_eq_edit",
+        "independent_multiband",
+        "bypass_transition"
+      ]
+    },
+    "lifecycle/linux-x64": {
+      "kind": "ci",
+      "assertions": [
+        "countdown",
+        "identity_policy_ui_package",
+        "before_boundary_after",
+        "expire_running",
+        "restart",
+        "clock_timezone",
+        "offline",
+        "expired_export",
+        "successor_project_preset_ir_restore"
+      ]
+    },
+    "native_daw/linux-x64": {
+      "kind": "manual",
+      "assertions": [
+        "scan_load",
+        "mono_stereo",
+        "automation",
+        "session_reopen",
+        "preset_ir_restore",
+        "ui_open_close",
+        "instance_delete",
+        "session_close",
+        "app_exit",
+        "expiry"
+      ]
+    },
+    "system/linux-x64": {
+      "kind": "manual",
+      "assertions": [
+        "classic_dual_matrix",
+        "transpose_off_minus2",
+        "gui_analyzer_open_closed",
+        "instances_1_2_4",
+        "session_reopen",
+        "requirements_documents",
+        "standalone_driver"
+      ]
+    }
+  }
+}
