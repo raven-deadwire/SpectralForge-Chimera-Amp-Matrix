@@ -52,6 +52,9 @@ def run(args):
             writer = csv.writer(f); writer.writerow(perf.MEMORY_COLUMNS)
             writer.writerow([0, proc.pid, perf.rss_bytes(proc.pid)])
             (out/'go').write_text('go', encoding='utf-8')
+            # Windows monotonic can tick in ~15ms steps. Do not emit a second
+            # t=0 sample immediately after the boundary observation.
+            time.sleep(.25)
             while proc.poll() is None:
                 if time.monotonic()-start > args.seconds*10+120:
                     raise ValueError('host measurement timed out; retain partial raw data')
