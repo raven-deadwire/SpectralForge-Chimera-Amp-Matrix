@@ -1,0 +1,116 @@
+[
+  {
+    "variant": "baseline",
+    "test": "fft-check",
+    "args": [
+      "/workspace/scratch/776d1d124600/apple-linux-evidence/baseline-fft-bits.csv"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "parity",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "realtime",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "ir-state",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [
+      "--expanded"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [
+      "--layouts"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [
+      "--expanded",
+      "--extended-buffers"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "fft-check",
+    "args": [
+      "/workspace/scratch/776d1d124600/apple-linux-evidence/candidate-fft-bits.csv"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "parity",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "realtime",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "ir-state",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "integration",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "integration",
+    "args": [
+      "--expanded"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "integration",
+    "args": [
+      "--layouts"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "candidate",
+    "test": "integration",
+    "args": [
+      "--expanded",
+      "--extended-buffers"
+    ],
+    "returncode": 0
+  }
+]

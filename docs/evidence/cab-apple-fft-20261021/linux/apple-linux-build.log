@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/776d1d124600/chimera/Tools/CabAppleFFT/build_linux.py", line 39, in <module>
+    run(['g++',*flags,*inc,'-DCAB_APPLE_CANDIDATE='+str(int(v=='candidate')),str(ROOT/path),*objects,*extra,'-ldl','-lrt',
+  File "/workspace/scratch/776d1d124600/chimera/Tools/CabAppleFFT/build_linux.py", line 13, in run
+    if r.returncode:raise RuntimeError(name+' failed')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: baseline-fft-probe failed

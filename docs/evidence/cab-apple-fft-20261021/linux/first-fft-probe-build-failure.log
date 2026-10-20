@@ -1,0 +1,7 @@
+/workspace/scratch/776d1d124600/chimera/Tools/CabAppleFFT/FFTProbe.cpp: In function ‘int main(int, char**)’:
+/workspace/scratch/776d1d124600/chimera/Tools/CabAppleFFT/FFTProbe.cpp:33:27: error: ‘spectralforge’ has not been declared
+   33 |             const auto c0=spectralforge::cabTiming::readThreadClock();const auto w0=std::chrono::steady_clock::now();
+      |                           ^~~~~~~~~~~~~
+/workspace/scratch/776d1d124600/chimera/Tools/CabAppleFFT/FFTProbe.cpp:35:74: error: ‘spectralforge’ has not been declared
+   35 |             const auto w1=std::chrono::steady_clock::now();const auto c1=spectralforge::cabTiming::readThreadClock();
+      |                                                                          ^~~~~~~~~~~~~

@@ -22,8 +22,35 @@
 
 로컬 환경은 Linux x86_64/GCC 13.3이며 Apple vDSP가 없다.
 Linux 실행은 비Apple fallback의 negative control이며 Apple 후보 성능 입증으로 사용하지 않는다.
-macos-15 전용 CI는 실험을 실행하도록 준비했다. 실제 실행 결과와 로그를 확보한 후 이 절을 갱신한다.
-작성 시점에 FFT 처리 시간 감소율, CAB CPU 감소율, deadline miss 개선을 주장하지 않는다.
+macos-15 전용 CI 실행 [39470382813](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39470382813)은
+2026-10-21 02:58 KST 확인 시 러너 대기(queued) 상태다. job 118792563442는 실행을 시작하지 않았다.
+따라서 Apple FFT의 비트 동일성·FFT 처리 시간·CAB CPU·deadline 효과는 **미측정**이다.
+워크플로 등록이나 Linux 통과를 native 성능 증거로 승계하지 않는다.
+
+### 실제 완료한 Linux negative control
+
+- baseline/candidate 각각 8개, 총 **16/16 실행 entry PASS**.
+- FFT 180 cases / 327,040 float words에서 mismatch 0 (각 바이너리에서 동일 suite 반복).
+  `apple_backend=0`; 새 API는 기존 Linux FFT fallback으로 위임된다.
+- 경계/reset parity: 각 196 cases / 1,000,818 samples bit exact.
+- 기존 realtime: 각 144 routes, frozen 2,645,088 + fade 388,800 floats bit exact.
+- 개인 IR 원본 WAV 삭제 후 embedded bytes/metadata 및 오디오 복원, worker cancellation/reprepare PASS.
+- 동일 상태 CAB replay: 12 routes × 2,000 callbacks × 2 binaries = **48,000 callbacks**.
+  전체 출력 SHA256 및 callback별 state/fade 일치, 실제 IR 길이 8,161, callback new/delete 관측 0.
+- 기존 integration entry 통과는 deadline miss 0을 뜻하지 않는다. 모든 miss를 그대로 보존했다.
+
+예시: v2·96kHz·32 samples·stereo, 각 2,000 callbacks, budget 333.333333µs:
+
+| Linux negative control | CPU p50 µs | CPU p99 µs | Wall miss | CPU over | CPU 동반 wall miss |
+|---|---:|---:|---:|---:|---:|
+| baseline | 48.387 | 256.792 | 15 | 15 | 15 |
+| candidate 위임 경로 | 48.492 | 325.634 | 16 | 19 | 16 |
+
+이 1회 A/B는 Apple 후보의 timing experiment가 아니다. A/A noise screening도 하지 않았으므로
+어떤 수치 차이도 후보의 향상/악화로 귀속하지 않는다. 전체 24 route-summary는
+`linux/callback-summary.csv`, 16개 실행 로그와 bit CSV, binary/source fingerprints, 결과 JSON을 보존했다.
+원시 callback/output 파일의 fingerprint는 `linux/raw-manifest.json`에 있다.
+원시 대용량 데이터 자체는 이 repository 보고서에 포함하지 않았다.
 
 Linux 공식 CMake configure는 PkgConfig 부재로 중단됐다. 별도 수동 GCC 경로를 제공하며 이를
 공식 CMake/CTest 성공으로 보고하지 않는다. 최초 FFT microprobe 빌드에서 timer namespace 오타를
@@ -37,3 +64,12 @@ Linux 공식 CMake configure는 PkgConfig 부재로 중단됐다. 별도 수동 
 96kHz·32 samples 예산은 333.333333µs다. FFT microbenchmark는 CAB callback과 별도 측정한다.
 수치 mismatch는 현재 후보 기각, 이득이 noise 범위를 넘지 못하면 미채택이다.
 #103 전체 DSP 계측 및 #105 CPU/실행 지연 분리 결과를 대체하거나 이전 실패를 해제하지 않는다.
+
+## 측정 코드와 공개 커밋 연결
+
+Linux collector가 기록한 로컬 source SHA `e643466`과 공개 실험 커밋
+`6abf7e251b9a78d5dcc840653cb40f984111f88f`는 동일한 tree
+`a48289d32de25ea796ce98a3ab0fb0a6916e9b33`를 가리킨다.
+연결된 GitHub API로 같은 tree를 게시했기 때문에 commit metadata만 다르다.
+측정 binary SHA256 및 실제 컴파일 명령은 `linux/build.json` / `linux/manual-build.json`에 기록했다.
+본 후속 보고서 커밋에서 수치를 새로 측정했다고 주장하지 않는다.

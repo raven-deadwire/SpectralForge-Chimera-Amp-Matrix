@@ -1,0 +1,2 @@
+PASS modeled_worker_cancellation cancelled_builds=2 latest_six_mics=converged stop_us=2145.52 reprepare=synchronous resources=released
+PASS: remove-from-list preserves source WAV, active convolution, embedded project bytes and bass classification; binary recall renders identical audio without the source file
