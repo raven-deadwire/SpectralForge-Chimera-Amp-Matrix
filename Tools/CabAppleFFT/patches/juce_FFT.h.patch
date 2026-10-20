@@ -1,0 +1,7 @@
+--- a/modules/juce_dsp/frequency/juce_FFT.h
++++ b/modules/juce_dsp/frequency/juce_FFT.h
+@@ -74,0 +75,4 @@
++    // Isolated research API. No product callers or global engine replacement.
++    void performChimeraCabForwardNoUnity (const Complex<float>*, Complex<float>*) const noexcept;
++    bool isChimeraCabAppleFFT() const noexcept;
++

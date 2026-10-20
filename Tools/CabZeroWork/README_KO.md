@@ -105,3 +105,8 @@ CPU-us 분석에 그대로 사용할 수 없다. 별도 Windows 프로토콜이 
 Linux CAB-only 측정은 Apple vDSP/macOS, 전체 PluginProcessor, 실제 DAW/interface dropout,
 Pro Tools/AAX, 청음, 통합·공개 승인을 대체하지 않는다. `integration_eligible=false`,
 `release_approved=false`, `aax_approved=false`를 유지한다.
+
+## 2026-10-21 후속: Apple 전용 독립 실험
+
+미실행 후보 C의 후속 패치/검증 경로는 `../CabAppleFFT/README_KO.md`에 분리했다.
+기존 두 후보와 결합하지 않으며 기존 Linux 결과는 Apple 후보의 증거로 승계하지 않는다.

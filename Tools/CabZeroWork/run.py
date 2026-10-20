@@ -71,7 +71,7 @@ def collect(build,out):
                     print('TRIAL',name,'rc',rc,'output_exact',trial['identity_equal'],flush=True)
     analyze(out)
 
-def analyze(out):
+def analyze(out, candidates=("empty_partition", "zero_history")):
     trials=json.loads((out/'trials.json').read_text());populations={};identities={};ir_identity=None
     def percentile(xs,p):return sorted(xs)[min(len(xs)-1,int(len(xs)*p))]
     summaries=[]
@@ -103,7 +103,7 @@ def analyze(out):
                 pop[(route,phase)]=s;summaries.append(s)
         populations[t['name']]=pop
     decisions=[]
-    for candidate in ['empty_partition','zero_history']:
+    for candidate in candidates:
         matched=all(t['identity_equal'] for t in trials if t['candidate']==candidate)
         gates=json.loads((out/'gates.json').read_text())
         native_gates_pass=all(g['returncode']==0 for g in gates if g['variant'] in ['baseline',candidate])

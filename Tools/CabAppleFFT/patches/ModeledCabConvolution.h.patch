@@ -1,0 +1,5 @@
+--- a/Source/ModeledCabConvolution.h
++++ b/Source/ModeledCabConvolution.h
+@@ -246 +246 @@
+-                fft.perform(inputTime.data(),transform.data(),false);
++                fft.performChimeraCabForwardNoUnity(inputTime.data(),transform.data());
