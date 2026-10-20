@@ -1,0 +1,40 @@
+name: System performance measurement contracts
+on:
+  pull_request:
+    paths:
+      - 'Tools/SystemPerformance/**'
+      - 'Validation/system-performance/**'
+      - '.github/workflows/system-performance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  collector-contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Python contracts (fixtures are not product measurements)
+        run: python -m unittest discover -s Tools/SystemPerformance -p "test_*.py" -v
+      - name: Build portable callback collector contract
+        run: cmake -S Tools/SystemPerformance -B build-performance-collector -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build-performance-collector --config Release
+      - run: ctest --test-dir build-performance-collector -C Release --output-on-failure --no-tests=error
+      - name: Record runner facts without a product performance claim
+        run: python Tools/SystemPerformance/performance.py init --out build-performance-collector/runner-plan.json --blocked "Collector CI only; no product binary, DAW or physical interface exercised"
+      - run: python Tools/SystemPerformance/performance.py validate build-performance-collector/runner-plan.json
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: collector-contract-only-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            build-performance-collector/collector-only.csv
+            build-performance-collector/runner-plan.json
+            build-performance-collector/Testing/Temporary/LastTest.log
+          if-no-files-found: warn

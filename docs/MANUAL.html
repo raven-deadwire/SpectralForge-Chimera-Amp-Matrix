@@ -152,7 +152,7 @@ workflows:[
 const X={
 en:{
 navInstall:'Installation',navOperation:'Operation / state',navHost:'DAW / updates',
-installTitle:'02 · Installation and first launch',requirementsTitle:'System requirements and recommended configuration',requirementsNote:"Reviewed against public 1.3.2-beta.1. Build/install targets, recommendation candidates and actual measurements are distinct. No certified CPU/RAM minimum or maximum instance count. See the packaged SYSTEM_REQUIREMENTS.md for exact byte sizes and evidence.",performanceTitle:'Real-time performance starting points',performanceTip:'For troubleshooting, start at 48 kHz / 256 samples / 4× amp oversampling with one Chimera instance. Add 8× oversampling, Transpose, Spectral Octaver, multiple IR-heavy rigs and additional plugin instances only after the baseline is stable.',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
+installTitle:'02 · Installation and first launch',requirementsTitle:'System requirements and recommended configuration',requirementsNote:"Reviewed against public 1.3.2-beta.1. Build/install targets, recommendation candidates and actual measurements are distinct. No certified CPU/RAM minimum or maximum instance count. Representative 30-minute DAW/interface measurements for the next integrated build remain unexecuted. See the packaged SYSTEM_REQUIREMENTS.md for exact byte sizes and evidence.",performanceTitle:'Real-time performance starting points',performanceTip:'For troubleshooting, start at 48 kHz / 256 samples / 4× amp oversampling with one Chimera instance. Add 8× oversampling, Transpose, Spectral Octaver, multiple IR-heavy rigs and additional plugin instances only after the baseline is stable.',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
 boardTitle:'Five-slot PRE controls',stateTitle:'Save / A·B / MIDI / interface state',supportTitle:'SETTINGS and support',
 ampRouteTitle:'Amplifier channels and input routes',irLibraryTitle:'IR Library operation and limits',irCreditsTitle:'IR credits and external bass IRs',
 presetListTitle:'48 factory & signature presets',recallTitle:'Preset / A·B recall rules',
@@ -240,7 +240,7 @@ requirements:[
 "Real-time capacity",
 "Classic / Dual / Matrix × 1 / 2 / 4 active instances",
 "Proposed: 48 kHz, 128/256, 4×, Transpose bypass/−2, UI closed/open, 30 minutes",
-"All next-build DAW/interface cells NOT_RUN. CAB-only and two idle GUIs do not qualify them."
+"Next-build DAW/interface qualification BLOCKED: required workstations, binary and callback adapter unavailable. CAB-only and two idle GUIs do not qualify them."
 ],
 [
 "Latency",
@@ -365,7 +365,7 @@ bug:[
 },
 de:{
 navInstall:'Installation',navOperation:'Bedienung / Zustand',navHost:'DAW / Updates',
-installTitle:'02 · Installation und erster Start',requirementsTitle:'Systemanforderungen und empfohlene Konfiguration',requirementsNote:"Stand: öffentliche 1.3.2-beta.1. Build-/Installationsziele, Empfehlungskandidaten und Messungen sind getrennt. Kein zertifiziertes CPU-/RAM-Minimum und keine garantierte Instanzzahl. Exakte Dateigrößen und Nachweise: beiliegende SYSTEM_REQUIREMENTS.md.",performanceTitle:'Startwerte für Echtzeit-Performance',performanceTip:'Für die Fehlersuche mit 48 kHz / 256 Samples / 4× Amp-Oversampling und einer Chimera-Instanz beginnen. 8×, Transpose, Spectral Octaver, mehrere IR-intensive Rigs und weitere Instanzen erst nach einer stabilen Basis hinzufügen.',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
+installTitle:'02 · Installation und erster Start',requirementsTitle:'Systemanforderungen und empfohlene Konfiguration',requirementsNote:"Stand: öffentliche 1.3.2-beta.1. Build-/Installationsziele, Empfehlungskandidaten und Messungen sind getrennt. Kein zertifiziertes CPU-/RAM-Minimum und keine garantierte Instanzzahl. Repräsentative 30-Minuten-DAW-/Interface-Messungen des nächsten integrierten Builds stehen noch aus. Exakte Dateigrößen und Nachweise: beiliegende SYSTEM_REQUIREMENTS.md.",performanceTitle:'Startwerte für Echtzeit-Performance',performanceTip:'Für die Fehlersuche mit 48 kHz / 256 Samples / 4× Amp-Oversampling und einer Chimera-Instanz beginnen. 8×, Transpose, Spectral Octaver, mehrere IR-intensive Rigs und weitere Instanzen erst nach einer stabilen Basis hinzufügen.',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
 boardTitle:'Bedienung des 5-Slot-Pedalboards',stateTitle:'Speichern / A·B / MIDI / Oberfläche',supportTitle:'SETTINGS und Support',
 ampRouteTitle:'Amp-Kanäle und Eingangswege',irLibraryTitle:'IR-Library: Bedienung und Grenzen',irCreditsTitle:'IR-Credits und externe Bass-IRs',
 presetListTitle:'48 Werks- und Signature-Presets',recallTitle:'Preset- / A·B-Recall-Regeln',
@@ -453,7 +453,7 @@ requirements:[
 "Echtzeitkapazität",
 "Classic / Dual / Matrix × 1 / 2 / 4 aktive Instanzen",
 "Vorschlag: 48 kHz, 128/256, 4×, Transpose Bypass/−2, UI zu/offen, 30 Minuten",
-"Alle DAW-/Gerätezellen des nächsten Builds NOT_RUN. CAB-only und zwei ruhende GUIs zählen nicht."
+"DAW-/Geräteabnahme des nächsten Builds BLOCKED: Testsysteme, Binärdatei und Callback-Adapter fehlen. CAB-only und zwei ruhende GUIs zählen nicht."
 ],
 [
 "Latenz",
@@ -578,7 +578,7 @@ bug:[
 },
 ko:{
 navInstall:'설치',navOperation:'조작 / 저장',navHost:'DAW / 업데이트',
-installTitle:'02 · 설치와 첫 실행',requirementsTitle:'시스템 요구사항과 권장 사양',requirementsNote:"공개 1.3.2-beta.1 기준입니다. 설치·빌드 조건, 권장 후보, 실제 검증 범위를 구분합니다. CPU·RAM의 인증된 최소치와 최대 인스턴스 수는 미확정입니다. 정확한 바이트 크기와 근거는 동봉 SYSTEM_REQUIREMENTS.md를 확인하세요.",performanceTitle:'실시간 성능 권장 시작값',performanceTip:'문제를 진단할 때는 48 kHz / 256 samples / Amp Oversampling 4× / Chimera 1개 인스턴스로 시작하세요. 이 상태가 안정된 뒤 8×, Transpose, Spectral Octaver, 다중 IR Rig, 추가 Chimera 인스턴스를 하나씩 늘리는 방식이 원인 파악에 가장 좋습니다.',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
+installTitle:'02 · 설치와 첫 실행',requirementsTitle:'시스템 요구사항과 권장 사양',requirementsNote:"공개 1.3.2-beta.1 기준입니다. 설치·빌드 조건, 권장 후보, 실제 검증 범위를 구분합니다. CPU·RAM의 인증된 최소치와 최대 인스턴스 수는 미확정입니다. 다음 통합 빌드의 대표 30분 DAW·인터페이스 실측은 아직 실행되지 않았습니다. 정확한 바이트 크기와 근거는 동봉 SYSTEM_REQUIREMENTS.md를 확인하세요.",performanceTitle:'실시간 성능 권장 시작값',performanceTip:'문제를 진단할 때는 48 kHz / 256 samples / Amp Oversampling 4× / Chimera 1개 인스턴스로 시작하세요. 이 상태가 안정된 뒤 8×, Transpose, Spectral Octaver, 다중 IR Rig, 추가 Chimera 인스턴스를 하나씩 늘리는 방식이 원인 파악에 가장 좋습니다.',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
 boardTitle:'5-slot PRE 조작법',stateTitle:'Save / A·B / MIDI / 인터페이스 상태',supportTitle:'SETTINGS와 지원 기능',
 ampRouteTitle:'앰프 채널과 입력 경로',irLibraryTitle:'IR Library 사용법과 제한',irCreditsTitle:'IR 크레딧과 외부 베이스 IR',
 presetListTitle:'팩토리·시그니처 프리셋 48개',recallTitle:'Preset / A·B Recall 규칙',
@@ -666,7 +666,7 @@ requirements:[
 "실시간 용량",
 "Classic / Dual / Matrix × 활성 1 / 2 / 4인스턴스",
 "제안: 48 kHz, 128/256, 4×, Transpose bypass/−2, UI 닫힘/열림, 30분",
-"다음 통합 빌드 실기·DAW 전 조합 NOT_RUN. CAB 단독·idle GUI 2개로 대체 불가."
+"다음 통합 빌드 실기·DAW 검증 BLOCKED: 테스트 장비·바이너리·callback 어댑터 미확보. CAB 단독·idle GUI 2개로 대체 불가."
 ],
 [
 "지연",
@@ -2131,3 +2131,4 @@ render();
 })();
 </script>
 </body></html>
+

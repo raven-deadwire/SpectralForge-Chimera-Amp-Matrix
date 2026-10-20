@@ -21,11 +21,13 @@ With integrated **Pre FX, Post FX, amp models, cabinet/IR processing, and flexib
 
 ## System requirements — public 1.3.2-beta.1 baseline
 
+Representative 30-minute DAW/interface measurements for the next integrated build remain **BLOCKED**. CPU/RAM recommendations are unmeasured candidates, not certified minima. See the [measurement protocol](Tools/SystemPerformance/README.md) and [current environment/status record](docs/evidence/system-performance-20261018/README_KO.md).
+
 | Installation/build target | Practical starting recommendation | Verification boundary |
 | --- | --- | --- |
 | Windows 10/11 x64; macOS 12+ Universal; Ubuntu 22.04 x86_64 baseline, glibc >=2.35 and package dependencies | Modern 64-bit 4+ core CPU / 8 GB entry candidates; 6–8+ cores for multiple instances, 16 GB+ general DAW use; 32 GB optional large-session headroom | No certified CPU/RAM minimum or maximum instance count. CI platforms are not equivalent to all listed consumer OS/hardware. |
 | VST3 + Standalone; macOS also AU | 44.1/48 kHz, 128–256 samples, 2×/4× for live use; 256–512 / 4× for mixing | AAX/Pro Tools not yet supported. Windows Standalone direct ASIO is not enabled in product CMake; DAW ASIO is separate. |
-| Editor 1180×780 at 100%, 885×585 at 75% | 1280×800 entry display candidate, 1920×1080+ preferred; account for OS scaling and host frame | Classic/Dual/Matrix × 1/2/4 active instances: next integrated build's real DAW/interface qualification NOT_RUN. |
+| Editor 1180×780 at 100%, 885×585 at 75% | 1280×800 entry display candidate, 1920×1080+ preferred; account for OS scaling and host frame | Classic/Dual/Matrix × 1/2/4 active instances: next integrated build's real DAW/interface qualification BLOCKED: required workstation, binary and callback adapter unavailable. |
 
 Planning free space before download: **1.5 GB Windows/Linux; 4 GB macOS**, plus
 personal IRs/projects/backups and dependencies. These are not measured installer
@@ -131,3 +133,4 @@ SETTINGS → Manual / Bug report / Updates provides an embedded offline manual a
 Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.
 
 Third-party software and assets are subject to their respective copyright notices and license terms.
+

@@ -1,0 +1,41 @@
+{
+  "scope": "collector/schema/document verification; not product performance",
+  "base_source_sha": "274d9c383ca34a2bd66b59921d836231f55d36ff",
+  "python_tests": {
+    "passed": 32,
+    "skipped": 1,
+    "failed": 0,
+    "skip_reason": "executor PID namespace does not expose own Python process"
+  },
+  "native_collector": {
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+    "status": "PASS",
+    "retained_rows": 8,
+    "overflow_rows": 1,
+    "callback_cpp_new_calls": 0
+  },
+  "product_callback_measurements": "BLOCKED",
+  "product_memory_measurements": "BLOCKED",
+  "real_daw_30_minute_playback_recording": "BLOCKED",
+  "files": {
+    "Tools/SystemPerformance/README.md": "f6e9937d76e12394d3f95587358b66f7cb825338f5c04d482c7a8f09eb8ec059",
+    "Tools/SystemPerformance/test_performance.py": "d544741a74d0312f0137974941867f96f4c9e1da05bb684cd85b661cc4c0e1ba",
+    "Tools/SystemPerformance/CMakeLists.txt": "8ac227dd688d3085b2ffbf6876f1bb155322fb2b12e8e06b8730a2f4f5dcc6cf",
+    "Tools/SystemPerformance/test_recorder.cpp": "70fd377418e448417e49fe5a91ce27bfa87f985573047c26bb44763bf4493d05",
+    "Tools/SystemPerformance/performance.py": "615d678ef476b72bb8d256fe1e0f5519d05459f6d3739ee7e3eba801f47f8d1f",
+    "Tools/SystemPerformance/CallbackRecorder.h": "e6922b9b34d3f43343b8b9fc4b900cc5ea839999d650dc5b2d52bd707e9fbf74",
+    "Validation/system-performance/target-environments.json": "df93f9c18b5cc06719df659a6e91595b2b122912940650e653d5d557c5fd72fb",
+    "Validation/system-performance/measurement.schema.json": "a9fd63a782595160f7190b4841ffadf0909cfad3a0395f47edabdf23abafee1c",
+    "Validation/system-performance/receipt.schema.json": "01983d6ae052d7292f9e03238019de5dbd3d78460c76635b563f0f5e7a73b720",
+    ".github/workflows/system-performance.yml": "5c9e3baca81f262a1f591c59655d4e5c22da70d1f152158e3314f1b171283399",
+    "README.md": "b7c7ac1086eb537adb324257b8b1e7ddc12c862bee781c0c90c0b497e2b899a5",
+    "docs/INSTALLATION.md": "6562bce3bc0d68199578bf06583195f83a6fc04f4d7300698818218ea3b8d9cb",
+    "docs/SYSTEM_REQUIREMENTS.md": "55a6697784694decdffa2d07e50840f5c60c47bba7bcc9a579145b379109790b",
+    "docs/MANUAL.html": "529294a21b9e678a92ce24ffad50c51c587dee8cac70fdcf5c350beaad58d623",
+    "docs/OPEN_BETA_RELEASE_NOTES.md": "28a45f7ce05dc2478c30e4e692b46caff5b4005ea5e223e75524d11e6a7c2645",
+    "docs/evidence/system-performance-20261018/local-study.json": "3727ccb4eec2315b6f89c34258f5835502d3e990e45768f9e271749c1d15bfb6",
+    "docs/evidence/system-performance-20261018/environment-and-results.md": "50e700a47828cbe72d288f5ed7786578f106c2b3d39f88536b024f394a093ee5",
+    "docs/evidence/system-performance-20261018/README_KO.md": "0deaaab75c1952fe34cf34cf30dc8b9c5cc7a7ec5f7dc7761bd07686684c9b5a",
+    "docs/evidence/system-performance-20261018/local-validation.txt": "a35ec3867b8ed6a0ee53e5ccad40a691be0c2766afe2a488af8788244b0688c7"
+  }
+}
