@@ -49,6 +49,10 @@ WRAPPERS = {
 ALLOWED_TESTS = frozenset({"Tests/GateProcessorTests.cpp", "Tests/GraphicalEQEditingTests.cpp",
     "Tests/GraphicalEQTests.cpp", "Tests/GraphicalEQUITests.cpp", "Tests/IntegratedProcessorTests.cpp",
     "Tests/SignalPathUITests.h", "Tests/CommonDynamicsUITests.h"})
+# The owner requested the PR108 macOS timing investigation. Permit only this
+# reviewed diagnostic-I/O change; do not allow arbitrary tuner fixture/gate edits.
+TUNER_DIAGNOSTICS_PATH = "Tests/PrecisionTunerIntegrationTests.cpp"
+TUNER_DIAGNOSTICS_SHA256 = "7f5454c9c0141eb206c47448baccf0a7faa5ed7c092b6c43f1c9c0fead0d54e3"
 ALLOWED_DOCS = frozenset({"docs/PRESETS.md", "docs/MANUAL.html", "docs/COMMON_DYNAMICS_1_3_2.md",
     "docs/GRAPHICAL_EQ_1_3_1.md", "docs/SIGNAL_EQ_INTEGRATION_1_3_1.md", "docs/PRESET_DYNAMICS_EQ.md"})
 ADDITIONS = frozenset({RECIPE_PATH, POLICY_PATH, WORKFLOW_PATH,
@@ -173,6 +177,9 @@ def verify_source_scope(source, policy, *, root=ROOT):
                     "Product build configuration changed beyond the isolated exporter target")
         elif name in ADDITIONS:
             require(name not in base, "Maintenance support must be added without replacing existing tooling")
+        elif name == TUNER_DIAGNOSTICS_PATH:
+            require(digest_bytes(blob(source, name, root)) == TUNER_DIAGNOSTICS_SHA256,
+                    "Tuner fixture differs from the reviewed diagnostic-only change")
         elif name in ALLOWED_TESTS | ALLOWED_DOCS:
             pass
         elif name.startswith("evidence/preset-dynamics-eq-20261019/"):

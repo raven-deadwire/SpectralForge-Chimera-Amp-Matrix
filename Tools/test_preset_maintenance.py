@@ -132,6 +132,25 @@ class SourceScope(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "outside preset-only maintenance"):
                     contract.verify_source_scope(changed, self.policy, root=self.root)
 
+    def test_only_exact_reviewed_tuner_diagnostics_are_accepted(self):
+        reviewed = (REAL_ROOT / contract.TUNER_DIAGNOSTICS_PATH).read_bytes()
+        self.assertEqual(contract.digest_bytes(reviewed), contract.TUNER_DIAGNOSTICS_SHA256)
+        self.write(contract.TUNER_DIAGNOSTICS_PATH, reviewed)
+        changed = self.commit("reviewed deferred tuner diagnostics")
+        contract.verify_source_scope(changed, self.policy, root=self.root)
+        # An altered gate, missing failure evidence, or extra timing adjustment
+        # must not become a generic exception to preset-only source validation.
+        for old, new in ((b"b.acquire<290", b"b.acquire<400"),
+                         (b"std::abs(b.cents)<.1", b"std::abs(b.cents)<1"),
+                         (b'"ROUTE FAIL rate="', b'"route omitted="'),
+                         (b"const double elapsed=", b"const double elapsed=0*")):
+            with self.subTest(mutation=old):
+                self.assertIn(old, reviewed)
+                self.write(contract.TUNER_DIAGNOSTICS_PATH, reviewed.replace(old, new, 1))
+                mutated = self.commit("unapproved tuner change")
+                with self.assertRaisesRegex(RuntimeError, "reviewed diagnostic-only"):
+                    contract.verify_source_scope(mutated, self.policy, root=self.root)
+
     def test_engine_version_expiry_publisher_and_existing_workflow_changes_fail_closed(self):
         for name in ("Source/Engine.h", "VERSION", "RELEASE_CHANNEL", "Validation/beta-lifecycle-policy.json",
                      "Tools/publish_release.py", ".github/workflows/build.yml", "Validation/waivers.json",
