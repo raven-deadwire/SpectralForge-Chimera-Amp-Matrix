@@ -174,6 +174,9 @@ int main(int argc, char** argv) {
             graph.observe();
         }
         const auto elapsed=(chimera_perf::wallNs()-epoch)/1e9;
+        // Stop external RSS sampling before CSV/JSON serialization and hashing
+        // allocate memory. This marker is outside the measured callback.
+        require(out.getChildFile("done").replaceWithText("done"),"Cannot write measurement boundary");
         recorder.writeCsv(out.getChildFile("callbacks.csv").getFullPathName().toRawUTF8());
         empty.writeCsv(out.getChildFile("empty-graph.csv").getFullPathName().toRawUTF8());
         clocks.writeCsv(out.getChildFile("clock-only.csv").getFullPathName().toRawUTF8());

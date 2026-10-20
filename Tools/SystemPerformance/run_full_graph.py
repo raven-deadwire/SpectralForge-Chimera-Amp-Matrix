@@ -60,7 +60,7 @@ def run(args):
                     raise ValueError('host measurement timed out; retain partial raw data')
                 # Keep the host alive until its final report, but only sample
                 # the callback period, not teardown.
-                if not (out/'host.json').exists():
+                if not (out/'done').exists():
                     if perf.process_identity(proc.pid) != identity:
                         raise ValueError('process identity changed')
                     writer.writerow([time.monotonic()-start, proc.pid, perf.rss_bytes(proc.pid)])
@@ -86,7 +86,7 @@ def run(args):
     study = perf.make_study(perf.environment(), 'Not run by this independent processor observation')
     # Explicit host identity, never impersonate Standalone packaging or a DAW.
     study['environment'].update(daw_name='ChimeraFullGraphHost (synthetic)', daw_version='1',
-                                plugin_format='Standalone')
+                                plugin_format=None)
     study['product'].update(source_sha=h['source_sha'], version=h['version'],
                             build_id='full-graph:'+h['source_fingerprint'], binary_sha256=hashes[0])
     manifest = {'policy': 'common external A IR on every active CAB lane; B mix zero',
@@ -140,7 +140,7 @@ def run(args):
     # remains the authority for CSV metrics. No second acceptance gate is added.
     perf.write_json(out/'bundle-hashes.json', {
         p.name: perf.file_hash(p) for p in out.iterdir()
-        if p.is_file() and p.name not in ('ready', 'go')})
+        if p.is_file() and p.name not in ('ready', 'go', 'done')})
     print(f'Validated synthetic observation: {out}')
 
 
