@@ -1,0 +1,31 @@
+--- a/modules/juce_dsp/frequency/juce_FFT.cpp
++++ b/modules/juce_dsp/frequency/juce_FFT.cpp
+@@ -43,0 +44,4 @@
++
++    virtual void performChimeraCabForwardNoUnity (const Complex<float>* input, Complex<float>* output) const noexcept
++    { perform (input, output, false); }
++    virtual bool isChimeraCabAppleFFT() const noexcept { return false; }
+@@ -481,0 +486,11 @@
++
++    // Only the explicitly opted-in CAB call reaches this method. The legacy
++    // complex, inverse and real methods remain byte-for-byte unchanged.
++    void performChimeraCabForwardNoUnity (const Complex<float>* input, Complex<float>* output) const noexcept override
++    {
++        DSPSplitComplex splitInput  (toSplitComplex (const_cast<Complex<float>*> (input)));
++        DSPSplitComplex splitOutput (toSplitComplex (output));
++        vDSP_fft_zop (fftSetup, &splitInput, 2, &splitOutput, 2,
++                      order, kFFTDirection_Forward);
++    }
++    bool isChimeraCabAppleFFT() const noexcept override { return true; }
+@@ -978,0 +994,11 @@
++void FFT::performChimeraCabForwardNoUnity (const Complex<float>* input, Complex<float>* output) const noexcept
++{
++    if (engine != nullptr)
++        engine->performChimeraCabForwardNoUnity (input, output);
++}
++
++bool FFT::isChimeraCabAppleFFT() const noexcept
++{
++    return engine != nullptr && engine->isChimeraCabAppleFFT();
++}
++

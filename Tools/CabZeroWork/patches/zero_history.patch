@@ -1,0 +1,49 @@
+--- a/Source/ModeledCabConvolution.h
++++ b/Source/ModeledCabConvolution.h
+@@ -89,6 +89,8 @@
+     std::vector<Complex> inputTime, transform, outputTime, overlap;
+     std::vector<float> monoInput, monoTransform, monoOverlap;
+     int currentSegment{}, inputPosition{};
++    // Completed logical input blocks since reset; saturates before overflow.
++    int completedBlocks{};
+ 
+     struct InputBank {int start, offset;};
+     InputBank currentInputBank() const noexcept
+@@ -144,7 +146,11 @@
+             {SF_CAB_TRACE_BYTES(HistoryClear,pastSum.size()*sizeof(float));std::fill(pastSum.begin(),pastSum.end(),0.f);}
+             const auto* bankInput=inputSpectra.data()+size_t(bank.start)*size_t(2*bins);
+             int index=bank.offset;
+-            for(int partition=1;partition<segments;++partition) {
++            // Delayed partition p reads input from p*inputSegmentStep blocks ago.
++            // Until then that bank slot is still reset zero. Do not change ring
++            // geometry, live-signal silence handling, or the accumulation order.
++            const int available=juce::jmin(segments-1,completedBlocks/inputSegmentStep);
++            for(int partition=1;partition<=available;++partition) {
+                 if(++index>=segments)index=0;
+                 accumulate(bankInput+size_t(index)*size_t(2*bins),
+                     prepared->impulseSpectra.data()+size_t(partition)*size_t(2*bins),pastSum.data());
+@@ -192,6 +198,7 @@
+                 {SF_CAB_TRACE_BYTES(OverlapAdd,3u*std::uint64_t(fftSize-2*blockSize)*sizeof(float));juce::FloatVectorOperations::add(monoTransform.data()+blockSize,monoOverlap.data()+blockSize,fftSize-2*blockSize);}
+                 {SF_CAB_TRACE_BYTES(OverlapCopy,2u*std::uint64_t(fftSize-blockSize)*sizeof(float));juce::FloatVectorOperations::copy(monoOverlap.data(),monoTransform.data()+blockSize,fftSize-blockSize);}
+                 currentSegment=currentSegment>0 ? currentSegment-1 : inputSegments-1;
++                if(completedBlocks<inputSegments)++completedBlocks;
+             }
+         }
+     }
+@@ -225,7 +232,7 @@
+         std::fill(monoInput.begin(),monoInput.end(),0.f);
+         std::fill(monoTransform.begin(),monoTransform.end(),0.f);
+         std::fill(monoOverlap.begin(),monoOverlap.end(),0.f);
+-        currentSegment=0;inputPosition=0;
++        currentSegment=0;inputPosition=0;completedBlocks=0;
+     }
+     void process(juce::AudioBuffer<float>& buffer) noexcept
+     {
+@@ -272,6 +279,7 @@
+                 {SF_CAB_TRACE_BYTES(OverlapAdd,3u*std::uint64_t(fftSize-2*blockSize)*sizeof(Complex));for(int i=blockSize;i<fftSize-blockSize;++i)outputTime[size_t(i)]+=overlap[size_t(i)];}
+                 {SF_CAB_TRACE_BYTES(OverlapCopy,2u*std::uint64_t(fftSize-blockSize)*sizeof(Complex));std::copy(outputTime.begin()+blockSize,outputTime.end(),overlap.begin());}
+                 currentSegment=currentSegment>0 ? currentSegment-1 : inputSegments-1;
++                if(completedBlocks<inputSegments)++completedBlocks;
+             }
+         }
+     }

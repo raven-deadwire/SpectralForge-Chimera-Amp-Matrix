@@ -1,0 +1,24 @@
+{
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "files": {
+    "modules/juce_dsp/frequency/juce_FFT.cpp": {
+      "original_sha256": "aa1e5209d0bea072e8e57831110d86adfc6f91670c3ce72d3102f1e9a64843a3",
+      "overlay_sha256": "b7f2921dfed8f733f5d70c7f7cae9057135d7b45c636680f361da7d8ec7db68d"
+    },
+    "modules/juce_dsp/frequency/juce_FFT.h": {
+      "original_sha256": "9b3d6466e3f774b50fff28a02f473802ef64f84a959cdca8b923d58dd14a0cbe",
+      "overlay_sha256": "bd0632adc4d9b2316217460309f354cc2cf6f337734284a4a851b9038c420ac0"
+    },
+    "Source/ModeledCabConvolution.h": {
+      "original_sha256": "b35dff80ddc1de23061666ab7e7bca6e854cbb9d8da05aad09cb888dfc089f33",
+      "overlay_sha256": "1923545b8b9b059c2753e8c2dc64bee91f9f61ee188edcfd4daa38e4e45c2999"
+    }
+  },
+  "legacy_juce_methods_unchanged": true,
+  "cab_changed_calls": 1,
+  "prepared_fft_unchanged": true,
+  "product_sources_modified": false,
+  "macos_execution": false,
+  "integration_eligible": false,
+  "release_approved": false
+}

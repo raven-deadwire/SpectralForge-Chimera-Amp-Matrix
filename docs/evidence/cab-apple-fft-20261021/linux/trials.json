@@ -1,0 +1,54 @@
+[
+  {
+    "name": "candidate-0-control-0-A",
+    "candidate": "candidate",
+    "quartet": 0,
+    "kind": "control",
+    "arm": "A",
+    "position": 0,
+    "variant": "baseline",
+    "returncode": 0,
+    "binary_sha256": "b1052d5789f857a1b318cffc8facdc589c4194663091ce28e4a7c06e93415c73",
+    "outputs": {
+      "0-32-1.f32": "96c577177677e9810391afa6f0f2cb5f47eb4eb3740e4364b8d6d4d01dadf8ca",
+      "0-32-2.f32": "dda5b979b70c0575049090fa7c58db090cab6f9cf28d9c68cd68ce5822964bf0",
+      "0-64-1.f32": "554a3c0d5ff2d3b0642aefbd4e172a349b5a8cfa2d4f6228edcf752329885010",
+      "0-64-2.f32": "3f973dffbe1e777204a424d9aba9a48387729e17dafd6150931d352489a4365b",
+      "1-32-1.f32": "d901ef979b9d43fff191241a44b082cd6aeb1adb8a2c6a338fe34e762f10257e",
+      "1-32-2.f32": "aadc2d36ee1b4740d0ee1dc02a283709a6774a5f682e2de92d7544bf3bae606c",
+      "1-64-1.f32": "7ab6cfadfe5107ce4ba4306a3f14009ce48473564f598b86573f3e4017f709fe",
+      "1-64-2.f32": "99085a3f0a3917fb586347f9aa7b9250cf5e2f65dcd90bd89a8dae7da4a4d2e7",
+      "2-32-1.f32": "c5cba923d1a0f67acb13508d29c0967ce565d5bfbc29ae5c9561a32b98519ea5",
+      "2-32-2.f32": "2c8a44d555e37db7bdce75036564996459fd0b8b00859e2087993fa4c76b6526",
+      "2-64-1.f32": "8bf2cb68d21849d4c7c4105f3ea91eece355351da0ec1bf206d0580ae6b63216",
+      "2-64-2.f32": "d7cc3ae848113cbc33ee9d5f689f5daf2190c41cbf4eb9c1a323c7f63b56df8d"
+    },
+    "identity_equal": true
+  },
+  {
+    "name": "candidate-0-control-1-B",
+    "candidate": "candidate",
+    "quartet": 0,
+    "kind": "control",
+    "arm": "B",
+    "position": 1,
+    "variant": "candidate",
+    "returncode": 0,
+    "binary_sha256": "6ae06b59e624068fea3a69c44b0d292c0a5b58fa3c1a7857ae71d4f17d138f3c",
+    "outputs": {
+      "0-32-1.f32": "96c577177677e9810391afa6f0f2cb5f47eb4eb3740e4364b8d6d4d01dadf8ca",
+      "0-32-2.f32": "dda5b979b70c0575049090fa7c58db090cab6f9cf28d9c68cd68ce5822964bf0",
+      "0-64-1.f32": "554a3c0d5ff2d3b0642aefbd4e172a349b5a8cfa2d4f6228edcf752329885010",
+      "0-64-2.f32": "3f973dffbe1e777204a424d9aba9a48387729e17dafd6150931d352489a4365b",
+      "1-32-1.f32": "d901ef979b9d43fff191241a44b082cd6aeb1adb8a2c6a338fe34e762f10257e",
+      "1-32-2.f32": "aadc2d36ee1b4740d0ee1dc02a283709a6774a5f682e2de92d7544bf3bae606c",
+      "1-64-1.f32": "7ab6cfadfe5107ce4ba4306a3f14009ce48473564f598b86573f3e4017f709fe",
+      "1-64-2.f32": "99085a3f0a3917fb586347f9aa7b9250cf5e2f65dcd90bd89a8dae7da4a4d2e7",
+      "2-32-1.f32": "c5cba923d1a0f67acb13508d29c0967ce565d5bfbc29ae5c9561a32b98519ea5",
+      "2-32-2.f32": "2c8a44d555e37db7bdce75036564996459fd0b8b00859e2087993fa4c76b6526",
+      "2-64-1.f32": "8bf2cb68d21849d4c7c4105f3ea91eece355351da0ec1bf206d0580ae6b63216",
+      "2-64-2.f32": "d7cc3ae848113cbc33ee9d5f689f5daf2190c41cbf4eb9c1a323c7f63b56df8d"
+    },
+    "identity_equal": true
+  }
+]

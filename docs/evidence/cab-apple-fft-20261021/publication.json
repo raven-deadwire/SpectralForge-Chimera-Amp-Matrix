@@ -1,0 +1,12 @@
+{
+  "product_baseline": "cb9d2f3500b210d9556cbe4045dec5eac42ab900",
+  "local_measured_commit": "e643466",
+  "published_same_tree_commit": "6abf7e251b9a78d5dcc840653cb40f984111f88f",
+  "tree_sha": "a48289d32de25ea796ce98a3ab0fb0a6916e9b33",
+  "macos_run_id": 39470382813,
+  "macos_job_id": 118792563442,
+  "macos_state_at_20261021_0258_KST": "queued",
+  "integration_eligible": false,
+  "release_approved": false,
+  "aax_approved": false
+}

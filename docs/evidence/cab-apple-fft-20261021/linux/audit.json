@@ -1,0 +1,8 @@
+{
+  "complete": true,
+  "trials": 2,
+  "callbacks": 48000,
+  "state_and_output_equal": true,
+  "finite_clocks": true,
+  "callback_new_delete_observations": 0
+}

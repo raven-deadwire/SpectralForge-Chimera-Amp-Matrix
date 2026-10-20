@@ -1,0 +1,19 @@
+{
+  "pass": true,
+  "checks": [
+    "modules/juce_dsp/frequency/juce_FFT.cpp adds opt-in API",
+    "modules/juce_dsp/frequency/juce_FFT.cpp rejects drift",
+    "all original scaling sites retained",
+    "one additional explicit Apple complex method",
+    "non-Apple backend identified",
+    "modules/juce_dsp/frequency/juce_FFT.h adds opt-in API",
+    "modules/juce_dsp/frequency/juce_FFT.h rejects drift",
+    "pinned CAB source",
+    "one CAB opt-in call",
+    "all other CAB bytes retained",
+    "IR preparation remains legacy",
+    "CAB drift rejected",
+    "existing analyzer defaults preserved"
+  ],
+  "macos_execution": false
+}

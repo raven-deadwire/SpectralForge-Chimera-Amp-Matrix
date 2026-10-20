@@ -1,0 +1,30 @@
+--- a/Source/ModeledCabConvolution.h
++++ b/Source/ModeledCabConvolution.h
+@@ -39,13 +39,15 @@
+     struct Prepared {
+         const bool mono;
+         const int blockSize, fftSize, bins, segmentSize, segments, inputSegments;
++        const int occupiedSegments;
+         std::vector<float> impulseSpectra;
+         Prepared(const juce::AudioBuffer<float>& samples,int maximumBlockSize,bool monoInput=false)
+             : mono(monoInput), blockSize(juce::nextPowerOfTwo(maximumBlockSize)),
+               fftSize((blockSize>128 ? 2 : 4)*blockSize),
+               bins(mono ? fftSize/2+1 : fftSize),
+               segmentSize(fftSize-blockSize), segments(samples.getNumSamples()/segmentSize+1),
+-              inputSegments((blockSize>128 ? 1 : 3)*segments), impulseSpectra(size_t(segments)*size_t(2*bins))
++              inputSegments((blockSize>128 ? 1 : 3)*segments),
++              occupiedSegments(juce::jmax(1,(samples.getNumSamples()+segmentSize-1)/segmentSize)), impulseSpectra(size_t(segments)*size_t(2*bins))
+         {
+             SF_CAB_TRACE_WORKER(SpectraPrepare,Prepare);
+             jassert(samples.getNumChannels()==1 && maximumBlockSize>0 && maximumBlockSize<=512);
+@@ -144,7 +146,9 @@
+             {SF_CAB_TRACE_BYTES(HistoryClear,pastSum.size()*sizeof(float));std::fill(pastSum.begin(),pastSum.end(),0.f);}
+             const auto* bankInput=inputSpectra.data()+size_t(bank.start)*size_t(2*bins);
+             int index=bank.offset;
+-            for(int partition=1;partition<segments;++partition) {
++            // The optional final prepared partition has no authored samples.
++            // Retain its storage/ring slot; omit only its zero contribution.
++            for(int partition=1;partition<prepared->occupiedSegments;++partition) {
+                 if(++index>=segments)index=0;
+                 accumulate(bankInput+size_t(index)*size_t(2*bins),
+                     prepared->impulseSpectra.data()+size_t(partition)*size_t(2*bins),pastSum.data());

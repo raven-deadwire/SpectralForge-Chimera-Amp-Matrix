@@ -1,0 +1,131 @@
+[
+  {
+    "variant": "baseline",
+    "test": "parity",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "realtime",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [
+      "--expanded"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [
+      "--layouts"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "baseline",
+    "test": "integration",
+    "args": [
+      "--expanded",
+      "--extended-buffers"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "empty_partition",
+    "test": "parity",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "empty_partition",
+    "test": "realtime",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "empty_partition",
+    "test": "integration",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "empty_partition",
+    "test": "integration",
+    "args": [
+      "--expanded"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "empty_partition",
+    "test": "integration",
+    "args": [
+      "--layouts"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "empty_partition",
+    "test": "integration",
+    "args": [
+      "--expanded",
+      "--extended-buffers"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "zero_history",
+    "test": "parity",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "zero_history",
+    "test": "realtime",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "zero_history",
+    "test": "integration",
+    "args": [],
+    "returncode": 0
+  },
+  {
+    "variant": "zero_history",
+    "test": "integration",
+    "args": [
+      "--expanded"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "zero_history",
+    "test": "integration",
+    "args": [
+      "--layouts"
+    ],
+    "returncode": 0
+  },
+  {
+    "variant": "zero_history",
+    "test": "integration",
+    "args": [
+      "--expanded",
+      "--extended-buffers"
+    ],
+    "returncode": 0
+  }
+]

@@ -1,0 +1,50 @@
+name: CAB Apple FFT isolated research
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabAppleFFT/**'
+      - 'Tools/CabZeroWork/run.py'
+      - '.github/workflows/cab-apple-fft-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cab-apple-fft-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  apple-fft:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: juce-framework/JUCE
+          ref: d6181bde38d858c283c3b7bf699ce6340c050b5d
+          path: JUCE-upstream
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Static isolation and fail-closed contracts
+        run: python candidate/Tools/CabAppleFFT/test_contract.py --juce "$PWD/JUCE-upstream"
+      - name: Build isolated CAB and FFT harnesses
+        run: |
+          mkdir evidence
+          cmake -S candidate/Tools/CabAppleFFT -B apple-build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DJUCE_UPSTREAM="$PWD/JUCE-upstream" > evidence/configure.log 2>&1
+          cmake --build apple-build -j 3 > evidence/build.log 2>&1
+      - name: Same-state CAB and FFT ABBA/BAAB with identical-binary AA
+        run: python candidate/Tools/CabAppleFFT/run.py --build apple-build --output evidence/measurement
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: CAB-AppleFFT-${{ env.SOURCE_SHA }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 90

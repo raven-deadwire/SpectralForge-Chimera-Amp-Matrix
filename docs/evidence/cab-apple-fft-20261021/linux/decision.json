@@ -1,0 +1,11 @@
+{
+  "decision": "not_adopted_native_measurement_required",
+  "native_apple_executed": false,
+  "negative_control_only": true,
+  "correctness_gates_pass": true,
+  "cab_output_state_equal": true,
+  "performance_improvement_demonstrated": false,
+  "integration_eligible": false,
+  "release_approved": false,
+  "aax_approved": false
+}
