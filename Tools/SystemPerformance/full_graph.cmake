@@ -34,6 +34,10 @@ if(CHIMERA_BUILD_PERFORMANCE_HOST)
   configure_file(Tools/SystemPerformance/FullGraphBuild.h.in generated/FullGraphBuild.h @ONLY)
   set_property(SOURCE Tools/SystemPerformance/FullGraphHost.cpp APPEND PROPERTY
     OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/generated/FullGraphBuild.h")
+  set_property(SOURCE Source/ReleaseSupport.cpp APPEND PROPERTY
+    OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/generated/ChimeraBuildVersion.h")
+  set_property(SOURCE Source/PluginProcessor.cpp APPEND PROPERTY
+    OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/generated/ChimeraBuildVersion.h;${CMAKE_BINARY_DIR}/generated/ChimeraBetaLifecycleBuild.h")
   target_compile_definitions(ChimeraFullGraphHost PRIVATE CHIMERA_PERF_CONFIG="$<CONFIG>")
   # Existing targets also watch relative and cmake/../ paths. Canonicalize
   # these to avoid duplicate Ninja regeneration outputs on Windows.
