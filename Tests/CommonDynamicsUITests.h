@@ -45,7 +45,9 @@ inline void ancestorVisibility(ChimeraProcessor& processor) {
     for(int visit=0;visit<2;++visit) {
         // Only the ancestor changes visibility: JUCE does not send a child's
         // visibilityChanged callback. No page/source setter may mask this bug.
-        workspace.setVisible(true);settle(65);
+        workspace.setVisible(true);
+        waitForNativeSpectrum([&]{return processor.dynamicsAnalysis().uiConsumer==measured.get();},
+                              "Showing only an ancestor did not acquire the dynamics stream");
         require(processor.dynamicsAnalysis().uiConsumer==measured.get() && measured->isWaitingForFreshCapture(),"Showing only an ancestor did not acquire the dynamics stream");
         acknowledge(processor);audio(processor);
         if(!measured->analyzerHasData() || measured->spectrumDB(false,80)<=-35.f)
@@ -54,7 +56,10 @@ inline void ancestorVisibility(ChimeraProcessor& processor) {
                      <<" drain="<<measured->isWaitingForFreshCapture()<<" enabled="<<processor.dynamicsAnalysis().fifo.enabled.load()
                      <<" pending="<<processor.dynamicsAnalysis().fifo.pendingSamples()<<'\n';
         require(measured->analyzerHasData() && measured->spectrumDB(false,80)>-35.f,"Ancestor-opened spectrum did not receive production audio");
-        workspace.setVisible(false);settle(65);const auto frames=measured->fftFrames();audio(processor);
+        workspace.setVisible(false);
+        waitForNativeSpectrum([&]{return processor.dynamicsAnalysis().uiConsumer==nullptr;},
+                              "Hiding an ancestor did not release the dynamics stream");
+        const auto frames=measured->fftFrames();audio(processor);
         require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load() && measured->fftFrames()==frames,"Hiding an ancestor retained capture or FFT work");
     }
     measured.reset();host.removeFromDesktop();

@@ -12,17 +12,27 @@
 namespace nativeUITests {
 inline void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}
 inline void settle(int ms=55){require(chimeraTest::dispatchFor(ms),"Native UI loop exited");}
+template<class Ready> void waitForNativeSpectrum(Ready&& ready,const char* failure) {
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
+    while(!ready()) {
+        require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);
+        settle(10);
+    }
+}
 // A native event dispatch can return before a JUCE timer runs (notably while
 // AppKit is creating a peer). Synchronize the actual callback/UI handshake;
 // do not assume a fixed sleep armed capture before an offline audio burst.
 inline void prepareDynamicsCapture(ChimeraProcessor& processor) {
     auto& analysis=processor.dynamicsAnalysis();
     auto* view=static_cast<spectralforge::DynamicsSpectrumPanel*>(analysis.uiConsumer);
-    if(view==nullptr || !view->isShowing() || view->isSnapshotFrozen())return;
+    if(view==nullptr)return;
     const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
     juce::AudioBuffer<float> silence(2,256);juce::MidiBuffer midi;
-    while(view->isWaitingForFreshCapture() || !analysis.fifo.enabled.load()) {
+    for(;;) {
         require(analysis.uiConsumer==view,"Dynamics capture changed owner while awaiting its callback boundary");
+        if(!view->isShowing() || view->isSnapshotFrozen()
+           || view->selectedStage()==spectralforge::DynamicsStage::none)return;
+        if(!view->isWaitingForFreshCapture() && analysis.fifo.enabled.load())return;
         if(juce::Time::getMillisecondCounterHiRes()>=deadline) {
             std::cerr<<"Dynamics capture timeout stage="<<int(view->selectedStage())
                      <<" drain="<<view->isWaitingForFreshCapture()<<" enabled="<<analysis.fifo.enabled.load()
