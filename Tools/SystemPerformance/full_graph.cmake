@@ -32,6 +32,8 @@ if(CHIMERA_BUILD_PERFORMANCE_HOST)
   file(WRITE "${CMAKE_BINARY_DIR}/full-graph-source-inputs.txt" "${PERF_CONTENT}")
   file(SHA256 "${CMAKE_BINARY_DIR}/full-graph-source-inputs.txt" PERF_HASH)
   configure_file(Tools/SystemPerformance/FullGraphBuild.h.in generated/FullGraphBuild.h @ONLY)
+  set_property(SOURCE Tools/SystemPerformance/FullGraphHost.cpp APPEND PROPERTY
+    OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/generated/FullGraphBuild.h")
   target_compile_definitions(ChimeraFullGraphHost PRIVATE CHIMERA_PERF_CONFIG="$<CONFIG>")
   # Existing targets also watch relative and cmake/../ paths. Canonicalize
   # these to avoid duplicate Ninja regeneration outputs on Windows.
