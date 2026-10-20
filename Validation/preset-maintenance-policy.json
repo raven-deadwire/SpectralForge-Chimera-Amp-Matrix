@@ -9,7 +9,7 @@
   "base_publication_decision_sha256": "621ad9f51d34326130b2cd527cbf3ae26dc720b07ac006014cca07e1c3141d52",
   "retained_beta_expiry_utc": "2027-02-11T14:59:00Z",
   "preset_recipe_sha256": "ebd2e57b8dc554f813814a5c1bf3292e53d56cf3955a7634b026e2abce9764bd",
-  "approved_product_source_sha": null,
+  "approved_product_source_sha": "50e7836011cac9a007fe29b078cd983309fca068",
   "owner_authorization": {
     "instruction": "프리셋은 업데이트하면 바로 배포판에 반영",
     "instruction_date": "2026-10-19",
