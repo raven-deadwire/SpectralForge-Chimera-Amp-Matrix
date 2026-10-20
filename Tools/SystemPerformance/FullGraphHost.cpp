@@ -111,10 +111,23 @@ int main(int argc, char** argv) {
                 set(*p,"cabBtype"+suffix,0);set(*p,"cabblend"+suffix,0);
             }
             p->setRateAndBufferSizeDetails(48000,block);p->prepareToPlay(48000,block);
-            for(int lane=0;lane<=mode;++lane)
-                require(p->micCaptureMetadata(lane,0).sourceHash==irHash,"Loaded IR identity mismatch");
             hashes.push_back(parameterHash(*p));
-            juce::MemoryBlock resolved;p->getStateInformation(resolved);
+            juce::MemoryBlock resolved;require(p->tryGetStateInformation(resolved),"Cannot serialize resolved state");
+            const auto resolvedXml=juce::AudioProcessor::getXmlFromBinary(resolved.getData(),int(resolved.getSize()));
+            require(resolvedXml!=nullptr,"Invalid resolved state");
+            auto actual=juce::ValueTree::fromXml(*resolvedXml);
+            require(spectralforge::irState::unpack(actual),"Invalid resolved IR table");
+            for(int lane=0;lane<=mode;++lane) {
+                bool found=false;
+                for(auto capture:actual.getChildWithName("USER_IRS"))
+                    if(int(capture["lane"])==lane && int(capture["slot"])==0) {
+                        juce::MemoryBlock bytes;
+                        require(bytes.fromBase64Encoding(capture["data"].toString())
+                                && juce::SHA256(bytes).toHexString()==irHash,"Loaded IR bytes mismatch");
+                        found=true;
+                    }
+                require(found,"Loaded IR binding missing");
+            }
             const auto saved=out.getChildFile("resolved-"+juce::String(i)+".chimera");
             require(saved.replaceWithData(resolved.getData(),resolved.getSize()),"Cannot save resolved state");
             states.add(juce::SHA256(saved).toHexString());nodes.push_back(p.get());owned.push_back(std::move(p));
