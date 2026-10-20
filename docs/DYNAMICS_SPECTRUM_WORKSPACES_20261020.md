@@ -271,3 +271,16 @@ Only completed jobs for the exact repair commit may be recorded as passing.
 The independent core passed locally; native platform integration and screenshots
 must be assessed from the repair's own run artifacts. Draft status and public
 release approval are unchanged; no publishing workflow is requested.
+
+The first repair's exact-source native runs passed both dynamics UI suites on
+Windows and Linux, but macOS exposed a separate test sequencing defect: an
+offline audio burst could finish before native timers armed or consumed the
+stream. Native event dispatch is not a timer-completion guarantee. The test
+driver now waits for the real callback acknowledgement/capture enable and FIFO
+consumption with a bounded 2-second native pump, and services native messages
+between finite audio batches. No direct timer invocation, fake analyzer frames,
+test retry, attenuation relaxation or performance deadline change is used in
+CI. Failure diagnostics retain stage, pending samples and frame state. A focused
+three-platform workflow runs both dynamics UI suites and retains their source
+SHA, result XML, complete test log and screenshots while the existing broader
+regressions remain enabled.

@@ -12,6 +12,37 @@
 namespace nativeUITests {
 inline void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}
 inline void settle(int ms=55){require(chimeraTest::dispatchFor(ms),"Native UI loop exited");}
+// A native event dispatch can return before a JUCE timer runs (notably while
+// AppKit is creating a peer). Synchronize the actual callback/UI handshake;
+// do not assume a fixed sleep armed capture before an offline audio burst.
+inline void prepareDynamicsCapture(ChimeraProcessor& processor) {
+    auto& analysis=processor.dynamicsAnalysis();
+    auto* view=static_cast<spectralforge::DynamicsSpectrumPanel*>(analysis.uiConsumer);
+    if(view==nullptr || !view->isShowing() || view->isSnapshotFrozen())return;
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
+    juce::AudioBuffer<float> silence(2,256);juce::MidiBuffer midi;
+    while(view->isWaitingForFreshCapture() || !analysis.fifo.enabled.load()) {
+        require(analysis.uiConsumer==view,"Dynamics capture changed owner while awaiting its callback boundary");
+        if(juce::Time::getMillisecondCounterHiRes()>=deadline) {
+            std::cerr<<"Dynamics capture timeout stage="<<int(view->selectedStage())
+                     <<" drain="<<view->isWaitingForFreshCapture()<<" enabled="<<analysis.fifo.enabled.load()
+                     <<" pending="<<analysis.fifo.pendingSamples()<<" frames="<<view->fftFrames()<<'\n';
+            require(false,"Native dynamics capture did not acknowledge its real audio callback");
+        }
+        silence.clear();processor.processBlock(silence,midi);settle(10);
+    }
+}
+inline void consumeSpectrumAudio(spectralforge::EQAnalyzerFIFO& fifo) {
+    if(!fifo.enabled.load())return;
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
+    while(fifo.pendingSamples()>0) {
+        if(juce::Time::getMillisecondCounterHiRes()>=deadline) {
+            std::cerr<<"Spectrum consumption timeout enabled="<<fifo.enabled.load()<<" pending="<<fifo.pendingSamples()<<'\n';
+            require(false,"Native spectrum timer did not consume the supplied production audio");
+        }
+        settle(10);
+    }
+}
 template<class T=juce::Component> T* find(juce::Component& root,const juce::String& id){
     if(root.getComponentID()==id)if(auto* typed=dynamic_cast<T*>(&root))return typed;
     for(auto* child:root.getChildren())if(auto* result=find<T>(*child,id))return result;return nullptr;
@@ -266,6 +297,7 @@ inline void dynamicsEditors(const juce::File& directory) {
     const auto audio=[&] {
         juce::AudioBuffer<float> block(2,256);juce::MidiBuffer midi;
         for(int chunk=0;chunk<32;++chunk) {
+            if(chunk%8==0)prepareDynamicsCapture(processor);
             for(int i=0;i<256;++i,++samplePosition) {
                 const double phase=juce::MathConstants<double>::twoPi*double(samplePosition)/48000.;
                 const float value=.16f*float(std::sin(375.*phase))+.04f*float(std::sin(6000.*phase));
@@ -274,6 +306,7 @@ inline void dynamicsEditors(const juce::File& directory) {
             processor.processBlock(block,midi);
             if((chunk+1)%8==0)settle(45);
         }
+        consumeSpectrumAudio(processor.dynamicsAnalysis().fifo);
     };
     const auto spectrumIn=[&](juce::Component& panel,const char* id,DynamicsStage stage) {
         auto* spectrum=find<DynamicsSpectrumPanel>(panel,id);
@@ -336,6 +369,11 @@ inline void dynamicsEditors(const juce::File& directory) {
                 ++preCases;
             }
             navigate([&]{viewport->setViewPosition(0,0);});audio();
+            if(!spectrum->analyzerHasData() || spectrum->analysisSampleRate()!=48000.)
+                std::cerr<<"PRE spectrum owner="<<owner<<" scale="<<scale<<" data="<<spectrum->analyzerHasData()
+                         <<" frames="<<spectrum->fftFrames()<<" rate="<<spectrum->analysisSampleRate()
+                         <<" drain="<<spectrum->isWaitingForFreshCapture()<<" enabled="<<processor.dynamicsAnalysis().fifo.enabled.load()
+                         <<" pending="<<processor.dynamicsAnalysis().fifo.pendingSamples()<<'\n';
             require(spectrum->analyzerHasData() && spectrum->fftFrames()>0 && spectrum->analysisSampleRate()==48000.,
                     "PRE spectrum editor did not receive real module input/output audio");
             snapshot(*editor,directory,("Native-PRE-Spectrum-owner"+juce::String(owner)+"-"+juce::String(scale)).toRawUTF8());

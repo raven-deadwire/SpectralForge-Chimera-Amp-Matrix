@@ -12,20 +12,24 @@ inline void visibleInside(juce::Component& editor,juce::Component& root,const ju
 }
 inline void acknowledge(ChimeraProcessor& processor) {
     juce::AudioBuffer<float> silence(2,256);silence.clear();juce::MidiBuffer midi;
-    processor.processBlock(silence,midi);settle(65);
+    processor.processBlock(silence,midi);settle(65);prepareDynamicsCapture(processor);
 }
 inline void audio(ChimeraProcessor& processor,double frequency=937.5,int blocks=64) {
     // Process the production route. Opposite-polarity R must not cancel L in
     // the power spectrum. The finite burst remains below the FIFO capacity.
     juce::AudioBuffer<float> block(2,256);juce::MidiBuffer midi;
     for(int b=0;b<blocks;++b) {
+        if(b%8==0)prepareDynamicsCapture(processor);
         for(int n=0;n<256;++n) {
             const float sample=float(.25*std::sin(juce::MathConstants<double>::twoPi*frequency*double(b*256+n)/48000.));
             block.setSample(0,n,sample);block.setSample(1,n,-sample);
         }
         processor.processBlock(block,midi);
+        if((b+1)%8==0)settle(10);
     }
     settle(65);
+    consumeSpectrumAudio(processor.dynamicsAnalysis().fifo);
+    for(int bank=0;bank<2;++bank)consumeSpectrumAudio(processor.graphicalEQ(bank).analyzer);
 }
 inline void openWorkspace(juce::Component& editor) {
     auto* tone=find<juce::TextButton>(editor,"path.tone.eq");require(tone,"Tone EQ navigation missing");signalPathTests::click(*tone);
@@ -44,6 +48,11 @@ inline void ancestorVisibility(ChimeraProcessor& processor) {
         workspace.setVisible(true);settle(65);
         require(processor.dynamicsAnalysis().uiConsumer==measured.get() && measured->isWaitingForFreshCapture(),"Showing only an ancestor did not acquire the dynamics stream");
         acknowledge(processor);audio(processor);
+        if(!measured->analyzerHasData() || measured->spectrumDB(false,80)<=-35.f)
+            std::cerr<<"Ancestor visit="<<visit<<" data="<<measured->analyzerHasData()<<" frames="<<measured->fftFrames()
+                     <<" rate="<<measured->analysisSampleRate()<<" in_db="<<measured->spectrumDB(false,80)
+                     <<" drain="<<measured->isWaitingForFreshCapture()<<" enabled="<<processor.dynamicsAnalysis().fifo.enabled.load()
+                     <<" pending="<<processor.dynamicsAnalysis().fifo.pendingSamples()<<'\n';
         require(measured->analyzerHasData() && measured->spectrumDB(false,80)>-35.f,"Ancestor-opened spectrum did not receive production audio");
         workspace.setVisible(false);settle(65);const auto frames=measured->fftFrames();audio(processor);
         require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load() && measured->fftFrames()==frames,"Hiding an ancestor retained capture or FFT work");
