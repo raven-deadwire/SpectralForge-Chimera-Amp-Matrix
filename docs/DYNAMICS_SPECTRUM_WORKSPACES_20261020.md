@@ -237,3 +237,37 @@ catalog, layout, bank and deliberate-activation checks. `--native-panels-only`
 also covers Gate spectrum entry and the broader original native panels. These
 are added regression definitions; record their execution results and exact
 source/build identity before marking the evidence rows above as passed.
+
+## PR #110 failure repair (2026-10-20 KST)
+
+The failing baseline is `9d5b7fc20e4f268a9e6e80293b81013374d0ed86`.
+Runs `39325032429`, `39325032475`, `39325032442`, and `39325032551`
+were inspected; failures are not collectively labelled as one defect.
+
+- `ChimeraGateProcessorTests` indirectly includes `NativeMessageLoop.h` via
+  `EQPendingInputTests.h`. Without UI probes, Windows/Linux omitted
+  `JUCE_MODAL_LOOPS_PERMITTED=1`; macOS omitted `NativeMessageLoop.mm` in both
+  configurations. Supply these dependencies on the test target, keeping the
+  native adapter outside shipping targets. The original Linux header compile
+  error was reproduced against JUCE 8.0.8 and disappears with the target define.
+- Dynamics capture depended on child visibility/hierarchy callbacks. JUCE does
+  not notify the child when only its workspace ancestor becomes visible. A
+  locally visible spectrum could therefore leave `uiConsumer` null indefinitely.
+  The message-thread timer now acquires an idle stream when the view is actually
+  showing, through the existing callback acknowledgement and FIFO drain. It
+  does not take a stream already owned by a native detail dialog.
+- The UI regression now opens/hides/reopens only an ancestor and checks real
+  processor audio, hidden FFT suspension, and stream release. The six-page
+  loop reports page, scale, source and drain state on failure.
+- Measured stage regressions exercise compressor attenuation, both gate
+  placements with a distinguishing lane gain, limiter input after output trim,
+  multiband attenuation, de-esser high/low selectivity, dynamic Tone/Final EQ
+  cuts with a distinguishing POST gain, different PRE/POST makeup gains and
+  the filtered Matrix LOW source. Existing native PRE owner and native/legacy
+  POST exclusion, freeze, automation, A/B and legacy-state tests remain enabled.
+
+These are code changes and test assertions, not a declaration of CI success.
+Only completed jobs for the exact repair commit may be recorded as passing.
+The independent core passed locally; native platform integration and screenshots
+must be assessed from the repair's own run artifacts. Draft status and public
+release approval are unchanged; no publishing workflow is requested.

@@ -31,6 +31,26 @@ inline void openWorkspace(juce::Component& editor) {
     auto* tone=find<juce::TextButton>(editor,"path.tone.eq");require(tone,"Tone EQ navigation missing");signalPathTests::click(*tone);
     auto* open=find<juce::TextButton>(editor,"commonDynamics.open");require(open && open->isShowing(),"Dynamics entry missing");signalPathTests::click(*open);
 }
+inline void ancestorVisibility(ChimeraProcessor& processor) {
+    juce::Component host,workspace;
+    auto measured=std::make_unique<spectralforge::DynamicsSpectrumPanel>(processor.dynamicsAnalysis(),processor.eqCaptureBoundary());
+    host.setBounds(0,0,900,480);workspace.setBounds(host.getLocalBounds());measured->setBounds(workspace.getLocalBounds());
+    host.addChildComponent(workspace);workspace.addAndMakeVisible(*measured);measured->setStage(Stage::compressor);
+    host.addToDesktop(juce::ComponentPeer::windowIsTemporary);host.setVisible(true);settle(65);
+    require(measured->isVisible() && !measured->isShowing() && processor.dynamicsAnalysis().uiConsumer==nullptr,"Hidden ancestor started dynamics capture");
+    for(int visit=0;visit<2;++visit) {
+        // Only the ancestor changes visibility: JUCE does not send a child's
+        // visibilityChanged callback. No page/source setter may mask this bug.
+        workspace.setVisible(true);settle(65);
+        require(processor.dynamicsAnalysis().uiConsumer==measured.get() && measured->isWaitingForFreshCapture(),"Showing only an ancestor did not acquire the dynamics stream");
+        acknowledge(processor);audio(processor);
+        require(measured->analyzerHasData() && measured->spectrumDB(false,80)>-35.f,"Ancestor-opened spectrum did not receive production audio");
+        workspace.setVisible(false);settle(65);const auto frames=measured->fftFrames();audio(processor);
+        require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load() && measured->fftFrames()==frames,"Hiding an ancestor retained capture or FFT work");
+    }
+    measured.reset();host.removeFromDesktop();
+    std::cout<<"PASS ancestor-only visibility starts, suspends and reacquires real stage audio\n";
+}
 inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPanel& panel,Page page) {
     const bool dynamic=page==Page::dynamicEQ;
     auto* measured=find<spectralforge::DynamicsSpectrumPanel>(panel,"commonDynamics.spectrum");
@@ -63,6 +83,7 @@ inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPane
         default:break;
     }
 }
+inline void measuredStageContracts(const juce::File& directory);
 inline void run(const juce::File& directory) {
     auto processor=std::make_unique<ChimeraProcessor>();auto& p=*processor;
     for(const auto* id:{"gateon","boardEnabled","precompon","filteron","fuzzon","booston","preon","ampon1","cab1","transposeon","tuneron","cleanCompOn","liveLimiterOn","mbOn","deEsserOn"})set(p,id,0);
@@ -74,6 +95,7 @@ inline void run(const juce::File& directory) {
     }
     set(p,spectralforge::eqID(1,0,"enabled"),1);set(p,spectralforge::eqID(1,0,"type"),0);
     p.prepareToPlay(48000,256);
+    ancestorVisibility(p);
     auto editor=std::make_unique<ChimeraEditor>(p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
     signalPathTests::Writes writes;p.addListener(&writes);const auto before=signalPathTests::values(p);
     openWorkspace(*editor);
@@ -89,7 +111,10 @@ inline void run(const juce::File& directory) {
             signalPathTests::click(*button);pageContract(*editor,*panel,Page(page));
             acknowledge(p);audio(p);
             if(page==int(Page::dynamicEQ))require(find<spectralforge::GraphicalEQPanel>(*panel,"toneEQ_panel")->analyzerHasData(),"Dynamic EQ spectrum has no production audio");
-            else require(measured->analyzerHasData(),"Dynamics spectrum has no production audio");
+            else {
+                if(!measured->analyzerHasData())std::cerr<<"Dynamics page="<<pages[size_t(page)]<<" scale="<<scale<<" showing="<<measured->isShowing()<<" owner="<<(p.dynamicsAnalysis().uiConsumer==measured)<<" selected="<<p.dynamicsAnalysis().selected.load()<<" pending_drain="<<measured->isWaitingForFreshCapture()<<" enabled="<<p.dynamicsAnalysis().fifo.enabled.load()<<" pending_samples="<<p.dynamicsAnalysis().fifo.pendingSamples()<<'\n';
+                require(measured->analyzerHasData(),"Dynamics spectrum has no production audio");
+            }
             signalPathTests::capture(*editor,directory,"common-dynamics-"+juce::String(pages[size_t(page)])+"-"+juce::String(scale));
         }
     }
@@ -201,6 +226,9 @@ inline void run(const juce::File& directory) {
     auto* tone=find<spectralforge::GraphicalEQPanel>(*editor,"toneEQ_panel");
     require(tone && tone->isShowing() && !panel->isShowing() && !panel->isUsingEQEditor(*tone),"Borrowed Tone EQ editor was not restored to normal navigation");
     p.removeListener(&writes);editor.reset();p.releaseResources();
+    measuredStageContracts(directory);
     std::cout<<"PASS six dedicated spectrum workspaces, 24 scaled layouts, actual stereo IN/OUT and GR, freeze/source drain, hidden FFT suspension, shared EQ target editing, four dynamic slots, four multiband selections, native/legacy PRE/POST source isolation and analyzer ownership\n";
 }
 }
+
+#include "DynamicsStageSpectrumUITests.h"

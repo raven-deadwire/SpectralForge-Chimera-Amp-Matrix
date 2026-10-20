@@ -226,6 +226,12 @@ private:
     }
     void updateCapture() {
         if(!isShowing()){releaseCapture();return;}
+        // JUCE does not notify a child when only an ancestor's visibility
+        // changes. The spectrum may already be locally visible inside a hidden
+        // workspace, so opening that workspace must acquire the idle stream
+        // here. Never steal the lease from another visible dynamics dialog.
+        // restartCapture keeps the normal callback acknowledgement/flush gate.
+        if(analysis.uiConsumer==nullptr && stage!=DynamicsStage::none){restartCapture();return;}
         if(analysis.uiConsumer!=this){captureActive=false;return;}
         if(pendingDrain!=0) {
             analysis.disable();captureActive=false;

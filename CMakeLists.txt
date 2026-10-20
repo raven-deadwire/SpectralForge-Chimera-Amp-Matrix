@@ -354,6 +354,9 @@ endforeach()
 juce_add_console_app(ChimeraGateProcessorTests PRODUCT_NAME "Chimera Gate Processor Tests")
 target_sources(ChimeraGateProcessorTests PRIVATE Tests/GateProcessorTests.cpp)
 target_include_directories(ChimeraGateProcessorTests PRIVATE Source)
+# GateProcessorTests includes EQPendingInputTests, which pumps native messages.
+# This target must also work with CHIMERA_UI_PROBES=OFF (Graphical EQ/Open Beta).
+target_compile_definitions(ChimeraGateProcessorTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
 target_link_libraries(ChimeraGateProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraGateProcessorTests COMMAND ChimeraGateProcessorTests)
 
@@ -528,7 +531,7 @@ set_tests_properties(ChimeraEQHighRateAttributionTests PROPERTIES TIMEOUT 360 RU
 # Keep this adapter out of all product/plug-in targets and preserve JUCE 8.0.8.
 if(APPLE)
   enable_language(OBJCXX)
-  foreach(ui_test ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQUITests)
+  foreach(ui_test ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQUITests ChimeraGateProcessorTests)
     if(TARGET ${ui_test})
       target_sources(${ui_test} PRIVATE Tests/NativeMessageLoop.mm)
       set_property(TARGET ${ui_test} PROPERTY OBJCXX_STANDARD 20)
