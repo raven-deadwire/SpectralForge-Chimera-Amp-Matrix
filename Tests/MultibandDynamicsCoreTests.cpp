@@ -154,6 +154,115 @@ void reconstructionAndParallelAlignment() {
               << " dB; parallel mix flat across crossovers at four rates\n";
 }
 
+// Independent z-domain oracle: bilinear transformed Butterworth^2, rather
+// than a second copy of the production state-variable filter recurrence.
+std::array<std::complex<double>, 4> analyticalBands(
+        double rate, double hz, const std::array<float, 3>& crossovers) {
+    const auto zInverse = std::polar(1., -2. * pi * hz / rate);
+    const auto q = (1. - zInverse) / (1. + zInverse);
+    std::array<std::complex<double>, 3> low, high, allpass;
+    for (size_t i = 0; i < 3; ++i) {
+        const auto u = q / std::tan(pi * crossovers[i] / rate);
+        const auto denominator = 1. + std::sqrt(2.) * u + u * u;
+        low[i] = 1. / (denominator * denominator);
+        high[i] = u * u * u * u * low[i];
+        allpass[i] = low[i] + high[i];
+    }
+    return {allpass[2] * allpass[1] * low[0], allpass[2] * low[1] * high[0],
+            low[2] * high[1] * high[0], high[2] * high[1] * high[0]};
+}
+
+void weightedPhaseAndMixAudit() {
+    double worstComplexError = 0.;
+    for (const double rate : {44100., 48000., 96000., 192000.}) {
+        for (const auto crossovers : {std::array<float, 3>{120, 700, 3500},
+                                     std::array<float, 3>{40, 56, 78.4f},
+                                     std::array<float, 3>{7000, 10000, 16000}}) {
+            MultibandSettings s; s.on = true; s.crossovers = crossovers;
+            for (size_t b = 0; b < 4; ++b) {
+                s.bands[b].ratio = 1.f;
+                s.bands[b].makeup = std::array<float, 4>{-6, 3, -9, 6}[b];
+            }
+            for (float mix : {0.f, .5f, 1.f}) {
+                s.mix = mix;
+                MultibandDynamicsCore mb; mb.setSettings(s); mb.prepare(rate);
+                std::array<std::vector<float>, 2> impulse{std::vector<float>(65536), std::vector<float>(65536)};
+                impulse[0][0] = .125f;
+                process(mb, impulse, 1, {0, 1, 31, 257, 2049});
+                for (double hz : {31., 40., 56., 80., 120., 700., 3500., 10000., 16000.}) {
+                    const auto bands = analyticalBands(rate, hz, mb.getSettings().crossovers);
+                    std::complex<double> expected{}, measured{};
+                    for (size_t b = 0; b < 4; ++b)
+                        expected += bands[b] * (1. + mix * (std::pow(10., s.bands[b].makeup / 20.) - 1.));
+                    for (size_t n = 0; n < impulse[0].size(); ++n)
+                        measured += double(impulse[0][n]) * std::polar(1., -2. * pi * hz * double(n) / rate) / .125;
+                    const double error = std::abs(measured - expected);
+                    worstComplexError = std::max(worstComplexError, error);
+                    check(error < 2.e-6, "Weighted band sum has incorrect gain, phase or internal dry alignment");
+                }
+            }
+        }
+    }
+    // Mix=0 deliberately retains the crossover phase. It must not silently
+    // become raw bypass, which would reintroduce a parallel phase mismatch.
+    MultibandSettings s; s.on = true; s.mix = 0.f;
+    MultibandDynamicsCore mb; mb.setSettings(s); mb.prepare(48000.);
+    auto dry = tones(48000., .25, {80., 700., 3500.}, .1);
+    auto zeroMix = dry; process(mb, zeroMix, 2);
+    s.mix = 1.f; for (auto& b : s.bands) b.bypass = true;
+    mb.setSettings(s); mb.reset(); auto bandBypass = dry; process(mb, bandBypass, 2);
+    check(zeroMix == bandBypass, "All-band bypass and zero mix lost their common phase reference");
+    check(zeroMix != dry, "Neutral IIR path was silently replaced by raw bypass");
+    std::cout << "PASS weighted complex response and phase-preserving endpoints; max complex error "
+              << worstComplexError << '\n';
+}
+
+void bypassTransitionAudit() {
+    for (const double rate : {44100., 48000., 96000., 192000.}) {
+        MultibandSettings s; s.on = true;
+        for (auto& band : s.bands) band.ratio = 1.f;
+        MultibandDynamicsCore mb; mb.setSettings(s); mb.prepare(rate);
+        auto input = tones(rate, .55, {700.}, .25, 1.f);
+        // Independent quadrature signals measure the neutral LTV envelope;
+        // two identical linked channels would hide a phase-dependent notch.
+        for (size_t n = 0; n < input[1].size(); ++n)
+            input[1][n] = float(.25 * std::cos(2. * pi * 700. * double(n) / rate));
+        auto fullWet = input; process(mb, fullWet, 2);
+        mb.reset(); auto switched = input;
+        const int at = int(rate * .5), ramp = int(std::ceil(rate * .01));
+        float* audio[]{switched[0].data(), switched[1].data()};
+        mb.process(audio, 2, at); s.on = false; mb.setSettings(s);
+        const auto before = mb;
+        auto ragged = switched;
+        audio[0] += at; audio[1] += at;
+        mb.process(audio, 2, int(switched[0].size()) - at);
+        auto fragmented = before;
+        for (int n = at; n < int(ragged[0].size()); ++n) {
+            float* p[]{&ragged[0][size_t(n)], &ragged[1][size_t(n)]};
+            fragmented.process(p, 2, 1);
+        }
+        check(switched == ragged, "Bypass transition depends on host block boundaries");
+        double minimum = 1.;
+        for (int n = at; n < int(switched[0].size()); ++n) {
+            const double wet = std::max(0., 1. - double(n - at + 1) / ramp);
+            for (size_t c = 0; c < 2; ++c) {
+                const size_t i = size_t(n);
+                const double expected = input[c][i] + wet * (double(fullWet[c][i]) - input[c][i]);
+                check(std::abs(switched[c][i] - expected) < 1.e-7,
+                      "Global bypass has an extra discontinuity beyond its defined phase crossfade");
+                if (n >= at + ramp - 1)
+                    check(switched[c][i] == input[c][i], "Bypass failed to reach exact raw endpoint in 10 ms");
+            }
+            if (n < at + ramp)
+                minimum = std::min(minimum, std::hypot(switched[0][size_t(n)], switched[1][size_t(n)]) / .25);
+        }
+        // Characterization, NOT an audible-quality acceptance threshold.
+        std::cout << "CHARACTERIZATION " << rate << " Hz: 700 Hz global OFF min envelope "
+                  << 20. * std::log10(minimum) << " dB (known phase interference)\n";
+    }
+    std::cout << "PASS bypass ramp continuity/partition and exact endpoint; phase coloration remains unresolved\n";
+}
+
 void bandIsolation() {
     const double rate = 48000.;
     const std::vector<double> frequencies{40., 300., 1600., 12000.};
@@ -342,6 +451,8 @@ int main() {
         const auto start = std::chrono::steady_clock::now();
         bypassAndBlockShape();
         reconstructionAndParallelAlignment();
+        weightedPhaseAndMixAudit();
+        bypassTransitionAudit();
         bandIsolation();
         curvesAndEnvelopes();
         deEsserSelectivity();

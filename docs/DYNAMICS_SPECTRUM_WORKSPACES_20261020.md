@@ -284,3 +284,21 @@ CI. Failure diagnostics retain stage, pending samples and frame state. A focused
 three-platform workflow runs both dynamics UI suites and retains their source
 SHA, result XML, complete test log and screenshots while the existing broader
 regressions remain enabled.
+
+## Quantitative Pro-MB scope audit (2026-10-20)
+
+See [the independent multiband audit](MULTIBAND_PRO_MB_AUDIT_20261020.md)
+for measured reconstruction, complex phase, internal/external dry mixing,
+ON/OFF and band bypass, detector/timing results, and the official Pro-MB
+feature comparison. The production core at `e91709d5` reconstructs correctly
+in the tested settled cases; this is not zero-phase transparency. In particular,
+48 kHz / default crossovers / 700 Hz neutral input shows a -28.645 dB minimum
+quadrature envelope during global OFF and -59.385 dB during cold ON. The
+10 ms raw-bypass transition remains a known quality limitation, not a PASS
+for transparent switching. Added regressions characterize that limitation
+without duplicating the existing compensated splitter or claiming a fix.
+
+The UI now distinguishes global bypass from phase-preserving band bypass and
+Parallel mix=0, and clarifies timing constants. Host parameters, defaults,
+serializer, presets and production DSP remain unchanged. Pro-MB executable
+response matching and real-DI/DAW acceptance are still not established.
