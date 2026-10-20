@@ -16,6 +16,11 @@ Release candidate needs its own exact source, executable and package identities.
   clocks without callback file I/O or C++ heap allocations; export after stopping.
 - The independent CMake project/CI tests the collector on Windows/macOS/Linux.
   **It does not build, load or benchmark the Chimera plugin.**
+- Optional root target `ChimeraFullGraphHost` now links the existing production
+  `ChimeraAmpMatrix` target and measures complete `processBlock` calls with
+  1/2/4 independent parallel tracks, including fan-out and fan-in. See
+  [full-graph host](FULL_GRAPH_HOST.md). This is synthetic paced-processor
+  evidence, not the installed Standalone wrapper or a DAW/device qualification.
 
 There is no installed proprietary-DAW profiler/adapter in this PR. The header is
 not injected into the released plugin. Actual callback capture needs a host-side
@@ -137,7 +142,8 @@ recorder.writeCsv("callbacks.csv");
 // Put recorder.droppedRows() into receipt.telemetry_dropped_rows.
 ```
 
-The example is an adapter contract, not an implemented DAW API. Timing each
+The example is an adapter contract, not an implemented DAW API. The independent
+host implements this boundary with `FullGraphAdapter.h`. Timing each
 instance separately and summing p99 values is invalid; enclose the whole graph.
 Do not log/allocate or sort inside the callback. Quantify clock/adapter overhead
 with a separately retained empty-graph control before interpreting small changes.

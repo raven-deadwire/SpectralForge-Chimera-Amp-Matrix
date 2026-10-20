@@ -561,3 +561,5 @@ target_include_directories(ChimeraTunerTimingTests PRIVATE Source)
 add_test(NAME ChimeraTunerTimingTests COMMAND ChimeraTunerTimingTests)
 add_test(NAME ChimeraTunerWorkerTimingTests COMMAND ChimeraPrecisionTunerIntegrationTests --timing-only)
 set_tests_properties(ChimeraTunerWorkerTimingTests PROPERTIES TIMEOUT 10)
+
+include(Tools/SystemPerformance/full_graph.cmake)

@@ -110,7 +110,8 @@ def schema_validate(value, schema, path='$'):
 
 def command(args):
     try:
-        return subprocess.check_output(args, text=True, stderr=subprocess.DEVNULL, timeout=5).strip()
+        return (subprocess.check_output(args, text=True, errors='replace',
+                                        stderr=subprocess.DEVNULL, timeout=5) or '').strip() or None
     except (OSError, subprocess.SubprocessError):
         return None
 
@@ -157,7 +158,11 @@ def environment():
                         'ram=$s.TotalPhysicalMemory} | ConvertTo-Json -Compress'])
         if data:
             d = strict_json(data)
-            cpu, physical, ram = d['cpu'], int(d['cores']), int(d['ram'])
+            # CIM may return null/zero under a restricted Windows account.
+            # Keep unavailable facts null instead of aborting or inventing RAM.
+            cpu = d.get('cpu') or None
+            physical = int(d['cores']) if d.get('cores') and d['cores'] > 0 else None
+            ram = int(d['ram']) if d.get('ram') and d['ram'] > 0 else None
         power = command(['powercfg', '/getactivescheme'])
     return {'id': 'observed-' + system.lower(), 'os_family': system,
             'os_version': platform.platform(), 'architecture': platform.machine(),
