@@ -2,6 +2,7 @@
 #include "NiflheimrDefinition.h"
 #include "OriginalPresets.h"
 #include "FactoryCabVoicing.h"
+#include "FactoryPresetFinishing.h"
 
 namespace spectralforge {
 // Full rigs append after the released Factory/Bass/Guitar/Nastrond banks.
@@ -159,6 +160,7 @@ inline juce::ValueTree niflheimrPresetSnapshot(juce::AudioProcessorValueTreeStat
     metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);snapshot.appendChild(metadata,nullptr);
     const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
     voiceFactoryCab(niflheimrPresetStart+preset,get,set);
+    voiceFactoryFinishing(niflheimrPresetStart+preset,get,set);
     return snapshot;
 }
 } // namespace spectralforge

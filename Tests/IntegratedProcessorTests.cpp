@@ -16,9 +16,116 @@ void set(ChimeraProcessor& p,const juce::String& id,float value) {
     auto* parameter=p.parameters().getParameter(id);require(parameter!=nullptr,"Unknown preset/test parameter");
     parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
+struct PresetProcessingMeters {
+    static double percentile(std::vector<double> values,double fraction) {
+        if(values.empty())return -240;
+        std::sort(values.begin(),values.end());
+        return values[size_t(std::round(fraction*double(values.size()-1)))];
+    }
+    struct Meter {
+        double sum{};float maximum{};
+        void add(float value) {
+            require(std::isfinite(value) && value>=0,"Factory dynamics reported invalid gain reduction");
+            sum+=value;maximum=std::max(maximum,value);
+        }
+    };
+    struct DetectorInput {
+        spectralforge::EQCoefficients coefficients;
+        std::array<double,2> z1{},z2{};
+        double peak{},energy{},envelope{};size_t samples{};float frequency{},q{};
+        std::vector<double> blockLevels;
+        void add(const spectralforge::EQAnalyzerFrame& frame) {
+            const std::array<double,2> input{frame.inputL,frame.inputR};
+            double framePeak=0;
+            for(size_t channel=0;channel<2;++channel) {
+                const double y=coefficients.b0*input[channel]+z1[channel];
+                z1[channel]=coefficients.b1*input[channel]-coefficients.a1*y+z2[channel];
+                z2[channel]=coefficients.b2*input[channel]-coefficients.a2*y;
+                require(std::isfinite(y),"Factory EQ detector input probe is nonfinite");
+                peak=std::max(peak,std::abs(y));energy+=y*y;++samples;
+                framePeak=std::max(framePeak,std::abs(y));
+            }
+            envelope=std::max(framePeak,envelope*std::exp(-1./(48000*.02)));
+        }
+    };
+    Meter compressor,limiter;std::array<Meter,4> dynamic{};int blocks{};
+    std::array<DetectorInput,2> detectorInputs{};std::array<bool,2> wasAnalyzing{};
+    std::array<uint64_t,2> droppedBefore{};
+    std::array<double,2> compHPIn{},compHPOut{};
+    double compHP{},compHPHz{},compEnergy{},compEnvelope{},compLevel{},compLevelPeak{};
+    bool compRMS{};std::vector<double> compBlockLevels;
+    void begin(ChimeraProcessor& processor) {
+        compHPHz=processor.parameters().getRawParameterValue("cleanCompHP")->load();
+        compHP=std::exp(-juce::MathConstants<double>::twoPi*compHPHz/48000);
+        compRMS=processor.parameters().getRawParameterValue("cleanCompDetector")->load()>.5f;
+        for(int bank=0;bank<2;++bank) {
+            auto& eq=processor.graphicalEQ(bank);auto& probe=detectorInputs[size_t(bank)];
+            const auto band=eq.values(bank==0?0:1);probe.frequency=band.frequency;probe.q=band.q;
+            probe.coefficients=spectralforge::eqCoefficients(6,band.frequency,0,band.q,48000);
+            wasAnalyzing[size_t(bank)]=eq.analyzer.enabled.exchange(true);
+            eq.analyzer.discardPending();droppedBefore[size_t(bank)]=eq.analyzer.dropped.load();
+        }
+    }
+    void observeCompInput(const spectralforge::EQAnalyzerFrame& frame) {
+        const std::array<double,2> input{frame.outputL,frame.outputR};double detector=0;
+        for(size_t channel=0;channel<2;++channel) {
+            compHPOut[channel]=compHP*(compHPOut[channel]+input[channel]-compHPIn[channel]);
+            compHPIn[channel]=input[channel];detector=std::max(detector,std::abs(compHPOut[channel]));
+        }
+        const double rms=std::exp(-1./(48000*.01));
+        compEnergy=rms*compEnergy+(1-rms)*detector*detector;
+        compEnvelope=std::max(detector,compEnvelope*std::exp(-1./(48000*.02)));
+        compLevel=compRMS?std::sqrt(compEnergy):compEnvelope;compLevelPeak=std::max(compLevelPeak,compLevel);
+    }
+    void sample(ChimeraProcessor& processor) {
+        ++blocks;compressor.add(processor.commonDynamics().compReduction.load());
+        limiter.add(processor.commonDynamics().limitReduction.load());
+        for(int slot=0;slot<4;++slot) {
+            const int target=int(processor.parameters().getRawParameterValue(spectralforge::dynamicSlotID(slot,"target"))->load());
+            dynamic[size_t(slot)].add(target>0?processor.graphicalEQ((target-1)/12).dynamicReduction((target-1)%12):0.f);
+        }
+        for(int bank=0;bank<2;++bank) {
+            spectralforge::EQAnalyzerFrame frame;auto& fifo=processor.graphicalEQ(bank).analyzer;
+            while(fifo.pop(frame)) {
+                detectorInputs[size_t(bank)].add(frame);
+                if(bank==0)observeCompInput(frame);
+            }
+            detectorInputs[size_t(bank)].blockLevels.push_back(20*std::log10(std::max(1.e-12,detectorInputs[size_t(bank)].envelope)));
+        }
+        compBlockLevels.push_back(20*std::log10(std::max(1.e-12,compLevel)));
+    }
+    void end(ChimeraProcessor& processor) {
+        for(int bank=0;bank<2;++bank) {
+            auto& fifo=processor.graphicalEQ(bank).analyzer;
+            fifo.enabled.store(wasAnalyzing[size_t(bank)]);
+            require(fifo.dropped.load()==droppedBefore[size_t(bank)],"Factory EQ detector input probe dropped audio frames");
+        }
+    }
+    void print(int index,const char* condition) const {
+        // Means are averages of the 128-sample block meter observations, not
+        // sample-accurate detector or loudness measurements.
+        std::cout<<"PRESET_DYNAMICS,"<<index<<','<<condition;
+        const auto meter=[&](const Meter& value){std::cout<<','<<value.maximum<<','<<value.sum/std::max(1,blocks);};
+        meter(compressor);meter(limiter);for(const auto& value:dynamic)meter(value);std::cout<<'\n';
+        // Independent band-pass measurement of the actual Tone/Final inputs.
+        // This gives threshold calibration context without changing the DSP's
+        // dynamic range or observing a limiter-flattened output spectrum.
+        for(int bank=0;bank<2;++bank) {
+            const auto& probe=detectorInputs[size_t(bank)];
+            std::cout<<"PRESET_EQ_DETECTOR,"<<index<<','<<condition<<','<<(bank==0?"Tone":"Final")
+                <<','<<probe.frequency<<','<<probe.q<<','<<20*std::log10(std::max(1.e-12,probe.peak))
+                <<','<<10*std::log10(std::max(1.e-24,probe.energy/std::max(size_t(1),probe.samples)))
+                <<','<<percentile(probe.blockLevels,.5)<<','<<percentile(probe.blockLevels,.9)<<','<<percentile(probe.blockLevels,.99)<<'\n';
+        }
+        std::cout<<"PRESET_COMP_DETECTOR,"<<index<<','<<condition<<','<<compHPHz<<','<<(compRMS?"RMS":"Peak")
+            <<','<<20*std::log10(std::max(1.e-12,compLevelPeak))<<','<<percentile(compBlockLevels,.5)
+            <<','<<percentile(compBlockLevels,.9)<<','<<percentile(compBlockLevels,.99)<<'\n';
+    }
+};
 void factoryCabContract(ChimeraProcessor&,int index,bool rendered);
-std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120,int factoryIndex=-1) {
+std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120,int factoryIndex=-1,PresetProcessingMeters* meters=nullptr) {
     p.prepareToPlay(48000,128);juce::AudioBuffer<float> b(2,128);juce::MidiBuffer midi;std::vector<float> result;
+    if(meters)meters->begin(p);
     for(int block=0;block<blocks;++block) {
         for(int n=0;n<128;++n) {
             const double t=double(block*128+n)/48000;
@@ -33,10 +140,101 @@ std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120,int
             b.setSample(0,n,x);b.setSample(1,n,-.7f*x);
         }
         p.processBlock(b,midi);
+        if(meters)meters->sample(p);
         for(int c=0;c<2;++c)for(int n=0;n<128;++n) {const auto x=b.getSample(c,n);require(std::isfinite(x) && std::abs(x)<4,"Signature output invalid/unbounded");result.push_back(x);}
     }
+    if(meters)meters->end(p);
     if(factoryIndex>=0)factoryCabContract(p,factoryIndex,true);
     p.releaseResources();return result;
+}
+bool factoryProcessingParameter(const juce::String& id) {
+    return id.startsWith("toneEQ_") || id.startsWith("finalEQ_") || id.startsWith("dynamicEQ")
+        || id.startsWith("cleanComp") || id.startsWith("liveLimiter") || id.startsWith("gate");
+}
+void factoryProcessingState(ChimeraProcessor& source,ChimeraProcessor& copy) {
+    std::map<juce::String,float> expected;
+    for(auto* raw:source.getParameters())if(auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(raw))
+        if(factoryProcessingParameter(parameter->paramID))expected[parameter->paramID]=parameter->getValue();
+    const std::array<uint16_t,2> masks{source.eqEditing().occupiedMask(0),source.eqEditing().occupiedMask(1)};
+    const auto dirty=[&] {
+        require(copy.eqEditing().addBand(0,4700,3)>=0,"Factory EQ dirty-state fixture did not add an editor band");
+        for(const auto& [id,value]:expected) {
+            auto* parameter=copy.parameters().getParameter(id);
+            // Use legal bool/choice/stepped values. Writing .81 directly into
+            // a bool leaves its host value noncanonical while APVTS caches 1,
+            // so restoring the same true raw value need not rewrite that .81.
+            const auto legal=[&](float normal){return parameter->convertTo0to1(parameter->convertFrom0to1(normal));};
+            float changed=legal(.81f);if(std::abs(changed-value)<1.e-6f)changed=legal(.19f);
+            require(std::abs(changed-value)>=1.e-6f,"Factory processing dirty fixture retained an authored parameter");
+            parameter->setValueNotifyingHost(changed);
+        }
+    };
+    const auto restored=[&](const char* phase) {
+        for(const auto& [id,value]:expected) {
+            const auto actual=copy.parameters().getParameter(id)->getValue();
+            if(std::abs(actual-value)>=1.e-6f)
+                std::cerr<<"FACTORY_PROCESSING_RESTORE phase="<<phase<<" id="<<id<<" actual="<<actual<<" expected="<<value<<'\n';
+            require(std::abs(copy.parameters().getParameter(id)->getValue()-value)<1.e-6f,
+                    "Factory EQ/dynamics project or A/B restore changed an authored parameter");
+        }
+        for(int bank=0;bank<2;++bank)
+            require(copy.eqEditing().occupiedMask(bank)==masks[size_t(bank)],"Factory EQ project or A/B restore changed band occupancy");
+    };
+    juce::MemoryBlock bytes;source.getStateInformation(bytes);dirty();
+    copy.setStateInformation(bytes.getData(),int(bytes.getSize()));restored("project");
+    copy.copyComparison();copy.selectComparison(1);dirty();copy.selectComparison(0);restored("A/B");
+}
+void factoryProcessingContract(ChimeraProcessor& processor,int index) {
+    using namespace spectralforge;
+    const auto get=[&](const juce::String& id) {
+        const auto* parameter=processor.parameters().getRawParameterValue(id);
+        require(parameter!=nullptr,"Factory EQ/dynamics parameter missing");return parameter->load();
+    };
+    DynamicEQBindings dynamic;dynamic.bind(processor.parameters());
+    std::set<int> assigned;
+    for(int slot=0;slot<4;++slot) {
+        const int target=int(get(dynamicSlotID(slot,"target")));
+        if(target==0)continue;
+        require((target==1 || target==14) && assigned.insert(target).second,"Factory dynamic EQ target is stale, duplicated or outside its musical role");
+        require(slot<2 && get(dynamicSlotID(slot,"range"))>0 && get(dynamicSlotID(slot,"ratio"))>1,
+                "Factory dynamic EQ assigned an inactive or surplus processing slot");
+        const int bank=(target-1)/12,band=(target-1)%12;
+        const auto value=processor.graphicalEQ(bank).values(band);
+        require(!processor.graphicalEQ(bank).isBypassed() && value.enabled && value.type<=2,
+                "Factory dynamic EQ targets a bypassed, absent or unsupported band");
+    }
+    require(assigned.size()==2,"Factory preset did not assign both body and harshness dynamic EQ nodes");
+    for(int bank=0;bank<2;++bank) {
+        uint16_t mask=0;
+        for(int band=0;band<graphicalEQBands;++band) {
+            const auto value=processor.graphicalEQ(bank).values(band);
+            if(!value.enabled)continue;
+            mask=uint16_t(mask|(1u<<band));
+            require(band<2,"Factory EQ left an unauthored correction slot active");
+        }
+        require(mask!=0 && !processor.graphicalEQ(bank).isBypassed(),"Factory preset omitted its Tone or Final EQ voicing");
+        require(processor.eqEditing().occupiedMask(bank)==mask,"Factory EQ displayed stale or missing editor bands");
+    }
+    // These presets already author a POST compressor. A second full-band
+    // compressor would change the established sustain and transient envelope.
+    constexpr std::array<int,11> postCompressed{1,8,9,11,20,31,32,33,34,38,42};
+    if(std::find(postCompressed.begin(),postCompressed.end(),index)!=postCompressed.end())
+        require(get("cleanCompOn")==0,"Factory preset stacked a new common compressor over its authored POST compressor");
+    require(std::abs(get("cleanCompMakeup"))<.002f,"Factory common compressor introduced an implicit output-level correction");
+    require(get("liveLimiterOn")==1 && std::abs(get("liveLimiterCeiling")+1)<.002f,"Factory output protection is absent or uses the wrong ceiling");
+    const bool bass=isNiflheimrPreset(index)||(index<factoryPresetCount && juce::String(factoryPresets[size_t(index)].instrument).contains("Bass"));
+    if(bass)for(double fundamental:{27.5,30.8677})for(bool maximumDynamic:{false,true}) {
+        double response=1;
+        for(int bank=0;bank<2;++bank)for(int band=0;band<graphicalEQBands;++band) {
+            const auto value=processor.graphicalEQ(bank).values(band);if(!value.enabled)continue;
+            const auto config=dynamic.forBand(bank*12+band+1);
+            const float gain=value.gain-(maximumDynamic && config.enabled?config.range:0.f);
+            response*=eqCoefficients(value.type,value.frequency,gain,value.q,48000).magnitude(fundamental,48000);
+        }
+        const double db=20*std::log10(response);
+        require(std::isfinite(db) && db>-1,"Factory finishing EQ removes more than 1 dB of the bass low-A/low-B fundamental");
+        std::cout<<"PRESET_LOW_FUNDAMENTAL_EQ,"<<index<<','<<fundamental<<','<<(maximumDynamic?"maximum_dynamic_cut":"static")<<','<<db<<'\n';
+    }
 }
 // General factory recalls preserve the actual host/APVTS performance values.
 // A decimal request is not necessarily exactly representable after JUCE's
@@ -133,6 +331,9 @@ void factoryBank(bool measureOnly,bool originalOnly=false,bool headerVoicing=fal
     using namespace spectralforge;
     std::array<bool,selectablePresetCount> seen{};
     int measured=0,levelFailures=0;
+    std::cout<<"PRESET_DYNAMICS_HEADER,index,condition,comp_max_db,comp_block_mean_db,limiter_max_db,limiter_block_mean_db,dynamic1_max_db,dynamic1_block_mean_db,dynamic2_max_db,dynamic2_block_mean_db,dynamic3_max_db,dynamic3_block_mean_db,dynamic4_max_db,dynamic4_block_mean_db\n";
+    std::cout<<"PRESET_EQ_DETECTOR_HEADER,index,condition,bank,frequency_hz,q,bandpass_peak_dbfs,bandpass_stereo_rms_dbfs,envelope_p50_dbfs,envelope_p90_dbfs,envelope_p99_dbfs\n";
+    std::cout<<"PRESET_COMP_DETECTOR_HEADER,index,condition,detector_hp_hz,detector_mode,level_peak_dbfs,block_level_p50_dbfs,block_level_p90_dbfs,block_level_p99_dbfs\n";
     for(const int index:presetDisplayOrder()) {
         require(index>=0&&index<selectablePresetCount&&!seen[size_t(index)],"Preset display order is not a permutation");seen[size_t(index)]=true;
         require(adjacentPreset(adjacentPreset(index,1),-1)==index,"Preset navigation disagrees with category order");
@@ -179,23 +380,50 @@ void factoryBank(bool measureOnly,bool originalOnly=false,bool headerVoicing=fal
         }
         require(std::abs(a->parameters().getRawParameterValue("output")->load())<1e-5f,"Factory recall must start at OUTPUT 0 dB");
         factoryCabContract(*a,index);factoryCabContract(*b,index);
+        if(!measureOnly) {
+            factoryProcessingContract(*a,index);factoryProcessingContract(*b,index);
+        }
         const bool bass=isNiflheimrPreset(index)||(index<factoryPresetCount&&juce::String(factoryPresets[size_t(index)].instrument).contains("Bass"));
-        const auto audio=render(*a,bass,450,index),clean=render(*b,bass,450,index);double energy=0;float peak=0;
+        PresetProcessingMeters nominalMeters,hotMeters;
+        const auto audio=render(*a,bass,450,index,&nominalMeters),clean=render(*b,bass,450,index);double energy=0;float peak=0;
         require(audio.size()==clean.size(),"Factory audio fixture size differs");
         for(size_t i=0;i<audio.size();++i)require(std::abs(audio[i]-clean[i])<1e-6f,"Inactive PRE bank changed factory audio");
+        // Keep the independent dirty/clean PRE-bank render above intact. A
+        // full-state roundtrip may only replace the clean processor afterward.
+        if(!measureOnly)factoryProcessingState(*a,*b);
         for(float x:audio){energy+=double(x)*x;peak=std::max(peak,std::abs(x));}
         const double rmsDb=10*std::log10(energy/audio.size()),peakDb=20*std::log10(peak);
         const auto* name=selectablePresetName(index);
         std::cout<<"PRESET_LEVEL,"<<index<<","<<name<<","<<rmsDb<<","<<peakDb<<","<<a->parameters().getRawParameterValue("output")->load()<<'\n';
+        nominalMeters.print(index,"nominal");
         if(measureOnly&&(index==1||index==14||index==31))std::cout<<"PRESET_DIAGNOSTIC "<<index<<" "<<a->diagnosticReport()<<'\n';
         if(!measureOnly){require(peak<.95f,"Factory preset clips at unity OUTPUT");require(rmsDb>-30,"Factory preset is unexpectedly quiet on the synthetic pluck fixture");}
-        set(*b,"input",6);const auto hot=render(*b,bass,450,index);float hotPeak=0;
+        set(*b,"input",6);const auto hot=render(*b,bass,450,index,&hotMeters);float hotPeak=0;
         for(float x:hot)hotPeak=std::max(hotPeak,std::abs(x));
         std::cout<<"PRESET_HOT,"<<index<<","<<20*std::log10(hotPeak)<<'\n';
-        const bool levelPass=rmsDb>-30 && peak<.95f && hotPeak<.95f;
+        hotMeters.print(index,"input_plus_6_db");
+        // The final protection limiter must not conceal a newly clipped preset.
+        // Repeat both existing input fixtures with only that stage bypassed;
+        // the unchanged unity/+6 dB peak limits still qualify the authored rig.
+        double unprotectedRmsDb=rmsDb;float unprotectedPeak=peak,unprotectedHotPeak=hotPeak;
+        if(b->parameters().getRawParameterValue("liveLimiterOn")->load()>.5f) {
+            const float savedInput=b->parameters().getRawParameterValue("input")->load();
+            set(*b,"liveLimiterOn",0);set(*b,"input",0);
+            const auto raw=render(*b,bass,450,index);double rawEnergy=0;unprotectedPeak=0;
+            for(float value:raw){rawEnergy+=double(value)*value;unprotectedPeak=std::max(unprotectedPeak,std::abs(value));}
+            unprotectedRmsDb=10*std::log10(rawEnergy/raw.size());
+            set(*b,"input",6);const auto rawHot=render(*b,bass,450,index);unprotectedHotPeak=0;
+            for(float value:rawHot)unprotectedHotPeak=std::max(unprotectedHotPeak,std::abs(value));
+            set(*b,"liveLimiterOn",1);set(*b,"input",savedInput);
+        }
+        std::cout<<"PRESET_UNPROTECTED,"<<index<<','<<unprotectedRmsDb<<','<<20*std::log10(unprotectedPeak)<<','<<20*std::log10(unprotectedHotPeak)<<'\n';
+        const bool levelPass=rmsDb>-30 && peak<.95f && hotPeak<.95f
+            && unprotectedRmsDb>-30 && unprotectedPeak<.95f && unprotectedHotPeak<.95f;
         if(!levelPass)++levelFailures;
         if(measureOnly)std::cout<<"PRESET_GATE,"<<index<<","<<(rmsDb>-30)<<","<<(peak<.95f)<<","<<(hotPeak<.95f)<<'\n';
         if(!measureOnly)require(hotPeak<.95f,"Factory preset clips the +6 dB input pluck fixture");
+        if(!measureOnly)require(unprotectedRmsDb>-30 && unprotectedPeak<.95f && unprotectedHotPeak<.95f,
+                               "Factory limiter concealed a clipped or unusably quiet nominal/+6 dB preset");
         if(index<factoryPresetCount)performanceRecall(*a,index);
     }
     require(std::all_of(seen.begin(),seen.end(),[](bool value){return value;}),"Preset display order omitted a factory ID");
@@ -389,6 +617,11 @@ void originalChannelLevelProbe(const juce::File& directory,bool enforceBalance=t
       for(int channel=0;channel<original::channelCount;++channel) {
         const auto p=std::make_unique<ChimeraProcessor>();p->loadFactoryPreset(originalPresetStart);
         set(*p,"output",0);set(*p,"gateon",0);
+        // This isolates the established amp/channel level comparison. The
+        // new full-rig EQ/dynamics recipes are exercised by factoryBank above;
+        // they must not flatten channel differences or conceal clipping here.
+        set(*p,eqID(0,-1,"bypass"),1);set(*p,eqID(1,-1,"bypass"),1);
+        set(*p,"cleanCompOn",0);set(*p,"liveLimiterOn",0);
         if(!driven) {
             set(*p,"boardEnabled",0);
             for(int section=0;section<3;++section)for(int model=0;model<3;++model)set(*p,postNativeBypassID(section,model),1);

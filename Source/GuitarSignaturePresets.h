@@ -1,6 +1,7 @@
 #pragma once
 #include "FactoryPresetLevels.h"
 #include "FactoryCabVoicing.h"
+#include "FactoryPresetFinishing.h"
 #include "OriginalPresets.h"
 #include "NiflheimrPresets.h"
 #include "FactoryPresets.h"
@@ -122,6 +123,7 @@ inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeStat
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);snapshot.appendChild(metadata,nullptr);
     const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
     voiceFactoryCab(factoryPresetCount+song,get,set);
+    voiceFactoryFinishing(factoryPresetCount+song,get,set);
     return snapshot;
 }
 }

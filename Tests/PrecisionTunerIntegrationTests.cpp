@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <random>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -58,8 +59,17 @@ private:
     qos_class_t previous{};int relative{};bool active{};
 #endif
 };
+// Buffer route evidence until every timed A/B route has stopped. std::cerr is
+// unit-buffered: streaming thousands of fields between routes lets the CI log
+// consumer compete with the next feeder/worker. Keep all records and clocks;
+// this removes diagnostic I/O interference, not OS scheduling from the gates.
+class DeferredRouteDiagnostics {
+public:
+    std::ostringstream stream, rows;
+    ~DeferredRouteDiagnostics() { std::cout << rows.str(); std::cerr << stream.str(); }
+};
 struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{};};
-template<class T> NativeResult native(double rate,int block,double hz){
+template<class T> NativeResult native(double rate,int block,double hz,std::ostream& diagnostics){
     T tuner;
 #if CHIMERA_TUNER_TEST_HOOKS
     if constexpr(std::is_same_v<T,spectralforge::Tuner>)tuner.useNormalQoSForTest(normalQoSReference);
@@ -98,26 +108,26 @@ template<class T> NativeResult native(double rate,int block,double hz){
 #if CHIMERA_TUNER_TEST_HOOKS
     if constexpr(std::is_same_v<T,spectralforge::Tuner>) {
         for(const auto& f:feed) {
-            std::cerr<<std::setprecision(12)<<"FEED,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
+            diagnostics<<std::setprecision(12)<<"FEED,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
                 <<1000*f.offset/rate<<','<<f.push<<','<<f.observed<<','<<f.hz<<','<<f.confidence<<'\n';
             // Separate diagnostics preserve FEED schema and all gate clocks.
             // No oversleep is discarded, subtracted or retried.
-            std::cerr<<"FEED_WAIT,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
+            diagnostics<<"FEED_WAIT,"<<rate<<','<<block<<','<<hz<<','<<f.offset<<','
                 <<1000*(f.offset+block)/rate<<','<<f.sleepBegin<<','<<f.sleepEnd<<','<<f.readEnd<<'\n';
         }
         const auto& trace=tuner.timingAfterStopForTest();
         // Separate tagged CSV stream on stderr; retain every estimate, including
         // rejected/generation-discarded observations and routes that fail gates.
         for(size_t i=0;i<trace.size;++i){const auto& r=trace.rows[i];
-            std::cerr<<std::setprecision(12)<<"WORKER_CPU,"<<rate<<','<<block<<','<<hz<<','<<i<<','
+            diagnostics<<std::setprecision(12)<<"WORKER_CPU,"<<rate<<','<<block<<','<<hz<<','<<i<<','
                 <<r.compute()<<','<<r.computeCpu()<<','<<(r.computeCpu()>=0?r.compute()-r.computeCpu():-1.)<<'\n';
-            std::cerr<<std::setprecision(12)<<"TIMING,"<<rate<<','<<block<<','<<hz<<','<<i<<','<<r.generation<<','
+            diagnostics<<std::setprecision(12)<<"TIMING,"<<rate<<','<<block<<','<<hz<<','<<i<<','<<r.generation<<','
                 <<r.windowComplete-timingEpoch<<','<<r.wake-timingEpoch<<','<<r.service-timingEpoch<<','
                 <<r.estimateBegin-timingEpoch<<','<<r.estimateEnd-timingEpoch<<','<<r.publish-timingEpoch<<','
                 <<r.wakeDelay()<<','<<r.serviceDelay()<<','<<r.preparation()<<','<<r.compute()<<','<<r.publication()<<','
                 <<r.publishAge()<<','<<r.hz<<','<<r.confidence<<','<<r.published<<'\n';
         }
-        std::cerr<<"TIMING_END,"<<rate<<','<<block<<','<<hz<<','<<trace.size<<','<<trace.dropped<<'\n';
+        diagnostics<<"TIMING_END,"<<rate<<','<<block<<','<<hz<<','<<trace.size<<','<<trace.dropped<<'\n';
         require(trace.size>0 && trace.dropped==0,"Incomplete route timing trace");
     }
 #endif
@@ -299,13 +309,18 @@ int main(int argc,char** argv){try{
         require(candidate.second>.9f&&std::abs(ce)<.1,"Synthetic candidate error exceeds 0.1 cent");
     }
     int failedRoutes=0;
+    {
+    DeferredRouteDiagnostics routeDiagnostics;
+    auto& diagnostics=routeDiagnostics.stream;
+    diagnostics<<std::setprecision(10);
     for(double rate:{44100.,48000.,96000.,192000.})for(int block:{64,256})for(double hz:{27.5,30.867706,82.406889,440.}){
-        const auto a=native<frozenTuner20261013::Tuner>(rate,block,hz),b=native<spectralforge::Tuner>(rate,block,hz);
-        for(const auto& pair:{std::make_pair("baseline",a),std::make_pair("new",b)}){const auto& r=pair.second;std::cout<<"worker,"<<pair.first<<','<<rate<<','<<block<<','<<hz<<",1,"<<r.cents<<",0,0,"<<r.acquire<<','<<r.settle<<','<<r.pushUs<<'\n';}
+        const auto a=native<frozenTuner20261013::Tuner>(rate,block,hz,diagnostics),b=native<spectralforge::Tuner>(rate,block,hz,diagnostics);
+        for(const auto& pair:{std::make_pair("baseline",a),std::make_pair("new",b)}){const auto& r=pair.second;routeDiagnostics.rows<<std::setprecision(10)<<"worker,"<<pair.first<<','<<rate<<','<<block<<','<<hz<<",1,"<<r.cents<<",0,0,"<<r.acquire<<','<<r.settle<<','<<r.pushUs<<'\n';}
         if(!(b.acquire>0 && b.acquire<290 && b.settle>0 && b.settle<290 && std::abs(b.cents)<.1)){
-            ++failedRoutes;std::cerr<<"ROUTE FAIL rate="<<rate<<" block="<<block<<" hz="<<hz<<" acquire="<<b.acquire<<" settle="<<b.settle<<" error="<<b.cents<<'\n';
+            ++failedRoutes;diagnostics<<std::setprecision(12)<<"ROUTE FAIL rate="<<rate<<" block="<<block<<" hz="<<hz<<" acquire="<<b.acquire<<" settle="<<b.settle<<" error="<<b.cents<<'\n';
         }
     }
+    } // Flush complete route evidence before lifecycle assertions can throw.
     channelContinuity();lifecycle();stalledWorkerFreshness();timingAttribution();
     require(failedRoutes==0,"Native acquisition/settle/accuracy gate failed; all route rows retained");
     std::cerr<<"PASS "<<count<<" kernel cases and 32 native A/B routes. Synthetic sine/harmonic/exponential-decay maxima: "<<worst[0]<<' '<<worst[1]<<' '<<worst[2]<<" ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.\n";

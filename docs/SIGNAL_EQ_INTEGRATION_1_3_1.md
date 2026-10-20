@@ -52,7 +52,8 @@ small-display constraint from clipping Final EQ, output or the right-hand lanes.
 Integration changes do not alter #38's DSP, parameter definitions or migration
 code. The existing AMP/CAB/PRE/POST engines remain unchanged from the common
 1.3.0 base. #38 appends 122 parameters for two independent 12-band banks; old
-projects and factory recalls default both banks to bypass. Existing IDs,
+projects default both banks to bypass. Factory recalls now apply their
+[authored finishing recipes](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/main/docs/PRESET_DYNAMICS_EQ.md). Existing IDs,
 ordinals, project format, CAB assets and A/B state handling are retained.
 
 The DSP contracts exercise mono/stereo at 44.1/48/96/192 kHz, all four routes,
