@@ -397,6 +397,21 @@ inline void dynamicsEditors(const juce::File& directory) {
                 "Leaving PRE details left an active spectrum consumer");
         for(int model=0;model<3;++model) {
             set(processor,postNativeModelID(0),float(model));set(processor,postNativeModeID(0),0);settle();
+            if(scale==75) {
+                // Reproduce the logical content size of a scaled dialog
+                // constrained by a small display, on every platform.
+                PostNativePanel compact(processor,0,true);compact.setSize(780,420);compact.refresh();
+                auto* viewport=find<juce::Viewport>(compact,"postNativeViewport0");
+                auto* spectrum=find<DynamicsSpectrumPanel>(compact,"postCompressorSpectrum");
+                require(viewport && spectrum && spectrum->graphBounds().getHeight()>=120.f
+                        && viewport->getY()>=spectrum->getBottom(),"Compact POST layout lost its full spectrum");
+                std::vector<NativeControlView*> controls;views(compact,controls);
+                require(controls.size()==size_t(postNativeModel(0,model).controlCount+2),"Compact POST layout omitted controls");
+                for(auto* control:controls) {
+                    viewport->setViewPosition(0,control->getY());
+                    require(viewport->getViewArea().contains(control->getBounds()),"Display-constrained POST viewport clips a full control");
+                }
+            }
             juce::Component::SafePointer<juce::DialogWindow> window;
             navigate([&]{tab(*canvas,"POST");window=open(*canvas,"postExpand0","postNativePanel0");});
             auto* full=dynamic_cast<PostNativePanel*>(window->getContentComponent());require(full,"POST spectrum editor content missing");
@@ -415,6 +430,12 @@ inline void dynamicsEditors(const juce::File& directory) {
                 require(view && view->isShowing() && view->isEnabled()==spec.controls[(size_t)c].connected,
                         "POST spectrum editor omitted or incorrectly enabled an original control");
                 navigate([&]{viewport->setViewPosition(0,view->getY());});
+                if(!viewport->getViewArea().contains(view->getBounds())) {
+                    std::cerr<<"POST control clipped model="<<model<<" scale="<<scale<<" id="<<id
+                             <<" panel="<<full->getLocalBounds().toString()<<" viewport="<<viewport->getViewArea().toString()
+                             <<" control="<<view->getBounds().toString()<<'\n';
+                    snapshot(*full,directory,"Native-POST-clipped");
+                }
                 require(viewport->getViewArea().contains(view->getBounds()),"POST spectrum editor cannot expose an entire control");
                 inside(*full,*view,"POST compressor control exceeds its focused editor");
                 if(spec.controls[(size_t)c].connected) {

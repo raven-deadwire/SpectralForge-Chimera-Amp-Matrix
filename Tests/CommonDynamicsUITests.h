@@ -224,12 +224,16 @@ inline void run(const juce::File& directory) {
     // old frozen picture must disappear, and native audio must not enter it.
     p.setPedalBoardEnabled(false);panel->selectPage(Page::preCompressor);settle(60);acknowledge(p);audio(p);
     require(measured->analyzerHasData() && p.dynamicsAnalysis().preOwner.load()==-1,"Legacy PRE did not acquire its own source identity");
-    measured->setSnapshotFrozen(true);p.setPedalBoardEnabled(true);settle(70);
+    measured->setSnapshotFrozen(true);p.setPedalBoardEnabled(true);
+    waitForNativeSpectrum([&]{return !measured->isSnapshotFrozen() && !measured->analyzerHasData();},
+                          "Legacy PRE source change did not retire its frozen frame");
     require(!measured->isSnapshotFrozen() && !measured->analyzerHasData(),"Inactive legacy PRE retained its frozen frame");
     acknowledge(p);audio(p);require(!measured->analyzerHasData(),"Legacy PRE editor accepted the active native pedalboard's audio");
     set(p,spectralforge::postNativeModeID(0),0);panel->selectPage(Page::postCompressor);settle(60);acknowledge(p);audio(p);
     require(measured->analyzerHasData() && p.dynamicsAnalysis().postNativeSource.load()==0,"Legacy POST did not acquire its own source identity");
-    measured->setSnapshotFrozen(true);set(p,spectralforge::postNativeModeID(0),1);settle(70);
+    measured->setSnapshotFrozen(true);set(p,spectralforge::postNativeModeID(0),1);
+    waitForNativeSpectrum([&]{return !measured->isSnapshotFrozen() && !measured->analyzerHasData();},
+                          "Legacy POST source change did not retire its frozen frame");
     require(!measured->isSnapshotFrozen() && !measured->analyzerHasData(),"Inactive legacy POST retained its frozen frame");
     acknowledge(p);audio(p);require(!measured->analyzerHasData(),"Legacy POST editor accepted the active native POST processor's audio");
 

@@ -161,8 +161,12 @@ public:
         title.setBounds(18,8,220,16);model.setBounds(18,26,juce::jmin(310,getWidth()-210),26);
         sourceStatus.setBounds(350,8,430,16);
         reference.setBounds(18,54,getWidth()-36,18);bypass.setBounds(getWidth()-105,22,87,28);meterLabel.setBounds(getWidth()-305,25,190,24);
-        const int controlsTop=section==0?346:84;
-        if(spectrum)spectrum->setBounds(8,84,getWidth()-16,252);
+        // Native windows can be constrained by the display at 125/150% UI
+        // scale. Reserve a complete control row before sizing the spectrum.
+        // Keep at least 120 px of plot area (91 px are analyzer chrome).
+        const int spectrumHeight=juce::jlimit(211,252,getHeight()-84-10-100-8);
+        const int controlsTop=section==0?84+spectrumHeight+10:84;
+        if(spectrum)spectrum->setBounds(8,84,getWidth()-16,spectrumHeight);
         viewport.setBounds(8,controlsTop,getWidth()-16,getHeight()-controlsTop-8);
         const int available=juce::jmax(200,viewport.getWidth()-11),columns=juce::jmax(3,available/130),cell=available/columns;
         for(size_t i=0;i<controls.size();++i)controls[i]->setBounds(((int)i%columns)*cell,((int)i/columns)*103,cell-4,100);
