@@ -88,3 +88,48 @@ The paper is a conceptual reference, not evidence about Neural DSP internals.
 Neural DSP's official Gojira X page confirms a +/-12 semitone Transpose feature:
 <https://neuraldsp.com/plugins/archetype-gojira>. It does not provide the raw
 measurements needed to claim a measured latency or algorithm equivalence here.
+
+## Weak-attack follow-up (2026-10-21)
+
+`corr40-novelty` adds four 2.5 kHz high-pass sections, fast high-band/total-energy
+normalization, a delayed finite maximum over 41 one-millisecond buckets, the
+existing 45 ms refractory interval, and a pending reset while a splice finishes.
+The normalized band fraction avoids treating slow overall amplitude modulation
+as a fresh pick. There remains an absolute energy floor; this is not a claim of
+level-invariant operation. No input frequency or offline event label reaches DSP.
+
+`corr40-split` uses this detector on the original input but resets only the high
+branch of a 350 Hz fourth-order Linkwitz-Riley split. An unmodified correlation
+trajectory transposes the low branch. Both branches are shifted: no dry tonal
+attack bypass. This reduces the low-tone phase jumps seen when a quiet marker
+resets the whole waveform. **The low path still has variable delay up to roughly
+40 ms, independent branch delays can colour the crossover, upshifts are not
+fixed, and no fixed PDC contract exists.** A fast high-band attack is not proof of
+full-band <=10 ms latency. These candidates must not replace production DSP.
+
+After the build above:
+
+```sh
+python Tools/TransposeNext/weak_attack_study.py --renderer build/transpose-next/TransposeProbe --suite detail --out build/weak/detail
+python Tools/TransposeNext/weak_attack_study.py --renderer build/transpose-next/TransposeProbe --suite guards --out build/weak/guards
+python Tools/TransposeNext/weak_attack_study.py --renderer build/transpose-next/TransposeProbe --suite matrix --out build/weak/matrix
+python Tools/TransposeNext/weak_attack_holdout.py --renderer build/transpose-next/TransposeProbe --out build/weak/holdout
+# Run separately, after all builds/quality/functional/sanitizer jobs finish:
+python Tools/TransposeNext/weak_attack_study.py --renderer build/transpose-next/TransposeProbe --suite timing --out build/weak/timing
+```
+
+Matrix: B0 (30.8677 Hz), five-string bass drop A0 (27.5 Hz), seven-string guitar
+drop A1 (55 Hz), 44.1/48/96 kHz, blocks 64/128/256, -2/-1/+1/+2 semitones, steady
+tone/alternating picks/quiet markers, released baseline/old onset/new split.
+All input construction and PR100 scorers remain available. Seed 8139 holdout
+randomizes event intervals, levels, phases and decays after candidate selection.
+The 50 ms guard's old 70 ms peak-search window can overlap the next event, so
+that latency score is explicitly invalid; detector-event association remains
+usable. Tremolo/vibrato contain intentional modulation and are not evaluated
+with the stationary-tone quality threshold. Their false-reset counts are useful.
+
+Detailed follow-up results and remaining blockers are in
+`docs/TRANSPOSE_WEAK_ATTACK_RESEARCH_20261021.md`. Production `Source/`, root
+CMake, existing product `Tests/`, parameters, bypass/state/PDC, release policy,
+version and packages are unchanged. Real DI, Neural DSP captures and actual DAW
+acceptance are not supplied by this synthetic study.

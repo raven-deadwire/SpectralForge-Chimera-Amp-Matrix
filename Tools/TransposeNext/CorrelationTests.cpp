@@ -1,4 +1,5 @@
 #include "CorrelationPitch.h"
+#include "TransientSplitPitch.h"
 #include <atomic>
 #include <cstdlib>
 #include <iostream>
@@ -13,8 +14,22 @@ void operator delete[](void* p)noexcept{std::free(p);}
 void operator delete(void* p,std::size_t)noexcept{std::free(p);}
 void operator delete[](void* p,std::size_t)noexcept{std::free(p);}
 void require(bool b,const char* s){if(!b)throw std::runtime_error(s);}
+
+struct Candidate {
+    transposeNext::CorrelationPitch a;
+    transposeNext::TransientSplitPitch b;
+    bool split{};
+    void prepare(const juce::dsp::ProcessSpec& spec,double limit) {
+        split=limit==-42;
+        if(split)b.prepare(spec);else a.prepare(spec,limit==-41?40:std::abs(limit),limit<0,limit==-41);
+    }
+    void setSemitones(int n){if(split)b.setSemitones(n);else a.setSemitones(n);}
+    void process(const juce::AudioBuffer<float>& in,juce::AudioBuffer<float>& out,bool render=true){if(split)b.process(in,out,render);else a.process(in,out,render);}
+    int latency()const{return split?b.latency():a.latency();}
+    void reset(){if(split)b.reset();else a.reset();}
+};
 std::vector<float> render(double rate,int block,int channels,int shift,double limit,bool bypass=false,bool silent=false,bool events=false) {
-    transposeNext::CorrelationPitch p;p.prepare({rate,juce::uint32(block),juce::uint32(channels)},std::abs(limit),limit<0);p.setSemitones(shift);
+    Candidate p;p.prepare({rate,juce::uint32(block),juce::uint32(channels)},limit);p.setSemitones(shift);
     const int total=int(rate*.75);std::vector<float> result(size_t(total)*channels);
     juce::AudioBuffer<float> in(channels,block),out(channels,block);
     int off=0,event=0;
@@ -51,7 +66,7 @@ std::vector<float> render(double rate,int block,int channels,int shift,double li
 }
 int main(){try{
     int cases=0;
-    for(double rate:{44100.,48000.,96000.})for(double limit:{10.,40.,-40.})for(int channels:{1,2}){
+    for(double rate:{44100.,48000.,96000.})for(double limit:{10.,40.,-40.,-41.,-42.})for(int channels:{1,2}){
         for(int shift:{-12,-5,-2,-1,0,1,2,5,12}){
             auto a=render(rate,64,channels,shift,limit);
             require(a==render(rate,257,channels,shift,limit),"partition-dependent output");
