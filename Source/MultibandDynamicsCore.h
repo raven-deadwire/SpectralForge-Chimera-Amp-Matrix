@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <complex>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -102,6 +103,8 @@ public:
     }
     double value() const noexcept { return current; }
     bool moving() const noexcept { return remaining > 0; }
+    int remainingSamples() const noexcept { return remaining; }
+    double valueAfter(int n) const noexcept { return n >= remaining ? target : current + step * n; }
 private:
     double current{}, target{}, step{};
     int remaining{};
@@ -243,6 +246,157 @@ inline MultibandBandSettings sanitiseBand(MultibandBandSettings s) noexcept {
     return s;
 }
 
+// The LR4 analysis bank is unchanged. Its positive, phase-aligned band weights
+// have magnitude N(w^4)/D(w^4). Spectral factorisation preserves that magnitude
+// while choosing stable minimum-phase zeros. Unity gain is exact raw audio.
+class MinimumPhaseSynthesis {
+public:
+    void reset() noexcept {
+        for(auto& ch:filter)for(auto& pair:ch)for(auto& s:pair)s.reset();
+        initialized=false; countdown=0;
+    }
+    void invalidateSchedule() noexcept { countdown=0; }
+    void unity() noexcept {
+        weight={}; overall=1.; initialized=true; countdown=0;
+    }
+    void warm(double x,int channel,const std::array<const SVFCoefficients*,3>& c) noexcept {
+        for(size_t i=0;i<3;++i) {
+            auto& pair=filter[size_t(channel)][i];
+            pair[1].tick(pair[0].tick(x,*c[i]).low,*c[i]);
+        }
+    }
+    void configure(const std::array<double,4>& actual,
+                   const std::array<double,4>& forecast,
+                   const std::array<const SVFCoefficients*,3>& c, int length) noexcept {
+        if(!initialized) {
+            calculate(actual,c); initialized=true; countdown=0; weightStep={}; gainStep=0.;
+            return;
+        }
+        if(countdown==0) {
+            const auto previous=weight; const double previousGain=overall;
+            calculate(forecast,c);
+            for(size_t i=0;i<3;++i)for(size_t j=0;j<4;++j)weightStep[i][j]=(weight[i][j]-previous[i][j])/length;
+            gainStep=(overall-previousGain)/length;
+            targetWeight=weight; targetGain=overall;
+            weight=previous; overall=previousGain; countdown=length;
+        }
+        for(size_t i=0;i<3;++i)for(size_t j=0;j<4;++j)weight[i][j]+=weightStep[i][j];
+        overall+=gainStep;
+        if(--countdown==0){weight=targetWeight;overall=targetGain;}
+    }
+private:
+    void calculate(const std::array<double,4>& inputGain,
+                   const std::array<const SVFCoefficients*,3>& coefficients) noexcept {
+        std::array<double,3> g{},q{};
+        for(size_t i=0;i<3;++i)g[i]=coefficients[i]->a2/coefficients[i]->a1;
+        const double scale=g[1];
+        for(size_t i=0;i<3;++i){const double a=g[i]/scale;q[i]=a*a*a*a;}
+        std::array<double,4> gain{};
+        for(size_t i=0;i<4;++i)gain[i]=std::max(1.e-8,inputGain[i]);
+        overall=gain[3];
+        if(gain[0]==gain[1]&&gain[1]==gain[2]&&gain[2]==gain[3]) {
+            weight={};
+            return;
+        }
+        const double a=(gain[0]*q[0]+gain[1]*q[1]+gain[2]*q[2])/gain[3];
+        const double b=(gain[0]*q[0]*(q[1]+q[2])+gain[1]*q[1]*q[2])/gain[3];
+        const double c=gain[0]*q[0]*q[1]*q[2]/gain[3];
+        // Scale the monic cubic, solve its largest-magnitude negative real root,
+        // then deflate using Vieta (avoids subtracting almost equal large roots).
+        const double norm=std::max({a,std::sqrt(b),std::cbrt(c),1.e-30});
+        const double aa=a/norm,bb=b/(norm*norm),cc=c/(norm*norm*norm);
+        const double p=bb-aa*aa/3.,r=2.*aa*aa*aa/27.-aa*bb/3.+cc;
+        const double d=r*r/4.+p*p*p/27.;
+        double root;
+        if(d>=0.) {
+            const double u=std::cbrt(-r*.5-std::copysign(std::sqrt(d),r));
+            root=u+(std::abs(u)>1.e-30?-p/(3.*u):0.)-aa/3.;
+        } else {
+            const double radius=2.*std::sqrt(-p/3.);
+            const double angle=std::acos(std::clamp(-r*.5/std::sqrt(-p*p*p/27.),-1.,1.))/3.;
+            root=radius*std::cos(angle+2.*pi/3.)-aa/3.;
+        }
+        for(int i=0;i<3;++i){
+            const double f=((root+aa)*root+bb)*root+cc;
+            const double derivative=(3.*root+2.*aa)*root+bb;
+            if(std::abs(derivative)>1.e-30)root-=f/derivative;
+        }
+        const double v=-cc/root, u=(v-bb)/root;
+        const double discriminant=u*u-4.*v;
+        // Each stable conjugate zero pair is [s^2 + B*s + C], used twice.
+        std::array<std::array<double,2>,3> factors{};
+        const auto realFactor=[&](double value){
+            const double radius=std::sqrt(std::sqrt(std::max(0.,-value*norm)))*scale;
+            return std::array<double,2>{butterworthK*radius,radius*radius};
+        };
+        factors[0]=realFactor(root);
+        if(discriminant>=0.) {
+            const double second=(-u-std::sqrt(discriminant))*.5;
+            factors[1]=realFactor(second);
+            factors[2]=realFactor(v/second);
+        } else {
+            const double magnitude=std::sqrt(v);
+            const double radius=std::sqrt(std::sqrt(magnitude*norm))*scale;
+            const double halfCosine=std::sqrt(std::clamp((1.-u/(2.*magnitude))*.5,0.,1.));
+            const double cosine=std::sqrt((1.+halfCosine)*.5);
+            const double sine=std::sqrt((1.-halfCosine)*.5);
+            const double square=radius*radius;
+            factors[1]={2.*radius*sine,square};
+            factors[2]={2.*radius*cosine,square};
+        }
+        // Fixed parallel poles: the synthesis states depend only on the input,
+        // never on gain automation. Residues avoid moving zeros between filter
+        // sections and the energy injection of time-varying cascade numerators.
+        using C = std::complex<double>;
+        for(size_t i=0;i<3;++i) {
+            const double gi=g[i]/scale;
+            const C pole(-gi/butterworthK,gi/butterworthK);
+            C numerator=overall, derivative=0.;
+            for(const auto& f:factors) {
+                const double b=f[0]/scale, c=f[1]/(scale*scale);
+                const C q=pole*pole+b*pole+c, dq=2.*pole+b;
+                derivative=derivative*q*q+numerator*2.*q*dq;
+                numerator*=q*q;
+            }
+            const C separation=pole-std::conj(pole);
+            C denominator=separation*separation, logDerivative=2./separation;
+            for(size_t j=0;j<3;++j) if(j!=i) {
+                const double gj=g[j]/scale;
+                const C q=pole*pole+butterworthK*gj*pole+gj*gj;
+                denominator*=q*q;
+                logDerivative+=2.*(2.*pole+butterworthK*gj)/q;
+            }
+            const C second=numerator/denominator;
+            const C first=(derivative-numerator*logDerivative)/denominator;
+            const C conjugate=std::conj(pole);
+            weight[i]={2.*first.real()/gi,
+                (2.*second.real()-2.*(first*conjugate).real())/(gi*gi),
+                (-4.*(second*conjugate).real()-2.*second.real()*butterworthK*gi)/(gi*gi*gi),
+                (2.*(second*conjugate*conjugate).real()-2.*second.real()*gi*gi)/(gi*gi*gi*gi)};
+        }
+    }
+public:
+    double tick(double x,int channel,const std::array<const SVFCoefficients*,3>& c) noexcept {
+        double y=overall*x;
+        for(size_t i=0;i<3;++i) {
+            auto& pair=filter[size_t(channel)][i];
+            const auto first=pair[0].tick(x,*c[i]);
+            const auto second=pair[1].tick(first.low,*c[i]);
+            y+=weight[i][0]*first.band+weight[i][1]*first.low
+               +weight[i][2]*second.band+weight[i][3]*second.low;
+        }
+        return y;
+    }
+
+private:
+    std::array<std::array<std::array<SVF,2>,3>,2> filter{};
+    std::array<std::array<double,4>,3> weight{};
+    double overall{1.}, targetGain{1.}, gainStep{};
+    std::array<std::array<double,4>,3> weightStep{},targetWeight{};
+    int countdown{};
+    bool initialized{};
+};
+
 } // namespace multiband_detail
 
 class MultibandDynamicsCore {
@@ -291,6 +445,7 @@ public:
         for (size_t i = 0; i < frequencies.size(); ++i)
             frequencies[i].prepare(rate, settings.crossovers[i]);
         wet.reset(settings.on ? 1. : 0.);
+        lastOn=settings.on;
         mix.reset(settings.mix);
         const bool solo = anySolo();
         for (size_t i = 0; i < bandState.size(); ++i) {
@@ -302,6 +457,7 @@ public:
             s.solo.reset(!solo || settings.bands[i].solo ? 1. : 0.);
         }
         meters = {};
+        synthesis.reset();
     }
 
     // In-place mono/stereo; extra channels are untouched. Size is independent
@@ -317,8 +473,21 @@ public:
             for (auto& split : splitter) split.reset();
             for (auto& state : bandState) { state.detector.reset(); state.gainDB = 0.; }
         }
+        if (settings.on != lastOn) { synthesis.invalidateSchedule(); lastOn=settings.on; }
         wet.setTarget(settings.on ? 1. : 0., rampSamples);
-        if (!settings.on && !wet.moving()) { meters = {}; return; }
+        if (!settings.on && !wet.moving()) {
+            meters = {};
+            std::array<const SVFCoefficients*,3> c{};
+            // Keep only six fixed synthesis SVFs/channel warm. OFF samples are
+            // never rewritten; analysis/detectors remain asleep until enabled.
+            synthesis.unity();
+            for(int n=0;n<sampleCount;++n) {
+                for(size_t i=0;i<3;++i)c[i]=&frequencies[i].next();
+                for(int channel=0;channel<channels;++channel)
+                    synthesis.warm(std::isfinite(audio[channel][n])?audio[channel][n]:0.,channel,c);
+            }
+            return;
+        }
 
         mix.setTarget(settings.mix, rampSamples);
         for (size_t i = 0; i < frequencies.size(); ++i)
@@ -345,7 +514,7 @@ public:
                 dry[index] = std::isfinite(audio[c][n]) ? double(audio[c][n]) : 0.;
                 samples[index] = splitter[index].tick(dry[index], coefficients);
             }
-            std::array<double, 2> sum{};
+            std::array<double, 4> gains{};
             const double parallel = mix.next();
             for (size_t i = 0; i < bandState.size(); ++i) {
                 auto& state = bandState[i];
@@ -361,25 +530,34 @@ public:
                 if (std::abs(state.gainDB) < 1.e-10) state.gainDB = 0.;
                 const double bandWet = state.wet.next();
                 const double makeup = state.makeup.next();
-                const double dynamic = gainFromDB(state.gainDB);
                 const double branch = gainFromDB(state.gainDB + makeup);
                 // The dry component is each identically phase-compensated band,
                 // not unfiltered input. Parallel mix therefore cannot comb.
                 const double gain = (1. + parallel * bandWet * (branch - 1.))
                                   * state.solo.next();
-                for (int c = 0; c < channels; ++c)
-                    sum[size_t(c)] += samples[size_t(c)][i] * gain;
-                meters[i] = float(-levelDB(1. + parallel * bandWet * (dynamic - 1.)));
+                gains[i] = gain;
             }
             const double active = wet.next();
+            const int length=wet.moving()?std::min(8,wet.remainingSamples()+1):8;
+            // Quintic endpoints remove the gain-ramp slope at both boundaries.
+            const auto fade=[](double x){return x*x*x*(10.+x*(-15.+6.*x));};
+            const double future=fade(wet.valueAfter(length-1));
+            const double amount=fade(active);
+            auto forecast=gains;
+            for(size_t i=0;i<gains.size();++i) {
+                forecast[i]=1.+future*(gains[i]-1.);
+                gains[i]=1.+amount*(gains[i]-1.);
+            }
+            synthesis.configure(gains, forecast, coefficients,length);
             for (int c = 0; c < channels; ++c) {
                 const auto index = size_t(c);
-                // A short global bypass crossfade can have phase coloration;
-                // the fully disabled endpoint is the original sample exactly.
-                if (active >= 1.) audio[c][n] = safeOutput(sum[index]);
-                else if (active > 0.) audio[c][n] = safeOutput(dry[index] + active * (sum[index] - dry[index]));
-                // active == 0 intentionally does not rewrite the input sample.
+                const double result = synthesis.tick(dry[index], c, coefficients);
+                if(active>0.) audio[c][n] = safeOutput(result);
             }
+        }
+        for(size_t i=0;i<bandState.size();++i) {
+            const auto& state=bandState[i];
+            meters[i]=float(-levelDB(1.+mix.value()*state.wet.value()*(gainFromDB(state.gainDB)-1.)));
         }
         if (!settings.on && !wet.moving()) meters = {};
     }
@@ -406,10 +584,12 @@ private:
     MultibandSettings settings{};
     double rate{48000.}, rmsCoefficient{}, peakCoefficient{};
     int rampSamples{480};
+    bool lastOn{};
     std::array<multiband_detail::CrossoverFrequency, 3> frequencies;
     std::array<multiband_detail::FourBandSplit, 2> splitter;
     std::array<BandState, multibandBandCount> bandState;
     multiband_detail::Ramp wet, mix;
+    multiband_detail::MinimumPhaseSynthesis synthesis;
     std::array<float, multibandBandCount> meters{};
 };
 

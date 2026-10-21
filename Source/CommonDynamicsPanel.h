@@ -89,8 +89,8 @@ public:
             slot.status.setFont(juce::FontOptions(12.f));slot.status.setComponentID("dynamicEQ"+juce::String(i+1)+".status");addChildComponent(slot.status);
         }
         toggle(mbOn,"MULTIBAND ON","mbOn");choice(mbDetector,"mbDetector",{"Peak","RMS"});control(mbMix,"mbMix","Parallel mix");
-        mbOn.setTooltip("Turn the full multiband stage on or off. Switching can briefly change the tone. For a dynamics comparison, keep it on and use Parallel mix at 0%.");
-        mbMix.slider.setTooltip("Blend the unprocessed and processed bands. At 0%, dynamics and makeup are removed while crossover phase and band solo remain active. This differs from switching MULTIBAND ON off.");
+        mbOn.setTooltip("Turn the full multiband stage on or off with a smooth 10 ms transition. Off preserves the original samples.");
+        mbMix.slider.setTooltip("Blend the unprocessed and processed band gains. At 0%, dynamics and makeup are removed; band solo remains active. With no solo selection, 0% returns the original samples.");
         for(int cross=0;cross<3;++cross) {
             control(crossovers[size_t(cross)],"mbCrossover"+juce::String(cross+1),"Crossover "+juce::String(cross+1)+" Hz");
             crossovers[size_t(cross)].slider.setTooltip("Target crossover. The boundaries stay ordered; the spectrum marker shows the applied frequency while changes settle.");

@@ -150,7 +150,7 @@ void reconstructionAndParallelAlignment() {
             check(std::abs(measured - expected) < .01, "Parallel mix blended an unaligned dry reference");
         }
     }
-    std::cout << "PASS compensated LR allpass reconstruction, magnitude error <= " << worst
+    std::cout << "PASS LR4 magnitude reconstruction, magnitude error <= " << worst
               << " dB; parallel mix flat across crossovers at four rates\n";
 }
 
@@ -196,15 +196,15 @@ void weightedPhaseAndMixAudit() {
                         expected += bands[b] * (1. + mix * (std::pow(10., s.bands[b].makeup / 20.) - 1.));
                     for (size_t n = 0; n < impulse[0].size(); ++n)
                         measured += double(impulse[0][n]) * std::polar(1., -2. * pi * hz * double(n) / rate) / .125;
-                    const double error = std::abs(measured - expected);
+                    const double error = std::abs(std::abs(measured) - std::abs(expected));
                     worstComplexError = std::max(worstComplexError, error);
-                    check(error < 2.e-6, "Weighted band sum has incorrect gain, phase or internal dry alignment");
+                    check(error < 2.e-6, "Weighted band sum has incorrect LR4 magnitude or internal mix");
                 }
             }
         }
     }
-    // Mix=0 deliberately retains the crossover phase. It must not silently
-    // become raw bypass, which would reintroduce a parallel phase mismatch.
+    // Mix operates on the aligned band gains before minimum-phase synthesis.
+    // Its zero endpoint and all-band bypass must both reconstruct raw samples.
     MultibandSettings s; s.on = true; s.mix = 0.f;
     MultibandDynamicsCore mb; mb.setSettings(s); mb.prepare(48000.);
     auto dry = tones(48000., .25, {80., 700., 3500.}, .1);
@@ -212,8 +212,8 @@ void weightedPhaseAndMixAudit() {
     s.mix = 1.f; for (auto& b : s.bands) b.bypass = true;
     mb.setSettings(s); mb.reset(); auto bandBypass = dry; process(mb, bandBypass, 2);
     check(zeroMix == bandBypass, "All-band bypass and zero mix lost their common phase reference");
-    check(zeroMix != dry, "Neutral IIR path was silently replaced by raw bypass");
-    std::cout << "PASS weighted complex response and phase-preserving endpoints; max complex error "
+    check(zeroMix == dry, "Neutral synthesis is not exact raw audio");
+    std::cout << "PASS weighted LR4 magnitude and exact raw endpoints; max amplitude error "
               << worstComplexError << '\n';
 }
 
@@ -256,11 +256,56 @@ void bypassTransitionAudit() {
             if (n < at + ramp)
                 minimum = std::min(minimum, std::hypot(switched[0][size_t(n)], switched[1][size_t(n)]) / .25);
         }
-        // Characterization, NOT an audible-quality acceptance threshold.
+        check(switched == input, "Neutral global transition modulates audio");
         std::cout << "CHARACTERIZATION " << rate << " Hz: 700 Hz global OFF min envelope "
-                  << 20. * std::log10(minimum) << " dB (known phase interference)\n";
+                  << 20. * std::log10(minimum) << " dB (fixed neutral bypass)\n";
     }
-    std::cout << "PASS bypass ramp continuity/partition and exact endpoint; phase coloration remains unresolved\n";
+    std::cout << "PASS bypass ramp continuity/partition and exact endpoint; neutral samples unchanged\n";
+}
+
+// Nonuniform dynamics, Solo and crossover motion exercise the synthesis beyond
+// the neutral regression. Same event samples, two host block partitions.
+void synthesisAutomationAndPartition() {
+    for(double rate : {44100.,48000.,96000.,192000.}) {
+        auto render = [&](bool fragmented) {
+            MultibandDynamicsCore core;
+            MultibandSettings settings;
+            settings.crossovers={40,56,78.4f};
+            for(size_t b=0;b<4;++b) {
+                auto& band=settings.bands[b];
+                band.makeup=b%2 ? 24.f : -24.f;
+                band.ratio=4;band.range=36;band.attack=.1f;band.release=5;
+                band.mode=int(b);band.threshold=-48;
+            }
+            core.setSettings(settings);core.prepare(rate);
+            auto audio=tones(rate,.24,{27.5,41.2034,700,3500},.0001);
+            const int event=std::max(1,int(rate*.003));
+            for(int offset=0, index=0;offset<int(audio[0].size());++index) {
+                settings.on=(index%7)<4;
+                if(index%9==0)settings.crossovers=index%18==0
+                    ?std::array<float,3>{40,56,78.4f}:std::array<float,3>{7000,10000,16000};
+                settings.bands[size_t(index%4)].solo=index%5==0;
+                settings.mix=float(index%11)/10.f;
+                core.setSettings(settings);
+                const int length=std::min(event,int(audio[0].size())-offset);
+                for(int n=0;n<length;) {
+                    const int count=fragmented?std::min(1+n%31,length-n):length;
+                    float* p[]{audio[0].data()+offset+n,audio[1].data()+offset+n};
+                    countAllocations=true;core.process(p,2,count);countAllocations=false;
+                    n+=count;
+                }
+                offset+=length;
+            }
+            for(size_t n=0;n<audio[0].size();++n) {
+                check(std::isfinite(audio[0][n])&&std::abs(audio[0][n])<8.f,
+                      "Nonuniform synthesis automation became unstable");
+                check(audio[1][n]==-.25f*audio[0][n],"Synthesis broke linked stereo");
+            }
+            return audio;
+        };
+        check(render(false)==render(true),"Synthesis scheduling depends on host block size");
+    }
+    std::cout<<"PASS nonuniform extremes, four modes, Solo, crossover/mix motion and 3 ms reversals; exact partition/stereo\n";
 }
 
 void bandIsolation() {
@@ -453,6 +498,7 @@ int main() {
         reconstructionAndParallelAlignment();
         weightedPhaseAndMixAudit();
         bypassTransitionAudit();
+        synthesisAutomationAndPartition();
         bandIsolation();
         curvesAndEnvelopes();
         deEsserSelectivity();

@@ -41,10 +41,11 @@ int main(int argc, char** argv) {
         core.setSettings(s); core.prepare(sr);
         std::vector<float> x(65536); x[0]=1.f;
         float* p[]{x.data()}; core.process(p,1,int(x.size())); output(x);
-    } else if ((mode == "off" || mode == "on" || mode == "band_off") && (argc == 4 || argc == 8)) {
+    } else if ((mode == "off" || mode == "on" || mode == "band_off") && (argc == 4 || argc == 8 || argc == 12)) {
         const double hz = std::stod(argv[3]);
-        const double seconds = argc == 8 ? std::stod(argv[4]) : .04;
-        if (argc == 8) for(int i=0;i<3;++i) s.crossovers[size_t(i)]=std::stof(argv[5+i]);
+        const double seconds = argc >= 8 ? std::stod(argv[4]) : .04;
+        if (argc >= 8) for(int i=0;i<3;++i) s.crossovers[size_t(i)]=std::stof(argv[5+i]);
+        if (argc == 12) for(int i=0;i<4;++i) s.bands[size_t(i)].makeup=std::stof(argv[8+i]);
         const int warm = int(sr * .5), length = int(sr * seconds);
         // Two independent mono runs in quadrature expose the instantaneous
         // envelope of the *linear neutral* time-varying bypass transition.
@@ -59,7 +60,7 @@ int main(int argc, char** argv) {
             else s.on = mode == "on";
             core.setSettings(s);p[0]+=warm;core.process(p,1,length);
             // Extended mode includes 20 ms preroll to inspect both boundaries.
-            const int pre = argc == 8 ? int(sr * .02) : 0;
+            const int pre = argc >= 8 ? int(sr * .02) : 0;
             output(std::vector<float>(x.begin()+warm-pre,x.end()));
         }
     } else if (mode == "timing" && argc == 4) {
