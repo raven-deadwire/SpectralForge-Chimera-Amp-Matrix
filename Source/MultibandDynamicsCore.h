@@ -435,6 +435,7 @@ public:
         rate = validRate(sampleRate);
         setSettings(settings);
         rampSamples = std::max(1, int(std::ceil(rate * .01)));
+        synthesisInterval = std::max(1, int(std::ceil(rate / 6000.)));
         rmsCoefficient = coefficient(rate, 5.);
         peakCoefficient = coefficient(rate, 30.);
         reset();
@@ -538,7 +539,9 @@ public:
                 gains[i] = gain;
             }
             const double active = wet.next();
-            const int length=wet.moving()?std::min(8,wet.remainingSamples()+1):8;
+            // Approximately 6 kHz control rate at every sample rate; interpolation
+            // has no host-block dependency and reaches the bypass endpoint exactly.
+            const int length=wet.moving()?std::min(synthesisInterval,wet.remainingSamples()+1):synthesisInterval;
             // Quintic endpoints remove the gain-ramp slope at both boundaries.
             const auto fade=[](double x){return x*x*x*(10.+x*(-15.+6.*x));};
             const double future=fade(wet.valueAfter(length-1));
@@ -583,7 +586,7 @@ private:
 
     MultibandSettings settings{};
     double rate{48000.}, rmsCoefficient{}, peakCoefficient{};
-    int rampSamples{480};
+    int rampSamples{480}, synthesisInterval{8};
     bool lastOn{};
     std::array<multiband_detail::CrossoverFrequency, 3> frequencies;
     std::array<multiband_detail::FourBandSplit, 2> splitter;
