@@ -1,0 +1,2918 @@
+[
+  {
+    "group": "harmonics-bass_B0-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_B0-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_B0-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_B0-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-bass_dropA_A0-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-bass_dropA_A0-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-bass_dropA_A0-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-44100/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-48000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/-2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/-2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/-2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/-1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/-1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/-1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/1/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/1/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/1/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "harmonics-guitar_dropA_A1-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "alternating_velocity-guitar_dropA_A1-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/2/baseline",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/2/corr40-onset",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  },
+  {
+    "group": "quiet_markers_over_sustain-guitar_dropA_A1-96000/2/corr40-split",
+    "blocks": [
+      64,
+      128,
+      256
+    ],
+    "identical": true
+  }
+]
