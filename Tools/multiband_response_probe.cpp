@@ -1,6 +1,10 @@
-// Offline measurement adapter for the production header. No alternate DSP.
+// Offline adapter: production by default; opt-in research candidate for A/B.
+// CHIMERA_MB_BYPASS_CANDIDATE is used only by the independent audit runner.
 // Binary output: little/native-endian float samples (runner records platform).
 #include "MultibandDynamicsCore.h"
+#ifdef CHIMERA_MB_BYPASS_CANDIDATE
+#include "experiments/MultibandBypassCandidate.h"
+#endif
 #include <array>
 #include <cmath>
 #include <cstdlib>
@@ -22,7 +26,11 @@ int main(int argc, char** argv) {
     const double sr = std::stod(argv[2]);
     MultibandSettings s; s.on = true;
     for (auto& b : s.bands) b.ratio = 1.f;
+#ifdef CHIMERA_MB_BYPASS_CANDIDATE
+    research::MultibandBypassCandidate core;
+#else
     MultibandDynamicsCore core;
+#endif
     const auto output = [](const std::vector<float>& v) {
         std::cout.write(reinterpret_cast<const char*>(v.data()), std::streamsize(v.size()*sizeof(float)));
     };
@@ -33,9 +41,11 @@ int main(int argc, char** argv) {
         core.setSettings(s); core.prepare(sr);
         std::vector<float> x(65536); x[0]=1.f;
         float* p[]{x.data()}; core.process(p,1,int(x.size())); output(x);
-    } else if ((mode == "off" || mode == "on" || mode == "band_off") && argc == 4) {
+    } else if ((mode == "off" || mode == "on" || mode == "band_off") && (argc == 4 || argc == 8)) {
         const double hz = std::stod(argv[3]);
-        const int warm = int(sr * .5), length = int(sr * .04);
+        const double seconds = argc == 8 ? std::stod(argv[4]) : .04;
+        if (argc == 8) for(int i=0;i<3;++i) s.crossovers[size_t(i)]=std::stof(argv[5+i]);
+        const int warm = int(sr * .5), length = int(sr * seconds);
         // Two independent mono runs in quadrature expose the instantaneous
         // envelope of the *linear neutral* time-varying bypass transition.
         for (int quadrature=0;quadrature<2;++quadrature) {
@@ -48,7 +58,9 @@ int main(int argc, char** argv) {
             if(mode == "band_off") for(auto& b:s.bands)b.bypass=true;
             else s.on = mode == "on";
             core.setSettings(s);p[0]+=warm;core.process(p,1,length);
-            output(std::vector<float>(x.begin()+warm,x.end()));
+            // Extended mode includes 20 ms preroll to inspect both boundaries.
+            const int pre = argc == 8 ? int(sr * .02) : 0;
+            output(std::vector<float>(x.begin()+warm-pre,x.end()));
         }
     } else if (mode == "timing" && argc == 4) {
         s.detector=std::stoi(argv[3]);s.crossovers={80,400,1200};

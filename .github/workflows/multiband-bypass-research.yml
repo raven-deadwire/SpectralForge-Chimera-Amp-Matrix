@@ -1,0 +1,47 @@
+name: Multiband bypass research (no release qualification)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Tools/experiments/MultibandBypassCandidate.h'
+      - 'Tools/experiments/multiband_bypass_bench.cpp'
+      - 'Tools/multiband_response_probe.cpp'
+      - 'Tools/measure_multiband_bypass_candidate.py'
+      - 'Tests/MultibandBypassCandidateTests.cpp'
+      - '.github/workflows/multiband-bypass-research.yml'
+permissions:
+  contents: read
+jobs:
+  offline-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy matplotlib
+      - name: Existing production core contracts and isolated candidate contracts
+        run: |
+          mkdir -p /tmp/mb-evidence
+          g++ -O2 -std=c++20 -ISource Tests/MultibandDynamicsCoreTests.cpp -o /tmp/mb-core
+          /tmp/mb-core | tee /tmp/mb-evidence/core.txt
+          g++ -O2 -Wall -Wextra -Werror -std=c++20 -ISource Tests/MultibandBypassCandidateTests.cpp -o /tmp/mb-research
+          /tmp/mb-research | tee /tmp/mb-evidence/candidate.txt
+      - name: Full acoustic sweep (measurement success is not acoustic acceptance)
+        run: |
+          python Tools/measure_multiband_bypass_candidate.py --skip-cpu --output /tmp/mb-evidence
+          python - <<'PY'
+          import json, os
+          r=json.load(open('/tmp/mb-evidence/measurements.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write(f"Research verdict: **{r['integration_verdict']}**\n\n")
+              f.write(f"Envelope screen failures: {r['envelope_screen_failures']}. No release approval; CPU and DAW qualification are not performed by this job.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Multiband-bypass-research-not-release-evidence
+          path: /tmp/mb-evidence
