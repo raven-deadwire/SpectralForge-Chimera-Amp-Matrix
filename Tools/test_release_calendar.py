@@ -16,7 +16,8 @@ import chimera_version
 class CalendarContracts(unittest.TestCase):
     def setUp(self):
         self.plan = calendar.read_plan()
-        clock = patch.object(calendar, 'kst_today', return_value=date(2026, 10, 19))
+        clock = patch.object(calendar, 'kst_today',
+                             return_value=date.fromisoformat(self.plan['updated_at']))
         clock.start()
         self.addCleanup(clock.stop)
         self.today_patcher = clock
@@ -202,13 +203,13 @@ class CalendarContracts(unittest.TestCase):
         self.plan['development_candidates'].append(dict(pr=999, tag=row['tag'], version=row['version'],
             publication_target=row['publication_target'], reservation_status=row['status'], publication_approved=False))
         row['candidate_pr'] = 999
-        row.update(test_build_date='2026-10-18', candidate_date='2026-10-19',
-                   publication_target='2026-10-20')
-        self.plan['dependent_deliveries'][2]['publication_review'] = '2026-10-20'
+        row.update(test_build_date='2026-10-22', candidate_date='2026-10-23',
+                   publication_target='2026-10-24')
+        self.plan['dependent_deliveries'][2]['publication_review'] = '2026-10-24'
         with self.assertRaisesRegex(ValueError, 'candidate reservation mismatch'):
             self.check()
-        self.plan['development_candidates'][-1]['publication_target'] = '2026-10-20'
-        self.plan['next_release']['publication_target'] = '2026-10-20'
+        self.plan['development_candidates'][-1]['publication_target'] = '2026-10-24'
+        self.plan['next_release']['publication_target'] = '2026-10-24'
         self.check(target_version=row['version'])
         row.update(test_build_date='2026-10-30', candidate_date='2026-10-31', publication_target='2026-11-01')
         with self.assertRaisesRegex(ValueError, 'Non-increasing'):

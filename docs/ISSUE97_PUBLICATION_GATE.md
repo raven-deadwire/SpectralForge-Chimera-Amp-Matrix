@@ -1,26 +1,39 @@
 # Issue #97: candidate-bound P0 publication gate
 
-Status, 2026-10-20 KST: **beta.2 BLOCKED**. This change implements an additive
-verification path, not feature completion, an expiry decision, a passing native
-candidate, or permission to publish. October 21/22/23 remain conditional targets.
+Status, 2026-10-21 KST: **beta.2 BLOCKED / schedule re-estimation required**.
+The existing evaluator and publisher path is implemented and reused; no P0
+criterion, approval, expiry or required report is relaxed by this refresh.
+October 22/23 remain blocked review checkpoints, not a qualified candidate or
+committed release. The integrated beta.2 product SHA remains **unselected**.
 
 ## Current source comparison
 
-The live API snapshot is in
-`docs/evidence/issue97-gate-20261020/source-status.json`.
+[Current audit, source/CI/package evidence and schedule decision](evidence/beta2-readiness-20261021/README_KO.md).
+Machine-readable `readiness-review.json` maps all four P0s and common requirements
+to the existing 27 report IDs. It is a planning reference, **not** an acceptance
+manifest. `current-readiness.json` is the output of this existing gate: BLOCKED.
+The 2026-10-20 snapshot is historical and remains preserved in its original folder.
 
-| Work | Latest inspected source | Reuse | Still required for the integrated candidate |
+| Work | Latest inspected source | Implemented scope | Remaining qualification |
 | --- | --- | --- | --- |
-| #93 | `7f3a838f5bf1a50bc5949fc3e31141a7da231d40` | Calendar, approval/controller, archive and publisher contracts; immutable historical policy | This additive gate, reviewed evidence, actual packages, explicit expiry and public approval |
-| #98 | `b7923ea8b7a0f85cfbfafb0e0338238adc09b181` | Countdown/lifecycle implementation, runtime and historical restore test procedures; lifecycle workflow SUCCESS | New source/package policy identity; installed DAW expiration/export/update restore. Separate signal-path workflow FAIL remains |
-| #100 | `6ec78c475311827ccfd1949c9ae9ce364f79c0b4` | Research fixtures, render/latency/CPU measurement tools and negative cases | Production integration; original Neural capture; Azhi Dahaka/Low B/-2 same DI and level; +/-1,+/-2 at 48k <=10ms; weak attack maximum 34.60ms remains a failure. Research build workflow FAIL remains |
-| #101 | `8ff4dbf59639f54c751232999da6e78055691703` | Common AAX target, bypass/PDC and installer recovery tests; latest AAX development workflow SUCCESS | Final signed install packages, PACE and platform/installed signature checks; retail Pro Tools on Windows, Intel and Apple Silicon; same P0/policy. Separate signal-path workflow FAIL remains |
-| #110 | `3a942a125d652a234d0f481fca3af2bdf6897635` | Six spectrum workspaces, independent four-band DSP and existing UI/core/compatibility suites; dedicated dynamics/lifecycle/graphical-EQ workflows SUCCESS | Original FabFilter comparisons, reviewed tolerances, actual candidate DAW/listening checks. Signal-path and CAB-panel workflows FAIL; full build IN_PROGRESS at inspection |
+| #93 | `153f1a6a0400ad38287bbd59030e06dd794fb5cb` | Existing P0/calendar/publisher path; publisher jobs 5/5 | Full build validation-contract failed on temporary Git cleanup; build/assembly skipped, strict 0/128. This refresh isolates fixture maintenance; new-source CI is separate |
+| #112 on #100 | `650feaa8955281232fc8c840bd82afdeda5df7e0` | Independent corr40-split research, production Source unchanged | Small high-band attacks B0/A0/A1 2.750/2.688/2.667ms; low band up to 16.877ms, upward attacks 37.687ms, tiny A1 misses 6/16; full <=10ms target NOT met, fixed PDC/real DI/reference/DAW missing |
+| #110 | `3a942a125d652a234d0f481fca3af2bdf6897635` | Six spectrum editors and independent 4-band DSP on an unmerged product branch; full build complete, Windows/macOS/Linux 67/59/60 CTests pass | Separate macOS tuner and CAB-panel FAIL; original FabFilter comparison, approved tolerances, installed-host/listening acceptance missing; beta.1 packages, strict 21/107 |
+| #111, rejected experiment | `0123668f74c7e61c84f209d91eaa54df864786b6` | Offline allpass experiment implemented at `1669a805f67c55acf4e3600172befd456455c7e0` | REJECT_CANDIDATE, +6.547dB low-band overshoot, 32/288 failures |
+| #111, newer Source fix | `ffab682bef3468001f98624bda3051796341ab51` | Actual MultibandDynamicsCore/CommonDynamicsPanel changes since `63a72f4ac3551b76d4eb204c699469d23c1bde4e`, unmerged | Own numerical/native workflow 39529062371 pending/in progress at snapshot; previous experiment's verdict is not this source's result; no beta.2/host approval |
+| #98 | `b7923ea8b7a0f85cfbfafb0e0338238adc09b181` | Countdown/lifecycle implementation, lifecycle CI 7/7 jobs SUCCESS | beta.2-specific expiry/policy/packages and installed DAW expiry/export/update restore missing; separate signal-path FAIL |
+| #101 incl. #106 | `8ff4dbf59639f54c751232999da6e78055691703` | AAX target, host bypass PDC and recovery fixes; both native builds, CTest 5/5 each | Only AAX-UNSIGNED-DEVELOPMENT beta.1 packages; PACE/final signatures, retail Pro Tools on Windows/Intel/Apple Silicon, same-source four-P0 integration missing |
 
-No branch's historical success is evidence for a new source. Procedures and
-fixtures are reusable; their PASS verdicts are not. #110's documented global
-multiband bypass transition losses remain an unresolved acceptance item. A
-successful standalone CAB realtime workflow does not cancel CAB-panel failures.
+The latest main is `4aeb3033d15e04dbaa785811f4faf95db72882a9` (preset
+maintenance), not the selected beta.2 source. Existing beta.1 and separate preset
+maintenance publication do not transfer approval. No branch's historical PASS
+is evidence for a different SHA. In particular, #111's historical experiment did not change production Source,
+while its new implementation does. Its PR body was also updated during this review;
+reported local numerical PASS remains separate from pending native/host acceptance.
+
+The full report records four downloaded, digest-verified evidence archives,
+actual strict reports and package metadata, source fingerprints, complete
+SHA-filtered workflow inventory, and the remaining manual evidence gaps.
 
 ## Publication path
 
@@ -155,9 +168,10 @@ PASS provenance. Even a P0 PASS returns `publication_allowed:false`: the full
 publisher must independently pass the baseline, approval, package and calendar
 contracts. With no candidate/evidence, the command exits 1 and prints BLOCKED.
 
-## October 21 execution and remaining decisions
+## October 22/23 review and remaining decisions
 
-Run the gate contracts now. Select an integrated source only after feature
+Keep the blocked review checkpoints and re-estimate development/publication timing.
+Do not automatically roll over or consume another beta number. Select an integrated source only after feature
 owners supply compatible changes. Run the existing native CI and collect its
 actual artifacts on that source, preserving tuner/CAB failures. Run original
 same-DI and versioned FabFilter comparisons; capture installed DAW and signed

@@ -403,6 +403,10 @@ class ControllerSourceBinding(unittest.TestCase):
         self.git("config", "user.email", "publication-fixture@example.invalid")
         self.git("config", "commit.gpgsign", "false")
         self.git("config", "core.autocrlf", "false")
+        # This disposable repository is deleted as soon as the test ends.
+        # Do not leave Git's detached maintenance writing into .git at cleanup.
+        self.git("config", "gc.auto", "0")
+        self.git("config", "maintenance.auto", "false")
         for name in (*self.PRODUCT_FILES, "Tools/publish_beta131.py",
                      "docs/RELEASE_1_3_1_PIPELINE.md"):
             self.write(name, "reviewed product bytes\n")

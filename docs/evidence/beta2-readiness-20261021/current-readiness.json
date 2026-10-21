@@ -1,0 +1,9 @@
+{
+  "version": "1.3.2-beta.2",
+  "source_sha": null,
+  "verdict": "BLOCKED",
+  "publication_allowed": false,
+  "blockers": [
+    "ISSUE97_EVIDENCE_MISSING: select integrated source, candidate packages, evidence and reviewed approval"
+  ]
+}

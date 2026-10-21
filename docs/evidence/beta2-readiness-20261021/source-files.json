@@ -1,0 +1,110 @@
+{
+  "transpose_research": {
+    "source_sha": "650feaa8955281232fc8c840bd82afdeda5df7e0",
+    "tree": "9506094c9bc4f77dc21f3e03d0dceac15f355dc8",
+    "files": [
+      {
+        "path": "docs/TRANSPOSE_WEAK_ATTACK_RESEARCH_20261021.md",
+        "git_blob": "176b78b05bb3301735567f1763e40ccbcf5e55c9",
+        "sha256": "8df879a2fac9a954c98ab9de58ed5eddc45503d24aaef0cd1b634ce36c45311f",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/650feaa8955281232fc8c840bd82afdeda5df7e0/docs/TRANSPOSE_WEAK_ATTACK_RESEARCH_20261021.md"
+      },
+      {
+        "path": "docs/evidence/transpose-weak-attack-20261021/summary.json",
+        "git_blob": "00d65d8a6bb490a071976a060507c0ed56dabf20",
+        "sha256": "5b5470cdbadc689874f93ce62e261dc8646d2e16d475d476b68907972ef5dcf8",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/650feaa8955281232fc8c840bd82afdeda5df7e0/docs/evidence/transpose-weak-attack-20261021/summary.json"
+      },
+      {
+        "path": "docs/evidence/transpose-weak-attack-20261021/provenance.json",
+        "git_blob": "83b591480eba8686594b8491d8f6eb781badba54",
+        "sha256": "10303e2ece94f66ecd44298cec007939ea06c3cb80d6768dc66ae82164972e96",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/650feaa8955281232fc8c840bd82afdeda5df7e0/docs/evidence/transpose-weak-attack-20261021/provenance.json"
+      }
+    ]
+  },
+  "rejected_allpass_candidate": {
+    "source_sha": "0123668f74c7e61c84f209d91eaa54df864786b6",
+    "tree": "3ee107eb80f31d4970a387f6bd2a0fedea5aac8d",
+    "files": [
+      {
+        "path": "docs/MULTIBAND_BYPASS_CANDIDATE_20261021.md",
+        "git_blob": "82e0a80f41dfd67dee0116e60838a3acacd9db0d",
+        "sha256": "0e9c6f4cc550d15a6a2bb095a3776e24d8df13ee0db1532d00891a1b441aa09e",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/0123668f74c7e61c84f209d91eaa54df864786b6/docs/MULTIBAND_BYPASS_CANDIDATE_20261021.md"
+      },
+      {
+        "path": "Validation/MultibandBypassCandidate/measurements.json",
+        "git_blob": "68c1012c9e32a840861288c0d58b35fab5012dae",
+        "sha256": "8f81f1e91f748d50ff8e008b875b378ca50844576afa074c22d51d623f98a87a",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/0123668f74c7e61c84f209d91eaa54df864786b6/Validation/MultibandBypassCandidate/measurements.json"
+      }
+    ]
+  },
+  "new_multiband_product_branch": {
+    "source_sha": "ffab682bef3468001f98624bda3051796341ab51",
+    "tree": "00494f22365b97dc690dfb11f96bd64edae7caf4",
+    "files": [
+      {
+        "path": "Source/MultibandDynamicsCore.h",
+        "git_blob": "a496c00062ad8df9fd7cf8d9e301725f318b0124",
+        "sha256": "a91b2ab2fc64e9de3dc347d213c747bd09f6fb573a5de0c3bf39d3bde4e0e1ab",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ffab682bef3468001f98624bda3051796341ab51/Source/MultibandDynamicsCore.h"
+      },
+      {
+        "path": "Source/CommonDynamicsPanel.h",
+        "git_blob": "126b9d727eb97c6578515828e11d46adad73ed1b",
+        "sha256": "685dc7443ba7d5adf8445dd974ff92cef262e5aecf21c08ed4bb08a3d7bb8d6d",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ffab682bef3468001f98624bda3051796341ab51/Source/CommonDynamicsPanel.h"
+      },
+      {
+        "path": "Tools/measure_multiband_bypass_fix.py",
+        "git_blob": "2dd1465fa9f79ce615fa721cd59eb218e3543b2f",
+        "sha256": "af86948cd3bf29cf8cb4cdef69654bbddc9bc97ee48b3b5dcfab16f32e7f5f02",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ffab682bef3468001f98624bda3051796341ab51/Tools/measure_multiband_bypass_fix.py"
+      },
+      {
+        "path": ".github/workflows/multiband-bypass-research.yml",
+        "git_blob": "1daf43e1e345093d852ff5cf1f32bad94b0f4078",
+        "sha256": "00d5a5bcd347ebd9b942cb45881f401e5ef9954654eb85b5f77607580a1cdb46",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ffab682bef3468001f98624bda3051796341ab51/.github/workflows/multiband-bypass-research.yml"
+      }
+    ]
+  },
+  "existing_gate": {
+    "source_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb",
+    "tree": "96344beee92cfc1c21aa75018f3394aed5f2eb32",
+    "files": [
+      {
+        "path": "Tools/issue97_gate.py",
+        "git_blob": "962e93e3f3ce2fb08e7e2c84ac619c8042b4050b",
+        "sha256": "cc9eef5c7511ee126ec6af3b84a65d21c7d0a87abc9cf696972aa0b11f53bfe5",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/153f1a6a0400ad38287bbd59030e06dd794fb5cb/Tools/issue97_gate.py"
+      },
+      {
+        "path": "Tools/weekly_publication.py",
+        "git_blob": "e654912e0039d8ee16a6939d9e934396a0d6e9fd",
+        "sha256": "4abfbe00fd06063ea8ccc99c3057eba320184dec37288a9817425c62860a6849",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/153f1a6a0400ad38287bbd59030e06dd794fb5cb/Tools/weekly_publication.py"
+      },
+      {
+        "path": "Tools/publish_release.py",
+        "git_blob": "ccb625a8155ff4b91c698dbfb278884dfcb3523e",
+        "sha256": "803aabf7da1ec0fc2ceef4c4486a6b47842d2f94eabe68e339a4baf7620932b0",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/153f1a6a0400ad38287bbd59030e06dd794fb5cb/Tools/publish_release.py"
+      },
+      {
+        "path": "Validation/weekly-publication-policy.json",
+        "git_blob": "9ba79dcc7f9cdf0e49d3f8f9812204fe22d80212",
+        "sha256": "ab2a7d552edb8662c6260ea206dea5a19964de86a572d98faee49b486c4da9b4",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/153f1a6a0400ad38287bbd59030e06dd794fb5cb/Validation/weekly-publication-policy.json"
+      },
+      {
+        "path": "Validation/beta-lifecycle-policy.json",
+        "git_blob": "7e2128ca2bb7e37af6f36dbe0f11d1d3829cd656",
+        "sha256": "66bc1f7058ce35e7c41b4ddd3ccab4d56c0dfdc58613ea79f2b710f45df204ac",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/153f1a6a0400ad38287bbd59030e06dd794fb5cb/Validation/beta-lifecycle-policy.json"
+      }
+    ]
+  }
+}

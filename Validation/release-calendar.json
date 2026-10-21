@@ -1,7 +1,7 @@
 {
   "schema": "spectralforge.release-plan",
   "schema_version": 3,
-  "updated_at": "2026-10-19",
+  "updated_at": "2026-10-21",
   "timezone": "Asia/Seoul",
   "status": "planning_only_not_release_or_updater_manifest",
   "source_baseline": {
@@ -104,7 +104,17 @@
       "checkpoint_date": "2026-10-23",
       "requirements_issue": 97,
       "expiry_approved": false,
-      "expiry_utc": null
+      "expiry_utc": null,
+      "readiness_review": {
+        "checked_at": "2026-10-21T10:50:41+09:00",
+        "verdict": "BLOCKED",
+        "integrated_product_sha": null,
+        "evidence": "docs/evidence/beta2-readiness-20261021/readiness-review.json",
+        "gate_result": "docs/evidence/beta2-readiness-20261021/current-readiness.json",
+        "schedule_adjustment_required": true,
+        "replacement_date": null,
+        "decision": "10/22 candidate and 10/23 conditional review retained as blocked checkpoints. Completion/publication must be re-estimated from remaining P0 evidence. Explicit defer/remap if still blocked; no automatic rollover, version increment or inherited approval."
+      }
     },
     {
       "product": "Chimera",

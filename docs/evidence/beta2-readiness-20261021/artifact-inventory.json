@@ -1,0 +1,1251 @@
+{
+  "checked_at": "2026-10-21T10:50:41+09:00",
+  "scope": "API inventory. Only entries in artifact-verification.json were byte-verified; unintegrated beta.1 development packages are not beta.2 acceptance.",
+  "artifacts": [
+    {
+      "id": 12185780364,
+      "name": "AAX-UNSIGNED-DEVELOPMENT-macos-8ff4dbf59639f54c751232999da6e78055691703",
+      "size_in_bytes": 234476419,
+      "digest": "sha256:1a21d1ad1b18cab0ed5106f3522a8e5dd8c6d198ba34867aeaa5a50244cfd520",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173843,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T12:11:32Z"
+    },
+    {
+      "id": 12183084916,
+      "name": "AAX-UNSIGNED-DEVELOPMENT-windows-8ff4dbf59639f54c751232999da6e78055691703",
+      "size_in_bytes": 115257592,
+      "digest": "sha256:d7a3bdc8040244374a17d7652a0916938ca1fc68a939ea2badd6f59a0d760957",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173843,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T11:58:02Z"
+    },
+    {
+      "id": 12197810089,
+      "name": "Chimera-A-stage-release-gate",
+      "size_in_bytes": 2019288,
+      "digest": "sha256:69c85474d775b2b61a5204b3fc52bf37aa53a9f0c581c50593678772e40e5491",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T15:03:25Z"
+    },
+    {
+      "id": 12197311270,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-Release-Candidate",
+      "size_in_bytes": 1593573570,
+      "digest": "sha256:3984e3f2ba4fc698af4808333a2096d5fee4d5f47a2d436d93e77e663b4f09cf",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T15:03:08Z"
+    },
+    {
+      "id": 12197295900,
+      "name": "Chimera-integration-validation-macOS",
+      "size_in_bytes": 6901236,
+      "digest": "sha256:a25accd0d560a2746221d752601652c95f2ae591790a12b69b2dbcaffb904925",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T15:01:28Z"
+    },
+    {
+      "id": 12197101353,
+      "name": "Chimera-release-evidence-macos",
+      "size_in_bytes": 661530,
+      "digest": "sha256:2e1fecd5c1635a95c285cdb9e1209dfb6cb84742118fb2f0f1e404de6376959c",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T15:02:28Z"
+    },
+    {
+      "id": 12196866677,
+      "name": "Chimera-release-evidence-assembly",
+      "size_in_bytes": 1958,
+      "digest": "sha256:bbeafad6e310661b60677d6f74a0511feabcfb31ba20abfc13f08addad85b1b3",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T15:03:09Z"
+    },
+    {
+      "id": 12196142690,
+      "name": "Chimera-DSP-verification-macOS",
+      "size_in_bytes": 644271,
+      "digest": "sha256:56dbdc15225fbb78bf25116af09e30efa7d9f6ea6103171e8ae048b4169133cf",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T15:01:29Z"
+    },
+    {
+      "id": 12196103242,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-macos-universal",
+      "size_in_bytes": 703019727,
+      "digest": "sha256:a45858fb7ac367c137415b8716f0a95f6436e12c95106ec516babe77705cafc4",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T15:02:26Z"
+    },
+    {
+      "id": 12193800855,
+      "name": "Chimera-integration-validation-Windows",
+      "size_in_bytes": 6901526,
+      "digest": "sha256:ffad80c76ddf1e6debdce2705d89e00320ff877b35c6289b1717fb2d51cc3efb",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:04:22Z"
+    },
+    {
+      "id": 12193450246,
+      "name": "Chimera-DSP-verification-Linux",
+      "size_in_bytes": 689925,
+      "digest": "sha256:40d464ab5cbd4dcf269a3dfeb8077555966af5d2ede0dfb886e5e84f8edef7e8",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T13:59:26Z"
+    },
+    {
+      "id": 12193321467,
+      "name": "Chimera-Windows-Head-gallery",
+      "size_in_bytes": 16862344,
+      "digest": "sha256:2a7a6a5dc029170e8887bf8bb546ba01a048dd0b39dacf84b7d127bc520166f5",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:04:31Z"
+    },
+    {
+      "id": 12193086675,
+      "name": "Chimera-Windows-UI-snapshots",
+      "size_in_bytes": 78520940,
+      "digest": "sha256:27664a1044b9ef31e0c471805e3882ac106c5c407d25a6e5f7ea2ee7ee100a21",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:04:28Z"
+    },
+    {
+      "id": 12193051630,
+      "name": "Chimera-DSP-verification-Windows",
+      "size_in_bytes": 544872,
+      "digest": "sha256:170f9e96fab932914d1b79c8dadd077366cf60de7530afae14b1bdac929a3713",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:04:24Z"
+    },
+    {
+      "id": 12192957228,
+      "name": "Chimera-Windows-MSIX-verification",
+      "size_in_bytes": 537,
+      "digest": "sha256:7d0c295ad535f60e508e06ab64f3ff7ba94cbb5700330629b20431192a1cca82",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:08:26Z"
+    },
+    {
+      "id": 12192946980,
+      "name": "Chimera-Windows-installer-verification",
+      "size_in_bytes": 46251,
+      "digest": "sha256:04d43e048261a0a08268ecf897ac6ff64444cff063432d3ada50d51c53aa97f7",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:07:57Z"
+    },
+    {
+      "id": 12192751225,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-linux-x86_64",
+      "size_in_bytes": 447726242,
+      "digest": "sha256:5a12c21ac98b62a269c47d9ad5c99f2dafc669585cc5743639a0230897d9bcba",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:01:16Z"
+    },
+    {
+      "id": 12192692711,
+      "name": "Chimera-release-evidence-windows",
+      "size_in_bytes": 569729,
+      "digest": "sha256:8b621a9d70fe1ae5cb28f45521813f1d9c66ca02a783fae21e10623da9172cc1",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:09:18Z"
+    },
+    {
+      "id": 12192483287,
+      "name": "Chimera-Windows-MSIX-review-unsigned",
+      "size_in_bytes": 115698088,
+      "digest": "sha256:c044d34e7be12f0ca1d2dfdd7098e7f37afd0aee68579a89b3a5971a6ed49bd8",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:09:16Z"
+    },
+    {
+      "id": 12192373395,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-win64-Setup",
+      "size_in_bytes": 210849286,
+      "digest": "sha256:ae2c447385d1e829fab24032bd8b095afeb35a87614de6a70263124331e5e1af",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:09:12Z"
+    },
+    {
+      "id": 12192331969,
+      "name": "Chimera-release-evidence-linux",
+      "size_in_bytes": 707951,
+      "digest": "sha256:7e25422842b3535a34e2e2fb57a17d591de192706eb8c325f5ee078f094325e0",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:01:18Z"
+    },
+    {
+      "id": 12192288370,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-win64",
+      "size_in_bytes": 231662960,
+      "digest": "sha256:a66bbef43be653bbe7490c6c6f0697f552d62216a1f5e3feb65a55de41668219",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:09:08Z"
+    },
+    {
+      "id": 12192163456,
+      "name": "Chimera-Windows-security-report",
+      "size_in_bytes": 4839,
+      "digest": "sha256:a9b410f2c550e1a065ab38f23754d659abe5b877efd19dcdcab3fb19a5e87545",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T14:09:03Z"
+    },
+    {
+      "id": 12191949930,
+      "name": "Chimera-integration-validation-Linux",
+      "size_in_bytes": 7743224,
+      "digest": "sha256:d4e235e69d6023cb10e8085f761dd87f1cfd9ea3ea7d1a2d623fdbd984d232bf",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T13:59:24Z"
+    },
+    {
+      "id": 12183832346,
+      "name": "Chimera-validation-seed",
+      "size_in_bytes": 64942,
+      "digest": "sha256:2036e93e158f3bd3bafcdbe2220096306de4c7cedf84c6feba3a6f169274d5e9",
+      "expired": false,
+      "workflow_run": {
+        "id": 39245173849,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "codex/aax-native-foundation-20261018",
+        "head_sha": "8ff4dbf59639f54c751232999da6e78055691703"
+      },
+      "created_at": "2026-10-19T11:47:16Z"
+    },
+    {
+      "id": 12260320028,
+      "name": "Chimera-Windows-security-report",
+      "size_in_bytes": 4839,
+      "digest": "sha256:13848d86359e1cb55eac9f782a092cd00fd18ff15915a9ff0bf115f29c7f468b",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:58:40Z"
+    },
+    {
+      "id": 12260230169,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-win64-Setup",
+      "size_in_bytes": 210913897,
+      "digest": "sha256:a5f7b6377a5ffccea0a9379616c20114fc4b96b9a391e6a1ac6fbdf47bfa6b93",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:58:45Z"
+    },
+    {
+      "id": 12260135334,
+      "name": "Chimera-release-evidence-windows",
+      "size_in_bytes": 571110,
+      "digest": "sha256:66bb4d798192a2adb6406db7da3315ed9deab82c5e736fe0b02a91578b3ec2cd",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:58:48Z"
+    },
+    {
+      "id": 12260130279,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-win64",
+      "size_in_bytes": 231759071,
+      "digest": "sha256:978d409f6387906a9fd4fc8526fa3226d80e8b5217d7e1d2d187b259ad62858f",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:58:42Z"
+    },
+    {
+      "id": 12260120225,
+      "name": "Chimera-Windows-MSIX-review-unsigned",
+      "size_in_bytes": 115740873,
+      "digest": "sha256:febb325bb98b7330a0847e4a9d110ea5c29b40655924ed8fdaa0c2502f88c3a3",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:58:46Z"
+    },
+    {
+      "id": 12259985303,
+      "name": "Chimera-Windows-MSIX-verification",
+      "size_in_bytes": 537,
+      "digest": "sha256:1303f4817cd21098783c9e8f8b26db8fd2fa4baea7832259e3d2b042da4fee34",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:58:16Z"
+    },
+    {
+      "id": 12259472645,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-Release-Candidate",
+      "size_in_bytes": 1594376231,
+      "digest": "sha256:b058cd6d62b65859afb29ae63f2936d3b3ccc1d571b01c089ae0e3e6fbfd4083",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:59:24Z"
+    },
+    {
+      "id": 12259442632,
+      "name": "Chimera-A-stage-release-gate",
+      "size_in_bytes": 2017188,
+      "digest": "sha256:5244c2b4eb80d57f2584e09881bd12a9ef07856e45ba55dc9fde24896731c781",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:59:41Z"
+    },
+    {
+      "id": 12259405183,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-macos-universal",
+      "size_in_bytes": 703405695,
+      "digest": "sha256:638bfd07ca9cc232581e0dbf35f427a3bbcbf5b9f51436e7e83f145f0cb6bc5d",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:42:30Z"
+    },
+    {
+      "id": 12259168000,
+      "name": "Chimera-release-evidence-assembly",
+      "size_in_bytes": 1956,
+      "digest": "sha256:02dac6bf3851e516db5fd0f8e2e9ab00ca439a0844105b38640b50bf5e3dc53b",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:59:25Z"
+    },
+    {
+      "id": 12259083889,
+      "name": "Chimera-DSP-verification-Windows",
+      "size_in_bytes": 545203,
+      "digest": "sha256:f1bd00f930da4b2e88a534d1437df13282c661ddaf3f96b39ae89642fee935ed",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:54:06Z"
+    },
+    {
+      "id": 12259014648,
+      "name": "Chimera-Windows-installer-verification",
+      "size_in_bytes": 46356,
+      "digest": "sha256:ca334ba45efd0d12ef25765a1391797d36d6607afbc82527e749d86512087ae4",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:57:41Z"
+    },
+    {
+      "id": 12258834310,
+      "name": "Chimera-Windows-UI-snapshots",
+      "size_in_bytes": 86456582,
+      "digest": "sha256:4ede831daefa509c0754d641c37ef3bebcff8850b2d5de0e363dc8f2d074b136",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:54:10Z"
+    },
+    {
+      "id": 12258769229,
+      "name": "Chimera-integration-validation-Windows",
+      "size_in_bytes": 6916918,
+      "digest": "sha256:31514f810952ea1e4460d1dc8734f717dd64b44b9f6c51516b03912450824304",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:54:06Z"
+    },
+    {
+      "id": 12258609275,
+      "name": "Chimera-Windows-Head-gallery",
+      "size_in_bytes": 16729813,
+      "digest": "sha256:c55949acf208b9b903600003ce54a5cceb18da32a2addb4f2ddcbe19941fed1c",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:54:12Z"
+    },
+    {
+      "id": 12258502206,
+      "name": "Chimera-integration-validation-macOS",
+      "size_in_bytes": 6935913,
+      "digest": "sha256:77c8ba13bbf85bb8325a4f788751814c97e229ba006247c3c38c61baa0cbb03f",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:41:33Z"
+    },
+    {
+      "id": 12258446031,
+      "name": "Chimera-DSP-verification-Linux",
+      "size_in_bytes": 689518,
+      "digest": "sha256:3123eeeee844856eae7d4bb3a1cad4ce54f00075828d0c517648407f7215a600",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:34:52Z"
+    },
+    {
+      "id": 12258396068,
+      "name": "Chimera-integration-validation-Linux",
+      "size_in_bytes": 7777970,
+      "digest": "sha256:ae5e4bc1f927eb47d3824a1307dcd6584c335371434e824ecfeb89b69db6c459",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:34:50Z"
+    },
+    {
+      "id": 12258307382,
+      "name": "Chimera-DSP-verification-macOS",
+      "size_in_bytes": 640329,
+      "digest": "sha256:0f3e664e2d946ef1de064e77d9e6413c51bb34adaedd4af5450620a2a89ca8f1",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:41:34Z"
+    },
+    {
+      "id": 12258183731,
+      "name": "SpectralForge-Chimera-1.3.2-beta.1-linux-x86_64",
+      "size_in_bytes": 447982213,
+      "digest": "sha256:46a287c435df439a6fad8f9ffa38199a094a73771f83a082049613d1905b8e54",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:36:28Z"
+    },
+    {
+      "id": 12258109002,
+      "name": "Chimera-release-evidence-linux",
+      "size_in_bytes": 708075,
+      "digest": "sha256:54daf3d3217e631a6d0767afd3432ff224b68a38b0601f1efb011cbff2a90de5",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:36:29Z"
+    },
+    {
+      "id": 12258104967,
+      "name": "Chimera-release-evidence-macos",
+      "size_in_bytes": 658119,
+      "digest": "sha256:c0a4fa570480aa5c7955db1398130bec8c76b12a8a25af0b03e650ece1b00256",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T10:42:31Z"
+    },
+    {
+      "id": 12254256504,
+      "name": "Chimera-validation-seed",
+      "size_in_bytes": 64778,
+      "digest": "sha256:5e5b5607eec7289a055070801d538e8cb17772f87719ba55b46dde8fd4e7beb5",
+      "expired": false,
+      "workflow_run": {
+        "id": 39398055113,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "feat/dynamics-spectrum-workspaces-20261020",
+        "head_sha": "3a942a125d652a234d0f481fca3af2bdf6897635"
+      },
+      "created_at": "2026-10-20T09:18:37Z"
+    },
+    {
+      "id": 12265340565,
+      "name": "Chimera-installer-part-6",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:300aeadfc9e36a4fea4e438bd95d876f2b3ee5e0e3c35baf2aec7d61a2f600db",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:18Z"
+    },
+    {
+      "id": 12265251735,
+      "name": "Chimera-candidate-part-10",
+      "size_in_bytes": 20971718,
+      "digest": "sha256:e36bb45824bd548cf00a13b5585f78126c19a32d05d3c2c08f5e34347ffcd1d7",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:50Z"
+    },
+    {
+      "id": 12265216037,
+      "name": "Chimera-candidate-part-3",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:430e3b75337cca9461349795d9cbbb8cffa6ed1bfe45b06a735599e8322173a8",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:41Z"
+    },
+    {
+      "id": 12265206062,
+      "name": "Chimera-installer-part-8",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:a021754b5d09daaeab34c5ed8cfbd912ef60d89f70efa278697679023a6109f0",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:20Z"
+    },
+    {
+      "id": 12265186480,
+      "name": "Chimera-correction-preview",
+      "size_in_bytes": 17613066,
+      "digest": "sha256:d90cefe1adf2691ff068d1b3bc7cae99db39e1c0813e7bd94de629b25f194181",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:54Z"
+    },
+    {
+      "id": 12265161950,
+      "name": "Chimera-candidate-part-5",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:8ff64168250dece60d443eed2d61a08f55676061e9eedadfd61b6dc1915f1ae0",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:43Z"
+    },
+    {
+      "id": 12265087205,
+      "name": "Chimera-update-Windows-candidate",
+      "size_in_bytes": 230556683,
+      "digest": "sha256:7ee12f0f5f127b4c656b0cdea728ad03bf8a53f1575adec14c9ed68653102349",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:37Z"
+    },
+    {
+      "id": 12265062136,
+      "name": "Chimera-candidate-part-4",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:e860dd8af9d02103fade872bf32d952e36b7f3148cc0b8c564b1594cba5c758c",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:42Z"
+    },
+    {
+      "id": 12264992225,
+      "name": "Chimera-candidate-part-6",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:ef6254d20f567976391c4fc266f876d06d6df4461a42e7f3bbbf346aeb03c3db",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:45Z"
+    },
+    {
+      "id": 12264887296,
+      "name": "Chimera-candidate-part-7",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:153ed9279fdfff1ee47d960c3207065f8cfbbe0f0d41bb02a24e427b5594471c",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:46Z"
+    },
+    {
+      "id": 12264872424,
+      "name": "Chimera-candidate-part-1",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:c02c6069e21f47dacf5c273681e5520b50efb6b246eed20afd0cf57f9c82a6bb",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:38Z"
+    },
+    {
+      "id": 12264842423,
+      "name": "Chimera-installer-part-10",
+      "size_in_bytes": 20971758,
+      "digest": "sha256:796004b16d62ace14d95668ff513ac374303e545404c23fea325ca4e1e23d3b4",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:23Z"
+    },
+    {
+      "id": 12264756998,
+      "name": "Chimera-candidate-part-11",
+      "size_in_bytes": 20796541,
+      "digest": "sha256:5b4464ad7aa865394a90d3873dc14e6856b5d52935b0a3297749e92fd4e03dc2",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:51Z"
+    },
+    {
+      "id": 12264666996,
+      "name": "Chimera-installer-part-3",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:90093df59f0ed2cd544664110d5c02227aadfbbcfe29d49a2123f55a8e92d3fa",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:14Z"
+    },
+    {
+      "id": 12264592196,
+      "name": "Chimera-installer-part-4",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:6ee0f999e14c4c55d6d318140a6d7f1f23ee9f7a4596990a8511d368ba2fe9e6",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:15Z"
+    },
+    {
+      "id": 12264517137,
+      "name": "Chimera-VST3-lifecycle-evidence",
+      "size_in_bytes": 1179826,
+      "digest": "sha256:f5c654f630d8613a73ae24590a76464105bafd38bf5045c905cbea86d6415b0a",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:31:20Z"
+    },
+    {
+      "id": 12264448027,
+      "name": "Chimera-candidate-part-9",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:2e669adacfaab757701662e36002c892c17fab802c832a725e005f7baa72b212",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:49Z"
+    },
+    {
+      "id": 12264392242,
+      "name": "Chimera-installer-part-1",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:69499395712fe737f339de35a0399c78d18417627b8fbd8d58ce294fc2573d45",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:10Z"
+    },
+    {
+      "id": 12264363173,
+      "name": "Chimera-candidate-part-8",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:8461f66992c05425655ca2af6a15b098731a8f73b8b4d2793d69f6ef26ea52e9",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:47Z"
+    },
+    {
+      "id": 12264358208,
+      "name": "Chimera-candidate-part-2",
+      "size_in_bytes": 20971716,
+      "digest": "sha256:3737da75b89853673d14a01492cc6470b901347f01b4d20103add87f371b7c00",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:40Z"
+    },
+    {
+      "id": 12264313280,
+      "name": "Chimera-installer-part-7",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:03e0d33616c38cb5d42d12dc23512c2aab3a1a99440f905bcf35f1e35b143450",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:19Z"
+    },
+    {
+      "id": 12264242568,
+      "name": "Chimera-installer-part-2",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:ebf91a63882d2ae9c14840763e74684bac5320c4104df8b530d4ed09f70864fb",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:12Z"
+    },
+    {
+      "id": 12264227589,
+      "name": "Chimera-candidate-transfer-metadata",
+      "size_in_bytes": 2683,
+      "digest": "sha256:7d1f051ad35eb5dbea1d74a5728ab45578d4ec8df4b0d0f6b691035117f50fa3",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:52Z"
+    },
+    {
+      "id": 12264148372,
+      "name": "Chimera-installer-part-9",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:ce7788c40db571e2fa8a5c9eaab79fe63009abb5c2a64b8765baaee40a02bd65",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:22Z"
+    },
+    {
+      "id": 12264062581,
+      "name": "Chimera-candidate-installer-verification",
+      "size_in_bytes": 50390,
+      "digest": "sha256:6b95fca38a657ac1dfd6543330c4b853bd34e11cfdda54e8fc7725a7adfd027d",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:09Z"
+    },
+    {
+      "id": 12264008449,
+      "name": "Chimera-installer-transfer-metadata",
+      "size_in_bytes": 8161,
+      "digest": "sha256:4543beefa81bb056511b02b5c073cc695c384ebd35ec6929abf104a1cc342dde",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:25Z"
+    },
+    {
+      "id": 12263953516,
+      "name": "Chimera-installer-part-11",
+      "size_in_bytes": 1122849,
+      "digest": "sha256:5432c0b254f48e35a4d5b4096f8ceef3edbec510517abd8a6f86efc3b9c23fed",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:24Z"
+    },
+    {
+      "id": 12263903607,
+      "name": "Chimera-update-Windows-evidence",
+      "size_in_bytes": 95937709,
+      "digest": "sha256:9d6e2b395ca94bcdae3c96e16d06cfe848147ec81fba4c5226b3b5d17f2b4d69",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:29Z"
+    },
+    {
+      "id": 12263857749,
+      "name": "Chimera-installer-part-5",
+      "size_in_bytes": 20971756,
+      "digest": "sha256:60688a18921e243be7c12f98c5334eb76735aa376e3ed7239a8dc43c29852c02",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:35:16Z"
+    },
+    {
+      "id": 12263847903,
+      "name": "Chimera-candidate-integration-validation",
+      "size_in_bytes": 7459095,
+      "digest": "sha256:703afd8dd5dbd1f9f72eacb05e9beb80bde76eec28be5ac319127b86e3d15559",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T12:31:22Z"
+    },
+    {
+      "id": 12260361576,
+      "name": "Chimera-VST3-baseline-probe",
+      "size_in_bytes": 1455,
+      "digest": "sha256:5f8a4718a6b3414f7c3069f3d2dd6374857ed8ef615d32f7433ce81c9e4ba285",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T11:06:40Z"
+    },
+    {
+      "id": 12260246488,
+      "name": "Chimera-VBlank-failure-evidence",
+      "size_in_bytes": 2552,
+      "digest": "sha256:8000c73414007b0b1bbb21c7ccba7d468082ec679f5e906225bf7e6ae2459aff",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T11:06:02Z"
+    },
+    {
+      "id": 12260096543,
+      "name": "Chimera-candidate-A-stage-release-gate",
+      "size_in_bytes": 65451,
+      "digest": "sha256:55d869f58129f1370905f41624294af7efe0c8755858affe1274dd15722f3248",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T11:05:45Z"
+    },
+    {
+      "id": 12259492921,
+      "name": "Chimera-update-preparation-evidence",
+      "size_in_bytes": 2423958,
+      "digest": "sha256:7806ddcf80fd031b648b4019f7c632a08f7ab0c16582feffc7e30539fbdb3cdf",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898510,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T11:01:46Z"
+    },
+    {
+      "id": 12259712283,
+      "name": "Chimera-A-stage-release-gate",
+      "size_in_bytes": 78410,
+      "digest": "sha256:23b2ce945f07dc994ca3368c47f498dd4335a8a53a310d2287bae849ea76a03d",
+      "expired": false,
+      "workflow_run": {
+        "id": 39411898520,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "fix/release-reservations-20261017",
+        "head_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb"
+      },
+      "created_at": "2026-10-20T11:00:57Z"
+    }
+  ]
+}

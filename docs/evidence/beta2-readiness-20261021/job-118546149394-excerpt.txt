@@ -1,0 +1,7 @@
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39398055143/job/118546149394
+Original downloaded log SHA-256: 482aa343ea1b16edae48cc9df1692a343a1185d52aff9ffc30cdfe8eac0acbda
+Selected lines only, not full log:
+2026-10-20T09:31:26.9856950Z TIMING engine=array-v3-6x10 sr=96000 block=64 channels=1 three_cabs_six_mics p50_us=26.75 p99_us=297.167 thread_cpu_p99_us=180.417 max_us=3803.416 misses=9/1600 kernel_residual=1.86264514923e-09 peak=0.0154086416587 max_step=0.00118450401351
+2026-10-20T09:31:26.9862310Z PAIRED_TIMING engine=array-v3-6x10 suite=integration sr=96000 block=64 channels=2 phase=all samples=1600 thread_cpu_valid_samples=1600 thread_cycles_valid_samples=0 misses=19 misses_with_thread_cycles=0 wall_p99_callback_index=319 wall_p99_wall_us=806.208 wall_p99_thread_cpu_us=807.75 wall_p99_thread_cpu_valid=1 wall_p99_thread_cycles=0 wall_p99_thread_cycles_valid=0 wall_max_callback_index=119 wall_max_wall_us=5399.333 wall_max_thread_cpu_us=5396.542 wall_max_thread_cpu_valid=1 wall_max_thread_cycles=0 wall_max_thread_cycles_valid=0
+2026-10-20T09:31:26.9876140Z TIMING engine=array-v3-6x10 sr=96000 block=64 channels=2 three_cabs_six_mics p50_us=57 p99_us=806.208 thread_cpu_p99_us=599.167 max_us=5399.333 misses=19/1600 kernel_residual=1.86264514923e-09 peak=0.0154086416587 max_step=0.00118450040463
+2026-10-20T09:31:57.8929110Z 95% tests passed, 1 tests failed out of 19

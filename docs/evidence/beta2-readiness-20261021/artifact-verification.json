@@ -1,0 +1,209 @@
+{
+  "checked_at": "2026-10-21T10:50:41+09:00",
+  "scope": "Downloaded ZIP digests and actual report bytes verified; final installer payload/signatures not revalidated. No beta.2 integrated candidate or Issue97 acceptance manifest found.",
+  "artifacts": [
+    {
+      "artifact_id": 12259712283,
+      "run_id": 39411898520,
+      "source_sha": "153f1a6a0400ad38287bbd59030e06dd794fb5cb",
+      "zip_sha256": "23b2ce945f07dc994ca3368c47f498dd4335a8a53a310d2287bae849ea76a03d",
+      "size_bytes": 78410,
+      "actual_zip_verified": true,
+      "members": {
+        "release-gate.json": {
+          "sha256": "b1abddcad2e1b9884de77c955bb1bc5b1f161033996471d2521a727d6a584ab7"
+        }
+      },
+      "strict_verdict": "BLOCKED",
+      "strict_counts": {
+        "checks": {
+          "total": 128,
+          "pass": 0,
+          "blocked": 128,
+          "not_applicable": 0
+        },
+        "stages": {
+          "total": 30,
+          "pass": 0,
+          "blocked": 30,
+          "not_applicable": 0
+        }
+      },
+      "hard_gates": {
+        "total": 63,
+        "pass": 0,
+        "blocked": 63
+      },
+      "issue97_manifest_present": false
+    },
+    {
+      "artifact_id": 12259442632,
+      "run_id": 39398055113,
+      "source_sha": "3a942a125d652a234d0f481fca3af2bdf6897635",
+      "zip_sha256": "5244c2b4eb80d57f2584e09881bd12a9ef07856e45ba55dc9fde24896731c781",
+      "size_bytes": 2017188,
+      "actual_zip_verified": true,
+      "members": {
+        "release-gate.json": {
+          "sha256": "76e1621d86d5c98d84ebf4696e9902d5fc2c1abd5295925668e61504f32c1d3a"
+        },
+        "evidence/assembly/raw/candidate-source.json": {
+          "sha256": "f074f4c14b23f742b49ad249c7e095efaff15506f6d24778f5b694acf1d06fc0"
+        },
+        "evidence/assembly/raw/update-beta.json": {
+          "sha256": "c48e412b68dafb6dc7006d7700a2fc13b880ecd35314fb2aaf48ab448325d5de"
+        },
+        "evidence/windows/raw/ctest-results.xml": {
+          "sha256": "c96487eeebb5593ca6e426b2a939cf3d2c0f9fb53bc7230aaa06b4516080236b",
+          "tests": 67,
+          "failures": 0,
+          "skipped": 0
+        },
+        "evidence/macos/raw/ctest-results.xml": {
+          "sha256": "100c4deff3f20ffac49bd504300289d23cda7504295df893b9204683989dad9c",
+          "tests": 59,
+          "failures": 0,
+          "skipped": 0
+        },
+        "evidence/linux/raw/ctest-results.xml": {
+          "sha256": "a111736161f0191ff9423c2cef42f522934c560092e4a9e14583f8df4b025d63",
+          "tests": 60,
+          "failures": 0,
+          "skipped": 0
+        }
+      },
+      "strict_verdict": "BLOCKED",
+      "strict_counts": {
+        "checks": {
+          "total": 128,
+          "pass": 21,
+          "blocked": 107,
+          "not_applicable": 0
+        },
+        "stages": {
+          "total": 30,
+          "pass": 4,
+          "blocked": 26,
+          "not_applicable": 0
+        }
+      },
+      "hard_gates": {
+        "total": 63,
+        "pass": 21,
+        "blocked": 42
+      },
+      "candidate_identity": {
+        "version": "1.3.2-beta.1",
+        "tag": "v1.3.2-beta.1",
+        "revision": "3a942a125d652a234d0f481fca3af2bdf6897635",
+        "runId": "39398055113",
+        "runAttempt": "1",
+        "published": false,
+        "publisherSigned": false,
+        "macOSNotarized": false
+      },
+      "issue97_manifest_present": false
+    },
+    {
+      "artifact_id": 12197810089,
+      "run_id": 39245173849,
+      "source_sha": "8ff4dbf59639f54c751232999da6e78055691703",
+      "zip_sha256": "69c85474d775b2b61a5204b3fc52bf37aa53a9f0c581c50593678772e40e5491",
+      "size_bytes": 2019288,
+      "actual_zip_verified": true,
+      "members": {
+        "release-gate.json": {
+          "sha256": "25f2e0cfd77bda15b42dbaacda2352d0893bd3bdcc1df2d60af125f8150686e8"
+        },
+        "evidence/assembly/raw/candidate-source.json": {
+          "sha256": "d44b8fe14d05634209d4e1d078660a69cbec09d3996a47bc5c4700f3445e7e4e"
+        },
+        "evidence/assembly/raw/update-beta.json": {
+          "sha256": "de502dfc2f4f9aa21c64838059cc80823b3a65be956931d83544765376df7f38"
+        },
+        "evidence/windows/raw/ctest-results.xml": {
+          "sha256": "ace704699015c1f9d214447b3be8013cf53cb3619ce64933abed9cfc610019b5",
+          "tests": 66,
+          "failures": 0,
+          "skipped": 0
+        },
+        "evidence/macos/raw/ctest-results.xml": {
+          "sha256": "c56fe11d0e3403534945f3007ed78670e025f817958a5b86f1b89d8147acf3ac",
+          "tests": 59,
+          "failures": 0,
+          "skipped": 0
+        },
+        "evidence/linux/raw/ctest-results.xml": {
+          "sha256": "842d3de6040896a8049383696b74628999b20a92cde35121a42c1bfd24d291d7",
+          "tests": 60,
+          "failures": 0,
+          "skipped": 0
+        }
+      },
+      "strict_verdict": "BLOCKED",
+      "strict_counts": {
+        "checks": {
+          "total": 128,
+          "pass": 21,
+          "blocked": 107,
+          "not_applicable": 0
+        },
+        "stages": {
+          "total": 30,
+          "pass": 4,
+          "blocked": 26,
+          "not_applicable": 0
+        }
+      },
+      "hard_gates": {
+        "total": 63,
+        "pass": 21,
+        "blocked": 42
+      },
+      "candidate_identity": {
+        "version": "1.3.2-beta.1",
+        "tag": "v1.3.2-beta.1",
+        "revision": "8ff4dbf59639f54c751232999da6e78055691703",
+        "runId": "39245173849",
+        "runAttempt": "1",
+        "published": false,
+        "publisherSigned": false,
+        "macOSNotarized": false
+      },
+      "issue97_manifest_present": false
+    },
+    {
+      "artifact_id": 12259168000,
+      "run_id": 39398055113,
+      "source_sha": "3a942a125d652a234d0f481fca3af2bdf6897635",
+      "zip_sha256": "02dac6bf3851e516db5fd0f8e2e9ab00ca439a0844105b38640b50bf5e3dc53b",
+      "size_bytes": 1956,
+      "actual_zip_verified": true,
+      "members": {
+        "raw/candidate-source.json": {
+          "sha256": "f074f4c14b23f742b49ad249c7e095efaff15506f6d24778f5b694acf1d06fc0"
+        },
+        "raw/update-beta.json": {
+          "sha256": "c48e412b68dafb6dc7006d7700a2fc13b880ecd35314fb2aaf48ab448325d5de"
+        }
+      },
+      "candidate_identity": {
+        "version": "1.3.2-beta.1",
+        "tag": "v1.3.2-beta.1",
+        "revision": "3a942a125d652a234d0f481fca3af2bdf6897635",
+        "runId": "39398055113",
+        "runAttempt": "1",
+        "published": false,
+        "publisherSigned": false,
+        "macOSNotarized": false
+      },
+      "issue97_manifest_present": false
+    }
+  ],
+  "unusable_downloads": [
+    {
+      "artifact_id": 12263847903,
+      "reason": "Downloaded bytes were shorter than API size and not a valid ZIP. Excluded from byte-verified evidence; API job success alone is not CTest or package acceptance."
+    }
+  ]
+}
