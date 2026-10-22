@@ -7,9 +7,18 @@ is frozen. A failure is retained; this script is not used to tune thresholds.
 import argparse,json,subprocess,gzip
 from pathlib import Path
 import numpy as np
+from scipy import signal
 from evaluate import attacks
 from legacy_metrics import sha
 from weak_attack_study import FREQUENCIES,event_detection
+
+def lowband_extra(x,y,onsets,rate):
+ # Same per-note 120 Hz low-pass energy centroid as low_band_delay.py riffs.
+ sos=signal.butter(4,120,fs=rate,output='sos');bounds=list(onsets)+[len(x)]
+ def centroids(z):
+  e=(signal.sosfilt(sos,z.astype(float),axis=0)**2).sum(1)
+  return [float((e[u:v]*np.arange(v-u)).sum()/max(e[u:v].sum(),1e-30)*1000/rate) for u,v in zip(bounds[:-1],bounds[1:])]
+ return [b-a for a,b in zip(centroids(x),centroids(y))]
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--renderer',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args()
@@ -31,15 +40,18 @@ def main():
    x=np.column_stack((z,-.65*z)).astype('<f4');key=instrument+'-'+mode;ip=a.out/(key+'.f32');x.tofile(ip)
    meta={'rate':rate,'onsets':onsets,'name':mode,'synthetic':True};before=attacks(x,meta)
    inputs[key]={'sha256':sha(ip),'seed':8139,'fundamental_hz':f,'onsets':onsets,'input_attack':before}
-   for engine in ['baseline','corr40-onset','corr40-split']:
+   for engine,shift in [(e,-2) for e in ['baseline','corr40-onset','corr40-split','corr40-split-up']]+[(e,2) for e in ['baseline','corr40-split','corr40-split-up']]:
     op=a.out/'output.f32';cp=a.out/'callbacks.csv'
-    r=subprocess.run([str(a.renderer),str(ip),str(op),str(rate),'128','-2',engine,str(cp)],capture_output=True,text=True,check=True)
+    r=subprocess.run([str(a.renderer),str(ip),str(op),str(rate),'128',str(shift),engine,str(cp)],capture_output=True,text=True,check=True)
     y=np.fromfile(op,dtype='<f4').reshape(-1,2);measured=attacks(y,meta);extra=np.array(measured['attack_lags_ms'])-np.array(before['attack_lags_ms'])
-    cb=a.out/(key+'-'+engine+'.csv.gz');cb.write_bytes(gzip.compress(cp.read_bytes(),mtime=0))
+    lowband=lowband_extra(x,y,onsets,rate) if mode=='random_plucks' else None
+    cb=a.out/(key+'-'+engine+str(shift)+'.csv.gz');cb.write_bytes(gzip.compress(cp.read_bytes(),mtime=0))
     native=json.loads(r.stdout)
-    rows.append({'input':key,'engine':engine,**native,'output_sha256':sha(op),'callbacks_sha256':sha(cb),
-      'attack':measured,'additional_lags_ms':extra.tolist(),'additional_max_ms':float(max(extra)),
+    rows.append({'input':key,'engine':engine,'shift':shift,'lowband_additional_centroid_ms':lowband,**native,'output_sha256':sha(op),'callbacks_sha256':sha(cb),
+      # The input's own 1-8 kHz peak must sit at its event; otherwise the
+      # peak-lag difference is not an attack delay (bright sustain masks it).
+      'attack_metric_valid':bool(before['attack_lag_max_ms']<=10),'attack':measured,'additional_lags_ms':extra.tolist(),'additional_max_ms':float(max(extra)),
       'onset_association':event_detection(native['onset_samples'],meta)})
-    print(key,engine,'max_ms',round(float(max(extra)),3),flush=True)
+    print(key,engine,shift,'max_ms',round(float(max(extra)),3),'lowband_max_ms',None if lowband is None else round(max(lowband),3),flush=True)
  (a.out/'results.json').write_text(json.dumps({'status':'POST_SELECTION_SYNTHETIC_ONLY','renderer_sha256':sha(a.renderer),'inputs':inputs,'results':rows},indent=2)+'\n')
 if __name__=='__main__':main()

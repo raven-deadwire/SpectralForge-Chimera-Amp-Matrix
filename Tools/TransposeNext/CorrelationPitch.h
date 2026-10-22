@@ -17,13 +17,14 @@ class CorrelationPitch {
     int count{}, capacity{}, write{}, window{}, stride{}, fadeLength{}, fadeIndex{};
     double rate{}, ratio{1}, delta{}, minimum{}, maximum{}, delay{}, nextDelay{};
     float coefficient{};
-    bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{};
+    bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{}, externalPending{}, upshiftReset{};
+    double upshiftHold{}, onsetAge{1.e9};
     std::array<float,2> noveltyLow1{},noveltyLow2{},noveltyLow3{},noveltyLow4{};
     float noveltyCoefficient{};
     std::array<double,41> peakBuckets{};
     int peakBucketPosition{},peakBucketSamples{},peakBucketLength{};
     double bucketPeak{},bucketMaximum{};
-    double fastEnergy{},slowEnergy{},broadEnergy{},fastCoefficient{},peakDecay{};
+    double fastEnergy{},slowEnergy{},broadEnergy{},fastCoefficient{},broadCoefficient{},peakDecay{};
     int detectorPosition{};
     int cooldown{},cooldownLength{},onsets{};
     int spliceCount{};
@@ -55,8 +56,14 @@ class CorrelationPitch {
         // toward the opposite boundary, avoiding the trivial zero-lag minimum.
         const double guard=std::abs(delta)*fadeLength+2;
         const double lo=minimum+guard;
-        const double hi=maximum-guard;
+        double hi=maximum-guard;
         const double travel=(hi-lo)*.25;
+        // After an upshift re-anchor, a backward jump must not reach the
+        // attack again (a repeated attack/flam) or the material before it.
+        if(upshiftReset && delta<0) {
+            const double limit=onsetAge-rate*.008;
+            if(limit>=delay+travel)hi=std::min(hi,limit);
+        }
         const int first=int(std::ceil(delta>0 ? lo : delay+travel));
         const int last=int(std::floor(delta>0 ? delay-travel : hi));
         double best=delta>0 ? lo : hi, score=1.e100;
@@ -86,7 +93,7 @@ public:
         onsetReset=resetAtOnset;innovationReset=detectInnovation;
         peakBucketLength=std::max(1,int(std::ceil(rate*.001)));
         noveltyCoefficient=float(1-std::exp(-2*juce::MathConstants<double>::pi*2500./rate));
-        fastCoefficient=1-std::exp(-1/(rate*.0003));
+        fastCoefficient=1-std::exp(-1/(rate*.0003));broadCoefficient=fastCoefficient;
         peakDecay=std::exp(-1/(rate*.060));cooldownLength=int(rate*.045);
         detectorHistory.assign(size_t(std::ceil(rate*.001)),0);
         minimum=rate*.002;maximum=rate*boundMs*.001;
@@ -101,11 +108,11 @@ public:
     }
     void reset() noexcept {
         for(auto* bank:{&audio,&filtered})for(auto& r:*bank)std::fill(r.begin(),r.end(),0);
-        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=false;write=fadeIndex=spliceCount=0;fading=active=false;
+        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=0;fading=active=false;
         fastEnergy=slowEnergy=broadEnergy=0;cooldown=onsets=0;processedSamples=0;onsetSamples.fill(0);
         peakBuckets.fill(0);peakBucketPosition=peakBucketSamples=0;bucketPeak=bucketMaximum=0;
         detectorPosition=0;std::fill(detectorHistory.begin(),detectorHistory.end(),0);
-        delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;
+        delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;onsetAge=1.e9;
     }
     void setSemitones(int semitones) noexcept {
         const double newRatio=std::pow(2.,juce::jlimit(-12,12,semitones)/12.);
@@ -115,14 +122,31 @@ public:
             // loop will schedule a bounded crossfade if a boundary is near.
         }
     }
+    // Research: also re-anchor on upshift onsets. The read head runs toward
+    // the present, so it is placed upshiftHold samples of travel above the
+    // lower boundary; the attack plays uninterrupted for that long, then the
+    // ordinary splice returns it to the long-delay side.
+    void setUpshiftOnsetReset(bool enabled, double holdMs=25) noexcept {upshiftReset=enabled;upshiftHold=rate*holdMs*.001;}
+    // Research: smooth the novelty denominator (broadband energy) over a few
+    // ms. At 0.3 ms it follows the waveform of a low sustained note, so a
+    // weak pick landing near a waveform peak is masked by the 41 ms maximum
+    // of spikes near zero crossings. Slow amplitude modulation is still
+    // rejected (synthetic sweep: 2-7 ms equivalent; above 10 ms tremolo
+    // false-triggers).
+    void setBroadSmoothing(double ms) noexcept {broadCoefficient=1-std::exp(-1/(rate*ms*.001));}
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
     const auto& onsetLocations() const noexcept {return onsetSamples;}
     double readMinimum() const noexcept {return minRead;}
     double readMaximum() const noexcept {return maxRead;}
-    void process(const juce::AudioBuffer<float>& input, juce::AudioBuffer<float>& output, bool render=true, const juce::AudioBuffer<float>* detectorInput=nullptr) noexcept {
+    // externalOnset (optional, one flag per sample): a caller-detected new
+    // event re-anchors the read head exactly like the internal onset reset.
+    // A request during a crossfade is held until that fade completes.
+    // onsetOut (optional, one flag per sample) reports internal onset resets.
+    void process(const juce::AudioBuffer<float>& input, juce::AudioBuffer<float>& output, bool render=true, const juce::AudioBuffer<float>* detectorInput=nullptr, const uint8_t* externalOnset=nullptr, uint8_t* onsetOut=nullptr) noexcept {
         for(int n=0;n<input.getNumSamples();++n) {
+            if(onsetOut!=nullptr)onsetOut[n]=0;
             double transientEnergy=0, inputEnergy=0;
             for(int c=0;c<count;++c) {
                 const auto x=input.getSample(c,n);
@@ -149,7 +173,7 @@ public:
             // This absolute floor is a research limitation, not gain invariance.
             if(innovationReset && inputEnergy<=1.e-14)transientEnergy=0;
             fastEnergy+=fastCoefficient*(transientEnergy-fastEnergy);
-            broadEnergy+=fastCoefficient*(inputEnergy/count-broadEnergy);
+            broadEnergy+=broadCoefficient*(inputEnergy/count-broadEnergy);
             // A high-band fraction rejects smooth global amplitude modulation.
             // Keep the absolute noise floor below as a separate condition.
             const double novelty=innovationReset ? fastEnergy/std::max(broadEnergy,1.e-12) : fastEnergy;
@@ -173,23 +197,33 @@ public:
             if(cooldown>0)--cooldown;
             if(!render || ratio==1.) {
                 for(int c=0;c<count;++c)output.setSample(c,n,input.getSample(c,n));
-                active=false;fading=false;pendingOnset=false;
+                active=false;fading=false;pendingOnset=false;externalPending=false;
             } else {
                 if(!active) {delay=delta>0?minimum:maximum;fading=false;active=true;}
                 const double guard=std::abs(delta)*fadeLength+2;
                 // Optional downshift experiment: a detected new pick event
                 // anchors the read head near the causal boundary. It still
                 // resamples the entire signal; no unshifted tonal bypass.
-                // Disabled for upshifts, which need past material to repeat.
-                if(innovationReset && onsetReset && delta>0 && cooldown==0 && inputEnergy>1.e-14 && fastEnergy>1.e-10 && novelty>4.*slowEnergy)
+                // Upshifts only with setUpshiftOnsetReset (anchor above the floor).
+                if(innovationReset && onsetReset && (delta>0 || (upshiftReset && delta<0)) && cooldown==0 && inputEnergy>1.e-14 && fastEnergy>1.e-10 && novelty>4.*slowEnergy)
                     pendingOnset=true;
-                if(onsetReset && delta>0 && !fading && cooldown==0 &&
+                const bool resettable=delta>0 || (upshiftReset && delta<0);
+                const double anchor=minimum+guard+(delta<0 ? upshiftHold*-delta : 0.);
+                if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable)externalPending=true;
+                if(externalPending && resettable && !fading) {
+                    externalPending=false;
+                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;
+                    if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
+                    ++onsets;
+                }
+                if(onsetReset && resettable && !fading && cooldown==0 &&
                    (innovationReset ? pendingOnset : (fastEnergy>1.e-8 && fastEnergy>2.5*slowEnergy))) {
                     pendingOnset=false;
-                    nextDelay=minimum+guard;fadeIndex=0;fading=true;
+                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;
                     cooldown=cooldownLength;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
+                    if(onsetOut!=nullptr)onsetOut[n]=1;
                 }
                 if(!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard))) splice();
                 const float w=fading?fadeWeights[size_t(fadeIndex)]:0.f;
@@ -203,7 +237,7 @@ public:
                 if(fading) {nextDelay+=delta;if(++fadeIndex==fadeLength){delay=nextDelay;fading=false;}}
             }
             if(++write==capacity)write=0;
-            ++processedSamples;
+            ++processedSamples;onsetAge+=1;
         }
     }
 };

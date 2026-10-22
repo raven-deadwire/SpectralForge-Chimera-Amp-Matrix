@@ -86,28 +86,30 @@ def event_detection(samples, meta):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--renderer',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
     p.add_argument('--suite',choices=['detail','matrix','guards','timing'],required=True)
+    p.add_argument('--engines',help='comma-separated engine list overriding the suite default')
     a=p.parse_args();a.renderer=a.renderer.resolve();a.out.mkdir(parents=True,exist_ok=True)
     work=a.out/'work';work.mkdir(exist_ok=True);cb=a.out/'callbacks';cb.mkdir(exist_ok=True)
     configs=[]
+    chosen=lambda default:a.engines.split(',') if a.engines else default
     if a.suite=='detail':
         for instrument in FREQUENCIES:
             for name in ['harmonics','weakfundamental','riff75','alternating_velocity','quiet_markers_over_sustain','impulses']:
-                for e in ENGINES:configs.append((name,instrument,48000,128,-2,e,0))
+                for e in chosen(ENGINES):configs.append((name,instrument,48000,128,-2,e,0))
     elif a.suite=='matrix':
         for instrument in FREQUENCIES:
             for rate in [44100,48000,96000]:
                 for block in [64,128,256]:
                     for shift in [-2,-1,1,2]:
                         for name in ['harmonics','alternating_velocity','quiet_markers_over_sustain']:
-                            for e in ['baseline','corr40-onset','corr40-split']:configs.append((name,instrument,rate,block,shift,e,0))
+                            for e in chosen(['baseline','corr40-onset','corr40-split']):configs.append((name,instrument,rate,block,shift,e,0))
     elif a.suite=='guards':
         for instrument in FREQUENCIES:
             for name in ['bright_sustain','tremolo','vibrato','noise_floor','quieter_markers','riff50']:
-                for e in ['corr40-onset','corr40-novelty','corr40-split']:configs.append((name,instrument,48000,128,-2,e,0))
+                for e in chosen(['corr40-onset','corr40-novelty','corr40-split']):configs.append((name,instrument,48000,128,-2,e,0))
     else:
         for block in [64,128,256]:
             for rep in range(5):
-                order=['baseline','corr40-onset','corr40-split'];order=order[rep%3:]+order[:rep%3]
+                order=chosen(['baseline','corr40-onset','corr40-split']);order=order[rep%len(order):]+order[:rep%len(order)]
                 for e in order:configs.append(('timing_mix','bass_B0',48000,block,-2,e,rep))
     rows=[];inputs={};metric_cache={};oracle={}
     for num,(name,instrument,rate,block,shift,engine,rep) in enumerate(configs):

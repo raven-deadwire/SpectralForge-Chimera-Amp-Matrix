@@ -129,7 +129,20 @@ usable. Tremolo/vibrato contain intentional modulation and are not evaluated
 with the stationary-tone quality threshold. Their false-reset counts are useful.
 
 Detailed follow-up results and remaining blockers are in
-`docs/TRANSPOSE_WEAK_ATTACK_RESEARCH_20261021.md`. Production `Source/`, root
+`docs/TRANSPOSE_WEAK_ATTACK_RESEARCH_20261021.md`.
+
+## Low-band re-anchor and upshift follow-up (2026-10-22)
+
+`corr40-split-up` (opt-in settings only; earlier engines are bit-unchanged):
+a transient-path onset arms a 12 ms window, and the low branch is re-anchored
+only if its own 1 ms energy exceeds twice the preceding 25 ms maximum. Upshift
+onsets re-anchor 25 ms of read travel above the floor, and the following
+backward splice may not reach the attack again. The transient novelty
+denominator is smoothed over 4 ms. `low_band_delay.py` now also scores per-note
+low-band centroid on riffs, and the holdout adds +2 semitones and marks inputs
+whose own attack peak is not at the event as `attack_metric_valid=false`.
+`--engines a,b` limits `weak_attack_study.py` to the named engines.
+Results and remaining FAIL items: `docs/TRANSPOSE_LOWBAND_UPSHIFT_RESEARCH_20261022.md`. Production `Source/`, root
 CMake, existing product `Tests/`, parameters, bypass/state/PDC, release policy,
 version and packages are unchanged. Real DI, Neural DSP captures and actual DAW
 acceptance are not supplied by this synthetic study.
