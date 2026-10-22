@@ -439,6 +439,15 @@ target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
 target_compile_definitions(ChimeraPitchRegressionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraPitchRegressionTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPitchRegressionTests COMMAND ChimeraPitchRegressionTests)
+# FabFilter black-box kit: renders kit signals through Chimera's production EQ and
+# clean compressor for comparison with a user's DAW renders. Build on request only:
+#   cmake --build build --target ChimeraKitProbe   (see docs/FABFILTER_BLACKBOX_KIT.md)
+juce_add_console_app(ChimeraKitProbe PRODUCT_NAME "ChimeraKitProbe")
+set_target_properties(ChimeraKitProbe PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_sources(ChimeraKitProbe PRIVATE Tools/FabFilterKit/ChimeraKitProbe.cpp)
+target_include_directories(ChimeraKitProbe PRIVATE Source)
+target_compile_definitions(ChimeraKitProbe PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraKitProbe PRIVATE juce::juce_audio_processors juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 
 # Optional measurement contracts: normal product builds do not need NumPy.
 option(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS "Enable NumPy measurement harness tests" OFF)
