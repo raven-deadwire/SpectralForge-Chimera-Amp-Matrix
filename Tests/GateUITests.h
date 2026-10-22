@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #pragma once
 #include "PluginEditor.h"
 #include "NativeMessageLoop.h"
@@ -32,7 +33,7 @@ inline void checkGateUI(ChimeraProcessor& processor,ChimeraEditor& editor,const 
         ~Peer(){editor.setVisible(visible);if(added)editor.removeFromDesktop();}
     } peer(editor);
     settle();
-    auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Missing editor canvas");
+    auto* canvas=editorSurface(editor);require(canvas!=nullptr,"Missing editor canvas");
     auto* entry=dynamic_cast<juce::TextButton*>(find(find,*canvas,"gateSpectrum.open"));
     require(entry && entry->isShowing() && entry->isEnabled(),"Gate spectrum entry missing");
     const auto initial=values();

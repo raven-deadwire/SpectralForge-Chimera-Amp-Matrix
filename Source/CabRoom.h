@@ -1,4 +1,5 @@
 #pragma once
+#include "AccessibleViewport.h"
 #include "CabPanel.h"
 #include "CabArtwork.h"
 #include "CabHeadView.h"
@@ -471,10 +472,9 @@ public:
         if(panel)panel->finishInteraction();
         if(ampDialog)delete ampDialog.getComponent();
         juce::DialogWindow::LaunchOptions options;auto* content=new AmpHeadWorkspace(processor,lane);options.content.setOwned(content);
-        if(auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds()))content->setSize(juce::jmin(1200,display->userArea.getWidth()-32),juce::jmin(650,display->userArea.getHeight()-80));
         options.dialogTitle="Chimera / Amplifier";options.dialogBackgroundColour=juce::Colour(0xff111617);
         options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;
-        ampDialog=options.launchAsync();
+        ampDialog=options.launchAsync();spectralforge::ui::fitScrollableDialog(ampDialog);
     }
     int activeRigCount() const {return spectralforge::cabRoom::rigCount(processor);}
     bool isRoomView() const {return roomView;}

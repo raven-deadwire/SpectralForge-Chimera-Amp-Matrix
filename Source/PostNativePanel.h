@@ -1,4 +1,5 @@
 #pragma once
+#include "AccessibleViewport.h"
 #include "PluginProcessor.h"
 #include "PostNativeCatalog.h"
 #include "NativeControlView.h"
@@ -48,7 +49,7 @@ public:
         options.dialogTitle=title.getText()+" / "+juce::String::fromUTF8(spectralforge::postNativeModel(section,selectedModel()).name);
         options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;
         options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;
-        dialog=options.launchAsync();
+        dialog=options.launchAsync();spectralforge::ui::fitScrollableDialog(dialog);
     }
     void refreshIfNeeded() {
         if(dialog)if(auto* full=dynamic_cast<PostNativePanel*>(dialog->getContentComponent()))full->refreshIfNeeded();

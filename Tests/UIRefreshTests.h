@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #pragma once
 #include "NativeUITests.h"
 
@@ -9,7 +10,7 @@ inline void run(const juce::File& directory) {
     // The editor owns a large control tree; keep its storage off the Windows
     // message-thread stack while preserving editor-before-processor teardown.
     auto editorStorage=std::make_unique<ChimeraEditor>(p);auto& editor=*editorStorage;
-    auto& canvas=*editor.findChildWithID("surface");
+    auto& canvas=*editorSurface(editor);
     std::cout<<"RUN UI refresh: idle state and page transitions\n"<<std::flush;
     set(p,"mode",2);tab(canvas,"RIGS");settle(150);
     rigViewTests::showControls(canvas);

@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #pragma once
 #include "GateUITests.h"
 #include "PluginEditor.h"
@@ -284,7 +285,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
     editor.setSize(1180,780);settle();return cases;
 }
 inline void dialogTeardown() {
-    auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);auto* canvas=editor->findChildWithID("surface");tab(*canvas,"POST");
+    auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);auto* canvas=editorSurface(*editor);tab(*canvas,"POST");
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> windows;
     for(int section=0;section<6;++section){const int family=section==3?10:section==4?1:2;windows.push_back(open(*canvas,"postExpand"+juce::String(section),section<3?"postNativePanel"+juce::String(section):"postEffectDetail"+juce::String(family)));}
     editor.reset();settle();for(auto window:windows)require(window==nullptr,"Editor destruction left an ALL window or live parameter attachment");
@@ -299,7 +300,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
     processor.prepareToPlay(48000,256);
     auto editor=std::make_unique<ChimeraEditor>(processor);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(90);
-    auto* canvas=editor->findChildWithID("surface");require(canvas,"Native dynamics canvas missing");
+    auto* canvas=editorSurface(*editor);require(canvas,"Native dynamics canvas missing");
     auto* board=find<PedalBoardPanel>(*canvas,"universalPedalBoard");require(board,"Native dynamics PRE board missing");
     const auto values=[&]{std::vector<float> result;for(auto* p:processor.getParameters())result.push_back(p->getValue());return result;};
     struct Writes final:juce::AudioProcessorListener {
@@ -546,7 +547,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
 inline void run(const juce::File& directory){
     auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
     auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
-    auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
+    auto* canvas=editorSurface(editor);require(canvas!=nullptr,"Native UI canvas missing");
     checkGateUI(processor,editor,directory);
     auto* gateLocation=find<juce::TextButton>(*canvas,"gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
     const bool originalGateLocation=processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f;
