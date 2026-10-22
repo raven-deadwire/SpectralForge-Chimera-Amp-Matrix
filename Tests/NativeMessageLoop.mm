@@ -33,8 +33,11 @@ bool dispatchFor(int milliseconds) {
             // deadline and alternate CF and AppKit service. A time slice with
             // returnAfterSourceHandled=false can drain successive ready sources
             // without returning control to the test's bounded event pump.
+            // An idle CF wait may use at most half of the remaining slice, so a
+            // slice of 10 ms or less still reaches the AppKit poll below before
+            // its deadline. Only a CF source that actually overruns defers it.
             const auto beforeCF=juce::Time::getMillisecondCounterHiRes();
-            lastCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),true);
+            lastCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.0005),true);
             const auto beforePoll=juce::Time::getMillisecondCounterHiRes();
             cfMilliseconds+=beforePoll-beforeCF;
             if(measured){const double us=(beforePoll-beforeCF)*1000;++telemetry.iterations;telemetry.cfMicros+=us;telemetry.cfMaxMicros=std::max(telemetry.cfMaxMicros,us);}

@@ -85,6 +85,23 @@ alone cannot conceal a real UI-state defect. PRE spectrum and POST detail entry
 use the same command receipt, while their original owner/source/parameter checks
 remain in place.
 
+## Follow-up: short native slices after the deadline correction
+
+The deadline correction above made every idle slice of 10 ms or less skip AppKit:
+`CFRunLoopRunInMode` waited `min(10 ms, remaining)`, so an idle CF wait itself
+reached the deadline and the AppKit poll was always deferred. Many native suites
+pump with `settle(1)`, `settle(2)`, `settle(10)` or `dispatchFor(10)` (Graphical EQ,
+common dynamics, CAB microphone/scene, amp head, native panels). The 1.3.2
+signal-path macOS job passed at `ffab682` and failed at `f7d16e1`, where only
+test-harness files changed; the dynamics workflow on the same SHA passed.
+
+An idle CF wait now uses at most half of the remaining slice, so a slice that
+was not overrun still reaches its AppKit poll before the deadline. A CF source
+that actually exhausts the slice still defers the poll exactly as before; the
+queue backlog, two-second readiness limit and overrun logging are unchanged.
+The specific failing signal-path test was not visible from this environment
+(job logs unavailable); this follow-up is qualified only by the new macOS run.
+
 ## Validation boundaries
 
 The dedicated workflow now runs common dynamics, native dynamics and native
