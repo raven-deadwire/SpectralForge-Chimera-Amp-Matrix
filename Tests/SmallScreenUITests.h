@@ -85,6 +85,9 @@ inline void run(const juce::File& directory) {
         require(signalPathTests::values(*processor)==before && writes.changes==0 && writes.gestures==0,"Layout/navigation changed parameters or emitted host automation");
         processor->removeListener(&writes);
         editor->setViewSize(fitted);
+        if(viewport->getViewedComponent()->getWidth()<=editor->getWidth()
+           && viewport->getViewedComponent()->getHeight()<=editor->getHeight())
+            require(!viewport->getHorizontalScrollBar().isVisible() && !viewport->getVerticalScrollBar().isVisible(),"Fit screen retained stale scrollbars after readable zoom");
         csv+=juce::String(pixels.x)+"x"+juce::String(pixels.y)+","+juce::String(percent)+","+juce::String(mode)+","+juce::String(area.getWidth())+","+juce::String(area.getHeight())+","+juce::String(fitted.x)+","+juce::String(fitted.y)+","+juce::String(surface->getTransform().mat00,4)+","+juce::String(int(viewport->getHorizontalScrollBar().isVisible()))+","+juce::String(int(viewport->getVerticalScrollBar().isVisible()))+",PASS\n";
         ++cases;
     }

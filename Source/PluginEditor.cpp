@@ -882,6 +882,11 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
 }
 void ChimeraEditor::resized()
 {
+    // A negative old content origin can keep both JUCE scrollbars visible
+    // after zooming out. Recompute at the origin, then restore the offset
+    // clamped against the new visible area.
+    const auto previousViewPosition=editorViewport.getViewPosition();
+    editorViewport.setViewPosition(0,0);
     const float factor=requestedScale>0.f ? requestedScale : spectralforge::ui::fittedEditorScale(getLocalBounds(),{});
     const int choice=juce::jlimit(1,4,juce::roundToInt((factor-.75f)*4)+1);
     if(std::abs(factor-(choice+2)*.25f)<.002f) scale.setSelectedId(choice,juce::dontSendNotification);
@@ -890,6 +895,7 @@ void ChimeraEditor::resized()
     canvas.setBounds(0,0,1180,780); canvas.setTransform(juce::AffineTransform::scale(factor));
     const auto contentSize=spectralforge::ui::editorSizeForScale(factor);
     scrollContent.setSize(contentSize.x,contentSize.y);
+    editorViewport.setViewPosition(previousViewPosition);
     layoutControls();
 }
 void ChimeraEditor::setViewSize(juce::Point<int> size,float preferredScale)
