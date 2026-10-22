@@ -31,6 +31,7 @@ inline void run(const juce::File& directory) {
     juce::String csv="pixels,os_scale,mode,work_width,work_height,editor_width,editor_height,ui_scale,hscroll,vscroll,result\n";
     int cases=0,actions=0;
     for(auto pixels:{juce::Point<int>{1280,800},{1366,768},{1920,1080}})for(int percent:{100,125,150})for(int mode=0;mode<3;++mode) {
+        std::cout<<"RUN small screen: "<<pixels.x<<"x"<<pixels.y<<", "<<percent<<"% OS scale, mode "<<mode<<"\n";
         set(*processor,"mode",float(mode));settle(50);
         // Explicit simulation: OS taskbar (40 physical px), then native frame
         // + Standalone notification allowance (16 x 64 logical px).
@@ -49,7 +50,7 @@ inline void run(const juce::File& directory) {
         viewport->setViewPosition(0,0);
         const auto centre=input->getLocalBounds().getCentre().toFloat();const auto now=juce::Time::getCurrentTime();
         const juce::MouseEvent wheelEvent(juce::Desktop::getInstance().getMainMouseSource(),centre,{},1,0,0,0,0,input,input,now,centre,now,0,false);
-        juce::MouseWheelDetails wheel;wheel.deltaY=-1.f;
+        juce::MouseWheelDetails wheel{};wheel.deltaY=-1.f;
         static_cast<juce::Component&>(*input).mouseWheelMove(wheelEvent,wheel);
         if(viewport->getVerticalScrollBar().isVisible())require(viewport->getViewPositionY()>0,"Wheel on a control did not reach the editor scrollbar");
         for(const auto* stage:signalPathTests::compactStages) {
