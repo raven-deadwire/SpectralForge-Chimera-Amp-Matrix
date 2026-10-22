@@ -118,7 +118,7 @@ template<class T> inline T* named(juce::Component& root,const juce::String& name
 inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
     // Existing global controls are located outside the workflow, including the
     // persistent tuner action in the footer. Merely inspecting them cannot mute.
-    for(const auto* text:{"GATE","TRANSPOSE","TUNER"}) {
+    for(const auto* text:{"DYNAMICS","TRANSPOSE","TUNER"}) {
         int count=0;
         const auto visit=[&](auto&& self,juce::Component& root)->void {
             if(auto* button=dynamic_cast<juce::TextButton*>(&root);button && (button->getButtonText()==text || (juce::String(text)=="TUNER" && button->getComponentID()=="tunerOpen"))) {
