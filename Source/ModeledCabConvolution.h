@@ -6,8 +6,6 @@
 #include "CabRealtimeProfile.h"
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 #include <xmmintrin.h>
-#elif defined(__ARM_NEON) || defined(__ARM_NEON__) || defined(_M_ARM64)
-#include <arm_neon.h>
 #endif
 
 namespace spectralforge {
@@ -99,23 +97,12 @@ private:
         return {(currentSegment%inputSegmentStep)*segments,currentSegment/inputSegmentStep};
     }
 
-#if defined(__GNUC__) && !defined(__clang__)
-    __attribute__((optimize("fp-contract=off")))
-#endif
     void accumulate(const float* __restrict input,const float* __restrict impulse,float* __restrict output) const noexcept
     {
         // Fuse the four previous vector passes: load each input/IR component
         // once and read/write each output only once per partition. The buffers
         // are disjoint; restrict makes that contract available to the compiler.
-        // Keep the original arithmetic order and do not enable fast-math. The
-        // scalar tail must not contract a*b+c into an FMA either: arm64 fuses
-        // it (one rounding) while x86 at SSE2 baseline does not (two roundings),
-        // which would desync the two platforms on the final bins% 4 bins. The
-        // directives below force two-rounding there too, matching the SSE/NEON
-        // lanes; MSVC does not contract by default.
-#if defined(__clang__)
-#pragma clang fp contract(off)
-#endif
+        // Keep the original arithmetic order and do not enable fast-math.
         int i=0;
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
         // Native Windows profiling identified sustained spectral-MAC cost in
@@ -136,27 +123,6 @@ private:
                                       _mm_mul_ps(inputImag,impulseReal));
             _mm_storeu_ps(output+i,real);
             _mm_storeu_ps(output+bins+i,imag);
-        }
-#elif defined(__ARM_NEON) || defined(__ARM_NEON__) || defined(_M_ARM64)
-        // Mirror the SSE spectral-MAC on arm64 (Apple Silicon, Windows on ARM)
-        // so the dominant loop is not left to auto-vectorization there. Use
-        // explicit vmul then vadd/vsub, never vmla/vfma, so each lane keeps the
-        // same two-rounding arithmetic order as the SSE path and the vectorized
-        // bins match it lane-for-lane. Unaligned loads/stores match the SSE
-        // path: N/2+1 bins leave the imaginary plane unaligned.
-        for(;i+4<=bins;i+=4) {
-            const auto inputReal=vld1q_f32(input+i);
-            const auto inputImag=vld1q_f32(input+bins+i);
-            const auto impulseReal=vld1q_f32(impulse+i);
-            const auto impulseImag=vld1q_f32(impulse+bins+i);
-            const auto outputReal=vld1q_f32(output+i);
-            const auto outputImag=vld1q_f32(output+bins+i);
-            const auto real=vsubq_f32(vaddq_f32(outputReal,vmulq_f32(inputReal,impulseReal)),
-                                      vmulq_f32(inputImag,impulseImag));
-            const auto imag=vaddq_f32(vaddq_f32(outputImag,vmulq_f32(inputReal,impulseImag)),
-                                      vmulq_f32(inputImag,impulseReal));
-            vst1q_f32(output+i,real);
-            vst1q_f32(output+bins+i,imag);
         }
 #endif
         for(;i<bins;++i) {
