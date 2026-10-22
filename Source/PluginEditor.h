@@ -107,7 +107,7 @@ private:
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> dialogs;
     std::vector<float> presetValues;
     juce::Label title,routingHelp,x1Label,x2Label,gateStatus,pitchStatus;
-    juce::ComboBox mode,quality,scale,inputMode,presets,dualType,preOrder,gainOrder;
+    juce::ComboBox mode,quality,scale,inputMode,presets,dualType,preOrder,gainOrder,transposeMode;
     juce::Slider doublerTime,tempo,dualBlend,dualFrequency;
     juce::Label dualLabel;
     juce::TextButton doublerOn{"DOUBLER"},midi{"MIDI"},tap{"TAP"},hostTempo{"HOST"},metronome{"CLICK"},presetPrevious{"<"},presetNext{">"},presetSave{"SAVE AS"},presetLoad{"OPEN"},delaySync{"SYNC"};

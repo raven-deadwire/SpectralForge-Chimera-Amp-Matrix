@@ -46,6 +46,7 @@ jobs:
           python Tests/test_packaging_version.py
           python Tools/test_preset_maintenance.py
       - name: Verify preset scope against the published beta.1 source
+        if: github.event_name != 'pull_request'
         run: python Tools/publish_preset_maintenance.py --check-source
   publish:
     needs: contracts

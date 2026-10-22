@@ -279,6 +279,12 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     tunerOn.setTooltip("Tune the original input before the gate and transposer. Play one note at a time. Range: 16-2000 Hz.");
     tunerMute.setTooltip("Silence the output while the tuner is enabled.");
     pitchOn.setTooltip("Polyphonic transpose, -12 to +12 semitones. The added latency is shown below and reported to the host.");
+    transposeMode.setName("Transpose mode"); transposeMode.addItemList({"CLASSIC","LOW-LAT","TIGHT"},1); add(transposeMode);
+    // Not a host parameter (so it stays out of the frozen parameter inventory):
+    // a persisted ValueTree setting driven directly here.
+    transposeMode.setSelectedId(juce::jlimit(0,2,processor.transposeQuality())+1,juce::dontSendNotification);
+    transposeMode.onChange=[this]{processor.setTransposeQuality(transposeMode.getSelectedId()-1);};
+    transposeMode.setTooltip("Transpose quality vs latency. CLASSIC keeps full low-register quality (~43 ms). LOW-LAT halves the FFT window (~21 ms). TIGHT quarters it (~11 ms) for a snappy lead feel; low notes lose body. The active latency is reported to the host.");
     style(gateStatus,11.f); style(pitchStatus,11.f); add(gateStatus); add(pitchStatus);
     const std::array<juce::String,8> names{"DRIVE","LEVEL","BASS","LOW MID","HIGH MID","TREBLE","PRESENCE","RESONANCE"};
     const std::array<const char*,8> parameterIds{"drive","level","bass","lowmid","highmid","treble","presence","resonance"};
@@ -553,6 +559,8 @@ void ChimeraEditor::refreshMeters()
     const double sr=processor.getSampleRate()>0?processor.getSampleRate():48000;
     const auto pitch=pitchOn.getToggleState()?"+ "+juce::String(1000.0*processor.pitchLatency()/sr,1)+" ms latency":juce::String("BYPASSED | zero added latency");
     if(pitchText.update(pitch))pitchStatus.setText(pitch,juce::dontSendNotification);
+    if(transposeMode.getSelectedId()!=processor.transposeQuality()+1)
+        transposeMode.setSelectedId(processor.transposeQuality()+1,juce::dontSendNotification);
     if(page==0 && lastMode==2 && lowMeterKey.update(tenth(processor.lowCompMeter()))) {
         lanes[0].cabStatus.setText("GR "+juce::String(processor.lowCompMeter(),1)+" dB | DRIVE 0 | "+lanes[0].status,juce::dontSendNotification);
         repaintDesign({37,638,336,5});
@@ -797,7 +805,8 @@ void ChimeraEditor::layoutControls()
     globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
     globalSliders[7].setBounds(244,201,167,26);
     globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);
-    gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,212,158,29);
+    gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,209,158,18);
+    transposeMode.setBounds(447,229,158,20);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
     midi.setBounds(182,748,66,28);tap.setBounds(270,748,56,28);tempo.setBounds(334,748,158,28);hostTempo.setBounds(500,748,112,28);metronome.setBounds(620,748,126,28);

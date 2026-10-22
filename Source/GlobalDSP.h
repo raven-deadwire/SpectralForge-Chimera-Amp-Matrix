@@ -71,7 +71,12 @@ private:
 };
 
 class Transposer {
-    PolyPitch stretch;
+    // Three pre-prepared shifters so the quality/latency mode can switch without
+    // reallocating on the audio thread. Classic keeps the released ~32 ms window
+    // (window override 0); Low-Latency and Tight halve and quarter it, trading
+    // low-register resolution for latency. Only the active instance processes.
+    std::array<PolyPitch,3> stretch;
+    int activeMode{0};
     juce::AudioBuffer<float> shifted, aligned;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> dryDelay;
     juce::SmoothedValue<float> wet,engage;
@@ -81,23 +86,43 @@ class Transposer {
 public:
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
-        stretch.prepare(spec);
-        delaySamples=stretch.latency();
+        // Match PolyPitch's default window, then derive the shorter modes from it
+        // so each mode keeps a consistent latency in ms across sample rates.
+        int defaultWindow=256; while(defaultWindow<spec.sampleRate*.032) defaultWindow<<=1;
+        const std::array<int,3> modeWindow{0,defaultWindow/2,defaultWindow/4};
+        int maxLatency=0;
+        for(int m=0;m<3;++m){ stretch[(size_t)m].prepare(spec,modeWindow[(size_t)m]); maxLatency=juce::jmax(maxLatency,stretch[(size_t)m].latency()); }
+        activeMode=0; delaySamples=stretch[0].latency();
         shifted.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         aligned.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
-        dryDelay.setMaximumDelayInSamples(delaySamples+1); dryDelay.prepare(spec); dryDelay.setDelay(float(delaySamples));
+        dryDelay.setMaximumDelayInSamples(maxLatency+1); dryDelay.prepare(spec); dryDelay.setDelay(float(delaySamples));
         wet.reset(spec.sampleRate,.015); wet.setCurrentAndTargetValue(0);
         engage.reset(spec.sampleRate,.015);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;
     }
 
-    void reset() {stretch.reset();dryDelay.reset();wet.setCurrentAndTargetValue(0);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;}
+    void reset() {for(auto& s:stretch) s.reset();dryDelay.reset();wet.setCurrentAndTargetValue(0);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;}
     int latency() const { return delaySamples; }
-    uint64_t processedPitchFrames() const { return stretch.processedFrames(); }
+    uint64_t processedPitchFrames() const { return stretch[(size_t)activeMode].processedFrames(); }
+    // Switch the quality/latency window. Allocation-free (all instances are
+    // prepared): the new instance is cleared, its latency re-aligns the dry delay,
+    // and the wet mix drops to dry so its overlap window warms up before fading
+    // back in -- a brief dry moment on switch, not a click. No-op when unchanged.
+    void setMode(int mode)
+    {
+        mode=juce::jlimit(0,2,mode);
+        if(mode==activeMode) return;
+        activeMode=mode;
+        stretch[(size_t)mode].reset();
+        delaySamples=stretch[(size_t)mode].latency();
+        dryDelay.setDelay(float(delaySamples));
+        wet.setCurrentAndTargetValue(0.f); wasRendering=false;
+    }
     void process(juce::AudioBuffer<float>& buffer,bool enabled,int semitones)
     {
         // Bypass/zero semitones keeps only the delay/input history warm. A newly
         // enabled shifter fills its overlap-add window before the wet fade, so
         // enabling does not fade into an empty synthesis window.
+        auto& active=stretch[(size_t)activeMode];
         if(firstBlock) {engage.setCurrentAndTargetValue(enabled ? 1.f : 0.f);firstBlock=false;}
         engage.setTargetValue(enabled ? 1.f : 0.f);
         const int n=buffer.getNumSamples();
@@ -108,11 +133,11 @@ public:
         const bool needsShift=enabled && semitones!=0;
         // Keep the outgoing ratio until its wet fade finishes. Bypass/zero
         // must not inject unity/new-ratio frames into the old OLA tail.
-        if(needsShift) stretch.setSemitones(semitones);
+        if(needsShift) active.setSemitones(semitones);
         if(!needsShift) wet.setTargetValue(0.f);
         const bool render=needsShift || wet.isSmoothing() || wet.getCurrentValue()>0.f;
         if(render && !wasRendering) warmupSamples=delaySamples;
-        stretch.process(buffer,shifted,render);
+        active.process(buffer,shifted,render);
         wasRendering=render;
         for(int i=0;i<n;++i)
         {
