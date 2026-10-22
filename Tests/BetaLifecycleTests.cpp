@@ -1,4 +1,6 @@
 #include "BetaLifecycle.h"
+#include "BetaLifecycleDisplay.h"
+#include <limits>
 
 #include <cstdlib>
 #include <iostream>
@@ -63,6 +65,40 @@ int main() {
             "non-beta package identity was accepted");
     require(!InstanceLatch(missingExpiry, 1'000'000).processingPermitted(),
             "missing beta expiry was accepted");
+
+    using spectralforge::beta::evaluate;
+    using spectralforge::beta::remainingText;
+    constexpr Metadata display{"1.3.2-beta.1", source, 1'800'000'000, 1209600, true};
+    const struct { std::int64_t remaining; const char* text; } cases[] = {
+        {1209601, "Remaining: 14 days 00 hours 00 minutes 01 seconds."},
+        {1209600, "Remaining: 14 days 00 hours 00 minutes 00 seconds."},
+        {90061, "Remaining: 1 day 01 hours 01 minutes 01 seconds."},
+        {86400, "Remaining: 1 day 00 hours 00 minutes 00 seconds."},
+        {86399, "Remaining: 0 days 23 hours 59 minutes 59 seconds."},
+        {3600, "Remaining: 0 days 01 hours 00 minutes 00 seconds."},
+        {3599, "Remaining: 0 days 00 hours 59 minutes 59 seconds."},
+        {60, "Remaining: 0 days 00 hours 01 minutes 00 seconds."},
+        {59, "Remaining: 0 days 00 hours 00 minutes 59 seconds."},
+        {1, "Remaining: 0 days 00 hours 00 minutes 01 seconds."},
+        {0, "Remaining: 0 days 00 hours 00 minutes 00 seconds (expired)."},
+        {-1, "Remaining: 0 days 00 hours 00 minutes 00 seconds (expired)."},
+        {-86401, "Remaining: 0 days 00 hours 00 minutes 00 seconds (expired)."},
+    };
+    for(const auto& c:cases)
+        require(remainingText(evaluate(display, display.expiresAtUnix-c.remaining))==c.text,
+                "Countdown rounding or inclusive expiry boundary is wrong");
+    require(remainingText(evaluate(display,0))=="Remaining: unavailable (check system clock).",
+            "Invalid clock showed fabricated remaining time");
+    require(remainingText(evaluate(missingExpiry,1)).find("invalid beta metadata")!=std::string::npos,
+            "Invalid metadata showed fabricated remaining time");
+    require(remainingText(evaluate(stable,1)).find("expiry not enabled")!=std::string::npos,
+            "Non-beta build showed a countdown");
+    require(remainingText({Status::expired,std::numeric_limits<std::int64_t>::min()})==cases[10].text,
+            "Very old expiry overflowed the countdown");
+    InstanceLatch corrected(display, display.expiresAtUnix);
+    require(remainingText(corrected.observe(display.expiresAtUnix-90061))==cases[2].text,
+            "Clock rollback left a stale countdown");
+    require(!corrected.processingPermitted(),"Displaying a corrected clock unmuted the instance");
 
     std::cout << "PASS: beta lifecycle policy and active-instance latch\n";
 }

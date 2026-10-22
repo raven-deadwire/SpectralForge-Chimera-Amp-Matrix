@@ -1,10 +1,10 @@
-# SpectralForge Chimera — Open Beta 1.3.1
+# SpectralForge Chimera — Open Beta 1.3.2
 
 **SpectralForge Chimera** is a guitar and bass amp & effects suite built around a flexible multi-amp architecture.
 
-**[Published builds — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases)** · **[1.3.1 manual · EN / DE / KR](docs/MANUAL.html)**
+**[Published builds — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases)** · **[Manual · EN / DE / KR](docs/MANUAL.html)**
 
-The current test candidate uses package version `1.3.1-beta.2` and numeric product version `1.3.1`; it is not a published release. Direct head controls, revised model-specific knobs, Signal Path navigation and two graphical EQ stages extend the published 1.3.0 feature set. It contains **25 active amp heads, 39 PRE models and 21 POST models — 85 models in those three sections — plus 48 factory and signature presets**. Náströnd and Niflheimr each provide five Original channels. The expanded CAB section adds 14 speaker designs, 20 microphones, three tweeters and nine explicit enclosure layouts. The releases page lists available downloads and their validation records; the published 1.3.0 tag and packages remain unchanged. Product-wide manual acceptance remains incomplete; see the [release scope](docs/OPEN_BETA_RELEASE_NOTES.md). Model controls and musical roles use Chimera naming throughout the app and manual; [naming and saved sounds](docs/PUBLIC_PRODUCT_NAMING.md) explains the current presentation. The offline EN/DE/KO manual is available under SETTINGS → Manual. Windows publisher signing and macOS Developer ID signing/notarization remain pending.
+As of 2026-10-18 KST, the public version is [`1.3.2-beta.1`](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1) (product `1.3.2`, source `3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`). Its approved expiry is **2027-02-11T14:59:00Z / 2027-02-11 23:59:00 KST**. The SETTINGS countdown improvement on this branch is not yet published; the beta.1 date does not approve any future version. See the [lifecycle policy](docs/BETA_LIFECYCLE.md). Direct head controls, revised model-specific knobs, Signal Path navigation and two graphical EQ stages extend the published 1.3.0 feature set. It contains **25 active amp heads, 39 PRE models and 21 POST models — 85 models in those three sections — plus 48 factory and signature presets**. Náströnd and Niflheimr each provide five Original channels. The expanded CAB section adds 14 speaker designs, 20 microphones, three tweeters and nine explicit enclosure layouts. The releases page lists available downloads and their validation records; the published 1.3.0 tag and packages remain unchanged. Product-wide manual acceptance remains incomplete; see the [release scope](docs/OPEN_BETA_RELEASE_NOTES.md). Model controls and musical roles use Chimera naming throughout the app and manual; [naming and saved sounds](docs/PUBLIC_PRODUCT_NAMING.md) explains the current presentation. The offline EN/DE/KO manual is available under SETTINGS → Manual. Windows publisher signing and macOS Developer ID signing/notarization remain pending.
 
 It works as a conventional single-amp simulator in **Classic Mode**, blends two complete amp rigs or splits low/high in **Dual Mode**, or splits the instrument signal into multiple frequency bands in **Matrix Mode**, blending a compressed LOW DI with a selectable head/cab beneath independent MID/HIGH rigs.
 
@@ -19,7 +19,7 @@ With integrated **Pre FX, Post FX, amp models, cabinet/IR processing, and flexib
 **RavenForge Luthier Intelligence**
 *Forge your signal. Build your amp.*
 
-## Open Beta 1.3.1 features
+## Feature overview (includes the 1.3.1 baseline)
 
 Implemented signal path: **input → transpose / PRE pedalboard → rigs/cabinets → merge → Tone EQ → POST rack → doubler/metronome → Final EQ → output**. The gate can operate before transpose or after the rig merge, before Tone EQ. The chromatic tuner taps the input before the gate and transpose; optional auto-mute silences the output while tuning.
 
