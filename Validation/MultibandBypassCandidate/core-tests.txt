@@ -1,0 +1,21 @@
+PASS exact default and restored bypass; zero/ragged/oversized blocks, mono/stereo, four rates
+PASS compensated LR allpass reconstruction, magnitude error <= 4.95843e-07 dB; parallel mix flat across crossovers at four rates
+PASS weighted complex response and phase-preserving endpoints; max complex error 6.92367e-08
+CHARACTERIZATION 44100 Hz: 700 Hz global OFF min envelope -28.8384 dB (known phase interference)
+CHARACTERIZATION 48000 Hz: 700 Hz global OFF min envelope -28.6447 dB (known phase interference)
+CHARACTERIZATION 96000 Hz: 700 Hz global OFF min envelope -27.8403 dB (known phase interference)
+CHARACTERIZATION 192000 Hz: 700 Hz global OFF min envelope -27.6511 dB (known phase interference)
+PASS bypass ramp continuity/partition and exact endpoint; phase coloration remains unresolved
+band 1 measured dB: -5.89522 -0.10878 -0.000135093 -4.76005e-09
+band 2 measured dB: -0.0529939 -5.52317 -0.15271 -1.91454e-05
+band 3 measured dB: -5.66661e-07 -0.138657 -5.38893 -0.0127779
+band 4 measured dB: -9.30217e-09 -6.96916e-06 -0.167383 -5.97452
+PASS four independent band cuts, linked stereo, range meters and band solo
+mode 0 gain -13.504 dB; expected -13.5; meter 13.5052
+mode 1 gain 15.0362 dB; expected 15; meter -15.0058
+mode 2 gain -10.0501 dB; expected -10; meter 10.0077
+mode 3 gain 10.0068 dB; expected 10; meter -10.007
+PASS measured four-mode slopes, soft knee, finite range, signed GR, attack and release
+PASS de-esser split-band selectivity, detector rejection, finite range, stereo link and listen at four rates
+PASS rapidly automated/reversed crossovers, finite host sanitation, bounded extra-channel handling; peak=0.240264
+PASS no callback allocations; all independent dynamics core contracts (1.8865 s test runtime)

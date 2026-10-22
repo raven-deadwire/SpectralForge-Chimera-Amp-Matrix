@@ -2,6 +2,9 @@
 #pragma once
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "DynamicsAnalysis.h"
+#include "MultibandDynamics.h"
+#include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
 #include "IRLibrary.h"
@@ -102,6 +105,10 @@ public:
     float outputMeter() const { return outputPeak.load(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
+    spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
+    spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
+    spectralforge::DeEsser& deEsser() noexcept {return deesser;}
+    float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
     spectralforge::EQEditState& eqEditing() noexcept {return eqEditState;}
     spectralforge::EQCaptureBoundary& eqCaptureBoundary() noexcept {return eqCaptureBoundaryState;}
     float cpuLoad() const { return cpuAverage.load(); }
@@ -184,6 +191,9 @@ private:
     spectralforge::PostFXChain postFX;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;
+    spectralforge::MultibandDynamics multiband;
+    spectralforge::DeEsser deesser;
+    spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;

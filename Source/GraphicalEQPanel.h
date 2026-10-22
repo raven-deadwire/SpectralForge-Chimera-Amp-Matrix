@@ -97,6 +97,9 @@ public:
     void visibilityChanged() override {if(!isShowing()){discardPendingNumericInput();endDrag();}updateAnalyzer();}
     void parentHierarchyChanged() override {updateAnalyzer();}
     int selectedBand() const noexcept {return selected;}
+    // Presentation only: reuse this editor inside the focused Dynamic EQ page.
+    void setCompactWorkspace(bool compact) {if(compactWorkspace==compact)return;compactWorkspace=compact;endDrag();resized();}
+    void selectBandForEditing(int band) {refreshEditingState();if(band>=0 && band<graphicalEQBands && isBandVisible(band))selectBand(band);}
     void setNavigationSelected(bool chosen) {if(navigationSelected!=chosen){navigationSelected=chosen;repaint();}}
     bool isNavigationSelected() const noexcept {return navigationSelected;}
     void focusForNavigation() {if(isShowing()){if(selected>=0)sliders[0].grabKeyboardFocus();else grabKeyboardFocus();}}
@@ -154,6 +157,16 @@ public:
         const auto v=dsp.values(band);return {frequencyX(v.frequency),gainY(v.type<=2?v.gain:0.f)};
     }
     void resized() override {
+        if(compactWorkspace) {
+            analyzerToggle.setBounds(198,4,54,26);inputToggle.setBounds(258,4,44,26);outputToggle.setBounds(308,4,44,26);
+            freezeToggle.setBounds(360,4,96,26);resolution.setBounds(468,4,160,26);smoothing.setBounds(640,4,148,26);
+            bypass.setBounds(getWidth()-166,4,148,26);
+            addButton.setBounds(56,34,84,25);deleteButton.setBounds(148,34,82,25);undoButton.setBounds(244,34,76,25);redoButton.setBounds(328,34,76,25);
+            const int y=getHeight()-33;
+            selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
+            sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
+            rebuildResponse();rebuildSpectrumPaths();repaint();return;
+        }
         // Logical workspace scales with the existing 75-150% editor canvas.
         analyzerToggle.setBounds(286,22,60,28);inputToggle.setBounds(354,22,46,28);outputToggle.setBounds(408,22,48,28);
         freezeToggle.setBounds(465,22,109,28);
@@ -175,6 +188,7 @@ public:
         const juce::Colour text(0xffe0e8e5),muted(0xff9aadaa),grid(0xff283638);
         const juce::Colour in(0xff7ab6cf),out(0xffd3b478),eq(0xffc4ead5);
         g.fillAll(juce::Colour(0xff121a1d));
+        if(!compactWorkspace) {
         g.setGradientFill({juce::Colour(0xff202d30),0.f,0.f,juce::Colour(0xff141e21),0.f,62.f,false});
         g.fillRect(0,0,getWidth(),62);
         g.setColour(navigationSelected?eq.withAlpha(.65f):grid);g.fillRect(0,0,getWidth(),2);
@@ -193,6 +207,12 @@ public:
             ? (spectrum.hasData()?"Snapshot  /  "+juce::String(spectrum.lastSampleRate()/1000.,1)+" kHz  /  "+juce::String(spectrum.fftSize()):juce::String("Snapshot: no complete frame"))
             : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another"):juce::String("Double-click to add  /  Delete to remove"));
         g.drawText(hint,446,72,getWidth()-502,20,juce::Justification::centredRight);
+        } else {
+            g.setColour(text);g.setFont(juce::FontOptions(16.f,juce::Font::bold));
+            g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,5,170,25,juce::Justification::centredLeft);
+            g.setColour(muted);g.setFont(juce::FontOptions(11.5f));
+            g.drawText("Dashed: static  /  shaded: allowed cut  /  solid: applied",420,35,getWidth()-476,22,juce::Justification::centredRight);
+        }
         const auto area=plot();
         g.setGradientFill({juce::Colour(0xff0b1216),area.getX(),area.getY(),juce::Colour(0xff142125),area.getX(),area.getBottom(),false});
         g.fillRect(area);
@@ -207,8 +227,8 @@ public:
             if(db%12==0){g.setColour(muted);g.drawText((db>0?"+":"")+juce::String(db),5,int(y)-8,40,16,juce::Justification::centredRight);}
         }
         g.setColour(muted);g.setFont(juce::FontOptions(12.f));
-        g.drawText("EQ dB",7,87,40,15,juce::Justification::centredRight);
-        g.drawText("dBFS",int(area.getRight())+9,87,42,15,juce::Justification::centredLeft);
+        g.drawText("EQ dB",7,compactWorkspace?51:87,40,15,juce::Justification::centredRight);
+        g.drawText("dBFS",int(area.getRight())+9,compactWorkspace?51:87,42,15,juce::Justification::centredLeft);
         for(int db:{0,-24,-48,-72,-96})g.drawText(juce::String(db),int(area.getRight())+9,int(spectrumY(float(db)))-8,40,16,juce::Justification::centredLeft);
         g.saveState();g.reduceClipRegion(area.toNearestInt());
         if((analyzerToggle.getToggleState() || spectrum.isFrozen()) && spectrum.hasData()) {
@@ -222,6 +242,15 @@ public:
                 if(stream==0)g.fillPath(dashedInput);else g.strokePath(spectrumPaths[1],juce::PathStrokeType(1.7f));
             }
         }
+        // Static settings, configured dynamic range and applied coefficients
+        // remain distinct from both measured audio spectra.
+        if(hasDynamicRange) {
+            g.setColour(juce::Colour(0xff9b82cb).withAlpha(.16f));g.fillPath(dynamicRangeFill);
+            g.setColour(juce::Colour(0xffbca6e3).withAlpha(.55f));g.strokePath(rangeResponse,juce::PathStrokeType(1.f));
+            const float dashes[]{5.f,4.f};juce::Path dashed;
+            juce::PathStrokeType(1.2f).createDashedStroke(dashed,staticResponse,dashes,2);
+            g.setColour(eq.withAlpha(.48f));g.fillPath(dashed);
+        }
         // Separate the actual summed EQ response from both live spectra.
         g.setColour(juce::Colours::black.withAlpha(.42f));g.strokePath(response,juce::PathStrokeType(5.f));
         g.setColour(eq.withAlpha(dsp.isBypassed()?.38f:1.f));g.strokePath(response,juce::PathStrokeType(2.4f));
@@ -232,8 +261,8 @@ public:
             g.setColour(muted.withAlpha(.85f));g.setFont(juce::FontOptions(12.5f));
             g.drawText(spectrum.isFrozen()?"Snapshot: no complete frame":analyzerToggle.getToggleState()?"Waiting for fresh audio":"Analyzer off",int(area.getX())+10,int(area.getBottom())-24,260,18,juce::Justification::centredLeft);
         }
-        g.setColour(grid);g.drawRect(area,1.f);g.drawHorizontalLine(getHeight()-65,16.f,float(getWidth()-16));
-        g.setColour(muted);g.setFont(juce::FontOptions(12.f));const int labelY=getHeight()-62;
+        g.setColour(grid);g.drawRect(area,1.f);g.drawHorizontalLine(getHeight()-(compactWorkspace?53:65),16.f,float(getWidth()-16));
+        g.setColour(muted);g.setFont(juce::FontOptions(12.f));const int labelY=getHeight()-(compactWorkspace?49:62);
         g.drawText("BAND",16,labelY,106,15,juce::Justification::centredLeft);
         g.drawText("FILTER",240,labelY,174,15,juce::Justification::centredLeft);
         g.drawText("FREQUENCY",434,labelY,240,15,juce::Justification::centredLeft);
@@ -294,7 +323,7 @@ public:
 private:
     using PA=juce::ParameterAttachment;
     static constexpr std::array<const char*,3> editFields{"frequency","gain","q"};
-    juce::Rectangle<float> plot() const noexcept {return {56,105,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-195))};}
+    juce::Rectangle<float> plot() const noexcept {return {56,compactWorkspace?66.f:105.f,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-(compactWorkspace?140:195)))};}
     float frequencyX(float hz) const {return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/20)/std::log(1000.f);}
     float xFrequency(float x) const {return 20*std::pow(1000.f,std::clamp((x-plot().getX())/std::max(1.f,plot().getWidth()),0.f,1.f));}
     float gainY(float db) const {return plot().getCentreY()-db/48*plot().getHeight();}
@@ -427,15 +456,39 @@ private:
         resolution.setTooltip(juce::String(int(size))+" samples / "+juce::String(rate/size,2)+" Hz bin spacing / "+juce::String(1000*size/rate,1)+" ms analysis window at "+juce::String(rate/1000,1)+" kHz. Higher resolution responds more slowly; audio latency is unchanged.");
     }
     void rebuildResponse() {
-        response.clear();const auto area=plot();if(area.getWidth()<=0 || area.getHeight()<=0)return;
-        std::array<EQCoefficients,graphicalEQBands> coeffs{};std::array<bool,graphicalEQBands> active{};
-        for(int b=0;b<graphicalEQBands;++b){const auto v=dsp.values(b);active[(size_t)b]=v.enabled;coeffs[(size_t)b]=eqCoefficients(v.type,v.frequency,v.gain-dsp.dynamicReduction(b),v.q,dsp.sampleRate());}
-        for(int x=0;x<=int(area.getWidth());++x){
-            const float f=xFrequency(area.getX()+float(x));if(f>dsp.sampleRate()*.5)break;double magnitude=1;
-            for(int b=0;b<graphicalEQBands;++b)if(active[(size_t)b])magnitude*=coeffs[(size_t)b].magnitude(f,dsp.sampleRate());
-            const float y=gainY(float(20*std::log10(std::max(1.e-12,magnitude))));
-            if(x==0)response.startNewSubPath(area.getX(),y);else response.lineTo(area.getX()+float(x),y);
+        response.clear();staticResponse.clear();rangeResponse.clear();dynamicRangeFill.clear();hasDynamicRange=false;
+        const auto area=plot();if(area.getWidth()<=0 || area.getHeight()<=0)return;
+        std::array<EQCoefficients,graphicalEQBands> coeffs{},base{},maximum{};std::array<bool,graphicalEQBands> active{};
+        for(int b=0;b<graphicalEQBands;++b) {
+            const auto v=dsp.values(b);active[size_t(b)]=v.enabled;float range=0;
+            for(int slot=0;slot<4;++slot)if(auto* target=state.getRawParameterValue(dynamicSlotID(slot,"target"));target && int(target->load())==instance*12+b+1) {
+                if(v.enabled && v.type<=2)if(auto* p=state.getRawParameterValue(dynamicSlotID(slot,"range")))range=DynamicEQBindings::read(p,0,24,6);
+                break;
+            }
+            hasDynamicRange|=range>0;
+            coeffs[size_t(b)]=eqCoefficients(v.type,v.frequency,v.gain-dsp.dynamicReduction(b),v.q,dsp.sampleRate());
+            base[size_t(b)]=eqCoefficients(v.type,v.frequency,v.gain,v.q,dsp.sampleRate());
+            maximum[size_t(b)]=eqCoefficients(v.type,v.frequency,v.gain-range,v.q,dsp.sampleRate());
         }
+        // One frequency phasor per graph pixel, shared by all three curves.
+        // Coefficients/paths are message-thread-only and rebuilt on changes.
+        std::vector<juce::Point<float>> lowEdge;lowEdge.reserve(size_t(area.getWidth())+1);
+        for(int x=0;x<=int(area.getWidth());++x) {
+            const float px=area.getX()+float(x),f=xFrequency(px);if(f>dsp.sampleRate()*.5)break;
+            const auto z=std::polar(1.,-2*juce::MathConstants<double>::pi*f/dsp.sampleRate()),z2=z*z;
+            const auto magnitude=[&](const EQCoefficients& c){return std::abs((c.b0+c.b1*z+c.b2*z2)/(1.+c.a1*z+c.a2*z2));};
+            double actual=1,configured=1,minimum=1;
+            for(int b=0;b<graphicalEQBands;++b)if(active[size_t(b)]) {
+                actual*=magnitude(coeffs[size_t(b)]);configured*=magnitude(base[size_t(b)]);minimum*=magnitude(maximum[size_t(b)]);
+            }
+            const auto y=[&](double v){return gainY(float(20*std::log10(std::max(1.e-12,v))));};
+            const float appliedY=dsp.isBypassed()?gainY(0):y(actual),staticY=y(configured),rangeY=y(minimum);
+            if(x==0){response.startNewSubPath(px,appliedY);staticResponse.startNewSubPath(px,staticY);rangeResponse.startNewSubPath(px,rangeY);dynamicRangeFill.startNewSubPath(px,staticY);}
+            else {response.lineTo(px,appliedY);staticResponse.lineTo(px,staticY);rangeResponse.lineTo(px,rangeY);dynamicRangeFill.lineTo(px,staticY);}
+            lowEdge.emplace_back(px,rangeY);
+        }
+        for(auto it=lowEdge.rbegin();it!=lowEdge.rend();++it)dynamicRangeFill.lineTo(*it);
+        dynamicRangeFill.closeSubPath();
     }
     void clearSpectrumPaths(){for(auto& p:spectrumPaths)p.clear();for(auto& p:spectrumFills)p.clear();dashedInput.clear();}
     void rebuildSpectrumPaths() {
@@ -466,21 +519,23 @@ private:
         if(key!=lastKey){const bool rateChanged=key[61]!=lastKey[61];lastKey=key;rebuildResponse();updateBandEnablement();if(rateChanged)updateResolutionTooltip();changed=true;}
         std::array<float,12> reductions{};for(int b=0;b<12;++b)reductions[size_t(b)]=std::round(dsp.dynamicReduction(b)*20.f)/20.f;
         std::array<int,4> targets{};for(int slot=0;slot<4;++slot)if(auto* p=state.getRawParameterValue(dynamicSlotID(slot,"target")))targets[size_t(slot)]=int(p->load());
-        if(reductions!=lastReductions || targets!=lastDynamicTargets){lastReductions=reductions;lastDynamicTargets=targets;rebuildResponse();changed=true;}
+        std::array<float,4> ranges{};for(int slot=0;slot<4;++slot)if(auto* p=state.getRawParameterValue(dynamicSlotID(slot,"range")))ranges[size_t(slot)]=p->load();
+        if(reductions!=lastReductions || targets!=lastDynamicTargets || ranges!=lastDynamicRanges){lastReductions=reductions;lastDynamicTargets=targets;lastDynamicRanges=ranges;rebuildResponse();changed=true;}
         if(changed && diagnosticRenderPanel)repaint(); // Only this workspace, never the whole editor.
         if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,false,
             std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-diagnosticStart).count());
     }
     juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;EQEditState& editing;EQCaptureBoundary& captureBoundary;int instance,selected{-1};
+    bool compactWorkspace{},hasDynamicRange{};
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
     uint64_t lastExternalRevision{},pendingCaptureRequest{};
     juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle,freezeToggle,addButton,deleteButton,undoButton,redoButton;
     juce::ComboBox selector,type,resolution,smoothing;std::array<juce::Slider,3> sliders;
     std::unique_ptr<PA> bypassAttachment,enabledAttachment,typeAttachment;std::array<std::unique_ptr<PA>,3> sliderAttachments;
-    juce::Path response,dashedInput;std::array<juce::Path,2> spectrumPaths,spectrumFills;
+    juce::Path response,staticResponse,rangeResponse,dynamicRangeFill,dashedInput;std::array<juce::Path,2> spectrumPaths,spectrumFills;
     std::array<float,62> lastKey{};EQSpectrumAnalyzer spectrum;
-    std::array<float,12> lastReductions{};std::array<int,4> lastDynamicTargets{};
+    std::array<float,12> lastReductions{};std::array<int,4> lastDynamicTargets{};std::array<float,4> lastDynamicRanges{};
     double pathMicros{},paintMicros{};
     DiagnosticObserver diagnosticObserver{};void* diagnosticContext{};bool diagnosticRenderPanel{true};
 };

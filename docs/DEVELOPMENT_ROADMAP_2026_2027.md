@@ -1,5 +1,21 @@
 # Chimera development roadmap, October 2026–September 2027
 
+## Owner scope update — 2026-10-20, Asia/Seoul
+
+The owner requires each dynamics function to be edited in its own spectrum
+workspace and reaffirmed the missing Pro-MB-type functionality. Independent
+four-band dynamics and a dedicated de-esser are now part of the active feature
+development scope, tracked in [issue #97](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/97)
+and [the current implementation contract](DYNAMICS_SPECTRUM_WORKSPACES_20261020.md).
+This supersedes the future-only placement of independent four-band dynamics
+in the older calendar below. Six-band expansion retains its separate gate.
+No release date, version assignment or product-equivalence acceptance follows
+from this scope correction; those require the resulting source and evidence.
+The owner's remaining FabFilter references are retained for later creative,
+filter, reverb and synth development in that contract.
+
+## Previous calendar baseline
+
 Updated: **2026-10-11, Asia/Seoul**. This is the current implementation plan
 following the owner's request to review the [FabFilter product range](https://www.fabfilter.com/products),
 restore the omitted graphical EQ/dynamics/multiband work, add a visible editable

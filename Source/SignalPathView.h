@@ -163,6 +163,8 @@ public:
             }else if(e.to=="split"){
                 start={from.getRight(),from.getCentreY()};end={to.getX(),to.getCentreY()};path.startNewSubPath(start);
                 path.lineTo(1128.f,start.y);path.lineTo(1128.f,280.f);path.lineTo(1116.f,280.f);path.startNewSubPath(1104.f,280.f);path.lineTo(6.f,280.f);path.lineTo(6.f,end.y);path.lineTo(end);
+            }else if(to.getY()==from.getY() && to.getX()<from.getX()){
+                start={from.getX(),from.getCentreY()};end={to.getRight(),to.getCentreY()};path.startNewSubPath(start);path.lineTo(end);
             }else if(to.getX()>from.getX()){start=juce::Point<float>(from.getRight(),from.getCentreY());end=juce::Point<float>(to.getX(),to.getCentreY());path.startNewSubPath(start);const float x=(start.x+end.x)*.5f;path.lineTo(x,start.y);path.lineTo(x,end.y);path.lineTo(end);}
             else {start=juce::Point<float>(from.getCentreX(),from.getBottom());end=juce::Point<float>(to.getCentreX(),to.getY());path.startNewSubPath(start);if(end.y<start.y)end={to.getCentreX(),to.getBottom()};const float y=end.y>start.y?(start.y+end.y)*.5f:juce::jmax(start.y,end.y)+13.f;path.lineTo(start.x,y);path.lineTo(end.x,y);path.lineTo(end);}
             g.setColour(e.tap?juce::Colour(0xff86b5ce):juce::Colour(0xff789480));

@@ -5,23 +5,60 @@
 #include <iostream>
 #include <set>
 #include <stdexcept>
+#include <vector>
 
 namespace pedalMenuTests {
+inline bool compressorModel(int model) {
+    return spectralforge::pedalMenuEntries[(size_t)model].kind==spectralforge::PedalMenuKind::compressor;
+}
+inline void visibleSliders(juce::Component& root,std::vector<juce::Slider*>& result) {
+    for(auto* child:root.getChildren())if(child->isVisible()) {
+        if(auto* slider=dynamic_cast<juce::Slider*>(child))result.push_back(slider);
+        visibleSliders(*child,result);
+    }
+}
+inline void checkCompressorOverview(juce::Component& board,int owner,int model) {
+    const auto check=[](bool value,const char* reason){if(!value)throw std::runtime_error(reason);};
+    check(compressorModel(model),"Compressor overview fixture is not a compressor");
+    std::vector<juce::Slider*> visible;visibleSliders(board,visible);
+    for(auto* slider:visible)for(int control=0;control<spectralforge::pedalModel(model).controlCount;++control)
+        check(slider->getComponentID()!=spectralforge::pedalControlID(owner,model,control),
+              "Compressor card exposes an adjustment without its spectrum");
+    bool entry=false;
+    for(auto* child:board.getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);
+        button && button->isVisible() && button->getComponentID().startsWith("boardCompressorSpectrumAt"))
+        entry|=button->isEnabled();
+    check(entry,"Compressor overview has no accessible spectrum editor");
+}
 inline std::array<juce::Slider*,5> checkFiveKnobLayout(juce::Component& board,int owner,int model,juce::Component* editor=nullptr) {
     const auto check=[](bool value,const char* reason){if(!value)throw std::runtime_error(reason);};
     check(spectralforge::pedalModel(model).controlCount==5,"Five-knob layout fixture is not a five-control model");
     std::array<juce::Slider*,5> knobs{};
-    for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible())
+    std::vector<juce::Slider*> visible;visibleSliders(board,visible);
+    for(auto* slider:visible)
         for(int control=0;control<5;++control)if(slider->getComponentID()==spectralforge::pedalControlID(owner,model,control)) {
             check(knobs[(size_t)control]==nullptr,"Five-knob view exposes duplicate controls for one parameter");
             knobs[(size_t)control]=slider;
         }
     for(auto* knob:knobs) {
         check(knob!=nullptr,"Five-knob view omits a model control");
-        check(board.getLocalBounds().contains(knob->getBounds()),"Five-knob pedal clips outside the board");
+        check(board.getLocalBounds().contains(board.getLocalArea(knob,knob->getLocalBounds())),"Five-knob pedal clips outside the board");
         if(editor)check(editor->getLocalBounds().contains(editor->getLocalArea(knob,knob->getLocalBounds())),"Five-knob pedal clips outside the scaled editor");
-        for(auto* child:board.getChildren())if(child!=knob && child->isVisible())
+        for(auto* child:knob->getParentComponent()->getChildren())if(child!=knob && child->isVisible())
             check(!knob->getBounds().intersects(child->getBounds()),"Five-knob pedal overlaps another visible label or control");
+    }
+    if(compressorModel(model)) {
+        auto* spectrum=dynamic_cast<spectralforge::DynamicsSpectrumPanel*>(board.findChildWithID("boardCompressorSpectrum"));
+        check(spectrum && spectrum->isVisible() && spectrum->selectedStage()==spectralforge::DynamicsStage::preCompressor,
+              "Compressor parameters must be edited beside their own spectrum");
+        check(spectrum->graphBounds().getHeight()>=120.f,"PRE compressor spectrum has no usable plot area");
+        for(size_t i=0;i<knobs.size();++i) {
+            check(knobs[i]->getY()==knobs[0]->getY() && (i==0 || knobs[i]->getX()>knobs[i-1]->getX()),
+                  "Five-control compressor must retain all controls below its spectrum");
+            check(board.getLocalArea(knobs[i],knobs[i]->getLocalBounds()).getY()>=spectrum->getBottom(),
+                  "Compressor controls overlap their spectrum");
+        }
+        return knobs;
     }
     check(knobs[0]->getY()==knobs[1]->getY() && knobs[1]->getY()==knobs[2]->getY(),"Five-knob pedal must have three knobs across its top row");
     check(knobs[0]->getX()<knobs[1]->getX() && knobs[1]->getX()<knobs[2]->getX(),"Five-knob pedal top-row order is incorrect");
@@ -143,10 +180,11 @@ inline void run() {
         first->selectMenuResult(model+1);settle();
         const auto layout=[&] {
             std::set<int> x,y;int count=0;
-            for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible())
+            std::vector<juce::Slider*> visible;visibleSliders(board,visible);
+            for(auto* slider:visible)
                 for(int control=0;control<4;++control)if(slider->getComponentID()==pedalControlID(0,model,control)) {
                     ++count;x.insert(slider->getX());y.insert(slider->getY());
-                    check(board.getLocalBounds().contains(slider->getBounds()),"Four-control pedal clips outside its board");
+                    check(board.getLocalBounds().contains(board.getLocalArea(slider,slider->getLocalBounds())),"Four-control pedal clips outside its board");
                 }
             check(count==4 && x.size()==2 && y.size()==2,"Four-control pedal is not laid out in a 2 by 2 grid");
         };
@@ -157,20 +195,22 @@ inline void run() {
         check(detailPower->getButtonText()=="OFF" && processor.pedalBoardState().instances[0].bypass,"Detail OFF does not bypass pedal DSP");
         detailPower->triggerClick();settle();close->triggerClick();settle();
     }
-    // Five-control models retain all five live parameters, with the bottom
-    // pair at the outer columns, in both the card and full detail view.
+    // Creative five-control cards/details retain 3 + 2 geometry. Compressor
+    // cards open a spectrum editor whose attached controls remain editable.
     int fiveControlModels=0;
     for(int model=1;model<pedalModelCount;++model)if(pedalModel(model).controlCount==5) {
         ++fiveControlModels;first->selectMenuResult(model+1);settle();
+        const bool compressor=compressorModel(model);
+        if(compressor)checkCompressorOverview(board,0,model);
         for(int view=0;view<2;++view) {
-            if(view){detail->triggerClick();settle();}
+            if((view || compressor) && !close->isVisible()){detail->triggerClick();settle();}
             const auto knobs=checkFiveKnobLayout(board,0,model);
             for(int control=0;control<5;++control) {
                 auto* parameter=processor.parameters().getParameter(pedalControlID(0,model,control));
                 check(parameter!=nullptr,"Five-knob model has no host parameter");
                 knobs[(size_t)control]->setValue(parameter->convertFrom0to1(view?.73f:.27f),juce::sendNotificationSync);
                 check(std::abs(processor.parameters().getRawParameterValue(pedalControlID(0,model,control))->load()-knobs[(size_t)control]->getValue())<.002,
-                      "Five-knob card/detail callback does not reach the selected parameter bank");
+                      "Five-knob editing callback does not reach the selected parameter bank");
             }
         }
         close->triggerClick();settle();
@@ -199,6 +239,6 @@ inline void run() {
     for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible() && slider->getComponentID()==id)activeControl=slider;
     check(activeControl && activeControl->keyPressed(juce::KeyPress(juce::KeyPress::upKey)),"Pedal keyboard edit was not accepted");
     check(processor.pedalBoardState().enabled,"A deliberate keyboard pedal edit did not activate its audio path");
-    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models in 3 + 2 outer-column layouts with real callbacks, and user-only board activation\n";
+    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models with real callbacks, creative 3 + 2 layouts, compressor spectrum editors, and user-only board activation\n";
 }
 }

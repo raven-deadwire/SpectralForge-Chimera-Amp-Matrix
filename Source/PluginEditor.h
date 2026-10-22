@@ -96,6 +96,7 @@ private:
     juce::Component canvas;
     PedalBoardPanel boardPanel;
     juce::TextButton gateLocation{"POST GATE"};
+    juce::TextButton gateSpectrum{"SPECTRUM / ALL CONTROLS"};
     juce::Label preEngineStatus;
     std::unique_ptr<BA> gateLocationAttachment;
     bool lastBoardEnabled{};

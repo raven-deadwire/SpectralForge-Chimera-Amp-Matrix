@@ -122,6 +122,8 @@ public:
     EnvelopeModule envelope;
     ColourModule fuzz;
     BoostModule boost;
+    DynamicsAnalysis* analysis{};
+    void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
     juce::AudioBuffer<float> clean;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> cleanAlignment{128};
     void prepare(const juce::dsp::ProcessSpec& spec) {gate.prepare(spec.sampleRate);transpose.prepare(spec);compressor.prepare(spec);envelope.prepare(spec);fuzz.prepare(spec);boost.prepare(spec);drive.prepare(spec);clean.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);cleanAlignment.prepare(spec);cleanAlignment.setDelay(float(fuzz.latency()+drive.latency()));}
@@ -130,7 +132,7 @@ public:
     int latency(bool pitchEnabled) const {return fuzz.latency()+drive.latency()+(pitchEnabled ? transpose.latency() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool gateOn,float threshold,float release,float hold,bool pitchOn,int semitones,const FXState& state,float gateRangeDb=NoiseGate::fullRangeDb) {
         gate.process(buffer,gateOn,threshold,release,hold,gateRangeDb);transpose.process(buffer,pitchOn,semitones);
-        const auto compress=[&]{compressor.process(buffer,state.preCompOn,-12-30*state.preComp,1+5*state.preComp,state.preAttack,140,state.preLevel,state.models[3]);};
+        const auto compress=[&]{DynamicsAnalysis::Scope capture(analysis && analysis->preOwner.load(std::memory_order_relaxed)==-1?analysis:nullptr,DynamicsStage::preCompressor,buffer);compressor.process(buffer,state.preCompOn,-12-30*state.preComp,1+5*state.preComp,state.preAttack,140,state.preLevel,state.models[3]);};
         const auto filter=[&]{envelope.process(buffer,state.filterOn,state.filterSense,state.filterQ,state.filterMix,state.models[4]);};
         if(state.envelopeFirst) {filter();compress();} else {compress();filter();}
         clean.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> block(clean);juce::dsp::ProcessContextReplacing<float> context(block);cleanAlignment.process(context);
@@ -147,8 +149,12 @@ class PostFXChain {
     PostNativeDSP native;juce::AudioBuffer<float> transition;
     std::array<juce::SmoothedValue<float>,3> nativeMix;std::array<bool,3> nativeReady{};
     float busReduction{};
+    DynamicsAnalysis* analysis{};
     template<class Legacy> void processRack(juce::AudioBuffer<float>& buffer,int section,const FXState& state,Legacy&& legacy) {
-        auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+        const bool useNative=state.postNative.sections[section].nativeEnabled;
+        const int requestedSource=analysis?analysis->postNativeSource.load(std::memory_order_relaxed):-1;
+        DynamicsAnalysis::Scope capture(section==0 && (requestedSource<0 || requestedSource==int(useNative))?analysis:nullptr,DynamicsStage::postCompressor,buffer);
+        auto& mix=nativeMix[section];
         if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
         if(!mix.isSmoothing()) {if(useNative)native.processSection(buffer,section,state.postNative.sections[section]);else legacy(buffer);}
         else {transition.makeCopyOf(buffer,true);legacy(buffer);native.processSection(transition,section,state.postNative.sections[section]);for(int n=0;n<buffer.getNumSamples();++n){const float wet=mix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*(1-wet)+transition.getSample(c,n)*wet);}}
@@ -156,6 +162,7 @@ class PostFXChain {
     }
     ModulationModule modulation;EchoModule echo;SpaceModule space;
 public:
+    void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
     std::array<float,6> stagePeaks{};
     float compressorReduction() const {return busReduction;}
     float nativeMeter(int section) const {return native.meter(section);}
