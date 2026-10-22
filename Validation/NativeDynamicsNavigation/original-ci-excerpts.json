@@ -1,0 +1,13 @@
+{
+  "failed_log": [
+    "2026-10-21T02:11:40.5124040Z 1/2 Test #13: ChimeraCommonDynamicsUITests .....   Passed   47.51 sec",
+    "2026-10-21T02:11:46.0521400Z 2/2 Test #14: ChimeraNativeDynamicsUITests .....***Failed    5.52 sec",
+    "2026-10-21T02:11:46.0568050Z TEST HARNESS: macOS dispatch overrun requested_ms=55 actual_ms=960.427 cf_ms=2.01029 appkit_poll_ms=958.203 native_event_ms=0.204333 autorelease_ms=0.00291667 iterations=123 last_cf_result=4 native_events=2 last_native_event=8",
+    "2026-10-21T02:11:46.0569750Z TEST HARNESS: macOS dispatch overrun requested_ms=55 actual_ms=840.068 cf_ms=839.579 appkit_poll_ms=0.470125 native_event_ms=0.01875 autorelease_ms=0.000333333 iterations=1 last_cf_result=4 native_events=1 last_native_event=9",
+    "2026-10-21T02:11:46.0570740Z FAIL: Reordered PRE compressor has no visible spectrum entry"
+  ],
+  "prior_log": [
+    "2026-10-20T09:13:49.7254610Z 1/2 Test #13: ChimeraCommonDynamicsUITests .....   Passed   46.72 sec",
+    "2026-10-20T09:14:54.5570160Z 2/2 Test #14: ChimeraNativeDynamicsUITests .....   Passed   64.81 sec"
+  ]
+}

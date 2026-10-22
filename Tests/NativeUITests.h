@@ -58,17 +58,41 @@ template<class T=juce::Component> T* find(juce::Component& root,const juce::Stri
     for(auto* child:root.getChildren())if(auto* result=find<T>(*child,id))return result;return nullptr;
 }
 inline void set(ChimeraProcessor& processor,const juce::String& id,float value){auto* p=processor.parameters().getParameter(id);require(p!=nullptr,"Native UI parameter missing");p->setValueNotifyingHost(p->convertTo0to1(value));}
+// triggerClick posts a native command; elapsed wall time does not acknowledge
+// that command. Observe its delivery exactly once, using the existing native
+// readiness budget. This neither invokes onClick directly nor repairs UI state.
+inline void clickNative(juce::Button& target) {
+    struct Receipt final:juce::Button::Listener {
+        juce::Component::SafePointer<juce::Button> button;
+        int clicks{};
+        explicit Receipt(juce::Button& b):button(&b){b.addListener(this);}
+        ~Receipt() override {if(button)button->removeListener(this);}
+        void buttonClicked(juce::Button*) override {++clicks;}
+    } receipt(target);
+    const auto id=target.getComponentID();
+    const auto started=juce::Time::getMillisecondCounterHiRes(),deadline=started+2000.;
+    target.triggerClick();
+    while(receipt.clicks==0) {
+        require(receipt.button!=nullptr,"Native navigation button disappeared before command delivery");
+        if(juce::Time::getMillisecondCounterHiRes()>=deadline) {
+            std::cerr<<"NATIVE CLICK timeout id="<<id<<" clicks="<<receipt.clicks<<'\n';
+            require(false,"Native navigation command was not delivered within its readiness deadline");
+        }
+        settle(10);
+    }
+    const auto elapsed=juce::Time::getMillisecondCounterHiRes()-started;
+    // The listener runs in sendClickMessage before onClick. Once native dispatch
+    // returns, that same synchronous product callback has also returned.
+    require(receipt.clicks==1,"Native navigation command was delivered more than once");
+    require(receipt.button!=nullptr,"Native navigation command destroyed its source button");
+    require(elapsed<2000.,"Native navigation command exceeded its readiness deadline");
+    if(elapsed>55.)std::cout<<"NATIVE CLICK acknowledged id="<<id<<" clicks="<<receipt.clicks<<" elapsed_ms="<<elapsed<<'\n';
+}
 inline void tab(juce::Component& root,const char* name){
     const juce::String label(name);const auto id=label=="RIGS"?"head":label=="PRE"?"pre":label=="POST"?"post":"tone.eq";
     auto* button=find<juce::TextButton>(root,"path."+juce::String(id));require(button && button->isVisible(),"Signal navigation stage missing");
-    struct Receipt final:juce::Button::Listener {
-        int clicks{};
-        void buttonClicked(juce::Button*) override {++clicks;}
-    } receipt;
-    button->addListener(&receipt);button->triggerClick();settle();button->removeListener(&receipt);
-    if(receipt.clicks!=1)
-        std::cerr<<"NATIVE NAVIGATION pending command id="<<button->getComponentID()
-                 <<" clicks="<<receipt.clicks<<" selected="<<button->getToggleState()<<'\n';
+    clickNative(*button);
+    require(button->getToggleState(),"Delivered native navigation command did not select its editing stage");
 }
 
 inline void snapshot(juce::Component& root,const juce::File& directory,const char* name){auto stream=directory.getChildFile(juce::String(name)+".png").createOutputStream();juce::PNGImageFormat png;require(stream && png.writeImageToStream(root.createComponentSnapshot(root.getLocalBounds()),*stream),"Native UI screenshot failed");}
@@ -85,7 +109,7 @@ inline juce::DialogWindow* dialog(const juce::String& contentID) {
 inline juce::Component::SafePointer<juce::DialogWindow> open(juce::Component& root,const juce::String& buttonID,const juce::String& contentID) {
     auto* button=find<juce::TextButton>(root,buttonID);
     require(button && button->isVisible() && button->isEnabled(),"ALL button is inaccessible");
-    button->triggerClick();settle(90);
+    clickNative(*button);
     auto* result=dialog(contentID);require(result!=nullptr,"ALL button failed to open the full control panel");return result;
 }
 inline void close(juce::Component::SafePointer<juce::DialogWindow> window) {
@@ -296,6 +320,21 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(90);
     auto* canvas=editor->findChildWithID("surface");require(canvas,"Native dynamics canvas missing");
     auto* board=find<PedalBoardPanel>(*canvas,"universalPedalBoard");require(board,"Native dynamics PRE board missing");
+    if(queueStress) {
+        // Negative control: a delivered click with a disconnected UI handler
+        // must still fail the immediate product-state assertion. A receipt by
+        // itself is not evidence that the spectrum/owner view was restored.
+        auto* pre=find<juce::TextButton>(*canvas,"path.pre");require(pre,"PRE navigation missing");
+        auto handler=std::move(pre->onClick);pre->onClick=nullptr;
+        bool rejected=false;
+        try {tab(*canvas,"PRE");}
+        catch(const std::runtime_error& error) {
+            rejected=juce::String(error.what())=="Delivered native navigation command did not select its editing stage";
+        }
+        pre->onClick=std::move(handler);
+        require(rejected && !board->isShowing(),"Missing PRE UI handler was not detected independently of command delivery");
+        std::cout<<"PASS native navigation negative control: delivered click cannot hide a disconnected PRE UI handler\n";
+    }
     const auto values=[&]{std::vector<float> result;for(auto* p:processor.getParameters())result.push_back(p->getValue());return result;};
     struct Writes final:juce::AudioProcessorListener {
         ChimeraProcessor& processor;int changes{},gestures{};
@@ -351,7 +390,14 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
                 for(int i=0;i<32;++i)
                     require(juce::MessageManager::callAsync([]{juce::Thread::sleep(10);}),"Could not enqueue navigation backlog");
             }
-            tab(*canvas,"PRE");board->navigateOwner(-1);
+            tab(*canvas,"PRE");
+            // Check the product callback's result directly. Do not reset a
+            // detail view here or hide a state defect with an extra refresh.
+            require(board->isShowing(),"Delivered PRE navigation command did not show the pedalboard");
+            auto* overview=board->findChildWithID("boardModelAt0");
+            auto* spectrumEntry=find<juce::TextButton>(*board,"boardCompressorSpectrumAt0");
+            require(overview && overview->isShowing() && spectrumEntry && spectrumEntry->isShowing()
+                    && spectrumEntry->isEnabled(),"Delivered PRE navigation command retained a hidden spectrum overview");
         });
         auto* entry=find<juce::TextButton>(*board,"boardCompressorSpectrumAt0");
         if(!entry || !entry->isShowing() || !entry->isEnabled()) {
@@ -366,7 +412,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
                      <<" ownerAt0="<<state.order[0]<<" modelAt0="<<state.instances[(size_t)state.order[0]].model<<'\n';
         }
         require(entry && entry->isShowing() && entry->isEnabled(),"Reordered PRE compressor has no visible spectrum entry");
-        navigate([&]{entry->triggerClick();});
+        navigate([&]{clickNative(*entry);});
         require(processor.dynamicsAnalysis().preOwner.load()==1 && !processor.pedalBoardState().enabled,
                 "PRE spectrum entry selected a display position as owner or activated the disabled board");
         auto* inactivePre=spectrumIn(*board,"boardCompressorSpectrum",DynamicsStage::preCompressor);audio();

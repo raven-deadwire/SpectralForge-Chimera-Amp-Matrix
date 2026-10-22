@@ -1,0 +1,26 @@
+Test project /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-dynamics
+2026-10-22T03:27:45.8771160Z     Start 13: ChimeraCommonDynamicsUITests
+2026-10-22T03:28:27.2638070Z 1/3 Test #13: ChimeraCommonDynamicsUITests ........   Passed   41.37 sec
+2026-10-22T03:28:27.2655580Z     Start 14: ChimeraNativeDynamicsUITests
+2026-10-22T03:29:31.0011710Z 2/3 Test #14: ChimeraNativeDynamicsUITests ........   Passed   63.70 sec
+2026-10-22T03:29:31.0024700Z     Start 15: ChimeraNativeDynamicsQueueUITests
+2026-10-22T03:29:34.9009270Z 3/3 Test #15: ChimeraNativeDynamicsQueueUITests ...***Failed    3.90 sec
+2026-10-22T03:29:34.9011030Z IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+2026-10-22T03:29:34.9011470Z TEST HARNESS: non-blocking macOS native event pump (JUCE #1574)
+2026-10-22T03:29:34.9012250Z TEST HARNESS: macOS dispatch overrun requested_ms=90 actual_ms=713.815 cf_ms=44.9975 appkit_poll_ms=668.744 native_event_ms=0.06375 autorelease_ms=0.00366667 iterations=128 last_cf_result=4 native_events=2 last_native_event=8
+2026-10-22T03:29:34.9013570Z TEST HARNESS: macOS dispatch overrun requested_ms=55 actual_ms=528.239 cf_ms=528.042 appkit_poll_ms=0.186583 native_event_ms=0.0105833 autorelease_ms=0.000208333 iterations=1 last_cf_result=4 native_events=1 last_native_event=9
+2026-10-22T03:29:34.9015190Z NATIVE NAVIGATION pending command id=path.pre clicks=0 selected=0
+2026-10-22T03:29:34.9016030Z TEST HARNESS: macOS dispatch overrun requested_ms=60 actual_ms=301.412 cf_ms=123.195 appkit_poll_ms=178.187 native_event_ms=0.029 autorelease_ms=0.000333333 iterations=1 last_cf_result=4 native_events=1 last_native_event=8
+2026-10-22T03:29:34.9017160Z PRE ENTRY state scale=75 stress=1 preSelected=0 boardVisible=0 boardShowing=0 entryVisible=1 entryShowing=0 entryEnabled=1 ownerAt0=1 modelAt0=7
+2026-10-22T03:29:34.9017980Z FAIL: Reordered PRE compressor has no visible spectrum entry
+2026-10-22T03:29:34.9018210Z 
+2026-10-22T03:29:34.9144190Z 
+2026-10-22T03:29:34.9145410Z 67% tests passed, 1 tests failed out of 3
+2026-10-22T03:29:34.9146290Z 
+2026-10-22T03:29:34.9146590Z Total Test time (real) = 108.99 sec
+2026-10-22T03:29:34.9147220Z 
+2026-10-22T03:29:34.9147700Z The following tests FAILED:
+2026-10-22T03:29:34.9149770Z 	 15 - ChimeraNativeDynamicsQueueUITests (Failed)
+2026-10-22T03:29:34.9290720Z Errors while running CTest
+2026-10-22T03:29:34.9330840Z ##[error]Process completed with exit code 8.
+2026-10-22T03:29:34.9481220Z

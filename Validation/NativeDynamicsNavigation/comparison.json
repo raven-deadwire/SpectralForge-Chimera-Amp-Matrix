@@ -1,0 +1,88 @@
+{
+  "date_kst": "2026-10-22",
+  "pr110_sha": "3a942a125d652a234d0f481fca3af2bdf6897635",
+  "pr111_original_sha": "ffab682bef3468001f98624bda3051796341ab51",
+  "original_dynamics_run": 39529062384,
+  "original_mac_job": 118990867494,
+  "prior_dynamics_run": 39398055175,
+  "prior_mac_job": 118545594461,
+  "equal_original_blob_pairs": {
+    "Source/PedalBoardPanel.h": {
+      "pr110": "4f548a9a3623699dd72a2660dfea5ad4cdc971d0",
+      "pr111": "4f548a9a3623699dd72a2660dfea5ad4cdc971d0"
+    },
+    "Source/PluginEditor.cpp": {
+      "pr110": "fa555b439a0bd266ff703d7aedbd474fd984256a",
+      "pr111": "fa555b439a0bd266ff703d7aedbd474fd984256a"
+    },
+    "Source/SignalPathView.h": {
+      "pr110": "ef4d47bec1fb0d37b44a044fa51f9fb6f19173ca",
+      "pr111": "ef4d47bec1fb0d37b44a044fa51f9fb6f19173ca"
+    },
+    "Tests/NativeUITests.h": {
+      "pr110": "e1c540a41a22ad0cff369c64d676b3ea31b095e6",
+      "pr111": "e1c540a41a22ad0cff369c64d676b3ea31b095e6"
+    },
+    "Tests/NativeMessageLoop.mm": {
+      "pr110": "6912c329ca562cb0f9d0e94b553782320612aedd",
+      "pr111": "6912c329ca562cb0f9d0e94b553782320612aedd"
+    },
+    "Tests/NativeMessageLoop.h": {
+      "pr110": "2933107da80b7c816e538f4db408c44258c40f39",
+      "pr111": "2933107da80b7c816e538f4db408c44258c40f39"
+    },
+    "Source/PluginProcessor.cpp": {
+      "pr110": "5b8e131489af962d6ec8a6b6190139fba93b58a0",
+      "pr111": "5b8e131489af962d6ec8a6b6190139fba93b58a0"
+    },
+    "Source/PluginProcessor.h": {
+      "pr110": "1892107e646ca6beb1e58e8f69d6a4ced957d54f",
+      "pr111": "1892107e646ca6beb1e58e8f69d6a4ced957d54f"
+    },
+    "Source/PedalBoardParameters.h": {
+      "pr110": "9a588b180213659f5573b531e9ec54004d6e7933",
+      "pr111": "9a588b180213659f5573b531e9ec54004d6e7933"
+    }
+  },
+  "local_numerical_regression": {
+    "baseline_sha": "3a942a125d652a234d0f481fca3af2bdf6897635",
+    "source_sha256": {
+      "Source/MultibandDynamicsCore.h": "a91b2ab2fc64e9de3dc347d213c747bd09f6fb573a5de0c3bf39d3bde4e0e1ab",
+      "Tests/MultibandDynamicsCoreTests.cpp": "93be44e455334b453cea903068fc24bd331c72d5660ebf0bf090d809f1b74a70",
+      "Tools/multiband_response_probe.cpp": "efb8adee1b124a7438fc6f5ae52d93760c93b3fab0b5e35a7a4ae5f9298e4255",
+      "Tools/experiments/multiband_bypass_bench.cpp": "8a2409fa5bd160d3ddc42a354d198718263bed1d091465672325d0d8c84783bd",
+      "Tools/measure_multiband_bypass_fix.py": "af86948cd3bf29cf8cb4cdef69654bbddc9bc97ee48b3b5dcfab16f32e7f5f02"
+    },
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "numpy": "2.3.5",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "actual_di_listening_tested": false,
+    "installed_daw_tested": false,
+    "release_approved": false,
+    "regression": "PASS"
+  },
+  "impulse_pairs": 224,
+  "transition_records": 1728,
+  "max_static_magnitude_delta_db": 0.00017733441701801603,
+  "new_cpu_benchmark_performed": false,
+  "actual_di_listening_tested": false,
+  "installed_daw_tested": false,
+  "release_approved": false,
+  "diagnostic": {
+    "source_sha": "e44e9f8e27e7e517e598e5fa3decd27301fd9e55",
+    "run_id": 39716544989,
+    "macos_job_id": 119619896459,
+    "macos_artifact_id": 12399193264,
+    "normal_common_native_tests": "PASS",
+    "queue_regression": "FAIL before fix",
+    "clicks_delivered": 0,
+    "pre_selected": false,
+    "board_visible": false,
+    "entry_visible": true,
+    "entry_showing": false,
+    "entry_enabled": true,
+    "owner_at_0": 1,
+    "model_at_0": 7
+  }
+}
