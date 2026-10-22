@@ -68,7 +68,7 @@ private:
     spectralforge::ui::Changed<std::array<float,3>> tunerKey;
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
-    spectralforge::ui::Changed<juce::String> cpuText,transportText,gateText,pitchText;
+    spectralforge::ui::Changed<juce::String> cpuText,transportText,pitchText;
     juce::Label callbackLoad;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
@@ -97,10 +97,7 @@ private:
     ChimeraLookAndFeel look;
     juce::Component canvas;
     PedalBoardPanel boardPanel;
-    juce::TextButton gateLocation{"POST GATE"};
-    juce::TextButton gateSpectrum{"SPECTRUM / ALL CONTROLS"};
     juce::Label preEngineStatus;
-    std::unique_ptr<BA> gateLocationAttachment;
     bool lastBoardEnabled{};
     juce::TooltipWindow tooltips{this,600};
     // Updates own a network worker. Ordinary editor open/close must not start
@@ -109,7 +106,7 @@ private:
     juce::Image wordmark,brandEmblem;
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> dialogs;
     std::vector<float> presetValues;
-    juce::Label title,routingHelp,x1Label,x2Label,gateStatus,pitchStatus;
+    juce::Label title,routingHelp,x1Label,x2Label,pitchStatus;
     juce::ComboBox mode,quality,scale,inputMode,presets,dualType,preOrder,gainOrder,transposeMode;
     juce::Slider doublerTime,tempo,dualBlend,dualFrequency;
     juce::Label dualLabel;
@@ -123,8 +120,8 @@ private:
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;
     int betaUiTicks{25};
-    juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
-    std::array<std::unique_ptr<BA>,4> globalButtons;
+    juce::TextButton pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
+    std::array<std::unique_ptr<BA>,3> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     juce::TextButton toneEQBank{"TONE EQ"},finalEQBank{"FINAL EQ"};

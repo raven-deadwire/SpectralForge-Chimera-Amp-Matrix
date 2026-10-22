@@ -213,13 +213,13 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             card.reference.setVisible(visible&&model!=0);
             card.model.setEnabled(true);
             card.left.setEnabled(position>0);card.right.setEnabled(position<4);card.copy.setEnabled(count<5&&model!=0);card.detail.setEnabled(model!=0);
-            const bool compressor=isCompressorModel(model);
-            card.detail.setButtonText(compressor?"SPECTRUM":spectralforge::pedalModel(model).controlCount>6?"ALL CONTROLS":"DETAIL / MIDI");
-            card.spectrumEdit.setVisible(visible&&compressor);
+            // Compressor pedals keep their knobs on the card; DETAIL adds the spectrum.
+            card.detail.setButtonText(spectralforge::pedalModel(model).controlCount>6?"ALL CONTROLS":"DETAIL / MIDI");
+            card.spectrumEdit.setVisible(false);
             card.remove.setEnabled(model!=0);card.bypass.setEnabled(model!=0);
             stylePowerButton(card.bypass,model!=0,state.instances[(size_t)owner].bypass);
             for(int c=0;c<6;++c) {
-                const int index=cardControl(model,c);const bool show=visible&&!compressor&&index<spectralforge::pedalModel(model).controlCount;
+                const int index=cardControl(model,c);const bool show=visible&&index<spectralforge::pedalModel(model).controlCount;
                 card.controls[(size_t)c].label.setVisible(show);card.controls[(size_t)c].slider.setVisible(show);
                 if(show)card.controls[(size_t)c].slider.setEnabled(spectralforge::pedalModel(model).controls[(size_t)index].connected);
             }
