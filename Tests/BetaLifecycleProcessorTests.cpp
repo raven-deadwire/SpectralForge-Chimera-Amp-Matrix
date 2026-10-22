@@ -6,6 +6,8 @@
 #include <memory>
 #include <limits>
 #include <stdexcept>
+#include <cstdlib>
+#include <ctime>
 
 // Private constructor injection: no environment variable or serialized trial
 // flag can change policy in shipped plugin entry points.
@@ -13,6 +15,12 @@ struct ChimeraBetaTestAccess {
     static std::unique_ptr<ChimeraProcessor> create(const spectralforge::beta::Metadata& m,
                                                    spectralforge::beta::Clock c) {
         return std::unique_ptr<ChimeraProcessor>(new ChimeraProcessor(m,c));
+    }
+};
+struct ChimeraSupportPanelTestAccess {
+    static void tick(ChimeraSupportPanel& panel) {
+        if(!panel.isTimerRunning())throw std::runtime_error("SETTINGS timer is not running");
+        panel.timerCallback();
     }
 };
 namespace spectralforge::release {
@@ -196,6 +204,71 @@ void compiledIdentity(const juce::File& directory) {
     require(version["beta_lifecycle_sha256"].toString()==juce::SHA256(bytes).toHexString(),"Configured beta fingerprint mismatch");
     require(directory.getChildFile("compiled-beta-identity.json").replaceWithText(juce::JSON::toString(metadata,true)),"Cannot write compiled identity evidence");
 }
+// Change only the process timezone, never the OS clock. POSIX TZ strings also
+// exercise the Windows CRT. Restore the user's environment on every exit path.
+struct ScopedTimezone {
+    bool hadValue = std::getenv("TZ") != nullptr;
+    std::string previous = hadValue ? std::getenv("TZ") : "";
+    static void set(const char* zone) {
+#ifdef _WIN32
+        _putenv_s("TZ", zone ? zone : "");_tzset();
+#else
+        if(zone)setenv("TZ",zone,1);else unsetenv("TZ");tzset();
+#endif
+    }
+    ~ScopedTimezone(){set(hadValue ? previous.c_str() : nullptr);}
+};
+void settingsCountdown(const juce::File& directory) {
+    const auto metadata=spectralforge::beta::compiledMetadata();
+    require(metadata.betaBuild,"SETTINGS identity test requires approved or qualification metadata");
+    now=metadata.expiresAtUnix-90061;
+    auto active=ChimeraBetaTestAccess::create(metadata,clockNow);
+    ChimeraSupportPanel panel({}, {}, [&]{return active->betaNotice();}, [&]{active->recheckBetaClock();});
+    auto* label=dynamic_cast<juce::TextEditor*>(panel.findChildWithID("betaLifecycleNotice"));
+    require(label!=nullptr,"SETTINGS countdown field is absent");
+    const auto first=label->getText();
+    require(first.contains("Remaining: 1 day 01 hours 01 minutes 01 seconds."),"SETTINGS does not show exact remaining time");
+    require(first.contains(CHIMERA_BETA_EXPIRY_UTC) && first.contains(CHIMERA_BETA_EXPIRY_KST)
+            && first.contains(CHIMERA_PREVIEW_VERSION) && first.contains(CHIMERA_SOURCE_SHA)
+            && first.contains(CHIMERA_BUILD_REVISION),"SETTINGS differs from compiled identity");
+    require(directory.getChildFile("settings-compiled-notice.txt").replaceWithText(first),"Cannot write SETTINGS identity evidence");
+    {
+        ScopedTimezone restore;
+        for(const auto* zone:{"UTC0","KST-9","PST8PDT,M3.2.0/2,M11.1.0/2","NPT-5:45"}) {
+            ScopedTimezone::set(zone);ChimeraSupportPanelTestAccess::tick(panel);
+            require(label->getText()==first,"System timezone changed UTC expiry or countdown");
+        }
+    }
+    // Repeated ticks sample the injected UTC clock, including forward jumps and
+    // correction backwards. A timer must not maintain its own decrementing clock.
+    const struct {std::int64_t remaining;const char* expected;} rows[]={
+        {86400,"Remaining: 1 day 00 hours 00 minutes 00 seconds."},
+        {86399,"Remaining: 0 days 23 hours 59 minutes 59 seconds."},
+        {1,"Remaining: 0 days 00 hours 00 minutes 01 seconds."},
+        {0,"Remaining: 0 days 00 hours 00 minutes 00 seconds (expired)."},
+        {-86400,"Remaining: 0 days 00 hours 00 minutes 00 seconds (expired)."},
+        {90061,"Remaining: 1 day 01 hours 01 minutes 01 seconds."}};
+    for(const auto& row:rows) {
+        now=metadata.expiresAtUnix-row.remaining;ChimeraSupportPanelTestAccess::tick(panel);
+        require(label->getText().contains(row.expected),"SETTINGS stale across clock/expiry boundary");
+        require(active->betaProcessingPermitted(),"SETTINGS refresh revoked active instance grace");
+        if(row.remaining<=0)require(label->getText().contains("keeps its sound"),"Grace notice contradicts active audio");
+    }
+    now=metadata.expiresAtUnix;
+    auto muted=ChimeraBetaTestAccess::create(metadata,clockNow);
+    now=0;
+    require(muted->betaNotice().contains("Remaining: unavailable") && muted->betaNotice().contains("remains muted"),
+            "Invalid clock notice contradicts muted instance");
+    now=metadata.expiresAtUnix-60;
+    require(muted->betaNotice().contains("still muted") && !muted->betaProcessingPermitted(),
+            "Clock correction implicitly recovered audio or displayed a false permission");
+    muted->recheckBetaClock();
+    require(muted->betaProcessingPermitted() && !muted->betaNotice().contains("still muted"),"Explicit recovery left stale UI");
+    now=metadata.expiresAtUnix-90061;ChimeraSupportPanelTestAccess::tick(panel);
+    auto screenshot=directory.getChildFile("Beta-Countdown-Settings.png").createOutputStream();
+    require(screenshot && juce::PNGImageFormat().writeImageToStream(panel.createComponentSnapshot(panel.getLocalBounds()),*screenshot),"Cannot save countdown SETTINGS evidence");
+    std::cout<<"PASS: compiled SETTINGS countdown, UTC/KST, timezone changes, live clock jumps, exact expiry and recovery status\n";
+}
 void preservation(const juce::File& directory) {
     now=expiry-10;auto source=ChimeraBetaTestAccess::create(beta,clockNow);
     const auto ir=directory.getChildFile("personal-lifecycle.wav");
@@ -261,6 +334,33 @@ void preservation(const juce::File& directory) {
     require(panel.findChildWithID("betaRecheckClock")->isEnabled(),"Clock recovery action disabled");
     const auto screenshot=directory.getChildFile("Beta-Expired-Settings.png").createOutputStream();
     require(screenshot && juce::PNGImageFormat().writeImageToStream(panel.createComponentSnapshot(panel.getLocalBounds()),*screenshot),"Cannot save SETTINGS evidence");
+    // This is a synthetic successor, not a next-release expiry approval.
+    // Read state saved by the muted instance into a fresh permitted processor.
+    now=expiry+1;
+    constexpr spectralforge::beta::Metadata successor{"99.0.0-beta.1",sha,expiry+86400,1209600,true};
+    auto updated=ChimeraBetaTestAccess::create(successor,clockNow);
+    updated->setStateInformation(after.getData(),int(after.getSize()));
+    compareParameters(*expired,*updated);
+    for(int slot:{1,0}){expired->selectComparison(slot);updated->selectComparison(slot);compareParameters(*expired,*updated);}
+    require(updated->betaProcessingPermitted(),"Expired permission leaked into successor state");
+    require(updated->userIRName(0)==ir.getFileName() && updated->parameters().state.getProperty("irFolder")==directory.getFullPathName(),
+            "Successor lost IR identity or personal data path");
+    prepare(*updated,2,48000,128);
+    midi.clear();midi.addEvent(juce::MidiMessage::controllerEvent(1,40,64),0);updated->processBlock(samples,midi);
+    auto* updatedOutput=updated->parameters().getParameter("output");
+    require(updated->parameters().getRawParameterValue("output")->load()==updatedOutput->convertFrom0to1(64.f/127.f),
+            "Successor lost MIDI automation");
+    juce::MemoryBlock updatedState;updated->getStateInformation(updatedState);
+    const auto updatedXml=juce::AudioProcessor::getXmlFromBinary(updatedState.getData(),int(updatedState.getSize()));
+    require(updatedXml!=nullptr,"Successor cannot save state");
+    auto updatedTree=juce::ValueTree::fromXml(*updatedXml);require(spectralforge::irState::unpack(updatedTree),"Successor IR unpack failed");
+    juce::MemoryBlock updatedIR;
+    require(updatedIR.fromBase64Encoding(updatedTree.getChildWithName("USER_IRS").getChildWithProperty("lane",0).getProperty("data").toString()) && updatedIR==originalIR,
+            "Successor changed embedded IR after source file removal");
+    auto updatedReopen=ChimeraBetaTestAccess::create(successor,clockNow);
+    updatedReopen->setStateInformation(updatedState.getData(),int(updatedState.getSize()));compareParameters(*updated,*updatedReopen);
+    updated->releaseResources();updatedReopen->releaseResources();
+    std::cout<<"PASS: expired save to synthetic successor, parameters/A-B/MIDI/personal+embedded IR and second save/reopen (not installed DAW acceptance)\n";
     source->releaseResources();expired->releaseResources();reopened->releaseResources();
     require(source->backgroundResourcesReleased()&&expired->backgroundResourcesReleased()&&reopened->backgroundResourcesReleased(),"Lifecycle introduced teardown resources");
     std::cout<<"PASS: expired binary/.chimera roundtrip, all host IDs/values, A/B, personal+embedded IR, paths, MIDI, editor/settings and teardown\n";
@@ -270,6 +370,6 @@ int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==3 && juce::String(argv[1])=="--historical") {historical(juce::File(argv[2]));return 0;}
-        require(argc==2,"Expected evidence directory");const juce::File directory(argv[1]);require(directory.createDirectory().wasOk(),"Cannot create evidence directory");compiledIdentity(directory);offlineUpdate();audioSafety();preservation(directory);return 0;}
+        require(argc==2,"Expected evidence directory");const juce::File directory(argv[1]);require(directory.createDirectory().wasOk(),"Cannot create evidence directory");compiledIdentity(directory);settingsCountdown(directory);offlineUpdate();audioSafety();preservation(directory);return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

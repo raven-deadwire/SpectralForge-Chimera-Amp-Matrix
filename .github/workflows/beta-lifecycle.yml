@@ -74,6 +74,8 @@ jobs:
       - if: runner.os == 'Linux'
         name: Runtime and state tests with supervised display
         run: python Tools/run_linux_ui_tests.py -- ctest --test-dir build-beta -C Release -R '^(ChimeraBetaLifecycle.*Tests|ChimeraNativeStateTests|ChimeraReleaseTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit beta-results.xml
+      - name: Compare compiled SETTINGS with policy and staged UTC/KST notice
+        run: python Tools/verify_beta_settings_identity.py --build build-beta
       - if: runner.os == 'macOS'
         name: Repeat macOS native state restoration without retrying failures
         run: ctest --test-dir build-beta -C Release -R '^ChimeraNativeStateTests$' --repeat until-fail:5 --output-on-failure --no-tests=error --output-junit macos-state-repeat.xml
