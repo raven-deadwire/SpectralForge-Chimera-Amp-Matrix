@@ -31,7 +31,8 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             if(!event.mods.isPopupMenu())activate();juce::Slider::mouseDown(event);
         }
         void mouseWheelMove(const juce::MouseEvent& event,const juce::MouseWheelDetails& wheel) override {
-            if(wheel.deltaX!=0 || wheel.deltaY!=0)activate();juce::Slider::mouseWheelMove(event,wheel);
+            // A scroll that passes over a wheel-disabled knob is not an edit.
+            if(isScrollWheelEnabled() && (wheel.deltaX!=0 || wheel.deltaY!=0))activate();juce::Slider::mouseWheelMove(event,wheel);
         }
         bool keyPressed(const juce::KeyPress& key) override {
             const bool handled=juce::Slider::keyPressed(key);if(handled)activate();return handled;

@@ -9,6 +9,8 @@
 #include "SupportPanel.h"
 #include "ReleaseInfo.h"
 #include "RackEffectDetailPanel.h"
+#include "KnobInteraction.h"
+#include "StandaloneHooks.h"
 
 #ifndef CHIMERA_BUILD_REVISION
 #define CHIMERA_BUILD_REVISION "local"
@@ -16,6 +18,9 @@
 
 namespace {
 const juce::Colour background(0xff0d1010),panel(0xff171b1b),line(0xff3a3a34),ink(0xffe1dbce),muted(0xffa4a79f),accent(0xffc4a678);
+constexpr float designWidth=1180.f,designHeight=780.f,minimumScale=.75f,maximumScale=2.f;
+// Interface-size menu actions; ids 1-4 remain the 75/100/125/150% sizes.
+constexpr int scaleFitItem=20,scaleFullScreenItem=21;
 void style(juce::Label& label,float size=13.f,juce::Justification justification=juce::Justification::centredLeft)
 {
     label.setFont(juce::FontOptions(size)); label.setColour(juce::Label::textColourId,ink);
@@ -153,8 +158,21 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     mode.setTooltip("Classic: one full-range rig. Dual: two parallel rigs. Matrix: three input bands.");
     quality.setName("Oversampling"); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
     quality.setTooltip("Anti-aliasing for amplifier distortion. Higher factors use more CPU. Host latency stays constant.");
-    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.setSelectedId(2); add(scale);
-    scale.onChange=[this]{const float factor=float(scale.getSelectedId()+2)*.25f; setSize(juce::roundToInt(1180*factor),juce::roundToInt(780*factor));};
+    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1);
+    scale.addSeparator(); scale.addItem("Fit to screen",scaleFitItem);
+    if(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone)scale.addItem("Full screen (F11)",scaleFullScreenItem);
+    scale.setSelectedId(2); add(scale);
+    scale.setTooltip(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone
+        ? "Interface size. Fit to screen picks the largest size this display can show. Maximise the window, or press F11 for full screen (Esc returns)."
+        : "Interface size. Fit to screen picks the largest size this display can show; you can also drag the window corner.");
+    scale.onChange=[this]{
+        const int id=scale.getSelectedId();
+        if(id==scaleFitItem){fitToScreen();updateScaleDisplay();return;}
+        if(id==scaleFullScreenItem){toggleFullScreen();updateScaleDisplay();return;}
+        if(id<1 || id>4)return;
+        if(isStandaloneFullScreen())toggleFullScreen();
+        const float factor=float(id+2)*.25f; setSize(juce::roundToInt(designWidth*factor),juce::roundToInt(designHeight*factor));
+    };
     add(info); info.setButtonText("SETTINGS"); info.onClick=[this]{
         juce::PopupMenu menu;
         menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
@@ -330,14 +348,17 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
-    setResizable(true,true); setResizeLimits(885,585,1770,1170); getConstrainer()->setFixedAspectRatio(1180.0/780.0);
+    setResizable(true,true); setResizeLimits(885,585,2360,1560); getConstrainer()->setFixedAspectRatio(1180.0/780.0);
     tunerOn.setButtonText("TUNER ACTIVE");
     hostTempo.setButtonText("HOST SYNC");metronome.setButtonText("METRONOME");
     for(auto* button:{&tunerOpen,&midi,&tap,&hostTempo,&metronome,&info}){button->getProperties().set("utilityDock",true);button->setWantsKeyboardFocus(true);}
     for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().addParameterListener(id,this);
+    spectralforge::ui::KnobInteraction::attach();
     setSize(1180,780); updateModeUI(); startTimerHz(25);
 }
-ChimeraEditor::~ChimeraEditor() { for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().removeParameterListener(id,this);cancelPendingUpdate();stopTimer(); chooser.reset(); for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();dialogs.clear();if(support)support->cancel();support.reset();setLookAndFeel(nullptr); }
+ChimeraEditor::~ChimeraEditor() { if(standaloneWindow)standaloneWindow->removeKeyListener(&standaloneKeys);
+    if(isStandaloneFullScreen())juce::Desktop::getInstance().setKioskModeComponent(nullptr,false);spectralforge::ui::KnobInteraction::detach();
+    for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().removeParameterListener(id,this);cancelPendingUpdate();stopTimer(); chooser.reset(); for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();dialogs.clear();if(support)support->cancel();support.reset();setLookAndFeel(nullptr); }
 void ChimeraEditor::setupSlider(juce::Slider& slider,const juce::String& name,const juce::String& suffix)
 {
     slider.setName(name); slider.setTooltip(name); slider.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -444,7 +465,7 @@ bool ChimeraEditor::isInterestedInFileDrag(const juce::StringArray& files)
 void ChimeraEditor::filesDropped(const juce::StringArray& files,int x,int y)
 {
     if(!isInterestedInFileDrag(files) || page!=0) return;
-    const float factor=getWidth()/1180.f; x=juce::roundToInt(x/factor); y=juce::roundToInt(y/factor);
+    const auto design=juce::Point<float>(float(x),float(y)).transformedBy(designTransform().inverted()); x=juce::roundToInt(design.x); y=juce::roundToInt(design.y);
     const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
     if(y<330 || y>742) return;
     const int width=(1140-14*(count-1))/count;
@@ -492,7 +513,7 @@ void ChimeraEditor::repaintDesign(juce::Rectangle<int> area)
 {
     // Repaint coordinates are physical editor pixels, while design/layout use
     // 1180 x 780. Round outwards, including fractional 75/125/150% edges.
-    repaint(area.toFloat().transformedBy(juce::AffineTransform::scale(getWidth()/1180.f))
+    repaint(area.toFloat().transformedBy(designTransform())
         .getSmallestIntegerContainer().expanded(1).getIntersection(getLocalBounds()));
 }
 void ChimeraEditor::refreshVisibleState()
@@ -703,11 +724,12 @@ void ChimeraEditor::updateModeUI()
     const auto syncPath=[this](SignalPathView* view){if(view){view->refresh();view->select(pathSelections[size_t(lastMode)]);}};
     syncPath(signalPath.get());
     if(pathDialog)syncPath(dynamic_cast<SignalPathView*>(pathDialog->getContentComponent()));
+    spectralforge::ui::KnobInteraction::apply(*this);
     repaint();
 }
 void ChimeraEditor::paint(juce::Graphics& g)
 {
-    g.fillAll(background); g.addTransform(juce::AffineTransform::scale(getWidth()/1180.f));
+    g.fillAll(background); g.addTransform(designTransform());
     spectralforge::art::raster(g,spectralforge::art::Surface::workbench,{0,0,1180,780});
     g.setColour(background.withAlpha(.40f));g.fillRect(0,0,1180,780);
     g.setColour(accent.withAlpha(.7f));g.fillRect(20,20,2,36);
@@ -767,11 +789,95 @@ void ChimeraEditor::paint(juce::Graphics& g)
 }
 void ChimeraEditor::resized()
 {
-    const float factor=getWidth()/1180.f;const int choice=juce::jlimit(1,4,juce::roundToInt((factor-.75f)*4)+1);
+    updateScaleDisplay();
+    canvas.setBounds(0,0,1180,780); canvas.setTransform(designTransform());
+    layoutControls();
+}
+void ChimeraEditor::updateScaleDisplay()
+{
+    const float factor=designScale();const int choice=juce::jlimit(1,4,juce::roundToInt((factor-.75f)*4)+1);
     if(std::abs(factor-(choice+2)*.25f)<.002f) scale.setSelectedId(choice,juce::dontSendNotification);
     else {scale.setSelectedId(0,juce::dontSendNotification);scale.setText(juce::String(factor*100,0)+"%",juce::dontSendNotification);}
-    canvas.setBounds(0,0,1180,780); canvas.setTransform(juce::AffineTransform::scale(getWidth()/1180.f));
-    layoutControls();
+}
+float ChimeraEditor::designScale() const noexcept
+{
+    return juce::jmax(.01f,juce::jmin(getWidth()/designWidth,getHeight()/designHeight));
+}
+juce::AffineTransform ChimeraEditor::designTransform() const noexcept
+{
+    // Centre the fixed 1180 x 780 design; whole-pixel bars keep edges crisp.
+    const float factor=designScale();
+    return juce::AffineTransform::scale(factor).translated(std::floor((getWidth()-designWidth*factor)*.5f),std::floor((getHeight()-designHeight*factor)*.5f));
+}
+void ChimeraEditor::parentHierarchyChanged()
+{
+    juce::AudioProcessorEditor::parentHierarchyChanged();
+    configureStandaloneWindow();
+}
+void ChimeraEditor::configureStandaloneWindow()
+{
+    // JUCE's Standalone window offers only minimise/close. Add maximise, let the
+    // maximised/full-screen window take any aspect ratio (the design is
+    // letterboxed), and shrink a first window that the display cannot show.
+    if(standaloneWindowConfigured || processor.wrapperType!=juce::AudioProcessor::wrapperType_Standalone)return;
+    auto* window=findParentComponentOfClass<juce::DocumentWindow>();
+    if(window==nullptr)return;
+    standaloneWindowConfigured=true;
+    getConstrainer()->setFixedAspectRatio(0.0);setResizeLimits(885,585,16384,16384);
+    window->setTitleBarButtonsRequired(juce::DocumentWindow::allButtons,false);
+    standaloneWindow=window;window->addKeyListener(&standaloneKeys);
+    // First run only: a connected ASIO interface becomes the default device
+    // instead of shared Windows audio (WASAPI). A saved device choice is kept.
+    if(spectralforge::standalone::preferLowLatencyDriverOnFirstRun)spectralforge::standalone::preferLowLatencyDriverOnFirstRun();
+    juce::MessageManager::callAsync([safe=juce::Component::SafePointer<ChimeraEditor>(this)]{
+        if(safe && safe->isShowing() && safe->fitToScreenScale()+.001f<safe->designScale())safe->fitToScreen();
+    });
+}
+float ChimeraEditor::fitToScreenScale() const
+{
+    const auto* top=getTopLevelComponent();
+    const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(top->getScreenBounds());
+    if(display==nullptr)return designScale();
+    // Space used around the editor: Standalone title bar/borders, or an
+    // estimate for a host frame the plug-in cannot measure.
+    int chromeWidth=top->getWidth()-getWidth(),chromeHeight=top->getHeight()-getHeight();
+    if(top==this){chromeWidth=16;chromeHeight=64;}
+    if(auto* peer=top->getPeer())if(const auto frame=peer->getFrameSizeIfPresent()){chromeWidth+=frame->getLeftAndRight();chromeHeight+=frame->getTopAndBottom();}
+    const auto area=display->userArea;
+    return juce::jlimit(minimumScale,maximumScale,juce::jmin((area.getWidth()-chromeWidth)/designWidth,(area.getHeight()-chromeHeight)/designHeight));
+}
+void ChimeraEditor::fitToScreen()
+{
+    if(isStandaloneFullScreen())toggleFullScreen();
+    if(auto* window=findParentComponentOfClass<juce::ResizableWindow>();window && window->isFullScreen())window->setFullScreen(false);
+    const float factor=fitToScreenScale();
+    setSize(juce::roundToInt(designWidth*factor),juce::roundToInt(designHeight*factor));
+    if(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone)
+        if(auto* window=findParentComponentOfClass<juce::DocumentWindow>())
+            if(const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(window->getScreenBounds())) {
+                // Move only: the editor's minimum size still applies on tiny displays.
+                const auto area=display->userArea;const auto bounds=window->getBounds();
+                window->setTopLeftPosition(juce::jlimit(area.getX(),juce::jmax(area.getX(),area.getRight()-bounds.getWidth()),bounds.getX()),
+                                           juce::jlimit(area.getY(),juce::jmax(area.getY(),area.getBottom()-bounds.getHeight()),bounds.getY()));
+            }
+}
+bool ChimeraEditor::isStandaloneFullScreen() const
+{
+    auto* kiosk=juce::Desktop::getInstance().getKioskModeComponent();
+    return kiosk!=nullptr && kiosk==getTopLevelComponent();
+}
+void ChimeraEditor::toggleFullScreen()
+{
+    if(processor.wrapperType!=juce::AudioProcessor::wrapperType_Standalone)return;
+    if(auto* top=getTopLevelComponent())juce::Desktop::getInstance().setKioskModeComponent(isStandaloneFullScreen()?nullptr:top,false);
+}
+bool ChimeraEditor::keyPressed(const juce::KeyPress& key)
+{
+    if(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone) {
+        if(key==juce::KeyPress::F11Key){toggleFullScreen();return true;}
+        if(key==juce::KeyPress::escapeKey && isStandaloneFullScreen()){toggleFullScreen();return true;}
+    }
+    return false;
 }
 void ChimeraEditor::layoutControls()
 {
@@ -903,7 +1009,7 @@ void ChimeraEditor::showDiagnostics()
 void ChimeraEditor::trackDialog(juce::DialogWindow* dialog)
 {
     dialogs.erase(std::remove_if(dialogs.begin(),dialogs.end(),[](const auto& item){return item==nullptr;}),dialogs.end());
-    if(dialog)dialogs.emplace_back(dialog);
+    if(dialog){dialogs.emplace_back(dialog);spectralforge::ui::KnobInteraction::apply(*dialog);}
 }
 void ChimeraEditor::markPresetCustom()
 {

@@ -168,7 +168,7 @@ requirements:[
 ['CPU architecture','64-bit only. Windows/Linux release targets x86_64; macOS universal contains arm64 + x86_64. No separate AVX-only CPU requirement is published for this beta.'],
 ['Plugin formats','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
 ['DAW / host','A 64-bit host that supports the corresponding VST3 or AU format. Host-by-host compatibility remains a beta validation area.'],
-['Display','The editor is 1180 × 780 at 100%. 75% mode is approximately 885 × 585; 1280 × 800 or larger is a practical minimum display recommendation, with 1920 × 1080 or larger preferred.'],
+['Display','The editor is 1180 × 780 at 100%. 75% mode is approximately 885 × 585; 1280 × 800 or larger is a practical minimum display recommendation, with 1920 × 1080 or larger preferred. On smaller or scaled laptop screens, SIZE → Fit to screen picks the largest size that fits.'],
 ['Memory','No certified hard RAM minimum has been established. 8 GB system RAM is a practical baseline; 16 GB or more is recommended for normal DAW projects, multiple Chimera instances and large sample-based sessions.'],
 ['CPU recommendation','A modern 64-bit CPU with strong single-core performance and 4 or more cores is a practical baseline. 6–8 or more cores provide more session headroom for multiple plugin instances; macOS Intel remains supported, while Apple Silicon generally offers more real-time headroom.'],
 ['Storage','Installer sizes are listed on the release download page. Keep additional free space for installation, update copies, user IRs and DAW projects; 500 MB free beyond the installer is a practical minimum reserve.'],
@@ -196,7 +196,7 @@ state:[
 ['A / B / COPY','A and B are two complete sound snapshots. Switching stores the outgoing state and recalls the other. COPY duplicates the active sound to the other slot. Switching resets DSP histories/tails; it is not a gapless morph and does not loudness-match automatically.'],
 ['SAVE AS / OPEN','Reference files use .chimera and preserve the complete state including A/B snapshots, embedded user IR audio and MIDI mappings. The load path rejects invalid/non-Chimera state and oversized reference files.'],
 ['MIDI Learn','Use the global MIDI menu for common targets or the pedal detail view for an individual model control. The next received CC is assigned. Clear MIDI Assignments removes all mappings. MIDI mappings are global to the saved state, not separate A/B maps.'],
-['Interface size','Use 75 / 100 / 125 / 150% or resize the editor window.'],
+['Interface size','Use 75 / 100 / 125 / 150%, Fit to screen, or resize the editor window. Standalone: the title-bar maximise button or F11 gives full screen (Esc returns); the design is centred without stretching. Knobs: drag up/down, Shift for fine adjustment; scrolling past a knob does not change it.'],
 ['Automation compatibility','Continuous audio controls expose host automation. Structural model/order choices are deliberately non-automatable. Model-list expansion can change normalized choice automation from early test builds; review/re-record old model-selection automation after upgrading.']
 ],
 support: [
@@ -334,7 +334,7 @@ state:[
 ['A / B / COPY','A und B sind vollständige Sound-Snapshots. Beim Wechsel wird der alte Zustand gespeichert und der andere geladen. COPY kopiert den aktiven Sound. DSP-Historien/Tails werden zurückgesetzt; kein nahtloses Morphing und kein automatisches Loudness-Matching.'],
 ['SAVE AS / OPEN','.chimera-Dateien speichern den vollständigen Zustand inklusive A/B, eingebettetem User-IR-Audio und MIDI-Mappings. Ungültige/zu große Dateien werden nicht geladen.'],
 ['MIDI Learn','Globales MIDI-Menü für häufige Ziele oder Pedal-Detailansicht für einzelne Modellregler. Der nächste empfangene CC wird zugewiesen. Clear MIDI Assignments löscht alle Mappings. MIDI-Mappings sind global im gespeicherten Zustand, nicht getrennt pro A/B.'],
-['Oberflächengröße','75 / 100 / 125 / 150 % oder Fenster frei skalieren.'],
+['Oberflächengröße','75 / 100 / 125 / 150 %, An Bildschirm anpassen (Fit to screen) oder Fenster frei skalieren. Standalone: Maximieren in der Titelleiste oder F11 für Vollbild (Esc beendet). Regler: ziehen, Shift für Feineinstellung; Scrollen über einem Regler ändert ihn nicht.'],
 ['Automation-Kompatibilität','Kontinuierliche Audio-Regler sind Host-automatisierbar. Strukturelle Modell-/Reihenfolge-Entscheidungen sind absichtlich nicht automatisierbar. Erweiterte Modelllisten können normalisierte Choice-Automation aus frühen Test-Builds verändern; alte Modellwahl-Automation prüfen/neu aufzeichnen.']
 ],
 support: [
@@ -444,7 +444,7 @@ requirements:[
 ['CPU 아키텍처','64-bit 전용입니다. Windows/Linux 릴리스는 x86_64, macOS Universal은 arm64 + x86_64를 포함합니다. 현재 베타는 별도의 AVX 전용 최소 CPU 조건을 두고 있지 않습니다.'],
 ['플러그인 형식','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
 ['DAW / Host','해당 VST3 또는 AU 형식을 지원하는 64-bit 호스트가 필요합니다. DAW별 세부 호환성은 여전히 베타 검증 범위입니다.'],
-['화면','100% UI는 1180 × 780, 75%는 약 885 × 585입니다. 실사용 기준 최소 1280 × 800 정도를 권장하고, 1920 × 1080 이상이면 가장 편합니다.'],
+['화면','100% UI는 1180 × 780, 75%는 약 885 × 585입니다. 실사용 기준 최소 1280 × 800 정도를 권장하고, 1920 × 1080 이상이면 가장 편합니다. 노트북처럼 작거나 배율이 큰 화면에서는 SIZE → Fit to screen이 들어가는 가장 큰 크기를 고릅니다.'],
 ['메모리','공식적으로 인증된 최소 RAM은 아직 정하지 않았습니다. 시스템 RAM 8 GB를 실사용 기준선으로 보고, 일반 DAW 프로젝트·다중 Chimera 인스턴스·샘플 기반 작업에는 16 GB 이상을 권장합니다.'],
 ['CPU 권장','강한 single-core 성능을 가진 현대적인 64-bit CPU와 4코어 이상을 실사용 기준선으로 봅니다. 여러 Chimera 인스턴스를 사용할 경우 6–8코어 이상이 유리합니다. macOS Intel도 지원하지만 실시간 여유는 대체로 Apple Silicon 쪽이 더 큽니다.'],
 ['저장공간','다운로드 크기는 릴리즈 페이지의 파일별 표시를 확인하세요. 설치·업데이트 복사본·User IR·DAW 프로젝트를 위해 installer 외에 최소 약 500 MB 이상의 여유 공간을 두는 것을 권장합니다.'],
@@ -472,7 +472,7 @@ state:[
 ['A / B / COPY','A와 B는 전체 사운드 스냅샷 두 개입니다. 전환 시 현재 상태를 저장하고 다른 슬롯을 불러옵니다. COPY는 현재 톤을 반대 슬롯으로 복제합니다. 전환 시 DSP history/tail은 reset되므로 gapless morph가 아니며 자동 loudness match도 하지 않습니다.'],
 ['SAVE AS / OPEN','.chimera 파일은 A/B 스냅샷, embedded user IR 오디오, MIDI mapping을 포함한 전체 상태를 저장합니다. 잘못된 형식이나 과도하게 큰 reference 파일은 로드하지 않습니다.'],
 ['MIDI Learn','공통 대상은 하단 MIDI 메뉴, 개별 페달 컨트롤은 DETAIL 화면에서 Learn합니다. 다음에 들어오는 CC가 할당됩니다. Clear MIDI Assignments는 전체 mapping을 지웁니다. MIDI mapping은 A/B별이 아니라 저장 상태 전체에 공통입니다.'],
-['UI 크기','75 / 100 / 125 / 150% SIZE 선택 또는 창 크기 직접 조절을 사용합니다.'],
+['UI 크기','SIZE에서 75 / 100 / 125 / 150% 또는 Fit to screen(화면에 맞춤)을 고르거나 창 크기를 직접 조절합니다. Standalone은 제목 표시줄의 최대화 버튼 또는 F11로 전체화면(Esc로 복귀)이며, 화면 비율이 달라도 늘이지 않고 가운데 정렬합니다. 노브는 위아래로 드래그하고 Shift로 미세 조절하며, 스크롤이 노브 위를 지나가도 값이 바뀌지 않습니다.'],
 ['자동화 호환성','연속 오디오 컨트롤은 호스트 자동화를 지원합니다. 페달 모델/순서 같은 구조 선택은 의도적으로 자동화 대상이 아닙니다. 초기 테스트 빌드의 normalized model-choice automation은 모델 목록 확장으로 매핑이 달라질 수 있으므로 업그레이드 후 확인·재기록하십시오.']
 ],
 support: [

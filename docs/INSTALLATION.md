@@ -16,7 +16,7 @@ The platform/architecture requirements below are release-supported values. CPU a
 | CPU architecture | 64-bit only. Windows/Linux target x86_64; macOS universal contains arm64 + x86_64. No separate AVX-only minimum is published for this beta. |
 | Plugin formats | Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone |
 | DAW / host | A 64-bit host supporting the corresponding VST3 or AU format. Host-specific compatibility remains part of beta validation. |
-| Display | Editor is 1180×780 at 100% and about 885×585 at 75%. 1280×800 is a practical minimum; 1920×1080 or larger is preferred. |
+| Display | Editor is 1180×780 at 100% and about 885×585 at 75%. 1280×800 is a practical minimum; 1920×1080 or larger is preferred. SIZE → Fit to screen sizes the editor to the current display; the Standalone window can be maximised or made full screen with F11. |
 | Memory | No certified hard minimum. 8 GB system RAM is a practical baseline; 16 GB+ is recommended for normal DAW work, multiple Chimera instances, or large sample-based sessions. |
 | CPU recommendation | Modern 64-bit CPU with strong single-core performance and 4+ cores as a practical baseline; 6–8+ cores provide more headroom for multi-instance sessions. |
 | Storage | Check the download size of the selected package. Reserve additional space for its extracted files, installation, updates, user IRs and projects. |
@@ -41,6 +41,7 @@ Select VST3, standalone and optional reference tools. Setup requires administrat
 - The MSVC runtime is linked statically; a separate Visual C++ runtime installer is not required.
 - Setup uses the same application identity as earlier builds and retires only the exact legacy executable/VST3 binary. Personal presets and IR folders are preserved.
 - Uninstall from Windows Installed Apps. Personal user files remain.
+- Standalone audio: for low latency use your interface's ASIO driver (Options → Audio/MIDI Settings → Audio device type: ASIO). On the first Standalone run, a connected ASIO interface is selected automatically; a device you have already chosen is never changed. Shared "Windows Audio" adds operating-system buffering. ASIO is available only in builds made with the Steinberg ASIO SDK; Audio/MIDI Settings lists the device types a build offers. Inside a DAW, the DAW's own audio driver setting applies.
 
 The ZIP is a portable layout for manual inspection/use. Its VST3 bundle must be copied to a host-scanned folder; running the standalone does not register the plugin. MSIX output is an internal review package only and is not a public beta installer.
 

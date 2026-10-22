@@ -25,9 +25,14 @@ jobs:
         run: python Tests/test_packaging_version.py
       - name: Check candidate transfer contract before native build
         run: python Tools/test_candidate_transfer.py
+      - name: Fetch Steinberg ASIO SDK for the Windows Standalone
+        # See build.yml: repository variables supply the licensed SDK archive and hash.
+        if: vars.CHIMERA_ASIO_SDK_URL != ''
+        shell: pwsh
+        run: ./Tools/Fetch-AsioSdk.ps1 -Url "${{ vars.CHIMERA_ASIO_SDK_URL }}" -Sha256 "${{ vars.CHIMERA_ASIO_SDK_SHA256 }}"
       - name: Configure
         timeout-minutes: 10
-        run: cmake -S . -B build -A x64 -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -A x64 -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release -DCHIMERA_ASIO_SDK_DIR="${{ env.CHIMERA_ASIO_SDK_DIR }}" -DCHIMERA_REQUIRE_ASIO=${{ vars.CHIMERA_ASIO_SDK_URL != '' && 'ON' || 'OFF' }}
       - name: Check candidate packaging and validation contracts
         # Native failures must stop before a later successful command can mask them.
         shell: bash

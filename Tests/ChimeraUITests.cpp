@@ -19,6 +19,7 @@
 #include "PrecisionTunerUITests.h"
 #include "PrecisionTunerTimingProbe.h"
 #include "CommonDynamicsUITests.h"
+#include "WindowScaleUITests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -702,6 +703,7 @@ int main(int argc, char** argv)
         if(argc>2 && juce::String(argv[2])=="--common-dynamics-only"){commonDynamicsUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--signal-path-only"){signalPathTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--review-fixes-only"){checkReviewFixes(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--window-scale-only"){windowScaleUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--native-panels-only"){runNativeUITests(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
@@ -710,6 +712,7 @@ int main(int argc, char** argv)
             catch(const std::exception& error) {++suiteFailures;std::cerr<<"FAIL suite "<<name<<": "<<error.what()<<'\n';juce::PopupMenu::dismissAllActiveMenus();juce::MessageManager::getInstance()->runDispatchLoopUntil(30);}
         };
         runSuite("signal path",[&]{signalPathTests::run(directory);});
+        runSuite("window scale and knob interaction",[&]{windowScaleUITests::run(directory);});
         runSuite("processor resource lifetime",[&]{checkProcessorResourceLifetime(directory);});
         runSuite("artwork lifetime",[]{checkArtworkLifetime();});
         runSuite("amp selectors",[]{ampSelectorTests::run();});

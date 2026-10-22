@@ -34,6 +34,16 @@ public:
     ~ChimeraEditor() override;
     void paint(juce::Graphics&) override;
     void resized() override;
+    void parentHierarchyChanged() override;
+    bool keyPressed(const juce::KeyPress&) override;
+    // Uniform design-space scale and letterbox origin. A Standalone window may be
+    // maximised to any aspect ratio; plug-in hosts keep the fixed ratio.
+    float designScale() const noexcept;
+    juce::AffineTransform designTransform() const noexcept;
+    float fitToScreenScale() const;
+    void fitToScreen();
+    void toggleFullScreen();
+    bool isStandaloneFullScreen() const;
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
@@ -82,6 +92,16 @@ private:
     void showIRDetails(int);
     void referenceFile(bool save);
     void layoutControls();
+    void updateScaleDisplay();
+    void configureStandaloneWindow();
+    bool standaloneWindowConfigured{};
+    // F11/Esc reach the Standalone window even when no child has keyboard focus.
+    struct StandaloneKeys final : juce::KeyListener {
+        ChimeraEditor& owner;
+        explicit StandaloneKeys(ChimeraEditor& editor) : owner(editor) {}
+        bool keyPressed(const juce::KeyPress& key,juce::Component*) override {return owner.keyPressed(key);}
+    } standaloneKeys{*this};
+    juce::Component::SafePointer<juce::Component> standaloneWindow;
     void midiMenu();
     void navigateSignalPath(spectralforge::signalPath::Node);
     void openSignalPath();

@@ -65,7 +65,7 @@ configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @O
 include_directories("${CMAKE_BINARY_DIR}/generated")
 # Keep source identity in the generated header shared by product and consumers.
 # A commit must not invalidate every unchanged JUCE translation unit.
-target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
+target_sources(ChimeraAmpMatrix PRIVATE Source/KnobInteraction.h Source/StandaloneHooks.h Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
 target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
 set(CHIMERA_USE_CURL 0)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -74,6 +74,28 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_link_libraries(ChimeraAmpMatrix PRIVATE CURL::libcurl)
 endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
+# Windows Standalone ASIO (Issue #113). JUCE disables ASIO unless the Steinberg
+# ASIO SDK headers are supplied, leaving only WASAPI/DirectSound devices. The SDK
+# is not stored in this repository: point CHIMERA_ASIO_SDK_DIR at an extracted
+# SDK whose licence the publisher has accepted. Release builds also set
+# CHIMERA_REQUIRE_ASIO so a missing SDK cannot silently ship a non-ASIO package.
+set(CHIMERA_ASIO_SDK_DIR "" CACHE PATH "Extracted Steinberg ASIO SDK (the folder containing common/iasiodrv.h)")
+option(CHIMERA_REQUIRE_ASIO "Fail a Windows configuration that has no ASIO SDK" OFF)
+set(CHIMERA_ASIO 0)
+if(WIN32)
+  if(CHIMERA_ASIO_SDK_DIR AND EXISTS "${CHIMERA_ASIO_SDK_DIR}/common/iasiodrv.h")
+    set(CHIMERA_ASIO 1)
+    target_include_directories(ChimeraAmpMatrix PUBLIC "${CHIMERA_ASIO_SDK_DIR}/common")
+    message(STATUS "Chimera Standalone ASIO: enabled (${CHIMERA_ASIO_SDK_DIR})")
+  elseif(CHIMERA_REQUIRE_ASIO)
+    message(FATAL_ERROR "CHIMERA_REQUIRE_ASIO is ON but CHIMERA_ASIO_SDK_DIR does not contain common/iasiodrv.h: '${CHIMERA_ASIO_SDK_DIR}'")
+  else()
+    message(WARNING "Chimera Standalone ASIO: disabled. The Windows Standalone will offer WASAPI/DirectSound only; set CHIMERA_ASIO_SDK_DIR.")
+  endif()
+endif()
+target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_ASIO=${CHIMERA_ASIO})
+# Standalone-only device defaults; plug-in formats never link this file.
+target_sources(ChimeraAmpMatrix_Standalone PRIVATE Source/StandaloneAudioDefaults.cpp)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
 
@@ -215,6 +237,7 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   add_test(NAME ChimeraCommonDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/common-dynamics-snapshots" --common-dynamics-only)
   add_test(NAME ChimeraHeadCabLowUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/head-cab-low-snapshots" --review-fixes-only)
   add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
+  add_test(NAME ChimeraWindowScaleUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/window-scale-snapshots" --window-scale-only)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
 
