@@ -1,0 +1,128 @@
+{
+  "decision": "REJECT_PRODUCT_INTEGRATION_10MS_TARGET_NOT_MET",
+  "release_approved": false,
+  "measured_native_source_commit": "f2fa6acb63e272cfbbdce4ce06c50d24eefc59a0",
+  "released_product_commit": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+  "base_main_commit": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "native_renderer_sha256": "86dbbc48b8a80e01b8261ed34b94ad1dcac1ea31db7460f498eac0c01c3b408b",
+  "functional_regression_groups": 162,
+  "native_executables_passed": 4,
+  "matrix_render_count": 108,
+  "block_partition_groups_equal": 36,
+  "external_neural_dsp_measurement": "NOT_RECOVERED",
+  "actual_DI": "NOT_AVAILABLE",
+  "DAW_acceptance": "NOT_RUN",
+  "sanitizer": {
+    "address_undefined": "PASS_candidate_code_instrumented",
+    "JUCE_libraries": "UNINSTRUMENTED",
+    "leak_sanitizer": "BLOCKED_ptrace_runtime_failure; preserved_original_failure"
+  },
+  "timing_context": "Shared Intel Xeon Platinum 8573C Linux container. Sequential five-pass forward/reverse engine order; other task tests/builds completed before timing. Not a pinned real-time audio host.",
+  "cpu": [
+    {
+      "block": 64,
+      "engine": "baseline",
+      "mean_thread_cpu_us_median": 102.678,
+      "settled_p95_thread_cpu_us_median": 488.8401999999998,
+      "settled_p99_thread_cpu_us_median": 751.4047600000002,
+      "thread_cpu_audio_percent_median": 7.700825425000001,
+      "wall_deadline_misses_total": 179,
+      "wall_max_us": 8190.36
+    },
+    {
+      "block": 64,
+      "engine": "corr40",
+      "mean_thread_cpu_us_median": 8.69376,
+      "settled_p95_thread_cpu_us_median": 7.723,
+      "settled_p99_thread_cpu_us_median": 60.97668000000002,
+      "thread_cpu_audio_percent_median": 0.6520319583333334,
+      "wall_deadline_misses_total": 38,
+      "wall_max_us": 9481.63
+    },
+    {
+      "block": 64,
+      "engine": "corr40-onset",
+      "mean_thread_cpu_us_median": 7.66679,
+      "settled_p95_thread_cpu_us_median": 7.684,
+      "settled_p99_thread_cpu_us_median": 67.82276000000033,
+      "thread_cpu_audio_percent_median": 0.5750090916666667,
+      "wall_deadline_misses_total": 12,
+      "wall_max_us": 2903.7
+    },
+    {
+      "block": 128,
+      "engine": "baseline",
+      "mean_thread_cpu_us_median": 246.694,
+      "settled_p95_thread_cpu_us_median": 691.0859999999986,
+      "settled_p99_thread_cpu_us_median": 1615.1448000000098,
+      "thread_cpu_audio_percent_median": 9.251031500000002,
+      "wall_deadline_misses_total": 158,
+      "wall_max_us": 17021.8
+    },
+    {
+      "block": 128,
+      "engine": "corr40",
+      "mean_thread_cpu_us_median": 17.595,
+      "settled_p95_thread_cpu_us_median": 15.199,
+      "settled_p99_thread_cpu_us_median": 226.59440000000257,
+      "thread_cpu_audio_percent_median": 0.6598136833333333,
+      "wall_deadline_misses_total": 3,
+      "wall_max_us": 6879.23
+    },
+    {
+      "block": 128,
+      "engine": "corr40-onset",
+      "mean_thread_cpu_us_median": 13.2371,
+      "settled_p95_thread_cpu_us_median": 16.427199999999967,
+      "settled_p99_thread_cpu_us_median": 97.62092000000054,
+      "thread_cpu_audio_percent_median": 0.4963924166666666,
+      "wall_deadline_misses_total": 0,
+      "wall_max_us": 1500.13
+    },
+    {
+      "block": 256,
+      "engine": "baseline",
+      "mean_thread_cpu_us_median": 436.122,
+      "settled_p95_thread_cpu_us_median": 748.2777999999996,
+      "settled_p99_thread_cpu_us_median": 1146.3844000000001,
+      "thread_cpu_audio_percent_median": 8.177293791666667,
+      "wall_deadline_misses_total": 24,
+      "wall_max_us": 65293.2
+    },
+    {
+      "block": 256,
+      "engine": "corr40",
+      "mean_thread_cpu_us_median": 30.5196,
+      "settled_p95_thread_cpu_us_median": 59.57399999999993,
+      "settled_p99_thread_cpu_us_median": 457.1082800000003,
+      "thread_cpu_audio_percent_median": 0.5722430416666667,
+      "wall_deadline_misses_total": 0,
+      "wall_max_us": 4415.6
+    },
+    {
+      "block": 256,
+      "engine": "corr40-onset",
+      "mean_thread_cpu_us_median": 30.7942,
+      "settled_p95_thread_cpu_us_median": 74.02979999999982,
+      "settled_p99_thread_cpu_us_median": 404.1069200000004,
+      "thread_cpu_audio_percent_median": 0.5773918416666668,
+      "wall_deadline_misses_total": 0,
+      "wall_max_us": 4613.38
+    }
+  ],
+  "research_file_sha256": {
+    "Tools/TransposeNext/README.md": "51e362d885a880099a02c6daa57d6d0bd1159759b047ed0945433cfb04edeae0",
+    "Tools/TransposeNext/legacy_metrics.py": "8582eaeaba558584eb57af7e18935ea35380ffef142ab2d022b52d533277721a",
+    "Tools/TransposeNext/plot_results.py": "b2a7981e27fc67d52986746c6dbcec5399a1092dccd083e736583b6b326d9eba",
+    "Tools/TransposeNext/CorrelationPitch.h": "bd0f09822839eead2d88c4f6d9006093d2b718621db65ffebddd3217e5eb4439",
+    "Tools/TransposeNext/RelativePhasePitch.h": "a0e68f39e154da6138de4ecf37d140f499f98460ea87674406943fedebfa342a",
+    "Tools/TransposeNext/build.py": "08526e835868c3b76d19022ac7991b775308b89b9ab619de203f9309af05f519",
+    "Tools/TransposeNext/evaluate.py": "f6e9a16b51d690add067a35b84f6364b73a807c7c25d13b63db8730ce7f36a7f",
+    "Tools/TransposeNext/stress.py": "4021c585cc7aed78349fcccbd912851d40f46f3e6187cd4443cf0e452534e5be",
+    "Tools/TransposeNext/CorrelationTests.cpp": "12967541b5eb49df16a4f4c73b7c803df660edb960ad545c2e302eda588fae1b",
+    "Tools/TransposeNext/TransposeProbe.cpp": "177d97e48a5acf8644732d12e543f9c8d665729662b8ad9fb28cb4eb83ee900f",
+    "Tools/TransposeNext/timing.py": "a77a46f69d9266c4eb4d75090f75b69e5fdc1b470fe57e88f1012c20afa323cf",
+    "Tools/TransposeNext/collect_evidence.py": "c4be788c123b058d89a296c74f3ad3c65ac0e8e0b6871792d4aaed9c61ef0c58"
+  },
+  "production_diff_from_release": []
+}
