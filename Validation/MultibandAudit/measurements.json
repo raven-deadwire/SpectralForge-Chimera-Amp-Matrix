@@ -1,0 +1,1075 @@
+{
+  "source_sha": "9e92124823a34d3432a74bde8cb7d9d5b4fe16d0",
+  "core_sha256": "d4178f5c400f6fe0df40bfdee85c591e0b1f7200194519ad296738bcff0763a1",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "numpy_version": "2.3.5",
+  "byte_order": "little",
+  "core_matches_committed_source": true,
+  "probe_sha256": "ffa26f9187c4674381b61e2431acfb99189a4d2d25b01a4b99a3f7cff7ee5393",
+  "runner_sha256": "9b6af5b61cab21214746613eca6a01a2990c7d7787c184ca0f7ef17af437ec5b",
+  "pro_mb_binary_tested": false,
+  "impulse_cases": [
+    {
+      "rate": 44100,
+      "crossovers": [
+        120.0,
+        700.0,
+        3500.0
+      ],
+      "magnitude_error_db": 4.903642210653824e-07,
+      "energy_error": 1.7366040161448382e-08,
+      "complex_error": 5.673190738230131e-08,
+      "uniform_mix_error_db": 4.903642220297098e-07,
+      "weighted_mix_error_db": 6.778822053751626e-07,
+      "group_delay_max_ms": 5.304506991765379,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.0777287872311678
+    },
+    {
+      "rate": 44100,
+      "crossovers": [
+        40.0,
+        56.0,
+        78.4000015258789
+      ],
+      "magnitude_error_db": 3.5987842099365986e-07,
+      "energy_error": 5.275476588906258e-08,
+      "complex_error": 4.2120237492526414e-08,
+      "uniform_mix_error_db": 4.618742194786273e-07,
+      "weighted_mix_error_db": 4.474971117253367e-07,
+      "group_delay_max_ms": 29.367602112877258,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.2627920790688796
+    },
+    {
+      "rate": 44100,
+      "crossovers": [
+        1000.0,
+        1400.0,
+        1960.0
+      ],
+      "magnitude_error_db": 3.3376825639027734e-07,
+      "energy_error": 2.333410487054266e-08,
+      "complex_error": 3.865476540682358e-08,
+      "uniform_mix_error_db": 5.38780153258592e-07,
+      "weighted_mix_error_db": 1.058878334975064e-06,
+      "group_delay_max_ms": 1.1738827266072338,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.0812625181024376
+    },
+    {
+      "rate": 44100,
+      "crossovers": [
+        7000.0,
+        10000.0,
+        16000.0
+      ],
+      "magnitude_error_db": 3.053132761239542e-07,
+      "energy_error": 5.9041579292262725e-08,
+      "complex_error": 3.5898732272602906e-08,
+      "uniform_mix_error_db": 3.0531328094559175e-07,
+      "weighted_mix_error_db": 8.712029365865744e-07,
+      "group_delay_max_ms": 0.15470376843684797,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.404584710768993
+    },
+    {
+      "rate": 48000,
+      "crossovers": [
+        120.0,
+        700.0,
+        3500.0
+      ],
+      "magnitude_error_db": 2.367246092445491e-07,
+      "energy_error": 2.6096380612017356e-09,
+      "complex_error": 3.245677750405318e-08,
+      "uniform_mix_error_db": 4.5356547565116473e-07,
+      "weighted_mix_error_db": 8.735152238975027e-07,
+      "group_delay_max_ms": 5.304980561373629,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.0490068121855292
+    },
+    {
+      "rate": 48000,
+      "crossovers": [
+        40.0,
+        56.0,
+        78.4000015258789
+      ],
+      "magnitude_error_db": 2.542909447551608e-07,
+      "energy_error": 3.663951231303031e-08,
+      "complex_error": 3.140476129477138e-08,
+      "uniform_mix_error_db": 4.5939336254110996e-07,
+      "weighted_mix_error_db": 8.302461385139466e-07,
+      "group_delay_max_ms": 29.367888558056055,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.25206885404462137
+    },
+    {
+      "rate": 48000,
+      "crossovers": [
+        1000.0,
+        1400.0,
+        1960.0
+      ],
+      "magnitude_error_db": 3.897445706402876e-07,
+      "energy_error": 3.056802555523319e-08,
+      "complex_error": 4.724775089747099e-08,
+      "uniform_mix_error_db": 5.448007084475829e-07,
+      "weighted_mix_error_db": 4.28794702771894e-07,
+      "group_delay_max_ms": 1.1740293705858607,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.0524626680159967
+    },
+    {
+      "rate": 48000,
+      "crossovers": [
+        7000.0,
+        10000.0,
+        16000.0
+      ],
+      "magnitude_error_db": 3.7002870668045545e-07,
+      "energy_error": 2.4748237903438053e-08,
+      "complex_error": 4.260114223470943e-08,
+      "uniform_mix_error_db": 5.853300097292317e-07,
+      "weighted_mix_error_db": 3.7002870957343793e-07,
+      "group_delay_max_ms": 0.15500494459397274,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.405180013222877
+    },
+    {
+      "rate": 96000,
+      "crossovers": [
+        120.0,
+        700.0,
+        3500.0
+      ],
+      "magnitude_error_db": 4.964308122523709e-07,
+      "energy_error": 2.1191391308406082e-08,
+      "complex_error": 5.730638627255013e-08,
+      "uniform_mix_error_db": 4.964308218956461e-07,
+      "weighted_mix_error_db": 4.964308218956461e-07,
+      "group_delay_max_ms": 5.306754915450906,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.8118750899664824
+    },
+    {
+      "rate": 96000,
+      "crossovers": [
+        40.0,
+        56.0,
+        78.4000015258789
+      ],
+      "magnitude_error_db": 2.9308828522163164e-07,
+      "energy_error": 4.692317134846746e-08,
+      "complex_error": 3.374572170421731e-08,
+      "uniform_mix_error_db": 3.977750696990168e-07,
+      "weighted_mix_error_db": 4.5254015452583226e-07,
+      "group_delay_max_ms": 29.35959233299745,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.1789574450343581
+    },
+    {
+      "rate": 96000,
+      "crossovers": [
+        1000.0,
+        1400.0,
+        1960.0
+      ],
+      "magnitude_error_db": 2.6792661434706703e-07,
+      "energy_error": 2.9789100075561237e-09,
+      "complex_error": 4.44863298912728e-08,
+      "uniform_mix_error_db": 4.954015398753276e-07,
+      "weighted_mix_error_db": 8.669840860591141e-07,
+      "group_delay_max_ms": 1.174631868683329,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.8149384093407097
+    },
+    {
+      "rate": 96000,
+      "crossovers": [
+        7000.0,
+        10000.0,
+        16000.0
+      ],
+      "magnitude_error_db": 2.0012247949515004e-07,
+      "energy_error": 3.1186085713841294e-08,
+      "complex_error": 2.5188374947597444e-08,
+      "uniform_mix_error_db": 2.3131654360849162e-07,
+      "weighted_mix_error_db": 5.199890973784297e-07,
+      "group_delay_max_ms": 0.15865073206561275,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.378324135045489
+    },
+    {
+      "rate": 192000,
+      "crossovers": [
+        120.0,
+        700.0,
+        3500.0
+      ],
+      "magnitude_error_db": 4.176776410289152e-07,
+      "energy_error": 4.2319855841910226e-08,
+      "complex_error": 4.8297237703800806e-08,
+      "uniform_mix_error_db": 4.1767762559967495e-07,
+      "weighted_mix_error_db": 7.054194033114466e-07,
+      "group_delay_max_ms": 5.305616926012932,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.6020151743763212
+    },
+    {
+      "rate": 192000,
+      "crossovers": [
+        40.0,
+        56.0,
+        78.4000015258789
+      ],
+      "magnitude_error_db": 1.1436844175168588e-07,
+      "energy_error": 1.3475829230280567e-08,
+      "complex_error": 1.32407006731646e-08,
+      "uniform_mix_error_db": 3.37539214059852e-07,
+      "weighted_mix_error_db": 5.978821723022725e-07,
+      "group_delay_max_ms": 29.32650295825627,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.12679710165183494
+    },
+    {
+      "rate": 192000,
+      "crossovers": [
+        1000.0,
+        1400.0,
+        1960.0
+      ],
+      "magnitude_error_db": 1.8714987918055573e-07,
+      "energy_error": 1.7972818788791756e-08,
+      "complex_error": 2.1747145619489116e-08,
+      "uniform_mix_error_db": 2.080680361825671e-07,
+      "weighted_mix_error_db": 7.353649567308998e-07,
+      "group_delay_max_ms": 1.1747823758445075,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 0.6045262882537874
+    },
+    {
+      "rate": 192000,
+      "crossovers": [
+        7000.0,
+        10000.0,
+        16000.0
+      ],
+      "magnitude_error_db": 2.604882779674816e-07,
+      "energy_error": 4.624004734665732e-09,
+      "complex_error": 2.9993063142804666e-08,
+      "uniform_mix_error_db": 3.6707027717876695e-07,
+      "weighted_mix_error_db": 6.022812435717688e-07,
+      "group_delay_max_ms": 0.16009481052925434,
+      "first_nonzero_sample": 0,
+      "raw_impulse_residual_l2": 1.2510071411106694
+    }
+  ],
+  "default_48k_points": [
+    {
+      "hz": 31,
+      "magnitude_db": 1.6703302774227006e-07,
+      "phase_deg": -51.34285442943645,
+      "group_delay_ms": 4.754110249923034,
+      "external_half_dry_db": -0.9026783130964342
+    },
+    {
+      "hz": 40,
+      "magnitude_db": 1.2430648846609187e-07,
+      "phase_deg": -66.95924657805612,
+      "group_delay_ms": 4.88833424466008,
+      "external_half_dry_db": -1.5758243278533288
+    },
+    {
+      "hz": 80,
+      "magnitude_db": -1.00759533182765e-07,
+      "phase_deg": -141.20821014854295,
+      "group_delay_ms": 5.302167287619836,
+      "external_half_dry_db": -9.574791186525022
+    },
+    {
+      "hz": 120,
+      "magnitude_db": -1.4013031346357136e-07,
+      "phase_deg": 146.51008846773246,
+      "group_delay_ms": 4.538946824458283,
+      "external_half_dry_db": -10.808774214432637
+    },
+    {
+      "hz": 300,
+      "magnitude_db": 1.7413345752852768e-07,
+      "phase_deg": -18.91270135988368,
+      "group_delay_ms": 1.5423033492611786,
+      "external_half_dry_db": -0.11884131642029042
+    },
+    {
+      "hz": 700,
+      "magnitude_db": -2.0041129343856183e-07,
+      "phase_deg": 175.7633935448448,
+      "group_delay_ms": 0.8887699767989216,
+      "external_half_dry_db": -28.64466904411209
+    },
+    {
+      "hz": 1000,
+      "magnitude_db": -1.1356063040831999e-07,
+      "phase_deg": 98.20491250767516,
+      "group_delay_ms": 0.5703917137745542,
+      "external_half_dry_db": -3.679041665221286
+    },
+    {
+      "hz": 3500,
+      "magnitude_db": -1.8497877025224507e-08,
+      "phase_deg": -142.2734822468909,
+      "group_delay_ms": 0.1648901304722247,
+      "external_half_dry_db": -9.807599230361664
+    },
+    {
+      "hz": 10000,
+      "magnitude_db": -4.4465917808855385e-08,
+      "phase_deg": 62.0238160841658,
+      "group_delay_ms": 0.024360201832643355,
+      "external_half_dry_db": -1.33977306433548
+    }
+  ],
+  "transitions": [
+    {
+      "rate": 44100,
+      "hz": 40,
+      "mode": "on",
+      "transition_samples": 441,
+      "min_envelope_db": -3.682992530664957,
+      "max_envelope_db": 0.008769575264305794,
+      "time_below_minus3_ms": 2.5396825396825395,
+      "post_transition_max_abs_db": 0.01998808698045272
+    },
+    {
+      "rate": 44100,
+      "hz": 40,
+      "mode": "off",
+      "transition_samples": 441,
+      "min_envelope_db": -1.5754425651875412,
+      "max_envelope_db": -8.127479988823512e-08,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 3.4375106372079056e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 40,
+      "mode": "band_off",
+      "transition_samples": 441,
+      "min_envelope_db": -5.980419371167297,
+      "max_envelope_db": -9.40350047784119e-08,
+      "time_below_minus3_ms": 4.126984126984127,
+      "post_transition_max_abs_db": 5.173808527987339e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 80,
+      "mode": "on",
+      "transition_samples": 441,
+      "min_envelope_db": -9.018852218131322,
+      "max_envelope_db": -0.011446030004482164,
+      "time_below_minus3_ms": 5.873015873015873,
+      "post_transition_max_abs_db": 0.2634605597604426
+    },
+    {
+      "rate": 44100,
+      "hz": 80,
+      "mode": "off",
+      "transition_samples": 441,
+      "min_envelope_db": -9.571442150812212,
+      "max_envelope_db": 2.3373958216766437e-07,
+      "time_below_minus3_ms": 6.621315192743764,
+      "post_transition_max_abs_db": 3.4375106372079056e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 80,
+      "mode": "band_off",
+      "transition_samples": 441,
+      "min_envelope_db": -5.980419493781143,
+      "max_envelope_db": -2.8104204786746226e-07,
+      "time_below_minus3_ms": 4.126984126984127,
+      "post_transition_max_abs_db": 6.749983804537119e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 120,
+      "mode": "on",
+      "transition_samples": 441,
+      "min_envelope_db": -17.053952521858943,
+      "max_envelope_db": -0.007058166437922318,
+      "time_below_minus3_ms": 5.510204081632653,
+      "post_transition_max_abs_db": 0.06324047294787272
+    },
+    {
+      "rate": 44100,
+      "hz": 120,
+      "mode": "off",
+      "transition_samples": 441,
+      "min_envelope_db": -10.813989637507932,
+      "max_envelope_db": 2.0326360470607497e-08,
+      "time_below_minus3_ms": 6.757369614512472,
+      "post_transition_max_abs_db": 3.1574568838791307e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 120,
+      "mode": "band_off",
+      "transition_samples": 441,
+      "min_envelope_db": -5.980419445638091,
+      "max_envelope_db": 1.4647305350418477e-07,
+      "time_below_minus3_ms": 4.126984126984127,
+      "post_transition_max_abs_db": 6.736005774566588e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 700,
+      "mode": "on",
+      "transition_samples": 441,
+      "min_envelope_db": -50.14633343346303,
+      "max_envelope_db": -0.006215336988708235,
+      "time_below_minus3_ms": 7.029478458049887,
+      "post_transition_max_abs_db": 0.033528925977948036
+    },
+    {
+      "rate": 44100,
+      "hz": 700,
+      "mode": "off",
+      "transition_samples": 441,
+      "min_envelope_db": -28.838414887534526,
+      "max_envelope_db": -1.2716568650901216e-07,
+      "time_below_minus3_ms": 7.074829931972789,
+      "post_transition_max_abs_db": 2.556391651606086e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 700,
+      "mode": "band_off",
+      "transition_samples": 441,
+      "min_envelope_db": -5.980419595293621,
+      "max_envelope_db": 1.3740470716508985e-07,
+      "time_below_minus3_ms": 4.126984126984127,
+      "post_transition_max_abs_db": 4.78089769544127e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 3500,
+      "mode": "on",
+      "transition_samples": 441,
+      "min_envelope_db": -10.008036530794103,
+      "max_envelope_db": 0.0028823649215259043,
+      "time_below_minus3_ms": 6.6439909297052155,
+      "post_transition_max_abs_db": 0.007237753810128561
+    },
+    {
+      "rate": 44100,
+      "hz": 3500,
+      "mode": "off",
+      "transition_samples": 441,
+      "min_envelope_db": -9.834814277621522,
+      "max_envelope_db": 3.429585497500547e-08,
+      "time_below_minus3_ms": 6.666666666666667,
+      "post_transition_max_abs_db": 2.556391651606086e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 3500,
+      "mode": "band_off",
+      "transition_samples": 441,
+      "min_envelope_db": -5.98041970045263,
+      "max_envelope_db": 6.533816925758456e-08,
+      "time_below_minus3_ms": 4.126984126984127,
+      "post_transition_max_abs_db": 4.5471529017809243e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 10000,
+      "mode": "on",
+      "transition_samples": 441,
+      "min_envelope_db": -1.2793764855457914,
+      "max_envelope_db": -0.0009155017828825212,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 0.0027457593934634024
+    },
+    {
+      "rate": 44100,
+      "hz": 10000,
+      "mode": "off",
+      "transition_samples": 441,
+      "min_envelope_db": -1.2522343462783496,
+      "max_envelope_db": 1.624173766298586e-07,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 3.4338432611344425e-07
+    },
+    {
+      "rate": 44100,
+      "hz": 10000,
+      "mode": "band_off",
+      "transition_samples": 441,
+      "min_envelope_db": -5.9804194797598464,
+      "max_envelope_db": 8.890440367597117e-08,
+      "time_below_minus3_ms": 4.126984126984127,
+      "post_transition_max_abs_db": 5.436006230911447e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 40,
+      "mode": "on",
+      "transition_samples": 480,
+      "min_envelope_db": -3.682509168970292,
+      "max_envelope_db": 0.008750886519302165,
+      "time_below_minus3_ms": 2.5416666666666665,
+      "post_transition_max_abs_db": 0.01998723352835994
+    },
+    {
+      "rate": 48000,
+      "hz": 40,
+      "mode": "off",
+      "transition_samples": 480,
+      "min_envelope_db": -1.5758246093116095,
+      "max_envelope_db": 6.098440821400961e-08,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 3.204980253715986e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 40,
+      "mode": "band_off",
+      "transition_samples": 480,
+      "min_envelope_db": -5.982008814291312,
+      "max_envelope_db": -1.006840735933047e-07,
+      "time_below_minus3_ms": 4.125,
+      "post_transition_max_abs_db": 4.769184009061091e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 80,
+      "mode": "on",
+      "transition_samples": 480,
+      "min_envelope_db": -9.021478932095937,
+      "max_envelope_db": -0.009961971716823169,
+      "time_below_minus3_ms": 5.854166666666666,
+      "post_transition_max_abs_db": 0.2636574777592392
+    },
+    {
+      "rate": 48000,
+      "hz": 80,
+      "mode": "off",
+      "transition_samples": 480,
+      "min_envelope_db": -9.574791011122874,
+      "max_envelope_db": -4.757538113362927e-08,
+      "time_below_minus3_ms": 6.645833333333333,
+      "post_transition_max_abs_db": 3.204980253715986e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 80,
+      "mode": "band_off",
+      "transition_samples": 480,
+      "min_envelope_db": -5.982008697696105,
+      "max_envelope_db": 7.857617920232387e-09,
+      "time_below_minus3_ms": 4.125,
+      "post_transition_max_abs_db": 4.742074515609003e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 120,
+      "mode": "on",
+      "transition_samples": 480,
+      "min_envelope_db": -17.0420298465258,
+      "max_envelope_db": -0.007002889644732612,
+      "time_below_minus3_ms": 5.520833333333333,
+      "post_transition_max_abs_db": 0.06324567042688067
+    },
+    {
+      "rate": 48000,
+      "hz": 120,
+      "mode": "off",
+      "transition_samples": 480,
+      "min_envelope_db": -10.808774392960048,
+      "max_envelope_db": -2.0400410957954452e-07,
+      "time_below_minus3_ms": 6.770833333333334,
+      "post_transition_max_abs_db": 2.6003112511505676e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 120,
+      "mode": "band_off",
+      "transition_samples": 480,
+      "min_envelope_db": -5.9820086127667995,
+      "max_envelope_db": 2.0556023516258424e-07,
+      "time_below_minus3_ms": 4.125,
+      "post_transition_max_abs_db": 5.139672336141872e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 700,
+      "mode": "on",
+      "transition_samples": 480,
+      "min_envelope_db": -59.38465755019802,
+      "max_envelope_db": -0.00613218695580003,
+      "time_below_minus3_ms": 7.041666666666667,
+      "post_transition_max_abs_db": 0.033499823503252944
+    },
+    {
+      "rate": 48000,
+      "hz": 700,
+      "mode": "off",
+      "transition_samples": 480,
+      "min_envelope_db": -28.644669534749845,
+      "max_envelope_db": -1.8971144253640827e-07,
+      "time_below_minus3_ms": 7.0625,
+      "post_transition_max_abs_db": 2.780965442418583e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 700,
+      "mode": "band_off",
+      "transition_samples": 480,
+      "min_envelope_db": -5.982008932885357,
+      "max_envelope_db": 3.037438022443767e-07,
+      "time_below_minus3_ms": 4.125,
+      "post_transition_max_abs_db": 6.195670798155933e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 3500,
+      "mode": "on",
+      "transition_samples": 480,
+      "min_envelope_db": -9.979607030151296,
+      "max_envelope_db": 0.003029031001266616,
+      "time_below_minus3_ms": 6.625,
+      "post_transition_max_abs_db": 0.007143058426093212
+    },
+    {
+      "rate": 48000,
+      "hz": 3500,
+      "mode": "off",
+      "transition_samples": 480,
+      "min_envelope_db": -9.807598907263655,
+      "max_envelope_db": 1.6017489679364436e-07,
+      "time_below_minus3_ms": 6.645833333333333,
+      "post_transition_max_abs_db": 2.5051968916390324e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 3500,
+      "mode": "band_off",
+      "transition_samples": 480,
+      "min_envelope_db": -5.982008719835104,
+      "max_envelope_db": 5.720820217073568e-08,
+      "time_below_minus3_ms": 4.125,
+      "post_transition_max_abs_db": 3.6523034125934896e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 10000,
+      "mode": "on",
+      "transition_samples": 480,
+      "min_envelope_db": -1.3671853627267805,
+      "max_envelope_db": -0.0011392911636146966,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 0.0027135516637633024
+    },
+    {
+      "rate": 48000,
+      "hz": 10000,
+      "mode": "off",
+      "transition_samples": 480,
+      "min_envelope_db": -1.3397731860127546,
+      "max_envelope_db": -1.1712908277960687e-07,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 1.4865267041722262e-07
+    },
+    {
+      "rate": 48000,
+      "hz": 10000,
+      "mode": "band_off",
+      "transition_samples": 480,
+      "min_envelope_db": -5.982008701968663,
+      "max_envelope_db": -2.606802139522499e-07,
+      "time_below_minus3_ms": 4.125,
+      "post_transition_max_abs_db": 2.606802139522499e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 40,
+      "mode": "on",
+      "transition_samples": 960,
+      "min_envelope_db": -3.6783969191368016,
+      "max_envelope_db": 0.008615848711369927,
+      "time_below_minus3_ms": 2.5416666666666665,
+      "post_transition_max_abs_db": 0.019983864920802744
+    },
+    {
+      "rate": 96000,
+      "hz": 40,
+      "mode": "off",
+      "transition_samples": 960,
+      "min_envelope_db": -1.5773326469865072,
+      "max_envelope_db": -2.669094185601704e-07,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 3.308363634895096e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 40,
+      "mode": "band_off",
+      "transition_samples": 960,
+      "min_envelope_db": -5.990999646008585,
+      "max_envelope_db": -1.7982196425069272e-07,
+      "time_below_minus3_ms": 4.135416666666667,
+      "post_transition_max_abs_db": 5.224996074046347e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 80,
+      "mode": "on",
+      "transition_samples": 960,
+      "min_envelope_db": -9.032189280745405,
+      "max_envelope_db": -0.002982575572997483,
+      "time_below_minus3_ms": 5.854166666666666,
+      "post_transition_max_abs_db": 0.2646610426977318
+    },
+    {
+      "rate": 96000,
+      "hz": 80,
+      "mode": "off",
+      "transition_samples": 960,
+      "min_envelope_db": -9.58764231235184,
+      "max_envelope_db": -1.9382511509311698e-07,
+      "time_below_minus3_ms": 6.635416666666667,
+      "post_transition_max_abs_db": 3.204980253715986e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 80,
+      "mode": "band_off",
+      "transition_samples": 960,
+      "min_envelope_db": -5.990999762902312,
+      "max_envelope_db": -1.3476262079629284e-07,
+      "time_below_minus3_ms": 4.135416666666667,
+      "post_transition_max_abs_db": 4.917114425433125e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 120,
+      "mode": "on",
+      "transition_samples": 960,
+      "min_envelope_db": -16.991944839558386,
+      "max_envelope_db": -0.002982575572997483,
+      "time_below_minus3_ms": 5.520833333333333,
+      "post_transition_max_abs_db": 0.06325428227180785
+    },
+    {
+      "rate": 96000,
+      "hz": 120,
+      "mode": "off",
+      "transition_samples": 960,
+      "min_envelope_db": -10.786692764710192,
+      "max_envelope_db": -1.6795884319977226e-07,
+      "time_below_minus3_ms": 6.760416666666666,
+      "post_transition_max_abs_db": 3.222117664916032e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 120,
+      "mode": "band_off",
+      "transition_samples": 960,
+      "min_envelope_db": -5.9909995706263555,
+      "max_envelope_db": 1.4529364245930018e-07,
+      "time_below_minus3_ms": 4.135416666666667,
+      "post_transition_max_abs_db": 6.416926723768869e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 700,
+      "mode": "on",
+      "transition_samples": 960,
+      "min_envelope_db": -46.536478473083335,
+      "max_envelope_db": -0.002982575572997483,
+      "time_below_minus3_ms": 7.041666666666667,
+      "post_transition_max_abs_db": 0.03351498373898444
+    },
+    {
+      "rate": 96000,
+      "hz": 700,
+      "mode": "off",
+      "transition_samples": 960,
+      "min_envelope_db": -27.84032721276216,
+      "max_envelope_db": -1.8294185393271072e-07,
+      "time_below_minus3_ms": 7.072916666666667,
+      "post_transition_max_abs_db": 3.2453591920644e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 700,
+      "mode": "band_off",
+      "transition_samples": 960,
+      "min_envelope_db": -5.990999507889415,
+      "max_envelope_db": -1.5945552205171754e-07,
+      "time_below_minus3_ms": 4.135416666666667,
+      "post_transition_max_abs_db": 5.802354587026628e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 3500,
+      "mode": "on",
+      "transition_samples": 960,
+      "min_envelope_db": -9.863269430948263,
+      "max_envelope_db": 0.003807934164703358,
+      "time_below_minus3_ms": 6.614583333333333,
+      "post_transition_max_abs_db": 0.007245099523023556
+    },
+    {
+      "rate": 96000,
+      "hz": 3500,
+      "mode": "off",
+      "transition_samples": 960,
+      "min_envelope_db": -9.69766556348983,
+      "max_envelope_db": -2.227976643129622e-07,
+      "time_below_minus3_ms": 6.635416666666667,
+      "post_transition_max_abs_db": 2.952398647723761e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 3500,
+      "mode": "band_off",
+      "transition_samples": 960,
+      "min_envelope_db": -5.990999766070486,
+      "max_envelope_db": 3.571233872346934e-07,
+      "time_below_minus3_ms": 4.135416666666667,
+      "post_transition_max_abs_db": 4.601275176165142e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 10000,
+      "mode": "on",
+      "transition_samples": 960,
+      "min_envelope_db": -1.7438401572803028,
+      "max_envelope_db": -0.002024296877675939,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 0.00260670513228525
+    },
+    {
+      "rate": 96000,
+      "hz": 10000,
+      "mode": "off",
+      "transition_samples": 960,
+      "min_envelope_db": -1.7166927390128066,
+      "max_envelope_db": -1.414455799673991e-07,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 2.478456475955362e-07
+    },
+    {
+      "rate": 96000,
+      "hz": 10000,
+      "mode": "band_off",
+      "transition_samples": 960,
+      "min_envelope_db": -5.990999503620813,
+      "max_envelope_db": -1.461595830037032e-07,
+      "time_below_minus3_ms": 4.135416666666667,
+      "post_transition_max_abs_db": 3.0011435898929476e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 40,
+      "mode": "on",
+      "transition_samples": 1920,
+      "min_envelope_db": -3.6756443567527093,
+      "max_envelope_db": 0.008528937446736285,
+      "time_below_minus3_ms": 2.5364583333333335,
+      "post_transition_max_abs_db": 0.019983374188938318
+    },
+    {
+      "rate": 192000,
+      "hz": 40,
+      "mode": "off",
+      "transition_samples": 1920,
+      "min_envelope_db": -1.5777087224955078,
+      "max_envelope_db": 1.9771511510488392e-07,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 3.308363634895096e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 40,
+      "mode": "band_off",
+      "transition_samples": 1920,
+      "min_envelope_db": -5.9954986579454195,
+      "max_envelope_db": 3.8457751516629084e-07,
+      "time_below_minus3_ms": 4.140625,
+      "post_transition_max_abs_db": 6.100732468503944e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 80,
+      "mode": "on",
+      "transition_samples": 1920,
+      "min_envelope_db": -9.035008583105473,
+      "max_envelope_db": -0.0008195884234604791,
+      "time_below_minus3_ms": 5.854166666666666,
+      "post_transition_max_abs_db": 0.2650916071345718
+    },
+    {
+      "rate": 192000,
+      "hz": 80,
+      "mode": "off",
+      "transition_samples": 1920,
+      "min_envelope_db": -9.590850382436468,
+      "max_envelope_db": 8.754335961812193e-08,
+      "time_below_minus3_ms": 6.630208333333333,
+      "post_transition_max_abs_db": 3.308363634895096e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 80,
+      "mode": "band_off",
+      "transition_samples": 1920,
+      "min_envelope_db": -5.995498508931561,
+      "max_envelope_db": -5.496382678737985e-08,
+      "time_below_minus3_ms": 4.140625,
+      "post_transition_max_abs_db": 5.286243240706434e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 120,
+      "mode": "on",
+      "transition_samples": 1920,
+      "min_envelope_db": -16.975018786859245,
+      "max_envelope_db": -0.0008195884234604791,
+      "time_below_minus3_ms": 5.515625,
+      "post_transition_max_abs_db": 0.06325684707382861
+    },
+    {
+      "rate": 192000,
+      "hz": 120,
+      "mode": "off",
+      "transition_samples": 1920,
+      "min_envelope_db": -10.781197918022752,
+      "max_envelope_db": -1.9244822901920686e-07,
+      "time_below_minus3_ms": 6.755208333333334,
+      "post_transition_max_abs_db": 3.2453591920644e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 120,
+      "mode": "band_off",
+      "transition_samples": 1920,
+      "min_envelope_db": -5.995498841573665,
+      "max_envelope_db": 1.0446634985623603e-07,
+      "time_below_minus3_ms": 4.140625,
+      "post_transition_max_abs_db": 5.609724921130758e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 700,
+      "mode": "on",
+      "transition_samples": 1920,
+      "min_envelope_db": -45.16865131886506,
+      "max_envelope_db": -0.0008195884234604791,
+      "time_below_minus3_ms": 7.036458333333333,
+      "post_transition_max_abs_db": 0.03351934945338644
+    },
+    {
+      "rate": 192000,
+      "hz": 700,
+      "mode": "off",
+      "transition_samples": 1920,
+      "min_envelope_db": -27.651063750645154,
+      "max_envelope_db": -1.3522515179386648e-07,
+      "time_below_minus3_ms": 7.078125,
+      "post_transition_max_abs_db": 3.598034923068498e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 700,
+      "mode": "band_off",
+      "transition_samples": 1920,
+      "min_envelope_db": -5.995498816692121,
+      "max_envelope_db": 2.454757113375926e-07,
+      "time_below_minus3_ms": 4.140625,
+      "post_transition_max_abs_db": 6.321459543108786e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 3500,
+      "mode": "on",
+      "transition_samples": 1920,
+      "min_envelope_db": -9.834937386246438,
+      "max_envelope_db": 0.004165533689805941,
+      "time_below_minus3_ms": 6.619791666666667,
+      "post_transition_max_abs_db": 0.007264855264811139
+    },
+    {
+      "rate": 192000,
+      "hz": 3500,
+      "mode": "off",
+      "transition_samples": 1920,
+      "min_envelope_db": -9.670518091085059,
+      "max_envelope_db": 1.536029003741232e-08,
+      "time_below_minus3_ms": 6.640625,
+      "post_transition_max_abs_db": 2.952398647723761e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 3500,
+      "mode": "band_off",
+      "transition_samples": 1920,
+      "min_envelope_db": -5.995499080924999,
+      "max_envelope_db": -2.5419677404807064e-07,
+      "time_below_minus3_ms": 4.140625,
+      "post_transition_max_abs_db": 5.124601979896526e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 10000,
+      "mode": "on",
+      "transition_samples": 1920,
+      "min_envelope_db": -1.8433059092754704,
+      "max_envelope_db": -0.0008195884234604791,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 0.0025456606159689065
+    },
+    {
+      "rate": 192000,
+      "hz": 10000,
+      "mode": "off",
+      "transition_samples": 1920,
+      "min_envelope_db": -1.816080557871564,
+      "max_envelope_db": -1.300332309568874e-07,
+      "time_below_minus3_ms": 0.0,
+      "post_transition_max_abs_db": 2.5051968916390324e-07
+    },
+    {
+      "rate": 192000,
+      "hz": 10000,
+      "mode": "band_off",
+      "transition_samples": 1920,
+      "min_envelope_db": -5.995498682246235,
+      "max_envelope_db": -3.421796727654457e-07,
+      "time_below_minus3_ms": 4.140625,
+      "post_transition_max_abs_db": 3.906317124119428e-07
+    }
+  ],
+  "timing": [
+    {
+      "detector": "peak",
+      "steady_gr_db": 13.487250804901123,
+      "attack63_ms": 9.979166666666666,
+      "attack90_ms": 23.041666666666668,
+      "release63_ms": 152.35416666666666,
+      "release90_ms": 308.6666666666667
+    },
+    {
+      "detector": "rms",
+      "steady_gr_db": 11.239413022994995,
+      "attack63_ms": 12.791666666666666,
+      "attack90_ms": 26.291666666666668,
+      "release63_ms": 128.75,
+      "release90_ms": 285.0625
+    }
+  ]
+}

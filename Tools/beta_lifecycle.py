@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import re
@@ -109,13 +109,22 @@ def validate_metadata(metadata: dict, root: Path, source_sha: str, *,
             raise ValueError("Qualification-only beta may not be published; owner expiry approval required")
 
 
+def expiry_kst(metadata: dict) -> str:
+    expiry = metadata["expires_at_utc"]
+    if not expiry:
+        return ""
+    return parse_utc(expiry).astimezone(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
+
+
 def notice(metadata: dict) -> str:
     expiry = metadata["expires_at_utc"] or "NOT SET / DEVELOPMENT ONLY"
     return (f"SpectralForge Chimera {metadata['version']}\n"
             f"Build: {metadata['build_id']} / {metadata['source_sha']}\n"
-            f"Beta expiry (UTC): {expiry}\nMode: {metadata['mode']}\n\n"
+            f"Beta expiry (UTC): {expiry}\n"
+            f"Beta expiry (KST / UTC+09:00): {expiry_kst(metadata) or 'NOT SET / DEVELOPMENT ONLY'}\n"
+            f"Mode: {metadata['mode']}\n\n"
             "EN: An instance opened before expiry keeps processing until it is destroyed. "
-            "New instances opened after expiry have muted output. Projects, presets, automation, "
+            "New instances opened at or after expiry have muted output. Projects, presets, automation, "
             "A/B snapshots and embedded IRs can still be restored and saved. "
             "Use SETTINGS > Beta / Updates; offline use does not require GitHub. "
             "After correcting a mistaken system clock, use RECHECK CLOCK.\n\n"
@@ -136,6 +145,7 @@ def write_header(path: Path, metadata: dict[str, object]) -> None:
         f'#define CHIMERA_BETA_PACKAGE_VERSION "{metadata["version"]}"\n'
         f'#define CHIMERA_BETA_SOURCE_SHA "{metadata["source_sha"]}"\n'
         f'#define CHIMERA_BETA_EXPIRY_UTC "{metadata["expires_at_utc"]}"\n'
+        f'#define CHIMERA_BETA_EXPIRY_KST "{expiry_kst(metadata)}"\n'
         f'#define CHIMERA_BETA_EXPIRY_UNIX {metadata["expires_at_unix"]}LL\n'
         f'#define CHIMERA_BETA_WARNING_LEAD_SECONDS {metadata["warning_lead_seconds"]}LL\n'
         f'#define CHIMERA_BETA_CONFIGURED {int(bool(metadata["expires_at_unix"]))}\n'

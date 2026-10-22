@@ -1,4 +1,5 @@
 #pragma once
+#include "KnobInteraction.h"
 #include "PluginProcessor.h"
 #include "OriginalCabControls.h"
 #include "HardwareArtwork.h"
@@ -227,7 +228,7 @@ public:
             for(int i=0;i<4;++i) {
                 const bool rotary=internal && i<2;
                 auto& control=s.sliders[size_t(i)];
-                control.setSliderStyle(rotary ? juce::Slider::RotaryHorizontalVerticalDrag : juce::Slider::LinearHorizontal);
+                if(rotary)spectralforge::ui::configureRotaryKnob(control);else control.setSliderStyle(juce::Slider::LinearHorizontal);
                 control.setTextBoxStyle(rotary ? juce::Slider::TextBoxBelow : juce::Slider::TextBoxRight,false,rotary ? 72 : internal ? 54 : 80,21);
                 s.labels[size_t(i)].setJustificationType(rotary ? juce::Justification::centred : juce::Justification::centredLeft);
                 s.labels[size_t(i)].setFont(juce::FontOptions(internal ? 10.f : 12.f));

@@ -1,4 +1,5 @@
 #pragma once
+#include "KnobInteraction.h"
 #include "OriginalAmpState.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 
@@ -23,7 +24,7 @@ public:
         for(std::size_t i=0;i<presets.size();++i)preset.addItem(juce::String::fromUTF8(presets[i].name),int(i)+1);
         preset.onChange=[this]{selectPreset(preset.getSelectedId()-1);};addAndMakeVisible(preset);
         for(std::size_t i=0;i<controlCount;++i) {
-            auto& slider=sliders[i];slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+            auto& slider=sliders[i];spectralforge::ui::configureRotaryKnob(slider);
             slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,76,22);
             slider.setComponentID(parameterID(context,i));addAndMakeVisible(slider);
             labels[i].setText(controls[i].label,juce::dontSendNotification);labels[i].setJustificationType(juce::Justification::centred);addAndMakeVisible(labels[i]);

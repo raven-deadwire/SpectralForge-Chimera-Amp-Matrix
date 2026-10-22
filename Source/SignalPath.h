@@ -93,15 +93,17 @@ inline Snapshot read(ChimeraProcessor& p) {
     };
     addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,16,510,"12-band Tone EQ after rig sum and optional post-rig gate, before the POST rack.");edge(previous,"tone.eq");previous="tone.eq";
     add("common.comp","CLEAN COMP",Target::dynamics,138,510,on("cleanCompOn"),{},-1,-1,"Stereo-linked clean compression after Tone EQ, before POST. No added lookahead latency.");edge(previous,"common.comp");previous="common.comp";
+    add("common.multiband","MULTIBAND",Target::dynamics,260,510,on("mbOn"),{},-1,-1,"Independent four-band dynamics after Clean Comp. Open its spectrum editor to adjust crossovers and each band's compression or expansion.");edge(previous,"common.multiband");previous="common.multiband";
+    add("common.deesser","DE-ESSER",Target::dynamics,382,510,on("deEsserOn"),{},-1,-1,"Split-band high-frequency attenuation after multiband dynamics, before the POST rack. Open its spectrum and detector controls.");edge(previous,"common.deesser");previous="common.deesser";
     for(int position=0;position<6;++position){
         const std::array<int,6> families{7,8,9,10,1,2};const int family=families[size_t(position)];juce::String label=effectFamilyMenuName(family,int(v(modelFamilies[size_t(family)].parameter)));bool active=on(enable[size_t(family)]);
         if(position<3&&on(postNativeModeID(position))){const int model=juce::jlimit(0,2,int(v(postNativeModelID(position))));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
-        const auto id="post.section"+juce::String(position);add(id,label,Target::post,260+position*122,510,active,{},-1,position);edge(previous,id);previous=id;
+        const auto id="post.section"+juce::String(position);add(id,label,Target::post,position<5?504+position*122:992,position<5?510:580,active,{},-1,position);edge(previous,id);previous=id;
     }
-    add("utilities","DOUBLER / CLICK",Target::utilities,992,510,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
-    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,992,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
-    add("output","OUTPUT TRIM",Target::output,870,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
-    add("output.limiter","LIVE LIMITER",Target::dynamics,748,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Sample peak ceiling; no lookahead, additional latency or true-peak claim.");edge("output","output.limiter");
+    add("utilities","DOUBLER / CLICK",Target::utilities,870,580,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
+    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,748,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
+    add("output","OUTPUT TRIM",Target::output,626,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
+    add("output.limiter","LIVE LIMITER",Target::dynamics,504,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Sample peak ceiling; no lookahead, additional latency or true-peak claim.");edge("output","output.limiter");
     return s;
 }
 } // namespace spectralforge::signalPath

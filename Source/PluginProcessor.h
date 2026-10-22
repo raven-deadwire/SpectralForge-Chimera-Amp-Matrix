@@ -2,6 +2,9 @@
 #pragma once
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "DynamicsAnalysis.h"
+#include "MultibandDynamics.h"
+#include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
 #include "IRLibrary.h"
@@ -16,6 +19,9 @@
 #include "BetaLifecycleRuntime.h"
 #include "EQEditState.h"
 #include "EQCaptureBoundary.h"
+
+#include "AAXIdentity.h"
+#include "HostBypass.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -34,7 +40,12 @@ public:
     // Diagnostic/test query. Host audio processing must already be stopped.
     bool backgroundResourcesReleased() const noexcept { return tuner.stopped() && library.resourcesReleased(); }
     bool isBusesLayoutSupported(const BusesLayout&) const override;
+    juce::AAXClientExtensions& getAAXClientExtensions() override {
+        static spectralforge::AAXIdentity identity;
+        return identity;
+    }
     void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
+    void processBlockBypassed(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "SpectralForge Chimera"; }
@@ -102,6 +113,10 @@ public:
     float outputMeter() const { return outputPeak.load(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
+    spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
+    spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
+    spectralforge::DeEsser& deEsser() noexcept {return deesser;}
+    float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
     spectralforge::EQEditState& eqEditing() noexcept {return eqEditState;}
     spectralforge::EQCaptureBoundary& eqCaptureBoundary() noexcept {return eqCaptureBoundaryState;}
     float cpuLoad() const { return cpuAverage.load(); }
@@ -190,8 +205,12 @@ private:
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
+    spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;
+    spectralforge::MultibandDynamics multiband;
+    spectralforge::DeEsser deesser;
+    spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;

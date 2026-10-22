@@ -221,19 +221,28 @@ class PedalBoardDSP {
     juce::AudioBuffer<float> clean;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> cleanAlignment{1024};
     int slotDelay{},reportedLatency{};float gr{};
+    DynamicsAnalysis* analysis{};std::array<std::atomic<float>,pedalBoardCapacity> ownerReduction{};
 public:
     void prepare(const juce::dsp::ProcessSpec& spec) {for(auto& instance:instances)instance.prepare(spec);slotDelay=instances[0].latency();reportedLatency=pedalBoardCapacity*slotDelay;clean.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);cleanAlignment.setMaximumDelayInSamples(pedalBoardCapacity*instances[0].maximumLatency());cleanAlignment.prepare(spec);reset();}
-    void reset(){for(auto& instance:instances)instance.reset();cleanAlignment.reset();gr=0;}
+    void reset(){for(auto& instance:instances)instance.reset();cleanAlignment.reset();gr=0;for(auto& meter:ownerReduction)meter.store(0,std::memory_order_relaxed);}
     int latency()const{return reportedLatency;}
     int maximumLatency()const{return pedalBoardCapacity*instances[0].maximumLatency();}
     int latency(const PedalBoardState& state)const {int total=0;for(size_t owner=0;owner<instances.size();++owner)total+=instances[owner].latency(state.instances[owner].model);return total;}
+    void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
     float compressorReduction()const{return gr;}
+    float compressorReduction(int owner)const noexcept {return owner>=0 && owner<pedalBoardCapacity?ownerReduction[size_t(owner)].load():0.f;}
     const juce::AudioBuffer<float>& cleanOutput()const{return clean;}
     void process(juce::AudioBuffer<float>& b,PedalBoardState state) {
         sanitisePedalBoard(state);reportedLatency=latency(state);gr=0;
         if(state.lowTap==0)clean.makeCopyOf(b,true);
         for(int position=0;position<pedalBoardCapacity;++position) {
-            const auto owner=(size_t)state.order[(size_t)position];instances[owner].process(b,state.instances[owner]);gr=juce::jmax(gr,instances[owner].reduction());
+            const auto owner=(size_t)state.order[(size_t)position];
+            {
+                const int model=state.instances[owner].model;
+                DynamicsAnalysis::Scope capture(analysis && analysis->preOwner.load(std::memory_order_relaxed)==int(owner) && model>=6 && model<=10?analysis:nullptr,DynamicsStage::preCompressor,b);
+                instances[owner].process(b,state.instances[owner]);
+            }
+            ownerReduction[owner].store(instances[owner].reduction(),std::memory_order_relaxed);gr=juce::jmax(gr,instances[owner].reduction());
             if(position+1==state.lowTap)clean.makeCopyOf(b,true);
         }
         int remainder=0;for(int position=state.lowTap;position<pedalBoardCapacity;++position) {const auto owner=(size_t)state.order[(size_t)position];remainder+=instances[owner].latency(state.instances[owner].model);}

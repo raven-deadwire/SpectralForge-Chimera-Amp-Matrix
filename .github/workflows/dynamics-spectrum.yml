@@ -1,0 +1,50 @@
+name: Dynamics spectrum workspaces
+
+on:
+  pull_request:
+    paths:
+      - 'Source/**'
+      - 'Tests/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/dynamics-spectrum.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dynamics-spectrum-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-spectra:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
+      - run: cmake -S . -B build-dynamics -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
+      - run: cmake --build build-dynamics --config Release --target ChimeraUITests --parallel 2
+      - if: runner.os != 'Linux'
+        run: ctest --test-dir build-dynamics -C Release -R '^Chimera(Common|Native)Dynamics(Queue)?UITests$' --output-on-failure --no-tests=error --output-junit dynamics-results.xml
+      - if: runner.os == 'Linux'
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-dynamics -C Release -R '^Chimera(Common|Native)Dynamics(Queue)?UITests$' --output-on-failure --no-tests=error --output-junit dynamics-results.xml
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: Dynamics-spectra-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            build-dynamics/dynamics-results.xml
+            build-dynamics/chimera-build-version.json
+            build-dynamics/Testing/Temporary/LastTest.log
+            build-dynamics/common-dynamics-snapshots/
+            build-dynamics/native-dynamics-snapshots/
+            build-dynamics/native-dynamics-queue-snapshots/
+          if-no-files-found: error

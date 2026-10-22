@@ -1,0 +1,6 @@
+{
+  "purpose": "Steinberg ASIO SDK for the Windows Standalone (Issue #113). Downloaded at build time; never committed or redistributed.",
+  "license": "Steinberg ASIO SDK proprietary licence, accepted by the owner on 2026-10-22.",
+  "url": "https://www.steinberg.net/asiosdk",
+  "sha256": "d5ebf0c20dd2c5f43771fd0c1418f4b361bf52434ee670097cfa6b3a335e2eca"
+}

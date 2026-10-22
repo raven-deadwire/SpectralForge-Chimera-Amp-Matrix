@@ -72,13 +72,13 @@ jobs:
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
       - run: cmake -S . -B build-path -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
-      - run: cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2
+      - run: cmake --build build-path --config Release --target ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraGraphicalEQEditingTests ChimeraCommonDynamicsTests ChimeraMultibandDynamicsTests ChimeraMultibandDynamicsCoreTests ChimeraGateProcessorTests ChimeraAmpMatrix_Standalone --parallel 2
       - if: runner.os == 'Linux'
         run: cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2
       - if: runner.os != 'Linux'
-        run: ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
+        run: ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraMultibandDynamics(Core)?Tests|ChimeraNativeDynamicsUITests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
       - if: runner.os == 'Linux'
-        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraMultibandDynamics(Core)?Tests|ChimeraNativeDynamicsUITests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
       - name: Collect paired tuner callback observations (not a performance pass)
         if: always()
         run: python3 Tools/run_tuner_timing_probe.py build-path
@@ -90,6 +90,7 @@ jobs:
             build-path/signal-path-snapshots/
             build-path/precision-tuner-snapshots/
             build-path/common-dynamics-snapshots/
+            build-path/native-dynamics-snapshots/
             build-path/tuner-timing/
             build-path/integration-results.xml
             build-path/eq-cpu.csv

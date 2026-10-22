@@ -1,4 +1,5 @@
 #pragma once
+#include "KnobInteraction.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 
 // Opt-in head readout. Keep the editor and rotary geometry stable while hiding
@@ -73,7 +74,7 @@ public:
         for(auto* l:{&label,&group}) {addAndMakeVisible(*l);l->setJustificationType(juce::Justification::centred);l->setColour(juce::Label::textColourId,juce::Colour(0xffe1dbce));}
         label.setFont(juce::FontOptions(10.5f));group.setFont(juce::FontOptions(8.5f));group.setColour(juce::Label::textColourId,juce::Colour(0xffa4a79f));
         addChildComponent(slider);addChildComponent(choice);addChildComponent(toggle);
-        slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,82,18);
+        spectralforge::ui::configureRotaryKnob(slider);slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,82,18);
         slider.setColour(juce::Slider::textBoxBackgroundColourId,juce::Colour(0xff111615));
         toggle.setClickingTogglesState(true);
     }

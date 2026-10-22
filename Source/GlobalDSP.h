@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 #include "PolyPitch.h"
+#include "DynamicsAnalysis.h"
 #include "LifecycleTrace.h"
 #include "PrecisionTuner.h"
 #include "MacTunerWakeTimer.h"
@@ -17,6 +18,7 @@ class NoiseGate {
     int holdCounter{};
     bool open{true};
     bool expand{};float expansionRatio{2},attackMs{.5f};
+    DynamicsAnalysis* analysis{};
 public:
     // 0..95.9 dB is a finite attenuation floor. 96 is the Full sentinel:
     // the original zero target, approached with the existing release curve.
@@ -26,12 +28,13 @@ public:
         if(!std::isfinite(rangeDb) || rangeDb>=fullRangeDb) return 0.f;
         return juce::Decibels::decibelsToGain(-juce::jmax(0.f,rangeDb));
     }
+    void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
     void prepare(double sr) { rate=sr; reset(); }
     void reset() { detector=0; gain=1; holdCounter=0; open=true; }
     float reduction() const { return gain; }
     void setMode(bool expander,float ratio,float attack) noexcept {expand=expander;expansionRatio=juce::jlimit(1.f,20.f,ratio);attackMs=juce::jlimit(.1f,20.f,attack);}
     void process(juce::AudioBuffer<float>& buffer,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)
-    { processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
+    { DynamicsAnalysis::Scope capture(analysis,DynamicsStage::gate,buffer);processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
     // The same input detector can control a later gain stage without altering
     // the clean signal or deriving its envelope from distortion-generated noise.
     void detect(const juce::AudioBuffer<float>& buffer,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)

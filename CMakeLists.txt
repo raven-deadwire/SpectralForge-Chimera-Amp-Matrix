@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 include(cmake/ChimeraVersion.cmake)
 project(ChimeraAmpMatrix VERSION ${CHIMERA_PRODUCT_VERSION} LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
+include(cmake/ChimeraAAX.cmake)
 if(MSVC)
   add_compile_options(/utf-8)
   # Ship self-contained Windows binaries; no separate VC++ redist installer.
@@ -17,7 +18,16 @@ set(CHIMERA_FORMATS VST3 Standalone)
 if(APPLE)
   list(APPEND CHIMERA_FORMATS AU)
 endif()
-juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
+if(CHIMERA_BUILD_AAX)
+  list(APPEND CHIMERA_FORMATS AAX)
+endif()
+juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 AAX_IDENTIFIER audio.spectralforge.chimera AAX_CATEGORY Effect DISABLE_AAX_MULTI_MONO TRUE FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
+if(CHIMERA_BUILD_AAX)
+  # Restrict first delivery to Native mono/stereo inserts. Host multi-mono and
+  # AudioSuite require separate acceptance; neither affects internal Dual Mono.
+  target_compile_definitions(ChimeraAmpMatrix_AAX PRIVATE
+    JucePlugin_AAXDisableAudioSuite=1 JUCE_FORCE_USE_LEGACY_PARAM_IDS=0)
+endif()
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
 set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png Assets/Artwork/aniflheimr.png)
@@ -75,7 +85,54 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
+# Standalone window (Issue #113): maximise/F11 fit the editor to the display.
+# Only the Standalone target uses the custom application; plug-ins and tests
+# keep JUCE's wrappers.
+if(TARGET ChimeraAmpMatrix_Standalone)
+  target_sources(ChimeraAmpMatrix_Standalone PRIVATE Source/ChimeraStandaloneApp.cpp)
+  target_compile_definitions(ChimeraAmpMatrix_Standalone PRIVATE JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1)
+endif()
+# Windows Standalone ASIO (Issue #113). JUCE does not bundle Steinberg's ASIO
+# SDK; using it requires accepting Steinberg's licence, so the SDK is never
+# vendored here. Point CHIMERA_ASIO_SDK_DIR at an extracted SDK (the folder
+# containing common/iasiodrv.h). Hosts (DAWs) provide their own ASIO either way.
+set(CHIMERA_ASIO_SDK_DIR "$ENV{CHIMERA_ASIO_SDK_DIR}" CACHE PATH "Steinberg ASIO SDK root for the Windows Standalone")
+option(CHIMERA_REQUIRE_ASIO "Fail a Windows configure when the ASIO SDK is missing" OFF)
+set(CHIMERA_ASIO_ENABLED 0)
+if(WIN32)
+  if(CHIMERA_ASIO_SDK_DIR AND EXISTS "${CHIMERA_ASIO_SDK_DIR}/common/iasiodrv.h")
+    set(CHIMERA_ASIO_ENABLED 1)
+    # PUBLIC: every target linking the product compiles its own JUCE modules.
+    target_include_directories(ChimeraAmpMatrix PUBLIC "${CHIMERA_ASIO_SDK_DIR}/common")
+    target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_ASIO=1)
+    message(STATUS "Chimera: Windows Standalone ASIO enabled from ${CHIMERA_ASIO_SDK_DIR}")
+  elseif(CHIMERA_REQUIRE_ASIO)
+    message(FATAL_ERROR "CHIMERA_REQUIRE_ASIO is ON but CHIMERA_ASIO_SDK_DIR does not contain common/iasiodrv.h")
+  else()
+    message(STATUS "Chimera: Windows Standalone ASIO disabled (set CHIMERA_ASIO_SDK_DIR); WASAPI/DirectSound remain available")
+  endif()
+endif()
 enable_testing()
+if(CHIMERA_ASIO_ENABLED)
+  juce_add_console_app(ChimeraAsioAvailabilityTests PRODUCT_NAME "Chimera ASIO Availability Tests")
+  target_sources(ChimeraAsioAvailabilityTests PRIVATE Tests/AsioAvailabilityTests.cpp)
+  target_link_libraries(ChimeraAsioAvailabilityTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual
+    juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+  add_test(NAME ChimeraAsioAvailabilityTests COMMAND ChimeraAsioAvailabilityTests)
+endif()
+add_executable(ChimeraHostBypassTests Tests/HostBypassTests.cpp)
+target_include_directories(ChimeraHostBypassTests PRIVATE Source)
+add_test(NAME ChimeraHostBypassTests COMMAND ChimeraHostBypassTests)
+add_test(NAME ChimeraAAXPackagingTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_aax_native.py")
+if(CHIMERA_BUILD_AAX)
+  juce_add_console_app(ChimeraAAXContractTests PRODUCT_NAME "Chimera AAX Contract Tests")
+  target_sources(ChimeraAAXContractTests PRIVATE Tests/AAXContractTests.cpp)
+  target_link_libraries(ChimeraAAXContractTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual
+    juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+  add_test(NAME ChimeraAAXContractTests COMMAND ChimeraAAXContractTests)
+  set_tests_properties(ChimeraAAXContractTests PROPERTIES TIMEOUT 180)
+endif()
 
 # Serverless beta lifecycle policy. This target is deliberately independent of
 # JUCE and the audio graph so injected-clock and active-instance latch behavior
@@ -213,6 +270,8 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
   add_test(NAME ChimeraPrecisionTunerUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/precision-tuner-snapshots" --precision-tuner-only)
   add_test(NAME ChimeraCommonDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/common-dynamics-snapshots" --common-dynamics-only)
+  add_test(NAME ChimeraNativeDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/native-dynamics-snapshots" --native-dynamics-only)
+  add_test(NAME ChimeraNativeDynamicsQueueUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/native-dynamics-queue-snapshots" --native-dynamics-queue-only)
   add_test(NAME ChimeraHeadCabLowUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/head-cab-low-snapshots" --review-fixes-only)
   add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
@@ -353,6 +412,9 @@ endforeach()
 juce_add_console_app(ChimeraGateProcessorTests PRODUCT_NAME "Chimera Gate Processor Tests")
 target_sources(ChimeraGateProcessorTests PRIVATE Tests/GateProcessorTests.cpp)
 target_include_directories(ChimeraGateProcessorTests PRIVATE Source)
+# GateProcessorTests includes EQPendingInputTests, which pumps native messages.
+# This target must also work with CHIMERA_UI_PROBES=OFF (Graphical EQ/Open Beta).
+target_compile_definitions(ChimeraGateProcessorTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
 target_link_libraries(ChimeraGateProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraGateProcessorTests COMMAND ChimeraGateProcessorTests)
 
@@ -474,8 +536,8 @@ add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --vi
 # Bound it separately without changing any real-time audio assertions.
 set_tests_properties(ChimeraCabDriverVisualTests PROPERTIES TIMEOUT 1800)
 
-# EQ editor/analysis prototypes are isolated from release publishing and dynamics.
-foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze CommonDynamics)
+# EQ and dynamics contracts do not publish release artifacts.
+foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze CommonDynamics MultibandDynamics)
   juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
   target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
   target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
@@ -487,6 +549,12 @@ add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMA
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
 add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
+add_test(NAME ChimeraMultibandDynamicsTests COMMAND ChimeraMultibandDynamicsTests)
+add_executable(ChimeraMultibandDynamicsCoreTests Tests/MultibandDynamicsCoreTests.cpp)
+target_include_directories(ChimeraMultibandDynamicsCoreTests PRIVATE Source)
+target_compile_features(ChimeraMultibandDynamicsCoreTests PRIVATE cxx_std_20)
+add_test(NAME ChimeraMultibandDynamicsCoreTests COMMAND ChimeraMultibandDynamicsCoreTests)
+set_tests_properties(ChimeraMultibandDynamicsTests ChimeraMultibandDynamicsCoreTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
 add_test(NAME ChimeraEQSnapshotFreezeTests COMMAND ChimeraEQSnapshotFreezeTests)
 set_tests_properties(ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
 set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
@@ -521,7 +589,7 @@ set_tests_properties(ChimeraEQHighRateAttributionTests PROPERTIES TIMEOUT 360 RU
 # Keep this adapter out of all product/plug-in targets and preserve JUCE 8.0.8.
 if(APPLE)
   enable_language(OBJCXX)
-  foreach(ui_test ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQUITests)
+  foreach(ui_test ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQUITests ChimeraGateProcessorTests)
     if(TARGET ${ui_test})
       target_sources(${ui_test} PRIVATE Tests/NativeMessageLoop.mm)
       set_property(TARGET ${ui_test} PROPERTY OBJCXX_STANDARD 20)
