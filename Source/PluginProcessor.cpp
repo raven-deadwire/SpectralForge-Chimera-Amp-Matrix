@@ -37,6 +37,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
+    transposeQualityParam=state.getRawParameterValue("transposeQuality");
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
@@ -127,6 +128,10 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     betaOutputGain.reset(sr,.050);
     betaOutputGain.setCurrentAndTargetValue(betaLifecycle.processingPermitted() ? 1.f : 0.f);
     engine.setOversampling((int)globals[os]->load());
+    // Gate lookahead above is sized while the transposer is on its Classic
+    // (largest) window; select the stored quality mode now, before latency is
+    // reported, so the host gets the active mode's delay from the first block.
+    preFX.transpose.setMode((int)transposeQualityParam->load());
     const bool pitchActive=globals[pitchOn]->load()>.5f && int(globals[semitones]->load())!=0;
     setLatencySamples(postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
 }
@@ -217,6 +222,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const float gateRange=gateRangeDb->load();
     preFX.gate.setMode(dynamics.expander(),dynamics.gateRatio(),dynamics.gateAttack());
     postRigGate.setMode(dynamics.expander(),dynamics.gateRatio(),dynamics.gateAttack());
+    // Apply the transpose quality/latency mode before reading transpose.latency()
+    // below; switching is allocation-free and re-reports latency via line ~231.
+    preFX.transpose.setMode((int)transposeQualityParam->load());
     const int preLatency=audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
     postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     if(audioBoard.enabled) {
@@ -392,6 +400,10 @@ for(int i=0;i<8;++i){
     p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"tunerOffset"+suffix,11},"Custom tuner string "+suffix+" cents",juce::NormalisableRange<float>{-50,50,.1f},0));
 }
 spectralforge::appendCommonDynamicsParameters(p);
+// Transpose quality/latency mode. Appended last so host parameter indices below
+// 3686 (the frozen released-parameter contract) are unchanged. Classic keeps the
+// released ~32 ms window and the default transpose behaviour.
+p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"transposeQuality",12},"Transpose mode",juce::StringArray{"Classic","Low-Latency","Tight"},0));
 return p;
 }
 

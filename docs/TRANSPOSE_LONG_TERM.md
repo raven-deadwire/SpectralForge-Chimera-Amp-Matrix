@@ -20,3 +20,15 @@ Nominal algorithmic latency remains 2048 samples at 44.1/48 kHz and 4096 at 96 k
 Policy v4 moves `I2.PITCH_LIVE` and `I2.PITCH_DI` to stage `T1`. The `beta_1_1_1` profile excludes only these two improvement goals; `transpose_followup` and `full_release` continue to require their evidence. Deferral does not mean PASS or NOT_APPLICABLE. Gate listening, real DAW lifecycle, callback timing, E670FE reference acceptance and all other existing release checks are retained.
 
 No transpose DSP change is included in the release-preparation commit. Do not advertise low-latency transpose or resolved bass smearing in 1.1.1.
+
+## Update 2026-10-22 — feature-branch quality/latency mode
+
+The user reversed the deferral for a feature-branch spike only (branch `claude/ecstatic-dirac-le0t7d`, not the 1.1.1 release-preparation commit) and asked for a user-selectable 3-way transpose quality/latency mode:
+
+- **Classic** — the released ~32 ms window. This is the default and uses PolyPitch's window override 0, i.e. the exact released code path, so the `PolyPitchV110` regression fixture and the released-parameter contract stay intact.
+- **Low-Latency** — half the default window (~21 ms at 44.1/48 kHz).
+- **Tight** — a quarter of the default window (~11 ms), intended for guitar leads; low-register body is reduced.
+
+This deliberately trades low-register quality for a smaller FFT window, which §Follow-up acceptance (2) says not to do **without comparison evidence**. That evidence is **not yet captured**: the required isolated-DI bypass-vs-transpose listening/measurement comparison must be gathered on a real build before any of this is promoted toward a release. Until then, per §Release scope, this stays out of the 1.1.1 release-preparation commit and must not be advertised as low-latency transpose in 1.1.1.
+
+Implementation: three pre-prepared `PolyPitch` instances switched allocation-free in `Transposer` (`Source/GlobalDSP.h`); a new appended `transposeQuality` `AudioParameterChoice` (host index ≥ 3686, so the frozen contract is untouched — `GateProcessorTests` `expectedParameterCount` bumped +1); a UI `ComboBox` in the transpose cluster (`Source/PluginEditor.cpp`). The default (Classic) leaves released behaviour, latency and the `PolyPitchV110` fixture unchanged.

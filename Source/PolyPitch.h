@@ -135,9 +135,14 @@ class PolyPitch {
 
     }
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec)
+    // windowOverride (0 = default): request a specific FFT window length, rounded
+    // up to a power of two, to trade latency against low-frequency resolution.
+    // Omitted by every existing caller, so the released ~32 ms window, its latency
+    // contract and the frozen regression output are unchanged.
+    void prepare(const juce::dsp::ProcessSpec& spec,int windowOverride=0)
     {
         int order=8;while((1<<order)<spec.sampleRate*.032) ++order;
+        if(windowOverride>0){order=0;while((1<<order)<windowOverride) ++order;}
         size=1<<order;hop=size/8;channelCount=(int)spec.numChannels;fft=std::make_unique<juce::dsp::FFT>(order);
         sampleRate=spec.sampleRate;
         // Cepstral lifter order ~1.7 ms of quefrency: wide enough to smooth the

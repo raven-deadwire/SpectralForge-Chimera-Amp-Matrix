@@ -279,6 +279,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     tunerOn.setTooltip("Tune the original input before the gate and transposer. Play one note at a time. Range: 16-2000 Hz.");
     tunerMute.setTooltip("Silence the output while the tuner is enabled.");
     pitchOn.setTooltip("Polyphonic transpose, -12 to +12 semitones. The added latency is shown below and reported to the host.");
+    transposeMode.setName("Transpose mode"); transposeMode.addItemList({"CLASSIC","LOW-LAT","TIGHT"},1); add(transposeMode);
+    transposeModeAttachment=std::make_unique<CA>(state,"transposeQuality",transposeMode);
+    transposeMode.setTooltip("Transpose quality vs latency. CLASSIC keeps full low-register quality (~43 ms). LOW-LAT halves the FFT window (~21 ms). TIGHT quarters it (~11 ms) for a snappy lead feel; low notes lose body. The active latency is reported to the host.");
     style(gateStatus,11.f); style(pitchStatus,11.f); add(gateStatus); add(pitchStatus);
     const std::array<juce::String,8> names{"DRIVE","LEVEL","BASS","LOW MID","HIGH MID","TREBLE","PRESENCE","RESONANCE"};
     const std::array<const char*,8> parameterIds{"drive","level","bass","lowmid","highmid","treble","presence","resonance"};
@@ -798,6 +801,7 @@ void ChimeraEditor::layoutControls()
     globalSliders[7].setBounds(244,201,167,26);
     globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);
     gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,212,158,29);
+    transposeMode.setBounds(447,243,158,22);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
     midi.setBounds(182,748,66,28);tap.setBounds(270,748,56,28);tempo.setBounds(334,748,158,28);hostTempo.setBounds(500,748,112,28);metronome.setBounds(620,748,126,28);
