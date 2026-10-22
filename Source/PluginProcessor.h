@@ -17,6 +17,9 @@
 #include "EQEditState.h"
 #include "EQCaptureBoundary.h"
 
+#include "AAXIdentity.h"
+#include "HostBypass.h"
+
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
     ChimeraProcessor();
@@ -34,7 +37,12 @@ public:
     // Diagnostic/test query. Host audio processing must already be stopped.
     bool backgroundResourcesReleased() const noexcept { return tuner.stopped() && library.resourcesReleased(); }
     bool isBusesLayoutSupported(const BusesLayout&) const override;
+    juce::AAXClientExtensions& getAAXClientExtensions() override {
+        static spectralforge::AAXIdentity identity;
+        return identity;
+    }
     void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
+    void processBlockBypassed(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "SpectralForge Chimera"; }
@@ -190,6 +198,7 @@ private:
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
+    spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;
     spectralforge::Tuner tuner;
