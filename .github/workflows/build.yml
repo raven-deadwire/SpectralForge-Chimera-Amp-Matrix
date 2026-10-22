@@ -152,6 +152,10 @@ jobs:
         id: ctest_native
         if: runner.os != 'Linux'
         run: ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
+      - name: Report ASIO SDK provenance
+        if: always() && runner.os == 'Windows'
+        shell: bash
+        run: 'echo "ASIO SDK sha256: ${CHIMERA_ASIO_SDK_SHA256:-not fetched}"'
       - name: Execute Linux CTest matrix with display supervision
         id: ctest_linux
         if: runner.os == 'Linux'

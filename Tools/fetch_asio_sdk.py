@@ -66,6 +66,9 @@ def main() -> int:
     if args.github_env:
         with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
             env.write(f"CHIMERA_ASIO_SDK_DIR={root}\n")
+            env.write(f"CHIMERA_ASIO_SDK_SHA256={digest}\n")
+        # An annotation survives log truncation; later steps can re-print the env.
+        print(f"::notice title=ASIO SDK provenance::sha256={digest} source={final_url}")
     return 0
 
 
