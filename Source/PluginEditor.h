@@ -34,6 +34,8 @@ public:
     ~ChimeraEditor() override;
     void paint(juce::Graphics&) override;
     void resized() override;
+    void fitToDisplay();
+    static constexpr int fitScaleItem=5;
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}

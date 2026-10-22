@@ -75,6 +75,32 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
+# Standalone window (Issue #113): maximise/F11 fit the editor to the display.
+# Only the Standalone target uses the custom application; plug-ins and tests
+# keep JUCE's wrappers.
+if(TARGET ChimeraAmpMatrix_Standalone)
+  target_sources(ChimeraAmpMatrix_Standalone PRIVATE Source/ChimeraStandaloneApp.cpp)
+  target_compile_definitions(ChimeraAmpMatrix_Standalone PRIVATE JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1)
+endif()
+# Windows Standalone ASIO (Issue #113). JUCE does not bundle Steinberg's ASIO
+# SDK; using it requires accepting Steinberg's licence, so the SDK is never
+# vendored here. Point CHIMERA_ASIO_SDK_DIR at an extracted SDK (the folder
+# containing common/iasiodrv.h). Hosts (DAWs) provide their own ASIO either way.
+set(CHIMERA_ASIO_SDK_DIR "$ENV{CHIMERA_ASIO_SDK_DIR}" CACHE PATH "Steinberg ASIO SDK root for the Windows Standalone")
+option(CHIMERA_REQUIRE_ASIO "Fail a Windows configure when the ASIO SDK is missing" OFF)
+set(CHIMERA_ASIO_ENABLED 0)
+if(WIN32)
+  if(CHIMERA_ASIO_SDK_DIR AND EXISTS "${CHIMERA_ASIO_SDK_DIR}/common/iasiodrv.h")
+    set(CHIMERA_ASIO_ENABLED 1)
+    target_include_directories(ChimeraAmpMatrix PRIVATE "${CHIMERA_ASIO_SDK_DIR}/common")
+    target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_ASIO=1)
+    message(STATUS "Chimera: Windows Standalone ASIO enabled from ${CHIMERA_ASIO_SDK_DIR}")
+  elseif(CHIMERA_REQUIRE_ASIO)
+    message(FATAL_ERROR "CHIMERA_REQUIRE_ASIO is ON but CHIMERA_ASIO_SDK_DIR does not contain common/iasiodrv.h")
+  else()
+    message(STATUS "Chimera: Windows Standalone ASIO disabled (set CHIMERA_ASIO_SDK_DIR); WASAPI/DirectSound remain available")
+  endif()
+endif()
 enable_testing()
 
 # Serverless beta lifecycle policy. This target is deliberately independent of

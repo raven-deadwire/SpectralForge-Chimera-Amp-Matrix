@@ -1,3 +1,4 @@
+#include "WindowFit.h"
 #include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
 #include "IRStateAssets.h"
@@ -904,6 +905,15 @@ int main(int argc, char** argv)
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
                 checkControls(editor,2);
                 for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Interface size")require(box->getText()=="75%","Size selector did not follow window resizing");
+                {
+                    // Issue #113 fit-to-screen: the largest readable size, never below 75%.
+                    using namespace spectralforge::ui;
+                    require(std::abs(fittedEditorScale({0,0,1920,1040},{0,0})-1040.f/780.f)<1.e-4f,"Fit screen did not use the full display height");
+                    require(fittedEditorScale({0,0,1093,574},{2,32})==minimumEditorScale,"Fit screen shrank below the readable 75% minimum");
+                    require(fittedEditorScale({0,0,3840,2100},{0,0})==maximumEditorScale,"Fit screen exceeded the supported 150% maximum");
+                    require(centredWindowPosition({100,0,1000,700},{1200,800})==juce::Point<int>(100,0),"An oversized window was centred off the display");
+                    require(centredWindowPosition({0,0,1920,1040},{1180,810})==juce::Point<int>(370,115),"Fit screen did not centre the window");
+                }
                 saveSnapshot(editor,directory,"Matrix-75pct");
                 editor.setSize(1180,780);
                 set(processor,"x1",350); set(processor,"x2",4000);

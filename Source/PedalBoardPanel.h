@@ -1,4 +1,5 @@
 #pragma once
+#include "KnobInteraction.h"
 #include "PluginProcessor.h"
 #include "HardwareArtwork.h"
 #include "EffectSelectionCatalog.h"
@@ -32,7 +33,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             if(!event.mods.isPopupMenu())activate();juce::Slider::mouseDown(event);
         }
         void mouseWheelMove(const juce::MouseEvent& event,const juce::MouseWheelDetails& wheel) override {
-            if(wheel.deltaX!=0 || wheel.deltaY!=0)activate();juce::Slider::mouseWheelMove(event,wheel);
+            if(isScrollWheelEnabled() && (wheel.deltaX!=0 || wheel.deltaY!=0))activate();juce::Slider::mouseWheelMove(event,wheel);
         }
         bool keyPressed(const juce::KeyPress& key) override {
             const bool handled=juce::Slider::keyPressed(key);if(handled)activate();return handled;
@@ -114,7 +115,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         c.label.setJustificationType(juce::Justification::centred);c.label.setFont(juce::FontOptions(11.f));
         c.label.setColour(juce::Label::textColourId,juce::Colour(0xffdce8d2));
         c.label.setColour(juce::Label::backgroundColourId,juce::Colour(0xff151c18).withAlpha(.94f));
-        c.slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+        spectralforge::ui::configureRotaryKnob(c.slider);
         c.slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,78,20);
         c.slider.onUserEdit=[this]{processor.setPedalBoardEnabled(true);};c.slider.watchTextBox();
         c.slider.setColour(juce::Slider::textBoxTextColourId,juce::Colour(0xffdce8d2));

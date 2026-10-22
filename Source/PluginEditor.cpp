@@ -1,3 +1,5 @@
+#include "KnobInteraction.h"
+#include "WindowFit.h"
 #include "CabRoom.h"
 #include "PresetOrder.h"
 #include "GuitarSignaturePresets.h"
@@ -153,8 +155,15 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     mode.setTooltip("Classic: one full-range rig. Dual: two parallel rigs. Matrix: three input bands.");
     quality.setName("Oversampling"); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
     quality.setTooltip("Anti-aliasing for amplifier distortion. Higher factors use more CPU. Host latency stays constant.");
-    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.setSelectedId(2); add(scale);
-    scale.onChange=[this]{const float factor=float(scale.getSelectedId()+2)*.25f; setSize(juce::roundToInt(1180*factor),juce::roundToInt(780*factor));};
+    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.addSeparator(); scale.addItem("Fit screen",fitScaleItem); scale.setSelectedId(2); add(scale);
+    scale.setTooltip(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone
+                     ? "Interface size. Fit screen uses the largest readable size for this display; the window's maximise button or F11 toggles the same fit."
+                     : "Interface size. Fit screen uses the largest readable size for this display, when the host allows plug-in resizing.");
+    scale.onChange=[this]{
+        const int id=scale.getSelectedId();
+        if(id==fitScaleItem){fitToDisplay();return;}
+        if(id<1 || id>4)return;
+        const float factor=float(id+2)*.25f; setSize(juce::roundToInt(1180*factor),juce::roundToInt(780*factor));};
     add(info); info.setButtonText("SETTINGS"); info.onClick=[this]{
         juce::PopupMenu menu;
         menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
@@ -252,7 +261,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             style(effect.labels[k],pedal ? 10.5f : 10.f,juce::Justification::centred);effect.labels[k].setText(effectLabels[i][k],juce::dontSendNotification);
             setupSlider(effect.controls[k],effectLabels[i][k],effectSuffix[i][k]);
             effect.controls[k].setComponentID(effectIds[i][k]);
-            effect.controls[k].setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+            spectralforge::ui::configureRotaryKnob(effect.controls[k]);
             effect.controls[k].setTextBoxStyle(pedal ? juce::Slider::TextBoxBelow : juce::Slider::TextBoxRight,false,pedal ? 88 : 68,pedal ? 23 : 22);
             add(effect.labels[k]);add(effect.controls[k]);effect.attachments[k]=std::make_unique<SA>(p.parameters(),effectIds[i][k],effect.controls[k]);
         }
@@ -307,7 +316,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     }
     globalSliders[7].setComponentID("gateRangeDb");
     globalSliders[7].setTooltip("Closed-gate attenuation: 0 dB = unity; finite dB = limited reduction; Full = release toward silence (legacy default). Applies at the selected PRE or POST GATE position.");
-    for(const auto i:{0,4,6}) {globalSliders[(size_t)i].setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);globalSliders[(size_t)i].setTextBoxStyle(juce::Slider::TextBoxBelow,false,104,22);globalSliders[(size_t)i].getProperties().set("knobStyle",3);}
+    for(const auto i:{0,4,6}) {spectralforge::ui::configureRotaryKnob(globalSliders[(size_t)i]);globalSliders[(size_t)i].setTextBoxStyle(juce::Slider::TextBoxBelow,false,104,22);globalSliders[(size_t)i].getProperties().set("knobStyle",3);}
     globalSliders[4].setNumDecimalPlacesToDisplay(0); globalSliders[5].setNumDecimalPlacesToDisplay(0);
     globalSliders[2].setNumDecimalPlacesToDisplay(0); globalSliders[3].setNumDecimalPlacesToDisplay(0);
     for(const auto index:{1,2,3,7})globalSliders[size_t(index)].setVisible(false);
@@ -853,6 +862,20 @@ void ChimeraEditor::resized()
     else {scale.setSelectedId(0,juce::dontSendNotification);scale.setText(juce::String(factor*100,0)+"%",juce::dontSendNotification);}
     canvas.setBounds(0,0,1180,780); canvas.setTransform(juce::AffineTransform::scale(getWidth()/1180.f));
     layoutControls();
+}
+void ChimeraEditor::fitToDisplay()
+{
+    // Chrome is whatever surrounds the editor in its own top-level window
+    // (Standalone title bar and notification). A host's frame is outside the
+    // editor's top-level component, so reserve one title-bar height there.
+    auto* top=getTopLevelComponent();
+    const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(top->getScreenBounds());
+    if(display==nullptr){resized();return;}
+    const juce::Point<int> chrome=top!=this ? juce::Point<int>{top->getWidth()-getWidth(),top->getHeight()-getHeight()} : juce::Point<int>{16,48};
+    const auto size=spectralforge::ui::editorSizeForScale(spectralforge::ui::fittedEditorScale(display->userArea,chrome));
+    setSize(size.x,size.y);
+    if(top!=this)top->setTopLeftPosition(spectralforge::ui::centredWindowPosition(display->userArea,{top->getWidth(),top->getHeight()}));
+    resized();
 }
 void ChimeraEditor::layoutControls()
 {
