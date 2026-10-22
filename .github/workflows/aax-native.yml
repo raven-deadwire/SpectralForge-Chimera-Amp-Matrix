@@ -15,6 +15,22 @@ on:
       - 'Assets/**'
       - 'docs/MANUAL.html'
       - '.github/workflows/aax-native.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'VERSION'
+      - 'RELEASE_CHANNEL'
+      - 'Validation/beta-lifecycle-policy.json'
+      - 'Source/**'
+      - 'Tools/aax_native.py'
+      - 'Tools/beta_lifecycle.py'
+      - 'Tools/chimera_version.py'
+      - 'Tests/**'
+      - 'Assets/**'
+      - 'docs/MANUAL.html'
+      - '.github/workflows/aax-native.yml'
   workflow_dispatch:
 permissions:
   contents: read
