@@ -33,9 +33,9 @@ jobs:
       - run: cmake -S . -B build-dynamics -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
       - run: cmake --build build-dynamics --config Release --target ChimeraUITests --parallel 2
       - if: runner.os != 'Linux'
-        run: ctest --test-dir build-dynamics -C Release -R '^Chimera(Common|Native)DynamicsUITests$' --output-on-failure --no-tests=error --output-junit dynamics-results.xml
+        run: ctest --test-dir build-dynamics -C Release -R '^Chimera(Common|Native)Dynamics(Queue)?UITests$' --output-on-failure --no-tests=error --output-junit dynamics-results.xml
       - if: runner.os == 'Linux'
-        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-dynamics -C Release -R '^Chimera(Common|Native)DynamicsUITests$' --output-on-failure --no-tests=error --output-junit dynamics-results.xml
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-dynamics -C Release -R '^Chimera(Common|Native)Dynamics(Queue)?UITests$' --output-on-failure --no-tests=error --output-junit dynamics-results.xml
       - if: always()
         uses: actions/upload-artifact@v6
         with:
@@ -46,4 +46,5 @@ jobs:
             build-dynamics/Testing/Temporary/LastTest.log
             build-dynamics/common-dynamics-snapshots/
             build-dynamics/native-dynamics-snapshots/
+            build-dynamics/native-dynamics-queue-snapshots/
           if-no-files-found: error

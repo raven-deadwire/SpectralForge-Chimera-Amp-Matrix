@@ -60,7 +60,15 @@ template<class T=juce::Component> T* find(juce::Component& root,const juce::Stri
 inline void set(ChimeraProcessor& processor,const juce::String& id,float value){auto* p=processor.parameters().getParameter(id);require(p!=nullptr,"Native UI parameter missing");p->setValueNotifyingHost(p->convertTo0to1(value));}
 inline void tab(juce::Component& root,const char* name){
     const juce::String label(name);const auto id=label=="RIGS"?"head":label=="PRE"?"pre":label=="POST"?"post":"tone.eq";
-    auto* button=find<juce::TextButton>(root,"path."+juce::String(id));require(button && button->isVisible(),"Signal navigation stage missing");button->triggerClick();settle();
+    auto* button=find<juce::TextButton>(root,"path."+juce::String(id));require(button && button->isVisible(),"Signal navigation stage missing");
+    struct Receipt final:juce::Button::Listener {
+        int clicks{};
+        void buttonClicked(juce::Button*) override {++clicks;}
+    } receipt;
+    button->addListener(&receipt);button->triggerClick();settle();button->removeListener(&receipt);
+    if(receipt.clicks!=1)
+        std::cerr<<"NATIVE NAVIGATION pending command id="<<button->getComponentID()
+                 <<" clicks="<<receipt.clicks<<" selected="<<button->getToggleState()<<'\n';
 }
 
 inline void snapshot(juce::Component& root,const juce::File& directory,const char* name){auto stream=directory.getChildFile(juce::String(name)+".png").createOutputStream();juce::PNGImageFormat png;require(stream && png.writeImageToStream(root.createComponentSnapshot(root.getLocalBounds()),*stream),"Native UI screenshot failed");}
@@ -276,7 +284,7 @@ inline void dialogTeardown() {
     for(int section=0;section<6;++section){const int family=section==3?10:section==4?1:2;windows.push_back(open(*canvas,"postExpand"+juce::String(section),section<3?"postNativePanel"+juce::String(section):"postEffectDetail"+juce::String(family)));}
     editor.reset();settle();for(auto window:windows)require(window==nullptr,"Editor destruction left an ALL window or live parameter attachment");
 }
-inline void dynamicsEditors(const juce::File& directory) {
+inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) {
     using namespace spectralforge;
     auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
     constexpr std::array<int,5> models{6,7,8,9,10};
@@ -335,8 +343,28 @@ inline void dynamicsEditors(const juce::File& directory) {
     int preCases=0,postCases=0;
     for(int scale:{75,100,125,150}) {
         processor.setPedalBoardEnabled(false);settle();
-        navigate([&]{editor->setSize(1180*scale/100,780*scale/100);tab(*canvas,"PRE");board->navigateOwner(-1);});
+        navigate([&]{
+            editor->setSize(1180*scale/100,780*scale/100);
+            if(queueStress && scale==75) {
+                // A bounded native message backlog, without replacing the event
+                // pump or calling a product timer/refresh/navigation callback.
+                for(int i=0;i<32;++i)
+                    require(juce::MessageManager::callAsync([]{juce::Thread::sleep(10);}),"Could not enqueue navigation backlog");
+            }
+            tab(*canvas,"PRE");board->navigateOwner(-1);
+        });
         auto* entry=find<juce::TextButton>(*board,"boardCompressorSpectrumAt0");
+        if(!entry || !entry->isShowing() || !entry->isEnabled()) {
+            auto* selected=find<juce::TextButton>(*canvas,"path.pre");
+            const auto state=processor.pedalBoardState();
+            std::cerr<<"PRE ENTRY state scale="<<scale<<" stress="<<queueStress
+                     <<" preSelected="<<(selected && selected->getToggleState())
+                     <<" boardVisible="<<board->isVisible()<<" boardShowing="<<board->isShowing()
+                     <<" entryVisible="<<(entry && entry->isVisible())
+                     <<" entryShowing="<<(entry && entry->isShowing())
+                     <<" entryEnabled="<<(entry && entry->isEnabled())
+                     <<" ownerAt0="<<state.order[0]<<" modelAt0="<<state.instances[(size_t)state.order[0]].model<<'\n';
+        }
         require(entry && entry->isShowing() && entry->isEnabled(),"Reordered PRE compressor has no visible spectrum entry");
         navigate([&]{entry->triggerClick();});
         require(processor.dynamicsAnalysis().preOwner.load()==1 && !processor.pedalBoardState().enabled,

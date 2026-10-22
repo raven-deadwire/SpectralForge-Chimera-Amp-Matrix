@@ -723,6 +723,7 @@ int main(int argc, char** argv)
         if(argc>2 && juce::String(argv[2])=="--review-fixes-only"){checkReviewFixes(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--native-panels-only"){runNativeUITests(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--native-dynamics-only"){nativeUITests::dynamicsEditors(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--native-dynamics-queue-only"){nativeUITests::dynamicsEditors(directory,true);return 0;}
         if(argc>2 && juce::String(argv[2])=="--pedal-menus-only"){pedalMenuTests::run();return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
