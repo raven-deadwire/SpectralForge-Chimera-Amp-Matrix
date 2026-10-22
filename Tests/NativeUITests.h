@@ -389,8 +389,16 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
                 // pump or calling a product timer/refresh/navigation callback.
                 for(int i=0;i<32;++i)
                     require(juce::MessageManager::callAsync([]{juce::Thread::sleep(10);}),"Could not enqueue navigation backlog");
+                chimeraTest::beginDispatchTelemetry();
             }
             tab(*canvas,"PRE");
+            if(queueStress && scale==75) {
+                const auto timing=chimeraTest::endDispatchTelemetry();
+                std::cout<<"NATIVE QUEUE delivery pump calls="<<timing.calls
+                         <<" cf_ms="<<timing.cfMicros/1000.
+                         <<" appkit_ms="<<timing.pollMicros/1000.
+                         <<" appkit_deferred_at_deadline="<<timing.appKitPollsDeferredAtDeadline<<'\n';
+            }
             // Check the product callback's result directly. Do not reset a
             // detail view here or hide a state defect with an extra refresh.
             require(board->isShowing(),"Delivered PRE navigation command did not show the pedalboard");

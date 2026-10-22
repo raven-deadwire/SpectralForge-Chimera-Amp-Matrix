@@ -54,8 +54,27 @@ and `macos-before-fix.log` preserve the pre-fix evidence.
 The corrected helper posts exactly one click and observes its `Button::Listener`
 receipt. It uses the already established 2,000 ms native readiness budget, fails
 on a missing/destroyed button or overdue/duplicate delivery, and records longer
-delivery times. It never retries a click, calls `onClick` directly, replaces the
-event pump, suppresses dispatch-overrun diagnostics or changes spectrum criteria.
+delivery times. It never retries a click, calls `onClick` directly, suppresses
+dispatch-overrun diagnostics or changes spectrum criteria.
+
+The receipt-only revision `dbf0ac0e2b4ef2db4dcdc4b09073ec732e77c01c` passed the
+ordinary macOS UI tests and the disconnected-handler control, but correctly
+failed the queue test at the unchanged two-second deadline. In [run 39717249554 /
+job 119622845063](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39717249554/job/119622845063),
+four requested 10 ms calls consumed 606.407, 367.406, 407.227 and 846.941 ms.
+The last three started another AppKit poll **after CF had already exhausted the
+slice**; those polls cost a further 191.023, 162.334 and 589.536 ms. The command
+was still pending (`clicks=0`). This result remains a failure, not a waived limit.
+
+The final pump correction rechecks the existing deadline immediately after CF
+service. If it is exhausted, it returns without beginning an additional AppKit
+poll. Events remain queued; subsequent slices with budget still service AppKit
+through the same modal filter and `sendEvent` path. CF/AppKit overruns remain
+logged. No command is forced through, dropped, replaced or retried, and neither
+the 32 × 10 ms backlog nor the two-second readiness limit changes. The queue
+test records deferred-poll telemetry as well as its immediate UI-state checks.
+This is a test-harness scheduling correction; shipping plug-ins retain their
+host event loop. `macos-receipt-only-failure.log` preserves the intermediate fail.
 
 After native dispatch returns, the synchronous product click handler has returned
 as well. The tests immediately assert the selected editing stage, visible PRE

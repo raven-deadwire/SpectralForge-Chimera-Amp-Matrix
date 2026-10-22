@@ -1,0 +1,28 @@
+Test project /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-dynamics
+2026-10-22T03:49:02.3419640Z     Start 13: ChimeraCommonDynamicsUITests
+2026-10-22T03:49:45.7596070Z 1/3 Test #13: ChimeraCommonDynamicsUITests ........   Passed   43.39 sec
+2026-10-22T03:49:45.8014100Z     Start 14: ChimeraNativeDynamicsUITests
+2026-10-22T03:50:50.0906380Z 2/3 Test #14: ChimeraNativeDynamicsUITests ........   Passed   64.26 sec
+2026-10-22T03:50:50.0988900Z     Start 15: ChimeraNativeDynamicsQueueUITests
+2026-10-22T03:50:56.0743640Z 3/3 Test #15: ChimeraNativeDynamicsQueueUITests ...***Failed    5.98 sec
+2026-10-22T03:50:56.0744320Z IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+2026-10-22T03:50:56.0745350Z TEST HARNESS: non-blocking macOS native event pump (JUCE #1574)
+2026-10-22T03:50:56.0746730Z TEST HARNESS: macOS dispatch overrun requested_ms=90 actual_ms=815.086 cf_ms=787.875 appkit_poll_ms=27.0881 native_event_ms=0.112875 autorelease_ms=0.00383333 iterations=124 last_cf_result=4 native_events=2 last_native_event=8
+2026-10-22T03:50:56.0748080Z PASS native navigation negative control: delivered click cannot hide a disconnected PRE UI handler
+2026-10-22T03:50:56.0749280Z TEST HARNESS: macOS dispatch overrun requested_ms=10 actual_ms=606.407 cf_ms=606.129 appkit_poll_ms=0.265542 native_event_ms=0.0113333 autorelease_ms=0.000208333 iterations=1 last_cf_result=4 native_events=1 last_native_event=9
+2026-10-22T03:50:56.0751200Z TEST HARNESS: macOS dispatch overrun requested_ms=10 actual_ms=367.406 cf_ms=176.358 appkit_poll_ms=191.023 native_event_ms=0.023875 autorelease_ms=0.000375 iterations=1 last_cf_result=4 native_events=1 last_native_event=8
+2026-10-22T03:50:56.0752600Z TEST HARNESS: macOS dispatch overrun requested_ms=10 actual_ms=407.227 cf_ms=244.377 appkit_poll_ms=162.334 native_event_ms=0.514583 autorelease_ms=0.00166667 iterations=1 last_cf_result=4 native_events=1 last_native_event=13
+2026-10-22T03:50:56.0754740Z TEST HARNESS: macOS dispatch overrun requested_ms=10 actual_ms=846.941 cf_ms=257.405 appkit_poll_ms=589.536 native_event_ms=8.33333e-05 autorelease_ms=8.33333e-05 iterations=1 last_cf_result=4 native_events=0 last_native_event=-1
+2026-10-22T03:50:56.0892940Z NATIVE CLICK timeout id=path.pre clicks=0
+2026-10-22T03:50:56.0893400Z FAIL: Native navigation command was not delivered within its readiness deadline
+2026-10-22T03:50:56.0893650Z 
+2026-10-22T03:50:56.0954700Z 
+2026-10-22T03:50:56.0955180Z 67% tests passed, 1 tests failed out of 3
+2026-10-22T03:50:56.0955700Z 
+2026-10-22T03:50:56.0955950Z Total Test time (real) = 113.70 sec
+2026-10-22T03:50:56.0956460Z 
+2026-10-22T03:50:56.0956640Z The following tests FAILED:
+2026-10-22T03:50:56.0957520Z 	 15 - ChimeraNativeDynamicsQueueUITests (Failed)
+2026-10-22T03:50:56.1042720Z Errors while running CTest
+2026-10-22T03:50:56.1120600Z ##[error]Process completed with exit code 8.
+2026-10-22T03:50:56.1295340Z

@@ -23,7 +23,7 @@ bool dispatchFor(int milliseconds) {
     const double started=juce::Time::getMillisecondCounterHiRes();
     const double deadline=started+milliseconds;
     double cfMilliseconds{},pollMilliseconds{},eventMilliseconds{},autoreleaseMilliseconds{};
-    int iterations{},nativeEvents{};SInt32 lastCFResult{};NSInteger lastNativeEvent=-1;
+    int iterations{},nativeEvents{},deferredPolls{};SInt32 lastCFResult{};NSInteger lastNativeEvent=-1;
     while(!messages->hasStopMessageBeenSent()) {
         const double remaining=deadline-juce::Time::getMillisecondCounterHiRes();
         if(remaining<=0)break;
@@ -41,13 +41,23 @@ bool dispatchFor(int milliseconds) {
             // On Tahoe, JUCE's future untilDate can defer callbacks until a
             // later mouse event: https://github.com/juce-framework/JUCE/issues/1574
             // Poll AppKit without waiting; CFRunLoop above still yields normally.
-            NSEvent* event=[NSApp nextEventMatchingMask:NSEventMaskAny
+            // A native source can overrun its requested slice. Do not start
+            // another potentially expensive AppKit operation after this pump's
+            // deadline has already expired. Leave queued events intact for the
+            // next slice with budget; never discard/filter them to meet a test.
+            const bool mayPoll=beforePoll<deadline;
+            NSEvent* event=nil;
+            if(mayPoll)event=[NSApp nextEventMatchingMask:NSEventMaskAny
                                             untilDate:[NSDate distantPast]
                                                inMode:NSDefaultRunLoopMode
                                               dequeue:YES];
+            else {
+                ++deferredPolls;
+                if(measured)++telemetry.appKitPollsDeferredAtDeadline;
+            }
             const auto beforeEvent=juce::Time::getMillisecondCounterHiRes();
             pollMilliseconds+=beforeEvent-beforePoll;
-            if(measured){const double us=(beforeEvent-beforePoll)*1000;telemetry.pollMicros+=us;telemetry.pollMaxMicros=std::max(telemetry.pollMaxMicros,us);}
+            if(measured && mayPoll){const double us=(beforeEvent-beforePoll)*1000;telemetry.pollMicros+=us;telemetry.pollMaxMicros=std::max(telemetry.pollMaxMicros,us);}
             if(event) {
                 ++nativeEvents;lastNativeEvent=NSInteger(event.type);
                 if(juce::isEventBlockedByModalComps==nullptr
@@ -64,15 +74,15 @@ bool dispatchFor(int milliseconds) {
         autoreleaseMilliseconds+=juce::Time::getMillisecondCounterHiRes()-beforeAutorelease;
         ++iterations;
     }
-    // Observation only: preserve the dispatcher and the caller's readiness
-    // deadline. Identify which native stage consumed an overlong slice before
-    // changing scheduling; no extra dispatch or click is attempted here.
+    // Keep overruns observable, including a single native call that exceeds the
+    // requested slice. No retry, hidden extra dispatch or clock adjustment.
     const double elapsed=juce::Time::getMillisecondCounterHiRes()-started;
     if(elapsed>juce::jmax(250.0,4.0*milliseconds)) {
         std::cerr<<"TEST HARNESS: macOS dispatch overrun requested_ms="<<milliseconds
                  <<" actual_ms="<<elapsed<<" cf_ms="<<cfMilliseconds
                  <<" appkit_poll_ms="<<pollMilliseconds<<" native_event_ms="<<eventMilliseconds
                  <<" autorelease_ms="<<autoreleaseMilliseconds<<" iterations="<<iterations
+                 <<" appkit_deferred_at_deadline="<<deferredPolls
                  <<" last_cf_result="<<lastCFResult<<" native_events="<<nativeEvents
                  <<" last_native_event="<<lastNativeEvent<<'\n';
     }

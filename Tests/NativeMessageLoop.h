@@ -7,7 +7,7 @@ namespace chimeraTest {
 // callbacks they dispatch and therefore must not be added to analyzer CPU.
 struct DispatchTelemetry {
     bool enabled{};
-    uint64_t calls{},iterations{},nativeEvents{};
+    uint64_t calls{},iterations{},nativeEvents{},appKitPollsDeferredAtDeadline{};
     double totalMicros{},maxMicros{},cfMicros{},cfMaxMicros{},pollMicros{},pollMaxMicros{},sendMicros{},sendMaxMicros{};
 };
 inline DispatchTelemetry& dispatchTelemetry(){static DispatchTelemetry value;return value;}

@@ -84,5 +84,21 @@
     "entry_enabled": true,
     "owner_at_0": 1,
     "model_at_0": 7
+  },
+  "receipt_only_revision": {
+    "source_sha": "dbf0ac0e2b4ef2db4dcdc4b09073ec732e77c01c",
+    "run_id": 39717249554,
+    "macos_job_id": 119622845063,
+    "macos_artifact_id": 12400097864,
+    "ordinary_common_native_tests": "PASS",
+    "negative_control": "PASS",
+    "queue_regression": "FAIL: unchanged 2000 ms deadline exceeded",
+    "pending_clicks": 0,
+    "post_deadline_appkit_poll_ms": [
+      191.023,
+      162.334,
+      589.536
+    ],
+    "numerical_and_native_contracts_all_three_platforms": "PASS only for dbf0ac0; final SHA must rerun"
   }
 }
