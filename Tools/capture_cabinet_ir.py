@@ -48,7 +48,7 @@ import numpy as np
 # --------------------------------------------------------------------------- #
 # Minimal dependency-free WAV I/O (PCM 16/24/32 and IEEE float 32/64).
 # --------------------------------------------------------------------------- #
-def read_wav(path):
+def read_wav(path, mono=True):
     data = Path(path).read_bytes()
     if data[:4] != b"RIFF" or data[8:12] != b"WAVE":
         raise ValueError(f"{path}: not a RIFF/WAVE file")
@@ -84,7 +84,8 @@ def read_wav(path):
     else:
         raise ValueError(f"{path}: unsupported format tag={tag} bits={bits}")
     if ch > 1:
-        x = x.reshape(-1, ch).mean(axis=1)  # downmix to mono
+        x = x.reshape(-1, ch)
+        x = x.mean(axis=1) if mono else x   # (n,) mono, else (n, ch)
     return fmt["sr"], x
 
 
@@ -142,6 +143,41 @@ def deconvolve_spectral(response, sweep, reg_db=-60.0):
     R = np.fft.rfft(response, n)
     reg = (10.0 ** (reg_db / 20.0)) ** 2 * np.max(np.abs(S) ** 2)
     return np.fft.irfft(R * np.conj(S) / (np.abs(S) ** 2 + reg), n)
+
+
+def fft_resample(x, sr_in, sr_out):
+    """Band-limited Fourier resampling (as scipy.signal.resample), numpy-only.
+    Suitable for decaying IRs; edge effects are negligible for a windowed IR."""
+    if sr_in == sr_out:
+        return np.asarray(x, dtype=np.float64)
+    n_in = len(x)
+    n_out = int(round(n_in * sr_out / sr_in))
+    X = np.fft.rfft(x)
+    Y = np.zeros(n_out // 2 + 1, dtype=complex)
+    k = min(len(X), len(Y))
+    Y[:k] = X[:k]
+    if n_out < n_in and k > 0:                       # downsample: halve Nyquist bin
+        Y[k - 1] *= 0.5
+    return np.fft.irfft(Y, n_out) * (n_out / n_in)
+
+
+def to_minimum_phase(ir, oversample=8):
+    """Return the minimum-phase IR with the same magnitude response (homomorphic
+    / real-cepstrum method). Energy is front-loaded, so a zero-latency cab stage
+    keeps the voicing without the linear IR's bulk delay."""
+    n = len(ir)
+    nfft = 1
+    while nfft < oversample * n:
+        nfft <<= 1
+    mag = np.abs(np.fft.fft(ir, nfft))
+    logmag = np.log(np.maximum(mag, 1e-12))
+    cep = np.fft.ifft(logmag).real                   # real cepstrum
+    w = np.zeros(nfft)
+    w[0] = 1.0
+    w[1:nfft // 2] = 2.0
+    w[nfft // 2] = 1.0                               # causal (min-phase) window
+    mp = np.fft.ifft(np.exp(np.fft.fft(cep * w))).real
+    return mp[:n]
 
 
 # --------------------------------------------------------------------------- #
@@ -224,8 +260,26 @@ def _load_sweep_params(sweep_path, args):
     return args.f1, args.f2, args.dur, None
 
 
+def finish_ir(full, sr, args):
+    """Condition one deconvolved response into a deliverable IR: window, then
+    optional minimum-phase, optional resample, normalise, enforce the contract.
+    Returns (ir, out_sr, onset_seconds)."""
+    ir, onset = extract_ir(full, sr, args.ms, args.prefix)
+    if args.min_phase:
+        ir = to_minimum_phase(ir)
+    out_sr = sr
+    if args.target_sr and args.target_sr != sr:
+        ir = fft_resample(ir, sr, args.target_sr)
+        out_sr = args.target_sr
+    peak = float(np.max(np.abs(ir)))
+    if peak > 1e-20:
+        ir = ir / peak * 0.98
+    enforce_loader_contract(ir, out_sr)
+    return ir, out_sr, onset
+
+
 def cmd_deconvolve(args):
-    rate, response = read_wav(args.response)
+    rate, resp = read_wav(args.response, mono=False)
     f1, f2, dur, sr = _load_sweep_params(args.sweep, args)
     if sr is None:
         sr = rate
@@ -233,19 +287,32 @@ def cmd_deconvolve(args):
         raise SystemExit(f"response is {rate} Hz but sweep is {sr} Hz; "
                          "record at the sweep's sample rate")
     sweep = ess(f1, f2, dur, sr)
-    full = deconvolve_spectral(response, sweep, args.reg)
-    ir, onset = extract_ir(full, sr, args.ms, args.prefix)
-    residual_db = linear_residual_db(response, sweep, full)
-    enforce_loader_contract(ir, sr)
-    write_wav_float32(args.out, sr, ir)
-    print(f"wrote {args.out}: mono, {len(ir)} samples "
-          f"({1000*len(ir)/sr:.1f} ms) @ {sr} Hz")
-    print(f"linear onset at {onset*1000:.1f} ms; unexplained (nonlinear/noise) "
-          f"residual {residual_db:+.1f} dB vs the recording")
-    if residual_db > -20:
-        print("WARNING: large unexplained residual -- the target is likely "
-              "nonlinear (drive/compression on?) or the recording is noisy. A "
-              "single IR cannot model distortion; capture the CAB/mic stage clean.")
+    if resp.ndim == 1:
+        channels = [("", resp)]                      # single mono response
+    else:
+        labels = ["micA", "micB", "mic3", "mic4"][:resp.shape[1]]
+        channels = [(labels[i], resp[:, i]) for i in range(resp.shape[1])]
+        print(f"stereo/multi response: capturing {len(channels)} mic channels "
+              f"({', '.join(l for l, _ in channels)})")
+    out = Path(args.out)
+    for label, x in channels:
+        full = deconvolve_spectral(x, sweep, args.reg)
+        ir, out_sr, onset = finish_ir(full, sr, args)
+        residual_db = linear_residual_db(x, sweep, full)
+        path = out if not label else out.with_name(f"{out.stem}_{label}{out.suffix}")
+        write_wav_float32(str(path), out_sr, ir)
+        tag = f"[{label}] " if label else ""
+        extra = (" [min-phase]" if args.min_phase else "")
+        extra += (f" [resampled {sr}->{out_sr} Hz]" if out_sr != sr else "")
+        print(f"{tag}wrote {path}: mono, {len(ir)} samples "
+              f"({1000*len(ir)/out_sr:.1f} ms) @ {out_sr} Hz{extra}")
+        print(f"{tag}linear onset at {onset*1000:.1f} ms; unexplained "
+              f"(nonlinear/noise) residual {residual_db:+.1f} dB vs the recording")
+        if residual_db > -20:
+            print(f"{tag}WARNING: large unexplained residual -- the target is "
+                  "likely nonlinear (drive/compression on?) or the recording is "
+                  "noisy. A single IR cannot model distortion; capture the "
+                  "CAB/mic stage clean.")
 
 
 def cmd_selftest(args):
@@ -299,15 +366,45 @@ def cmd_selftest(args):
     ir, _ = extract_ir(full, sr, 1000.0 * len(ref) / sr + 5, prefix_ms=0.5)
     enforce_loader_contract(ir, sr)
 
+    # Minimum-phase conversion must preserve magnitude and front-load energy.
+    mp = to_minimum_phase(a)
+    Amp = np.abs(np.fft.rfft(a, 2 * sr)) + 1e-9
+    Mmp = np.abs(np.fft.rfft(mp, 2 * sr)) + 1e-9
+    mp_err = 20 * np.log10(Mmp[band] / Amp[band])
+    mp_err -= np.mean(mp_err)
+    mp_rms = float(np.sqrt(np.mean(mp_err ** 2)))
+
+    def centroid(x):
+        e = x ** 2
+        return float(np.sum(np.arange(len(x)) * e) / (np.sum(e) + 1e-30))
+    front = centroid(mp) < centroid(a)
+
+    # Resampling must preserve the magnitude response up to the new Nyquist.
+    rs_sr = 48000 if sr != 48000 else 44100
+    rs = fft_resample(a, sr, rs_sr)
+    fr2 = min(f2, 0.45 * rs_sr)
+    fa, fb = np.fft.rfftfreq(2 * sr, 1 / sr), np.fft.rfftfreq(2 * rs_sr, 1 / rs_sr)
+    cf = np.linspace(args.f1, fr2, 300)
+    ia = np.interp(cf, fa, np.abs(np.fft.rfft(a, 2 * sr)))
+    ib = np.interp(cf, fb, np.abs(np.fft.rfft(rs, 2 * rs_sr)))
+    rs_err = 20 * np.log10((ib + 1e-9) / (ia + 1e-9))
+    rs_err -= np.mean(rs_err)
+    rs_rms = float(np.sqrt(np.mean(rs_err ** 2)))
+
     print(f"self-test against {label} @ {sr} Hz")
     print(f"  time-domain shape correlation : {corr:.4f}  (1.000 = identical)")
     print(f"  magnitude error {args.f1:.0f}-{f2:.0f} Hz : {rms_db:.3f} dB RMS")
     print(f"  linear-model residual         : {residual_db:+.1f} dB")
     print(f"  delivered IR meets loader contract: OK "
           f"({len(ir)} samples, {1000*len(ir)/sr:.0f} ms)")
-    ok = corr > 0.999 and rms_db < 0.3 and residual_db < -40
+    print(f"  min-phase magnitude error     : {mp_rms:.3f} dB RMS, "
+          f"energy front-loaded: {'yes' if front else 'NO'}")
+    print(f"  resample {sr}->{rs_sr} Hz magnitude error : {rs_rms:.3f} dB RMS")
+    ok = (corr > 0.999 and rms_db < 0.3 and residual_db < -40
+          and mp_rms < 0.5 and front and rs_rms < 0.3)
     print(f"  RESULT: {'PASS' if ok else 'CHECK'} "
-          f"(expect corr>0.999, err<0.3 dB, residual<-40 dB on a clean target)")
+          f"(expect corr>0.999, err<0.3 dB, residual<-40 dB, min-phase/resample "
+          f"mag preserved)")
     return 0 if ok else 1
 
 
@@ -334,6 +431,10 @@ def main(argv=None):
     d.add_argument("--prefix", type=float, default=1.0, help="ms kept before onset")
     d.add_argument("--reg", type=float, default=-60.0,
                    help="deconvolution regularisation floor in dB (lower = sharper)")
+    d.add_argument("--target-sr", type=int, default=0,
+                   help="resample the IR to this sample rate (0 = keep source)")
+    d.add_argument("--min-phase", action="store_true",
+                   help="convert to minimum phase (front-loaded, zero-latency cab)")
     d.add_argument("--f1", type=float, default=20.0)
     d.add_argument("--f2", type=float, default=20000.0)
     d.add_argument("--dur", type=float, default=5.0)
