@@ -165,7 +165,15 @@ inline void run(const juce::File& directory) {
     require((p.parameters().getRawParameterValue("cleanCompOn")->load()>.5f)!=wasOn,"Compressor switch is not attached");
     set(p,"cleanCompOn",1);set(p,"cleanCompThreshold",-32);set(p,"cleanCompRatio",4);set(p,"cleanCompAttack",1);
     set(p,"cleanCompKnee",0);set(p,"cleanCompMakeup",0);set(p,"cleanCompMix",1);set(p,"cleanCompDetector",0);
-    acknowledge(p);audio(p);
+    // The panel's own timer retires the frame when the compressor route turns
+    // on. A stalled macOS loop can deliver that after the first burst, so
+    // measure again (bounded); the assertion itself is unchanged.
+    for(int attempt=0;attempt<3;++attempt) {
+        acknowledge(p);audio(p);
+        if(measured->analyzerHasData() && measured->spectrumDB(false,80)>-35.f)break;
+        std::cerr<<"Compressor spectrum attempt="<<attempt<<" data="<<measured->analyzerHasData()<<" in_db="<<measured->spectrumDB(false,80)
+                 <<" drain="<<measured->isWaitingForFreshCapture()<<" enabled="<<p.dynamicsAnalysis().fifo.enabled.load()<<'\n';
+    }
     require(measured->analyzerHasData() && measured->spectrumDB(false,80)>-35.f,"Actual anti-phase stereo input disappeared from the spectrum");
     require(measured->spectrumDB(false,80)-measured->spectrumDB(true,80)>4.f,"Compressor OUT does not show the measured attenuation");
     const auto frozenInput=measured->spectrumDB(false,80),frozenOutput=measured->spectrumDB(true,80);
