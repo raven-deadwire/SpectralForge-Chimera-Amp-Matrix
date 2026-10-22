@@ -76,7 +76,9 @@ private:
 class Transposer {
     // Three pre-prepared shifters so the quality/latency mode can switch without
     // reallocating on the audio thread. Classic keeps the released ~32 ms window
-    // (window override 0); Low-Latency and Tight halve and quarter it, trading
+    // (window override 0); Low-Latency halves it. Tight uses a 10 ms analysis
+    // window (zero-padded FFT) so its added algorithmic latency meets the
+    // <=10 ms transpose target at every sample rate (#8/#97), trading
     // low-register resolution for latency. Only the active instance processes.
     std::array<PolyPitch,3> stretch;
     int activeMode{0};
@@ -87,14 +89,17 @@ class Transposer {
     int delaySamples{},warmupSamples{};
     bool wasRendering{};
 public:
+    // Largest analysis window (a multiple of 8 samples) within 10 ms.
+    static int tightAnalysisLength(double sampleRate) {return int(sampleRate*.010)/8*8;}
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
         // Match PolyPitch's default window, then derive the shorter modes from it
         // so each mode keeps a consistent latency in ms across sample rates.
         int defaultWindow=256; while(defaultWindow<spec.sampleRate*.032) defaultWindow<<=1;
-        const std::array<int,3> modeWindow{0,defaultWindow/2,defaultWindow/4};
+        const std::array<int,3> modeWindow{0,defaultWindow/2,0};
+        const std::array<int,3> modeAnalysis{0,0,tightAnalysisLength(spec.sampleRate)};
         int maxLatency=0;
-        for(int m=0;m<3;++m){ stretch[(size_t)m].prepare(spec,modeWindow[(size_t)m]); maxLatency=juce::jmax(maxLatency,stretch[(size_t)m].latency()); }
+        for(int m=0;m<3;++m){ stretch[(size_t)m].prepare(spec,modeWindow[(size_t)m],modeAnalysis[(size_t)m]); maxLatency=juce::jmax(maxLatency,stretch[(size_t)m].latency()); }
         activeMode=0; delaySamples=stretch[0].latency();
         shifted.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         aligned.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
