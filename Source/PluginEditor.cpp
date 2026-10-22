@@ -9,6 +9,7 @@
 #include "SupportPanel.h"
 #include "ReleaseInfo.h"
 #include "RackEffectDetailPanel.h"
+#include "BetaLifecycleDisplay.h"
 
 #ifndef CHIMERA_BUILD_REVISION
 #define CHIMERA_BUILD_REVISION "local"
@@ -159,6 +160,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         juce::PopupMenu menu;
         menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
         menu.addSectionHeader(juce::String("Expiry UTC: ")+(CHIMERA_BETA_EXPIRY_UTC[0] ? CHIMERA_BETA_EXPIRY_UTC : "approval pending"));
+        if(CHIMERA_BETA_EXPIRY_KST[0])menu.addSectionHeader(juce::String("Expiry KST: ")+CHIMERA_BETA_EXPIRY_KST);
+        // Same single evaluation as the Beta / Updates notice; never a UI-owned clock.
+        menu.addSectionHeader(juce::String(spectralforge::beta::remainingText(processor.betaStatus())));
         menu.addItem(6,"Beta / Updates / Manual / Bug report...");menu.addItem(7,"Review / copy / save diagnostics...");menu.addSeparator();menu.addItem(1,"Save reference...");menu.addItem(2,"Load reference...");menu.addSeparator();menu.addItem(3,"About / IR credits");menu.addSeparator();menu.addItem(4,"Reset tuner A4 to 440 Hz");menu.addItem(5,"Clear MIDI assignments");
         const juce::Component::SafePointer<ChimeraEditor> safe(this);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
