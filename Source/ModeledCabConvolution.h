@@ -6,6 +6,8 @@
 #include "CabRealtimeProfile.h"
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 #include <xmmintrin.h>
+#elif defined(__ARM_NEON) || defined(__ARM_NEON__) || defined(_M_ARM64)
+#include <arm_neon.h>
 #endif
 
 namespace spectralforge {
@@ -123,6 +125,27 @@ private:
                                       _mm_mul_ps(inputImag,impulseReal));
             _mm_storeu_ps(output+i,real);
             _mm_storeu_ps(output+bins+i,imag);
+        }
+#elif defined(__ARM_NEON) || defined(__ARM_NEON__) || defined(_M_ARM64)
+        // Mirror the SSE spectral-MAC on arm64 (Apple Silicon, Windows on ARM)
+        // so the dominant loop is not left to auto-vectorization there. Use
+        // explicit vmul then vadd/vsub, never vmla/vfma, so each lane keeps the
+        // same two-rounding arithmetic order as the SSE path and the vectorized
+        // bins match it lane-for-lane. Unaligned loads/stores match the SSE
+        // path: N/2+1 bins leave the imaginary plane unaligned.
+        for(;i+4<=bins;i+=4) {
+            const auto inputReal=vld1q_f32(input+i);
+            const auto inputImag=vld1q_f32(input+bins+i);
+            const auto impulseReal=vld1q_f32(impulse+i);
+            const auto impulseImag=vld1q_f32(impulse+bins+i);
+            const auto outputReal=vld1q_f32(output+i);
+            const auto outputImag=vld1q_f32(output+bins+i);
+            const auto real=vsubq_f32(vaddq_f32(outputReal,vmulq_f32(inputReal,impulseReal)),
+                                      vmulq_f32(inputImag,impulseImag));
+            const auto imag=vaddq_f32(vaddq_f32(outputImag,vmulq_f32(inputReal,impulseImag)),
+                                      vmulq_f32(inputImag,impulseReal));
+            vst1q_f32(output+i,real);
+            vst1q_f32(output+bins+i,imag);
         }
 #endif
         for(;i<bins;++i) {
