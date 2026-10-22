@@ -29,8 +29,9 @@ Native-host and listening acceptance retain their recorded scope.
 
 No old host ordinal, ID, range or AU version hint is repurposed. EQ starts
 bypassed with disabled bands. Missing EQ parameters in older projects and A/B
-slots use definition defaults rather than dirty current-session values. Existing
-factory presets remain bypassed. PRE graphic EQ and POST character EQ remain.
+slots use definition defaults rather than dirty current-session values. The
+[2026-10-19 factory finishing update](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/main/docs/PRESET_DYNAMICS_EQ.md) explicitly authors
+active EQ on new factory recalls. PRE graphic EQ and POST character EQ remain.
 
 Graph drag edits frequency and gain with balanced host gestures. Q uses a wheel
 gesture or numeric input. Gain is retained but disabled for pass, notch and band

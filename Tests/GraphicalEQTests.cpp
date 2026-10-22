@@ -81,8 +81,22 @@ void stateContract(ChimeraProcessor& p) {
     auto strip=[](juce::ValueTree t){for(int i=t.getNumChildren()-1;i>=0;--i){auto id=t.getChild(i).getProperty("id").toString();if(id.startsWith("toneEQ_") || id.startsWith("finalEQ_"))t.removeChild(i,nullptr);}};
     strip(legacy);for(auto slot:legacy.getChildWithName("COMPARISONS"))strip(slot);juce::MemoryBlock old;juce::AudioProcessor::copyXmlToBinary(*legacy.createXml(),old);
     copy->setStateInformation(old.getData(),int(old.getSize()));check(copy->graphicalEQ(0).isBypassed() && copy->graphicalEQ(1).isBypassed(),"Legacy missing EQ inherited dirty state");
-    for(int index=0;index<selectablePresetCount;++index){copy->loadFactoryPreset(index);check(copy->graphicalEQ(0).isBypassed() && copy->graphicalEQ(1).isBypassed(),"Factory preset enabled a new EQ");for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(!copy->graphicalEQ(e).values(b).enabled,"Factory preset inherited dirty node");}
-    std::cout<<"PASS 122 host parameters / project / A-B / legacy migration / "<<selectablePresetCount<<" factory defaults\n";
+    for(int index=0;index<selectablePresetCount;++index) {
+        // A prior user's last slot must not become part of the authored factory EQ.
+        for(int e=0;e<2;++e)configure(*copy,e,11,0,17000,7,4);
+        copy->loadFactoryPreset(index);
+        for(int e=0;e<2;++e) {
+            check(!copy->graphicalEQ(e).isBypassed(),"Factory preset did not enable its EQ recipe");
+            uint16_t enabledMask=0;
+            for(int b=0;b<graphicalEQBands;++b)
+                if(copy->graphicalEQ(e).values(b).enabled)enabledMask|=uint16_t(1u<<b);
+            check(enabledMask!=0 && copy->eqEditing().occupiedMask(e)==enabledMask,
+                  "Factory EQ occupancy differs from its enabled bands");
+            check(!copy->graphicalEQ(e).values(11).enabled && !copy->eqEditing().isOccupied(e,11),
+                  "Factory preset inherited a dirty Band 12");
+        }
+    }
+    std::cout<<"PASS 122 host parameters / project / A-B / legacy migration / "<<selectablePresetCount<<" active factory EQ recipes\n";
 }
 void audioRestore() {
     auto a=std::make_unique<ChimeraProcessor>(),b=std::make_unique<ChimeraProcessor>();

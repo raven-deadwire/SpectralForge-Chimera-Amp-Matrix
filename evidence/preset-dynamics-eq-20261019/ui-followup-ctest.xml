@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="2"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="116"
+	timestamp="2026-10-19T21:39:25"
+	>
+	<testcase name="ChimeraCommonDynamicsUITests" classname="ChimeraCommonDynamicsUITests" time="6.51723" status="run">
+		<properties/>
+		<system-out>PASS native dynamics navigation, audio-neutral opening, four scales, compressor control and non-destructive four-slot assignment
+</system-out>
+	</testcase>
+	<testcase name="ChimeraSignalPathUITests" classname="ChimeraSignalPathUITests" time="110.238" status="run">
+		<properties/>
+		<system-out>PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=0
+Signal Path scenario 0 / 0
+ROUTING TRACE phase=parameters-set now=6.35897e+07 rawGate=0 dspGate=-1 dspBlocks=0 directPost=0 cachedPost=0 cachedInput=1 ticks=4 skipped=0 refreshed=4 entered=6.35896e+07 finished=6.35896e+07 visible=1 messageThread=1 viewCalls=6 viewTime=6.35896e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.35897e+07 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=4 skipped=0 refreshed=4 entered=6.35896e+07 finished=6.35896e+07 visible=1 messageThread=1 viewCalls=6 viewTime=6.35896e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.35898e+07 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=6 skipped=0 refreshed=6 entered=6.35897e+07 finished=6.35897e+07 visible=1 messageThread=1 viewCalls=9 viewTime=6.35897e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

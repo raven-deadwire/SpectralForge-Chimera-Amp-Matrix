@@ -1,0 +1,24 @@
+{
+  "source_sha": "5a5521f49bba8d00039a0c94e0d575ea5db8ba6e",
+  "artifact_sha256": "50a1bd06fcc9d726cfb7b28332ba87dd93274b5ad07fb2403e0979c443eb9073",
+  "ctest_log_sha256": "0e56b334e5281eb545954b38ecc543050f4722eb125f9f3bf17cd780a999dfd0",
+  "ctest_junit": {
+    "name": "(empty)",
+    "tests": "5",
+    "failures": "1",
+    "disabled": "0",
+    "skipped": "0",
+    "hostname": "",
+    "time": "162",
+    "timestamp": "2026-10-19T16:03:48"
+  },
+  "ctest_pass_executions": 14,
+  "normal_qos_control_exit": "0",
+  "integration_invocations": 3,
+  "route_rows": 96,
+  "failed_routes": 2,
+  "max_acquire_ms": 322.289375,
+  "max_settle_ms": 231.015125,
+  "max_absolute_error_ct": 99999.0,
+  "release_approved": false
+}

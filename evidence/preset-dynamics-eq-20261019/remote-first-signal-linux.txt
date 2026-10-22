@@ -1,0 +1,90 @@
+2026-10-19T12:20:42.2455893Z Test project /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+2026-10-19T12:20:42.2928121Z       Start  8: ChimeraPackagingVersionTests
+2026-10-19T12:20:46.5701064Z  1/12 Test  #8: ChimeraPackagingVersionTests .....   Passed    4.27 sec
+2026-10-19T12:20:46.5755150Z       Start 12: ChimeraPrecisionTunerUITests
+2026-10-19T12:20:53.2517640Z  2/12 Test #12: ChimeraPrecisionTunerUITests .....   Passed    6.68 sec
+2026-10-19T12:20:53.2518471Z       Start 13: ChimeraCommonDynamicsUITests
+2026-10-19T12:20:58.9926065Z  3/12 Test #13: ChimeraCommonDynamicsUITests .....   Passed    5.74 sec
+2026-10-19T12:20:58.9926789Z       Start 15: ChimeraSignalPathUITests
+2026-10-19T12:22:08.8463744Z  4/12 Test #15: ChimeraSignalPathUITests .........***Failed   69.85 sec
+2026-10-19T12:22:08.8465593Z PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=0
+2026-10-19T12:22:08.8466341Z Signal Path scenario 0 / 0
+2026-10-19T12:22:08.8467342Z ROUTING TRACE phase=parameters-set now=1.41127e+06 rawGate=0 dspGate=-1 dspBlocks=0 directPost=0 cachedPost=0 cachedInput=1 ticks=4 skipped=0 refreshed=4 entered=1.41121e+06 finished=1.41121e+06 visible=1 messageThread=1 viewCalls=6 viewTime=1.41121e+06 snapshotEqual=0
+2026-10-19T12:22:08.8469247Z ROUTING TRACE phase=audio-processed now=1.41127e+06 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=4 skipped=0 refreshed=4 entered=1.41121e+06 finished=1.41121e+06 visible=1 messageThread=1 viewCalls=6 viewTime=1.41121e+06 snapshotEqual=0
+2026-10-19T12:22:08.8470998Z ROUTING TRACE phase=messages-settled now=1.41137e+06 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=7 skipped=0 refreshed=7 entered=1.41135e+06 finished=1.41135e+06 visible=1 messageThread=1 viewCalls=10 viewTime=1.41135e+06 snapshotEqual=1
+2026-10-19T12:22:08.8472749Z ROUTING TRACE phase=parameters-set now=1.41137e+06 rawGate=1 dspGate=0 dspBlocks=1 directPost=1 cachedPost=0 cachedInput=1 ticks=7 skipped=0 refreshed=7 entered=1.41135e+06 finished=1.41135e+06 visible=1 messageThread=1 viewCalls=10 viewTime=1.41135e+06 snapshotEqual=0
+2026-10-19T12:22:08.8474577Z ROUTING TRACE phase=audio-processed now=1.41137e+06 rawGate=1 dspGate=1 dspBlocks=2 directPost=1 cachedPost=0 cachedInput=1 ticks=7 skipped=0 refreshed=7 entered=1.41135e+06 finished=1.41135e+06 visible=1 messageThread=1 viewCalls=10 viewTime=1.41135e+06 snapshotEqual=0
+2026-10-19T12:22:08.8476516Z ROUTING TRACE phase=messages-settled now=1.41147e+06 rawGate=1 dspGate=1 dspBlocks=2 directPost=1 cachedPost=1 cachedInput=1 ticks=10 skipped=0 refreshed=10 entered=1.41147e+06 finished=1.41147e+06 visible=1 messageThread=1 viewCalls=14 viewTime=1.41147e+06 snapshotEqual=1
+2026-10-19T12:22:08.8478264Z ROUTING TRACE phase=parameters-set now=1.4115e+06 rawGate=0 dspGate=1 dspBlocks=2 directPost=0 cachedPost=1 cachedInput=1 ticks=10 skipped=0 refreshed=10 entered=1.41147e+06 finished=1.41147e+06 visible=1 messageThread=1 viewCalls=14 viewTime=1.41147e+06 snapshotEqual=0
+2026-10-19T12:22:08.8480012Z ROUTING TRACE phase=audio-processed now=1.4115e+06 rawGate=0 dspGate=0 dspBlocks=3 directPost=0 cachedPost=1 cachedInput=1 ticks=10 skipped=0 refreshed=10 entered=1.41147e+06 finished=1.41147e+06 visible=1 messageThread=1 viewCalls=14 viewTime=1.41147e+06 snapshotEqual=0
+2026-10-19T12:22:08.8481723Z ROUTING TRACE phase=messages-settled now=1.4116e+06 rawGate=0 dspGate=0 dspBlocks=3 directPost=0 cachedPost=0 cachedInput=1 ticks=13 skipped=0 refreshed=13 entered=1.41159e+06 finished=1.41159e+06 visible=1 messageThread=1 viewCalls=18 viewTime=1.41159e+06 snapshotEqual=1
+2026-10-19T12:22:08.8483427Z ROUTING TRACE phase=parameters-set now=1.4116e+06 rawGate=1 dspGate=0 dspBlocks=3 directPost=1 cachedPost=0 cachedInput=1 ticks=13 skipped=0 refreshed=13 entered=1.41159e+06 finished=1.41159e+06 visible=1 messageThread=1 viewCalls=18 viewTime=1.41159e+06 snapshotEqual=0
+2026-10-19T12:22:08.8485238Z ROUTING TRACE phase=audio-processed now=1.41161e+06 rawGate=1 dspGate=1 dspBlocks=4 directPost=1 cachedPost=0 cachedInput=1 ticks=13 skipped=0 refreshed=13 entered=1.41159e+06 finished=1.41159e+06 visible=1 messageThread=1 viewCalls=18 viewTime=1.41159e+06 snapshotEqual=0
+2026-10-19T12:22:08.8486956Z ROUTING TRACE phase=messages-settled now=1.41171e+06 rawGate=1 dspGate=1 dspBlocks=4 directPost=1 cachedPost=1 cachedInput=1 ticks=15 skipped=0 refreshed=15 entered=1.41167e+06 finished=1.41167e+06 visible=1 messageThread=1 viewCalls=21 viewTime=1.41167e+06 snapshotEqual=1
+2026-10-19T12:22:08.8487952Z Signal Path scenario 1 / 0
+2026-10-19T12:22:08.8488917Z ROUTING TRACE phase=parameters-set now=1.42615e+06 rawGate=0 dspGate=1 dspBlocks=4 directPost=0 cachedPost=0 cachedInput=1 ticks=297 skipped=0 refreshed=297 entered=1.42613e+06 finished=1.42613e+06 visible=1 messageThread=1 viewCalls=491 viewTime=1.42613e+06 snapshotEqual=0
+2026-10-19T12:22:08.8490804Z ROUTING TRACE phase=audio-processed now=1.42615e+06 rawGate=0 dspGate=0 dspBlocks=5 directPost=0 cachedPost=0 cachedInput=1 ticks=297 skipped=0 refreshed=297 entered=1.42613e+06 finished=1.42613e+06 visible=1 messageThread=1 viewCalls=491 viewTime=1.42613e+06 snapshotEqual=0
+2026-10-19T12:22:08.8492608Z ROUTING TRACE phase=messages-settled now=1.42625e+06 rawGate=0 dspGate=0 dspBlocks=5 directPost=0 cachedPost=0 cachedInput=1 ticks=299 skipped=0 refreshed=299 entered=1.42622e+06 finished=1.42622e+06 visible=1 messageThread=1 viewCalls=494 viewTime=1.42622e+06 snapshotEqual=1
+2026-10-19T12:22:08.8494357Z ROUTING TRACE phase=parameters-set now=1.42625e+06 rawGate=1 dspGate=0 dspBlocks=5 directPost=1 cachedPost=0 cachedInput=1 ticks=299 skipped=0 refreshed=299 entered=1.42622e+06 finished=1.42622e+06 visible=1 messageThread=1 viewCalls=494 viewTime=1.42622e+06 snapshotEqual=0
+2026-10-19T12:22:08.8496212Z ROUTING TRACE phase=audio-processed now=1.42625e+06 rawGate=1 dspGate=1 dspBlocks=6 directPost=1 cachedPost=0 cachedInput=1 ticks=299 skipped=0 refreshed=299 entered=1.42622e+06 finished=1.42622e+06 visible=1 messageThread=1 viewCalls=494 viewTime=1.42622e+06 snapshotEqual=0
+2026-10-19T12:22:08.8498017Z ROUTING TRACE phase=messages-settled now=1.42635e+06 rawGate=1 dspGate=1 dspBlocks=6 directPost=1 cachedPost=1 cachedInput=1 ticks=302 skipped=0 refreshed=302 entered=1.42635e+06 finished=1.42635e+06 visible=1 messageThread=1 viewCalls=498 viewTime=1.42635e+06 snapshotEqual=1
+2026-10-19T12:22:08.8499749Z ROUTING TRACE phase=parameters-set now=1.42639e+06 rawGate=0 dspGate=1 dspBlocks=6 directPost=0 cachedPost=1 cachedInput=1 ticks=303 skipped=0 refreshed=303 entered=1.42639e+06 finished=1.42639e+06 visible=1 messageThread=1 viewCalls=499 viewTime=1.42639e+06 snapshotEqual=0
+2026-10-19T12:22:08.8501479Z ROUTING TRACE phase=audio-processed now=1.42639e+06 rawGate=0 dspGate=0 dspBlocks=7 directPost=0 cachedPost=1 cachedInput=1 ticks=303 skipped=0 refreshed=303 entered=1.42639e+06 finished=1.42639e+06 visible=1 messageThread=1 viewCalls=499 viewTime=1.42639e+06 snapshotEqual=0
+2026-10-19T12:22:08.8503200Z ROUTING TRACE phase=messages-settled now=1.42649e+06 rawGate=0 dspGate=0 dspBlocks=7 directPost=0 cachedPost=0 cachedInput=1 ticks=305 skipped=0 refreshed=305 entered=1.42647e+06 finished=1.42647e+06 visible=1 messageThread=1 viewCalls=502 viewTime=1.42647e+06 snapshotEqual=1
+2026-10-19T12:22:08.8504921Z ROUTING TRACE phase=parameters-set now=1.42649e+06 rawGate=1 dspGate=0 dspBlocks=7 directPost=1 cachedPost=0 cachedInput=1 ticks=305 skipped=0 refreshed=305 entered=1.42647e+06 finished=1.42647e+06 visible=1 messageThread=1 viewCalls=502 viewTime=1.42647e+06 snapshotEqual=0
+2026-10-19T12:22:08.8506755Z ROUTING TRACE phase=audio-processed now=1.42649e+06 rawGate=1 dspGate=1 dspBlocks=8 directPost=1 cachedPost=0 cachedInput=1 ticks=305 skipped=0 refreshed=305 entered=1.42647e+06 finished=1.42647e+06 visible=1 messageThread=1 viewCalls=502 viewTime=1.42647e+06 snapshotEqual=0
+2026-10-19T12:22:08.8508483Z ROUTING TRACE phase=messages-settled now=1.42659e+06 rawGate=1 dspGate=1 dspBlocks=8 directPost=1 cachedPost=1 cachedInput=1 ticks=308 skipped=0 refreshed=308 entered=1.42659e+06 finished=1.42659e+06 visible=1 messageThread=1 viewCalls=506 viewTime=1.42659e+06 snapshotEqual=1
+2026-10-19T12:22:08.8509490Z Signal Path scenario 1 / 1
+2026-10-19T12:22:08.8510442Z ROUTING TRACE phase=parameters-set now=1.44157e+06 rawGate=0 dspGate=1 dspBlocks=8 directPost=0 cachedPost=0 cachedInput=1 ticks=600 skipped=0 refreshed=600 entered=1.44156e+06 finished=1.44156e+06 visible=1 messageThread=1 viewCalls=998 viewTime=1.44156e+06 snapshotEqual=0
+2026-10-19T12:22:08.8512158Z ROUTING TRACE phase=audio-processed now=1.44157e+06 rawGate=0 dspGate=0 dspBlocks=9 directPost=0 cachedPost=0 cachedInput=1 ticks=600 skipped=0 refreshed=600 entered=1.44156e+06 finished=1.44156e+06 visible=1 messageThread=1 viewCalls=998 viewTime=1.44156e+06 snapshotEqual=0
+2026-10-19T12:22:08.8514009Z ROUTING TRACE phase=messages-settled now=1.44167e+06 rawGate=0 dspGate=0 dspBlocks=9 directPost=0 cachedPost=0 cachedInput=1 ticks=602 skipped=0 refreshed=602 entered=1.44165e+06 finished=1.44165e+06 visible=1 messageThread=1 viewCalls=1001 viewTime=1.44165e+06 snapshotEqual=1
+2026-10-19T12:22:08.8516119Z ROUTING TRACE phase=parameters-set now=1.44168e+06 rawGate=1 dspGate=0 dspBlocks=9 directPost=1 cachedPost=0 cachedInput=1 ticks=602 skipped=0 refreshed=602 entered=1.44165e+06 finished=1.44165e+06 visible=1 messageThread=1 viewCalls=1001 viewTime=1.44165e+06 snapshotEqual=0
+2026-10-19T12:22:08.8517893Z ROUTING TRACE phase=audio-processed now=1.44168e+06 rawGate=1 dspGate=1 dspBlocks=10 directPost=1 cachedPost=0 cachedInput=1 ticks=602 skipped=0 refreshed=602 entered=1.44165e+06 finished=1.44165e+06 visible=1 messageThread=1 viewCalls=1001 viewTime=1.44165e+06 snapshotEqual=0
+2026-10-19T12:22:08.8519654Z ROUTING TRACE phase=messages-settled now=1.44178e+06 rawGate=1 dspGate=1 dspBlocks=10 directPost=1 cachedPost=1 cachedInput=1 ticks=605 skipped=0 refreshed=605 entered=1.44177e+06 finished=1.44177e+06 visible=1 messageThread=1 viewCalls=1005 viewTime=1.44177e+06 snapshotEqual=1
+2026-10-19T12:22:08.8521405Z ROUTING TRACE phase=parameters-set now=1.44181e+06 rawGate=0 dspGate=1 dspBlocks=10 directPost=0 cachedPost=1 cachedInput=1 ticks=606 skipped=0 refreshed=606 entered=1.44181e+06 finished=1.44181e+06 visible=1 messageThread=1 viewCalls=1006 viewTime=1.44181e+06 snapshotEqual=0
+2026-10-19T12:22:08.8523236Z ROUTING TRACE phase=audio-processed now=1.44181e+06 rawGate=0 dspGate=0 dspBlocks=11 directPost=0 cachedPost=1 cachedInput=1 ticks=606 skipped=0 refreshed=606 entered=1.44181e+06 finished=1.44181e+06 visible=1 messageThread=1 viewCalls=1006 viewTime=1.44181e+06 snapshotEqual=0
+2026-10-19T12:22:08.8524975Z ROUTING TRACE phase=messages-settled now=1.44191e+06 rawGate=0 dspGate=0 dspBlocks=11 directPost=0 cachedPost=0 cachedInput=1 ticks=608 skipped=0 refreshed=608 entered=1.44189e+06 finished=1.44189e+06 visible=1 messageThread=1 viewCalls=1009 viewTime=1.44189e+06 snapshotEqual=1
+2026-10-19T12:22:08.8526848Z ROUTING TRACE phase=parameters-set now=1.44192e+06 rawGate=1 dspGate=0 dspBlocks=11 directPost=1 cachedPost=0 cachedInput=1 ticks=608 skipped=0 refreshed=608 entered=1.44189e+06 finished=1.44189e+06 visible=1 messageThread=1 viewCalls=1009 viewTime=1.44189e+06 snapshotEqual=0
+2026-10-19T12:22:08.8528920Z ROUTING TRACE phase=audio-processed now=1.44192e+06 rawGate=1 dspGate=1 dspBlocks=12 directPost=1 cachedPost=0 cachedInput=1 ticks=608 skipped=0 refreshed=608 entered=1.44189e+06 finished=1.44189e+06 visible=1 messageThread=1 viewCalls=1009 viewTime=1.44189e+06 snapshotEqual=0
+2026-10-19T12:22:08.8531734Z ROUTING TRACE phase=messages-settled now=1.44202e+06 rawGate=1 dspGate=1 dspBlocks=12 directPost=1 cachedPost=1 cachedInput=1 ticks=611 skipped=0 refreshed=611 entered=1.44201e+06 finished=1.44201e+06 visible=1 messageThread=1 viewCalls=1013 viewTime=1.44201e+06 snapshotEqual=1
+2026-10-19T12:22:08.8533170Z Signal Path scenario 2 / 0
+2026-10-19T12:22:08.8534183Z ROUTING TRACE phase=parameters-set now=1.45743e+06 rawGate=0 dspGate=1 dspBlocks=12 directPost=0 cachedPost=0 cachedInput=1 ticks=912 skipped=0 refreshed=912 entered=1.45741e+06 finished=1.45741e+06 visible=1 messageThread=1 viewCalls=1520 viewTime=1.45741e+06 snapshotEqual=0
+2026-10-19T12:22:08.8536658Z ROUTING TRACE phase=audio-processed now=1.45743e+06 rawGate=0 dspGate=0 dspBlocks=13 directPost=0 cachedPost=0 cachedInput=1 ticks=912 skipped=0 refreshed=912 entered=1.45741e+06 finished=1.45741e+06 visible=1 messageThread=1 viewCalls=1520 viewTime=1.45741e+06 snapshotEqual=0
+2026-10-19T12:22:08.8538477Z ROUTING TRACE phase=messages-settled now=1.45753e+06 rawGate=0 dspGate=0 dspBlocks=13 directPost=0 cachedPost=0 cachedInput=1 ticks=914 skipped=0 refreshed=914 entered=1.4575e+06 finished=1.4575e+06 visible=1 messageThread=1 viewCalls=1523 viewTime=1.4575e+06 snapshotEqual=1
+2026-10-19T12:22:08.8540400Z ROUTING TRACE phase=parameters-set now=1.45753e+06 rawGate=1 dspGate=0 dspBlocks=13 directPost=1 cachedPost=0 cachedInput=1 ticks=914 skipped=0 refreshed=914 entered=1.4575e+06 finished=1.4575e+06 visible=1 messageThread=1 viewCalls=1523 viewTime=1.4575e+06 snapshotEqual=0
+2026-10-19T12:22:08.8542184Z ROUTING TRACE phase=audio-processed now=1.45753e+06 rawGate=1 dspGate=1 dspBlocks=14 directPost=1 cachedPost=0 cachedInput=1 ticks=914 skipped=0 refreshed=914 entered=1.4575e+06 finished=1.4575e+06 visible=1 messageThread=1 viewCalls=1523 viewTime=1.4575e+06 snapshotEqual=0
+2026-10-19T12:22:08.8543928Z ROUTING TRACE phase=messages-settled now=1.45763e+06 rawGate=1 dspGate=1 dspBlocks=14 directPost=1 cachedPost=1 cachedInput=1 ticks=917 skipped=0 refreshed=917 entered=1.45762e+06 finished=1.45762e+06 visible=1 messageThread=1 viewCalls=1527 viewTime=1.45762e+06 snapshotEqual=1
+2026-10-19T12:22:08.8546084Z ROUTING TRACE phase=parameters-set now=1.45767e+06 rawGate=0 dspGate=1 dspBlocks=14 directPost=0 cachedPost=1 cachedInput=1 ticks=918 skipped=0 refreshed=918 entered=1.45766e+06 finished=1.45766e+06 visible=1 messageThread=1 viewCalls=1528 viewTime=1.45766e+06 snapshotEqual=0
+2026-10-19T12:22:08.8549016Z ROUTING TRACE phase=audio-processed now=1.45767e+06 rawGate=0 dspGate=0 dspBlocks=15 directPost=0 cachedPost=1 cachedInput=1 ticks=918 skipped=0 refreshed=918 entered=1.45766e+06 finished=1.45766e+06 visible=1 messageThread=1 viewCalls=1528 viewTime=1.45766e+06 snapshotEqual=0
+2026-10-19T12:22:08.8552335Z ROUTING TRACE phase=messages-settled now=1.45777e+06 rawGate=0 dspGate=0 dspBlocks=15 directPost=0 cachedPost=0 cachedInput=1 ticks=920 skipped=0 refreshed=920 entered=1.45774e+06 finished=1.45774e+06 visible=1 messageThread=1 viewCalls=1531 viewTime=1.45774e+06 snapshotEqual=1
+2026-10-19T12:22:08.8554909Z ROUTING TRACE phase=parameters-set now=1.45777e+06 rawGate=1 dspGate=0 dspBlocks=15 directPost=1 cachedPost=0 cachedInput=1 ticks=920 skipped=0 refreshed=920 entered=1.45774e+06 finished=1.45774e+06 visible=1 messageThread=1 viewCalls=1531 viewTime=1.45774e+06 snapshotEqual=0
+2026-10-19T12:22:08.8557329Z ROUTING TRACE phase=audio-processed now=1.45777e+06 rawGate=1 dspGate=1 dspBlocks=16 directPost=1 cachedPost=0 cachedInput=1 ticks=920 skipped=0 refreshed=920 entered=1.45774e+06 finished=1.45774e+06 visible=1 messageThread=1 viewCalls=1531 viewTime=1.45774e+06 snapshotEqual=0
+2026-10-19T12:22:08.8559218Z ROUTING TRACE phase=messages-settled now=1.45787e+06 rawGate=1 dspGate=1 dspBlocks=16 directPost=1 cachedPost=1 cachedInput=1 ticks=923 skipped=0 refreshed=923 entered=1.45786e+06 finished=1.45786e+06 visible=1 messageThread=1 viewCalls=1535 viewTime=1.45786e+06 snapshotEqual=1
+2026-10-19T12:22:08.8560232Z Signal Path preset 0
+2026-10-19T12:22:08.8560467Z FAIL: Factory recall left EQ path enabled
+2026-10-19T12:22:08.8560654Z
+2026-10-19T12:22:08.8560757Z       Start 16: ChimeraNativeStateTests
+2026-10-19T12:22:16.1006256Z  5/12 Test #16: ChimeraNativeStateTests ..........   Passed    7.25 sec
+2026-10-19T12:22:16.1006951Z       Start 17: ChimeraNativeFocusTests
+2026-10-19T12:22:19.1249265Z  6/12 Test #17: ChimeraNativeFocusTests ..........   Passed    3.02 sec
+2026-10-19T12:22:19.1249954Z       Start 27: ChimeraCabPanelStateTests
+2026-10-19T12:23:57.5868078Z  7/12 Test #27: ChimeraCabPanelStateTests ........   Passed   98.46 sec
+2026-10-19T12:23:57.5870145Z       Start 34: ChimeraGateProcessorTests
+2026-10-19T12:24:11.1159546Z  8/12 Test #34: ChimeraGateProcessorTests ........   Passed   13.53 sec
+2026-10-19T12:24:11.1160387Z       Start 52: ChimeraGraphicalEQTests
+2026-10-19T12:24:51.7287174Z  9/12 Test #52: ChimeraGraphicalEQTests ..........   Passed   40.61 sec
+2026-10-19T12:24:51.7287843Z       Start 53: ChimeraGraphicalEQUITests
+2026-10-19T12:26:55.0374562Z 10/12 Test #53: ChimeraGraphicalEQUITests ........   Passed  123.31 sec
+2026-10-19T12:26:55.0377104Z       Start 55: ChimeraGraphicalEQEditingTests
+2026-10-19T12:27:33.9830560Z 11/12 Test #55: ChimeraGraphicalEQEditingTests ...   Passed   38.95 sec
+2026-10-19T12:27:33.9831024Z       Start 56: ChimeraCommonDynamicsTests
+2026-10-19T12:27:36.4398113Z 12/12 Test #56: ChimeraCommonDynamicsTests .......   Passed    2.46 sec
+2026-10-19T12:27:36.4400837Z
+2026-10-19T12:27:36.4401056Z 92% tests passed, 1 tests failed out of 12
+2026-10-19T12:27:36.4401533Z
+2026-10-19T12:27:36.4401646Z Total Test time (real) = 414.19 sec
+2026-10-19T12:27:36.4401835Z
+2026-10-19T12:27:36.4401939Z The following tests FAILED:
+2026-10-19T12:27:36.4405915Z 	 15 - ChimeraSignalPathUITests (Failed)
+2026-10-19T12:27:36.4501138Z Errors while running CTest
+2026-10-19T12:27:36.5224725Z ##[error]Process completed with exit code 8.

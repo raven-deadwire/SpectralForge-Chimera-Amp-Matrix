@@ -1,0 +1,139 @@
+Start testing: Oct 19 21:39 JST
+----------------------------------------------------------
+13/65 Testing: ChimeraCommonDynamicsUITests
+13/65 Test: ChimeraCommonDynamicsUITests
+Command: "/tmp/chimera-preset-build/ChimeraUITests_artefacts/Release/ChimeraUITests" "/tmp/chimera-preset-build/common-dynamics-snapshots" "--common-dynamics-only"
+Directory: /tmp/chimera-preset-build
+"ChimeraCommonDynamicsUITests" start time: Oct 19 21:39 JST
+Output:
+----------------------------------------------------------
+PASS native dynamics navigation, audio-neutral opening, four scales, compressor control and non-destructive four-slot assignment
+<end of output>
+Test time =   6.52 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraCommonDynamicsUITests" end time: Oct 19 21:39 JST
+"ChimeraCommonDynamicsUITests" time elapsed: 00:00:06
+----------------------------------------------------------
+
+15/65 Testing: ChimeraSignalPathUITests
+15/65 Test: ChimeraSignalPathUITests
+Command: "/tmp/chimera-preset-build/ChimeraUITests_artefacts/Release/ChimeraUITests" "/tmp/chimera-preset-build/signal-path-snapshots" "--signal-path-only"
+Directory: /tmp/chimera-preset-build
+"ChimeraSignalPathUITests" start time: Oct 19 21:39 JST
+Output:
+----------------------------------------------------------
+PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=0
+Signal Path scenario 0 / 0
+ROUTING TRACE phase=parameters-set now=6.35897e+07 rawGate=0 dspGate=-1 dspBlocks=0 directPost=0 cachedPost=0 cachedInput=1 ticks=4 skipped=0 refreshed=4 entered=6.35896e+07 finished=6.35896e+07 visible=1 messageThread=1 viewCalls=6 viewTime=6.35896e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.35897e+07 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=4 skipped=0 refreshed=4 entered=6.35896e+07 finished=6.35896e+07 visible=1 messageThread=1 viewCalls=6 viewTime=6.35896e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.35898e+07 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=6 skipped=0 refreshed=6 entered=6.35897e+07 finished=6.35897e+07 visible=1 messageThread=1 viewCalls=9 viewTime=6.35897e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.35898e+07 rawGate=1 dspGate=0 dspBlocks=1 directPost=1 cachedPost=0 cachedInput=1 ticks=6 skipped=0 refreshed=6 entered=6.35897e+07 finished=6.35897e+07 visible=1 messageThread=1 viewCalls=9 viewTime=6.35897e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.35898e+07 rawGate=1 dspGate=1 dspBlocks=2 directPost=1 cachedPost=0 cachedInput=1 ticks=6 skipped=0 refreshed=6 entered=6.35897e+07 finished=6.35897e+07 visible=1 messageThread=1 viewCalls=9 viewTime=6.35897e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.35899e+07 rawGate=1 dspGate=1 dspBlocks=2 directPost=1 cachedPost=1 cachedInput=1 ticks=9 skipped=0 refreshed=9 entered=6.35898e+07 finished=6.35898e+07 visible=1 messageThread=1 viewCalls=13 viewTime=6.35898e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.35899e+07 rawGate=0 dspGate=1 dspBlocks=2 directPost=0 cachedPost=1 cachedInput=1 ticks=10 skipped=0 refreshed=10 entered=6.35899e+07 finished=6.35899e+07 visible=1 messageThread=1 viewCalls=14 viewTime=6.35899e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.35899e+07 rawGate=0 dspGate=0 dspBlocks=3 directPost=0 cachedPost=1 cachedInput=1 ticks=10 skipped=0 refreshed=10 entered=6.35899e+07 finished=6.35899e+07 visible=1 messageThread=1 viewCalls=14 viewTime=6.35899e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.359e+07 rawGate=0 dspGate=0 dspBlocks=3 directPost=0 cachedPost=0 cachedInput=1 ticks=12 skipped=0 refreshed=12 entered=6.359e+07 finished=6.359e+07 visible=1 messageThread=1 viewCalls=17 viewTime=6.359e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.359e+07 rawGate=1 dspGate=0 dspBlocks=3 directPost=1 cachedPost=0 cachedInput=1 ticks=12 skipped=0 refreshed=12 entered=6.359e+07 finished=6.359e+07 visible=1 messageThread=1 viewCalls=17 viewTime=6.359e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.359e+07 rawGate=1 dspGate=1 dspBlocks=4 directPost=1 cachedPost=0 cachedInput=1 ticks=12 skipped=0 refreshed=12 entered=6.359e+07 finished=6.359e+07 visible=1 messageThread=1 viewCalls=17 viewTime=6.359e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.35901e+07 rawGate=1 dspGate=1 dspBlocks=4 directPost=1 cachedPost=1 cachedInput=1 ticks=15 skipped=0 refreshed=15 entered=6.35901e+07 finished=6.35901e+07 visible=1 messageThread=1 viewCalls=21 viewTime=6.35901e+07 snapshotEqual=1
+Signal Path scenario 1 / 0
+ROUTING TRACE phase=parameters-set now=6.36045e+07 rawGate=0 dspGate=1 dspBlocks=4 directPost=0 cachedPost=0 cachedInput=1 ticks=295 skipped=0 refreshed=295 entered=6.36045e+07 finished=6.36045e+07 visible=1 messageThread=1 viewCalls=488 viewTime=6.36045e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36045e+07 rawGate=0 dspGate=0 dspBlocks=5 directPost=0 cachedPost=0 cachedInput=1 ticks=295 skipped=0 refreshed=295 entered=6.36045e+07 finished=6.36045e+07 visible=1 messageThread=1 viewCalls=488 viewTime=6.36045e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36046e+07 rawGate=0 dspGate=0 dspBlocks=5 directPost=0 cachedPost=0 cachedInput=1 ticks=297 skipped=0 refreshed=297 entered=6.36046e+07 finished=6.36046e+07 visible=1 messageThread=1 viewCalls=491 viewTime=6.36046e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36046e+07 rawGate=1 dspGate=0 dspBlocks=5 directPost=1 cachedPost=0 cachedInput=1 ticks=297 skipped=0 refreshed=297 entered=6.36046e+07 finished=6.36046e+07 visible=1 messageThread=1 viewCalls=491 viewTime=6.36046e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36046e+07 rawGate=1 dspGate=1 dspBlocks=6 directPost=1 cachedPost=0 cachedInput=1 ticks=297 skipped=0 refreshed=297 entered=6.36046e+07 finished=6.36046e+07 visible=1 messageThread=1 viewCalls=491 viewTime=6.36046e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36047e+07 rawGate=1 dspGate=1 dspBlocks=6 directPost=1 cachedPost=1 cachedInput=1 ticks=300 skipped=0 refreshed=300 entered=6.36047e+07 finished=6.36047e+07 visible=1 messageThread=1 viewCalls=495 viewTime=6.36047e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36047e+07 rawGate=0 dspGate=1 dspBlocks=6 directPost=0 cachedPost=1 cachedInput=1 ticks=300 skipped=0 refreshed=300 entered=6.36047e+07 finished=6.36047e+07 visible=1 messageThread=1 viewCalls=495 viewTime=6.36047e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36047e+07 rawGate=0 dspGate=0 dspBlocks=7 directPost=0 cachedPost=1 cachedInput=1 ticks=300 skipped=0 refreshed=300 entered=6.36047e+07 finished=6.36047e+07 visible=1 messageThread=1 viewCalls=495 viewTime=6.36047e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36048e+07 rawGate=0 dspGate=0 dspBlocks=7 directPost=0 cachedPost=0 cachedInput=1 ticks=303 skipped=0 refreshed=303 entered=6.36048e+07 finished=6.36048e+07 visible=1 messageThread=1 viewCalls=499 viewTime=6.36048e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36048e+07 rawGate=1 dspGate=0 dspBlocks=7 directPost=1 cachedPost=0 cachedInput=1 ticks=303 skipped=0 refreshed=303 entered=6.36048e+07 finished=6.36048e+07 visible=1 messageThread=1 viewCalls=499 viewTime=6.36048e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36048e+07 rawGate=1 dspGate=1 dspBlocks=8 directPost=1 cachedPost=0 cachedInput=1 ticks=303 skipped=0 refreshed=303 entered=6.36048e+07 finished=6.36048e+07 visible=1 messageThread=1 viewCalls=499 viewTime=6.36048e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36049e+07 rawGate=1 dspGate=1 dspBlocks=8 directPost=1 cachedPost=1 cachedInput=1 ticks=305 skipped=0 refreshed=305 entered=6.36049e+07 finished=6.36049e+07 visible=1 messageThread=1 viewCalls=502 viewTime=6.36049e+07 snapshotEqual=1
+Signal Path scenario 1 / 1
+ROUTING TRACE phase=parameters-set now=6.36202e+07 rawGate=0 dspGate=1 dspBlocks=8 directPost=0 cachedPost=0 cachedInput=1 ticks=599 skipped=0 refreshed=599 entered=6.36201e+07 finished=6.36201e+07 visible=1 messageThread=1 viewCalls=998 viewTime=6.36201e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36202e+07 rawGate=0 dspGate=0 dspBlocks=9 directPost=0 cachedPost=0 cachedInput=1 ticks=599 skipped=0 refreshed=599 entered=6.36201e+07 finished=6.36201e+07 visible=1 messageThread=1 viewCalls=998 viewTime=6.36201e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36203e+07 rawGate=0 dspGate=0 dspBlocks=9 directPost=0 cachedPost=0 cachedInput=1 ticks=601 skipped=0 refreshed=601 entered=6.36202e+07 finished=6.36202e+07 visible=1 messageThread=1 viewCalls=1001 viewTime=6.36202e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36203e+07 rawGate=1 dspGate=0 dspBlocks=9 directPost=1 cachedPost=0 cachedInput=1 ticks=601 skipped=0 refreshed=601 entered=6.36202e+07 finished=6.36202e+07 visible=1 messageThread=1 viewCalls=1001 viewTime=6.36202e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36203e+07 rawGate=1 dspGate=1 dspBlocks=10 directPost=1 cachedPost=0 cachedInput=1 ticks=601 skipped=0 refreshed=601 entered=6.36202e+07 finished=6.36202e+07 visible=1 messageThread=1 viewCalls=1001 viewTime=6.36202e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36204e+07 rawGate=1 dspGate=1 dspBlocks=10 directPost=1 cachedPost=1 cachedInput=1 ticks=604 skipped=0 refreshed=604 entered=6.36204e+07 finished=6.36204e+07 visible=1 messageThread=1 viewCalls=1005 viewTime=6.36204e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36204e+07 rawGate=0 dspGate=1 dspBlocks=10 directPost=0 cachedPost=1 cachedInput=1 ticks=604 skipped=0 refreshed=604 entered=6.36204e+07 finished=6.36204e+07 visible=1 messageThread=1 viewCalls=1005 viewTime=6.36204e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36204e+07 rawGate=0 dspGate=0 dspBlocks=11 directPost=0 cachedPost=1 cachedInput=1 ticks=604 skipped=0 refreshed=604 entered=6.36204e+07 finished=6.36204e+07 visible=1 messageThread=1 viewCalls=1005 viewTime=6.36204e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36205e+07 rawGate=0 dspGate=0 dspBlocks=11 directPost=0 cachedPost=0 cachedInput=1 ticks=607 skipped=0 refreshed=607 entered=6.36205e+07 finished=6.36205e+07 visible=1 messageThread=1 viewCalls=1009 viewTime=6.36205e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36205e+07 rawGate=1 dspGate=0 dspBlocks=11 directPost=1 cachedPost=0 cachedInput=1 ticks=607 skipped=0 refreshed=607 entered=6.36205e+07 finished=6.36205e+07 visible=1 messageThread=1 viewCalls=1009 viewTime=6.36205e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36205e+07 rawGate=1 dspGate=1 dspBlocks=12 directPost=1 cachedPost=0 cachedInput=1 ticks=607 skipped=0 refreshed=607 entered=6.36205e+07 finished=6.36205e+07 visible=1 messageThread=1 viewCalls=1009 viewTime=6.36205e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36206e+07 rawGate=1 dspGate=1 dspBlocks=12 directPost=1 cachedPost=1 cachedInput=1 ticks=610 skipped=0 refreshed=610 entered=6.36206e+07 finished=6.36206e+07 visible=1 messageThread=1 viewCalls=1013 viewTime=6.36206e+07 snapshotEqual=1
+Signal Path scenario 2 / 0
+ROUTING TRACE phase=parameters-set now=6.36363e+07 rawGate=0 dspGate=1 dspBlocks=12 directPost=0 cachedPost=0 cachedInput=1 ticks=908 skipped=0 refreshed=908 entered=6.36363e+07 finished=6.36363e+07 visible=1 messageThread=1 viewCalls=1516 viewTime=6.36363e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36363e+07 rawGate=0 dspGate=0 dspBlocks=13 directPost=0 cachedPost=0 cachedInput=1 ticks=908 skipped=0 refreshed=908 entered=6.36363e+07 finished=6.36363e+07 visible=1 messageThread=1 viewCalls=1516 viewTime=6.36363e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36364e+07 rawGate=0 dspGate=0 dspBlocks=13 directPost=0 cachedPost=0 cachedInput=1 ticks=910 skipped=0 refreshed=910 entered=6.36364e+07 finished=6.36364e+07 visible=1 messageThread=1 viewCalls=1519 viewTime=6.36364e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36364e+07 rawGate=1 dspGate=0 dspBlocks=13 directPost=1 cachedPost=0 cachedInput=1 ticks=910 skipped=0 refreshed=910 entered=6.36364e+07 finished=6.36364e+07 visible=1 messageThread=1 viewCalls=1519 viewTime=6.36364e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36364e+07 rawGate=1 dspGate=1 dspBlocks=14 directPost=1 cachedPost=0 cachedInput=1 ticks=910 skipped=0 refreshed=910 entered=6.36364e+07 finished=6.36364e+07 visible=1 messageThread=1 viewCalls=1519 viewTime=6.36364e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36365e+07 rawGate=1 dspGate=1 dspBlocks=14 directPost=1 cachedPost=1 cachedInput=1 ticks=913 skipped=0 refreshed=913 entered=6.36365e+07 finished=6.36365e+07 visible=1 messageThread=1 viewCalls=1523 viewTime=6.36365e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36365e+07 rawGate=0 dspGate=1 dspBlocks=14 directPost=0 cachedPost=1 cachedInput=1 ticks=913 skipped=0 refreshed=913 entered=6.36365e+07 finished=6.36365e+07 visible=1 messageThread=1 viewCalls=1523 viewTime=6.36365e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36365e+07 rawGate=0 dspGate=0 dspBlocks=15 directPost=0 cachedPost=1 cachedInput=1 ticks=913 skipped=0 refreshed=913 entered=6.36365e+07 finished=6.36365e+07 visible=1 messageThread=1 viewCalls=1523 viewTime=6.36365e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36366e+07 rawGate=0 dspGate=0 dspBlocks=15 directPost=0 cachedPost=0 cachedInput=1 ticks=916 skipped=0 refreshed=916 entered=6.36366e+07 finished=6.36366e+07 visible=1 messageThread=1 viewCalls=1527 viewTime=6.36366e+07 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=6.36366e+07 rawGate=1 dspGate=0 dspBlocks=15 directPost=1 cachedPost=0 cachedInput=1 ticks=916 skipped=0 refreshed=916 entered=6.36366e+07 finished=6.36366e+07 visible=1 messageThread=1 viewCalls=1527 viewTime=6.36366e+07 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=6.36366e+07 rawGate=1 dspGate=1 dspBlocks=16 directPost=1 cachedPost=0 cachedInput=1 ticks=916 skipped=0 refreshed=916 entered=6.36366e+07 finished=6.36366e+07 visible=1 messageThread=1 viewCalls=1527 viewTime=6.36366e+07 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=6.36367e+07 rawGate=1 dspGate=1 dspBlocks=16 directPost=1 cachedPost=1 cachedInput=1 ticks=919 skipped=0 refreshed=919 entered=6.36367e+07 finished=6.36367e+07 visible=1 messageThread=1 viewCalls=1531 viewTime=6.36367e+07 snapshotEqual=1
+Signal Path preset 0
+Signal Path preset 1
+Signal Path preset 2
+Signal Path preset 3
+Signal Path preset 4
+Signal Path preset 5
+Signal Path preset 6
+Signal Path preset 7
+Signal Path preset 8
+Signal Path preset 9
+Signal Path preset 10
+Signal Path preset 11
+Signal Path preset 12
+Signal Path preset 13
+Signal Path preset 14
+Signal Path preset 15
+Signal Path preset 16
+Signal Path preset 17
+Signal Path preset 18
+Signal Path preset 19
+Signal Path preset 20
+Signal Path preset 21
+Signal Path preset 22
+Signal Path preset 23
+Signal Path preset 24
+Signal Path preset 25
+Signal Path preset 26
+Signal Path preset 27
+Signal Path preset 28
+Signal Path preset 29
+Signal Path preset 30
+Signal Path preset 31
+Signal Path preset 32
+Signal Path preset 33
+Signal Path preset 34
+Signal Path preset 35
+Signal Path preset 36
+Signal Path preset 37
+Signal Path preset 38
+Signal Path preset 39
+Signal Path preset 40
+Signal Path preset 41
+Signal Path preset 42
+Signal Path preset 43
+Signal Path preset 44
+Signal Path preset 45
+Signal Path preset 46
+Signal Path preset 47
+Signal Path final automation / A-B restore
+Signal Path project restore
+Signal Path editor recreation
+PASS Signal Path: six-stage HEAD/CAB workflow / global utility retention / full routing inspection; Classic / Dual Blend & Crossover / Matrix LOW topology; native pointer, Tab/Shift-Tab/Return/Space and accessibility navigation; modified/unfocused Space isolation; host-write/gesture isolation; scales; automation/focus; preset/project/A-B/PRE engine restore; editor recreation
+<end of output>
+Test time = 110.24 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraSignalPathUITests" end time: Oct 19 21:41 JST
+"ChimeraSignalPathUITests" time elapsed: 00:01:50
+----------------------------------------------------------
+
+End testing: Oct 19 21:41 JST

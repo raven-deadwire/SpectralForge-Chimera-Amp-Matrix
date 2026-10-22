@@ -2,9 +2,39 @@
 
 The 48 factory presets are starting points for an instrument DI: 31 original presets, three bass signatures, four guitar signatures, five Náströnd presets and five Niflheimr presets. Their stored ordinals and category navigation remain unchanged; built-in display names now consistently use Chimera naming. ID30 is displayed as Modern Clean. The menu uses a fixed taxonomy: Guitar (Clean & Ambient / Edge & Rock / High Gain / Lead & Texture), Bass (Clean & Dynamics / Drive & Texture), Dual (Blend / Crossover), and Matrix (Bass / Experimental). Names identify Chimera's own DSP voicings and intended musical roles.
 
-Set interface gain first. Aim for normal playing peaks around **−12 to −6 dBFS** with Input at 0 dB; lower interface gain if the input clips. In 1.3, all factory presets start with global **OUTPUT at 0 dB**. Their cabinet microphone levels provide the measured CAB compensation without changing the authored amp drive. Pickup output, playing and added gain can still change the final level. Match Output when comparing sounds; the presets are not a promise of identical loudness or a mastering limiter.
+Set interface gain first. Aim for normal playing peaks around **−12 to −6 dBFS** with Input at 0 dB; lower interface gain if the input clips. All factory presets start with global **OUTPUT at 0 dB**. Their cabinet microphone levels retain the authored CAB compensation without changing amp drive. Pickup output, playing and added gain can still change the final level. The Live limiter now starts at **−1 dBFS sample peak**; level-match Output when comparing sounds. The limiter cannot repair clipping at the interface and does not measure true peaks or loudness.
 
 Every active factory CAB path now uses a modeled cabinet, compatible speaker and microphone. Factory recall does not load the two embedded IRs or search for private capture files. The six intentionally dry Matrix LOW paths retain CAB bypass. Use CABINET to inspect the stored cabinet and microphone settings for each preset. User-imported IRs remain available for manual selection and saved-project recall; see [IR distribution](IR_DISTRIBUTION.md).
+
+## Dynamics and EQ finishing
+
+All 48 factory recalls include a dedicated finishing recipe. **Tone EQ** handles
+body and definition before common compression and POST; **Final EQ** controls
+the upper edge after the complete POST chain. Two shared Dynamic EQ slots are
+assigned to Bell nodes: Tone band 1 for excess body/low mids, Final band 2 for
+hard upper mids. Maximum cut is 1–2 dB per node. The two remaining slots stay
+unassigned and the unused EQ bands remain empty.
+
+| Musical role | Finishing behavior |
+|---|---|
+| Clean and edge guitar | Small low-mid cleanup, retained upper definition, gentle parallel compression where the POST compressor is off |
+| High-gain rhythm | Bounded low-body and harshness control; the existing PRE/amp/POST saturation supplies density |
+| Lead and ambient | Longer gate/expander recovery to retain notes and effect tails; mild upper-edge control |
+| Clean, finger and picked bass | Controlled low mids and string attack; slow, low-ratio common compression where appropriate |
+| Slap | Peak detection with parallel mix, restrained low-mid correction and bounded high-band reduction |
+| Bass Matrix and signatures | Existing dry LOW/blend/crossovers retained, with frequency-selective correction after summing |
+| Envelope, fuzz and doom | Slow, bounded correction and gentle expansion; common broadband compression stays off |
+
+The eleven presets that already use a POST compressor keep common COMP off.
+Existing PRE compression, native POST EQ and song/channel roles are retained.
+No additional audio high-pass is added: the compressor's HP control filters only
+its detector. Low B and low-tuned guitar therefore retain their existing CAB
+cuts and LOW routing. All new compressor makeup values start at 0 dB.
+
+Use **TONE EQ / FINAL EQ → DYNAMICS** to inspect or adjust the thresholds, maximum
+cut and compression. Detector thresholds are authored for each processing stage;
+adjust them for the actual instrument and watch gain reduction while playing.
+See [factory dynamics/EQ implementation and validation](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/main/docs/PRESET_DYNAMICS_EQ.md).
 
 ## Guitar presets
 
@@ -58,7 +88,7 @@ Each guitar and bass rig uses its assigned modeled CAB, including the 6×10 low 
 
 ## Matrix presets
 
-The LOW band in the four original Matrix presets below is a **clean DI foundation**: LOW drive is zero, DI/amp blend is zero, CAB is bypassed, and only the chosen LOW compression is applied. Blackhearted and Dark Matters of Throne retain the same intentional dry LOW role. Other Matrix signatures retain their authored LOW amp blends; Slam Impact has an amplified LOW path. The other two rigs process their respective bands through their assigned modeled CABs. The visible crossover values describe the input bands; distortion can generate harmonics beyond a band's input boundary.
+The LOW band in the four original Matrix presets below is a **clean DI foundation**: LOW drive is zero, DI/amp blend is zero, CAB is bypassed, and its chosen LOW compression is retained. The common finishing stages process the merged rig afterwards. Blackhearted and Dark Matters of Throne retain the same intentional dry LOW role. Other Matrix signatures retain their authored LOW amp blends; Slam Impact has an amplified LOW path. The other two rigs process their respective bands through their assigned modeled CABs. The visible crossover values describe the input bands; distortion can generate harmonics beyond a band's input boundary.
 
 | Preset | Splits | MID / HIGH models | Use |
 |---|---|---|---|
@@ -83,13 +113,13 @@ These signatures no longer search for named external or private IR targets. Thei
 
 Loading a factory preset initializes all sound parameters, then applies its sound: amp and effect models, bypass states, tone controls, cabinet source, routing, crossover, gate, oversampling and output. A delay, fuzz, solo, polarity flip or transpose from the preceding sound cannot stay enabled accidentally. The gain section normally returns to **Fuzz → Boost → Drive**; **Silk Smooth Lead** selects **Fuzz → Drive → Boost**, and **Fuzz Texture** puts its Micro Lift before the fuzz. The detector order follows the authored recipe. A boost before a driven amplifier adds saturation as well as level.
 
-The original 31 presets and three bass signatures preserve input gain/mode, tempo/host-follow, click, tuner settings and MIDI assignments. Full-rig snapshot banks also restore their authored performance settings, as described below for the guitar signatures. All factory presets turn the doubler and transpose off. **Filter Lead** uses the retained current tempo; other delays use their stored millisecond value. Imported IR assets remain available, but a factory preset never selects User IR. Save a user preset if you want to keep a custom IR, parameter changes and chosen routing. Loading an existing saved project does not apply the new factory CAB recipes to that project.
+The original 31 presets and three bass signatures preserve input gain/mode, tempo/host-follow, click, tuner settings and MIDI assignments. Full-rig snapshot banks also restore their authored performance settings, as described below for the guitar signatures. All factory presets turn the doubler and transpose off. **Filter Lead** uses the retained current tempo; other delays use their stored millisecond value. Imported IR assets remain available, but a factory preset never selects User IR. Save a user preset if you want to keep a custom IR, parameter changes and chosen routing. Existing saved projects, user presets and A/B states restore their stored values; new factory CAB, EQ and dynamics recipes apply when the factory preset is selected again.
 
 For compatibility, the original five menu IDs remain Clean Sustain, Tight Rhythm, Bass Matrix, Filter Lead and Fuzz Texture. Their categories can move in the menu without changing their IDs; factory parameter improvements are part of the beta revision. Saved user presets and DAW states store the actual parameters rather than relying on these factory menu IDs.
 
 ## Validation scope
 
-`Tests/FactoryPresetTests.h` retains the original factory-template regressions. The production recall path in `Tests/IntegratedProcessorTests.cpp` checks all **48** selectable presets through their actual PRE, native amps, modeled CABs and POST. The 1.3 checks cover valid CAB assignments, dirty/clean recall, OUTPUT at 0 dB, audible RMS and bounded nominal/+6 dB-input peaks, including initial samples. Prepared-state and saved-state round trips are checked separately. Source-specific fixtures, limits and measured evidence accompany release validation. These are regression checks; listening with real instruments and adjusting input gain remain necessary.
+`Tests/FactoryPresetTests.h` retains the original factory-template regressions. The production recall path in `Tests/IntegratedProcessorTests.cpp` checks all **48** selectable presets through their actual PRE, native amps, modeled CABs, Tone/Final EQ, dynamics and POST. Checks cover CAB assignments, dirty/clean recall, OUTPUT at 0 dB, audible RMS and bounded nominal/+6 dB-input peaks, including initial samples and limiter-bypassed renders. The finishing checks cover dynamic targets, visible EQ occupancy, binary/A-B state restoration and low-B EQ response. Prepared-state and saved-state round trips are checked separately. Source-specific fixtures, limits and measured evidence accompany release validation. These are regression checks; listening with real instruments and adjusting input gain remain necessary.
 
 ## Signature validation gate
 

@@ -1,0 +1,104 @@
+{
+  "source_sha": "5a5521f49bba8d00039a0c94e0d575ea5db8ba6e",
+  "run_id": 39281515993,
+  "analyzer_source_pr": 94,
+  "analyzer_source_sha": "92bd01409146842d758c6b70249a8c18a3f5fa5b",
+  "artifacts": [
+    {
+      "attempt": 1,
+      "artifact_id": 12200809379,
+      "job_id": 118156574263,
+      "zip_sha256": "50a1bd06fcc9d726cfb7b28332ba87dd93274b5ad07fb2403e0979c443eb9073",
+      "members": [
+        {
+          "original_name": "tuner-ctest.log",
+          "encoding": "xz+base64",
+          "original_size": 9474846,
+          "original_sha256": "0e56b334e5281eb545954b38ecc543050f4722eb125f9f3bf17cd780a999dfd0",
+          "compressed_sha256": "d8570c6393c20a5429b634cc356ed089f6ef478f097d9e1d45e21bed9c102372",
+          "file": "attempt1-tuner-ctest-log.json"
+        },
+        {
+          "original_name": "tuner-results.xml",
+          "encoding": "xz+base64",
+          "original_size": 310154,
+          "original_sha256": "c95be734ae7e1de026a8993c4f5e92a018c85eb95d335934d0685224032b428c",
+          "compressed_sha256": "31e95639d8e519261cc48f9128f467abe2a34a2a91df781b076021e58e1f2ee7",
+          "file": "attempt1-tuner-results-xml.json"
+        },
+        {
+          "original_name": "normal-qos-reference.log",
+          "encoding": "xz+base64",
+          "original_size": 2794891,
+          "original_sha256": "1746a4649a42f4fc5fa71ccb782f94bd920d0acf70e02b1384e7f2a2f89b35b8",
+          "compressed_sha256": "fc15d342ef0683ebe97eb888fc079b7f81d711d34dba56ca3443ae51903e4cba",
+          "file": "attempt1-normal-qos-reference-log.json"
+        },
+        {
+          "original_name": "normal-qos-reference.exit",
+          "encoding": "xz+base64",
+          "original_size": 2,
+          "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "compressed_sha256": "f6ebd6f6f27ee66402036ad8c7d4cf1e86dfe3dcfd0125e9c1ecbefef91ece4d",
+          "file": "attempt1-normal-qos-reference-exit.json"
+        },
+        {
+          "original_name": "chimera-build-version.json",
+          "encoding": "xz+base64",
+          "original_size": 207,
+          "original_sha256": "9136034b5ad7304120cbbb2076c1dc3af7ae3517204a3d7efaf6dabf747c0d4f",
+          "compressed_sha256": "32f7fc82035b3a761c1035d3df926bc351b9afa49ee36187647cdf862306cabf",
+          "file": "attempt1-chimera-build-version-json.json"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "artifact_id": 12204167726,
+      "job_id": 118182532551,
+      "zip_sha256": "890629d7699bfdf854dd54245ca4300e211aa412c78412a0f10098d1629c86ec",
+      "members": [
+        {
+          "original_name": "tuner-ctest.log",
+          "encoding": "xz+base64",
+          "original_size": 9465466,
+          "original_sha256": "03fe2aae087efe6b859c25f50525f2dc31dc6ce59969eec1944706d7c37f8cec",
+          "compressed_sha256": "4fb1a6da72185d12b47815294be1faea09f7c004df9bb7c0403d79012e30124d",
+          "file": "attempt2-tuner-ctest-log.json"
+        },
+        {
+          "original_name": "tuner-results.xml",
+          "encoding": "xz+base64",
+          "original_size": 310155,
+          "original_sha256": "9ad1a5185257dfb0c66d5d87d30992dd48cb8b4cd77d367bf49617bfdb453813",
+          "compressed_sha256": "66c5bbf6cf12649aa3c91f46d43349837b33aa6e7b8c4c0af7b590fe324dd8c3",
+          "file": "attempt2-tuner-results-xml.json"
+        },
+        {
+          "original_name": "normal-qos-reference.log",
+          "encoding": "xz+base64",
+          "original_size": 2800328,
+          "original_sha256": "47215845e7c22dd994cf2a7d34e477f6fad455650df840eb716583dc3f23b22c",
+          "compressed_sha256": "00aed9641841dd77d639a40d92f72f1af70a2132fc55480b5a46021d549c51df",
+          "file": "attempt2-normal-qos-reference-log.json"
+        },
+        {
+          "original_name": "normal-qos-reference.exit",
+          "encoding": "xz+base64",
+          "original_size": 2,
+          "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "compressed_sha256": "f6ebd6f6f27ee66402036ad8c7d4cf1e86dfe3dcfd0125e9c1ecbefef91ece4d",
+          "file": "attempt2-normal-qos-reference-exit.json"
+        },
+        {
+          "original_name": "chimera-build-version.json",
+          "encoding": "xz+base64",
+          "original_size": 207,
+          "original_sha256": "9136034b5ad7304120cbbb2076c1dc3af7ae3517204a3d7efaf6dabf747c0d4f",
+          "compressed_sha256": "32f7fc82035b3a761c1035d3df926bc351b9afa49ee36187647cdf862306cabf",
+          "file": "attempt2-chimera-build-version-json.json"
+        }
+      ]
+    }
+  ]
+}

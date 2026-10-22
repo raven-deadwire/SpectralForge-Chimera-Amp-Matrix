@@ -1,0 +1,88 @@
+name: Verify and publish factory preset maintenance
+on:
+  pull_request:
+    paths:
+      - Source/**
+      - Tests/**
+      - Tools/**
+      - CMakeLists.txt
+      - Validation/**
+      - docs/**
+      - evidence/preset-dynamics-eq-20261019/**
+      - .github/workflows/**
+  push:
+    branches: [main]
+    paths: [Validation/preset-maintenance-policy.json]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: chimera-preset-maintenance-${{ github.event.pull_request.number || 'publication' }}
+  cancel-in-progress: false
+jobs:
+  contracts:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # PR workflows come from the merge tree; use that same immutable tree
+          # so older heads also include the base branch's maintenance contracts.
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Retain publisher, installer and evidence contracts
+        run: |
+          python Tools/check_ir_distribution.py
+          python Tests/test_ir_distribution.py
+          python Tools/test_publish_beta131.py
+          python Tools/test_beta_publication131.py
+          python Tools/test_publish_release.py
+          python Tools/test_weekly_publication.py
+          python Tools/test_publication_evidence.py
+          python Tests/test_packaging_version.py
+          python Tools/test_preset_maintenance.py
+      - name: Verify recorded preset source against the published beta.1 source
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "Tools")
+          import preset_maintenance as contract
+          import publish_preset_maintenance as publisher
+
+          policy = contract.validate_policy(contract.read_json(contract.ROOT / contract.POLICY_PATH))
+          # An approved pack retains its exact source; unrelated PRs are not
+          # replacement preset candidates. Unapproved candidates check HEAD.
+          source = policy["approved_product_source_sha"] or contract.git("rev-parse", "HEAD")
+          publisher.main(["--check-source", "--source-sha", source])
+          PY
+  publish:
+    needs: contracts
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Read exact tested-source maintenance receipt
+        id: receipt
+        run: python Tools/publish_preset_maintenance.py --approval-state
+      - name: Wait for all seven exact-source workflows and publish verified packages
+        if: steps.receipt.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/publish_preset_maintenance.py --publish --wait-ci-seconds 5400

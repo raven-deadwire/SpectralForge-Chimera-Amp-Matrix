@@ -1,0 +1,23 @@
+{
+  "schema": "spectralforge.chimera.factory-preset-pack.v1",
+  "product_version": "1.3.2-beta.1",
+  "source_sha": "ec6fd639e2958d34605bfb04bb81ca02c1cfb38f",
+  "platform": "linux",
+  "beta_mode": "approved",
+  "beta_expires_at_utc": "2027-02-11T14:59:00Z",
+  "preset_count": 48,
+  "serializer": "ChimeraProcessor::tryGetStateInformation / setStateInformation",
+  "state_schema_version": 11,
+  "fresh_processor_restore_passed": true,
+  "fresh_gui_metadata_restore_passed": true,
+  "personal_ir_included": false,
+  "personal_midi_mapping_included": false,
+  "actual_daw_acceptance": false,
+  "listening_acceptance": false,
+  "parameter_count": 5026,
+  "normalized_value_count": 241248,
+  "maximum_normalized_restore_error": 0.0,
+  "all_metadata_restored": true,
+  "pack_manifest_sha256": "c5599549d79f429335ebcb133f34802fdc3a68f3df1e43a58bb89afbebe52123",
+  "manifest_source_provenance": "Baseline commit plus local working changes, not the final release source commit"
+}
