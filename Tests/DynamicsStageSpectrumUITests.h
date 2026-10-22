@@ -66,8 +66,18 @@ inline void measuredStageContracts(const juce::File& directory) {
         setChecked(spectralforge::eqID(bank,0,"frequency"),937.5);setChecked(spectralforge::eqID(bank,0,"gain"),0);setChecked(spectralforge::eqID(bank,0,"q"),4);
         setChecked(spectralforge::dynamicSlotID(0,"target"),float(bank*12+1));setChecked(spectralforge::dynamicSlotID(0,"threshold"),-48);
         setChecked(spectralforge::dynamicSlotID(0,"range"),6);setChecked(spectralforge::dynamicSlotID(0,"ratio"),20);setChecked(spectralforge::dynamicSlotID(0,"attack"),1);
-        panel->selectPage(Page::dynamicEQ);panel->selectDynamicSlot(0);settle(70);acknowledge(p);audio(p,937.5,128);
-        auto* eq=find<spectralforge::GraphicalEQPanel>(*panel,bank==0?"toneEQ_panel":"finalEQ_panel");require(eq && eq->isShowing() && eq->analyzerHasData(),"Dynamic EQ bank has no real spectrum");
+        panel->selectPage(Page::dynamicEQ);panel->selectDynamicSlot(0);settle(70);
+        auto* eq=find<spectralforge::GraphicalEQPanel>(*panel,bank==0?"toneEQ_panel":"finalEQ_panel");require(eq,"Dynamic EQ bank editor missing");
+        // acknowledge() syncs the dynamics capture, not this EQ bank's analyzer;
+        // a stalled macOS loop can leave the borrowed editor capturing only the
+        // silent acknowledgement. Measure again (bounded); assertions unchanged.
+        for(int attempt=0;attempt<3;++attempt) {
+            acknowledge(p);audio(p,937.5,128);
+            if(eq->isShowing() && eq->analyzerHasData() && eq->spectrumDB(false,80)>-110.f)break;
+            std::cerr<<"Dynamic EQ bank="<<bank<<" attempt="<<attempt<<" showing="<<eq->isShowing()<<" data="<<eq->analyzerHasData()
+                     <<" in_db="<<eq->spectrumDB(false,80)<<'\n';
+        }
+        require(eq->isShowing() && eq->analyzerHasData(),"Dynamic EQ bank has no real spectrum");
         const float in=eq->spectrumDB(false,80),out=eq->spectrumDB(true,80);
         std::cout<<"spectrum dynamic-EQ bank="<<bank<<" in_db="<<in<<" out_db="<<out<<'\n';
         require(std::abs(in-(-12.0412f+6.f*float(bank)))<.25f && in-out>5.5f,"Dynamic EQ spectrum uses the wrong bank or omits its dynamic cut");
