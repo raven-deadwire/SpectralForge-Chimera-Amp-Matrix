@@ -4,10 +4,8 @@
 // both of which fit the editor to the current display and toggle back.
 // Compiled only into the Standalone target with
 // JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1; plug-in formats are unaffected.
-#include <juce_core/system/juce_TargetPlatform.h>
-#include <juce_audio_plugin_client/detail/juce_CheckSettingMacros.h>
-#include <juce_audio_plugin_client/detail/juce_IncludeSystemHeaders.h>
-#include <juce_audio_plugin_client/detail/juce_IncludeModuleHeaders.h>
+// Do not include juce_audio_plugin_client/detail headers here: on macOS they
+// define Point/Component as macros, which breaks qualified juce:: names.
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <juce_audio_utils/juce_audio_utils.h>
