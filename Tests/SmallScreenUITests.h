@@ -22,7 +22,8 @@ inline void run(const juce::File& directory) {
     editor->setVisible(true);editor->setTopLeftPosition(20,20);editor->toFront(true);settle(100);
     auto* viewport=find<AccessibleViewport>(*editor,"editorViewport");
     auto* surface=editorSurface(*editor);
-    auto* path=find<SignalPathView>(*editor,"signalPathCompact");
+    require(viewport && surface,"Scrollable editor components missing");
+    auto* path=find<SignalPathView>(*editor,"signalPathStrip");
     // Locate the view by type too: its public identity is owned by the path UI.
     if(!path)for(auto* child:surface->getChildren())if(auto* view=dynamic_cast<SignalPathView*>(child))path=view;
     require(viewport && surface && path,"Scrollable editor components missing");
@@ -41,6 +42,16 @@ inline void run(const juce::File& directory) {
         editor->setViewSize(fitted);settle(30);
         require(editor->getWidth()+chrome.x<=area.getWidth() && editor->getHeight()+chrome.y<=area.getHeight(),"Fitted editor exceeds the simulated work area");
         require(surface->getTransform().mat00>=minimumEditorScale && surface->getTransform().mat11>=minimumEditorScale,"Text shrank below 75 percent");
+        if(pixels==juce::Point<int>{1366,768} && percent==125)
+            require(viewport->getVerticalScrollBar().isVisible() && !viewport->getHorizontalScrollBar().isVisible(),"1366x768 / 125% gained avoidable horizontal scrolling");
+        auto* input=signalPathTests::named<juce::Slider>(*editor,"Input gain");
+        require(input && !input->isScrollWheelEnabled(),"Editor slider may change sound during wheel scrolling");
+        viewport->setViewPosition(0,0);
+        const auto centre=input->getLocalBounds().getCentre().toFloat();const auto now=juce::Time::getCurrentTime();
+        const juce::MouseEvent wheelEvent(juce::Desktop::getInstance().getMainMouseSource(),centre,{},1,0,0,0,0,input,input,now,centre,now,0,false);
+        juce::MouseWheelDetails wheel;wheel.deltaY=-1.f;
+        static_cast<juce::Component&>(*input).mouseWheelMove(wheelEvent,wheel);
+        if(viewport->getVerticalScrollBar().isVisible())require(viewport->getViewPositionY()>0,"Wheel on a control did not reach the editor scrollbar");
         for(const auto* stage:signalPathTests::compactStages) {
             auto& button=signalPathTests::pathButton(*path,stage);
             reachable(*editor,*viewport,button);

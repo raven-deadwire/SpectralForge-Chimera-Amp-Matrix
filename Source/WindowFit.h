@@ -19,8 +19,12 @@ inline juce::Point<int> editorSizeForScale(float scale) {
     return {juce::roundToInt(float(editorBaseWidth)*scale),juce::roundToInt(float(editorBaseHeight)*scale)};
 }
 inline juce::Point<int> boundedEditorSize(juce::Point<int> requested,juce::Rectangle<int> area,juce::Point<int> chrome) {
-    return {juce::jmax(1,juce::jmin(requested.x,area.getWidth()-juce::jmax(0,chrome.x)-8)),
-            juce::jmax(1,juce::jmin(requested.y,area.getHeight()-juce::jmax(0,chrome.y)-8))};
+    const int width=juce::jmax(1,area.getWidth()-juce::jmax(0,chrome.x)-8);
+    const int height=juce::jmax(1,area.getHeight()-juce::jmax(0,chrome.y)-8);
+    // Leave room for the scrollbar when the other axis overflows. At
+    // 1366x768 / 125% this avoids an unnecessary horizontal scrollbar.
+    return {juce::jmin(width,requested.x+(requested.y>height?16:0)),
+            juce::jmin(height,requested.y+(requested.x>width?16:0))};
 }
 inline juce::Point<int> fittedEditorSize(juce::Rectangle<int> area,juce::Point<int> chrome) {
     return boundedEditorSize(editorSizeForScale(fittedEditorScale(area.reduced(4),chrome)),area,chrome);

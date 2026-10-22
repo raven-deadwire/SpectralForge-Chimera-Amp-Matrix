@@ -240,7 +240,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         using Page=spectralforge::CommonDynamicsPanel::Page;
         const juce::String id=selected==Page::gate?"gate":selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":selected==Page::dynamicEQ?(dynamicsPanel->selectedDynamicBank()==0?"tone.eq":"final.eq"):"common.comp";
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
-        if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(pathDialog->getContentComponent()))graph->select(id);
+        if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);
     };
     add(dynamicsOpen);dynamicsOpen.setComponentID("commonDynamics.open");
     dynamicsOpen.setTooltip("Open a dedicated spectrum editor for compression, multiband dynamics, Dynamic EQ, gate/expander, limiter or de-esser.");
@@ -410,6 +410,7 @@ ChimeraEditor::~ChimeraEditor() { for(const auto* id:{"mode","dualtype","tuneron
 void ChimeraEditor::setupSlider(juce::Slider& slider,const juce::String& name,const juce::String& suffix)
 {
     slider.setName(name); slider.setTooltip(name); slider.setSliderStyle(juce::Slider::LinearHorizontal);
+    slider.setScrollWheelEnabled(false); // Wheel scrolling the editor must not alter audio.
     slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,66,24); slider.setTextValueSuffix(suffix);
     slider.setNumDecimalPlacesToDisplay(name=="DRIVE" ? 2 : 1);
 }
@@ -811,11 +812,7 @@ void ChimeraEditor::updateModeUI()
     // than waiting for their independent automation/inspection timers.
     const auto syncPath=[this](SignalPathView* view){if(view){view->refresh();view->select(pathSelections[size_t(lastMode)]);}};
     syncPath(signalPath.get());
-    if(pathDialog) {
-        auto* content=pathDialog->getContentComponent();
-        if(auto* viewport=dynamic_cast<spectralforge::ui::AccessibleViewport*>(content))content=viewport->getViewedComponent();
-        syncPath(dynamic_cast<SignalPathView*>(content));
-    }
+    if(pathDialog)syncPath(dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)));
     repaint();
 }
 void ChimeraEditor::paint(juce::Graphics& g)

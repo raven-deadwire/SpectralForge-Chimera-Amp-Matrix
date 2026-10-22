@@ -54,7 +54,7 @@ public:
     }
     // The ALL window has independent visibility from its owning tab.
     void refreshIfNeeded() {
-        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(dialog->getContentComponent()))full->refreshIfNeeded();
+        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(spectralforge::ui::dialogContent(*dialog)))full->refreshIfNeeded();
         if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
         const std::array<int,5> key{{(int)processor.parameters().getRawParameterValue("mode")->load(),
             (int)processor.parameters().getRawParameterValue("dualtype")->load(),processor.selectedAmpModel(lane),

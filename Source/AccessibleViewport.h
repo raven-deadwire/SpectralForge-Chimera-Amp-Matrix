@@ -29,6 +29,11 @@ public:
 private:
     void globalFocusChanged(juce::Component* component) override {if(component)reveal(*component);}
 };
+inline juce::Component* dialogContent(juce::DialogWindow& window) {
+    auto* content=window.getContentComponent();
+    if(auto* viewport=dynamic_cast<AccessibleViewport*>(content))return viewport->getViewedComponent();
+    return content;
+}
 
 // Preserve the content's readable layout; only the surrounding viewport gets
 // smaller. Ownership moves from the window to this viewport exactly once.

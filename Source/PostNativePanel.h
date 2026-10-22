@@ -52,7 +52,7 @@ public:
         dialog=options.launchAsync();spectralforge::ui::fitScrollableDialog(dialog);
     }
     void refreshIfNeeded() {
-        if(dialog)if(auto* full=dynamic_cast<PostNativePanel*>(dialog->getContentComponent()))full->refreshIfNeeded();
+        if(dialog)if(auto* full=dynamic_cast<PostNativePanel*>(spectralforge::ui::dialogContent(*dialog)))full->refreshIfNeeded();
         if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
         const int next=(int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load();
         if(refreshKey.update(next))refresh();
