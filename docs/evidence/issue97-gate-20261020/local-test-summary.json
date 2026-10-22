@@ -1,0 +1,50 @@
+{
+  "scope": "gate contracts only; not native product or DAW acceptance",
+  "results": [
+    {
+      "suite": "Tools/test_issue97_gate.py",
+      "exit_code": 0,
+      "seconds": 0.46
+    },
+    {
+      "suite": "Tools/test_weekly_publication.py",
+      "exit_code": 0,
+      "seconds": 2.85
+    },
+    {
+      "suite": "Tools/test_publish_release.py",
+      "exit_code": 0,
+      "seconds": 3.35
+    },
+    {
+      "suite": "Tools/test_publication_evidence.py",
+      "exit_code": 0,
+      "seconds": 2.4
+    },
+    {
+      "suite": "Tools/test_release_consolidator.py",
+      "exit_code": 0,
+      "seconds": 2.97
+    },
+    {
+      "suite": "Tools/test_release_calendar.py",
+      "exit_code": 0,
+      "seconds": 0.17
+    },
+    {
+      "suite": "Tools/test_beta_publication131.py",
+      "exit_code": 0,
+      "seconds": 2.24
+    },
+    {
+      "suite": "Tools/test_publish_beta131.py",
+      "exit_code": 0,
+      "seconds": 0.91
+    },
+    {
+      "suite": "Tests/test_packaging_version.py",
+      "exit_code": 0,
+      "seconds": 5.83
+    }
+  ]
+}

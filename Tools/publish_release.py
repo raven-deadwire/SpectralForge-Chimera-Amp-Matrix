@@ -21,12 +21,14 @@ from urllib.parse import quote
 import zipfile
 
 import chimera_version
+import check_release_calendar
 import beta_lifecycle
 import check_ir_distribution
 import check_public_names
 import evaluate_release_gate as gate
 import publish_open_beta as transport
 import weekly_publication
+import issue97_gate as p0
 from package_release import PUBLIC_DOCUMENTS
 from verify_publication_evidence import verify_embedded_evidence
 # These version-independent verification primitives retain the shipped CI and
@@ -35,6 +37,11 @@ from verify_publication_evidence import verify_embedded_evidence
 from publish_beta131 import (CIPending, WORKFLOWS, GATE_ARTIFACT_NAME,
     CANDIDATE_MAX_EXPANDED_BYTES, SUFFIXES, verified_run,
     verified_jobs, verified_artifact, ci_identity, parse_json, read_json, check_archive)
+
+# Reservation contracts are required release evidence alongside the native jobs.
+WORKFLOWS = {**WORKFLOWS, "release-publisher.yml": (
+    "publisher-contracts", "calendar-contracts (ubuntu-24.04)",
+    "calendar-contracts (windows-latest)", "calendar-contracts (macos-15)", "calendar-live")}
 
 ROOT = Path(__file__).resolve().parents[1]
 APPROVAL_PATH = "Validation/weekly-publication-policy.json"
@@ -125,6 +132,10 @@ def verify_controller_source(source, controller):
 
 
 def release_policy(release):
+    # Stop unsupported mandatory scope before CI lookup, archive staging or
+    # remote mutations. validate_approval also enforces this for direct callers.
+    weekly_publication.require_supported_acceptance_scope(release.version,
+        read_json(ROOT / APPROVAL_PATH).get("issue97"))
     # Read the selected commit itself. identity(ROOT, arbitrary_sha) alone would
     # attach the requested SHA to the current worktree's version, not prove it.
     source_version = git("show", f"{release.source_sha}:VERSION")
@@ -204,7 +215,7 @@ def wait_for_ci(api, release, seconds, check_current_controller):
             time.sleep(min(30, remaining))
 
 
-def verify_release_gate_archive(archive, release, run_id, run_attempt, policy, receipt=None):
+def verify_release_gate_archive(archive, release, run_id, run_attempt, policy, receipt=None, *, assets=None, api=None, p0_archive=None):
     require(type(run_id) is int and run_id > 0 and type(run_attempt) is int and run_attempt > 0,
             "Gate requires positive run and attempt identities")
     revision = {"commit_sha": release.source_sha, "run_id": str(run_id), "run_attempt": str(run_attempt)}
@@ -261,9 +272,16 @@ def verify_release_gate_archive(archive, release, run_id, run_attempt, policy, r
                     "Release-gate summary differs from its underlying evidence")
         verify_embedded_evidence(bundle, verdict, policy, checks, release.source_sha, run_id, run_attempt,
             profile=release.profile, ci_check_map=read_json(ROOT / "Validation/ci-check-map.json"))
+        p0_context = None
+        if receipt is not None and p0.is_successor(release.version):
+            require(p0_archive is not None, "ISSUE97_EVIDENCE_MISSING: independent P0 evidence artifact required")
+            with zipfile.ZipFile(p0_archive) as evidence_archive:
+                p0_context = p0.context_from_zip(evidence_archive, assets, api,
+                    (ROOT / beta_lifecycle.POLICY_PATH).read_bytes())
         decision = None if receipt is None else weekly_publication.evaluate(receipt, policy, checks, verdict,
             release.source_sha, run_id, run_attempt, version=release.version, profile=release.profile,
-            waivers=waivers, ci_check_map=read_json(ROOT / "Validation/ci-check-map.json"))
+            waivers=waivers, ci_check_map=read_json(ROOT / "Validation/ci-check-map.json"),
+            p0_context=p0_context)
         return verdict, decision
 
 
@@ -369,7 +387,11 @@ def render_public_release_notes(notes, release):
 
 
 def dry_run(args, release, policy, proof):
-    blockers = ["LIVE_EXACT_SOURCE_CI_NOT_VERIFIED"]
+    blockers = ["LIVE_EXACT_SOURCE_CI_NOT_VERIFIED", "LIVE_RELEASE_RESERVATIONS_NOT_VERIFIED"]
+    try:
+        check_release_calendar.check_repository(ROOT, target_version=release.version)
+    except (ValueError, RuntimeError, KeyError, TypeError, OSError) as exc:
+        blockers.append("RELEASE_CALENDAR_BLOCKED: " + str(exc))
     try:
         approval(release, policy)
     except (RuntimeError, ValueError, KeyError, OSError) as exc:
@@ -432,6 +454,7 @@ def publish(args, release, policy, proof):
         require(api.json("/git/ref/heads/" + quote(branch, safe="/"))["object"]["sha"] == controller,
                 "A newer publication controller supersedes this invocation")
 
+    check_release_calendar.check_repository(ROOT, api=api, target_version=release.version)
     ci = wait_for_ci(api, release, args.wait_ci_seconds, check_current_controller)
     build = ci["runs"]["build.yml"]
     with tempfile.TemporaryDirectory(prefix="chimera-release-") as temporary:
@@ -439,9 +462,6 @@ def publish(args, release, policy, proof):
         gate_archive = working / "release-gate.zip"
         api.download(f"/actions/artifacts/{ci['gate']['id']}/zip", gate_archive)
         check_archive(gate_archive, ci["gate"])
-        verdict, decision = verify_release_gate_archive(gate_archive, release, build["id"],
-                                                       build["run_attempt"], policy, receipt)
-        require(decision.get("publication_allowed") is True, "Publication decision does not authorize release")
         archive = working / "candidate.zip"
         api.download(f"/actions/artifacts/{ci['candidate']['id']}/zip", archive)
         configure_transport(release, ci["candidate"])
@@ -449,6 +469,17 @@ def publish(args, release, policy, proof):
         candidate.mkdir()
         transport.extract_candidate(archive, candidate, max_expanded_bytes=CANDIDATE_MAX_EXPANDED_BYTES)
         notes, assets = prepare_assets(candidate, release, build["id"], build["run_attempt"])
+        p0_archive = None
+        if p0.is_successor(release.version):
+            p0_archive = working / "issue97-evidence.zip"
+            proof_p0 = receipt["issue97"]["ci"]
+            require(type(proof_p0.get("artifact_id")) is int and proof_p0["artifact_id"] > 0,
+                    "P0 artifact ID missing")
+            api.download(f"/actions/artifacts/{proof_p0['artifact_id']}/zip", p0_archive)
+            require(sha256(p0_archive) == proof_p0.get("artifact_sha256"), "P0 artifact hash mismatch")
+        verdict, decision = verify_release_gate_archive(gate_archive, release, build["id"],
+            build["run_attempt"], policy, receipt, assets=assets, api=api, p0_archive=p0_archive)
+        require(decision.get("publication_allowed") is True, "Publication decision does not authorize release")
         notes = render_public_release_notes(notes, release)
         decision.update(proof)
         decision["ci"] = {name: {key: run[key] for key in ("id", "run_attempt", "head_sha")}
@@ -460,6 +491,8 @@ def publish(args, release, policy, proof):
             path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             assets[name] = path
         assets["release-acceptance-evidence.zip"] = gate_archive
+        if p0_archive is not None:
+            assets["release-issue97-evidence.zip"] = p0_archive
         disclosure = working / "VALIDATION_SCOPE.md"
         disclosure.write_text(weekly_publication.render_markdown(decision), encoding="utf-8")
         assets[disclosure.name] = disclosure
@@ -471,8 +504,15 @@ def publish(args, release, policy, proof):
 
         def recheck():
             check_current_controller()
+            check_release_calendar.check_repository(ROOT, api=api, target_version=release.version)
             require(ci_identity(verify_ci(api, release)) == ci_identity(ci),
                     "Verification runs or artifacts changed during preparation")
+            if p0.is_successor(release.version):
+                # Re-download current producer artifacts and recompute against
+                # the same local candidate before staging and before visibility.
+                _, current = verify_release_gate_archive(gate_archive, release, build["id"],
+                    build["run_attempt"], policy, receipt, assets=assets, api=api, p0_archive=p0_archive)
+                require(current["issue97"] == decision["issue97"], "P0 evidence changed during publication")
             require(verify_controller_source(release.source_sha, controller) == proof
                     and release_policy(release) == policy and approval(release, policy) == receipt,
                     "Product source, controller or approval changed during preparation")

@@ -189,8 +189,14 @@ approval, retain evidence for:
   and simultaneous channel/quality changes on target hardware.
 
 Nordic display names and dedicated head artwork are included in the revised
-prototype. Factory voicing approval, release packaging and optional five
-fixed-setting NAM exports still require sound and product acceptance.
+prototype. The evidence above belongs to the recorded native prototype and
+is not a current release-status summary. On October 12, 2026, the owner made
+**five fixed-setting Niflheimr NAM exports a required planned deliverable**
+and requested a separately installable, simplified Niflheimr VST3 product.
+See [focused amp products and NAM delivery](FOCUSED_AMP_PRODUCTS_AND_NAM.md)
+for the current scope and [the central roadmap](DEVELOPMENT_ROADMAP_2026_2027.md)
+for dates and release status. This scope change does not establish NAM training,
+player qualification, product listening acceptance or a separate VST3 binary.
 
 ## Local integration verification
 

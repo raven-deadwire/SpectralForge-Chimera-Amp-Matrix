@@ -1,0 +1,36 @@
+...........................F..E..
+======================================================================
+ERROR: test_version_generator_asserts_source_and_reserved_target (__main__.CalendarContracts.test_version_generator_asserts_source_and_reserved_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/15d18cfa9efa/chimera/Tools/test_release_calendar.py", line 163, in test_version_generator_asserts_source_and_reserved_target
+    result = chimera_version.validate_reserved_target_version('1.3.2-beta.2', root, 'a'*40)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/15d18cfa9efa/chimera/Tools/chimera_version.py", line 103, in validate_reserved_target_version
+    check_repository(root, target_version=target_version)
+  File "/workspace/scratch/15d18cfa9efa/chimera/Tools/check_release_calendar.py", line 266, in check_repository
+    return validate_plan(plan, consumed_tags=live_consumed_tags(api) if api is not None else (),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/15d18cfa9efa/chimera/Tools/check_release_calendar.py", line 101, in validate_plan
+    require(type(as_of) is date and as_of >= snapshot_day, 'Invalid calendar review date')
+  File "/workspace/scratch/15d18cfa9efa/chimera/Tools/check_release_calendar.py", line 47, in require
+    raise ValueError(message)
+ValueError: Invalid calendar review date
+
+======================================================================
+FAIL: test_rescheduling_requires_mirrors_and_increasing_version_order (__main__.CalendarContracts.test_rescheduling_requires_mirrors_and_increasing_version_order)
+----------------------------------------------------------------------
+ValueError: Missed publication target requires defer/remap: v1.3.2-beta.2 (2026-10-20)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/15d18cfa9efa/chimera/Tools/test_release_calendar.py", line 208, in test_rescheduling_requires_mirrors_and_increasing_version_order
+    with self.assertRaisesRegex(ValueError, 'candidate reservation mismatch'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "candidate reservation mismatch" does not match "Missed publication target requires defer/remap: v1.3.2-beta.2 (2026-10-20)"
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.089s
+
+FAILED (failures=1, errors=1)

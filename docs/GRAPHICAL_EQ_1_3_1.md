@@ -1,10 +1,18 @@
-# Chimera 1.3.1 static graphical EQ prototype
+# Chimera 1.3.1 static graphical EQ baseline
 
-This is implementation work on `codex/1.3.1-graphical-eq`, based on the
-1.3 release preparation commit `b7e4f18efa295f0babf2278ca63117fbccb54143`.
-It does not modify the release branch, PR #35 or the roadmap-only PR #36.
-The development binary is version 1.3.1 Preview. No release is authorized by
-the existence of this prototype or its technical test results.
+Delivery note, **2026-10-12 KST**: the static EQ foundation described below is
+included in public
+[1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1)
+at product source 7b20cd9d1f90e3e2969c250712b199e893cf50cd, merged by PR #48.
+
+The owner subsequently requested substantially better analyzer presentation
+and the missing editing workflow. Those are explicitly tracked in
+[EQ analyzer and workflow upgrade](EQ_ANALYZER_WORKFLOW_UPGRADE.md) and the
+[remaining development schedule](DEVELOPMENT_ROADMAP_2026_2027.md).
+The earlier prototype originated on codex/1.3.1-graphical-eq from 1.3 preparation
+source b7e4f18efa295f0babf2278ca63117fbccb54143; the details below describe
+that delivered foundation, not completion of all FabFilter reference features.
+Native-host and listening acceptance retain their recorded scope.
 
 ## Implemented
 
@@ -74,5 +82,8 @@ See `GRAPHICAL_EQ_1_3_1_VALIDATION.md` for measured results and outstanding chec
 Dynamic EQ, compressor/limiter expansion, independent four-band dynamics,
 linear-phase/zero-latency mode selection, per-band stereo/M-S processing,
 external sidechains and automatic EQ matching are not implemented here.
-Dynamic EQ belongs to 1.3.2 and independent multiband dynamics to 1.4 per PR #36.
+Dynamic EQ belongs to 1.3.2 and independent multiband dynamics to 1.4.0 under the
+current roadmap. The October follow-up adds analyzer controls, larger focused
+editing, plot-based band creation/removal, multi-selection, audition and EQ
+Undo/Redo; these are not implemented by this baseline.
 Native DAW loading and instrument listening remain separate release acceptance.

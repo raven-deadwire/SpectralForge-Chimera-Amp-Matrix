@@ -18,6 +18,7 @@ import re
 
 import beta_publication131 as historical
 import evaluate_release_gate as gate
+import issue97_gate as p0
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = "spectralforge.chimera.weekly-publication-policy"
@@ -58,6 +59,17 @@ def _version(version):
     return match[1], channel, match[2] or "stable"
 
 
+def require_supported_acceptance_scope(version, p0_binding=None):
+    """Preflight only: a fingerprint is not proof of P0 acceptance.
+
+    evaluate() independently validates the actual reports, package bytes and
+    live producer artifacts before granting any successor publication decision.
+    """
+    _version(version)
+    if p0.is_successor(version):
+        p0.binding(p0_binding)
+
+
 def _inventory(rows, expected, label):
     require(isinstance(rows, list) and all(isinstance(row, dict) for row in rows),
             f"Malformed {label} inventory")
@@ -83,6 +95,8 @@ def validate_approval(publication_policy, strict_policy, source_sha, *, version,
     """
     require(_sha(source_sha, 40), "Full lowercase product source SHA required")
     product_version, channel, kind = _version(version)
+    require_supported_acceptance_scope(version, publication_policy.get("issue97")
+                                       if isinstance(publication_policy, dict) else None)
     require(profile in (BETA_PROFILE, FULL_PROFILE)
             and (kind == "beta" or profile == FULL_PROFILE),
             "RC and stable publication require full_release strict validation")
@@ -106,6 +120,8 @@ def validate_approval(publication_policy, strict_policy, source_sha, *, version,
             "Weekly publication policy/version/source identity mismatch")
     decision = publication_policy.get("decision")
     require(decision in (STRICT_DECISION, GAP_DECISION), "Unknown weekly publication decision")
+    require(not p0.is_successor(version) or decision == STRICT_DECISION,
+            "Issue97 P0 cannot accept legacy beta gaps")
     require(decision != GAP_DECISION or kind == "beta" and profile == BETA_PROFILE,
             "Validation gaps are allowed only for an explicitly accepted beta profile")
     require(publication_policy.get("release_approved") is True
@@ -166,11 +182,16 @@ def _check_pass(check, cid):
 
 def evaluate(publication_policy, strict_policy, checks, strict_verdict,
              source_sha, run_id, run_attempt, *, version, profile,
-             waivers=None, ci_check_map=None):
+             waivers=None, ci_check_map=None, p0_context=None):
     """Recompute strict evidence and return permission only for its approved scope."""
     approved = validate_approval(publication_policy, strict_policy, source_sha,
                                  version=version, profile=profile,
                                  waivers=waivers, ci_check_map=ci_check_map)
+    p0_result = None
+    if p0.is_successor(version):
+        require(isinstance(p0_context, dict), "ISSUE97_EVIDENCE_MISSING: actual P0 evidence required")
+        p0_result = p0.evaluate(**p0_context, version=version, source_sha=source_sha,
+                                approval=publication_policy["issue97"])
     require(_positive_id(run_id) and _positive_id(run_attempt), "Positive CI run and attempt required")
     revision = {"commit_sha": source_sha, "run_id": str(run_id), "run_attempt": str(run_attempt)}
     owners, ci, gaps = approved["owners"], approved["ci"], approved["gaps"]
@@ -265,6 +286,7 @@ def evaluate(publication_policy, strict_policy, checks, strict_verdict,
         "publication_allowed": True, "all_required_checks_passed": approved["decision"] == STRICT_DECISION,
         "release_approved": True, "publication_authorized": True,
         "owner_acceptance": copy.deepcopy(approved["owner"]),
+        "issue97": p0_result,
         "publication_policy_sha256": digest(publication_policy),
         "strict_validation": {key: copy.deepcopy(computed[key]) for key in ("verdict", "ready", "counts", "hard_gates")},
         "strict_gate_sha256": digest(strict_verdict), "strict_policy_sha256": digest(strict_policy),

@@ -96,6 +96,14 @@ def validate_target_version(target_version: str, root: Path = ROOT, sha: str | N
     return expected
 
 
+def validate_reserved_target_version(target_version: str, root: Path = ROOT, sha: str | None = None) -> dict:
+    """Assert identity and reservation without rewriting either or granting approval."""
+    expected = validate_target_version(target_version, root, sha)
+    from check_release_calendar import check_repository
+    check_repository(root, target_version=target_version)
+    return expected
+
+
 def validate_manifest(manifest: dict, expected: dict, build_id: str | None = None) -> None:
     for key, value in expected.items():
         if manifest.get(key) != value:
@@ -118,12 +126,16 @@ if __name__ == "__main__":
     parser.add_argument("--build-id")
     parser.add_argument("--target-version", help="Assert a publishable version matching VERSION/RELEASE_CHANNEL")
     parser.add_argument("--source-sha", help="Assert the exact checked-out source SHA")
+    parser.add_argument("--check-reservation", action="store_true", help="Also reject consumed or unreserved targets (offline)")
     args = parser.parse_args()
+    if args.check_reservation and args.target_version is None:
+        parser.error("--check-reservation requires --target-version")
     expected = identity()
     if args.source_sha is not None and args.source_sha != expected["source_sha"]:
         parser.error("Requested source SHA differs from the checked-out source")
     if args.target_version is not None:
-        expected = validate_target_version(args.target_version)
+        expected = (validate_reserved_target_version(args.target_version) if args.check_reservation
+                    else validate_target_version(args.target_version))
     if args.manifest:
         validate_manifest(json.loads(args.manifest.read_text(encoding="utf-8-sig")), expected, args.build_id)
     print(expected[args.field] if args.field else json.dumps(expected))

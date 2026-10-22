@@ -28,7 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # PR workflows come from the merge tree; use that same immutable tree
+          # so older heads also include the base branch's maintenance contracts.
+          ref: ${{ github.sha }}
           persist-credentials: false
           fetch-depth: 0
       - uses: actions/setup-python@v6
@@ -45,8 +47,20 @@ jobs:
           python Tools/test_publication_evidence.py
           python Tests/test_packaging_version.py
           python Tools/test_preset_maintenance.py
-      - name: Verify preset scope against the published beta.1 source
-        run: python Tools/publish_preset_maintenance.py --check-source
+      - name: Verify recorded preset source against the published beta.1 source
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "Tools")
+          import preset_maintenance as contract
+          import publish_preset_maintenance as publisher
+
+          policy = contract.validate_policy(contract.read_json(contract.ROOT / contract.POLICY_PATH))
+          # An approved pack retains its exact source; unrelated PRs are not
+          # replacement preset candidates. Unapproved candidates check HEAD.
+          source = policy["approved_product_source_sha"] or contract.git("rev-parse", "HEAD")
+          publisher.main(["--check-source", "--source-sha", source])
+          PY
   publish:
     needs: contracts
     if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

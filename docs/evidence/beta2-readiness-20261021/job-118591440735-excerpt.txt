@@ -1,0 +1,13 @@
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39411898520/job/118591440735
+Original downloaded log SHA-256: da66a25697ab6a3e19e033649da8172912176025a1be7ff4683f45097ceeaf79
+Selected lines only, not full log:
+2026-10-20T11:00:43.0901890Z ERROR: test_rejects_product_policy_build_workflow_and_packaged_document_changes (__main__.ControllerSourceBinding.test_rejects_product_policy_build_workflow_and_packaged_document_changes)
+2026-10-20T11:00:43.0902944Z Traceback (most recent call last):
+2026-10-20T11:00:43.0909118Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 954, in cleanup
+2026-10-20T11:00:43.0910839Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 934, in _rmtree
+2026-10-20T11:00:43.0911483Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/shutil.py", line 759, in rmtree
+2026-10-20T11:00:43.0912134Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/shutil.py", line 703, in _rmtree_safe_fd
+2026-10-20T11:00:43.0912639Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/shutil.py", line 662, in _rmtree_safe_fd
+2026-10-20T11:00:43.0913082Z OSError: [Errno 39] Directory not empty: '/tmp/tmpgldi7mxs/.git'
+2026-10-20T11:00:43.0913641Z FAILED (errors=1)
+2026-10-20T11:00:43.2300554Z ##[error]No files were found with the provided path: build/validation. No artifacts will be uploaded.

@@ -1,0 +1,33 @@
+GitHub Actions direct log excerpts; historical exact-head evidence, not fresh audit CI.
+
+Job 117921007344
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209811064/job/117921007344
+2026-10-19T07:37:23.4002820Z 35/57 Test #35: ChimeraOriginalCabIntegrationTests ......***Failed   22.26 sec
+2026-10-19T07:37:23.4375400Z CAB-only p99 exceeds one block period (runner CPU gate)
+2026-10-19T07:50:52.1450660Z 98% tests passed, 1 tests failed out of 57
+
+Job 117952147757
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39209811064/job/117952147757
+2026-10-19T08:01:21.0083628Z - Checks: 7 PASS / 121 BLOCKED / 0 NOT_APPLICABLE
+
+Job 117519525516
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39074028939/job/117519525516
+2026-10-17T23:32:53.0871150Z 46/57 Test #46: ChimeraGraphicalEQUITests ...............***Failed   84.24 sec
+2026-10-17T23:32:53.0980620Z FAIL Stopped audio did not decay on the native screen without fabricated FFT frames
+2026-10-17T23:39:56.8914370Z 98% tests passed, 1 tests failed out of 57
+
+Job 117516648199
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39073751041/job/117516648199
+2026-10-17T22:12:50.5680680Z 55: ROUTE FAIL rate=192000 block=64 hz=30.867706 acquire=186.682875 settle=-1 error=99999
+2026-10-17T22:13:05.1001870Z     Test #55: ChimeraPrecisionTunerIntegrationTests ...***Failed   48.17 sec
+2026-10-17T22:13:06.8212890Z 80% tests passed, 1 tests failed out of 5
+
+Job 117675435813
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354204/job/117675435813
+2026-10-18T12:48:42.2329241Z 100% tests passed out of 5
+2026-10-18T12:49:05.7094840Z Artifact AAX-UNSIGNED-DEVELOPMENT-windows-1fa3b0ee924e40e1c5e089e0361f7cecaf6adc92 has been successfully uploaded! Final size is 115256546 bytes. Artifact ID is 12136907283
+
+Job 117675435596
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39127354204/job/117675435596
+2026-10-18T12:55:33.5533450Z 100% tests passed out of 5
+2026-10-18T12:56:20.3477360Z Artifact AAX-UNSIGNED-DEVELOPMENT-macos-1fa3b0ee924e40e1c5e089e0361f7cecaf6adc92 has been successfully uploaded! Final size is 234475602 bytes. Artifact ID is 12137042535
