@@ -53,6 +53,13 @@ def hysteresis_gate(x, threshold, close, range_db, attack_ms, hold_ms, release_m
         gain = target + (gain - target) * (att if target > gain else rel); y[n] = v * gain
     return y
 
+def sample_peak_limiter(x, ceiling_db, release_ms):
+    ceiling = 10 ** (ceiling_db / 20); rel = math.exp(-1 / (RATE * release_ms * 1e-3)); gain = 1.0; y = np.zeros_like(x)
+    for n, v in enumerate(x):
+        target = min(1.0, ceiling / abs(v)) if v else 1.0
+        gain = min(target, 1 + (gain - 1) * rel); y[n] = v * gain
+    return y
+
 class FabFilterKitTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -71,6 +78,9 @@ class FabFilterKitTests(unittest.TestCase):
         kit.write_wav(cls.renders / 'mb_band2_step_300hz.wav', peak_compressor(signal('mb_band2_step_300hz'), -20, 4, 10, 100), RATE)
         kit.write_wav(cls.renders / 'gate_static_hysteresis.wav', hysteresis_gate(signal('gate_static_hysteresis'), -40, -46, 40, 0.5, 0, 20), RATE)
         kit.write_wav(cls.renders / 'gate_step_hold_release.wav', hysteresis_gate(signal('gate_step_hold_release'), -40, -46, 40, 0.5, 50, 100), RATE)
+        for cid in ('lim_static_ceiling', 'lim_step_release', 'lim_intersample_truepeak'):
+            kit.write_wav(cls.renders / f'{cid}.wav', sample_peak_limiter(signal(cid), -1, 100), RATE)
+        kit.write_wav(cls.renders / 'ds_static_1khz.wav', signal('ds_static_1khz'), RATE)
         cls.result = kit.analyse(cls.kit, cls.renders)
 
     @classmethod
@@ -89,7 +99,7 @@ class FabFilterKitTests(unittest.TestCase):
         y, _ = kit.read_wav(Path(self.tmp.name) / 'p24.wav'); np.testing.assert_allclose(y[:, 0], x, atol=2e-7)
 
     def test_manifest_lists_every_signal_with_hash(self):
-        self.assertEqual(len(self.manifest['cases']), len(kit.EQ_CASES) + len(kit.COMP_CASES) + len(kit.MB_CASES) + len(kit.GATE_CASES))
+        self.assertEqual(len(self.manifest['cases']), len(kit.EQ_CASES) + len(kit.COMP_CASES) + len(kit.MB_CASES) + len(kit.GATE_CASES) + len(kit.LIM_CASES) + len(kit.DS_CASES))
         for case in self.manifest['cases']:
             self.assertTrue((self.kit / 'signals' / f"{case['id']}.wav").exists()); self.assertEqual(len(case['signal_sha256']), 64)
         self.assertIn('eq_bell_1k_p6_q1', (self.kit / 'RENDER_GUIDE.md').read_text(encoding='utf-8'))
@@ -143,6 +153,20 @@ class FabFilterKitTests(unittest.TestCase):
         # 20 ms detector decay to -46 dB, 50 ms hold, then a 100 ms release toward -40 dB.
         self.assertGreater(step['close_10_ms'], 50); self.assertLess(step['close_50_ms'], 400)
 
+    def test_limiter_ceiling_and_release(self):
+        static = self.result['cases']['lim_static_ceiling']
+        self.assertLessEqual(static['max_output_sample_peak_dbfs'], -0.99)
+        top = static['curve'][-1]; self.assertAlmostEqual(top['gain_reduction_db'], 13, delta=0.2)   # +12 input, -1 ceiling
+        step = self.result['cases']['lim_step_release']
+        self.assertAlmostEqual(step['steady_gain_reduction_db'], 7, delta=0.2); self.assertAlmostEqual(step['release_tau_ms'], 100, delta=15)
+
+    def test_sample_peak_limiter_misses_true_peak(self):
+        tp = self.result['cases']['lim_intersample_truepeak']
+        self.assertAlmostEqual(tp['input_true_peak_dbfs'], 2.5, delta=0.05)
+        self.assertAlmostEqual(tp['input_sample_peak_dbfs'], 2.5 - 3.01, delta=0.05)
+        self.assertLessEqual(tp['output_sample_peak_dbfs'], -0.99)
+        self.assertGreater(tp['output_true_peak_dbfs'], 1.5)     # sample-peak limiting leaves ~+2 dBTP
+
     def test_missing_renders_are_reported_not_invented(self):
         self.assertIn('eq_notch_1k_q4', self.result['missing']); self.assertNotIn('eq_notch_1k_q4', self.result['cases'])
 
@@ -178,6 +202,15 @@ class FabFilterKitTests(unittest.TestCase):
         self.assertEqual(gate['open_threshold_dbfs'], -39.5); self.assertAlmostEqual(gate['closed_attenuation_db'], 40, delta=0.5)
         self.assertGreater(gate['hysteresis_db'], 0)
         self.assertAlmostEqual(expander['expansion_ratio'], 2, delta=0.3)
+        self.assertLessEqual(cases['lim_static_ceiling']['max_output_sample_peak_dbfs'], -0.99)
+        self.assertGreater(cases['lim_intersample_truepeak']['output_true_peak_dbfs'], -1.0)   # Chimera limits sample peaks only
+        self.assertLess(max(abs(v) for v in cases['ds_neutral_impulse']['magnitude_db']), 0.01)
+        self.assertTrue(cases['ds_static_1khz']['fit'].get('no_gain_reduction'))
+        # Range 12 dB, but an 8 kHz tone keeps part of its energy in the 6 kHz LR4
+        # low branch, which a split-band de-esser never attenuates (measured 7.8 dB).
+        ds_top = max(r['gain_reduction_db'] for r in cases['ds_static_8khz']['static_curve'])
+        self.assertTrue(6.0 < ds_top <= 12.0)
+        self.assertAlmostEqual(cases['ds_step_8khz']['attack_63_ms'], 2.5, delta=2.0)
 
 if __name__ == '__main__':
     unittest.main()

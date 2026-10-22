@@ -64,6 +64,24 @@ GATE_CASES = [
     ("gate_step_hold_release", "gatestep", "Gate",   -40.0, 40.0, 0.5, 50.0, 100.0, 1.0),
     ("expander_static_r2",     "updown", "Expander", -40.0, 40.0, 0.5, 0.0, 20.0, 2.0),
 ]
+# Pro-L 2: Chimera live limiter (CommonDynamics::limit): sample peak, no lookahead.
+LIM_CEILING, LIM_RELEASE = -1.0, 100.0
+LIM_STATIC = [float(l) for l in range(-12, 13)]
+LIM_CASES = [
+    # id, signal, true-peak limiting in the reference
+    ("lim_static_ceiling",       "static",     "off"),
+    ("lim_step_release",         "step",       "off"),
+    ("lim_intersample_truepeak", "intersample", "on"),
+]
+# Pro-DS: Chimera DeEsserCore: split band, peak detector on the high band only.
+DS = {'frequency': 6000.0, 'threshold': -30.0, 'range': 12.0, 'attack': 2.0, 'release': 80.0, 'ratio': 4.0, 'knee': 0.0}
+DS_CASES = [
+    # id, signal, tone Hz
+    ("ds_neutral_impulse", "impulse", None),
+    ("ds_static_8khz",     "static",  8000.0),
+    ("ds_static_1khz",     "static",  1000.0),
+    ("ds_step_8khz",       "step",    8000.0),
+]
 COMP_CASES = [
     ("comp_static_k0",  "static", -20.0, 4.0, 10.0, 100.0, 0.0),
     ("comp_static_k12", "static", -20.0, 4.0, 10.0, 100.0, 12.0),
@@ -124,8 +142,12 @@ def sine_segments(levels_db, seconds, rate, tone=TONE_HZ):
 
 def signal_for(case, rate):
     if case['signal'] == 'impulse':
-        x = np.zeros(IMPULSE_LENGTH); x[IMPULSE_OFFSET] = IMPULSE_AMPLITUDE
+        x = np.zeros(IMPULSE_LENGTH); x[IMPULSE_OFFSET] = case.get('impulse_amplitude', IMPULSE_AMPLITUDE)
         return x
+    if case['signal'] == 'intersample':
+        # fs/4 sine at 45 degrees: every sample is 3.01 dB below the true peak.
+        n = np.arange(int(rate * 2.0)); peak = 10 ** (case['true_peak_dbfs'] / 20)
+        return peak * np.sin(np.pi / 2 * n + np.pi / 4)
     tone = case.get('tone_hz', TONE_HZ)
     if 'segments' in case:
         return sine_segments([l for l, _ in case['segments']], [t for _, t in case['segments']], rate, tone)[0]
@@ -156,6 +178,24 @@ def build_manifest(rate):
                               'lookahead': 'off', 'oversampling': 'off', 'stereo_link': '100%', 'mix': '100%', 'output_db': 0},
                 'chimera': {'processor': 'mb', 'crossovers': list(MB_CROSSOVERS), 'band': band - 1 if band else -1, **MB_BAND, 'detector': 'rms'}}
         if tone: case['tone_hz'] = tone
+        cases.append(case)
+    limiter = {'plugin': 'FabFilter Pro-L 2', 'style': 'Transparent', 'output_level_db': LIM_CEILING, 'gain_db': 0,
+               'lookahead_ms': 0, 'attack_ms': 0, 'release_ms': LIM_RELEASE, 'channel_linking': '100%',
+               'oversampling': 'off', 'dither': 'off', 'unity_gain': 'off'}
+    for cid, signal, true_peak in LIM_CASES:
+        case = {'id': cid, 'kind': 'limiter', 'signal': signal, 'reference': {**limiter, 'true_peak_limiting': true_peak},
+                'chimera': {'processor': 'lim', 'ceiling': LIM_CEILING, 'release': LIM_RELEASE}}
+        if signal == 'static': case['segments'] = [[l, 0.4] for l in LIM_STATIC]
+        elif signal == 'step': case['segments'] = [[-20.0, 1.0], [6.0, 1.0], [-20.0, 1.5]]
+        else: case['true_peak_dbfs'] = 2.5
+        cases.append(case)
+    deesser = {'plugin': 'FabFilter Pro-DS', 'mode': 'Allround', 'band_processing': 'Split Band', 'high_pass_hz': DS['frequency'],
+               'low_pass': 'off', 'threshold_db': DS['threshold'], 'range_db': DS['range'], 'lookahead_ms': 0,
+               'stereo_link': '100%', 'side_chain': 'internal', 'note': 'record actual attack/release/ratio if not adjustable'}
+    for cid, signal, tone in DS_CASES:
+        case = {'id': cid, 'kind': 'deesser', 'signal': signal, 'reference': deesser, 'chimera': {'processor': 'ds', **DS}}
+        if tone: case['tone_hz'] = tone
+        if signal == 'impulse': case['impulse_amplitude'] = 0.001     # -60 dBFS, below threshold
         cases.append(case)
     for cid, signal, mode, thr, rng, attack, hold, release, ratio in GATE_CASES:
         # A 1 s lead-in lets a gate that starts open close before the sweep.
@@ -221,6 +261,10 @@ def chimera(kit, probe, out):
                 args = ['eq', rate, c['type'], c['frequency'], c['gain'], c['q']]
             elif c['processor'] == 'comp':
                 args = ['comp', rate, c['threshold'], c['ratio'], c['attack'], c['release'], c['knee'], c['detector']]
+            elif c['processor'] == 'lim':
+                args = ['lim', rate, c['ceiling'], c['release']]
+            elif c['processor'] == 'ds':
+                args = ['ds', rate, c['frequency'], c['threshold'], c['range'], c['attack'], c['release'], c['ratio'], c['knee']]
             elif c['processor'] == 'gate':
                 args = ['gate', rate, c['threshold'], c['range'], c['attack'], c['hold'], c['release'], c['mode'], c['ratio']]
             else:
@@ -348,24 +392,66 @@ def analyse_comp(case, manifest, x, y, rate):
     up, down = c[0], c[0] + c[1]
     steady = float(np.median(gr[down - int(0.3 * rate):down - int(0.02 * rate)]))
     def first(condition):
-        hit = np.nonzero(condition)[0]
+        # First time the condition holds for a sustained 1 ms: a filter-based
+        # processor's single-sample edge transient at the step is not a crossing.
+        hold = max(1, int(rate * 1e-3))
+        run = np.convolve(condition.astype(int), np.ones(hold, dtype=int), mode='valid')
+        hit = np.nonzero(run == hold)[0]
         return float(hit[0] / rate * 1000) if len(hit) else None
     att = gr[up:down]; rel = gr[down:]; start_rel = steady
     # A filter-based (multiband) processor rings after the input drops 36 dB: its
     # loud tail briefly exceeds the new input and reads as gain for tens of ms, so
     # raw release crossings are unreliable there. release_tau_ms fits GR(t) =
     # A exp(-t / tau) from RELEASE_FIT_FROM_MS on, valid for both kinds.
-    t = np.arange(len(rel)) / rate * 1000
-    fit = (t >= RELEASE_FIT_FROM_MS) & (rel > 0.1 * steady)
-    stop = np.nonzero(~fit & (t >= RELEASE_FIT_FROM_MS))[0]
-    if len(stop): fit[stop[0]:] = False
-    tau = float(-1 / np.polyfit(t[fit], np.log(rel[fit]), 1)[0]) if np.count_nonzero(fit) > 20 else None
+    tau = release_tau(rel, steady, rate)
     return {'latency_samples': lag, 'steady_gain_reduction_db': steady, 'release_tau_ms': tau,
             'attack_10_ms': first(att >= 0.1 * steady), 'attack_63_ms': first(att >= (1 - math.exp(-1)) * steady),
             'attack_90_ms': first(att >= 0.9 * steady),
             'release_63_ms': first(rel <= math.exp(-1) * start_rel), 'release_90_ms': first(rel <= 0.1 * start_rel),
             'gr_trace_ms': (np.arange(0, len(gr), int(rate / 1000)) / rate * 1000).tolist(),
             'gr_trace_db': gr[::int(rate / 1000)].tolist()}
+
+def true_peak(y, factor=4):
+    """Inter-sample peak by band-limited (FFT) upsampling."""
+    n = len(y); Y = np.fft.rfft(y)
+    return float(np.max(np.abs(np.fft.irfft(Y, n * factor)) * factor))
+
+def db(v):
+    return float(20 * np.log10(max(v, 1e-12)))
+
+def release_tau(rel, steady, rate):
+    """GR(t) = A exp(-t / tau) fitted from RELEASE_FIT_FROM_MS while GR > 10 % of steady."""
+    t = np.arange(len(rel)) / rate * 1000
+    fit = (t >= RELEASE_FIT_FROM_MS) & (rel > 0.1 * steady)
+    stop = np.nonzero(~fit & (t >= RELEASE_FIT_FROM_MS))[0]
+    if len(stop): fit[stop[0]:] = False
+    return float(-1 / np.polyfit(t[fit], np.log(rel[fit]), 1)[0]) if np.count_nonzero(fit) > 20 else None
+
+def analyse_limiter(case, x, y, rate):
+    """Output sample/true peak against the ceiling, gain reduction and timing."""
+    if case['signal'] == 'intersample':
+        a, b = int(0.5 * rate), len(y)
+        return {'input_sample_peak_dbfs': db(np.max(np.abs(x[a:b]))), 'input_true_peak_dbfs': db(true_peak(x[a:b])),
+                'output_sample_peak_dbfs': db(np.max(np.abs(y[a:b]))), 'output_true_peak_dbfs': db(true_peak(y[a:b]))}
+    gr, lag = gain_reduction(x, y, rate, case.get('tone_hz', TONE_HZ))
+    y = np.roll(np.pad(y, (0, max(0, len(x) - len(y))))[:len(x)], -lag)
+    starts = np.cumsum([0] + [int(round(t * rate)) for _, t in case['segments']])
+    if case['signal'] == 'static':
+        rows = []
+        for (level, _), a, b in zip(case['segments'], starts[:-1], starts[1:]):
+            w = slice(a + int(0.6 * (b - a)), b - int(0.05 * (b - a)))
+            rows.append({'input_dbfs_peak': level, 'gain_reduction_db': float(np.median(gr[w])),
+                         'output_sample_peak_dbfs': db(np.max(np.abs(y[w]))), 'output_true_peak_dbfs': db(true_peak(y[w]))})
+        return {'latency_samples': lag, 'curve': rows,
+                'max_output_sample_peak_dbfs': max(r['output_sample_peak_dbfs'] for r in rows),
+                'max_output_true_peak_dbfs': max(r['output_true_peak_dbfs'] for r in rows)}
+    up, down = starts[1], starts[2]
+    steady = float(np.median(gr[down - int(0.3 * rate):down - int(0.02 * rate)]))
+    onset = y[up:up + int(0.005 * rate)]
+    return {'latency_samples': lag, 'steady_gain_reduction_db': steady,
+            'onset_5ms_sample_peak_dbfs': db(np.max(np.abs(onset))), 'onset_5ms_true_peak_dbfs': db(true_peak(onset)),
+            'settled_sample_peak_dbfs': db(np.max(np.abs(y[down - int(0.3 * rate):down]))),
+            'release_tau_ms': release_tau(gr[down:], steady, rate)}
 
 def analyse_gate(case, x, y, rate):
     """Gate/expander: per-step attenuation, open/close thresholds, step timing."""
@@ -414,6 +500,7 @@ def analyse(kit, renders):
         if not np.all(np.isfinite(y)): raise ValueError(f'{path}: non-finite samples')
         if case['signal'] == 'impulse': results[case['id']] = analyse_eq(x, y, rate)
         elif case['kind'] == 'gate': results[case['id']] = analyse_gate(case, x, y, rate)
+        elif case['kind'] == 'limiter': results[case['id']] = analyse_limiter(case, x, y, rate)
         else: results[case['id']] = analyse_comp(case, manifest, x, y, rate)
         results[case['id']]['render_sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
     info = Path(renders) / 'INFO.txt'
@@ -425,7 +512,9 @@ COMPARE_SCALARS = ('latency_samples', 'group_delay_1k_ms', 'max_db', 'max_hz', '
                    'minus3db_rising_hz', 'minus3db_falling_hz', 'shelf_midpoint_hz', 'steady_gain_reduction_db',
                    'release_tau_ms', 'attack_10_ms', 'attack_63_ms', 'attack_90_ms', 'release_63_ms', 'release_90_ms',
                    'closed_attenuation_db', 'open_threshold_dbfs', 'close_threshold_dbfs', 'hysteresis_db', 'expansion_ratio',
-                   'open_90_ms', 'close_10_ms', 'close_50_ms', 'close_90_ms')
+                   'open_90_ms', 'close_10_ms', 'close_50_ms', 'close_90_ms',
+                   'max_output_sample_peak_dbfs', 'max_output_true_peak_dbfs', 'onset_5ms_sample_peak_dbfs',
+                   'onset_5ms_true_peak_dbfs', 'settled_sample_peak_dbfs', 'output_sample_peak_dbfs', 'output_true_peak_dbfs')
 
 def compare(reference, candidate):
     rows = {}

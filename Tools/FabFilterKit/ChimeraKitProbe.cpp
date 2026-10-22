@@ -1,6 +1,7 @@
 // Renders FabFilter black-box kit signals through Chimera's production EQ, clean
-// compressor, four-band dynamics and noise gate (Source/GraphicalEQ.h,
-// Source/CommonDynamics.h, Source/MultibandDynamicsCore.h, Source/GlobalDSP.h) so the same
+// compressor and live limiter, four-band dynamics, de-esser and noise gate
+// (Source/GraphicalEQ.h, Source/CommonDynamics.h, Source/MultibandDynamicsCore.h,
+// Source/GlobalDSP.h) so the same
 // analysis compares a FabFilter render with Chimera. Offline tool; it never
 // loads, inspects or links any FabFilter code. Driven by Tools/fabfilter_kit.py.
 //
@@ -9,6 +10,8 @@
 //   ChimeraKitProbe mb   <rate> <x1> <x2> <x3> <band|-1> <threshold> <ratio> <attack> <release> <knee> <range> <rms|peak> <in.f32> <out.f32>
 //     band -1 keeps every band neutral (ratio 1, range 0); otherwise only that
 //     zero-based band compresses downward and the others stay neutral.
+//   ChimeraKitProbe lim  <rate> <ceiling> <release> <in.f32> <out.f32>
+//   ChimeraKitProbe ds   <rate> <frequency> <threshold> <range> <attack> <release> <ratio> <knee> <in.f32> <out.f32>
 //   ChimeraKitProbe gate <rate> <threshold> <range> <attack> <hold> <release> <gate|expander> <ratio> <in.f32> <out.f32>
 //
 // Audio files are raw little-endian float32, interleaved stereo.
@@ -123,6 +126,18 @@ int main(int argc,char** argv) {
             spectralforge::MultibandDynamicsCore core;core.setSettings(settings);core.prepare(std::atof(argv[2]));
             auto audio=load(argv[14]);render(audio,[&](auto& view){core.process(view.getArrayOfWritePointers(),2,view.getNumSamples());});save(audio,argv[15]);return 0;
         }
+        if(mode=="lim" && argc==7) {
+            host.set("liveLimiterOn",1.f);host.set("liveLimiterCeiling",float(std::atof(argv[3])));host.set("liveLimiterRelease",float(std::atof(argv[4])));
+            spectralforge::CommonDynamics dynamics;dynamics.bind(host.state);dynamics.prepare(std::atof(argv[2]));
+            auto audio=load(argv[5]);render(audio,[&](auto& view){dynamics.limit(view);});save(audio,argv[6]);return 0;
+        }
+        if(mode=="ds" && argc==12) {
+            spectralforge::DeEsserSettings settings;settings.on=true;
+            settings.frequency=float(std::atof(argv[3]));settings.threshold=float(std::atof(argv[4]));settings.range=float(std::atof(argv[5]));
+            settings.attack=float(std::atof(argv[6]));settings.release=float(std::atof(argv[7]));settings.ratio=float(std::atof(argv[8]));settings.knee=float(std::atof(argv[9]));
+            spectralforge::DeEsserCore core;core.prepare(std::atof(argv[2]));core.setSettings(settings);core.reset();
+            auto audio=load(argv[10]);render(audio,[&](auto& view){core.process(view.getArrayOfWritePointers(),2,view.getNumSamples());});save(audio,argv[11]);return 0;
+        }
         if(mode=="gate" && argc==12) {
             spectralforge::NoiseGate gate;gate.prepare(std::atof(argv[2]));
             gate.setMode(juce::String(argv[8])=="expander",float(std::atof(argv[9])),float(std::atof(argv[5])));
@@ -131,6 +146,8 @@ int main(int argc,char** argv) {
         }
         std::cerr<<"usage: ChimeraKitProbe eq <rate> <type> <frequency> <gain> <q> <in.f32> <out.f32>\n"
                    "       ChimeraKitProbe comp <rate> <threshold> <ratio> <attack> <release> <knee> <rms|peak> <in.f32> <out.f32>\n"
+                   "       ChimeraKitProbe lim <rate> <ceiling> <release> <in.f32> <out.f32>\n"
+                   "       ChimeraKitProbe ds <rate> <frequency> <threshold> <range> <attack> <release> <ratio> <knee> <in.f32> <out.f32>\n"
                    "       ChimeraKitProbe gate <rate> <threshold> <range> <attack> <hold> <release> <gate|expander> <ratio> <in.f32> <out.f32>\n"
                    "       ChimeraKitProbe mb <rate> <x1> <x2> <x3> <band|-1> <threshold> <ratio> <attack> <release> <knee> <range> <rms|peak> <in.f32> <out.f32>\n";
         return 2;
