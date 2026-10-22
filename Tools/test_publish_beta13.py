@@ -231,6 +231,10 @@ class ControllerSourceBinding(unittest.TestCase):
         self.git("init", "--quiet")
         self.git("config", "user.name", "Publication binding fixture")
         self.git("config", "user.email", "publication-fixture@example.invalid")
+        # Git 2.47+ spawns detached auto-maintenance after commits; it can still
+        # be writing into .git when the temporary directory is removed.
+        self.git("config", "maintenance.auto", "false")
+        self.git("config", "gc.auto", "0")
         self.git("config", "commit.gpgsign", "false")
         self.git("config", "core.autocrlf", "false")
         for name in (*self.PRODUCT_FILES, "Tools/publish_beta13.py",
