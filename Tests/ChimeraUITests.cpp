@@ -587,7 +587,7 @@ void checkReviewFixes(const juce::File& directory) {
             require(panel->getLocalBounds().contains(bounds) && !bounds.intersects(previous),"LOW controls clipped or overlapping");previous=bounds;
         }
         const float lowBefore=p.parameters().getRawParameterValue("lowcomp")->load();
-        auto* amount=nativeUITests::find<juce::Slider>(*panel,"lowcomp");require(amount && amount->isShowing(),"LOW compression knob missing");
+        auto* amount=nativeUITests::find<juce::Slider>(*panel,"lowcomp");require(amount && amount->isVisible(),"LOW compression knob missing");
         amount->setValue(scale<1.f?.28:.72,juce::sendNotificationSync);
         require(std::abs(p.parameters().getRawParameterValue("lowcomp")->load()-amount->getValue())<.002f,"LOW compression knob is disconnected from its released parameter");
         set(p,"lowcomp",lowBefore);
