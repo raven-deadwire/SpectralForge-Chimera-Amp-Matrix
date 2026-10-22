@@ -38,6 +38,21 @@ def peak_compressor(x, threshold, ratio, attack_ms, release_ms):
         y[n] = v * 10 ** (-gr / 20)
     return y
 
+def hysteresis_gate(x, threshold, close, range_db, attack_ms, hold_ms, release_ms):
+    """Peak detector, open at threshold, close below `close`, hold, one-pole gain."""
+    env = 0.0; gain = 1.0; hold = 0; is_open = True; y = np.zeros_like(x)
+    decay = math.exp(-1 / (RATE * 0.020)); att = math.exp(-1 / (RATE * attack_ms * 1e-3)); rel = math.exp(-1 / (RATE * release_ms * 1e-3))
+    floor = 10 ** (-range_db / 20); hold_samples = int(RATE * hold_ms * 1e-3)
+    for n, v in enumerate(x):
+        env = max(abs(v), env * decay); level = 20 * math.log10(max(env, 1e-12))
+        if level >= threshold: is_open = True; hold = hold_samples
+        elif level < close:
+            if hold > 0: hold -= 1
+            else: is_open = False
+        target = 1.0 if is_open else floor
+        gain = target + (gain - target) * (att if target > gain else rel); y[n] = v * gain
+    return y
+
 class FabFilterKitTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -51,6 +66,11 @@ class FabFilterKitTests(unittest.TestCase):
         kit.write_wav(cls.renders / 'eq_bell_100_m6_q4.wav', delayed, RATE)
         for cid in ('comp_static_k0', 'comp_step_10_100'):
             kit.write_wav(cls.renders / f'{cid}.wav', peak_compressor(signal(cid), -20, 4, 10, 100), RATE)
+        # An out-of-band tone a multiband compressor leaves untouched.
+        kit.write_wav(cls.renders / 'mb_band2_static_2khz.wav', signal('mb_band2_static_2khz'), RATE)
+        kit.write_wav(cls.renders / 'mb_band2_step_300hz.wav', peak_compressor(signal('mb_band2_step_300hz'), -20, 4, 10, 100), RATE)
+        kit.write_wav(cls.renders / 'gate_static_hysteresis.wav', hysteresis_gate(signal('gate_static_hysteresis'), -40, -46, 40, 0.5, 0, 20), RATE)
+        kit.write_wav(cls.renders / 'gate_step_hold_release.wav', hysteresis_gate(signal('gate_step_hold_release'), -40, -46, 40, 0.5, 50, 100), RATE)
         cls.result = kit.analyse(cls.kit, cls.renders)
 
     @classmethod
@@ -69,7 +89,7 @@ class FabFilterKitTests(unittest.TestCase):
         y, _ = kit.read_wav(Path(self.tmp.name) / 'p24.wav'); np.testing.assert_allclose(y[:, 0], x, atol=2e-7)
 
     def test_manifest_lists_every_signal_with_hash(self):
-        self.assertEqual(len(self.manifest['cases']), len(kit.EQ_CASES) + len(kit.COMP_CASES))
+        self.assertEqual(len(self.manifest['cases']), len(kit.EQ_CASES) + len(kit.COMP_CASES) + len(kit.MB_CASES) + len(kit.GATE_CASES))
         for case in self.manifest['cases']:
             self.assertTrue((self.kit / 'signals' / f"{case['id']}.wav").exists()); self.assertEqual(len(case['signal_sha256']), 64)
         self.assertIn('eq_bell_1k_p6_q1', (self.kit / 'RENDER_GUIDE.md').read_text(encoding='utf-8'))
@@ -92,7 +112,36 @@ class FabFilterKitTests(unittest.TestCase):
     def test_attack_release_times(self):
         step = self.result['cases']['comp_step_10_100']
         self.assertAlmostEqual(step['attack_63_ms'], 10, delta=2); self.assertAlmostEqual(step['release_63_ms'], 100, delta=10)
+        self.assertAlmostEqual(step['release_tau_ms'], 100, delta=10)
         self.assertGreater(step['steady_gain_reduction_db'], 10)
+
+    def test_multiband_cases_and_tones(self):
+        cases = {c['id']: c for c in self.manifest['cases']}
+        self.assertEqual(cases['mb_band2_static_300hz']['tone_hz'], 300.0)
+        self.assertEqual(cases['mb_band2_static_300hz']['chimera']['band'], 1)
+        self.assertEqual(cases['mb_neutral_dynamic_phase']['chimera']['band'], -1)
+        x = kit.read_wav(self.kit / 'signals' / 'mb_band2_static_300hz.wav')[0][:, 0]
+        spectrum = np.abs(np.fft.rfft(x[:RATE])); self.assertAlmostEqual(float(np.argmax(spectrum)), 300, delta=1)
+
+    def test_untouched_out_of_band_tone_reports_no_reduction(self):
+        fit = self.result['cases']['mb_band2_static_2khz']['fit']
+        self.assertTrue(fit.get('no_gain_reduction')); self.assertIsNone(fit['threshold_db'])
+
+    def test_low_tone_step_timing(self):
+        step = self.result['cases']['mb_band2_step_300hz']
+        self.assertAlmostEqual(step['attack_63_ms'], 10, delta=3); self.assertAlmostEqual(step['release_63_ms'], 100, delta=12)
+
+    def test_gate_thresholds_hysteresis_and_range(self):
+        gate = self.result['cases']['gate_static_hysteresis']
+        self.assertAlmostEqual(gate['closed_attenuation_db'], 40, delta=0.5)
+        self.assertEqual(gate['open_threshold_dbfs'], -39.5); self.assertEqual(gate['close_threshold_dbfs'], -45.5)
+        self.assertEqual(gate['hysteresis_db'], 6.0)  # 1 dB steps offset by 0.5 dB
+
+    def test_gate_step_timing(self):
+        step = self.result['cases']['gate_step_hold_release']
+        self.assertLess(step['open_90_ms'], 3)
+        # 20 ms detector decay to -46 dB, 50 ms hold, then a 100 ms release toward -40 dB.
+        self.assertGreater(step['close_10_ms'], 50); self.assertLess(step['close_50_ms'], 400)
 
     def test_missing_renders_are_reported_not_invented(self):
         self.assertIn('eq_notch_1k_q4', self.result['missing']); self.assertNotIn('eq_notch_1k_q4', self.result['cases'])
@@ -115,6 +164,20 @@ class FabFilterKitTests(unittest.TestCase):
         # RMS detector: a sine's RMS is 3 dB under its peak, so a -20 dB threshold
         # starts at -17 dBFS peak. This documents Chimera's unit, it is not a target.
         self.assertAlmostEqual(cases['comp_static_k0']['fit']['threshold_db'], -17, delta=0.5)
+        neutral = cases['mb_neutral_dynamic_phase']
+        self.assertLess(max(abs(v) for v in neutral['magnitude_db']), 0.01)   # flat magnitude (allpass sum)
+        inband, outband = cases['mb_band2_static_300hz']['fit'], cases['mb_band2_static_2khz']['static_curve']
+        # Band 2 ratio 4: part of a 300 Hz tone sits in the neighbouring bands'
+        # crossover skirts and is not compressed, so the full-band output ratio is
+        # lower (measured 3.0). A Chimera property recorded for comparison.
+        self.assertAlmostEqual(inband['threshold_db'], -17, delta=1.0); self.assertTrue(2.5 < inband['ratio'] < 4.0)
+        mbstep = cases['mb_band2_step_300hz']
+        self.assertAlmostEqual(mbstep['release_tau_ms'], 100, delta=25)
+        self.assertLess(max(r['gain_reduction_db'] for r in outband), 1.0)
+        gate, expander = cases['gate_static_hysteresis'], cases['expander_static_r2']
+        self.assertEqual(gate['open_threshold_dbfs'], -39.5); self.assertAlmostEqual(gate['closed_attenuation_db'], 40, delta=0.5)
+        self.assertGreater(gate['hysteresis_db'], 0)
+        self.assertAlmostEqual(expander['expansion_ratio'], 2, delta=0.3)
 
 if __name__ == '__main__':
     unittest.main()

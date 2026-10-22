@@ -39,6 +39,31 @@ EQ_CASES = [
     ("eq_highcut12_10k",   "High Cut 12 dB/oct", 10000, 0.0, 0.707, 4),
     ("eq_notch_1k_q4",     "Notch",             1000,  0.0, 4.0,   5),
 ]
+# Pro-MB: Chimera's four contiguous bands (Source/MultibandDynamicsCore.h).
+MB_CROSSOVERS = (120.0, 700.0, 3500.0)
+MB_CASES = [
+    # id, signal, tone Hz, Pro-MB processing mode, processed band (None: neutral)
+    ("mb_neutral_dynamic_phase", "impulse", None,  "Dynamic Phase", None),
+    ("mb_neutral_minimum_phase", "impulse", None,  "Minimum Phase", None),
+    ("mb_band2_static_300hz",    "static",  300.0, "Dynamic Phase", 2),
+    ("mb_band2_static_2khz",     "static",  2000.0, "Dynamic Phase", 2),
+    ("mb_band2_step_300hz",      "step",    300.0, "Dynamic Phase", 2),
+]
+MB_BAND = {'threshold': -20.0, 'ratio': 4.0, 'attack': 10.0, 'release': 100.0, 'knee': 0.0, 'range': 30.0}
+# Pro-G: Chimera NoiseGate (Source/GlobalDSP.h). Peak detector, 6 dB hysteresis.
+# 1 dB steps offset by 0.5 dB, so no step sits exactly on a threshold where
+# rounding decides open/closed; up, then down.
+GATE_UPDOWN = [l + 0.5 for l in range(-71, -10)] + [l + 0.5 for l in range(-12, -72, -1)]
+GATE_UPDOWN_STEP_S = 0.3
+GATE_STEP = ((-60.0, 1.0), (-20.0, 1.0), (-60.0, 1.5))
+GATE_CASES = [
+    # id, signal, mode, threshold, range, attack, hold, release, expander ratio
+    # Static sweeps use hold 0 / release 20 ms so each 0.3 s step settles; the
+    # step case measures hold and release.
+    ("gate_static_hysteresis", "updown", "Gate",     -40.0, 40.0, 0.5, 0.0, 20.0, 1.0),
+    ("gate_step_hold_release", "gatestep", "Gate",   -40.0, 40.0, 0.5, 50.0, 100.0, 1.0),
+    ("expander_static_r2",     "updown", "Expander", -40.0, 40.0, 0.5, 0.0, 20.0, 2.0),
+]
 COMP_CASES = [
     ("comp_static_k0",  "static", -20.0, 4.0, 10.0, 100.0, 0.0),
     ("comp_static_k12", "static", -20.0, 4.0, 10.0, 100.0, 12.0),
@@ -90,20 +115,23 @@ def read_wav(path):
     return x.reshape(-1, channels), rate
 
 # ---------------------------------------------------------------- signals
-def sine_segments(levels_db, seconds, rate):
-    """Phase-continuous 1 kHz sine whose peak level steps per segment."""
+def sine_segments(levels_db, seconds, rate, tone=TONE_HZ):
+    """Phase-continuous sine whose peak level steps per segment."""
     counts = [int(round(s * rate)) for s in seconds]
     amplitude = np.concatenate([np.full(c, 10 ** (l / 20)) for l, c in zip(levels_db, counts)])
     n = np.arange(len(amplitude))
-    return amplitude * np.sin(2 * np.pi * TONE_HZ * n / rate), counts
+    return amplitude * np.sin(2 * np.pi * tone * n / rate), counts
 
 def signal_for(case, rate):
-    if case['kind'] == 'eq':
+    if case['signal'] == 'impulse':
         x = np.zeros(IMPULSE_LENGTH); x[IMPULSE_OFFSET] = IMPULSE_AMPLITUDE
         return x
+    tone = case.get('tone_hz', TONE_HZ)
+    if 'segments' in case:
+        return sine_segments([l for l, _ in case['segments']], [t for _, t in case['segments']], rate, tone)[0]
     if case['signal'] == 'static':
-        return sine_segments(STATIC_LEVELS, [STATIC_STEP_S] * len(STATIC_LEVELS), rate)[0]
-    return sine_segments(STEP_LEVELS, STEP_SECONDS, rate)[0]
+        return sine_segments(STATIC_LEVELS, [STATIC_STEP_S] * len(STATIC_LEVELS), rate, tone)[0]
+    return sine_segments(STEP_LEVELS, STEP_SECONDS, rate, tone)[0]
 
 def build_manifest(rate):
     cases = []
@@ -111,14 +139,34 @@ def build_manifest(rate):
         cases.append({'id': cid, 'kind': 'eq', 'signal': 'impulse',
                       'reference': {'plugin': 'FabFilter Pro-Q 4', 'processing_mode': 'Zero Latency', 'band_shape': shape,
                                     'frequency_hz': freq, 'gain_db': gain, 'q': q, 'output_db': 0, 'auto_gain': 'off', 'other_bands': 'none'},
-                      'chimera': {'type': chimera_type, 'frequency': freq, 'gain': gain, 'q': q}})
+                      'chimera': {'processor': 'eq', 'type': chimera_type, 'frequency': freq, 'gain': gain, 'q': q}})
     for cid, signal, thr, ratio, attack, release, knee in COMP_CASES:
         cases.append({'id': cid, 'kind': 'comp', 'signal': signal,
                       'reference': {'plugin': 'FabFilter Pro-C 3', 'style': 'Clean', 'threshold_db': thr, 'ratio': ratio,
                                     'attack_ms': attack, 'release_ms': release, 'knee_db': knee, 'range_db': 'maximum',
                                     'lookahead_ms': 0, 'hold_ms': 0, 'auto_release': 'off', 'auto_gain': 'off', 'output_db': 0,
                                     'mix': '100%', 'stereo_link': '100%', 'sidechain_filters': 'off', 'oversampling': 'off'},
-                      'chimera': {'threshold': thr, 'ratio': ratio, 'attack': attack, 'release': release, 'knee': knee, 'detector': 'rms'}})
+                      'chimera': {'processor': 'comp', 'threshold': thr, 'ratio': ratio, 'attack': attack, 'release': release, 'knee': knee, 'detector': 'rms'}})
+    for cid, signal, tone, mode, band in MB_CASES:
+        bands = {f'band_{i}': ('Compress: ' + ', '.join(f'{k}={v}' for k, v in MB_BAND.items()) if i == band else 'no gain change (Range 0)')
+                 for i in range(1, 5)}
+        case = {'id': cid, 'kind': 'multiband', 'signal': signal,
+                'reference': {'plugin': 'FabFilter Pro-MB', 'processing_mode': mode, 'bands': 4,
+                              'crossovers_hz': list(MB_CROSSOVERS), 'crossover_slope': '24 dB/oct (or nearest)', **bands,
+                              'lookahead': 'off', 'oversampling': 'off', 'stereo_link': '100%', 'mix': '100%', 'output_db': 0},
+                'chimera': {'processor': 'mb', 'crossovers': list(MB_CROSSOVERS), 'band': band - 1 if band else -1, **MB_BAND, 'detector': 'rms'}}
+        if tone: case['tone_hz'] = tone
+        cases.append(case)
+    for cid, signal, mode, thr, rng, attack, hold, release, ratio in GATE_CASES:
+        # A 1 s lead-in lets a gate that starts open close before the sweep.
+        segments = [[GATE_UPDOWN[0], 1.0]] + [[l, GATE_UPDOWN_STEP_S] for l in GATE_UPDOWN] if signal == 'updown' else [list(x) for x in GATE_STEP]
+        reference = {'plugin': 'FabFilter Pro-G', 'style': 'Classic', 'mode': mode, 'threshold_db': thr, 'range_db': rng,
+                     'attack_ms': attack, 'hold_ms': hold, 'release_ms': release, 'hysteresis_db': '-6 (record actual if fixed)',
+                     'lookahead_ms': 0, 'knee_db': 0, 'sidechain_filters': 'off', 'stereo_link': '100%', 'mix': '100%', 'output_db': 0}
+        if mode == 'Expander': reference['ratio'] = ratio
+        cases.append({'id': cid, 'kind': 'gate', 'signal': signal, 'segments': segments, 'reference': reference,
+                      'chimera': {'processor': 'gate', 'threshold': thr, 'range': rng, 'attack': attack, 'hold': hold,
+                                  'release': release, 'mode': 'expander' if mode == 'Expander' else 'gate', 'ratio': max(ratio, 1.0)}})
     return {'kit_version': KIT_VERSION, 'sample_rate': rate, 'tone_hz': TONE_HZ,
             'impulse': {'length': IMPULSE_LENGTH, 'offset': IMPULSE_OFFSET, 'amplitude': IMPULSE_AMPLITUDE},
             'static_levels_dbfs_peak': STATIC_LEVELS, 'static_step_s': STATIC_STEP_S,
@@ -169,10 +217,15 @@ def chimera(kit, probe, out):
             src, dst = Path(tmp) / 'in.f32', Path(tmp) / 'out.f32'
             src.write_bytes(x.astype('<f4').tobytes())
             c = case['chimera']
-            if case['kind'] == 'eq':
+            if c['processor'] == 'eq':
                 args = ['eq', rate, c['type'], c['frequency'], c['gain'], c['q']]
-            else:
+            elif c['processor'] == 'comp':
                 args = ['comp', rate, c['threshold'], c['ratio'], c['attack'], c['release'], c['knee'], c['detector']]
+            elif c['processor'] == 'gate':
+                args = ['gate', rate, c['threshold'], c['range'], c['attack'], c['hold'], c['release'], c['mode'], c['ratio']]
+            else:
+                args = ['mb', rate, *c['crossovers'], c['band'], c['threshold'], c['ratio'], c['attack'], c['release'],
+                        c['knee'], c['range'], c['detector']]
             subprocess.run([str(probe), *map(str, args), str(src), str(dst)], check=True)
             y = np.frombuffer(dst.read_bytes(), dtype='<f4').reshape(-1, 2)
             write_wav(out / f"{case['id']}.wav", y, rate)
@@ -238,23 +291,34 @@ def envelope(x):
     else: h[1:(n + 1) // 2] = 2
     return np.abs(np.fft.ifft(X * h))
 
+RELEASE_FIT_FROM_MS = 60.0
+MAX_DYNAMICS_LAG = 4096   # samples; dynamics cases run with lookahead off and host PDC on
+
 def align(x, y, rate):
-    """Integer lag of y versus x from the first quiet (linear) second."""
+    """Integer lag of y versus x from the first quiet (linear) second.
+
+    Tone signals are periodic, so the search is bounded and, among peaks within
+    0.5 % of the best, the smallest |lag| wins. A wider search can lock onto a
+    whole level step of a staircase."""
     m = min(len(x), len(y), int(rate))
     c = np.fft.irfft(np.fft.rfft(y[:m], 2 * m) * np.conj(np.fft.rfft(x[:m], 2 * m)), 2 * m)
-    lag = int(np.argmax(c[:m // 2].tolist() + c[-m // 2:].tolist()))
-    return lag if lag < m // 2 else lag - m
+    lags = np.arange(-MAX_DYNAMICS_LAG, MAX_DYNAMICS_LAG + 1)
+    values = c[lags % (2 * m)]
+    near = lags[values >= values.max() - 0.005 * abs(values.max())]
+    return int(near[np.argmin(np.abs(near))])
 
-def gain_reduction(x, y, rate):
+def gain_reduction(x, y, rate, tone=TONE_HZ):
     lag = align(x, y, rate)
     y = np.roll(np.pad(y, (0, max(0, len(x) - len(y))))[:len(x)], -lag)
     ex, ey = envelope(x), envelope(y)
-    k = max(1, int(rate / TONE_HZ))                           # one tone cycle
+    k = max(1, int(rate / tone))                              # one tone cycle
     smooth = lambda v: np.convolve(v, np.ones(k) / k, mode='same')
     gr = 20 * np.log10(np.maximum(smooth(ex), 1e-9) / np.maximum(smooth(ey), 1e-9))
     return gr, lag
 
 def static_fit(levels, out_levels):
+    if float(np.max(np.abs(np.asarray(levels, float) - np.asarray(out_levels, float)))) < 0.05:
+        return {'threshold_db': None, 'ratio': 1.0, 'knee_db': None, 'rms_error_db': 0.0, 'no_gain_reduction': True}
     """Grid fit of threshold / ratio / knee to the hard/soft-knee compressor law."""
     levels, gr = np.asarray(levels, float), np.asarray(levels, float) - np.asarray(out_levels, float)
     best = None
@@ -272,7 +336,7 @@ def static_fit(levels, out_levels):
             'knee_db': float(knee), 'rms_error_db': math.sqrt(err / len(levels))}
 
 def analyse_comp(case, manifest, x, y, rate):
-    gr, lag = gain_reduction(x, y, rate)
+    gr, lag = gain_reduction(x, y, rate, case.get('tone_hz', TONE_HZ))
     if case['signal'] == 'static':
         step = int(round(manifest['static_step_s'] * rate)); rows = []
         for i, level in enumerate(manifest['static_levels_dbfs_peak']):
@@ -286,14 +350,57 @@ def analyse_comp(case, manifest, x, y, rate):
     def first(condition):
         hit = np.nonzero(condition)[0]
         return float(hit[0] / rate * 1000) if len(hit) else None
-    att = gr[up:down]; rel = gr[down:]
-    start_rel = float(np.median(gr[down - int(0.005 * rate):down]))
-    return {'latency_samples': lag, 'steady_gain_reduction_db': steady,
+    att = gr[up:down]; rel = gr[down:]; start_rel = steady
+    # A filter-based (multiband) processor rings after the input drops 36 dB: its
+    # loud tail briefly exceeds the new input and reads as gain for tens of ms, so
+    # raw release crossings are unreliable there. release_tau_ms fits GR(t) =
+    # A exp(-t / tau) from RELEASE_FIT_FROM_MS on, valid for both kinds.
+    t = np.arange(len(rel)) / rate * 1000
+    fit = (t >= RELEASE_FIT_FROM_MS) & (rel > 0.1 * steady)
+    stop = np.nonzero(~fit & (t >= RELEASE_FIT_FROM_MS))[0]
+    if len(stop): fit[stop[0]:] = False
+    tau = float(-1 / np.polyfit(t[fit], np.log(rel[fit]), 1)[0]) if np.count_nonzero(fit) > 20 else None
+    return {'latency_samples': lag, 'steady_gain_reduction_db': steady, 'release_tau_ms': tau,
             'attack_10_ms': first(att >= 0.1 * steady), 'attack_63_ms': first(att >= (1 - math.exp(-1)) * steady),
             'attack_90_ms': first(att >= 0.9 * steady),
             'release_63_ms': first(rel <= math.exp(-1) * start_rel), 'release_90_ms': first(rel <= 0.1 * start_rel),
             'gr_trace_ms': (np.arange(0, len(gr), int(rate / 1000)) / rate * 1000).tolist(),
             'gr_trace_db': gr[::int(rate / 1000)].tolist()}
+
+def analyse_gate(case, x, y, rate):
+    """Gate/expander: per-step attenuation, open/close thresholds, step timing."""
+    gr, lag = gain_reduction(x, y, rate, case.get('tone_hz', TONE_HZ))
+    starts = np.cumsum([0] + [int(round(t * rate)) for _, t in case['segments']])
+    rows = [{'input_dbfs_peak': l, 'attenuation_db': float(np.median(gr[a + int(0.6 * (b - a)):b - int(0.05 * (b - a))]))}
+            for (l, _), a, b in zip(case['segments'], starts[:-1], starts[1:])]
+    if case['signal'] == 'updown':
+        closed = max(r['attenuation_db'] for r in rows); half = closed / 2
+        turn = int(np.argmax([r['input_dbfs_peak'] for r in rows]))
+        # Opening is read only after the gate has been seen closed.
+        first_closed = next((i for i, r in enumerate(rows[:turn + 1]) if r['attenuation_db'] >= half), 0)
+        up, down = rows[first_closed:turn + 1], rows[turn:]
+        opens = [r['input_dbfs_peak'] for r in up if r['attenuation_db'] < half]
+        holds = [r['input_dbfs_peak'] for r in down if r['attenuation_db'] < half]
+        result = {'latency_samples': lag, 'closed_attenuation_db': closed, 'curve': rows,
+                  'open_threshold_dbfs': min(opens) if opens else None,
+                  # Lowest level still open on the way down; the gate closes below it.
+                  'close_threshold_dbfs': min(holds) if holds else None}
+        if result['open_threshold_dbfs'] is not None and result['close_threshold_dbfs'] is not None:
+            result['hysteresis_db'] = result['open_threshold_dbfs'] - result['close_threshold_dbfs']
+        # Expansion slope from the partially attenuated steps below the open level.
+        partial = [r for r in up if 1.0 < r['attenuation_db'] < closed - 1.0]
+        if len(partial) >= 3:
+            slope = -np.polyfit([r['input_dbfs_peak'] for r in partial], [r['attenuation_db'] for r in partial], 1)[0]
+            result['expansion_ratio'] = float(1 + slope)
+        return result
+    up, down = starts[1], starts[2]
+    closed = float(np.median(gr[up - int(0.3 * rate):up - int(0.02 * rate)]))
+    first = lambda condition: (float(np.nonzero(condition)[0][0] / rate * 1000) if np.any(condition) else None)
+    after = gr[down:]
+    return {'latency_samples': lag, 'closed_attenuation_db': closed,
+            'open_90_ms': first(gr[up:down] <= 0.1 * closed),
+            'close_10_ms': first(after >= 0.1 * closed), 'close_50_ms': first(after >= 0.5 * closed), 'close_90_ms': first(after >= 0.9 * closed),
+            'gr_trace_ms': (np.arange(0, len(gr), int(rate / 1000)) / rate * 1000).tolist(), 'gr_trace_db': gr[::int(rate / 1000)].tolist()}
 
 def analyse(kit, renders):
     manifest = load_kit(kit); rate = manifest['sample_rate']; results = {}; missing = []
@@ -305,7 +412,9 @@ def analyse(kit, renders):
         x, _ = read_wav(Path(kit) / 'signals' / f"{case['id']}.wav")
         x, y = x[:, 0], y[:, 0]
         if not np.all(np.isfinite(y)): raise ValueError(f'{path}: non-finite samples')
-        results[case['id']] = analyse_eq(x, y, rate) if case['kind'] == 'eq' else analyse_comp(case, manifest, x, y, rate)
+        if case['signal'] == 'impulse': results[case['id']] = analyse_eq(x, y, rate)
+        elif case['kind'] == 'gate': results[case['id']] = analyse_gate(case, x, y, rate)
+        else: results[case['id']] = analyse_comp(case, manifest, x, y, rate)
         results[case['id']]['render_sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
     info = Path(renders) / 'INFO.txt'
     return {'kit_version': manifest['kit_version'], 'sample_rate': rate, 'renders': str(renders),
@@ -314,7 +423,9 @@ def analyse(kit, renders):
 
 COMPARE_SCALARS = ('latency_samples', 'group_delay_1k_ms', 'max_db', 'max_hz', 'min_db', 'min_hz', 'half_gain_q', 'low_end_db', 'high_end_db',
                    'minus3db_rising_hz', 'minus3db_falling_hz', 'shelf_midpoint_hz', 'steady_gain_reduction_db',
-                   'attack_10_ms', 'attack_63_ms', 'attack_90_ms', 'release_63_ms', 'release_90_ms')
+                   'release_tau_ms', 'attack_10_ms', 'attack_63_ms', 'attack_90_ms', 'release_63_ms', 'release_90_ms',
+                   'closed_attenuation_db', 'open_threshold_dbfs', 'close_threshold_dbfs', 'hysteresis_db', 'expansion_ratio',
+                   'open_90_ms', 'close_10_ms', 'close_50_ms', 'close_90_ms')
 
 def compare(reference, candidate):
     rows = {}
@@ -356,6 +467,10 @@ def plots(kit, reference, candidate, out):
             ax.semilogx(ref['grid_hz'], ref['magnitude_db'], label='reference')
             if cand: ax.semilogx(cand['grid_hz'], cand['magnitude_db'], '--', label='Chimera')
             ax.set_xlabel('Hz'); ax.set_ylabel('dB')
+        elif 'curve' in ref:
+            ax.plot([r['input_dbfs_peak'] for r in ref['curve']], [r['attenuation_db'] for r in ref['curve']], 'o-', label='reference')
+            if cand: ax.plot([r['input_dbfs_peak'] for r in cand['curve']], [r['attenuation_db'] for r in cand['curve']], 's--', label='Chimera')
+            ax.set_xlabel('input dBFS (sine peak, step order)'); ax.set_ylabel('attenuation dB')
         elif 'static_curve' in ref:
             ax.plot([r['input_dbfs_peak'] for r in ref['static_curve']], [r['gain_reduction_db'] for r in ref['static_curve']], 'o-', label='reference')
             if cand: ax.plot([r['input_dbfs_peak'] for r in cand['static_curve']], [r['gain_reduction_db'] for r in cand['static_curve']], 's--', label='Chimera')

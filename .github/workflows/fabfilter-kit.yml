@@ -8,6 +8,7 @@ on:
       - 'Tools/FabFilterKit/**'
       - 'Source/GraphicalEQ.h'
       - 'Source/CommonDynamics.h'
+      - 'Source/MultibandDynamicsCore.h'
       - '.github/workflows/fabfilter-kit.yml'
 permissions:
   contents: read

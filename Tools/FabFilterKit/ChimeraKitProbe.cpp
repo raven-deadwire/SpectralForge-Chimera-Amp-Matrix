@@ -1,14 +1,21 @@
-// Renders FabFilter black-box kit signals through Chimera's production EQ and
-// clean compressor (Source/GraphicalEQ.h, Source/CommonDynamics.h) so the same
+// Renders FabFilter black-box kit signals through Chimera's production EQ, clean
+// compressor, four-band dynamics and noise gate (Source/GraphicalEQ.h,
+// Source/CommonDynamics.h, Source/MultibandDynamicsCore.h, Source/GlobalDSP.h) so the same
 // analysis compares a FabFilter render with Chimera. Offline tool; it never
 // loads, inspects or links any FabFilter code. Driven by Tools/fabfilter_kit.py.
 //
 //   ChimeraKitProbe eq   <rate> <type> <frequency> <gain> <q> <in.f32> <out.f32>
 //   ChimeraKitProbe comp <rate> <threshold> <ratio> <attack> <release> <knee> <rms|peak> <in.f32> <out.f32>
+//   ChimeraKitProbe mb   <rate> <x1> <x2> <x3> <band|-1> <threshold> <ratio> <attack> <release> <knee> <range> <rms|peak> <in.f32> <out.f32>
+//     band -1 keeps every band neutral (ratio 1, range 0); otherwise only that
+//     zero-based band compresses downward and the others stay neutral.
+//   ChimeraKitProbe gate <rate> <threshold> <range> <attack> <hold> <release> <gate|expander> <ratio> <in.f32> <out.f32>
 //
 // Audio files are raw little-endian float32, interleaved stereo.
 #include "CommonDynamics.h"
 #include "GraphicalEQ.h"
+#include "MultibandDynamicsCore.h"
+#include "GlobalDSP.h"
 #include <fstream>
 #include <iostream>
 
@@ -102,8 +109,30 @@ int main(int argc,char** argv) {
             spectralforge::CommonDynamics dynamics;dynamics.bind(host.state);dynamics.prepare(rate);
             auto audio=load(argv[9]);render(audio,[&](auto& view){dynamics.compress(view);});save(audio,argv[10]);return 0;
         }
+        if(mode=="mb" && argc==16) {
+            spectralforge::MultibandSettings settings;settings.on=true;settings.mix=1.f;
+            settings.detector=juce::String(argv[13])=="rms"?1:0;
+            for(int i=0;i<3;++i)settings.crossovers[size_t(i)]=float(std::atof(argv[3+i]));
+            const int band=std::atoi(argv[6]);
+            for(int i=0;i<spectralforge::multibandBandCount;++i) {
+                auto& b=settings.bands[size_t(i)];b.mode=0;b.makeup=0;b.ratio=1.f;b.range=0.f;
+                if(i!=band)continue;
+                b.threshold=float(std::atof(argv[7]));b.ratio=float(std::atof(argv[8]));b.attack=float(std::atof(argv[9]));
+                b.release=float(std::atof(argv[10]));b.knee=float(std::atof(argv[11]));b.range=float(std::atof(argv[12]));
+            }
+            spectralforge::MultibandDynamicsCore core;core.setSettings(settings);core.prepare(std::atof(argv[2]));
+            auto audio=load(argv[14]);render(audio,[&](auto& view){core.process(view.getArrayOfWritePointers(),2,view.getNumSamples());});save(audio,argv[15]);return 0;
+        }
+        if(mode=="gate" && argc==12) {
+            spectralforge::NoiseGate gate;gate.prepare(std::atof(argv[2]));
+            gate.setMode(juce::String(argv[8])=="expander",float(std::atof(argv[9])),float(std::atof(argv[5])));
+            const float threshold=float(std::atof(argv[3])),range=float(std::atof(argv[4])),hold=float(std::atof(argv[6])),release=float(std::atof(argv[7]));
+            auto audio=load(argv[10]);render(audio,[&](auto& view){gate.process(view,true,threshold,release,hold,range);});save(audio,argv[11]);return 0;
+        }
         std::cerr<<"usage: ChimeraKitProbe eq <rate> <type> <frequency> <gain> <q> <in.f32> <out.f32>\n"
-                   "       ChimeraKitProbe comp <rate> <threshold> <ratio> <attack> <release> <knee> <rms|peak> <in.f32> <out.f32>\n";
+                   "       ChimeraKitProbe comp <rate> <threshold> <ratio> <attack> <release> <knee> <rms|peak> <in.f32> <out.f32>\n"
+                   "       ChimeraKitProbe gate <rate> <threshold> <range> <attack> <hold> <release> <gate|expander> <ratio> <in.f32> <out.f32>\n"
+                   "       ChimeraKitProbe mb <rate> <x1> <x2> <x3> <band|-1> <threshold> <ratio> <attack> <release> <knee> <range> <rms|peak> <in.f32> <out.f32>\n";
         return 2;
     } catch(const std::exception& error) {std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }
