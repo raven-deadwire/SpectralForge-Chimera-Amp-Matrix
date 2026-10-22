@@ -14,7 +14,10 @@ class PolyPitch {
         std::vector<int> peaks;
         std::vector<unsigned char> initialised;
         // Opt-in formant-mode state (allocated in prepare, idle unless on).
-        std::vector<float> inputMagnitude,envelope,shiftedEnvelope;
+        // inputMagnitude/envelope are length bins; symLog/envLog and the teA/teC
+        // FFT scratch are full length (size) for the cepstral true-envelope.
+        std::vector<float> inputMagnitude,envelope,symLog,envLog;
+        std::vector<std::complex<float>> teA,teC;
     };
     std::array<Channel,2> channels;
     std::unique_ptr<juce::dsp::FFT> fft;
@@ -27,18 +30,29 @@ class PolyPitch {
     // and its frozen regression fixture are byte-for-byte unchanged until a host
     // opts in.
     bool formantPreserve{};
-    int envHalf{1};
-    double sampleRate{};
-    // Moving-average spectral envelope over +/- half bins; O(bins), no allocation.
-    static void boxAverage(const float* src,float* dst,int n,int half) noexcept
+    int cepOrder{16};
+    double sampleRate{},fftRoundTrip{1};
+    // Robel-Rodet true envelope of channel.inputMagnitude[0..bins) into
+    // channel.envelope. Iterative cepstral liftering drives the envelope above
+    // the spectral peaks, so it tracks formants rather than averaging across the
+    // harmonic valleys the way a box filter does. Scratch and the class FFT are
+    // reused; fftRoundTrip divides out whatever scaling the inverse/forward pair
+    // applies so exp() stays well-scaled regardless of the FFT's convention.
+    void trueEnvelope(Channel& channel,int bins) noexcept
     {
-        double sum=0; int lo=0,hi=-1;
-        for(int b=0;b<n;++b) {
-            const int L=b-half<0?0:b-half, H=b+half>n-1?n-1:b+half;
-            while(hi<H){++hi;sum+=src[(size_t)hi];}
-            while(lo<L){sum-=src[(size_t)lo];++lo;}
-            dst[(size_t)b]=float(sum/double(H-L+1));
+        using Complex=std::complex<float>;
+        const int n=size;
+        for(int b=0;b<bins;++b) channel.symLog[(size_t)b]=std::log(std::max(channel.inputMagnitude[(size_t)b],1e-9f));
+        for(int b=1;b<bins-1;++b) channel.symLog[(size_t)(n-b)]=channel.symLog[(size_t)b];
+        std::fill(channel.envLog.begin(),channel.envLog.end(),-60.f);
+        for(int iteration=0;iteration<5;++iteration) {
+            for(int k=0;k<n;++k) channel.teA[(size_t)k]=Complex(std::max(channel.symLog[(size_t)k],channel.envLog[(size_t)k]),0.f);
+            fft->perform(channel.teA.data(),channel.teC.data(),true);                 // real cepstrum
+            for(int k=cepOrder+1;k<n-cepOrder;++k) channel.teC[(size_t)k]=Complex{};   // keep low quefrencies
+            fft->perform(channel.teC.data(),channel.teA.data(),false);                // back to a smooth log spectrum
+            for(int k=0;k<n;++k) channel.envLog[(size_t)k]=float(channel.teA[(size_t)k].real()/fftRoundTrip);
         }
+        for(int b=0;b<bins;++b) channel.envelope[(size_t)b]=std::exp(channel.envLog[(size_t)b]);
     }
     void frame(Channel& channel)
     {
@@ -55,7 +69,7 @@ class PolyPitch {
         // Gated so the default path below is untouched when the mode is off.
         if(formantPreserve) {
             for(int b=0;b<bins;++b) channel.inputMagnitude[(size_t)b]=std::abs(channel.spectrum[(size_t)b]);
-            boxAverage(channel.inputMagnitude.data(),channel.envelope.data(),bins,envHalf);
+            trueEnvelope(channel,bins);
         }
         const float step=twoPi*float(hop)/float(size);
         double inputEnergy=0;
@@ -95,13 +109,12 @@ class PolyPitch {
             } else channel.initialised[(size_t)b]=0;
             if(magnitude>1e-8f && magnitude>=channel.magnitude[(size_t)b-1] && magnitude>channel.magnitude[(size_t)b+1]) channel.peaks.push_back(b);
         }
-        // Formant mode: restore the source envelope at each destination bin by
-        // dividing out the shifted envelope and multiplying the source envelope
-        // back in. Peaks were picked from the whitened/shifted magnitude above.
-        if(formantPreserve) {
-            boxAverage(channel.magnitude.data(),channel.shiftedEnvelope.data(),bins,envHalf);
-            for(int b=1;b<bins-1;++b) channel.magnitude[(size_t)b]*=channel.envelope[(size_t)b]/std::max(channel.shiftedEnvelope[(size_t)b],1e-12f);
-        }
+        // Formant mode: re-impose the source spectral envelope on the shifted
+        // (whitened) excitation. Whitening by the envelope and multiplying it
+        // back repositions the formants with a single estimate; peaks above were
+        // picked from the whitened/shifted magnitude.
+        if(formantPreserve)
+            for(int b=1;b<bins-1;++b) channel.magnitude[(size_t)b]*=channel.envelope[(size_t)b];
         std::fill(channel.spectrum.begin(),channel.spectrum.end(),Complex{});
         size_t peakIndex=0;
         for(int b=1;b<bins-1;++b) {
@@ -127,14 +140,25 @@ public:
         int order=8;while((1<<order)<spec.sampleRate*.032) ++order;
         size=1<<order;hop=size/8;channelCount=(int)spec.numChannels;fft=std::make_unique<juce::dsp::FFT>(order);
         sampleRate=spec.sampleRate;
-        // Envelope smoothing half-width: ~350 Hz, wide enough to ride over the
-        // harmonics while tracking formants. Idle unless formant mode is on.
-        envHalf=juce::jmax(1,(int)std::lround(350.0/(sampleRate/double(size))));
+        // Cepstral lifter order ~1.7 ms of quefrency: wide enough to smooth the
+        // harmonic structure, tight enough to follow formants. Idle unless on.
+        cepOrder=juce::jlimit(16,size/4,(int)std::lround(sampleRate/600.0));
+        // Measure the FFT's inverse->forward round-trip gain once so the true
+        // envelope is independent of the library's normalization convention.
+        {
+            std::vector<std::complex<float>> probe((size_t)size,std::complex<float>{}),scratch((size_t)size,std::complex<float>{});
+            probe[0]={1.f,0.f};
+            fft->perform(probe.data(),scratch.data(),true);
+            fft->perform(scratch.data(),probe.data(),false);
+            fftRoundTrip=std::abs(probe[0].real())>1e-20f ? double(probe[0].real()) : 1.0;
+        }
         window.resize((size_t)size);for(int i=0;i<size;++i) window[(size_t)i]=std::sin(juce::MathConstants<float>::pi*(i+.5f)/size);
         for(auto& channel:channels) {
             channel.input.assign((size_t)size,0);channel.ola.assign((size_t)size*2,0);
             for(auto* values:{&channel.previousPhase,&channel.phase,&channel.magnitude,&channel.frequency,&channel.sourcePhase,
-                              &channel.inputMagnitude,&channel.envelope,&channel.shiftedEnvelope}) values->assign((size_t)size/2+1,0);
+                              &channel.inputMagnitude,&channel.envelope}) values->assign((size_t)size/2+1,0);
+            channel.symLog.assign((size_t)size,0);channel.envLog.assign((size_t)size,0);
+            channel.teA.resize((size_t)size);channel.teC.resize((size_t)size);
             channel.initialised.assign((size_t)size/2+1,0);channel.spectrum.resize((size_t)size);channel.transform.resize((size_t)size);channel.mappedPhase.resize((size_t)size/2+1);channel.peaks.reserve((size_t)size/2+1);
         }
         inputPosition=outputPosition=clock=0;synthesising=false;framesProcessed=0;
