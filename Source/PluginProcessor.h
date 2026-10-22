@@ -122,6 +122,12 @@ public:
     float currentTempo() const {return tempoMeter.load();}
     void tapTempo();
     int pitchLatency() const { return preFX.transpose.latency(); }
+    // Transpose quality/latency mode (0 Classic, 1 Low-Latency, 2 Tight). Stored
+    // as a ValueTree property, not a host parameter, so it is not automatable and
+    // does not enter the frozen parameter inventory; the audio thread reads the
+    // atomic mirror.
+    void setTransposeQuality(int mode);
+    int transposeQuality() const { return transposeQualityMode.load(); }
     spectralforge::PedalBoardState pedalBoardState() const { return boardParameters.read(); }
     void setPedalBoardEnabled(bool enabled);
     int pedalBoardLatencySamples()const{return pedalBoard.latency(boardParameters.read());}
@@ -160,13 +166,14 @@ private:
     spectralforge::PostRigGate postRigGate;
     std::atomic<float>* gateAfterRig{};
     std::atomic<float>* gateRangeDb{};
-    std::atomic<float>* transposeQualityParam{};
+    std::atomic<int> transposeQualityMode{0};
     spectralforge::PedalBoardState audioBoard;
     std::atomic<float> boardReduction{0};
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
     void measureStage(int,const juce::AudioBuffer<float>&);
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
+    void syncTransposeQuality();
     void restoreCore(juce::ValueTree);
     std::array<juce::ValueTree,2> comparisons;
     std::mutex comparisonMutex;

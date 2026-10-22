@@ -111,7 +111,7 @@ private:
     juce::Slider doublerTime,tempo,dualBlend,dualFrequency;
     juce::Label dualLabel;
     juce::TextButton doublerOn{"DOUBLER"},midi{"MIDI"},tap{"TAP"},hostTempo{"HOST"},metronome{"CLICK"},presetPrevious{"<"},presetNext{">"},presetSave{"SAVE AS"},presetLoad{"OPEN"},delaySync{"SYNC"};
-    std::unique_ptr<CA> inputModeAttachment,dualTypeAttachment,preOrderAttachment,gainOrderAttachment,transposeModeAttachment;
+    std::unique_ptr<CA> inputModeAttachment,dualTypeAttachment,preOrderAttachment,gainOrderAttachment;
     std::array<std::unique_ptr<SA>,4> utilitySliders;
     std::array<std::unique_ptr<BA>,4> utilityButtons;
     juce::Slider x1,x2;

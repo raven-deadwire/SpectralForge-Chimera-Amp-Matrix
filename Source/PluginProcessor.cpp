@@ -37,7 +37,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
-    transposeQualityParam=state.getRawParameterValue("transposeQuality");
+    syncTransposeQuality();
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
@@ -131,7 +131,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     // Gate lookahead above is sized while the transposer is on its Classic
     // (largest) window; select the stored quality mode now, before latency is
     // reported, so the host gets the active mode's delay from the first block.
-    preFX.transpose.setMode((int)transposeQualityParam->load());
+    preFX.transpose.setMode(transposeQualityMode.load());
     const bool pitchActive=globals[pitchOn]->load()>.5f && int(globals[semitones]->load())!=0;
     setLatencySamples(postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
 }
@@ -224,7 +224,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     postRigGate.setMode(dynamics.expander(),dynamics.gateRatio(),dynamics.gateAttack());
     // Apply the transpose quality/latency mode before reading transpose.latency()
     // below; switching is allocation-free and re-reports latency via line ~231.
-    preFX.transpose.setMode((int)transposeQualityParam->load());
+    preFX.transpose.setMode(transposeQualityMode.load());
     const int preLatency=audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
     postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     if(audioBoard.enabled) {
@@ -400,10 +400,6 @@ for(int i=0;i<8;++i){
     p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"tunerOffset"+suffix,11},"Custom tuner string "+suffix+" cents",juce::NormalisableRange<float>{-50,50,.1f},0));
 }
 spectralforge::appendCommonDynamicsParameters(p);
-// Transpose quality/latency mode. Appended last so host parameter indices below
-// 3686 (the frozen released-parameter contract) are unchanged. Classic keeps the
-// released ~32 ms window and the default transpose behaviour.
-p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"transposeQuality",12},"Transpose mode",juce::StringArray{"Classic","Low-Latency","Tight"},0));
 return p;
 }
 
@@ -423,6 +419,23 @@ juce::ValueTree ChimeraProcessor::captureCore()
     eqEditState.saveMetadata(saved);
     saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",10,nullptr);
     return saved;
+}
+void ChimeraProcessor::setTransposeQuality(int mode)
+{
+    // Message-thread setter: mirror into the audio-thread atomic and stamp the
+    // persisted ValueTree property (captureCore/copyState serialises it).
+    mode=juce::jlimit(0,2,mode);
+    transposeQualityMode.store(mode);
+    state.state.setProperty("transposeQuality",mode,nullptr);
+}
+void ChimeraProcessor::syncTransposeQuality()
+{
+    // After a state replace, keep the current mode unless the restored tree
+    // carries one (an old project or a factory snapshot has none), then re-stamp
+    // so the property stays present on the live tree for the next save.
+    const int mode=juce::jlimit(0,2,(int)state.state.getProperty("transposeQuality",transposeQualityMode.load()));
+    transposeQualityMode.store(mode);
+    state.state.setProperty("transposeQuality",mode,nullptr);
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
 {
@@ -475,7 +488,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
-    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();resetPending.store(true);
+    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();resetPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
 }
@@ -535,6 +548,7 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             : spectralforge::factoryNativeSnapshot(state,index);
         spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,snapshot,true);
         state.replaceState(snapshot);
+        syncTransposeQuality();
         // Canonicalize host values as well as APVTS values. Bool/choice adapters
         // may already cache the snapped value of a noncanonical host write and
         // suppress an otherwise identical replaceState update.
