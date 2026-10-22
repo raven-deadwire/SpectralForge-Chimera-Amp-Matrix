@@ -1,0 +1,68 @@
+name: Multiband bypass fix contracts (no release)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Source/MultibandDynamicsCore.h'
+      - 'Source/CommonDynamicsPanel.h'
+      - 'Tools/multiband_response_probe.cpp'
+      - 'Tools/measure_multiband_bypass_fix.py'
+      - 'Tools/experiments/multiband_bypass_bench.cpp'
+      - 'Tests/MultibandDynamicsCoreTests.cpp'
+      - '.github/workflows/multiband-bypass-research.yml'
+permissions:
+  contents: read
+jobs:
+  numerical-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy matplotlib
+      - name: Core contracts and sanitizers
+        run: |
+          mkdir -p /tmp/mb-evidence
+          g++ -O2 -Wall -Wextra -Werror -std=c++20 -ISource Tests/MultibandDynamicsCoreTests.cpp -o /tmp/mb-core
+          /tmp/mb-core | tee /tmp/mb-evidence/core.txt
+          g++ -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -std=c++20 -ISource Tests/MultibandDynamicsCoreTests.cpp -o /tmp/mb-sanitized
+          ASAN_OPTIONS=detect_leaks=0 /tmp/mb-sanitized | tee /tmp/mb-evidence/sanitizers.txt
+      - name: Pinned baseline and new synthesis acoustic regressions
+        run: OPENBLAS_NUM_THREADS=1 python Tools/measure_multiband_bypass_fix.py --skip-cpu --output /tmp/mb-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Multiband-bypass-numerical-not-release
+          path: /tmp/mb-evidence
+  native-contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
+      - run: cmake -S . -B build-bypass -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
+      - run: cmake --build build-bypass --config Release --target ChimeraMultibandDynamicsTests ChimeraMultibandDynamicsCoreTests --parallel 2
+      - if: runner.os != 'Linux'
+        run: ctest --test-dir build-bypass -C Release -R '^ChimeraMultibandDynamics(Core)?Tests$' --output-on-failure --no-tests=error --output-junit multiband-results.xml
+      - if: runner.os == 'Linux'
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-bypass -C Release -R '^ChimeraMultibandDynamics(Core)?Tests$' --output-on-failure --no-tests=error --output-junit multiband-results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Multiband-bypass-native-${{ runner.os }}
+          path: |
+            build-bypass/multiband-results.xml
+            build-bypass/Testing/Temporary/LastTest.log
+            build-bypass/chimera-build-version.json

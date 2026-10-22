@@ -34,6 +34,8 @@ public:
     ~ChimeraEditor() override;
     void paint(juce::Graphics&) override;
     void resized() override;
+    void fitToDisplay();
+    static constexpr int fitScaleItem=5;
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
@@ -96,6 +98,7 @@ private:
     juce::Component canvas;
     PedalBoardPanel boardPanel;
     juce::TextButton gateLocation{"POST GATE"};
+    juce::TextButton gateSpectrum{"SPECTRUM / ALL CONTROLS"};
     juce::Label preEngineStatus;
     std::unique_ptr<BA> gateLocationAttachment;
     bool lastBoardEnabled{};

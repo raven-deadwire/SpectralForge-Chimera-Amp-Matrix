@@ -1,4 +1,5 @@
 #pragma once
+#include "KnobInteraction.h"
 #include "PluginProcessor.h"
 #include "CabScene.h"
 
@@ -133,7 +134,7 @@ public:
         };
         auto slider=[&](juce::Slider& control,const char* suffix,bool rotary=true) {
             addAndMakeVisible(control);
-            control.setSliderStyle(rotary ? juce::Slider::RotaryHorizontalVerticalDrag : juce::Slider::LinearHorizontal);
+            if(rotary)spectralforge::ui::configureRotaryKnob(control);else control.setSliderStyle(juce::Slider::LinearHorizontal);
             control.setTextBoxStyle(rotary ? juce::Slider::TextBoxBelow : juce::Slider::TextBoxRight,false,rotary ? 72 : 54,21);
             const auto id=spectralforge::originalCabID(lane,suffix);control.setComponentID(id);
             sliders.push_back(std::make_unique<SA>(state,id,control));

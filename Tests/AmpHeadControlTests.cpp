@@ -683,8 +683,11 @@ int main(int argc,char** argv){try {
     rigViewTests::showControls(*canvas);
     for(int scale:{75,100,125,150}){editor->setSize(1180*scale/100,780*scale/100);settle();screenshot(*editor,directory,"editor-"+juce::String(scale));
         const int writes=all.writes,begins=all.begins;auto* open=find<juce::TextButton>(*editor,"ampHeadOpen1");check(open && open->isShowing(),"Classic head entry missing");open->triggerClick();settle(150);
-        AmpHeadWorkspace* full=nullptr;auto& desktop=juce::Desktop::getInstance();for(int i=0;i<desktop.getNumComponents();++i)if(auto* w=find<AmpHeadWorkspace>(*desktop.getComponent(i),"ampHeadWorkspace"))full=w;
-        check(full && full->isShowing(),"Head did not open native enlargement");screenshot(*full,directory,"focus-from-editor-"+juce::String(scale));
+        // triggerClick() is posted; a stalled macOS loop can outlast one settle.
+        AmpHeadWorkspace* full=nullptr;
+        awaitUI([&]{full=nullptr;auto& desktop=juce::Desktop::getInstance();
+                    for(int i=0;i<desktop.getNumComponents();++i)if(auto* w=find<AmpHeadWorkspace>(*desktop.getComponent(i),"ampHeadWorkspace"))full=w;
+                    return full && full->isShowing();},"Head did not open native enlargement");screenshot(*full,directory,"focus-from-editor-"+juce::String(scale));
         closeWorkspace();check(all.writes==writes && all.begins==begins,"Head open/back changed audio state");
     }
     auto* roomToggle=find<juce::TextButton>(*canvas,"path.cab");check(roomToggle && roomToggle->isShowing(),"Room return unavailable after Classic head controls");

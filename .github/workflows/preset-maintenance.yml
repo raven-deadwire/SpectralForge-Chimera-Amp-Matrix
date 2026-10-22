@@ -1,6 +1,9 @@
 name: Verify and publish factory preset maintenance
 on:
+  # Pull requests run this preset-only scope gate only when labelled
+  # `preset-maintenance`; feature pull requests are outside its scope by design.
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - Source/**
       - Tests/**
@@ -22,7 +25,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   contracts:
-    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix'
+    if: >-
+      github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' &&
+      (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'preset-maintenance'))
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:

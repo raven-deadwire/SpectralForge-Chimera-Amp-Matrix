@@ -83,6 +83,7 @@ class Engine {
 public:
     Cab& cabinet(int lane) { return cabs[(size_t)lane]; }
     float lowReduction() const {return lowCompressor.reduction();}
+    void setDynamicsAnalysis(DynamicsAnalysis* value) noexcept {lowCompressor.setAnalysis(value);}
     int latency() const { return amps[0].latency(); }
     void setOversampling(int choice) { for (auto& amp : amps) amp.setOversampling(choice); }
     // Seed the engine choice before Amp::prepare initializes its native/legacy

@@ -1,3 +1,5 @@
+#include "KnobInteraction.h"
+#include "WindowFit.h"
 #include "CabRoom.h"
 #include "PresetOrder.h"
 #include "GuitarSignaturePresets.h"
@@ -153,8 +155,15 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     mode.setTooltip("Classic: one full-range rig. Dual: two parallel rigs. Matrix: three input bands.");
     quality.setName("Oversampling"); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
     quality.setTooltip("Anti-aliasing for amplifier distortion. Higher factors use more CPU. Host latency stays constant.");
-    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.setSelectedId(2); add(scale);
-    scale.onChange=[this]{const float factor=float(scale.getSelectedId()+2)*.25f; setSize(juce::roundToInt(1180*factor),juce::roundToInt(780*factor));};
+    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.addSeparator(); scale.addItem("Fit screen",fitScaleItem); scale.setSelectedId(2); add(scale);
+    scale.setTooltip(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone
+                     ? "Interface size. Fit screen uses the largest readable size for this display; the window's maximise button or F11 toggles the same fit."
+                     : "Interface size. Fit screen uses the largest readable size for this display, when the host allows plug-in resizing.");
+    scale.onChange=[this]{
+        const int id=scale.getSelectedId();
+        if(id==fitScaleItem){fitToDisplay();return;}
+        if(id<1 || id>4)return;
+        const float factor=float(id+2)*.25f; setSize(juce::roundToInt(1180*factor),juce::roundToInt(780*factor));};
     add(info); info.setButtonText("SETTINGS"); info.onClick=[this]{
         juce::PopupMenu menu;
         menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
@@ -176,6 +185,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     for(int e=0;e<2;++e){
         eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e,p.eqEditing(),p.eqCaptureBoundary());
         eqPanels[(size_t)e]->onHistoryBankSelected=[this](int bank){
+            if(dynamicsPanel && dynamicsViewOpen && dynamicsPanel->selectedPage()==spectralforge::CommonDynamicsPanel::Page::dynamicEQ) {
+                dynamicsPanel->selectDynamicBank(bank);return;
+            }
             const auto route=spectralforge::signalPath::read(processor);
             navigateSignalPath(*route.find(bank==0?"tone.eq":"final.eq"));
         };
@@ -185,10 +197,44 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     toneEQBank.setTooltip("Edit Tone EQ before the POST rack. The other EQ continues processing.");
     finalEQBank.setTooltip("Edit Final EQ after width, before output trim and tuner mute.");
     add(toneEQBank);add(finalEQBank);
-    dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.graphicalEQ(0),p.graphicalEQ(1));
-    canvas.addAndMakeVisible(*dynamicsPanel);add(dynamicsOpen);dynamicsOpen.setComponentID("commonDynamics.open");
-    dynamicsOpen.setTooltip("Clean compressor, DI gate/expander, shared Dynamic EQ nodes and final output limiter.");
-    dynamicsOpen.onClick=[this]{dynamicsViewOpen=true;updateModeUI();};
+    dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.graphicalEQ(0),p.graphicalEQ(1),p.dynamicsAnalysis(),p.eqCaptureBoundary());
+    canvas.addAndMakeVisible(*dynamicsPanel);dynamicsPanel->setEQEditors(*eqPanels[0],*eqPanels[1]);
+    dynamicsPanel->setMeterProvider([this](spectralforge::DynamicsStage stage) {
+        using Stage=spectralforge::DynamicsStage;
+        switch(stage) {
+            case Stage::gate:return -juce::Decibels::gainToDecibels(processor.gateMeter(),-120.f);
+            case Stage::compressor:return processor.commonDynamics().compReduction.load();
+            case Stage::limiter:return processor.commonDynamics().limitReduction.load();
+            case Stage::deesser:return processor.deEsser().reduction();
+            case Stage::preCompressor:return processor.preCompressorReduction();
+            case Stage::postCompressor:return processor.postCompressorReduction();
+            case Stage::lowCompressor:return processor.parameters().getRawParameterValue("mode")->load()>1.5f?processor.lowCompMeter():0.f;
+            default:return 0.f;
+        }
+    });
+    dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
+    dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
+        using Page=spectralforge::CommonDynamicsPanel::Page;
+        if(source==Page::preCompressor && processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) {
+            page=1;tunerViewOpen=false;dynamicsViewOpen=false;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="pre";updateModeUI();boardPanel.openCompressorDetails();
+            return true;
+        } else if(source==Page::postCompressor && processor.parameters().getRawParameterValue(spectralforge::postNativeModeID(0))->load()>.5f) {
+            // The native detail window owns the analyzer while open. Its live
+            // controls stay attached to the actual current POST model bank.
+            if(postPanels[0])postPanels[0]->openDetails();
+            return true;
+        }
+        return false;
+    };
+    dynamicsPanel->onPageSelected=[this](spectralforge::CommonDynamicsPanel::Page selected) {
+        using Page=spectralforge::CommonDynamicsPanel::Page;
+        const juce::String id=selected==Page::gate?"gate":selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":selected==Page::dynamicEQ?(dynamicsPanel->selectedDynamicBank()==0?"tone.eq":"final.eq"):"common.comp";
+        pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
+        if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(pathDialog->getContentComponent()))graph->select(id);
+    };
+    add(dynamicsOpen);dynamicsOpen.setComponentID("commonDynamics.open");
+    dynamicsOpen.setTooltip("Open a dedicated spectrum editor for compression, multiband dynamics, Dynamic EQ, gate/expander, limiter or de-esser.");
+    dynamicsOpen.onClick=[this]{page=3;tunerViewOpen=false;dynamicsViewOpen=true;updateModeUI();dynamicsPanel->onPageSelected(dynamicsPanel->selectedPage());};
     toneEQBank.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("tone.eq"));};
     finalEQBank.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("final.eq"));};
     const std::array<const char*,11> effectHeaders{"OVERDRIVE","DELAY","REVERB","COMPRESSOR","ENVELOPE","FUZZ","BOOST","BUS COMP","PREAMP","EQ","MODULATION"};
@@ -215,7 +261,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             style(effect.labels[k],pedal ? 10.5f : 10.f,juce::Justification::centred);effect.labels[k].setText(effectLabels[i][k],juce::dontSendNotification);
             setupSlider(effect.controls[k],effectLabels[i][k],effectSuffix[i][k]);
             effect.controls[k].setComponentID(effectIds[i][k]);
-            effect.controls[k].setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+            spectralforge::ui::configureRotaryKnob(effect.controls[k]);
             effect.controls[k].setTextBoxStyle(pedal ? juce::Slider::TextBoxBelow : juce::Slider::TextBoxRight,false,pedal ? 88 : 68,pedal ? 23 : 22);
             add(effect.labels[k]);add(effect.controls[k]);effect.attachments[k]=std::make_unique<SA>(p.parameters(),effectIds[i][k],effect.controls[k]);
         }
@@ -270,9 +316,13 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     }
     globalSliders[7].setComponentID("gateRangeDb");
     globalSliders[7].setTooltip("Closed-gate attenuation: 0 dB = unity; finite dB = limited reduction; Full = release toward silence (legacy default). Applies at the selected PRE or POST GATE position.");
-    for(const auto i:{0,4,6}) {globalSliders[(size_t)i].setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);globalSliders[(size_t)i].setTextBoxStyle(juce::Slider::TextBoxBelow,false,104,22);globalSliders[(size_t)i].getProperties().set("knobStyle",3);}
+    for(const auto i:{0,4,6}) {spectralforge::ui::configureRotaryKnob(globalSliders[(size_t)i]);globalSliders[(size_t)i].setTextBoxStyle(juce::Slider::TextBoxBelow,false,104,22);globalSliders[(size_t)i].getProperties().set("knobStyle",3);}
     globalSliders[4].setNumDecimalPlacesToDisplay(0); globalSliders[5].setNumDecimalPlacesToDisplay(0);
     globalSliders[2].setNumDecimalPlacesToDisplay(0); globalSliders[3].setNumDecimalPlacesToDisplay(0);
+    for(const auto index:{1,2,3,7})globalSliders[size_t(index)].setVisible(false);
+    add(gateSpectrum);gateSpectrum.setComponentID("gateSpectrum.open");
+    gateSpectrum.setTooltip("Open Gate / Expander with its live input/output spectrum and all controls");
+    gateSpectrum.onClick=[this]{const auto path=spectralforge::signalPath::read(processor);if(const auto* gate=path.find("gate"))navigateSignalPath(*gate);};
     const std::array<juce::TextButton*,4> globalToggles{&gateOn,&pitchOn,&tunerOn,&tunerMute};
     const std::array<const char*,4> ids{"gateon","transposeon","tuneron","tunermute"};
     for(size_t i=0;i<4;++i) { globalToggles[i]->setClickingTogglesState(true); add(*globalToggles[i]); globalButtons[i]=std::make_unique<BA>(state,ids[i],*globalToggles[i]); }
@@ -380,6 +430,7 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
 {
     // Own the request: refreshing a view may replace its originating button's callback.
     using Target=spectralforge::signalPath::Target;
+    using DynamicsPage=spectralforge::CommonDynamicsPanel::Page;
     const int modeNow=juce::jlimit(0,2,int(processor.parameters().getRawParameterValue("mode")->load()));
     // A stale graph event must never select a lane from another routing mode.
     if(node.lane>=modeNow+1)return;
@@ -388,11 +439,22 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
     updateModeUI(); // Synchronize restored mode before applying presentation focus.
     pathSelections[size_t(modeNow)]=node.id;
     switch(node.target){
-        case Target::pre:page=1;break;
-        case Target::post:page=2;break;
+        case Target::pre:
+            page=1;
+            if(node.id=="pre.legacy3"){page=3;dynamicsViewOpen=true;}
+            break;
+        case Target::post:
+            page=2;
+            if(node.section==0 && processor.parameters().getRawParameterValue(spectralforge::postNativeModeID(0))->load()<.5f){page=3;dynamicsViewOpen=true;}
+            break;
         case Target::toneEQ:case Target::finalEQ:page=3;selectedEQBank=node.target==Target::toneEQ?0:1;break;
         case Target::dynamics:page=3;dynamicsViewOpen=true;break;
-        case Target::amp:case Target::low:page=0;showRigControls=true;break;
+        case Target::gate:page=3;dynamicsViewOpen=true;break;
+        case Target::low:
+            if(node.id=="low.comp"){page=3;dynamicsViewOpen=true;}
+            else {page=0;showRigControls=true;}
+            break;
+        case Target::amp:page=0;showRigControls=true;break;
         case Target::cab:page=0;showRigControls=false;break;
         case Target::rigs:page=0;showRigControls=true;break;
         default:break;
@@ -400,18 +462,37 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
     updateModeUI();signalPath->select(node.id);
     const auto focus=[](juce::Component& c){if(c.isShowing()&&c.getWantsKeyboardFocus())c.grabKeyboardFocus();};
     switch(node.target){
-        case Target::pre:boardPanel.navigateOwner(node.id.startsWith("pre.owner")?node.id.substring(9).getIntValue():-1);break;
+        case Target::pre:
+            if(node.id=="pre.legacy3")dynamicsPanel->selectPage(DynamicsPage::preCompressor);
+            else {
+                const int owner=node.id.startsWith("pre.owner")?node.id.substring(9).getIntValue():-1;
+                boardPanel.navigateOwner(owner);
+                if(owner>=0)boardPanel.openCompressorDetails(owner);
+            }
+            break;
         case Target::toneEQ:case Target::finalEQ:eqPanels[node.target==Target::toneEQ?0:1]->focusForNavigation();break;
         case Target::amp:if(node.lane>=0){focus(lanes[size_t(node.lane)].amp);if(auto* button=dynamic_cast<juce::TextButton*>(lanes[size_t(node.lane)].nativePanel->findChildWithID("ampExpand"+juce::String(node.lane+1))))button->onClick();}break;
         case Target::cab:if(node.lane>=0)openCabWorkspace(node.lane,true);break;
-        case Target::gate:focus(globalSliders[1]);break;
+        case Target::dynamics:
+            dynamicsPanel->selectPage(node.id=="common.multiband"?DynamicsPage::multiband:node.id=="common.deesser"?DynamicsPage::deesser:node.id=="output.limiter"?DynamicsPage::limiter:DynamicsPage::compressor);
+            break;
+        case Target::gate:dynamicsPanel->selectPage(DynamicsPage::gate);break;
         case Target::transpose:focus(globalSliders[4]);break;
         case Target::input:focus(globalSliders[0]);break;
         case Target::output:focus(globalSliders[6]);break;
         case Target::tuner:{if(!tunerViewOpen)tunerOpen.onClick();break;}
         case Target::utilities:focus(doublerTime);break;
-        case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
-        case Target::post:if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}break;
+        case Target::low:
+            if(node.id=="low.comp")dynamicsPanel->selectPage(DynamicsPage::lowCompressor);
+            else if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();
+            break;
+        case Target::post:
+            if(node.section==0) {
+                if(dynamicsViewOpen)dynamicsPanel->selectPage(DynamicsPage::postCompressor);
+                else postPanels[0]->openDetails();
+            } else if(node.section>0&&node.section<3){focus(*postPanels[size_t(node.section)]);}
+            else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
+            break;
         default:break;
     }
 }
@@ -668,8 +749,16 @@ void ChimeraEditor::updateModeUI()
     }
     if(cabRoom) {cabRoom->setVisible(roomVisible);if(roomVisible)cabRoom->refreshState();}
     x1.setVisible(matrix && page==0 && !tunerViewOpen); x2.setVisible(matrix && page==0 && !tunerViewOpen); x1Label.setVisible(matrix && page==0 && !tunerViewOpen); x2Label.setVisible(matrix && page==0 && !tunerViewOpen);
-    for(int e=0;e<2;++e){eqPanels[size_t(e)]->setVisible(page==3 && selectedEQBank==e && !tunerViewOpen && !dynamicsViewOpen);eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));}
-    dynamicsPanel->setVisible(page==3 && dynamicsViewOpen && !tunerViewOpen);
+    const bool showingDynamics=page==3 && dynamicsViewOpen && !tunerViewOpen;
+    // Release any borrowed EQ editor before showing it on its original bank.
+    // The outgoing FIFO consumer must stop before the incoming one starts.
+    if(!showingDynamics)dynamicsPanel->setVisible(false);
+    for(int e=0;e<2;++e) {
+        if(!dynamicsPanel->isUsingEQEditor(*eqPanels[size_t(e)]))
+            eqPanels[size_t(e)]->setVisible(page==3 && selectedEQBank==e && !tunerViewOpen && !dynamicsViewOpen);
+        eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));
+    }
+    if(showingDynamics)dynamicsPanel->setVisible(true);
     dynamicsOpen.setVisible(page==3 && !tunerViewOpen);dynamicsOpen.setToggleState(dynamicsViewOpen,juce::dontSendNotification);
     toneEQBank.setVisible(page==3 && !tunerViewOpen);finalEQBank.setVisible(page==3 && !tunerViewOpen);
     toneEQBank.setToggleState(selectedEQBank==0 && !dynamicsViewOpen,juce::dontSendNotification);finalEQBank.setToggleState(selectedEQBank==1 && !dynamicsViewOpen,juce::dontSendNotification);
@@ -700,7 +789,7 @@ void ChimeraEditor::updateModeUI()
     dualBlend.setVisible(lastMode==1 && !lastDualCross && page==0);dualFrequency.setVisible(lastMode==1 && lastDualCross && page==0);
     dualLabel.setText(lastDualCross ? "LOW / HIGH CROSSOVER" : "RIG 1 : RIG 2",juce::dontSendNotification);
     tunerOn.setVisible(false);tunerMute.setVisible(false);globalSliders[5].setVisible(false);delaySync.setVisible(page==2 && !tunerViewOpen);
-    routingHelp.setText(page==3 ? "TONE EQ > POST > WIDTH > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
+    routingHelp.setText(page==3 ? "TONE EQ > DYNAMICS > POST > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
     precisionTuner->setVisible(tunerViewOpen);if(tunerViewOpen)precisionTuner->toFront(false);
     tunerOpen.setToggleState(tunerViewOpen,juce::dontSendNotification);
     tunerOpen.getProperties().set("utilityActive",tunerViewOpen);
@@ -728,7 +817,8 @@ void ChimeraEditor::paint(juce::Graphics& g)
     const std::array<juce::Rectangle<float>,5> panels{{{20,80,138,168},{170,80,254,168},{436,80,176,168},{624,80,326,168},{962,80,198,168}}};
     for(auto box:panels) { g.setColour(panel.withAlpha(.88f)); g.fillRoundedRectangle(box,5); g.setColour(line); g.drawRoundedRectangle(box,5,1); }
     text(g,"INPUT",32,91,104,24,12.f,ink);
-    text(g,"THRESH",182,126,63,26,10.f); text(g,"RELEASE",182,151,64,20,10.f); text(g,"HOLD",308,151,54,20,10.f); text(g,"RANGE",182,201,63,26,10.f);
+    text(g,"GATE / EXPANDER",184,126,226,22,11.f,ink);
+    text(g,"Edit with the live spectrum",184,192,226,22,11.f,muted);
     text(g,"OUTPUT",976,91,152,24,12.f,ink);
     meter(g,processor.inputMeter(),141,126,6,93); meter(g,processor.outputMeter(),1142,126,6,93);
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.inputMeter(),-90.f),1)+" dBFS",32,210,106,22,11.f,processor.inputMeter()>=1 ? juce::Colours::salmon : muted);
@@ -781,11 +871,25 @@ void ChimeraEditor::resized()
     canvas.setBounds(0,0,1180,780); canvas.setTransform(juce::AffineTransform::scale(getWidth()/1180.f));
     layoutControls();
 }
+void ChimeraEditor::fitToDisplay()
+{
+    // Chrome is whatever surrounds the editor in its own top-level window
+    // (Standalone title bar and notification). A host's frame is outside the
+    // editor's top-level component, so reserve one title-bar height there.
+    auto* top=getTopLevelComponent();
+    const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(top->getScreenBounds());
+    if(display==nullptr){resized();return;}
+    const juce::Point<int> chrome=top!=this ? juce::Point<int>{top->getWidth()-getWidth(),top->getHeight()-getHeight()} : juce::Point<int>{16,48};
+    const auto size=spectralforge::ui::editorSizeForScale(spectralforge::ui::fittedEditorScale(display->userArea,chrome));
+    setSize(size.x,size.y);
+    if(top!=this)top->setTopLeftPosition(spectralforge::ui::centredWindowPosition(display->userArea,{top->getWidth(),top->getHeight()}));
+    resized();
+}
 void ChimeraEditor::layoutControls()
 {
     callbackLoad.setBounds(866,744,290,18);
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
-    for(auto& eq:eqPanels)eq->setBounds(20,330,1140,412);
+    for(auto& eq:eqPanels)if(!dynamicsPanel->isUsingEQEditor(*eq))eq->setBounds(20,330,1140,412);
     toneEQBank.setBounds(792,300,174,27);finalEQBank.setBounds(976,300,184,27);
     dynamicsOpen.setBounds(608,300,174,27);dynamicsPanel->setBounds(20,330,1140,412);
     signalPath->setBounds(20,253,1140,44);
@@ -800,6 +904,7 @@ void ChimeraEditor::layoutControls()
     x1Label.setBounds(400,303,105,22);x1.setBounds(507,302,210,24);
     x2Label.setBounds(732,303,105,22);x2.setBounds(839,302,306,24);
     gateOn.setBounds(182,93,78,24); pitchOn.setBounds(450,93,148,24); tunerOpen.setBounds(20,748,154,28);tunerMute.setBounds(965,273,112,25);
+    gateSpectrum.setBounds(182,152,230,34);
     globalSliders[0].setBounds(30,115,106,92);
     globalSliders[1].setBounds(244,126,167,28);
     globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
