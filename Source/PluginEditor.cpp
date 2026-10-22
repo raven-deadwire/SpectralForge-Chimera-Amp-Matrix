@@ -805,8 +805,8 @@ void ChimeraEditor::layoutControls()
     globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
     globalSliders[7].setBounds(244,201,167,26);
     globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);
-    gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,212,158,29);
-    transposeMode.setBounds(447,243,158,22);
+    gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,209,158,18);
+    transposeMode.setBounds(447,229,158,20);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
     midi.setBounds(182,748,66,28);tap.setBounds(270,748,56,28);tempo.setBounds(334,748,158,28);hostTempo.setBounds(500,748,112,28);metronome.setBounds(620,748,126,28);
