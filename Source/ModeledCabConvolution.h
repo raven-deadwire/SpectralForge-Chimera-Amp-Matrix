@@ -99,12 +99,23 @@ private:
         return {(currentSegment%inputSegmentStep)*segments,currentSegment/inputSegmentStep};
     }
 
+#if defined(__GNUC__) && !defined(__clang__)
+    __attribute__((optimize("fp-contract=off")))
+#endif
     void accumulate(const float* __restrict input,const float* __restrict impulse,float* __restrict output) const noexcept
     {
         // Fuse the four previous vector passes: load each input/IR component
         // once and read/write each output only once per partition. The buffers
         // are disjoint; restrict makes that contract available to the compiler.
-        // Keep the original arithmetic order and do not enable fast-math.
+        // Keep the original arithmetic order and do not enable fast-math. The
+        // scalar tail must not contract a*b+c into an FMA either: arm64 fuses
+        // it (one rounding) while x86 at SSE2 baseline does not (two roundings),
+        // which would desync the two platforms on the final bins% 4 bins. The
+        // directives below force two-rounding there too, matching the SSE/NEON
+        // lanes; MSVC does not contract by default.
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
         int i=0;
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
         // Native Windows profiling identified sustained spectral-MAC cost in
