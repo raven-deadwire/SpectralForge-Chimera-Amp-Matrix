@@ -43,6 +43,33 @@ environment alone.
 Keep every credential (iLok, PACE account, certificates, WCGUID) **out of the
 repository**; reference them by name only.
 
+### Enrollment path (how to register — start here)
+
+Signing is performed by **PACE**, not Avid; Avid registration is the doorway
+that gets PACE to enroll you. The order matters. (Steps below are
+community-reported; pricing and procedure change, so confirm current details
+directly with Avid and PACE before committing.)
+
+1. **Register as an AAX developer with Avid** and email the Avid developer
+   authorization team at **`devauth@avid.com`**. Request a **Pro Tools Developer
+   Bundle** activation code too — a Developer build of Pro Tools loads *unsigned*
+   plug-ins, so you can test functionality before signing is in place.
+2. **Avid notifies PACE**, who enrol you in a developer signing plan. Cost
+   reports conflict (some say free for registered Avid developers, others
+   describe a paid/enterprise plan on the order of US$500/yr) — **confirm with
+   PACE directly.**
+3. **Get a physical iLok dongle** and have it authorised for AAX signing. A
+   developer reported the signing credential works only on a hardware iLok, not
+   iLok Cloud — plan for a USB iLok.
+4. **Install PACE `wraptool`** on the signing machine, log in to the PACE
+   account, and obtain this plug-in's **WCGUID** from that account.
+
+Lead-time note: steps 1–3 (Avid email → PACE enrolment → hardware iLok) are the
+long pole and are owner-only; the build (§2) is already ready. So the first
+actions are to send the Avid `devauth@avid.com` registration email and order a
+hardware iLok. Verification signal: an unsigned AAX in **retail** Pro Tools
+fails to load with error **-7054**; a correctly PACE-signed build clears it.
+
 ## 2. Build the AAX target
 
 Supported targets only: **Windows x64 / MSVC** and **Universal macOS**
