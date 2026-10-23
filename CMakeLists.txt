@@ -439,6 +439,14 @@ target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
 target_compile_definitions(ChimeraPitchRegressionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraPitchRegressionTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPitchRegressionTests COMMAND ChimeraPitchRegressionTests)
+# Transpose evidence renderer (docs/TRANSPOSE_EVIDENCE_PROTOCOL.md): production
+# Transposer, offline. Build on request: cmake --build build --target ChimeraTransposeRender
+juce_add_console_app(ChimeraTransposeRender PRODUCT_NAME "ChimeraTransposeRender")
+set_target_properties(ChimeraTransposeRender PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_sources(ChimeraTransposeRender PRIVATE Tools/TransposeEvidence/TransposeRenderProbe.cpp)
+target_include_directories(ChimeraTransposeRender PRIVATE Source)
+target_compile_definitions(ChimeraTransposeRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraTransposeRender PRIVATE juce::juce_audio_processors juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 
 # Optional measurement contracts: normal product builds do not need NumPy.
 option(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS "Enable NumPy measurement harness tests" OFF)
