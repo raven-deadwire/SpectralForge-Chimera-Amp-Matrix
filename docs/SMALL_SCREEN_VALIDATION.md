@@ -164,3 +164,23 @@ OSes at `926f787`; lifecycle runtime jobs also passed on all three. Full build,
 remaining signal UI jobs and Windows candidate packaging were incomplete.
 The previous local checkout/build cache is unavailable in this session, so
 the follow-up tests require CI compilation as well as runtime verification.
+
+### Windows IR library lookup at `64eb433`
+
+The Windows CAB job passed 17/19 tests. CAB state and IR isolation both
+stopped at the global IR library lookup: the button listener ran once and
+the message-loop fence was delivered, but the test cast the window's direct
+content to IRBrowserPanel. On the 1024x720 available desktop this content
+is an owning AccessibleViewport. The source-isolation helper now unwraps
+that viewport with the existing dialogContent helper at both lookup sites.
+The panel-type, source-switch, unrelated-parameter, teardown and project
+recall assertions are retained. This is another missed adaptation of the
+existing #121 dialog wrapper, not evidence of an audio/state regression.
+
+Evidence (before the lookup correction):
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39902036955/job/120246047971
+
+At the same source, Dynamics UI, head controls and CAB realtime jobs passed
+on Windows, macOS and Linux. The complete small-screen matrix and Windows
+installer were still in progress. The lookup correction requires fresh CI;
+no local build or runtime pass is claimed for it.
