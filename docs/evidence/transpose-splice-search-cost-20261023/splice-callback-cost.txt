@@ -1,0 +1,5 @@
+instrumented build, timing_mix bass_B0 48 kHz block 64, corr40-split-rt; thread CPU us per callback (median)
+shift -2 before: no splice 8, one splice 386, max 647, body/transient splices 74/54
+shift -2 after: no splice 8, one splice 90, max 447, body/transient splices 74/54
+shift 2 before: no splice 6, one splice 323, max 1031, body/transient splices 248/309
+shift 2 after: no splice 8, one splice 92, max 402, body/transient splices 248/309

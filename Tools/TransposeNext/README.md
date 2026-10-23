@@ -168,3 +168,11 @@ body downshift splice is held (<= 32 samples of delay overshoot) while the
 transient path spliced in the same chunk, so the two ~0.5 ms correlation
 searches never share a callback. Results:
 `docs/TRANSPOSE_RETRIGGER_CPU_RESEARCH_20261023.md`.
+
+## Splice search cost (2026-10-23)
+
+`CorrelationPitch::splice()` now reads the current (fractional-delay) segment
+once per splice and evaluates integer candidates directly from the ring buffer
+(`integerCost`), with the same accumulation order as `cost()`. Outputs are
+bit-identical for every engine; one search costs ~90 us instead of ~320-390 us
+at 48 kHz. Results: `docs/TRANSPOSE_SPLICE_SEARCH_COST_20261023.md`.

@@ -1,0 +1,8 @@
+shift -2 block 32 corr40-split-rt    old: miss   2 mean   14.6us p99.9   399.8us | new: miss   2 mean   13.8us p99.9   100.3us
+shift -2 block 32 corr40-split-up    old: miss  60 mean   12.9us p99.9   391.5us | new: miss   0 mean   12.0us p99.9    97.5us
+shift -2 block 64 corr40-split-rt    old: miss   0 mean   28.8us p99.9   462.2us | new: miss   1 mean   26.9us p99.9   155.2us
+shift -2 block 64 corr40-split-up    old: miss   0 mean   26.0us p99.9   457.8us | new: miss   0 mean   24.2us p99.9   157.8us
+shift 2 block 32 corr40-split-rt    old: miss 107 mean   16.4us p99.9   424.2us | new: miss   2 mean   14.1us p99.9   110.6us
+shift 2 block 32 corr40-split-up    old: miss  67 mean   15.1us p99.9   421.9us | new: miss   3 mean   12.9us p99.9   110.7us
+shift 2 block 64 corr40-split-rt    old: miss   3 mean   33.5us p99.9   524.4us | new: miss   2 mean   27.0us p99.9   171.6us
+shift 2 block 64 corr40-split-up    old: miss   1 mean   30.1us p99.9   497.2us | new: miss   1 mean   25.1us p99.9   170.0us

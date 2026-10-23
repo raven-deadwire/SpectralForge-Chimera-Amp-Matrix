@@ -11,6 +11,7 @@ namespace transposeNext {
 // Window/search durations are declared engineering choices, not Neural DSP data.
 class CorrelationPitch {
     std::array<std::vector<float>,2> audio, filtered;
+    std::array<std::vector<double>,2> reference;
     std::array<float,2> low{};
     std::vector<float> fadeWeights;
     std::vector<double> detectorHistory;
@@ -55,6 +56,27 @@ class CorrelationPitch {
         }
         return error/energy;
     }
+    // Same value as cost() for an integer candidate, bit for bit: the current
+    // segment (fractional delay) is read once per splice into `reference`,
+    // and an integer age needs no interpolation (read() adds 0 x difference).
+    // Same accumulation order. This is the splice search's hot loop.
+    void captureReference() noexcept {
+        for(int c=0;c<count;++c) for(int k=0,j=0;k<window;k+=stride,++j)
+            reference[size_t(c)][size_t(j)]=read(filtered[size_t(c)],delay+k);
+    }
+    double integerCost(int proposed) const noexcept {
+        double error=0, energy=1.e-20;
+        for(int c=0;c<count;++c) {
+            const float* ring=filtered[size_t(c)].data();const double* x=reference[size_t(c)].data();
+            int i=write-proposed;if(i<0)i+=capacity;
+            for(int k=0,j=0;k<window;k+=stride,++j) {
+                const double y=ring[i];
+                error+=(x[j]-y)*(x[j]-y);energy+=x[j]*x[j]+y*y;
+                i-=stride;if(i<0)i+=capacity;
+            }
+        }
+        return error/energy;
+    }
     void splice() noexcept {
         // Leave a guard for the whole crossfade. Require meaningful progress
         // toward the opposite boundary, avoiding the trivial zero-lag minimum.
@@ -70,19 +92,20 @@ class CorrelationPitch {
         }
         const int first=int(std::ceil(delta>0 ? lo : delay+travel));
         const int last=int(std::floor(delta>0 ? delay-travel : hi));
+        captureReference();
         double best=delta>0 ? lo : hi, score=1.e100;
         const int step=juce::jmax(1, int(std::lround(rate/12000.)));
         for(int d=first;d<=last;d+=step) {
-            const double s=cost(d);
+            const double s=integerCost(d);
             if(s<score) {score=s;best=d;}
         }
         const int centre=int(best);
         for(int d=juce::jmax(first,centre-step);d<=juce::jmin(last,centre+step);++d) {
-            const double s=cost(d);
+            const double s=integerCost(d);
             if(s<score) {score=s;best=d;}
         }
         if(best>first && best<last) {
-            const double left=cost(best-1),right=cost(best+1);
+            const double left=integerCost(int(best)-1),right=integerCost(int(best)+1);
             const double curve=left-2*score+right;
             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
         }
@@ -106,6 +129,7 @@ public:
         capacity=int(std::ceil(maximum))+window+fadeLength+16;
         coefficient=float(1.-std::exp(-2.*juce::MathConstants<double>::pi*800./rate));
         for(auto* bank:{&audio,&filtered}) for(auto& r:*bank) r.assign(size_t(capacity),0);
+        for(auto& r:reference) r.assign(size_t((window+stride-1)/stride),0);
         fadeWeights.resize(size_t(fadeLength));
         for(int i=0;i<fadeLength;++i) fadeWeights[size_t(i)]=float(.5-.5*std::cos(juce::MathConstants<double>::pi*(i+1)/fadeLength));
         reset();
