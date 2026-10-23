@@ -21,6 +21,9 @@ class CorrelationPitch {
     double upshiftHold{}, onsetAge{1.e9};
     double alignDelay{},alignLead{};
     bool alignCompensated{};
+    int fadeStep{1},onsetFadeSamples{};
+    double onsetFloor{};
+    bool onsetFadeAdaptive{};
     std::array<float,2> noveltyLow1{},noveltyLow2{},noveltyLow3{},noveltyLow4{};
     float noveltyCoefficient{};
     std::array<double,41> peakBuckets{};
@@ -85,7 +88,7 @@ class CorrelationPitch {
             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
         }
         nextDelay=juce::jlimit(lo,hi,best);
-        fadeIndex=0;fading=true;++spliceCount;
+        fadeIndex=0;fadeStep=1;fading=true;++spliceCount;
     }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec, double boundMs, bool resetAtOnset=false, bool detectInnovation=false) {
@@ -104,6 +107,7 @@ public:
         capacity=int(std::ceil(maximum))+window+fadeLength+16;
         coefficient=float(1.-std::exp(-2.*juce::MathConstants<double>::pi*800./rate));
         for(auto* bank:{&audio,&filtered}) for(auto& r:*bank) r.assign(size_t(capacity),0);
+        onsetFloor=minimum;onsetFadeSamples=fadeLength;
         fadeWeights.resize(size_t(fadeLength));
         for(int i=0;i<fadeLength;++i) fadeWeights[size_t(i)]=float(.5-.5*std::cos(juce::MathConstants<double>::pi*(i+1)/fadeLength));
         reset();
@@ -139,6 +143,17 @@ public:
     // Research: place re-anchored attacks at a fixed delay (e.g. the 10 ms of
     // the hybrid's STFT band) so both bands start together. Downshift anchors
     // move up to it; upshift anchors (and their hold) are capped at it. 0 = off.
+    // Research: a shorter crossfade and a lower read-delay floor for onset
+    // re-anchors only (splices keep the 2 ms fade and 2 ms floor). Lowers the
+    // downshift attack floor, (floor + guard + lead) / ratio, at -12.
+    // adaptive: only when the aligned downshift anchor would sit on the 2 ms
+    // floor (about -9 semitones and below); elsewhere the 2 ms fade avoids
+    // the +6-8 dB high-frequency burst the short fade adds on repicks.
+    void setOnsetFade(double fadeMs, double floorMs, bool adaptive=false) noexcept {
+        onsetFadeAdaptive=adaptive;
+        onsetFadeSamples=juce::jlimit(1,fadeLength,int(std::ceil(rate*fadeMs*.001)));
+        onsetFloor=juce::jlimit(4.,minimum,rate*floorMs*.001);
+    }
     void setAnchorAlignment(double ms, bool ratioCompensated=false, double leadMs=2.9) noexcept {
         alignDelay=ms>0 ? juce::jlimit(minimum,maximum,rate*ms*.001) : 0.;alignCompensated=ratioCompensated;alignLead=rate*leadMs*.001;
     }
@@ -218,23 +233,28 @@ public:
                 const bool resettable=delta>0 || (upshiftReset && delta<0);
                 // Clamped: with a short bound the upshift hold can exceed it
                 // (12 ms bound, +12: anchor 27 ms, read past the buffer -> NaN).
-                double anchor=std::min(minimum+guard+(delta<0 ? upshiftHold*-delta : 0.),maximum-guard);
+                const bool shortOnset=!onsetFadeAdaptive || (delta>0 && alignCompensated && alignDelay*ratio-alignLead<minimum+guard);
+                const int onsetFade=shortOnset ? onsetFadeSamples : fadeLength;
+                const double floor=shortOnset ? onsetFloor : minimum;
+                const double onsetGuard=std::abs(delta)*onsetFade+2;
+                double anchor=std::min(delta>0 ? floor+onsetGuard : minimum+guard+upshiftHold*-delta,maximum-guard);
                 // A downshift read head moves away from the present at 1-ratio,
                 // so an attack reaches the output (anchor+lead)/ratio after it
                 // happened (lead: detection plus crossfade, measured ~2.9 ms).
                 if(alignDelay>0) anchor=delta>0 ? std::max(anchor,alignCompensated ? alignDelay*ratio-alignLead : alignDelay)
                                                 : std::min(anchor,std::max(minimum+guard,alignDelay));
+                anchor=std::max(anchor,delta>0 ? floor+onsetGuard : minimum+guard);
                 if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable)externalPending=true;
                 if(externalPending && resettable && !fading) {
                     externalPending=false;
-                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;
+                    nextDelay=anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
                 }
                 if(onsetReset && resettable && !fading && cooldown==0 &&
                    (innovationReset ? pendingOnset : (fastEnergy>1.e-8 && fastEnergy>2.5*slowEnergy))) {
                     pendingOnset=false;
-                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;
+                    nextDelay=anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
                     cooldown=cooldownLength;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
@@ -249,7 +269,7 @@ public:
                 minRead=std::min(minRead, fading?std::min(delay,nextDelay):delay);
                 maxRead=std::max(maxRead, fading?std::max(delay,nextDelay):delay);
                 delay+=delta;
-                if(fading) {nextDelay+=delta;if(++fadeIndex==fadeLength){delay=nextDelay;fading=false;}}
+                if(fading) {nextDelay+=delta;fadeIndex+=fadeStep;if(fadeIndex>=fadeLength){delay=nextDelay;fading=false;}}
             }
             if(++write==capacity)write=0;
             ++processedSamples;onsetAge+=1;

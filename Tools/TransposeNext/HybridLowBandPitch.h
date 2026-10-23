@@ -39,11 +39,11 @@ class HybridLowBandPitch {
     int channels{},capacity{},shift{};
     bool anchored{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec,double crossover,double boundMs=40,bool onset=false,double alignMs=0,bool alignCompensated=false) {
+    void prepare(const juce::dsp::ProcessSpec& spec,double crossover,double boundMs=40,bool onset=false,double alignMs=0,bool alignCompensated=false,double onsetFadeMs=0,double leadMs=2.9,bool fadeAdaptive=false) {
         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));
         anchored=onset;
         body.prepare(spec,boundMs,onset,onset);
-        if(onset){body.setUpshiftOnsetReset(true);body.setBroadSmoothing(4);body.setAnchorAlignment(alignMs,alignCompensated);}
+        if(onset){body.setUpshiftOnsetReset(true);body.setBroadSmoothing(4);body.setAnchorAlignment(alignMs,alignCompensated,leadMs);if(onsetFadeMs>0)body.setOnsetFade(onsetFadeMs,onsetFadeMs,fadeAdaptive);}
         upper.prepare(spec,0,int(spec.sampleRate*.010)/8*8);
         for(auto& b:lowpass)b.prepare(spec.sampleRate,crossover,false);
         for(auto& b:highpass)b.prepare(spec.sampleRate,crossover,true);
