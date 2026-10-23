@@ -806,13 +806,9 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     object->setProperty("asio_built",false);
    #endif
     if(spectralforge::standalone::audioDeviceDiagnostics) {
-        const auto device=spectralforge::standalone::audioDeviceDiagnostics();
-        if(auto* d=device.getDynamicObject();d && (bool)d->getProperty("open")) {
-            const double rate=d->getProperty("sample_rate");
-            const int driver=int(d->getProperty("driver_input_latency_samples"))+int(d->getProperty("driver_output_latency_samples"));
-            // Driver claim + Chimera's reported delay; not a measured loopback round trip.
-            if(rate>0)d->setProperty("driver_plus_plugin_latency_ms",1000.*(driver+getLatencySamples())/rate);
-        }
+        auto device=spectralforge::standalone::audioDeviceDiagnostics();
+        // Driver claim + Chimera's reported delay; not a measured loopback round trip.
+        spectralforge::standalone::addReportedLatency(device,getLatencySamples());
         object->setProperty("audio_device",device);
     }
     return juce::JSON::toString(juce::var(object.release()),false);

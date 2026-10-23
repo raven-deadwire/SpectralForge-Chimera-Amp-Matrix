@@ -1066,6 +1066,9 @@ int main(int argc, char** argv)
             require(device["type"].toString()=="ASIO" && int(device["xruns"])==3,"Standalone device diagnostic missing");
             const double expected=1000.*(96+160+universal.getLatencySamples())/48000.;
             require(std::abs(double(device["driver_plus_plugin_latency_ms"])-expected)<1e-6,"Driver plus plug-in latency not derived");
+            const auto after=juce::JSON::parse(universal.diagnosticReport());
+            require(!after.hasProperty("audio_device") && after["stages"].getArray()->size()==5,
+                    "Clearing Standalone hook changed plug-in diagnostic behavior");
         }
         {auto service=std::make_shared<spectralforge::release::ReleaseSupport>();ChimeraSupportPanel panel(service,{});saveSnapshot(panel,directory,"Support-updates");for(auto* child:panel.getChildren())require(panel.getLocalBounds().contains(child->getBounds()),"Support control outside panel");}
         require(!juce::SharedResourcePointer<spectralforge::art::RasterBank>::getSharedObjectWithoutCreating(),

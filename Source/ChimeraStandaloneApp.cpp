@@ -12,6 +12,7 @@
 #include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
 #include "WindowFit.h"
 #include "StandaloneDiagnostics.h"
+#include "StandaloneAudioDevices.h"
 
 namespace spectralforge {
 class ChimeraStandaloneWindow final : public juce::StandaloneFilterWindow {
@@ -56,42 +57,7 @@ private:
 juce::var audioDeviceDiagnostics() {
     auto* holder=juce::StandalonePluginHolder::getInstance();
     if(holder==nullptr)return {};
-    auto& devices=holder->deviceManager;
-    auto object=std::make_unique<juce::DynamicObject>();
-    juce::Array<juce::var> types;
-    for(auto* type:devices.getAvailableDeviceTypes())types.add(type->getTypeName());
-    object->setProperty("type",devices.getCurrentAudioDeviceType());
-    object->setProperty("available_types",types);
-    object->setProperty("input_muted_for_feedback",(bool)holder->getMuteInputValue().getValue());
-    if(auto* device=devices.getCurrentAudioDevice()) {
-        object->setProperty("open",true);
-        object->setProperty("sample_rate",device->getCurrentSampleRate());
-        object->setProperty("buffer_samples",device->getCurrentBufferSizeSamples());
-        object->setProperty("driver_input_latency_samples",device->getInputLatencyInSamples());
-        object->setProperty("driver_output_latency_samples",device->getOutputLatencyInSamples());
-        object->setProperty("active_inputs",device->getActiveInputChannels().countNumberOfSetBits());
-        object->setProperty("active_outputs",device->getActiveOutputChannels().countNumberOfSetBits());
-        object->setProperty("xruns",device->getXRunCount());
-        object->setProperty("device_cpu_percent",devices.getCpuUsage()*100.);
-    } else object->setProperty("open",false);
-    return juce::var(object.release());
-}
-
-// First run only (no saved "audioSetup"): a connected ASIO interface becomes
-// the default instead of shared Windows audio. A saved choice is never changed.
-void preferAsioOnFirstRun(juce::StandalonePluginHolder& holder) {
-    if(holder.settings==nullptr || holder.settings->containsKey("audioSetup"))return;
-    auto& devices=holder.deviceManager;
-    const auto current=devices.getCurrentAudioDeviceType();
-    if(current=="ASIO")return;
-    for(auto* type:devices.getAvailableDeviceTypes()) {
-        if(type->getTypeName()!="ASIO")continue;
-        type->scanForDevices();
-        if(type->getDeviceNames().isEmpty())return;
-        devices.setCurrentAudioDeviceType("ASIO",true);
-        if(devices.getCurrentAudioDevice()==nullptr)devices.setCurrentAudioDeviceType(current,true);  // driver busy or absent
-        return;
-    }
+    return standalone::deviceSnapshot(holder->deviceManager,(bool)holder->getMuteInputValue().getValue());
 }
 
 class ChimeraStandaloneApp final : public juce::JUCEApplication {
@@ -136,7 +102,9 @@ private:
         const juce::Array<juce::StandalonePluginHolder::PluginInOuts> channelConfig;
        #endif
         auto holder=std::make_unique<juce::StandalonePluginHolder>(appProperties.getUserSettings(),false,juce::String{},nullptr,channelConfig,false);
-        preferAsioOnFirstRun(*holder);
+       #if JUCE_WINDOWS
+        standalone::preferAsioOnFirstRun(holder->deviceManager,holder->settings.get());
+       #endif
         return holder;
     }
     juce::ApplicationProperties appProperties;
