@@ -1,0 +1,21 @@
+--- /home/user/SpectralForge-Chimera-Amp-Matrix/Tools/TransposeNext/TransientSplitPitch.h	2026-10-23 02:32:23.315077121 +0000
++++ TransientSplitPitch.h	2026-10-23 08:22:03.024079067 +0000
+@@ -1,5 +1,6 @@
+ #pragma once
+ #include <algorithm>
++#include <cstdlib>
+ #include <array>
+ #include <cmath>
+ #include "CorrelationPitch.h"
+@@ -112,7 +113,10 @@
+         broadFlags.assign(lowFlags.size(),0);
+         body.prepare(spec,40,false);
+         transient.prepare(spec,40,true,true);
+-        body.setUpshiftOnsetReset(upshift);transient.setUpshiftOnsetReset(upshift);
++        {auto env=[](const char* n,double d){const char* v=std::getenv(n);return v?std::atof(v):d;};
++         body.setUpshiftOnsetReset(upshift,env("TN_BODY_HOLD",25));transient.setUpshiftOnsetReset(upshift,env("TN_HIGH_HOLD",25));
++         body.setTraced(true);if(const char* t=std::getenv("TN_TRACE"))traceFile=std::fopen(t,"w");
++         if(std::getenv("TN_BODY_MIN"))body.setMinimumMs(env("TN_BODY_MIN",2));if(std::getenv("TN_HIGH_MIN"))transient.setMinimumMs(env("TN_HIGH_MIN",2));}
+         if(upshift)transient.setBroadSmoothing(4);
+         if(coordinated)transient.setRetrigger(8);
+         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));

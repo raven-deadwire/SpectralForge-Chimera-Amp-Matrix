@@ -3,7 +3,8 @@
 
 namespace spectralforge::ui {
 // Editor geometry shared by the scale menu, the host editor and the
-// Standalone window (Issue #113). The canvas keeps its fixed aspect ratio.
+// Standalone window (Issue #113). The canvas keeps its fixed aspect ratio;
+// its scrollable window is independently bounded by the available work area.
 constexpr int editorBaseWidth=1180,editorBaseHeight=780;
 constexpr float minimumEditorScale=.75f,maximumEditorScale=1.5f;
 
@@ -16,6 +17,26 @@ inline float fittedEditorScale(juce::Rectangle<int> area,juce::Point<int> chrome
 }
 inline juce::Point<int> editorSizeForScale(float scale) {
     return {juce::roundToInt(float(editorBaseWidth)*scale),juce::roundToInt(float(editorBaseHeight)*scale)};
+}
+inline juce::Point<int> boundedEditorSize(juce::Point<int> requested,juce::Rectangle<int> area,juce::Point<int> chrome) {
+    const int width=juce::jmax(1,area.getWidth()-juce::jmax(0,chrome.x)-8);
+    const int height=juce::jmax(1,area.getHeight()-juce::jmax(0,chrome.y)-8);
+    // Leave room for the scrollbar when the other axis overflows. At
+    // 1366x768 / 125% this avoids an unnecessary horizontal scrollbar.
+    return {juce::jmin(width,requested.x+(requested.y>height?16:0)),
+            juce::jmin(height,requested.y+(requested.x>width?16:0))};
+}
+inline juce::Point<int> fittedEditorSize(juce::Rectangle<int> area,juce::Point<int> chrome) {
+    return boundedEditorSize(editorSizeForScale(fittedEditorScale(area.reduced(4),chrome)),area,chrome);
+}
+inline juce::Point<int> editorWindowChrome(juce::Component& editor) {
+    auto* top=editor.getTopLevelComponent();
+    juce::Point<int> chrome{juce::jmax(0,top->getWidth()-editor.getWidth()),juce::jmax(0,top->getHeight()-editor.getHeight())};
+    if(auto* peer=top->getPeer())if(const auto frame=peer->getFrameSizeIfPresent()) {
+        chrome+=juce::Point<int>{frame->getLeftAndRight(),frame->getTopAndBottom()};
+        return chrome;
+    }
+    return chrome+juce::Point<int>{16,48};
 }
 // Centre `window` in `area`; if it is larger, keep its top-left (title bar
 // and menu) on screen rather than centring it off the display.

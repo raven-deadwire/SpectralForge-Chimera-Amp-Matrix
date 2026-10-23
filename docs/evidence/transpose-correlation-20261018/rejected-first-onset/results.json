@@ -1,0 +1,2663 @@
+{
+  "status": "RESEARCH_ONLY_NOT_RELEASE_ACCEPTANCE",
+  "baseline_commit": "3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "renderer_sha256": "b61a31f818f12cbb121f7d8ce76dea26f1f6ccf569a76fa25bfca6205d825834",
+  "inputs": {
+    "sineB0-48000": {
+      "name": "sineB0",
+      "synthetic": true,
+      "rate": 48000,
+      "fundamental_hz": 30.8677063285,
+      "amplitudes": [
+        0.2
+      ],
+      "frequencies": [
+        30.8677063285
+      ],
+      "sha256": "a3e7806e431fe65f801222896da98b659f0dbdb5a2edb46df9a7a29e8d4da306"
+    },
+    "harmonics-48000": {
+      "name": "harmonics",
+      "synthetic": true,
+      "rate": 48000,
+      "fundamental_hz": 30.8677063285,
+      "amplitudes": [
+        0.12
+      ],
+      "frequencies": [
+        30.8677063285
+      ],
+      "sha256": "8385967cd240ffe424cab9a93b0b63aa0922226f258b879e64b7ee10356d540b"
+    },
+    "weakfundamental-48000": {
+      "name": "weakfundamental",
+      "rate": 48000,
+      "synthetic": true,
+      "frequencies": [
+        30.8677063285
+      ],
+      "amplitudes": [
+        0.012
+      ],
+      "sha256": "2fe2fcfa06fa3647310bf8d352bf81eebded3030d6438eb3e1809765f04ecef7"
+    },
+    "dyad-48000": {
+      "name": "dyad",
+      "rate": 48000,
+      "synthetic": true,
+      "frequencies": [
+        30.8677063285,
+        36.7080959897
+      ],
+      "amplitudes": [
+        0.12,
+        0.03
+      ],
+      "sha256": "7d4b825495fc913272855e1612e91870ada76bc68c0cb8abbba24f2fe6a7a42d"
+    },
+    "impulses-48000": {
+      "name": "impulses",
+      "synthetic": true,
+      "rate": 48000,
+      "fundamental_hz": 30.8677063285,
+      "onsets": [
+        19200,
+        36032,
+        52864,
+        69696,
+        86528,
+        103360,
+        120192,
+        137024
+      ],
+      "amplitudes": [
+        0.2
+      ],
+      "frequencies": [
+        30.8677063285
+      ],
+      "sha256": "5a28d4baaed553e15692d91ff3193b4d2c22a518c8d968a3f5d791b925aa54fb"
+    },
+    "riff75-48000": {
+      "name": "riff75",
+      "synthetic": true,
+      "rate": 48000,
+      "fundamental_hz": 30.8677063285,
+      "onsets": [
+        19200,
+        22800,
+        26400,
+        30000,
+        33600,
+        37200,
+        40800,
+        44400,
+        48000,
+        51600,
+        55200,
+        58800,
+        62400,
+        66000,
+        69600,
+        73200
+      ],
+      "spacing_ms": 75.0,
+      "amplitudes": [
+        0.2
+      ],
+      "frequencies": [
+        30.8677063285
+      ],
+      "sha256": "e58e943d567e58212311f2dddfb08c6bb82fcda78a24a64e2f7a7b755a7c7732"
+    },
+    "riff125-48000": {
+      "name": "riff125",
+      "synthetic": true,
+      "rate": 48000,
+      "fundamental_hz": 30.8677063285,
+      "onsets": [
+        19200,
+        25200,
+        31200,
+        37200,
+        43200,
+        49200,
+        55200,
+        61200,
+        67200,
+        73200,
+        79200,
+        85200,
+        91200,
+        97200,
+        103200,
+        109200
+      ],
+      "spacing_ms": 125.0,
+      "amplitudes": [
+        0.2
+      ],
+      "frequencies": [
+        30.8677063285
+      ],
+      "sha256": "88118dcfe46f6da4faef20025c185879afabe86448f1dab1376bdebd1a8ec310"
+    }
+  },
+  "oracle": [
+    {
+      "id": "sineB0-48000-2",
+      "voices": [
+        {
+          "target_gain_db": 1.928654933106574e-15,
+          "local_fundamental_band_gain_db": 0.0,
+          "dominant_component_gain_db": 0.0,
+          "dominant_hz": 27.49999999999309,
+          "dominant_error_cents": 3.8441118045779003e-13,
+          "amplitude_modulation_p95_p5_db": 5.728762672925214e-05,
+          "warble_p95_p5_cents": 0.012890492115642645,
+          "rms": 0.14142135623730956
+        }
+      ],
+      "valid": true
+    },
+    {
+      "id": "harmonics-48000-2",
+      "voices": [
+        {
+          "target_gain_db": 0.0,
+          "local_fundamental_band_gain_db": 0.0,
+          "dominant_component_gain_db": -9.643274665532871e-16,
+          "dominant_hz": 27.49999999999309,
+          "dominant_error_cents": 3.8441118045779003e-13,
+          "amplitude_modulation_p95_p5_db": 5.7287567599010546e-05,
+          "warble_p95_p5_cents": 0.012890492254416373,
+          "rms": 0.08485281374238574
+        }
+      ],
+      "valid": true
+    },
+    {
+      "id": "weakfundamental-48000-2",
+      "voices": [
+        {
+          "target_gain_db": 0.0,
+          "local_fundamental_band_gain_db": 0.0,
+          "dominant_component_gain_db": 0.0,
+          "dominant_hz": 27.49999999999309,
+          "dominant_error_cents": 3.8441118045779003e-13,
+          "amplitude_modulation_p95_p5_db": 5.728764293563266e-05,
+          "warble_p95_p5_cents": 0.012890493135259314,
+          "rms": 0.008485281374238575
+        }
+      ],
+      "valid": true
+    },
+    {
+      "id": "dyad-48000-2",
+      "voices": [
+        {
+          "target_gain_db": -0.0003335452212361378,
+          "local_fundamental_band_gain_db": 0.15223530765068352,
+          "dominant_component_gain_db": -0.0003335430588252295,
+          "dominant_hz": 27.500009917326338,
+          "dominant_error_cents": 0.0006243353420239409,
+          "amplitude_modulation_p95_p5_db": 3.0343119784260804,
+          "warble_p95_p5_cents": 117.27166068230973,
+          "rms": 0.0878486325972363
+        },
+        {
+          "target_gain_db": -0.00533558225611065,
+          "local_fundamental_band_gain_db": 12.304501225819084,
+          "dominant_component_gain_db": 12.040866283500574,
+          "dominant_hz": 27.500009866837253,
+          "dominant_error_cents": -299.9993788447145,
+          "amplitude_modulation_p95_p5_db": 6.3530510919469405,
+          "warble_p95_p5_cents": 266.5407679074374,
+          "rms": 0.0878486325972363
+        }
+      ],
+      "valid": false
+    },
+    {
+      "id": "harmonics-48000-1",
+      "voices": [
+        {
+          "target_gain_db": 1.7081618260821874e-06,
+          "local_fundamental_band_gain_db": -3.3174163949879986e-07,
+          "dominant_component_gain_db": 1.7081618511546968e-06,
+          "dominant_hz": 29.13523506200838,
+          "dominant_error_cents": -1.9528541583462903e-06,
+          "amplitude_modulation_p95_p5_db": 8.852506009802122e-05,
+          "warble_p95_p5_cents": 0.009326100346568356,
+          "rms": 0.08473949971282034
+        }
+      ],
+      "valid": true
+    },
+    {
+      "id": "harmonics-480001",
+      "voices": [
+        {
+          "target_gain_db": -6.650507009729229e-07,
+          "local_fundamental_band_gain_db": -2.907564998630562e-07,
+          "dominant_component_gain_db": -6.650502593109093e-07,
+          "dominant_hz": 32.70319580291537,
+          "dominant_error_cents": 7.429748975173885e-06,
+          "amplitude_modulation_p95_p5_db": 0.00023348541111795271,
+          "warble_p95_p5_cents": 0.004444098090781532,
+          "rms": 0.08490832027825686
+        }
+      ],
+      "valid": true
+    },
+    {
+      "id": "harmonics-480002",
+      "voices": [
+        {
+          "target_gain_db": -1.087044103018146e-07,
+          "local_fundamental_band_gain_db": -1.4057105933928132e-07,
+          "dominant_component_gain_db": -1.0870440837315964e-07,
+          "dominant_hz": 34.647828876693225,
+          "dominant_error_cents": 2.29492705895729e-07,
+          "amplitude_modulation_p95_p5_db": 0.00023621599879121866,
+          "warble_p95_p5_cents": 0.003001698924448715,
+          "rms": 0.08486258984748381
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "results": [
+    {
+      "input": "sineB0-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 369.422,
+      "p95_us": 854.282,
+      "p99_us": 1761.07,
+      "max_us": 95849.4,
+      "deadline_misses": 4,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "0061d23b5385515167fc5505cc004be7b9735f32c9992708ea8fa44f890a1b4f",
+      "callback_sha256": "d42431e3dd963cf21d72a6bea00ed9685580c79297c677d598d08302f882f765",
+      "stereo_null_max": 8.702278137207031e-06,
+      "voices": [
+        {
+          "target_gain_db": -0.2251259179404459,
+          "local_fundamental_band_gain_db": -0.22484841941382666,
+          "dominant_component_gain_db": -0.22484860343635463,
+          "dominant_hz": 27.496482050297477,
+          "dominant_error_cents": -0.22148305044966815,
+          "amplitude_modulation_p95_p5_db": 0.0005666305457034769,
+          "warble_p95_p5_cents": 0.035798643167799266,
+          "rms": 0.1378173166883531
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "sineB0-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 302.404,
+      "p95_us": 854.637,
+      "p99_us": 1795.06,
+      "max_us": 6771.36,
+      "deadline_misses": 4,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "e9f08e95e1bacca5f4de1a99fa67d56d8504e3f314e616a1874f0b4ac4d72171",
+      "callback_sha256": "c0cde7e86018e5c89a3c3e73ff09c8e95f83d44d529843df24bf7137d31b6a83",
+      "stereo_null_max": 1.0654330253601074e-06,
+      "voices": [
+        {
+          "target_gain_db": -0.17819153871040538,
+          "local_fundamental_band_gain_db": -0.17791408566345815,
+          "dominant_component_gain_db": -0.17791422582554767,
+          "dominant_hz": 27.4964820605868,
+          "dominant_error_cents": -0.22148240261319624,
+          "amplitude_modulation_p95_p5_db": 0.0009213703026754424,
+          "warble_p95_p5_cents": 0.04881509527185138,
+          "rms": 0.138563398036998
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "sineB0-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 25.5015,
+      "p95_us": 86.244,
+      "p99_us": 387.132,
+      "max_us": 2854.74,
+      "deadline_misses": 1,
+      "callbacks": 1125,
+      "splices": 170,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.964,
+      "output_sha256": "cad2072a961301ffdf972d3912b52373932e22effcb466150607a06016b9572f",
+      "callback_sha256": "452c7a282e04388389f255d696944d755b44729c48ba8f96a8ef865135acbe97",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -31.10529314730435,
+          "local_fundamental_band_gain_db": -0.03270362652331466,
+          "dominant_component_gain_db": -0.049075665354423606,
+          "dominant_hz": 30.867747385408236,
+          "dominant_error_cents": 200.00230270009283,
+          "amplitude_modulation_p95_p5_db": 1.08205451907729,
+          "warble_p95_p5_cents": 27.341933107550176,
+          "rms": 0.1413072420582594
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "sineB0-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 7.13949,
+      "p95_us": 1.803,
+      "p99_us": 25.313,
+      "max_us": 1613.7,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 9,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "7cefe6d65175846aa63a06e3d9f7d66d627897851e5cb62185e37eca77753e73",
+      "callback_sha256": "d67c6ee947b4cf15aa9a1fc0c608b92b2885d5a4f6e8f34ae63271945841ab5d",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -1.184876011690286e-05,
+          "local_fundamental_band_gain_db": -1.185456383806822e-05,
+          "dominant_component_gain_db": -1.1848759233577696e-05,
+          "dominant_hz": 27.50000019861536,
+          "dominant_error_cents": 1.2504059560818331e-05,
+          "amplitude_modulation_p95_p5_db": 0.00019004587114310672,
+          "warble_p95_p5_cents": 0.012266612876708265,
+          "rms": 0.1414211628104307
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "sineB0-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 12.2295,
+      "p95_us": 2.22,
+      "p99_us": 162.064,
+      "max_us": 3657.52,
+      "deadline_misses": 1,
+      "callbacks": 1125,
+      "splices": 9,
+      "onset_resets": 1,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.92,
+      "output_sha256": "0c3908641d53b3eeeff2014be134cd4a7d8faef2f7090b95c856ff16d937a69f",
+      "callback_sha256": "c1d6e8170e055115d5eadf3a6c0e635db8e6daa6fa92a76c7b083872b6cf6241",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -1.183295863899548e-05,
+          "local_fundamental_band_gain_db": -1.1835253113714805e-05,
+          "dominant_component_gain_db": -1.1832957513623794e-05,
+          "dominant_hz": 27.500000224149964,
+          "dominant_error_cents": 1.4111564467350908e-05,
+          "amplitude_modulation_p95_p5_db": 0.00020518460139755339,
+          "warble_p95_p5_cents": 0.012165715940404595,
+          "rms": 0.14142116347980238
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 494.301,
+      "p95_us": 1809.36,
+      "p99_us": 3367.62,
+      "max_us": 7249.44,
+      "deadline_misses": 25,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "ca8d077920227132eadbafcfde2d831c9f8a9fa6b25ddf5694cf4e2532bf3e02",
+      "callback_sha256": "0d5940315a54da6b3e714a851cbd4899ccfd2b8f167ca3bbed9e41e262ae0d01",
+      "stereo_null_max": 6.166379898786545e-05,
+      "voices": [
+        {
+          "target_gain_db": -47.547395717466124,
+          "local_fundamental_band_gain_db": -5.252658122277483,
+          "dominant_component_gain_db": -5.4480597008526175,
+          "dominant_hz": 28.594258614493278,
+          "dominant_error_cents": 67.55265781993704,
+          "amplitude_modulation_p95_p5_db": 4.212314971269869,
+          "warble_p95_p5_cents": 107.9293307680053,
+          "rms": 0.0809441284550985
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 360.329,
+      "p95_us": 1183.76,
+      "p99_us": 2295.03,
+      "max_us": 4963.2,
+      "deadline_misses": 9,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "0389b7cb171963e0dd12fb0ab562fa039b4f601f4c7d217dd7e3db9f72886bd8",
+      "callback_sha256": "0d67b0ad2e8a0083093dac399410316d4e4a9fcf6d69a6bd0652554693866b55",
+      "stereo_null_max": 2.2864900529384613e-05,
+      "voices": [
+        {
+          "target_gain_db": -50.23525669851806,
+          "local_fundamental_band_gain_db": -5.606112680143661,
+          "dominant_component_gain_db": -5.81435035132306,
+          "dominant_hz": 37.80606733570149,
+          "dominant_error_cents": 551.0233996919031,
+          "amplitude_modulation_p95_p5_db": 3.8856952193667254,
+          "warble_p95_p5_cents": 113.91247773022819,
+          "rms": 0.08371256435951749
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 32.9566,
+      "p95_us": 102.342,
+      "p99_us": 625.605,
+      "max_us": 1772.74,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 170,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.964,
+      "output_sha256": "0d009c5dd8d2506ea78102f0261dde60508dce598d37ab0eeea34207ac34cd71",
+      "callback_sha256": "f846dbccc9d41874966d78cf370c72caebdfc7371c0e0a445e6dbdcc368e5be2",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -31.08505255146639,
+          "local_fundamental_band_gain_db": -0.024409279257055445,
+          "dominant_component_gain_db": -0.04874226896135509,
+          "dominant_hz": 30.867821203180306,
+          "dominant_error_cents": 200.00644280419652,
+          "amplitude_modulation_p95_p5_db": 0.9772818901432213,
+          "warble_p95_p5_cents": 53.778666402595064,
+          "rms": 0.12145203064113937
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 6.35756,
+      "p95_us": 2.049,
+      "p99_us": 15.507,
+      "max_us": 1327.75,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 9,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "658fdc6ed1c1b6f68b4ddce1e666837588dd302731215308a9da21dd8aaa9689",
+      "callback_sha256": "3b8378ebad310d0cc549ff80ae89dd4bd4632b919436e15a99d6915812761b56",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -1.1858493440249687e-05,
+          "local_fundamental_band_gain_db": -1.1927279870874014e-05,
+          "dominant_component_gain_db": -1.1858357744724971e-05,
+          "dominant_hz": 27.499997533248198,
+          "dominant_error_cents": -0.00015529137938505189,
+          "amplitude_modulation_p95_p5_db": 0.0014838362164728012,
+          "warble_p95_p5_cents": 0.29643376394239607,
+          "rms": 0.12208109390955797
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 3.30194,
+      "p95_us": 2.496,
+      "p99_us": 37.381,
+      "max_us": 287.577,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 47,
+      "read_min_samples": 96,
+      "read_max_samples": 458.252,
+      "output_sha256": "ef3359e495e15384d2dc96c1fdc6f3f27b3e56e55ae31ce2c016638908d3edc8",
+      "callback_sha256": "fb974c3fc3fcda3f04e510870ae95a55f7598a5cadfe6a4490031c39de906a56",
+      "stereo_null_max": 4.470348358154297e-08,
+      "voices": [
+        {
+          "target_gain_db": -63.9727109754823,
+          "local_fundamental_band_gain_db": -1.4351206327567594,
+          "dominant_component_gain_db": -1.4354892918794366,
+          "dominant_hz": 30.867762648699035,
+          "dominant_error_cents": 200.00315874967322,
+          "amplitude_modulation_p95_p5_db": 0.11132236255931521,
+          "warble_p95_p5_cents": 12.321515005971264,
+          "rms": 0.11828501197780407
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "weakfundamental-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 328.236,
+      "p95_us": 903.532,
+      "p99_us": 1835.4,
+      "max_us": 5694.53,
+      "deadline_misses": 4,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "f6fe0a0ebdb9578d20bfbebfd643af66680272e739d4c8773b3c576eaa8fff77",
+      "callback_sha256": "02343481b2b9b15909984c140ba2b47101bd3a4647049bcc94b1065de915706d",
+      "stereo_null_max": 1.7140991985797882e-05,
+      "voices": [
+        {
+          "target_gain_db": -33.934184623671804,
+          "local_fundamental_band_gain_db": -11.426897629897013,
+          "dominant_component_gain_db": -15.511748567502487,
+          "dominant_hz": 24.380793236799857,
+          "dominant_error_cents": -208.42386405228194,
+          "amplitude_modulation_p95_p5_db": 28.204438255377354,
+          "warble_p95_p5_cents": 1236.6229945098166,
+          "rms": 0.037110663718139605
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "weakfundamental-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 391.892,
+      "p95_us": 1472.8,
+      "p99_us": 2288.63,
+      "max_us": 15040.7,
+      "deadline_misses": 9,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "a7315dbc5f2d5e92ebab81a5495e7039dc7492e7770ac1778f5a8bbfd032faeb",
+      "callback_sha256": "dc94bb602a31dceb71b6746f1a76b118198e0a9c10b86e7e3de9a1d418957f38",
+      "stereo_null_max": 5.433335900306702e-06,
+      "voices": [
+        {
+          "target_gain_db": -41.41093871566013,
+          "local_fundamental_band_gain_db": -10.023663101722422,
+          "dominant_component_gain_db": 2.7334367323504676,
+          "dominant_hz": 33.181608153252256,
+          "dominant_error_cents": 325.1426278247261,
+          "amplitude_modulation_p95_p5_db": 3.041875573281161,
+          "warble_p95_p5_cents": 149.26013695419675,
+          "rms": 0.04191842560397344
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "weakfundamental-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 19.3485,
+      "p95_us": 86.362,
+      "p99_us": 196.336,
+      "max_us": 1760.6,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 170,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.964,
+      "output_sha256": "070e65a659f966b7b6e4ce5d5fd3fd8d4757131ca2b560c454d9df1afc3cd5fc",
+      "callback_sha256": "375f2678245f645bd38730c8860f02f790b892f1beccd8ac89853cbef6a91f99",
+      "stereo_null_max": 2.2351741790771484e-08,
+      "voices": [
+        {
+          "target_gain_db": -31.078922085748573,
+          "local_fundamental_band_gain_db": 0.21685185849379734,
+          "dominant_component_gain_db": -0.04721249909393581,
+          "dominant_hz": 30.868138217402347,
+          "dominant_error_cents": 200.02422258182995,
+          "amplitude_modulation_p95_p5_db": 4.262865760881726,
+          "warble_p95_p5_cents": 249.20941140291552,
+          "rms": 0.051543418490264975
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "weakfundamental-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 7.7072,
+      "p95_us": 2.022,
+      "p99_us": 133.84,
+      "max_us": 1408.43,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 9,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "1ce15c81335f74be42cf4c25fa4504f8e667ce4c1632798f0ea595accf0c05ed",
+      "callback_sha256": "3bf3de2328b78633b6eea893fa190eb347230506f6cf139abd284016cbb6af1a",
+      "stereo_null_max": 1.4901161193847656e-08,
+      "voices": [
+        {
+          "target_gain_db": -1.2088810800230754e-05,
+          "local_fundamental_band_gain_db": -1.265717207485255e-05,
+          "dominant_component_gain_db": -1.2087589205853922e-05,
+          "dominant_hz": 27.499992616360842,
+          "dominant_error_cents": -0.0004648289914189275,
+          "amplitude_modulation_p95_p5_db": 0.007710203576084295,
+          "warble_p95_p5_cents": 1.545525705256825,
+          "rms": 0.05204819750314709
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "weakfundamental-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 3.28515,
+      "p95_us": 2.558,
+      "p99_us": 5.268,
+      "max_us": 785.403,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 47,
+      "read_min_samples": 96,
+      "read_max_samples": 458.252,
+      "output_sha256": "0fed693b23dad85c596359de4ef5539c5b33ef2ff0cf83754973ecf2656a4b80",
+      "callback_sha256": "ddc73001b92a13e96ece4abbc11fce13058848f400533980145f6328b27625c1",
+      "stereo_null_max": 1.4901161193847656e-08,
+      "voices": [
+        {
+          "target_gain_db": -61.53728343836879,
+          "local_fundamental_band_gain_db": 1.4697279557703458,
+          "dominant_component_gain_db": 1.4677472254766866,
+          "dominant_hz": 30.867703252467876,
+          "dominant_error_cents": 199.9998274788624,
+          "amplitude_modulation_p95_p5_db": 0.048629109565614934,
+          "warble_p95_p5_cents": 8.903125884998758,
+          "rms": 0.05419441344778578
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "dyad-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 374.829,
+      "p95_us": 1410.31,
+      "p99_us": 2191.27,
+      "max_us": 3292.3,
+      "deadline_misses": 4,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "f5dfa36f087366cd0c6d27e4b003b428ab44f2caaf03df2677a9c9686b9ae46a",
+      "callback_sha256": "57346f04c332c92fb1141e1a2c7d69c633f6168e87dc0c502d7b91f6b3d81d38",
+      "stereo_null_max": 1.548975706100464e-05,
+      "voices": [
+        {
+          "target_gain_db": -0.1666498666335915,
+          "local_fundamental_band_gain_db": -0.1653232687642931,
+          "dominant_component_gain_db": -0.1665207746424087,
+          "dominant_hz": 27.502399959727484,
+          "dominant_error_cents": 0.15108038973789614,
+          "amplitude_modulation_p95_p5_db": 2.221510075684956,
+          "warble_p95_p5_cents": 81.69298549750252,
+          "rms": 0.0848614377204053
+        },
+        {
+          "target_gain_db": -11.689702867475528,
+          "local_fundamental_band_gain_db": 12.082351685130384,
+          "dominant_component_gain_db": 11.874679051916795,
+          "dominant_hz": 27.50240001160528,
+          "dominant_error_cents": -299.84891634620396,
+          "amplitude_modulation_p95_p5_db": 5.604420749227116,
+          "warble_p95_p5_cents": 258.4544867860152,
+          "rms": 0.0848614377204053
+        }
+      ],
+      "tone_metric_valid": false
+    },
+    {
+      "input": "dyad-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 274.719,
+      "p95_us": 781.297,
+      "p99_us": 1224.94,
+      "max_us": 2149.95,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "e34a26f9d93c9d4be1baa09ee83544d73cc103e6c64b1e2cd84754f5e99d7286",
+      "callback_sha256": "90ea88c2158bd5d8c82c6b6c57d6754377d6897510ba05e5fb51603cf2e36ab4",
+      "stereo_null_max": 9.512528777122498e-06,
+      "voices": [
+        {
+          "target_gain_db": -0.15527899907882986,
+          "local_fundamental_band_gain_db": -0.1541212574909388,
+          "dominant_component_gain_db": -0.15514971457415888,
+          "dominant_hz": 27.502401716375697,
+          "dominant_error_cents": 0.15119096805484264,
+          "amplitude_modulation_p95_p5_db": 2.3508239981757226,
+          "warble_p95_p5_cents": 93.89280530261813,
+          "rms": 0.08535854579551141
+        },
+        {
+          "target_gain_db": -10.857408056700958,
+          "local_fundamental_band_gain_db": 12.135519683017996,
+          "dominant_component_gain_db": 11.886050111985044,
+          "dominant_hz": 27.502401768312005,
+          "dominant_error_cents": -299.84880576420386,
+          "amplitude_modulation_p95_p5_db": 6.188170637625356,
+          "warble_p95_p5_cents": 290.93213543968244,
+          "rms": 0.08535854579551141
+        }
+      ],
+      "tone_metric_valid": false
+    },
+    {
+      "input": "dyad-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 29.1444,
+      "p95_us": 86.291,
+      "p99_us": 426.654,
+      "max_us": 2592.28,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 170,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.964,
+      "output_sha256": "8561e9114b666ccb01b8e7fb1c4088b901fd548407e0b148cd2756800c22b055",
+      "callback_sha256": "863f38acb302ef7eefccdaae32dd948d7ce1c662e7d928dd64f6397b3228d0ac",
+      "stereo_null_max": 1.4901161193847656e-08,
+      "voices": [
+        {
+          "target_gain_db": -31.103421482298607,
+          "local_fundamental_band_gain_db": -0.03270024494425669,
+          "dominant_component_gain_db": -0.04900590854208142,
+          "dominant_hz": 30.867754778655712,
+          "dominant_error_cents": 200.00271735426455,
+          "amplitude_modulation_p95_p5_db": 1.2411284279753028,
+          "warble_p95_p5_cents": 34.09868784022865,
+          "rms": 0.08731078036569384
+        },
+        {
+          "target_gain_db": -32.50539701413775,
+          "local_fundamental_band_gain_db": 12.269685244519245,
+          "dominant_component_gain_db": 11.99219391805845,
+          "dominant_hz": 30.867756114971296,
+          "dominant_error_cents": -99.99720769935354,
+          "amplitude_modulation_p95_p5_db": 4.170622621661934,
+          "warble_p95_p5_cents": 158.79685764942343,
+          "rms": 0.08731078036569384
+        }
+      ],
+      "tone_metric_valid": false
+    },
+    {
+      "input": "dyad-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 9.46844,
+      "p95_us": 2.823,
+      "p99_us": 105.545,
+      "max_us": 1840.39,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 9,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "b3bf43a951df52e9c6947c0de6424eb2ade6ba2d4e5b992c7bd3959e8ad8d73b",
+      "callback_sha256": "d6d6e2bf05484d005ea087d33c91a6a00b9e718230ce7e4561692bc2a7106a13",
+      "stereo_null_max": 1.4901161193847656e-08,
+      "voices": [
+        {
+          "target_gain_db": -0.029086726164375187,
+          "local_fundamental_band_gain_db": 0.11020756460825591,
+          "dominant_component_gain_db": -0.007012964769679553,
+          "dominant_hz": 27.531397943331804,
+          "dominant_error_cents": 1.975497498093825,
+          "amplitude_modulation_p95_p5_db": 2.6773551328519716,
+          "warble_p95_p5_cents": 102.57971856430123,
+          "rms": 0.08748649038173183
+        },
+        {
+          "target_gain_db": -13.832844424933137,
+          "local_fundamental_band_gain_db": 12.340382379364272,
+          "dominant_component_gain_db": 12.03418686178923,
+          "dominant_hz": 27.531397823720976,
+          "dominant_error_cents": -298.02451002486424,
+          "amplitude_modulation_p95_p5_db": 6.5989972325656225,
+          "warble_p95_p5_cents": 271.8723519103945,
+          "rms": 0.08748649038173183
+        }
+      ],
+      "tone_metric_valid": false
+    },
+    {
+      "input": "dyad-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 12.0873,
+      "p95_us": 4.981,
+      "p99_us": 193.642,
+      "max_us": 1440.63,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 9,
+      "onset_resets": 1,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.98,
+      "output_sha256": "e423197c8f9430742b9b96d28d56740fd52a1b0eef23fb9b10bb0d28aae3abb6",
+      "callback_sha256": "2b294821ac36d1d7cce90009efe7e4657743015ac48ef2243a10f1e29d9ec304",
+      "stereo_null_max": 2.2351741790771484e-08,
+      "voices": [
+        {
+          "target_gain_db": -0.03083092720454834,
+          "local_fundamental_band_gain_db": 0.11308545720357001,
+          "dominant_component_gain_db": -0.0018913010524201305,
+          "dominant_hz": 27.535958245198792,
+          "dominant_error_cents": 2.2622354288987867,
+          "amplitude_modulation_p95_p5_db": 2.6734900311216547,
+          "warble_p95_p5_cents": 102.4323697054502,
+          "rms": 0.08747674810845522
+        },
+        {
+          "target_gain_db": -14.182361471866887,
+          "local_fundamental_band_gain_db": 12.34432276317137,
+          "dominant_component_gain_db": 12.039308525469512,
+          "dominant_hz": 27.535956954884387,
+          "dominant_error_cents": -297.7378456970051,
+          "amplitude_modulation_p95_p5_db": 6.601160167971148,
+          "warble_p95_p5_cents": 272.71980004099385,
+          "rms": 0.08747674810845522
+        }
+      ],
+      "tone_metric_valid": false
+    },
+    {
+      "input": "impulses-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 173.982,
+      "p95_us": 447.626,
+      "p99_us": 741.729,
+      "max_us": 3758.72,
+      "deadline_misses": 3,
+      "callbacks": 1313,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "6e43cc9a7e40ddbc659876ac42875a3c64f8debc4f019d0b990f2713248ea24a",
+      "callback_sha256": "f9bf8e06bffa750af7f8ccc854f1aef9b0a0077bc91e16b411f6831f04260e2d",
+      "stereo_null_max": 0.007042280398309231,
+      "impulse": {
+        "events": [
+          {
+            "centroid_ms": 42.61011123534892,
+            "energy5_ms": 26.666666666666668,
+            "energy95_ms": 57.6875,
+            "smear_ms": 31.020833333333336
+          },
+          {
+            "centroid_ms": 42.60189441899153,
+            "energy5_ms": 26.833333333333336,
+            "energy95_ms": 58.166666666666664,
+            "smear_ms": 31.333333333333332
+          },
+          {
+            "centroid_ms": 42.665389658323576,
+            "energy5_ms": 26.729166666666664,
+            "energy95_ms": 58.020833333333336,
+            "smear_ms": 31.291666666666668
+          },
+          {
+            "centroid_ms": 42.61030379845488,
+            "energy5_ms": 27.229166666666664,
+            "energy95_ms": 57.854166666666664,
+            "smear_ms": 30.625
+          },
+          {
+            "centroid_ms": 42.610111235348995,
+            "energy5_ms": 26.666666666666668,
+            "energy95_ms": 57.6875,
+            "smear_ms": 31.020833333333336
+          },
+          {
+            "centroid_ms": 42.60189441899153,
+            "energy5_ms": 26.833333333333336,
+            "energy95_ms": 58.166666666666664,
+            "smear_ms": 31.333333333333332
+          },
+          {
+            "centroid_ms": 42.665389658323576,
+            "energy5_ms": 26.729166666666664,
+            "energy95_ms": 58.020833333333336,
+            "smear_ms": 31.291666666666668
+          },
+          {
+            "centroid_ms": 42.610303798454574,
+            "energy5_ms": 27.229166666666664,
+            "energy95_ms": 57.854166666666664,
+            "smear_ms": 30.625
+          }
+        ],
+        "missing_count": 0,
+        "centroid_ms_median": 42.61020751690178,
+        "centroid_ms_range": [
+          42.60189441899153,
+          42.665389658323576
+        ],
+        "smear_ms_median": 31.15625,
+        "smear_ms_range": [
+          30.625,
+          31.333333333333332
+        ]
+      }
+    },
+    {
+      "input": "impulses-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 286.95,
+      "p95_us": 882.82,
+      "p99_us": 1854.7,
+      "max_us": 6557.32,
+      "deadline_misses": 5,
+      "callbacks": 1313,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "1dcd4f2fac28ed26335c261a849e1079c80129907e535a7f524ce5fb51c1b38e",
+      "callback_sha256": "6f9854cf7151544e34fe05bf7efa14e43ee844471352c41302c7eae4ac8c7ac8",
+      "stereo_null_max": 0.0037982226349413395,
+      "impulse": {
+        "events": [
+          {
+            "centroid_ms": 42.28621506684476,
+            "energy5_ms": 41.979166666666664,
+            "energy95_ms": 42.791666666666664,
+            "smear_ms": 0.8125
+          },
+          {
+            "centroid_ms": 42.60788292650871,
+            "energy5_ms": 42.5,
+            "energy95_ms": 42.5625,
+            "smear_ms": 0.0625
+          },
+          {
+            "centroid_ms": 42.38216855510366,
+            "energy5_ms": 42.3125,
+            "energy95_ms": 42.395833333333336,
+            "smear_ms": 0.08333333333333333
+          },
+          {
+            "centroid_ms": 42.29376577737154,
+            "energy5_ms": 42.145833333333336,
+            "energy95_ms": 42.229166666666664,
+            "smear_ms": 0.08333333333333333
+          },
+          {
+            "centroid_ms": 42.28621506684491,
+            "energy5_ms": 41.979166666666664,
+            "energy95_ms": 42.791666666666664,
+            "smear_ms": 0.8125
+          },
+          {
+            "centroid_ms": 42.607882926508864,
+            "energy5_ms": 42.5,
+            "energy95_ms": 42.5625,
+            "smear_ms": 0.0625
+          },
+          {
+            "centroid_ms": 42.38216855510382,
+            "energy5_ms": 42.3125,
+            "energy95_ms": 42.395833333333336,
+            "smear_ms": 0.08333333333333333
+          },
+          {
+            "centroid_ms": 42.29376577737154,
+            "energy5_ms": 42.145833333333336,
+            "energy95_ms": 42.229166666666664,
+            "smear_ms": 0.08333333333333333
+          }
+        ],
+        "missing_count": 0,
+        "centroid_ms_median": 42.337967166237604,
+        "centroid_ms_range": [
+          42.28621506684476,
+          42.607882926508864
+        ],
+        "smear_ms_median": 0.08333333333333333,
+        "smear_ms_range": [
+          0.0625,
+          0.8125
+        ]
+      }
+    },
+    {
+      "input": "impulses-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 26.6902,
+      "p95_us": 117.454,
+      "p99_us": 228.129,
+      "max_us": 764.869,
+      "deadline_misses": 0,
+      "callbacks": 1313,
+      "splices": 54,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.981,
+      "output_sha256": "d4fd84476cf6312a981fb4d0028bc5a60bad2f94c867cdbbd06c9aef1a429edc",
+      "callback_sha256": "56d6616eeb90d3b0fadae41b928db72a1e055e90a1e30bbffc5ba4aa2fac8090",
+      "stereo_null_max": 7.450580596923828e-09,
+      "impulse": {
+        "events": [
+          {
+            "centroid_ms": 9.298299346412552,
+            "energy5_ms": 9.291666666666666,
+            "energy95_ms": 9.3125,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 5.954292098510601,
+            "energy5_ms": 5.9375,
+            "energy95_ms": 5.958333333333334,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 6.9634596933199955,
+            "energy5_ms": 6.958333333333334,
+            "energy95_ms": 6.979166666666666,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 5.858617647837794,
+            "energy5_ms": 5.854166666666666,
+            "energy95_ms": 5.875,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 6.874292774487003,
+            "energy5_ms": 6.875,
+            "energy95_ms": 6.875,
+            "smear_ms": 0.0
+          },
+          {
+            "centroid_ms": 5.769852878084445,
+            "energy5_ms": 5.770833333333334,
+            "energy95_ms": 5.770833333333334,
+            "smear_ms": 0.0
+          },
+          {
+            "centroid_ms": 6.781681614757265,
+            "energy5_ms": 6.770833333333334,
+            "energy95_ms": 6.791666666666666,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 5.676642890855267,
+            "energy5_ms": 5.666666666666667,
+            "energy95_ms": 5.6875,
+            "smear_ms": 0.020833333333333332
+          }
+        ],
+        "missing_count": 0,
+        "centroid_ms_median": 6.367986856633934,
+        "centroid_ms_range": [
+          5.676642890855267,
+          9.298299346412552
+        ],
+        "smear_ms_median": 0.020833333333333332,
+        "smear_ms_range": [
+          0.0,
+          0.020833333333333332
+        ]
+      }
+    },
+    {
+      "input": "impulses-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 20.7761,
+      "p95_us": 31.618,
+      "p99_us": 157.701,
+      "max_us": 1217.53,
+      "deadline_misses": 0,
+      "callbacks": 1313,
+      "splices": 10,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "e13f5e7ce43612b3a023c1bee521146b672914d97886128ed0afa6cf1e60ad7d",
+      "callback_sha256": "0a88d78db5832deba5bded53fdc55b8f7ee590e03e7cb70d82f532b77fa8b3a2",
+      "stereo_null_max": 7.450580596923828e-09,
+      "impulse": {
+        "events": [
+          {
+            "centroid_ms": 9.168021902805322,
+            "energy5_ms": 9.166666666666666,
+            "energy95_ms": 9.1875,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 10.056302639772031,
+            "energy5_ms": 10.041666666666668,
+            "energy95_ms": 10.0625,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 10.938719908734887,
+            "energy5_ms": 10.9375,
+            "energy95_ms": 10.958333333333334,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 11.826800165134653,
+            "energy5_ms": 11.8125,
+            "energy95_ms": 11.833333333333332,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 12.709425378607193,
+            "energy5_ms": 12.708333333333334,
+            "energy95_ms": 12.729166666666666,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 13.597290600919525,
+            "energy5_ms": 13.583333333333332,
+            "energy95_ms": 13.604166666666668,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 14.480134476202693,
+            "energy5_ms": 14.479166666666666,
+            "energy95_ms": 14.479166666666666,
+            "smear_ms": 0.0
+          },
+          {
+            "centroid_ms": 15.36777446990042,
+            "energy5_ms": 15.354166666666668,
+            "energy95_ms": 15.375,
+            "smear_ms": 0.020833333333333332
+          }
+        ],
+        "missing_count": 0,
+        "centroid_ms_median": 12.268112771870923,
+        "centroid_ms_range": [
+          9.168021902805322,
+          15.36777446990042
+        ],
+        "smear_ms_median": 0.020833333333333332,
+        "smear_ms_range": [
+          0.0,
+          0.020833333333333332
+        ]
+      }
+    },
+    {
+      "input": "impulses-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 22.4136,
+      "p95_us": 36.2,
+      "p99_us": 260.94,
+      "max_us": 1690.17,
+      "deadline_misses": 0,
+      "callbacks": 1313,
+      "splices": 9,
+      "onset_resets": 8,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "95d4c33cbaf875ac428f5bc3d1da7811cb6f76fe9a9c6de10523018a65f6c93c",
+      "callback_sha256": "3ac75007ad7e4fce3d382c664c9ff56b475877001591648b6cf69d05203dc6c7",
+      "stereo_null_max": 0.0,
+      "impulse": {
+        "events": [
+          {
+            "centroid_ms": 2.5386117576864153,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 2.53861175768634,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 2.53861175768634,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 2.53861175768634,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 2.53861175768634,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 2.53861175768634,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 2.53861175768634,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          },
+          {
+            "centroid_ms": 2.538611757686643,
+            "energy5_ms": 2.520833333333333,
+            "energy95_ms": 2.5416666666666665,
+            "smear_ms": 0.020833333333333332
+          }
+        ],
+        "missing_count": 0,
+        "centroid_ms_median": 2.53861175768634,
+        "centroid_ms_range": [
+          2.53861175768634,
+          2.538611757686643
+        ],
+        "smear_ms_median": 0.020833333333333332,
+        "smear_ms_range": [
+          0.020833333333333332,
+          0.020833333333333332
+        ]
+      }
+    },
+    {
+      "input": "riff75-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 221.712,
+      "p95_us": 645.478,
+      "p99_us": 1031.93,
+      "max_us": 2478.3,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "348e6f6bc3139fc51867bb522784e17ded41179c28ee315c1edf814ef5b8c1f0",
+      "callback_sha256": "48225f814dd3a4f95c38bd1b38fa19b02eb57c3c7ab35eb723b222a2225d45a2",
+      "stereo_null_max": 0.006455495022237301,
+      "attack": {
+        "attack_lags_ms": [
+          43.041666666666664,
+          46.979166666666664,
+          39.583333333333336,
+          38.75,
+          43.0,
+          38.708333333333336,
+          36.395833333333336,
+          44.895833333333336,
+          37.854166666666664,
+          43.4375,
+          38.770833333333336,
+          36.125,
+          48.75,
+          38.25,
+          37.0625,
+          42.916666666666664
+        ],
+        "attack_lag_median_ms": 39.177083333333336,
+        "attack_lag_max_ms": 48.75,
+        "attack_jitter_range_ms": 12.625,
+        "hf_valley_to_peak_db": -9.976208830067659,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 38.270833333333336,
+        "additional_peak_lag_ms_max": 47.895833333333336
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          1.0,
+          0.875,
+          0.9791666666666666,
+          1.0208333333333333,
+          1.0,
+          0.9791666666666666,
+          0.875,
+          0.8541666666666666,
+          1.0208333333333333,
+          0.9375,
+          1.0208333333333333,
+          0.8541666666666666,
+          1.0625,
+          0.9583333333333334,
+          0.9166666666666666
+        ],
+        "attack_lag_median_ms": 0.9791666666666666,
+        "attack_lag_max_ms": 1.0625,
+        "attack_jitter_range_ms": 0.20833333333333337,
+        "hf_valley_to_peak_db": -31.470655239122753,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff75-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 318.067,
+      "p95_us": 908.056,
+      "p99_us": 1566.64,
+      "max_us": 5800.16,
+      "deadline_misses": 2,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "d588c943fda8020fc0017a280470b77338052737bec63bdc6a4ae929f8007628",
+      "callback_sha256": "7d3052922015f54e6b2e82101a4e59fe15f35c193e41a431b503b6799ca1b35e",
+      "stereo_null_max": 0.011233840137720108,
+      "attack": {
+        "attack_lags_ms": [
+          43.0625,
+          46.833333333333336,
+          45.8125,
+          44.270833333333336,
+          44.333333333333336,
+          45.458333333333336,
+          45.0,
+          44.375,
+          44.4375,
+          44.979166666666664,
+          45.958333333333336,
+          44.354166666666664,
+          46.5,
+          44.3125,
+          44.916666666666664,
+          43.0625
+        ],
+        "attack_lag_median_ms": 44.67708333333333,
+        "attack_lag_max_ms": 46.833333333333336,
+        "attack_jitter_range_ms": 3.7708333333333357,
+        "hf_valley_to_peak_db": -16.09938795624177,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 43.77083333333333,
+        "additional_peak_lag_ms_max": 45.833333333333336
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          1.0,
+          0.875,
+          0.9791666666666666,
+          1.0208333333333333,
+          1.0,
+          0.9791666666666666,
+          0.875,
+          0.8541666666666666,
+          1.0208333333333333,
+          0.9375,
+          1.0208333333333333,
+          0.8541666666666666,
+          1.0625,
+          0.9583333333333334,
+          0.9166666666666666
+        ],
+        "attack_lag_median_ms": 0.9791666666666666,
+        "attack_lag_max_ms": 1.0625,
+        "attack_jitter_range_ms": 0.20833333333333337,
+        "hf_valley_to_peak_db": -31.470655239122753,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff75-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 35.184,
+      "p95_us": 98.511,
+      "p99_us": 662.254,
+      "max_us": 2717.6,
+      "deadline_misses": 1,
+      "callbacks": 1125,
+      "splices": 96,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.981,
+      "output_sha256": "b2836d3bdee8ef5131714e6df2df272590296f2c06472a04edd2b681364c8aa7",
+      "callback_sha256": "c3c69c1b2783193556908dc8d7cd5d0d15e64f653d54a42cad40baeacab14007",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "attack": {
+        "attack_lags_ms": [
+          10.3125,
+          9.645833333333334,
+          9.5,
+          10.291666666666666,
+          9.041666666666666,
+          9.666666666666666,
+          10.25,
+          9.604166666666666,
+          9.5625,
+          10.458333333333334,
+          8.895833333333334,
+          9.645833333333334,
+          10.3125,
+          9.020833333333334,
+          9.625,
+          10.3125
+        ],
+        "attack_lag_median_ms": 9.645833333333334,
+        "attack_lag_max_ms": 10.458333333333334,
+        "attack_jitter_range_ms": 1.5625,
+        "hf_valley_to_peak_db": -32.77214545494015,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 8.6875,
+        "additional_peak_lag_ms_max": 9.458333333333334
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          1.0,
+          0.875,
+          0.9791666666666666,
+          1.0208333333333333,
+          1.0,
+          0.9791666666666666,
+          0.875,
+          0.8541666666666666,
+          1.0208333333333333,
+          0.9375,
+          1.0208333333333333,
+          0.8541666666666666,
+          1.0625,
+          0.9583333333333334,
+          0.9166666666666666
+        ],
+        "attack_lag_median_ms": 0.9791666666666666,
+        "attack_lag_max_ms": 1.0625,
+        "attack_jitter_range_ms": 0.20833333333333337,
+        "hf_valley_to_peak_db": -31.470655239122753,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff75-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 19.8721,
+      "p95_us": 14.909,
+      "p99_us": 267.677,
+      "max_us": 3050.95,
+      "deadline_misses": 1,
+      "callbacks": 1125,
+      "splices": 8,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "f65e11e07c9491a2c900680d47db51788b299925f2628129389b3b937068dac5",
+      "callback_sha256": "af6662effb9403c731e44e8303be6776b44970bb05a42aea3393e40c10eeb5e7",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "attack": {
+        "attack_lags_ms": [
+          10.1875,
+          19.354166666666668,
+          28.416666666666668,
+          37.708333333333336,
+          5.583333333333333,
+          14.770833333333334,
+          23.833333333333332,
+          33.375,
+          26.375,
+          9.5,
+          18.520833333333332,
+          27.75,
+          36.875,
+          11.125,
+          20.1875,
+          29.354166666666668
+        ],
+        "attack_lag_median_ms": 22.010416666666664,
+        "attack_lag_max_ms": 37.708333333333336,
+        "attack_jitter_range_ms": 32.125,
+        "hf_valley_to_peak_db": -31.447774962593193,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 21.041666666666664,
+        "additional_peak_lag_ms_max": 36.72916666666667
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          1.0,
+          0.875,
+          0.9791666666666666,
+          1.0208333333333333,
+          1.0,
+          0.9791666666666666,
+          0.875,
+          0.8541666666666666,
+          1.0208333333333333,
+          0.9375,
+          1.0208333333333333,
+          0.8541666666666666,
+          1.0625,
+          0.9583333333333334,
+          0.9166666666666666
+        ],
+        "attack_lag_median_ms": 0.9791666666666666,
+        "attack_lag_max_ms": 1.0625,
+        "attack_jitter_range_ms": 0.20833333333333337,
+        "hf_valley_to_peak_db": -31.470655239122753,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff75-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 13.3983,
+      "p95_us": 17.357,
+      "p99_us": 105.955,
+      "max_us": 1199.31,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 5,
+      "onset_resets": 17,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "2d3f0e6e8fdae98ed4aeb44d335682157eb9bce1cd9935bd6fba8ada988291f7",
+      "callback_sha256": "dc0c8af5a3e275e567683c9f81d0924ba2d3341f7c82656fb7cd401b0faf117d",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "attack": {
+        "attack_lags_ms": [
+          3.5416666666666665,
+          5.1875,
+          5.0625,
+          5.166666666666667,
+          5.229166666666667,
+          5.208333333333333,
+          5.083333333333333,
+          5.458333333333333,
+          5.104166666666667,
+          5.270833333333333,
+          5.104166666666667,
+          5.166666666666667,
+          5.083333333333333,
+          5.229166666666667,
+          5.104166666666667,
+          5.083333333333333
+        ],
+        "attack_lag_median_ms": 5.135416666666667,
+        "attack_lag_max_ms": 5.458333333333333,
+        "attack_jitter_range_ms": 1.9166666666666665,
+        "hf_valley_to_peak_db": -32.12895177337543,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 4.1875,
+        "additional_peak_lag_ms_max": 4.583333333333333
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          1.0,
+          0.875,
+          0.9791666666666666,
+          1.0208333333333333,
+          1.0,
+          0.9791666666666666,
+          0.875,
+          0.8541666666666666,
+          1.0208333333333333,
+          0.9375,
+          1.0208333333333333,
+          0.8541666666666666,
+          1.0625,
+          0.9583333333333334,
+          0.9166666666666666
+        ],
+        "attack_lag_median_ms": 0.9791666666666666,
+        "attack_lag_max_ms": 1.0625,
+        "attack_jitter_range_ms": 0.20833333333333337,
+        "hf_valley_to_peak_db": -31.470655239122753,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff125-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 347.58,
+      "p95_us": 1243.24,
+      "p99_us": 2769.91,
+      "max_us": 8959.15,
+      "deadline_misses": 16,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "45fc7a197651fba6667220e3d073c0543a989017ac4e4ad125c83020fec86dcf",
+      "callback_sha256": "1013cf8bbfa1c7d33ed96833585bfb86551d32ce75cacd79d52b0f3ef4dee48b",
+      "stereo_null_max": 0.011625315994024277,
+      "attack": {
+        "attack_lags_ms": [
+          43.041666666666664,
+          43.854166666666664,
+          49.104166666666664,
+          45.770833333333336,
+          39.4375,
+          45.125,
+          45.6875,
+          47.208333333333336,
+          40.770833333333336,
+          44.375,
+          45.791666666666664,
+          45.395833333333336,
+          46.395833333333336,
+          44.75,
+          41.770833333333336,
+          39.833333333333336
+        ],
+        "attack_lag_median_ms": 44.9375,
+        "attack_lag_max_ms": 49.104166666666664,
+        "attack_jitter_range_ms": 9.666666666666664,
+        "hf_valley_to_peak_db": -19.26861788168958,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 44.09375,
+        "additional_peak_lag_ms_max": 48.104166666666664
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          0.8333333333333334,
+          1.0,
+          0.9166666666666666,
+          1.0833333333333333,
+          0.6666666666666666,
+          0.9375,
+          0.9166666666666666,
+          0.9375,
+          0.8958333333333334,
+          0.9583333333333334,
+          0.875,
+          1.0,
+          1.0208333333333333,
+          1.0208333333333333,
+          0.9791666666666666
+        ],
+        "attack_lag_median_ms": 0.9479166666666667,
+        "attack_lag_max_ms": 1.0833333333333333,
+        "attack_jitter_range_ms": 0.41666666666666663,
+        "hf_valley_to_peak_db": -52.86707061496224,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff125-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": 2048,
+      "mean_us": 515.045,
+      "p95_us": 1452.2,
+      "p99_us": 2557.45,
+      "max_us": 31287.5,
+      "deadline_misses": 11,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "064e52ee0eed6a50ea5306da29e8a37e76225cbf0a7821fc3bdeb2f65188ed9a",
+      "callback_sha256": "33c56d2d183f46e980f962baeaccedb76b9abd1fc154e900d9fd1cd9bae2f6f1",
+      "stereo_null_max": 0.022377043962478638,
+      "attack": {
+        "attack_lags_ms": [
+          43.0625,
+          43.854166666666664,
+          41.854166666666664,
+          45.666666666666664,
+          41.729166666666664,
+          45.104166666666664,
+          45.6875,
+          44.729166666666664,
+          41.5,
+          44.520833333333336,
+          42.5,
+          45.416666666666664,
+          45.083333333333336,
+          44.770833333333336,
+          44.479166666666664,
+          43.770833333333336
+        ],
+        "attack_lag_median_ms": 44.5,
+        "attack_lag_max_ms": 45.6875,
+        "attack_jitter_range_ms": 4.1875,
+        "hf_valley_to_peak_db": -33.30855166750683,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 43.541666666666664,
+        "additional_peak_lag_ms_max": 44.75
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          0.8333333333333334,
+          1.0,
+          0.9166666666666666,
+          1.0833333333333333,
+          0.6666666666666666,
+          0.9375,
+          0.9166666666666666,
+          0.9375,
+          0.8958333333333334,
+          0.9583333333333334,
+          0.875,
+          1.0,
+          1.0208333333333333,
+          1.0208333333333333,
+          0.9791666666666666
+        ],
+        "attack_lag_median_ms": 0.9479166666666667,
+        "attack_lag_max_ms": 1.0833333333333333,
+        "attack_jitter_range_ms": 0.41666666666666663,
+        "hf_valley_to_peak_db": -52.86707061496224,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff125-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 22.9956,
+      "p95_us": 108.213,
+      "p99_us": 296.206,
+      "max_us": 1296.31,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 124,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.981,
+      "output_sha256": "54be64b8b2e20bd325da92d4d7be487a4cb4b5fd03b31206a660a675b60aad75",
+      "callback_sha256": "3bcfd177ad670184acb99bed00bbb2a43045229805111e2539b4aef37f696f12",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "attack": {
+        "attack_lags_ms": [
+          10.3125,
+          10.270833333333334,
+          9.208333333333334,
+          9.666666666666666,
+          10.166666666666666,
+          10.270833333333334,
+          8.9375,
+          9.520833333333334,
+          10.104166666666666,
+          10.3125,
+          9.75,
+          9.3125,
+          9.833333333333334,
+          10.333333333333334,
+          10.104166666666666,
+          9.25
+        ],
+        "attack_lag_median_ms": 9.96875,
+        "attack_lag_max_ms": 10.333333333333334,
+        "attack_jitter_range_ms": 1.395833333333334,
+        "hf_valley_to_peak_db": -52.21215955138304,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 8.958333333333332,
+        "additional_peak_lag_ms_max": 9.604166666666668
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          0.8333333333333334,
+          1.0,
+          0.9166666666666666,
+          1.0833333333333333,
+          0.6666666666666666,
+          0.9375,
+          0.9166666666666666,
+          0.9375,
+          0.8958333333333334,
+          0.9583333333333334,
+          0.875,
+          1.0,
+          1.0208333333333333,
+          1.0208333333333333,
+          0.9791666666666666
+        ],
+        "attack_lag_median_ms": 0.9479166666666667,
+        "attack_lag_max_ms": 1.0833333333333333,
+        "attack_jitter_range_ms": 0.41666666666666663,
+        "hf_valley_to_peak_db": -52.86707061496224,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff125-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 10.0573,
+      "p95_us": 14.78,
+      "p99_us": 113.858,
+      "max_us": 1330.28,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 9,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "b004556a7c9807a482a510bfd6159eeb6555054a91bec7787d2380a736047c7c",
+      "callback_sha256": "d7292032c59ab3ae3cd04674e8fa99b2fe59e4a47a6945fd756fba43a0942dc1",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "attack": {
+        "attack_lags_ms": [
+          10.1875,
+          25.5,
+          40.291666666666664,
+          13.979166666666666,
+          29.375,
+          9.416666666666666,
+          23.770833333333332,
+          39.166666666666664,
+          18.979166666666668,
+          34.0,
+          18.854166666666668,
+          34.083333333333336,
+          18.125,
+          33.4375,
+          9.125,
+          24.375
+        ],
+        "attack_lag_median_ms": 24.072916666666664,
+        "attack_lag_max_ms": 40.291666666666664,
+        "attack_jitter_range_ms": 31.166666666666664,
+        "hf_valley_to_peak_db": -52.463558206526926,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 23.114583333333332,
+        "additional_peak_lag_ms_max": 39.291666666666664
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          0.8333333333333334,
+          1.0,
+          0.9166666666666666,
+          1.0833333333333333,
+          0.6666666666666666,
+          0.9375,
+          0.9166666666666666,
+          0.9375,
+          0.8958333333333334,
+          0.9583333333333334,
+          0.875,
+          1.0,
+          1.0208333333333333,
+          1.0208333333333333,
+          0.9791666666666666
+        ],
+        "attack_lag_median_ms": 0.9479166666666667,
+        "attack_lag_max_ms": 1.0833333333333333,
+        "attack_jitter_range_ms": 0.41666666666666663,
+        "hf_valley_to_peak_db": -52.86707061496224,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "riff125-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -2,
+      "nominal_samples": -1,
+      "mean_us": 7.30788,
+      "p95_us": 14.786,
+      "p99_us": 73.227,
+      "max_us": 707.09,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 2,
+      "onset_resets": 17,
+      "read_min_samples": 96,
+      "read_max_samples": 1917.99,
+      "output_sha256": "7f19f0bcd055962f723bec9f533e6a65ba35566fe572241b9602c256fca05e3f",
+      "callback_sha256": "6bef132219534b7fe9d19132e28669871e95a7b489ceaf6706e08521d22f7139",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "attack": {
+        "attack_lags_ms": [
+          3.5416666666666665,
+          6.3125,
+          6.270833333333333,
+          6.229166666666667,
+          6.25,
+          6.145833333333333,
+          6.1875,
+          6.270833333333333,
+          6.375,
+          6.083333333333333,
+          6.3125,
+          6.25,
+          6.291666666666667,
+          6.291666666666667,
+          6.333333333333333,
+          6.270833333333333
+        ],
+        "attack_lag_median_ms": 6.270833333333333,
+        "attack_lag_max_ms": 6.375,
+        "attack_jitter_range_ms": 2.8333333333333335,
+        "hf_valley_to_peak_db": -53.33115982631444,
+        "all_events_have_energy": true,
+        "additional_peak_lag_ms_median": 5.302083333333334,
+        "additional_peak_lag_ms_max": 5.479166666666667
+      },
+      "input_attack": {
+        "attack_lags_ms": [
+          1.0,
+          0.8333333333333334,
+          1.0,
+          0.9166666666666666,
+          1.0833333333333333,
+          0.6666666666666666,
+          0.9375,
+          0.9166666666666666,
+          0.9375,
+          0.8958333333333334,
+          0.9583333333333334,
+          0.875,
+          1.0,
+          1.0208333333333333,
+          1.0208333333333333,
+          0.9791666666666666
+        ],
+        "attack_lag_median_ms": 0.9479166666666667,
+        "attack_lag_max_ms": 1.0833333333333333,
+        "attack_jitter_range_ms": 0.41666666666666663,
+        "hf_valley_to_peak_db": -52.86707061496224,
+        "all_events_have_energy": true
+      }
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": -1,
+      "nominal_samples": 2048,
+      "mean_us": 297.884,
+      "p95_us": 799.567,
+      "p99_us": 1430.24,
+      "max_us": 4561.98,
+      "deadline_misses": 2,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "423807af52e43bd6274b07a216340b0e66934e9dd190e1f1e54b994348542387",
+      "callback_sha256": "cc3484e62f3debc4325f89827eebc3e08abda3aaded8a671f3e034bba3b8b633",
+      "stereo_null_max": 1.8306076526641846e-05,
+      "voices": [
+        {
+          "target_gain_db": -17.901003876866408,
+          "local_fundamental_band_gain_db": -5.4129019696872795,
+          "dominant_component_gain_db": -5.716620064496311,
+          "dominant_hz": 35.794999121469765,
+          "dominant_error_cents": 356.3917107813089,
+          "amplitude_modulation_p95_p5_db": 11.111940811831222,
+          "warble_p95_p5_cents": 399.6599206624612,
+          "rms": 0.0794625106072187
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": -1,
+      "nominal_samples": 2048,
+      "mean_us": 402.096,
+      "p95_us": 1252.42,
+      "p99_us": 2243.95,
+      "max_us": 6003.2,
+      "deadline_misses": 8,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "c5a7acf3693d3770abeee654846db0b9fa6678245563c0bb5264b2cd2a3633e9",
+      "callback_sha256": "6073e7700be12678ad0ce3a31786fc15b0ac4e182b68782b77c11ebec4bab91c",
+      "stereo_null_max": 3.203749656677246e-06,
+      "voices": [
+        {
+          "target_gain_db": -18.300697144651885,
+          "local_fundamental_band_gain_db": -5.817279814887049,
+          "dominant_component_gain_db": -5.725766287226925,
+          "dominant_hz": 35.7943302456338,
+          "dominant_error_cents": 356.3593601326274,
+          "amplitude_modulation_p95_p5_db": 11.82742341196322,
+          "warble_p95_p5_cents": 475.75511954807666,
+          "rms": 0.08599493703731699
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": -1,
+      "nominal_samples": -1,
+      "mean_us": 17.7672,
+      "p95_us": 116.479,
+      "p99_us": 242.521,
+      "max_us": 915.719,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 84,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 477.995,
+      "output_sha256": "8504ad59d7443e67d35319650385136f8f6042fae7a612d6f8fd56b6d6085bef",
+      "callback_sha256": "b4e8385c3cae32687f8ee53f55d03d1a5ef012edf7d06563a06ed0499643ff9d",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -41.49527226857485,
+          "local_fundamental_band_gain_db": 0.01863025448848732,
+          "dominant_component_gain_db": -0.05757608177626368,
+          "dominant_hz": 30.86725317795072,
+          "dominant_error_cents": 99.97458458978322,
+          "amplitude_modulation_p95_p5_db": 1.537893933827528,
+          "warble_p95_p5_cents": 59.389178653991664,
+          "rms": 0.122408455999423
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": -1,
+      "nominal_samples": -1,
+      "mean_us": 4.27255,
+      "p95_us": 1.499,
+      "p99_us": 2.705,
+      "max_us": 759.007,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 5,
+      "onset_resets": 0,
+      "read_min_samples": 96,
+      "read_max_samples": 1918,
+      "output_sha256": "01f6105e75f5c1da3c29b72df522f12e87bab9036df99832cf007b55b6b4f4d4",
+      "callback_sha256": "9927159ab6c9dd5c201dbc32406b8cf857a0c54ea90623bd5dc498429d1aa58e",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -1.9247637254844e-05,
+          "local_fundamental_band_gain_db": -1.2248113227497516e-05,
+          "dominant_component_gain_db": -1.9247630752369488e-05,
+          "dominant_hz": 29.13523563088383,
+          "dominant_error_cents": 3.185008361019703e-05,
+          "amplitude_modulation_p95_p5_db": 0.0010550301202313845,
+          "warble_p95_p5_cents": 0.2101972127920297,
+          "rms": 0.12249249214519953
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": -1,
+      "nominal_samples": -1,
+      "mean_us": 4.34309,
+      "p95_us": 2.493,
+      "p99_us": 25.794,
+      "max_us": 1026.71,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 47,
+      "read_min_samples": 96,
+      "read_max_samples": 283.327,
+      "output_sha256": "6c910c8191a3a58923e1e4b98ad8e230ddb9bf1d2bb61a5eb433ec1bec0a9863",
+      "callback_sha256": "ec9764f5650f3aa9e6f00d7a12f1c653c05ec3d85f7a33ec04dfc8b0b3140e2e",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -42.40335658420035,
+          "local_fundamental_band_gain_db": -0.8273426853881902,
+          "dominant_component_gain_db": -0.8274777830044587,
+          "dominant_hz": 30.86774233689991,
+          "dominant_error_cents": 100.00201955179158,
+          "amplitude_modulation_p95_p5_db": 0.027041523698979487,
+          "warble_p95_p5_cents": 3.5599819960948764,
+          "rms": 0.11666789570737202
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": 1,
+      "nominal_samples": 2048,
+      "mean_us": 305.533,
+      "p95_us": 862.622,
+      "p99_us": 2285.02,
+      "max_us": 6515.72,
+      "deadline_misses": 8,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "a73edd9abaf7ae1afcdd425e04a5e96cb928f9aec04a7e1f8ccde7595f49665e",
+      "callback_sha256": "6fbecf9403fa012c915dda2dc1a38b27ec8b689173141e73679870c82c2fbcae",
+      "stereo_null_max": 7.715355604887009e-05,
+      "voices": [
+        {
+          "target_gain_db": -6.513862654820669,
+          "local_fundamental_band_gain_db": -2.48128155072233,
+          "dominant_component_gain_db": -5.91340677455051,
+          "dominant_hz": 34.23708268885773,
+          "dominant_error_cents": 79.35378910480898,
+          "amplitude_modulation_p95_p5_db": 16.117634159256887,
+          "warble_p95_p5_cents": 267.14189309064443,
+          "rms": 0.07806010852307745
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": 1,
+      "nominal_samples": 2048,
+      "mean_us": 568.639,
+      "p95_us": 1868.85,
+      "p99_us": 4115.66,
+      "max_us": 68860,
+      "deadline_misses": 25,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "2a6670f860999f895459bf4199a6323ac444f268417a8a120ada51ba52069f99",
+      "callback_sha256": "2c57311512f507c76cea51e456d8978e3bb625d320c9dc6bab2ae7787414b488",
+      "stereo_null_max": 1.9975006580352783e-05,
+      "voices": [
+        {
+          "target_gain_db": -7.763834306668365,
+          "local_fundamental_band_gain_db": -2.8568691715401764,
+          "dominant_component_gain_db": -5.802574147940767,
+          "dominant_hz": 34.231232617103416,
+          "dominant_error_cents": 79.0579488058342,
+          "amplitude_modulation_p95_p5_db": 12.480757496115666,
+          "warble_p95_p5_cents": 224.10536385096594,
+          "rms": 0.08343304665114022
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": 1,
+      "nominal_samples": -1,
+      "mean_us": 38.984,
+      "p95_us": 114.651,
+      "p99_us": 783.294,
+      "max_us": 5695.77,
+      "deadline_misses": 4,
+      "callbacks": 1125,
+      "splices": 89,
+      "onset_resets": 0,
+      "read_min_samples": 98.0048,
+      "read_max_samples": 480,
+      "output_sha256": "d19118b8fd9e40f3583251e16b5f203f2d69930d01bba9a3fec8c77e03ec45d2",
+      "callback_sha256": "447253a773d6f3a1e856209450dc76b45b2f041e52850a8c275ae2dc181a9837",
+      "stereo_null_max": 4.470348358154297e-08,
+      "voices": [
+        {
+          "target_gain_db": -44.668204090587096,
+          "local_fundamental_band_gain_db": 0.6247476287297886,
+          "dominant_component_gain_db": 0.6261512347659686,
+          "dominant_hz": 30.84922864965504,
+          "dominant_error_cents": -101.03664213821523,
+          "amplitude_modulation_p95_p5_db": 0.29065067344938705,
+          "warble_p95_p5_cents": 1.217655010238417,
+          "rms": 0.1237146881419973
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": 1,
+      "nominal_samples": -1,
+      "mean_us": 52.4521,
+      "p95_us": 4.381,
+      "p99_us": 30.075,
+      "max_us": 12605.6,
+      "deadline_misses": 8,
+      "callbacks": 1125,
+      "splices": 5,
+      "onset_resets": 0,
+      "read_min_samples": 98.0036,
+      "read_max_samples": 1920,
+      "output_sha256": "33e9e1ed2aafd7b3bdf9c6cd2d875e5250011c2d76d246fc2a406e1548334853",
+      "callback_sha256": "061f5a007233c4430a8cc4a04961acdaf3aca1d34d3f333b2bbe22828c4163a7",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -4.080917137605177e-06,
+          "local_fundamental_band_gain_db": -1.2206937172637195e-05,
+          "dominant_component_gain_db": -4.080911012194231e-06,
+          "dominant_hz": 32.703195138746736,
+          "dominant_error_cents": -2.7729853229455125e-05,
+          "amplitude_modulation_p95_p5_db": 0.0005267724581540644,
+          "warble_p95_p5_cents": 0.10497969086477088,
+          "rms": 0.12172006769439092
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": 1,
+      "nominal_samples": -1,
+      "mean_us": 4.94492,
+      "p95_us": 1.886,
+      "p99_us": 2.773,
+      "max_us": 1137.92,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 5,
+      "onset_resets": 0,
+      "read_min_samples": 98.0036,
+      "read_max_samples": 1920,
+      "output_sha256": "33e9e1ed2aafd7b3bdf9c6cd2d875e5250011c2d76d246fc2a406e1548334853",
+      "callback_sha256": "4350e8dac703241b46fd8e01dc35ef3f58431d7b2488d7e827df7ca5ee6d02d2",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -4.080917137605177e-06,
+          "local_fundamental_band_gain_db": -1.2206937172637195e-05,
+          "dominant_component_gain_db": -4.080911012194231e-06,
+          "dominant_hz": 32.703195138746736,
+          "dominant_error_cents": -2.7729853229455125e-05,
+          "amplitude_modulation_p95_p5_db": 0.0005267724581540644,
+          "warble_p95_p5_cents": 0.10497969086477088,
+          "rms": 0.12172006769439092
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "baseline",
+      "rate": 48000,
+      "block": 128,
+      "shift": 2,
+      "nominal_samples": 2048,
+      "mean_us": 358.832,
+      "p95_us": 1224.51,
+      "p99_us": 1921.22,
+      "max_us": 6886.73,
+      "deadline_misses": 7,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "58d1154d9f4af74742ced512326202436240a4834c9f9359439bdaeae2f3fa12",
+      "callback_sha256": "9aacd1e80ca7d694546f4a0b30eb8634d0cb6b2a8ab165fc37984677d68e7611",
+      "stereo_null_max": 5.0574541091918945e-05,
+      "voices": [
+        {
+          "target_gain_db": -8.83809986417447,
+          "local_fundamental_band_gain_db": -4.02798079847214,
+          "dominant_component_gain_db": -7.005171686180418,
+          "dominant_hz": 37.17870487086202,
+          "dominant_error_cents": 122.05387503991368,
+          "amplitude_modulation_p95_p5_db": 15.384651608470294,
+          "warble_p95_p5_cents": 358.8282785736596,
+          "rms": 0.07319731358947942
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "relative",
+      "rate": 48000,
+      "block": 128,
+      "shift": 2,
+      "nominal_samples": 2048,
+      "mean_us": 549.108,
+      "p95_us": 1695.46,
+      "p99_us": 2701.61,
+      "max_us": 4907.12,
+      "deadline_misses": 13,
+      "callbacks": 1125,
+      "splices": 0,
+      "onset_resets": 0,
+      "read_min_samples": 0,
+      "read_max_samples": 0,
+      "output_sha256": "4f024bcf77c31675323eeda60b8d907e9c2cbedac207c98f25567fde18e67ccd",
+      "callback_sha256": "d8dc22dd9011336025897c85a28c14104e2832ba683ab9b0b0b0df8d49a518e5",
+      "stereo_null_max": 2.980697900056839e-06,
+      "voices": [
+        {
+          "target_gain_db": -12.140250114046813,
+          "local_fundamental_band_gain_db": -4.638159149941294,
+          "dominant_component_gain_db": -6.654968572475494,
+          "dominant_hz": 37.16773907553411,
+          "dominant_error_cents": 121.54317520339842,
+          "amplitude_modulation_p95_p5_db": 10.053897314165043,
+          "warble_p95_p5_cents": 268.3934507659062,
+          "rms": 0.06867118801614676
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr10",
+      "rate": 48000,
+      "block": 128,
+      "shift": 2,
+      "nominal_samples": -1,
+      "mean_us": 38.9823,
+      "p95_us": 193.66,
+      "p99_us": 437.599,
+      "max_us": 2778.27,
+      "deadline_misses": 1,
+      "callbacks": 1125,
+      "splices": 194,
+      "onset_resets": 0,
+      "read_min_samples": 98.0409,
+      "read_max_samples": 480,
+      "output_sha256": "22faf101936f0f3eada462cc9c622af892dbb56fcde8f02bd1940ff3916a8d00",
+      "callback_sha256": "2b6ecb4fc222698d4392a506d05e7f7619337d5673636618102efe25ce7273c6",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -28.118675199111884,
+          "local_fundamental_band_gain_db": -0.029957910450273455,
+          "dominant_component_gain_db": -0.04765046089451361,
+          "dominant_hz": 30.86765931776819,
+          "dominant_error_cents": -200.00263662744138,
+          "amplitude_modulation_p95_p5_db": 1.015498233314132,
+          "warble_p95_p5_cents": 49.036940859631244,
+          "rms": 0.1212635243257166
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40",
+      "rate": 48000,
+      "block": 128,
+      "shift": 2,
+      "nominal_samples": -1,
+      "mean_us": 7.10776,
+      "p95_us": 1.622,
+      "p99_us": 27.713,
+      "max_us": 1525.97,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 11,
+      "onset_resets": 0,
+      "read_min_samples": 98.0096,
+      "read_max_samples": 1920,
+      "output_sha256": "bf2547dee49ed6f0a91e76128ea990daec1fa4c2c591880685080003880437d0",
+      "callback_sha256": "e38e94c915c19cfffd9b39f1ec0344122416127c7a723a218edee512abda52a0",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -1.6551154767267867e-05,
+          "local_fundamental_band_gain_db": -1.23045538046743e-05,
+          "dominant_component_gain_db": -1.6551138193340117e-05,
+          "dominant_hz": 34.64782799769813,
+          "dominant_error_cents": -4.369090042246286e-05,
+          "amplitude_modulation_p95_p5_db": 0.0003730291026911003,
+          "warble_p95_p5_cents": 0.07425134218543505,
+          "rms": 0.1223975439626089
+        }
+      ],
+      "tone_metric_valid": true
+    },
+    {
+      "input": "harmonics-48000",
+      "engine": "corr40-onset",
+      "rate": 48000,
+      "block": 128,
+      "shift": 2,
+      "nominal_samples": -1,
+      "mean_us": 11.4096,
+      "p95_us": 3.619,
+      "p99_us": 168.676,
+      "max_us": 812.881,
+      "deadline_misses": 0,
+      "callbacks": 1125,
+      "splices": 11,
+      "onset_resets": 0,
+      "read_min_samples": 98.0096,
+      "read_max_samples": 1920,
+      "output_sha256": "bf2547dee49ed6f0a91e76128ea990daec1fa4c2c591880685080003880437d0",
+      "callback_sha256": "44fd94d15f220f93ca103d229485ed27d67e9f83250e9f74e84fc4b6eaa555dc",
+      "stereo_null_max": 2.9802322387695312e-08,
+      "voices": [
+        {
+          "target_gain_db": -1.6551154767267867e-05,
+          "local_fundamental_band_gain_db": -1.23045538046743e-05,
+          "dominant_component_gain_db": -1.6551138193340117e-05,
+          "dominant_hz": 34.64782799769813,
+          "dominant_error_cents": -4.369090042246286e-05,
+          "amplitude_modulation_p95_p5_db": 0.0003730291026911003,
+          "warble_p95_p5_cents": 0.07425134218543505,
+          "rms": 0.1223975439626089
+        }
+      ],
+      "tone_metric_valid": true
+    }
+  ]
+}

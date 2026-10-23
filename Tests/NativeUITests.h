@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #pragma once
 #include "GateUITests.h"
 #include "PluginEditor.h"
@@ -84,7 +85,7 @@ inline void views(juce::Component& root,std::vector<NativeControlView*>& result)
 inline juce::DialogWindow* dialog(const juce::String& contentID) {
     for(int i=0;i<juce::TopLevelWindow::getNumTopLevelWindows();++i)
         if(auto* window=dynamic_cast<juce::DialogWindow*>(juce::TopLevelWindow::getTopLevelWindow(i)))
-            if(auto* content=window->getContentComponent();content && content->getComponentID()==contentID)return window;
+            if(auto* content=spectralforge::ui::dialogContent(*window);content && content->getComponentID()==contentID)return window;
     return nullptr;
 }
 inline juce::Component::SafePointer<juce::DialogWindow> open(juce::Component& root,const juce::String& buttonID,const juce::String& contentID) {
@@ -100,7 +101,7 @@ inline void close(juce::Component::SafePointer<juce::DialogWindow> window) {
     require(window==nullptr,"Closing ALL left a live dialog or dangling panel");
 }
 inline void inside(juce::Component& root,juce::Component& control,const char* message) {
-    require(root.getLocalBounds().contains(root.getLocalArea(&control,control.getLocalBounds())),message);
+    require(editorBoundsReachable(root,control),message);
 }
 inline void postModelPresentation(PostNativePanel& panel,int section,int selected) {
     auto* model=find<juce::ComboBox>(panel,spectralforge::postNativeModelID(section));
@@ -153,7 +154,7 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
             require(view->getY()==0 && (i==0 || view->getX()>find<NativeControlView>(*panel,juce::String(ids[i-1])+"_control")->getX()),"LOW shared knobs must occupy the first row in tone/comp/blend order");
         }
         snapshot(editor,directory,scale?"Native-Amp-Matrix-75pct":"Native-Amp-Matrix");
-        auto window=open(*panel,"ampExpand1","ampNativePanel1");auto* full=dynamic_cast<AmpNativePanel*>(window->getContentComponent());
+        auto window=open(*panel,"ampExpand1","ampNativePanel1");auto* full=dynamic_cast<AmpNativePanel*>(spectralforge::ui::dialogContent(*window));
         require(full && &full->getLookAndFeel()==&editor.getLookAndFeel(),"Matrix LOW ALL lost the native amplifier panel/style");
         const int model=processor.selectedAmpModel(0),context=spectralforge::ampNativeContext(2,0);const auto& spec=spectralforge::ampNativePanel(model);
         auto* channel=find<juce::ComboBox>(*full,"ampChannel1");require(channel && channel->isVisible()==(spec.channels.size()>1),"Matrix LOW ALL did not restore the original channel selector");
@@ -176,7 +177,7 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
         require(find<juce::TextButton>(*full,"matrixLowCompressor.open") && find<juce::TextButton>(*full,"matrixLowCompressor.open")->isVisible(),
                 "Expanded LOW panel lost its compressor spectrum entry");
         auto compWindow=open(*full,"matrixLowCompressor.open","matrixLowCompressor.panel");
-        auto* compSpectrum=find<spectralforge::DynamicsSpectrumPanel>(*compWindow->getContentComponent(),"matrixLowCompressor.spectrum");
+        auto* compSpectrum=find<spectralforge::DynamicsSpectrumPanel>(*spectralforge::ui::dialogContent(*compWindow),"matrixLowCompressor.spectrum");
         require(compSpectrum && compSpectrum->isShowing(),"Expanded LOW panel cannot open its compressor spectrum");close(compWindow);
         snapshot(*full,directory,scale?"Native-Amp-Matrix-ALL-75pct":"Native-Amp-Matrix-ALL");close(window);
     }
@@ -203,7 +204,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                 std::vector<NativeControlView*> overview;views(*compact,overview);int shown=0;
                 for(auto* view:overview)if(view->isVisible()){++shown;inside(*compact,*view,"Compact POST control is clipped");inside(editor,*view,"Compact POST control exceeds scaled editor bounds");}
                 require(shown>=4 && shown<=5,"POST rows must retain their primary controls");
-                auto window=open(*compact,"postExpand"+juce::String(section),compact->getComponentID());auto* panel=dynamic_cast<PostNativePanel*>(window->getContentComponent());
+                auto window=open(*compact,"postExpand"+juce::String(section),compact->getComponentID());auto* panel=dynamic_cast<PostNativePanel*>(spectralforge::ui::dialogContent(*window));
                 require(panel && &panel->getLookAndFeel()==&editor.getLookAndFeel(),"Expanded POST lost its original control panel/style");
                 if(section==0) {
                     auto* spectrum=find<spectralforge::DynamicsSpectrumPanel>(*panel,"postCompressorSpectrum");
@@ -244,7 +245,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
         for(int section=3;section<6;++section) {
             const int family=section==3?10:section==4?1:2;
             if(family==1)set(processor,"delaysync",0);
-            auto window=open(canvas,"postExpand"+juce::String(section),"postEffectDetail"+juce::String(family));auto& panel=*window->getContentComponent();
+            auto window=open(canvas,"postExpand"+juce::String(section),"postEffectDetail"+juce::String(family));auto& panel=*spectralforge::ui::dialogContent(*window);
             require(&panel.getLookAndFeel()==&editor.getLookAndFeel(),"Time/modulation ALL lost the rack style");
             auto* model=find<juce::ComboBox>(panel,spectralforge::modelFamilies[(size_t)family].parameter);require(model!=nullptr,"Time/modulation ALL model selector missing");
             for(int choice=0;choice<spectralforge::modelFamilies[(size_t)family].count;++choice) {
@@ -266,7 +267,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
     editor.setSize(1180,780);settle();return cases;
 }
 inline void dialogTeardown() {
-    auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);auto* canvas=editor->findChildWithID("surface");tab(*canvas,"POST");
+    auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);auto* canvas=editorSurface(*editor);tab(*canvas,"POST");
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> windows;
     for(int section=0;section<6;++section){const int family=section==3?10:section==4?1:2;windows.push_back(open(*canvas,"postExpand"+juce::String(section),section<3?"postNativePanel"+juce::String(section):"postEffectDetail"+juce::String(family)));}
     editor.reset();settle();for(auto window:windows)require(window==nullptr,"Editor destruction left an ALL window or live parameter attachment");
@@ -281,7 +282,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
     processor.prepareToPlay(48000,256);
     auto editor=std::make_unique<ChimeraEditor>(processor);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(90);
-    auto* canvas=editor->findChildWithID("surface");require(canvas,"Native dynamics canvas missing");
+    auto* canvas=editorSurface(*editor);require(canvas,"Native dynamics canvas missing");
     auto* board=find<PedalBoardPanel>(*canvas,"universalPedalBoard");require(board,"Native dynamics PRE board missing");
     const auto values=[&]{std::vector<float> result;for(auto* p:processor.getParameters())result.push_back(p->getValue());return result;};
     struct Writes final:juce::AudioProcessorListener {
@@ -429,7 +430,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
             }
             juce::Component::SafePointer<juce::DialogWindow> window;
             navigate([&]{tab(*canvas,"POST");window=open(*canvas,"postExpand0","postNativePanel0");});
-            auto* full=dynamic_cast<PostNativePanel*>(window->getContentComponent());require(full,"POST spectrum editor content missing");
+            auto* full=dynamic_cast<PostNativePanel*>(spectralforge::ui::dialogContent(*window));require(full,"POST spectrum editor content missing");
             auto* spectrum=spectrumIn(*full,"postCompressorSpectrum",DynamicsStage::postCompressor);
             require(processor.parameters().getRawParameterValue(postNativeModeID(0))->load()==0,
                     "Opening POST compressor details activated a compatibility bank");
@@ -494,11 +495,11 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
                 "Matrix LOW overview lost its compression knob");
         juce::Component::SafePointer<juce::DialogWindow> lowHeadWindow,lowWindow;
         navigate([&]{lowHeadWindow=open(*lowHead,"ampExpand1","ampNativePanel1");});
-        auto& lowFull=*lowHeadWindow->getContentComponent();
+        auto& lowFull=*spectralforge::ui::dialogContent(*lowHeadWindow);
         auto* lowEntry=find<juce::TextButton>(lowFull,"matrixLowCompressor.open");
         require(lowEntry && lowEntry->isShowing(),"Expanded Matrix LOW panel lost its compressor spectrum entry");
         navigate([&]{lowWindow=open(lowFull,"matrixLowCompressor.open","matrixLowCompressor.panel");});
-        auto& lowPanel=*lowWindow->getContentComponent();auto* lowSpectrum=spectrumIn(lowPanel,"matrixLowCompressor.spectrum",DynamicsStage::lowCompressor);
+        auto& lowPanel=*spectralforge::ui::dialogContent(*lowWindow);auto* lowSpectrum=spectrumIn(lowPanel,"matrixLowCompressor.spectrum",DynamicsStage::lowCompressor);
         for(const auto* id:{"lowcomp","lowampmix"}) {
             auto* control=find<juce::Slider>(lowPanel,id);require(control && control->isShowing(),"LOW spectrum editor lost an existing host control");
             inside(lowPanel,*control,"LOW spectrum control is clipped");
@@ -530,7 +531,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
 inline void run(const juce::File& directory){
     auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
     auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
-    auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
+    auto* canvas=editorSurface(editor);require(canvas!=nullptr,"Native UI canvas missing");
     checkGateUI(processor,editor,directory);
     auto* gateLocation=find<juce::TextButton>(*canvas,"commonDynamics.gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
     const bool originalGateLocation=processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f;
@@ -580,11 +581,11 @@ inline void run(const juce::File& directory){
                 frequency->setValue(850,juce::sendNotificationSync);set(processor,spectralforge::ampNativeControlID(0,model,0,ch),.5f);
                 snapshot(editor,directory,scale?"Nastrond-75pct":"Nastrond-Classic");
                 if(!scale){auto window=open(*panel,"ampExpand1","ampNativePanel1");
-                    auto* reset=find<juce::TextButton>(*window->getContentComponent(),"ampResetChannel1");require(reset && reset->isVisible(),"Original full panel has no channel reset");
+                    auto* reset=find<juce::TextButton>(*spectralforge::ui::dialogContent(*window),"ampResetChannel1");require(reset && reset->isVisible(),"Original full panel has no channel reset");
                     const auto gainID=spectralforge::ampNativeControlID(0,model,0,ch),responseID=spectralforge::originalResponseID(0,ch);
                     set(processor,gainID,.17f);set(processor,responseID,0);reset->triggerClick();settle();
                     require(std::abs(processor.parameters().getRawParameterValue(gainID)->load()-.5f)<.001f && processor.parameters().getRawParameterValue(responseID)->load()>.5f,"Channel reset did not restore its current factory voice");
-                    snapshot(*window->getContentComponent(),directory,"Nastrond-Controls");close(window);}
+                    snapshot(*spectralforge::ui::dialogContent(*window),directory,"Nastrond-Controls");close(window);}
             }
             if(model==spectralforge::niflheimrAmpModel) {
                 using C=spectralforge::niflheimr::Control;
@@ -597,7 +598,7 @@ inline void run(const juce::File& directory){
                 require(std::abs(processor.parameters().getRawParameterValue(hzID)->load()-1120)<.01f && std::abs(processor.parameters().getRawParameterValue(blendID)->load()-.82f)<.001f,"Niflheimr frequency/blend edits are disconnected");
                 snapshot(editor,directory,scale?"Niflheimr-75pct":"Niflheimr-Classic");
                 if(!scale) {
-                    auto window=open(*panel,"ampExpand1","ampNativePanel1");auto& full=*window->getContentComponent();
+                    auto window=open(*panel,"ampExpand1","ampNativePanel1");auto& full=*spectralforge::ui::dialogContent(*window);
                     constexpr int order[]{0,1,2,4,3,5,6,8,9,10,11,12,13,7};
                     int topY=-1,bottomY=-1,previousX=-1;
                     for(int position=0;position<14;++position) {
@@ -622,8 +623,8 @@ inline void run(const juce::File& directory){
     editor.setSize(1180,780);processor.setAmpModel(0,15);settle();snapshot(editor,directory,"Native-Amp-Classic");
     processor.setAmpModel(0,4);settle();auto* expand=find<juce::TextButton>(*canvas,"ampExpand1");require(expand && expand->isVisible(),"Expanded amplifier panel is inaccessible");expand->triggerClick();settle(90);
     juce::DialogWindow* opened=nullptr;
-    for(int i=0;i<juce::TopLevelWindow::getNumTopLevelWindows();++i)if(auto* window=dynamic_cast<juce::DialogWindow*>(juce::TopLevelWindow::getTopLevelWindow(i));window && dynamic_cast<AmpNativePanel*>(window->getContentComponent())){opened=window;break;}
-    require(opened!=nullptr,"ALL button failed to open the original-control panel");require(&opened->getContentComponent()->getLookAndFeel()==&editor.getLookAndFeel(),"Expanded amplifier controls lost the editor style");snapshot(*opened->getContentComponent(),directory,"Native-Amp-Expanded");opened->exitModalState(0);settle();
+    for(int i=0;i<juce::TopLevelWindow::getNumTopLevelWindows();++i)if(auto* window=dynamic_cast<juce::DialogWindow*>(juce::TopLevelWindow::getTopLevelWindow(i));window && dynamic_cast<AmpNativePanel*>(spectralforge::ui::dialogContent(*window))){opened=window;break;}
+    require(opened!=nullptr,"ALL button failed to open the original-control panel");require(&spectralforge::ui::dialogContent(*opened)->getLookAndFeel()==&editor.getLookAndFeel(),"Expanded amplifier controls lost the editor style");snapshot(*spectralforge::ui::dialogContent(*opened),directory,"Native-Amp-Expanded");opened->exitModalState(0);settle();
     lowOverview(processor,editor,*canvas,directory);
     const int postControlCases=postPanels(processor,editor,*canvas,directory);
     dialogTeardown();

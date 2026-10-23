@@ -1,0 +1,36 @@
+== ASan+UBSan corr40-split-rt bass_B0-random_soft_after_loud.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":119.489,"p95_us":177.56,"p99_us":241.135,"max_us":4995.69,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":6
+exit=0
+== ASan+UBSan corr40-split-rt bass_B0-random_soft_after_loud.f32 shift -2 block 256
+{"nominal_samples":-1,"mean_us":525.953,"p95_us":737.765,"p99_us":1250.4,"max_us":5183.56,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0
+exit=0
+== ASan+UBSan corr40-split-rt bass_B0-random_soft_after_loud.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":150.534,"p95_us":191.677,"p99_us":1859.18,"max_us":4872.21,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-rt bass_B0-random_soft_after_loud.f32 shift 2 block 256
+{"nominal_samples":-1,"mean_us":571.888,"p95_us":2158.36,"p99_us":2572.26,"max_us":3887.93,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1alternating_velocity.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":140.787,"p95_us":193.99,"p99_us":242.088,"max_us":3230.47,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":1
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1alternating_velocity.f32 shift -2 block 256
+{"nominal_samples":-1,"mean_us":472.369,"p95_us":643.886,"p99_us":2228.76,"max_us":2395.81,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1alternating_velocity.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":148.073,"p95_us":179.041,"p99_us":1832.03,"max_us":3595.61,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1alternating_velocity.f32 shift 2 block 256
+{"nominal_samples":-1,"mean_us":642.295,"p95_us":2218.52,"p99_us":4036.53,"max_us":4808.65,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1quiet_markers_over_sustain.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":96.3143,"p95_us":113.335,"p99_us":154.91,"max_us":1917.8,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":14
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1quiet_markers_over_sustain.f32 shift -2 block 256
+{"nominal_samples":-1,"mean_us":371.272,"p95_us":379.11,"p99_us":2043.08,"max_us":2139.33,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1quiet_markers_over_sustain.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":101.036,"p95_us":115.768,"p99_us":465.99,"max_us":1948.98,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":1
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1quiet_markers_over_sustain.f32 shift 2 block 256
+{"nominal_samples":-1,"mean_us":403.965,"p95_us":698.741,"p99_us":2070.2,"max_us":2428.85,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0
+exit=0

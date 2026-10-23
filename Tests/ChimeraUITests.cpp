@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #include "WindowFit.h"
 #include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
@@ -17,6 +18,7 @@
 #include <algorithm>
 #include "UIRefreshTests.h"
 #include "SignalPathUITests.h"
+#include "SmallScreenUITests.h"
 #include "PrecisionTunerUITests.h"
 #include "PrecisionTunerTimingProbe.h"
 #include "CommonDynamicsUITests.h"
@@ -142,10 +144,11 @@ void checkInstalledIR(const juce::File& expected)
 void checkControls(ChimeraEditor& editor, int mode)
 {
     int heads=0,panels=0;
-    for (auto* child : editor.findChildWithID("surface")->getChildren())
+    for (auto* child : editorSurface(editor)->getChildren())
     {
         if (!child->isVisible()) continue;
-        require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())), "Visible control outside editor bounds");
+        // The scrollable editor may show part of the canvas; every control must stay reachable.
+        require(editorBoundsReachable(editor,*child), "Visible control outside editor bounds");
         if(dynamic_cast<AmpSelector*>(child))++heads;
         if(dynamic_cast<AmpNativePanel*>(child))++panels;
         if (auto* label = dynamic_cast<juce::Label*>(child))
@@ -470,7 +473,7 @@ void checkEditorLifetime()
             // A popup can outlive its target until the queued dismissal runs.
             // Exercise that callback after its editor and controls are gone.
             if(iteration%3==0) {
-                for(auto* child:editor->findChildWithID("surface")->getChildren())
+                for(auto* child:editorSurface(*editor)->getChildren())
                     if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="SETTINGS") button->onClick();
             }
         }
@@ -519,7 +522,7 @@ void checkHostedSupportLifetime(const juce::File& directory)
         auto processor=std::make_unique<ChimeraProcessor>();
         require(processor->wrapperType!=juce::AudioProcessor::wrapperType_Standalone,"Hosted Support fixture accidentally uses standalone mode");
         auto editor=std::make_unique<ChimeraEditor>(*processor);
-        auto* canvas=editor->findChildWithID("surface");require(canvas!=nullptr,"Hosted Support editor has no surface");
+        auto* canvas=editorSurface(*editor);require(canvas!=nullptr,"Hosted Support editor has no surface");
         juce::TextButton* settings=nullptr;
         for(auto* child:canvas->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="SETTINGS")settings=button;
         require(settings && settings->onClick,"Hosted Support settings action missing");
@@ -530,9 +533,9 @@ void checkHostedSupportLifetime(const juce::File& directory)
         popup->exitModalState(6);
         juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
         juce::Component::SafePointer<juce::DialogWindow> dialog(nativeUITests::dialog("supportPanel"));
-        require(dialog!=nullptr && dialog->getContentComponent(),"Settings Support action did not open the hosted panel");
-        checkHostedPanel(*dialog->getContentComponent());
-        if(iteration==0)saveSnapshot(*dialog->getContentComponent(),directory,"Support-hosted");
+        require(dialog!=nullptr && spectralforge::ui::dialogContent(*dialog),"Settings Support action did not open the hosted panel");
+        checkHostedPanel(*spectralforge::ui::dialogContent(*dialog));
+        if(iteration==0)saveSnapshot(*spectralforge::ui::dialogContent(*dialog),directory,"Support-hosted");
 
         const auto start=juce::Time::getMillisecondCounterHiRes();
         editor.reset();
@@ -709,6 +712,7 @@ int main(int argc, char** argv)
         if(argc>2 && juce::String(argv[2])=="--precision-tuner-only"){precisionTunerUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--precision-tuner-timing"){precisionTunerTimingProbe::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--common-dynamics-only"){commonDynamicsUITests::run(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--small-screen-only"){smallScreenTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--signal-path-only"){signalPathTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--review-fixes-only"){checkReviewFixes(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--native-panels-only"){runNativeUITests(directory);return 0;}
@@ -854,7 +858,7 @@ int main(int argc, char** argv)
             juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
             {
-                auto* canvas=editor.findChildWithID("surface");
+                auto* canvas=editorSurface(editor);
                 auto* room=canvas->findChildWithID("cabRoomOverview");
                 require(room && room->isVisible(),"Classic/Dual/Matrix RIGS must initially display the cabinet room");
                 saveSnapshot(editor,directory,name+"-cabinet-room");
@@ -866,7 +870,7 @@ int main(int argc, char** argv)
                 const int original=processor.selectedAmpModel(0);
                 for(int model=0;model<spectralforge::ampModelCount;++model) {
                     processor.setAmpModel(0,model);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
-                    auto* reference=dynamic_cast<juce::Label*>(editor.findChildWithID("surface")->findChildWithID("ampreference1"));
+                    auto* reference=dynamic_cast<juce::Label*>(editorSurface(editor)->findChildWithID("ampreference1"));
                     require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).character),"Selected amp caption must describe the selected sound after selection");
                     publicNameTests::safeText(reference->getText(),"selected AMP caption after selection");
                     saveSnapshot(editor,directory,"Head-"+juce::String(model+1));
@@ -874,7 +878,7 @@ int main(int argc, char** argv)
                 processor.setAmpModel(0,original);
             }
             if(mode==1) {
-                for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->getName()=="dualblend")for(auto* text:slider->getChildren())if(auto* label=dynamic_cast<juce::Label*>(text))require(label->getText()=="50:50","Initial blend readout is not a rig ratio");
+                for(auto* child:editorSurface(editor)->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->getName()=="dualblend")for(auto* text:slider->getChildren())if(auto* label=dynamic_cast<juce::Label*>(text))require(label->getText()=="50:50","Initial blend readout is not a rig ratio");
                 set(processor,"dualtype",1);set(processor,"dualcross",700);juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
                 checkControls(editor,1);saveSnapshot(editor,directory,"Dual-crossover");set(processor,"dualtype",0);
             }
@@ -894,7 +898,7 @@ int main(int argc, char** argv)
                 editor.setSize(885,585);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
                 checkControls(editor,2);
-                for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Interface size")require(box->getText()=="75%","Size selector did not follow window resizing");
+                for(auto* child:editorSurface(editor)->getChildren()) if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Interface size")require(box->getText()=="75%","Size selector did not follow window resizing");
                 {
                     // Issue #113 fit-to-screen: the largest readable size, never below 75%.
                     using namespace spectralforge::ui;
@@ -909,7 +913,7 @@ int main(int argc, char** argv)
                 set(processor,"x1",350); set(processor,"x2",4000);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
                 bool lowUpdated = false, highUpdated = false;
-                for (auto* child : editor.findChildWithID("surface")->getChildren())
+                for (auto* child : editorSurface(editor)->getChildren())
                     if (auto* label = dynamic_cast<juce::Label*>(child))
                     {
                         lowUpdated = lowUpdated || label->getText() == "INPUT: below 350 Hz";
@@ -918,7 +922,7 @@ int main(int argc, char** argv)
                 require(lowUpdated && highUpdated,"Automated crossover labels are stale");
                 saveSnapshot(editor,directory,"Matrix-crossovers");
                 for(const auto* tab:{"PRE","POST"}) {
-                    auto* canvas=editor.findChildWithID("surface");
+                    auto* canvas=editorSurface(editor);
                     correctionUITests::clickTab(*canvas,tab);
                     for(auto* child:canvas->getChildren())if(child->isVisible())
                         require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())),"FX page control outside editor");
@@ -960,7 +964,7 @@ int main(int argc, char** argv)
                 // Host-driven mode changes must immediately remove hidden controls.
                 set(processor,"mode",0);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
-                rigViewTests::showControls(*editor.findChildWithID("surface"));
+                rigViewTests::showControls(*editorSurface(editor));
                 checkControls(editor,0);
                 require(processor.parameters().getRawParameterValue("x1")->load()==350,
                         "Switching modes reset saved crossover settings");
@@ -969,7 +973,7 @@ int main(int argc, char** argv)
         {
             const auto universalStorage=std::make_unique<ChimeraProcessor>();auto& universal=*universalStorage;universal.prepareToPlay(48000,256);
             const int models[]{30,6,26,27,31};for(int i=0;i<5;++i)universal.setPedalModel(i,models[i]);set(universal,"boardEnabled",1);
-            const auto editorStorage=std::make_unique<ChimeraEditor>(universal);auto& editor=*editorStorage;auto* canvas=editor.findChildWithID("surface");require(canvas,"Missing editor surface");
+            const auto editorStorage=std::make_unique<ChimeraEditor>(universal);auto& editor=*editorStorage;auto* canvas=editorSurface(editor);require(canvas,"Missing editor surface");
             nativeUITests::find<juce::TextButton>(*canvas,"path.pre")->triggerClick();
             for(int mode=0;mode<3;++mode) {
                 set(universal,"mode",float(mode));juce::MessageManager::getInstance()->runDispatchLoopUntil(180);
