@@ -16,23 +16,28 @@ inline void reachable(ChimeraEditor& editor,spectralforge::ui::AccessibleViewpor
 
 inline void exerciseControl(ChimeraProcessor& processor,ChimeraEditor& editor,
                             spectralforge::ui::AccessibleViewport& viewport,
-                            juce::Component& root,const juce::String& id) {
+                            juce::Component& root,const juce::String& id,const juce::String& activationID={}) {
     auto* control=find<juce::Slider>(root,id);
     auto* parameter=processor.parameters().getParameter(id);
     require(control && parameter && control->isShowing() && control->isEnabled(),"Integrated compressor control is unavailable");
     reachable(editor,viewport,*control);
     const auto before=signalPathTests::values(processor);
     struct Automation final:juce::AudioProcessorListener {
-        ChimeraProcessor& processor;int index,changes{},begins{},ends{},foreign{};
-        Automation(ChimeraProcessor& p,int i):processor(p),index(i){processor.addListener(this);}
+        ChimeraProcessor& processor;int index,activation,changes{},begins{},ends{},foreign{};
+        Automation(ChimeraProcessor& p,int i,int a):processor(p),index(i),activation(a){processor.addListener(this);}
         ~Automation() override {processor.removeListener(this);}
-        void audioProcessorParameterChanged(juce::AudioProcessor*,int i,float) override {++changes;if(i!=index)++foreign;}
+        void audioProcessorParameterChanged(juce::AudioProcessor*,int i,float) override {if(i==index)++changes;else if(i!=activation)++foreign;}
         void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
-        void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int i) override {++begins;if(i!=index)++foreign;}
-        void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int i) override {++ends;if(i!=index)++foreign;}
-    } automation(processor,parameter->getParameterIndex());
+        void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int i) override {if(i==index)++begins;else if(i!=activation)++foreign;}
+        void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int i) override {if(i==index)++ends;else if(i!=activation)++foreign;}
+    };
+    const auto* activation=processor.parameters().getParameter(activationID);
+    // Existing POST edits emit source-selection gestures even when already
+    // active. Preserve that contract while requiring its value to stay intact.
+    Automation automation(processor,parameter->getParameterIndex(),activation?activation->getParameterIndex():-1);
     const auto start=juce::Point<float>{control->getWidth()*.5f,control->getHeight()*.35f};
     const auto finish=start+juce::Point<float>{0,-24};
+    juce::Desktop::setMousePosition(control->localPointToGlobal(start).roundToInt());
     const auto now=juce::Time::getCurrentTime();
     const auto event=[&](juce::Point<float> position,bool down) {
         return juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(),position,
@@ -45,6 +50,9 @@ inline void exerciseControl(ChimeraProcessor& processor,ChimeraEditor& editor,
     require(automation.changes>0 && automation.begins>0 && automation.begins==automation.ends && automation.foreign==0,
             "Scrolled compressor drag lost balanced host gestures or edited another parameter");
     require(parameter->getValue()!=before[size_t(parameter->getParameterIndex())],"Scrolled compressor drag did not change its parameter");
+    const auto edited=signalPathTests::values(processor);
+    for(size_t i=0;i<edited.size();++i)if(int(i)!=parameter->getParameterIndex())
+        require(edited[i]==before[i],"Compressor drag changed another audio parameter");
     parameter->setValueNotifyingHost(parameter->getValue()>.5f?.23f:.77f);settle(20);
     require(std::abs(parameter->convertTo0to1(float(control->getValue()))-parameter->getValue())<.002f,
             "Host automation did not update the scrolled compressor control");
@@ -84,7 +92,7 @@ inline void integratedWorkspaces(ChimeraProcessor& processor,ChimeraEditor& edit
     juce::Slider* front=nullptr;
     for(auto* c:controls)if(c->slider.isShowing() && c->slider.isEnabled()){front=&c->slider;break;}
     require(front,"POST front-panel compressor knobs missing");
-    exerciseControl(processor,editor,viewport,*post,front->getComponentID());
+    exerciseControl(processor,editor,viewport,*post,front->getComponentID(),spectralforge::postNativeModeID(0));
     auto window=open(*post,"postExpand0","postNativePanel0");
     require(find(*window,"postCompressorSpectrum") && find(*window,"postCompressorSpectrum")->isShowing(),"POST ALL lost its spectrum");
     close(window);
@@ -214,6 +222,6 @@ inline void run(const juce::File& directory) {
     editor=std::make_unique<ChimeraEditor>(*processor);
     require(signalPathTests::values(*processor)==saved,"Reopening the editor changed preset values");
     require(directory.getChildFile("small-screen-matrix.csv").replaceWithText(csv),"Cannot write screen matrix evidence");
-    std::cout<<"PASS small screen: "<<cases<<" simulated resolution/DPI/routing combinations, "<<actions<<" navigation/settings actions; Dynamics/Tone EQ/Final EQ entries, PRE/POST/LOW drag+host automation, preset/project recall; focus, hit-testing, readable zoom, restore, dialog ownership, zero parameter writes/gestures. Physical OS DPI/DAW acceptance remains separate.\n";
+    std::cout<<"PASS small screen: "<<cases<<" simulated resolution/DPI/routing combinations, "<<actions<<" navigation/settings actions; Dynamics/Tone EQ/Final EQ entries, PRE/POST/LOW drag+host automation, preset/project recall; focus, hit-testing, readable zoom, restore, dialog ownership, zero navigation parameter writes/gestures. Physical OS DPI/DAW acceptance remains separate.\n";
 }
 }
