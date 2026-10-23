@@ -131,7 +131,7 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
         auto* panel=find<AmpNativePanel>(canvas,"ampNativePanel1");require(panel!=nullptr,"Matrix LOW panel missing");
         std::vector<NativeControlView*> controls;views(*panel,controls);std::vector<NativeControlView*> shown;
         for(auto* view:controls)if(view->isVisible())shown.push_back(view);
-        const std::array<const char*,2> ids{"bandtone1","lowampmix"};
+        const std::array<const char*,3> ids{"bandtone1","lowcomp","lowampmix"};
         require(shown.size()>ids.size(),"Matrix LOW overview must retain amplifier controls below the shared knobs");
         for(size_t i=0;i<ids.size();++i) {
             auto* view=find<NativeControlView>(*panel,juce::String(ids[i])+"_control");
@@ -141,25 +141,8 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
             const double value=i==0?(scale?-3.5:4.5):(scale?.31:.64);slider->setValue(value,juce::sendNotificationSync);
             require(std::abs(processor.parameters().getRawParameterValue(ids[i])->load()-value)<.002,"Matrix LOW priority knob did not reach its host parameter");
         }
-        auto* compEntry=find<juce::TextButton>(*panel,"matrixLowCompressor.open");
-        require(compEntry && compEntry->isVisible() && find(*panel,"lowcomp_control")==nullptr,
-                "Matrix LOW compression must open a spectrum editor");
-        inside(*panel,*compEntry,"LOW spectrum editor button is clipped");inside(editor,*compEntry,"LOW spectrum entry exceeds scaled editor");
-        const auto toneBounds=panel->getLocalArea(find(*panel,"bandtone1_control"),find(*panel,"bandtone1_control")->getLocalBounds());
-        const auto blendBounds=panel->getLocalArea(find(*panel,"lowampmix_control"),find(*panel,"lowampmix_control")->getLocalBounds());
-        const auto entryBounds=panel->getLocalArea(compEntry,compEntry->getLocalBounds());
-        require(entryBounds.getX()>=toneBounds.getRight() && entryBounds.getRight()<=blendBounds.getX()
-                && entryBounds.getY()>=toneBounds.getY() && entryBounds.getBottom()<=toneBounds.getBottom(),
-                "LOW shared row must retain tone / compressor spectrum / blend order");
-        const float compBefore=processor.parameters().getRawParameterValue("lowcomp")->load();
-        auto compWindow=open(*panel,"matrixLowCompressor.open","matrixLowCompressor.panel");auto& compFull=*compWindow->getContentComponent();
-        auto* compSpectrum=find<spectralforge::DynamicsSpectrumPanel>(compFull,"matrixLowCompressor.spectrum");
-        require(compSpectrum && compSpectrum->isShowing() && processor.parameters().getRawParameterValue("lowcomp")->load()==compBefore,
-                "Opening LOW spectrum changed compression or omitted its analyzer");
-        auto* compKnob=find<juce::Slider>(compFull,"lowcomp");require(compKnob && compKnob->isShowing(),"LOW spectrum editor has no real compression parameter");
-        compKnob->setValue(scale?.31:.64,juce::sendNotificationSync);
-        require(std::abs(processor.parameters().getRawParameterValue("lowcomp")->load()-compKnob->getValue())<.002,"LOW spectrum compressor callback is disconnected");
-        close(compWindow);
+        require(find(*panel,"matrixLowCompressor.open")==nullptr || !find(*panel,"matrixLowCompressor.open")->isVisible(),
+                "Matrix LOW overview must keep compression on its own knob");
         const auto& overviewSpec=spectralforge::ampNativePanel(processor.selectedAmpModel(0));
         auto* overviewChannel=find<juce::ComboBox>(*panel,"ampChannel1");
         require(overviewChannel && overviewChannel->isVisible()==(overviewSpec.channels.size()>1),"Matrix LOW overview lost its amplifier channel selector");
@@ -190,10 +173,10 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
         }
         require(edited,"Matrix LOW ALL provided no editable original knob");
         for(const auto* id:ids)require(find<NativeControlView>(*full,juce::String(id)+"_control")->isVisible(),"Matrix LOW shared controls missing from ALL");
-        require(find<juce::TextButton>(*full,"matrixLowCompressor.open") && find<juce::TextButton>(*full,"matrixLowCompressor.open")->isVisible()
-                && find(*full,"lowcomp_control")==nullptr,"Expanded LOW panel exposes compression without its spectrum");
-        compWindow=open(*full,"matrixLowCompressor.open","matrixLowCompressor.panel");
-        compSpectrum=find<spectralforge::DynamicsSpectrumPanel>(*compWindow->getContentComponent(),"matrixLowCompressor.spectrum");
+        require(find<juce::TextButton>(*full,"matrixLowCompressor.open") && find<juce::TextButton>(*full,"matrixLowCompressor.open")->isVisible(),
+                "Expanded LOW panel lost its compressor spectrum entry");
+        auto compWindow=open(*full,"matrixLowCompressor.open","matrixLowCompressor.panel");
+        auto* compSpectrum=find<spectralforge::DynamicsSpectrumPanel>(*compWindow->getContentComponent(),"matrixLowCompressor.spectrum");
         require(compSpectrum && compSpectrum->isShowing(),"Expanded LOW panel cannot open its compressor spectrum");close(compWindow);
         snapshot(*full,directory,scale?"Native-Amp-Matrix-ALL-75pct":"Native-Amp-Matrix-ALL");close(window);
     }
@@ -219,8 +202,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                 require((int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load()==model,"POST model did not reach audio state");
                 std::vector<NativeControlView*> overview;views(*compact,overview);int shown=0;
                 for(auto* view:overview)if(view->isVisible()){++shown;inside(*compact,*view,"Compact POST control is clipped");inside(editor,*view,"Compact POST control exceeds scaled editor bounds");}
-                require(section==0?shown==0:(shown>=4 && shown<=5),
-                        "POST compressor adjustments must open the spectrum editor; other rows retain primary controls");
+                require(shown>=4 && shown<=5,"POST rows must retain their primary controls");
                 auto window=open(*compact,"postExpand"+juce::String(section),compact->getComponentID());auto* panel=dynamic_cast<PostNativePanel*>(window->getContentComponent());
                 require(panel && &panel->getLookAndFeel()==&editor.getLookAndFeel(),"Expanded POST lost its original control panel/style");
                 if(section==0) {
@@ -358,7 +340,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
             }
             tab(*canvas,"PRE");board->navigateOwner(-1);
         });
-        auto* entry=find<juce::TextButton>(*board,"boardCompressorSpectrumAt0");
+        auto* entry=find<juce::TextButton>(*board,"boardDetailAt0");
         if(!entry || !entry->isShowing() || !entry->isEnabled()) {
             auto* selected=find<juce::TextButton>(*canvas,"path.pre");
             const auto state=processor.pedalBoardState();
@@ -508,12 +490,14 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
         set(processor,"mode",2);settle();
         navigate([&]{tab(*canvas,"RIGS");rigViewTests::showControls(*canvas);});
         auto* lowHead=find<::AmpNativePanel>(*canvas,"ampNativePanel1");require(lowHead,"Matrix LOW head panel missing");
-        auto* lowEntry=find<juce::TextButton>(*lowHead,"matrixLowCompressor.open");
-        require(lowEntry && lowEntry->isShowing() && find(*lowHead,"lowcomp_control")==nullptr,
-                "Matrix LOW overview exposes compression without its spectrum");
-        inside(*editor,*lowEntry,"Matrix LOW spectrum entry exceeds scaled editor");
-        juce::Component::SafePointer<juce::DialogWindow> lowWindow;
-        navigate([&]{lowWindow=open(*lowHead,"matrixLowCompressor.open","matrixLowCompressor.panel");});
+        require(find(*lowHead,"lowcomp_control") && find(*lowHead,"lowcomp_control")->isShowing(),
+                "Matrix LOW overview lost its compression knob");
+        juce::Component::SafePointer<juce::DialogWindow> lowHeadWindow,lowWindow;
+        navigate([&]{lowHeadWindow=open(*lowHead,"ampExpand1","ampNativePanel1");});
+        auto& lowFull=*lowHeadWindow->getContentComponent();
+        auto* lowEntry=find<juce::TextButton>(lowFull,"matrixLowCompressor.open");
+        require(lowEntry && lowEntry->isShowing(),"Expanded Matrix LOW panel lost its compressor spectrum entry");
+        navigate([&]{lowWindow=open(lowFull,"matrixLowCompressor.open","matrixLowCompressor.panel");});
         auto& lowPanel=*lowWindow->getContentComponent();auto* lowSpectrum=spectrumIn(lowPanel,"matrixLowCompressor.spectrum",DynamicsStage::lowCompressor);
         for(const auto* id:{"lowcomp","lowampmix"}) {
             auto* control=find<juce::Slider>(lowPanel,id);require(control && control->isShowing(),"LOW spectrum editor lost an existing host control");
@@ -529,7 +513,7 @@ inline void dynamicsEditors(const juce::File& directory,bool queueStress=false) 
         set(processor,"mode",0);settle(100);audio();
         require(lowSpectrum->selectedStage()==DynamicsStage::none && !lowSpectrum->isSnapshotFrozen() && !lowSpectrum->analyzerHasData(),
                 "Inactive Matrix routing retained a LOW compressor spectrum");
-        navigate([&]{close(lowWindow);});
+        navigate([&]{close(lowWindow);close(lowHeadWindow);});
         require(processor.dynamicsAnalysis().uiConsumer==nullptr && !processor.dynamicsAnalysis().fifo.enabled.load(),
                 "Closing LOW compressor editor left analyzer capture active");
     }
@@ -548,7 +532,7 @@ inline void run(const juce::File& directory){
     auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
     auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
     checkGateUI(processor,editor,directory);
-    auto* gateLocation=find<juce::TextButton>(*canvas,"gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
+    auto* gateLocation=find<juce::TextButton>(*canvas,"commonDynamics.gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
     const bool originalGateLocation=processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f;
     gateLocation->triggerClick();settle();require((processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)!=originalGateLocation,"POST GATE button does not toggle the audio parameter");
     gateLocation->triggerClick();settle();require((processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)==originalGateLocation,"POST GATE button cannot restore the prior routing");
