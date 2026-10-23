@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Copyright (C) 2026 RavenForge Luthier Intelligence
 #pragma once
 #include <algorithm>
 #include <atomic>
@@ -5,8 +7,8 @@
 #include <thread>
 
 namespace spectralforge::obs {
-// Host-neutral boundary between an OBS audio filter callback and a Chimera
-// engine (direct DSP or a VST3 loading adapter, Issue #131 stage A/B). It has
+// Host-neutral boundary between an OBS audio filter callback and the Chimera
+// VST3 loading adapter (Issue #131, structure 2). It has
 // no libobs or JUCE dependency so the realtime contract is testable without
 // either: OBS delivers planar float audio for every channel of its speaker
 // layout (up to 8), at the OBS output rate, with a frame count that is not
@@ -32,8 +34,7 @@ public:
     // an in-flight callback to leave before touching the engine, so process()
     // never observes a half-prepared engine and never waits itself.
     bool prepare(double sampleRate, int obsChannels, int maximumFrames) {
-        ready.store(false);
-        while (active.load() != 0) std::this_thread::yield();
+        suspend();
         rate = sampleRate;
         hostChannels = obsChannels;
         capacity = std::max(1, maximumFrames);
@@ -44,6 +45,14 @@ public:
         state.store(ok ? BridgeStatus::Processing : BridgeStatus::Unprepared);
         ready.store(ok);
         return ok;
+    }
+
+    // Stops engine use before the owner unloads or swaps it. Ticks until the
+    // next successful prepare() follow the failure policy.
+    void suspend() noexcept {
+        ready.store(false);
+        while (active.load() != 0) std::this_thread::yield();
+        state.store(BridgeStatus::Unprepared);
     }
 
     void setInputMapping(InputMapping value) noexcept { mapping.store(value); }

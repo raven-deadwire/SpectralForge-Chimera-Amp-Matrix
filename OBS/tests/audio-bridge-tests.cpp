@@ -1,4 +1,5 @@
-#include "OBSAudioBridge.h"
+// SPDX-License-Identifier: GPL-2.0-or-later
+#include "audio-bridge.hpp"
 #include <array>
 #include <atomic>
 #include <iostream>
@@ -108,6 +109,9 @@ int main() {
           check(p.at(0, 1) == input(0, 1), "zero frames / null planes are no-ops"); }
         check(!bridge.prepare(48000, 9, 256) && bridge.status() == BridgeStatus::Unprepared, "reject >8 OBS channels");
         check(!bridge.prepare(0, 2, 256), "reject zero rate");
+        bridge.prepare(48000, 2, 256); bridge.suspend();
+        { Planes p(2, 64); bridge.process(p.pointers.data(), 2, 64, 48000);
+          check(bridge.status() == BridgeStatus::Unprepared && p.at(1, 3) == 0.f, "suspended bridge never calls the engine"); }
         check(AudioBridge<FakeEngine>::latencyNanoseconds(48, 48000) == 1000000, "latency ns");
 
         // Settings updates re-prepare while the OBS audio thread keeps calling:

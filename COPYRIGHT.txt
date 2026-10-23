@@ -1,3 +1,5 @@
 Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.
 
 Third-party software and assets are subject to their respective copyright notices and license terms.
+
+Exception: the OBS Studio module in the OBS/ directory is licensed under the GNU General Public License, version 2 or (at your option) any later version; see OBS/LICENSE. It hosts the separately installed SpectralForge Chimera VST3 and contains none of the product's DSP, models, impulse responses or artwork.

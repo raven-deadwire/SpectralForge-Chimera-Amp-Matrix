@@ -3,8 +3,9 @@
 [#131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131)
 · [개발 계획](OBS_ADDON_PLAN.md). 작성 2026-10-23 KST.
 
-**상태: 검토 기록과 권고안. 구조 최종 결정은 소유자 확인 대기(법률 검토 포함).**
-OBS 모듈 바이너리·libobs 링크 코드는 아직 없다. 이 기록은 법률 자문이 아니다.
+**결정(소유자, 2026-10-23): 구조 2 — GPL-2.0-or-later 공개 모듈이 별도 설치된 Chimera VST3를 로드.**
+구현은 [`OBS/`](../OBS/README.md). 이 기록은 법률 자문이 아니며, 표의 "확인 필요" 항목과
+배포 전 라이선스 확인은 공개 배포(E단계) 전에 다시 점검한다.
 
 ## 의존성·라이선스 표
 
@@ -28,16 +29,16 @@ GPL 결합 문제를 해결하지 않으면 배포할 수 없다. 프로세스 �
 | 2. GPL 공개 모듈 + Chimera VST3 프로세스 내 로딩 | 모듈만 공개, 제품은 별도 설치 VST3. OBS의 기존 VST2 필터·atkAudio가 쓰는 "GPL 호스트 + 독점 플러그인" 형태 | 추가 지연 없음(버퍼 직결). 크래시 전파 | 모듈과 VST3 버전 정합 필요 |
 | 3. GPL 공개 모듈 + 별도 프로세스 엔진(IPC) | 경계는 가장 분리되나 해석 확인 필요 | IPC 버퍼만큼 지연 증가, 엔진 종료 복구 필요 | 두 프로세스 + 공유 메모리 |
 
-**권고: 후보 2**, 단 모듈은 JUCE 없이 MIT VST3 SDK로 Chimera VST3만 호스팅한다(JUCE
+**권고·결정: 후보 2**, 단 모듈은 JUCE 없이 MIT VST3 SDK로 Chimera VST3만 호스팅한다(JUCE
 AGPL/상용 조건을 모듈에 끌어오지 않음). 범용 VST3 호스트가 아니라 Chimera 번들만
 식별·로딩하며, 기존 제품 VST3의 파라미터 ID·`.chimera` 상태·IR·베타 수명주기를 그대로
 쓴다. 크래시 전파 위험은 후보 3으로 옮길 근거가 실측(B단계)으로 나오면 재검토한다.
-최종 선택과 모듈의 공개 라이선스는 소유자 결정 사항이다.
+소유자가 이 후보와 모듈의 GPL-2.0-or-later를 확정했다.
 
 ## 이번에 구현한 공통 경계 (어느 후보든 사용)
 
-`Source/OBSAudioBridge.h` — libobs·JUCE 비의존 실시간 경계.
-`Tests/OBSAudioBridgeTests.cpp`와 CI(`OBS compatibility test kit`)에서 검사한다.
+`OBS/src/audio-bridge.hpp` — libobs·JUCE 비의존 실시간 경계(구조 결정 후 GPL 모듈로 이동).
+`OBS/tests/audio-bridge-tests.cpp`와 CI(`OBS add-on`)에서 검사한다.
 
 - OBS planar float, 최대 8채널 레이아웃. Chimera에는 앞 L/R(모노 레이아웃이면 1채널)만
   전달하고 서라운드 채널은 그대로 통과.
@@ -55,10 +56,9 @@ AGPL/상용 조건을 모듈에 끌어오지 않음). 범용 VST3 호스트가 �
 변형 시험으로 분할 처리 제거·재준비 대기 제거·서라운드 무음 누락·매핑 뒤바뀜을 각각 검출함을 확인.
 실제 OBS 로딩·오디오·지연 측정은 미실행(OBS 없음).
 
-## B단계 착수 조건
+## B단계 진행
 
-1. 소유자가 후보와 모듈 공개 라이선스를 확정.
-2. 후보 2라면: Windows x64 OBS 모듈 템플릿(`obs_source_info`, `OBS_SOURCE_TYPE_FILTER`,
-   `OBS_SOURCE_AUDIO`, `filter_audio`)에 이 경계를 연결하고, VST3 SDK로 설치된 Chimera
-   번들의 해시·버전을 확인한 뒤 로딩. 동일 입력에서 기존 VST3(DAW/atkAudio) 대비 출력·지연 비교.
-3. 지원 OBS 버전 범위(최소 libobs ABI)를 측정 대상 버전으로 고정.
+착수 조건(구조·라이선스 확정)은 충족했다. Windows 우선 모듈 시제품과 Linux 헤드리스 libobs
+실측 결과, 미실행 항목은 [OBS/README.md](../OBS/README.md#검증-기록)에 기록한다.
+지원 OBS 버전 범위는 빌드·시험한 버전(Linux libobs 30.0.2, Windows CI OBS 31.1.2)만 명시하며
+실제 OBS Studio 앱 시험 전에는 확대하지 않는다.

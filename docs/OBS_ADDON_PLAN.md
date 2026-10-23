@@ -4,8 +4,8 @@
 [프로젝트 #129](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/129)
 · [애드온 #131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131).
 
-**상태: 범위/설계 계획. 전용 OBS 바이너리 미구현·미배포.**
-A단계 검토·공통 실시간 경계: [OBS_ADDON_BOUNDARY.md](OBS_ADDON_BOUNDARY.md) (구조 결정은 소유자 확인 대기).
+**상태: A단계 완료(구조 2·GPL 모듈 결정), B단계 시제품 구현 중. 공개 배포 없음.**
+경계 검토: [OBS_ADDON_BOUNDARY.md](OBS_ADDON_BOUNDARY.md) · 모듈과 검증 기록: [OBS/README.md](../OBS/README.md).
 atkAudio 호환 성공 여부와 관계없이 독립적으로 개발한다.
 
 ## 제품 범위
@@ -37,8 +37,8 @@ OBS 오디오 필터 API를 외부 경계로 사용한다. 기존 오디오 엔�
 
 | 단계 | 구현 산출물 | 통과 조건 |
 |---|---|---|
-| A. 경계 확정 | 의존성/라이선스 표, OBS 버전·ABI·모듈/엔진 경계 | 빌드/배포 가능한 구성과 미해결 조건 명시 |
-| B. Windows 오디오 시제품 | 필터 등록, 준비/처리/해제, 공통 엔진 출력 | 동일 DI/프리셋의 기존 VST3 대비 출력과 지연 측정 |
+| A. 경계 확정 ✅ | 의존성/라이선스 표, OBS 버전·ABI·모듈/엔진 경계 | 빌드/배포 가능한 구성과 미해결 조건 명시 |
+| B. Windows 오디오 시제품 (진행) | 필터 등록, 준비/처리/해제, 공통 엔진 출력 | 동일 DI/프리셋의 기존 VST3 대비 출력과 지연 측정 |
 | C. 상태와 UI | 전용 설정·공통 프리셋·IR·장면 상태 버전 | 저장/재시작/복제/다중 인스턴스 일치, 누락 IR 처리 |
 | D. 실시간·방송 | 가변 블록/중단 재개/샘플레이트·채널 변경 | 1시간 녹화, 시작/끝 영상 싱크, CPU·메모리·드롭아웃 기록 |
 | E. 배포 | 설치·업그레이드·제거·서명·사용 안내 | 사용자 장면/프리셋/IR 보존, 검증한 OBS 버전 명시 |
