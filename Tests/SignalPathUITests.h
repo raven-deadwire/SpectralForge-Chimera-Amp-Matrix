@@ -473,6 +473,7 @@ inline void run(const juce::File& folder) {
                                 +", graphMode="+juce::String(graph->snapshot().mode)+", scale="+juce::String(scale)).toStdString());
                     }
                 require(editorBoundsReachable(*editor,*strip),"Strip cannot be reached at UI scale");
+                const auto rect=editor->getLocalArea(strip,strip->getLocalBounds());
                 for(auto* sibling:strip->getParentComponent()->getChildren())if(sibling!=strip && sibling->isVisible())require(!rect.intersects(editor->getLocalArea(sibling,sibling->getLocalBounds())),"Strip overlaps visible editor content");
                 for(auto* child:strip->getChildren())inside(*strip,*child,"Compact path button clipped");
                 for(int e=0;e<2;++e){auto* panel=find<spectralforge::GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");
