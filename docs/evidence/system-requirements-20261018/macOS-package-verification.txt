@@ -1,0 +1,4 @@
+PASS: Standalone, VST3 and AU contain arm64 + x86_64 slices.
+PASS: Built bundle code-seal verification and expanded pkg binary hashes.
+PASS: Fixed system install paths and offline manual packaged.
+LIMIT: Developer ID signing, notarization, real hardware audio and actual install are not certified by these checks.

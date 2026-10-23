@@ -14,6 +14,40 @@ on this branch are development changes, not part of the immutable beta.1 binary.
 They reuse the existing expiry evaluation and preserve the instance latch and
 project/preset/automation/IR behavior. No next-version/date approval is implied.
 
+## System requirements — documentation update for the next release
+
+These requirements are a **2026-10-18 audit of public 1.3.2-beta.1**, not a new
+package or performance certification. The next actual package must refresh the
+version, file sizes and source-specific measurements before publication.
+
+Windows 10/11 x64; macOS 12+ Universal; Linux x86_64 with the Ubuntu 22.04 /
+glibc >=2.35 baseline and runtime dependencies. VST3 + Standalone on all three,
+AU additionally on macOS. **AAX/Pro Tools is not yet supported.** CPU/RAM
+recommendation candidates: 4+ cores / 8 GB entry, 6–8+ cores for multiple
+instances, 16 GB+ normal DAW work, optional 32 GB for large sample sessions.
+Display candidates: 1280×800 / preferred 1920×1080+, allowing for OS scaling.
+Track at 44.1/48 kHz, 128–256 samples, 2×/4×; mix at 256–512 samples / 4×.
+Use an interface/driver supported by the host. Windows DAW ASIO is distinct from
+Standalone direct ASIO, which is not enabled in product CMake.
+
+Current downloads, decimal MB: Windows Setup 210.84 / ZIP 231.66; macOS PKG
+703.02; Linux DEB 213.50 / TAR.GZ 234.24. Measured unpacked regular files:
+Windows ZIP 255.23 MB; macOS 785.64 MB; Linux DEB 263.14 / TAR 263.15 MB.
+Planning free space before download: **1.5 GB Windows/Linux; 4 GB macOS**,
+plus personal data/dependencies. Native install/update peaks are not measured.
+
+**No certified CPU/RAM floor or maximum instance count.** Next integrated build:
+Classic/Dual/Matrix × 1/2/4 active instances' 30-minute DAW/interface qualification
+is **NOT_RUN**. CAB-only/idle-editor results do not certify full product capacity.
+The known public Transpose latency remains approximately 43–46 ms.
+
+한국어: CPU·RAM·화면·작업공간은 권장 후보이며 실측 최소사양이 아닙니다.
+독일어 / Deutsch: CPU/RAM, Display und Arbeitsreserve sind Empfehlungskandidaten,
+keine gemessenen Mindestanforderungen.
+
+[Requirements, exact byte sizes and test scope](SYSTEM_REQUIREMENTS.md) ·
+[Installation](INSTALLATION.md) · [EN/DE/KO manual](MANUAL.html).
+
 ## Historical 1.3.2-beta.1 candidate preparation notes
 
 The pending-verification wording below records preparation, before the publication

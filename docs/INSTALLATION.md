@@ -15,27 +15,55 @@ The beta packages currently have no verified publisher code signature. The macOS
 
 ## System requirements and recommended configuration
 
-The platform/architecture requirements below are release-supported values. CPU and RAM figures are practical recommendations, not certified hard minimums.
+Public baseline: **1.3.2-beta.1**. Installation/build compatibility is distinct
+from actual workstation qualification. CPU/RAM numbers are **recommendation
+candidates**, not certified minima. See [the complete requirements and measured
+package sizes](SYSTEM_REQUIREMENTS.md) for evidence and pending tests.
 
-| Item | Requirement / recommendation |
-|---|---|
-| Operating systems | Windows 10/11 x64 · macOS 12+ on Apple Silicon or Intel · Debian/Ubuntu x86_64 with glibc 2.35 baseline |
-| CPU architecture | 64-bit only. Windows/Linux target x86_64; macOS universal contains arm64 + x86_64. No separate AVX-only minimum is published for this beta. |
-| Plugin formats | Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone |
-| DAW / host | A 64-bit host supporting the corresponding VST3 or AU format. Host-specific compatibility remains part of beta validation. |
-| Display | Editor is 1180×780 at 100% and about 885×585 at 75%. 1280×800 is a practical minimum; 1920×1080 or larger is preferred. |
-| Memory | No certified hard minimum. 8 GB system RAM is a practical baseline; 16 GB+ is recommended for normal DAW work, multiple Chimera instances, or large sample-based sessions. |
-| CPU recommendation | Modern 64-bit CPU with strong single-core performance and 4+ cores as a practical baseline; 6–8+ cores provide more headroom for multi-instance sessions. |
-| Storage | Check the download size of the selected package. Reserve additional space for its extracted files, installation, updates, user IRs and projects. |
-| Audio I/O | For live input, use an interface or system audio device with a stable low-latency driver/API. Physical mic gain and +48 V are supplied by the interface, not Chimera. |
+| Item | Installation / compatibility condition | Practical recommendation — not a measured minimum | Confirmed scope / remaining verification |
+| --- | --- | --- | --- |
+| Windows | Windows 10/11, x86_64 package; installer requires Windows 10.0 or later | Use an OS/driver combination supported by your DAW and interface | Public build/install automation ran on Windows Server 2025, not a Windows 10/11 audio workstation. Native Windows ARM64 is not supplied. |
+| macOS | macOS 12+ build target; Universal arm64 + x86_64 app/VST3/AU | Match the OS and native host architecture to the interface and DAW | Both slices and package payload verified; CI ran on macOS 15.7.9 arm64. macOS 12 and Intel hardware audio acceptance not established. |
+| Linux | x86_64, Ubuntu 22.04 build baseline; glibc >=2.35 plus runtime dependencies | Debian/Ubuntu environment satisfying **all** package dependencies | Ubuntu 22.04.5 build/dependency and extraction checks completed. Other distributions and physical audio remain unqualified. |
+| CPU | 64-bit architecture as above; no certified CPU model, frequency or microarchitecture minimum | Modern CPU with strong single-core performance, **4+ cores** as an entry candidate; **6–8+ cores** for multiple instances | No guaranteed instance count. No explicit AVX-only requirement in product CMake; this does not certify every older x86_64 CPU. |
+| RAM | Certified minimum **not established** | **8 GB** entry candidate; **16 GB+** general DAW recommendation; **32 GB** optional headroom for large sample/DAW sessions | No full-session peak/growth measurement establishing these thresholds. A 7 GB CAB-test VM is not an 8 GB product qualification. |
+| Display | Editor 1180×780 logical pixels at 100%; 885×585 at 75%; resizable up to 1770×1170 | **1280×800** entry candidate, **1920×1080+** preferred | Allow for OS scaling, host frame and taskbar. 1280×800 at 100% UI may not fit the usable desktop; try 75%. Real 100/125/150% OS-DPI combinations remain to be checked. |
+| Storage | See package-specific figures below; install volume and temporary/cache volume both need free space | Planning allowance before download: **1.5 GB Windows/Linux; 4 GB macOS**, plus personal data and dependency downloads | Planning values, not measured installer peak or hard minimum. Existing installs, preserved documents and caches change the peak. |
+| Plugin / host | Windows/Linux: **VST3 + Standalone**. macOS: **VST3 + AU + Standalone**. Corresponding 64-bit host required for plugins | Use the host's supported native format; verify scan, automation, save/reopen and shutdown | Package/build checks are available; actual DAW acceptance remains incomplete. No VST2/32-bit package. **AAX is not in this public release.** |
+| Audio interface / driver | No external interface required merely to install; live input needs a suitable input device and working OS/host audio driver | Guitar/bass instrument input with suitable gain; manufacturer driver. Windows DAW: ASIO where supported; macOS: Core Audio; Linux: compatible configured audio backend | DAW ASIO use is separate from Standalone. Product CMake does not enable JUCE ASIO; do **not** advertise direct Windows Standalone ASIO. Actual public-binary device enumeration/loopback is NOT_RUN. Mic gain and +48 V are hardware functions. |
+| Sample rate | Determined by the host/device; no single universal live-rate qualification | **44.1/48 kHz** for tracking and mixing | Native DSP tests include 44.1/48/96 kHz; individual EQ tests at 192 kHz are not whole-product support/performance evidence. 88.2/96 kHz are optional, higher-load choices. |
+| Buffer | Host/device setting; no certified lowest buffer | Tracking **128–256 samples**; mixing **256–512 samples**. Start diagnostics at 48 kHz/256 | 64 samples only after whole-session validation. Buffer period is not driver roundtrip or Transpose algorithmic latency. |
+| Amp oversampling | Available choices **1× / 2× / 4× / 8×**; default parameter **4×** | Tracking **2×/4×**; mixing **4×**; 8× only after checking load and benefit | Higher factors, Transpose, multiple CAB paths, Dual/Matrix, analyzers and extra instances affect load. No mode/instance capacity guarantee. |
 
-### Real-time performance starting points
 
-- **Tracking / live monitoring:** 44.1 or 48 kHz, 128–256 samples, amp oversampling 2× or 4×. Try 64 samples only if the whole host session remains stable.
-- **General mixing:** 44.1 or 48 kHz, 256–512 samples, 4× amp oversampling.
-- **Heavy / final render:** 512 samples or more when latency is not important; compare 4× and 8× at matched output level.
-- **Higher sample rates:** 88.2/96 kHz can increase CPU load substantially and are not required for Chimera to operate.
-- **Highest-cost features:** Transpose, Spectral Octaver, high amp oversampling, multiple IR/convolution paths, Dual/Matrix multi-rig processing and multiple Chimera instances.
+### Real-time starting points and measured scope
+
+- Tracking: **44.1/48 kHz · 128–256 samples · 2×/4×** amp oversampling.
+- Mixing: **44.1/48 kHz · 256–512 samples · 4×**. Higher rates, 8×,
+  Transpose, multiple CABs, Dual/Matrix and additional instances increase workload.
+- Start troubleshooting with one instance at **48 kHz / 256 samples / 4×**.
+  64 samples is an experiment after whole-session stability, not a minimum spec.
+- Current Transpose algorithmic latency remains approximately **43–46 ms**.
+  A smaller device buffer does not remove it or guarantee low roundtrip latency.
+- Classic/Dual/Matrix × **1/2/4 active instances**: next integrated build's
+  30-minute DAW/interface qualification is **NOT_RUN**. Historical CAB-only,
+  synthetic Matrix and two-idle-editor results do not qualify these cells.
+
+### Download and installation workspace
+
+The following **1.3.2-beta.1** downloads are alternatives per OS (decimal MB):
+Windows Setup **210.84 MB** / ZIP **231.66 MB**; macOS PKG **703.02 MB**;
+Linux DEB **213.50 MB** / TAR.GZ **234.24 MB**.
+Measured regular-file payloads: Windows ZIP **255.23 MB**; macOS **785.64 MB**;
+Linux DEB installed layout **263.14 MB**, TAR extracted **263.15 MB**.
+These are not allocated disk totals or native installer peak measurements.
+
+Budget download + extracted staging + new/retained old installation + temporary
+cache + preserved documents. As a **planning allowance**, reserve **1.5 GB on
+Windows/Linux or 4 GB on macOS before downloading**, plus user IRs, sessions,
+backups and missing dependencies. Check both temp and destination volumes.
+Clean install/repair/update peak measurement remains pending; the previous
+universal 500 MB reserve is withdrawn. Refresh sizes for the next actual package.
 
 ## Windows 10/11 · x64
 

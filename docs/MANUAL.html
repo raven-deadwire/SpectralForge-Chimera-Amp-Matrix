@@ -152,7 +152,7 @@ workflows:[
 const X={
 en:{
 navInstall:'Installation',navOperation:'Operation / state',navHost:'DAW / updates',
-installTitle:'02 · Installation and first launch',requirementsTitle:'System requirements and recommended configuration',requirementsNote:'Platform/architecture entries below are release-supported requirements. CPU and RAM figures are practical recommendations, not certified hard minimums; actual headroom depends on the DAW, interface driver, sample rate, buffer, routing mode and enabled models.',performanceTitle:'Real-time performance starting points',performanceTip:'For troubleshooting, start at 48 kHz / 256 samples / 2× or 4× amp oversampling with one Chimera instance. Add 8× oversampling, Transpose, Spectral Octaver, multiple IR-heavy rigs and additional plugin instances only after the baseline is stable.',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
+installTitle:'02 · Installation and first launch',requirementsTitle:'System requirements and recommended configuration',requirementsNote:"Reviewed against public 1.3.2-beta.1. Build/install targets, recommendation candidates and actual measurements are distinct. No certified CPU/RAM minimum or maximum instance count. See the packaged SYSTEM_REQUIREMENTS.md for exact byte sizes and evidence.",performanceTitle:'Real-time performance starting points',performanceTip:'For troubleshooting, start at 48 kHz / 256 samples / 4× amp oversampling with one Chimera instance. Add 8× oversampling, Transpose, Spectral Octaver, multiple IR-heavy rigs and additional plugin instances only after the baseline is stable.',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
 boardTitle:'Five-slot PRE controls',stateTitle:'Save / A·B / MIDI / interface state',supportTitle:'SETTINGS and support',
 ampRouteTitle:'Amplifier channels and input routes',irLibraryTitle:'IR Library operation and limits',irCreditsTitle:'IR credits and external bass IRs',
 presetListTitle:'48 factory & signature presets',recallTitle:'Preset / A·B recall rules',
@@ -164,15 +164,90 @@ install:[
 ['Debian / Ubuntu x86_64 · glibc 2.35 baseline','Standalone + VST3','DEB installs the standalone app and VST3; the portable TAR uses per-user locations and still depends on listed system libraries. Other distributions are not certified by the release build.']
 ],
 requirements:[
-['Operating system','Windows 10/11 x64 · macOS 12+ on Apple Silicon or Intel · Debian/Ubuntu x86_64 with glibc 2.35 baseline'],
-['CPU architecture','64-bit only. Windows/Linux release targets x86_64; macOS universal contains arm64 + x86_64. No separate AVX-only CPU requirement is published for this beta.'],
-['Plugin formats','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
-['DAW / host','A 64-bit host that supports the corresponding VST3 or AU format. Host-by-host compatibility remains a beta validation area.'],
-['Display','The editor is 1180 × 780 at 100%. 75% mode is approximately 885 × 585; 1280 × 800 or larger is a practical minimum display recommendation, with 1920 × 1080 or larger preferred.'],
-['Memory','No certified hard RAM minimum has been established. 8 GB system RAM is a practical baseline; 16 GB or more is recommended for normal DAW projects, multiple Chimera instances and large sample-based sessions.'],
-['CPU recommendation','A modern 64-bit CPU with strong single-core performance and 4 or more cores is a practical baseline. 6–8 or more cores provide more session headroom for multiple plugin instances; macOS Intel remains supported, while Apple Silicon generally offers more real-time headroom.'],
-['Storage','Installer sizes are listed on the release download page. Keep additional free space for installation, update copies, user IRs and DAW projects; 500 MB free beyond the installer is a practical minimum reserve.'],
-['Audio I/O','For live guitar/bass/vocal input, use an audio interface or system audio device with a stable low-latency driver/API. Physical microphone gain and +48 V remain functions of the interface, not Chimera.']
+[
+"OS",
+"Windows 10/11 x64; macOS 12+ Universal; Linux x86_64 / glibc >=2.35 + dependencies",
+"Match DAW/interface OS support",
+"CI: Windows Server 2025; macOS 15.7.9 arm64; Ubuntu 22.04.5. Other OS/hardware audio not qualified."
+],
+[
+"CPU",
+"64-bit; certified model/frequency minimum unknown",
+"4+ cores entry candidate; 6–8+ cores for multiple instances; strong single-core performance",
+"No full-session capacity certification; no published AVX-only requirement."
+],
+[
+"RAM",
+"Certified minimum unknown",
+"8 GB entry candidate; 16 GB+ general DAW; 32 GB optional large-session headroom",
+"30-minute process-memory peak/growth not measured."
+],
+[
+"Display",
+"Editor: 1180×780 at 100%; 885×585 at 75%",
+"1280×800 entry candidate; 1920×1080+ preferred",
+"Allow OS scaling, host frame/taskbar; real DPI combinations not qualified."
+],
+[
+"Formats / host",
+"VST3 + Standalone; macOS also AU; plugins need corresponding 64-bit host",
+"Use host-supported native format",
+"AAX/Pro Tools not yet supported; actual DAW acceptance incomplete."
+],
+[
+"Audio I/O",
+"Live input needs an audio device/driver; no interface needed just to install",
+"Windows DAW ASIO where supported; macOS Core Audio; configured Linux backend",
+"Standalone direct ASIO not enabled in product CMake; actual Windows device enumeration NOT_RUN."
+],
+[
+"Sample rate",
+"Host/device setting",
+"44.1/48 kHz; optional higher-load 88.2/96 kHz",
+"DSP tests at 44.1/48/96 kHz are not device/DAW certification."
+],
+[
+"Buffer",
+"Host/device setting; no certified minimum",
+"Tracking 128–256; mixing 256–512 samples",
+"64 only after testing. Not roundtrip or Transpose algorithmic delay."
+],
+[
+"Amp oversampling",
+"1× / 2× / 4× / 8×; default 4×",
+"Tracking 2×/4×; mixing 4×",
+"Higher factors, multiple CABs, Dual/Matrix and Transpose affect workload."
+],
+[
+"Storage / free space",
+"Download + staging + installed/retained old copy + temp/cache + backups",
+"Planning: 1.5 GB Windows/Linux; 4 GB macOS before download, plus personal data/dependencies",
+"Installer peak NOT_MEASURED; former universal 500 MB reserve withdrawn."
+],
+[
+"Download size",
+"1.3.2-beta.1 only, decimal MB",
+"Windows Setup 210.84 / ZIP 231.66; macOS PKG 703.02; Linux DEB 213.50 / TAR 234.24",
+"Choose one package per OS; next package must be remeasured."
+],
+[
+"Unpacked file bytes",
+"Regular-file totals, not allocated disk footprint",
+"Windows ZIP 255.23 MB; macOS 785.64 MB; Linux DEB 263.14 / TAR 263.15 MB",
+"Setup installed total and native update peaks not measured."
+],
+[
+"Real-time capacity",
+"Classic / Dual / Matrix × 1 / 2 / 4 active instances",
+"Proposed: 48 kHz, 128/256, 4×, Transpose bypass/−2, UI closed/open, 30 minutes",
+"All next-build DAW/interface cells NOT_RUN. CAB-only and two idle GUIs do not qualify them."
+],
+[
+"Latency",
+"Public Transpose: approximately 43–46 ms algorithmic latency",
+"Record algorithmic, reported and driver roundtrip latency separately",
+"≤10 ms target not reached."
+]
 ],
 performance:[
 ['Tracking / live monitoring','44.1 or 48 kHz · start around 128–256 samples · 2× or 4× amp oversampling. Try 64 samples only when the whole host session remains stable.'],
@@ -290,7 +365,7 @@ bug:[
 },
 de:{
 navInstall:'Installation',navOperation:'Bedienung / Zustand',navHost:'DAW / Updates',
-installTitle:'02 · Installation und erster Start',requirementsTitle:'Systemanforderungen und empfohlene Konfiguration',requirementsNote:'Plattform und Architektur sind bestätigte Release-Anforderungen. CPU- und RAM-Werte sind praktische Empfehlungen, keine zertifizierten Mindestwerte; die tatsächliche Reserve hängt von DAW, Audiotreiber, Sample-Rate, Buffer, Routing und aktiven Modellen ab.',performanceTitle:'Startwerte für Echtzeit-Performance',performanceTip:'Für die Fehlersuche mit 48 kHz / 256 Samples / 2× oder 4× Amp-Oversampling und einer Chimera-Instanz beginnen. 8×, Transpose, Spectral Octaver, mehrere IR-intensive Rigs und weitere Instanzen erst nach einer stabilen Basis hinzufügen.',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
+installTitle:'02 · Installation und erster Start',requirementsTitle:'Systemanforderungen und empfohlene Konfiguration',requirementsNote:"Stand: öffentliche 1.3.2-beta.1. Build-/Installationsziele, Empfehlungskandidaten und Messungen sind getrennt. Kein zertifiziertes CPU-/RAM-Minimum und keine garantierte Instanzzahl. Exakte Dateigrößen und Nachweise: beiliegende SYSTEM_REQUIREMENTS.md.",performanceTitle:'Startwerte für Echtzeit-Performance',performanceTip:'Für die Fehlersuche mit 48 kHz / 256 Samples / 4× Amp-Oversampling und einer Chimera-Instanz beginnen. 8×, Transpose, Spectral Octaver, mehrere IR-intensive Rigs und weitere Instanzen erst nach einer stabilen Basis hinzufügen.',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
 boardTitle:'Bedienung des 5-Slot-Pedalboards',stateTitle:'Speichern / A·B / MIDI / Oberfläche',supportTitle:'SETTINGS und Support',
 ampRouteTitle:'Amp-Kanäle und Eingangswege',irLibraryTitle:'IR-Library: Bedienung und Grenzen',irCreditsTitle:'IR-Credits und externe Bass-IRs',
 presetListTitle:'48 Werks- und Signature-Presets',recallTitle:'Preset- / A·B-Recall-Regeln',
@@ -302,15 +377,90 @@ install:[
 ['Debian / Ubuntu x86_64 · glibc 2.35 Baseline','Standalone + VST3','DEB installiert Standalone und VST3. Das TAR nutzt Benutzerpfade und benötigt weiterhin die aufgelisteten Systembibliotheken. Andere Distributionen sind durch den Release-Build nicht zertifiziert.']
 ],
 requirements:[
-['Betriebssystem','Windows 10/11 x64 · macOS 12+ auf Apple Silicon oder Intel · Debian/Ubuntu x86_64 mit glibc-2.35-Baseline'],
-['CPU-Architektur','Nur 64 Bit. Windows/Linux: x86_64; macOS Universal: arm64 + x86_64. Für diese Beta ist keine separate AVX-only-Anforderung veröffentlicht.'],
-['Plugin-Formate','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
-['DAW / Host','64-Bit-Host mit Unterstützung des entsprechenden VST3- oder AU-Formats. Die Kompatibilität einzelner Hosts bleibt Teil der Beta-Validierung.'],
-['Display','Editorgröße bei 100 %: 1180 × 780. Bei 75 % etwa 885 × 585. Praktisch mindestens 1280 × 800, bevorzugt 1920 × 1080 oder größer.'],
-['Arbeitsspeicher','Kein zertifiziertes hartes RAM-Minimum. 8 GB sind eine praktische Basis; 16 GB oder mehr werden für normale DAW-Projekte, mehrere Chimera-Instanzen und große Sample-Sessions empfohlen.'],
-['CPU-Empfehlung','Moderner 64-Bit-Prozessor mit guter Single-Core-Leistung und mindestens 4 Kernen als praktische Basis. 6–8 oder mehr Kerne bieten mehr Reserve für mehrere Instanzen; Intel-macOS bleibt unterstützt, Apple Silicon bietet in der Regel mehr Echtzeitreserve.'],
-['Speicherplatz','Die Downloadgrößen der jeweiligen Version stehen auf der Release-Seite. Zusätzlich Platz für Installation, Updates, User-IRs und Projekte vorsehen; 500 MB Reserve über den Installer hinaus sind ein praktischer Mindestpuffer.'],
-['Audio-I/O','Für Live-Gitarre/Bass/Vocal ein Audiointerface oder System-Audiogerät mit stabilem Low-Latency-Treiber/API verwenden. Physischer Mic-Gain und +48 V gehören zum Interface, nicht zu Chimera.']
+[
+"Betriebssystem",
+"Windows 10/11 x64; macOS 12+ Universal; Linux x86_64 / glibc >=2.35 + Abhängigkeiten",
+"OS-Unterstützung von DAW und Interface beachten",
+"CI: Windows Server 2025; macOS 15.7.9 arm64; Ubuntu 22.04.5. Andere OS/Hardware-Audiowege nicht qualifiziert."
+],
+[
+"CPU",
+"64 Bit; zertifiziertes Modell-/Taktminimum unbekannt",
+"4+ Kerne als Einstiegskandidat; 6–8+ für mehrere Instanzen; starke Single-Core-Leistung",
+"Keine Session-Kapazitätszertifizierung; keine veröffentlichte AVX-only-Anforderung."
+],
+[
+"RAM",
+"Zertifiziertes Minimum unbekannt",
+"8 GB Einstiegskandidat; 16 GB+ normale DAW; 32 GB optional für große Sessions",
+"30-Minuten-Prozessspeichermaximum/-wachstum nicht gemessen."
+],
+[
+"Display",
+"Editor: 1180×780 bei 100%; 885×585 bei 75%",
+"1280×800 Einstiegskandidat; 1920×1080+ bevorzugt",
+"OS-Skalierung, Host-Rahmen/Taskleiste berücksichtigen; reale DPI-Kombinationen nicht qualifiziert."
+],
+[
+"Formate / Host",
+"VST3 + Standalone; macOS auch AU; entsprechender 64-Bit-Host für Plugins",
+"Natives, vom Host unterstütztes Format",
+"AAX/Pro Tools noch nicht unterstützt; reale DAW-Abnahme unvollständig."
+],
+[
+"Audio-I/O",
+"Live-Eingang benötigt Gerät/Treiber; reine Installation ohne Interface möglich",
+"Windows-DAW: ASIO falls unterstützt; macOS: Core Audio; Linux: konfiguriertes Backend",
+"Direktes Standalone-ASIO in Produkt-CMake nicht aktiviert; reale Windows-Geräteliste NOT_RUN."
+],
+[
+"Sample-Rate",
+"Host-/Geräteeinstellung",
+"44,1/48 kHz; optional 88,2/96 kHz mit höherer Last",
+"DSP-Tests bei 44,1/48/96 kHz sind keine Geräte-/DAW-Zertifizierung."
+],
+[
+"Buffer",
+"Host-/Geräteeinstellung; kein zertifiziertes Minimum",
+"Tracking 128–256; Mixing 256–512 Samples",
+"64 erst nach Prüfung. Kein Maß für Roundtrip- oder Transpose-Latenz."
+],
+[
+"Amp-Oversampling",
+"1× / 2× / 4× / 8×; Standard 4×",
+"Tracking 2×/4×; Mixing 4×",
+"Höhere Faktoren, mehrere CABs, Dual/Matrix und Transpose beeinflussen die Last."
+],
+[
+"Freier Speicher",
+"Download + Entpacken + neue/alte Installation + temporäre Dateien + Sicherungen",
+"Planung vor Download: Windows/Linux 1,5 GB; macOS 4 GB, plus persönliche Daten/Abhängigkeiten",
+"Installationsspitze NOT_MEASURED; pauschale 500-MB-Reserve zurückgenommen."
+],
+[
+"Downloadgröße",
+"Nur 1.3.2-beta.1, dezimale MB",
+"Windows Setup 210,84 / ZIP 231,66; macOS PKG 703,02; Linux DEB 213,50 / TAR 234,24",
+"Ein Paket je OS wählen; nächste Pakete erneut messen."
+],
+[
+"Entpackte Dateien",
+"Logische Dateisummen, nicht belegte Dateisystemblöcke",
+"Windows ZIP 255,23 MB; macOS 785,64 MB; Linux DEB 263,14 / TAR 263,15 MB",
+"Setup-Installationssumme und native Update-Spitzen nicht gemessen."
+],
+[
+"Echtzeitkapazität",
+"Classic / Dual / Matrix × 1 / 2 / 4 aktive Instanzen",
+"Vorschlag: 48 kHz, 128/256, 4×, Transpose Bypass/−2, UI zu/offen, 30 Minuten",
+"Alle DAW-/Gerätezellen des nächsten Builds NOT_RUN. CAB-only und zwei ruhende GUIs zählen nicht."
+],
+[
+"Latenz",
+"Öffentliches Transpose: etwa 43–46 ms algorithmisch",
+"Algorithmische, gemeldete und Geräte-Roundtrip-Latenz getrennt messen",
+"≤10-ms-Ziel nicht erreicht."
+]
 ],
 performance:[
 ['Tracking / Live Monitoring','44,1 oder 48 kHz · zunächst 128–256 Samples · 2× oder 4× Amp-Oversampling. 64 Samples nur testen, wenn die gesamte Host-Session stabil bleibt.'],
@@ -428,7 +578,7 @@ bug:[
 },
 ko:{
 navInstall:'설치',navOperation:'조작 / 저장',navHost:'DAW / 업데이트',
-installTitle:'02 · 설치와 첫 실행',requirementsTitle:'시스템 요구사항과 권장 사양',requirementsNote:'운영체제와 CPU 아키텍처는 실제 릴리스가 지원하는 조건입니다. CPU·RAM 수치는 공식 최소 벤치마크가 아니라 실사용 권장치이며, 실제 여유는 DAW·오디오 드라이버·sample rate·buffer·routing mode·활성 모델에 따라 달라집니다.',performanceTitle:'실시간 성능 권장 시작값',performanceTip:'문제를 진단할 때는 48 kHz / 256 samples / Amp Oversampling 2× 또는 4× / Chimera 1개 인스턴스로 시작하세요. 이 상태가 안정된 뒤 8×, Transpose, Spectral Octaver, 다중 IR Rig, 추가 Chimera 인스턴스를 하나씩 늘리는 방식이 원인 파악에 가장 좋습니다.',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
+installTitle:'02 · 설치와 첫 실행',requirementsTitle:'시스템 요구사항과 권장 사양',requirementsNote:"공개 1.3.2-beta.1 기준입니다. 설치·빌드 조건, 권장 후보, 실제 검증 범위를 구분합니다. CPU·RAM의 인증된 최소치와 최대 인스턴스 수는 미확정입니다. 정확한 바이트 크기와 근거는 동봉 SYSTEM_REQUIREMENTS.md를 확인하세요.",performanceTitle:'실시간 성능 권장 시작값',performanceTip:'문제를 진단할 때는 48 kHz / 256 samples / Amp Oversampling 4× / Chimera 1개 인스턴스로 시작하세요. 이 상태가 안정된 뒤 8×, Transpose, Spectral Octaver, 다중 IR Rig, 추가 Chimera 인스턴스를 하나씩 늘리는 방식이 원인 파악에 가장 좋습니다.',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
 boardTitle:'5-slot PRE 조작법',stateTitle:'Save / A·B / MIDI / 인터페이스 상태',supportTitle:'SETTINGS와 지원 기능',
 ampRouteTitle:'앰프 채널과 입력 경로',irLibraryTitle:'IR Library 사용법과 제한',irCreditsTitle:'IR 크레딧과 외부 베이스 IR',
 presetListTitle:'팩토리·시그니처 프리셋 48개',recallTitle:'Preset / A·B Recall 규칙',
@@ -440,15 +590,90 @@ install:[
 ['Debian / Ubuntu x86_64 · glibc 2.35 기준','Standalone + VST3','DEB는 Standalone과 VST3를 설치합니다. TAR는 사용자 홈 경로에 설치하지만 명시된 시스템 라이브러리가 필요합니다. 다른 배포판은 릴리스 빌드의 인증 범위가 아닙니다.']
 ],
 requirements:[
-['운영체제','Windows 10/11 x64 · macOS 12 이상 Apple Silicon/Intel · Debian/Ubuntu x86_64, glibc 2.35 기준'],
-['CPU 아키텍처','64-bit 전용입니다. Windows/Linux 릴리스는 x86_64, macOS Universal은 arm64 + x86_64를 포함합니다. 현재 베타는 별도의 AVX 전용 최소 CPU 조건을 두고 있지 않습니다.'],
-['플러그인 형식','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
-['DAW / Host','해당 VST3 또는 AU 형식을 지원하는 64-bit 호스트가 필요합니다. DAW별 세부 호환성은 여전히 베타 검증 범위입니다.'],
-['화면','100% UI는 1180 × 780, 75%는 약 885 × 585입니다. 실사용 기준 최소 1280 × 800 정도를 권장하고, 1920 × 1080 이상이면 가장 편합니다.'],
-['메모리','공식적으로 인증된 최소 RAM은 아직 정하지 않았습니다. 시스템 RAM 8 GB를 실사용 기준선으로 보고, 일반 DAW 프로젝트·다중 Chimera 인스턴스·샘플 기반 작업에는 16 GB 이상을 권장합니다.'],
-['CPU 권장','강한 single-core 성능을 가진 현대적인 64-bit CPU와 4코어 이상을 실사용 기준선으로 봅니다. 여러 Chimera 인스턴스를 사용할 경우 6–8코어 이상이 유리합니다. macOS Intel도 지원하지만 실시간 여유는 대체로 Apple Silicon 쪽이 더 큽니다.'],
-['저장공간','다운로드 크기는 릴리즈 페이지의 파일별 표시를 확인하세요. 설치·업데이트 복사본·User IR·DAW 프로젝트를 위해 installer 외에 최소 약 500 MB 이상의 여유 공간을 두는 것을 권장합니다.'],
-['오디오 I/O','기타·베이스·보컬을 실시간 입력하려면 안정적인 저지연 드라이버/API를 지원하는 오디오 인터페이스 또는 시스템 오디오 장치를 사용합니다. 실제 마이크 게인과 +48 V는 Chimera가 아니라 인터페이스가 담당합니다.']
+[
+"운영체제",
+"Windows 10/11 x64; macOS 12+ Universal; Linux x86_64 / glibc ≥2.35 및 의존성",
+"DAW·인터페이스가 지원하는 OS 조합",
+"CI: Windows Server 2025, macOS 15.7.9 arm64, Ubuntu 22.04.5. 다른 OS·실기 오디오 미인증."
+],
+[
+"CPU",
+"64비트; 인증된 CPU 모델·클럭 최소치 미확정",
+"4코어 이상 입문 후보; 다중 인스턴스 6–8코어 이상; 높은 단일코어 성능",
+"전체 세션 용량 인증 없음. 별도 AVX 전용 요구사항 미공표."
+],
+[
+"RAM",
+"인증된 최소치 미확정",
+"8 GB 입문 후보; 일반 DAW 16 GB+; 대규모 세션 32 GB 여유 선택",
+"30분 프로세스 메모리 최대치·증가량 미실측."
+],
+[
+"화면",
+"에디터: 100% 1180×780; 75% 885×585",
+"1280×800 입문 후보; 1920×1080+ 권장",
+"OS 배율·호스트 프레임·작업표시줄 공간 필요. 실제 DPI 조합 미인증."
+],
+[
+"형식 / 호스트",
+"VST3 + Standalone; macOS는 AU 추가; 플러그인은 해당 형식의 64비트 호스트 필요",
+"호스트가 지원하는 네이티브 형식",
+"AAX/Pro Tools 아직 미지원. 실제 DAW 수용 미완료."
+],
+[
+"오디오 I/O",
+"설치 자체에는 인터페이스 불필요; 실시간 입력에는 장치·드라이버 필요",
+"Windows DAW: 지원 시 ASIO; macOS: Core Audio; Linux: 설정된 백엔드",
+"Standalone 직접 ASIO는 제품 CMake에서 미활성. 실제 Windows 장치 목록 NOT_RUN."
+],
+[
+"샘플레이트",
+"호스트·장치 설정",
+"44.1/48 kHz; 88.2/96 kHz는 고부하 선택",
+"44.1/48/96 kHz DSP 검사는 실기·DAW 성능 인증이 아님."
+],
+[
+"버퍼",
+"호스트·장치 설정; 인증된 최소치 없음",
+"연주 128–256; 믹싱 256–512 samples",
+"64는 안정성 확인 뒤 시험. 왕복·Transpose 알고리즘 지연과 별개."
+],
+[
+"앰프 오버샘플링",
+"1× / 2× / 4× / 8×; 기본값 4×",
+"연주 2×/4×; 믹싱 4×",
+"높은 배율·다중 CAB·Dual/Matrix·Transpose는 부하에 영향."
+],
+[
+"저장공간",
+"다운로드 + 전개 + 신규/기존 설치 + 임시·캐시 + 보존본",
+"다운로드 전 계획 여유: Windows/Linux 1.5 GB, macOS 4 GB + 개인 자료·의존성",
+"설치 중 최대 점유 NOT_MEASURED. 일괄 500 MB 여유 안내 철회."
+],
+[
+"다운로드 크기",
+"1.3.2-beta.1 한정, 십진 MB",
+"Windows Setup 210.84 / ZIP 231.66; macOS PKG 703.02; Linux DEB 213.50 / TAR 234.24",
+"OS별 한 패키지 선택. 다음 패키지는 다시 산출."
+],
+[
+"전개 파일 용량",
+"일반 파일 크기 합계, 실제 디스크 할당량과 다름",
+"Windows ZIP 255.23 MB; macOS 785.64 MB; Linux DEB 263.14 / TAR 263.15 MB",
+"Setup 실제 설치 용량·네이티브 업데이트 최대 점유 미실측."
+],
+[
+"실시간 용량",
+"Classic / Dual / Matrix × 활성 1 / 2 / 4인스턴스",
+"제안: 48 kHz, 128/256, 4×, Transpose bypass/−2, UI 닫힘/열림, 30분",
+"다음 통합 빌드 실기·DAW 전 조합 NOT_RUN. CAB 단독·idle GUI 2개로 대체 불가."
+],
+[
+"지연",
+"공개 Transpose 알고리즘 지연 약 43–46 ms",
+"알고리즘·호스트 보고·장치 왕복 지연 각각 측정",
+"≤10 ms 목표 미달."
+]
 ],
 performance:[
 ['실시간 연주 / 모니터링','44.1 또는 48 kHz · 128–256 samples부터 시작 · Amp Oversampling 2× 또는 4×. 전체 DAW 세션이 안정적인 경우에만 64 samples까지 낮춰봅니다.'],
@@ -1752,7 +1977,7 @@ function render(){
  document.getElementById('installBody').innerHTML=table(
    lang==='ko'?['운영체제','형식','설치 / 첫 실행']:lang==='de'?['System','Formate','Installation / Start']:['System','Formats','Installation / first launch'],X[lang].install);
  document.getElementById('requirementsBody').innerHTML=table(
-   lang==='ko'?['항목','요구 / 권장']:lang==='de'?['Bereich','Anforderung / Empfehlung']:['Item','Requirement / recommendation'],X[lang].requirements,false);
+   lang==='ko'?['항목','설치 조건','권장 후보','확인 범위']:lang==='de'?['Bereich','Installation','Empfehlungskandidat','Prüfumfang']:['Item','Installation condition','Recommendation candidate','Verified scope'],X[lang].requirements,false);
  document.getElementById('performanceBody').innerHTML=table(
    lang==='ko'?['사용 상황','권장 시작값']:lang==='de'?['Einsatz','Empfohlener Startwert']:['Use case','Recommended starting point'],X[lang].performance,false);
  document.getElementById('boardBody').innerHTML=table(

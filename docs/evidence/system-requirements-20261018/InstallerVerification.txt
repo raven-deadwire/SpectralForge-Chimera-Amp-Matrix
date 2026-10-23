@@ -1,0 +1,24 @@
+PASS: Setup version resources match source/payload product version 1.3.2
+PASS: Installed DisplayVersion=1.3.2 and selected binary versions match 1.3.2-beta.1
+PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes
+PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig
+PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig
+PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match
+PASS: Standalone, VST3 and reference renderer use the static MSVC runtime
+PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory
+PASS: Start Menu shortcut launches the installed app and its window: C:\Program Files\SpectralForge\Chimera Amp Matrix\SpectralForge Chimera.exe
+PASS: Installed DisplayVersion=1.3.2 and selected binary versions match 1.3.2-beta.1
+PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs
+PASS: Personal IR collection is preserved after uninstall
+PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files
+PASS: Installed DisplayVersion=1.3.2 and selected binary versions match 1.3.2-beta.1
+PASS: Independent custom application and VST3 installation folders accept Unicode paths
+PASS: Installed DisplayVersion=1.3.2 and selected binary versions match 1.3.2-beta.1
+PASS: Repair remembers the selected VST3 folder without a /VST3DIR override
+PASS: Installed DisplayVersion=1.3.2 and selected binary versions match 1.3.2-beta.1
+PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files
+PASS: VST3-only selection and removal; Unicode custom app path
+PASS: Installed DisplayVersion=1.3.2 and selected binary versions match 1.3.2-beta.1
+PASS: Start Menu shortcut launches the installed app and its window: D:\a\_temp\Chimera 설치 검증\SpectralForge Chimera.exe
+PASS: Standalone-only selection and removal; no VST3 installed
+PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files

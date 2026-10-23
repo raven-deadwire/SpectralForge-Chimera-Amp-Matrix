@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pkg-info overwrite-permissions="true" relocatable="false" identifier="audio.spectralforge.chimera" postinstall-action="none" version="1.3.2" format-version="2" generator-version="InstallCmds-860.14 (24G830)" install-location="/" auth="root">
+    <payload numberOfFiles="61" installKBytes="767247"/>
+    <bundle path="./Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3" id="audio.spectralforge.chimera" CFBundleShortVersionString="1.3.2" CFBundleVersion="1.3.2"/>
+    <bundle path="./Library/Audio/Plug-Ins/Components/SpectralForge Chimera.component" id="audio.spectralforge.chimera" CFBundleShortVersionString="1.3.2" CFBundleVersion="1.3.2"/>
+    <bundle path="./Applications/SpectralForge Chimera.app" id="audio.spectralforge.chimera" CFBundleShortVersionString="1.3.2" CFBundleVersion="1.3.2"/>
+    <bundle-version>
+        <bundle id="audio.spectralforge.chimera"/>
+        <bundle id="audio.spectralforge.chimera"/>
+        <bundle id="audio.spectralforge.chimera"/>
+    </bundle-version>
+    <upgrade-bundle>
+        <bundle id="audio.spectralforge.chimera"/>
+        <bundle id="audio.spectralforge.chimera"/>
+        <bundle id="audio.spectralforge.chimera"/>
+    </upgrade-bundle>
+    <update-bundle/>
+    <atomic-update-bundle/>
+    <strict-identifier>
+        <bundle id="audio.spectralforge.chimera"/>
+    </strict-identifier>
+    <relocate/>
+    <scripts>
+        <preinstall file="./preinstall" timeout="600"/>
+        <postinstall file="./postinstall" timeout="600"/>
+    </scripts>
+</pkg-info>

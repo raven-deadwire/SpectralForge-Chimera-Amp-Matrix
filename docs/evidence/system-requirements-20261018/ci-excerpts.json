@@ -1,0 +1,98 @@
+{
+  "maclog": {
+    "job_id": 117408021679,
+    "environment_excerpt": [
+      "﻿2026-10-17T13:33:56.7964190Z Current runner version: '2.337.0'",
+      "2026-10-17T13:33:56.7984100Z ##[group]Runner Image Provisioner",
+      "2026-10-17T13:33:56.7984920Z Hosted Compute Agent",
+      "2026-10-17T13:33:56.7985310Z Version: 20260828.587",
+      "2026-10-17T13:33:56.7985830Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29",
+      "2026-10-17T13:33:56.7986340Z Build Date: 2026-08-28T16:44:25Z",
+      "2026-10-17T13:33:56.7986850Z Worker ID: {f7927bda-019d-4d8e-a7fc-6f881cd9341b}",
+      "2026-10-17T13:33:56.7987330Z Azure Region: westus",
+      "2026-10-17T13:33:56.7987720Z ##[endgroup]",
+      "2026-10-17T13:33:56.7988780Z ##[group]Operating System",
+      "2026-10-17T13:33:56.7989230Z macOS",
+      "2026-10-17T13:33:56.7989630Z 15.7.9",
+      "2026-10-17T13:33:56.7990010Z 24G830",
+      "2026-10-17T13:33:56.7991760Z ##[endgroup]",
+      "2026-10-17T13:33:56.7992150Z ##[group]Runner Image",
+      "2026-10-17T13:33:56.7992590Z Image: macos-15-arm64",
+      "2026-10-17T13:33:56.7993120Z Version: 20260907.0337.1",
+      "2026-10-17T13:33:56.7994030Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260907.0337/images/macos/macos-15-arm64-Readme.md",
+      "2026-10-17T13:33:56.7995150Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260907.0337",
+      "2026-10-17T13:33:56.7995950Z ##[endgroup]",
+      "2026-10-17T13:33:56.7996800Z ##[group]GITHUB_TOKEN Permissions",
+      "2026-10-17T13:33:56.7998150Z Contents: read"
+    ],
+    "test_summary": [
+      "2026-10-17T14:52:02.2511500Z 100% tests passed out of 57",
+      "2026-10-17T14:52:02.2512760Z Total Test time (real) = 1408.76 sec"
+    ],
+    "cpu_ram": "not recorded in reviewed environment excerpt; not inferred from runner defaults"
+  },
+  "winlog": {
+    "job_id": 117408021649,
+    "environment_excerpt": [
+      "﻿2026-10-17T13:31:08.6805320Z Current runner version: '2.337.0'\r",
+      "2026-10-17T13:31:08.6825625Z ##[group]Runner Image Provisioner\r",
+      "2026-10-17T13:31:08.6826256Z Hosted Compute Agent\r",
+      "2026-10-17T13:31:08.6826718Z Version: 20261002.596\r",
+      "2026-10-17T13:31:08.6827185Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0\r",
+      "2026-10-17T13:31:08.6827726Z Build Date: 2026-10-02T22:28:27Z\r",
+      "2026-10-17T13:31:08.6828264Z Worker ID: {0dac7ca5-9e5f-456f-9fe2-11b9c2368d8f}\r",
+      "2026-10-17T13:31:08.6828804Z Region: mexicocentral\r",
+      "2026-10-17T13:31:08.6829260Z Cloud: Azure\r",
+      "2026-10-17T13:31:08.6829760Z ##[endgroup]\r",
+      "2026-10-17T13:31:08.6830798Z ##[group]Operating System\r",
+      "2026-10-17T13:31:08.6831289Z Microsoft Windows Server 2025\r",
+      "2026-10-17T13:31:08.6831750Z 10.0.26100\r",
+      "2026-10-17T13:31:08.6832420Z Datacenter\r",
+      "2026-10-17T13:31:08.6832819Z ##[endgroup]\r",
+      "2026-10-17T13:31:08.6833221Z ##[group]Runner Image\r",
+      "2026-10-17T13:31:08.6833671Z Image: windows-2025-vs2026\r",
+      "2026-10-17T13:31:08.6834116Z Version: 20261007.264.1\r",
+      "2026-10-17T13:31:08.6835220Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261007.264/images/windows/Windows2025-VS2026-Readme.md\r",
+      "2026-10-17T13:31:08.6836783Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261007.264\r",
+      "2026-10-17T13:31:08.6837597Z ##[endgroup]\r",
+      "2026-10-17T13:31:08.6838673Z ##[group]GITHUB_TOKEN Permissions\r"
+    ],
+    "test_summary": [
+      "2026-10-17T14:42:00.9611379Z 100% tests passed out of 64\r",
+      "2026-10-17T14:42:00.9611827Z Total Test time (real) = 1801.76 sec\r"
+    ],
+    "cpu_ram": "not recorded in reviewed environment excerpt; not inferred from runner defaults"
+  },
+  "linuxlog": {
+    "job_id": 117408021658,
+    "environment_excerpt": [
+      "﻿2026-10-17T13:34:40.3765731Z Current runner version: '2.337.0'",
+      "2026-10-17T13:34:40.3805198Z ##[group]Runner Image Provisioner",
+      "2026-10-17T13:34:40.3806514Z Hosted Compute Agent",
+      "2026-10-17T13:34:40.3807632Z Version: 20261012.601",
+      "2026-10-17T13:34:40.3808677Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d",
+      "2026-10-17T13:34:40.3809872Z Build Date: 2026-10-12T17:48:21Z",
+      "2026-10-17T13:34:40.3811389Z Worker ID: {6bd9f1e4-a1da-416d-aa69-2bcfd3d5306e}",
+      "2026-10-17T13:34:40.3812691Z Region: eastus",
+      "2026-10-17T13:34:40.3813666Z Cloud: Azure",
+      "2026-10-17T13:34:40.3814674Z ##[endgroup]",
+      "2026-10-17T13:34:40.3816897Z ##[group]Operating System",
+      "2026-10-17T13:34:40.3818212Z Ubuntu",
+      "2026-10-17T13:34:40.3819107Z 22.04.5",
+      "2026-10-17T13:34:40.3820113Z LTS",
+      "2026-10-17T13:34:40.3821279Z ##[endgroup]",
+      "2026-10-17T13:34:40.3822316Z ##[group]Runner Image",
+      "2026-10-17T13:34:40.3823618Z Image: ubuntu-22.04",
+      "2026-10-17T13:34:40.3824702Z Version: 20261012.322.1",
+      "2026-10-17T13:34:40.3826975Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20261012.322/images/ubuntu/Ubuntu2204-Readme.md",
+      "2026-10-17T13:34:40.3829776Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20261012.322",
+      "2026-10-17T13:34:40.3831881Z ##[endgroup]",
+      "2026-10-17T13:34:40.3833865Z ##[group]GITHUB_TOKEN Permissions"
+    ],
+    "test_summary": [
+      "2026-10-17T14:49:15.2009474Z 100% tests passed, 0 tests failed out of 58",
+      "2026-10-17T14:49:15.2010030Z Total Test time (real) = 1459.37 sec"
+    ],
+    "cpu_ram": "not recorded in reviewed environment excerpt; not inferred from runner defaults"
+  }
+}
