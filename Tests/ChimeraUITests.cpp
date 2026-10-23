@@ -576,32 +576,21 @@ void checkReviewFixes(const juce::File& directory) {
         auto* channel=correctionUITests::find(*panel,"ampChannel1");
         require(channel && channel->isVisible(),"LOW channel selector missing");
         juce::Rectangle<int> previous;int rowY=-1;
-        for(auto id:{"bandtone1_control","matrixLowCompressor.open","lowampmix_control"}) {
-            auto* c=correctionUITests::find(*panel,id);require(c && c->isVisible(),"LOW control or spectrum entry missing");
+        for(auto id:{"bandtone1_control","lowcomp_control","lowampmix_control"}) {
+            auto* c=correctionUITests::find(*panel,id);require(c && c->isVisible(),"LOW shared control missing");
             const auto bounds=panel->getLocalArea(c,c->getLocalBounds());
-            if(juce::String(id)=="matrixLowCompressor.open") {
-                require(dynamic_cast<juce::TextButton*>(c) && correctionUITests::find(*panel,"lowcomp_control")==nullptr,
-                        "LOW compression must open its spectrum instead of exposing an isolated knob");
-                require(bounds.getY()>=rowY && bounds.getBottom()<=rowY+100,"LOW spectrum entry does not occupy the shared control row");
-            } else {
-                auto* knob=dynamic_cast<NativeControlView*>(c);
-                require(knob && knob->slider.getSliderStyle()==juce::Slider::RotaryHorizontalVerticalDrag,"LOW tone/blend control is not rotary");
-                require(bounds.getY()>=channel->getBottom() && bounds.getY()<channel->getBottom()+10,"LOW knobs must be directly below channel");
-                if(rowY<0)rowY=bounds.getY();else require(bounds.getY()==rowY,"LOW tone/blend knobs do not share one row");
-            }
-            require(previous.isEmpty() || bounds.getX()>previous.getX(),"LOW tone / spectrum / blend order changed");
+            auto* knob=dynamic_cast<NativeControlView*>(c);
+            require(knob && knob->slider.getSliderStyle()==juce::Slider::RotaryHorizontalVerticalDrag,"LOW tone/comp/blend control is not rotary");
+            require(bounds.getY()>=channel->getBottom() && bounds.getY()<channel->getBottom()+10,"LOW knobs must be directly below channel");
+            if(rowY<0)rowY=bounds.getY();else require(bounds.getY()==rowY,"LOW tone/comp/blend knobs do not share one row");
+            require(previous.isEmpty() || bounds.getX()>previous.getX(),"LOW tone / comp / blend order changed");
             require(panel->getLocalBounds().contains(bounds) && !bounds.intersects(previous),"LOW controls clipped or overlapping");previous=bounds;
         }
         const float lowBefore=p.parameters().getRawParameterValue("lowcomp")->load();
-        auto lowWindow=nativeUITests::open(*panel,"matrixLowCompressor.open","matrixLowCompressor.panel");
-        auto& lowPanel=*lowWindow->getContentComponent();
-        auto* spectrum=nativeUITests::find<spectralforge::DynamicsSpectrumPanel>(lowPanel,"matrixLowCompressor.spectrum");
-        auto* amount=nativeUITests::find<juce::Slider>(lowPanel,"lowcomp");
-        require(spectrum && spectrum->isShowing() && amount && amount->isShowing() && p.parameters().getRawParameterValue("lowcomp")->load()==lowBefore,
-                "LOW editor navigation changed compression or omitted the spectrum/attached control");
+        auto* amount=nativeUITests::find<juce::Slider>(*panel,"lowcomp");require(amount && amount->isVisible(),"LOW compression knob missing");
         amount->setValue(scale<1.f?.28:.72,juce::sendNotificationSync);
-        require(std::abs(p.parameters().getRawParameterValue("lowcomp")->load()-amount->getValue())<.002f,"LOW spectrum amount is disconnected from its released parameter");
-        saveSnapshot(lowPanel,directory,"HEAD-LOW-Spectrum-"+juce::String(int(scale*100)));nativeUITests::close(lowWindow);set(p,"lowcomp",lowBefore);
+        require(std::abs(p.parameters().getRawParameterValue("lowcomp")->load()-amount->getValue())<.002f,"LOW compression knob is disconnected from its released parameter");
+        set(p,"lowcomp",lowBefore);
         saveSnapshot(*editor,directory,"HEAD-LOW-"+juce::String(int(scale*100)));
     }
     auto* tuner=nativeUITests::find<juce::TextButton>(*editor,"tunerOpen");
@@ -1051,8 +1040,8 @@ int main(int argc, char** argv)
                     else pedalMenuTests::checkFiveKnobLayout(*board,owner,fiveControlModels[owner],&editor);
                 }
                 saveSnapshot(editor,directory,scale?"Correction-PRE-five-controls-75pct":"Correction-PRE-five-controls");
-                auto* spectrumEntry=nativeUITests::find<juce::TextButton>(*board,"boardCompressorSpectrumAt0");
-                require(spectrumEntry && spectrumEntry->isVisible(),"PRE compressor spectrum action missing");
+                auto* spectrumEntry=nativeUITests::find<juce::TextButton>(*board,"boardDetailAt0");
+                require(spectrumEntry && spectrumEntry->isVisible(),"PRE compressor detail/spectrum action missing");
                 spectrumEntry->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(100);checkDetailPanel(5);
                 pedalMenuTests::checkFiveKnobLayout(*board,0,fiveControlModels[0],&editor);
                 saveSnapshot(editor,directory,scale?"Correction-five-knobs-detail-75pct":"Correction-five-knobs-detail");

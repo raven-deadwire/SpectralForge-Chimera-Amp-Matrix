@@ -17,7 +17,7 @@ public:
         reference.setComponentID("postNativeReference"+juce::String(section));reference.setMinimumHorizontalScale(1.f);
         title.setText(section==0?"BUS COMPRESSOR":section==1?"PREAMPLIFIER":"EQUALIZER",juce::dontSendNotification);
         addAndMakeVisible(model);addAndMakeVisible(bypass);addAndMakeVisible(viewport);addAndMakeVisible(expand);
-        expand.setButtonText(section==0?"SPECTRUM / ALL CONTROLS":"ALL");expand.setComponentID("postExpand"+juce::String(section));expand.setTooltip(section==0?"Edit this compressor while viewing its live input/output spectrum":"Open all processor controls");expand.setVisible(!detailed);
+        expand.setButtonText("ALL");expand.setComponentID("postExpand"+juce::String(section));expand.setTooltip(section==0?"Open all compressor controls with its live input/output spectrum":"Open all processor controls");expand.setVisible(!detailed);
         expand.onClick=[this]{openDetails();};
         model.setComponentID(spectralforge::postNativeModelID(section));model.setName(title.getText()+" model");
         for(int m=0;m<3;++m)model.addItem(juce::String::fromUTF8(spectralforge::postNativeModel(section,m).name),m+1);
@@ -33,7 +33,6 @@ public:
             spectrum->setPostNativeSource(1);
             addAndMakeVisible(*spectrum);
         }
-        if(!detailed && section==0)viewport.setVisible(false);
     }
     ~PostNativePanel() override {if(dialog)delete dialog.getComponent();setLookAndFeel(nullptr);}
     int selectedModel() const noexcept {return currentModel<0?0:currentModel;}
@@ -96,7 +95,7 @@ public:
             const auto labelInk=hardware.brightFace?juce::Colour(0xff26312c):juce::Colour(0xffe1dbce);
             for(size_t i=0;i<controls.size();++i) {
                 auto& control=*controls[i];control.setCompact(!detailed);
-                control.setVisible(detailed || (section!=0 && std::find(front.begin(),front.end(),(int)i)!=front.end()));
+                control.setVisible(detailed || (std::find(front.begin(),front.end(),(int)i)!=front.end()));
                 if(!detailed) {
                     control.label.setColour(juce::Label::textColourId,labelInk);control.label.setColour(juce::Label::backgroundColourId,hardware.brightFace?juce::Colour(0xffeae5d9).withAlpha(.9f):juce::Colour(0xff0d1010).withAlpha(.88f));
                     control.slider.getProperties().set("brightFace",hardware.brightFace);
@@ -149,10 +148,6 @@ public:
         if(!detailed) {
             title.setBounds(28,2,186,19);model.setBounds(28,23,182,24);reference.setBounds(28,47,182,15);
             bypass.setBounds(221,13,43,25);expand.setBounds(221,42,43,19);meterLabel.setBounds(300,20,108,24);
-            if(section==0) {
-                expand.setBounds(438,8,juce::jmax(180,getWidth()-452),48);
-                viewport.setVisible(false);return;
-            }
             viewport.setBounds(438,1,getWidth()-448,62);viewport.setScrollBarsShown(false,false);
             const auto front=frontControls();const int cell=viewport.getWidth()/juce::jmax(1,(int)front.size());
             for(size_t i=0;i<front.size();++i)if(juce::isPositiveAndBelow(front[i],(int)controls.size()))controls[(size_t)front[i]]->setBounds((int)i*cell,0,cell-6,62);
