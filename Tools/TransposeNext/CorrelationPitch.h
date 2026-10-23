@@ -11,6 +11,7 @@ namespace transposeNext {
 // Window/search durations are declared engineering choices, not Neural DSP data.
 class CorrelationPitch {
     std::array<std::vector<float>,2> audio, filtered;
+    std::array<std::vector<double>,2> reference;
     std::array<float,2> low{};
     std::vector<float> fadeWeights;
     std::vector<double> detectorHistory;
@@ -19,6 +20,10 @@ class CorrelationPitch {
     float coefficient{};
     bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{}, externalPending{}, upshiftReset{};
     double upshiftHold{}, onsetAge{1.e9};
+    double retrigger{}, resetPeak{};
+    int resetAge{1<<30}, peakWindow{};
+    bool holdSplices{};
+    int heldSamples{};
     double alignDelay{},alignLead{};
     bool alignCompensated{};
     int fadeStep{1},onsetFadeSamples{};
@@ -56,6 +61,27 @@ class CorrelationPitch {
         }
         return error/energy;
     }
+    // Same value as cost() for an integer candidate, bit for bit: the current
+    // segment (fractional delay) is read once per splice into `reference`,
+    // and an integer age needs no interpolation (read() adds 0 x difference).
+    // Same accumulation order. This is the splice search's hot loop.
+    void captureReference() noexcept {
+        for(int c=0;c<count;++c) for(int k=0,j=0;k<window;k+=stride,++j)
+            reference[size_t(c)][size_t(j)]=read(filtered[size_t(c)],delay+k);
+    }
+    double integerCost(int proposed) const noexcept {
+        double error=0, energy=1.e-20;
+        for(int c=0;c<count;++c) {
+            const float* ring=filtered[size_t(c)].data();const double* x=reference[size_t(c)].data();
+            int i=write-proposed;if(i<0)i+=capacity;
+            for(int k=0,j=0;k<window;k+=stride,++j) {
+                const double y=ring[i];
+                error+=(x[j]-y)*(x[j]-y);energy+=x[j]*x[j]+y*y;
+                i-=stride;if(i<0)i+=capacity;
+            }
+        }
+        return error/energy;
+    }
     void splice() noexcept {
         // Leave a guard for the whole crossfade. Require meaningful progress
         // toward the opposite boundary, avoiding the trivial zero-lag minimum.
@@ -71,19 +97,20 @@ class CorrelationPitch {
         }
         const int first=int(std::ceil(delta>0 ? lo : delay+travel));
         const int last=int(std::floor(delta>0 ? delay-travel : hi));
+        captureReference();
         double best=delta>0 ? lo : hi, score=1.e100;
         const int step=juce::jmax(1, int(std::lround(rate/12000.)));
         for(int d=first;d<=last;d+=step) {
-            const double s=cost(d);
+            const double s=integerCost(d);
             if(s<score) {score=s;best=d;}
         }
         const int centre=int(best);
         for(int d=juce::jmax(first,centre-step);d<=juce::jmin(last,centre+step);++d) {
-            const double s=cost(d);
+            const double s=integerCost(d);
             if(s<score) {score=s;best=d;}
         }
         if(best>first && best<last) {
-            const double left=cost(best-1),right=cost(best+1);
+            const double left=integerCost(int(best)-1),right=integerCost(int(best)+1);
             const double curve=left-2*score+right;
             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
         }
@@ -107,6 +134,7 @@ public:
         capacity=int(std::ceil(maximum))+window+fadeLength+16;
         coefficient=float(1.-std::exp(-2.*juce::MathConstants<double>::pi*800./rate));
         for(auto* bank:{&audio,&filtered}) for(auto& r:*bank) r.assign(size_t(capacity),0);
+        for(auto& r:reference) r.assign(size_t((window+stride-1)/stride),0);
         onsetFloor=minimum;onsetFadeSamples=fadeLength;
         fadeWeights.resize(size_t(fadeLength));
         for(int i=0;i<fadeLength;++i) fadeWeights[size_t(i)]=float(.5-.5*std::cos(juce::MathConstants<double>::pi*(i+1)/fadeLength));
@@ -118,7 +146,7 @@ public:
         fastEnergy=slowEnergy=broadEnergy=0;cooldown=onsets=0;processedSamples=0;onsetSamples.fill(0);
         peakBuckets.fill(0);peakBucketPosition=peakBucketSamples=0;bucketPeak=bucketMaximum=0;
         detectorPosition=0;std::fill(detectorHistory.begin(),detectorHistory.end(),0);
-        delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;onsetAge=1.e9;
+        delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;onsetAge=1.e9;resetAge=1<<30;resetPeak=0;heldSamples=0;
     }
     void setSemitones(int semitones) noexcept {
         const double newRatio=std::pow(2.,juce::jlimit(-12,12,semitones)/12.);
@@ -140,9 +168,15 @@ public:
     // rejected (synthetic sweep: 2-7 ms equivalent; above 10 ms tremolo
     // false-triggers).
     void setBroadSmoothing(double ms) noexcept {broadCoefficient=1-std::exp(-1/(rate*ms*.001));}
-    // Research: place re-anchored attacks at a fixed delay (e.g. the 10 ms of
-    // the hybrid's STFT band) so both bands start together. Downshift anchors
-    // move up to it; upshift anchors (and their hold) are capped at it. 0 = off.
+    // Research: during the refractory interval, accept a new onset whose
+    // novelty exceeds `factor` x the peak novelty of the last reset (tracked
+    // over its first 2 ms). A faint false reset (e.g. a note's fade-out
+    // corner) then cannot mask a real pick that follows within 45 ms.
+    void setRetrigger(double factor) noexcept {retrigger=factor;peakWindow=int(std::ceil(rate*.002));}
+    // Research: while held, a downshift splice due at the boundary waits (the
+    // read head may overshoot by at most 32 samples of delay). Used so two paths never
+    // run their ~0.5 ms correlation search in the same callback.
+    void setSplicesHeld(bool held) noexcept {holdSplices=held;}
     // Research: a shorter crossfade and a lower read-delay floor for onset
     // re-anchors only (splices keep the 2 ms fade and 2 ms floor). Lowers the
     // downshift attack floor, (floor + guard + lead) / ratio, at -12.
@@ -154,6 +188,9 @@ public:
         onsetFadeSamples=juce::jlimit(1,fadeLength,int(std::ceil(rate*fadeMs*.001)));
         onsetFloor=juce::jlimit(4.,minimum,rate*floorMs*.001);
     }
+    // Research: place re-anchored attacks at a fixed delay (e.g. the 10 ms of
+    // the hybrid's STFT band) so both bands start together. Downshift anchors
+    // move up to it; upshift anchors (and their hold) are capped at it. 0 = off.
     void setAnchorAlignment(double ms, bool ratioCompensated=false, double leadMs=2.9) noexcept {
         alignDelay=ms>0 ? juce::jlimit(minimum,maximum,rate*ms*.001) : 0.;alignCompensated=ratioCompensated;alignLead=rate*leadMs*.001;
     }
@@ -219,6 +256,9 @@ public:
             detectorHistory[size_t(detectorPosition)]=novelty;
             if(++detectorPosition==int(detectorHistory.size()))detectorPosition=0;
             if(cooldown>0)--cooldown;
+            if(resetAge<peakWindow)resetPeak=std::max(resetPeak,novelty);
+            if(resetAge<(1<<30))++resetAge;
+            if(retrigger>0 && cooldown>0 && resetAge>=peakWindow && novelty>retrigger*resetPeak)cooldown=0;
             if(!render || ratio==1.) {
                 for(int c=0;c<count;++c)output.setSample(c,n,input.getSample(c,n));
                 active=false;fading=false;pendingOnset=false;externalPending=false;
@@ -256,12 +296,16 @@ public:
                    (innovationReset ? pendingOnset : (fastEnergy>1.e-8 && fastEnergy>2.5*slowEnergy))) {
                     pendingOnset=false;
                     nextDelay=anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
-                    cooldown=cooldownLength;
+                    cooldown=cooldownLength;resetAge=0;resetPeak=novelty;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
                     if(onsetOut!=nullptr)onsetOut[n]=1;
                 }
-                if(!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard))) splice();
+                const bool due=!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard));
+                // Downshift only: a late upshift splice measurably lengthens the
+                // next backward jump (+0.6 ms low-band centroid, guitar A1 +2).
+                if(due && holdSplices && delta>0 && heldSamples<int(32./delta))++heldSamples;
+                else if(due){heldSamples=0;splice();}
                 const float w=fading?fadeWeights[size_t(fadeIndex)]:0.f;
                 for(int c=0;c<count;++c) {
                     const float old=read(audio[size_t(c)],delay);

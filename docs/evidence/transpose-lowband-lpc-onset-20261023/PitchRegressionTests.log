@@ -1,0 +1,96 @@
+fixture=synthetic_sine_0.2_L_negative0.65_R frequency=27.5Hz duration=1.5s analysis_last=0.75s; CPU is shared-runner evidence only
+MEASURE rate=44100 block=64 shift=-12 nominal_latency=2048 baseline_target_db=-7.50147 candidate_target_db=-2.12611 baseline_p99_us=438.022 candidate_p95_us=386.169 candidate_p99_us=449.599
+MEASURE rate=44100 block=64 shift=-5 nominal_latency=2048 baseline_target_db=-6.00529 candidate_target_db=-0.629683 baseline_p99_us=521.243 candidate_p95_us=429.483 candidate_p99_us=505.284
+MEASURE rate=44100 block=64 shift=-2 nominal_latency=2048 baseline_target_db=-5.7183 candidate_target_db=-0.342763 baseline_p99_us=526.572 candidate_p95_us=447.259 candidate_p99_us=559.855
+MEASURE rate=44100 block=64 shift=-1 nominal_latency=2048 baseline_target_db=-5.60194 candidate_target_db=-0.226412 baseline_p99_us=732.273 candidate_p95_us=431.051 candidate_p99_us=553.755
+MEASURE rate=44100 block=64 shift=0 nominal_latency=2048 baseline_target_db=-0.179764 candidate_target_db=-0.179764 baseline_p99_us=490.697 candidate_p95_us=441.513 candidate_p99_us=763.892
+MEASURE rate=44100 block=64 shift=1 nominal_latency=2048 baseline_target_db=-0.160436 candidate_target_db=-0.160436 baseline_p99_us=617.024 candidate_p95_us=444.643 candidate_p99_us=559.223
+MEASURE rate=44100 block=64 shift=2 nominal_latency=2048 baseline_target_db=-0.273159 candidate_target_db=-0.273159 baseline_p99_us=605.127 candidate_p95_us=429.487 candidate_p99_us=469.103
+MEASURE rate=44100 block=64 shift=5 nominal_latency=2048 baseline_target_db=-1.09223 candidate_target_db=-1.09223 baseline_p99_us=430.492 candidate_p95_us=405.275 candidate_p99_us=429.122
+MEASURE rate=44100 block=64 shift=12 nominal_latency=2048 baseline_target_db=-4.93338 candidate_target_db=-4.93338 baseline_p99_us=421.308 candidate_p95_us=382.665 candidate_p99_us=508.545
+MEASURE rate=44100 block=128 shift=-12 nominal_latency=2048 baseline_target_db=-7.50147 candidate_target_db=-2.12611 baseline_p99_us=481 candidate_p95_us=409.006 candidate_p99_us=549.173
+MEASURE rate=44100 block=128 shift=-5 nominal_latency=2048 baseline_target_db=-6.00529 candidate_target_db=-0.629683 baseline_p99_us=911.179 candidate_p95_us=832.403 candidate_p99_us=924.815
+MEASURE rate=44100 block=128 shift=-2 nominal_latency=2048 baseline_target_db=-5.7183 candidate_target_db=-0.342763 baseline_p99_us=442.612 candidate_p95_us=652.029 candidate_p99_us=686.215
+MEASURE rate=44100 block=128 shift=-1 nominal_latency=2048 baseline_target_db=-5.60194 candidate_target_db=-0.226412 baseline_p99_us=483.966 candidate_p95_us=444.188 candidate_p99_us=527.964
+MEASURE rate=44100 block=128 shift=0 nominal_latency=2048 baseline_target_db=-0.179764 candidate_target_db=-0.179764 baseline_p99_us=489.769 candidate_p95_us=483.475 candidate_p99_us=638.028
+MEASURE rate=44100 block=128 shift=1 nominal_latency=2048 baseline_target_db=-0.160436 candidate_target_db=-0.160436 baseline_p99_us=539.27 candidate_p95_us=455.099 candidate_p99_us=611.077
+MEASURE rate=44100 block=128 shift=2 nominal_latency=2048 baseline_target_db=-0.273159 candidate_target_db=-0.273159 baseline_p99_us=694.379 candidate_p95_us=588.766 candidate_p99_us=649.953
+MEASURE rate=44100 block=128 shift=5 nominal_latency=2048 baseline_target_db=-1.09223 candidate_target_db=-1.09223 baseline_p99_us=638.614 candidate_p95_us=669.293 candidate_p99_us=699.807
+MEASURE rate=44100 block=128 shift=12 nominal_latency=2048 baseline_target_db=-4.93338 candidate_target_db=-4.93338 baseline_p99_us=391.116 candidate_p95_us=366.222 candidate_p99_us=386.027
+MEASURE rate=44100 block=256 shift=-12 nominal_latency=2048 baseline_target_db=-7.49922 candidate_target_db=-2.12387 baseline_p99_us=420.74 candidate_p95_us=393.733 candidate_p99_us=415.267
+MEASURE rate=44100 block=256 shift=-5 nominal_latency=2048 baseline_target_db=-6.02934 candidate_target_db=-0.653726 baseline_p99_us=454.743 candidate_p95_us=418.593 candidate_p99_us=434.784
+MEASURE rate=44100 block=256 shift=-2 nominal_latency=2048 baseline_target_db=-5.6914 candidate_target_db=-0.315818 baseline_p99_us=454.117 candidate_p95_us=431.526 candidate_p99_us=442.419
+MEASURE rate=44100 block=256 shift=-1 nominal_latency=2048 baseline_target_db=-5.57743 candidate_target_db=-0.201884 baseline_p99_us=459.857 candidate_p95_us=434.961 candidate_p99_us=450.309
+MEASURE rate=44100 block=256 shift=0 nominal_latency=2048 baseline_target_db=-0.209913 candidate_target_db=-0.209913 baseline_p99_us=465.286 candidate_p95_us=440.544 candidate_p99_us=450.739
+MEASURE rate=44100 block=256 shift=1 nominal_latency=2048 baseline_target_db=-0.177711 candidate_target_db=-0.177711 baseline_p99_us=444.343 candidate_p95_us=610.9 candidate_p99_us=679.095
+MEASURE rate=44100 block=256 shift=2 nominal_latency=2048 baseline_target_db=-0.299611 candidate_target_db=-0.299611 baseline_p99_us=724.796 candidate_p95_us=434.15 candidate_p99_us=448.604
+MEASURE rate=44100 block=256 shift=5 nominal_latency=2048 baseline_target_db=-1.12324 candidate_target_db=-1.12324 baseline_p99_us=452.383 candidate_p95_us=431.201 candidate_p99_us=446.755
+MEASURE rate=44100 block=256 shift=12 nominal_latency=2048 baseline_target_db=-4.9051 candidate_target_db=-4.9051 baseline_p99_us=410.531 candidate_p95_us=381.349 candidate_p99_us=397.234
+MEASURE rate=48000 block=64 shift=-12 nominal_latency=2048 baseline_target_db=-9.39877 candidate_target_db=-2.59496 baseline_p99_us=402.964 candidate_p95_us=378.726 candidate_p99_us=397.715
+MEASURE rate=48000 block=64 shift=-5 nominal_latency=2048 baseline_target_db=-7.78725 candidate_target_db=-0.982668 baseline_p99_us=425.029 candidate_p95_us=397.785 candidate_p99_us=421.006
+MEASURE rate=48000 block=64 shift=-2 nominal_latency=2048 baseline_target_db=-7.39678 candidate_target_db=-0.592724 baseline_p99_us=437.785 candidate_p95_us=411.174 candidate_p99_us=440.314
+MEASURE rate=48000 block=64 shift=-1 nominal_latency=2048 baseline_target_db=-7.24683 candidate_target_db=-0.442802 baseline_p99_us=435.966 candidate_p95_us=412.653 candidate_p99_us=435.709
+MEASURE rate=48000 block=64 shift=0 nominal_latency=2048 baseline_target_db=-0.384887 candidate_target_db=-0.384887 baseline_p99_us=653.746 candidate_p95_us=424.331 candidate_p99_us=472.031
+MEASURE rate=48000 block=64 shift=1 nominal_latency=2048 baseline_target_db=-0.312391 candidate_target_db=-0.312391 baseline_p99_us=460.607 candidate_p95_us=422.508 candidate_p99_us=489.018
+MEASURE rate=48000 block=64 shift=2 nominal_latency=2048 baseline_target_db=-0.441095 candidate_target_db=-0.441095 baseline_p99_us=518.127 candidate_p95_us=421.716 candidate_p99_us=489.448
+MEASURE rate=48000 block=64 shift=5 nominal_latency=2048 baseline_target_db=-0.953517 candidate_target_db=-0.953517 baseline_p99_us=474.575 candidate_p95_us=418.235 candidate_p99_us=503.78
+MEASURE rate=48000 block=64 shift=12 nominal_latency=2048 baseline_target_db=-3.26454 candidate_target_db=-3.26454 baseline_p99_us=451.499 candidate_p95_us=365.289 candidate_p99_us=513.374
+MEASURE rate=48000 block=128 shift=-12 nominal_latency=2048 baseline_target_db=-9.39572 candidate_target_db=-2.59193 baseline_p99_us=522.924 candidate_p95_us=397.547 candidate_p99_us=477.885
+MEASURE rate=48000 block=128 shift=-5 nominal_latency=2048 baseline_target_db=-7.7941 candidate_target_db=-0.989469 baseline_p99_us=467.034 candidate_p95_us=417.25 candidate_p99_us=456.381
+MEASURE rate=48000 block=128 shift=-2 nominal_latency=2048 baseline_target_db=-7.38148 candidate_target_db=-0.577401 baseline_p99_us=484.173 candidate_p95_us=427.815 candidate_p99_us=471.786
+MEASURE rate=48000 block=128 shift=-1 nominal_latency=2048 baseline_target_db=-7.24416 candidate_target_db=-0.44017 baseline_p99_us=517.265 candidate_p95_us=585.397 candidate_p99_us=756.229
+MEASURE rate=48000 block=128 shift=0 nominal_latency=2048 baseline_target_db=-0.390619 candidate_target_db=-0.390619 baseline_p99_us=669.021 candidate_p95_us=463.033 candidate_p99_us=610.718
+MEASURE rate=48000 block=128 shift=1 nominal_latency=2048 baseline_target_db=-0.327536 candidate_target_db=-0.327536 baseline_p99_us=465.894 candidate_p95_us=434.607 candidate_p99_us=475.548
+MEASURE rate=48000 block=128 shift=2 nominal_latency=2048 baseline_target_db=-0.455496 candidate_target_db=-0.455496 baseline_p99_us=685.247 candidate_p95_us=447.34 candidate_p99_us=582.169
+MEASURE rate=48000 block=128 shift=5 nominal_latency=2048 baseline_target_db=-0.961408 candidate_target_db=-0.961408 baseline_p99_us=448.66 candidate_p95_us=434.409 candidate_p99_us=623.716
+MEASURE rate=48000 block=128 shift=12 nominal_latency=2048 baseline_target_db=-3.26535 candidate_target_db=-3.26535 baseline_p99_us=437.584 candidate_p95_us=371.077 candidate_p99_us=432.408
+MEASURE rate=48000 block=256 shift=-12 nominal_latency=2048 baseline_target_db=-9.37944 candidate_target_db=-2.57571 baseline_p99_us=460.188 candidate_p95_us=406.392 candidate_p99_us=473.394
+MEASURE rate=48000 block=256 shift=-5 nominal_latency=2048 baseline_target_db=-7.79217 candidate_target_db=-0.987504 baseline_p99_us=551.305 candidate_p95_us=447.383 candidate_p99_us=549.356
+MEASURE rate=48000 block=256 shift=-2 nominal_latency=2048 baseline_target_db=-7.35656 candidate_target_db=-0.55257 baseline_p99_us=491.763 candidate_p95_us=453.239 candidate_p99_us=477.88
+MEASURE rate=48000 block=256 shift=-1 nominal_latency=2048 baseline_target_db=-7.2574 candidate_target_db=-0.453509 baseline_p99_us=658.674 candidate_p95_us=600.226 candidate_p99_us=639.612
+MEASURE rate=48000 block=256 shift=0 nominal_latency=2048 baseline_target_db=-0.381383 candidate_target_db=-0.381383 baseline_p99_us=1083.68 candidate_p95_us=567.147 candidate_p99_us=875.947
+MEASURE rate=48000 block=256 shift=1 nominal_latency=2048 baseline_target_db=-0.352013 candidate_target_db=-0.352013 baseline_p99_us=710.907 candidate_p95_us=492.066 candidate_p99_us=642.145
+MEASURE rate=48000 block=256 shift=2 nominal_latency=2048 baseline_target_db=-0.46836 candidate_target_db=-0.46836 baseline_p99_us=498.386 candidate_p95_us=501.57 candidate_p99_us=747.828
+MEASURE rate=48000 block=256 shift=5 nominal_latency=2048 baseline_target_db=-0.95051 candidate_target_db=-0.95051 baseline_p99_us=854.393 candidate_p95_us=540.34 candidate_p99_us=608.173
+MEASURE rate=48000 block=256 shift=12 nominal_latency=2048 baseline_target_db=-3.29177 candidate_target_db=-3.29177 baseline_p99_us=1152.9 candidate_p95_us=610.004 candidate_p99_us=626.327
+MEASURE rate=96000 block=64 shift=-12 nominal_latency=4096 baseline_target_db=-9.39878 candidate_target_db=-2.59497 baseline_p99_us=1220.67 candidate_p95_us=721.296 candidate_p99_us=943.016
+MEASURE rate=96000 block=64 shift=-5 nominal_latency=4096 baseline_target_db=-7.78728 candidate_target_db=-0.982699 baseline_p99_us=902.361 candidate_p95_us=746.927 candidate_p99_us=801.905
+MEASURE rate=96000 block=64 shift=-2 nominal_latency=4096 baseline_target_db=-7.39673 candidate_target_db=-0.592679 baseline_p99_us=843.608 candidate_p95_us=783.656 candidate_p99_us=986.984
+MEASURE rate=96000 block=64 shift=-1 nominal_latency=4096 baseline_target_db=-7.2468 candidate_target_db=-0.442778 baseline_p99_us=866.707 candidate_p95_us=776.399 candidate_p99_us=822.22
+MEASURE rate=96000 block=64 shift=0 nominal_latency=4096 baseline_target_db=-0.384873 candidate_target_db=-0.384873 baseline_p99_us=830.296 candidate_p95_us=783.138 candidate_p99_us=824.286
+MEASURE rate=96000 block=64 shift=1 nominal_latency=4096 baseline_target_db=-0.312441 candidate_target_db=-0.312441 baseline_p99_us=821.521 candidate_p95_us=778.726 candidate_p99_us=826.242
+MEASURE rate=96000 block=64 shift=2 nominal_latency=4096 baseline_target_db=-0.441165 candidate_target_db=-0.441165 baseline_p99_us=1130.18 candidate_p95_us=801.477 candidate_p99_us=1232.95
+MEASURE rate=96000 block=64 shift=5 nominal_latency=4096 baseline_target_db=-0.953507 candidate_target_db=-0.953507 baseline_p99_us=809.739 candidate_p95_us=755.62 candidate_p99_us=791.135
+MEASURE rate=96000 block=64 shift=12 nominal_latency=4096 baseline_target_db=-3.26453 candidate_target_db=-3.26453 baseline_p99_us=707.29 candidate_p95_us=1069.66 candidate_p99_us=1127.75
+MEASURE rate=96000 block=128 shift=-12 nominal_latency=4096 baseline_target_db=-9.39878 candidate_target_db=-2.59497 baseline_p99_us=1454.7 candidate_p95_us=1103.85 candidate_p99_us=1239.57
+MEASURE rate=96000 block=128 shift=-5 nominal_latency=4096 baseline_target_db=-7.78728 candidate_target_db=-0.982699 baseline_p99_us=1324.31 candidate_p95_us=767.101 candidate_p99_us=821.089
+MEASURE rate=96000 block=128 shift=-2 nominal_latency=4096 baseline_target_db=-7.39673 candidate_target_db=-0.592679 baseline_p99_us=849.258 candidate_p95_us=1272.69 candidate_p99_us=1350.46
+MEASURE rate=96000 block=128 shift=-1 nominal_latency=4096 baseline_target_db=-7.2468 candidate_target_db=-0.442778 baseline_p99_us=890.871 candidate_p95_us=822.427 candidate_p99_us=933.913
+MEASURE rate=96000 block=128 shift=0 nominal_latency=4096 baseline_target_db=-0.384873 candidate_target_db=-0.384873 baseline_p99_us=883.371 candidate_p95_us=836.207 candidate_p99_us=1159.03
+MEASURE rate=96000 block=128 shift=1 nominal_latency=4096 baseline_target_db=-0.312441 candidate_target_db=-0.312441 baseline_p99_us=1008.02 candidate_p95_us=816.329 candidate_p99_us=926.712
+MEASURE rate=96000 block=128 shift=2 nominal_latency=4096 baseline_target_db=-0.441165 candidate_target_db=-0.441165 baseline_p99_us=862.728 candidate_p95_us=804.725 candidate_p99_us=844.389
+MEASURE rate=96000 block=128 shift=5 nominal_latency=4096 baseline_target_db=-0.953507 candidate_target_db=-0.953507 baseline_p99_us=819.462 candidate_p95_us=802.794 candidate_p99_us=855.665
+MEASURE rate=96000 block=128 shift=12 nominal_latency=4096 baseline_target_db=-3.26453 candidate_target_db=-3.26453 baseline_p99_us=738.273 candidate_p95_us=686.053 candidate_p99_us=718.039
+MEASURE rate=96000 block=256 shift=-12 nominal_latency=4096 baseline_target_db=-9.39572 candidate_target_db=-2.59193 baseline_p99_us=883.604 candidate_p95_us=1203.47 candidate_p99_us=1311.83
+MEASURE rate=96000 block=256 shift=-5 nominal_latency=4096 baseline_target_db=-7.79411 candidate_target_db=-0.989485 baseline_p99_us=990.508 candidate_p95_us=850.942 candidate_p99_us=952.231
+MEASURE rate=96000 block=256 shift=-2 nominal_latency=4096 baseline_target_db=-7.38143 candidate_target_db=-0.577357 baseline_p99_us=942.174 candidate_p95_us=822.382 candidate_p99_us=939.253
+MEASURE rate=96000 block=256 shift=-1 nominal_latency=4096 baseline_target_db=-7.24416 candidate_target_db=-0.440169 baseline_p99_us=951.256 candidate_p95_us=1131.43 candidate_p99_us=1257.68
+MEASURE rate=96000 block=256 shift=0 nominal_latency=4096 baseline_target_db=-0.390579 candidate_target_db=-0.390579 baseline_p99_us=1144.19 candidate_p95_us=1107.43 candidate_p99_us=1256.71
+MEASURE rate=96000 block=256 shift=1 nominal_latency=4096 baseline_target_db=-0.32759 candidate_target_db=-0.32759 baseline_p99_us=1202.41 candidate_p95_us=864.183 candidate_p99_us=954.357
+MEASURE rate=96000 block=256 shift=2 nominal_latency=4096 baseline_target_db=-0.455557 candidate_target_db=-0.455557 baseline_p99_us=1056.57 candidate_p95_us=831.299 candidate_p99_us=854.023
+MEASURE rate=96000 block=256 shift=5 nominal_latency=4096 baseline_target_db=-0.96137 candidate_target_db=-0.96137 baseline_p99_us=867.272 candidate_p95_us=1071.71 candidate_p99_us=1257.69
+MEASURE rate=96000 block=256 shift=12 nominal_latency=4096 baseline_target_db=-3.26539 candidate_target_db=-3.26539 baseline_p99_us=1130.56 candidate_p95_us=1070.3 candidate_p99_us=1110.1
+MEASURE impulse rate=44100 shift=-12 latency=2048 centroid_samples=2047.97 energy5_95_samples=1535:2560 smear_ms=23.2426
+MEASURE impulse rate=44100 shift=-2 latency=2048 centroid_samples=2045.29 energy5_95_samples=1280:2769 smear_ms=33.7642
+MEASURE impulse rate=44100 shift=2 latency=2048 centroid_samples=2051.42 energy5_95_samples=1339:2746 smear_ms=31.9048
+MEASURE impulse rate=44100 shift=12 latency=2048 centroid_samples=2068.04 energy5_95_samples=1152:2176 smear_ms=23.22
+MEASURE impulse rate=48000 shift=-12 latency=2048 centroid_samples=2047.97 energy5_95_samples=1535:2560 smear_ms=21.3542
+MEASURE impulse rate=48000 shift=-2 latency=2048 centroid_samples=2045.29 energy5_95_samples=1280:2769 smear_ms=31.0208
+MEASURE impulse rate=48000 shift=2 latency=2048 centroid_samples=2051.42 energy5_95_samples=1339:2746 smear_ms=29.3125
+MEASURE impulse rate=48000 shift=12 latency=2048 centroid_samples=2068.04 energy5_95_samples=1152:2176 smear_ms=21.3333
+MEASURE impulse rate=96000 shift=-12 latency=4096 centroid_samples=4095.97 energy5_95_samples=3071:5120 smear_ms=21.3438
+MEASURE impulse rate=96000 shift=-2 latency=4096 centroid_samples=4086.07 energy5_95_samples=2775:5538 smear_ms=28.7812
+MEASURE impulse rate=96000 shift=2 latency=4096 centroid_samples=4115.9 energy5_95_samples=2810:5492 smear_ms=27.9375
+MEASURE impulse rate=96000 shift=12 latency=4096 centroid_samples=4136.13 energy5_95_samples=2304:4352 smear_ms=21.3333
+PASS low-bin target-energy correction and unchanged positive/unity raw mappings; live latency / real DI / stereo image / listening acceptance BLOCKED
+exit=0

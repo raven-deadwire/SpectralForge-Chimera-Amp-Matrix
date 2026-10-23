@@ -1,0 +1,11 @@
+PASS Gate DSP 44100 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 44100 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 44100 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS default Full equivalence and smoothed Range/bypass automation
+exit=0

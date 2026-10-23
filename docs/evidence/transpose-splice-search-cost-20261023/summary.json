@@ -1,0 +1,89 @@
+{
+ "status": "SYNTHETIC_RESEARCH_ONLY",
+ "date": "2026-10-23",
+ "change": "bit-exact splice search: reference segment read once per splice, integer candidates read without interpolation",
+ "base_commit": "e5846dcc4a86c9ff65fc12f7b2609132782a3da2",
+ "renderer_sha256": "0fb92d5c38a4a86c95cf9fd071091cdcd575124e1e98c4bd984a1a79fe6dc9ae",
+ "timing_suite": {
+  "baseline/block128": {
+   "thread_cpu_mean_us_median": 166.177,
+   "thread_cpu_p99_us_max": 495.97592000000043,
+   "thread_cpu_peak_us_max": 1718.68,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 6
+  },
+  "baseline/block256": {
+   "thread_cpu_mean_us_median": 313.652,
+   "thread_cpu_p99_us_max": 523.21416,
+   "thread_cpu_peak_us_max": 1569.7,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 0
+  },
+  "baseline/block64": {
+   "thread_cpu_mean_us_median": 83.5525,
+   "thread_cpu_p99_us_max": 456.9489199999998,
+   "thread_cpu_peak_us_max": 1217.64,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 40
+  },
+  "corr40-split-rt/block128": {
+   "thread_cpu_mean_us_median": 56.2887,
+   "thread_cpu_p99_us_max": 243.51446000000004,
+   "thread_cpu_peak_us_max": 603.888,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 0
+  },
+  "corr40-split-rt/block256": {
+   "thread_cpu_mean_us_median": 108.218,
+   "thread_cpu_p99_us_max": 500.38256000000024,
+   "thread_cpu_peak_us_max": 1180.34,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 0
+  },
+  "corr40-split-rt/block64": {
+   "thread_cpu_mean_us_median": 27.8615,
+   "thread_cpu_p99_us_max": 135.89332999999993,
+   "thread_cpu_peak_us_max": 1119.39,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 6
+  },
+  "corr40-split-up/block128": {
+   "thread_cpu_mean_us_median": 45.2333,
+   "thread_cpu_p99_us_max": 229.28293000000014,
+   "thread_cpu_peak_us_max": 476.033,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 0
+  },
+  "corr40-split-up/block256": {
+   "thread_cpu_mean_us_median": 95.5732,
+   "thread_cpu_p99_us_max": 520.4607200000004,
+   "thread_cpu_peak_us_max": 1150.16,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 1
+  },
+  "corr40-split-up/block64": {
+   "thread_cpu_mean_us_median": 24.8916,
+   "thread_cpu_p99_us_max": 117.57449999999992,
+   "thread_cpu_peak_us_max": 445.096,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 2
+  }
+ },
+ "splice_callback_cost": [
+  "instrumented build, timing_mix bass_B0 48 kHz block 64, corr40-split-rt; thread CPU us per callback (median)",
+  "shift -2 before: no splice 8, one splice 386, max 647, body/transient splices 74/54",
+  "shift -2 after: no splice 8, one splice 90, max 447, body/transient splices 74/54",
+  "shift 2 before: no splice 6, one splice 323, max 1031, body/transient splices 248/309",
+  "shift 2 after: no splice 8, one splice 92, max 402, body/transient splices 248/309"
+ ],
+ "cpu_ab": [
+  "shift -2 block 32 corr40-split-rt    old: miss   2 mean   14.6us p99.9   399.8us | new: miss   2 mean   13.8us p99.9   100.3us",
+  "shift -2 block 32 corr40-split-up    old: miss  60 mean   12.9us p99.9   391.5us | new: miss   0 mean   12.0us p99.9    97.5us",
+  "shift -2 block 64 corr40-split-rt    old: miss   0 mean   28.8us p99.9   462.2us | new: miss   1 mean   26.9us p99.9   155.2us",
+  "shift -2 block 64 corr40-split-up    old: miss   0 mean   26.0us p99.9   457.8us | new: miss   0 mean   24.2us p99.9   157.8us",
+  "shift 2 block 32 corr40-split-rt    old: miss 107 mean   16.4us p99.9   424.2us | new: miss   2 mean   14.1us p99.9   110.6us",
+  "shift 2 block 32 corr40-split-up    old: miss  67 mean   15.1us p99.9   421.9us | new: miss   3 mean   12.9us p99.9   110.7us",
+  "shift 2 block 64 corr40-split-rt    old: miss   3 mean   33.5us p99.9   524.4us | new: miss   2 mean   27.0us p99.9   171.6us",
+  "shift 2 block 64 corr40-split-up    old: miss   1 mean   30.1us p99.9   497.2us | new: miss   1 mean   25.1us p99.9   170.0us"
+ ]
+}
