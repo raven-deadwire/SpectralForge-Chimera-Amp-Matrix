@@ -931,7 +931,7 @@ inline juce::DialogWindow* cabinetDialog() {
 }
 
 struct NativePopupGeometry {
-    bool showing{},displayAvailable{},clientContained{},contentContained{},frameAvailable{},frameContained{};
+    bool showing{},displayAvailable{},clientContained{},contentContained{},contentReachable{},frameAvailable{},frameContained{};
     juce::String description;
 };
 
@@ -945,6 +945,24 @@ inline NativePopupGeometry nativePopupGeometry(juce::DialogWindow& window,CabWor
     result.displayAvailable=display!=nullptr;
     result.clientContained=display && display->userArea.contains(client);
     result.contentContained=window.getLocalBounds().contains(content);
+    result.contentReachable=result.contentContained;
+    if(auto* viewport=dynamic_cast<spectralforge::ui::AccessibleViewport*>(window.getContentComponent())) {
+        // The owning viewport fits the native window; its readable workspace
+        // deliberately scrolls. Require containment plus access to both ends.
+        result.contentContained=window.getLocalBounds().contains(
+            window.getLocalArea(viewport,viewport->getLocalBounds()));
+        result.contentReachable=false;
+        if(viewport->getViewedComponent()==&workspace && !workspace.getLocalBounds().isEmpty()) {
+            const auto previous=viewport->getViewPosition();
+            viewport->setViewPosition(0,0);
+            const bool first=viewport->getViewArea().contains(juce::Point<int>{0,0});
+            viewport->setViewPosition(workspace.getWidth(),workspace.getHeight());
+            const bool last=viewport->getViewArea().contains(
+                juce::Point<int>{workspace.getWidth()-1,workspace.getHeight()-1});
+            viewport->setViewPosition(previous);
+            result.contentReachable=first && last;
+        }
+    }
     result.description="editor="+editor.getScreenBounds().toString()
         +" window-local="+window.getLocalBounds().toString()+" window-parent="+window.getBounds().toString()
         +" window-screen="+client.toString()+" workspace-parent="+workspace.getBounds().toString()
@@ -966,6 +984,7 @@ inline NativePopupGeometry nativePopupGeometry(juce::DialogWindow& window,CabWor
     } else result.description+=" peer=MISSING";
     result.description+=" client-contained="+juce::String(int(result.clientContained))
         +" content-contained="+juce::String(int(result.contentContained))
+        +" content-reachable="+juce::String(int(result.contentReachable))
         +" frame-contained="+juce::String(int(result.frameContained));
     return result;
 }
@@ -975,15 +994,15 @@ inline void nativePopupReady(juce::DialogWindow& window,CabWorkspace& workspace,
     auto geometry=nativePopupGeometry(window,workspace,editor);
     std::cout<<"NATIVE CAB initial rig="<<rig<<": "<<geometry.description<<'\n';
     // Dialog creation can precede native title/frame placement. Observe the
-    // real event queue until strict containment holds; never move the fixture,
-    // remove an assertion, or use a fixed delay to hide persistent overflow.
+    // real event queue until frame/viewport containment and content reachability
+    // hold; do not move the native window or hide persistent overflow with delays.
     const bool ready=dispatchUntil([&] {
         const auto next=nativePopupGeometry(window,workspace,editor);
         if(next.description!=geometry.description)
             std::cout<<"NATIVE CAB geometry rig="<<rig<<": "<<next.description<<'\n';
         geometry=next;
         return geometry.showing && geometry.displayAvailable && geometry.clientContained
-            && geometry.contentContained && geometry.frameAvailable && geometry.frameContained;
+            && geometry.contentContained && geometry.contentReachable && geometry.frameAvailable && geometry.frameContained;
     });
     std::cout<<"NATIVE CAB final rig="<<rig<<": "<<geometry.description<<'\n';
     if(!ready) {
@@ -992,7 +1011,8 @@ inline void nativePopupReady(juce::DialogWindow& window,CabWorkspace& workspace,
     }
     require(geometry.showing && geometry.displayAvailable,"Native CAB popup never became visible on an available monitor");
     require(geometry.clientContained,"Native CAB popup client bounds extend beyond the available monitor area");
-    require(geometry.contentContained,"Native CAB popup content extends beyond its window area");
+    require(geometry.contentContained,"Native CAB popup content viewport extends beyond its window area");
+    require(geometry.contentReachable,"Native CAB popup cannot scroll to both workspace endpoints");
     require(geometry.frameAvailable,"Native CAB popup never reported its actual native frame dimensions");
     require(geometry.frameContained,"Native CAB popup outer title/frame extends beyond the available monitor area");
 }

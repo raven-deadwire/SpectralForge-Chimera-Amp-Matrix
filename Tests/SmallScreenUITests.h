@@ -6,11 +6,34 @@
 namespace smallScreenTests {
 using namespace nativeUITests;
 inline void reachable(ChimeraEditor& editor,spectralforge::ui::AccessibleViewport& viewport,juce::Component& control) {
+    // Reveal inner panel viewports before the transformed editor viewport.
+    // Moving only the editor canvas cannot unclip an AMP/POST control inside it.
+    for(auto* parent=control.getParentComponent();parent && parent!=&viewport;parent=parent->getParentComponent())
+        if(auto* inner=dynamic_cast<juce::Viewport*>(parent)) {
+            auto* content=inner->getViewedComponent();
+            require(content && content->isParentOf(&control),"Control has no owning viewport content");
+            const auto target=content->getLocalArea(&control,control.getLocalBounds());
+            const auto visible=inner->getViewArea();
+            const auto offset=[](int start,int end,int position,int extent) {
+                return start<position?start:end>position+extent?juce::jmax(start,end-extent):position;
+            };
+            inner->setViewPosition(offset(target.getX(),target.getRight(),visible.getX(),visible.getWidth()),
+                                   offset(target.getY(),target.getBottom(),visible.getY(),visible.getHeight()));
+            require(inner->getViewArea().contains(target),"Inner viewport cannot reveal the complete control");
+        }
     viewport.reveal(control);
     const auto bounds=editor.getLocalArea(&control,control.getLocalBounds());
     const auto view=viewport.getLocalBounds().withSize(viewport.getMaximumVisibleWidth(),viewport.getMaximumVisibleHeight());
     require(view.contains(bounds),"Control cannot be completely revealed inside the editor viewport");
     auto* hit=editor.getComponentAt(bounds.getCentre());
+    if(hit!=&control && !control.isParentOf(hit)) {
+        std::cerr<<"SCROLL HIT target="<<control.getComponentID()<<" name="<<control.getName()
+                 <<" bounds="<<bounds.toString()<<" view="<<viewport.getViewArea().toString()
+                 <<" hit="<<(hit?hit->getComponentID():juce::String("null"))
+                 <<" hit-name="<<(hit?hit->getName():juce::String())<<'\n';
+        for(auto* parent=control.getParentComponent();parent;parent=parent->getParentComponent())
+            std::cerr<<"SCROLL ancestor="<<parent->getComponentID()<<" bounds="<<parent->getBounds().toString()<<'\n';
+    }
     require(hit==&control || control.isParentOf(hit),"Scrolled control hit-test does not match its painted location");
 }
 
@@ -188,9 +211,25 @@ inline void run(const juce::File& directory) {
         require(settings->hasKeyboardFocus(false),"SETTINGS cannot receive keyboard focus");
         require(viewport->getViewArea().contains(viewport->getViewedComponent()->getLocalArea(settings,settings->getLocalBounds())),"Keyboard focus did not reveal SETTINGS");
         reachable(*editor,*viewport,*settings);
-        settings->triggerClick(); // Queue the native button command; AppKit may deliver it after one pump.
-        waitForNativeSpectrum([]{return juce::PopupMenu::dismissAllActiveMenus();},"SETTINGS popup did not open");
-        settle(30);++actions;
+        // Observe opening separately from dismissal, then finish teardown before
+        // the next case. Keep the pointer on the newly revealed popup target.
+        auto* modals=juce::ModalComponentManager::getInstance();
+        waitForNativeSpectrum([&]{return modals->getNumModalComponents()==0;},"Previous dialog/menu did not finish closing");
+        juce::Desktop::setMousePosition(settings->localPointToGlobal(settings->getLocalBounds().getCentre()));
+        settle(30);
+        struct Receipt final:juce::Button::Listener {
+            juce::Button& button;int clicks{};
+            explicit Receipt(juce::Button& b):button(b){button.addListener(this);}
+            ~Receipt() override {button.removeListener(this);}
+            void buttonClicked(juce::Button*) override {++clicks;}
+        } receipt(*settings);
+        settings->triggerClick();
+        waitForNativeSpectrum([&]{return receipt.clicks>0;},"SETTINGS command was not delivered");
+        require(receipt.clicks==1,"SETTINGS command was delivered more than once");
+        waitForNativeSpectrum([&]{return modals->getNumModalComponents()>0;},"SETTINGS popup did not remain open");
+        require(juce::PopupMenu::dismissAllActiveMenus(),"SETTINGS modal component was not a popup menu");
+        waitForNativeSpectrum([&]{return modals->getNumModalComponents()==0;},"SETTINGS popup did not finish closing");
+        ++actions;
         // Explicit readable zoom may scroll; a fit/restore round trip retains
         // the exact dimensions, requested zoom, scroll offset and sound state.
         editor->setViewSize(fitted,1.f);viewport->setViewPosition(100000,100000);

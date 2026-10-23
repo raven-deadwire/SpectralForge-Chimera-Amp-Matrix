@@ -137,3 +137,30 @@ create a display. No local matrix or screenshot pass is claimed.
 The corrected small-screen matrix and remaining platform checks require CI.
 The simulated matrix does not certify physical OS DPI, mixed-monitor or DAW
 automation behavior. Final tested SHA and workflow results belong in PR #121.
+
+### Follow-up CI at `926f787`
+
+Linux signal/UI/state passed 15/16 tests; the small-screen test reached
+1280x800 / 150% / Matrix and failed its strict control hit test. macOS passed
+13/15: small-screen failed on the second case's SETTINGS popup, and CAB state
+failed the old whole-workspace containment assertion. The CAB log shows a
+1000x650 workspace inside an intentionally scrollable 1016x634 window; the
+native window and outer frame were contained in the available display.
+
+- Linux: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39896012216/job/120227406722
+- macOS: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39896012216/job/120227406499
+
+The follow-up test changes preserve strict hit testing and frame containment.
+They expose nested panel viewports before the editor viewport and log the
+target/hit identities if a hit still fails. SETTINGS checks command delivery,
+modal opening and completed dismissal separately, with the same bounded wait
+budget. CAB checks the owned viewport's containment plus reachability of both
+workspace endpoints. The Linux hit-test cause and macOS popup resolution
+remain subject to the next runtime CI; these changes are not a claimed pass.
+No product, DSP, parameter or acceptance-threshold change is made.
+
+Dynamics, amplifier head controls and CAB realtime jobs passed on all three
+OSes at `926f787`; lifecycle runtime jobs also passed on all three. Full build,
+remaining signal UI jobs and Windows candidate packaging were incomplete.
+The previous local checkout/build cache is unavailable in this session, so
+the follow-up tests require CI compilation as well as runtime verification.
