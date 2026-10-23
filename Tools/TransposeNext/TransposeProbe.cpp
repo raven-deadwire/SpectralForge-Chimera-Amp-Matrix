@@ -27,7 +27,7 @@ int main(int argc,char** argv) {
         const double rate=std::stod(argv[3]);const int block=std::stoi(argv[4]),shift=std::stoi(argv[5]);
         const std::string name=argv[6];
         if(rate<8000 || rate>192000 || block<1 || block>8192 || shift<-12 || shift>12)throw std::runtime_error("invalid config");
-        if(name!="baseline" && name!="relative" && name!="corr10" && name!="corr40" && name!="corr40-onset" && name!="corr40-novelty" && name!="corr40-split" && name!="corr40-split-low" && name!="corr40-split-up" && name!="wrapper" && name!="bypass")throw std::runtime_error("invalid engine");
+        if(name!="baseline" && name!="relative" && name!="corr10" && name!="corr40" && name!="corr40-onset" && name!="corr40-novelty" && name!="corr40-split" && name!="corr40-split-low" && name!="corr40-split-up" && name!="corr40-split-lpc" && name!="wrapper" && name!="bypass")throw std::runtime_error("invalid engine");
         std::ifstream f(argv[1],std::ios::binary|std::ios::ate);
         if(!f)throw std::runtime_error("input missing");
         const auto bytes=f.tellg();if(bytes<=0 || bytes%8)throw std::runtime_error("expected stereo interleaved f32");
@@ -42,7 +42,7 @@ int main(int argc,char** argv) {
         if(name=="baseline"){baseline.prepare(spec);baseline.setSemitones(shift);nominal=baseline.latency();}
         else if(name=="relative"){relative.prepare(spec);relative.setSemitones(shift);nominal=relative.latency();}
         else if(name=="wrapper" || name=="bypass"){wrapper.prepare(spec);nominal=name=="wrapper"&&shift!=0?wrapper.latency():0;}
-        else if(name=="corr40-split" || name=="corr40-split-low" || name=="corr40-split-up"){split.prepare(spec,name!="corr40-split",name=="corr40-split-up");split.setSemitones(shift);}
+        else if(name=="corr40-split" || name=="corr40-split-low" || name=="corr40-split-up" || name=="corr40-split-lpc"){split.prepare(spec,name!="corr40-split",name=="corr40-split-up"||name=="corr40-split-lpc",name=="corr40-split-lpc");split.setSemitones(shift);}
         else {correlated.prepare(spec,name=="corr10"?10:40,name=="corr40-onset" || name=="corr40-novelty",name=="corr40-novelty");correlated.setSemitones(shift);}
         juce::AudioBuffer<float> in(2,block),out(2,block);
         const size_t callbacks=(x.size()/2+size_t(block)-1)/size_t(block);
@@ -57,7 +57,7 @@ int main(int argc,char** argv) {
             if(name=="baseline")baseline.process(in,out);
             else if(name=="relative")relative.process(in,out);
             else if(name=="wrapper" || name=="bypass") {out.makeCopyOf(in,true);wrapper.process(out,name=="wrapper"&&shift!=0,shift);}
-            else if((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"))split.process(in,out);
+            else if((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc"))split.process(in,out);
             else correlated.process(in,out);
             if(cpuTiming)cpuTimes[callback]=threadCpuMicroseconds()-cpuStart;
             const double us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();
@@ -79,12 +79,12 @@ int main(int argc,char** argv) {
           <<",\"thread_cpu_measured\":"<<(cpuTiming?"true":"false")
           <<",\"thread_cpu_mean_us\":"<<std::accumulate(cpuTimes.begin(),cpuTimes.end(),0.)/cpuTimes.size()
           <<",\"deadline_misses\":"<<misses<<",\"callbacks\":"<<times.size()
-          <<",\"splices\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up")?split.splices():correlated.splices())<<",\"onset_resets\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up")?split.onsetResets():correlated.onsetResets())<<",\"read_min_samples\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up")?split.readMinimum():correlated.readMinimum())
-          <<",\"read_max_samples\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up")?split.readMaximum():correlated.readMaximum())<<",\"onset_samples\":[";
-        const auto& onsetSamples=(name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up")?split.onsetLocations():correlated.onsetLocations();
-        const int onsetCount=(name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up")?split.onsetResets():correlated.onsetResets();
+          <<",\"splices\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc")?split.splices():correlated.splices())<<",\"onset_resets\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc")?split.onsetResets():correlated.onsetResets())<<",\"read_min_samples\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc")?split.readMinimum():correlated.readMinimum())
+          <<",\"read_max_samples\":"<<((name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc")?split.readMaximum():correlated.readMaximum())<<",\"onset_samples\":[";
+        const auto& onsetSamples=(name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc")?split.onsetLocations():correlated.onsetLocations();
+        const int onsetCount=(name=="corr40-split"||name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc")?split.onsetResets():correlated.onsetResets();
         for(int i=0;i<std::min(onsetCount,int(onsetSamples.size()));++i)std::cout<<(i?",":"")<<onsetSamples[size_t(i)];
         std::cout<<"],\"onset_log_truncated\":"<<(onsetCount>int(onsetSamples.size())?"true":"false")
-                 <<",\"low_onset_resets\":"<<((name=="corr40-split-low"||name=="corr40-split-up")?split.lowOnsetResets():0)<<"}\n";
+                 <<",\"low_onset_resets\":"<<((name=="corr40-split-low"||name=="corr40-split-up"||name=="corr40-split-lpc")?split.lowOnsetResets():0)<<"}\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

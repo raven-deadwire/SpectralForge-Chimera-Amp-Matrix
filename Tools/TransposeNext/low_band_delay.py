@@ -19,7 +19,7 @@ def main():
  p=argparse.ArgumentParser();p.add_argument('--renderer',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args();a.out.mkdir(parents=True,exist_ok=True);a.renderer=a.renderer.resolve()
  rate=48000;x,meta=fixture('impulses',rate);ip=a.out/'input.f32';x.tofile(ip)
  sos=signal.butter(4,120,fs=rate,output='sos');reference=impulse_metrics(signal.sosfilt(sos,x,axis=0),meta);rows=[]
- engines=['baseline','corr40-onset','corr40-split','corr40-split-low','corr40-split-up']
+ engines=['baseline','corr40-onset','corr40-split','corr40-split-low','corr40-split-up','corr40-split-lpc']
  for engine in engines:
   op=a.out/'output.f32';cp=a.out/'callbacks.csv'
   r=subprocess.run([str(a.renderer),str(ip),str(op),str(rate),'128','-2',engine,str(cp)],check=True,capture_output=True,text=True)

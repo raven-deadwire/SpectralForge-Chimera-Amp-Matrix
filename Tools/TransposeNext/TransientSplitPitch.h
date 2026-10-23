@@ -1,8 +1,68 @@
 #pragma once
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include "CorrelationPitch.h"
 
 namespace transposeNext {
+// Research: causal low-band linear predictor. The body input is decimated to
+// about 4 kHz; every 1 ms an order-10 predictor is refit (autocorrelation
+// method, Hann-windowed 32 ms of past samples only). fraction() is the 1 ms
+// prediction-error energy over the 1 ms signal energy. The decaying tail of
+// a previous note is predictable; a new pluck is not, even at equal energy.
+class LowPredictor {
+    static constexpr int order=10;
+    int factor{1},phase{},window{},hop{},count{},position{},fractionPosition{};
+    std::vector<double> history,hann,fractions;
+    std::array<double,order> a{};
+    double signalEnergy{},errorEnergy{},coefficient{},fraction_{};
+    double past(int age) const noexcept {int i=position-1-age;while(i<0)i+=int(history.size());return history[size_t(i)];}
+    void refit() noexcept {
+        std::array<double,order+1> r{};
+        for(int k=0;k<=order;++k)for(int i=k;i<window;++i)
+            r[size_t(k)]+=hann[size_t(i)]*past(window-1-i)*hann[size_t(i-k)]*past(window-1-i+k);
+        if(r[0]<=1.e-14)return;
+        r[0]*=1.0001;
+        std::array<double,order> next{},previous{};double error=r[0];
+        for(int m=0;m<order;++m) {
+            double acc=r[size_t(m+1)];for(int j=0;j<m;++j)acc-=next[size_t(j)]*r[size_t(m-j)];
+            const double k=acc/error;previous=next;next[size_t(m)]=k;
+            for(int j=0;j<m;++j)next[size_t(j)]=previous[size_t(j)]-k*previous[size_t(m-1-j)];
+            error*=1-k*k;if(error<=0)return;
+        }
+        a=next;
+    }
+public:
+    void prepare(double rate) {
+        factor=std::max(1,int(std::lround(rate/4000.)));const double fd=rate/factor;
+        window=int(std::lround(.032*fd));hop=std::max(1,int(std::lround(.001*fd)));
+        history.assign(size_t(window+order+1),0);hann.resize(size_t(window));
+        for(int i=0;i<window;++i)hann[size_t(i)]=.5-.5*std::cos(2*juce::MathConstants<double>::pi*i/window);
+        fractions.assign(size_t(std::max(1,int(std::lround(.025*fd)))),0);
+        coefficient=1-std::exp(-1/(fd*.001));reset();
+    }
+    void reset() noexcept {
+        std::fill(history.begin(),history.end(),0);std::fill(fractions.begin(),fractions.end(),0);a.fill(0);
+        phase=count=position=fractionPosition=0;signalEnergy=errorEnergy=fraction_=0;
+    }
+    void push(double x) noexcept {
+        if(phase++!=0){if(phase==factor)phase=0;return;}
+        if(phase==factor)phase=0;
+        if(count%hop==0 && count>=window)refit();
+        double predicted=0;for(int k=0;k<order;++k)predicted+=a[size_t(k)]*past(k);
+        const double error=x-predicted;
+        history[size_t(position)]=x;if(++position==int(history.size()))position=0;++count;
+        signalEnergy+=coefficient*(x*x-signalEnergy);errorEnergy+=coefficient*(error*error-errorEnergy);
+        // Flush decayed tails: denormal arithmetic stalls the audio thread.
+        if(signalEnergy<1.e-30)signalEnergy=0;
+        if(errorEnergy<1.e-30)errorEnergy=0;
+        fraction_=errorEnergy/std::max(signalEnergy,1.e-12);
+        fractions[size_t(fractionPosition)]=fraction_;if(++fractionPosition==int(fractions.size()))fractionPosition=0;
+    }
+    double fraction() const noexcept {return fraction_;}
+    // Rare (on an armed onset); O(25 ms at ~4 kHz) scan.
+    double recentMaximum() const noexcept {return *std::max_element(fractions.begin(),fractions.end());}
+};
 // Research only: preserve the low-frequency read trajectory while reanchoring
 // the high-pass branch. A 350 Hz Linkwitz-Riley fourth-order crossover
 // limits late high-band leakage from the body branch. Both branches are
@@ -35,14 +95,16 @@ class TransientSplitPitch {
     // marker over a sustained low note fails that test, so the body keeps its
     // trajectory (the warble case); a new low note passes. No resets when
     // the transient path sees no onset (tremolo, vibrato).
-    bool lowReset{},upshift{};
+    bool lowReset{},upshift{},predictive{};
+    LowPredictor predictor;
+    double fractionThreshold{};
     std::vector<uint8_t> lowFlags,broadFlags;
     std::vector<double> lowHistory;
     double lowFast{},lowFastCoefficient{},lowThreshold{};
     int lowHistoryPosition{},lowArmed{},lowWindowLength{},lowResets{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false) {
-        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;
+    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false) {
+        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;predictor.prepare(spec.sampleRate);
         lowFastCoefficient=1-std::exp(-1/(spec.sampleRate*.001));
         lowWindowLength=int(spec.sampleRate*.012);
         lowHistory.assign(size_t(std::ceil(spec.sampleRate*.025)),0);
@@ -60,7 +122,7 @@ public:
     }
     void reset() noexcept {
         body.reset();transient.reset();for(auto& b:lowpass)b.clear();for(auto& b:highpass)b.clear();
-        std::fill(lowHistory.begin(),lowHistory.end(),0);lowFast=lowThreshold=0;lowHistoryPosition=lowArmed=lowResets=0;
+        std::fill(lowHistory.begin(),lowHistory.end(),0);predictor.reset();lowFast=lowThreshold=0;lowHistoryPosition=lowArmed=lowResets=0;
     }
     int lowOnsetResets() const noexcept {return lowResets;}
     void setSemitones(int n) noexcept {body.setSemitones(n);transient.setSemitones(n);shift=n;}
@@ -84,14 +146,19 @@ public:
             if(lowReset) for(int i=0;i<n;++i) {
                 double energy=0;for(int c=0;c<channels;++c){const double v=bodyIn.getSample(c,i);energy+=v*v;}
                 lowFast+=lowFastCoefficient*(energy/channels-lowFast);
+                if(predictive){double mono=0;for(int c=0;c<channels;++c)mono+=bodyIn.getSample(c,i);predictor.push(mono/channels);}
                 if(broadFlags[size_t(i)]!=0 && render && (shift<0 || (upshift && shift>0))) {
                     // Rare (transient cooldown bounds it); O(25 ms) scan.
                     lowThreshold=2.*(*std::max_element(lowHistory.begin(),lowHistory.end()))+1.e-12;
                     lowArmed=lowWindowLength;
+                    if(predictive)fractionThreshold=3.*predictor.recentMaximum();
                 }
                 lowHistory[size_t(lowHistoryPosition)]=lowFast;
                 if(++lowHistoryPosition==int(lowHistory.size()))lowHistoryPosition=0;
-                const bool onset=lowArmed>0 && lowFast>lowThreshold;
+                // Predictive confirm (research): or the low-band prediction-error
+                // fraction exceeds 3x its preceding 25 ms maximum and 0.1.
+                const bool onset=lowArmed>0 && (lowFast>lowThreshold ||
+                    (predictive && predictor.fraction()>fractionThreshold && predictor.fraction()>.1));
                 if(lowArmed>0)--lowArmed;
                 lowFlags[size_t(i)]=onset?1:0;
                 if(onset){lowArmed=0;++lowResets;}

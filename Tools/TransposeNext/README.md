@@ -146,3 +146,15 @@ Results and remaining FAIL items: `docs/TRANSPOSE_LOWBAND_UPSHIFT_RESEARCH_20261
 CMake, existing product `Tests/`, parameters, bypass/state/PDC, release policy,
 version and packages are unchanged. Real DI, Neural DSP captures and actual DAW
 acceptance are not supplied by this synthetic study.
+
+## Predictive low-band confirmation (2026-10-23)
+
+`corr40-split-lpc` = `corr40-split-up` plus a causal order-10 linear predictor
+on the ~4 kHz decimated low band (refit every 1 ms from the past 32 ms). An
+armed transient onset is also confirmed when the 1 ms prediction-error/energy
+fraction exceeds 3x its preceding 25 ms maximum and 0.1, so a soft note after a
+loud one is re-anchored. `weak_attack_holdout.py --seed N` runs a fresh holdout
+and adds `random_soft_after_loud`. Lower-bound study for other algorithm
+families: `parametric/feasibility.py`. Results:
+`docs/TRANSPOSE_NEW_ALGORITHM_FEASIBILITY_20261023.md`,
+`docs/TRANSPOSE_LPC_ONSET_RESEARCH_20261023.md`.
