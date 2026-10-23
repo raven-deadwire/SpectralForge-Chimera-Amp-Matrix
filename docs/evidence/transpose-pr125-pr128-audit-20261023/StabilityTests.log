@@ -1,0 +1,8 @@
+PASS: exact bypass and latency-matched zero semitones; 3 rates x 2 layouts x 4 block sizes, no FFT frames
+PASS: bypass/zero/shift/re-engagement transitions across 3 rates and 4 intervals
+PASS outgoing ratio retained during bypass fade: 3 rates x 4 shifts
+PASS: 30 active tuner prepare/stop/destruct cycles, 85.656 ms
+PASS: optional post-rig gate clean detector, stereo gain, residual-noise attenuation, exact 0/37/2048-sample alignment and POST delay tails; legacy gate equivalence
+MEASURE pitch 400 stereo blocks/256 samples at 44100 Hz: bypass 15.413 ms, zero 28.731 ms, active -5 254.636 ms; algorithm delay 2048 samples (CPU timings are local, not a Windows DAW benchmark)
+MEASURE pitch 400 stereo blocks/256 samples at 48000 Hz: bypass 6.751 ms, zero 6.309 ms, active -5 190.634 ms; algorithm delay 2048 samples (CPU timings are local, not a Windows DAW benchmark)
+MEASURE pitch 400 stereo blocks/256 samples at 96000 Hz: bypass 7.605 ms, zero 8.086 ms, active -5 198.148 ms; algorithm delay 4096 samples (CPU timings are local, not a Windows DAW benchmark)
