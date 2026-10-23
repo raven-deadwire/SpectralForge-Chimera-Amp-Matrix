@@ -13,6 +13,7 @@
 #include "SignalPathView.h"
 #include "PrecisionTunerPanel.h"
 #include "CommonDynamicsPanel.h"
+#include "AccessibleViewport.h"
 
 class CabRoomOverview;
 
@@ -35,6 +36,10 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
     void fitToDisplay();
+    void setViewSize(juce::Point<int> size,float preferredScale=0.f);
+    float preferredViewScale() const noexcept {return requestedScale;}
+    juce::Point<int> viewPosition() const {return editorViewport.getViewPosition();}
+    void setViewPosition(juce::Point<int> position) {editorViewport.setViewPosition(position);}
     static constexpr int fitScaleItem=5;
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
@@ -84,6 +89,7 @@ private:
     void showIRDetails(int);
     void referenceFile(bool save);
     void layoutControls();
+    void paintCanvas(juce::Graphics&);
     void midiMenu();
     void navigateSignalPath(spectralforge::signalPath::Node);
     void openSignalPath();
@@ -95,7 +101,16 @@ private:
     // releases native GPU artwork while JUCE and the DLL are still alive.
     juce::SharedResourcePointer<spectralforge::art::RasterBank> artwork;
     ChimeraLookAndFeel look;
-    juce::Component canvas;
+    struct Canvas : juce::Component {
+        std::function<void(juce::Graphics&)> draw;
+        void paint(juce::Graphics& g) override {if(draw)draw(g);}
+    };
+    // Non-owning hierarchy: viewport -> scrollContent -> transformed canvas.
+    // Members are declared in parent-before-child order for safe teardown.
+    spectralforge::ui::AccessibleViewport editorViewport;
+    juce::Component scrollContent;
+    Canvas canvas;
+    float requestedScale{}; // Presentation only; 0 = automatic fit, never a parameter.
     PedalBoardPanel boardPanel;
     juce::Label preEngineStatus;
     bool lastBoardEnabled{};

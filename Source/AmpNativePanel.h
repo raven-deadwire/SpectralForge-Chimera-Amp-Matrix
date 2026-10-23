@@ -1,4 +1,5 @@
 #pragma once
+#include "AccessibleViewport.h"
 #include "PluginProcessor.h"
 #include "AmpNativeParameters.h"
 #include "NativeControlView.h"
@@ -18,7 +19,7 @@ public:
         channelLabel.setText("CHANNEL",juce::dontSendNotification);inputLabel.setText("INPUT",juce::dontSendNotification);
         viewport.setViewedComponent(&content,false);viewport.setScrollBarsShown(true,false);viewport.setScrollBarThickness(9);
         addAndMakeVisible(expand);expand.setButtonText("HEAD");expand.setComponentID("ampExpand"+juce::String(lane+1));expand.setTooltip("Open the full amplifier panel");expand.setVisible(!detailed);
-        expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new AmpNativePanel(processor,lane,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="Chimera / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name);options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();};
+        expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new AmpNativePanel(processor,lane,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="Chimera / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name);options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();spectralforge::ui::fitScrollableDialog(dialog);};
         lowCompOpen.setButtonText("COMP SPECTRUM");lowCompOpen.setComponentID("matrixLowCompressor.open");
         lowCompOpen.setTooltip("Edit Matrix LOW compression while viewing its actual input/output spectrum.");
         lowCompOpen.onClick=[this]{openLowCompressor();};content.addChildComponent(lowCompOpen);
@@ -49,11 +50,11 @@ public:
         auto* full=new spectralforge::LowCompressorPanel(processor);full->setLookAndFeel(&getLookAndFeel());full->setSize(940,450);
         juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="Chimera / Matrix LOW compression";
         options.dialogBackgroundColour=juce::Colour(0xff121a1d);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;
-        options.resizable=false;options.componentToCentreAround=this;lowCompDialog=options.launchAsync();
+        options.resizable=false;options.componentToCentreAround=this;lowCompDialog=options.launchAsync();spectralforge::ui::fitScrollableDialog(lowCompDialog);
     }
     // The ALL window has independent visibility from its owning tab.
     void refreshIfNeeded() {
-        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(dialog->getContentComponent()))full->refreshIfNeeded();
+        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(spectralforge::ui::dialogContent(*dialog)))full->refreshIfNeeded();
         if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
         const std::array<int,5> key{{(int)processor.parameters().getRawParameterValue("mode")->load(),
             (int)processor.parameters().getRawParameterValue("dualtype")->load(),processor.selectedAmpModel(lane),

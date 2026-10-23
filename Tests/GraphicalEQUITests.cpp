@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "EditorSurface.h"
 #include "NativeMessageLoop.h"
 #include <algorithm>
 #include <array>
@@ -688,7 +689,7 @@ int main(int argc,char** argv){try {
             const auto start=panel->getLocalPoint(editor.get(),global),end=panel->getLocalPoint(editor.get(),finish);
             const float previous=get(*processor,eqID(e,0,"frequency"));panel->mouseDown(mouse(*panel,start,start,false));panel->mouseDrag(mouse(*panel,end,start,true));panel->mouseUp(mouse(*panel,end,start,true));
             check(get(*processor,eqID(e,0,"frequency"))>previous,"Graph transform drag failed at UI scale");set(*processor,eqID(e,0,"frequency"),previous);}
-        for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(editor->getLocalBounds().contains(editor->getLocalArea(panel,panel->getLocalBounds())),"EQ clipped at scale");for(const char* field:{"frequency","gain","q"}){auto* s=find<juce::Slider>(*panel,eqID(e,0,field));check(editor->getLocalBounds().contains(editor->getLocalArea(s,s->getLocalBounds())),"Numeric controls clipped");}}
+        for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(editorBoundsReachable(*editor,*panel),"EQ clipped at scale");for(const char* field:{"frequency","gain","q"}){auto* s=find<juce::Slider>(*panel,eqID(e,0,field));check(editorBoundsReachable(*editor,*s),"Numeric controls clipped");}}
         snapshot(*editor,directory.getChildFile("eq-ui-"+juce::String(percent)+".png"));
         const auto t=juce::Time::getMillisecondCounterHiRes();const auto cpu=processCPUSeconds();settle(1000);const double elapsed=juce::Time::getMillisecondCounterHiRes()-t;std::cout<<"UI idle "<<percent<<"% = "<<100000.*(processCPUSeconds()-cpu)/elapsed<<"% one core (1 second no audio, process CPU)\n";
     }
