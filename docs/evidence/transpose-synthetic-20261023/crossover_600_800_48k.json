@@ -1,0 +1,1586 @@
+[
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.08,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -0.49,
+  "fluct_db": 0.02
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -0.17,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.09,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -0.35,
+  "fluct_db": 0.08
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -0.12,
+  "fluct_db": 0.03
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.23,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -0.29,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -0.1,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.54,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -0.85,
+  "fluct_db": 0.07
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -0.27,
+  "fluct_db": 0.02
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -0.92,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -0.04,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -0.01,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -3.69,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -0.78,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 300,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -0.26,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.04,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -0.15,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -0.04,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.12,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -0.04,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -0.02,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.14,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -0.1,
+  "fluct_db": 0.17
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -0.04,
+  "fluct_db": 0.07
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.25,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -2.85,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -0.91,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -0.78,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -1.69,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -0.56,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -2.41,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -1.41,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 400,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -0.56,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.15,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -0.53,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -0.36,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.08,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -2.68,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -1.28,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.13,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -6.17,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -2.2,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.48,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -0.15,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -0.06,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -0.71,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -0.61,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -0.32,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -5.79,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -1.85,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 500,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -0.62,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.26,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -3.91,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -2.79,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.06,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -20.87,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -5.48,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.06,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -6.68,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -3.65,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.2,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -6.23,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -3.57,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -1.24,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -4.03,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -2.2,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -6.77,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -9.08,
+  "fluct_db": 0.06
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 600,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -3.71,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.22,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -9.88,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -10.74,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.17,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -2.76,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -2.62,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.2,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -0.23,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -0.21,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.5,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -3.06,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -3.02,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -0.36,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -12.72,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -10.38,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -2.91,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -4.51,
+  "fluct_db": 0.03
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 700,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -2.44,
+  "fluct_db": 0.02
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.22,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -4.88,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -8.1,
+  "fluct_db": 0.02
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.17,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -0.18,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -0.15,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.21,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -0.23,
+  "fluct_db": 0.71
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -0.33,
+  "fluct_db": 1.06
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.35,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -0.63,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -0.88,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -1.05,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -1.09,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -1.01,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -2.91,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -19.83,
+  "fluct_db": 0.02
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 800,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -11.21,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.26,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -1.31,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -1.6,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.06,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -0.78,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -1.53,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.05,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -3.22,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -10.07,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.38,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -3.43,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -9.73,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -0.5,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -4.41,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -14.81,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -6.77,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -5.6,
+  "fluct_db": 0.04
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 900,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -3.95,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.15,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -0.17,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -0.13,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.07,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -2.29,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -7.43,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.14,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -1.63,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -4.16,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.33,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -0.34,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -0.3,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -1.01,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -1.22,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -1.21,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -5.79,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -6.08,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1000,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -6.3,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.08,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -0.93,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -2.73,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.07,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -0.14,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -0.22,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.23,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -0.2,
+  "fluct_db": 0.26
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -0.24,
+  "fluct_db": 0.68
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.43,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -1.12,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -2.23,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -0.62,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -1.88,
+  "fluct_db": 0.1
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -3.83,
+  "fluct_db": 0.41
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -3.69,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -3.76,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1200,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -3.63,
+  "fluct_db": 0.01
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.22,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -0.3,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -0.31,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.12,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -0.53,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -1.27,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.13,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -0.19,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -0.19,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.33,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -0.39,
+  "fluct_db": 0.44
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -0.7,
+  "fluct_db": 1.41
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -1.0,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -1.15,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -1.48,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -2.24,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -2.68,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 1500,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -2.52,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -12,
+  "mode": "CLASSIC",
+  "level_db": -0.15,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -12,
+  "mode": "AL10RA-600",
+  "level_db": -0.19,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -12,
+  "mode": "AL10RA-800",
+  "level_db": -0.21,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -5,
+  "mode": "CLASSIC",
+  "level_db": -0.08,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -5,
+  "mode": "AL10RA-600",
+  "level_db": -0.11,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -5,
+  "mode": "AL10RA-800",
+  "level_db": -0.18,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -2,
+  "mode": "CLASSIC",
+  "level_db": -0.12,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -2,
+  "mode": "AL10RA-600",
+  "level_db": -0.13,
+  "fluct_db": 0.1
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": -2,
+  "mode": "AL10RA-800",
+  "level_db": -0.18,
+  "fluct_db": 0.31
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 2,
+  "mode": "CLASSIC",
+  "level_db": -0.51,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 2,
+  "mode": "AL10RA-600",
+  "level_db": -0.46,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 2,
+  "mode": "AL10RA-800",
+  "level_db": -0.59,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 5,
+  "mode": "CLASSIC",
+  "level_db": -1.21,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 5,
+  "mode": "AL10RA-600",
+  "level_db": -0.62,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 5,
+  "mode": "AL10RA-800",
+  "level_db": -0.63,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 12,
+  "mode": "CLASSIC",
+  "level_db": -5.79,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 12,
+  "mode": "AL10RA-600",
+  "level_db": -5.69,
+  "fluct_db": 0.0
+ },
+ {
+  "rate": 48000,
+  "tone_hz": 2000,
+  "shift_semitones": 12,
+  "mode": "AL10RA-800",
+  "level_db": -5.9,
+  "fluct_db": 0.02
+ }
+]
