@@ -20,6 +20,24 @@ def lowband_extra(x,y,onsets,rate):
   return [float((e[u:v]*np.arange(v-u)).sum()/max(e[u:v].sum(),1e-30)*1000/rate) for u,v in zip(bounds[:-1],bounds[1:])]
  return [b-a for a,b in zip(centroids(x),centroids(y))]
 
+def holdout_input(f,mode,seed,rate=48000):
+ # Seeded holdout input (stereo float32) and its onset samples; shared with
+ # latency_targets.py so both score exactly the same audio.
+ rng=np.random.default_rng(seed);t=np.arange(3*rate)/rate;starts=.3+np.cumsum(rng.uniform(.08,.135,16));onsets=[round(s*rate) for s in starts]
+ z=np.zeros_like(t) if mode!='random_markers' else sum(.12/h*np.sin(2*np.pi*f*h*t+.19*h) for h in range(1,13))
+ for index,on in enumerate(onsets):
+  length=round(.065*rate);u=np.arange(length)/rate
+  if mode!='random_markers':
+   gain=rng.uniform(.06,1) if mode=='random_plucks' else (rng.uniform(.7,1) if index%2==0 else rng.uniform(.06,.2));decay=rng.uniform(.018,.04);phases=rng.uniform(-.2,.2,8)
+   body=sum(.14/h*np.sin(2*np.pi*f*h*u+phases[h-1]) for h in range(1,9))
+   envelope=(1-np.exp(-u/.001))*np.exp(-u/decay)
+   # Smooth final 5ms prevents exact-silence cut edges being the only cue.
+   envelope[-240:] *= np.linspace(1,0,240)
+   z[on:on+length] += gain*(body*envelope+.05*np.exp(-u/.002)*rng.uniform(-1,1,length))
+  else:z[on:on+length] += rng.uniform(.001,.008)*np.exp(-u/.002)*rng.uniform(-1,1,length)
+ x=np.column_stack((z,-.65*z)).astype('<f4')
+ return x,onsets
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--renderer',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
  # A fresh seed is a new holdout only for candidates not tuned on it.
@@ -28,19 +46,8 @@ def main():
  for instrument,f in FREQUENCIES.items():
   # random_soft_after_loud alternates loud (0.7-1) and soft (0.06-0.2) plucks.
   for mode in ['random_plucks','random_markers','random_soft_after_loud']:
-   rng=np.random.default_rng(a.seed);t=np.arange(3*rate)/rate;starts=.3+np.cumsum(rng.uniform(.08,.135,16));onsets=[round(s*rate) for s in starts]
-   z=np.zeros_like(t) if mode!='random_markers' else sum(.12/h*np.sin(2*np.pi*f*h*t+.19*h) for h in range(1,13))
-   for index,on in enumerate(onsets):
-    length=round(.065*rate);u=np.arange(length)/rate
-    if mode!='random_markers':
-     gain=rng.uniform(.06,1) if mode=='random_plucks' else (rng.uniform(.7,1) if index%2==0 else rng.uniform(.06,.2));decay=rng.uniform(.018,.04);phases=rng.uniform(-.2,.2,8)
-     body=sum(.14/h*np.sin(2*np.pi*f*h*u+phases[h-1]) for h in range(1,9))
-     envelope=(1-np.exp(-u/.001))*np.exp(-u/decay)
-     # Smooth final 5ms prevents exact-silence cut edges being the only cue.
-     envelope[-240:] *= np.linspace(1,0,240)
-     z[on:on+length] += gain*(body*envelope+.05*np.exp(-u/.002)*rng.uniform(-1,1,length))
-    else:z[on:on+length] += rng.uniform(.001,.008)*np.exp(-u/.002)*rng.uniform(-1,1,length)
-   x=np.column_stack((z,-.65*z)).astype('<f4');key=instrument+'-'+mode;ip=a.out/(key+'.f32');x.tofile(ip)
+   x,onsets=holdout_input(f,mode,a.seed,rate)
+   key=instrument+'-'+mode;ip=a.out/(key+'.f32');x.tofile(ip)
    meta={'rate':rate,'onsets':onsets,'name':mode,'synthetic':True};before=attacks(x,meta)
    inputs[key]={'sha256':sha(ip),'seed':a.seed,'fundamental_hz':f,'onsets':onsets,'input_attack':before}
    for engine,shift in [(e,-2) for e in ['baseline','corr40-onset','corr40-split','corr40-split-up','corr40-split-lpc','corr40-split-rt']]+[(e,2) for e in ['baseline','corr40-split','corr40-split-up','corr40-split-lpc','corr40-split-rt']]:

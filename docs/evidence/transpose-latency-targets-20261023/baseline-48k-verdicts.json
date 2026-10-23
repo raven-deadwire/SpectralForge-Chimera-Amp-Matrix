@@ -1,0 +1,78 @@
+{
+ "targets": [
+  {
+   "id": "T1_attack",
+   "limit_ms": 10,
+   "observed": {
+    "max_ms": 69.042,
+    "cases": 124
+   },
+   "verdict": "FAIL"
+  },
+  {
+   "id": "T2_low_onset_down",
+   "limit_ms": 10,
+   "observed": {
+    "short_max_ms": 48.115,
+    "long_max_ms": 51.506
+   },
+   "verdict": "FAIL"
+  },
+  {
+   "id": "T3_low_onset_up",
+   "regression_ceiling_ms": {
+    "short": 12.0,
+    "bass_B0": 15.5,
+    "bass_dropA_A0": 19.0,
+    "guitar_dropA_A1": 11.0
+   },
+   "observed": {
+    "short": 45.87,
+    "bass_B0": 48.487,
+    "bass_dropA_A0": 54.013,
+    "guitar_dropA_A1": 49.571
+   },
+   "verdict": "REGRESSION"
+  },
+  {
+   "id": "T4_quality",
+   "limits": {
+    "steady_warble_max_cents": 1.0,
+    "steady_abs_error_max_cents": 1.0,
+    "unmatched_resets_max": 0,
+    "missed_events_max": 0,
+    "low_resets_on_markers_max": 0
+   },
+   "observed": {
+    "steady_warble_max_cents": 569.626,
+    "steady_abs_error_max_cents": 356.392,
+    "unmatched_resets": 0,
+    "missed_events": 2232,
+    "low_resets_on_markers_or_sustain_after_startup": 0
+   },
+   "verdict": "FAIL"
+  },
+  {
+   "id": "T5_realtime",
+   "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+   "observed": {
+    "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+   }
+  },
+  {
+   "id": "T6_external",
+   "verdict": "NOT_RUN",
+   "observed": {
+    "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+   }
+  }
+ ],
+ "engine": "baseline",
+ "renderer_sha256": "0fb92d5c38a4a86c95cf9fd071091cdcd575124e1e98c4bd984a1a79fe6dc9ae",
+ "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+ "spec_sha256": "aff449dff7a9ed4715f05f5d55005f57f956fb84db8df68d64fb47b0c1c592ce",
+ "synthetic_only": true,
+ "real_DI": "NOT_AVAILABLE",
+ "actual_DAW": "NOT_RUN",
+ "fixed_PDC": "NOT_IMPLEMENTED"
+}

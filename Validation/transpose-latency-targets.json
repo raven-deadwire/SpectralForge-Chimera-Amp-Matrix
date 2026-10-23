@@ -1,0 +1,87 @@
+{
+ "version": 1,
+ "date": "2026-10-23",
+ "status": "RESEARCH_TARGET_DEFINITION_SYNTHETIC_ONLY",
+ "document": "docs/TRANSPOSE_LATENCY_TARGETS.md",
+ "replaces": "single full-band added-latency <= 10 ms goal (#97 Transpose P0)",
+ "conditions": {
+  "rates": [
+   44100,
+   48000,
+   96000
+  ],
+  "block": 128,
+  "shifts": [
+   -2,
+   -1,
+   1,
+   2
+  ],
+  "block_note": "block size does not change output (324/324 and 648/648 block-parity groups in earlier suites); timing is T5"
+ },
+ "targets": [
+  {
+   "id": "T1_attack",
+   "kind": "gate",
+   "limit_ms": 10,
+   "metric": "1-8 kHz 2 ms RMS attack peak lag, output minus input (PR100 scorer), max over valid events",
+   "applies_to": "all shifts; inputs whose own attack peak sits at the event"
+  },
+  {
+   "id": "T2_low_onset_down",
+   "kind": "gate",
+   "limit_ms": 10,
+   "shifts": [
+    -2,
+    -1
+   ],
+   "metric": "per-note 120 Hz low-pass energy centroid, output minus input, max over notes",
+   "applies_to": "short notes (riffs, holdout plucks) and long notes (80 ms decay)"
+  },
+  {
+   "id": "T3_low_onset_up",
+   "kind": "report_with_regression_ceiling",
+   "shifts": [
+    1,
+    2
+   ],
+   "metric": "same as T2",
+   "bound": "time-domain upshift must jump back a whole period T; period-aligned splices measured 19-21 ms for B0/A0 long notes",
+   "regression_ceiling_ms": {
+    "short": 12.0,
+    "bass_B0": 15.5,
+    "bass_dropA_A0": 19.0,
+    "guitar_dropA_A1": 11.0
+   },
+   "ceiling_rule": "first full run of corr40-split-rt (this spec version) plus 1.0 ms, rounded up to 0.5 ms; not a quality target",
+   "ceiling_measured_ms": {
+    "short": 10.532,
+    "bass_B0": 14.424,
+    "bass_dropA_A0": 17.851,
+    "guitar_dropA_A1": 9.982
+   }
+  },
+  {
+   "id": "T4_quality",
+   "kind": "gate",
+   "steady_warble_max_cents": 1.0,
+   "steady_abs_error_max_cents": 1.0,
+   "unmatched_resets_max": 0,
+   "missed_events_max": 0,
+   "low_resets_on_markers_max": 0,
+   "metric": "steady tones: warble p95-p5 and dominant error; all inputs: onset association within 10 ms; low-band resets beyond startup on markers/guards/sustain"
+  },
+  {
+   "id": "T5_realtime",
+   "kind": "report",
+   "verdict_here": "NOT_MEASURED_BY_THIS_SCRIPT",
+   "evidence": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+  },
+  {
+   "id": "T6_external",
+   "kind": "required_before_product",
+   "verdict_here": "NOT_RUN",
+   "note": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+  }
+ ]
+}

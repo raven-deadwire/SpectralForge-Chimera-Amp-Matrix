@@ -1,0 +1,123 @@
+{
+ "status": "SYNTHETIC_RESEARCH_ONLY",
+ "date": "2026-10-23",
+ "candidate": "corr40-split-v2",
+ "compared_to": "corr40-split-rt",
+ "changes": {
+  "high_path_reanchor_guard_ms": 4,
+  "high_path_splice_fade_ms": 4,
+  "relative_high_band_floor": 2e-05,
+  "relative_floor_window_ms": 100,
+  "onset_reported_at_detection": true
+ },
+ "verdicts": [
+  {
+   "id": "T1_attack",
+   "limit_ms": 10,
+   "observed": {
+    "max_ms": 5.583,
+    "cases": 372
+   },
+   "verdict": "PASS"
+  },
+  {
+   "id": "T2_low_onset_down",
+   "limit_ms": 10,
+   "observed": {
+    "short_max_ms": 6.377,
+    "long_max_ms": 9.338
+   },
+   "verdict": "PASS"
+  },
+  {
+   "id": "T3_low_onset_up",
+   "regression_ceiling_ms": {
+    "short": 12.0,
+    "bass_B0": 15.5,
+    "bass_dropA_A0": 19.0,
+    "guitar_dropA_A1": 11.0
+   },
+   "observed": {
+    "short": 10.542,
+    "bass_B0": 14.425,
+    "bass_dropA_A0": 17.859,
+    "guitar_dropA_A1": 10.008
+   },
+   "verdict": "REPORT_WITHIN_CEILING"
+  },
+  {
+   "id": "T4_quality",
+   "limits": {
+    "steady_warble_max_cents": 1.0,
+    "steady_abs_error_max_cents": 1.0,
+    "unmatched_resets_max": 0,
+    "missed_events_max": 0,
+    "low_resets_on_markers_max": 0
+   },
+   "observed": {
+    "steady_warble_max_cents": 0.593,
+    "steady_abs_error_max_cents": 0.001,
+    "unmatched_resets": 0,
+    "missed_events": 0,
+    "low_resets_on_markers_or_sustain_after_startup": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "id": "T5_realtime",
+   "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+   "observed": {
+    "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+   }
+  },
+  {
+   "id": "T6_external",
+   "verdict": "NOT_RUN",
+   "observed": {
+    "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+   }
+  }
+ ],
+ "corr40_split_rt_48k_outputs_identical_to_previous_evidence": "204/204",
+ "reset_time_change_v2_minus_rt_ms": {
+  "n": 6696,
+  "median": 0.0,
+  "p99": 0.010937500000001894,
+  "max": 3.96875,
+  "min": -1.84375,
+  "note": "onset_samples log the re-anchor execution; later values are upshift re-anchors waiting for the 4 ms splice fade"
+ },
+ "timing": {
+  "corr40-split-rt/block128": {
+   "thread_cpu_mean_us_median": 54.3735,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 0
+  },
+  "corr40-split-rt/block256": {
+   "thread_cpu_mean_us_median": 113.079,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 0
+  },
+  "corr40-split-rt/block64": {
+   "thread_cpu_mean_us_median": 29.7215,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 6
+  },
+  "corr40-split-v2/block128": {
+   "thread_cpu_mean_us_median": 56.0836,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 2
+  },
+  "corr40-split-v2/block256": {
+   "thread_cpu_mean_us_median": 114.353,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 0
+  },
+  "corr40-split-v2/block64": {
+   "thread_cpu_mean_us_median": 29.2737,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 6
+  }
+ },
+ "tuning_note": "Guard 4 ms, fade 4 ms and floor 2e-5 were chosen on study fixtures plus both holdout seeds; no untouched holdout remains for these values."
+}
