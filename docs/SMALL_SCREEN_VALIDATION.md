@@ -104,7 +104,36 @@ The existing macOS realtime run also failed its CAB callback budget in both
 the fixed baseline and candidate. This remains separate from UI acceptance:
 https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39847257362
 
-Integration execution results are pending CI. No local C++ runtime was
-available during this integration; source inspection is not a runtime pass.
+### Integration findings — 2026-10-23 KST
+
+At `7e68ee1f745d76b7ea77f93f99ec630be6fd8ad7`, Linux native navigation
+passed 15 of 16 tests. The expanded small-screen test stopped at its first
+case: its new PRE DETAIL assertion selected display slot 0, although factory
+preset 0 puts the filter there and compressor owner 0 in slot 1. The test
+now resolves the compressor's display slot from the retained board order and
+also requires the opened spectrum to select owner 0. Product navigation and
+preset ordering are unchanged. This integration-test defect is separate from
+the older dialog/bounds failures and from the missing `rect` compile variable
+already restored in `7e68ee1`.
+
+Evidence for `7e68ee1` (not a pass for a subsequent revision):
+- Linux native navigation/state: 15/16 passed; small-screen failed as above.
+  https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39889149314/job/120204440293
+- macOS Dynamics UI: all three tests passed.
+  https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39889149372/job/120204440053
+- Linux EQ and CAB jobs passed; CAB realtime jobs passed on all three OSes.
+  https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39889149411
+  https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39889149430
+  https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39889149324
+
+Local Ubuntu 24.04 / GCC 13.3 / JUCE 8.0.8 Release builds succeeded for the
+Standalone, UI, CAB state and graphical EQ UI targets. Native-state CTest
+passed in 19.4 seconds on the corrected `7e68ee1` source tree. Configuration
+started at `5d21fbb`; the changed test translation unit was rebuilt, while
+the generated manifest retains the configure-time SHA. Native UI execution
+is blocked locally because AF_UNIX socket creation is denied and Xvfb cannot
+create a display. No local matrix or screenshot pass is claimed.
+
+The corrected small-screen matrix and remaining platform checks require CI.
 The simulated matrix does not certify physical OS DPI, mixed-monitor or DAW
 automation behavior. Final tested SHA and workflow results belong in PR #121.

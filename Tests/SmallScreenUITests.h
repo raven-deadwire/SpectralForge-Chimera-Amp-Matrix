@@ -81,9 +81,15 @@ inline void integratedWorkspaces(ChimeraProcessor& processor,ChimeraEditor& edit
     auto* board=find<PedalBoardPanel>(editor,"universalPedalBoard");require(board,"PRE board missing");
     board->navigateOwner(-1);settle(30);
     exerciseControl(processor,editor,viewport,*board,spectralforge::pedalControlID(0,6,0));
-    auto* detail=find<juce::TextButton>(*board,"boardDetailAt0");require(detail,"PRE DETAIL missing");
+    // Factory presets may reorder cards: stable owner 0 is not display slot 0.
+    const auto order=processor.pedalBoardState().order;
+    const auto position=std::find(order.begin(),order.end(),0);
+    require(position!=order.end(),"PRE compressor owner is missing from the board order");
+    auto* detail=find<juce::TextButton>(*board,"boardDetailAt"+juce::String(int(position-order.begin())));
+    require(detail && detail->isShowing() && detail->isEnabled(),"PRE DETAIL missing");
     reachable(editor,viewport,*detail);signalPathTests::click(*detail);
     require(find(*board,"boardCompressorSpectrum") && find(*board,"boardCompressorSpectrum")->isShowing(),"PRE DETAIL lost its spectrum");
+    require(processor.dynamicsAnalysis().preOwner.load()==0,"PRE DETAIL selected another compressor owner");
     board->navigateOwner(-1);
     tab(*canvas,"POST");
     auto* post=find<PostNativePanel>(editor,"postNativePanel0");require(post,"POST compressor missing");
