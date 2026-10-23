@@ -22,7 +22,7 @@ inline bool editorBoundsReachable(juce::Component& root,juce::Component& control
         const bool first=viewport->getViewArea().contains(bounds.getPosition());
         viewport->setViewPosition(bounds.getRight()-viewport->getMaximumVisibleWidth(),
                                   bounds.getBottom()-viewport->getMaximumVisibleHeight());
-        const bool last=viewport->getViewArea().contains({bounds.getRight()-1,bounds.getBottom()-1});
+        const bool last=viewport->getViewArea().contains(juce::Point<int>{bounds.getRight()-1,bounds.getBottom()-1});
         viewport->setViewPosition(previous);
         return first && last;
     }
