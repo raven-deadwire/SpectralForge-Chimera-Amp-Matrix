@@ -219,11 +219,6 @@ inline void run(const juce::File& directory) {
         // the next case. Keep the pointer on the newly revealed popup target.
         auto* modals=juce::ModalComponentManager::getInstance();
         waitForNativeSpectrum([&]{return modals->getNumModalComponents()==0;},"Previous dialog/menu did not finish closing");
-        // Closing the previous case's POST dialog can leave a macOS runner with
-        // no active app; PopupMenu then dismisses itself as a background menu.
-        juce::Process::makeForegroundProcess();editor->toFront(true);settings->grabKeyboardFocus();
-        waitForNativeSpectrum([&]{return juce::Process::isForegroundProcess() && settings->hasKeyboardFocus(false);},
-                              "Editor did not regain foreground focus before SETTINGS");
         juce::Desktop::setMousePosition(settings->localPointToGlobal(settings->getLocalBounds().getCentre()));
         settle(30);
         struct Receipt final:juce::Button::Listener {
@@ -232,11 +227,18 @@ inline void run(const juce::File& directory) {
             ~Receipt() override {button.removeListener(this);}
             void buttonClicked(juce::Button*) override {++clicks;}
         } receipt(*settings);
+        // A CI runner's test process may never be the foreground app; JUCE then
+        // dismisses a popup on its next timer tick unless the pointer is over it.
+        // The menu opens synchronously inside the click, so observe it there.
+        bool opened=false,menu=false;
+        const auto original=settings->onClick;
+        settings->onClick=[&]{original();opened=modals->getNumModalComponents()>0;menu=juce::PopupMenu::dismissAllActiveMenus();};
         settings->triggerClick();
         waitForNativeSpectrum([&]{return receipt.clicks>0;},"SETTINGS command was not delivered");
+        settings->onClick=original;
         require(receipt.clicks==1,"SETTINGS command was delivered more than once");
-        waitForNativeSpectrum([&]{return modals->getNumModalComponents()>0;},"SETTINGS popup did not remain open");
-        require(juce::PopupMenu::dismissAllActiveMenus(),"SETTINGS modal component was not a popup menu");
+        require(opened,"SETTINGS popup did not open");
+        require(menu,"SETTINGS modal component was not a popup menu");
         waitForNativeSpectrum([&]{return modals->getNumModalComponents()==0;},"SETTINGS popup did not finish closing");
         ++actions;
         // Explicit readable zoom may scroll; a fit/restore round trip retains
