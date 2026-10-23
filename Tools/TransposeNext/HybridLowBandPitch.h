@@ -1,6 +1,7 @@
 #pragma once
 #include "CorrelationPitch.h"
 #include "PhaseLockPitch.h"
+#include "LegatoDetector.h"
 
 namespace transposeNext {
 // Research only (2026-10-23): low band through the time-domain correlation
@@ -42,6 +43,10 @@ class HybridLowBandPitch {
     double sampleRate{},crossoverHz{};
     int reportedLatency{-1};
     std::vector<double> lowDelay;
+    LegatoDetector legato;
+    std::vector<uint8_t> legatoFlags,pickFlags;
+    std::vector<int> legatoAges;
+    bool legatoOn{};
     bool phaseLock{};
     int solo{};   // diagnostics: 0 both bands, 1 low band only, 2 upper band only
 public:
@@ -53,6 +58,7 @@ public:
         upper.prepare(spec,0,int(spec.sampleRate*.010)/8*8);
         phaseLock=lock;upper.setPhaseLock(lock ? 3*crossover : 0,lockOffset);
         lowDelay.assign(size_t(capacity),0);
+        legato.prepare(spec.sampleRate);legatoFlags.assign(size_t(capacity),0);legatoAges.assign(size_t(capacity),0);pickFlags.assign(size_t(capacity),0);legatoOn=false;
         sections=lr8?4:2;
         for(int k=0;k<4;++k) {
             const double q=lr8 ? (k%2==0 ? .5411961 : 1.3065630) : 1/std::sqrt(2.);
@@ -62,6 +68,10 @@ public:
     }
     int onsetResets() const noexcept {return body.onsetResets();}
     void setSolo(int band) noexcept {solo=band;}
+    // Research: re-anchor the low band on pitch changes without a pick
+    // (LegatoDetector on the low-band input), like a detected pick.
+    void setLegatoReanchor(bool on) noexcept {legatoOn=on;legato.reset();}
+    int legatoEvents() const noexcept {return legato.legatoEvents();}
     void setSemitones(int n) noexcept {shift=n;body.setSemitones(n);upper.setSemitones(n);}
     // Reported latency (research latency contract): with setAttackLatency the
     // hybrid promises picked attacks at `reportedLatency` samples in both bands;
@@ -94,7 +104,13 @@ public:
                 for(int k=0;k<sections;++k){lo=lowpass[size_t(k)].tick(lo,c);hi=highpass[size_t(k)].tick(hi,c);}
                 lowIn.setSample(c,i,lo);highIn.setSample(c,i,hi);
             }
-            body.process(lowIn,lowOut,shift!=0,anchored?&detector:nullptr,nullptr,nullptr,lowDelay.data());
+            if(legatoOn) for(int i=0;i<n;++i) {
+                float mono=0;for(int c=0;c<channels;++c)mono+=lowIn.getSample(c,i);
+                const int age=legato.push(mono/float(channels));
+                legatoFlags[size_t(i)]=age>=0 ? 1 : 0;legatoAges[size_t(i)]=std::max(age,0);
+            }
+            body.process(lowIn,lowOut,shift!=0,anchored?&detector:nullptr,legatoOn?legatoFlags.data():nullptr,legatoOn?pickFlags.data():nullptr,lowDelay.data(),legatoOn?legatoAges.data():nullptr);
+            if(legatoOn) for(int i=0;i<n;++i) if(pickFlags[size_t(i)]!=0){legato.notePick();break;}
             upper.process(highIn,highOut,shift!=0,phaseLock?lowDelay.data():nullptr);
             for(int c=0;c<channels;++c)for(int i=0;i<n;++i)
                 output.setSample(c,off+i,shift==0 ? input.getSample(c,off+i) : (solo!=2 ? lowOut.getSample(c,i) : 0.f)+(solo!=1 ? highOut.getSample(c,i) : 0.f));

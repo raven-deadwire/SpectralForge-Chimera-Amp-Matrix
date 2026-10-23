@@ -26,6 +26,7 @@ class CorrelationPitch {
     int heldSamples{};
     double alignDelay{},alignLead{},alignInput{};
     bool alignExact{};
+    double externalAgeSamples{};
     bool alignCompensated{};
     int fadeStep{1},onsetFadeSamples{};
     double onsetFloor{};
@@ -212,7 +213,11 @@ public:
     // event re-anchors the read head exactly like the internal onset reset.
     // A request during a crossfade is held until that fade completes.
     // onsetOut (optional, one flag per sample) reports internal onset resets.
-    void process(const juce::AudioBuffer<float>& input, juce::AudioBuffer<float>& output, bool render=true, const juce::AudioBuffer<float>* detectorInput=nullptr, const uint8_t* externalOnset=nullptr, uint8_t* onsetOut=nullptr, double* delayOut=nullptr) noexcept {
+    // externalAge (optional, with externalOnset): samples since the flagged
+    // event began. With the exact alignment (setAnchorInputDelay) the anchor
+    // grows by (1 - ratio) x age, so a late-detected change still lands on the
+    // target: D0 = r L - r tau + (1 - r) age (read-head geometry).
+    void process(const juce::AudioBuffer<float>& input, juce::AudioBuffer<float>& output, bool render=true, const juce::AudioBuffer<float>* detectorInput=nullptr, const uint8_t* externalOnset=nullptr, uint8_t* onsetOut=nullptr, double* delayOut=nullptr, const int* externalAge=nullptr) noexcept {
         for(int n=0;n<input.getNumSamples();++n) {
             if(onsetOut!=nullptr)onsetOut[n]=0;
             if(delayOut!=nullptr)delayOut[n]=0;
@@ -295,10 +300,11 @@ public:
                                                 : std::min(anchor,std::max(minimum+guard,alignDelay-alignInput));
                 anchor=std::max(anchor,delta>0 ? floor+onsetGuard : minimum+guard);
                 anchor=std::min(anchor,maximum-guard);
-                if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable)externalPending=true;
+                if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable){externalPending=true;externalAgeSamples=externalAge!=nullptr ? std::max(0,externalAge[n]) : 0.;}
+                else if(externalPending)externalAgeSamples+=1;
                 if(externalPending && resettable && !fading) {
                     externalPending=false;
-                    nextDelay=anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
+                    nextDelay=alignExact ? juce::jlimit(minimum+guard,maximum-guard,anchor+delta*std::min(externalAgeSamples,alignDelay)) : anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
                 }

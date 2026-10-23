@@ -1,0 +1,8162 @@
+[
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.83,
+  "error_ms": -0.17
+ },
+ {
+  "kind": "picked",
+  "material": "bass_B0",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.83,
+  "error_ms": -0.17
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.04,
+  "error_ms": 0.04
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.04,
+  "error_ms": 0.04
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.94,
+  "error_ms": -0.06
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.94,
+  "error_ms": -0.06
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.81,
+  "error_ms": -0.19
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.81,
+  "error_ms": -0.19
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.1,
+  "error_ms": 0.1
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.1,
+  "error_ms": 0.1
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.08,
+  "error_ms": 0.08
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.08,
+  "error_ms": 0.08
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.06,
+  "error_ms": 0.06
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.06,
+  "error_ms": 0.06
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.79,
+  "error_ms": -0.21
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.79,
+  "error_ms": -0.21
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.69,
+  "error_ms": 0.69
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.69,
+  "error_ms": 0.69
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.46,
+  "error_ms": 0.46
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.46,
+  "error_ms": 0.46
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.15,
+  "error_ms": 0.15
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.15,
+  "error_ms": 0.15
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.85,
+  "error_ms": -0.15
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.85,
+  "error_ms": -0.15
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.67,
+  "error_ms": -0.33
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.67,
+  "error_ms": -0.33
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.62,
+  "error_ms": -0.38
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.62,
+  "error_ms": -0.38
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "lead_A3",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.23,
+  "error_ms": 0.23
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.23,
+  "error_ms": 0.23
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.19,
+  "error_ms": 0.19
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.19,
+  "error_ms": 0.19
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.17,
+  "error_ms": 0.17
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.17,
+  "error_ms": 0.17
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.08,
+  "error_ms": 0.08
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.08,
+  "error_ms": 0.08
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.79,
+  "error_ms": -0.21
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.79,
+  "error_ms": -0.21
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.65,
+  "error_ms": -0.35
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.65,
+  "error_ms": -0.35
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.48,
+  "error_ms": -0.52
+ },
+ {
+  "kind": "picked",
+  "material": "power_chord_E2",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.48,
+  "error_ms": -0.52
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.04,
+  "error_ms": 0.04
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.04,
+  "error_ms": 0.04
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.94,
+  "error_ms": -0.06
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.94,
+  "error_ms": -0.06
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.81,
+  "error_ms": -0.19
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.81,
+  "error_ms": -0.19
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "bass_E1_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.1,
+  "error_ms": 0.1
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.1,
+  "error_ms": 0.1
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.08,
+  "error_ms": 0.08
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.08,
+  "error_ms": 0.08
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.06,
+  "error_ms": 0.06
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.06,
+  "error_ms": 0.06
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.79,
+  "error_ms": -0.21
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.79,
+  "error_ms": -0.21
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.1,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.7,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "guitar_E2_repick",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.3,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.35,
+  "error_ms": 1.35
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.35,
+  "error_ms": 1.35
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.35,
+  "error_ms": 1.35
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.96,
+  "error_ms": -0.04
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.35,
+  "error_ms": 1.35
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.35,
+  "error_ms": 1.35
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.35,
+  "error_ms": 1.35
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.38,
+  "error_ms": 1.38
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.0,
+  "error_ms": 0.0
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.0,
+  "error_ms": 0.0
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.27,
+  "error_ms": 2.27
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.25,
+  "error_ms": 2.25
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.1,
+  "error_ms": 2.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.1,
+  "error_ms": 2.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.08,
+  "error_ms": 2.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.87,
+  "error_ms": 0.87
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.33,
+  "error_ms": 0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.87,
+  "error_ms": -0.13
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.87,
+  "error_ms": -0.13
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.87,
+  "error_ms": -0.13
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.87,
+  "error_ms": -0.13
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.87,
+  "error_ms": -0.13
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.87,
+  "error_ms": -0.13
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.85,
+  "error_ms": -0.15
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.85,
+  "error_ms": -0.15
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.92,
+  "error_ms": -0.08
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.9,
+  "error_ms": -0.1
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.67,
+  "error_ms": -0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.67,
+  "error_ms": -0.33
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.52,
+  "error_ms": -0.48
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 0.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.125,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.25,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.375,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.5,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.625,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.75,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "picked",
+  "material": "E2_palm16",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.875,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.73,
+  "error_ms": 14.73
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.75,
+  "error_ms": 10.75
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.88,
+  "error_ms": 10.88
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.02,
+  "error_ms": 1.02
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 16.62,
+  "error_ms": 6.62
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.15,
+  "error_ms": 1.15
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 36.9,
+  "error_ms": 26.9
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.71,
+  "error_ms": 14.71
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 36.52,
+  "error_ms": 26.52
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 3.9,
+  "error_ms": -6.1
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 29.98,
+  "error_ms": 19.98
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.44,
+  "error_ms": -1.56
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.15,
+  "error_ms": 28.15
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 37.83,
+  "error_ms": 27.83
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 19.85,
+  "error_ms": 9.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 6.6,
+  "error_ms": -3.4
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.88,
+  "error_ms": 22.88
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 13.42,
+  "error_ms": 3.42
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.38,
+  "error_ms": 28.38
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.25,
+  "error_ms": 28.25
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.96,
+  "error_ms": 21.96
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 6.71,
+  "error_ms": -3.29
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 33.92,
+  "error_ms": 23.92
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 4.13,
+  "error_ms": -5.87
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.54,
+  "error_ms": -0.46
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 21.96,
+  "error_ms": 11.96
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.88,
+  "error_ms": -0.12
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.65,
+  "error_ms": -2.35
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 23.75,
+  "error_ms": 13.75
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.75,
+  "error_ms": -0.25
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 17.67,
+  "error_ms": 7.67
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 17.69,
+  "error_ms": 7.69
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.96,
+  "error_ms": 1.96
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.15,
+  "error_ms": -0.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.52,
+  "error_ms": 1.52
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.31,
+  "error_ms": 0.31
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.79,
+  "error_ms": 1.79
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 26.5,
+  "error_ms": 16.5
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 16.88,
+  "error_ms": 6.88
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.48,
+  "error_ms": -2.52
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 17.75,
+  "error_ms": 7.75
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.35,
+  "error_ms": 1.35
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.94,
+  "error_ms": 5.94
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 13.9,
+  "error_ms": 3.9
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 22.98,
+  "error_ms": 12.98
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.23,
+  "error_ms": -0.77
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 16.58,
+  "error_ms": 6.58
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.42,
+  "error_ms": -1.58
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 30.21,
+  "error_ms": 20.21
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.81,
+  "error_ms": 21.81
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -7.48,
+  "error_ms": -17.48
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": -10.33,
+  "error_ms": -20.33
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -15.29,
+  "error_ms": -25.29
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -0.65,
+  "error_ms": -10.65
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 33.77,
+  "error_ms": 23.77
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 23.06,
+  "error_ms": 13.06
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.96,
+  "error_ms": -2.04
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 4.98,
+  "error_ms": -5.02
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -2.58,
+  "error_ms": -12.58
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.23,
+  "error_ms": -4.77
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 35.5,
+  "error_ms": 25.5
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.42,
+  "error_ms": 22.42
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.48,
+  "error_ms": -0.52
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.15,
+  "error_ms": -1.85
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 0.9,
+  "error_ms": -9.1
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.29,
+  "error_ms": -0.71
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 36.48,
+  "error_ms": 26.48
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.37,
+  "error_ms": 28.37
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 3.98,
+  "error_ms": -6.02
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.71,
+  "error_ms": -0.29
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 0.48,
+  "error_ms": -9.52
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 4.85,
+  "error_ms": -5.15
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.98,
+  "error_ms": -0.02
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.62,
+  "error_ms": 14.62
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.19,
+  "error_ms": -1.81
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.35,
+  "error_ms": -4.65
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.37,
+  "error_ms": 1.37
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 4.35,
+  "error_ms": -5.65
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 33.19,
+  "error_ms": 23.19
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.17,
+  "error_ms": 5.17
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.79,
+  "error_ms": 0.79
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.48,
+  "error_ms": 0.48
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.42,
+  "error_ms": 0.42
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.06,
+  "error_ms": 0.06
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 14.92,
+  "error_ms": 4.92
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 27.9,
+  "error_ms": 17.9
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.02,
+  "error_ms": 2.02
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.92,
+  "error_ms": -1.08
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.31,
+  "error_ms": 1.31
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.71,
+  "error_ms": -0.29
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 22.9,
+  "error_ms": 12.9
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.33,
+  "error_ms": 15.33
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 28.04,
+  "error_ms": 18.04
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.75,
+  "error_ms": 5.75
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.77,
+  "error_ms": 15.77
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 27.37,
+  "error_ms": 17.37
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 41.42,
+  "error_ms": 31.42
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 41.42,
+  "error_ms": 31.42
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 35.4,
+  "error_ms": 25.4
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.35,
+  "error_ms": 14.35
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 21.56,
+  "error_ms": 11.56
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 35.4,
+  "error_ms": 25.4
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -1.21,
+  "error_ms": -11.21
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 0.75,
+  "error_ms": -9.25
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 34.85,
+  "error_ms": 24.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.27,
+  "error_ms": 21.27
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 39.5,
+  "error_ms": 29.5
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 34.85,
+  "error_ms": 24.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 16.56,
+  "error_ms": 6.56
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.9,
+  "error_ms": 0.9
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.65,
+  "error_ms": 28.65
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 23.63,
+  "error_ms": 13.63
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 33.13,
+  "error_ms": 23.13
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.65,
+  "error_ms": 28.65
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.02,
+  "error_ms": 0.02
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 16.9,
+  "error_ms": 6.9
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.15,
+  "error_ms": -1.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.35,
+  "error_ms": 2.35
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.31,
+  "error_ms": 2.31
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.15,
+  "error_ms": -1.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.65,
+  "error_ms": -2.35
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 21.4,
+  "error_ms": 11.4
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.96,
+  "error_ms": 14.96
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.96,
+  "error_ms": 0.96
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 14.73,
+  "error_ms": 4.73
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.96,
+  "error_ms": 14.96
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.69,
+  "error_ms": -4.31
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 44.42,
+  "error_ms": 34.42
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 13.44,
+  "error_ms": 3.44
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.13,
+  "error_ms": 14.13
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 26.06,
+  "error_ms": 16.06
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 13.44,
+  "error_ms": 3.44
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 3.71,
+  "error_ms": -6.29
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 18.48,
+  "error_ms": 8.48
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.85,
+  "error_ms": 10.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 21.44,
+  "error_ms": 11.44
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.29,
+  "error_ms": 14.29
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.85,
+  "error_ms": 10.85
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.54,
+  "error_ms": 5.54
+ },
+ {
+  "kind": "legato",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 47.48,
+  "error_ms": 37.48
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.92,
+  "error_ms": 21.92
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": -3.62,
+  "error_ms": -13.62
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 36.25,
+  "error_ms": 26.25
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 18.29,
+  "error_ms": 8.29
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -3.46,
+  "error_ms": -13.46
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 2.4,
+  "error_ms": -7.6
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -8.06,
+  "error_ms": -18.06
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -6.21,
+  "error_ms": -16.21
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 35.6,
+  "error_ms": 25.6
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.15,
+  "error_ms": 22.15
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -7.6,
+  "error_ms": -17.6
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 6.31,
+  "error_ms": -3.69
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -6.21,
+  "error_ms": -16.21
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -10.71,
+  "error_ms": -20.71
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.92,
+  "error_ms": 28.92
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.33,
+  "error_ms": 14.33
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 0.31,
+  "error_ms": -9.69
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.9,
+  "error_ms": 2.9
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 0.19,
+  "error_ms": -9.81
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -2.42,
+  "error_ms": -12.42
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.48,
+  "error_ms": -1.52
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.63,
+  "error_ms": 2.63
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.6,
+  "error_ms": -0.4
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.06,
+  "error_ms": -2.94
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 0.73,
+  "error_ms": -9.27
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 0.88,
+  "error_ms": -9.12
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 33.13,
+  "error_ms": 23.13
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 29.29,
+  "error_ms": 19.29
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.15,
+  "error_ms": 5.15
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.98,
+  "error_ms": -1.02
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.83,
+  "error_ms": -4.17
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 11.33,
+  "error_ms": 1.33
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.13,
+  "error_ms": 21.13
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 23.81,
+  "error_ms": 13.81
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 42.37,
+  "error_ms": 32.37
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 34.83,
+  "error_ms": 24.83
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.27,
+  "error_ms": 15.27
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 46.27,
+  "error_ms": 36.27
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.44,
+  "error_ms": 15.44
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 22.71,
+  "error_ms": 12.71
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 34.15,
+  "error_ms": 24.15
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.02,
+  "error_ms": 15.02
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 26.27,
+  "error_ms": 16.27
+ },
+ {
+  "kind": "hammer",
+  "material": "E2_legato_down",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.75,
+  "error_ms": 22.75
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 27.23,
+  "error_ms": 17.23
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.85,
+  "error_ms": 22.85
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.21,
+  "error_ms": 0.21
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -0.81,
+  "error_ms": -10.81
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 28.46,
+  "error_ms": 18.46
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 30.69,
+  "error_ms": 20.69
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 34.44,
+  "error_ms": 24.44
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.87,
+  "error_ms": 28.87
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 1.17,
+  "error_ms": -8.83
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -0.96,
+  "error_ms": -10.96
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 22.96,
+  "error_ms": 12.96
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.5,
+  "error_ms": 21.5
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.96,
+  "error_ms": 5.96
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 29.52,
+  "error_ms": 19.52
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": -2.92,
+  "error_ms": -12.92
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -0.88,
+  "error_ms": -10.88
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 36.88,
+  "error_ms": 26.88
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.33,
+  "error_ms": 21.33
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.1,
+  "error_ms": 21.1
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 34.08,
+  "error_ms": 24.08
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 6.08,
+  "error_ms": -3.92
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 4.9,
+  "error_ms": -5.1
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 34.71,
+  "error_ms": 24.71
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 14.75,
+  "error_ms": 4.75
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.75,
+  "error_ms": -4.25
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 6.06,
+  "error_ms": -3.94
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 9.67,
+  "error_ms": -0.33
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.06,
+  "error_ms": 0.06
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 22.33,
+  "error_ms": 12.33
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.17,
+  "error_ms": 2.17
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 19.0,
+  "error_ms": 9.0
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 14.67,
+  "error_ms": 4.67
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.83,
+  "error_ms": 0.83
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 3.98,
+  "error_ms": -6.02
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.83,
+  "error_ms": 2.83
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.31,
+  "error_ms": 2.31
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 17.94,
+  "error_ms": 7.94
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.96,
+  "error_ms": 0.96
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.35,
+  "error_ms": 15.35
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 29.04,
+  "error_ms": 19.04
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.75,
+  "error_ms": 5.75
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 18.02,
+  "error_ms": 8.02
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 18.15,
+  "error_ms": 8.15
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 23.21,
+  "error_ms": 13.21
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 19.46,
+  "error_ms": 9.46
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 24.29,
+  "error_ms": 14.29
+ },
+ {
+  "kind": "legato",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.58,
+  "error_ms": 15.58
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.79,
+  "error_ms": 15.79
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 36.15,
+  "error_ms": 26.15
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": null,
+  "error_ms": null
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": -1.17,
+  "error_ms": -11.17
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -3.71,
+  "error_ms": -13.71
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -8.73,
+  "error_ms": -18.73
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 30.33,
+  "error_ms": 20.33
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 37.58,
+  "error_ms": 27.58
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 38.33,
+  "error_ms": 28.33
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.98,
+  "error_ms": -2.02
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": -0.65,
+  "error_ms": -10.65
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -9.98,
+  "error_ms": -19.98
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.19,
+  "error_ms": 22.19
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.08,
+  "error_ms": 5.08
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.42,
+  "error_ms": 22.42
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.25,
+  "error_ms": -4.75
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 4.21,
+  "error_ms": -5.79
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -3.1,
+  "error_ms": -13.1
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.38,
+  "error_ms": 21.38
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.69,
+  "error_ms": 21.69
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 30.65,
+  "error_ms": 20.65
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.77,
+  "error_ms": -1.23
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.12,
+  "error_ms": -2.88
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": -2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": -2.23,
+  "error_ms": -12.23
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 15.15,
+  "error_ms": 5.15
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.96,
+  "error_ms": -4.04
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 37.33,
+  "error_ms": 27.33
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 10.88,
+  "error_ms": 0.88
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 8.9,
+  "error_ms": -1.1
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 2,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 5.19,
+  "error_ms": -4.81
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 12.69,
+  "error_ms": 2.69
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 19.9,
+  "error_ms": 9.9
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.92,
+  "error_ms": 10.92
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 7.65,
+  "error_ms": -2.35
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 4.96,
+  "error_ms": -5.04
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 5,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 3.67,
+  "error_ms": -6.33
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 25.85,
+  "error_ms": 15.85
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.46,
+  "error_ms": 10.46
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 39.19,
+  "error_ms": 29.19
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.81,
+  "error_ms": 10.81
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 29.48,
+  "error_ms": 19.48
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 7,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 16.6,
+  "error_ms": 6.6
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 32.58,
+  "error_ms": 22.58
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 20.83,
+  "error_ms": 10.83
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 27.46,
+  "error_ms": 17.46
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.0,
+  "reported_ms": 10.0,
+  "arrival_ms": 23.15,
+  "error_ms": 13.15
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 1.6,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.0,
+  "error_ms": 21.0
+ },
+ {
+  "kind": "hammer",
+  "material": "A2_legato_up",
+  "shift_semitones": 12,
+  "mode": "AL10RA-800-L10-LEG",
+  "event_s": 2.2,
+  "reported_ms": 10.0,
+  "arrival_ms": 31.48,
+  "error_ms": 21.48
+ }
+]

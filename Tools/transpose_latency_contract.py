@@ -12,8 +12,9 @@ none, scored against REFERENCE_MS):
            (transpose_synthetic_evidence.onset_latency_ms) per pick
   legato   a sustained E2 / A2 note that changes pitch with no new pick:
            pure (phase-continuous, no level change) and hammer-on (+6 dB,
-           2 ms bump). Arrival = when the new note's level first exceeds the
-           old note's: summed centred 120 ms Hann demodulation of harmonics
+           2 ms bump). Arrival = when the new note's level first reaches half
+           of its level 60-150 ms later: summed centred 120 ms Hann
+           demodulation of harmonics
            1-10 (x ratio) that are > 18 Hz from every harmonic of the other
            note (a semitone at the 2nd harmonic is only ~10 Hz apart, and a
            new note's 8th harmonic can sit on the old note's 7th), output
@@ -32,7 +33,7 @@ import transpose_synthetic_evidence as ev
 import transpose_realistic_probe as rp
 
 SHIFTS = [-12, -7, -5, -2, 2, 5, 7, 12]
-MODES = [(2, "TIGHT"), (37, "AL10RA-800"), (39, "AL10RA-800-L10")]
+MODES = [(2, "TIGHT"), (37, "AL10RA-800"), (39, "AL10RA-800-L10"), (40, "AL10RA-800-L10-LEG")]
 REFERENCE_MS = 10.0
 PICKED = ['bass_B0', 'bass_E1', 'guitar_E2', 'lead_A3', 'power_chord_E2', 'bass_E1_repick', 'guitar_E2_repick']
 LEGATO_AT = [1.0, 1.6, 2.2]   # seconds after the lead-in
@@ -59,23 +60,27 @@ def demod(y, f, rate, window_s=0.12):
 
 def note_level(y, f, other, ratio, rate):
     """Summed demodulated level of harmonics 1-10 of f (x ratio) that are more
-    than 18 Hz from every harmonic of `other`: the 120 ms Hann main lobe is
-    +-17 Hz, so closer pairs leak into each other."""
+    than 18 Hz from every harmonic of `other` at the output (x ratio): the
+    120 ms Hann main lobe is +-17 Hz, so closer pairs leak into each other.
+    The spacing scales with the ratio, so a downshift keeps fewer harmonics."""
     total = 0
     for k in range(1, 11):
-        if min(abs(k * f - j * other) for j in range(1, 16)) > 18:
+        if min(abs(k * f - j * other) for j in range(1, 16)) * ratio > 18:
             total = total + demod(y, k * f * ratio, rate)
     return total
 
 def crossings(y, notes, ratio, rate):
-    """Times (s) at which note k+1's level first exceeds note k's, near each change."""
+    """Times (s) at which note k+1's level first reaches half of its level
+    60-150 ms after the change, near each change. Only the new note's level
+    is used: a re-anchoring read head skips part of the old note, which moves
+    an old/new balance point earlier without the new note arriving earlier."""
     out = []
     for k, at in enumerate(LEGATO_AT):
-        old = note_level(y, notes[k], notes[k + 1], ratio, rate)
         new = note_level(y, notes[k + 1], notes[k], ratio, rate)
+        if np.isscalar(new): out.append(None); continue
         a, b = int((ev.PRE_S + at - 0.08) * rate), int((ev.PRE_S + at + 0.15) * rate)
-        if np.isscalar(old) or np.isscalar(new): out.append(None); continue
-        idx = np.nonzero(new[a:b] > old[a:b])[0]
+        ref = np.median(new[int((ev.PRE_S + at + 0.06) * rate):int((ev.PRE_S + at + 0.15) * rate)])
+        idx = np.nonzero(new[a:b] > 0.5 * ref)[0]
         out.append((a + idx[0]) / rate if len(idx) and idx[0] > 0 else None)
     return out
 
