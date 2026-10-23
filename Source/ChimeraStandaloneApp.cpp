@@ -11,6 +11,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
 #include "WindowFit.h"
+#include "StandaloneDiagnostics.h"
 
 namespace spectralforge {
 class ChimeraStandaloneWindow final : public juce::StandaloneFilterWindow {
@@ -50,6 +51,49 @@ private:
     juce::Point<int> restoredEditorSize,restoredPosition;
 };
 
+// Device facts for the diagnostic snapshot. Driver-reported latency is what the
+// driver claims, not a measured round trip; xruns are -1 when unsupported.
+juce::var audioDeviceDiagnostics() {
+    auto* holder=juce::StandalonePluginHolder::getInstance();
+    if(holder==nullptr)return {};
+    auto& devices=holder->deviceManager;
+    auto object=std::make_unique<juce::DynamicObject>();
+    juce::Array<juce::var> types;
+    for(auto* type:devices.getAvailableDeviceTypes())types.add(type->getTypeName());
+    object->setProperty("type",devices.getCurrentAudioDeviceType());
+    object->setProperty("available_types",types);
+    object->setProperty("input_muted_for_feedback",(bool)holder->getMuteInputValue().getValue());
+    if(auto* device=devices.getCurrentAudioDevice()) {
+        object->setProperty("open",true);
+        object->setProperty("sample_rate",device->getCurrentSampleRate());
+        object->setProperty("buffer_samples",device->getCurrentBufferSizeSamples());
+        object->setProperty("driver_input_latency_samples",device->getInputLatencyInSamples());
+        object->setProperty("driver_output_latency_samples",device->getOutputLatencyInSamples());
+        object->setProperty("active_inputs",device->getActiveInputChannels().countNumberOfSetBits());
+        object->setProperty("active_outputs",device->getActiveOutputChannels().countNumberOfSetBits());
+        object->setProperty("xruns",device->getXRunCount());
+        object->setProperty("device_cpu_percent",devices.getCpuUsage()*100.);
+    } else object->setProperty("open",false);
+    return juce::var(object.release());
+}
+
+// First run only (no saved "audioSetup"): a connected ASIO interface becomes
+// the default instead of shared Windows audio. A saved choice is never changed.
+void preferAsioOnFirstRun(juce::StandalonePluginHolder& holder) {
+    if(holder.settings==nullptr || holder.settings->containsKey("audioSetup"))return;
+    auto& devices=holder.deviceManager;
+    const auto current=devices.getCurrentAudioDeviceType();
+    if(current=="ASIO")return;
+    for(auto* type:devices.getAvailableDeviceTypes()) {
+        if(type->getTypeName()!="ASIO")continue;
+        type->scanForDevices();
+        if(type->getDeviceNames().isEmpty())return;
+        devices.setCurrentAudioDeviceType("ASIO",true);
+        if(devices.getCurrentAudioDevice()==nullptr)devices.setCurrentAudioDeviceType(current,true);  // driver busy or absent
+        return;
+    }
+}
+
 class ChimeraStandaloneApp final : public juce::JUCEApplication {
 public:
     ChimeraStandaloneApp() {
@@ -69,12 +113,13 @@ public:
     bool moreThanOneInstanceAllowed() override {return true;}
     void anotherInstanceStarted(const juce::String&) override {}
     void initialise(const juce::String&) override {
+        standalone::audioDeviceDiagnostics=&spectralforge::audioDeviceDiagnostics;
         if(!juce::Desktop::getInstance().getDisplays().displays.isEmpty())
             mainWindow=std::make_unique<ChimeraStandaloneWindow>(getApplicationName(),
                 juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),createPluginHolder());
         if(mainWindow)mainWindow->setVisible(true);else pluginHolder=createPluginHolder();
     }
-    void shutdown() override {pluginHolder=nullptr;mainWindow=nullptr;appProperties.saveIfNeeded();}
+    void shutdown() override {standalone::audioDeviceDiagnostics=nullptr;pluginHolder=nullptr;mainWindow=nullptr;appProperties.saveIfNeeded();}
     void systemRequestedQuit() override {
         if(pluginHolder)pluginHolder->savePluginState();
         if(mainWindow)mainWindow->pluginHolder->savePluginState();
@@ -90,7 +135,9 @@ private:
        #else
         const juce::Array<juce::StandalonePluginHolder::PluginInOuts> channelConfig;
        #endif
-        return std::make_unique<juce::StandalonePluginHolder>(appProperties.getUserSettings(),false,juce::String{},nullptr,channelConfig,false);
+        auto holder=std::make_unique<juce::StandalonePluginHolder>(appProperties.getUserSettings(),false,juce::String{},nullptr,channelConfig,false);
+        preferAsioOnFirstRun(*holder);
+        return holder;
     }
     juce::ApplicationProperties appProperties;
     std::unique_ptr<ChimeraStandaloneWindow> mainWindow;
