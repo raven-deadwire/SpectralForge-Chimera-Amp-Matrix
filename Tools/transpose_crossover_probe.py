@@ -32,6 +32,8 @@ MODES = [(0, "CLASSIC"), (2, "TIGHT"), (12, "HYB150"), (20, "HYB150-AL10RA")]
 SOLO_MODES = [(21, "AL10RA-LOW"), (22, "AL10RA-HIGH")]
 # Same with a steeper LR8 split (narrower region where both bands are comparable).
 LR8_MODES = [(23, "AL10RA-LR8"), (24, "AL10RA-LR8-LOW"), (25, "AL10RA-LR8-HIGH")]
+# STFT band phase-locked to the low band's read delay (Tools/TransposeNext/PhaseLockPitch.h).
+LOCK_MODES = [(26, "AL10RA-LOCK"), (27, "AL10RA-LOCK-LOW"), (28, "AL10RA-LOCK-HIGH")]
 PRE_S, TONE_S, SKIP_S, AMP = 0.5, 2.5, 0.3, 0.5
 
 def tone(f, rate):
@@ -53,7 +55,7 @@ def measure(y, f_out, rate):
     db = 20 * np.log10(np.maximum(a, 1e-9) / AMP)
     return round(float(np.median(db)), 2), round(float(np.percentile(db, 95) - np.percentile(db, 5)), 2)
 
-def run(probe, out, rate=48000, block=128, modes=MODES + SOLO_MODES + LR8_MODES):
+def run(probe, out, rate=48000, block=128, modes=MODES + SOLO_MODES + LR8_MODES + LOCK_MODES):
     rows = []
     with tempfile.TemporaryDirectory(prefix='transpose-crossover-') as tmp:
         for f in TONES:
@@ -66,7 +68,7 @@ def run(probe, out, rate=48000, block=128, modes=MODES + SOLO_MODES + LR8_MODES)
                     level, fluct = measure(y, f_out, rate); levels[label] = level
                     rows.append({'rate': rate, 'tone_hz': f, 'shift_semitones': shift, 'mode': label,
                                  'level_db': level, 'fluct_db': fluct})
-                for both in ('HYB150-AL10RA', 'AL10RA-LR8'):
+                for both in ('HYB150-AL10RA', 'AL10RA-LR8', 'AL10RA-LOCK'):
                     low, high = (both if both != 'HYB150-AL10RA' else 'AL10RA') + '-LOW', (both if both != 'HYB150-AL10RA' else 'AL10RA') + '-HIGH'
                     if not all(k in levels for k in (both, low, high)): continue
                     s, l, h = (10 ** (levels[k] / 20) for k in (both, low, high))

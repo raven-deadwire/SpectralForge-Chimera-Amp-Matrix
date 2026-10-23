@@ -27,8 +27,9 @@ HYBRID_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (10, "SPLIT-UP"), (11, "HYB100"), 
 # 150 Hz hybrid with low-band onset re-anchor, low-band delay bound 40 / 20 / 12 ms.
 ANCHOR_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (12, "HYB150"), (14, "HYB150-A40"), (15, "HYB150-A20"), (16, "HYB150-A12")]
 # Low-band attacks anchored at 10 ms, aligned with the STFT band; R: downshift anchor scaled by the ratio;
-# F: 0.5 ms onset crossfade and delay floor; A: only where the anchor is floor-bound.
-ALIGN_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (14, "HYB150-A40"), (17, "HYB150-A40-AL10"), (18, "HYB150-AL10R"), (19, "HYB150-AL10RF"), (20, "HYB150-AL10RA")]
+# F: 0.5 ms onset crossfade and delay floor; A: only where the anchor is floor-bound;
+# LOCK: STFT band phase-locked to the low band below 450 Hz.
+ALIGN_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (14, "HYB150-A40"), (17, "HYB150-A40-AL10"), (18, "HYB150-AL10R"), (19, "HYB150-AL10RF"), (20, "HYB150-AL10RA"), (26, "HYB150-AL10RA-LOCK")]
 SHIFTS = [0, -12, -7, -5, -2, 2, 5, 7, 12]
 PRE_S, NOTE_S = 0.5, 2.5
 REPICK_S = 0.6          # repick material: a new pluck every 0.6 s, the previous one cut off

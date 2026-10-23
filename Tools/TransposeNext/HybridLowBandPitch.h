@@ -1,6 +1,6 @@
 #pragma once
 #include "CorrelationPitch.h"
-#include "PolyPitch.h"
+#include "PhaseLockPitch.h"
 
 namespace transposeNext {
 // Research only (2026-10-23): low band through the time-domain correlation
@@ -33,20 +33,24 @@ class HybridLowBandPitch {
         }
     };
     CorrelationPitch body;
-    spectralforge::PolyPitch upper;
+    PhaseLockPitch upper;   // research copy of PolyPitch; identical unless setPhaseLock
     std::array<Biquad,4> lowpass,highpass;   // LR4: two Butterworth sections; LR8: four (Q 0.541/1.307, each twice)
     int sections{2};
     juce::AudioBuffer<float> lowIn,highIn,lowOut,highOut,detector;
     int channels{},capacity{},shift{};
     bool anchored{};
+    std::vector<double> lowDelay;
+    bool phaseLock{};
     int solo{};   // diagnostics: 0 both bands, 1 low band only, 2 upper band only
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec,double crossover,double boundMs=40,bool onset=false,double alignMs=0,bool alignCompensated=false,double onsetFadeMs=0,double leadMs=2.9,bool fadeAdaptive=false,bool lr8=false) {
+    void prepare(const juce::dsp::ProcessSpec& spec,double crossover,double boundMs=40,bool onset=false,double alignMs=0,bool alignCompensated=false,double onsetFadeMs=0,double leadMs=2.9,bool fadeAdaptive=false,bool lr8=false,bool lock=false,float lockOffset=-1) {
         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));
         anchored=onset;
         body.prepare(spec,boundMs,onset,onset);
         if(onset){body.setUpshiftOnsetReset(true);body.setBroadSmoothing(4);body.setAnchorAlignment(alignMs,alignCompensated,leadMs);if(onsetFadeMs>0)body.setOnsetFade(onsetFadeMs,onsetFadeMs,fadeAdaptive);}
         upper.prepare(spec,0,int(spec.sampleRate*.010)/8*8);
+        phaseLock=lock;upper.setPhaseLock(lock ? 3*crossover : 0,lockOffset);
+        lowDelay.assign(size_t(capacity),0);
         sections=lr8?4:2;
         for(int k=0;k<4;++k) {
             const double q=lr8 ? (k%2==0 ? .5411961 : 1.3065630) : 1/std::sqrt(2.);
@@ -69,8 +73,8 @@ public:
                 for(int k=0;k<sections;++k){lo=lowpass[size_t(k)].tick(lo,c);hi=highpass[size_t(k)].tick(hi,c);}
                 lowIn.setSample(c,i,lo);highIn.setSample(c,i,hi);
             }
-            body.process(lowIn,lowOut,shift!=0,anchored?&detector:nullptr);
-            upper.process(highIn,highOut,shift!=0);
+            body.process(lowIn,lowOut,shift!=0,anchored?&detector:nullptr,nullptr,nullptr,lowDelay.data());
+            upper.process(highIn,highOut,shift!=0,phaseLock?lowDelay.data():nullptr);
             for(int c=0;c<channels;++c)for(int i=0;i<n;++i)
                 output.setSample(c,off+i,shift==0 ? input.getSample(c,off+i) : (solo!=2 ? lowOut.getSample(c,i) : 0.f)+(solo!=1 ? highOut.getSample(c,i) : 0.f));
         }

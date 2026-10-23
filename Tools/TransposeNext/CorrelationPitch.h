@@ -167,9 +167,10 @@ public:
     // event re-anchors the read head exactly like the internal onset reset.
     // A request during a crossfade is held until that fade completes.
     // onsetOut (optional, one flag per sample) reports internal onset resets.
-    void process(const juce::AudioBuffer<float>& input, juce::AudioBuffer<float>& output, bool render=true, const juce::AudioBuffer<float>* detectorInput=nullptr, const uint8_t* externalOnset=nullptr, uint8_t* onsetOut=nullptr) noexcept {
+    void process(const juce::AudioBuffer<float>& input, juce::AudioBuffer<float>& output, bool render=true, const juce::AudioBuffer<float>* detectorInput=nullptr, const uint8_t* externalOnset=nullptr, uint8_t* onsetOut=nullptr, double* delayOut=nullptr) noexcept {
         for(int n=0;n<input.getNumSamples();++n) {
             if(onsetOut!=nullptr)onsetOut[n]=0;
+            if(delayOut!=nullptr)delayOut[n]=0;
             double transientEnergy=0, inputEnergy=0;
             for(int c=0;c<count;++c) {
                 const auto x=input.getSample(c,n);
@@ -266,6 +267,9 @@ public:
                     const float old=read(audio[size_t(c)],delay);
                     output.setSample(c,n,fading ? old+w*(read(audio[size_t(c)],nextDelay)-old) : old);
                 }
+                // delayOut (optional): the read delay this sample used (the dominant
+                // side of a crossfade), for phase-locking another band to this one.
+                if(delayOut!=nullptr)delayOut[n]=(fading && w>.5f) ? nextDelay : delay;
                 minRead=std::min(minRead, fading?std::min(delay,nextDelay):delay);
                 maxRead=std::max(maxRead, fading?std::max(delay,nextDelay):delay);
                 delay+=delta;
