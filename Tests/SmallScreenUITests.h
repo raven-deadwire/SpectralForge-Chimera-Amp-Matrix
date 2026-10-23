@@ -22,6 +22,10 @@ inline void reachable(ChimeraEditor& editor,spectralforge::ui::AccessibleViewpor
             require(inner->getViewArea().contains(target),"Inner viewport cannot reveal the complete control");
         }
     viewport.reveal(control);
+    // A hover tooltip from the previous action is transient and may cover
+    // this target on small screens; it is not part of the painted layout.
+    for(auto* child:editor.getChildren())
+        if(auto* tip=dynamic_cast<juce::TooltipWindow*>(child))tip->hideTip();
     const auto bounds=editor.getLocalArea(&control,control.getLocalBounds());
     const auto view=viewport.getLocalBounds().withSize(viewport.getMaximumVisibleWidth(),viewport.getMaximumVisibleHeight());
     require(view.contains(bounds),"Control cannot be completely revealed inside the editor viewport");
