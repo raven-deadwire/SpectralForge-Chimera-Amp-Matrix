@@ -28,6 +28,8 @@
 //   switch=<s>@<sec>  change to <s> semitones at <sec> seconds (automation)
 //   nodenormals       flush denormals like the plug-in's processBlock (ScopedNoDenormals)
 //   stats             research engine counters on stderr (hybrid: legato events)
+//   delays=<path>     hybrid: low-band read delay per sample (float32), plus the
+//                     crossover group delay in samples on stderr
 #include "GlobalDSP.h"
 #include "../TransposeNext/TransientSplitPitch.h"
 #include "../TransposeNext/HybridLowBandPitch.h"
@@ -41,12 +43,13 @@
 
 int main(int argc,char** argv) {
     if(argc<7){std::cerr<<"usage: ChimeraTransposeRender <rate> <block> <mode> <semitones> <in.f32> <out.f32> [timing] [switch=<s>@<sec>]\n";return 2;}
-    bool timing=false,flush=false,stats=false;int switchTo=0;double switchAt=-1;
+    bool timing=false,flush=false,stats=false;std::string delayPath;int switchTo=0;double switchAt=-1;
     for(int a=7;a<argc;++a) {
         const std::string option(argv[a]);
         if(option=="timing")timing=true;
         else if(option=="nodenormals")flush=true;
         else if(option=="stats")stats=true;
+        else if(option.rfind("delays=",0)==0)delayPath=option.substr(7);
         else if(option.rfind("switch=",0)==0){const auto at=option.find('@');switchTo=std::atoi(option.substr(7,at-7).c_str());switchAt=std::atof(option.substr(at+1).c_str());}
         else {std::cerr<<"unknown option "<<option<<"\n";return 2;}
     }
@@ -76,7 +79,7 @@ int main(int argc,char** argv) {
     juce::AudioBuffer<float> source(2,block);
     juce::AudioBuffer<float> buffer(2,block);std::vector<float> out(samples.size());
     std::vector<double> blockMicros;if(timing)blockMicros.reserve(samples.size()/size_t(block)+1);
-    int current=semitones;
+    int current=semitones;std::vector<float> readDelays;if(!delayPath.empty())readDelays.reserve(samples.size());
     for(size_t offset=0;offset<samples.size();offset+=size_t(block)) {
         const int n=int(std::min<size_t>(size_t(block),samples.size()-offset));
         if(switchAt>=0 && current!=switchTo && double(offset)>=switchAt*rate) {
@@ -92,6 +95,7 @@ int main(int argc,char** argv) {
         else transposer.process(buffer,true,current);
         if(timing)blockMicros.push_back(std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count());
         for(int i=0;i<n;++i)out[offset+size_t(i)]=buffer.getSample(0,i);
+        if(!delayPath.empty() && hybridEngine && n<=block)for(int i=0;i<n;++i)readDelays.push_back(float(hybrid.lastReadDelays()[i]));
     }
     std::ofstream file(argv[6],std::ios::binary);file.write(reinterpret_cast<const char*>(out.data()),std::streamsize(out.size()*sizeof(float)));
     if(timing && std::getenv("CHIMERA_TIMING_DUMP")!=nullptr) {   // research: raw per-block times, one per line
@@ -106,7 +110,9 @@ int main(int argc,char** argv) {
                  <<" over_half="<<std::count_if(sorted.begin(),sorted.end(),[&](double v){return v>.5e6*block/rate;})
                  <<" over_budget="<<std::count_if(sorted.begin(),sorted.end(),[&](double v){return v>1.e6*block/rate;})<<'\n';
     }
-    if(stats && hybridEngine)std::cerr<<"stats legato_events="<<hybrid.legatoEvents()<<'\n';
+    if(stats && hybridEngine)std::cerr<<"stats legato_events="<<hybrid.legatoEvents()<<" onset_resets="<<hybrid.onsetResets()<<'\n';
+    if(!delayPath.empty()){std::ofstream d(delayPath,std::ios::binary);d.write(reinterpret_cast<const char*>(readDelays.data()),std::streamsize(readDelays.size()*sizeof(float)));
+        std::cerr<<"crossover_delay_samples="<<(hybridEngine?hybrid.crossoverDelaySamples():0.)<<'\n';}
     std::cout<<(researchEngine?research.latency():hybridEngine?hybrid.latency():transposer.latency())<<'\n';
     return file?0:1;
 }

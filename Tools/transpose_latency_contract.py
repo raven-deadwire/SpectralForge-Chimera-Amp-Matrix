@@ -20,7 +20,20 @@ none, scored against REFERENCE_MS):
            new note's 8th harmonic can sit on the old note's 7th), output
            minus input. The centred window biases input and output alike.
 
-Reports each event's error re the reported latency. Synthetic only.
+Reports each event's error re the reported latency. For legato and hammer-on
+events error_ms is the instantaneous-frequency arrival (frequency_arrivals) minus that of an
+ideal reference: the material resynthesised at f0 x ratio and delayed by
+exactly the reported latency. On ideal outputs delayed by 10 / 20 / 30 ms it
+returns 0 / +10 / +20 ms exactly (144 of 144 events). level_error_ms keeps the
+120 ms level metric against the same reference for comparison; it misreads a
+read-head jump's splatter as the new note (hammer-ons: down to -34 ms where
+the period shows +2.4 ms). irregular_cycle_ms: the jump's long cycle, if any.
+For the research hybrid, read_head_error_ms is the ground truth for the low
+band: when the engine's own read position t - D(t) reaches the change, minus
+the reported latency. Around re-anchor jumps the signal metrics (error_ms and
+level_error_ms) disagree with it by up to +-35 ms, so they are only trusted
+where no re-anchor happens.
+Synthetic only.
 
   python Tools/transpose_latency_contract.py --render build/.../ChimeraTransposeRender --out DIR
 """
@@ -84,6 +97,88 @@ def crossings(y, notes, ratio, rate):
         out.append((a + idx[0]) / rate if len(idx) and idx[0] > 0 else None)
     return out
 
+def lowpass(x, hz, rate):
+    w = 2 * np.pi * hz / rate; c, alpha = np.cos(w), np.sin(w) / np.sqrt(2)
+    b = [(1 - c) / 2 / (1 + alpha), (1 - c) / (1 + alpha), (1 - c) / 2 / (1 + alpha)]
+    a = [1.0, -2 * c / (1 + alpha), (1 - alpha) / (1 + alpha)]
+    import transpose_measure as tm
+    return tm._lfilter(b, a, tm._lfilter(b, a, np.asarray(x, float)))
+
+def frequency_arrivals(y, notes, ratio, rate):
+    """Times (s) at which the fundamental's instantaneous frequency first passes
+    the midpoint between the old and new note (x ratio) and stays past it for
+    10 ms, near each change. The fundamental is isolated with a zero-phase FFT
+    band-pass (old/new fundamental -20 % .. +25 %), so the estimate is
+    independent of waveform phase and level (a hammer-on's bump) and the
+    filter's time spread is symmetric. Zero-crossing periods were quantised to
+    a cycle (12-22 ms) and, refined, still off by -15.6 .. +11.0 ms when the
+    waveform phase differed from the reference."""
+    out = []
+    y = np.asarray(y, float)
+    for k, at in enumerate(LEGATO_AT):
+        f_old, f_new = notes[k] * ratio, notes[k + 1] * ratio
+        c = int((ev.PRE_S + at) * rate)
+        a, b = max(0, c - int(0.4 * rate)), min(len(y), c + int(0.4 * rate))
+        seg = y[a:b] * np.hanning(b - a)
+        spec = np.fft.fft(seg); f = np.fft.fftfreq(len(seg), 1 / rate)
+        keep = (f >= 0.8 * min(f_old, f_new)) & (f <= 1.25 * max(f_old, f_new))
+        analytic = np.fft.ifft(np.where(keep, 2 * spec, 0))
+        inst = np.diff(np.unwrap(np.angle(analytic))) * rate / (2 * np.pi)
+        w = np.hanning(int(0.005 * rate)); w /= w.sum()
+        inst = np.convolve(inst, w, mode='same')
+        mid, hold = 0.5 * (f_old + f_new), int(0.010 * rate)
+        past = (inst > mid) if f_new > f_old else (inst < mid)
+        lo, hi = c - a - int(0.05 * rate), c - a + int(0.2 * rate)
+        hit = None
+        for i in np.nonzero(past[lo:hi])[0] + lo:
+            if past[i:i + hold].all(): hit = (a + i) / rate; break
+        out.append(hit)
+    return out
+
+def irregular_cycles(y, notes, ratio, rate):
+    """Longest fundamental cycle within 40 ms of each change's arrival region
+    that exceeds 1.3 x the longer of the two periods (ms), or None: a re-anchor
+    jump in mid-cycle leaves one such cycle."""
+    out = []
+    for k, at in enumerate(LEGATO_AT):
+        longest = max(1.0 / (notes[k] * ratio), 1.0 / (notes[k + 1] * ratio))
+        s = lowpass(y, 1.4 * max(notes[k], notes[k + 1]) * ratio, rate)
+        a, b = int((ev.PRE_S + at - 0.02) * rate), int((ev.PRE_S + at + 0.12) * rate)
+        seg = s[a:b]
+        z = np.nonzero((seg[:-1] < 0) & (seg[1:] >= 0))[0]
+        p = np.diff(z) / rate
+        bad = p[p > 1.3 * longest]
+        out.append(round(1000 * float(bad.max()), 2) if len(bad) else None)
+    return out
+
+def render_with_delays(probe, rate, block, mode, shift, x, tmp):
+    """Render, and for the research hybrid also read back the low band's read
+    delay per sample and the crossover's group delay (samples); else None."""
+    import os, subprocess
+    src, dst, dd = (os.path.join(tmp, n) for n in ('in.f32', 'out.f32', 'delay.f32'))
+    np.asarray(x, dtype='<f4').tofile(src)
+    p = subprocess.run([str(probe), str(rate), str(block), str(mode), str(shift), src, dst, f'delays={dd}'],
+                       check=True, capture_output=True, text=True)
+    y, latency = np.fromfile(dst, dtype='<f4'), int(p.stdout.strip())
+    if 'crossover_delay_samples=' not in p.stderr or not os.path.exists(dd): return y, latency, None, None
+    tau = float(p.stderr.split('crossover_delay_samples=')[1].split()[0])
+    delays = np.fromfile(dd, dtype='<f4').astype(float)
+    return y, latency, (delays if len(delays) == len(y) else None), tau
+
+def read_head_arrivals(delays, tau, rate):
+    """Output times (s) at which the low band's read position, t - D(t), first
+    reaches each change in the low-band input (change + tau). Ground truth from
+    the engine itself; signal metrics around a re-anchor jump were off by up to
+    +-35 ms against it."""
+    if delays is None: return [None] * len(LEGATO_AT)
+    n = np.arange(len(delays)); read = n - delays
+    out = []
+    for at in LEGATO_AT:
+        c = (ev.PRE_S + at) * rate
+        idx = np.nonzero((n >= c) & (read >= c + tau))[0]
+        out.append(idx[0] / rate if len(idx) else None)
+    return out
+
 def run(probe, out, rate=48000, block=128, modes=MODES, shifts=SHIFTS):
     rows = []
     mat = ev.material(rate)
@@ -111,14 +206,30 @@ def run(probe, out, rate=48000, block=128, modes=MODES, shifts=SHIFTS):
                 for shift in shifts:
                     ratio = 2 ** (shift / 12)
                     for mode, label in modes:
-                        y, latency = ev.render(probe, rate, block, mode, shift, x, tmp)
+                        y, latency, delays, tau = render_with_delays(probe, rate, block, mode, shift, x, tmp)
                         reported = 1000 * latency / rate if latency >= 0 else REFERENCE_MS
                         cout = crossings(y, notes, ratio, rate)
-                        for at, i, o in zip(LEGATO_AT, cin, cout):
+                        heads = read_head_arrivals(delays, tau, rate)
+                        # Reference: the same material resynthesised at f0 x ratio and
+                        # delayed by exactly the reported latency, scored with the same
+                        # metric. The metric's own bias (window, harmonic choice, a
+                        # hammer-on's level bump) then cancels in error_ms.
+                        ideal, _ = legato(f0 * ratio, steps, rate, hammer)
+                        lag = int(round(reported * rate / 1000))
+                        ideal = np.concatenate([np.zeros(lag), ideal[:len(ideal) - lag]])
+                        cref = crossings(ideal, notes, ratio, rate)
+                        pout, pref = frequency_arrivals(y, notes, ratio, rate), frequency_arrivals(ideal, notes, ratio, rate)
+                        jumps = irregular_cycles(y, notes, ratio, rate)
+                        for at, i, o, r, po, pr, jump, head in zip(LEGATO_AT, cin, cout, cref, pout, pref, jumps, heads):
                             d = None if i is None or o is None else round(1000 * (o - i), 2)
                             rows.append({'kind': 'hammer' if hammer else 'legato', 'material': name, 'shift_semitones': shift,
                                          'mode': label, 'event_s': at, 'reported_ms': round(reported, 3),
-                                         'arrival_ms': d, 'error_ms': None if d is None else round(d - reported, 2)})
+                                         'arrival_ms': d,
+                                         'error_ms': None if po is None or pr is None else round(1000 * (po - pr), 2),
+                                         'level_error_ms': None if o is None or r is None else round(1000 * (o - r), 2),
+                                         'irregular_cycle_ms': jump,
+                                         'read_head_error_ms': None if head is None else
+                                             round(1000 * head - 1000 * (ev.PRE_S + at) - reported, 2)})
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
     (out / 'contract.json').write_text(json.dumps(rows, indent=1) + '\n', encoding='utf-8')
     return rows

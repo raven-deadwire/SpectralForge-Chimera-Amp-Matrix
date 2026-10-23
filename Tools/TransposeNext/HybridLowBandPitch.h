@@ -72,6 +72,10 @@ public:
     // (LegatoDetector on the low-band input), like a detected pick.
     void setLegatoReanchor(bool on) noexcept {legatoOn=on;legato.reset();}
     int legatoEvents() const noexcept {return legato.legatoEvents();}
+    // Research: the low band's read delay (samples) for each sample of the last
+    // process() chunk, and this crossover's group delay (samples).
+    const double* lastReadDelays() const noexcept {return lowDelay.data();}
+    double crossoverDelaySamples() const noexcept {return sampleRate*2*std::sqrt(2.)/(2*juce::MathConstants<double>::pi*crossoverHz);}
     void setSemitones(int n) noexcept {shift=n;body.setSemitones(n);upper.setSemitones(n);}
     // Reported latency (research latency contract): with setAttackLatency the
     // hybrid promises picked attacks at `reportedLatency` samples in both bands;
