@@ -20,6 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import transpose_measure as tm
 
 MODES = [(0, "CLASSIC"), (1, "LOW-LAT"), (2, "TIGHT")]
+# Research engine (Tools/TransposeNext, #117 0a54c10): variable delay, no fixed PDC.
+RESEARCH_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (10, "SPLIT-UP")]
 SHIFTS = [0, -12, -7, -5, -2, 2, 5, 7, 12]
 PRE_S, NOTE_S = 0.5, 2.5
 
@@ -65,7 +67,7 @@ def render(probe, rate, block, mode, shift, x, tmp):
                                  check=True, capture_output=True, text=True).stdout.strip())
     return np.frombuffer(dst.read_bytes(), dtype='<f4'), latency
 
-def run(probe, out, rates=(48000, 96000), block=128):
+def run(probe, out, rates=(48000, 96000), block=128, modes=MODES):
     out = Path(out); rows = []
     with tempfile.TemporaryDirectory(prefix='transpose-evidence-') as tmp:
         for rate in rates:
@@ -74,7 +76,7 @@ def run(probe, out, rates=(48000, 96000), block=128):
                 write_wav(folder / 'bypass.wav', x, rate)
                 for shift in SHIFTS:
                     conditions, reported = [], {}
-                    for mode, label in MODES:
+                    for mode, label in modes:
                         y, latency = render(probe, rate, block, mode, shift, x, tmp)
                         path = folder / f'{label.lower()}_{shift:+d}.wav'; write_wav(path, y, rate)
                         conditions.append({'mode': label, 'path': str(path)}); reported[label] = latency
@@ -83,8 +85,9 @@ def run(probe, out, rates=(48000, 96000), block=128):
                     if f0: manifest['target_note_hz'] = f0 * 2 ** (shift / 12)
                     mpath = folder / f'manifest_{shift:+d}.json'; mpath.write_text(json.dumps(manifest, indent=1))
                     for row in tm.measure(mpath, folder):
+                        latency = reported[row['mode']]
                         row.update({'rate': rate, 'block': block, 'material': name,
-                                    'reported_latency_ms': round(1000 * reported[row['mode']] / rate, 3)})
+                                    'reported_latency_ms': round(1000 * latency / rate, 3) if latency >= 0 else None})
                         rows.append(row)
     (out / 'summary.json').write_text(json.dumps(rows, indent=1) + '\n', encoding='utf-8')
     return rows
@@ -94,8 +97,10 @@ def main(argv=None):
     ap.add_argument('--render', required=True, help='built ChimeraTransposeRender')
     ap.add_argument('--out', required=True); ap.add_argument('--block', type=int, default=128)
     ap.add_argument('--rates', default='48000,96000', help='comma-separated sample rates')
+    ap.add_argument('--research', action='store_true', help='CLASSIC / TIGHT / research SPLIT-UP instead of the product modes')
     args = ap.parse_args(argv)
-    rows = run(args.render, args.out, rates=tuple(int(r) for r in args.rates.split(',')), block=args.block)
+    rows = run(args.render, args.out, rates=tuple(int(r) for r in args.rates.split(',')), block=args.block,
+               modes=RESEARCH_MODES if args.research else MODES)
     print(f'{len(rows)} measurements -> {Path(args.out) / "summary.json"}')
     return 0
 
