@@ -22,6 +22,8 @@ import transpose_measure as tm
 MODES = [(0, "CLASSIC"), (1, "LOW-LAT"), (2, "TIGHT")]
 # Research engine (Tools/TransposeNext, #117 0a54c10): variable delay, no fixed PDC.
 RESEARCH_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (10, "SPLIT-UP")]
+# Research hybrid: low band time-domain, upper band 10 ms STFT, LR4 split at 100/150/250 Hz.
+HYBRID_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (10, "SPLIT-UP"), (11, "HYB100"), (12, "HYB150"), (13, "HYB250")]
 SHIFTS = [0, -12, -7, -5, -2, 2, 5, 7, 12]
 PRE_S, NOTE_S = 0.5, 2.5
 
@@ -98,9 +100,10 @@ def main(argv=None):
     ap.add_argument('--out', required=True); ap.add_argument('--block', type=int, default=128)
     ap.add_argument('--rates', default='48000,96000', help='comma-separated sample rates')
     ap.add_argument('--research', action='store_true', help='CLASSIC / TIGHT / research SPLIT-UP instead of the product modes')
+    ap.add_argument('--hybrid', action='store_true', help='also the low-band/STFT hybrid at 100/150/250 Hz')
     args = ap.parse_args(argv)
     rows = run(args.render, args.out, rates=tuple(int(r) for r in args.rates.split(',')), block=args.block,
-               modes=RESEARCH_MODES if args.research else MODES)
+               modes=HYBRID_MODES if args.hybrid else RESEARCH_MODES if args.research else MODES)
     print(f'{len(rows)} measurements -> {Path(args.out) / "summary.json"}')
     return 0
 
