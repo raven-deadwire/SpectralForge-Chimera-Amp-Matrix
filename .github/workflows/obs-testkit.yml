@@ -6,6 +6,8 @@ on:
       - 'Tests/test_obs_testkit.py'
       - 'docs/OBS_*.md'
       - '.github/workflows/obs-testkit.yml'
+      - 'Source/OBSAudioBridge.h'
+      - 'Tests/OBSAudioBridgeTests.cpp'
   push:
     branches: [main]
     paths:
@@ -13,6 +15,8 @@ on:
       - 'Tests/test_obs_testkit.py'
       - 'docs/OBS_*.md'
       - '.github/workflows/obs-testkit.yml'
+      - 'Source/OBSAudioBridge.h'
+      - 'Tests/OBSAudioBridgeTests.cpp'
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,6 +37,25 @@ jobs:
           python-version: '3.12'
       - name: Verify signal and manual-evidence tooling (not OBS host acceptance)
         run: python Tests/test_obs_testkit.py -v
+      - name: OBS add-on realtime bridge (host-neutral; not an OBS build)
+        shell: bash
+        run: |
+          # Standalone project: the bridge has no JUCE/libobs dependency, so
+          # this avoids fetching JUCE just to check the realtime contract.
+          mkdir -p obs-bridge && cat > obs-bridge/CMakeLists.txt <<'CMAKE'
+          cmake_minimum_required(VERSION 3.22)
+          project(ChimeraOBSBridge CXX)
+          set(CMAKE_CXX_STANDARD 20)
+          find_package(Threads REQUIRED)
+          add_executable(bridge ../Tests/OBSAudioBridgeTests.cpp)
+          target_include_directories(bridge PRIVATE ../Source)
+          target_compile_options(bridge PRIVATE $<IF:$<CXX_COMPILER_ID:MSVC>,/W4 /WX,-Wall -Wextra -Werror>)
+          target_link_libraries(bridge PRIVATE Threads::Threads)
+          CMAKE
+          cmake -S obs-bridge -B obs-bridge/build
+          cmake --build obs-bridge/build --config Release
+          bridge_bin=$(find obs-bridge/build -name 'bridge' -o -name 'bridge.exe' | head -1)
+          "$bridge_bin"
       - name: Prepare synthetic routing signals
         run: python Tools/obs_testkit.py signals --output obs-kit/signals
       - uses: actions/upload-artifact@v4

@@ -5,6 +5,7 @@
 · [애드온 #131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131).
 
 **상태: 범위/설계 계획. 전용 OBS 바이너리 미구현·미배포.**
+A단계 검토·공통 실시간 경계: [OBS_ADDON_BOUNDARY.md](OBS_ADDON_BOUNDARY.md) (구조 결정은 소유자 확인 대기).
 atkAudio 호환 성공 여부와 관계없이 독립적으로 개발한다.
 
 ## 제품 범위

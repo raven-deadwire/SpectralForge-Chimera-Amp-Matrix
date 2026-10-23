@@ -123,6 +123,12 @@ endif()
 add_executable(ChimeraHostBypassTests Tests/HostBypassTests.cpp)
 target_include_directories(ChimeraHostBypassTests PRIVATE Source)
 add_test(NAME ChimeraHostBypassTests COMMAND ChimeraHostBypassTests)
+# OBS add-on realtime boundary (Issue #131): no libobs/JUCE, so it builds anywhere.
+add_executable(ChimeraOBSAudioBridgeTests Tests/OBSAudioBridgeTests.cpp)
+target_include_directories(ChimeraOBSAudioBridgeTests PRIVATE Source)
+find_package(Threads REQUIRED)
+target_link_libraries(ChimeraOBSAudioBridgeTests PRIVATE Threads::Threads)
+add_test(NAME ChimeraOBSAudioBridgeTests COMMAND ChimeraOBSAudioBridgeTests)
 add_test(NAME ChimeraAAXPackagingTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_aax_native.py")
 if(CHIMERA_BUILD_AAX)
