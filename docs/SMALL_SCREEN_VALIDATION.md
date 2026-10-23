@@ -184,3 +184,36 @@ At the same source, Dynamics UI, head controls and CAB realtime jobs passed
 on Windows, macOS and Linux. The complete small-screen matrix and Windows
 installer were still in progress. The lookup correction requires fresh CI;
 no local build or runtime pass is claimed for it.
+
+### Full-suite detached-window lookup at `17ab873`
+
+The Windows candidate job passed 72/73 tests, but the combined ChimeraUITests
+process crashed during "UI refresh: detached ALL window lifetimes". The
+refresh test still cast the dialog's direct content to PostNativePanel and
+AmpNativePanel, then dereferenced it without checking. On a constrained
+desktop the direct content is the owning AccessibleViewport. Both casts were
+also present in original #121 `694e9f0`; this is a remaining test adaptation
+to its dialog wrapper, separate from the integration's rect/owner fixtures.
+
+The two lookups now use the existing dialogContent helper and explicitly
+require the expected panel before dereferencing. Hidden-parent refresh,
+detached-panel updates, model changes and dialog teardown assertions remain.
+No product, DSP, state schema, timeout or release gate is changed. Compilation
+and runtime of this follow-up require CI; the patch itself is not a pass.
+
+- Windows candidate: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39925966084/job/120322834061
+- JUnit/log evidence artifact: 12495708123; SHA-256
+  `3024af30949b0f16fad111b80ec3cd831b24a45646ab3fe805e982cebfda38d6`.
+- At `17ab873`, standalone native-navigation jobs passed Windows 15/15
+  and Linux 16/16. Both matrices contain all 27 required cases and 54 valid
+  page screenshots; this does not replace the combined-suite check.
+- Linux evidence artifact 12496021468; SHA-256
+  `5c5575e994972f9753b1c1ff4840a827f105f174fd882e131156ae10a82b9496`.
+
+A separate macOS tuner worker run failed at 44.1 kHz / 256 samples / 82.406889 Hz:
+acquisition 242.801667 ms, settle -1, unavailable error 99999. Its diagnostic
+normal-QoS control passed (settle 223.371625 ms), but does not override the
+required failing run. This executable exercises GlobalDSP without an editor;
+no UI source change is established as its cause. Keep it as an unresolved
+required check, retain all timing/accuracy gates and inspect the next run.
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39925966099/job/120323457072
