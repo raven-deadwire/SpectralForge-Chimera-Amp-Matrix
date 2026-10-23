@@ -1,0 +1,1822 @@
+{
+  "scope": "Linux portable CAB-only; not native macOS or physical audio",
+  "datasets": {
+    "portable-repeats": {
+      "complete": true,
+      "trials": 24,
+      "callbacks": 38400,
+      "quartets": [
+        {
+          "experiment": "observer",
+          "round": 0,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 6,
+              "cpu_over_budget": 7,
+              "wall_p99_median_us": 222.76299999999998,
+              "cpu_p99_median_us": 226.492
+            },
+            "B": {
+              "n": 2400,
+              "misses": 90,
+              "cpu_over_budget": 90,
+              "wall_p99_median_us": 793.3934999999999,
+              "cpu_p99_median_us": 793.341
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "observer",
+          "round": 0,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 2,
+              "cpu_over_budget": 2,
+              "wall_p99_median_us": 261.0995,
+              "cpu_p99_median_us": 261.925
+            },
+            "B": {
+              "n": 800,
+              "misses": 9,
+              "cpu_over_budget": 8,
+              "wall_p99_median_us": 353.65099999999995,
+              "cpu_p99_median_us": 353.5365
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "observer",
+          "round": 1,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 22,
+              "cpu_over_budget": 22,
+              "wall_p99_median_us": 307.3025,
+              "cpu_p99_median_us": 308.1785
+            },
+            "B": {
+              "n": 2400,
+              "misses": 25,
+              "cpu_over_budget": 25,
+              "wall_p99_median_us": 358.5635,
+              "cpu_p99_median_us": 358.574
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "observer",
+          "round": 1,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 11,
+              "cpu_over_budget": 11,
+              "wall_p99_median_us": 397.46349999999995,
+              "cpu_p99_median_us": 398.295
+            },
+            "B": {
+              "n": 800,
+              "misses": 3,
+              "cpu_over_budget": 3,
+              "wall_p99_median_us": 281.78,
+              "cpu_p99_median_us": 274.4685
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 0,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 9,
+              "cpu_over_budget": 10,
+              "wall_p99_median_us": 208.667,
+              "cpu_p99_median_us": 209.392
+            },
+            "B": {
+              "n": 2400,
+              "misses": 15,
+              "cpu_over_budget": 16,
+              "wall_p99_median_us": 275.361,
+              "cpu_p99_median_us": 276.181
+            }
+          },
+          "forced_checksums_equal": false
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 0,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 4,
+              "cpu_over_budget": 4,
+              "wall_p99_median_us": 291.1085,
+              "cpu_p99_median_us": 291.4685
+            },
+            "B": {
+              "n": 800,
+              "misses": 5,
+              "cpu_over_budget": 4,
+              "wall_p99_median_us": 287.80899999999997,
+              "cpu_p99_median_us": 283.131
+            }
+          },
+          "forced_checksums_equal": false
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 1,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 11,
+              "cpu_over_budget": 11,
+              "wall_p99_median_us": 251.07999999999998,
+              "cpu_p99_median_us": 251.60500000000002
+            },
+            "B": {
+              "n": 2400,
+              "misses": 4,
+              "cpu_over_budget": 4,
+              "wall_p99_median_us": 162.264,
+              "cpu_p99_median_us": 162.6415
+            }
+          },
+          "forced_checksums_equal": false
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 1,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 8,
+              "cpu_over_budget": 8,
+              "wall_p99_median_us": 343.55150000000003,
+              "cpu_p99_median_us": 344.062
+            },
+            "B": {
+              "n": 800,
+              "misses": 4,
+              "cpu_over_budget": 4,
+              "wall_p99_median_us": 277.634,
+              "cpu_p99_median_us": 278.58000000000004
+            }
+          },
+          "forced_checksums_equal": false
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 0,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 29,
+              "cpu_over_budget": 29,
+              "wall_p99_median_us": 328.869,
+              "cpu_p99_median_us": 328.849
+            },
+            "B": {
+              "n": 2400,
+              "misses": 91,
+              "cpu_over_budget": 91,
+              "wall_p99_median_us": 672.5205,
+              "cpu_p99_median_us": 672.496
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 0,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 9,
+              "cpu_over_budget": 9,
+              "wall_p99_median_us": 355.459,
+              "cpu_p99_median_us": 355.4035
+            },
+            "B": {
+              "n": 800,
+              "misses": 46,
+              "cpu_over_budget": 46,
+              "wall_p99_median_us": 913.526,
+              "cpu_p99_median_us": 913.5345
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 1,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 73,
+              "cpu_over_budget": 72,
+              "wall_p99_median_us": 650.8935,
+              "cpu_p99_median_us": 649.1565
+            },
+            "B": {
+              "n": 2400,
+              "misses": 4,
+              "cpu_over_budget": 4,
+              "wall_p99_median_us": 233.92450000000002,
+              "cpu_p99_median_us": 233.81799999999998
+            }
+          },
+          "forced_checksums_equal": false
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 1,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 57,
+              "cpu_over_budget": 57,
+              "wall_p99_median_us": 1662.8305,
+              "cpu_p99_median_us": 1662.847
+            },
+            "B": {
+              "n": 800,
+              "misses": 12,
+              "cpu_over_budget": 12,
+              "wall_p99_median_us": 396.09799999999996,
+              "cpu_p99_median_us": 396.03
+            }
+          },
+          "forced_checksums_equal": false
+        }
+      ]
+    },
+    "portable-canonical": {
+      "complete": true,
+      "trials": 16,
+      "callbacks": 25600,
+      "quartets": [
+        {
+          "experiment": "cadence-off",
+          "round": 0,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 19,
+              "cpu_over_budget": 20,
+              "wall_p99_median_us": 307.6485,
+              "cpu_p99_median_us": 308.45349999999996
+            },
+            "B": {
+              "n": 2400,
+              "misses": 14,
+              "cpu_over_budget": 14,
+              "wall_p99_median_us": 227.275,
+              "cpu_p99_median_us": 227.39350000000002
+            }
+          },
+          "forced_checksums_equal": false
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 0,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 3,
+              "cpu_over_budget": 3,
+              "wall_p99_median_us": 224.15550000000002,
+              "cpu_p99_median_us": 224.624
+            },
+            "B": {
+              "n": 800,
+              "misses": 0,
+              "cpu_over_budget": 0,
+              "wall_p99_median_us": 189.4795,
+              "cpu_p99_median_us": 190.0675
+            }
+          },
+          "forced_checksums_equal": false
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 1,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 16,
+              "cpu_over_budget": 16,
+              "wall_p99_median_us": 304.79949999999997,
+              "cpu_p99_median_us": 305.59400000000005
+            },
+            "B": {
+              "n": 2400,
+              "misses": 4,
+              "cpu_over_budget": 4,
+              "wall_p99_median_us": 164.2765,
+              "cpu_p99_median_us": 164.525
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 1,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 14,
+              "cpu_over_budget": 14,
+              "wall_p99_median_us": 514.3225,
+              "cpu_p99_median_us": 515.267
+            },
+            "B": {
+              "n": 800,
+              "misses": 3,
+              "cpu_over_budget": 3,
+              "wall_p99_median_us": 271.8005,
+              "cpu_p99_median_us": 272.881
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 0,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 77,
+              "cpu_over_budget": 77,
+              "wall_p99_median_us": 794.6815,
+              "cpu_p99_median_us": 794.5775
+            },
+            "B": {
+              "n": 2400,
+              "misses": 38,
+              "cpu_over_budget": 37,
+              "wall_p99_median_us": 435.4665,
+              "cpu_p99_median_us": 435.21299999999997
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 0,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 20,
+              "cpu_over_budget": 20,
+              "wall_p99_median_us": 488.845,
+              "cpu_p99_median_us": 488.7975
+            },
+            "B": {
+              "n": 800,
+              "misses": 43,
+              "cpu_over_budget": 43,
+              "wall_p99_median_us": 749.908,
+              "cpu_p99_median_us": 749.7785
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 1,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 102,
+              "cpu_over_budget": 103,
+              "wall_p99_median_us": 660.7284999999999,
+              "cpu_p99_median_us": 660.604
+            },
+            "B": {
+              "n": 2400,
+              "misses": 108,
+              "cpu_over_budget": 110,
+              "wall_p99_median_us": 1100.677,
+              "cpu_p99_median_us": 1100.6285
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 1,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 84,
+              "cpu_over_budget": 84,
+              "wall_p99_median_us": 916.8835,
+              "cpu_p99_median_us": 916.752
+            },
+            "B": {
+              "n": 800,
+              "misses": 139,
+              "cpu_over_budget": 140,
+              "wall_p99_median_us": 1409.3485,
+              "cpu_p99_median_us": 1409.326
+            }
+          },
+          "forced_checksums_equal": true
+        }
+      ]
+    },
+    "portable-canonical-v2": {
+      "complete": true,
+      "trials": 16,
+      "callbacks": 25600,
+      "quartets": [
+        {
+          "experiment": "cadence-off",
+          "round": 0,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 2,
+              "cpu_over_budget": 2,
+              "wall_p99_median_us": 181.5775,
+              "cpu_p99_median_us": 184.309
+            },
+            "B": {
+              "n": 2400,
+              "misses": 1,
+              "cpu_over_budget": 0,
+              "wall_p99_median_us": 124.2175,
+              "cpu_p99_median_us": 122.67250000000001
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 0,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 0,
+              "cpu_over_budget": 0,
+              "wall_p99_median_us": 176.289,
+              "cpu_p99_median_us": 176.65800000000002
+            },
+            "B": {
+              "n": 800,
+              "misses": 3,
+              "cpu_over_budget": 3,
+              "wall_p99_median_us": 246.21300000000002,
+              "cpu_p99_median_us": 246.38150000000002
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 1,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 7,
+              "cpu_over_budget": 7,
+              "wall_p99_median_us": 249.0565,
+              "cpu_p99_median_us": 250.09250000000003
+            },
+            "B": {
+              "n": 2400,
+              "misses": 9,
+              "cpu_over_budget": 9,
+              "wall_p99_median_us": 217.986,
+              "cpu_p99_median_us": 218.9155
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-off",
+          "round": 1,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 1,
+              "cpu_over_budget": 1,
+              "wall_p99_median_us": 169.76,
+              "cpu_p99_median_us": 185.246
+            },
+            "B": {
+              "n": 800,
+              "misses": 5,
+              "cpu_over_budget": 5,
+              "wall_p99_median_us": 342.71950000000004,
+              "cpu_p99_median_us": 343.0905
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 0,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 47,
+              "cpu_over_budget": 46,
+              "wall_p99_median_us": 405.50149999999996,
+              "cpu_p99_median_us": 402.5795
+            },
+            "B": {
+              "n": 2400,
+              "misses": 19,
+              "cpu_over_budget": 18,
+              "wall_p99_median_us": 316.3605,
+              "cpu_p99_median_us": 310.592
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 0,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 10,
+              "cpu_over_budget": 10,
+              "wall_p99_median_us": 360.275,
+              "cpu_p99_median_us": 360.29650000000004
+            },
+            "B": {
+              "n": 800,
+              "misses": 22,
+              "cpu_over_budget": 22,
+              "wall_p99_median_us": 401.79150000000004,
+              "cpu_p99_median_us": 401.8075
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 1,
+          "phase": "worker_and_automation",
+          "arms": {
+            "A": {
+              "n": 2400,
+              "misses": 44,
+              "cpu_over_budget": 42,
+              "wall_p99_median_us": 440.3775,
+              "cpu_p99_median_us": 432.589
+            },
+            "B": {
+              "n": 2400,
+              "misses": 8,
+              "cpu_over_budget": 7,
+              "wall_p99_median_us": 247.92950000000002,
+              "cpu_p99_median_us": 243.998
+            }
+          },
+          "forced_checksums_equal": true
+        },
+        {
+          "experiment": "cadence-stages",
+          "round": 1,
+          "phase": "forced_six_slot_publication",
+          "arms": {
+            "A": {
+              "n": 800,
+              "misses": 26,
+              "cpu_over_budget": 26,
+              "wall_p99_median_us": 550.3195000000001,
+              "cpu_p99_median_us": 550.324
+            },
+            "B": {
+              "n": 800,
+              "misses": 5,
+              "cpu_over_budget": 5,
+              "wall_p99_median_us": 399.683,
+              "cpu_p99_median_us": 399.7
+            }
+          },
+          "forced_checksums_equal": true
+        }
+      ]
+    }
+  },
+  "canonical_v2_stage_associations": {
+    "worker_and_automation": {
+      "fft_forward_cpu_us": {
+        "mean_us_range": [
+          10.284253333333334,
+          14.87708
+        ],
+        "miss_point_biserial_range": [
+          -0.02883979691333874,
+          0.4024473334810434
+        ]
+      },
+      "fft_inverse_cpu_us": {
+        "mean_us_range": [
+          10.5299775,
+          16.0971375
+        ],
+        "miss_point_biserial_range": [
+          0.055190001814862985,
+          0.356582409596714
+        ]
+      },
+      "spectral_mac_cpu_us": {
+        "mean_us_range": [
+          41.60143333333333,
+          64.28944666666666
+        ],
+        "miss_point_biserial_range": [
+          0.20479954788112953,
+          0.5318700313081279
+        ]
+      },
+      "kernel_swap_cpu_us": {
+        "mean_us_range": [
+          1.0286825000000002,
+          1.3225975
+        ],
+        "miss_point_biserial_range": [
+          -0.009296858092917092,
+          0.07447574689907656
+        ]
+      },
+      "fading_convolution_cpu_us": {
+        "mean_us_range": [
+          4.989306666666667,
+          14.6435475
+        ],
+        "miss_point_biserial_range": [
+          -0.030758568431432716,
+          0.3500851442406987
+        ]
+      },
+      "fade_mix_cpu_us": {
+        "mean_us_range": [
+          0.08964166666666666,
+          0.3673808333333333
+        ],
+        "miss_point_biserial_range": [
+          -0.01596264292067764,
+          0.41025256790765025
+        ]
+      },
+      "per_trial_categories": [
+        {
+          "label": "cadence-stages-0-0-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1050,
+                "misses": 10
+              },
+              "True": {
+                "n": 150,
+                "misses": 6
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1198,
+                "misses": 16
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 900,
+                "misses": 9
+              },
+              "True": {
+                "n": 300,
+                "misses": 7
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 675,
+                "misses": 7
+              },
+              "True": {
+                "n": 525,
+                "misses": 9
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1199,
+                "misses": 16
+              },
+              "True": {
+                "n": 1,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1194,
+                "misses": 16
+              },
+              "True": {
+                "n": 6,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-0-1-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1200,
+                "misses": 10
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1197,
+                "misses": 10
+              },
+              "True": {
+                "n": 3,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 1042,
+                "misses": 7
+              },
+              "True": {
+                "n": 158,
+                "misses": 3
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 191,
+                "misses": 1
+              },
+              "True": {
+                "n": 1009,
+                "misses": 9
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1196,
+                "misses": 10
+              },
+              "True": {
+                "n": 4,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1197,
+                "misses": 10
+              },
+              "True": {
+                "n": 3,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-0-2-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1200,
+                "misses": 9
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1198,
+                "misses": 9
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 1049,
+                "misses": 5
+              },
+              "True": {
+                "n": 151,
+                "misses": 4
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 194,
+                "misses": 0
+              },
+              "True": {
+                "n": 1006,
+                "misses": 9
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1197,
+                "misses": 9
+              },
+              "True": {
+                "n": 3,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1196,
+                "misses": 9
+              },
+              "True": {
+                "n": 4,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-0-3-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1050,
+                "misses": 26
+              },
+              "True": {
+                "n": 150,
+                "misses": 5
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1198,
+                "misses": 31
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 900,
+                "misses": 22
+              },
+              "True": {
+                "n": 300,
+                "misses": 9
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 684,
+                "misses": 19
+              },
+              "True": {
+                "n": 516,
+                "misses": 12
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1198,
+                "misses": 30
+              },
+              "True": {
+                "n": 2,
+                "misses": 1
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1187,
+                "misses": 31
+              },
+              "True": {
+                "n": 13,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-0-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1200,
+                "misses": 6
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1196,
+                "misses": 6
+              },
+              "True": {
+                "n": 4,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 1030,
+                "misses": 3
+              },
+              "True": {
+                "n": 170,
+                "misses": 3
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 220,
+                "misses": 1
+              },
+              "True": {
+                "n": 980,
+                "misses": 5
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1196,
+                "misses": 6
+              },
+              "True": {
+                "n": 4,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1198,
+                "misses": 6
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-1-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1050,
+                "misses": 7
+              },
+              "True": {
+                "n": 150,
+                "misses": 2
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1197,
+                "misses": 9
+              },
+              "True": {
+                "n": 3,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 899,
+                "misses": 8
+              },
+              "True": {
+                "n": 301,
+                "misses": 1
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 733,
+                "misses": 6
+              },
+              "True": {
+                "n": 467,
+                "misses": 3
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1198,
+                "misses": 9
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1186,
+                "misses": 9
+              },
+              "True": {
+                "n": 14,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-2-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1050,
+                "misses": 27
+              },
+              "True": {
+                "n": 150,
+                "misses": 8
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1198,
+                "misses": 34
+              },
+              "True": {
+                "n": 2,
+                "misses": 1
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 900,
+                "misses": 15
+              },
+              "True": {
+                "n": 300,
+                "misses": 20
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 710,
+                "misses": 33
+              },
+              "True": {
+                "n": 490,
+                "misses": 2
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1198,
+                "misses": 35
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1182,
+                "misses": 33
+              },
+              "True": {
+                "n": 18,
+                "misses": 2
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-3-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 1200,
+                "misses": 2
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 1196,
+                "misses": 2
+              },
+              "True": {
+                "n": 4,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 1039,
+                "misses": 2
+              },
+              "True": {
+                "n": 161,
+                "misses": 0
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 198,
+                "misses": 2
+              },
+              "True": {
+                "n": 1002,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 1195,
+                "misses": 2
+              },
+              "True": {
+                "n": 5,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 1198,
+                "misses": 2
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "forced_six_slot_publication": {
+      "fft_forward_cpu_us": {
+        "mean_us_range": [
+          12.38548,
+          20.771405
+        ],
+        "miss_point_biserial_range": [
+          -0.011435459548749072,
+          0.3771238596095314
+        ]
+      },
+      "fft_inverse_cpu_us": {
+        "mean_us_range": [
+          12.595794999999999,
+          17.408604999999998
+        ],
+        "miss_point_biserial_range": [
+          -0.02248473656126558,
+          0.26289561219131874
+        ]
+      },
+      "spectral_mac_cpu_us": {
+        "mean_us_range": [
+          51.5272725,
+          71.03887
+        ],
+        "miss_point_biserial_range": [
+          0.02650740874140937,
+          0.6484038333293053
+        ]
+      },
+      "kernel_swap_cpu_us": {
+        "mean_us_range": [
+          0.9686,
+          2.03722
+        ],
+        "miss_point_biserial_range": [
+          -0.008893708079720373,
+          0.9836660592826456
+        ]
+      },
+      "fading_convolution_cpu_us": {
+        "mean_us_range": [
+          29.022715,
+          41.6414025
+        ],
+        "miss_point_biserial_range": [
+          -0.05570712986045751,
+          0.5265485829110776
+        ]
+      },
+      "fade_mix_cpu_us": {
+        "mean_us_range": [
+          0.522,
+          0.92096
+        ],
+        "miss_point_biserial_range": [
+          -0.05665101881119161,
+          0.0940730570432198
+        ]
+      },
+      "per_trial_categories": [
+        {
+          "label": "cadence-stages-0-0-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 4
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 1
+              },
+              "True": {
+                "n": 300,
+                "misses": 3
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-0-1-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 4
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 0
+              },
+              "True": {
+                "n": 300,
+                "misses": 4
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-0-2-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 18
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 18
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 1
+              },
+              "True": {
+                "n": 300,
+                "misses": 17
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 18
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 18
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 18
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-0-3-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 6
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 6
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 0
+              },
+              "True": {
+                "n": 300,
+                "misses": 6
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 6
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 6
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 6
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-0-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 1
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 1
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 0
+              },
+              "True": {
+                "n": 300,
+                "misses": 1
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 1
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 1
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 1
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-1-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 7
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 6
+              },
+              "True": {
+                "n": 2,
+                "misses": 1
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 3
+              },
+              "True": {
+                "n": 300,
+                "misses": 4
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 7
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 7
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 7
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-2-A",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 19
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 18
+              },
+              "True": {
+                "n": 2,
+                "misses": 1
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 1
+              },
+              "True": {
+                "n": 300,
+                "misses": 18
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 19
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 19
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 19
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        },
+        {
+          "label": "cadence-stages-1-3-B",
+          "categories": {
+            "post_sleep": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "kernel_accept_count": {
+              "False": {
+                "n": 398,
+                "misses": 4
+              },
+              "True": {
+                "n": 2,
+                "misses": 0
+              }
+            },
+            "fading": {
+              "False": {
+                "n": 100,
+                "misses": 2
+              },
+              "True": {
+                "n": 300,
+                "misses": 2
+              }
+            },
+            "worker_build_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "worker_publish_overlap": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            },
+            "post_worker_timeout": {
+              "False": {
+                "n": 400,
+                "misses": 4
+              },
+              "True": {
+                "n": 0,
+                "misses": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "canonical_v2_timeout_waits": {
+    "n": 42,
+    "overshoot_us_range": [
+      79.08,
+      818.925
+    ],
+    "metric": "wait return overshoot; not runnable-to-running scheduler latency"
+  },
+  "physical_device_dropout": "not_tested",
+  "product_fix_demonstrated": false
+}

@@ -1,0 +1,56 @@
+name: CAB scheduling attribution
+on:
+  pull_request:
+    paths:
+      - 'Source/CabCallbackTrace.h'
+      - 'Tools/CabCallbackAttribution/**'
+      - 'Tools/CabScheduling/**'
+      - '.github/workflows/cab-scheduling-attribution.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cab-scheduling-${{ github.event.pull_request.number || github.ref }}
+  # Preserve an in-flight evidence population when its report is updated.
+  cancel-in-progress: false
+jobs:
+  attribution:
+    strategy:
+      fail-fast: false
+      matrix:
+        order: [ABBA, BAAB]
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: 1fa3b0ee924e40e1c5e089e0361f7cecaf6adc92
+          path: frozen
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Evidence parser regressions
+        run: |
+          python candidate/Tools/CabCallbackAttribution/test_verify_attribution.py
+          python candidate/Tools/CabScheduling/test_analysis.py
+      - name: Same-allocation observer and cadence experiments, unchanged original gates
+        run: |
+          python candidate/Tools/CabCallbackAttribution/run_attribution.py \
+            --source candidate --source-sha "$SOURCE_SHA" --frozen-source frozen \
+            --build-root attribution-build --output evidence --block-size 32 \
+            --order ${{ matrix.order }} --environment native-macos
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: CAB-scheduling-${{ matrix.order }}-${{ env.SOURCE_SHA }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 90

@@ -55,6 +55,13 @@ public:
     // Set before prepare; inspect only after stop joins the worker.
     cabProfile::Counters* profileSink{};
 #endif
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+    // Set before prepare(); inspect storage only after stop() joins the worker.
+    // run() is the sole writer. Synchronous prepare/forced caller publication
+    // must use a separately owned ThreadCapture if they are recorded at all.
+    cabTrace::Buffer* traceSink{};
+    const cabTrace::WorkerProgress& workerProgress() const noexcept {return traceProgress;}
+#endif
 private:
     void run() override;
     bool requestIsCurrent(int lane,int source,uint64_t model) const noexcept;
@@ -67,6 +74,9 @@ private:
     };
     std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
     std::atomic<unsigned> cancelledBuilds{};
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+    cabTrace::WorkerProgress traceProgress;
+#endif
     WorkerScheduling scheduling;
     std::array<Cab*,6> cabs;
     std::array<std::shared_ptr<Asset>,6> users;
