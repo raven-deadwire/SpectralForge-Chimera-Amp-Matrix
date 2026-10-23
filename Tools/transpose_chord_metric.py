@@ -72,9 +72,12 @@ def peak_near(f, mag, hz, cents):
     k = idx[np.argmax(mag[idx])]
     return f[k], mag[k]
 
-def evaluate(x, y, notes, ratio, rate):
+def evaluate(x, y, notes, ratio, rate, input_partials=None):
+    """input_partials: the exact input partial frequencies, when they are not
+    harmonics 1-12 of `notes` (e.g. an inharmonic string)."""
     fi, mi = spectrum(x, rate); fo, mo = spectrum(y, rate)
-    expected_in = [p for p in partials(notes, rate) if BAND[0] <= p * ratio <= BAND[1] and BAND[0] <= p <= BAND[1]]
+    source = input_partials if input_partials is not None else partials(notes, rate)
+    expected_in = [p for p in source if BAND[0] <= p * ratio <= BAND[1] and BAND[0] <= p <= BAND[1]]
     expected_out = [p * ratio for p in expected_in]
     band = (fo >= BAND[0]) & (fo <= BAND[1])
     near = np.zeros_like(fo, dtype=bool)
