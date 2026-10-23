@@ -6,6 +6,7 @@
 //     mode 0|1|2: production CLASSIC / LOW-LAT / TIGHT
 //     mode 10: research corr40-split-up (Tools/TransposeNext, from 0a54c10 / #117)
 //     mode 11|12|13: research low-band time-domain / upper STFT hybrid, crossover 100|150|250 Hz
+//     mode 14|15|16: 150 Hz hybrid, low-band onset re-anchor, delay bound 40|20|12 ms
 //
 // Prints the reported latency in samples on stdout (-1: variable, not reported).
 #include "GlobalDSP.h"
@@ -23,9 +24,9 @@ int main(int argc,char** argv) {
     in.read(reinterpret_cast<char*>(samples.data()),std::streamsize(samples.size()*sizeof(float)));
     const juce::dsp::ProcessSpec spec{rate,juce::uint32(block),2};
     spectralforge::Transposer transposer;transposeNext::TransientSplitPitch research;transposeNext::HybridLowBandPitch hybrid;
-    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=13;
+    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=16;
     if(researchEngine){research.prepare(spec,true,true);research.setSemitones(semitones);}
-    else if(hybridEngine){hybrid.prepare(spec,mode==11?100.:mode==12?150.:250.);hybrid.setSemitones(semitones);}
+    else if(hybridEngine){hybrid.prepare(spec,mode==11?100.:mode==13?250.:150.,mode==15?20.:mode==16?12.:40.,mode>=14);hybrid.setSemitones(semitones);}
     else {transposer.prepare(spec);transposer.setMode(mode);}
     juce::AudioBuffer<float> source(2,block);
     juce::AudioBuffer<float> buffer(2,block);std::vector<float> out(samples.size());

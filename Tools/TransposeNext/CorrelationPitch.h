@@ -208,7 +208,9 @@ public:
                 if(innovationReset && onsetReset && (delta>0 || (upshiftReset && delta<0)) && cooldown==0 && inputEnergy>1.e-14 && fastEnergy>1.e-10 && novelty>4.*slowEnergy)
                     pendingOnset=true;
                 const bool resettable=delta>0 || (upshiftReset && delta<0);
-                const double anchor=minimum+guard+(delta<0 ? upshiftHold*-delta : 0.);
+                // Clamped: with a short bound the upshift hold can exceed it
+                // (12 ms bound, +12: anchor 27 ms, read past the buffer -> NaN).
+                const double anchor=std::min(minimum+guard+(delta<0 ? upshiftHold*-delta : 0.),maximum-guard);
                 if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable)externalPending=true;
                 if(externalPending && resettable && !fading) {
                     externalPending=false;
