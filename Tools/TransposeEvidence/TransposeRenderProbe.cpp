@@ -18,6 +18,8 @@
 //     mode 30|31: mode 29, low band only | upper band only
 //     mode 32|33|34|35: mode 20 (AL10RA) with the crossover at 200|250|300|400 Hz
 //     mode 36|37|38: mode 20 with the crossover at 600|800|1200 Hz
+//     mode 39: mode 37 (AL10RA-800) with the attack-latency contract (crossover group delay
+//              compensated, latency() = the STFT window, lead 1.4 ms)
 //
 // Prints the reported latency in samples on stdout (-1: variable, not reported).
 // Options after <out.f32>:
@@ -52,17 +54,18 @@ int main(int argc,char** argv) {
     in.read(reinterpret_cast<char*>(samples.data()),std::streamsize(samples.size()*sizeof(float)));
     const juce::dsp::ProcessSpec spec{rate,juce::uint32(block),2};
     spectralforge::Transposer transposer;transposeNext::TransientSplitPitch research;transposeNext::HybridLowBandPitch hybrid;
-    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=38;
+    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=39;
     if(researchEngine){research.prepare(spec,true,true);research.setSemitones(semitones);}
     else if(hybridEngine){
         // Research hybrid variants; see the mode list above.
         const bool sweep=mode>=32;                                   // AL10RA at another crossover
         const bool aligned=mode>=17, compensated=mode>=18, shortFade=mode>=19, adaptive=mode>=20;
         const bool lr8=mode>=23 && mode<=25, lock=mode>=26 && mode<=31;
-        const double crossover=mode==11?100.:mode==13?250.:mode==32?200.:mode==33?250.:mode==34?300.:mode==35?400.:mode==36?600.:mode==37?800.:mode==38?1200.:150.;
+        const double crossover=mode==11?100.:mode==13?250.:mode==32?200.:mode==33?250.:mode==34?300.:mode==35?400.:mode==36?600.:mode==37?800.:mode==38?1200.:mode==39?800.:150.;
         const double align=aligned ? (mode>=29 && mode<=31 ? 9. : 10.) : 0.;
         const int solo=sweep ? 0 : mode>=30 ? mode-29 : mode>=27 && mode<=28 ? mode-26 : mode>=24 && mode<=25 ? mode-23 : mode>=21 && mode<=22 ? mode-20 : 0;
         hybrid.prepare(spec,crossover,mode==15?20.:mode==16?12.:40.,mode>=14,align,compensated,shortFade?.5:0.,2.9,adaptive,lr8,lock);
+        if(mode==39)hybrid.setAttackLatency(1.4);   // lead measured by a lead sweep (docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md)
         hybrid.setSolo(solo);hybrid.setSemitones(semitones);
     }
     else {transposer.prepare(spec);transposer.setMode(mode);}

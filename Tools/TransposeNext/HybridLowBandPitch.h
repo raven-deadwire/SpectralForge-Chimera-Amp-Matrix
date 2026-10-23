@@ -39,13 +39,15 @@ class HybridLowBandPitch {
     juce::AudioBuffer<float> lowIn,highIn,lowOut,highOut,detector;
     int channels{},capacity{},shift{};
     bool anchored{};
+    double sampleRate{},crossoverHz{};
+    int reportedLatency{-1};
     std::vector<double> lowDelay;
     bool phaseLock{};
     int solo{};   // diagnostics: 0 both bands, 1 low band only, 2 upper band only
 public:
     void prepare(const juce::dsp::ProcessSpec& spec,double crossover,double boundMs=40,bool onset=false,double alignMs=0,bool alignCompensated=false,double onsetFadeMs=0,double leadMs=2.9,bool fadeAdaptive=false,bool lr8=false,bool lock=false,float lockOffset=-1) {
         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));
-        anchored=onset;
+        anchored=onset;sampleRate=spec.sampleRate;crossoverHz=crossover;reportedLatency=-1;
         body.prepare(spec,boundMs,onset,onset);
         if(onset){body.setUpshiftOnsetReset(true);body.setBroadSmoothing(4);body.setAnchorAlignment(alignMs,alignCompensated,leadMs);if(onsetFadeMs>0)body.setOnsetFade(onsetFadeMs,onsetFadeMs,fadeAdaptive);}
         upper.prepare(spec,0,int(spec.sampleRate*.010)/8*8);
@@ -61,7 +63,22 @@ public:
     int onsetResets() const noexcept {return body.onsetResets();}
     void setSolo(int band) noexcept {solo=band;}
     void setSemitones(int n) noexcept {shift=n;body.setSemitones(n);upper.setSemitones(n);}
-    int latency() const noexcept {return -1;}
+    // Reported latency (research latency contract): with setAttackLatency the
+    // hybrid promises picked attacks at `reportedLatency` samples in both bands;
+    // sustained low-band delay still varies (2-40 ms). -1 = not reported.
+    int latency() const noexcept {return reportedLatency;}
+    // Align low-band attacks to the STFT band's latency (its analysis window),
+    // compensating this crossover's LR4 group delay at DC, 2 sqrt(2) / w_c, and
+    // report that latency. leadMs: detection + crossfade lead, measured.
+    void setAttackLatency(double leadMs) noexcept {
+        const double window=double(int(sampleRate*.010)/8*8);
+        reportedLatency=int(window);
+        // Measured (CHIMERA_LEAD_MS sweep, 800 Hz): lead 1.4 ms makes the attack
+        // delay independent of the ratio, 1.4 ms short of the target, so the
+        // target is raised by the lead.
+        body.setAnchorAlignment(1000.*window/sampleRate+leadMs,true,leadMs);
+        body.setAnchorInputDelay(1000.*2*std::sqrt(2.)/(2*juce::MathConstants<double>::pi*crossoverHz));
+    }
     void process(const juce::AudioBuffer<float>& input,juce::AudioBuffer<float>& output) noexcept {
         // Measured: crossover-filter state decaying in silence reaches denormals
         // and triples p99.9 block time at 32 samples when the host does not

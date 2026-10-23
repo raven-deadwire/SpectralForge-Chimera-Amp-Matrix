@@ -24,7 +24,8 @@ class CorrelationPitch {
     int resetAge{1<<30}, peakWindow{};
     bool holdSplices{};
     int heldSamples{};
-    double alignDelay{},alignLead{};
+    double alignDelay{},alignLead{},alignInput{};
+    bool alignExact{};
     bool alignCompensated{};
     int fadeStep{1},onsetFadeSamples{};
     double onsetFloor{};
@@ -194,6 +195,13 @@ public:
     void setAnchorAlignment(double ms, bool ratioCompensated=false, double leadMs=2.9) noexcept {
         alignDelay=ms>0 ? juce::jlimit(minimum,maximum,rate*ms*.001) : 0.;alignCompensated=ratioCompensated;alignLead=rate*leadMs*.001;
     }
+    // Research: delay the caller adds before this engine (e.g. a crossover's
+    // group delay). With it the aligned attack time is inputMs + (anchor +
+    // lead) / ratio, so anchors aim at (target - inputMs). 0 = the 2.9 ms lead
+    // calibration above, which was measured with a 150 Hz LR4 in front.
+    // Setting it also switches upshifts to the same exact target (latency
+    // contract): both directions anchor at (target - inputMs) * ratio - lead.
+    void setAnchorInputDelay(double ms) noexcept {alignInput=rate*ms*.001;alignExact=true;}
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
@@ -274,7 +282,7 @@ public:
                 const bool resettable=delta>0 || (upshiftReset && delta<0);
                 // Clamped: with a short bound the upshift hold can exceed it
                 // (12 ms bound, +12: anchor 27 ms, read past the buffer -> NaN).
-                const bool shortOnset=!onsetFadeAdaptive || (delta>0 && alignCompensated && alignDelay*ratio-alignLead<minimum+guard);
+                const bool shortOnset=!onsetFadeAdaptive || (delta>0 && alignCompensated && (alignDelay-alignInput)*ratio-alignLead<minimum+guard);
                 const int onsetFade=shortOnset ? onsetFadeSamples : fadeLength;
                 const double floor=shortOnset ? onsetFloor : minimum;
                 const double onsetGuard=std::abs(delta)*onsetFade+2;
@@ -282,9 +290,11 @@ public:
                 // A downshift read head moves away from the present at 1-ratio,
                 // so an attack reaches the output (anchor+lead)/ratio after it
                 // happened (lead: detection plus crossfade, measured ~2.9 ms).
-                if(alignDelay>0) anchor=delta>0 ? std::max(anchor,alignCompensated ? alignDelay*ratio-alignLead : alignDelay)
-                                                : std::min(anchor,std::max(minimum+guard,alignDelay));
+                if(alignDelay>0 && alignExact) anchor=(alignDelay-alignInput)*ratio-alignLead;
+                else if(alignDelay>0) anchor=delta>0 ? std::max(anchor,alignCompensated ? (alignDelay-alignInput)*ratio-alignLead : alignDelay-alignInput)
+                                                : std::min(anchor,std::max(minimum+guard,alignDelay-alignInput));
                 anchor=std::max(anchor,delta>0 ? floor+onsetGuard : minimum+guard);
+                anchor=std::min(anchor,maximum-guard);
                 if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable)externalPending=true;
                 if(externalPending && resettable && !fading) {
                     externalPending=false;
