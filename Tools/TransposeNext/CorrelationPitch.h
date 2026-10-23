@@ -13,16 +13,20 @@ class CorrelationPitch {
     std::array<std::vector<float>,2> audio, filtered;
     std::array<std::vector<double>,2> reference;
     std::array<float,2> low{};
-    std::vector<float> fadeWeights;
+    std::vector<float> fadeWeights, spliceWeights;
+    const float* activeWeights{};
     std::vector<double> detectorHistory;
-    int count{}, capacity{}, write{}, window{}, stride{}, fadeLength{}, fadeIndex{};
+    int count{}, capacity{}, write{}, window{}, stride{}, fadeLength{}, fadeIndex{}, spliceFadeLength{}, activeFade{};
     double rate{}, ratio{1}, delta{}, minimum{}, maximum{}, delay{}, nextDelay{};
     float coefficient{};
     bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{}, externalPending{}, upshiftReset{};
     double upshiftHold{}, onsetAge{1.e9};
-    double retrigger{}, resetPeak{};
+    double retrigger{}, resetPeak{}, reanchorGuard{.008}, relativeFloor{};
+    std::array<double,100> hfBuckets{};
+    int hfBucketPosition{},hfBucketSamples{};
+    double hfBucketPeak{},hfRecentMax{};
     int resetAge{1<<30}, peakWindow{};
-    bool holdSplices{};
+    bool holdSplices{}, reportAtDetection{};
     int heldSamples{};
     std::array<float,2> noveltyLow1{},noveltyLow2{},noveltyLow3{},noveltyLow4{};
     float noveltyCoefficient{};
@@ -80,14 +84,14 @@ class CorrelationPitch {
     void splice() noexcept {
         // Leave a guard for the whole crossfade. Require meaningful progress
         // toward the opposite boundary, avoiding the trivial zero-lag minimum.
-        const double guard=std::abs(delta)*fadeLength+2;
+        const double guard=std::abs(delta)*std::max(fadeLength,spliceFadeLength)+2;
         const double lo=minimum+guard;
         double hi=maximum-guard;
         const double travel=(hi-lo)*.25;
         // After an upshift re-anchor, a backward jump must not reach the
         // attack again (a repeated attack/flam) or the material before it.
         if(upshiftReset && delta<0) {
-            const double limit=onsetAge-rate*.008;
+            const double limit=onsetAge-rate*reanchorGuard;
             if(limit>=delay+travel)hi=std::min(hi,limit);
         }
         const int first=int(std::ceil(delta>0 ? lo : delay+travel));
@@ -111,6 +115,8 @@ class CorrelationPitch {
         }
         nextDelay=juce::jlimit(lo,hi,best);
         fadeIndex=0;fading=true;++spliceCount;
+        if(spliceFadeLength>0){activeWeights=spliceWeights.data();activeFade=spliceFadeLength;}
+        else{activeWeights=fadeWeights.data();activeFade=fadeLength;}
     }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec, double boundMs, bool resetAtOnset=false, bool detectInnovation=false) {
@@ -132,6 +138,7 @@ public:
         for(auto& r:reference) r.assign(size_t((window+stride-1)/stride),0);
         fadeWeights.resize(size_t(fadeLength));
         for(int i=0;i<fadeLength;++i) fadeWeights[size_t(i)]=float(.5-.5*std::cos(juce::MathConstants<double>::pi*(i+1)/fadeLength));
+        spliceFadeLength=0;spliceWeights.clear();activeWeights=fadeWeights.data();activeFade=fadeLength;
         reset();
     }
     void reset() noexcept {
@@ -139,6 +146,7 @@ public:
         low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=0;fading=active=false;
         fastEnergy=slowEnergy=broadEnergy=0;cooldown=onsets=0;processedSamples=0;onsetSamples.fill(0);
         peakBuckets.fill(0);peakBucketPosition=peakBucketSamples=0;bucketPeak=bucketMaximum=0;
+        hfBuckets.fill(0);hfBucketPosition=hfBucketSamples=0;hfBucketPeak=hfRecentMax=0;
         detectorPosition=0;std::fill(detectorHistory.begin(),detectorHistory.end(),0);
         delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;onsetAge=1.e9;resetAge=1<<30;resetPeak=0;heldSamples=0;
     }
@@ -171,6 +179,27 @@ public:
     // read head may overshoot by at most 32 samples of delay). Used so two paths never
     // run their ~0.5 ms correlation search in the same callback.
     void setSplicesHeld(bool held) noexcept {holdSplices=held;}
+    // Research: after an upshift re-anchor, how far past the onset the next
+    // backward jump must land (default 8 ms). Shorter lets a period-aligned
+    // jump exist sooner; 0 re-reads the attack (flam).
+    void setReanchorGuard(double ms) noexcept {reanchorGuard=ms*.001;}
+    // Research: an onset also needs its high-band energy above `ratio` x the
+    // largest high-band energy of the previous 100 ms (1 ms buckets). A note's
+    // fade-out corner is a faint high-band blip right after a loud attack;
+    // a real pick, even a soft one after a loud one, is far stronger.
+    void setRelativeFloor(double ratio) noexcept {relativeFloor=ratio;}
+    // Research: report an onset (onsetOut) when it is detected rather than
+    // when its re-anchor runs. A re-anchor waits for a running splice fade;
+    // a caller arming on the report then still sees pre-onset history.
+    void setReportAtDetection(bool enabled) noexcept {reportAtDetection=enabled;}
+    // Research: cross-fade length for ordinary splices only (onset re-anchors
+    // keep the 2 ms fade so attacks stay sharp). Call after prepare(), never
+    // from the audio thread (allocates). At most 4x the onset fade.
+    void setSpliceFade(double ms) {
+        spliceFadeLength=juce::jlimit(fadeLength,4*fadeLength,int(std::ceil(rate*ms*.001)));
+        spliceWeights.resize(size_t(spliceFadeLength));
+        for(int i=0;i<spliceFadeLength;++i) spliceWeights[size_t(i)]=float(.5-.5*std::cos(juce::MathConstants<double>::pi*(i+1)/spliceFadeLength));
+    }
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
@@ -210,6 +239,15 @@ public:
             // This absolute floor is a research limitation, not gain invariance.
             if(innovationReset && inputEnergy<=1.e-14)transientEnergy=0;
             fastEnergy+=fastCoefficient*(transientEnergy-fastEnergy);
+            if(relativeFloor>0) {
+                hfBucketPeak=std::max(hfBucketPeak,fastEnergy);
+                if(++hfBucketSamples>=peakBucketLength) {
+                    hfBuckets[size_t(hfBucketPosition)]=hfBucketPeak;
+                    if(++hfBucketPosition==int(hfBuckets.size()))hfBucketPosition=0;
+                    hfBucketSamples=0;hfBucketPeak=0;
+                    hfRecentMax=*std::max_element(hfBuckets.begin(),hfBuckets.end());
+                }
+            }
             broadEnergy+=broadCoefficient*(inputEnergy/count-broadEnergy);
             // A high-band fraction rejects smooth global amplitude modulation.
             // Keep the absolute noise floor below as a separate condition.
@@ -240,37 +278,40 @@ public:
                 active=false;fading=false;pendingOnset=false;externalPending=false;
             } else {
                 if(!active) {delay=delta>0?minimum:maximum;fading=false;active=true;}
-                const double guard=std::abs(delta)*fadeLength+2;
+                const double guard=std::abs(delta)*std::max(fadeLength,spliceFadeLength)+2;
                 // Optional downshift experiment: a detected new pick event
                 // anchors the read head near the causal boundary. It still
                 // resamples the entire signal; no unshifted tonal bypass.
                 // Upshifts only with setUpshiftOnsetReset (anchor above the floor).
-                if(innovationReset && onsetReset && (delta>0 || (upshiftReset && delta<0)) && cooldown==0 && inputEnergy>1.e-14 && fastEnergy>1.e-10 && novelty>4.*slowEnergy)
+                if(innovationReset && onsetReset && (delta>0 || (upshiftReset && delta<0)) && cooldown==0 && inputEnergy>1.e-14 && fastEnergy>1.e-10 && novelty>4.*slowEnergy
+                   && (relativeFloor<=0 || fastEnergy>relativeFloor*hfRecentMax)) {
+                    if(reportAtDetection && !pendingOnset && onsetOut!=nullptr)onsetOut[n]=1;
                     pendingOnset=true;
+                }
                 const bool resettable=delta>0 || (upshiftReset && delta<0);
                 const double anchor=minimum+guard+(delta<0 ? upshiftHold*-delta : 0.);
                 if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable)externalPending=true;
                 if(externalPending && resettable && !fading) {
                     externalPending=false;
-                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;
+                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;activeWeights=fadeWeights.data();activeFade=fadeLength;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
                 }
                 if(onsetReset && resettable && !fading && cooldown==0 &&
                    (innovationReset ? pendingOnset : (fastEnergy>1.e-8 && fastEnergy>2.5*slowEnergy))) {
                     pendingOnset=false;
-                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;
+                    nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;activeWeights=fadeWeights.data();activeFade=fadeLength;
                     cooldown=cooldownLength;resetAge=0;resetPeak=novelty;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
-                    if(onsetOut!=nullptr)onsetOut[n]=1;
+                    if(onsetOut!=nullptr && !reportAtDetection)onsetOut[n]=1;
                 }
                 const bool due=!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard));
                 // Downshift only: a late upshift splice measurably lengthens the
                 // next backward jump (+0.6 ms low-band centroid, guitar A1 +2).
                 if(due && holdSplices && delta>0 && heldSamples<int(32./delta))++heldSamples;
                 else if(due){heldSamples=0;splice();}
-                const float w=fading?fadeWeights[size_t(fadeIndex)]:0.f;
+                const float w=fading?activeWeights[fadeIndex]:0.f;
                 for(int c=0;c<count;++c) {
                     const float old=read(audio[size_t(c)],delay);
                     output.setSample(c,n,fading ? old+w*(read(audio[size_t(c)],nextDelay)-old) : old);
@@ -278,7 +319,7 @@ public:
                 minRead=std::min(minRead, fading?std::min(delay,nextDelay):delay);
                 maxRead=std::max(maxRead, fading?std::max(delay,nextDelay):delay);
                 delay+=delta;
-                if(fading) {nextDelay+=delta;if(++fadeIndex==fadeLength){delay=nextDelay;fading=false;}}
+                if(fading) {nextDelay+=delta;if(++fadeIndex==activeFade){delay=nextDelay;fading=false;}}
             }
             if(++write==capacity)write=0;
             ++processedSamples;onsetAge+=1;

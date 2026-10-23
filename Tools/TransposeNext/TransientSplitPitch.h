@@ -95,7 +95,7 @@ class TransientSplitPitch {
     // marker over a sustained low note fails that test, so the body keeps its
     // trajectory (the warble case); a new low note passes. No resets when
     // the transient path sees no onset (tremolo, vibrato).
-    bool lowReset{},upshift{},predictive{},coordinated{};
+    bool lowReset{},upshift{},predictive{},coordinated{},targeted{};
     LowPredictor predictor;
     double fractionThreshold{};
     std::vector<uint8_t> lowFlags,broadFlags;
@@ -103,8 +103,8 @@ class TransientSplitPitch {
     double lowFast{},lowFastCoefficient{},lowThreshold{};
     int lowHistoryPosition{},lowArmed{},lowWindowLength{},lowResets{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false, bool coordinate=false) {
-        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;coordinated=coordinate;predictor.prepare(spec.sampleRate);
+    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false, bool coordinate=false, bool targetFixes=false) {
+        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;coordinated=coordinate;targeted=targetFixes;predictor.prepare(spec.sampleRate);
         lowFastCoefficient=1-std::exp(-1/(spec.sampleRate*.001));
         lowWindowLength=int(spec.sampleRate*.012);
         lowHistory.assign(size_t(std::ceil(spec.sampleRate*.025)),0);
@@ -115,6 +115,13 @@ public:
         body.setUpshiftOnsetReset(upshift);transient.setUpshiftOnsetReset(upshift);
         if(upshift)transient.setBroadSmoothing(4);
         if(coordinated)transient.setRetrigger(8);
+        // T1/T4 fixes (2026-10-23 targets): a 4 ms high-path re-anchor guard
+        // lets the post-hold upshift splice align without re-reading the
+        // attack, a 4 ms splice cross-fade keeps that splice's high-band
+        // residue below faint picks, and the relative floor rejects
+        // fade-out corner onsets. Onsets are reported at detection so the
+        // longer fade cannot delay the low-band confirmation window.
+        if(targeted){transient.setReanchorGuard(4);transient.setSpliceFade(4);transient.setRelativeFloor(2.e-5);transient.setReportAtDetection(true);}
         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));
         for(auto& b:lowpass)b.prepare(spec.sampleRate,false);
         for(auto& b:highpass)b.prepare(spec.sampleRate,true);
