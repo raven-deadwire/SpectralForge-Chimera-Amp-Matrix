@@ -1,0 +1,42 @@
+name: Transpose predictive research
+on:
+  pull_request:
+    paths:
+      - 'Tools/TransposePredictive/**'
+      - '.github/workflows/transpose-predictive-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: predictive-transpose-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-research:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ zlib1g-dev
+          git clone --depth 1 --branch 8.0.8 https://github.com/juce-framework/JUCE.git build/JUCE
+      - name: Fresh native build and research contracts
+        run: |
+          python Tools/TransposePredictive/build.py --juce build/JUCE --out build/predictive
+          build/predictive/PredictiveTests | tee build/predictive/research-tests.log
+          build/predictive/PitchRegressionTests | tee build/predictive/pitch-tests.log
+          build/predictive/StabilityTests | tee build/predictive/stability-tests.log
+          build/predictive/GateTests | tee build/predictive/gate-tests.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transpose-predictive-native-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            build/predictive/build.json
+            build/predictive/*tests.log
