@@ -176,3 +176,14 @@ once per splice and evaluates integer candidates directly from the ring buffer
 (`integerCost`), with the same accumulation order as `cost()`. Outputs are
 bit-identical for every engine; one search costs ~90 us instead of ~320-390 us
 at 48 kHz. Results: `docs/TRANSPOSE_SPLICE_SEARCH_COST_20261023.md`.
+
+## Split latency targets (2026-10-23)
+
+The single full-band <= 10 ms goal is replaced by six targets defined in
+`Validation/transpose-latency-targets.json` (T1 attack gate, T2 downshift
+low-band onset gate, T3 upshift low-band report with a no-regression ceiling,
+T4 quality/detection gate, T5 real-time report, T6 external acceptance).
+`latency_targets.py` renders 1,116 synthetic cases and prints a verdict per
+target; `--evaluate-only` re-scores existing results after a spec change.
+Holdout input generation is shared via `weak_attack_holdout.holdout_input()`.
+Definitions and current status: `docs/TRANSPOSE_LATENCY_TARGETS.md`.
