@@ -219,6 +219,11 @@ inline void run(const juce::File& directory) {
         // the next case. Keep the pointer on the newly revealed popup target.
         auto* modals=juce::ModalComponentManager::getInstance();
         waitForNativeSpectrum([&]{return modals->getNumModalComponents()==0;},"Previous dialog/menu did not finish closing");
+        // Closing the previous case's POST dialog can leave a macOS runner with
+        // no active app; PopupMenu then dismisses itself as a background menu.
+        juce::Process::makeForegroundProcess();editor->toFront(true);settings->grabKeyboardFocus();
+        waitForNativeSpectrum([&]{return juce::Process::isForegroundProcess() && settings->hasKeyboardFocus(false);},
+                              "Editor did not regain foreground focus before SETTINGS");
         juce::Desktop::setMousePosition(settings->localPointToGlobal(settings->getLocalBounds().getCentre()));
         settle(30);
         struct Receipt final:juce::Button::Listener {
