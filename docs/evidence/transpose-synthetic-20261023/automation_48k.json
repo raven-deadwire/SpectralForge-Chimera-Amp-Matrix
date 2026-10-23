@@ -1,0 +1,98 @@
+[
+ {
+  "from": -5,
+  "to": 2,
+  "mode": "TIGHT",
+  "finite": true,
+  "peak_jump_db": -0.99,
+  "hf_peak_vs_rms_before_db": 8.7
+ },
+ {
+  "from": -5,
+  "to": 2,
+  "mode": "AL10RA-800",
+  "finite": true,
+  "peak_jump_db": -1.21,
+  "hf_peak_vs_rms_before_db": 7.6
+ },
+ {
+  "from": -2,
+  "to": -12,
+  "mode": "TIGHT",
+  "finite": true,
+  "peak_jump_db": -1.04,
+  "hf_peak_vs_rms_before_db": 14.1
+ },
+ {
+  "from": -2,
+  "to": -12,
+  "mode": "AL10RA-800",
+  "finite": true,
+  "peak_jump_db": -1.18,
+  "hf_peak_vs_rms_before_db": 8.7
+ },
+ {
+  "from": 12,
+  "to": -12,
+  "mode": "TIGHT",
+  "finite": true,
+  "peak_jump_db": -1.1,
+  "hf_peak_vs_rms_before_db": 13.1
+ },
+ {
+  "from": 12,
+  "to": -12,
+  "mode": "AL10RA-800",
+  "finite": true,
+  "peak_jump_db": -1.17,
+  "hf_peak_vs_rms_before_db": 7.4
+ },
+ {
+  "from": 0,
+  "to": -5,
+  "mode": "TIGHT",
+  "finite": true,
+  "peak_jump_db": -0.93,
+  "hf_peak_vs_rms_before_db": 10.8
+ },
+ {
+  "from": 0,
+  "to": -5,
+  "mode": "AL10RA-800",
+  "finite": true,
+  "peak_jump_db": -1.23,
+  "hf_peak_vs_rms_before_db": 6.9
+ },
+ {
+  "from": -5,
+  "to": 0,
+  "mode": "TIGHT",
+  "finite": true,
+  "peak_jump_db": -1.55,
+  "hf_peak_vs_rms_before_db": 5.6
+ },
+ {
+  "from": -5,
+  "to": 0,
+  "mode": "AL10RA-800",
+  "finite": true,
+  "peak_jump_db": -1.53,
+  "hf_peak_vs_rms_before_db": 5.5
+ },
+ {
+  "from": 7,
+  "to": 5,
+  "mode": "TIGHT",
+  "finite": true,
+  "peak_jump_db": -1.4,
+  "hf_peak_vs_rms_before_db": 7.7
+ },
+ {
+  "from": 7,
+  "to": 5,
+  "mode": "AL10RA-800",
+  "finite": true,
+  "peak_jump_db": -1.1,
+  "hf_peak_vs_rms_before_db": 5.7
+ }
+]

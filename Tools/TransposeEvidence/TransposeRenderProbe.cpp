@@ -20,14 +20,31 @@
 //     mode 36|37|38: mode 20 with the crossover at 600|800|1200 Hz
 //
 // Prints the reported latency in samples on stdout (-1: variable, not reported).
+// Options after <out.f32>:
+//   timing            per-block process() time on stderr: mean / p99.9 / max us
+//   switch=<s>@<sec>  change to <s> semitones at <sec> seconds (automation)
+//   nodenormals       flush denormals like the plug-in's processBlock (ScopedNoDenormals)
 #include "GlobalDSP.h"
 #include "../TransposeNext/TransientSplitPitch.h"
 #include "../TransposeNext/HybridLowBandPitch.h"
+#include <algorithm>
+#include <cstdlib>
+#include <optional>
+#include <chrono>
 #include <fstream>
+#include <string>
 #include <iostream>
 
 int main(int argc,char** argv) {
-    if(argc!=7){std::cerr<<"usage: ChimeraTransposeRender <rate> <block> <mode 0|1|2> <semitones> <in.f32> <out.f32>\n";return 2;}
+    if(argc<7){std::cerr<<"usage: ChimeraTransposeRender <rate> <block> <mode> <semitones> <in.f32> <out.f32> [timing] [switch=<s>@<sec>]\n";return 2;}
+    bool timing=false,flush=false;int switchTo=0;double switchAt=-1;
+    for(int a=7;a<argc;++a) {
+        const std::string option(argv[a]);
+        if(option=="timing")timing=true;
+        else if(option=="nodenormals")flush=true;
+        else if(option.rfind("switch=",0)==0){const auto at=option.find('@');switchTo=std::atoi(option.substr(7,at-7).c_str());switchAt=std::atof(option.substr(at+1).c_str());}
+        else {std::cerr<<"unknown option "<<option<<"\n";return 2;}
+    }
     const double rate=std::atof(argv[1]);const int block=std::atoi(argv[2]),mode=std::atoi(argv[3]),semitones=std::atoi(argv[4]);
     std::ifstream in(argv[5],std::ios::binary|std::ios::ate);
     if(!in){std::cerr<<"FAIL cannot read input\n";return 1;}
@@ -51,16 +68,37 @@ int main(int argc,char** argv) {
     else {transposer.prepare(spec);transposer.setMode(mode);}
     juce::AudioBuffer<float> source(2,block);
     juce::AudioBuffer<float> buffer(2,block);std::vector<float> out(samples.size());
+    std::vector<double> blockMicros;if(timing)blockMicros.reserve(samples.size()/size_t(block)+1);
+    int current=semitones;
     for(size_t offset=0;offset<samples.size();offset+=size_t(block)) {
         const int n=int(std::min<size_t>(size_t(block),samples.size()-offset));
+        if(switchAt>=0 && current!=switchTo && double(offset)>=switchAt*rate) {
+            current=switchTo;research.setSemitones(current);hybrid.setSemitones(current);
+        }
         buffer.setSize(2,n,false,false,true);
         for(int i=0;i<n;++i)for(int c=0;c<2;++c)buffer.setSample(c,i,samples[offset+size_t(i)]);
-        if(researchEngine) {source.makeCopyOf(buffer,true);research.process(source,buffer);}
-        else if(hybridEngine) {source.makeCopyOf(buffer,true);hybrid.process(source,buffer);}
-        else transposer.process(buffer,true,semitones);
+        source.makeCopyOf(buffer,true);
+        std::optional<juce::ScopedNoDenormals> noDenormals;if(flush)noDenormals.emplace();
+        const auto start=std::chrono::steady_clock::now();
+        if(researchEngine) research.process(source,buffer);
+        else if(hybridEngine) hybrid.process(source,buffer);
+        else transposer.process(buffer,true,current);
+        if(timing)blockMicros.push_back(std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count());
         for(int i=0;i<n;++i)out[offset+size_t(i)]=buffer.getSample(0,i);
     }
     std::ofstream file(argv[6],std::ios::binary);file.write(reinterpret_cast<const char*>(out.data()),std::streamsize(out.size()*sizeof(float)));
+    if(timing && std::getenv("CHIMERA_TIMING_DUMP")!=nullptr) {   // research: raw per-block times, one per line
+        std::ofstream dump(std::getenv("CHIMERA_TIMING_DUMP"));for(double v:blockMicros)dump<<v<<'\n';
+    }
+    if(timing && !blockMicros.empty()) {
+        double sum=0;for(double v:blockMicros)sum+=v;
+        std::vector<double> sorted(blockMicros);std::sort(sorted.begin(),sorted.end());
+        std::cerr<<"timing blocks="<<sorted.size()<<" mean_us="<<sum/double(sorted.size())
+                 <<" p999_us="<<sorted[size_t(double(sorted.size()-1)*.999)]<<" max_us="<<sorted.back()
+                 <<" budget_us="<<1.e6*block/rate
+                 <<" over_half="<<std::count_if(sorted.begin(),sorted.end(),[&](double v){return v>.5e6*block/rate;})
+                 <<" over_budget="<<std::count_if(sorted.begin(),sorted.end(),[&](double v){return v>1.e6*block/rate;})<<'\n';
+    }
     std::cout<<(researchEngine?research.latency():hybridEngine?hybrid.latency():transposer.latency())<<'\n';
     return file?0:1;
 }
