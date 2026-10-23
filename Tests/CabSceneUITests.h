@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #pragma once
 #include "CabMicrophoneUITests.h"
 #include "CabScene.h"
@@ -887,7 +888,7 @@ inline void roomNavigation(const juce::File& screenshots) {
     const auto libraryWindow=[]()->juce::DialogWindow* {
         for(int index=0;index<juce::TopLevelWindow::getNumTopLevelWindows();++index)
             if(auto* window=dynamic_cast<juce::DialogWindow*>(juce::TopLevelWindow::getTopLevelWindow(index)))
-                if(dynamic_cast<IRBrowserPanel*>(window->getContentComponent()))return window;
+                if(dynamic_cast<IRBrowserPanel*>(spectralforge::ui::dialogContent(*window)))return window;
         return nullptr;
     };
     for(int mode:{1,2}) {
@@ -925,7 +926,7 @@ inline juce::TextButton& pageButton(juce::Component& canvas,const char* title) {
 inline juce::DialogWindow* cabinetDialog() {
     for(int i=0;i<juce::TopLevelWindow::getNumTopLevelWindows();++i)
         if(auto* window=dynamic_cast<juce::DialogWindow*>(juce::TopLevelWindow::getTopLevelWindow(i)))
-            if(dynamic_cast<CabWorkspace*>(window->getContentComponent()))return window;
+            if(dynamic_cast<CabWorkspace*>(spectralforge::ui::dialogContent(*window)))return window;
     return nullptr;
 }
 
@@ -1047,13 +1048,13 @@ inline void editorNavigation(const juce::File& screenshots) {
             for(int lane=0;lane<3;++lane)
                 require(!component<AmpNativePanel>(canvas,("ampNativePanel"+juce::String(lane+1)).toRawUTF8()).isVisible(),
                     "Main cabinet room is covered by amplifier knob panels");
-            require(editor->getLocalBounds().contains(editor->getLocalArea(&room,room.getLocalBounds())),
+            require(editorBoundsReachable(*editor,room),
                 "Main cabinet room extends outside the editor");
             snapshot(*editor,screenshots,mode==0 ? "cab-visual-editor-classic.png" : mode==1 ? "cab-visual-editor-dual.png" : "cab-visual-editor-matrix.png");
             auto& card=component<juce::Button>(room,("cabRoomRig"+juce::String(mode+1)).toRawUTF8());
             click(card,[]{return cabinetDialog()!=nullptr;});
             juce::Component::SafePointer<juce::DialogWindow> window(cabinetDialog());
-            auto* workspace=dynamic_cast<CabWorkspace*>(window->getContentComponent());
+            auto* workspace=dynamic_cast<CabWorkspace*>(spectralforge::ui::dialogContent(*window));
             require(workspace && !workspace->isRoomView() && workspace->focusedRig()==mode,
                 "Main room cabinet click opened another rig or stopped at the room overview");
             nativePopupReady(*window,*workspace,*editor,screenshots,mode+1);
@@ -1077,7 +1078,7 @@ inline void editorNavigation(const juce::File& screenshots) {
                     "RIG CONTROLS lost an active amplifier panel or exposed an inactive lane");
             click(component<juce::TextButton>(canvas,"path.cab"),[&]{return room.isVisible();});
             editor->setSize(885,585);
-            require(editor->getLocalBounds().contains(editor->getLocalArea(&room,room.getLocalBounds())),
+            require(editorBoundsReachable(*editor,room),
                 "Cabinet room is clipped at the supported 75 percent editor size");
             if(mode==0)snapshot(*editor,screenshots,"cab-visual-editor-classic-75pct.png");
             if(mode==2)snapshot(*editor,screenshots,"cab-visual-editor-matrix-75pct.png");

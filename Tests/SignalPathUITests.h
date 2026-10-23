@@ -118,7 +118,7 @@ template<class T> inline T* named(juce::Component& root,const juce::String& name
 inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
     // Existing global controls are located outside the workflow, including the
     // persistent tuner action in the footer. Merely inspecting them cannot mute.
-    for(const auto* text:{"GATE","TRANSPOSE","TUNER"}) {
+    for(const auto* text:{"DYNAMICS","TRANSPOSE","TUNER"}) {
         int count=0;
         const auto visit=[&](auto&& self,juce::Component& root)->void {
             if(auto* button=dynamic_cast<juce::TextButton*>(&root);button && (button->getButtonText()==text || (juce::String(text)=="TUNER" && button->getComponentID()=="tunerOpen"))) {
@@ -133,9 +133,9 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
         auto* slider=named<juce::Slider>(editor,name);
         require(slider && !slider->isShowing(),"Gate parameters must be edited in the spectrum workspace");
     }
-    auto* gateEditor=find<juce::TextButton>(editor,"gateSpectrum.open");
+    auto* gateEditor=find<juce::TextButton>(editor,"commonDynamics.open");
     auto* transpose=named<juce::Slider>(editor,"Transpose semitones");
-    require(gateEditor && gateEditor->isShowing() && gateEditor->isEnabled(),"Gate spectrum editor entry is unavailable");
+    require(gateEditor && gateEditor->isShowing() && gateEditor->isEnabled(),"Dynamics (gate) editor entry is unavailable");
     require(transpose && transpose->isShowing() && transpose->isEnabled(),"Transpose control is unavailable");
 }
 inline void key(juce::Component& owner,const juce::KeyPress& press) {
@@ -399,7 +399,7 @@ inline void run(const juce::File& folder) {
         require(!returnGraph,"Return-opened routing inspection did not close");
         expand->grabKeyboardFocus();key(*strip,juce::KeyPress(juce::KeyPress::spaceKey));
         auto graphWindow=juce::Component::SafePointer<juce::DialogWindow>(dialog("signalPathGraph"));require(graphWindow,"Path expansion did not open native graph");
-        auto* graph=dynamic_cast<SignalPathView*>(graphWindow->getContentComponent());require(graph,"Graph content missing");
+        auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*graphWindow));require(graph,"Graph content missing");
         require(graph->snapshot()==read(*p),"Expanded graph does not retain the complete current routing snapshot");
         for(const auto* id:{"input","gate","transpose","tuner","utilities","output"})
             require(find<juce::TextButton>(*graph,"path."+juce::String(id)),"Detailed routing lost a hidden global utility");
@@ -437,11 +437,11 @@ inline void run(const juce::File& folder) {
                 auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
                 require(selected->selectedBand()<0 ? selected->hasKeyboardFocus(false) : frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus its existing node or empty workspace");
             }
-            if(node.target==Target::dynamics || node.target==Target::gate || node.id=="low.comp") {
+            if(node.target==Target::dynamics || node.target==Target::gate) {
                 auto* panel=find<spectralforge::CommonDynamicsPanel>(*editor,"commonDynamics.panel");
                 require(panel && panel->isShowing(),"Detailed dynamics navigation did not open its spectrum workspace");
                 using Page=spectralforge::CommonDynamicsPanel::Page;
-                const auto expected=node.target==Target::gate?Page::gate:node.id=="low.comp"?Page::lowCompressor:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
+                const auto expected=node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
                 require(panel->selectedPage()==expected,"Signal path opened a different dynamics module");
             }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");
@@ -456,7 +456,7 @@ inline void run(const juce::File& folder) {
             if(auto* w=dialog("signalPathTuner"))close(w);
             if(auto* w=dialog("postNativePanel0"))close(w);
             if(auto* w=dialog("ampNativePanel"+juce::String(node.lane+1)))close(w);
-            if(auto* w=dialog("cabWorkspace")){auto* workspace=dynamic_cast<CabWorkspace*>(w->getContentComponent());require(workspace && workspace->focusedRig()==node.lane,"CAB navigation opened wrong rig");close(w);}
+            if(auto* w=dialog("cabWorkspace")){auto* workspace=dynamic_cast<CabWorkspace*>(spectralforge::ui::dialogContent(*w));require(workspace && workspace->focusedRig()==node.lane,"CAB navigation opened wrong rig");close(w);}
         }
         for(float scale:{.75f,1.f,1.25f,1.5f}){
             editor->setSize(juce::roundToInt(1180*scale),juce::roundToInt(780*scale));
@@ -472,7 +472,7 @@ inline void run(const juce::File& folder) {
                                 +id+", node="+node.id+", actual="+juce::String(int(actual))+", expected="+juce::String(int(expected))
                                 +", graphMode="+juce::String(graph->snapshot().mode)+", scale="+juce::String(scale)).toStdString());
                     }
-                const auto rect=editor->getLocalArea(strip,strip->getLocalBounds());require(editor->getLocalBounds().contains(rect),"Strip clipped at UI scale");
+                require(editorBoundsReachable(*editor,*strip),"Strip cannot be reached at UI scale");
                 for(auto* sibling:strip->getParentComponent()->getChildren())if(sibling!=strip && sibling->isVisible())require(!rect.intersects(editor->getLocalArea(sibling,sibling->getLocalBounds())),"Strip overlaps visible editor content");
                 for(auto* child:strip->getChildren())inside(*strip,*child,"Compact path button clipped");
                 for(int e=0;e<2;++e){auto* panel=find<spectralforge::GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");

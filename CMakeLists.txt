@@ -275,8 +275,8 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   add_test(NAME ChimeraHeadCabLowUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/head-cab-low-snapshots" --review-fixes-only)
   add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
   add_test(NAME ChimeraSmallScreenUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/small-screen-snapshots" --small-screen-only)
-  # 27 native UI cases and 54 PNG captures also run in unoptimised Debug builds.
-  set_tests_properties(ChimeraSmallScreenUITests PROPERTIES TIMEOUT 600 RUN_SERIAL TRUE)
+  # 27 native UI cases also exercise compressor gestures and full state recall.
+  set_tests_properties(ChimeraSmallScreenUITests PROPERTIES TIMEOUT 900 RUN_SERIAL TRUE)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
 

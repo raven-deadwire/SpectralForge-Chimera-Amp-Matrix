@@ -13,6 +13,99 @@ inline void reachable(ChimeraEditor& editor,spectralforge::ui::AccessibleViewpor
     auto* hit=editor.getComponentAt(bounds.getCentre());
     require(hit==&control || control.isParentOf(hit),"Scrolled control hit-test does not match its painted location");
 }
+
+inline void exerciseControl(ChimeraProcessor& processor,ChimeraEditor& editor,
+                            spectralforge::ui::AccessibleViewport& viewport,
+                            juce::Component& root,const juce::String& id) {
+    auto* control=find<juce::Slider>(root,id);
+    auto* parameter=processor.parameters().getParameter(id);
+    require(control && parameter && control->isShowing() && control->isEnabled(),"Integrated compressor control is unavailable");
+    reachable(editor,viewport,*control);
+    const auto before=signalPathTests::values(processor);
+    struct Automation final:juce::AudioProcessorListener {
+        ChimeraProcessor& processor;int index,changes{},begins{},ends{},foreign{};
+        Automation(ChimeraProcessor& p,int i):processor(p),index(i){processor.addListener(this);}
+        ~Automation() override {processor.removeListener(this);}
+        void audioProcessorParameterChanged(juce::AudioProcessor*,int i,float) override {++changes;if(i!=index)++foreign;}
+        void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+        void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int i) override {++begins;if(i!=index)++foreign;}
+        void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int i) override {++ends;if(i!=index)++foreign;}
+    } automation(processor,parameter->getParameterIndex());
+    const auto start=juce::Point<float>{control->getWidth()*.5f,control->getHeight()*.35f};
+    const auto finish=start+juce::Point<float>{0,-24};
+    const auto now=juce::Time::getCurrentTime();
+    const auto event=[&](juce::Point<float> position,bool down) {
+        return juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(),position,
+            juce::ModifierKeys(down?juce::ModifierKeys::leftButtonModifier:0),1,0,0,0,0,
+            control,control,now,start,now,1,position!=start);
+    };
+    static_cast<juce::Component&>(*control).mouseDown(event(start,true));
+    static_cast<juce::Component&>(*control).mouseDrag(event(finish,true));
+    static_cast<juce::Component&>(*control).mouseUp(event(finish,false));settle(20);
+    require(automation.changes>0 && automation.begins>0 && automation.begins==automation.ends && automation.foreign==0,
+            "Scrolled compressor drag lost balanced host gestures or edited another parameter");
+    require(parameter->getValue()!=before[size_t(parameter->getParameterIndex())],"Scrolled compressor drag did not change its parameter");
+    parameter->setValueNotifyingHost(parameter->getValue()>.5f?.23f:.77f);settle(20);
+    require(std::abs(parameter->convertTo0to1(float(control->getValue()))-parameter->getValue())<.002f,
+            "Host automation did not update the scrolled compressor control");
+    parameter->setValueNotifyingHost(before[size_t(parameter->getParameterIndex())]);settle(20);
+    require(signalPathTests::values(processor)==before,"Compressor edit/automation did not restore the complete parameter state");
+}
+inline void integratedWorkspaces(ChimeraProcessor& processor,ChimeraEditor& editor,
+                                 spectralforge::ui::AccessibleViewport& viewport,int mode) {
+    const auto before=signalPathTests::values(processor);
+    {
+        signalPathTests::Writes writes;processor.addListener(&writes);
+        for(const auto* id:{"commonDynamics.open","eq.bank.tone","eq.bank.final"}) {
+            auto* button=find<juce::TextButton>(editor,id);require(button,"Global workspace entry missing");
+            reachable(editor,viewport,*button);signalPathTests::click(*button);
+            require(button->getToggleState(),"Global workspace entry did not select its workspace");
+            auto* panel=find(editor,juce::String(id)=="commonDynamics.open"?"commonDynamics.panel":
+                juce::String(id)=="eq.bank.tone"?"toneEQ_panel":"finalEQ_panel");
+            require(panel && panel->isShowing() && editorBoundsReachable(editor,*panel),"Workspace cannot be reached after top-bar navigation");
+        }
+        processor.removeListener(&writes);
+        require(signalPathTests::values(processor)==before && writes.changes==0 && writes.gestures==0,
+                "Global workspace navigation emitted audio changes or automation");
+    }
+    auto* canvas=editorSurface(editor);require(canvas,"Integrated canvas missing");
+    tab(*canvas,"PRE");
+    auto* board=find<PedalBoardPanel>(editor,"universalPedalBoard");require(board,"PRE board missing");
+    board->navigateOwner(-1);settle(30);
+    exerciseControl(processor,editor,viewport,*board,spectralforge::pedalControlID(0,6,0));
+    auto* detail=find<juce::TextButton>(*board,"boardDetailAt0");require(detail,"PRE DETAIL missing");
+    reachable(editor,viewport,*detail);signalPathTests::click(*detail);
+    require(find(*board,"boardCompressorSpectrum") && find(*board,"boardCompressorSpectrum")->isShowing(),"PRE DETAIL lost its spectrum");
+    board->navigateOwner(-1);
+    tab(*canvas,"POST");
+    auto* post=find<PostNativePanel>(editor,"postNativePanel0");require(post,"POST compressor missing");
+    // Pick an actually visible front-panel control by its stable parameter ID.
+    std::vector<NativeControlView*> controls;views(*post,controls);
+    juce::Slider* front=nullptr;
+    for(auto* c:controls)if(c->slider.isShowing() && c->slider.isEnabled()){front=&c->slider;break;}
+    require(front,"POST front-panel compressor knobs missing");
+    exerciseControl(processor,editor,viewport,*post,front->getComponentID());
+    auto window=open(*post,"postExpand0","postNativePanel0");
+    require(find(*window,"postCompressorSpectrum") && find(*window,"postCompressorSpectrum")->isShowing(),"POST ALL lost its spectrum");
+    close(window);
+    if(mode==2) {
+        tab(*canvas,"RIGS");
+        auto* head=find<AmpNativePanel>(editor,"ampNativePanel1");require(head,"Matrix LOW head missing");
+        exerciseControl(processor,editor,viewport,*head,"lowcomp");
+    }
+    require(signalPathTests::values(processor)==before,"Integrated navigation/editing changed unrelated preset values");
+    juce::MemoryBlock state;processor.getStateInformation(state);
+    processor.loadFactoryPreset(1);settle(30);
+    processor.setStateInformation(state.getData(),int(state.getSize()));settle(60);
+    require(signalPathTests::values(processor)==before,"Preset replacement and project recall lost parameter values");
+    require(int(processor.parameters().getRawParameterValue("mode")->load())==mode,"Project recall lost routing mode");
+    tab(*canvas,"PRE");
+    auto* restored=find<juce::Slider>(editor,spectralforge::pedalControlID(0,6,0));
+    require(restored && restored->isShowing() && std::abs(float(restored->getValue())-
+        processor.parameters().getRawParameterValue(spectralforge::pedalControlID(0,6,0))->load())<.002f,
+        "Preset recall left a stale PRE control attachment");
+}
+
 inline void run(const juce::File& directory) {
     using namespace spectralforge::ui;
     auto processor=std::make_unique<ChimeraProcessor>();
@@ -32,6 +125,9 @@ inline void run(const juce::File& directory) {
     int cases=0,actions=0;
     for(auto pixels:{juce::Point<int>{1280,800},{1366,768},{1920,1080}})for(int percent:{100,125,150})for(int mode=0;mode<3;++mode) {
         std::cout<<"RUN small screen: "<<pixels.x<<"x"<<pixels.y<<", "<<percent<<"% OS scale, mode "<<mode<<"\n";
+        processor->loadFactoryPreset(0);
+        processor->setPedalModel(0,6);processor->setPedalBoardEnabled(true);
+        set(*processor,spectralforge::postNativeModeID(0),1);set(*processor,spectralforge::postNativeModelID(0),0);
         set(*processor,"mode",float(mode));settle(50);
         // Explicit simulation: OS taskbar (40 physical px), then native frame
         // + Standalone notification allowance (16 x 64 logical px).
@@ -59,6 +155,11 @@ inline void run(const juce::File& directory) {
             signalPathTests::click(button);
             signalPathTests::compactDestination(*editor,*path,stage,"small screen");
             ++actions;
+            for(const auto* id:{"commonDynamics.open","eq.bank.tone","eq.bank.final"}) {
+                auto* entry=find<juce::TextButton>(*editor,id);
+                require(entry && entry->isShowing() && entry->isEnabled(),"Top-bar entry is unavailable from a signal-path page");
+                reachable(*editor,*viewport,*entry);
+            }
             // Right/bottom edges of the complete layout must be reachable.
             viewport->setViewPosition(100000,100000);
             require(viewport->getViewArea().getRight()>=viewport->getViewedComponent()->getWidth()
@@ -73,8 +174,9 @@ inline void run(const juce::File& directory) {
         require(settings->hasKeyboardFocus(false),"SETTINGS cannot receive keyboard focus");
         require(viewport->getViewArea().contains(viewport->getViewedComponent()->getLocalArea(settings,settings->getLocalBounds())),"Keyboard focus did not reveal SETTINGS");
         reachable(*editor,*viewport,*settings);
-        signalPathTests::click(*settings);settle(30);
-        require(juce::PopupMenu::dismissAllActiveMenus(),"SETTINGS popup did not open");settle(30);++actions;
+        settings->triggerClick(); // Queue the native button command; AppKit may deliver it after one pump.
+        waitForNativeSpectrum([]{return juce::PopupMenu::dismissAllActiveMenus();},"SETTINGS popup did not open");
+        settle(30);++actions;
         // Explicit readable zoom may scroll; a fit/restore round trip retains
         // the exact dimensions, requested zoom, scroll offset and sound state.
         editor->setViewSize(fitted,1.f);viewport->setViewPosition(100000,100000);
@@ -84,6 +186,8 @@ inline void run(const juce::File& directory) {
         require(surface->getTransform().mat00==1.f,"Explicit 100 percent zoom was silently reduced");
         require(signalPathTests::values(*processor)==before && writes.changes==0 && writes.gestures==0,"Layout/navigation changed parameters or emitted host automation");
         processor->removeListener(&writes);
+        editor->setViewSize(fitted);
+        integratedWorkspaces(*processor,*editor,*viewport,mode);
         editor->setViewSize(fitted);
         if(viewport->getViewedComponent()->getWidth()<=editor->getWidth()
            && viewport->getViewedComponent()->getHeight()<=editor->getHeight())
@@ -110,6 +214,6 @@ inline void run(const juce::File& directory) {
     editor=std::make_unique<ChimeraEditor>(*processor);
     require(signalPathTests::values(*processor)==saved,"Reopening the editor changed preset values");
     require(directory.getChildFile("small-screen-matrix.csv").replaceWithText(csv),"Cannot write screen matrix evidence");
-    std::cout<<"PASS small screen: "<<cases<<" simulated resolution/DPI/routing combinations, "<<actions<<" navigation/settings actions; focus, hit-testing, readable zoom, restore, dialog ownership, zero parameter writes/gestures. Physical OS DPI/DAW acceptance remains separate.\n";
+    std::cout<<"PASS small screen: "<<cases<<" simulated resolution/DPI/routing combinations, "<<actions<<" navigation/settings actions; Dynamics/Tone EQ/Final EQ entries, PRE/POST/LOW drag+host automation, preset/project recall; focus, hit-testing, readable zoom, restore, dialog ownership, zero parameter writes/gestures. Physical OS DPI/DAW acceptance remains separate.\n";
 }
 }

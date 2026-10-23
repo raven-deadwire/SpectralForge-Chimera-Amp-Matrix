@@ -147,12 +147,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     add(tunerOpen);tunerOpen.setComponentID("tunerOpen");tunerOpen.setName("Open precision tuner");
     tunerOpen.setTooltip("Open precision tuning, strobe, temperament and per-string targets. Opening starts tuning; closing stops tuning. Output mute follows your selected preference.");
     tunerOpen.onClick=[this]{tunerViewOpen=!tunerViewOpen;auto* parameter=processor.parameters().getParameter("tuneron");parameter->beginChangeGesture();parameter->setValueNotifyingHost(tunerViewOpen?1.f:0.f);parameter->endChangeGesture();updateModeUI();};
-    add(boardPanel);add(preEngineStatus);add(gateLocation);
-    gateLocation.setComponentID("gateAfterRig");preEngineStatus.setComponentID("preEngineStatus");
+    add(boardPanel);add(preEngineStatus);
+    preEngineStatus.setComponentID("preEngineStatus");
     preEngineStatus.setFont(juce::FontOptions(11.f));preEngineStatus.setColour(juce::Label::textColourId,ink);
-    gateLocation.setClickingTogglesState(true);
-    gateLocationAttachment=std::make_unique<BA>(p.parameters(),"gateAfterRig",gateLocation);
-    gateLocation.setTooltip("Use the clean input detector to attenuate after AMP/CAB, before POST delay/reverb. Off preserves the original input gate.");
     title.setText("SpectralForge Chimera",juce::dontSendNotification);title.setVisible(false);
     const auto loadBrand=[](const char* name){int size=0;const auto* bytes=ChimeraArtworkData::getNamedResource(name,size);auto image=bytes ? juce::ImageFileFormat::loadFrom(bytes,(size_t)size) : juce::Image{};
         if(image.isValid() && image.hasAlphaChannel()){juce::Rectangle<int> bounds;const juce::Image::BitmapData pixels(image,juce::Image::BitmapData::readOnly);for(int y=0;y<pixels.height;++y)for(int x=0;x<pixels.width;++x)if(pixels.getPixelColour(x,y).getAlpha()>10)bounds=bounds.getUnion({x,y,1,1});if(!bounds.isEmpty())image=image.getClippedImage(bounds);}return image;};
@@ -330,12 +327,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     globalSliders[4].setNumDecimalPlacesToDisplay(0); globalSliders[5].setNumDecimalPlacesToDisplay(0);
     globalSliders[2].setNumDecimalPlacesToDisplay(0); globalSliders[3].setNumDecimalPlacesToDisplay(0);
     for(const auto index:{1,2,3,7})globalSliders[size_t(index)].setVisible(false);
-    add(gateSpectrum);gateSpectrum.setComponentID("gateSpectrum.open");
-    gateSpectrum.setTooltip("Open Gate / Expander with its live input/output spectrum and all controls");
-    gateSpectrum.onClick=[this]{const auto path=spectralforge::signalPath::read(processor);if(const auto* gate=path.find("gate"))navigateSignalPath(*gate);};
-    const std::array<juce::TextButton*,4> globalToggles{&gateOn,&pitchOn,&tunerOn,&tunerMute};
-    const std::array<const char*,4> ids{"gateon","transposeon","tuneron","tunermute"};
-    for(size_t i=0;i<4;++i) { globalToggles[i]->setClickingTogglesState(true); add(*globalToggles[i]); globalButtons[i]=std::make_unique<BA>(state,ids[i],*globalToggles[i]); }
+    // Gate / Expander is edited in DYNAMICS; its old top-bar slot opens DYNAMICS and the EQ banks.
+    const std::array<juce::TextButton*,3> globalToggles{&pitchOn,&tunerOn,&tunerMute};
+    const std::array<const char*,3> ids{"transposeon","tuneron","tunermute"};
+    for(size_t i=0;i<globalToggles.size();++i) { globalToggles[i]->setClickingTogglesState(true); add(*globalToggles[i]); globalButtons[i]=std::make_unique<BA>(state,ids[i],*globalToggles[i]); }
     tunerOn.setTooltip("Tune the original input before the gate and transposer. Play one note at a time. Range: 16-2000 Hz.");
     tunerMute.setTooltip("Silence the output while the tuner is enabled.");
     pitchOn.setTooltip("Polyphonic transpose, -12 to +12 semitones. The added latency is shown below and reported to the host.");
@@ -345,7 +340,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     transposeMode.setSelectedId(juce::jlimit(0,2,processor.transposeQuality())+1,juce::dontSendNotification);
     transposeMode.onChange=[this]{processor.setTransposeQuality(transposeMode.getSelectedId()-1);};
     transposeMode.setTooltip("Transpose quality vs latency. CLASSIC keeps full low-register quality (~43 ms). LOW-LAT halves the FFT window (~21 ms). TIGHT quarters it (~11 ms) for a snappy lead feel; low notes lose body. The active latency is reported to the host.");
-    style(gateStatus,11.f); style(pitchStatus,11.f); add(gateStatus); add(pitchStatus);
+    style(pitchStatus,11.f); add(pitchStatus);
     const std::array<juce::String,8> names{"DRIVE","LEVEL","BASS","LOW MID","HIGH MID","TREBLE","PRESENCE","RESONANCE"};
     const std::array<const char*,8> parameterIds{"drive","level","bass","lowmid","highmid","treble","presence","resonance"};
     for(int i=0;i<3;++i)
@@ -453,22 +448,12 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
     updateModeUI(); // Synchronize restored mode before applying presentation focus.
     pathSelections[size_t(modeNow)]=node.id;
     switch(node.target){
-        case Target::pre:
-            page=1;
-            if(node.id=="pre.legacy3"){page=3;dynamicsViewOpen=true;}
-            break;
-        case Target::post:
-            page=2;
-            if(node.section==0 && processor.parameters().getRawParameterValue(spectralforge::postNativeModeID(0))->load()<.5f){page=3;dynamicsViewOpen=true;}
-            break;
+        case Target::pre:page=1;break;
+        case Target::post:page=2;break;
         case Target::toneEQ:case Target::finalEQ:page=3;selectedEQBank=node.target==Target::toneEQ?0:1;break;
         case Target::dynamics:page=3;dynamicsViewOpen=true;break;
         case Target::gate:page=3;dynamicsViewOpen=true;break;
-        case Target::low:
-            if(node.id=="low.comp"){page=3;dynamicsViewOpen=true;}
-            else {page=0;showRigControls=true;}
-            break;
-        case Target::amp:page=0;showRigControls=true;break;
+        case Target::amp:case Target::low:page=0;showRigControls=true;break;
         case Target::cab:page=0;showRigControls=false;break;
         case Target::rigs:page=0;showRigControls=true;break;
         default:break;
@@ -476,14 +461,8 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
     updateModeUI();signalPath->select(node.id);
     const auto focus=[](juce::Component& c){if(c.isShowing()&&c.getWantsKeyboardFocus())c.grabKeyboardFocus();};
     switch(node.target){
-        case Target::pre:
-            if(node.id=="pre.legacy3")dynamicsPanel->selectPage(DynamicsPage::preCompressor);
-            else {
-                const int owner=node.id.startsWith("pre.owner")?node.id.substring(9).getIntValue():-1;
-                boardPanel.navigateOwner(owner);
-                if(owner>=0)boardPanel.openCompressorDetails(owner);
-            }
-            break;
+        // PRE, POST and Matrix LOW compressors are edited where they sit in the rig.
+        case Target::pre:boardPanel.navigateOwner(node.id.startsWith("pre.owner")?node.id.substring(9).getIntValue():-1);break;
         case Target::toneEQ:case Target::finalEQ:eqPanels[node.target==Target::toneEQ?0:1]->focusForNavigation();break;
         case Target::amp:if(node.lane>=0){focus(lanes[size_t(node.lane)].amp);if(auto* button=dynamic_cast<juce::TextButton*>(lanes[size_t(node.lane)].nativePanel->findChildWithID("ampExpand"+juce::String(node.lane+1))))button->onClick();}break;
         case Target::cab:if(node.lane>=0)openCabWorkspace(node.lane,true);break;
@@ -496,15 +475,9 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::output:focus(globalSliders[6]);break;
         case Target::tuner:{if(!tunerViewOpen)tunerOpen.onClick();break;}
         case Target::utilities:focus(doublerTime);break;
-        case Target::low:
-            if(node.id=="low.comp")dynamicsPanel->selectPage(DynamicsPage::lowCompressor);
-            else if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();
-            break;
+        case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
         case Target::post:
-            if(node.section==0) {
-                if(dynamicsViewOpen)dynamicsPanel->selectPage(DynamicsPage::postCompressor);
-                else postPanels[0]->openDetails();
-            } else if(node.section>0&&node.section<3){focus(*postPanels[size_t(node.section)]);}
+            if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}
             else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
             break;
         default:break;
@@ -648,8 +621,6 @@ void ChimeraEditor::refreshMeters()
     const auto meterKey=[](float level) {return std::array<int,2>{{spectralforge::ui::tenth(juce::Decibels::gainToDecibels(level,-90.f)),level>=1.f?1:0}};};
     if(inputMeterKey.update(meterKey(processor.inputMeter())))repaintDesign({30,124,119,110});
     if(outputMeterKey.update(meterKey(processor.outputMeter())))repaintDesign({974,124,176,110});
-    const auto gate=gateOn.getToggleState()?"REDUCTION  "+juce::String(-juce::Decibels::gainToDecibels(processor.gateMeter(),-90.f),1)+" dB":juce::String("BYPASSED");
-    if(gateText.update(gate))gateStatus.setText(gate,juce::dontSendNotification);
     const double sr=processor.getSampleRate()>0?processor.getSampleRate():48000;
     const auto pitch=pitchOn.getToggleState()?"+ "+juce::String(1000.0*processor.pitchLatency()/sr,1)+" ms latency":juce::String("BYPASSED | zero added latency");
     if(pitchText.update(pitch))pitchStatus.setText(pitch,juce::dontSendNotification);
@@ -772,9 +743,10 @@ void ChimeraEditor::updateModeUI()
         eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));
     }
     if(showingDynamics)dynamicsPanel->setVisible(true);
-    dynamicsOpen.setVisible(page==3 && !tunerViewOpen);dynamicsOpen.setToggleState(dynamicsViewOpen,juce::dontSendNotification);
-    toneEQBank.setVisible(page==3 && !tunerViewOpen);finalEQBank.setVisible(page==3 && !tunerViewOpen);
-    toneEQBank.setToggleState(selectedEQBank==0 && !dynamicsViewOpen,juce::dontSendNotification);finalEQBank.setToggleState(selectedEQBank==1 && !dynamicsViewOpen,juce::dontSendNotification);
+    // These entries live in the top bar, so they stay reachable from every page.
+    const bool eqPage=page==3 && !tunerViewOpen && !dynamicsViewOpen;
+    dynamicsOpen.setToggleState(showingDynamics,juce::dontSendNotification);
+    toneEQBank.setToggleState(eqPage && selectedEQBank==0,juce::dontSendNotification);finalEQBank.setToggleState(eqPage && selectedEQBank==1,juce::dontSendNotification);
     for(size_t i=0;i<effects.size();++i) {
         auto& effect=effects[i];const bool show=page==2 && !tunerViewOpen && (i==10 || i==1 || i==2);
         effect.header.setVisible(show);effect.scope.setVisible(show);effect.description.setVisible(false);effect.enabled.setVisible(show);effect.model.setVisible(show);effect.expand.setVisible(show);
@@ -834,8 +806,7 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     const std::array<juce::Rectangle<float>,5> panels{{{20,80,138,168},{170,80,254,168},{436,80,176,168},{624,80,326,168},{962,80,198,168}}};
     for(auto box:panels) { g.setColour(panel.withAlpha(.88f)); g.fillRoundedRectangle(box,5); g.setColour(line); g.drawRoundedRectangle(box,5,1); }
     text(g,"INPUT",32,91,104,24,12.f,ink);
-    text(g,"GATE / EXPANDER",184,126,226,22,11.f,ink);
-    text(g,"Edit with the live spectrum",184,192,226,22,11.f,muted);
+    text(g,"DYNAMICS / EQ",184,88,226,22,11.f,ink);
     text(g,"OUTPUT",976,91,152,24,12.f,ink);
     meter(g,processor.inputMeter(),141,126,6,93); meter(g,processor.outputMeter(),1142,126,6,93);
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.inputMeter(),-90.f),1)+" dBFS",32,210,106,22,11.f,processor.inputMeter()>=1 ? juce::Colours::salmon : muted);
@@ -922,12 +893,11 @@ void ChimeraEditor::layoutControls()
     callbackLoad.setBounds(866,744,290,18);
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
     for(auto& eq:eqPanels)if(!dynamicsPanel->isUsingEQEditor(*eq))eq->setBounds(20,330,1140,412);
-    toneEQBank.setBounds(792,300,174,27);finalEQBank.setBounds(976,300,184,27);
-    dynamicsOpen.setBounds(608,300,174,27);dynamicsPanel->setBounds(20,330,1140,412);
+    dynamicsOpen.setBounds(182,112,230,38);toneEQBank.setBounds(182,158,230,38);finalEQBank.setBounds(182,204,230,38);
+    dynamicsPanel->setBounds(20,330,1140,412);
     signalPath->setBounds(20,253,1140,44);
     precisionTuner->setBounds(20,330,1140,412);
     preEngineStatus.setBounds(585,302,575,24);boardPanel.setBounds(20,330,1140,415);
-    gateLocation.setBounds(298,93,113,23);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
     compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);
     title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(768,748,86,28);
@@ -935,14 +905,13 @@ void ChimeraEditor::layoutControls()
     dualType.setBounds(300,302,180,24);dualLabel.setBounds(494,303,130,22);dualBlend.setBounds(628,302,330,24);dualFrequency.setBounds(628,302,330,24);
     x1Label.setBounds(400,303,105,22);x1.setBounds(507,302,210,24);
     x2Label.setBounds(732,303,105,22);x2.setBounds(839,302,306,24);
-    gateOn.setBounds(182,93,78,24); pitchOn.setBounds(450,93,148,24); tunerOpen.setBounds(20,748,154,28);tunerMute.setBounds(965,273,112,25);
-    gateSpectrum.setBounds(182,152,230,34);
+    pitchOn.setBounds(450,93,148,24); tunerOpen.setBounds(20,748,154,28);tunerMute.setBounds(965,273,112,25);
     globalSliders[0].setBounds(30,115,106,92);
     globalSliders[1].setBounds(244,126,167,28);
     globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
     globalSliders[7].setBounds(244,201,167,26);
     globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);
-    gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,209,158,18);
+    pitchStatus.setBounds(447,209,158,18);
     transposeMode.setBounds(447,229,158,20);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);

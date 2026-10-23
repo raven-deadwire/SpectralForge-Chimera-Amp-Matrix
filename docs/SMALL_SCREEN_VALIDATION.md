@@ -64,3 +64,47 @@ Verify automation gestures and parameter values in a real DAW. Report any
 host that rejects requested editor resizing separately from Standalone.
 
 No physical Windows/macOS or DAW result is claimed by this document.
+
+## PR #121 / #122 integration — 2026-10-23 KST
+
+Integration baseline: main `11c350721d652bfba53bdfa24f201b6e70a29483`,
+which already includes PR #122 (`bb0362c3b798a760bfab7646211e7cbe2b943ca4`).
+Viewport implementation retained from PR #121
+(`694e9f0a60b97a8ca611152882acd5a42ecf4ee7`).
+
+The seven overlapping files retain #122's top-bar workspace entries and
+PRE/POST/Matrix LOW controls, with #121's recursive canvas discovery and
+viewport geometry. Tests unwrap owned dialog viewports before checking
+the original panel type, style, contents and teardown. Geometry assertions
+require both ends of a target to be reachable when an OS constrains the
+native test window; ordinary non-editor layout checks remain strict.
+
+Every one of the 27 matrix cases additionally checks all three top-bar
+entries from the six signal-chain pages, opens each workspace, drags a PRE
+and POST compressor control (plus LOW in Matrix), checks balanced host
+gestures and host-to-control updates, and restores the exact parameter vector
+after factory-preset replacement and binary project recall. The expanded
+test alone has a 900-second budget; no release/DSP acceptance thresholds or
+other test budgets are changed.
+
+### Existing failures before integration
+
+PR #122's head has 14 successful workflows and one intentionally skipped
+preset-publishing workflow. This is baseline evidence, not an integration pass.
+
+PR #121's head already failed native dialog discovery (POST, AMP, CAB and
+routing wrappers), Linux whole-window bounds assertions, and the macOS
+SETTINGS popup check. Logs:
+- Signal/UI matrix: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39847257343
+- Dynamics: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39847257467
+- CAB UI: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39847257414
+- EQ: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39847257415
+
+The existing macOS realtime run also failed its CAB callback budget in both
+the fixed baseline and candidate. This remains separate from UI acceptance:
+https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/39847257362
+
+Integration execution results are pending CI. No local C++ runtime was
+available during this integration; source inspection is not a runtime pass.
+The simulated matrix does not certify physical OS DPI, mixed-monitor or DAW
+automation behavior. Final tested SHA and workflow results belong in PR #121.

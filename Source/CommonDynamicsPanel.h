@@ -23,14 +23,8 @@ public:
         constexpr std::array<const char*,6> names{"compressor","gate","limiter","dynamicEQ","multiband","deesser"};
         for(size_t i=0;i<tabs.size();++i) {
             tabs[i].setButtonText(titles[i]);tabs[i].setComponentID("commonDynamics.page."+juce::String(names[i]));
-            tabs[i].onClick=[this,i]{selectPage(i==0?lastCompressor:Page(i));};addAndMakeVisible(tabs[i]);
+            tabs[i].onClick=[this,i]{selectPage(Page(i));};addAndMakeVisible(tabs[i]);
         }
-        compressorSource.addItemList({"Clean compressor","PRE compressor","POST compressor","Matrix LOW compressor"},1);
-        compressorSource.setComponentID("commonDynamics.compressorSource");addChildComponent(compressorSource);
-        compressorSource.onChange=[this] {
-            constexpr std::array<Page,4> sources{Page::compressor,Page::preCompressor,Page::postCompressor,Page::lowCompressor};
-            selectPage(sources[size_t(std::clamp(compressorSource.getSelectedId()-1,0,3))]);
-        };
         toggle(compOn,"COMPRESSOR ON","cleanCompOn");toggle(gateOn,"GATE ON","gateon",true);
         toggle(limiterOn,"LIMITER ON","liveLimiterOn");toggle(gatePlacement,"AFTER RIG","gateAfterRig",true);
         choice(detector,"cleanCompDetector",{"Peak","RMS"});choice(gateMode,"gateMode",{"Gate","Expander"});
@@ -132,12 +126,8 @@ public:
         // changing the underlying page so closing a dialog returns to the
         // previously usable workspace, with no inactive legacy controls.
         if((next==Page::preCompressor || next==Page::postCompressor) && onCompressorSourceRequested
-            && onCompressorSourceRequested(next)) {
-            compressorSource.setSelectedId(page==Page::preCompressor?2:page==Page::postCompressor?3:page==Page::lowCompressor?4:1,juce::dontSendNotification);
-            return;
-        }
+            && onCompressorSourceRequested(next))return;
         if(page!=next){endMarkerGesture();page=next;notice.clear();}
-        if(isCompressorPage(page))lastCompressor=page;
         syncPage();refresh();
         if(onPageSelected)onPageSelected(next);
     }
@@ -177,7 +167,7 @@ public:
         const int sideX=std::max(600,getWidth()-338),sideWidth=std::max(10,getWidth()-sideX-16),column=(sideWidth-12)/2;
         const int graphHeight=std::max(160,getHeight()-94);
         spectrum.setBounds(8,84,sideX-16,page==Page::multiband?graphHeight-57:graphHeight);
-        compressorSource.setBounds(18,45,230,28);compOn.setBounds(263,45,148,28);detector.setBounds(421,45,100,28);
+        compOn.setBounds(18,45,148,28);detector.setBounds(176,45,100,28);
         gateOn.setBounds(18,45,130,28);gateMode.setBounds(158,45,142,28);gatePlacement.setBounds(310,45,145,28);
         limiterOn.setBounds(18,45,160,28);preOn.setBounds(263,45,166,28);postOn.setBounds(263,45,166,28);
         const auto grid=[&](auto& controls,int y=103){for(size_t i=0;i<controls.size();++i)controls[i].bounds(sideX+int(i%2)*(column+12),y+int(i/2)*66,column);};
@@ -280,8 +270,6 @@ private:
     template<typename Controls> void showControls(Controls& controls,bool showing){for(auto& c:controls)c.show(showing);}
     void syncPage() {
         for(int i=0;i<6;++i)tabs[size_t(i)].setToggleState(i==(isCompressorPage(page)?0:int(page)),juce::dontSendNotification);
-        compressorSource.setVisible(isCompressorPage(page));
-        compressorSource.setSelectedId(page==Page::preCompressor?2:page==Page::postCompressor?3:page==Page::lowCompressor?4:1,juce::dontSendNotification);
         compOn.setVisible(page==Page::compressor);detector.setVisible(page==Page::compressor);showControls(comp,page==Page::compressor);
         gateOn.setVisible(page==Page::gate);gateMode.setVisible(page==Page::gate);gatePlacement.setVisible(page==Page::gate);showControls(gate,page==Page::gate);
         limiterOn.setVisible(page==Page::limiter);ceiling.show(page==Page::limiter);limitRelease.show(page==Page::limiter);
@@ -395,8 +383,8 @@ private:
     }
     void timerCallback() override {if(isShowing())refresh();}
     juce::AudioProcessorValueTreeState& state;CommonDynamics& dsp;std::array<GraphicalEQ*,2> eq;DynamicsSpectrumPanel spectrum;
-    Page page{Page::compressor},lastCompressor{Page::compressor};std::array<juce::TextButton,6> tabs;
-    juce::ComboBox compressorSource,detector,gateMode,slotSelector,mbDetector,mbBandSelector;
+    Page page{Page::compressor};std::array<juce::TextButton,6> tabs;
+    juce::ComboBox detector,gateMode,slotSelector,mbDetector,mbBandSelector;
     juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen;
     std::array<Control,8> comp;std::array<Control,6> gate;std::array<Control,3> pre;std::array<Control,5> post;
     Control ceiling,limitRelease,lowAmount,lowBlend,mbMix;std::array<Control,3> crossovers;std::array<Control,7> deEsser;
