@@ -1,5 +1,22 @@
 # Chimera development roadmap, October 2026–September 2027
 
+## Owner scope update — 2026-10-23, Asia/Seoul: formats and OBS
+
+The owner approved [the format/OBS project](FORMAT_OBS_PROJECT_20261023.md)
+([#129](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/129)).
+Keep existing AAX Native P0 work under #97. Start OBS + atkAudio + Chimera VST3
+qualification before CLAP/LV2, Windows first. The owner explicitly added a
+[dedicated OBS add-on](OBS_ADDON_PLAN.md) as an independent development track,
+not conditional on third-party-host failure. Common DSP, parameter IDs, presets,
+IR and beta state remain shared. CLAP, then Linux LV2, follow; AudioSuite/AUv3
+remain later work and Android/HDX need feasibility research.
+
+The first implementation supplies [OBS test procedures](OBS_COMPATIBILITY.md),
+synthetic routing signals, local binary/evidence records and toolkit CI. Actual
+OBS host/audio/long-recording acceptance is still unexecuted. No new public
+version/date, expiry, catalog count or existing calendar window is assigned here;
+the catalog's schedule mirror and existing release gates therefore stay unchanged.
+
 ## Owner scope update — 2026-10-20, Asia/Seoul
 
 The owner requires each dynamics function to be edited in its own spectrum
