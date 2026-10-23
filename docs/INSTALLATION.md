@@ -89,6 +89,13 @@ The tarball contains the same `usr` layout and a per-user `install.sh`. Extract 
 
 For an old manually copied plugin, remove only the obsolete `Chimera Amp Matrix.vst3` bundle after confirming the renamed bundle works. Avoid simultaneous system and per-user copies of the same plugin.
 
+## OBS streaming compatibility
+
+OBS users: see the [OBS + atkAudio VST3 setup and qualification guide](OBS_COMPATIBILITY.md).
+OBS's built-in VST2 filter does not load the Chimera VST3 bundle. The third-party
+VST3-host route is under compatibility testing, not certified here. A dedicated
+[Chimera OBS add-on is planned](OBS_ADDON_PLAN.md) and is not included in current installers.
+
 ## Document preservation (introduced in 1.3.1-beta.2)
 
 The installer retires an obsolete document only when its exact path, byte count and SHA-256 match a verified previous package. Edited or unrecognized documents are retained. Personal presets, IRs and project files are outside this document migration, and required license notices remain available.

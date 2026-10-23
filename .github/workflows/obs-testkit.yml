@@ -1,0 +1,45 @@
+name: OBS compatibility test kit
+on:
+  pull_request:
+    paths:
+      - 'Tools/obs_testkit.py'
+      - 'Tests/test_obs_testkit.py'
+      - 'docs/OBS_*.md'
+      - '.github/workflows/obs-testkit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tools/obs_testkit.py'
+      - 'Tests/test_obs_testkit.py'
+      - 'docs/OBS_*.md'
+      - '.github/workflows/obs-testkit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  toolkit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify signal and manual-evidence tooling (not OBS host acceptance)
+        run: python Tests/test_obs_testkit.py -v
+      - name: Prepare synthetic routing signals
+        run: python Tools/obs_testkit.py signals --output obs-kit/signals
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OBS-test-kit-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            obs-kit/signals/
+            Tools/obs_testkit.py
+            docs/OBS_COMPATIBILITY.md
+          if-no-files-found: error
