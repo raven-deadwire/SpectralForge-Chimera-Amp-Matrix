@@ -14,6 +14,7 @@
 //     mode 21|22: mode 20, low band only | upper band only (crossover diagnostics)
 //     mode 23|24|25: mode 20|21|22 with an LR8 crossover
 //     mode 26|27|28: mode 20|21|22 with the STFT band phase-locked to the low band
+//     mode 29: mode 26 with low-band attacks aligned at 9 ms
 //
 // Prints the reported latency in samples on stdout (-1: variable, not reported).
 #include "GlobalDSP.h"
@@ -31,9 +32,9 @@ int main(int argc,char** argv) {
     in.read(reinterpret_cast<char*>(samples.data()),std::streamsize(samples.size()*sizeof(float)));
     const juce::dsp::ProcessSpec spec{rate,juce::uint32(block),2};
     spectralforge::Transposer transposer;transposeNext::TransientSplitPitch research;transposeNext::HybridLowBandPitch hybrid;
-    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=28;
+    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=29;
     if(researchEngine){research.prepare(spec,true,true);research.setSemitones(semitones);}
-    else if(hybridEngine){hybrid.prepare(spec,mode==11?100.:mode==13?250.:150.,mode==15?20.:mode==16?12.:40.,mode>=14,mode>=17?10.:0.,mode>=18,mode>=19?.5:0.,2.9,mode>=20,mode>=23 && mode<=25,mode>=26);hybrid.setSolo(mode>=26?mode-26:mode>=23?mode-23:mode>20?mode-20:0);hybrid.setSemitones(semitones);}
+    else if(hybridEngine){hybrid.prepare(spec,mode==11?100.:mode==13?250.:150.,mode==15?20.:mode==16?12.:40.,mode>=14,mode==29?9.:mode>=17?10.:0.,mode>=18,mode>=19?.5:0.,2.9,mode>=20,mode>=23 && mode<=25,mode>=26);hybrid.setSolo(mode==29?0:mode>=26?mode-26:mode>=23?mode-23:mode>20?mode-20:0);hybrid.setSemitones(semitones);}
     else {transposer.prepare(spec);transposer.setMode(mode);}
     juce::AudioBuffer<float> source(2,block);
     juce::AudioBuffer<float> buffer(2,block);std::vector<float> out(samples.size());
