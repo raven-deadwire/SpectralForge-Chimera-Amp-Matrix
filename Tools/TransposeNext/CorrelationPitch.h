@@ -19,6 +19,8 @@ class CorrelationPitch {
     float coefficient{};
     bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{}, externalPending{}, upshiftReset{};
     double upshiftHold{}, onsetAge{1.e9};
+    double alignDelay{},alignLead{};
+    bool alignCompensated{};
     std::array<float,2> noveltyLow1{},noveltyLow2{},noveltyLow3{},noveltyLow4{};
     float noveltyCoefficient{};
     std::array<double,41> peakBuckets{};
@@ -134,6 +136,12 @@ public:
     // rejected (synthetic sweep: 2-7 ms equivalent; above 10 ms tremolo
     // false-triggers).
     void setBroadSmoothing(double ms) noexcept {broadCoefficient=1-std::exp(-1/(rate*ms*.001));}
+    // Research: place re-anchored attacks at a fixed delay (e.g. the 10 ms of
+    // the hybrid's STFT band) so both bands start together. Downshift anchors
+    // move up to it; upshift anchors (and their hold) are capped at it. 0 = off.
+    void setAnchorAlignment(double ms, bool ratioCompensated=false, double leadMs=2.9) noexcept {
+        alignDelay=ms>0 ? juce::jlimit(minimum,maximum,rate*ms*.001) : 0.;alignCompensated=ratioCompensated;alignLead=rate*leadMs*.001;
+    }
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
@@ -210,7 +218,12 @@ public:
                 const bool resettable=delta>0 || (upshiftReset && delta<0);
                 // Clamped: with a short bound the upshift hold can exceed it
                 // (12 ms bound, +12: anchor 27 ms, read past the buffer -> NaN).
-                const double anchor=std::min(minimum+guard+(delta<0 ? upshiftHold*-delta : 0.),maximum-guard);
+                double anchor=std::min(minimum+guard+(delta<0 ? upshiftHold*-delta : 0.),maximum-guard);
+                // A downshift read head moves away from the present at 1-ratio,
+                // so an attack reaches the output (anchor+lead)/ratio after it
+                // happened (lead: detection plus crossfade, measured ~2.9 ms).
+                if(alignDelay>0) anchor=delta>0 ? std::max(anchor,alignCompensated ? alignDelay*ratio-alignLead : alignDelay)
+                                                : std::min(anchor,std::max(minimum+guard,alignDelay));
                 if(externalOnset!=nullptr && externalOnset[n]!=0 && resettable)externalPending=true;
                 if(externalPending && resettable && !fading) {
                     externalPending=false;

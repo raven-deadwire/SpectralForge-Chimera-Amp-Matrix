@@ -14,7 +14,8 @@ namespace transposeNext {
 // Optional (onset=true): the low band re-anchors its read head on a new pick,
 // detected from the full-band input (#117 innovation detector, upshifts too),
 // so a note starts near the causal boundary instead of wherever the read head
-// had drifted. boundMs caps the sustained low-band delay (8-80 ms).
+// had drifted. boundMs caps the sustained low-band delay (8-80 ms); alignMs
+// places those attacks at a fixed delay (10 = the STFT band's latency).
 class HybridLowBandPitch {
     struct Biquad {
         double b0{},b1{},b2{},a1{},a2{};
@@ -38,11 +39,11 @@ class HybridLowBandPitch {
     int channels{},capacity{},shift{};
     bool anchored{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec,double crossover,double boundMs=40,bool onset=false) {
+    void prepare(const juce::dsp::ProcessSpec& spec,double crossover,double boundMs=40,bool onset=false,double alignMs=0,bool alignCompensated=false) {
         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));
         anchored=onset;
         body.prepare(spec,boundMs,onset,onset);
-        if(onset){body.setUpshiftOnsetReset(true);body.setBroadSmoothing(4);}
+        if(onset){body.setUpshiftOnsetReset(true);body.setBroadSmoothing(4);body.setAnchorAlignment(alignMs,alignCompensated);}
         upper.prepare(spec,0,int(spec.sampleRate*.010)/8*8);
         for(auto& b:lowpass)b.prepare(spec.sampleRate,crossover,false);
         for(auto& b:highpass)b.prepare(spec.sampleRate,crossover,true);

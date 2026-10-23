@@ -26,6 +26,8 @@ RESEARCH_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (10, "SPLIT-UP")]
 HYBRID_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (10, "SPLIT-UP"), (11, "HYB100"), (12, "HYB150"), (13, "HYB250")]
 # 150 Hz hybrid with low-band onset re-anchor, low-band delay bound 40 / 20 / 12 ms.
 ANCHOR_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (12, "HYB150"), (14, "HYB150-A40"), (15, "HYB150-A20"), (16, "HYB150-A12")]
+# Low-band attacks anchored at 10 ms, aligned with the STFT band; R: downshift anchor scaled by the ratio.
+ALIGN_MODES = [(0, "CLASSIC"), (2, "TIGHT"), (14, "HYB150-A40"), (17, "HYB150-A40-AL10"), (18, "HYB150-AL10R")]
 SHIFTS = [0, -12, -7, -5, -2, 2, 5, 7, 12]
 PRE_S, NOTE_S = 0.5, 2.5
 REPICK_S = 0.6          # repick material: a new pluck every 0.6 s, the previous one cut off
@@ -155,10 +157,11 @@ def main(argv=None):
     ap.add_argument('--rates', default='48000,96000', help='comma-separated sample rates')
     ap.add_argument('--research', action='store_true', help='CLASSIC / TIGHT / research SPLIT-UP instead of the product modes')
     ap.add_argument('--hybrid', action='store_true', help='also the low-band/STFT hybrid at 100/150/250 Hz')
+    ap.add_argument('--align', action='store_true', help='re-anchored hybrid with low-band attacks at 10 ms')
     ap.add_argument('--anchor', action='store_true', help='150 Hz hybrid with low-band onset re-anchor (40/20/12 ms bounds)')
     args = ap.parse_args(argv)
     rows = run(args.render, args.out, rates=tuple(int(r) for r in args.rates.split(',')), block=args.block,
-               modes=ANCHOR_MODES if args.anchor else HYBRID_MODES if args.hybrid else RESEARCH_MODES if args.research else MODES)
+               modes=ALIGN_MODES if args.align else ANCHOR_MODES if args.anchor else HYBRID_MODES if args.hybrid else RESEARCH_MODES if args.research else MODES)
     print(f'{len(rows)} measurements -> {Path(args.out) / "summary.json"}')
     return 0
 
