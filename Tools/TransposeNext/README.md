@@ -158,3 +158,13 @@ and adds `random_soft_after_loud`. Lower-bound study for other algorithm
 families: `parametric/feasibility.py`. Results:
 `docs/TRANSPOSE_NEW_ALGORITHM_FEASIBILITY_20261023.md`,
 `docs/TRANSPOSE_LPC_ONSET_RESEARCH_20261023.md`.
+
+## Retrigger and splice coordination (2026-10-23)
+
+`corr40-split-rt` = `corr40-split-lpc` plus: during the 45 ms refractory
+interval the transient path accepts an onset whose novelty exceeds 8x the peak
+of the last reset (so a faint false reset cannot mask the next pick), and a
+body downshift splice is held (<= 32 samples of delay overshoot) while the
+transient path spliced in the same chunk, so the two ~0.5 ms correlation
+searches never share a callback. Results:
+`docs/TRANSPOSE_RETRIGGER_CPU_RESEARCH_20261023.md`.

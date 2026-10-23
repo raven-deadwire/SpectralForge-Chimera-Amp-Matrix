@@ -19,6 +19,10 @@ class CorrelationPitch {
     float coefficient{};
     bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{}, externalPending{}, upshiftReset{};
     double upshiftHold{}, onsetAge{1.e9};
+    double retrigger{}, resetPeak{};
+    int resetAge{1<<30}, peakWindow{};
+    bool holdSplices{};
+    int heldSamples{};
     std::array<float,2> noveltyLow1{},noveltyLow2{},noveltyLow3{},noveltyLow4{};
     float noveltyCoefficient{};
     std::array<double,41> peakBuckets{};
@@ -112,7 +116,7 @@ public:
         fastEnergy=slowEnergy=broadEnergy=0;cooldown=onsets=0;processedSamples=0;onsetSamples.fill(0);
         peakBuckets.fill(0);peakBucketPosition=peakBucketSamples=0;bucketPeak=bucketMaximum=0;
         detectorPosition=0;std::fill(detectorHistory.begin(),detectorHistory.end(),0);
-        delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;onsetAge=1.e9;
+        delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;onsetAge=1.e9;resetAge=1<<30;resetPeak=0;heldSamples=0;
     }
     void setSemitones(int semitones) noexcept {
         const double newRatio=std::pow(2.,juce::jlimit(-12,12,semitones)/12.);
@@ -134,6 +138,15 @@ public:
     // rejected (synthetic sweep: 2-7 ms equivalent; above 10 ms tremolo
     // false-triggers).
     void setBroadSmoothing(double ms) noexcept {broadCoefficient=1-std::exp(-1/(rate*ms*.001));}
+    // Research: during the refractory interval, accept a new onset whose
+    // novelty exceeds `factor` x the peak novelty of the last reset (tracked
+    // over its first 2 ms). A faint false reset (e.g. a note's fade-out
+    // corner) then cannot mask a real pick that follows within 45 ms.
+    void setRetrigger(double factor) noexcept {retrigger=factor;peakWindow=int(std::ceil(rate*.002));}
+    // Research: while held, a downshift splice due at the boundary waits (the
+    // read head may overshoot by at most 32 samples of delay). Used so two paths never
+    // run their ~0.5 ms correlation search in the same callback.
+    void setSplicesHeld(bool held) noexcept {holdSplices=held;}
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
@@ -195,6 +208,9 @@ public:
             detectorHistory[size_t(detectorPosition)]=novelty;
             if(++detectorPosition==int(detectorHistory.size()))detectorPosition=0;
             if(cooldown>0)--cooldown;
+            if(resetAge<peakWindow)resetPeak=std::max(resetPeak,novelty);
+            if(resetAge<(1<<30))++resetAge;
+            if(retrigger>0 && cooldown>0 && resetAge>=peakWindow && novelty>retrigger*resetPeak)cooldown=0;
             if(!render || ratio==1.) {
                 for(int c=0;c<count;++c)output.setSample(c,n,input.getSample(c,n));
                 active=false;fading=false;pendingOnset=false;externalPending=false;
@@ -220,12 +236,16 @@ public:
                    (innovationReset ? pendingOnset : (fastEnergy>1.e-8 && fastEnergy>2.5*slowEnergy))) {
                     pendingOnset=false;
                     nextDelay=anchor;fadeIndex=0;fading=true;onsetAge=0;
-                    cooldown=cooldownLength;
+                    cooldown=cooldownLength;resetAge=0;resetPeak=novelty;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
                     if(onsetOut!=nullptr)onsetOut[n]=1;
                 }
-                if(!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard))) splice();
+                const bool due=!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard));
+                // Downshift only: a late upshift splice measurably lengthens the
+                // next backward jump (+0.6 ms low-band centroid, guitar A1 +2).
+                if(due && holdSplices && delta>0 && heldSamples<int(32./delta))++heldSamples;
+                else if(due){heldSamples=0;splice();}
                 const float w=fading?fadeWeights[size_t(fadeIndex)]:0.f;
                 for(int c=0;c<count;++c) {
                     const float old=read(audio[size_t(c)],delay);

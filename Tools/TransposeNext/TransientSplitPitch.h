@@ -95,7 +95,7 @@ class TransientSplitPitch {
     // marker over a sustained low note fails that test, so the body keeps its
     // trajectory (the warble case); a new low note passes. No resets when
     // the transient path sees no onset (tremolo, vibrato).
-    bool lowReset{},upshift{},predictive{};
+    bool lowReset{},upshift{},predictive{},coordinated{};
     LowPredictor predictor;
     double fractionThreshold{};
     std::vector<uint8_t> lowFlags,broadFlags;
@@ -103,8 +103,8 @@ class TransientSplitPitch {
     double lowFast{},lowFastCoefficient{},lowThreshold{};
     int lowHistoryPosition{},lowArmed{},lowWindowLength{},lowResets{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false) {
-        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;predictor.prepare(spec.sampleRate);
+    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false, bool coordinate=false) {
+        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;coordinated=coordinate;predictor.prepare(spec.sampleRate);
         lowFastCoefficient=1-std::exp(-1/(spec.sampleRate*.001));
         lowWindowLength=int(spec.sampleRate*.012);
         lowHistory.assign(size_t(std::ceil(spec.sampleRate*.025)),0);
@@ -114,6 +114,7 @@ public:
         transient.prepare(spec,40,true,true);
         body.setUpshiftOnsetReset(upshift);transient.setUpshiftOnsetReset(upshift);
         if(upshift)transient.setBroadSmoothing(4);
+        if(coordinated)transient.setRetrigger(8);
         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));
         for(auto& b:lowpass)b.prepare(spec.sampleRate,false);
         for(auto& b:highpass)b.prepare(spec.sampleRate,true);
@@ -142,7 +143,11 @@ public:
                 const float high=highpass[1].tick(highpass[0].tick(x,c),c);
                 detector.setSample(c,i,x);bodyIn.setSample(c,i,low);highIn.setSample(c,i,high);
             }
+            const int transientSplices=transient.splices();
             transient.process(highIn,highOut,render,&detector,nullptr,lowReset?broadFlags.data():nullptr);
+            // Coordinated (research): defer the body's splice search while the
+            // transient path spliced in this chunk.
+            if(coordinated)body.setSplicesHeld(transient.splices()!=transientSplices);
             if(lowReset) for(int i=0;i<n;++i) {
                 double energy=0;for(int c=0;c<channels;++c){const double v=bodyIn.getSample(c,i);energy+=v*v;}
                 lowFast+=lowFastCoefficient*(energy/channels-lowFast);

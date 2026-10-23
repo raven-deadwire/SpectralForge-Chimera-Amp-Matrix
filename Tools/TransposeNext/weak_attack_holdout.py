@@ -43,7 +43,7 @@ def main():
    x=np.column_stack((z,-.65*z)).astype('<f4');key=instrument+'-'+mode;ip=a.out/(key+'.f32');x.tofile(ip)
    meta={'rate':rate,'onsets':onsets,'name':mode,'synthetic':True};before=attacks(x,meta)
    inputs[key]={'sha256':sha(ip),'seed':a.seed,'fundamental_hz':f,'onsets':onsets,'input_attack':before}
-   for engine,shift in [(e,-2) for e in ['baseline','corr40-onset','corr40-split','corr40-split-up','corr40-split-lpc']]+[(e,2) for e in ['baseline','corr40-split','corr40-split-up','corr40-split-lpc']]:
+   for engine,shift in [(e,-2) for e in ['baseline','corr40-onset','corr40-split','corr40-split-up','corr40-split-lpc','corr40-split-rt']]+[(e,2) for e in ['baseline','corr40-split','corr40-split-up','corr40-split-lpc','corr40-split-rt']]:
     op=a.out/'output.f32';cp=a.out/'callbacks.csv'
     r=subprocess.run([str(a.renderer),str(ip),str(op),str(rate),'128',str(shift),engine,str(cp)],capture_output=True,text=True,check=True)
     y=np.fromfile(op,dtype='<f4').reshape(-1,2);measured=attacks(y,meta);extra=np.array(measured['attack_lags_ms'])-np.array(before['attack_lags_ms'])
