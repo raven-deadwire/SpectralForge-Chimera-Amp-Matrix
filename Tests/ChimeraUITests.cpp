@@ -20,6 +20,7 @@
 #include "PrecisionTunerUITests.h"
 #include "PrecisionTunerTimingProbe.h"
 #include "CommonDynamicsUITests.h"
+#include "StandaloneDiagnostics.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -1051,6 +1052,23 @@ int main(int argc, char** argv)
             std::cout<<"PASS: actual pedal detail/return actions and all 12 EQ controls inside the fixed board at 100/75 percent\n";
             const auto diagnostic=juce::JSON::parse(universal.diagnosticReport());require(diagnostic.isObject()&&diagnostic["stages"].getArray()&&diagnostic["stages"].getArray()->size()==5,"Diagnostic stage snapshot missing");
             require(!universal.diagnosticReport().contains(directory.getFullPathName()),"Diagnostic leaked a user path");
+            // Plug-ins and tests have no Standalone device hook: no audio_device entry.
+            require(!diagnostic.hasProperty("audio_device") && diagnostic.hasProperty("asio_built"),"Plug-in diagnostic must not invent a Standalone device");
+            spectralforge::standalone::audioDeviceDiagnostics=[]{
+                auto device=std::make_unique<juce::DynamicObject>();
+                device->setProperty("type","ASIO");device->setProperty("open",true);device->setProperty("sample_rate",48000.);
+                device->setProperty("buffer_samples",128);device->setProperty("driver_input_latency_samples",96);
+                device->setProperty("driver_output_latency_samples",160);device->setProperty("xruns",3);
+                return juce::var(device.release());};
+            const auto standalone=juce::JSON::parse(universal.diagnosticReport());
+            spectralforge::standalone::audioDeviceDiagnostics=nullptr;
+            const auto device=standalone["audio_device"];
+            require(device["type"].toString()=="ASIO" && int(device["xruns"])==3,"Standalone device diagnostic missing");
+            const double expected=1000.*(96+160+universal.getLatencySamples())/48000.;
+            require(std::abs(double(device["driver_plus_plugin_latency_ms"])-expected)<1e-6,"Driver plus plug-in latency not derived");
+            const auto after=juce::JSON::parse(universal.diagnosticReport());
+            require(!after.hasProperty("audio_device") && after["stages"].getArray()->size()==5,
+                    "Clearing Standalone hook changed plug-in diagnostic behavior");
         }
         {auto service=std::make_shared<spectralforge::release::ReleaseSupport>();ChimeraSupportPanel panel(service,{});saveSnapshot(panel,directory,"Support-updates");for(auto* child:panel.getChildren())require(panel.getLocalBounds().contains(child->getBounds()),"Support control outside panel");}
         require(!juce::SharedResourcePointer<spectralforge::art::RasterBank>::getSharedObjectWithoutCreating(),
