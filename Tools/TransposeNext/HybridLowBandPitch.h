@@ -63,6 +63,10 @@ public:
     void setSemitones(int n) noexcept {shift=n;body.setSemitones(n);upper.setSemitones(n);}
     int latency() const noexcept {return -1;}
     void process(const juce::AudioBuffer<float>& input,juce::AudioBuffer<float>& output) noexcept {
+        // Measured: crossover-filter state decaying in silence reaches denormals
+        // and triples p99.9 block time at 32 samples when the host does not
+        // flush them. Do not rely on the caller's ScopedNoDenormals.
+        const juce::ScopedNoDenormals noDenormals;
         for(int off=0;off<input.getNumSamples();off+=capacity) {
             const int n=std::min(capacity,input.getNumSamples()-off);
             for(auto* b:{&lowIn,&highIn,&lowOut,&highOut,&detector})b->setSize(channels,n,false,false,true);
