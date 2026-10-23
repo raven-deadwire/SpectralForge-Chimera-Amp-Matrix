@@ -158,7 +158,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     mode.setTooltip("Classic: one full-range rig. Dual: two parallel rigs. Matrix: three input bands.");
     quality.setName("Oversampling"); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
     quality.setTooltip("Anti-aliasing for amplifier distortion. Higher factors use more CPU. Host latency stays constant.");
-    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.addSeparator(); scale.addItem("Fit screen",fitScaleItem); scale.setSelectedId(2); add(scale);
+    scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.addSeparator(); scale.addItem("Fit screen",fitScaleItem); scale.setSelectedId(2,juce::dontSendNotification); add(scale);
     scale.setTooltip(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone
                      ? "Interface size. Fit screen uses the largest readable size for this display; the window's maximise button or F11 toggles the same fit."
                      : "Interface size. Fit screen uses the largest readable size for this display, when the host allows plug-in resizing.");

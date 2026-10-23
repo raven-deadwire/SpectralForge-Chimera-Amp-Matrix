@@ -147,7 +147,8 @@ void checkControls(ChimeraEditor& editor, int mode)
     for (auto* child : editorSurface(editor)->getChildren())
     {
         if (!child->isVisible()) continue;
-        require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())), "Visible control outside editor bounds");
+        // The scrollable editor may show part of the canvas; every control must stay reachable.
+        require(editorBoundsReachable(editor,*child), "Visible control outside editor bounds");
         if(dynamic_cast<AmpSelector*>(child))++heads;
         if(dynamic_cast<AmpNativePanel*>(child))++panels;
         if (auto* label = dynamic_cast<juce::Label*>(child))
