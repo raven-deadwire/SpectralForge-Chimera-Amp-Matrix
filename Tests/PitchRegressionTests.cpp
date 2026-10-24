@@ -1,4 +1,6 @@
 #include "PolyPitch.h"
+#include "HybridTranspose.h"
+#include "../Tools/TransposeNext/HybridLowBandPitch.h"
 #include "Fixtures/PolyPitchV110.h"
 #include <chrono>
 #include <iostream>
@@ -22,6 +24,67 @@ template<class Pitch> Render tone(double rate,int block,int shift,double frequen
         for(int n=0;n<block;++n){require(std::isfinite(output.getSample(0,n)),"Non-finite low pitch output");result.audio.push_back(output.getSample(0,n));}
     }
     return result;
+}
+// HYBRID material: a decaying harmonic note (or chord), 0.5 s of silence first.
+std::vector<float> pluck(double rate,std::initializer_list<double> notes,double seconds=2.) {
+    std::vector<float> x(size_t(rate*(seconds+.5)),0.f);
+    for(double f0:notes)for(int k=1;k<=12 && k*f0<.45*rate;++k)
+        for(size_t n=size_t(rate*.5);n<x.size();++n){const double t=double(n)/rate-.5;x[n]+=float(.1/k*std::sin(juce::MathConstants<double>::twoPi*k*f0*t)*std::exp(-t/(1.2/(1+.35*k)))*std::min(1.,t/.002));}
+    return x;
+}
+template<class Engine,class Process> std::vector<float> renderHybrid(Engine& engine,double rate,int block,const std::vector<float>& x,Process&& process) {
+    juce::AudioBuffer<float> input(2,block),output(2,block);std::vector<float> y;
+    for(size_t offset=0;offset<x.size();offset+=size_t(block)) {
+        const int n=int(std::min<size_t>(size_t(block),x.size()-offset));
+        input.setSize(2,n,false,false,true);output.setSize(2,n,false,false,true);
+        for(int i=0;i<n;++i){input.setSample(0,i,x[offset+size_t(i)]);input.setSample(1,i,-.65f*x[offset+size_t(i)]);}
+        process(engine,input,output);
+        for(int i=0;i<n;++i){require(std::isfinite(output.getSample(0,i)) && std::isfinite(output.getSample(1,i)),"Non-finite HYBRID output");y.push_back(output.getSample(0,i));}
+    }
+    return y;
+}
+double componentOf(const std::vector<float>& y,double rate,double frequency,double from,double to) {
+    std::complex<double> sum{};const auto a=size_t(rate*from),b=std::min(y.size(),size_t(rate*to));
+    for(size_t n=a;n<b;++n)sum+=double(y[n])*std::polar(1.,-juce::MathConstants<double>::twoPi*frequency*double(n)/rate);
+    return 2*std::abs(sum)/double(b-a);
+}
+void hybridChecks() {
+    // 1. The product copy equals the research engine in the render probe's
+    //    mode 41 (Tools/TransposeEvidence/TransposeRenderProbe.cpp), bit for bit.
+    for(double rate:{44100.,48000.,96000.})for(int shift:{-12,-5,-2,2,7,12})for(int material=0;material<2;++material) {
+        const auto x=material==0 ? pluck(rate,{82.41}) : pluck(rate,{82.41,123.47,164.81});
+        const juce::dsp::ProcessSpec spec{rate,128,2};
+        spectralforge::hybrid::HybridTransposer product;product.prepare(spec);product.setSemitones(shift);
+        transposeNext::HybridLowBandPitch research;
+        research.prepare(spec,800.,40.,true,10.,true,.5,2.9,true,false,false);
+        research.setAttackLatency(1.4);research.setLegatoReanchor(true);research.setReanchorPhaseSearch(2.5,false);research.setSolo(0);research.setSemitones(shift);
+        const auto a=renderHybrid(product,rate,128,x,[](auto& e,auto& in,auto& out){e.process(in,out,true);});
+        const auto b=renderHybrid(research,rate,128,x,[](auto& e,auto& in,auto& out){e.process(in,out);});
+        require(a==b,"HYBRID product copy differs from the research engine (probe mode 41)");
+        require(product.latency()==int(rate*.010)/8*8 && research.latency()==product.latency(),"HYBRID latency is not the 10 ms STFT window");
+    }
+    // 2. Low notes and a power chord come out at the shifted pitch, where the
+    //    10 ms STFT (TIGHT) mistunes them (synthetic evidence: 60-370 cents).
+    for(double rate:{44100.,48000.,96000.})for(double f0:{41.2,82.41})for(int shift:{-5,-2,2,5}) {
+        const auto x=pluck(rate,{f0});const auto target=f0*std::pow(2.,shift/12.);
+        spectralforge::hybrid::HybridTransposer h;h.prepare({rate,256,2});h.setSemitones(shift);
+        const auto y=renderHybrid(h,rate,256,x,[](auto& e,auto& in,auto& out){e.process(in,out,true);});
+        const double wanted=componentOf(y,rate,target,.6,1.6),source=componentOf(y,rate,f0,.6,1.6),input=componentOf(x,rate,f0,.6,1.6);
+        require(wanted>.5*input && source<.1*wanted,"HYBRID lost a low note's shifted fundamental");
+        std::cout<<"MEASURE hybrid rate="<<rate<<" f0="<<f0<<" shift="<<shift<<" target_db_re_input="<<20*std::log10(wanted/input)
+                 <<" source_residual_db="<<20*std::log10(std::max(source,1e-12)/wanted)<<'\n';
+    }
+    // 3. Block-size invariance (every state change is per sample).
+    for(double rate:{48000.}) {
+        const auto x=pluck(rate,{82.41,123.47,164.81});
+        std::vector<float> reference;
+        for(int block:{1,32,100,128,512,1024}) {
+            spectralforge::hybrid::HybridTransposer h;h.prepare({rate,juce::uint32(block),2});h.setSemitones(-5);
+            const auto y=renderHybrid(h,rate,block,x,[](auto& e,auto& in,auto& out){e.process(in,out,true);});
+            if(reference.empty())reference=y;else require(y==reference,"HYBRID output depends on the block size");
+        }
+    }
+    std::cout<<"PASS HYBRID transpose: bit-identical to research probe mode 41, low notes shifted, block-size invariant (synthetic only; DI and listening not done)\n";
 }
 double component(const Render& r,double rate,double frequency) {
     std::complex<double> sum{};const auto first=size_t(rate*.75);
@@ -77,6 +140,7 @@ int main() {
                 }
             }
         }
+        hybridChecks();
         std::cout<<"PASS Tight transpose <=10 ms algorithmic latency at 44.1/48/96/192 kHz (±1/±2 semitones); host round trip and real DI not measured\n";
         std::cout<<"PASS low-bin target-energy correction and unchanged positive/unity raw mappings; live latency / real DI / stereo image / listening acceptance BLOCKED\n";
     }catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}

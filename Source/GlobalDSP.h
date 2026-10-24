@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 #include "PolyPitch.h"
+#include "HybridTranspose.h"
 #include "DynamicsAnalysis.h"
 #include "LifecycleTrace.h"
 #include "PrecisionTuner.h"
@@ -80,7 +81,11 @@ class Transposer {
     // window (zero-padded FFT) so its added algorithmic latency meets the
     // <=10 ms transpose target at every sample rate (#8/#97), trading
     // low-register resolution for latency. Only the active instance processes.
+    // Mode 3 (HYBRID, Source/HybridTranspose.h) keeps Tight's 10 ms STFT above
+    // 800 Hz and shifts below it with a re-anchoring read head; it reports the
+    // same 10 ms and falls back to Tight where it is unsupported (> 192 kHz).
     std::array<PolyPitch,3> stretch;
+    hybrid::HybridTransposer hybrid;
     int activeMode{0};
     juce::AudioBuffer<float> shifted, aligned;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> dryDelay;
@@ -100,6 +105,7 @@ public:
         const std::array<int,3> modeAnalysis{0,0,tightAnalysisLength(spec.sampleRate)};
         int maxLatency=0;
         for(int m=0;m<3;++m){ stretch[(size_t)m].prepare(spec,modeWindow[(size_t)m],modeAnalysis[(size_t)m]); maxLatency=juce::jmax(maxLatency,stretch[(size_t)m].latency()); }
+        hybrid.prepare(spec); maxLatency=juce::jmax(maxLatency,hybrid.latency());
         activeMode=0; delaySamples=stretch[0].latency();
         shifted.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         aligned.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
@@ -108,20 +114,22 @@ public:
         engage.reset(spec.sampleRate,.015);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;
     }
 
-    void reset() {for(auto& s:stretch) s.reset();dryDelay.reset();wet.setCurrentAndTargetValue(0);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;}
+    void reset() {for(auto& s:stretch) s.reset();hybrid.reset();dryDelay.reset();wet.setCurrentAndTargetValue(0);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;}
     int latency() const { return delaySamples; }
-    uint64_t processedPitchFrames() const { return stretch[(size_t)activeMode].processedFrames(); }
+    uint64_t processedPitchFrames() const { return activeMode==3 ? hybrid.processedFrames() : stretch[(size_t)activeMode].processedFrames(); }
+    int mode() const { return activeMode; }
     // Switch the quality/latency window. Allocation-free (all instances are
     // prepared): the new instance is cleared, its latency re-aligns the dry delay,
     // and the wet mix drops to dry so its overlap window warms up before fading
     // back in -- a brief dry moment on switch, not a click. No-op when unchanged.
     void setMode(int mode)
     {
-        mode=juce::jlimit(0,2,mode);
+        mode=juce::jlimit(0,3,mode);
+        if(mode==3 && !hybrid.isAvailable()) mode=2;
         if(mode==activeMode) return;
         activeMode=mode;
-        stretch[(size_t)mode].reset();
-        delaySamples=stretch[(size_t)mode].latency();
+        if(mode==3) {hybrid.reset();delaySamples=hybrid.latency();}
+        else {stretch[(size_t)mode].reset();delaySamples=stretch[(size_t)mode].latency();}
         dryDelay.setDelay(float(delaySamples));
         wet.setCurrentAndTargetValue(0.f); wasRendering=false;
     }
@@ -130,7 +138,7 @@ public:
         // Bypass/zero semitones keeps only the delay/input history warm. A newly
         // enabled shifter fills its overlap-add window before the wet fade, so
         // enabling does not fade into an empty synthesis window.
-        auto& active=stretch[(size_t)activeMode];
+        auto& active=stretch[(size_t)(activeMode==3 ? 2 : activeMode)];
         if(firstBlock) {engage.setCurrentAndTargetValue(enabled ? 1.f : 0.f);firstBlock=false;}
         engage.setTargetValue(enabled ? 1.f : 0.f);
         const int n=buffer.getNumSamples();
@@ -141,11 +149,11 @@ public:
         const bool needsShift=enabled && semitones!=0;
         // Keep the outgoing ratio until its wet fade finishes. Bypass/zero
         // must not inject unity/new-ratio frames into the old OLA tail.
-        if(needsShift) active.setSemitones(semitones);
+        if(needsShift) {if(activeMode==3) hybrid.setSemitones(semitones); else active.setSemitones(semitones);}
         if(!needsShift) wet.setTargetValue(0.f);
         const bool render=needsShift || wet.isSmoothing() || wet.getCurrentValue()>0.f;
         if(render && !wasRendering) warmupSamples=delaySamples;
-        active.process(buffer,shifted,render);
+        if(activeMode==3) hybrid.process(buffer,shifted,render); else active.process(buffer,shifted,render);
         wasRendering=render;
         for(int i=0;i<n;++i)
         {

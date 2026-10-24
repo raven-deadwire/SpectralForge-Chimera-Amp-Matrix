@@ -74,7 +74,15 @@ lead sweep(B0 / E2 / E2 파워코드 / A3 / E2 재피킹, 저역 어택 ms):
 | 지속 구간 고역(800 Hz 위) | L 고정 |
 | 피킹 없는 음 변화 | 레가토 −4 … +31 ms, 해머온 −18 … +32 ms (측정) |
 
-## 6. 제품 통합 설계 (미구현)
+## 6. 제품 통합 (2026-10-24 구현, 합성 검증만)
+
+구현: `Source/HybridTranspose.h`(`spectralforge::hybrid::HybridTransposer`), Transposer 모드 3 "HYBRID".
+- 동작은 probe 모드 41(800 Hz 크로스오버, 레가토 재정렬, 레가토에서만 ±2.5 ms 위상 정렬)과 같다. `Tests/PitchRegressionTests.cpp`가 44.1/48/96 kHz × −12·−5·−2·+2·+7·+12반음(E2 단음·파워코드)에서 연구 사본과 비트 단위로 같은지 확인한다.
+- 보고 지연은 TIGHT와 같은 10 ms 창이다. 8–192 kHz, 1–2채널만 지원하고, 그 밖(예: 384 kHz)에서는 TIGHT로 대체된다(`StabilityTests`).
+- 0반음·바이패스에서는 변환 엔진을 돌리지 않고 L만큼 지연된 원음을 낸다. 필터와 레가토 감지기는 계속 입력을 받으므로 다시 켜질 때 상태가 이어진다.
+- 블록 크기(1–1024) 불변성은 테스트로 확인했다. 실제 DAW 왕복, 오프라인/실시간 일치, Windows CPU, DI 녹음·블라인드 청취는 아직 하지 않았다.
+
+아래는 통합 전에 쓴 설계 메모다.
 
 현재 `spectralforge::Transposer`(`Source/GlobalDSP.h`)의 구조를 그대로 쓴다.
 

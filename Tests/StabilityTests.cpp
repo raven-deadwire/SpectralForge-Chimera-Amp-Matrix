@@ -31,6 +31,38 @@ void pitchDryPaths()
     }
     std::cout<<"PASS: exact bypass and latency-matched zero semitones; 3 rates x 2 layouts x 4 block sizes, no FFT frames\n";
 }
+void pitchHybridMode()
+{
+    // HYBRID (mode 3) reports Tight's 10 ms window, keeps the exact
+    // bypass / latency-matched zero-semitone path without FFT frames, and falls
+    // back to Tight where the read head is unsupported.
+    for(double rate:{44100.,48000.,96000.,192000.}) for(int channels:{1,2}) {
+        spectralforge::Transposer pitch;pitch.prepare({rate,256,(juce::uint32)channels});pitch.setMode(3);
+        require(pitch.mode()==3 && pitch.latency()==spectralforge::Transposer::tightAnalysisLength(rate),"HYBRID does not report the 10 ms window");
+        juce::AudioBuffer<float> audio(channels,256);
+        for(int enabled:{0,1}) {
+            pitch.reset();
+            for(int offset=0;offset<pitch.latency()*3;offset+=256) {
+                for(int c=0;c<channels;++c)for(int n=0;n<256;++n)audio.setSample(c,n,signal(offset+n,c,rate));
+                pitch.process(audio,enabled!=0,enabled ? 0 : -12);
+                for(int c=0;c<channels;++c)for(int n=0;n<256;++n) {
+                    const int original=offset+n-(enabled ? pitch.latency() : 0);
+                    require(std::abs(audio.getSample(c,n)-(original>=0 ? signal(original,c,rate) : 0.f))<1e-7f,"HYBRID bypass/zero-semitone path changed samples or delay");
+                }
+            }
+            require(pitch.processedPitchFrames()==0,"HYBRID bypass/zero-semitone path still runs the FFT");
+        }
+        for(int block=0;block<int(rate*.5/256);++block) {
+            for(int c=0;c<channels;++c)for(int n=0;n<256;++n)audio.setSample(c,n,signal(block*256+n,c,rate));
+            pitch.process(audio,true,-5);
+            for(int c=0;c<channels;++c)for(int n=0;n<256;++n)require(std::isfinite(audio.getSample(c,n)),"HYBRID produced a non-finite sample");
+        }
+        require(pitch.processedPitchFrames()>0,"HYBRID never rendered");
+    }
+    spectralforge::Transposer high;high.prepare({384000.,256,2});high.setMode(3);
+    require(high.mode()==2 && high.latency()==spectralforge::Transposer::tightAnalysisLength(384000.),"HYBRID did not fall back to Tight at 384 kHz");
+    std::cout<<"PASS: HYBRID mode reports 10 ms, exact bypass/zero path without FFT frames, finite at 44.1-192 kHz, Tight fallback at 384 kHz\n";
+}
 void pitchTransitions()
 {
     for(double rate:{44100.,48000.,96000.}) for(int shift:{-12,-5,7,12}) {
@@ -162,6 +194,6 @@ void pitchCost()
 }
 int main()
 {
-    try {pitchDryPaths();pitchTransitions();pitchOutgoingRatio();tunerLifetime();postRigGate();pitchCost();return 0;}
+    try {pitchDryPaths();pitchHybridMode();pitchTransitions();pitchOutgoingRatio();tunerLifetime();postRigGate();pitchCost();return 0;}
     catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
 }

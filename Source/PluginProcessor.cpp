@@ -453,7 +453,7 @@ void ChimeraProcessor::setTransposeQuality(int mode)
 {
     // Message-thread setter: mirror into the audio-thread atomic and stamp the
     // persisted ValueTree property (captureCore/copyState serialises it).
-    mode=juce::jlimit(0,2,mode);
+    mode=juce::jlimit(0,3,mode);
     transposeQualityMode.store(mode);
     state.state.setProperty("transposeQuality",mode,nullptr);
 }
@@ -462,7 +462,7 @@ void ChimeraProcessor::syncTransposeQuality()
     // After a state replace, keep the current mode unless the restored tree
     // carries one (an old project or a factory snapshot has none), then re-stamp
     // so the property stays present on the live tree for the next save.
-    const int mode=juce::jlimit(0,2,(int)state.state.getProperty("transposeQuality",transposeQualityMode.load()));
+    const int mode=juce::jlimit(0,3,(int)state.state.getProperty("transposeQuality",transposeQualityMode.load()));
     transposeQualityMode.store(mode);
     state.state.setProperty("transposeQuality",mode,nullptr);
 }

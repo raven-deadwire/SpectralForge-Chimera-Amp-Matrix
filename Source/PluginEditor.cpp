@@ -324,12 +324,12 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     tunerOn.setTooltip("Tune the original input before the gate and transposer. Play one note at a time. Range: 16-2000 Hz.");
     tunerMute.setTooltip("Silence the output while the tuner is enabled.");
     pitchOn.setTooltip("Polyphonic transpose, -12 to +12 semitones. The added latency is shown below and reported to the host.");
-    transposeMode.setName("Transpose mode"); transposeMode.addItemList({"CLASSIC","LOW-LAT","TIGHT"},1); add(transposeMode);
+    transposeMode.setName("Transpose mode"); transposeMode.addItemList({"CLASSIC","LOW-LAT","TIGHT","HYBRID"},1); add(transposeMode);
     // Not a host parameter (so it stays out of the frozen parameter inventory):
     // a persisted ValueTree setting driven directly here.
-    transposeMode.setSelectedId(juce::jlimit(0,2,processor.transposeQuality())+1,juce::dontSendNotification);
+    transposeMode.setSelectedId(juce::jlimit(0,3,processor.transposeQuality())+1,juce::dontSendNotification);
     transposeMode.onChange=[this]{processor.setTransposeQuality(transposeMode.getSelectedId()-1);};
-    transposeMode.setTooltip("Transpose quality vs latency. CLASSIC keeps full low-register quality (~43 ms). LOW-LAT halves the FFT window (~21 ms). TIGHT uses a 10 ms window (at most 10 ms added) for a snappy lead feel; low notes lose body. The active latency is reported to the host.");
+    transposeMode.setTooltip("Transpose quality vs latency. CLASSIC keeps full low-register quality (~43 ms). LOW-LAT halves the FFT window (~21 ms). TIGHT uses a 10 ms window (at most 10 ms added) for a snappy lead feel; low notes lose body. HYBRID keeps TIGHT above 800 Hz and shifts the lows in the time domain, so low notes and chords stay in tune; picked attacks land at the same 10 ms, but the low end of held notes can trail by up to ~30 ms (research mode, not yet verified on DI). The active latency is reported to the host.");
     style(pitchStatus,11.f); add(pitchStatus);
     const std::array<juce::String,8> names{"DRIVE","LEVEL","BASS","LOW MID","HIGH MID","TREBLE","PRESENCE","RESONANCE"};
     const std::array<const char*,8> parameterIds{"drive","level","bass","lowmid","highmid","treble","presence","resonance"};
