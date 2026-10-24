@@ -3,6 +3,7 @@
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "DynamicsAnalysis.h"
+#include "AutoSet.h"
 #include "MultibandDynamics.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
@@ -114,6 +115,7 @@ public:
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
+    spectralforge::autoset::Capture& autoSetCapture() noexcept {return autoSetCaptureState;}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}
     float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
@@ -211,6 +213,7 @@ private:
     spectralforge::MultibandDynamics multiband;
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
+    spectralforge::autoset::Capture autoSetCaptureState;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;
