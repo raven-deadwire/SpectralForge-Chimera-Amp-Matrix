@@ -51,8 +51,8 @@ ALLOWED_TESTS = frozenset({"Tests/GateProcessorTests.cpp", "Tests/GraphicalEQEdi
     "Tests/SignalPathUITests.h", "Tests/CommonDynamicsUITests.h"})
 # The owner requested the PR108 macOS timing investigation. Permit only this
 # reviewed diagnostic-I/O change; do not allow arbitrary tuner fixture/gate edits.
-# Digest updated for the audio-time route gate (docs/TUNER_TIMING_ATTRIBUTION.md);
-# owner review of that fixture change is still required.
+# Digest updated for the owner-reviewed audio-time route gate
+# (docs/TUNER_TIMING_ATTRIBUTION.md).
 TUNER_DIAGNOSTICS_PATH = "Tests/PrecisionTunerIntegrationTests.cpp"
 TUNER_DIAGNOSTICS_SHA256 = "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60"
 ALLOWED_DOCS = frozenset({"docs/PRESETS.md", "docs/MANUAL.html", "docs/COMMON_DYNAMICS_1_3_2.md",
