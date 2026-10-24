@@ -3,12 +3,16 @@
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <type_traits>
 
 namespace {
 void require(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
 struct Render {std::vector<float> audio;std::vector<double> times;int latency{};};
-template<class Pitch> Render tone(double rate,int block,int shift,double frequency,bool impulse=false) {
-    Pitch pitch;pitch.prepare({rate,juce::uint32(block),2});pitch.setSemitones(shift);
+template<class Pitch> Render tone(double rate,int block,int shift,double frequency,bool impulse=false,int windowOverride=0,int analysisLength=0) {
+    Pitch pitch;
+    if constexpr(std::is_same_v<Pitch,spectralforge::PolyPitch>)pitch.prepare({rate,juce::uint32(block),2},windowOverride,analysisLength);
+    else pitch.prepare({rate,juce::uint32(block),2});
+    pitch.setSemitones(shift);
     juce::AudioBuffer<float> input(2,block),output(2,block);Render result;result.latency=pitch.latency();
     const int samples=impulse?pitch.latency()*3:int(rate*1.5);
     for(int offset=0;offset<samples;offset+=block) {
@@ -45,6 +49,35 @@ int main() {
             for(size_t n=0;n<r.audio.size();++n){cumulative+=double(r.audio[n])*r.audio[n];if(lo<0 && cumulative>=energy*.05)lo=int(n);if(hi<0 && cumulative>=energy*.95)hi=int(n);}
             std::cout<<"MEASURE impulse rate="<<rate<<" shift="<<shift<<" latency="<<r.latency<<" centroid_samples="<<weighted/energy<<" energy5_95_samples="<<lo<<':'<<hi<<" smear_ms="<<1000*(hi-lo)/rate<<'\n';
         }
+        // Tight transpose (Source/GlobalDSP.h): a 10 ms analysis window zero-padded
+        // into a power-of-two FFT. Equal window/FFT lengths must be bit-identical
+        // to the power-of-two path that Classic/Low-Latency keep using.
+        for(double rate:{44100.,48000.})for(int shift:{-2,2}) {
+            int defaultWindow=256;while(defaultWindow<rate*.032)defaultWindow<<=1;
+            const auto plain=tone<spectralforge::PolyPitch>(rate,128,shift,220,false,defaultWindow/4);
+            const auto same=tone<spectralforge::PolyPitch>(rate,128,shift,220,false,0,defaultWindow/4);
+            require(plain.latency==same.latency && plain.audio==same.audio,"Equal analysis/FFT length changed the power-of-two path");
+        }
+        for(double rate:{44100.,48000.,96000.,192000.})for(int block:{64,128}) {
+            const int tight=int(rate*.010)/8*8;
+            int defaultWindow=256;while(defaultWindow<rate*.032)defaultWindow<<=1;
+            for(int shift:{-2,-1,1,2}) {
+                for(double frequency:{110.,220.,440.}) {
+                    const auto now=tone<spectralforge::PolyPitch>(rate,block,shift,frequency,false,0,tight);
+                    const auto before=tone<spectralforge::PolyPitch>(rate,block,shift,frequency,false,defaultWindow/4);
+                    require(now.latency==tight && 1000.*now.latency/rate<=10.0+1e-9,"Tight transpose exceeds 10 ms added latency");
+                    const auto target=frequency*std::pow(2.,double(shift)/12.);
+                    const auto wanted=component(now,rate,target),source=component(now,rate,frequency),previous=component(before,rate,target);
+                    require(wanted>.08 && source<wanted*.5,"Tight transpose lost the shifted pitch");
+                    require(wanted>=previous*.9,"Tight 10 ms window weakened the shifted pitch versus the 11 ms window");
+                    if(block==128)std::cout<<"MEASURE tight rate="<<rate<<" shift="<<shift<<" f="<<frequency<<" latency_samples="<<now.latency
+                             <<" latency_ms="<<1000.*now.latency/rate<<" previous_ms="<<1000.*before.latency/rate
+                             <<" target_db="<<20*std::log10(wanted/.2)<<" previous_target_db="<<20*std::log10(previous/.2)
+                             <<" source_residual_db="<<20*std::log10(std::max(source,1e-12)/.2)<<'\n';
+                }
+            }
+        }
+        std::cout<<"PASS Tight transpose <=10 ms algorithmic latency at 44.1/48/96/192 kHz (±1/±2 semitones); host round trip and real DI not measured\n";
         std::cout<<"PASS low-bin target-energy correction and unchanged positive/unity raw mappings; live latency / real DI / stereo image / listening acceptance BLOCKED\n";
     }catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }

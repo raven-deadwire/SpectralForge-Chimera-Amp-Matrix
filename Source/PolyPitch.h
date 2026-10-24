@@ -6,7 +6,9 @@
 namespace spectralforge {
 // Streaming STFT pitch shifter. Instantaneous frequencies, not FFT-bin centres,
 // are transposed; local peak phase locking keeps each partial's bins coherent.
-// All storage is reserved in prepare(). Latency is one FFT window for every shift.
+// All storage is reserved in prepare(). Latency is one analysis window for every
+// shift. The analysis window equals the FFT length unless prepare() is given a
+// shorter analysisLength, which is zero-padded into the next power-of-two FFT.
 class PolyPitch {
     struct Channel {
         std::vector<float> input,ola,previousPhase,phase,magnitude,frequency,sourcePhase;
@@ -22,7 +24,7 @@ class PolyPitch {
     std::array<Channel,2> channels;
     std::unique_ptr<juce::dsp::FFT> fft;
     std::vector<float> window;
-    int size{},hop{},inputPosition{},outputPosition{},clock{},channelCount{};
+    int size{},length{},hop{},inputPosition{},outputPosition{},clock{},channelCount{};
     float ratio{1};
     bool synthesising{};
     uint64_t framesProcessed{};
@@ -59,7 +61,8 @@ class PolyPitch {
         ++framesProcessed;
         using Complex=std::complex<float>;
         constexpr float pi=juce::MathConstants<float>::pi,twoPi=juce::MathConstants<float>::twoPi;
-        for(int n=0;n<size;++n) channel.transform[(size_t)n]=Complex(channel.input[(size_t)((inputPosition+n)%size)]*window[(size_t)n],0);
+        for(int n=0;n<length;++n) channel.transform[(size_t)n]=Complex(channel.input[(size_t)((inputPosition+n)%length)]*window[(size_t)n],0);
+        for(int n=length;n<size;++n) channel.transform[(size_t)n]=Complex{};
         fft->perform(channel.transform.data(),channel.spectrum.data(),false);
         const int bins=size/2+1;
         std::fill(channel.magnitude.begin(),channel.magnitude.end(),0);
@@ -123,15 +126,15 @@ class PolyPitch {
                 while(peakIndex+1<channel.peaks.size() && std::abs(channel.peaks[peakIndex+1]-b)<std::abs(channel.peaks[peakIndex]-b)) ++peakIndex;
                 peak=channel.peaks[peakIndex];
             }
-            const float phase=channel.phase[(size_t)peak]-pi*float(size-1)/size*float(b-peak);
+            const float phase=channel.phase[(size_t)peak]-pi*float(length-1)/size*float(b-peak);
             channel.spectrum[(size_t)b]=std::polar(channel.magnitude[(size_t)b],phase);
             channel.spectrum[(size_t)(size-b)]=std::conj(channel.spectrum[(size_t)b]);
         }
         double outputEnergy=0;for(int b=1;b<bins-1;++b) outputEnergy+=std::norm(channel.spectrum[(size_t)b]);
         const float energyGain=outputEnergy>1e-16 ? float(std::sqrt(inputEnergy/outputEnergy)) : 1.f;
         fft->perform(channel.spectrum.data(),channel.transform.data(),true);
-        const float normalisation=2.f*hop/size*energyGain;
-        for(int n=0;n<size;++n) channel.ola[(size_t)((outputPosition+n)%(size*2))]+=channel.transform[(size_t)n].real()*window[(size_t)n]*normalisation;
+        const float normalisation=2.f*hop/length*energyGain;
+        for(int n=0;n<length;++n) channel.ola[(size_t)((outputPosition+n)%(length*2))]+=channel.transform[(size_t)n].real()*window[(size_t)n]*normalisation;
 
     }
 public:
@@ -139,11 +142,17 @@ public:
     // up to a power of two, to trade latency against low-frequency resolution.
     // Omitted by every existing caller, so the released ~32 ms window, its latency
     // contract and the frozen regression output are unchanged.
-    void prepare(const juce::dsp::ProcessSpec& spec,int windowOverride=0)
+    // analysisLength (0 = the FFT length): a shorter analysis/synthesis window,
+    // rounded down to a multiple of 8 and zero-padded into the next power-of-two
+    // FFT. Latency follows this window, not the FFT size, so a millisecond target
+    // need not be rounded up to a power of two. When it equals the FFT length the
+    // arithmetic is identical to the power-of-two path.
+    void prepare(const juce::dsp::ProcessSpec& spec,int windowOverride=0,int analysisLength=0)
     {
         int order=8;while((1<<order)<spec.sampleRate*.032) ++order;
         if(windowOverride>0){order=0;while((1<<order)<windowOverride) ++order;}
-        size=1<<order;hop=size/8;channelCount=(int)spec.numChannels;fft=std::make_unique<juce::dsp::FFT>(order);
+        if(analysisLength>0){analysisLength=juce::jmax(64,analysisLength/8*8);order=0;while((1<<order)<analysisLength) ++order;}
+        size=1<<order;length=analysisLength>0 ? analysisLength : size;hop=length/8;channelCount=(int)spec.numChannels;fft=std::make_unique<juce::dsp::FFT>(order);
         sampleRate=spec.sampleRate;
         // Cepstral lifter order ~1.7 ms of quefrency: wide enough to smooth the
         // harmonic structure, tight enough to follow formants. Idle unless on.
@@ -157,9 +166,9 @@ public:
             fft->perform(scratch.data(),probe.data(),false);
             fftRoundTrip=std::abs(probe[0].real())>1e-20f ? double(probe[0].real()) : 1.0;
         }
-        window.resize((size_t)size);for(int i=0;i<size;++i) window[(size_t)i]=std::sin(juce::MathConstants<float>::pi*(i+.5f)/size);
+        window.resize((size_t)length);for(int i=0;i<length;++i) window[(size_t)i]=std::sin(juce::MathConstants<float>::pi*(i+.5f)/length);
         for(auto& channel:channels) {
-            channel.input.assign((size_t)size,0);channel.ola.assign((size_t)size*2,0);
+            channel.input.assign((size_t)length,0);channel.ola.assign((size_t)length*2,0);
             for(auto* values:{&channel.previousPhase,&channel.phase,&channel.magnitude,&channel.frequency,&channel.sourcePhase,
                               &channel.inputMagnitude,&channel.envelope}) values->assign((size_t)size/2+1,0);
             channel.symLog.assign((size_t)size,0);channel.envLog.assign((size_t)size,0);
@@ -175,7 +184,7 @@ public:
         }
         inputPosition=outputPosition=clock=0;synthesising=false;framesProcessed=0;
     }
-    int latency() const {return size;}
+    int latency() const {return length;}
     uint64_t processedFrames() const {return framesProcessed;}
     void setSemitones(int value) {ratio=std::pow(2.f,float(juce::jlimit(-12,12,value))/12.f);}
     // Optional formant-preservation mode, default off. Toggling is allocation-free
@@ -200,7 +209,7 @@ public:
                 auto& channel=channels[(size_t)c];channel.input[(size_t)inputPosition]=input.getSample(c,n);
                 output.setSample(c,n,channel.ola[(size_t)outputPosition]);channel.ola[(size_t)outputPosition]=0;
             }
-            inputPosition=(inputPosition+1)%size;outputPosition=(outputPosition+1)%(size*2);
+            inputPosition=(inputPosition+1)%length;outputPosition=(outputPosition+1)%(length*2);
             if(++clock==hop) {clock=0;if(render)for(int c=0;c<channelCount;++c) frame(channels[(size_t)c]);}
         }
     }
