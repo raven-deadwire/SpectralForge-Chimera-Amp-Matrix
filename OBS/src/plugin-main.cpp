@@ -143,7 +143,11 @@ void restoreState(Filter* f, obs_data_t* settings) {
 // filters are copied, so edits must reach the settings as they happen.
 bool writeState(Filter* f, obs_data_t* settings) {
     std::vector<std::uint8_t> component, controller;
-    if (f->newerSchema || !f->host.loaded() || !f->host.getState(component, controller)) return false;
+    // update() can queue a UI reload while OBS already exposes the new
+    // settings to save() or a script edit. Check the actual settings too:
+    // the cached flag describes the last completed reload, not this request.
+    if (obs_data_get_int(settings, keySchema) > schemaVersion || f->newerSchema
+        || !f->host.loaded() || !f->host.getState(component, controller)) return false;
     f->syncedComponent = base64Encode(component);
     f->syncedEdits = f->host.editGeneration();
     obs_data_set_string(settings, keyComponent, f->syncedComponent.c_str());
@@ -157,7 +161,11 @@ bool writeState(Filter* f, obs_data_t* settings) {
 void syncState(Filter* f, obs_source_t* source) {
     if (!f->host.loaded() || f->host.editGeneration() == f->syncedEdits) return;
     obs_data_t* settings = obs_source_get_settings(source);
-    writeState(f, settings);
+    // An incoming preset wins over an editor timer/close notification. In
+    // particular, closeEditor() inside reload() must not overwrite the state
+    // that reload() is about to restore into the newly selected bundle.
+    const std::string incoming = obs_data_get_string(settings, keyComponent);
+    if (incoming.empty() || incoming == f->syncedComponent) writeState(f, settings);
     obs_data_release(settings);
 }
 
@@ -250,13 +258,13 @@ void procSetParameter(void* data, calldata_t* call) {
     auto* f = static_cast<Filter*>(data);
     bool ok = false;
     if (obs_in_task_thread(OBS_TASK_UI) && !f->destroyed.load() && f->host.loaded()) {
+        obs_data_t* settings = obs_source_get_settings(f->source);
+        // Respect a pending preset before applying this later parameter edit.
+        restoreState(f, settings);
         const auto id = static_cast<std::uint32_t>(calldata_int(call, "id"));
         ok = f->host.setParameter(id, std::clamp(calldata_float(call, "value"), 0.0, 1.0));
-        if (ok) {
-            obs_data_t* settings = obs_source_get_settings(f->source);
-            writeState(f, settings);
-            obs_data_release(settings);
-        }
+        if (ok) writeState(f, settings);
+        obs_data_release(settings);
     }
     calldata_set_bool(call, "ok", ok);
 }
@@ -300,9 +308,15 @@ void destroy(void* data) {
 void update(void* data, obs_data_t* settings) { configure(static_cast<Filter*>(data), settings); }
 
 void save(void* data, obs_data_t* settings) {
+    // A non-UI update may still be queued when OBS saves on its UI thread.
+    // Apply its preset before capturing the live sound, and never call VST3
+    // state APIs from an arbitrary saving thread.
+    if (!obs_in_task_thread(OBS_TASK_UI)) return;
+    auto* f = static_cast<Filter*>(data);
+    if (f->host.loaded()) restoreState(f, settings);
     // Keeps the last stored state when Chimera is missing or the scene is from
     // a newer module, so opening it here does not erase the user's sound.
-    writeState(static_cast<Filter*>(data), settings);
+    writeState(f, settings);
 }
 
 void getDefaults(obs_data_t* settings) {
