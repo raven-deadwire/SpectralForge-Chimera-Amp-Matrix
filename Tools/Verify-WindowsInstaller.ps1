@@ -266,7 +266,7 @@ try {
         # obs.dll is OBS's own and only present inside OBS, so inspect the export table instead of loading it.
         $exports = & $dumpbin /EXPORTS $obsBinary
         Assert ($LASTEXITCODE -eq 0) "Cannot inspect exports: $obsBinary"
-        Assert ($exports -match '\sobs_module_load\s*$') "OBS filter does not export obs_module_load"
+        Assert ([bool]($exports -match '\sobs_module_load\s*$')) "OBS filter does not export obs_module_load"
         Pass "OBS filter uses the static MSVC runtime and exports obs_module_load"
     }
 
