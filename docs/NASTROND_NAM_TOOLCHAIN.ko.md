@@ -13,7 +13,7 @@
 | # | 문제 | 영향 | 근거 |
 |---|---|---|---|
 | 1 | 스펙트럼 점수 `log_spectrum_rms_db`가 균등 간격 Welch 칸을 평균합니다. 1354칸 중 1024칸이 2–8 kHz이고 250 Hz 아래는 31칸입니다. | 모든 매크로 audit와 보이싱 기록이 기대는 점수가 사실상 고음을 잽니다. 저음이 20 dB 빠져도 거의 움직이지 않는데, 로우튠 리듬 앰프에서는 중요한 문제입니다. 보이싱 fit는 이미 42개 로그 밴드를 쓰고 있어서 fit와 audit의 스펙트럼 가중치가 서로 달랐습니다. | `test_band_metric_and_polarity`: 250 Hz 아래를 −20 dB 깎으면 옥타브 밴드 점수가 v1 점수의 두 배를 넘습니다. |
-| 2 | 상관계수의 부호가 무엇을 뜻하는지 기록하지 않습니다. | VH4 CH3는 기본 상태 대비 `correlation −0.63`입니다. 최적 지연에서 위상(극성)이 뒤집힌 것이지, 다른 파형이라는 뜻이 아닙니다. | `nastrond-nam-20261005/comparison.json` |
+| 2 | 상관계수의 부호가 무엇을 뜻하는지 기록하지 않습니다. | VH4 CH3는 기본 상태 대비 `correlation −0.63`입니다. 제한된 지연 탐색에서 음의 상관이 관측됐다는 뜻입니다. 상관의 크기는 부분적 유사성이며 부호만으로 물리적 극성 반전을 확정할 수 없습니다. | `nastrond-nam-20261005/comparison.json` |
 | 3 | 파생 증거를 만드는 도구가 없습니다. 증거 폴더 세 곳의 `gain-summary.csv`가 두 가지 형식이고, 채널 `summary.json`은 생성 코드가 없습니다. | 공개된 요약을 다시 만들거나 검증할 수 없습니다. | `nastrond-nam-…`와 `nastrond-voicing-…`의 CSV 헤더 |
 | 4 | 프로토콜 상수를 도구마다 다시 적었습니다. `37*SR`, `21*SR`, `int(hz*k/4)`, 26/17 개수, 그리고 매크로 대상 모델 ID 목록이 audit와 fit 양쪽에 있습니다. | 프로브나 매니페스트를 한 번 고치면 도구들이 조용히 어긋납니다. 하모닉 칸 계산은 측정 창이 250 ms일 때만 맞습니다. | `compare_original_nam.py`, `fit_original_voicing.py`, `audit_nastrond_macros.py` |
 | 5 | audit가 정확히 17개 상태만 받습니다. | `--states`로 만든 리포트(채널 리포트는 39개)를 읽지 못해서, 채널 결론은 손으로 정리됐습니다. | `audit_nastrond_macros.py` |
@@ -71,8 +71,7 @@ Tools/nastrond_nam/
 | `Tests/test_original_renderer.py` | PASS. 진단 메시지와 preset+channel 거부도 확인 |
 | `Tools/test_nastrond_nam.py` (CI validation-contract job에 추가) | PASS |
 
-실제 캡처 26개는 이 환경에서 받을 수 없었습니다(네트워크 정책이 api.tone3000.com을 막음).
-그래서 실제 캡처에 대한 옥타브 밴드 결과는 아직 없습니다.
+초기 검토 환경에서는 api.tone3000.com 접근 제한으로 실제 캡처 26개를 받지 못했습니다. 아래 2026-10-25 독립 검증에서는 26개 모두 확보·해시 확인 후 실제 대역 지표 결과를 기록했습니다.
 
 ## 다음 측정
 
@@ -86,3 +85,7 @@ Tools/nastrond_nam/
 
 이 단계들로도 기존 차단 사항은 해결되지 않습니다. Meshuggah 캡처에 캐비닛이 포함돼 있고,
 Granophyre 출처가 확인되지 않았고, 입력 레벨 절대 보정이 없고, 오너 DI 청음은 아직 하지 않았습니다.
+
+## 독립 검증 및 보강 (2026-10-25 KST)
+
+실제 26개 캡처, 동일 입력 v1/v2 호환성, 채널별 실패, 합성 오차 시험과 감사 검증 보강은 [검증 보고서](NASTROND_NAM_VERIFICATION_20261025.ko.md)에 기록했습니다. 기존 동결 증거는 변경하지 않았습니다.

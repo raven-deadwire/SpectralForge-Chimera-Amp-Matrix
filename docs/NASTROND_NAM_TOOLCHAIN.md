@@ -14,7 +14,7 @@ owner listening acceptance.
 | # | Problem | Effect | Evidence |
 |---|---|---|---|
 | 1 | The spectral score `log_spectrum_rms_db` averages linear Welch bins. 1024 of its 1354 bins are between 2 and 8 kHz and 31 are below 250 Hz. | The score that every macro audit and voicing note relies on mostly measures treble. A 20 dB bass loss barely moves it, which matters for a low-tuned rhythm amp. The voicing fit had already switched to 42 log bands, so fit and audit weighted the spectrum differently. | `test_band_metric_and_polarity`: a −20 dB cut below 250 Hz scores more than twice as high with octave bands as with the v1 metric. |
-| 2 | Signed correlation is reported without saying what the sign means. | VH4 CH3 shows `correlation −0.63` against the default. That is an inverted polarity at the best lag, not an unrelated waveform. | `nastrond-nam-20261005/comparison.json` |
+| 2 | Signed correlation is reported without saying what the sign means. | VH4 CH3 shows `correlation −0.63` against the default. This is negative correlation at the best bounded lag; its magnitude is only partial similarity and the sign alone does not prove a physical polarity inversion. | `nastrond-nam-20261005/comparison.json` |
 | 3 | No tool generates the derived evidence. The three evidence folders hold two different `gain-summary.csv` layouts, and the channel `summary.json` has no generator. | Published summaries cannot be regenerated or checked. | `nastrond-nam-…` vs `nastrond-voicing-…` CSV headers |
 | 4 | Protocol constants are typed again in each tool: `37*SR`, `21*SR`, `int(hz*k/4)`, the 26/17 counts, and the macro target model-id lists in both the audit and the fit. | One edit to the probe or manifest silently desynchronises the tools. The harmonic bins are only correct while the window is 250 ms. | `compare_original_nam.py`, `fit_original_voicing.py`, `audit_nastrond_macros.py` |
 | 5 | The audit requires exactly 17 states. | It cannot read any report made with `--states` (the channel report has 39), so channel conclusions were assembled by hand. | `audit_nastrond_macros.py` |
@@ -80,8 +80,7 @@ the v1 thresholds. With those defaults it reproduces
 | `Tests/test_original_renderer.py` | PASS, now also checks the diagnostics and the preset+channel rejection |
 | `Tools/test_nastrond_nam.py` (added to the CI validation-contract job) | PASS |
 
-The real 26 captures could not be fetched from this environment (the network
-policy blocks api.tone3000.com), so no octave-band result exists yet for them.
+At the original review, the real 26 captures could not be fetched (api.tone3000.com was blocked). The independent 2026-10-25 verification below subsequently acquired and hash-verified all 26 and recorded real band-metric results.
 
 ## Next measurement
 
@@ -99,3 +98,7 @@ The full procedure, with commands, is in
 These steps still don't address the existing blockers: the Meshuggah captures
 include a cabinet, Granophyre's provenance is unverified, absolute input
 calibration is missing, and owner DI listening hasn't been done.
+
+## Independent verification and hardening (2026-10-25 KST)
+
+See [the verification report](NASTROND_NAM_VERIFICATION_20261025.ko.md) for real 26-capture results, same-input v1/v2 parity, channel failures, synthetic error cases and audit hardening. Frozen evidence is unchanged.
