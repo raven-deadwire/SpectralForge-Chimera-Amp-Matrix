@@ -691,7 +691,27 @@ void transposeQualityLatency() {
         require(restored->transposeQuality()==3,"HYBRID quality not restored");
         require(restored->getLatencySamples()==base+tight,"Restored HYBRID latency differs before the first callback");
         restored->releaseResources();p->releaseResources();
-        std::cout<<"PASS processor transpose quality latency rate="<<rate<<" board="<<board<<" base="<<base<<" hybrid="<<tight<<" (switch, recall; host PDC NOT_TESTED)\n";
+        // A bounce differs from playback only in block sizes (nothing branches
+        // on non-realtime): HYBRID through the processor must not depend on them.
+        auto render=[&](bool irregular) {
+            const auto q=std::make_unique<ChimeraProcessor>();
+            set(*q,"gateon",0);set(*q,"boardEnabled",board?1.f:0.f);set(*q,"transposeon",1);set(*q,"transpose",-5);set(*q,"oversampling",0);
+            for(int lane=1;lane<=3;++lane){set(*q,"ampon"+juce::String(lane),0);set(*q,"cab"+juce::String(lane),0);}
+            q->setTransposeQuality(3);q->setRateAndBufferSizeDetails(rate,512);q->prepareToPlay(rate,512);
+            const int total=int(rate*.6);std::vector<float> rendered(static_cast<size_t>(total));juce::MidiBuffer none;
+            const int sizes[]{1,77,512,13,256,500,3,128};
+            for(int at=0,k=0;at<total;++k) {
+                const int n=std::min(total-at,irregular ? sizes[k%8] : 128);juce::AudioBuffer<float> b(2,n);
+                for(int i=0;i<n;++i){const double t=double(at+i)/rate;const float x=float(.3*std::sin(juce::MathConstants<double>::twoPi*82.41*t)*std::exp(-3*std::fmod(t,.3)));b.setSample(0,i,x);b.setSample(1,i,x);}
+                q->processBlock(b,none);for(int i=0;i<n;++i)rendered[size_t(at+i)]=b.getSample(0,i);at+=n;
+            }
+            q->releaseResources();return rendered;
+        };
+        const auto fixedBlocks=render(false),variedBlocks=render(true);double peak=0,diff=0;
+        for(size_t i=0;i<fixedBlocks.size();++i){peak=std::max(peak,double(std::abs(fixedBlocks[i])));diff=std::max(diff,double(std::abs(fixedBlocks[i]-variedBlocks[i])));}
+        require(peak>.01,"HYBRID processor render is silent");
+        require(diff<=1.e-6*peak,"HYBRID processor output depends on the host block size");
+        std::cout<<"PASS processor transpose quality latency rate="<<rate<<" board="<<board<<" base="<<base<<" hybrid="<<tight<<" block-size max diff="<<diff<<" (switch, recall, bounce-equivalent blocks; host PDC NOT_TESTED)\n";
     }
 }
 }

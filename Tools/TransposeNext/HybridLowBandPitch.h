@@ -109,13 +109,25 @@ public:
                 for(int k=0;k<sections;++k){lo=lowpass[size_t(k)].tick(lo,c);hi=highpass[size_t(k)].tick(hi,c);}
                 lowIn.setSample(c,i,lo);highIn.setSample(c,i,hi);
             }
-            if(legatoOn) for(int i=0;i<n;++i) {
-                float mono=0;for(int c=0;c<channels;++c)mono+=lowIn.getSample(c,i);
-                const int age=legato.push(mono/float(channels));
-                legatoFlags[size_t(i)]=age>=0 ? 1 : 0;legatoAges[size_t(i)]=std::max(age,0);
-            }
-            body.process(lowIn,lowOut,shift!=0,anchored?&detector:nullptr,legatoOn?legatoFlags.data():nullptr,legatoOn?pickFlags.data():nullptr,lowDelay.data(),legatoOn?legatoAges.data():nullptr);
-            if(legatoOn) for(int i=0;i<n;++i) if(pickFlags[size_t(i)]!=0){legato.notePick();break;}
+            if(legatoOn) {
+                // Chunks end before each 1 ms detector update, so a pick reaches
+                // the detector before its next update whatever the block size
+                // (notePick once per block made the output block-size dependent).
+                for(int start=0;start<n;) {
+                    int end=start;
+                    for(;end<n;) {
+                        float mono=0;for(int c=0;c<channels;++c)mono+=lowIn.getSample(c,end);
+                        const int age=legato.push(mono/float(channels));
+                        legatoFlags[size_t(end)]=age>=0 ? 1 : 0;legatoAges[size_t(end)]=std::max(age,0);
+                        ++end;if(legato.nextPushUpdates())break;
+                    }
+                    const juce::AudioBuffer<float> lowChunk(lowIn.getArrayOfWritePointers(),channels,start,end-start),detectorChunk(detector.getArrayOfWritePointers(),channels,start,end-start);
+                    juce::AudioBuffer<float> outChunk(lowOut.getArrayOfWritePointers(),channels,start,end-start);
+                    body.process(lowChunk,outChunk,shift!=0,anchored?&detectorChunk:nullptr,legatoFlags.data()+start,pickFlags.data()+start,lowDelay.data()+start,legatoAges.data()+start);
+                    for(int i=start;i<end;++i) if(pickFlags[size_t(i)]!=0){legato.notePick();break;}
+                    start=end;
+                }
+            } else body.process(lowIn,lowOut,shift!=0,anchored?&detector:nullptr,nullptr,nullptr,lowDelay.data(),nullptr);
             upper.process(highIn,highOut,shift!=0,phaseLock?lowDelay.data():nullptr);
             for(int c=0;c<channels;++c)for(int i=0;i<n;++i)
                 output.setSample(c,off+i,shift==0 ? input.getSample(c,off+i) : (solo!=2 ? lowOut.getSample(c,i) : 0.f)+(solo!=1 ? highOut.getSample(c,i) : 0.f));

@@ -32,16 +32,28 @@ std::vector<float> pluck(double rate,std::initializer_list<double> notes,double 
         for(size_t n=size_t(rate*.5);n<x.size();++n){const double t=double(n)/rate-.5;x[n]+=float(.1/k*std::sin(juce::MathConstants<double>::twoPi*k*f0*t)*std::exp(-t/(1.2/(1+.35*k)))*std::min(1.,t/.002));}
     return x;
 }
-template<class Engine,class Process> std::vector<float> renderHybrid(Engine& engine,double rate,int block,const std::vector<float>& x,Process&& process) {
-    juce::AudioBuffer<float> input(2,block),output(2,block);std::vector<float> y;
-    for(size_t offset=0;offset<x.size();offset+=size_t(block)) {
-        const int n=int(std::min<size_t>(size_t(block),x.size()-offset));
+// The same note re-picked every `every` seconds (each pick restarts the decay).
+std::vector<float> repicked(double rate,double f0,double every,double seconds=2.) {
+    std::vector<float> x(size_t(rate*(seconds+.5)),0.f);
+    for(size_t n=size_t(rate*.5);n<x.size();++n){const double t=double(n)/rate-.5,u=std::fmod(t,every);
+        for(int k=1;k<=12 && k*f0<.45*rate;++k)x[n]+=float(.1/k*std::sin(juce::MathConstants<double>::twoPi*k*f0*t)*std::exp(-u/(1.2/(1+.35*k)))*std::min(1.,u/.002));}
+    return x;
+}
+// blocks: host callback sizes, cycled (each <= the prepared maximum).
+template<class Engine,class Process> std::vector<float> renderHybrid(Engine& engine,const std::vector<int>& blocks,const std::vector<float>& x,Process&& process) {
+    const int largest=*std::max_element(blocks.begin(),blocks.end());
+    juce::AudioBuffer<float> input(2,largest),output(2,largest);std::vector<float> y;
+    for(size_t offset=0,k=0;offset<x.size();offset+=size_t(blocks[k++%blocks.size()])) {
+        const int n=int(std::min<size_t>(size_t(blocks[k%blocks.size()]),x.size()-offset));
         input.setSize(2,n,false,false,true);output.setSize(2,n,false,false,true);
         for(int i=0;i<n;++i){input.setSample(0,i,x[offset+size_t(i)]);input.setSample(1,i,-.65f*x[offset+size_t(i)]);}
         process(engine,input,output);
         for(int i=0;i<n;++i){require(std::isfinite(output.getSample(0,i)) && std::isfinite(output.getSample(1,i)),"Non-finite HYBRID output");y.push_back(output.getSample(0,i));}
     }
     return y;
+}
+template<class Engine,class Process> std::vector<float> renderHybrid(Engine& engine,double,int block,const std::vector<float>& x,Process&& process) {
+    return renderHybrid(engine,std::vector<int>{block},x,process);
 }
 double componentOf(const std::vector<float>& y,double rate,double frequency,double from,double to) {
     std::complex<double> sum{};const auto a=size_t(rate*from),b=std::min(y.size(),size_t(rate*to));
@@ -74,13 +86,17 @@ void hybridChecks() {
         std::cout<<"MEASURE hybrid rate="<<rate<<" f0="<<f0<<" shift="<<shift<<" target_db_re_input="<<20*std::log10(wanted/input)
                  <<" source_residual_db="<<20*std::log10(std::max(source,1e-12)/wanted)<<'\n';
     }
-    // 3. Block-size invariance (every state change is per sample).
-    for(double rate:{48000.}) {
-        const auto x=pluck(rate,{82.41,123.47,164.81});
+    // 3. Block-size invariance, including re-picked notes: a pick must reach
+    //    the legato detector before its next 1 ms update whatever the block
+    //    (it was applied at block end: 512 at 48 kHz and 500 at 44.1 kHz then
+    //    differed from 128 by up to 2.4e-3 after the second pick).
+    for(double rate:{44100.,48000.,96000.})for(int material=0;material<3;++material)for(int shift:{-5,7}) {
+        const auto x=material==0 ? pluck(rate,{82.41,123.47,164.81}) : repicked(rate,82.41,material==1 ? .3 : .125);
         std::vector<float> reference;
-        for(int block:{1,32,100,128,512,1024}) {
-            spectralforge::hybrid::HybridTransposer h;h.prepare({rate,juce::uint32(block),2});h.setSemitones(-5);
-            const auto y=renderHybrid(h,rate,block,x,[](auto& e,auto& in,auto& out){e.process(in,out,true);});
+        for(const auto& blocks:std::vector<std::vector<int>>{{128},{1},{32},{100},{500},{512},{1024},{1,77,512,13,256,500,3,128}}) {
+            const int largest=*std::max_element(blocks.begin(),blocks.end());
+            spectralforge::hybrid::HybridTransposer h;h.prepare({rate,juce::uint32(largest),2});h.setSemitones(shift);
+            const auto y=renderHybrid(h,blocks,x,[](auto& e,auto& in,auto& out){e.process(in,out,true);});
             if(reference.empty())reference=y;else require(y==reference,"HYBRID output depends on the block size");
         }
     }

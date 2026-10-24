@@ -68,6 +68,10 @@ public:
     void notePick() noexcept {period=0;stable=0;recentCount=0;confirm=0;cooldown=cooldownLength;}
     int legatoEvents() const noexcept {return events;}
     int rejectedCandidates() const noexcept {return rejected;}
+    // True when the next push() runs the 1 ms update. notePick() only touches
+    // update state, so a pick reported any time before that push is applied
+    // exactly as if it were reported on its own sample.
+    bool nextPushUpdates() const noexcept {return clock+1>=hop;}
     // One mono sample. Returns the estimated age of the change in samples on
     // the sample where a legato change is flagged, otherwise -1.
     int push(float x) noexcept {
