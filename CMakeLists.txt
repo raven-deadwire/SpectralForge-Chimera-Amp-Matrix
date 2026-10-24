@@ -448,6 +448,21 @@ target_include_directories(ChimeraTransposeRender PRIVATE Source)
 target_compile_definitions(ChimeraTransposeRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraTransposeRender PRIVATE juce::juce_audio_processors juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 
+# Host-side latency round trip: loads the built VST3 through JUCE's VST3 host
+# and checks the latency it reports against the audio it returns
+# (docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md section 6). Linux only here; the
+# Windows VST3 host contract has its own ChimeraVST3LifecycleTests.
+if(UNIX AND NOT APPLE AND TARGET ChimeraAmpMatrix_VST3)
+  juce_add_console_app(ChimeraVST3LatencyRoundTrip PRODUCT_NAME "ChimeraVST3LatencyRoundTrip")
+  target_sources(ChimeraVST3LatencyRoundTrip PRIVATE Tools/TransposeEvidence/VST3LatencyRoundTrip.cpp)
+  target_compile_definitions(ChimeraVST3LatencyRoundTrip PRIVATE JUCE_PLUGINHOST_VST3=1 JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+  target_link_libraries(ChimeraVST3LatencyRoundTrip PRIVATE juce::juce_audio_processors juce::juce_audio_utils PUBLIC juce::juce_recommended_config_flags)
+  add_dependencies(ChimeraVST3LatencyRoundTrip ChimeraAmpMatrix_VST3)
+  add_test(NAME ChimeraVST3LatencyRoundTrip COMMAND ChimeraVST3LatencyRoundTrip
+    "${CMAKE_BINARY_DIR}/ChimeraAmpMatrix_artefacts/$<CONFIG>/VST3/SpectralForge Chimera.vst3")
+  set_tests_properties(ChimeraVST3LatencyRoundTrip PROPERTIES TIMEOUT 300)
+endif()
+
 # Optional measurement contracts: normal product builds do not need NumPy.
 option(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS "Enable NumPy measurement harness tests" OFF)
 if(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS)
