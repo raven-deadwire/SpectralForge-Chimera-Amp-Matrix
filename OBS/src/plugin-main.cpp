@@ -15,7 +15,9 @@
 #include <algorithm>
 #include <atomic>
 #include <filesystem>
+#include <fstream>
 #include <string>
+#include <vector>
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("chimera-obs", "en-US")
@@ -86,11 +88,28 @@ void prepareFromObs(Filter* f) {
              obs_source_get_name(f->source), rate, channels);
 }
 
+// The Chimera Setup writes the VST3 bundle it installed (UTF-8, one line) when
+// the user picks a custom VST3 folder; an empty bundle setting then finds it.
+std::string installedBundleHint() {
+    char* file = obs_module_file("default-vst3-path.txt");
+    if (file == nullptr) return {};
+    std::ifstream in(std::filesystem::u8path(file), std::ios::binary);
+    bfree(file);
+    std::string line;
+    std::getline(in, line);
+    if (line.rfind("\xEF\xBB\xBF", 0) == 0) line.erase(0, 3);
+    while (!line.empty() && (line.back() == '\r' || line.back() == '\n' || line.back() == ' ')) line.pop_back();
+    return line;
+}
+
 std::string resolveBundle(obs_data_t* settings) {
     const char* chosen = obs_data_get_string(settings, keyBundle);
     if (chosen != nullptr && *chosen != '\0') return chosen;
+    std::vector<std::string> candidates;
+    if (std::string hint = installedBundleHint(); !hint.empty()) candidates.push_back(hint);
+    for (auto& path : defaultBundlePaths()) candidates.push_back(path);
     std::error_code ignored;
-    for (const auto& path : defaultBundlePaths())
+    for (const auto& path : candidates)
         if (std::filesystem::exists(std::filesystem::u8path(path), ignored)) return path;
     return {};
 }

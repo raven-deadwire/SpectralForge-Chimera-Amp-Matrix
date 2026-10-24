@@ -129,6 +129,31 @@ def lifecycle_documents(destination: Path, build: Path, *, version: dict | None 
         (destination / "BETA_LIFECYCLE.txt").write_text(beta_lifecycle.notice(metadata), encoding="utf-8", newline="\n")
 
 
+# OBS/tools/Build-WindowsModule.ps1 output: the GPL OBS filter (Issue #131) that
+# Windows Setup offers as an optional task. It hosts the installed VST3 and
+# contains no product DSP; its license and source location travel with it.
+OBS_MODULE = "obs-module"
+OBS_FILTER_DLL = "OBS/chimera-obs/bin/64bit/chimera-obs.dll"
+
+
+def obs_filter(destination: Path, build: Path, source_sha: str, *, required: bool) -> bool:
+    module = build / OBS_MODULE
+    if not (module / "bin/64bit/chimera-obs.dll").is_file():
+        if required:
+            raise RuntimeError(f"Windows payload requires the OBS filter module: {module}")
+        return False
+    target = destination / "OBS/chimera-obs"
+    copy(module, target)
+    copy(ROOT / "OBS/LICENSE", target / "LICENSE.txt")
+    (target / "SOURCE.txt").write_text(
+        "SpectralForge Chimera OBS filter (chimera-obs)\n"
+        "License: GNU General Public License, version 2 or later (LICENSE.txt).\n"
+        f"Corresponding source: https://github.com/{REPO}/tree/{source_sha}/OBS\n"
+        "It loads the separately installed SpectralForge Chimera VST3 and contains none of\n"
+        "the product's DSP, models, impulse responses or artwork.\n", encoding="utf-8")
+    return True
+
+
 def verify_stage(stage: Path, required: list[str], *, version: dict | None = None) -> None:
     for name in required:
         path = stage / name
@@ -154,10 +179,12 @@ def windows(build: Path, dist: Path) -> None:
     copy(ROOT / "Tools/validate_nam.py", stage / "ReferenceTools/validate_nam.py")
     copy(ROOT / "Tools/Trace-Chimera-Session.ps1", stage / "ReferenceTools/Trace-Chimera-Session.ps1")
     copy(build / "ChimeraRender_artefacts/Release/ChimeraRender.exe", stage / "ReferenceTools/ChimeraRender.exe")
+    obs_filter(stage, build, IDENTITY["source_sha"], required=True)
     (stage / "README.txt").write_text(
         f"{PRODUCT} — {chimera_version.display_version(ROOT)} ({VERSION})\n\n"
         "Close Chimera and your DAW before installing or updating.\n"
         "Run the Setup installer for standard VST3 registration and the standalone app.\n"
+        "Setup also asks whether to install the optional OBS Studio filter (close OBS first).\n"
         "Read MANUAL.html for Korean/English/German usage and INSTALLATION.md for platform details.\n"
         "This build is unsigned; no verified publisher signature or Store certification is claimed.\n"
         "Public factory IRs are embedded and credited in THIRD_PARTY_NOTICES.md.\n"
@@ -165,7 +192,8 @@ def windows(build: Path, dist: Path) -> None:
         "Check the adjacent SHA256 before installing. Verification.txt identifies the original test evidence.\n",
         encoding="utf-8")
     verify_stage(stage, ["Standalone/SpectralForge Chimera.exe", "MANUAL.html", "Verification.txt",
-                         "VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3"])
+                         "VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3",
+                         OBS_FILTER_DLL])
     archive = dist / f"{PREFIX}-win64.zip"
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as output:
         for path in sorted(stage.rglob("*")):

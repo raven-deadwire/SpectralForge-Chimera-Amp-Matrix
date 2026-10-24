@@ -19,6 +19,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <deque>
+#include <fstream>
 #include <iostream>
 #include <mutex>
 #include <stdexcept>
@@ -337,6 +338,19 @@ int main(int argc, char** argv) {
         obs_data_release(futureSaved);
         std::cout << "settings preset push applied; newer-schema scene kept untouched\n";
 
+        // 6b. The Chimera Setup records a custom VST3 folder for the filter
+        // (UTF-8 with BOM, CRLF); an empty bundle setting then finds Chimera.
+        const std::string hintFile = dataPath + "/default-vst3-path.txt";
+        {
+            std::ofstream hint(hintFile, std::ios::binary);
+            hint << "\xEF\xBB\xBF" << bundle << "\r\n";
+        }
+        obs_source_t* hinted = makeFilter("Installed", "");
+        const bool hintedLoaded = propertyText(hinted, "status_info").find("Processing") != std::string::npos;
+        std::remove(hintFile.c_str());
+        check(hintedLoaded, "filter did not use the VST3 path recorded by Setup: " + propertyText(hinted, "status_info"));
+        std::cout << "Setup-recorded VST3 path used when the bundle setting is empty\n";
+
         // 7. Without Chimera: Mute by default, Dry when chosen; never a crash.
         obs_source_t* other = obs_source_create("chimera_test_input", "No Chimera", nullptr, nullptr);
         obs_source_t* missing = makeFilter("Missing", bundle + ".missing");
@@ -355,9 +369,9 @@ int main(int argc, char** argv) {
         // 8. Teardown: OBS destroys filters on its destroy thread; the plugin
         // must be unloaded on the UI thread, without blocking either.
         const size_t unloadsBefore = logCount("unloaded Chimera");
-        for (obs_source_t* f : {filter, restored, missing, future}) {
+        for (obs_source_t* f : {filter, restored, missing, future, hinted}) {
             obs_source_t* parent = f == missing ? other : source;
-            if (f != restored && f != future) obs_source_filter_remove(parent, f);
+            if (f == filter || f == missing) obs_source_filter_remove(parent, f);
             obs_source_release(f);
         }
         obs_source_release(copyFilter); // get_filter_by_name's reference; the copy owns it
@@ -367,17 +381,17 @@ int main(int argc, char** argv) {
         obs_source_release(other);
         // obs_wait_for_destroy_queue() returns at once without a video thread,
         // so poll the destroy thread's hand-offs instead.
-        for (int i = 0; i < 500 && logCount("unloaded Chimera") < unloadsBefore + 5; ++i) {
+        for (int i = 0; i < 500 && logCount("unloaded Chimera") < unloadsBefore + 6; ++i) {
             drainUi();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        check(logCount("unloaded Chimera") == unloadsBefore + 5,
-              "every filter must release its plugin on the UI thread (released " + std::to_string(logCount("unloaded Chimera") - unloadsBefore) + " of 5)");
+        check(logCount("unloaded Chimera") == unloadsBefore + 6,
+              "every filter must release its plugin on the UI thread (released " + std::to_string(logCount("unloaded Chimera") - unloadsBefore) + " of 6)");
 
         obs_shutdown();
         check(bnum_allocs() == 0, "libobs allocations leaked: " + std::to_string(bnum_allocs()));
         std::cout << "PASS OBS filter: libobs module load, OBS output equals direct VST3, live input mapping, tail reset on re-enable, scene restore, "
-                     "duplicate/copy with edited state, independent instances, settings preset push, newer-schema guard, "
+                     "duplicate/copy with edited state, independent instances, settings preset push, newer-schema guard, Setup-recorded VST3 path, "
                      "mute/dry without Chimera, UI-thread teardown\n";
         return 0;
     } catch (const std::exception& e) {

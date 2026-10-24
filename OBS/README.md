@@ -7,7 +7,7 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 모듈은 Chimera DSP를 포함하지 않고, 사용자가 따로 설치한 **Chimera VST3**를 불러와
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
-**상태: 개발 시제품. 공개 배포·설치 프로그램·서명 없음. 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
+**상태: 개발 시제품. Windows Chimera Setup의 선택 항목으로 같이 설치할 수 있음(서명 없음). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
 
 ## 라이선스
 
@@ -27,7 +27,8 @@ JUCE는 쓰지 않는다.
 | `tools/dll_exports_def.py` | Windows용 `obs.dll` export → `.def` (import lib 생성) | 빌드 |
 
 - 이름이 `SpectralForge Chimera`이고 제작사가 `RavenForge Luthier Intelligence`인 VST3 클래스만 로드한다(범용 VST3 호스트 아님).
-- 경로를 비우면 표준 설치 위치를 찾는다: Windows `%CommonProgramFiles%\VST3`, Linux `~/.vst3`, `/usr/local/lib/vst3`, `/usr/lib/vst3`.
+- 경로를 비우면 Setup이 기록한 VST3 위치(`data/default-vst3-path.txt`, UTF-8)를 먼저 쓰고, 없으면 표준 설치 위치를 찾는다:
+  Windows `%CommonProgramFiles%\VST3`, Linux `~/.vst3`, `/usr/local/lib/vst3`, `/usr/lib/vst3`.
 - 플러그인 로딩·해제·에디터는 항상 OBS UI 스레드에서 한다. `create`/`update`가 다른 스레드(장면 로딩, obs-websocket)에서 와도 UI 스레드로 넘긴다.
   OBS는 필터를 소멸 스레드에서 없애므로, 해제는 UI 스레드에 **기다리지 않고** 넘긴다(종료 중 교착 방지).
 - 장면에는 DAW와 같은 VST3 component/controller 상태를 base64로 저장한다. Chimera가 없는 PC에서 장면을 열어도 저장된 상태를 지우지 않는다.
@@ -65,12 +66,18 @@ xvfb-run -a ctest --test-dir build-obs --output-on-failure   # libobs가 X 디�
 
 Windows는 libobs 개발 패키지가 없으므로, 대상 OBS 릴리스 태그의 `libobs` 헤더와 그 릴리스 `obs.dll`에서
 만든 import library로 빌드한다(`-DCHIMERA_OBS_LIBOBS_INCLUDE_DIR`, `-DCHIMERA_OBS_LIBOBS_LIBRARY`).
-정확한 절차는 [`.github/workflows/obs-addon.yml`](../.github/workflows/obs-addon.yml)의 `windows` 작업이다(OBS 31.1.2, 해시 고정).
+정확한 절차는 [`tools/Build-WindowsModule.ps1`](tools/Build-WindowsModule.ps1)이다(OBS 31.1.2, 해시 고정, 정적 MSVC 런타임).
+OBS 추가 기능·제품 빌드·업데이트 후보 워크플로가 모두 이 스크립트를 쓴다.
 VST3 SDK는 `v3.8.0_build_66`을 자동으로 받으며 `-DCHIMERA_VST3_SDK_DIR`로 기존 사본을 지정할 수 있다.
 
-## 개발용 설치 (Windows)
+## 설치 (Windows)
 
-CI 산출물 `chimera-obs-windows-x64-*`를 다음 위치에 풀고 OBS를 다시 시작한다.
+Chimera Windows Setup의 작업 선택 화면에서 **OBS Studio용 SpectralForge Chimera 필터도 설치**를 고른다
+(VST3 선택 시 표시, OBS가 설치된 PC의 첫 설치에서는 기본 선택, 다시 설치하면 이전 선택 유지).
+OBS를 종료한 뒤 설치한다. 다시 설치할 때 선택을 해제하거나 Chimera를 제거하면 Setup이 설치한 필터 파일만 지운다.
+설치 폴더에는 `LICENSE.txt`(GPL)와 대응 소스 위치 `SOURCE.txt`가 같이 들어간다.
+
+개발용으로는 CI 산출물 `chimera-obs-windows-x64-*`를 다음 위치에 풀고 OBS를 다시 시작한다.
 
 ```
 %ProgramData%\obs-studio\plugins\chimera-obs\bin\64bit\chimera-obs.dll
@@ -78,7 +85,7 @@ CI 산출물 `chimera-obs-windows-x64-*`를 다음 위치에 풀고 OBS를 다�
 ```
 
 Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어야 한다. 오디오 소스 → 필터 →
-`SpectralForge Chimera`. 서명·설치 프로그램·업데이트는 계획 E단계다.
+`SpectralForge Chimera`. 서명·자동 업데이트는 계획 E단계다.
 
 ## 검증 기록
 
@@ -98,7 +105,9 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 위 상태 시험의 변형 시험(동기화·적용·버전 검사를 각각 제거하면 실패) | 3/3 검출 | 같은 환경 |
 | 다시 켠 필터의 꼬리 제거(무음 100 ms RMS 0.0074 → 0), 호스트 `requestReset` 0.0079 → 0 | 통과, 신호 연결 제거 시 실패 | 같은 환경 |
 | Windows 코드 경로 교차 컴파일(MinGW, OBS 31.1.2 헤더·`obs.dll` export) | 빌드 성공 | 실행 안 함 |
+| Setup이 기록한 VST3 위치 파일(BOM·CRLF 포함)로 경로 없이 로딩, 파일 처리 제거 시 실패 | 통과 | libobs 30.0.2 (헤드리스) |
 | Windows MSVC 빌드·시험(OBS 31.1.2 `obs.dll`) | CI에서 실행 | 결과는 CI 기록 |
+| Setup 필터 선택 설치·복구 시 선택 유지·사용자 지정 유니코드 VST3 경로 기록·선택 해제 시 제거·제거 시 삭제, 정적 런타임 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 
 장면 하나에 필터당 상태가 약 0.7 MB(base64) 저장된다(기본 상태 531,818바이트).
 

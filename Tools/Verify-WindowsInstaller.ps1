@@ -26,7 +26,9 @@ $startMenu = Join-Path ([Environment]::GetFolderPath("CommonPrograms")) "Spectra
 $sharedIRs = Join-Path ([Environment]::GetFolderPath("CommonApplicationData")) "SpectralForge/Chimera/IRs"
 $companion = Join-Path (Split-Path -Parent $installerPath) "Chimera-Personal-IRs"
 $registry = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1"
-foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion)) {
+# Optional OBS Studio filter task (GPL module, Issue #131) and its install path.
+$obsPlugin = Join-Path ([Environment]::GetFolderPath("CommonApplicationData")) "obs-studio\plugins\chimera-obs"
+foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion, $obsPlugin)) {
     if (Test-Path -LiteralPath $path) { throw "Refusing to overwrite an existing installation: $path" }
 }
 $report = [Collections.Generic.List[string]]::new()
@@ -34,6 +36,8 @@ $success = $false
 $actualPreviousReleaseUpgradeVerified = $false
 $observedVersions = [Collections.Generic.List[string]]::new()
 $payload = Get-Content -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Raw | ConvertFrom-Json
+$obsStage = Join-Path $stagePath "OBS/chimera-obs"
+$obsOffered = Test-Path -LiteralPath (Join-Path $obsStage "bin/64bit/chimera-obs.dll")
 $sourceSha = if ($payload.PSObject.Properties.Name -contains "source_sha") { $payload.source_sha } else { (& git rev-parse HEAD).Trim() }
 function Pass([string]$Message) {
     Write-Host "PASS: $Message"
@@ -48,9 +52,11 @@ function Run-SetupProcess([string]$Executable, [string[]]$Parameters) {
     $process = Start-Process -FilePath $Executable -ArgumentList $Parameters -PassThru -Wait
     Assert ($process.ExitCode -eq 0) "Installer process failed with exit code $($process.ExitCode)"
 }
-function Install([string]$Name, [string]$Destination, [string]$Components, [string]$Vst3Directory = "") {
+function Install([string]$Name, [string]$Destination, [string]$Components, [string]$Vst3Directory = "", [string]$ObsTask = "") {
     $parameters = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/LANG=korean",
         "/TYPE=custom", "/COMPONENTS=$Components", "/DIR=`"$Destination`"", "/LOG=`"$logPath/$Name.log`"")
+    # "obsfilter" selects and "!obsfilter" deselects; empty keeps the previous answer.
+    if ($ObsTask -and $obsOffered) { $parameters += "/MERGETASKS=`"$ObsTask`"" }
     if ($Vst3Directory) {
         $parameters += "/VST3DIR=`"$Vst3Directory`""
         $script:vst = Join-Path $Vst3Directory "SpectralForge Chimera.vst3"
@@ -66,7 +72,20 @@ function Equal-Tree([string]$Source, [string]$Destination) {
         Equal-File $file.FullName (Join-Path $Destination ([IO.Path]::GetRelativePath($Source, $file.FullName)))
     }
 }
-function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bool]$Reference) {
+function Check-ObsFilter([bool]$Installed) {
+    if (!$Installed) {
+        Assert (!(Test-Path -LiteralPath $obsPlugin)) "Unselected OBS filter is present: $obsPlugin"
+        return
+    }
+    Equal-Tree $obsStage $obsPlugin
+    # The filter finds the selected (possibly custom, Unicode) VST3 folder through this file.
+    $hintPath = Join-Path $obsPlugin "data/default-vst3-path.txt"
+    Assert (Test-Path -LiteralPath $hintPath -PathType Leaf) "OBS filter VST3 path hint is missing"
+    $hint = [Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($hintPath)).TrimStart([char]0xFEFF).TrimEnd()
+    Assert ([string]::Equals($hint.TrimEnd([char]92), $vst.TrimEnd([char]92), [StringComparison]::OrdinalIgnoreCase)) "OBS filter VST3 hint '$hint'; expected '$vst'"
+}
+function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bool]$Reference, [bool]$Obs = $false) {
+    Check-ObsFilter $Obs
     if ($Vst3) { Equal-Tree (Join-Path $stagePath "VST3/SpectralForge Chimera.vst3") $vst }
     else { Assert (!(Test-Path -LiteralPath $vst)) "Unselected VST3 was installed" }
     $exe = Join-Path $Destination "SpectralForge Chimera.exe"
@@ -123,6 +142,7 @@ function Uninstall([string]$Name, [string]$Destination) {
     Assert (!(Test-Path -LiteralPath (Join-Path $Destination "SpectralForge Chimera.exe"))) "Standalone app remains"
     Assert (!(Test-Path -LiteralPath (Join-Path $vst "Contents/x86_64-win/SpectralForge Chimera.vst3"))) "VST3 binary remains"
     Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "SpectralForge Chimera.lnk"))) "App shortcut remains"
+    Assert (!(Test-Path -LiteralPath $obsPlugin)) "OBS filter remains after uninstall: $obsPlugin"
 }
 Add-Type @'
 using System.Runtime.InteropServices;
@@ -197,8 +217,8 @@ try {
             ConvertTo-Json | Set-Content -LiteralPath ($file + ".json")
         $ravenFixtures += $file
     }
-    Install "01-full-install" $app "vst3,standalone,reference"
-    Check-Payload $app $true $true $true
+    Install "01-full-install" $app "vst3,standalone,reference" -ObsTask "obsfilter"
+    Check-Payload $app $true $true $true $obsOffered
     Assert (!(Test-Path -LiteralPath $legacyExe) -and !(Test-Path -LiteralPath $legacyVst)) "Legacy product binaries were not retired"
     Assert ((Get-FileHash -LiteralPath $legacyPreset).Hash -eq $legacyPresetHash) "Product rename changed a personal preset"
     Pass "Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes"
@@ -222,6 +242,7 @@ try {
     Pass "Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig"
     Pass "Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig"
     Pass "Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match"
+    if ($obsOffered) { Pass "Selected OBS filter task installs the staged module under ProgramData\obs-studio\plugins and records the VST3 path" }
 
     # Inspect the imports of all shipped native binaries, not just this runner's installed runtimes.
     $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio/Installer/vswhere.exe"
@@ -230,7 +251,10 @@ try {
     $toolset = Get-ChildItem -LiteralPath (Join-Path $vsRoot "VC/Tools/MSVC") -Directory | Sort-Object Name -Descending | Select-Object -First 1
     $dumpbin = Join-Path $toolset.FullName "bin/Hostx64/x64/dumpbin.exe"
     $vstBinary = Join-Path $vst "Contents/x86_64-win/SpectralForge Chimera.vst3"
-    foreach ($binary in @((Join-Path $app "SpectralForge Chimera.exe"), (Join-Path $app "ReferenceTools/ChimeraRender.exe"), $vstBinary)) {
+    $obsBinary = Join-Path $obsPlugin "bin/64bit/chimera-obs.dll"
+    $nativeBinaries = @((Join-Path $app "SpectralForge Chimera.exe"), (Join-Path $app "ReferenceTools/ChimeraRender.exe"), $vstBinary)
+    if ($obsOffered) { $nativeBinaries += $obsBinary }
+    foreach ($binary in $nativeBinaries) {
         $imports = & $dumpbin /DEPENDENTS $binary
         Assert ($LASTEXITCODE -eq 0) "Cannot inspect dependencies: $binary"
         $imports | Add-Content -LiteralPath (Join-Path $logPath "runtime-dependencies.txt")
@@ -238,6 +262,13 @@ try {
         Assert (!$externalCrt) "External Visual C++ runtime dependency: $binary"
     }
     Pass "Standalone, VST3 and reference renderer use the static MSVC runtime"
+    if ($obsOffered) {
+        # obs.dll is OBS's own and only present inside OBS, so inspect the export table instead of loading it.
+        $exports = & $dumpbin /EXPORTS $obsBinary
+        Assert ($LASTEXITCODE -eq 0) "Cannot inspect exports: $obsBinary"
+        Assert ($exports -match '\sobs_module_load\s*$') "OBS filter does not export obs_module_load"
+        Pass "OBS filter uses the static MSVC runtime and exports obs_module_load"
+    }
 
     $module = [Runtime.InteropServices.NativeLibrary]::Load($vstBinary)
     try { Assert ([Runtime.InteropServices.NativeLibrary]::GetExport($module, "GetPluginFactory") -ne [IntPtr]::Zero) "VST3 factory export is missing" }
@@ -263,7 +294,7 @@ try {
     $modifiedReadmeHash = (Get-FileHash -LiteralPath (Join-Path $app "README.txt") -Algorithm SHA256).Hash.ToLowerInvariant()
     $preservedReadme = Join-Path $app "PreservedDocuments/$modifiedReadmeHash/README.txt"
     Install "02-repair" $app "vst3,standalone,reference"
-    Check-Payload $app $true $true $true
+    Check-Payload $app $true $true $true $obsOffered
     Assert ((Get-FileHash -LiteralPath $preservedReadme -Algorithm SHA256).Hash.ToLowerInvariant() -eq $modifiedReadmeHash) "Repair did not preserve the modified README byte-for-byte"
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Repair modified user files"
     Assert ((Get-FileHash -LiteralPath $installedRaven[0]).Hash -eq $personalCaptureHash) "Repair overwrote a personal Raven IR"
@@ -277,16 +308,17 @@ try {
     Assert ((Get-FileHash -LiteralPath $preservedReadme -Algorithm SHA256).Hash.ToLowerInvariant() -eq $modifiedReadmeHash) "Uninstall removed the user's preserved documentation"
     Equal-File (Join-Path $stagePath "THIRD_PARTY_NOTICES.md") (Join-Path $app "Documentation/THIRD_PARTY_NOTICES.md")
     Pass "Uninstall removes owned binaries, shortcut and Windows registration; preserves user files"
+    if ($obsOffered) { Pass "Repair keeps the OBS filter answer; uninstall removes the OBS filter folder" }
 
     $custom = Join-Path $env:RUNNER_TEMP "Chimera 설치 검증"
     Assert (!(Test-Path -LiteralPath $custom)) "Custom test path already exists"
     $customVst3 = Join-Path $env:RUNNER_TEMP "Chimera VST3 설치 검증"
     Assert (!(Test-Path -LiteralPath $customVst3)) "Custom VST3 test path already exists"
-    Install "04-vst3-only" $custom "vst3" $customVst3
-    Check-Payload $custom $true $false $false
+    Install "04-vst3-only" $custom "vst3" $customVst3 -ObsTask "obsfilter"
+    Check-Payload $custom $true $false $false $obsOffered
     Pass "Independent custom application and VST3 installation folders accept Unicode paths"
     Install "04b-vst3-remembered-repair" $custom "vst3"
-    Check-Payload $custom $true $false $false
+    Check-Payload $custom $true $false $false $obsOffered
     Pass "Repair remembers the selected VST3 folder without a /VST3DIR override"
     $previousVst = $vst
     $vstUserFile = Join-Path $previousVst "personal-preserve.txt"
@@ -294,10 +326,16 @@ try {
     $vstUserHash = (Get-FileHash -LiteralPath $vstUserFile).Hash
     $movedVst3 = Join-Path $env:RUNNER_TEMP "Chimera VST3 이동 검증"
     Install "04c-vst3-path-move" $custom "vst3" $movedVst3
-    Check-Payload $custom $true $false $false
+    Check-Payload $custom $true $false $false $obsOffered
     Assert (!(Test-Path -LiteralPath (Join-Path $previousVst "Contents/x86_64-win/SpectralForge Chimera.vst3"))) "Changing VST3 folder left the old plugin binary"
     Assert ((Get-FileHash -LiteralPath $vstUserFile).Hash -eq $vstUserHash) "Changing VST3 folder modified a user file"
     Pass "Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files"
+    if ($obsOffered) {
+        Pass "OBS filter follows a custom Unicode VST3 folder and a later folder move"
+        Install "04d-obs-filter-deselected" $custom "vst3" -ObsTask "!obsfilter"
+        Check-Payload $custom $true $false $false $false
+        Pass "Deselecting the OBS filter on reinstall removes the filter Setup installed"
+    }
     Uninstall "05-vst3-uninstall" $custom
     Assert ((Get-FileHash -LiteralPath $vstUserFile).Hash -eq $vstUserHash) "Uninstall removed a user file from the previous VST3 folder"
     Pass "VST3-only selection and removal; Unicode custom app path"
