@@ -7,7 +7,8 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 모듈은 Chimera DSP를 포함하지 않고, 사용자가 따로 설치한 **Chimera VST3**를 불러와
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
-**상태: 개발 시제품. Windows Chimera Setup의 선택 항목으로 같이 설치할 수 있음(서명 없음). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
+**상태: 개발 시제품. Windows는 Chimera Setup의 선택 항목(서명 없음), macOS(Apple silicon)·Linux x86_64는 CI가 만든
+사용자 설치 패키지(F단계, 공개 배포 전). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
 
 ## 라이선스
 
@@ -26,6 +27,9 @@ JUCE는 쓰지 않는다.
 | `src/chimera-host.*` | VST3 번들 식별·로딩, 버스/처리 준비, 상태, 파라미터 | UI(로딩), 오디오(처리) |
 | `src/editor-window-*.cpp` | Chimera 에디터 창(Windows HWND). 다른 OS는 미지원 표시 | UI |
 | `tools/dll_exports_def.py` | Windows용 `obs.dll` export → `.def` (import lib 생성) | 빌드 |
+| `tools/build-macos-module.sh` | OBS 31.1.2 Apple 릴리스의 `libobs.framework`로 `chimera-obs.plugin` 빌드·시험 | 빌드 |
+| `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
+| `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 
 - 이름이 `SpectralForge Chimera`이고 제작사가 `RavenForge Luthier Intelligence`인 VST3 클래스만 로드한다(범용 VST3 호스트 아님).
 - 경로를 비우면 Setup이 기록한 VST3 위치(`data/default-vst3-path.txt`, UTF-8)를 먼저 쓰고, 없으면 표준 설치 위치를 찾는다:
@@ -102,6 +106,30 @@ Windows는 libobs 개발 패키지가 없으므로, 대상 OBS 릴리스 태그�
 OBS 추가 기능·제품 빌드·업데이트 후보 워크플로가 모두 이 스크립트를 쓴다.
 VST3 SDK는 `v3.8.0_build_66`을 자동으로 받으며 `-DCHIMERA_VST3_SDK_DIR`로 기존 사본을 지정할 수 있다.
 
+macOS(Apple silicon)도 libobs 개발 패키지가 없으므로 OBS 31.1.2 Apple 릴리스 DMG(해시 고정)의 `OBS.app` 안
+`libobs.framework`와 같은 태그의 헤더로 빌드한다. 결과는 OBS가 불러오는 `chimera-obs.plugin` 번들이다
+(`Contents/MacOS/chimera-obs`, 데이터는 `Contents/Resources`). VST3는 SDK의 macOS 번들 로더로 불러온다.
+
+```bash
+./OBS/tools/build-macos-module.sh "$TMPDIR/chimera-obs" "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+```
+
+## 설치 (macOS·Linux, F단계)
+
+`.github/workflows/obs-addon.yml`이 OS마다 패키지를 만든다. 각 패키지에는 설치 스크립트와 `INSTALL.txt`, 사용 안내 `README.txt`,
+`LICENSE.txt`, 모듈 버전·빌드한 OBS 버전·대응 소스가 적힌 `SOURCE.txt`가 들어 있다.
+
+| OS | 산출물 | 설치 위치(현재 사용자) | 빌드·시험한 OBS |
+|---|---|---|---|
+| Linux x86_64 | `chimera-obs-linux-x86_64-*.tar.gz` | `~/.config/obs-studio/plugins/chimera-obs/{bin/64bit,data}` | libobs 30.0.2 (Ubuntu 24.04) |
+| macOS Apple silicon | `chimera-obs-macos-arm64-*.zip` | `~/Library/Application Support/obs-studio/plugins/chimera-obs.plugin` | OBS 31.1.2 Apple |
+
+- `./install.sh`는 OBS가 실행 중이면 아무것도 바꾸지 않고 멈춘다(E단계 Windows Setup과 같은 규칙). `--uninstall`은 패키지가 설치한 파일만 지운다.
+  Linux에서는 root로 실행하지 않는다. macOS에서는 설치한 사본의 다운로드 격리 표시만 지운다.
+- CI는 패키지를 실제 사용자 폴더에 설치하고, `chimera-obs-layout-tests`로 libobs가 그 위치에서 모듈을 찾아
+  번역된 이름(`SpectralForge Chimera`)으로 등록하는지 확인한 뒤 제거까지 시험한다. Linux는 제거 뒤 사용자가 넣은 파일이 남는지도 본다.
+- macOS 번들은 임시(ad-hoc) 서명이며 Apple 공증 전이다. Intel Mac 빌드, macOS 에디터 창, Flatpak·Snap OBS는 아직 지원하지 않는다.
+
 ## 설치 (Windows)
 
 Chimera Windows Setup의 작업 선택 화면에서 **OBS Studio용 SpectralForge Chimera 필터도 설치**를 고른다
@@ -150,6 +178,9 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 위 상태 시험의 변형 시험(동기화·적용·버전 검사를 각각 제거하면 실패) | 3/3 검출 | 같은 환경 |
 | 다시 켠 필터의 꼬리 제거(무음 100 ms RMS 0.0074 → 0), 호스트 `requestReset` 0.0079 → 0 | 통과, 신호 연결 제거 시 실패 | 같은 환경 |
 | Windows 코드 경로 교차 컴파일(MinGW, OBS 31.1.2 헤더·`obs.dll` export) | 빌드 성공 | 실행 안 함 |
+| Linux 패키지: 일반 사용자 설치 → OBS 사용자 플러그인 경로에서 등록(번역 이름 확인) → 제거, 사용자 파일 보존 | 통과, 언어 파일 제거 시 실패 | Linux, libobs 30.0.2 |
+| Clang 빌드(OBS 프로젝트 전체, `-Wall -Wextra -Werror`) | 경고 0, 시험 5개 통과 | Linux |
+| macOS `chimera-obs.plugin` 빌드·호스트/필터 시험·설치 위치 시험 | CI(`obs-addon.yml` macos)에서 실행 | 결과는 CI 기록 |
 | 실시간 통계 단위 시험(끊김 분류, 20 ms 구간 부하·초과, 주기 보고, 초기화, 동시 읽기) | 통과(TSan 포함) | Linux |
 | 1초 넘게 끊긴 입력 재개 시 꼬리 제거(무음 100 ms RMS 0.0074 → 0), 20 ms 끊김은 꼬리 유지·통계만 | 통과 | libobs 30.0.2 (헤드리스) |
 | 장시간: 오디오 120초(CI 기본), 무작위 블록 1–1024 frames 11,244개, 10초마다 입력 매핑 변경 | 미처리 0, 출력 유한, 같은 구간 시작/끝 출력 차이 0(지연·상태 누적 없음) | 같은 환경 |
@@ -178,5 +209,5 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
 **미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows 에디터 코드는 실행 검증 전),
-실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS 빌드. 이 항목은 계획 C–F단계와
+실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS·Linux 실제 OBS 앱에서의 확인. 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
