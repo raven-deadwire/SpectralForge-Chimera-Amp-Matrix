@@ -2,9 +2,28 @@
 #include "PerformanceUtilities.h"
 #include "PostRigGate.h"
 #include "SpatialModules.h"
+#include <cstdlib>
 #include <iostream>
+#include <new>
 #include <stdexcept>
 #include <vector>
+
+namespace {thread_local bool countAllocations=false;thread_local size_t allocations=0;}
+void* operator new(std::size_t n) {if(countAllocations)++allocations;if(auto* p=std::malloc(n?n:1))return p;throw std::bad_alloc();}
+void* operator new[](std::size_t n) {return ::operator new(n);}
+void operator delete(void* p) noexcept {std::free(p);}
+void operator delete[](void* p) noexcept {std::free(p);}
+void operator delete(void* p,std::size_t) noexcept {std::free(p);}
+void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
+#if defined(__GLIBC__)
+// JUCE's HeapBlock (AudioBuffer storage) calls malloc directly; count it too.
+extern "C" {
+void* __libc_malloc(std::size_t);void* __libc_calloc(std::size_t,std::size_t);void* __libc_realloc(void*,std::size_t);
+void* malloc(std::size_t n) {if(countAllocations)++allocations;return __libc_malloc(n);}
+void* calloc(std::size_t n,std::size_t s) {if(countAllocations)++allocations;return __libc_calloc(n,s);}
+void* realloc(void* p,std::size_t n) {if(countAllocations)++allocations;return __libc_realloc(p,n);}
+}
+#endif
 
 namespace {
 void require(bool condition,const char* message) {if(!condition) throw std::runtime_error(message);}
@@ -192,8 +211,37 @@ void pitchCost()
     }
 }
 }
+// Every mode, switched mid-stream, with ratio/enable changes and odd block
+// sizes, must not allocate after prepare(); re-preparing at a new rate must
+// re-derive the 10 ms HYBRID window.
+void pitchNoAllocation()
+{
+    for(double rate:{44100.,48000.,96000.,192000.})for(int channels:{1,2}) {
+        spectralforge::Transposer pitch;pitch.prepare({rate,1024,(juce::uint32)channels});
+        // A view over preallocated storage: AudioBuffer::setSize may itself
+        // reallocate when growing back to the prepared size.
+        juce::AudioBuffer<float> storage(channels,1024);int clock=0;
+        const int blocks[]{1,37,128,1024,512,3,256};
+        const int shifts[]{-5,7,0,12,-12,2};
+        countAllocations=true;allocations=0;
+        for(int step=0;step<48;++step) {
+            if(step%6==0) pitch.setMode((step/6)%4);
+            const int n=blocks[step%7];juce::AudioBuffer<float> buffer(storage.getArrayOfWritePointers(),channels,n);
+            for(int c=0;c<channels;++c)for(int i=0;i<n;++i)buffer.setSample(c,i,signal(clock+i,c,rate));
+            clock+=n;
+            pitch.process(buffer,step%11!=10,shifts[step%6]);
+        }
+        countAllocations=false;
+        require(allocations==0,"Transposer allocated on the audio path");
+        for(int c=0;c<channels;++c)for(int i=0;i<1024;++i)require(std::isfinite(storage.getSample(c,i)),"Transposer produced a non-finite sample");
+    }
+    spectralforge::Transposer pitch;pitch.prepare({48000.,256,2});pitch.setMode(3);
+    pitch.prepare({96000.,256,2});pitch.setMode(3);
+    require(pitch.latency()==spectralforge::Transposer::tightAnalysisLength(96000.),"HYBRID latency not re-derived after a rate change");
+    std::cout<<"PASS: Transposer modes 0-3 allocation-free across mode/ratio/enable changes and block sizes 1-1024 at 44.1-192 kHz; HYBRID latency follows a re-prepare\n";
+}
 int main()
 {
-    try {pitchDryPaths();pitchHybridMode();pitchTransitions();pitchOutgoingRatio();tunerLifetime();postRigGate();pitchCost();return 0;}
+    try {pitchDryPaths();pitchHybridMode();pitchNoAllocation();pitchTransitions();pitchOutgoingRatio();tunerLifetime();postRigGate();pitchCost();return 0;}
     catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
 }

@@ -80,7 +80,8 @@ lead sweep(B0 / E2 / E2 파워코드 / A3 / E2 재피킹, 저역 어택 ms):
 - 동작은 probe 모드 41(800 Hz 크로스오버, 레가토 재정렬, 레가토에서만 ±2.5 ms 위상 정렬)과 같다. `Tests/PitchRegressionTests.cpp`가 44.1/48/96 kHz × −12·−5·−2·+2·+7·+12반음(E2 단음·파워코드)에서 연구 사본과 비트 단위로 같은지 확인한다.
 - 보고 지연은 TIGHT와 같은 10 ms 창이다. 8–192 kHz, 1–2채널만 지원하고, 그 밖(예: 384 kHz)에서는 TIGHT로 대체된다(`StabilityTests`).
 - 0반음·바이패스에서는 변환 엔진을 돌리지 않고 L만큼 지연된 원음을 낸다. 필터와 레가토 감지기는 계속 입력을 받으므로 다시 켜질 때 상태가 이어진다.
-- 블록 크기(1–1024) 불변성은 테스트로 확인했다. 실제 DAW 왕복, 오프라인/실시간 일치, Windows CPU, DI 녹음·블라인드 청취는 아직 하지 않았다.
+- 블록 크기(1–1024) 불변성은 테스트로 확인했다.
+- `StabilityTests`의 `pitchNoAllocation`: 모드 0–3을 처리 도중 바꾸고 반음·바이패스·블록 크기(1–1024)를 바꿔도 `prepare()` 이후 할당이 없다(44.1–192 kHz, 모노·스테레오). `operator new`와, glibc에서는 `malloc`/`calloc`/`realloc`까지 센다(JUCE `HeapBlock`은 `malloc`을 직접 쓴다). `process`에 `HeapBlock`을 넣으면 실패하는 것을 확인했다. 48 → 96 kHz로 다시 prepare하면 HYBRID 지연도 96 kHz 10 ms 창으로 바뀐다. 실제 DAW 왕복, 오프라인/실시간 일치, Windows CPU, DI 녹음·블라인드 청취는 아직 하지 않았다.
 
 아래는 통합 전에 쓴 설계 메모다.
 
