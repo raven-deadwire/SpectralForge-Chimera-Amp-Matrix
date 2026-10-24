@@ -130,6 +130,7 @@ Type: files; Name: "{#ObsPluginDir}\data\locale\ko-KR.ini"; Check: ObsFilterDese
 Type: files; Name: "{#ObsPluginDir}\data\default-vst3-path.txt"; Check: ObsFilterDeselected
 Type: files; Name: "{#ObsPluginDir}\LICENSE.txt"; Check: ObsFilterDeselected
 Type: files; Name: "{#ObsPluginDir}\SOURCE.txt"; Check: ObsFilterDeselected
+Type: files; Name: "{#ObsPluginDir}\README.txt"; Check: ObsFilterDeselected
 Type: dirifempty; Name: "{#ObsPluginDir}\bin\64bit"; Check: ObsFilterDeselected
 Type: dirifempty; Name: "{#ObsPluginDir}\bin"; Check: ObsFilterDeselected
 Type: dirifempty; Name: "{#ObsPluginDir}\data\locale"; Check: ObsFilterDeselected
@@ -181,6 +182,10 @@ english.ObsFilterGroup=OBS Studio:
 korean.ObsFilterGroup=OBS Studio:
 english.ObsFilterTask=Also install the SpectralForge Chimera filter for OBS Studio (close OBS first; open-source GPL module that loads the VST3 above)
 korean.ObsFilterTask=OBS Studio용 SpectralForge Chimera 필터도 설치 (OBS를 종료한 뒤 진행, 위 VST3를 불러오는 GPL 오픈소스 모듈)
+english.ObsRunning=OBS Studio is running. Close OBS Studio, then click Back and Next to continue. Setup has not changed any files.
+korean.ObsRunning=OBS Studio가 실행 중입니다. OBS를 종료한 뒤 [뒤로]와 [다음]을 눌러 계속하세요. Setup은 아직 파일을 바꾸지 않았습니다.
+english.ObsRunningUninstall=OBS Studio is running and is using the SpectralForge Chimera filter. Close OBS Studio, then remove SpectralForge Chimera again. Nothing was removed.
+korean.ObsRunningUninstall=OBS Studio가 실행 중이며 SpectralForge Chimera 필터를 사용하고 있습니다. OBS를 종료한 뒤 다시 제거하세요. 아무것도 제거하지 않았습니다.
 
 [Code]
 var
@@ -212,6 +217,28 @@ begin
 #else
   Result := False;
 #endif
+end;
+
+// A running OBS keeps chimera-obs.dll loaded: replacing or deleting it would
+// fail half-way. Unknown (WMI unavailable) is treated as not running.
+function ObsStudioRunning: Boolean;
+var
+  Locator, Service, Processes: Variant;
+begin
+  Result := False;
+  try
+    Locator := CreateOleObject('WbemScripting.SWbemLocator');
+    Service := Locator.ConnectServer('.', 'root\CIMV2');
+    Processes := Service.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE Name = ''obs64.exe''');
+    Result := Processes.Count > 0;
+  except
+    Log('OBS filter: could not check whether OBS Studio is running');
+  end;
+end;
+
+function ObsFilterFilesPresent: Boolean;
+begin
+  Result := FileExists(ExpandConstant('{#ObsPluginDir}\bin\64bit\chimera-obs.dll'));
 end;
 
 function ObsStudioInstalled: Boolean;
@@ -275,6 +302,13 @@ var
   Folder: String;
 begin
   Result := '';
+#ifdef ObsFilter
+  // Installing, updating or removing the filter while OBS has it loaded.
+  if (WizardIsTaskSelected('obsfilter') or ObsFilterDeselected) and ObsStudioRunning then begin
+    Result := CustomMessage('ObsRunning');
+    Exit;
+  end;
+#endif
   if not LockDocumentParents(ExpandConstant('{app}\Documentation\payload-manifest.json'),
     True, DocumentParentLocks) then begin
     Result := 'Documentation path is linked or inaccessible; existing files were preserved.';
@@ -302,6 +336,12 @@ end;
 
 function InitializeUninstall: Boolean;
 begin
+  if ObsFilterFilesPresent and ObsStudioRunning then begin
+    if not UninstallSilent then MsgBox(CustomMessage('ObsRunningUninstall'), mbError, MB_OK);
+    Log('OBS filter: uninstall stopped because OBS Studio is running');
+    Result := False;
+    Exit;
+  end;
   Result := InitializeDocumentUninstall;
 end;
 
