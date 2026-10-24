@@ -197,3 +197,13 @@ maximum (`setRelativeFloor`), and onset reporting at detection
 (`setReportAtDetection`). Passes T1/T2/T4 of the split targets in synthetic
 tests; earlier engines are bit-unchanged. See
 `docs/TRANSPOSE_T1_T4_FIXES_20261023.md`.
+
+## T6 real-DI validation (2026-10-24)
+
+`di_validation.py` scores real DI recordings against the same T1-T4 limits:
+`plan` checks a take manifest (`Validation/transpose-di-take-template.json`),
+`label` proposes offline reference onsets for human review, `freeze`
+pre-registers manifest/audio/labels/renderer hashes, and `run` refuses any
+difference from that record. `selftest` checks the pipeline on synthetic WAVs
+with known onsets; it is not T6 evidence. No recording exists yet. Protocol and
+the real-DI metric adaptations: `docs/TRANSPOSE_T6_DI_PROTOCOL.md`.
