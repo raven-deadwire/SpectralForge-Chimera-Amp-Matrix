@@ -545,7 +545,7 @@ class HybridTransposer {
     std::vector<uint8_t> legatoFlags,pickFlags;
     std::vector<int> legatoAges;
     int channels{},capacity{},window{},shift{};
-    bool available{};
+    bool available{},wasActive{};
 public:
     // False outside 8-192 kHz or 1-2 channels (the read head's range); the
     // caller then keeps another mode.
@@ -574,11 +574,11 @@ public:
         for(auto& b:highpass)b.prepare(spec.sampleRate,crossover,true);
         for(auto* b:{&lowIn,&highIn,&lowOut,&highOut,&detector})b->setSize(channels,capacity);
         lowDelay.assign(size_t(capacity),0);legatoFlags.assign(size_t(capacity),0);pickFlags.assign(size_t(capacity),0);legatoAges.assign(size_t(capacity),0);
-        shift=0;
+        shift=0;wasActive=false;
     }
     void reset() noexcept {
         if(!available) return;
-        body.reset();legato.reset();upper.reset();
+        body.reset();legato.reset();upper.reset();wasActive=false;
         for(auto& b:lowpass)b.clear();for(auto& b:highpass)b.clear();
     }
     int latency() const noexcept {return available ? window : 0;}
@@ -591,6 +591,11 @@ public:
         // tripled p99.9 block time at 32 samples without host flushing.
         const juce::ScopedNoDenormals noDenormals;
         const bool active=available && render && shift!=0;
+        // The legato detector only feeds re-anchors, so it is skipped while
+        // nothing renders (two thirds of the idle cost) and restarts clean
+        // when rendering resumes: its history would predate the bypass.
+        if(active && !wasActive) legato.reset();
+        wasActive=active;
         for(int off=0;off<input.getNumSamples();off+=capacity) {
             const int n=std::min(capacity,input.getNumSamples()-off);
             for(auto* b:{&lowIn,&highIn,&lowOut,&highOut,&detector})b->setSize(channels,n,false,false,true);
@@ -606,9 +611,9 @@ public:
                 int end=start;
                 for(;end<n;) {
                     float mono=0;for(int c=0;c<channels;++c)mono+=lowIn.getSample(c,end);
-                    const int age=legato.push(mono/float(channels));
+                    const int age=active ? legato.push(mono/float(channels)) : -1;
                     legatoFlags[size_t(end)]=age>=0 ? 1 : 0;legatoAges[size_t(end)]=std::max(age,0);
-                    ++end;if(legato.nextPushUpdates())break;
+                    ++end;if(active && legato.nextPushUpdates())break;
                 }
                 const juce::AudioBuffer<float> lowChunk(lowIn.getArrayOfWritePointers(),channels,start,end-start),detectorChunk(detector.getArrayOfWritePointers(),channels,start,end-start);
                 juce::AudioBuffer<float> outChunk(lowOut.getArrayOfWritePointers(),channels,start,end-start);

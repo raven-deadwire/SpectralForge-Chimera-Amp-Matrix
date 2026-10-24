@@ -88,6 +88,10 @@ lead sweep(B0 / E2 / E2 파워코드 / A3 / E2 재피킹, 저역 어택 ms):
 - `StabilityTests`의 `pitchNoAllocation`: 모드 0–3을 처리 도중 바꾸고 반음·바이패스·블록 크기(1–1024)를 바꿔도 `prepare()` 이후 할당이 없다(44.1–192 kHz, 모노·스테레오). `operator new`와, glibc에서는 `malloc`/`calloc`/`realloc`까지 센다(JUCE `HeapBlock`은 `malloc`을 직접 쓴다). `process`에 `HeapBlock`을 넣으면 실패하는 것을 확인했다. 48 → 96 kHz로 다시 prepare하면 HYBRID 지연도 96 kHz 10 ms 창으로 바뀐다.
 - `IntegratedProcessorTests`의 `transposeQualityLatency`(빠른 실행: `--transpose-quality-only`): 실제 `ChimeraProcessor`에서 품질을 3→0→1→2→3으로 바꾸면 다음 콜백에서 호스트 보고 지연이 바뀐다(44.1/48/96 kHz, 페달보드 켬·끔). HYBRID 상태를 저장·복원하면 첫 콜백 전에 10 ms가 보고된다. 복원 경로를 0–2로 제한하면 실패하는 것을 확인했다. 실제 호스트의 PDC 동작은 확인하지 않았다. 오프라인 바운스와 실시간 재생은 블록 크기만 다르다. 이는 위 블록 크기 불변성 테스트(프로세서 수준 포함)로 확인했다. 실제 DAW 왕복, Windows CPU, DI 녹음·블라인드 청취는 아직 하지 않았다.
 
+- CPU(`StabilityTests`의 `pitchCost`, 256 샘플 스테레오 블록, 이 컨테이너 기준, 3회 측정):
+  - 동작 중(−5반음)은 44.1/48 kHz에서 실시간의 7.8–8.1 %다. TIGHT 7.1–7.6 %보다 약 10 % 많다. 96 kHz에서는 16 %(TIGHT 13 %)다.
+  - 가장 무거운 블록은 44.1/48 kHz에서 예산의 10–15 %, 96 kHz에서 35–78 %다(TIGHT 21–34 %). 96 kHz 꼬리는 스플라이스 탐색이 샘플레이트에 비례해 커지기 때문으로 보인다. Windows 호스트에서 확인할 항목이다.
+  - 바이패스·0반음에서 레가토 감지기가 쉬도록 바꿨다. 쉬는 동안 비용이 16–27 ms에서 5.7–7.1 ms(400블록당)로 줄었다(다른 모드는 약 2.4 ms). 다시 렌더링을 시작할 때 감지기를 초기화한다. 바이패스 전 기록으로 잘못된 레가토 이벤트가 나오지 않게 하기 위해서다.
 - 전체 회귀(2026-10-24, `aba60c7`, Linux Release): 63개 중 58개는 그냥 통과한다. 나머지 5개는 화면이 필요한 UI 테스트이고, CI처럼 `Tools/run_linux_ui_tests.py`(Xvfb + openbox)로 돌리면 모두 통과한다.
   - `ChimeraNativeFocusTests`는 다른 UI 테스트와 함께 돌릴 때 한 번 실패했고, 단독으로는 3회 모두 통과했다.
 

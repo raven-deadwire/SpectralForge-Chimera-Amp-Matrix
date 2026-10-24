@@ -194,20 +194,27 @@ void postRigGate()
 }
 void pitchCost()
 {
-    for(double rate:{44100.,48000.,96000.}) {
-        auto elapsed=[&](bool enabled,int shift) {
-            spectralforge::Transposer pitch;pitch.prepare({rate,256,2});juce::AudioBuffer<float> audio(2,256);
-            const auto started=juce::Time::getHighResolutionTicks();
+    const char* names[]{"CLASSIC","LOW-LAT","TIGHT","HYBRID"};
+    for(double rate:{44100.,48000.,96000.})for(int mode=0;mode<4;++mode) {
+        // Per-block times; the block's real-time budget is 256 / rate.
+        auto run=[&](bool enabled,int shift,double& worst) {
+            spectralforge::Transposer pitch;pitch.prepare({rate,256,2});pitch.setMode(mode);juce::AudioBuffer<float> audio(2,256);
+            double total=0;worst=0;
             for(int block=0;block<400;++block) {
                 for(int c=0;c<2;++c)for(int n=0;n<256;++n)audio.setSample(c,n,signal(block*256+n,c,rate));
+                const auto started=juce::Time::getHighResolutionTicks();
                 pitch.process(audio,enabled,shift);
+                const double ms=juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-started)*1000.;
+                total+=ms;if(block>=20)worst=std::max(worst,ms);
             }
-            return juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-started)*1000.;
+            return total;
         };
-        const auto bypass=elapsed(false,-5),zero=elapsed(true,0),active=elapsed(true,-5);
-        std::cout<<"MEASURE pitch 400 stereo blocks/256 samples at "<<rate<<" Hz: bypass "<<bypass
-                 <<" ms, zero "<<zero<<" ms, active -5 "<<active<<" ms; algorithm delay "
-                 <<(rate>48000 ? 4096 : 2048)<<" samples (CPU timings are local, not a Windows DAW benchmark)\n";
+        double worstBypass=0,worstZero=0,worstActive=0;
+        const auto bypass=run(false,-5,worstBypass),zero=run(true,0,worstZero),active=run(true,-5,worstActive);
+        const double audioMs=400*256/rate*1000.,budgetMs=256/rate*1000.;
+        std::cout<<"MEASURE pitch "<<names[mode]<<" 400 stereo blocks/256 samples at "<<rate<<" Hz: bypass "<<bypass
+                 <<" ms, zero "<<zero<<" ms, active -5 "<<active<<" ms ("<<100*active/audioMs<<" % of real time, worst block "
+                 <<100*worstActive/budgetMs<<" % of its budget); CPU timings are local, not a Windows DAW benchmark\n";
     }
 }
 }
