@@ -209,6 +209,29 @@ class PackagingVersionTests(unittest.TestCase):
         self.write("build/chimera-build-version.json", json.dumps(expected))
         version.validate_build(self.root / "build", expected)
 
+    def test_obs_filter_stage_carries_license_guide_source_and_module_version(self):
+        build, stage = self.root / "build", self.root / "stage"
+        self.write("build/obs-module/bin/64bit/chimera-obs.dll", "module fixture")
+        self.write("build/obs-module/data/locale/en-US.ini", 'Chimera="SpectralForge Chimera"\n')
+        self.assertTrue(release.obs_filter(stage, build, SHA, required=True))
+        target = stage / "OBS/chimera-obs"
+        self.assertEqual((target / "bin/64bit/chimera-obs.dll").read_text(), "module fixture")
+        self.assertTrue((target / "data/locale/en-US.ini").is_file())
+        self.assertEqual((target / "LICENSE.txt").read_bytes(), (ROOT / "OBS/LICENSE").read_bytes())
+        self.assertEqual((target / "README.txt").read_bytes(), (ROOT / "OBS/packaging/README.txt").read_bytes())
+        source = (target / "SOURCE.txt").read_text(encoding="utf-8")
+        self.assertIn(f"Module version: {release.obs_module_version()}\n", source)
+        self.assertIn(f"/tree/{SHA}/OBS", source)
+        # The installer removes exactly these files when the task is deselected.
+        iss = (ROOT / "Installer/Chimera.iss").read_text(encoding="utf-8-sig")
+        for path in target.rglob("*"):
+            if path.is_file():
+                name = str(path.relative_to(target)).replace("/", "\\")
+                self.assertIn('"{#ObsPluginDir}\\' + name + '"; Check: ObsFilterDeselected', iss)
+        self.assertFalse(release.obs_filter(self.root / "other", self.root / "missing", SHA, required=False))
+        with self.assertRaises(RuntimeError):
+            release.obs_filter(self.root / "other", self.root / "missing", SHA, required=True)
+
     def test_candidate_stage_inventory_and_versions_without_global_mutation(self):
         expected = version.identity(self.root, SHA)
         self.write("build/chimera-build-version.json", json.dumps(expected))

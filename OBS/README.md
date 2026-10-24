@@ -107,7 +107,20 @@ VST3 SDK는 `v3.8.0_build_66`을 자동으로 받으며 `-DCHIMERA_VST3_SDK_DIR`
 Chimera Windows Setup의 작업 선택 화면에서 **OBS Studio용 SpectralForge Chimera 필터도 설치**를 고른다
 (VST3 선택 시 표시, OBS가 설치된 PC의 첫 설치에서는 기본 선택, 다시 설치하면 이전 선택 유지).
 OBS를 종료한 뒤 설치한다. 다시 설치할 때 선택을 해제하거나 Chimera를 제거하면 Setup이 설치한 필터 파일만 지운다.
-설치 폴더에는 `LICENSE.txt`(GPL)와 대응 소스 위치 `SOURCE.txt`가 같이 들어간다.
+설치 폴더에는 사용 안내 `README.txt`(한국어/영어, 원본 [`packaging/README.txt`](packaging/README.txt)),
+`LICENSE.txt`(GPL), 대응 소스 위치와 모듈 버전 `SOURCE.txt`가 같이 들어간다.
+
+배포 동작(E단계):
+- OBS(`obs64.exe`)가 실행 중이면 필터 설치·업데이트·선택 해제를 하기 전에 Setup이 멈추고 OBS 종료를 요청한다.
+  무인 설치는 종료 코드 7로 끝나고, 아무 파일도 바꾸지 않는다. 필터가 설치된 상태에서 OBS가 실행 중이면 제거도 거부한다.
+  OBS가 실행 중인지 알 수 없으면(WMI 사용 불가) 막지 않는다.
+- Setup은 OBS 장면·프로필(`%APPDATA%\obs-studio`)과 다른 플러그인 폴더를 읽거나 바꾸지 않는다.
+  장면에 저장된 Chimera 소리는 제거 후에도 장면 파일에 남고, 다시 설치하면 그대로 불러온다.
+- 모듈 버전은 `CMakeLists.txt`의 `project(chimera-obs VERSION ...)`이며, 소스 커밋과 함께 DLL 버전 정보·OBS 로그·속성 창에 나온다.
+  로그 예: `[chimera-obs] module 0.1.0 (source 0123456789), built and tested for OBS 31.1.2, running OBS 31.1.2`.
+  실행 중인 OBS의 주 버전이 빌드·시험한 버전과 다르면 로그 경고와 속성 창 안내를 남긴다(로딩은 막지 않음).
+- 서명: `Build-WindowsInstaller.ps1 -Sign`은 단계 폴더의 모든 `.exe`·`.dll`·`.vst3`에 서명하므로 `chimera-obs.dll`도 포함된다.
+  공개 서명 인증서가 아직 없어 현재 배포본은 서명 전이다.
 
 개발용으로는 CI 산출물 `chimera-obs-windows-x64-*`를 다음 위치에 풀고 OBS를 다시 시작한다.
 
@@ -145,6 +158,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | Chimera 직접 처리 60초(무작위 블록) 20 ms 구간 실시간 초과 | 0회(2회 실행), 블록당 최대 약 6 ms | Linux x86_64, 4코어 |
 | Setup이 기록한 VST3 위치 파일(BOM·CRLF 포함)로 경로 없이 로딩, 파일 처리 제거 시 실패 | 통과 | libobs 30.0.2 (헤드리스) |
 | Windows MSVC 빌드·시험(OBS 31.1.2 `obs.dll`) | CI에서 실행 | 결과는 CI 기록 |
+| Setup: OBS 실행 중 설치·선택 해제 중단(종료 코드 7)·제거 거부, OBS 장면 파일·다른 플러그인 보존, DLL 버전 정보 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 | Setup 필터 선택 설치·복구 시 선택 유지·사용자 지정 유니코드 VST3 경로 기록·선택 해제 시 제거·제거 시 삭제, 정적 런타임 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 
 장면 하나에 필터당 상태가 약 0.7 MB(base64) 저장된다(기본 상태 531,818바이트).

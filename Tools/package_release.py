@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import tarfile
@@ -136,6 +137,14 @@ OBS_MODULE = "obs-module"
 OBS_FILTER_DLL = "OBS/chimera-obs/bin/64bit/chimera-obs.dll"
 
 
+def obs_module_version() -> str:
+    """The module version from OBS/CMakeLists.txt, also in the DLL's version resource."""
+    match = re.search(r"project\(chimera-obs VERSION (\d+\.\d+\.\d+)", (ROOT / "OBS/CMakeLists.txt").read_text(encoding="utf-8"))
+    if not match:
+        raise RuntimeError("OBS/CMakeLists.txt does not declare the module version")
+    return match.group(1)
+
+
 def obs_filter(destination: Path, build: Path, source_sha: str, *, required: bool) -> bool:
     module = build / OBS_MODULE
     if not (module / "bin/64bit/chimera-obs.dll").is_file():
@@ -145,8 +154,10 @@ def obs_filter(destination: Path, build: Path, source_sha: str, *, required: boo
     target = destination / "OBS/chimera-obs"
     copy(module, target)
     copy(ROOT / "OBS/LICENSE", target / "LICENSE.txt")
+    copy(ROOT / "OBS/packaging/README.txt", target / "README.txt")
     (target / "SOURCE.txt").write_text(
         "SpectralForge Chimera OBS filter (chimera-obs)\n"
+        f"Module version: {obs_module_version()}\n"
         "License: GNU General Public License, version 2 or later (LICENSE.txt).\n"
         f"Corresponding source: https://github.com/{REPO}/tree/{source_sha}/OBS\n"
         "It loads the separately installed SpectralForge Chimera VST3 and contains none of\n"

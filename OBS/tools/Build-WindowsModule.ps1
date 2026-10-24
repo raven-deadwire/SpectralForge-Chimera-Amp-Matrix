@@ -52,8 +52,12 @@ if (!$libExe) { throw "lib.exe was not found." }
 if ($LASTEXITCODE) { throw "lib.exe failed: $LASTEXITCODE" }
 
 $build = Join-Path $work "build"
+# The module records the commit it was built from (version resource and OBS log).
+$sourceSha = (& git -C $source rev-parse HEAD).Trim()
+if ($LASTEXITCODE -or $sourceSha -notmatch '^[0-9a-f]{40}$') { throw "Cannot read the module source commit." }
 $configure = @("-S", $source, "-B", $build, "-A", "x64",
-    "-DCHIMERA_OBS_LIBOBS_INCLUDE_DIR=$(Join-Path $headers 'libobs')", "-DCHIMERA_OBS_LIBOBS_LIBRARY=$lib")
+    "-DCHIMERA_OBS_LIBOBS_INCLUDE_DIR=$(Join-Path $headers 'libobs')", "-DCHIMERA_OBS_LIBOBS_LIBRARY=$lib",
+    "-DCHIMERA_OBS_SOURCE_SHA=$sourceSha")
 if ($TestBundle) { $configure += "-DCHIMERA_OBS_TEST_BUNDLE=$((Resolve-Path -LiteralPath $TestBundle).Path)" }
 cmake @configure
 if ($LASTEXITCODE) { throw "OBS module configure failed." }

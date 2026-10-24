@@ -325,6 +325,7 @@ int main(int argc, char** argv) {
         check(obs_init_module(module), "obs_init_module");
         check(std::string(obs_source_get_display_name(filterId)) == "SpectralForge Chimera", "filter is not registered");
         std::cout << "module loaded through libobs " << obs_get_version_string() << '\n';
+        check(logCount("[chimera-obs] module ") == 1 && logCount("built and tested for OBS") == 1, "module identity is not logged");
 
         // 1. OBS path vs direct VST3 path on the same input.
         obs_source_t* source = obs_source_create("chimera_test_input", "DI", nullptr, nullptr);
@@ -333,6 +334,9 @@ int main(int argc, char** argv) {
         obs_set_output_source(0, source);
         settle();
         check(propertyText(filter, "status_info").find("Processing") != std::string::npos, "status is not Processing: " + propertyText(filter, "status_info"));
+        check(propertyText(filter, "status_info").find("Chimera OBS filter ") != std::string::npos
+                  && propertyText(filter, "status_info").find("built and tested for OBS") != std::string::npos,
+              "module version and tested OBS version are not shown");
         const int frames = rate * 4;
         const auto viaObs = push(source, 0, frames);
 

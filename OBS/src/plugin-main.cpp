@@ -29,6 +29,13 @@ MODULE_EXPORT const char* obs_module_description(void) {
     return "SpectralForge Chimera audio filter (hosts the installed Chimera VST3)";
 }
 
+#ifndef CHIMERA_OBS_VERSION
+#define CHIMERA_OBS_VERSION "0.0.0"
+#endif
+#ifndef CHIMERA_OBS_SOURCE
+#define CHIMERA_OBS_SOURCE "local"
+#endif
+
 namespace {
 using namespace spectralforge::obs;
 
@@ -337,6 +344,16 @@ void enabledChanged(void* data, calldata_t* call) {
 
 const char* getName(void*) { return obs_module_text("Chimera"); }
 
+// The OBS release whose libobs headers (and, on Windows, obs.dll) this module
+// was built and tested against; see the module identity line in the OBS log.
+constexpr unsigned builtMajor = LIBOBS_API_MAJOR_VER, builtMinor = LIBOBS_API_MINOR_VER, builtPatch = LIBOBS_API_PATCH_VER;
+
+std::string builtObsVersion() {
+    return std::to_string(builtMajor) + "." + std::to_string(builtMinor) + "." + std::to_string(builtPatch);
+}
+
+bool runningTestedObsMajor() { return (obs_get_version() >> 24) == builtMajor; }
+
 void* create(obs_data_t* settings, obs_source_t* source) {
     auto* f = new Filter();
     f->source = source;
@@ -425,6 +442,10 @@ obs_properties_t* getProperties(void* data) {
     // Read-only diagnostics. OBS has no plugin delay compensation: this delay
     // is not corrected automatically (see the add-on plan, stage D).
     std::string info = std::string(obs_module_text("Status")) + ": " + statusText(f);
+    info += std::string("\n") + obs_module_text("Module") + " " CHIMERA_OBS_VERSION " (" CHIMERA_OBS_SOURCE ") · "
+        + obs_module_text("Module.BuiltFor") + " " + builtObsVersion();
+    if (!runningTestedObsMajor())
+        info += std::string("\n") + obs_module_text("Module.UntestedObs") + " " + obs_get_version_string();
     if (f->host.loaded()) {
         const auto& id = f->host.identity();
         const int samples = f->bridge.latencySamples();
@@ -495,5 +516,10 @@ bool obs_module_load(void) {
     info.filter_audio = filterAudio;
     obs_register_source(&info);
     blog(LOG_INFO, "[chimera-obs] registered %s", filterId);
+    blog(LOG_INFO, "[chimera-obs] module %s (source %s), built and tested for OBS %s, running OBS %s",
+         CHIMERA_OBS_VERSION, CHIMERA_OBS_SOURCE, builtObsVersion().c_str(), obs_get_version_string());
+    if (!runningTestedObsMajor())
+        blog(LOG_WARNING, "[chimera-obs] this OBS major version is not the one the module was tested with (%u); "
+             "report problems with the OBS and module versions above", builtMajor);
     return true;
 }
