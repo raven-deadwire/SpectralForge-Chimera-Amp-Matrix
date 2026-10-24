@@ -1,0 +1,21 @@
+{
+  "partition.json": "49b8d98d488c54612b135a996f5507be7c1cef91eaa599ee9a7d5ec890033fcc",
+  "CorrelationTests.log": "e86eb2c6b609f7a5a6074a7de553bb4316f7b5aace936c73046fae3bd6aadb38",
+  "synthetic-audio.tar.gz": "46f3f26437b107f0d306111ecdebf5e84dc80e7ca30e8445d4df6d3e6cf7cb5b",
+  "GateTests.log": "56bd88975b216a45fd5e5364435e783c952741d9dcd0cd380ecbbfee3851e3fa",
+  "quality.json": "38df4b2e8788189944eabd2d8ff33f96d73b9e5612d798cf204d2e5e8fdbf59b",
+  "StabilityTests.log": "18fd9164535ae1bbb8b657ec6f217a3eaba03ceaef9528b27c03cd51a7f99205",
+  "audit-build.json": "f880f7b4eb601621127e7ee4a334f2251c2741a78c15f4e834248d47fa9b3ec0",
+  "PitchRegressionTests.log": "ef71ef0e9aa214ed305b1c77d11d9a68afb268efb62abf0121aa997121ed6447",
+  "per-condition.csv": "7d849a3dd14e7d666c1aa7a04681588ebd40071c61d3e7861b6df731ae96adf8",
+  "timing-original-probe.json": "5e6437623800fbf607f8ccaf68dae4240c6d20f7120dbde7c62555eb13f2d253",
+  "environment.txt": "f1275abd4c75c29718daf20a83a7afc4d6c038619e43f0faff25d42df3c1d6ac",
+  "comparison.csv": "1915f0ff48881c9f8de79e4cd1d7d84809ba25cbf2655b48950bf89538aab663",
+  "PitchRegressionTests125.log": "d5f45b011e02300d52af9ae71d89e9bd4074a3d60b9623e9361f6733ef5d7aff",
+  "timing.json": "35eee542812914bd2a1775dc1fb1b3557543160e45d752f956b21abdd5ab57c1",
+  "CorrelationTestsRT.log": "ef700f1684c04b2ece4479a4d7d5dcf43ccedd0a99139a6aef811e9ce46c0eab",
+  "build.json": "3394fb3349d87626f93af4ed2a72eccde27c0c627ef8397e299ae78045c0354d",
+  "summary.json": "6196f6f7bc693d3561253a73a29b7af64bed8824f41d9274d8575c384044bcd8",
+  "callbacks.tar.gz": "67e5d2e57a598459bfd74995a379a5f94fbc0f048845b357c018665771a02fbc",
+  "delay-comparison.png": "7272995b2ca283437d8e6abfbd798682dc5eefc18627caef7245e8798767f08f"
+}

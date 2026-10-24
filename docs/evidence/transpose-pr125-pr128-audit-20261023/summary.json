@@ -1,0 +1,170 @@
+{
+  "quality_renders": 219,
+  "partition_renders": 120,
+  "timing_renders": 117,
+  "summary": [
+    {
+      "note": "B0",
+      "engine": "baseline",
+      "harmonic_pitch_abs_max_cents": 356.3917107813089,
+      "harmonic_warble_max_cents": 399.6599206624612,
+      "attack_extra_max_ms": 47.895833333333336,
+      "lowband_extra_max_ms": 40.9962451189322,
+      "fresh_attack_max_ms": 48.79166666666667,
+      "fresh_lowband_max_ms": 45.74846425302165
+    },
+    {
+      "note": "B0",
+      "engine": "tight125",
+      "harmonic_pitch_abs_max_cents": 227.34899797738387,
+      "harmonic_warble_max_cents": 53.306942209248234,
+      "attack_extra_max_ms": 10.333333333333334,
+      "lowband_extra_max_ms": 10.363649738764137,
+      "fresh_attack_max_ms": 10.6875,
+      "fresh_lowband_max_ms": 12.717229275933256
+    },
+    {
+      "note": "B0",
+      "engine": "corr40-split-rt",
+      "harmonic_pitch_abs_max_cents": 7.449904508483682e-05,
+      "harmonic_warble_max_cents": 0.2965205770693,
+      "attack_extra_max_ms": 4.979166666666666,
+      "lowband_extra_max_ms": 6.967974546695011,
+      "fresh_attack_max_ms": 4.916666666666667,
+      "fresh_lowband_max_ms": 7.508418181982904
+    },
+    {
+      "note": "A0",
+      "engine": "baseline",
+      "harmonic_pitch_abs_max_cents": 219.5678542613491,
+      "harmonic_warble_max_cents": 569.6262403140406,
+      "attack_extra_max_ms": 48.14583333333333,
+      "lowband_extra_max_ms": 40.863305680098826,
+      "fresh_attack_max_ms": 48.79166666666667,
+      "fresh_lowband_max_ms": 45.85846742443478
+    },
+    {
+      "note": "A0",
+      "engine": "tight125",
+      "harmonic_pitch_abs_max_cents": 308.96319019437624,
+      "harmonic_warble_max_cents": 42.67830785277539,
+      "attack_extra_max_ms": 10.354166666666666,
+      "lowband_extra_max_ms": 9.814999114522898,
+      "fresh_attack_max_ms": 10.6875,
+      "fresh_lowband_max_ms": 12.695715655626234
+    },
+    {
+      "note": "A0",
+      "engine": "corr40-split-rt",
+      "harmonic_pitch_abs_max_cents": 0.0001446421325941704,
+      "harmonic_warble_max_cents": 0.5929285437828326,
+      "attack_extra_max_ms": 5.0,
+      "lowband_extra_max_ms": 6.5837664002528875,
+      "fresh_attack_max_ms": 4.916666666666667,
+      "fresh_lowband_max_ms": 7.152609719834096
+    },
+    {
+      "note": "A1",
+      "engine": "baseline",
+      "harmonic_pitch_abs_max_cents": 0.572367727699149,
+      "harmonic_warble_max_cents": 0.6989093995622498,
+      "attack_extra_max_ms": 49.3125,
+      "lowband_extra_max_ms": 42.999682924587276,
+      "fresh_attack_max_ms": 46.416666666666664,
+      "fresh_lowband_max_ms": 47.21419198644897
+    },
+    {
+      "note": "A1",
+      "engine": "tight125",
+      "harmonic_pitch_abs_max_cents": 150.78275475525385,
+      "harmonic_warble_max_cents": 0.05510539338722112,
+      "attack_extra_max_ms": 10.708333333333334,
+      "lowband_extra_max_ms": 12.356113403488951,
+      "fresh_attack_max_ms": 10.6875,
+      "fresh_lowband_max_ms": 13.220639392908918
+    },
+    {
+      "note": "A1",
+      "engine": "corr40-split-rt",
+      "harmonic_pitch_abs_max_cents": 0.0001697014937850462,
+      "harmonic_warble_max_cents": 0.01144567872209416,
+      "attack_extra_max_ms": 5.0,
+      "lowband_extra_max_ms": 10.443054457380029,
+      "fresh_attack_max_ms": 4.895833333333334,
+      "fresh_lowband_max_ms": 10.683858116836387
+    }
+  ],
+  "cpu128": [
+    {
+      "engine": "baseline",
+      "mean_us_range": [
+        224.880169037037,
+        562.5781922962964
+      ],
+      "budget_pct_range": [
+        8.43300633888936,
+        21.096682211112327
+      ],
+      "p99_us_range": [
+        903.2976600000013,
+        4554.656600000006
+      ],
+      "peak_cpu_us": 178879.0,
+      "peak_wall_us": 178917.0,
+      "cpu_misses": 1421,
+      "wall_misses": 1438,
+      "callbacks": 243000
+    },
+    {
+      "engine": "tight125",
+      "mean_us_range": [
+        222.01803985185182,
+        454.197822074074
+      ],
+      "budget_pct_range": [
+        8.325676494444915,
+        17.032418327778768
+      ],
+      "p99_us_range": [
+        677.7099200000006,
+        4268.398300000006
+      ],
+      "peak_cpu_us": 418687.0,
+      "peak_wall_us": 419285.0,
+      "cpu_misses": 964,
+      "wall_misses": 974,
+      "callbacks": 243000
+    },
+    {
+      "engine": "corr40-split-rt",
+      "mean_us_range": [
+        20.640097333333333,
+        35.677869629629626
+      ],
+      "budget_pct_range": [
+        0.7740036500000409,
+        1.3379201111111856
+      ],
+      "p99_us_range": [
+        110.51113000000011,
+        299.30975
+      ],
+      "peak_cpu_us": 35997.2,
+      "peak_wall_us": 35999.7,
+      "cpu_misses": 29,
+      "wall_misses": 30,
+      "callbacks": 243000
+    }
+  ],
+  "release_approved": false,
+  "target_achieved": false,
+  "new_failure": "RT_downshift_block_partition_dependence",
+  "functional_tests": {
+    "CorrelationTests": "PASS",
+    "PitchRegressionTests": "PASS",
+    "PitchRegressionTests125": "PASS",
+    "StabilityTests": "PASS",
+    "GateTests": "PASS",
+    "CorrelationTestsRT": "FAIL_partition-dependent_output"
+  }
+}
