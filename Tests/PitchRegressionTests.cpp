@@ -108,7 +108,7 @@ void hybridChecks() {
             if(reference.empty())reference=y;else require(y==reference,"HYBRID output depends on the block size");
         }
     }
-    std::cout<<"PASS HYBRID transpose: bit-identical to research probe mode 45, low notes shifted, block-size invariant (synthetic only; DI and listening not done)\n";
+    std::cout<<"PASS HYBRID transpose: bit-identical to research probe mode 45, low notes shifted, block-size invariant (synthetic material)\n";
 }
 double component(const Render& r,double rate,double frequency) {
     std::complex<double> sum{};const auto first=size_t(rate*.75);

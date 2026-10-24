@@ -9,8 +9,9 @@
 
 // HYBRID transpose mode (Transposer mode 3). Design, measurements and limits:
 // docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md and
-// docs/TRANSPOSE_SYNTHETIC_EVIDENCE_20261023.md (synthetic material only; no
-// DI recordings or blind listening yet).
+// docs/TRANSPOSE_SYNTHETIC_EVIDENCE_20261023.md. Measured on synthetic
+// material plus a blind A/B listen; the DI step was signed off by the owner
+// on 2026-10-24 without DI measurements (contract doc, section 6).
 //
 // CorrelationPitch and LegatoDetector below are copies of the research
 // sources in Tools/TransposeNext (ebd3761, plus the per-update pick ordering
