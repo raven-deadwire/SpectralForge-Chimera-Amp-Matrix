@@ -36,6 +36,9 @@ int main() {
             float impulse = 1.f; float* channel = &impulse;
             bypass.process(&channel, 1, 1, 1, true);
             check(impulse == 0.f); // reprepare must not leak old input history
+            std::vector<float> oldAudio(5003, 1.f);
+            float* oldChannel = oldAudio.data();
+            bypass.process(&oldChannel, 1, static_cast<int>(oldAudio.size()), 1, false);
             bypass.reset();
             impulse = 0.f;
             bypass.process(&channel, 1, 1, 1, true);
@@ -47,7 +50,7 @@ int main() {
             bypass.process(&channel, 1, 1, 1, true);
             check(impulse == .25f); // preserve alignment for newly arriving audio
         }
-        std::cout << "PASS host bypass: exact delayed input, wet priming, mono/stereo, zero/dynamic delay, oversized blocks and reprepare\n";
+        std::cout << "PASS host bypass: exact delayed input, wet priming, mono/stereo, zero/dynamic delay, oversized blocks, reprepare and reset\n";
         return 0;
     } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
