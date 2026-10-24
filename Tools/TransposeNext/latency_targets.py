@@ -34,7 +34,7 @@ def long_notes(f0, rate, spacing=.25, decay=.08, n=10, seed=1):
         z[o:o+m] += signal.sosfilt(hp, click)
     return np.column_stack((z, -.65*z)).astype('<f4'), onsets
 
-def inputs(rate):
+def inputs(rate, holdout_seeds=(8139, 20261024), long_seed=1):
     """(key, x, meta, roles) for every scored input at one sample rate."""
     out = []
     for inst, f in FREQUENCIES.items():
@@ -43,19 +43,21 @@ def inputs(rate):
                             ('harmonics', {'steady'}), ('tremolo', {'guard'}), ('vibrato', {'guard'}),
                             ('bright_sustain', {'guard', 'steady'}), ('noise_floor', {'guard', 'steady'})]:
             x, m = generate(name, rate, inst); out.append((f'{inst}/{name}', x, m, roles))
-        for seed in (8139, 20261024):
+        for seed in holdout_seeds:
             for mode, roles in [('random_plucks', {'attack', 'short'}), ('random_soft_after_loud', {'attack', 'short'}),
                                 ('random_markers', {'attack', 'markers'})]:
                 x, on = holdout_input(f, mode, seed, rate)
                 out.append((f'{inst}/holdout{seed}-{mode}', x, {'rate': rate, 'onsets': on, 'name': mode}, roles))
-        x, on = long_notes(f, rate)
-        out.append((f'{inst}/long_notes', x, {'rate': rate, 'onsets': on, 'name': 'long_notes', 'fundamental_hz': f}, {'attack', 'long'}))
+        x, on = long_notes(f, rate, seed=long_seed)
+        out.append((f'{inst}/long_notes' if long_seed == 1 else f'{inst}/long_notes_seed{long_seed}', x, {'rate': rate, 'onsets': on, 'name': 'long_notes', 'fundamental_hz': f}, {'attack', 'long'}))
     return out
 
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--renderer', type=Path, required=True); p.add_argument('--out', type=Path, required=True)
     p.add_argument('--engine', default='corr40-split-rt'); p.add_argument('--rates', default='44100,48000,96000')
     p.add_argument('--evaluate-only', action='store_true', help='re-score an existing results.json against the current spec')
+    # A fresh holdout: seeds never used to choose any candidate parameter.
+    p.add_argument('--holdout-seeds', default='8139,20261024'); p.add_argument('--long-seed', type=int, default=1)
     a = p.parse_args(); a.out.mkdir(parents=True, exist_ok=True); a.renderer = a.renderer.resolve()
     spec = json.loads(SPEC.read_text()); shifts = spec['conditions']['shifts']; block = spec['conditions']['block']
     if a.evaluate_only:
@@ -65,7 +67,7 @@ def main():
         return
     rows = []
     for rate in [int(r) for r in a.rates.split(',')]:
-        for key, x, meta, roles in inputs(rate):
+        for key, x, meta, roles in inputs(rate, tuple(int(v) for v in a.holdout_seeds.split(',')), a.long_seed):
             ip = a.out/'input.f32'; x.tofile(ip)
             before = attacks(x, meta) if 'attack' in roles else None
             for shift in shifts:

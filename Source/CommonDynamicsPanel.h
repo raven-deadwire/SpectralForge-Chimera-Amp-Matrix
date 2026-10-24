@@ -26,6 +26,12 @@ public:
             tabs[i].onClick=[this,i]{selectPage(Page(i));};addAndMakeVisible(tabs[i]);
         }
         toggle(compOn,"COMPRESSOR ON","cleanCompOn");toggle(gateOn,"GATE ON","gateon",true);
+        for(auto* button:{&autoSet,&autoUndo})addChildComponent(*button);
+        autoSet.setComponentID("commonDynamics.autoSet");autoUndo.setComponentID("commonDynamics.autoUndo");autoUndo.setEnabled(false);
+        autoSet.setTooltip("Listen to about 12 seconds of playing and set input gain, the gate and the clean compressor. Include a short pause so the gate can hear the noise floor.");
+        autoUndo.setTooltip("Restore the input, gate and compressor settings from before the last Auto Set.");
+        autoSet.onClick=[this]{if(autoBusy){if(onAutoCancel)onAutoCancel();}else if(onAutoSet)onAutoSet();};
+        autoUndo.onClick=[this]{if(onAutoUndo)onAutoUndo();};
         toggle(limiterOn,"LIMITER ON","liveLimiterOn");toggle(gatePlacement,"AFTER RIG","gateAfterRig",true);
         choice(detector,"cleanCompDetector",{"Peak","RMS"});choice(gateMode,"gateMode",{"Gate","Expander"});
         constexpr std::array<const char*,8> compIDs{"cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompMix","cleanCompHP"};
@@ -158,6 +164,13 @@ public:
     }
     std::function<void(Page)> onPageSelected;
     std::function<bool(Page)> onCompressorSourceRequested;
+    std::function<void()> onAutoSet,onAutoCancel,onAutoUndo;
+    // Presentation only: the controller owns the measurement and parameter writes.
+    void setAutoSetStatus(const juce::String& text,bool busy,bool canUndo) {
+        autoText=text;autoBusy=busy;autoSet.setButtonText(busy?"CANCEL":"AUTO SET");autoUndo.setEnabled(canUndo && !busy);
+        repaint(520,38,std::max(1,getWidth()-740),46);
+    }
+    const juce::String& autoSetStatus() const noexcept {return autoText;}
     void visibilityChanged() override {if(!isShowing())endMarkerGesture();syncPage();}
     void parentHierarchyChanged() override {syncPage();}
 
@@ -190,7 +203,8 @@ public:
         mbMix.bounds(sideX+column+12,341,column);
         const int crossWidth=(sideX-32)/3;
         for(int cross=0;cross<3;++cross)crossovers[size_t(cross)].bounds(18+cross*crossWidth,getHeight()-56,crossWidth-12);
-        deEsserOn.setBounds(18,45,150,28);deEsserListen.setBounds(178,45,104,28);repaint();
+        deEsserOn.setBounds(18,45,150,28);deEsserListen.setBounds(178,45,104,28);
+        autoSet.setBounds(sideX,getHeight()-40,150,28);autoUndo.setBounds(sideX+160,getHeight()-40,std::max(1,sideWidth-160),28);repaint();
     }
     void paint(juce::Graphics& g) override {
         const juce::Colour muted(0xff9fb4ad),text(0xffd9ebe3),line(0xff273b3d);
@@ -198,7 +212,8 @@ public:
         if(page!=Page::dynamicEQ) {
             const int sideX=std::max(600,getWidth()-338);g.drawVerticalLine(sideX-10,85.f,float(getHeight()-12));
             g.setFont(juce::FontOptions(12.f));g.setColour(muted);
-            g.drawText(contextText(),532,47,std::max(1,getWidth()-770),25,juce::Justification::centredLeft);
+            if(autoText.isNotEmpty() && autoPage())g.drawFittedText(autoText,532,41,std::max(1,getWidth()-770),38,juce::Justification::centredLeft,2);
+            else g.drawText(contextText(),532,47,std::max(1,getWidth()-770),25,juce::Justification::centredLeft);
             g.setColour(text);g.setFont(juce::FontOptions(14.f,juce::Font::bold));
             const auto meter=currentReduction<0?"GAIN "+juce::String(-currentReduction,1)+" dB":"GR "+juce::String(currentReduction,1)+" dB";
             g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);
@@ -280,7 +295,8 @@ private:
         for(int i=0;i<4;++i){auto& slot=slots[size_t(i)];const bool visible=dynamic && i==selectedSlot;slot.target.setVisible(visible);slot.status.setVisible(visible);showControls(slot.controls,visible);}
         const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbBandSelector.setVisible(mb);mbMix.show(mb);showControls(crossovers,mb);
         for(int band=0;band<4;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);showControls(ui.controls,showing);}
-        deEsserOn.setVisible(page==Page::deesser);deEsserListen.setVisible(page==Page::deesser);showControls(deEsser,page==Page::deesser);
+        deEsserOn.setVisible(page==Page::deesser);deEsserListen.setVisible(page==Page::deesser);
+        autoSet.setVisible(autoPage());autoUndo.setVisible(autoPage());showControls(deEsser,page==Page::deesser);
         if(page==Page::preCompressor)spectrum.setPreOwner(-1);
         if(page==Page::postCompressor)spectrum.setPostNativeSource(0);
         spectrum.setVisible(!dynamic);spectrum.setStage(stageFor(page));updateEQWorkspace();resized();repaint();
@@ -386,6 +402,8 @@ private:
     Page page{Page::compressor};std::array<juce::TextButton,6> tabs;
     juce::ComboBox detector,gateMode,slotSelector,mbDetector,mbBandSelector;
     juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen;
+    juce::TextButton autoSet{"AUTO SET"},autoUndo{"UNDO AUTO"};juce::String autoText;bool autoBusy{};
+    bool autoPage() const noexcept {return page==Page::compressor || page==Page::gate;}
     std::array<Control,8> comp;std::array<Control,6> gate;std::array<Control,3> pre;std::array<Control,5> post;
     Control ceiling,limitRelease,lowAmount,lowBlend,mbMix;std::array<Control,3> crossovers;std::array<Control,7> deEsser;
     std::array<Slot,4> slots;std::array<MBBand,4> mbBands;std::array<juce::TextButton,2> eqBankButtons;

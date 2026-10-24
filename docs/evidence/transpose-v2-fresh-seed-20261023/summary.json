@@ -1,0 +1,174 @@
+{
+ "preregistration": "preregistration.json",
+ "renderer_sha256": "3bde4f2f78fa9edeee15051adf6e6a96ea3a2065f2da49ac26678a7a9d5964f4",
+ "corr40-split-v2": {
+  "all_inputs_verdicts": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "observed": {
+     "max_ms": 5.578,
+     "cases": 468
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.331,
+     "long_max_ms": 9.485
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 10.53,
+     "bass_B0": 15.133,
+     "bass_dropA_A0": 17.464,
+     "guitar_dropA_A1": 10.002
+    },
+    "verdict": "REPORT_WITHIN_CEILING"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 0,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "fresh_inputs_only": {
+   "renders": 360,
+   "T1_attack_max_ms": 5.578231292517007,
+   "T2_down_short_max_ms": 6.3311795142366805,
+   "T2_down_long_max_ms": 9.48487836465626,
+   "T3_up_short_max_ms": 10.530121250665523,
+   "T3_up_long_max_ms": {
+    "bass_B0": 15.133218774612587,
+    "bass_dropA_A0": 17.464436502739446,
+    "guitar_dropA_A1": 10.002260644869068
+   },
+   "unmatched_resets": 0,
+   "missed_events": 0,
+   "marker_low_resets_after_startup": 0
+  }
+ },
+ "corr40-split-rt": {
+  "all_inputs_verdicts": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "observed": {
+     "max_ms": 25.374,
+     "cases": 468
+    },
+    "verdict": "FAIL"
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.33,
+     "long_max_ms": 9.484
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 14.077,
+     "bass_B0": 15.134,
+     "bass_dropA_A0": 17.463,
+     "guitar_dropA_A1": 9.938
+    },
+    "verdict": "REGRESSION"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 280,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "FAIL"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "fresh_inputs_only": {
+   "renders": 360,
+   "T1_attack_max_ms": 5.170068027210885,
+   "T2_down_short_max_ms": 6.330498928359642,
+   "T2_down_long_max_ms": 9.483555668786288,
+   "T3_up_short_max_ms": 14.076700396117,
+   "T3_up_long_max_ms": {
+    "bass_B0": 15.13364431253541,
+    "bass_dropA_A0": 17.4627463294008,
+    "guitar_dropA_A1": 9.938360507395075
+   },
+   "unmatched_resets": 280,
+   "missed_events": 0,
+   "marker_low_resets_after_startup": 0
+  }
+ }
+}

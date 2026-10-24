@@ -13,6 +13,7 @@
 #include "SignalPathView.h"
 #include "PrecisionTunerPanel.h"
 #include "CommonDynamicsPanel.h"
+#include "AutoSetController.h"
 #include "AccessibleViewport.h"
 
 class CabRoomOverview;
@@ -150,6 +151,7 @@ private:
     std::array<juce::TextButton,6> dynamicsEntries;
     void updateDynamicsEntries();
     std::unique_ptr<spectralforge::CommonDynamicsPanel> dynamicsPanel;
+    std::unique_ptr<spectralforge::autoset::Controller> autoSetController; // after dynamicsPanel: destroyed first
     bool dynamicsViewOpen{};
     int selectedEQBank{}; // Presentation only; never a host parameter or sound-state edit.
     std::unique_ptr<CabRoomOverview> cabRoom;

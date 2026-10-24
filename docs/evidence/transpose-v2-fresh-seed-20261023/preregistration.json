@@ -1,0 +1,31 @@
+{
+ "purpose": "fresh-seed re-validation of corr40-split-v2 after its parameters were chosen with holdout seeds 8139 and 20261024 in view",
+ "registered_at_utc": "2026-10-23T15:52:52+00:00",
+ "engine_source_commit": "c800ae09cab0023d000b076e272cfd29f265b5c2",
+ "renderer_sha256": "3bde4f2f78fa9edeee15051adf6e6a96ea3a2065f2da49ac26678a7a9d5964f4",
+ "spec": "Validation/transpose-latency-targets.json",
+ "spec_sha256": "aff449dff7a9ed4715f05f5d55005f57f956fb84db8df68d64fb47b0c1c592ce",
+ "fresh_holdout_seeds": [
+  31415,
+  27182,
+  16180
+ ],
+ "fresh_long_note_seed": 2718,
+ "seeds_previously_used_for_any_choice": [
+  8139,
+  20261024,
+  1
+ ],
+ "engines": {
+  "candidate": "corr40-split-v2",
+  "reference": [
+   "corr40-split-rt"
+  ]
+ },
+ "conditions": "44.1/48/96 kHz, block 128, -2/-1/+1/+2 st (spec conditions)",
+ "rules": [
+  "single run per engine; no parameter, metric, threshold or input change after seeing results",
+  "report every target verdict, including failures",
+  "fixed study fixtures are also rendered (seen before); fresh-only sub-results are reported separately"
+ ]
+}

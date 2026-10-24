@@ -123,6 +123,28 @@ inline void recalledCompressorSwitch() {
     editor.reset();settle(40);
     std::cout<<"PASS recalled factory compressor switch edits only its own parameter\n";
 }
+// Auto Set entry: shown only where it acts, and starting/cancelling it is
+// navigation, not a sound edit.
+inline void autoSetEntry(ChimeraProcessor& p,spectralforge::CommonDynamicsPanel& panel) {
+    auto* start=find<juce::TextButton>(panel,"commonDynamics.autoSet");auto* undo=find<juce::TextButton>(panel,"commonDynamics.autoUndo");
+    require(start && undo,"Auto Set controls missing");
+    for(const auto page:{Page::compressor,Page::gate,Page::limiter,Page::multiband,Page::deesser}) {
+        panel.selectPage(page);settle(20);
+        const bool expected=page==Page::compressor || page==Page::gate;
+        require(start->isShowing()==expected && undo->isShowing()==expected,"Auto Set visibility does not match its page");
+        if(expected)require(panel.getLocalBounds().contains(start->getBounds()) && panel.getLocalBounds().contains(undo->getBounds()) && !start->getBounds().intersects(undo->getBounds()),
+                            "Auto Set controls are clipped or overlap");
+    }
+    panel.selectPage(Page::compressor);settle(20);
+    const auto before=signalPathTests::values(p);
+    require(!undo->isEnabled(),"Undo is available before any Auto Set");
+    signalPathTests::click(*start);settle(30);
+    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening"),"Auto Set did not enter listening");
+    signalPathTests::click(*start);settle(30);
+    require(start->getButtonText()=="AUTO SET" && panel.autoSetStatus().contains("cancelled") && !undo->isEnabled(),"Auto Set did not cancel");
+    require(signalPathTests::values(p)==before,"Starting or cancelling Auto Set changed sound parameters");
+    std::cout<<"PASS auto set entry: compressor/gate pages only, unclipped, listen/cancel without parameter writes\n";
+}
 inline void measuredStageContracts(const juce::File& directory);
 inline void run(const juce::File& directory) {
     auto processor=std::make_unique<ChimeraProcessor>();auto& p=*processor;
@@ -280,6 +302,7 @@ inline void run(const juce::File& directory) {
     require(!measured->isSnapshotFrozen() && !measured->analyzerHasData(),"Inactive legacy POST retained its frozen frame");
     acknowledge(p);audio(p);require(!measured->analyzerHasData(),"Legacy POST editor accepted the active native POST processor's audio");
 
+    autoSetEntry(p,*panel);
     panel->selectPage(Page::compressor);signalPathTests::click(*find<juce::TextButton>(*editor,"tunerOpen"));settle(50);
     require(!panel->isShowing(),"Dynamics remains active under the tuner workspace");
     const auto hiddenFrames=measured->fftFrames();audio(p);require(measured->fftFrames()==hiddenFrames && !p.dynamicsAnalysis().fifo.enabled.load(),"Hidden dynamics analyzer continues processing");
