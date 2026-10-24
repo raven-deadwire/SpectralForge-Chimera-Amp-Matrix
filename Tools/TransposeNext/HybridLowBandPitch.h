@@ -75,6 +75,11 @@ public:
     int legatoGuarded() const noexcept {return legato.guardedCandidates();}
     void setLegatoSteadyGuard(double ms) noexcept {legato.setSteadyGuard(ms);}
     void setReanchorPhaseSearch(double ms, bool picks) noexcept {body.setReanchorPhaseSearch(ms,picks);}
+    // Research: centre held downshifts on the reported latency (CorrelationPitch::setSustainCentre),
+    // i.e. a low-band read delay of L - tau. Call after setAttackLatency.
+    void setSustainCentre(double costLimit) noexcept {body.setSustainCentre(1000.*(reportedLatency-crossoverDelaySamples())/sampleRate,costLimit);}
+    int splices() const noexcept {return body.splices();}
+    int earlySplices() const noexcept {return body.earlySpliceCount();}
     // Research: the low band's read delay (samples) for each sample of the last
     // process() chunk, and this crossover's group delay (samples).
     const double* lastReadDelays() const noexcept {return lowDelay.data();}

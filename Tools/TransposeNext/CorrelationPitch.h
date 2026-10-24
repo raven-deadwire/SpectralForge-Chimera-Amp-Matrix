@@ -41,6 +41,8 @@ class CorrelationPitch {
     int detectorPosition{};
     int cooldown{},cooldownLength{},onsets{};
     int spliceCount{};
+    double sustainCentre{}, earlyCostLimit{};
+    int earlyClock{}, earlySplices{};
     std::array<uint64_t,256> onsetSamples{};
     uint64_t processedSamples{};
     double minRead{}, maxRead{};
@@ -99,7 +101,9 @@ class CorrelationPitch {
         for(int d=first;d<=last;++d){const double s=integerCost(d);if(s<score){score=s;best=d;}}
         return best;
     }
-    void splice() noexcept {
+    // costLimit: an early (optional) splice is only taken when its best
+    // candidate's cost is at most this; returns whether it was taken.
+    bool splice(double costLimit=1.e100) noexcept {
         // Leave a guard for the whole crossfade. Require meaningful progress
         // toward the opposite boundary, avoiding the trivial zero-lag minimum.
         const double guard=std::abs(delta)*fadeLength+2;
@@ -131,8 +135,10 @@ class CorrelationPitch {
             const double curve=left-2*score+right;
             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
         }
+        if(costLimit<1.e99 && (first>last || score>costLimit)) return false;   // early splices only
         nextDelay=juce::jlimit(lo,hi,best);
         fadeIndex=0;fadeStep=1;fading=true;++spliceCount;
+        return true;
     }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec, double boundMs, bool resetAtOnset=false, bool detectInnovation=false) {
@@ -159,7 +165,7 @@ public:
     }
     void reset() noexcept {
         for(auto* bank:{&audio,&filtered})for(auto& r:*bank)std::fill(r.begin(),r.end(),0);
-        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=0;fading=active=false;
+        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=earlyClock=earlySplices=0;fading=active=false;
         fastEnergy=slowEnergy=broadEnergy=0;cooldown=onsets=0;processedSamples=0;onsetSamples.fill(0);
         peakBuckets.fill(0);peakBucketPosition=peakBucketSamples=0;bucketPeak=bucketMaximum=0;
         detectorPosition=0;std::fill(detectorHistory.begin(),detectorHistory.end(),0);
@@ -220,6 +226,15 @@ public:
     void setAnchorInputDelay(double ms) noexcept {alignInput=rate*ms*.001;alignExact=true;}
     // Research: phase-aligned re-anchors (see phaseAligned); picks optionally.
     void setReanchorPhaseSearch(double ms, bool picks) noexcept {phaseSearch=rate*ms*.001;phasePicks=picks;}
+    // Research (off = 0): on a downshift the read delay drifts up to the bound
+    // before a splice, so a held low band trails the reported latency by up
+    // to ~30 ms. With a centre (ms, the delay that matches the reported
+    // latency), once the delay passes it a splice is tried every 1 ms and
+    // taken only if its best candidate costs <= costLimit; otherwise the
+    // delay keeps drifting and the bound forces the splice as before (a low
+    // note whose period does not fit below the bound keeps the wide window).
+    void setSustainCentre(double ms, double costLimit) noexcept {sustainCentre=rate*ms*.001;earlyCostLimit=costLimit;}
+    int earlySpliceCount() const noexcept {return earlySplices;}
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
@@ -339,6 +354,9 @@ public:
                 // next backward jump (+0.6 ms low-band centroid, guitar A1 +2).
                 if(due && holdSplices && delta>0 && heldSamples<int(32./delta))++heldSamples;
                 else if(due){heldSamples=0;splice();}
+                else if(!fading && sustainCentre>0 && delta>0 && delay>=sustainCentre && ++earlyClock>=int(rate*.001)) {
+                    earlyClock=0;if(splice(earlyCostLimit))++earlySplices;
+                }
                 const float w=fading?fadeWeights[size_t(fadeIndex)]:0.f;
                 for(int c=0;c<count;++c) {
                     const float old=read(audio[size_t(c)],delay);
