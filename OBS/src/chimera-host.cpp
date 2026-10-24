@@ -29,14 +29,20 @@ using namespace Steinberg::Vst;
 namespace spectralforge::obs {
 namespace {
 // Chimera's JUCE editor writes its own processor parameters; edits reported
-// here need no forwarding. Latency changes are re-read by the next prepare().
+// here need no forwarding, only counting so scene settings can follow them.
+// Latency changes are re-read by the next prepare().
 class ComponentHandler : public U::Implements<U::Directly<IComponentHandler>> {
 public:
     tresult PLUGIN_API beginEdit(ParamID) override { return kResultOk; }
-    tresult PLUGIN_API performEdit(ParamID, ParamValue) override { return kResultOk; }
-    tresult PLUGIN_API endEdit(ParamID) override { return kResultOk; }
-    tresult PLUGIN_API restartComponent(int32 flags) override { restartFlags.fetch_or(flags); return kResultOk; }
+    tresult PLUGIN_API performEdit(ParamID, ParamValue) override { edits.fetch_add(1); return kResultOk; }
+    tresult PLUGIN_API endEdit(ParamID) override { edits.fetch_add(1); return kResultOk; }
+    tresult PLUGIN_API restartComponent(int32 flags) override {
+        restartFlags.fetch_or(flags);
+        if (flags & (kParamValuesChanged | kReloadComponent)) edits.fetch_add(1);
+        return kResultOk;
+    }
     std::atomic<int32> restartFlags{0};
+    std::atomic<std::uint64_t> edits{0};
 };
 
 // One loaded module per bundle path, shared by every filter instance.
@@ -279,6 +285,8 @@ double ChimeraHost::parameter(std::uint32_t id) const noexcept {
 bool ChimeraHost::setParameter(std::uint32_t id, double normalized) noexcept {
     return impl->controller && impl->controller->setParamNormalized(id, normalized) == kResultOk;
 }
+
+std::uint64_t ChimeraHost::editGeneration() const noexcept { return impl->handler->edits.load(); }
 
 IPlugView* ChimeraHost::createEditorView() const {
     return impl->controller ? impl->controller->createView(ViewType::kEditor) : nullptr;

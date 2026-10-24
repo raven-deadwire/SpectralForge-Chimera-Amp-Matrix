@@ -12,6 +12,7 @@
 #include <obs-module.h>
 #include <media-io/audio-io.h>
 
+#include <algorithm>
 #include <atomic>
 #include <filesystem>
 #include <string>
@@ -33,6 +34,10 @@ constexpr const char* keyPolicy = "failure_policy";
 constexpr const char* keyComponent = "vst3_component_state";
 constexpr const char* keyController = "vst3_controller_state";
 constexpr const char* keyVersion = "vst3_version";
+// Scene settings layout written by this module. Scenes saved by a newer module
+// are left untouched: their state is neither applied nor overwritten.
+constexpr const char* keySchema = "chimera_obs_schema";
+constexpr long long schemaVersion = 1;
 
 struct Filter {
     obs_source_t* source{};
@@ -41,6 +46,11 @@ struct Filter {
     AudioBridge<ChimeraHost> bridge{host};
     EditorWindow* editor{};
     std::string loadedPath, loadError;
+    // UI thread. The component state (base64) last applied from or written to
+    // the scene settings, and the edit count it reflects.
+    std::string syncedComponent;
+    std::uint64_t syncedEdits{};
+    bool newerSchema{};
     // The filter outlives destroy() until every queued UI task has run.
     std::atomic<int> references{1};
     std::atomic<bool> destroyed{false}, reprepareQueued{false};
@@ -85,13 +95,59 @@ std::string resolveBundle(obs_data_t* settings) {
     return {};
 }
 
+// UI thread. Applies the state in the settings when it differs from what this
+// filter last applied or wrote: scene load, a pasted/duplicated filter, or a
+// preset pushed by a script or obs-websocket.
 void restoreState(Filter* f, obs_data_t* settings) {
-    const auto component = base64Decode(obs_data_get_string(settings, keyComponent));
+    f->newerSchema = obs_data_get_int(settings, keySchema) > schemaVersion;
+    if (f->newerSchema) {
+        blog(LOG_WARNING, "[chimera-obs] '%s': scene was saved by a newer Chimera OBS module; its Chimera state is "
+             "kept but not applied", obs_source_get_name(f->source));
+        return;
+    }
+    const std::string encoded = obs_data_get_string(settings, keyComponent);
+    if (encoded.empty() || encoded == f->syncedComponent) return;
+    const auto component = base64Decode(encoded);
     const auto controller = base64Decode(obs_data_get_string(settings, keyController));
-    if (!component || component->empty()) return;
-    if (!f->host.setState(*component, controller.value_or(std::vector<std::uint8_t>{})))
-        blog(LOG_WARNING, "[chimera-obs] '%s': stored Chimera state was rejected; defaults are in use",
-             obs_source_get_name(f->source));
+    if (component && !component->empty()
+        && f->host.setState(*component, controller.value_or(std::vector<std::uint8_t>{}))) {
+        f->syncedComponent = encoded;
+        f->syncedEdits = f->host.editGeneration();
+        return;
+    }
+    blog(LOG_WARNING, "[chimera-obs] '%s': stored Chimera state was rejected; the current sound is kept",
+         obs_source_get_name(f->source));
+}
+
+// Writes Chimera's current state into the scene settings. OBS copies a
+// filter's settings without calling save() when a source is duplicated or
+// filters are copied, so edits must reach the settings as they happen.
+bool writeState(Filter* f, obs_data_t* settings) {
+    std::vector<std::uint8_t> component, controller;
+    if (f->newerSchema || !f->host.loaded() || !f->host.getState(component, controller)) return false;
+    f->syncedComponent = base64Encode(component);
+    f->syncedEdits = f->host.editGeneration();
+    obs_data_set_string(settings, keyComponent, f->syncedComponent.c_str());
+    obs_data_set_string(settings, keyController, base64Encode(controller).c_str());
+    obs_data_set_string(settings, keyVersion, f->host.identity().version.c_str());
+    obs_data_set_int(settings, keySchema, schemaVersion);
+    return true;
+}
+
+// UI thread, after an edit: cheap when nothing changed since the last sync.
+void syncState(Filter* f, obs_source_t* source) {
+    if (!f->host.loaded() || f->host.editGeneration() == f->syncedEdits) return;
+    obs_data_t* settings = obs_source_get_settings(source);
+    writeState(f, settings);
+    obs_data_release(settings);
+}
+
+void editorChanged(void* data) {
+    auto* f = static_cast<Filter*>(data);
+    if (obs_source_t* source = acquire(f)) {
+        syncState(f, source);
+        obs_source_release(source);
+    }
 }
 
 // UI thread. Reloads only when the bundle path changes; restores stored state
@@ -99,6 +155,7 @@ void restoreState(Filter* f, obs_data_t* settings) {
 void reload(Filter* f, obs_data_t* settings) {
     const std::string path = resolveBundle(settings);
     if (f->host.loaded() && path == f->loadedPath) {
+        restoreState(f, settings);
         // A latched engine failure is retried when the user changes a setting.
         if (f->bridge.status() == BridgeStatus::EngineFailed) prepareFromObs(f);
         return;
@@ -108,6 +165,7 @@ void reload(Filter* f, obs_data_t* settings) {
     closeEditor(f->editor);
     f->loadedPath = path;
     f->loadError.clear();
+    f->syncedComponent.clear();
     if (path.empty()) {
         f->host.unload();
         f->loadError = obs_module_text("Error.NotInstalled");
@@ -165,12 +223,41 @@ void reprepareTask(void* data) {
     release(f);
 }
 
+// Script/plugin access through the source's proc handler (OBS UI thread only;
+// other threads get ok = false). A changed value reaches the scene settings.
+//   void chimera_set_parameter(in int id, in float value, out bool ok)
+//   void chimera_get_parameter(in int id, out float value, out bool ok)
+void procSetParameter(void* data, calldata_t* call) {
+    auto* f = static_cast<Filter*>(data);
+    bool ok = false;
+    if (obs_in_task_thread(OBS_TASK_UI) && !f->destroyed.load() && f->host.loaded()) {
+        const auto id = static_cast<std::uint32_t>(calldata_int(call, "id"));
+        ok = f->host.setParameter(id, std::clamp(calldata_float(call, "value"), 0.0, 1.0));
+        if (ok) {
+            obs_data_t* settings = obs_source_get_settings(f->source);
+            writeState(f, settings);
+            obs_data_release(settings);
+        }
+    }
+    calldata_set_bool(call, "ok", ok);
+}
+
+void procGetParameter(void* data, calldata_t* call) {
+    auto* f = static_cast<Filter*>(data);
+    const bool ok = obs_in_task_thread(OBS_TASK_UI) && !f->destroyed.load() && f->host.loaded();
+    calldata_set_float(call, "value", ok ? f->host.parameter(static_cast<std::uint32_t>(calldata_int(call, "id"))) : 0.0);
+    calldata_set_bool(call, "ok", ok);
+}
+
 const char* getName(void*) { return obs_module_text("Chimera"); }
 
 void* create(obs_data_t* settings, obs_source_t* source) {
     auto* f = new Filter();
     f->source = source;
     f->weak = obs_source_get_weak_source(source);
+    proc_handler_t* procs = obs_source_get_proc_handler(source);
+    proc_handler_add(procs, "void chimera_set_parameter(in int id, in float value, out bool ok)", procSetParameter, f);
+    proc_handler_add(procs, "void chimera_get_parameter(in int id, out float value, out bool ok)", procGetParameter, f);
     configure(f, settings);
     return f;
 }
@@ -185,14 +272,9 @@ void destroy(void* data) {
 void update(void* data, obs_data_t* settings) { configure(static_cast<Filter*>(data), settings); }
 
 void save(void* data, obs_data_t* settings) {
-    auto* f = static_cast<Filter*>(data);
-    // Keep the last stored state when Chimera is missing, so a scene opened on
-    // a machine without the plugin does not erase the user's sound.
-    std::vector<std::uint8_t> component, controller;
-    if (!f->host.loaded() || !f->host.getState(component, controller)) return;
-    obs_data_set_string(settings, keyComponent, base64Encode(component).c_str());
-    obs_data_set_string(settings, keyController, base64Encode(controller).c_str());
-    obs_data_set_string(settings, keyVersion, f->host.identity().version.c_str());
+    // Keeps the last stored state when Chimera is missing or the scene is from
+    // a newer module, so opening it here does not erase the user's sound.
+    writeState(static_cast<Filter*>(data), settings);
 }
 
 void getDefaults(obs_data_t* settings) {
@@ -205,7 +287,7 @@ bool openEditorClicked(obs_properties_t*, obs_property_t*, void* data) {
     auto* f = static_cast<Filter*>(data);
     std::string error;
     if (!f->host.loaded()) error = f->loadError;
-    else if (openEditor(f->editor, f->host, obs_source_get_name(f->source), error)) return false;
+    else if (openEditor(f->editor, f->host, obs_source_get_name(f->source), editorChanged, f, error)) return false;
     blog(LOG_WARNING, "[chimera-obs] '%s': editor: %s", obs_source_get_name(f->source), error.c_str());
     return false;
 }

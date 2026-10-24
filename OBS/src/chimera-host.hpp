@@ -53,6 +53,10 @@ public:
     double parameter(std::uint32_t id) const noexcept;
     bool setParameter(std::uint32_t id, double normalized) noexcept;
 
+    // Increments whenever Chimera reports an edit (its editor's gestures or a
+    // parameter/state reload). Lets the UI thread sync scene settings cheaply.
+    std::uint64_t editGeneration() const noexcept;
+
     // A new editor view (caller releases), or nullptr when unavailable.
     Steinberg::IPlugView* createEditorView() const;
 

@@ -129,12 +129,13 @@ double maxDifference(const std::vector<float>& a, const std::vector<float>& b, s
 }
 
 obs_source_t* makeFilter(const std::string& name, const std::string& bundle, long long mapping = 0, long long policy = 0,
-                         const std::string& componentState = {}) {
+                         const std::string& componentState = {}, long long schema = 0) {
     obs_data_t* settings = obs_data_create();
     obs_data_set_string(settings, "bundle_path", bundle.c_str());
     obs_data_set_int(settings, "input_mapping", mapping);
     obs_data_set_int(settings, "failure_policy", policy);
     if (!componentState.empty()) obs_data_set_string(settings, "vst3_component_state", componentState.c_str());
+    if (schema != 0) obs_data_set_int(settings, "chimera_obs_schema", schema);
     obs_source_t* filter = obs_source_create(filterId, name.c_str(), settings, nullptr);
     obs_data_release(settings);
     check(filter != nullptr, "filter creation failed");
@@ -151,6 +152,30 @@ std::string propertyText(obs_source_t* filter, const char* name) {
 }
 
 void settle() { std::this_thread::sleep_for(std::chrono::milliseconds(1500)); }
+
+// The filter's script interface (proc handler), as an OBS script would call it.
+bool setParameter(obs_source_t* filter, std::uint32_t id, double value) {
+    calldata_t call;
+    calldata_init(&call);
+    calldata_set_int(&call, "id", id);
+    calldata_set_float(&call, "value", value);
+    proc_handler_call(obs_source_get_proc_handler(filter), "chimera_set_parameter", &call);
+    const bool ok = calldata_bool(&call, "ok");
+    calldata_free(&call);
+    return ok;
+}
+
+double getParameter(obs_source_t* filter, std::uint32_t id) {
+    calldata_t call;
+    calldata_init(&call);
+    calldata_set_int(&call, "id", id);
+    proc_handler_call(obs_source_get_proc_handler(filter), "chimera_get_parameter", &call);
+    const double value = calldata_bool(&call, "ok") ? calldata_float(&call, "value") : -1.0;
+    calldata_free(&call);
+    return value;
+}
+
+bool near(double a, double b) { return std::abs(a - b) < 1e-6; }
 }
 
 int main(int argc, char** argv) {
@@ -252,7 +277,45 @@ int main(int argc, char** argv) {
         obs_data_release(savedSettings);
         obs_data_release(saved);
 
-        // 4. Without Chimera: Mute by default, Dry when chosen; never a crash.
+        // 4. Edits reach the scene settings at once: OBS copies settings without
+        // calling save() when it duplicates a source or copies its filters.
+        check(setParameter(filter, paramId, 0.31) && near(getParameter(filter, paramId), 0.31), "set_parameter proc");
+        obs_source_t* copy = obs_source_duplicate(source, "DI copy", false);
+        drainUi();
+        obs_source_t* copyFilter = obs_source_get_filter_by_name(copy, "Chimera");
+        check(copyFilter != nullptr, "duplicated source lost its Chimera filter");
+        check(near(getParameter(copyFilter, paramId), 0.31), "duplicated filter did not get the edited sound");
+        check(setParameter(copyFilter, paramId, 0.62) && near(getParameter(filter, paramId), 0.31),
+              "instances are not independent");
+        bool offUiThread = true;
+        std::thread([&] { offUiThread = setParameter(filter, paramId, 0.9); }).join();
+        check(!offUiThread && near(getParameter(filter, paramId), 0.31), "set_parameter must refuse non-UI threads");
+        std::cout << "duplicate/copy: edited '" << title << "' carried over; instances independent\n";
+
+        // 5. A state pushed through settings (script, obs-websocket, pasted
+        // filter settings) is applied to a running filter.
+        obs_data_t* preset = obs_data_create();
+        obs_data_set_string(preset, "vst3_component_state", spectralforge::obs::base64Encode(component).c_str());
+        obs_source_update(filter, preset);
+        obs_data_release(preset);
+        drainUi();
+        check(near(getParameter(filter, paramId), target), "state pushed through settings was not applied");
+
+        // 6. A scene from a newer module: its state is neither applied nor
+        // overwritten on save.
+        const std::string stored = spectralforge::obs::base64Encode(component);
+        obs_source_t* future = makeFilter("Future", bundle, 0, 0, stored, 99);
+        check(!near(getParameter(future, paramId), target), "newer-schema state must not be applied");
+        obs_data_t* futureSaved = obs_save_source(future);
+        obs_data_t* futureSettings = obs_data_get_obj(futureSaved, "settings");
+        check(obs_data_get_string(futureSettings, "vst3_component_state") == stored
+                  && obs_data_get_int(futureSettings, "chimera_obs_schema") == 99,
+              "newer-schema scene state was overwritten");
+        obs_data_release(futureSettings);
+        obs_data_release(futureSaved);
+        std::cout << "settings preset push applied; newer-schema scene kept untouched\n";
+
+        // 7. Without Chimera: Mute by default, Dry when chosen; never a crash.
         obs_source_t* other = obs_source_create("chimera_test_input", "No Chimera", nullptr, nullptr);
         obs_source_t* missing = makeFilter("Missing", bundle + ".missing");
         obs_source_filter_add(other, missing);
@@ -267,29 +330,32 @@ int main(int argc, char** argv) {
         const auto passed = push(other, 0, tick * 4);
         check(maxDifference(passed.channel[0], guitar(tick * 4, 0), 0) == 0.0, "dry policy must pass input unchanged");
 
-        // 5. Teardown: OBS destroys filters on its destroy thread; the plugin
+        // 8. Teardown: OBS destroys filters on its destroy thread; the plugin
         // must be unloaded on the UI thread, without blocking either.
         const size_t unloadsBefore = logCount("unloaded Chimera");
-        for (obs_source_t* f : {filter, restored, missing}) {
+        for (obs_source_t* f : {filter, restored, missing, future}) {
             obs_source_t* parent = f == missing ? other : source;
-            if (f != restored) obs_source_filter_remove(parent, f);
+            if (f != restored && f != future) obs_source_filter_remove(parent, f);
             obs_source_release(f);
         }
+        obs_source_release(copyFilter); // get_filter_by_name's reference; the copy owns it
         obs_set_output_source(0, nullptr);
         obs_source_release(source);
+        obs_source_release(copy);
         obs_source_release(other);
         // obs_wait_for_destroy_queue() returns at once without a video thread,
         // so poll the destroy thread's hand-offs instead.
-        for (int i = 0; i < 500 && logCount("unloaded Chimera") < unloadsBefore + 3; ++i) {
+        for (int i = 0; i < 500 && logCount("unloaded Chimera") < unloadsBefore + 5; ++i) {
             drainUi();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        check(logCount("unloaded Chimera") == unloadsBefore + 3,
-              "every filter must release its plugin on the UI thread (released " + std::to_string(logCount("unloaded Chimera") - unloadsBefore) + " of 3)");
+        check(logCount("unloaded Chimera") == unloadsBefore + 5,
+              "every filter must release its plugin on the UI thread (released " + std::to_string(logCount("unloaded Chimera") - unloadsBefore) + " of 5)");
 
         obs_shutdown();
         check(bnum_allocs() == 0, "libobs allocations leaked: " + std::to_string(bnum_allocs()));
         std::cout << "PASS OBS filter: libobs module load, OBS output equals direct VST3, live input mapping, scene restore, "
+                     "duplicate/copy with edited state, independent instances, settings preset push, newer-schema guard, "
                      "mute/dry without Chimera, UI-thread teardown\n";
         return 0;
     } catch (const std::exception& e) {

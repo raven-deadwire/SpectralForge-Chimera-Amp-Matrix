@@ -4,7 +4,7 @@
 
 namespace spectralforge::obs {
 bool editorSupported() noexcept { return false; }
-bool openEditor(EditorWindow*&, ChimeraHost&, const std::string&, std::string& error) {
+bool openEditor(EditorWindow*&, ChimeraHost&, const std::string&, EditorChanged, void*, std::string& error) {
     error = "the Chimera editor window is not implemented on this platform yet";
     return false;
 }
