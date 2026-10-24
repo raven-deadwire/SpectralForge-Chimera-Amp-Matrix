@@ -42,9 +42,9 @@ columns are relative to the route's input-start epoch:
 * `publish_age_ms`: publication/decision time minus window completion. It equals
   wake delay + service delay + preparation + compute + publication.
 
-Acquisition/settling in stdout remain the feeder's observed readings, including
-its polling cadence. They must not be equated with estimator compute or publish
-age. The existing >250 ms input-age invalidation still uses the original input
+Acquisition/settling in stdout are the feeder's observed readings, including
+its polling cadence, expressed in audio time (see "Route gate timing basis"
+below). They must not be equated with estimator compute or publish age. The existing >250 ms input-age invalidation still uses the original input
 timestamp; timing collection never refreshes it. Logs contain synthetic input
 only and make no driver, DAW or realtime qualification claim.
 
@@ -102,3 +102,68 @@ the test feeder and every acceptance threshold remain unchanged.
 
 New focused and Product results are required before calling this correction
 verified. No realtime hardware or release acceptance is inferred from it.
+
+## Route gate timing basis (audio time, feeder lateness judged separately)
+
+PR #143 (`c15811a`, which changed only `OBS/`, `Tools/obs_testkit.py` and docs,
+none of them built by the root CMake project) failed the macOS route gate on
+two attempts, while PR #141 passed on the same base. The feeder rows in those
+logs show the runner waking the synthetic feeder late: `sleep_until` overshoot
+of up to about 14 ms. The worker trace shows the same wake slack. The older
+macOS failures retained under `evidence/preset-dynamics-eq-20261019/` show
+whole-process stalls: feeder sleeps of 146, 189 and 374 ms. Across the 264
+retained macOS routes, per-route maximum feeder lateness has median 15.8 ms,
+p95 47.2 ms and p99 89.3 ms. The <290 ms gates measured wall time from feeder
+start. Any late feeder wake on the deciding read went straight into the tuner's
+acquisition time. For example, 48 kHz/256/30.867706 Hz failed at 322.3 ms wall
+time, but its deciding read was taken 146 ms late, after only 176.0 ms of audio
+had been fed.
+
+The gate now uses this basis:
+
+* **Audio time.** `acquire` and `settle` are the input duration fed,
+  `1000 * (offset + block) / rate`, at the first accurate, confident read
+  (acquire), or at the third consecutive one after the +10 ct step, minus the
+  step position (settle). That duration is the read's scheduled deadline. The
+  thresholds are unchanged: `0 < acquire < 290`, `0 < settle < 290` and final
+  `|error| < 0.1 ct`. The tuner's own delays (worker wake, the 10 ms poll,
+  window copy, compute and publication) elapse while the feeder keeps feeding
+  in real time, so they still add to the audio-time result.
+* **Feeder lateness, judged separately.** For every read, lateness is the
+  wall-clock read time minus that read's deadline. The `ROUTE_TIMING` rows
+  record wall and audio results, lateness at the deciding reads, and the
+  route's maximum and p99 lateness. If any read in an attempt is more than
+  50 ms late, the attempt is not a valid real-time measurement. It is logged
+  as `FEEDER_LATE` and the A/B route pair is repeated, up to three attempts.
+  A feeder-valid attempt is final: a tuner gate failure is never repeated.
+  If every attempt is feeder-invalid, the test fails with "Feeder lateness
+  invalidated every attempt of a route". That is reported as a runner timing
+  failure, distinct from the tuner gate message.
+* **Residual credit.** At the deciding read the tuner may have had up to that
+  read's lateness, at most 50 ms and typically under 15 ms, of extra wall time
+  beyond the audio fed. A regression can therefore pass only if it lands within
+  that margin below 290 ms on a run whose deciding read was also late. Repeated
+  CTest runs and the 32 routes make this visible in `ROUTE_TIMING`.
+* **Frozen baseline.** The frozen 2026-10-13 tuner is still measured and
+  recorded in the same run on the same audio-time basis. It is not used as a
+  relative gate. It runs at a different time from the candidate, so it sees
+  different runner stalls, and it is a different estimator (2048 samples at
+  12 kHz) with its own settling behavior. A candidate-minus-baseline gate would
+  add the noise of two measurements without removing either.
+
+The compact `ROUTE_TIMING*`, `FEEDER_LATE`, `ROUTE FAIL` and
+`ROUTE FEEDER INVALID` lines are written after the deferred FEED/TIMING streams,
+so they remain within the job-log tail that the API returns. Exactly one
+`worker,new,` row per route is still written, from the judged attempt.
+
+Local Linux checks (temporary, uncommitted patches; not native macOS evidence):
+
+| Patch | Old wall gate | Audio-time gate |
+|---|---|---|
+| none | pass (max acquire 197.5 ms) | pass (197.4 ms) |
+| feeder wake 0–13 ms late on every sleep | pass (211.1 ms) | pass (203.2 ms) |
+| 110 ms feeder stall at the acquisition read, 50% of attempts | 8 attempts fail (up to 308.4 ms) | all valid attempts pass (≤197.4 ms); 20 attempts repeated; 4 routes stalled on all 3 attempts → feeder-invalid failure |
+| tuner sleeps 100 ms before each publication | — | 32/32 routes fail (acquire ≈ 295 ms, settle −1) |
+| tuner publishes only after 2× its window of input | — | 32/32 routes fail (acquire −1) |
+
+Native macOS CI results on the changed source are still required.
