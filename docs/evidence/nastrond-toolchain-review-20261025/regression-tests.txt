@@ -1,0 +1,19 @@
+PASS test_protocol
+PASS test_references
+PASS test_states
+PASS test_band_metric_and_polarity
+PASS test_balanced_errors_and_v1_parity
+PASS test_undefined_comparisons_rejected
+PASS test_audit_rejects_consistently_tampered_evidence
+PASS test_channel_audit_preserves_failures
+PASS synthetic macro direction only
+crush/pluck: 15.253 -> 7.942 dB
+crush/chord: 10.449 -> 3.735 dB
+impact/pluck: 9.118 -> 7.575 dB
+impact/chord: 4.927 -> 3.660 dB
+rot/pluck: 10.895 -> 9.470 dB
+rot/chord: 5.407 -> 4.038 dB
+bloom/pluck: 5.733 -> 3.768 dB
+bloom/chord: 3.630 -> 2.941 dB
+PASS test_frozen_evidence_regenerates
+PASS test_compare_end_to_end
