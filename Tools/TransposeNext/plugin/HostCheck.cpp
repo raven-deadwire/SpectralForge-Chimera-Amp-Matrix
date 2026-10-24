@@ -20,6 +20,9 @@ Signal readF32(const std::string& path) {
 size_t frames(const Signal& x){return x.size()/2;}
 
 Signal direct(const Signal& x,double rate,int shift,Engine e) {
+    // Same floating-point mode as the plug-in (and every DAW): denormals flushed.
+    // Without it, v2 differs from the plug-in only at ~1e-36.
+    juce::ScopedNoDenormals noDenormals;
     ResearchEngine dsp;dsp.prepare(rate,128,2);dsp.setSemitones(shift);
     juce::AudioBuffer<float> in(2,128),out(2,128);Signal y(x.size());
     for(size_t off=0;off<frames(x);off+=128) {
