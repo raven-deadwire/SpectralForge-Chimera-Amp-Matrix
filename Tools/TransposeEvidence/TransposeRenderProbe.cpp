@@ -22,6 +22,7 @@
 //              compensated, latency() = the STFT window, lead 1.4 ms)
 //     mode 40: mode 39 with legato re-anchoring (LegatoDetector)
 //     mode 41|42|43: mode 40 with phase-aligned re-anchors, +-2.5 ms legato only | +-2.5 ms picks too | +-6 ms picks too
+//     mode 44|45|46: mode 41 with the legato steady guard at 6|10|15 ms (LegatoDetector::setSteadyGuard)
 //
 // Prints the reported latency in samples on stdout (-1: variable, not reported).
 // Options after <out.f32>:
@@ -61,7 +62,7 @@ int main(int argc,char** argv) {
     in.read(reinterpret_cast<char*>(samples.data()),std::streamsize(samples.size()*sizeof(float)));
     const juce::dsp::ProcessSpec spec{rate,juce::uint32(block),2};
     spectralforge::Transposer transposer;transposeNext::TransientSplitPitch research;transposeNext::HybridLowBandPitch hybrid;
-    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=43;
+    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=46;
     if(researchEngine){research.prepare(spec,true,true);research.setSemitones(semitones);}
     else if(hybridEngine){
         // Research hybrid variants; see the mode list above.
@@ -74,7 +75,8 @@ int main(int argc,char** argv) {
         hybrid.prepare(spec,crossover,mode==15?20.:mode==16?12.:40.,mode>=14,align,compensated,shortFade?.5:0.,2.9,adaptive,lr8,lock);
         if(mode>=39)hybrid.setAttackLatency(1.4);
         if(mode>=40)hybrid.setLegatoReanchor(true);
-        if(mode>=41)hybrid.setReanchorPhaseSearch(mode==43?6.:2.5,mode>=42);   // lead measured by a lead sweep (docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md)
+        if(mode>=41)hybrid.setReanchorPhaseSearch(mode==43?6.:2.5,mode>=42 && mode<=43);   // lead measured by a lead sweep (docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md)
+        if(mode>=44)hybrid.setLegatoSteadyGuard(mode==44?6.:mode==45?10.:15.);
         hybrid.setSolo(solo);hybrid.setSemitones(semitones);
     }
     else {transposer.prepare(spec);transposer.setMode(mode);}
@@ -112,7 +114,7 @@ int main(int argc,char** argv) {
                  <<" over_half="<<std::count_if(sorted.begin(),sorted.end(),[&](double v){return v>.5e6*block/rate;})
                  <<" over_budget="<<std::count_if(sorted.begin(),sorted.end(),[&](double v){return v>1.e6*block/rate;})<<'\n';
     }
-    if(stats && hybridEngine)std::cerr<<"stats legato_events="<<hybrid.legatoEvents()<<" onset_resets="<<hybrid.onsetResets()<<'\n';
+    if(stats && hybridEngine)std::cerr<<"stats legato_events="<<hybrid.legatoEvents()<<" legato_guarded="<<hybrid.legatoGuarded()<<" onset_resets="<<hybrid.onsetResets()<<'\n';
     if(!delayPath.empty()){std::ofstream d(delayPath,std::ios::binary);d.write(reinterpret_cast<const char*>(readDelays.data()),std::streamsize(readDelays.size()*sizeof(float)));
         std::cerr<<"crossover_delay_samples="<<(hybridEngine?hybrid.crossoverDelaySamples():0.)<<'\n';}
     std::cout<<(researchEngine?research.latency():hybridEngine?hybrid.latency():transposer.latency())<<'\n';

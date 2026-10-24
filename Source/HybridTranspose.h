@@ -13,9 +13,10 @@
 // DI recordings or blind listening yet).
 //
 // CorrelationPitch and LegatoDetector below are copies of the research
-// sources in Tools/TransposeNext (commit ebd3761), only moved into this
-// namespace. Tests/PitchRegressionTests.cpp checks that HybridTransposer is
-// bit-identical to the research render probe's mode 41 (ChimeraTransposeRender),
+// sources in Tools/TransposeNext (ebd3761, plus the per-update pick ordering
+// and the steady guard), only moved into this namespace.
+// Tests/PitchRegressionTests.cpp checks that HybridTransposer is
+// bit-identical to the research render probe's mode 45 (ChimeraTransposeRender),
 // so a change to either copy must be made to both.
 
 namespace spectralforge::hybrid {
@@ -412,6 +413,7 @@ class LegatoDetector {
     std::array<double,6> recent{}, periods{};
     int size{}, write{}, hop{}, clock{}, window{}, minLag{}, maxLag{};
     int stable{}, cooldown{}, searchHold{}, events{}, recentCount{}, sinceFit{}, sinceSteady{}, confirm{}, rejected{}, confirmAgeFrom{};
+    int steadyGuard{}, guarded{}, sampleRateHz{};
     double period{}, confirmPeriod{}, baseline{}, previous{}, deep{}, deeper{}, deepCoefficient{}, deepEnergy{}, allEnergy{}, energyCoefficient{};
     static constexpr int stableNeeded=10, cooldownLength=30, rise=5, confirmUpdates=2;
     static constexpr double searchThreshold=.15, lockThreshold=.02, eventRatio=6, eventFloor=.06, energyFloor=1.e-7, confirmFloor=.15,
@@ -424,19 +426,26 @@ class LegatoDetector {
     }
 public:
     void prepare(double rate) {
-        hop=std::max(1,int(rate*.001));window=int(rate*.004);
+        sampleRateHz=int(rate);hop=std::max(1,int(rate*.001));window=int(rate*.004);
         minLag=int(rate*.0025);maxLag=int(rate*.020);
         size=maxLag+window+hop+8;ring.assign(size_t(size),0.f);
         deepCoefficient=1-std::exp(-2*juce::MathConstants<double>::pi*45/rate);energyCoefficient=1-std::exp(-1/(rate*.02));reset();
     }
     void reset() noexcept {
-        std::fill(ring.begin(),ring.end(),0.f);write=clock=stable=cooldown=searchHold=events=recentCount=sinceFit=sinceSteady=confirm=rejected=confirmAgeFrom=0;
+        std::fill(ring.begin(),ring.end(),0.f);write=clock=stable=cooldown=searchHold=events=recentCount=sinceFit=sinceSteady=confirm=rejected=confirmAgeFrom=guarded=0;
         period=baseline=previous=deep=deeper=deepEnergy=allEnergy=0;
     }
     // A pick elsewhere re-anchors anyway: drop the lock and wait.
     void notePick() noexcept {period=0;stable=0;recentCount=0;confirm=0;cooldown=cooldownLength;}
     int legatoEvents() const noexcept {return events;}
     int rejectedCandidates() const noexcept {return rejected;}
+    // Research option (off = 0): a candidate needs a steady fit (drift < 0.3 %
+    // in 5 ms) within `ms` before the change. A legato step leaves a steady
+    // note just before it; wide vibrato (+-100 cents, 7 Hz) or a fast bend
+    // has been moving for tens of ms (re-anchoring there measured worse, see
+    // Tools/TransposeEvidence/legato_modulation_probe.py).
+    void setSteadyGuard(double ms) noexcept {steadyGuard=ms>0 ? int(sampleRateHz*ms/1000) : 0;}
+    int guardedCandidates() const noexcept {return guarded;}
     // True when the next push() runs the 1 ms update. notePick() only touches
     // update state, so a pick reported any time before that push is applied
     // exactly as if it were reported on its own sample.
@@ -482,10 +491,12 @@ public:
         const double drift=std::abs(found-before)/before;
         recent[size_t(recentCount%recent.size())]=best;periods[size_t(recentCount%periods.size())]=found;++recentCount;
         if(stable>=stableNeeded && cooldown==0 && best>eventRatio*baseline && best>eventFloor && recentCount>rise && best-old>eventFloor) {
+            if(steadyGuard>0 && sinceSteady-sinceFit>steadyGuard){++guarded;return -1;}
             confirm=confirmUpdates;confirmPeriod=period;confirmAgeFrom=0;   // the age keeps counting from the last fit
             return -1;
         }
         if(stable>=stableNeeded && cooldown==0 && recentCount>rise && drift>driftEvent && best<lockThreshold) {
+            if(steadyGuard>0 && sinceSteady>steadyGuard){++guarded;return -1;}
             confirm=confirmUpdates;confirmPeriod=before;confirmAgeFrom=1;   // age from the last steady fit
             return -1;
         }
@@ -524,7 +535,7 @@ class HybridTransposer {
             a1=-2*c/(1+alpha);a2=(1-alpha)/(1+alpha);clear();
         }
     };
-    static constexpr double crossover=800.,boundMs=40.,leadMs=1.4,phaseSearchMs=2.5;
+    static constexpr double crossover=800.,boundMs=40.,leadMs=1.4,phaseSearchMs=2.5,steadyGuardMs=10.;
     CorrelationPitch body;
     LegatoDetector legato;
     spectralforge::PolyPitch upper;
@@ -556,7 +567,9 @@ public:
         body.setAnchorInputDelay(1000.*2*std::sqrt(2.)/(2*juce::MathConstants<double>::pi*crossover));
         body.setReanchorPhaseSearch(phaseSearchMs,false);
         upper.prepare(spec,0,window);
-        legato.prepare(spec.sampleRate);
+        // Probe mode 45: no legato re-anchor unless the period was steady
+        // within 10 ms (wide vibrato and fast bends measured worse with it).
+        legato.prepare(spec.sampleRate);legato.setSteadyGuard(steadyGuardMs);
         for(auto& b:lowpass)b.prepare(spec.sampleRate,crossover,false);
         for(auto& b:highpass)b.prepare(spec.sampleRate,crossover,true);
         for(auto* b:{&lowIn,&highIn,&lowOut,&highOut,&detector})b->setSize(channels,capacity);

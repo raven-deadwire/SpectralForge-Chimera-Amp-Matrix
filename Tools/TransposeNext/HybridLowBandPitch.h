@@ -72,6 +72,8 @@ public:
     // (LegatoDetector on the low-band input), like a detected pick.
     void setLegatoReanchor(bool on) noexcept {legatoOn=on;legato.reset();}
     int legatoEvents() const noexcept {return legato.legatoEvents();}
+    int legatoGuarded() const noexcept {return legato.guardedCandidates();}
+    void setLegatoSteadyGuard(double ms) noexcept {legato.setSteadyGuard(ms);}
     void setReanchorPhaseSearch(double ms, bool picks) noexcept {body.setReanchorPhaseSearch(ms,picks);}
     // Research: the low band's read delay (samples) for each sample of the last
     // process() chunk, and this crossover's group delay (samples).
