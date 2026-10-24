@@ -6,6 +6,7 @@ import contextlib
 import hashlib
 import io
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -213,6 +214,7 @@ class PackagingVersionTests(unittest.TestCase):
         build, stage = self.root / "build", self.root / "stage"
         self.write("build/obs-module/bin/64bit/chimera-obs.dll", "module fixture")
         self.write("build/obs-module/data/locale/en-US.ini", 'Chimera="SpectralForge Chimera"\n')
+        self.write("build/obs-module/data/locale/ko-KR.ini", 'Chimera="SpectralForge Chimera"\n')
         self.assertTrue(release.obs_filter(stage, build, SHA, required=True))
         target = stage / "OBS/chimera-obs"
         self.assertEqual((target / "bin/64bit/chimera-obs.dll").read_text(), "module fixture")
@@ -224,13 +226,24 @@ class PackagingVersionTests(unittest.TestCase):
         self.assertIn(f"/tree/{SHA}/OBS", source)
         # The installer removes exactly these files when the task is deselected.
         iss = (ROOT / "Installer/Chimera.iss").read_text(encoding="utf-8-sig")
-        for path in target.rglob("*"):
-            if path.is_file():
-                name = str(path.relative_to(target)).replace("/", "\\")
-                self.assertIn('"{#ObsPluginDir}\\' + name + '"; Check: ObsFilterDeselected', iss)
+        removed = set(re.findall(r'Type: files; Name: "\{#ObsPluginDir\}\\([^"]+)"; Check: ObsFilterDeselected', iss))
+        staged = {str(p.relative_to(target)).replace("/", "\\") for p in target.rglob("*") if p.is_file()}
+        self.assertEqual(removed, staged | {r"data\default-vst3-path.txt"})
         self.assertFalse(release.obs_filter(self.root / "other", self.root / "missing", SHA, required=False))
         with self.assertRaises(RuntimeError):
             release.obs_filter(self.root / "other", self.root / "missing", SHA, required=True)
+
+    def test_obs_filter_rejects_incomplete_or_unowned_module_files(self):
+        for relative in release.OBS_MODULE_FILES:
+            self.write("build/obs-module/" + relative)
+        module = self.root / "build/obs-module"
+        (module / "data/locale/ko-KR.ini").unlink()
+        with self.assertRaisesRegex(RuntimeError, "inventory mismatch"):
+            release.obs_filter(self.root / "stage", self.root / "build", SHA, required=True)
+        self.write("build/obs-module/data/locale/ko-KR.ini")
+        self.write("build/obs-module/data/user-settings.json")
+        with self.assertRaisesRegex(RuntimeError, "inventory mismatch"):
+            release.obs_filter(self.root / "stage", self.root / "build", SHA, required=True)
 
     def test_candidate_stage_inventory_and_versions_without_global_mutation(self):
         expected = version.identity(self.root, SHA)

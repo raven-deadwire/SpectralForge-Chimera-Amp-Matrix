@@ -28,6 +28,7 @@ GPL-2.0-or-later 오픈소스 모듈입니다(LICENSE.txt, 소스 위치는 SOUR
 
 설치·업데이트·제거
 - 설치하거나 업데이트할 때는 OBS를 먼저 종료합니다. OBS가 실행 중이면 Setup이 멈추고 종료를 요청합니다.
+- Windows WMI 오류로 OBS 실행 여부를 확인하지 못하면 설치·제거를 차단합니다. WMI를 복구한 뒤 다시 시도하세요.
 - Chimera Setup을 다시 실행하면 이전 선택을 기억합니다. 선택을 해제하면 Setup이 설치한 필터 파일만 지웁니다.
 - Chimera를 제거하면 이 폴더를 지웁니다. OBS 장면·프로필·다른 플러그인은 건드리지 않으며,
   장면에 저장된 Chimera 소리도 남습니다. 다시 설치하면 그 소리를 그대로 불러옵니다.
@@ -52,6 +53,7 @@ version, the OBS version it was built and tested for, and realtime counters that
 written to the OBS log every 10 minutes of audio.
 
 Close OBS before installing, updating or removing; Setup stops and asks if OBS is running.
+If Windows WMI cannot verify OBS process state, installation/removal is blocked. Restore WMI and retry.
 Removing Chimera deletes this folder only. OBS scenes, profiles and other plugins are not
 touched, and the Chimera sound stored in your scenes is kept for a later reinstall.
 When reporting a problem, include the "[chimera-obs]" lines from the OBS log.
