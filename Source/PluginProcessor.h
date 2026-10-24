@@ -192,6 +192,7 @@ private:
     std::atomic<float> boardReduction{0};
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
     void measureStage(int,const juce::AudioBuffer<float>&);
+    void resetProcessingIfPending();
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
     void syncTransposeQuality();
