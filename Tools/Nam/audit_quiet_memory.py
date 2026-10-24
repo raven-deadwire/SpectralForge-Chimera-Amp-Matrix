@@ -49,7 +49,7 @@ def audit(evaluation, models):
             raise RuntimeError('Unexpected architecture or rate')
         raw = np.load(evaluation / (name + '-native.npy'))
         pred = np.load(evaluation / (name + '-candidate.npy'))
-        measured = fidelity(pred, raw, name)
+        measured = fidelity(pred, raw, name, x)
         for key in ('full_esr', 'quiet_worst_residual_rms_dbfs', 'quiet_worst_residual_peak_dbfs'):
             if not np.isclose(measured[key], result['channels'][name]['candidate']['fidelity'][key], rtol=1e-8, atol=1e-8):
                 raise RuntimeError('Evaluation audio changed')

@@ -1,16 +1,34 @@
 """Project fidelity policy for TONE3000, not an official TONE3000 certification.
 
-Classification and residual dBFS use the frozen v0.2 level anchor for both
+Classification and residual dBFS use a frozen per-channel level anchor for both
 reference and prediction. Neither a candidate's loudness nor output pad can
 move a difficult window into the quiet category.
+
+v2 (owner decision, 2026-10-24): a sample whose whole A2 receptive field of
+input is digital zero cannot be predicted by any bare A2, whose output there is
+one constant (proof: ACCURACY-BLOCKER.md). Those samples are reported as
+`memoryless_*` and excluded from the quiet pass/fail; every other quiet sample
+keeps the unchanged -70/-60 dBFS limits, and the active, level and full-ESR
+limits are unchanged. Full ESR still includes every sample.
 """
 import numpy as np
 
+# Frozen from capture data v1 (source 4ef21c16): 10**(-20/20) / validation RMS.
+ANCHORS = {
+    'Fenrir': 0.10206878638516259,
+    'Surtr': 0.09304512903584947,
+    'Nidhoggr': 0.0912341002696015,
+    'Fimbulvetr': 0.09658538313914974,
+    'Ragnarok': 0.06924560647333675,
+}
+
 PROFILE = {
-    'id': 'nastrond-tone3000-fidelity-v1',
+    'id': 'nastrond-tone3000-fidelity-v2',
     'authority': 'project acceptance policy; not a TONE3000 certification',
     'window_samples': 4096,
     'skip_samples': 6347,
+    'receptive_field_samples': 6347,
+    'quiet_excludes': 'samples whose whole receptive field of input is zero; reported as memoryless_*',
     'active_reference_rms_min_dbfs': -60.0,
     'full_esr_max_exclusive': .01,
     'esr_guidance_source': 'https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet',
@@ -23,14 +41,8 @@ PROFILE = {
     'peak_error_max_db': 1.,
     'steady_silence_rms_max_dbfs': -80.,
     'engine_parity_residual_max_dbfs': -80.,
-    'level_anchor': 'delivered v0.2 reference_output_scale, frozen per channel',
-    'source_output_scale': {
-        'Fenrir': .09195752759643712,
-        'Surtr': .09034985741800312,
-        'Nidhoggr': .0860012970451488,
-        'Fimbulvetr': .09721294970620417,
-        'Ragnarok': .05162876564505051,
-    },
+    'level_anchor': 'scale that puts the channel\'s validation capture at -20 dBFS RMS; frozen from capture data v1 at source 4ef21c16',
+    'source_output_scale': ANCHORS,
 }
 
 
@@ -38,13 +50,24 @@ def db_power(value):
     return float(10*np.log10(max(float(value), 1e-20)))
 
 
-def fidelity(pred, ref, channel):
+def memoryless(inp, field=PROFILE['receptive_field_samples']):
+    """True where the input sample and the field-1 before it are all exactly zero."""
+    nonzero = np.concatenate([[0], np.cumsum(np.asarray(inp) != 0)])
+    end = np.arange(1, len(inp)+1)
+    return nonzero[end] - nonzero[np.maximum(end-field, 0)] == 0
+
+
+def fidelity(pred, ref, channel, inp):
     pred = np.asarray(pred, dtype=np.float64)
     ref = np.asarray(ref, dtype=np.float64)
     if pred.shape != ref.shape or pred.ndim != 1 or len(ref) <= PROFILE['skip_samples']+PROFILE['window_samples']:
         raise ValueError('Expected same-length mono reference and prediction')
+    if np.shape(inp) != ref.shape:
+        raise ValueError('Input must align with the reference')
     if not np.isfinite(pred).all() or not np.isfinite(ref).all():
         raise ValueError('Nonfinite audio')
+    zero_history = memoryless(inp)
+    memoryless_rms, memoryless_peak = [], []
     scale = PROFILE['source_output_scale'][channel]
     active, quiet_rms, quiet_peak = [], [], []
     windows = []
@@ -59,13 +82,20 @@ def fidelity(pred, ref, channel):
         reference_db = db_power(energy)
         is_active = reference_db >= PROFILE['active_reference_rms_min_dbfs']
         esr = float(np.mean(error*error)/max(float(energy), 1e-20))
+        held = zero_history[start:start+size]
+        judged = error[~held]
         if is_active:
             active.append(esr)
-        else:
-            quiet_rms.append(rms)
-            quiet_peak.append(peak)
+        elif len(judged):
+            # The mean over judged samples only: excluded samples must not dilute it.
+            quiet_rms.append(db_power(np.mean(judged*judged)))
+            quiet_peak.append(db_power(np.max(judged*judged)))
+        if held.any() and not is_active:
+            memoryless_rms.append(db_power(np.mean(error[held]**2)))
+            memoryless_peak.append(db_power(np.max(error[held]**2)))
         windows.append({'start_sample': start, 'active': is_active, 'reference_rms_dbfs': reference_db,
-                        'esr': esr, 'residual_rms_dbfs': rms, 'residual_peak_dbfs': peak})
+                        'esr': esr, 'residual_rms_dbfs': rms, 'residual_peak_dbfs': peak,
+                        'memoryless_samples': int(held.sum())})
     r, p = ref[PROFILE['skip_samples']:], pred[PROFILE['skip_samples']:]
     result = {
         'profile': PROFILE['id'], 'level_anchor': scale,
@@ -75,6 +105,9 @@ def fidelity(pred, ref, channel):
         'active_worst': float(max(active)) if active else None,
         'quiet_worst_residual_rms_dbfs': max(quiet_rms, default=-200.),
         'quiet_worst_residual_peak_dbfs': max(quiet_peak, default=-200.),
+        'memoryless_samples': int(zero_history[PROFILE['skip_samples']:].sum()),
+        'memoryless_worst_residual_rms_dbfs': max(memoryless_rms, default=-200.),
+        'memoryless_worst_residual_peak_dbfs': max(memoryless_peak, default=-200.),
         'rms_error_db': db_power(np.mean(p*p))-db_power(np.mean(r*r)),
         'peak_error_db': db_power(np.max(p*p))-db_power(np.max(r*r)),
         'full_esr': float(np.mean((p-r)**2)/max(float(np.mean(r*r)), 1e-20)),

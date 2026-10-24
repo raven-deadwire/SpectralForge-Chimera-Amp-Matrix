@@ -40,7 +40,7 @@ def audit(root):
             folder = root / 'recipes' / recipe
             pred = np.load(folder / (name + '-validation.npy'))
             saved = arm['validation']['channels'][name]
-            measured = fidelity(pred, ref, name)
+            measured = fidelity(pred, ref, name, np.load(root / 'data/validation/input.npy'))
             for key, value in measured.items():
                 if isinstance(value, (int, float)) and not isinstance(value, bool):
                     if not np.isclose(value, saved['tone3000_fidelity'][key], rtol=1e-5, atol=1e-6):

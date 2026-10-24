@@ -35,7 +35,7 @@ def main():
     sf.write(args.out/'Audio'/'Synthetic-DI-input.wav',ax,48000,subtype='FLOAT')
     with tempfile.TemporaryDirectory() as temporary:
         temp=Path(temporary);raw=temp/'input.f32';rendered=temp/'output.f32';job_file=temp/'job.json'
-        for ch,(name,character,_) in enumerate(VOICES):
+        for ch,(name,character) in enumerate(VOICES):
             original=init_from_nam(json.loads((args.run/f'Nastrond-{name}.nam').read_text())).eval()
             # Start with safe headroom, then calibrate each fixed output scale
             # on the same validation input through the actual target EQ.
@@ -101,7 +101,7 @@ def main():
             reports[name]={'character':character,'model_sha256':digest(path),'preset_sha256':digest(preset),
               'validation':stat,'python_tone3000_parity':parity,'silence_dbfs':silence_db,'engine':runtime,'preset':state,'eq_engine':eq_runtime,
               'reference_output_scale':output_scale,'level_calibration':dict(meta['level_calibration'],measured_final_rms_dbfs=calibrated_rms_db),
-              'tone3000_fidelity':fidelity(py/output_scale,reference/output_scale,name)}
+              'tone3000_fidelity':fidelity(py/output_scale,reference/output_scale,name,vx)}
             print(json.dumps({'channel':name,'validation_esr':stat['esr'],'parity_dbfs':parity['residual_rms_dbfs'],'silence_dbfs':silence_db}),flush=True)
     report={'channels':reports,'source':manifest['source'],'target_player_commit':train['target_player_commit'],
       'target_core_commit':'1f42f88535884450104b8711d7595019afa0495b','format':'NAM 0.7.0, bare A2-Full WaveNet; 5 independent captures',

@@ -1,5 +1,11 @@
 # Náströnd A2 accuracy: measured blocker
 
+**2026-10-24 decision:** the owner kept TONE3000 A2 and redefined the quiet
+gate (profile v2 in `quality_profile.py`): zero-history samples, the part this
+proof shows no bare A2 can reach, are reported but no longer decide
+`quiet_pass`. All other limits are unchanged. The proof below stays valid; it
+is now the reason for that exclusion rather than an open blocker.
+
 **2026-10-11 update:** the unchanged current absolute quiet policy also has a
 measured architecture blocker on the newly sealed test seed 26101122.
 Fimbulvetr's window at sample 1,132,747 has a best-possible quiet RMS lower

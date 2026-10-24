@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Five character-focused, fixed Náströnd channels for TONE3000 NAM A2.
+"""The five Náströnd product channels, at their own defaults, for TONE3000 NAM A2.
+
+Each capture selects a channel and keeps that channel's 13 default controls,
+exactly what a player hears on selecting it. The controls are read back from
+the renderer catalog and recorded, never re-typed here.
 
 Keep the production path's whole latency: an oversampler's group delay must not
 be cropped as though it were a pure delay (that can create a noncausal target).
@@ -10,13 +14,18 @@ import numpy as np
 import soundfile as sf
 from common import signal, digest, write_json, SOURCE
 
-KEYS=['gain','bass','middle','treble','mid_frequency','presence','depth','master','clank','crush','impact','rot','bloom']
-VOICES=[
- ('Fenrir','Tight attack / clank',[.56,.40,.55,.60,1050,.62,.55,.50,.95,.48,.78,.15,.12]),
- ('Surtr','Dense saturation / vocal mids',[.68,.48,.75,.52,1050,.52,.50,.50,.50,.95,.48,.35,.55]),
- ('Nidhoggr','Asymmetric grind / rot',[.64,.43,.50,.57,800,.60,.52,.50,.50,.60,.50,1.,.58]),
- ('Fimbulvetr','Broad bloom / clear upper mids',[.52,.40,.65,.72,1350,.72,.48,.50,.35,.42,.50,.40,.95]),
- ('Ragnarok','Deep impact / stiff punch',[.66,.60,.42,.55,650,.56,.86,.50,.74,.82,1.,.58,.32])]
+# Names stay ASCII: they are file names and quality-profile keys.
+VOICES=[('Fenrir','Early bite, lean lows, fast firm recovery'),
+ ('Surtr','Distributed compression, forward vocal mids'),
+ ('Nidhoggr','Uneven drive, asymmetric recovery'),
+ ('Fimbulvetr','Broad body, yielding supply, open upper mids'),
+ ('Ragnarok','Late-stage saturation, deep hit, stiff recovery')]
+
+
+def channel_controls(catalog, channel):
+    """The channel's default controls in renderer units, from the renderer itself."""
+    row=catalog['channel_defaults'][channel]
+    return {m['source_key']:row[i]*m['source_scale'] for i,m in enumerate(catalog['mapping'])}
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--renderer',type=Path,required=True);ap.add_argument('--out',type=Path,required=True)
@@ -45,8 +54,8 @@ def main():
         if args.smoke_seconds is not None:seconds=args.smoke_seconds
         d=args.out/split;d.mkdir();x=signal(640500+i*1703,seconds)
         np.save(d/'input.npy',x);x.tofile(d/'input.f32');sf.write(d/'input.wav',x,48000,subtype='FLOAT')
-        for ch,(name,character,values) in enumerate(VOICES):
-            job={'channel':ch,'controls':dict(zip(KEYS,values))};write_json(d/(name+'.json'),job)
+        for ch,(name,character) in enumerate(VOICES):
+            job={'channel':ch};write_json(d/(name+'.json'),job)
             jobs.append((split,name,character,job,d,len(x)))
     def render(item):
         split,name,character,job,d,n=item;raw=d/(name+'.f32')
@@ -54,7 +63,7 @@ def main():
         y=np.fromfile(raw,dtype='<f4')
         if len(y)!=n or not np.isfinite(y).all():raise RuntimeError('Invalid native capture')
         np.save(d/(name+'.npy'),y);raw.unlink()
-        return {'split':split,'name':name,'character':character,'channel':job['channel'],'controls':job['controls'],
+        return {'split':split,'name':name,'character':character,'channel':job['channel'],'controls':channel_controls(catalog,job['channel']),
           'input':str((d/'input.npy').relative_to(args.out)),'output':str((d/(name+'.npy')).relative_to(args.out)),
           'input_sha256':digest(d/'input.npy'),'output_sha256':digest(d/(name+'.npy')),'render':info}
     t=time.monotonic()
@@ -63,6 +72,6 @@ def main():
         for result in pool.map(render,jobs):
             captures.append(result);print(result['split'],result['name'],'captured',round(time.monotonic()-t,1),flush=True)
     write_json(args.out/'manifest.json',{'schema':1,'source':source,'catalog':catalog,'captures':captures,'elapsed_seconds':time.monotonic()-t})
-    write_json(args.out/'channel-settings.json',[{'name':n,'character':c,'channel':i,'controls':dict(zip(KEYS,v))} for i,(n,c,v) in enumerate(VOICES)])
+    write_json(args.out/'channel-settings.json',[{'name':n,'character':c,'channel':i,'controls':channel_controls(catalog,i)} for i,(n,c) in enumerate(VOICES)])
 
 if __name__=='__main__':main()

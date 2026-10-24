@@ -198,7 +198,7 @@ def main():
                 means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
             for i,score in enumerate(means):
                 if score<best[i]:best[i]=score;best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
-            profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0]) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
+            profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0],vx) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
             write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'windows':vals,'best_steps':best_steps,'tone3000_fidelity':profile_metrics,
               'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start,'identity':identity,'checkpoint_step':step,'recipe':args.recipe})
             checkpoint_temporary=args.out/'checkpoint.pt.tmp'
@@ -207,7 +207,7 @@ def main():
             checkpoint_temporary.replace(args.out/'checkpoint.pt')
             print(json.dumps({'step':step,'validation_esr':dict(zip([v[0] for v in VOICES],means)),'best_steps':best_steps}),flush=True)
     results={}
-    for i,(name,character,_) in enumerate(VOICES):
+    for i,(name,character) in enumerate(VOICES):
         sub=model.extract_submodel(i).eval();sub.load_state_dict(weights[i]);sub._net._head_scale/=gains[i]
         # A fixed final bias correction enforces the known zero-input steady state.
         with torch.inference_mode():dc=float(sub(torch.zeros(rf+512),pad_start=False)[-1])
@@ -226,7 +226,7 @@ def main():
         stats.update({'selected_step':best_steps[i],'validation_window_esr_median':float(np.median(windows)),
           'validation_window_esr_p95':float(np.quantile(windows,.95)),'validation_window_esr_worst':float(max(windows)),
           'official_roundtrip_max_abs':delta,'sha256':digest(path),'head_bias_correction':dc})
-        stats['tone3000_fidelity']=fidelity(prediction,vy[i],name)
+        stats['tone3000_fidelity']=fidelity(prediction,vy[i],name,vx)
         results[name]=stats;np.save(args.out/f'{name}-validation.npy',prediction)
     write_json(args.out/'validation.json',{'channels':results,'thresholds':{'median_esr':.005,'p95_esr':.01,'worst_esr':.02},
       'quality_profile':PROFILE,'input':'unseen synthetic validation excitation','test':'independent comparison is a separate step','real_DI':'not supplied',

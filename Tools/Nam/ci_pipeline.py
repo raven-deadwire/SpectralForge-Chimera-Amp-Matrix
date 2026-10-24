@@ -195,7 +195,7 @@ def compare_package(out, tool):
         restored = np.fromfile(rendered, dtype='<f4')
         delta = float(np.max(np.abs(eq-restored)))
         require(math.isfinite(delta) and delta <= 1e-6, 'Saved preset audio does not restore')
-        quality = fidelity(y / row['reference_output_scale'], ref / row['reference_output_scale'], name)
+        quality = fidelity(y / row['reference_output_scale'], ref / row['reference_output_scale'], name, x)
         report['channels'][name] = {'metrics': stat, 'legacy_all_relative_pass': numeric_pass(stat),
             'tone3000_fidelity': quality, 'numerical_pass': quality['fidelity_pass'],
             'model_sha256': sha256(model), 'preset_sha256': sha256(preset),

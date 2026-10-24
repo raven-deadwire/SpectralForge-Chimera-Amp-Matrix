@@ -101,7 +101,7 @@ def main():
                 raise RuntimeError('Not target-compatible A2-Full')
             y = np.fromfile(rendered, dtype='<f4')
             np.save(a.out / (name + '-' + version + '.npy'), y)
-            versions[version] = {'fidelity': fidelity(y, ref, name), 'runtime': runtime,
+            versions[version] = {'fidelity': fidelity(y, ref, name, x), 'runtime': runtime,
                                  'model_sha256': digest(model_file)}
             if version == 'candidate':
                 model = init_from_nam(json.loads(model_file.read_text())).eval()

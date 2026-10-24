@@ -17,11 +17,21 @@ original active-audio ESR limits and evaluates very quiet decay using absolute
 residual limits. This is a project policy, not an official TONE3000 certification.
 The v0.2 files fail the revised policy as well; no release approval is implied.
 
+**2026-10-24 restart (profile v2):** the owner chose to (1) recapture the five
+channels from current main, at each product channel's own defaults, and (2)
+redefine only the provably unreachable part of the quiet gate. A sample whose
+whole 6,347-sample input history is digital zero is reported as
+`memoryless_*` and does not decide `quiet_pass`; every other quiet sample keeps
+the -70/-60 dBFS limits. Active, level and full-ESR limits are unchanged, and
+the level anchors are re-frozen from the new validation capture (-20 dBFS RMS).
+Earlier v0.1/v0.2 evidence was measured with profile v1 and older DSP and is not
+comparable with v2 numbers.
+
 ## Frozen sources
 
 | Component | Revision |
 | --- | --- |
-| Chimera native DSP | `d93560445c78552768a0ed592e5ec62c3c648fb6`, v1.2.0-beta.1 |
+| Chimera native DSP | `4ef21c16aed16fe2eb470ed21e5d9942224ab61e`, main with the five-channel revision (was `d9356044`, v1.2.0-beta.1, before 2026-10-24) |
 | JUCE | 8.0.8 |
 | sdatkinson/neural-amp-modeler | `0072676419459f5d39e36f5b9fd4172f28d62cbf` |
 | tone-3000/tone3000-plugin | `ef6f178ae1ac6412b55fec6f058d86e640e5aaaf` |
@@ -42,11 +52,11 @@ package. The EQ does not claim to reproduce those amp controls.
 
 ## Sound and capture boundary
 
-`capture_channels.py` defines five authored settings: Fenrir attack/clank,
-Surtr dense vocal mids, Nidhoggr asymmetric rot, Fimbulvetr broad bloom with
-open upper mids, and Ragnarok low-end impact. These are distinct actual native
-channels, not renamed copies of one capture. Every setting includes all 13
-native controls.
+`capture_channels.py` selects each of the five product channels (Fenrir,
+Surtr, Nidhoggr, Fimbulvetr, Ragnarok) at that channel's own defaults, what a
+player hears on selecting it. The 13 control values are read back from the
+renderer catalog and recorded in `channel-settings.json`, never re-typed. These
+are distinct actual native channels, not renamed copies of one capture.
 
 `RenderNativeAmp.cpp` runs the released production `Amp`/`AmpNativeDSP` route
 at 48 kHz mono, block 256, Modern mode and 4x oversampling. It includes the real
@@ -209,7 +219,7 @@ artifact with 30-day retention, including on failure:
 Setup or execution failure preserves **partial** evidence and remains FAIL;
 missing outputs cannot pass. Source/audio mismatch aborts acceptance. The
 held-out synthetic split is evaluated only after checkpoint selection and
-export, using the current profile's frozen v0.2 reference scale and thresholds. No
+export, using the current profile's frozen level anchors and thresholds. No
 recorded instrument DI is represented by these synthetic signals.
 `release_approved` is always false; `instrument_DI_listening` and
 `GUI_DAW_acceptance` stay **BLOCKED**, even if all numerical checks pass.
@@ -272,13 +282,15 @@ default target, valid metadata range, and +/-12 dB adjustment clamp.
 
 Accuracy for active windows remains median ESR <=0.005, p95 <=0.01 and worst
 <=0.02. A window is active when the **reference** RMS is at least -60 dBFS
-under the frozen v0.2 per-channel output scale. Quieter windows require residual
-RMS <=-70 dBFS and residual peak <=-60 dBFS. The RMS residual must therefore
+under the frozen per-channel level anchor. Quieter windows require residual
+RMS <=-70 dBFS and residual peak <=-60 dBFS over every sample that has nonzero
+input within its 6,347-sample history (profile v2; zero-history samples are
+reported separately as `memoryless_*`). The RMS residual must therefore
 stay at least 10 dB below the active/quiet boundary, while the peak condition
 catches brief excursions. These are numerical production tolerances, not
 claims of perceptual inaudibility. The window is 4,096 samples; skipping the
-first 6,347 samples is unchanged. Every quiet window is assessed, including
-true zero input; none is silently discarded.
+first 6,347 samples is unchanged. Every quiet window is assessed and reported;
+only its zero-history samples are left out of the pass/fail, as above.
 
 Full-signal ESR must also be below 0.01, applying the excellent-result range
 in [TONE3000's capture guide](https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet)

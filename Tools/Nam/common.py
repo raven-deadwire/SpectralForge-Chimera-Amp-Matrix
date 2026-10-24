@@ -4,7 +4,8 @@ from pathlib import Path
 import numpy as np
 from scipy.signal import butter, sosfilt
 RATE=48000
-SOURCE='d93560445c78552768a0ed592e5ec62c3c648fb6'
+# Native DSP the captures are taken from; capture refuses any other source tree.
+SOURCE='4ef21c16aed16fe2eb470ed21e5d9942224ab61e'
 
 def digest(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def write_json(p, data): Path(p).write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')

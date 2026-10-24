@@ -21,13 +21,38 @@ class EvidenceTests(unittest.TestCase):
         from quality_profile import fidelity
         ref = np.zeros(48000)
         ref[10000:30000] = .1 * np.sin(np.arange(20000) * .03)
-        self.assertTrue(fidelity(ref, ref, 'Fenrir')['fidelity_pass'])
+        inp = np.zeros(48000)
+        inp[10000:40000] = .01
+        self.assertTrue(fidelity(ref, ref, 'Fenrir', inp)['fidelity_pass'])
         bad = ref.copy()
         bad[35000:] = .03
-        result = fidelity(bad, ref, 'Fenrir')
+        result = fidelity(bad, ref, 'Fenrir', inp)
         self.assertFalse(result['quiet_pass'])
         self.assertFalse(result['fidelity_pass'])
-        self.assertFalse(fidelity(ref * .5, ref, 'Fenrir')['fidelity_pass'])
+        self.assertFalse(fidelity(ref * .5, ref, 'Fenrir', inp)['fidelity_pass'])
+
+    def test_only_zero_history_samples_leave_the_quiet_gate(self):
+        import numpy as np
+        from quality_profile import PROFILE, fidelity, memoryless
+        field = PROFILE['receptive_field_samples']
+        inp = np.zeros(60000)
+        inp[8000:20000] = .01
+        held = memoryless(inp)
+        # A sample is held exactly when its whole receptive field is zero.
+        self.assertFalse(held[20000 + field - 2])
+        self.assertTrue(held[20000 + field - 1])
+        ref = np.zeros(60000)
+        ref[8000:20000] = .05 * np.sin(np.arange(12000) * .02)
+        tail = ref.copy()
+        tail[20000 + field:] += .02  # a constant only where no A2 can react
+        result = fidelity(tail, ref, 'Fenrir', inp)
+        self.assertTrue(result['quiet_pass'])
+        self.assertGreater(result['memoryless_worst_residual_rms_dbfs'], PROFILE['quiet_residual_rms_max_dbfs'])
+        early = ref.copy()
+        early[20000 + field - 300:] += .02  # also before the field is exhausted
+        self.assertFalse(fidelity(early, ref, 'Fenrir', inp)['quiet_pass'])
+        with self.assertRaises(ValueError):
+            fidelity(ref, ref, 'Fenrir', inp[:-1])
 
     def test_metric_failures_and_missing_nonfinite(self):
         good = {k: v / 2 for k, v in THRESHOLDS.items()}
