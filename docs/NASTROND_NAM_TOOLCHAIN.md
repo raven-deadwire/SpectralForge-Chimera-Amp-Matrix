@@ -1,5 +1,7 @@
 # Náströnd NAM toolchain: review and redesign
 
+[한국어](NASTROND_NAM_TOOLCHAIN.ko.md)
+
 Reviewed 2026-10-24 against `24273e9`. Scope: the tools that acquire the
 Náströnd NAM references, render them beside `OriginalAmpProcessor`, and
 summarise the results (`fetch_nastrond_references.py`, `compare_original_nam.py`,

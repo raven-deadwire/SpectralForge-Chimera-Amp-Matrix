@@ -2,7 +2,7 @@
 
 [English](NASTROND_NAM_BAND_MEASUREMENT.md)
 
-[NASTROND_NAM_TOOLCHAIN.md](NASTROND_NAM_TOOLCHAIN.md)에서 다음 측정으로 남겨 둔 작업의 절차입니다.
+[NASTROND_NAM_TOOLCHAIN.ko.md](NASTROND_NAM_TOOLCHAIN.ko.md)에서 다음 측정으로 남겨 둔 작업의 절차입니다.
 매니페스트의 NAM 캡처 26개와 OriginalAmp 상태들을 렌더링하고, 옥타브마다 같은 비중을 주는
 `band_spectrum_rms_db` 지표와 기존 v1 지표로 각각 매크로 방향을 audit해서 두 결과를 비교합니다.
 
