@@ -27,6 +27,12 @@ namespace transposeNext {
 //   the major third) briefly breaks the lock and then fits again (0.002-0.079
 //   after 2 ms over 25 false events), a real change keeps failing it
 //   (0.198-1.018 over 15 legato / hammer-on events); the 2 ms are part of the age,
+// - a second route catches small steps the +-4 % re-fit follows like a bend:
+//   a one-semitone legato moves the fitted period 2.9 % in 5 ms (518 -> 503
+//   samples, E2 +1) while its error stays < 0.06; vibrato or a 200-cent bend
+//   move it about 0.2 % in 5 ms and C4-major beating 0.14 %. A drift > 1.5 %
+//   within 5 ms is a candidate, confirmed against the period before the drift
+//   and dated from the last steady fit (drift < 0.3 % in 5 ms),
 // - the change is dated at the last 1 ms update that still fitted (age),
 // - no lock while more than 20 % of the energy passes a two-pole 45 Hz
 //   low-pass (one pole at 55 Hz also blocked a 62 Hz D#2): notes under
@@ -34,12 +40,13 @@ namespace transposeNext {
 //   (B0 power chord: 9 events in 3 s without this guard).
 class LegatoDetector {
     std::vector<float> ring;
-    std::array<double,6> recent{};
+    std::array<double,6> recent{}, periods{};
     int size{}, write{}, hop{}, clock{}, window{}, minLag{}, maxLag{};
-    int stable{}, cooldown{}, searchHold{}, events{}, recentCount{}, sinceFit{}, confirm{}, rejected{};
-    double period{}, baseline{}, previous{}, deep{}, deeper{}, deepCoefficient{}, deepEnergy{}, allEnergy{}, energyCoefficient{};
+    int stable{}, cooldown{}, searchHold{}, events{}, recentCount{}, sinceFit{}, sinceSteady{}, confirm{}, rejected{}, confirmAgeFrom{};
+    double period{}, confirmPeriod{}, baseline{}, previous{}, deep{}, deeper{}, deepCoefficient{}, deepEnergy{}, allEnergy{}, energyCoefficient{};
     static constexpr int stableNeeded=10, cooldownLength=30, rise=5, confirmUpdates=2;
-    static constexpr double searchThreshold=.15, lockThreshold=.02, eventRatio=6, eventFloor=.06, energyFloor=1.e-7, confirmFloor=.15;
+    static constexpr double searchThreshold=.15, lockThreshold=.02, eventRatio=6, eventFloor=.06, energyFloor=1.e-7, confirmFloor=.15,
+                            driftEvent=.015, driftSteady=.003;
     float at(int age) const noexcept {int i=write-1-age;if(i<0)i+=size;return ring[size_t(i)];}
     double error(int lag) const noexcept {
         double e=0,s=1.e-20;
@@ -54,7 +61,7 @@ public:
         deepCoefficient=1-std::exp(-2*juce::MathConstants<double>::pi*45/rate);energyCoefficient=1-std::exp(-1/(rate*.02));reset();
     }
     void reset() noexcept {
-        std::fill(ring.begin(),ring.end(),0.f);write=clock=stable=cooldown=searchHold=events=recentCount=sinceFit=confirm=rejected=0;
+        std::fill(ring.begin(),ring.end(),0.f);write=clock=stable=cooldown=searchHold=events=recentCount=sinceFit=sinceSteady=confirm=rejected=confirmAgeFrom=0;
         period=baseline=previous=deep=deeper=deepEnergy=allEnergy=0;
     }
     // A pick elsewhere re-anchors anyway: drop the lock and wait.
@@ -67,7 +74,7 @@ public:
         const float emphasised=x-float(previous);previous=x;
         deep+=deepCoefficient*(x-deep);deeper+=deepCoefficient*(deep-deeper);deepEnergy+=energyCoefficient*(deeper*deeper-deepEnergy);allEnergy+=energyCoefficient*(double(x)*x-allEnergy);
         ring[size_t(write)]=emphasised;if(++write==size)write=0;
-        ++sinceFit;
+        ++sinceFit;++sinceSteady;
         if(++clock<hop) return -1;
         clock=0;
         if(cooldown>0)--cooldown;
@@ -76,10 +83,10 @@ public:
         if(deepEnergy>.2*allEnergy){period=0;stable=0;recentCount=0;confirm=0;return -1;}
         if(confirm>0) {
             // Still at the old period? Then it was beating, not a new note.
-            if(error(int(period))<=confirmFloor){confirm=0;++rejected;return -1;}
+            if(error(int(confirmPeriod))<=confirmFloor){confirm=0;++rejected;return -1;}
             if(--confirm>0) return -1;
             ++events;period=0;stable=0;recentCount=0;cooldown=cooldownLength;
-            return sinceFit;
+            return confirmAgeFrom==1 ? sinceSteady : sinceFit;
         }
         if(period<=0) {
             if(searchHold>0){--searchHold;return -1;}
@@ -89,7 +96,7 @@ public:
             while(lag+2<=maxLag && e>=searchThreshold){lag+=2;e=error(lag);}
             if(e<searchThreshold) {
                 for(double next=error(lag+1);lag+1<=maxLag && next<e;next=error(lag+1)){++lag;e=next;}
-                if(e<lockThreshold){period=lag;stable=0;recentCount=0;baseline=std::max(e,.005);sinceFit=0;return -1;}
+                if(e<lockThreshold){period=lag;stable=0;recentCount=0;baseline=std::max(e,.005);sinceFit=sinceSteady=0;return -1;}
             }
             searchHold=9;   // full search at most every 10 ms
             return -1;
@@ -98,13 +105,20 @@ public:
         double best=1.e9;int found=lo;
         for(int lag=lo;lag<=hi;++lag){const double e=error(lag);if(e<best){best=e;found=lag;}}
         const double old=recentCount>=rise ? recent[size_t((recentCount-rise)%int(recent.size()))] : best;   // 5 updates ago
-        recent[size_t(recentCount%recent.size())]=best;++recentCount;
+        const double before=recentCount>=rise ? periods[size_t((recentCount-rise)%int(periods.size()))] : period;   // fitted 5 updates ago
+        const double drift=std::abs(found-before)/before;
+        recent[size_t(recentCount%recent.size())]=best;periods[size_t(recentCount%periods.size())]=found;++recentCount;
         if(stable>=stableNeeded && cooldown==0 && best>eventRatio*baseline && best>eventFloor && recentCount>rise && best-old>eventFloor) {
-            confirm=confirmUpdates;   // the age keeps counting from the last fit
+            confirm=confirmUpdates;confirmPeriod=period;confirmAgeFrom=0;   // the age keeps counting from the last fit
+            return -1;
+        }
+        if(stable>=stableNeeded && cooldown==0 && recentCount>rise && drift>driftEvent && best<lockThreshold) {
+            confirm=confirmUpdates;confirmPeriod=before;confirmAgeFrom=1;   // age from the last steady fit
             return -1;
         }
         if(best<searchThreshold && best<3*baseline+.02 && best<lockThreshold) {
             period=found;if(stable<stableNeeded)++stable;baseline=.9*baseline+.1*std::max(best,.002);sinceFit=0;
+            if(drift<driftSteady)sinceSteady=0;
         } else if(best>.6){period=0;stable=0;recentCount=0;}
         return -1;
     }
