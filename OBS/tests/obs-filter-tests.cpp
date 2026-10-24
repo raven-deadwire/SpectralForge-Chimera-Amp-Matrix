@@ -5,6 +5,9 @@
 //   - OBS output equals the same input run directly through the Chimera VST3
 //   - input mapping, mute/dry policy without Chimera, scene save/restore
 //   - destroy on the OBS destroy thread hands teardown to the UI thread
+//   - realtime counters, tail reset after an input gap, OBS sample rate and
+//     speaker layout changes, and a long session with random block sizes
+//     (CHIMERA_OBS_SOAK_SECONDS of audio, default 120)
 // Usage: <chimera-obs module> <module data dir> <Chimera.vst3>
 #include "base64.hpp"
 #include "chimera-host.hpp"
@@ -17,7 +20,9 @@
 #include <chrono>
 #include <cmath>
 #include <cstdarg>
+#include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <deque>
 #include <fstream>
 #include <iostream>
@@ -25,6 +30,7 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -76,14 +82,15 @@ const char* testName(void*) { return "Chimera test input"; }
 void* testCreate(obs_data_t*, obs_source_t* source) { return source; }
 void testDestroy(void*) {}
 
-std::vector<float> guitar(int frames, int channel) {
+std::vector<float> guitar(int frames, int channel, int start = 0) {
     std::vector<float> out(static_cast<size_t>(frames));
     const double notes[] = {82.41, 110.0, 146.83, 98.0};
-    for (int n = 0; n < frames; ++n) {
+    for (int i = 0; i < frames; ++i) {
+        const int n = start + i;
         const double t = (n % 24000) / double(rate), f = notes[(n / 24000) % 4];
         double v = 0;
         for (int h = 1; h <= 6; ++h) v += std::sin(2 * pi * f * h * t + channel * 0.1) / h;
-        out[static_cast<size_t>(n)] = static_cast<float>(0.25 * v * std::exp(-3.0 * t));
+        out[static_cast<size_t>(i)] = static_cast<float>(0.25 * v * std::exp(-3.0 * t));
     }
     return out;
 }
@@ -99,9 +106,13 @@ void captureAudio(void* param, obs_source_t*, const audio_data* audio, bool) {
     }
 }
 
+// Source timestamps; a test skips ahead to simulate a stopped input.
+uint64_t nextTimestamp = 1000000000ull;
+
 // Pushes `frames` of the stereo test signal (starting at `start`) through the
-// source; returns what OBS delivered after the filter chain.
-Capture push(obs_source_t* source, int start, int frames, bool silent = false) {
+// source, `gapNs` after the previous push ended; returns what OBS delivered
+// after the filter chain.
+Capture push(obs_source_t* source, int start, int frames, bool silent = false, uint64_t gapNs = 0) {
     Capture captured;
     obs_source_add_audio_capture_callback(source, captureAudio, &captured);
     auto left = guitar(start + frames, 0), right = guitar(start + frames, 1);
@@ -109,7 +120,7 @@ Capture push(obs_source_t* source, int start, int frames, bool silent = false) {
         std::fill(left.begin(), left.end(), 0.f);
         std::fill(right.begin(), right.end(), 0.f);
     }
-    static uint64_t timestamp = 1000000000ull;
+    nextTimestamp += gapNs;
     for (int offset = 0; offset < frames; offset += tick) {
         obs_source_audio audio{};
         audio.data[0] = reinterpret_cast<const uint8_t*>(left.data() + start + offset);
@@ -118,8 +129,8 @@ Capture push(obs_source_t* source, int start, int frames, bool silent = false) {
         audio.speakers = SPEAKERS_STEREO;
         audio.format = AUDIO_FORMAT_FLOAT_PLANAR;
         audio.samples_per_sec = rate;
-        audio.timestamp = timestamp;
-        timestamp += uint64_t(audio.frames) * 1000000000ull / rate;
+        audio.timestamp = nextTimestamp;
+        nextTimestamp += uint64_t(audio.frames) * 1000000000ull / rate;
         obs_source_output_audio(source, &audio);
     }
     obs_source_remove_audio_capture_callback(source, captureAudio, &captured);
@@ -187,6 +198,107 @@ double getParameter(obs_source_t* filter, std::uint32_t id) {
 }
 
 bool near(double a, double b) { return std::abs(a - b) < 1e-6; }
+
+struct Stats {
+    double audioSeconds{}, averageLoad{}, peakLoad{};
+    long long blocks{}, overruns{}, gaps{}, restarts{}, unprocessed{};
+};
+Stats stats(obs_source_t* filter) {
+    calldata_t call;
+    calldata_init(&call);
+    proc_handler_call(obs_source_get_proc_handler(filter), "chimera_get_stats", &call);
+    Stats s{calldata_float(&call, "audio_seconds"), calldata_float(&call, "average_load"), calldata_float(&call, "peak_load"),
+            calldata_int(&call, "blocks"), calldata_int(&call, "overruns"), calldata_int(&call, "gaps"),
+            calldata_int(&call, "restarts"), calldata_int(&call, "unprocessed")};
+    calldata_free(&call);
+    return s;
+}
+
+// Resident memory of this process in MiB (Linux without AddressSanitizer,
+// whose quarantine keeps freed memory resident; 0 elsewhere).
+double residentMiB() {
+#if defined(__linux__) && !defined(__SANITIZE_ADDRESS__)
+    long pages = 0, resident = 0;
+    if (FILE* f = std::fopen("/proc/self/statm", "r")) {
+        if (std::fscanf(f, "%ld %ld", &pages, &resident) != 2) resident = 0;
+        std::fclose(f);
+    }
+    return double(resident) * 4096.0 / (1024.0 * 1024.0);
+#else
+    return 0.0;
+#endif
+}
+
+// Pushes a stereo signal through the source in the given block sizes and
+// returns the filtered output (any OBS speaker layout; first two channels).
+Capture pushBlocks(obs_source_t* source, const std::vector<float>& left, const std::vector<float>& right,
+                   const std::vector<int>& sizes, uint64_t gapNs = 0) {
+    Capture captured;
+    for (auto& channel : captured.channel) channel.reserve(left.size()); // same allocations every call
+    obs_source_add_audio_capture_callback(source, captureAudio, &captured);
+    nextTimestamp += gapNs;
+    size_t offset = 0;
+    for (int size : sizes) {
+        obs_source_audio audio{};
+        audio.data[0] = reinterpret_cast<const uint8_t*>(left.data() + offset);
+        audio.data[1] = reinterpret_cast<const uint8_t*>(right.data() + offset);
+        audio.frames = static_cast<uint32_t>(size);
+        audio.speakers = SPEAKERS_STEREO;
+        audio.format = AUDIO_FORMAT_FLOAT_PLANAR;
+        audio.samples_per_sec = rate;
+        audio.timestamp = nextTimestamp;
+        nextTimestamp += uint64_t(size) * 1000000000ull / rate;
+        obs_source_output_audio(source, &audio);
+        offset += size_t(size);
+    }
+    obs_source_remove_audio_capture_callback(source, captureAudio, &captured);
+    check(captured.channel[0].size() == offset, "OBS did not deliver every frame of the session");
+    return captured;
+}
+
+// Captures every OBS output channel (after a speaker layout change).
+struct Planes {
+    std::vector<std::vector<float>> channel;
+};
+void capturePlanes(void* param, obs_source_t*, const audio_data* audio, bool) {
+    auto* c = static_cast<Planes*>(param);
+    for (size_t ch = 0; ch < c->channel.size(); ++ch) {
+        const auto* p = reinterpret_cast<const float*>(audio->data[ch]);
+        c->channel[ch].insert(c->channel[ch].end(), p, p + audio->frames);
+    }
+}
+
+// Pushes `frames` of a per-channel test tone in the given OBS format and
+// returns every output channel.
+Planes pushFormat(obs_source_t* source, int sampleRate, speaker_layout layout, int channels, int frames) {
+    std::vector<std::vector<float>> in(size_t(channels), std::vector<float>(static_cast<size_t>(frames)));
+    for (int c = 0; c < channels; ++c)
+        for (int n = 0; n < frames; ++n) in[size_t(c)][size_t(n)] = float(0.2 * std::sin(2 * pi * (110.0 * (c + 1)) * n / sampleRate));
+    Planes captured{std::vector<std::vector<float>>(size_t(channels))};
+    obs_source_add_audio_capture_callback(source, capturePlanes, &captured);
+    for (int offset = 0; offset < frames; offset += tick) {
+        obs_source_audio audio{};
+        for (int c = 0; c < channels; ++c) audio.data[c] = reinterpret_cast<const uint8_t*>(in[size_t(c)].data() + offset);
+        audio.frames = static_cast<uint32_t>(std::min(tick, frames - offset));
+        audio.speakers = layout;
+        audio.format = AUDIO_FORMAT_FLOAT_PLANAR;
+        audio.samples_per_sec = static_cast<uint32_t>(sampleRate);
+        audio.timestamp = nextTimestamp;
+        nextTimestamp += uint64_t(audio.frames) * 1000000000ull / uint64_t(sampleRate);
+        obs_source_output_audio(source, &audio);
+        drainUi(); // the re-prepare queued by the first block of a new format
+    }
+    obs_source_remove_audio_capture_callback(source, capturePlanes, &captured);
+    for (int c = 0; c < channels; ++c) {
+        check(captured.channel[size_t(c)].size() == size_t(frames), "OBS did not deliver every frame in the new format");
+        for (int n = 0; n < frames; ++n) captured.channel[size_t(c)][size_t(n)] -= in[size_t(c)][size_t(n)]; // keep only the change
+    }
+    return captured;
+}
+
+bool finite(const std::vector<float>& x, float limit) {
+    return std::all_of(x.begin(), x.end(), [&](float v) { return std::isfinite(v) && std::abs(v) < limit; });
+}
 }
 
 int main(int argc, char** argv) {
@@ -366,6 +478,135 @@ int main(int argc, char** argv) {
         const auto passed = push(other, 0, tick * 4);
         check(maxDifference(passed.channel[0], guitar(tick * 4, 0), 0) == 0.0, "dry policy must pass input unchanged");
 
+        // 7b. Realtime counters through the script interface.
+        const Stats main = stats(filter), noChimera = stats(missing);
+        std::cout << "realtime counters: " << main.blocks << " blocks, " << main.audioSeconds << " s, load average "
+                  << 100 * main.averageLoad << "% peak " << 100 * main.peakLoad << "%, unprocessed " << main.unprocessed << "\n";
+        check(main.blocks > 0 && main.audioSeconds > 5 && main.averageLoad > 0 && main.peakLoad >= main.averageLoad,
+              "realtime counters of a processing filter");
+        check(main.unprocessed == 0 && main.gaps == 0, "continuous processed input has no gaps or unprocessed blocks");
+        // A filter that never found Chimera reports no audio: a long recording
+        // through it can never pass as processed.
+        check(noChimera.blocks == 0 && noChimera.audioSeconds == 0, "a filter without Chimera must not report processed audio");
+        check(propertyText(filter, "realtime_info").find("Realtime processing") != std::string::npos, "realtime counters in properties");
+
+        // 7c. Input that resumes after a stop must not start with the old
+        // tails; a short timestamp jump only counts as a gap.
+        // (The harness clock is shared by every test source: the first push
+        // after another source's audio is itself a gap.)
+        push(source, 0, rate);
+        const Stats beforeGaps = stats(filter);
+        const double keptTail = rms(push(source, 0, rate / 10, true, 20000000ull).channel[0]);
+        push(source, 0, rate);
+        const double afterStop = rms(push(source, 0, rate / 10, true, 2000000000ull).channel[0]);
+        const Stats gapped = stats(filter);
+        std::cout << "100 ms of silence: tail rms " << keptTail << " after a 20 ms gap, " << afterStop << " after a 2 s stop\n";
+        check(keptTail > 1e-4, "a 20 ms gap must not reset Chimera");
+        check(afterStop < keptTail * 1e-2, "input resumed after a stop replayed the old tail");
+        check(gapped.gaps - beforeGaps.gaps == 2 && gapped.restarts - beforeGaps.restarts == 1, "gap counters");
+
+        // 7d. Long session: random OBS block sizes (1-1024 frames), live input
+        // mapping changes, no drift or state build-up. The same passage after a
+        // stop sounds the same at the start and at the end of the session.
+        obs_source_t* soakSource = obs_source_create("chimera_test_input", "Long session", nullptr, nullptr);
+        obs_source_t* soak = makeFilter("Soak", bundle);
+        obs_source_filter_add(soakSource, soak);
+        settle();
+        const int passage = rate * 2;
+        const auto passageL = guitar(passage, 0), passageR = guitar(passage, 1);
+        const std::vector<int> whole(size_t(passage / tick), tick);
+        const auto first = pushBlocks(soakSource, passageL, passageR, whole, 2000000000ull);
+        const char* soakEnv = std::getenv("CHIMERA_OBS_SOAK_SECONDS");
+        const int soakSeconds = soakEnv != nullptr ? std::max(1, std::atoi(soakEnv)) : 120;
+        double memoryBefore = 0;
+        const auto wallStart = std::chrono::steady_clock::now();
+        uint32_t lcg = 12345;
+        long long soakBlocks = 0;
+        for (int done = 0; done < soakSeconds; done += 10) {
+            // Memory is compared from the end of the first 10 s, once every
+            // buffer of the session has been allocated once.
+            if (done == 10) memoryBefore = residentMiB();
+            const auto chunkL = guitar(rate * 10, 0, rate * done), chunkR = guitar(rate * 10, 1, rate * done);
+            std::vector<int> sizes;
+            for (int left = rate * 10; left > 0;) {
+                lcg = lcg * 1664525u + 1013904223u;
+                const int size = std::min(left, 1 + int(lcg >> 22)); // 1..1024
+                sizes.push_back(size);
+                left -= size;
+            }
+            soakBlocks += (long long)sizes.size();
+            obs_data_t* mapping = obs_data_create();
+            obs_data_set_int(mapping, "input_mapping", (done / 10) % 4);
+            obs_source_update(soak, mapping);
+            obs_data_release(mapping);
+            drainUi();
+            const auto out = pushBlocks(soakSource, chunkL, chunkR, sizes);
+            check(finite(out.channel[0], 4.f) && finite(out.channel[1], 4.f), "long session output is not finite and bounded");
+        }
+        const double wall = std::chrono::duration<double>(std::chrono::steady_clock::now() - wallStart).count();
+        const double memoryGrowth = memoryBefore > 0 ? residentMiB() - memoryBefore : 0.0;
+        obs_data_t* stereo = obs_data_create();
+        obs_data_set_int(stereo, "input_mapping", 0);
+        obs_source_update(soak, stereo);
+        obs_data_release(stereo);
+        drainUi();
+        const auto last = pushBlocks(soakSource, passageL, passageR, whole, 2000000000ull);
+        const double drift = std::max(maxDifference(first.channel[0], last.channel[0], 0), maxDifference(first.channel[1], last.channel[1], 0));
+        const Stats soaked = stats(soak);
+        std::cout << "long session: " << soakSeconds << " s of audio in " << soakBlocks << " random blocks, " << wall << " s wall time; load average "
+                  << 100 * soaked.averageLoad << "% peak " << 100 * soaked.peakLoad << "% (20 ms windows), " << soaked.overruns << " windows over real time; "
+                  << "resident memory +" << memoryGrowth << " MiB; same passage start vs end: max diff " << drift << "\n";
+        check(soaked.blocks == soakBlocks + 2 * (long long)whole.size(), "every block of the session counted");
+        // The first passage is this filter's first audio; the second follows a stop.
+        check(soaked.unprocessed == 0 && soaked.restarts == 1 && soaked.gaps == 1,
+              "long session: " + std::to_string(soaked.unprocessed) + " unprocessed blocks, " + std::to_string(soaked.gaps) + " gaps, "
+                  + std::to_string(soaked.restarts) + " restarts");
+        check(drift < 1e-4, "the same passage sounds different at the end of the session (drift or state build-up)");
+        check(memoryGrowth < 8.0, "resident memory grew during the long session");
+
+        // 7e. Other OBS sample rates and speaker layouts. OBS applies these on
+        // restart, so each format gets a new source and filter (libobs does not
+        // re-convert an existing source's audio after a reset). Chimera
+        // processes the first two channels; the others pass unchanged.
+        const size_t unloadsBeforeFormats = logCount("unloaded Chimera");
+        obs_source_filter_remove(soakSource, soak);
+        obs_source_release(soak);
+        obs_source_release(soakSource);
+        for (const auto& format : {std::make_tuple(44100, SPEAKERS_MONO, 1), std::make_tuple(48000, SPEAKERS_5POINT1, 6),
+                                   std::make_tuple(48000, SPEAKERS_STEREO, 2)}) {
+            const int newRate = std::get<0>(format), channels = std::get<2>(format);
+            obs_audio_info reset{static_cast<uint32_t>(newRate), std::get<1>(format)};
+            check(obs_reset_audio(&reset), "obs_reset_audio to a new format");
+            obs_source_t* formatSource = obs_source_create("chimera_test_input", "Format", nullptr, nullptr);
+            obs_source_t* formatFilter = makeFilter("Format filter", bundle);
+            obs_source_filter_add(formatSource, formatFilter);
+            settle();
+            const std::string status = propertyText(formatFilter, "status_info");
+            check(status.find("Processing") != std::string::npos, "filter is not prepared for the OBS format: " + status);
+            const auto changed = pushFormat(formatSource, newRate, std::get<1>(format), channels, newRate);
+            obs_source_filter_remove(formatSource, formatFilter);
+            obs_source_release(formatFilter);
+            obs_source_release(formatSource);
+            const size_t settled = size_t(tick) * 4;
+            double processedChange = 0, passedChange = 0;
+            for (int c = 0; c < channels; ++c) {
+                std::vector<float> tailPart(changed.channel[size_t(c)].begin() + long(settled), changed.channel[size_t(c)].end());
+                check(finite(tailPart, 4.f), "non-finite output after a format change");
+                (c < 2 ? processedChange : passedChange) = std::max(c < 2 ? processedChange : passedChange, rms(tailPart));
+            }
+            std::cout << "OBS format " << newRate << " Hz, " << channels << " ch: Chimera channels changed (rms " << processedChange
+                      << "), other channels changed rms " << passedChange << "\n";
+            check(processedChange > 1e-3, "Chimera did not process after the format change");
+            check(passedChange == 0.0, "channels beyond the first two must pass unchanged");
+        }
+
+        // The long-session and format filters are gone before teardown is counted.
+        for (int i = 0; i < 500 && logCount("unloaded Chimera") < unloadsBeforeFormats + 4; ++i) {
+            drainUi();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        check(logCount("unloaded Chimera") == unloadsBeforeFormats + 4, "long-session and format filters were not released");
+
         // 8. Teardown: OBS destroys filters on its destroy thread; the plugin
         // must be unloaded on the UI thread, without blocking either.
         const size_t unloadsBefore = logCount("unloaded Chimera");
@@ -392,7 +633,8 @@ int main(int argc, char** argv) {
         check(bnum_allocs() == 0, "libobs allocations leaked: " + std::to_string(bnum_allocs()));
         std::cout << "PASS OBS filter: libobs module load, OBS output equals direct VST3, live input mapping, tail reset on re-enable, scene restore, "
                      "duplicate/copy with edited state, independent instances, settings preset push, newer-schema guard, Setup-recorded VST3 path, "
-                     "mute/dry without Chimera, UI-thread teardown\n";
+                     "mute/dry without Chimera, realtime counters, tail reset after an input stop, long session without drift, "
+                     "OBS rate/layout changes, UI-thread teardown\n";
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "FAIL " << e.what() << '\n';

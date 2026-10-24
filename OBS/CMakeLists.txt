@@ -36,6 +36,12 @@ target_compile_options(chimera-obs-bridge-tests PRIVATE ${chimera_obs_warnings})
 target_link_libraries(chimera-obs-bridge-tests PRIVATE Threads::Threads)
 add_test(NAME chimera-obs-bridge-tests COMMAND chimera-obs-bridge-tests)
 
+add_executable(chimera-obs-stats-tests tests/realtime-stats-tests.cpp)
+target_include_directories(chimera-obs-stats-tests PRIVATE src)
+target_compile_options(chimera-obs-stats-tests PRIVATE ${chimera_obs_warnings})
+target_link_libraries(chimera-obs-stats-tests PRIVATE Threads::Threads)
+add_test(NAME chimera-obs-stats-tests COMMAND chimera-obs-stats-tests)
+
 add_executable(chimera-obs-base64-tests tests/base64-tests.cpp)
 target_include_directories(chimera-obs-base64-tests PRIVATE src)
 target_compile_options(chimera-obs-base64-tests PRIVATE ${chimera_obs_warnings})

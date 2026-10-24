@@ -22,6 +22,7 @@ JUCE는 쓰지 않는다.
 |---|---|---|
 | `src/plugin-main.cpp` | OBS 필터 등록, 설정·장면 저장, 속성 창 | OBS UI·오디오·소멸 스레드 |
 | `src/audio-bridge.hpp` | OBS planar 오디오 ↔ 엔진 실시간 경계, 입력 매핑, 실패 정책 | 오디오(할당·잠금 없음) |
+| `src/realtime-stats.hpp` | 실시간 처리 통계(부하·실시간 초과·입력 끊김·미처리 블록) | 오디오(쓰기), 아무 스레드(읽기) |
 | `src/chimera-host.*` | VST3 번들 식별·로딩, 버스/처리 준비, 상태, 파라미터 | UI(로딩), 오디오(처리) |
 | `src/editor-window-*.cpp` | Chimera 에디터 창(Windows HWND). 다른 OS는 미지원 표시 | UI |
 | `tools/dll_exports_def.py` | Windows용 `obs.dll` export → `.def` (import lib 생성) | 빌드 |
@@ -40,7 +41,32 @@ JUCE는 쓰지 않는다.
 - Chimera가 없거나 처리 실패 시 기본은 **무음**, 선택 시 원음 통과. OBS 오디오 형식이 바뀌면 UI 스레드에서 다시 준비한다.
 - OBS는 꺼진 필터를 처리하지 않으므로, 필터를 다시 켜면 Chimera에 남은 이전 소리의 꼬리(딜레이·리버브·캐비닛)를 지운다
   (`enable` 신호 → 다음 블록에서 VST3 `setProcessing(false/true)` → Chimera `reset()`). 이 동작은 `reset()`을 구현한 Chimera 빌드가 필요하다.
+- 입력이 1초 이상 끊겼다가 다시 들어오면(장치 정지·재연결, 미디어 일시정지) 같은 방식으로 이전 꼬리를 지운다.
+  타임스탬프가 5 ms를 넘게 어긋난 짧은 끊김은 통계에만 센다.
 - OBS에는 플러그인 지연 보정이 없다. 처리 지연은 속성 창에 표시만 하며 자동 보정하지 않는다.
+
+## 실시간 처리 통계 (D단계)
+
+필터마다 오디오 스레드에서 할당·잠금 없이 센다. Chimera가 처음 소리를 처리한 블록부터 센다
+(OBS 시작·Chimera 로딩 중 무음 구간은 빼고, Chimera를 찾지 못한 필터는 오디오 0초로 남는다). 속성 창의 **실시간 처리** 항목과 **실시간 통계 초기화** 버튼,
+스크립트용 proc, OBS 로그로 볼 수 있다.
+
+| 항목 | 뜻 |
+|---|---|
+| Chimera 부하 평균 / 최대 | Chimera 처리 시간 ÷ 오디오 시간. 최대값과 실시간 초과는 오디오 20 ms 구간(OBS 오디오 한 틱 정도)마다 잰다 |
+| 실시간보다 오래 걸린 구간 | 20 ms 분량을 처리하는 데 20 ms보다 오래 걸린 구간 수. 드롭아웃 위험 신호 |
+| 입력 타임스탬프 끊김 | 앞 블록에서 예상한 시각과 5 ms 넘게 어긋난 횟수. 그중 1초 이상 끊긴 뒤 재개는 따로 센다 |
+| 처리하지 못한 블록 | Chimera가 없거나 준비 중·오류로 무음 또는 원음 통과한 블록 수 |
+
+OBS 로그에는 오디오 10분마다 한 줄, 필터를 제거할 때 전체 합계 한 줄이 남는다.
+OBS를 종료할 때 합계 줄이 남는지는 실제 OBS 앱에서 확인하지 않았으므로, 1시간 기록은 10분 줄로 판단한다.
+
+```
+[chimera-obs] 'Guitar DI': realtime: 0:10:00 of audio, 28125 blocks, Chimera load average 3.1% peak 12.4%, 20 ms windows over real time 0, input gaps 0 (resumed after silence 0), unprocessed blocks 0
+```
+
+1시간 녹화 기록은 이 줄로 남긴다. 테스트 킷 `obs-log` 명령이 사용자가 고른 OBS 로그에서 이 줄만 증거 폴더로 옮긴다
+([OBS_COMPATIBILITY.md](../docs/OBS_COMPATIBILITY.md#전용-필터-세션)). OBS 전체 CPU·메모리는 OBS의 통계 창으로 따로 기록한다.
 
 ## 스크립트 인터페이스
 
@@ -50,7 +76,11 @@ JUCE는 쓰지 않는다.
 ```
 void chimera_set_parameter(in int id, in float value, out bool ok)
 void chimera_get_parameter(in int id, out float value, out bool ok)
+void chimera_get_stats(out float audio_seconds, out int blocks, out float average_load, out float peak_load,
+                       out int overruns, out int gaps, out int restarts, out int unprocessed)
 ```
+
+`chimera_get_stats`는 읽기 전용이라 어느 스레드에서 불러도 된다. 부하 값은 비율이다(0.25 = 25%).
 
 ## 빌드
 
@@ -63,6 +93,8 @@ cmake -S OBS -B build-obs -DCMAKE_BUILD_TYPE=Release \
 cmake --build build-obs
 xvfb-run -a ctest --test-dir build-obs --output-on-failure   # libobs가 X 디스플레이를 연다
 ```
+
+장시간 시험 길이는 `CHIMERA_OBS_SOAK_SECONDS`(오디오 초, 기본 120)로 바꾼다. 예: `CHIMERA_OBS_SOAK_SECONDS=3600`.
 
 Windows는 libobs 개발 패키지가 없으므로, 대상 OBS 릴리스 태그의 `libobs` 헤더와 그 릴리스 `obs.dll`에서
 만든 import library로 빌드한다(`-DCHIMERA_OBS_LIBOBS_INCLUDE_DIR`, `-DCHIMERA_OBS_LIBOBS_LIBRARY`).
@@ -105,11 +137,20 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 위 상태 시험의 변형 시험(동기화·적용·버전 검사를 각각 제거하면 실패) | 3/3 검출 | 같은 환경 |
 | 다시 켠 필터의 꼬리 제거(무음 100 ms RMS 0.0074 → 0), 호스트 `requestReset` 0.0079 → 0 | 통과, 신호 연결 제거 시 실패 | 같은 환경 |
 | Windows 코드 경로 교차 컴파일(MinGW, OBS 31.1.2 헤더·`obs.dll` export) | 빌드 성공 | 실행 안 함 |
+| 실시간 통계 단위 시험(끊김 분류, 20 ms 구간 부하·초과, 주기 보고, 초기화, 동시 읽기) | 통과(TSan 포함) | Linux |
+| 1초 넘게 끊긴 입력 재개 시 꼬리 제거(무음 100 ms RMS 0.0074 → 0), 20 ms 끊김은 꼬리 유지·통계만 | 통과 | libobs 30.0.2 (헤드리스) |
+| 장시간: 오디오 120초(CI 기본), 무작위 블록 1–1024 frames 11,244개, 10초마다 입력 매핑 변경 | 미처리 0, 출력 유한, 같은 구간 시작/끝 출력 차이 0(지연·상태 누적 없음) | 같은 환경 |
+| 장시간 600초(`CHIMERA_OBS_SOAK_SECONDS=600`), 블록 56,321개 | 시작/끝 출력 차이 0, 상주 메모리 +2.9 MiB(60초 실행 +2.6 MiB와 같은 수준, 누수 없음) | 같은 환경 |
+| OBS 44.1 kHz 모노, 48 kHz 5.1, 48 kHz 스테레오에서 새 필터 준비·처리, 3번째 이후 채널은 그대로 통과 | 통과 | 같은 환경 |
+| Chimera 직접 처리 60초(무작위 블록) 20 ms 구간 실시간 초과 | 0회(2회 실행), 블록당 최대 약 6 ms | Linux x86_64, 4코어 |
 | Setup이 기록한 VST3 위치 파일(BOM·CRLF 포함)로 경로 없이 로딩, 파일 처리 제거 시 실패 | 통과 | libobs 30.0.2 (헤드리스) |
 | Windows MSVC 빌드·시험(OBS 31.1.2 `obs.dll`) | CI에서 실행 | 결과는 CI 기록 |
 | Setup 필터 선택 설치·복구 시 선택 유지·사용자 지정 유니코드 VST3 경로 기록·선택 해제 시 제거·제거 시 삭제, 정적 런타임 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 
 장면 하나에 필터당 상태가 약 0.7 MB(base64) 저장된다(기본 상태 531,818바이트).
+
+헤드리스 시험은 오디오를 실시간보다 빠르게 넣으므로 그 안의 부하·실시간 초과 수치는 기록만 하고 판정에 쓰지 않는다
+(같은 환경에서 평균 부하 약 20–25%, 20 ms 구간 실시간 초과는 실행마다 0–5회). 시험의 메모리 검사는 AddressSanitizer 빌드에서는 건너뛴다. 실제 판정은 OBS 앱의 1시간 녹화 로그로 한다.
 
 **알려진 한계**
 
@@ -117,6 +158,11 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 - 개인 IR 파일이 없을 때의 처리는 Chimera 제품 동작을 따른다. 모듈은 상태를 그대로 전달할 뿐이다.
 - 에디터 편집의 장면 반영(500 ms 타이머)은 Windows 에디터 코드에 있으며 실제 OBS 앱에서는 아직 확인하지 않았다.
 
+- OBS는 실행 중에 출력 샘플레이트·채널을 바꾸지 않는다(설정 변경은 재시작 후 적용). 실행 중 형식 변경 대응은
+  실시간 경계 단위 시험으로만 확인했다. libobs는 소스가 살아 있는 동안 오디오를 다시 설정하면 그 소스의 변환을 갱신하지 않기 때문이다.
+- 필터는 OBS 타임스탬프를 바꾸지 않는다. 처리 지연(기본 상태 42 samples, 0.88 ms)은 영상과의 싱크에 그대로 더해지며,
+  필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
+
 **미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows 에디터 코드는 실행 검증 전),
-실제 오디오 장치·DI 입력, 1시간 녹화, 영상 싱크 측정, OBS 32.x, macOS 빌드. 이 항목은 계획 C–F단계와
+실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS 빌드. 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.

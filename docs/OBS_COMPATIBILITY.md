@@ -5,7 +5,7 @@
 
 **상태: 테스트 도구/절차 구현. 실제 OBS 호환은 미검증.**
 Windows x64부터 시험하고 macOS Universal·Linux x86_64는 별도 기록한다.
-아래 절차는 VST3 호스트 경로이며 전용 애드온은 [별도 계획](OBS_ADDON_PLAN.md)에 있다.
+아래 절차는 atkAudio VST3 호스트 경로가 기본이다. 전용 필터는 [전용 필터 세션](#전용-필터-세션)과 [별도 계획](OBS_ADDON_PLAN.md)을 따른다.
 
 ## 설치와 첫 로딩
 
@@ -77,6 +77,29 @@ python Tools/obs_testkit.py signals --output obs-signals
   0.5초 무음, 5 ms 램프. 합성 신호만으로 저음 피치 품질을 승인하지 않는다.
 - `signals.json`: 생성 파일 해시. 타이밍 비교는 녹화 시작 시각 대신 입력 마커와
   출력 마커를 정렬한다. 손실 압축 오디오의 인코더 지연을 분리하려면 PCM 기록을 함께 사용한다.
+
+## 전용 필터 세션
+
+atkAudio 대신 전용 OBS 필터([OBS/README.md](../OBS/README.md), [#131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131))를
+시험할 때는 `--host chimera-obs`로 따로 세션을 만든다. atkAudio 세션의 결과를 옮겨 쓰지 않는다.
+OBS 오디오 소스 → 필터 → **SpectralForge Chimera**를 쓰고, `--plugin`에는 필터가 불러오는 Chimera VST3를 준다.
+
+```powershell
+python Tools/obs_testkit.py init --host chimera-obs --output obs-filter-win --plugin "C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3" --build-info build-manifest.json --obs-version "실제 OBS 버전" --chimera-obs-version "필터 소스 커밋 또는 Setup 버전" --os-arch "Windows 11 x64 / 실제 빌드" --audio-path "실제 장치·드라이버·48 kHz·채널·모니터 경로"
+```
+
+필터는 오디오 10분마다 OBS 로그에 실시간 처리 줄(부하, 20 ms 구간 실시간 초과, 입력 끊김, 처리하지 못한 블록)을 남긴다.
+1시간 녹화 뒤 OBS의 **도움말 → 로그 파일 → 로그 폴더 보기**에서 그 세션의 로그 파일을 골라 다음을 실행한다.
+
+```powershell
+python Tools/obs_testkit.py obs-log --session obs-filter-win/session.json --log "저장한 OBS 로그 파일" --output evidence/realtime-1h.json
+python Tools/obs_testkit.py record --session obs-filter-win/session.json --case one_hour_recording --result PASS --duration-seconds 3600 --note "실제 환경·드롭아웃·시작/끝 싱크·OBS 통계 창 CPU/메모리" --evidence evidence/realtime-1h.json --evidence evidence/sync.txt
+```
+
+`obs-log`는 `[chimera-obs]` 실시간 줄만 복사하고 로그의 나머지(경로·계정·스트림 설정)는 저장하지 않는다.
+전용 필터 세션에서 `one_hour_recording`을 PASS로 기록하려면, 한 필터가 처리한 오디오가 3600초 이상이고
+처리하지 못한 블록이 0인 `obs-log` 기록이 증거에 있어야 한다. 실시간 초과·입력 끊김 수와 시작/끝 영상 싱크는 사람이 판단해 메모에 쓴다.
+시작/끝 싱크는 녹화 처음과 끝의 박수·마커를 영상 프레임과 비교한다. 필터 처리 지연은 속성 창에 표시되며 OBS가 자동 보정하지 않는다.
 
 ## 반드시 수행할 검사
 
