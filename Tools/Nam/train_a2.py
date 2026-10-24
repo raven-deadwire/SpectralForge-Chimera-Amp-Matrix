@@ -111,6 +111,15 @@ def main():
         if args.recipe=='official-a2':return virtual_epoch_learning_rate(step,epoch_steps,initial=args.lr)
         return args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
     opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
+    selection_windows=[rf,6*48000,12*48000,18*48000,22*48000]
+    def selection_esr(sub,i):
+        """One channel's selection score, computed exactly as during training."""
+        if args.validation_selection=='full':return scores(centered_prediction(sub,vx)/gains[i],vy[i])[0]['esr']
+        vals=[]
+        for s in selection_windows:
+            with torch.inference_mode():p=sub(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gains[i]
+            vals.append(scores(p,vy[i,s:s+8192],skip=0)[0]['esr'])
+        return float(np.mean(vals))
     if args.resume:
         ck=torch.load(args.out/'checkpoint.pt',map_location='cpu',weights_only=False)
         if ck['identity']!=identity:raise RuntimeError('Resume identity mismatch')
@@ -144,14 +153,16 @@ def main():
             delta=float((before-after).abs().max());raw_deltas.append(delta)
             if not np.isfinite(delta) or delta>1e-5:raise RuntimeError('Warm-start output reparameterization changed physical prediction')
             model.import_submodel(i,sub)
-            best[i]=scores(centered_prediction(sub,vx)/gains[i],vy[i])[0]['esr']
+            # Score the starting state with the same metric later steps are selected
+            # by; full-signal and excerpt ESR values are not comparable.
+            best[i]=selection_esr(sub,i)
             weights[i]=copy.deepcopy(sub.state_dict())
         # Zero denotes the warm-start candidate, not a newly trained checkpoint.
         best_steps=[0]*5
         write_json(args.out/'initialization.json',{'source_checkpoint_sha256':digest(args.warm_start/'checkpoint.pt'),
           'source_checkpoint_step':ck['step'],'source_selected_steps':ck['best_steps'],'optimizer':'reset identically in comparison arms',
           'raw_prediction_max_abs_delta':dict(zip([v[0] for v in VOICES],raw_deltas)),
-          'initial_validation_esr':dict(zip([v[0] for v in VOICES],best)),'gains':gains.tolist(),'seed':6405})
+          'initial_validation_esr':dict(zip([v[0] for v in VOICES],best)),'initial_validation_metric':args.validation_selection,'gains':gains.tolist(),'seed':6405})
     # Failed identity checks must not overwrite a recoverable run's configuration.
     write_json(args.out/'training-config.json',train_cfg)
     for group in opt.param_groups:group['lr']=learning_rate(start)
@@ -192,7 +203,7 @@ def main():
                 prediction=centered_prediction(model,vx)/gains[:,None]
                 means=[row['esr'] for row in scores(prediction,vy)]
             else:
-                for s in [rf,6*48000,12*48000,18*48000,22*48000]:
+                for s in selection_windows:
                     with torch.inference_mode():p=model(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gains[:,None]
                     vals.append(scores(p,vy[:,s:s+8192],skip=0))
                 means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
