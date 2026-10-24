@@ -32,15 +32,25 @@ def band_power(x, masks=None):
 
 def compare_segments(reference, candidate):
     """Frozen v1 metrics plus polarity and octave-weighted spectral distance."""
+    reference, candidate = (np.asarray(x, dtype=np.float64) for x in (reference, candidate))
+    if (reference.ndim != 1 or candidate.shape != reference.shape or len(reference) < 8192
+            or not np.isfinite(reference).all() or not np.isfinite(candidate).all()):
+        raise ValueError('Expected equal finite mono segments of at least 8192 samples')
+    if np.var(reference) == 0 or np.var(candidate) == 0:
+        raise ValueError('Silent or constant segment has no defined spectral/polarity comparison')
     result = legacy_metrics(reference, candidate)
-    # The v1 correlation keeps its sign: a negative value is an inverted
-    # polarity at the best lag, not a dissimilar waveform.
+    # Preserve signed correlation at the best bounded lag. Its sign is an
+    # alignment diagnostic, not proof of a physical polarity inversion.
     result['polarity'] = -1 if result['correlation'] < 0 else 1
     gain = np.sqrt(np.sum(reference ** 2) / max(np.sum(candidate ** 2), 1e-20))
     f, masks, pa = band_power(reference)
     _, _, pb = band_power(candidate * gain, masks)
     keep = pa > pa.max() * 1e-5
+    if not keep.any():
+        raise ValueError('No active reference bands in 65-8000 Hz')
     result['band_spectrum_rms_db'] = float(np.sqrt(np.mean((10 * np.log10((pb[keep] + 1e-20) / (pa[keep] + 1e-20))) ** 2)))
+    if not all(np.isfinite(value) for value in result.values()):
+        raise ValueError('Undefined spectral/polarity comparison')
     return result
 
 

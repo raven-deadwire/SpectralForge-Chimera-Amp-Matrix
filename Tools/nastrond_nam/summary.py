@@ -6,11 +6,13 @@ They are now pure functions of comparison.json reports, so every published
 summary can be regenerated and checked.
 """
 import csv
+import hashlib
 import io
 import math
+from pathlib import Path
 from statistics import mean
 
-from . import protocol
+from . import protocol, references, states
 
 METRICS = {
     'log_spectrum_rms_db': 'RMS-matched Welch 65-8000 Hz',
@@ -46,6 +48,8 @@ def require(condition, message):
 
 
 def reference_identity(report):
+    require(len({r['model_id'] for r in report['references']}) == len(report['references']),
+            'Duplicate reference model_id')
     return {r['model_id']: (r['family'], r['sha256'], r['gain_group'], r['capture_scope'],
                            {v: (data['input_gain_db'], data['audio_sha256'])
                             for v, data in r['variants'].items()}) for r in report['references']}
@@ -58,13 +62,39 @@ def state_names(scope, macro):
 
 
 def audit(reports, groups, metric='log_spectrum_rms_db', scope=None,
-          min_improvement_db=.1, max_default_drift_db=.001):
+          min_improvement_db=.1, max_default_drift_db=.001,
+          manifest_path=references.DEFAULT_MANIFEST):
     """reports: {'baseline', 'incoming', 'candidate'} comparison reports, in that order."""
     require(list(reports) == ['baseline', 'incoming', 'candidate'], 'Need baseline, incoming, candidate')
     require(metric in METRICS, f'Unknown metric {metric}')
+    require(math.isfinite(min_improvement_db) and min_improvement_db >= 0,
+            'min_improvement_db must be finite and nonnegative')
+    require(math.isfinite(max_default_drift_db) and max_default_drift_db > 0,
+            'max_default_drift_db must be finite and positive')
+    manifest = references.load(manifest_path)
+    manifest_sha = hashlib.sha256(Path(manifest_path).read_bytes()).hexdigest()
+    expected = {r['model_id']: r for r in manifest['references']}
+    require(groups == references.target_groups(manifest), 'Target groups differ from manifest')
     baseline = reports['baseline']
     identity = reference_identity(baseline)
     for label, report in reports.items():
+        require(report['manifest_sha256'] == manifest_sha, f'{label}: manifest SHA256 mismatch')
+        require(report['protocol'] == protocol.describe(), f'{label}: unsupported protocol')
+        actual = reference_identity(report)
+        require(set(actual) == set(expected), f'{label}: reference set differs from manifest')
+        for ref in report['references']:
+            item = expected[ref['model_id']]
+            for key in ('family', 'sha256', 'gain_group', 'capture_scope'):
+                require(ref[key] == item[key], f'{label}: reference {ref["model_id"]} {key} mismatch')
+            gains = {'digital_equal': 0.0}
+            calibration = item['metadata'].get('input_level_dbu')
+            if calibration is not None:
+                gains['metadata_11_5_dbu'] = 11.5 - float(calibration)
+            require({v: data['input_gain_db'] for v, data in ref['variants'].items()} == gains,
+                    f'{label}: reference {ref["model_id"]} variants/input gain mismatch')
+        for name, definition in states.frozen_v1().items():
+            require(report['original'].get(name, {}).get('state') == definition,
+                    f'{label}: missing/redefined frozen state {name}')
         for key in ['manifest_sha256', 'probe_sha256', 'nam_renderer_sha256', 'protocol']:
             require(report[key] == baseline[key], f'{label}: incompatible {key}')
         require(reference_identity(report) == identity, f'{label}: changed NAM identity/render')
@@ -78,10 +108,16 @@ def audit(reports, groups, metric='log_spectrum_rms_db', scope=None,
     require(macros, f'No macro endpoint states in scope {scope or "default"}')
     if scope is None:
         require(macros == list(groups), 'Default scope must cover every target group')
+    else:
+        for macro in groups:
+            names = state_names(scope, macro)
+            present = [s in candidate['original'] for s in names[1:]]
+            require(not any(present) or (all(present) and names[0] in candidate['original']),
+                    f'Incomplete macro endpoints: {scope}/{macro}')
     for macro in macros:
         for state in state_names(scope, macro):
-            definitions = {repr(r['original'].get(state, {}).get('state')) for r in reports.values()}
-            require(len(definitions) == 1, f'State {state} missing or redefined between reports')
+            require(all(state in r['original'] and r['original'][state]['state'] == candidate['original'][state]['state']
+                        for r in reports.values()), f'State {state} missing or redefined between reports')
 
     result_groups, failed = {}, []
     for macro in macros:

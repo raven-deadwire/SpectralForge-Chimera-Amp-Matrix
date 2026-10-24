@@ -51,7 +51,7 @@ def audit(args):
     groups = references.target_groups(references.load(args.manifest))
     result = summary.audit({name: json.loads(path.read_text()) for name, path in paths.items()}, groups,
                            metric=args.metric, scope=args.scope, min_improvement_db=args.min_improvement_db,
-                           max_default_drift_db=args.max_default_drift_db)
+                           max_default_drift_db=args.max_default_drift_db, manifest_path=args.manifest)
     result['comparison_sha256'] = {name: digest(path) for name, path in paths.items()}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2) + '\n')

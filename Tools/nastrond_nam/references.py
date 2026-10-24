@@ -5,6 +5,7 @@ They follow from the manifest: an amp-head capture eligible for timbre
 comparison, unboosted, at high or undocumented gain, grouped by its role.
 """
 import json
+import re
 from pathlib import Path
 
 from .protocol import SR
@@ -13,17 +14,25 @@ MACROS = ('clank', 'crush', 'impact', 'rot', 'bloom')
 TARGET_GAIN_GROUPS = ('high_gain', 'unspecified_gain')
 REQUIRED = ('family', 'model_id', 'name', 'model_url', 'file', 'sha256', 'sample_rate', 'role',
             'capture_scope', 'boosted', 'gain_group', 'head_timbre_comparison_eligible', 'metadata')
+DEFAULT_MANIFEST = Path(__file__).resolve().parents[2] / 'docs/reference/nastrond-nam-manifest.json'
 
 
 def load(path):
     manifest = json.loads(Path(path).read_text())
     refs = manifest['references']
+    if not isinstance(refs, list) or not refs:
+        raise ValueError('Manifest must contain references')
     for item in refs:
         missing = [key for key in REQUIRED if key not in item]
         if missing:
             raise ValueError(f"Manifest entry {item.get('model_id')} lacks {missing}")
         if item['role'].lower() not in MACROS:
             raise ValueError(f"Unknown role {item['role']} for {item['model_id']}")
+        if not isinstance(item['sha256'], str) or not re.fullmatch(r'[0-9a-f]{64}', item['sha256']):
+            raise ValueError(f"Invalid SHA256 for {item['model_id']}")
+        for key in ('boosted', 'head_timbre_comparison_eligible'):
+            if type(item[key]) is not bool:
+                raise ValueError(f'{key} must be boolean')
         if float(item['sample_rate']) != SR:
             raise ValueError(f"Reference sample rate differs: {item['model_id']}")
         if item['head_timbre_comparison_eligible'] and item['capture_scope'] != 'amp_head':

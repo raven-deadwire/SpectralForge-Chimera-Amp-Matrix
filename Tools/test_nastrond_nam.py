@@ -5,6 +5,7 @@ Frozen evidence must regenerate exactly; the comparison runs end to end
 against stand-in renderers with a stand-in manifest.
 """
 import hashlib
+import copy
 import json
 import os
 import stat
@@ -18,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'Tools'))
 
 import nastrond_nam_tool  # noqa: E402
-from nastrond_nam import analysis, compare, protocol, references, states, summary  # noqa: E402
-from validate_nam import SR  # noqa: E402
+from nastrond_nam import analysis, compare, protocol, references, renderers, states, summary  # noqa: E402
+from validate_nam import SR, metrics as legacy_metrics  # noqa: E402
 
 MANIFEST = ROOT / 'docs/reference/nastrond-nam-manifest.json'
 EVIDENCE = ROOT / 'docs/evidence'
@@ -50,7 +51,9 @@ def test_references():
     manifest = references.load(MANIFEST)
     assert references.target_groups(manifest) == FROZEN_GROUPS
     for change, text in [({'role': 'FUZZ'}, 'Unknown role'), ({'file': '../x.nam'}, 'escapes'),
-                         ({'capture_scope': 'amp_cab'}, 'amp-head'), ({'sample_rate': 44100}, 'sample rate')]:
+                         ({'capture_scope': 'amp_cab'}, 'amp-head'), ({'sample_rate': 44100}, 'sample rate'),
+                         ({'sha256': 'bad'}, 'SHA256'), ({'boosted': 'false'}, 'boolean'),
+                         ({'head_timbre_comparison_eligible': 'false'}, 'boolean')]:
         broken = json.loads(MANIFEST.read_text())
         broken['references'][8].update(change)
         with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as handle:
@@ -86,6 +89,129 @@ def test_band_metric_and_polarity():
     inverted = analysis.compare_segments(x, -x)
     assert inverted['polarity'] == -1 and inverted['correlation'] < -.99
     assert inverted['band_spectrum_rms_db'] < 1e-6
+
+
+def spectral_error_cases():
+    """Known, deterministic spectral changes; not an instrument or hardware fixture."""
+    x = np.random.default_rng(145).standard_normal(8 * SR)
+    frequencies = np.fft.rfftfreq(len(x), 1 / SR)
+    spectrum = np.fft.rfft(x)
+    cases = {'identical': x, 'polarity_inversion': -x, 'gain_plus_6db': 2 * x,
+             'delay_32_samples': np.r_[np.zeros(32), x[:-32]]}
+    for name, low, high, db in [('bass_loss_20db', 65, 250, -20),
+                                ('bass_loss_12db', 65, 250, -12),
+                                ('treble_loss_12db', 2000, 8000, -12),
+                                ('treble_boost_20db', 2000, 8000, 20)]:
+        transfer = np.ones_like(frequencies)
+        transfer[(frequencies >= low) & (frequencies < high)] = 10 ** (db / 20)
+        cases[name] = np.fft.irfft(spectrum * transfer, n=len(x))
+    return x, cases
+
+
+def test_balanced_errors_and_v1_parity():
+    x, cases = spectral_error_cases()
+    scores = {}
+    for name, y in cases.items():
+        scores[name] = analysis.compare_segments(x, y)
+        old = legacy_metrics(x, y)
+        assert {key: scores[name][key] for key in old} == old, name
+    frequencies = np.fft.rfftfreq(8192, 1 / SR)
+    assert len(analysis.band_masks(frequencies)) == 42
+    assert np.count_nonzero((frequencies >= 65) & (frequencies <= 8000)) == 1354
+    assert np.count_nonzero((frequencies >= 65) & (frequencies < 250)) == 31
+    bass, treble = scores['bass_loss_12db'], scores['treble_loss_12db']
+    # Similar two-octave cuts: linear bins penalize treble >5x more;
+    # log bands differ by <0.5 dB after the documented global RMS match.
+    assert treble['log_spectrum_rms_db'] > 5 * bass['log_spectrum_rms_db']
+    assert abs(treble['band_spectrum_rms_db'] - bass['band_spectrum_rms_db']) < .5
+    assert scores['bass_loss_20db']['band_spectrum_rms_db'] > 3 * scores['bass_loss_20db']['log_spectrum_rms_db']
+    assert scores['treble_boost_20db']['band_spectrum_rms_db'] > 10
+    for name in ('identical', 'polarity_inversion', 'gain_plus_6db'):
+        assert scores[name]['band_spectrum_rms_db'] < 1e-9
+    assert scores['polarity_inversion']['polarity'] == -1
+    assert scores['polarity_inversion']['correlation'] < -.999
+    assert abs(scores['gain_plus_6db']['match_gain_db'] + 6.020599913) < 1e-8
+    assert scores['delay_32_samples']['lag_samples'] == -32
+    assert scores['delay_32_samples']['band_spectrum_rms_db'] < .01
+
+
+def test_undefined_comparisons_rejected():
+    x = np.random.default_rng(1).normal(size=8192)
+    for a, b, text in [(x, x[:-1], 'equal finite mono'), (x[:128], x[:128], '8192'),
+                        (x, x[:, None], 'mono'), (x, x * np.nan, 'finite'),
+                        (x, np.zeros_like(x), 'Silent'), (np.zeros_like(x), x, 'Silent'),
+                        (x, np.ones_like(x), 'constant')]:
+        raises(lambda: analysis.compare_segments(a, b), text)
+
+
+def frozen_reports():
+    return {label: json.loads((EVIDENCE / name / 'comparison.json').read_text()) for label, name in
+            [('baseline', 'nastrond-nam-20261005'), ('incoming', 'nastrond-voicing-20261005'),
+             ('candidate', 'nastrond-macro-direction-20261005')]}
+
+
+def test_audit_rejects_consistently_tampered_evidence():
+    # Comparing reports only with each other cannot catch a shared defect.
+    for mode, text in [('duplicate', 'Duplicate'), ('missing', 'reference set'),
+                       ('model_sha', 'sha256 mismatch'), ('manifest_sha', 'manifest SHA256'),
+                       ('protocol', 'unsupported protocol'), ('gain', 'input gain'),
+                       ('state', 'frozen state')]:
+        reports = frozen_reports()
+        for report in reports.values():
+            if mode == 'duplicate':
+                report['references'].append(copy.deepcopy(report['references'][0]))
+            elif mode == 'missing':
+                report['references'].pop(0)  # cab capture, outside audited target groups
+            elif mode == 'model_sha':
+                report['references'][0]['sha256'] = '0' * 64
+            elif mode == 'manifest_sha':
+                report['manifest_sha256'] = '0' * 64
+            elif mode == 'protocol':
+                report['protocol']['sample_rate'] = 44100
+            elif mode == 'gain':
+                report['references'][0]['variants']['digital_equal']['input_gain_db'] = 6
+            else:
+                report['original'].pop('gain_max')
+        raises(lambda: summary.audit(reports, FROZEN_GROUPS), text)
+    for option, values in [('min_improvement_db', [float('nan'), float('inf'), -1]),
+                            ('max_default_drift_db', [float('nan'), float('inf'), 0, -1])]:
+        for value in values:
+            raises(lambda: summary.audit(frozen_reports(), FROZEN_GROUPS, **{option: value}), 'finite')
+    reports = frozen_reports()
+    reports['candidate']['probe_sha256'] = '0' * 64
+    raises(lambda: summary.audit(reports, FROZEN_GROUPS), 'incompatible probe_sha256')
+    reports = frozen_reports()
+    reports['candidate']['references'][0]['variants']['digital_equal']['audio_sha256'] = '0' * 64
+    raises(lambda: summary.audit(reports, FROZEN_GROUPS), 'changed NAM identity/render')
+
+
+def test_channel_audit_preserves_failures():
+    report = json.loads((EVIDENCE / 'nastrond-channels-20261005/comparison.json').read_text())
+    reports = dict(baseline=report, incoming=report, candidate=report)
+    assert len(report['original']) == 39
+    for channel, macro in [('surtr', 'crush'), ('nidhoggr', 'rot'),
+                            ('fimbulvetr', 'bloom'), ('ragnarok', 'impact')]:
+        result = summary.audit(reports, FROZEN_GROUPS, scope='channel_' + channel)
+        assert list(result['groups']) == [macro]
+        assert result['status']['synthetic_endpoint_direction'] == ('FAIL' if channel == 'ragnarok' else 'PASS')
+        assert result['status']['instrument_di_listening'] == 'NOT_RUN'
+        if channel == 'ragnarok':
+            assert result['failures'] == ['impact/652436/pluck: 0.034591 dB']
+    raises(lambda: summary.audit(reports, FROZEN_GROUPS, scope='channel_fenrir'), 'No macro endpoint')
+    # JSON object key order does not change a state definition.
+    candidate = copy.deepcopy(report)
+    for item in candidate['original'].values():
+        item['state'] = dict(reversed(list(item['state'].items())))
+    summary.audit(dict(reports, candidate=candidate), FROZEN_GROUPS, scope='channel_surtr')
+    # Synthetic v2 score fixture verifies metric selection; these are NOT NAM measurements.
+    for ref in candidate['references']:
+        for variant in ref['variants'].values():
+            for name, segments in variant['spectral_comparisons'].items():
+                for values in segments.values():
+                    values['band_spectrum_rms_db'] = 1.0 if name.endswith('_0') else 2.0
+    result = summary.audit(dict(baseline=candidate, incoming=candidate, candidate=candidate),
+                           FROZEN_GROUPS, metric='band_spectrum_rms_db', scope='channel_surtr')
+    assert result['status']['synthetic_endpoint_direction'] == 'FAIL'
 
 
 def test_frozen_evidence_regenerates():
@@ -147,10 +273,13 @@ wavfile.write(dest, rate, (-.5 * np.tanh(json.load(open(model))['k'] * x)).astyp
         manifest_path.write_text(json.dumps(manifest))
         out = root / 'out'
         args = (root / 'models', manifest_path, nam, original, out)
-        report = compare.run(*args, workers=3, log=lambda *a, **k: None)
+        channel_states = EVIDENCE / 'nastrond-channels-20261005/channel-states.json'
+        options = dict(workers=3, states_path=channel_states, log=lambda *a, **k: None)
+        report = compare.run(*args, **options)
         first_calls = len(calls.read_text().splitlines())
-        assert first_calls == 17 + 1 + 2, first_calls  # VH4 has a metadata-calibrated variant
-        assert compare.run(*args, workers=3, log=lambda *a, **k: None) == report
+        assert first_calls == 39 + 1 + 2, first_calls  # VH4 has a metadata-calibrated variant
+        assert report['states_sha256'] == renderers.digest(channel_states)
+        assert compare.run(*args, **dict(options, workers=1)) == report
         assert len(calls.read_text().splitlines()) == first_calls, 'Cached renders were repeated'
 
         assert report['analysis_version'] == 2 and report['protocol'] == json.loads(
@@ -164,7 +293,12 @@ wavfile.write(dest, rate, (-.5 * np.tanh(json.load(open(model))['k'] * x)).astyp
         response = report['original']['gain_max']['measurements']['response'][1]
         assert response['readings'][-1]['thd_2_to_12'] > .2, 'A driven tanh stage must measure harmonics'
         assert response['growth_24db_input_db'] < 20, 'A saturating stage must compress level growth'
-        assert summary.gain_csv(json.loads((out / 'comparison.json').read_text())).count('\n') == 1 + 3 * (17 + 3)
+        assert summary.gain_csv(json.loads((out / 'comparison.json').read_text())).count('\n') == 1 + 3 * (39 + 3)
+        (out / 'default.f32').write_bytes(b'tampered cached output')
+        assert compare.run(*args, **options) == report
+        assert len(calls.read_text().splitlines()) == first_calls + 1
+        (root / 'models' / '0.nam').write_text('{"k":999}')
+        raises(lambda: compare.run(*args, **options), 'Reference hash mismatch')
 
 
 def main():
