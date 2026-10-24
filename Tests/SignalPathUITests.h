@@ -118,7 +118,7 @@ template<class T> inline T* named(juce::Component& root,const juce::String& name
 inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
     // Existing global controls are located outside the workflow, including the
     // persistent tuner action in the footer. Merely inspecting them cannot mute.
-    for(const auto* text:{"DYNAMICS","TRANSPOSE","TUNER"}) {
+    for(const auto* text:{"TRANSPOSE","TUNER"}) {
         int count=0;
         const auto visit=[&](auto&& self,juce::Component& root)->void {
             if(auto* button=dynamic_cast<juce::TextButton*>(&root);button && (button->getButtonText()==text || (juce::String(text)=="TUNER" && button->getComponentID()=="tunerOpen"))) {
@@ -133,7 +133,12 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
         auto* slider=named<juce::Slider>(editor,name);
         require(slider && !slider->isShowing(),"Gate parameters must be edited in the spectrum workspace");
     }
-    auto* gateEditor=find<juce::TextButton>(editor,"commonDynamics.open");
+    for(const auto* name:{"gate","compressor","limiter","dynamicEQ","multiband","deesser"}) {
+        auto* entry=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(name));
+        require(entry && entry->isShowing() && entry->isEnabled() && !strip.isParentOf(entry),
+                "Direct dynamics entry is unavailable or duplicated in the signal path");
+    }
+    auto* gateEditor=find<juce::TextButton>(editor,"commonDynamics.open.gate");
     auto* transpose=named<juce::Slider>(editor,"Transpose semitones");
     require(gateEditor && gateEditor->isShowing() && gateEditor->isEnabled(),"Dynamics (gate) editor entry is unavailable");
     require(transpose && transpose->isShowing() && transpose->isEnabled(),"Transpose control is unavailable");

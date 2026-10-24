@@ -34,14 +34,12 @@ inline void checkGateUI(ChimeraProcessor& processor,ChimeraEditor& editor,const 
     } peer(editor);
     settle();
     auto* canvas=editorSurface(editor);require(canvas!=nullptr,"Missing editor canvas");
-    // Gate / Expander lives in DYNAMICS; the top-bar slot opens DYNAMICS.
-    auto* entry=dynamic_cast<juce::TextButton*>(find(find,*canvas,"commonDynamics.open"));
-    require(entry && entry->isShowing() && entry->isEnabled(),"Dynamics entry missing from the top bar");
+    // Gate / Expander opens directly from its visible top-bar entry.
+    auto* entry=dynamic_cast<juce::TextButton*>(find(find,*canvas,"commonDynamics.open.gate"));
+    require(entry && entry->isShowing() && entry->isEnabled() && entry->getButtonText().contains("GATE"),"Visible Gate entry missing from the top bar");
     require(find(find,*canvas,"gateSpectrum.open")==nullptr,"Old gate top-bar entry remains");
     const auto initial=values();
     {Writes writes(processor);entry->triggerClick();settle(90);
-     auto* gateTab=dynamic_cast<juce::TextButton*>(find(find,*canvas,"commonDynamics.page.gate"));
-     require(gateTab!=nullptr,"Gate / Expander tab missing");gateTab->triggerClick();settle(60);
      require(values()==initial && writes.changes==0 && writes.gestures==0,"Opening Gate spectrum changed a sound parameter or host gesture");}
     auto* panel=dynamic_cast<spectralforge::CommonDynamicsPanel*>(find(find,*canvas,"commonDynamics.panel"));
     require(panel && panel->isShowing() && panel->selectedPage()==spectralforge::CommonDynamicsPanel::Page::gate,

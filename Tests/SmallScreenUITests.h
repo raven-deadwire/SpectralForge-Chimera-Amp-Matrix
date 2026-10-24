@@ -91,13 +91,33 @@ inline void integratedWorkspaces(ChimeraProcessor& processor,ChimeraEditor& edit
     const auto before=signalPathTests::values(processor);
     {
         signalPathTests::Writes writes;processor.addListener(&writes);
-        for(const auto* id:{"commonDynamics.open","eq.bank.tone","eq.bank.final"}) {
-            auto* button=find<juce::TextButton>(editor,id);require(button,"Global workspace entry missing");
+        constexpr std::array<const char*,6> pages{"compressor","gate","limiter","dynamicEQ","multiband","deesser"};
+        for(size_t i=0;i<pages.size();++i) {
+            auto* button=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(pages[i]));
+            require(button,"Direct dynamics entry missing");
             reachable(editor,viewport,*button);signalPathTests::click(*button);
-            require(button->getToggleState(),"Global workspace entry did not select its workspace");
-            auto* panel=find(editor,juce::String(id)=="commonDynamics.open"?"commonDynamics.panel":
-                juce::String(id)=="eq.bank.tone"?"toneEQ_panel":"finalEQ_panel");
-            require(panel && panel->isShowing() && editorBoundsReachable(editor,*panel),"Workspace cannot be reached after top-bar navigation");
+            auto* panel=find<spectralforge::CommonDynamicsPanel>(editor,"commonDynamics.panel");
+            require(panel && panel->isShowing() && panel->selectedPage()==spectralforge::CommonDynamicsPanel::Page(i)
+                    && button->getToggleState() && editorBoundsReachable(editor,*panel),
+                    "Direct dynamics entry did not open its reachable workspace");
+            for(size_t other=0;other<pages.size();++other) {
+                auto* entry=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(pages[other]));
+                require(entry && entry->getToggleState()==(other==i),"Dynamics header selection is inconsistent");
+                if(other!=i)require(!entry->getBounds().intersects(button->getBounds()),"Dynamics header cells overlap");
+            }
+        }
+        require(find(editor,"eq.bank.tone")==nullptr && find(editor,"eq.bank.final")==nullptr,
+                "Redundant top-bar EQ bank entries remain");
+        for(int bank=0;bank<2;++bank) {
+            auto* button=find<juce::TextButton>(editor,bank==0?"path.tone.eq":"path.final.eq");
+            require(button,"Signal-path EQ entry missing");
+            reachable(editor,viewport,*button);signalPathTests::click(*button);
+            auto* panel=find(editor,bank==0?"toneEQ_panel":"finalEQ_panel");
+            require(panel && panel->isShowing() && editorBoundsReachable(editor,*panel),
+                    "EQ workspace cannot be reached from the signal path");
+            for(const auto* name:pages)
+                require(!find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(name))->getToggleState(),
+                        "Dynamics header remained selected in the static EQ workspace");
         }
         processor.removeListener(&writes);
         require(signalPathTests::values(processor)==before && writes.changes==0 && writes.gestures==0,
@@ -196,8 +216,8 @@ inline void run(const juce::File& directory) {
             signalPathTests::click(button);
             signalPathTests::compactDestination(*editor,*path,stage,"small screen");
             ++actions;
-            for(const auto* id:{"commonDynamics.open","eq.bank.tone","eq.bank.final"}) {
-                auto* entry=find<juce::TextButton>(*editor,id);
+            for(const auto* name:{"gate","compressor","limiter","dynamicEQ","multiband","deesser"}) {
+                auto* entry=find<juce::TextButton>(*editor,"commonDynamics.open."+juce::String(name));
                 require(entry && entry->isShowing() && entry->isEnabled(),"Top-bar entry is unavailable from a signal-path page");
                 reachable(*editor,*viewport,*entry);
             }
@@ -278,6 +298,6 @@ inline void run(const juce::File& directory) {
     editor=std::make_unique<ChimeraEditor>(*processor);
     require(signalPathTests::values(*processor)==saved,"Reopening the editor changed preset values");
     require(directory.getChildFile("small-screen-matrix.csv").replaceWithText(csv),"Cannot write screen matrix evidence");
-    std::cout<<"PASS small screen: "<<cases<<" simulated resolution/DPI/routing combinations, "<<actions<<" navigation/settings actions; Dynamics/Tone EQ/Final EQ entries, PRE/POST/LOW drag+host automation, preset/project recall; focus, hit-testing, readable zoom, restore, dialog ownership, zero navigation parameter writes/gestures. Physical OS DPI/DAW acceptance remains separate.\n";
+    std::cout<<"PASS small screen: "<<cases<<" simulated resolution/DPI/routing combinations, "<<actions<<" navigation/settings actions; six direct dynamics entries and signal-path Tone EQ/Final EQ, PRE/POST/LOW drag+host automation, preset/project recall; focus, hit-testing, readable zoom, restore, dialog ownership, zero navigation parameter writes/gestures. Physical OS DPI/DAW acceptance remains separate.\n";
 }
 }

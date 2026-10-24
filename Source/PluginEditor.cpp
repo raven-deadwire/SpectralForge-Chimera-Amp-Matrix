@@ -200,10 +200,6 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         };
         add(*eqPanels[(size_t)e]);
     }
-    toneEQBank.setComponentID("eq.bank.tone");finalEQBank.setComponentID("eq.bank.final");
-    toneEQBank.setTooltip("Edit Tone EQ before the POST rack. The other EQ continues processing.");
-    finalEQBank.setTooltip("Edit Final EQ after width, before output trim and tuner mute.");
-    add(toneEQBank);add(finalEQBank);
     dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.graphicalEQ(0),p.graphicalEQ(1),p.dynamicsAnalysis(),p.eqCaptureBoundary());
     canvas.addAndMakeVisible(*dynamicsPanel);dynamicsPanel->setEQEditors(*eqPanels[0],*eqPanels[1]);
     dynamicsPanel->setMeterProvider([this](spectralforge::DynamicsStage stage) {
@@ -244,14 +240,29 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onPageSelected=[this](spectralforge::CommonDynamicsPanel::Page selected) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
         const juce::String id=selected==Page::gate?"gate":selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":selected==Page::dynamicEQ?(dynamicsPanel->selectedDynamicBank()==0?"tone.eq":"final.eq"):"common.comp";
+        updateDynamicsEntries();
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
         if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);
     };
-    add(dynamicsOpen);dynamicsOpen.setComponentID("commonDynamics.open");
-    dynamicsOpen.setTooltip("Open a dedicated spectrum editor for compression, multiband dynamics, Dynamic EQ, gate/expander, limiter or de-esser.");
-    dynamicsOpen.onClick=[this]{page=3;tunerViewOpen=false;dynamicsViewOpen=true;updateModeUI();dynamicsPanel->onPageSelected(dynamicsPanel->selectedPage());};
-    toneEQBank.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("tone.eq"));};
-    finalEQBank.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("final.eq"));};
+    constexpr std::array<const char*,6> dynamicsTitles{"GATE / EXP","COMPRESSOR","LIMITER","DYNAMIC EQ","MULTIBAND","DE-ESSER"};
+    constexpr std::array<const char*,6> dynamicsNames{"gate","compressor","limiter","dynamicEQ","multiband","deesser"};
+    constexpr std::array<const char*,6> dynamicsHelp{
+        "Open Gate / Expander: threshold, range, timing and before/after rig placement.",
+        "Open the common compressor after Tone EQ. PRE, POST and Matrix LOW retain their own controls.",
+        "Open the final-output sample-peak limiter.",
+        "Open level-dependent Dynamic EQ controls. Tone EQ and Final EQ are also accessible in the signal path.",
+        "Open four-band dynamics and crossover controls.",
+        "Open high-band de-esser controls."};
+    for(size_t i=0;i<dynamicsEntries.size();++i) {
+        auto& entry=dynamicsEntries[i];add(entry);
+        entry.setButtonText(dynamicsTitles[i]);
+        entry.setComponentID("commonDynamics.open."+juce::String(dynamicsNames[i]));
+        entry.setTooltip(dynamicsHelp[i]);
+        entry.onClick=[this,i]{
+            page=3;tunerViewOpen=false;dynamicsViewOpen=true;
+            dynamicsPanel->selectPage(dynamicsEntryPages[i]);updateModeUI();
+        };
+    }
     const std::array<const char*,11> effectHeaders{"OVERDRIVE","DELAY","REVERB","COMPRESSOR","ENVELOPE","FUZZ","BOOST","BUS COMP","PREAMP","EQ","MODULATION"};
     const std::array<const char*,11> effectScopes{"05 / TIGHT GAIN","05 / SPACE","06 / SPACE","01 / DYNAMICS","02 / FILTER","03 / TEXTURE","04 / SHAPING","01 / DYNAMICS","02 / COLOUR","03 / TONE","04 / MODULATION"};
     const std::array<const char*,11> effectButtons{"preon","delayon","reverbon","precompon","filteron","fuzzon","booston","buscompon","preampon","eqon","choruson"};
@@ -335,7 +346,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     globalSliders[4].setNumDecimalPlacesToDisplay(0); globalSliders[5].setNumDecimalPlacesToDisplay(0);
     globalSliders[2].setNumDecimalPlacesToDisplay(0); globalSliders[3].setNumDecimalPlacesToDisplay(0);
     for(const auto index:{1,2,3,7})globalSliders[size_t(index)].setVisible(false);
-    // Gate / Expander is edited in DYNAMICS; its old top-bar slot opens DYNAMICS and the EQ banks.
+    // The top-bar dynamics grid opens each existing editor directly, including Gate / Expander.
     const std::array<juce::TextButton*,3> globalToggles{&pitchOn,&tunerOn,&tunerMute};
     const std::array<const char*,3> ids{"transposeon","tuneron","tunermute"};
     for(size_t i=0;i<globalToggles.size();++i) { globalToggles[i]->setClickingTogglesState(true); add(*globalToggles[i]); globalButtons[i]=std::make_unique<BA>(state,ids[i],*globalToggles[i]); }
@@ -714,6 +725,12 @@ void ChimeraEditor::updateBandLabels()
     const double sr=processor.getSampleRate()>0 ? processor.getSampleRate() : 48000;
     for(int i=0;i<3;++i) lanes[i].tonePivot.setText("DARK < TONE > BRIGHT  |  PIVOT "+frequency(spectralforge::matrixTonePivot(i,low,high,sr)),juce::dontSendNotification);
 }
+void ChimeraEditor::updateDynamicsEntries()
+{
+    const bool showing=page==3 && dynamicsViewOpen && !tunerViewOpen;
+    for(size_t i=0;i<dynamicsEntries.size();++i)
+        dynamicsEntries[i].setToggleState(showing && dynamicsPanel->selectedPage()==dynamicsEntryPages[i],juce::dontSendNotification);
+}
 void ChimeraEditor::updateModeUI()
 {
     lastEnvelopeFirst=preOrder.getSelectedId()==2;pedalOrder=lastEnvelopeFirst ? std::array<int,5>{4,3,5,6,0} : std::array<int,5>{3,4,5,6,0};
@@ -751,10 +768,8 @@ void ChimeraEditor::updateModeUI()
         eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));
     }
     if(showingDynamics)dynamicsPanel->setVisible(true);
-    // These entries live in the top bar, so they stay reachable from every page.
-    const bool eqPage=page==3 && !tunerViewOpen && !dynamicsViewOpen;
-    dynamicsOpen.setToggleState(showingDynamics,juce::dontSendNotification);
-    toneEQBank.setToggleState(eqPage && selectedEQBank==0,juce::dontSendNotification);finalEQBank.setToggleState(eqPage && selectedEQBank==1,juce::dontSendNotification);
+    // Direct dynamics entries stay reachable from every page; EQ uses the signal path.
+    updateDynamicsEntries();
     for(size_t i=0;i<effects.size();++i) {
         auto& effect=effects[i];const bool show=page==2 && !tunerViewOpen && (i==10 || i==1 || i==2);
         effect.header.setVisible(show);effect.scope.setVisible(show);effect.description.setVisible(false);effect.enabled.setVisible(show);effect.model.setVisible(show);effect.expand.setVisible(show);
@@ -814,7 +829,7 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     const std::array<juce::Rectangle<float>,5> panels{{{20,80,138,168},{170,80,254,168},{436,80,176,168},{624,80,326,168},{962,80,198,168}}};
     for(auto box:panels) { g.setColour(panel.withAlpha(.88f)); g.fillRoundedRectangle(box,5); g.setColour(line); g.drawRoundedRectangle(box,5,1); }
     text(g,"INPUT",32,91,104,24,12.f,ink);
-    text(g,"DYNAMICS / EQ",184,88,226,22,11.f,ink);
+    text(g,"DYNAMICS",184,88,226,22,11.f,ink);
     text(g,"OUTPUT",976,91,152,24,12.f,ink);
     meter(g,processor.inputMeter(),141,126,6,93); meter(g,processor.outputMeter(),1142,126,6,93);
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.inputMeter(),-90.f),1)+" dBFS",32,210,106,22,11.f,processor.inputMeter()>=1 ? juce::Colours::salmon : muted);
@@ -901,7 +916,8 @@ void ChimeraEditor::layoutControls()
     callbackLoad.setBounds(866,744,290,18);
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
     for(auto& eq:eqPanels)if(!dynamicsPanel->isUsingEQEditor(*eq))eq->setBounds(20,330,1140,412);
-    dynamicsOpen.setBounds(182,112,230,38);toneEQBank.setBounds(182,158,230,38);finalEQBank.setBounds(182,204,230,38);
+    for(size_t i=0;i<dynamicsEntries.size();++i)
+        dynamicsEntries[i].setBounds(182+int(i%2)*118,112+int(i/2)*46,112,38);
     dynamicsPanel->setBounds(20,330,1140,412);
     signalPath->setBounds(20,253,1140,44);
     precisionTuner->setBounds(20,330,1140,412);
