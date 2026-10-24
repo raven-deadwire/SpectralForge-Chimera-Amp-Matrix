@@ -1,0 +1,21 @@
+{
+  "engine_and_metrics_unchanged": true,
+  "reason": "After completing targets/blocks/CPU, preserve old selector normalization with a default-off v4 option; validate legacy component states and exact float bits; allow direct headless execution. No DSP retuning or changed verdict thresholds.",
+  "changes": [
+    {
+      "path": "Tools/TransposeNext/plugin/HostCheck.cpp",
+      "registered_sha256": "7d53aa94c6e27120e59c0b1f32f55eaeda4753f64fb496eb3c4126b0093e734b",
+      "final_sha256": "85651c88aaf330f09870703db5dd44c21bd0c7db305f4b83ef43dba2190c584c"
+    },
+    {
+      "path": "Tools/TransposeNext/plugin/ResearchProcessor.cpp",
+      "registered_sha256": "2d6be374a776fce66135174682c4f27f88b2315a9d047786c4a84952c039f32a",
+      "final_sha256": "083f85a6167a13e758ad9cefe3c355b46b96af954537bd3dd27ddaa1fa9f8b58"
+    },
+    {
+      "path": "Tools/TransposeNext/t6_host_check.py",
+      "registered_sha256": "0a002c55101de0f3146e9bcbf3fa86ace04285cbc5cb0f8361163b3987273fb9",
+      "final_sha256": "7939671a7eeb2bf5e5584d949fa02d9097b963541eb70e1a1f72e1c88d757eea"
+    }
+  ]
+}

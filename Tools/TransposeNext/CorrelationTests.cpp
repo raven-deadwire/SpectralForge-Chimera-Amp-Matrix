@@ -20,8 +20,8 @@ struct Candidate {
     transposeNext::TransientSplitPitch b;
     bool split{};
     void prepare(const juce::dsp::ProcessSpec& spec,double limit) {
-        split=limit==-42;
-        if(split)b.prepare(spec);else a.prepare(spec,limit==-41?40:std::abs(limit),limit<0,limit==-41);
+        split=limit==-42 || limit==-44;
+        if(split)b.prepare(spec,limit==-44,limit==-44,limit==-44,limit==-44,limit==-44,limit==-44,limit==-44);else a.prepare(spec,limit==-41?40:std::abs(limit),limit<0,limit==-41);
     }
     void setSemitones(int n){if(split)b.setSemitones(n);else a.setSemitones(n);}
     void process(const juce::AudioBuffer<float>& in,juce::AudioBuffer<float>& out,bool render=true){if(split)b.process(in,out,render);else a.process(in,out,render);}
@@ -66,7 +66,7 @@ std::vector<float> render(double rate,int block,int channels,int shift,double li
 }
 int main(){try{
     int cases=0;
-    for(double rate:{44100.,48000.,96000.})for(double limit:{10.,40.,-40.,-41.,-42.})for(int channels:{1,2}){
+    for(double rate:{44100.,48000.,96000.})for(double limit:{10.,40.,-40.,-41.,-42.,-44.})for(int channels:{1,2}){
         for(int shift:{-12,-5,-2,-1,0,1,2,5,12}){
             auto a=render(rate,64,channels,shift,limit);
             require(a==render(rate,257,channels,shift,limit),"partition-dependent output");
