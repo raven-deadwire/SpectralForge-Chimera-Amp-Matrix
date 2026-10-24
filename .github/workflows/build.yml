@@ -220,6 +220,14 @@ jobs:
             build/ui-snapshots/PRE-*-first.png
           if-no-files-found: warn
 
+      - name: Build and test the optional OBS filter module
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory build/obs-module `
+            -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
+
       - name: Stage Windows open beta payload
         id: package_windows
         if: runner.os == 'Windows'

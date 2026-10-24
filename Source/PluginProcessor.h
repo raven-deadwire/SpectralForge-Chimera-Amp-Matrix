@@ -47,6 +47,10 @@ public:
     }
     void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
     void processBlockBypassed(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
+    // Hosts call this to drop tails without re-preparing (VST3 setProcessing(false),
+    // AU Reset, a re-enabled OBS filter). It may arrive on the audio thread, so it
+    // only flags the existing reset that the next processed block performs.
+    void reset() override { resetPending.store(true); }
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "SpectralForge Chimera"; }

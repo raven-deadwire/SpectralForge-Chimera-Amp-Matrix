@@ -225,6 +225,31 @@ void postTails()
     }
     std::cout<<"PASS actual processor POST delay and reverb tails remain audible with Full gate closed\n";
 }
+void hostResetDropsTails()
+{
+    // AudioProcessor::reset() (VST3 setProcessing(false), AU Reset, a re-enabled
+    // OBS filter) must drop the same tails without a prepareToPlay.
+    const auto tailEnergy=[](bool reverb,bool hostReset) {
+        const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;configure(p,0,true,false,false);
+        if(reverb) {set(p,"reverbon",1);set(p,"reverbsize",.8f);set(p,"reverbmix",.5f);}
+        else {set(p,"delayon",1);set(p,"delaytime",160);set(p,"delayfeedback",.55f);set(p,"delaymix",.5f);}
+        p.prepareToPlay(48000,128);juce::AudioBuffer<float> audio(2,128);juce::MidiBuffer midi;double energy=0;
+        for(int b=0;b<140;++b) {
+            if(b==40 && hostReset)p.reset();
+            for(int i=0;i<128;++i)for(int c=0;c<2;++c)audio.setSample(c,i,b<40 ? .1f*std::sin(float(b*128+i)*.03f) : 0);
+            p.processBlock(audio,midi);
+            if(b>=40)for(int i=0;i<128;++i)energy+=std::pow(audio.getSample(0,i),2);
+        }
+        p.releaseResources();return energy;
+    };
+    for(bool reverb:{false,true}) {
+        const double kept=tailEnergy(reverb,false),dropped=tailEnergy(reverb,true);
+        std::cout<<"MEASURE host reset "<<(reverb?"reverb":"delay")<<" tail_energy="<<kept<<" after_reset="<<dropped<<'\n';
+        require(kept>1e-6,"Tail fixture produced no tail");
+        require(dropped<kept*1e-3,"AudioProcessor::reset() did not drop delay/reverb tails");
+    }
+    std::cout<<"PASS actual processor reset() drops POST delay and reverb tails without re-preparing\n";
+}
 }
 int main(int argc,char** argv)
 {
@@ -237,6 +262,6 @@ int main(int argc,char** argv)
         }
         const auto storage=std::make_unique<ChimeraProcessor>();parameterContract(*storage);stateAndAutomation(*storage);
         publicNameTests::hostPresentation(*storage);
-        routing();postTails();
+        routing();postTails();hostResetDropsTails();
     }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

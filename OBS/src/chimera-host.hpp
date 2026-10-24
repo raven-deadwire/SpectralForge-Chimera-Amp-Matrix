@@ -38,6 +38,9 @@ public:
     bool prepare(double sampleRate, int channels, int maximumFrames);
     bool process(float* const* data, int channels, int frames) noexcept;
     int latency() const noexcept;
+    // Any thread. The next process() asks Chimera to drop its tails (VST3
+    // setProcessing(false/true), which the spec allows on the audio thread).
+    void requestReset() noexcept;
 
     // Component (processor) and controller state, exactly as a DAW stores them,
     // so the same .chimera-compatible VST3 state moves between hosts.
@@ -52,6 +55,10 @@ public:
     bool parameterInfo(int index, std::uint32_t& id, std::string& title, int& stepCount) const;
     double parameter(std::uint32_t id) const noexcept;
     bool setParameter(std::uint32_t id, double normalized) noexcept;
+
+    // Increments whenever Chimera reports an edit (its editor's gestures or a
+    // parameter/state reload). Lets the UI thread sync scene settings cheaply.
+    std::uint64_t editGeneration() const noexcept;
 
     // A new editor view (caller releases), or nullptr when unavailable.
     Steinberg::IPlugView* createEditorView() const;

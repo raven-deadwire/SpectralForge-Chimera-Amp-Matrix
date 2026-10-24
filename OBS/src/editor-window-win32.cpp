@@ -16,6 +16,8 @@ using namespace Steinberg;
 namespace spectralforge::obs {
 namespace {
 constexpr wchar_t windowClass[] = L"SpectralForgeChimeraOBSEditor";
+constexpr UINT_PTR syncTimer = 1;
+constexpr UINT syncIntervalMs = 500;
 
 std::wstring widen(const std::string& text) {
     const int n = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, nullptr, 0);
@@ -38,7 +40,13 @@ class EditorWindow : public U::Implements<U::Directly<IPlugFrame>> {
 public:
     HWND hwnd{};
     IPtr<IPlugView> view;
+    EditorChanged changed{};
+    void* context{};
     bool resizing{};
+
+    void notify() noexcept {
+        if (changed != nullptr) changed(context);
+    }
 
     tresult PLUGIN_API resizeView(IPlugView* requester, ViewRect* size) override {
         if (requester != view.get() || size == nullptr || hwnd == nullptr) return kInvalidArgument;
@@ -68,9 +76,13 @@ public:
                 if (self->view->checkSizeConstraint(&r) == kResultTrue) self->view->onSize(&r);
             }
             return 0;
+        case WM_TIMER:
+            if (self != nullptr && w == syncTimer) self->notify();
+            return 0;
         case WM_CLOSE:
             // Closing only hides; the filter owns destruction (closeEditor()).
             ShowWindow(hwnd, SW_HIDE);
+            if (self != nullptr) self->notify();
             return 0;
         default:
             return DefWindowProcW(hwnd, message, w, l);
@@ -80,7 +92,8 @@ public:
 
 bool editorSupported() noexcept { return true; }
 
-bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& title, std::string& error) {
+bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& title, EditorChanged changed,
+                void* context, std::string& error) {
     if (window != nullptr && window->hwnd != nullptr) {
         ShowWindow(window->hwnd, SW_SHOWNORMAL);
         SetForegroundWindow(window->hwnd);
@@ -110,6 +123,8 @@ bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& tit
     }
     SetWindowLongPtrW(created->hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(created));
     created->view = view;
+    created->changed = changed;
+    created->context = context;
     view->setFrame(created);
     if (view->attached(created->hwnd, kPlatformTypeHWND) != kResultOk) {
         error = "Chimera editor failed to attach";
@@ -129,6 +144,7 @@ bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& tit
         clientToWindow(created->hwnd, size, width, height);
         SetWindowPos(created->hwnd, nullptr, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
+    SetTimer(created->hwnd, syncTimer, syncIntervalMs, nullptr);
     ShowWindow(created->hwnd, SW_SHOWNORMAL);
     window = created;
     return true;
@@ -136,8 +152,10 @@ bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& tit
 
 void closeEditor(EditorWindow*& window) noexcept {
     if (window == nullptr) return;
+    window->notify(); // last edits reach the settings before the view goes away
     window->detach();
     if (window->hwnd != nullptr) {
+        KillTimer(window->hwnd, syncTimer);
         SetWindowLongPtrW(window->hwnd, GWLP_USERDATA, 0);
         DestroyWindow(window->hwnd);
         window->hwnd = nullptr;

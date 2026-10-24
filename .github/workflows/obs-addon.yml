@@ -19,11 +19,6 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-env:
-  # Windows target: the official release, pinned by hash. The module links an
-  # import library generated from this obs.dll and is tested against it.
-  OBS_WINDOWS_VERSION: '31.1.2'
-  OBS_WINDOWS_ZIP_SHA256: '9513cd402936593a6a5500da5d2bd49e6cd04dce05509c7b7f48dd25c391d2d8'
 jobs:
   linux:
     runs-on: ubuntu-24.04
@@ -69,46 +64,13 @@ jobs:
         run: |
           cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
           cmake --build build --config Release --target ChimeraAmpMatrix_VST3 --parallel 4
-      - name: Fetch the pinned OBS release and its libobs headers
+      - name: Build and test the OBS module against the pinned OBS release (MSVC)
         shell: pwsh
         run: |
-          $zip = "$env:RUNNER_TEMP\obs.zip"
-          Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/$env:OBS_WINDOWS_VERSION/OBS-Studio-$env:OBS_WINDOWS_VERSION-Windows-x64.zip" -OutFile $zip
-          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($hash -ne $env:OBS_WINDOWS_ZIP_SHA256) { throw "OBS release hash mismatch: $hash" }
-          python -I -c "import sys, zipfile; z = zipfile.ZipFile(sys.argv[1]); [z.extract(n, sys.argv[2]) for n in z.namelist() if n.startswith(('bin/64bit/', 'data/libobs/'))]" $zip "$env:RUNNER_TEMP\obs"
-          git clone --depth 1 --branch $env:OBS_WINDOWS_VERSION --filter=blob:none --sparse https://github.com/obsproject/obs-studio "$env:RUNNER_TEMP\obs-src"
-          git -C "$env:RUNNER_TEMP\obs-src" sparse-checkout set libobs
-      - name: Generate obs.lib from the release obs.dll
-        shell: pwsh
-        run: |
-          python -I OBS/tools/dll_exports_def.py "$env:RUNNER_TEMP\obs\bin\64bit\obs.dll" "$env:RUNNER_TEMP\obs.def"
-          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $lib = & $vswhere -latest -products * -find 'VC\Tools\MSVC\*\bin\Hostx64\x64\lib.exe' | Select-Object -First 1
-          if (-not $lib) { throw 'lib.exe not found' }
-          & $lib /nologo "/def:$env:RUNNER_TEMP\obs.def" /machine:x64 "/out:$env:RUNNER_TEMP\obs.lib"
-          if ($LASTEXITCODE) { throw "lib.exe failed: $LASTEXITCODE" }
-      - name: Build the OBS module and tests (MSVC)
-        shell: pwsh
-        run: |
-          cmake -S OBS -B build-obs -A x64 `
-            "-DCHIMERA_OBS_LIBOBS_INCLUDE_DIR=$env:RUNNER_TEMP\obs-src\libobs" `
-            "-DCHIMERA_OBS_LIBOBS_LIBRARY=$env:RUNNER_TEMP\obs.lib" `
-            "-DCHIMERA_OBS_TEST_BUNDLE=$PWD\build\ChimeraAmpMatrix_artefacts\Release\VST3\SpectralForge Chimera.vst3"
-          cmake --build build-obs --config Release --parallel 4
-      - name: Bridge, host and libobs filter tests against the OBS release
-        shell: pwsh
-        run: |
-          $env:PATH = "$env:RUNNER_TEMP\obs\bin\64bit;$env:PATH"
-          ctest --test-dir build-obs -C Release --output-on-failure --no-tests=error
-      - name: Lay out the plugin as OBS loads it from ProgramData
-        shell: pwsh
-        run: |
-          $root = 'package\chimera-obs'
-          New-Item -ItemType Directory -Force "$root\bin\64bit" | Out-Null
-          Copy-Item build-obs\Release\chimera-obs.dll "$root\bin\64bit\"
-          Copy-Item -Recurse OBS\data "$root\data"
-          Copy-Item OBS\LICENSE, OBS\README.md package\
+          ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/chimera-obs `
+            -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
+          Copy-Item OBS/LICENSE, OBS/README.md package/
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-windows-x64-${{ github.event.pull_request.head.sha || github.sha }}

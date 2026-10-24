@@ -11,6 +11,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # interpose on the one inside the hosted Chimera plugin.
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+# Static MSVC runtime, like the product binaries: the installed module needs
+# no Visual C++ redistributable. No CRT objects cross the libobs boundary.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 option(CHIMERA_OBS_BUILD_MODULE "Build the OBS module (needs libobs and the VST3 SDK)" ON)
 set(CHIMERA_VST3_SDK_DIR "" CACHE PATH "Existing VST3 SDK checkout (empty: fetch the pinned MIT release)")
