@@ -666,6 +666,34 @@ void gainAndGR() {
         std::cout<<"PASS processor pedal GR model="<<model<<" active and bypass\n";
     }
 }
+// Each transpose quality, HYBRID included, must reach the host-reported delay
+// on the next callback and survive a state round trip before the first block.
+void transposeQualityLatency() {
+    for(bool board:{false,true})for(double rate:{44100.,48000.,96000.}) {
+        const auto p=std::make_unique<ChimeraProcessor>();
+        set(*p,"gateon",0);set(*p,"boardEnabled",board?1.f:0.f);set(*p,"transposeon",1);set(*p,"transpose",-5);
+        p->setRateAndBufferSizeDetails(rate,128);p->prepareToPlay(rate,128);
+        juce::AudioBuffer<float> audio(2,128);juce::MidiBuffer midi;int clock=0;
+        auto process=[&]{for(int n=0;n<128;++n){const float x=.2f*std::sin(float(clock+n)*.02f);audio.setSample(0,n,x);audio.setSample(1,n,x);}clock+=128;p->processBlock(audio,midi);};
+        process();const int base=p->getLatencySamples()-p->pitchLatency();
+        const int tight=spectralforge::Transposer::tightAnalysisLength(rate);
+        for(int quality:{3,0,1,2,3}) {
+            p->setTransposeQuality(quality);process();
+            require(p->transposeQuality()==quality,"Transpose quality not stored");
+            require(p->getLatencySamples()==base+p->pitchLatency(),"Reported latency does not follow the transpose quality");
+            if(quality>=2)require(p->pitchLatency()==tight,"Tight/HYBRID do not report the 10 ms window");
+        }
+        for(int block=0;block<40;++block){process();for(int c=0;c<2;++c)for(int n=0;n<128;++n)require(std::isfinite(audio.getSample(c,n)),"HYBRID processor output is not finite");}
+        juce::MemoryBlock state;p->getStateInformation(state);
+        const auto restored=std::make_unique<ChimeraProcessor>();
+        restored->setStateInformation(state.getData(),int(state.getSize()));
+        restored->setRateAndBufferSizeDetails(rate,128);restored->prepareToPlay(rate,128);
+        require(restored->transposeQuality()==3,"HYBRID quality not restored");
+        require(restored->getLatencySamples()==base+tight,"Restored HYBRID latency differs before the first callback");
+        restored->releaseResources();p->releaseResources();
+        std::cout<<"PASS processor transpose quality latency rate="<<rate<<" board="<<board<<" base="<<base<<" hybrid="<<tight<<" (switch, recall; host PDC NOT_TESTED)\n";
+    }
+}
 }
 #include "PresetGainTests.h"
 #include "NiflheimrPresetTests.h"
@@ -680,6 +708,7 @@ int main(int argc,char** argv) {
         if(argc==4&&juce::String(argv[1])=="--owner-original-reference"){ownerOriginalReference(juce::File(argv[2]),juce::File(argv[3]));return 0;}
         if(argc>1&&juce::String(argv[1])=="--original-production-only"){originalProduction();originalChannels();return 0;}
         if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}
+        if(argc>1&&juce::String(argv[1])=="--transpose-quality-only"){transposeQualityLatency();return 0;}
         const auto measurement=argc>2?juce::String(argv[2]):juce::String{};
         const bool originalOnly=measurement=="--measure-original";
         const bool headerVoicing=originalOnly||measurement=="--measure-presets";
@@ -701,7 +730,7 @@ int main(int argc,char** argv) {
         }
         if(!measureOnly)cabPreparedStateTests::run();
         factoryBank(measureOnly,originalOnly,headerVoicing,selected);
-        if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);niflheimrPresetTests::run(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("niflheimr-presets"));}
+        if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();transposeQualityLatency();presetGainTests::run(false);niflheimrPresetTests::run(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("niflheimr-presets"));}
     }
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }
