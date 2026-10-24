@@ -223,8 +223,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
-    dynamicsPanel->setAutoTone(int(autoSetController->currentToneMode()));
-    dynamicsPanel->onAutoToneChanged=[this](int mode){autoSetController->setToneMode(spectralforge::autoset::Controller::ToneMode(std::clamp(mode,0,3)));};
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish});}
+    dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish});
+    };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
         using Page=spectralforge::CommonDynamicsPanel::Page;

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <initializer_list>
 #include <cmath>
 #include <optional>
 #include <vector>
@@ -15,9 +16,10 @@ namespace spectralforge::autoset {
 // The audio thread only reduces or copies samples; all decisions run elsewhere.
 
 struct Window {float peakDb{-120.f},rmsDb{-120.f};};
-// input/compressor are reduced to 10 ms windows; tone keeps mono samples for
-// spectral analysis of the amp/cab output before the Tone EQ.
-enum class Tap {input=0,compressor=1,tone=2};
+// input/compressor/output are reduced to 10 ms windows; tone and deesser keep
+// mono samples for spectral analysis (amp/cab output before the Tone EQ, and
+// the de-esser input). The two sample taps share one ring.
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4};
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -26,17 +28,22 @@ inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max
 class Capture {
 public:
     static constexpr int capacity=4096;
-    static constexpr uint32_t toneCapacity=1u<<17; // 0.68 s at 192 kHz between drains
+    static constexpr uint32_t sampleCapacity=1u<<17; // 0.68 s at 192 kHz between drains
     void prepare(double sampleRate) noexcept {
         windowSamples=std::max(1,int(sampleRate*.010));
         for(auto& t:taps){t.count=0;t.peak=0;t.energy=0;}
     }
-    void listen(std::optional<Tap> tap) noexcept {active.store(tap?int(*tap):-1,std::memory_order_release);}
-    bool listening(Tap tap) const noexcept {return active.load(std::memory_order_acquire)==int(tap);}
+    // At most one sample tap at a time; window taps can listen alongside.
+    void listen(std::initializer_list<Tap> listened) noexcept {
+        int mask=0;for(const auto tap:listened)mask|=1<<int(tap);
+        active.store(mask,std::memory_order_release);
+    }
+    void listen(std::optional<Tap> tap) noexcept {active.store(tap?1<<int(*tap):0,std::memory_order_release);}
+    bool listening(Tap tap) const noexcept {return (active.load(std::memory_order_acquire)>>int(tap))&1;}
     // Audio thread. Mirrors the clean compressor detector: max of the channels.
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
-        if(tap==Tap::tone){pushTone(channels,channelCount,samples);return;}
+        if(tap==Tap::tone || tap==Tap::deesser){pushSamples(channels,channelCount,samples);return;}
         auto& t=taps[size_t(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
@@ -55,37 +62,37 @@ public:
     }
     // Consumer thread.
     void drain(Tap tap,std::vector<Window>& out) noexcept {
-        if(tap==Tap::tone)return;
+        if(int(tap)>=int(taps.size()))return;
         auto& t=taps[size_t(tap)];
         int r=t.read.load(std::memory_order_relaxed);
         const int w=t.write.load(std::memory_order_acquire);
         while(r!=w){out.push_back(t.ring[size_t(r)]);r=(r+1)%capacity;}
         t.read.store(r,std::memory_order_release);
     }
-    void drainTone(std::vector<float>& out) {
-        const auto r=toneRead.load(std::memory_order_relaxed),w=toneWrite.load(std::memory_order_acquire);
-        for(auto i=r;i!=w;++i)out.push_back(toneRing[i%toneCapacity]);
-        toneRead.store(w,std::memory_order_release);
+    void drainSamples(std::vector<float>& out) {
+        const auto r=sampleRead.load(std::memory_order_relaxed),w=sampleWrite.load(std::memory_order_acquire);
+        for(auto i=r;i!=w;++i)out.push_back(sampleRing[i%sampleCapacity]);
+        sampleRead.store(w,std::memory_order_release);
     }
 private:
-    void pushTone(const float* const* channels,int channelCount,int samples) noexcept {
+    void pushSamples(const float* const* channels,int channelCount,int samples) noexcept {
         const int used=std::min(2,channelCount);
-        auto w=toneWrite.load(std::memory_order_relaxed);
+        auto w=sampleWrite.load(std::memory_order_relaxed);
         for(int n=0;n<samples;++n) {
-            if(w-toneRead.load(std::memory_order_acquire)>=toneCapacity)break;
+            if(w-sampleRead.load(std::memory_order_acquire)>=sampleCapacity)break;
             float x=0;for(int c=0;c<used;++c)x+=channels[c][n];
-            x/=float(used);toneRing[w%toneCapacity]=std::isfinite(x)?x:0.f;++w;
+            x/=float(used);sampleRing[w%sampleCapacity]=std::isfinite(x)?x:0.f;++w;
         }
-        toneWrite.store(w,std::memory_order_release);
+        sampleWrite.store(w,std::memory_order_release);
     }
     struct TapState {
         std::array<Window,capacity> ring{};std::atomic<int> write{0},read{0};
         int count{};double peak{},energy{};
     };
-    std::array<TapState,2> taps;
-    std::array<float,toneCapacity> toneRing{};
-    std::atomic<uint32_t> toneWrite{0},toneRead{0}; // unsigned difference works across wrap
-    std::atomic<int> active{-1};
+    std::array<TapState,3> taps;
+    std::array<float,sampleCapacity> sampleRing{};
+    std::atomic<uint32_t> sampleWrite{0},sampleRead{0}; // unsigned difference works across wrap
+    std::atomic<int> active{0};
     int windowSamples{480};
 };
 
@@ -182,40 +189,43 @@ struct ToneMove {int type{};float frequency{},gainDb{},q{};};
 inline constexpr std::array<ToneMove,7> toneLayout{{{1,80,0,.707f},{0,160,0,1},{0,315,0,1},{0,630,0,1},{0,1250,0,1},{0,2500,0,1},{2,5000,0,.707f}}};
 inline constexpr float toneStrength=.7f,toneMaxMoveDb=6.f,toneMinMoveDb=1.f;
 
+// Style shifts the instrument target (and the de-esser and limiter, below).
+enum class Style {rock=0,clean=1,metal=2};
+inline const char* styleName(Style style) noexcept {return style==Style::clean?"clean":style==Style::metal?"metal":"rock";}
+
+template<size_t N> float interpolateCurve(const std::array<std::pair<float,float>,N>& curve,float frequency) {
+    if(frequency<=curve.front().first)return curve.front().second;
+    for(size_t i=1;i<N;++i)if(frequency<=curve[i].first) {
+        const float t=std::log(frequency/curve[i-1].first)/std::log(curve[i].first/curve[i-1].first);
+        return curve[i-1].second+t*(curve[i].second-curve[i-1].second);
+    }
+    return curve.back().second;
+}
+
 // Starting target shapes (third-octave level relative to 250 Hz-1 kHz) for a
-// mic'd cabinet. Not yet tuned against reference recordings.
-inline float toneTargetDb(bool bass,float frequency) {
+// mic'd cabinet, plus style offsets. Not yet tuned against reference recordings.
+inline float toneTargetDb(bool bass,float frequency,Style style=Style::rock) {
     static constexpr std::array<std::pair<float,float>,11> guitar{{{50,-16},{63,-12},{100,-5},{160,-1},{250,0},{1000,-1},{2000,-3},{3150,-5},{5000,-10},{8000,-18},{12000,-26}}};
     static constexpr std::array<std::pair<float,float>,10> bassCurve{{{40,-4},{63,0},{100,0},{160,-1},{250,-3},{500,-6},{1000,-10},{2000,-15},{4000,-22},{8000,-32}}};
-    const auto interpolate=[frequency](const auto& curve) {
-        if(frequency<=curve.front().first)return curve.front().second;
-        for(size_t i=1;i<curve.size();++i)if(frequency<=curve[i].first) {
-            const float t=std::log(frequency/curve[i-1].first)/std::log(curve[i].first/curve[i-1].first);
-            return curve[i-1].second+t*(curve[i].second-curve[i-1].second);
-        }
-        return curve.back().second;
-    };
-    return bass?interpolate(bassCurve):interpolate(guitar);
+    // Clean: more air. Metal: tighter lows, slight mid scoop, presence up, fizz down.
+    static constexpr std::array<std::pair<float,float>,6> clean{{{50,0},{1000,0},{2500,1},{5000,2},{8000,2},{12000,2}}};
+    static constexpr std::array<std::pair<float,float>,11> metalGuitar{{{50,-3},{80,-3},{125,0},{315,0},{500,-2},{800,-2},{1250,0},{2500,1.5f},{4000,1.5f},{6300,-1},{8000,-3}}};
+    static constexpr std::array<std::pair<float,float>,6> metalBass{{{50,-2},{80,0},{500,-2},{1000,0},{2000,2},{4000,2}}};
+    const float base=bass?interpolateCurve(bassCurve,frequency):interpolateCurve(guitar,frequency);
+    if(style==Style::clean)return base+interpolateCurve(clean,frequency);
+    if(style==Style::metal)return base+(bass?interpolateCurve(metalBass,frequency):interpolateCurve(metalGuitar,frequency));
+    return base;
 }
 
-struct ToneResult {
-    bool playingDetected{},bass{};
-    std::array<float,toneBandCount> measuredDb{},targetDb{},weight{},correctionDb{},responseDb{};
-    std::array<ToneMove,7> moves{toneLayout};
-    float errorBeforeDb{},errorAfterDb{};
-    int activeMoves() const noexcept {int n=0;for(const auto& m:moves)n+=m.gainDb!=0.f;return n;}
+// Long-term third-octave spectrum of the playing (frames within 15 dB of the
+// 90th-percentile frame level), shared by the Tone EQ and de-esser analyses.
+struct Spectrum {
+    bool playing{},bass{};
+    std::array<float,toneBandCount> bandsDb{};
+    float strongestDb{-300};
 };
-
-inline float toneResponseDb(const std::array<ToneMove,7>& moves,float frequency,double rate) {
-    double db=0;
-    for(const auto& m:moves)if(m.gainDb!=0.f)db+=20*std::log10(std::max(1e-9,eqCoefficients(m.type,m.frequency,m.gainDb,m.q,rate).magnitude(frequency,rate)));
-    return float(db);
-}
-
-// samples: mono amp/cab output before the Tone EQ, at the current input gain.
-// bass: the instrument when the player chose it; detected otherwise.
-inline ToneResult analyseTone(const std::vector<float>& samples,double rate,std::optional<bool> bass={}) {
-    ToneResult r;
+inline Spectrum measureSpectrum(const std::vector<float>& samples,double rate,std::optional<bool> bass={}) {
+    Spectrum r;
     if(rate<8000)return r;
     const int order=std::clamp(int(std::round(std::log2(rate/6.))),12,15),size=1<<order,hop=size/2; // ~6 Hz bins
     juce::dsp::FFT fft(order);
@@ -248,24 +258,52 @@ inline ToneResult analyseTone(const std::vector<float>& samples,double rate,std:
         ++used;lowest+=f.lowest;body+=f.body;
         for(int b=0;b<toneBandCount;++b)power[size_t(b)]+=f.power[size_t(b)];
     }
-    r.playingDetected=used>=8;
-    if(!r.playingDetected)return r;
-    float strongest=-300;
-    for(int b=0;b<toneBandCount;++b){r.measuredDb[size_t(b)]=float(10*std::log10(std::max(1e-30,power[size_t(b)]/used)));strongest=std::max(strongest,r.measuredDb[size_t(b)]);}
+    r.playing=used>=8;
+    if(!r.playing)return r;
+    for(int b=0;b<toneBandCount;++b){r.bandsDb[size_t(b)]=float(10*std::log10(std::max(1e-30,power[size_t(b)]/used)));r.strongestDb=std::max(r.strongestDb,r.bandsDb[size_t(b)]);}
     r.bass=bass.value_or(10*std::log10(std::max(1e-30,lowest)/std::max(1e-30,body))>-12);
-    // Align target and measurement over 250 Hz-1 kHz, the body of both curves.
-    double offset=0;int reference=0;
+    return r;
+}
+// Target aligned to a measurement over 250 Hz-1 kHz, the body of both curves.
+inline std::array<float,toneBandCount> alignedTarget(const Spectrum& measured,Style style) {
+    std::array<float,toneBandCount> target{};double offset=0;int reference=0;
     for(int b=0;b<toneBandCount;++b) {
-        const float fc=toneBandCentres[size_t(b)];r.targetDb[size_t(b)]=toneTargetDb(r.bass,fc);
-        if(fc>=250 && fc<=1000){offset+=r.measuredDb[size_t(b)]-r.targetDb[size_t(b)];++reference;}
+        const float fc=toneBandCentres[size_t(b)];target[size_t(b)]=toneTargetDb(measured.bass,fc,style);
+        if(fc>=250 && fc<=1000){offset+=measured.bandsDb[size_t(b)]-target[size_t(b)];++reference;}
     }
-    offset/=reference;
+    for(auto& t:target)t+=float(offset/reference);
+    return target;
+}
+
+struct ToneResult {
+    bool playingDetected{},bass{};
+    std::array<float,toneBandCount> measuredDb{},targetDb{},weight{},correctionDb{},responseDb{};
+    std::array<ToneMove,7> moves{toneLayout};
+    float errorBeforeDb{},errorAfterDb{};
+    int activeMoves() const noexcept {int n=0;for(const auto& m:moves)n+=m.gainDb!=0.f;return n;}
+};
+
+inline float toneResponseDb(const std::array<ToneMove,7>& moves,float frequency,double rate) {
+    double db=0;
+    for(const auto& m:moves)if(m.gainDb!=0.f)db+=20*std::log10(std::max(1e-9,eqCoefficients(m.type,m.frequency,m.gainDb,m.q,rate).magnitude(frequency,rate)));
+    return float(db);
+}
+
+// samples: mono amp/cab output before the Tone EQ, at the current input gain.
+// bass: the instrument when the player chose it; detected otherwise.
+inline ToneResult analyseTone(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock) {
+    ToneResult r;
+    const auto spectrum=measureSpectrum(samples,rate,bass);
+    r.playingDetected=spectrum.playing;
+    if(!r.playingDetected)return r;
+    r.bass=spectrum.bass;r.measuredDb=spectrum.bandsDb;r.targetDb=alignedTarget(spectrum,style);
+    const float strongest=spectrum.strongestDb;
     // Bands with no real content (cab roll-off, below the lowest note: far
     // under the strongest band or 20 dB short of the target) are left out:
     // there is nothing there to bring up.
     std::array<float,toneBandCount> deviation{};
     for(int b=0;b<toneBandCount;++b) {
-        deviation[size_t(b)]=r.targetDb[size_t(b)]+float(offset)-r.measuredDb[size_t(b)];
+        deviation[size_t(b)]=r.targetDb[size_t(b)]-r.measuredDb[size_t(b)];
         r.weight[size_t(b)]=r.measuredDb[size_t(b)]>strongest-45.f && deviation[size_t(b)]<20.f?1.f:0.f;
     }
     // One-octave smoothing (1-2-1 over third-octave neighbours) so the fit
@@ -296,6 +334,77 @@ inline ToneResult analyseTone(const std::vector<float>& samples,double rate,std:
         const float e=r.correctionDb[size_t(b)]-r.responseDb[size_t(b)];after+=r.weight[size_t(b)]*e*e;
     }
     r.errorBeforeDb=float(std::sqrt(before/std::max(1.,weights)));r.errorAfterDb=float(std::sqrt(after/std::max(1.,weights)));
+    return r;
+}
+
+// Finish (phase 3): de-esser from the de-esser input, limiter from the
+// limiter input (after the output trim).
+struct FinishResult {
+    bool playingDetected{},bass{},deEsser{};
+    float frequency{6000},thresholdDb{-24},rangeDb{6},attackMs{1},releaseMs{80},ratio{4},kneeDb{6};
+    float spectralExcessDb{},burstExcessDb{};
+    bool limiterPlaying{};
+    float ceilingDb{-1},limiterReleaseMs{100},outputPeakDb{-120},overCeilingPercent{};
+};
+inline constexpr float limiterCeilingDb=-1.f;
+
+// samples: mono de-esser input. output: 10 ms windows at the limiter input.
+inline FinishResult analyseFinish(const std::vector<float>& samples,const std::vector<Window>& output,double rate,std::optional<bool> bass={},Style style=Style::rock) {
+    FinishResult r;
+    // Limiter: sample-peak safety at -1 dBFS; release follows the style.
+    r.limiterReleaseMs=style==Style::clean?150.f:style==Style::metal?60.f:100.f;
+    std::vector<float> peaks,rms;for(const auto& w:output){peaks.push_back(w.peakDb);rms.push_back(w.rmsDb);}
+    r.limiterPlaying=output.size()>=50 && percentile(rms,.90f)>minimumPlayingDb;
+    if(r.limiterPlaying) {
+        r.outputPeakDb=percentile(peaks,.999f);
+        int over=0;for(const float p:peaks)over+=p>r.ceilingDb;
+        r.overCeilingPercent=100.f*float(over)/float(peaks.size());
+    }
+    // De-esser: harsh when the top end sits above the style target, or when it
+    // bursts (pick click, fizz) much more than the whole signal does.
+    const auto spectrum=measureSpectrum(samples,rate,bass);
+    r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
+    if(!r.playingDetected)return r;
+    const auto target=alignedTarget(spectrum,style);
+    int worst=-1;float worstExcess=-100;
+    for(int b=0;b<toneBandCount;++b){const float fc=toneBandCentres[size_t(b)];if(fc>=2500 && fc<=8000 && fc<rate*.4){const float e=spectrum.bandsDb[size_t(b)]-target[size_t(b)];if(e>worstExcess){worstExcess=e;worst=b;}}}
+    if(worst<0)return r;
+    // Split at the lower edge of the most excessive band.
+    r.frequency=std::clamp(std::round(toneBandCentres[size_t(worst)]/std::pow(2.f,1.f/6.f)/100.f)*100.f,2500.f,9000.f);
+    double excess=0;int count=0;
+    for(int b=0;b<toneBandCount;++b){const float fc=toneBandCentres[size_t(b)];if(fc>=r.frequency && fc<=10000 && fc<rate*.4){excess+=spectrum.bandsDb[size_t(b)]-target[size_t(b)];++count;}}
+    r.spectralExcessDb=count?float(excess/count):0.f;
+    // High band through two 12 dB/oct high-passes (the de-esser splits at 24 dB/oct).
+    const auto hp=eqCoefficients(3,r.frequency,0,.70710678,rate);
+    std::array<double,4> z{};const int windowSamples=std::max(1,int(rate*.010));
+    std::vector<float> fullRms,highRms,highPeak;double fullEnergy=0,highEnergy=0,peak=0;int n=0;
+    for(const float x:samples) {
+        double y=x;
+        for(int stage=0;stage<2;++stage){double& z1=z[size_t(2*stage)];double& z2=z[size_t(2*stage+1)];const double out=hp.b0*y+z1;z1=hp.b1*y-hp.a1*out+z2;z2=hp.b2*y-hp.a2*out;y=out;}
+        fullEnergy+=double(x)*x;highEnergy+=y*y;peak=std::max(peak,std::abs(y));
+        if(++n==windowSamples){fullRms.push_back(toDb(std::sqrt(fullEnergy/n)));highRms.push_back(toDb(std::sqrt(highEnergy/n)));highPeak.push_back(toDb(peak));fullEnergy=highEnergy=peak=0;n=0;}
+    }
+    // Transients: each window against the median of its +-50 ms neighbours, so
+    // a note's ordinary decay does not count, a pick click or fizz spike does.
+    const auto spikes=[](const std::vector<float>& level,size_t i) {
+        std::vector<float> around;
+        for(size_t k=i>=5?i-5:0;k<=std::min(level.size()-1,i+5);++k)if(k!=i)around.push_back(level[k]);
+        return level[i]-percentile(around,.5f);
+    };
+    const float loud=percentile(fullRms,.90f);
+    std::vector<float> fullSpikes,highSpikes,playingPeak;
+    for(size_t i=0;i<fullRms.size();++i)if(fullRms[i]>=loud-15.f && fullRms[i]>minimumPlayingDb) {
+        fullSpikes.push_back(spikes(fullRms,i));highSpikes.push_back(spikes(highRms,i));playingPeak.push_back(highPeak[i]);
+    }
+    if(fullSpikes.size()<50)return r;
+    r.burstExcessDb=percentile(highSpikes,.95f)-percentile(fullSpikes,.95f);
+    const float spectralLimit=style==Style::clean?3.f:style==Style::metal?1.5f:2.f;
+    r.deEsser=r.spectralExcessDb>=spectralLimit || r.burstExcessDb>=4.f;
+    if(!r.deEsser)return r;
+    // Act on the loudest fifth of the high band; deeper cuts for harsher input.
+    r.thresholdDb=std::round(std::clamp(percentile(playingPeak,.80f),-60.f,-6.f));
+    r.rangeDb=std::clamp(std::round(std::max(r.spectralExcessDb,r.burstExcessDb-2.f)+2.f),3.f,9.f);
+    r.releaseMs=style==Style::clean?120.f:style==Style::metal?50.f:80.f;
     return r;
 }
 

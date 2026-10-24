@@ -304,6 +304,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     autoSetCaptureState.push(spectralforge::autoset::Tap::compressor,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer);}
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer);}
+    autoSetCaptureState.push(spectralforge::autoset::Tap::deesser,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
     postFX.process(buffer,fx);
     measureStage(3,buffer);
@@ -324,6 +325,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
             buffer.setSample(c,n,std::isfinite(x) ? x : 0.f);
         }
     }
+    autoSetCaptureState.push(spectralforge::autoset::Tap::output,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::limiter,buffer);dynamics.limit(buffer);} // Last gain stage after output trim.
     for(int c=0;c<buffer.getNumChannels();++c)peak=juce::jmax(peak,buffer.getMagnitude(c,0,buffer.getNumSamples()));
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
