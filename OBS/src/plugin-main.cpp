@@ -249,6 +249,13 @@ void procGetParameter(void* data, calldata_t* call) {
     calldata_set_bool(call, "ok", ok);
 }
 
+// OBS skips a disabled filter entirely, so Chimera would still hold the delay,
+// reverb and cabinet tails of the audio from before it was disabled. Any
+// thread; the reset itself happens on the audio thread's next block.
+void enabledChanged(void* data, calldata_t* call) {
+    if (calldata_bool(call, "enabled")) static_cast<Filter*>(data)->host.requestReset();
+}
+
 const char* getName(void*) { return obs_module_text("Chimera"); }
 
 void* create(obs_data_t* settings, obs_source_t* source) {
@@ -258,6 +265,7 @@ void* create(obs_data_t* settings, obs_source_t* source) {
     proc_handler_t* procs = obs_source_get_proc_handler(source);
     proc_handler_add(procs, "void chimera_set_parameter(in int id, in float value, out bool ok)", procSetParameter, f);
     proc_handler_add(procs, "void chimera_get_parameter(in int id, out float value, out bool ok)", procGetParameter, f);
+    signal_handler_connect(obs_source_get_signal_handler(source), "enable", enabledChanged, f);
     configure(f, settings);
     return f;
 }
@@ -265,6 +273,7 @@ void* create(obs_data_t* settings, obs_source_t* source) {
 void destroy(void* data) {
     auto* f = static_cast<Filter*>(data);
     f->destroyed.store(true);
+    signal_handler_disconnect(obs_source_get_signal_handler(f->source), "enable", enabledChanged, f);
     f->bridge.suspend();
     runOnUi(teardownTask, f);
 }

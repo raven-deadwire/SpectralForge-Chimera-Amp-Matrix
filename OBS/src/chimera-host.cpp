@@ -89,6 +89,7 @@ struct ChimeraHost::Impl {
     ProcessContext context{};
     ProcessData data{};
     int channels{}, capacity{};
+    std::atomic<bool> resetRequested{false};
 
     void deactivate() noexcept {
         if (!active) return;
@@ -228,6 +229,10 @@ bool ChimeraHost::process(float* const* data, int channels, int frames) noexcept
     for (int c = 0; c < channels; ++c) m.inputPointers[c] = data[c];
     m.inputBuses[0].silenceFlags = m.outputBuses[0].silenceFlags = 0;
     m.data.numSamples = frames;
+    if (m.resetRequested.exchange(false)) {
+        m.processor->setProcessing(false);
+        m.processor->setProcessing(true);
+    }
     // Separate output buffers: the result never depends on in-place support.
     if (m.processor->process(m.data) != kResultOk) return false;
     for (int c = 0; c < channels; ++c) std::memcpy(data[c], m.outputPointers[c], sizeof(float) * static_cast<size_t>(frames));
@@ -235,6 +240,8 @@ bool ChimeraHost::process(float* const* data, int channels, int frames) noexcept
     m.context.continousTimeSamples += frames;
     return true;
 }
+
+void ChimeraHost::requestReset() noexcept { impl->resetRequested.store(true); }
 
 int ChimeraHost::latency() const noexcept {
     return impl->processor ? static_cast<int>(impl->processor->getLatencySamples()) : 0;

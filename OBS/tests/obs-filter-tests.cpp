@@ -100,10 +100,14 @@ void captureAudio(void* param, obs_source_t*, const audio_data* audio, bool) {
 
 // Pushes `frames` of the stereo test signal (starting at `start`) through the
 // source; returns what OBS delivered after the filter chain.
-Capture push(obs_source_t* source, int start, int frames) {
+Capture push(obs_source_t* source, int start, int frames, bool silent = false) {
     Capture captured;
     obs_source_add_audio_capture_callback(source, captureAudio, &captured);
-    const auto left = guitar(start + frames, 0), right = guitar(start + frames, 1);
+    auto left = guitar(start + frames, 0), right = guitar(start + frames, 1);
+    if (silent) {
+        std::fill(left.begin(), left.end(), 0.f);
+        std::fill(right.begin(), right.end(), 0.f);
+    }
     static uint64_t timestamp = 1000000000ull;
     for (int offset = 0; offset < frames; offset += tick) {
         obs_source_audio audio{};
@@ -120,6 +124,12 @@ Capture push(obs_source_t* source, int start, int frames) {
     obs_source_remove_audio_capture_callback(source, captureAudio, &captured);
     check(captured.channel[0].size() == size_t(frames), "OBS did not deliver every frame through the filter");
     return captured;
+}
+
+double rms(const std::vector<float>& x) {
+    double sum = 0;
+    for (float v : x) sum += double(v) * v;
+    return x.empty() ? 0.0 : std::sqrt(sum / double(x.size()));
 }
 
 double maxDifference(const std::vector<float>& a, const std::vector<float>& b, size_t from) {
@@ -246,6 +256,18 @@ int main(int argc, char** argv) {
         std::cout << "left-to-both mapping vs direct VST3 fed L/L: max diff " << mapDiff << '\n';
         check(mapDiff < 1e-4, "left-to-both mapping does not match Chimera fed the left channel on both inputs");
 
+        // 2b. OBS skips a disabled filter; re-enabling it must not replay the
+        // tail of the audio from before it was disabled.
+        push(source, 0, rate);
+        const double tail = rms(push(source, 0, rate / 10, true).channel[0]);
+        push(source, 0, rate);
+        obs_source_set_enabled(filter, false);
+        obs_source_set_enabled(filter, true);
+        const double afterToggle = rms(push(source, 0, rate / 10, true).channel[0]);
+        std::cout << "100 ms of silence: tail rms " << tail << " while enabled, " << afterToggle << " after disable/enable\n";
+        check(tail > 1e-4, "Chimera left no tail to measure");
+        check(afterToggle < tail * 1e-2, "re-enabled filter replayed the old tail");
+
         // 3. Scene save/restore keeps the Chimera state.
         obs_data_t* saved = obs_save_source(filter);
         obs_data_t* savedSettings = obs_data_get_obj(saved, "settings");
@@ -354,7 +376,7 @@ int main(int argc, char** argv) {
 
         obs_shutdown();
         check(bnum_allocs() == 0, "libobs allocations leaked: " + std::to_string(bnum_allocs()));
-        std::cout << "PASS OBS filter: libobs module load, OBS output equals direct VST3, live input mapping, scene restore, "
+        std::cout << "PASS OBS filter: libobs module load, OBS output equals direct VST3, live input mapping, tail reset on re-enable, scene restore, "
                      "duplicate/copy with edited state, independent instances, settings preset push, newer-schema guard, "
                      "mute/dry without Chimera, UI-thread teardown\n";
         return 0;

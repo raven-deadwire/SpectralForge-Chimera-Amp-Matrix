@@ -38,6 +38,9 @@ public:
     bool prepare(double sampleRate, int channels, int maximumFrames);
     bool process(float* const* data, int channels, int frames) noexcept;
     int latency() const noexcept;
+    // Any thread. The next process() asks Chimera to drop its tails (VST3
+    // setProcessing(false/true), which the spec allows on the audio thread).
+    void requestReset() noexcept;
 
     // Component (processor) and controller state, exactly as a DAW stores them,
     // so the same .chimera-compatible VST3 state moves between hosts.

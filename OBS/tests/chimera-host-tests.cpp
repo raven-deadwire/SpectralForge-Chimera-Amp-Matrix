@@ -135,6 +135,23 @@ int main(int argc, char** argv) {
         std::cout << "state: " << component.size() << " + " << controller.size() << " bytes, '" << title << "' restored\n";
         check(!c.setState({}, {}), "empty state must be rejected");
 
+        // Reset: a host drops Chimera's tails without re-preparing it.
+        const auto silence = [&](ChimeraHost& host, int frames) {
+            std::vector<float> left(static_cast<size_t>(frames)), right(static_cast<size_t>(frames));
+            for (int offset = 0; offset < frames; offset += capacity) {
+                float* pointers[2]{left.data() + offset, right.data() + offset};
+                check(host.process(pointers, 2, std::min(capacity, frames - offset)), "process() failed on silence");
+            }
+            return left;
+        };
+        const double tail = rms(silence(b, int(rate / 10)), 0);
+        run(b, 2, int(rate), {capacity});
+        b.requestReset();
+        const double afterReset = rms(silence(b, int(rate / 10)), 0);
+        std::cout << "100 ms after playing: tail rms " << tail << " without reset, " << afterReset << " after reset\n";
+        check(tail > 1e-4, "Chimera left no tail to measure");
+        check(afterReset < tail * 1e-2, "reset did not drop Chimera's tails");
+
         // Mono OBS layout.
         ChimeraHost mono;
         check(mono.load(bundle, error), "mono instance: " + error);
@@ -152,7 +169,7 @@ int main(int argc, char** argv) {
             check(!cycle.loaded() && !cycle.prepare(rate, 2, capacity), "unload");
         }
 
-        std::cout << "PASS Chimera VST3 host: identity, processing, block-size independence, state round trip, mono, reload cycles, "
+        std::cout << "PASS Chimera VST3 host: identity, processing, block-size independence, state round trip, tail reset, mono, reload cycles, "
                      "concurrent instances\n";
         return 0;
     } catch (const std::exception& e) { std::cerr << "FAIL " << e.what() << '\n'; return 1; }
