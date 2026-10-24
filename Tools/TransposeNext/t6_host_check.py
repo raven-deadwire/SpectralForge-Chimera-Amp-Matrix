@@ -15,7 +15,7 @@ from legacy_metrics import sha
 
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--plugin', type=Path, required=True); p.add_argument('--host-check', type=Path, required=True)
-    p.add_argument('--out', type=Path, required=True); p.add_argument('--rates', default='44100,48000,96000'); p.add_argument('--shifts', default='-2,-1,1,2')
+    p.add_argument('--out', type=Path, required=True); p.add_argument('--rates', default='44100,48000,96000'); p.add_argument('--shifts', default='-2,-1,1,2'); p.add_argument('--engines', default='baseline,v2,v3')
     a = p.parse_args(); a.out.mkdir(parents=True, exist_ok=True)
     # JUCE's GUI initialiser needs an X display on Linux even without an editor.
     wrap = ['xvfb-run', '-a'] if os.name == 'posix' and not os.environ.get('DISPLAY') and shutil.which('xvfb-run') and os.uname().sysname == 'Linux' else []
@@ -25,7 +25,7 @@ def main():
             for inst, f in FREQUENCIES.items():
                 for name, (x, _) in (('plucks', holdout_input(f, 'random_soft_after_loud', 8139, rate)), ('long_notes', long_notes(f, rate))):
                     ip = Path(w)/'in.f32'; x.tofile(ip)
-                    for engine in ('baseline', 'v2'):
+                    for engine in a.engines.split(','):
                         for shift in map(int, a.shifts.split(',')):
                             jp = Path(w)/'r.json'
                             r = subprocess.run([*wrap, str(a.host_check), str(a.plugin), str(ip), str(rate), str(shift), engine, str(jp)], capture_output=True, text=True)
@@ -35,7 +35,7 @@ def main():
     checks = [k for k, v in rows[0].items() if isinstance(v, dict) and 'pass' in v]
     summary = {'runs': len(rows), 'errors': sum('error' in r for r in rows), 'plugin_sha256': sha(next(a.plugin.rglob('*.so'), a.plugin)) if a.plugin.is_dir() else sha(a.plugin),
                'host_check_sha256': sha(a.host_check), 'checks': {}}
-    for engine in ('baseline', 'v2'):
+    for engine in a.engines.split(','):
         sel = [r for r in rows if r['engine'] == engine and 'error' not in r]
         summary['checks'][engine] = {c: {'pass': sum(r[c]['pass'] for r in sel), 'of': len(sel), 'max_detail': max((r[c]['detail'] for r in sel if isinstance(r[c]['detail'], (int, float))), default=None)} for c in checks}
         big = [v for r in sel for v in r['large_block_max_abs_diff'].values()]

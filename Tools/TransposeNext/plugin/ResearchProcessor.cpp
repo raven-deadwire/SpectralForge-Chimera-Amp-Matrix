@@ -11,7 +11,7 @@ public:
                                           .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
           state(*this,nullptr,"TransposeResearch",{
               std::make_unique<juce::AudioParameterInt>(juce::ParameterID{"shift",1},"Shift (semitones)",-2,2,-2),
-              std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"engine",1},"Engine",juce::StringArray{"Product baseline","corr40-split-v2"},1)}) {
+              std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"engine",1},"Engine",juce::StringArray{"Product baseline","corr40-split-v2","corr40-split-v3"},1)}) {
         shift=state.getRawParameterValue("shift");engine=state.getRawParameterValue("engine");
     }
     const juce::String getName() const override {return "Chimera Transpose Research";}
@@ -62,7 +62,7 @@ public:
     }
 private:
     int current() const {return int(std::lround(shift->load()));}
-    Engine engineNow() const {return engine->load()<.5f?Engine::baseline:Engine::v2;}
+    Engine engineNow() const {return Engine(juce::jlimit(0,2,int(std::lround(engine->load()))));}
     juce::AudioProcessorValueTreeState state;
     std::atomic<float>* shift{};std::atomic<float>* engine{};
     ResearchEngine dsp;juce::AudioBuffer<float> scratch;

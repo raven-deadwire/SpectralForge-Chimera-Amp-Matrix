@@ -218,3 +218,13 @@ headless VST3 host check; `t6_host_check.py` runs it over rates x engines x
 shifts. Finding: corr40-split-v2 output depends on host block partitioning
 (the rt splice hold is decided per processing chunk). See
 `docs/TRANSPOSE_T6_LISTENING_DAW.md`.
+
+## corr40-split-v3 (2026-10-24)
+
+corr40-split-v2 with a sample-accurate body splice hold (`setHoldSource`): a
+due downshift splice waits while the transient path spliced within the
+previous 128 samples, counting only splices at or before the current sample,
+so output no longer depends on host block partitioning. `BlockInvariance`
+and `SpliceCollision` are the research checks. Earlier engines are
+bit-unchanged. Fresh-seed T3 exceeds the B0 ceiling exactly as v2 does. See
+`docs/TRANSPOSE_V3_BLOCK_INVARIANT_20261024.md`.

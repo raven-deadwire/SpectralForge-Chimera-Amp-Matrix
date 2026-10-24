@@ -180,6 +180,8 @@ rt에서 추가된 기능은 '고역 경로가 이번 처리 구간에서 접합
 
 DAW 점검표 D09는 이 현상을 실제 DAW에서 확인하는 항목이다.
 
+**후속 (2026-10-24):** `corr40-split-v3`가 이 보류를 샘플 단위로 바꿨다. 호스트 점검 72회에서 가변·큰 블록 모두 비트 동일했다. 다만 새 시드 T3 판정은 v2와 같은 이유로 FAIL이다(`TRANSPOSE_V3_BLOCK_INVARIANT_20261024.md`). 연구용 플러그인의 `Engine`에 corr40-split-v3를 추가했다.
+
 ### 발견 2: denormal 처리
 
 플러그인과 DAW는 denormal을 0으로 처리한다(`ScopedNoDenormals`). TransposeProbe와 비교 기준의 첫 버전은 그렇게 하지 않았다. 그 결과 v2는 72회 중 36회에서 **1.5e-36 크기의 차이**가 났다(`host_check-reference-without-ftz.json.gz`). 기준도 denormal을 0으로 처리하도록 고친 뒤에는 고정 블록이 72/72 비트 동일했다.
