@@ -88,6 +88,9 @@ lead sweep(B0 / E2 / E2 파워코드 / A3 / E2 재피킹, 저역 어택 ms):
 - `StabilityTests`의 `pitchNoAllocation`: 모드 0–3을 처리 도중 바꾸고 반음·바이패스·블록 크기(1–1024)를 바꿔도 `prepare()` 이후 할당이 없다(44.1–192 kHz, 모노·스테레오). `operator new`와, glibc에서는 `malloc`/`calloc`/`realloc`까지 센다(JUCE `HeapBlock`은 `malloc`을 직접 쓴다). `process`에 `HeapBlock`을 넣으면 실패하는 것을 확인했다. 48 → 96 kHz로 다시 prepare하면 HYBRID 지연도 96 kHz 10 ms 창으로 바뀐다.
 - `IntegratedProcessorTests`의 `transposeQualityLatency`(빠른 실행: `--transpose-quality-only`): 실제 `ChimeraProcessor`에서 품질을 3→0→1→2→3으로 바꾸면 다음 콜백에서 호스트 보고 지연이 바뀐다(44.1/48/96 kHz, 페달보드 켬·끔). HYBRID 상태를 저장·복원하면 첫 콜백 전에 10 ms가 보고된다. 복원 경로를 0–2로 제한하면 실패하는 것을 확인했다. 실제 호스트의 PDC 동작은 확인하지 않았다. 오프라인 바운스와 실시간 재생은 블록 크기만 다르다. 이는 위 블록 크기 불변성 테스트(프로세서 수준 포함)로 확인했다. 실제 DAW 왕복, Windows CPU, DI 녹음·블라인드 청취는 아직 하지 않았다.
 
+- 전체 회귀(2026-10-24, `aba60c7`, Linux Release): 63개 중 58개는 그냥 통과한다. 나머지 5개는 화면이 필요한 UI 테스트이고, CI처럼 `Tools/run_linux_ui_tests.py`(Xvfb + openbox)로 돌리면 모두 통과한다.
+  - `ChimeraNativeFocusTests`는 다른 UI 테스트와 함께 돌릴 때 한 번 실패했고, 단독으로는 3회 모두 통과했다.
+
 아래는 통합 전에 쓴 설계 메모다.
 
 현재 `spectralforge::Transposer`(`Source/GlobalDSP.h`)의 구조를 그대로 쓴다.
