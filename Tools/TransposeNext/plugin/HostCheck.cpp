@@ -1,7 +1,7 @@
 // Headless VST3 host check for the research Transpose plug-in (T6 DAW prep).
 // Loads the built .vst3 like a DAW does and compares its output with the
 // engine called directly (the TransposeProbe configuration, block 128).
-// usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3 out.json
+// usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3|v4 out.json
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "ResearchEngine.h"
 #include <fstream>
@@ -41,7 +41,7 @@ juce::AudioProcessorParameter* param(juce::AudioPluginInstance& p,const juce::St
 }
 void setParams(juce::AudioPluginInstance& p,int shift,Engine e) {
     param(p,"Shift (semitones)")->setValue(float(shift+2)/4.f);
-    param(p,"Engine")->setValue(float(int(e))/2.f);
+    param(p,"Engine")->setValue(float(int(e))/3.f);
 }
 
 // Blocks come from `next()`; `onBlock` may change parameters between blocks.
@@ -76,11 +76,11 @@ void pump(){juce::MessageManager::getInstance()->runDispatchLoopUntil(50);}
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
-        if(argc!=7)throw std::runtime_error("usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3 out.json");
+        if(argc!=7)throw std::runtime_error("usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3|v4 out.json");
         const juce::File plugin(juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]));
         const Signal x=readF32(argv[2]);const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);
-        const std::string en=argv[5];if(en!="baseline" && en!="v2" && en!="v3")throw std::runtime_error("engine must be baseline, v2 or v3");
-        const Engine e=en=="baseline"?Engine::baseline:en=="v2"?Engine::v2:Engine::v3;
+        const std::string en=argv[5];if(en!="baseline" && en!="v2" && en!="v3" && en!="v4")throw std::runtime_error("engine must be baseline, v2, v3 or v4");
+        const Engine e=en=="baseline"?Engine::baseline:en=="v2"?Engine::v2:en=="v3"?Engine::v3:Engine::v4;
         juce::VST3PluginFormat format;juce::OwnedArray<juce::PluginDescription> found;
         format.findAllTypesForFile(found,plugin.getFullPathName());
         if(found.isEmpty())throw std::runtime_error("no VST3 plug-in found in "+plugin.getFullPathName().toStdString());
@@ -138,7 +138,7 @@ int main(int argc,char** argv) {
             if(off>=nextChange){
                 const int s=std::array<int,5>{-2,-1,1,2,0}[size_t(step%5)];
                 param(*q,"Shift (semitones)")->setValue(float(s+2)/4.f);
-                if(step==7)param(*q,"Engine")->setValue(e==Engine::baseline?.5f:0.f);
+                if(step==7)param(*q,"Engine")->setValue(e==Engine::baseline?1.f/3.f:0.f);
                 ++step;nextChange=off+size_t(every);
             }
         });

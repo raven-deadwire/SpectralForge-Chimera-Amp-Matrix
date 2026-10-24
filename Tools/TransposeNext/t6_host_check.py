@@ -28,6 +28,7 @@ def main():
                     for engine in a.engines.split(','):
                         for shift in map(int, a.shifts.split(',')):
                             jp = Path(w)/'r.json'
+                            jp.unlink(missing_ok=True)  # never reuse a prior run's result after a host failure
                             r = subprocess.run([*wrap, str(a.host_check), str(a.plugin), str(ip), str(rate), str(shift), engine, str(jp)], capture_output=True, text=True)
                             row = {'rate': rate, 'input': f'{inst}/{name}', 'engine': engine, 'shift': shift, 'exit': r.returncode}
                             row.update(json.loads(jp.read_text()) if jp.exists() else {'error': r.stderr[-500:]})

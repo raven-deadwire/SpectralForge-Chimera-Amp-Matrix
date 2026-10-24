@@ -34,7 +34,7 @@ def long_notes(f0, rate, spacing=.25, decay=.08, n=10, seed=1):
         z[o:o+m] += signal.sosfilt(hp, click)
     return np.column_stack((z, -.65*z)).astype('<f4'), onsets
 
-def inputs(rate, holdout_seeds=(8139, 20261024), long_seed=1):
+def inputs(rate, holdout_seeds=(8139, 20261024), long_seed=1, long_seeds=None):
     """(key, x, meta, roles) for every scored input at one sample rate."""
     out = []
     for inst, f in FREQUENCIES.items():
@@ -48,8 +48,9 @@ def inputs(rate, holdout_seeds=(8139, 20261024), long_seed=1):
                                 ('random_markers', {'attack', 'markers'})]:
                 x, on = holdout_input(f, mode, seed, rate)
                 out.append((f'{inst}/holdout{seed}-{mode}', x, {'rate': rate, 'onsets': on, 'name': mode}, roles))
-        x, on = long_notes(f, rate, seed=long_seed)
-        out.append((f'{inst}/long_notes' if long_seed == 1 else f'{inst}/long_notes_seed{long_seed}', x, {'rate': rate, 'onsets': on, 'name': 'long_notes', 'fundamental_hz': f}, {'attack', 'long'}))
+        for seed in (long_seeds if long_seeds is not None else (long_seed,)):
+            x, on = long_notes(f, rate, seed=seed)
+            out.append((f'{inst}/long_notes' if seed == 1 else f'{inst}/long_notes_seed{seed}', x, {'rate': rate, 'onsets': on, 'name': 'long_notes', 'fundamental_hz': f}, {'attack', 'long'}))
     return out
 
 def main():
@@ -58,6 +59,7 @@ def main():
     p.add_argument('--evaluate-only', action='store_true', help='re-score an existing results.json against the current spec')
     # A fresh holdout: seeds never used to choose any candidate parameter.
     p.add_argument('--holdout-seeds', default='8139,20261024'); p.add_argument('--long-seed', type=int, default=1)
+    p.add_argument('--long-seeds', help='optional comma-separated long-note seeds; replaces --long-seed')
     a = p.parse_args(); a.out.mkdir(parents=True, exist_ok=True); a.renderer = a.renderer.resolve()
     spec = json.loads(SPEC.read_text()); shifts = spec['conditions']['shifts']; block = spec['conditions']['block']
     if a.evaluate_only:
@@ -67,7 +69,8 @@ def main():
         return
     rows = []
     for rate in [int(r) for r in a.rates.split(',')]:
-        for key, x, meta, roles in inputs(rate, tuple(int(v) for v in a.holdout_seeds.split(',')), a.long_seed):
+        for key, x, meta, roles in inputs(rate, tuple(int(v) for v in a.holdout_seeds.split(',')), a.long_seed,
+                                      tuple(map(int,a.long_seeds.split(','))) if a.long_seeds else None):
             ip = a.out/'input.f32'; x.tofile(ip)
             before = attacks(x, meta) if 'attack' in roles else None
             for shift in shifts:
