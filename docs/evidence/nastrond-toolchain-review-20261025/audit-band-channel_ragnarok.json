@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "reference_count": 26,
+  "original_states": 39,
+  "protocol": "Unchanged digital input and NAM outputs; RMS-matched Welch averaged into 42 logarithmic bands 65-8000 Hz; each target capture must improve by >=0.1 dB from macro 0 to 1 on both synthetic pluck and chord. No hardware-match threshold.",
+  "metric": "band_spectrum_rms_db",
+  "scope": "channel_ragnarok",
+  "default_rms_drift_from_incoming_db": {
+    "pluck": 0.0,
+    "chord": 0.0
+  },
+  "groups": {
+    "impact": {
+      "family": "twinjet",
+      "model_ids": [
+        652436,
+        652437
+      ],
+      "measurements": {
+        "baseline": {
+          "pluck": {
+            "mean_scores_db": {
+              "channel_ragnarok": 4.001004943988576,
+              "channel_ragnarok_impact_0": 4.756723546370514,
+              "channel_ragnarok_impact_1": 4.498693330607709
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "channel_ragnarok": 4.1593286925062865,
+                  "channel_ragnarok_impact_0": 4.756223229515789,
+                  "channel_ragnarok_impact_1": 4.684978197067429
+                },
+                "endpoint_improvement_db": 0.07124503244835978
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "channel_ragnarok": 3.842681195470865,
+                  "channel_ragnarok_impact_0": 4.75722386322524,
+                  "channel_ragnarok_impact_1": 4.312408464147988
+                },
+                "endpoint_improvement_db": 0.4448153990772523
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "channel_ragnarok": 3.516647052197423,
+              "channel_ragnarok_impact_0": 4.4281679638439195,
+              "channel_ragnarok_impact_1": 3.6402003108766694
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "channel_ragnarok": 3.6824071707682027,
+                  "channel_ragnarok_impact_0": 4.510500537848959,
+                  "channel_ragnarok_impact_1": 3.825975997530715
+                },
+                "endpoint_improvement_db": 0.6845245403182436
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "channel_ragnarok": 3.3508869336266436,
+                  "channel_ragnarok_impact_0": 4.34583538983888,
+                  "channel_ragnarok_impact_1": 3.4544246242226238
+                },
+                "endpoint_improvement_db": 0.8914107656162567
+              }
+            ]
+          }
+        },
+        "incoming": {
+          "pluck": {
+            "mean_scores_db": {
+              "channel_ragnarok": 4.001004943988576,
+              "channel_ragnarok_impact_0": 4.756723546370514,
+              "channel_ragnarok_impact_1": 4.498693330607709
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "channel_ragnarok": 4.1593286925062865,
+                  "channel_ragnarok_impact_0": 4.756223229515789,
+                  "channel_ragnarok_impact_1": 4.684978197067429
+                },
+                "endpoint_improvement_db": 0.07124503244835978
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "channel_ragnarok": 3.842681195470865,
+                  "channel_ragnarok_impact_0": 4.75722386322524,
+                  "channel_ragnarok_impact_1": 4.312408464147988
+                },
+                "endpoint_improvement_db": 0.4448153990772523
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "channel_ragnarok": 3.516647052197423,
+              "channel_ragnarok_impact_0": 4.4281679638439195,
+              "channel_ragnarok_impact_1": 3.6402003108766694
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "channel_ragnarok": 3.6824071707682027,
+                  "channel_ragnarok_impact_0": 4.510500537848959,
+                  "channel_ragnarok_impact_1": 3.825975997530715
+                },
+                "endpoint_improvement_db": 0.6845245403182436
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "channel_ragnarok": 3.3508869336266436,
+                  "channel_ragnarok_impact_0": 4.34583538983888,
+                  "channel_ragnarok_impact_1": 3.4544246242226238
+                },
+                "endpoint_improvement_db": 0.8914107656162567
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "pluck": {
+            "mean_scores_db": {
+              "channel_ragnarok": 4.001004943988576,
+              "channel_ragnarok_impact_0": 4.756723546370514,
+              "channel_ragnarok_impact_1": 4.498693330607709
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "channel_ragnarok": 4.1593286925062865,
+                  "channel_ragnarok_impact_0": 4.756223229515789,
+                  "channel_ragnarok_impact_1": 4.684978197067429
+                },
+                "endpoint_improvement_db": 0.07124503244835978
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "channel_ragnarok": 3.842681195470865,
+                  "channel_ragnarok_impact_0": 4.75722386322524,
+                  "channel_ragnarok_impact_1": 4.312408464147988
+                },
+                "endpoint_improvement_db": 0.4448153990772523
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "channel_ragnarok": 3.516647052197423,
+              "channel_ragnarok_impact_0": 4.4281679638439195,
+              "channel_ragnarok_impact_1": 3.6402003108766694
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "channel_ragnarok": 3.6824071707682027,
+                  "channel_ragnarok_impact_0": 4.510500537848959,
+                  "channel_ragnarok_impact_1": 3.825975997530715
+                },
+                "endpoint_improvement_db": 0.6845245403182436
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "channel_ragnarok": 3.3508869336266436,
+                  "channel_ragnarok_impact_0": 4.34583538983888,
+                  "channel_ragnarok_impact_1": 3.4544246242226238
+                },
+                "endpoint_improvement_db": 0.8914107656162567
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "status": {
+    "synthetic_endpoint_direction": "FAIL",
+    "clank_amp_only_reference": "BLOCKED: Meshuggah captures include cabinet",
+    "instrument_di_listening": "NOT_RUN",
+    "hardware_matching": "BLOCKED",
+    "final_voicing": "BLOCKED: owner instrument-DI listening required"
+  },
+  "failures": [
+    "impact/652436/pluck: 0.071245 dB"
+  ],
+  "comparison_sha256": {
+    "baseline": "b1ccb5bc20cc7a16e87e93495174e59db00d75f3da5c7bbf1d58e51a8b5871f1",
+    "incoming": "b1ccb5bc20cc7a16e87e93495174e59db00d75f3da5c7bbf1d58e51a8b5871f1",
+    "candidate": "b1ccb5bc20cc7a16e87e93495174e59db00d75f3da5c7bbf1d58e51a8b5871f1"
+  }
+}

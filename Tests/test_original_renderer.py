@@ -26,6 +26,7 @@ def main():
             result = subprocess.run([str(executable), str(source), str(output), str(state)],
                                     capture_output=True, text=True)
             assert result.returncode == expect, result.stderr
+            assert expect == 0 or result.stderr.strip(), 'Rejected state without a diagnostic'
             return output.read_bytes()
 
         default = render({})
@@ -41,9 +42,10 @@ def main():
         assert render({'channel': 0, 'controls': {'gain': 1}}) != channels[0], 'No gain travel above channel midpoint'
         last = output.read_bytes()
         for config, code in [({'preset': 'missing'}, 4), ({'controls': {'typo': .5}}, 5),
-                             ({'controls': {'gain': 2}}, 5), ({'channel': 5}, 4), ({'channel': -1}, 4)]:
+                             ({'controls': {'gain': 2}}, 5), ({'channel': 5}, 4), ({'channel': -1}, 4),
+                             ({'preset': 'original.nastrond.fenrir.v1', 'channel': 0}, 4)]:
             assert render(config, code) == last, 'Invalid state modified previous output'
-    print('PASS original renderer preset/gain routing, deterministic replacement, finite float output and invalid-state rejection')
+    print('PASS original renderer preset/gain routing, deterministic replacement, finite float output and diagnosed invalid-state rejection')
 
 
 if __name__ == '__main__':

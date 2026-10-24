@@ -1,0 +1,12 @@
+{
+  "channel_fenrir": {
+    "metrics": [
+      "log_spectrum_rms_db",
+      "band_spectrum_rms_db"
+    ],
+    "status": "BLOCKED",
+    "reason": "CLANK references include a cabinet; no amp-only target exists. The audit rejects this scope."
+  },
+  "instrument_di_listening": "NOT_RUN",
+  "hardware_matching": "BLOCKED"
+}
