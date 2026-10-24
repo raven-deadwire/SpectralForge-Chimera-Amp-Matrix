@@ -21,6 +21,7 @@
 //     mode 39: mode 37 (AL10RA-800) with the attack-latency contract (crossover group delay
 //              compensated, latency() = the STFT window, lead 1.4 ms)
 //     mode 40: mode 39 with legato re-anchoring (LegatoDetector)
+//     mode 41|42|43: mode 40 with phase-aligned re-anchors, +-2.5 ms legato only | +-2.5 ms picks too | +-6 ms picks too
 //
 // Prints the reported latency in samples on stdout (-1: variable, not reported).
 // Options after <out.f32>:
@@ -60,7 +61,7 @@ int main(int argc,char** argv) {
     in.read(reinterpret_cast<char*>(samples.data()),std::streamsize(samples.size()*sizeof(float)));
     const juce::dsp::ProcessSpec spec{rate,juce::uint32(block),2};
     spectralforge::Transposer transposer;transposeNext::TransientSplitPitch research;transposeNext::HybridLowBandPitch hybrid;
-    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=40;
+    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=43;
     if(researchEngine){research.prepare(spec,true,true);research.setSemitones(semitones);}
     else if(hybridEngine){
         // Research hybrid variants; see the mode list above.
@@ -72,7 +73,8 @@ int main(int argc,char** argv) {
         const int solo=sweep ? 0 : mode>=30 ? mode-29 : mode>=27 && mode<=28 ? mode-26 : mode>=24 && mode<=25 ? mode-23 : mode>=21 && mode<=22 ? mode-20 : 0;
         hybrid.prepare(spec,crossover,mode==15?20.:mode==16?12.:40.,mode>=14,align,compensated,shortFade?.5:0.,2.9,adaptive,lr8,lock);
         if(mode>=39)hybrid.setAttackLatency(1.4);
-        if(mode==40)hybrid.setLegatoReanchor(true);   // lead measured by a lead sweep (docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md)
+        if(mode>=40)hybrid.setLegatoReanchor(true);
+        if(mode>=41)hybrid.setReanchorPhaseSearch(mode==43?6.:2.5,mode>=42);   // lead measured by a lead sweep (docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md)
         hybrid.setSolo(solo);hybrid.setSemitones(semitones);
     }
     else {transposer.prepare(spec);transposer.setMode(mode);}

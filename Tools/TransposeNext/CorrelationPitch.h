@@ -25,7 +25,8 @@ class CorrelationPitch {
     bool holdSplices{};
     int heldSamples{};
     double alignDelay{},alignLead{},alignInput{};
-    bool alignExact{};
+    bool alignExact{},phasePicks{};
+    double phaseSearch{};
     double externalAgeSamples{};
     bool alignCompensated{};
     int fadeStep{1},onsetFadeSamples{};
@@ -83,6 +84,20 @@ class CorrelationPitch {
             }
         }
         return error/energy;
+    }
+    // Research: move a re-anchor target by up to +-phaseSearch samples to the
+    // position whose recent waveform best matches what the read head has just
+    // played (the splice cost), so the jump does not cut mid-cycle. Arrival
+    // then moves by up to phaseSearch / ratio.
+    double phaseAligned(double target) noexcept {
+        if(phaseSearch<=0) return target;
+        captureReference();
+        const int guardSamples=int(std::ceil(std::abs(delta)*fadeLength+2));
+        const int first=juce::jmax(int(std::ceil(minimum))+guardSamples,int(std::floor(target-phaseSearch)));
+        const int last=juce::jmin(int(std::floor(maximum))-guardSamples,int(std::ceil(target+phaseSearch)));
+        double best=target,score=1.e100;
+        for(int d=first;d<=last;++d){const double s=integerCost(d);if(s<score){score=s;best=d;}}
+        return best;
     }
     void splice() noexcept {
         // Leave a guard for the whole crossfade. Require meaningful progress
@@ -203,6 +218,8 @@ public:
     // Setting it also switches upshifts to the same exact target (latency
     // contract): both directions anchor at (target - inputMs) * ratio - lead.
     void setAnchorInputDelay(double ms) noexcept {alignInput=rate*ms*.001;alignExact=true;}
+    // Research: phase-aligned re-anchors (see phaseAligned); picks optionally.
+    void setReanchorPhaseSearch(double ms, bool picks) noexcept {phaseSearch=rate*ms*.001;phasePicks=picks;}
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
@@ -304,14 +321,14 @@ public:
                 else if(externalPending)externalAgeSamples+=1;
                 if(externalPending && resettable && !fading) {
                     externalPending=false;
-                    nextDelay=alignExact ? juce::jlimit(minimum+guard,maximum-guard,anchor+delta*std::min(externalAgeSamples,alignDelay)) : anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
+                    nextDelay=phaseAligned(alignExact ? juce::jlimit(minimum+guard,maximum-guard,anchor+delta*std::min(externalAgeSamples,alignDelay)) : anchor);fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
                 }
                 if(onsetReset && resettable && !fading && cooldown==0 &&
                    (innovationReset ? pendingOnset : (fastEnergy>1.e-8 && fastEnergy>2.5*slowEnergy))) {
                     pendingOnset=false;
-                    nextDelay=anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
+                    nextDelay=phasePicks ? phaseAligned(anchor) : anchor;fadeIndex=0;fadeStep=std::max(1,fadeLength/onsetFade);fading=true;onsetAge=0;
                     cooldown=cooldownLength;resetAge=0;resetPeak=novelty;
                     if(onsets<int(onsetSamples.size()))onsetSamples[size_t(onsets)]=processedSamples;
                     ++onsets;
