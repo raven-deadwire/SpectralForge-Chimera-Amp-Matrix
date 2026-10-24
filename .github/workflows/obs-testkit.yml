@@ -4,6 +4,8 @@ on:
     paths:
       - 'Tools/obs_testkit.py'
       - 'Tests/test_obs_testkit.py'
+      # The log pattern is checked against the filter's log format.
+      - 'OBS/src/plugin-main.cpp'
       - 'docs/OBS_*.md'
       - '.github/workflows/obs-testkit.yml'
   push:
@@ -11,6 +13,8 @@ on:
     paths:
       - 'Tools/obs_testkit.py'
       - 'Tests/test_obs_testkit.py'
+      # The log pattern is checked against the filter's log format.
+      - 'OBS/src/plugin-main.cpp'
       - 'docs/OBS_*.md'
       - '.github/workflows/obs-testkit.yml'
   workflow_dispatch:

@@ -3,6 +3,7 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+import re
 import struct
 import tempfile
 import unittest
@@ -142,6 +143,74 @@ class OBSTestKitTests(unittest.TestCase):
         self.initialize()
         with self.assertRaises(FileExistsError):
             self.initialize()
+
+    def chimera_session(self):
+        output = self.root / "filter-session"
+        env = dict(self.env)
+        del env["atkaudio_version"]
+        env["chimera_obs_version"] = "test-only"
+        return output, kit.initialize(output, self.plugin, self.metadata, env, host="chimera-obs")
+
+    @staticmethod
+    def realtime_line(name, seconds, unprocessed=0, when="session total"):
+        clock = f"{seconds // 3600}:{seconds // 60 % 60:02d}:{seconds % 60:02d}"
+        return (f"12:00:00.000: [chimera-obs] '{name}': {when}: {clock} of audio, 168750 blocks, Chimera load average "
+                f"3.1% peak 12.5%, 20 ms windows over real time 0, input gaps 2 (resumed after silence 1), "
+                f"unprocessed blocks {unprocessed}")
+
+    def test_log_pattern_matches_the_filter_format_string(self):
+        # The pattern must follow the module's blog() format in plugin-main.cpp.
+        source = (Path(__file__).parents[1] / "OBS/src/plugin-main.cpp").read_text(encoding="utf-8")
+        body = source[source.index("void logStats("):source.index("void reportTask(")]
+        literal = "".join(re.findall(r'"((?:[^"\\]|\\.)*)"', body.split("blog(", 1)[1].split(",\n         f->name")[0]))
+        values = iter(["Guitar DI", "session total", "1:00:00", "168750", "3.1", "12.5", "0", "2", "1", "0"])
+        line = re.sub(r"%(?:\.1f|llu|s)", lambda _: next(values), literal).replace("%%", "%")
+        match = kit.REALTIME_LINE.search("[chimera-obs] " + line)
+        self.assertIsNotNone(match, line)
+        self.assertEqual(match["filter"], "Guitar DI")
+
+    def test_chimera_filter_session_needs_its_own_version_field(self):
+        output, session = self.chimera_session()
+        self.assertEqual(session["scope"], "obs-chimera-filter-manual")
+        self.assertEqual(kit.validate(session, output)["counts"]["BLOCKED"], 13)
+        env = dict(self.env)
+        with self.assertRaises(ValueError):
+            kit.initialize(self.root / "other", self.plugin, self.metadata, env, host="chimera-obs")
+
+    def test_obs_log_keeps_only_realtime_lines(self):
+        output, _ = self.chimera_session()
+        log = self.root / "obs.log"
+        log.write_text("\ufeff" + "\n".join([
+            "11:00:00.000: [chimera-obs] 'Guitar DI': loaded SpectralForge Chimera 1.3.2 from C:\\Users\\private\\x.vst3",
+            self.realtime_line("Guitar DI", 600, when="realtime"),
+            "11:30:00.000: stream key and other OBS lines",
+            self.realtime_line("Guitar DI", 3720)]), encoding="utf-8")
+        record = kit.realtime_log(log, output, "evidence/realtime.json")
+        stored = (output / "evidence/realtime.json").read_text(encoding="utf-8")
+        self.assertNotIn("private", stored)
+        self.assertNotIn("stream key", stored)
+        self.assertEqual(len(record["entries"]), 2)
+        self.assertEqual(record["latest_per_filter"][0]["audio_seconds"], 3720)
+        for bad in ("evidence/realtime.json", "../realtime.json", "evidence/realtime.txt", str(self.root / "x.json")):
+            with self.assertRaises(ValueError):
+                kit.realtime_log(log, output, bad)
+        empty = self.root / "empty.log"
+        empty.write_text("no filter lines")
+        with self.assertRaises(ValueError):
+            kit.realtime_log(empty, output, "evidence/none.json")
+
+    def test_filter_hour_pass_needs_an_hour_of_processed_filter_audio(self):
+        output, _ = self.chimera_session()
+        path = output / "session.json"
+        log = self.root / "obs.log"
+        for name, seconds, unprocessed in (("short", 1800, 0), ("muted", 3700, 4), ("hour", 3700, 0)):
+            log.write_text(self.realtime_line("Guitar DI", seconds, unprocessed), encoding="utf-8")
+            kit.realtime_log(log, output, f"evidence/{name}.json")
+        note = self.evidence(output)["path"]
+        for evidence in ([note], ["evidence/short.json"], ["evidence/muted.json"]):
+            with self.assertRaises(ValueError):
+                kit.record(path, "one_hour_recording", "PASS", "synthetic", evidence, 3700)
+        kit.record(path, "one_hour_recording", "PASS", "synthetic", [note, "evidence/hour.json"], 3700)
 
 
 if __name__ == "__main__":
