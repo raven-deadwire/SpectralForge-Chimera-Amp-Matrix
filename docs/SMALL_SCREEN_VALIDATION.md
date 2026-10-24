@@ -25,6 +25,33 @@ Baseline: main `f09eae237bfa79fe3548d5dcb6105cfddff21574`, including PR #114.
   or audio processing code is changed. Scroll/zoom values are editor-only.
   No new fields are written into a host project or preset.
 
+## Six direct dynamics entries — 2026-10-24 KST
+
+The upper 230 × 130 navigation area now uses a two-column, three-row grid:
+Gate / Expander, Compressor, Limiter, Dynamic EQ, Multiband and De-esser.
+Gate is visible in the first cell and opens its existing editor with one click.
+Each cell selects an editor; its highlight represents the current page, not
+the processor's enabled/bypassed state. Internal dynamics tabs also update
+the matching header highlight.
+
+Tone EQ and Final EQ retain their existing signal-path entries. Their
+redundant upper bank buttons are removed. Dynamic EQ remains one of the six
+existing dynamics functions and reuses the same EQ editor/analysis ownership
+handoff. PRE, POST and Matrix LOW compressor controls stay in their existing
+positions. DSP, parameter/state schema, presets and release gates are unchanged.
+
+Regression coverage now opens all six direct entries in every small-screen
+matrix case, checks the selected page, exclusive highlight, non-overlap,
+strict hit test and zero parameter/gesture writes, then opens both EQ banks
+from the signal path. Existing Gate tests require one-click access; dynamics
+tests cover direct entry and inner-tab synchronization at 75/100/125/150%.
+Graphical EQ tests use the retained signal-path bank entries.
+
+Implementation baseline: main `71595636dd21855b702488f70b94bddebabc5b27`. These are
+test changes, not a claim of execution success. The local execution environment
+was disconnected when this follow-up was prepared; new-source build/runtime
+results must be read from its PR CI, separately from PR #121's passing results.
+
 ## Automated evidence
 
 `ChimeraSmallScreenUITests` runs in the existing Windows/macOS/Linux native

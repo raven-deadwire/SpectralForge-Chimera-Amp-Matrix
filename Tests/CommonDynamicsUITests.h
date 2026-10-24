@@ -33,7 +33,7 @@ inline void audio(ChimeraProcessor& processor,double frequency=937.5,int blocks=
 }
 inline void openWorkspace(juce::Component& editor) {
     auto* tone=find<juce::TextButton>(editor,"path.tone.eq");require(tone,"Tone EQ navigation missing");signalPathTests::click(*tone);
-    auto* open=find<juce::TextButton>(editor,"commonDynamics.open");require(open && open->isShowing(),"Dynamics entry missing");signalPathTests::click(*open);
+    auto* open=find<juce::TextButton>(editor,"commonDynamics.open.compressor");require(open && open->isShowing(),"Dynamics entry missing");signalPathTests::click(*open);
 }
 inline void ancestorVisibility(ChimeraProcessor& processor) {
     juce::Component host,workspace;
@@ -147,8 +147,17 @@ inline void run(const juce::File& directory) {
     for(int scale:{75,100,125,150}) {
         editor->setSize(1180*scale/100,780*scale/100);settle(35);
         for(int page=0;page<6;++page) {
-            auto* button=find<juce::TextButton>(*panel,"commonDynamics.page."+juce::String(pages[size_t(page)]));require(button && button->isShowing(),"Dedicated dynamics tab missing");
-            signalPathTests::click(*button);pageContract(*editor,*panel,Page(page));
+            auto* entry=find<juce::TextButton>(*editor,"commonDynamics.open."+juce::String(pages[size_t(page)]));
+            require(entry && entry->isShowing() && entry->isEnabled(),"Direct dynamics entry missing");
+            inside(*editor,*entry,"Direct dynamics entry is clipped");
+            signalPathTests::click(*entry);
+            require(panel->selectedPage()==Page(page) && entry->getToggleState(),"Direct entry selected the wrong dynamics page");
+            pageContract(*editor,*panel,Page(page));
+            // The existing inner tabs remain usable and keep the header selection in sync.
+            auto* button=find<juce::TextButton>(*panel,"commonDynamics.page."+juce::String(pages[size_t((page+1)%6)]));
+            require(button && button->isShowing(),"Dedicated dynamics tab missing");signalPathTests::click(*button);
+            require(!entry->getToggleState(),"Direct entry stayed selected after switching the inner tab");
+            signalPathTests::click(*entry);pageContract(*editor,*panel,Page(page));
             acknowledge(p);audio(p);
             if(page==int(Page::dynamicEQ))require(find<spectralforge::GraphicalEQPanel>(*panel,"toneEQ_panel")->analyzerHasData(),"Dynamic EQ spectrum has no production audio");
             else {
