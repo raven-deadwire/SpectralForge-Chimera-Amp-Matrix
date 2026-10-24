@@ -528,11 +528,11 @@ int main(int argc, char** argv) {
             if (done == 10) memoryBefore = residentMiB();
             const auto chunkL = guitar(rate * 10, 0, rate * done), chunkR = guitar(rate * 10, 1, rate * done);
             std::vector<int> sizes;
-            for (int left = rate * 10; left > 0;) {
+            for (int remaining = rate * 10; remaining > 0;) {
                 lcg = lcg * 1664525u + 1013904223u;
-                const int size = std::min(left, 1 + int(lcg >> 22)); // 1..1024
+                const int size = std::min(remaining, 1 + int(lcg >> 22)); // 1..1024
                 sizes.push_back(size);
-                left -= size;
+                remaining -= size;
             }
             soakBlocks += (long long)sizes.size();
             obs_data_t* mapping = obs_data_create();
