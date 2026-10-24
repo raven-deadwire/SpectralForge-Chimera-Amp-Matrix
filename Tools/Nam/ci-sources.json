@@ -1,0 +1,7 @@
+{
+  "capture": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+  "juce": {"repository": "juce-framework/JUCE", "commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d"},
+  "trainer": {"repository": "sdatkinson/neural-amp-modeler", "commit": "0072676419459f5d39e36f5b9fd4172f28d62cbf"},
+  "player": {"repository": "tone-3000/tone3000-plugin", "commit": "ef6f178ae1ac6412b55fec6f058d86e640e5aaaf"},
+  "core": "1f42f88535884450104b8711d7595019afa0495b"
+}
