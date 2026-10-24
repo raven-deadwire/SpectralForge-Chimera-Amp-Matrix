@@ -28,6 +28,15 @@ class CorrelationPitch {
     int resetAge{1<<30}, peakWindow{};
     bool holdSplices{}, reportAtDetection{};
     int heldSamples{};
+    // Sample-accurate hold (research): when set, a due downshift splice waits
+    // while `holdSource` spliced within the previous holdWindow samples. Only
+    // splices at or before the current sample count, so the result does not
+    // depend on how the host splits blocks.
+    const CorrelationPitch* holdSource{};
+    uint64_t holdWindow{};
+    static constexpr uint64_t noSplice=~uint64_t{};
+    std::array<uint64_t,8> spliceLog{};
+    int spliceLogPosition{};
     std::array<float,2> noveltyLow1{},noveltyLow2{},noveltyLow3{},noveltyLow4{};
     float noveltyCoefficient{};
     std::array<double,41> peakBuckets{};
@@ -115,6 +124,7 @@ class CorrelationPitch {
         }
         nextDelay=juce::jlimit(lo,hi,best);
         fadeIndex=0;fading=true;++spliceCount;
+        spliceLog[size_t(spliceLogPosition)]=processedSamples;spliceLogPosition=(spliceLogPosition+1)%int(spliceLog.size());
         if(spliceFadeLength>0){activeWeights=spliceWeights.data();activeFade=spliceFadeLength;}
         else{activeWeights=fadeWeights.data();activeFade=fadeLength;}
     }
@@ -143,7 +153,7 @@ public:
     }
     void reset() noexcept {
         for(auto* bank:{&audio,&filtered})for(auto& r:*bank)std::fill(r.begin(),r.end(),0);
-        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=0;fading=active=false;
+        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=0;spliceLog.fill(noSplice);spliceLogPosition=0;fading=active=false;
         fastEnergy=slowEnergy=broadEnergy=0;cooldown=onsets=0;processedSamples=0;onsetSamples.fill(0);
         peakBuckets.fill(0);peakBucketPosition=peakBucketSamples=0;bucketPeak=bucketMaximum=0;
         hfBuckets.fill(0);hfBucketPosition=hfBucketSamples=0;hfBucketPeak=hfRecentMax=0;
@@ -179,6 +189,13 @@ public:
     // read head may overshoot by at most 32 samples of delay). Used so two paths never
     // run their ~0.5 ms correlation search in the same callback.
     void setSplicesHeld(bool held) noexcept {holdSplices=held;}
+    // Block-invariant alternative to setSplicesHeld (research). Pass nullptr to
+    // disable. Both paths must count the same samples (TransientSplitPitch).
+    void setHoldSource(const CorrelationPitch* source,int windowSamples) noexcept {holdSource=source;holdWindow=uint64_t(std::max(0,windowSamples));}
+    bool splicedWithin(uint64_t now,uint64_t window) const noexcept {
+        for(const auto t:spliceLog)if(t!=noSplice && t<=now && now-t<window)return true;
+        return false;
+    }
     // Research: after an upshift re-anchor, how far past the onset the next
     // backward jump must land (default 8 ms). Shorter lets a period-aligned
     // jump exist sooner; 0 re-reads the attack (flam).
@@ -309,7 +326,8 @@ public:
                 const bool due=!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard));
                 // Downshift only: a late upshift splice measurably lengthens the
                 // next backward jump (+0.6 ms low-band centroid, guitar A1 +2).
-                if(due && holdSplices && delta>0 && heldSamples<int(32./delta))++heldSamples;
+                const bool held=holdSplices || (holdSource!=nullptr && holdSource->splicedWithin(processedSamples,holdWindow));
+                if(due && held && delta>0 && heldSamples<int(32./delta))++heldSamples;
                 else if(due){heldSamples=0;splice();}
                 const float w=fading?activeWeights[fadeIndex]:0.f;
                 for(int c=0;c<count;++c) {
