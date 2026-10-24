@@ -1,0 +1,8 @@
+{
+ "blockdep-B0-long-notes-48k.txt": "bb8e8b0aa6ccfa6131ee6a4c614b236cfe4a9ebcdda7466c70871ef6aa457ccb",
+ "blockdep.cpp": "ad0c772daf3c77926cf8091507f455b16444f93cb8795cb42bc730e27d9315b5",
+ "host_check-reference-without-ftz.json.gz": "8476a6b932553246a16437df65d64ed5926c0cdf67b6f2fd8b733dea739a19d0",
+ "host_check.json.gz": "a3c95d8d38a90a81b15fbe5d3f45986c035c57833830197a2d7592fe96e1d6e7",
+ "host_check.log": "a67801be8d3476a12902767f5959cd573afc2c69314e6c49c1f99fe08b64413d",
+ "listening_selftest.json": "4fc81a1c059fd0ff9e863c58c366e963b4b7b604b2cb3f5e558ff4c6e7eb4ce2"
+}

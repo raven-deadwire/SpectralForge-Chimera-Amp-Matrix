@@ -207,3 +207,14 @@ pre-registers manifest/audio/labels/renderer hashes, and `run` refuses any
 difference from that record. `selftest` checks the pipeline on synthetic WAVs
 with known onsets; it is not T6 evidence. No recording exists yet. Protocol and
 the real-DI metric adaptations: `docs/TRANSPOSE_T6_DI_PROTOCOL.md`.
+
+## T6 listening and DAW acceptance prep (2026-10-24)
+
+`t6_listening.py` builds blind ABX and paired-rating sets (product vs
+corr40-split-v2) from the real-DI take manifest and pools listener sheets
+under a pre-registered rule. `plugin/` holds a research-only VST3 (AU on
+macOS) wrapping both engines exactly as TransposeProbe configures them, and a
+headless VST3 host check; `t6_host_check.py` runs it over rates x engines x
+shifts. Finding: corr40-split-v2 output depends on host block partitioning
+(the rt splice hold is decided per processing chunk). See
+`docs/TRANSPOSE_T6_LISTENING_DAW.md`.
