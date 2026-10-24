@@ -1,5 +1,7 @@
 # Measuring Náströnd against the real NAM captures with the band metric
 
+[한국어](NASTROND_NAM_BAND_MEASUREMENT.ko.md)
+
 This is the procedure for the next measurement in
 [NASTROND_NAM_TOOLCHAIN.md](NASTROND_NAM_TOOLCHAIN.md). It renders the 26
 manifest captures and the OriginalAmp states, then audits macro direction with
