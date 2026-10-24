@@ -1,0 +1,82 @@
+sustain (worst over materials E2, A2, E2 power; per shift group):
+  bound 40 ms (product)  down delay 13.71..39.85 ms  mean|lag| 25.48  max|lag| 30.41  splices/s  4.09..55.00
+  bound 40 ms (product)  up   delay  2.16..27.32 ms  mean|lag|  7.43  max|lag| 17.88  splices/s  5.00..110.00
+  centred c<=.01         down delay  2.38..27.93 ms  mean|lag|  7.70  max|lag| 18.49  splices/s  4.55..55.00
+  centred c<=.01         up   delay  2.16..27.32 ms  mean|lag|  7.43  max|lag| 17.88  splices/s  5.00..110.00
+  centred c<=.003        down delay  2.38..27.93 ms  mean|lag|  7.70  max|lag| 18.49  splices/s  4.55..55.00
+  centred c<=.003        up   delay  2.16..27.32 ms  mean|lag|  7.43  max|lag| 17.88  splices/s  5.00..110.00
+  centred c<=.001        down delay  2.38..27.93 ms  mean|lag|  7.70  max|lag| 18.49  splices/s  4.55..55.00
+  centred c<=.001        up   delay  2.16..27.32 ms  mean|lag|  7.43  max|lag| 17.88  splices/s  5.00..110.00
+contract (error re reported latency, ms; legato/hammer by read head):
+  bound 40 ms (product)  picked n 216 min  -0.52 max   2.27 |e|<=2 0.82 |e|<=5 1.00
+  bound 40 ms (product)  legato n  72 min  -6.25 max   3.19 |e|<=2 0.57 |e|<=5 0.90
+  bound 40 ms (product)  hammer n  72 min  -5.75 max   3.21 |e|<=2 0.50 |e|<=5 0.92
+  centred c<=.01         picked n 216 min  -0.52 max   2.27 |e|<=2 0.82 |e|<=5 1.00
+  centred c<=.01         legato n  72 min  -6.60 max   3.19 |e|<=2 0.42 |e|<=5 0.82
+  centred c<=.01         hammer n  72 min  -5.75 max   3.21 |e|<=2 0.47 |e|<=5 0.88
+  centred c<=.003        picked n 216 min  -0.52 max   2.27 |e|<=2 0.82 |e|<=5 1.00
+  centred c<=.003        legato n  72 min  -6.60 max   3.19 |e|<=2 0.44 |e|<=5 0.79
+  centred c<=.003        hammer n  72 min  -6.46 max   3.21 |e|<=2 0.49 |e|<=5 0.88
+  centred c<=.001        picked n 216 min  -0.52 max   2.27 |e|<=2 0.82 |e|<=5 1.00
+  centred c<=.001        legato n  72 min  -6.73 max   3.19 |e|<=2 0.46 |e|<=5 0.79
+  centred c<=.001        hammer n  72 min  -6.73 max   3.21 |e|<=2 0.49 |e|<=5 0.85
+chords (worst over shifts):
+  E2_power   bound 40 ms: spurious  -32.3 dB p90dev  6.45 dB mistuned 0 | centred c<=.01: spurious  -29.2 dB p90dev  6.45 dB mistuned 0 | centred c<=.003: spurious  -32.4 dB p90dev  6.45 dB mistuned 0 | centred c<=.001: spurious  -32.4 dB p90dev  6.45 dB mistuned 0
+  E2_major   bound 40 ms: spurious   -1.6 dB p90dev  6.23 dB mistuned 10 | centred c<=.01: spurious   -1.6 dB p90dev  6.32 dB mistuned 10 | centred c<=.003: spurious   -1.6 dB p90dev  6.23 dB mistuned 10 | centred c<=.001: spurious   -1.6 dB p90dev  6.23 dB mistuned 10
+  D2_power   bound 40 ms: spurious  -32.5 dB p90dev  4.31 dB mistuned 0 | centred c<=.01: spurious  -29.1 dB p90dev  4.31 dB mistuned 0 | centred c<=.003: spurious  -31.6 dB p90dev  4.31 dB mistuned 0 | centred c<=.001: spurious  -32.4 dB p90dev  4.31 dB mistuned 0
+  B0_power   bound 40 ms: spurious   -1.0 dB p90dev 36.82 dB mistuned 5 | centred c<=.01: spurious   -1.0 dB p90dev 36.82 dB mistuned 5 | centred c<=.003: spurious   -1.0 dB p90dev 36.82 dB mistuned 5 | centred c<=.001: spurious   -1.0 dB p90dev 36.82 dB mistuned 5
+  E2_single  bound 40 ms: spurious  -35.9 dB p90dev  0.44 dB mistuned 0 | centred c<=.01: spurious  -29.1 dB p90dev  0.47 dB mistuned 0 | centred c<=.003: spurious  -33.0 dB p90dev  0.44 dB mistuned 0 | centred c<=.001: spurious  -34.5 dB p90dev  0.44 dB mistuned 0
+  B0_single  bound 40 ms: spurious  -33.6 dB p90dev  0.22 dB mistuned 0 | centred c<=.01: spurious  -27.0 dB p90dev  0.49 dB mistuned 0 | centred c<=.003: spurious  -27.0 dB p90dev  0.67 dB mistuned 0 | centred c<=.001: spurious  -29.4 dB p90dev  0.67 dB mistuned 0
+  A3_power   bound 40 ms: spurious  -16.3 dB p90dev 12.30 dB mistuned 1 | centred c<=.01: spurious  -16.1 dB p90dev 12.22 dB mistuned 1 | centred c<=.003: spurious  -16.1 dB p90dev 12.22 dB mistuned 1 | centred c<=.001: spurious  -16.1 dB p90dev 12.22 dB mistuned 1
+  C4_major   bound 40 ms: spurious  -15.7 dB p90dev 16.51 dB mistuned 3 | centred c<=.01: spurious  -15.5 dB p90dev 16.31 dB mistuned 3 | centred c<=.003: spurious  -15.7 dB p90dev 16.51 dB mistuned 3 | centred c<=.001: spurious  -15.7 dB p90dev 16.51 dB mistuned 3
+  E_open     bound 40 ms: spurious  -23.9 dB p90dev 13.96 dB mistuned 4 | centred c<=.01: spurious  -23.7 dB p90dev 13.96 dB mistuned 4 | centred c<=.003: spurious  -23.6 dB p90dev 13.96 dB mistuned 4 | centred c<=.001: spurious  -23.9 dB p90dev 13.96 dB mistuned 4
+  E4_single  bound 40 ms: spurious  -28.6 dB p90dev  9.01 dB mistuned 0 | centred c<=.01: spurious  -27.4 dB p90dev  9.01 dB mistuned 0 | centred c<=.003: spurious  -28.2 dB p90dev  9.01 dB mistuned 0 | centred c<=.001: spurious  -28.2 dB p90dev  9.01 dB mistuned 0
+modulation (worst over shifts):
+E2_vib20c_5.5Hz            bound 40 ms (product)  events [0, 0, 0, 0]     median  1.43 p99   10.8 off50 0.0000 worst    16.7
+E2_vib20c_5.5Hz            centred c<=.01         events [0, 0, 0, 0]     median  1.98 p99   26.3 off50 0.0000 worst    26.4
+E2_vib20c_5.5Hz            centred c<=.003        events [0, 0, 0, 0]     median  1.43 p99   11.4 off50 0.0000 worst    16.7
+E2_vib20c_5.5Hz            centred c<=.001        events [0, 0, 0, 0]     median  1.43 p99   10.8 off50 0.0000 worst    16.7
+E2_vib50c_6Hz              bound 40 ms (product)  events [0, 0, 0, 0]     median  3.11 p99   23.2 off50 0.0000 worst    30.4
+E2_vib50c_6Hz              centred c<=.01         events [0, 0, 0, 0]     median  3.01 p99   32.5 off50 0.0000 worst    33.3
+E2_vib50c_6Hz              centred c<=.003        events [0, 0, 0, 0]     median  3.01 p99   22.2 off50 0.0000 worst    25.4
+E2_vib50c_6Hz              centred c<=.001        events [0, 0, 0, 0]     median  3.01 p99   22.2 off50 0.0000 worst    25.4
+E2_vib100c_7Hz             bound 40 ms (product)  events [1, 1, 1, 1]     median  9.05 p99   97.6 off50 0.0819 worst   338.2
+E2_vib100c_7Hz             centred c<=.01         events [1, 1, 1, 1]     median  8.29 p99   97.6 off50 0.0819 worst   346.3
+E2_vib100c_7Hz             centred c<=.003        events [1, 1, 1, 1]     median  8.29 p99   97.6 off50 0.0819 worst   346.3
+E2_vib100c_7Hz             centred c<=.001        events [1, 1, 1, 1]     median 12.77 p99   97.6 off50 0.1456 worst   346.3
+A2_vib20c_5.5Hz            bound 40 ms (product)  events [0, 0, 0, 0]     median  1.86 p99   13.1 off50 0.0000 worst    15.2
+A2_vib20c_5.5Hz            centred c<=.01         events [0, 0, 0, 0]     median  1.86 p99   26.8 off50 0.0000 worst    27.1
+A2_vib20c_5.5Hz            centred c<=.003        events [0, 0, 0, 0]     median  1.86 p99   21.1 off50 0.0000 worst    21.7
+A2_vib20c_5.5Hz            centred c<=.001        events [0, 0, 0, 0]     median  1.86 p99   13.1 off50 0.0000 worst    16.2
+A2_vib50c_6Hz              bound 40 ms (product)  events [0, 0, 0, 0]     median  4.65 p99   38.4 off50 0.0000 worst    44.2
+A2_vib50c_6Hz              centred c<=.01         events [0, 0, 0, 0]     median  4.65 p99   40.9 off50 0.0000 worst    46.2
+A2_vib50c_6Hz              centred c<=.003        events [0, 0, 0, 0]     median  4.65 p99   38.4 off50 0.0000 worst    44.2
+A2_vib50c_6Hz              centred c<=.001        events [0, 0, 0, 0]     median  4.65 p99   38.4 off50 0.0000 worst    44.2
+A2_vib100c_7Hz             bound 40 ms (product)  events [1, 1, 1, 1]     median  9.18 p99  101.2 off50 0.0780 worst   214.1
+A2_vib100c_7Hz             centred c<=.01         events [1, 1, 1, 1]     median  9.27 p99  101.2 off50 0.0675 worst   214.1
+A2_vib100c_7Hz             centred c<=.003        events [1, 1, 1, 1]     median 10.10 p99  101.2 off50 0.0942 worst   214.1
+A2_vib100c_7Hz             centred c<=.001        events [1, 1, 1, 1]     median 20.75 p99  101.2 off50 0.0797 worst   214.1
+E2_bend200c_100ms          bound 40 ms (product)  events [0, 0, 0, 0]     median  0.19 p99   70.6 off50 0.0357 worst    71.1
+E2_bend200c_100ms          centred c<=.01         events [0, 0, 0, 0]     median  0.72 p99   32.9 off50 0.0000 worst    37.6
+E2_bend200c_100ms          centred c<=.003        events [0, 0, 0, 0]     median  0.72 p99   32.9 off50 0.0000 worst    37.6
+E2_bend200c_100ms          centred c<=.001        events [0, 0, 0, 0]     median  0.72 p99   32.9 off50 0.0000 worst    37.6
+E2_bendrelease200c_100ms   bound 40 ms (product)  events [0, 0, 0, 0]     median  0.71 p99   23.1 off50 0.0000 worst    23.3
+E2_bendrelease200c_100ms   centred c<=.01         events [0, 0, 0, 0]     median  0.86 p99   23.1 off50 0.0000 worst    25.8
+E2_bendrelease200c_100ms   centred c<=.003        events [0, 0, 0, 0]     median  0.85 p99   23.1 off50 0.0000 worst    23.3
+E2_bendrelease200c_100ms   centred c<=.001        events [0, 0, 0, 0]     median  0.83 p99   23.1 off50 0.0000 worst    23.3
+E2_bend200c_50ms           bound 40 ms (product)  events [0, 0, 0, 0]     median  0.20 p99  111.1 off50 0.0179 worst   124.5
+E2_bend200c_50ms           centred c<=.01         events [0, 0, 0, 0]     median  0.77 p99   26.9 off50 0.0000 worst    42.4
+E2_bend200c_50ms           centred c<=.003        events [0, 0, 0, 0]     median  0.76 p99   13.0 off50 0.0000 worst    42.4
+E2_bend200c_50ms           centred c<=.001        events [0, 0, 0, 0]     median  0.79 p99   87.5 off50 0.0179 worst   126.8
+E2_bendrelease200c_50ms    bound 40 ms (product)  events [0, 0, 0, 0]     median  1.08 p99   36.6 off50 0.0000 worst    48.4
+E2_bendrelease200c_50ms    centred c<=.01         events [0, 0, 0, 0]     median  0.89 p99   36.6 off50 0.0000 worst    48.4
+E2_bendrelease200c_50ms    centred c<=.003        events [0, 0, 0, 0]     median  0.88 p99   36.6 off50 0.0000 worst    48.4
+E2_bendrelease200c_50ms    centred c<=.001        events [0, 0, 0, 0]     median  0.91 p99   94.9 off50 0.0463 worst    98.8
+E2_bend100c_30ms           bound 40 ms (product)  events [0, 0, 0, 0]     median  0.84 p99    4.0 off50 0.0000 worst    36.9
+E2_bend100c_30ms           centred c<=.01         events [0, 0, 0, 0]     median 10.04 p99   19.6 off50 0.0000 worst    38.9
+E2_bend100c_30ms           centred c<=.003        events [0, 0, 0, 0]     median 10.04 p99   19.6 off50 0.0000 worst    38.9
+E2_bend100c_30ms           centred c<=.001        events [0, 0, 0, 0]     median  0.89 p99   15.9 off50 0.0000 worst    38.9
+E2_bendrelease100c_30ms    bound 40 ms (product)  events [0, 0, 0, 0]     median  0.94 p99   36.8 off50 0.0084 worst    70.7
+E2_bendrelease100c_30ms    centred c<=.01         events [0, 0, 0, 0]     median  1.42 p99   46.0 off50 0.0127 worst    70.7
+E2_bendrelease100c_30ms    centred c<=.003        events [0, 0, 0, 0]     median  1.41 p99   46.0 off50 0.0127 worst    70.7
+E2_bendrelease100c_30ms    centred c<=.001        events [0, 0, 0, 0]     median  0.90 p99   36.8 off50 0.0084 worst    70.7
