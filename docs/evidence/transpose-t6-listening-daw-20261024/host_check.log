@@ -1,0 +1,249 @@
+44100 bass_B0 plucks baseline -2 0
+44100 bass_B0 plucks baseline -1 0
+44100 bass_B0 plucks baseline 1 0
+44100 bass_B0 plucks baseline 2 0
+44100 bass_B0 plucks v2 -2 0
+44100 bass_B0 plucks v2 -1 0
+44100 bass_B0 plucks v2 1 0
+44100 bass_B0 plucks v2 2 0
+44100 bass_B0 long_notes baseline -2 0
+44100 bass_B0 long_notes baseline -1 0
+44100 bass_B0 long_notes baseline 1 0
+44100 bass_B0 long_notes baseline 2 0
+44100 bass_B0 long_notes v2 -2 0
+44100 bass_B0 long_notes v2 -1 0
+44100 bass_B0 long_notes v2 1 0
+44100 bass_B0 long_notes v2 2 0
+44100 bass_dropA_A0 plucks baseline -2 0
+44100 bass_dropA_A0 plucks baseline -1 0
+44100 bass_dropA_A0 plucks baseline 1 0
+44100 bass_dropA_A0 plucks baseline 2 0
+44100 bass_dropA_A0 plucks v2 -2 0
+44100 bass_dropA_A0 plucks v2 -1 0
+44100 bass_dropA_A0 plucks v2 1 0
+44100 bass_dropA_A0 plucks v2 2 0
+44100 bass_dropA_A0 long_notes baseline -2 0
+44100 bass_dropA_A0 long_notes baseline -1 0
+44100 bass_dropA_A0 long_notes baseline 1 0
+44100 bass_dropA_A0 long_notes baseline 2 0
+44100 bass_dropA_A0 long_notes v2 -2 0
+44100 bass_dropA_A0 long_notes v2 -1 0
+44100 bass_dropA_A0 long_notes v2 1 0
+44100 bass_dropA_A0 long_notes v2 2 0
+44100 guitar_dropA_A1 plucks baseline -2 0
+44100 guitar_dropA_A1 plucks baseline -1 0
+44100 guitar_dropA_A1 plucks baseline 1 0
+44100 guitar_dropA_A1 plucks baseline 2 0
+44100 guitar_dropA_A1 plucks v2 -2 0
+44100 guitar_dropA_A1 plucks v2 -1 0
+44100 guitar_dropA_A1 plucks v2 1 0
+44100 guitar_dropA_A1 plucks v2 2 0
+44100 guitar_dropA_A1 long_notes baseline -2 0
+44100 guitar_dropA_A1 long_notes baseline -1 0
+44100 guitar_dropA_A1 long_notes baseline 1 0
+44100 guitar_dropA_A1 long_notes baseline 2 0
+44100 guitar_dropA_A1 long_notes v2 -2 2
+44100 guitar_dropA_A1 long_notes v2 -1 0
+44100 guitar_dropA_A1 long_notes v2 1 0
+44100 guitar_dropA_A1 long_notes v2 2 0
+48000 bass_B0 plucks baseline -2 0
+48000 bass_B0 plucks baseline -1 0
+48000 bass_B0 plucks baseline 1 0
+48000 bass_B0 plucks baseline 2 0
+48000 bass_B0 plucks v2 -2 0
+48000 bass_B0 plucks v2 -1 0
+48000 bass_B0 plucks v2 1 0
+48000 bass_B0 plucks v2 2 0
+48000 bass_B0 long_notes baseline -2 0
+48000 bass_B0 long_notes baseline -1 0
+48000 bass_B0 long_notes baseline 1 0
+48000 bass_B0 long_notes baseline 2 0
+48000 bass_B0 long_notes v2 -2 2
+48000 bass_B0 long_notes v2 -1 0
+48000 bass_B0 long_notes v2 1 0
+48000 bass_B0 long_notes v2 2 0
+48000 bass_dropA_A0 plucks baseline -2 0
+48000 bass_dropA_A0 plucks baseline -1 0
+48000 bass_dropA_A0 plucks baseline 1 0
+48000 bass_dropA_A0 plucks baseline 2 0
+48000 bass_dropA_A0 plucks v2 -2 0
+48000 bass_dropA_A0 plucks v2 -1 0
+48000 bass_dropA_A0 plucks v2 1 0
+48000 bass_dropA_A0 plucks v2 2 0
+48000 bass_dropA_A0 long_notes baseline -2 0
+48000 bass_dropA_A0 long_notes baseline -1 0
+48000 bass_dropA_A0 long_notes baseline 1 0
+48000 bass_dropA_A0 long_notes baseline 2 0
+48000 bass_dropA_A0 long_notes v2 -2 2
+48000 bass_dropA_A0 long_notes v2 -1 0
+48000 bass_dropA_A0 long_notes v2 1 0
+48000 bass_dropA_A0 long_notes v2 2 0
+48000 guitar_dropA_A1 plucks baseline -2 0
+48000 guitar_dropA_A1 plucks baseline -1 0
+48000 guitar_dropA_A1 plucks baseline 1 0
+48000 guitar_dropA_A1 plucks baseline 2 0
+48000 guitar_dropA_A1 plucks v2 -2 0
+48000 guitar_dropA_A1 plucks v2 -1 0
+48000 guitar_dropA_A1 plucks v2 1 0
+48000 guitar_dropA_A1 plucks v2 2 0
+48000 guitar_dropA_A1 long_notes baseline -2 0
+48000 guitar_dropA_A1 long_notes baseline -1 0
+48000 guitar_dropA_A1 long_notes baseline 1 0
+48000 guitar_dropA_A1 long_notes baseline 2 0
+48000 guitar_dropA_A1 long_notes v2 -2 2
+48000 guitar_dropA_A1 long_notes v2 -1 0
+48000 guitar_dropA_A1 long_notes v2 1 0
+48000 guitar_dropA_A1 long_notes v2 2 0
+96000 bass_B0 plucks baseline -2 0
+96000 bass_B0 plucks baseline -1 0
+96000 bass_B0 plucks baseline 1 0
+96000 bass_B0 plucks baseline 2 0
+96000 bass_B0 plucks v2 -2 0
+96000 bass_B0 plucks v2 -1 0
+96000 bass_B0 plucks v2 1 0
+96000 bass_B0 plucks v2 2 0
+96000 bass_B0 long_notes baseline -2 0
+96000 bass_B0 long_notes baseline -1 0
+96000 bass_B0 long_notes baseline 1 0
+96000 bass_B0 long_notes baseline 2 0
+96000 bass_B0 long_notes v2 -2 0
+96000 bass_B0 long_notes v2 -1 0
+96000 bass_B0 long_notes v2 1 0
+96000 bass_B0 long_notes v2 2 0
+96000 bass_dropA_A0 plucks baseline -2 0
+96000 bass_dropA_A0 plucks baseline -1 0
+96000 bass_dropA_A0 plucks baseline 1 0
+96000 bass_dropA_A0 plucks baseline 2 0
+96000 bass_dropA_A0 plucks v2 -2 0
+96000 bass_dropA_A0 plucks v2 -1 0
+96000 bass_dropA_A0 plucks v2 1 0
+96000 bass_dropA_A0 plucks v2 2 0
+96000 bass_dropA_A0 long_notes baseline -2 0
+96000 bass_dropA_A0 long_notes baseline -1 0
+96000 bass_dropA_A0 long_notes baseline 1 0
+96000 bass_dropA_A0 long_notes baseline 2 0
+96000 bass_dropA_A0 long_notes v2 -2 0
+96000 bass_dropA_A0 long_notes v2 -1 0
+96000 bass_dropA_A0 long_notes v2 1 0
+96000 bass_dropA_A0 long_notes v2 2 0
+96000 guitar_dropA_A1 plucks baseline -2 0
+96000 guitar_dropA_A1 plucks baseline -1 0
+96000 guitar_dropA_A1 plucks baseline 1 0
+96000 guitar_dropA_A1 plucks baseline 2 0
+96000 guitar_dropA_A1 plucks v2 -2 0
+96000 guitar_dropA_A1 plucks v2 -1 0
+96000 guitar_dropA_A1 plucks v2 1 0
+96000 guitar_dropA_A1 plucks v2 2 0
+96000 guitar_dropA_A1 long_notes baseline -2 0
+96000 guitar_dropA_A1 long_notes baseline -1 0
+96000 guitar_dropA_A1 long_notes baseline 1 0
+96000 guitar_dropA_A1 long_notes baseline 2 0
+96000 guitar_dropA_A1 long_notes v2 -2 0
+96000 guitar_dropA_A1 long_notes v2 -1 0
+96000 guitar_dropA_A1 long_notes v2 1 0
+96000 guitar_dropA_A1 long_notes v2 2 0
+{
+ "runs": 144,
+ "errors": 0,
+ "plugin_sha256": "506bdb55489e22194623c843238edeb96820043c4f45e896b70e0b3dcb71d7e5",
+ "host_check_sha256": "d9b02286d2002e082ccb7432c948fa0bb649f8f54c6ae65e8d3bd571a6cd6352",
+ "checks": {
+  "baseline": {
+   "fixed_block_128_bit_identical": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": 0.0
+   },
+   "reported_latency": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": null
+   },
+   "variable_blocks_1_512_bit_identical": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": 0.0
+   },
+   "reprepare_bit_identical": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": 0.0
+   },
+   "state_round_trip_bit_identical": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": 0.0
+   },
+   "automation_finite_bounded": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": null
+   },
+   "large_block_max_abs_diff": {
+    "nonzero": 0,
+    "of": 216,
+    "max": 0.0
+   },
+   "variable_block_failures": []
+  },
+  "v2": {
+   "fixed_block_128_bit_identical": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": 0.0
+   },
+   "reported_latency": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": null
+   },
+   "variable_blocks_1_512_bit_identical": {
+    "pass": 68,
+    "of": 72,
+    "max_detail": 0.000860432162881
+   },
+   "reprepare_bit_identical": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": 0.0
+   },
+   "state_round_trip_bit_identical": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": 0.0
+   },
+   "automation_finite_bounded": {
+    "pass": 72,
+    "of": 72,
+    "max_detail": null
+   },
+   "large_block_max_abs_diff": {
+    "nonzero": 24,
+    "of": 216,
+    "max": 0.001652874751016
+   },
+   "variable_block_failures": [
+    [
+     44100,
+     "guitar_dropA_A1/long_notes",
+     -2
+    ],
+    [
+     48000,
+     "bass_B0/long_notes",
+     -2
+    ],
+    [
+     48000,
+     "bass_dropA_A0/long_notes",
+     -2
+    ],
+    [
+     48000,
+     "guitar_dropA_A1/long_notes",
+     -2
+    ]
+   ]
+  }
+ }
+}
