@@ -16,9 +16,10 @@ from legacy_metrics import sha
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--plugin', type=Path, required=True); p.add_argument('--host-check', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True); p.add_argument('--rates', default='44100,48000,96000'); p.add_argument('--shifts', default='-2,-1,1,2'); p.add_argument('--engines', default='baseline,v2,v3')
+    p.add_argument("--no-xvfb", action="store_true", help="Run the headless host directly without a display server")
     a = p.parse_args(); a.out.mkdir(parents=True, exist_ok=True)
     # JUCE's GUI initialiser needs an X display on Linux even without an editor.
-    wrap = ['xvfb-run', '-a'] if os.name == 'posix' and not os.environ.get('DISPLAY') and shutil.which('xvfb-run') and os.uname().sysname == 'Linux' else []
+    wrap = ['xvfb-run', '-a'] if not a.no_xvfb and os.name == 'posix' and not os.environ.get('DISPLAY') and shutil.which('xvfb-run') and os.uname().sysname == 'Linux' else []
     rows = []
     with tempfile.TemporaryDirectory() as w:
         for rate in map(int, a.rates.split(',')):

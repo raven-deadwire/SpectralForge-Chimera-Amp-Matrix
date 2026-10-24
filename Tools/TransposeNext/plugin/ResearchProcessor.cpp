@@ -11,8 +11,10 @@ public:
                                           .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
           state(*this,nullptr,"TransposeResearch",{
               std::make_unique<juce::AudioParameterInt>(juce::ParameterID{"shift",1},"Shift (semitones)",-2,2,-2),
-              std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"engine",1},"Engine",juce::StringArray{"Product baseline","corr40-split-v2","corr40-split-v3","corr40-split-v4"},1)}) {
+              std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"engine",1},"Engine",juce::StringArray{"Product baseline","corr40-split-v2","corr40-split-v3"},1),
+              std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"lowUpshiftFloor",1},"Low upshift floor (v4)",false)}) {
         shift=state.getRawParameterValue("shift");engine=state.getRawParameterValue("engine");
+        lowFloor=state.getRawParameterValue("lowUpshiftFloor");
     }
     const juce::String getName() const override {return "Chimera Transpose Research";}
     bool acceptsMidi() const override {return false;}
@@ -62,9 +64,12 @@ public:
     }
 private:
     int current() const {return int(std::lround(shift->load()));}
-    Engine engineNow() const {return Engine(juce::jlimit(0,3,int(std::lround(engine->load()))));}
+    Engine engineNow() const {
+        const auto selected=Engine(juce::jlimit(0,2,int(std::lround(engine->load()))));
+        return selected==Engine::v3 && lowFloor->load()>.5f ? Engine::v4 : selected;
+    }
     juce::AudioProcessorValueTreeState state;
-    std::atomic<float>* shift{};std::atomic<float>* engine{};
+    std::atomic<float>* shift{};std::atomic<float>* engine{};std::atomic<float>* lowFloor{};
     ResearchEngine dsp;juce::AudioBuffer<float> scratch;
     int channels{2},capacity{1},applied{0};Engine active{Engine::v2};
 };
