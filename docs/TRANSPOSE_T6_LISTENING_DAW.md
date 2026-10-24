@@ -5,7 +5,9 @@ T6(외부 수용) 중 **블라인드 청취**와 **DAW 수용**을 준비한 문
 비교 대상은 두 가지다.
 
 - **product:** 제품의 현재 Transpose 엔진(`Source/PolyPitch.h`, 바꾸지 않음)
-- **candidate:** 연구 후보 `corr40-split-v2`
+- **candidate:** 연구 후보 `corr40-split-v3`
+  - 2026-10-24에 v2에서 바꿨다. 블록 분할과 관계없이 출력이 같기 때문이다.
+  - T1–T4 수치는 v2와 같다(`TRANSPOSE_LATENCY_TARGETS.md` '후보 용도').
 
 고정 PDC 계약과 제품 엔진 통합은 이 문서 범위가 아니다. 여기 결과로 제품 DSP를 바꾸지 않는다.
 
@@ -68,6 +70,8 @@ python Tools/TransposeNext/t6_listening.py score --key ~/t6/listening/blind_key.
 
 ### 자체 점검 (합성 WAV, T6 증거 아님)
 
+후보를 v3로 바꾼 뒤 다시 실행했다. 시험 수, 음량 맞춤 이득, 채점 결과가 아래와 같았다(`docs/evidence/transpose-candidate-roles-20261024/`).
+
 `t6_listening.py selftest`로 실행했다. 실제 DI 검증 자체 점검의 합성 WAV 세 테이크를 사용했고, 결과는 다음과 같다.
 
 - ABX 72회, 쌍 비교 36회가 만들어졌다.
@@ -86,7 +90,7 @@ python Tools/TransposeNext/t6_listening.py score --key ~/t6/listening/blind_key.
 
 - **파라미터:**
   - `Shift`: −2…+2반음
-  - `Engine`: Product baseline / corr40-split-v2
+  - `Engine`: Product baseline / corr40-split-v2 / corr40-split-v3. 기본값은 v3다.
   - 엔진을 바꾸면 새 엔진을 초기화한다. 클릭이 날 수 있다.
 - **지연 보고:**
   - product는 FFT 창 길이를 보고한다(48kHz에서 2048샘플).
