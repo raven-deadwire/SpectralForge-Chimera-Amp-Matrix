@@ -219,6 +219,14 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             default:return 0.f;
         }
     });
+    autoSetController=std::make_unique<spectralforge::autoset::Controller>(p);
+    autoSetController->onStatus=[this](const spectralforge::autoset::Controller::Status& status) {
+        const bool busy=status.phase==spectralforge::autoset::Controller::Phase::input || status.phase==spectralforge::autoset::Controller::Phase::compressor;
+        dynamicsPanel->setAutoSetStatus(busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text,busy,status.canUndo);
+    };
+    dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
+    dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
+    dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
