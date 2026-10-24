@@ -1,7 +1,7 @@
 name: OBS add-on
-# GPL OBS module that hosts the installed Chimera VST3 (Issue #131). Each job
-# builds the product VST3 from this commit, then the module, and runs the
-# integration tests through libobs. Passing CI is not an OBS Studio UI,
+# GPL OBS module that hosts the installed Chimera VST3 (Issue #131). The
+# Windows, Linux and macOS jobs build the product VST3 from this commit, then
+# the module, run the integration tests through libobs, and package it. Passing CI is not an OBS Studio UI,
 # editor, broadcast or long-session acceptance; see OBS/README.md.
 on:
   pull_request:
@@ -40,14 +40,24 @@ jobs:
       - name: Bridge, host and headless libobs filter tests
         # libobs on Linux opens an X display even for audio-only use.
         run: xvfb-run -a ctest --test-dir build-obs --output-on-failure --no-tests=error
+      - name: Package, install for this user, load from the OBS plugin folder, uninstall
+        run: |
+          sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          package="package/chimera-obs-linux-x86_64"
+          python3 OBS/tools/stage_module.py linux --build build-obs --output "$package" --source-sha "$sha" --built-for "OBS 30.0.2 (Ubuntu 24.04 libobs)"
+          sh "$package/install.sh"
+          plugins="$HOME/.config/obs-studio/plugins"
+          xvfb-run -a build-obs/chimera-obs-layout-tests "$plugins/%module%/bin/64bit" "$plugins/%module%/data"
+          echo "user file" > "$plugins/chimera-obs/user-notes.txt"
+          sh "$package/install.sh" --uninstall
+          test ! -e "$plugins/chimera-obs/bin/64bit/chimera-obs.so"
+          test -f "$plugins/chimera-obs/user-notes.txt"
+          rm -rf "$plugins/chimera-obs"
+          tar -C package -czf "package/chimera-obs-linux-x86_64-${sha:0:10}.tar.gz" chimera-obs-linux-x86_64
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-linux-x86_64-${{ github.event.pull_request.head.sha || github.sha }}
-          path: |
-            build-obs/chimera-obs.so
-            build-obs/data/
-            OBS/LICENSE
-            OBS/README.md
+          path: package/chimera-obs-linux-x86_64-*.tar.gz
           if-no-files-found: error
 
   windows:
@@ -78,8 +88,7 @@ jobs:
           if-no-files-found: error
 
   bridge:
-    # The realtime boundary has no libobs/VST3 dependency; macOS module
-    # packaging is plan stage F.
+    # The realtime boundary has no libobs/VST3 dependency.
     runs-on: macos-15
     timeout-minutes: 15
     steps:
@@ -90,3 +99,36 @@ jobs:
           cmake -S OBS -B build-obs -DCHIMERA_OBS_BUILD_MODULE=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build build-obs --parallel 3
           ctest --test-dir build-obs --output-on-failure --no-tests=error
+
+  macos:
+    # Plan stage F: Apple silicon bundle against the OBS 31.1.2 Apple release.
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Build the Chimera VST3 under test (arm64)
+        run: |
+          cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake --build build --target ChimeraAmpMatrix_VST3 --parallel 3
+      - name: Build and test the OBS module against the pinned OBS release
+        run: ./OBS/tools/build-macos-module.sh "$RUNNER_TEMP/chimera-obs" "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+      - name: Package, install for this user, load from the OBS plugin folder, uninstall
+        run: |
+          sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          build="$RUNNER_TEMP/chimera-obs/build"
+          package="package/chimera-obs-macos-arm64"
+          python3 OBS/tools/stage_module.py macos --build "$build" --output "$package" --source-sha "$sha" --built-for "OBS 31.1.2 (macOS Apple)"
+          sh "$package/install.sh"
+          plugins="$HOME/Library/Application Support/obs-studio/plugins"
+          "$build/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
+          codesign --verify --strict "$plugins/chimera-obs.plugin"
+          sh "$package/install.sh" --uninstall
+          test ! -e "$plugins/chimera-obs.plugin"
+          ditto -c -k --keepParent "$package" "package/chimera-obs-macos-arm64-${sha:0:10}.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-obs-macos-arm64-${{ github.event.pull_request.head.sha || github.sha }}
+          path: package/chimera-obs-macos-arm64-*.zip
+          if-no-files-found: error

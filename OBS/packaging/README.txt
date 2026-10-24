@@ -26,7 +26,7 @@ GPL-2.0-or-later 오픈소스 모듈입니다(LICENSE.txt, 소스 위치는 SOUR
 - 필터를 껐다 켜거나 입력이 1초 넘게 끊겼다 돌아오면 이전 소리의 꼬리(딜레이·리버브)를 지웁니다.
 - 장면에는 필터당 약 0.7 MB의 Chimera 상태가 저장됩니다.
 
-설치·업데이트·제거
+설치·업데이트·제거 (Windows Chimera Setup. macOS·Linux는 같이 들어 있는 INSTALL.txt)
 - 설치하거나 업데이트할 때는 OBS를 먼저 종료합니다. OBS가 실행 중이면 Setup이 멈추고 종료를 요청합니다.
 - Chimera Setup을 다시 실행하면 이전 선택을 기억합니다. 선택을 해제하면 Setup이 설치한 필터 파일만 지웁니다.
 - Chimera를 제거하면 이 폴더를 지웁니다. OBS 장면·프로필·다른 플러그인은 건드리지 않으며,
@@ -52,6 +52,7 @@ version, the OBS version it was built and tested for, and realtime counters that
 written to the OBS log every 10 minutes of audio.
 
 Close OBS before installing, updating or removing; Setup stops and asks if OBS is running.
+(macOS and Linux packages install with the steps in their INSTALL.txt instead of Setup.)
 Removing Chimera deletes this folder only. OBS scenes, profiles and other plugins are not
 touched, and the Chimera sound stored in your scenes is kept for a later reinstall.
 When reporting a problem, include the "[chimera-obs]" lines from the OBS log.

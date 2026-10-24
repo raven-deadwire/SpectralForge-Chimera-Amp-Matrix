@@ -1,0 +1,22 @@
+SpectralForge Chimera OBS 필터 — Linux x86_64 설치 / installation
+=================================================================
+
+[한국어]
+필요: Chimera Linux VST3(~/.vst3, /usr/local/lib/vst3 또는 /usr/lib/vst3), 배포판 패키지로 설치한 OBS Studio.
+Flatpak·Snap으로 설치한 OBS는 외부 플러그인 폴더를 읽지 않으므로 지원하지 않습니다.
+
+1. OBS를 종료합니다.
+2. 이 폴더에서 ./install.sh 를 실행합니다(root 권한 불필요).
+   ~/.config/obs-studio/plugins/chimera-obs 에 설치됩니다.
+3. OBS를 시작하고 오디오 소스 → 필터 → SpectralForge Chimera를 추가합니다. 사용법은 README.txt.
+
+제거: ./install.sh --uninstall (설치한 파일만 지우고, 그 폴더에 직접 넣은 파일과 OBS 장면은 그대로 둡니다).
+이 모듈은 Ubuntu 24.04의 libobs 30.0.2로 빌드·시험했습니다. 다른 OBS 버전에서는 OBS 로그의
+"[chimera-obs] module" 줄에 실행 중인 OBS 버전이 함께 나옵니다.
+
+[English]
+Requires the Chimera Linux VST3 (~/.vst3, /usr/local/lib/vst3 or /usr/lib/vst3) and OBS Studio from your
+distribution's packages. Flatpak and Snap builds of OBS do not read external plugin folders and are not supported.
+Close OBS, run ./install.sh (no root needed; installs to ~/.config/obs-studio/plugins/chimera-obs), start OBS,
+then add Filters → SpectralForge Chimera to an audio source. Remove with ./install.sh --uninstall, which deletes
+only the installed files. Built and tested with libobs 30.0.2 (Ubuntu 24.04).
