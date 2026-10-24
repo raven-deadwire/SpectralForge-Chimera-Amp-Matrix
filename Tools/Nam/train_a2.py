@@ -71,6 +71,8 @@ def main():
     ap.add_argument('--warm-start',type=Path,help='Initialize from a prior run with the same architecture and frozen native source; reset optimizer and re-score validation')
     ap.add_argument('--tail-fraction',type=float,default=0.,help='Fraction of training windows drawn from the final captured decay')
     ap.add_argument('--center-training-output',action='store_true',help='Train the same zero-history-corrected response that is exported')
+    ap.add_argument('--diagnostic-extra-dilations',help='Comma-separated dilations appended (kernel 6) to the A2 layer array. '
+      'Diagnostic only: the result is not an A2 model, cannot load in the target player and is exported as Diagnostic-*.nam')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
     if args.resume and args.warm_start:raise ValueError('Choose resume or warm-start')
     if not 0<=args.tail_fraction<=.25:raise ValueError('Tail fraction must be between 0 and .25')
@@ -78,6 +80,12 @@ def main():
     manifest=verify_audio_manifest(args.data)
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
     template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
+    extra=[int(d) for d in args.diagnostic_extra_dilations.split(',')] if args.diagnostic_extra_dilations else []
+    if any(d<=0 for d in extra):raise ValueError('Diagnostic dilations must be positive')
+    if extra:
+        template=copy.deepcopy(template);layers=template['layers_configs'][0]
+        layers['dilations']+=extra;layers['kernel_sizes']+=[6]*len(extra)
+    prefix='Diagnostic-' if extra else 'Nastrond-'
     cfg={'sample_rate':48000,'submodels':[{'name':v[0],'config':copy.deepcopy(template)} for v in VOICES]}
     model=PackedWaveNet.init_from_config(copy.deepcopy(cfg));enable_grouped(model)
     rf=model.receptive_field
@@ -98,6 +106,8 @@ def main():
       'virtual_epoch_steps':epoch_steps,
       'quality_profile':PROFILE,'tail_fraction':args.tail_fraction,
       'identity_version':2,'center_training_output':args.center_training_output,
+      'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
+      'diagnostic_extra_dilations':extra or None,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
@@ -111,6 +121,13 @@ def main():
         if args.recipe=='official-a2':return virtual_epoch_learning_rate(step,epoch_steps,initial=args.lr)
         return args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
     opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
+    best_level_ok=[False]*5
+    def level_ok(prediction,i):
+        """Export-consistent full-validation level within the quality profile's limits."""
+        row=scores(prediction,vy[i])[0]
+        return abs(row['rms_error_db'])<=PROFILE['rms_error_max_db'] and abs(row['peak_error_db'])<=PROFILE['peak_error_max_db']
+    def better(i,ok,score):
+        return (ok and not best_level_ok[i]) or (ok==best_level_ok[i] and score<best[i])
     selection_windows=[rf,6*48000,12*48000,18*48000,22*48000]
     def selection_esr(sub,i):
         """One channel's selection score, computed exactly as during training."""
@@ -128,6 +145,7 @@ def main():
         if prior_config['identity']!=ck['identity']:raise RuntimeError('Resume checkpoint/config identity mismatch')
         train_cfg['warm_start']=prior_config.get('warm_start')
         model.load_state_dict(ck['model']);opt.load_state_dict(ck['optimizer']);start=ck['step'];best=ck['best'];weights=ck['best_weights'];best_steps=ck['best_steps']
+        best_level_ok=ck['best_level_ok']
         rng.bit_generator.state=ck['rng'];torch.set_rng_state(ck['torch_rng'])
         if ck.get('validation_selection','window')!=args.validation_selection:
             if args.validation_selection!='full':raise RuntimeError('Changing full selection back to excerpts is not supported')
@@ -156,6 +174,7 @@ def main():
             # Score the starting state with the same metric later steps are selected
             # by; full-signal and excerpt ESR values are not comparable.
             best[i]=selection_esr(sub,i)
+            best_level_ok[i]=level_ok(centered_prediction(sub,vx)/gains[i],i)
             weights[i]=copy.deepcopy(sub.state_dict())
         # Zero denotes the warm-start candidate, not a newly trained checkpoint.
         best_steps=[0]*5
@@ -207,13 +226,16 @@ def main():
                     with torch.inference_mode():p=model(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gains[:,None]
                     vals.append(scores(p,vy[:,s:s+8192],skip=0))
                 means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
+            if args.validation_selection!='full':prediction=centered_prediction(model,vx)/gains[:,None]
+            levels=[level_ok(prediction[i],i) for i in range(5)]
             for i,score in enumerate(means):
-                if score<best[i]:best[i]=score;best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
+                if better(i,levels[i],score):
+                    best[i]=score;best_level_ok[i]=levels[i];best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
             profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0],vx) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
-            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'windows':vals,'best_steps':best_steps,'tone3000_fidelity':profile_metrics,
+            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'level_ok_by_channel':dict(zip([v[0] for v in VOICES],levels)),'windows':vals,'best_steps':best_steps,'best_level_ok':best_level_ok,'tone3000_fidelity':profile_metrics,
               'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start,'identity':identity,'checkpoint_step':step,'recipe':args.recipe})
             checkpoint_temporary=args.out/'checkpoint.pt.tmp'
-            torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
+            torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'best_level_ok':best_level_ok,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
               'validation_selection':args.validation_selection,'recipe':args.recipe},checkpoint_temporary)
             checkpoint_temporary.replace(args.out/'checkpoint.pt')
             print(json.dumps({'step':step,'validation_esr':dict(zip([v[0] for v in VOICES],means)),'best_steps':best_steps}),flush=True)
@@ -223,11 +245,11 @@ def main():
         # A fixed final bias correction enforces the known zero-input steady state.
         with torch.inference_mode():dc=float(sub(torch.zeros(rf+512),pad_start=False)[-1])
         with torch.no_grad():sub._net._layer_arrays[-1]._head_rechannel.bias.sub_(dc/sub._net._head_scale)
-        sub.export(args.out,basename='Nastrond-'+name,include_snapshot=False,other_metadata={
+        sub.export(args.out,basename=prefix+name,include_snapshot=False,other_metadata={
           'name':'Náströnd '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
-          'character':character,'source_commit':source['source_commit'],'status':'TEST_BUILD_PENDING_ACCEPTANCE',
+          'character':character,'source_commit':source['source_commit'],'status':'DIAGNOSTIC_NOT_A2_DO_NOT_SHIP' if extra else 'TEST_BUILD_PENDING_ACCEPTANCE',
           'channel':i,'cabinet_included':False,'head_bias_correction_output_units':dc})
-        path=args.out/f'Nastrond-{name}.nam';obj=json.loads(path.read_text());restored=init_from_nam(obj).eval()
+        path=args.out/f'{prefix}{name}.nam';obj=json.loads(path.read_text());restored=init_from_nam(obj).eval()
         with torch.inference_mode():delta=float((sub(torch.from_numpy(vx[:32768]))-restored(torch.from_numpy(vx[:32768]))).abs().max())
         if not np.isfinite(delta) or delta>1e-6:raise RuntimeError('NAM roundtrip changed output')
         prediction=predict(restored,vx);stats=scores(prediction,vy[i])[0]
