@@ -159,6 +159,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
+    resetProcessingIfPending();
     // Capture before input gain/routing/effects, inside the callback CPU meter.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     for(const auto metadata:midi) {
@@ -203,15 +204,21 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
 {
+    resetProcessingIfPending();
     // JUCE AAX's MasterBypassID invokes this callback. Its default implementation
     // passes dry audio immediately even though PDC still uses our nonzero delay.
     // Use the currently reported delay; parameter changes take effect when the
     // wet graph next processes (or prepareToPlay is called), as before.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),getLatencySamples(),true);
 }
+void ChimeraProcessor::resetProcessingIfPending()
+{
+    if(!resetPending.exchange(false)) return;
+    engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();postFX.reset();utilities.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();hostBypass.reset();
+}
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
-    if(resetPending.exchange(false)) {engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();postFX.reset();utilities.reset();toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();}
     if(extras[inputMode]->load()>.5f && buffer.getNumChannels()==2) buffer.copyFrom(1,0,buffer,0,0,buffer.getNumSamples());
     const auto value=[this](Global id){return globals[id]->load();};
     inputGain.setTargetValue(juce::Decibels::decibelsToGain(value(input)));

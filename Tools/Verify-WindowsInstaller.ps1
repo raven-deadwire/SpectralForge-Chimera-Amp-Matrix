@@ -38,6 +38,7 @@ $observedVersions = [Collections.Generic.List[string]]::new()
 $payload = Get-Content -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Raw | ConvertFrom-Json
 $obsStage = Join-Path $stagePath "OBS/chimera-obs"
 $obsOffered = Test-Path -LiteralPath (Join-Path $obsStage "bin/64bit/chimera-obs.dll")
+$obsUserFiles = @{}
 $sourceSha = if ($payload.PSObject.Properties.Name -contains "source_sha") { $payload.source_sha } else { (& git rev-parse HEAD).Trim() }
 function Pass([string]$Message) {
     Write-Host "PASS: $Message"
@@ -73,8 +74,20 @@ function Equal-Tree([string]$Source, [string]$Destination) {
     }
 }
 function Check-ObsFilter([bool]$Installed) {
+    foreach ($path in $obsUserFiles.Keys) {
+        Assert (Test-Path -LiteralPath $path -PathType Leaf) "OBS user file was removed: $path"
+        Assert ((Get-FileHash -LiteralPath $path).Hash -eq $obsUserFiles[$path]) "OBS user file changed: $path"
+    }
     if (!$Installed) {
-        Assert (!(Test-Path -LiteralPath $obsPlugin)) "Unselected OBS filter is present: $obsPlugin"
+        # Setup owns the staged files and generated path hint, not the entire
+        # directory: user presets/IRs/configuration may keep it non-empty.
+        if ($obsOffered) {
+            foreach ($file in Get-ChildItem -LiteralPath $obsStage -Recurse -File) {
+                $installed = Join-Path $obsPlugin ([IO.Path]::GetRelativePath($obsStage, $file.FullName))
+                Assert (!(Test-Path -LiteralPath $installed)) "Unselected OBS payload remains: $installed"
+            }
+        }
+        Assert (!(Test-Path -LiteralPath (Join-Path $obsPlugin "data/default-vst3-path.txt"))) "Unselected OBS path hint remains"
         return
     }
     Equal-Tree $obsStage $obsPlugin
@@ -142,7 +155,7 @@ function Uninstall([string]$Name, [string]$Destination) {
     Assert (!(Test-Path -LiteralPath (Join-Path $Destination "SpectralForge Chimera.exe"))) "Standalone app remains"
     Assert (!(Test-Path -LiteralPath (Join-Path $vst "Contents/x86_64-win/SpectralForge Chimera.vst3"))) "VST3 binary remains"
     Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "SpectralForge Chimera.lnk"))) "App shortcut remains"
-    Assert (!(Test-Path -LiteralPath $obsPlugin)) "OBS filter remains after uninstall: $obsPlugin"
+    Check-ObsFilter $false
 }
 Add-Type @'
 using System.Runtime.InteropServices;
@@ -217,6 +230,9 @@ try {
             ConvertTo-Json | Set-Content -LiteralPath ($file + ".json")
         $ravenFixtures += $file
     }
+    Install "00-full-without-obs-task" $app "vst3,standalone,reference"
+    Check-Payload $app $true $true $true $false
+    Pass "Fresh silent install does not opt into the OBS filter without a task selection"
     Install "01-full-install" $app "vst3,standalone,reference" -ObsTask "obsfilter"
     Check-Payload $app $true $true $true $obsOffered
     Assert (!(Test-Path -LiteralPath $legacyExe) -and !(Test-Path -LiteralPath $legacyVst)) "Legacy product binaries were not retired"
@@ -286,6 +302,14 @@ try {
     "user-owned IR fixture" | Set-Content -LiteralPath $userIR
     $presetHash = (Get-FileHash -LiteralPath $preset).Hash
     $irHash = (Get-FileHash -LiteralPath $userIR).Hash
+    if ($obsOffered) {
+        foreach ($relative in @("data/user-settings.json", "Presets/연주 참고.chimera", "IRs/personal-cab.wav")) {
+            $path = Join-Path $obsPlugin $relative
+            New-Item -ItemType Directory -Force -Path (Split-Path -Parent $path) | Out-Null
+            "OBS user-owned fixture: $relative" | Set-Content -LiteralPath $path -Encoding utf8
+            $obsUserFiles[$path] = (Get-FileHash -LiteralPath $path).Hash
+        }
+    }
     # An already installed personal capture must not be overwritten by repair.
     Copy-Item -LiteralPath "Assets/IRs/guitar_jensen_sm57.wav" -Destination $installedRaven[0] -Force
     $personalCaptureHash = (Get-FileHash -LiteralPath $installedRaven[0]).Hash
@@ -308,7 +332,7 @@ try {
     Assert ((Get-FileHash -LiteralPath $preservedReadme -Algorithm SHA256).Hash.ToLowerInvariant() -eq $modifiedReadmeHash) "Uninstall removed the user's preserved documentation"
     Equal-File (Join-Path $stagePath "THIRD_PARTY_NOTICES.md") (Join-Path $app "Documentation/THIRD_PARTY_NOTICES.md")
     Pass "Uninstall removes owned binaries, shortcut and Windows registration; preserves user files"
-    if ($obsOffered) { Pass "Repair keeps the OBS filter answer; uninstall removes the OBS filter folder" }
+    if ($obsOffered) { Pass "Repair keeps the OBS filter answer; uninstall removes owned payload and preserves OBS user settings, presets and IRs" }
 
     $custom = Join-Path $env:RUNNER_TEMP "Chimera 설치 검증"
     Assert (!(Test-Path -LiteralPath $custom)) "Custom test path already exists"
@@ -334,7 +358,7 @@ try {
         Pass "OBS filter follows a custom Unicode VST3 folder and a later folder move"
         Install "04d-obs-filter-deselected" $custom "vst3" -ObsTask "!obsfilter"
         Check-Payload $custom $true $false $false $false
-        Pass "Deselecting the OBS filter on reinstall removes the filter Setup installed"
+        Pass "Deselecting the OBS filter removes the owned payload and preserves OBS user settings, presets and IRs"
     }
     Uninstall "05-vst3-uninstall" $custom
     Assert ((Get-FileHash -LiteralPath $vstUserFile).Hash -eq $vstUserHash) "Uninstall removed a user file from the previous VST3 folder"

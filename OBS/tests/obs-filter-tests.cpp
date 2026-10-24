@@ -324,6 +324,24 @@ int main(int argc, char** argv) {
         drainUi();
         check(near(getParameter(filter, paramId), target), "state pushed through settings was not applied");
 
+        // A script/obs-websocket update can arrive off the UI thread. Saving
+        // before its queued reload runs must preserve and apply that preset,
+        // rather than overwrite it with the old live sound.
+        check(setParameter(filter, paramId, 0.31), "prepare pending-preset save");
+        obs_data_t* pendingPreset = obs_data_create();
+        obs_data_set_string(pendingPreset, "vst3_component_state", spectralforge::obs::base64Encode(component).c_str());
+        std::thread([&] { obs_source_update(filter, pendingPreset); }).join();
+        obs_data_release(pendingPreset);
+        obs_data_t* pendingSaved = obs_save_source(filter); // deliberately before drainUi()
+        obs_data_t* pendingSettings = obs_data_get_obj(pendingSaved, "settings");
+        const auto pendingState = spectralforge::obs::base64Decode(obs_data_get_string(pendingSettings, "vst3_component_state"));
+        check(pendingState && verify.setState(*pendingState, {}) && near(verify.parameter(paramId), target),
+              "saving before the queued preset reload overwrote the incoming sound");
+        obs_data_release(pendingSettings);
+        obs_data_release(pendingSaved);
+        drainUi();
+        check(near(getParameter(filter, paramId), target), "queued preset was lost after save");
+
         // 6. A scene from a newer module: its state is neither applied nor
         // overwritten on save.
         const std::string stored = spectralforge::obs::base64Encode(component);
@@ -337,6 +355,28 @@ int main(int argc, char** argv) {
         obs_data_release(futureSettings);
         obs_data_release(futureSaved);
         std::cout << "settings preset push applied; newer-schema scene kept untouched\n";
+
+        // The newer-schema guard must inspect current settings, not just the
+        // cached result of the last reload. Exercise both a script write and
+        // save while an off-UI update is still queued.
+        obs_data_t* pendingFuture = obs_data_create();
+        obs_data_set_int(pendingFuture, "chimera_obs_schema", 99);
+        obs_data_set_string(pendingFuture, "vst3_component_state", stored.c_str());
+        obs_data_set_string(pendingFuture, "vst3_controller_state", "future-controller-state");
+        std::thread([&] { obs_source_update(copyFilter, pendingFuture); }).join();
+        obs_data_release(pendingFuture);
+        check(setParameter(copyFilter, paramId, 0.42), "pending future-schema script edit");
+        obs_data_t* futurePendingSaved = obs_save_source(copyFilter);
+        obs_data_t* futurePendingSettings = obs_data_get_obj(futurePendingSaved, "settings");
+        check(obs_data_get_int(futurePendingSettings, "chimera_obs_schema") == 99
+                  && std::string(obs_data_get_string(futurePendingSettings, "vst3_component_state")) == stored
+                  && std::string(obs_data_get_string(futurePendingSettings, "vst3_controller_state")) == "future-controller-state",
+              "pending newer-schema update was overwritten before its UI reload");
+        obs_data_release(futurePendingSettings);
+        obs_data_release(futurePendingSaved);
+        drainUi();
+        check(near(getParameter(copyFilter, paramId), 0.42), "pending future-schema state was applied");
+        std::cout << "queued updates: save preserves incoming preset and newer-schema component/controller state\n";
 
         // 6b. The Chimera Setup records a custom VST3 folder for the filter
         // (UTF-8 with BOM, CRLF); an empty bundle setting then finds Chimera.
