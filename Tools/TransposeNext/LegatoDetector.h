@@ -22,6 +22,11 @@ namespace transposeNext {
 //   periods <= 20 ms (fundamental >= 50 Hz; lower notes were unreliable),
 // - an event needs 10 ms of lock, e > 6 x its running baseline, e > 0.06 and
 //   a rise > 0.06 within 5 ms (slow drift and beating do not qualify),
+// - a candidate is confirmed only if, 2 ms later, the error at the old period
+//   is still > 0.15: an equal-tempered triad (C4 major, ~10 Hz beating of
+//   the major third) briefly breaks the lock and then fits again (0.002-0.079
+//   after 2 ms over 25 false events), a real change keeps failing it
+//   (0.198-1.018 over 15 legato / hammer-on events); the 2 ms are part of the age,
 // - the change is dated at the last 1 ms update that still fitted (age),
 // - no lock while more than 20 % of the energy passes a two-pole 45 Hz
 //   low-pass (one pole at 55 Hz also blocked a 62 Hz D#2): notes under
@@ -31,10 +36,10 @@ class LegatoDetector {
     std::vector<float> ring;
     std::array<double,6> recent{};
     int size{}, write{}, hop{}, clock{}, window{}, minLag{}, maxLag{};
-    int stable{}, cooldown{}, searchHold{}, events{}, recentCount{}, sinceFit{};
+    int stable{}, cooldown{}, searchHold{}, events{}, recentCount{}, sinceFit{}, confirm{}, rejected{};
     double period{}, baseline{}, previous{}, deep{}, deeper{}, deepCoefficient{}, deepEnergy{}, allEnergy{}, energyCoefficient{};
-    static constexpr int stableNeeded=10, cooldownLength=30, rise=5;
-    static constexpr double searchThreshold=.15, lockThreshold=.02, eventRatio=6, eventFloor=.06, energyFloor=1.e-7;
+    static constexpr int stableNeeded=10, cooldownLength=30, rise=5, confirmUpdates=2;
+    static constexpr double searchThreshold=.15, lockThreshold=.02, eventRatio=6, eventFloor=.06, energyFloor=1.e-7, confirmFloor=.15;
     float at(int age) const noexcept {int i=write-1-age;if(i<0)i+=size;return ring[size_t(i)];}
     double error(int lag) const noexcept {
         double e=0,s=1.e-20;
@@ -49,12 +54,13 @@ public:
         deepCoefficient=1-std::exp(-2*juce::MathConstants<double>::pi*45/rate);energyCoefficient=1-std::exp(-1/(rate*.02));reset();
     }
     void reset() noexcept {
-        std::fill(ring.begin(),ring.end(),0.f);write=clock=stable=cooldown=searchHold=events=recentCount=sinceFit=0;
+        std::fill(ring.begin(),ring.end(),0.f);write=clock=stable=cooldown=searchHold=events=recentCount=sinceFit=confirm=rejected=0;
         period=baseline=previous=deep=deeper=deepEnergy=allEnergy=0;
     }
     // A pick elsewhere re-anchors anyway: drop the lock and wait.
-    void notePick() noexcept {period=0;stable=0;recentCount=0;cooldown=cooldownLength;}
+    void notePick() noexcept {period=0;stable=0;recentCount=0;confirm=0;cooldown=cooldownLength;}
     int legatoEvents() const noexcept {return events;}
+    int rejectedCandidates() const noexcept {return rejected;}
     // One mono sample. Returns the estimated age of the change in samples on
     // the sample where a legato change is flagged, otherwise -1.
     int push(float x) noexcept {
@@ -66,8 +72,15 @@ public:
         clock=0;
         if(cooldown>0)--cooldown;
         double energy=0;for(int k=0;k<window;++k)energy+=double(at(k))*at(k);
-        if(energy<energyFloor){period=0;stable=0;recentCount=0;return -1;}
-        if(deepEnergy>.2*allEnergy){period=0;stable=0;recentCount=0;return -1;}
+        if(energy<energyFloor){period=0;stable=0;recentCount=0;confirm=0;return -1;}
+        if(deepEnergy>.2*allEnergy){period=0;stable=0;recentCount=0;confirm=0;return -1;}
+        if(confirm>0) {
+            // Still at the old period? Then it was beating, not a new note.
+            if(error(int(period))<=confirmFloor){confirm=0;++rejected;return -1;}
+            if(--confirm>0) return -1;
+            ++events;period=0;stable=0;recentCount=0;cooldown=cooldownLength;
+            return sinceFit;
+        }
         if(period<=0) {
             if(searchHold>0){--searchHold;return -1;}
             // First dip below the search threshold, walked to its local
@@ -87,8 +100,8 @@ public:
         const double old=recentCount>=rise ? recent[size_t((recentCount-rise)%int(recent.size()))] : best;   // 5 updates ago
         recent[size_t(recentCount%recent.size())]=best;++recentCount;
         if(stable>=stableNeeded && cooldown==0 && best>eventRatio*baseline && best>eventFloor && recentCount>rise && best-old>eventFloor) {
-            ++events;period=0;stable=0;recentCount=0;cooldown=cooldownLength;
-            return sinceFit;
+            confirm=confirmUpdates;   // the age keeps counting from the last fit
+            return -1;
         }
         if(best<searchThreshold && best<3*baseline+.02 && best<lockThreshold) {
             period=found;if(stable<stableNeeded)++stable;baseline=.9*baseline+.1*std::max(best,.002);sinceFit=0;
