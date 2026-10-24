@@ -202,6 +202,10 @@ void controllerIntegration() {
     }
     Controller c(*p);Gestures g;p->addListener(&g);
     const auto before=values(*p);std::vector<Controller::Status> statuses;c.onStatus=[&](const auto& s){statuses.push_back(s);};
+    // The Dynamic EQ node on Tone band 2 is the user's. Compare with the stored
+    // values: skewed ranges need not hold the literal set above bit-exactly.
+    const auto dynamicNode=[&]{std::vector<float> v;for(const auto* field:{"enabled","frequency","gain","q","type"})v.push_back(get(*p,spectralforge::eqID(0,1,field)));return v;};
+    const auto nodeBefore=dynamicNode();
     DI di{48000,.126f,.00025f}; // notes peak ~ -18 dBFS, noise ~ -72 dBFS
     c.start();check(c.busy(),"Auto Set did not start listening");
     run(*p,c,&di,6.6,now);
@@ -212,8 +216,7 @@ void controllerIntegration() {
     check(c.current().phase==Controller::Phase::compressor,"Tone EQ pass did not hand over to the compressor pass");
     const auto& tone=c.lastToneAnalysis();
     check(tone.playingDetected && !tone.bass,"Tone pass did not hear the guitar DI");
-    // The Dynamic EQ node on Tone band 2 is the user's: Auto Set must not move it.
-    check(get(*p,spectralforge::eqID(0,1,"frequency"))==700.f && get(*p,spectralforge::eqID(0,1,"gain"))==-3.f,"Auto Set overwrote a Dynamic EQ node");
+    check(dynamicNode()==nodeBefore && near(nodeBefore[1],700.f,.01f) && near(nodeBefore[2],-3.f,.01f),"Auto Set overwrote a Dynamic EQ node");
     int enabled=0;
     for(int b=0;b<spectralforge::graphicalEQBands;++b)if(b!=1 && get(*p,spectralforge::eqID(0,b,"enabled"))>.5f) {
         ++enabled;check(std::abs(get(*p,spectralforge::eqID(0,b,"gain")))<=toneMaxMoveDb,"Tone EQ move beyond the limit");
