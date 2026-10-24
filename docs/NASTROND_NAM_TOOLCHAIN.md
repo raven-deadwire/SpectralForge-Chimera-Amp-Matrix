@@ -83,6 +83,9 @@ policy blocks api.tone3000.com), so no octave-band result exists yet for them.
 
 ## Next measurement
 
+The full procedure, with commands, is in
+[NASTROND_NAM_BAND_MEASUREMENT.md](NASTROND_NAM_BAND_MEASUREMENT.md).
+
 1. Run `nastrond_nam_tool.py compare` on the current source with the private
    NAM directory and the channel state file.
 2. Audit with `--metric band_spectrum_rms_db`, both for the default scope and
