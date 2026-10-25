@@ -32,7 +32,7 @@ public:
         autoButton.setTooltip("Play your instrument normally for about half a minute. Auto Set adjusts input level, noise gate, tone and dynamics. UNDO restores your previous settings.");
         autoButton.onClick=[this]{if(autoBusy){if(autoCancel)autoCancel();}else if(autoSet)autoSet();};
         undo.setComponentID("easy.autoUndo");undo.getProperties().set("utilityDock",true);undo.setTooltip("Restore the settings from before Auto Set.");
-        undo.onClick=[this]{if(autoUndo)autoUndo();};undo.setEnabled(false);
+        undo.onClick=[this]{if(autoUndo)autoUndo();};undo.setEnabled(false);undo.setAlpha(.4f);
         autoStatus.setFont(juce::FontOptions(12.f));autoStatus.setColour(juce::Label::textColourId,muted);
         autoStatus.setJustificationType(juce::Justification::topLeft);autoStatus.setComponentID("easy.autoStatus");
         autoStatus.setText("Not sure where to start? Press AUTO SET and play.",juce::dontSendNotification);
@@ -64,6 +64,13 @@ public:
     ~EasyModeView() override {stopTimer();}
 
     void setBrand(juce::Image mark,juce::Image emblem) {wordmark=std::move(mark);brandEmblem=std::move(emblem);repaint();}
+    // The editor supplies its cabinet room so players still see their rig.
+    void setRoom(std::unique_ptr<juce::Component> view) {
+        if(room)removeChildComponent(room.get());
+        room=std::move(view);
+        if(room){addAndMakeVisible(*room);room->setVisible(tunerPanel==nullptr);}
+        resized();
+    }
     // The full editor owns preset loading and its CUSTOM detection.
     void fillPresetMenu(const std::function<void(juce::ComboBox&)>& fill) {fill(presets);}
     void showPreset(int id,const juce::String& text) {
@@ -75,22 +82,23 @@ public:
     }
     void setAutoSetStatus(const juce::String& text,bool busy,bool canUndo) {
         autoBusy=busy;autoButton.setButtonText(busy?"CANCEL":"AUTO SET");autoButton.getProperties().set("utilityActive",busy);autoButton.repaint();
-        undo.setEnabled(canUndo && !busy);
+        undo.setEnabled(canUndo && !busy);undo.setAlpha(undo.isEnabled()?1.f:.4f);
         if(text.isNotEmpty())autoStatus.setText(text,juce::dontSendNotification);
     }
     void resized() override {
         full.setBounds(1000,18,160,34);
-        previous.setBounds(40,120,40,40);presets.setBounds(88,120,560,40);next.setBounds(656,120,40,40);
-        description.setBounds(40,166,656,36);
-        autoButton.setBounds(730,118,190,44);undo.setBounds(930,118,90,44);tuner.setBounds(1030,118,110,44);
-        autoStatus.setBounds(730,166,410,36);
-        ampName.setBounds(40,256,1100,20);
+        previous.setBounds(40,108,40,36);presets.setBounds(88,108,560,36);next.setBounds(656,108,40,36);
+        description.setBounds(40,148,656,30);
+        autoButton.setBounds(730,106,190,40);undo.setBounds(930,106,90,40);tuner.setBounds(1030,106,110,40);
+        autoStatus.setBounds(730,150,410,30);
+        if(room)room->setBounds(20,194,1140,262);
+        ampName.setBounds(200,474,940,20);
         const int cell=1140/knobCount;
         for(int i=0;i<knobCount;++i) {
             auto& k=knobs[(size_t)i];const int x=20+i*cell;
-            k.name.setBounds(x,292,cell,26);k.slider.setBounds(x+20,322,cell-40,174);k.hint.setBounds(x+8,502,cell-16,40);
+            k.name.setBounds(x,498,cell,24);k.slider.setBounds(x+30,522,cell-60,150);k.hint.setBounds(x+8,676,cell-16,22);
         }
-        if(tunerPanel)tunerPanel->setBounds(20,222,1140,412);
+        if(tunerPanel)tunerPanel->setBounds(20,194,1140,412);
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(background);
@@ -101,19 +109,20 @@ public:
         if(wordmark.isValid())g.drawImageWithin(wordmark,96,4,365,59,juce::RectanglePlacement::centred);
         text(g,"EASY VIEW",480,24,200,22,14.f,accent);
         g.setColour(line);g.drawHorizontalLine(67,20,1160);
-        for(auto box:{juce::Rectangle<float>{20,80,1140,130},juce::Rectangle<float>{20,222,1140,412},juce::Rectangle<float>{20,646,1140,96}}) {
-            g.setColour(panel.withAlpha(.9f));g.fillRoundedRectangle(box,6);g.setColour(line);g.drawRoundedRectangle(box,6,1);
-        }
-        text(g,"1   PICK A SOUND",40,88,400,24,15.f,ink);
-        text(g,"3   GET READY",730,88,400,24,15.f,ink);
+        const auto box=[&](juce::Rectangle<float> area){g.setColour(panel.withAlpha(.9f));g.fillRoundedRectangle(area,6);g.setColour(line);g.drawRoundedRectangle(area,6,1);};
+        box({20,76,1140,108});
+        text(g,"1   PICK A SOUND",40,80,400,24,15.f,ink);
+        text(g,"3   GET READY",730,80,400,24,15.f,ink);
         if(!tunerPanel) {
-            text(g,"2   SHAPE IT",40,230,400,24,15.f,ink);
-            g.setColour(line);g.drawVerticalLine(20+4*(1140/knobCount),292,600);
-            text(g,"AMP",40,560,4*(1140/knobCount)-40,20,11.f,muted,juce::Justification::centred);
-            text(g,"EFFECT AND OUTPUT",20+4*(1140/knobCount),560,2*(1140/knobCount),20,11.f,muted,juce::Justification::centred);
+            box({20,466,1140,276});
+            text(g,"2   SHAPE IT",40,470,160,24,15.f,ink);
+            const int cell=1140/knobCount;
+            g.setColour(line);g.drawVerticalLine(20+4*cell,500,716);
+            text(g,"AMP",40,702,4*cell-40,18,11.f,muted,juce::Justification::centred);
+            text(g,"EFFECT AND OUTPUT",20+4*cell,702,2*cell,18,11.f,muted,juce::Justification::centred);
         }
-        text(g,"Every knob here is the same setting you see in the full editor, so you can switch views at any time without losing your sound.",40,662,1100,22,13.f,ink);
-        text(g,"For two amps, frequency-split rigs, pedals, cabinets and EQ, open FULL EDITOR at the top right.",40,690,1100,22,13.f,muted);
+        text(g,"Every knob is the same setting as in the full editor; switch views at any time without losing your sound. Pedals, two-amp rigs and EQ are in FULL EDITOR.",
+             28,748,1124,24,12.f,muted);
     }
     // Checked bindings let tests and the editor confirm what each knob edits.
     juce::String boundParameter(int knob) const {return knob>=0 && knob<spectralforge::easy::roleCount ? knobs[(size_t)knob].boundID : juce::String{};}
@@ -140,22 +149,29 @@ private:
         auto* mix=state.getParameter("reverbmix");
         const auto range=mix->getNormalisableRange();
         slider.setNormalisableRange({(double)range.start,(double)range.end,.001});
-        reverbOn=std::make_unique<juce::ParameterAttachment>(*state.getParameter("reverbon"),[this](float){syncReverb();});
+        reverbOnParameter=state.getParameter("reverbon");reverbMixParameter=mix;
+        reverbOn=std::make_unique<juce::ParameterAttachment>(*reverbOnParameter,[this](float){syncReverb();});
         reverbMix=std::make_unique<juce::ParameterAttachment>(*mix,[this](float){syncReverb();});
         slider.onDragStart=[this]{reverbGesture=true;reverbOn->beginGesture();reverbMix->beginGesture();};
         slider.onDragEnd=[this]{reverbOn->endGesture();reverbMix->endGesture();reverbGesture=false;};
         slider.onValueChange=[this]{
             if(updatingReverb)return;
             const float value=(float)knobs[4].slider.getValue();const bool on=value>.001f;
-            // Mix first: switching on must not briefly show the old mix.
+            // The knob already shows the new value; echoing the two writes
+            // back mid-change would leave the slider on a stale value.
+            const juce::ScopedValueSetter<bool> writing(updatingReverb,true);
             if(reverbGesture){if(on)reverbMix->setValueAsPartOfGesture(value);reverbOn->setValueAsPartOfGesture(on?1.f:0.f);}
             else {if(on)reverbMix->setValueAsCompleteGesture(value);reverbOn->setValueAsCompleteGesture(on?1.f:0.f);}
         };
         showPosition(slider);syncReverb();
     }
     void syncReverb() {
+        if(updatingReverb)return;
         const juce::ScopedValueSetter<bool> guard(updatingReverb,true);
-        knobs[4].slider.setValue(raw("reverbon")>.5f?raw("reverbmix"):0.,juce::dontSendNotification);
+        // Read the parameters themselves: inside a change callback the raw
+        // value cache may not have been updated yet.
+        const auto value=[](const juce::RangedAudioParameter& p){return p.convertFrom0to1(p.getValue());};
+        knobs[4].slider.setValue(value(*reverbOnParameter)>.5f?value(*reverbMixParameter):0.f,juce::dontSendNotification);
     }
     void timerCallback() override {refresh();}
     void refresh() {
@@ -186,7 +202,7 @@ private:
         if(tuning!=(tunerPanel!=nullptr)) {
             if(tuning){tunerPanel=std::make_unique<PrecisionTunerPanel>(processor);addAndMakeVisible(*tunerPanel);}
             else tunerPanel.reset();
-            ampName.setVisible(!tuning);
+            ampName.setVisible(!tuning);if(room)room->setVisible(!tuning);
             for(auto& k:knobs)for(auto* c:std::initializer_list<juce::Component*>{&k.name,&k.slider,&k.hint})c->setVisible(!tuning);
             resized();repaint();
         }
@@ -199,7 +215,9 @@ private:
     juce::Label description,autoStatus,ampName;
     std::array<Knob,knobCount> knobs;
     std::unique_ptr<juce::SliderParameterAttachment> volumeAttachment;
+    juce::RangedAudioParameter* reverbOnParameter{};juce::RangedAudioParameter* reverbMixParameter{};
     std::unique_ptr<juce::ParameterAttachment> reverbOn,reverbMix;
     bool reverbGesture{},updatingReverb{},autoBusy{};
     std::unique_ptr<PrecisionTunerPanel> tunerPanel;
+    std::unique_ptr<juce::Component> room;
 };

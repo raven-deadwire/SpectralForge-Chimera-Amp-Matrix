@@ -3,6 +3,7 @@
 #include "SignalPathUITests.h"
 #include "EasyMode.h"
 #include "FactoryPresets.h"
+#include "PresetOrder.h"
 
 namespace easyModeUITests {
 using namespace nativeUITests;
@@ -52,6 +53,7 @@ inline void editorView(const juce::File& directory) {
     auto* view=find<EasyModeView>(*editor,"easyView");
     require(view && view->isShowing() && !find(*editor,"surface")->isVisible(),"Easy view did not replace the full editor");
     require(signalPathTests::values(*p)==before,"Opening Easy view changed the sound");
+    auto* room=find(*view,"cabRoomOverview");require(room && room->isShowing(),"Easy view does not show the cabinet room");
     for(auto* child:view->getChildren())if(child->isVisible())inside(*view,*child,"Easy control outside its view");
 
     // Amp knobs edit the selected head's own parameters and follow amp changes.
@@ -71,6 +73,9 @@ inline void editorView(const juce::File& directory) {
     require(raw(*p,"reverbon")>.5f && std::abs(raw(*p,"reverbmix")-.3f)<.002f,"Easy REVERB did not enable and set the reverb");
     reverb->setValue(0,juce::sendNotificationSync);
     require(raw(*p,"reverbon")<.5f && std::abs(raw(*p,"reverbmix")-.3f)<.002f,"Easy REVERB at 0 must switch off and keep the mix");
+    set(*p,"reverbon",1);settle(50);
+    require(std::abs(reverb->getValue()-.3)<.002,"Turning reverb on elsewhere did not update Easy REVERB");
+    set(*p,"reverbon",0);settle(50);
     auto* volume=find<juce::Slider>(*view,"easy.knob.volume");volume->setValue(-12,juce::sendNotificationSync);
     require(std::abs(raw(*p,"output")+12)<.01f,"Easy VOLUME did not edit output gain");
 
@@ -82,10 +87,10 @@ inline void editorView(const juce::File& directory) {
     signalPathTests::capture(*editor,directory,"easy-view");
 
     auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);settle(150);
-    require(raw(*p,"tuneron")>.5f && find(*view,"precisionTuner")!=nullptr,"Easy TUNER did not open the tuner");
+    require(raw(*p,"tuneron")>.5f && find(*view,"precisionTuner")!=nullptr && !room->isVisible(),"Easy TUNER did not replace the room with the tuner");
     signalPathTests::capture(*editor,directory,"easy-view-tuner");
     signalPathTests::click(*tuner);settle(150);
-    require(raw(*p,"tuneron")<.5f && find(*view,"precisionTuner")==nullptr,"Easy TUNER did not close the tuner");
+    require(raw(*p,"tuneron")<.5f && find(*view,"precisionTuner")==nullptr && room->isShowing(),"Easy TUNER did not close the tuner");
 
     const auto edited=signalPathTests::values(*p);
     editor->setEasyMode(false);settle(150);

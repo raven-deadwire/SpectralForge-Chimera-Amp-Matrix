@@ -12,11 +12,13 @@ inline constexpr std::array<const char*,roleCount> roleNames{"GAIN","BASS","MIDD
 
 // Front-panel names differ between heads. The first listed name the current
 // channel shows wins, so GAIN is preferred over a non-master VOLUME.
+// Catalog labels may append a hardware alias ("LOUDNESS I / HIGH TREBLE").
 inline std::span<const char* const> roleLabels(Role role) noexcept {
-    static constexpr const char* gain[]{"GAIN","DRIVE","PRE GAIN","PREAMP","LOUDNESS I","VOLUME"};
-    static constexpr const char* bass[]{"BASS","LOW"};
-    static constexpr const char* middle[]{"MIDDLE","MID","MIDRANGE","MID LEVEL"};
-    static constexpr const char* treble[]{"TREBLE","HIGH"};
+    static constexpr const char* gain[]{"GAIN","DRIVE","PRE GAIN","PREAMP","CLEAN GAIN","LEAD GAIN","GAIN 1","GAIN 2",
+                                        "LOUDNESS I","NORMAL","INPUT","VOLUME"};
+    static constexpr const char* bass[]{"BASS","LOW","LO"};
+    static constexpr const char* middle[]{"MIDDLE","MID","MIDRANGE","MID LEVEL","LO MID","LO MIDS"};
+    static constexpr const char* treble[]{"TREBLE","HIGH","HI"};
     switch(role) {
         case Role::gain:return gain;
         case Role::bass:return bass;
@@ -32,7 +34,7 @@ inline int ampControl(int model,int channel,Role role) noexcept {
         for(int c=0;c<(int)panel.controls.size();++c) {
             const auto& control=panel.controls[(size_t)c];
             if(control.kind==AmpNativeControlKind::knob && ampNativeControlVisible(model,c,channel)
-               && juce::String::fromUTF8(control.label)==wanted)return c;
+               && juce::String::fromUTF8(control.label).upToFirstOccurrenceOf(" / ",false,false)==wanted)return c;
         }
     return -1;
 }
