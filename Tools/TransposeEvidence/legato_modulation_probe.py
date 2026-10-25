@@ -37,7 +37,7 @@ import transpose_latency_contract as lc
 RATE, LENGTH_S = 48000, 3.0
 SHIFTS = [-12, -5, 2, 12]
 MODES = [(2, 'TIGHT'), (39, 'L10 no legato'), (41, 'legato, no guard')]
-LABELS = dict(MODES + [(44, 'legato guard 6 ms'), (45, 'guard 10 ms (product)'), (46, 'legato guard 15 ms'), (58, 'drift 2 %'), (59, 'drift 2.5 %')])
+LABELS = dict(MODES + [(44, 'legato guard 6 ms'), (45, 'guard 10 ms'), (46, 'legato guard 15 ms'), (58, 'drift 2 % (product)'), (59, 'drift 2.5 %')])
 
 def tracks():
     """name -> (f0, cents per sample)."""
