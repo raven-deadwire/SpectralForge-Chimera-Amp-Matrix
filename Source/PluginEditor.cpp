@@ -275,7 +275,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onPageSelected=[this](spectralforge::CommonDynamicsPanel::Page selected) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
         const auto* expanderAfter=processor.parameters().getRawParameterValue("expAfterRig");
-        const juce::String id=selected==Page::expander?(expanderAfter && expanderAfter->load()>.5f?"gate.extra.post":"gate.extra.pre"):selected==Page::gate?"gate":selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":"common.comp";
+        const juce::String id=selected==Page::expander?(expanderAfter && expanderAfter->load()>.5f?"gate.extra.post":"gate.extra.pre"):selected==Page::gate?(dynamicsPanel->mainGateShown()?"gate":dynamicsPanel->selectedGateSide()==1?"gate.extra.post":"gate.extra.pre"):selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":"common.comp";
         updateDynamicsEntries();
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
         if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);

@@ -69,13 +69,13 @@ public:
     void cancel() {
         if(!busy())return;
         stopTimer();processor.autoSetCapture().listen(std::nullopt);
-        publish(Phase::idle,0,"Auto Set cancelled.");
+        publish(Phase::idle,0,"Auto Set cancelled.",0);
     }
     void undo() {
         if(busy() || snapshot.empty())return;
         for(auto& [parameter,value]:snapshot)setNormalised(*parameter,value);
         snapshot.clear();
-        publish(Phase::idle,0,"Restored the settings from before Auto Set.");
+        publish(Phase::idle,0,"Restored the settings from before Auto Set.",0);
     }
     bool busy() const noexcept {return busyPhase(status.phase);}
     const Status& current() const noexcept {return status;}

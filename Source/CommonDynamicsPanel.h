@@ -120,7 +120,10 @@ public:
     Page selectedPage() const noexcept {return page;}
     // Gate page side: 0 = PRE RIG, 1 = POST RIG.
     int selectedGateSide() const noexcept {return gateSide;}
-    void selectGateSide(int side){gateSide=std::clamp(side,0,1);syncPage();refresh();}
+    void selectGateSide(int side){
+        gateSide=std::clamp(side,0,1);syncPage();refresh();
+        if(page==Page::gate && onPageSelected)onPageSelected(page); // the path highlight follows the side
+    }
     // The released gate settings are shown on the side gateAfterRig puts them.
     bool mainGateShown() const {return (gateSide==1)==(raw("gateAfterRig")>.5f);}
     void setGateUnitMeterProvider(std::function<float(int)> provider){gateUnitMeterProvider=std::move(provider);}
