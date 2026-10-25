@@ -91,13 +91,15 @@ inline void integratedWorkspaces(ChimeraProcessor& processor,ChimeraEditor& edit
     const auto before=signalPathTests::values(processor);
     {
         signalPathTests::Writes writes;processor.addListener(&writes);
-        constexpr std::array<const char*,6> pages{"compressor","gate","limiter","dynamicEQ","multiband","deesser"};
+        using DynamicsPage=spectralforge::CommonDynamicsPanel::Page;
+        constexpr std::array<const char*,6> pages{"compressor","gate","expander","limiter","multiband","deesser"};
+        constexpr std::array<DynamicsPage,6> pageKinds{DynamicsPage::compressor,DynamicsPage::gate,DynamicsPage::expander,DynamicsPage::limiter,DynamicsPage::multiband,DynamicsPage::deesser};
         for(size_t i=0;i<pages.size();++i) {
             auto* button=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(pages[i]));
             require(button,"Direct dynamics entry missing");
             reachable(editor,viewport,*button);signalPathTests::click(*button);
             auto* panel=find<spectralforge::CommonDynamicsPanel>(editor,"commonDynamics.panel");
-            require(panel && panel->isShowing() && panel->selectedPage()==spectralforge::CommonDynamicsPanel::Page(i)
+            require(panel && panel->isShowing() && panel->selectedPage()==pageKinds[i]
                     && button->getToggleState() && editorBoundsReachable(editor,*panel),
                     "Direct dynamics entry did not open its reachable workspace");
             for(size_t other=0;other<pages.size();++other) {
@@ -216,7 +218,7 @@ inline void run(const juce::File& directory) {
             signalPathTests::click(button);
             signalPathTests::compactDestination(*editor,*path,stage,"small screen");
             ++actions;
-            for(const auto* name:{"gate","compressor","limiter","dynamicEQ","multiband","deesser"}) {
+            for(const auto* name:{"gate","expander","compressor","limiter","multiband","deesser"}) {
                 auto* entry=find<juce::TextButton>(*editor,"commonDynamics.open."+juce::String(name));
                 require(entry && entry->isShowing() && entry->isEnabled(),"Top-bar entry is unavailable from a signal-path page");
                 reachable(*editor,*viewport,*entry);

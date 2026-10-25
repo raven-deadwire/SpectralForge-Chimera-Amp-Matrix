@@ -37,12 +37,14 @@ inline void topology(ChimeraProcessor& p) {
     const auto board=p.pedalBoardState();set(p,"boardLowTap",5);s=read(p);require(edge(s,"pre.owner"+juce::String(board.order[4]),"clean"),"Tap five is not after PRE");
     set(p,"boardEnabled",0);set(p,"preorder",0);set(p,"gainorder",1);s=read(p);require(edge(s,"pre.legacy3","pre.legacy4")&&edge(s,"pre.legacy4","clean")&&edge(s,"pre.legacy0","pre.legacy6"),"Legacy PRE order/tap differs from DSP");
     set(p,"gateAfterRig",1);s=read(p);require(edge(s,"merge","gate")&&edge(s,"gate","tone.eq")&&edge(s,"input","gate"),"Post gate/detector displayed at wrong point");
-    // Gate 2 and the Expander appear as clean-input taps at their own placement.
-    require(s.find("gate.extra.pre") && s.find("gate.extra.pre")->label=="EXPANDER" && !s.find("gate.extra.pre")->active && edge(s,"input","gate.extra.pre"),"Pre-rig Expander missing from the path");
-    require(s.find("gate.extra.post") && s.find("gate.extra.post")->label=="GATE 2" && edge(s,"merge","gate.extra.post"),"Post-rig Gate 2 missing from the path");
-    set(p,"expAfterRig",1);set(p,"expOn",1);s=read(p);
-    require(!s.find("gate.extra.pre") && s.find("gate.extra.post")->label=="EXPANDER + GATE 2" && s.find("gate.extra.post")->active && s.find("gate.extra.post")->status=="EXPANDER ON","Post-rig Expander + Gate 2 path state is stale");
+    // Gate 2 takes the side opposite the main gate; the Expander has its own.
+    require(s.find("gate.extra.pre") && s.find("gate.extra.pre")->label=="EXPANDER + PRE GATE 2" && !s.find("gate.extra.pre")->active && edge(s,"input","gate.extra.pre"),"Pre-rig Expander / Gate 2 missing from the path");
+    require(!s.find("gate.extra.post"),"Gate 2 shown on the main gate's side");
+    set(p,"expAfterRig",1);set(p,"expOn",1);set(p,"gate2On",1);s=read(p);
+    require(s.find("gate.extra.post")->label=="EXPANDER" && s.find("gate.extra.post")->active && edge(s,"merge","gate.extra.post"),"Post-rig Expander path state is stale");
+    require(s.find("gate.extra.pre")->label=="PRE GATE 2" && s.find("gate.extra.pre")->status=="GATE 2 ON","Pre-rig Gate 2 path state is stale");
     require(edge(s,"merge","gate")&&edge(s,"gate","tone.eq"),"Extra gates moved the main post gate");
+    set(p,"gate2On",0);
     set(p,"expAfterRig",0);set(p,"expOn",0);
     set(p,"ampon1",0);set(p,"lowampmix",.83f);s=read(p);require(s.find("low.blend")->status=="100 : 0"&&s.find("amp.context3")->active,"LOW AMP switch must control blend, not bypass its internal processor");
     set(p,"solo2",1);s=read(p);require(!s.find("level.context3")->active&&s.find("level.context4")->active,"Solo audibility is stale");
@@ -140,7 +142,7 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
         auto* slider=named<juce::Slider>(editor,name);
         require(slider && !slider->isShowing(),"Gate parameters must be edited in the spectrum workspace");
     }
-    for(const auto* name:{"gate","compressor","limiter","dynamicEQ","multiband","deesser"}) {
+    for(const auto* name:{"gate","expander","compressor","limiter","multiband","deesser"}) {
         auto* entry=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(name));
         require(entry && entry->isShowing() && entry->isEnabled() && !strip.isParentOf(entry),
                 "Direct dynamics entry is unavailable or duplicated in the signal path");
@@ -453,7 +455,10 @@ inline void run(const juce::File& folder) {
                 auto* panel=find<spectralforge::CommonDynamicsPanel>(*editor,"commonDynamics.panel");
                 require(panel && panel->isShowing(),"Detailed dynamics navigation did not open its spectrum workspace");
                 using Page=spectralforge::CommonDynamicsPanel::Page;
-                const auto expected=node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
+                // A clean-input tap opens the Expander when it is the only unit
+                // there, or the only one switched on; otherwise its Gate 2 side.
+                const bool expanderTap=node.id.startsWith("gate.extra.") && (node.label=="EXPANDER" || node.status=="EXPANDER ON");
+                const auto expected=expanderTap?Page::expander:node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
                 require(panel->selectedPage()==expected,"Signal path opened a different dynamics module");
             }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");

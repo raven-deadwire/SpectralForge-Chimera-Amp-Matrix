@@ -226,7 +226,7 @@ void extraGates()
 {
     {
         const auto storage=std::make_unique<ChimeraProcessor>();int index=storage->getParameters().size()-spectralforge::extraGateParameterCount;
-        for(const auto* id:{"gate2On","gate2AfterRig","gate2Threshold","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
+        for(const auto* id:{"gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
                             "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"}) {
             const auto* parameter=storage->parameters().getParameter(id);
             require(parameter && parameter->getParameterIndex()==index++ && parameter->getVersionHint()==spectralforge::extraGateParameterVersion && parameter->isAutomatable(),
@@ -236,15 +236,18 @@ void extraGates()
     for(int mode:{0,2})for(bool board:{false,true}) {
         const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
         configure(p,mode,board,false,false);set(p,"gateon",0);
-        require(get(p,"gate2On")<.5f && get(p,"expOn")<.5f && get(p,"gate2AfterRig")>.5f && get(p,"expAfterRig")<.5f,"Extra gate defaults changed");
+        require(get(p,"gate2On")<.5f && get(p,"expOn")<.5f && get(p,"gate2Mode")<.5f && get(p,"expAfterRig")<.5f,"Extra gate defaults changed");
         const double unity=hissEnergy(p);require(unity>1e-14,"Extra gate unity fixture is silent");
         const auto db=[&](double energy){return 10*std::log10(std::max(energy,1e-300)/unity);};
         for(bool post:{false,true}) {
-            set(p,"gate2On",1);set(p,"gate2AfterRig",post?1.f:0.f);set(p,"gate2Threshold",-40);set(p,"gate2Hold",0);set(p,"gate2Release",5);set(p,"gate2RangeDb",24);
+            // Gate 2 takes the side of the rig the main gate does not use.
+            set(p,"gate2On",1);set(p,"gateAfterRig",post?0.f:1.f);set(p,"gate2Threshold",-40);set(p,"gate2Hold",0);set(p,"gate2Release",5);set(p,"gate2RangeDb",24);
             const double gate2=hissEnergy(p);
             require(std::abs(db(gate2)+24)<.06,"Gate 2 range missing at its placement");
             require(std::abs(juce::Decibels::gainToDecibels(p.gateUnitMeter(1))+24)<.03f,"Gate 2 meter does not report its reduction");
-            set(p,"gate2On",0);
+            set(p,"gate2Mode",1);set(p,"gate2Ratio",20);set(p,"gate2RangeDb",12);
+            require(std::abs(db(hissEnergy(p))+12)<.06,"Gate 2 expander mode missing at its placement");
+            set(p,"gate2Mode",0);set(p,"gate2RangeDb",24);set(p,"gate2On",0);
             set(p,"expOn",1);set(p,"expAfterRig",post?1.f:0.f);set(p,"expThreshold",-40);set(p,"expRatio",20);set(p,"expHold",0);set(p,"expRelease",5);set(p,"expRangeDb",12);
             const double expanded=hissEnergy(p);
             require(std::abs(db(expanded)+12)<.06,"Expander range missing at its placement");
@@ -255,11 +258,14 @@ void extraGates()
             set(p,"gate2On",0);set(p,"expOn",0);
             std::cout<<"MEASURE extra gates mode="<<mode<<" board="<<board<<" post="<<post<<" gate2_db="<<db(gate2)<<" expander_db="<<db(expanded)<<" both_db="<<db(both)<<'\n';
         }
-        // Main gate before the rig and Gate 2 after it, at the same time.
-        set(p,"gateon",1);set(p,"gateAfterRig",0);set(p,"gateRangeDb",6);
-        set(p,"gate2On",1);set(p,"gate2AfterRig",1);set(p,"gate2RangeDb",12);
-        const double prePost=hissEnergy(p);
-        require(std::abs(db(prePost)+18)<.1,"Pre-rig gate and post-rig Gate 2 do not run together");
+        // PRE and POST gates at the same time, whichever side holds the main gate.
+        set(p,"gateon",1);set(p,"gateRangeDb",6);set(p,"gate2On",1);set(p,"gate2RangeDb",12);
+        double prePost=0;
+        for(float mainAfter:{0.f,1.f}) {
+            set(p,"gateAfterRig",mainAfter);prePost=hissEnergy(p);
+            require(std::abs(db(prePost)+18)<.1,"PRE and POST gates do not run together");
+            require(std::abs(juce::Decibels::gainToDecibels(p.gateUnitMeter(1))+12)<.03f && std::abs(juce::Decibels::gainToDecibels(p.gateMeter())+6)<.03f,"PRE / POST gate meters mixed up");
+        }
         set(p,"gate2On",0);set(p,"gateRangeDb",0);
         require(std::abs(db(hissEnergy(p)))<.01,"Disabled extra gates are not transparent");
         std::cout<<"PASS extra gates mode "<<mode<<" board "<<board<<": Gate 2 and Expander pre/post, together, and with a pre-rig main gate ("<<db(prePost)<<" dB)\n";

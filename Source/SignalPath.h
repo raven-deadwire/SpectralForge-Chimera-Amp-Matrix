@@ -34,12 +34,13 @@ inline Snapshot read(ChimeraProcessor& p) {
     add("tuner","TUNER TAP",Target::tuner,16,100,on("tuneron"),{},-1,-1,"Input-gain tap, before gate and Transpose. Tuner mute is applied at output.");edge("input","tuner",true);
     auto previous=juce::String("input");
     if(!postGate){add("gate","INPUT GATE",Target::gate,138,42,on("gateon"));edge(previous,"gate");previous="gate";}
-    // Gate 2 and the Expander each choose their own side of the rig. Shown as
-    // clean-input taps so the main chain keeps its exact DSP positions.
+    // Gate 2 sits on the other side of the rig from the main gate; the Expander
+    // chooses its own. Shown as clean-input taps so the main chain keeps its
+    // exact DSP positions.
     const auto extraGates=[&](bool after,const juce::String& id,int x,int y,const juce::String& from) {
         juce::StringArray names,active;
         if(on("expAfterRig")==after){names.add("EXPANDER");if(on("expOn"))active.add("EXPANDER");}
-        if(on("gate2AfterRig")==after){names.add("GATE 2");if(on("gate2On"))active.add("GATE 2");}
+        if(postGate!=after){names.add(after?"POST GATE 2":"PRE GATE 2");if(on("gate2On"))active.add("GATE 2");}
         if(names.isEmpty())return;
         add(id,names.joinIntoString(" + "),Target::gate,x,y,!active.isEmpty(),active.isEmpty()?juce::String("BYPASSED"):active.joinIntoString(" + ")+" ON",-1,-1,
             after?"Clean-input detector; attenuation after the main post gate, before Tone EQ. Order: Gate > Gate 2 > Expander."
