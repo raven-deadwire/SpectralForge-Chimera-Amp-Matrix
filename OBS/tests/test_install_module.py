@@ -146,6 +146,18 @@ class InstallTests(unittest.TestCase):
             self.run_install()
         self.assertFalse(self.target.exists())
 
+    def test_empty_user_directory_is_preserved_on_update(self):
+        old = self.seed_old()
+        user_directory = self.target / "empty-user-folder"
+        user_directory.mkdir()
+        if PLATFORM == "macos":
+            with self.assertRaisesRegex(installer.InstallError, "User files"):
+                self.run_install()
+            self.assert_old(old)
+        else:
+            self.run_install()
+        self.assertTrue(user_directory.is_dir())
+
     def test_real_obs_named_process_blocks_install_update_and_uninstall(self):
         process = subprocess.Popen([str(self.obs_process)], stdout=subprocess.PIPE, text=True)
         try:

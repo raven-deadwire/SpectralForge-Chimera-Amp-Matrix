@@ -287,7 +287,10 @@ def install(package, plugins, platform, uninstall=False):
         # Signed macOS bundles cannot be merged with unsealed user files.
         # Refuse upgrades with such additions; uninstall still preserves them.
         if platform == "macos" and not uninstall and old_inventory is not None:
-            if set(old_inventory) - owned_files(platform):
+            allowed = set(owned_files(platform))
+            allowed.update(str(parent) for name in owned_files(platform)
+                           for parent in Path(name).parents if str(parent) != ".")
+            if any(p.relative_to(target).as_posix() not in allowed for p in target.rglob("*")):
                 raise InstallError("User files inside the macOS bundle must be moved out before updating; nothing removed.")
         candidate = work / target.name
         work.mkdir(mode=0o700)
