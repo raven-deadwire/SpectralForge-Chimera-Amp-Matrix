@@ -15,9 +15,9 @@
 //
 // CorrelationPitch and LegatoDetector below are copies of the research
 // sources in Tools/TransposeNext (ebd3761, plus the per-update pick ordering
-// and the steady guard), only moved into this namespace.
+// the steady guard and the drift threshold option), only moved into this namespace.
 // Tests/PitchRegressionTests.cpp checks that HybridTransposer is
-// bit-identical to the research render probe's mode 45 (ChimeraTransposeRender),
+// bit-identical to the research render probe's mode 58 (ChimeraTransposeRender),
 // so a change to either copy must be made to both.
 
 namespace spectralforge::hybrid {
@@ -418,7 +418,8 @@ class LegatoDetector {
     double period{}, confirmPeriod{}, baseline{}, previous{}, deep{}, deeper{}, deepCoefficient{}, deepEnergy{}, allEnergy{}, energyCoefficient{};
     static constexpr int stableNeeded=10, cooldownLength=30, rise=5, confirmUpdates=2;
     static constexpr double searchThreshold=.15, lockThreshold=.02, eventRatio=6, eventFloor=.06, energyFloor=1.e-7, confirmFloor=.15,
-                            driftEvent=.015, driftSteady=.003;
+                            driftSteady=.003;
+    double driftEvent{.015};
     float at(int age) const noexcept {int i=write-1-age;if(i<0)i+=size;return ring[size_t(i)];}
     double error(int lag) const noexcept {
         double e=0,s=1.e-20;
@@ -447,6 +448,10 @@ public:
     // Tools/TransposeEvidence/legato_modulation_probe.py).
     void setSteadyGuard(double ms) noexcept {steadyGuard=ms>0 ? int(sampleRateHz*ms/1000) : 0;}
     int guardedCandidates() const noexcept {return guarded;}
+    // Research: the period-drift candidate threshold (default 1.5 % in 5 ms).
+    // A one-semitone legato step drifts 2.9 %; the onset of a +-100 cent 7 Hz
+    // vibrato (steepest at its start) reached 1.55-1.62 %.
+    void setDriftEvent(double fraction) noexcept {driftEvent=fraction;}
     // True when the next push() runs the 1 ms update. notePick() only touches
     // update state, so a pick reported any time before that push is applied
     // exactly as if it were reported on its own sample.
@@ -536,7 +541,7 @@ class HybridTransposer {
             a1=-2*c/(1+alpha);a2=(1-alpha)/(1+alpha);clear();
         }
     };
-    static constexpr double crossover=800.,boundMs=40.,leadMs=1.4,phaseSearchMs=2.5,steadyGuardMs=10.;
+    static constexpr double crossover=800.,boundMs=40.,leadMs=1.4,phaseSearchMs=2.5,steadyGuardMs=10.,driftEvent=.02;
     CorrelationPitch body;
     LegatoDetector legato;
     spectralforge::PolyPitch upper;
@@ -568,9 +573,11 @@ public:
         body.setAnchorInputDelay(1000.*2*std::sqrt(2.)/(2*juce::MathConstants<double>::pi*crossover));
         body.setReanchorPhaseSearch(phaseSearchMs,false);
         upper.prepare(spec,0,window);
-        // Probe mode 45: no legato re-anchor unless the period was steady
-        // within 10 ms (wide vibrato and fast bends measured worse with it).
-        legato.prepare(spec.sampleRate);legato.setSteadyGuard(steadyGuardMs);
+        // Probe mode 58: no legato re-anchor unless the period was steady
+        // within 10 ms (wide vibrato and fast bends measured worse with it),
+        // and a period-drift candidate needs 2 % in 5 ms (a semitone step
+        // drifts 2.9 %, the onset of +-100 cent vibrato 1.6 %).
+        legato.prepare(spec.sampleRate);legato.setSteadyGuard(steadyGuardMs);legato.setDriftEvent(driftEvent);
         for(auto& b:lowpass)b.prepare(spec.sampleRate,crossover,false);
         for(auto& b:highpass)b.prepare(spec.sampleRate,crossover,true);
         for(auto* b:{&lowIn,&highIn,&lowOut,&highOut,&detector})b->setSize(channels,capacity);

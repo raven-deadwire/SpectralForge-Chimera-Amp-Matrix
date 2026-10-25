@@ -1,0 +1,37 @@
+worst over shifts -12,-5,+2,+12 (events per shift), 48 kHz, block 128
+E2_vib20c_5.5Hz            guard 10 ms (product)  events [0, 0, 0, 0]     median  1.43 p99   10.8 off50 0.0000 worst    16.7
+E2_vib20c_5.5Hz            drift 2 %              events [0, 0, 0, 0]     median  1.43 p99   10.8 off50 0.0000 worst    16.7
+E2_vib20c_5.5Hz            drift 2.5 %            events [0, 0, 0, 0]     median  1.43 p99   10.8 off50 0.0000 worst    16.7
+E2_vib50c_6Hz              guard 10 ms (product)  events [0, 0, 0, 0]     median  3.11 p99   23.2 off50 0.0000 worst    30.4
+E2_vib50c_6Hz              drift 2 %              events [0, 0, 0, 0]     median  3.11 p99   23.2 off50 0.0000 worst    30.4
+E2_vib50c_6Hz              drift 2.5 %            events [0, 0, 0, 0]     median  3.11 p99   23.2 off50 0.0000 worst    30.4
+E2_vib100c_7Hz             guard 10 ms (product)  events [1, 1, 1, 1]     median  9.05 p99   97.6 off50 0.0819 worst   338.2
+E2_vib100c_7Hz             drift 2 %              events [0, 0, 0, 0]     median  8.29 p99   97.6 off50 0.0819 worst   102.4
+E2_vib100c_7Hz             drift 2.5 %            events [0, 0, 0, 0]     median  8.29 p99   97.6 off50 0.0819 worst   102.4
+A2_vib20c_5.5Hz            guard 10 ms (product)  events [0, 0, 0, 0]     median  1.86 p99   13.1 off50 0.0000 worst    15.2
+A2_vib20c_5.5Hz            drift 2 %              events [0, 0, 0, 0]     median  1.86 p99   13.1 off50 0.0000 worst    15.2
+A2_vib20c_5.5Hz            drift 2.5 %            events [0, 0, 0, 0]     median  1.86 p99   13.1 off50 0.0000 worst    15.2
+A2_vib50c_6Hz              guard 10 ms (product)  events [0, 0, 0, 0]     median  4.65 p99   38.4 off50 0.0000 worst    44.2
+A2_vib50c_6Hz              drift 2 %              events [0, 0, 0, 0]     median  4.65 p99   38.4 off50 0.0000 worst    44.2
+A2_vib50c_6Hz              drift 2.5 %            events [0, 0, 0, 0]     median  4.65 p99   38.4 off50 0.0000 worst    44.2
+A2_vib100c_7Hz             guard 10 ms (product)  events [1, 1, 1, 1]     median  9.18 p99  101.2 off50 0.0780 worst   214.1
+A2_vib100c_7Hz             drift 2 %              events [0, 0, 0, 0]     median 10.04 p99   82.5 off50 0.0780 worst    83.3
+A2_vib100c_7Hz             drift 2.5 %            events [0, 0, 0, 0]     median 10.04 p99   82.5 off50 0.0780 worst    83.3
+E2_bend200c_100ms          guard 10 ms (product)  events [0, 0, 0, 0]     median  0.19 p99   70.6 off50 0.0357 worst    71.1
+E2_bend200c_100ms          drift 2 %              events [0, 0, 0, 0]     median  0.19 p99   70.6 off50 0.0357 worst    71.1
+E2_bend200c_100ms          drift 2.5 %            events [0, 0, 0, 0]     median  0.19 p99   70.6 off50 0.0357 worst    71.1
+E2_bendrelease200c_100ms   guard 10 ms (product)  events [0, 0, 0, 0]     median  0.71 p99   23.1 off50 0.0000 worst    23.3
+E2_bendrelease200c_100ms   drift 2 %              events [0, 0, 0, 0]     median  0.71 p99   23.1 off50 0.0000 worst    23.3
+E2_bendrelease200c_100ms   drift 2.5 %            events [0, 0, 0, 0]     median  0.71 p99   23.1 off50 0.0000 worst    23.3
+E2_bend200c_50ms           guard 10 ms (product)  events [0, 0, 0, 0]     median  0.20 p99  111.1 off50 0.0179 worst   124.5
+E2_bend200c_50ms           drift 2 %              events [0, 0, 0, 0]     median  0.20 p99  111.1 off50 0.0179 worst   124.5
+E2_bend200c_50ms           drift 2.5 %            events [0, 0, 0, 0]     median  0.20 p99  111.1 off50 0.0179 worst   124.5
+E2_bendrelease200c_50ms    guard 10 ms (product)  events [0, 0, 0, 0]     median  1.08 p99   36.6 off50 0.0000 worst    48.4
+E2_bendrelease200c_50ms    drift 2 %              events [0, 0, 0, 0]     median  1.08 p99   36.6 off50 0.0000 worst    48.4
+E2_bendrelease200c_50ms    drift 2.5 %            events [0, 0, 0, 0]     median  1.08 p99   36.6 off50 0.0000 worst    48.4
+E2_bend100c_30ms           guard 10 ms (product)  events [0, 0, 0, 0]     median  0.84 p99    4.0 off50 0.0000 worst    36.9
+E2_bend100c_30ms           drift 2 %              events [0, 0, 0, 0]     median  0.84 p99    4.0 off50 0.0000 worst    36.9
+E2_bend100c_30ms           drift 2.5 %            events [0, 0, 0, 0]     median  0.84 p99    4.0 off50 0.0000 worst    36.9
+E2_bendrelease100c_30ms    guard 10 ms (product)  events [0, 0, 0, 0]     median  0.94 p99   36.8 off50 0.0084 worst    70.7
+E2_bendrelease100c_30ms    drift 2 %              events [0, 0, 0, 0]     median  0.94 p99   36.8 off50 0.0084 worst    70.7
+E2_bendrelease100c_30ms    drift 2.5 %            events [0, 0, 0, 0]     median  0.94 p99   36.8 off50 0.0084 worst    70.7

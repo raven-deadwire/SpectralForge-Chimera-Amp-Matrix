@@ -25,6 +25,7 @@
 //     mode 44|45|46: mode 41 with the legato steady guard at 6|10|15 ms (LegatoDetector::setSteadyGuard)
 //     mode 47|48: mode 45 (product) with the low-band delay bound at 30|25 ms instead of 40
 //     mode 49-54: mode 45 with held downshifts centred on the reported latency, early-splice cost limit .05|.1|.2|.01|.003|.001
+//     mode 58|59: mode 45 with the legato period-drift threshold at 2|2.5 % (default 1.5 %)
 //
 // Prints the reported latency in samples on stdout (-1: variable, not reported).
 // Options after <out.f32>:
@@ -64,7 +65,7 @@ int main(int argc,char** argv) {
     in.read(reinterpret_cast<char*>(samples.data()),std::streamsize(samples.size()*sizeof(float)));
     const juce::dsp::ProcessSpec spec{rate,juce::uint32(block),2};
     spectralforge::Transposer transposer;transposeNext::TransientSplitPitch research;transposeNext::HybridLowBandPitch hybrid;
-    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=54;
+    const bool researchEngine=mode==10,hybridEngine=mode>=11 && mode<=59;
     if(researchEngine){research.prepare(spec,true,true);research.setSemitones(semitones);}
     else if(hybridEngine){
         // Research hybrid variants; see the mode list above.
@@ -79,7 +80,8 @@ int main(int argc,char** argv) {
         if(mode>=40)hybrid.setLegatoReanchor(true);
         if(mode>=41)hybrid.setReanchorPhaseSearch(mode==43?6.:2.5,mode>=42 && mode<=43);   // lead measured by a lead sweep (docs/TRANSPOSE_HYBRID_LATENCY_CONTRACT.md)
         if(mode>=44)hybrid.setLegatoSteadyGuard(mode==44?6.:mode==46?15.:10.);
-        if(mode>=49)hybrid.setSustainCentre(mode==49?.05:mode==50?.1:mode==51?.2:mode==52?.01:mode==53?.003:.001);
+        if(mode>=58)hybrid.setLegatoDriftEvent(mode==58?.02:.025);
+        else if(mode>=49)hybrid.setSustainCentre(mode==49?.05:mode==50?.1:mode==51?.2:mode==52?.01:mode==53?.003:.001);
         hybrid.setSolo(solo);hybrid.setSemitones(semitones);
     }
     else {transposer.prepare(spec);transposer.setMode(mode);}

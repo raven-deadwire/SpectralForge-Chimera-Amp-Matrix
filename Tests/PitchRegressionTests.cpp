@@ -69,18 +69,18 @@ double componentOf(const std::vector<float>& y,double rate,double frequency,doub
 }
 void hybridChecks() {
     // 1. The product copy equals the research engine in the render probe's
-    //    mode 45 (Tools/TransposeEvidence/TransposeRenderProbe.cpp), bit for bit.
+    //    mode 58 (Tools/TransposeEvidence/TransposeRenderProbe.cpp), bit for bit.
     for(double rate:{44100.,48000.,96000.})for(int shift:{-12,-5,-2,2,7,12})for(int material=0;material<3;++material) {
-        // Material 2 (+-100 cents at 7 Hz) is where the 10 ms steady guard acts.
+        // Material 2 (+-100 cents at 7 Hz) is where the steady guard and the 2 % drift threshold act.
         const auto x=material==0 ? pluck(rate,{82.41}) : material==1 ? pluck(rate,{82.41,123.47,164.81}) : vibrato(rate,82.41,100,7);
         const juce::dsp::ProcessSpec spec{rate,128,2};
         spectralforge::hybrid::HybridTransposer product;product.prepare(spec);product.setSemitones(shift);
         transposeNext::HybridLowBandPitch research;
         research.prepare(spec,800.,40.,true,10.,true,.5,2.9,true,false,false);
-        research.setAttackLatency(1.4);research.setLegatoReanchor(true);research.setReanchorPhaseSearch(2.5,false);research.setLegatoSteadyGuard(10.);research.setSolo(0);research.setSemitones(shift);
+        research.setAttackLatency(1.4);research.setLegatoReanchor(true);research.setReanchorPhaseSearch(2.5,false);research.setLegatoSteadyGuard(10.);research.setLegatoDriftEvent(.02);research.setSolo(0);research.setSemitones(shift);
         const auto a=renderHybrid(product,rate,128,x,[](auto& e,auto& in,auto& out){e.process(in,out,true);});
         const auto b=renderHybrid(research,rate,128,x,[](auto& e,auto& in,auto& out){e.process(in,out);});
-        require(a==b,"HYBRID product copy differs from the research engine (probe mode 45)");
+        require(a==b,"HYBRID product copy differs from the research engine (probe mode 58)");
         require(product.latency()==int(rate*.010)/8*8 && research.latency()==product.latency(),"HYBRID latency is not the 10 ms STFT window");
     }
     // 2. Low notes and a power chord come out at the shifted pitch, where the
@@ -108,7 +108,7 @@ void hybridChecks() {
             if(reference.empty())reference=y;else require(y==reference,"HYBRID output depends on the block size");
         }
     }
-    std::cout<<"PASS HYBRID transpose: bit-identical to research probe mode 45, low notes shifted, block-size invariant (synthetic material)\n";
+    std::cout<<"PASS HYBRID transpose: bit-identical to research probe mode 58, low notes shifted, block-size invariant (synthetic material)\n";
 }
 double component(const Render& r,double rate,double frequency) {
     std::complex<double> sum{};const auto first=size_t(rate*.75);

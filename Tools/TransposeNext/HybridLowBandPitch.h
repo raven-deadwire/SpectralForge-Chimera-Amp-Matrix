@@ -74,6 +74,7 @@ public:
     int legatoEvents() const noexcept {return legato.legatoEvents();}
     int legatoGuarded() const noexcept {return legato.guardedCandidates();}
     void setLegatoSteadyGuard(double ms) noexcept {legato.setSteadyGuard(ms);}
+    void setLegatoDriftEvent(double fraction) noexcept {legato.setDriftEvent(fraction);}
     void setReanchorPhaseSearch(double ms, bool picks) noexcept {body.setReanchorPhaseSearch(ms,picks);}
     // Research: centre held downshifts on the reported latency (CorrelationPitch::setSustainCentre),
     // i.e. a low-band read delay of L - tau. Call after setAttackLatency.

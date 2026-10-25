@@ -47,7 +47,8 @@ class LegatoDetector {
     double period{}, confirmPeriod{}, baseline{}, previous{}, deep{}, deeper{}, deepCoefficient{}, deepEnergy{}, allEnergy{}, energyCoefficient{};
     static constexpr int stableNeeded=10, cooldownLength=30, rise=5, confirmUpdates=2;
     static constexpr double searchThreshold=.15, lockThreshold=.02, eventRatio=6, eventFloor=.06, energyFloor=1.e-7, confirmFloor=.15,
-                            driftEvent=.015, driftSteady=.003;
+                            driftSteady=.003;
+    double driftEvent{.015};
     float at(int age) const noexcept {int i=write-1-age;if(i<0)i+=size;return ring[size_t(i)];}
     double error(int lag) const noexcept {
         double e=0,s=1.e-20;
@@ -76,6 +77,10 @@ public:
     // Tools/TransposeEvidence/legato_modulation_probe.py).
     void setSteadyGuard(double ms) noexcept {steadyGuard=ms>0 ? int(sampleRateHz*ms/1000) : 0;}
     int guardedCandidates() const noexcept {return guarded;}
+    // Research: the period-drift candidate threshold (default 1.5 % in 5 ms).
+    // A one-semitone legato step drifts 2.9 %; the onset of a +-100 cent 7 Hz
+    // vibrato (steepest at its start) reached 1.55-1.62 %.
+    void setDriftEvent(double fraction) noexcept {driftEvent=fraction;}
     // True when the next push() runs the 1 ms update. notePick() only touches
     // update state, so a pick reported any time before that push is applied
     // exactly as if it were reported on its own sample.
