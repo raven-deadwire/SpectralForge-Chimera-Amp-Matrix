@@ -82,7 +82,11 @@ lead sweep(B0 / E2 / E2 파워코드 / A3 / E2 재피킹, 저역 어택 ms):
 
 **승인 상태 (2026-10-24)**: 소유자가 DI 녹음 단계를 "한 것으로 치고" 반영하기로 결정했다. **DI 녹음은 측정하지 않았다.** 이 문서와 증거 파일의 모든 수치는 합성 소재와 합성 블라인드 A/B 청취(§7.6) 결과다.
 - 이 결정에 따라 UI 툴팁에서 "research mode, not yet verified on DI"를 뺐다. 남는 한계(지속음 저역 지연, 주기 없는 저음 화음)는 툴팁에 그대로 적었다.
-- 기본 품질 모드는 바꾸지 않았다(CLASSIC 유지). 바꾸면 `transposeQuality` 속성이 없는 기존 프로젝트까지 지연이 달라진다(`syncTransposeQuality`).
+- 기본 품질 모드(2026-10-25, 소유자 결정): **새 인스턴스는 HYBRID로 시작한다.**
+  - `transposeQuality` 속성이 없는 프로젝트(이 설정이 생기기 전에 저장된 것)는 CLASSIC으로 복원한다. 원래 소리와 지연(약 43 ms)이 그대로다.
+  - 저장된 모드는 그대로 복원한다. 팩토리 프리셋을 불러도 현재 모드를 유지한다.
+  - 구현은 `syncTransposeQuality(whenAbsent)`다. 생성자는 3, `restoreCore`는 0, 프리셋은 현재 값을 넘긴다.
+  - 테스트는 `IntegratedProcessorTests`의 `transposeQualityDefaults`다. 복원 기본값을 3으로 바꾸면 실패한다.
 - 호스트 왕복(`ChimeraVST3LatencyRoundTrip`, Linux ctest): 빌드한 VST3를 JUCE VST3 호스트로 연다. 프로젝트 상태 복원으로 품질 모드와 파라미터를 바꾼 뒤, 호스트가 읽는 지연과 실제 출력을 비교한다(게이트·앰프·캐비닛 끔, E2 피킹, 44.1/48/96 kHz).
   - 변환 끔: 출력이 입력을 보고 지연(24 샘플)만큼 정확히 늦춘 것이다(상관 1.0).
   - HYBRID −5/+7: 보고 지연은 464/504/984 샘플이다. 800 Hz 아래 어택이 그 지연에서 −0.20 … +0.17 ms에 도착한다.

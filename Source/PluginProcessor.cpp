@@ -40,7 +40,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
-    syncTransposeQuality();
+    syncTransposeQuality(3);
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
@@ -457,12 +457,14 @@ void ChimeraProcessor::setTransposeQuality(int mode)
     transposeQualityMode.store(mode);
     state.state.setProperty("transposeQuality",mode,nullptr);
 }
-void ChimeraProcessor::syncTransposeQuality()
+void ChimeraProcessor::syncTransposeQuality(int whenAbsent)
 {
-    // After a state replace, keep the current mode unless the restored tree
-    // carries one (an old project or a factory snapshot has none), then re-stamp
-    // so the property stays present on the live tree for the next save.
-    const int mode=juce::jlimit(0,3,(int)state.state.getProperty("transposeQuality",transposeQualityMode.load()));
+    // After a state replace, use the restored tree's mode, or `whenAbsent` when
+    // it carries none, then re-stamp so the property stays present on the live
+    // tree for the next save. A fresh instance starts at HYBRID (3); a project
+    // saved before the setting existed restores as CLASSIC (0), its original
+    // sound and latency; a factory snapshot keeps the current mode.
+    const int mode=juce::jlimit(0,3,(int)state.state.getProperty("transposeQuality",whenAbsent));
     transposeQualityMode.store(mode);
     state.state.setProperty("transposeQuality",mode,nullptr);
 }
@@ -517,7 +519,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
-    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();resetPending.store(true);
+    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality(0);resetPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
 }
@@ -577,7 +579,7 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             : spectralforge::factoryNativeSnapshot(state,index);
         spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,snapshot,true);
         state.replaceState(snapshot);
-        syncTransposeQuality();
+        syncTransposeQuality(transposeQualityMode.load());
         // Canonicalize host values as well as APVTS values. Bool/choice adapters
         // may already cache the snapped value of a noncanonical host write and
         // suppress an otherwise identical replaceState update.

@@ -188,7 +188,7 @@ private:
     void measureStage(int,const juce::AudioBuffer<float>&);
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
-    void syncTransposeQuality();
+    void syncTransposeQuality(int whenAbsent);
     void restoreCore(juce::ValueTree);
     std::array<juce::ValueTree,2> comparisons;
     std::mutex comparisonMutex;

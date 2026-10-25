@@ -3,6 +3,7 @@
 #include "FactoryNativeVoicing.h"
 #include "FactoryCabVoicing.h"
 #include "PresetOrder.h"
+#include <functional>
 #include <iostream>
 #include <stdexcept>
 #include <iomanip>
@@ -666,6 +667,34 @@ void gainAndGR() {
         std::cout<<"PASS processor pedal GR model="<<model<<" active and bypass\n";
     }
 }
+// New instances start at HYBRID; a project saved before the quality setting
+// existed (no transposeQuality property) restores as CLASSIC; a saved mode
+// round-trips; a factory preset keeps the current mode.
+void transposeQualityDefaults() {
+    const auto fresh=std::make_unique<ChimeraProcessor>();
+    require(fresh->transposeQuality()==3,"A new instance does not start at HYBRID");
+    set(*fresh,"transposeon",1);set(*fresh,"transpose",-5);fresh->setRateAndBufferSizeDetails(48000,128);fresh->prepareToPlay(48000,128);
+    require(fresh->pitchLatency()==spectralforge::Transposer::tightAnalysisLength(48000),"A new instance does not report the HYBRID window");
+    fresh->releaseResources();
+    auto saved=[](ChimeraProcessor& p,bool stripQuality) {
+        juce::MemoryBlock data;p.getStateInformation(data);
+        auto xml=juce::AudioProcessor::getXmlFromBinary(data.getData(),int(data.getSize()));
+        require(xml!=nullptr,"State is not binary XML");
+        if(stripQuality) {
+            std::function<void(juce::XmlElement&)> strip=[&](juce::XmlElement& e){e.removeAttribute("transposeQuality");for(auto* c:e.getChildIterator())strip(*c);};
+            strip(*xml);
+        }
+        juce::MemoryBlock out;juce::AudioProcessor::copyXmlToBinary(*xml,out);return out;
+    };
+    auto restore=[](const juce::MemoryBlock& data){auto p=std::make_unique<ChimeraProcessor>();p->setStateInformation(data.getData(),int(data.getSize()));return p;};
+    const auto source=std::make_unique<ChimeraProcessor>();
+    require(restore(saved(*source,true))->transposeQuality()==0,"A project without a transpose quality does not restore as CLASSIC");
+    source->setTransposeQuality(2);
+    require(restore(saved(*source,false))->transposeQuality()==2,"A saved TIGHT project does not restore as TIGHT");
+    source->setTransposeQuality(1);source->loadFactoryPreset(0);
+    require(source->transposeQuality()==1,"A factory preset changed the transpose quality");
+    std::cout<<"PASS transpose quality defaults: new instance HYBRID (10 ms), legacy project CLASSIC, saved mode restored, factory preset keeps the mode\n";
+}
 // Each transpose quality, HYBRID included, must reach the host-reported delay
 // on the next callback and survive a state round trip before the first block.
 void transposeQualityLatency() {
@@ -728,7 +757,7 @@ int main(int argc,char** argv) {
         if(argc==4&&juce::String(argv[1])=="--owner-original-reference"){ownerOriginalReference(juce::File(argv[2]),juce::File(argv[3]));return 0;}
         if(argc>1&&juce::String(argv[1])=="--original-production-only"){originalProduction();originalChannels();return 0;}
         if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}
-        if(argc>1&&juce::String(argv[1])=="--transpose-quality-only"){transposeQualityLatency();return 0;}
+        if(argc>1&&juce::String(argv[1])=="--transpose-quality-only"){transposeQualityDefaults();transposeQualityLatency();return 0;}
         const auto measurement=argc>2?juce::String(argv[2]):juce::String{};
         const bool originalOnly=measurement=="--measure-original";
         const bool headerVoicing=originalOnly||measurement=="--measure-presets";
@@ -750,7 +779,7 @@ int main(int argc,char** argv) {
         }
         if(!measureOnly)cabPreparedStateTests::run();
         factoryBank(measureOnly,originalOnly,headerVoicing,selected);
-        if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();transposeQualityLatency();presetGainTests::run(false);niflheimrPresetTests::run(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("niflheimr-presets"));}
+        if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();transposeQualityDefaults();transposeQualityLatency();presetGainTests::run(false);niflheimrPresetTests::run(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("niflheimr-presets"));}
     }
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }
