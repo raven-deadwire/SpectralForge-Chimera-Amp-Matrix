@@ -242,7 +242,8 @@ void factoryProcessingContract(ChimeraProcessor& processor,int index) {
             const auto value=processor.graphicalEQ(bank).values(band);
             if(!value.enabled)continue;
             mask=uint16_t(mask|(1u<<band));
-            require(band<2,"Factory EQ left an unauthored correction slot active");
+            // Bands 1-2 hold the finishing/dynamic nodes; Tone 3-4 and Final 3 the role tone curve.
+            require(band<(bank==0?4:3),"Factory EQ left an unauthored correction slot active");
         }
         require(mask!=0 && !processor.graphicalEQ(bank).isBypassed(),"Factory preset omitted its Tone or Final EQ voicing");
         require(processor.eqEditing().occupiedMask(bank)==mask,"Factory EQ displayed stale or missing editor bands");

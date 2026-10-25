@@ -59,11 +59,40 @@ fixture plays, and more than 6 dB on hiss 24 dB under its threshold.
 |---|---:|
 | Largest Gate 2 / Expander reduction while playing | 0.00002 dB |
 | Smallest reduction on the quiet hiss | 8.9 dB (Doom Fuzz, Expander range 9 dB) |
-| Lowest nominal preset RMS / highest unprotected peaks | unchanged: −28.0467 dBFS, Slap Studio |
+| Lowest nominal preset RMS before the tone curves | unchanged: −28.0467 dBFS, Slap Studio |
 
-Dynamic EQ thresholds were re-checked with the same render and kept: the
-largest mean dynamic cut is 41 % of its range (Low B Foundation, body node), no
-node reaches 90 %, and the preset levels and limiter results are unchanged.
+## Role tone curves (2026-10-25)
+
+The finishing EQ now shapes each role, not only trims it. Tone band 3 takes out
+low-mid weight (a low shelf for finger-style bass, which needs more floor),
+Tone band 4 adds presence and Final band 3 sets the air:
+
+| Role | Tone band 3 | Tone band 4 | Final band 3 (high shelf 9 kHz) |
+|---|---|---|---|
+| clean | 300 Hz −1 dB | 2.5 kHz +1 dB | +1 dB |
+| edge | 280 Hz −1 dB | 2.2 kHz +1.5 dB | +0.5 dB |
+| rhythm | 350 Hz −2.5 dB, Q 1.2 | 2.8 kHz +1 dB | off |
+| lead | 300 Hz −1 dB | 1.5 kHz +1.5 dB, Q 0.8 | −0.5 dB |
+| finger (bass) | low shelf 90 Hz +1 dB | 900 Hz +1 dB | off |
+| pick (bass) | 350 Hz −1 dB | 1.2 kHz +1.5 dB | off |
+| slap | 400 Hz −1.5 dB | 2.5 kHz +1.5 dB | +1 dB |
+| matrix | 300 Hz −1 dB | 1.8 kHz +1 dB | off |
+| envelope | off (the filter sweep stays untouched) | off | off |
+| fuzz | 400 Hz −1 dB | 1.2 kHz +1 dB | −1 dB |
+
+Rhythm started at −2 dB / +1.5 dB; Thall Rhythm's unprotected peak then reached
+−0.43 dBFS, over the −0.45 dBFS gate, so the rhythm curve trades 0.5 dB of
+presence for 0.5 dB more low-mid cut. No band is a high-pass; the bass
+low-A/low-B fundamental check still passes.
+
+| Measurement (local Linux, with the tone curves) | Result |
+|---|---:|
+| Highest unprotected nominal / +6 dB peak | −0.62 dBFS Thall Rhythm / −0.88 dBFS Amber Heavy |
+| Lowest nominal RMS | −28.13 dBFS, Slap Studio (gate: above −30) |
+| Largest mean dynamic EQ cut | 47 % of its range (Blackhearted); none reaches 90 % |
+| Gate 2 / Expander while playing / on quiet hiss | ≤ 0.00002 dB / ≥ 8.9 dB |
+
+Dynamic EQ thresholds were re-checked with the same render and kept.
 
 ## Threshold calibration
 
