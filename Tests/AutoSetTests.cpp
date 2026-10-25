@@ -61,14 +61,14 @@ void analysisRules() {
 
 // Noise whose third-octave spectrum follows the target curve exactly, built
 // by inverse FFT with random phases and looped.
-std::vector<float> targetNoise(bool bass,double rate,double seconds,std::mt19937& random) {
+std::vector<float> targetNoise(bool bass,double rate,double seconds,std::mt19937& random,Style style=Style::rock) {
     constexpr int order=15,size=1<<order;
     juce::dsp::FFT fft(order);std::vector<float> spectrum(size_t(2*size));
     std::uniform_real_distribution<double> phase(0,2*juce::MathConstants<double>::pi);
     for(int k=1;k<size/2;++k) {
         const double f=k*rate/size;
         // Band power is the sum of bins; third-octave width grows with f.
-        const double magnitude=std::sqrt(std::pow(10.,toneTargetDb(bass,float(std::clamp(f,20.,20000.)))/10.)/f)*(f<35?0:1);
+        const double magnitude=std::sqrt(std::pow(10.,toneTargetDb(bass,float(std::clamp(f,20.,20000.)),style)/10.)/f)*(f<35?0:1);
         const double ph=phase(random);spectrum[size_t(2*k)]=float(magnitude*std::cos(ph));spectrum[size_t(2*k+1)]=float(magnitude*std::sin(ph));
     }
     fft.performRealOnlyInverseTransform(spectrum.data());
@@ -148,6 +148,84 @@ void finishRules() {
     std::cout<<"PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release\n";
 }
 
+float maximumReduction(const std::vector<float>& samples,double rate,const FinishResult& result) {
+    spectralforge::DeEsserCore core;core.prepare(rate);
+    core.setSettings({result.deEsser,result.frequency,result.thresholdDb,result.rangeDb,result.attackMs,result.releaseMs,result.ratio,result.kneeDb,false});
+    core.reset();float maximum=0;
+    for(float x:samples){float* channels[]{&x};core.process(channels,1,1);maximum=std::max(maximum,core.reduction());}
+    return maximum;
+}
+void riskProbe() {
+    for(double rate:{44100.,48000.,96000.}) {
+        for(const auto& f:std::vector<std::pair<const char*,std::array<double,3>>>{{"dropA_guitar",{55,65.406,82.407}},{"bass5_lowB",{30.868,41.203,55}},{"bass6_highC",{130.813,164.814,196}}}) {
+            const auto x=notes(rate,6,f.second,40);
+            const auto t=analyseTone(x,rate);
+            std::cout<<"CLASS "<<rate<<' '<<f.first<<" bass="<<t.bass<<"\n";
+        }
+        for(const bool muted:{false,true})for(const bool clipped:{false,true}) {
+            std::mt19937 random{417};auto x=targetNoise(false,rate,6,random);
+            for(size_t n=0;n<x.size();++n) {
+                const double t=double(n)/rate,cycle=std::fmod(t,.25);
+                const double env=std::exp(-cycle*(muted?45.:12.));
+                const double attack=cycle<.008?.16*std::sin(2*juce::MathConstants<double>::pi*6000*t)*std::exp(-cycle*500):0;
+                double y=x[n]*env+attack;
+                x[n]=float(clipped?.25*std::tanh(y*12):y);
+            }
+            for(auto style:{Style::rock,Style::clean,Style::metal}){
+                const auto f=analyseFinish(x,{},rate,false,style);
+                std::cout<<"ATTACK "<<rate<<" mute="<<muted<<" clip="<<clipped<<' '<<styleName(style)<<" on="<<f.deEsser<<" spec="<<f.spectralExcessDb<<" burst="<<f.burstExcessDb<<" split="<<f.frequency<<" range="<<f.rangeDb<<" overall="<<f.overallSpectralExcessDb<<" sustained="<<f.sustainedEvidence<<" protected="<<f.protectedAttackWindows<<" maxGR="<<maximumReduction(x,rate,f)<<"\n";
+            }
+        }
+    }
+}
+
+void attackSafetyRules() {
+    int protectedCases=0,positiveCases=0,overrideCases=0;
+    int ambiguityCases=0;
+    for(double rate:{44100.,48000.,96000.}) {
+        for(const auto fundamentals:std::vector<std::array<double,3>>{{55,65.406,82.407},{30.868,41.203,55},{130.813,164.814,196}}) {
+            for(bool clipped:{false,true}) {
+                auto x=notes(rate,6,fundamentals,40);
+                if(clipped)for(auto& v:x)v=.25f*std::tanh(v*12.f);
+                for(bool bass:{false,true}) {
+                    check(analyseTone(x,rate,bass).bass==bass && analyseFinish(x,{},rate,bass).bass==bass,"Extended-range/distorted playing overrode the explicit instrument");
+                    ++overrideCases;
+                }
+            }
+        }
+        for(unsigned seed:{417u,991u})for(bool muted:{false,true})for(bool clipped:{false,true})for(auto style:{Style::rock,Style::clean,Style::metal}) {
+            std::mt19937 random{seed};auto x=targetNoise(false,rate,6,random,style);
+            for(size_t n=0;n<x.size();++n) {
+                const double t=double(n)/rate,cycle=std::fmod(t+(seed==991u?.0037:0.),.25);
+                const double env=std::exp(-cycle*(muted?45.:12.));
+                const double attack=cycle<.008?.16*std::sin(2*juce::MathConstants<double>::pi*6000*t)*std::exp(-cycle*500):0;
+                const double y=x[n]*env+attack;x[n]=float(clipped?.25*std::tanh(y*12):y);
+            }
+            const auto f=analyseFinish(x,{},rate,false,style);
+            check(f.playingDetected && f.protectedAttackWindows>0 && !f.deEsser,"A body-coincident pick/palm-mute attack was automatically de-essed");
+            check(maximumReduction(x,rate,f)==0.f,"Protected attack received high-band gain reduction");++protectedCases;
+        }
+        // A low fundamental changes the heuristic label, not the on-target
+        // guitar high end. Auto must not inherit an unconfirmed bass cut.
+        for(auto style:{Style::rock,Style::clean,Style::metal}) {
+            std::mt19937 random{1229};auto x=targetNoise(false,rate,6,random,style);
+            for(size_t n=0;n<x.size();++n)x[n]+=float(.2*std::sin(2*juce::MathConstants<double>::pi*55*double(n)/rate));
+            const auto automatic=analyseFinish(x,{},rate,{},style);
+            check(automatic.bass && !automatic.deEsser && !analyseFinish(x,{},rate,false,style).deEsser,
+                  "Ambiguous low register imposed the darker bass de-esser target");
+            check(analyseFinish(x,{},rate,true,style).deEsser,"Explicit bass no longer uses its own style curve");++ambiguityCases;
+        }
+        // Positive controls for every style: steady excess must still be treated.
+        for(bool bass:{false,true})for(auto style:{Style::rock,Style::clean,Style::metal}) {
+            std::mt19937 random{1103};auto x=targetNoise(bass,rate,6,random,style);shelve(x,4000,8,rate);
+            const auto f=analyseFinish(x,{},rate,bass,style);
+            check(f.sustainedEvidence && f.deEsser && f.rangeDb>=3 && f.rangeDb<=9,"Sustained excessive brightness was lost by attack protection");
+            check(f.releaseMs==(style==Style::clean?120.f:style==Style::metal?50.f:80.f),"Style de-esser release changed");++positiveCases;
+        }
+    }
+    std::cout<<"PASS attack safety: "<<protectedCases<<" protected synthetic attack cases, "<<positiveCases<<" sustained-brightness controls, "<<overrideCases<<" extended-range/distorted explicit-instrument cases, "<<ambiguityCases<<" auto-target ambiguity cases\n";
+}
+
 void captureWindows() {
     for(double rate:{44100.,48000.,96000.}) {
         Capture capture;capture.prepare(rate);
@@ -224,6 +302,40 @@ void run(ChimeraProcessor& p,Controller& c,DI* source,double seconds,double& now
     c.tick(now);
 }
 
+// Feed the production Capture/Controller seam to isolate parameter ownership
+// from amp voicing. The separate integration run below uses processBlock.
+void feedCapture(ChimeraProcessor& p,Controller& c,const std::vector<float>& x,double& now) {
+    for(size_t offset=0;offset<x.size();offset+=256) {
+        const int count=int(std::min(size_t(256),x.size()-offset));
+        const float* channels[]{x.data()+offset};
+        for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})
+            p.autoSetCapture().push(tap,channels,1,count);
+        now+=1000.*count/p.getSampleRate();c.tick(now);
+    }
+}
+void controllerFinishPreservation() {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+    const auto deesserValues=[&]{std::vector<float> out;for(auto* id:{"deEsserOn","deEsserFrequency","deEsserThreshold","deEsserRange","deEsserAttack","deEsserRelease","deEsserRatio","deEsserKnee","deEsserListen"})out.push_back(get(*p,id));return out;};
+    for(bool bass:{false,true})for(auto style:{Style::rock,Style::clean,Style::metal}) {
+        setRaw("deEsserOn",1);setRaw("deEsserFrequency",4700);setRaw("deEsserThreshold",-31);setRaw("deEsserRange",7);setRaw("deEsserListen",1);
+        const auto manual=deesserValues(),before=values(*p);std::mt19937 random{802};
+        const auto signal=targetNoise(bass,48000,6.5,random,style);
+        Controller c(*p);c.setOptions({bass?2:1,false,style,true});Gestures g;p->addListener(&g);
+        double now=juce::Time::getMillisecondCounterHiRes();c.start();
+        for(int pass=0;pass<3;++pass)feedCapture(*p,c,signal,now);
+        check(c.current().phase==Controller::Phase::done && c.lastFinishAnalysis().bass==bass,"Explicit instrument or three-pass controller failed");
+        check(!c.lastFinishAnalysis().deEsser && deesserValues()==manual && c.current().text.contains("De-esser unchanged"),"No-excess analysis changed a manual de-esser or misreported it as off");
+        const float expectedRelease=style==Style::clean?150.f:style==Style::metal?60.f:100.f;
+        check(near(get(*p,"liveLimiterRelease"),expectedRelease,.01f),"Style limiter release changed");
+        c.undo();const auto restored=values(*p);
+        for(size_t i=0;i<before.size();++i)check(near(before[i],restored[i],1e-6f),"Undo failed to restore the explicit style/instrument run");
+        check(g.begins==g.ends && g.begins>0,"Apply/undo host gestures unbalanced");p->removeListener(&g);
+    }
+    p->releaseResources();
+    std::cout<<"PASS explicit guitar/bass x three styles: manual de-esser/listen preserved, truthful summary, limiter release, apply/undo host notifications\n";
+}
+
 void controllerIntegration() {
     auto p=std::make_unique<ChimeraProcessor>();
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
@@ -290,14 +402,30 @@ void controllerIntegration() {
     c.setOptions({0,false,Style::rock,false});c.start();
     check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the optional steps did not shorten Auto Set to two passes");
     c.cancel();check(values(*p)==restored,"Cancelling a run changed parameters");
+    // Edits made while listening and after applying are not owned by Auto Set.
+    // Include an untouched optional stage: the old whole-snapshot undo lost it.
+    c.setOptions({1,false,Style::rock,false});c.start();
+    setRaw("input",3.f);setRaw("deEsserRange",11.f);
+    const float manualInput=get(*p,"input"),manualRange=get(*p,"deEsserRange");
+    run(*p,c,&di,14,now);
+    check(c.current().phase==Controller::Phase::done,"Ownership run did not complete");
+    check(get(*p,"input")==manualInput,"Auto Set overwrote an input edit made while listening");
+    setRaw("cleanCompThreshold",-17.f);
+    const float automatedThreshold=get(*p,"cleanCompThreshold");
+    p->addListener(&g);c.undo();p->removeListener(&g);
+    check(get(*p,"input")==manualInput && get(*p,"deEsserRange")==manualRange && get(*p,"cleanCompThreshold")==automatedThreshold,
+          "Undo overwrote a newer manual/host edit or an untouched optional stage");
+    check(g.begins==g.ends,"Undo left host gestures unbalanced");
     std::cout<<"PASS auto set controller: silence/no-audio failures, four passes on the real processor, input+gate+Tone EQ+compressor+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes\n";
 }
 }
 
-int main() {
+int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
-        analysisRules();toneRules();finishRules();captureWindows();controllerIntegration();
+        if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
+        check(argc==1,"Unknown argument");
+        analysisRules();toneRules();finishRules();attackSafetyRules();captureWindows();controllerFinishPreservation();controllerIntegration();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
