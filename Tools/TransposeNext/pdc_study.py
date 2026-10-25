@@ -33,8 +33,10 @@ def cmd_run(a):
                 y = np.fromfile(op, dtype='<f4').reshape(-1, 2); row = {'input': key, 'rate': rate, 'shift': shift, 'roles': sorted(roles)}
                 if before is not None and meta['name'] != 'riff50':  # riff50's search window overlaps (as latency_targets)
                     lin, lout = before['attack_lags_ms'], attacks(y, meta)['attack_lags_ms']
-                    # Per event: only events whose own input peak sits within 10 ms.
-                    row['attack_added_ms'] = [o-i for i, o in zip(lin, lout) if i <= 10]
+                    # Same validity as T1: the input's own peaks all sit within 10 ms
+                    # of their events; otherwise the peak search follows the sustain.
+                    row['attack_input_max_ms'] = float(max(lin))
+                    row['attack_added_ms'] = [o-i for i, o in zip(lin, lout)]
                 if roles & {'short', 'long'}: row['lowband_added_ms'] = lowband_extra(x, y, meta['onsets'], rate)
                 rows.append(row)
             print(rate, key, flush=True)
@@ -53,14 +55,29 @@ def choose(values):
     grid = np.arange(0, 20.001, .25); worst = [np.abs(np.asarray(values)-L).max() for L in grid]
     return float(grid[int(np.argmin(worst))])
 
+def valid_attack(r):
+    return r.get('attack_input_max_ms', 0) <= 10
+
+def annotate(rows, report):
+    """Older results lack attack_input_max_ms: recompute it from the inputs (no render)."""
+    need = {(r['input'], r['rate']) for r in rows if 'attack_added_ms' in r and 'attack_input_max_ms' not in r}
+    if not need: return
+    seeds = tuple(map(int, report['holdout_seeds'].split(',')))
+    for rate in sorted({k[1] for k in need}):
+        for key, x, meta, roles in inputs(rate, seeds, report['long_seed']):
+            if (key, rate) in need:
+                m = float(max(attacks(x, meta)['attack_lags_ms']))
+                for r in rows:
+                    if r['input'] == key and r['rate'] == rate: r['attack_input_max_ms'] = m
+
 def analyse(rows):
     out = {}
     for rate in sorted({r['rate'] for r in rows}):
         sel = [r for r in rows if r['rate'] == rate]
-        att = [v for r in sel for v in r.get('attack_added_ms', [])]
+        att = [v for r in sel if valid_attack(r) for v in r.get('attack_added_ms', [])]
         L = choose(att); per_shift = {}
         for sh in sorted({r['shift'] for r in sel}):
-            s = [v for r in sel if r['shift'] == sh for v in r.get('attack_added_ms', [])]
+            s = [v for r in sel if r['shift'] == sh and valid_attack(r) for v in r.get('attack_added_ms', [])]
             low = [v for r in sel if r['shift'] == sh for v in r.get('lowband_added_ms', [])]
             per_shift[str(sh)] = {'attack_events': len(s), 'attack_added_range_ms': [round(min(s), 3), round(max(s), 3)], 'attack_residual_at_L': residuals(s, L),
                                   'lowband_added_range_ms': [round(min(low), 3), round(max(low), 3)], 'lowband_residual_at_L': residuals(low, L)}
@@ -70,7 +87,7 @@ def analyse(rows):
     return out
 
 def cmd_evaluate(a):
-    d = json.loads((a.out/'results.json').read_text()); res = analyse(d['rows'])
+    d = json.loads((a.out/'results.json').read_text()); annotate(d['rows'], d['report']); res = analyse(d['rows'])
     (a.out/'pdc_summary.json').write_text(json.dumps({'source': d['report'], 'by_rate': res}, indent=1)+'\n')
     for rate, v in res.items():
         print(rate, 'L', v['L_ms'], 'ms =', v['L_samples'], 'samples; attack added', v['attack_added_ms'], 'residual', v['attack_residual_at_L'])

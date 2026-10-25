@@ -5,11 +5,6 @@
 #include "PolyPitch.h"
 #include "TransientSplitPitch.h"
 
-// Placeholder until the PDC study fixes the value (WIP).
-#ifndef CANDIDATE_PDC_MS
-#define CANDIDATE_PDC_MS 0.0
-#endif
-
 namespace transposeResearchPlugin {
 enum class Engine {baseline=0, v2=1, v3=2};
 
@@ -29,7 +24,7 @@ struct ResearchEngine {
     // reports candidatePdcMs, chosen in docs/TRANSPOSE_T6_PDC_CONTRACT.md so the
     // attack residual after host compensation is smallest. The low band is not
     // compensated by it (reported separately).
-    static constexpr double candidatePdcMs=CANDIDATE_PDC_MS;
+    static constexpr double candidatePdcMs=2.5;  // minimax attack residual, all rates (PDC study)
     int latency(Engine e,bool fixedPdc,double rate) const {
         if(e==Engine::baseline)return baseline.latency();
         return fixedPdc?int(std::lround(candidatePdcMs*rate/1000.)):0;
