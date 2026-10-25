@@ -19,9 +19,16 @@ struct ResearchEngine {
     }
     void reset() {baseline.reset();v2.reset();v3.reset();}
     void setSemitones(int n) {baseline.setSemitones(n);v2.setSemitones(n);v3.setSemitones(n);}
-    // Baseline advertises its FFT window as PDC. The candidates have a variable
-    // 2-40 ms read delay and no fixed PDC contract yet (T6 open item): 0.
-    int latency(Engine e) const {return e==Engine::baseline?baseline.latency():0;}
+    // Baseline advertises its FFT window as PDC. The candidates' read delay
+    // varies (about 2-40 ms). Live mode reports 0 (monitoring); fixed-PDC mode
+    // reports candidatePdcMs, chosen in docs/TRANSPOSE_T6_PDC_CONTRACT.md so the
+    // attack residual after host compensation is smallest. The low band is not
+    // compensated by it (reported separately).
+    static constexpr double candidatePdcMs=2.5;  // minimax attack residual, all rates (PDC study)
+    int latency(Engine e,bool fixedPdc,double rate) const {
+        if(e==Engine::baseline)return baseline.latency();
+        return fixedPdc?int(std::lround(candidatePdcMs*rate/1000.)):0;
+    }
     void process(Engine e,const juce::AudioBuffer<float>& in,juce::AudioBuffer<float>& out) {
         if(e==Engine::baseline)baseline.process(in,out);else if(e==Engine::v2)v2.process(in,out);else v3.process(in,out);
     }
