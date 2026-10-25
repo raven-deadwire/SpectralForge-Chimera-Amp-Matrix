@@ -7,8 +7,8 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 모듈은 Chimera DSP를 포함하지 않고, 사용자가 따로 설치한 **Chimera VST3**를 불러와
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
-**상태: 개발 시제품. Windows는 Chimera Setup의 선택 항목(서명 없음), macOS(Universal: Apple silicon·Intel, macOS 12 이상)·Linux x86_64는 CI가 만든
-사용자 설치 패키지(F단계, 공개 배포 전). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
+**상태: 개발 시제품. Windows는 Chimera Setup, macOS(Universal: Apple silicon·Intel, macOS 12 이상)는 Chimera PKG의 선택 항목(서명·공증 없음)이며
+별도 사용자 설치 패키지도 있다. Linux x86_64는 CI가 만든 사용자 설치 패키지만 있다(F단계, 공개 배포 전). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
 
 ## 라이선스
 
@@ -145,6 +145,21 @@ vst3="build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
 - CI는 패키지를 실제 사용자 폴더에 설치하고, `chimera-obs-layout-tests`로 libobs가 그 위치에서 모듈을 찾아
   번역된 이름(`SpectralForge Chimera`)으로 등록하는지 확인한 뒤 제거까지 시험한다. macOS는 Apple silicon·Intel(Rosetta) libobs 양쪽에서 확인한다. Linux는 제거 뒤 사용자가 넣은 파일이 남는지도 본다.
 - macOS 번들은 임시(ad-hoc) 서명이며 Apple 공증 전이다. macOS 에디터 창, Flatpak·Snap OBS는 아직 지원하지 않는다. Intel 슬라이스는 Rosetta에서만 시험했다(실제 Intel Mac 미확인).
+
+## 설치 (macOS Chimera PKG)
+
+`package_release.py macos`는 Chimera PKG를 두 구성 요소의 제품 설치 프로그램(`productbuild`)으로 만든다.
+`audio.spectralforge.chimera`(앱·VST3·AU·설명서, 항상 설치)와 선택 항목 **OBS Studio filter**(`audio.spectralforge.chimera.obs`)다.
+
+- OBS 항목은 `/Applications/OBS.app`이 있거나 이 사용자에게 필터가 이미 설치돼 있으면 미리 선택된다(Windows Setup과 같은 규칙).
+- 항목의 내용물은 위 Universal 사용자 패키지 그대로이며 `/Library/Application Support/SpectralForge/Chimera/OBS`에 놓인다.
+  macOS OBS에는 시스템 공용 플러그인 폴더가 없으므로, postinstall(`packaging/macos-pkg-postinstall.sh`)이
+  로그인한 사용자 권한으로 같은 `chimera-obs-installer`를 실행해 그 사용자의 OBS 플러그인 폴더에 설치한다(root 설치 거부·해시·서명 검사·원자 교체 동일).
+  로그인한 사용자가 없거나 시동 디스크가 아니면 설치하지 않고 위 폴더의 `install.sh`를 안내한다.
+- OBS가 실행 중이면 설치 프로그램이 시작 단계에서 멈추고 아무것도 바꾸지 않는다(필터가 Chimera VST3를 불러온 상태일 수 있음).
+- 다른 사용자 추가·제거는 그 사용자로 위 폴더의 `install.sh`(`--uninstall`)를 실행한다. PKG에는 제거 프로그램이 없다.
+- CI(`build.yml` macOS)는 실제 PKG를 설치해 기본 선택(러너에 OBS 없음)에서는 필터가 설치되지 않고, OBS 항목을 고르면
+  로그인한 사용자 소유로 설치되어 Apple silicon·Intel(Rosetta) libobs 양쪽에서 등록되는지, `--uninstall`로 지워지는지 확인한다.
 
 ## 설치 (Windows)
 

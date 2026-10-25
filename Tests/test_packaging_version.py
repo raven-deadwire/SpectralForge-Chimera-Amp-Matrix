@@ -245,6 +245,34 @@ class PackagingVersionTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "inventory mismatch"):
             release.obs_filter(self.root / "stage", self.root / "build", SHA, required=True)
 
+    def test_macos_distribution_offers_the_obs_filter_as_a_choice(self):
+        import xml.etree.ElementTree as ElementTree
+        tree = ElementTree.fromstring(release.macos_distribution("2.17.4"))
+        choices = {choice.get("id"): choice for choice in tree.findall("choice")}
+        self.assertEqual([line.get("choice") for line in tree.find("choices-outline")], ["chimera", "obs"])
+        self.assertEqual((choices["chimera"].get("enabled"), choices["chimera"].get("selected")), ("false", "true"))
+        self.assertEqual(choices["obs"].get("start_selected"), "obsPreselected()")
+        self.assertEqual([ref.get("id") for ref in choices["obs"]], [release.MACOS_OBS_PKG_ID])
+        refs = {ref.get("id"): ref.text for ref in tree.findall("pkg-ref") if ref.text}
+        self.assertEqual(refs, {release.MACOS_PKG_ID: "SpectralForge-Chimera.pkg",
+                                release.MACOS_OBS_PKG_ID: "SpectralForge-Chimera-OBS.pkg"})
+        self.assertEqual(tree.find("installation-check").get("script"), "obsClosed()")
+        script = tree.find("script").text
+        self.assertIn(release.OBS_BUNDLE_ID, script)
+        self.assertIn("my.result.type = 'Fatal'", script)
+
+    def test_macos_obs_postinstall_installs_for_the_console_user_without_root(self):
+        hook = (ROOT / "OBS/packaging/macos-pkg-postinstall.sh").read_text(encoding="utf-8")
+        subprocess.run(["sh", "-n", str(ROOT / "OBS/packaging/macos-pkg-postinstall.sh")], check=True)
+        self.assertIn(release.OBS_MACOS_FOLDER, hook)
+        self.assertIn('launchctl asuser "$uid" /usr/bin/sudo -u "$user"', hook)
+        self.assertIn('"$folder/chimera-obs-installer"', hook)
+
+    def test_macos_obs_package_requires_the_staged_universal_filter(self):
+        self.write("build/obs-macos-package/chimera-obs-installer")
+        with self.assertRaisesRegex(RuntimeError, "staged Universal OBS filter package"):
+            release.obs_filter_macos(self.root / "stage", self.root / "build")
+
     def test_candidate_stage_inventory_and_versions_without_global_mutation(self):
         expected = version.identity(self.root, SHA)
         self.write("build/chimera-build-version.json", json.dumps(expected))
@@ -437,7 +465,9 @@ configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @O
                 self.assertIn("onlyifdoesntexist", rule)
                 self.assertIn("uninsneveruninstall", rule)
         packaging = (ROOT / "Tools/package_release.py").read_text()
-        self.assertIn('"--identifier", "audio.spectralforge.chimera"', packaging)
+        self.assertIn('MACOS_PKG_ID = "audio.spectralforge.chimera"\n', packaging)
+        self.assertIn('"--identifier", MACOS_PKG_ID', packaging)
+        self.assertEqual(release.MACOS_PKG_ID, "audio.spectralforge.chimera")
         self.assertIn("Package: chimera-amp-matrix", packaging)
         self.assertIn('getChildFile("SpectralForge/Chimera")', (ROOT / "Source/IRCollection.h").read_text())
         self.assertIn('getChildFile("SpectralForge/Chimera/ir-library.json")',
