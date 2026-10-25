@@ -297,6 +297,25 @@ void controllerIntegration() {
     check(c.current().phase==Controller::Phase::done && c.current().canUndo,"Auto Set did not finish with undo available");
     const auto& finish=c.lastFinishAnalysis();
     check(finish.playingDetected && finish.limiterPlaying && !finish.bass,"Finish pass did not hear the de-esser and limiter inputs");
+    // The live view says what each pass listens for, what it heard and how long it takes.
+    {
+        bool sawInput=false,sawPause=false,sawTone=false,monotonic=true;double last=0;
+        for(const auto& s:statuses) {
+            if(s.pass<0)continue;
+            check(s.passes.size()==5 && s.phase==s.passes[size_t(s.pass)] && s.listeningFor.isNotEmpty() && s.heard.isNotEmpty(),"Listening status does not describe its pass");
+            check(near(float(s.totalSeconds),5*6.f+4*.3f,.01f) && s.passSeconds<=s.passTotalSeconds+1e-6,"Listening status has the wrong duration");
+            monotonic&=s.seconds+1e-6>=last;last=s.seconds;
+            sawInput|=s.phase==Controller::Phase::input && s.levelDb>-30.f && s.heard.contains("Playing: heard");
+            sawPause|=s.heard.contains("Pause: heard");
+            sawTone|=s.phase==Controller::Phase::tone && s.heard.contains("Guitar");
+        }
+        check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
+        check(!sawTone,"Tone pass claimed an instrument before its analysis");
+        const auto& steps=c.current().steps;
+        check(steps.size()==5 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[4].phase==Controller::Phase::finish
+              && steps[2].changed && steps[2].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        std::cout<<"MEASURE auto set results:";for(const auto& step:steps)std::cout<<" ["<<Controller::phaseName(step.phase)<<": "<<step.result<<"]";std::cout<<'\n';
+    }
     check(get(*p,"liveLimiterOn")>.5f && near(get(*p,"liveLimiterCeiling"),limiterCeilingDb,.01f) && near(get(*p,"liveLimiterRelease"),100.f,.01f),"Limiter was not set for the rock style");
     check((get(*p,"deEsserOn")>.5f)==finish.deEsser && (!finish.deEsser || near(get(*p,"deEsserFrequency"),finish.frequency,1.f)),"Applied de-esser does not match the analysis");
     check(get(*p,"cleanCompOn")>.5f && get(*p,"cleanCompDetector")>.5f && near(get(*p,"cleanCompMix"),1.f,.001f),"Clean compressor was not enabled in RMS mode");

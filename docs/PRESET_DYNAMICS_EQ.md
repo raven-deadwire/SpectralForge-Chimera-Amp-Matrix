@@ -33,6 +33,67 @@ Factory `EQEditState::RestoreScope` rebuilds occupancy from the enabled nodes;
 factory recall remains an undo/redo barrier. Saving a user sound captures its
 actual EQ/dynamics values and occupancy for later binary and A/B restoration.
 
+## Gate, Gate 2 and Expander (2026-10-25)
+
+Recalls now use the PRE/POST gates and the separate Expander. Each preset pairs
+its hard main gate with exactly one gentle stage:
+
+| Roles | Main gate | Added stage |
+|---|---|---|
+| clean, edge, lead, finger, pick, slap, matrix, envelope, fuzz (38 presets) | Gate mode, closing only below the Expander's range: authored threshold − (Expander range ÷ (ratio − 1) + 3 dB), clamped to 9–24 dB lower | **Expander** on the main gate's side, at the authored threshold and ratio, range = min(authored range, 15 dB; 9 dB for envelope and fuzz), attack ≥ 1 ms, the authored hold and release |
+| rhythm (10 presets) | Gate mode, as authored | **Gate 2** on the other side of the rig (PRE when the main gate is post), Expander mode 2:1, 6 dB below the main threshold, range ≤ 18 dB |
+
+The previous single gate in Expander mode expanded at the authored threshold
+all the way to its range. The Expander now does that part up to 9–15 dB, and
+the main gate removes the rest only once that range is used up, so tails keep
+the same shape near the threshold and silence is still fully closed. For
+rhythm presets, Gate 2 keeps hiss out of the amp between phrases while the
+post-rig main gate stays as tight as before.
+
+`ChimeraIntegratedProcessorTests` checks every preset: the main gate is in Gate
+mode with exactly one of Gate 2 / Expander, the Expander sits above the main
+gate and Gate 2 below it, the added stage cuts less than 0.5 dB while the pluck
+fixture plays, and more than 6 dB on hiss 24 dB under its threshold.
+
+| Measurement (local Linux) | Result |
+|---|---:|
+| Largest Gate 2 / Expander reduction while playing | 0.00002 dB |
+| Smallest reduction on the quiet hiss | 8.9 dB (Doom Fuzz, Expander range 9 dB) |
+| Lowest nominal preset RMS before the tone curves | unchanged: −28.0467 dBFS, Slap Studio |
+
+## Role tone curves (2026-10-25)
+
+The finishing EQ now shapes each role, not only trims it. Tone band 3 takes out
+low-mid weight (a low shelf for finger-style bass, which needs more floor),
+Tone band 4 adds presence and Final band 3 sets the air:
+
+| Role | Tone band 3 | Tone band 4 | Final band 3 (high shelf 9 kHz) |
+|---|---|---|---|
+| clean | 300 Hz −1 dB | 2.5 kHz +1 dB | +1 dB |
+| edge | 280 Hz −1 dB | 2.2 kHz +1.5 dB | +0.5 dB |
+| rhythm | 350 Hz −2.5 dB, Q 1.2 | 2.8 kHz +1 dB | off |
+| lead | 300 Hz −1 dB | 1.5 kHz +1.5 dB, Q 0.8 | −0.5 dB |
+| finger (bass) | low shelf 90 Hz +1 dB | 900 Hz +1 dB | off |
+| pick (bass) | 350 Hz −1 dB | 1.2 kHz +1.5 dB | off |
+| slap | 400 Hz −1.5 dB | 2.5 kHz +1.5 dB | +1 dB |
+| matrix | 300 Hz −1 dB | 1.8 kHz +1 dB | off |
+| envelope | off (the filter sweep stays untouched) | off | off |
+| fuzz | 400 Hz −1 dB | 1.2 kHz +1 dB | −1 dB |
+
+Rhythm started at −2 dB / +1.5 dB; Thall Rhythm's unprotected peak then reached
+−0.43 dBFS, over the −0.45 dBFS gate, so the rhythm curve trades 0.5 dB of
+presence for 0.5 dB more low-mid cut. No band is a high-pass; the bass
+low-A/low-B fundamental check still passes.
+
+| Measurement (local Linux, with the tone curves) | Result |
+|---|---:|
+| Highest unprotected nominal / +6 dB peak | −0.62 dBFS Thall Rhythm / −0.88 dBFS Amber Heavy |
+| Lowest nominal RMS | −28.13 dBFS, Slap Studio (gate: above −30) |
+| Largest mean dynamic EQ cut | 47 % of its range (Blackhearted); none reaches 90 % |
+| Gate 2 / Expander while playing / on quiet hiss | ≤ 0.00002 dB / ≥ 8.9 dB |
+
+Dynamic EQ thresholds were re-checked with the same render and kept.
+
 ## Threshold calibration
 
 Thresholds are authored for the actual Tone and Final stage levels, which differ

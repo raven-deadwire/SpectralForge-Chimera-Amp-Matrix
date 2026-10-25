@@ -19,7 +19,7 @@ inline void run(const juce::File& directory) {
     const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;
     juce::StringArray checked;
     // Released host ordinals (including POST) precede all new E670FE banks.
-    bool sawAppended=false;int eqCount=0,appended=0,originalCount=0,channelCount=0,niflheimrCount=0,cabCount=0,originalCabCount=0,expandedCabCount=0,layoutCabCount=0,tunerCount=0,dynamicsCount=0,independentDynamicsCount=0;
+    bool sawAppended=false;int eqCount=0,appended=0,originalCount=0,channelCount=0,niflheimrCount=0,cabCount=0,originalCabCount=0,expandedCabCount=0,layoutCabCount=0,tunerCount=0,dynamicsCount=0,independentDynamicsCount=0,extraGateCount=0;
     juce::StringArray tunerIDs{"tunerProfile","tunerDisplay","tunerString"};
     for(int i=1;i<=8;++i){tunerIDs.add("tunerNote"+juce::String(i));tunerIDs.add("tunerOffset"+juce::String(i));}
     juce::StringArray independentDynamicsIDs{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3"};
@@ -33,7 +33,8 @@ inline void run(const juce::File& directory) {
             || (id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m25_"));
         const bool isCab=id->paramID.startsWith("cabA") || id->paramID.startsWith("cabB") || id->paramID.startsWith("cabblend");
         const int tunerIndex=tunerIDs.indexOf(id->paramID);
-        if(parameter->getVersionHint()==13){require(independentDynamicsCount<independentDynamicsIDs.size() && id->paramID==independentDynamicsIDs[independentDynamicsCount] && parameter->getParameterIndex()==5026+independentDynamicsCount && parameter->isAutomatable(),"Independent dynamics must append at 5026 with stable IDs and version 13");++independentDynamicsCount;}
+        if(parameter->getVersionHint()==extraGateParameterVersion){require(parameter->getParameterIndex()==5026+multibandParameterCount+deEsserParameterCount+extraGateCount && parameter->isAutomatable(),"Gate 2 / Expander must append after the independent dynamics at version 14");++extraGateCount;}
+        else if(parameter->getVersionHint()==13){require(independentDynamicsCount<independentDynamicsIDs.size() && id->paramID==independentDynamicsIDs[independentDynamicsCount] && parameter->getParameterIndex()==5026+independentDynamicsCount && parameter->isAutomatable(),"Independent dynamics must append at 5026 with stable IDs and version 13");++independentDynamicsCount;}
         else if(parameter->getVersionHint()==12){require(parameter->getParameterIndex()==4986+dynamicsCount,"Common dynamics must append after tuner parameters");++dynamicsCount;}
         else if(tunerIndex>=0){require(tunerIndex==tunerCount && parameter->getParameterIndex()==4845+graphicalEQParameterCount+tunerIndex && parameter->getVersionHint()==11,"Precision tuner must append after every released host parameter");++tunerCount;}
         else if(id->paramID.startsWith("toneEQ_") || id->paramID.startsWith("finalEQ_")){require(parameter->getParameterIndex()==4845+eqCount && parameter->getVersionHint()==10,"Graphical EQ append-only ordinal");++eqCount;}
@@ -52,7 +53,8 @@ inline void run(const juce::File& directory) {
     require(tunerCount==19,"Precision tuner parameter bank incomplete");
     require(dynamicsCount==commonDynamicsParameterCount,"Common dynamics parameter bank incomplete");
     require(independentDynamicsCount==multibandParameterCount+deEsserParameterCount && independentDynamicsCount==55,"Independent dynamics parameter bank incomplete");
-    require(p.getParameters().size()==5026+independentDynamicsCount,"Independent dynamics changed the released parameter prefix");
+    require(extraGateCount==extraGateParameterCount,"Gate 2 / Expander parameter bank incomplete");
+    require(p.getParameters().size()==5026+independentDynamicsCount+extraGateCount,"Independent dynamics changed the released parameter prefix");
     require(channelCount==342,"Original channel bank incomplete");
     require(niflheimrCount==6*(2+5*14),"Niflheimr six-context five-channel bank incomplete");
     require(originalCabCount==spectralforge::originalCabParameterCount,"Original CAB bank incomplete");
