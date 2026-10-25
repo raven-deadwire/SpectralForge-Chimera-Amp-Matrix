@@ -225,8 +225,31 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     });
     autoSetController=std::make_unique<spectralforge::autoset::Controller>(p);
     autoSetController->onStatus=[this](const spectralforge::autoset::Controller::Status& status) {
-        const bool busy=status.phase==spectralforge::autoset::Controller::Phase::input || status.phase==spectralforge::autoset::Controller::Phase::compressor;
+        using Controller=spectralforge::autoset::Controller;using Phase=Controller::Phase;
+        // Every listening pass (Tone EQ, multiband and finish included) offers CANCEL.
+        const bool busy=autoSetController->busy();
         dynamicsPanel->setAutoSetStatus(busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text,busy,status.canUndo);
+        spectralforge::AutoSetReport report;
+        report.listening=busy;report.finished=status.phase==Phase::done || status.phase==Phase::failed;
+        for(const auto phase:status.passes)report.steps.add(Controller::phaseName(phase));
+        report.current=status.pass;report.seconds=status.seconds;report.totalSeconds=status.totalSeconds;
+        report.passSeconds=status.passSeconds;report.passTotalSeconds=status.passTotalSeconds;report.levelDb=status.levelDb;
+        report.listeningFor=status.listeningFor;report.heard=status.heard;
+        if(status.phase==Phase::failed)report.message=status.text;
+        for(const auto& step:status.steps)report.rows.push_back({Controller::phaseName(step.phase),step.result,step.changed,int(step.phase)});
+        dynamicsPanel->setAutoSetReport(report);
+    };
+    // SHOW opens the module a finished pass changed.
+    dynamicsPanel->onAutoSetShow=[this](int target) {
+        using Phase=spectralforge::autoset::Controller::Phase;
+        const auto route=spectralforge::signalPath::read(processor);
+        switch(Phase(target)) {
+            case Phase::input:navigateSignalPath(*route.find("gate"));break;
+            case Phase::tone:navigateSignalPath(*route.find("tone.eq"));break;
+            case Phase::multiband:navigateSignalPath(*route.find("common.multiband"));break;
+            case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
+            default:navigateSignalPath(*route.find("common.comp"));break;
+        }
     };
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};

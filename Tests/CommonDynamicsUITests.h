@@ -159,8 +159,16 @@ inline void autoSetEntry(ChimeraProcessor& p,spectralforge::CommonDynamicsPanel&
     panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(1);panel.chooseAutoOption(11);settle(20);
     signalPathTests::click(*start);settle(30);
     require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/5") && tone->getButtonText()=="Auto / Rock","Auto Set did not enter listening with all five passes");
+    {
+        // The progress view names the step, what it listens for and the time it needs.
+        auto* view=find<spectralforge::AutoSetView>(panel,"autoSet.view");
+        require(view && view->isShowing() && view->report().listening && view->report().steps.size()==5 && view->report().current==0
+                && view->report().listeningFor.isNotEmpty() && view->report().totalSeconds>30,"Auto Set progress view missing while listening");
+        require(panel.getLocalBounds().contains(view->getBounds()),"Auto Set progress view is clipped");
+    }
     signalPathTests::click(*start);settle(30);
     require(start->getButtonText()=="AUTO SET" && panel.autoSetStatus().contains("cancelled") && !undo->isEnabled() && tone->isEnabled(),"Auto Set did not cancel");
+    require(!find(panel,"autoSet.view")->isShowing(),"Cancelled Auto Set left its progress view open");
     require(signalPathTests::values(p)==before,"Starting or cancelling Auto Set changed sound parameters");
     std::cout<<"PASS auto set entry: compressor/gate pages only, unclipped, options (instrument/style/steps; defaults; optional steps off = two passes), listen/cancel without parameter writes\n";
 }

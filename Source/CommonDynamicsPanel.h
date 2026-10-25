@@ -3,6 +3,7 @@
 #include "DynamicsSpectrumPanel.h"
 #include "GraphicalEQPanel.h"
 #include "PostNativeCatalog.h"
+#include "AutoSetView.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <array>
 #include <functional>
@@ -107,6 +108,9 @@ public:
         spectrum.onMarkerDragStart=[this](int marker){endMarkerGesture();markerParameter=markerParameterFor(marker);if(markerParameter)markerParameter->beginChangeGesture();};
         spectrum.onMarkerDrag=[this](int,float frequency){if(markerParameter)markerParameter->setValueNotifyingHost(markerParameter->convertTo0to1(frequency));};
         spectrum.onMarkerDragEnd=[this](int){endMarkerGesture();};
+        addChildComponent(autoView);
+        autoView.onClose=[this]{autoDismissed=true;updateAutoView();};
+        autoView.onShow=[this](int target){if(onAutoSetShow)onAutoSetShow(target);};
         refresh();syncPage();startTimerHz(20);
     }
     ~CommonDynamicsPanel() override {
@@ -157,6 +161,13 @@ public:
         repaint(520,38,std::max(1,getWidth()-740),46);
     }
     const juce::String& autoSetStatus() const noexcept {return autoText;}
+    // Progress while Auto Set listens, then its results; shown over the spectrum.
+    void setAutoSetReport(const AutoSetReport& report) {
+        if(report.listening)autoDismissed=false;
+        autoView.setReport(report);updateAutoView();
+    }
+    const AutoSetView& autoSetView() const noexcept {return autoView;}
+    std::function<void(int)> onAutoSetShow;
     void visibilityChanged() override {if(!isShowing())endMarkerGesture();syncPage();}
     void parentHierarchyChanged() override {syncPage();}
 
@@ -185,7 +196,7 @@ public:
         for(int cross=0;cross<3;++cross)crossovers[size_t(cross)].bounds(18+cross*crossWidth,getHeight()-56,crossWidth-12);
         deEsserOn.setBounds(18,45,150,28);deEsserListen.setBounds(178,45,104,28);
         autoSet.setBounds(sideX,getHeight()-40,100,28);autoOptions.setBounds(sideX+106,getHeight()-40,118,28);
-        autoUndo.setBounds(sideX+230,getHeight()-40,std::max(1,sideWidth-230),28);repaint();
+        autoUndo.setBounds(sideX+230,getHeight()-40,std::max(1,sideWidth-230),28);updateAutoView();repaint();
     }
     void paint(juce::Graphics& g) override {
         const juce::Colour muted(0xff9fb4ad),text(0xffd9ebe3),line(0xff273b3d);
@@ -359,6 +370,14 @@ private:
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&autoOptions),[safe=juce::Component::SafePointer<CommonDynamicsPanel>(this)](int id){if(safe!=nullptr)safe->chooseAutoOption(id);});
     }
     bool autoPage() const noexcept {return page==Page::compressor || page==Page::gate;}
+    void updateAutoView() {
+        const auto& r=autoView.report();
+        const bool showing=autoPage() && (r.listening || ((r.finished || r.message.isNotEmpty()) && !autoDismissed));
+        const int sideX=std::max(600,getWidth()-338);
+        autoView.setBounds(16,92,std::max(1,sideX-32),autoView.preferredHeight());autoView.setVisible(showing);
+        if(showing)autoView.toFront(false);
+    }
+    AutoSetView autoView;bool autoDismissed{};
     std::array<Control,8> comp;std::array<Control,6> gate;std::array<Control,6> gate2;std::array<Control,6> expander;std::array<Control,3> pre;std::array<Control,5> post;
     Control ceiling,limitRelease,lowAmount,lowBlend,mbMix;std::array<Control,3> crossovers;std::array<Control,7> deEsser;
     std::array<MBBand,4> mbBands;

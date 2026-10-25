@@ -20,7 +20,21 @@ public:
     enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed};
     // instrument: 0 detect, 1 guitar, 2 bass. tone/multiband/finish include the optional passes.
     struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};};
-    struct Status {Phase phase{Phase::idle};float progress{};juce::String text;bool canUndo{};};
+    // One finished pass: what it changed (or why it kept the settings).
+    struct Step {Phase phase{};juce::String result;bool changed{};};
+    // Live view of a run, for the progress and results display.
+    struct Status {
+        Phase phase{Phase::idle};float progress{};juce::String text;bool canUndo{};
+        std::vector<Phase> passes;int pass{-1};       // pass index into passes while listening
+        double passSeconds{},passTotalSeconds{},seconds{},totalSeconds{}; // audio heard so far / needed
+        float levelDb{-120.f};                         // recent peak at the measured point
+        juce::String listeningFor,heard;               // what the pass measures / what it has heard so far
+        std::vector<Step> steps;                       // finished passes, in order
+    };
+    static const char* phaseName(Phase phase) noexcept {
+        switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";default:return "";}
+    }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
     static constexpr double noAudioTimeoutMs=3000;
@@ -44,7 +58,7 @@ public:
     const Options& currentOptions() const noexcept {return options;}
     void start() {
         if(busy())return;
-        snapshot.clear();summary.clear();lastTone={};lastFinish={};lastMultiband={};
+        snapshot.clear();summary.clear();steps.clear();lastTone={};lastFinish={};lastMultiband={};
         for(const auto& id:touchedIDs)if(auto* parameter=processor.parameters().getParameter(id))snapshot.emplace_back(parameter,parameter->getValue());
         passes={Phase::input};if(options.tone)passes.push_back(Phase::tone);passes.push_back(Phase::compressor);
         if(options.multiband)passes.push_back(Phase::multiband);
@@ -76,7 +90,7 @@ public:
         if(lastAudioMs<0 || collected()!=before)lastAudioMs=nowMs;
         else if(nowMs-lastAudioMs>noAudioTimeoutMs){fail("No audio reached the plug-in. Start playback or play your instrument, then try again.");return;}
         const double measured=std::max(0.,double(collected())-double(samplePass()?skipSamples:skipWindows)),needed=passLength();
-        if(measured<needed){publish(status.phase,progress(float(measured/needed)),passText());return;}
+        if(measured<needed){publish(status.phase,progress(float(measured/needed)),passText(),measured/needed);return;}
         const std::vector<Window> measuredWindows(windows.begin()+std::min(windows.size(),size_t(skipWindows)),windows.end());
         const std::vector<float> measuredSamples(samples.begin()+std::min(samples.size(),size_t(skipSamples)),samples.end());
         if(status.phase==Phase::input)finishInput(measuredWindows);
@@ -118,7 +132,7 @@ private:
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
         else if(status.phase==Phase::finish)capture.listen({Tap::deesser,Tap::output});
         else capture.listen(windowTap());
-        publish(passes[pass],progress(0),passText());
+        publish(passes[pass],progress(0),passText(),0);
     }
     void nextPass() {beginPass(pass+1,1);}
     juce::String passText() const {
@@ -133,12 +147,17 @@ private:
     void finishInput(const std::vector<Window>& measured) {
         const auto r=analyseInputGate(measured,raw("input"));
         if(!r.playingDetected){fail("No playing detected. Check the input level and try again.");return;}
+        const float inputBefore=raw("input"),gateBefore=raw("gatethreshold");
         set("input",r.inputGainDb);
         summary="Input "+juce::String(r.inputGainDb,1)+" dB";
+        juce::String result="input "+juce::String(inputBefore,1)+" > "+juce::String(r.inputGainDb,1)+" dB";
         if(r.pausesDetected) {
             set("gatethreshold",r.gateThresholdDb);set("gateRangeDb",r.gateRangeDb);set("gateon",1);
-            summary+=" | Gate "+juce::String(r.gateThresholdDb,0)+" dB, range "+(r.gateRangeDb>=96.f?juce::String("Full"):juce::String(r.gateRangeDb,0)+" dB");
-        } else summary+=" | Gate unchanged (no pause heard)";
+            const auto range=r.gateRangeDb>=96.f?juce::String("Full"):juce::String(r.gateRangeDb,0)+" dB";
+            summary+=" | Gate "+juce::String(r.gateThresholdDb,0)+" dB, range "+range;
+            result+="; gate "+juce::String(gateBefore,0)+" > "+juce::String(r.gateThresholdDb,0)+" dB, range "+range;
+        } else {summary+=" | Gate unchanged (no pause heard)";result+="; gate kept (no pause heard)";}
+        addStep(result,true);
         nextPass();
     }
     // Tone EQ bands assigned to a Dynamic EQ slot keep the user's node.
@@ -151,8 +170,8 @@ private:
     void finishTone(const std::vector<float>& measured) {
         const auto r=analyseTone(measured,rate(),chosenBass(),options.style);
         lastTone=r;
-        if(!r.playingDetected)summary+=" | Tone EQ unchanged (no playing)";
-        else if(r.activeMoves()==0)summary+=" | Tone EQ unchanged ("+juce::String(r.bass?"bass":"guitar")+" already near target)";
+        if(!r.playingDetected){summary+=" | Tone EQ unchanged (no playing)";addStep("kept (no playing heard)",false);}
+        else if(r.activeMoves()==0){summary+=" | Tone EQ unchanged ("+juce::String(r.bass?"bass":"guitar")+" already near target)";addStep("kept ("+juce::String(r.bass?"bass":"guitar")+" already near the target)",false);}
         else {
             // Replace the static Tone EQ curve: measured before the Tone EQ, so
             // earlier moves are not part of the reading. UNDO AUTO restores them.
@@ -166,24 +185,30 @@ private:
             for(;next<bands.size();++next)set(eqID(0,bands[next],"enabled"),0);
             set(eqID(0,-1,"bypass"),0);
             summary+=" | Tone EQ "+juce::String(r.bass?"bass":"guitar")+": "+juce::String(r.activeMoves())+" moves";
+            juce::StringArray moves;
+            for(const auto& move:r.moves)if(move.gainDb!=0.f)moves.add((move.frequency>=1000.f?juce::String(move.frequency/1000.f,1)+" kHz":juce::String(juce::roundToInt(move.frequency))+" Hz")+" "+(move.gainDb>0?"+":"")+juce::String(move.gainDb,1));
+            addStep(juce::String(r.bass?"bass":"guitar")+": "+moves.joinIntoString(", "),true);
         }
         nextPass();
     }
     void finishCompressor(const std::vector<Window>& measured) {
         const auto r=analyseCompressor(measured);
         if(!r.playingDetected){fail("No playing reached the compressor. "+summary+" kept.");return;}
+        const float thresholdBefore=raw("cleanCompThreshold"),ratioBefore=raw("cleanCompRatio");const bool wasOn=raw("cleanCompOn")>.5f;
         set("cleanCompThreshold",r.thresholdDb);set("cleanCompRatio",r.ratio);set("cleanCompAttack",r.attackMs);
         set("cleanCompRelease",r.releaseMs);set("cleanCompKnee",r.kneeDb);set("cleanCompMakeup",r.makeupDb);
         set("cleanCompMix",1);set("cleanCompDetector",1);set("cleanCompOn",1);
         summary+=" | Comp "+juce::String(r.thresholdDb,0)+" dB, "+juce::String(r.ratio,0)+":1, attack "+juce::String(r.attackMs,0)
                 +" ms, makeup "+juce::String(r.makeupDb,1)+" dB";
+        addStep((wasOn?juce::String(thresholdBefore,0)+" dB "+juce::String(ratioBefore,1)+":1":juce::String("off"))+" > "+juce::String(r.thresholdDb,0)+" dB "+juce::String(r.ratio,0)
+                +":1, attack "+juce::String(r.attackMs,0)+" ms, makeup "+juce::String(r.makeupDb,1)+" dB",true);
         if(pass+1<passes.size())nextPass();else complete();
     }
     void finishMultiband(const std::vector<float>& measured) {
         const auto r=analyseMultiband(measured,rate(),chosenBass(),options.style);
         lastMultiband=r;
-        if(!r.playingDetected)summary+=" | Multiband unchanged (no playing)";
-        else if(r.activeBands()==0)summary+=" | Multiband unchanged (bands balanced)";
+        if(!r.playingDetected){summary+=" | Multiband unchanged (no playing)";addStep("kept (no playing heard)",false);}
+        else if(r.activeBands()==0){summary+=" | Multiband unchanged (bands balanced)";addStep("kept (bands already even)",false);}
         else {
             constexpr std::array<const char*,4> names{"low","low-mid","high-mid","high"};
             for(int c=0;c<3;++c)set("mbCrossover"+juce::String(c+1),r.crossovers[size_t(c)]);
@@ -199,36 +224,87 @@ private:
             }
             set("mbMix",1);set("mbDetector",1);set("mbOn",1);
             summary+=" | Multiband "+acting.joinIntoString(", ");
+            addStep("compressing "+acting.joinIntoString(", "),true);
         }
         if(pass+1<passes.size())nextPass();else complete();
     }
     void finishOutput(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows) {
         const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),chosenBass(),options.style);
         lastFinish=r;
-        if(!r.playingDetected)summary+=" | De-esser unchanged (no playing)";
-        else if(!r.deEsser)summary+=" | De-esser off (not harsh)";
+        juce::String result;bool changed=false;
+        if(!r.playingDetected){summary+=" | De-esser unchanged (no playing)";result="de-esser kept (no playing heard)";}
+        else if(!r.deEsser){summary+=" | De-esser off (not harsh)";result="de-esser kept (not harsh)";}
         else {
             set("deEsserFrequency",r.frequency);set("deEsserThreshold",r.thresholdDb);set("deEsserRange",r.rangeDb);set("deEsserAttack",r.attackMs);
             set("deEsserRelease",r.releaseMs);set("deEsserRatio",r.ratio);set("deEsserKnee",r.kneeDb);set("deEsserOn",1);
             summary+=" | De-esser "+juce::String(r.frequency/1000.f,1)+" kHz, "+juce::String(r.thresholdDb,0)+" dB, up to "+juce::String(r.rangeDb,0)+" dB";
+            result="de-esser "+juce::String(r.frequency/1000.f,1)+" kHz, "+juce::String(r.thresholdDb,0)+" dB, up to "+juce::String(r.rangeDb,0)+" dB";changed=true;
         }
         if(r.limiterPlaying) {
             set("liveLimiterCeiling",r.ceilingDb);set("liveLimiterRelease",r.limiterReleaseMs);set("liveLimiterOn",1);
             summary+=" | Limiter "+juce::String(r.ceilingDb,0)+" dBFS (peaks "+juce::String(r.outputPeakDb,1)+" dBFS)";
+            result+="; limiter "+juce::String(r.ceilingDb,0)+" dBFS (peaks "+juce::String(r.outputPeakDb,1)+")";changed=true;
         }
+        addStep(result,changed);
         complete();
     }
     void complete() {
         stopTimer();processor.autoSetCapture().listen(std::nullopt);
-        publish(Phase::done,1,"Applied ("+juce::String(styleName(options.style))+"): "+summary);
+        publish(Phase::done,1,"Applied ("+juce::String(styleName(options.style))+"): "+summary,1);
     }
     void fail(const juce::String& text) {
         stopTimer();processor.autoSetCapture().listen(std::nullopt);
-        publish(Phase::failed,0,text);
+        publish(Phase::failed,0,text,0);
     }
-    void publish(Phase phase,float value,const juce::String& text) {
-        status={phase,value,text,!busyPhase(phase) && !snapshot.empty() && changedSinceSnapshot()};
+    void addStep(const juce::String& result,bool changed){steps.push_back({status.phase,result,changed});}
+    // Seconds of audio each pass needs, including the short settle after a change.
+    double passSeconds(size_t index) const {return (samplePass(passes[index])?toneSeconds:windowsPerPass*.01)+(index>0?toneSettleSeconds:0.);}
+    static bool samplePass(Phase phase) noexcept {return phase==Phase::tone || phase==Phase::multiband || phase==Phase::finish;}
+    void publish(Phase phase,float value,const juce::String& text,double inPass) {
+        const bool listening=busyPhase(phase);
+        Status next{phase,value,text,!listening && !snapshot.empty() && changedSinceSnapshot()};
+        next.passes=passes;next.pass=listening?int(pass):-1;next.steps=steps;
+        for(size_t i=0;i<passes.size();++i)next.totalSeconds+=passSeconds(i);
+        if(listening) {
+            next.passTotalSeconds=passSeconds(pass);next.passSeconds=std::clamp(inPass,0.,1.)*next.passTotalSeconds;
+            for(size_t i=0;i<pass;++i)next.seconds+=passSeconds(i);
+            next.seconds+=next.passSeconds;
+            describeListening(next);
+        } else if(phase==Phase::done)next.seconds=next.totalSeconds;
+        status=std::move(next);
         if(onStatus)onStatus(status);
+    }
+    // What the current pass measures, and what it has heard so far.
+    void describeListening(Status& s) const {
+        const auto db=[](float gain){return juce::Decibels::gainToDecibels(gain,-120.f);};
+        if(status.phase==Phase::input || status.phase==Phase::compressor) {
+            for(size_t i=windows.size()>30?windows.size()-30:0;i<windows.size();++i)s.levelDb=std::max(s.levelDb,windows[i].peakDb);
+        } else {
+            // Sample passes: peak of roughly the last 100 ms.
+            const size_t span=size_t(rate()*.1);float peak=0;
+            for(size_t i=samples.size()>span?samples.size()-span:0;i<samples.size();++i)peak=std::max(peak,std::abs(samples[i]));
+            s.levelDb=db(peak);
+            if(status.phase==Phase::finish)for(size_t i=windows.size()>30?windows.size()-30:0;i<windows.size();++i)s.levelDb=std::max(s.levelDb,windows[i].peakDb);
+        }
+        const bool playing=s.levelDb>minimumPlayingDb;
+        switch(status.phase) {
+            case Phase::input: {
+                s.listeningFor="Playing level and the noise between notes, for input gain and the gate";
+                std::vector<float> rms;for(const auto& w:windows)rms.push_back(w.rmsDb);
+                const bool heardPlaying=rms.size()>=20 && percentile(rms,.9f)>minimumPlayingDb;
+                const bool heardPause=heardPlaying && percentile(rms,.9f)-percentile(rms,.1f)>=12.f;
+                s.heard=juce::String("Playing: ")+(heardPlaying?"heard":"not yet")+"  /  Pause: "+(heardPause?"heard":"not yet - leave a short gap");
+                break;
+            }
+            case Phase::tone:s.listeningFor="Tone balance from lows to highs after the amp and cab, for the Tone EQ";break;
+            case Phase::compressor:s.listeningFor="How much your level jumps between soft and hard notes, for the compressor";break;
+            case Phase::multiband:s.listeningFor="Which frequency bands jump around more than the rest, for the multiband";break;
+            case Phase::finish:s.listeningFor="Harsh 4-10 kHz peaks and the loudest output peaks, for the de-esser and limiter";break;
+            default:break;
+        }
+        if(status.phase!=Phase::input)s.heard=playing?"Playing: heard":"Playing: not yet";
+        if(status.phase==Phase::input || status.phase==Phase::tone || status.phase==Phase::multiband)
+            if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(options.instrument==0?" (detected)":"");
     }
     static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish;}
     bool changedSinceSnapshot() const {
@@ -250,7 +326,7 @@ private:
     std::vector<std::pair<juce::RangedAudioParameter*,float>> snapshot;
     std::vector<Window> windows;std::vector<float> samples;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;ToneResult lastTone;FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
