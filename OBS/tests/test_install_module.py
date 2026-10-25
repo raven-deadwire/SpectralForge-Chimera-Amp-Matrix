@@ -217,6 +217,18 @@ class InstallTests(unittest.TestCase):
                 self.run_install(uninstall)
             self.assert_old(old)
 
+    def test_successful_copy_with_corrupt_bytes_is_rejected_before_exchange(self):
+        old = self.seed_old()
+        original = installer.copy_tree
+        def corrupt(source, dest, platform):
+            original(source, dest, platform)
+            # Corrupt an unowned file on Linux so overlay cannot repair it;
+            # macOS copies the candidate directly and checks sealed resources.
+            write(dest / "unexpected-partial-file", b"incomplete")
+        with patch.object(installer, "copy_tree", side_effect=corrupt), self.assertRaises(installer.InstallError):
+            self.run_install()
+        self.assert_old(old)
+
     @unittest.skipUnless(PLATFORM == "linux", "Linux file overlay fault")
     def test_partial_overlay_copy_keeps_old(self):
         old = self.seed_old(extra=True)
@@ -235,6 +247,7 @@ class InstallTests(unittest.TestCase):
         payload = self.package / installer.module_name(PLATFORM)
         name = sorted(installer.owned_files(PLATFORM))[0]
         original = (payload / name).read_bytes()
+        original_mode = (payload / name).stat().st_mode & 0o777
         for kind in ("missing", "hash", "extra", "symlink", "manifest"):
             with self.subTest(kind=kind):
                 if kind == "missing":
@@ -254,6 +267,7 @@ class InstallTests(unittest.TestCase):
                 if (payload / name).is_symlink():
                     (payload / name).unlink()
                 (payload / name).write_bytes(original)
+                (payload / name).chmod(original_mode)
                 if (payload / "unowned").exists():
                     (payload / "unowned").unlink()
                 shutil.copy2(self.fixture / "payload-manifest.json", self.package / "payload-manifest.json")
