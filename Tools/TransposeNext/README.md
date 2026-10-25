@@ -233,3 +233,12 @@ Candidate roles (2026-10-24): corr40-split-v3 is the T6 candidate
 (`di_validation.py`, `t6_listening.py`, research plug-in default); v2 remains
 the synthetic-target record. T3's fresh-seed B0 exceedance is reported as a
 known limit shared by both; the ceiling is unchanged.
+
+## Fixed PDC study (2026-10-25)
+
+`pdc_study.py` measures per-event attack and low-band added delay of a
+variable-delay candidate and the residual a host leaves after compensating a
+fixed reported latency L (`--fixed-l` validates a chosen L). For v3, L = 2.5 ms
+(minimax attack residual at all rates); the research plug-in's `Latency
+report` = Fixed PDC reports it, and host bypass is delayed by the reported
+latency. See `docs/TRANSPOSE_T6_PDC_CONTRACT.md`.

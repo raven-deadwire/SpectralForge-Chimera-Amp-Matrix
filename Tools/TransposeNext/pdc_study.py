@@ -70,12 +70,12 @@ def annotate(rows, report):
                 for r in rows:
                     if r['input'] == key and r['rate'] == rate: r['attack_input_max_ms'] = m
 
-def analyse(rows):
+def analyse(rows, fixed=None):
     out = {}
     for rate in sorted({r['rate'] for r in rows}):
         sel = [r for r in rows if r['rate'] == rate]
         att = [v for r in sel if valid_attack(r) for v in r.get('attack_added_ms', [])]
-        L = choose(att); per_shift = {}
+        L = choose(att) if fixed is None else fixed; per_shift = {}
         for sh in sorted({r['shift'] for r in sel}):
             s = [v for r in sel if r['shift'] == sh and valid_attack(r) for v in r.get('attack_added_ms', [])]
             low = [v for r in sel if r['shift'] == sh for v in r.get('lowband_added_ms', [])]
@@ -87,8 +87,8 @@ def analyse(rows):
     return out
 
 def cmd_evaluate(a):
-    d = json.loads((a.out/'results.json').read_text()); annotate(d['rows'], d['report']); res = analyse(d['rows'])
-    (a.out/'pdc_summary.json').write_text(json.dumps({'source': d['report'], 'by_rate': res}, indent=1)+'\n')
+    d = json.loads((a.out/'results.json').read_text()); annotate(d['rows'], d['report']); res = analyse(d['rows'], a.fixed_l)
+    (a.out/'pdc_summary.json').write_text(json.dumps({'source': d['report'], 'fixed_l_ms': a.fixed_l, 'by_rate': res}, indent=1)+'\n')
     for rate, v in res.items():
         print(rate, 'L', v['L_ms'], 'ms =', v['L_samples'], 'samples; attack added', v['attack_added_ms'], 'residual', v['attack_residual_at_L'])
     return 0
@@ -98,7 +98,8 @@ def main():
     q = s.add_parser('run'); q.add_argument('--renderer', type=Path, required=True); q.add_argument('--out', type=Path, required=True)
     q.add_argument('--engine', default='corr40-split-v3'); q.add_argument('--rates', default='44100,48000,96000'); q.add_argument('--shifts', default='-2,-1,1,2')
     q.add_argument('--holdout-seeds', default='8139,20261024'); q.add_argument('--long-seed', type=int, default=1); q.set_defaults(f=cmd_run)
-    q = s.add_parser('evaluate'); q.add_argument('--out', type=Path, required=True); q.set_defaults(f=cmd_evaluate)
+    q = s.add_parser('evaluate'); q.add_argument('--out', type=Path, required=True)
+    q.add_argument('--fixed-l', type=float, help='validate a chosen L (ms) instead of choosing one'); q.set_defaults(f=cmd_evaluate)
     a = p.parse_args(); raise SystemExit(a.f(a))
 
 if __name__ == '__main__':
