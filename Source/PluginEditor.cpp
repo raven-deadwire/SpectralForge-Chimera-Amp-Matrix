@@ -202,6 +202,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     }
     dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.graphicalEQ(0),p.graphicalEQ(1),p.dynamicsAnalysis(),p.eqCaptureBoundary());
     canvas.addAndMakeVisible(*dynamicsPanel);dynamicsPanel->setEQEditors(*eqPanels[0],*eqPanels[1]);
+    dynamicsPanel->setGateUnitMeterProvider([this](int unit){return -juce::Decibels::gainToDecibels(processor.gateUnitMeter(unit),-120.f);});
     dynamicsPanel->setMeterProvider([this](spectralforge::DynamicsStage stage) {
         using Stage=spectralforge::DynamicsStage;
         switch(stage) {
@@ -492,7 +493,17 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::dynamics:
             dynamicsPanel->selectPage(node.id=="common.multiband"?DynamicsPage::multiband:node.id=="common.deesser"?DynamicsPage::deesser:node.id=="output.limiter"?DynamicsPage::limiter:DynamicsPage::compressor);
             break;
-        case Target::gate:dynamicsPanel->selectPage(DynamicsPage::gate);break;
+        case Target::gate:{
+            dynamicsPanel->selectPage(DynamicsPage::gate);
+            int unit=0;
+            if(node.id.startsWith("gate.extra.")) {
+                const bool after=node.id.endsWith(".post");const auto& s=processor.parameters();
+                const auto v=[&](const char* id){const auto* raw=s.getRawParameterValue(id);return raw && raw->load()>.5f;};
+                const bool gate2Here=v("gate2AfterRig")==after,expanderHere=v("expAfterRig")==after;
+                unit=gate2Here && (v("gate2On") || !expanderHere || !v("expOn"))?1:2;
+            }
+            dynamicsPanel->selectGateUnit(unit);break;
+        }
         case Target::transpose:focus(globalSliders[4]);break;
         case Target::input:focus(globalSliders[0]);break;
         case Target::output:focus(globalSliders[6]);break;

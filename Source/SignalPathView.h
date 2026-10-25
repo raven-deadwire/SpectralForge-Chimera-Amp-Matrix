@@ -209,7 +209,7 @@ private:
     }
     // Restore/automation notifications must refresh topology even before the
     // editor timer or ComboBox attachments deliver their presentation update.
-    static constexpr std::array<const char*,3> routingParameters{{"gateAfterRig","mode","dualtype"}};
+    static constexpr std::array<const char*,5> routingParameters{{"gateAfterRig","gate2AfterRig","expAfterRig","mode","dualtype"}};
     ChimeraProcessor& processor;bool compact;juce::String selected;
     spectralforge::signalPath::Snapshot current;
     std::vector<std::unique_ptr<juce::TextButton>> buttons;

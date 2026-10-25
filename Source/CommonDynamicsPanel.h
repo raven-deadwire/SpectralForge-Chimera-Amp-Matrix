@@ -43,6 +43,23 @@ public:
         constexpr std::array<const char*,6> gateNames{"Threshold dB","Ratio","Attack ms","Hold ms","Release ms","Range dB"};
         for(size_t i=0;i<gate.size();++i)control(gate[i],gateIDs[i],gateNames[i]);
         gate[1].slider.setTooltip("Downward expansion ratio; active in Expander mode.");
+        // Gate 2 and the Expander are separate stages with their own placement,
+        // so pre + post gating and gate + expander can run together.
+        gateUnitSelector.addItemList({"Gate 1","Gate 2","Expander"},1);gateUnitSelector.setComponentID("commonDynamics.gateUnit");
+        gateUnitSelector.setSelectedId(1,juce::dontSendNotification);addChildComponent(gateUnitSelector);
+        gateUnitSelector.setTooltip("Gate 1 is the main gate. Gate 2 and the Expander are extra stages that can run at the same time, each before or after the rig.");
+        gateUnitSelector.onChange=[this]{selectGateUnit(gateUnitSelector.getSelectedId()-1);};
+        toggle(gate2On,"GATE 2 ON","gate2On");toggle(gate2Placement,"AFTER RIG","gate2AfterRig");
+        toggle(expanderOn,"EXPANDER ON","expOn");toggle(expanderPlacement,"AFTER RIG","expAfterRig");
+        constexpr std::array<const char*,5> gate2IDs{"gate2Threshold","gate2Attack","gate2Hold","gate2Release","gate2RangeDb"};
+        constexpr std::array<const char*,5> gate2Names{"Threshold dB","Attack ms","Hold ms","Release ms","Range dB"};
+        for(size_t i=0;i<gate2.size();++i)control(gate2[i],gate2IDs[i],gate2Names[i]);
+        constexpr std::array<const char*,6> expanderIDs{"expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"};
+        constexpr std::array<const char*,6> expanderNames{"Threshold dB","Ratio","Attack ms","Hold ms","Release ms","Range dB"};
+        for(size_t i=0;i<expander.size();++i)control(expander[i],expanderIDs[i],expanderNames[i]);
+        gate2Placement.setTooltip("Gate 2 detects on the clean DI. Off: attenuate before PRE. On: attenuate after the rig, after the main gate.");
+        expanderPlacement.setTooltip("The Expander detects on the clean DI. Off: attenuate before PRE. On: attenuate after the rig.");
+        expander[1].slider.setTooltip("Downward expansion ratio below the threshold. Range limits the deepest cut.");
         control(ceiling,"liveLimiterCeiling","Ceiling dBFS");control(limitRelease,"liveLimiterRelease","Release ms");
         gatePlacement.setTooltip("Keep the clean DI detector and place linked attenuation before or after the rig.");
         limiterOn.setTooltip("Stereo-linked sample-peak limiter after output trim. No lookahead; intersample peaks are not measured.");
@@ -128,6 +145,13 @@ public:
     Page selectedPage() const noexcept {return page;}
     int selectedDynamicSlot() const noexcept {return selectedSlot;}
     int selectedDynamicBank() const noexcept {return dynamicBank;}
+    // 0 = main gate, 1 = Gate 2, 2 = Expander.
+    int selectedGateUnit() const noexcept {return gateUnit;}
+    void selectGateUnit(int unit) {
+        gateUnit=std::clamp(unit,0,2);gateUnitSelector.setSelectedId(gateUnit+1,juce::dontSendNotification);
+        syncPage();refresh();
+    }
+    void setGateUnitMeterProvider(std::function<float(int)> provider){gateUnitMeterProvider=std::move(provider);}
     void invalidateAnalysisSource(){spectrum.sourceChanged();}
     void selectPage(Page next) {
         // Native PRE/POST own their actual model editor. Delegate before
@@ -194,10 +218,11 @@ public:
         const int graphHeight=std::max(160,getHeight()-94);
         spectrum.setBounds(8,84,sideX-16,page==Page::multiband?graphHeight-57:graphHeight);
         compOn.setBounds(18,45,148,28);detector.setBounds(176,45,100,28);
-        gateOn.setBounds(18,45,130,28);gateMode.setBounds(158,45,142,28);gatePlacement.setBounds(310,45,145,28);
+        gateUnitSelector.setBounds(18,45,118,28);gateOn.setBounds(144,45,112,28);gateMode.setBounds(264,45,118,28);gatePlacement.setBounds(390,45,118,28);
+        gate2On.setBounds(144,45,112,28);gate2Placement.setBounds(264,45,118,28);expanderOn.setBounds(144,45,112,28);expanderPlacement.setBounds(264,45,118,28);
         limiterOn.setBounds(18,45,160,28);preOn.setBounds(263,45,166,28);postOn.setBounds(263,45,166,28);
         const auto grid=[&](auto& controls,int y=103){for(size_t i=0;i<controls.size();++i)controls[i].bounds(sideX+int(i%2)*(column+12),y+int(i/2)*66,column);};
-        grid(comp);grid(gate);grid(pre);grid(post);grid(deEsser);
+        grid(comp);grid(gate);grid(gate2);grid(expander);grid(pre);grid(post);grid(deEsser);
         ceiling.bounds(sideX,110,sideWidth);limitRelease.bounds(sideX,181,sideWidth);
         lowAmount.bounds(sideX,110,sideWidth);lowBlend.bounds(sideX,181,sideWidth);
         slotSelector.setBounds(18,44,176,28);eqBankButtons[0].setBounds(430,44,95,28);eqBankButtons[1].setBounds(533,44,95,28);
@@ -232,7 +257,7 @@ public:
             const auto meter=currentReduction<0?"GAIN "+juce::String(-currentReduction,1)+" dB":"GR "+juce::String(currentReduction,1)+" dB";
             g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);
             if(page==Page::limiter)drawNote(g,sideX,269,"SAMPLE-PEAK LIMITING\nStereo linked / zero lookahead\nTrue-peak protection is not measured.");
-            if(page==Page::gate)drawNote(g,sideX,319,"Clean DI detector\nRange controls maximum attenuation.");
+            if(page==Page::gate)drawNote(g,sideX,319,gateUnit==0?"Clean DI detector\nRange controls maximum attenuation.":"Clean DI detector\nRuns together with Gate 1. The spectrum shows Gate 1.");
             if(page==Page::lowCompressor)drawNote(g,sideX,271,raw("mode")>1.5f?"MATRIX LOW DI\nThe compressor acts on the clean LOW branch.":"MATRIX ROUTE INACTIVE\nSelect Matrix routing to hear this compressor.");
             if(page==Page::preCompressor)drawNote(g,sideX,267,sourceIsActive()?"LEGACY PRE RACK\nNative pedalboard compressors open their own spectrum editor.":"LEGACY PRE INACTIVE\nStored controls. Select PRE again to open the current native compressor.");
             if(page==Page::postCompressor)drawNote(g,sideX,329,sourceIsActive()?"LEGACY POST RACK\nNative POST compressors use their attached controls.":"LEGACY POST INACTIVE\nStored controls. Select POST again to open the current native compressor.");
@@ -275,13 +300,14 @@ private:
     void control(Control& c,const juce::String& id,const juce::String& title,bool duplicate=false) {
         c.label.setText(title,juce::dontSendNotification);c.label.setFont(juce::FontOptions(12.f));addChildComponent(c.label);
         const bool shared=duplicate || id=="gatethreshold" || id=="gatehold" || id=="gaterelease" || id=="gateRangeDb";
+        const bool rangeWithFull=id=="gateRangeDb" || id=="gate2RangeDb" || id=="expRangeDb";
         c.slider.setName(title);c.slider.setComponentID(shared?"commonDynamics."+id:id);c.slider.setSliderStyle(juce::Slider::LinearHorizontal);
         c.slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,65,27);c.slider.setWantsKeyboardFocus(true);c.slider.setNumDecimalPlacesToDisplay(2);addChildComponent(c.slider);
         if(state.getParameter(id))c.attachment=std::make_unique<SA>(state,id,c.slider);else c.slider.setEnabled(false);
         if(id=="cleanCompMix" || id=="mbMix" || id=="lowampmix" || id=="lowcomp" || id=="precomp") {
             c.slider.textFromValueFunction=[](double value){return juce::String(value*100,1)+" %";};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/100.;};
-        } else if(id=="gateRangeDb") {
+        } else if(rangeWithFull) {
             c.slider.textFromValueFunction=[](double value){return value>=95.95?juce::String("Full"):juce::String(value,1);};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.trim().equalsIgnoreCase("Full")?96.:text.getDoubleValue();};
         }
@@ -300,7 +326,10 @@ private:
     void syncPage() {
         for(int i=0;i<6;++i)tabs[size_t(i)].setToggleState(i==(isCompressorPage(page)?0:int(page)),juce::dontSendNotification);
         compOn.setVisible(page==Page::compressor);detector.setVisible(page==Page::compressor);showControls(comp,page==Page::compressor);
-        gateOn.setVisible(page==Page::gate);gateMode.setVisible(page==Page::gate);gatePlacement.setVisible(page==Page::gate);showControls(gate,page==Page::gate);
+        const bool gatePage=page==Page::gate;gateUnitSelector.setVisible(gatePage);
+        gateOn.setVisible(gatePage && gateUnit==0);gateMode.setVisible(gatePage && gateUnit==0);gatePlacement.setVisible(gatePage && gateUnit==0);showControls(gate,gatePage && gateUnit==0);
+        gate2On.setVisible(gatePage && gateUnit==1);gate2Placement.setVisible(gatePage && gateUnit==1);showControls(gate2,gatePage && gateUnit==1);
+        expanderOn.setVisible(gatePage && gateUnit==2);expanderPlacement.setVisible(gatePage && gateUnit==2);showControls(expander,gatePage && gateUnit==2);
         limiterOn.setVisible(page==Page::limiter);ceiling.show(page==Page::limiter);limitRelease.show(page==Page::limiter);
         preOn.setVisible(page==Page::preCompressor);postOn.setVisible(page==Page::postCompressor);showControls(pre,page==Page::preCompressor);showControls(post,page==Page::postCompressor);
         lowAmount.show(page==Page::lowCompressor);lowBlend.show(page==Page::lowCompressor);
@@ -372,6 +401,7 @@ private:
         }
         updateEQWorkspace();const auto stage=stageFor(page);float reduction=0;
         if(page==Page::multiband && mbReductionProvider)reduction=mbReductionProvider(selectedMBBand);
+        else if(page==Page::gate && gateUnit>0)reduction=gateUnitMeterProvider?gateUnitMeterProvider(gateUnit):0.f;
         else if(meterProvider)reduction=meterProvider(stage);
         else if(page==Page::compressor)reduction=dsp.compReduction.load();
         else if(page==Page::limiter)reduction=dsp.limitReduction.load();
@@ -397,7 +427,11 @@ private:
     juce::String contextText() const {
         switch(page) {
             case Page::compressor:return "After Tone EQ / before POST";
-            case Page::gate:return raw("gateAfterRig")>.5f?"Clean DI detection / after rig":"Clean DI detection / before rig";
+            case Page::gate:{
+                const char* placement=gateUnit==1?"gate2AfterRig":gateUnit==2?"expAfterRig":"gateAfterRig";
+                const juce::String unit=gateUnit==1?"Gate 2 / ":gateUnit==2?"Expander / ":"";
+                return unit+(gateUnit==0?"Clean":"clean")+(raw(placement)>.5f?" DI detection / after rig":" DI detection / before rig");
+            }
             case Page::limiter:return "Final output / sample peak";
             case Page::multiband:return "4 bands / stereo linked";
             case Page::deesser:return "High-band dynamics";
@@ -414,7 +448,8 @@ private:
     void timerCallback() override {if(isShowing())refresh();}
     juce::AudioProcessorValueTreeState& state;CommonDynamics& dsp;std::array<GraphicalEQ*,2> eq;DynamicsSpectrumPanel spectrum;
     Page page{Page::compressor};std::array<juce::TextButton,6> tabs;
-    juce::ComboBox detector,gateMode,slotSelector,mbDetector,mbBandSelector;
+    juce::ComboBox detector,gateMode,slotSelector,mbDetector,mbBandSelector,gateUnitSelector;
+    juce::TextButton gate2On,gate2Placement,expanderOn,expanderPlacement;
     juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen;
     juce::TextButton autoSet{"AUTO SET"},autoUndo{"UNDO AUTO"};juce::TextButton autoOptions;AutoSetOptions autoOptionsValue;juce::String autoText;bool autoBusy{};
     void updateAutoOptionsText() {
@@ -432,13 +467,13 @@ private:
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&autoOptions),[safe=juce::Component::SafePointer<CommonDynamicsPanel>(this)](int id){if(safe!=nullptr)safe->chooseAutoOption(id);});
     }
     bool autoPage() const noexcept {return page==Page::compressor || page==Page::gate;}
-    std::array<Control,8> comp;std::array<Control,6> gate;std::array<Control,3> pre;std::array<Control,5> post;
+    std::array<Control,8> comp;std::array<Control,6> gate;std::array<Control,5> gate2;std::array<Control,6> expander;std::array<Control,3> pre;std::array<Control,5> post;
     Control ceiling,limitRelease,lowAmount,lowBlend,mbMix;std::array<Control,3> crossovers;std::array<Control,7> deEsser;
     std::array<Slot,4> slots;std::array<MBBand,4> mbBands;std::array<juce::TextButton,2> eqBankButtons;
     std::array<juce::Component::SafePointer<GraphicalEQPanel>,2> eqEditors;
     std::array<juce::Component::SafePointer<juce::Component>,2> originalEQParents;std::array<juce::Rectangle<int>,2> originalEQBounds;
     std::vector<std::unique_ptr<BA>> buttons;std::vector<std::unique_ptr<CA>> choices;
-    std::function<float(DynamicsStage)> meterProvider;std::function<std::array<float,3>()> effectiveCrossovers;std::function<float(int)> mbReductionProvider;
-    juce::RangedAudioParameter* markerParameter{};int selectedSlot{},selectedMBBand{},dynamicBank{},used{},observedSourceKey{-1};float currentReduction{};juce::String notice;
+    std::function<float(DynamicsStage)> meterProvider;std::function<std::array<float,3>()> effectiveCrossovers;std::function<float(int)> mbReductionProvider,gateUnitMeterProvider;
+    juce::RangedAudioParameter* markerParameter{};int selectedSlot{},selectedMBBand{},gateUnit{},dynamicBank{},used{},observedSourceKey{-1};float currentReduction{};juce::String notice;
 };
 }

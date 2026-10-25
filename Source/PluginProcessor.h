@@ -13,6 +13,7 @@
 #include "PedalBoardParameters.h"
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
+#include "ExtraGates.h"
 #include "AmpSelectionParameters.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
@@ -129,6 +130,8 @@ public:
     float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
     float gateMeter() const { return gateGain.load(); }
+    // Linear gain of Gate 2 (unit 1) or the Expander (unit 2); unit 0 is the main gate.
+    float gateUnitMeter(int unit) const { return unit==1 ? gate2Gain.load() : unit==2 ? expanderGain.load() : gateGain.load(); }
     float tuningFrequency() const { return tuner.frequency(); }
     float tuningConfidence() const { return tuner.confidence(); }
     void selectComparison(int slot);
@@ -185,6 +188,8 @@ private:
     spectralforge::PedalBoardParameterCache boardParameters;
     spectralforge::PedalBoardDSP pedalBoard;
     spectralforge::PostRigGate postRigGate;
+    spectralforge::ExtraGate gate2{spectralforge::ExtraGateUnit::gate2},expander{spectralforge::ExtraGateUnit::expander};
+    std::atomic<float> gate2Gain{1},expanderGain{1};
     std::atomic<float>* gateAfterRig{};
     std::atomic<float>* gateRangeDb{};
     std::atomic<int> transposeQualityMode{0};

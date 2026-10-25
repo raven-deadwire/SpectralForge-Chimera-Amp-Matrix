@@ -34,6 +34,19 @@ inline Snapshot read(ChimeraProcessor& p) {
     add("tuner","TUNER TAP",Target::tuner,16,100,on("tuneron"),{},-1,-1,"Input-gain tap, before gate and Transpose. Tuner mute is applied at output.");edge("input","tuner",true);
     auto previous=juce::String("input");
     if(!postGate){add("gate","INPUT GATE",Target::gate,138,42,on("gateon"));edge(previous,"gate");previous="gate";}
+    // Gate 2 and the Expander each choose their own side of the rig. Shown as
+    // clean-input taps so the main chain keeps its exact DSP positions.
+    const auto extraGates=[&](bool after,const juce::String& id,int x,int y,const juce::String& from) {
+        juce::StringArray names,active;
+        if(on("expAfterRig")==after){names.add("EXPANDER");if(on("expOn"))active.add("EXPANDER");}
+        if(on("gate2AfterRig")==after){names.add("GATE 2");if(on("gate2On"))active.add("GATE 2");}
+        if(names.isEmpty())return;
+        add(id,names.joinIntoString(" + "),Target::gate,x,y,!active.isEmpty(),active.isEmpty()?juce::String("BYPASSED"):active.joinIntoString(" + ")+" ON",-1,-1,
+            after?"Clean-input detector; attenuation after the main post gate, before Tone EQ. Order: Gate > Gate 2 > Expander."
+                 :"Clean-input detector; attenuation before the input gate and PRE. Order: Expander > Gate 2 > Gate.");
+        edge(from,id,true);
+    };
+    extraGates(false,"gate.extra.pre",138,100,"input");
     add("transpose","TRANSPOSE",Target::transpose,260,42,on("transposeon") && int(v("transpose"))!=0,juce::String(int(v("transpose")))+" st"+(on("transposeon")&&int(v("transpose"))!=0?" / ACTIVE":" / BYPASSED"));edge(previous,"transpose");previous="transpose";
     const auto board=p.pedalBoardState();juce::String cleanTap=previous;
     std::array<int,5> legacy=on("preorder")?std::array<int,5>{4,3,5,6,0}:std::array<int,5>{3,4,5,6,0};
@@ -86,6 +99,7 @@ inline Snapshot read(ChimeraProcessor& p) {
     add("merge","RIG SUM",Target::rigs,992,440,true,s.mode==1&&!s.dualCross?juce::String((1-v("dualblend"))*100,0)+" : "+juce::String(v("dualblend")*100,0):"SUM");
     previous="merge";
     if(postGate){add("gate","POST GATE",Target::gate,16,440,on("gateon"),{},-1,-1,"Detector: clean input before PRE; attenuation after AMP/CAB merge, before POST.");edge("input","gate",true);edge(previous,"gate");previous="gate";}
+    extraGates(true,"gate.extra.post",138,385,"merge");
     const auto addEQ=[&](int instance,const char* id,const char* label,Target target,int x,int y,const char* detail) {
         int enabled=0;for(int b=0;b<graphicalEQBands;++b)enabled+=on(eqID(instance,b,"enabled"));
         const bool active=!on(eqID(instance,-1,"bypass"));

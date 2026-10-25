@@ -37,6 +37,13 @@ inline void topology(ChimeraProcessor& p) {
     const auto board=p.pedalBoardState();set(p,"boardLowTap",5);s=read(p);require(edge(s,"pre.owner"+juce::String(board.order[4]),"clean"),"Tap five is not after PRE");
     set(p,"boardEnabled",0);set(p,"preorder",0);set(p,"gainorder",1);s=read(p);require(edge(s,"pre.legacy3","pre.legacy4")&&edge(s,"pre.legacy4","clean")&&edge(s,"pre.legacy0","pre.legacy6"),"Legacy PRE order/tap differs from DSP");
     set(p,"gateAfterRig",1);s=read(p);require(edge(s,"merge","gate")&&edge(s,"gate","tone.eq")&&edge(s,"input","gate"),"Post gate/detector displayed at wrong point");
+    // Gate 2 and the Expander appear as clean-input taps at their own placement.
+    require(s.find("gate.extra.pre") && s.find("gate.extra.pre")->label=="EXPANDER" && !s.find("gate.extra.pre")->active && edge(s,"input","gate.extra.pre"),"Pre-rig Expander missing from the path");
+    require(s.find("gate.extra.post") && s.find("gate.extra.post")->label=="GATE 2" && edge(s,"merge","gate.extra.post"),"Post-rig Gate 2 missing from the path");
+    set(p,"expAfterRig",1);set(p,"expOn",1);s=read(p);
+    require(!s.find("gate.extra.pre") && s.find("gate.extra.post")->label=="EXPANDER + GATE 2" && s.find("gate.extra.post")->active && s.find("gate.extra.post")->status=="EXPANDER ON","Post-rig Expander + Gate 2 path state is stale");
+    require(edge(s,"merge","gate")&&edge(s,"gate","tone.eq"),"Extra gates moved the main post gate");
+    set(p,"expAfterRig",0);set(p,"expOn",0);
     set(p,"ampon1",0);set(p,"lowampmix",.83f);s=read(p);require(s.find("low.blend")->status=="100 : 0"&&s.find("amp.context3")->active,"LOW AMP switch must control blend, not bypass its internal processor");
     set(p,"solo2",1);s=read(p);require(!s.find("level.context3")->active&&s.find("level.context4")->active,"Solo audibility is stale");
     p.loadFactoryPreset(0);

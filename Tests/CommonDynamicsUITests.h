@@ -79,7 +79,22 @@ inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPane
         case Page::compressor:
             for(const auto* id:{"cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompMix","cleanCompHP","cleanCompDetector"})visibleInside(editor,panel,id);break;
         case Page::gate:
-            for(const auto* id:{"commonDynamics.gateon","commonDynamics.gatethreshold","gateMode","gateRatio","gateAttack","commonDynamics.gatehold","commonDynamics.gaterelease","commonDynamics.gateRangeDb","commonDynamics.gateAfterRig"})visibleInside(editor,panel,id);break;
+            for(const auto* id:{"commonDynamics.gateUnit","commonDynamics.gateon","commonDynamics.gatethreshold","gateMode","gateRatio","gateAttack","commonDynamics.gatehold","commonDynamics.gaterelease","commonDynamics.gateRangeDb","commonDynamics.gateAfterRig"})visibleInside(editor,panel,id);
+            {
+                // Gate 2 and the Expander have their own controls on the same page.
+                const std::array<std::vector<const char*>,3> units{{
+                    {"commonDynamics.gatethreshold","gateMode","commonDynamics.gateAfterRig"},
+                    {"gate2On","gate2AfterRig","gate2Threshold","gate2Attack","gate2Hold","gate2Release","gate2RangeDb"},
+                    {"expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"}}};
+                for(int unit:{1,2,0}) {
+                    panel.selectGateUnit(unit);require(panel.selectedGateUnit()==unit,"Gate unit selection was not kept");
+                    for(int other=0;other<3;++other)for(const auto* id:units[size_t(other)]) {
+                        if(other==unit)visibleInside(editor,panel,id);
+                        else {auto* control=find(panel,id);require(control && !control->isShowing(),"Another gate unit's controls remain visible");}
+                    }
+                }
+            }
+            break;
         case Page::limiter:
             for(const auto* id:{"liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})visibleInside(editor,panel,id);break;
         case Page::dynamicEQ: {
