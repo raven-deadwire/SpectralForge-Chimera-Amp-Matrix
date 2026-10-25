@@ -180,6 +180,7 @@ public:
             freezeToggle.setBounds(360,4,96,26);resolution.setBounds(468,4,160,26);smoothing.setBounds(640,4,148,26);
             bypass.setBounds(getWidth()-166,4,148,26);
             addButton.setBounds(56,34,84,25);deleteButton.setBounds(148,34,82,25);undoButton.setBounds(244,34,76,25);redoButton.setBounds(328,34,76,25);
+            dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,124,25);
             const int y=getHeight()-33;layoutDynamicRow(y-37);
             selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
             sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
@@ -192,6 +193,7 @@ public:
         bypass.setBounds(getWidth()-174,22,156,28);
         addButton.setBounds(56,68,88,27);deleteButton.setBounds(154,68,88,27);
         undoButton.setBounds(264,68,76,27);redoButton.setBounds(350,68,76,27);
+        dynamicToggle.setBounds(436,68,96,27);dynamicStatus.setBounds(540,68,130,27);
         const int y=getHeight()-45;layoutDynamicRow(y-38);
         selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
         sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
@@ -224,7 +226,7 @@ public:
         const auto hint=spectrum.isFrozen()
             ? (spectrum.hasData()?"Snapshot  /  "+juce::String(spectrum.lastSampleRate()/1000.,1)+" kHz  /  "+juce::String(spectrum.fftSize()):juce::String("Snapshot: no complete frame"))
             : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another"):juce::String("Double-click to add  /  Delete to remove"));
-        g.drawText(hint,446,72,getWidth()-502,20,juce::Justification::centredRight);
+        g.drawText(hint,680,72,getWidth()-736,20,juce::Justification::centredRight);
         } else {
             g.setColour(text);g.setFont(juce::FontOptions(16.f,juce::Font::bold));
             g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,5,170,25,juce::Justification::centredLeft);
@@ -341,7 +343,7 @@ public:
 private:
     using PA=juce::ParameterAttachment;
     static constexpr std::array<const char*,3> editFields{"frequency","gain","q"};
-    juce::Rectangle<float> plot() const noexcept {return {56,compactWorkspace?66.f:105.f,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-(compactWorkspace?177:233)))};}
+    juce::Rectangle<float> plot() const noexcept {return {56,compactWorkspace?66.f:105.f,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-(compactWorkspace?140:195)-(dynamicRowShown?38:0)))};}
     float frequencyX(float hz) const {return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/20)/std::log(1000.f);}
     float xFrequency(float x) const {return 20*std::pow(1000.f,std::clamp((x-plot().getX())/std::max(1.f,plot().getWidth()),0.f,1.f));}
     float gainY(float db) const {return plot().getCentreY()-db/48*plot().getHeight();}
@@ -406,10 +408,11 @@ private:
         deleteButton.setEnabled(chosen);addButton.setEnabled(occupiedCount()<graphicalEQBands);
         updateDynamicControls();
     }
+    // The dynamics row appears only for a band with DYNAMIC on; the graph
+    // keeps its full height otherwise.
     void layoutDynamicRow(int y) {
-        dynamicToggle.setBounds(16,y,106,28);dynamicStatus.setBounds(130,y,104,28);
-        const int x=240,width=std::max(5*60,getWidth()-x-18)/5;
-        for(size_t i=0;i<dynamicSliders.size();++i)dynamicSliders[i].setBounds(x+int(i)*width,y-3,width-8,34);
+        const int width=std::max(5*60,getWidth()-34)/5;
+        for(size_t i=0;i<dynamicSliders.size();++i){dynamicSliders[i].setBounds(16+int(i)*width,y-3,width-8,34);dynamicSliders[i].setVisible(dynamicRowShown);}
     }
     void bindDynamic() {
         const int slot=selected>=0?dynamicSlotForBand(selected):-1;
@@ -454,6 +457,7 @@ private:
         dynamicToggle.setToggleState(active,juce::dontSendNotification);
         dynamicToggle.setEnabled(selected>=0 && (active || (possible && nextFreeDynamicSlot()>=0)));
         for(auto& slider:dynamicSliders)slider.setEnabled(active);
+        if(active!=dynamicRowShown){dynamicRowShown=active;resized();}
         juce::String status;
         if(dynamicNotice.isNotEmpty())status=dynamicNotice;
         else if(active)status=(possible && dsp.values(selected).enabled && !dsp.isBypassed())?"GR -"+juce::String(dsp.dynamicReduction(selected),1)+" dB":"Idle";
@@ -619,7 +623,7 @@ private:
     static constexpr std::array<const char*,5> dynamicFieldShort{"THR","CUT","RATIO","ATK","REL"};
     static constexpr std::array<const char*,5> dynamicFieldUnits{" dB"," dB",":1"," ms"," ms"};
     juce::TextButton dynamicToggle;juce::Label dynamicStatus;std::array<juce::Slider,5> dynamicSliders;
-    std::array<std::unique_ptr<juce::SliderParameterAttachment>,5> dynamicAttachments;int attachedDynamicSlot{-2};juce::String dynamicNotice;
+    std::array<std::unique_ptr<juce::SliderParameterAttachment>,5> dynamicAttachments;int attachedDynamicSlot{-2};juce::String dynamicNotice;bool dynamicRowShown{};
     double pathMicros{},paintMicros{};
     DiagnosticObserver diagnosticObserver{};void* diagnosticContext{};bool diagnosticRenderPanel{true};
 };
