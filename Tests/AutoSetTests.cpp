@@ -112,9 +112,40 @@ void toneRules() {
         check(!analyseTone(notes(rate,6,{110,147,196},40),rate).bass,"Guitar notes detected as bass");
         check(analyseTone(notes(rate,6,{41,55,73},6),rate).bass,"Bass notes detected as guitar");
         const auto forced=analyseTone(notes(rate,6,{110,147,196},40),rate,true);
-        check(forced.bass && forced.targetDb[0]==toneTargetDb(true,toneBandCentres[0]),"A chosen instrument was overridden by detection");
+        check(forced.bass && near(forced.targetDb[1]-forced.targetDb[0],toneTargetDb(true,toneBandCentres[1])-toneTargetDb(true,toneBandCentres[0]),1e-4f),"A chosen instrument was overridden by detection");
     }
     std::cout<<"PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz\n";
+}
+
+void finishRules() {
+    std::mt19937 random{23};
+    check(toneTargetDb(false,50,Style::metal)==toneTargetDb(false,50)-3.f && toneTargetDb(false,8000,Style::clean)==toneTargetDb(false,8000)+2.f,"Style offsets not applied to the target");
+    for(double rate:{44100.,48000.,96000.}) {
+        const std::vector<Window> silent(600,Window{-100,-103});
+        check(!analyseFinish(std::vector<float>(size_t(rate*6),0.f),silent,rate).playingDetected && !analyseFinish({},silent,rate).limiterPlaying,"Silence reported playing");
+        // On-target, steady: leave the de-esser off.
+        const auto flat=analyseFinish(targetNoise(false,rate,6,random),{},rate,false);
+        check(flat.playingDetected && !flat.deEsser && std::abs(flat.spectralExcessDb)<1.5f && flat.burstExcessDb<2.f,"A steady on-target signal was de-essed");
+        // 8 dB too bright above 4 kHz: de-ess the top, within limits.
+        auto bright=targetNoise(false,rate,6,random);shelve(bright,4000,8,rate);
+        const auto b=analyseFinish(bright,{},rate,false);
+        check(b.deEsser && b.frequency>=2500 && b.frequency<=9000 && b.spectralExcessDb>=4.f,"Bright top end was not de-essed");
+        check(b.rangeDb>=3 && b.rangeDb<=9 && b.thresholdDb>=-60 && b.thresholdDb<=-6 && b.ratio==4 && b.releaseMs==80,"De-esser settings outside their limits");
+        // Pick clicks: short high-frequency bursts on a steady, on-target signal.
+        auto clicks=targetNoise(false,rate,6,random);std::vector<float> burst(clicks.size());
+        std::uniform_real_distribution<float> noise(-1,1);
+        for(size_t n=0;n<burst.size();++n)burst[n]=std::fmod(double(n)/rate,.125)<.004?.6f*noise(random):0.f;
+        const auto hp=spectralforge::eqCoefficients(3,5000,0,.707,rate); // clicks live above 5 kHz
+        for(int k=0;k<4;++k){double z1=0,z2=0;for(auto& v:burst){const double y=hp.b0*v+z1;z1=hp.b1*v-hp.a1*y+z2;z2=hp.b2*v-hp.a2*y;v=float(y);}}
+        for(size_t n=0;n<clicks.size();++n)clicks[n]+=burst[n];
+        const auto c=analyseFinish(clicks,{},rate,false,Style::metal);
+        check(c.deEsser && c.burstExcessDb>=4.f && c.releaseMs==50,"Pick-click bursts were not de-essed");
+    }
+    // Limiter: peaks above -1 dBFS are counted; release follows the style.
+    std::vector<Window> hot;for(int i=0;i<600;++i)hot.push_back({i%10==0?-.5f:-6.f,-12.f});
+    const auto l=analyseFinish({},hot,48000,false,Style::clean);
+    check(l.limiterPlaying && near(l.outputPeakDb,-.5f,.01f) && near(l.overCeilingPercent,10.f,.01f) && l.limiterReleaseMs==150 && l.ceilingDb==limiterCeilingDb,"Limiter analysis wrong");
+    std::cout<<"PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release\n";
 }
 
 void captureWindows() {
@@ -140,13 +171,19 @@ void captureWindows() {
         for(const auto& w:out)check(near(w.peakDb,-6.02f,.3f) && near(w.rmsDb,-9.03f,.5f),"Window peak/RMS do not match the louder channel");
         std::vector<Window> other;capture.drain(Tap::compressor,other);
         check(other.empty(),"Inactive tap recorded windows");
-        std::vector<float> tone;capture.drainTone(tone);check(tone.empty(),"Inactive tone tap recorded samples");
+        std::vector<float> tone;capture.drainSamples(tone);check(tone.empty(),"Inactive tone tap recorded samples");
         capture.listen(Tap::tone);counting=true;allocations=0;
-        capture.push(Tap::tone,channels,2,4096);capture.push(Tap::input,channels,2,4096);
+        capture.push(Tap::tone,channels,2,4096);capture.push(Tap::input,channels,2,4096);capture.push(Tap::deesser,channels,2,4096);
         counting=false;check(allocations==0,"Audio-thread tone capture allocated");
-        out.clear();capture.drainTone(tone);capture.drain(Tap::input,out);
+        out.clear();capture.drainSamples(tone);capture.drain(Tap::input,out);
         check(tone.size()==4096 && out.empty(),"Tone tap did not record exactly its own samples");
         for(size_t n=0;n<tone.size();++n)check(near(tone[n],.625f*left[n],1e-6f),"Tone tap is not the channel average");
+        // Finish pass: de-esser samples and output windows together.
+        capture.listen({Tap::deesser,Tap::output});tone.clear();out.clear();
+        for(int offset=0;offset<int(left.size());offset+=256){const float* block[2]{left.data()+offset,right.data()+offset};const int n=std::min(256,int(left.size())-offset);
+            capture.push(Tap::tone,block,2,n);capture.push(Tap::deesser,block,2,std::min(n,int(Capture::sampleCapacity)));capture.push(Tap::output,block,2,n);}
+        capture.drainSamples(tone);capture.drain(Tap::output,out);
+        check(tone.size()==left.size() && out.size()>=99 && out.size()<=100,"Simultaneous de-esser and output taps did not both record");
     }
     std::cout<<"PASS auto set capture: 10 ms windows at 44.1/48/96 kHz, louder-channel peak/RMS, mono tone tap, tap isolation, allocation-free audio path\n";
 }
@@ -211,7 +248,7 @@ void controllerIntegration() {
     DI di{48000,.126f,.00025f}; // notes peak ~ -18 dBFS, noise ~ -72 dBFS
     c.start();check(c.busy(),"Auto Set did not start listening");
     run(*p,c,&di,6.6,now);
-    check(c.current().phase==Controller::Phase::tone && c.current().text.contains("2/3"),"First pass did not hand over to the Tone EQ pass");
+    check(c.current().phase==Controller::Phase::tone && c.current().text.contains("2/4"),"First pass did not hand over to the Tone EQ pass");
     check(get(*p,"input")>4.f && get(*p,"input")<=12.01f,"Input gain was not raised toward the target");
     check(get(*p,"gateon")>.5f && get(*p,"gatethreshold")>-70.f && get(*p,"gatethreshold")<-35.f,"Gate threshold was not placed above the noise floor");
     run(*p,c,&di,6.6,now);
@@ -225,35 +262,42 @@ void controllerIntegration() {
     }
     check(enabled==tone.activeMoves() && (enabled==0 || get(*p,spectralforge::eqID(0,-1,"bypass"))<.5f),"Applied Tone EQ does not match the analysis");
     run(*p,c,&di,7.0,now);
+    check(c.current().phase==Controller::Phase::finish && c.current().text.contains("4/4"),"Compressor pass did not hand over to the de-esser and limiter pass");
+    run(*p,c,&di,6.6,now);
     p->removeListener(&g);
-    check(c.current().phase==Controller::Phase::done && c.current().canUndo,"Compressor pass did not finish with undo available");
+    check(c.current().phase==Controller::Phase::done && c.current().canUndo,"Auto Set did not finish with undo available");
+    const auto& finish=c.lastFinishAnalysis();
+    check(finish.playingDetected && finish.limiterPlaying && !finish.bass,"Finish pass did not hear the de-esser and limiter inputs");
+    check(get(*p,"liveLimiterOn")>.5f && near(get(*p,"liveLimiterCeiling"),limiterCeilingDb,.01f) && near(get(*p,"liveLimiterRelease"),100.f,.01f),"Limiter was not set for the rock style");
+    check((get(*p,"deEsserOn")>.5f)==finish.deEsser && (!finish.deEsser || near(get(*p,"deEsserFrequency"),finish.frequency,1.f)),"Applied de-esser does not match the analysis");
     check(get(*p,"cleanCompOn")>.5f && get(*p,"cleanCompDetector")>.5f && near(get(*p,"cleanCompMix"),1.f,.001f),"Clean compressor was not enabled in RMS mode");
     check(get(*p,"cleanCompRatio")>=1.99f && get(*p,"cleanCompRatio")<=4.01f && get(*p,"cleanCompThreshold")<0.f,"Compressor ratio/threshold out of range");
     check(g.begins==g.ends && g.begins>0 && g.changes>=g.begins,"Parameter writes were not balanced host gestures");
     bool progressed=false;for(const auto& s:statuses)progressed|=s.progress>0 && s.progress<1;
     check(progressed && c.current().text.contains("Comp"),"Status did not report progress and a summary");
     std::cout<<"AUTO SET synthetic DI (-18 dBFS notes, -72 dBFS noise): "<<c.current().text<<"\n";
+    std::cout<<"AUTO SET finish: high-band excess "<<finish.spectralExcessDb<<" dB, burst excess "<<finish.burstExcessDb<<" dB, output peak "<<finish.outputPeakDb<<" dBFS\n";
     std::cout<<"AUTO SET tone moves:";for(const auto& m:tone.moves)std::cout<<' '<<m.frequency<<"Hz "<<m.gainDb<<"dB";
     std::cout<<" | fit error "<<tone.errorBeforeDb<<" -> "<<tone.errorAfterDb<<" dB\n";
     const auto applied=values(*p);
     int changed=0;for(size_t i=0;i<before.size();++i)if(applied[i]!=before[i])++changed;
-    check(changed>=3 && changed<=14+5*spectralforge::graphicalEQBands,"Auto Set touched parameters outside its scope");
+    check(changed>=3 && changed<=25+5*spectralforge::graphicalEQBands,"Auto Set touched parameters outside its scope");
     c.undo();
     // Undo restores normalised values, which round-trip within float precision.
     const auto restored=values(*p);bool undone=restored.size()==before.size();
     for(size_t i=0;undone && i<before.size();++i)undone=near(restored[i],before[i],1e-6f);
     check(undone && !c.current().canUndo,"Undo did not restore every parameter");
-    c.setToneMode(Controller::ToneMode::off);c.start();
-    check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the Tone EQ did not shorten Auto Set to two passes");
+    c.setOptions({0,false,Style::rock,false});c.start();
+    check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the optional steps did not shorten Auto Set to two passes");
     c.cancel();check(values(*p)==restored,"Cancelling a run changed parameters");
-    std::cout<<"PASS auto set controller: silence/no-audio failures, three passes on the real processor, input+gate+Tone EQ+compressor applied as host gestures, Dynamic EQ node kept, progress/summary, exact undo, tone pass optional\n";
+    std::cout<<"PASS auto set controller: silence/no-audio failures, four passes on the real processor, input+gate+Tone EQ+compressor+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
-        analysisRules();toneRules();captureWindows();controllerIntegration();
+        analysisRules();toneRules();finishRules();captureWindows();controllerIntegration();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

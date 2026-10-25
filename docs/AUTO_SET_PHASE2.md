@@ -6,18 +6,18 @@ balance for guitar or bass. It is rule-based like phase 1.
 
 ## Use
 
-Dynamics → **COMPRESSOR** or **GATE / EXPANDER**. The menu next to
-**AUTO SET** chooses the tone step:
+Dynamics → **COMPRESSOR** or **GATE / EXPANDER**. The options button next to
+**AUTO SET** (it shows e.g. `Auto / Rock`) chooses:
 
-| Choice | Effect |
+| Option | Effect |
 |---|---|
-| Tone auto (default) | Detect guitar or bass from the playing |
-| Tone guitar / Tone bass | Use that instrument's target |
-| Tone off | Phase 1 behaviour: input, gate and compressor only |
+| Instrument: Detect from playing (default) / Guitar / Bass | Target used by the Tone EQ (and de-esser) |
+| Style: Rock (default) / Clean / Metal | Shifts the targets (phase 3, `AUTO_SET_PHASE3.md`) |
+| Steps: Tone EQ | Off = phase 1 behaviour for the tone: input, gate and compressor only |
 
-With the tone step, Auto Set listens in three passes of about 6 s (≈ 19 s in
-all). Play across the neck in pass 2 so every register is heard. **UNDO AUTO**
-restores the input, gate, Tone EQ and compressor exactly.
+With the Tone EQ step, Auto Set listens in about 6 s per pass. Play across
+the neck in the Tone EQ pass so every register is heard. **UNDO AUTO**
+restores everything Auto Set changed.
 
 ## Order
 
@@ -64,9 +64,10 @@ Target curves (third-octave level relative to 250 Hz–1 kHz):
   overrides detection.
 - The mono tone tap is allocation-free.
 - A three-pass run on the real processor: host gestures balanced, the
-  Dynamic EQ node left untouched, exact undo, and Tone off giving two passes.
+  Dynamic EQ node left untouched, undo, and the optional steps off giving two
+  passes.
 
-`CommonDynamicsUITests` checks the menu's placement, its default, and that
+`CommonDynamicsUITests` checks the options' placement and defaults, and that
 listening and cancelling write no parameters.
 
 ## Not yet validated
@@ -76,6 +77,4 @@ values, not tuned against reference recordings or listening tests.
 
 - Detection can mistake a bass played only above the open D string for
   guitar, and a drop-tuned guitar through a full-range cab for bass. Choose
-  the instrument in the menu then.
-- Genre-specific targets and the de-esser and limiter (phase 3) are not
-  included.
+  the instrument in the options then.
