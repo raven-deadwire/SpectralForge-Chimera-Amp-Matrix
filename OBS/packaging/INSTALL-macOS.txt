@@ -1,0 +1,41 @@
+SpectralForge Chimera OBS 필터 — macOS (Apple silicon) 설치 / installation
+=========================================================================
+
+[한국어]
+필요: Chimera macOS VST3(/Library/Audio/Plug-Ins/VST3 또는 ~/Library/Audio/Plug-Ins/VST3),
+Apple silicon용 OBS Studio(이 모듈은 OBS 31.1.2 Apple 빌드로 빌드·시험). Intel Mac용은 아직 없습니다.
+
+1. OBS를 종료합니다.
+2. Python 3.9 이상을 준비하고 이 패키지 폴더에서 ./install.sh 를 실행합니다.
+   ~/Library/Application Support/obs-studio/plugins/ 에 안전하게 설치합니다. 직접 덮어쓰지 마세요.
+3. 내려받은 파일이면 macOS가 격리 표시를 붙입니다. install.sh가 설치한 사본에서만 지웁니다.
+   이 모듈은 아직 Apple 공증을 받지 않았습니다(임시 서명).
+4. OBS를 시작하고 오디오 소스 → 필터 → SpectralForge Chimera를 추가합니다. 사용법은 README.txt.
+   macOS에서는 Chimera 에디터 창을 아직 열 수 없습니다. 속성 창 설정과 스크립트(chimera_set_parameter)로만
+   바꿀 수 있으며, 에디터는 이후 단계에서 추가합니다.
+
+제거: ./install.sh --uninstall (설치 소유 파일만 지웁니다. 사용자 추가 파일과 OBS 장면은 남습니다).
+
+[English]
+Requires the Chimera macOS VST3 and OBS Studio for Apple silicon (built and tested with OBS 31.1.2, Apple).
+Close OBS and run ./install.sh, which copies chimera-obs.plugin to ~/Library/Application Support/obs-studio/plugins
+and clears the download quarantine flag on that copy only. The module is ad-hoc signed and not notarized yet.
+The Chimera editor window is not available on macOS yet. Remove with ./install.sh --uninstall.
+
+[설치 보호 / Installation safety]
+Python 3.9 이상 필요. root로 실행하지 마세요. 설치·제거가 끝날 때까지 OBS를 종료 상태로 유지하세요.
+OBS 실행 여부 확인 실패도 설치·제거를 차단합니다. 후보 파일의 전체 목록·SHA-256·권한을 검사하고,
+macOS에서는 번들 서명도 검사한 뒤 기존 설치와 원자 교체합니다. 지원하지 않는 파일시스템에서는 중단합니다.
+오류·중단 시 기존 설치로 복구하며, 강제 종료(SIGKILL) 후에는 같은 스크립트를 다시 실행하면 복구합니다.
+디스크 오류로 복구가 불가능하면 표시된 .chimera-obs-transaction 폴더를 보존하세요. 이전 설치 백업입니다.
+빈 .chimera-obs-install.lock은 동시 설치 방지용으로 남습니다. OBS 장면·설정·다른 플러그인·Chimera VST3는 보존합니다.
+macOS 번들 안에 사용자 파일을 추가했다면 업데이트 전에 밖으로 옮겨야 합니다. 제거 시에는 사용자 파일을 보존합니다.
+
+Requires Python 3.9+. Do not run as root. Keep OBS closed until installation/removal finishes.
+Unknown process state also blocks changes. Full payload SHA-256/inventory/permissions and macOS signatures are
+checked before atomic replacement; unsupported filesystems fail without deleting the old installation.
+Errors and catchable interruptions restore the previous copy. After SIGKILL, rerun this script to recover.
+If disk errors prevent recovery, keep the reported .chimera-obs-transaction directory: it contains the backup.
+An empty .chimera-obs-install.lock remains to serialize installers. Scenes, settings, other plugins and VST3 are preserved.
+Move added user files out of a macOS bundle before updating; uninstall preserves them.
+Checksums/ad-hoc signatures detect corruption; they do not establish publisher identity or Apple notarization.
