@@ -20,6 +20,29 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  installer-safety:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Native installer faults, signals, rollback and data preservation
+        shell: bash
+        run: python3 OBS/tests/test_install_module.py 2>&1 | tee installer-safety.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: obs-installer-safety-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: installer-safety.txt
+          if-no-files-found: error
   linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
@@ -45,6 +68,7 @@ jobs:
           sha="${{ github.event.pull_request.head.sha || github.sha }}"
           package="package/chimera-obs-linux-x86_64"
           python3 OBS/tools/stage_module.py linux --build build-obs --output "$package" --source-sha "$sha" --built-for "OBS 30.0.2 (Ubuntu 24.04 libobs)"
+          python3 OBS/tests/test_install_module.py --package "$package"
           sh "$package/install.sh"
           plugins="$HOME/.config/obs-studio/plugins"
           xvfb-run -a build-obs/chimera-obs-layout-tests "$plugins/%module%/bin/64bit" "$plugins/%module%/data"
@@ -120,6 +144,7 @@ jobs:
           build="$RUNNER_TEMP/chimera-obs/build"
           package="package/chimera-obs-macos-arm64"
           python3 OBS/tools/stage_module.py macos --build "$build" --output "$package" --source-sha "$sha" --built-for "OBS 31.1.2 (macOS Apple)"
+          python3 OBS/tests/test_install_module.py --package "$package"
           sh "$package/install.sh"
           plugins="$HOME/Library/Application Support/obs-studio/plugins"
           "$build/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"

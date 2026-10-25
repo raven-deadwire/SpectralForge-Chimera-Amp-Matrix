@@ -124,8 +124,19 @@ macOS(Apple silicon)도 libobs 개발 패키지가 없으므로 OBS 31.1.2 Apple
 | Linux x86_64 | `chimera-obs-linux-x86_64-*.tar.gz` | `~/.config/obs-studio/plugins/chimera-obs/{bin/64bit,data}` | libobs 30.0.2 (Ubuntu 24.04) |
 | macOS Apple silicon | `chimera-obs-macos-arm64-*.zip` | `~/Library/Application Support/obs-studio/plugins/chimera-obs.plugin` | OBS 31.1.2 Apple |
 
-- `./install.sh`는 OBS가 실행 중이면 아무것도 바꾸지 않고 멈춘다(E단계 Windows Setup과 같은 규칙). `--uninstall`은 패키지가 설치한 파일만 지운다.
-  Linux에서는 root로 실행하지 않는다. macOS에서는 설치한 사본의 다운로드 격리 표시만 지운다.
+- `./install.sh`는 Python 3.9 이상(표준 라이브러리만 사용)이 필요하다. macOS·Linux 모두 root 실행을 거부한다.
+  OBS 실행 중이거나 `pgrep` 누락·오류·시간 초과로 실행 여부를 확인할 수 없으면 설치·업데이트·제거를 막는다(PR #149와 같은 fail-closed 정책).
+- 후보를 같은 파일시스템의 숨겨진 트랜잭션 폴더에서 준비하고 전체 파일 목록·SHA-256·권한을 확인한다.
+  macOS는 `ditto`로 복사하고 격리 표시를 후보에서만 제거한 뒤 번들 ID와 `codesign --verify --deep --strict`도 확인한다.
+  기존 디렉터리는 macOS `RENAME_SWAP` / Linux `RENAME_EXCHANGE`로 한 번에 교체한다. 지원하지 않는 파일시스템에서는 기존 설치를 보존하고 중단한다.
+- 교체 후 검증이 실패하거나 INT/TERM/HUP로 중단되면 이전 디렉터리를 복원한다. SIGKILL 등으로 중단된 경우 다음 실행에서 저널과 디렉터리 식별값을 대조해 복구한다.
+  잠금은 프로세스 종료 시 해제된다. 빈 `.chimera-obs-install.lock` 파일은 동시 설치 방지를 위해 남긴다.
+  정상 완료·복구 후 임시 파일을 정리한다. 복구 자체가 디스크 오류로 실패하면 백업·저널을 지우지 않고 위치를 알린다.
+- `--uninstall`은 고정된 설치 소유 파일 목록만 제거한다. Linux 업데이트와 양 OS 제거는 사용자 추가 파일·빈 사용자 폴더를 보존한다.
+  서명된 macOS 번들 내부에 별도 사용자 파일이 있으면 업데이트를 거부하고 외부로 옮기도록 안내한다.
+  OBS 장면·설정, Chimera 프리셋·IR·VST3, 다른 플러그인은 수정 대상이 아니다.
+- 패키지 SHA-256 목록과 임시 서명은 손상 검증이며 개발자 신원 인증·Apple 공증은 아니다. 설치 중에는 OBS를 계속 종료 상태로 유지해야 한다.
+  SIGKILL 복구는 시험하지만 실제 전원 차단/고장 난 저장장치의 내구성은 인증하지 않는다.
 - CI는 패키지를 실제 사용자 폴더에 설치하고, `chimera-obs-layout-tests`로 libobs가 그 위치에서 모듈을 찾아
   번역된 이름(`SpectralForge Chimera`)으로 등록하는지 확인한 뒤 제거까지 시험한다. Linux는 제거 뒤 사용자가 넣은 파일이 남는지도 본다.
 - macOS 번들은 임시(ad-hoc) 서명이며 Apple 공증 전이다. Intel Mac 빌드, macOS 에디터 창, Flatpak·Snap OBS는 아직 지원하지 않는다.

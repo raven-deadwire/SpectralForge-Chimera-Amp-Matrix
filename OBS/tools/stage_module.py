@@ -8,6 +8,8 @@ macos: <output>/chimera-obs.plugin (README, LICENSE and SOURCE in Contents/Resou
        install.sh, INSTALL.txt, README.txt
 """
 import argparse
+import importlib.util
+import json
 from pathlib import Path
 import re
 import shutil
@@ -15,6 +17,9 @@ import subprocess
 
 OBS = Path(__file__).resolve().parents[1]
 REPOSITORY = "raven-deadwire/SpectralForge-Chimera-Amp-Matrix"
+spec = importlib.util.spec_from_file_location("install_module", OBS / "packaging/install_module.py")
+installer = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(installer)
 
 
 def module_version() -> str:
@@ -67,6 +72,14 @@ def main() -> None:
         shutil.copy2(OBS / "packaging/install-macos.sh", args.output / "install.sh")
         shutil.copyfile(OBS / "packaging/INSTALL-macOS.txt", args.output / "INSTALL.txt")
         shutil.copyfile(OBS / "packaging/README.txt", args.output / "README.txt")
+    payload = args.output / installer.module_name(args.platform)
+    files = installer.inventory(payload)
+    if set(files) != installer.owned_files(args.platform):
+        raise SystemExit("Staged payload differs from installer-owned inventory")
+    (args.output / "payload-manifest.json").write_text(
+        json.dumps({"schema": 1, "platform": args.platform, "files": files}, indent=2) + "\n", encoding="utf-8")
+    installer.verify_payload(payload, files, args.platform)
+    shutil.copy2(OBS / "packaging/install_module.py", args.output / "install_module.py")
     print(f"staged {args.platform} OBS filter {module_version()} in {args.output}")
 
 
