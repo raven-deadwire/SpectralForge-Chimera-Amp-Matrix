@@ -17,6 +17,12 @@ struct FactoryFinishingDynamics {
     int gateMode{1}; // Gentle downward expansion for exposed notes and tails.
     float gateRatio{2},gateAttack{.7f},minimumHold{25},minimumRelease{140},maximumRange{42};
     float dynamicAttack{15},dynamicRelease{160},dynamicRatio{2},bodyQ{1},harshQ{1.3f};
+    // Expander-mode roles move the gentle expansion to the Expander stage, at
+    // the authored gate threshold; the main gate then closes only well below it.
+    float expanderRange{15};
+    // Hard-gate roles add a gentle PRE/POST Gate 2 on the other side of the rig,
+    // below the main threshold, so less hiss reaches the amp between phrases.
+    float gate2Offset{-6},gate2Ratio{2},gate2Range{18};
 };
 
 inline constexpr FactoryFinishingDynamics factoryFinishingDynamics(FactoryFinishingRole role) {
@@ -51,11 +57,11 @@ inline constexpr FactoryFinishingDynamics factoryFinishingDynamics(FactoryFinish
             d.dynamicAttack=20;d.dynamicRelease=160;d.bodyQ=1.1f;break;
         case FactoryFinishingRole::envelope:
             d.attack=40;d.release=220;d.mix=.25f;d.detectorHP=80;
-            d.gateRatio=1.6f;d.minimumHold=45;d.minimumRelease=200;d.maximumRange=36;
+            d.gateRatio=1.6f;d.minimumHold=45;d.minimumRelease=200;d.maximumRange=36;d.expanderRange=9;
             d.dynamicAttack=30;d.dynamicRelease=220;d.dynamicRatio=1.5f;break;
         case FactoryFinishingRole::fuzz:
             d.attack=40;d.release=240;d.mix=.25f;d.detectorHP=90;
-            d.gateRatio=1.5f;d.minimumHold=65;d.minimumRelease=240;d.maximumRange=30;
+            d.gateRatio=1.5f;d.minimumHold=65;d.minimumRelease=240;d.maximumRange=30;d.expanderRange=9;
             d.dynamicAttack=30;d.dynamicRelease=220;d.dynamicRatio=1.7f;d.bodyQ=.9f;break;
     }
     return d;
@@ -157,12 +163,27 @@ bool voiceFactoryFinishing(int index,Getter get,Setter set) {
     set("cleanCompOn",r.compressor?1.f:0.f);set("cleanCompThreshold",d.threshold);set("cleanCompRatio",d.ratio);
     set("cleanCompAttack",d.attack);set("cleanCompRelease",d.release);set("cleanCompKnee",d.knee);
     set("cleanCompMakeup",0);set("cleanCompMix",d.mix);set("cleanCompHP",d.detectorHP);set("cleanCompDetector",float(d.detector));
-    set("gateMode",float(d.gateMode));set("gateRatio",d.gateRatio);set("gateAttack",d.gateAttack);
     // Preserve longer authored tails and gentler finite attenuation (notably Doom).
-    // Existing preset threshold/input calibration and LOW routing stay intact.
-    set("gatehold",std::max(get("gatehold"),d.minimumHold));
-    set("gaterelease",std::max(get("gaterelease"),d.minimumRelease));
-    set("gateRangeDb",std::min(get("gateRangeDb"),d.maximumRange));
+    // Input calibration and LOW routing stay intact.
+    const float hold=std::max(get("gatehold"),d.minimumHold),release=std::max(get("gaterelease"),d.minimumRelease);
+    const float range=std::min(get("gateRangeDb"),d.maximumRange),threshold=get("gatethreshold");
+    const bool afterRig=get("gateAfterRig")>.5f;
+    set("gatehold",hold);set("gaterelease",release);set("gateRangeDb",range);set("gateRatio",d.gateRatio);set("gateAttack",d.gateAttack);
+    if(d.gateMode==1) {
+        // Gate + Expander: the Expander takes the authored threshold and ratio
+        // up to its range; the main gate closes only where that range is used up.
+        const float expanderRange=std::min(range,d.expanderRange);
+        const float deep=std::clamp(-expanderRange/(d.gateRatio-1.f)-3.f,-24.f,-9.f);
+        set("gateMode",0);set("gatethreshold",std::max(-90.f,threshold+deep));
+        set("expOn",1);set("expAfterRig",afterRig?1.f:0.f);set("expThreshold",threshold);set("expRatio",d.gateRatio);
+        set("expAttack",std::max(1.f,d.gateAttack*2));set("expHold",hold);set("expRelease",release);set("expRangeDb",expanderRange);
+        set("gate2On",0);
+    } else {
+        // Hard gate plus a gentle Gate 2 on the other side of the rig.
+        set("gateMode",0);set("expOn",0);
+        set("gate2On",1);set("gate2Mode",1);set("gate2Threshold",std::max(-90.f,threshold+d.gate2Offset));set("gate2Ratio",d.gate2Ratio);
+        set("gate2Attack",d.gateAttack);set("gate2Hold",hold);set("gate2Release",release);set("gate2RangeDb",std::min(range,d.gate2Range));
+    }
     set("liveLimiterOn",1);set("liveLimiterCeiling",-1);
     set("liveLimiterRelease",r.role==FactoryFinishingRole::fuzz?180.f:100.f);
     return true;

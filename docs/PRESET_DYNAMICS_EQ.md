@@ -33,6 +33,38 @@ Factory `EQEditState::RestoreScope` rebuilds occupancy from the enabled nodes;
 factory recall remains an undo/redo barrier. Saving a user sound captures its
 actual EQ/dynamics values and occupancy for later binary and A/B restoration.
 
+## Gate, Gate 2 and Expander (2026-10-25)
+
+Recalls now use the PRE/POST gates and the separate Expander. Each preset pairs
+its hard main gate with exactly one gentle stage:
+
+| Roles | Main gate | Added stage |
+|---|---|---|
+| clean, edge, lead, finger, pick, slap, matrix, envelope, fuzz (38 presets) | Gate mode, closing only below the Expander's range: authored threshold − (Expander range ÷ (ratio − 1) + 3 dB), clamped to 9–24 dB lower | **Expander** on the main gate's side, at the authored threshold and ratio, range = min(authored range, 15 dB; 9 dB for envelope and fuzz), attack ≥ 1 ms, the authored hold and release |
+| rhythm (10 presets) | Gate mode, as authored | **Gate 2** on the other side of the rig (PRE when the main gate is post), Expander mode 2:1, 6 dB below the main threshold, range ≤ 18 dB |
+
+The previous single gate in Expander mode expanded at the authored threshold
+all the way to its range. The Expander now does that part up to 9–15 dB, and
+the main gate removes the rest only once that range is used up, so tails keep
+the same shape near the threshold and silence is still fully closed. For
+rhythm presets, Gate 2 keeps hiss out of the amp between phrases while the
+post-rig main gate stays as tight as before.
+
+`ChimeraIntegratedProcessorTests` checks every preset: the main gate is in Gate
+mode with exactly one of Gate 2 / Expander, the Expander sits above the main
+gate and Gate 2 below it, the added stage cuts less than 0.5 dB while the pluck
+fixture plays, and more than 6 dB on hiss 24 dB under its threshold.
+
+| Measurement (local Linux) | Result |
+|---|---:|
+| Largest Gate 2 / Expander reduction while playing | 0.00002 dB |
+| Smallest reduction on the quiet hiss | 8.9 dB (Doom Fuzz, Expander range 9 dB) |
+| Lowest nominal preset RMS / highest unprotected peaks | unchanged: −28.0467 dBFS, Slap Studio |
+
+Dynamic EQ thresholds were re-checked with the same render and kept: the
+largest mean dynamic cut is 41 % of its range (Low B Foundation, body node), no
+node reaches 90 %, and the preset levels and limiter results are unchanged.
+
 ## Threshold calibration
 
 Thresholds are authored for the actual Tone and Final stage levels, which differ
