@@ -317,12 +317,12 @@ def main():
     s = sub.add_parser('label'); s.add_argument('--manifest', required=True); s.add_argument('--take', required=True); s.add_argument('--out', required=True); s.set_defaults(f=cmd_label)
     for name, f in (('freeze', cmd_freeze), ('run', cmd_run)):
         s = sub.add_parser(name); s.add_argument('--manifest', required=True); s.add_argument('--renderer', type=Path, required=True)
-        s.add_argument('--engine', default='corr40-split-v2')
+        s.add_argument('--engine', default='corr40-split-v3')
         if name == 'freeze': s.add_argument('--out', required=True)
         else: s.add_argument('--prereg', required=True); s.add_argument('--out', type=Path, required=True)
         s.set_defaults(f=f)
     s = sub.add_parser('selftest'); s.add_argument('--renderer', type=Path, required=True); s.add_argument('--out', type=Path, required=True)
-    s.add_argument('--engine', default='corr40-split-v2'); s.set_defaults(f=cmd_selftest)
+    s.add_argument('--engine', default='corr40-split-v3'); s.set_defaults(f=cmd_selftest)
     a = p.parse_args(); sys.exit(a.f(a))
 
 if __name__ == '__main__':

@@ -228,3 +228,8 @@ so output no longer depends on host block partitioning. `BlockInvariance`
 and `SpliceCollision` are the research checks. Earlier engines are
 bit-unchanged. Fresh-seed T3 exceeds the B0 ceiling exactly as v2 does. See
 `docs/TRANSPOSE_V3_BLOCK_INVARIANT_20261024.md`.
+
+Candidate roles (2026-10-24): corr40-split-v3 is the T6 candidate
+(`di_validation.py`, `t6_listening.py`, research plug-in default); v2 remains
+the synthetic-target record. T3's fresh-seed B0 exceedance is reported as a
+known limit shared by both; the ceiling is unchanged.
