@@ -580,7 +580,11 @@ void ChimeraProcessor::copyComparison()
     auto current=captureCore();std::lock_guard<std::mutex> lock(comparisonMutex);
     comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
 }
-juce::AudioProcessorEditor* ChimeraProcessor::createEditor() { return new ChimeraEditor(*this); }
+juce::AudioProcessorEditor* ChimeraProcessor::createEditor() {
+    auto* editor=new ChimeraEditor(*this);
+    editor->setEasyMode(spectralforge::easy::Preference::startsEasy());
+    return editor;
+}
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new ChimeraProcessor(); }
 
 void ChimeraProcessor::clearMidi() {for(auto& target:midiMap)target.store(-1);midiLearn.store(-1);}

@@ -15,6 +15,7 @@
 #include "CommonDynamicsPanel.h"
 #include "AutoSetController.h"
 #include "AccessibleViewport.h"
+#include "EasyModeView.h"
 
 class CabRoomOverview;
 
@@ -45,6 +46,9 @@ public:
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
+    // Presentation only: Easy view edits the same parameters as the full editor.
+    void setEasyMode(bool easy,bool rememberChoice=false);
+    bool easyModeActive() const noexcept {return easyMode;}
 #if CHIMERA_ROUTING_DIAGNOSTICS
     struct RoutingProbe { uint64_t ticks{}, skipped{}, refreshed{}; double entered{}, finished{}; bool visible{}, messageThread{}; };
     const RoutingProbe& routingProbe() const noexcept { return routeProbe; }
@@ -156,7 +160,9 @@ private:
     int selectedEQBank{}; // Presentation only; never a host parameter or sound-state edit.
     std::unique_ptr<CabRoomOverview> cabRoom;
     std::unique_ptr<PrecisionTunerPanel> precisionTuner;
-    juce::TextButton tunerOpen{"TUNER"};
+    juce::TextButton tunerOpen{"TUNER"},easyOpen{"EASY VIEW"};
+    std::unique_ptr<EasyModeView> easyView;
+    bool easyMode{};
     bool tunerViewOpen{};
     bool showRigControls{};
     int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.
