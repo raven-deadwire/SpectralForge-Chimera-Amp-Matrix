@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Native installer faults, signals, rollback and data preservation
+      - name: Native installer without Python on user PATH, faults and data preservation
         shell: bash
         run: python3 OBS/tests/test_install_module.py 2>&1 | tee installer-safety.txt
       - uses: actions/upload-artifact@v4
@@ -68,6 +68,9 @@ jobs:
           sha="${{ github.event.pull_request.head.sha || github.sha }}"
           package="package/chimera-obs-linux-x86_64"
           python3 OBS/tools/stage_module.py linux --build build-obs --output "$package" --source-sha "$sha" --built-for "OBS 30.0.2 (Ubuntu 24.04 libobs)"
+          # The installer needs only the C library, like the OBS that will load the module.
+          ldd "$package/chimera-obs-installer"
+          if ldd "$package/chimera-obs-installer" | grep -E 'libstdc\+\+|libgcc_s'; then exit 1; fi
           python3 OBS/tests/test_install_module.py --package "$package"
           sh "$package/install.sh"
           plugins="$HOME/.config/obs-studio/plugins"
@@ -125,35 +128,44 @@ jobs:
           ctest --test-dir build-obs --output-on-failure --no-tests=error
 
   macos:
-    # Plan stage F: Apple silicon bundle against the OBS 31.1.2 Apple release.
+    # Plan stage F: one Universal bundle (Apple silicon and Intel) for macOS 12+,
+    # each architecture built and tested against its OBS 31.1.2 release.
     runs-on: macos-15
-    timeout-minutes: 120
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Build the Chimera VST3 under test (arm64)
+      - name: Rosetta for the Intel tests
         run: |
-          cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64
+          arch -x86_64 /usr/bin/true 2>/dev/null || sudo softwareupdate --install-rosetta --agree-to-license
+          arch -x86_64 /usr/bin/true
+      - name: Build the Chimera VST3 under test (Universal, macOS 12.0 like the product)
+        run: |
+          cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
           cmake --build build --target ChimeraAmpMatrix_VST3 --parallel 3
-      - name: Build and test the OBS module against the pinned OBS release
-        run: ./OBS/tools/build-macos-module.sh "$RUNNER_TEMP/chimera-obs" "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
-      - name: Package, install for this user, load from the OBS plugin folder, uninstall
+      - name: Build and test the OBS module against OBS 31.1.2 Apple (arm64)
+        run: ./OBS/tools/build-macos-module.sh "$RUNNER_TEMP/chimera-obs-arm64" arm64 "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+      - name: Build and test the OBS module against OBS 31.1.2 Intel (x86_64 under Rosetta)
+        run: ./OBS/tools/build-macos-module.sh "$RUNNER_TEMP/chimera-obs-x86_64" x86_64 "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+      - name: Package Universal, install for this user, load from the OBS plugin folder on both architectures, uninstall
         run: |
           sha="${{ github.event.pull_request.head.sha || github.sha }}"
-          build="$RUNNER_TEMP/chimera-obs/build"
-          package="package/chimera-obs-macos-arm64"
-          python3 OBS/tools/stage_module.py macos --build "$build" --output "$package" --source-sha "$sha" --built-for "OBS 31.1.2 (macOS Apple)"
+          arm="$RUNNER_TEMP/chimera-obs-arm64/build"
+          intel="$RUNNER_TEMP/chimera-obs-x86_64/build"
+          package="package/chimera-obs-macos-universal"
+          python3 OBS/tools/stage_module.py macos --build "$arm" --build-x86_64 "$intel" --output "$package" --source-sha "$sha" --built-for "OBS 31.1.2 (macOS Apple and Intel)"
           python3 OBS/tests/test_install_module.py --package "$package"
           sh "$package/install.sh"
           plugins="$HOME/Library/Application Support/obs-studio/plugins"
-          "$build/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
+          "$arm/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
+          "$intel/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
           codesign --verify --strict "$plugins/chimera-obs.plugin"
           sh "$package/install.sh" --uninstall
           test ! -e "$plugins/chimera-obs.plugin"
-          ditto -c -k --keepParent "$package" "package/chimera-obs-macos-arm64-${sha:0:10}.zip"
+          ditto -c -k --keepParent "$package" "package/chimera-obs-macos-universal-${sha:0:10}.zip"
       - uses: actions/upload-artifact@v4
         with:
-          name: chimera-obs-macos-arm64-${{ github.event.pull_request.head.sha || github.sha }}
-          path: package/chimera-obs-macos-arm64-*.zip
+          name: chimera-obs-macos-universal-${{ github.event.pull_request.head.sha || github.sha }}
+          path: package/chimera-obs-macos-universal-*.zip
           if-no-files-found: error

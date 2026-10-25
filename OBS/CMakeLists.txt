@@ -3,6 +3,9 @@
 # project: it never links the proprietary product targets of the parent
 # repository and hosts the installed Chimera VST3 at runtime instead.
 cmake_minimum_required(VERSION 3.22)
+# Same oldest macOS as the Chimera product and OBS 31; left unset, the module
+# would only load on the build machine's macOS version or newer.
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Oldest macOS the OBS module supports")
 project(chimera-obs VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

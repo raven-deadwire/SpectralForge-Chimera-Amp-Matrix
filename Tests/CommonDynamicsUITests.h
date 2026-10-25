@@ -66,30 +66,38 @@ inline void ancestorVisibility(ChimeraProcessor& processor) {
     std::cout<<"PASS ancestor-only visibility starts, suspends and reacquires real stage audio\n";
 }
 inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPanel& panel,Page page) {
-    const bool dynamic=page==Page::dynamicEQ;
     auto* measured=find<spectralforge::DynamicsSpectrumPanel>(panel,"commonDynamics.spectrum");
-    require(measured && measured->isShowing()!=dynamic,"Selected dynamics page lost its spectrum or left a second consumer visible");
-    if(!dynamic){inside(editor,*measured,"Dynamics spectrum is clipped");require(measured->graphBounds().getHeight()>=150,"Dynamics graph was reduced to a meter strip");}
-    constexpr std::array<const char*,6> exclusive{"cleanCompThreshold","commonDynamics.gatethreshold","liveLimiterCeiling","dynamicEQ1_threshold","mbBand1_threshold","deEsserFrequency"};
-    for(int index=0;index<6;++index) {
-        auto* control=find(panel,exclusive[size_t(index)]);
-        require(control && control->isShowing()==(index==int(page)),"Unrelated dynamics controls remain on the selected page");
+    require(measured && measured->isShowing(),"Selected dynamics page lost its spectrum");
+    inside(editor,*measured,"Dynamics spectrum is clipped");require(measured->graphBounds().getHeight()>=150,"Dynamics graph was reduced to a meter strip");
+    const std::array<std::pair<Page,const char*>,6> exclusive{{{Page::compressor,"cleanCompThreshold"},{Page::gate,"commonDynamics.gatePre"},{Page::expander,"expThreshold"},
+        {Page::limiter,"liveLimiterCeiling"},{Page::multiband,"mbBand1_threshold"},{Page::deesser,"deEsserFrequency"}}};
+    for(const auto& [owner,id]:exclusive) {
+        auto* control=find(panel,id);
+        require(control && control->isShowing()==(owner==page),"Unrelated dynamics controls remain on the selected page");
     }
     switch(page) {
         case Page::compressor:
             for(const auto* id:{"cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompMix","cleanCompHP","cleanCompDetector"})visibleInside(editor,panel,id);break;
-        case Page::gate:
-            for(const auto* id:{"commonDynamics.gateon","commonDynamics.gatethreshold","gateMode","gateRatio","gateAttack","commonDynamics.gatehold","commonDynamics.gaterelease","commonDynamics.gateRangeDb","commonDynamics.gateAfterRig"})visibleInside(editor,panel,id);break;
+        case Page::gate: {
+            // PRE RIG and POST RIG each show one complete gate; the released
+            // settings sit on the side gateAfterRig puts them, Gate 2 on the other.
+            const std::vector<const char*> mainIDs{"commonDynamics.gateon","commonDynamics.gatethreshold","gateMode","gateRatio","gateAttack","commonDynamics.gatehold","commonDynamics.gaterelease","commonDynamics.gateRangeDb"};
+            const std::vector<const char*> secondIDs{"gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb"};
+            const int original=panel.selectedGateSide();int mainSides=0;
+            for(int side:{0,1}) {
+                panel.selectGateSide(side);require(panel.selectedGateSide()==side,"Gate side selection was not kept");
+                for(const auto* id:{"commonDynamics.gatePre","commonDynamics.gatePost","commonDynamics.gateAfterRig"})visibleInside(editor,panel,id);
+                const bool main=panel.mainGateShown();mainSides+=main;
+                for(const auto* id:main?mainIDs:secondIDs)visibleInside(editor,panel,id);
+                for(const auto* id:main?secondIDs:mainIDs){auto* control=find(panel,id);require(control && !control->isShowing(),"The other side's gate controls remain visible");}
+            }
+            require(mainSides==1,"PRE and POST must show different gates");
+            panel.selectGateSide(original);break;
+        }
+        case Page::expander:
+            for(const auto* id:{"expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"})visibleInside(editor,panel,id);break;
         case Page::limiter:
             for(const auto* id:{"liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})visibleInside(editor,panel,id);break;
-        case Page::dynamicEQ: {
-            auto* eq=find<spectralforge::GraphicalEQPanel>(panel,"toneEQ_panel");
-            require(eq && eq->isShowing() && panel.isUsingEQEditor(*eq),"Dynamic EQ did not borrow the actual Tone EQ editor");
-            require(eq->selectedBand()==0,"Dynamic slot does not select its assigned EQ node");
-            for(const auto* field:{"frequency","gain","q"})visibleInside(editor,panel,spectralforge::eqID(0,0,field));
-            for(const auto* field:{"target","threshold","range","attack","release","ratio"})visibleInside(editor,panel,spectralforge::dynamicSlotID(0,field));
-            require(!find(editor,"finalEQ_panel")->isShowing(),"Two EQ banks consume/display the dynamic workspace simultaneously");break;
-        }
         case Page::multiband:
             for(const auto* id:{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3","mbBand1_mode","mbBand1_bypass","mbBand1_solo","mbBand1_threshold","mbBand1_range","mbBand1_ratio","mbBand1_attack","mbBand1_release","mbBand1_knee","mbBand1_makeup"})visibleInside(editor,panel,id);break;
         case Page::deesser:
@@ -141,22 +149,55 @@ inline void autoSetEntry(ChimeraProcessor& p,spectralforge::CommonDynamicsPanel&
     const auto before=signalPathTests::values(p);
     require(!undo->isEnabled(),"Undo is available before any Auto Set");
     const auto defaults=panel.autoSetOptions();
-    require(defaults.instrument==0 && defaults.tone && defaults.style==0 && defaults.finish && tone->getButtonText()=="Auto / Rock","Auto Set options do not default to detect, rock, all steps");
+    require(defaults.instrument==0 && defaults.tone && defaults.style==0 && defaults.finish && defaults.multiband && tone->getButtonText()=="Auto / Rock","Auto Set options do not default to detect, rock, all steps");
     // The menu itself is a native popup; drive its item handler directly.
-    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(3);panel.chooseAutoOption(13);settle(20);
+    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(3);panel.chooseAutoOption(13);settle(20);
     require(tone->getButtonText()=="Bass / Metal","Options button does not show the chosen instrument and style");
     signalPathTests::click(*start);settle(30);
     require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/2") && !tone->isEnabled(),"Auto Set without the optional steps did not listen in two passes");
     signalPathTests::click(*start);settle(30);
-    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(1);panel.chooseAutoOption(11);settle(20);
+    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(1);panel.chooseAutoOption(11);settle(20);
     signalPathTests::click(*start);settle(30);
-    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/4") && tone->getButtonText()=="Auto / Rock","Auto Set did not enter listening with all four passes");
+    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/5") && tone->getButtonText()=="Auto / Rock","Auto Set did not enter listening with all five passes");
+    {
+        // The progress view names the step, what it listens for and the time it needs.
+        auto* view=find<spectralforge::AutoSetView>(panel,"autoSet.view");
+        require(view && view->isShowing() && view->report().listening && view->report().steps.size()==5 && view->report().current==0
+                && view->report().listeningFor.isNotEmpty() && view->report().totalSeconds>30,"Auto Set progress view missing while listening");
+        require(panel.getLocalBounds().contains(view->getBounds()),"Auto Set progress view is clipped");
+    }
     signalPathTests::click(*start);settle(30);
     require(start->getButtonText()=="AUTO SET" && panel.autoSetStatus().contains("cancelled") && !undo->isEnabled() && tone->isEnabled(),"Auto Set did not cancel");
+    require(!find(panel,"autoSet.view")->isShowing(),"Cancelled Auto Set left its progress view open");
     require(signalPathTests::values(p)==before,"Starting or cancelling Auto Set changed sound parameters");
     std::cout<<"PASS auto set entry: compressor/gate pages only, unclipped, options (instrument/style/steps; defaults; optional steps off = two passes), listen/cancel without parameter writes\n";
 }
 inline void measuredStageContracts(const juce::File& directory);
+// Dynamic EQ lives on its band: DYNAMIC claims one of four shared slots, its
+// controls attach to that slot, and turning it off frees the slot again.
+inline void dynamicEQOnBands(ChimeraProcessor& p,juce::Component& editor,spectralforge::GraphicalEQPanel& tone,const juce::File& directory) {
+    const auto target=[&](int slot){return juce::roundToInt(p.parameters().getRawParameterValue(spectralforge::dynamicSlotID(slot,"target"))->load());};
+    auto* dynamic=find<juce::TextButton>(tone,spectralforge::eqID(0,-1,"dynamic"));
+    auto* threshold=find<juce::Slider>(tone,spectralforge::eqID(0,-1,"dynamic_threshold"));
+    require(dynamic && threshold,"Tone EQ band has no Dynamic EQ controls");
+    for(const auto* field:{"dynamic","dynamic_threshold","dynamic_range","dynamic_ratio","dynamic_attack","dynamic_release"})visibleInside(editor,tone,spectralforge::eqID(0,-1,field));
+    visibleInside(editor,tone,spectralforge::eqID(0,0,"frequency"));
+    require(dynamic->getToggleState() && threshold->isEnabled(),"Band 1 does not show its assigned dynamic slot");
+    threshold->setValue(-36.,juce::sendNotificationSync);settle(30);
+    require(std::abs(p.parameters().getRawParameterValue("dynamicEQ1_threshold")->load()+36.f)<.01f,"Band dynamics controls are not attached to its slot");
+    tone.selectBandForEditing(1);settle(30);
+    threshold->setValue(-30.,juce::sendNotificationSync);settle(30);
+    require(std::abs(p.parameters().getRawParameterValue("dynamicEQ2_threshold")->load()+30.f)<.01f && std::abs(p.parameters().getRawParameterValue("dynamicEQ1_threshold")->load()+36.f)<.01f,
+            "Selecting another band did not move the controls to its own slot");
+    // All four slots are in use: free one, then a band without one can claim it.
+    signalPathTests::click(*dynamic);settle(30);
+    require(target(1)==0 && !dynamic->getToggleState() && !threshold->isEnabled(),"DYNAMIC off did not free the band's slot");
+    tone.selectBandForEditing(0);settle(30);require(dynamic->getToggleState() && target(0)==1,"Turning one band off changed another band");
+    tone.selectBandForEditing(1);settle(30);signalPathTests::click(*dynamic);settle(30);
+    require(target(1)==2 && dynamic->getToggleState() && threshold->isEnabled(),"DYNAMIC on did not claim a free slot");
+    signalPathTests::capture(editor,directory,"tone-eq-dynamic-band");
+    tone.selectBandForEditing(0);settle(30);
+}
 inline void run(const juce::File& directory) {
     auto processor=std::make_unique<ChimeraProcessor>();auto& p=*processor;
     for(const auto* id:{"gateon","boardEnabled","precompon","filteron","fuzzon","booston","preon","ampon1","cab1","transposeon","tuneron","cleanCompOn","liveLimiterOn","mbOn","deEsserOn"})set(p,id,0);
@@ -176,29 +217,30 @@ inline void run(const juce::File& directory) {
     auto* measured=find<spectralforge::DynamicsSpectrumPanel>(*panel,"commonDynamics.spectrum");require(measured,"Dynamics analyzer missing");
     require(signalPathTests::values(p)==before && writes.changes==0 && writes.gestures==0,"Opening dynamics changed sound state or emitted gestures");
 
-    constexpr std::array<const char*,6> pages{"compressor","gate","limiter","dynamicEQ","multiband","deesser"};
+    // Six dynamics workspaces, in tab order. Dynamic EQ is edited on its EQ band.
+    const std::array<std::pair<const char*,Page>,6> pages{{{"compressor",Page::compressor},{"gate",Page::gate},{"expander",Page::expander},
+        {"limiter",Page::limiter},{"multiband",Page::multiband},{"deesser",Page::deesser}}};
     for(int scale:{75,100,125,150}) {
         editor->setSize(1180*scale/100,780*scale/100);settle(35);
-        for(int page=0;page<6;++page) {
-            auto* entry=find<juce::TextButton>(*editor,"commonDynamics.open."+juce::String(pages[size_t(page)]));
+        for(size_t index=0;index<pages.size();++index) {
+            const auto [name,page]=pages[index];
+            auto* entry=find<juce::TextButton>(*editor,"commonDynamics.open."+juce::String(name));
             require(entry && entry->isShowing() && entry->isEnabled(),"Direct dynamics entry missing");
             inside(*editor,*entry,"Direct dynamics entry is clipped");
             signalPathTests::click(*entry);
-            require(panel->selectedPage()==Page(page) && entry->getToggleState(),"Direct entry selected the wrong dynamics page");
-            pageContract(*editor,*panel,Page(page));
-            // The existing inner tabs remain usable and keep the header selection in sync.
-            auto* button=find<juce::TextButton>(*panel,"commonDynamics.page."+juce::String(pages[size_t((page+1)%6)]));
+            require(panel->selectedPage()==page && entry->getToggleState(),"Direct entry selected the wrong dynamics page");
+            pageContract(*editor,*panel,page);
+            // The inner tabs remain usable and keep the header selection in sync.
+            auto* button=find<juce::TextButton>(*panel,"commonDynamics.page."+juce::String(pages[(index+1)%pages.size()].first));
             require(button && button->isShowing(),"Dedicated dynamics tab missing");signalPathTests::click(*button);
             require(!entry->getToggleState(),"Direct entry stayed selected after switching the inner tab");
-            signalPathTests::click(*entry);pageContract(*editor,*panel,Page(page));
+            signalPathTests::click(*entry);pageContract(*editor,*panel,page);
             acknowledge(p);audio(p);
-            if(page==int(Page::dynamicEQ))require(find<spectralforge::GraphicalEQPanel>(*panel,"toneEQ_panel")->analyzerHasData(),"Dynamic EQ spectrum has no production audio");
-            else {
-                if(!measured->analyzerHasData())std::cerr<<"Dynamics page="<<pages[size_t(page)]<<" scale="<<scale<<" showing="<<measured->isShowing()<<" owner="<<(p.dynamicsAnalysis().uiConsumer==measured)<<" selected="<<p.dynamicsAnalysis().selected.load()<<" pending_drain="<<measured->isWaitingForFreshCapture()<<" enabled="<<p.dynamicsAnalysis().fifo.enabled.load()<<" pending_samples="<<p.dynamicsAnalysis().fifo.pendingSamples()<<'\n';
-                require(measured->analyzerHasData(),"Dynamics spectrum has no production audio");
-            }
-            signalPathTests::capture(*editor,directory,"common-dynamics-"+juce::String(pages[size_t(page)])+"-"+juce::String(scale));
+            if(!measured->analyzerHasData())std::cerr<<"Dynamics page="<<name<<" scale="<<scale<<" showing="<<measured->isShowing()<<" owner="<<(p.dynamicsAnalysis().uiConsumer==measured)<<" selected="<<p.dynamicsAnalysis().selected.load()<<" pending_drain="<<measured->isWaitingForFreshCapture()<<" enabled="<<p.dynamicsAnalysis().fifo.enabled.load()<<" pending_samples="<<p.dynamicsAnalysis().fifo.pendingSamples()<<'\n';
+            require(measured->analyzerHasData(),"Dynamics spectrum has no production audio");
+            signalPathTests::capture(*editor,directory,"common-dynamics-"+juce::String(name)+"-"+juce::String(scale));
         }
+        require(find(*editor,"commonDynamics.open.dynamicEQ")==nullptr && find(*panel,"commonDynamics.page.dynamicEQ")==nullptr,"Dynamic EQ must not remain a separate dynamics workspace");
     }
     require(signalPathTests::values(p)==before && writes.changes==0 && writes.gestures==0,"Dynamics page/scale navigation edited parameters or gestures");
     editor->setSize(1180,780);panel->selectPage(Page::compressor);settle(40);
@@ -235,31 +277,14 @@ inline void run(const juce::File& directory) {
     acknowledge(p);
     require(!measured->isWaitingForFreshCapture() && p.dynamicsAnalysis().fifo.pendingSamples()==0 && !measured->analyzerHasData(),"Acknowledged source transition retained old audio");
     audio(p,3000.);require(measured->analyzerHasData() && measured->spectrumDB(false,256)>-35,"Gate did not acquire its own new input");
-    const auto gateFrames=measured->fftFrames();panel->selectPage(Page::dynamicEQ);acknowledge(p);audio(p);
+    // A Dynamic EQ request opens the EQ holding the first dynamic band; the
+    // hidden dynamics spectrum stops consuming.
+    const auto gateFrames=measured->fftFrames();panel->selectPage(Page::dynamicEQ);settle(50);acknowledge(p);audio(p);
     require(measured->fftFrames()==gateFrames && !p.dynamicsAnalysis().fifo.enabled.load(),"Hidden dynamics spectrum kept consuming/performing FFTs");
-
-    // The selected slot exposes the target's frequency/gain/Q alongside all
-    // five dynamic controls. Changing the editor-local slot never writes sound.
-    const auto slotsBefore=signalPathTests::values(p);const int slotChanges=writes.changes,slotGestures=writes.gestures;
-    for(int slot=0;slot<4;++slot) {
-        panel->selectDynamicSlot(slot);settle(35);
-        for(const auto* field:{"frequency","gain","q"})visibleInside(*editor,*panel,spectralforge::eqID(0,slot,field));
-        for(const auto* field:{"target","threshold","range","attack","release","ratio"})visibleInside(*editor,*panel,spectralforge::dynamicSlotID(slot,field));
-        for(int other=0;other<4;++other)if(other!=slot)require(!find(*panel,spectralforge::dynamicSlotID(other,"threshold"))->isShowing(),"Four dynamic control rows remain combined");
-    }
-    require(signalPathTests::values(p)==slotsBefore && writes.changes==slotChanges && writes.gestures==slotGestures,"Dynamic slot navigation edited sound");
-    panel->selectDynamicSlot(0);
-    auto* frequency=find<juce::Slider>(*panel,spectralforge::eqID(0,0,"frequency"));require(frequency,"Assigned node frequency is not editable");
-    frequency->setValue(1420.,juce::sendNotificationSync);settle(35);
-    require(std::abs(p.parameters().getRawParameterValue(spectralforge::eqID(0,0,"frequency"))->load()-1420.f)<.1f,"Dynamic workspace frequency control edits the wrong EQ node");
-    auto* threshold=find<juce::Slider>(*panel,"dynamicEQ1_threshold");threshold->setValue(-36.,juce::sendNotificationSync);settle(30);
-    require(std::abs(p.parameters().getRawParameterValue("dynamicEQ1_threshold")->load()+36.f)<.01f,"Visible slot dynamics controls are not attached");
-    panel->selectDynamicSlot(1);auto* second=find<juce::ComboBox>(*panel,"dynamicEQ2_target");second->setSelectedId(2,juce::sendNotificationSync);settle(35);
-    require(p.parameters().getRawParameterValue("dynamicEQ1_target")->load()==1 && p.parameters().getRawParameterValue("dynamicEQ2_target")->load()==2,"Duplicate target displaced an existing slot");
-    panel->selectDynamicSlot(3);auto* fourth=find<juce::ComboBox>(*panel,"dynamicEQ4_target");fourth->setSelectedId(14,juce::sendNotificationSync);settle(50);
-    require(panel->selectedDynamicBank()==1 && find<spectralforge::GraphicalEQPanel>(*panel,"finalEQ_panel")->isShowing(),"Final target did not move the same dynamic editor to Final EQ");
-    visibleInside(*editor,*panel,spectralforge::eqID(1,0,"frequency"));visibleInside(*editor,*panel,"dynamicEQ4_threshold");
-    signalPathTests::capture(*editor,directory,"common-dynamics-final-slot");
+    auto* toneEQ=find<spectralforge::GraphicalEQPanel>(*editor,"toneEQ_panel");
+    require(toneEQ && toneEQ->isShowing() && !panel->isShowing() && toneEQ->selectedBand()==0,"Dynamic EQ request did not open Tone EQ at its dynamic band");
+    dynamicEQOnBands(p,*editor,*toneEQ,directory);
+    openWorkspace(*editor);
 
     panel->selectPage(Page::multiband);auto* band=find<juce::ComboBox>(*panel,"commonDynamics.multibandBand");require(band,"Multiband selector missing");
     const auto bandBefore=signalPathTests::values(p);
@@ -319,11 +344,11 @@ inline void run(const juce::File& directory) {
     const auto hiddenFrames=measured->fftFrames();audio(p);require(measured->fftFrames()==hiddenFrames && !p.dynamicsAnalysis().fifo.enabled.load(),"Hidden dynamics analyzer continues processing");
     signalPathTests::click(*find<juce::TextButton>(*editor,"path.tone.eq"));settle(50);
     auto* tone=find<spectralforge::GraphicalEQPanel>(*editor,"toneEQ_panel");
-    require(tone && tone->isShowing() && !panel->isShowing() && !panel->isUsingEQEditor(*tone),"Borrowed Tone EQ editor was not restored to normal navigation");
+    require(tone && tone->isShowing() && !panel->isShowing(),"Tone EQ navigation did not leave the dynamics workspace");
     p.removeListener(&writes);editor.reset();p.releaseResources();
     measuredStageContracts(directory);
     recalledCompressorSwitch();
-    std::cout<<"PASS six dedicated spectrum workspaces, 24 scaled layouts, actual stereo IN/OUT and GR, freeze/source drain, hidden FFT suspension, shared EQ target editing, four dynamic slots, four multiband selections, native/legacy PRE/POST source isolation and analyzer ownership\n";
+    std::cout<<"PASS six dedicated spectrum workspaces (gate PRE/POST, expander), 24 scaled layouts, actual stereo IN/OUT and GR, freeze/source drain, hidden FFT suspension, Dynamic EQ on Tone/Final EQ bands with four shared slots, four multiband selections, native/legacy PRE/POST source isolation and analyzer ownership\n";
 }
 }
 

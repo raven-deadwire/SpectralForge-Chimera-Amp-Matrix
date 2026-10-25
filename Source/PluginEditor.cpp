@@ -208,16 +208,24 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     for(int e=0;e<2;++e){
         eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e,p.eqEditing(),p.eqCaptureBoundary());
         eqPanels[(size_t)e]->onHistoryBankSelected=[this](int bank){
-            if(dynamicsPanel && dynamicsViewOpen && dynamicsPanel->selectedPage()==spectralforge::CommonDynamicsPanel::Page::dynamicEQ) {
-                dynamicsPanel->selectDynamicBank(bank);return;
-            }
             const auto route=spectralforge::signalPath::read(processor);
             navigateSignalPath(*route.find(bank==0?"tone.eq":"final.eq"));
         };
         add(*eqPanels[(size_t)e]);
     }
-    dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.graphicalEQ(0),p.graphicalEQ(1),p.dynamicsAnalysis(),p.eqCaptureBoundary());
-    canvas.addAndMakeVisible(*dynamicsPanel);dynamicsPanel->setEQEditors(*eqPanels[0],*eqPanels[1]);
+    dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.dynamicsAnalysis(),p.eqCaptureBoundary());
+    canvas.addAndMakeVisible(*dynamicsPanel);
+    // Dynamic EQ is edited on its band: open the EQ that holds the first dynamic band.
+    dynamicsPanel->onDynamicEQRequested=[this] {
+        int bank=0,band=-1;
+        for(int slot=0;slot<4 && band<0;++slot)if(const auto* target=processor.parameters().getRawParameterValue(spectralforge::dynamicSlotID(slot,"target"))) {
+            const int value=juce::roundToInt(target->load());if(value>=1 && value<=24){bank=(value-1)/12;band=(value-1)%12;}
+        }
+        const auto route=spectralforge::signalPath::read(processor);
+        navigateSignalPath(*route.find(bank==0?"tone.eq":"final.eq"));
+        if(band>=0)eqPanels[size_t(bank)]->selectBandForEditing(band);
+    };
+    dynamicsPanel->setGateUnitMeterProvider([this](int unit){return -juce::Decibels::gainToDecibels(processor.gateUnitMeter(unit),-120.f);});
     dynamicsPanel->setMeterProvider([this](spectralforge::DynamicsStage stage) {
         using Stage=spectralforge::DynamicsStage;
         switch(stage) {
@@ -233,17 +241,40 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     });
     autoSetController=std::make_unique<spectralforge::autoset::Controller>(p);
     autoSetController->onStatus=[this](const spectralforge::autoset::Controller::Status& status) {
-        const bool busy=status.phase==spectralforge::autoset::Controller::Phase::input || status.phase==spectralforge::autoset::Controller::Phase::compressor;
+        using Controller=spectralforge::autoset::Controller;using Phase=Controller::Phase;
+        // Every listening pass (Tone EQ, multiband and finish included) offers CANCEL.
+        const bool busy=autoSetController->busy();
         const auto text=busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text;
         dynamicsPanel->setAutoSetStatus(text,busy,status.canUndo);
         if(easyView)easyView->setAutoSetStatus(text,busy,status.canUndo);
+        spectralforge::AutoSetReport report;
+        report.listening=busy;report.finished=status.phase==Phase::done || status.phase==Phase::failed;
+        for(const auto phase:status.passes)report.steps.add(Controller::phaseName(phase));
+        report.current=status.pass;report.seconds=status.seconds;report.totalSeconds=status.totalSeconds;
+        report.passSeconds=status.passSeconds;report.passTotalSeconds=status.passTotalSeconds;report.levelDb=status.levelDb;
+        report.listeningFor=status.listeningFor;report.heard=status.heard;
+        if(status.phase==Phase::failed)report.message=status.text;
+        for(const auto& step:status.steps)report.rows.push_back({Controller::phaseName(step.phase),step.result,step.changed,int(step.phase)});
+        dynamicsPanel->setAutoSetReport(report);
+    };
+    // SHOW opens the module a finished pass changed.
+    dynamicsPanel->onAutoSetShow=[this](int target) {
+        using Phase=spectralforge::autoset::Controller::Phase;
+        const auto route=spectralforge::signalPath::read(processor);
+        switch(Phase(target)) {
+            case Phase::input:navigateSignalPath(*route.find("gate"));break;
+            case Phase::tone:navigateSignalPath(*route.find("tone.eq"));break;
+            case Phase::multiband:navigateSignalPath(*route.find("common.multiband"));break;
+            case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
+            default:navigateSignalPath(*route.find("common.comp"));break;
+        }
     };
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish});}
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband});
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
@@ -261,18 +292,19 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     };
     dynamicsPanel->onPageSelected=[this](spectralforge::CommonDynamicsPanel::Page selected) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
-        const juce::String id=selected==Page::gate?"gate":selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":selected==Page::dynamicEQ?(dynamicsPanel->selectedDynamicBank()==0?"tone.eq":"final.eq"):"common.comp";
+        const auto* expanderAfter=processor.parameters().getRawParameterValue("expAfterRig");
+        const juce::String id=selected==Page::expander?(expanderAfter && expanderAfter->load()>.5f?"gate.extra.post":"gate.extra.pre"):selected==Page::gate?(dynamicsPanel->mainGateShown()?"gate":dynamicsPanel->selectedGateSide()==1?"gate.extra.post":"gate.extra.pre"):selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":"common.comp";
         updateDynamicsEntries();
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
         if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);
     };
-    constexpr std::array<const char*,6> dynamicsTitles{"GATE / EXP","COMPRESSOR","LIMITER","DYNAMIC EQ","MULTIBAND","DE-ESSER"};
-    constexpr std::array<const char*,6> dynamicsNames{"gate","compressor","limiter","dynamicEQ","multiband","deesser"};
+    constexpr std::array<const char*,6> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER"};
+    constexpr std::array<const char*,6> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser"};
     constexpr std::array<const char*,6> dynamicsHelp{
-        "Open Gate / Expander: threshold, range, timing and before/after rig placement.",
+        "Open the gates: separate PRE RIG and POST RIG gates that can run together.",
+        "Open the downward expander. It runs together with the gates, before or after the rig.",
         "Open the common compressor after Tone EQ. PRE, POST and Matrix LOW retain their own controls.",
         "Open the final-output sample-peak limiter.",
-        "Open level-dependent Dynamic EQ controls. Tone EQ and Final EQ are also accessible in the signal path.",
         "Open four-band dynamics and crossover controls.",
         "Open high-band de-esser controls."};
     for(size_t i=0;i<dynamicsEntries.size();++i) {
@@ -500,7 +532,20 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::dynamics:
             dynamicsPanel->selectPage(node.id=="common.multiband"?DynamicsPage::multiband:node.id=="common.deesser"?DynamicsPage::deesser:node.id=="output.limiter"?DynamicsPage::limiter:DynamicsPage::compressor);
             break;
-        case Target::gate:dynamicsPanel->selectPage(DynamicsPage::gate);break;
+        case Target::gate:{
+            const auto& s=processor.parameters();
+            const auto v=[&](const char* id){const auto* raw=s.getRawParameterValue(id);return raw && raw->load()>.5f;};
+            const bool mainAfter=v("gateAfterRig");bool after=mainAfter,expander=false;
+            if(node.id.startsWith("gate.extra.")) {
+                // A tap node holds Gate 2 (opposite the main gate) and/or the Expander.
+                after=node.id.endsWith(".post");
+                const bool gate2Here=mainAfter!=after,expanderHere=v("expAfterRig")==after;
+                expander=expanderHere && (!gate2Here || (v("expOn") && !v("gate2On")));
+            }
+            if(expander)dynamicsPanel->selectPage(DynamicsPage::expander);
+            else {dynamicsPanel->selectGateSide(after?1:0);dynamicsPanel->selectPage(DynamicsPage::gate);}
+            break;
+        }
         case Target::transpose:focus(globalSliders[4]);break;
         case Target::input:focus(globalSliders[0]);break;
         case Target::output:focus(globalSliders[6]);break;
@@ -776,8 +821,7 @@ void ChimeraEditor::updateModeUI()
     // The outgoing FIFO consumer must stop before the incoming one starts.
     if(!showingDynamics)dynamicsPanel->setVisible(false);
     for(int e=0;e<2;++e) {
-        if(!dynamicsPanel->isUsingEQEditor(*eqPanels[size_t(e)]))
-            eqPanels[size_t(e)]->setVisible(page==3 && selectedEQBank==e && !tunerViewOpen && !dynamicsViewOpen);
+        eqPanels[size_t(e)]->setVisible(page==3 && selectedEQBank==e && !tunerViewOpen && !dynamicsViewOpen);
         eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));
     }
     if(showingDynamics)dynamicsPanel->setVisible(true);
@@ -929,7 +973,7 @@ void ChimeraEditor::layoutControls()
 {
     callbackLoad.setBounds(902,744,254,18);
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
-    for(auto& eq:eqPanels)if(!dynamicsPanel->isUsingEQEditor(*eq))eq->setBounds(20,330,1140,412);
+    for(auto& eq:eqPanels)eq->setBounds(20,330,1140,412);
     for(size_t i=0;i<dynamicsEntries.size();++i)
         dynamicsEntries[i].setBounds(182+int(i%2)*118,112+int(i/2)*46,112,38);
     dynamicsPanel->setBounds(20,330,1140,412);
