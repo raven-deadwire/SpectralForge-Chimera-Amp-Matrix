@@ -1,9 +1,9 @@
-SpectralForge Chimera OBS 필터 — macOS (Apple silicon) 설치 / installation
-=========================================================================
+SpectralForge Chimera OBS 필터 — macOS (Apple silicon·Intel) 설치 / installation
+==============================================================================
 
 [한국어]
 필요: Chimera macOS VST3(/Library/Audio/Plug-Ins/VST3 또는 ~/Library/Audio/Plug-Ins/VST3),
-Apple silicon용 OBS Studio(이 모듈은 OBS 31.1.2 Apple 빌드로 빌드·시험). Intel Mac용은 아직 없습니다.
+macOS 12 이상과 OBS Studio(Apple silicon·Intel 공용 모듈, OBS 31.1.2 Apple·Intel 빌드로 빌드·시험).
 
 1. OBS를 종료합니다.
 2. 이 패키지 폴더에서 ./install.sh 를 실행합니다.
@@ -17,7 +17,8 @@ Apple silicon용 OBS Studio(이 모듈은 OBS 31.1.2 Apple 빌드로 빌드·시
 제거: ./install.sh --uninstall (설치 소유 파일만 지웁니다. 사용자 추가 파일과 OBS 장면은 남습니다).
 
 [English]
-Requires the Chimera macOS VST3 and OBS Studio for Apple silicon (built and tested with OBS 31.1.2, Apple).
+Requires macOS 12 or later, the Chimera macOS VST3 and OBS Studio. One Universal module for Apple silicon and Intel
+(built and tested with OBS 31.1.2, Apple and Intel; Intel tested under Rosetta).
 Close OBS and run ./install.sh, which copies chimera-obs.plugin to ~/Library/Application Support/obs-studio/plugins
 and clears quarantine only on the verified installer helper and staged module. The module is ad-hoc signed and not notarized yet.
 The Chimera editor window is not available on macOS yet. Remove with ./install.sh --uninstall.

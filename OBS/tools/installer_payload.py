@@ -15,6 +15,22 @@ MAC_FILES = frozenset(("Contents/MacOS/chimera-obs", "Contents/Info.plist",
                        "Contents/Resources/README.txt", "Contents/Resources/LICENSE.txt",
                        "Contents/Resources/SOURCE.txt"))
 
+# Oldest macOS the OBS 31 release and the Chimera product support; without it
+# the compiler targets the build machine's own macOS version.
+MACOS_DEPLOYMENT_TARGET = "12.0"
+
+
+def helper_compile_command(source, output, platform):
+    """The native install helper runs on users' machines with only the OS libraries:
+    one Universal binary on macOS, the C++ runtime linked in on Linux."""
+    command = ["c++", "-std=c++17", "-O2", "-Wall", "-Wextra", "-Werror"]
+    if platform == "macos":
+        command += ["-arch", "arm64", "-arch", "x86_64", "-mmacosx-version-min=" + MACOS_DEPLOYMENT_TARGET]
+    else:
+        command += ["-static-libstdc++", "-static-libgcc"]
+    return command + [str(source), "-o", str(output)]
+
+
 class InstallError(RuntimeError):
     pass
 

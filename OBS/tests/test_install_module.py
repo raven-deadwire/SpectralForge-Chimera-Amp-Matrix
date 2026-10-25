@@ -43,7 +43,7 @@ def manifest(package):
 
 
 def compile_native(source, binary):
-    subprocess.run(["c++", "-std=c++17", "-O2", "-Wall", "-Wextra", "-Werror", str(source), "-o", str(binary)], check=True)
+    subprocess.run(payload.helper_compile_command(source, binary, PLATFORM), check=True)
     if PLATFORM == "macos":
         subprocess.run(["codesign", "--force", "--sign", "-", "--timestamp=none", str(binary)], check=True, capture_output=True)
 
