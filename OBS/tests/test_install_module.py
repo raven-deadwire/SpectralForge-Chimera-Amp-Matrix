@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Native macOS/Linux installer fault and preservation tests; no OBS GUI claim.
+"""Exercise the shipped native installer; Python is only the CI test driver.
 
---package uses the actual CI-staged module. Without it, Linux uses a file
-fixture and macOS compiles/signs a small real bundle with the native tools.
-Fault injection only exists here, never in the distributed installer.
+Faults are injected into a separately compiled temporary source copy. The shipped
+binary has no test flags, runtime overrides or root bypass. --package tests the
+real packaged executable and payload. No OBS GUI/hardware acceptance is claimed.
 """
 import argparse
 import hashlib
@@ -20,19 +20,15 @@ import sys
 import tempfile
 import time
 import unittest
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-SPEC = importlib.util.spec_from_file_location("installer", ROOT / "packaging/install_module.py")
-installer = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(installer)
+SPEC = importlib.util.spec_from_file_location("payload", ROOT / "tools/installer_payload.py")
+payload = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(payload)
 PLATFORM = "macos" if sys.platform == "darwin" else "linux"
 PACKAGE = None
-
-
-def manifest(package):
-    files = installer.inventory(package / installer.module_name(PLATFORM))
-    (package / "payload-manifest.json").write_text(json.dumps({"schema": 1, "platform": PLATFORM, "files": files}))
+NAME = payload.module_name(PLATFORM)
+SOURCE = ROOT / "packaging/install-module.cpp"
 
 
 def write(path, content=b"user data\x00\xff"):
@@ -40,39 +36,91 @@ def write(path, content=b"user data\x00\xff"):
     path.write_bytes(content)
 
 
+def manifest(package):
+    files = payload.inventory(package / NAME)
+    (package / "payload-manifest.txt").write_text("chimera-obs-v1 " + PLATFORM + "\n" + "".join(
+        f"{v['sha256']} {v['mode']:03o} {k}\n" for k, v in sorted(files.items())))
+
+
+def compile_native(source, binary):
+    subprocess.run(["c++", "-std=c++17", "-O2", "-Wall", "-Wextra", "-Werror", str(source), "-o", str(binary)], check=True)
+    if PLATFORM == "macos":
+        subprocess.run(["codesign", "--force", "--sign", "-", "--timestamp=none", str(binary)], check=True, capture_output=True)
+
+
 class InstallTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if os.geteuid() == 0:
-            raise RuntimeError("Run installer tests as an ordinary user (no root bypass is tested as success)")
         cls.fixture_temp = tempfile.TemporaryDirectory(prefix="chimera-native-fixture-")
         cls.addClassCleanup(cls.fixture_temp.cleanup)
-        cls.fixture = Path(cls.fixture_temp.name).resolve() / "package"
-        process_source = Path(cls.fixture_temp.name) / "obs.c"
-        process_source.write_text('#include <stdio.h>\n#include <unistd.h>\nint main(void) { puts("ready"); fflush(stdout); for (;;) pause(); }\n')
-        cls.obs_process = Path(cls.fixture_temp.name) / "obs"
-        subprocess.run(["cc", str(process_source), "-o", str(cls.obs_process)], check=True)
+        folder = Path(cls.fixture_temp.name).resolve()
+        cls.fixture = folder / "package"
         if PACKAGE:
             shutil.copytree(PACKAGE, cls.fixture)
         else:
-            payload = cls.fixture / installer.module_name(PLATFORM)
-            for name in installer.owned_files(PLATFORM):
-                write(payload / name, ("new fixture " + name).encode())
-            binary = payload / ("Contents/MacOS/chimera-obs" if PLATFORM == "macos" else "bin/64bit/chimera-obs.so")
+            module = cls.fixture / NAME
+            for name in payload.owned_files(PLATFORM):
+                write(module / name, ("new fixture " + name).encode())
+            binary = module / ("Contents/MacOS/chimera-obs" if PLATFORM == "macos" else "bin/64bit/chimera-obs.so")
             binary.chmod(0o755)
             if PLATFORM == "macos":
-                source = Path(cls.fixture_temp.name) / "module.c"
+                source = folder / "module.c"
                 source.write_text("int fixture(void) { return 42; }\n")
-                subprocess.run(["clang", "-bundle", str(source), "-o", str(binary)], check=True)
-                (payload / "Contents/Info.plist").write_bytes(plistlib.dumps({
+                subprocess.run(["cc", "-bundle", str(source), "-o", str(binary)], check=True)
+                (module / "Contents/Info.plist").write_bytes(plistlib.dumps({
                     "CFBundleExecutable": "chimera-obs", "CFBundleIdentifier": "com.ravenforge.chimera-obs",
                     "CFBundlePackageType": "BNDL", "CFBundleVersion": "0.1.0"}))
-                (payload / "Contents/_CodeSignature/CodeResources").unlink()
-                subprocess.run(["codesign", "--force", "--sign", "-", str(payload)], check=True)
-            shutil.copy2(ROOT / ("packaging/install-macos.sh" if PLATFORM == "macos" else "packaging/install-linux.sh"), cls.fixture / "install.sh")
-            shutil.copy2(ROOT / "packaging/install_module.py", cls.fixture / "install_module.py")
+                (module / "Contents/_CodeSignature/CodeResources").unlink()
+                subprocess.run(["codesign", "--force", "--sign", "-", str(module)], check=True, capture_output=True)
+            shutil.copy2(ROOT / f"packaging/install-{PLATFORM}.sh", cls.fixture / "install.sh")
+            compile_native(SOURCE, cls.fixture / "chimera-obs-installer")
             manifest(cls.fixture)
-        installer.verify_payload(cls.fixture / installer.module_name(PLATFORM), installer.read_manifest(cls.fixture, PLATFORM), PLATFORM)
+        cls.production = cls.fixture / "chimera-obs-installer"
+        original = SOURCE.read_text()
+        # Local sandbox runs as uid 0 and cannot switch uid. Its ordinary-path
+        # tests use a separate source copy; CI must run unmodified as non-root.
+        cls.local_root = os.geteuid() == 0
+        if cls.local_root and os.environ.get("CI"):
+            raise RuntimeError("CI must run as an ordinary user; no root bypass accepted")
+        base = original
+        if cls.local_root:
+            print("LOCAL ONLY: ordinary-user path uses a temporary root-check substitution; CI tests the shipped binary.", flush=True)
+            base = base.replace('require(geteuid() != 0,', 'require(true,')
+            local = folder / "local.cpp"
+            local.write_text(base)
+            cls.local_binary = folder / "local-installer"
+            compile_native(local, cls.local_binary)
+        instrumented = base.replace('void checkpoint(const char*) {', r'''void checkpoint(const char* phase) {
+    if (const char* failPhase = std::getenv("CHIMERA_TEST_FAIL"); failPhase && std::string(failPhase) == phase)
+        throw std::runtime_error(std::string("Injected failure: ") + phase);
+    if (const char* pausePhase = std::getenv("CHIMERA_TEST_PAUSE"); pausePhase && std::string(pausePhase) == phase) {
+        std::ofstream(std::getenv("CHIMERA_TEST_MARKER")) << "ready\n";
+        while (!caughtSignal) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }''')
+        instrumented = instrumented.replace('void exchange(const fs::path& a, const fs::path& b) {', '''void exchange(const fs::path& a, const fs::path& b) {
+    static int attempts = 0; ++attempts;
+    if (std::getenv("CHIMERA_TEST_EXCHANGE_FAIL") || (std::getenv("CHIMERA_TEST_ROLLBACK_FAIL") && attempts == 2))
+        fail("Injected atomic exchange failure");''')
+        instrumented = instrumented.replace('void copyTree(const fs::path& source, const fs::path& dest) {', '''void copyTree(const fs::path& source, const fs::path& dest) {
+    if (std::getenv("CHIMERA_TEST_PARTIAL_COPY")) {
+        fs::create_directory(dest); std::ofstream(dest / "partial") << "incomplete";
+        fail("Injected partial copy failure");
+    }''')
+        instrumented = instrumented.replace('checkpoint("after-copy");', '''checkpoint("after-copy");
+        if (std::getenv("CHIMERA_TEST_CORRUPT_COPY")) {
+            fs::create_directories((candidate / *owned.begin()).parent_path());
+            std::ofstream(candidate / *owned.begin()) << "truncated";
+        }''')
+        instrumented = instrumented.replace('fs::rename(temp, work / "journal.txt"); syncDirectory(work);', '''fs::rename(temp, work / "journal.txt");
+    checkpoint(journal.phase == "committed" ? "commit-sync" : "prepare-sync"); syncDirectory(work);''')
+        faults = folder / "faults.cpp"
+        faults.write_text(instrumented)
+        cls.fault_binary = folder / "fault-installer"
+        compile_native(faults, cls.fault_binary)
+        process_source = folder / "obs.c"
+        process_source.write_text('#include <stdio.h>\n#include <unistd.h>\nint main(void) { puts("ready"); fflush(stdout); for (;;) pause(); }\n')
+        cls.obs_process = folder / "obs"
+        subprocess.run(["cc", str(process_source), "-o", str(cls.obs_process)], check=True)
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="chimera installer spaces-")
@@ -80,10 +128,13 @@ class InstallTests(unittest.TestCase):
         self.root = Path(self.temp.name).resolve()
         self.package = self.root / "download package"
         shutil.copytree(self.fixture, self.package)
+        if self.local_root:
+            shutil.copy2(self.local_binary, self.package / "chimera-obs-installer")
+        shutil.copy2(self.fault_binary, self.package / "fault-installer")
         self.home = self.root / "home"
         self.config = self.home / ("Library/Application Support" if PLATFORM == "macos" else ".config")
         self.plugins = self.config / "obs-studio/plugins"
-        self.target = self.plugins / installer.module_name(PLATFORM)
+        self.target = self.plugins / NAME
         self.work = self.plugins / ".chimera-obs-transaction"
         self.protected = [self.config / "obs-studio/basic", self.config / "obs-studio/global.ini",
                           self.plugins / "other-plugin", self.home / "Chimera",
@@ -93,357 +144,328 @@ class InstallTests(unittest.TestCase):
                      self.protected[3] / "IRs/user.wav", self.protected[4] / "SpectralForge Chimera.vst3/Contents/binary"):
             write(path)
         self.before = self.protected_digest()
-        self.addCleanup(lambda: self.assertEqual(self.before, self.protected_digest(), "Scenes/settings/presets/IRs/other plugin/VST3 changed"))
+        self.addCleanup(lambda: self.assertEqual(self.before, self.protected_digest(), "User data changed"))
+        self.env = dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.config))
 
     def protected_digest(self):
         return {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
                 for root in self.protected for p in ([root] if root.is_file() else root.rglob("*")) if p.is_file()}
 
-    def run_install(self, uninstall=False):
-        installer.install(self.package, self.plugins, PLATFORM, uninstall)
+    def run_install(self, uninstall=False, fault=None, ok=True, env=None, shell=False):
+        environment = dict(self.env, **(env or {}), **(fault or {}))
+        args = (["/bin/sh", str(self.package / "install.sh")] if shell else
+                [str(self.package / ("fault-installer" if fault else "chimera-obs-installer"))])
+        result = subprocess.run(args + (["--uninstall"] if uninstall else []), env=environment,
+                                capture_output=True, text=True, timeout=35)
+        if ok:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        else:
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        return result
 
     def seed_old(self, extra=False):
-        shutil.copytree(self.package / installer.module_name(PLATFORM), self.target)
-        notice = self.target / ("Contents/Resources/README.txt" if PLATFORM == "macos" else "README.txt")
-        notice.write_text("previous known-working version")
+        shutil.copytree(self.package / NAME, self.target)
+        (self.target / ("Contents/Resources/README.txt" if PLATFORM == "macos" else "README.txt")).write_text("previous working version")
         if PLATFORM == "macos":
             subprocess.run(["codesign", "--force", "--sign", "-", str(self.target)], check=True, capture_output=True)
         if extra:
             write(self.target / "user-notes.txt")
             (self.target / "user-empty-directory").mkdir()
-        return installer.inventory(self.target)
+        return payload.inventory(self.target)
 
     def assert_old(self, old):
-        self.assertEqual(installer.inventory(self.target), old)
+        self.assertEqual(payload.inventory(self.target) if self.target.exists() else None, old)
         self.assertFalse(self.work.exists(), "Incomplete staging/backup was not cleaned")
 
     def test_fresh_upgrade_repair_uninstall(self):
-        self.run_install()
-        self.run_install()
-        self.run_install()
+        for _ in range(3):
+            self.run_install()
         write(self.target / "user-notes.txt")
         (self.target / "user-empty-directory").mkdir()
         self.run_install(uninstall=True)
-        self.assertEqual(set(installer.inventory(self.target)), {"user-notes.txt"})
+        self.assertEqual(set(payload.inventory(self.target)), {"user-notes.txt"})
         self.assertTrue((self.target / "user-empty-directory").is_dir())
         self.assertFalse(self.work.exists())
         self.run_install(uninstall=True)
 
-    def test_legacy_upgrade_preserves_user_files_or_refuses_signed_bundle_extras(self):
+    def test_update_preserves_or_refuses_user_additions(self):
         old = self.seed_old(extra=True)
+        self.run_install(ok=PLATFORM != "macos")
         if PLATFORM == "macos":
-            with self.assertRaisesRegex(installer.InstallError, "User files"):
-                self.run_install()
             self.assert_old(old)
         else:
-            self.run_install()
-            self.assertEqual((self.target / "user-notes.txt").read_bytes(), b"user data\x00\xff")
-            self.assertTrue((self.target / "user-empty-directory").is_dir())
-            self.assertNotEqual(installer.inventory(self.target), old)
+            self.assertNotEqual(payload.inventory(self.target), old)
+        self.assertEqual((self.target / "user-notes.txt").read_bytes(), b"user data\x00\xff")
+        self.assertTrue((self.target / "user-empty-directory").is_dir())
 
-    def test_root_refused(self):
-        with patch.object(installer.os, "geteuid", return_value=0), self.assertRaises(installer.InstallError):
-            self.run_install()
+    def test_empty_user_directory_preserved(self):
+        old = self.seed_old()
+        (self.target / "empty-user-directory").mkdir()
+        self.run_install(ok=PLATFORM != "macos")
+        if PLATFORM == "macos":
+            self.assert_old(old)
+        self.assertTrue((self.target / "empty-user-directory").is_dir())
+
+    def test_no_python_or_compiler_on_user_path(self):
+        path = self.root / "system tools"
+        path.mkdir()
+        for name in ("dirname", "pgrep", "cp", "sha256sum"):
+            real = shutil.which(name)
+            if real:
+                (path / name).symlink_to(real)
+        marker = self.root / "unexpected-runtime"
+        for name in ("python", "python3", "pypy", "c++", "cc", "clang", "g++"):
+            tool = path / name
+            tool.write_text(f"#!/bin/sh\necho unexpected > '{marker}'\nexit 99\n")
+            tool.chmod(0o755)
+        for remove in (False, False, True):
+            self.run_install(uninstall=remove, env={"PATH": str(path)}, shell=True)
+        self.assertFalse(marker.exists(), "Installer invoked Python/compiler")
+        self.assertFalse(list(self.fixture.glob("*.py")), "Python files shipped to users")
+        magic = self.production.read_bytes()[:4]
+        self.assertIn(magic, (b"\x7fELF", b"\xcf\xfa\xed\xfe", b"\xca\xfe\xba\xbe"))
+
+    def test_production_refuses_root(self):
+        command = [str(self.production)]
+        if not self.local_root:
+            command = ["sudo", "-n", "env", "HOME=" + str(self.home)] + command
+        result = subprocess.run(command, env=self.env, capture_output=True, text=True, timeout=20)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("not as root", result.stderr)
         self.assertFalse(self.target.exists())
 
-    def test_empty_user_directory_is_preserved_on_update(self):
-        old = self.seed_old()
-        user_directory = self.target / "empty-user-folder"
-        user_directory.mkdir()
-        if PLATFORM == "macos":
-            with self.assertRaisesRegex(installer.InstallError, "User files"):
-                self.run_install()
-            self.assert_old(old)
-        else:
-            self.run_install()
-        self.assertTrue(user_directory.is_dir())
-
-    def test_real_obs_named_process_blocks_install_update_and_uninstall(self):
+    def test_real_obs_process_blocks_all_modes(self):
         process = subprocess.Popen([str(self.obs_process)], stdout=subprocess.PIPE, text=True)
         try:
             self.assertEqual(process.stdout.readline().strip(), "ready")
-            with self.assertRaisesRegex(installer.InstallError, "running"):
-                self.run_install()
+            self.assertIn("running", self.run_install(ok=False).stderr)
             old = self.seed_old()
-            for uninstall in (False, True):
-                with self.assertRaisesRegex(installer.InstallError, "running"):
-                    self.run_install(uninstall)
+            for remove in (False, True):
+                self.assertIn("running", self.run_install(uninstall=remove, ok=False).stderr)
                 self.assert_old(old)
         finally:
             process.kill()
             process.communicate(timeout=10)
 
-    def test_shell_entrypoint_with_spaces_and_xdg(self):
-        env = dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.config))
-        for args in ([], [], ["--uninstall"]):
-            result = subprocess.run(["sh", str(self.package / "install.sh")] + args,
-                                    env=env, capture_output=True, text=True, timeout=30)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertFalse(self.target.exists())
-
-    def test_process_running_missing_tool_errors_and_timeout_block_all_mutations(self):
-        real_run = subprocess.run
-        for state in (0, 2, 3, 127, FileNotFoundError("pgrep"), subprocess.TimeoutExpired("pgrep", 10)):
-            for mode in ("fresh", "update", "uninstall"):
-                with self.subTest(state=state, mode=mode):
-                    if self.target.exists():
-                        shutil.rmtree(self.target)
-                    old = self.seed_old() if mode != "fresh" else None
-                    def run(command, *args, **kwargs):
-                        if command[0] == "pgrep":
-                            if isinstance(state, Exception):
-                                raise state
-                            return subprocess.CompletedProcess(command, state)
-                        return real_run(command, *args, **kwargs)
-                    with patch.object(installer.subprocess, "run", side_effect=run), self.assertRaises(installer.InstallError):
-                        self.run_install(mode == "uninstall")
-                    self.assertEqual(installer.inventory(self.target) if self.target.exists() else None, old)
-                    self.assertFalse(self.work.exists())
-
-    def test_process_state_changes_after_staging(self):
-        for uninstall in (False, True):
-            old = self.seed_old() if not self.target.exists() else installer.inventory(self.target)
-            with patch.object(installer, "require_obs_closed", side_effect=[None, None, installer.InstallError("unknown")]), self.assertRaises(installer.InstallError):
-                self.run_install(uninstall)
-            self.assert_old(old)
-
-    def test_partial_tree_copy_fails_without_touching_old(self):
-        old = self.seed_old()
-        def partial(source, dest, platform):
-            write(dest / "incomplete", b"partial")
-            raise OSError("ENOSPC during copy")
-        for uninstall in (False, True):
-            with patch.object(installer, "copy_tree", side_effect=partial), self.assertRaises(OSError):
-                self.run_install(uninstall)
-            self.assert_old(old)
-
-    def test_successful_copy_with_corrupt_bytes_is_rejected_before_exchange(self):
-        old = self.seed_old()
-        original = installer.copy_tree
-        def corrupt(source, dest, platform):
-            original(source, dest, platform)
-            # Corrupt an unowned file on Linux so overlay cannot repair it;
-            # macOS copies the candidate directly and checks sealed resources.
-            write(dest / "unexpected-partial-file", b"incomplete")
-        with patch.object(installer, "copy_tree", side_effect=corrupt), self.assertRaises(installer.InstallError):
-            self.run_install()
-        self.assert_old(old)
-
-    @unittest.skipUnless(PLATFORM == "linux", "Linux file overlay fault")
-    def test_partial_overlay_copy_keeps_old(self):
-        old = self.seed_old(extra=True)
-        original = shutil.copy2
-        def fail(source, dest, *args, **kwargs):
-            if Path(source).is_relative_to(self.package):
-                Path(dest).write_bytes(b"partial overwrite")
-                raise OSError("disk full")
-            return original(source, dest, *args, **kwargs)
-        with patch.object(installer.shutil, "copy2", side_effect=fail), self.assertRaises(OSError):
-            self.run_install()
-        self.assert_old(old)
-
-    def test_payload_manifest_missing_extra_tampered_and_symlink(self):
-        old = self.seed_old()
-        payload = self.package / installer.module_name(PLATFORM)
-        name = sorted(installer.owned_files(PLATFORM))[0]
-        original = (payload / name).read_bytes()
-        original_mode = (payload / name).stat().st_mode & 0o777
-        for kind in ("missing", "hash", "extra", "symlink", "manifest"):
-            with self.subTest(kind=kind):
-                if kind == "missing":
-                    (payload / name).unlink()
-                elif kind == "hash":
-                    (payload / name).write_bytes(b"corrupted")
-                elif kind == "extra":
-                    write(payload / "unowned")
-                elif kind == "symlink":
-                    (payload / name).unlink()
-                    (payload / name).symlink_to(self.protected[1])
-                else:
-                    (self.package / "payload-manifest.json").write_text('{}')
-                with self.assertRaises((installer.InstallError, OSError)):
-                    self.run_install()
+    def test_process_errors_and_missing_tool_block(self):
+        path = self.root / "bad-tools"
+        path.mkdir()
+        pgrep = path / "pgrep"
+        for status in (0, 2, 3, 127):
+            pgrep.write_text(f"#!/bin/sh\nexit {status}\n")
+            pgrep.chmod(0o755)
+            self.run_install(ok=False, env={"PATH": str(path)})
+            old = self.seed_old()
+            for remove in (False, True):
+                self.run_install(uninstall=remove, ok=False, env={"PATH": str(path)})
                 self.assert_old(old)
-                if (payload / name).is_symlink():
-                    (payload / name).unlink()
-                (payload / name).write_bytes(original)
-                (payload / name).chmod(original_mode)
-                if (payload / "unowned").exists():
-                    (payload / "unowned").unlink()
-                shutil.copy2(self.fixture / "payload-manifest.json", self.package / "payload-manifest.json")
+            shutil.rmtree(self.target)
+        pgrep.unlink()
+        self.assertIn("process state", self.run_install(ok=False, env={"PATH": str(path)}).stderr)
+        self.assertFalse(self.target.exists())
 
-    def test_symlink_target_and_parent_preserved(self):
-        self.target.symlink_to(self.protected[2], target_is_directory=True)
-        with self.assertRaises(installer.InstallError):
-            self.run_install()
-        self.target.unlink()
-        shutil.rmtree(self.plugins)
-        self.plugins.symlink_to(self.root / "outside", target_is_directory=True)
-        with self.assertRaises(installer.InstallError):
-            self.run_install()
-        self.plugins.unlink()
-        # Restore protected other-plugin for the per-test digest check.
-        write(self.protected[2] / "bin/other.so")
-
-    def test_atomic_exchange_failure_keeps_original(self):
+    def test_process_check_timeout_blocks(self):
+        path = self.root / "hanging-tools"
+        path.mkdir()
+        pgrep = path / "pgrep"
+        pgrep.write_text("#!/bin/sh\nexec /bin/sleep 60\n")
+        pgrep.chmod(0o755)
         old = self.seed_old()
-        for uninstall in (False, True):
-            with patch.object(installer, "exchange", side_effect=OSError("unsupported filesystem")), self.assertRaises(OSError):
-                self.run_install(uninstall)
+        self.assertIn("timed out", self.run_install(ok=False, env={"PATH": str(path)}).stderr)
+        self.assert_old(old)
+
+    def test_obs_started_during_staging_blocks_exchange(self):
+        path = self.root / "racing-tools"
+        path.mkdir()
+        pgrep = path / "pgrep"
+        count = self.root / "process-check-count"
+        pgrep.write_text(f"#!/bin/sh\nn=0\n[ ! -f '{count}' ] || n=$(cat '{count}')\nn=$((n + 1))\necho $n > '{count}'\n[ $n -le 4 ] && exit 1\nexit 0\n")
+        pgrep.chmod(0o755)
+        old = self.seed_old()
+        for remove in (False, True):
+            count.unlink(missing_ok=True)
+            self.assertIn("running", self.run_install(uninstall=remove, ok=False,
+                          env={"PATH": str(path) + os.pathsep + os.environ["PATH"]}).stderr)
             self.assert_old(old)
 
-    def test_post_exchange_verification_failure_rolls_back(self):
+    @unittest.skipUnless(PLATFORM == "linux", "Linux cp failure path")
+    def test_partial_cp_error_or_false_success_preserves_old(self):
+        path = self.root / "copy-tools"
+        path.mkdir()
+        cp = path / "cp"
         old = self.seed_old()
-        verify = installer.verify_payload
-        def fail(folder, *args, **kwargs):
-            if folder == self.target:
-                raise installer.InstallError("post-exchange verification failure")
-            return verify(folder, *args, **kwargs)
-        with patch.object(installer, "verify_payload", side_effect=fail), self.assertRaises(installer.InstallError):
-            self.run_install()
+        for status in (0, 1):
+            cp.write_text(f'#!/bin/sh\nmkdir -p "$3"\nprintf partial > "$3/partial"\nexit {status}\n')
+            cp.chmod(0o755)
+            for remove in (False, True):
+                self.run_install(uninstall=remove, ok=False,
+                                 env={"PATH": str(path) + os.pathsep + os.environ["PATH"]})
+                self.assert_old(old)
+
+    def test_corrupt_payload_and_manifest_block_before_copy(self):
+        old = self.seed_old()
+        notice = self.package / NAME / ("Contents/Resources/README.txt" if PLATFORM == "macos" else "README.txt")
+        notice.write_text("damaged download")
+        self.run_install(ok=False)
+        self.assert_old(old)
+        (self.package / "payload-manifest.txt").write_text("chimera-obs-v1 " + PLATFORM + "\n")
+        self.run_install(ok=False)
         self.assert_old(old)
 
-    def test_fresh_post_exchange_failure_removes_incomplete_installation(self):
-        verify = installer.verify_payload
-        def fail(folder, *args, **kwargs):
-            if folder == self.target:
-                raise installer.InstallError("verification failed")
-            return verify(folder, *args, **kwargs)
-        with patch.object(installer, "verify_payload", side_effect=fail), self.assertRaises(installer.InstallError):
-            self.run_install()
-        self.assertFalse(self.target.exists())
-        self.assertFalse(self.work.exists())
-
-    def test_commit_journal_write_failure_rolls_back_even_after_replace(self):
+    @unittest.skipUnless(PLATFORM == "macos", "macOS signing/quarantine")
+    def test_signature_and_quarantine(self):
+        binary = self.package / NAME / "Contents/MacOS/chimera-obs"
+        subprocess.run(["codesign", "--remove-signature", str(binary)], check=True)
+        manifest(self.package)
         old = self.seed_old()
-        original = installer.write_journal
-        def fail(work, value):
-            original(work, value)
-            if value["phase"] == "committed":
-                raise OSError("journal fsync failure")
-        with patch.object(installer, "write_journal", side_effect=fail), self.assertRaises(OSError):
-            self.run_install()
+        self.run_install(ok=False)
         self.assert_old(old)
+        shutil.rmtree(self.package / NAME)
+        shutil.copytree(self.fixture / NAME, self.package / NAME)
+        manifest(self.package)
+        helper = self.package / "chimera-obs-installer"
+        for path in (helper, self.package / NAME, self.protected[1]):
+            subprocess.run(["xattr", "-w", "com.apple.quarantine", "0081;test;Chimera;", str(path)], check=True)
+        self.run_install(shell=True)
+        self.assertNotIn(b"com.apple.quarantine", subprocess.check_output(["xattr", str(helper)]))
+        self.assertNotIn(b"com.apple.quarantine", subprocess.check_output(["xattr", str(self.target)]))
+        self.assertIn(b"com.apple.quarantine", subprocess.check_output(["xattr", str(self.protected[1])]))
 
-    def test_rollback_failure_retains_backup_and_next_run_recovers(self):
+    def test_links_special_files_and_owned_directories_refused(self):
         old = self.seed_old()
-        original_exchange = installer.exchange
-        verify = installer.verify_payload
-        count = 0
-        def fail_exchange(a, b):
-            nonlocal count
-            count += 1
-            if count == 2:
-                raise OSError("rollback temporarily unavailable")
-            return original_exchange(a, b)
-        def fail_verify(folder, *args, **kwargs):
-            if folder == self.target:
-                raise installer.InstallError("verification failed")
-            return verify(folder, *args, **kwargs)
-        with patch.object(installer, "exchange", side_effect=fail_exchange), patch.object(installer, "verify_payload", side_effect=fail_verify), self.assertRaisesRegex(installer.InstallError, "retained"):
-            self.run_install()
-        self.assertEqual(installer.inventory(self.work / self.target.name), old)
-        with installer.locked(self.plugins):
-            installer.recover(self.work, self.target)
+        user_link = self.target / "user-link"
+        user_link.symlink_to(self.protected[1])
+        self.run_install(ok=False)
+        self.run_install(uninstall=True, ok=False)
+        user_link.unlink()
         self.assert_old(old)
+        fifo = self.target / "user-pipe"
+        os.mkfifo(fifo)
+        self.run_install(ok=False)
+        fifo.unlink()
+        self.assert_old(old)
+        owned = self.target / ("Contents/Resources/README.txt" if PLATFORM == "macos" else "README.txt")
+        owned.unlink()
+        owned.mkdir()
+        write(owned / "user-document")
+        changed = payload.inventory(self.target)
+        self.run_install(uninstall=True, ok=False)
+        self.assert_old(changed)
 
-    def test_cleanup_failure_retried_without_rolling_back_committed_update(self):
-        self.seed_old()
-        real_remove = shutil.rmtree
-        def fail(path, *args, **kwargs):
-            if path == self.work:
-                raise OSError("temporary cleanup failure")
-            return real_remove(path, *args, **kwargs)
-        with patch.object(installer.shutil, "rmtree", side_effect=fail):
-            self.run_install()
-        self.assertEqual(json.loads((self.work / "journal.json").read_text())["phase"], "committed")
-        self.run_install()
-        self.assertFalse(self.work.exists())
+    def test_symlink_target_and_install_parent_refused(self):
+        self.target.symlink_to(self.protected[2], target_is_directory=True)
+        self.run_install(ok=False)
+        self.run_install(uninstall=True, ok=False)
+        self.assertTrue(self.target.is_symlink())
+        self.target.unlink()
+        relocated = self.root / "real-plugins"
+        self.plugins.rename(relocated)
+        self.plugins.symlink_to(relocated, target_is_directory=True)
+        self.run_install(ok=False)
+        self.assertFalse((relocated / NAME).exists())
 
-    def fault_process(self, location):
-        marker = self.root / "checkpoint"
-        runner = self.root / "fault_runner.py"
-        runner.write_text('''import importlib.util, pathlib, signal, sys
-spec = importlib.util.spec_from_file_location("fault_installer", sys.argv[1])
-m = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(m)
-location, marker, platform = sys.argv[2:5]
-name = "copy_tree" if location == "copy" else "exchange"
-original = getattr(m, name)
-armed = True
-def stop(*args, **kwargs):
-    global armed
-    result = original(*args, **kwargs)
-    if armed:
-        armed = False
-        pathlib.Path(marker).write_text("ready")
-        signal.pause()
-    return result
-setattr(m, name, stop)
-sys.argv = [sys.argv[1], "--platform", platform]
-sys.exit(m.main())
-''')
-        env = dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.config))
-        process = subprocess.Popen([sys.executable, str(runner), str(self.package / "install_module.py"),
-                                    location, str(marker), PLATFORM], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    def test_copy_integrity_exchange_and_checkpoint_failures_restore(self):
+        failures = [{"CHIMERA_TEST_PARTIAL_COPY": "1"}, {"CHIMERA_TEST_CORRUPT_COPY": "1"},
+                    {"CHIMERA_TEST_EXCHANGE_FAIL": "1"}] + [
+                        {"CHIMERA_TEST_FAIL": phase} for phase in ("before-copy", "after-copy", "before-swap",
+                        "after-prepare", "prepare-sync", "after-swap", "before-commit", "commit-sync")]
+        old = self.seed_old()
+        for fault in failures:
+            for remove in (False, True):
+                with self.subTest(fault=fault, remove=remove):
+                    self.run_install(uninstall=remove, fault=fault, ok=False)
+                    self.assert_old(old)
+
+    def test_first_install_failures_leave_no_partial_target(self):
+        for phase in ("before-copy", "after-copy", "after-prepare", "after-swap", "commit-sync"):
+            self.run_install(fault={"CHIMERA_TEST_FAIL": phase}, ok=False)
+            self.assert_old(None)
+
+    def paused(self, phase, uninstall=False):
+        marker = self.root / "pause-marker"
+        marker.unlink(missing_ok=True)
+        env = dict(self.env, CHIMERA_TEST_PAUSE=phase, CHIMERA_TEST_MARKER=str(marker))
+        process = subprocess.Popen([str(self.package / "fault-installer")] + (["--uninstall"] if uninstall else []),
+                                   env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.addCleanup(lambda: process.poll() is None and (process.kill(), process.communicate(timeout=10)))
         deadline = time.monotonic() + 20
         while not marker.exists() and process.poll() is None and time.monotonic() < deadline:
-            time.sleep(0.02)
-        if not marker.exists():
-            process.kill()
-            self.fail(str(process.communicate(timeout=10)))
-        self.addCleanup(lambda: process.poll() is None and process.kill())
-        return process, marker
+            time.sleep(.01)
+        self.assertTrue(marker.exists(), "Installer did not reach pause point")
+        return process
 
-    def test_native_signals_cleanup_and_sigkill_recovery(self):
+    def test_signals_restore_previous_install(self):
         old = self.seed_old()
-        for location in ("copy", "exchange"):
-            for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGKILL):
-                with self.subTest(location=location, signal=signum):
-                    process, marker = self.fault_process(location)
-                    process.send_signal(signum)
-                    process.communicate(timeout=15)
-                    self.assertNotEqual(process.returncode, 0)
-                    if signum == signal.SIGKILL:
-                        # At every instant an update target is complete (old or
-                        # verified new), and the kernel released the lock.
-                        self.assertTrue(self.target.is_dir())
-                        with installer.locked(self.plugins):
-                            installer.recover(self.work, self.target)
+        for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+            for phase in ("after-copy", "after-swap"):
+                for remove in (False, True):
+                    with self.subTest(signal=sig, phase=phase, remove=remove):
+                        process = self.paused(phase, remove)
+                        process.send_signal(sig)
+                        process.communicate(timeout=15)
+                        self.assertNotEqual(process.returncode, 0)
+                        self.assert_old(old)
+
+    def test_kill_recovery_native_and_legacy_journals(self):
+        for legacy in (False, True):
+            for initial in (False, True):
+                for remove in ((False, True) if not initial else (False,)):
+                    if self.target.exists():
+                        shutil.rmtree(self.target)
+                    old = None if initial else self.seed_old()
+                    process = self.paused("after-swap", remove)
+                    process.kill()
+                    process.communicate(timeout=10)
+                    if legacy:
+                        path = self.work / "journal.txt"
+                        phase, od, oi, nd, ni, uninstall = path.read_text().split()
+                        (self.work / "journal.json").write_text(json.dumps({"phase": phase,
+                            "old": [int(od), int(oi)] if int(oi) else None,
+                            "new": [int(nd), int(ni)], "uninstall": uninstall == "1"}))
+                        path.unlink()
+                    self.run_install(fault={"CHIMERA_TEST_FAIL": "after-recovery"}, ok=False)
                     self.assert_old(old)
-                    marker.unlink()
 
-    def test_concurrent_installer_refused(self):
+    def test_failed_rollback_retains_backup_then_recovers(self):
         old = self.seed_old()
-        process, marker = self.fault_process("copy")
-        with self.assertRaisesRegex(installer.InstallError, "Another"):
-            self.run_install()
-        self.assertEqual(installer.inventory(self.target), old)
-        process.terminate()
-        process.communicate(timeout=15)
+        result = self.run_install(fault={"CHIMERA_TEST_FAIL": "after-swap", "CHIMERA_TEST_ROLLBACK_FAIL": "1"}, ok=False)
+        self.assertIn("retained", result.stderr)
+        self.assertEqual(payload.inventory(self.work / NAME), old)
+        self.run_install(fault={"CHIMERA_TEST_FAIL": "after-recovery"}, ok=False)
         self.assert_old(old)
 
-    @unittest.skipUnless(PLATFORM == "macos", "Native macOS codesign/xattr test")
-    def test_native_invalid_signature_and_quarantine(self):
+    def test_kill_before_exchange_cleans_staging(self):
         old = self.seed_old()
-        payload = self.package / installer.module_name(PLATFORM)
-        resource = payload / "Contents/Resources/README.txt"
-        resource.write_text("tampered signed resource")
-        manifest(self.package)  # Hashes alone cannot authorize an invalid signature.
-        with self.assertRaises(subprocess.CalledProcessError):
-            self.run_install()
+        for phase in ("before-copy", "before-swap", "after-prepare"):
+            process = self.paused(phase)
+            process.kill()
+            process.communicate(timeout=10)
+            self.run_install(fault={"CHIMERA_TEST_FAIL": "after-recovery"}, ok=False)
+            self.assert_old(old)
+
+    def test_ambiguous_recovery_retains_backup(self):
+        old = self.seed_old()
+        self.run_install(fault={"CHIMERA_TEST_FAIL": "after-swap", "CHIMERA_TEST_ROLLBACK_FAIL": "1"}, ok=False)
+        installed = self.root / "externally-moved-module"
+        self.target.rename(installed)
+        self.target.mkdir()
+        write(self.target / "external-user-file")
+        self.run_install(ok=False)
+        self.assertEqual(payload.inventory(self.work / NAME), old)
+        self.assertTrue((self.target / "external-user-file").exists())
+
+    def test_concurrent_installer_blocked(self):
+        old = self.seed_old()
+        process = self.paused("before-copy")
+        self.assertIn("in progress", self.run_install(ok=False).stderr)
+        self.assertIn("in progress", self.run_install(uninstall=True, ok=False).stderr)
+        process.send_signal(signal.SIGTERM)
+        process.communicate(timeout=10)
         self.assert_old(old)
-        shutil.rmtree(payload)
-        shutil.copytree(self.fixture / payload.name, payload)
-        manifest(self.package)
-        subprocess.run(["/usr/bin/xattr", "-w", "com.apple.quarantine", "0081;fixture;Chimera;", str(payload)], check=True)
-        self.run_install()
-        self.assertIn("com.apple.quarantine", subprocess.check_output(["/usr/bin/xattr", str(payload)], text=True).splitlines())
-        self.assertNotIn("com.apple.quarantine", subprocess.check_output(["/usr/bin/xattr", str(self.target)], text=True).splitlines())
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package", type=Path)
     args, rest = parser.parse_known_args()
     PACKAGE = args.package.resolve() if args.package else None

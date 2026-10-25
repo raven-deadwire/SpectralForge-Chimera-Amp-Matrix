@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Native installer faults, signals, rollback and data preservation
+      - name: Native installer without Python on user PATH, faults and data preservation
         shell: bash
         run: python3 OBS/tests/test_install_module.py 2>&1 | tee installer-safety.txt
       - uses: actions/upload-artifact@v4
