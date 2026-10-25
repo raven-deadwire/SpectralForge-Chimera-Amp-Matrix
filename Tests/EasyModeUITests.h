@@ -85,9 +85,15 @@ inline void editorView(const juce::File& directory) {
 
     // Presets load through the full editor, so CUSTOM detection stays shared.
     auto* presets=find<juce::ComboBox>(*view,"easy.preset");require(presets,"Easy preset menu missing");
-    presets->setSelectedId(spectralforge::presetDisplayOrder()[0]+1,juce::sendNotificationSync);settle(150);
+    const int presetID=spectralforge::presetDisplayOrder()[0]+1;
+    presets->setSelectedId(presetID,juce::sendNotificationSync);
     auto* description=find<juce::Label>(*view,"easy.presetDescription");
-    require(description && description->getText().isNotEmpty() && !description->getText().startsWith("Your own"),"Easy preset did not load");
+    const auto expected=juce::String::fromUTF8(spectralforge::selectablePresetDescription(presetID-1));
+    require(description && expected.isNotEmpty() && description->getText()==expected,"Easy preset did not load");
+    // A slow runner must not see the loaded preset flagged CUSTOM afterwards.
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+1000.;
+    while(juce::Time::getMillisecondCounterHiRes()<deadline)settle(50);
+    require(presets->getSelectedId()==presetID && description->getText()==expected,"Easy preset was not kept after loading");
     signalPathTests::capture(*editor,directory,"easy-view");
 
     auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);settle(150);

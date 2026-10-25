@@ -1067,7 +1067,8 @@ void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
         easyView->setBrand(wordmark,brandEmblem);
         easyView->fillPresetMenu(fillPresetMenu);
         easyView->openFullEditor=[this]{setEasyMode(false,true);};
-        easyView->choosePreset=[this](int id){presets.setSelectedId(id);};
+        // Load now so the Easy description never lags behind the choice.
+        easyView->choosePreset=[this](int id){presets.setSelectedId(id,juce::sendNotificationSync);easyView->showPreset(presets.getSelectedId(),presets.getText());};
         easyView->stepPreset=[this](int step){(step<0?presetPrevious:presetNext).onClick();};
         easyView->toggleTuner=[this]{tunerOpen.onClick();};
         easyView->autoSet=[this]{autoSetController->start();};
