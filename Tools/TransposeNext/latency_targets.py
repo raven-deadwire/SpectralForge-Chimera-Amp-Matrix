@@ -14,6 +14,7 @@ from evaluate import attacks
 from legacy_metrics import tone_metrics, sha
 from weak_attack_study import FREQUENCIES, generate, event_detection
 from weak_attack_holdout import holdout_input, lowband_extra
+from attack_snr import event_snrs
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT/'Validation'/'transpose-latency-targets.json'
@@ -58,10 +59,11 @@ def main():
     p.add_argument('--evaluate-only', action='store_true', help='re-score an existing results.json against the current spec')
     # A fresh holdout: seeds never used to choose any candidate parameter.
     p.add_argument('--holdout-seeds', default='8139,20261024'); p.add_argument('--long-seed', type=int, default=1)
+    p.add_argument('--event-snr-min', type=float, help='T1: count only attack events this many dB above the 1-8 kHz floor (off by default; needs per-event rows)')
     a = p.parse_args(); a.out.mkdir(parents=True, exist_ok=True); a.renderer = a.renderer.resolve()
     spec = json.loads(SPEC.read_text()); shifts = spec['conditions']['shifts']; block = spec['conditions']['block']
     if a.evaluate_only:
-        old = json.loads((a.out/'results.json').read_text()); rows = old['rows']; report = {**old['report'], **evaluate(spec, rows), 'spec_sha256': sha(SPEC)}
+        old = json.loads((a.out/'results.json').read_text()); rows = old['rows']; report = {**old['report'], **evaluate(spec, rows, a.event_snr_min), 'spec_sha256': sha(SPEC), 'event_snr_min_db': a.event_snr_min}
         (a.out/'results.json').write_text(json.dumps({'report': report, 'rows': rows}, indent=1)+'\n')
         for t in report['targets']: print(t['id'], t['verdict'], json.dumps(t['observed'], ensure_ascii=False))
         return
@@ -84,20 +86,25 @@ def main():
                     # peak must sit at its event; riff50's search window overlaps.
                     row['attack_metric_valid'] = bool(before['attack_lag_max_ms'] <= 10) and meta['name'] != 'riff50'
                     row['attack_additional_max_ms'] = float(max(extra))
+                    row['attack_added_ms'] = [float(v) for v in extra]; row['attack_event_snr_db'] = event_snrs(x, meta['onsets'], rate)
                 if roles & {'short', 'long'}: row['lowband_additional_ms'] = lowband_extra(x, y, meta['onsets'], rate)
                 if 'steady' in roles:
                     f = meta['fundamental_hz']*2**(shift/12); row['tone'] = tone_metrics(y, rate, f, .12)
                 rows.append(row)
             print(rate, key, flush=True)
-    report = evaluate(spec, rows)
-    report.update(engine=a.engine, renderer_sha256=sha(a.renderer), platform=platform.platform(), spec_sha256=sha(SPEC),
+    report = evaluate(spec, rows, a.event_snr_min)
+    report.update(event_snr_min_db=a.event_snr_min, engine=a.engine, renderer_sha256=sha(a.renderer), platform=platform.platform(), spec_sha256=sha(SPEC),
                   synthetic_only=True, real_DI='NOT_AVAILABLE', actual_DAW='NOT_RUN', fixed_PDC='NOT_IMPLEMENTED')
     (a.out/'results.json').write_text(json.dumps({'report': report, 'rows': rows}, indent=1)+'\n')
     for t in report['targets']: print(t['id'], t['verdict'], json.dumps(t['observed'], ensure_ascii=False))
 
-def evaluate(spec, rows):
+def evaluate(spec, rows, event_snr_min=None):
     T = {t['id']: t for t in spec['targets']}; out = []
-    att = [r['attack_additional_max_ms'] for r in rows if r.get('attack_metric_valid')]
+    if event_snr_min is None:
+        att = [r['attack_additional_max_ms'] for r in rows if r.get('attack_metric_valid')]
+    else:
+        # Opt-in amendment: only events at least event_snr_min dB above the 1-8 kHz floor.
+        att = [v for r in rows if r.get('attack_metric_valid') for v, s in zip(r['attack_added_ms'], r['attack_event_snr_db']) if s >= event_snr_min]
     out.append({'id': 'T1_attack', 'limit_ms': T['T1_attack']['limit_ms'], 'observed': {'max_ms': round(max(att), 3), 'cases': len(att)},
                 'verdict': 'PASS' if max(att) <= T['T1_attack']['limit_ms'] else 'FAIL'})
     def low(sel, shifts):

@@ -19,6 +19,7 @@ from evaluate import attacks
 from legacy_metrics import sha
 from latency_targets import inputs
 from weak_attack_holdout import lowband_extra
+from attack_snr import event_snrs
 
 def cmd_run(a):
     a.out.mkdir(parents=True, exist_ok=True); rows = []
@@ -37,6 +38,7 @@ def cmd_run(a):
                     # of their events; otherwise the peak search follows the sustain.
                     row['attack_input_max_ms'] = float(max(lin))
                     row['attack_added_ms'] = [o-i for i, o in zip(lin, lout)]
+                    row['attack_event_snr_db'] = event_snrs(x, meta['onsets'], rate)
                 if roles & {'short', 'long'}: row['lowband_added_ms'] = lowband_extra(x, y, meta['onsets'], rate)
                 rows.append(row)
             print(rate, key, flush=True)
@@ -60,24 +62,30 @@ def valid_attack(r):
 
 def annotate(rows, report):
     """Older results lack attack_input_max_ms: recompute it from the inputs (no render)."""
-    need = {(r['input'], r['rate']) for r in rows if 'attack_added_ms' in r and 'attack_input_max_ms' not in r}
+    need = {(r['input'], r['rate']) for r in rows if 'attack_added_ms' in r and ('attack_input_max_ms' not in r or 'attack_event_snr_db' not in r)}
     if not need: return
     seeds = tuple(map(int, report['holdout_seeds'].split(',')))
     for rate in sorted({k[1] for k in need}):
         for key, x, meta, roles in inputs(rate, seeds, report['long_seed']):
             if (key, rate) in need:
-                m = float(max(attacks(x, meta)['attack_lags_ms']))
+                m = float(max(attacks(x, meta)['attack_lags_ms'])); snr = event_snrs(x, meta['onsets'], rate)
                 for r in rows:
-                    if r['input'] == key and r['rate'] == rate: r['attack_input_max_ms'] = m
+                    if r['input'] == key and r['rate'] == rate: r['attack_input_max_ms'] = m; r['attack_event_snr_db'] = snr
 
-def analyse(rows, fixed=None):
+def events(r, snr_min):
+    """Attack added delays of a row; with snr_min, only events at least that far above the band floor."""
+    if not valid_attack(r): return []
+    v = r.get('attack_added_ms', [])
+    return v if snr_min is None else [a for a, s in zip(v, r.get('attack_event_snr_db', [])) if s >= snr_min]
+
+def analyse(rows, fixed=None, snr_min=None):
     out = {}
     for rate in sorted({r['rate'] for r in rows}):
         sel = [r for r in rows if r['rate'] == rate]
-        att = [v for r in sel if valid_attack(r) for v in r.get('attack_added_ms', [])]
+        att = [v for r in sel for v in events(r, snr_min)]
         L = choose(att) if fixed is None else fixed; per_shift = {}
         for sh in sorted({r['shift'] for r in sel}):
-            s = [v for r in sel if r['shift'] == sh and valid_attack(r) for v in r.get('attack_added_ms', [])]
+            s = [v for r in sel if r['shift'] == sh for v in events(r, snr_min)]
             low = [v for r in sel if r['shift'] == sh for v in r.get('lowband_added_ms', [])]
             per_shift[str(sh)] = {'attack_events': len(s), 'attack_added_range_ms': [round(min(s), 3), round(max(s), 3)], 'attack_residual_at_L': residuals(s, L),
                                   'lowband_added_range_ms': [round(min(low), 3), round(max(low), 3)], 'lowband_residual_at_L': residuals(low, L)}
@@ -87,8 +95,8 @@ def analyse(rows, fixed=None):
     return out
 
 def cmd_evaluate(a):
-    d = json.loads((a.out/'results.json').read_text()); annotate(d['rows'], d['report']); res = analyse(d['rows'], a.fixed_l)
-    (a.out/'pdc_summary.json').write_text(json.dumps({'source': d['report'], 'fixed_l_ms': a.fixed_l, 'by_rate': res}, indent=1)+'\n')
+    d = json.loads((a.out/'results.json').read_text()); annotate(d['rows'], d['report']); res = analyse(d['rows'], a.fixed_l, a.event_snr_min)
+    (a.out/'pdc_summary.json').write_text(json.dumps({'source': d['report'], 'fixed_l_ms': a.fixed_l, 'event_snr_min_db': a.event_snr_min, 'by_rate': res}, indent=1)+'\n')
     for rate, v in res.items():
         print(rate, 'L', v['L_ms'], 'ms =', v['L_samples'], 'samples; attack added', v['attack_added_ms'], 'residual', v['attack_residual_at_L'])
     return 0
@@ -99,7 +107,8 @@ def main():
     q.add_argument('--engine', default='corr40-split-v3'); q.add_argument('--rates', default='44100,48000,96000'); q.add_argument('--shifts', default='-2,-1,1,2')
     q.add_argument('--holdout-seeds', default='8139,20261024'); q.add_argument('--long-seed', type=int, default=1); q.set_defaults(f=cmd_run)
     q = s.add_parser('evaluate'); q.add_argument('--out', type=Path, required=True)
-    q.add_argument('--fixed-l', type=float, help='validate a chosen L (ms) instead of choosing one'); q.set_defaults(f=cmd_evaluate)
+    q.add_argument('--fixed-l', type=float, help='validate a chosen L (ms) instead of choosing one')
+    q.add_argument('--event-snr-min', type=float, help='count only attack events this many dB above the 1-8 kHz floor (off by default)'); q.set_defaults(f=cmd_evaluate)
     a = p.parse_args(); raise SystemExit(a.f(a))
 
 if __name__ == '__main__':
