@@ -30,7 +30,7 @@ def module_version() -> str:
 
 
 def macos_binary_check(binary: Path, architectures: set) -> None:
-    """Every slice present and none built for a macOS newer than the supported one."""
+    """Every slice present, none built for a macOS newer than the supported one, no absolute run paths."""
     found = set(subprocess.run(["lipo", "-archs", str(binary)], check=True, capture_output=True, text=True).stdout.split())
     if found != architectures:
         raise SystemExit(f"{binary.name}: architectures {sorted(found)}, expected {sorted(architectures)}")
@@ -42,6 +42,14 @@ def macos_binary_check(binary: Path, architectures: set) -> None:
         if not match or (int(match.group(1)), int(match.group(2))) > oldest:
             raise SystemExit(f"{binary.name} ({arch}) needs macOS {match.group(0) if match else '?'}, "
                              f"not {installer.MACOS_DEPLOYMENT_TARGET}")
+        # A run path into the build machine (an OBS download, a CI work folder)
+        # is meaningless on users' Macs and must not ship.
+        commands = subprocess.run(["otool", "-arch", arch, "-l", str(binary)],
+                                  check=True, capture_output=True, text=True).stdout
+        absolute = [path for path in re.findall(r"^\s*path (.+?) \(offset \d+\)$", commands, re.MULTILINE)
+                    if not path.startswith("@")]
+        if absolute:
+            raise SystemExit(f"{binary.name} ({arch}) has build-machine LC_RPATH entries: {absolute}")
 
 
 def notices(folder: Path, sha: str, built_for: str) -> None:

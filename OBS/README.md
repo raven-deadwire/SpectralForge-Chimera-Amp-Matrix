@@ -129,7 +129,7 @@ vst3="build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
 | Linux x86_64 | `chimera-obs-linux-x86_64-*.tar.gz` | `~/.config/obs-studio/plugins/chimera-obs/{bin/64bit,data}` | libobs 30.0.2 (Ubuntu 24.04) |
 | macOS 12+ Universal (Apple silicon·Intel) | `chimera-obs-macos-universal-*.zip` | `~/Library/Application Support/obs-studio/plugins/chimera-obs.plugin` | OBS 31.1.2 Apple·Intel |
 
-- `./install.sh`는 패키지에 포함된 네이티브 `chimera-obs-installer`를 실행한다. 사용자에게 Python이나 컴파일러 설치를 요구하지 않는다(Linux는 C++ 런타임을 정적 링크해 C 라이브러리만 필요, macOS는 Universal·macOS 12.0). Python과 C++ 컴파일러는 개발·패키지 빌드·CI에만 사용한다. macOS·Linux 모두 root 실행을 거부한다.
+- `./install.sh`는 패키지에 포함된 네이티브 `chimera-obs-installer`를 실행한다. 사용자에게 Python이나 컴파일러 설치를 요구하지 않는다(Linux 설치 도우미는 C++ 런타임을 정적 링크해 glibc만 필요하며 Ubuntu 24.04 빌드라 glibc 2.38 이상을 요구, macOS는 Universal·macOS 12.0). 이는 설치 도우미에 한한 것이며 Linux 모듈 자체는 OBS가 제공하는 `libobs.so.0`과 배포판의 `libstdc++.so.6`·`libgcc_s.so.1`을 계속 사용한다. CI는 도우미가 모듈보다 새 glibc를 요구하지 않는지, macOS 바이너리에 빌드 머신 절대 경로 `LC_RPATH`가 없는지 검사한다(모듈은 `@executable_path/../Frameworks`로 OBS.app의 libobs를 찾는다). Python과 C++ 컴파일러는 개발·패키지 빌드·CI에만 사용한다. macOS·Linux 모두 root 실행을 거부한다.
   OBS 실행 중이거나 `pgrep` 누락·오류·시간 초과로 실행 여부를 확인할 수 없으면 설치·업데이트·제거를 막는다(PR #149와 같은 fail-closed 정책).
 - 후보를 같은 파일시스템의 숨겨진 트랜잭션 폴더에서 준비하고 전체 파일 목록·SHA-256·권한을 확인한다.
   macOS는 `ditto`로 복사하고 격리 표시를 후보에서만 제거한 뒤 번들 ID와 `codesign --verify --deep --strict`도 확인한다.
