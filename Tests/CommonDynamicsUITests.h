@@ -141,16 +141,16 @@ inline void autoSetEntry(ChimeraProcessor& p,spectralforge::CommonDynamicsPanel&
     const auto before=signalPathTests::values(p);
     require(!undo->isEnabled(),"Undo is available before any Auto Set");
     const auto defaults=panel.autoSetOptions();
-    require(defaults.instrument==0 && defaults.tone && defaults.style==0 && defaults.finish && tone->getButtonText()=="Auto / Rock","Auto Set options do not default to detect, rock, all steps");
+    require(defaults.instrument==0 && defaults.tone && defaults.style==0 && defaults.finish && defaults.multiband && tone->getButtonText()=="Auto / Rock","Auto Set options do not default to detect, rock, all steps");
     // The menu itself is a native popup; drive its item handler directly.
-    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(3);panel.chooseAutoOption(13);settle(20);
+    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(3);panel.chooseAutoOption(13);settle(20);
     require(tone->getButtonText()=="Bass / Metal","Options button does not show the chosen instrument and style");
     signalPathTests::click(*start);settle(30);
     require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/2") && !tone->isEnabled(),"Auto Set without the optional steps did not listen in two passes");
     signalPathTests::click(*start);settle(30);
-    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(1);panel.chooseAutoOption(11);settle(20);
+    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(1);panel.chooseAutoOption(11);settle(20);
     signalPathTests::click(*start);settle(30);
-    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/4") && tone->getButtonText()=="Auto / Rock","Auto Set did not enter listening with all four passes");
+    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/5") && tone->getButtonText()=="Auto / Rock","Auto Set did not enter listening with all five passes");
     signalPathTests::click(*start);settle(30);
     require(start->getButtonText()=="AUTO SET" && panel.autoSetStatus().contains("cancelled") && !undo->isEnabled() && tone->isEnabled(),"Auto Set did not cancel");
     require(signalPathTests::values(p)==before,"Starting or cancelling Auto Set changed sound parameters");

@@ -14,14 +14,15 @@ Dynamics → **COMPRESSOR** or **GATE / EXPANDER**. The options button next to
 |---|---|
 | Instrument | Detect from playing (default), Guitar, Bass |
 | Style | Rock (default), Clean, Metal |
-| Steps | Tone EQ (on), De-esser and limiter (on) |
+| Steps | Tone EQ (on), Multiband (on, phase 4: `AUTO_SET_PHASE4.md`), De-esser and limiter (on) |
 
-With every step on, Auto Set listens in four passes of about 6 s each, in
+With every step on, Auto Set listens in five passes of about 6 s each, in
 signal order:
 1. Input and gate.
 2. Tone EQ.
 3. Compressor.
-4. De-esser and limiter: keep playing, with some hard picking.
+4. Multiband (phase 4).
+5. De-esser and limiter: keep playing, with some hard picking.
 
 **UNDO AUTO** restores everything the run changed. Skewed parameters such as
 the de-esser frequency come back within float precision.
@@ -99,5 +100,5 @@ the player's choice.
 The style offsets, the de-esser limits (2/3/1.5 dB spectral, 4 dB burst),
 the ranges and the releases are starting values. They have not been tuned
 against reference recordings or listening tests. Genre presets beyond these
-three styles, loudness targets and the multiband compressor are not part of
-Auto Set.
+three styles and loudness targets are not part of Auto Set. The multiband
+compressor was added in phase 4.

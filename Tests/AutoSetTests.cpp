@@ -148,6 +148,29 @@ void finishRules() {
     std::cout<<"PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release\n";
 }
 
+void lowpass(std::vector<float>& x,double frequency,double rate) {
+    for(int k=0;k<2;++k){const auto c=spectralforge::eqCoefficients(4,frequency,0,.707,rate);double z1=0,z2=0;for(auto& v:x){const double y=c.b0*v+z1;z1=c.b1*v-c.a1*y+z2;z2=c.b2*v-c.a2*y;v=float(y);}}
+}
+void multibandRules() {
+    std::mt19937 random{31};
+    check(multibandCrossovers(true,Style::rock)==std::array<float,3>{80,300,2000} && multibandCrossovers(false,Style::metal)==std::array<float,3>{120,800,4500},"Crossovers do not follow instrument and style");
+    for(double rate:{44100.,48000.,96000.}) {
+        check(!analyseMultiband(std::vector<float>(size_t(rate*6),0.f),rate).playingDetected,"Silence reported playing");
+        // Steady and on target: every band stays bypassed.
+        const auto flat=analyseMultiband(targetNoise(false,rate,6,random),rate,false);
+        check(flat.playingDetected && flat.activeBands()==0,"A balanced steady signal was multiband-compressed");
+        // Booming low notes: the band below 150 Hz jumps 12 dB every other quarter second.
+        auto boom=targetNoise(false,rate,6,random);std::vector<float> low(boom.size());
+        std::normal_distribution<float> noise(0,.3f);for(auto& v:low)v=noise(random);
+        lowpass(low,100,rate);
+        for(size_t n=0;n<boom.size();++n)boom[n]+=low[n]*(std::fmod(double(n)/rate,.5)<.25?4.f:.25f);
+        const auto b=analyseMultiband(boom,rate,false,Style::metal);
+        check(b.bands[0].active && !b.bands[2].active && !b.bands[3].active,"Booming lows did not engage only the low band");
+        check(b.bands[0].attackMs==30 && b.bands[0].releaseMs==140 && b.bands[0].ratio>=3 && b.bands[0].rangeDb>=3 && b.bands[0].rangeDb<=9,"Low band settings outside their rules");
+    }
+    std::cout<<"PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz\n";
+}
+
 void captureWindows() {
     for(double rate:{44100.,48000.,96000.}) {
         Capture capture;capture.prepare(rate);
@@ -248,7 +271,7 @@ void controllerIntegration() {
     DI di{48000,.126f,.00025f}; // notes peak ~ -18 dBFS, noise ~ -72 dBFS
     c.start();check(c.busy(),"Auto Set did not start listening");
     run(*p,c,&di,6.6,now);
-    check(c.current().phase==Controller::Phase::tone && c.current().text.contains("2/4"),"First pass did not hand over to the Tone EQ pass");
+    check(c.current().phase==Controller::Phase::tone && c.current().text.contains("2/5"),"First pass did not hand over to the Tone EQ pass");
     check(get(*p,"input")>4.f && get(*p,"input")<=12.01f,"Input gain was not raised toward the target");
     check(get(*p,"gateon")>.5f && get(*p,"gatethreshold")>-70.f && get(*p,"gatethreshold")<-35.f,"Gate threshold was not placed above the noise floor");
     run(*p,c,&di,6.6,now);
@@ -262,7 +285,13 @@ void controllerIntegration() {
     }
     check(enabled==tone.activeMoves() && (enabled==0 || get(*p,spectralforge::eqID(0,-1,"bypass"))<.5f),"Applied Tone EQ does not match the analysis");
     run(*p,c,&di,7.0,now);
-    check(c.current().phase==Controller::Phase::finish && c.current().text.contains("4/4"),"Compressor pass did not hand over to the de-esser and limiter pass");
+    check(c.current().phase==Controller::Phase::multiband && c.current().text.contains("4/5"),"Compressor pass did not hand over to the multiband pass");
+    run(*p,c,&di,6.6,now);
+    check(c.current().phase==Controller::Phase::finish && c.current().text.contains("5/5"),"Multiband pass did not hand over to the de-esser and limiter pass");
+    const auto& mb=c.lastMultibandAnalysis();
+    check(mb.playingDetected && (get(*p,"mbOn")>.5f)==(mb.activeBands()>0),"Multiband pass did not hear the guitar or did not apply its analysis");
+    for(int b=0;b<4 && mb.activeBands()>0;++b)
+        check((get(*p,spectralforge::multibandID(b,"bypass"))<.5f)==mb.bands[size_t(b)].active && get(*p,spectralforge::multibandID(b,"solo"))<.5f,"Multiband band state does not match the analysis");
     run(*p,c,&di,6.6,now);
     p->removeListener(&g);
     check(c.current().phase==Controller::Phase::done && c.current().canUndo,"Auto Set did not finish with undo available");
@@ -276,28 +305,30 @@ void controllerIntegration() {
     bool progressed=false;for(const auto& s:statuses)progressed|=s.progress>0 && s.progress<1;
     check(progressed && c.current().text.contains("Comp"),"Status did not report progress and a summary");
     std::cout<<"AUTO SET synthetic DI (-18 dBFS notes, -72 dBFS noise): "<<c.current().text<<"\n";
+    std::cout<<"AUTO SET multiband:";for(int b=0;b<4;++b)std::cout<<" band"<<b+1<<(mb.bands[size_t(b)].active?" on":" off")<<" swing "<<mb.bands[size_t(b)].swingDb<<" excess "<<mb.bands[size_t(b)].excessDb;
+    std::cout<<"\n";
     std::cout<<"AUTO SET finish: high-band excess "<<finish.spectralExcessDb<<" dB, burst excess "<<finish.burstExcessDb<<" dB, output peak "<<finish.outputPeakDb<<" dBFS\n";
     std::cout<<"AUTO SET tone moves:";for(const auto& m:tone.moves)std::cout<<' '<<m.frequency<<"Hz "<<m.gainDb<<"dB";
     std::cout<<" | fit error "<<tone.errorBeforeDb<<" -> "<<tone.errorAfterDb<<" dB\n";
     const auto applied=values(*p);
     int changed=0;for(size_t i=0;i<before.size();++i)if(applied[i]!=before[i])++changed;
-    check(changed>=3 && changed<=25+5*spectralforge::graphicalEQBands,"Auto Set touched parameters outside its scope");
+    check(changed>=3 && changed<=31+5*spectralforge::graphicalEQBands+10*spectralforge::multibandBandCount,"Auto Set touched parameters outside its scope");
     c.undo();
     // Undo restores normalised values, which round-trip within float precision.
     const auto restored=values(*p);bool undone=restored.size()==before.size();
     for(size_t i=0;undone && i<before.size();++i)undone=near(restored[i],before[i],1e-6f);
     check(undone && !c.current().canUndo,"Undo did not restore every parameter");
-    c.setOptions({0,false,Style::rock,false});c.start();
+    c.setOptions({0,false,Style::rock,false,false});c.start();
     check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the optional steps did not shorten Auto Set to two passes");
     c.cancel();check(values(*p)==restored,"Cancelling a run changed parameters");
-    std::cout<<"PASS auto set controller: silence/no-audio failures, four passes on the real processor, input+gate+Tone EQ+compressor+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes\n";
+    std::cout<<"PASS auto set controller: silence/no-audio failures, five passes on the real processor, input+gate+Tone EQ+compressor+multiband+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
-        analysisRules();toneRules();finishRules();captureWindows();controllerIntegration();
+        analysisRules();toneRules();finishRules();multibandRules();captureWindows();controllerIntegration();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
