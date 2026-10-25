@@ -12,13 +12,14 @@ namespace spectralforge::autoset {
 // gain and the gate from the signal after input gain; pass 2 (optional) sets
 // the Tone EQ from the amp/cab output at the new gain; pass 3 re-measures the
 // clean compressor input after both, because the amp/cab path is nonlinear and
-// the Tone EQ feeds the compressor; pass 4 (optional) sets the de-esser and the
+// the Tone EQ feeds the compressor; pass 4 (optional) sets the multiband
+// compressor after it; the last pass (optional) sets the de-esser and the
 // output limiter from what now reaches them.
 class Controller final : private juce::Timer {
 public:
-    enum class Phase {idle,input,tone,compressor,finish,done,failed};
-    // instrument: 0 detect, 1 guitar, 2 bass. tone/finish include passes 2 and 4.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed};
+    // instrument: 0 detect, 1 guitar, 2 bass. tone/multiband/finish include the optional passes.
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};};
     struct Status {Phase phase{Phase::idle};float progress{};juce::String text;bool canUndo{};};
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -31,7 +32,10 @@ public:
         touchedIDs.add(eqID(0,-1,"bypass"));
         for(int b=0;b<graphicalEQBands;++b)for(const auto* field:{"enabled","frequency","gain","q","type"})touchedIDs.add(eqID(0,b,field));
         for(const auto* id:{"deEsserOn","deEsserFrequency","deEsserThreshold","deEsserRange","deEsserAttack","deEsserRelease","deEsserRatio","deEsserKnee",
-                            "liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})touchedIDs.add(id);
+                            "liveLimiterOn","liveLimiterCeiling","liveLimiterRelease",
+                            "mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3"})touchedIDs.add(id);
+        for(int b=0;b<multibandBandCount;++b)
+            for(const auto* field:{"bypass","mode","threshold","range","ratio","attack","release","knee","makeup","solo"})touchedIDs.add(multibandID(b,field));
     }
     ~Controller() override {stopTimer();processor.autoSetCapture().listen(std::nullopt);}
 
@@ -40,9 +44,10 @@ public:
     const Options& currentOptions() const noexcept {return options;}
     void start() {
         if(busy())return;
-        snapshot.clear();summary.clear();lastTone={};lastFinish={};
+        snapshot.clear();summary.clear();lastTone={};lastFinish={};lastMultiband={};
         for(const auto& id:touchedIDs)if(auto* parameter=processor.parameters().getParameter(id))snapshot.emplace_back(parameter,parameter->getValue());
         passes={Phase::input};if(options.tone)passes.push_back(Phase::tone);passes.push_back(Phase::compressor);
+        if(options.multiband)passes.push_back(Phase::multiband);
         if(options.finish)passes.push_back(Phase::finish);
         beginPass(0,0);
         startTimerHz(20);
@@ -67,7 +72,7 @@ public:
         auto& capture=processor.autoSetCapture();
         const auto before=collected();
         if(samplePass())capture.drainSamples(samples);
-        if(status.phase!=Phase::tone)capture.drain(windowTap(),windows);
+        if(windowPass())capture.drain(windowTap(),windows);
         if(lastAudioMs<0 || collected()!=before)lastAudioMs=nowMs;
         else if(nowMs-lastAudioMs>noAudioTimeoutMs){fail("No audio reached the plug-in. Start playback or play your instrument, then try again.");return;}
         const double measured=std::max(0.,double(collected())-double(samplePass()?skipSamples:skipWindows)),needed=passLength();
@@ -77,6 +82,7 @@ public:
         if(status.phase==Phase::input)finishInput(measuredWindows);
         else if(status.phase==Phase::tone)finishTone(measuredSamples);
         else if(status.phase==Phase::compressor)finishCompressor(measuredWindows);
+        else if(status.phase==Phase::multiband)finishMultiband(measuredSamples);
         else finishOutput(measuredSamples,measuredWindows);
     }
 private:
@@ -89,7 +95,8 @@ private:
         if(parameter.getValue()==normalised)return;
         parameter.beginChangeGesture();parameter.setValueNotifyingHost(normalised);parameter.endChangeGesture();
     }
-    bool samplePass() const noexcept {return status.phase==Phase::tone || status.phase==Phase::finish;}
+    bool samplePass() const noexcept {return status.phase==Phase::tone || status.phase==Phase::multiband || status.phase==Phase::finish;}
+    bool windowPass() const noexcept {return status.phase==Phase::input || status.phase==Phase::compressor || status.phase==Phase::finish;}
     Tap windowTap() const noexcept {return status.phase==Phase::input?Tap::input:status.phase==Phase::finish?Tap::output:Tap::compressor;}
     size_t collected() const noexcept {return samplePass()?samples.size():windows.size();}
     double rate() const noexcept {return processor.getSampleRate()>0?processor.getSampleRate():48000.;}
@@ -108,6 +115,7 @@ private:
         skipWindows=settle?settleWindows:0;skipSamples=settle?int(toneSettleSeconds*rate()):0;
         status.phase=passes[pass];
         if(status.phase==Phase::tone)capture.listen(Tap::tone);
+        else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
         else if(status.phase==Phase::finish)capture.listen({Tap::deesser,Tap::output});
         else capture.listen(windowTap());
         publish(passes[pass],progress(0),passText());
@@ -117,6 +125,7 @@ private:
         const auto step="Listening "+juce::String(int(pass)+1)+"/"+juce::String(int(passes.size()))+": ";
         if(status.phase==Phase::input)return step+"play normally, including a short pause...";
         if(status.phase==Phase::tone)return step+"keep playing across the neck for the Tone EQ...";
+        if(status.phase==Phase::multiband)return step+"keep playing, low notes and hard picking, for the multiband...";
         if(status.phase==Phase::finish)return step+"keep playing, with some hard picking, for the de-esser and limiter...";
         return step+"keep playing for the compressor...";
     }
@@ -170,6 +179,29 @@ private:
                 +" ms, makeup "+juce::String(r.makeupDb,1)+" dB";
         if(pass+1<passes.size())nextPass();else complete();
     }
+    void finishMultiband(const std::vector<float>& measured) {
+        const auto r=analyseMultiband(measured,rate(),chosenBass(),options.style);
+        lastMultiband=r;
+        if(!r.playingDetected)summary+=" | Multiband unchanged (no playing)";
+        else if(r.activeBands()==0)summary+=" | Multiband unchanged (bands balanced)";
+        else {
+            constexpr std::array<const char*,4> names{"low","low-mid","high-mid","high"};
+            for(int c=0;c<3;++c)set("mbCrossover"+juce::String(c+1),r.crossovers[size_t(c)]);
+            juce::StringArray acting;
+            for(int b=0;b<multibandBandCount;++b) {
+                const auto& band=r.bands[size_t(b)];
+                set(multibandID(b,"solo"),0);set(multibandID(b,"mode"),0);set(multibandID(b,"bypass"),band.active?0.f:1.f);
+                if(!band.active)continue;
+                set(multibandID(b,"threshold"),band.thresholdDb);set(multibandID(b,"ratio"),band.ratio);set(multibandID(b,"range"),band.rangeDb);
+                set(multibandID(b,"attack"),band.attackMs);set(multibandID(b,"release"),band.releaseMs);set(multibandID(b,"knee"),band.kneeDb);
+                set(multibandID(b,"makeup"),0);
+                acting.add(juce::String(names[size_t(b)])+" "+juce::String(band.ratio,0)+":1");
+            }
+            set("mbMix",1);set("mbDetector",1);set("mbOn",1);
+            summary+=" | Multiband "+acting.joinIntoString(", ");
+        }
+        if(pass+1<passes.size())nextPass();else complete();
+    }
     void finishOutput(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows) {
         const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),chosenBass(),options.style);
         lastFinish=r;
@@ -198,7 +230,7 @@ private:
         status={phase,value,text,!busyPhase(phase) && !snapshot.empty() && changedSinceSnapshot()};
         if(onStatus)onStatus(status);
     }
-    static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::finish;}
+    static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish;}
     bool changedSinceSnapshot() const {
         for(const auto& [parameter,value]:snapshot)if(parameter->getValue()!=value)return true;
         return false;
@@ -208,6 +240,7 @@ public:
     // Last tone analysis, for tests and diagnostics.
     const ToneResult& lastToneAnalysis() const noexcept {return lastTone;}
     const FinishResult& lastFinishAnalysis() const noexcept {return lastFinish;}
+    const MultibandResult& lastMultibandAnalysis() const noexcept {return lastMultiband;}
 private:
     ChimeraProcessor& processor;
     juce::StringArray touchedIDs;
@@ -217,7 +250,7 @@ private:
     std::vector<std::pair<juce::RangedAudioParameter*,float>> snapshot;
     std::vector<Window> windows;std::vector<float> samples;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;ToneResult lastTone;FinishResult lastFinish;
+    juce::String summary;ToneResult lastTone;FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
