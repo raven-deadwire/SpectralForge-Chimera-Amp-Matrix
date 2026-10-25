@@ -65,10 +65,14 @@ public:
 
     void setBrand(juce::Image mark,juce::Image emblem) {wordmark=std::move(mark);brandEmblem=std::move(emblem);repaint();}
     // The editor supplies its cabinet room so players still see their rig.
+    // It is view-only here: amp and cabinet windows belong to the full editor.
     void setRoom(std::unique_ptr<juce::Component> view) {
         if(room)removeChildComponent(room.get());
         room=std::move(view);
-        if(room){addAndMakeVisible(*room);room->setVisible(tunerPanel==nullptr);}
+        if(room) {
+            room->setEnabled(false);room->setInterceptsMouseClicks(false,false);
+            addAndMakeVisible(*room);room->setVisible(tunerPanel==nullptr);
+        }
         resized();
     }
     // The full editor owns preset loading and its CUSTOM detection.

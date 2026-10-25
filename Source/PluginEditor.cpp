@@ -1073,10 +1073,7 @@ void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
         easyView->autoSet=[this]{autoSetController->start();};
         easyView->autoCancel=[this]{autoSetController->cancel();};
         easyView->autoUndo=[this]{autoSetController->undo();};
-        auto room=std::make_unique<CabRoomOverview>(processor);
-        room->onCabinetSelected=[this](int lane){openCabWorkspace(lane,true);};
-        room->onAmplifierSelected=[this](int lane){openAmpHead(lane);};
-        easyView->setRoom(std::move(room));
+        easyView->setRoom(std::make_unique<CabRoomOverview>(processor));
         scrollContent.addChildComponent(*easyView);
     }
     easyMode=easy;

@@ -18,9 +18,9 @@ editor* in the interface.
 
 Between the preset row and the knobs, Easy view shows the same cabinet room
 as the full editor, so players always see which amps and cabinets they are
-using. Clicking a head or cabinet opens the same amplifier or cabinet window
-as in the full editor. While the tuner is open, it takes the place of the
-room and the knobs.
+using. The room is view-only here: amplifier and cabinet windows open from the
+full editor. While the tuner is open, it takes the place of the room and the
+knobs.
 
 In Dual mode the amp knobs edit the first rig. In Matrix mode they edit the
 MID rig, because LOW is the compressed DI band. Easy view shows which head and

@@ -54,6 +54,10 @@ inline void editorView(const juce::File& directory) {
     require(view && view->isShowing() && !find(*editor,"surface")->isVisible(),"Easy view did not replace the full editor");
     require(signalPathTests::values(*p)==before,"Opening Easy view changed the sound");
     auto* room=find(*view,"cabRoomOverview");require(room && room->isShowing(),"Easy view does not show the cabinet room");
+    require(!room->isEnabled() && room->getComponentAt(room->getLocalBounds().getCentre())==nullptr,"Easy cabinet room must be view-only");
+    {auto* head=find<juce::Button>(*room,"cabRoomHead1");require(head && !head->isEnabled(),"Easy room head is still clickable");
+     const int windows=juce::TopLevelWindow::getNumTopLevelWindows();head->triggerClick();settle(150);
+     require(juce::TopLevelWindow::getNumTopLevelWindows()==windows,"Easy room opened a detail window");}
     for(auto* child:view->getChildren())if(child->isVisible())inside(*view,*child,"Easy control outside its view");
 
     // Amp knobs edit the selected head's own parameters and follow amp changes.
