@@ -129,14 +129,19 @@ def main():
     def better(i,ok,score):
         return (ok and not best_level_ok[i]) or (ok==best_level_ok[i] and score<best[i])
     selection_windows=[rf,6*48000,12*48000,18*48000,22*48000]
+    def excerpt_predictions(net):
+        """Excerpts with the zero-input output removed, as export removes it.
+        Raw output can carry a large drifting DC (-0.87 for Surtr at 30k steps
+        with centered training) that the exported model never plays."""
+        with torch.inference_mode():
+            dc=net(torch.zeros(1,rf+1),pad_start=False).numpy()[0,...,-1]
+            return [net(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]-np.asarray(dc)[...,None]
+                    for s in selection_windows]
     def selection_esr(sub,i):
         """One channel's selection score, computed exactly as during training."""
         if args.validation_selection=='full':return scores(centered_prediction(sub,vx)/gains[i],vy[i])[0]['esr']
-        vals=[]
-        for s in selection_windows:
-            with torch.inference_mode():p=sub(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gains[i]
-            vals.append(scores(p,vy[i,s:s+8192],skip=0)[0]['esr'])
-        return float(np.mean(vals))
+        return float(np.mean([scores(p/gains[i],vy[i,s:s+8192],skip=0)[0]['esr']
+                              for s,p in zip(selection_windows,excerpt_predictions(sub))]))
     if args.resume:
         ck=torch.load(args.out/'checkpoint.pt',map_location='cpu',weights_only=False)
         if ck['identity']!=identity:raise RuntimeError('Resume identity mismatch')
@@ -146,6 +151,12 @@ def main():
         train_cfg['warm_start']=prior_config.get('warm_start')
         model.load_state_dict(ck['model']);opt.load_state_dict(ck['optimizer']);start=ck['step'];best=ck['best'];weights=ck['best_weights'];best_steps=ck['best_steps']
         best_level_ok=ck['best_level_ok']
+        # Re-score saved states with this code's metric; a checkpoint written by
+        # an older selection metric must not be compared with new scores.
+        for i,state in enumerate(weights):
+            sub=model.extract_submodel(i).eval();sub.load_state_dict(state)
+            best[i]=selection_esr(sub,i);best_level_ok[i]=level_ok(centered_prediction(sub,vx)/gains[i],i)
+        model.load_state_dict(ck['model'])
         rng.bit_generator.state=ck['rng'];torch.set_rng_state(ck['torch_rng'])
         if ck.get('validation_selection','window')!=args.validation_selection:
             if args.validation_selection!='full':raise RuntimeError('Changing full selection back to excerpts is not supported')
@@ -222,9 +233,8 @@ def main():
                 prediction=centered_prediction(model,vx)/gains[:,None]
                 means=[row['esr'] for row in scores(prediction,vy)]
             else:
-                for s in selection_windows:
-                    with torch.inference_mode():p=model(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gains[:,None]
-                    vals.append(scores(p,vy[:,s:s+8192],skip=0))
+                for s,p in zip(selection_windows,excerpt_predictions(model)):
+                    vals.append(scores(p/gains[:,None],vy[:,s:s+8192],skip=0))
                 means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
             if args.validation_selection!='full':prediction=centered_prediction(model,vx)/gains[:,None]
             levels=[level_ok(prediction[i],i) for i in range(5)]
