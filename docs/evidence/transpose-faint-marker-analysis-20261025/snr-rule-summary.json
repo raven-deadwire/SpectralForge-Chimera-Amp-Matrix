@@ -1,0 +1,123 @@
+{
+ "by_rule": {
+  "T1 input validity (current)|pdc-known|44100": [
+   1912,
+   2.897
+  ],
+  "T1 input validity (current)|pdc-known|48000": [
+   1912,
+   3.083
+  ],
+  "T1 input validity (current)|pdc-known|96000": [
+   1912,
+   3.052
+  ],
+  "T1 input validity (current)|pdc-fresh|44100": [
+   2488,
+   53.237
+  ],
+  "T1 input validity (current)|pdc-fresh|48000": [
+   2424,
+   2.917
+  ],
+  "T1 input validity (current)|pdc-fresh|96000": [
+   2424,
+   2.906
+  ],
+  "event SNR >= 10 dB|pdc-known|44100": [
+   1788,
+   2.897
+  ],
+  "event SNR >= 10 dB|pdc-known|48000": [
+   1792,
+   3.083
+  ],
+  "event SNR >= 10 dB|pdc-known|96000": [
+   1744,
+   3.052
+  ],
+  "event SNR >= 10 dB|pdc-fresh|44100": [
+   2300,
+   3.01
+  ],
+  "event SNR >= 10 dB|pdc-fresh|48000": [
+   2304,
+   2.917
+  ],
+  "event SNR >= 10 dB|pdc-fresh|96000": [
+   2256,
+   2.906
+  ],
+  "both|pdc-known|44100": [
+   1788,
+   2.897
+  ],
+  "both|pdc-known|48000": [
+   1792,
+   3.083
+  ],
+  "both|pdc-known|96000": [
+   1744,
+   3.052
+  ],
+  "both|pdc-fresh|44100": [
+   2300,
+   3.01
+  ],
+  "both|pdc-fresh|48000": [
+   2304,
+   2.917
+  ],
+  "both|pdc-fresh|96000": [
+   2256,
+   2.906
+  ]
+ },
+ "by_snr_bin": [
+  {
+   "snr_db": [
+    -99,
+    6
+   ],
+   "events": 1248,
+   "over_4.5ms": 320,
+   "max_abs_residual_ms": 68.812
+  },
+  {
+   "snr_db": [
+    6,
+    10
+   ],
+   "events": 436,
+   "over_4.5ms": 0,
+   "max_abs_residual_ms": 2.885
+  },
+  {
+   "snr_db": [
+    10,
+    15
+   ],
+   "events": 428,
+   "over_4.5ms": 0,
+   "max_abs_residual_ms": 2.738
+  },
+  {
+   "snr_db": [
+    15,
+    20
+   ],
+   "events": 424,
+   "over_4.5ms": 0,
+   "max_abs_residual_ms": 2.833
+  },
+  {
+   "snr_db": [
+    20,
+    999
+   ],
+   "events": 11332,
+   "over_4.5ms": 0,
+   "max_abs_residual_ms": 3.083
+  }
+ ]
+}

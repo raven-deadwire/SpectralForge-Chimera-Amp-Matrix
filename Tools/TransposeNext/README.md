@@ -242,3 +242,13 @@ fixed reported latency L (`--fixed-l` validates a chosen L). For v3, L = 2.5 ms
 (minimax attack residual at all rates); the research plug-in's `Latency
 report` = Fixed PDC reports it, and host bypass is delayed by the reported
 latency. See `docs/TRANSPOSE_T6_PDC_CONTRACT.md`.
+
+## Faint-marker analysis (2026-10-25)
+
+`attack_snr.py` gives each attack event's 1-8 kHz SNR (peak within 10 ms over
+the largest envelope 20-3 ms before). Events below 6 dB are indistinguishable
+from the band floor and produced every attack-timing outlier seen so far.
+`latency_targets.py --event-snr-min` and `pdc_study.py evaluate
+--event-snr-min` apply a per-event floor (off by default; proposed 10 dB for
+the next pre-registered run). `SpliceTrace.cpp` logs splice and re-anchor
+sample positions. See `docs/TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`.
