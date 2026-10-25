@@ -135,6 +135,7 @@ def lifecycle_documents(destination: Path, build: Path, *, version: dict | None 
 # contains no product DSP; its license and source location travel with it.
 OBS_MODULE = "obs-module"
 OBS_FILTER_DLL = "OBS/chimera-obs/bin/64bit/chimera-obs.dll"
+OBS_MODULE_FILES = frozenset({"bin/64bit/chimera-obs.dll", "data/locale/en-US.ini", "data/locale/ko-KR.ini"})
 
 
 def obs_module_version() -> str:
@@ -151,6 +152,9 @@ def obs_filter(destination: Path, build: Path, source_sha: str, *, required: boo
         if required:
             raise RuntimeError(f"Windows payload requires the OBS filter module: {module}")
         return False
+    actual = {p.relative_to(module).as_posix() for p in module.rglob("*") if p.is_file()}
+    if actual != OBS_MODULE_FILES or any(p.is_symlink() for p in module.rglob("*")):
+        raise RuntimeError(f"OBS module file inventory mismatch: missing={sorted(OBS_MODULE_FILES - actual)}, extra={sorted(actual - OBS_MODULE_FILES)}")
     target = destination / "OBS/chimera-obs"
     copy(module, target)
     copy(ROOT / "OBS/LICENSE", target / "LICENSE.txt")

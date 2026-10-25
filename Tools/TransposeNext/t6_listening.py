@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""T6 blind listening: product Transpose vs the corr40-split-v2 candidate on real DI.
+"""T6 blind listening: product Transpose vs the corr40-split-v3 candidate on real DI.
 
 Uses the same take manifest as di_validation.py (labels are not needed).
 Design, listener rules and the decision rule are fixed in
@@ -22,7 +22,8 @@ from blind_listening import _binom_tail  # noqa: E402
 from di_validation import load_manifest, read_wav, render, check  # noqa: E402
 from legacy_metrics import sha  # noqa: E402
 
-CONDITIONS = {'product': 'baseline', 'candidate': 'corr40-split-v2'}
+# T6 candidate: v3 (block-invariant). v2 stays the synthetic-target record.
+CONDITIONS = {'product': 'baseline', 'candidate': 'corr40-split-v3'}
 SHIFTS = (-2, 2)
 PAIRED_KINDS = ('riff', 'dynamics', 'long')
 ABX_KIND, ABX_TRIALS, PAIRED_REPEATS = 'riff', 12, 2

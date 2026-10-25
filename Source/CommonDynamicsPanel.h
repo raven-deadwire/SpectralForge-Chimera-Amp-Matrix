@@ -26,10 +26,12 @@ public:
             tabs[i].onClick=[this,i]{selectPage(Page(i));};addAndMakeVisible(tabs[i]);
         }
         toggle(compOn,"COMPRESSOR ON","cleanCompOn");toggle(gateOn,"GATE ON","gateon",true);
-        for(auto* button:{&autoSet,&autoUndo})addChildComponent(*button);
-        autoSet.setComponentID("commonDynamics.autoSet");autoUndo.setComponentID("commonDynamics.autoUndo");autoUndo.setEnabled(false);
-        autoSet.setTooltip("Listen to about 12 seconds of playing and set input gain, the gate and the clean compressor. Include a short pause so the gate can hear the noise floor.");
-        autoUndo.setTooltip("Restore the input, gate and compressor settings from before the last Auto Set.");
+        addChildComponent(autoSet);addChildComponent(autoOptions);addChildComponent(autoUndo);
+        autoSet.setComponentID("commonDynamics.autoSet");autoOptions.setComponentID("commonDynamics.autoOptions");autoUndo.setComponentID("commonDynamics.autoUndo");autoUndo.setEnabled(false);
+        autoSet.setTooltip("Listen to about 25 seconds of playing and set input gain, the gate, the Tone EQ, the clean compressor, the de-esser and the limiter. Include a short pause so the gate can hear the noise floor.");
+        autoOptions.setTooltip("Auto Set options: instrument (detected, guitar or bass), style (rock, clean or metal) and which steps run.");
+        autoUndo.setTooltip("Restore every setting Auto Set changed in its last run.");
+        autoOptions.onClick=[this]{showAutoOptions();};updateAutoOptionsText();
         autoSet.onClick=[this]{if(autoBusy){if(onAutoCancel)onAutoCancel();}else if(onAutoSet)onAutoSet();};
         autoUndo.onClick=[this]{if(onAutoUndo)onAutoUndo();};
         toggle(limiterOn,"LIMITER ON","liveLimiterOn");toggle(gatePlacement,"AFTER RIG","gateAfterRig",true);
@@ -165,9 +167,20 @@ public:
     std::function<void(Page)> onPageSelected;
     std::function<bool(Page)> onCompressorSourceRequested;
     std::function<void()> onAutoSet,onAutoCancel,onAutoUndo;
+    // Presentation of the Auto Set options; the editor maps them to the controller.
+    struct AutoSetOptions {int instrument{0};bool tone{true};int style{0};bool finish{true};}; // instrument 0 detect/1 guitar/2 bass; style 0 rock/1 clean/2 metal
+    std::function<void(const AutoSetOptions&)> onAutoOptionsChanged;
+    void setAutoSetOptions(const AutoSetOptions& chosen){autoOptionsValue=chosen;updateAutoOptionsText();}
+    const AutoSetOptions& autoSetOptions() const noexcept {return autoOptionsValue;}
+    // Menu ids: 1-3 instrument, 11-13 style, 21 Tone EQ step, 22 de-esser + limiter step.
+    void chooseAutoOption(int id) {
+        auto& o=autoOptionsValue;
+        if(id>=1 && id<=3)o.instrument=id-1;else if(id>=11 && id<=13)o.style=id-11;else if(id==21)o.tone=!o.tone;else if(id==22)o.finish=!o.finish;else return;
+        updateAutoOptionsText();if(onAutoOptionsChanged)onAutoOptionsChanged(o);
+    }
     // Presentation only: the controller owns the measurement and parameter writes.
     void setAutoSetStatus(const juce::String& text,bool busy,bool canUndo) {
-        autoText=text;autoBusy=busy;autoSet.setButtonText(busy?"CANCEL":"AUTO SET");autoUndo.setEnabled(canUndo && !busy);
+        autoText=text;autoBusy=busy;autoSet.setButtonText(busy?"CANCEL":"AUTO SET");autoUndo.setEnabled(canUndo && !busy);autoOptions.setEnabled(!busy);
         repaint(520,38,std::max(1,getWidth()-740),46);
     }
     const juce::String& autoSetStatus() const noexcept {return autoText;}
@@ -204,7 +217,8 @@ public:
         const int crossWidth=(sideX-32)/3;
         for(int cross=0;cross<3;++cross)crossovers[size_t(cross)].bounds(18+cross*crossWidth,getHeight()-56,crossWidth-12);
         deEsserOn.setBounds(18,45,150,28);deEsserListen.setBounds(178,45,104,28);
-        autoSet.setBounds(sideX,getHeight()-40,150,28);autoUndo.setBounds(sideX+160,getHeight()-40,std::max(1,sideWidth-160),28);repaint();
+        autoSet.setBounds(sideX,getHeight()-40,100,28);autoOptions.setBounds(sideX+106,getHeight()-40,118,28);
+        autoUndo.setBounds(sideX+230,getHeight()-40,std::max(1,sideWidth-230),28);repaint();
     }
     void paint(juce::Graphics& g) override {
         const juce::Colour muted(0xff9fb4ad),text(0xffd9ebe3),line(0xff273b3d);
@@ -296,7 +310,7 @@ private:
         const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbBandSelector.setVisible(mb);mbMix.show(mb);showControls(crossovers,mb);
         for(int band=0;band<4;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);showControls(ui.controls,showing);}
         deEsserOn.setVisible(page==Page::deesser);deEsserListen.setVisible(page==Page::deesser);
-        autoSet.setVisible(autoPage());autoUndo.setVisible(autoPage());showControls(deEsser,page==Page::deesser);
+        autoSet.setVisible(autoPage());autoOptions.setVisible(autoPage());autoUndo.setVisible(autoPage());showControls(deEsser,page==Page::deesser);
         if(page==Page::preCompressor)spectrum.setPreOwner(-1);
         if(page==Page::postCompressor)spectrum.setPostNativeSource(0);
         spectrum.setVisible(!dynamic);spectrum.setStage(stageFor(page));updateEQWorkspace();resized();repaint();
@@ -402,7 +416,21 @@ private:
     Page page{Page::compressor};std::array<juce::TextButton,6> tabs;
     juce::ComboBox detector,gateMode,slotSelector,mbDetector,mbBandSelector;
     juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen;
-    juce::TextButton autoSet{"AUTO SET"},autoUndo{"UNDO AUTO"};juce::String autoText;bool autoBusy{};
+    juce::TextButton autoSet{"AUTO SET"},autoUndo{"UNDO AUTO"};juce::TextButton autoOptions;AutoSetOptions autoOptionsValue;juce::String autoText;bool autoBusy{};
+    void updateAutoOptionsText() {
+        constexpr std::array<const char*,3> instruments{"Auto","Guitar","Bass"},styles{"Rock","Clean","Metal"};
+        autoOptions.setButtonText(juce::String(instruments[size_t(autoOptionsValue.instrument)])+" / "+styles[size_t(autoOptionsValue.style)]);
+    }
+    void showAutoOptions() {
+        const auto& o=autoOptionsValue;juce::PopupMenu menu;
+        menu.addSectionHeader("Instrument");
+        menu.addItem(1,"Detect from playing",true,o.instrument==0);menu.addItem(2,"Guitar",true,o.instrument==1);menu.addItem(3,"Bass",true,o.instrument==2);
+        menu.addSectionHeader("Style");
+        menu.addItem(11,"Rock",true,o.style==0);menu.addItem(12,"Clean",true,o.style==1);menu.addItem(13,"Metal",true,o.style==2);
+        menu.addSectionHeader("Steps");
+        menu.addItem(21,"Tone EQ",true,o.tone);menu.addItem(22,"De-esser and limiter",true,o.finish);
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&autoOptions),[safe=juce::Component::SafePointer<CommonDynamicsPanel>(this)](int id){if(safe!=nullptr)safe->chooseAutoOption(id);});
+    }
     bool autoPage() const noexcept {return page==Page::compressor || page==Page::gate;}
     std::array<Control,8> comp;std::array<Control,6> gate;std::array<Control,3> pre;std::array<Control,5> post;
     Control ceiling,limitRelease,lowAmount,lowBlend,mbMix;std::array<Control,3> crossovers;std::array<Control,7> deEsser;
