@@ -52,8 +52,8 @@ public:
         stopTimer();processor.autoSetCapture().listen(std::nullopt);
         // Cancel only stops listening. Passes that already finished keep
         // their settings until UNDO restores the pre-run snapshot.
-        publish(Phase::idle,0,changedSinceSnapshot() ? "Auto Set stopped. Finished steps are kept; UNDO restores your previous settings."
-                                                     : "Auto Set stopped before changing anything.");
+        publish(Phase::idle,0,changedSinceSnapshot() ? "Auto Set cancelled. Finished steps are kept; UNDO restores your previous settings."
+                                                     : "Auto Set cancelled before changing anything.");
     }
     void undo() {
         if(busy() || snapshot.empty())return;

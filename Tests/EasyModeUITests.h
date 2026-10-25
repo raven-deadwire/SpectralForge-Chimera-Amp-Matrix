@@ -218,7 +218,7 @@ inline void autoSetAndPresets() {
     require(view->autoSetOptionsText()=="Auto / Rock","Easy Auto Set options not shown");
     button->onClick();settle(20);
     auto* status=find<juce::Label>(*view,"easy.autoStatus");
-    require(!view->autoSetBusy() && button->getButtonText()=="AUTO SET" && status->getText().contains("stopped"),"Easy CANCEL did not stop Auto Set");
+    require(!view->autoSetBusy() && button->getButtonText()=="AUTO SET" && status->getText().contains("cancelled"),"Easy CANCEL did not stop Auto Set");
     if(view->chooseAutoOption)view->chooseAutoOption(13);
     require(view->autoSetOptionsText()=="Auto / Metal","Easy Auto Set option not applied");
 
