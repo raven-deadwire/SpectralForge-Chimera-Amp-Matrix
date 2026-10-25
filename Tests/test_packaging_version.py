@@ -464,7 +464,7 @@ configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @O
             if rule.startswith("Source:") and "Chimera-Personal-IRs" in rule:
                 self.assertIn("onlyifdoesntexist", rule)
                 self.assertIn("uninsneveruninstall", rule)
-        packaging = (ROOT / "Tools/package_release.py").read_text()
+        packaging = (ROOT / "Tools/package_release.py").read_text(encoding="utf-8")
         self.assertIn('MACOS_PKG_ID = "audio.spectralforge.chimera"\n', packaging)
         self.assertIn('"--identifier", MACOS_PKG_ID', packaging)
         self.assertEqual(release.MACOS_PKG_ID, "audio.spectralforge.chimera")
