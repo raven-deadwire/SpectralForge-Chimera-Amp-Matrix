@@ -538,6 +538,109 @@ class InvocationContracts(SourceFixture):
         self.assertEqual(outcome, ["staged"])
 
 
+class ReleaseGateJobContracts(unittest.TestCase):
+    """The dedicated publication gate job fails unless the gate authorizes publication."""
+
+    def setUp(self):
+        self.release = publisher.Release("1.3.1-beta.2", "a" * 40)
+        self.ci = dict(runs={"build.yml": dict(id=RUN, run_attempt=ATTEMPT, head_sha=self.release.source_sha)},
+            candidate=dict(id=1, name=self.release.artifact_name, digest="sha256:" + "a" * 64, size_in_bytes=10),
+            gate=dict(id=2, name=publisher.GATE_ARTIFACT_NAME, digest="sha256:" + "b" * 64, size_in_bytes=10))
+        self.environment = dict(GITHUB_REPOSITORY=publisher.transport.REPO, GITHUB_EVENT_NAME="workflow_dispatch")
+        self.args = SimpleNamespace(candidate_dir=None, candidate_zip=None, artifact_json=None, gate_archive=None,
+            run_id=None, run_attempt=None, wait_ci_seconds=0)
+        self.api = Mock()
+        self.api.json.side_effect = AssertionError("gate job must not query or mutate releases")
+        self.receipt = {"fixture": "receipt"}
+
+    def run_gate(self, verdict, decision, error=None):
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher, "approval", return_value=self.receipt), \
+             patch.object(publisher.transport, "GitHub", return_value=self.api), \
+             patch.object(publisher, "wait_for_ci", return_value=self.ci) as wait, \
+             patch.object(publisher, "check_archive"), \
+             patch.object(publisher, "verify_release_gate_archive", return_value=(verdict, decision),
+                          side_effect=error) as verify, \
+             patch.object(publisher.transport, "publish") as publish, redirect_stdout(io.StringIO()):
+            try:
+                return publisher.require_gate_pass(self.args, self.release, {"policy_version": 4})
+            finally:
+                publish.assert_not_called()
+                wait.assert_called_once()
+                self.assertEqual(verify.call_args.args[2:], (RUN, ATTEMPT, {"policy_version": 4}, self.receipt))
+
+    def test_strict_pass_lets_the_gate_job_succeed(self):
+        verdict, _ = self.run_gate({"verdict": "PASS"},
+            {"publication_allowed": True, "decision": publisher.weekly_publication.STRICT_DECISION})
+        self.assertEqual(verdict["verdict"], "PASS")
+        self.api.download.assert_called_once()
+        self.assertEqual(self.api.download.call_args.args[0], "/actions/artifacts/2/zip")
+
+    def test_blocked_passes_only_under_the_owner_gap_decision_and_stays_blocked(self):
+        verdict, decision = self.run_gate({"verdict": "BLOCKED"},
+            {"publication_allowed": True, "decision": publisher.weekly_publication.GAP_DECISION})
+        self.assertEqual((verdict["verdict"], decision["decision"]),
+                         ("BLOCKED", publisher.weekly_publication.GAP_DECISION))
+        with self.assertRaisesRegex(RuntimeError, "not PASS"):
+            self.run_gate({"verdict": "BLOCKED"},
+                {"publication_allowed": True, "decision": publisher.weekly_publication.STRICT_DECISION})
+
+    def test_unauthorized_or_missing_decisions_fail_the_gate_job(self):
+        for decision in (None, {}, {"publication_allowed": False, "decision": "STRICT_PASS"},
+                         {"publication_allowed": "true", "decision": "STRICT_PASS"}):
+            with self.subTest(decision=decision), self.assertRaisesRegex(RuntimeError, "does not authorize"):
+                self.run_gate({"verdict": "PASS"}, decision)
+
+    def test_blocked_stale_or_pending_gate_evidence_fails_the_gate_job(self):
+        for error in (RuntimeError("All required strict checks must PASS before publication"),
+                      RuntimeError("Release-gate identity mismatch")):
+            with self.subTest(error=error), self.assertRaisesRegex(RuntimeError, str(error)):
+                self.run_gate({"verdict": "PASS"}, {"publication_allowed": True}, error)
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher, "approval", return_value=self.receipt), \
+             patch.object(publisher.transport, "GitHub", return_value=self.api), \
+             patch.object(publisher, "wait_for_ci", side_effect=publisher.CIPending("still running")):
+            with self.assertRaises(publisher.CIPending):
+                publisher.require_gate_pass(self.args, self.release, {"policy_version": 4})
+
+    def test_missing_approval_local_overrides_and_non_dispatch_runs_never_reach_ci(self):
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher, "approval", side_effect=RuntimeError("Publication is not approved")), \
+             patch.object(publisher.transport, "GitHub") as api:
+            with self.assertRaisesRegex(RuntimeError, "not approved"):
+                publisher.require_gate_pass(self.args, self.release, {})
+            api.assert_not_called()
+        for field in ("candidate_dir", "candidate_zip", "artifact_json", "gate_archive", "run_id", "run_attempt"):
+            with self.subTest(field=field), patch.object(publisher.transport, "GitHub") as api:
+                setattr(self.args, field, 1)
+                with self.assertRaisesRegex(RuntimeError, "local override"):
+                    publisher.require_gate_pass(self.args, self.release, {})
+                api.assert_not_called()
+                setattr(self.args, field, None)
+        for bad in ({"GITHUB_EVENT_NAME": "push"}, {"GITHUB_REPOSITORY": "fork/repo"}):
+            with self.subTest(bad=bad), patch.dict(publisher.os.environ, {**self.environment, **bad}), \
+                 patch.object(publisher.transport, "GitHub") as api:
+                with self.assertRaisesRegex(RuntimeError, "manual publication workflow"):
+                    publisher.require_gate_pass(self.args, self.release, {})
+                api.assert_not_called()
+
+    def test_publish_job_depends_on_a_read_only_pass_gate_job(self):
+        workflow = (REAL_ROOT / publisher.WORKFLOW_PATH).read_text(encoding="utf-8")
+        header, jobs = workflow.split("\njobs:\n", 1)
+        self.assertIn("permissions:\n  contents: read\n  actions: read\n", header)
+        before, gate_job = jobs.split("\n  release-gate:\n", 1)
+        gate_job, publish_job = gate_job.split("\n  publish:\n", 1)
+        self.assertTrue(publish_job.startswith("    needs: release-gate\n"))
+        condition = lambda job: [line for line in job.splitlines() if line.startswith("    if: ")]
+        self.assertEqual(condition(gate_job), condition(publish_job))
+        self.assertEqual(len(condition(gate_job)), 1)
+        self.assertIn("inputs.publish", condition(gate_job)[0])
+        self.assertNotIn("permissions:", gate_job)
+        self.assertEqual(gate_job.count("Tools/publish_release.py --require-gate-pass "), 1)
+        self.assertNotIn("--publish", gate_job)
+        self.assertNotIn("continue-on-error", gate_job)
+
+
 class GateContracts(SourceFixture):
     def setUp(self):
         super().setUp()

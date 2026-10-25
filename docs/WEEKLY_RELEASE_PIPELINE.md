@@ -141,6 +141,18 @@ platform manifests and their original raw files are hash-checked, source/run/
 attempt checked and used to regenerate the connected automatic checks. Missing
 raw evidence cannot be replaced by a summary claiming PASS.
 
+Publication mode runs a dedicated read-only `release-gate` job first
+(`publish_release.py --require-gate-pass`), and the `publish` job `needs:` it.
+The gate job waits for the same exact-source CI, downloads the consolidated gate
+artifact, recomputes it with the approval receipt and fails unless the result
+authorizes publication. A BLOCKED, missing, stale, malformed or pending gate
+fails the job, so publish never starts. The only BLOCKED result that passes is
+an explicit `OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS` receipt for that exact
+version and SHA; its strict verdict stays BLOCKED and is disclosed. The publish
+job repeats every check before staging. The PR/main `consolidate-release-gate`
+job still exits 0 for a valid BLOCKED result, because a PR has no external
+evidence; it only records the verdict and does not authorize anything.
+
 Five binary packages, all checksums, candidate source/attempt, portable payload,
 three platform feed entries, exact download URLs, source SHA and packaged notes
 must agree. Existing IR distribution restrictions remain in force.

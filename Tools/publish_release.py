@@ -402,6 +402,38 @@ def dry_run(args, release, policy, proof):
     return result
 
 
+def require_gate_pass(args, release, policy):
+    """Read-only gate job: fail unless the exact-source gate authorizes publication.
+
+    A BLOCKED gate fails here unless this exact version and SHA carry the
+    owner's explicit validation-gap decision; then the strict verdict stays
+    BLOCKED and is disclosed, never relabelled PASS.
+    """
+    require(not any((args.candidate_dir, args.candidate_zip, args.artifact_json, args.gate_archive,
+                     args.run_id, args.run_attempt)), "Release-gate job cannot consume local override evidence")
+    require(os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+            and os.environ.get("GITHUB_REPOSITORY") == transport.REPO,
+            "Release-gate job requires the repository's manual publication workflow")
+    receipt = approval(release, policy)
+    api = transport.GitHub()
+    ci = wait_for_ci(api, release, args.wait_ci_seconds, lambda: None)
+    build = ci["runs"]["build.yml"]
+    with tempfile.TemporaryDirectory(prefix="chimera-release-gate-") as temporary:
+        gate_archive = Path(temporary) / "release-gate.zip"
+        api.download(f"/actions/artifacts/{ci['gate']['id']}/zip", gate_archive)
+        check_archive(gate_archive, ci["gate"])
+        verdict, decision = verify_release_gate_archive(gate_archive, release, build["id"],
+                                                       build["run_attempt"], policy, receipt)
+    require(isinstance(decision, dict) and decision.get("publication_allowed") is True,
+            "Release gate does not authorize publication")
+    require(verdict.get("verdict") == "PASS" or decision.get("decision") == weekly_publication.GAP_DECISION,
+            "Release-gate verdict is not PASS")
+    print(json.dumps({"version": release.version, "source_sha": release.source_sha, "profile": release.profile,
+        "build_run": build["id"], "run_attempt": build["run_attempt"], "gate_artifact": ci["gate"]["id"],
+        "strict_verdict": verdict["verdict"], "decision": decision["decision"]}, indent=2, ensure_ascii=False))
+    return verdict, decision
+
+
 def publish(args, release, policy, proof):
     require(not any((args.candidate_dir, args.candidate_zip, args.artifact_json, args.gate_archive,
                      args.run_id, args.run_attempt)), "Live publication cannot consume local override evidence")
@@ -491,6 +523,8 @@ def main(argv=None):
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="offline review; the default")
     mode.add_argument("--publish", action="store_true", help="separately approved manual workflow only")
+    mode.add_argument("--require-gate-pass", action="store_true",
+                      help="read-only gate job: fail unless the exact-source release gate is PASS")
     parser.add_argument("--target-version", required=True, help="exact unprefixed beta.N, rc.N or stable version")
     parser.add_argument("--source-sha", required=True, help="exact tested 40-character lowercase product SHA")
     parser.add_argument("--confirm")
@@ -503,10 +537,13 @@ def main(argv=None):
     parser.add_argument("--run-id", type=int)
     parser.add_argument("--run-attempt", type=int)
     args = parser.parse_args(argv)
-    require(args.publish or args.wait_ci_seconds == 0, "CI waiting requires live publication mode")
+    require(args.publish or args.require_gate_pass or args.wait_ci_seconds == 0,
+            "CI waiting requires a live gate or publication mode")
     release = Release(args.target_version, args.source_sha)
     proof = verify_controller_source(release.source_sha, git("rev-parse", "HEAD"))
     policy = release_policy(release)
+    if args.require_gate_pass:
+        return require_gate_pass(args, release, policy)
     return publish(args, release, policy, proof) if args.publish else dry_run(args, release, policy, proof)
 
 
