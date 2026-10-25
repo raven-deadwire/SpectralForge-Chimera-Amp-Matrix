@@ -96,12 +96,16 @@ public:
     }
 
     void setBrand(juce::Image mark,juce::Image emblem) {wordmark=std::move(mark);brandEmblem=std::move(emblem);repaint();}
-    // The editor supplies its cabinet room so players still see their rig;
+    // The editor supplies its cabinet room so players still see their rig.
+    // It is view-only here: amp and cabinet windows belong to the full editor.
     // rigBounds reports each lane's rig in the room's own coordinates.
     void setRoom(std::unique_ptr<juce::Component> view,std::function<juce::Rectangle<int>(int)> bounds={}) {
         if(room)removeChildComponent(room.get());
         room=std::move(view);rigBounds=std::move(bounds);
-        if(room){addAndMakeVisible(*room);room->setVisible(tunerPanel==nullptr);}
+        if(room) {
+            room->setEnabled(false);room->setInterceptsMouseClicks(false,false);
+            addAndMakeVisible(*room);room->setVisible(tunerPanel==nullptr);
+        }
         marker.toFront(false);
         resized();
     }

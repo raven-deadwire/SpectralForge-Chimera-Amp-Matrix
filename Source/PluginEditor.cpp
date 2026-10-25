@@ -1101,8 +1101,6 @@ void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
         easyView->autoUndo=[this]{autoSetController->undo();};
         easyView->chooseAutoOption=[this](int id){dynamicsPanel->chooseAutoOption(id);};
         auto room=std::make_unique<CabRoomOverview>(processor);
-        room->onCabinetSelected=[this](int lane){openCabWorkspace(lane,true);};
-        room->onAmplifierSelected=[this](int lane){openAmpHead(lane);};
         auto* roomView=room.get();
         easyView->setRoom(std::move(room),[roomView](int lane){return roomView->getRigBounds(lane);});
         // A run may have started or finished in the full editor before this
