@@ -241,8 +241,13 @@ def clear_quarantine(folder):
     # Operate on the staged copy only. Unexpected xattr errors abort safely.
     for base, dirs, files in os.walk(folder):
         for path in [Path(base)] + [Path(base) / name for name in files]:
-            if "com.apple.quarantine" in os.listxattr(path):
-                os.removexattr(path, "com.apple.quarantine")
+            # Python's os.*xattr API is Linux-only. Use the macOS system
+            # utility and distinguish an absent attribute from query failure.
+            attributes = subprocess.run(["/usr/bin/xattr", str(path)], check=True,
+                                        capture_output=True, text=True, timeout=10).stdout.splitlines()
+            if "com.apple.quarantine" in attributes:
+                subprocess.run(["/usr/bin/xattr", "-d", "com.apple.quarantine", str(path)],
+                               check=True, timeout=10)
 
 
 def remove_owned(folder, platform):

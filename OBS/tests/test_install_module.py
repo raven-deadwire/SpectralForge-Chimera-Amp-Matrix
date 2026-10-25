@@ -410,10 +410,10 @@ sys.exit(m.main())
         shutil.rmtree(payload)
         shutil.copytree(self.fixture / payload.name, payload)
         manifest(self.package)
-        os.setxattr(payload, "com.apple.quarantine", b"0081;fixture;Chimera;")
+        subprocess.run(["/usr/bin/xattr", "-w", "com.apple.quarantine", "0081;fixture;Chimera;", str(payload)], check=True)
         self.run_install()
-        self.assertIn("com.apple.quarantine", os.listxattr(payload))
-        self.assertNotIn("com.apple.quarantine", os.listxattr(self.target))
+        self.assertIn("com.apple.quarantine", subprocess.check_output(["/usr/bin/xattr", str(payload)], text=True).splitlines())
+        self.assertNotIn("com.apple.quarantine", subprocess.check_output(["/usr/bin/xattr", str(self.target)], text=True).splitlines())
 
 
 if __name__ == "__main__":
