@@ -9,7 +9,6 @@ macos: <output>/chimera-obs.plugin (README, LICENSE and SOURCE in Contents/Resou
 """
 import argparse
 import importlib.util
-import json
 from pathlib import Path
 import re
 import shutil
@@ -17,7 +16,7 @@ import subprocess
 
 OBS = Path(__file__).resolve().parents[1]
 REPOSITORY = "raven-deadwire/SpectralForge-Chimera-Amp-Matrix"
-spec = importlib.util.spec_from_file_location("install_module", OBS / "packaging/install_module.py")
+spec = importlib.util.spec_from_file_location("installer_payload", OBS / "tools/installer_payload.py")
 installer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(installer)
 
@@ -76,10 +75,18 @@ def main() -> None:
     files = installer.inventory(payload)
     if set(files) != installer.owned_files(args.platform):
         raise SystemExit("Staged payload differs from installer-owned inventory")
-    (args.output / "payload-manifest.json").write_text(
-        json.dumps({"schema": 1, "platform": args.platform, "files": files}, indent=2) + "\n", encoding="utf-8")
+    (args.output / "payload-manifest.txt").write_text(
+        "chimera-obs-v1 " + args.platform + "\n" + "".join(
+            f"{entry['sha256']} {entry['mode']:03o} {name}\n" for name, entry in sorted(files.items())), encoding="utf-8")
     installer.verify_payload(payload, files, args.platform)
-    shutil.copy2(OBS / "packaging/install_module.py", args.output / "install_module.py")
+    # Compile on the build runner, then ship the native executable. Python is
+    # a developer/CI tool only; users never compile or install a runtime.
+    executable = args.output / "chimera-obs-installer"
+    subprocess.run(["c++", "-std=c++17", "-O2", "-Wall", "-Wextra", "-Werror",
+                    str(OBS / "packaging/install-module.cpp"), "-o", str(executable)], check=True)
+    if args.platform == "macos":
+        subprocess.run(["codesign", "--force", "--sign", "-", "--timestamp=none", str(executable)], check=True)
+        subprocess.run(["codesign", "--verify", "--strict", str(executable)], check=True)
     print(f"staged {args.platform} OBS filter {module_version()} in {args.output}")
 
 

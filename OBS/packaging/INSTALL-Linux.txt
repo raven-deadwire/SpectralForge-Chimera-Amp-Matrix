@@ -22,7 +22,7 @@ then add Filters → SpectralForge Chimera to an audio source. Remove with ./ins
 only the installed files. Built and tested with libobs 30.0.2 (Ubuntu 24.04).
 
 [설치 보호 / Installation safety]
-Python 3.9 이상 필요. root로 실행하지 마세요. 설치·제거가 끝날 때까지 OBS를 종료 상태로 유지하세요.
+네이티브 설치 프로그램이 포함되어 있어 Python이나 컴파일러를 따로 설치할 필요가 없습니다. root로 실행하지 마세요. 설치·제거가 끝날 때까지 OBS를 종료 상태로 유지하세요.
 OBS 실행 여부 확인 실패도 설치·제거를 차단합니다. 후보 파일의 전체 목록·SHA-256·권한을 검사하고,
 macOS에서는 번들 서명도 검사한 뒤 기존 설치와 원자 교체합니다. 지원하지 않는 파일시스템에서는 중단합니다.
 오류·중단 시 기존 설치로 복구하며, 강제 종료(SIGKILL) 후에는 같은 스크립트를 다시 실행하면 복구합니다.
@@ -30,7 +30,7 @@ macOS에서는 번들 서명도 검사한 뒤 기존 설치와 원자 교체합�
 빈 .chimera-obs-install.lock은 동시 설치 방지용으로 남습니다. OBS 장면·설정·다른 플러그인·Chimera VST3는 보존합니다.
 macOS 번들 안에 사용자 파일을 추가했다면 업데이트 전에 밖으로 옮겨야 합니다. 제거 시에는 사용자 파일을 보존합니다.
 
-Requires Python 3.9+. Do not run as root. Keep OBS closed until installation/removal finishes.
+The native installer is included. No Python or compiler installation is required. Do not run as root. Keep OBS closed until installation/removal finishes.
 Unknown process state also blocks changes. Full payload SHA-256/inventory/permissions and macOS signatures are
 checked before atomic replacement; unsupported filesystems fail without deleting the old installation.
 Errors and catchable interruptions restore the previous copy. After SIGKILL, rerun this script to recover.

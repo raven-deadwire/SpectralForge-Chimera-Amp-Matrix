@@ -124,7 +124,7 @@ macOS(Apple silicon)도 libobs 개발 패키지가 없으므로 OBS 31.1.2 Apple
 | Linux x86_64 | `chimera-obs-linux-x86_64-*.tar.gz` | `~/.config/obs-studio/plugins/chimera-obs/{bin/64bit,data}` | libobs 30.0.2 (Ubuntu 24.04) |
 | macOS Apple silicon | `chimera-obs-macos-arm64-*.zip` | `~/Library/Application Support/obs-studio/plugins/chimera-obs.plugin` | OBS 31.1.2 Apple |
 
-- `./install.sh`는 Python 3.9 이상(표준 라이브러리만 사용)이 필요하다. macOS·Linux 모두 root 실행을 거부한다.
+- `./install.sh`는 패키지에 포함된 네이티브 `chimera-obs-installer`를 실행한다. 사용자에게 Python이나 컴파일러 설치를 요구하지 않는다. Python과 C++ 컴파일러는 개발·패키지 빌드·CI에만 사용한다. macOS·Linux 모두 root 실행을 거부한다.
   OBS 실행 중이거나 `pgrep` 누락·오류·시간 초과로 실행 여부를 확인할 수 없으면 설치·업데이트·제거를 막는다(PR #149와 같은 fail-closed 정책).
 - 후보를 같은 파일시스템의 숨겨진 트랜잭션 폴더에서 준비하고 전체 파일 목록·SHA-256·권한을 확인한다.
   macOS는 `ditto`로 복사하고 격리 표시를 후보에서만 제거한 뒤 번들 ID와 `codesign --verify --deep --strict`도 확인한다.
