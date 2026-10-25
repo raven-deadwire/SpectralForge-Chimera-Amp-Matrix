@@ -71,11 +71,15 @@ def main():
     ap.add_argument('--warm-start',type=Path,help='Initialize from a prior run with the same architecture and frozen native source; reset optimizer and re-score validation')
     ap.add_argument('--tail-fraction',type=float,default=0.,help='Fraction of training windows drawn from the final captured decay')
     ap.add_argument('--center-training-output',action='store_true',help='Train the same zero-history-corrected response that is exported')
+    ap.add_argument('--amplitude-weight',type=float,default=0.,help='Legacy loss: weight each sample by 1+A*|target|/window peak, so loud passages count more')
+    ap.add_argument('--overshoot-weight',type=float,default=0.,help='Legacy loss: penalize output beyond the window\'s target peak (attack overshoot)')
     ap.add_argument('--diagnostic-extra-dilations',help='Comma-separated dilations appended (kernel 6) to the A2 layer array. '
       'Diagnostic only: the result is not an A2 model, cannot load in the target player and is exported as Diagnostic-*.nam')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
     if args.resume and args.warm_start:raise ValueError('Choose resume or warm-start')
     if not 0<=args.tail_fraction<=.25:raise ValueError('Tail fraction must be between 0 and .25')
+    if args.amplitude_weight<0 or args.overshoot_weight<0:raise ValueError('Loss weights must be nonnegative')
+    if args.recipe!='legacy' and (args.amplitude_weight or args.overshoot_weight):raise ValueError('Loss weights apply to the legacy recipe only')
     if min(args.steps,args.batch,args.frames,args.threads,args.lr,args.lr_half_life)<=0:raise ValueError('Positive training budget and optimizer settings required')
     manifest=verify_audio_manifest(args.data)
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
@@ -108,6 +112,7 @@ def main():
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
+      'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
@@ -216,8 +221,12 @@ def main():
         if recipe_loss is not None:loss=recipe_loss(pred,yy)
         else:
             power=yy.square().mean(dim=-1).clamp_min(.0001) if args.loss_normalization=='window' else channel_power
-            loss=((pred-yy).square().mean(dim=-1)/power).mean()
+            peak=yy.abs().amax(dim=-1,keepdim=True).clamp_min(1e-6)
+            weight=1+args.amplitude_weight*yy.abs()/peak
+            loss=(((pred-yy).square()*weight).mean(dim=-1)/weight.mean(dim=-1)/power).mean()
             loss+=.1*((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power).mean()
+            if args.overshoot_weight:
+                loss+=args.overshoot_weight*(torch.relu(pred.abs()-peak).square().mean(dim=-1)/power).mean()
         if not torch.isfinite(loss):raise RuntimeError('Nonfinite training loss')
         opt.zero_grad();loss.backward()
         if args.recipe=='legacy':torch.nn.utils.clip_grad_norm_(model.parameters(),5.)
