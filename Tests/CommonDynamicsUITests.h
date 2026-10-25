@@ -127,23 +127,31 @@ inline void recalledCompressorSwitch() {
 // navigation, not a sound edit.
 inline void autoSetEntry(ChimeraProcessor& p,spectralforge::CommonDynamicsPanel& panel) {
     auto* start=find<juce::TextButton>(panel,"commonDynamics.autoSet");auto* undo=find<juce::TextButton>(panel,"commonDynamics.autoUndo");
-    require(start && undo,"Auto Set controls missing");
+    auto* tone=find<juce::ComboBox>(panel,"commonDynamics.autoTone");
+    require(start && undo && tone,"Auto Set controls missing");
     for(const auto page:{Page::compressor,Page::gate,Page::limiter,Page::multiband,Page::deesser}) {
         panel.selectPage(page);settle(20);
         const bool expected=page==Page::compressor || page==Page::gate;
-        require(start->isShowing()==expected && undo->isShowing()==expected,"Auto Set visibility does not match its page");
-        if(expected)require(panel.getLocalBounds().contains(start->getBounds()) && panel.getLocalBounds().contains(undo->getBounds()) && !start->getBounds().intersects(undo->getBounds()),
+        require(start->isShowing()==expected && undo->isShowing()==expected && tone->isShowing()==expected,"Auto Set visibility does not match its page");
+        if(expected)require(panel.getLocalBounds().contains(start->getBounds()) && panel.getLocalBounds().contains(undo->getBounds()) && panel.getLocalBounds().contains(tone->getBounds())
+                            && !start->getBounds().intersects(undo->getBounds()) && !start->getBounds().intersects(tone->getBounds()) && !tone->getBounds().intersects(undo->getBounds()),
                             "Auto Set controls are clipped or overlap");
     }
     panel.selectPage(Page::compressor);settle(20);
     const auto before=signalPathTests::values(p);
     require(!undo->isEnabled(),"Undo is available before any Auto Set");
+    require(tone->getSelectedItemIndex()==0 && tone->getNumItems()==4,"Tone step does not default to automatic instrument detection");
+    tone->setSelectedItemIndex(3,juce::sendNotificationSync);settle(20);
     signalPathTests::click(*start);settle(30);
-    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening"),"Auto Set did not enter listening");
+    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/2") && !tone->isEnabled(),"Auto Set with the tone step off did not listen in two passes");
     signalPathTests::click(*start);settle(30);
-    require(start->getButtonText()=="AUTO SET" && panel.autoSetStatus().contains("cancelled") && !undo->isEnabled(),"Auto Set did not cancel");
+    tone->setSelectedItemIndex(0,juce::sendNotificationSync);settle(20);
+    signalPathTests::click(*start);settle(30);
+    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/3"),"Auto Set did not enter listening with the Tone EQ step");
+    signalPathTests::click(*start);settle(30);
+    require(start->getButtonText()=="AUTO SET" && panel.autoSetStatus().contains("cancelled") && !undo->isEnabled() && tone->isEnabled(),"Auto Set did not cancel");
     require(signalPathTests::values(p)==before,"Starting or cancelling Auto Set changed sound parameters");
-    std::cout<<"PASS auto set entry: compressor/gate pages only, unclipped, listen/cancel without parameter writes\n";
+    std::cout<<"PASS auto set entry: compressor/gate pages only, unclipped, tone step menu (auto default, off = two passes), listen/cancel without parameter writes\n";
 }
 inline void measuredStageContracts(const juce::File& directory);
 inline void run(const juce::File& directory) {

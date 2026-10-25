@@ -299,6 +299,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer);}
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     measureStage(2,buffer);
+    autoSetCaptureState.push(spectralforge::autoset::Tap::tone,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     toneEQ.process(buffer);
     autoSetCaptureState.push(spectralforge::autoset::Tap::compressor,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer);}
