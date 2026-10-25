@@ -303,6 +303,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     toneEQ.process(buffer);
     autoSetCaptureState.push(spectralforge::autoset::Tap::compressor,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer);}
+    autoSetCaptureState.push(spectralforge::autoset::Tap::multiband,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer);}
     autoSetCaptureState.push(spectralforge::autoset::Tap::deesser,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
