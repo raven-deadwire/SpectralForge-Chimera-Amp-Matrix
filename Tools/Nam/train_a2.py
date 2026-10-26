@@ -182,7 +182,9 @@ def main():
     elif (args.out/'checkpoint.pt').exists():raise RuntimeError('Use --resume or a fresh output directory')
     elif args.warm_start:
         prior=json.loads((args.warm_start/'training-config.json').read_text())
-        if prior['config']!=cfg or prior['source']!=source:
+        # The native source must match; the training excerpt (train_seed) may differ.
+        native=lambda src:{k:v for k,v in src.items() if k!='train_seed'}
+        if prior['config']!=cfg or native(prior['source'])!=native(source):
             raise RuntimeError('Warm-start architecture or capture source mismatch')
         prior_gains=np.broadcast_to(np.asarray(prior['training_target_gain'],dtype=np.float64),gains.shape)
         ck=torch.load(args.warm_start/'checkpoint.pt',map_location='cpu',weights_only=False)
