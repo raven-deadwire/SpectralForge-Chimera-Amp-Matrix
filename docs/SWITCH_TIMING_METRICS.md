@@ -92,7 +92,11 @@ running on another thread, Chimera now:
    generates the recalled cabinet models of several mics side by side
    (`IRLibrary::pregenerate`: one on the worker, the others on short-lived
    low-priority helpers), and the recall wakes it as soon as the requests are
-   set instead of at its next 20 ms poll.
+   set instead of at its next 20 ms poll. For the A/B slot that is not
+   playing, the worker generates its modeled cabinets ahead of time while
+   idle (`IRLibrary::keepWarm`, refreshed on A/B switch, COPY and project
+   load) and keeps them in the response cache ahead of other entries, so an
+   A/B switch installs them without generating.
 
 Without step 1, the new parameters already reach the old DSP on the next
 block and the jump is audible however the output is faded afterwards. Offline
@@ -186,7 +190,9 @@ wait was rendered faster than real time, which inflated `gap_ms` to
 | preset 17 > 33 | 2 (third cached) | 166–198 | 95–132 |
 | A > B | 3 | 203–225 | 90–117 |
 
-At 64 samples: 124–127, 100–106 and 93–111 ms. Overshoot stays 0 dB (at most
+At 64 samples: 124–127, 100–106 and 93–111 ms. With the inactive A/B slot's
+cabinets warmed ahead (four runs, 256 samples), A > B mutes for 74–90 ms;
+presets are unchanged. Overshoot stays 0 dB (at most
 0.1) and click ≤ 1 dB. Where the time goes after the change (wall clock,
 17 > 33): about 50 ms while the message thread fades out and applies the
 state, about 50 ms generating the models (the slowest one, 35–80 ms each),
@@ -207,11 +213,12 @@ then the 20 ms settle and the fade-in.
    values (about 20 ms) and from the old cabinet playing until the new one
    was built. The 20 ms settle and the cabinet wait remove both (overshoot
    0 dB, click ≤ 1 dB).
-4. **A recall mutes for about 0.1 s** (90–140 ms in this container, see
-   "Recall mute" below) while the recalled cabinets are generated and
-   installed. It was 135–225 ms with the cabinets built mic after mic and
-   each crossfaded 50 ms behind the mute. Keeping both A/B slots' kernels
-   ready would remove most of what remains for A/B; not done.
+4. **A recall mutes for about 0.1 s** (90–140 ms in this container for a
+   preset, 74–90 ms for A/B, see "Recall mute" below). It was 135–225 ms
+   with the cabinets built mic after mic and each crossfaded 50 ms behind
+   the mute. For A/B the cabinets are now ready before the switch; what is
+   left is applying the state on the message thread (about 50 ms), the
+   latency and 20 ms settle, and the fades.
 5. **Switch blocks can exceed the block budget** in this container,
    especially at 64 samples and for recalls. Re-measure on reference
    hardware; if confirmed, move the reset work off the switch block.

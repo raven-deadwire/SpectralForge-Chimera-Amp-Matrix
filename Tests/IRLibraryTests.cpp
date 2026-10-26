@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <thread>
 
 namespace {
 void require(bool value,const char* message) {if(!value)throw std::runtime_error(message);}
@@ -132,6 +133,35 @@ void modelWorkerCancellation() {
     std::cout<<"PASS modeled_worker_cancellation cancelled_builds="<<abandoned
         <<" latest_six_mics=converged stop_us="<<stopUs<<" reprepare=synchronous resources=released\n";
 }
+
+// The next A/B slot's modeled cabinets are generated while idle and survive
+// a burst of other models that would have pushed them out of a FIFO cache.
+void warmCacheForNextRecall() {
+    namespace layout=spectralforge::cabLayout;
+    const juce::dsp::ProcessSpec settings{48000,256,2};
+    std::array<spectralforge::Cab,3> cabinets;
+    spectralforge::IRLibrary library{{&cabinets[0],&cabinets[1],&cabinets[2]}};
+    const auto keyAt=[](double position){return layout::key({{{true,0,0,0,1,.2,position,10},1,1,0},1,0});};
+    const std::array<uint64_t,6> warm{keyAt(.31),keyAt(.32),0,keyAt(.33),0,0};
+    for(auto& cabinet:cabinets)cabinet.prepare(settings);
+    library.keepWarm(warm);
+    library.prepare(settings,{0,0,0});
+    const auto waitFor=[](auto done){const auto end=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+        while(!done() && std::chrono::steady_clock::now()<end)std::this_thread::sleep_for(std::chrono::milliseconds(5));return done();};
+    require(waitFor([&]{return library.warmedResponseCount()>=3;}),"idle worker did not warm the next recall's models");
+    // Fourteen other models through the cabinets, as a long edit would.
+    juce::AudioBuffer<float> audio(2,256);
+    for(int n=0;n<14;++n) {
+        const auto key=keyAt(.5+.01*n);cabinets[0].requestedModel=key;
+        require(waitFor([&]{audio.clear();cabinets[0].process(audio);return cabinets[0].activeModel.load()==key && cabinets[0].settled();}),
+                "worker did not install an edited model");
+    }
+    library.stop();
+    for(const auto model:warm)
+        require(model==0 || library.cachesResponse(model),"a warmed model was evicted by unrelated edits");
+    require(library.warmedResponseCount()==3,"warmed models were generated again");
+    std::cout<<"PASS warm_next_recall models=3 kept_after_edits=14\n";
+}
 }
 
 int main() {
@@ -172,6 +202,7 @@ int main() {
         equalAudio(audio,render(restored.cabinets[0]));
         require(restored.cabinets[1].activeSource.load()==0 && restored.cabinets[2].activeSource.load()==0,"IR restore changed unrelated lanes");
         modelWorkerCancellation();
+        warmCacheForNextRecall();
         std::cout<<"PASS: remove-from-list preserves source WAV, active convolution, embedded project bytes and bass classification; binary recall renders identical audio without the source file\n";
         return 0;
     } catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}

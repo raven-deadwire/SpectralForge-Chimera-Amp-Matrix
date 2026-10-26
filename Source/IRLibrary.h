@@ -26,6 +26,17 @@ public:
     // A recall finished setting the cabinet requests: look at them now
     // instead of at the worker's next 20 ms poll.
     void wake() { notify(); }
+    // Message thread: modeled cabinets a likely next recall (the A/B slot
+    // that is not playing) asks for. When idle, the worker generates them
+    // into the response cache and evicts other responses first, so that
+    // recall installs without generating. Zero entries are ignored.
+    void keepWarm(const std::array<uint64_t,6>& models);
+    // Diagnostics: responses warmed since construction (any thread), and
+    // whether a response is cached (only after stop() joins the worker).
+    unsigned warmedResponseCount() const noexcept {return warmedResponses.load(std::memory_order_relaxed);}
+    bool cachesResponse(uint64_t model) const {
+        return std::any_of(modelCache.begin(),modelCache.end(),[model](const auto& item){return item.key==model;});
+    }
     void stop();
     // Call only with host processing stopped, e.g. after releaseResources.
     bool resourcesReleased() const noexcept;
@@ -68,7 +79,14 @@ private:
         juce::AudioBuffer<float> samples;
         std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
     };
-    std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
+    std::deque<CachedModel> modelCache; // Twelve responses, worker/prepare only; bounded FIFO, warm ones kept.
+    static constexpr size_t modelCacheSize=12;
+    std::array<uint64_t,6> warmModels{}; // guarded by mutex
+    std::atomic<unsigned> warmRevision{},warmedResponses{};
+    std::pair<unsigned,uint64_t> warmFailed{}; // worker only: skip until the list changes
+    bool isWarm(uint64_t model) const;
+    void trimModelCache();
+    bool warmOne();
     // Responses that helper threads generated for this worker pass; build()
     // takes them instead of generating. Worker only, emptied every pass.
     std::vector<CachedModel> pregenerated;
