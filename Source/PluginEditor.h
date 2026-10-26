@@ -165,6 +165,8 @@ private:
     juce::TextButton tunerOpen{"TUNER"},easyOpen{"EASY VIEW"};
     std::unique_ptr<EasyModeView> easyView;
     bool easyMode{};
+    int presetOrigin{}; // Factory preset (id) the current CUSTOM sound started from, or 0.
+    void publishAutoSetStatus();
     bool tunerViewOpen{};
     bool showRigControls{};
     int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.
