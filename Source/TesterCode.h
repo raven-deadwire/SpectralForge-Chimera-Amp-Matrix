@@ -1,11 +1,11 @@
 #pragma once
 #include <juce_core/juce_core.h>
 #include <juce_cryptography/juce_cryptography.h>
-#if __has_include("ChimeraTesterSecret.h")
-#include "ChimeraTesterSecret.h"
-#endif
-#ifndef CHIMERA_TESTER_SECRET_HEX
-#define CHIMERA_TESTER_SECRET_HEX ""
+#include <vector>
+#if __has_include("ChimeraTesterAllowlist.h")
+#include "ChimeraTesterAllowlist.h"
+#else
+inline constexpr const char* chimeraTesterAllowlistDigests[] = { nullptr };
 #endif
 
 #if JUCE_MAC || JUCE_LINUX || JUCE_BSD
@@ -17,88 +17,83 @@
 #endif
 
 namespace spectralforge::beta::tester {
-// Beta tester codes lift the beta expiry for this and every later beta built
-// with the same secret. A code is short enough to type: CHT1-<NAME>-<CHECK>,
-// e.g. CHT1-ZIEL-7K3Q9X. CHECK is the first 30 bits of
-// HMAC-SHA256(secret, domain + "|" + NAME) in Crockford base32, so one code
-// does not reveal another. The secret is injected at configure time from the
-// CHIMERA_TESTER_SECRET environment variable (Tools/tester_code.py secret) and
-// is never committed; a build without it accepts no codes. Anyone who extracts
-// the secret from a binary can make codes: like the expiry itself, this is basic
-// offline control, not tamper-proof DRM. The accepted code is stored for this
-// user on this computer and is never written into a project, preset or reference file.
+// Only pre-issued full-code digests are shipped. No issuance key, HMAC or code
+// generator is present in the product. The owner tool issues codes separately.
+// Keep approved digests in later beta builds to preserve indefinite beta rights.
+// Six Base32 characters carry only 30 bits: hashes permit offline guessing and
+// this limited beta-access scheme is NOT strong licensing or anti-copy DRM.
 inline constexpr const char* prefix = "CHT1";
-inline constexpr const char* domain = "chimera-tester-v1";
+inline constexpr const char* domain = "chimera-tester-allowlist-v1";
 inline constexpr const char* alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 inline constexpr int minNameLength = 2;
 inline constexpr int maxNameLength = 16;
 inline constexpr int checkLength = 6;
 inline constexpr int maxCodeLength = 64;
 inline constexpr int maxPastedLength = 256;
+using Allowlist = std::vector<juce::String>;
 
 struct Grant {
     bool valid{};
     juce::String name, error;
+    // Retain the verified spelling; never reconstruct/issue a code from a name.
+    juce::String canonicalCode;
 };
 
 namespace detail {
-inline juce::MemoryBlock hmacSHA256(const juce::MemoryBlock& key,const juce::String& message) {
-    constexpr size_t block=64;
-    juce::MemoryBlock k(key);
-    if(k.getSize()>block)k=juce::SHA256(k.getData(),k.getSize()).getRawData();
-    k.ensureSize(block,true);
-    juce::MemoryBlock inner,outer;
-    for(size_t i=0;i<block;++i) {
-        const auto b=(juce::uint8)k[i];
-        const juce::uint8 in=b^0x36,out=b^0x5c;inner.append(&in,1);outer.append(&out,1);
-    }
-    const auto text=message.toUTF8();
-    inner.append(text.getAddress(),text.sizeInBytes()-1);
-    const auto innerHash=juce::SHA256(inner.getData(),inner.getSize()).getRawData();
-    outer.append(innerHash.getData(),innerHash.getSize());
-    return juce::SHA256(outer.getData(),outer.getSize()).getRawData();
-}
-inline juce::String check(const juce::MemoryBlock& secret,const juce::String& name) {
-    const auto mac=hmacSHA256(secret,juce::String(domain)+"|"+name);
-    juce::uint32 bits=0;
-    for(size_t i=0;i<4;++i)bits=(bits<<8)|(juce::uint8)mac[i];
-    juce::String out;
-    for(int i=0;i<checkLength;++i)out+=juce::String::charToString(alphabet[(bits>>(27-5*i))&31u]);
-    return out;
-}
 inline bool validName(const juce::String& name) {
     return name.length()>=minNameLength && name.length()<=maxNameLength
         && name.containsOnly("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 }
-// Typing aids for the check part only: lower case, O for 0, I or L for 1.
 inline juce::String canonicalCheck(juce::String text) {
     return text.toUpperCase().replaceCharacter('O','0').replaceCharacter('I','1').replaceCharacter('L','1');
 }
+inline bool validDigest(const juce::String& value) {
+    return value.length()==64 && value.containsOnly("0123456789abcdef");
+}
+inline juce::String digest(const juce::String& canonicalCode) {
+    const auto message=juce::String(domain)+"|"+canonicalCode;
+    return juce::SHA256(message.toRawUTF8(),message.getNumBytesAsUTF8()).toHexString();
+}
 } // namespace detail
 
-inline juce::MemoryBlock productSecret() {
-    juce::MemoryBlock secret;secret.loadFromHexString(CHIMERA_TESTER_SECRET_HEX);return secret;
+inline Allowlist productAllowlist() {
+    Allowlist result;
+    for(const auto* digest:chimeraTesterAllowlistDigests) {
+        if(digest==nullptr)break;
+        result.emplace_back(digest);
+    }
+    return result;
 }
-inline bool enabled(const juce::MemoryBlock& secret=productSecret()) {return secret.getSize()>=16;}
+inline bool enabled(const Allowlist& allowlist=productAllowlist()) {
+    if(allowlist.empty())return false;
+    for(const auto& digest:allowlist)if(!detail::validDigest(digest))return false;
+    return true;
+}
 
-inline Grant verify(juce::String code,const juce::MemoryBlock& secret=productSecret()) {
-    if(!enabled(secret))return {false,{},"Beta tester codes are not enabled in this build."};
+inline Grant verify(juce::String code,const Allowlist& allowlist=productAllowlist()) {
+    if(!enabled(allowlist))return {false,{},"Beta tester codes are not enabled in this build."};
     if(code.length()>maxPastedLength)return {false,{},"The pasted code is too long."};
+    // Reject non-ASCII before case folding (including Unicode lookalikes).
+    for(const auto character:code)if(character>127)return {false,{},"The code contains invalid characters."};
     code=code.removeCharacters(" \t\r\n");
     if(code.length()>maxCodeLength)return {false,{},"The code is too long."};
     const auto parts=juce::StringArray::fromTokens(code,"-",{});
-    if(code.length()>maxCodeLength || parts.size()!=3 || parts[0].toUpperCase()!=prefix)
+    if(parts.size()!=3 || parts[0].toUpperCase()!=prefix)
         return {false,{},"Not a Chimera beta tester code. It looks like CHT1-NAME-XXXXXX."};
     const auto name=parts[1].toUpperCase();
-    if(!detail::validName(name) || parts[2].length()!=checkLength)
+    const auto check=detail::canonicalCheck(parts[2]);
+    if(!detail::validName(name) || check.length()!=checkLength || !check.containsOnly(alphabet))
         return {false,{},"The code is incomplete. Copy it again in full."};
-    if(detail::canonicalCheck(parts[2])!=detail::check(secret,name))
-        return {false,{},"This code is not valid for Chimera."};
-    return {true,name,{}};
+    const auto normalised=juce::String(prefix)+"-"+name+"-"+check;
+    const auto digest=detail::digest(normalised);
+    bool found=false;
+    // Only digest equality is checked. Prefix/name alone convey no entitlement.
+    for(const auto& approved:allowlist)found=found || approved==digest;
+    if(!found)return {false,{},"This code is not registered for this Chimera build."};
+    return {true,name,{},normalised};
 }
-// The one spelling a verified code is stored and shown in.
-inline juce::String canonical(const Grant& grant,const juce::MemoryBlock& secret=productSecret()) {
-    return grant.valid?juce::String(prefix)+"-"+grant.name+"-"+detail::check(secret,grant.name):juce::String{};
+inline juce::String canonical(const Grant& grant) {
+    return grant.valid ? grant.canonicalCode : juce::String{};
 }
 
 // Per-user, per-computer storage. Only a verified code is ever written.
@@ -139,13 +134,13 @@ struct Store {
            || !juce::CharPointer_UTF8::isValidString((const char*)bytes.getData(),(int)bytes.getSize()))return {};
         return juce::String::fromUTF8((const char*)bytes.getData(),(int)bytes.getSize()).trim();
     }
-    static Grant load(const juce::File& storage=file(),const juce::MemoryBlock& secret=productSecret()) {
+    static Grant load(const juce::File& storage=file(),const Allowlist& allowlist=productAllowlist()) {
         const auto code=read(storage);
-        return code.isEmpty() ? Grant{} : verify(code,secret);
+        return code.isEmpty() ? Grant{} : verify(code,allowlist);
     }
-    static Grant save(const juce::String& code,const juce::File& storage=file(),const juce::MemoryBlock& secret=productSecret()) {
-        auto grant=verify(code,secret);
-        if(grant.valid && !(storage.getParentDirectory().createDirectory().wasOk() && writePrivate(storage,canonical(grant,secret))))
+    static Grant save(const juce::String& code,const juce::File& storage=file(),const Allowlist& allowlist=productAllowlist()) {
+        auto grant=verify(code,allowlist);
+        if(grant.valid && !(storage.getParentDirectory().createDirectory().wasOk() && writePrivate(storage,canonical(grant))))
             grant={false,{},"The code is valid but could not be saved on this computer."};
         return grant;
     }

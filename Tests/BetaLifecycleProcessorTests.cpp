@@ -395,27 +395,27 @@ void testerExtension() {
         for(int c=0;c<2;++c)for(int n=0;n<128;++n)require(out.getSample(c,n)==comparison.getSample(c,n),"tester instance differs from unrestricted audio");
         require(muted.getMagnitude(0,128)==0,"expired control emitted audio");
     }
-    // Exercise the real deletion method with isolated storage and a test key.
-    // No test touches the actual user's code or changes the product key.
+    // Exercise the real deletion method with isolated storage and a test allowlist.
+    // No test touches the actual user's code or changes the product allowlist.
     const auto directory=juce::File::createTempFile("tester-removal");
     require(directory.createDirectory().wasOk(),"removal directory");
     const auto file=directory.getChildFile("code.txt");
-    juce::MemoryBlock key;key.loadFromHexString(testercode::testSecretHex);
+    const auto allowlist=testercode::allowlist();
     using Store=spectralforge::beta::tester::Store;
-    require(Store::save(testercode::zielCode,file,key).valid,"save isolated code");
-    auto stored=ChimeraBetaTestAccess::create(beta,clockNow,Store::load(file,key));
+    require(Store::save(testercode::alphaCode,file,allowlist).valid,"save isolated code");
+    auto stored=ChimeraBetaTestAccess::create(beta,clockNow,Store::load(file,allowlist));
     const auto blocked=directory.getChildFile("blocked");
     require(blocked.createDirectory().wasOk(),"blocked removal path");
     require(!ChimeraBetaTestAccess::remove(*stored,blocked)
-            && stored->testerCodeHolder()=="ZIEL"
+            && stored->testerCodeHolder()=="ALPHA"
             && stored->betaStatus().status==spectralforge::beta::Status::testerExtended,
             "failed removal cleared the visible entitlement");
     juce::MemoryBlock project;stored->getStateInformation(project);
     const auto xml=juce::AudioProcessor::getXmlFromBinary(project.getData(),int(project.getSize()));
-    require(xml && !xml->toString().contains("ZIEL") && !xml->toString().contains("CHT1-"),"tester identity/code leaked into project");
+    require(xml && !xml->toString().contains("ALPHA") && !xml->toString().contains("CHT1-"),"tester identity/code leaked into project");
     require(ChimeraBetaTestAccess::remove(*stored,file) && !file.exists(),"code removal failed");
     require(stored->testerCodeHolder().isEmpty() && stored->betaProcessingPermitted(),"successful removal interrupted running instance");
-    auto reopened=ChimeraBetaTestAccess::create(beta,clockNow,Store::load(file,key));
+    auto reopened=ChimeraBetaTestAccess::create(beta,clockNow,Store::load(file,allowlist));
     reopened->setStateInformation(project.getData(),int(project.getSize()));
     require(!reopened->betaProcessingPermitted() && reopened->testerCodeHolder().isEmpty(),"project restored removed entitlement");
     sound(*reopened,0,0);prepare(*reopened,2,48000,128);input(muted,0);reopened->processBlock(muted,midi);
