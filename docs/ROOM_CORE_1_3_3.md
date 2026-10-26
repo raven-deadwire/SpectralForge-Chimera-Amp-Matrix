@@ -93,15 +93,15 @@ return. Reported latency and the DI alignment stay as they are.
   damping gains move linearly across each block (stepping them per block was
   a zipper: 8.1× the room's own edge level on a 50 → 0 % jump).
 - Mode change (Classic/Dual/Matrix) keeps the room running; lanes that stop
-  existing simply stop sending. The engine resets on a mode change, so the
-  direct sound itself switches with an edge (measured 70–175× its steady
-  edge level on a held 41.2 Hz tone, with or without the room); the room
-  repeats that edge. Smoothing the routing change is engine work outside
-  Room Core. Tried and reverted: a 10 ms output fade-out, reset while
-  silent, then a 10 ms fade-in of the output or of the engine input. Both
-  leave a ~3 kHz burst about 170 samples after the reset (up to 0.18 on a
-  0.2 tone, 25–126× the steady edge level), so it comes from how the amps
-  restart after `reset()`, not from the switch itself.
+  existing simply stop sending. The engine used to reset and switch paths
+  at once, a hard edge in the direct sound (70–175× its steady edge level
+  on a held 41.2 Hz tone) that the room then repeated. A reset path also
+  restarts with ~3 ms of silence and a hard onset ringing for ~5 ms, so a
+  fade around the reset alone was not enough. Now the engine fades the old
+  routing out (10 ms), resets and switches, keeps the output and the room
+  send muted for 20 ms while the new path settles, then fades in (10 ms):
+  1.2–1.6× the modes' own edge level. A further change while settling
+  switches again; a change undone during the fade-out fades back in.
 
 ## 4. Processing model (week 2)
 
@@ -197,6 +197,9 @@ installed DAW, the Windows test installer and listening.
   19–38×.
 - Mode change Matrix → Classic: the room keeps processing and its tail; the
   lanes Classic does not have send nothing.
+- Routing change Classic → Dual → Matrix → Classic on a held 41.2 Hz tone:
+  the direct sound's edges stay within twice the modes' own (measured
+  1.2–1.6×; the instant switch was 73–173×).
 - No allocation in the callback with the room on in Classic, Dual and Matrix.
 - Controls: the ROOM entry does not overlap a rig and shows ROOM OFF or the
   active size; the panel shows 1/2/3 sends for Classic/Dual/Matrix and each

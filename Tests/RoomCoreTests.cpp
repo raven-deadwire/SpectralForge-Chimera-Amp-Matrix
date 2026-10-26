@@ -229,12 +229,29 @@ void modeChangeKeepsRoom() {
     set(*p,"roomSend1",0);render(*p,20,110.,.2f,a);render(*plain,20,110.,.2f,b);   // rig 1 alone sends nothing
     for(auto* q:{p.get(),plain.get()})set(*q,"mode",0);
     const auto running=p->roomProcessedSamples();
+    render(*p,8,110.,.2f,a);render(*plain,8,110.,.2f,b);   // the old routing fades out first
     const auto x=render(*p,40,110.,.2f,a),y=render(*plain,40,110.,.2f,b);
-    require(p->roomProcessedSamples()==running+uint64_t(40*block),"A routing change stopped the room");
+    require(p->roomProcessedSamples()==running+uint64_t(48*block),"A routing change stopped the room");
     require(x.roomPeak==0.f,"Lanes the routing mode does not have still excite the room");
     double wet=0;for(size_t i=0;i<x.out.size();++i)wet+=double(x.out[i]-y.out[i])*(x.out[i]-y.out[i]);
     require(wet>1.e-6,"A routing change cut the room tail");
     std::cout<<"PASS mode change: the room keeps running and its tail, missing lanes send nothing\n";
+}
+void routingSwitchIsSmooth() {
+    // The direct sound across Classic -> Dual -> Matrix -> Classic on a held
+    // low tone: no edge beyond twice the larger steady edge of the two modes.
+    auto p=make();int clock=0;
+    const auto edge=[&](int blocks){const auto x=render(*p,blocks,41.2,.2f,clock).out;float e=0;
+        for(size_t i=2;i<x.size();++i)e=std::max(e,std::abs(x[i]-2.f*x[i-1]+x[i-2]));return e;};
+    edge(100);float before=edge(120),worst=0;
+    for(int mode:{1,2,0}) {
+        // Matrix's own level moves, so its steady edge needs a long window.
+        set(*p,"mode",float(mode));const float during=edge(60);edge(60);const float after=edge(120);
+        const float x=during/std::max(before,after);worst=std::max(worst,x);before=after;
+        std::cout<<"MEASURE mode "<<mode<<": direct edge "<<x<<" x steady\n";
+    }
+    require(worst<2.f,"A routing change produces an edge in the direct sound");
+    std::cout<<"PASS routing change: no direct edge beyond the modes' own\n";
 }
 template<class T> T* find(juce::Component& root,const juce::String& id) {
     if(root.getComponentID()==id)if(auto* match=dynamic_cast<T*>(&root))return match;
@@ -334,6 +351,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();switchingIsSmooth();modeChangeKeepsRoom();roomControls();stateAndRecall();noAllocation();return 0;}
+    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();switchingIsSmooth();modeChangeKeepsRoom();routingSwitchIsSmooth();roomControls();stateAndRecall();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }
