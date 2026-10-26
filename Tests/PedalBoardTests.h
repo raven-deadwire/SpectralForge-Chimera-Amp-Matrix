@@ -38,6 +38,8 @@ inline void run() {
             if(model==4){instance.controls[3]=.8f;instance.controls[4]=.8f;}
             if(model==8)instance.controls[1]=.8f;
             if(model==29)instance.controls[6]=control==7?2.f:control<3?1.f:0.f;
+            // Para EQ: a band's frequency and Q act once it has gain; the boost level once boost is on.
+            if(model==40){instance.controls[1]=instance.controls[4]=instance.controls[7]=9.f;instance.controls[10]=1.f;}
             auto high=low;instance.controls[(size_t)control]=spec.controls[(size_t)control].minimum;
             high.instances[0].controls[(size_t)control]=spec.controls[(size_t)control].maximum;
             const float delta=difference(render(a,low,48000,256,70,true),render(b,high,48000,256,70,true));
@@ -76,8 +78,9 @@ inline void run() {
         for(int model=1;model<pedalModelCount;++model) {
             state={};state.enabled=true;state.instances[0]=defaultPedalInstance(model);board.reset();const auto processed=render(board,state,rate);
             state.instances[0].bypass=true;board.reset();const auto dry=render(board,state,rate);
-            // Flat graphic EQ is intentionally transparent at its default.
-            if(model!=31)require(difference(processed,dry)>1e-5f,"Available PRE model produces no audio response");
+            // Flat graphic EQ and Para EQ (gains 0, boost off) are intentionally
+            // transparent at their defaults (ChimeraPedalParaEQTests checks it).
+            if(model!=31 && model!=40)require(difference(processed,dry)>1e-5f,"Available PRE model produces no audio response");
         }
         // A selected spectral octave owner adds its real frame delay, including
         // bypass; other slots retain only their small base transport delay.
