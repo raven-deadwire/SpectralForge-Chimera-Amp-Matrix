@@ -298,6 +298,17 @@ quadrature envelope during global OFF and -59.385 dB during cold ON. The
 for transparent switching. Added regressions characterize that limitation
 without duplicating the existing compensated splitter or claiming a fix.
 
+**Update 2026-10-26:** the global ON/OFF limitation above is fixed on main by
+`63a72f4` (minimum-phase synthesis with the same magnitude, fixed synthesis
+states kept warm while OFF, 10 ms quintic gain transition; LR4 analysis, band
+gain law and zero latency unchanged) and `ffab682` (~6 kHz coefficient
+updates with sample interpolation). Re-running
+`Tools/measure_multiband_bypass_fix.py --skip-cpu` at main `cfeaa53`: all 864
+transitions (4 rates × 4 splits × 9 tones × 3 gain sets × ON/OFF) stay within
+−0.0001 / +0.0 dB, including the dense 40/56/78.4 Hz split that failed the
+earlier candidate (pinned baseline: −59.385 / +3.722 dB). Listening, DAW and
+CPU were not re-run for this update; see the audit document's header note.
+
 The UI now distinguishes global bypass from phase-preserving band bypass and
 Parallel mix=0, and clarifies timing constants. Host parameters, defaults,
 serializer, presets and production DSP remain unchanged. Pro-MB executable

@@ -1,5 +1,16 @@
 # Chimera 독립 멀티밴드 / Pro-MB 검증 — 2026-10-20 KST
 
+> **2026-10-26 갱신 — Global ON/OFF 간섭 해결됨.** 아래 §4의 −28.6 dB / −59.4 dB
+> dip은 2026-10-20 소스 기준이다. 이후 `63a72f4`(LR4 분석·밴드 gain 법칙·0 latency 유지,
+> magnitude가 같은 minimum-phase 합성 출력, OFF 중 고정 합성 state warm-up,
+> 10 ms quintic gain 전환)과 `ffab682`(약 6 kHz 계수 갱신 + 샘플 보간)로 수정되었다.
+> main `cfeaa53`에서 `Tools/measure_multiband_bypass_fix.py --skip-cpu`를 다시 실행한 결과:
+> 4 rate × 4 분할 × 9 tone × gain 3조합 × ON/OFF = 864개 전환 전부 undershoot ≥ −0.0001 dB,
+> overshoot ≤ 0.0 dB(고정 baseline `3a942a1`: −59.385 / +3.722 dB). 중립 288개는 envelope 0 dB이며,
+> 이전 후보가 실패한 40/56/78.4 Hz 밀집 분할도 포함한다. carrier 제거 step 지표 최대
+> −36.02 dBFS(baseline −31.38 dBFS), 정적 임펄스 224쌍 PASS. 실제 DI 청취·DAW·CPU 재측정은
+> 이 갱신에 포함되지 않는다. 아래 본문은 당시 기록으로 그대로 둔다.
+
 ## 판정과 범위
 
 **정상 상태 합산과 내부 Parallel mix는 수치 검증 통과. Global ON/OFF 전환의 위상 간섭은 상당하며 미해결. Pro-MB 실제품 응답 비교와 음향적 동등성은 검증하지 않았다.**
