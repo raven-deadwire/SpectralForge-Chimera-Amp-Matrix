@@ -437,6 +437,14 @@ target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix C
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
 add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
 
+# Switch timing probe: response, settle, residual, click and CPU of channel,
+# amp model, preset and A/B switches (docs/SWITCH_TIMING_METRICS.md).
+juce_add_console_app(ChimeraSwitchTimingProbe PRODUCT_NAME "Chimera Switch Timing Probe")
+target_sources(ChimeraSwitchTimingProbe PRIVATE Tests/SwitchTimingProbe.cpp)
+target_include_directories(ChimeraSwitchTimingProbe PRIVATE Source)
+target_link_libraries(ChimeraSwitchTimingProbe PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraSwitchTimingProbe COMMAND ChimeraSwitchTimingProbe "${CMAKE_BINARY_DIR}/switch-timing.csv")
+
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)
 target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
