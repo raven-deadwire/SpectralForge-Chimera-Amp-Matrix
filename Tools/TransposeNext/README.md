@@ -252,3 +252,6 @@ from the band floor and produced every attack-timing outlier seen so far.
 --event-snr-min` apply a per-event floor (off by default; proposed 10 dB for
 the next pre-registered run). `SpliceTrace.cpp` logs splice and re-anchor
 sample positions. See `docs/TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`.
+The pre-registered fresh-seed run with the 10 dB floor (seeds 41421/44721/48990,
+long 3317; L = 2.5 ms) passed at all three rates (max residual 3.03 / 2.79 /
+2.96 ms against 4.5 ms): `docs/TRANSPOSE_PDC_SNR10_FRESH_SEED_20261026.md`.
