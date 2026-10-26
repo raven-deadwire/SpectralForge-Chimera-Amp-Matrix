@@ -180,6 +180,7 @@ public:
     void activateNativePost(int section);
 private:
     friend struct ChimeraBetaTestAccess;
+    friend struct ChimeraCabExportTestAccess;
     ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock);
     const spectralforge::beta::Clock betaClock;
     spectralforge::beta::InstanceLatch betaLifecycle;
@@ -219,7 +220,7 @@ private:
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     spectralforge::EQEditState eqEditState{state};
     spectralforge::EQCaptureBoundary eqCaptureBoundaryState;
-    std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
+    std::array<std::array<std::atomic<float>*,12>,3> cabPanelParameters{};
     spectralforge::OriginalCabParameters originalCabParameters;
     void syncOriginalCabRequests();
     void applyCabinetParameters(int lane,spectralforge::Cab& cab) const;

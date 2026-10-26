@@ -1,0 +1,15 @@
+Selected measurements on original PR head; incomplete baseline run.
+Not a total failure count: the development harness also had a modeled-mono assumption later corrected.
+MEASURE 44100/case0/lane0/block64/live-offline null_db=-14.3624 level_db=0.141165 magnitude_db=5.95124 phase_deg=124.578 delay_samples=0
+MEASURE 44100/case0/lane0/block64/reload null_db=5.59401 level_db=8.96134 magnitude_db=13.2727 phase_deg=179.908 delay_samples=1
+MEASURE 44100/case1/lane1/block257/live-offline null_db=-134.516 level_db=6.81629e-07 magnitude_db=0.000935052 phase_deg=0.00434717 delay_samples=0
+MEASURE 44100/case1/lane1/block257/reload null_db=0.539747 level_db=5.10034 magnitude_db=8.26382 phase_deg=139.736 delay_samples=6
+MEASURE 44100/case2/lane2/block1024/live-offline null_db=0.0710521 level_db=2.44903 magnitude_db=26.6841 phase_deg=99.1382 delay_samples=2
+MEASURE 44100/case2/lane2/block1024/reload null_db=7.38789 level_db=9.86096 magnitude_db=28.8424 phase_deg=100.947 delay_samples=1
+MEASURE 44100/case3/lane0/block64/live-offline null_db=-6.64712 level_db=0.636235 magnitude_db=38.2059 phase_deg=179.687 delay_samples=0
+MEASURE 44100/case3/lane0/block64/reload null_db=9.72792 level_db=11.6882 magnitude_db=32.2466 phase_deg=179.941 delay_samples=1
+MEASURE 44100/case4/lane1/block257/live-offline null_db=-8.32695 level_db=0.504247 magnitude_db=47.4918 phase_deg=179.044 delay_samples=0
+MEASURE 44100/case4/lane1/block257/reload null_db=10.4131 level_db=12.2382 magnitude_db=54.496 phase_deg=180 delay_samples=1
+MEASURE 44100/case5/lane2/block1024/live-offline null_db=-300 level_db=0 magnitude_db=0 phase_deg=0 delay_samples=0
+MEASURE 44100/case5/lane2/block1024/reload null_db=-0.206768 level_db=21.9161 magnitude_db=55.1561 phase_deg=170.313 delay_samples=1
+MEASURE 44100/case6/lane0/block64/live-offline null_db=-2.56032 level_db=1.73298 magnitude_db=44.1076 phase_deg=179.99 delay_samples=71

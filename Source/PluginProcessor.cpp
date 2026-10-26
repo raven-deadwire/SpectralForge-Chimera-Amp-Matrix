@@ -1,6 +1,7 @@
 #include "GuitarSignaturePresets.h"
 #include "FactoryNativeVoicing.h"
 #include "PluginProcessor.h"
+#include "CabIRFile.h"
 #include "IRStateAssets.h"
 #include <algorithm>
 #include "PluginEditor.h"
@@ -32,7 +33,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     dynamics.bind(state);multiband.bind(state);deesser.bind(state);
     preFX.setAnalysis(&dynamicsAnalysisState);postFX.setAnalysis(&dynamicsAnalysisState);
     pedalBoard.setAnalysis(&dynamicsAnalysisState);engine.setDynamicsAnalysis(&dynamicsAnalysisState);
-    const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
+    const std::array<const char*,12> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype","cabAcutsOff","cabBcutsOff"};
     for(int i=0;i<3;++i) for(size_t j=0;j<cabIds.size();++j) cabPanelParameters[i][j]=state.getRawParameterValue(juce::String(cabIds[j])+juce::String(i+1));
     clearMidi();
     boardParameters.bind(state);
@@ -344,15 +345,29 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     if(slot==0) return loadIR(lane,file);
     if(lane<0 || lane>2 || slot!=1) return juce::Result::fail("Invalid mic slot");
     auto result=library.importFile(lane+3,file);
+    if(result.wasOk()) {
+        const bool baked=library.userIsCabinetExport(lane+3);const auto n=juce::String(lane+1);
+        setRawParameter("cabBcutsOff"+n,baked?1.f:0.f);
+        if(baked)for(const auto* field:{"gain","delay","invert"})setRawParameter("cabB"+juce::String(field)+n,0);
+    }
     if(result.wasOk()) { setRawParameter(spectralforge::originalCabID(lane,"Bon"),0); setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
     return result;
 }
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
+    if(lane<0 || lane>2)return juce::Result::fail("Invalid lane");
     const auto result=library.importFile(lane,file);
     if(result.wasOk())
     {
         setRawParameter(spectralforge::originalCabID(lane,"Aon"),0);
+        const auto n=juce::String(lane+1);const bool baked=library.userIsCabinetExport(lane);
+        setRawParameter("cabAcutsOff"+n,baked?1.f:0.f);
+        if(baked) {
+            // This file already contains both mics, cuts, polarity and delays.
+            // Load it as one complete cabinet, with no second application.
+            setRawParameter("cab"+n,1);setRawParameter("cabblend"+n,0);
+            for(const auto* field:{"gain","delay","invert"})setRawParameter("cabA"+juce::String(field)+n,0);
+        }
         auto* parameter=state.getParameter("cabtype"+juce::String(lane+1));
         parameter->beginChangeGesture(); parameter->setValueNotifyingHost(parameter->convertTo0to1(3)); parameter->endChangeGesture();
         engine.cabinet(lane).requestedSource.store(3);
@@ -451,6 +466,9 @@ spectralforge::appendCommonDynamicsParameters(p);
 spectralforge::appendMultibandParameters(p);
 spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
+// Append-only; existing projects keep their cuts and normalization policy.
+for(int lane=1;lane<=3;++lane)for(const auto* mic:{"A","B"})
+    p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"cab"+juce::String(mic)+"cutsOff"+juce::String(lane),15},"Mic "+juce::String(mic)+" cuts bypass "+juce::String(lane),false));
 return p;
 }
 
@@ -464,6 +482,7 @@ void ChimeraProcessor::applyCabinetParameters(int lane,spectralforge::Cab& cab) 
     cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
     b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
     b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));
+    cab.bypassCuts=get(10)>.5f;b->bypassCuts=get(11)>.5f;
 }
 juce::AudioBuffer<float> ChimeraProcessor::renderCabinet(int lane,const juce::AudioBuffer<float>& input,double sampleRate) const
 {
@@ -476,6 +495,7 @@ juce::AudioBuffer<float> ChimeraProcessor::renderCabinet(int lane,const juce::Au
     std::array<int,3> sources{};
     for(int i=0;i<3;++i) {
         auto& cab=cabs[(size_t)i];
+        if(i!=lane) {cab.requestedSource.store(0);cab.prepare(spec);continue;}
         cab.requestedSource.store((int)laneParameters[i][16]->load());
         cab.requestedModel.store(originalCabParameters.read(i,0));
         cab.secondMic()->requestedModel.store(originalCabParameters.read(i,1));
@@ -483,6 +503,7 @@ juce::AudioBuffer<float> ChimeraProcessor::renderCabinet(int lane,const juce::Au
         cab.enable(laneParameters[i][13]->load()>.5f);
         sources[(size_t)i]=cab.requestedSource.load();
         cab.prepare(spec); // snaps gain, blend and delay smoothers to the values above
+        applyCabinetParameters(i,cab); // prepare resets filters; restore mic B cuts afterwards
     }
     copy.prepare(spec,sources); // builds every requested kernel before returning
     copy.requestStop();copy.stop();
@@ -503,10 +524,16 @@ juce::AudioBuffer<float> ChimeraProcessor::cabinetImpulseResponse(int lane,doubl
 {
     juce::AudioBuffer<float> impulse(1,juce::jmax(1,int(sampleRate*maximumSeconds)));impulse.clear();impulse.setSample(0,0,1.f);
     auto ir=renderCabinet(lane,impulse,sampleRate);
-    // Trim the silent tail (below -120 dB re peak), keeping at least 10 ms.
+    // Bound the SUM of discarded samples, not each individual sample: a
+    // long quiet IIR tail can add coherently and move phase near a notch.
+    // This also bounds the discarded DFT magnitude at every frequency.
     const float peak=juce::jmax(ir.getMagnitude(0,0,ir.getNumSamples()),ir.getMagnitude(1,0,ir.getNumSamples()));
-    const float floor=peak*1.0e-6f;int length=ir.getNumSamples();
-    while(length>int(sampleRate*.01) && std::abs(ir.getSample(0,length-1))<=floor && std::abs(ir.getSample(1,length-1))<=floor)--length;
+    double remaining=double(peak)*1.0e-7;int length=ir.getNumSamples();
+    while(length>int(sampleRate*.01)) {
+        const double tail=juce::jmax(std::abs(ir.getSample(0,length-1)),std::abs(ir.getSample(1,length-1)));
+        if(tail>remaining)break;
+        remaining-=tail;--length;
+    }
     ir.setSize(2,length,true);
     return ir;
 }
@@ -518,19 +545,20 @@ juce::Result ChimeraProcessor::exportCabinetIR(int lane,const juce::File& file) 
     for(int n=0;n<ir.getNumSamples() && !stereo;++n)stereo=ir.getSample(0,n)!=ir.getSample(1,n);
     juce::AudioBuffer<float> out(stereo?2:1,ir.getNumSamples());
     for(int c=0;c<out.getNumChannels();++c)out.copyFrom(c,0,ir,c,0,ir.getNumSamples());
-    if(!file.getParentDirectory().createDirectory())return juce::Result::fail("Cannot create "+file.getParentDirectory().getFullPathName());
-    juce::TemporaryFile temporary(file);
+    if(file.isDirectory())return juce::Result::fail("The destination is a directory");
+    juce::MemoryBlock encoded;
     {
-        std::unique_ptr<juce::OutputStream> stream=temporary.getFile().createOutputStream();
-        if(!stream)return juce::Result::fail("Cannot write "+file.getFullPathName());
+        auto stream=std::make_unique<juce::MemoryOutputStream>(encoded,false);
+        juce::StringPairArray metadata;
+        metadata.set(juce::WavAudioFormat::bwavDescription,spectralforge::IRLibrary::cabinetExportTag);
         juce::WavAudioFormat wav;
-        std::unique_ptr<juce::AudioFormatWriter> writer(wav.createWriterFor(stream.get(),sampleRate,(unsigned)out.getNumChannels(),32,{},0));
+        std::unique_ptr<juce::AudioFormatWriter> writer(wav.createWriterFor(stream.get(),sampleRate,(unsigned)out.getNumChannels(),32,metadata,0));
         if(!writer)return juce::Result::fail("Cannot create a WAV writer");
-        stream.release(); // the writer owns it now
-        if(!writer->writeFromAudioSampleBuffer(out,0,out.getNumSamples()))return juce::Result::fail("Cannot write the IR samples");
+        stream.release();
+        if(!writer->writeFromAudioSampleBuffer(out,0,out.getNumSamples()) || !writer->flush())
+            return juce::Result::fail("Cannot encode the IR samples");
     }
-    if(!temporary.overwriteTargetFileWithTemporary())return juce::Result::fail("Cannot replace "+file.getFullPathName());
-    return juce::Result::ok();
+    return spectralforge::cabIRFile::writeAtomically(file,encoded);
 }
 void ChimeraProcessor::syncOriginalCabRequests()
 {

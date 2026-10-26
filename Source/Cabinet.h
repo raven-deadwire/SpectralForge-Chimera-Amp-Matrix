@@ -23,7 +23,7 @@ public:
         }
         Kernel(juce::AudioBuffer<float> samples, double rate, const juce::dsp::ProcessSpec& spec,
                int type, unsigned revision, uint64_t model=0,
-               std::shared_ptr<const ModeledCabConvolution::Prepared> prepared={})
+               std::shared_ptr<const ModeledCabConvolution::Prepared> prepared={}, bool preserveLevel=false)
             : source(type), generation(revision), modelKey(model)
         {
             SF_CAB_PROFILE_SCOPE(KernelPrepare);
@@ -38,7 +38,7 @@ public:
             }
             convolution=std::make_unique<juce::dsp::Convolution>();
             convolution->loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
-                juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
+                juce::dsp::Convolution::Trim::no, (model || preserveLevel) ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
             convolution->prepare(spec); // Wait for this IR before it reaches audio.
         }
         int getLatency() const noexcept {return modeledConvolution ? modeledConvolution->getLatency() : convolution->getLatency();}
@@ -91,7 +91,7 @@ public:
     explicit Cab(bool child=false) { if(!child) micB=std::make_unique<Cab>(true); else requestedSource.store(0); }
     Cab* secondMic() const noexcept { return micB.get(); }
     float blend{}, gainDb{}, delayMs{};
-    bool invert{};
+    bool invert{}, bypassCuts{};
     ~Cab() { clear(); }
     void clear() // Only while processing and the worker are stopped.
     {
@@ -199,7 +199,7 @@ public:
         bWasRunning=renderB;
         juce::dsp::AudioBlock<float> block(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block);
-        { SF_CAB_PROFILE_SCOPE(Filters); hp.process(context); }
+        { SF_CAB_PROFILE_SCOPE(Filters); if(!bypassCuts)hp.process(context); }
         if(fadeRemaining>0) alternate.makeCopyOf(buffer,true);
         if(active) { SF_CAB_PROFILE_SCOPE(ActiveConvolution); active->process(buffer); }
         if(fadeRemaining>0)
@@ -213,7 +213,7 @@ public:
             }
             if(fadeRemaining==0) { retired.store(fading); fading=nullptr; }
         }
-        { SF_CAB_PROFILE_SCOPE(Filters); lp.process(context); }
+        { SF_CAB_PROFILE_SCOPE(Filters); if(!bypassCuts)lp.process(context); }
         SF_CAB_PROFILE_SCOPE(MicPost);
         if(lastGainDb!=gainDb || lastInvert!=invert) {
             micGain.setTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));

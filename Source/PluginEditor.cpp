@@ -1,3 +1,4 @@
+#include "CabIRFile.h"
 #include "KnobInteraction.h"
 #include "WindowFit.h"
 #include "CabRoom.h"
@@ -1039,8 +1040,19 @@ void ChimeraEditor::exportCabinet(int lane)
     const juce::Component::SafePointer<ChimeraEditor> safe(this);
     chooser->launchAsync(juce::FileBrowserComponent::saveMode|juce::FileBrowserComponent::canSelectFiles|juce::FileBrowserComponent::warnAboutOverwriting,[safe,lane](const juce::FileChooser& chosen){
         if(!safe || chosen.getResult()==juce::File{}) return;
-        const auto result=safe->processor.exportCabinetIR(lane,chosen.getResult().withFileExtension(".wav"));
-        if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Export cabinet IR",result.getErrorMessage(),"OK",safe);
+        const auto target=spectralforge::cabIRFile::wavDestination(chosen.getResult());
+        const auto save=[safe,lane,target](int accepted) {
+            if(!safe || accepted!=1)return;
+            const auto result=safe->processor.exportCabinetIR(lane,target);
+            if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Export cabinet IR",result.getErrorMessage(),"OK",safe);
+        };
+        // The native dialog confirmed the selected name, not a different name
+        // produced by appending/replacing its extension.
+        if(spectralforge::cabIRFile::needsAdditionalOverwriteConfirmation(chosen.getResult()))
+            juce::AlertWindow::showOkCancelBox(juce::MessageBoxIconType::QuestionIcon,
+                "Replace cabinet IR?",target.getFullPathName()+" already exists.","Replace","Cancel",
+                safe.getComponent(),juce::ModalCallbackFunction::create(save));
+        else save(1);
     });
 }
 void ChimeraEditor::referenceFile(bool save)
