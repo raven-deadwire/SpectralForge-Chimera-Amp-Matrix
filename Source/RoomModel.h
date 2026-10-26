@@ -70,24 +70,48 @@ public:
             currentAbsorption = -1.f;
         }
         if (absorption == currentAbsorption) return;
+        // A new size (or a fresh model) starts at its gains; an absorption
+        // change ramps to them across the next processed block.
+        const bool snap = currentAbsorption < 0.f;
         currentAbsorption = absorption;
         const float reflection = std::sqrt(1.f - wallAbsorption(absorption));
         for (int ear = 0; ear < 2; ++ear)
             for (int t = 0; t < tapCount[size_t(ear)]; ++t) {
                 const auto& tap = taps[size_t(ear)][size_t(t)];
-                tapGain[size_t(ear)][size_t(t)] = tap.spreading * std::pow(reflection, float(tap.order));
+                tapTarget[size_t(ear)][size_t(t)] = tap.spreading * std::pow(reflection, float(tap.order));
             }
         // The damping low-pass also shortens the broadband decay: measured RT60
         // came out at 0.85-0.94 x the target, so line gains aim 1.12 x longer.
         const double rt60 = 1.12 * geometry(size).rt60AtHalf * rt60Scale(absorption);
         for (size_t i = 0; i < lines.size(); ++i)
-            lineGain[i] = float(std::pow(10.0, -3.0 * double(lineLength[i]) / (rt60 * rate)));
-        damping = 1.f - std::exp(-juce::MathConstants<float>::twoPi * dampingCutoff(absorption) / float(rate));
+            lineTarget[i] = float(std::pow(10.0, -3.0 * double(lineLength[i]) / (rt60 * rate)));
+        dampingTarget = 1.f - std::exp(-juce::MathConstants<float>::twoPi * dampingCutoff(absorption) / float(rate));
+        if (snap) { tapGain = tapTarget; lineGain = lineTarget; damping = dampingTarget; }
+        ramping = !snap;
     }
     // Adds the wet room signal for `input` (1 or 2 channels) to `output`.
     // `inputGain` scales the excitation; `wetGain` the return.
     void process(const float* const* input, float* const* output, int channels, int samples, float wetGain) noexcept {
+        // Per-block absorption updates would step every gain at the block
+        // edge, an audible zipper; they move linearly across the block instead.
+        std::array<std::array<float, maxTaps>, 2> tapStep{};
+        std::array<float, 8> lineStep{};
+        float dampingStep = 0.f;
+        if (ramping && samples > 0) {
+            const float share = 1.f / float(samples);
+            for (int ear = 0; ear < 2; ++ear)
+                for (int t = 0; t < tapCount[size_t(ear)]; ++t)
+                    tapStep[size_t(ear)][size_t(t)] = (tapTarget[size_t(ear)][size_t(t)] - tapGain[size_t(ear)][size_t(t)]) * share;
+            for (size_t i = 0; i < lines.size(); ++i) lineStep[i] = (lineTarget[i] - lineGain[i]) * share;
+            dampingStep = (dampingTarget - damping) * share;
+        }
         for (int n = 0; n < samples; ++n) {
+            if (ramping) {
+                for (int ear = 0; ear < 2; ++ear)
+                    for (int t = 0; t < tapCount[size_t(ear)]; ++t) tapGain[size_t(ear)][size_t(t)] += tapStep[size_t(ear)][size_t(t)];
+                for (size_t i = 0; i < lines.size(); ++i) lineGain[i] += lineStep[i];
+                damping += dampingStep;
+            }
             const float left = input[0][n], right = channels > 1 ? input[1][n] : left;
             early[0][size_t(earlyWrite)] = left;
             early[1][size_t(earlyWrite)] = right;
@@ -125,6 +149,7 @@ public:
             output[0][n] += wetGain * (reflections[0] * earlyGain + lateLeft * lateGain);
             if (channels > 1) output[1][n] += wetGain * (reflections[1] * earlyGain + lateRight * lateGain);
         }
+        if (ramping && samples > 0) { tapGain = tapTarget; lineGain = lineTarget; damping = dampingTarget; ramping = false; }
     }
 
     int size() const noexcept { return currentSize; }
@@ -187,13 +212,14 @@ private:
     std::array<std::vector<float>, 2> early;
     int earlyLength{}, earlyWrite{};
     std::array<std::array<Tap, maxTaps>, 2> taps{};
-    std::array<std::array<float, maxTaps>, 2> tapGain{};
+    std::array<std::array<float, maxTaps>, 2> tapGain{}, tapTarget{};
     std::array<int, 2> tapCount{};
     std::array<std::vector<float>, 8> lines;
     std::array<int, 8> lineLength{};
-    std::array<float, 8> lineGain{}, lowpass{};
+    std::array<float, 8> lineGain{}, lineTarget{}, lowpass{};
     int lineCapacity{}, lineWrite{};
-    float damping{1.f};
+    float damping{1.f}, dampingTarget{1.f};
+    bool ramping{};
     // Level calibration (white-noise energy, docs/ROOM_CORE_1_3_3.md section 2):
     // at 50 % absorption the early block and the late tail each carry -12 dB of
     // the excitation's energy. Measured per size from the impulse responses

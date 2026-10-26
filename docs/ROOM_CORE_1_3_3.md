@@ -86,7 +86,9 @@ return. Reported latency and the DI alignment stay as they are.
 - Size change: the old size keeps decaying while the new size builds up
   (crossfade the two returns over 50 ms, *proposed*); this needs two room
   instances only during the change. Sends and return are ramped per sample
-  over 20 ms; absorption is smoothed over 20 ms and applied per block.
+  over 20 ms; absorption is smoothed over 20 ms and its reflection, line and
+  damping gains move linearly across each block (stepping them per block was
+  a zipper: 8.1× the room's own edge level on a 50 → 0 % jump).
 - Mode change (Classic/Dual/Matrix) keeps the room running; lanes that stop
   existing simply stop sending.
 
@@ -167,10 +169,11 @@ installed DAW, the Windows test installer and listening.
   bit-identical to a processor without a room.
 - Size changes are crossfaded: the wet part never steps beyond twice its own
   steady step (an instant switch fails this).
-- Room on/off, send 0↔100 % and return 0↔−36 dB on a held 41.2 Hz tone: the
-  wet part's second difference (its edges) stays within twice its steady
-  value (measured ≤ 1.09×; without the 20 ms excitation ramp Room on reaches
-  8.3× and Room off 23×).
+- Room on/off, send 0↔100 %, return 0↔−36 dB and absorption 50 → 0 → 100 %
+  on a held 41.2 Hz tone: the wet part's second difference (its edges) stays
+  within twice its steady value (measured ≤ 1.09×, absorption ≤ 1.46×;
+  without the 20 ms excitation ramp Room on reaches 8.3× and Room off 23×,
+  with per-block absorption gains 8.1×).
 - No allocation in the callback with the room on in Classic, Dual and Matrix.
 - Controls: the ROOM entry does not overlap a rig and shows ROOM OFF or the
   active size; the panel shows 1/2/3 sends for Classic/Dual/Matrix and each

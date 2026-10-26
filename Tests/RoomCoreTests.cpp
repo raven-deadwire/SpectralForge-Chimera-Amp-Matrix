@@ -237,8 +237,11 @@ void switchingIsSmooth() {
     set(*p,"roomReturn",-36);check("return 0 to -36 dB",wetSteps(60),"A return jump steps the wet sound");
     set(*p,"roomReturn",0);check("return -36 to 0 dB",wetSteps(60),"A return jump steps the wet sound");
     wetSteps(100);
+    set(*p,"roomAbsorption",0);check("absorption 50 to 0 %",wetSteps(100),"An absorption jump steps the wet sound");
+    set(*p,"roomAbsorption",100);check("absorption 0 to 100 %",wetSteps(100),"An absorption jump steps the wet sound");
+    set(*p,"roomAbsorption",50);wetSteps(200);
     set(*p,"roomOn",0);check("room off",wetSteps(60),"Room off stops the send with a wet step beyond the room's own");
-    std::cout<<"PASS on/off, send and return changes: no wet step beyond the room's own\n";
+    std::cout<<"PASS on/off, send, return and absorption changes: no wet step beyond the room's own\n";
 }
 template<class T> T* find(juce::Component& root,const juce::String& id) {
     if(root.getComponentID()==id)if(auto* match=dynamic_cast<T*>(&root))return match;
