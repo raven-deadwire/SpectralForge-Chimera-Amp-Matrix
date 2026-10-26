@@ -1,0 +1,43 @@
+--- a/Tools/TransposeNext/CorrelationPitch.h	2026-10-23 11:12:51.142421628 +0000
++++ b/Tools/TransposeNext/CorrelationPitch.h	2026-10-23 10:42:55.378671284 +0000
+@@ -4,7 +4,10 @@
+ #include <vector>
+ #include <stdexcept>
+ 
++#include <cstdio>
++#include <cstdlib>
+ namespace transposeNext {
++inline FILE* traceFile=nullptr;
+ // Independent research implementation of variable-rate reading with
+ // waveform-similarity splice selection. No reference plug-in code or oracle
+ // frequency is used. This is not a fixed-latency, polyphonic product engine.
+@@ -86,8 +89,9 @@
+         const double travel=(hi-lo)*.25;
+         // After an upshift re-anchor, a backward jump must not reach the
+         // attack again (a repeated attack/flam) or the material before it.
+-        if(upshiftReset && delta<0) {
+-            const double limit=onsetAge-rate*.008;
++        if(upshiftReset && delta<0 && !(traced && std::getenv("TN_BODY_NOLIMIT"))) {
++            const char* g=std::getenv(traced?"TN_BODY_GUARD":"TN_HIGH_GUARD");
++            const double limit=onsetAge-rate*(g?std::atof(g):8.)*.001;
+             if(limit>=delay+travel)hi=std::min(hi,limit);
+         }
+         const int first=int(std::ceil(delta>0 ? lo : delay+travel));
+@@ -154,6 +158,9 @@
+     // the present, so it is placed upshiftHold samples of travel above the
+     // lower boundary; the attack plays uninterrupted for that long, then the
+     // ordinary splice returns it to the long-delay side.
++    bool traced{};
++    void setTraced(bool t) noexcept {traced=t;}
++    void setMinimumMs(double ms) noexcept {minimum=rate*ms*.001;delay=nextDelay=minimum;}
+     void setUpshiftOnsetReset(bool enabled, double holdMs=25) noexcept {upshiftReset=enabled;upshiftHold=rate*holdMs*.001;}
+     // Research: smooth the novelty denominator (broadband energy) over a few
+     // ms. At 0.3 ms it follows the waveform of a low sustained note, so a
+@@ -277,6 +284,7 @@
+                 }
+                 minRead=std::min(minRead, fading?std::min(delay,nextDelay):delay);
+                 maxRead=std::max(maxRead, fading?std::max(delay,nextDelay):delay);
++                if(traced && traceFile)std::fprintf(traceFile,"%.3f %d\n",delay/rate*1000.,fading?1:0);
+                 delay+=delta;
+                 if(fading) {nextDelay+=delta;if(++fadeIndex==fadeLength){delay=nextDelay;fading=false;}}
+             }

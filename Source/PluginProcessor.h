@@ -3,6 +3,7 @@
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "DynamicsAnalysis.h"
+#include "AutoSet.h"
 #include "MultibandDynamics.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
@@ -12,6 +13,7 @@
 #include "PedalBoardParameters.h"
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
+#include "ExtraGates.h"
 #include "AmpSelectionParameters.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
@@ -46,6 +48,10 @@ public:
     }
     void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
     void processBlockBypassed(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
+    // Hosts call this to drop tails without re-preparing (VST3 setProcessing(false),
+    // AU Reset, a re-enabled OBS filter). It may arrive on the audio thread, so it
+    // only flags the existing reset that the next processed block performs.
+    void reset() override { resetPending.store(true); }
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "SpectralForge Chimera"; }
@@ -114,6 +120,7 @@ public:
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
+    spectralforge::autoset::Capture& autoSetCapture() noexcept {return autoSetCaptureState;}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}
     float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
@@ -123,6 +130,8 @@ public:
     float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
     float gateMeter() const { return gateGain.load(); }
+    // Linear gain of Gate 2 (unit 1) or the Expander (unit 2); unit 0 is the main gate.
+    float gateUnitMeter(int unit) const { return unit==1 ? gate2Gain.load() : unit==2 ? expanderGain.load() : gateGain.load(); }
     float tuningFrequency() const { return tuner.frequency(); }
     float tuningConfidence() const { return tuner.confidence(); }
     void selectComparison(int slot);
@@ -179,6 +188,8 @@ private:
     spectralforge::PedalBoardParameterCache boardParameters;
     spectralforge::PedalBoardDSP pedalBoard;
     spectralforge::PostRigGate postRigGate;
+    spectralforge::ExtraGate gate2{spectralforge::ExtraGateUnit::gate2},expander{spectralforge::ExtraGateUnit::expander};
+    std::atomic<float> gate2Gain{1},expanderGain{1};
     std::atomic<float>* gateAfterRig{};
     std::atomic<float>* gateRangeDb{};
     std::atomic<int> transposeQualityMode{0};
@@ -186,6 +197,7 @@ private:
     std::atomic<float> boardReduction{0};
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
     void measureStage(int,const juce::AudioBuffer<float>&);
+    void resetProcessingIfPending();
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
     void syncTransposeQuality();
@@ -211,6 +223,7 @@ private:
     spectralforge::MultibandDynamics multiband;
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
+    spectralforge::autoset::Capture autoSetCaptureState;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;

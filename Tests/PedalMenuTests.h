@@ -20,15 +20,17 @@ inline void visibleSliders(juce::Component& root,std::vector<juce::Slider*>& res
 inline void checkCompressorOverview(juce::Component& board,int owner,int model) {
     const auto check=[](bool value,const char* reason){if(!value)throw std::runtime_error(reason);};
     check(compressorModel(model),"Compressor overview fixture is not a compressor");
+    // Compressor pedals are adjusted on their own card, like every other pedal.
     std::vector<juce::Slider*> visible;visibleSliders(board,visible);
+    const int shown=std::min(6,spectralforge::pedalModel(model).controlCount);int found=0;
     for(auto* slider:visible)for(int control=0;control<spectralforge::pedalModel(model).controlCount;++control)
-        check(slider->getComponentID()!=spectralforge::pedalControlID(owner,model,control),
-              "Compressor card exposes an adjustment without its spectrum");
+        if(slider->getComponentID()==spectralforge::pedalControlID(owner,model,control))++found;
+    check(found>=shown,"Compressor card hides its adjustments");
     bool entry=false;
     for(auto* child:board.getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);
         button && button->isVisible() && button->getComponentID().startsWith("boardCompressorSpectrumAt"))
-        entry|=button->isEnabled();
-    check(entry,"Compressor overview has no accessible spectrum editor");
+        entry=true;
+    check(!entry,"Compressor card still replaces its knobs with a spectrum entry");
 }
 inline std::array<juce::Slider*,5> checkFiveKnobLayout(juce::Component& board,int owner,int model,juce::Component* editor=nullptr) {
     const auto check=[](bool value,const char* reason){if(!value)throw std::runtime_error(reason);};

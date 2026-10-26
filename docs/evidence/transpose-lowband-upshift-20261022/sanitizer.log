@@ -1,0 +1,24 @@
+== ASan+UBSan corr40-split-up guitar_dropA_A1 riff50 shift -2 block 64
+{"nominal_samples":-1,"mean_us":106.634,"p95_us":153.965,"p99_us":277.3,"max_us":3965.3,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":11,
+exit=0
+== ASan+UBSan corr40-split-up guitar_dropA_A1 riff50 shift -2 block 256
+{"nominal_samples":-1,"mean_us":504.29,"p95_us":674.431,"p99_us":3236.09,"max_us":6653.83,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":3
+exit=0
+== ASan+UBSan corr40-split-up guitar_dropA_A1 riff50 shift 2 block 64
+{"nominal_samples":-1,"mean_us":145.715,"p95_us":180.686,"p99_us":1928.26,"max_us":4377.69,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-up guitar_dropA_A1 riff50 shift 2 block 256
+{"nominal_samples":-1,"mean_us":573.339,"p95_us":2169.68,"p99_us":3753.42,"max_us":4571.65,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-up guitar_dropA_A1 quiet_markers_over_sustain shift -2 block 64
+{"nominal_samples":-1,"mean_us":74.6393,"p95_us":91.875,"p99_us":131.146,"max_us":5054.84,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":1
+exit=0
+== ASan+UBSan corr40-split-up guitar_dropA_A1 quiet_markers_over_sustain shift -2 block 256
+{"nominal_samples":-1,"mean_us":254.396,"p95_us":298.029,"p99_us":1993.36,"max_us":3837.8,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0
+exit=0
+== ASan+UBSan corr40-split-up guitar_dropA_A1 quiet_markers_over_sustain shift 2 block 64
+{"nominal_samples":-1,"mean_us":71.2103,"p95_us":80.975,"p99_us":475.914,"max_us":2292.63,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":1
+exit=0
+== ASan+UBSan corr40-split-up guitar_dropA_A1 quiet_markers_over_sustain shift 2 block 256
+{"nominal_samples":-1,"mean_us":275.035,"p95_us":576.039,"p99_us":2009.91,"max_us":2288.16,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0

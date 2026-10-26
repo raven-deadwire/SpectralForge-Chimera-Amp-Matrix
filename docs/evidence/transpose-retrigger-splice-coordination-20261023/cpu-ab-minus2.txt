@@ -1,0 +1,3 @@
+corr40-split-up misses 9 spikes>500us 1112 mean 26.2 positions [np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259)]
+corr40-split-lpc misses 36 spikes>500us 1003 mean 30.3 positions [np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259)]
+corr40-split-rt misses 1 spikes>500us 1178 mean 30.4 positions [np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(259), np.int64(260), np.int64(260), np.int64(260), np.int64(260)]

@@ -66,8 +66,9 @@ inline void measuredStageContracts(const juce::File& directory) {
         setChecked(spectralforge::eqID(bank,0,"frequency"),937.5);setChecked(spectralforge::eqID(bank,0,"gain"),0);setChecked(spectralforge::eqID(bank,0,"q"),4);
         setChecked(spectralforge::dynamicSlotID(0,"target"),float(bank*12+1));setChecked(spectralforge::dynamicSlotID(0,"threshold"),-48);
         setChecked(spectralforge::dynamicSlotID(0,"range"),6);setChecked(spectralforge::dynamicSlotID(0,"ratio"),20);setChecked(spectralforge::dynamicSlotID(0,"attack"),1);
-        panel->selectPage(Page::dynamicEQ);panel->selectDynamicSlot(0);settle(70);
-        auto* eq=find<spectralforge::GraphicalEQPanel>(*panel,bank==0?"toneEQ_panel":"finalEQ_panel");require(eq,"Dynamic EQ bank editor missing");
+        // Dynamic EQ opens the EQ bank that holds its band.
+        panel->selectPage(Page::dynamicEQ);settle(70);
+        auto* eq=find<spectralforge::GraphicalEQPanel>(*editor,bank==0?"toneEQ_panel":"finalEQ_panel");require(eq,"Dynamic EQ bank editor missing");
         // acknowledge() syncs the dynamics capture, not this EQ bank's analyzer;
         // a stalled macOS loop can leave the borrowed editor capturing only the
         // silent acknowledgement. Measure again (bounded); assertions unchanged.
@@ -84,6 +85,7 @@ inline void measuredStageContracts(const juce::File& directory) {
         signalPathTests::capture(*editor,directory,bank==0?"measured-dynamic-tone":"measured-dynamic-final");
         setChecked(spectralforge::eqID(bank,-1,"bypass"),1);
     }
+    openWorkspace(*editor);
     isolate();setChecked("precompon",1);setChecked("precomp",0);setChecked("precomplevel",6);setChecked("buscompon",1);setChecked("busratio",1);setChecked("busmakeup",9);
     const auto pre=observe(Page::preCompressor,937.5,"legacy-pre");
     const auto post=observe(Page::postCompressor,937.5,"legacy-post");

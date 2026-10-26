@@ -3,3 +3,6 @@
 /reference-audio/
 __pycache__/
 *.pyc
+/obs-session*/
+/obs-signals*/
+/obs-kit/

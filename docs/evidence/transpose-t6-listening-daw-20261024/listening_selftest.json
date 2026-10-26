@@ -1,0 +1,55 @@
+{
+ "kind": "listening_selftest_synthetic_not_T6_evidence",
+ "abx_trials": 72,
+ "paired_trials": 36,
+ "gains_db_range": [
+  6.28,
+  18.75
+ ],
+ "score": {
+  "verdict": "PASS",
+  "listeners": {
+   "sim-perfect": {
+    "abx_correct": 72,
+    "abx_answered": 72,
+    "abx_p_one_sided": 2.117582368135751e-22
+   },
+   "sim-chance": {
+    "abx_correct": 39,
+    "abx_answered": 72,
+    "abx_p_one_sided": 0.2779988588804854
+   },
+   "sim-prefers-candidate": {
+    "abx_correct": 55,
+    "abx_answered": 72,
+    "abx_p_one_sided": 4.070015413361955e-06
+   }
+  },
+  "pooled": {
+   "means": {
+    "product": {
+     "attack": 2.0,
+     "low_end": 2.0,
+     "artifacts": 2.0
+    },
+    "candidate": {
+     "attack": 3.0,
+     "low_end": 3.0,
+     "artifacts": 1.0
+    }
+   },
+   "candidate_deficit": {
+    "attack": -1.0,
+    "low_end": -1.0,
+    "artifacts": -1.0
+   },
+   "preference": {
+    "product": 27,
+    "candidate": 81,
+    "none": 0
+   },
+   "candidate_share_of_decided": 0.75
+  }
+ },
+ "ok": true
+}

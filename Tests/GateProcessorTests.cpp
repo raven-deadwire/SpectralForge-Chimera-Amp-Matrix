@@ -95,7 +95,7 @@ void parameterContract(ChimeraProcessor& p)
     // Niflheimr appends six contexts with two selectors and five 14-control banks.
     // CAB then appends ten version-6 controls for each of the three lanes.
     constexpr int cabParameterCount=3*10;
-    constexpr int expectedParameterCount=4323+6*(2+5*14)+cabParameterCount+spectralforge::originalCabParameterCount+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount+spectralforge::graphicalEQParameterCount+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount;
+    constexpr int expectedParameterCount=4323+6*(2+5*14)+cabParameterCount+spectralforge::originalCabParameterCount+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount+spectralforge::graphicalEQParameterCount+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount;
     require(range && range->getParameterIndex()==3890 && count==3686 && p.getParameters().size()==expectedParameterCount,"Gate Range ordinal or complete appended channel parameter count changed");
     require(range->getVersionHint()==2 && range->isAutomatable(),"Range AU version hint/automation changed");
     require(range->getText(1,0)=="Full" && range->getValueForText("Full")==1.f,"Host Full text does not round-trip");
@@ -208,6 +208,69 @@ void routing()
         std::cout<<"PASS actual processor synthetic hiss: mode "<<mode<<" board "<<board<<"; pre/post, Full/24 dB, compatibility/native high gain\n";
     }
 }
+double hissEnergy(ChimeraProcessor& p)
+{
+    p.prepareToPlay(48000,128);juce::AudioBuffer<float> audio(2,128);juce::MidiBuffer midi;double energy=0;
+    for(int block=0;block<300;++block) {
+        for(int i=0;i<128;++i) {
+            const float hiss=1e-5f*std::sin(float((block*128+i)*1.713));audio.setSample(0,i,hiss);audio.setSample(1,i,-.7f*hiss);
+        }
+        p.processBlock(audio,midi);
+        for(int c=0;c<2;++c)for(int i=0;i<128;++i) {const float x=audio.getSample(c,i);require(std::isfinite(x),"Non-finite extra gate render");if(block>220)energy+=double(x)*x;}
+    }
+    return energy;
+}
+// Gate 2 and the Expander are independent stages: each placement works on its
+// own, pre + post gating stacks, and a gate and an expander run together.
+void extraGates()
+{
+    {
+        const auto storage=std::make_unique<ChimeraProcessor>();int index=storage->getParameters().size()-spectralforge::extraGateParameterCount;
+        for(const auto* id:{"gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
+                            "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"}) {
+            const auto* parameter=storage->parameters().getParameter(id);
+            require(parameter && parameter->getParameterIndex()==index++ && parameter->getVersionHint()==spectralforge::extraGateParameterVersion && parameter->isAutomatable(),
+                    "Extra gate parameters must append last, in order, at version 14");
+        }
+    }
+    for(int mode:{0,2})for(bool board:{false,true}) {
+        const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
+        configure(p,mode,board,false,false);set(p,"gateon",0);
+        require(get(p,"gate2On")<.5f && get(p,"expOn")<.5f && get(p,"gate2Mode")<.5f && get(p,"expAfterRig")<.5f,"Extra gate defaults changed");
+        const double unity=hissEnergy(p);require(unity>1e-14,"Extra gate unity fixture is silent");
+        const auto db=[&](double energy){return 10*std::log10(std::max(energy,1e-300)/unity);};
+        for(bool post:{false,true}) {
+            // Gate 2 takes the side of the rig the main gate does not use.
+            set(p,"gate2On",1);set(p,"gateAfterRig",post?0.f:1.f);set(p,"gate2Threshold",-40);set(p,"gate2Hold",0);set(p,"gate2Release",5);set(p,"gate2RangeDb",24);
+            const double gate2=hissEnergy(p);
+            require(std::abs(db(gate2)+24)<.06,"Gate 2 range missing at its placement");
+            require(std::abs(juce::Decibels::gainToDecibels(p.gateUnitMeter(1))+24)<.03f,"Gate 2 meter does not report its reduction");
+            set(p,"gate2Mode",1);set(p,"gate2Ratio",20);set(p,"gate2RangeDb",12);
+            require(std::abs(db(hissEnergy(p))+12)<.06,"Gate 2 expander mode missing at its placement");
+            set(p,"gate2Mode",0);set(p,"gate2RangeDb",24);set(p,"gate2On",0);
+            set(p,"expOn",1);set(p,"expAfterRig",post?1.f:0.f);set(p,"expThreshold",-40);set(p,"expRatio",20);set(p,"expHold",0);set(p,"expRelease",5);set(p,"expRangeDb",12);
+            const double expanded=hissEnergy(p);
+            require(std::abs(db(expanded)+12)<.06,"Expander range missing at its placement");
+            require(std::abs(juce::Decibels::gainToDecibels(p.gateUnitMeter(2))+12)<.03f,"Expander meter does not report its reduction");
+            // Gate 2 and the Expander at the same time: the cuts add.
+            set(p,"gate2On",1);const double both=hissEnergy(p);
+            require(std::abs(db(both)+36)<.1,"Gate 2 and Expander do not run together");
+            set(p,"gate2On",0);set(p,"expOn",0);
+            std::cout<<"MEASURE extra gates mode="<<mode<<" board="<<board<<" post="<<post<<" gate2_db="<<db(gate2)<<" expander_db="<<db(expanded)<<" both_db="<<db(both)<<'\n';
+        }
+        // PRE and POST gates at the same time, whichever side holds the main gate.
+        set(p,"gateon",1);set(p,"gateRangeDb",6);set(p,"gate2On",1);set(p,"gate2RangeDb",12);
+        double prePost=0;
+        for(float mainAfter:{0.f,1.f}) {
+            set(p,"gateAfterRig",mainAfter);prePost=hissEnergy(p);
+            require(std::abs(db(prePost)+18)<.1,"PRE and POST gates do not run together");
+            require(std::abs(juce::Decibels::gainToDecibels(p.gateUnitMeter(1))+12)<.03f && std::abs(juce::Decibels::gainToDecibels(p.gateMeter())+6)<.03f,"PRE / POST gate meters mixed up");
+        }
+        set(p,"gate2On",0);set(p,"gateRangeDb",0);
+        require(std::abs(db(hissEnergy(p)))<.01,"Disabled extra gates are not transparent");
+        std::cout<<"PASS extra gates mode "<<mode<<" board "<<board<<": Gate 2 and Expander pre/post, together, and with a pre-rig main gate ("<<db(prePost)<<" dB)\n";
+    }
+}
 void postTails()
 {
     for(bool reverb:{false,true}) {
@@ -225,6 +288,31 @@ void postTails()
     }
     std::cout<<"PASS actual processor POST delay and reverb tails remain audible with Full gate closed\n";
 }
+void hostResetDropsTails()
+{
+    // AudioProcessor::reset() (VST3 setProcessing(false), AU Reset, a re-enabled
+    // OBS filter) must drop the same tails without a prepareToPlay.
+    const auto tailEnergy=[](bool reverb,bool hostReset) {
+        const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;configure(p,0,true,false,false);
+        if(reverb) {set(p,"reverbon",1);set(p,"reverbsize",.8f);set(p,"reverbmix",.5f);}
+        else {set(p,"delayon",1);set(p,"delaytime",160);set(p,"delayfeedback",.55f);set(p,"delaymix",.5f);}
+        p.prepareToPlay(48000,128);juce::AudioBuffer<float> audio(2,128);juce::MidiBuffer midi;double energy=0;
+        for(int b=0;b<140;++b) {
+            if(b==40 && hostReset)p.reset();
+            for(int i=0;i<128;++i)for(int c=0;c<2;++c)audio.setSample(c,i,b<40 ? .1f*std::sin(float(b*128+i)*.03f) : 0);
+            p.processBlock(audio,midi);
+            if(b>=40)for(int i=0;i<128;++i)energy+=std::pow(audio.getSample(0,i),2);
+        }
+        p.releaseResources();return energy;
+    };
+    for(bool reverb:{false,true}) {
+        const double kept=tailEnergy(reverb,false),dropped=tailEnergy(reverb,true);
+        std::cout<<"MEASURE host reset "<<(reverb?"reverb":"delay")<<" tail_energy="<<kept<<" after_reset="<<dropped<<'\n';
+        require(kept>1e-6,"Tail fixture produced no tail");
+        require(dropped<kept*1e-3,"AudioProcessor::reset() did not drop delay/reverb tails");
+    }
+    std::cout<<"PASS actual processor reset() drops POST delay and reverb tails without re-preparing\n";
+}
 }
 int main(int argc,char** argv)
 {
@@ -237,6 +325,6 @@ int main(int argc,char** argv)
         }
         const auto storage=std::make_unique<ChimeraProcessor>();parameterContract(*storage);stateAndAutomation(*storage);
         publicNameTests::hostPresentation(*storage);
-        routing();postTails();
+        routing();extraGates();postTails();hostResetDropsTails();
     }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

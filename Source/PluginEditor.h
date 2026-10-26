@@ -13,6 +13,9 @@
 #include "SignalPathView.h"
 #include "PrecisionTunerPanel.h"
 #include "CommonDynamicsPanel.h"
+#include "AutoSetController.h"
+#include "AccessibleViewport.h"
+#include "EasyModeView.h"
 
 class CabRoomOverview;
 
@@ -35,10 +38,17 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
     void fitToDisplay();
+    void setViewSize(juce::Point<int> size,float preferredScale=0.f);
+    float preferredViewScale() const noexcept {return requestedScale;}
+    juce::Point<int> viewPosition() const {return editorViewport.getViewPosition();}
+    void setViewPosition(juce::Point<int> position) {editorViewport.setViewPosition(position);}
     static constexpr int fitScaleItem=5;
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
+    // Presentation only: Easy view edits the same parameters as the full editor.
+    void setEasyMode(bool easy,bool rememberChoice=false);
+    bool easyModeActive() const noexcept {return easyMode;}
 #if CHIMERA_ROUTING_DIAGNOSTICS
     struct RoutingProbe { uint64_t ticks{}, skipped{}, refreshed{}; double entered{}, finished{}; bool visible{}, messageThread{}; };
     const RoutingProbe& routingProbe() const noexcept { return routeProbe; }
@@ -68,7 +78,7 @@ private:
     spectralforge::ui::Changed<std::array<float,3>> tunerKey;
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
-    spectralforge::ui::Changed<juce::String> cpuText,transportText,gateText,pitchText;
+    spectralforge::ui::Changed<juce::String> cpuText,transportText,pitchText;
     juce::Label callbackLoad;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
@@ -84,6 +94,7 @@ private:
     void showIRDetails(int);
     void referenceFile(bool save);
     void layoutControls();
+    void paintCanvas(juce::Graphics&);
     void midiMenu();
     void navigateSignalPath(spectralforge::signalPath::Node);
     void openSignalPath();
@@ -95,12 +106,18 @@ private:
     // releases native GPU artwork while JUCE and the DLL are still alive.
     juce::SharedResourcePointer<spectralforge::art::RasterBank> artwork;
     ChimeraLookAndFeel look;
-    juce::Component canvas;
+    struct Canvas : juce::Component {
+        std::function<void(juce::Graphics&)> draw;
+        void paint(juce::Graphics& g) override {if(draw)draw(g);}
+    };
+    // Non-owning hierarchy: viewport -> scrollContent -> transformed canvas.
+    // Members are declared in parent-before-child order for safe teardown.
+    spectralforge::ui::AccessibleViewport editorViewport;
+    juce::Component scrollContent;
+    Canvas canvas;
+    float requestedScale{}; // Presentation only; 0 = automatic fit, never a parameter.
     PedalBoardPanel boardPanel;
-    juce::TextButton gateLocation{"POST GATE"};
-    juce::TextButton gateSpectrum{"SPECTRUM / ALL CONTROLS"};
     juce::Label preEngineStatus;
-    std::unique_ptr<BA> gateLocationAttachment;
     bool lastBoardEnabled{};
     juce::TooltipWindow tooltips{this,600};
     // Updates own a network worker. Ordinary editor open/close must not start
@@ -109,7 +126,7 @@ private:
     juce::Image wordmark,brandEmblem;
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> dialogs;
     std::vector<float> presetValues;
-    juce::Label title,routingHelp,x1Label,x2Label,gateStatus,pitchStatus;
+    juce::Label title,routingHelp,x1Label,x2Label,pitchStatus;
     juce::ComboBox mode,quality,scale,inputMode,presets,dualType,preOrder,gainOrder,transposeMode;
     juce::Slider doublerTime,tempo,dualBlend,dualFrequency;
     juce::Label dualLabel;
@@ -123,18 +140,29 @@ private:
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;
     int betaUiTicks{25};
-    juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
-    std::array<std::unique_ptr<BA>,4> globalButtons;
+    juce::TextButton pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
+    std::array<std::unique_ptr<BA>,3> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
-    juce::TextButton toneEQBank{"TONE EQ"},finalEQBank{"FINAL EQ"};
-    juce::TextButton dynamicsOpen{"DYNAMICS"};
+    // Direct navigation only: these never toggle audio processing.
+    static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,6> dynamicsEntryPages{
+        spectralforge::CommonDynamicsPanel::Page::gate,
+        spectralforge::CommonDynamicsPanel::Page::expander,
+        spectralforge::CommonDynamicsPanel::Page::compressor,
+        spectralforge::CommonDynamicsPanel::Page::limiter,
+        spectralforge::CommonDynamicsPanel::Page::multiband,
+        spectralforge::CommonDynamicsPanel::Page::deesser};
+    std::array<juce::TextButton,6> dynamicsEntries;
+    void updateDynamicsEntries();
     std::unique_ptr<spectralforge::CommonDynamicsPanel> dynamicsPanel;
+    std::unique_ptr<spectralforge::autoset::Controller> autoSetController; // after dynamicsPanel: destroyed first
     bool dynamicsViewOpen{};
     int selectedEQBank{}; // Presentation only; never a host parameter or sound-state edit.
     std::unique_ptr<CabRoomOverview> cabRoom;
     std::unique_ptr<PrecisionTunerPanel> precisionTuner;
-    juce::TextButton tunerOpen{"TUNER"};
+    juce::TextButton tunerOpen{"TUNER"},easyOpen{"EASY VIEW"};
+    std::unique_ptr<EasyModeView> easyView;
+    bool easyMode{};
     bool tunerViewOpen{};
     bool showRigControls{};
     int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.

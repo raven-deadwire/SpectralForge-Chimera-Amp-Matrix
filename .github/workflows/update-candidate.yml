@@ -175,6 +175,13 @@ jobs:
           if-no-files-found: warn
       - name: Package distinct Windows test build
         run: python Tools/package_update_candidate.py
+      - name: Build and test the optional OBS filter module
+        timeout-minutes: 30
+        shell: pwsh
+        run: |
+          ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory build/obs-module `
+            -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
       - name: Stage exact-commit Windows installer payload
         run: python Tools/package_installer_candidate.py stage
       - name: Build distinct Windows Setup

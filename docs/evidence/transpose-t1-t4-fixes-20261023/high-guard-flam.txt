@@ -1,0 +1,8 @@
+{} 1 second-peak excess over input dB: p90 0.5 max 2.1
+{} 2 second-peak excess over input dB: p90 2.1 max 4.0
+{'TN_HIGH_GUARD': 2} 1 second-peak excess over input dB: p90 0.9 max 2.7
+{'TN_HIGH_GUARD': 2} 2 second-peak excess over input dB: p90 2.7 max 4.0
+{'TN_HIGH_GUARD': 4} 1 second-peak excess over input dB: p90 0.9 max 2.7
+{'TN_HIGH_GUARD': 4} 2 second-peak excess over input dB: p90 2.7 max 4.0
+{'TN_HIGH_GUARD': 0} 1 second-peak excess over input dB: p90 3.0 max 22.3
+{'TN_HIGH_GUARD': 0} 2 second-peak excess over input dB: p90 4.9 max 21.7

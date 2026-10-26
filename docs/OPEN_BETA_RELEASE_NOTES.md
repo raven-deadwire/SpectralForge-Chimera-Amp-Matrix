@@ -14,6 +14,12 @@ on this branch are development changes, not part of the immutable beta.1 binary.
 They reuse the existing expiry evaluation and preserve the instance latch and
 project/preset/automation/IR behavior. No next-version/date approval is implied.
 
+Also a development change, not in the beta.1 binary: `AudioProcessor::reset()` now
+drops delay/reverb/cabinet and other DSP tails on the next block, as the existing
+state-restore reset already does (Issue #131). Hosts call it when they stop processing
+(VST3 `setProcessing(false)`, AU Reset) and the OBS add-on calls it when a disabled
+filter is re-enabled; until now JUCE's default left those tails running.
+
 ## Historical 1.3.2-beta.1 candidate preparation notes
 
 The pending-verification wording below records preparation, before the publication

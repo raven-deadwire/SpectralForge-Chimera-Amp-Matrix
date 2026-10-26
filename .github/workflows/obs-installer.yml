@@ -1,0 +1,52 @@
+name: OBS installer safety
+on:
+  pull_request:
+    paths:
+      - "Installer/**"
+      - "Tools/package_release.py"
+      - "Tools/Verify-WindowsInstaller.ps1"
+      - "Tests/Test-WindowsObsInstaller.ps1"
+      - "Tests/test_packaging_version.py"
+      - ".github/workflows/obs-installer.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-obs-installer:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Packaging contracts and PowerShell syntax
+        shell: pwsh
+        run: |
+          python Tests/test_packaging_version.py
+          if ($LASTEXITCODE -ne 0) { throw "Packaging contracts failed" }
+          foreach ($script in @("Tests/Test-WindowsObsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1")) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count) { throw (($errors | ForEach-Object Message) -join "`n") }
+          }
+      - name: Install pinned Inno compiler
+        shell: pwsh
+        run: |
+          choco upgrade innosetup --version=6.7.1 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "Cannot install Inno Setup" }
+      - name: Native installer guard and preservation fixtures
+        shell: pwsh
+        run: ./Tests/Test-WindowsObsInstaller.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-OBS-installer-safety
+          path: build/windows-obs-installer-verification
+          if-no-files-found: warn

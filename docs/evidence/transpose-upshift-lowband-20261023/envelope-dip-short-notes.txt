@@ -1,0 +1,8 @@
+{} 2 {'low_max': 10.49, 'low_median': 6.94, 'extra_dip_db_p90': 4.21, 'extra_dip_db_max': 19.84}
+{} -2 {'low_max': 6.3, 'low_median': 5.28, 'extra_dip_db_p90': 1.54, 'extra_dip_db_max': 29.21}
+{'TN_BODY_NOLIMIT': 1} 2 {'low_max': 21.22, 'low_median': 9.67, 'extra_dip_db_p90': 3.73, 'extra_dip_db_max': 15.17}
+{'TN_BODY_NOLIMIT': 1} -2 {'low_max': 6.3, 'low_median': 5.28, 'extra_dip_db_p90': 1.54, 'extra_dip_db_max': 29.21}
+{'TN_BODY_HOLD': 22.5} 2 {'low_max': 12.76, 'low_median': 6.67, 'extra_dip_db_p90': 14.16, 'extra_dip_db_max': 18.5}
+{'TN_BODY_HOLD': 22.5} -2 {'low_max': 6.3, 'low_median': 5.28, 'extra_dip_db_p90': 1.54, 'extra_dip_db_max': 29.21}
+{'TN_BODY_HOLD': 22.5, 'TN_BODY_NOLIMIT': 1} 2 {'low_max': 20.8, 'low_median': 8.57, 'extra_dip_db_p90': 5.42, 'extra_dip_db_max': 10.57}
+{'TN_BODY_HOLD': 22.5, 'TN_BODY_NOLIMIT': 1} -2 {'low_max': 6.3, 'low_median': 5.28, 'extra_dip_db_p90': 1.54, 'extra_dip_db_max': 29.21}

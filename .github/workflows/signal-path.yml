@@ -76,9 +76,9 @@ jobs:
       - if: runner.os == 'Linux'
         run: cmake --build build-path --config Release --target ChimeraNativeFocusTests --parallel 2
       - if: runner.os != 'Linux'
-        run: ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraMultibandDynamics(Core)?Tests|ChimeraNativeDynamicsUITests|ChimeraSignalPathUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
+        run: ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraMultibandDynamics(Core)?Tests|ChimeraNativeDynamicsUITests|ChimeraSignalPathUITests|ChimeraSmallScreenUITests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
       - if: runner.os == 'Linux'
-        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraMultibandDynamics(Core)?Tests|ChimeraNativeDynamicsUITests|ChimeraSignalPathUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-path -C Release -R '^(ChimeraPrecisionTunerUITests|ChimeraCommonDynamics.*Tests|ChimeraMultibandDynamics(Core)?Tests|ChimeraNativeDynamicsUITests|ChimeraSignalPathUITests|ChimeraSmallScreenUITests|ChimeraNativeFocusTests|ChimeraNativeStateTests|ChimeraCabPanelStateTests|ChimeraGraphicalEQ.*Tests|ChimeraGateProcessorTests|ChimeraPackagingVersionTests)$' --output-on-failure --no-tests=error --output-junit integration-results.xml
       - name: Collect paired tuner callback observations (not a performance pass)
         if: always()
         run: python3 Tools/run_tuner_timing_probe.py build-path
@@ -87,6 +87,7 @@ jobs:
         with:
           name: SignalEQ-Integration-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}-attempt-${{ github.run_attempt }}
           path: |
+            build-path/small-screen-snapshots/
             build-path/signal-path-snapshots/
             build-path/precision-tuner-snapshots/
             build-path/common-dynamics-snapshots/
