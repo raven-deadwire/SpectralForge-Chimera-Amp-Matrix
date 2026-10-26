@@ -141,6 +141,14 @@ Factory presets keep their authored sound: the preset snapshot writes
   48 kHz and 0.52–0.53 % at 96 kHz for all three sizes (best of three 10 s
   runs on the development container); two run only during a size change.
   Room off runs no room code (zero processed samples, §7).
+  *Measured* in the whole product (`ChimeraRoomCost`: default settings, all
+  sends 100 %, a retriggered chord; off and on alternate every block, median
+  of the per-run differences): the room adds 0.52–1.05 % of real time at
+  48 kHz (product 15–37 %) and 1.31–2.06 % at 96 kHz (product 35–90 %) across
+  Classic, Dual and Matrix and all sizes. The excess over the model alone is
+  the send bus (per-sample sends, the post-rig gain copy and the return).
+  Run-to-run spread is 0.3–0.8 % at 48 kHz on the development container, so
+  the sizes are not separable at this resolution.
 - **Memory:** allocated in `prepare` only. Large at 192 kHz: FDN 8 lines up to
   ~120 ms each plus a 90 ms early-reflection line, stereo, ×2 instances for the
   size crossfade: about 2 × (8 × 0.12 + 2 × 0.09) × 192000 × 4 B ≈ 1.8 MB.
