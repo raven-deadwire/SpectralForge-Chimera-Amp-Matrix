@@ -257,6 +257,11 @@ class PackagingVersionTests(unittest.TestCase):
         self.assertEqual(refs, {release.MACOS_PKG_ID: "SpectralForge-Chimera.pkg",
                                 release.MACOS_OBS_PKG_ID: "SpectralForge-Chimera-OBS.pkg"})
         self.assertEqual(tree.find("installation-check").get("script"), "obsClosed()")
+        self.assertEqual(tree.find("options").get("require-scripts"), "true")
+        self.assertEqual(tree.find("domains").attrib, {
+            "enable_localSystem": "true", "enable_anywhere": "false", "enable_currentUserHome": "false"})
+        self.assertEqual(tree.find("volume-check/allowed-os-versions/os-version").get("min"), "12.0")
+        self.assertEqual(tree.find("pkg-ref/must-close/app").get("id"), release.OBS_BUNDLE_ID)
         script = tree.find("script").text
         self.assertIn(release.OBS_BUNDLE_ID, script)
         self.assertIn("my.result.type = 'Fatal'", script)

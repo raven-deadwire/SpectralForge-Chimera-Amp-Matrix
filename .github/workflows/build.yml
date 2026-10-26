@@ -67,6 +67,7 @@ jobs:
           python Tools/test_weekly_publication.py
           python Tools/test_publication_evidence.py
           python Tests/test_packaging_version.py
+          python Tests/test_macos_pkg_hooks.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
@@ -255,29 +256,22 @@ jobs:
         if: runner.os == 'macOS'
         run: python Tools/package_release.py macos
 
-      - name: Install the macOS package without and with the OBS filter choice
+      - name: Verify macOS OBS choices, process guards, ownership and preservation
         if: runner.os == 'macOS'
         run: |
-          pkg=$(ls dist/SpectralForge-Chimera-*-macos-universal.pkg)
-          plugins="$HOME/Library/Application Support/obs-studio/plugins"
-          test ! -e "$plugins/chimera-obs.plugin"
-          # No OBS.app on the runner: the OBS choice starts unselected.
-          sudo installer -pkg "$pkg" -target /
-          test -d "/Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3"
-          test ! -e "$plugins/chimera-obs.plugin"
-          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' \
-            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
-            '<plist version="1.0"><array><dict><key>attributeSetting</key><integer>1</integer>' \
-            '<key>choiceAttribute</key><string>selected</string><key>choiceIdentifier</key><string>obs</string></dict></array></plist>' \
-            > "$RUNNER_TEMP/obs-choice.plist"
-          sudo installer -pkg "$pkg" -target / -applyChoiceChangesXML "$RUNNER_TEMP/obs-choice.plist"
-          # Installed for the logged-in user, not root; libobs finds and registers it on both architectures.
-          test "$(stat -f %Su "$plugins/chimera-obs.plugin/Contents/MacOS/chimera-obs")" = "$(id -un)"
-          codesign --verify --deep --strict "$plugins/chimera-obs.plugin"
-          "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
-          "$RUNNER_TEMP/chimera-obs-x86_64/build/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
-          "/Library/Application Support/SpectralForge/Chimera/OBS/install.sh" --uninstall
-          test ! -e "$plugins/chimera-obs.plugin"
+          python Tools/verify_macos_obs_pkg.py \
+            --package "$(ls dist/SpectralForge-Chimera-*-macos-universal.pkg)" \
+            --arm-build "$RUNNER_TEMP/chimera-obs-arm64/build" \
+            --intel-build "$RUNNER_TEMP/chimera-obs-x86_64/build" \
+            --output build/macos-obs-pkg-verification
+
+      - name: Upload macOS OBS PKG verification
+        if: always() && runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-macOS-OBS-PKG-${{ env.CHIMERA_SOURCE_SHA }}
+          path: build/macos-obs-pkg-verification
+          if-no-files-found: warn
 
       - name: Package and verify Linux installers
         id: package_linux
