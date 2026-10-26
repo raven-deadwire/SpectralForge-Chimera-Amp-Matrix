@@ -171,6 +171,38 @@ void multibandRules() {
     std::cout<<"PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz\n";
 }
 
+// Phase 5: Gate 2 / Expander from the rig noise in the pause.
+void gateStageRules() {
+    // 6 s: playing at -18 dBFS input with a 1.5 s pause at -72 dBFS; the rig
+    // makes playing louder and the pause carries its own hiss.
+    const auto fixture=[](float rigPlayingDb,float rigNoiseDb,float pauseSeconds) {
+        std::vector<Window> input,rig;
+        for(int i=0;i<600;++i) {
+            const bool pause=i>=300 && i<300+int(pauseSeconds*100);
+            input.push_back(pause?Window{-70.f,-72.f}:Window{-18.f,-24.f});
+            rig.push_back(pause?Window{rigNoiseDb,rigNoiseDb-3.f}:Window{rigPlayingDb,rigPlayingDb-6.f});
+        }
+        return std::pair{input,rig};
+    };
+    using Plan=GateStagesResult::Plan;
+    {const auto [in,rig]=fixture(-12,-64,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::clean);
+     check(r.plan==Plan::soft && near(r.expanderRangeDb,14,.01f),"Faint hiss should get a shallower Expander range");}
+    {const auto [in,rig]=fixture(-12,-80,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::rock);
+     check(r.measured && r.plan==Plan::none && near(r.rigNoiseDb,-80,.01f),"A quiet amp still added Gate 2 or the Expander");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,2,-60,false,Style::rock);
+     check(r.plan==Plan::soft && r.expanderAfterRig && near(r.expanderThresholdDb,-60,.01f) && near(r.expanderRatio,2,.01f)
+           && near(r.expanderRangeDb,15,.01f) && near(r.mainThresholdDb,-78,.01f) && near(r.expanderReleaseMs,120,.01f),
+           "Rock with amp hiss did not get an after-rig Expander at the gate threshold and a deeper main gate");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::clean);
+     check(r.plan==Plan::soft && near(r.expanderRatio,1.5f,.01f) && near(r.mainThresholdDb,-84,.01f) && near(r.expanderReleaseMs,200,.01f),"Clean style did not get the gentler Expander");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::metal);
+     check(r.plan==Plan::hard && r.mainAfterRig && near(r.gate2ThresholdDb,-66,.01f) && near(r.gate2RangeDb,18,.01f),"Metal with a wide gap did not get a post-rig gate and a PRE Gate 2");}
+    {const auto [in,rig]=fixture(-40,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::metal);
+     check(r.plan==Plan::soft && near(r.expanderRatio,2.5f,.01f) && near(r.expanderRangeDb,15,.01f),"Metal with a narrow gap should fade tails with the Expander, not chop them");}
+    {const auto [in,rig]=fixture(-12,-50,0.f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::rock);
+     check(!r.measured && r.plan==Plan::none,"Gate stages were set without a pause");}
+    std::cout<<"PASS auto set gate stage rules: quiet amp leaves them off, amp hiss adds an Expander (clean/rock/metal ratios, deeper main gate), metal with headroom gets a post-rig gate and PRE Gate 2, no pause changes nothing\n";
+}
 void captureWindows() {
     for(double rate:{44100.,48000.,96000.}) {
         Capture capture;capture.prepare(rate);
@@ -195,6 +227,10 @@ void captureWindows() {
         std::vector<Window> other;capture.drain(Tap::compressor,other);
         check(other.empty(),"Inactive tap recorded windows");
         std::vector<float> tone;capture.drainSamples(tone);check(tone.empty(),"Inactive tone tap recorded samples");
+        capture.listen({Tap::input,Tap::rig});
+        capture.push(Tap::rig,channels,2,int(left.size()));capture.push(Tap::input,channels,2,int(left.size()));
+        std::vector<Window> rigOut,inOut;capture.drain(Tap::rig,rigOut);capture.drain(Tap::input,inOut);
+        check(rigOut.size()==inOut.size() && rigOut.size()>=99 && near(rigOut[10].peakDb,-6.02f,.3f),"Rig tap does not record windows alongside the input");
         capture.listen(Tap::tone);counting=true;allocations=0;
         capture.push(Tap::tone,channels,2,4096);capture.push(Tap::input,channels,2,4096);capture.push(Tap::deesser,channels,2,4096);
         counting=false;check(allocations==0,"Audio-thread tone capture allocated");
@@ -273,7 +309,9 @@ void controllerIntegration() {
     run(*p,c,&di,6.6,now);
     check(c.current().phase==Controller::Phase::tone && c.current().text.contains("2/5"),"First pass did not hand over to the Tone EQ pass");
     check(get(*p,"input")>4.f && get(*p,"input")<=12.01f,"Input gain was not raised toward the target");
-    check(get(*p,"gateon")>.5f && get(*p,"gatethreshold")>-70.f && get(*p,"gatethreshold")<-35.f,"Gate threshold was not placed above the noise floor");
+    // With an Expander (phase 5) it takes the threshold above the noise and the main gate sits below it.
+    const float placed=get(*p,"expOn")>.5f?get(*p,"expThreshold"):get(*p,"gatethreshold");
+    check(get(*p,"gateon")>.5f && placed>-70.f && placed<-35.f && get(*p,"gatethreshold")<=placed,"Gate threshold was not placed above the noise floor");
     run(*p,c,&di,6.6,now);
     check(c.current().phase==Controller::Phase::compressor,"Tone EQ pass did not hand over to the compressor pass");
     const auto& tone=c.lastToneAnalysis();
@@ -312,8 +350,16 @@ void controllerIntegration() {
         check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
         check(!sawTone,"Tone pass claimed an instrument before its analysis");
         const auto& steps=c.current().steps;
-        check(steps.size()==5 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[4].phase==Controller::Phase::finish
-              && steps[2].changed && steps[2].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        check(steps.size()==6 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
+              && steps[5].phase==Controller::Phase::finish && steps[3].changed && steps[3].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        // Gate 2 / Expander follow their analysis; the gates were held open only while the input pass listened.
+        const auto& gates=c.lastGateAnalysis();
+        check(gates.measured && (get(*p,"expOn")>.5f)==(gates.plan==GateStagesResult::Plan::soft) && (get(*p,"gate2On")>.5f)==(gates.plan==GateStagesResult::Plan::hard),
+              "Applied Gate 2 / Expander do not match the analysis");
+        if(gates.plan==GateStagesResult::Plan::soft)check(near(get(*p,"expThreshold"),gates.expanderThresholdDb,.01f) && near(get(*p,"gatethreshold"),gates.mainThresholdDb,.01f) && get(*p,"gateMode")<.5f,"Expander plan not applied");
+        bool sawHiss=false;for(const auto& s:statuses)sawHiss|=s.phase==Controller::Phase::input && s.heard.contains("Amp hiss");
+        check(sawHiss,"Input pass did not report the amp's hiss");
+        std::cout<<"MEASURE auto set gates: rig noise "<<gates.rigNoiseDb<<" dBFS, gap "<<gates.rigGapDb<<" dB, plan "<<int(gates.plan)<<'\n';
         std::cout<<"MEASURE auto set results:";for(const auto& step:steps)std::cout<<" ["<<Controller::phaseName(step.phase)<<": "<<step.result<<"]";std::cout<<'\n';
     }
     check(get(*p,"liveLimiterOn")>.5f && near(get(*p,"liveLimiterCeiling"),limiterCeilingDb,.01f) && near(get(*p,"liveLimiterRelease"),100.f,.01f),"Limiter was not set for the rock style");
@@ -347,7 +393,7 @@ void controllerIntegration() {
 int main() {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
-        analysisRules();toneRules();finishRules();multibandRules();captureWindows();controllerIntegration();
+        analysisRules();toneRules();finishRules();multibandRules();gateStageRules();captureWindows();controllerIntegration();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
