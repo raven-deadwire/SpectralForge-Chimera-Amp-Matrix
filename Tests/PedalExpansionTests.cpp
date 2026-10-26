@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==42,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==43,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6),"Expansion banks: 5 x (bypass + 11 Para EQ controls, bypass + 5 Multi Comp controls)");
+    require(pedalExpansionParameterCount==5*(12+6+2),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1)");
     int seen=0;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -207,6 +207,40 @@ void multiCompModes() {
     require(board.compressorReduction(0)>3,"The PRE board does not report the Multi Comp's gain reduction");
     std::cout<<"PASS Multi Comp modes: Multiband independent bands and balance, TubeSim harmonics only when driven, board GR meter\n";
 }
+// ---- Tight Boost ----
+std::vector<float> renderBoost(PedalTightBoost& tb,float knob,double hz,double db,double seconds=.5,double rate=48000) {
+    tb.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;
+    for(int block=0;block<int(seconds*rate/256);++block){
+        for(int n=0;n<256;++n,++t){const float x=float(juce::Decibels::decibelsToGain(db)*std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/rate));b.setSample(0,n,x);b.setSample(1,n,x);}
+        tb.process(b,knob);for(int n=0;n<256;++n)out.push_back(b.getSample(0,n));
+    }
+    return out;
+}
+void tightBoostResponse() {
+    const auto& m=pedalModel(tightBoost);
+    require(juce::String(m.id)=="pre.tightboost" && juce::String(m.name)=="Tight Boost" && m.controlCount==1 && pedalMenuEntries[tightBoost].kind==PedalMenuKind::boost,"Tight Boost catalog entry");
+    PedalTightBoost tb;tb.prepare(48000,256);double worst=0;
+    for(const float knob:{0.f,11.f,22.f})for(const double hz:{60.,100.,200.,1000.,4000.}) {
+        const double measured=toneDb(renderBoost(tb,knob,hz,-50),hz)+50,expected=tb.smallSignalDb(knob,hz);
+        worst=std::max(worst,std::abs(measured-expected));
+    }
+    std::cout<<"MEASURE Tight Boost small-signal gain vs analytic: largest error "<<worst<<" dB (knob 0/11/22 dB, 60 Hz-4 kHz)\n";
+    require(worst<.1,"Tight Boost small-signal gain differs from its curve");
+    for(const float knob:{0.f,11.f,22.f})require(std::abs(tb.smallSignalDb(knob,1000.)-knob)<1e-6,"The knob's dB is not the gain at 1 kHz");
+    const double tightOff=tb.smallSignalDb(0,80)-tb.smallSignalDb(0,1000),tightFull=tb.smallSignalDb(22,80)-tb.smallSignalDb(22,1000);
+    std::cout<<"MEASURE Tight Boost 80 Hz relative to 1 kHz: "<<tightOff<<" dB at 0 dB, "<<tightFull<<" dB at 22 dB\n";
+    require(tightFull<tightOff-6,"Turning the boost up does not tighten the low end");
+    // Harmonics only when driven hot.
+    const auto harmonics=[&](float knob,double in){const auto x=renderBoost(tb,knob,1000.,in);return std::max(toneDb(x,2000.),toneDb(x,3000.))-toneDb(x,1000.);};
+    const double clean=harmonics(0,-20),hot=harmonics(22,-20);
+    std::cout<<"MEASURE Tight Boost largest of 2nd/3rd harmonic at -20 dBFS in: "<<clean<<" dBc at 0 dB, "<<hot<<" dBc at 22 dB\n";
+    require(clean<-80 && hot>-40,"Tight Boost harmonics are not added only when driven");
+    // Same oversampling latency as the existing drive stage, so the slot's
+    // fixed latency (and every reported latency) is unchanged.
+    PedalNewDrive drive;drive.prepare({48000,256,2});
+    require(tb.latency()==drive.latency(),"Tight Boost changes the PRE slot latency");
+    std::cout<<"PASS Tight Boost: knob = gain at 1 kHz, measured = analytic, low end tightens, harmonics only when hot, slot latency unchanged\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -216,12 +250,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i){m[3]=float((i/20)%3);m[0]=1+4*float(i%9)/8.f;eq.process(b,c);mc.process(b,m);}
     countAllocations=false;require(allocations==0,"Multi Comp allocates while processing");
-    std::cout<<"PASS Para EQ and Multi Comp: no allocation while automating or switching modes\n";
+    PedalTightBoost tb;tb.prepare(48000,128);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i)tb.process(b,22.f*float(i%11)/10.f);
+    countAllocations=false;require(allocations==0,"Tight Boost allocates while processing");
+    std::cout<<"PASS Para EQ, Multi Comp and Tight Boost: no allocation while automating or switching modes\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

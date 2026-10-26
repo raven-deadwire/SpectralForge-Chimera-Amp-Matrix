@@ -1,6 +1,6 @@
-# PRE Expansion A 1.4 — Para EQ and Multi Comp
+# PRE Expansion A 1.4 — Para EQ, Multi Comp, Tight Boost
 
-Status: **two of six models implemented on `claude/pre-paraeq`**, covered by
+Status: **three of six models implemented on `claude/pre-paraeq`**, covered by
 `ChimeraPedalExpansionTests`. Roadmap: 1.4 PRE Expansion A, six models (Empress
 Heavy Menace; Tel-Ray Power Wah Boost; MXR MB301 Bass Synth; EBS MultiComp;
 Fortin 33; Empress ParaEQ MKII). These are development references; the
@@ -76,7 +76,25 @@ compressor spectrum workspace and the slot reports its gain reduction. No
 added latency, no allocation. This is an original bass compressor laid out
 after the published controls, not a measured model of the pedal.
 
-## 4. Measurements (`ChimeraPedalExpansionTests`)
+## 4. Tight Boost (model 42, `pre.tightboost`)
+
+Reference: Fortin 33 (Fredrik Thordendal signature boost). Public
+specification used (Andertons, effectsdatabase listings; the manufacturer's
+pages were not reachable):
+
+| Hardware (published) | Chimera |
+|---|---|
+| Single knob, up to +22 dB of boost; true-bypass footswitch | BOOST 0–22 dB (default 11 dB); the slot bypass |
+| More boost adds harmonic content and midrange focus; the low end tightens (maker and user descriptions, no curve published) | As BOOST rises, a 2nd-order low cut moves from 60 to 220 Hz and a 1 kHz bell (Q 0.8) grows to +4 dB; the knob's dB is exactly the small-signal gain at 1 kHz |
+| Amp channel-switching remote jack | Not applicable in the plugin |
+| Frequency curve, clipping behaviour: **not published** | Chimera choices: the curves above and a soft-knee stage at 4× oversampling, linear below 0.5 FS, slightly asymmetric above |
+
+The oversampling has the same latency as the existing drive stage, so the
+slot's fixed latency and every reported latency are unchanged. No
+allocation. An original boost laid out after the published behaviour, not a
+measured model of the pedal.
+
+## 5. Measurements (`ChimeraPedalExpansionTests`)
 
 - Steady-state sine gain against the analytic response, four settings
   (low +15 dB wide at 35 Hz; mid −15 dB narrow; high +10 dB at 20 kHz,
@@ -97,15 +115,19 @@ after the published controls, not a measured model of the pedal.
   the treble band by 6 dB. TubeSim: 2nd harmonic −23.7 dBc at −3 dBFS
   (Normal: none), unchanged at −40 dBFS. Through the PRE board the slot
   reports 7.7 dB of gain reduction on a −6 dBFS tone at the defaults.
-- 90 parameters (5 owners × (bypass + 11 Para EQ controls, bypass + 5 Multi
-  Comp controls)) at the end of the list, version 16; every released
+- Tight Boost: small-signal gain equals the analytic curve within 9e−7 dB
+  (knob 0/11/22 dB, 60 Hz–4 kHz); 80 Hz sits 1.2 dB below 1 kHz at 0 dB and
+  21.6 dB below at 22 dB. Largest 2nd/3rd harmonic for a −20 dBFS 1 kHz input:
+  −151 dBc at 0 dB, −19.5 dBc at 22 dB.
+- 100 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
+  5, Tight Boost 1) at the end of the list, version 16; every released
   parameter keeps its index. A project without them restores their defaults.
 
-## 5. Not done
+## 6. Not done
 
 - Listening on real DI; DAW automation and recall.
 - Dedicated pedal artwork (the card uses the generic workbench style).
-- The other four Expansion A models (Heavy Menace, Power Wah Boost, Bass
-  Synth, Fortin 33).
+- The other three Expansion A models (Heavy Menace, Power Wah Boost, Bass
+  Synth).
 - A mode-change click measurement for Multi Comp (the fade is in place but
   not measured).

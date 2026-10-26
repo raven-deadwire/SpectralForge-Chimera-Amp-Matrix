@@ -158,7 +158,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             c.slider.textFromValueFunction=[](double value){return juce::String(value,1)+":1";};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
         }
-        else if(model==40 || model==41) {
+        else if(model==40 || model==41 || model==42) {
             // Para EQ gains and boost, Multi Comp gain, sens and balance are in dB.
             c.slider.textFromValueFunction=[](double value){return (value>0?"+":"")+juce::String(value,1)+" dB";};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
