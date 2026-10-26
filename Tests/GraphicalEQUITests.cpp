@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "EditorSurface.h"
 #include "NativeMessageLoop.h"
 #include <algorithm>
 #include <array>
@@ -123,7 +124,7 @@ void pendingThawEditorRecreation(ChimeraProcessor& processor,std::unique_ptr<Chi
     editor=std::make_unique<ChimeraEditor>(processor);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);
     tab(*editor,"EQ")->triggerClick();settle(60);
-    find<juce::TextButton>(*editor,"eq.bank.final")->triggerClick();
+    find<juce::TextButton>(*editor,"path.final.eq")->triggerClick();
     panel=find<GraphicalEQPanel>(*editor,"finalEQ_panel");
     check(waitFor([&]{return panel->isShowing();}),"Recreated editor could not show pending EQ");
     check(panel->isWaitingForFreshCapture() && !fifo.enabled.load(),"Editor recreation forgot the processor's pending thaw request");
@@ -263,7 +264,7 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
     timing<<"bank,fft_size,rate,bin_spacing_hz,window_ms,first_complete_data_observed_ms,first_component_render_complete_ms,updates,fft_p50_us,fft_p99_us,update_p50_us,update_p99_us,path_p50_us,path_p99_us,panel_paint_p50_us,panel_paint_p99_us,snapshot_p50_us,snapshot_p99_us,native_interval_p50_ms,native_interval_p99_ms,process_cpu_with_snapshot_percent\n";
     SyntheticAudio audio(processor);
     for(int e=0;e<2;++e) {
-        auto* bank=find<juce::TextButton>(editor,e==0?"eq.bank.tone":"eq.bank.final");check(bank,"Selected-bank controls missing");bank->triggerClick();
+        auto* bank=find<juce::TextButton>(editor,e==0?"path.tone.eq":"path.final.eq");check(bank,"Selected-bank controls missing");bank->triggerClick();
         auto* panel=find<GraphicalEQPanel>(editor,e==0?"toneEQ_panel":"finalEQ_panel");
         auto* other=find<GraphicalEQPanel>(editor,e==0?"finalEQ_panel":"toneEQ_panel");
         check(panel && other && waitFor([&]{return panel->isShowing() && !other->isShowing();}),"Exactly one selected EQ bank must be visible");
@@ -324,7 +325,7 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
         for(int stream=0;stream<2;++stream)for(int bin=0;bin<=panel->analysisFFTSize()/2;++bin)frozen.push_back(panel->displaySpectrumDB(stream==1,bin));
         check(!processor.graphicalEQ(e).analyzer.enabled.load() && !resolution->isEnabled() && !smoothing->isEnabled() && !master->isEnabled(),"Frozen analyzer still captures or exposes changing frame settings");
         settle(180);
-        find<juce::TextButton>(editor,e==0?"eq.bank.final":"eq.bank.tone")->triggerClick();settle(60);
+        find<juce::TextButton>(editor,e==0?"path.final.eq":"path.tone.eq")->triggerClick();settle(60);
         bank->triggerClick();check(waitFor([&]{return panel->isShowing();}),"Frozen bank could not reopen");
         check(panel->fftFrames()==frozenFrames && panel->isSnapshotFrozen(),"Freeze transformed data or was lost across bank navigation");
         size_t frozenIndex=0;for(int stream=0;stream<2;++stream)for(int bin=0;bin<=panel->analysisFFTSize()/2;++bin)
@@ -683,12 +684,12 @@ int main(int argc,char** argv){try {
     finalPath->triggerClick();check(waitFor([&]{return finalPanel->isShowing() && finalPanel->selectedBand()==6;}),"Utility navigation overwrote the selected Final EQ node");
     finalSelector->setSelectedId(1,juce::sendNotificationSync);
     for(int percent:{75,100,125,150}){editor->setSize(1180*percent/100,780*percent/100);settle(70);
-        for(int e=0;e<2;++e){find<juce::TextButton>(*editor,e==0?"eq.bank.tone":"eq.bank.final")->triggerClick();settle(40);auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(panel->isShowing(),"Scaled bank is hidden");const auto local=panel->nodePosition(0);
+        for(int e=0;e<2;++e){find<juce::TextButton>(*editor,e==0?"path.tone.eq":"path.final.eq")->triggerClick();settle(40);auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(panel->isShowing(),"Scaled bank is hidden");const auto local=panel->nodePosition(0);
             const auto global=editor->getLocalPoint(panel,local);const auto finish=global+juce::Point<float>(float(percent)/10,0);
             const auto start=panel->getLocalPoint(editor.get(),global),end=panel->getLocalPoint(editor.get(),finish);
             const float previous=get(*processor,eqID(e,0,"frequency"));panel->mouseDown(mouse(*panel,start,start,false));panel->mouseDrag(mouse(*panel,end,start,true));panel->mouseUp(mouse(*panel,end,start,true));
             check(get(*processor,eqID(e,0,"frequency"))>previous,"Graph transform drag failed at UI scale");set(*processor,eqID(e,0,"frequency"),previous);}
-        for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(editor->getLocalBounds().contains(editor->getLocalArea(panel,panel->getLocalBounds())),"EQ clipped at scale");for(const char* field:{"frequency","gain","q"}){auto* s=find<juce::Slider>(*panel,eqID(e,0,field));check(editor->getLocalBounds().contains(editor->getLocalArea(s,s->getLocalBounds())),"Numeric controls clipped");}}
+        for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(editorBoundsReachable(*editor,*panel),"EQ clipped at scale");for(const char* field:{"frequency","gain","q"}){auto* s=find<juce::Slider>(*panel,eqID(e,0,field));check(editorBoundsReachable(*editor,*s),"Numeric controls clipped");}}
         snapshot(*editor,directory.getChildFile("eq-ui-"+juce::String(percent)+".png"));
         const auto t=juce::Time::getMillisecondCounterHiRes();const auto cpu=processCPUSeconds();settle(1000);const double elapsed=juce::Time::getMillisecondCounterHiRes()-t;std::cout<<"UI idle "<<percent<<"% = "<<100000.*(processCPUSeconds()-cpu)/elapsed<<"% one core (1 second no audio, process CPU)\n";
     }
@@ -699,7 +700,7 @@ int main(int argc,char** argv){try {
     // audio fixture and editor size for comparable whole-processor observations.
     processor->setStateInformation(observationState.getData(),int(observationState.getSize()));
     editor->setSize(1180,780);eqTab->triggerClick();settle(50);
-    find<juce::TextButton>(*editor,"eq.bank.final")->triggerClick();
+    find<juce::TextButton>(*editor,"path.final.eq")->triggerClick();
     check(waitFor([&]{return find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isShowing();}),"Timing observation did not restore the visible EQ bank");
     std::exception_ptr observationFailure;
     try{fullProcessorNativeTiming(*processor,*editor,directory);}catch(...){observationFailure=std::current_exception();}

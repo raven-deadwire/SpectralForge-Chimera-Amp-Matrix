@@ -1,0 +1,16 @@
+shift -2
+split first=-1 0
+low first=-1 0
+up first=-1 0
+lpc first=-1 0
+rt first=2.89562 0.000331689
+v2 first=2.89454 0.000605877
+corr40-novelty first=-1 0
+shift 2
+split first=-1 0
+low first=-1 0
+up first=-1 0
+lpc first=-1 0
+rt first=-1 0
+v2 first=-1 0
+corr40-novelty first=-1 0

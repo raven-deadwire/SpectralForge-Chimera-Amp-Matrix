@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #include "WindowFit.h"
 #include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
@@ -17,9 +18,11 @@
 #include <algorithm>
 #include "UIRefreshTests.h"
 #include "SignalPathUITests.h"
+#include "SmallScreenUITests.h"
 #include "PrecisionTunerUITests.h"
 #include "PrecisionTunerTimingProbe.h"
 #include "CommonDynamicsUITests.h"
+#include "EasyModeUITests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -142,10 +145,11 @@ void checkInstalledIR(const juce::File& expected)
 void checkControls(ChimeraEditor& editor, int mode)
 {
     int heads=0,panels=0;
-    for (auto* child : editor.findChildWithID("surface")->getChildren())
+    for (auto* child : editorSurface(editor)->getChildren())
     {
         if (!child->isVisible()) continue;
-        require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())), "Visible control outside editor bounds");
+        // The scrollable editor may show part of the canvas; every control must stay reachable.
+        require(editorBoundsReachable(editor,*child), "Visible control outside editor bounds");
         if(dynamic_cast<AmpSelector*>(child))++heads;
         if(dynamic_cast<AmpNativePanel*>(child))++panels;
         if (auto* label = dynamic_cast<juce::Label*>(child))
@@ -470,7 +474,7 @@ void checkEditorLifetime()
             // A popup can outlive its target until the queued dismissal runs.
             // Exercise that callback after its editor and controls are gone.
             if(iteration%3==0) {
-                for(auto* child:editor->findChildWithID("surface")->getChildren())
+                for(auto* child:editorSurface(*editor)->getChildren())
                     if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="SETTINGS") button->onClick();
             }
         }
@@ -519,7 +523,7 @@ void checkHostedSupportLifetime(const juce::File& directory)
         auto processor=std::make_unique<ChimeraProcessor>();
         require(processor->wrapperType!=juce::AudioProcessor::wrapperType_Standalone,"Hosted Support fixture accidentally uses standalone mode");
         auto editor=std::make_unique<ChimeraEditor>(*processor);
-        auto* canvas=editor->findChildWithID("surface");require(canvas!=nullptr,"Hosted Support editor has no surface");
+        auto* canvas=editorSurface(*editor);require(canvas!=nullptr,"Hosted Support editor has no surface");
         juce::TextButton* settings=nullptr;
         for(auto* child:canvas->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="SETTINGS")settings=button;
         require(settings && settings->onClick,"Hosted Support settings action missing");
@@ -530,9 +534,9 @@ void checkHostedSupportLifetime(const juce::File& directory)
         popup->exitModalState(6);
         juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
         juce::Component::SafePointer<juce::DialogWindow> dialog(nativeUITests::dialog("supportPanel"));
-        require(dialog!=nullptr && dialog->getContentComponent(),"Settings Support action did not open the hosted panel");
-        checkHostedPanel(*dialog->getContentComponent());
-        if(iteration==0)saveSnapshot(*dialog->getContentComponent(),directory,"Support-hosted");
+        require(dialog!=nullptr && spectralforge::ui::dialogContent(*dialog),"Settings Support action did not open the hosted panel");
+        checkHostedPanel(*spectralforge::ui::dialogContent(*dialog));
+        if(iteration==0)saveSnapshot(*spectralforge::ui::dialogContent(*dialog),directory,"Support-hosted");
 
         const auto start=juce::Time::getMillisecondCounterHiRes();
         editor.reset();
@@ -576,32 +580,21 @@ void checkReviewFixes(const juce::File& directory) {
         auto* channel=correctionUITests::find(*panel,"ampChannel1");
         require(channel && channel->isVisible(),"LOW channel selector missing");
         juce::Rectangle<int> previous;int rowY=-1;
-        for(auto id:{"bandtone1_control","matrixLowCompressor.open","lowampmix_control"}) {
-            auto* c=correctionUITests::find(*panel,id);require(c && c->isVisible(),"LOW control or spectrum entry missing");
+        for(auto id:{"bandtone1_control","lowcomp_control","lowampmix_control"}) {
+            auto* c=correctionUITests::find(*panel,id);require(c && c->isVisible(),"LOW shared control missing");
             const auto bounds=panel->getLocalArea(c,c->getLocalBounds());
-            if(juce::String(id)=="matrixLowCompressor.open") {
-                require(dynamic_cast<juce::TextButton*>(c) && correctionUITests::find(*panel,"lowcomp_control")==nullptr,
-                        "LOW compression must open its spectrum instead of exposing an isolated knob");
-                require(bounds.getY()>=rowY && bounds.getBottom()<=rowY+100,"LOW spectrum entry does not occupy the shared control row");
-            } else {
-                auto* knob=dynamic_cast<NativeControlView*>(c);
-                require(knob && knob->slider.getSliderStyle()==juce::Slider::RotaryHorizontalVerticalDrag,"LOW tone/blend control is not rotary");
-                require(bounds.getY()>=channel->getBottom() && bounds.getY()<channel->getBottom()+10,"LOW knobs must be directly below channel");
-                if(rowY<0)rowY=bounds.getY();else require(bounds.getY()==rowY,"LOW tone/blend knobs do not share one row");
-            }
-            require(previous.isEmpty() || bounds.getX()>previous.getX(),"LOW tone / spectrum / blend order changed");
+            auto* knob=dynamic_cast<NativeControlView*>(c);
+            require(knob && knob->slider.getSliderStyle()==juce::Slider::RotaryHorizontalVerticalDrag,"LOW tone/comp/blend control is not rotary");
+            require(bounds.getY()>=channel->getBottom() && bounds.getY()<channel->getBottom()+10,"LOW knobs must be directly below channel");
+            if(rowY<0)rowY=bounds.getY();else require(bounds.getY()==rowY,"LOW tone/comp/blend knobs do not share one row");
+            require(previous.isEmpty() || bounds.getX()>previous.getX(),"LOW tone / comp / blend order changed");
             require(panel->getLocalBounds().contains(bounds) && !bounds.intersects(previous),"LOW controls clipped or overlapping");previous=bounds;
         }
         const float lowBefore=p.parameters().getRawParameterValue("lowcomp")->load();
-        auto lowWindow=nativeUITests::open(*panel,"matrixLowCompressor.open","matrixLowCompressor.panel");
-        auto& lowPanel=*lowWindow->getContentComponent();
-        auto* spectrum=nativeUITests::find<spectralforge::DynamicsSpectrumPanel>(lowPanel,"matrixLowCompressor.spectrum");
-        auto* amount=nativeUITests::find<juce::Slider>(lowPanel,"lowcomp");
-        require(spectrum && spectrum->isShowing() && amount && amount->isShowing() && p.parameters().getRawParameterValue("lowcomp")->load()==lowBefore,
-                "LOW editor navigation changed compression or omitted the spectrum/attached control");
+        auto* amount=nativeUITests::find<juce::Slider>(*panel,"lowcomp");require(amount && amount->isVisible(),"LOW compression knob missing");
         amount->setValue(scale<1.f?.28:.72,juce::sendNotificationSync);
-        require(std::abs(p.parameters().getRawParameterValue("lowcomp")->load()-amount->getValue())<.002f,"LOW spectrum amount is disconnected from its released parameter");
-        saveSnapshot(lowPanel,directory,"HEAD-LOW-Spectrum-"+juce::String(int(scale*100)));nativeUITests::close(lowWindow);set(p,"lowcomp",lowBefore);
+        require(std::abs(p.parameters().getRawParameterValue("lowcomp")->load()-amount->getValue())<.002f,"LOW compression knob is disconnected from its released parameter");
+        set(p,"lowcomp",lowBefore);
         saveSnapshot(*editor,directory,"HEAD-LOW-"+juce::String(int(scale*100)));
     }
     auto* tuner=nativeUITests::find<juce::TextButton>(*editor,"tunerOpen");
@@ -718,8 +711,10 @@ int main(int argc, char** argv)
                 "Native UI regression requires an active display server and window manager");
         if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--precision-tuner-only"){precisionTunerUITests::run(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--easy-mode-only"){easyModeUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--precision-tuner-timing"){precisionTunerTimingProbe::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--common-dynamics-only"){commonDynamicsUITests::run(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--small-screen-only"){smallScreenTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--signal-path-only"){signalPathTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--review-fixes-only"){checkReviewFixes(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--native-panels-only"){runNativeUITests(directory);return 0;}
@@ -865,7 +860,7 @@ int main(int argc, char** argv)
             juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
             {
-                auto* canvas=editor.findChildWithID("surface");
+                auto* canvas=editorSurface(editor);
                 auto* room=canvas->findChildWithID("cabRoomOverview");
                 require(room && room->isVisible(),"Classic/Dual/Matrix RIGS must initially display the cabinet room");
                 saveSnapshot(editor,directory,name+"-cabinet-room");
@@ -877,7 +872,7 @@ int main(int argc, char** argv)
                 const int original=processor.selectedAmpModel(0);
                 for(int model=0;model<spectralforge::ampModelCount;++model) {
                     processor.setAmpModel(0,model);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
-                    auto* reference=dynamic_cast<juce::Label*>(editor.findChildWithID("surface")->findChildWithID("ampreference1"));
+                    auto* reference=dynamic_cast<juce::Label*>(editorSurface(editor)->findChildWithID("ampreference1"));
                     require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).character),"Selected amp caption must describe the selected sound after selection");
                     publicNameTests::safeText(reference->getText(),"selected AMP caption after selection");
                     saveSnapshot(editor,directory,"Head-"+juce::String(model+1));
@@ -885,7 +880,7 @@ int main(int argc, char** argv)
                 processor.setAmpModel(0,original);
             }
             if(mode==1) {
-                for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->getName()=="dualblend")for(auto* text:slider->getChildren())if(auto* label=dynamic_cast<juce::Label*>(text))require(label->getText()=="50:50","Initial blend readout is not a rig ratio");
+                for(auto* child:editorSurface(editor)->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->getName()=="dualblend")for(auto* text:slider->getChildren())if(auto* label=dynamic_cast<juce::Label*>(text))require(label->getText()=="50:50","Initial blend readout is not a rig ratio");
                 set(processor,"dualtype",1);set(processor,"dualcross",700);juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
                 checkControls(editor,1);saveSnapshot(editor,directory,"Dual-crossover");set(processor,"dualtype",0);
             }
@@ -905,7 +900,7 @@ int main(int argc, char** argv)
                 editor.setSize(885,585);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
                 checkControls(editor,2);
-                for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Interface size")require(box->getText()=="75%","Size selector did not follow window resizing");
+                for(auto* child:editorSurface(editor)->getChildren()) if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Interface size")require(box->getText()=="75%","Size selector did not follow window resizing");
                 {
                     // Issue #113 fit-to-screen: the largest readable size, never below 75%.
                     using namespace spectralforge::ui;
@@ -920,7 +915,7 @@ int main(int argc, char** argv)
                 set(processor,"x1",350); set(processor,"x2",4000);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
                 bool lowUpdated = false, highUpdated = false;
-                for (auto* child : editor.findChildWithID("surface")->getChildren())
+                for (auto* child : editorSurface(editor)->getChildren())
                     if (auto* label = dynamic_cast<juce::Label*>(child))
                     {
                         lowUpdated = lowUpdated || label->getText() == "INPUT: below 350 Hz";
@@ -929,7 +924,7 @@ int main(int argc, char** argv)
                 require(lowUpdated && highUpdated,"Automated crossover labels are stale");
                 saveSnapshot(editor,directory,"Matrix-crossovers");
                 for(const auto* tab:{"PRE","POST"}) {
-                    auto* canvas=editor.findChildWithID("surface");
+                    auto* canvas=editorSurface(editor);
                     correctionUITests::clickTab(*canvas,tab);
                     for(auto* child:canvas->getChildren())if(child->isVisible())
                         require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())),"FX page control outside editor");
@@ -971,7 +966,7 @@ int main(int argc, char** argv)
                 // Host-driven mode changes must immediately remove hidden controls.
                 set(processor,"mode",0);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
-                rigViewTests::showControls(*editor.findChildWithID("surface"));
+                rigViewTests::showControls(*editorSurface(editor));
                 checkControls(editor,0);
                 require(processor.parameters().getRawParameterValue("x1")->load()==350,
                         "Switching modes reset saved crossover settings");
@@ -980,7 +975,7 @@ int main(int argc, char** argv)
         {
             const auto universalStorage=std::make_unique<ChimeraProcessor>();auto& universal=*universalStorage;universal.prepareToPlay(48000,256);
             const int models[]{30,6,26,27,31};for(int i=0;i<5;++i)universal.setPedalModel(i,models[i]);set(universal,"boardEnabled",1);
-            const auto editorStorage=std::make_unique<ChimeraEditor>(universal);auto& editor=*editorStorage;auto* canvas=editor.findChildWithID("surface");require(canvas,"Missing editor surface");
+            const auto editorStorage=std::make_unique<ChimeraEditor>(universal);auto& editor=*editorStorage;auto* canvas=editorSurface(editor);require(canvas,"Missing editor surface");
             nativeUITests::find<juce::TextButton>(*canvas,"path.pre")->triggerClick();
             for(int mode=0;mode<3;++mode) {
                 set(universal,"mode",float(mode));juce::MessageManager::getInstance()->runDispatchLoopUntil(180);
@@ -1051,8 +1046,8 @@ int main(int argc, char** argv)
                     else pedalMenuTests::checkFiveKnobLayout(*board,owner,fiveControlModels[owner],&editor);
                 }
                 saveSnapshot(editor,directory,scale?"Correction-PRE-five-controls-75pct":"Correction-PRE-five-controls");
-                auto* spectrumEntry=nativeUITests::find<juce::TextButton>(*board,"boardCompressorSpectrumAt0");
-                require(spectrumEntry && spectrumEntry->isVisible(),"PRE compressor spectrum action missing");
+                auto* spectrumEntry=nativeUITests::find<juce::TextButton>(*board,"boardDetailAt0");
+                require(spectrumEntry && spectrumEntry->isVisible(),"PRE compressor detail/spectrum action missing");
                 spectrumEntry->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(100);checkDetailPanel(5);
                 pedalMenuTests::checkFiveKnobLayout(*board,0,fiveControlModels[0],&editor);
                 saveSnapshot(editor,directory,scale?"Correction-five-knobs-detail-75pct":"Correction-five-knobs-detail");

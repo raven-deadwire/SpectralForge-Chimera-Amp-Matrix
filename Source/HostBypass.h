@@ -8,12 +8,18 @@
 namespace spectralforge {
 // Host bypass must retain the delay reported to PDC. Keep raw input history
 // while the wet graph runs so the first bypass block does not start with zeros.
-// Allocation and clearing happen only in prepare(), never in an audio callback.
+// Allocation happens only in prepare(). A requested reset clears the bounded
+// history in place on the audio thread, including while the host bypasses us.
 class HostBypass {
 public:
     void prepare(int maximumLatency) {
         capacity = std::max(1, maximumLatency + 1);
         for (auto& channel : history) channel.assign(static_cast<std::size_t>(capacity), 0.f);
+        position = 0;
+    }
+
+    void reset() noexcept {
+        for (auto& channel : history) std::fill(channel.begin(), channel.end(), 0.f);
         position = 0;
     }
 

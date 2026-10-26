@@ -49,6 +49,7 @@ struct PresetProcessingMeters {
         }
     };
     Meter compressor,limiter;std::array<Meter,4> dynamic{};int blocks{};
+    std::array<Meter,2> gateUnits{}; // Gate 2, Expander: reduction while the fixture plays
     std::array<DetectorInput,2> detectorInputs{};std::array<bool,2> wasAnalyzing{};
     std::array<uint64_t,2> droppedBefore{};
     std::array<double,2> compHPIn{},compHPOut{};
@@ -79,6 +80,7 @@ struct PresetProcessingMeters {
     }
     void sample(ChimeraProcessor& processor) {
         ++blocks;compressor.add(processor.commonDynamics().compReduction.load());
+        for(int unit=1;unit<=2;++unit)gateUnits[size_t(unit-1)].add(-juce::Decibels::gainToDecibels(processor.gateUnitMeter(unit),-120.f));
         limiter.add(processor.commonDynamics().limitReduction.load());
         for(int slot=0;slot<4;++slot) {
             const int target=int(processor.parameters().getRawParameterValue(spectralforge::dynamicSlotID(slot,"target"))->load());
@@ -106,7 +108,7 @@ struct PresetProcessingMeters {
         // sample-accurate detector or loudness measurements.
         std::cout<<"PRESET_DYNAMICS,"<<index<<','<<condition;
         const auto meter=[&](const Meter& value){std::cout<<','<<value.maximum<<','<<value.sum/std::max(1,blocks);};
-        meter(compressor);meter(limiter);for(const auto& value:dynamic)meter(value);std::cout<<'\n';
+        meter(compressor);meter(limiter);for(const auto& value:dynamic)meter(value);for(const auto& value:gateUnits)meter(value);std::cout<<'\n';
         // Independent band-pass measurement of the actual Tone/Final inputs.
         // This gives threshold calibration context without changing the DSP's
         // dynamic range or observing a limiter-flattened output spectrum.
@@ -184,6 +186,36 @@ void factoryProcessingState(ChimeraProcessor& source,ChimeraProcessor& copy) {
     copy.setStateInformation(bytes.getData(),int(bytes.getSize()));restored("project");
     copy.copyComparison();copy.selectComparison(1);dirty();copy.selectComparison(0);restored("A/B");
 }
+// Gate 2 / Expander must stay open while the pluck fixture plays and close on
+// the quiet hiss that follows it.
+void factoryGateTail(ChimeraProcessor& p,int index,bool bass) {
+    p.prepareToPlay(48000,128);juce::AudioBuffer<float> b(2,128);juce::MidiBuffer midi;
+    const bool expander=p.parameters().getRawParameterValue("expOn")->load()>.5f;const int unit=expander?2:1;
+    float openReduction=0;
+    // Hiss 24 dB under the unit's threshold at the detector, after input gain.
+    const auto raw=[&](const char* id){return p.parameters().getRawParameterValue(id)->load();};
+    const float hiss=juce::Decibels::decibelsToGain((expander?raw("expThreshold"):raw("gate2Threshold"))-24.f-raw("input"));
+    for(int block=0;block<1050;++block) {
+        for(int n=0;n<128;++n) {
+            const double t=double(block*128+n)/48000;float x=0;
+            if(t<1.2) {
+                const double noteTime=std::fmod(t,.2),fundamental=bass?41.2034:110.;
+                const float envelope=float(std::min(1.,noteTime/.003)*(.08+.92*std::exp(-noteTime*12)));
+                for(int harmonic=1;harmonic<=8;++harmonic)x+=envelope*.16f/float(harmonic)*std::sin(float(juce::MathConstants<double>::twoPi*fundamental*harmonic*noteTime));
+            } else x=hiss*std::sin(float(t*12345.678));
+            b.setSample(0,n,x);b.setSample(1,n,-.7f*x);
+        }
+        p.processBlock(b,midi);
+        const float reduction=-juce::Decibels::gainToDecibels(p.gateUnitMeter(unit),-120.f);
+        if(block>20 && block<440)openReduction=std::max(openReduction,reduction);
+        if(block==1049) { // 1.6 s of hiss: long authored releases have settled
+            std::cout<<"PRESET_GATE_UNITS,"<<index<<','<<(expander?"expander":"gate2")<<','<<openReduction<<','<<reduction<<'\n';
+            require(openReduction<.5f,"Factory Gate 2 / Expander cuts into the played notes");
+            require(reduction>6.f,"Factory Gate 2 / Expander does not reduce the quiet hiss between phrases");
+        }
+    }
+    p.releaseResources();
+}
 void factoryProcessingContract(ChimeraProcessor& processor,int index) {
     using namespace spectralforge;
     const auto get=[&](const juce::String& id) {
@@ -210,7 +242,8 @@ void factoryProcessingContract(ChimeraProcessor& processor,int index) {
             const auto value=processor.graphicalEQ(bank).values(band);
             if(!value.enabled)continue;
             mask=uint16_t(mask|(1u<<band));
-            require(band<2,"Factory EQ left an unauthored correction slot active");
+            // Bands 1-2 hold the finishing/dynamic nodes; Tone 3-4 and Final 3 the role tone curve.
+            require(band<(bank==0?4:3),"Factory EQ left an unauthored correction slot active");
         }
         require(mask!=0 && !processor.graphicalEQ(bank).isBypassed(),"Factory preset omitted its Tone or Final EQ voicing");
         require(processor.eqEditing().occupiedMask(bank)==mask,"Factory EQ displayed stale or missing editor bands");
@@ -222,6 +255,10 @@ void factoryProcessingContract(ChimeraProcessor& processor,int index) {
         require(get("cleanCompOn")==0,"Factory preset stacked a new common compressor over its authored POST compressor");
     require(std::abs(get("cleanCompMakeup"))<.002f,"Factory common compressor introduced an implicit output-level correction");
     require(get("liveLimiterOn")==1 && std::abs(get("liveLimiterCeiling")+1)<.002f,"Factory output protection is absent or uses the wrong ceiling");
+    // Hard main gate plus exactly one of: a gentle Gate 2 on the other side, or the Expander.
+    require(get("gateMode")<.5f && (get("gate2On")>.5f)!=(get("expOn")>.5f),"Factory gating must pair the main gate with Gate 2 or the Expander");
+    if(get("expOn")>.5f)require(get("expThreshold")>get("gatethreshold") && get("expRangeDb")<=get("gateRangeDb")+.01f,"Factory Expander must work above the main gate");
+    if(get("gate2On")>.5f)require(get("gate2Mode")>.5f && get("gate2Threshold")<get("gatethreshold"),"Factory Gate 2 must be a gentle expander below the main gate");
     const bool bass=isNiflheimrPreset(index)||(index<factoryPresetCount && juce::String(factoryPresets[size_t(index)].instrument).contains("Bass"));
     if(bass)for(double fundamental:{27.5,30.8677})for(bool maximumDynamic:{false,true}) {
         double response=1;
@@ -396,6 +433,7 @@ void factoryBank(bool measureOnly,bool originalOnly=false,bool headerVoicing=fal
         const auto* name=selectablePresetName(index);
         std::cout<<"PRESET_LEVEL,"<<index<<","<<name<<","<<rmsDb<<","<<peakDb<<","<<a->parameters().getRawParameterValue("output")->load()<<'\n';
         nominalMeters.print(index,"nominal");
+        if(!measureOnly)factoryGateTail(*a,index,bass);
         if(measureOnly&&(index==1||index==14||index==31))std::cout<<"PRESET_DIAGNOSTIC "<<index<<" "<<a->diagnosticReport()<<'\n';
         if(!measureOnly){require(peak<.95f,"Factory preset clips at unity OUTPUT");require(rmsDb>-30,"Factory preset is unexpectedly quiet on the synthetic pluck fixture");}
         set(*b,"input",6);const auto hot=render(*b,bass,450,index,&hotMeters);float hotPeak=0;

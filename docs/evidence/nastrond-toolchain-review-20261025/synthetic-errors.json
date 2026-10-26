@@ -1,0 +1,74 @@
+{
+  "identical": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": 0.0,
+    "lag_samples": 0,
+    "correlation": 1.0,
+    "log_spectrum_rms_db": 0.0,
+    "polarity": 1,
+    "band_spectrum_rms_db": 0.0
+  },
+  "polarity_inversion": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": 0.0,
+    "lag_samples": 0,
+    "correlation": -1.0,
+    "log_spectrum_rms_db": 0.0,
+    "polarity": -1,
+    "band_spectrum_rms_db": 0.0
+  },
+  "gain_plus_6db": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": -6.020599913279624,
+    "lag_samples": 0,
+    "correlation": 1.0,
+    "log_spectrum_rms_db": 0.0,
+    "polarity": 1,
+    "band_spectrum_rms_db": 0.0
+  },
+  "delay_32_samples": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": 0.0003030018489329663,
+    "lag_samples": -32,
+    "correlation": 0.9999999999999984,
+    "log_spectrum_rms_db": 0.006798746047609908,
+    "polarity": 1,
+    "band_spectrum_rms_db": 0.0029580559661779304
+  },
+  "bass_loss_20db": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": 0.033202907272985714,
+    "lag_samples": 0,
+    "correlation": 0.9968796862447736,
+    "log_spectrum_rms_db": 2.950280261678725,
+    "polarity": 1,
+    "band_spectrum_rms_db": 9.977180519106012
+  },
+  "bass_loss_12db": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": 0.03141571042158963,
+    "lag_samples": 0,
+    "correlation": 0.9978419070210303,
+    "log_spectrum_rms_db": 1.7831956942276905,
+    "polarity": 1,
+    "band_spectrum_rms_db": 6.091449409907136
+  },
+  "treble_loss_12db": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": 1.160887133802046,
+    "lag_samples": 0,
+    "correlation": 0.9287180886120832,
+    "log_spectrum_rms_db": 9.436315212848125,
+    "polarity": 1,
+    "band_spectrum_rms_db": 5.869378503236388
+  },
+  "treble_boost_20db": {
+    "reference_rms_dbfs": 0.006848032104929719,
+    "match_gain_db": -14.113715324833846,
+    "lag_samples": 0,
+    "correlation": 0.6406576447269182,
+    "log_spectrum_rms_db": 8.634166470358638,
+    "polarity": 1,
+    "band_spectrum_rms_db": 12.155098272704397
+  }
+}

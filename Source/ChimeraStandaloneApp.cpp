@@ -11,6 +11,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
 #include "WindowFit.h"
+#include "PluginEditor.h"
 
 namespace spectralforge {
 class ChimeraStandaloneWindow final : public juce::StandaloneFilterWindow {
@@ -26,28 +27,37 @@ public:
         return StandaloneFilterWindow::keyPressed(key);
     }
 private:
-    juce::AudioProcessorEditor* editor() {
-        auto* processor=getAudioProcessor();return processor?processor->getActiveEditor():nullptr;
+    ChimeraEditor* editor() {
+        auto* processor=getAudioProcessor();return processor?dynamic_cast<ChimeraEditor*>(processor->getActiveEditor()):nullptr;
     }
     // Resize through the editor so its constrainer, scale menu and canvas
     // transform stay authoritative; the window follows its content.
     void toggleFit() {
         auto* view=editor();if(view==nullptr)return;
-        if(fitted) {
-            fitted=false;view->setSize(restoredEditorSize.x,restoredEditorSize.y);
-            setTopLeftPosition(restoredPosition);return;
-        }
-        restoredEditorSize={view->getWidth(),view->getHeight()};restoredPosition=getPosition();
         const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds());
         if(display==nullptr)return;
-        const juce::Point<int> chrome{getWidth()-view->getWidth(),getHeight()-view->getHeight()};
-        const auto size=ui::editorSizeForScale(ui::fittedEditorScale(display->userArea,chrome));
-        view->setSize(size.x,size.y);
+        if(fitted) {
+            fitted=false;
+            view->setViewSize(ui::boundedEditorSize(restoredEditorSize,display->userArea,ui::editorWindowChrome(*view)),restoredScale);
+            view->setViewPosition(restoredScroll);
+            setTopLeftPosition(restoredPosition);
+            // Preserve exact normal bounds on the same monitor. If that monitor
+            // disappeared, keep the restored window reachable on this one.
+            if(!display->userArea.contains(getScreenBounds()))
+                setTopLeftPosition(ui::centredWindowPosition(display->userArea,{getWidth(),getHeight()}));
+            return;
+        }
+        restoredEditorSize={view->getWidth(),view->getHeight()};restoredPosition=getPosition();
+        restoredScale=view->preferredViewScale();restoredScroll=view->viewPosition();
+        const auto size=ui::fittedEditorSize(display->userArea,ui::editorWindowChrome(*view));
+        view->setViewSize(size);
         setTopLeftPosition(ui::centredWindowPosition(display->userArea,{getWidth(),getHeight()}));
         fitted=true;
     }
     bool fitted=false;
     juce::Point<int> restoredEditorSize,restoredPosition;
+    juce::Point<int> restoredScroll;
+    float restoredScale{};
 };
 
 class ChimeraStandaloneApp final : public juce::JUCEApplication {

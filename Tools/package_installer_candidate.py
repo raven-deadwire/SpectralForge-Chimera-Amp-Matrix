@@ -88,6 +88,7 @@ def stage() -> None:
     release.copy(ROOT / "Tools/Trace-Chimera-Session.ps1", destination / "ReferenceTools/Trace-Chimera-Session.ps1")
     release.copy(build / "ChimeraRender_artefacts/Release/ChimeraRender.exe",
                  destination / "ReferenceTools/ChimeraRender.exe")
+    obs = release.obs_filter(destination, build, sha, required=False)
     (destination / "README.txt").write_text(
         f"SpectralForge Chimera — Windows update preview {sha[:10]}\n"
         f"Source commit: {sha}\n\n"
@@ -108,7 +109,9 @@ def stage() -> None:
         "   사용자 지정 경로는 DAW의 플러그인 검색 경로에도 추가하세요.\n"
         "5. 설치 후 DAW에서 VST3를 재검색합니다. SETTINGS의 build 값을 확인하세요.\n"
         "6. 직접 보유한 WAV/AIFF는 IR LIBRARY의 OPEN IR / ADD FOLDER로 선택합니다.\n"
-        "   이 배포본에는 개인 IR 팩이나 개발용 레퍼런스 오디오가 포함되지 않습니다.\n\n"
+        "   이 배포본에는 개인 IR 팩이나 개발용 레퍼런스 오디오가 포함되지 않습니다.\n"
+        "7. OBS Studio 필터를 같이 설치할지 묻는 항목이 있으면, OBS를 종료한 뒤 선택합니다.\n"
+        "   OBS 오디오 소스의 필터 목록에 SpectralForge Chimera가 추가됩니다(OBS 31.1.2에서 시험).\n\n"
         "같은 Setup을 다시 실행하면 설치 경로를 기억하고 구성 파일을 복구합니다.\n"
         "기존 사용자 IR을 덮어쓰지 않으며 앱 제거 후에도 개인 IR과 프리셋은 보존합니다.\n"
         "VST3 폴더를 변경하면 이전 설치 경로의 제품 바이너리만 정리합니다.\n"
@@ -118,7 +121,7 @@ def stage() -> None:
         "Verification.txt", "VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3"], version=version)
     path = destination / "payload-manifest.json"
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    manifest.update(run_id=os.environ.get("GITHUB_RUN_ID"),
+    manifest.update(run_id=os.environ.get("GITHUB_RUN_ID"), obs_filter_bundled=obs,
                     published_release=False, publisher_signed=False, personal_ir_audio_bundled=False)
     path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"stage": str(destination), "source_sha": sha, "build_id": sha[:10]}))

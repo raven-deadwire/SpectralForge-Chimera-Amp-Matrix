@@ -1,0 +1,848 @@
+{
+ "status": "SYNTHETIC_RESEARCH_ONLY_TARGET_NOT_ACCEPTED",
+ "date": "2026-10-22",
+ "base_commit": "62234deaa765bc52be768e0b0319c44ff44c93c7",
+ "renderer_sha256": "54243b0848d0f23fdf3200d7e9f3176a2c1419a6d74a55a8a788f731abf02087",
+ "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+ "candidate": "corr40-split-up",
+ "real_DI": "NOT_AVAILABLE",
+ "Neural_DSP_output": "NOT_AVAILABLE",
+ "fixed_PDC": "NOT_IMPLEMENTED",
+ "actual_DAW": "NOT_RUN",
+ "low_band_impulse_extra_centroid_ms": {
+  "baseline": [
+   38.36767618531788,
+   45.89539036569113
+  ],
+  "corr40-onset": [
+   2.5355589431904573,
+   2.5355589431906838
+  ],
+  "corr40-split": [
+   10.685927975798752,
+   16.876629057080816
+  ],
+  "corr40-split-low": [
+   4.062659223341901,
+   4.062659223342052
+  ],
+  "corr40-split-up": [
+   4.062659223341901,
+   4.062659223342052
+  ]
+ },
+ "low_band_riff_per_note_max_ms": {
+  "bass_B0/riff75/corr40-split": 34.381,
+  "bass_B0/riff75/corr40-split-up": 5.069,
+  "bass_B0/riff50/corr40-split": 27.538,
+  "bass_B0/riff50/corr40-split-up": 4.81,
+  "bass_B0/alternating_velocity/corr40-split": 34.941,
+  "bass_B0/alternating_velocity/corr40-split-up": 5.37,
+  "bass_dropA_A0/riff75/corr40-split": 32.363,
+  "bass_dropA_A0/riff75/corr40-split-up": 5.082,
+  "bass_dropA_A0/riff50/corr40-split": 31.123,
+  "bass_dropA_A0/riff50/corr40-split-up": 4.332,
+  "bass_dropA_A0/alternating_velocity/corr40-split": 30.08,
+  "bass_dropA_A0/alternating_velocity/corr40-split-up": 5.082,
+  "guitar_dropA_A1/riff75/corr40-split": 33.033,
+  "guitar_dropA_A1/riff75/corr40-split-up": 5.686,
+  "guitar_dropA_A1/riff50/corr40-split": 23.766,
+  "guitar_dropA_A1/riff50/corr40-split-up": 4.734,
+  "guitar_dropA_A1/alternating_velocity/corr40-split": 36.128,
+  "guitar_dropA_A1/alternating_velocity/corr40-split-up": 14.613
+ },
+ "matrix": {
+  "corr40-split/harmonics/-2": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.5930109794438672,
+   "runs": 27
+  },
+  "corr40-split-up/harmonics/-2": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.5929885868230318,
+   "runs": 27
+  },
+  "corr40-split/alternating_velocity/-2": {
+   "attack_additional_max_ms": 2.9375,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split-up/alternating_velocity/-2": {
+   "attack_additional_max_ms": 2.9375,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split/quiet_markers_over_sustain/-2": {
+   "attack_additional_max_ms": 2.75,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.5950701155144178,
+   "runs": 27
+  },
+  "corr40-split-up/quiet_markers_over_sustain/-2": {
+   "attack_additional_max_ms": 2.6984126984126986,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.5955112700893623,
+   "runs": 27
+  },
+  "corr40-split/harmonics/-1": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.41966143568711145,
+   "runs": 27
+  },
+  "corr40-split-up/harmonics/-1": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.41966305215981603,
+   "runs": 27
+  },
+  "corr40-split/alternating_velocity/-1": {
+   "attack_additional_max_ms": 2.520833333333333,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split-up/alternating_velocity/-1": {
+   "attack_additional_max_ms": 2.520833333333333,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split/quiet_markers_over_sustain/-1": {
+   "attack_additional_max_ms": 2.5208333333333335,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.42019963118455483,
+   "runs": 27
+  },
+  "corr40-split-up/quiet_markers_over_sustain/-1": {
+   "attack_additional_max_ms": 2.5208333333333335,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.4202398701745884,
+   "runs": 27
+  },
+  "corr40-split/harmonics/+1": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.20972905855739593,
+   "runs": 27
+  },
+  "corr40-split-up/harmonics/+1": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.2097592885770968,
+   "runs": 27
+  },
+  "corr40-split/alternating_velocity/+1": {
+   "attack_additional_max_ms": 37.68707482993197,
+   "missed_events": 432,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split-up/alternating_velocity/+1": {
+   "attack_additional_max_ms": 3.7083333333333335,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split/quiet_markers_over_sustain/+1": {
+   "attack_additional_max_ms": 37.666666666666664,
+   "missed_events": 432,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.2101511074400489,
+   "runs": 27
+  },
+  "corr40-split-up/quiet_markers_over_sustain/+1": {
+   "attack_additional_max_ms": 3.666666666666667,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.41369919053771004,
+   "runs": 27
+  },
+  "corr40-split/harmonics/+2": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.14940051928066878,
+   "runs": 27
+  },
+  "corr40-split-up/harmonics/+2": {
+   "attack_additional_max_ms": null,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.14832023003037742,
+   "runs": 27
+  },
+  "corr40-split/alternating_velocity/+2": {
+   "attack_additional_max_ms": 32.358276643990926,
+   "missed_events": 432,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split-up/alternating_velocity/+2": {
+   "attack_additional_max_ms": 5.034013605442177,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": null,
+   "runs": 27
+  },
+  "corr40-split/quiet_markers_over_sustain/+2": {
+   "attack_additional_max_ms": 33.75,
+   "missed_events": 432,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.1550544756449258,
+   "runs": 27
+  },
+  "corr40-split-up/quiet_markers_over_sustain/+2": {
+   "attack_additional_max_ms": 4.979166666666667,
+   "missed_events": 0,
+   "unmatched_resets": 0,
+   "warble_max_cents": 0.35432036309517645,
+   "runs": 27
+  }
+ },
+ "guards": {
+  "bright_sustain-bass_B0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.185221025603367,
+   "attack_additional_max_ms": null
+  },
+  "bright_sustain-bass_B0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.18523405179039223,
+   "attack_additional_max_ms": null
+  },
+  "tremolo-bass_B0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 48.619210096209784,
+   "attack_additional_max_ms": null
+  },
+  "tremolo-bass_B0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 113.36538361484648,
+   "attack_additional_max_ms": null
+  },
+  "vibrato-bass_B0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 33.026707482087566,
+   "attack_additional_max_ms": null
+  },
+  "vibrato-bass_B0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 33.052627331405546,
+   "attack_additional_max_ms": null
+  },
+  "noise_floor-bass_B0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.29649541877401336,
+   "attack_additional_max_ms": null
+  },
+  "noise_floor-bass_B0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.2964823242863237,
+   "attack_additional_max_ms": null
+  },
+  "quieter_markers-bass_B0-48000/corr40-split": {
+   "onset_resets": 17,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.30117829088309755,
+   "attack_additional_max_ms": 2.7916666666666665
+  },
+  "quieter_markers-bass_B0-48000/corr40-split-up": {
+   "onset_resets": 17,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.30379929241557074,
+   "attack_additional_max_ms": 2.7916666666666665
+  },
+  "riff50-bass_B0-48000/corr40-split": {
+   "onset_resets": 16,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": null,
+   "attack_additional_max_ms": 2.625
+  },
+  "riff50-bass_B0-48000/corr40-split-up": {
+   "onset_resets": 16,
+   "low_onset_resets": 16,
+   "missed": 0,
+   "warble_cents": null,
+   "attack_additional_max_ms": 2.625
+  },
+  "bright_sustain-bass_dropA_A0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.37076167823743067,
+   "attack_additional_max_ms": null
+  },
+  "bright_sustain-bass_dropA_A0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.3706444120555476,
+   "attack_additional_max_ms": null
+  },
+  "tremolo-bass_dropA_A0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 68.54645210788266,
+   "attack_additional_max_ms": null
+  },
+  "tremolo-bass_dropA_A0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 173.10634710967895,
+   "attack_additional_max_ms": null
+  },
+  "vibrato-bass_dropA_A0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 32.87188941223178,
+   "attack_additional_max_ms": null
+  },
+  "vibrato-bass_dropA_A0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 32.85049431225292,
+   "attack_additional_max_ms": null
+  },
+  "noise_floor-bass_dropA_A0-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.5929738433241657,
+   "attack_additional_max_ms": null
+  },
+  "noise_floor-bass_dropA_A0-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.5929043048946332,
+   "attack_additional_max_ms": null
+  },
+  "quieter_markers-bass_dropA_A0-48000/corr40-split": {
+   "onset_resets": 17,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.593118594450754,
+   "attack_additional_max_ms": 2.7916666666666665
+  },
+  "quieter_markers-bass_dropA_A0-48000/corr40-split-up": {
+   "onset_resets": 17,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.5929895996884496,
+   "attack_additional_max_ms": 2.7916666666666665
+  },
+  "riff50-bass_dropA_A0-48000/corr40-split": {
+   "onset_resets": 16,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": null,
+   "attack_additional_max_ms": 2.625
+  },
+  "riff50-bass_dropA_A0-48000/corr40-split-up": {
+   "onset_resets": 16,
+   "low_onset_resets": 16,
+   "missed": 0,
+   "warble_cents": null,
+   "attack_additional_max_ms": 2.625
+  },
+  "bright_sustain-guitar_dropA_A1-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.006026271236108868,
+   "attack_additional_max_ms": null
+  },
+  "bright_sustain-guitar_dropA_A1-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.00929322552833968,
+   "attack_additional_max_ms": null
+  },
+  "tremolo-guitar_dropA_A1-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 10.805628734338697,
+   "attack_additional_max_ms": null
+  },
+  "tremolo-guitar_dropA_A1-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 9.519020167521601,
+   "attack_additional_max_ms": null
+  },
+  "vibrato-guitar_dropA_A1-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 31.644141957997558,
+   "attack_additional_max_ms": null
+  },
+  "vibrato-guitar_dropA_A1-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 31.636278758468155,
+   "attack_additional_max_ms": null
+  },
+  "noise_floor-guitar_dropA_A1-48000/corr40-split": {
+   "onset_resets": 1,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": 0.009703142667862118,
+   "attack_additional_max_ms": null
+  },
+  "noise_floor-guitar_dropA_A1-48000/corr40-split-up": {
+   "onset_resets": 1,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.010662020640708762,
+   "attack_additional_max_ms": null
+  },
+  "quieter_markers-guitar_dropA_A1-48000/corr40-split": {
+   "onset_resets": 11,
+   "low_onset_resets": 0,
+   "missed": 6,
+   "warble_cents": 0.3049071632635263,
+   "attack_additional_max_ms": 30.1875
+  },
+  "quieter_markers-guitar_dropA_A1-48000/corr40-split-up": {
+   "onset_resets": 17,
+   "low_onset_resets": 1,
+   "missed": 0,
+   "warble_cents": 0.3573293403334977,
+   "attack_additional_max_ms": 2.7291666666666665
+  },
+  "riff50-guitar_dropA_A1-48000/corr40-split": {
+   "onset_resets": 16,
+   "low_onset_resets": 0,
+   "missed": 0,
+   "warble_cents": null,
+   "attack_additional_max_ms": 2.645833333333333
+  },
+  "riff50-guitar_dropA_A1-48000/corr40-split-up": {
+   "onset_resets": 16,
+   "low_onset_resets": 16,
+   "missed": 0,
+   "warble_cents": null,
+   "attack_additional_max_ms": 2.645833333333333
+  }
+ },
+ "holdout": {
+  "bass_B0-random_plucks/baseline/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 47.02083333333333,
+   "lowband_max_ms": 45.75065937458617,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_B0-random_plucks/corr40-onset/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 14.1875,
+   "lowband_max_ms": 15.763845025354865,
+   "missed": 3,
+   "unmatched": 0
+  },
+  "bass_B0-random_plucks/corr40-split/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.666666666666667,
+   "lowband_max_ms": 36.32734995571655,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_B0-random_plucks/corr40-split-up/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.666666666666667,
+   "lowband_max_ms": 5.974778552352571,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_B0-random_plucks/baseline/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 47.16666666666667,
+   "lowband_max_ms": 45.5570432285128,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_B0-random_plucks/corr40-split/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 30.9375,
+   "lowband_max_ms": 27.34369189706033,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_B0-random_plucks/corr40-split-up/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 4.895833333333333,
+   "lowband_max_ms": 7.57392324896432,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_B0-random_markers/baseline/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 49.125,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_B0-random_markers/corr40-onset/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 38.8125,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_B0-random_markers/corr40-split/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.7708333333333335,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_B0-random_markers/corr40-split-up/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.7708333333333335,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_B0-random_markers/baseline/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 52.14583333333333,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_B0-random_markers/corr40-split/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 34.39583333333333,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_B0-random_markers/corr40-split-up/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 4.958333333333333,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_plucks/baseline/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 46.5,
+   "lowband_max_ms": 45.76951476353686,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_plucks/corr40-onset/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 14.1875,
+   "lowband_max_ms": 15.665172362257866,
+   "missed": 3,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_plucks/corr40-split/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.666666666666667,
+   "lowband_max_ms": 36.2990173977614,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_plucks/corr40-split-up/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.666666666666667,
+   "lowband_max_ms": 5.882911951889547,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_plucks/baseline/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 43.270833333333336,
+   "lowband_max_ms": 45.75980529501909,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_plucks/corr40-split/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 20.375,
+   "lowband_max_ms": 27.115110446047737,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_plucks/corr40-split-up/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 4.895833333333333,
+   "lowband_max_ms": 7.2665033762987825,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_markers/baseline/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 50.27083333333333,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_markers/corr40-onset/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 39.5,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_markers/corr40-split/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.7708333333333335,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_markers/corr40-split-up/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.7708333333333335,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_markers/baseline/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 51.145833333333336,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_markers/corr40-split/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 32.95833333333333,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "bass_dropA_A0-random_markers/corr40-split-up/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 4.958333333333333,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_plucks/baseline/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 47.10416666666667,
+   "lowband_max_ms": 46.83672253184677,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_plucks/corr40-onset/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 30.395833333333332,
+   "lowband_max_ms": 31.508305472524555,
+   "missed": 4,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_plucks/corr40-split/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.6458333333333335,
+   "lowband_max_ms": 36.16897786030374,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_plucks/corr40-split-up/-2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 2.6458333333333335,
+   "lowband_max_ms": 6.271683383583504,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_plucks/baseline/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 47.22916666666667,
+   "lowband_max_ms": 45.28972496548983,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_plucks/corr40-split/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 22.979166666666664,
+   "lowband_max_ms": 20.584963683937428,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_plucks/corr40-split-up/+2": {
+   "attack_metric_valid": true,
+   "attack_additional_max_ms": 4.833333333333333,
+   "lowband_max_ms": 10.592668198482379,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_markers/baseline/-2": {
+   "attack_metric_valid": false,
+   "attack_additional_max_ms": 49.395833333333336,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_markers/corr40-onset/-2": {
+   "attack_metric_valid": false,
+   "attack_additional_max_ms": 30.104166666666668,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_markers/corr40-split/-2": {
+   "attack_metric_valid": false,
+   "attack_additional_max_ms": 4.770833333333333,
+   "lowband_max_ms": null,
+   "missed": 1,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_markers/corr40-split-up/-2": {
+   "attack_metric_valid": false,
+   "attack_additional_max_ms": 25.208333333333332,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_markers/baseline/+2": {
+   "attack_metric_valid": false,
+   "attack_additional_max_ms": 46.39583333333333,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_markers/corr40-split/+2": {
+   "attack_metric_valid": false,
+   "attack_additional_max_ms": 42.583333333333336,
+   "lowband_max_ms": null,
+   "missed": 16,
+   "unmatched": 0
+  },
+  "guitar_dropA_A1-random_markers/corr40-split-up/+2": {
+   "attack_metric_valid": false,
+   "attack_additional_max_ms": 50.75,
+   "lowband_max_ms": null,
+   "missed": 0,
+   "unmatched": 0
+  }
+ },
+ "timing": {
+  "baseline/block128": {
+   "thread_cpu_mean_us_median": 205.943,
+   "thread_cpu_p99_us_max": 732.5743100000001,
+   "thread_cpu_peak_us_max": 1581.08,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 13,
+   "callbacks": 56250
+  },
+  "baseline/block256": {
+   "thread_cpu_mean_us_median": 435.846,
+   "thread_cpu_p99_us_max": 773.5301200000002,
+   "thread_cpu_peak_us_max": 1827.54,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 2,
+   "callbacks": 28125
+  },
+  "baseline/block64": {
+   "thread_cpu_mean_us_median": 104.023,
+   "thread_cpu_p99_us_max": 672.0077099999999,
+   "thread_cpu_peak_us_max": 1157.77,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 50,
+   "callbacks": 112500
+  },
+  "corr40-split-up/block128": {
+   "thread_cpu_mean_us_median": 53.4651,
+   "thread_cpu_p99_us_max": 460.2070400000006,
+   "thread_cpu_peak_us_max": 1376.47,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 4,
+   "callbacks": 56250
+  },
+  "corr40-split-up/block256": {
+   "thread_cpu_mean_us_median": 107.475,
+   "thread_cpu_p99_us_max": 712.1272400000004,
+   "thread_cpu_peak_us_max": 1389.21,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 1,
+   "callbacks": 28125
+  },
+  "corr40-split-up/block64": {
+   "thread_cpu_mean_us_median": 26.1976,
+   "thread_cpu_p99_us_max": 123.78972999999861,
+   "thread_cpu_peak_us_max": 1530.87,
+   "thread_cpu_deadline_misses": 3,
+   "wall_deadline_misses": 9,
+   "callbacks": 112500
+  },
+  "corr40-split/block128": {
+   "thread_cpu_mean_us_median": 58.0195,
+   "thread_cpu_p99_us_max": 491.38825,
+   "thread_cpu_peak_us_max": 1471.29,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 1,
+   "callbacks": 56250
+  },
+  "corr40-split/block256": {
+   "thread_cpu_mean_us_median": 109.587,
+   "thread_cpu_p99_us_max": 846.2578400000011,
+   "thread_cpu_peak_us_max": 1728.66,
+   "thread_cpu_deadline_misses": 0,
+   "wall_deadline_misses": 1,
+   "callbacks": 28125
+  },
+  "corr40-split/block64": {
+   "thread_cpu_mean_us_median": 27.6259,
+   "thread_cpu_p99_us_max": 144.2206699999991,
+   "thread_cpu_peak_us_max": 1813.48,
+   "thread_cpu_deadline_misses": 4,
+   "wall_deadline_misses": 10,
+   "callbacks": 112500
+  }
+ }
+}

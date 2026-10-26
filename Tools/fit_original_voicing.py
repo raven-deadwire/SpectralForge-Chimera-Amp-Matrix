@@ -11,24 +11,17 @@ from pathlib import Path
 
 import numpy as np
 from scipy import optimize, signal
-from compare_original_nam import digest, read
+from nastrond_nam import analysis, protocol, references
+from nastrond_nam.renderers import digest, read_wav
 from validate_nam import SR, biquad, contour, metrics
 
-# Unboosted CH2 / high or unspecified gain. Related training variants share
-# one family weight; they are not independent hardware observations.
-GROUPS = {
-    'vh4': [569473, 569474, 569477],
-    'twinjet': [652436, 652437],
-    'granophyre': [403977, 421075, 421074],
-    'matamp': [614727, 561845, 543854],
-}
-OFFSET = 21 * SR
+OFFSET = protocol.TONE_SECONDS * SR
 
 
 def raw(path):
     x = np.fromfile(path, dtype=np.float32).astype(np.float64)
-    if len(x) != 37 * SR or not np.isfinite(x).all():
-        raise ValueError(f'Expected finite 37-second mono float32 render: {path}')
+    if len(x) != protocol.TOTAL_SAMPLES or not np.isfinite(x).all():
+        raise ValueError(f'Expected finite {protocol.TOTAL_SECONDS}-second mono float32 render: {path}')
     return x[OFFSET:]
 
 
@@ -37,7 +30,10 @@ def main():
     for name in ['manifest', 'comparison', 'pre-contour', 'baseline', 'renders', 'out']:
         parser.add_argument('--' + name, type=Path, required=True)
     args = parser.parse_args()
-    manifest = json.loads(args.manifest.read_text())
+    manifest = references.load(args.manifest)
+    # Unboosted, high or unspecified gain. Related training variants share
+    # one family weight; they are not independent hardware observations.
+    groups = {family: ids for family, ids in references.target_groups(manifest).values()}
     comparison = json.loads(args.comparison.read_text())
     if digest(args.manifest) != comparison['manifest_sha256']:
         raise ValueError('Comparison/manifest mismatch')
@@ -46,13 +42,11 @@ def main():
     candidate, baseline = raw(args.pre_contour), raw(args.baseline)
     f, pb = signal.welch(candidate[:8*SR], SR, nperseg=8192)
     # Equal log-frequency bands avoid giving treble most of the fit weight.
-    edges = np.geomspace(65, 8000, 43)
-    masks = [(f >= a) & (f < b) for a, b in zip(edges[:-1], edges[1:])]
-    masks = [m for m in masks if m.any()]
+    masks = analysis.band_masks(f)
     frequencies = np.array([np.exp(np.mean(np.log(f[m]))) for m in masks])
     power = np.array([pb[m].mean() for m in masks])
     rows = []
-    for family, ids in GROUPS.items():
+    for family, ids in groups.items():
         for model_id in ids:
             item = next(r for r in manifest['references'] if r['model_id'] == model_id)
             if item['family'] != family or not item['head_timbre_comparison_eligible']:
@@ -61,7 +55,7 @@ def main():
             measured = next(r for r in comparison['references'] if r['model_id'] == model_id)
             if digest(path) != measured['variants']['digital_equal']['audio_sha256']:
                 raise ValueError(f'Reference render hash mismatch: {path}')
-            y = read(path)[OFFSET:]
+            y = read_wav(path).astype(np.float64)[OFFSET:]
             _, pa = signal.welch(y[:8*SR], SR, nperseg=8192)
             target = 10*np.log10(np.array([pa[m].mean() for m in masks])/power)
             rows.append((family, model_id, y, target, 1/np.sqrt(len(ids))))

@@ -37,6 +37,15 @@ inline void topology(ChimeraProcessor& p) {
     const auto board=p.pedalBoardState();set(p,"boardLowTap",5);s=read(p);require(edge(s,"pre.owner"+juce::String(board.order[4]),"clean"),"Tap five is not after PRE");
     set(p,"boardEnabled",0);set(p,"preorder",0);set(p,"gainorder",1);s=read(p);require(edge(s,"pre.legacy3","pre.legacy4")&&edge(s,"pre.legacy4","clean")&&edge(s,"pre.legacy0","pre.legacy6"),"Legacy PRE order/tap differs from DSP");
     set(p,"gateAfterRig",1);s=read(p);require(edge(s,"merge","gate")&&edge(s,"gate","tone.eq")&&edge(s,"input","gate"),"Post gate/detector displayed at wrong point");
+    // Gate 2 takes the side opposite the main gate; the Expander has its own.
+    require(s.find("gate.extra.pre") && s.find("gate.extra.pre")->label=="EXPANDER + PRE GATE 2" && !s.find("gate.extra.pre")->active && edge(s,"input","gate.extra.pre"),"Pre-rig Expander / Gate 2 missing from the path");
+    require(!s.find("gate.extra.post"),"Gate 2 shown on the main gate's side");
+    set(p,"expAfterRig",1);set(p,"expOn",1);set(p,"gate2On",1);s=read(p);
+    require(s.find("gate.extra.post")->label=="EXPANDER" && s.find("gate.extra.post")->active && edge(s,"merge","gate.extra.post"),"Post-rig Expander path state is stale");
+    require(s.find("gate.extra.pre")->label=="PRE GATE 2" && s.find("gate.extra.pre")->status=="GATE 2 ON","Pre-rig Gate 2 path state is stale");
+    require(edge(s,"merge","gate")&&edge(s,"gate","tone.eq"),"Extra gates moved the main post gate");
+    set(p,"gate2On",0);
+    set(p,"expAfterRig",0);set(p,"expOn",0);
     set(p,"ampon1",0);set(p,"lowampmix",.83f);s=read(p);require(s.find("low.blend")->status=="100 : 0"&&s.find("amp.context3")->active,"LOW AMP switch must control blend, not bypass its internal processor");
     set(p,"solo2",1);s=read(p);require(!s.find("level.context3")->active&&s.find("level.context4")->active,"Solo audibility is stale");
     p.loadFactoryPreset(0);
@@ -118,7 +127,7 @@ template<class T> inline T* named(juce::Component& root,const juce::String& name
 inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
     // Existing global controls are located outside the workflow, including the
     // persistent tuner action in the footer. Merely inspecting them cannot mute.
-    for(const auto* text:{"GATE","TRANSPOSE","TUNER"}) {
+    for(const auto* text:{"TRANSPOSE","TUNER"}) {
         int count=0;
         const auto visit=[&](auto&& self,juce::Component& root)->void {
             if(auto* button=dynamic_cast<juce::TextButton*>(&root);button && (button->getButtonText()==text || (juce::String(text)=="TUNER" && button->getComponentID()=="tunerOpen"))) {
@@ -133,9 +142,14 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
         auto* slider=named<juce::Slider>(editor,name);
         require(slider && !slider->isShowing(),"Gate parameters must be edited in the spectrum workspace");
     }
-    auto* gateEditor=find<juce::TextButton>(editor,"gateSpectrum.open");
+    for(const auto* name:{"gate","expander","compressor","limiter","multiband","deesser"}) {
+        auto* entry=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(name));
+        require(entry && entry->isShowing() && entry->isEnabled() && !strip.isParentOf(entry),
+                "Direct dynamics entry is unavailable or duplicated in the signal path");
+    }
+    auto* gateEditor=find<juce::TextButton>(editor,"commonDynamics.open.gate");
     auto* transpose=named<juce::Slider>(editor,"Transpose semitones");
-    require(gateEditor && gateEditor->isShowing() && gateEditor->isEnabled(),"Gate spectrum editor entry is unavailable");
+    require(gateEditor && gateEditor->isShowing() && gateEditor->isEnabled(),"Dynamics (gate) editor entry is unavailable");
     require(transpose && transpose->isShowing() && transpose->isEnabled(),"Transpose control is unavailable");
 }
 inline void key(juce::Component& owner,const juce::KeyPress& press) {
@@ -399,7 +413,7 @@ inline void run(const juce::File& folder) {
         require(!returnGraph,"Return-opened routing inspection did not close");
         expand->grabKeyboardFocus();key(*strip,juce::KeyPress(juce::KeyPress::spaceKey));
         auto graphWindow=juce::Component::SafePointer<juce::DialogWindow>(dialog("signalPathGraph"));require(graphWindow,"Path expansion did not open native graph");
-        auto* graph=dynamic_cast<SignalPathView*>(graphWindow->getContentComponent());require(graph,"Graph content missing");
+        auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*graphWindow));require(graph,"Graph content missing");
         require(graph->snapshot()==read(*p),"Expanded graph does not retain the complete current routing snapshot");
         for(const auto* id:{"input","gate","transpose","tuner","utilities","output"})
             require(find<juce::TextButton>(*graph,"path."+juce::String(id)),"Detailed routing lost a hidden global utility");
@@ -437,11 +451,14 @@ inline void run(const juce::File& folder) {
                 auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
                 require(selected->selectedBand()<0 ? selected->hasKeyboardFocus(false) : frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus its existing node or empty workspace");
             }
-            if(node.target==Target::dynamics || node.target==Target::gate || node.id=="low.comp") {
+            if(node.target==Target::dynamics || node.target==Target::gate) {
                 auto* panel=find<spectralforge::CommonDynamicsPanel>(*editor,"commonDynamics.panel");
                 require(panel && panel->isShowing(),"Detailed dynamics navigation did not open its spectrum workspace");
                 using Page=spectralforge::CommonDynamicsPanel::Page;
-                const auto expected=node.target==Target::gate?Page::gate:node.id=="low.comp"?Page::lowCompressor:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
+                // A clean-input tap opens the Expander when it is the only unit
+                // there, or the only one switched on; otherwise its Gate 2 side.
+                const bool expanderTap=node.id.startsWith("gate.extra.") && (node.label=="EXPANDER" || node.status=="EXPANDER ON");
+                const auto expected=expanderTap?Page::expander:node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
                 require(panel->selectedPage()==expected,"Signal path opened a different dynamics module");
             }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");
@@ -456,7 +473,7 @@ inline void run(const juce::File& folder) {
             if(auto* w=dialog("signalPathTuner"))close(w);
             if(auto* w=dialog("postNativePanel0"))close(w);
             if(auto* w=dialog("ampNativePanel"+juce::String(node.lane+1)))close(w);
-            if(auto* w=dialog("cabWorkspace")){auto* workspace=dynamic_cast<CabWorkspace*>(w->getContentComponent());require(workspace && workspace->focusedRig()==node.lane,"CAB navigation opened wrong rig");close(w);}
+            if(auto* w=dialog("cabWorkspace")){auto* workspace=dynamic_cast<CabWorkspace*>(spectralforge::ui::dialogContent(*w));require(workspace && workspace->focusedRig()==node.lane,"CAB navigation opened wrong rig");close(w);}
         }
         for(float scale:{.75f,1.f,1.25f,1.5f}){
             editor->setSize(juce::roundToInt(1180*scale),juce::roundToInt(780*scale));
@@ -472,7 +489,8 @@ inline void run(const juce::File& folder) {
                                 +id+", node="+node.id+", actual="+juce::String(int(actual))+", expected="+juce::String(int(expected))
                                 +", graphMode="+juce::String(graph->snapshot().mode)+", scale="+juce::String(scale)).toStdString());
                     }
-                const auto rect=editor->getLocalArea(strip,strip->getLocalBounds());require(editor->getLocalBounds().contains(rect),"Strip clipped at UI scale");
+                require(editorBoundsReachable(*editor,*strip),"Strip cannot be reached at UI scale");
+                const auto rect=editor->getLocalArea(strip,strip->getLocalBounds());
                 for(auto* sibling:strip->getParentComponent()->getChildren())if(sibling!=strip && sibling->isVisible())require(!rect.intersects(editor->getLocalArea(sibling,sibling->getLocalBounds())),"Strip overlaps visible editor content");
                 for(auto* child:strip->getChildren())inside(*strip,*child,"Compact path button clipped");
                 for(int e=0;e<2;++e){auto* panel=find<spectralforge::GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");

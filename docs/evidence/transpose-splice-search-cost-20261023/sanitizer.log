@@ -1,0 +1,36 @@
+== ASan+UBSan corr40 guitar_dropA_A1-alternating_velocity-48000.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":15.6712,"p95_us":19.569,"p99_us":39.27,"max_us":390.345,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0,"
+exit=0
+== ASan+UBSan corr40 guitar_dropA_A1-alternating_velocity-48000.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":19.7716,"p95_us":23.79,"p99_us":340.477,"max_us":624.731,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0,
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1-alternating_velocity-48000.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":111.625,"p95_us":178.448,"p99_us":215.174,"max_us":589.612,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-rt guitar_dropA_A1-alternating_velocity-48000.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":89.7427,"p95_us":135.528,"p99_us":367.322,"max_us":932.662,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40 bass_B0-tremolo-96000.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":11.392,"p95_us":12.93,"p99_us":23.611,"max_us":398.224,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0,"c
+exit=0
+== ASan+UBSan corr40 bass_B0-tremolo-96000.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":12.3014,"p95_us":15.047,"p99_us":28.669,"max_us":403.37,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0,"
+exit=0
+== ASan+UBSan corr40-split-rt bass_B0-tremolo-96000.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":63.5201,"p95_us":88.756,"p99_us":121.737,"max_us":772.175,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":1
+exit=0
+== ASan+UBSan corr40-split-rt bass_B0-tremolo-96000.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":62.421,"p95_us":81.847,"p99_us":113.075,"max_us":1003.88,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":3,
+exit=0
+== ASan+UBSan corr40 bass_B0-quiet_markers_over_sustain-44100.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":13.4049,"p95_us":14.953,"p99_us":36.126,"max_us":684.064,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0,
+exit=0
+== ASan+UBSan corr40 bass_B0-quiet_markers_over_sustain-44100.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":13.2801,"p95_us":15.088,"p99_us":36.803,"max_us":381.568,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":0,
+exit=0
+== ASan+UBSan corr40-split-rt bass_B0-quiet_markers_over_sustain-44100.f32 shift -2 block 64
+{"nominal_samples":-1,"mean_us":81.2787,"p95_us":105.343,"p99_us":120.266,"max_us":424.906,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0
+== ASan+UBSan corr40-split-rt bass_B0-quiet_markers_over_sustain-44100.f32 shift 2 block 64
+{"nominal_samples":-1,"mean_us":92.8561,"p95_us":133.173,"p99_us":239.868,"max_us":706.792,"thread_cpu_measured":false,"thread_cpu_mean_us":0,"deadline_misses":
+exit=0

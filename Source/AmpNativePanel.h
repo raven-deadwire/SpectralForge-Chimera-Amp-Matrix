@@ -1,4 +1,5 @@
 #pragma once
+#include "AccessibleViewport.h"
 #include "PluginProcessor.h"
 #include "AmpNativeParameters.h"
 #include "NativeControlView.h"
@@ -18,7 +19,7 @@ public:
         channelLabel.setText("CHANNEL",juce::dontSendNotification);inputLabel.setText("INPUT",juce::dontSendNotification);
         viewport.setViewedComponent(&content,false);viewport.setScrollBarsShown(true,false);viewport.setScrollBarThickness(9);
         addAndMakeVisible(expand);expand.setButtonText("HEAD");expand.setComponentID("ampExpand"+juce::String(lane+1));expand.setTooltip("Open the full amplifier panel");expand.setVisible(!detailed);
-        expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new AmpNativePanel(processor,lane,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="Chimera / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name);options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();};
+        expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new AmpNativePanel(processor,lane,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="Chimera / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name);options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();spectralforge::ui::fitScrollableDialog(dialog);};
         lowCompOpen.setButtonText("COMP SPECTRUM");lowCompOpen.setComponentID("matrixLowCompressor.open");
         lowCompOpen.setTooltip("Edit Matrix LOW compression while viewing its actual input/output spectrum.");
         lowCompOpen.onClick=[this]{openLowCompressor();};content.addChildComponent(lowCompOpen);
@@ -49,11 +50,11 @@ public:
         auto* full=new spectralforge::LowCompressorPanel(processor);full->setLookAndFeel(&getLookAndFeel());full->setSize(940,450);
         juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="Chimera / Matrix LOW compression";
         options.dialogBackgroundColour=juce::Colour(0xff121a1d);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;
-        options.resizable=false;options.componentToCentreAround=this;lowCompDialog=options.launchAsync();
+        options.resizable=false;options.componentToCentreAround=this;lowCompDialog=options.launchAsync();spectralforge::ui::fitScrollableDialog(lowCompDialog);
     }
     // The ALL window has independent visibility from its owning tab.
     void refreshIfNeeded() {
-        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(dialog->getContentComponent()))full->refreshIfNeeded();
+        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(spectralforge::ui::dialogContent(*dialog)))full->refreshIfNeeded();
         if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
         const std::array<int,5> key{{(int)processor.parameters().getRawParameterValue("mode")->load(),
             (int)processor.parameters().getRawParameterValue("dualtype")->load(),processor.selectedAmpModel(lane),
@@ -64,7 +65,7 @@ public:
     void refresh() {
         ++refreshCount;
         const int mode=(int)processor.parameters().getRawParameterValue("mode")->load();
-        lowCompOpen.setVisible(mode==2 && lane==0);lowCompLabel.setVisible(mode==2 && lane==0);
+        lowCompOpen.setVisible(detailed && mode==2 && lane==0);lowCompLabel.setVisible(detailed && mode==2 && lane==0);
         const bool split=mode==2 || (mode==1 && processor.parameters().getRawParameterValue("dualtype")->load()>.5f);
         const int nextContext=spectralforge::ampNativeContext(mode,lane),nextModel=processor.selectedAmpModel(lane);
         const auto& panel=spectralforge::ampNativePanel(nextModel);
@@ -113,9 +114,9 @@ public:
                 auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),"bandtone"+juce::String(lane+1),"BAND TONE","CHIMERA",0,{},-12,12,.01,3);
                 control->slider.setTextValueSuffix(" dB");content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
-            if(mode==2 && lane==0) {
-                auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),"lowampmix","DI / AMP BLEND","CHIMERA",0,{},0,1,.001,3);
-                control->slider.textFromValueFunction=[](double value){return juce::String(juce::roundToInt(value*100))+"% AMP";};
+            if(mode==2 && lane==0)for(int i=0;i<2;++i) {
+                auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),i?"lowampmix":"lowcomp",i?"DI / AMP BLEND":"DI COMPRESSION","CHIMERA",0,{},0,1,.001,3);
+                control->slider.textFromValueFunction=[i](double value){return juce::String(juce::roundToInt(value*100))+(i?"% AMP":"%");};
                 control->slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/100.;};control->slider.updateText();
                 content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
@@ -148,11 +149,9 @@ public:
             const int x=(visible%columns)*cell,y=(visible/columns)*103;
             lowCompLabel.setBounds(x+3,y+8,cell-9,20);lowCompOpen.setBounds(x+5,y+37,cell-13,34);++visible;
         };
-        if(lowOverview) {
-            for(size_t i=0;i<controls.size();++i)if(controls[i]->getComponentID()=="bandtone1_control")place(i);
-            placeLowEntry();
-            for(size_t i=0;i<controls.size();++i)if(controls[i]->getComponentID()=="lowampmix_control")place(i);
-        } else placeLowEntry();
+        if(lowOverview)for(auto id:{"bandtone1_control","lowcomp_control","lowampmix_control"})
+            for(size_t i=0;i<controls.size();++i)if(controls[i]->getComponentID()==id)place(i);
+        placeLowEntry();
         if(model==spectralforge::niflheimrAmpModel && controls.size()>=spectralforge::niflheimr::controlCount) {
             // Presentation order is independent of the stable host/DSP order.
             constexpr size_t order[]{0,1,2,4,3,5,6,8,9,10,11,12,13,7};

@@ -1,0 +1,36 @@
+== ASan+UBSan corr40-split-v2 sa1 rate 96000 shift -2 block 64
+{"nominal_samples":-1,"mean_us":87.8325,"p95_us":163.009,"p99_us":209.274,"max_us":964.805,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa1 rate 96000 shift -2 block 256
+{"nominal_samples":-1,"mean_us":313.317,"p95_us":463.889,"p99_us":645.111,"max_us":1416.12,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa1 rate 96000 shift 2 block 64
+{"nominal_samples":-1,"mean_us":84.5459,"p95_us":134.537,"p99_us":269.407,"max_us":2433.23,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa1 rate 96000 shift 2 block 256
+{"nominal_samples":-1,"mean_us":350.768,"p95_us":619.339,"p99_us":856.448,"max_us":3960.66,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa2 rate 48000 shift -2 block 64
+{"nominal_samples":-1,"mean_us":94.9278,"p95_us":133.985,"p99_us":240.112,"max_us":1354.13,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa2 rate 48000 shift -2 block 256
+{"nominal_samples":-1,"mean_us":444.124,"p95_us":619.702,"p99_us":1128.91,"max_us":3342.92,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa2 rate 48000 shift 2 block 64
+{"nominal_samples":-1,"mean_us":98.8062,"p95_us":136.241,"p99_us":394.074,"max_us":2335.88,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa2 rate 48000 shift 2 block 256
+{"nominal_samples":-1,"mean_us":412.417,"p95_us":664.91,"p99_us":818.936,"max_us":1326.7,"thread_cpu_measured":false,"th
+exit=0
+== ASan+UBSan corr40-split-v2 sa3 rate 96000 shift -2 block 64
+{"nominal_samples":-1,"mean_us":109.612,"p95_us":178.888,"p99_us":221.046,"max_us":681.288,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa3 rate 96000 shift -2 block 256
+{"nominal_samples":-1,"mean_us":419.25,"p95_us":611.068,"p99_us":898.619,"max_us":5284.1,"thread_cpu_measured":false,"th
+exit=0
+== ASan+UBSan corr40-split-v2 sa3 rate 96000 shift 2 block 64
+{"nominal_samples":-1,"mean_us":103.921,"p95_us":158.714,"p99_us":416.856,"max_us":4171.27,"thread_cpu_measured":false,"
+exit=0
+== ASan+UBSan corr40-split-v2 sa3 rate 96000 shift 2 block 256
+{"nominal_samples":-1,"mean_us":403.043,"p95_us":701.792,"p99_us":971.722,"max_us":1566.89,"thread_cpu_measured":false,"
+exit=0

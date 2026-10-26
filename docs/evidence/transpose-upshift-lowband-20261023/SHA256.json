@@ -1,0 +1,15 @@
+{
+ "clean-long-notes.txt": "5dcb5b8d96a4e0309eeecd744df6e05fe85a73f50dce7016b04132a5c1c585b5",
+ "envelope-dip-short-notes.txt": "0d77c9c8877a150b471a2e43e763f35fcb24e80fc4794388e705df9416ac214b",
+ "prediction-snr.txt": "e6f8a6de5ea68ab1f88d9737e90d705e3f60ae50c66723dc98dcd42872b1a0cc",
+ "scripts/clean.py": "993c2bd65d702c5d733dbf309cf70ee23e6c4d2f7b90c9fbafa683711b483968",
+ "scripts/instrumentation-CorrelationPitch.patch": "daa3b526369b234cb74c6a71e4cbf69ac91dee86a04ec7f6a719c59123468bd9",
+ "scripts/instrumentation-TransientSplitPitch.patch": "7304cd2f7fbb4daaa32b423977434617de72b51cf9e19a515b30d9ab317f7156",
+ "scripts/perinst.py": "a949050b28971760763d4688824119e817c9a659f8a0f140f307616736ef9c9d",
+ "scripts/phase.py": "7e50f46e1aea5702c3aedbe07a2cfc7331a78c78461ac9354c7733a3e926fda3",
+ "scripts/predict.py": "f549cc1358b65c1ed555b8e98a06e4e78037d1360ddc95d29a6f88e5059e27ac",
+ "scripts/quality.py": "13c8ca1e6a313f98fc9779bdbf11b5a6cfbc730b243a83a41a5523ddb3d06089",
+ "scripts/sweep.py": "0d33d0ccc8f4c09363987efb9790975cd742d05bce48e8eaccb9a838c7e2dd80",
+ "sweep-short-notes.jsonl": "8139704712f9607b1d72aa034fb4b82432f7f68ff40a61be2fc361c8f2f4518c",
+ "trace-guitar-A1-riff75-plus2.txt": "f03ceac601a0ca9c2f8c4ccfc88fb4eedac06145c2be9a90601699b9ae991a14"
+}

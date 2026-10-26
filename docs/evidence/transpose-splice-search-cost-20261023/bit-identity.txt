@@ -1,0 +1,6 @@
+Optimized splice search vs previous binary (commit e5846dc), output float32 files compared with cmp:
+- 768/768 identical: 44.1/48/96 kHz x bass_B0, guitar_dropA_A1 x harmonics, alternating_velocity,
+  quiet_markers_over_sustain, tremolo x corr10, corr40, corr40-onset, corr40-novelty, corr40-split,
+  corr40-split-up, corr40-split-lpc, corr40-split-rt x -2/+2 st x block 64/256.
+- Study suites rerun with the new binary (corr40-split-lpc, corr40-split-rt), output_sha256 versus
+  docs/evidence/transpose-retrigger-splice-coordination-20261023: detail 36/36, guards 36/36, matrix 648/648.

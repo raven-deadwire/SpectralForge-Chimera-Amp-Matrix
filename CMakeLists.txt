@@ -269,11 +269,15 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
   add_test(NAME ChimeraPrecisionTunerUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/precision-tuner-snapshots" --precision-tuner-only)
+  add_test(NAME ChimeraEasyModeUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/easy-mode-snapshots" --easy-mode-only)
   add_test(NAME ChimeraCommonDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/common-dynamics-snapshots" --common-dynamics-only)
   add_test(NAME ChimeraNativeDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/native-dynamics-snapshots" --native-dynamics-only)
   add_test(NAME ChimeraNativeDynamicsQueueUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/native-dynamics-queue-snapshots" --native-dynamics-queue-only)
   add_test(NAME ChimeraHeadCabLowUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/head-cab-low-snapshots" --review-fixes-only)
   add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
+  add_test(NAME ChimeraSmallScreenUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/small-screen-snapshots" --small-screen-only)
+  # 27 native UI cases also exercise compressor gestures and full state recall.
+  set_tests_properties(ChimeraSmallScreenUITests PROPERTIES TIMEOUT 900 RUN_SERIAL TRUE)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
 
@@ -546,7 +550,7 @@ add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --vi
 set_tests_properties(ChimeraCabDriverVisualTests PROPERTIES TIMEOUT 1800)
 
 # EQ and dynamics contracts do not publish release artifacts.
-foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze CommonDynamics MultibandDynamics)
+foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze CommonDynamics MultibandDynamics AutoSet)
   juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
   target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
   target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
@@ -559,6 +563,7 @@ add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BIN
 add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
 add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
 add_test(NAME ChimeraMultibandDynamicsTests COMMAND ChimeraMultibandDynamicsTests)
+add_test(NAME ChimeraAutoSetTests COMMAND ChimeraAutoSetTests)
 add_executable(ChimeraMultibandDynamicsCoreTests Tests/MultibandDynamicsCoreTests.cpp)
 target_include_directories(ChimeraMultibandDynamicsCoreTests PRIVATE Source)
 target_compile_features(ChimeraMultibandDynamicsCoreTests PRIVATE cxx_std_20)

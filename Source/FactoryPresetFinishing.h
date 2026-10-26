@@ -17,46 +17,68 @@ struct FactoryFinishingDynamics {
     int gateMode{1}; // Gentle downward expansion for exposed notes and tails.
     float gateRatio{2},gateAttack{.7f},minimumHold{25},minimumRelease{140},maximumRange{42};
     float dynamicAttack{15},dynamicRelease{160},dynamicRatio{2},bodyQ{1},harshQ{1.3f};
+    // Expander-mode roles move the gentle expansion to the Expander stage, at
+    // the authored gate threshold; the main gate then closes only well below it.
+    float expanderRange{15};
+    // Hard-gate roles add a gentle PRE/POST Gate 2 on the other side of the rig,
+    // below the main threshold, so less hiss reaches the amp between phrases.
+    float gate2Offset{-6},gate2Ratio{2},gate2Range{18};
+    // Role tone curve: Tone band 3 trims low-mid weight (a low shelf for bass
+    // roles that need more floor), Tone band 4 adds presence, Final band 3 sets
+    // the air. 0 dB leaves that band off.
+    float mudHz{300},mudDb{-1},mudQ{1};int mudType{0};
+    float presenceHz{2500},presenceDb{1},presenceQ{.9f};
+    float airHz{9000},airDb{0};
 };
 
 inline constexpr FactoryFinishingDynamics factoryFinishingDynamics(FactoryFinishingRole role) {
     FactoryFinishingDynamics d;
     switch(role) {
         case FactoryFinishingRole::clean:
-            d.threshold=-24;d.detectorHP=100;d.minimumHold=35;d.minimumRelease=180;break;
+            d.threshold=-24;d.detectorHP=100;d.minimumHold=35;d.minimumRelease=180;
+            d.mudHz=300;d.mudDb=-1;d.presenceHz=2500;d.presenceDb=1;d.airDb=1;break;
         case FactoryFinishingRole::edge:
             d.threshold=-21;d.ratio=1.4f;d.attack=35;d.release=150;d.mix=.4f;
-            d.minimumRelease=120;d.maximumRange=48;break;
+            d.minimumRelease=120;d.maximumRange=48;
+            d.mudHz=280;d.mudDb=-1;d.presenceHz=2200;d.presenceDb=1.5f;d.airDb=.5f;break;
         case FactoryFinishingRole::rhythm:
             d.threshold=-14;d.ratio=1.4f;d.attack=30;d.release=110;d.mix=.35f;d.detectorHP=120;
             d.gateMode=0;d.gateAttack=.5f;d.minimumHold=12;d.minimumRelease=65;d.maximumRange=72;
-            d.dynamicAttack=10;d.dynamicRelease=110;d.bodyQ=1.1f;break;
+            d.dynamicAttack=10;d.dynamicRelease=110;d.bodyQ=1.1f;
+            d.mudHz=350;d.mudDb=-2.5f;d.mudQ=1.2f;d.presenceHz=2800;d.presenceDb=1;d.presenceQ=1;break;
         case FactoryFinishingRole::lead:
             d.threshold=-21;d.attack=25;d.release=180;d.mix=.4f;d.detectorHP=100;
-            d.minimumHold=35;d.minimumRelease=180;d.dynamicAttack=18;d.dynamicRelease=180;break;
+            d.minimumHold=35;d.minimumRelease=180;d.dynamicAttack=18;d.dynamicRelease=180;
+            d.mudHz=300;d.mudDb=-1;d.presenceHz=1500;d.presenceDb=1.5f;d.presenceQ=.8f;d.airDb=-.5f;break;
         case FactoryFinishingRole::finger:
             d.threshold=-22;d.ratio=1.6f;d.attack=35;d.release=200;d.mix=.55f;d.detectorHP=70;
-            d.minimumHold=35;d.minimumRelease=180;d.dynamicAttack=25;d.dynamicRelease=200;break;
+            d.minimumHold=35;d.minimumRelease=180;d.dynamicAttack=25;d.dynamicRelease=200;
+            d.mudHz=90;d.mudDb=1;d.mudType=1;d.mudQ=.7f;d.presenceHz=900;d.presenceDb=1;break;
         case FactoryFinishingRole::pick:
             d.threshold=-22;d.ratio=1.6f;d.attack=25;d.release=150;d.mix=.45f;d.detectorHP=85;
             d.minimumHold=20;d.minimumRelease=100;d.maximumRange=54;
-            d.dynamicAttack=14;d.dynamicRelease=140;break;
+            d.dynamicAttack=14;d.dynamicRelease=140;
+            d.mudHz=350;d.mudDb=-1;d.presenceHz=1200;d.presenceDb=1.5f;break;
         case FactoryFinishingRole::slap:
             d.threshold=-24;d.ratio=1.8f;d.attack=20;d.release=130;d.knee=4;d.mix=.45f;d.detectorHP=80;d.detector=0;
             d.gateRatio=2.5f;d.minimumHold=20;d.minimumRelease=120;d.maximumRange=48;
-            d.dynamicAttack=12;d.dynamicRelease=140;break;
+            d.dynamicAttack=12;d.dynamicRelease=140;
+            d.mudHz=400;d.mudDb=-1.5f;d.presenceHz=2500;d.presenceDb=1.5f;d.airDb=1;break;
         case FactoryFinishingRole::matrix:
             d.threshold=-20;d.ratio=1.4f;d.attack=35;d.release=180;d.mix=.35f;d.detectorHP=90;
             d.gateRatio=2.2f;d.minimumHold=20;d.minimumRelease=100;d.maximumRange=54;
-            d.dynamicAttack=20;d.dynamicRelease=160;d.bodyQ=1.1f;break;
+            d.dynamicAttack=20;d.dynamicRelease=160;d.bodyQ=1.1f;
+            d.mudHz=300;d.mudDb=-1;d.presenceHz=1800;d.presenceDb=1;break;
         case FactoryFinishingRole::envelope:
             d.attack=40;d.release=220;d.mix=.25f;d.detectorHP=80;
-            d.gateRatio=1.6f;d.minimumHold=45;d.minimumRelease=200;d.maximumRange=36;
-            d.dynamicAttack=30;d.dynamicRelease=220;d.dynamicRatio=1.5f;break;
+            d.gateRatio=1.6f;d.minimumHold=45;d.minimumRelease=200;d.maximumRange=36;d.expanderRange=9;
+            d.dynamicAttack=30;d.dynamicRelease=220;d.dynamicRatio=1.5f;
+            d.mudDb=0;d.presenceDb=0;break; // keep the filter sweep untouched
         case FactoryFinishingRole::fuzz:
             d.attack=40;d.release=240;d.mix=.25f;d.detectorHP=90;
-            d.gateRatio=1.5f;d.minimumHold=65;d.minimumRelease=240;d.maximumRange=30;
-            d.dynamicAttack=30;d.dynamicRelease=220;d.dynamicRatio=1.7f;d.bodyQ=.9f;break;
+            d.gateRatio=1.5f;d.minimumHold=65;d.minimumRelease=240;d.maximumRange=30;d.expanderRange=9;
+            d.dynamicAttack=30;d.dynamicRelease=220;d.dynamicRatio=1.7f;d.bodyQ=.9f;
+            d.mudHz=400;d.mudDb=-1;d.presenceHz=1200;d.presenceDb=1;d.airDb=-1;break;
     }
     return d;
 }
@@ -145,6 +167,9 @@ bool voiceFactoryFinishing(int index,Getter get,Setter set) {
     band("tone",2,0,r.definitionHz,r.definitionGainDb,.8f,r.definitionGainDb!=0);
     band("final",1,2,std::min(10000.f,r.harshHz*1.6f),r.highShelfDb,.70710678f,r.highShelfDb!=0);
     band("final",2,0,r.harshHz,0,d.harshQ,true);
+    band("tone",3,d.mudType,d.mudHz,d.mudDb,d.mudQ,d.mudDb!=0);
+    band("tone",4,0,d.presenceHz,d.presenceDb,d.presenceQ,d.presenceDb!=0);
+    band("final",3,2,d.airHz,d.airDb,.70710678f,d.airDb!=0);
     const auto dynamic=[&](int slot,int target,float threshold,float range) {
         const auto prefix="dynamicEQ"+std::to_string(slot)+"_";
         set((prefix+"target").c_str(),float(target));set((prefix+"threshold").c_str(),threshold);
@@ -157,12 +182,27 @@ bool voiceFactoryFinishing(int index,Getter get,Setter set) {
     set("cleanCompOn",r.compressor?1.f:0.f);set("cleanCompThreshold",d.threshold);set("cleanCompRatio",d.ratio);
     set("cleanCompAttack",d.attack);set("cleanCompRelease",d.release);set("cleanCompKnee",d.knee);
     set("cleanCompMakeup",0);set("cleanCompMix",d.mix);set("cleanCompHP",d.detectorHP);set("cleanCompDetector",float(d.detector));
-    set("gateMode",float(d.gateMode));set("gateRatio",d.gateRatio);set("gateAttack",d.gateAttack);
     // Preserve longer authored tails and gentler finite attenuation (notably Doom).
-    // Existing preset threshold/input calibration and LOW routing stay intact.
-    set("gatehold",std::max(get("gatehold"),d.minimumHold));
-    set("gaterelease",std::max(get("gaterelease"),d.minimumRelease));
-    set("gateRangeDb",std::min(get("gateRangeDb"),d.maximumRange));
+    // Input calibration and LOW routing stay intact.
+    const float hold=std::max(get("gatehold"),d.minimumHold),release=std::max(get("gaterelease"),d.minimumRelease);
+    const float range=std::min(get("gateRangeDb"),d.maximumRange),threshold=get("gatethreshold");
+    const bool afterRig=get("gateAfterRig")>.5f;
+    set("gatehold",hold);set("gaterelease",release);set("gateRangeDb",range);set("gateRatio",d.gateRatio);set("gateAttack",d.gateAttack);
+    if(d.gateMode==1) {
+        // Gate + Expander: the Expander takes the authored threshold and ratio
+        // up to its range; the main gate closes only where that range is used up.
+        const float expanderRange=std::min(range,d.expanderRange);
+        const float deep=std::clamp(-expanderRange/(d.gateRatio-1.f)-3.f,-24.f,-9.f);
+        set("gateMode",0);set("gatethreshold",std::max(-90.f,threshold+deep));
+        set("expOn",1);set("expAfterRig",afterRig?1.f:0.f);set("expThreshold",threshold);set("expRatio",d.gateRatio);
+        set("expAttack",std::max(1.f,d.gateAttack*2));set("expHold",hold);set("expRelease",release);set("expRangeDb",expanderRange);
+        set("gate2On",0);
+    } else {
+        // Hard gate plus a gentle Gate 2 on the other side of the rig.
+        set("gateMode",0);set("expOn",0);
+        set("gate2On",1);set("gate2Mode",1);set("gate2Threshold",std::max(-90.f,threshold+d.gate2Offset));set("gate2Ratio",d.gate2Ratio);
+        set("gate2Attack",d.gateAttack);set("gate2Hold",hold);set("gate2Release",release);set("gate2RangeDb",std::min(range,d.gate2Range));
+    }
     set("liveLimiterOn",1);set("liveLimiterCeiling",-1);
     set("liveLimiterRelease",r.role==FactoryFinishingRole::fuzz?180.f:100.f);
     return true;

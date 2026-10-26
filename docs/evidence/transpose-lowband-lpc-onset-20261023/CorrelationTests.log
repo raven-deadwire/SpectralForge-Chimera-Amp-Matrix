@@ -1,0 +1,2 @@
+PASS 270 rate/bound/layout/shift groups: partition, exact bypass/unity, silence, linked stereo, reset, automation finite, zero C++ allocations. Research only; no DAW/PDC acceptance.
+exit=0
