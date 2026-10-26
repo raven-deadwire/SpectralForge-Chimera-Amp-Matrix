@@ -1,0 +1,1 @@
+PASS parity PR192: mono/stereo, four rates, five blocks, on/off/spread ramps, metronome; signed-zero bypass; reset; zero dry delay; A0/A1 1..20ms; block invariance

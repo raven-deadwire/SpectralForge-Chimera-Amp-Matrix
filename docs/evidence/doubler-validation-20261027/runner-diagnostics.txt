@@ -1,0 +1,6 @@
+Observed stock xvfb-run -a true exit: 1
+Observed cleanup-safe local wrapper -a true exit: 0
+Local wrapper change: disable errexit in clean_up so cleanup does not replace the child return status.
+Repeated native Doubler test with cleanup-safe runner: exit 0.
+Existing CommonDynamics test: all assertions printed PASS; original stock wrapper exit 1.
+Functional native executable: unmodified test translation unit compiled with repository target flags, linked to actual ChimeraAmpMatrix shared-code archive and real resources, reusing its JUCE object code.

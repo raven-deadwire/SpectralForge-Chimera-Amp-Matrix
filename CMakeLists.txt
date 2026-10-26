@@ -445,6 +445,16 @@ target_compile_definitions(ChimeraDoublerMonoProbe PRIVATE JUCE_USE_CURL=0 JUCE_
 target_link_libraries(ChimeraDoublerMonoProbe PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraDoublerMonoProbe COMMAND ChimeraDoublerMonoProbe)
 
+# Frozen #190/#192 kernels share the executable for numerical and CPU comparison.
+juce_add_console_app(ChimeraDoublerValidationTests PRODUCT_NAME "Chimera Doubler Validation")
+target_sources(ChimeraDoublerValidationTests PRIVATE Tests/DoublerValidationTests.cpp)
+target_include_directories(ChimeraDoublerValidationTests PRIVATE Source)
+target_compile_definitions(ChimeraDoublerValidationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraDoublerValidationTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraDoublerValidationTests COMMAND ChimeraDoublerValidationTests)
+set_tests_properties(ChimeraDoublerValidationTests PROPERTIES TIMEOUT 120)
+
+
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)
 target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
@@ -561,6 +571,8 @@ add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMA
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
 add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
+add_test(NAME ChimeraDoublerStateLimiterTests COMMAND ChimeraCommonDynamicsTests --doubler-only)
+set_tests_properties(ChimeraDoublerStateLimiterTests PROPERTIES TIMEOUT 240)
 add_test(NAME ChimeraMultibandDynamicsTests COMMAND ChimeraMultibandDynamicsTests)
 add_test(NAME ChimeraAutoSetTests COMMAND ChimeraAutoSetTests)
 add_executable(ChimeraMultibandDynamicsCoreTests Tests/MultibandDynamicsCoreTests.cpp)

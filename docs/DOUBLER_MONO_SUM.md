@@ -1,5 +1,7 @@
 # Doubler: comb filtering and mono sum
 
+**Follow-up audit (2026-10-27 KST):** see [validation, CPU and compatibility evidence](DOUBLER_VALIDATION_20261027.md). The original table below is retained as a historical band-average measurement, not a guarantee for each note or waveform.
+
 The Doubler (`Source/PerformanceUtilities.h`) runs after the amp and cabinet
 on a stereo bus. It mixes into each channel a delayed copy of itself: left
 delayed by 0.55 × spread, right by 1 × spread (1–20 ms, default 6 ms), both
@@ -8,11 +10,13 @@ signal is a comb filter, and summing the channels to mono combines two
 combs. This note measured what the original design did, and what the
 revised one does.
 
-**Revised design (options 1 and 2 below):** only the band above 200 Hz
-(2nd-order Butterworth high-pass) is delayed and mixed, so the low band
-passes dry and centred; and the mixed band is scaled by
-g = 1 / √((1 − m)² + m²) (≈ +2.6 dB at m = 0.35) so its power, and the
-overall level, stays the same when the Doubler is turned on. Per channel:
+**Revised design (options 1 and 2 below):** a 200 Hz, 2nd-order Butterworth
+high-pass attenuates lows in the delayed path. Its finite slope and phase
+mean that frequencies below 200 Hz are not exactly dry. Identical mono
+input stays nearly centred at A0/A1; existing stereo lows are not folded
+to mono. The mixed high band uses g = 1 / √((1 − m)² + m²)
+(≈ +2.6 dB at m = 0.35), a normalization for uncorrelated paths, not a
+guarantee of constant RMS, loudness or peak level for arbitrary input. Per channel:
 out = x + h·(g·(1 − m) − 1) + g·m·delayed(h), with h the high band of x.
 Off (m = 0) is still bit-identical to the input.
 
@@ -25,8 +29,7 @@ Off (m = 0) is still bit-identical to the input.
   spectra (8192-point Hann, 50 % overlap, first 0.1 s skipped) of the left,
   right and mono-sum (L+R)/2 outputs against the input, per 1/3 octave from
   31.5 Hz to 16 kHz. Reported: the worst band and its level, the mean over
-  40–160 Hz (Drop A fundamentals and the palm-mute body), the mean over all
-  bands, and the ripple (largest band deviation from that mean).
+  40–160 Hz (Drop A fundamentals and the palm-mute body), the arithmetic mean of band dB values (not broadband RMS or loudness), and the ripple (largest band deviation from that mean).
 - **Width:** left/right correlation of the noise output.
 - **Attack:** A1 palm-mute plucks every 160 ms; mean peak of the first 3 ms of
   each pluck against the dry plucks.
@@ -61,18 +64,29 @@ averaged over a 1/3-octave band and the modulation.
 | 20 | −1.1 @ 250 / −0.5 @ 16000 / −0.8 @ 16000 | 0.1 / 0.3 / 0.2 | −0.3 | 1.6 / 0.6 / 1.3 | 0.84 | −0.1 / −0.1 |
 
 At the default 6 ms: the worst 1/3-octave band goes from −9.5 to −3.0 dB,
-the 40–160 Hz band from −4.7 dB to within ±0.7 dB, the level change on
-turning it on from −3.4 to −0.3 dB, and the pick attack from −4 dB to 0 dB.
-Width (L/R correlation 0.84) is unchanged.
+the mean of 40–160 Hz bands from −4.7 dB to within ±0.7 dB, the equal-band
+dB mean from −3.4 to −0.3 dB, and this synthetic pluck attack from −4 dB
+to 0 dB. These are not individual-frequency, broadband RMS or real-DI
+guarantees. White-noise L/R correlation remains approximately 0.84.
 
-What remains, by design: above 200 Hz each channel is still a comb (that is
-the doubling effect). Inside a band the comb still reaches
-20·log10(g·(1 − m) − g·m) ≈ −7.8 dB at its exact notches and +2.6 dB at its
-peaks (g = 1.355 instead of 1.0 before); 1/3-octave averages hide that at
-high frequencies, where many notches share a band. The peaks are new: a
-steady tone that sits on one can come out up to 2.6 dB louder. The Doubler
-runs before the output dynamics and limiter. Just below the crossover the
-compensation adds up to +0.7 dB.
+What remains: the upper band still combs. At frequencies well above the
+crossover its ideal notch/peak approach −7.8/+2.6 dB, but the complex
+high-pass crossover permits a **+2.816 dB** frozen-phase sine response near
+318 Hz. Arbitrary transient peaks are not bounded by that sine figure.
+The 40–160 Hz band averages hide individual responses down to about −2.32 dB
+and up to +2.12 dB (dense frozen-phase calculation; see the follow-up for
+actual time-varying renders). A0 is outside the old 40–160 Hz average.
+
+The actual downstream order is Final EQ → output trim/tuner mute → output
+limiter. The compressor, multiband and De-esser are upstream of Doubler.
+The limiter is **off by default**; only when enabled does it enforce its
+sample-peak ceiling. Doubler uses floating-point audio and does not itself
+clip or limit values above 1.0. Headroom must be checked before an integer
+export or physical output. This limiter is not a true-peak limiter.
+
+The follow-up caches normalization coefficients when the smoothed mix
+changes and caches click-envelope decay at prepare time. It preserves
+#192 audio (apart from preserving signed zero at complete bypass).
 
 ## Findings (original design)
 
