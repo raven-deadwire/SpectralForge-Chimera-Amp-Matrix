@@ -456,6 +456,8 @@ spectralforge::appendCommonDynamicsParameters(p);
 spectralforge::appendMultibandParameters(p);
 spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
+// 1.4 PRE Expansion A pedal banks (version 16).
+spectralforge::appendPedalExpansionParameters(p);
 return p;
 }
 

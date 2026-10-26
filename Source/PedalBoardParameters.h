@@ -6,6 +6,23 @@ namespace spectralforge {
 // Model-specific parameter banks never repurpose an old ID for another function.
 // The model integer reserves 0..255 from the first version: adding a model does
 // not change the normalized host position of any existing model selection.
+namespace pedal_detail {
+inline void addModelBank(juce::AudioProcessorValueTreeState::ParameterLayout& layout,int owner,int model,int version) {
+    using ID=juce::ParameterID;
+    const auto& m=pedalModel(model);
+    layout.add(std::make_unique<juce::AudioParameterBool>(ID{pedalBypassID(owner,model),version},"PRE owner "+juce::String(owner+1)+" "+m.name+" bypass",false));
+    for(int c=0;c<m.controlCount;++c) {
+        const auto& p=m.controls[(size_t)c];
+        layout.add(std::make_unique<juce::AudioParameterFloat>(ID{pedalControlID(owner,model,c),version},
+            "PRE "+juce::String(owner+1)+" "+m.name+" "+p.label,
+            juce::NormalisableRange<float>(p.minimum,p.maximum,p.interval),p.initial,juce::AudioParameterFloatAttributes().withAutomatable(p.connected)));
+    }
+}
+}
+// Models from releasedPedalModelCount on (1.4 PRE Expansion A) append their
+// banks after every released parameter, at this version hint.
+inline constexpr int pedalExpansionParameterVersion=16;
+inline constexpr int pedalExpansionParameterCount=[]{int n=0;for(int model=releasedPedalModelCount;model<pedalModelCount;++model)n+=1+pedalModels[(size_t)model].controlCount;return pedalBoardCapacity*n;}();
 inline void addPedalBoardParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
     using ID=juce::ParameterID;
     // New instances open the production five-slot board. Legacy state restore
@@ -15,17 +32,12 @@ inline void addPedalBoardParameters(juce::AudioProcessorValueTreeState::Paramete
     for(int owner=0;owner<5;++owner) {
         layout.add(std::make_unique<juce::AudioParameterInt>(ID{pedalModelID(owner),1},"PRE owner "+juce::String(owner+1)+" model",0,255,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
         layout.add(std::make_unique<juce::AudioParameterInt>(ID{pedalOrderID(owner),1},"PRE position "+juce::String(owner+1)+" owner",0,4,owner,juce::AudioParameterIntAttributes().withAutomatable(false)));
-        for(int model=0;model<pedalModelCount;++model) {
-            const auto& m=pedalModel(model);
-            layout.add(std::make_unique<juce::AudioParameterBool>(ID{pedalBypassID(owner,model),1},"PRE owner "+juce::String(owner+1)+" "+m.name+" bypass",false));
-            for(int c=0;c<m.controlCount;++c) {
-                const auto& p=m.controls[(size_t)c];
-                layout.add(std::make_unique<juce::AudioParameterFloat>(ID{pedalControlID(owner,model,c),1},
-                    "PRE "+juce::String(owner+1)+" "+m.name+" "+p.label,
-                    juce::NormalisableRange<float>(p.minimum,p.maximum,p.interval),p.initial,juce::AudioParameterFloatAttributes().withAutomatable(p.connected)));
-            }
-        }
+        for(int model=0;model<releasedPedalModelCount;++model)pedal_detail::addModelBank(layout,owner,model,1);
     }
+}
+inline void appendPedalExpansionParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    for(int owner=0;owner<pedalBoardCapacity;++owner)
+        for(int model=releasedPedalModelCount;model<pedalModelCount;++model)pedal_detail::addModelBank(layout,owner,model,pedalExpansionParameterVersion);
 }
 struct PedalBoardParameterCache {
     std::atomic<float>* enabled{}; std::atomic<float>* lowTap{};

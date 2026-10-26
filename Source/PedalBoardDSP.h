@@ -2,6 +2,7 @@
 #include "FXChain.h"
 #include "PedalBoardCatalog.h"
 #include "PedalOctaverDSP.h"
+#include "PedalParaEQDSP.h"
 
 namespace spectralforge {
 // These are original, experimental control curves. They do not transform the
@@ -76,6 +77,7 @@ class PedalEffectInstance {
     DriveModule drive;ColourModule fuzz;DynamicsModule compressor;BoostModule boost;ModulationModule modulation;
     PedalNewDrive newDrive;
     PedalMonoOctaver monoOctaver;PedalPolyOctaver polyOctaver;
+    PedalParaEQ paraEQ;
     std::array<std::array<F,2>,10> eq;
     juce::dsp::StateVariableTPTFilter<float> envelopeFilter;
     juce::AudioBuffer<float> dry,source;
@@ -187,11 +189,12 @@ class PedalEffectInstance {
         if(s.model>=32 && s.model<=37) {modulation.process(b,true,s.model-32,p[0],p[1],p[2]);return 0;}
         if(s.model==38) {monoOctaver.process(b,p[0],p[1],p[2]);return monoOctaver.latency();}
         if(s.model==39) {polyOctaver.process(b,p[0],p[1],p[2]);return polyOctaver.latency();}
+        if(s.model==40) {paraEQ.process(b,p);return 0;}
         return 0;
     }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec) {
-        rate=spec.sampleRate;drive.prepare(spec);fuzz.prepare(spec);compressor.prepare(spec);boost.prepare(spec);modulation.prepare(spec);newDrive.prepare(spec);monoOctaver.prepare(spec);polyOctaver.prepare(spec);
+        rate=spec.sampleRate;drive.prepare(spec);fuzz.prepare(spec);compressor.prepare(spec);boost.prepare(spec);modulation.prepare(spec);newDrive.prepare(spec);monoOctaver.prepare(spec);polyOctaver.prepare(spec);paraEQ.prepare(spec.sampleRate);
         fixedLatency=juce::jmax(drive.latency(),fuzz.latency(),newDrive.latency());
         dry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);source.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         dryDelay.setMaximumDelayInSamples(maximumLatency());dryDelay.prepare(spec);dryDelay.setDelay(float(fixedLatency));padding.prepare(spec);
@@ -202,12 +205,12 @@ public:
     int latency(int model)const{return model==39?juce::jmax(fixedLatency,polyOctaver.latency()):fixedLatency;}
     int maximumLatency()const{return juce::jmax(fixedLatency,polyOctaver.latency());}
     float reduction()const{return appliedGR;}
-    void reset() {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelopeFilter.reset();dryDelay.reset();padding.reset();envelope=0;lastModel=0;filterClock=0;appliedGR=0;wet.setCurrentAndTargetValue(0);}
+    void reset() {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();paraEQ.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelopeFilter.reset();dryDelay.reset();padding.reset();envelope=0;lastModel=0;filterClock=0;appliedGR=0;wet.setCurrentAndTargetValue(0);}
     void process(juce::AudioBuffer<float>& b,const PedalInstanceState& state) {
         const int slotLatency=latency(state.model);dryDelay.setDelay(float(slotLatency));
         source.makeCopyOf(b,true);dry.makeCopyOf(b,true);juce::dsp::AudioBlock<float> dryBlock(dry);juce::dsp::ProcessContextReplacing<float> dryContext(dryBlock);dryDelay.process(dryContext);
         const bool active=state.model>0 && state.model<pedalModelCount && pedalModel(state.model).implemented && !state.bypass;
-        if(lastModel!=state.model) {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();envelopeFilter.reset();padding.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelope=0;filterClock=0;wet.setCurrentAndTargetValue(0);lastModel=state.model;}
+        if(lastModel!=state.model) {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();paraEQ.reset();envelopeFilter.reset();padding.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelope=0;filterClock=0;wet.setCurrentAndTargetValue(0);lastModel=state.model;}
         wet.setTargetValue(active?1.f:0.f);appliedGR=0;
         if(!active && !wet.isSmoothing()) {b.makeCopyOf(dry,true);return;} // Empty/bypassed: no effect DSP.
         const int native=processModel(b,state);padding.setDelay(float(juce::jmax(0,slotLatency-native)));

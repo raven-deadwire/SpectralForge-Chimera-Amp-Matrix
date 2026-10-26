@@ -144,6 +144,21 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             c.slider.textFromValueFunction=[names](double value){return names[juce::jlimit(0,names.size()-1,juce::roundToInt(value))];};
             c.slider.valueFromTextFunction=[names](const juce::String& text){const int i=names.indexOf(text,true);return i>=0?double(i):text.getDoubleValue();};
         }
+        else if(model==40 && index%3==0 && index<9) {
+            // Para EQ frequency knobs: logarithmic across each band, shown in Hz.
+            const int band=index/3;
+            c.slider.textFromValueFunction=[band](double value){const float hz=spectralforge::PedalParaEQ::frequency(band,float(value));return hz>=1000.f?juce::String(hz/1000.f,2)+" kHz":juce::String(juce::roundToInt(hz))+" Hz";};
+            c.slider.valueFromTextFunction=[band](const juce::String& text){
+                const auto& range=spectralforge::PedalParaEQ::bands[size_t(band)];
+                const double hz=text.getDoubleValue()*(text.containsIgnoreCase("k")?1000.:1.);
+                return juce::jlimit(0.,1.,std::log(juce::jlimit(double(range.low),double(range.high),hz)/range.low)/std::log(double(range.high)/range.low));
+            };
+        }
+        else if(model==40) {
+            // Para EQ gains and boost are in dB.
+            c.slider.textFromValueFunction=[](double value){return (value>0?"+":"")+juce::String(value,1)+" dB";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
+        }
         else if(spec.minimum==0 && spec.maximum==1) {
             c.slider.textFromValueFunction=[](double value){return juce::String(value*10.,1);};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/10.;};
