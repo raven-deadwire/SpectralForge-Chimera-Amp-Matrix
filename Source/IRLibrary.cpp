@@ -151,7 +151,8 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
         if(found!=modelCache.end())modelCache.erase(found);
         modelCache.push_back(std::move(generated));
         // Two complete six-mic A/B states; rate/block/channel changes clear it.
-        const size_t capacity=preparationPolicy==PreparationPolicy::audibleCached ? 12 : 8;
+        const size_t capacity=(preparationPolicy==PreparationPolicy::audibleFirst
+            || preparationPolicy==PreparationPolicy::audibleCached) ? 12 : 8;
         if(modelCache.size()>capacity)modelCache.pop_front();
     }
     return kernel;

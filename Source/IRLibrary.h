@@ -24,9 +24,9 @@ public:
     ~IRLibrary() override;
     void prepare(const juce::dsp::ProcessSpec&, const std::array<int,3>& sources);
     // Benchmark controls: set ONLY with processing and worker stopped. The
-    // product uses audibleCached; parallel is an experimental comparison path.
+    // product uses audibleFirst; parallel and complete-kernel reuse are experimental.
     enum class PreparationPolicy { serial, audibleFirst, parallel, audibleCached };
-    PreparationPolicy preparationPolicy{PreparationPolicy::audibleCached};
+    PreparationPolicy preparationPolicy{PreparationPolicy::audibleFirst};
     unsigned kernelCacheHits() const noexcept {return cacheHits.load();}
     void requestStop();
     void wake() {notify();}

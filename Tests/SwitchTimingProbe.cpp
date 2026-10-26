@@ -52,8 +52,8 @@ double processCpuMilliseconds() {
 #endif
 }
 using Policy=spectralforge::IRLibrary::PreparationPolicy;
-Policy policy=Policy::audibleCached;
-bool warmAB=false,warmRequested=false,instantSwap=true;
+Policy policy=Policy::audibleFirst;
+bool warmAB=false,warmRequested=false,instantSwap=true,policyOverride=false;
 void require(bool ok,const juce::String& message) {if(!ok)throw std::runtime_error(message.toStdString());}
 void set(ChimeraProcessor& p,const juce::String& id,float value) {
     auto* q=p.parameters().getParameter(id);require(q!=nullptr,"Missing parameter "+id);q->setValueNotifyingHost(q->convertTo0to1(value));
@@ -83,7 +83,7 @@ using Setup=std::function<void(ChimeraProcessor&)>;
 // keep coming at real-time pace, as from a host's UI (presets, A/B); otherwise
 // it runs between blocks on the audio thread, as host automation does.
 Render render(const Setup& setup,const Setup& change,bool messageThread=false) {
-    auto p=std::make_unique<ChimeraProcessor>();ChimeraRecallTestAccess::policy(*p,policy,instantSwap);setup(*p);
+    auto p=std::make_unique<ChimeraProcessor>();if(policyOverride)ChimeraRecallTestAccess::policy(*p,policy,instantSwap);setup(*p);
     for(const auto* id:{"delayon","reverbon","choruson"})set(*p,id,0);
     p->prepareToPlay(rate,block);
     if(warmAB) {
@@ -304,7 +304,7 @@ int main(int argc,char** argv)
             else if(a=="--policy" && i+1<argc) {
                 const juce::String value(argv[++i]);
                 require(value=="baseline" || value=="serial" || value=="priority" || value=="parallel" || value=="cache","Unknown policy");
-                instantSwap=value!="baseline";
+                policyOverride=true;instantSwap=value!="baseline";
                 policy=(value=="serial" || value=="baseline") ? Policy::serial : value=="priority" ? Policy::audibleFirst : value=="parallel" ? Policy::parallel : Policy::audibleCached;
             }
             else if(a=="--warm-ab")warmRequested=true;

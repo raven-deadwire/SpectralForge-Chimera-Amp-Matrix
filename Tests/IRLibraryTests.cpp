@@ -135,6 +135,7 @@ void modelWorkerCancellation() {
 void modeledABCache() {
     std::array<spectralforge::Cab,3> cabinets;
     spectralforge::IRLibrary library{{&cabinets[0],&cabinets[1],&cabinets[2]}};
+    library.preparationPolicy=spectralforge::IRLibrary::PreparationPolicy::audibleCached;
     const auto keyAt=[](double position){return spectralforge::cabLayout::key({{{true,0,0,0,1,.4,position,8.},0,0,0},0,0});};
     const auto a=keyAt(.2),b=keyAt(.8);
     for(auto& cabinet:cabinets){cabinet.requestedModel=a;cabinet.prepare(spec);}
