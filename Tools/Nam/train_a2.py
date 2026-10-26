@@ -67,8 +67,12 @@ def main():
     ap.add_argument('--lr-origin',type=int,default=0)
     ap.add_argument('--recipe',choices=['legacy','official-a2'],default='legacy')
     ap.add_argument('--loss-normalization',choices=['window','channel'],default='window')
-    ap.add_argument('--validation-selection',choices=['window','full'],default='window')
+    # Five 8,192-sample excerpts cover 0.85 s of validation; on 2026-10-25 they kept a
+    # state 24% worse than the final step for Nidhoggr. Full validation is the default.
+    ap.add_argument('--validation-selection',choices=['window','full'],default='full')
     ap.add_argument('--warm-start',type=Path,help='Initialize from a prior run with the same architecture and frozen native source; reset optimizer and re-score validation')
+    ap.add_argument('--warm-start-final',action='store_true',help='Warm-start from the prior run\'s final weights instead of its selected states')
+    ap.add_argument('--loud-fraction',type=float,default=0.,help='Fraction of training crops containing input at or above -6 dBFS peak, where error concentrates')
     ap.add_argument('--tail-fraction',type=float,default=0.,help='Fraction of training windows drawn from the final captured decay')
     ap.add_argument('--center-training-output',action='store_true',help='Train the same zero-history-corrected response that is exported')
     ap.add_argument('--amplitude-weight',type=float,default=0.,help='Legacy loss: weight each sample by 1+A*|target|/window peak, so loud passages count more')
@@ -78,6 +82,8 @@ def main():
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
     if args.resume and args.warm_start:raise ValueError('Choose resume or warm-start')
     if not 0<=args.tail_fraction<=.25:raise ValueError('Tail fraction must be between 0 and .25')
+    if not 0<=args.loud_fraction<=.75 or args.tail_fraction+args.loud_fraction>.8:raise ValueError('Loud fraction must be in [0, .75] and leave random crops')
+    if args.warm_start_final and not args.warm_start:raise ValueError('--warm-start-final needs --warm-start')
     if args.amplitude_weight<0 or args.overshoot_weight<0:raise ValueError('Loss weights must be nonnegative')
     if args.recipe!='legacy' and (args.amplitude_weight or args.overshoot_weight):raise ValueError('Loss weights apply to the legacy recipe only')
     if min(args.steps,args.batch,args.frames,args.threads,args.lr,args.lr_half_life)<=0:raise ValueError('Positive training budget and optimizer settings required')
@@ -96,6 +102,9 @@ def main():
     x=np.load(args.data/'train/input.npy');ys=np.stack([np.load(args.data/'train'/f'{v[0]}.npy') for v in VOICES])
     gains=training_output_gains(ys) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
     gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
+    # Notes are scaled to exactly -6 or -3 dBFS peak; -6.1 keeps the -6 dBFS ones.
+    loud_samples=np.flatnonzero(np.abs(x[rf:len(x)-args.frames])>=10**(-6.1/20))+rf
+    if args.loud_fraction and not len(loud_samples):raise ValueError('No input at or above -6 dBFS for --loud-fraction')
     epoch_steps=steps_per_virtual_epoch(len(x),rf,args.frames,args.batch)
     args.out.mkdir(parents=True,exist_ok=True)
     source=manifest['source']
@@ -112,7 +121,7 @@ def main():
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
-      'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,
+      'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'loud_fraction':args.loud_fraction,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
@@ -179,7 +188,11 @@ def main():
         ck=torch.load(args.warm_start/'checkpoint.pt',map_location='cpu',weights_only=False)
         if ck['identity']!=prior['identity']:raise RuntimeError('Warm-start checkpoint/config identity mismatch')
         raw_deltas=[]
-        for i,state in enumerate(ck['best_weights']):
+        if args.warm_start_final:
+            final=PackedWaveNet.init_from_config(copy.deepcopy(cfg));final.load_state_dict(ck['model'])
+            start_states=[final.extract_submodel(i).state_dict() for i in range(5)]
+        else:start_states=ck['best_weights']
+        for i,state in enumerate(start_states):
             sub=model.extract_submodel(i).eval();sub.load_state_dict(state)
             with torch.inference_mode():before=sub(torch.from_numpy(x[:32768].copy()))/prior_gains[i]
             rescale_output_head(sub,prior_gains[i],gains[i])
@@ -212,8 +225,13 @@ def main():
     for step in range(start+1,args.steps+1):
         model.train();st=rng.integers(rf,len(x)-args.frames,args.batch)
         for j in range(args.batch):
-            if rng.random()<args.tail_fraction:
+            draw=rng.random()
+            if draw<args.tail_fraction:
                 st[j]=rng.integers(max(rf,len(x)-round(.8*48000)),len(x)-args.frames)
+            elif draw<args.tail_fraction+args.loud_fraction:
+                # A crop whose output window contains one of the loud input samples.
+                k=loud_samples[rng.integers(len(loud_samples))]
+                st[j]=int(np.clip(k-rng.integers(args.frames),rf,len(x)-args.frames-1))
         crop_digest.update(st.astype('<i8').tobytes())
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
         yy=torch.from_numpy(np.stack([ys[:,s:s+args.frames] for s in st]))*gain_tensor
