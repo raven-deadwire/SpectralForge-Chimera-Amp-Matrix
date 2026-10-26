@@ -25,6 +25,30 @@ release assets and historical evidence remain immutable. This branch adds a
 countdown and documentation corrections for review; it is not a newly published
 release and has no new release approval.
 
+## Approved next version: 1.3.2-beta.2 (2026-10-26 KST)
+
+The owner approved option B of
+[the beta.2 expiry proposal](BETA2_EXPIRY_DECISION_PROPOSAL_20261026.ko.md)
+on 2026-10-26 at 13:38 KST. `Validation/beta-lifecycle-policy.json` and
+`RELEASE_CHANNEL` now name `1.3.2-beta.2`; the beta.1 row above remains the
+historical record of the published release and its own approval.
+
+| Policy field | Approved 1.3.2-beta.2 value |
+| --- | --- |
+| Product / package version | `1.3.2` / `1.3.2-beta.2` |
+| UTC expiry (inclusive) | `2027-03-31T14:59:00Z` |
+| Korea expiry | `2027-03-31 23:59:00 KST (UTC+09:00)` |
+| Unix expiry | `1806505140` |
+| Approval | `expiry_approved: true` |
+| Advance warning | `1209600` seconds (14 days) |
+
+The date is approved for this version only. If beta.2 is not published by
+2026-12-21 KST its remaining lifetime falls below 100 days, and the date is
+re-approved before publication. Approval of the date is not a release approval:
+the lifecycle P0 checks (running-instance expiry, relaunch, update from beta.1
+with projects/IRs) and every existing release gate still apply to the exact
+beta.2 source and packages.
+
 ## Configuration and next-version identity
 
 The existing VERSION/RELEASE_CHANNEL, source SHA and ten-character build ID remain
