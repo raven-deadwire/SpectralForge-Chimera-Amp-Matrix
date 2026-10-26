@@ -177,16 +177,37 @@ def verify_ci(api, release):
         # A same-SHA fork run is not the repository's release evidence.
         require(run.get("head_repository", {}).get("full_name") == transport.REPO,
                 "Verification head repository mismatch")
-        jobs = api.pages(f"/actions/runs/{run['id']}/jobs?filter=latest", "jobs")
+        require(run.get("path") == ".github/workflows/" + workflow,
+                "Verification workflow identity mismatch")
+        # `filter=latest` can advance to a rerun after the run list was read.
+        # Pin the attempt and reject even successful jobs from another source.
+        jobs = api.pages(f"/actions/runs/{run['id']}/attempts/{run['run_attempt']}/jobs", "jobs")
         verified_jobs(jobs, expected)
+        for job in jobs:
+            if job.get("name", "").split(" / ")[-1] not in expected:
+                continue
+            require(type(job.get("run_id")) is int and job["run_id"] == run["id"]
+                    and type(job.get("run_attempt")) is int and job["run_attempt"] == run["run_attempt"]
+                    and job.get("head_sha") == release.source_sha,
+                    "Verification job identity mismatch")
         runs[workflow] = run
     if pending:
         raise CIPending("Exact-source verification is still running: " + ", ".join(pending))
     build = runs["build.yml"]
     artifacts = api.pages(f"/actions/runs/{build['id']}/artifacts", "artifacts")
-    return {"runs": runs,
+    result = {"runs": runs,
         "candidate": verified_artifact(artifacts, release.artifact_name, release.source_sha, build["id"]),
         "gate": verified_artifact(artifacts, GATE_ARTIFACT_NAME, release.source_sha, build["id"])}
+    # Reruns retain their run ID. Ensure no attempt/status changed while reading
+    # jobs and artifacts; callers also recheck after evidence download/staging.
+    identity_fields = ("id", "run_attempt", "head_sha", "event", "path", "status", "conclusion")
+    for run in runs.values():
+        current = api.json(f"/actions/runs/{run['id']}")
+        require(isinstance(current, dict)
+                and all(type(current.get(key)) is type(run.get(key))
+                        and current.get(key) == run.get(key) for key in identity_fields),
+                "CI run changed during verification")
+    return result
 
 
 def wait_for_ci(api, release, seconds, check_current_controller):
@@ -220,12 +241,14 @@ def verify_release_gate_archive(archive, release, run_id, run_attempt, policy, r
         matches = [name for name in names if PurePosixPath(name).name == "release-gate.json"]
         require(len(matches) == 1, "Expected one consolidated release-gate.json")
         verdict = parse_json(bundle.read(matches[0]).decode("utf-8-sig"))
+        require(isinstance(verdict, dict), "Release-gate JSON must be an object")
         require(verdict.get("schema") == "spectralforge.chimera.release-gate"
                 and type(verdict.get("schema_version")) is int and verdict["schema_version"] == 1
                 and verdict.get("profile") == release.profile and verdict.get("revision") == revision
                 and verdict.get("policy_version") == policy["policy_version"], "Release-gate identity mismatch")
         producer = verdict.get("producer", {})
-        require(producer.get("name") == "consolidate_release_gate" and producer.get("errors") == [],
+        require(isinstance(producer, dict)
+                and producer.get("name") == "consolidate_release_gate" and producer.get("errors") == [],
                 "Consolidated release acceptance evidence is absent")
         inputs = producer.get("inputs")
         require(isinstance(inputs, list) and len(inputs) == 4
@@ -428,6 +451,9 @@ def require_gate_pass(args, release, policy):
             "Release gate does not authorize publication")
     require(verdict.get("verdict") == "PASS" or decision.get("decision") == weekly_publication.GAP_DECISION,
             "Release-gate verdict is not PASS")
+    require(ci_identity(verify_ci(api, release)) == ci_identity(ci),
+            "Verification runs or artifacts changed during gate evaluation")
+    require(approval(release, policy) == receipt, "Publication approval changed during gate evaluation")
     print(json.dumps({"version": release.version, "source_sha": release.source_sha, "profile": release.profile,
         "build_run": build["id"], "run_attempt": build["run_attempt"], "gate_artifact": ci["gate"]["id"],
         "strict_verdict": verdict["verdict"], "decision": decision["decision"]}, indent=2, ensure_ascii=False))

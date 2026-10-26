@@ -104,8 +104,8 @@ int main(int argc,char** argv) {
         const Signal fixed=render(*p,x,rate,128,[]{return 128;});pump();
         check("fixed_block_128_bit_identical",maxDiff(fixed,ref)==0,maxDiff(fixed,ref));
         ResearchEngine probe;probe.prepare(rate,128,2);
-        check("reported_latency",p->getLatencySamples()==probe.latency(e),
-              juce::String(p->getLatencySamples())+" samples (expected "+juce::String(probe.latency(e))+")");
+        check("reported_latency",p->getLatencySamples()==probe.latency(e,false,rate),
+              juce::String(p->getLatencySamples())+" samples (expected "+juce::String(probe.latency(e,false,rate))+")");
 
         // 2. DAW-style variable blocks (1..512, seeded) and large fixed host blocks.
         std::mt19937 rng(20261024);std::uniform_int_distribution<int> pick(1,512);
@@ -146,6 +146,29 @@ int main(int argc,char** argv) {
         const bool fin=finite(automated,peak);
         check("automation_finite_bounded",fin && peak<=4*inPeak+1e-6,
               juce::String("peak ")+juce::String(peak,5)+" vs input "+juce::String(inPeak,5)+(fin?"":" NONFINITE"));
+        pump();
+        // 6. Fixed-PDC mode: the report, the output (unchanged by the mode) and
+        //    host bypass delayed by exactly the reported latency.
+        {
+            juce::String err;auto r=format.createInstanceFromDescription(*found[0],rate,128,err);
+            if(!r)throw std::runtime_error("third instance failed");
+            r->enableAllBuses();setParams(*r,shift,e);param(*r,"Latency report")->setValue(1.f);
+            const Signal pdcOut=render(*r,x,rate,128,[]{return 128;});pump();
+            const int expect=probe.latency(e,true,rate);
+            check("fixed_pdc_reported_latency",r->getLatencySamples()==expect,
+                  juce::String(r->getLatencySamples())+" samples (expected "+juce::String(expect)+")");
+            check("fixed_pdc_output_unchanged",maxDiff(pdcOut,ref)==0,maxDiff(pdcOut,ref));
+            r->prepareToPlay(rate,128);
+            juce::AudioBuffer<float> b(2,128);juce::MidiBuffer m;int found_at=-1;
+            const int blocks=expect/128+3;
+            for(int k=0;k<blocks && found_at<0;++k) {
+                b.clear();if(k==0){b.setSample(0,5,1.f);b.setSample(1,5,1.f);}
+                r->processBlockBypassed(b,m);
+                for(int i=0;i<128;++i)if(std::abs(b.getSample(0,i))>.5f){found_at=k*128+i-5;break;}
+            }
+            check("bypass_delay_equals_reported_latency",found_at==r->getLatencySamples(),
+                  juce::String(found_at)+" samples (reported "+juce::String(r->getLatencySamples())+")");
+        }
         pump();
         obj->setProperty("all_hard_checks_pass",ok);
         std::ofstream(argv[6])<<juce::JSON::toString(juce::var(obj.release()))<<'\n';

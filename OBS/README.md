@@ -7,7 +7,8 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 모듈은 Chimera DSP를 포함하지 않고, 사용자가 따로 설치한 **Chimera VST3**를 불러와
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
-**상태: 개발 시제품. Windows Chimera Setup의 선택 항목으로 같이 설치할 수 있음(서명 없음). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
+**상태: 개발 시제품. Windows는 Chimera Setup, macOS(Universal: Apple silicon·Intel, macOS 12 이상)는 Chimera PKG의 선택 항목(서명·공증 없음)이며
+별도 사용자 설치 패키지도 있다. Linux x86_64는 CI가 만든 사용자 설치 패키지만 있다(F단계, 공개 배포 전). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
 
 ## 라이선스
 
@@ -26,6 +27,9 @@ JUCE는 쓰지 않는다.
 | `src/chimera-host.*` | VST3 번들 식별·로딩, 버스/처리 준비, 상태, 파라미터 | UI(로딩), 오디오(처리) |
 | `src/editor-window-*.cpp` | Chimera 에디터 창(Windows HWND). 다른 OS는 미지원 표시 | UI |
 | `tools/dll_exports_def.py` | Windows용 `obs.dll` export → `.def` (import lib 생성) | 빌드 |
+| `tools/build-macos-module.sh` | OBS 31.1.2 Apple/Intel 릴리스의 `libobs.framework`로 아키텍처별 `chimera-obs.plugin` 빌드·시험 | 빌드 |
+| `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
+| `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 
 - 이름이 `SpectralForge Chimera`이고 제작사가 `RavenForge Luthier Intelligence`인 VST3 클래스만 로드한다(범용 VST3 호스트 아님).
 - 경로를 비우면 Setup이 기록한 VST3 위치(`data/default-vst3-path.txt`, UTF-8)를 먼저 쓰고, 없으면 표준 설치 위치를 찾는다:
@@ -102,6 +106,61 @@ Windows는 libobs 개발 패키지가 없으므로, 대상 OBS 릴리스 태그�
 OBS 추가 기능·제품 빌드·업데이트 후보 워크플로가 모두 이 스크립트를 쓴다.
 VST3 SDK는 `v3.8.0_build_66`을 자동으로 받으며 `-DCHIMERA_VST3_SDK_DIR`로 기존 사본을 지정할 수 있다.
 
+macOS도 libobs 개발 패키지가 없으므로 아키텍처마다 OBS 31.1.2 릴리스 DMG(Apple silicon용 `Apple`, Intel용 `Intel`, 각각 해시 고정)의
+`OBS.app` 안 `libobs.framework`와 같은 태그의 헤더로 빌드한다. 결과는 OBS가 불러오는 `chimera-obs.plugin` 번들이다
+(`Contents/MacOS/chimera-obs`, 데이터는 `Contents/Resources`). VST3는 SDK의 macOS 번들 로더로 불러온다.
+최소 macOS는 제품·OBS 31과 같은 12.0이다(`CMAKE_OSX_DEPLOYMENT_TARGET`, 설치 프로그램도 같음). 지정하지 않으면 빌드한 Mac의 macOS 버전 이상에서만 로드된다.
+`stage_module.py --build-x86_64`가 두 빌드를 `lipo`로 합쳐 Universal 번들 하나를 만들고, 아키텍처와 최소 macOS를 확인한다.
+Intel 시험은 Apple silicon에서 Rosetta로 실행한다(VST3도 Universal로 빌드).
+
+```bash
+vst3="build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+./OBS/tools/build-macos-module.sh "$TMPDIR/chimera-obs-arm64" arm64 "$vst3"
+./OBS/tools/build-macos-module.sh "$TMPDIR/chimera-obs-x86_64" x86_64 "$vst3"
+```
+
+## 설치 (macOS·Linux, F단계)
+
+`.github/workflows/obs-addon.yml`이 OS마다 패키지를 만든다. 각 패키지에는 설치 스크립트와 `INSTALL.txt`, 사용 안내 `README.txt`,
+`LICENSE.txt`, 모듈 버전·빌드한 OBS 버전·대응 소스가 적힌 `SOURCE.txt`가 들어 있다.
+
+| OS | 산출물 | 설치 위치(현재 사용자) | 빌드·시험한 OBS |
+|---|---|---|---|
+| Linux x86_64 | `chimera-obs-linux-x86_64-*.tar.gz` | `~/.config/obs-studio/plugins/chimera-obs/{bin/64bit,data}` | libobs 30.0.2 (Ubuntu 24.04) |
+| macOS 12+ Universal (Apple silicon·Intel) | `chimera-obs-macos-universal-*.zip` | `~/Library/Application Support/obs-studio/plugins/chimera-obs.plugin` | OBS 31.1.2 Apple·Intel |
+
+- `./install.sh`는 패키지에 포함된 네이티브 `chimera-obs-installer`를 실행한다. 사용자에게 Python이나 컴파일러 설치를 요구하지 않는다(Linux 설치 도우미는 C++ 런타임을 정적 링크해 glibc만 필요하며 Ubuntu 24.04 빌드라 glibc 2.38 이상을 요구, macOS는 Universal·macOS 12.0). 이는 설치 도우미에 한한 것이며 Linux 모듈 자체는 OBS가 제공하는 `libobs.so.0`과 배포판의 `libstdc++.so.6`·`libgcc_s.so.1`을 계속 사용한다. CI는 도우미가 모듈보다 새 glibc를 요구하지 않는지, macOS 바이너리에 빌드 머신 절대 경로 `LC_RPATH`가 없는지 검사한다(모듈은 `@executable_path/../Frameworks`로 OBS.app의 libobs를 찾는다). Python과 C++ 컴파일러는 개발·패키지 빌드·CI에만 사용한다. macOS·Linux 모두 root 실행을 거부한다.
+  OBS 실행 중이거나 `pgrep` 누락·오류·시간 초과로 실행 여부를 확인할 수 없으면 설치·업데이트·제거를 막는다(PR #149와 같은 fail-closed 정책).
+- 후보를 같은 파일시스템의 숨겨진 트랜잭션 폴더에서 준비하고 전체 파일 목록·SHA-256·권한을 확인한다.
+  macOS는 `ditto`로 복사하고 격리 표시를 후보에서만 제거한 뒤 번들 ID와 `codesign --verify --deep --strict`도 확인한다.
+  기존 디렉터리는 macOS `RENAME_SWAP` / Linux `RENAME_EXCHANGE`로 한 번에 교체한다. 지원하지 않는 파일시스템에서는 기존 설치를 보존하고 중단한다.
+- 교체 후 검증이 실패하거나 INT/TERM/HUP로 중단되면 이전 디렉터리를 복원한다. SIGKILL 등으로 중단된 경우 다음 실행에서 저널과 디렉터리 식별값을 대조해 복구한다.
+  잠금은 프로세스 종료 시 해제된다. 빈 `.chimera-obs-install.lock` 파일은 동시 설치 방지를 위해 남긴다.
+  정상 완료·복구 후 임시 파일을 정리한다. 복구 자체가 디스크 오류로 실패하면 백업·저널을 지우지 않고 위치를 알린다.
+- `--uninstall`은 고정된 설치 소유 파일 목록만 제거한다. Linux 업데이트와 양 OS 제거는 사용자 추가 파일·빈 사용자 폴더를 보존한다.
+  서명된 macOS 번들 내부에 별도 사용자 파일이 있으면 업데이트를 거부하고 외부로 옮기도록 안내한다.
+  OBS 장면·설정, Chimera 프리셋·IR·VST3, 다른 플러그인은 수정 대상이 아니다.
+- 패키지 SHA-256 목록과 임시 서명은 손상 검증이며 개발자 신원 인증·Apple 공증은 아니다. 설치 중에는 OBS를 계속 종료 상태로 유지해야 한다.
+  SIGKILL 복구는 시험하지만 실제 전원 차단/고장 난 저장장치의 내구성은 인증하지 않는다.
+- CI는 패키지를 실제 사용자 폴더에 설치하고, `chimera-obs-layout-tests`로 libobs가 그 위치에서 모듈을 찾아
+  번역된 이름(`SpectralForge Chimera`)으로 등록하는지 확인한 뒤 제거까지 시험한다. macOS는 Apple silicon·Intel(Rosetta) libobs 양쪽에서 확인한다. Linux는 제거 뒤 사용자가 넣은 파일이 남는지도 본다.
+- macOS 번들은 임시(ad-hoc) 서명이며 Apple 공증 전이다. macOS 에디터 창, Flatpak·Snap OBS는 아직 지원하지 않는다. Intel 슬라이스는 Rosetta에서만 시험했다(실제 Intel Mac 미확인).
+
+## 설치 (macOS Chimera PKG)
+
+`package_release.py macos`는 Chimera PKG를 두 구성 요소의 제품 설치 프로그램(`productbuild`)으로 만든다.
+`audio.spectralforge.chimera`(앱·VST3·AU·설명서, 항상 설치)와 선택 항목 **OBS Studio filter**(`audio.spectralforge.chimera.obs`)다.
+
+- OBS 항목은 `/Applications/OBS.app`이 있거나 이 사용자에게 필터가 이미 설치돼 있으면 미리 선택된다(Windows Setup과 같은 규칙).
+- 항목의 내용물은 위 Universal 사용자 패키지 그대로이며 `/Library/Application Support/SpectralForge/Chimera/OBS`에 놓인다.
+  macOS OBS에는 시스템 공용 플러그인 폴더가 없으므로, postinstall(`packaging/macos-pkg-postinstall.sh`)이
+  로그인한 사용자 권한으로 같은 `chimera-obs-installer`를 실행해 그 사용자의 OBS 플러그인 폴더에 설치한다(root 설치 거부·해시·서명 검사·원자 교체 동일).
+  로그인한 사용자가 없거나 시동 디스크가 아니면 설치하지 않고 위 폴더의 `install.sh`를 안내한다.
+- OBS가 실행 중이면 설치 프로그램이 시작 단계에서 멈추고 아무것도 바꾸지 않는다(필터가 Chimera VST3를 불러온 상태일 수 있음).
+- 다른 사용자 추가·제거는 그 사용자로 위 폴더의 `install.sh`(`--uninstall`)를 실행한다. PKG에는 제거 프로그램이 없다.
+- CI(`build.yml` macOS)는 실제 PKG를 설치해 기본 선택(러너에 OBS 없음)에서는 필터가 설치되지 않고, OBS 항목을 고르면
+  로그인한 사용자 소유로 설치되어 Apple silicon·Intel(Rosetta) libobs 양쪽에서 등록되는지, `--uninstall`로 지워지는지 확인한다.
+
 ## 설치 (Windows)
 
 Chimera Windows Setup의 작업 선택 화면에서 **OBS Studio용 SpectralForge Chimera 필터도 설치**를 고른다
@@ -152,6 +211,9 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 위 상태 시험의 변형 시험(동기화·적용·버전 검사를 각각 제거하면 실패) | 3/3 검출 | 같은 환경 |
 | 다시 켠 필터의 꼬리 제거(무음 100 ms RMS 0.0074 → 0), 호스트 `requestReset` 0.0079 → 0 | 통과, 신호 연결 제거 시 실패 | 같은 환경 |
 | Windows 코드 경로 교차 컴파일(MinGW, OBS 31.1.2 헤더·`obs.dll` export) | 빌드 성공 | 실행 안 함 |
+| Linux 패키지: 일반 사용자 설치 → OBS 사용자 플러그인 경로에서 등록(번역 이름 확인) → 제거, 사용자 파일 보존 | 통과, 언어 파일 제거 시 실패 | Linux, libobs 30.0.2 |
+| Clang 빌드(OBS 프로젝트 전체, `-Wall -Wextra -Werror`) | 경고 0, 시험 5개 통과 | Linux |
+| macOS `chimera-obs.plugin` 빌드·호스트/필터 시험(arm64, x86_64 Rosetta)·Universal 패키지 설치 위치 시험 | CI(`obs-addon.yml` macos)에서 실행 | 결과는 CI 기록 |
 | 실시간 통계 단위 시험(끊김 분류, 20 ms 구간 부하·초과, 주기 보고, 초기화, 동시 읽기) | 통과(TSan 포함) | Linux |
 | 1초 넘게 끊긴 입력 재개 시 꼬리 제거(무음 100 ms RMS 0.0074 → 0), 20 ms 끊김은 꼬리 유지·통계만 | 통과 | libobs 30.0.2 (헤드리스) |
 | 장시간: 오디오 120초(CI 기본), 무작위 블록 1–1024 frames 11,244개, 10초마다 입력 매핑 변경 | 미처리 0, 출력 유한, 같은 구간 시작/끝 출력 차이 0(지연·상태 누적 없음) | 같은 환경 |
@@ -180,5 +242,5 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
 **미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows 에디터 코드는 실행 검증 전),
-실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS 빌드. 이 항목은 계획 C–F단계와
+실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS·Linux 실제 OBS 앱에서의 확인. 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
