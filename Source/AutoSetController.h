@@ -73,7 +73,10 @@ public:
     void cancel() {
         if(!busy())return;
         stopTimer();stopListening();
-        publish(Phase::idle,0,"Auto Set cancelled.",0);
+        // Cancel only stops listening. Passes that already finished keep
+        // their settings until UNDO restores the pre-run snapshot.
+        publish(Phase::idle,0,changedSinceSnapshot() ? "Auto Set cancelled. Finished steps are kept; UNDO restores your previous settings."
+                                                     : "Auto Set cancelled before changing anything.",0);
     }
     void undo() {
         if(busy() || snapshot.empty())return;
