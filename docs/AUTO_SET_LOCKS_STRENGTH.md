@@ -10,7 +10,9 @@ shows the strength when it is below 100% and `*` when anything is locked.
 **Lock (Auto Set keeps these)** lists Input gain, Gate, Tone EQ, Compressor,
 Multiband, De-esser and Limiter. A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
-later edit to a locked setting survives undo.
+later edit to a locked setting survives undo. A lock selected after the run
+also protects its stage from undo; unlocking an originally locked stage does
+not add an undo entry.
 
 - A pass whose outputs are all locked is skipped: locking Tone EQ removes the
   Tone EQ pass, locking Compressor removes the compressor pass, locking both
@@ -25,14 +27,17 @@ later edit to a locked setting survives undo.
   Choose Guitar or Bass explicitly when Tone EQ is locked.
 
 The gate is placed for the input gain actually applied. The analysis
-proposes a threshold for its proposed gain; when the input is locked (or
-scaled by strength, or edited while listening), the threshold moves by the
-difference, since the gate detects after input gain.
+proposes a threshold for its proposed gain; when the input is locked or
+scaled by strength, the threshold moves by the difference, since the gate
+detects after input gain. If input gain is edited during listening, keep the
+gate unchanged: a capture with multiple gain settings cannot be corrected
+safely by one shift. Rerun after settling on an input setting.
 
 ## Strength
 
 **Strength** (100, 75, 50, 25%) scales how far each result moves the sound.
-100% is the previous behaviour, value for value.
+For an undisturbed run, 100% keeps the previous suggested values. Edit-history
+protection and mixed-gain capture abstention apply at every strength.
 
 | Stage | What strength scales |
 |---|---|
@@ -48,7 +53,9 @@ The results row and the summary report the applied values, the mix and the
 strength ("Applied (rock, 50% strength): …").
 
 Locks and strength are session options like instrument and style: they last
-while the editor is open and are not saved with the project.
+while the editor is open and are not saved with the project. Execution options
+are frozen at start; changes during a run apply to the next run. Newly selected
+locks additionally protect undo of an earlier run.
 
 ## Tests
 
@@ -67,3 +74,5 @@ fixtures straight into the capture taps, so runs compare exactly:
 
 Listening acceptance with real DI recordings is still pending, as for the
 earlier phases.
+
+Expanded regression matrix and integration boundaries: [review](evidence/auto-set-integration-20261026/LOCKS_STRENGTH.md).

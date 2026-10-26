@@ -1,6 +1,8 @@
 #pragma once
 #include "PluginProcessor.h"
 #include "AutoSet.h"
+#include "AutoSetParameterEdits.h"
+#include <memory>
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <functional>
 #include <utility>
@@ -61,10 +63,13 @@ public:
         add(lockMultiband,{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3"});
         for(int b=0;b<multibandBandCount;++b)
             for(const auto* field:{"bypass","mode","threshold","range","ratio","attack","release","knee","makeup","solo"})touchedIDs.push_back({multibandID(b,field),lockMultiband});
+        for(const auto& item:touchedIDs)if(auto* parameter=processor.parameters().getParameter(item.first))
+            editTrackers.push_back(std::make_unique<ParameterEdits>(*parameter));
     }
     ~Controller() override {stopTimer();processor.autoSetCapture().listen(std::nullopt);}
 
-    // Takes effect from the next start().
+    // Execution options take effect at the next start(). Newly selected locks
+    // additionally protect their stages from undo of the previous run.
     void setOptions(const Options& chosen) noexcept {
         options=chosen;options.instrument=std::clamp(options.instrument,0,2);
         options.strength=std::isfinite(options.strength)?std::clamp(options.strength,minimumStrength,1.f):1.f;
@@ -73,14 +78,16 @@ public:
     const Options& currentOptions() const noexcept {return options;}
     void start() {
         if(busy())return;
+        runOptions=options;
+        inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
         snapshot.clear();summary.clear();steps.clear();lastTone={};lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
-            snapshot.push_back({parameter,parameter->getValue(),parameter->getValue(),false});
+            snapshot.push_back(takeSnapshot(*parameter));
         passes.clear();
-        const auto plan=[&](Phase phase,bool chosen,unsigned outputs){if(!chosen)return;if((options.locks&outputs)==outputs)lockedPhases.push_back(phase);else passes.push_back(phase);};
-        plan(Phase::input,true,lockInput|lockGate);plan(Phase::tone,options.tone,lockTone);plan(Phase::compressor,true,lockCompressor);
-        plan(Phase::multiband,options.multiband,lockMultiband);plan(Phase::finish,options.finish,lockDeEsser|lockLimiter);
+        const auto plan=[&](Phase phase,bool chosen,unsigned outputs){if(!chosen)return;if((runOptions.locks&outputs)==outputs)lockedPhases.push_back(phase);else passes.push_back(phase);};
+        plan(Phase::input,true,lockInput|lockGate);plan(Phase::tone,runOptions.tone,lockTone);plan(Phase::compressor,true,lockCompressor);
+        plan(Phase::multiband,runOptions.multiband,lockMultiband);plan(Phase::finish,runOptions.finish,lockDeEsser|lockLimiter);
         if(passes.empty()){publish(Phase::failed,0,"Every Auto Set step is locked or turned off. Unlock a setting in the options and try again.",0);return;}
         beginPass(0,0);
         startTimerHz(20);
@@ -94,8 +101,8 @@ public:
         if(busy() || snapshot.empty())return;
         // Only restore writes owned by this run. A later manual/host edit,
         // including a change to an untouched optional stage, belongs to the user.
-        for(auto& entry:snapshot)if(entry.written && entry.parameter->getValue()==entry.lastWritten)
-            setNormalised(*entry.parameter,entry.before);
+        for(auto& entry:snapshot)if(entry.written && owned(entry) && !keptByCurrentLock(*entry.parameter))
+            setNormalised(entry,entry.before);
         snapshot.clear();
         publish(Phase::idle,0,"Undid Auto Set; newer edits were kept.",0);
     }
@@ -128,16 +135,31 @@ private:
         if(auto* parameter=processor.parameters().getParameter(id)) {
             const auto entry=std::find_if(snapshot.begin(),snapshot.end(),[&](const auto& e){return e.parameter==parameter;});
             if(entry==snapshot.end())return;
-            // Do not overwrite a manual/automation edit made while listening.
-            if(parameter->getValue()!=(entry->written?entry->lastWritten:entry->before)){manualEditsKept=true;return;}
+            // A value returning to its old position is still an external edit.
+            if(!owned(*entry)){manualEditsKept=true;return;}
             const auto before=parameter->getValue();
-            setNormalised(*parameter,parameter->convertTo0to1(value));
+            if(!setNormalised(*entry,parameter->convertTo0to1(value))){manualEditsKept=true;return;}
             if(parameter->getValue()!=before){entry->lastWritten=parameter->getValue();entry->written=true;}
         }
     }
-    static void setNormalised(juce::RangedAudioParameter& parameter,float normalised) {
-        if(parameter.getValue()==normalised)return;
-        parameter.beginChangeGesture();parameter.setValueNotifyingHost(normalised);parameter.endChangeGesture();
+    struct Snapshot {juce::RangedAudioParameter* parameter;float before,lastWritten;bool written;ParameterEdits* edits;uint32_t revision;};
+    ParameterEdits& editsFor(juce::RangedAudioParameter& parameter) const {
+        const auto it=std::find_if(editTrackers.begin(),editTrackers.end(),[&](const auto& e){return &e->parameter==&parameter;});
+        jassert(it!=editTrackers.end());return **it;
+    }
+    Snapshot takeSnapshot(juce::RangedAudioParameter& parameter) const {
+        auto& edits=editsFor(parameter);const auto revision=edits.revision();const auto value=parameter.getValue();
+        return {&parameter,value,value,false,&edits,revision};
+    }
+    static bool owned(const Snapshot& entry) {
+        return entry.edits->unchanged(entry.revision) && entry.parameter->getValue()==(entry.written?entry.lastWritten:entry.before);
+    }
+    static bool setNormalised(Snapshot& entry,float normalised) {
+        return entry.edits->write(normalised,entry.written?entry.lastWritten:entry.before,entry.revision);
+    }
+    bool keptByCurrentLock(const juce::RangedAudioParameter& parameter) const {
+        for(const auto& [id,lock]:touchedIDs)if(id==parameter.paramID)return (options.locks&lock)!=0;
+        return false;
     }
     bool samplePass() const noexcept {return status.phase==Phase::tone || status.phase==Phase::multiband || status.phase==Phase::finish;}
     bool windowPass() const noexcept {return status.phase==Phase::input || status.phase==Phase::compressor || status.phase==Phase::finish;}
@@ -146,7 +168,7 @@ private:
     double rate() const noexcept {return processor.getSampleRate()>0?processor.getSampleRate():48000.;}
     double passLength() const noexcept {return samplePass()?toneSeconds*rate():double(windowsPerPass);}
     std::optional<bool> chosenBass() const noexcept {
-        if(options.instrument!=0)return options.instrument==2;
+        if(runOptions.instrument!=0)return runOptions.instrument==2;
         if(lastTone.playingDetected)return lastTone.bass;
         return std::nullopt;
     }
@@ -166,8 +188,8 @@ private:
         publish(passes[pass],progress(0),passText(),0);
     }
     void nextPass() {if(pass+1<passes.size())beginPass(pass+1,1);else complete();}
-    bool locked(unsigned lock) const noexcept {return (options.locks&lock)!=0;}
-    float strength() const noexcept {return options.strength;}
+    bool locked(unsigned lock) const noexcept {return (runOptions.locks&lock)!=0;}
+    float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
     void flushLocked(Phase upTo) {
         while(!lockedPhases.empty() && int(lockedPhases.front())<int(upTo)) {
@@ -190,13 +212,17 @@ private:
         juce::String result;
         if(locked(lockInput)) {summary="Input locked";result="input kept (locked)";}
         else {
-            const float applied=strength()>=1.f?r.inputGainDb:std::round((inputBefore+strength()*(r.inputGainDb-inputBefore))*2.f)*.5f;
-            set("input",applied);
+            const float proposed=strength()>=1.f?r.inputGainDb:std::round((inputBefore+strength()*(r.inputGainDb-inputBefore))*2.f)*.5f;
+            set("input",proposed);
+            const float applied=raw("input");
             summary="Input "+juce::String(applied,1)+" dB";
             result="input "+juce::String(inputBefore,1)+" > "+juce::String(applied,1)+" dB";
         }
         if(locked(lockGate)){summary+=" | Gate locked";result+="; gate kept (locked)";}
-        else if(r.pausesDetected) {
+        else if(!editsFor(*processor.parameters().getParameter("input")).unchanged(inputRevision)) {
+            summary+=" | Gate unchanged (input edited while listening)";
+            result+="; gate kept (input edited while listening)";
+        } else if(r.pausesDetected) {
             // The analysis places the gate for its proposed input gain; follow
             // the gain actually applied (locked or scaled), since the gate
             // detects after input gain.
@@ -218,7 +244,7 @@ private:
         return bands;
     }
     void finishTone(const std::vector<float>& measured) {
-        const auto r=analyseTone(measured,rate(),chosenBass(),options.style);
+        const auto r=analyseTone(measured,rate(),chosenBass(),runOptions.style);
         lastTone=r;
         if(!r.playingDetected){summary+=" | Tone EQ unchanged (no playing)";addStep("kept (no playing heard)",false);}
         else if(r.activeMoves()==0){summary+=" | Tone EQ unchanged ("+juce::String(r.bass?"bass":"guitar")+" already near target)";addStep("kept ("+juce::String(r.bass?"bass":"guitar")+" already near the target)",false);}
@@ -234,10 +260,10 @@ private:
             }
             for(;next<bands.size();++next)set(eqID(0,bands[next],"enabled"),0);
             set(eqID(0,-1,"bypass"),0);
-            summary+=" | Tone EQ "+juce::String(r.bass?"bass":"guitar")+(options.instrument==0?" (estimate)":"")+": "+juce::String(r.activeMoves())+" moves";
+            summary+=" | Tone EQ "+juce::String(r.bass?"bass":"guitar")+(runOptions.instrument==0?" (estimate)":"")+": "+juce::String(r.activeMoves())+" moves";
             juce::StringArray moves;
             for(const auto& move:r.moves)if(move.gainDb!=0.f)moves.add((move.frequency>=1000.f?juce::String(move.frequency/1000.f,1)+" kHz":juce::String(juce::roundToInt(move.frequency))+" Hz")+" "+(move.gainDb>0?"+":"")+juce::String(move.gainDb*strength(),1));
-            addStep(juce::String(r.bass?"bass":"guitar")+(options.instrument==0?" (estimate)":"")+": "+moves.joinIntoString(", "),true);
+            addStep(juce::String(r.bass?"bass":"guitar")+(runOptions.instrument==0?" (estimate)":"")+": "+moves.joinIntoString(", "),true);
         }
         nextPass();
     }
@@ -255,7 +281,7 @@ private:
         if(pass+1<passes.size())nextPass();else complete();
     }
     void finishMultiband(const std::vector<float>& measured) {
-        const auto r=analyseMultiband(measured,rate(),chosenBass(),options.style);
+        const auto r=analyseMultiband(measured,rate(),chosenBass(),runOptions.style);
         lastMultiband=r;
         if(!r.playingDetected){summary+=" | Multiband unchanged (no playing)";addStep("kept (no playing heard)",false);}
         else if(r.activeBands()==0){summary+=" | Multiband unchanged (bands balanced)";addStep("kept (bands already even)",false);}
@@ -280,8 +306,8 @@ private:
     }
     void finishOutput(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows) {
         // Preserve uncertainty: a Tone EQ heuristic is not an explicit choice.
-        const std::optional<bool> instrument=options.instrument==0?std::nullopt:std::optional<bool>(options.instrument==2);
-        const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),instrument,options.style);
+        const std::optional<bool> instrument=runOptions.instrument==0?std::nullopt:std::optional<bool>(runOptions.instrument==2);
+        const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),instrument,runOptions.style);
         lastFinish=r;
         juce::String result;bool changed=false;
         if(locked(lockDeEsser)){summary+=" | De-esser locked";result="de-esser kept (locked)";}
@@ -306,7 +332,7 @@ private:
     void complete() {
         stopTimer();processor.autoSetCapture().listen(std::nullopt);flushLocked(Phase::done);
         publish(Phase::done,1,(manualEditsKept?juce::String("Auto Set suggestions (newer manual/host edits kept; "):juce::String("Applied ("))
-                +juce::String(styleName(options.style))+(strength()<1.f?", "+juce::String(juce::roundToInt(strength()*100))+"% strength":juce::String())+"): "+summary,1);
+                +juce::String(styleName(runOptions.style))+(strength()<1.f?", "+juce::String(juce::roundToInt(strength()*100))+"% strength":juce::String())+"): "+summary,1);
     }
     void fail(const juce::String& text) {
         stopTimer();processor.autoSetCapture().listen(std::nullopt);
@@ -361,11 +387,11 @@ private:
         }
         if(status.phase!=Phase::input)s.heard=playing?"Playing: heard":"Playing: not yet";
         if(status.phase==Phase::input || status.phase==Phase::tone || status.phase==Phase::multiband)
-            if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(options.instrument==0?" (detected)":"");
+            if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(runOptions.instrument==0?" (detected)":"");
     }
     static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish;}
     bool changedSinceSnapshot() const {
-        for(const auto& entry:snapshot)if(entry.written && entry.parameter->getValue()==entry.lastWritten && entry.lastWritten!=entry.before)return true;
+        for(const auto& entry:snapshot)if(entry.written && owned(entry) && !keptByCurrentLock(*entry.parameter) && entry.lastWritten!=entry.before)return true;
         return false;
     }
 
@@ -379,10 +405,11 @@ private:
     std::vector<std::pair<juce::String,Lock>> touchedIDs;std::vector<Phase> lockedPhases;
     Status status;
     std::vector<Phase> passes{Phase::input,Phase::compressor};size_t pass{};
-    Options options;
-    struct Snapshot {juce::RangedAudioParameter* parameter;float before,lastWritten;bool written;};
+    Options options,runOptions;
+    std::vector<std::unique_ptr<ParameterEdits>> editTrackers;
     std::vector<Snapshot> snapshot;
     bool manualEditsKept{};
+    uint32_t inputRevision{};
     std::vector<Window> windows;std::vector<float> samples;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
     juce::String summary;std::vector<Step> steps;ToneResult lastTone;FinishResult lastFinish;MultibandResult lastMultiband;
