@@ -18,17 +18,19 @@ inline constexpr int roomLaneCount = 3;
 inline constexpr int roomParameterCount = 4 + roomLaneCount;
 
 inline void appendRoomParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
-    const auto number = [&](const juce::String& id, const juce::String& name, float lo, float hi, float initial) {
+    const auto number = [&](const juce::String& id, const juce::String& name, float lo, float hi, float initial, bool decibels) {
+        auto attributes = juce::AudioParameterFloatAttributes().withStringFromValueFunction(
+            [decibels](float value, int) { return decibels ? juce::String(value, 1) + " dB" : juce::String(juce::roundToInt(value)) + " %"; });
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id, roomParameterVersion}, name,
-                                                               juce::NormalisableRange<float>{lo, hi, .01f}, initial));
+                                                               juce::NormalisableRange<float>{lo, hi, .01f}, initial, attributes));
     };
     layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"roomOn", roomParameterVersion}, "Room", false));
     layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"roomSize", roomParameterVersion}, "Room size",
                                                             juce::StringArray{"Small", "Medium", "Large"}, 1));
-    number("roomAbsorption", "Room absorption", 0.f, 100.f, 50.f);
-    number("roomReturn", "Room return", -36.f, 6.f, 0.f);
+    number("roomAbsorption", "Room absorption", 0.f, 100.f, 50.f, false);
+    number("roomReturn", "Room return", -36.f, 6.f, 0.f, true);
     for (int lane = 0; lane < roomLaneCount; ++lane)
-        number("roomSend" + juce::String(lane + 1), "Rig " + juce::String(lane + 1) + " room send", 0.f, 100.f, 50.f);
+        number("roomSend" + juce::String(lane + 1), "Rig " + juce::String(lane + 1) + " room send", 0.f, 100.f, 50.f, false);
 }
 
 class RoomCore {

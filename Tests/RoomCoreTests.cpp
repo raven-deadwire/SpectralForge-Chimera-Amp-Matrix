@@ -4,6 +4,7 @@
 // on the direct sound, and the callback stays allocation-free with the room on.
 #include "PluginProcessor.h"
 #include "RoomModel.h"
+#include "CabRoom.h"
 #include <array>
 #include <cmath>
 #include <cstdlib>
@@ -208,6 +209,47 @@ void sizeChangeIsSmooth() {
     }
     std::cout<<"PASS size changes: crossfaded, no wet step beyond the room's own\n";
 }
+template<class T> T* find(juce::Component& root,const juce::String& id) {
+    if(root.getComponentID()==id)if(auto* match=dynamic_cast<T*>(&root))return match;
+    for(auto* child:root.getChildren())if(auto* match=find<T>(*child,id))return match;
+    return nullptr;
+}
+std::vector<float> snapshot(ChimeraProcessor& p) {std::vector<float> values;for(auto* parameter:p.getParameters())values.push_back(parameter->getValue());return values;}
+void roomControls() {
+    const auto p=std::make_unique<ChimeraProcessor>();
+    const auto before=snapshot(*p);
+    {
+        CabRoomOverview view(*p);view.setSize(1140,412);
+        require(snapshot(*p)==before,"Opening the cabinet room changed a parameter");
+        auto* button=find<juce::Button>(view,"cabRoom.roomButton");
+        require(button!=nullptr && button->isVisible() && view.roomButtonCaption()=="ROOM OFF","Room entry missing or not showing ROOM OFF");
+        for(int lane=0;lane<view.activeRigCount();++lane)
+            require(!view.getRigBounds(lane).intersects(button->getBounds()),"The room entry overlaps a rig");
+        set(*p,"roomOn",1);set(*p,"roomSize",2);view.refreshState();
+        require(view.roomButtonCaption()=="ROOM LARGE","Room entry does not show the active room size");
+        set(*p,"roomOn",0);set(*p,"roomSize",1);view.refreshState();
+    }
+    require(snapshot(*p)==before,"Closing the cabinet room changed a parameter");
+    spectralforge::cabRoom::RoomControls panel(*p);panel.setSize(620,60);
+    require(snapshot(*p)==before,"Opening the room controls changed a parameter");
+    for(int count=1;count<=3;++count) {
+        panel.setRigCount(count);
+        int shown=0;for(int lane=1;lane<=3;++lane){auto* send=find<juce::Slider>(panel,"cabRoom.room.send"+juce::String(lane));require(send!=nullptr,"Room send slider missing");shown+=send->isVisible()?1:0;}
+        require(shown==count,"Room sends do not match the rigs in this routing mode");
+    }
+    auto* power=find<juce::Button>(panel,"cabRoom.room.on");auto* size=find<juce::ComboBox>(panel,"cabRoom.room.size");
+    auto* absorption=find<juce::Slider>(panel,"cabRoom.room.absorption");auto* level=find<juce::Slider>(panel,"cabRoom.room.return");
+    auto* send2=find<juce::Slider>(panel,"cabRoom.room.send2");
+    require(power && size && absorption && level && send2,"Room control missing");
+    const auto raw=[&](const char* id){return p->parameters().getRawParameterValue(id)->load();};
+    power->setToggleState(true,juce::sendNotificationSync);require(raw("roomOn")>.5f,"ROOM button does not switch the room on");
+    size->setSelectedId(3,juce::sendNotificationSync);require(juce::roundToInt(raw("roomSize"))==2,"Size menu does not select Large");
+    absorption->setValue(80,juce::sendNotificationSync);require(std::abs(raw("roomAbsorption")-80)<.01f,"Absorption slider is not attached");
+    level->setValue(-12,juce::sendNotificationSync);require(std::abs(raw("roomReturn")+12)<.01f,"Return slider is not attached");
+    send2->setValue(25,juce::sendNotificationSync);require(std::abs(raw("roomSend2")-25)<.01f,"Rig 2 send is not attached");
+    require(std::abs(raw("roomSend1")-50)<.01f && std::abs(raw("roomSend3")-50)<.01f,"Editing one send changed another");
+    std::cout<<"PASS room controls: entry in the room's title band shows ROOM OFF / size, rigs keep their layout; panel shows 1/2/3 sends and each control moves only its parameter; opening changes nothing\n";
+}
 void noAllocation() {
     auto p=make();set(*p,"roomOn",1);for(int lane=1;lane<=3;++lane)set(*p,"roomSend"+juce::String(lane),100);
     int clock=0;render(*p,20,110.,.2f,clock);
@@ -225,6 +267,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();noAllocation();return 0;}
+    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();roomControls();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

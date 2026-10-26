@@ -8,6 +8,7 @@
 #include "CabLayoutView.h"
 #include "HardwareArtwork.h"
 #include <functional>
+#include "RoomControls.h"
 
 namespace spectralforge::cabRoom {
 // This is scenery for navigating rigs. It has no audio/room-response parameter.
@@ -143,6 +144,10 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
     // Room-only entry must retain the shared equipment cache across repaints.
     juce::SharedResourcePointer<spectralforge::cabArt::Bank> cabinets;
     spectralforge::cabRoom::LowBlendControl lowBlend;
+    // Room Core: a compact entry in the title band opens the room controls in a
+    // call-out, so the calibrated rig/camera layout below keeps its bounds.
+    juce::TextButton roomButton;
+    juce::String roomButtonText;
     struct RigState {
         int amp{-1},design{-1},driver{-1},layout{-1};
         bool bass{};
@@ -288,9 +293,27 @@ public:
         setDescription("Choose a cabinet to open its speaker and microphone controls.");
         for(int i=0;i<3;++i) {rigs[static_cast<size_t>(i)]=std::make_unique<Rig>(*this,i);addAndMakeVisible(*rigs[static_cast<size_t>(i)]);}
         addAndMakeVisible(lowBlend);
+        roomButton.setComponentID("cabRoom.roomButton");
+        roomButton.setTooltip("Room: one shared space for all rigs. Opens size, absorption, return and the rig sends.");
+        roomButton.onClick=[this]{openRoomControls();};
+        addAndMakeVisible(roomButton);
         refreshState();startTimerHz(12);
     }
     ~CabRoomOverview() override {stopTimer();}
+    juce::String roomButtonCaption() const {return roomButtonText;}
+    void updateRoomButton() {
+        const auto raw=[this](const char* id){return processor.parameters().getRawParameterValue(id)->load();};
+        static const std::array<const char*,3> sizes{"SMALL","MEDIUM","LARGE"};
+        const auto text=raw("roomOn")>.5f ? juce::String("ROOM ")+sizes[size_t(juce::jlimit(0,2,juce::roundToInt(raw("roomSize"))))] : juce::String("ROOM OFF");
+        if(text==roomButtonText)return;
+        roomButtonText=text;roomButton.setButtonText(text);
+        roomButton.setColour(juce::TextButton::buttonColourId,raw("roomOn")>.5f ? juce::Colour(0xff6e5a3a) : juce::Colour(0xff2a2e2c));
+    }
+    void openRoomControls() {
+        auto controls=std::make_unique<spectralforge::cabRoom::RoomControls>(processor);
+        controls->setRigCount(activeRigCount());controls->setSize(620,60);
+        juce::CallOutBox::launchAsynchronously(std::move(controls),roomButton.getScreenBounds(),nullptr);
+    }
     int activeRigCount() const {return spectralforge::cabRoom::rigCount(processor);}
     juce::Rectangle<int> getRigBounds(int lane) const {
         return lane>=0 && lane<activeRigCount() ? rigs[static_cast<size_t>(lane)]->getBounds() : juce::Rectangle<int>{};
@@ -317,6 +340,7 @@ public:
         if(currentMode!=nextMode) {currentMode=nextMode;resized();repaint();}
         lowBlend.setVisible(currentMode==2);
         if(currentMode==2)lowBlend.refreshState();
+        updateRoomButton();
         bool roomChanged=false;
         for(int i=0;i<3;++i) {
             auto& rig=state[static_cast<size_t>(i)];
@@ -404,6 +428,8 @@ public:
         const int width=available/count;
         const int top=getHeight()>500 ? 83 : 43;
         for(int i=0;i<3;++i)rigs[static_cast<size_t>(i)]->setBounds(margin+i*(width+gap),top,width,juce::jmax(1,getHeight()-top-12));
+        // Title band, after "MATRIX / CABINET ROOM" and before the LOW BLEND.
+        roomButton.setBounds(250,10,132,26);
         const int blendWidth=juce::jlimit(180,460,getWidth()/2-24);
         lowBlend.setBounds(getWidth()-24-blendWidth,3,blendWidth,38);
         for(int i=0;i<count;++i)rigs[size_t(i)]->head.setBounds(projectedHead(i).toNearestInt());
