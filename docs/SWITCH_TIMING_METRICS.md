@@ -84,8 +84,15 @@ running on another thread, Chimera now:
    smoothers and dynamics detectors have caught up;
 4. stays muted until every cabinet that can be heard (lanes in the routing
    mode, not muted, cabinet on; a blended second mic too) has the recalled
-   IR or model installed and its crossfade finished, at most 0.5 s
-   (`Engine::audibleCabinetsSettled` in `Source/ChimeraDSP.h`), then fades in (5 ms).
+   IR or model installed, at most 0.5 s (`Engine::audibleCabinetsSettled`
+   in `Source/ChimeraDSP.h`), then fades in (5 ms). While muted, a recalled
+   cabinet installs at once instead of crossfading 50 ms from the previous
+   one (`Cab::setInstantSwap`); if one arrived after step 3, the 20 ms settle
+   runs again so the dynamics hear it before the fade-in. The IR worker
+   generates the recalled cabinet models of several mics side by side
+   (`IRLibrary::pregenerate`: one on the worker, the others on short-lived
+   low-priority helpers), and the recall wakes it as soon as the requests are
+   set instead of at its next 20 ms poll.
 
 Without step 1, the new parameters already reach the old DSP on the next
 block and the jump is audible however the output is faded afterwards. Offline
@@ -165,6 +172,26 @@ CPU figures come from a shared container and are noisy, and the recall
 scenarios sleep to keep real-time pace, which disturbs the timing of their own
 blocks; repeat them on reference hardware before acting on single values.
 
+## Recall mute
+
+`gap_ms` needs the recall to run against wall time: the probe paces its
+blocks in real time from the recall until the end of the render (before,
+pacing stopped once the UI thread had applied the state, and the cabinet
+wait was rendered faster than real time, which inflated `gap_ms` to
+0.2–0.45 s). Five runs each, 48 kHz, 256 samples, same paced probe:
+
+| Recall | Mics with a new model | Gap ms, before | Gap ms, after |
+|---|---|---|---|
+| preset 0 > 17 | 1 | 135–161 | 91–139 |
+| preset 17 > 33 | 2 (third cached) | 166–198 | 95–132 |
+| A > B | 3 | 203–225 | 90–117 |
+
+At 64 samples: 124–127, 100–106 and 93–111 ms. Overshoot stays 0 dB (at most
+0.1) and click ≤ 1 dB. Where the time goes after the change (wall clock,
+17 > 33): about 50 ms while the message thread fades out and applies the
+state, about 50 ms generating the models (the slowest one, 35–80 ms each),
+then the 20 ms settle and the fade-in.
+
 ## Findings
 
 1. **Channel and amp model switches are clean.** They are heard within
@@ -180,12 +207,11 @@ blocks; repeat them on reference hardware before acting on single values.
    values (about 20 ms) and from the old cabinet playing until the new one
    was built. The 20 ms settle and the cabinet wait remove both (overshoot
    0 dB, click ≤ 1 dB).
-4. **A recall now mutes for 0.2–0.45 s in this container** while the IR worker
-   builds the recalled cabinets (lane by lane: here lane 1 after ≈140 ms,
-   lane 2 after ≈270 ms, lane 3 later; the A > B preset uses all three). The
-   alternative was hearing the previous cabinet for as long, then a 50 ms
-   crossfade. Building heard lanes first or in parallel, or keeping both A/B
-   slots' kernels ready, would shorten it; not changed here.
+4. **A recall mutes for about 0.1 s** (90–140 ms in this container, see
+   "Recall mute" below) while the recalled cabinets are generated and
+   installed. It was 135–225 ms with the cabinets built mic after mic and
+   each crossfaded 50 ms behind the mute. Keeping both A/B slots' kernels
+   ready would remove most of what remains for A/B; not done.
 5. **Switch blocks can exceed the block budget** in this container,
    especially at 64 samples and for recalls. Re-measure on reference
    hardware; if confirmed, move the reset work off the switch block.
