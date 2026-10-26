@@ -12,11 +12,24 @@ public:
     // Alt+Left / Alt+Right while focused.
     std::function<void()> onContextMenu;
     std::function<bool(const juce::KeyPress&)> onOrderKey;
+    // Drag-and-drop: past a small threshold a drag is no longer a click. The
+    // view previews the drop while dragging; release drops, Escape cancels.
+    std::function<void(const juce::MouseEvent&)> onOrderDrag;
+    std::function<void(bool drop)> onOrderDragEnd;
     void mouseDown(const juce::MouseEvent& e) override {
         if(onContextMenu && e.mods.isPopupMenu()){onContextMenu();return;}
         juce::TextButton::mouseDown(e);
     }
+    void mouseDrag(const juce::MouseEvent& e) override {
+        if(onOrderDrag && !e.mods.isPopupMenu() && (dragging || e.getDistanceFromDragStart()>6)){dragging=true;onOrderDrag(e);return;}
+        juce::TextButton::mouseDrag(e);
+    }
+    void mouseUp(const juce::MouseEvent& e) override {
+        if(dragging){dragging=false;setState(juce::Button::buttonNormal);if(onOrderDragEnd)onOrderDragEnd(true);return;}
+        juce::TextButton::mouseUp(e);
+    }
     bool keyPressed(const juce::KeyPress& key) override {
+        if(dragging && key.isKeyCode(juce::KeyPress::escapeKey)){dragging=false;setState(juce::Button::buttonNormal);if(onOrderDragEnd)onOrderDragEnd(false);return true;}
         if(onOrderKey && hasKeyboardFocus(false) && onOrderKey(key))return true;
         if(isEnabled() && hasKeyboardFocus(false) && key.isKeyCode(juce::KeyPress::spaceKey)
             && !key.getModifiers().isAnyModifierKeyDown()){
@@ -24,6 +37,8 @@ public:
         }
         return juce::TextButton::keyPressed(key);
     }
+private:
+    bool dragging{};
 };
 // These navigation buttons have no APVTS attachments or audio-state writes.
 class SignalPathButton final : public SignalPathNavigationButton {
@@ -74,6 +89,27 @@ public:
     std::function<juce::String()> selection;
     const spectralforge::signalPath::Snapshot& snapshot() const {return current;}
     void select(const juce::String& id){if(selected!=id){selected=id;updateSelection();}}
+    // Drag-and-drop target for the reorderable block `id` at a point in graph
+    // coordinates: the position of the nearest block of the same region within
+    // 90 px, or -1 (an invalid drop).
+    int dropSlot(const juce::String& id,juce::Point<float> point) const {
+        if(!orderStage(id))return -1;
+        const auto ids=regionIds(id);int best=-1;float distance=90.f;
+        for(size_t slot=0;slot<ids.size();++slot)if(const auto* n=current.find(ids[slot])){
+            const float d=n->bounds.toFloat().getCentre().getDistanceFrom(point);
+            if(d<distance){distance=d;best=int(slot);}
+        }
+        return best;
+    }
+    // Drops `id` at `point`: one order change (one undo step) or nothing.
+    bool dropAt(const juce::String& id,juce::Point<float> point) {
+        const auto stage=orderStage(id);const int slot=dropSlot(id,point);
+        if(!stage || slot<0)return false;
+        const bool changed=stage->post?processor.placePostStage(spectralforge::postOrder::Stage(stage->stage),slot)
+                                      :processor.placeCommonStage(spectralforge::commonOrder::Stage(stage->stage),slot);
+        if(changed)refresh();
+        return changed;
+    }
 #if CHIMERA_ROUTING_DIAGNOSTICS
     uint64_t refreshCalls{}; double refreshTime{};
 #endif
@@ -127,8 +163,15 @@ public:
                     if(key.isKeyCode(juce::KeyPress::rightKey))return move(s,1),true;
                     return false;
                 };
-                button->setDescription(button->getDescription()+(stage->post?" Right-click or Alt+Left / Alt+Right to move it within the POST rack.":" Right-click or Alt+Left / Alt+Right to move it within the common block."));
-            }else{orderable.onContextMenu=nullptr;orderable.onOrderKey=nullptr;}
+                orderable.onOrderDrag=[this,id=node.id](const juce::MouseEvent& e){
+                    dragId=id;dragPoint=e.getEventRelativeTo(this).position/graphScale();repaint();
+                };
+                orderable.onOrderDragEnd=[this](bool drop){
+                    const auto id=dragId;const auto point=dragPoint;dragId={};repaint();
+                    if(drop)dropAt(id,point);
+                };
+                button->setDescription(button->getDescription()+(stage->post?" Drag, right-click or Alt+Left / Alt+Right to move it within the POST rack.":" Drag, right-click or Alt+Left / Alt+Right to move it within the common block."));
+            }else{orderable.onContextMenu=nullptr;orderable.onOrderKey=nullptr;orderable.onOrderDrag=nullptr;orderable.onOrderDragEnd=nullptr;}
             button->setExplicitFocusOrder(int(nextButtons.size())+1);
             nextButtons.push_back(std::move(button));
         }
@@ -168,7 +211,11 @@ public:
         g.setColour(juce::Colour(0xffc8d7cc));g.setFont(juce::FontOptions(13.f));
         g.drawText(current.mode==0?"CLASSIC  /  ONE RIG":current.mode==1?(current.dualCross?"DUAL  /  CROSSOVER":"DUAL  /  PARALLEL BLEND"):"MATRIX  /  CLEAN LOW + WET MID / HIGH",16,5,700,24,juce::Justification::centredLeft);
         g.setFont(juce::FontOptions(10.f));g.drawText("Click a block to edit  |  Tab / Shift-Tab  |  Enter / Space",650,8,450,20,juce::Justification::centredRight);
-        g.drawText("Common block and POST rack: right-click or Alt+Left / Right to reorder",16,488,600,18,juce::Justification::centredLeft);
+        g.drawFittedText("Reorder the common block (Tone EQ to De-esser) and the POST rack: drag a block onto another, right-click it, or Alt+Left / Right. Esc cancels a drag.",16,584,470,40,juce::Justification::topLeft,3);
+        // Drop preview: outline the block the dragged one would take the place of.
+        if(dragId.isNotEmpty())if(const auto slot=dropSlot(dragId,dragPoint);slot>=0)if(const auto* target=current.find(regionIds(dragId)[size_t(slot)])){
+            g.setColour(juce::Colour(0xffc4a678));g.drawRoundedRectangle(target->bounds.toFloat().expanded(4),4,2.f);
+        }
         for(const auto& e:current.edges){
             const auto* a=current.find(e.from);const auto* b=current.find(e.to);if(!a||!b)continue;
             const auto from=a->bounds.toFloat(),to=b->bounds.toFloat();juce::Path path;
@@ -205,6 +252,14 @@ private:
         if(id.startsWith("post.section")){const int section=id.substring(12).getIntValue();if(id.length()==13&&section>=0&&section<6)return OrderStage{true,section};}
         return std::nullopt;
     }
+    // Node ids of the region `id` belongs to, in their current order.
+    std::vector<juce::String> regionIds(const juce::String& id) const {
+        std::vector<juce::String> ids;const auto stage=orderStage(id);if(!stage)return ids;
+        if(stage->post){for(const auto s:processor.postOrder())ids.push_back("post.section"+juce::String(int(s)));}
+        else{static constexpr std::array<const char*,4> names{"tone.eq","common.comp","common.multiband","common.deesser"};for(const auto s:processor.commonOrder())ids.push_back(names[size_t(s)]);}
+        return ids;
+    }
+    juce::String dragId;juce::Point<float> dragPoint;
     void move(OrderStage s,int direction){
         if(s.post?processor.movePostStage(spectralforge::postOrder::Stage(s.stage),direction):processor.moveCommonStage(spectralforge::commonOrder::Stage(s.stage),direction))refresh();
     }

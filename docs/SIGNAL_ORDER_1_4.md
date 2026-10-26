@@ -50,6 +50,9 @@ and no parallel bus or feedback is possible.
 
 - `moveCommonStage(stage, ±1)` and `movePostStage(stage, ±1)` swap a stage
   with its neighbour; a move off either end is refused and not recorded.
+- `placeCommonStage(stage, slot)` and `placePostStage(stage, slot)` put a
+  stage at a position in one step (drag-and-drop); placing it where it
+  already is is refused and not recorded.
 - `undoOrder()` / `undoOrder(true)` (redo): one 32-step history of order
   changes across both regions, separate from the pedal board's; each step
   restores both orders. A new move clears redo. Restoring a project or A/B
@@ -58,11 +61,16 @@ and no parallel bus or feedback is possible.
 - UI: in the ROUTING graph, both regions are drawn in their saved order and
   chained in it. Right-click on one of their blocks opens Move earlier / Move
   later / Undo / Redo; Alt+Left / Alt+Right moves the focused block. Other
-  blocks offer no order commands. The compact strip is unchanged. Drag and
-  drop belongs to 1.5.
+  blocks offer no order commands. The compact strip is unchanged.
+- Drag-and-drop (brought forward from 1.5): dragging a reorderable block
+  more than 6 px no longer clicks it. While dragging, the block it would take
+  the place of is outlined: the nearest block of the same region within
+  90 px. Release drops (one `place…Stage` call, one undo step); a drop
+  elsewhere or on itself changes nothing, and Escape cancels. Nothing is sent
+  to the audio thread while hovering.
 - POST page: each slot sits in the row of its actual position, numbered 1–6
-  in the left margin, with ▲/▼ buttons that move it (disabled at either end;
-  the arrows are not drawn dimmed). The page re-lays itself when the order
+  in the left margin, with ▲/▼ buttons that move it (disabled and dimmed at
+  either end). The page re-lays itself when the order
   changes in ROUTING, by undo or by a state restore.
 
 ## 4. Audio graph and transition
@@ -112,4 +120,3 @@ change with the order.
 - Listening on real DI; DAW automation, save and recall with a changed order.
 - Pointer and context-menu interaction in a native window (the test drives
   the command handler and the graph's model directly).
-- The POST page's move arrows are not drawn dimmed when disabled.

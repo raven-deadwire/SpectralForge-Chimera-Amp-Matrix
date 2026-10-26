@@ -542,6 +542,20 @@ bool ChimeraProcessor::movePostStage(spectralforge::postOrder::Stage stage,int d
     rememberOrder();setPostOrder(after);updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
     return true;
 }
+bool ChimeraProcessor::placeCommonStage(spectralforge::commonOrder::Stage stage,int slot)
+{
+    const auto before=commonOrder(),after=spectralforge::commonOrder::placed(before,stage,slot);
+    if(after==before)return false;
+    rememberOrder();setCommonOrder(after);updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
+    return true;
+}
+bool ChimeraProcessor::placePostStage(spectralforge::postOrder::Stage stage,int slot)
+{
+    const auto before=postOrder(),after=spectralforge::postOrder::placed(before,stage,slot);
+    if(after==before)return false;
+    rememberOrder();setPostOrder(after);updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
+    return true;
+}
 bool ChimeraProcessor::undoOrder(bool redo)
 {
     auto& from=redo?orderRedo:orderUndo;auto& to=redo?orderUndo:orderRedo;

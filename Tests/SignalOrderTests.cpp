@@ -241,6 +241,45 @@ void signalPathFollowsPostOrder() {
     require(po::toString(p->postOrder())=="busComp,preamp,consoleEQ,modulation,delay,reverb","Alt+Left on Delay did not move it before Reverb");
     std::cout<<"PASS signal path graph chains the POST order; its nodes keep their section; Alt+Left moves a POST slot\n";
 }
+void dragAndDrop() {
+    // ROUTING graph drag-and-drop: a drop on a block of the same region takes
+    // its position in one undo step; a drop elsewhere, on itself or a cancel
+    // changes nothing; blocks outside the regions cannot be dragged.
+    auto p=make();SignalPathView view(*p,false);const auto parameters=snapshot(*p);
+    const auto centre=[&](const char* id){const auto* n=view.snapshot().find(id);require(n!=nullptr,"Drag test node missing");return n->bounds.toFloat().getCentre();};
+    require(view.dropSlot("common.deesser",centre("tone.eq"))==0,"Dropping on Tone EQ does not target the first slot");
+    require(view.dropSlot("common.deesser",centre("post.section0"))==-1,"A drop on another region is a valid target");
+    require(view.dropSlot("output",centre("tone.eq"))==-1,"A block outside the regions can be dropped");
+    require(!view.dropAt("common.deesser",{600.f,40.f}) && !view.dropAt("common.comp",centre("common.comp")) && !p->canUndoOrder(),"An invalid drop or a drop on itself changed the order");
+    require(view.dropAt("common.deesser",centre("tone.eq")) && toString(p->commonOrder())=="deEsser,toneEQ,cleanComp,multiband","Dropping De-esser on Tone EQ did not place it first");
+    require(view.dropAt("post.section5",centre("post.section0")) && po::toString(p->postOrder())=="reverb,busComp,preamp,consoleEQ,modulation,delay","Dropping Reverb on Bus Comp did not place it first");
+    require(p->undoOrder() && p->postOrder()==po::defaultOrder && p->undoOrder() && p->commonOrder()==defaultOrder && !p->canUndoOrder(),"A drop is not a single undo step");
+    // The buttons drive it: drag past the threshold previews, release drops,
+    // a cancelled drag (Escape) changes nothing.
+    view.refresh();
+    SignalPathNavigationButton* multiband=nullptr;juce::Component* output=nullptr;
+    for(auto* c:view.getChildren()){if(c->getComponentID()=="path.common.multiband")multiband=dynamic_cast<SignalPathNavigationButton*>(c);if(c->getComponentID()=="path.output")output=c;}
+    require(multiband && multiband->onOrderDrag && multiband->onOrderDragEnd && !dynamic_cast<SignalPathNavigationButton*>(output)->onOrderDrag,"Only reorderable blocks can be dragged");
+    const auto event=[&](juce::Point<float> graphPoint){
+        const auto local=multiband->getLocalPoint(&view,graphPoint);
+        return juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(),local,{},0,0,0,0,0,multiband,multiband,juce::Time::getCurrentTime(),{},juce::Time::getCurrentTime(),1,true);};
+    multiband->onOrderDrag(event(centre("common.comp")));multiband->onOrderDragEnd(false);
+    require(p->commonOrder()==defaultOrder,"A cancelled drag changed the order");
+    multiband->onOrderDrag(event(centre("common.comp")));multiband->onOrderDragEnd(true);
+    require(toString(p->commonOrder())=="toneEQ,multiband,cleanComp,deEsser","Releasing a drag on Clean Comp did not place Multiband there");
+    // Through the button's own mouse handling: a drag past the threshold
+    // drops on release and does not also click (navigate).
+    view.refresh();SignalPathNavigationButton* deesser=nullptr;
+    for(auto* c:view.getChildren())if(c->getComponentID()=="path.common.deesser")deesser=dynamic_cast<SignalPathNavigationButton*>(c);
+    bool clicked=false;deesser->onClick=[&]{clicked=true;};
+    const auto start=deesser->getLocalBounds().toFloat().getCentre(),target=deesser->getLocalPoint(&view,centre("tone.eq"));
+    const auto now=juce::Time::getCurrentTime();
+    const juce::MouseEvent drag(juce::Desktop::getInstance().getMainMouseSource(),target,{},0,0,0,0,0,deesser,deesser,now,start,now,1,true);
+    deesser->mouseDrag(drag);deesser->mouseUp(drag);
+    require(toString(p->commonOrder())=="deEsser,toneEQ,multiband,cleanComp" && !clicked,"A real drag on the De-esser button did not drop without clicking");
+    require(snapshot(*p)==parameters,"A drop wrote a parameter");
+    std::cout<<"PASS drag-and-drop: same-region targets only, one undo step per drop, cancel and invalid drops change nothing\n";
+}
 void postPageFollowsOrder() {
     // The POST page puts each slot in the row of its actual position; its
     // margin buttons move the slot and are disabled at either end.
@@ -275,6 +314,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {helpers();orderChangesTheGraph();reorderIsClickSafe();stateAndRecall();undoAndParameters();signalPathFollowsOrder();postOrderChangesTheGraph();postReorderIsClickSafe();postStateAndUndo();signalPathFollowsPostOrder();postPageFollowsOrder();noAllocation();return 0;}
+    try {helpers();orderChangesTheGraph();reorderIsClickSafe();stateAndRecall();undoAndParameters();signalPathFollowsOrder();postOrderChangesTheGraph();postReorderIsClickSafe();postStateAndUndo();signalPathFollowsPostOrder();dragAndDrop();postPageFollowsOrder();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

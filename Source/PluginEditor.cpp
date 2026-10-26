@@ -1035,6 +1035,8 @@ void ChimeraEditor::layoutControls()
         const int row=postRow(section),y=330+row*69;
         postEarlier[(size_t)section]->setBounds(3,y+22,14,16);postLater[(size_t)section]->setBounds(3,y+44,14,16);
         postEarlier[(size_t)section]->setEnabled(row>0);postLater[(size_t)section]->setEnabled(row<5);
+        // ArrowButton draws the same when disabled; dim the unusable end arrows.
+        postEarlier[(size_t)section]->setAlpha(row>0?1.f:.3f);postLater[(size_t)section]->setAlpha(row<5?1.f:.3f);
     }
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+postRow(position)*69;

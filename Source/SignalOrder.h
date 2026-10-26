@@ -54,6 +54,17 @@ template<int N> struct Region {
         for (int i = 0; i < N; ++i) order[size_t(i)] = (code >> (3 * i)) & 7;
         return valid(order) ? order : identity();
     }
+    // Place `stage` at position `slot`, shifting the stages in between (a
+    // drag-and-drop). An out-of-range slot leaves the order unchanged.
+    static Order placed(Order order, int stage, int slot) noexcept {
+        if (slot < 0 || slot >= N) return order;
+        int from = -1;
+        for (int i = 0; i < N; ++i) if (order[size_t(i)] == stage) from = i;
+        if (from < 0) return order;
+        while (from < slot) { std::swap(order[size_t(from)], order[size_t(from + 1)]); ++from; }
+        while (from > slot) { std::swap(order[size_t(from)], order[size_t(from - 1)]); --from; }
+        return order;
+    }
     // Move one stage a single position earlier (-1) or later (+1). Returns the
     // input unchanged when the move would leave the region.
     static Order moved(Order order, int stage, int direction) noexcept {
@@ -139,6 +150,7 @@ inline Order fromString(const juce::String& text) { return typed(Region::fromStr
 inline int pack(const Order& order) noexcept { return Region::pack(raw(order)); }
 inline Order unpack(int code) noexcept { return typed(Region::unpack(code)); }
 inline Order moved(const Order& order, Stage stage, int direction) noexcept { return typed(Region::moved(raw(order), int(stage), direction)); }
+inline Order placed(const Order& order, Stage stage, int slot) noexcept { return typed(Region::placed(raw(order), int(stage), slot)); }
 } // namespace commonOrder
 
 // Region 2: the POST rack's six slots. Stage numbers are the rack's section
@@ -162,6 +174,7 @@ inline Order fromString(const juce::String& text) { return typed(Region::fromStr
 inline int pack(const Order& order) noexcept { return Region::pack(raw(order)); }
 inline Order unpack(int code) noexcept { return typed(Region::unpack(code)); }
 inline Order moved(const Order& order, Stage stage, int direction) noexcept { return typed(Region::moved(raw(order), int(stage), direction)); }
+inline Order placed(const Order& order, Stage stage, int slot) noexcept { return typed(Region::placed(raw(order), int(stage), slot)); }
 } // namespace postOrder
 
 } // namespace spectralforge

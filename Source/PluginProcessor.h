@@ -170,6 +170,10 @@ public:
     // POST rack slot order, saved and undone the same way.
     spectralforge::postOrder::Order postOrder() const noexcept {return spectralforge::postOrder::unpack(postOrderCode.load(std::memory_order_acquire));}
     bool movePostStage(spectralforge::postOrder::Stage stage,int direction);
+    // Drag-and-drop: place a stage at a position in one undo step. False
+    // when that is where it already is or the slot is out of range.
+    bool placeCommonStage(spectralforge::commonOrder::Stage stage,int slot);
+    bool placePostStage(spectralforge::postOrder::Stage stage,int slot);
     // One history for every order change, in any region.
     bool undoOrder(bool redo=false);
     bool canUndoOrder(bool redo=false) const noexcept {return !(redo?orderRedo:orderUndo).empty();}
