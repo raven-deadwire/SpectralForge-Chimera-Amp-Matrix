@@ -63,7 +63,7 @@ public:
         double tail=1.1;
         if(fxParameters[4] && fxParameters[4]->load()>.5f) tail+=(fxParameters[48]->load()>.5f ? 1.5 : fxParameters[5]->load()*.001)*std::log(.001)/std::log(juce::jlimit(.0001f,.85f,fxParameters[6]->load()));
         if(fxParameters[8] && fxParameters[8]->load()>.5f) tail+=12.0;
-        return tail+toneEQ.tailSeconds()+finalEQ.tailSeconds();
+        return tail+toneEQ.tailSeconds()+finalEQ.tailSeconds()+room.tailSeconds();
     }
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }

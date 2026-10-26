@@ -179,8 +179,12 @@ void roomAudibleAndRingOut() {
     double diff=0,ref=0;for(size_t i=0;i<withRoom.out.size();++i){diff+=double(withRoom.out[i]-without.out[i])*(withRoom.out[i]-without.out[i]);ref+=double(without.out[i])*without.out[i];}
     std::cout<<"MEASURE room on, send 100 %: output differs from room off by "<<10*std::log10(diff/ref)<<" dB\n";
     require(diff/ref>1.e-3,"Room on does not change the output");
+    // The host is told about the room's tail while it is on.
+    const double reportedTail=p->getTailLengthSeconds()-plain->getTailLengthSeconds();
+    require(reportedTail>0.,"Room on does not extend the reported tail");
     // Room off: no new input, the tail rings out, then the room goes idle.
     set(*p,"roomOn",0);
+    require(p->getTailLengthSeconds()==plain->getTailLengthSeconds(),"Room off still reports a room tail");
     const auto running=p->roomProcessedSamples();render(*p,10,220.,.2f,a);render(*plain,10,220.,.2f,b);
     require(p->roomProcessedSamples()>running,"Room off cut the tail instead of letting it ring out");
     // Medium room: decaying ~110 dB to the -120 dBFS floor at RT60 0.7 s takes ~1.3 s.
@@ -188,60 +192,30 @@ void roomAudibleAndRingOut() {
     for(;ringBlocks<4000;++ringBlocks){const auto before=p->roomProcessedSamples();render(*p,1,220.,.2f,a);render(*plain,1,220.,.2f,b);if(p->roomProcessedSamples()==before)break;}
     require(ringBlocks<4000,"The room tail never ended");
     const auto idle=p->roomProcessedSamples();
-    std::cout<<"MEASURE Room off ring-out: "<<1000.*ringBlocks*block/rate<<" ms until idle\n";
+    std::cout<<"MEASURE Room off ring-out: "<<1000.*ringBlocks*block/rate<<" ms until idle (reported tail "<<1000.*reportedTail<<" ms)\n";
+    require(double(ringBlocks)*block/rate<=reportedTail,"The room rings longer than the tail it reports to the host");
     const auto after=render(*p,50,220.,.2f,a),reference=render(*plain,50,220.,.2f,b);
     require(p->roomProcessedSamples()==idle,"The room keeps processing after its tail has ended");
     require(after.out==reference.out,"After the tail the output is not identical to a processor without a room");
     std::cout<<"PASS Room off: the tail rings out, then the room idles and the output is bit-identical to room off\n";
 }
-void sizeChangeIsSmooth() {
-    // Held tone; the size changes mid-way. The wet part alone (output minus an
-    // identical room-off processor) must not step beyond its own steady steps:
-    // an instant switch drops the old tail into an empty new room.
-    auto p=make(),plain=make();set(*p,"roomOn",1);set(*p,"roomSend1",100);
-    int a=0,b=0;
-    const auto wetSteps=[&](int blocks){const auto x=render(*p,blocks,220.,.2f,a),y=render(*plain,blocks,220.,.2f,b);float step=0;
-        for(size_t i=1;i<x.out.size();++i)step=std::max(step,std::abs((x.out[i]-y.out[i])-(x.out[i-1]-y.out[i-1])));return step;};
-    wetSteps(100);const float steady=wetSteps(40);
-    for(int size:{0,2,1}) {
-        set(*p,"roomSize",float(size));const float step=wetSteps(40);
-        std::cout<<"MEASURE size change to "<<size<<": largest wet step "<<step<<" (steady "<<steady<<")\n";
-        require(step<2.f*steady,"A room size change produces a wet step beyond the room's own");
-    }
-    std::cout<<"PASS size changes: crossfaded, no wet step beyond the room's own\n";
-}
 void switchingIsSmooth() {
-    // Held tone already playing. Room on, Room off and send/return jumps must
-    // not step the wet part (output minus a room-off twin) beyond its own
-    // steady steps: an instant send start or stop replays a hard edge at every
-    // reflection tap.
-    // A low tone keeps the room's own steps small, so an edge stands out.
-    constexpr double hz=41.2;
-    auto p=make(),plain=make();set(*p,"roomSend1",100);
-    int a=0,b=0;
-    // Second difference of the wet part: tiny for the slow tone and its
-    // reflections, large wherever an edge appears.
-    const auto wetSteps=[&](int blocks){const auto x=render(*p,blocks,hz,.2f,a),y=render(*plain,blocks,hz,.2f,b);float step=0;
+    // Every switch on a held low tone: the wet part (output minus a room-off
+    // twin) must show no edge (second difference) beyond twice its steady one.
+    auto p=make(),plain=make();set(*p,"roomSend1",100);int a=0,b=0;
+    const auto edge=[&](int blocks){const auto x=render(*p,blocks,41.2,.2f,a),y=render(*plain,blocks,41.2,.2f,b);float e=0;
         const auto wet=[&](size_t i){return x.out[i]-y.out[i];};
-        for(size_t i=2;i<x.out.size();++i)step=std::max(step,std::abs(wet(i)-2.f*wet(i-1)+wet(i-2)));return step;};
-    // 66 blocks put the switch on a tone peak, where an edge is largest.
-    wetSteps(66);
-    set(*p,"roomOn",1);const float on=wetSteps(60);
-    wetSteps(100);const float steady=wetSteps(40);
-    const auto check=[&](const char* what,float step,const char* failure){
-        std::cout<<"MEASURE "<<what<<": largest wet edge "<<step<<" (steady "<<steady<<")\n";require(step<2.f*steady,failure);};
-    check("room on",on,"Room on starts the room with a wet step beyond its own");
-    set(*p,"roomSend1",0);check("send 100 to 0 %",wetSteps(60),"A send jump steps the wet sound");
-    set(*p,"roomSend1",100);check("send 0 to 100 %",wetSteps(60),"A send jump steps the wet sound");
-    wetSteps(100);
-    set(*p,"roomReturn",-36);check("return 0 to -36 dB",wetSteps(60),"A return jump steps the wet sound");
-    set(*p,"roomReturn",0);check("return -36 to 0 dB",wetSteps(60),"A return jump steps the wet sound");
-    wetSteps(100);
-    set(*p,"roomAbsorption",0);check("absorption 50 to 0 %",wetSteps(100),"An absorption jump steps the wet sound");
-    set(*p,"roomAbsorption",100);check("absorption 0 to 100 %",wetSteps(100),"An absorption jump steps the wet sound");
-    set(*p,"roomAbsorption",50);wetSteps(200);
-    set(*p,"roomOn",0);check("room off",wetSteps(60),"Room off stops the send with a wet step beyond the room's own");
-    std::cout<<"PASS on/off, send, return and absorption changes: no wet step beyond the room's own\n";
+        for(size_t i=2;i<x.out.size();++i)e=std::max(e,std::abs(wet(i)-2.f*wet(i-1)+wet(i-2)));return e;};
+    edge(66);set(*p,"roomOn",1);const float on=edge(60);   // 66 blocks: the switch lands on a tone peak
+    edge(100);const float steady=edge(40);
+    float worst=on/steady;
+    for(const auto& [id,value]:std::vector<std::pair<const char*,float>>{{"roomSend1",0},{"roomSend1",100},{"roomReturn",-36},{"roomReturn",0},
+            {"roomAbsorption",0},{"roomAbsorption",100},{"roomAbsorption",50},{"roomSize",0},{"roomSize",2},{"roomSize",1},{"roomOn",0}}) {
+        set(*p,id,value);const float x=edge(100)/steady;worst=std::max(worst,x);
+        std::cout<<"MEASURE "<<id<<"="<<value<<": wet edge "<<x<<" x steady\n";
+    }
+    require(worst<2.f,"A room switch produces a wet edge beyond the room's own");
+    std::cout<<"PASS on/off, send, return, absorption and size changes: no wet edge beyond the room's own (on "<<on/steady<<" x)\n";
 }
 template<class T> T* find(juce::Component& root,const juce::String& id) {
     if(root.getComponentID()==id)if(auto* match=dynamic_cast<T*>(&root))return match;
@@ -341,6 +315,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();switchingIsSmooth();roomControls();stateAndRecall();noAllocation();return 0;}
+    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();switchingIsSmooth();roomControls();stateAndRecall();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

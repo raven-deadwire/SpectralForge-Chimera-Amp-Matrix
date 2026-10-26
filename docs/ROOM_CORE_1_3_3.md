@@ -83,9 +83,12 @@ return. Reported latency and the DI alignment stay as they are.
 - On → the excitation fades in over 20 ms from an empty room, at the set
   return level (fading the return instead lets the later reflections of the
   hard send start through: 8.3× the room's own edge level).
-- Size change: the old size keeps decaying while the new size builds up
-  (crossfade the two returns over 50 ms, *proposed*); this needs two room
-  instances only during the change. Sends and return are ramped per sample
+- Size change: the send moves from the old size to the new one over 50 ms
+  and the old size's output fades over 250 ms while the new one builds up;
+  this needs two room instances only during the change. Crossfading only the
+  two returns (the first implementation) cut the old room's input and
+  started the new one's hard, which replayed at every reflection tap: 19–38×
+  the room's own edge level. Sends and return are ramped per sample
   over 20 ms; absorption is smoothed over 20 ms and its reflection, line and
   damping gains move linearly across each block (stepping them per block was
   a zipper: 8.1× the room's own edge level on a 50 → 0 % jump).
@@ -173,15 +176,17 @@ installed DAW, the Windows test installer and listening.
 - Model at 44.1–192 kHz: RT60 within 10 % of target (measured 0.94–1.04 ×),
   24 reflections per ear inside 20.4 / 40.7 / 81.4 ms, more absorption gives
   a darker late tail, the tail decays, total wet −9.0 dB at 50 % absorption.
-- Room off rings out (Medium: 1.25 s), then the room idles and the output is
-  bit-identical to a processor without a room.
-- Size changes are crossfaded: the wet part never steps beyond twice its own
-  steady step (an instant switch fails this).
-- Room on/off, send 0↔100 %, return 0↔−36 dB and absorption 50 → 0 → 100 %
-  on a held 41.2 Hz tone: the wet part's second difference (its edges) stays
-  within twice its steady value (measured ≤ 1.09×, absorption ≤ 1.46×;
-  without the 20 ms excitation ramp Room on reaches 8.3× and Room off 23×,
-  with per-block absorption gains 8.1×).
+- The host tail (`getTailLengthSeconds`) grows by the room's while it is on:
+  two RT60s with 10 % margin, plus 150 ms (Medium, 50 %: 1.69 s); Room off
+  reports none.
+- Room off rings out within that reported tail (Medium: 1.25 s), then the
+  room idles and the output is bit-identical to a processor without a room.
+- Room on/off, send 0↔100 %, return 0↔−36 dB, absorption 0 / 100 / 50 % and
+  size Small / Large / Medium on a held 41.2 Hz tone: the wet part's second
+  difference (its edges) stays within twice its steady value (measured
+  ≤ 1.47×). Without the 20 ms excitation ramp Room on reaches 8.3× and Room
+  off 23×; per-block absorption gains 8.1×; a return-only size crossfade
+  19–38×.
 - No allocation in the callback with the room on in Classic, Dual and Matrix.
 - Controls: the ROOM entry does not overlap a rig and shows ROOM OFF or the
   active size; the panel shows 1/2/3 sends for Classic/Dual/Matrix and each

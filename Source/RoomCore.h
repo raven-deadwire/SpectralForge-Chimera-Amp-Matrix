@@ -48,11 +48,13 @@ public:
         excitation.setSize(int(spec.numChannels), int(spec.maximumBlockSize));
         silence.setSize(int(spec.numChannels), int(spec.maximumBlockSize));
         for (auto& w : wet) w.setSize(int(spec.numChannels), int(spec.maximumBlockSize));
+        for (auto& f : feedIn) f.setSize(int(spec.numChannels), int(spec.maximumBlockSize));
         for (auto& model : models) model.prepare(rate);
         prepared = true;
         returnGain.reset(rate, .02);
         absorptionSmooth.reset(rate, .02);
         sizeFade.reset(rate, .05);
+        oldOut.reset(rate, .25);
         feedGain.reset(rate, .02);
         reset();
     }
@@ -69,6 +71,7 @@ public:
         feedGain.setCurrentAndTargetValue(0.f);
         absorptionSmooth.setCurrentAndTargetValue(readAbsorption());
         sizeFade.setCurrentAndTargetValue(1.f);
+        oldOut.setCurrentAndTargetValue(0.f);
         if (prepared) models[0].configure(readSize(), readAbsorption());
         inputPeak.store(0.f, std::memory_order_relaxed);
     }
@@ -119,7 +122,10 @@ public:
         // An empty room starts at its return level; the faded send builds it up.
         if (!tail && feeding()) { tail = true; returnGain.setCurrentAndTargetValue(returnTarget); }
         returnGain.setTargetValue(returnTarget);
-        // A size change fades the old room out while the new one builds up.
+        // A size change hands the send from the old room to the new one over
+        // 50 ms and fades the old room's output over 250 ms. Switching the
+        // inputs or crossfading only the outputs would replay a hard edge at
+        // every reflection tap.
         const int wanted = readSize();
         if (!fading && wanted != models[size_t(active)].size()) {
             const int next = 1 - active;
@@ -129,6 +135,8 @@ public:
             fading = true;
             sizeFade.setCurrentAndTargetValue(0.f);
             sizeFade.setTargetValue(1.f);
+            oldOut.setCurrentAndTargetValue(1.f);
+            oldOut.setTargetValue(0.f);
         }
         absorptionSmooth.setTargetValue(readAbsorption());
         absorptionSmooth.skip(samples);
@@ -138,24 +146,44 @@ public:
         silence.setSize(channels, samples, false, false, true);
         const auto& source = input != nullptr ? *input : silence;
         for (auto& w : wet) { w.setSize(channels, samples, false, false, true); w.clear(); }
-        models[size_t(active)].process(source.getArrayOfReadPointers(), wet[0].getArrayOfWritePointers(), channels, samples, 1.f);
-        if (fading) models[size_t(1 - active)].process(silence.getArrayOfReadPointers(), wet[1].getArrayOfWritePointers(), channels, samples, 1.f);
+        if (fading) {
+            for (auto& f : feedIn) f.setSize(channels, samples, false, false, true);
+            for (int n = 0; n < samples; ++n) {
+                const float mix = sizeFade.getNextValue();
+                for (int c = 0; c < channels; ++c) {
+                    const float x = c < source.getNumChannels() ? source.getSample(c, n) : 0.f;
+                    feedIn[0].setSample(c, n, x * mix);
+                    feedIn[1].setSample(c, n, x * (1.f - mix));
+                }
+            }
+            models[size_t(active)].process(feedIn[0].getArrayOfReadPointers(), wet[0].getArrayOfWritePointers(), channels, samples, 1.f);
+            models[size_t(1 - active)].process(feedIn[1].getArrayOfReadPointers(), wet[1].getArrayOfWritePointers(), channels, samples, 1.f);
+        }
+        else models[size_t(active)].process(source.getArrayOfReadPointers(), wet[0].getArrayOfWritePointers(), channels, samples, 1.f);
         float wetPeak = 0.f;
         for (int n = 0; n < samples; ++n) {
             const float gain = returnGain.getNextValue();
-            const float mix = fading ? sizeFade.getNextValue() : 1.f;
+            const float old = fading ? oldOut.getNextValue() : 0.f;
             for (int c = 0; c < channels; ++c) {
-                const float value = gain * (mix * wet[0].getSample(c, n) + (fading ? (1.f - mix) * wet[1].getSample(c, n) : 0.f));
+                const float value = gain * (wet[0].getSample(c, n) + old * wet[1].getSample(c, n));
                 output.addSample(c, n, value);
                 wetPeak = std::max(wetPeak, std::abs(value));
             }
         }
-        if (fading && !sizeFade.isSmoothing()) { fading = false; models[size_t(1 - active)].reset(); }
+        if (fading && !oldOut.isSmoothing()) { fading = false; models[size_t(1 - active)].reset(); }
         // Room off: the tail rings out, then the room goes idle and costs nothing.
         if (feeding() || wetPeak > tailFloor) quietSamples = 0;
         else if ((quietSamples += samples) >= int(rate * .05)) { tail = false; for (auto& model : models) model.reset(); }
     }
     bool tailRinging() const noexcept { return tail && !feeding(); }
+    // Host tail while the room is on: from full scale to the -120 dBFS idle
+    // floor takes two RT60s (measured at most 1.04 x target; 10 % margin),
+    // plus the early-reflection window and the 50 ms idle hold. Read from the
+    // parameters only, so any thread may ask; zero with the room off.
+    double tailSeconds() const noexcept {
+        if (!feeding()) return 0.0;
+        return 2.0 * 1.1 * double(RoomModel::geometry(readSize()).rt60AtHalf * RoomModel::rt60Scale(readAbsorption())) + .1 + .05;
+    }
     // Samples run through the room since prepare/reset: zero proves Room off
     // cost nothing.
     uint64_t processedSamples() const noexcept { return processed; }
@@ -175,7 +203,8 @@ private:
     std::array<RoomModel, 2> models;
     std::array<juce::AudioBuffer<float>, 2> wet;
     juce::AudioBuffer<float> silence;
-    juce::SmoothedValue<float> returnGain, absorptionSmooth, sizeFade, feedGain;
+    std::array<juce::AudioBuffer<float>, 2> feedIn;
+    juce::SmoothedValue<float> returnGain, absorptionSmooth, sizeFade, oldOut, feedGain;
     double rate{48000.0};
     int active{}, quietSamples{};
     bool tail{}, fading{}, prepared{};
