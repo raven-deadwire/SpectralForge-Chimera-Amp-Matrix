@@ -233,3 +233,22 @@ Candidate roles (2026-10-24): corr40-split-v3 is the T6 candidate
 (`di_validation.py`, `t6_listening.py`, research plug-in default); v2 remains
 the synthetic-target record. T3's fresh-seed B0 exceedance is reported as a
 known limit shared by both; the ceiling is unchanged.
+
+## Fixed PDC study (2026-10-25)
+
+`pdc_study.py` measures per-event attack and low-band added delay of a
+variable-delay candidate and the residual a host leaves after compensating a
+fixed reported latency L (`--fixed-l` validates a chosen L). For v3, L = 2.5 ms
+(minimax attack residual at all rates); the research plug-in's `Latency
+report` = Fixed PDC reports it, and host bypass is delayed by the reported
+latency. See `docs/TRANSPOSE_T6_PDC_CONTRACT.md`.
+
+## Faint-marker analysis (2026-10-25)
+
+`attack_snr.py` gives each attack event's 1-8 kHz SNR (peak within 10 ms over
+the largest envelope 20-3 ms before). Events below 6 dB are indistinguishable
+from the band floor and produced every attack-timing outlier seen so far.
+`latency_targets.py --event-snr-min` and `pdc_study.py evaluate
+--event-snr-min` apply a per-event floor (off by default; proposed 10 dB for
+the next pre-registered run). `SpliceTrace.cpp` logs splice and re-anchor
+sample positions. See `docs/TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`.

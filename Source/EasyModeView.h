@@ -138,8 +138,8 @@ public:
         if(text.isNotEmpty())autoStatus.setText(text,juce::dontSendNotification);
     }
     // instrument 0 detect/1 guitar/2 bass; style 0 rock/1 clean/2 metal.
-    void setAutoSetOptions(int instrument,int style,bool tone,bool finish) {
-        autoInstrument=juce::jlimit(0,2,instrument);autoStyle=juce::jlimit(0,2,style);autoTone=tone;autoFinish=finish;
+    void setAutoSetOptions(int instrument,int style,bool tone,bool finish,bool multiband=true) {
+        autoInstrument=juce::jlimit(0,2,instrument);autoStyle=juce::jlimit(0,2,style);autoTone=tone;autoFinish=finish;autoMultiband=multiband;
         constexpr std::array<const char*,3> instruments{"Auto","Guitar","Bass"},styles{"Rock","Clean","Metal"};
         autoOptions.setButtonText(juce::String(instruments[(size_t)autoInstrument])+" / "+styles[(size_t)autoStyle]);
     }
@@ -237,7 +237,7 @@ private:
         menu.addSectionHeader("Style");
         menu.addItem(11,"Rock",true,autoStyle==0);menu.addItem(12,"Clean",true,autoStyle==1);menu.addItem(13,"Metal",true,autoStyle==2);
         menu.addSectionHeader("Steps");
-        menu.addItem(21,"Tone EQ",true,autoTone);menu.addItem(22,"De-esser and limiter",true,autoFinish);
+        menu.addItem(21,"Tone EQ",true,autoTone);menu.addItem(23,"Multiband",true,autoMultiband);menu.addItem(22,"De-esser and limiter",true,autoFinish);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&autoOptions),
                            [safe=juce::Component::SafePointer<EasyModeView>(this)](int id){if(safe!=nullptr && id>0 && safe->chooseAutoOption)safe->chooseAutoOption(id);});
     }
@@ -351,7 +351,7 @@ private:
     std::unique_ptr<juce::SliderParameterAttachment> volumeAttachment;
     juce::RangedAudioParameter* reverbOnParameter{};juce::RangedAudioParameter* reverbMixParameter{};
     std::unique_ptr<juce::ParameterAttachment> reverbOn,reverbMix;
-    bool reverbGesture{},updatingReverb{},autoBusy{},autoTone{true},autoFinish{true};
+    bool reverbGesture{},updatingReverb{},autoBusy{},autoTone{true},autoFinish{true},autoMultiband{true};
     int autoInstrument{},autoStyle{},shownLane{};
     juce::StringArray listened;
     std::unique_ptr<PrecisionTunerPanel> tunerPanel;

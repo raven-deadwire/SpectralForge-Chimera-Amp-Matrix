@@ -1,27 +1,34 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Builds the Apple silicon OBS filter bundle (chimera-obs.plugin) against a
-# pinned OBS Studio release (plan stage F). macOS has no libobs development
-# package: the module links the libobs.framework inside that release's OBS.app,
-# with the libobs headers of the same tag. With a Chimera VST3 given, the
-# module's tests run against it and that libobs.
-# Usage: build-macos-module.sh <work dir> [Chimera.vst3]
+# Builds one architecture of the macOS OBS filter bundle (chimera-obs.plugin)
+# against a pinned OBS Studio release (plan stage F). macOS has no libobs
+# development package: the module links the libobs.framework inside that
+# release's OBS.app (Apple silicon or Intel build), with the libobs headers of
+# the same tag. With a Chimera VST3 given (containing that architecture), the
+# module's tests run against it and that libobs; x86_64 tests run under Rosetta.
+# stage_module.py joins the two architectures into one Universal bundle.
+# Usage: build-macos-module.sh <work dir> <arm64|x86_64> [Chimera.vst3]
 # Prints the build directory (containing chimera-obs.plugin) on the last line.
 set -eu
 obs_version=31.1.2
-dmg_sha256=8f18142c8599d4e80baee5913b03f8357c3e5fd0b76835f54e76dedf9f857188
 work=$1
-bundle=${2:-}
+arch=$2
+bundle=${3:-}
+case "$arch" in
+    arm64) flavor=Apple; dmg_sha256=8f18142c8599d4e80baee5913b03f8357c3e5fd0b76835f54e76dedf9f857188 ;;
+    x86_64) flavor=Intel; dmg_sha256=8eff8f85f6b72a476c9074b00840326a2888f208f3c3c70aed1bedacd692935f ;;
+    *) echo "architecture must be arm64 or x86_64" >&2; exit 2 ;;
+esac
 source=$(cd "$(dirname "$0")/.." && pwd)
 mkdir -p "$work"
 work=$(cd "$work" && pwd)
 
-dmg="$work/OBS-Studio-$obs_version-macOS-Apple.dmg"
+dmg="$work/OBS-Studio-$obs_version-macOS-$flavor.dmg"
 if [ ! -f "$dmg" ]; then
-    curl -fsSL -o "$dmg" "https://github.com/obsproject/obs-studio/releases/download/$obs_version/OBS-Studio-$obs_version-macOS-Apple.dmg"
+    curl -fsSL -o "$dmg" "https://github.com/obsproject/obs-studio/releases/download/$obs_version/OBS-Studio-$obs_version-macOS-$flavor.dmg"
 fi
 actual=$(shasum -a 256 "$dmg" | cut -d' ' -f1)
-[ "$actual" = "$dmg_sha256" ] || { echo "OBS $obs_version release hash mismatch: $actual" >&2; exit 1; }
+[ "$actual" = "$dmg_sha256" ] || { echo "OBS $obs_version $flavor release hash mismatch: $actual" >&2; exit 1; }
 if [ ! -d "$work/OBS.app" ]; then
     mount="$work/obs-image"
     mkdir -p "$mount"
@@ -31,6 +38,7 @@ if [ ! -d "$work/OBS.app" ]; then
 fi
 libobs="$work/OBS.app/Contents/Frameworks/libobs.framework/Versions/A/libobs"
 [ -f "$libobs" ] || { echo "libobs.framework not found in OBS.app:" >&2; ls "$work/OBS.app/Contents/Frameworks" >&2; exit 1; }
+lipo "$libobs" -verify_arch "$arch" || { echo "OBS $flavor libobs has no $arch slice: $(lipo -archs "$libobs")" >&2; exit 1; }
 
 headers="$work/obs-src"
 if [ ! -f "$headers/libobs/obs-module.h" ]; then
@@ -39,7 +47,7 @@ if [ ! -f "$headers/libobs/obs-module.h" ]; then
 fi
 
 build="$work/build"
-set -- -S "$source" -B "$build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+set -- -S "$source" -B "$build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="$arch" \
     -DCHIMERA_OBS_LIBOBS_INCLUDE_DIR="$headers/libobs" -DCHIMERA_OBS_LIBOBS_LIBRARY="$libobs" \
     -DCHIMERA_OBS_SOURCE_SHA="$(git -C "$source" rev-parse HEAD)"
 [ -n "$bundle" ] && set -- "$@" -DCHIMERA_OBS_TEST_BUNDLE="$(cd "$(dirname "$bundle")" && pwd)/$(basename "$bundle")"

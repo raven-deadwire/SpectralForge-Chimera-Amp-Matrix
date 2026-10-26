@@ -147,9 +147,9 @@ private:
     // Direct navigation only: these never toggle audio processing.
     static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,6> dynamicsEntryPages{
         spectralforge::CommonDynamicsPanel::Page::gate,
+        spectralforge::CommonDynamicsPanel::Page::expander,
         spectralforge::CommonDynamicsPanel::Page::compressor,
         spectralforge::CommonDynamicsPanel::Page::limiter,
-        spectralforge::CommonDynamicsPanel::Page::dynamicEQ,
         spectralforge::CommonDynamicsPanel::Page::multiband,
         spectralforge::CommonDynamicsPanel::Page::deesser};
     std::array<juce::TextButton,6> dynamicsEntries;

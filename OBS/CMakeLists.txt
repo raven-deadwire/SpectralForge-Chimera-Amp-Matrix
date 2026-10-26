@@ -3,6 +3,9 @@
 # project: it never links the proprietary product targets of the parent
 # repository and hosts the installed Chimera VST3 at runtime instead.
 cmake_minimum_required(VERSION 3.22)
+# Same oldest macOS as the Chimera product and OBS 31; left unset, the module
+# would only load on the build machine's macOS version or newer.
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Oldest macOS the OBS module supports")
 project(chimera-obs VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -185,7 +188,12 @@ if(APPLE)
     MACOSX_BUNDLE_GUI_IDENTIFIER "com.ravenforge.chimera-obs"
     MACOSX_BUNDLE_BUNDLE_NAME "chimera-obs"
     MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
-    MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+    # libobs is @rpath/libobs.framework: resolve it from OBS.app/Contents/Frameworks
+    # as OBS's own plugins do, never from this build machine's OBS download.
+    # Test executables built here provide their own LC_RPATH for that lookup.
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "@executable_path/../Frameworks")
 endif()
 target_compile_definitions(chimera-obs PRIVATE CHIMERA_OBS_VERSION="${PROJECT_VERSION}" CHIMERA_OBS_SOURCE="${chimera_obs_source}")
 target_compile_options(chimera-obs PRIVATE ${chimera_obs_warnings})

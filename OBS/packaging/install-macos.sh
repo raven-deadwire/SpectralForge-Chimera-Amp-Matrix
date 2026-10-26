@@ -2,5 +2,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 set -eu
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-command -v python3 >/dev/null 2>&1 || { echo "Python 3.9+ is required. Nothing was changed." >&2; exit 1; }
-exec python3 "$here/install_module.py" --platform macos "$@"
+helper="$here/chimera-obs-installer"
+# The user explicitly runs this script from the downloaded package. Verify the
+# included helper before clearing its quarantine; do not change other downloads.
+/usr/bin/codesign --verify --strict "$helper"
+attributes=$(/usr/bin/xattr "$helper")
+case "$attributes" in
+    *com.apple.quarantine*) /usr/bin/xattr -d com.apple.quarantine "$helper" ;;
+esac
+exec "$helper" "$@"
