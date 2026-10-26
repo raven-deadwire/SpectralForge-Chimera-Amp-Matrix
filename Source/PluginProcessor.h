@@ -138,7 +138,7 @@ public:
     void selectComparison(int slot);
     void copyComparison();
     int comparisonSlot() const {return selectedComparison.load();}
-    // A/B level match: monitoring only, never saved (see ABLevelMatch.h).
+    // A/B comparison gain on the output, never saved (see ABLevelMatch.h).
     spectralforge::ABLevelMatch& abLevelMatch() noexcept {return levelMatch;}
     const spectralforge::ABLevelMatch& abLevelMatch() const noexcept {return levelMatch;}
     void loadFactoryPreset(int index);
@@ -202,6 +202,7 @@ private:
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
     void measureStage(int,const juce::AudioBuffer<float>&);
     void resetProcessingIfPending();
+    void updateComparisonProtection();
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
     void syncTransposeQuality();

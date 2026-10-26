@@ -162,6 +162,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
+    updateComparisonProtection();
     resetProcessingIfPending();
     // Capture before input gain/routing/effects, inside the callback CPU meter.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
@@ -207,12 +208,20 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
 {
+    updateComparisonProtection();
     resetProcessingIfPending();
     // JUCE AAX's MasterBypassID invokes this callback. Its default implementation
     // passes dry audio immediately even though PDC still uses our nonzero delay.
     // Use the currently reported delay; parameter changes take effect when the
     // wet graph next processes (or prepareToPlay is called), as before.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),getLatencySamples(),true);
+}
+void ChimeraProcessor::updateComparisonProtection()
+{
+    bool printing=isNonRealtime();
+    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())
+        printing=printing || position->getIsRecording();
+    levelMatch.protectOutput(printing);
 }
 void ChimeraProcessor::resetProcessingIfPending()
 {
@@ -340,7 +349,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     autoSetCaptureState.push(spectralforge::autoset::Tap::output,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::limiter,buffer);dynamics.limit(buffer);} // Last gain stage after output trim.
-    levelMatch.process(buffer,selectedComparison.load()); // A/B monitoring cut only; meters show what is heard.
+    levelMatch.process(buffer,selectedComparison.load()); // Comparison output cut; meters show what is heard.
     for(int c=0;c<buffer.getNumChannels();++c)peak=juce::jmax(peak,buffer.getMagnitude(c,0,buffer.getNumSamples()));
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
     measureStage(4,buffer);
@@ -573,7 +582,7 @@ void ChimeraProcessor::selectComparison(int slot)
       if(!comparisons[(size_t)slot].isValid()) comparisons[(size_t)slot]=current.createCopy();
       next=comparisons[(size_t)slot].createCopy();selectedComparison.store(slot);
     }
-    restoreCore(next);
+    restoreCore(next);levelMatch.switched();
 }
 void ChimeraProcessor::copyComparison()
 {
@@ -598,6 +607,7 @@ void ChimeraProcessor::tapTempo() {
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
+    levelMatch.invalidate(selectedComparison.load());
     ++headRecallRevision;
     {
         const auto snapshot=spectralforge::isNiflheimrPreset(index)

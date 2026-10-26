@@ -161,7 +161,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     tunerOpen.setTooltip("Open precision tuning, strobe, temperament and per-string targets. Opening starts tuning; closing stops tuning. Output mute follows your selected preference.");
     tunerOpen.onClick=[this]{tunerViewOpen=!tunerViewOpen;auto* parameter=processor.parameters().getParameter("tuneron");parameter->beginChangeGesture();parameter->setValueNotifyingHost(tunerViewOpen?1.f:0.f);parameter->endChangeGesture();updateModeUI();};
     add(easyOpen);easyOpen.setComponentID("easyOpen");easyOpen.setName("Open Easy view");
-    easyOpen.setTooltip("Switch to Easy view: presets, six main knobs, Auto Set and tuner. Your sound stays as it is.");
+    easyOpen.setTooltip("Switch to Easy view: presets, six main knobs, Auto Set and tuner. Your tone settings stay as they are; MATCH switches off.");
     easyOpen.onClick=[this]{setEasyMode(true,true);};
     add(boardPanel);add(preEngineStatus);
     preEngineStatus.setComponentID("preEngineStatus");
@@ -198,9 +198,23 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     info.setTooltip(processor.betaNotice());
     for(auto* button:{&compareA,&compareB,&copyAB,&matchAB,&irLibraryButton}) add(*button);
     matchAB.setComponentID("ab.match");
-    matchAB.onClick=[this]{auto& match=processor.abLevelMatch();match.setEnabled(!match.enabled());timerCallback();};
+    matchAB.onClick=[this]{
+        auto& match=processor.abLevelMatch();
+        if(match.enabled()){match.setEnabled(false);timerCallback();return;}
+        if(match.outputProtected())return;
+        if(matchWarningAcknowledged){match.setEnabled(true);timerCallback();return;}
+        const juce::Component::SafePointer<ChimeraEditor> safe(this);
+        matchWarning=juce::AlertWindow::showScopedAsync(juce::MessageBoxOptions{}
+            .withIconType(juce::MessageBoxIconType::WarningIcon)
+            .withTitle("MATCH changes the output")
+            .withMessage("MATCH lowers the louder A/B sound at the plugin output. Turn it off before recording, exporting, freezing or OBS capture. "
+                         "Host-reported recording and offline rendering switch it off automatically. Realtime exports and unreported recording cannot be detected.")
+            .withButton("Enable MATCH").withButton("Cancel").withAssociatedComponent(this),
+            [safe](int result){if(safe && result==1){safe->matchWarningAcknowledged=true;safe->processor.abLevelMatch().setEnabled(true);safe->timerCallback();}});
+    };
     matchAB.setTooltip("Level-match A/B: while you play, measure both sounds and turn the louder one down to the quieter one, so you compare tone, not volume. "
-                       "Never boosts. Monitoring only: not saved, off when a project opens, and it also lowers what you record or bounce while on.");
+                       "Changes plugin output; not a separate monitor bus. Turn off before printing (50 ms release). Host-reported recording/offline render disarms it immediately; "
+                       "realtime export, OBS capture and unreported recording cannot be detected. Not saved; off after project load or audio-device restart. SAFE means host print protection is active.");
     compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
     copyAB.setTooltip("Copy the active sound to the other slot. A/B stores all parameters and IR audio; both slots are saved with the project/reference file.");
@@ -468,7 +482,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         initialSize=spectralforge::ui::boundedEditorSize(initialSize,display->userArea,{16,64});
     setSize(initialSize.x,initialSize.y); updateModeUI(); startTimerHz(25);
 }
-ChimeraEditor::~ChimeraEditor() { for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().removeParameterListener(id,this);cancelPendingUpdate();stopTimer(); chooser.reset(); for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();dialogs.clear();if(support)support->cancel();support.reset();setLookAndFeel(nullptr); }
+ChimeraEditor::~ChimeraEditor() { matchWarning.close();processor.abLevelMatch().setEnabled(false);for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().removeParameterListener(id,this);cancelPendingUpdate();stopTimer(); chooser.reset(); for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();dialogs.clear();if(support)support->cancel();support.reset();setLookAndFeel(nullptr); }
 void ChimeraEditor::setupSlider(juce::Slider& slider,const juce::String& name,const juce::String& suffix)
 {
     slider.setName(name); slider.setTooltip(name); slider.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -662,8 +676,9 @@ void ChimeraEditor::refreshVisibleState()
     compareA.setToggleState(processor.comparisonSlot()==0,juce::dontSendNotification);compareB.setToggleState(processor.comparisonSlot()==1,juce::dontSendNotification);
     {   // MATCH shows the cut it applies to the active sound.
         const auto& match=processor.abLevelMatch();const float cut=match.appliedDb();
+        matchAB.setEnabled(!match.outputProtected());
         matchAB.setToggleState(match.enabled(),juce::dontSendNotification);
-        const auto text=match.enabled() && cut<-.05f ? juce::String(cut,1) : juce::String("MATCH");
+        const auto text=match.outputProtected() ? juce::String("SAFE") : match.enabled() && cut<-.05f ? juce::String(cut,1) : juce::String("MATCH");
         if(matchAB.getButtonText()!=text)matchAB.setButtonText(text);
     }
     for(int i=0;i<3;++i) {
@@ -1115,6 +1130,8 @@ void ChimeraEditor::trackDialog(juce::DialogWindow* dialog)
 }
 void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
 {
+    // Easy view hides the comparison controls, so do not leave an invisible cut.
+    if(easy)processor.abLevelMatch().setEnabled(false);
     if(rememberChoice)spectralforge::easy::Preference::remember(easy);
     if(easy && !easyView) {
         easyView=std::make_unique<EasyModeView>(processor);
