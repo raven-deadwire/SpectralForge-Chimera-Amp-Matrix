@@ -62,8 +62,8 @@ public:
     const Options& currentOptions() const noexcept {return options;}
     void start() {
         if(busy())return;
-        snapshot.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastFinish={};lastMultiband={};
-        for(const auto& id:touchedIDs)if(auto* parameter=processor.parameters().getParameter(id))snapshot.emplace_back(parameter,parameter->getValue());
+        snapshot.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastFinish={};lastMultiband={};manualEditsKept=false;
+        for(const auto& id:touchedIDs)if(auto* parameter=processor.parameters().getParameter(id))snapshot.push_back({parameter,parameter->getValue(),parameter->getValue(),false});
         passes={Phase::input};if(options.tone)passes.push_back(Phase::tone);passes.push_back(Phase::compressor);
         if(options.multiband)passes.push_back(Phase::multiband);
         if(options.finish)passes.push_back(Phase::finish);
@@ -77,9 +77,12 @@ public:
     }
     void undo() {
         if(busy() || snapshot.empty())return;
-        for(auto& [parameter,value]:snapshot)setNormalised(*parameter,value);
+        // Only restore writes owned by this run. A later manual/host edit,
+        // including a change to an untouched optional stage, belongs to the user.
+        for(auto& entry:snapshot)if(entry.written && entry.parameter->getValue()==entry.lastWritten)
+            setNormalised(*entry.parameter,entry.before);
         snapshot.clear();
-        publish(Phase::idle,0,"Restored the settings from before Auto Set.",0);
+        publish(Phase::idle,0,"Undid Auto Set; newer edits were kept.",0);
     }
     bool busy() const noexcept {return busyPhase(status.phase);}
     const Status& current() const noexcept {return status;}
@@ -108,7 +111,15 @@ private:
     void timerCallback() override {tick();}
     float raw(const juce::String& id) const {return processor.parameters().getRawParameterValue(id)->load();}
     void set(const juce::String& id,float value) {
-        if(auto* parameter=processor.parameters().getParameter(id))setNormalised(*parameter,parameter->convertTo0to1(value));
+        if(auto* parameter=processor.parameters().getParameter(id)) {
+            const auto entry=std::find_if(snapshot.begin(),snapshot.end(),[&](const auto& e){return e.parameter==parameter;});
+            if(entry==snapshot.end())return;
+            // Do not overwrite a manual/automation edit made while listening.
+            if(parameter->getValue()!=(entry->written?entry->lastWritten:entry->before)){manualEditsKept=true;return;}
+            const auto before=parameter->getValue();
+            setNormalised(*parameter,parameter->convertTo0to1(value));
+            if(parameter->getValue()!=before){entry->lastWritten=parameter->getValue();entry->written=true;}
+        }
     }
     static void setNormalised(juce::RangedAudioParameter& parameter,float normalised) {
         if(parameter.getValue()==normalised)return;
@@ -225,10 +236,10 @@ private:
             }
             for(;next<bands.size();++next)set(eqID(0,bands[next],"enabled"),0);
             set(eqID(0,-1,"bypass"),0);
-            summary+=" | Tone EQ "+juce::String(r.bass?"bass":"guitar")+": "+juce::String(r.activeMoves())+" moves";
+            summary+=" | Tone EQ "+juce::String(r.bass?"bass":"guitar")+(options.instrument==0?" (estimate)":"")+": "+juce::String(r.activeMoves())+" moves";
             juce::StringArray moves;
             for(const auto& move:r.moves)if(move.gainDb!=0.f)moves.add((move.frequency>=1000.f?juce::String(move.frequency/1000.f,1)+" kHz":juce::String(juce::roundToInt(move.frequency))+" Hz")+" "+(move.gainDb>0?"+":"")+juce::String(move.gainDb,1));
-            addStep(juce::String(r.bass?"bass":"guitar")+": "+moves.joinIntoString(", "),true);
+            addStep(juce::String(r.bass?"bass":"guitar")+(options.instrument==0?" (estimate)":"")+": "+moves.joinIntoString(", "),true);
         }
         nextPass();
     }
@@ -270,11 +281,13 @@ private:
         if(pass+1<passes.size())nextPass();else complete();
     }
     void finishOutput(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows) {
-        const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),chosenBass(),options.style);
+        // Preserve uncertainty: a Tone EQ heuristic is not an explicit choice.
+        const std::optional<bool> instrument=options.instrument==0?std::nullopt:std::optional<bool>(options.instrument==2);
+        const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),instrument,options.style);
         lastFinish=r;
         juce::String result;bool changed=false;
         if(!r.playingDetected){summary+=" | De-esser unchanged (no playing)";result="de-esser kept (no playing heard)";}
-        else if(!r.deEsser){summary+=" | De-esser off (not harsh)";result="de-esser kept (not harsh)";}
+        else if(!r.deEsser){summary+=" | De-esser unchanged (no reliable excess)";result="de-esser kept (no reliable excess)";}
         else {
             set("deEsserFrequency",r.frequency);set("deEsserThreshold",r.thresholdDb);set("deEsserRange",r.rangeDb);set("deEsserAttack",r.attackMs);
             set("deEsserRelease",r.releaseMs);set("deEsserRatio",r.ratio);set("deEsserKnee",r.kneeDb);set("deEsserOn",1);
@@ -292,7 +305,8 @@ private:
     void stopListening() {processor.autoSetCapture().listen(std::nullopt);processor.setAutoSetGateBypass(false);}
     void complete() {
         stopTimer();stopListening();
-        publish(Phase::done,1,"Applied ("+juce::String(styleName(options.style))+"): "+summary,1);
+        publish(Phase::done,1,(manualEditsKept?juce::String("Auto Set suggestions (newer manual/host edits kept; "):juce::String("Applied ("))
+                +juce::String(styleName(options.style))+"): "+summary,1);
     }
     void fail(const juce::String& text) {
         stopTimer();stopListening();
@@ -356,7 +370,7 @@ private:
     }
     static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish;}
     bool changedSinceSnapshot() const {
-        for(const auto& [parameter,value]:snapshot)if(parameter->getValue()!=value)return true;
+        for(const auto& entry:snapshot)if(entry.written && entry.parameter->getValue()==entry.lastWritten && entry.lastWritten!=entry.before)return true;
         return false;
     }
 
@@ -372,7 +386,9 @@ private:
     Status status;
     std::vector<Phase> passes{Phase::input,Phase::compressor};size_t pass{};
     Options options;
-    std::vector<std::pair<juce::RangedAudioParameter*,float>> snapshot;
+    struct Snapshot {juce::RangedAudioParameter* parameter;float before,lastWritten;bool written;};
+    std::vector<Snapshot> snapshot;
+    bool manualEditsKept{};
     std::vector<Window> windows,rigWindows;std::vector<float> samples;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
     juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;FinishResult lastFinish;MultibandResult lastMultiband;

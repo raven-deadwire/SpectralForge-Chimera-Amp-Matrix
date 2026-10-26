@@ -126,6 +126,13 @@ audio, compatibility or acceptance criteria.
 
 ### Near-term reviewable checkpoints
 
+> **Re-estimate, 2026-10-26 KST:** the October 23/30 checkpoints below have
+> passed. The next target remains 1.3.2-beta.2, with internal test build
+> 10/30, P0 verdicts 11/2–11/6 and a publication decision 11/9–11/13; see
+> [the 2026-10-26 schedule](RELEASE_SCHEDULE_20261026.ko.md). Publication still
+> depends on the four #97 P0 results; version windows below are unchanged
+> until Draft #93 is decided.
+
 | Target | Reviewable result |
 |---|---|
 | 2026-10-14 | Actual EQ graph/control prototype and one original plus one simple reference head; startup behavior checked in the next candidate |

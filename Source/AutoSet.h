@@ -283,7 +283,8 @@ struct Spectrum {
     std::array<float,toneBandCount> bandsDb{};
     float strongestDb{-300};
 };
-inline Spectrum measureSpectrum(const std::vector<float>& samples,double rate,std::optional<bool> bass={}) {
+inline Spectrum measureSpectrum(const std::vector<float>& samples,double rate,std::optional<bool> bass={},
+                                const std::vector<bool>* excludedWindows=nullptr) {
     Spectrum r;
     if(rate<8000)return r;
     const int order=std::clamp(int(std::round(std::log2(rate/6.))),12,15),size=1<<order,hop=size/2; // ~6 Hz bins
@@ -301,6 +302,15 @@ inline Spectrum measureSpectrum(const std::vector<float>& samples,double rate,st
     struct Frame {float levelDb;std::array<double,toneBandCount> power;double lowest,body;};
     std::vector<Frame> frames;
     for(size_t start=0;start+size_t(size)<=samples.size();start+=size_t(hop)) {
+        // Finish analysis can exclude note attacks without concatenating audio
+        // (which would introduce new FFT discontinuities). Tone analysis is unchanged.
+        if(excludedWindows) {
+            const auto windowSize=size_t(std::max(1,int(rate*.010)));
+            bool excluded=false;
+            for(size_t i=start/windowSize;i<=(start+size_t(size)-1)/windowSize;++i)
+                if(i>=excludedWindows->size() || (*excludedWindows)[i]){excluded=true;break;}
+            if(excluded)continue;
+        }
         double energy=0;
         for(int n=0;n<size;++n){const float x=samples[start+size_t(n)];energy+=double(x)*x;frame[size_t(n)]=x*window[size_t(n)];}
         std::fill(frame.begin()+size,frame.end(),0.f);
@@ -401,11 +411,26 @@ inline ToneResult analyseTone(const std::vector<float>& samples,double rate,std:
 struct FinishResult {
     bool playingDetected{},bass{},deEsser{};
     float frequency{6000},thresholdDb{-24},rangeDb{6},attackMs{1},releaseMs{80},ratio{4},kneeDb{6};
-    float spectralExcessDb{},burstExcessDb{};
+    float spectralExcessDb{},burstExcessDb{},overallSpectralExcessDb{};
+    bool sustainedEvidence{};
+    int protectedAttackWindows{};
     bool limiterPlaying{};
     float ceilingDb{-1},limiterReleaseMs{100},outputPeakDb{-120},overCeilingPercent{};
 };
 inline constexpr float limiterCeilingDb=-1.f;
+
+// A post-rig low-frequency ratio cannot identify an instrument unambiguously.
+// In auto mode, spectral de-essing must exceed BOTH plausible targets. Explicit
+// Guitar/Bass keeps its original style curve; Tone EQ detection is unchanged.
+inline std::array<float,toneBandCount> finishTarget(const Spectrum& measured,Style style,bool instrumentChosen) {
+    auto target=alignedTarget(measured,style);
+    if(!instrumentChosen) {
+        auto alternative=measured;alternative.bass=!measured.bass;
+        const auto other=alignedTarget(alternative,style);
+        for(size_t b=0;b<target.size();++b)target[b]=std::max(target[b],other[b]);
+    }
+    return target;
+}
 
 // samples: mono de-esser input. output: 10 ms windows at the limiter input.
 inline FinishResult analyseFinish(const std::vector<float>& samples,const std::vector<Window>& output,double rate,std::optional<bool> bass={},Style style=Style::rock) {
@@ -424,7 +449,7 @@ inline FinishResult analyseFinish(const std::vector<float>& samples,const std::v
     const auto spectrum=measureSpectrum(samples,rate,bass);
     r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
     if(!r.playingDetected)return r;
-    const auto target=alignedTarget(spectrum,style);
+    const auto target=finishTarget(spectrum,style,bass.has_value());
     int worst=-1;float worstExcess=-100;
     for(int b=0;b<toneBandCount;++b){const float fc=toneBandCentres[size_t(b)];if(fc>=2500 && fc<=8000 && fc<rate*.4){const float e=spectrum.bandsDb[size_t(b)]-target[size_t(b)];if(e>worstExcess){worstExcess=e;worst=b;}}}
     if(worst<0)return r;
@@ -432,16 +457,23 @@ inline FinishResult analyseFinish(const std::vector<float>& samples,const std::v
     r.frequency=std::clamp(std::round(toneBandCentres[size_t(worst)]/std::pow(2.f,1.f/6.f)/100.f)*100.f,2500.f,9000.f);
     double excess=0;int count=0;
     for(int b=0;b<toneBandCount;++b){const float fc=toneBandCentres[size_t(b)];if(fc>=r.frequency && fc<=10000 && fc<rate*.4){excess+=spectrum.bandsDb[size_t(b)]-target[size_t(b)];++count;}}
-    r.spectralExcessDb=count?float(excess/count):0.f;
+    r.overallSpectralExcessDb=count?float(excess/count):0.f;
     // High band through two 12 dB/oct high-passes (the de-esser splits at 24 dB/oct).
     const auto hp=eqCoefficients(3,r.frequency,0,.70710678,rate);
+    // A note onset raises the body as well as the full band. HF-only clicks
+    // over a sustained note must not acquire this protection.
+    const auto lp=eqCoefficients(4,1500,0,.70710678,rate);
     std::array<double,4> z{};const int windowSamples=std::max(1,int(rate*.010));
-    std::vector<float> fullRms,highRms,highPeak;double fullEnergy=0,highEnergy=0,peak=0;int n=0;
+    std::array<double,4> bodyZ{};
+    std::vector<float> fullRms,bodyRms,highRms,highPeak;double fullEnergy=0,bodyEnergy=0,highEnergy=0,peak=0;int n=0;
     for(const float x:samples) {
         double y=x;
         for(int stage=0;stage<2;++stage){double& z1=z[size_t(2*stage)];double& z2=z[size_t(2*stage+1)];const double out=hp.b0*y+z1;z1=hp.b1*y-hp.a1*out+z2;z2=hp.b2*y-hp.a2*out;y=out;}
+        double body=x;
+        for(int stage=0;stage<2;++stage){double& z1=bodyZ[size_t(2*stage)];double& z2=bodyZ[size_t(2*stage+1)];const double out=lp.b0*body+z1;z1=lp.b1*body-lp.a1*out+z2;z2=lp.b2*body-lp.a2*out;body=out;}
         fullEnergy+=double(x)*x;highEnergy+=y*y;peak=std::max(peak,std::abs(y));
-        if(++n==windowSamples){fullRms.push_back(toDb(std::sqrt(fullEnergy/n)));highRms.push_back(toDb(std::sqrt(highEnergy/n)));highPeak.push_back(toDb(peak));fullEnergy=highEnergy=peak=0;n=0;}
+        bodyEnergy+=body*body;
+        if(++n==windowSamples){fullRms.push_back(toDb(std::sqrt(fullEnergy/n)));bodyRms.push_back(toDb(std::sqrt(bodyEnergy/n)));highRms.push_back(toDb(std::sqrt(highEnergy/n)));highPeak.push_back(toDb(peak));fullEnergy=bodyEnergy=highEnergy=peak=0;n=0;}
     }
     // Transients: each window against the median of its +-50 ms neighbours, so
     // a note's ordinary decay does not count, a pick click or fizz spike does.
@@ -451,12 +483,35 @@ inline FinishResult analyseFinish(const std::vector<float>& samples,const std::v
         return level[i]-percentile(around,.5f);
     };
     const float loud=percentile(fullRms,.90f);
-    std::vector<float> fullSpikes,highSpikes,playingPeak;
-    for(size_t i=0;i<fullRms.size();++i)if(fullRms[i]>=loud-15.f && fullRms[i]>minimumPlayingDb) {
-        fullSpikes.push_back(spikes(fullRms,i));highSpikes.push_back(spikes(highRms,i));playingPeak.push_back(highPeak[i]);
+    std::vector<bool> attack(fullRms.size(),false);
+    for(size_t i=0;i<fullRms.size();++i) {
+        std::vector<float> previousFull,previousBody;
+        for(size_t k=i>=5?i-5:0;k<i;++k){previousFull.push_back(fullRms[k]);previousBody.push_back(bodyRms[k]);}
+        if(i==0 || (fullRms[i]>std::max(minimumPlayingDb,loud-15.f)
+                    && fullRms[i]-percentile(previousFull,.5f)>=3.f
+                    && bodyRms[i]-percentile(previousBody,.5f)>=6.f))
+            for(size_t k=i>0?i-1:0;k<std::min(attack.size(),i+6);++k)attack[k]=true;
     }
-    if(fullSpikes.size()<50)return r;
-    r.burstExcessDb=percentile(highSpikes,.95f)-percentile(fullSpikes,.95f);
+    r.protectedAttackWindows=int(std::count(attack.begin(),attack.end(),true));
+    // Require actual post-attack frames for the spectral route. If a rapid
+    // muted passage leaves no evidence, abstain rather than infer harshness.
+    const auto sustained=measureSpectrum(samples,rate,spectrum.bass,&attack);
+    r.sustainedEvidence=sustained.playing;
+    if(r.sustainedEvidence) {
+        const auto sustainedTarget=finishTarget(sustained,style,bass.has_value());double sum=0;int bands=0;
+        for(int b=0;b<toneBandCount;++b){const float fc=toneBandCentres[size_t(b)];if(fc>=r.frequency && fc<=10000 && fc<rate*.4){sum+=sustained.bandsDb[size_t(b)]-sustainedTarget[size_t(b)];++bands;}}
+        r.spectralExcessDb=bands?float(sum/bands):0.f;
+    }
+    std::vector<float> burstExcess,playingPeak;
+    for(size_t i=0;i<fullRms.size();++i)if(fullRms[i]>=loud-15.f && fullRms[i]>minimumPlayingDb) {
+        playingPeak.push_back(highPeak[i]);
+        if(!attack[i] && highRms[i]>loud-45.f)
+            burstExcess.push_back(spikes(highRms,i)-std::max(0.f,spikes(fullRms,i)));
+    }
+    if(playingPeak.size()<50)return r;
+    // Pair the two rises in time BEFORE taking a percentile. Subtracting two
+    // independent percentiles can compare entirely different musical events.
+    r.burstExcessDb=burstExcess.size()>=20?std::max(0.f,percentile(burstExcess,.95f)):0.f;
     const float spectralLimit=style==Style::clean?3.f:style==Style::metal?1.5f:2.f;
     r.deEsser=r.spectralExcessDb>=spectralLimit || r.burstExcessDb>=4.f;
     if(!r.deEsser)return r;
