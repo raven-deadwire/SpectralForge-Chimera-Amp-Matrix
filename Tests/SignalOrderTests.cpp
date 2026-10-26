@@ -1,5 +1,5 @@
-// 1.4 signal order, common pre-POST block (docs/SIGNAL_ORDER_1_4.md): the
-// order really changes the audio graph and each stage's capture tap follows
+// 1.4 signal order (docs/SIGNAL_ORDER_1_4.md), common block and POST rack:
+// the order really changes the audio graph and each stage's capture tap follows
 // its stage, reorders are click-safe, state/A-B/presets/old projects restore
 // the right order, undo/redo work, moves write no parameter and the callback
 // stays allocation-free.
@@ -104,7 +104,7 @@ void stateAndRecall() {
     const auto data=save(*p);
     auto restored=make();restored->setStateInformation(data.getData(),int(data.getSize()));
     require(restored->commonOrder()==custom,"The order does not survive a project save and restore");
-    require(!restored->canUndoCommonOrder(),"A restored project kept another session's order undo");
+    require(!restored->canUndoOrder(),"A restored project kept another session's order undo");
     // An old project has no order property: it plays the released order, also
     // into a processor whose order was changed.
     auto xml=juce::AudioProcessor::getXmlFromBinary(data.getData(),int(data.getSize()));require(xml!=nullptr,"State is not binary XML");
@@ -124,21 +124,21 @@ void stateAndRecall() {
     ab->selectComparison(1);require(ab->commonOrder()==b,"A/B slot B lost its order");
     // A factory preset plays its authored (released) order.
     ab->loadFactoryPreset(0);require(ab->commonOrder()==defaultOrder,"A factory preset keeps a custom order");
-    require(!ab->canUndoCommonOrder(),"A factory preset kept the order undo");
+    require(!ab->canUndoOrder(),"A factory preset kept the order undo");
     std::cout<<"PASS order state: save/restore, old and damaged projects open in the released order, A/B slots keep theirs, presets reset it\n";
 }
 void undoAndParameters() {
     auto p=make();const auto parameters=snapshot(*p);
-    require(!p->moveCommonStage(Stage::toneEQ,-1) && !p->canUndoCommonOrder(),"An impossible move was recorded");
+    require(!p->moveCommonStage(Stage::toneEQ,-1) && !p->canUndoOrder(),"An impossible move was recorded");
     p->moveCommonStage(Stage::compressor,-1);const auto first=p->commonOrder();
     p->moveCommonStage(Stage::deesser,-1);const auto second=p->commonOrder();
     require(snapshot(*p)==parameters,"A reorder wrote a parameter");
-    require(p->undoCommonOrder() && p->commonOrder()==first,"Undo does not restore the previous order");
-    require(p->undoCommonOrder() && p->commonOrder()==defaultOrder,"Second undo does not restore the released order");
-    require(!p->undoCommonOrder(),"Undo ran past the history");
-    require(p->undoCommonOrder(true) && p->commonOrder()==first && p->undoCommonOrder(true) && p->commonOrder()==second,"Redo does not reapply the moves");
-    p->undoCommonOrder();p->moveCommonStage(Stage::multiband,1);
-    require(!p->canUndoCommonOrder(true),"A new move did not clear the redo history");
+    require(p->undoOrder() && p->commonOrder()==first,"Undo does not restore the previous order");
+    require(p->undoOrder() && p->commonOrder()==defaultOrder,"Second undo does not restore the released order");
+    require(!p->undoOrder(),"Undo ran past the history");
+    require(p->undoOrder(true) && p->commonOrder()==first && p->undoOrder(true) && p->commonOrder()==second,"Redo does not reapply the moves");
+    p->undoOrder();p->moveCommonStage(Stage::multiband,1);
+    require(!p->canUndoOrder(true),"A new move did not clear the redo history");
     require(snapshot(*p)==parameters,"Undo or redo wrote a parameter");
     std::cout<<"PASS order undo/redo; moves, undo and redo write no parameter\n";
 }
@@ -163,11 +163,89 @@ void signalPathFollowsOrder() {
         require(!dynamic_cast<SignalPathNavigationButton*>(c)->onOrderKey,"A block outside the common region offers order commands");
     std::cout<<"PASS signal path graph shows and chains the saved order; Alt+Left/Right moves only common-block stages\n";
 }
+namespace po=spectralforge::postOrder;
+// POST: Bus Comp hard, Console EQ +12 dB at 1 kHz on a 1 kHz tone.
+void postVoice(ChimeraProcessor& p) {
+    for(int section=0;section<3;++section)set(p,spectralforge::postNativeModeID(section),0);   // legacy modules carry these settings
+    set(p,"buscompon",1);set(p,"busthreshold",-48);set(p,"busratio",12);set(p,"busattack",.1f);set(p,"busmakeup",0);
+    set(p,"eqon",1);set(p,"eqmidhz",1000);set(p,"eqmid",12);
+}
+void postOrderChangesTheGraph() {
+    // The per-slot meters stay keyed by slot. With the EQ (+12 dB at 1 kHz)
+    // moved in front of Bus Comp, the boosted signal drives the compressor
+    // hard, so the compressor's meter falls far below the EQ's.
+    auto p=make();postVoice(*p);int clock=0;
+    const auto db=[&](int section){return juce::Decibels::gainToDecibels(p->postModuleLevel(section),-120.f);};
+    render(*p,400,1000.,clock);const float compFirst=db(2)-db(0);
+    require(p->movePostStage(po::Stage::consoleEQ,-1) && p->movePostStage(po::Stage::consoleEQ,-1),"Console EQ cannot move before Bus Comp");
+    require(po::toString(p->postOrder())=="consoleEQ,busComp,preamp,modulation,delay,reverb","The POST move did not publish the new order");
+    render(*p,400,1000.,clock);const float eqFirst=db(2)-db(0);
+    std::cout<<"MEASURE POST Console EQ meter minus Bus Comp meter: "<<compFirst<<" dB (Comp first), "<<eqFirst<<" dB (EQ first)\n";
+    require(eqFirst-compFirst>10.f,"Moving Console EQ before Bus Comp does not change the audio graph");
+    std::cout<<"PASS POST order changes the audio graph; slot meters follow their slot\n";
+}
+void postReorderIsClickSafe() {
+    // Held 150 Hz tone through Bus Comp and Console EQ (+12 dB at 150 Hz), so
+    // a swap changes the level by many dB; then again with Delay and Reverb
+    // running, whose tails continue under the transition.
+    for(const bool tails:{false,true}) {
+        auto p=make();postVoice(*p);set(*p,"eqmidhz",150);int clock=0;
+        if(tails){set(*p,"delayon",1);set(*p,"reverbon",1);}
+        const auto edge=[&](int blocks){const auto x=render(*p,blocks,150.,clock);float e=0;
+            for(size_t i=2;i<x.size();++i)e=std::max(e,std::abs(x[i]-2.f*x[i-1]+x[i-2]));return e;};
+        render(*p,400,150.,clock);float before=edge(200),worst=0;
+        for(const auto& [stage,direction]:std::vector<std::pair<po::Stage,int>>{{po::Stage::consoleEQ,-1},{po::Stage::consoleEQ,-1},{po::Stage::busComp,1},{po::Stage::reverb,-1}}) {
+            require(p->movePostStage(stage,direction),"POST reorder step could not move");
+            const float during=edge(60);edge(300);const float after=edge(200);
+            const float x=during/std::max(before,after);worst=std::max(worst,x);before=after;
+            std::cout<<"MEASURE POST"<<(tails?" (delay+reverb)":"")<<" move "<<po::stageId(stage)<<(direction<0?" earlier":" later")<<": edge "<<x<<" x steady\n";
+        }
+        require(worst<2.f,"A POST reorder produces an edge beyond the orders' own");
+    }
+    std::cout<<"PASS POST reorders are click-safe, also with delay and reverb running\n";
+}
+void postStateAndUndo() {
+    auto p=make();p->movePostStage(po::Stage::reverb,-1);p->movePostStage(po::Stage::preamp,1);const auto custom=p->postOrder();
+    require(!(custom==po::defaultOrder),"Test POST order is the released one");
+    const auto data=save(*p);auto restored=make();restored->setStateInformation(data.getData(),int(data.getSize()));
+    require(restored->postOrder()==custom,"The POST order does not survive a project save and restore");
+    auto xml=juce::AudioProcessor::getXmlFromBinary(data.getData(),int(data.getSize()));require(xml!=nullptr,"State is not binary XML");
+    xml->removeAttribute(po::propertyName);
+    if(auto* slots=xml->getChildByName("COMPARISONS"))for(auto* slot:slots->getChildIterator())slot->removeAttribute(po::propertyName);
+    juce::MemoryBlock legacy;juce::AudioProcessor::copyXmlToBinary(*xml,legacy);
+    restored->setStateInformation(legacy.getData(),int(legacy.getSize()));
+    require(restored->postOrder()==po::defaultOrder,"A project without a POST order does not open in the released order");
+    auto ab=make();ab->movePostStage(po::Stage::delay,1);const auto a=ab->postOrder();
+    ab->selectComparison(1);ab->movePostStage(po::Stage::busComp,1);const auto b=ab->postOrder();
+    ab->selectComparison(0);require(ab->postOrder()==a,"A/B slot A lost its POST order");
+    ab->selectComparison(1);require(ab->postOrder()==b,"A/B slot B lost its POST order");
+    ab->loadFactoryPreset(0);require(ab->postOrder()==po::defaultOrder,"A factory preset keeps a custom POST order");
+    // One history across regions, undone in reverse.
+    auto u=make();const auto parameters=snapshot(*u);
+    u->moveCommonStage(Stage::deesser,-1);const auto common=u->commonOrder();u->movePostStage(po::Stage::modulation,1);
+    require(u->undoOrder() && u->postOrder()==po::defaultOrder && u->commonOrder()==common,"Undo does not revert the POST move first");
+    require(u->undoOrder() && u->commonOrder()==defaultOrder,"Undo does not then revert the common move");
+    require(u->undoOrder(true) && u->undoOrder(true) && !(u->postOrder()==po::defaultOrder),"Redo does not reapply both regions");
+    require(snapshot(*u)==parameters,"A POST reorder wrote a parameter");
+    std::cout<<"PASS POST order state: save/restore, old projects, A/B, presets; one undo history across regions\n";
+}
+void signalPathFollowsPostOrder() {
+    auto p=make();SignalPathView view(*p,false);
+    const auto chained=[&](const char* a,const char* b){for(const auto& e:view.snapshot().edges)if(e.from==a&&e.to==b&&!e.tap)return true;return false;};
+    require(chained("common.deesser","post.section0") && chained("post.section4","post.section5") && chained("post.section5","utilities"),"The graph does not chain the released POST order");
+    p->movePostStage(po::Stage::reverb,-1);view.refresh();
+    require(chained("post.section3","post.section5") && chained("post.section5","post.section4") && chained("post.section4","utilities"),"The graph does not chain a POST reorder");
+    const auto* reverb=view.snapshot().find("post.section5");require(reverb && reverb->section==5,"A POST node lost its section identity");
+    SignalPathNavigationButton* delay=nullptr;for(auto* c:view.getChildren())if(c->getComponentID()=="path.post.section4")delay=dynamic_cast<SignalPathNavigationButton*>(c);
+    require(delay && delay->onOrderKey && delay->onOrderKey(juce::KeyPress(juce::KeyPress::leftKey,juce::ModifierKeys::altModifier,0)),"POST slot has no order command");
+    require(po::toString(p->postOrder())=="busComp,preamp,consoleEQ,modulation,delay,reverb","Alt+Left on Delay did not move it before Reverb");
+    std::cout<<"PASS signal path graph chains the POST order; its nodes keep their section; Alt+Left moves a POST slot\n";
+}
 void noAllocation() {
     auto p=make();voice(*p);int clock=0;render(*p,40,110.,clock);
     juce::AudioBuffer<float> audio(2,block);juce::MidiBuffer midi;
     for(int step=0;step<4;++step) {
-        p->moveCommonStage(step%2?Stage::compressor:Stage::multiband,step<2?-1:1);
+        p->moveCommonStage(step%2?Stage::compressor:Stage::multiband,step<2?-1:1);p->movePostStage(step%2?po::Stage::delay:po::Stage::busComp,step<2?-1:1);
         allocations=0;countAllocations=true;
         for(int b=0;b<30;++b){audio.clear();p->processBlock(audio,midi);}
         countAllocations=false;require(allocations==0,"A reorder allocates in the audio callback");
@@ -178,6 +256,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {helpers();orderChangesTheGraph();reorderIsClickSafe();stateAndRecall();undoAndParameters();signalPathFollowsOrder();noAllocation();return 0;}
+    try {helpers();orderChangesTheGraph();reorderIsClickSafe();stateAndRecall();undoAndParameters();signalPathFollowsOrder();postOrderChangesTheGraph();postReorderIsClickSafe();postStateAndUndo();signalPathFollowsPostOrder();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

@@ -24,7 +24,7 @@
 
 #include "AAXIdentity.h"
 #include "HostBypass.h"
-#include "CommonOrder.h"
+#include "SignalOrder.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -167,8 +167,12 @@ public:
     // thread only. A move returns false when the stage cannot move that way.
     spectralforge::commonOrder::Order commonOrder() const noexcept {return spectralforge::commonOrder::unpack(commonOrderCode.load(std::memory_order_acquire));}
     bool moveCommonStage(spectralforge::commonOrder::Stage stage,int direction);
-    bool undoCommonOrder(bool redo=false);
-    bool canUndoCommonOrder(bool redo=false) const noexcept {return !(redo?orderRedo:orderUndo).empty();}
+    // POST rack slot order, saved and undone the same way.
+    spectralforge::postOrder::Order postOrder() const noexcept {return spectralforge::postOrder::unpack(postOrderCode.load(std::memory_order_acquire));}
+    bool movePostStage(spectralforge::postOrder::Stage stage,int direction);
+    // One history for every order change, in any region.
+    bool undoOrder(bool redo=false);
+    bool canUndoOrder(bool redo=false) const noexcept {return !(redo?orderRedo:orderUndo).empty();}
     float pedalReduction() const { return boardReduction.load(); }
     juce::String diagnosticReport() const;
     int selectedAmpModel(int lane) const noexcept;
@@ -195,10 +199,14 @@ private:
     void setRawParameter(const juce::String&,float);
     std::vector<juce::ValueTree> boardUndo,boardRedo;
     std::atomic<int> commonOrderCode{spectralforge::commonOrder::pack(spectralforge::commonOrder::defaultOrder)};
-    std::vector<int> orderUndo,orderRedo;
-    spectralforge::commonOrder::Switch commonOrderSwitch;
+    std::atomic<int> postOrderCode{spectralforge::postOrder::pack(spectralforge::postOrder::defaultOrder)};
+    struct OrderSnapshot {int common,post;};
+    std::vector<OrderSnapshot> orderUndo,orderRedo;
+    spectralforge::signalOrder::Switch commonOrderSwitch,postOrderSwitch;
     void setCommonOrder(const spectralforge::commonOrder::Order&);
-    void syncCommonOrder();
+    void setPostOrder(const spectralforge::postOrder::Order&);
+    void syncOrders();
+    void rememberOrder();
     std::atomic<unsigned> boardEditSequence{0};
     spectralforge::PedalBoardParameterCache boardParameters;
     spectralforge::PedalBoardDSP pedalBoard;

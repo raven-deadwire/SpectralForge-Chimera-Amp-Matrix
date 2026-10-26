@@ -41,7 +41,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
     gate2.bind(state);expander.bind(state);
-    syncTransposeQuality();syncCommonOrder();
+    syncTransposeQuality();syncOrders();
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
@@ -123,7 +123,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);commonOrderSwitch.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);commonOrderSwitch.prepare(sr);postOrderSwitch.prepare(sr);
     dynamicsAnalysisState.prepare(sr,int(spec.maximumBlockSize));
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
@@ -218,7 +218,7 @@ void ChimeraProcessor::resetProcessingIfPending()
 {
     if(!resetPending.exchange(false)) return;
     engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();utilities.reset();
-    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();hostBypass.reset();commonOrderSwitch.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();hostBypass.reset();commonOrderSwitch.reset();postOrderSwitch.reset();
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
@@ -313,7 +313,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     measureStage(2,buffer);
     // Common pre-POST block in its saved order; each stage keeps its own
     // input tap and spectrum capture wherever it sits.
-    const auto commonStages=commonOrderSwitch.begin(commonOrderCode.load(std::memory_order_acquire));
+    const auto commonStages=spectralforge::commonOrder::unpack(commonOrderSwitch.begin(commonOrderCode.load(std::memory_order_acquire)));
     for(const auto stage:commonStages) switch(stage) {
         case spectralforge::commonOrder::Stage::toneEQ:
             autoSetCaptureState.push(spectralforge::autoset::Tap::tone,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
@@ -329,7 +329,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
             {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}break;
     }
     commonOrderSwitch.end(buffer);
+    fx.postOrder=spectralforge::postOrder::Region::unpack(postOrderSwitch.begin(postOrderCode.load(std::memory_order_acquire)));
     postFX.process(buffer,fx);
+    postOrderSwitch.end(buffer);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
     for(int section=0;section<3;++section)nativePostMeters[(size_t)section].store(postFX.nativeMeter(section));
@@ -509,26 +511,44 @@ void ChimeraProcessor::setCommonOrder(const spectralforge::commonOrder::Order& o
     commonOrderCode.store(spectralforge::commonOrder::pack(order),std::memory_order_release);
     state.state.setProperty(spectralforge::commonOrder::propertyName,spectralforge::commonOrder::toString(order),nullptr);
 }
-void ChimeraProcessor::syncCommonOrder()
+void ChimeraProcessor::setPostOrder(const spectralforge::postOrder::Order& order)
 {
-    // A restored tree without the property (old projects, A/B slots, factory
-    // snapshots) plays the released order; re-stamp so the next save has it.
+    if(!spectralforge::postOrder::valid(order))return;
+    postOrderCode.store(spectralforge::postOrder::pack(order),std::memory_order_release);
+    state.state.setProperty(spectralforge::postOrder::propertyName,spectralforge::postOrder::toString(order),nullptr);
+}
+void ChimeraProcessor::syncOrders()
+{
+    // A restored tree without the properties (old projects, A/B slots, factory
+    // snapshots) plays the released orders; re-stamp so the next save has them.
     setCommonOrder(spectralforge::commonOrder::fromString(state.state.getProperty(spectralforge::commonOrder::propertyName).toString()));
+    setPostOrder(spectralforge::postOrder::fromString(state.state.getProperty(spectralforge::postOrder::propertyName).toString()));
+}
+void ChimeraProcessor::rememberOrder()
+{
+    orderUndo.push_back({commonOrderCode.load(),postOrderCode.load()});if(orderUndo.size()>32)orderUndo.erase(orderUndo.begin());orderRedo.clear();
 }
 bool ChimeraProcessor::moveCommonStage(spectralforge::commonOrder::Stage stage,int direction)
 {
     const auto before=commonOrder(),after=spectralforge::commonOrder::moved(before,stage,direction);
     if(after==before)return false;
-    orderUndo.push_back(spectralforge::commonOrder::pack(before));if(orderUndo.size()>32)orderUndo.erase(orderUndo.begin());orderRedo.clear();
-    setCommonOrder(after);updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
+    rememberOrder();setCommonOrder(after);updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
     return true;
 }
-bool ChimeraProcessor::undoCommonOrder(bool redo)
+bool ChimeraProcessor::movePostStage(spectralforge::postOrder::Stage stage,int direction)
+{
+    const auto before=postOrder(),after=spectralforge::postOrder::moved(before,stage,direction);
+    if(after==before)return false;
+    rememberOrder();setPostOrder(after);updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
+    return true;
+}
+bool ChimeraProcessor::undoOrder(bool redo)
 {
     auto& from=redo?orderRedo:orderUndo;auto& to=redo?orderUndo:orderRedo;
     if(from.empty())return false;
-    to.push_back(spectralforge::commonOrder::pack(commonOrder()));
-    setCommonOrder(spectralforge::commonOrder::unpack(from.back()));from.pop_back();
+    to.push_back({commonOrderCode.load(),postOrderCode.load()});
+    const auto target=from.back();from.pop_back();
+    setCommonOrder(spectralforge::commonOrder::unpack(target.common));setPostOrder(spectralforge::postOrder::unpack(target.post));
     updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
     return true;
 }
@@ -583,7 +603,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
-    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();syncCommonOrder();resetPending.store(true);
+    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();syncOrders();resetPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
 }
@@ -647,9 +667,9 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             : spectralforge::factoryNativeSnapshot(state,index);
         spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,snapshot,true);
         state.replaceState(snapshot);
-        // Factory recipes are authored in the released common order; the
-        // snapshot copies the session's properties, so set it explicitly.
-        syncTransposeQuality();setCommonOrder(spectralforge::commonOrder::defaultOrder);orderUndo.clear();orderRedo.clear();
+        // Factory recipes are authored in the released orders; the snapshot
+        // copies the session's properties, so set them explicitly.
+        syncTransposeQuality();setCommonOrder(spectralforge::commonOrder::defaultOrder);setPostOrder(spectralforge::postOrder::defaultOrder);orderUndo.clear();orderRedo.clear();
         // Canonicalize host values as well as APVTS values. Bool/choice adapters
         // may already cache the snapped value of a noncanonical host write and
         // suppress an otherwise identical replaceState update.

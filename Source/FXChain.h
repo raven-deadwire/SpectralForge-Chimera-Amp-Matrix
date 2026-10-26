@@ -6,6 +6,9 @@
 namespace spectralforge {
 struct FXState {
     PostNativeState postNative=defaultPostNativeState(false);
+    // POST slot order by section index (docs/SIGNAL_ORDER_1_4.md); the
+    // released order is 0..5.
+    std::array<int,6> postOrder{0,1,2,3,4,5};
     bool envelopeFirst{true};
     bool boostAfterDrive{false};
     std::array<int,11> models{}; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, modulation
@@ -169,19 +172,21 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);native.prepare(spec,preamp.latency());transition.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);for(auto& mix:nativeMix){mix.reset(spec.sampleRate,.02);mix.setCurrentAndTargetValue(0);}nativeReady={};busReduction=0;stagePeaks={};}
     int latency() const {return preamp.latency();}
     void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();native.reset();nativeReady={};busReduction=0;stagePeaks={};}
+    // Runs the six slots in state.postOrder; each slot's meter stays keyed by
+    // its section.
     void process(juce::AudioBuffer<float>& buffer,const FXState& state) {
-        processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});
-        stagePeaks[0]=buffer.getMagnitude(0,buffer.getNumSamples());
-        processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});
-        stagePeaks[1]=buffer.getMagnitude(0,buffer.getNumSamples());
-        processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});
-        stagePeaks[2]=buffer.getMagnitude(0,buffer.getNumSamples());
-        modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);
-        stagePeaks[3]=buffer.getMagnitude(0,buffer.getNumSamples());
-        echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);
-        stagePeaks[4]=buffer.getMagnitude(0,buffer.getNumSamples());
-        space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);
-        stagePeaks[5]=buffer.getMagnitude(0,buffer.getNumSamples());
+        for(const int section:state.postOrder) {
+            switch(section) {
+                case 0:processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});break;
+                case 1:processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});break;
+                case 2:processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});break;
+                case 3:modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);break;
+                case 4:echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);break;
+                case 5:space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);break;
+                default:continue;
+            }
+            stagePeaks[(size_t)section]=buffer.getMagnitude(0,buffer.getNumSamples());
+        }
     }
 };
 }

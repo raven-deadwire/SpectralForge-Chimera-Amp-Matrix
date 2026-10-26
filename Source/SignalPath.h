@@ -123,10 +123,13 @@ inline Snapshot read(ChimeraProcessor& p) {
                 add("common.deesser","DE-ESSER",Target::dynamics,x,510,on("deEsserOn"),{},-1,-1,juce::String("Split-band high-frequency attenuation. Open its spectrum and detector controls.")+placement);edge(previous,"common.deesser");previous="common.deesser";break;
         }
     }
-    for(int position=0;position<6;++position){
+    // POST slots in their saved order; each node keeps its section identity.
+    const auto postStages=p.postOrder();
+    for(int slot=0;slot<postOrder::stageCount;++slot){
+        const int position=int(postStages[size_t(slot)]);
         const std::array<int,6> families{7,8,9,10,1,2};const int family=families[size_t(position)];juce::String label=effectFamilyMenuName(family,int(v(modelFamilies[size_t(family)].parameter)));bool active=on(enable[size_t(family)]);
         if(position<3&&on(postNativeModeID(position))){const int model=juce::jlimit(0,2,int(v(postNativeModelID(position))));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
-        const auto id="post.section"+juce::String(position);add(id,label,Target::post,position<5?504+position*122:992,position<5?510:580,active,{},-1,position);edge(previous,id);previous=id;
+        const auto id="post.section"+juce::String(position);add(id,label,Target::post,slot<5?504+slot*122:992,slot<5?510:580,active,{},-1,position,"POST rack slot; its order can be changed.");edge(previous,id);previous=id;
     }
     add("utilities","DOUBLER / CLICK",Target::utilities,870,580,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
     addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,748,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
