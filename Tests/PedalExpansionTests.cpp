@@ -1,7 +1,9 @@
-// Para EQ (PRE model 40, docs/PRE_EXPANSION_A_1_4.md): catalog and menu
-// entry, parameters appended after the released list at version 16, measured
-// response equal to the analytic peaking EQ and boost, band ranges, neutral
-// transparency, board integration, old-project defaults, no allocation.
+// 1.4 PRE Expansion A (docs/PRE_EXPANSION_A_1_4.md): parameters of models
+// from 40 on appended after the released list at version 16, old-project
+// defaults; Para EQ (model 40) response, ranges, transparency and board
+// integration; Multi Comp (model 41) static curve, attack, multiband
+// independence, balance, TubeSim harmonics and gain-reduction metering; no
+// allocation.
 #include "PluginProcessor.h"
 #include "EffectSelectionCatalog.h"
 #include <cmath>
@@ -10,6 +12,7 @@
 #include <memory>
 #include <new>
 #include <stdexcept>
+#include <map>
 #include <vector>
 
 namespace {thread_local bool countAllocations=false;thread_local size_t allocations=0;}
@@ -22,7 +25,8 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40;
+constexpr int paraEQ=40,multiComp=41;
+bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
 Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(size_t k=0;k<c.size();++k)c[k]=i.controls[k];return c;}
@@ -30,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==41,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==42,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -38,17 +42,17 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*12,"Para EQ adds 5 x (bypass + 11 controls)");
+    require(pedalExpansionParameterCount==5*(12+6),"Expansion banks: 5 x (bypass + 11 Para EQ controls, bypass + 5 Multi Comp controls)");
     int seen=0;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
-        const bool expansion=parameter->paramID.startsWith("board") && parameter->paramID.contains("_m40_");
+        const bool expansion=expansionID(parameter->paramID);
         if(expansion){require(parameter->getParameterIndex()>=first && parameter->getVersionHint()==pedalExpansionParameterVersion,"A Para EQ parameter is not appended at version 16");++seen;}
         else require(parameter->getParameterIndex()<first,"A released parameter moved behind the Para EQ banks");
     }
     require(seen==pedalExpansionParameterCount,"Para EQ banks incomplete");
     for(int owner=0;owner<5;++owner)require(p->parameters().getParameter(pedalBypassID(owner,paraEQ))!=nullptr && p->parameters().getParameter(pedalControlID(owner,paraEQ,9))!=nullptr,"Para EQ bank missing for an owner");
-    std::cout<<"PASS Para EQ parameters: 60 appended after every released parameter at version 16\n";
+    std::cout<<"PASS expansion parameters: "<<pedalExpansionParameterCount<<" appended after every released parameter at version 16\n";
 }
 // Steady-state gain of a sine through the EQ, in dB.
 double measuredDb(PedalParaEQ& eq,const Controls& c,double rate,double hz) {
@@ -120,26 +124,104 @@ void oldProjects() {
     // into a processor whose Para EQ was edited.
     auto source=std::make_unique<ChimeraProcessor>();juce::MemoryBlock data;source->getStateInformation(data);
     auto xml=juce::AudioProcessor::getXmlFromBinary(data.getData(),int(data.getSize()));require(xml!=nullptr,"State is not binary XML");
-    std::vector<juce::XmlElement*> remove;for(auto* child:xml->getChildIterator())if(child->getStringAttribute("id").contains("_m40_"))remove.push_back(child);
-    require(remove.size()==size_t(pedalExpansionParameterCount),"Fixture did not hold the Para EQ banks");
+    std::vector<juce::XmlElement*> remove;for(auto* child:xml->getChildIterator())if(expansionID(child->getStringAttribute("id")))remove.push_back(child);
+    require(remove.size()==size_t(pedalExpansionParameterCount),"Fixture did not hold the expansion banks");
     for(auto* child:remove)xml->removeChildElement(child,true);
     juce::MemoryBlock legacy;juce::AudioProcessor::copyXmlToBinary(*xml,legacy);
     auto target=std::make_unique<ChimeraProcessor>();auto* gain=target->parameters().getParameter(pedalControlID(0,paraEQ,1));gain->setValueNotifyingHost(gain->convertTo0to1(9.f));
     target->setStateInformation(legacy.getData(),int(legacy.getSize()));
     require(std::abs(gain->convertFrom0to1(gain->getValue()))<.01f,"An old project kept a Para EQ value from the session");
-    std::cout<<"PASS old projects restore Para EQ defaults\n";
+    auto* ratio=target->parameters().getParameter(pedalControlID(3,multiComp,0));
+    require(std::abs(ratio->convertFrom0to1(ratio->getValue())-3.f)<.01f,"An old project did not restore the Multi Comp default");
+    std::cout<<"PASS old projects restore the expansion defaults\n";
+}
+// ---- Multi Comp ----
+Controls comp(float ratio,float gain,float sens,int mode,float balance=0){Controls c{};c[0]=ratio;c[1]=gain;c[2]=sens;c[3]=float(mode);c[4]=balance;return c;}
+// Renders `seconds` of a sum of sines (hz, dBFS peak) and returns the output.
+std::vector<float> renderTones(PedalMultiComp& mc,const Controls& c,const std::vector<std::pair<double,double>>& tones,double seconds,double rate=48000) {
+    mc.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;
+    for(int block=0;block<int(seconds*rate/256);++block){
+        for(int n=0;n<256;++n,++t){double x=0;for(const auto& [hz,db]:tones)x+=juce::Decibels::decibelsToGain(db)*std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/rate);b.setSample(0,n,float(x));b.setSample(1,n,float(x));}
+        mc.process(b,c);for(int n=0;n<256;++n)out.push_back(b.getSample(0,n));
+    }
+    return out;
+}
+// Level (dBFS peak-equivalent) of one frequency over the last half of a render.
+// A whole number of 0.1 s windows holds whole cycles of every test tone (all
+// multiples of 10 Hz), so no tone leaks into another's bin.
+double toneDb(const std::vector<float>& x,double hz,double rate=48000) {
+    const size_t start=x.size()/2;double re=0,im=0;
+    const size_t window=size_t(rate/10),length=(x.size()-start)/window*window;
+    for(size_t i=start;i<start+length;++i){const double w=juce::MathConstants<double>::twoPi*hz*double(i)/rate;re+=x[i]*std::cos(w);im+=x[i]*std::sin(w);}
+    return 20*std::log10(2*std::sqrt(re*re+im*im)/double(length)+1e-12);
+}
+void multiCompCurve() {
+    const auto& m=pedalModel(multiComp);
+    require(juce::String(m.id)=="pre.multicomp" && juce::String(m.name)=="Multi Comp" && m.controlCount==5 && pedalMenuEntries[multiComp].kind==PedalMenuKind::compressor,"Multi Comp catalog entry");
+    // The peak detector (4 ms attack) settles about 0.5 dB below a 1 kHz
+    // sine's peak, so above threshold the curve sits up to slope x 0.5 dB
+    // high; below threshold it is exact, and the ratio (slope) is exact.
+    PedalMultiComp mc;mc.prepare(48000);double worst=0,worstBelow=0,worstSlope=0;
+    for(const float ratio:{1.f,2.5f,5.f})for(const float gain:{0.f,6.f}) {
+        std::map<double,double> measured;
+        for(const double in:{-40.,-24.,-18.,-12.,-3.}) {
+            const auto c=comp(ratio,gain,-20,PedalMultiComp::normal);
+            const double expected=in+PedalMultiComp::gainChangeDb(float(in),-20,ratio)+gain;measured[in]=toneDb(renderTones(mc,c,{{1000.,in}},.6),1000.);
+            worst=std::max(worst,std::abs(measured[in]-expected));if(in<=-24)worstBelow=std::max(worstBelow,std::abs(measured[in]-expected));
+        }
+        worstSlope=std::max(worstSlope,std::abs((measured[-3.]-measured[-12.])/9.-1./ratio));
+    }
+    std::cout<<"MEASURE Multi Comp static curve (SENS -20, ratio 1/2.5/5, gain 0/6): below threshold "<<worstBelow<<" dB, overall "<<worst<<" dB, slope error "<<worstSlope<<"\n";
+    require(worstBelow<.02 && worst<.5 && worstSlope<.01,"Multi Comp static curve differs from its gain computer");
+    // Attack: GR reaches 80 % of its final value within 10 ms of a step.
+    {mc.reset();const auto c=comp(5,0,-25,PedalMultiComp::normal);juce::AudioBuffer<float> b(2,1);double final=0;int at80=-1;std::vector<float> gr;
+     for(int n=0;n<int(48000*.3);++n){const float x=n<4800?.01f*float(std::sin(.13*n)):.5f*float(std::sin(.13*n));b.setSample(0,0,x);b.setSample(1,0,x);mc.process(b,c);if(n>=4800)gr.push_back(mc.reduction());}
+     final=gr.back();for(size_t i=0;i<gr.size();++i)if(gr[i]>=.8*final){at80=int(i);break;}
+     const double ms=1000.*at80/48000;std::cout<<"MEASURE Multi Comp attack to 80 % of "<<final<<" dB GR: "<<ms<<" ms\n";
+     require(at80>=0 && ms<10,"Multi Comp attack is slower than 10 ms to 80 %");}
+    std::cout<<"PASS Multi Comp: static curve (ratio 1:1-5:1, makeup, SENS), 1:1 transparent, attack under 10 ms to 80 %\n";
+}
+void multiCompModes() {
+    PedalMultiComp mc;mc.prepare(48000);
+    // A loud 60 Hz note with a quiet 2 kHz overtone: Normal pulls the
+    // overtone down with the note, Multiband leaves it alone.
+    const std::vector<std::pair<double,double>> tones{{60.,-6.},{2000.,-36.}};
+    const double normalHigh=toneDb(renderTones(mc,comp(5,0,-20,PedalMultiComp::normal),tones,.8),2000.);
+    const double multiHigh=toneDb(renderTones(mc,comp(5,0,-20,PedalMultiComp::multiband),tones,.8),2000.);
+    const double multiLow=toneDb(renderTones(mc,comp(5,0,-20,PedalMultiComp::multiband),tones,.8),60.);
+    std::cout<<"MEASURE Multi Comp 2 kHz overtone: Normal "<<normalHigh<<" dB, Multiband "<<multiHigh<<" dB (input -36); 60 Hz Multiband "<<multiLow<<" dB (input -6)\n";
+    require(multiHigh-normalHigh>8 && std::abs(multiHigh+36)<1. && multiLow<-6-8,"Multiband does not compress the bands independently");
+    // Balance raises the treble band in Multiband (below threshold).
+    const double lifted=toneDb(renderTones(mc,comp(5,0,6,PedalMultiComp::multiband,6),{{2000.,-30.}},.5),2000.);
+    require(std::abs(lifted-(-30+6))<.3,"Balance does not lift the treble band by its amount");
+    // TubeSim: unity at low level, added (mostly even) harmonics when loud.
+    const auto h2=[&](int mode,double in){const auto x=renderTones(mc,comp(1,0,6,mode),{{200.,in}},.5);return toneDb(x,400.)-toneDb(x,200.);};
+    const double tubeLoud=h2(PedalMultiComp::tubeSim,-3),normalLoud=h2(PedalMultiComp::normal,-3);
+    const double tubeQuiet=toneDb(renderTones(mc,comp(1,0,6,PedalMultiComp::tubeSim),{{200.,-40.}},.5),200.);
+    std::cout<<"MEASURE Multi Comp 2nd harmonic at -3 dBFS: TubeSim "<<tubeLoud<<" dBc, Normal "<<normalLoud<<" dBc; TubeSim at -40 dBFS "<<tubeQuiet<<" dB\n";
+    require(tubeLoud>-40 && tubeLoud-normalLoud>30 && std::abs(tubeQuiet+40)<.1,"TubeSim does not add harmonics only when driven");
+    // Through the board: the slot reports its gain reduction.
+    PedalBoardDSP board;board.prepare({48000,256,2});PedalBoardState state;state.enabled=true;state.instances[0]=defaultPedalInstance(multiComp);
+    juce::AudioBuffer<float> b(2,256);for(int k=0;k<100;++k){for(int n=0;n<256;++n){const float x=.5f*float(std::sin(.1*(k*256+n)));b.setSample(0,n,x);b.setSample(1,n,x);}board.process(b,state);}
+    std::cout<<"MEASURE Multi Comp GR through the PRE board: "<<board.compressorReduction(0)<<" dB\n";
+    require(board.compressorReduction(0)>3,"The PRE board does not report the Multi Comp's gain reduction");
+    std::cout<<"PASS Multi Comp modes: Multiband independent bands and balance, TubeSim harmonics only when driven, board GR meter\n";
 }
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i){c[4]=-15.f+30.f*float(i%20)/19.f;c[3]=float(i%7)/6.f;c[10]=float(i%2);eq.process(b,c);}
     countAllocations=false;require(allocations==0,"Para EQ allocates while processing");
-    std::cout<<"PASS Para EQ: no allocation while automating\n";
+    PedalMultiComp mc;mc.prepare(48000);Controls m=comp(3,3,-18,0);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i){m[3]=float((i/20)%3);m[0]=1+4*float(i%9)/8.f;eq.process(b,c);mc.process(b,m);}
+    countAllocations=false;require(allocations==0,"Multi Comp allocates while processing");
+    std::cout<<"PASS Para EQ and Multi Comp: no allocation while automating or switching modes\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

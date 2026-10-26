@@ -1,7 +1,7 @@
-# PRE Expansion A 1.4 — first model: Para EQ
+# PRE Expansion A 1.4 — Para EQ and Multi Comp
 
-Status: **first model implemented on `claude/pre-paraeq`**, covered by
-`ChimeraPedalParaEQTests`. Roadmap: 1.4 PRE Expansion A, six models (Empress
+Status: **two of six models implemented on `claude/pre-paraeq`**, covered by
+`ChimeraPedalExpansionTests`. Roadmap: 1.4 PRE Expansion A, six models (Empress
 Heavy Menace; Tel-Ray Power Wah Boost; MXR MB301 Bass Synth; EBS MultiComp;
 Fortin 33; Empress ParaEQ MKII). These are development references; the
 product shows its own working names. Source baseline: main `cfeaa53`.
@@ -52,7 +52,31 @@ This is an original parametric EQ laid out after the published controls. It
 is not a measured or circuit-level model of the pedal: its filter shapes,
 knob tapers, noise and headroom are not matched to the hardware.
 
-## 3. Measurements (`ChimeraPedalParaEQTests`)
+## 3. Multi Comp (model 41, `pre.multicomp`)
+
+Reference: EBS MultiComp. Public specification used (retailer and
+manufacturer listings via search results: Woodbrass, Thomann, equipboard; the
+manufacturer's site and manual were not reachable from the development
+container):
+
+| Hardware (published) | Chimera |
+|---|---|
+| COMP: ratio 1:1 (minimum) to 5:1 (maximum) | COMP 1:1–5:1 (default 3:1) |
+| GAIN: 0–15 dB make-up | GAIN 0–15 dB (default 3 dB) |
+| SENS: threshold −25 to +6 dB | SENS −25 to +6 dB (default −18 dB), as dBFS of the linked peak |
+| Attack under 10 ms (to 80 %) | 4 ms detector attack; measured 7.96 ms to 80 % of a 14.8 dB step |
+| Modes: Normal (one band), Multiband (independent bass and treble compressors), TubeSim (Normal plus tube-style harmonics) | NORMAL / MULTI-BAND / TUBESIM, same meanings |
+| Blue Label: internal band balance in Multiband | BALANCE ±6 dB on the treble band, Multiband only |
+| Crossover, release, knee, TubeSim curve: **not published** | Chimera choices: Linkwitz–Riley 250 Hz split, 160 ms release, 6 dB soft knee, gently asymmetric `tanh` stage that is unity at low level |
+
+Stereo-linked peak detection per band, smoothed controls; a mode change
+dips through a 10 ms fade so the band split and TubeSim stage do not switch
+mid-wave. It is a compressor pedal in the menu, so its detail view is the
+compressor spectrum workspace and the slot reports its gain reduction. No
+added latency, no allocation. This is an original bass compressor laid out
+after the published controls, not a measured model of the pedal.
+
+## 4. Measurements (`ChimeraPedalExpansionTests`)
 
 - Steady-state sine gain against the analytic response, four settings
   (low +15 dB wide at 35 Hz; mid −15 dB narrow; high +10 dB at 20 kHz,
@@ -62,12 +86,26 @@ knob tapers, noise and headroom are not matched to the hardware.
   changes an octave away at least 3 dB less than the wide one.
 - Through the PRE board (owner 2 first in the order): boost 12 dB measures
   11.998 dB.
-- 60 parameters (5 owners × bypass + 11 controls) at the end of the list,
-  version 16; every released parameter keeps its index. A project without
-  them restores their defaults.
+- Multi Comp static curve (SENS −20 dB; ratio 1, 2.5, 5; gain 0 and 6 dB;
+  −40 to −3 dBFS at 1 kHz): exact below threshold (3.7e−7 dB); the measured
+  ratio (slope) is exact (2e−6); above threshold the curve sits up to 0.39 dB
+  high, because the 4 ms peak detector settles about 0.5 dB below a 1 kHz
+  sine's peak.
+- Multi Comp modes: a −6 dBFS 60 Hz note with a −36 dBFS 2 kHz overtone, 5:1
+  at −20 dB: Normal pulls the overtone to −46.8 dB, Multiband leaves it at
+  −36.0 dB while the note's band compresses (−16.7 dB). Balance +6 dB lifts
+  the treble band by 6 dB. TubeSim: 2nd harmonic −23.7 dBc at −3 dBFS
+  (Normal: none), unchanged at −40 dBFS. Through the PRE board the slot
+  reports 7.7 dB of gain reduction on a −6 dBFS tone at the defaults.
+- 90 parameters (5 owners × (bypass + 11 Para EQ controls, bypass + 5 Multi
+  Comp controls)) at the end of the list, version 16; every released
+  parameter keeps its index. A project without them restores their defaults.
 
-## 4. Not done
+## 5. Not done
 
 - Listening on real DI; DAW automation and recall.
 - Dedicated pedal artwork (the card uses the generic workbench style).
-- The other five Expansion A models.
+- The other four Expansion A models (Heavy Menace, Power Wah Boost, Bass
+  Synth, Fortin 33).
+- A mode-change click measurement for Multi Comp (the fade is in place but
+  not measured).

@@ -154,8 +154,12 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
                 return juce::jlimit(0.,1.,std::log(juce::jlimit(double(range.low),double(range.high),hz)/range.low)/std::log(double(range.high)/range.low));
             };
         }
-        else if(model==40) {
-            // Para EQ gains and boost are in dB.
+        else if(model==41 && index==0) {
+            c.slider.textFromValueFunction=[](double value){return juce::String(value,1)+":1";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
+        }
+        else if(model==40 || model==41) {
+            // Para EQ gains and boost, Multi Comp gain, sens and balance are in dB.
             c.slider.textFromValueFunction=[](double value){return (value>0?"+":"")+juce::String(value,1)+" dB";};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
         }

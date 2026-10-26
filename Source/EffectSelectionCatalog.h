@@ -50,7 +50,8 @@ inline constexpr std::array<PedalMenuEntry,pedalModelCount> pedalMenuEntries{{
     {"Pulse Tremolo",PedalMenuKind::modulation},
     {"Mono Octaver",PedalMenuKind::pitch},
     {"Spectral Octaver",PedalMenuKind::pitch},
-    {"Para EQ",PedalMenuKind::equalizer}
+    {"Para EQ",PedalMenuKind::equalizer},
+    {"Multi Comp",PedalMenuKind::compressor}
 }};
 struct PedalMenuGroup { PedalMenuKind kind; const char* label; };
 inline constexpr std::array<PedalMenuGroup,10> pedalMenuGroups{{
@@ -80,7 +81,8 @@ inline const char* pedalDescription(int model) {
         "Manual wah sweep", "Ten-band graphic equalizer", "Single-voice chorus", "Opposing stereo chorus",
         "Four-stage phase sweep", "Short-delay flange", "Pitch vibrato / wet blend", "Stereo amplitude modulation",
         "Single-note octave divider", "Spectral octave layering",
-        "Three-band parametric EQ / clean boost"
+        "Three-band parametric EQ / clean boost",
+        "Bass compressor / multiband / tube"
     }};
     return descriptions[(size_t)juce::jlimit(0,pedalModelCount-1,model)];
 }

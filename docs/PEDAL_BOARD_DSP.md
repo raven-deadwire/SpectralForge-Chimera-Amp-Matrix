@@ -70,6 +70,7 @@ control names do not establish sound equivalence.
 | Mono octaver | Independent hysteresis detector and /2, /4 tracking dividers, envelope-following sub voices, Dry/Down1/Down2 | Single notes only; no added frame delay but tracking/filter settling remains; not an OC-2 circuit clone |
 | Spectral octaver | Independent STFT -12/+12 resynthesis and equally delayed Dry/Down/Up; separate from Transpose | Experimental, 42.7–46.4 ms at 44.1/48/96 kHz; transient smearing and limited low/dense-chord separation; not a Micro POG replica |
 | Para EQ (1.4 PRE Expansion A) | Three overlapping RBJ peaking bands (35–500 Hz, 250–5000 Hz, 1–20 kHz, ±15 dB, Q 0.6/1.4/4.0) and a 0–30 dB clean boost; smoothed, no added latency | Laid out after the published ParaEQ MKII controls; Q values are Chimera's; not a measured hardware model. See `PRE_EXPANSION_A_1_4.md` |
+| Multi Comp (1.4 PRE Expansion A) | Linked peak compressor, COMP 1:1–5:1, GAIN 0–15 dB, SENS −25 to +6 dB, 4 ms attack; Normal, Multiband (250 Hz LR4 split, independent bands, BALANCE) and TubeSim | Laid out after the published EBS MultiComp controls; crossover, release, knee and TubeSim curve are Chimera's; not a measured hardware model |
 
 Default normalized positions are UI seeds, not hardware factory settings. The new
 board does not convert or overwrite the previous raw PRE bank. Controls known to
