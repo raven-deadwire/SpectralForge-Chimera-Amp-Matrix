@@ -24,6 +24,7 @@
 
 #include "AAXIdentity.h"
 #include "HostBypass.h"
+#include "CommonOrder.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -159,6 +160,15 @@ public:
     void movePedal(int owner,int direction);
     bool duplicatePedal(int owner);
     void undoPedalEdit(bool redo=false);
+    // 1.4 signal order, common pre-POST block (docs/SIGNAL_ORDER_1_4.md):
+    // Tone EQ / Clean Comp / Multiband / De-esser. Stored as a ValueTree
+    // property, not a host parameter, so parameters and automation keep
+    // their identities; the audio thread reads the atomic mirror. Message
+    // thread only. A move returns false when the stage cannot move that way.
+    spectralforge::commonOrder::Order commonOrder() const noexcept {return spectralforge::commonOrder::unpack(commonOrderCode.load(std::memory_order_acquire));}
+    bool moveCommonStage(spectralforge::commonOrder::Stage stage,int direction);
+    bool undoCommonOrder(bool redo=false);
+    bool canUndoCommonOrder(bool redo=false) const noexcept {return !(redo?orderRedo:orderUndo).empty();}
     float pedalReduction() const { return boardReduction.load(); }
     juce::String diagnosticReport() const;
     int selectedAmpModel(int lane) const noexcept;
@@ -184,6 +194,11 @@ private:
     void rememberPedalEdit();
     void setRawParameter(const juce::String&,float);
     std::vector<juce::ValueTree> boardUndo,boardRedo;
+    std::atomic<int> commonOrderCode{spectralforge::commonOrder::pack(spectralforge::commonOrder::defaultOrder)};
+    std::vector<int> orderUndo,orderRedo;
+    spectralforge::commonOrder::Switch commonOrderSwitch;
+    void setCommonOrder(const spectralforge::commonOrder::Order&);
+    void syncCommonOrder();
     std::atomic<unsigned> boardEditSequence{0};
     spectralforge::PedalBoardParameterCache boardParameters;
     spectralforge::PedalBoardDSP pedalBoard;

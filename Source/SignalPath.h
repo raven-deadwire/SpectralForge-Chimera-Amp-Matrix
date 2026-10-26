@@ -106,10 +106,23 @@ inline Snapshot read(ChimeraProcessor& p) {
         const bool active=!on(eqID(instance,-1,"bypass"));
         add(id,label,target,x,y,active,(active?juce::String("ACTIVE"):juce::String("BYPASSED"))+" / "+juce::String(enabled)+" BANDS",-1,-1,detail);
     };
-    addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,16,510,"12-band Tone EQ after rig sum and optional post-rig gate, before the POST rack.");edge(previous,"tone.eq");previous="tone.eq";
-    add("common.comp","CLEAN COMP",Target::dynamics,138,510,on("cleanCompOn"),{},-1,-1,"Stereo-linked clean compression after Tone EQ, before POST. No added lookahead latency.");edge(previous,"common.comp");previous="common.comp";
-    add("common.multiband","MULTIBAND",Target::dynamics,260,510,on("mbOn"),{},-1,-1,"Independent four-band dynamics after Clean Comp. Open its spectrum editor to adjust crossovers and each band's compression or expansion.");edge(previous,"common.multiband");previous="common.multiband";
-    add("common.deesser","DE-ESSER",Target::dynamics,382,510,on("deEsserOn"),{},-1,-1,"Split-band high-frequency attenuation after multiband dynamics, before the POST rack. Open its spectrum and detector controls.");edge(previous,"common.deesser");previous="common.deesser";
+    // The common block between the rig sum (and post-rig gates) and POST, in
+    // its saved order (docs/SIGNAL_ORDER_1_4.md).
+    const char* const placement=" In the common block between the rig sum and the POST rack; its order can be changed.";
+    const auto commonStages=p.commonOrder();
+    for(int slot=0;slot<commonOrder::stageCount;++slot) {
+        const int x=16+122*slot;
+        switch(commonStages[size_t(slot)]) {
+            case commonOrder::Stage::toneEQ:
+                addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,x,510,(juce::String("12-band Tone EQ.")+placement).toRawUTF8());edge(previous,"tone.eq");previous="tone.eq";break;
+            case commonOrder::Stage::compressor:
+                add("common.comp","CLEAN COMP",Target::dynamics,x,510,on("cleanCompOn"),{},-1,-1,juce::String("Stereo-linked clean compression. No added lookahead latency.")+placement);edge(previous,"common.comp");previous="common.comp";break;
+            case commonOrder::Stage::multiband:
+                add("common.multiband","MULTIBAND",Target::dynamics,x,510,on("mbOn"),{},-1,-1,juce::String("Independent four-band dynamics. Open its spectrum editor to adjust crossovers and each band's compression or expansion.")+placement);edge(previous,"common.multiband");previous="common.multiband";break;
+            case commonOrder::Stage::deesser:
+                add("common.deesser","DE-ESSER",Target::dynamics,x,510,on("deEsserOn"),{},-1,-1,juce::String("Split-band high-frequency attenuation. Open its spectrum and detector controls.")+placement);edge(previous,"common.deesser");previous="common.deesser";break;
+        }
+    }
     for(int position=0;position<6;++position){
         const std::array<int,6> families{7,8,9,10,1,2};const int family=families[size_t(position)];juce::String label=effectFamilyMenuName(family,int(v(modelFamilies[size_t(family)].parameter)));bool active=on(enable[size_t(family)]);
         if(position<3&&on(postNativeModeID(position))){const int model=juce::jlimit(0,2,int(v(postNativeModelID(position))));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}

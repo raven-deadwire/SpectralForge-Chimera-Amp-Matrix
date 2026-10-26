@@ -1,13 +1,23 @@
 #pragma once
 #include "SignalPath.h"
 #include "UIRefresh.h"
+#include <optional>
 
 // JUCE buttons activate on Return. Accept unmodified Space only while this
 // navigation button owns focus, without registering a host-wide shortcut.
 class SignalPathNavigationButton : public juce::TextButton {
 public:
     using juce::TextButton::TextButton;
+    // Optional order commands (1.4, common block only): context menu and
+    // Alt+Left / Alt+Right while focused.
+    std::function<void()> onContextMenu;
+    std::function<bool(const juce::KeyPress&)> onOrderKey;
+    void mouseDown(const juce::MouseEvent& e) override {
+        if(onContextMenu && e.mods.isPopupMenu()){onContextMenu();return;}
+        juce::TextButton::mouseDown(e);
+    }
     bool keyPressed(const juce::KeyPress& key) override {
+        if(onOrderKey && hasKeyboardFocus(false) && onOrderKey(key))return true;
         if(isEnabled() && hasKeyboardFocus(false) && key.isKeyCode(juce::KeyPress::spaceKey)
             && !key.getModifiers().isAnyModifierKeyDown()){
             triggerClick();return true;
@@ -108,6 +118,17 @@ public:
             button->setWantsKeyboardFocus(true);
             button->setColour(juce::TextButton::textColourOffId,node.active?juce::Colour(0xffe5e1d4):juce::Colour(0xff9caaa5));
             button->onClick=[this,node]{selected=node.id;updateSelection();if(navigate)navigate(node);};
+            auto& orderable=static_cast<SignalPathNavigationButton&>(*button);
+            if(const auto stage=commonStage(node.id);stage && !compact){
+                orderable.onContextMenu=[this,s=*stage]{showOrderMenu(s);};
+                orderable.onOrderKey=[this,s=*stage](const juce::KeyPress& key){
+                    if(!key.getModifiers().isAltDown())return false;
+                    if(key.isKeyCode(juce::KeyPress::leftKey))return move(s,-1),true;
+                    if(key.isKeyCode(juce::KeyPress::rightKey))return move(s,1),true;
+                    return false;
+                };
+                button->setDescription(button->getDescription()+" Right-click or Alt+Left / Alt+Right to move it within the common block.");
+            }else{orderable.onContextMenu=nullptr;orderable.onOrderKey=nullptr;}
             button->setExplicitFocusOrder(int(nextButtons.size())+1);
             nextButtons.push_back(std::move(button));
         }
@@ -147,6 +168,7 @@ public:
         g.setColour(juce::Colour(0xffc8d7cc));g.setFont(juce::FontOptions(13.f));
         g.drawText(current.mode==0?"CLASSIC  /  ONE RIG":current.mode==1?(current.dualCross?"DUAL  /  CROSSOVER":"DUAL  /  PARALLEL BLEND"):"MATRIX  /  CLEAN LOW + WET MID / HIGH",16,5,700,24,juce::Justification::centredLeft);
         g.setFont(juce::FontOptions(10.f));g.drawText("Click a block to edit  |  Tab / Shift-Tab  |  Enter / Space",650,8,450,20,juce::Justification::centredRight);
+        g.drawText("Tone EQ / Clean Comp / Multiband / De-esser: right-click or Alt+Left / Right to reorder",16,488,600,18,juce::Justification::centredLeft);
         for(const auto& e:current.edges){
             const auto* a=current.find(e.from);const auto* b=current.find(e.to);if(!a||!b)continue;
             const auto from=a->bounds.toFloat(),to=b->bounds.toFloat();juce::Path path;
@@ -173,6 +195,31 @@ public:
         }
     }
 private:
+    static std::optional<spectralforge::commonOrder::Stage> commonStage(const juce::String& id) {
+        using spectralforge::commonOrder::Stage;
+        if(id=="tone.eq")return Stage::toneEQ;
+        if(id=="common.comp")return Stage::compressor;
+        if(id=="common.multiband")return Stage::multiband;
+        if(id=="common.deesser")return Stage::deesser;
+        return std::nullopt;
+    }
+    void move(spectralforge::commonOrder::Stage stage,int direction){if(processor.moveCommonStage(stage,direction))refresh();}
+    void undoOrder(bool redo){if(processor.undoCommonOrder(redo))refresh();}
+    void showOrderMenu(spectralforge::commonOrder::Stage stage){
+        const auto order=processor.commonOrder();
+        const bool first=order.front()==stage,last=order.back()==stage;
+        juce::PopupMenu menu;
+        menu.addItem(1,"Move earlier",!first);
+        menu.addItem(2,"Move later",!last);
+        menu.addSeparator();
+        menu.addItem(3,"Undo order change",processor.canUndoCommonOrder());
+        menu.addItem(4,"Redo order change",processor.canUndoCommonOrder(true));
+        menu.showMenuAsync(juce::PopupMenu::Options(),[safe=juce::Component::SafePointer<SignalPathView>(this),stage](int result){
+            if(!safe)return;
+            if(result==1)safe->move(stage,-1);else if(result==2)safe->move(stage,1);
+            else if(result==3)safe->undoOrder(false);else if(result==4)safe->undoOrder(true);
+        });
+    }
     void parameterChanged(const juce::String&,float) override {triggerAsyncUpdate();}
     void handleAsyncUpdate() override {
         refresh();
