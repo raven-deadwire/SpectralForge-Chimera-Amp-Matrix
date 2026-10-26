@@ -97,7 +97,11 @@ return. Reported latency and the DI alignment stay as they are.
   direct sound itself switches with an edge (measured 70–175× its steady
   edge level on a held 41.2 Hz tone, with or without the room); the room
   repeats that edge. Smoothing the routing change is engine work outside
-  Room Core.
+  Room Core. Tried and reverted: a 10 ms output fade-out, reset while
+  silent, then a 10 ms fade-in of the output or of the engine input. Both
+  leave a ~3 kHz burst about 170 samples after the reset (up to 0.18 on a
+  0.2 tone, 25–126× the steady edge level), so it comes from how the amps
+  restart after `reset()`, not from the switch itself.
 
 ## 4. Processing model (week 2)
 
