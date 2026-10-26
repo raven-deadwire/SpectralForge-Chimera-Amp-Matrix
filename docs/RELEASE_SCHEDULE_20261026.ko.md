@@ -38,7 +38,7 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 |---|---|---|
 | **Transpose** | v3 연구·시험 기반 마련 (#154 병합), 제품 적용 미완 | **2.5ms는 PDC 보고값**이며 저역 실제 지연은 별개. 44.1kHz 실패, 저역·업시프트, 실제 DI·청음·DAW 검증. v4/1.25ms 절충안 [#155](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/155)는 음질·CPU 승인 보류이며, 연구 자료로만 main에 보관(제품 미적용). 11/2–11/6 [실제 DI 검증 계획](TRANSPOSE_V3_DI_VALIDATION_PLAN_20261026.ko.md) |
 | **FabFilter 참조 반영** | 화면·독자 DSP 상당 부분 진행 | 원본 응답·검출 시간·위상·미터 비교와 수용 판정. [#127](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/127)은 비교 도구일 뿐 측정 완료가 아님(main 병합·자체 테스트 통과, CI 후 머지 예정). 원본 플러그인 렌더와 비교는 미실시 |
-| **베타 수명주기** | beta.1 정책 커밋됨 | beta.2 전용 만료일 결정. 실행 중 만료·재실행·업데이트 후 프로젝트/IR 복원. **beta.1의 2027-02-11 만료일 자동 승계 금지** |
+| **베타 수명주기** | beta.1 정책 커밋됨 | beta.2 전용 만료일 결정. 실행 중 만료·재실행·업데이트 후 프로젝트/IR 복원. **beta.1의 2027-02-11 만료일 자동 승계 금지**. [만료일 결정안](BETA2_EXPIRY_DECISION_PROPOSAL_20261026.ko.md)(권장 2027-03-31 23:59 KST, 미승인, 11/6까지 결정) |
 | **AAX Native** | 개발 빌드 가능 | PACE 승인(10/24 신청 접수 확인, 승인 회신 미확인, 보통 7영업일 → 11/3 전후 예상. iLok 계정 활성화·Developer 라이선스 재신청은 소유자 조치 필요) → iLok 준비 → 서명 → Windows/macOS 일반 Pro Tools 검증. [서명 준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) |
 
 ## 4. 단기 일정 (작업·판정 목표)
