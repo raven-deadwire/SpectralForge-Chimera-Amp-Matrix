@@ -92,7 +92,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # Beta tester code check secret (Tools/tester_code.py secret); never committed.
-      CHIMERA_TESTER_SECRET: ${{ secrets.CHIMERA_TESTER_SECRET }}
+      CHIMERA_TESTER_SECRET: ${{ github.event_name != 'pull_request' && secrets.CHIMERA_TESTER_SECRET || '' }}
     steps:
       - uses: actions/checkout@v4
         with:

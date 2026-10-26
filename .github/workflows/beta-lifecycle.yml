@@ -71,10 +71,10 @@ jobs:
         run: cmake --build build-beta --config Release --target ChimeraBetaLifecycleTests ChimeraTesterCodeTests ChimeraBetaLifecycleProcessorTests ChimeraUITests ChimeraReleaseTests ChimeraGateProcessorTests --parallel 2
       - if: runner.os != 'Linux'
         name: Runtime and state tests
-        run: ctest --test-dir build-beta -C Release -R '^(ChimeraBetaLifecycle.*Tests|ChimeraTesterCodeTests|ChimeraNativeStateTests|ChimeraReleaseTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit beta-results.xml
+        run: ctest --test-dir build-beta -C Release -R '^(ChimeraBetaLifecycle.*Tests|ChimeraTesterCode.*Tests|ChimeraNativeStateTests|ChimeraReleaseTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit beta-results.xml
       - if: runner.os == 'Linux'
         name: Runtime and state tests with supervised display
-        run: python Tools/run_linux_ui_tests.py -- ctest --test-dir build-beta -C Release -R '^(ChimeraBetaLifecycle.*Tests|ChimeraTesterCodeTests|ChimeraNativeStateTests|ChimeraReleaseTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit beta-results.xml
+        run: python Tools/run_linux_ui_tests.py -- ctest --test-dir build-beta -C Release -R '^(ChimeraBetaLifecycle.*Tests|ChimeraTesterCode.*Tests|ChimeraNativeStateTests|ChimeraReleaseTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit beta-results.xml
       - name: Compare compiled SETTINGS with policy and staged UTC/KST notice
         run: python Tools/verify_beta_settings_identity.py --build build-beta
       - if: runner.os == 'macOS'

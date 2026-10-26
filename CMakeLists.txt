@@ -83,6 +83,10 @@ if(CHIMERA_TESTER_SECRET_HEX AND NOT CHIMERA_TESTER_SECRET_HEX MATCHES "^[0-9a-f
   message(FATAL_ERROR "CHIMERA_TESTER_SECRET must be hexadecimal (Tools/tester_code.py secret)")
 endif()
 string(LENGTH "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_LENGTH)
+math(EXPR CHIMERA_TESTER_SECRET_ODD "${CHIMERA_TESTER_SECRET_LENGTH} % 2")
+if(CHIMERA_TESTER_SECRET_ODD)
+  message(FATAL_ERROR "CHIMERA_TESTER_SECRET must contain complete hexadecimal bytes")
+endif()
 if(CHIMERA_TESTER_SECRET_HEX AND CHIMERA_TESTER_SECRET_LENGTH LESS 32)
   message(FATAL_ERROR "CHIMERA_TESTER_SECRET is too short (at least 16 bytes)")
 endif()
@@ -165,6 +169,9 @@ target_include_directories(ChimeraTesterCodeTests PRIVATE Source Tests)
 target_compile_definitions(ChimeraTesterCodeTests PRIVATE JUCE_USE_CURL=0)
 target_link_libraries(ChimeraTesterCodeTests PRIVATE juce::juce_core juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraTesterCodeTests COMMAND ChimeraTesterCodeTests)
+add_test(NAME ChimeraTesterCodeToolTests COMMAND "${CMAKE_COMMAND}" -E env
+  "CHIMERA_TESTER_VERIFIER=$<TARGET_FILE:ChimeraTesterCodeTests>"
+  "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/test_tester_code.py")
 
 # Link the real processor, serializer, editor and update panel. Inject only a
 # private test constructor clock; shipped factories always use compiled policy.

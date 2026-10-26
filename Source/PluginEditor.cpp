@@ -1084,6 +1084,7 @@ void ChimeraEditor::showTesterCode()
                          : "Active for "+holder+". This and later beta versions do not expire on this computer.",
         juce::MessageBoxIconType::NoIcon,this);
     testerDialog->addTextEditor("code",{},"Code");
+    testerDialog->getTextEditor("code")->setInputRestrictions(spectralforge::beta::tester::maxPastedLength);
     testerDialog->addButton("APPLY",1,juce::KeyPress(juce::KeyPress::returnKey));
     if(holder.isNotEmpty())testerDialog->addButton("REMOVE",2);
     testerDialog->addButton("CANCEL",0,juce::KeyPress(juce::KeyPress::escapeKey));
@@ -1095,7 +1096,9 @@ void ChimeraEditor::showTesterCode()
         juce::String message;
         if(result==1){const auto grant=safe->processor.applyTesterCode(code);
             message=grant.valid ? "Beta tester code accepted for "+grant.name+". This and later beta versions no longer expire on this computer." : grant.error;}
-        else if(result==2){safe->processor.removeTesterCode();message="Beta tester code removed. The beta expiry applies again to newly opened instances.";}
+        else if(result==2){message=safe->processor.removeTesterCode()
+            ? "Beta tester code removed. The beta expiry applies again to newly opened instances."
+            : "The beta tester code could not be removed. Its saved permission is unchanged. Check file permissions and try again.";}
         if(message.isNotEmpty())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Beta tester code",message,"OK",safe.getComponent());
         safe->info.setTooltip(safe->processor.betaNotice());
     }),false);
