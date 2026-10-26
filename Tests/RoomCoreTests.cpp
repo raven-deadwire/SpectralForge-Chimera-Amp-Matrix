@@ -3,6 +3,8 @@
 // the room, lane controls and post-rig gates act on the send bus exactly as
 // on the direct sound, and the callback stays allocation-free with the room on.
 #include "PluginProcessor.h"
+#include "RoomModel.h"
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -117,26 +119,94 @@ void laneControls() {
     std::cout<<"PASS lane controls: mute and send 0 give exactly zero excitation; Dual blend scales the send as the direct sound\n";
 }
 void gatePolicy() {
-    auto p=make();set(*p,"roomOn",1);set(*p,"roomSend1",100);
-    int clock=0;
-    // One rig at send 100 %: the send bus is the direct sum, so both must
-    // change by the same ratio when the post-rig gate attenuates (the later
-    // default stages are linear). Peaks over the same settled blocks.
-    const auto peaks=[&](float& room,float& direct){render(*p,60,220.,.02f,clock);const auto r=render(*p,20,220.,.02f,clock);
-        room=r.roomPeak;direct=0;for(const float v:r.out)direct=std::max(direct,std::abs(v));};
+    // The room bus is compared with the direct sound of an identical processor
+    // whose room is off (the room's own return is deliberately not gated).
+    auto p=make(),direct=make();set(*p,"roomOn",1);set(*p,"roomSend1",100);
+    int clock=0,directClock=0;
+    const auto peaks=[&](float& room,float& dry){render(*p,60,220.,.02f,clock);room=render(*p,20,220.,.02f,clock).roomPeak;
+        render(*direct,60,220.,.02f,directClock);const auto d=render(*direct,20,220.,.02f,directClock);dry=0;for(const float v:d.out)dry=std::max(dry,std::abs(v));};
     float openRoom{},openDirect{};peaks(openRoom,openDirect);
     // -34 dBFS signal under the highest threshold: the post-rig gate attenuates.
-    set(*p,"gateAfterRig",1);set(*p,"gateon",1);set(*p,"gatethreshold",-15);
+    for(auto* q:{p.get(),direct.get()}){set(*q,"gateAfterRig",1);set(*q,"gateon",1);set(*q,"gatethreshold",-15);}
     for(const float gateMode:{0.f,1.f}) {
-        set(*p,"gateMode",gateMode);
-        float room{},direct{};peaks(room,direct);
+        set(*p,"gateMode",gateMode);set(*direct,"gateMode",gateMode);
+        float room{},dry{};peaks(room,dry);
         const double roomCut=20*std::log10(std::max(1.e-12,double(room))/double(openRoom));
-        const double directCut=20*std::log10(std::max(1.e-12,double(direct))/double(openDirect));
-        std::cout<<"MEASURE post-rig "<<(gateMode>.5f?"expander":"gate")<<": room send "<<roomCut<<" dB, direct output "<<directCut<<" dB\n";
+        const double directCut=20*std::log10(std::max(1.e-12,double(dry))/double(openDirect));
+        std::cout<<"MEASURE post-rig "<<(gateMode>.5f?"expander":"gate")<<": room send "<<roomCut<<" dB, direct output (room off) "<<directCut<<" dB\n";
         require(directCut<-10,"The post-rig gate did not attenuate in this test");
-        require(std::abs(roomCut-directCut)<.5,"The room send is not attenuated like the direct sound by the post-rig gate");
+        require(std::abs(roomCut-directCut)<.1,"The room send is not attenuated like the direct sound by the post-rig gate");
     }
     std::cout<<"PASS gate policy: the room send follows the post-rig gate exactly like the direct sound (gate and expander modes)\n";
+}
+// Room model alone (docs/ROOM_CORE_1_3_3.md section 4).
+double rt60(const std::vector<float>& h,double sampleRate,size_t from) {
+    std::vector<double> e(h.size()+1,0.);for(size_t i=h.size();i-->from;)e[i]=e[i+1]+double(h[i])*h[i];
+    size_t a=0,b=0;for(size_t i=from;i<h.size();++i){const double db=10*std::log10(e[i]/e[from]+1e-300);if(a==0&&db<=-5)a=i;if(db<=-25){b=i;break;}}
+    return a&&b ? 3.0*double(b-a)/sampleRate : -1;
+}
+void roomModelResponse() {
+    const std::array<double,3> windowMs{21,41,82};
+    for(double sampleRate:{44100.,48000.,96000.,192000.})for(int size=0;size<3;++size) {
+        double previousHf=1e9;
+        for(float absorption:{0.f,.5f,1.f}) {
+            spectralforge::RoomModel model;model.prepare(sampleRate);model.configure(size,absorption);
+            const size_t n=size_t(sampleRate*(size==2?6:3));std::vector<float> in(n,0.f),left(n,0.f),right(n,0.f);in[0]=1;
+            for(size_t i=0;i<n;i+=512){const int k=int(std::min<size_t>(512,n-i));const float* ins[2]{in.data()+i,in.data()+i};float* outs[2]{left.data()+i,right.data()+i};model.process(ins,outs,2,k,1.f);}
+            const double measured=rt60(left,sampleRate,size_t(.1*sampleRate)),target=spectralforge::RoomModel::geometry(size).rt60AtHalf*spectralforge::RoomModel::rt60Scale(absorption);
+            double all=0,hf=0,energy=0;
+            for(size_t i=size_t(.15*sampleRate)+1;i<size_t(.4*sampleRate);++i){all+=double(left[i])*left[i];const double d=left[i]-left[i-1];hf+=d*d;}
+            for(size_t i=0;i<n;++i)energy+=.5*(double(left[i])*left[i]+double(right[i])*right[i]);
+            const double lastMs=1000.*model.lastReflectionDelay()/sampleRate;
+            require(std::abs(measured/target-1)<.1,"Room RT60 is not within 10 % of its target");
+            require(lastMs<=windowMs[size_t(size)] && model.reflectionCount(0)==24 && model.reflectionCount(1)==24,"Early reflections fall outside the declared window");
+            require(std::isfinite(left.back()) && std::abs(left.back())<1.e-4f,"Room tail does not decay");
+            require(hf/all<previousHf,"More absorption does not darken the late tail");previousHf=hf/all;
+            if(absorption==.5f && sampleRate==48000.) {
+                std::cout<<"MEASURE room size "<<size<<" at 48 kHz, 50 % absorption: RT60 "<<measured<<" s (target "<<target<<"), last reflection "<<lastMs<<" ms, total wet "<<10*std::log10(energy)<<" dB\n";
+                require(std::abs(10*std::log10(energy)+9.0)<.3,"Calibrated wet level is not -9 dB at 50 % absorption");
+            }
+        }
+    }
+    std::cout<<"PASS room model: RT60 within 10 %, reflections inside 21/41/82 ms, absorption darkens the tail, decays at 44.1-192 kHz, wet -9 dB at 50 %\n";
+}
+void roomAudibleAndRingOut() {
+    auto p=make(),plain=make();set(*p,"roomOn",1);set(*p,"roomSend1",100);
+    int a=0,b=0;
+    const auto withRoom=render(*p,200,220.,.2f,a),without=render(*plain,200,220.,.2f,b);
+    double diff=0,ref=0;for(size_t i=0;i<withRoom.out.size();++i){diff+=double(withRoom.out[i]-without.out[i])*(withRoom.out[i]-without.out[i]);ref+=double(without.out[i])*without.out[i];}
+    std::cout<<"MEASURE room on, send 100 %: output differs from room off by "<<10*std::log10(diff/ref)<<" dB\n";
+    require(diff/ref>1.e-3,"Room on does not change the output");
+    // Room off: no new input, the tail rings out, then the room goes idle.
+    set(*p,"roomOn",0);
+    const auto running=p->roomProcessedSamples();render(*p,10,220.,.2f,a);render(*plain,10,220.,.2f,b);
+    require(p->roomProcessedSamples()>running,"Room off cut the tail instead of letting it ring out");
+    // Medium room: decaying ~110 dB to the -120 dBFS floor at RT60 0.7 s takes ~1.3 s.
+    int ringBlocks=0;
+    for(;ringBlocks<4000;++ringBlocks){const auto before=p->roomProcessedSamples();render(*p,1,220.,.2f,a);render(*plain,1,220.,.2f,b);if(p->roomProcessedSamples()==before)break;}
+    require(ringBlocks<4000,"The room tail never ended");
+    const auto idle=p->roomProcessedSamples();
+    std::cout<<"MEASURE Room off ring-out: "<<1000.*ringBlocks*block/rate<<" ms until idle\n";
+    const auto after=render(*p,50,220.,.2f,a),reference=render(*plain,50,220.,.2f,b);
+    require(p->roomProcessedSamples()==idle,"The room keeps processing after its tail has ended");
+    require(after.out==reference.out,"After the tail the output is not identical to a processor without a room");
+    std::cout<<"PASS Room off: the tail rings out, then the room idles and the output is bit-identical to room off\n";
+}
+void sizeChangeIsSmooth() {
+    // Held tone; the size changes mid-way. The wet part alone (output minus an
+    // identical room-off processor) must not step beyond its own steady steps:
+    // an instant switch drops the old tail into an empty new room.
+    auto p=make(),plain=make();set(*p,"roomOn",1);set(*p,"roomSend1",100);
+    int a=0,b=0;
+    const auto wetSteps=[&](int blocks){const auto x=render(*p,blocks,220.,.2f,a),y=render(*plain,blocks,220.,.2f,b);float step=0;
+        for(size_t i=1;i<x.out.size();++i)step=std::max(step,std::abs((x.out[i]-y.out[i])-(x.out[i-1]-y.out[i-1])));return step;};
+    wetSteps(100);const float steady=wetSteps(40);
+    for(int size:{0,2,1}) {
+        set(*p,"roomSize",float(size));const float step=wetSteps(40);
+        std::cout<<"MEASURE size change to "<<size<<": largest wet step "<<step<<" (steady "<<steady<<")\n";
+        require(step<2.f*steady,"A room size change produces a wet step beyond the room's own");
+    }
+    std::cout<<"PASS size changes: crossfaded, no wet step beyond the room's own\n";
 }
 void noAllocation() {
     auto p=make();set(*p,"roomOn",1);for(int lane=1;lane<=3;++lane)set(*p,"roomSend"+juce::String(lane),100);
@@ -155,6 +225,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();noAllocation();return 0;}
+    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

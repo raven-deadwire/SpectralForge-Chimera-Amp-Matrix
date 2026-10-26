@@ -1,10 +1,13 @@
 # Room Core 1.3.3 — design freeze draft
 
-Status: **design draft for the 2026-12-04 review** (roadmap week 1,
+Status: **design draft for the 2026-12-04 review, with a working first
+implementation** (roadmap weeks 1–2,
 [DEVELOPMENT_ROADMAP_2026_2027.md](DEVELOPMENT_ROADMAP_2026_2027.md#133-room-core--november-30december-25-2026),
-issue #46). Nothing here is implemented or measured yet. Numbers marked
-*proposed* are budgets and defaults to confirm or change at the review; they
-are not results. Source baseline: main `2105a90`.
+issue #46). The send bus, gate policy, parameters and room model are
+implemented on `claude/room-core` and covered by `ChimeraRoomCoreTests`
+(§7); there is no UI yet. Numbers marked *proposed* are defaults to confirm
+at the review; numbers marked *measured* come from that test or the model
+probes. Source baseline: main `2105a90`.
 
 ## 1. Scope
 
@@ -53,10 +56,13 @@ added **after** these stages and before the Tone EQ tap. So a closed gate
 creates no new room input, and a tail already in the room rings out instead
 of being cut by the gate.
 
-**Return level.** The wet return is calibrated so that a lane at send 100 %
-and return 0 dB produces a room whose long-term (late) energy is −12 dB
-relative to the direct sound for pink noise (*proposed*, measured with the
-test in §7); the user return trim then sets the balance.
+**Return level.** Calibrated on white noise (steady-state energy is the
+impulse response's energy): with one lane at send 100 % and return 0 dB, at
+50 % absorption the early reflections and the late tail each carry −12.0 dB
+of the direct energy (total wet −9.0 dB) for all three sizes. Absorption 0 %
+gives about −4.4 dB total and 100 % about −18 dB. The uncalibrated image
+sources had put the early block at +1.7 dB re direct. The return trim then
+sets the balance.
 
 **Latency.** The room adds no latency and no lookahead; it is a parallel
 return. Reported latency and the DI alignment stay as they are.
@@ -85,9 +91,9 @@ geometry rather than hand-tuned taps:
 
 | Size | Declared room (L × W × H, m) | Early-reflection window | Late RT60 at 50 % absorption |
 |---|---|---|---|
-| Small | 3.5 × 3.0 × 2.5 | 0–25 ms | 0.35 s |
-| Medium | 7 × 5 × 3 | 0–45 ms | 0.7 s |
-| Large | 14 × 10 × 6 | 0–80 ms | 1.4 s |
+| Small | 3.5 × 3.0 × 2.5 | 0–20.4 ms (measured) | 0.35 s |
+| Medium | 7 × 5 × 3 | 0–40.7 ms (measured) | 0.7 s |
+| Large | 14 × 10 × 6 | 0–81.4 ms (measured) | 1.4 s |
 
 (*proposed*; dimensions and RT60 values are design targets, checked by the
 measurements in §7.)
@@ -98,7 +104,10 @@ measurements in §7.)
 - **Late decay:** an 8-line feedback delay network (Householder mixing,
   mutually prime lengths scaled by size), per-line gain set from RT60, and a
   one-pole low-pass per line whose cutoff falls as Absorption rises (damping).
-  Absorption also scales RT60 between 0.4× (100 %) and 1.6× (0 %).
+  Absorption also scales RT60 between 0.4× (100 %) and 1.6× (0 %). The damping
+  filter shortens the broadband decay too (measured 0.85–0.94 × target), so the
+  line gains aim 1.12 × longer; measured RT60 is then 0.94–1.04 × target for
+  every size and absorption at 44.1–192 kHz.
 - No modulation or diffusion controls in 1.3.3 (1.8).
 
 ## 5. Parameters (*proposed*, version hint 15)
@@ -119,10 +128,11 @@ Factory presets keep their authored sound: the preset snapshot writes
 
 ## 6. Budgets (*proposed*, to be measured)
 
-- **CPU:** room on, 48 kHz stereo, 128-sample blocks: ≤ 3 % of real time on the
-  container used by `StabilityTests` (HYBRID transposer: ~8 %); room off: no
-  measurable change. Measured with the same per-block method as the transpose
-  cost test.
+- **CPU:** budget ≤ 3 % of real time at 48 kHz stereo, 128-sample blocks
+  (HYBRID transposer: ~8 %). *Measured* for one room model: 0.26–0.28 % at
+  48 kHz and 0.52–0.53 % at 96 kHz for all three sizes (best of three 10 s
+  runs on the development container); two run only during a size change.
+  Room off runs no room code (zero processed samples, §7).
 - **Memory:** allocated in `prepare` only. Large at 192 kHz: FDN 8 lines up to
   ~120 ms each plus a 90 ms early-reflection line, stereo, ×2 instances for the
   size crossfade: about 2 × (8 × 0.12 + 2 × 0.09) × 192000 × 4 B ≈ 1.8 MB.
@@ -130,7 +140,30 @@ Factory presets keep their authored sound: the preset snapshot writes
   the dynamics capture); verified with the operator-new/malloc counter used by
   `StabilityTests`.
 
-## 7. Acceptance tests for the design (to be written with the code)
+## 7. Acceptance tests (`ChimeraRoomCoreTests`)
+
+Status: items 1–5 and the transition, ring-out and allocation parts of 6–7
+pass on Linux (48 kHz unless stated). UI, automation/A-B recall in a host,
+the Windows installer and listening are not done.
+
+- Parameters append last at version 15 with the room off.
+- Room off is bit-identical whatever the other room settings, with zero room
+  samples processed.
+- Matrix LOW: DI 100 % and LOW AMP off send exactly 0; the AMP share excites.
+- Mute and send 0 send exactly 0; Dual blend 0.5 is −6.02 dB like the direct
+  sound.
+- Post-rig gate and expander: the room send changes by exactly the direct
+  sound's amount (−15.2178 / −19.0332 dB, against a room-off twin).
+- Model at 44.1–192 kHz: RT60 within 10 % of target (measured 0.94–1.04 ×),
+  24 reflections per ear inside 20.4 / 40.7 / 81.4 ms, more absorption gives
+  a darker late tail, the tail decays, total wet −9.0 dB at 50 % absorption.
+- Room off rings out (Medium: 1.25 s), then the room idles and the output is
+  bit-identical to a processor without a room.
+- Size changes are crossfaded: the wet part never steps beyond twice its own
+  steady step (an instant switch fails this).
+- No allocation in the callback with the room on in Classic, Dual and Matrix.
+
+Original plan:
 
 1. **Room off is bit-identical:** with `roomOn` off since prepare, processor
    output equals the output with every room parameter at any other value, and
