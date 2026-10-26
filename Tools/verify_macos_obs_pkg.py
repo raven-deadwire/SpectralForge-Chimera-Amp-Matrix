@@ -83,7 +83,15 @@ def main():
             def check_choice(label, expected):
                 data = plistlib.loads(run(label, "/usr/sbin/installer", "-pkg", args.package,
                                           "-target", "/", "-showChoicesXML").encode())
-                rows = {row["choiceIdentifier"]: row for row in data}
+                # -showChoicesXML nests choices (and their packages) under
+                # childItems; index every level by identifier.
+                rows, pending = {}, list(data)
+                while pending:
+                    row = pending.pop()
+                    rows.setdefault(row.get("choiceIdentifier"), row)
+                    pending.extend(row.get("childItems") or [])
+                require({"chimera", "obs"} <= rows.keys(),
+                        f"{label}: choices chimera/obs not listed; found {sorted(map(str, rows))}")
                 require(bool(rows["obs"]["choiceIsSelected"]) == expected, f"{label}: wrong OBS selection")
                 require(rows["chimera"]["choiceIsSelected"] and not rows["chimera"]["choiceIsEnabled"],
                         "Mandatory Chimera choice is not locked on")
