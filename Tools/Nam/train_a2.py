@@ -65,6 +65,7 @@ def main():
     ap.add_argument('--batch',type=int,default=2);ap.add_argument('--threads',type=int,default=4);ap.add_argument('--frames',type=int,default=2048)
     ap.add_argument('--lr',type=float,default=.004);ap.add_argument('--lr-half-life',type=float,default=2000)
     ap.add_argument('--lr-origin',type=int,default=0)
+    ap.add_argument('--lr-warmup',type=int,default=0,help='Steps of linear LR warmup from zero; useful after a warm start resets Adam')
     ap.add_argument('--recipe',choices=['legacy','official-a2'],default='legacy')
     ap.add_argument('--loss-normalization',choices=['window','channel'],default='window')
     # Five 8,192-sample excerpts cover 0.85 s of validation; on 2026-10-25 they kept a
@@ -113,7 +114,7 @@ def main():
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
       'training_target_gain':gains.tolist() if args.recipe=='official-a2' else .1,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
       'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
-      'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin},
+      'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin,'warmup_steps':args.lr_warmup},
       'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection,
       'recipe':args.recipe,'recipe_details':RECIPE if args.recipe=='official-a2' else {'loss':'normalized MSE + .1 normalized DC','clip_gradient_norm':5.},
       'sampling':'seeded random crops; matched across comparison arms, not upstream shuffled nonoverlapping epochs',
@@ -136,7 +137,8 @@ def main():
     recipe_loss=A2TrainingLoss() if args.recipe=='official-a2' else None
     def learning_rate(step):
         if args.recipe=='official-a2':return virtual_epoch_learning_rate(step,epoch_steps,initial=args.lr)
-        return args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
+        warm=min(1.,step/args.lr_warmup) if args.lr_warmup else 1.
+        return warm*args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
     opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
     best_level_ok=[False]*5
     def level_ok(prediction,i):
@@ -253,8 +255,10 @@ def main():
         if not torch.isfinite(loss):raise RuntimeError('Nonfinite training loss')
         opt.zero_grad();loss.backward()
         if args.recipe=='legacy':torch.nn.utils.clip_grad_norm_(model.parameters(),5.)
-        opt.step();model.apply_mask();losses.append(float(loss.detach()))
+        # Set this step's LR before stepping. Setting it afterwards made the first
+        # step use the constructor's 0.004 whatever --lr said, jolting warm starts.
         for group in opt.param_groups:group['lr']=learning_rate(step)
+        opt.step();model.apply_mask();losses.append(float(loss.detach()))
         if step%100==0:
             print(json.dumps({'step':step,'loss':float(np.mean(losses[-100:])),'elapsed_seconds':round(time.monotonic()-t,2),
               'learning_rate':learning_rate(step),'last_loss_components':recipe_loss.last_components if recipe_loss is not None else None}),flush=True)
