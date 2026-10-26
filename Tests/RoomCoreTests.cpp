@@ -8,6 +8,7 @@
 #include <array>
 #include <cmath>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <new>
@@ -250,6 +251,46 @@ void roomControls() {
     require(std::abs(raw("roomSend1")-50)<.01f && std::abs(raw("roomSend3")-50)<.01f,"Editing one send changed another");
     std::cout<<"PASS room controls: entry in the room's title band shows ROOM OFF / size, rigs keep their layout; panel shows 1/2/3 sends and each control moves only its parameter; opening changes nothing\n";
 }
+float raw(ChimeraProcessor& p,const char* id){return p.parameters().getRawParameterValue(id)->load();}
+void setRoom(ChimeraProcessor& p,bool on,int size,float absorption,float level,float s1,float s2,float s3) {
+    set(p,"roomOn",on?1.f:0.f);set(p,"roomSize",float(size));set(p,"roomAbsorption",absorption);set(p,"roomReturn",level);
+    set(p,"roomSend1",s1);set(p,"roomSend2",s2);set(p,"roomSend3",s3);
+}
+bool roomIs(ChimeraProcessor& p,bool on,int size,float absorption,float level,float s1,float s2,float s3) {
+    const auto near=[](float a,float b){return std::abs(a-b)<.02f;};
+    return (raw(p,"roomOn")>.5f)==on && juce::roundToInt(raw(p,"roomSize"))==size && near(raw(p,"roomAbsorption"),absorption) && near(raw(p,"roomReturn"),level)
+        && near(raw(p,"roomSend1"),s1) && near(raw(p,"roomSend2"),s2) && near(raw(p,"roomSend3"),s3);
+}
+void stateAndRecall() {
+    // Project save/restore.
+    auto source=std::make_unique<ChimeraProcessor>();setRoom(*source,true,2,70,-6,100,30,0);
+    juce::MemoryBlock state;source->getStateInformation(state);
+    auto restored=std::make_unique<ChimeraProcessor>();restored->setStateInformation(state.getData(),int(state.getSize()));
+    require(roomIs(*restored,true,2,70,-6,100,30,0),"Room settings do not survive a project save and restore");
+    // A project saved before Room Core has no room parameters: it opens with
+    // the room off, also into a processor whose room was on.
+    auto legacy=juce::AudioProcessor::getXmlFromBinary(state.getData(),int(state.getSize()));require(legacy!=nullptr,"State is not binary XML");
+    int removed=0;
+    std::function<void(juce::XmlElement&)> strip=[&](juce::XmlElement& e){
+        for(int i=e.getNumChildElements();--i>=0;){auto* c=e.getChildElement(i);if(c->getStringAttribute("id").startsWith("room")){e.removeChildElement(c,true);++removed;}else strip(*c);}};
+    strip(*legacy);
+    require(removed>=spectralforge::roomParameterCount,"The legacy fixture still carries room parameters");
+    juce::MemoryBlock old;juce::AudioProcessor::copyXmlToBinary(*legacy,old);
+    for(const bool roomWasOn:{false,true}) {
+        auto target=std::make_unique<ChimeraProcessor>();if(roomWasOn)setRoom(*target,true,0,10,3,10,10,10);
+        target->setStateInformation(old.getData(),int(old.getSize()));
+        require(roomIs(*target,false,1,50,0,50,50,50),"A project without room parameters does not open with the room off and default settings");
+    }
+    // A/B: each slot keeps its own room.
+    auto ab=std::make_unique<ChimeraProcessor>();setRoom(*ab,true,0,20,-3,80,0,0);
+    ab->copyComparison();ab->selectComparison(1);setRoom(*ab,false,2,90,-20,10,10,10);
+    ab->selectComparison(0);require(roomIs(*ab,true,0,20,-3,80,0,0),"A/B slot A lost its room");
+    ab->selectComparison(1);require(roomIs(*ab,false,2,90,-20,10,10,10),"A/B slot B lost its room");
+    // Factory presets keep their authored sound: no room.
+    auto preset=std::make_unique<ChimeraProcessor>();setRoom(*preset,true,2,10,0,100,100,100);preset->loadFactoryPreset(0);
+    require(raw(*preset,"roomOn")<.5f,"A factory preset leaves the room on");
+    std::cout<<"PASS room state: project save/restore, projects without room parameters open with the room off (also over an active room), A/B slots keep their own room, factory presets turn it off\n";
+}
 void noAllocation() {
     auto p=make();set(*p,"roomOn",1);for(int lane=1;lane<=3;++lane)set(*p,"roomSend"+juce::String(lane),100);
     int clock=0;render(*p,20,110.,.2f,clock);
@@ -267,6 +308,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();roomControls();noAllocation();return 0;}
+    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();roomControls();stateAndRecall();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

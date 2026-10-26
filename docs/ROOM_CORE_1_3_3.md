@@ -5,7 +5,9 @@ implementation** (roadmap weeks 1–2,
 [DEVELOPMENT_ROADMAP_2026_2027.md](DEVELOPMENT_ROADMAP_2026_2027.md#133-room-core--november-30december-25-2026),
 issue #46). The send bus, gate policy, parameters and room model are
 implemented on `claude/room-core` and covered by `ChimeraRoomCoreTests`
-(§7); there is no UI yet. Numbers marked *proposed* are defaults to confirm
+(§7). The controls open from a ROOM entry in the cabinet room's title band
+(a call-out, so the calibrated rig layout keeps its bounds); the EN/DE/KR
+manual describes them. Numbers marked *proposed* are defaults to confirm
 at the review; numbers marked *measured* come from that test or the model
 probes. Source baseline: main `2105a90`.
 
@@ -142,9 +144,9 @@ Factory presets keep their authored sound: the preset snapshot writes
 
 ## 7. Acceptance tests (`ChimeraRoomCoreTests`)
 
-Status: items 1–5 and the transition, ring-out and allocation parts of 6–7
-pass on Linux (48 kHz unless stated). UI, automation/A-B recall in a host,
-the Windows installer and listening are not done.
+Status: all items below pass on Linux (48 kHz unless stated). Not done:
+opening the call-out in a native session, automation and recall in an
+installed DAW, the Windows test installer and listening.
 
 - Parameters append last at version 15 with the room off.
 - Room off is bit-identical whatever the other room settings, with zero room
@@ -162,6 +164,14 @@ the Windows installer and listening are not done.
 - Size changes are crossfaded: the wet part never steps beyond twice its own
   steady step (an instant switch fails this).
 - No allocation in the callback with the room on in Classic, Dual and Matrix.
+- Controls: the ROOM entry does not overlap a rig and shows ROOM OFF or the
+  active size; the panel shows 1/2/3 sends for Classic/Dual/Matrix and each
+  control moves only its own parameter; opening the room or the panel changes
+  no parameter.
+- State: room settings survive project save/restore; a project without room
+  parameters opens with the room off and default settings, also into a
+  processor whose room was on; A/B slots keep their own room; a factory preset
+  turns the room off.
 
 Original plan:
 
