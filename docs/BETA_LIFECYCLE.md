@@ -49,6 +49,33 @@ the lifecycle P0 checks (running-instance expiry, relaunch, update from beta.1
 with projects/IRs) and every existing release gate still apply to the exact
 beta.2 source and packages.
 
+## Beta tester codes (2026-10-26 KST)
+
+The owner decided that beta testers receive a code that lifts the expiry
+indefinitely, for this and every later beta. Public users keep the approved
+expiry above.
+
+- **Code:** `CHT1-<payload>.<signature>` names one tester. It is signed with the
+  owner's RSA-2048 private key (full-domain hash, `Tools/tester_code.py`) and
+  verified offline against the public key in `Source/TesterCodeKey.h`. The
+  private key is never committed (`*.private.json` is ignored and a test fails
+  if one appears).
+- **Entry:** SETTINGS → *Enter beta tester code...*. Only a verified code is
+  stored, per user and computer, in
+  `<user application data>/SpectralForge/Chimera/beta-tester-code.txt`. It is
+  never written into a project, preset, reference file or A/B state, and it is
+  not sent anywhere.
+- **Effect:** the lifecycle status becomes `testerExtended`: no countdown, no
+  14-day warning, and a new instance is not muted after expiry. Entering a code
+  unmutes the instance it is entered in; other open instances pick it up on
+  *RECHECK CLOCK* or when reopened. Removing the code never mutes an instance
+  that is already playing; the expiry applies again to newly opened instances.
+- **Limits:** a code does not override invalid build metadata. Codes cannot be
+  revoked offline, and a shared code works for whoever holds it; each code
+  names its tester so its origin is known. Like the expiry itself, this is basic
+  offline control, not tamper-proof DRM.
+- **Issuing:** see [BETA_TESTER_CODES.ko.md](BETA_TESTER_CODES.ko.md).
+
 ## Configuration and next-version identity
 
 The existing VERSION/RELEASE_CHANNEL, source SHA and ten-character build ID remain

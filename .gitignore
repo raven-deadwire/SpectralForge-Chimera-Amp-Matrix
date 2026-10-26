@@ -6,3 +6,6 @@ __pycache__/
 /obs-session*/
 /obs-signals*/
 /obs-kit/
+
+# Beta tester code private keys (Tools/tester_code.py keygen) never belong in the repository.
+*.private.json

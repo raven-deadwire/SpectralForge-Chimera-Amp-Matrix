@@ -140,6 +140,12 @@ endif()
 add_executable(ChimeraBetaLifecycleTests Tests/BetaLifecycleTests.cpp)
 target_include_directories(ChimeraBetaLifecycleTests PRIVATE Source)
 add_test(NAME ChimeraBetaLifecycleTests COMMAND ChimeraBetaLifecycleTests)
+juce_add_console_app(ChimeraTesterCodeTests PRODUCT_NAME "Chimera Tester Code Tests")
+target_sources(ChimeraTesterCodeTests PRIVATE Tests/TesterCodeTests.cpp)
+target_include_directories(ChimeraTesterCodeTests PRIVATE Source Tests)
+target_compile_definitions(ChimeraTesterCodeTests PRIVATE JUCE_USE_CURL=0)
+target_link_libraries(ChimeraTesterCodeTests PRIVATE juce::juce_core juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraTesterCodeTests COMMAND ChimeraTesterCodeTests)
 
 # Link the real processor, serializer, editor and update panel. Inject only a
 # private test constructor clock; shipped factories always use compiled policy.
