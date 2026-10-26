@@ -53,6 +53,7 @@ public:
         returnGain.reset(rate, .02);
         absorptionSmooth.reset(rate, .02);
         sizeFade.reset(rate, .05);
+        feedGain.reset(rate, .02);
         reset();
     }
     void reset() noexcept {
@@ -65,15 +66,19 @@ public:
         fading = false;
         active = 0;
         returnGain.setCurrentAndTargetValue(0.f);
+        feedGain.setCurrentAndTargetValue(0.f);
         absorptionSmooth.setCurrentAndTargetValue(readAbsorption());
         sizeFade.setCurrentAndTargetValue(1.f);
         if (prepared) models[0].configure(readSize(), readAbsorption());
         inputPeak.store(0.f, std::memory_order_relaxed);
     }
 
-    // New excitation is wanted only while the room is on; Room off stops the
-    // send at once and lets an existing tail ring out (running()).
+    // New excitation is wanted only while the room is on; Room off fades the
+    // send out over 20 ms and lets an existing tail ring out (running()).
     bool feeding() const noexcept { return on != nullptr && on->load() > .5f; }
+    // The engine fills the send bus while the room is on or its send is
+    // still fading out.
+    bool wantsInput() const noexcept { return feeding() || feedGain.getCurrentValue() > 0.f; }
     bool running() const noexcept { return feeding() || tailActive(); }
 
     // Per-lane send as a linear factor (0-1).
@@ -88,20 +93,32 @@ public:
         excitation.setSize(channels, samples, false, false, true);
         return excitation;
     }
-    // Adds the wet return to `output`. `input` is the (gated) send bus, or
-    // nullptr while the room is off and only a tail remains.
-    void process(const juce::AudioBuffer<float>* input, juce::AudioBuffer<float>& output) noexcept {
+    // Adds the wet return to `output`. `input` is the (gated) send bus, faded
+    // here in place, or nullptr once the room is off and only a tail remains.
+    void process(juce::AudioBuffer<float>* input, juce::AudioBuffer<float>& output) noexcept {
         if (!running()) return;
         const int channels = output.getNumChannels(), samples = output.getNumSamples();
         processed += uint64_t(samples);
+        // Room on/off ramps the excitation, not the return: a hard send edge
+        // would replay at every reflection tap.
+        feedGain.setTargetValue(feeding() ? 1.f : 0.f);
         float peak = 0.f;
-        if (input != nullptr)
+        if (input != nullptr) {
+            if (feedGain.isSmoothing())
+                for (int n = 0; n < input->getNumSamples(); ++n) {
+                    const float gain = feedGain.getNextValue();
+                    for (int c = 0; c < input->getNumChannels(); ++c) input->setSample(c, n, input->getSample(c, n) * gain);
+                }
+            else if (feedGain.getTargetValue() <= 0.f) input->clear();
             for (int c = 0; c < input->getNumChannels(); ++c)
                 peak = std::max(peak, input->getMagnitude(c, 0, input->getNumSamples()));
+        }
+        else feedGain.setCurrentAndTargetValue(0.f);
         inputPeak.store(peak, std::memory_order_relaxed);
-        // From an empty room the return fades in instead of jumping.
-        if (!tail && feeding()) { tail = true; returnGain.setCurrentAndTargetValue(0.f); }
-        returnGain.setTargetValue(juce::Decibels::decibelsToGain(returnDb != nullptr ? returnDb->load() : 0.f));
+        const float returnTarget = juce::Decibels::decibelsToGain(returnDb != nullptr ? returnDb->load() : 0.f);
+        // An empty room starts at its return level; the faded send builds it up.
+        if (!tail && feeding()) { tail = true; returnGain.setCurrentAndTargetValue(returnTarget); }
+        returnGain.setTargetValue(returnTarget);
         // A size change fades the old room out while the new one builds up.
         const int wanted = readSize();
         if (!fading && wanted != models[size_t(active)].size()) {
@@ -158,7 +175,7 @@ private:
     std::array<RoomModel, 2> models;
     std::array<juce::AudioBuffer<float>, 2> wet;
     juce::AudioBuffer<float> silence;
-    juce::SmoothedValue<float> returnGain, absorptionSmooth, sizeFade;
+    juce::SmoothedValue<float> returnGain, absorptionSmooth, sizeFade, feedGain;
     double rate{48000.0};
     int active{}, quietSamples{};
     bool tail{}, fading{}, prepared{};

@@ -210,6 +210,36 @@ void sizeChangeIsSmooth() {
     }
     std::cout<<"PASS size changes: crossfaded, no wet step beyond the room's own\n";
 }
+void switchingIsSmooth() {
+    // Held tone already playing. Room on, Room off and send/return jumps must
+    // not step the wet part (output minus a room-off twin) beyond its own
+    // steady steps: an instant send start or stop replays a hard edge at every
+    // reflection tap.
+    // A low tone keeps the room's own steps small, so an edge stands out.
+    constexpr double hz=41.2;
+    auto p=make(),plain=make();set(*p,"roomSend1",100);
+    int a=0,b=0;
+    // Second difference of the wet part: tiny for the slow tone and its
+    // reflections, large wherever an edge appears.
+    const auto wetSteps=[&](int blocks){const auto x=render(*p,blocks,hz,.2f,a),y=render(*plain,blocks,hz,.2f,b);float step=0;
+        const auto wet=[&](size_t i){return x.out[i]-y.out[i];};
+        for(size_t i=2;i<x.out.size();++i)step=std::max(step,std::abs(wet(i)-2.f*wet(i-1)+wet(i-2)));return step;};
+    // 66 blocks put the switch on a tone peak, where an edge is largest.
+    wetSteps(66);
+    set(*p,"roomOn",1);const float on=wetSteps(60);
+    wetSteps(100);const float steady=wetSteps(40);
+    const auto check=[&](const char* what,float step,const char* failure){
+        std::cout<<"MEASURE "<<what<<": largest wet edge "<<step<<" (steady "<<steady<<")\n";require(step<2.f*steady,failure);};
+    check("room on",on,"Room on starts the room with a wet step beyond its own");
+    set(*p,"roomSend1",0);check("send 100 to 0 %",wetSteps(60),"A send jump steps the wet sound");
+    set(*p,"roomSend1",100);check("send 0 to 100 %",wetSteps(60),"A send jump steps the wet sound");
+    wetSteps(100);
+    set(*p,"roomReturn",-36);check("return 0 to -36 dB",wetSteps(60),"A return jump steps the wet sound");
+    set(*p,"roomReturn",0);check("return -36 to 0 dB",wetSteps(60),"A return jump steps the wet sound");
+    wetSteps(100);
+    set(*p,"roomOn",0);check("room off",wetSteps(60),"Room off stops the send with a wet step beyond the room's own");
+    std::cout<<"PASS on/off, send and return changes: no wet step beyond the room's own\n";
+}
 template<class T> T* find(juce::Component& root,const juce::String& id) {
     if(root.getComponentID()==id)if(auto* match=dynamic_cast<T*>(&root))return match;
     for(auto* child:root.getChildren())if(auto* match=find<T>(*child,id))return match;
@@ -308,6 +338,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();roomControls();stateAndRecall();noAllocation();return 0;}
+    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();sizeChangeIsSmooth();switchingIsSmooth();roomControls();stateAndRecall();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

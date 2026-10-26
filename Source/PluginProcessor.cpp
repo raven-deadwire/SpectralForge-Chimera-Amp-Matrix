@@ -303,9 +303,10 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
-    // Room Core: the engine fills the send bus only while the room is on.
+    // Room Core: the engine fills the send bus only while the room is on (or
+    // its send is fading out after Room off).
     const auto roomSends=room.sends();
-    juce::AudioBuffer<float>* roomBus=room.feeding() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
+    juce::AudioBuffer<float>* roomBus=room.wantsInput() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());

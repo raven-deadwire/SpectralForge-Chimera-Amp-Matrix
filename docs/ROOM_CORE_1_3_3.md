@@ -71,18 +71,22 @@ return. Reported latency and the DI alignment stay as they are.
 
 ## 3. Room off and transitions
 
-- Room on/off is the shared bypass. **Off** stops new excitation immediately;
-  the tail keeps playing (send-effect behaviour) until its output stays below
-  −120 dBFS for 50 ms, then the room stops processing and costs nothing.
+- Room on/off is the shared bypass. **Off** fades the excitation out over
+  20 ms; the tail keeps playing (send-effect behaviour) until its output stays
+  below −120 dBFS for 50 ms, then the room stops processing and costs nothing.
+  A hard send stop would replay its edge at every reflection tap (measured
+  23× the room's own edge level without the ramp, §7).
 - **Room off since prepare** (every old project, and the default) runs no
   room code and makes no extra copies: the engine tap is skipped, so the
   direct path is bit-identical to the current product. This is the first
   acceptance test (§7).
-- On → the return fades in over 20 ms (*proposed*) from an empty room.
+- On → the excitation fades in over 20 ms from an empty room, at the set
+  return level (fading the return instead lets the later reflections of the
+  hard send start through: 8.3× the room's own edge level).
 - Size change: the old size keeps decaying while the new size builds up
   (crossfade the two returns over 50 ms, *proposed*); this needs two room
-  instances only during the change. Absorption and sends are smoothed per
-  sample, return per block with a 20 ms ramp.
+  instances only during the change. Sends and return are ramped per sample
+  over 20 ms; absorption is smoothed over 20 ms and applied per block.
 - Mode change (Classic/Dual/Matrix) keeps the room running; lanes that stop
   existing simply stop sending.
 
@@ -163,6 +167,10 @@ installed DAW, the Windows test installer and listening.
   bit-identical to a processor without a room.
 - Size changes are crossfaded: the wet part never steps beyond twice its own
   steady step (an instant switch fails this).
+- Room on/off, send 0↔100 % and return 0↔−36 dB on a held 41.2 Hz tone: the
+  wet part's second difference (its edges) stays within twice its steady
+  value (measured ≤ 1.09×; without the 20 ms excitation ramp Room on reaches
+  8.3× and Room off 23×).
 - No allocation in the callback with the room on in Classic, Dual and Matrix.
 - Controls: the ROOM entry does not overlap a rig and shows ROOM OFF or the
   active size; the panel shows 1/2/3 sends for Classic/Dual/Matrix and each
