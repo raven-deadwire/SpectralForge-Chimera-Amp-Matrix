@@ -12,6 +12,13 @@
 #include <stdexcept>
 #include <thread>
 #include <vector>
+#include <ctime>
+#if JUCE_WINDOWS
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 
 // Switch timing probe: how a switch sounds and costs on the real processor.
 // For each scenario three renders share one fixture: the old sound held
@@ -29,7 +36,24 @@
 //   cpu          processBlock wall time: steady p50/p99 before t0, worst
 //                block from t0 to settle, as a share of the block budget
 // Time effects (delay, reverb, chorus) are off so tails do not hide the switch.
+struct ChimeraRecallTestAccess {
+    static void policy(ChimeraProcessor& p,spectralforge::IRLibrary::PreparationPolicy value,bool instant=true) {p.library.preparationPolicy=value;p.instantRecallCabinetSwap=instant;}
+    static unsigned cacheHits(ChimeraProcessor& p) {return p.library.kernelCacheHits();}
+};
 namespace {
+double processCpuMilliseconds() {
+#if JUCE_WINDOWS
+    FILETIME created{},exited{},kernel{},user{};
+    if(!GetProcessTimes(GetCurrentProcess(),&created,&exited,&kernel,&user))return 0.;
+    const auto ticks=[](FILETIME t){return (uint64_t(t.dwHighDateTime)<<32)|uint64_t(t.dwLowDateTime);};
+    return double(ticks(kernel)+ticks(user))*.0001;
+#else
+    return 1000.*double(std::clock())/CLOCKS_PER_SEC;
+#endif
+}
+using Policy=spectralforge::IRLibrary::PreparationPolicy;
+Policy policy=Policy::audibleCached;
+bool warmAB=false,warmRequested=false,instantSwap=true;
 void require(bool ok,const juce::String& message) {if(!ok)throw std::runtime_error(message.toStdString());}
 void set(ChimeraProcessor& p,const juce::String& id,float value) {
     auto* q=p.parameters().getParameter(id);require(q!=nullptr,"Missing parameter "+id);q->setValueNotifyingHost(q->convertTo0to1(value));
@@ -37,6 +61,7 @@ void set(ChimeraProcessor& p,const juce::String& id,float value) {
 float get(ChimeraProcessor& p,const juce::String& id) {return p.parameters().getRawParameterValue(id)->load();}
 
 int block=256;double rate=48000;
+bool recallsOnly=false;
 constexpr double preRoll=.6,horizon=1.;
 constexpr double thresholdDb=-40;
 // Response gates: a crossfaded switch (channel, amp model) within its 20 ms
@@ -51,42 +76,62 @@ float fixture(int n) {
     return float(envelope*x);
 }
 
-struct Render {std::vector<float> audio;std::vector<double> blockMs;};
+struct Render {std::vector<float> audio;std::vector<double> blockMs,completionMs;unsigned cacheHits{};double actionMs{},processCpuMs{},wallMs{};};
 using Setup=std::function<void(ChimeraProcessor&)>;
 // setup: before prepare; change: at the block boundary nearest t0 (null for a
 // held sound). messageThread: the change runs on another thread while blocks
 // keep coming at real-time pace, as from a host's UI (presets, A/B); otherwise
 // it runs between blocks on the audio thread, as host automation does.
 Render render(const Setup& setup,const Setup& change,bool messageThread=false) {
-    auto p=std::make_unique<ChimeraProcessor>();setup(*p);
+    auto p=std::make_unique<ChimeraProcessor>();ChimeraRecallTestAccess::policy(*p,policy,instantSwap);setup(*p);
     for(const auto* id:{"delayon","reverbon","choruson"})set(*p,id,0);
     p->prepareToPlay(rate,block);
+    if(warmAB) {
+        // Warm BOTH saved A/B states through the real processor/library, then
+        // return to A and clear DSP histories without invalidating prepared IRs.
+        juce::AudioBuffer<float> warm(2,block);juce::MidiBuffer empty;
+        const int selected=p->comparisonSlot();
+        for(int slot:{1-selected,selected}) {
+            p->selectComparison(slot);
+            const auto start=std::chrono::steady_clock::now();
+            for(int k=0;k<int(rate/block);++k) {
+                warm.clear();p->processBlock(warm,empty);
+                std::this_thread::sleep_until(start+std::chrono::microseconds(int64_t(1e6*(k+1)*block/rate)));
+            }
+        }
+        p->reset();
+    }
     const int blocks=int((preRoll+horizon)*rate/block),switchBlock=int(preRoll*rate/block);
     juce::AudioBuffer<float> b(2,block);juce::MidiBuffer midi;Render r;
-    std::thread ui;
+    std::thread ui;unsigned hitsAtSwitch{};
+    const auto performChange=[&]{change(*p);for(const auto* id:{"delayon","reverbon","choruson"})set(*p,id,0);};
     auto paceFrom=std::chrono::steady_clock::now();
+    auto renderStart=paceFrom;auto cpuStart=processCpuMilliseconds();
     for(int k=0;k<blocks;++k) {
+        if(k==switchBlock){hitsAtSwitch=ChimeraRecallTestAccess::cacheHits(*p);renderStart=std::chrono::steady_clock::now();cpuStart=processCpuMilliseconds();}
         if(k==switchBlock && change) {
-            if(messageThread){paceFrom=std::chrono::steady_clock::now();ui=std::thread([&]{change(*p);});}
-            else change(*p);
+            if(messageThread){paceFrom=std::chrono::steady_clock::now();ui=std::thread([&]{const auto start=std::chrono::steady_clock::now();performChange();r.actionMs=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();});}
+            else performChange();
         }
-        // Real-time pacing from the recall on: the UI thread waits for the
-        // fade, and the IR worker builds the recalled cabinets while the
-        // output stays muted, both against wall time as in a host.
-        if(ui.joinable())
+        if(messageThread && k>=switchBlock) // Pace the ENTIRE recall, including background CAB preparation.
             std::this_thread::sleep_until(paceFrom+std::chrono::microseconds(int64_t(1e6*(k-switchBlock)*block/rate)));
         for(int i=0;i<block;++i){const float x=fixture(k*block+i);b.setSample(0,i,x);b.setSample(1,i,x);}
         const auto start=std::chrono::steady_clock::now();
         p->processBlock(b,midi);
-        r.blockMs.push_back(std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count());
+        const auto completed=std::chrono::steady_clock::now();
+        r.blockMs.push_back(std::chrono::duration<double,std::milli>(completed-start).count());
+        r.completionMs.push_back(std::chrono::duration<double,std::milli>(completed-renderStart).count());
         for(int i=0;i<block;++i){const float l=b.getSample(0,i),rr=b.getSample(1,i);require(std::isfinite(l)&&std::isfinite(rr),"Non-finite output");r.audio.push_back(.5f*(l+rr));}
     }
     if(ui.joinable())ui.join();
+    r.processCpuMs=processCpuMilliseconds()-cpuStart;
+    r.wallMs=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-renderStart).count();
+    r.cacheHits=ChimeraRecallTestAccess::cacheHits(*p)-hitsAtSwitch;
     p->releaseResources();
     return r;
 }
 
-struct Metrics {double responseMs{-1},settleMs{-1},clickDb{},clickAtMs{},overshootDb{},gapMs{},cpuP50{},cpuP99{},cpuSwitch{},budgetMs{};std::array<double,4> residualDb{};bool settled{};};
+struct Metrics {double responseMs{-1},settleMs{-1},clickDb{},clickAtMs{},overshootDb{},gapMs{},cpuP50{},cpuP99{},cpuSwitch{},budgetMs{};std::array<double,4> residualDb{};bool settled{};double audibleMs{-1},recoveryMs{-1},responseWallMs{-1},audibleWallMs{-1},recoveryWallMs{-1},actionMs{},cpuPercent{},cpuPostP99{};int overruns{};unsigned cacheHits{};};
 double energy(const std::vector<float>& a,const std::vector<float>* b,size_t from,size_t n) {
     double e=0;for(size_t i=from;i<std::min(a.size(),from+n);++i){const double d=a[i]-(b?(*b)[i]:0.f);e+=d*d;}return e;
 }
@@ -106,6 +151,18 @@ Metrics measure(const Render& o,const Render& y,const Render& r) {
     for(size_t s=t0;s+ms<=total;s+=ms) {
         const double apart=energy(r.audio,&o.audio,s,ms);
         if(apart>windowThreshold && energy(y.audio,&o.audio,s,ms)>=.01*apart){m.responseMs=double(s-t0)/double(ms);break;}
+    }
+    // Acoustic recovery is independent of the first change (which can be a mute).
+    // Require 5 consecutive 1 ms windows within +/-3 dB of the destination's
+    // RMS. This is level recovery, not waveform convergence or listening approval.
+    int recovered=0;bool lostLevel=false;
+    for(size_t s=t0;s+ms<=total;s+=ms) {
+        const double dest=energy(r.audio,nullptr,s,ms),actual=energy(y.audio,nullptr,s,ms);
+        if(actual<post*double(ms)*1e-6)lostLevel=true;
+        if(lostLevel && dest>windowThreshold && actual>post*double(ms)*1e-6 && m.audibleMs<0)
+            m.audibleMs=double(s-t0)/double(ms);
+        if(lostLevel && dest>windowThreshold && actual>=dest*.5 && actual<=dest*2.)++recovered;else recovered=0;
+        if(recovered==5 && m.recoveryMs<0)m.recoveryMs=double(s-t0)/double(ms)-4.;
     }
     size_t last=t0;bool any=false;
     for(size_t s=t0;s+ms<=total;s+=ms)if(energy(y.audio,&r.audio,s,ms)>windowThreshold){last=s+ms;any=true;}
@@ -145,6 +202,20 @@ Metrics measure(const Render& o,const Render& y,const Render& r) {
     const size_t settleBlocks=size_t(std::ceil(m.settleMs*rate/1000/block))+1;
     for(size_t k=switchBlock;k<std::min(y.blockMs.size(),switchBlock+settleBlocks);++k)m.cpuSwitch=std::max(m.cpuSwitch,y.blockMs[k]);
     m.budgetMs=1000.*block/rate;
+    m.cacheHits=y.cacheHits;m.actionMs=y.actionMs;m.cpuPercent=100.*y.processCpuMs/std::max(1.,y.wallMs);
+    std::vector<double> postTimes(y.blockMs.begin()+long(switchBlock),y.blockMs.end());
+    m.cpuPostP99=percentile(postTimes,.99);
+    for(auto v:postTimes)if(v>m.budgetMs)++m.overruns;
+    // Availability of the buffer carrying each event, measured on the wall
+    // clock. When callbacks overrun, sample time is NOT elapsed host time.
+    // This still is not a physical device/acoustic propagation measurement.
+    const auto availableAt=[&](double sampleMs) {
+        if(sampleMs<0)return -1.;
+        const size_t k=(t0+size_t(sampleMs*rate/1000.))/size_t(block);
+        return k<y.completionMs.size()?y.completionMs[k]:-1.;
+    };
+    m.responseWallMs=availableAt(m.responseMs);m.audibleWallMs=availableAt(m.audibleMs);
+    m.recoveryWallMs=availableAt(m.recoveryMs);
     return m;
 }
 
@@ -168,6 +239,7 @@ void scenario(const juce::String& kind,const juce::String& name,const Setup& bas
 
 void scenarios() {
     using namespace spectralforge;
+    if(!recallsOnly) {
     // Native amp channels: every factory preset's first native amp whose panel has channels.
     std::vector<int> seen;
     for(int preset=0;preset<factoryPresetCount && seen.size()<6;++preset) {
@@ -190,28 +262,31 @@ void scenarios() {
         scenario("amp-model","preset 0 model "+juce::String(model)+" > "+juce::String(other),
                  [](ChimeraProcessor& p){p.loadFactoryPreset(0);},[=](ChimeraProcessor& p){set(p,ampNativeModelID(0),float(other));});
     }
+    }
     for(const auto& [a,b]:std::vector<std::pair<int,int>>{{0,factoryPresetCount/2},{factoryPresetCount/2,factoryPresetCount-1}})
         scenario("preset","preset "+juce::String(a)+" > "+juce::String(b),[=](ChimeraProcessor& p){p.loadFactoryPreset(a);},[=](ChimeraProcessor& p){p.loadFactoryPreset(b);},true);
     // A/B: B holds another preset. The new-sound reference is slot B itself,
     // selected before playback: a factory recall keeps session settings such
     // as input gain, so "that preset loaded fresh" is not the same sound.
-    {
+    for(bool soloThird:{false,true}) {
         const int other=factoryPresetCount-1;
         const Setup base=[=](ChimeraProcessor& p){p.loadFactoryPreset(0);p.selectComparison(1);p.loadFactoryPreset(other);
+            if(soloThird){set(p,"mode",2);set(p,"solo1",0);set(p,"solo2",0);set(p,"solo3",1);set(p,"cab3",1);}
             for(const auto* id:{"delayon","reverbon","choruson"})set(p,id,0);p.selectComparison(0);};
+        warmAB=warmRequested;
         const auto o=render(base,{}),y=render(base,[](ChimeraProcessor& p){p.selectComparison(1);},true);
         const auto r=render([=](ChimeraProcessor& p){base(p);p.selectComparison(1);},{});
-        results.push_back({"ab","A > B",measure(o,y,r),true});report(results.back());
+        results.push_back({"ab",soloThird ? "A > B lane 3 solo" : "A > B",measure(o,y,r),true});report(results.back());
     }
 }
 
 void writeCsv(const juce::File& file) {
-    juce::String csv="kind,name,block,rate,response_ms,settle_ms,settled,residual_20_db,residual_50_db,residual_100_db,residual_250_db,click_db,click_at_ms,overshoot_db,gap_ms,cpu_p50_ms,cpu_p99_ms,cpu_switch_ms,budget_ms\n";
+    juce::String csv="kind,name,block,rate,response_ms,settle_ms,settled,residual_20_db,residual_50_db,residual_100_db,residual_250_db,click_db,click_at_ms,overshoot_db,gap_ms,cpu_p50_ms,cpu_p99_ms,cpu_switch_ms,budget_ms,audible_ms,recovery_ms,action_ms,process_cpu_percent,post_p99_ms,overruns,cache_hits,response_ready_wall_ms,audible_ready_wall_ms,recovery_ready_wall_ms\n";
     for(const auto& r:results) {
         const auto& m=r.m;
         csv<<r.kind<<",\""<<r.name<<"\","<<block<<","<<rate<<","<<m.responseMs<<","<<m.settleMs<<","<<(m.settled?1:0);
         for(const auto v:m.residualDb)csv<<","<<v;
-        csv<<","<<m.clickDb<<","<<m.clickAtMs<<","<<m.overshootDb<<","<<m.gapMs<<","<<m.cpuP50<<","<<m.cpuP99<<","<<m.cpuSwitch<<","<<m.budgetMs<<"\n";
+        csv<<","<<m.clickDb<<","<<m.clickAtMs<<","<<m.overshootDb<<","<<m.gapMs<<","<<m.cpuP50<<","<<m.cpuP99<<","<<m.cpuSwitch<<","<<m.budgetMs<<","<<m.audibleMs<<","<<m.recoveryMs<<","<<m.actionMs<<","<<m.cpuPercent<<","<<m.cpuPostP99<<","<<m.overruns<<","<<int(m.cacheHits)<<","<<m.responseWallMs<<","<<m.audibleWallMs<<","<<m.recoveryWallMs<<"\n";
     }
     require(file.replaceWithText(csv),"Cannot write "+file.getFullPathName());
 }
@@ -226,6 +301,14 @@ int main(int argc,char** argv)
             const juce::String a(argv[i]);
             if(a=="--block" && i+1<argc)block=juce::String(argv[++i]).getIntValue();
             else if(a=="--rate" && i+1<argc)rate=juce::String(argv[++i]).getDoubleValue();
+            else if(a=="--policy" && i+1<argc) {
+                const juce::String value(argv[++i]);
+                require(value=="baseline" || value=="serial" || value=="priority" || value=="parallel" || value=="cache","Unknown policy");
+                instantSwap=value!="baseline";
+                policy=(value=="serial" || value=="baseline") ? Policy::serial : value=="priority" ? Policy::audibleFirst : value=="parallel" ? Policy::parallel : Policy::audibleCached;
+            }
+            else if(a=="--warm-ab")warmRequested=true;
+            else if(a=="--recalls-only")recallsOnly=true;
             else out=juce::File(a);
         }
         require(block>=16 && rate>=22050,"Bad --block/--rate");
@@ -233,13 +316,17 @@ int main(int argc,char** argv)
         scenarios();
         require(!results.empty(),"No switch scenario ran");
         if(out!=juce::File())writeCsv(out); // also when a gate fails: it is the evidence
-        // The gate that holds on any machine: every switch is heard within its
+        // The gate that holds on any machine: every switch begins changing within its
         // response limit. Settle, residual, click and CPU are reported for review, not
         // gated: a modulated channel (vibrato, tremolo) never matches a reference
         // whose LFO started earlier, and wall time depends on the runner.
         for(const auto& r:results) {
             const double limit=r.recall?recallResponseMs:crossfadeResponseMs;
             require(r.m.responseMs>=0 && r.m.responseMs<=limit,r.kind+" \""+r.name+"\" did not respond within "+juce::String(limit)+" ms");
+            if(r.recall) {
+                require(r.m.audibleMs>=0 && r.m.recoveryMs>=0,"Recall never recovered audible destination level in the measured horizon");
+                require(r.m.overshootDb<=1.0,"Recall exceeded the predeclared 1 dB overshoot regression limit");
+            }
         }
         std::cout<<"PASS switch timing probe: "<<results.size()<<" switches measured\n";
     }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}

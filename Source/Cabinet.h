@@ -56,7 +56,8 @@ public:
         }
     };
     std::atomic<int> requestedSource{1}, activeSource{-1};
-    std::atomic<unsigned> activeGeneration{0};
+    std::atomic<unsigned> activeGeneration{0}, requestedGeneration{1};
+    std::atomic<bool> audiblePriority{false};
     static_assert(std::atomic<uint64_t>::is_always_lock_free);
     std::atomic<uint64_t> requestedModel{0}, activeModel{0};
     std::atomic<unsigned> rejectedModels{0};
@@ -130,6 +131,7 @@ public:
         fadeLength=juce::jmax(1,int(sr*.050));
     }
     void publish(std::unique_ptr<Kernel> kernel) { SF_CAB_PROFILE_SCOPE(WorkerPublish); destroyKernel(pending.exchange(kernel.release())); }
+    std::unique_ptr<Kernel> takeRetired() { return std::unique_ptr<Kernel>(retired.exchange(nullptr)); }
     void collect() { SF_CAB_PROFILE_SCOPE(WorkerCollect); destroyKernel(retired.exchange(nullptr)); }
     void install(std::unique_ptr<Kernel> kernel) // prepareToPlay only
     {
@@ -158,14 +160,21 @@ public:
     }
     // Audio thread: the requested IR/model is installed and its crossfade is
     // over (the editor's "Ready"), for this mic and a blended second mic.
+    void setAudiblePriority(bool audible) noexcept {
+        audiblePriority.store(audible && (!micB || blend<1.f || micBlend.getCurrentValue()<1.f));
+        if(micB)micB->audiblePriority.store(audible && (blend>0.f || micBlend.getCurrentValue()>0.f));
+    }
     bool settled() const noexcept {
         const bool self=pending.load()==nullptr && fadeRemaining==0
-            && activeSource.load()==requestedSource.load() && activeModel.load()==requestedModel.load();
-        return self && (!micB || blend<=0.f || micB->settled());
+            && active && (active->hasIR || requestedSource.load()==0)
+            && activeSource.load()==requestedSource.load() && activeModel.load()==requestedModel.load()
+            && (requestedModel.load()!=0 || requestedSource.load()!=3 || activeGeneration.load()==requestedGeneration.load());
+        const bool needA=!micB || blend<1.f || micBlend.getCurrentValue()<1.f;
+        const bool needB=micB && (blend>0.f || micBlend.getCurrentValue()>0.f);
+        return (!needA || self) && (!needB || micB->settled());
     }
-    // Audio thread: while the output is muted for a recall, install a new
-    // kernel without the 50 ms crossfade; nothing of either kernel is heard.
-    void setInstantSwap(bool value) noexcept { instantSwap=value; if(micB) micB->setInstantSwap(value); }
+    // Audio thread, only behind the recall output mute.
+    void setInstantSwap(bool value) noexcept {instantSwap=value;if(micB)micB->setInstantSwap(value);}
     // Audio-thread diagnostic; never queried by the worker.
     int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)
@@ -183,11 +192,11 @@ public:
             {
                 // A superseded model may have reached pending after the worker's
                 // final check. Retire it here without freeing or blocking audio.
-                if(next->modelKey!=requestedModel.load()) { retired.store(next); ++rejectedModels; }
+                if(next->modelKey!=requestedModel.load() || next->source!=requestedSource.load()
+                    || (next->modelKey==0 && next->source==3 && next->generation!=requestedGeneration.load())) { retired.store(next); ++rejectedModels; }
                 else if(instantSwap) {
-                    // The worker frees the replaced kernel, as after a crossfade.
-                    retired.store(active); active=next;
-                    activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);
+                    retired.store(active);active=next;
+                    activeSource.store(next->source);activeGeneration.store(next->generation);activeModel.store(next->modelKey);
                 }
                 else {
                     fading=active; active=next;

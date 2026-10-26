@@ -8,6 +8,7 @@
 #include <array>
 #include <memory>
 #include <mutex>
+#include <future>
 
 namespace spectralforge {
 class IRLibrary : private juce::Thread {
@@ -22,10 +23,13 @@ public:
     explicit IRLibrary(std::array<Cab*,3> cabinets);
     ~IRLibrary() override;
     void prepare(const juce::dsp::ProcessSpec&, const std::array<int,3>& sources);
+    // Benchmark controls: set ONLY with processing and worker stopped. The
+    // product uses audibleCached; parallel is an experimental comparison path.
+    enum class PreparationPolicy { serial, audibleFirst, parallel, audibleCached };
+    PreparationPolicy preparationPolicy{PreparationPolicy::audibleCached};
+    unsigned kernelCacheHits() const noexcept {return cacheHits.load();}
     void requestStop();
-    // A recall finished setting the cabinet requests: look at them now
-    // instead of at the worker's next 20 ms poll.
-    void wake() { notify(); }
+    void wake() {notify();}
     void stop();
     // Call only with host processing stopped, e.g. after releaseResources.
     bool resourcesReleased() const noexcept;
@@ -68,12 +72,10 @@ private:
         juce::AudioBuffer<float> samples;
         std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
     };
-    std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
-    // Responses that helper threads generated for this worker pass; build()
-    // takes them instead of generating. Worker only, emptied every pass.
-    std::vector<CachedModel> pregenerated;
-    void pregenerate(const std::array<uint64_t,6>& builtModels);
-    std::atomic<unsigned> cancelledBuilds{};
+    std::deque<CachedModel> modelCache; // Bounded immutable response/spectrum cache; cleared on prepare.
+    std::mutex modelCacheMutex;
+    std::array<std::deque<std::unique_ptr<Cab::Kernel>>,6> kernelCache;
+    std::atomic<unsigned> cacheHits{},cancelledBuilds{};
     WorkerScheduling scheduling;
     std::array<Cab*,6> cabs;
     std::array<std::shared_ptr<Asset>,6> users;

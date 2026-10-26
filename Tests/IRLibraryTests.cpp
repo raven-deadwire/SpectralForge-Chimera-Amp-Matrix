@@ -132,6 +132,42 @@ void modelWorkerCancellation() {
     std::cout<<"PASS modeled_worker_cancellation cancelled_builds="<<abandoned
         <<" latest_six_mics=converged stop_us="<<stopUs<<" reprepare=synchronous resources=released\n";
 }
+void modeledABCache() {
+    std::array<spectralforge::Cab,3> cabinets;
+    spectralforge::IRLibrary library{{&cabinets[0],&cabinets[1],&cabinets[2]}};
+    const auto keyAt=[](double position){return spectralforge::cabLayout::key({{{true,0,0,0,1,.4,position,8.},0,0,0},0,0});};
+    const auto a=keyAt(.2),b=keyAt(.8);
+    for(auto& cabinet:cabinets){cabinet.requestedModel=a;cabinet.prepare(spec);}
+    library.prepare(spec,{0,0,0});
+    const auto reference=render(cabinets[0]);
+    juce::AudioBuffer<float> buffer(2,256);
+    const auto select=[&](uint64_t key) {
+        for(auto& cabinet:cabinets)cabinet.requestedModel=key;
+        bool ready=false;
+        for(int iteration=0;iteration<5000 && !ready;++iteration) {
+            ready=true;
+            for(auto& cabinet:cabinets){buffer.clear();cabinet.process(buffer);ready=ready && cabinet.settled();}
+            if(!ready)juce::Thread::sleep(1);
+        }
+        require(ready,"A/B cache never reached exact requested cabinets");
+    };
+    select(b);select(a);
+    require(library.kernelCacheHits()>=3,"return to A did not recycle all modeled kernels");
+    equalAudio(reference,render(cabinets[0])); // no history from the previous visit
+    // A rapidly superseded identity must not replace the final B request.
+    for(auto& cabinet:cabinets)cabinet.requestedModel=keyAt(.5);
+    select(b);
+    for(auto& cabinet:cabinets)require(cabinet.activeModel==b,"superseded request won over final B");
+    library.stop();for(auto& cabinet:cabinets)cabinet.clear();
+    require(library.resourcesReleased(),"recycled kernels survived stop/clear");
+    const juce::dsp::ProcessSpec changed{96000,64,1};
+    for(auto& cabinet:cabinets)cabinet.prepare(changed);
+    library.prepare(changed,{0,0,0});require(library.kernelCacheHits()==0,"cache survived sample-rate/block/channel change");
+    library.stop();for(auto& cabinet:cabinets)cabinet.clear();
+    require(library.resourcesReleased(),"reprepared cache retained resources");
+    std::cout<<"PASS modeled A/B cache: hits, exact audio, latest request, reprepare and release\n";
+}
+
 }
 
 int main() {
@@ -172,6 +208,7 @@ int main() {
         equalAudio(audio,render(restored.cabinets[0]));
         require(restored.cabinets[1].activeSource.load()==0 && restored.cabinets[2].activeSource.load()==0,"IR restore changed unrelated lanes");
         modelWorkerCancellation();
+        modeledABCache();
         std::cout<<"PASS: remove-from-list preserves source WAV, active convolution, embedded project bytes and bass classification; binary recall renders identical audio without the source file\n";
         return 0;
     } catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
