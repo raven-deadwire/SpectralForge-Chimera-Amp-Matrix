@@ -36,6 +36,19 @@ void meter(juce::Graphics& g,float gain,int x,int y,int width,int height)
     g.setColour(gain>=1.f ? juce::Colour(0xfff26a5f) : accent);
     g.fillRoundedRectangle(float(x),float(y)+height*(1.f-value),float(width),height*value,2.f);
 }
+void fillPresetMenu(juce::ComboBox& presets)
+{
+    for(size_t groupIndex=0;groupIndex<spectralforge::presetCategoryOrder.size();++groupIndex) {
+        if(groupIndex==0)presets.getRootMenu()->addSectionHeader("SIGNATURE PRESETS");
+        if(groupIndex==2){presets.getRootMenu()->addSeparator();presets.getRootMenu()->addSectionHeader("FACTORY PRESETS");}
+        const auto category=juce::String::fromUTF8(spectralforge::presetCategoryOrder[groupIndex]);juce::PopupMenu group;
+        for(const int index:spectralforge::presetDisplayOrder())if(spectralforge::selectablePresetCategory(index)==category) {
+            const auto* name=spectralforge::selectablePresetName(index);
+            group.addItem(index+1,juce::String::fromUTF8(name));
+        }
+        if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(groupIndex<2?category.fromFirstOccurrenceOf(" / ",false,false):category,group);
+    }
+}
 void fitCabinetWindow(juce::Component::SafePointer<juce::DialogWindow> window,int remainingChecks=40)
 {
     if(window==nullptr || !window->isShowing())return;
@@ -147,6 +160,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     add(tunerOpen);tunerOpen.setComponentID("tunerOpen");tunerOpen.setName("Open precision tuner");
     tunerOpen.setTooltip("Open precision tuning, strobe, temperament and per-string targets. Opening starts tuning; closing stops tuning. Output mute follows your selected preference.");
     tunerOpen.onClick=[this]{tunerViewOpen=!tunerViewOpen;auto* parameter=processor.parameters().getParameter("tuneron");parameter->beginChangeGesture();parameter->setValueNotifyingHost(tunerViewOpen?1.f:0.f);parameter->endChangeGesture();updateModeUI();};
+    add(easyOpen);easyOpen.setComponentID("easyOpen");easyOpen.setName("Open Easy view");
+    easyOpen.setTooltip("Switch to Easy view: presets, six main knobs, Auto Set and tuner. Your sound stays as it is.");
+    easyOpen.onClick=[this]{setEasyMode(true,true);};
     add(boardPanel);add(preEngineStatus);
     preEngineStatus.setComponentID("preEngineStatus");
     preEngineStatus.setFont(juce::FontOptions(11.f));preEngineStatus.setColour(juce::Label::textColourId,ink);
@@ -192,16 +208,24 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     for(int e=0;e<2;++e){
         eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e,p.eqEditing(),p.eqCaptureBoundary());
         eqPanels[(size_t)e]->onHistoryBankSelected=[this](int bank){
-            if(dynamicsPanel && dynamicsViewOpen && dynamicsPanel->selectedPage()==spectralforge::CommonDynamicsPanel::Page::dynamicEQ) {
-                dynamicsPanel->selectDynamicBank(bank);return;
-            }
             const auto route=spectralforge::signalPath::read(processor);
             navigateSignalPath(*route.find(bank==0?"tone.eq":"final.eq"));
         };
         add(*eqPanels[(size_t)e]);
     }
-    dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.graphicalEQ(0),p.graphicalEQ(1),p.dynamicsAnalysis(),p.eqCaptureBoundary());
-    canvas.addAndMakeVisible(*dynamicsPanel);dynamicsPanel->setEQEditors(*eqPanels[0],*eqPanels[1]);
+    dynamicsPanel=std::make_unique<spectralforge::CommonDynamicsPanel>(p.parameters(),p.commonDynamics(),p.dynamicsAnalysis(),p.eqCaptureBoundary());
+    canvas.addAndMakeVisible(*dynamicsPanel);
+    // Dynamic EQ is edited on its band: open the EQ that holds the first dynamic band.
+    dynamicsPanel->onDynamicEQRequested=[this] {
+        int bank=0,band=-1;
+        for(int slot=0;slot<4 && band<0;++slot)if(const auto* target=processor.parameters().getRawParameterValue(spectralforge::dynamicSlotID(slot,"target"))) {
+            const int value=juce::roundToInt(target->load());if(value>=1 && value<=24){bank=(value-1)/12;band=(value-1)%12;}
+        }
+        const auto route=spectralforge::signalPath::read(processor);
+        navigateSignalPath(*route.find(bank==0?"tone.eq":"final.eq"));
+        if(band>=0)eqPanels[size_t(bank)]->selectBandForEditing(band);
+    };
+    dynamicsPanel->setGateUnitMeterProvider([this](int unit){return -juce::Decibels::gainToDecibels(processor.gateUnitMeter(unit),-120.f);});
     dynamicsPanel->setMeterProvider([this](spectralforge::DynamicsStage stage) {
         using Stage=spectralforge::DynamicsStage;
         switch(stage) {
@@ -217,12 +241,41 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     });
     autoSetController=std::make_unique<spectralforge::autoset::Controller>(p);
     autoSetController->onStatus=[this](const spectralforge::autoset::Controller::Status& status) {
-        const bool busy=status.phase==spectralforge::autoset::Controller::Phase::input || status.phase==spectralforge::autoset::Controller::Phase::compressor;
-        dynamicsPanel->setAutoSetStatus(busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text,busy,status.canUndo);
+        using Controller=spectralforge::autoset::Controller;using Phase=Controller::Phase;
+        // Every listening pass (Tone EQ, multiband and finish included) offers CANCEL.
+        const bool busy=autoSetController->busy();
+        const auto text=busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text;
+        dynamicsPanel->setAutoSetStatus(text,busy,status.canUndo);
+        if(easyView)easyView->setAutoSetStatus(text,busy,status.canUndo);
+        spectralforge::AutoSetReport report;
+        report.listening=busy;report.finished=status.phase==Phase::done || status.phase==Phase::failed;
+        for(const auto phase:status.passes)report.steps.add(Controller::phaseName(phase));
+        report.current=status.pass;report.seconds=status.seconds;report.totalSeconds=status.totalSeconds;
+        report.passSeconds=status.passSeconds;report.passTotalSeconds=status.passTotalSeconds;report.levelDb=status.levelDb;
+        report.listeningFor=status.listeningFor;report.heard=status.heard;
+        if(status.phase==Phase::failed)report.message=status.text;
+        for(const auto& step:status.steps)report.rows.push_back({Controller::phaseName(step.phase),step.result,step.changed,int(step.phase)});
+        dynamicsPanel->setAutoSetReport(report);
+    };
+    // SHOW opens the module a finished pass changed.
+    dynamicsPanel->onAutoSetShow=[this](int target) {
+        using Phase=spectralforge::autoset::Controller::Phase;
+        const auto route=spectralforge::signalPath::read(processor);
+        switch(Phase(target)) {
+            case Phase::input:navigateSignalPath(*route.find("gate"));break;
+            case Phase::tone:navigateSignalPath(*route.find("tone.eq"));break;
+            case Phase::multiband:navigateSignalPath(*route.find("common.multiband"));break;
+            case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
+            default:navigateSignalPath(*route.find("common.comp"));break;
+        }
     };
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband});}
+    dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband});
+    };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
@@ -239,18 +292,19 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     };
     dynamicsPanel->onPageSelected=[this](spectralforge::CommonDynamicsPanel::Page selected) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
-        const juce::String id=selected==Page::gate?"gate":selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":selected==Page::dynamicEQ?(dynamicsPanel->selectedDynamicBank()==0?"tone.eq":"final.eq"):"common.comp";
+        const auto* expanderAfter=processor.parameters().getRawParameterValue("expAfterRig");
+        const juce::String id=selected==Page::expander?(expanderAfter && expanderAfter->load()>.5f?"gate.extra.post":"gate.extra.pre"):selected==Page::gate?(dynamicsPanel->mainGateShown()?"gate":dynamicsPanel->selectedGateSide()==1?"gate.extra.post":"gate.extra.pre"):selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":"common.comp";
         updateDynamicsEntries();
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
         if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);
     };
-    constexpr std::array<const char*,6> dynamicsTitles{"GATE / EXP","COMPRESSOR","LIMITER","DYNAMIC EQ","MULTIBAND","DE-ESSER"};
-    constexpr std::array<const char*,6> dynamicsNames{"gate","compressor","limiter","dynamicEQ","multiband","deesser"};
+    constexpr std::array<const char*,6> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER"};
+    constexpr std::array<const char*,6> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser"};
     constexpr std::array<const char*,6> dynamicsHelp{
-        "Open Gate / Expander: threshold, range, timing and before/after rig placement.",
+        "Open the gates: separate PRE RIG and POST RIG gates that can run together.",
+        "Open the downward expander. It runs together with the gates, before or after the rig.",
         "Open the common compressor after Tone EQ. PRE, POST and Matrix LOW retain their own controls.",
         "Open the final-output sample-peak limiter.",
-        "Open level-dependent Dynamic EQ controls. Tone EQ and Final EQ are also accessible in the signal path.",
         "Open four-band dynamics and crossover controls.",
         "Open high-band de-esser controls."};
     for(size_t i=0;i<dynamicsEntries.size();++i) {
@@ -295,17 +349,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     effects[1].controls[0].textFromValueFunction=[this](double value){return juce::String(delaySync.getToggleState() ? 60000.0/processor.currentTempo() : value,1);};
     inputMode.setName("Input mode");inputMode.addItemList({"STEREO","MONO L"},1);add(inputMode);inputModeAttachment=std::make_unique<CA>(p.parameters(),"inputmode",inputMode);
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
-    presets.setName("Preset");
-    for(size_t groupIndex=0;groupIndex<spectralforge::presetCategoryOrder.size();++groupIndex) {
-        if(groupIndex==0)presets.getRootMenu()->addSectionHeader("SIGNATURE PRESETS");
-        if(groupIndex==2){presets.getRootMenu()->addSeparator();presets.getRootMenu()->addSectionHeader("FACTORY PRESETS");}
-        const auto category=juce::String::fromUTF8(spectralforge::presetCategoryOrder[groupIndex]);juce::PopupMenu group;
-        for(const int index:spectralforge::presetDisplayOrder())if(spectralforge::selectablePresetCategory(index)==category) {
-            const auto* name=spectralforge::selectablePresetName(index);
-            group.addItem(index+1,juce::String::fromUTF8(name));
-        }
-        if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(groupIndex<2?category.fromFirstOccurrenceOf(" / ",false,false):category,group);
-    }
+    presets.setName("Preset");fillPresetMenu(presets);
     presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
     presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetValues.clear();for(auto* parameter:processor.getParameters())presetValues.push_back(parameter->getValue());presets.setTooltip(spectralforge::selectablePresetDescription(presets.getSelectedId()-1));updateModeUI();}};
     for(auto* button:{&doublerOn,&midi,&tap,&hostTempo,&metronome,&presetPrevious,&presetNext,&presetSave,&presetLoad,&delaySync})add(*button);
@@ -413,7 +457,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     setResizable(true,true); setResizeLimits(480,320,1770,1170);
     tunerOn.setButtonText("TUNER ACTIVE");
     hostTempo.setButtonText("HOST SYNC");metronome.setButtonText("METRONOME");
-    for(auto* button:{&tunerOpen,&midi,&tap,&hostTempo,&metronome,&info}){button->getProperties().set("utilityDock",true);button->setWantsKeyboardFocus(true);}
+    for(auto* button:{&tunerOpen,&midi,&tap,&hostTempo,&metronome,&easyOpen,&info}){button->getProperties().set("utilityDock",true);button->setWantsKeyboardFocus(true);}
     for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().addParameterListener(id,this);
     auto initialSize=juce::Point<int>{1180,780};
     if(const auto* display=juce::Desktop::getInstance().getDisplays().getPrimaryDisplay())
@@ -488,7 +532,20 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::dynamics:
             dynamicsPanel->selectPage(node.id=="common.multiband"?DynamicsPage::multiband:node.id=="common.deesser"?DynamicsPage::deesser:node.id=="output.limiter"?DynamicsPage::limiter:DynamicsPage::compressor);
             break;
-        case Target::gate:dynamicsPanel->selectPage(DynamicsPage::gate);break;
+        case Target::gate:{
+            const auto& s=processor.parameters();
+            const auto v=[&](const char* id){const auto* raw=s.getRawParameterValue(id);return raw && raw->load()>.5f;};
+            const bool mainAfter=v("gateAfterRig");bool after=mainAfter,expander=false;
+            if(node.id.startsWith("gate.extra.")) {
+                // A tap node holds Gate 2 (opposite the main gate) and/or the Expander.
+                after=node.id.endsWith(".post");
+                const bool gate2Here=mainAfter!=after,expanderHere=v("expAfterRig")==after;
+                expander=expanderHere && (!gate2Here || (v("expOn") && !v("gate2On")));
+            }
+            if(expander)dynamicsPanel->selectPage(DynamicsPage::expander);
+            else {dynamicsPanel->selectGateSide(after?1:0);dynamicsPanel->selectPage(DynamicsPage::gate);}
+            break;
+        }
         case Target::transpose:focus(globalSliders[4]);break;
         case Target::input:focus(globalSliders[0]);break;
         case Target::output:focus(globalSliders[6]);break;
@@ -569,6 +626,7 @@ void ChimeraEditor::timerCallback()
     for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
     if(!spectralforge::ui::visible(*this)){stateDirty=true;return;}
+    if(easyMode && easyView)easyView->showPreset(presets.getSelectedId(),presets.getText());
 
     // The large factory-preset comparison is not a meter. Bound it to 5 Hz.
     if(++presetCheckTick%5==0 && !presetValues.empty()) {const auto& params=processor.getParameters();bool changed=presetValues.size()!=size_t(params.size());for(int i=0;!changed && i<params.size();++i)changed=std::abs(params[i]->getValue()-presetValues[(size_t)i])>1e-6f;if(changed)markPresetCustom();}
@@ -654,7 +712,7 @@ void ChimeraEditor::refreshMeters()
     const auto cpu="AUDIO "+juce::String(processor.cpuLoad(),1)+"%  |  PEAK "+juce::String(processor.cpuPeakLoad(),1)+"%";
     if(cpuText.update(cpu)){callbackLoad.setText(cpu,juce::dontSendNotification);callbackLoad.setColour(juce::Label::textColourId,processor.cpuPeakLoad()>=100?juce::Colours::salmon:muted);}
     const auto transport=(hostTempo.getToggleState()?"HOST ":"TEMPO ")+juce::String(processor.currentTempo(),1)+" BPM  |  "+juce::String(processor.getLatencySamples())+" SAMPLES";
-    if(transportText.update(transport))repaintDesign({866,763,290,15});
+    if(transportText.update(transport))repaintDesign({902,763,254,15});
 }
 void ChimeraEditor::updateHardwareStyles()
 {
@@ -763,8 +821,7 @@ void ChimeraEditor::updateModeUI()
     // The outgoing FIFO consumer must stop before the incoming one starts.
     if(!showingDynamics)dynamicsPanel->setVisible(false);
     for(int e=0;e<2;++e) {
-        if(!dynamicsPanel->isUsingEQEditor(*eqPanels[size_t(e)]))
-            eqPanels[size_t(e)]->setVisible(page==3 && selectedEQBank==e && !tunerViewOpen && !dynamicsViewOpen);
+        eqPanels[size_t(e)]->setVisible(page==3 && selectedEQBank==e && !tunerViewOpen && !dynamicsViewOpen);
         eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));
     }
     if(showingDynamics)dynamicsPanel->setVisible(true);
@@ -870,8 +927,8 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
         }
     }
     g.setColour(juce::Colour(0xff12231d));g.fillRoundedRectangle(14,743,1152,37,4);
-    g.setColour(line);g.drawVerticalLine(259,749,774);g.drawVerticalLine(757,749,774);g.drawVerticalLine(860,749,774);
-    text(g,(hostTempo.getToggleState() ? "HOST " : "TEMPO ")+juce::String(processor.currentTempo(),1)+" BPM  |  "+juce::String(processor.getLatencySamples())+" SAMPLES",866,763,290,15,9.5f,muted,juce::Justification::centredRight);
+    g.setColour(line);g.drawVerticalLine(252,749,774);g.drawVerticalLine(710,749,774);g.drawVerticalLine(898,749,774);
+    text(g,(hostTempo.getToggleState() ? "HOST " : "TEMPO ")+juce::String(processor.currentTempo(),1)+" BPM  |  "+juce::String(processor.getLatencySamples())+" SAMPLES",902,763,254,15,9.5f,muted,juce::Justification::centredRight);
 
 }
 void ChimeraEditor::resized()
@@ -887,6 +944,7 @@ void ChimeraEditor::resized()
     else {scale.setSelectedId(0,juce::dontSendNotification);scale.setText(juce::String(factor*100,0)+"%",juce::dontSendNotification);}
     editorViewport.setBounds(getLocalBounds());
     canvas.setBounds(0,0,1180,780); canvas.setTransform(juce::AffineTransform::scale(factor));
+    if(easyView){easyView->setBounds(0,0,1180,780);easyView->setTransform(juce::AffineTransform::scale(factor));}
     const auto contentSize=spectralforge::ui::editorSizeForScale(factor);
     scrollContent.setSize(contentSize.x,contentSize.y);
     editorViewport.setViewPosition(previousViewPosition);
@@ -913,9 +971,9 @@ void ChimeraEditor::fitToDisplay()
 }
 void ChimeraEditor::layoutControls()
 {
-    callbackLoad.setBounds(866,744,290,18);
+    callbackLoad.setBounds(902,744,254,18);
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
-    for(auto& eq:eqPanels)if(!dynamicsPanel->isUsingEQEditor(*eq))eq->setBounds(20,330,1140,412);
+    for(auto& eq:eqPanels)eq->setBounds(20,330,1140,412);
     for(size_t i=0;i<dynamicsEntries.size();++i)
         dynamicsEntries[i].setBounds(182+int(i%2)*118,112+int(i/2)*46,112,38);
     dynamicsPanel->setBounds(20,330,1140,412);
@@ -924,7 +982,7 @@ void ChimeraEditor::layoutControls()
     preEngineStatus.setBounds(585,302,575,24);boardPanel.setBounds(20,330,1140,415);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
     compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);
-    title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(768,748,86,28);
+    title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(808,748,86,28);
     mode.setBounds(634,30,170,28);routingHelp.setBounds(20,302,278,24);
     dualType.setBounds(300,302,180,24);dualLabel.setBounds(494,303,130,22);dualBlend.setBounds(628,302,330,24);dualFrequency.setBounds(628,302,330,24);
     x1Label.setBounds(400,303,105,22);x1.setBounds(507,302,210,24);
@@ -939,7 +997,8 @@ void ChimeraEditor::layoutControls()
     transposeMode.setBounds(447,229,158,20);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
-    midi.setBounds(182,748,66,28);tap.setBounds(270,748,56,28);tempo.setBounds(334,748,158,28);hostTempo.setBounds(500,748,112,28);metronome.setBounds(620,748,126,28);
+    midi.setBounds(182,748,66,28);tap.setBounds(256,748,56,28);tempo.setBounds(320,748,132,28);hostTempo.setBounds(460,748,112,28);metronome.setBounds(580,748,126,28);
+    easyOpen.setBounds(714,748,86,28);
     for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
@@ -1043,6 +1102,34 @@ void ChimeraEditor::trackDialog(juce::DialogWindow* dialog)
 {
     dialogs.erase(std::remove_if(dialogs.begin(),dialogs.end(),[](const auto& item){return item==nullptr;}),dialogs.end());
     if(dialog){dialogs.emplace_back(dialog);spectralforge::ui::fitScrollableDialog(dialog);}
+}
+void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
+{
+    if(rememberChoice)spectralforge::easy::Preference::remember(easy);
+    if(easy && !easyView) {
+        easyView=std::make_unique<EasyModeView>(processor);
+        easyView->setBrand(wordmark,brandEmblem);
+        easyView->fillPresetMenu(fillPresetMenu);
+        easyView->openFullEditor=[this]{setEasyMode(false,true);};
+        // Load now so the Easy description never lags behind the choice.
+        easyView->choosePreset=[this](int id){presets.setSelectedId(id,juce::sendNotificationSync);easyView->showPreset(presets.getSelectedId(),presets.getText());};
+        easyView->stepPreset=[this](int step){(step<0?presetPrevious:presetNext).onClick();};
+        easyView->toggleTuner=[this]{tunerOpen.onClick();};
+        easyView->autoSet=[this]{autoSetController->start();};
+        easyView->autoCancel=[this]{autoSetController->cancel();};
+        easyView->autoUndo=[this]{autoSetController->undo();};
+        easyView->setRoom(std::make_unique<CabRoomOverview>(processor));
+        scrollContent.addChildComponent(*easyView);
+    }
+    easyMode=easy;
+    // The full editor's tuner view follows the shared tuner parameter.
+    tunerViewOpen=processor.parameters().getRawParameterValue("tuneron")->load()>.5f;
+    canvas.setVisible(!easy);
+    if(easyView) {
+        easyView->setVisible(easy);
+        if(easy)easyView->showPreset(presets.getSelectedId(),presets.getText());
+    }
+    resized();updateModeUI();
 }
 void ChimeraEditor::markPresetCustom()
 {

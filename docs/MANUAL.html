@@ -29,12 +29,13 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <body><main>
 <header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">1.3.2 candidate · <code>1.3.2-beta.1</code> · <span data-k="counts"></span></p></div>
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
-<nav><a href="#release132">1.3.2</a><a href="#release131">1.3.1</a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
+<nav><a href="#release132">1.3.2</a><a href="#release131">1.3.1</a><a href="#easy" id="navEasy"></a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <p class="note" data-k="referenceNote"></p>
 <section id="release132"><h2 id="release132Title"></h2><div id="release132Body"></div></section>
 <section id="release131"><h2 id="release131Title"></h2><div id="release131Body"></div></section>
 <section id="release13"><h2 id="release13Title"></h2><div id="release13Body"></div></section>
 <section id="patch112"><h2>1.1.2 · Day-one patch</h2><div id="patch112Body"></div></section>
+<section id="easy"><h2 id="easyTitle"></h2><p class="section-intro" id="easyIntro"></p><div id="easyBody"></div></section>
 <section id="quick"><h2 data-k="quickTitle"></h2><div id="quickBody"></div></section>
 <section id="install"><h2 data-x="installTitle"></h2><div id="installBody"></div><h3 data-x="requirementsTitle"></h3><p class="section-intro" data-x="requirementsNote"></p><div id="requirementsBody"></div><h3 data-x="performanceTitle"></h3><div id="performanceBody"></div><p class="tip" data-x="performanceTip"></p></section>
 <section id="operation"><h2 data-x="operationTitle"></h2><p class="section-intro" data-x="operationIntro"></p><h3 data-x="boardTitle"></h3><div id="boardBody"></div><h3 data-x="stateTitle"></h3><div id="stateBody"></div><h3 data-x="supportTitle"></h3><div id="supportBody"></div></section>
@@ -1734,6 +1735,39 @@ function render(){
    'AUDIO / PEAK는 블록 길이 대비 콜백 경과 시간이며 전체 PC CPU가 아닙니다. 100%는 오디오 처리 마감, 570%는 그 시간의 5.7배입니다. 스케줄링의 영향을 받으며 피크는 오디오 처리 중에만 감소합니다. 실제 DAW 성능 수용검사는 아직 완료되지 않았습니다. 공개 1.3.2-beta.1의 승인 만료 시각은 2027-02-11T14:59:00Z(23:59 KST)입니다. 이 개발 변경은 새 공개 릴리스가 아닙니다.'
   ]}
  };
+ const easyView={
+  en:{nav:'Easy view',title:'00 · Easy view',intro:'Easy view is a simpler start screen for new players. It edits the same settings as the full editor, so you can switch at any time without changing the sound.',items:[
+   'Opening view: the first time Chimera opens on a computer, it shows Easy view. Afterwards it opens in the view you last chose: EASY VIEW in the bottom bar of the full editor, or FULL EDITOR at the top right of Easy view. The choice is stored per computer, not in projects.',
+   '1 PICK A SOUND: choose a preset from the same menu as the full editor, or step with < and >. The line below describes the preset. CUSTOM means you have edited the sound; save it with SAVE AS in the full editor.',
+   'Cabinet room: the same room as the full editor shows the amps and cabinets in use. Here it is view-only; open amplifier controls, cabinets, microphones and the Matrix LOW BLEND from the full editor.',
+   '2 SHAPE IT: GAIN, BASS, MIDDLE and TREBLE turn the selected amp\'s own front-panel knobs on its current channel, so their names can differ on the amp (for example PRE GAIN or VOLUME). The line above the knobs shows which amp is edited: the first amp in Dual mode, the MID band in Matrix mode. A knob is greyed out when that channel has no such control.',
+   'REVERB reads 0 while the POST reverb is off. Turning it up switches the reverb on; turning it back to 0 switches it off and keeps the stored mix. VOLUME is the output gain.',
+   '3 GET READY: AUTO SET listens while you play normally for about half a minute and sets input level, gate, tone and dynamics. CANCEL stops it and UNDO restores the previous settings. TUNER replaces the room and knobs with the precision tuner; press it again to return.',
+   'Easy view adds no host parameter. Projects, presets, reference files, A/B and automation behave exactly as in the full editor. Pedals, two-amp and split routing, cabinets in detail and EQ remain in FULL EDITOR.'
+  ]},
+  de:{nav:'Einfache Ansicht',title:'00 · Einfache Ansicht (Easy view)',intro:'Die einfache Ansicht ist ein übersichtlicher Startbildschirm für Einsteiger. Sie bearbeitet dieselben Einstellungen wie der volle Editor; ein Wechsel ändert den Klang nie.',items:[
+   'Startansicht: Beim ersten Start auf einem Computer öffnet Chimera die einfache Ansicht. Danach öffnet es die zuletzt gewählte Ansicht: EASY VIEW in der unteren Leiste des vollen Editors oder FULL EDITOR oben rechts in der einfachen Ansicht. Die Wahl wird pro Computer gespeichert, nicht im Projekt.',
+   '1 PICK A SOUND: Wählen Sie ein Preset aus demselben Menü wie im vollen Editor oder blättern Sie mit < und >. Darunter steht die Beschreibung des Presets. CUSTOM bedeutet, dass der Klang verändert wurde; speichern Sie ihn mit SAVE AS im vollen Editor.',
+   'Cabinet-Raum: Derselbe Raum wie im vollen Editor zeigt die verwendeten Amps und Boxen. Hier dient er nur zur Anzeige; Amp-Regler, Boxen, Mikrofone und den Matrix-Regler LOW BLEND öffnen Sie im vollen Editor.',
+   '2 SHAPE IT: GAIN, BASS, MIDDLE und TREBLE bewegen die eigenen Frontplattenregler des gewählten Amps auf dem aktuellen Kanal; am Amp können sie anders heißen (zum Beispiel PRE GAIN oder VOLUME). Die Zeile über den Reglern zeigt den bearbeiteten Amp: im Dual-Modus den ersten Amp, im Matrix-Modus das MID-Band. Hat der Kanal keinen passenden Regler, ist der Knopf ausgegraut.',
+   'REVERB zeigt 0, solange der POST-Hall aus ist. Aufdrehen schaltet den Hall ein; zurück auf 0 schaltet ihn aus und behält den gespeicherten Mix. VOLUME ist die Ausgangsverstärkung.',
+   '3 GET READY: AUTO SET hört etwa eine halbe Minute zu, während Sie normal spielen, und stellt Eingangspegel, Gate, Klang und Dynamik ein. CANCEL bricht ab, UNDO stellt die vorherigen Einstellungen wieder her. TUNER ersetzt Raum und Regler durch den Präzisionstuner; erneut drücken, um zurückzukehren.',
+   'Die einfache Ansicht fügt keinen Host-Parameter hinzu. Projekte, Presets, Referenzdateien, A/B und Automation verhalten sich wie im vollen Editor. Pedale, Zwei-Amp- und Split-Routing, detaillierte Boxen und EQ bleiben im FULL EDITOR.'
+  ]},
+  ko:{nav:'이지 뷰',title:'00 · 이지 뷰 (Easy view)',intro:'이지 뷰는 처음 쓰는 사람을 위한 간단한 시작 화면입니다. 전체 편집 화면과 같은 설정을 바꾸므로 언제 화면을 바꿔도 소리는 그대로입니다.',items:[
+   '시작 화면: 컴퓨터에서 Chimera를 처음 열면 이지 뷰로 시작합니다. 이후에는 마지막으로 고른 화면으로 열립니다. 전체 편집 화면 하단 바의 EASY VIEW 또는 이지 뷰 오른쪽 위의 FULL EDITOR로 바꿀 수 있습니다. 이 선택은 컴퓨터마다 저장되며 프로젝트에는 저장되지 않습니다.',
+   '1 PICK A SOUND: 전체 편집 화면과 같은 메뉴에서 프리셋을 고르거나 < 와 > 로 넘깁니다. 아래 줄에 프리셋 설명이 나옵니다. CUSTOM은 소리를 수정했다는 뜻이며, 전체 편집 화면의 SAVE AS로 저장할 수 있습니다.',
+   '캐비닛 룸: 전체 편집 화면과 같은 룸에서 지금 쓰는 앰프와 캐비닛을 보여 줍니다. 이지 뷰에서는 보기 전용입니다. 앰프 조작부, 캐비닛·마이크 설정, Matrix의 LOW BLEND는 전체 편집 화면에서 바꿉니다.',
+   '2 SHAPE IT: GAIN, BASS, MIDDLE, TREBLE은 선택한 앰프의 현재 채널에 있는 실제 노브를 움직입니다. 그래서 앰프 화면에서는 이름이 다를 수 있습니다(예: PRE GAIN, VOLUME). 노브 위 줄에 어느 앰프를 조절하는지 표시됩니다. Dual 모드에서는 첫 번째 앰프, Matrix 모드에서는 MID 대역입니다. 해당 채널에 그런 노브가 없으면 노브가 흐리게 비활성화됩니다.',
+   'REVERB는 POST 리버브가 꺼져 있으면 0으로 보입니다. 올리면 리버브가 켜지고, 다시 0으로 내리면 꺼지며 저장된 믹스 값은 유지됩니다. VOLUME은 출력 게인입니다.',
+   '3 GET READY: AUTO SET을 누르고 30초쯤 평소처럼 연주하면 입력 레벨, 게이트, 톤, 다이내믹스를 맞춰 줍니다. CANCEL로 중단하고 UNDO로 이전 설정을 되돌립니다. TUNER를 누르면 룸과 노브 자리에 정밀 튜너가 나타나고, 다시 누르면 돌아옵니다.',
+   '이지 뷰는 호스트 파라미터를 추가하지 않습니다. 프로젝트, 프리셋, 레퍼런스 파일, A/B, 오토메이션은 전체 편집 화면과 똑같이 동작합니다. 페달, 두 앰프·대역 분할 라우팅, 캐비닛 세부 설정, EQ는 FULL EDITOR에서 다룹니다.'
+  ]}
+ };
+ document.getElementById('navEasy').textContent=easyView[lang].nav;
+ document.getElementById('easyTitle').textContent=easyView[lang].title;
+ document.getElementById('easyIntro').textContent=easyView[lang].intro;
+ document.getElementById('easyBody').innerHTML=bullets(easyView[lang].items);
  document.getElementById('release132Title').textContent=release132[lang].title;
  document.getElementById('release132Body').innerHTML=bullets(release132[lang].items);
  document.getElementById("release131Title").textContent=RELEASE131[lang].title;

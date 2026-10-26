@@ -1,0 +1,296 @@
+[
+  {
+    "model_id": 569473,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569473,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569473,
+    "variant": "metadata_11_5_dbu",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569473,
+    "variant": "metadata_11_5_dbu",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569474,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569474,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569474,
+    "variant": "metadata_11_5_dbu",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569474,
+    "variant": "metadata_11_5_dbu",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569477,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569477,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569477,
+    "variant": "metadata_11_5_dbu",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 569477,
+    "variant": "metadata_11_5_dbu",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652432,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652432,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652433,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 41
+  },
+  {
+    "model_id": 652433,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652434,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652434,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652435,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652435,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652436,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652436,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652437,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 652437,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 403977,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 403977,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 421075,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 421075,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 421074,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 421074,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 614727,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 614727,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 614703,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 40
+  },
+  {
+    "model_id": 614703,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 561845,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 561845,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 561843,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 39
+  },
+  {
+    "model_id": 561843,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 543855,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 39
+  },
+  {
+    "model_id": 543855,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 543854,
+    "variant": "digital_equal",
+    "segment": "pluck",
+    "available_bands": 42,
+    "active_bands": 42
+  },
+  {
+    "model_id": 543854,
+    "variant": "digital_equal",
+    "segment": "chord",
+    "available_bands": 42,
+    "active_bands": 42
+  }
+]

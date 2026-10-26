@@ -22,6 +22,7 @@
 #include "PrecisionTunerUITests.h"
 #include "PrecisionTunerTimingProbe.h"
 #include "CommonDynamicsUITests.h"
+#include "EasyModeUITests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -710,6 +711,7 @@ int main(int argc, char** argv)
                 "Native UI regression requires an active display server and window manager");
         if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--precision-tuner-only"){precisionTunerUITests::run(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--easy-mode-only"){easyModeUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--precision-tuner-timing"){precisionTunerTimingProbe::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--common-dynamics-only"){commonDynamicsUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--small-screen-only"){smallScreenTests::run(directory);return 0;}

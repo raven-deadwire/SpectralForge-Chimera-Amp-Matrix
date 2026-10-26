@@ -1,0 +1,263 @@
+{
+  "schema": 1,
+  "reference_count": 26,
+  "original_states": 39,
+  "protocol": "Unchanged digital input and NAM outputs; RMS-matched Welch averaged into 42 logarithmic bands 65-8000 Hz; each target capture must improve by >=0.1 dB from macro 0 to 1 on both synthetic pluck and chord. No hardware-match threshold.",
+  "metric": "band_spectrum_rms_db",
+  "scope": "channel_nidhoggr",
+  "default_rms_drift_from_incoming_db": {
+    "pluck": 0.0,
+    "chord": 0.0
+  },
+  "groups": {
+    "rot": {
+      "family": "granophyre",
+      "model_ids": [
+        403977,
+        421075,
+        421074
+      ],
+      "measurements": {
+        "baseline": {
+          "pluck": {
+            "mean_scores_db": {
+              "channel_nidhoggr": 3.1690843513831424,
+              "channel_nidhoggr_rot_0": 3.2417132537073856,
+              "channel_nidhoggr_rot_1": 3.2213870573242493
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "channel_nidhoggr": 3.0120885051038218,
+                  "channel_nidhoggr_rot_0": 3.182942982245063,
+                  "channel_nidhoggr_rot_1": 3.0286194230493053
+                },
+                "endpoint_improvement_db": 0.15432355919575746
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "channel_nidhoggr": 3.277400607935223,
+                  "channel_nidhoggr_rot_0": 3.2650962958621714,
+                  "channel_nidhoggr_rot_1": 3.3628410436059126
+                },
+                "endpoint_improvement_db": -0.0977447477437412
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "channel_nidhoggr": 3.217763941110382,
+                  "channel_nidhoggr_rot_0": 3.277100483014922,
+                  "channel_nidhoggr_rot_1": 3.27270070531753
+                },
+                "endpoint_improvement_db": 0.004399777697392082
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "channel_nidhoggr": 2.605137965903968,
+              "channel_nidhoggr_rot_0": 2.7434203509654793,
+              "channel_nidhoggr_rot_1": 2.620211229186275
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "channel_nidhoggr": 2.6820195335278565,
+                  "channel_nidhoggr_rot_0": 2.861605907533611,
+                  "channel_nidhoggr_rot_1": 2.6750277031428884
+                },
+                "endpoint_improvement_db": 0.18657820439072248
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "channel_nidhoggr": 2.5196678975575013,
+                  "channel_nidhoggr_rot_0": 2.6164792192793374,
+                  "channel_nidhoggr_rot_1": 2.5599331174853566
+                },
+                "endpoint_improvement_db": 0.056546101793980785
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "channel_nidhoggr": 2.6137264666265456,
+                  "channel_nidhoggr_rot_0": 2.75217592608349,
+                  "channel_nidhoggr_rot_1": 2.625672866930581
+                },
+                "endpoint_improvement_db": 0.12650305915290927
+              }
+            ]
+          }
+        },
+        "incoming": {
+          "pluck": {
+            "mean_scores_db": {
+              "channel_nidhoggr": 3.1690843513831424,
+              "channel_nidhoggr_rot_0": 3.2417132537073856,
+              "channel_nidhoggr_rot_1": 3.2213870573242493
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "channel_nidhoggr": 3.0120885051038218,
+                  "channel_nidhoggr_rot_0": 3.182942982245063,
+                  "channel_nidhoggr_rot_1": 3.0286194230493053
+                },
+                "endpoint_improvement_db": 0.15432355919575746
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "channel_nidhoggr": 3.277400607935223,
+                  "channel_nidhoggr_rot_0": 3.2650962958621714,
+                  "channel_nidhoggr_rot_1": 3.3628410436059126
+                },
+                "endpoint_improvement_db": -0.0977447477437412
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "channel_nidhoggr": 3.217763941110382,
+                  "channel_nidhoggr_rot_0": 3.277100483014922,
+                  "channel_nidhoggr_rot_1": 3.27270070531753
+                },
+                "endpoint_improvement_db": 0.004399777697392082
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "channel_nidhoggr": 2.605137965903968,
+              "channel_nidhoggr_rot_0": 2.7434203509654793,
+              "channel_nidhoggr_rot_1": 2.620211229186275
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "channel_nidhoggr": 2.6820195335278565,
+                  "channel_nidhoggr_rot_0": 2.861605907533611,
+                  "channel_nidhoggr_rot_1": 2.6750277031428884
+                },
+                "endpoint_improvement_db": 0.18657820439072248
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "channel_nidhoggr": 2.5196678975575013,
+                  "channel_nidhoggr_rot_0": 2.6164792192793374,
+                  "channel_nidhoggr_rot_1": 2.5599331174853566
+                },
+                "endpoint_improvement_db": 0.056546101793980785
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "channel_nidhoggr": 2.6137264666265456,
+                  "channel_nidhoggr_rot_0": 2.75217592608349,
+                  "channel_nidhoggr_rot_1": 2.625672866930581
+                },
+                "endpoint_improvement_db": 0.12650305915290927
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "pluck": {
+            "mean_scores_db": {
+              "channel_nidhoggr": 3.1690843513831424,
+              "channel_nidhoggr_rot_0": 3.2417132537073856,
+              "channel_nidhoggr_rot_1": 3.2213870573242493
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "channel_nidhoggr": 3.0120885051038218,
+                  "channel_nidhoggr_rot_0": 3.182942982245063,
+                  "channel_nidhoggr_rot_1": 3.0286194230493053
+                },
+                "endpoint_improvement_db": 0.15432355919575746
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "channel_nidhoggr": 3.277400607935223,
+                  "channel_nidhoggr_rot_0": 3.2650962958621714,
+                  "channel_nidhoggr_rot_1": 3.3628410436059126
+                },
+                "endpoint_improvement_db": -0.0977447477437412
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "channel_nidhoggr": 3.217763941110382,
+                  "channel_nidhoggr_rot_0": 3.277100483014922,
+                  "channel_nidhoggr_rot_1": 3.27270070531753
+                },
+                "endpoint_improvement_db": 0.004399777697392082
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "channel_nidhoggr": 2.605137965903968,
+              "channel_nidhoggr_rot_0": 2.7434203509654793,
+              "channel_nidhoggr_rot_1": 2.620211229186275
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "channel_nidhoggr": 2.6820195335278565,
+                  "channel_nidhoggr_rot_0": 2.861605907533611,
+                  "channel_nidhoggr_rot_1": 2.6750277031428884
+                },
+                "endpoint_improvement_db": 0.18657820439072248
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "channel_nidhoggr": 2.5196678975575013,
+                  "channel_nidhoggr_rot_0": 2.6164792192793374,
+                  "channel_nidhoggr_rot_1": 2.5599331174853566
+                },
+                "endpoint_improvement_db": 0.056546101793980785
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "channel_nidhoggr": 2.6137264666265456,
+                  "channel_nidhoggr_rot_0": 2.75217592608349,
+                  "channel_nidhoggr_rot_1": 2.625672866930581
+                },
+                "endpoint_improvement_db": 0.12650305915290927
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "status": {
+    "synthetic_endpoint_direction": "FAIL",
+    "clank_amp_only_reference": "BLOCKED: Meshuggah captures include cabinet",
+    "instrument_di_listening": "NOT_RUN",
+    "hardware_matching": "BLOCKED",
+    "final_voicing": "BLOCKED: owner instrument-DI listening required"
+  },
+  "failures": [
+    "rot/421075/pluck: -0.097745 dB",
+    "rot/421074/pluck: 0.004400 dB",
+    "rot/421075/chord: 0.056546 dB"
+  ],
+  "comparison_sha256": {
+    "baseline": "b1ccb5bc20cc7a16e87e93495174e59db00d75f3da5c7bbf1d58e51a8b5871f1",
+    "incoming": "b1ccb5bc20cc7a16e87e93495174e59db00d75f3da5c7bbf1d58e51a8b5871f1",
+    "candidate": "b1ccb5bc20cc7a16e87e93495174e59db00d75f3da5c7bbf1d58e51a8b5871f1"
+  }
+}

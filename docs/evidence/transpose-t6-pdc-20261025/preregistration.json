@@ -1,0 +1,42 @@
+{
+ "purpose": "fresh-seed validation of the fixed-PDC contract for corr40-split-v3 before any result on these seeds is seen",
+ "registered_at_utc": "2026-10-25T09:50:57+00:00",
+ "engine": "corr40-split-v3",
+ "engine_source_commit": "549e475 (unchanged since)",
+ "renderer_sha256": "5625cb1f273a6bddbf397065af71a356dc68b644c121f6e757374d552fea650b",
+ "fixed_report_ms": 2.5,
+ "fixed_report_samples": {
+  "44100": 110,
+  "48000": 120,
+  "96000": 240
+ },
+ "L_rule": "0.25 ms grid value minimising the largest |attack residual| on the known-seed study inputs (holdout 8139/20261024, long 1); same L for every shift",
+ "metric": "per-event added delay of the 1-8 kHz 2 ms RMS attack peak (output minus input), T1 validity (inputs whose own attack peaks all lie within 10 ms); residual = added delay - L",
+ "fresh_holdout_seeds": [
+  26457,
+  31623,
+  36056
+ ],
+ "fresh_long_note_seed": 2236,
+ "seeds_previously_used": [
+  8139,
+  20261024,
+  1,
+  31415,
+  27182,
+  16180,
+  2718,
+  14142,
+  17320,
+  22360,
+  1414
+ ],
+ "pass_rule": {
+  "attack_residual": "max |attack residual| <= 4.5 ms at each of 44.1/48/96 kHz (known-seed 3.083 ms + 1.0 ms, rounded up to 0.5 ms, as the T3 ceiling rule)",
+  "report_only": "attack residual p5/p95, low-band onset residual (not compensated by L), comparison with reporting 0"
+ },
+ "rules": [
+  "single run; no change to L, metric, threshold or inputs after seeing results",
+  "report every result, including failures"
+ ]
+}

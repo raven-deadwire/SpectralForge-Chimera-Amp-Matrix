@@ -6,6 +6,7 @@ import contextlib
 import hashlib
 import io
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -213,6 +214,7 @@ class PackagingVersionTests(unittest.TestCase):
         build, stage = self.root / "build", self.root / "stage"
         self.write("build/obs-module/bin/64bit/chimera-obs.dll", "module fixture")
         self.write("build/obs-module/data/locale/en-US.ini", 'Chimera="SpectralForge Chimera"\n')
+        self.write("build/obs-module/data/locale/ko-KR.ini", 'Chimera="SpectralForge Chimera"\n')
         self.assertTrue(release.obs_filter(stage, build, SHA, required=True))
         target = stage / "OBS/chimera-obs"
         self.assertEqual((target / "bin/64bit/chimera-obs.dll").read_text(), "module fixture")
@@ -224,13 +226,52 @@ class PackagingVersionTests(unittest.TestCase):
         self.assertIn(f"/tree/{SHA}/OBS", source)
         # The installer removes exactly these files when the task is deselected.
         iss = (ROOT / "Installer/Chimera.iss").read_text(encoding="utf-8-sig")
-        for path in target.rglob("*"):
-            if path.is_file():
-                name = str(path.relative_to(target)).replace("/", "\\")
-                self.assertIn('"{#ObsPluginDir}\\' + name + '"; Check: ObsFilterDeselected', iss)
+        removed = set(re.findall(r'Type: files; Name: "\{#ObsPluginDir\}\\([^"]+)"; Check: ObsFilterDeselected', iss))
+        staged = {str(p.relative_to(target)).replace("/", "\\") for p in target.rglob("*") if p.is_file()}
+        self.assertEqual(removed, staged | {r"data\default-vst3-path.txt"})
         self.assertFalse(release.obs_filter(self.root / "other", self.root / "missing", SHA, required=False))
         with self.assertRaises(RuntimeError):
             release.obs_filter(self.root / "other", self.root / "missing", SHA, required=True)
+
+    def test_obs_filter_rejects_incomplete_or_unowned_module_files(self):
+        for relative in release.OBS_MODULE_FILES:
+            self.write("build/obs-module/" + relative)
+        module = self.root / "build/obs-module"
+        (module / "data/locale/ko-KR.ini").unlink()
+        with self.assertRaisesRegex(RuntimeError, "inventory mismatch"):
+            release.obs_filter(self.root / "stage", self.root / "build", SHA, required=True)
+        self.write("build/obs-module/data/locale/ko-KR.ini")
+        self.write("build/obs-module/data/user-settings.json")
+        with self.assertRaisesRegex(RuntimeError, "inventory mismatch"):
+            release.obs_filter(self.root / "stage", self.root / "build", SHA, required=True)
+
+    def test_macos_distribution_offers_the_obs_filter_as_a_choice(self):
+        import xml.etree.ElementTree as ElementTree
+        tree = ElementTree.fromstring(release.macos_distribution("2.17.4"))
+        choices = {choice.get("id"): choice for choice in tree.findall("choice")}
+        self.assertEqual([line.get("choice") for line in tree.find("choices-outline")], ["chimera", "obs"])
+        self.assertEqual((choices["chimera"].get("enabled"), choices["chimera"].get("selected")), ("false", "true"))
+        self.assertEqual(choices["obs"].get("start_selected"), "obsPreselected()")
+        self.assertEqual([ref.get("id") for ref in choices["obs"]], [release.MACOS_OBS_PKG_ID])
+        refs = {ref.get("id"): ref.text for ref in tree.findall("pkg-ref") if ref.text}
+        self.assertEqual(refs, {release.MACOS_PKG_ID: "SpectralForge-Chimera.pkg",
+                                release.MACOS_OBS_PKG_ID: "SpectralForge-Chimera-OBS.pkg"})
+        self.assertEqual(tree.find("installation-check").get("script"), "obsClosed()")
+        script = tree.find("script").text
+        self.assertIn(release.OBS_BUNDLE_ID, script)
+        self.assertIn("my.result.type = 'Fatal'", script)
+
+    def test_macos_obs_postinstall_installs_for_the_console_user_without_root(self):
+        hook = (ROOT / "OBS/packaging/macos-pkg-postinstall.sh").read_text(encoding="utf-8")
+        subprocess.run(["sh", "-n", str(ROOT / "OBS/packaging/macos-pkg-postinstall.sh")], check=True)
+        self.assertIn(release.OBS_MACOS_FOLDER, hook)
+        self.assertIn('launchctl asuser "$uid" /usr/bin/sudo -u "$user"', hook)
+        self.assertIn('"$folder/chimera-obs-installer"', hook)
+
+    def test_macos_obs_package_requires_the_staged_universal_filter(self):
+        self.write("build/obs-macos-package/chimera-obs-installer")
+        with self.assertRaisesRegex(RuntimeError, "staged Universal OBS filter package"):
+            release.obs_filter_macos(self.root / "stage", self.root / "build")
 
     def test_candidate_stage_inventory_and_versions_without_global_mutation(self):
         expected = version.identity(self.root, SHA)
@@ -423,8 +464,10 @@ configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @O
             if rule.startswith("Source:") and "Chimera-Personal-IRs" in rule:
                 self.assertIn("onlyifdoesntexist", rule)
                 self.assertIn("uninsneveruninstall", rule)
-        packaging = (ROOT / "Tools/package_release.py").read_text()
-        self.assertIn('"--identifier", "audio.spectralforge.chimera"', packaging)
+        packaging = (ROOT / "Tools/package_release.py").read_text(encoding="utf-8")
+        self.assertIn('MACOS_PKG_ID = "audio.spectralforge.chimera"\n', packaging)
+        self.assertIn('"--identifier", MACOS_PKG_ID', packaging)
+        self.assertEqual(release.MACOS_PKG_ID, "audio.spectralforge.chimera")
         self.assertIn("Package: chimera-amp-matrix", packaging)
         self.assertIn('getChildFile("SpectralForge/Chimera")', (ROOT / "Source/IRCollection.h").read_text())
         self.assertIn('getChildFile("SpectralForge/Chimera/ir-library.json")',

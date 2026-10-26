@@ -186,6 +186,10 @@ english.ObsRunning=OBS Studio is running. Close OBS Studio, then click Back and 
 korean.ObsRunning=OBS Studio가 실행 중입니다. OBS를 종료한 뒤 [뒤로]와 [다음]을 눌러 계속하세요. Setup은 아직 파일을 바꾸지 않았습니다.
 english.ObsRunningUninstall=OBS Studio is running and is using the SpectralForge Chimera filter. Close OBS Studio, then remove SpectralForge Chimera again. Nothing was removed.
 korean.ObsRunningUninstall=OBS Studio가 실행 중이며 SpectralForge Chimera 필터를 사용하고 있습니다. OBS를 종료한 뒤 다시 제거하세요. 아무것도 제거하지 않았습니다.
+english.ObsCheckFailed=Setup could not verify whether OBS Studio is running (Windows WMI query failed). No files were changed. Close OBS, restore Windows WMI, then retry Setup.
+korean.ObsCheckFailed=Windows WMI 조회에 실패하여 OBS Studio 실행 여부를 확인하지 못했습니다. 파일은 변경하지 않았습니다. OBS를 종료하고 Windows WMI를 복구한 뒤 다시 설치하세요.
+english.ObsCheckFailedUninstall=Uninstall could not verify whether OBS Studio is running (Windows WMI query failed). Nothing was removed. Close OBS, restore Windows WMI, then retry removal.
+korean.ObsCheckFailedUninstall=Windows WMI 조회에 실패하여 OBS Studio 실행 여부를 확인하지 못했습니다. 아무것도 제거하지 않았습니다. OBS를 종료하고 Windows WMI를 복구한 뒤 다시 제거하세요.
 
 [Code]
 var
@@ -219,26 +223,40 @@ begin
 #endif
 end;
 
-// A running OBS keeps chimera-obs.dll loaded: replacing or deleting it would
-// fail half-way. Unknown (WMI unavailable) is treated as not running.
-function ObsStudioRunning: Boolean;
+// Only a completed query may authorize mutation. COM activation, connection,
+// query and Count/enumeration failures must all remain unknown (fail closed).
+// 0 = unknown, 1 = stopped, 2 = running. No runtime bypass is provided.
+function ObsStudioState: Integer;
 var
   Locator, Service, Processes: Variant;
 begin
-  Result := False;
+  Result := 0;
   try
     Locator := CreateOleObject('WbemScripting.SWbemLocator');
     Service := Locator.ConnectServer('.', 'root\CIMV2');
     Processes := Service.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE Name = ''obs64.exe''');
-    Result := Processes.Count > 0;
+    if Processes.Count > 0 then Result := 2 else Result := 1;
   except
-    Log('OBS filter: could not check whether OBS Studio is running');
+    Log('OBS filter: process query failed; mutation blocked: ' + GetExceptionMessage);
   end;
 end;
 
 function ObsFilterFilesPresent: Boolean;
 begin
-  Result := FileExists(ExpandConstant('{#ObsPluginDir}\bin\64bit\chimera-obs.dll'));
+  // Also protect a partially damaged install with a missing DLL: OBS may
+  // still have the module and its VST3 loaded in memory.
+  Result := FileExists(ExpandConstant('{#ObsPluginDir}\bin\64bit\chimera-obs.dll')) or
+    FileExists(ExpandConstant('{#ObsPluginDir}\data\default-vst3-path.txt'));
+end;
+
+function ObsFilterNeedsGuard: Boolean;
+begin
+  // A package without the optional payload can still replace the VST3 used by
+  // an existing OBS filter. Do not compile this protection out of that package.
+  Result := ObsFilterWasInstalled or ObsFilterFilesPresent;
+#ifdef ObsFilter
+  Result := Result or WizardIsTaskSelected('obsfilter');
+#endif
 end;
 
 function ObsStudioInstalled: Boolean;
@@ -300,15 +318,17 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   Folder: String;
+  ObsState: Integer;
 begin
   Result := '';
-#ifdef ObsFilter
-  // Installing, updating or removing the filter while OBS has it loaded.
-  if (WizardIsTaskSelected('obsfilter') or ObsFilterDeselected) and ObsStudioRunning then begin
-    Result := CustomMessage('ObsRunning');
-    Exit;
+  if ObsFilterNeedsGuard then begin
+    ObsState := ObsStudioState;
+    if ObsState <> 1 then begin
+      if ObsState = 2 then Result := CustomMessage('ObsRunning')
+      else Result := CustomMessage('ObsCheckFailed');
+      Exit;
+    end;
   end;
-#endif
   if not LockDocumentParents(ExpandConstant('{app}\Documentation\payload-manifest.json'),
     True, DocumentParentLocks) then begin
     Result := 'Documentation path is linked or inaccessible; existing files were preserved.';
@@ -335,12 +355,20 @@ begin
 end;
 
 function InitializeUninstall: Boolean;
+var
+  ObsState: Integer;
 begin
-  if ObsFilterFilesPresent and ObsStudioRunning then begin
-    if not UninstallSilent then MsgBox(CustomMessage('ObsRunningUninstall'), mbError, MB_OK);
-    Log('OBS filter: uninstall stopped because OBS Studio is running');
-    Result := False;
-    Exit;
+  if ObsFilterFilesPresent then begin
+    ObsState := ObsStudioState;
+    if ObsState <> 1 then begin
+      if not UninstallSilent then begin
+        if ObsState = 2 then MsgBox(CustomMessage('ObsRunningUninstall'), mbError, MB_OK)
+        else MsgBox(CustomMessage('ObsCheckFailedUninstall'), mbError, MB_OK);
+      end;
+      Log('OBS filter: uninstall blocked; process state=' + IntToStr(ObsState));
+      Result := False;
+      Exit;
+    end;
   end;
   Result := InitializeDocumentUninstall;
 end;
