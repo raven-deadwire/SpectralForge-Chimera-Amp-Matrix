@@ -160,7 +160,7 @@ class TesterCodeTests(unittest.TestCase):
             tc.write_private(first, [CODE])
             tc.write_private(second, [OTHER])
             tc.export_allowlist([first, second], out)
-            body = out.read_text()
+            body = out.read_text(encoding="utf-8")
             self.assertNotIn(CODE, body)
             self.assertNotIn("TESTER", body)
             self.assertNotIn("OTHER", body)
