@@ -65,7 +65,7 @@ public:
 };
 class Engine {
     std::array<Amp,3> amps;
-    std::array<Cab,3> cabs;
+    std::array<Cab,3> cabs;std::array<bool,3> laneHeard{};
     std::array<MatrixTone,3> bandTones;
     std::array<juce::SmoothedValue<float>,3> levels;
     Crossover xo,diXO;
@@ -82,6 +82,13 @@ class Engine {
     RoutingMode previousMode{static_cast<RoutingMode>(-1)};
 public:
     Cab& cabinet(int lane) { return cabs[(size_t)lane]; }
+    // Audio thread: every cabinet the last block could be heard through is
+    // settled. Lanes outside the routing mode, muted lanes and lanes with the
+    // cabinet off do not count.
+    bool audibleCabinetsSettled() const noexcept {
+        for(size_t i=0;i<cabs.size();++i)if(laneHeard[i] && !cabs[i].settled())return false;
+        return true;
+    }
     float lowReduction() const {return lowCompressor.reduction();}
     void setDynamicsAnalysis(DynamicsAnalysis* value) noexcept {lowCompressor.setAnalysis(value);}
     int latency() const { return amps[0].latency(); }
@@ -126,6 +133,7 @@ public:
         const bool split=matrix || (mode==RoutingMode::dual && dualCross);
         dualMix.setTargetValue(juce::jlimit(0.f,1.f,blend));for(int n=0;n<buffer.getNumSamples();++n)blendCurve[(size_t)n]=dualMix.getNextValue();
         const int count = mode == RoutingMode::classic ? 1 : mode == RoutingMode::dual ? 2 : 3;
+        for(int i=count;i<3;++i)laneHeard[(size_t)i]=false;
         bool anySolo = false;
         for (int i = 0; i < count; ++i) anySolo = anySolo || states[i].solo;
         if (matrix) {
@@ -139,6 +147,7 @@ public:
         {
             const auto& state = states[i];
             const bool muted = state.mute || (anySolo && !state.solo);
+            laneHeard[(size_t)i]=!muted && state.cab;
             amps[i].setNative(state.native);
             amps[i].set(static_cast<AmpModel>(juce::jlimit(0,ampModelCount-1,state.amp)), matrix && i==0 ? 0.f : state.drive,state.ampChannel);
             if (split)

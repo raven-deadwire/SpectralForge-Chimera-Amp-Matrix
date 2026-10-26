@@ -25,6 +25,7 @@
 //                to settle + 5 ms, over the sharpest 1 ms anywhere in o or r;
 //                above 0 dB the switch is sharper than any note (click_at_ms: where)
 //   overshoot_db worst 5 ms window where y is louder than both o and r
+//   gap_ms       longest silence in y after t0 while r plays (a recall's mute)
 //   cpu          processBlock wall time: steady p50/p99 before t0, worst
 //                block from t0 to settle, as a share of the block budget
 // Time effects (delay, reverb, chorus) are off so tails do not hide the switch.
@@ -82,7 +83,7 @@ Render render(const Setup& setup,const Setup& change,bool messageThread=false) {
     return r;
 }
 
-struct Metrics {double responseMs{-1},settleMs{-1},clickDb{},clickAtMs{},overshootDb{},cpuP50{},cpuP99{},cpuSwitch{},budgetMs{};std::array<double,4> residualDb{};bool settled{};};
+struct Metrics {double responseMs{-1},settleMs{-1},clickDb{},clickAtMs{},overshootDb{},gapMs{},cpuP50{},cpuP99{},cpuSwitch{},budgetMs{};std::array<double,4> residualDb{};bool settled{};};
 double energy(const std::vector<float>& a,const std::vector<float>* b,size_t from,size_t n) {
     double e=0;for(size_t i=from;i<std::min(a.size(),from+n);++i){const double d=a[i]-(b?(*b)[i]:0.f);e+=d*d;}return e;
 }
@@ -122,6 +123,15 @@ Metrics measure(const Render& o,const Render& y,const Render& r) {
         const double db=10*std::log10((d2energy(y.audio,s,ms)+1e-30)/sharpest);
         if(db>m.clickDb){m.clickDb=db;m.clickAtMs=(double(s)-double(t0))/double(ms);}
     }
+    // Gap: the longest run after t0 where y is silent (below -60 dB re post)
+    // while r is not, i.e. how long a recall's mute lasts.
+    {
+        const double silent=post*double(ms)*1e-6;double run=0;
+        for(size_t s=t0;s+ms<=total;s+=ms) {
+            if(energy(y.audio,nullptr,s,ms)<silent && energy(r.audio,nullptr,s,ms)>=silent){run+=1;m.gapMs=std::max(m.gapMs,run);}
+            else run=0;
+        }
+    }
     // Overshoot: y louder than both the old and the new sound, in 5 ms windows.
     m.overshootDb=-300;
     for(size_t s=t0;s+5*ms<=total;s+=5*ms)
@@ -141,7 +151,7 @@ void report(const Result& result) {
     const auto& m=result.m;
     std::cout<<"SWITCH kind="<<result.kind.toStdString()<<" name=\""<<result.name.toStdString()<<"\" response_ms="<<m.responseMs<<" settle_ms="<<m.settleMs<<(m.settled?"":"+")
              <<" residual_db@20/50/100/250="<<juce::String(m.residualDb[0],1)<<"/"<<juce::String(m.residualDb[1],1)<<"/"<<juce::String(m.residualDb[2],1)<<"/"<<juce::String(m.residualDb[3],1)
-             <<" click_db="<<juce::String(m.clickDb,1)<<" click_at_ms="<<m.clickAtMs<<" overshoot_db="<<juce::String(m.overshootDb,1)<<" cpu_ms p50="<<juce::String(m.cpuP50,3)<<" p99="<<juce::String(m.cpuP99,3)<<" switch="<<juce::String(m.cpuSwitch,3)
+             <<" click_db="<<juce::String(m.clickDb,1)<<" click_at_ms="<<m.clickAtMs<<" overshoot_db="<<juce::String(m.overshootDb,1)<<" gap_ms="<<m.gapMs<<" cpu_ms p50="<<juce::String(m.cpuP50,3)<<" p99="<<juce::String(m.cpuP99,3)<<" switch="<<juce::String(m.cpuSwitch,3)
              <<" budget="<<juce::String(m.budgetMs,3)<<'\n';
 }
 void scenario(const juce::String& kind,const juce::String& name,const Setup& base,const Setup& change,bool messageThread=false) {
@@ -193,12 +203,12 @@ void scenarios() {
 }
 
 void writeCsv(const juce::File& file) {
-    juce::String csv="kind,name,block,rate,response_ms,settle_ms,settled,residual_20_db,residual_50_db,residual_100_db,residual_250_db,click_db,click_at_ms,overshoot_db,cpu_p50_ms,cpu_p99_ms,cpu_switch_ms,budget_ms\n";
+    juce::String csv="kind,name,block,rate,response_ms,settle_ms,settled,residual_20_db,residual_50_db,residual_100_db,residual_250_db,click_db,click_at_ms,overshoot_db,gap_ms,cpu_p50_ms,cpu_p99_ms,cpu_switch_ms,budget_ms\n";
     for(const auto& r:results) {
         const auto& m=r.m;
         csv<<r.kind<<",\""<<r.name<<"\","<<block<<","<<rate<<","<<m.responseMs<<","<<m.settleMs<<","<<(m.settled?1:0);
         for(const auto v:m.residualDb)csv<<","<<v;
-        csv<<","<<m.clickDb<<","<<m.clickAtMs<<","<<m.overshootDb<<","<<m.cpuP50<<","<<m.cpuP99<<","<<m.cpuSwitch<<","<<m.budgetMs<<"\n";
+        csv<<","<<m.clickDb<<","<<m.clickAtMs<<","<<m.overshootDb<<","<<m.gapMs<<","<<m.cpuP50<<","<<m.cpuP99<<","<<m.cpuSwitch<<","<<m.budgetMs<<"\n";
     }
     require(file.replaceWithText(csv),"Cannot write "+file.getFullPathName());
 }

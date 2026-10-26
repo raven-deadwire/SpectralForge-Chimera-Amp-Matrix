@@ -45,6 +45,7 @@ Every scenario renders the same fixture three times on fresh instances:
 | `residual_db` | `y − r` energy in 5 ms windows at +20/+50/+100/+250 ms, re `post` | Shape of the decay |
 | `click_db`, `click_at_ms` | `y`'s sharpest 1 ms (second-difference energy) from t0 − 2 ms to settle + 5 ms, over the sharpest 1 ms anywhere in `o` or `r`, and where it is | Whether the switch is sharper than the hardest pick attack either sound makes on its own. ≤ 0 dB: no click |
 | `overshoot_db` | Worst 5 ms window where `y` is louder than both `o` and `r` | A passage louder than either sound, e.g. dynamics restarting without gain reduction |
+| `gap_ms` | Longest run of windows after t0 where `y` is silent (below −60 dB re `post`) while `r` is not | How long a recall mutes the output |
 | `cpu_ms` | `processBlock` wall time: steady p50/p99 over the blocks before t0 (first 20 skipped), worst block from t0 to settle, and the block budget | Whether the switch block risks a dropout. Machine-dependent: reported, not gated |
 
 `click_db` and `overshoot_db` are reported separately on purpose: a louder
@@ -57,7 +58,7 @@ Gates in CTest (the output must also stay finite):
 - channel and amp model switches respond within **20 ms** (their crossfade);
 - preset and A/B recalls respond within **60 ms** (UI thread included).
 
-Settle, residual, click, overshoot and CPU are reported in the log and in
+Settle, residual, click, overshoot, gap and CPU are reported in the log and in
 `build/switch-timing.csv` (written even when a gate fails). A modulated
 channel (vibrato, tremolo) never settles against a reference whose LFO
 started earlier, and wall time varies by runner.
@@ -78,9 +79,13 @@ running on another thread, Chimera now:
    waits for that, at most 30 ms (`ChimeraProcessor::beginSwitch`);
 2. builds and applies the new state while the output stays muted (a hold that
    gives up after 0.5 s);
-3. resets the DSP, stays muted for the reported latency (the cleared delay
+3. resets the DSP and stays muted for the reported latency (the cleared delay
    lines refill) plus 20 ms while the new sound already runs, so parameter
-   smoothers and dynamics detectors have caught up, and fades it in (5 ms).
+   smoothers and dynamics detectors have caught up;
+4. stays muted until every cabinet that can be heard (lanes in the routing
+   mode, not muted, cabinet on; a blended second mic too) has the recalled
+   IR or model installed and its crossfade finished, at most 0.5 s
+   (`Engine::audibleCabinetsSettled` in `Source/ChimeraDSP.h`), then fades in (5 ms).
 
 Without step 1, the new parameters already reach the old DSP on the next
 block and the jump is audible however the output is faded afterwards. Offline
@@ -101,51 +106,56 @@ indexes them once. Measured in this container:
 
 ## Results (2026-10-26, Linux container, Release)
 
-Recall switches, before and after the change (same probe, UI-thread recall):
+Recall switches across the three changes (same probe, UI-thread recall). The
+first column is the code before any of them; the A > B row there used the
+earlier reference (the preset loaded fresh), the later columns slot B itself.
 
-| Switch | Block | Response ms before → after | Click dB before → after | Overshoot dB before → after |
-|---|---|---|---|---|
-| preset 0 > 17 | 256 | 395 → 10 | 22.9 → −7.5 | 1.8 → 0.0 |
-| preset 17 > 33 | 256 | 410 → 6 | 12.9 → 7.4 | 5.6 → 0.0 |
-| A > B | 256 | 426 → 12 | 23.3 → 12.2 | 16.1 → 10.7 |
-| preset 0 > 17 | 64 | 435 → 8 | 30.4 → −5.5 | 2.7 → 0.0 |
-| preset 17 > 33 | 64 | 481 → 2 | 17.8 → 8.6 | 7.2 → 1.1 |
-| A > B | 64 | 451 → 10 | 20.6 → 13.3 | 8.9 → 7.2 |
+| Switch | Block | Response ms | Click dB | Overshoot dB | Gap ms (after) |
+|---|---|---|---|---|---|
+| | | before → fade → +settle/cabinet | before → fade → +settle/cabinet | before → fade → +settle/cabinet | |
+| preset 0 > 17 | 256 | 395 → 10 → 10 | 22.9 → −7.5 → −17.2 | 1.8 → 0.0 → 0.0 | 193 |
+| preset 17 > 33 | 256 | 410 → 6 → 6 | 12.9 → 7.4 → 0.7 | 5.6 → 0.0 → 0.0 | 256 |
+| A > B | 256 | 426 → 12 → 12 | 23.3 → 12.2 → 1.0 | 16.1 → 10.7 → 0.0 | 443 |
+| preset 0 > 17 | 64 | 435 → 8 → 8 | 30.4 → −5.5 → −17.2 | 2.7 → 0.0 → 0.0 | 217 |
+| preset 17 > 33 | 64 | 481 → 2 → 2 | 17.8 → 8.6 → −0.4 | 7.2 → 1.1 → −0.5 | 264 |
+| A > B | 64 | 451 → 10 → 10 | 20.6 → 13.3 → −0.4 | 8.9 → 7.2 → 0.0 | 393 |
 
-Before, the state took about 0.4 s to apply while audio played, and the
-switch clicked when it landed. After, the remaining `click_db` sits on the
-first plucks after the reset (+44 ms, +203 ms) together with the overshoot:
-see finding 3.
+Before, the state took about 0.4 s to apply while audio played and the
+switch clicked when it landed. With the fade alone, the first notes after
+the reset were louder (smoothers, then the old cabinet until the new one was
+built). With the settle and the cabinet wait, nothing is louder or sharper
+than the recalled sound itself; the price is a 0.2–0.45 s mute while the
+cabinets are built (finding 4).
 
-All switches after the change, 48 kHz, 256 samples (budget 5.33 ms):
+All switches with every change, 48 kHz, 256 samples (budget 5.33 ms):
 
-| Kind | Switch | Response ms | Settle ms | Click dB | Overshoot dB | CPU p99 / switch ms |
-|---|---|---|---|---|---|---|
-| channel | model 0 NORMAL > VIBRATO | 1 | 1001+ ¹ | −1.1 | 0.7 | 1.21 / 2.90 |
-| channel | model 2 RHYTHM > LEAD | 3 | 358 | −0.1 | −0.1 | 1.93 / 1.76 |
-| channel | model 8 NORMAL > TOP BOOST | 2 | 194 | −0.8 | 0.4 | 2.53 / 2.14 |
-| channel | model 9 DIRTY > CLEAN | 3 | 139 | −1.6 | 0.0 | 1.48 / 1.80 |
-| channel | model 4 LEAD > RHYTHM 1 | 4 | 299 | −4.4 | 0.0 | 1.47 / 1.73 |
-| channel | model 10 VINTAGE > OVERDRIVE | 8 | 244 | −4.6 | 0.2 | 1.12 / 2.94 |
-| amp model | preset 0, model 0 > 1 | 4 | 156 | 0.2 | 1.1 | 1.27 / 1.89 |
-| preset | 0 > 17 | 10 | 445 | −7.5 | 0.0 | 1.61 / 4.16 |
-| preset | 17 > 33 | 6 | 1002+ ² | 7.4 | 0.0 | 2.00 / 4.89 |
-| A/B | A > B | 12 | 526 | 12.2 | 10.7 | 1.20 / 5.32 |
+| Kind | Switch | Response ms | Gap ms | Settle ms | Click dB | Overshoot dB | CPU p99 / switch ms |
+|---|---|---|---|---|---|---|---|
+| channel | model 0 NORMAL > VIBRATO | 1 | 0 | 1001+ ¹ | −1.1 | 0.7 | 1.58 / 1.34 |
+| channel | model 2 RHYTHM > LEAD | 3 | 0 | 358 | −0.1 | −0.1 | 1.19 / 1.50 |
+| channel | model 8 NORMAL > TOP BOOST | 2 | 0 | 194 | −0.8 | 0.4 | 1.42 / 1.28 |
+| channel | model 9 DIRTY > CLEAN | 3 | 0 | 139 | −1.6 | 0.0 | 1.13 / 1.55 |
+| channel | model 4 LEAD > RHYTHM 1 | 4 | 0 | 299 | −4.4 | 0.0 | 2.20 / 1.37 |
+| channel | model 10 VINTAGE > OVERDRIVE | 8 | 0 | 244 | −4.6 | 0.2 | 1.27 / 1.29 |
+| amp model | preset 0, model 0 > 1 | 4 | 0 | 156 | 0.2 | 1.1 | 3.91 / 1.17 |
+| preset | 0 > 17 | 10 | 193 | 209 | −17.2 | 0.0 | 1.38 / 3.08 |
+| preset | 17 > 33 | 6 | 256 | 1002+ ² | 0.7 | 0.0 | 1.45 / 5.85 |
+| A/B | A > B | 12 | 443 | 526 | 1.0 | 0.0 | 1.03 / 8.06 |
 
 48 kHz, 64 samples (budget 1.33 ms):
 
-| Kind | Switch | Response ms | Settle ms | Click dB | Overshoot dB | CPU p99 / switch ms |
-|---|---|---|---|---|---|---|
-| channel | model 0 NORMAL > VIBRATO | 6 | 365 | −1.9 | 0.7 | 0.59 / 0.50 |
-| channel | model 2 RHYTHM > LEAD | 4 | 358 | −0.0 | −0.4 | 0.38 / 0.50 |
-| channel | model 8 NORMAL > TOP BOOST | 4 | 191 | 0.1 | 0.0 | 0.27 / 0.48 |
-| channel | model 9 DIRTY > CLEAN | 3 | 137 | −1.8 | 0.0 | 0.46 / 0.51 |
-| channel | model 4 LEAD > RHYTHM 1 | 3 | 316 | −5.3 | −0.0 | 0.40 / 0.54 |
-| channel | model 10 VINTAGE > OVERDRIVE | 7 | 259 | −3.2 | 0.1 | 0.29 / 0.37 |
-| amp model | preset 0, model 0 > 1 | 2 | 171 | 1.1 | 1.2 | 0.56 / 0.61 |
-| preset | 0 > 17 | 8 | 321 | −5.5 | 0.0 | 0.33 / **4.58** |
-| preset | 17 > 33 | 2 | 1000+ ² | 8.6 | 1.1 | 0.47 / **1.75** |
-| A/B | A > B | 10 | 523 | 13.3 | 7.2 | 0.37 / **1.54** |
+| Kind | Switch | Response ms | Gap ms | Settle ms | Click dB | Overshoot dB | CPU p99 / switch ms |
+|---|---|---|---|---|---|---|---|
+| channel | model 0 NORMAL > VIBRATO | 6 | 0 | 365 | −1.9 | 0.7 | 0.37 / 0.45 |
+| channel | model 2 RHYTHM > LEAD | 4 | 0 | 358 | −0.0 | −0.4 | 0.46 / 0.40 |
+| channel | model 8 NORMAL > TOP BOOST | 4 | 0 | 191 | 0.1 | 0.0 | 0.41 / **1.61** |
+| channel | model 9 DIRTY > CLEAN | 3 | 0 | 137 | −1.8 | 0.0 | 0.34 / 0.45 |
+| channel | model 4 LEAD > RHYTHM 1 | 3 | 0 | 316 | −5.3 | −0.0 | 0.48 / 0.52 |
+| channel | model 10 VINTAGE > OVERDRIVE | 7 | 0 | 259 | −3.2 | 0.1 | 0.30 / 0.35 |
+| amp model | preset 0, model 0 > 1 | 2 | 0 | 171 | 1.1 | 1.2 | 0.37 / 0.92 |
+| preset | 0 > 17 | 8 | 217 | 229 | −17.2 | 0.0 | 0.35 / **1.64** |
+| preset | 17 > 33 | 2 | 264 | 1000+ ² | −0.4 | −0.5 | 0.54 / **4.64** |
+| A/B | A > B | 10 | 393 | 523 | −0.4 | 0.0 | 0.37 / **1.54** |
 
 ¹ The vibrato channel's LFO phase differs from the reference's, so `y` never
 matches `r` exactly at 256 samples; at 64 samples it settles in 365 ms.
@@ -159,29 +169,31 @@ blocks; repeat them on reference hardware before acting on single values.
 
 1. **Channel and amp model switches are clean.** They are heard within
    1–8 ms (a 20 ms linear crossfade from the next block), no switch is sharper
-   than a pick attack, and the old channel decays to −40 dB within 140–360 ms:
-   the amp's own dynamics settling, not a leftover of the old channel.
+   than a pick attack, nothing mutes, and the old channel decays to −40 dB
+   within 140–360 ms: the amp's own dynamics settling, not a leftover of the
+   old channel.
 2. **Preset and A/B recalls no longer jump.** They respond in 2–12 ms instead
-   of about 0.4 s and pass through a short mute (5 ms out, the state change,
-   the latency, 5 ms in) instead of a hard cut.
-3. **After a recall, the first notes could be louder (overshoot up to
-   ~11–16 dB).** Not from the reset itself (skipping each module's reset did
-   not remove it): parameter smoothers ramp from the old sound's values for
-   about 20 ms. The 20 ms muted settle after the reset removes it for preset
-   17 > 33 (8–10 dB → 0) and halves it for A > B (≈4–5 dB left).
-4. **The previous cabinet stays for 140–400 ms after a recall.** Modeled CAB
-   kernels for the recalled sound are built on the IR worker thread lane by
-   lane (here lane 1 after ≈140 ms, lane 2 after ≈270 ms, lane 3 later), each
-   then crossfading 50 ms; until then the old cabinet plays. This is the
-   remaining A > B overshoot and residual (−0.2 dB at +100 ms, settle
-   ≈550 ms). Not changed yet.
+   of about 0.4 s, and the output fades instead of cutting.
+3. **The first notes after a recall are no longer louder.** They were, by up
+   to ~11–16 dB: not from the reset itself (skipping each module's reset did
+   not remove it) but from parameter smoothers ramping from the old sound's
+   values (about 20 ms) and from the old cabinet playing until the new one
+   was built. The 20 ms settle and the cabinet wait remove both (overshoot
+   0 dB, click ≤ 1 dB).
+4. **A recall now mutes for 0.2–0.45 s in this container** while the IR worker
+   builds the recalled cabinets (lane by lane: here lane 1 after ≈140 ms,
+   lane 2 after ≈270 ms, lane 3 later; the A > B preset uses all three). The
+   alternative was hearing the previous cabinet for as long, then a 50 ms
+   crossfade. Building heard lanes first or in parallel, or keeping both A/B
+   slots' kernels ready, would shorten it; not changed here.
 5. **Switch blocks can exceed the block budget** in this container,
-   especially at 64 samples. Re-measure on reference hardware; if confirmed,
-   move the reset work off the switch block.
+   especially at 64 samples and for recalls. Re-measure on reference
+   hardware; if confirmed, move the reset work off the switch block.
 6. Compared with the benchmark notes: a native channel switch here has no
    separate preparation delay (it installs at the next block and crossfades
    20 ms), so response is a few milliseconds, while the CPU cost lands in
-   that block instead.
+   that block instead. A recall, by contrast, now trades a short mute for
+   never playing a half-switched sound.
 
 ## Running
 

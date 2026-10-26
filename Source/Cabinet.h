@@ -155,6 +155,13 @@ public:
             *lp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(sr,high);
         cutRate=sr;lastLowCut=low;lastHighCut=high;
     }
+    // Audio thread: the requested IR/model is installed and its crossfade is
+    // over (the editor's "Ready"), for this mic and a blended second mic.
+    bool settled() const noexcept {
+        const bool self=pending.load()==nullptr && fadeRemaining==0
+            && activeSource.load()==requestedSource.load() && activeModel.load()==requestedModel.load();
+        return self && (!micB || blend<=0.f || micB->settled());
+    }
     // Audio-thread diagnostic; never queried by the worker.
     int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)

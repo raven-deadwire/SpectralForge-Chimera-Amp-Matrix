@@ -177,7 +177,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         // Nothing has played since prepareToPlay: there is no sound to fade.
         if(!processedSincePrepare){resetProcessing(true);switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
         else if(switchFade==SwitchFade::hold || switchFade==SwitchFade::wait) { // already silent
-            resetProcessing(true);switchWait=getLatencySamples()+int(rate*switchSettleSeconds);
+            resetProcessing(true);switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);
             if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
         }
         else {hostBypass.reset();switchFade=SwitchFade::out;}
@@ -266,7 +266,14 @@ void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
         float g=1;
         if(switchFade==SwitchFade::out){if(switchFadePosition>0)--switchFadePosition;g=gain();}
         else if(switchFade==SwitchFade::hold){g=0;if(--switchHold<=0){switchFade=SwitchFade::in;switchFadePosition=0;holdForSwitch=false;}} // abandoned: no state change came
-        else if(switchFade==SwitchFade::wait){g=0;if(--switchWait<=0){switchFade=SwitchFade::in;switchFadePosition=0;}}
+        else if(switchFade==SwitchFade::wait){
+            g=0;
+            if(--switchWait<=0) {
+                // Re-check the cabinets every 64 samples while the budget lasts.
+                if(switchCabinetBudget>0 && !engine.audibleCabinetsSettled()){switchWait=juce::jmin(64,switchCabinetBudget);switchCabinetBudget-=switchWait;}
+                else {switchFade=SwitchFade::in;switchFadePosition=0;}
+            }
+        }
         else if(switchFade==SwitchFade::in){if(++switchFadePosition>=switchFadeLength){switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;}g=gain();}
         for(int c=0;c<part.getNumChannels();++c)part.getWritePointer(c)[n]*=g;
     }
@@ -276,7 +283,7 @@ void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
         switchFade=SwitchFade::hold;switchHold=int(rate*.5);fadedSilent.store(true);
     } else if(switchFade==SwitchFade::out && switchFadePosition==0) {
         resetProcessing(false);
-        switchWait=getLatencySamples()+int(rate*switchSettleSeconds);
+        switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);
         if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
     }
 }
