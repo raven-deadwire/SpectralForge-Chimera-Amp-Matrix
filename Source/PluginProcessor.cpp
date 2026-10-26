@@ -177,7 +177,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         // Nothing has played since prepareToPlay: there is no sound to fade.
         if(!processedSincePrepare){resetProcessing(true);switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
         else if(switchFade==SwitchFade::hold || switchFade==SwitchFade::wait) { // already silent
-            resetProcessing(true);switchWait=getLatencySamples();
+            resetProcessing(true);switchWait=getLatencySamples()+int(rate*switchSettleSeconds);
             if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
         }
         else {hostBypass.reset();switchFade=SwitchFade::out;}
@@ -276,7 +276,7 @@ void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
         switchFade=SwitchFade::hold;switchHold=int(rate*.5);fadedSilent.store(true);
     } else if(switchFade==SwitchFade::out && switchFadePosition==0) {
         resetProcessing(false);
-        switchWait=getLatencySamples();
+        switchWait=getLatencySamples()+int(rate*switchSettleSeconds);
         if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
     }
 }

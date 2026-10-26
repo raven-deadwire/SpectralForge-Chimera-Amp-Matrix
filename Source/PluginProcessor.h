@@ -221,6 +221,11 @@ private:
     // stays immediate, and so does the first block after prepareToPlay.
     std::atomic<bool> switchPending{false},fadeRequested{false},fadedSilent{false};
     std::atomic<juce::int64> lastProcessTicks{0};std::atomic<size_t> audioThread{0};
+    // After the reset, stay muted for the latency plus 20 ms while the new
+    // sound already runs: parameter smoothers ramp from the old sound's values
+    // and dynamics detectors start without gain reduction, so the first note
+    // would otherwise come out louder than the recalled sound.
+    static constexpr double switchSettleSeconds=.02;
     enum class SwitchFade {idle,out,hold,wait,in};
     SwitchFade switchFade{SwitchFade::idle};int switchFadeLength{240},switchFadePosition{240},switchWait{},switchHold{};
     bool processedSincePrepare{},holdForSwitch{};

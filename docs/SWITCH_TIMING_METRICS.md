@@ -25,7 +25,10 @@ Every scenario renders the same fixture three times on fresh instances:
     the audio thread, as host automation delivers them.
   - **Preset and A/B** recalls run on a second (UI) thread while blocks keep
     coming at real-time pace, as from the editor. This includes the time the
-    UI thread needs to build and apply the recalled state.
+    UI thread needs to build and apply the recalled state. The A/B reference
+    `r` is slot B itself selected before playback: a factory recall keeps
+    session settings such as input gain, so a freshly loaded preset is not
+    the same sound.
 - Delay, reverb and chorus are off in all three renders, so effect tails and
   LFOs do not hide the switch. (Keeping effect tails across a switch is a
   separate behaviour, not measured here.)
@@ -76,7 +79,8 @@ running on another thread, Chimera now:
 2. builds and applies the new state while the output stays muted (a hold that
    gives up after 0.5 s);
 3. resets the DSP, stays muted for the reported latency (the cleared delay
-   lines refill), and fades the new sound in (5 ms).
+   lines refill) plus 20 ms while the new sound already runs, so parameter
+   smoothers and dynamics detectors have caught up, and fades it in (5 ms).
 
 Without step 1, the new parameters already reach the old DSP on the next
 block and the jump is audible however the output is faded afterwards. Offline
@@ -160,16 +164,21 @@ blocks; repeat them on reference hardware before acting on single values.
 2. **Preset and A/B recalls no longer jump.** They respond in 2–12 ms instead
    of about 0.4 s and pass through a short mute (5 ms out, the state change,
    the latency, 5 ms in) instead of a hard cut.
-3. **After a recall, the first notes can be louder (overshoot up to ~11 dB
-   on A > B).** Every compressor, limiter and gate restarts without gain
-   reduction, as on a fresh instance, until its detector catches up. This
-   predates the fade (the old immediate reset did the same). Carrying the
-   dynamics detectors across a recall instead of zeroing them would address
-   it; not changed here.
-4. **Switch blocks can exceed the block budget** in this container,
+3. **After a recall, the first notes could be louder (overshoot up to
+   ~11–16 dB).** Not from the reset itself (skipping each module's reset did
+   not remove it): parameter smoothers ramp from the old sound's values for
+   about 20 ms. The 20 ms muted settle after the reset removes it for preset
+   17 > 33 (8–10 dB → 0) and halves it for A > B (≈4–5 dB left).
+4. **The previous cabinet stays for 140–400 ms after a recall.** Modeled CAB
+   kernels for the recalled sound are built on the IR worker thread lane by
+   lane (here lane 1 after ≈140 ms, lane 2 after ≈270 ms, lane 3 later), each
+   then crossfading 50 ms; until then the old cabinet plays. This is the
+   remaining A > B overshoot and residual (−0.2 dB at +100 ms, settle
+   ≈550 ms). Not changed yet.
+5. **Switch blocks can exceed the block budget** in this container,
    especially at 64 samples. Re-measure on reference hardware; if confirmed,
    move the reset work off the switch block.
-5. Compared with the benchmark notes: a native channel switch here has no
+6. Compared with the benchmark notes: a native channel switch here has no
    separate preparation delay (it installs at the next block and crossfades
    20 ms), so response is a few milliseconds, while the CPU cost lands in
    that block instead.

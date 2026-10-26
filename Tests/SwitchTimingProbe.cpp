@@ -179,13 +179,15 @@ void scenarios() {
     }
     for(const auto& [a,b]:std::vector<std::pair<int,int>>{{0,factoryPresetCount/2},{factoryPresetCount/2,factoryPresetCount-1}})
         scenario("preset","preset "+juce::String(a)+" > "+juce::String(b),[=](ChimeraProcessor& p){p.loadFactoryPreset(a);},[=](ChimeraProcessor& p){p.loadFactoryPreset(b);},true);
-    // A/B: B holds another preset. The new-sound reference is that preset as A.
+    // A/B: B holds another preset. The new-sound reference is slot B itself,
+    // selected before playback: a factory recall keeps session settings such
+    // as input gain, so "that preset loaded fresh" is not the same sound.
     {
         const int other=factoryPresetCount-1;
         const Setup base=[=](ChimeraProcessor& p){p.loadFactoryPreset(0);p.selectComparison(1);p.loadFactoryPreset(other);
             for(const auto* id:{"delayon","reverbon","choruson"})set(p,id,0);p.selectComparison(0);};
         const auto o=render(base,{}),y=render(base,[](ChimeraProcessor& p){p.selectComparison(1);},true);
-        const auto r=render([=](ChimeraProcessor& p){p.loadFactoryPreset(other);},{});
+        const auto r=render([=](ChimeraProcessor& p){base(p);p.selectComparison(1);},{});
         results.push_back({"ab","A > B",measure(o,y,r),true});report(results.back());
     }
 }
