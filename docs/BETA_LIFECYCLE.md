@@ -55,11 +55,15 @@ The owner decided that beta testers receive a code that lifts the expiry
 indefinitely, for this and every later beta. Public users keep the approved
 expiry above.
 
-- **Code:** `CHT1-<payload>.<signature>` names one tester. It is signed with the
-  owner's RSA-2048 private key (full-domain hash, `Tools/tester_code.py`) and
-  verified offline against the public key in `Source/TesterCodeKey.h`. The
-  private key is never committed (`*.private.json` is ignored and a test fails
-  if one appears).
+- **Code:** `CHT1-<NAME>-<CHECK>`, e.g. `CHT1-ZIEL-7K3Q9X`, names one tester
+  (2-16 letters/digits). `CHECK` is the first 30 bits of
+  HMAC-SHA256(secret, `chimera-tester-v1|NAME`) in Crockford base32, so one
+  code does not reveal another (`Source/TesterCode.h`, `Tools/tester_code.py`).
+  The secret reaches release builds only through the `CHIMERA_TESTER_SECRET`
+  GitHub Actions secret, read at configure time; it is never committed
+  (`*.private.json` is ignored and a test fails if a secret file appears). A
+  build without it accepts no codes, and non-PR runs of `build.yml` fail
+  without it. Lower case, spaces, and O/I/L typed for 0/1 are accepted.
 - **Entry:** SETTINGS → *Enter beta tester code...*. Only a verified code is
   stored, per user and computer, in
   `<user application data>/SpectralForge/Chimera/beta-tester-code.txt`. It is
@@ -72,8 +76,10 @@ expiry above.
   that is already playing; the expiry applies again to newly opened instances.
 - **Limits:** a code does not override invalid build metadata. Codes cannot be
   revoked offline, and a shared code works for whoever holds it; each code
-  names its tester so its origin is known. Like the expiry itself, this is basic
-  offline control, not tamper-proof DRM.
+  names its tester so its origin is known. The secret is inside every release
+  binary, so someone who extracts it can make codes; changing the secret
+  invalidates every issued code in later builds. Like the expiry itself, this is
+  basic offline control, not tamper-proof DRM.
 - **Issuing:** see [BETA_TESTER_CODES.ko.md](BETA_TESTER_CODES.ko.md).
 
 ## Configuration and next-version identity

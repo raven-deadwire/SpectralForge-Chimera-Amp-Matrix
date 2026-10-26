@@ -90,10 +90,19 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
+    env:
+      # Beta tester code check secret (Tools/tester_code.py secret); never committed.
+      CHIMERA_TESTER_SECRET: ${{ secrets.CHIMERA_TESTER_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Require the beta tester code secret for release candidates
+        if: github.event_name != 'pull_request' && env.CHIMERA_TESTER_SECRET == ''
+        shell: bash
+        run: |
+          echo "::error::CHIMERA_TESTER_SECRET is not set. Release builds without it reject every beta tester code (docs/BETA_TESTER_CODES.ko.md)."
+          exit 1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

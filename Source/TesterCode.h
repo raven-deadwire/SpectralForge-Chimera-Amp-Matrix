@@ -1,94 +1,93 @@
 #pragma once
 #include <juce_core/juce_core.h>
 #include <juce_cryptography/juce_cryptography.h>
-#include "TesterCodeKey.h"
+#if __has_include("ChimeraTesterSecret.h")
+#include "ChimeraTesterSecret.h"
+#endif
+#ifndef CHIMERA_TESTER_SECRET_HEX
+#define CHIMERA_TESTER_SECRET_HEX ""
+#endif
 
 namespace spectralforge::beta::tester {
-// Beta tester codes lift the beta expiry for every later beta build signed
-// with the same key. A code names one tester and is verified offline against
-// the public key in TesterCodeKey.h; issuing needs the owner's private key
-// (Tools/tester_code.py). Like the expiry itself, this is basic offline
-// control, not tamper-proof DRM. The accepted code is stored for this user on
-// this computer and is never written into a project, preset or reference file.
-//
-// Format: CHT1-<base64url payload>.<base64url signature>. The signature is an
-// RSA full-domain hash: s^e mod n == 0x00 || SHA-256(domain || i || payload)...
-// It covers the exact payload bytes, so the JSON is only read, never re-encoded.
-inline constexpr const char* prefix = "CHT1-";
+// Beta tester codes lift the beta expiry for this and every later beta built
+// with the same secret. A code is short enough to type: CHT1-<NAME>-<CHECK>,
+// e.g. CHT1-ZIEL-7K3Q9X. CHECK is the first 30 bits of
+// HMAC-SHA256(secret, domain + "|" + NAME) in Crockford base32, so one code
+// does not reveal another. The secret is injected at configure time from the
+// CHIMERA_TESTER_SECRET environment variable (Tools/tester_code.py secret) and
+// is never committed; a build without it accepts no codes. Anyone who extracts
+// the secret from a binary can make codes: like the expiry itself, this is basic
+// offline control, not tamper-proof DRM. The accepted code is stored for this
+// user on this computer and is never written into a project, preset or reference file.
+inline constexpr const char* prefix = "CHT1";
 inline constexpr const char* domain = "chimera-tester-v1";
-inline constexpr int maxNameLength = 64;
-inline constexpr int maxCodeLength = 2048;
+inline constexpr const char* alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+inline constexpr int minNameLength = 2;
+inline constexpr int maxNameLength = 16;
+inline constexpr int checkLength = 6;
+inline constexpr int maxCodeLength = 64;
 
 struct Grant {
     bool valid{};
-    juce::String name, id, issued, error;
+    juce::String name, error;
 };
 
 namespace detail {
-inline bool decodeBase64Url(const juce::String& text, juce::MemoryBlock& out) {
-    if(text.isEmpty() || !text.containsOnly("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"))return false;
-    auto standard=text.replaceCharacter('-','+').replaceCharacter('_','/');
-    while(standard.length()%4!=0)standard+="=";
-    juce::MemoryOutputStream decoded(out,false);
-    if(!juce::Base64::convertFromBase64(decoded,standard))return false;
-    decoded.flush();
-    // One spelling per code: unused trailing bits must be zero.
-    auto again=juce::Base64::toBase64(out.getData(),out.getSize()).replaceCharacter('+','-').replaceCharacter('/','_');
-    return again.trimCharactersAtEnd("=")==text;
-}
-// Big-endian bytes to and from juce::BigInteger (which stores little-endian).
-inline juce::BigInteger fromBigEndian(const juce::MemoryBlock& bytes) {
-    juce::MemoryBlock reversed(bytes.getSize());
-    for(size_t i=0;i<bytes.getSize();++i)reversed[i]=bytes[bytes.getSize()-1-i];
-    juce::BigInteger value;value.loadFromMemoryBlock(reversed);return value;
-}
-inline juce::BigInteger encode(const juce::MemoryBlock& payload,int modulusBytes) {
-    juce::MemoryBlock stream;
-    for(juce::uint32 counter=0;(int)stream.getSize()<modulusBytes-1;++counter) {
-        juce::MemoryBlock input(domain,std::strlen(domain));
-        const juce::uint8 be[4]{juce::uint8(counter>>24),juce::uint8(counter>>16),juce::uint8(counter>>8),juce::uint8(counter)};
-        input.append(be,4);input.append(payload.getData(),payload.getSize());
-        stream.append(juce::SHA256(input.getData(),input.getSize()).getRawData().getData(),32);
+inline juce::MemoryBlock hmacSHA256(const juce::MemoryBlock& key,const juce::String& message) {
+    constexpr size_t block=64;
+    juce::MemoryBlock k(key);
+    if(k.getSize()>block)k=juce::SHA256(k.getData(),k.getSize()).getRawData();
+    k.ensureSize(block,true);
+    juce::MemoryBlock inner,outer;
+    for(size_t i=0;i<block;++i) {
+        const auto b=(juce::uint8)k[i];
+        const juce::uint8 in=b^0x36,out=b^0x5c;inner.append(&in,1);outer.append(&out,1);
     }
-    juce::MemoryBlock message(1);message[0]=0;
-    message.append(stream.getData(),(size_t)modulusBytes-1);
-    return fromBigEndian(message);
+    const auto text=message.toUTF8();
+    inner.append(text.getAddress(),text.sizeInBytes()-1);
+    const auto innerHash=juce::SHA256(inner.getData(),inner.getSize()).getRawData();
+    outer.append(innerHash.getData(),innerHash.getSize());
+    return juce::SHA256(outer.getData(),outer.getSize()).getRawData();
+}
+inline juce::String check(const juce::MemoryBlock& secret,const juce::String& name) {
+    const auto mac=hmacSHA256(secret,juce::String(domain)+"|"+name);
+    juce::uint32 bits=0;
+    for(size_t i=0;i<4;++i)bits=(bits<<8)|(juce::uint8)mac[i];
+    juce::String out;
+    for(int i=0;i<checkLength;++i)out+=juce::String::charToString(alphabet[(bits>>(27-5*i))&31u]);
+    return out;
 }
 inline bool validName(const juce::String& name) {
-    if(name.isEmpty() || name.length()>maxNameLength || name.trim()!=name)return false;
-    for(auto p=name.getCharPointer();!p.isEmpty();++p)if(*p<32)return false;
-    return true;
+    return name.length()>=minNameLength && name.length()<=maxNameLength
+        && name.containsOnly("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+}
+// Typing aids for the check part only: lower case, O for 0, I or L for 1.
+inline juce::String canonicalCheck(juce::String text) {
+    return text.toUpperCase().replaceCharacter('O','0').replaceCharacter('I','1').replaceCharacter('L','1');
 }
 } // namespace detail
 
-inline juce::BigInteger publicModulus() {
-    juce::BigInteger n;n.parseString(juce::String(publicModulusHex),16);return n;
+inline juce::MemoryBlock productSecret() {
+    juce::MemoryBlock secret;secret.loadFromHexString(CHIMERA_TESTER_SECRET_HEX);return secret;
 }
+inline bool enabled(const juce::MemoryBlock& secret=productSecret()) {return secret.getSize()>=16;}
 
-inline Grant verify(juce::String code,const juce::BigInteger& modulus=publicModulus(),int exponent=publicExponent) {
-    Grant grant;
+inline Grant verify(juce::String code,const juce::MemoryBlock& secret=productSecret()) {
+    if(!enabled(secret))return {false,{},"Beta tester codes are not enabled in this build."};
     code=code.removeCharacters(" \t\r\n");
-    if(code.length()>maxCodeLength || !code.startsWith(prefix) || code.indexOfChar('.')!=code.lastIndexOfChar('.') || !code.containsChar('.'))
-        return {false,{},{},{},"Not a Chimera beta tester code."};
-    const auto body=code.substring(juce::String(prefix).length());
-    juce::MemoryBlock payload,signature;
-    if(!detail::decodeBase64Url(body.upToFirstOccurrenceOf(".",false,false),payload)
-       || !detail::decodeBase64Url(body.fromFirstOccurrenceOf(".",false,false),signature))
-        return {false,{},{},{},"The code is damaged. Copy it again in full."};
-    const int modulusBytes=(modulus.getHighestBit()+8)/8;
-    const auto s=detail::fromBigEndian(signature);
-    auto check=s;check.exponentModulo(juce::BigInteger(exponent),modulus);
-    if((int)signature.getSize()!=modulusBytes || s.compare(modulus)>=0 || check!=detail::encode(payload,modulusBytes))
-        return {false,{},{},{},"This code is not valid for Chimera."};
-    const auto text=juce::String::fromUTF8((const char*)payload.getData(),(int)payload.getSize());
-    const auto fields=juce::JSON::parse(text);
-    grant.name=fields.getProperty("name",{}).toString();grant.id=fields.getProperty("id",{}).toString();
-    grant.issued=fields.getProperty("iat",{}).toString();
-    if(!fields.isObject() || (int)fields.getProperty("v",0)!=1 || fields.getProperty("scope",{}).toString()!="beta"
-       || !detail::validName(grant.name) || grant.id.isEmpty() || grant.issued.isEmpty())
-        return {false,{},{},{},"This code uses an unsupported format."};
-    grant.valid=true;
-    return grant;
+    const auto parts=juce::StringArray::fromTokens(code,"-",{});
+    if(code.length()>maxCodeLength || parts.size()!=3 || parts[0].toUpperCase()!=prefix)
+        return {false,{},"Not a Chimera beta tester code. It looks like CHT1-NAME-XXXXXX."};
+    const auto name=parts[1].toUpperCase();
+    if(!detail::validName(name) || parts[2].length()!=checkLength)
+        return {false,{},"The code is incomplete. Copy it again in full."};
+    if(detail::canonicalCheck(parts[2])!=detail::check(secret,name))
+        return {false,{},"This code is not valid for Chimera."};
+    return {true,name,{}};
+}
+// The one spelling a verified code is stored and shown in.
+inline juce::String canonical(const Grant& grant,const juce::MemoryBlock& secret=productSecret()) {
+    return grant.valid?juce::String(prefix)+"-"+grant.name+"-"+detail::check(secret,grant.name):juce::String{};
 }
 
 // Per-user, per-computer storage. Only a verified code is ever written.
@@ -100,14 +99,14 @@ struct Store {
     static juce::String read(const juce::File& storage=file()) {
         return storage.existsAsFile() && storage.getSize()<=maxCodeLength ? storage.loadFileAsString().trim() : juce::String{};
     }
-    static Grant load(const juce::File& storage=file(),const juce::BigInteger& modulus=publicModulus()) {
+    static Grant load(const juce::File& storage=file(),const juce::MemoryBlock& secret=productSecret()) {
         const auto code=read(storage);
-        return code.isEmpty() ? Grant{} : verify(code,modulus);
+        return code.isEmpty() ? Grant{} : verify(code,secret);
     }
-    static Grant save(const juce::String& code,const juce::File& storage=file(),const juce::BigInteger& modulus=publicModulus()) {
-        auto grant=verify(code,modulus);
-        if(grant.valid && !(storage.getParentDirectory().createDirectory().wasOk() && storage.replaceWithText(code.removeCharacters(" \t\r\n"))))
-            grant={false,{},{},{},"The code is valid but could not be saved on this computer."};
+    static Grant save(const juce::String& code,const juce::File& storage=file(),const juce::MemoryBlock& secret=productSecret()) {
+        auto grant=verify(code,secret);
+        if(grant.valid && !(storage.getParentDirectory().createDirectory().wasOk() && storage.replaceWithText(canonical(grant,secret))))
+            grant={false,{},"The code is valid but could not be saved on this computer."};
         return grant;
     }
     static bool clear(const juce::File& storage=file()) {return !storage.exists() || storage.deleteFile();}

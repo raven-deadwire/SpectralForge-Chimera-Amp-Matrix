@@ -7,5 +7,5 @@ __pycache__/
 /obs-signals*/
 /obs-kit/
 
-# Beta tester code private keys (Tools/tester_code.py keygen) never belong in the repository.
+# Beta tester code secrets (Tools/tester_code.py secret) never belong in the repository.
 *.private.json

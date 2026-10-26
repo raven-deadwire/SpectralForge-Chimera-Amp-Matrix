@@ -1080,7 +1080,7 @@ void ChimeraEditor::showTesterCode()
 {
     const auto holder=processor.testerCodeHolder();
     testerDialog=std::make_unique<juce::AlertWindow>("Beta tester code",
-        holder.isEmpty() ? juce::String("Paste the code you received as a beta tester. It removes the beta expiry on this computer for this and later beta versions.")
+        holder.isEmpty() ? juce::String("Type or paste the code you received as a beta tester, e.g. CHT1-NAME-XXXXXX. It removes the beta expiry on this computer for this and later beta versions.")
                          : "Active for "+holder+". This and later beta versions do not expire on this computer.",
         juce::MessageBoxIconType::NoIcon,this);
     testerDialog->addTextEditor("code",{},"Code");

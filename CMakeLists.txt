@@ -73,6 +73,25 @@ configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @O
 file(SHA256 "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json" CHIMERA_BETA_METADATA_SHA256)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
+# Beta tester codes (Source/TesterCode.h): the check secret comes from the
+# environment (a GitHub Actions secret for release builds) and is never committed.
+# Without it the build accepts no tester codes.
+set(CHIMERA_TESTER_SECRET_HEX "$ENV{CHIMERA_TESTER_SECRET}")
+string(STRIP "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
+string(TOLOWER "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
+if(CHIMERA_TESTER_SECRET_HEX AND NOT CHIMERA_TESTER_SECRET_HEX MATCHES "^[0-9a-f]+$")
+  message(FATAL_ERROR "CHIMERA_TESTER_SECRET must be hexadecimal (Tools/tester_code.py secret)")
+endif()
+string(LENGTH "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_LENGTH)
+if(CHIMERA_TESTER_SECRET_HEX AND CHIMERA_TESTER_SECRET_LENGTH LESS 32)
+  message(FATAL_ERROR "CHIMERA_TESTER_SECRET is too short (at least 16 bytes)")
+endif()
+if(CHIMERA_TESTER_SECRET_HEX)
+  message(STATUS "Beta tester codes: enabled")
+else()
+  message(STATUS "Beta tester codes: disabled (CHIMERA_TESTER_SECRET not set)")
+endif()
+configure_file(cmake/ChimeraTesterSecret.h.in generated/ChimeraTesterSecret.h @ONLY)
 # Keep source identity in the generated header shared by product and consumers.
 # A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
