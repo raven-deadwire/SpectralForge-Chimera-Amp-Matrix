@@ -10,6 +10,7 @@
 #include "FXParameters.h"
 #include "IRLibrary.h"
 #include "PerformanceUtilities.h"
+#include "ABLevelMatch.h"
 #include "PedalBoardParameters.h"
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
@@ -137,6 +138,9 @@ public:
     void selectComparison(int slot);
     void copyComparison();
     int comparisonSlot() const {return selectedComparison.load();}
+    // A/B level match: monitoring only, never saved (see ABLevelMatch.h).
+    spectralforge::ABLevelMatch& abLevelMatch() noexcept {return levelMatch;}
+    const spectralforge::ABLevelMatch& abLevelMatch() const noexcept {return levelMatch;}
     void loadFactoryPreset(int index);
     // Presentation invalidation only; never serialized or read by the DSP.
     uint64_t ampHeadRecallRevision() const noexcept {return headRecallRevision.load();}
@@ -226,6 +230,7 @@ private:
     spectralforge::autoset::Capture autoSetCaptureState;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
+    spectralforge::ABLevelMatch levelMatch;
     std::array<std::atomic<int>,128> midiMap;
     std::atomic<int> midiLearn{-1};
     std::atomic<bool> restartClick{false};

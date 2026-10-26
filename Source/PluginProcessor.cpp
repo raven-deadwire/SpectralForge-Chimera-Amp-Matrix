@@ -123,7 +123,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec);levelMatch.prepare(sr,int(spec.numChannels)); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
     dynamicsAnalysisState.prepare(sr,int(spec.maximumBlockSize));
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
@@ -340,6 +340,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     autoSetCaptureState.push(spectralforge::autoset::Tap::output,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::limiter,buffer);dynamics.limit(buffer);} // Last gain stage after output trim.
+    levelMatch.process(buffer,selectedComparison.load()); // A/B monitoring cut only; meters show what is heard.
     for(int c=0;c<buffer.getNumChannels();++c)peak=juce::jmax(peak,buffer.getMagnitude(c,0,buffer.getNumSamples()));
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
     measureStage(4,buffer);
@@ -557,7 +558,7 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
     if(!spectralforge::irState::unpack(restored))return;
     const auto saved=restored.getChildWithName("COMPARISONS");
     { std::lock_guard<std::mutex> lock(comparisonMutex);
-      comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));
+      comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));levelMatch.forget();
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
@@ -578,7 +579,7 @@ void ChimeraProcessor::copyComparison()
 {
     eqEditState.barrier();
     auto current=captureCore();std::lock_guard<std::mutex> lock(comparisonMutex);
-    comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
+    comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();levelMatch.copied(selectedComparison.load());
 }
 juce::AudioProcessorEditor* ChimeraProcessor::createEditor() {
     auto* editor=new ChimeraEditor(*this);

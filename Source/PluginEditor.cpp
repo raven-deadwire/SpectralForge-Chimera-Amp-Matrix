@@ -196,7 +196,11 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
     info.setTooltip(processor.betaNotice());
-    for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton}) add(*button);
+    for(auto* button:{&compareA,&compareB,&copyAB,&matchAB,&irLibraryButton}) add(*button);
+    matchAB.setComponentID("ab.match");
+    matchAB.onClick=[this]{auto& match=processor.abLevelMatch();match.setEnabled(!match.enabled());timerCallback();};
+    matchAB.setTooltip("Level-match A/B: while you play, measure both sounds and turn the louder one down to the quieter one, so you compare tone, not volume. "
+                       "Never boosts. Monitoring only: not saved, off when a project opens, and it also lowers what you record or bounce while on.");
     compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
     copyAB.setTooltip("Copy the active sound to the other slot. A/B stores all parameters and IR audio; both slots are saved with the project/reference file.");
@@ -656,6 +660,12 @@ void ChimeraEditor::refreshVisibleState()
         if(bandKey.update(next) || stateDirty)updateBandLabels();
     }
     compareA.setToggleState(processor.comparisonSlot()==0,juce::dontSendNotification);compareB.setToggleState(processor.comparisonSlot()==1,juce::dontSendNotification);
+    {   // MATCH shows the cut it applies to the active sound.
+        const auto& match=processor.abLevelMatch();const float cut=match.appliedDb();
+        matchAB.setToggleState(match.enabled(),juce::dontSendNotification);
+        const auto text=match.enabled() && cut<-.05f ? juce::String(cut,1) : juce::String("MATCH");
+        if(matchAB.getButtonText()!=text)matchAB.setButtonText(text);
+    }
     for(int i=0;i<3;++i) {
         auto& lane=lanes[(size_t)i];if(!lane.amp.isVisible())continue;
         const auto n=juce::String(i+1);const bool active=processor.parameters().getRawParameterValue("cab"+n)->load()>.5f;
@@ -877,7 +887,7 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     spectralforge::art::raster(g,spectralforge::art::Surface::workbench,{0,0,1180,780});
     g.setColour(background.withAlpha(.40f));g.fillRect(0,0,1180,780);
     g.setColour(accent.withAlpha(.7f));g.fillRect(20,20,2,36);
-    text(g,"SOUND A / B",490,11,121,14,8.5f,muted);
+    text(g,"SOUND A / B",490,11,163,14,8.5f,muted);
     if(brandEmblem.isValid())g.drawImageWithin(brandEmblem,25,5,62,60,juce::RectanglePlacement::centred);
     if(wordmark.isValid())g.drawImageWithin(wordmark,96,4,365,59,juce::RectanglePlacement::centred);
     else {text(g,"SPECTRALFORGE",106,5,350,15,10.f);text(g,"CHIMERA",103,17,360,45,36.f,ink);}
@@ -892,7 +902,7 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.inputMeter(),-90.f),1)+" dBFS",32,210,106,22,11.f,processor.inputMeter()>=1 ? juce::Colours::salmon : muted);
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.outputMeter(),-90.f),1)+" dBFS",976,210,152,22,11.f,processor.outputMeter()>=1 ? juce::Colours::salmon : muted);
     text(g,"INPUT MODE",638,88,108,16,9.f);text(g,"PRESET",770,88,160,16,9.f);
-    text(g,"MODE",634,8,170,22,10.f);
+    text(g,"MODE",664,8,140,22,10.f);
     if(page==2) {
         for(int position=3;position<6;++position) {
             const float y=330.f+position*69.f;const int family=rackOrder[(size_t)position];const auto& effect=effects[(size_t)family];
@@ -981,9 +991,9 @@ void ChimeraEditor::layoutControls()
     precisionTuner->setBounds(20,330,1140,412);
     preEngineStatus.setBounds(585,302,575,24);boardPanel.setBounds(20,330,1140,415);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
-    compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);
+    compareA.setBounds(490,30,28,28);compareB.setBounds(521,30,28,28);copyAB.setBounds(552,30,40,28);matchAB.setBounds(595,30,60,28);
     title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(808,748,86,28);
-    mode.setBounds(634,30,170,28);routingHelp.setBounds(20,302,278,24);
+    mode.setBounds(664,30,140,28);routingHelp.setBounds(20,302,278,24);
     dualType.setBounds(300,302,180,24);dualLabel.setBounds(494,303,130,22);dualBlend.setBounds(628,302,330,24);dualFrequency.setBounds(628,302,330,24);
     x1Label.setBounds(400,303,105,22);x1.setBounds(507,302,210,24);
     x2Label.setBounds(732,303,105,22);x2.setBounds(839,302,306,24);
