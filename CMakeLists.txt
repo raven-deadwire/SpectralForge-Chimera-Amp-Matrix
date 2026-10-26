@@ -645,3 +645,20 @@ target_link_libraries(ChimeraFactoryPresetExport PRIVATE ChimeraAmpMatrix Chimer
 add_test(NAME ChimeraFactoryPresetExport COMMAND ChimeraFactoryPresetExport "${CMAKE_BINARY_DIR}/validation/preset-maintenance")
 set_tests_properties(ChimeraFactoryPresetExport PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
 # END CHIMERA PRESET MAINTENANCE EXPORTER
+
+# Tests that open native windows share one X display (Tools/run_linux_ui_tests.py
+# starts a single Xvfb + Openbox for the whole ctest run). Run in parallel they
+# take keyboard focus from each other: focus, Shift-Tab and focus-stealing checks
+# then fail at random (NativeFocus, SignalPath, UITests). The lock serialises only
+# these; everything else still runs with ctest -j. The set is the tests that fail
+# without a display; the others never open a window.
+set(CHIMERA_NATIVE_DISPLAY_TESTS
+  ChimeraUITests ChimeraPrecisionTunerUITests ChimeraCommonDynamicsUITests
+  ChimeraNativeDynamicsUITests ChimeraNativeDynamicsQueueUITests ChimeraHeadCabLowUITests
+  ChimeraSignalPathUITests ChimeraNativeFocusTests ChimeraCabPanelStateTests
+  ChimeraCabPanelRoutingTests ChimeraCabPanelIRIsolationTests ChimeraAmpHeadControlTests)
+foreach(test IN LISTS CHIMERA_NATIVE_DISPLAY_TESTS)
+  if(TEST ${test})
+    set_tests_properties(${test} PROPERTIES RESOURCE_LOCK chimera-native-display)
+  endif()
+endforeach()
