@@ -111,7 +111,12 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     double rate=spec.sampleRate;
     if(model) {
         auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
-        if(found==modelCache.end()) {
+        auto ready=std::find_if(pregenerated.begin(),pregenerated.end(),[&](const auto& item){return item.key==model;});
+        if(found==modelCache.end() && ready!=pregenerated.end()) {
+            generated.samples=std::move(ready->samples);pregenerated.erase(ready);
+            cachedModel=&generated;cacheGenerated=true;
+        }
+        else if(found==modelCache.end()) {
             SF_CAB_PROFILE_SCOPE(ResponseGenerate);
             auto response=cabLayout::generate(model,rate,cancellation);
             // Keep a new response private until its entire kernel is ready and
@@ -176,6 +181,7 @@ void IRLibrary::run()
     for(int i=0;i<6;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); models[i]=cabs[i]->activeModel.load(); rejections[i]=cabs[i]->rejectedModels.load(); }
     while(!threadShouldExit())
     {
+        pregenerate(models);
         for(int i=0;i<6 && !threadShouldExit();++i)
         {
             cabs[i]->collect();
@@ -201,9 +207,61 @@ void IRLibrary::run()
             }
             catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
         }
+        pregenerated.clear();
         wait(20);
     }
     for(auto* cab:cabs) cab->collect();
+}
+void IRLibrary::pregenerate(const std::array<uint64_t,6>& builtModels)
+{
+    // A recall can request a new modeled cabinet on several mics at once.
+    // Each response takes tens of milliseconds and the output stays muted
+    // until the heard ones are installed, so generate them side by side:
+    // one on this worker, the others on short-lived helpers at the same
+    // priority. A failed or cancelled helper leaves build() to generate.
+    struct Job {int lane{};uint64_t model{};std::vector<float> response;};
+    std::vector<Job> jobs;
+    for(int i=0;i<6;++i) {
+        const auto model=cabs[i]->requestedModel.load();
+        if(model==0 || model==builtModels[(size_t)i]) continue;
+        const auto same=[model](const auto& item){return item.key==model;};
+        if(std::any_of(modelCache.begin(),modelCache.end(),same)) continue;
+        if(std::any_of(jobs.begin(),jobs.end(),[model](const Job& job){return job.model==model;})) continue;
+        jobs.push_back({i,model,{}});
+    }
+    const int helpers=juce::jmin(int(jobs.size())-1,juce::SystemStats::getNumCpus()-1);
+    if(helpers<1) return;
+    struct Request {const IRLibrary* library;const Job* job;};
+    const auto generate=[this,rate=spec.sampleRate](Job& job) {
+        const Request request{this,&job};
+        // A response depends on the model only: a recall that sets the lane's
+        // source after its model does not make it obsolete.
+        const originalCab::GenerationCancellation cancellation{&request,+[](const void* context) {
+            const auto& r=*static_cast<const Request*>(context);
+            return r.library->threadShouldExit() || r.library->cabs[(size_t)r.job->lane]->requestedModel.load()!=r.job->model;
+        }};
+        try { job.response=cabLayout::generate(job.model,rate,cancellation); }
+        catch(...) { job.response.clear(); }
+    };
+    struct Helper final : juce::Thread {
+        std::function<void()> work;
+        explicit Helper(std::function<void()> w) : Thread("Chimera IR helper"), work(std::move(w)) {}
+        void run() override { work(); }
+    };
+    std::vector<std::unique_ptr<Helper>> running;
+    for(int h=1;h<=helpers;++h) {
+        running.push_back(std::make_unique<Helper>([&generate,&job=jobs[(size_t)h]]{generate(job);}));
+        if(!running.back()->startThread(Priority::low)) running.pop_back();
+    }
+    generate(jobs.front());
+    for(auto& helper:running) helper->waitForThreadToExit(-1);
+    for(auto& job:jobs) {
+        if(job.response.empty()) continue;
+        CachedModel item{job.model,{},{}};
+        item.samples.setSize(1,int(job.response.size()));
+        item.samples.copyFrom(0,0,job.response.data(),int(job.response.size()));
+        pregenerated.push_back(std::move(item));
+    }
 }
 juce::String IRLibrary::userName(int lane) const
 {

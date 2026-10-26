@@ -63,14 +63,17 @@ Render render(const Setup& setup,const Setup& change,bool messageThread=false) {
     p->prepareToPlay(rate,block);
     const int blocks=int((preRoll+horizon)*rate/block),switchBlock=int(preRoll*rate/block);
     juce::AudioBuffer<float> b(2,block);juce::MidiBuffer midi;Render r;
-    std::thread ui;std::atomic<bool> applied{false};
+    std::thread ui;
     auto paceFrom=std::chrono::steady_clock::now();
     for(int k=0;k<blocks;++k) {
         if(k==switchBlock && change) {
-            if(messageThread){paceFrom=std::chrono::steady_clock::now();ui=std::thread([&]{change(*p);applied=true;});}
+            if(messageThread){paceFrom=std::chrono::steady_clock::now();ui=std::thread([&]{change(*p);});}
             else change(*p);
         }
-        if(ui.joinable() && !applied) // real-time pacing while the UI thread waits for the fade
+        // Real-time pacing from the recall on: the UI thread waits for the
+        // fade, and the IR worker builds the recalled cabinets while the
+        // output stays muted, both against wall time as in a host.
+        if(ui.joinable())
             std::this_thread::sleep_until(paceFrom+std::chrono::microseconds(int64_t(1e6*(k-switchBlock)*block/rate)));
         for(int i=0;i<block;++i){const float x=fixture(k*block+i);b.setSample(0,i,x);b.setSample(1,i,x);}
         const auto start=std::chrono::steady_clock::now();

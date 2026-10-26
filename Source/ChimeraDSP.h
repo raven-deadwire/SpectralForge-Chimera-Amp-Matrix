@@ -89,6 +89,8 @@ public:
         for(size_t i=0;i<cabs.size();++i)if(laneHeard[i] && !cabs[i].settled())return false;
         return true;
     }
+    // Audio thread: see Cab::setInstantSwap.
+    void setInstantCabinetSwap(bool value) noexcept { for(auto& cab:cabs) cab.setInstantSwap(value); }
     float lowReduction() const {return lowCompressor.reduction();}
     void setDynamicsAnalysis(DynamicsAnalysis* value) noexcept {lowCompressor.setAnalysis(value);}
     int latency() const { return amps[0].latency(); }

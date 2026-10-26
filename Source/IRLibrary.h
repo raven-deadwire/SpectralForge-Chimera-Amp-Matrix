@@ -23,6 +23,9 @@ public:
     ~IRLibrary() override;
     void prepare(const juce::dsp::ProcessSpec&, const std::array<int,3>& sources);
     void requestStop();
+    // A recall finished setting the cabinet requests: look at them now
+    // instead of at the worker's next 20 ms poll.
+    void wake() { notify(); }
     void stop();
     // Call only with host processing stopped, e.g. after releaseResources.
     bool resourcesReleased() const noexcept;
@@ -66,6 +69,10 @@ private:
         std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
     };
     std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
+    // Responses that helper threads generated for this worker pass; build()
+    // takes them instead of generating. Worker only, emptied every pass.
+    std::vector<CachedModel> pregenerated;
+    void pregenerate(const std::array<uint64_t,6>& builtModels);
     std::atomic<unsigned> cancelledBuilds{};
     WorkerScheduling scheduling;
     std::array<Cab*,6> cabs;

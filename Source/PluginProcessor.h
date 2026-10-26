@@ -228,11 +228,13 @@ private:
     static constexpr double switchSettleSeconds=.02;
     // Then, if a cabinet that can be heard is still building the recalled IR
     // or model on the worker (or crossfading to it), stay muted until it is
-    // ready, at most this long: otherwise the old cabinet plays first.
+    // ready, at most this long: otherwise the old cabinet plays first. While
+    // muted, a recalled cabinet installs without the 50 ms crossfade; one that
+    // arrives late gets the settle time again before the fade-in.
     static constexpr double switchCabinetWaitSeconds=.5;
     enum class SwitchFade {idle,out,hold,wait,in};
     SwitchFade switchFade{SwitchFade::idle};int switchFadeLength{240},switchFadePosition{240},switchWait{},switchHold{},switchCabinetBudget{};
-    bool processedSincePrepare{},holdForSwitch{};
+    bool processedSincePrepare{},holdForSwitch{},switchCabinetLate{};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     spectralforge::EQEditState eqEditState{state};
     spectralforge::EQCaptureBoundary eqCaptureBoundaryState;
