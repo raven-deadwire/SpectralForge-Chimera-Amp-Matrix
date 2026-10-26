@@ -30,6 +30,7 @@ def channel_controls(catalog, channel):
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--renderer',type=Path,required=True);ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--workers',type=int,default=4);ap.add_argument('--train-seconds',type=float,default=96)
+    ap.add_argument('--train-seed',type=int,default=640500,help='Training-split seed only; held-out splits keep their fixed seeds')
     ap.add_argument('--smoke-seconds',type=float,help='Shorten all splits for CI only; never a fidelity qualification');args=ap.parse_args()
     if args.smoke_seconds is not None and args.smoke_seconds < 2:raise ValueError('Smoke splits must be at least two seconds')
     if args.out.exists() and any(args.out.iterdir()):raise RuntimeError('Output directory must be empty')
@@ -48,11 +49,11 @@ def main():
             if (source_root/child).is_file():pending.append(child)
     source={'source_commit':SOURCE,'source_hashes':{p:digest(source_root/p) for p in headers},'renderer_sha256':digest(args.renderer),
       'sample_rate':48000,'oversampling':4,'block_size':256,'alignment':'unshifted native output, including production latency',
-      'input_trim_db':0,'output_trim_db':0,'cabinet':False,'pre_post_effects':False,'input_kind':'synthetic; not recorded instrument DI'}
+      'input_trim_db':0,'output_trim_db':0,'cabinet':False,'pre_post_effects':False,'input_kind':'synthetic; not recorded instrument DI','train_seed':args.train_seed}
     jobs=[]
     for i,(split,seconds) in enumerate([('train',args.train_seconds),('validation',24),('test',24),('audition',8)]):
         if args.smoke_seconds is not None:seconds=args.smoke_seconds
-        d=args.out/split;d.mkdir();x=signal(640500+i*1703,seconds)
+        d=args.out/split;d.mkdir();x=signal(args.train_seed if split=='train' else 640500+i*1703,seconds)
         np.save(d/'input.npy',x);x.tofile(d/'input.f32');sf.write(d/'input.wav',x,48000,subtype='FLOAT')
         for ch,(name,character) in enumerate(VOICES):
             job={'channel':ch};write_json(d/(name+'.json'),job)
