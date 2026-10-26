@@ -14,12 +14,24 @@
 
 | ID | 종류 | 내용 | 기준 |
 |---|---|---|---|
-| **T1** 고역 어택 | 관문 | 1–8kHz 2ms RMS 어택 peak의 추가 지연(출력 − 입력). 입력 자체 peak가 이벤트에 있는 경우만 센다 | 최대 ≤10ms |
+| **T1** 고역 어택 | 관문 | 1–8kHz 2ms RMS 어택 peak의 추가 지연(출력 − 입력). 입력 자체 peak가 이벤트에 있는 입력에서, **이벤트 SNR ≥ 10dB**인 이벤트만 센다 (버전 2) | 최대 ≤10ms |
+| **T1-약한 이벤트** | 보고 | T1과 같은 지연. 같은 입력에서 이벤트 SNR < 10dB인 이벤트만 따로 센다. 이 이벤트들의 검출(누락·오검출)은 T4에서 판정한다 | 관문 없음 (개수, 최대, 10ms 초과 수 보고) |
 | **T2** 다운시프트 저역 onset | 관문 | 음마다 120Hz 저역 에너지 무게중심의 추가 지연. −1/−2반음, 짧은 음과 긴 음(감쇠 80ms) | 최대 ≤10ms |
 | **T3** 업시프트 저역 onset | 보고 + 비회귀 상한 | T2와 같은 지표, +1/+2반음. 주기 정렬 접합의 하한(B0/A0 긴 음 19–21ms)을 함께 기록 | 아래 상한 이하 (품질 목표 아님) |
 | **T4** 품질·검출 | 관문 | 정상음 워블 p95–p5와 음정 오차. 모든 입력에서 onset 10ms 안 연결(누락·오검출). 마커·지속음 위 저역 재설정 | 워블 ≤1 cent, 오차 ≤1 cent, 누락 0, 오검출 0, 저역 재설정 0 |
 | **T5** 실시간 | 보고 | 결정적 최악 콜백 비용과 deadline 초과 | 별도 증거(이 스크립트에서 측정하지 않음) |
 | **T6** 외부 수용 | 제품화 전 필수 | 실제 DI 녹음과 청취, Windows/macOS DAW 수용, 고정 PDC 계약, 제품 엔진 통합 | 미실시 |
+
+**T1 분리 (버전 2, 2026-10-26).**
+
+- **분리한 이유:** 지금까지 어택 타이밍이 크게 튄 경우는 모두 이벤트가 1–8kHz 배경보다 6dB도 높지 않을 때였다(`TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`, 13,868 이벤트). 이런 이벤트에서는 peak 검색이 이벤트가 아니라 배경을 따라가서, 잰 지연에 의미가 없다.
+- **경계값:** 10dB다. 데이터상 경계(6dB)보다 보수적으로 잡았다.
+- **이벤트 SNR의 정의:** 이벤트 뒤 10ms 안의 1–8kHz 2ms RMS 최댓값을, 이벤트 20–3ms 전의 최댓값과 비교한 값이다(`attack_snr.py`).
+- **약한 이벤트를 어떻게 다루나:** 타이밍 관문에서만 뺀다. 마커 입력의 검출 판정(T4)과 저역 재설정 판정은 그대로다.
+- **적용한 첫 검증:** 사전 등록한 새 시드 재검증(`TRANSPOSE_PDC_SNR10_FRESH_SEED_20261026.md`)에서 v3의 T1은 5.53ms(6,860 이벤트)로 통과했다. 약한 이벤트는 412개였고 최대 5.15ms, 10ms를 넘은 것은 0개였다.
+- **과거 판정:** 바꾸지 않는다. 이벤트별 SNR이 저장되지 않은 이전 결과는 `latency_targets.py`가 버전 1 방식으로 판정하고 `metric_version: 1`로 표시한다. 버전 1 방식은 `--legacy-t1`로도 재현할 수 있다.
+- **실제 DI:** 같은 분리를 적용한다(`TRANSPOSE_T6_DI_PROTOCOL.md`). 녹음이 아직 없어서 영향을 받은 판정은 없다. 파이프라인 자체 점검(합성)은 분리 뒤에도 통과했다(T1 5.58ms, 이전과 같음).
+- **확인 기록:** `docs/evidence/transpose-t1-split-20261026/`. 버전 2 판정, `--legacy-t1` 판정, 이전 결과의 버전 1 판정, DI 자체 점검 결과가 들어 있다.
 
 **T3 비회귀 상한:**
 
@@ -109,6 +121,8 @@ python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/Tr
 python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/TransposeProbe --out build/latency-targets-baseline --engine baseline --rates 48000
 # 기준 JSON만 바꾼 뒤 기존 렌더 결과를 다시 판정:
 python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/TransposeProbe --out build/latency-targets --evaluate-only
+# 버전 1 방식(T1 분리 없음)으로 판정:
+python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/TransposeProbe --out build/latency-targets --evaluate-only --legacy-t1
 ```
 
 원자료: `docs/evidence/transpose-latency-targets-20261023/`(렌더별 결과와 판정, 실행 로그, `SHA256.json`).

@@ -248,10 +248,14 @@ latency. See `docs/TRANSPOSE_T6_PDC_CONTRACT.md`.
 `attack_snr.py` gives each attack event's 1-8 kHz SNR (peak within 10 ms over
 the largest envelope 20-3 ms before). Events below 6 dB are indistinguishable
 from the band floor and produced every attack-timing outlier seen so far.
-`latency_targets.py --event-snr-min` and `pdc_study.py evaluate
---event-snr-min` apply a per-event floor (off by default; proposed 10 dB for
-the next pre-registered run). `SpliceTrace.cpp` logs splice and re-anchor
+`pdc_study.py evaluate --event-snr-min` applies a per-event floor (off by
+default there, so earlier PDC results reproduce); `latency_targets.py
+--event-snr-min` overrides the spec's T1 floor (10 dB since spec version 2). `SpliceTrace.cpp` logs splice and re-anchor
 sample positions. See `docs/TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`.
 The pre-registered fresh-seed run with the 10 dB floor (seeds 41421/44721/48990,
 long 3317; L = 2.5 ms) passed at all three rates (max residual 3.03 / 2.79 /
 2.96 ms against 4.5 ms): `docs/TRANSPOSE_PDC_SNR10_FRESH_SEED_20261026.md`.
+Target spec version 2 makes this the T1 definition: `latency_targets.py` and
+`di_validation.py` gate T1 on events with SNR >= 10 dB and report fainter
+events as `T1_faint_attack` (no gate). Results without per-event SNR rows are
+scored as version 1 and labelled `metric_version: 1`; `--legacy-t1` forces it.
