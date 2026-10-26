@@ -272,9 +272,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband});}
+    static_assert(spectralforge::CommonDynamicsPanel::autoLockNames.size()==spectralforge::autoset::Controller::lockOrder.size(),"Auto Set lock menu and controller locks differ");
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,juce::roundToInt(o.strength*100),o.locks});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,float(o.strength)/100.f,o.locks});
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {

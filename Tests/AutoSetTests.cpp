@@ -470,12 +470,122 @@ void controllerIntegration() {
 }
 }
 
+// Locks and strength. Fixtures feed the capture taps directly, so each run
+// analyses identical audio whatever the earlier passes applied: runs compare
+// exactly, isolating how results are written from how the amp responds. The
+// window taps hear the plucked DI; the multiband tap hears booming lows and the
+// de-esser tap a bright top (the multibandRules/finishRules fixtures), so both
+// stages engage.
+struct LockRun {std::vector<float> values;Controller::Status status;std::vector<float> before;};
+LockRun runLocked(const Controller::Options& options,const std::function<void(ChimeraProcessor&,Controller&)>& afterRun={}) {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    Controller c(*p);c.setOptions(options);
+    LockRun result;result.before=values(*p);
+    DI di{48000,.126f,.00025f};double now=juce::Time::getMillisecondCounterHiRes();
+    std::mt19937 random{41};
+    auto bright=targetNoise(false,48000,6,random);shelve(bright,4000,8,48000);
+    auto boom=targetNoise(false,48000,6,random);
+    {std::vector<float> low(boom.size());std::normal_distribution<float> noise(0,.3f);for(auto& v:low)v=noise(random);
+     lowpass(low,100,48000);for(size_t n=0;n<boom.size();++n)boom[n]+=low[n]*(std::fmod(double(n)/48000,.5)<.25?4.f:.25f);}
+    std::vector<float> block(256);c.start();
+    for(int k=0;c.busy() && k<int(60*48000/256);++k) {
+        for(auto& x:block)x=di.next();
+        const size_t offset=size_t(k)*256%(bright.size()-256);
+        const float* channels[]{block.data()};const float* top[]{bright.data()+offset};const float* low[]{boom.data()+offset};
+        for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::output})p->autoSetCapture().push(tap,channels,1,256);
+        p->autoSetCapture().push(Tap::multiband,low,1,256);p->autoSetCapture().push(Tap::deesser,top,1,256);
+        now+=1000.*256/48000;c.tick(now);
+    }
+    check(!c.busy(),"Locked Auto Set run did not finish");
+    result.values=values(*p);result.status=c.current();
+    if(afterRun)afterRun(*p,c);
+    p->releaseResources();
+    return result;
+}
+float valueOf(const LockRun& run,const juce::String& id) {
+    static auto reference=std::make_unique<ChimeraProcessor>();
+    auto* parameter=reference->parameters().getParameter(id);check(parameter!=nullptr,"Unknown parameter "+id.toStdString());
+    return parameter->convertFrom0to1(run.values[size_t(parameter->getParameterIndex())]);
+}
+void controllerLocksAndStrength() {
+    using P=Controller::Phase;
+    const Controller::Options all{1,true,Style::rock,true,true};
+    const auto full=runLocked(all);
+    check(full.status.phase==P::done && full.status.steps.size()==5,"Reference run did not complete five passes");
+    check(valueOf(full,"gateon")>.5f,"Reference run did not place the gate");
+    const LockRun defaults{full.before,{},{}};
+
+    // Strength 50%: the same analysis, written at half the amount.
+    auto halfOptions=all;halfOptions.strength=.5f;
+    const auto half=runLocked(halfOptions);
+    check(half.status.phase==P::done && half.status.text.contains("50% strength"),"Half-strength run did not report its strength");
+    const float inputBefore=valueOf(defaults,"input");
+    const float inputFull=valueOf(full,"input"),inputHalf=valueOf(half,"input");
+    check(near(inputHalf,std::round((inputBefore+.5f*(inputFull-inputBefore))*2.f)*.5f,.01f),"Half strength did not halve the input gain change");
+    check(near(valueOf(half,"gatethreshold"),std::round(std::clamp(valueOf(full,"gatethreshold")+inputHalf-inputFull,-90.f,-15.f)),.51f),
+          "Gate was not placed for the applied input gain");
+    check(near(valueOf(half,"gateRangeDb"),valueOf(full,"gateRangeDb"),.01f),"Strength changed the gate range");
+    int toneBands=0;
+    for(int b=0;b<spectralforge::graphicalEQBands;++b) {
+        const auto id=[&](const char* field){return spectralforge::eqID(0,b,field);};
+        check((valueOf(full,id("enabled"))>.5f)==(valueOf(half,id("enabled"))>.5f),"Strength changed which Tone EQ bands are used");
+        if(valueOf(full,id("enabled"))<.5f)continue;
+        ++toneBands;
+        check(near(valueOf(half,id("gain")),.5f*valueOf(full,id("gain")),.02f) && near(valueOf(half,id("frequency")),valueOf(full,id("frequency")),.5f),
+              "Half strength did not halve a Tone EQ move");
+    }
+    check(near(valueOf(full,"cleanCompMix"),1.f,.001f) && near(valueOf(half,"cleanCompMix"),.5f,.01f)
+          && near(valueOf(half,"cleanCompRatio"),valueOf(full,"cleanCompRatio"),.01f),"Half strength did not mix the compressor in parallel");
+    // The fixture engages both stages, so their strength checks are not vacuous.
+    check(valueOf(full,"mbOn")>.5f && valueOf(full,"deEsserOn")>.5f,"Reference run did not engage the multiband and de-esser");
+    check(near(valueOf(half,"mbMix"),.5f,.01f),"Half strength did not mix the multiband in parallel");
+    check(near(valueOf(half,"deEsserRange"),.5f*valueOf(full,"deEsserRange"),.05f),"Half strength did not halve the de-esser range");
+    check(near(valueOf(half,"liveLimiterCeiling"),valueOf(full,"liveLimiterCeiling"),.01f),"Strength changed the output limiter");
+
+    // Locks: locked settings keep their values, their passes are skipped and
+    // reported in signal order, the unlocked rest matches the reference.
+    auto lockOptions=all;lockOptions.locks=Controller::lockInput|Controller::lockTone|Controller::lockCompressor|Controller::lockLimiter;
+    const auto locked=runLocked(lockOptions,[](ChimeraProcessor& p,Controller& c){
+        // A later edit to a locked setting survives UNDO AUTO.
+        auto* input=p.parameters().getParameter("input");input->setValueNotifyingHost(input->convertTo0to1(5.5f));
+        c.undo();check(near(get(p,"input"),5.5f,.01f),"Undo overwrote an edit to a locked setting");
+        auto* gate=p.parameters().getParameter("gateon");
+        check(gate->getValue()==gate->getDefaultValue(),"Undo did not restore the unlocked gate");
+    });
+    check(locked.status.phase==P::done,"Locked run did not complete");
+    check((locked.status.passes==std::vector<P>{P::input,P::multiband,P::finish}),"Locked passes were not skipped");
+    const auto& steps=locked.status.steps;
+    check(steps.size()==5 && steps[1].phase==P::tone && steps[2].phase==P::compressor && steps[1].result=="kept (locked)" && steps[2].result=="kept (locked)"
+          && !steps[1].changed && steps[0].result.contains("input kept (locked)") && steps[4].result.contains("limiter kept (locked)"),
+          "Locked passes are not reported in signal order");
+    for(const auto* id:{"input","cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompMix","liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})
+        check(near(valueOf(locked,id),valueOf(defaults,id),1e-4f),std::string("A locked setting changed: ")+id);
+    for(int b=0;b<spectralforge::graphicalEQBands;++b)for(const auto* field:{"enabled","frequency","gain","q","type"})
+        check(near(valueOf(locked,spectralforge::eqID(0,b,field)),valueOf(defaults,spectralforge::eqID(0,b,field)),1e-4f),"A locked Tone EQ band changed");
+    check(near(valueOf(locked,"gatethreshold"),std::round(std::clamp(valueOf(full,"gatethreshold")-inputFull,-90.f,-15.f)),.51f),
+          "Gate was not placed for the locked input gain");
+    check(near(valueOf(locked,"mbOn"),valueOf(full,"mbOn"),1e-4f) && near(valueOf(locked,"deEsserOn"),valueOf(full,"deEsserOn"),1e-4f)
+          && near(valueOf(locked,"deEsserRange"),valueOf(full,"deEsserRange"),1e-3f),"Unlocked stages differ from the reference run");
+
+    // Everything locked: nothing to run, nothing written.
+    {
+        auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);Controller c(*p);
+        auto o=all;for(const auto lock:Controller::lockOrder)o.locks|=lock;c.setOptions(o);
+        const auto before=values(*p);c.start();
+        check(!c.busy() && c.current().phase==P::failed && c.current().text.contains("locked") && values(*p)==before,"An all-locked run did not refuse cleanly");
+        o.strength=0;c.setOptions(o);check(near(c.currentOptions().strength,Controller::minimumStrength,1e-6f),"Strength below the minimum was accepted");
+        o.strength=std::numeric_limits<float>::quiet_NaN();c.setOptions(o);check(c.currentOptions().strength==1.f,"A non-finite strength was accepted");
+        p->releaseResources();
+    }
+    std::cout<<"PASS auto set locks and strength: "<<toneBands<<" Tone EQ moves halved, parallel comp/multiband mix, gate follows applied input, locked passes skipped and kept by undo\n";
+}
+
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         check(argc==1,"Unknown argument");
-        analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();captureWindows();controllerFinishPreservation();controllerIntegration();
+        analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();captureWindows();controllerFinishPreservation();controllerIntegration();controllerLocksAndStrength();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
