@@ -1,0 +1,6 @@
+SWITCH_PROTOCOL rate=48000 block=64 preroll_s=0.6 horizon_s=1 threshold_db=-40 time_effects=off
+SWITCH kind=preset name="preset 0 > 17" response_ms=8 settle_ms=112 residual_db@20/50/100/250=-4.8/-0.5/-3.0/-54.5 click_db=-10.8 click_at_ms=114 overshoot_db=0.0 gap_ms=91 cpu_ms p50=1.041 p99=10.048 switch=64.792 budget=1.333
+SWITCH kind=preset name="preset 17 > 33" response_ms=2 settle_ms=543 residual_db@20/50/100/250=-7.5/-2.9/1.4/-24.7 click_db=-0.4 click_at_ms=521 overshoot_db=-0.0 gap_ms=196 cpu_ms p50=1.478 p99=7.879 switch=81.162 budget=1.333
+SWITCH kind=ab name="A > B" response_ms=51 settle_ms=364 residual_db@20/50/100/250=-8.1/-2.4/1.4/-6.7 click_db=-0.2 click_at_ms=361 overshoot_db=0.0 gap_ms=215 cpu_ms p50=0.581 p99=4.679 switch=44.872 budget=1.333
+SWITCH kind=ab name="A > B lane 3 solo" response_ms=44 settle_ms=682 residual_db@20/50/100/250=-6.5/-7.1/-3.7/-12.3 click_db=-0.0 click_at_ms=681 overshoot_db=0.0 gap_ms=197 cpu_ms p50=0.306 p99=2.313 switch=10.265 budget=1.333
+PASS switch timing probe: 4 switches measured
