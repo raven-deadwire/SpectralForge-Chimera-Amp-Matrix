@@ -293,12 +293,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         lane.mute=f(10)>.5f; lane.solo=f(11)>.5f; lane.polarity=f(12)>.5f; lane.cab=f(13)>.5f;
         lane.cabLow=f(14); lane.cabHigh=f(15); lane.ampEnabled=f(17)>.5f;
         engine.cabinet(i).requestedSource.store((int)f(16));
-        auto get=[&](int id){return cabPanelParameters[i][id]->load();};
-        auto& cab=engine.cabinet(i); auto* b=cab.secondMic();
-        cab.blend=spectralforge::cabMicRouting(originalCabParameters.values[i][3]->load()>.5f,originalCabParameters.values[i][8]->load()>.5f,int(laneParameters[i][16]->load()),int(get(9)),get(0)).blend;
-        cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
-        b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
-        b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));
+        applyCabinetParameters(i,engine.cabinet(i));
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
@@ -459,6 +454,84 @@ spectralforge::appendExtraGateParameters(p);
 return p;
 }
 
+// One mapping from parameters to a cabinet, for the engine every block and
+// for the offline copy that renders/exports a lane's cabinet.
+void ChimeraProcessor::applyCabinetParameters(int lane,spectralforge::Cab& cab) const
+{
+    const auto get=[&](int id){return cabPanelParameters[lane][id]->load();};
+    auto* b=cab.secondMic();
+    cab.blend=spectralforge::cabMicRouting(originalCabParameters.values[lane][3]->load()>.5f,originalCabParameters.values[lane][8]->load()>.5f,int(laneParameters[lane][16]->load()),int(get(9)),get(0)).blend;
+    cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
+    b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
+    b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));
+}
+juce::AudioBuffer<float> ChimeraProcessor::renderCabinet(int lane,const juce::AudioBuffer<float>& input,double sampleRate) const
+{
+    lane=juce::jlimit(0,2,lane);
+    constexpr int block=512;
+    const juce::dsp::ProcessSpec spec{sampleRate,(juce::uint32)block,2};
+    std::array<spectralforge::Cab,3> cabs;
+    spectralforge::IRLibrary copy{{&cabs[0],&cabs[1],&cabs[2]}};
+    copy.restore(library.save()); // the project's own IRs, not the user folder
+    std::array<int,3> sources{};
+    for(int i=0;i<3;++i) {
+        auto& cab=cabs[(size_t)i];
+        cab.requestedSource.store((int)laneParameters[i][16]->load());
+        cab.requestedModel.store(originalCabParameters.read(i,0));
+        cab.secondMic()->requestedModel.store(originalCabParameters.read(i,1));
+        applyCabinetParameters(i,cab);
+        cab.enable(laneParameters[i][13]->load()>.5f);
+        sources[(size_t)i]=cab.requestedSource.load();
+        cab.prepare(spec); // snaps gain, blend and delay smoothers to the values above
+    }
+    copy.prepare(spec,sources); // builds every requested kernel before returning
+    copy.requestStop();copy.stop();
+    auto& cab=cabs[(size_t)lane];
+    cab.setCuts(laneParameters[lane][14]->load(),laneParameters[lane][15]->load());
+    juce::AudioBuffer<float> output(2,input.getNumSamples());output.clear();
+    for(int c=0;c<2;++c)output.copyFrom(c,0,input,juce::jmin(c,input.getNumChannels()-1),0,input.getNumSamples());
+    for(int offset=0;offset<output.getNumSamples();offset+=block) {
+        const int count=juce::jmin(block,output.getNumSamples()-offset);
+        std::array<float*,2> channels{output.getWritePointer(0,offset),output.getWritePointer(1,offset)};
+        juce::AudioBuffer<float> part(channels.data(),2,count);
+        cab.process(part);
+    }
+    for(auto& c:cabs)c.clear();
+    return output;
+}
+juce::AudioBuffer<float> ChimeraProcessor::cabinetImpulseResponse(int lane,double sampleRate,double maximumSeconds) const
+{
+    juce::AudioBuffer<float> impulse(1,juce::jmax(1,int(sampleRate*maximumSeconds)));impulse.clear();impulse.setSample(0,0,1.f);
+    auto ir=renderCabinet(lane,impulse,sampleRate);
+    // Trim the silent tail (below -120 dB re peak), keeping at least 10 ms.
+    const float peak=juce::jmax(ir.getMagnitude(0,0,ir.getNumSamples()),ir.getMagnitude(1,0,ir.getNumSamples()));
+    const float floor=peak*1.0e-6f;int length=ir.getNumSamples();
+    while(length>int(sampleRate*.01) && std::abs(ir.getSample(0,length-1))<=floor && std::abs(ir.getSample(1,length-1))<=floor)--length;
+    ir.setSize(2,length,true);
+    return ir;
+}
+juce::Result ChimeraProcessor::exportCabinetIR(int lane,const juce::File& file) const
+{
+    const double sampleRate=getSampleRate()>0 ? getSampleRate() : 48000.;
+    const auto ir=cabinetImpulseResponse(lane,sampleRate);
+    bool stereo=false;
+    for(int n=0;n<ir.getNumSamples() && !stereo;++n)stereo=ir.getSample(0,n)!=ir.getSample(1,n);
+    juce::AudioBuffer<float> out(stereo?2:1,ir.getNumSamples());
+    for(int c=0;c<out.getNumChannels();++c)out.copyFrom(c,0,ir,c,0,ir.getNumSamples());
+    if(!file.getParentDirectory().createDirectory())return juce::Result::fail("Cannot create "+file.getParentDirectory().getFullPathName());
+    juce::TemporaryFile temporary(file);
+    {
+        std::unique_ptr<juce::OutputStream> stream=temporary.getFile().createOutputStream();
+        if(!stream)return juce::Result::fail("Cannot write "+file.getFullPathName());
+        juce::WavAudioFormat wav;
+        std::unique_ptr<juce::AudioFormatWriter> writer(wav.createWriterFor(stream.get(),sampleRate,(unsigned)out.getNumChannels(),32,{},0));
+        if(!writer)return juce::Result::fail("Cannot create a WAV writer");
+        stream.release(); // the writer owns it now
+        if(!writer->writeFromAudioSampleBuffer(out,0,out.getNumSamples()))return juce::Result::fail("Cannot write the IR samples");
+    }
+    if(!temporary.overwriteTargetFileWithTemporary())return juce::Result::fail("Cannot replace "+file.getFullPathName());
+    return juce::Result::ok();
+}
 void ChimeraProcessor::syncOriginalCabRequests()
 {
     for(int i=0;i<3;++i) {

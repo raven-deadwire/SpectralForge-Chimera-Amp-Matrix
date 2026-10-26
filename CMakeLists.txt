@@ -437,6 +437,13 @@ target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix C
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
 add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
 
+# CAB export: offline lane cabinet render, WAV round trip, convolution check.
+juce_add_console_app(ChimeraCabExportTests PRODUCT_NAME "Chimera CAB Export Tests")
+target_sources(ChimeraCabExportTests PRIVATE Tests/CabExportTests.cpp)
+target_include_directories(ChimeraCabExportTests PRIVATE Source)
+target_link_libraries(ChimeraCabExportTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraCabExportTests COMMAND ChimeraCabExportTests "${CMAKE_BINARY_DIR}/cab-export")
+
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)
 target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)

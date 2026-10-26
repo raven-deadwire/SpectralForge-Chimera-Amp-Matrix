@@ -7,11 +7,15 @@
 class CabinetSelector : public juce::ComboBox {
 public:
     std::function<void(juce::File,int)> selected;
-    std::function<void()> browse;
+    std::function<void()> browse,exportCabinet;
     CabinetSelector() {
         onChange=[this] {
             const int id=getSelectedId();
-            if(id==9000 || (id==4 && currentName.isEmpty())) {
+            if(id==9001) {
+                restoreDisplay();
+                if(exportCabinet) exportCabinet();
+            }
+            else if(id==9000 || (id==4 && currentName.isEmpty())) {
                 restoreDisplay();
                 if(browse) browse();
             }
@@ -40,6 +44,7 @@ public:
             }
         }
         addSeparator();addItem("Browse / import IRs...",9000);
+        if(exportCabinet)addItem("Export this cabinet as WAV...",9001);
         restoreDisplay();
     }
     void sync(int value,const juce::String& name,const juce::String& modeled={}) {
