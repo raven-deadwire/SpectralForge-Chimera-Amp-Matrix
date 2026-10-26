@@ -211,11 +211,30 @@ void switchingIsSmooth() {
     float worst=on/steady;
     for(const auto& [id,value]:std::vector<std::pair<const char*,float>>{{"roomSend1",0},{"roomSend1",100},{"roomReturn",-36},{"roomReturn",0},
             {"roomAbsorption",0},{"roomAbsorption",100},{"roomAbsorption",50},{"roomSize",0},{"roomSize",2},{"roomSize",1},{"roomOn",0}}) {
-        set(*p,id,value);const float x=edge(100)/steady;worst=std::max(worst,x);
+        set(*p,id,value);
+        const float x=edge(100)/steady;worst=std::max(worst,x);
         std::cout<<"MEASURE "<<id<<"="<<value<<": wet edge "<<x<<" x steady\n";
     }
     require(worst<2.f,"A room switch produces a wet edge beyond the room's own");
     std::cout<<"PASS on/off, send, return, absorption and size changes: no wet edge beyond the room's own (on "<<on/steady<<" x)\n";
+}
+void modeChangeKeepsRoom() {
+    // A routing change keeps the room and its tail; lanes the new mode does
+    // not have stop sending. (The direct sound's own switch edge, which the
+    // room repeats, is the engine's and not tested here.)
+    auto p=make(),plain=make();int a=0,b=0;
+    for(auto* q:{p.get(),plain.get()})set(*q,"mode",2);
+    set(*p,"roomOn",1);for(int lane=1;lane<=3;++lane)set(*p,"roomSend"+juce::String(lane),100);
+    render(*p,200,110.,.2f,a);render(*plain,200,110.,.2f,b);
+    set(*p,"roomSend1",0);render(*p,20,110.,.2f,a);render(*plain,20,110.,.2f,b);   // rig 1 alone sends nothing
+    for(auto* q:{p.get(),plain.get()})set(*q,"mode",0);
+    const auto running=p->roomProcessedSamples();
+    const auto x=render(*p,40,110.,.2f,a),y=render(*plain,40,110.,.2f,b);
+    require(p->roomProcessedSamples()==running+uint64_t(40*block),"A routing change stopped the room");
+    require(x.roomPeak==0.f,"Lanes the routing mode does not have still excite the room");
+    double wet=0;for(size_t i=0;i<x.out.size();++i)wet+=double(x.out[i]-y.out[i])*(x.out[i]-y.out[i]);
+    require(wet>1.e-6,"A routing change cut the room tail");
+    std::cout<<"PASS mode change: the room keeps running and its tail, missing lanes send nothing\n";
 }
 template<class T> T* find(juce::Component& root,const juce::String& id) {
     if(root.getComponentID()==id)if(auto* match=dynamic_cast<T*>(&root))return match;
@@ -315,6 +334,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();switchingIsSmooth();roomControls();stateAndRecall();noAllocation();return 0;}
+    try {parameterContract();roomOffIsIdentical();lowDiIsolation();laneControls();gatePolicy();roomModelResponse();roomAudibleAndRingOut();switchingIsSmooth();modeChangeKeepsRoom();roomControls();stateAndRecall();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

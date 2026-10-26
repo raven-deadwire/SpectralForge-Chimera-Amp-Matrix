@@ -93,7 +93,11 @@ return. Reported latency and the DI alignment stay as they are.
   damping gains move linearly across each block (stepping them per block was
   a zipper: 8.1× the room's own edge level on a 50 → 0 % jump).
 - Mode change (Classic/Dual/Matrix) keeps the room running; lanes that stop
-  existing simply stop sending.
+  existing simply stop sending. The engine resets on a mode change, so the
+  direct sound itself switches with an edge (measured 70–175× its steady
+  edge level on a held 41.2 Hz tone, with or without the room); the room
+  repeats that edge. Smoothing the routing change is engine work outside
+  Room Core.
 
 ## 4. Processing model (week 2)
 
@@ -187,6 +191,8 @@ installed DAW, the Windows test installer and listening.
   ≤ 1.47×). Without the 20 ms excitation ramp Room on reaches 8.3× and Room
   off 23×; per-block absorption gains 8.1×; a return-only size crossfade
   19–38×.
+- Mode change Matrix → Classic: the room keeps processing and its tail; the
+  lanes Classic does not have send nothing.
 - No allocation in the callback with the room on in Classic, Dual and Matrix.
 - Controls: the ROOM entry does not overlap a rig and shows ROOM OFF or the
   active size; the panel shows 1/2/3 sends for Classic/Dual/Matrix and each
