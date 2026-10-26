@@ -5,6 +5,7 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
+#include <thread>
 
 static thread_local bool counting=false;
 static thread_local size_t allocations=0;
@@ -470,12 +471,80 @@ void controllerIntegration() {
 }
 }
 
+void parameterEditNotifications() {
+    auto p=std::make_unique<ChimeraProcessor>();
+    auto* q=p->parameters().getParameter("input");
+    ParameterEdits edits(*q);
+    const auto original=q->getValue();
+    auto revision=edits.revision();
+    const float target=q->convertTo0to1(4.f);
+    check(edits.write(target,original,revision) && edits.unchanged(revision),"Auto Set's own notifications revoked ownership");
+    // Automation on another thread must not be hidden by a process-wide flag.
+    std::thread host([&]{q->setValueNotifyingHost(q->convertTo0to1(7.f));q->setValueNotifyingHost(target);});host.join();
+    check(!edits.unchanged(revision),"Host-thread A-B-A notifications were lost");
+    revision=edits.revision();
+    q->beginChangeGesture();
+    const auto touchedRevision=edits.revision();
+    check(!edits.write(original,target,touchedRevision),"An active user gesture was overwritten");
+    q->endChangeGesture();
+    check(!edits.unchanged(revision),"A same-value manual gesture was not an edit");
+    struct HostCallback final:juce::AudioProcessorListener {
+        std::function<void()> onBegin,onValue,onEnd;
+        void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+        void audioProcessorParameterChanged(juce::AudioProcessor*,int,float) override {if(onValue){auto f=std::move(onValue);onValue={};f();}}
+        void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int) override {if(onBegin){auto f=std::move(onBegin);onBegin={};f();}}
+        void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int) override {if(onEnd){auto f=std::move(onEnd);onEnd={};f();}}
+    } callback;
+    p->addListener(&callback);
+    const float hostValue=q->convertTo0to1(-3.f);
+    for(int when=0;when<3;++when) {
+        q->setValueNotifyingHost(original);revision=edits.revision();
+        auto action=[&]{q->setValueNotifyingHost(hostValue);};
+        if(when==0)callback.onBegin=action;else if(when==1)callback.onValue=action;else callback.onEnd=action;
+        check(!edits.write(target,original,revision) && q->getValue()==hostValue,"A reentrant host edit was overwritten or reclaimed");
+    }
+    p->removeListener(&callback);
+    // The added observer itself must not allocate in the host notification path.
+    allocations=0;counting=true;q->setValueNotifyingHost(original);counting=false;
+    check(allocations==0,"Parameter edit observation allocated on the audio thread");
+    std::cout<<"PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations\n";
+}
+
+void controllerEditHistory() {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    Controller c(*p);c.setOptions({1,false,Style::rock,false,false});
+    auto* input=p->parameters().getParameter("input");
+    auto* threshold=p->parameters().getParameter("cleanCompThreshold");
+    const float before=input->getValue();
+    const float gateBefore=get(*p,"gatethreshold");
+    double now=juce::Time::getMillisecondCounterHiRes();
+    DI di{48000,.126f,.00025f};std::vector<float> signal(48000*14);
+    for(auto& x:signal)x=di.next();
+    c.start();
+    // Manual A -> B -> A is still a user decision, even though its final
+    // value equals the snapshot. Host automation has the same notification path.
+    input->beginChangeGesture();
+    input->setValueNotifyingHost(input->convertTo0to1(3.f));
+    input->setValueNotifyingHost(before);input->endChangeGesture();
+    feedCapture(*p,c,signal,now);
+    check(c.current().phase==Controller::Phase::done,"Edit-history run did not finish");
+    check(input->getValue()==before,"Auto Set overwrote a manual A-B-A edit during listening");
+    check(get(*p,"gatethreshold")==gateBefore && c.current().text.contains("input edited while listening"),"Gate used a capture with changing input gain");
+    const float automated=threshold->getValue();
+    threshold->setValueNotifyingHost(threshold->convertTo0to1(-17.f));
+    threshold->setValueNotifyingHost(automated);
+    c.undo();
+    check(threshold->getValue()==automated,"Undo overwrote host automation that returned to Auto Set's value");
+    p->releaseResources();
+    std::cout<<"PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo\n";
+}
+
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         check(argc==1,"Unknown argument");
-        analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();captureWindows();controllerFinishPreservation();controllerIntegration();
+        parameterEditNotifications();controllerEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();captureWindows();controllerFinishPreservation();controllerIntegration();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
