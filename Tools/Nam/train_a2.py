@@ -99,8 +99,9 @@ def main():
     cfg={'sample_rate':48000,'submodels':[{'name':v[0],'config':copy.deepcopy(template)} for v in VOICES]}
     model=PackedWaveNet.init_from_config(copy.deepcopy(cfg));enable_grouped(model)
     rf=model.receptive_field
-    x=np.load(args.data/'train/input.npy');ys=np.stack([np.load(args.data/'train'/f'{v[0]}.npy') for v in VOICES])
-    gains=training_output_gains(ys) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
+    # Memory-mapped: hour-scale training sets exceed RAM; crops read only what they use.
+    x=np.load(args.data/'train/input.npy',mmap_mode='r');ys=[np.load(args.data/'train'/f'{v[0]}.npy',mmap_mode='r') for v in VOICES]
+    gains=training_output_gains(np.stack(ys)) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
     gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
     # Notes are scaled to exactly -6 or -3 dBFS peak; -6.1 keeps the -6 dBFS ones.
     loud_samples=np.flatnonzero(np.abs(x[rf:len(x)-args.frames])>=10**(-6.1/20))+rf
@@ -129,7 +130,9 @@ def main():
     identity=training_identity(train_cfg)
     train_cfg['identity']=identity
     vx=np.load(args.data/'validation/input.npy');vy=np.stack([np.load(args.data/'validation'/f'{v[0]}.npy') for v in VOICES])
-    channel_power=torch.tensor([np.mean(y.astype(np.float64)**2)*g**2 for y,g in zip(ys,gains)],dtype=torch.float32)[None].clamp_min(.0001)
+    def mean_square(y,chunk=1<<24):
+        return sum(float(np.sum(np.square(y[i:i+chunk],dtype=np.float64))) for i in range(0,len(y),chunk))/len(y)
+    channel_power=torch.tensor([mean_square(y)*g**2 for y,g in zip(ys,gains)],dtype=torch.float32)[None].clamp_min(.0001)
     recipe_loss=A2TrainingLoss() if args.recipe=='official-a2' else None
     def learning_rate(step):
         if args.recipe=='official-a2':return virtual_epoch_learning_rate(step,epoch_steps,initial=args.lr)
@@ -236,7 +239,7 @@ def main():
                 st[j]=int(np.clip(k-rng.integers(args.frames),rf,len(x)-args.frames-1))
         crop_digest.update(st.astype('<i8').tobytes())
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
-        yy=torch.from_numpy(np.stack([ys[:,s:s+args.frames] for s in st]))*gain_tensor
+        yy=torch.from_numpy(np.stack([np.stack([y[s:s+args.frames] for y in ys]) for s in st]))*gain_tensor
         pred=export_consistent_prediction(model,xx) if args.center_training_output else model(xx,pad_start=False)
         if recipe_loss is not None:loss=recipe_loss(pred,yy)
         else:

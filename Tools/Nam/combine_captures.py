@@ -20,6 +20,8 @@ HELD_OUT = ('validation', 'test', 'audition')
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--out', type=Path, required=True)
+    ap.add_argument('--consume', action='store_true',
+                    help='Delete each part\'s training arrays once appended, to fit large sets on disk')
     ap.add_argument('parts', type=Path, nargs='+')
     args = ap.parse_args()
     if len(args.parts) < 2: raise ValueError('Give at least two captures')
@@ -36,8 +38,10 @@ def main():
         if held != {(r['split'], r['name']): (r['input_sha256'], r['output_sha256'])
                     for r in first['captures'] if r['split'] in HELD_OUT}:
             raise RuntimeError(f'Held-out audio differs: {p}')
+    # A part may itself be a combination and carry a list of seeds.
     seeds = [m['source'].get('train_seed', 640500) for m in manifests]
-    if len(set(seeds)) != len(seeds): raise RuntimeError('Training seeds repeat')
+    flat = [s for seed in seeds for s in (seed if isinstance(seed, list) else [seed])]
+    if len(set(flat)) != len(flat): raise RuntimeError('Training seeds repeat')
     args.out.mkdir(parents=True, exist_ok=True)
     for split in HELD_OUT:
         (args.out/split).mkdir()
@@ -45,12 +49,24 @@ def main():
             (args.out/split/f.name).write_bytes(f.read_bytes())
     (args.out/'train').mkdir()
     names = sorted({r['name'] for r in first['captures']})
-    for stem in ['input']+names:
-        np.save(args.out/'train'/f'{stem}.npy', np.concatenate([np.load(p/'train'/f'{stem}.npy') for p in args.parts]))
+    lengths = [len(np.load(p/'train'/'input.npy', mmap_mode='r')) for p in args.parts]
+    combined_from = [{'path': str(p), 'manifest_sha256': digest(p/'manifest.json'), 'train_seed': s,
+                      'train_samples': int(n)} for p, s, n in zip(args.parts, seeds, lengths)]
+    stems = ['input']+names
+    outputs = {stem: np.lib.format.open_memmap(args.out/'train'/f'{stem}.npy', mode='w+', dtype='<f4', shape=(sum(lengths),))
+               for stem in stems}
+    offset = 0
+    for p, n in zip(args.parts, lengths):
+        for stem in stems:
+            outputs[stem][offset:offset+n] = np.load(p/'train'/f'{stem}.npy', mmap_mode='r')
+            outputs[stem].flush()
+        offset += n
+        if args.consume:
+            for stem in stems: (p/'train'/f'{stem}.npy').unlink()
+    del outputs
     manifest = copy.deepcopy(first)
-    manifest['source']['train_seed'] = seeds
-    manifest['combined_from'] = [{'path': str(p), 'manifest_sha256': digest(p/'manifest.json'), 'train_seed': s,
-                                  'train_samples': int(len(np.load(p/'train'/'input.npy')))} for p, s in zip(args.parts, seeds)]
+    manifest['source']['train_seed'] = flat
+    manifest['combined_from'] = combined_from
     for row in manifest['captures']:
         for kind in ('input', 'output'):
             row[kind+'_sha256'] = digest(args.out/row[kind])
