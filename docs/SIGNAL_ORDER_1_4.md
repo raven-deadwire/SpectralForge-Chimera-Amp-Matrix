@@ -60,6 +60,10 @@ and no parallel bus or feedback is possible.
   later / Undo / Redo; Alt+Left / Alt+Right moves the focused block. Other
   blocks offer no order commands. The compact strip is unchanged. Drag and
   drop belongs to 1.5.
+- POST page: each slot sits in the row of its actual position, numbered 1–6
+  in the left margin, with ▲/▼ buttons that move it (disabled at either end;
+  the arrows are not drawn dimmed). The page re-lays itself when the order
+  changes in ROUTING, by undo or by a state restore.
 
 ## 4. Audio graph and transition
 
@@ -108,5 +112,4 @@ change with the order.
 - Listening on real DI; DAW automation, save and recall with a changed order.
 - Pointer and context-menu interaction in a native window (the test drives
   the command handler and the graph's model directly).
-- The POST rack editor's own slot layout still shows the released order; the
-  ROUTING graph shows the actual order.
+- The POST page's move arrows are not drawn dimmed when disabled.

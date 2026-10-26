@@ -182,6 +182,12 @@ private:
         std::unique_ptr<BA> button;
     };
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
+    // 1.4 POST slot order (docs/SIGNAL_ORDER_1_4.md): each slot sits in the
+    // row of its actual position, with move buttons in the left margin.
+    std::array<std::unique_ptr<juce::ArrowButton>,6> postEarlier,postLater;
+    int postOrderShown{-1};
+    int postRow(int section) const;
+    void refreshPostOrder();
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};

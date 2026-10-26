@@ -452,6 +452,15 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.load.setTooltip("Open the cabinet room, large cabinet/microphone editor and separate IR Loader.");
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
+    for(int section=0;section<6;++section)for(const int direction:{-1,1}){
+        auto& owned=(direction<0?postEarlier:postLater)[(size_t)section];
+        owned=std::make_unique<juce::ArrowButton>(direction<0?"Earlier":"Later",direction<0?.75f:.25f,ink);
+        auto& button=*owned;add(button);
+        button.setComponentID((direction<0?"postEarlier":"postLater")+juce::String(section));
+        button.setTooltip(direction<0?"Move this POST slot earlier in the rack":"Move this POST slot later in the rack");
+        button.setTitle(button.getTooltip());
+        button.onClick=[this,section,direction]{if(processor.movePostStage(spectralforge::postOrder::Stage(section),direction))refreshPostOrder();};
+    }
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
     setResizable(true,true); setResizeLimits(480,320,1770,1170);
@@ -645,8 +654,27 @@ void ChimeraEditor::repaintDesign(juce::Rectangle<int> area)
     // scroll offset and viewport clipping to paint, invalidation and hit tests.
     canvas.repaint(area.expanded(1));
 }
+int ChimeraEditor::postRow(int section) const
+{
+    const auto order=processor.postOrder();
+    for(int row=0;row<6;++row)if(int(order[(size_t)row])==section)return row;
+    return juce::jlimit(0,5,section);
+}
+// Re-lays the POST page when the order changed here, in ROUTING, by undo or
+// by a state restore.
+void ChimeraEditor::refreshPostOrder()
+{
+    const int code=spectralforge::postOrder::pack(processor.postOrder());
+    if(code==postOrderShown)return;
+    // The first call only records it: the regular layout already places
+    // the slots by order, and the editor may still be under construction.
+    const bool first=postOrderShown<0;postOrderShown=code;if(first)return;
+    layoutControls();
+    if(page==2)repaintDesign({0,330,1160,6*69});
+}
 void ChimeraEditor::refreshVisibleState()
 {
+    refreshPostOrder();
     bool hardwareDirty=stateDirty;
     for(const auto& lane:lanes)if(lane.amp.isVisible() && lane.lastModel!=processor.selectedAmpModel((int)(&lane-lanes.data())))hardwareDirty=true;
     for(const auto& effect:effects)if(effect.model.isVisible() && effect.lastModel!=juce::jmax(0,effect.model.getSelectedId()-1))hardwareDirty=true;
@@ -681,7 +709,7 @@ void ChimeraEditor::refreshVisibleState()
         if(!effect.model.isVisible())continue;
         if(effect.power.update(effect.enabled.getToggleState())) {
             effect.enabled.setButtonText(effect.enabled.getToggleState()?"ON":"OFF");
-            repaintDesign({34,330+position*69+24,10,10});
+            repaintDesign({34,330+postRow(position)*69+24,10,10});
         }
     }
     midi.setButtonText(processor.learningMidi()?"LEARN":"MIDI");
@@ -707,7 +735,7 @@ void ChimeraEditor::refreshMeters()
         lanes[0].cabStatus.setText("GR "+juce::String(processor.lowCompMeter(),1)+" dB | DRIVE 0 | "+lanes[0].status,juce::dontSendNotification);
         repaintDesign({37,638,336,5});
     }
-    if(page==2)for(int p=3;p<6;++p)if(postMeterKeys[(size_t)p-3].update(meterKey(processor.postModuleLevel(p))))repaintDesign({318,330+p*69+16,112,32});
+    if(page==2)for(int p=3;p<6;++p)if(postMeterKeys[(size_t)p-3].update(meterKey(processor.postModuleLevel(p))))repaintDesign({318,330+postRow(p)*69+16,112,32});
 
     const auto cpu="AUDIO "+juce::String(processor.cpuLoad(),1)+"%  |  PEAK "+juce::String(processor.cpuPeakLoad(),1)+"%";
     if(cpuText.update(cpu)){callbackLoad.setText(cpu,juce::dontSendNotification);callbackLoad.setColour(juce::Label::textColourId,processor.cpuPeakLoad()>=100?juce::Colours::salmon:muted);}
@@ -731,7 +759,7 @@ void ChimeraEditor::updateHardwareStyles()
         effect.header.setTooltip(description);effect.description.setTooltip(description);
         effect.description.setText(juce::String(info.character).replace(" / ","\n"),juce::dontSendNotification);effect.scope.setText("AFTER RIG MERGE",juce::dontSendNotification);
         if(family==9){effect.labels[0].setText(model==1?"LOW 110 Hz":model==2?"LOW 60 Hz":"LOW 80 Hz",juce::dontSendNotification);effect.labels[4].setText(model==1?"HIGH 12 kHz":model==2?"HIGH 10 kHz":"HIGH 8 kHz",juce::dontSendNotification);}
-        for(int position=3;position<6;++position)if(rackOrder[(size_t)position]==(int)family)repaintDesign({20,330+position*69,1140,64});
+        for(int position=3;position<6;++position)if(rackOrder[(size_t)position]==(int)family)repaintDesign({20,330+postRow(position)*69,1140,64});
         const bool pedal=family==0 || (family>=3 && family<=6);
         const auto hardware=pedal ? spectralforge::art::pedalStyle((int)family,model) : spectralforge::art::rackStyle((int)family,model);
         const auto labelInk=hardware.brightFace ? juce::Colour(0xff202923) : ink;
@@ -833,6 +861,7 @@ void ChimeraEditor::updateModeUI()
         for(int k=0;k<5;++k){const bool visible=show && effect.attachments[(size_t)k]!=nullptr;effect.controls[k].setVisible(visible);effect.labels[k].setVisible(visible);}
     }
     for(auto& post:postPanels) {post->setVisible(page==2 && !tunerViewOpen);post->refreshIfNeeded();}
+    for(auto* buttons:{&postEarlier,&postLater})for(auto& button:*buttons)button->setVisible(page==2 && !tunerViewOpen);
     for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(false);
     for(int i=0;i<3;++i)
     {
@@ -894,8 +923,10 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     text(g,"INPUT MODE",638,88,108,16,9.f);text(g,"PRESET",770,88,160,16,9.f);
     text(g,"MODE",634,8,170,22,10.f);
     if(page==2) {
+        // Slot numbers in the left margin show the actual POST order.
+        for(int section=0;section<6;++section){const int row=postRow(section);text(g,juce::String(row+1),2,330+row*69+2,16,16,10.f,ink,juce::Justification::centred);}
         for(int position=3;position<6;++position) {
-            const float y=330.f+position*69.f;const int family=rackOrder[(size_t)position];const auto& effect=effects[(size_t)family];
+            const float y=330.f+postRow(position)*69.f;const int family=rackOrder[(size_t)position];const auto& effect=effects[(size_t)family];
             if(!g.clipRegionIntersects({20,(int)y,1140,64}))continue;
             g.setColour(panel.withAlpha(.9f));g.fillRoundedRectangle(20,y,1140,64,4);
             spectralforge::art::rack(g,{296,y,864,64},family,effect.model.getSelectedId()-1);
@@ -999,14 +1030,19 @@ void ChimeraEditor::layoutControls()
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
     midi.setBounds(182,748,66,28);tap.setBounds(256,748,56,28);tempo.setBounds(320,748,132,28);hostTempo.setBounds(460,748,112,28);metronome.setBounds(580,748,126,28);
     easyOpen.setBounds(714,748,86,28);
-    for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
+    for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+postRow((int)i)*69,1140,64);
+    for(int section=0;section<6;++section){
+        const int row=postRow(section),y=330+row*69;
+        postEarlier[(size_t)section]->setBounds(3,y+22,14,16);postLater[(size_t)section]->setBounds(3,y+44,14,16);
+        postEarlier[(size_t)section]->setEnabled(row>0);postLater[(size_t)section]->setEnabled(row<5);
+    }
     for(int position=3;position<6;++position) {
-        auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
+        auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+postRow(position)*69;
         effect.header.setBounds(48,y+2,186,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
         int count=0;for(auto& attachment:effect.attachments)if(attachment)++count;const int cell=692/count;
         for(int k=0;k<count;++k){const int controlWidth=juce::jmin(144,cell-7),x=458+k*cell+(cell-controlWidth)/2;effect.labels[(size_t)k].setBounds(x,y+2,controlWidth,16);effect.controls[(size_t)k].setTextBoxStyle(juce::Slider::TextBoxRight,false,68,22);effect.controls[(size_t)k].setBounds(x,y+17,controlWidth,45);}
     }
-    delaySync.setBounds(297,330+4*69+1,47,15);
+    delaySync.setBounds(297,330+postRow(4)*69+1,47,15);
     diVoice.setBounds(32,616,60,20);lowAmpMix.setBounds(90,615,158,23);diNote.setVisible(false);
     lowCompLabel.setBounds(253,616,43,20);lowComp.setSliderStyle(juce::Slider::LinearHorizontal);lowComp.setTextBoxStyle(juce::Slider::TextBoxRight,false,37,20);lowComp.setBounds(296,615,82,23);
     const bool matrix=lastMode==2,split=matrix || (lastMode==1 && lastDualCross); const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;

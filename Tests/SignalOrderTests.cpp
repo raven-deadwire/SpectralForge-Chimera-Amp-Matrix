@@ -241,6 +241,25 @@ void signalPathFollowsPostOrder() {
     require(po::toString(p->postOrder())=="busComp,preamp,consoleEQ,modulation,delay,reverb","Alt+Left on Delay did not move it before Reverb");
     std::cout<<"PASS signal path graph chains the POST order; its nodes keep their section; Alt+Left moves a POST slot\n";
 }
+void postPageFollowsOrder() {
+    // The POST page puts each slot in the row of its actual position; its
+    // margin buttons move the slot and are disabled at either end.
+    auto p=make();std::unique_ptr<juce::AudioProcessorEditor> editor(p->createEditor());
+    const auto button=[&](const juce::String& id){
+        std::function<juce::Component*(juce::Component&)> find=[&](juce::Component& c)->juce::Component*{if(c.getComponentID()==id)return &c;for(auto* child:c.getChildren())if(auto* f=find(*child))return f;return nullptr;};
+        auto* b=dynamic_cast<juce::Button*>(find(*editor));require(b!=nullptr,"POST move button missing");return b;};
+    const auto row=[&](int section){return (button("postEarlier"+juce::String(section))->getY()-22-330)/69;};
+    for(int section=0;section<6;++section)require(row(section)==section,"The POST page does not show the released order");
+    require(!button("postEarlier0")->isEnabled() && !button("postLater5")->isEnabled() && button("postLater0")->isEnabled(),"End-of-rack move buttons are not disabled");
+    const auto parameters=snapshot(*p);
+    button("postEarlier5")->onClick();
+    require(po::toString(p->postOrder())=="busComp,preamp,consoleEQ,modulation,reverb,delay","The POST page button did not move Reverb earlier");
+    require(row(5)==4 && row(4)==5 && !button("postLater4")->isEnabled(),"The POST page does not follow its own move");
+    p->movePostStage(po::Stage::busComp,1);editor->setSize(editor->getWidth()+1,editor->getHeight());
+    require(row(0)==1 && row(1)==0 && !button("postEarlier1")->isEnabled(),"The POST page does not follow a move made elsewhere");
+    require(snapshot(*p)==parameters,"The POST page move wrote a parameter");
+    std::cout<<"PASS POST page rows follow the order; its move buttons move slots and stop at the ends\n";
+}
 void noAllocation() {
     auto p=make();voice(*p);int clock=0;render(*p,40,110.,clock);
     juce::AudioBuffer<float> audio(2,block);juce::MidiBuffer midi;
@@ -256,6 +275,6 @@ void noAllocation() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {helpers();orderChangesTheGraph();reorderIsClickSafe();stateAndRecall();undoAndParameters();signalPathFollowsOrder();postOrderChangesTheGraph();postReorderIsClickSafe();postStateAndUndo();signalPathFollowsPostOrder();noAllocation();return 0;}
+    try {helpers();orderChangesTheGraph();reorderIsClickSafe();stateAndRecall();undoAndParameters();signalPathFollowsOrder();postOrderChangesTheGraph();postReorderIsClickSafe();postStateAndUndo();signalPathFollowsPostOrder();postPageFollowsOrder();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }
