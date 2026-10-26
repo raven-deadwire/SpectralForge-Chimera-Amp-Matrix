@@ -273,6 +273,24 @@ class PackagingVersionTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "staged Universal OBS filter package"):
             release.obs_filter_macos(self.root / "stage", self.root / "build")
 
+    def test_linux_obs_package_requires_the_staged_filter(self):
+        self.write("build/obs-linux-package/chimera-obs-installer")
+        self.write("build/obs-linux-package/install.sh")
+        with self.assertRaisesRegex(RuntimeError, "staged OBS filter package"):
+            release.obs_filter_linux(self.root / "stage", self.root / "build")
+
+    @unittest.skipIf(sys.platform == "win32", "POSIX shell installer")
+    def test_linux_tar_install_rejects_unknown_options_before_changing_anything(self):
+        home = self.root / "home"
+        home.mkdir()
+        result = subprocess.run(["sh", str(ROOT / "Tools/install-linux.sh"), "--obs"], capture_output=True, text=True,
+                                env={"HOME": str(home), "PATH": "/usr/bin:/bin"})
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--with-obs-filter", result.stderr)
+        self.assertEqual(list(home.iterdir()), [])
+        script = (ROOT / "Tools/install-linux.sh").read_text(encoding="utf-8")
+        self.assertIn('CHIMERA_OBS_FILTER="$CHIMERA_SOURCE/' + release.OBS_LINUX_FOLDER + '"', script)
+
     def test_candidate_stage_inventory_and_versions_without_global_mutation(self):
         expected = version.identity(self.root, SHA)
         self.write("build/chimera-build-version.json", json.dumps(expected))

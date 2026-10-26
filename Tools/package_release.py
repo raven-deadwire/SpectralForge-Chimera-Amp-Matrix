@@ -230,6 +230,28 @@ function obsPreselected() {{
 '''
 
 
+# OBS/tools/stage_module.py linux output, built for OBS 30+ (libobs 30.0.2, Ubuntu
+# 24.04). The DEB and TAR carry it inert under OBS_LINUX_FOLDER; the TAR
+# install.sh asks whether to run its per-user installer, DEB users run it.
+OBS_LINUX_PACKAGE = "obs-linux-package"
+OBS_LINUX_FOLDER = "usr/share/chimera-amp-matrix/obs-filter"
+OBS_LINUX_FILES = frozenset({"chimera-obs", "chimera-obs-installer", "install.sh", "INSTALL.txt", "payload-manifest.txt"})
+
+
+def obs_filter_linux(stage: Path, build: Path) -> Path:
+    package = build / OBS_LINUX_PACKAGE
+    top = {p.name for p in package.iterdir()} if package.is_dir() else set()
+    if top != OBS_LINUX_FILES or any(p.is_symlink() for p in package.rglob("*")):
+        raise RuntimeError(f"Linux payload requires the staged OBS filter package: {package} ({sorted(top)})")
+    helper = package / "chimera-obs-installer"
+    # Runs on the product's glibc baseline with no C++ runtime package.
+    if re.search(r"libstdc\+\+|libgcc_s|not found", run("ldd", str(helper))):
+        raise RuntimeError("OBS filter installer must need only the C library")
+    target = stage / OBS_LINUX_FOLDER
+    copy(package, target)
+    return target
+
+
 def obs_filter_macos(destination: Path, build: Path) -> Path:
     """Stage the Universal OBS filter package (from stage_module.py) for the .pkg."""
     package = build / OBS_MACOS_PACKAGE
@@ -427,6 +449,7 @@ def linux(build: Path, dist: Path) -> None:
                        "Exec=chimera-amp-matrix\nIcon=chimera-amp-matrix\nTerminal=false\n"
                        "Categories=AudioVideo;Audio;\n", encoding="utf-8")
     vstbinary = plugin / "Contents/x86_64-linux/SpectralForge Chimera.so"
+    obs_folder = obs_filter_linux(stage, build)
     verify_stage(stage, ["usr/bin/chimera-amp-matrix", "usr/share/doc/chimera-amp-matrix/MANUAL.html",
                          "usr/libexec/chimera-document-maintenance",
                          f"usr/lib/vst3/{PRODUCT}.vst3/Contents/x86_64-linux/SpectralForge Chimera.so"])
@@ -459,7 +482,8 @@ def linux(build: Path, dist: Path) -> None:
         run("dpkg-deb", "--extract", str(package), str(extracted))
         beta_documents = [docdir / name for name in ("chimera-beta-lifecycle.json", "BETA_LIFECYCLE.txt")
                           if (docdir / name).is_file()]
-        for source in (executable, vstbinary, docdir / "MANUAL.html", *beta_documents):
+        for source in (executable, vstbinary, docdir / "MANUAL.html", *beta_documents,
+                       obs_folder / "chimera-obs/bin/64bit/chimera-obs.so", obs_folder / "chimera-obs-installer"):
             if sha256(source) != sha256(extracted / source.relative_to(stage)):
                 raise RuntimeError(f"Debian package payload differs: {source}")
         dependency_report = run("ldd", str(executable)) + run("ldd", str(vstbinary))
@@ -481,6 +505,7 @@ def linux(build: Path, dist: Path) -> None:
     checksum(portable)
     (dist / "Linux-package-verification.txt").write_text(
         "PASS: dpkg-deb extraction hashes match standalone, VST3 and manual.\n"
+        "PASS: Optional OBS Studio filter package (OBS 30+) carried in DEB and TAR; its installer needs only the C library.\n"
         "PASS: No unresolved builder runtime libraries.\nRuntime dependency metadata: " + depends + "\n"
         "LIMIT: Desktop audio, DAW scanning and installation on other distributions require manual verification.\n" + dependency_report,
         encoding="utf-8")

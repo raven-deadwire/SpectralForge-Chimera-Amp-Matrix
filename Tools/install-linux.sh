@@ -1,6 +1,16 @@
 #!/bin/sh
 # Per-user installation from the supplied Linux tarball. Never writes outside HOME.
 set -eu
+# --with-obs-filter / --without-obs-filter answer the OBS Studio filter question
+# up front; otherwise it is asked only when run from a terminal.
+CHIMERA_OBS_CHOICE=ask
+for CHIMERA_ARG in "$@"; do
+    case "$CHIMERA_ARG" in
+        --with-obs-filter) CHIMERA_OBS_CHOICE=yes ;;
+        --without-obs-filter) CHIMERA_OBS_CHOICE=no ;;
+        *) echo "usage: install.sh [--with-obs-filter | --without-obs-filter]" >&2; exit 2 ;;
+    esac
+done
 CHIMERA_SOURCE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 CHIMERA_BIN="$HOME/.local/bin"
 CHIMERA_VST="$HOME/.vst3"
@@ -33,3 +43,28 @@ done < "$CHIMERA_SOURCE/usr/share/applications/chimera-amp-matrix.desktop" > "$C
 mkdir -p "$HOME/.local/libexec"
 install -m 755 "$CHIMERA_MAINTENANCE" "$HOME/.local/libexec/chimera-document-maintenance"
 printf '%s\n' "Installed standalone: $CHIMERA_BIN/chimera-amp-matrix" "Installed VST3: $CHIMERA_VST/SpectralForge Chimera.vst3" "Manual: $CHIMERA_SHARE/doc/chimera-amp-matrix/MANUAL.html"
+# Optional OBS Studio filter (open-source GPL module for OBS 30 or later). It has
+# its own transactional installer that refuses a running OBS; Chimera above is
+# already installed whatever happens here.
+CHIMERA_OBS_FILTER="$CHIMERA_SOURCE/usr/share/chimera-amp-matrix/obs-filter"
+[ -x "$CHIMERA_OBS_FILTER/install.sh" ] || exit 0
+if [ "$CHIMERA_OBS_CHOICE" = ask ]; then
+    CHIMERA_OBS_PLUGINS="${XDG_CONFIG_HOME:-$HOME/.config}/obs-studio"
+    if command -v obs >/dev/null 2>&1 || [ -d "$CHIMERA_OBS_PLUGINS" ]; then CHIMERA_OBS_DEFAULT=Y; else CHIMERA_OBS_DEFAULT=N; fi
+    if [ -t 0 ]; then
+        printf 'Also install the SpectralForge Chimera filter for OBS Studio 30+? / OBS Studio용 필터도 설치할까요? [%s] ' \
+            "$([ "$CHIMERA_OBS_DEFAULT" = Y ] && echo Y/n || echo y/N)"
+        read -r CHIMERA_OBS_ANSWER || CHIMERA_OBS_ANSWER=
+        case "${CHIMERA_OBS_ANSWER:-$CHIMERA_OBS_DEFAULT}" in [Yy]*) CHIMERA_OBS_CHOICE=yes ;; *) CHIMERA_OBS_CHOICE=no ;; esac
+    else
+        CHIMERA_OBS_CHOICE=no
+    fi
+fi
+if [ "$CHIMERA_OBS_CHOICE" = yes ]; then
+    if ! sh "$CHIMERA_OBS_FILTER/install.sh"; then
+        echo "Chimera is installed, but the OBS Studio filter was not. Close OBS and run: sh \"$CHIMERA_OBS_FILTER/install.sh\"" >&2
+        exit 1
+    fi
+else
+    echo "OBS Studio filter not installed. To add it later: sh \"$CHIMERA_OBS_FILTER/install.sh\""
+fi
