@@ -100,6 +100,7 @@ void ChimeraProcessor::releaseResources()
     // either, then reclaim ALL IR kernels while the plugin is still loaded.
     // Each juce::dsp::Convolution owns a further background loader: merely
     // stopping IRLibrary left those threads alive until member destruction.
+    lastProcessTicks.store(0); // stopped: a recall applies at once
     library.requestStop(); tuner.requestStop();
     library.stop(); tuner.stop();
     for (int lane=0; lane<3; ++lane) engine.cabinet(lane).clear();
@@ -109,6 +110,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
     releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
+    switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
+    lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     // Install the restored panel state before Cab::prepare initializes its
@@ -162,7 +165,23 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
+    audioThread.store(std::hash<std::thread::id>{}(std::this_thread::get_id()),std::memory_order_relaxed);
     resetProcessingIfPending();
+    if(fadeRequested.exchange(false)) {
+        // beginSwitch() waits for silence before it changes the state.
+        if(!processedSincePrepare || switchFade==SwitchFade::hold || switchFade==SwitchFade::wait)fadedSilent.store(true);
+        else {switchFade=SwitchFade::out;holdForSwitch=true;}
+    }
+    if(switchPending.exchange(false)) {
+        holdForSwitch=false;
+        // Nothing has played since prepareToPlay: there is no sound to fade.
+        if(!processedSincePrepare){resetProcessing(true);switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
+        else if(switchFade==SwitchFade::hold || switchFade==SwitchFade::wait) { // already silent
+            resetProcessing(true);switchWait=getLatencySamples();
+            if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
+        }
+        else {hostBypass.reset();switchFade=SwitchFade::out;}
+    }
     // Capture before input gain/routing/effects, inside the callback CPU meter.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     for(const auto metadata:midi) {
@@ -182,9 +201,19 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         const int count=juce::jmin(maximumBlock,buffer.getNumSamples()-offset);
         std::array<float*,2> channels{};
         for(int c=0;c<buffer.getNumChannels();++c) channels[(size_t)c]=buffer.getWritePointer(c,offset);
-        juce::AudioBuffer<float> part(channels.data(),buffer.getNumChannels(),count);
-        process(part);
+        for(int done=0;done<count;) {
+            // Fade-out ends inside this chunk: process up to the reset point,
+            // reset, then process the rest with the recalled sound.
+            const int n=switchFade==SwitchFade::out?juce::jmin(count-done,juce::jmax(1,switchFadePosition)):count-done;
+            std::array<float*,2> sub{};
+            for(int c=0;c<buffer.getNumChannels();++c) sub[(size_t)c]=channels[(size_t)c]+done;
+            juce::AudioBuffer<float> part(sub.data(),buffer.getNumChannels(),n);
+            process(part);
+            applySwitchFade(part);
+            done+=n;
+        }
     }
+    processedSincePrepare=true;lastProcessTicks.store(juce::Time::getHighResolutionTicks());
     // The policy is constructed once, off the audio thread. Expiry cannot stop
     // an admitted instance, including recording or non-realtime rendering.
     // A newly expired instance keeps the complete graph/latency and emits zero;
@@ -208,6 +237,9 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
 {
     resetProcessingIfPending();
+    // Bypassed, the wet sound is not heard: a recall needs no fade.
+    if(fadeRequested.exchange(false))fadedSilent.store(true);
+    if(switchPending.exchange(false)){resetProcessing(true);switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;holdForSwitch=false;}
     // JUCE AAX's MasterBypassID invokes this callback. Its default implementation
     // passes dry audio immediately even though PDC still uses our nonzero delay.
     // Use the currently reported delay; parameter changes take effect when the
@@ -217,8 +249,36 @@ void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juc
 void ChimeraProcessor::resetProcessingIfPending()
 {
     if(!resetPending.exchange(false)) return;
+    resetProcessing(true);
+    // A host reset ends any switch fade: the reset sound plays at once.
+    if(switchFade!=SwitchFade::idle){switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
+}
+void ChimeraProcessor::resetProcessing(bool hostBypassToo)
+{
     engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();utilities.reset();
-    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();hostBypass.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();if(hostBypassToo)hostBypass.reset();
+}
+void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
+{
+    if(switchFade==SwitchFade::idle)return;
+    const auto gain=[this]{return float(.5-.5*std::cos(juce::MathConstants<double>::pi*switchFadePosition/switchFadeLength));};
+    for(int n=0;n<part.getNumSamples();++n) {
+        float g=1;
+        if(switchFade==SwitchFade::out){if(switchFadePosition>0)--switchFadePosition;g=gain();}
+        else if(switchFade==SwitchFade::hold){g=0;if(--switchHold<=0){switchFade=SwitchFade::in;switchFadePosition=0;holdForSwitch=false;}} // abandoned: no state change came
+        else if(switchFade==SwitchFade::wait){g=0;if(--switchWait<=0){switchFade=SwitchFade::in;switchFadePosition=0;}}
+        else if(switchFade==SwitchFade::in){if(++switchFadePosition>=switchFadeLength){switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;}g=gain();}
+        for(int c=0;c<part.getNumChannels();++c)part.getWritePointer(c)[n]*=g;
+    }
+    // The fade-out reached silence at the end of this part: reset now, before
+    // the next sample, and stay muted while the cleared delay lines refill.
+    if(switchFade==SwitchFade::out && switchFadePosition==0 && holdForSwitch) {
+        switchFade=SwitchFade::hold;switchHold=int(rate*.5);fadedSilent.store(true);
+    } else if(switchFade==SwitchFade::out && switchFadePosition==0) {
+        resetProcessing(false);
+        switchWait=getLatencySamples();
+        if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
+    }
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
@@ -512,23 +572,37 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
     comparisons[(size_t)active]=core;
     return true;
 }
+void ChimeraProcessor::beginSwitch()
+{
+    // Only while audio is running on another thread: offline loads, the audio
+    // thread itself and a stopped host change the state at once.
+    const auto last=lastProcessTicks.load();
+    if(last==0 || juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-last)>.2)return;
+    if(audioThread.load(std::memory_order_relaxed)==std::hash<std::thread::id>{}(std::this_thread::get_id()))return;
+    fadedSilent.store(false);fadeRequested.store(true);
+    // Bounded: the old sound needs 5 ms of audio; a stalled host costs at most 30 ms.
+    const auto deadline=juce::Time::getHighResolutionTicks()+juce::Time::secondsToHighResolutionTicks(.03);
+    while(!fadedSilent.load() && juce::Time::getHighResolutionTicks()<deadline)juce::Thread::sleep(1);
+}
 void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
     ++headRecallRevision;
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
+    beginSwitch(); // the old sound fades out (and stays muted) before any of the new state applies
     spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
     boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
-    const bool missingNative=!restored.getChildWithProperty("id",spectralforge::ampNativeModelID(0)).isValid();
-    const bool missingPost=!restored.getChildWithProperty("id",spectralforge::postNativeModelID(0)).isValid();
-    const bool missingBoard=!restored.getChildWithProperty("id",spectralforge::pedalModelID(0)).isValid();
-    const bool hasOriginalV1=restored.getChildWithProperty("id",spectralforge::ampNativeControlID(0,spectralforge::firstOriginalAmpModel,0)).isValid();
+    const spectralforge::ParamIndex restoredById(restored);
+    const bool missingNative=!restoredById[spectralforge::ampNativeModelID(0)].isValid();
+    const bool missingPost=!restoredById[spectralforge::postNativeModelID(0)].isValid();
+    const bool missingBoard=!restoredById[spectralforge::pedalModelID(0)].isValid();
+    const bool hasOriginalV1=restoredById[spectralforge::ampNativeControlID(0,spectralforge::firstOriginalAmpModel,0)].isValid();
     // Enumerate registered parameters via the current tree, but obtain every
     // missing value from the parameter definition, never from the session.
     const auto defaults=state.copyState();
     for(auto child:defaults)
     {
         const auto id=child.getProperty("id").toString();
-        if(id.isEmpty() || restored.getChildWithProperty("id",id).isValid()) continue;
+        if(id.isEmpty() || restoredById[id].isValid()) continue;
         auto* parameter=state.getParameter(id);if(!parameter) continue;
         float value=parameter->convertFrom0to1(parameter->getDefaultValue());
         // Old single-channel snapshots retain their exact transfer and saved
@@ -544,7 +618,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
-    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();resetPending.store(true);
+    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();switchPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
 }
@@ -598,6 +672,7 @@ void ChimeraProcessor::tapTempo() {
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
     ++headRecallRevision;
+    beginSwitch(); // the old sound fades out (and stays muted) while the snapshot is built
     {
         const auto snapshot=spectralforge::isNiflheimrPreset(index)
             ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)
@@ -612,14 +687,15 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
         // Canonicalize host values as well as APVTS values. Bool/choice adapters
         // may already cache the snapped value of a noncanonical host write and
         // suppress an otherwise identical replaceState update.
+        const spectralforge::ParamIndex snapshotById(snapshot);
         for(auto* raw:getParameters())if(auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
-            const auto node=snapshot.getChildWithProperty("id",parameter->paramID);
+            const auto node=snapshotById[parameter->paramID];
             parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
         }
         boardUndo.clear();boardRedo.clear();
         // Factory recipes own their modeled CAB. Resolving a user's IR folder
         // here would bypass that cabinet and make recall machine-dependent.
-        resetPending.store(true);
+        switchPending.store(true);
     }
 }
 
@@ -742,9 +818,9 @@ void ChimeraProcessor::rememberPedalEdit() {
 }
 void ChimeraProcessor::setPedalBoardEnabled(bool enabled) {
     if(boardParameters.read().enabled==enabled)return;
-    rememberPedalEdit();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
+    rememberPedalEdit();beginSwitch();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
     setRawParameter("boardEnabled",enabled?1.f:0.f);
-    boardEditSequence.fetch_add(1,std::memory_order_release);resetPending.store(true);
+    boardEditSequence.fetch_add(1,std::memory_order_release);switchPending.store(true);
 }
 void ChimeraProcessor::setPedalModel(int owner,int model) {
     if(owner<0 || owner>=5 || model<0 || model>=spectralforge::pedalModelCount || !spectralforge::pedalModel(model).implemented)return;

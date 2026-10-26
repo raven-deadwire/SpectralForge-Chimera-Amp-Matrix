@@ -2,6 +2,8 @@
 #pragma once
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <functional>
+#include <thread>
 #include "DynamicsAnalysis.h"
 #include "AutoSet.h"
 #include "MultibandDynamics.h"
@@ -10,6 +12,7 @@
 #include "FXParameters.h"
 #include "IRLibrary.h"
 #include "PerformanceUtilities.h"
+#include "ParamIndex.h"
 #include "PedalBoardParameters.h"
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
@@ -198,6 +201,9 @@ private:
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
     void measureStage(int,const juce::AudioBuffer<float>&);
     void resetProcessingIfPending();
+    void resetProcessing(bool hostBypassToo);
+    void applySwitchFade(juce::AudioBuffer<float>&);
+    void beginSwitch();
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
     void syncTransposeQuality();
@@ -207,6 +213,17 @@ private:
     std::atomic<int> selectedComparison{0};
     std::atomic<uint64_t> headRecallRevision{0};
     std::atomic<bool> resetPending{false};
+    // A recalled sound (preset, A/B, project, board on/off) resets the DSP
+    // behind a short fade instead of cutting. While audio runs, beginSwitch()
+    // lets the old sound fade out (5 ms) before the state changes, since new
+    // parameters on the old DSP would already jump. Then: reset, mute for the
+    // reported latency (cleared delay lines), fade in (5 ms). Host reset()
+    // stays immediate, and so does the first block after prepareToPlay.
+    std::atomic<bool> switchPending{false},fadeRequested{false},fadedSilent{false};
+    std::atomic<juce::int64> lastProcessTicks{0};std::atomic<size_t> audioThread{0};
+    enum class SwitchFade {idle,out,hold,wait,in};
+    SwitchFade switchFade{SwitchFade::idle};int switchFadeLength{240},switchFadePosition{240},switchWait{},switchHold{};
+    bool processedSincePrepare{},holdForSwitch{};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     spectralforge::EQEditState eqEditState{state};
     spectralforge::EQCaptureBoundary eqCaptureBoundaryState;
