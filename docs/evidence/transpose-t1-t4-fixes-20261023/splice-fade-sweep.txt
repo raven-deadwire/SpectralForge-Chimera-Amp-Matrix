@@ -1,0 +1,8 @@
+splice fade default 2ms shift 1 attack max 3.77 guitar_dropA_A1/20261024/random_plucks@96000 | >10ms cases 0 of 38
+splice fade default 2ms shift 2 attack max 24.99 bass_B0/20261024/random_markers@96000 | >10ms cases 1 of 38
+splice fade 3 shift 1 attack max 3.82 guitar_dropA_A1/20261024/random_plucks@96000 | >10ms cases 0 of 38
+splice fade 3 shift 2 attack max 5.40 bass_dropA_A0/8139/random_plucks@96000 | >10ms cases 0 of 38
+splice fade 4 shift 1 attack max 3.89 guitar_dropA_A1/20261024/random_plucks@96000 | >10ms cases 0 of 38
+splice fade 4 shift 2 attack max 5.55 bass_B0/20261024/random_plucks@96000 | >10ms cases 0 of 38
+splice fade 6 shift 1 attack max 3.99 guitar_dropA_A1/20261024/random_plucks@96000 | >10ms cases 0 of 38
+splice fade 6 shift 2 attack max 6.31 bass_B0/20261024/random_plucks@48000 | >10ms cases 0 of 38

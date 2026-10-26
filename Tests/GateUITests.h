@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #pragma once
 #include "PluginEditor.h"
 #include "NativeMessageLoop.h"
@@ -32,15 +33,13 @@ inline void checkGateUI(ChimeraProcessor& processor,ChimeraEditor& editor,const 
         ~Peer(){editor.setVisible(visible);if(added)editor.removeFromDesktop();}
     } peer(editor);
     settle();
-    auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Missing editor canvas");
-    // Gate / Expander lives in DYNAMICS; the top-bar slot opens DYNAMICS.
-    auto* entry=dynamic_cast<juce::TextButton*>(find(find,*canvas,"commonDynamics.open"));
-    require(entry && entry->isShowing() && entry->isEnabled(),"Dynamics entry missing from the top bar");
+    auto* canvas=editorSurface(editor);require(canvas!=nullptr,"Missing editor canvas");
+    // Gate / Expander opens directly from its visible top-bar entry.
+    auto* entry=dynamic_cast<juce::TextButton*>(find(find,*canvas,"commonDynamics.open.gate"));
+    require(entry && entry->isShowing() && entry->isEnabled() && entry->getButtonText().contains("GATE"),"Visible Gate entry missing from the top bar");
     require(find(find,*canvas,"gateSpectrum.open")==nullptr,"Old gate top-bar entry remains");
     const auto initial=values();
     {Writes writes(processor);entry->triggerClick();settle(90);
-     auto* gateTab=dynamic_cast<juce::TextButton*>(find(find,*canvas,"commonDynamics.page.gate"));
-     require(gateTab!=nullptr,"Gate / Expander tab missing");gateTab->triggerClick();settle(60);
      require(values()==initial && writes.changes==0 && writes.gestures==0,"Opening Gate spectrum changed a sound parameter or host gesture");}
     auto* panel=dynamic_cast<spectralforge::CommonDynamicsPanel*>(find(find,*canvas,"commonDynamics.panel"));
     require(panel && panel->isShowing() && panel->selectedPage()==spectralforge::CommonDynamicsPanel::Page::gate,
@@ -58,10 +57,10 @@ inline void checkGateUI(ChimeraProcessor& processor,ChimeraEditor& editor,const 
          require(values()==before && writes.changes==0 && writes.gestures==0,"Gate editor scaling wrote audio parameters");}
         for(const char* id:{"commonDynamics.gatethreshold","gateRatio","gateAttack","commonDynamics.gatehold","commonDynamics.gaterelease","commonDynamics.gateRangeDb","gateMode","commonDynamics.gateon","commonDynamics.gateAfterRig"}) {
             auto* control=find(find,*panel,id);
-            require(control && control->isShowing() && editor.getLocalBounds().contains(editor.getLocalArea(control,control->getLocalBounds())),
+            require(control && control->isShowing() && editorBoundsReachable(editor,*control),
                     "Gate control is missing or outside the editor at a supported scale");
         }
-        require(spectrum->isShowing() && editor.getLocalBounds().contains(editor.getLocalArea(spectrum,spectrum->getLocalBounds())),
+        require(spectrum->isShowing() && editorBoundsReachable(editor,*spectrum),
                 "Gate spectrum is clipped during adjustment");
         slider->setValue(24,juce::sendNotificationSync);
         require(processor.parameters().getRawParameterValue("gateRangeDb")->load()==24,"UI Range edit did not reach DSP parameter");

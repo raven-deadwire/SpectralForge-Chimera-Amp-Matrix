@@ -121,9 +121,49 @@ void check() {
     std::cout << "PASS AAX stable layout IDs, " << hashes.size()
               << " collision-free host IDs, shared dynamic latency; no Pro Tools host acceptance claimed\n";
 }
+
+void resetDuringHostBypass() {
+    for (int channels : {1, 2}) for (int rate : {44100, 48000, 96000}) for (bool firstBypassed : {false, true}) {
+        auto p = std::make_unique<ChimeraProcessor>();
+        auto layout = p->getBusesLayout();
+        layout.inputBuses.set(0, channels == 1 ? juce::AudioChannelSet::mono() : juce::AudioChannelSet::stereo());
+        layout.outputBuses = layout.inputBuses;
+        require(p->setBusesLayout(layout), "Reset bus rejected");
+        set(*p, "boardEnabled", 0); set(*p, "transpose", -2); set(*p, "transposeon", 1);
+        p->setRateAndBufferSizeDetails(rate, 128); p->prepareToPlay(rate, 128);
+        const int delay = p->getLatencySamples();
+        require(delay > 0, "Reset fixture requires delayed bypass audio");
+        std::vector<float> parameters;
+        for (auto* parameter : p->getParameters()) parameters.push_back(parameter->getValue());
+        juce::AudioBuffer<float> audio(channels, 128); juce::MidiBuffer midi;
+        const int blocks = (delay + 127) / 128 + 3;
+        for (int block = 0; block < blocks; ++block) {
+            for (int c = 0; c < channels; ++c) for (int n = 0; n < 128; ++n) audio.setSample(c, n, 1.f);
+            p->processBlockBypassed(audio, midi);
+        }
+        p->reset(); // no prepare: host stop/start or AU Reset
+        for (int block = 0; block < blocks; ++block) {
+            const int elapsed = block * 128;
+            for (int c = 0; c < channels; ++c) for (int n = 0; n < 128; ++n)
+                audio.setSample(c, n, rawInput(c, elapsed + n));
+            if (block == 0 && !firstBypassed) p->processBlock(audio, midi);
+            else {
+                p->processBlockBypassed(audio, midi);
+                for (int c = 0; c < channels; ++c) for (int n = 0; n < 128; ++n)
+                    require(audio.getSample(c, n) == rawInput(c, elapsed + n - delay),
+                            "Reset replayed old host-bypass audio or lost new input alignment");
+            }
+            require(p->getLatencySamples() == delay, "Reset changed host latency");
+        }
+        for (int i = 0; i < p->getParameters().size(); ++i)
+            require(p->getParameters()[i]->getValue() == parameters[static_cast<size_t>(i)], "Reset changed a parameter");
+        p->releaseResources();
+    }
+    std::cout << "PASS shared processor reset: bypass/wet first block, old history cleared, new audio aligned, parameters and PDC unchanged; no DAW host acceptance\n";
+}
 }
 int main() {
     juce::ScopedJuceInitialiser_GUI gui;
-    try { check(); latencyAndRecall(); return 0; }
+    try { check(); latencyAndRecall(); resetDuringHostBypass(); return 0; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

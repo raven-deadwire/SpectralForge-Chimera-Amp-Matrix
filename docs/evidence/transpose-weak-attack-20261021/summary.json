@@ -1,0 +1,217 @@
+{
+  "status": "RESEARCH_ONLY_DO_NOT_INTEGRATE_OR_RELEASE",
+  "target_ms": 10,
+  "target_pass": false,
+  "code_commit": "979c13d65e1cf42fb21ecbca6b8c39b434da0111",
+  "renderer_sha256": "fb1cab06b76695320623b7096f81ecd07e2b11cf64564e21626043a387acb900",
+  "quality_render_count": 1119,
+  "timing_render_count": 45,
+  "block_parity": {
+    "groups": 324,
+    "passed": 324
+  },
+  "functional_groups_pass": 270,
+  "real_DI": "NOT_AVAILABLE",
+  "Neural_DSP_raw_output": "NOT_AVAILABLE",
+  "fixed_latency_PDC": "NOT_IMPLEMENTED",
+  "actual_DAW": "NOT_RUN",
+  "cases": [
+    {
+      "instrument": "bass_B0",
+      "case": "alternating_velocity",
+      "additional_peak_lag_max_ms": {
+        "baseline": 45.4375,
+        "corr40-onset": 12.104166666666666,
+        "corr40-split": 2.75
+      }
+    },
+    {
+      "instrument": "bass_B0",
+      "case": "quiet_markers_over_sustain",
+      "additional_peak_lag_max_ms": {
+        "baseline": 47.70833333333333,
+        "corr40-onset": 34.60416666666667,
+        "corr40-split": 2.75
+      }
+    },
+    {
+      "instrument": "bass_dropA_A0",
+      "case": "alternating_velocity",
+      "additional_peak_lag_max_ms": {
+        "baseline": 47.541666666666664,
+        "corr40-onset": 12.104166666666666,
+        "corr40-split": 2.75
+      }
+    },
+    {
+      "instrument": "bass_dropA_A0",
+      "case": "quiet_markers_over_sustain",
+      "additional_peak_lag_max_ms": {
+        "baseline": 51.708333333333336,
+        "corr40-onset": 39.354166666666664,
+        "corr40-split": 2.6875
+      }
+    },
+    {
+      "instrument": "guitar_dropA_A1",
+      "case": "alternating_velocity",
+      "additional_peak_lag_max_ms": {
+        "baseline": 44.729166666666664,
+        "corr40-onset": 12.104166666666666,
+        "corr40-split": 2.9375
+      }
+    },
+    {
+      "instrument": "guitar_dropA_A1",
+      "case": "quiet_markers_over_sustain",
+      "additional_peak_lag_max_ms": {
+        "baseline": 49.58333333333333,
+        "corr40-onset": 39.375,
+        "corr40-split": 2.6666666666666665
+      }
+    }
+  ],
+  "timing": [
+    {
+      "block": 64,
+      "engine": "baseline",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 69.8779,
+      "median_thread_cpu_p99_us": 401.59970999999956,
+      "peak_thread_cpu_us": 3966.29,
+      "thread_cpu_deadline_misses": 40,
+      "wall_deadline_misses": 40
+    },
+    {
+      "block": 64,
+      "engine": "corr40-onset",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 2.43595,
+      "median_thread_cpu_p99_us": 2.534,
+      "peak_thread_cpu_us": 1160.53,
+      "thread_cpu_deadline_misses": 0,
+      "wall_deadline_misses": 0
+    },
+    {
+      "block": 64,
+      "engine": "corr40-split",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 6.99206,
+      "median_thread_cpu_p99_us": 49.08379999999987,
+      "peak_thread_cpu_us": 1347.62,
+      "thread_cpu_deadline_misses": 1,
+      "wall_deadline_misses": 1
+    },
+    {
+      "block": 128,
+      "engine": "baseline",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 138.67,
+      "median_thread_cpu_p99_us": 444.8314,
+      "peak_thread_cpu_us": 5159.53,
+      "thread_cpu_deadline_misses": 6,
+      "wall_deadline_misses": 7
+    },
+    {
+      "block": 128,
+      "engine": "corr40-onset",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 4.43213,
+      "median_thread_cpu_p99_us": 18.698290000000018,
+      "peak_thread_cpu_us": 618.83,
+      "thread_cpu_deadline_misses": 0,
+      "wall_deadline_misses": 0
+    },
+    {
+      "block": 128,
+      "engine": "corr40-split",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 13.5774,
+      "median_thread_cpu_p99_us": 289.9463,
+      "peak_thread_cpu_us": 851.436,
+      "thread_cpu_deadline_misses": 0,
+      "wall_deadline_misses": 0
+    },
+    {
+      "block": 256,
+      "engine": "baseline",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 279.794,
+      "median_thread_cpu_p99_us": 531.3685600000002,
+      "peak_thread_cpu_us": 3366.19,
+      "thread_cpu_deadline_misses": 0,
+      "wall_deadline_misses": 0
+    },
+    {
+      "block": 256,
+      "engine": "corr40-onset",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 8.87591,
+      "median_thread_cpu_p99_us": 285.05936000000025,
+      "peak_thread_cpu_us": 861.36,
+      "thread_cpu_deadline_misses": 0,
+      "wall_deadline_misses": 0
+    },
+    {
+      "block": 256,
+      "engine": "corr40-split",
+      "repetitions": 5,
+      "median_thread_cpu_mean_us": 30.7577,
+      "median_thread_cpu_p99_us": 340.9722,
+      "peak_thread_cpu_us": 1455.4,
+      "thread_cpu_deadline_misses": 0,
+      "wall_deadline_misses": 0
+    }
+  ],
+  "blockers": [
+    "band_limited_bass_energy_centroid_gt_10ms",
+    "quieter_A1_markers_missed_6_of_16_max_30.1875ms",
+    "upshift_attack_max_37.6871ms",
+    "variable_delay_no_fixed_PDC",
+    "independent_band_delay_crossover_unqualified",
+    "64_sample_thread_CPU_deadline_miss_1",
+    "real_DI_Neural_DSP_and_actual_DAW_absent"
+  ],
+  "guard_false_resets": {
+    "corr40-onset": 60,
+    "corr40-novelty": 0,
+    "corr40-split": 0
+  },
+  "holdout": {
+    "events": 96,
+    "missed_by_detector_within_10ms": 1,
+    "additional_attack_max_ms": 4.770833333333333
+  },
+  "shift_summary": {
+    "-2": {
+      "additional_attack_max_ms": 2.9375,
+      "pitch_abs_max_cents": 0.007581314320164106,
+      "warble_max_cents": 0.59507011621257
+    },
+    "-1": {
+      "additional_attack_max_ms": 2.5208333333333335,
+      "pitch_abs_max_cents": 0.002762453684630311,
+      "warble_max_cents": 0.4201996313807385
+    },
+    "1": {
+      "additional_attack_max_ms": 37.68707482993197,
+      "pitch_abs_max_cents": 0.0009086414417227276,
+      "warble_max_cents": 0.21015110753069882
+    },
+    "2": {
+      "additional_attack_max_ms": 33.75,
+      "pitch_abs_max_cents": 0.0006814906766396581,
+      "warble_max_cents": 0.15505447537178493
+    }
+  },
+  "low_band_additional_centroid_ms": [
+    10.685927975798752,
+    11.567343404276773,
+    12.450201798536153,
+    13.334563119196599,
+    14.219952560095713,
+    15.10573415404997,
+    15.991383501698994,
+    16.876629057080816
+  ]
+}

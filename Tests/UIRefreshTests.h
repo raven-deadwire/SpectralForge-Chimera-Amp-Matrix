@@ -1,3 +1,4 @@
+#include "EditorSurface.h"
 #pragma once
 #include "NativeUITests.h"
 
@@ -9,7 +10,7 @@ inline void run(const juce::File& directory) {
     // The editor owns a large control tree; keep its storage off the Windows
     // message-thread stack while preserving editor-before-processor teardown.
     auto editorStorage=std::make_unique<ChimeraEditor>(p);auto& editor=*editorStorage;
-    auto& canvas=*editor.findChildWithID("surface");
+    auto& canvas=*editorSurface(editor);
     std::cout<<"RUN UI refresh: idle state and page transitions\n"<<std::flush;
     set(p,"mode",2);tab(canvas,"RIGS");settle(150);
     rigViewTests::showControls(canvas);
@@ -34,11 +35,13 @@ inline void run(const juce::File& directory) {
     // A modal ALL window may outlive the owning page. Drive the page callback
     // directly to test that lifecycle without faking an allowed mouse click.
     std::cout<<"RUN UI refresh: detached ALL window lifetimes\n"<<std::flush;
-    auto all=open(canvas,"postExpand0","postNativePanel0");auto* full=dynamic_cast<PostNativePanel*>(all->getContentComponent());
+    auto all=open(canvas,"postExpand0","postNativePanel0");auto* full=dynamic_cast<PostNativePanel*>(spectralforge::ui::dialogContent(*all));
+    require(full!=nullptr,"Detached POST ALL content missing");
     find<juce::TextButton>(canvas,"path.pre")->onClick();
     settle(100);const auto hiddenParent=post->stateRefreshCount();set(p,spectralforge::postNativeModelID(0),1);settle(120);
     require(full->selectedModel()==1 && post->stateRefreshCount()==hiddenParent,"Detached POST ALL stopped or refreshed hidden parent");close(all);
-    tab(canvas,"RIGS");all=open(canvas,"ampExpand1","ampNativePanel1");auto* ampFull=dynamic_cast<AmpNativePanel*>(all->getContentComponent());
+    tab(canvas,"RIGS");all=open(canvas,"ampExpand1","ampNativePanel1");auto* ampFull=dynamic_cast<AmpNativePanel*>(spectralforge::ui::dialogContent(*all));
+    require(ampFull!=nullptr,"Detached amp ALL content missing");
     find<juce::TextButton>(canvas,"path.pre")->onClick();
     settle(100);const auto fullCount=ampFull->stateRefreshCount(),ownerCount=amp->stateRefreshCount();p.setAmpModel(0,15);settle(120);
     require(ampFull->stateRefreshCount()>fullCount && amp->stateRefreshCount()==ownerCount,"Detached amp ALL stopped or refreshed hidden parent");close(all);

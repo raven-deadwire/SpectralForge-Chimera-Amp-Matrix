@@ -1,0 +1,38 @@
+{
+ "v2/block64": {
+  "worst_callback_us_median_of_5": 311.3,
+  "worst_callback_us_min_of_5": 170.9,
+  "p99_us_median": 157.2,
+  "deadline_us": 1333.3
+ },
+ "v3/block64": {
+  "worst_callback_us_median_of_5": 224.1,
+  "worst_callback_us_min_of_5": 180.5,
+  "p99_us_median": 73.2,
+  "deadline_us": 1333.3
+ },
+ "v2/block128": {
+  "worst_callback_us_median_of_5": 240.2,
+  "worst_callback_us_min_of_5": 196.9,
+  "p99_us_median": 99.3,
+  "deadline_us": 2666.7
+ },
+ "v3/block128": {
+  "worst_callback_us_median_of_5": 330.9,
+  "worst_callback_us_min_of_5": 227.2,
+  "p99_us_median": 137.4,
+  "deadline_us": 2666.7
+ },
+ "v2/block256": {
+  "worst_callback_us_median_of_5": 329.4,
+  "worst_callback_us_min_of_5": 259.2,
+  "p99_us_median": 207.3,
+  "deadline_us": 5333.3
+ },
+ "v3/block256": {
+  "worst_callback_us_median_of_5": 211.5,
+  "worst_callback_us_min_of_5": 202.7,
+  "p99_us_median": 159.6,
+  "deadline_us": 5333.3
+ }
+}

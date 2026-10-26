@@ -146,7 +146,7 @@ inline void cabSourceIsolationContracts(const juce::File& folder,const juce::Fil
         const auto libraryWindow=[]()->juce::DialogWindow* {
             for(int index=0;index<juce::TopLevelWindow::getNumTopLevelWindows();++index)
                 if(auto* window=dynamic_cast<juce::DialogWindow*>(juce::TopLevelWindow::getTopLevelWindow(index)))
-                    if(dynamic_cast<IRBrowserPanel*>(window->getContentComponent()))return window;
+                    if(dynamic_cast<IRBrowserPanel*>(spectralforge::ui::dialogContent(*window)))return window;
             return nullptr;
         };
         navigationUnchanged(*processor,[&] {
@@ -157,7 +157,7 @@ inline void cabSourceIsolationContracts(const juce::File& folder,const juce::Fil
             require(libraryWindow()!=nullptr,"Global IR library did not open");
         });
         juce::Component::SafePointer<juce::DialogWindow> window(libraryWindow());
-        auto* browser=dynamic_cast<IRBrowserPanel*>(window->getContentComponent());
+        auto* browser=dynamic_cast<IRBrowserPanel*>(spectralforge::ui::dialogContent(*window));
         require(browser!=nullptr,"Main rig source selector opened an unrelated panel");
         auto& availability=component<juce::ComboBox>(*browser,"iravailability");
         auto& search=component<juce::TextEditor>(*browser,"irsearch");

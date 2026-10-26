@@ -79,7 +79,7 @@ the first voicing revision, and the revised IMPACT/BLOOM/ROT mapping on the same
 
 ## Reproduction and evidence
 
-Build `ChimeraOriginalAmpRender` with the project’s JUCE/CMake setup. Download inputs into a private directory outside the repository, then run:
+Build `ChimeraOriginalAmpRender` with the project’s JUCE/CMake setup. The commands below remain valid; the redesigned toolchain, its added octave-band metric and the review findings are in [NASTROND_NAM_TOOLCHAIN.md](NASTROND_NAM_TOOLCHAIN.md). Download inputs into a private directory outside the repository, then run:
 
 ```sh
 python Tools/fetch_nastrond_references.py --manifest docs/reference/nastrond-nam-manifest.json --out /path/to/private-nam
