@@ -91,6 +91,19 @@ public:
             };
             slider.onDragEnd=[this]{if(sliderEditing){editing.endEdit();sliderEditing=false;refreshEditingState();}sliderGestureRejected=false;};
         }
+        // Dynamic EQ lives on the band it acts on. The four shared slots keep
+        // their released parameter IDs; DYNAMIC claims or frees a slot.
+        dynamicToggle.setButtonText("DYNAMIC");dynamicToggle.setClickingTogglesState(true);dynamicToggle.setComponentID(eqID(e,-1,"dynamic"));
+        dynamicToggle.setTooltip("Cut this band only when its frequency range gets louder than Threshold. Tone EQ and Final EQ share four dynamic bands.");
+        dynamicToggle.onClick=[this]{setSelectedBandDynamic(dynamicToggle.getToggleState());};addAndMakeVisible(dynamicToggle);
+        dynamicStatus.setFont(juce::FontOptions(12.f));dynamicStatus.setComponentID(eqID(e,-1,"dynamicStatus"));
+        dynamicStatus.setColour(juce::Label::textColourId,juce::Colour(0xffd3b478));addAndMakeVisible(dynamicStatus);
+        for(size_t i=0;i<dynamicSliders.size();++i) {
+            auto& slider=dynamicSliders[i];slider.setSliderStyle(juce::Slider::LinearHorizontal);
+            slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,92,26);slider.setWantsKeyboardFocus(true);
+            slider.setName(juce::String("Dynamic ")+dynamicFieldNames[i]);slider.setComponentID(eqID(e,-1,(juce::String("dynamic_")+dynamicFields[i]).toRawUTF8()));
+            addAndMakeVisible(slider);
+        }
         refreshEditingState();updateResolutionTooltip();startTimerHz(25);
     }
     ~GraphicalEQPanel() override {stopTimer();endDrag();dsp.analyzer.enabled.store(false);}
@@ -105,6 +118,11 @@ public:
     void focusForNavigation() {if(isShowing()){if(selected>=0)sliders[0].grabKeyboardFocus();else grabKeyboardFocus();}}
     std::function<void(int)> onHistoryBankSelected;
     bool isBandVisible(int band) const noexcept {return editing.isOccupied(instance,band);}
+    // Shared dynamic slot (0-3) acting on this band, or -1.
+    int dynamicSlotForBand(int band) const {
+        for(int slot=0;slot<4;++slot)if(auto* target=state.getRawParameterValue(dynamicSlotID(slot,"target"));target && int(target->load())==instance*12+band+1)return slot;
+        return -1;
+    }
     bool isSnapshotFrozen() const noexcept {return spectrum.isFrozen();}
     bool isWaitingForFreshCapture() const noexcept {return pendingCaptureRequest!=0;}
     void setSnapshotFrozen(bool frozen) {
@@ -162,7 +180,8 @@ public:
             freezeToggle.setBounds(360,4,96,26);resolution.setBounds(468,4,160,26);smoothing.setBounds(640,4,148,26);
             bypass.setBounds(getWidth()-166,4,148,26);
             addButton.setBounds(56,34,84,25);deleteButton.setBounds(148,34,82,25);undoButton.setBounds(244,34,76,25);redoButton.setBounds(328,34,76,25);
-            const int y=getHeight()-33;
+            dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,124,25);
+            const int y=getHeight()-33;layoutDynamicRow(y-37);
             selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
             sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
             rebuildResponse();rebuildSpectrumPaths();repaint();return;
@@ -174,7 +193,8 @@ public:
         bypass.setBounds(getWidth()-174,22,156,28);
         addButton.setBounds(56,68,88,27);deleteButton.setBounds(154,68,88,27);
         undoButton.setBounds(264,68,76,27);redoButton.setBounds(350,68,76,27);
-        const int y=getHeight()-45;
+        dynamicToggle.setBounds(436,68,96,27);dynamicStatus.setBounds(540,68,130,27);
+        const int y=getHeight()-45;layoutDynamicRow(y-38);
         selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
         sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
         rebuildResponse();rebuildSpectrumPaths();repaint();
@@ -206,7 +226,7 @@ public:
         const auto hint=spectrum.isFrozen()
             ? (spectrum.hasData()?"Snapshot  /  "+juce::String(spectrum.lastSampleRate()/1000.,1)+" kHz  /  "+juce::String(spectrum.fftSize()):juce::String("Snapshot: no complete frame"))
             : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another"):juce::String("Double-click to add  /  Delete to remove"));
-        g.drawText(hint,446,72,getWidth()-502,20,juce::Justification::centredRight);
+        g.drawText(hint,680,72,getWidth()-736,20,juce::Justification::centredRight);
         } else {
             g.setColour(text);g.setFont(juce::FontOptions(16.f,juce::Font::bold));
             g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,5,170,25,juce::Justification::centredLeft);
@@ -323,7 +343,7 @@ public:
 private:
     using PA=juce::ParameterAttachment;
     static constexpr std::array<const char*,3> editFields{"frequency","gain","q"};
-    juce::Rectangle<float> plot() const noexcept {return {56,compactWorkspace?66.f:105.f,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-(compactWorkspace?140:195)))};}
+    juce::Rectangle<float> plot() const noexcept {return {56,compactWorkspace?66.f:105.f,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-(compactWorkspace?140:195)-(dynamicRowShown?38:0)))};}
     float frequencyX(float hz) const {return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/20)/std::log(1000.f);}
     float xFrequency(float x) const {return 20*std::pow(1000.f,std::clamp((x-plot().getX())/std::max(1.f,plot().getWidth()),0.f,1.f));}
     float gainY(float db) const {return plot().getCentreY()-db/48*plot().getHeight();}
@@ -353,7 +373,7 @@ private:
         selector.setSelectedId(selected+1,juce::dontSendNotification);
         if(selected<0) {
             enabled.setComponentID({});type.setComponentID({});enabled.setToggleState(false,juce::dontSendNotification);
-            for(auto& slider:sliders)slider.setComponentID({});updateBandEnablement();repaint();return;
+            for(auto& slider:sliders)slider.setComponentID({});bindDynamic();updateBandEnablement();repaint();return;
         }
         enabled.setComponentID(eqID(instance,selected,"enabled"));type.setComponentID(eqID(instance,selected,"type"));
         enabledAttachment=std::make_unique<PA>(*state.getParameter(eqID(instance,selected,"enabled")),[this](float v){enabled.setToggleState(v>.5f,juce::dontSendNotification);});
@@ -376,7 +396,7 @@ private:
             sliders[i].textFromValueFunction=[i](double v){return juce::String(v,i==0?1:i==1?2:3)+(i==0?" Hz":i==1?" dB":" Q");};
             sliders[i].valueFromTextFunction=[](const juce::String& t){return t.getDoubleValue();};sliders[i].updateText();
         }
-        updateBandEnablement();repaint();
+        bindDynamic();updateBandEnablement();repaint();
     }
     int occupiedCount() const noexcept {
         int count=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))++count;return count;
@@ -386,7 +406,67 @@ private:
         selector.setEnabled(occupiedCount()>0);enabled.setEnabled(chosen);type.setEnabled(chosen);
         sliders[0].setEnabled(chosen);sliders[1].setEnabled(chosen && gainApplicable());sliders[2].setEnabled(chosen);
         deleteButton.setEnabled(chosen);addButton.setEnabled(occupiedCount()<graphicalEQBands);
+        updateDynamicControls();
     }
+    // The dynamics row appears only for a band with DYNAMIC on; the graph
+    // keeps its full height otherwise.
+    void layoutDynamicRow(int y) {
+        const int width=std::max(5*60,getWidth()-34)/5;
+        for(size_t i=0;i<dynamicSliders.size();++i){dynamicSliders[i].setBounds(16+int(i)*width,y-3,width-8,34);dynamicSliders[i].setVisible(dynamicRowShown);}
+    }
+    void bindDynamic() {
+        const int slot=selected>=0?dynamicSlotForBand(selected):-1;
+        if(slot!=attachedDynamicSlot) {
+            attachedDynamicSlot=slot;
+            for(size_t i=0;i<dynamicSliders.size();++i) {
+                dynamicAttachments[i].reset();
+                // Show the fields the next claimed slot would use until a slot is attached.
+                const int shown=slot>=0?slot:std::max(0,nextFreeDynamicSlot());
+                auto* parameter=state.getParameter(dynamicSlotID(shown,dynamicFields[i]));if(!parameter)continue;
+                dynamicAttachments[i]=std::make_unique<juce::SliderParameterAttachment>(*parameter,dynamicSliders[i]);
+                // The attachment installs the host text; keep a short labelled readout.
+                dynamicSliders[i].textFromValueFunction=[i](double v){return juce::String(dynamicFieldShort[i])+" "+juce::String(v,i==4?0:1)+dynamicFieldUnits[i];};
+                dynamicSliders[i].valueFromTextFunction=[](const juce::String& t){return t.retainCharacters("-.0123456789").getDoubleValue();};
+                dynamicSliders[i].updateText();
+            }
+        }
+        updateDynamicControls();
+    }
+    int nextFreeDynamicSlot() const {
+        for(int slot=0;slot<4;++slot)if(auto* target=state.getRawParameterValue(dynamicSlotID(slot,"target"));target && int(target->load())==0)return slot;
+        return -1;
+    }
+    bool dynamicApplicable() const {return selected>=0 && isBandVisible(selected) && dsp.values(selected).type<=2;}
+    void setSelectedBandDynamic(bool on) {
+        if(selected<0)return;
+        const int current=dynamicSlotForBand(selected);
+        const auto assign=[this](int slot,int value){
+            if(auto* parameter=state.getParameter(dynamicSlotID(slot,"target"))){parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(float(value)));parameter->endChangeGesture();}
+        };
+        if(on && current<0) {
+            const int slot=nextFreeDynamicSlot();
+            if(slot<0 || !dynamicApplicable()){dynamicNotice=slot<0?"4 of 4 in use":"Bell / shelf only";updateDynamicControls();return;}
+            assign(slot,instance*12+selected+1);
+        } else if(!on)for(int slot=0;slot<4;++slot)if(dynamicSlotForBand(selected)==slot)assign(slot,0);
+        dynamicNotice.clear();bindDynamic();rebuildResponse();repaint();
+    }
+    void updateDynamicControls() {
+        const int slot=selected>=0?dynamicSlotForBand(selected):-1;
+        if(slot!=attachedDynamicSlot){bindDynamic();return;}
+        const bool active=slot>=0,possible=dynamicApplicable();
+        dynamicToggle.setToggleState(active,juce::dontSendNotification);
+        dynamicToggle.setEnabled(selected>=0 && (active || (possible && nextFreeDynamicSlot()>=0)));
+        for(auto& slider:dynamicSliders)slider.setEnabled(active);
+        if(active!=dynamicRowShown){dynamicRowShown=active;resized();}
+        juce::String status;
+        if(dynamicNotice.isNotEmpty())status=dynamicNotice;
+        else if(active)status=(possible && dsp.values(selected).enabled && !dsp.isBypassed())?"GR -"+juce::String(dsp.dynamicReduction(selected),1)+" dB":"Idle";
+        else if(selected>=0 && !possible)status="Bell / shelf only";
+        else if(selected>=0 && nextFreeDynamicSlot()<0)status="4 of 4 in use";
+        else if(selected>=0)status=juce::String(4-usedDynamicSlots())+" of 4 free";
+        if(dynamicStatus.getText()!=status)dynamicStatus.setText(status,juce::dontSendNotification);
+    }
+    int usedDynamicSlots() const {int used=0;for(int slot=0;slot<4;++slot)if(auto* t=state.getRawParameterValue(dynamicSlotID(slot,"target"));t && int(t->load())!=0)++used;return used;}
     void updateHistoryControls() {
         const int undoBank=editing.nextUndoBank(),redoBank=editing.nextRedoBank();
         undoButton.setEnabled(undoBank>=0);redoButton.setEnabled(redoBank>=0);
@@ -520,7 +600,9 @@ private:
         std::array<float,12> reductions{};for(int b=0;b<12;++b)reductions[size_t(b)]=std::round(dsp.dynamicReduction(b)*20.f)/20.f;
         std::array<int,4> targets{};for(int slot=0;slot<4;++slot)if(auto* p=state.getRawParameterValue(dynamicSlotID(slot,"target")))targets[size_t(slot)]=int(p->load());
         std::array<float,4> ranges{};for(int slot=0;slot<4;++slot)if(auto* p=state.getRawParameterValue(dynamicSlotID(slot,"range")))ranges[size_t(slot)]=p->load();
+        if(targets!=lastDynamicTargets)dynamicNotice.clear();
         if(reductions!=lastReductions || targets!=lastDynamicTargets || ranges!=lastDynamicRanges){lastReductions=reductions;lastDynamicTargets=targets;lastDynamicRanges=ranges;rebuildResponse();changed=true;}
+        updateDynamicControls();
         if(changed && diagnosticRenderPanel)repaint(); // Only this workspace, never the whole editor.
         if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,false,
             std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-diagnosticStart).count());
@@ -536,6 +618,12 @@ private:
     juce::Path response,staticResponse,rangeResponse,dynamicRangeFill,dashedInput;std::array<juce::Path,2> spectrumPaths,spectrumFills;
     std::array<float,62> lastKey{};EQSpectrumAnalyzer spectrum;
     std::array<float,12> lastReductions{};std::array<int,4> lastDynamicTargets{};std::array<float,4> lastDynamicRanges{};
+    static constexpr std::array<const char*,5> dynamicFields{"threshold","range","ratio","attack","release"};
+    static constexpr std::array<const char*,5> dynamicFieldNames{"threshold dB","maximum cut dB","ratio","attack ms","release ms"};
+    static constexpr std::array<const char*,5> dynamicFieldShort{"THR","CUT","RATIO","ATK","REL"};
+    static constexpr std::array<const char*,5> dynamicFieldUnits{" dB"," dB",":1"," ms"," ms"};
+    juce::TextButton dynamicToggle;juce::Label dynamicStatus;std::array<juce::Slider,5> dynamicSliders;
+    std::array<std::unique_ptr<juce::SliderParameterAttachment>,5> dynamicAttachments;int attachedDynamicSlot{-2};juce::String dynamicNotice;bool dynamicRowShown{};
     double pathMicros{},paintMicros{};
     DiagnosticObserver diagnosticObserver{};void* diagnosticContext{};bool diagnosticRenderPanel{true};
 };

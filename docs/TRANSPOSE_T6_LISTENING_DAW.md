@@ -91,6 +91,7 @@ python Tools/TransposeNext/t6_listening.py score --key ~/t6/listening/blind_key.
 - **파라미터:**
   - `Shift`: −2…+2반음
   - `Engine`: Product baseline / corr40-split-v2 / corr40-split-v3. 기본값은 v3다.
+  - `Latency report`: Live (0) / Fixed PDC(2.5ms). 2026-10-25에 추가했고, 근거는 `TRANSPOSE_T6_PDC_CONTRACT.md`에 있다. 호스트 바이패스는 보고 지연만큼 지연된다.
   - 엔진을 바꾸면 새 엔진을 초기화한다. 클릭이 날 수 있다.
 - **지연 보고:**
   - product는 FFT 창 길이를 보고한다(48kHz에서 2048샘플).
@@ -124,13 +125,13 @@ cd Tools/TransposeNext && python t6_host_check.py \
 
 ### 실제 DAW 점검표 (수동)
 
-`Validation/transpose-daw-acceptance-template.csv`에 12개 항목(D01–D12)을 정리했다.
+`Validation/transpose-daw-acceptance-template.csv`에 13개 항목(D01–D13)을 정리했다. D13(바이패스 정렬)은 2026-10-25에 추가했다.
 
 | 항목 | 내용 |
 |---|---|
 | D01 | 스캔·로드 |
 | D02–D03 | 오프라인 재현성, 기준 렌더와의 일치 |
-| D04–D05 | PDC 동작 |
+| D04–D05 | PDC 동작 (D05는 Fixed PDC 모드) |
 | D06 | 실시간 연주 체감 |
 | D07 | 자동화 |
 | D08 | 표본률 변경 |
@@ -138,6 +139,7 @@ cd Tools/TransposeNext && python t6_host_check.py \
 | D10 | 저장·복원 |
 | D11 | freeze·render |
 | D12 | CPU |
+| D13 | 바이패스 정렬 |
 
 **시험 환경:**
 

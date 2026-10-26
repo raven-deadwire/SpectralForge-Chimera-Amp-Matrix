@@ -1,0 +1,12 @@
+{
+ "README.txt": "debe72cb5c0640aa5f4a0031b81ca7d305cd338aad4abd0cf5bd0912c61d0f97",
+ "event-snr-table.json.gz": "aecce6377a95e0370db243d89924428b2265986637c3940de3c73069cf5a1e43",
+ "event_snr.py": "151a1ced17f8f316dc44ef172b2a49bb571d285067d45f0762ba70069d1ba7ff",
+ "failing-input-trace.json": "ada7a98cc27f9b849262e807ada6f0c153665f19e5a087f757e471719a5c6209",
+ "fresh-seed-pdc-summary-L2.5-snr10.json": "f4cfc31a4317bb85746c8c527ebd4626b9e11e33618800bf11a3473a2c8b5286",
+ "known-seed-pdc-summary-snr10-L-reselected.json": "7eba4f83b06911c216fbde81c829cbdf5de7d0e1bc2be58e44c72ddabfa9629d",
+ "marker_population.py": "42d8af43eabe50971683dbbe3ce7d55bb4cc989d8bcaff82652ef1ff7a85d3e1",
+ "marker_trace.py": "2ed29361f35c83b9633d021392bd6e573f09572a8c839a9815301de2dafc3006",
+ "random-marker-population-v3.json.gz": "5c86684d7f95b7cf5151743602ff063fa55e7cdeebe94799c6de4980c4649095",
+ "snr-rule-summary.json": "d93e1554b6710e1bcac9d61e76465b9c4da9801e9bf29fdf868987f458f51726"
+}

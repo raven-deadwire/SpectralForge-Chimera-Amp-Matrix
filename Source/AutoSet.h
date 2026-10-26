@@ -16,10 +16,11 @@ namespace spectralforge::autoset {
 // The audio thread only reduces or copies samples; all decisions run elsewhere.
 
 struct Window {float peakDb{-120.f},rmsDb{-120.f};};
-// input/compressor/output are reduced to 10 ms windows; tone and deesser keep
-// mono samples for spectral analysis (amp/cab output before the Tone EQ, and
-// the de-esser input). The two sample taps share one ring.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4};
+// input/compressor/output are reduced to 10 ms windows; tone, multiband and
+// deesser keep mono samples for spectral analysis (amp/cab output before the
+// Tone EQ, the multiband input, the de-esser input). The sample taps share one
+// ring.
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5};
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -43,7 +44,7 @@ public:
     // Audio thread. Mirrors the clean compressor detector: max of the channels.
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
-        if(tap==Tap::tone || tap==Tap::deesser){pushSamples(channels,channelCount,samples);return;}
+        if(tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband){pushSamples(channels,channelCount,samples);return;}
         auto& t=taps[size_t(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
@@ -460,6 +461,95 @@ inline FinishResult analyseFinish(const std::vector<float>& samples,const std::v
     r.thresholdDb=std::round(std::clamp(percentile(playingPeak,.80f),-60.f,-6.f));
     r.rangeDb=std::clamp(std::round(std::max(r.spectralExcessDb,r.burstExcessDb-2.f)+2.f),3.f,9.f);
     r.releaseMs=style==Style::clean?120.f:style==Style::metal?50.f:80.f;
+    return r;
+}
+
+// Multiband (phase 4): compress only the bands that misbehave relative to the
+// rest of the signal, at the multiband input (after the clean compressor).
+struct MultibandBand {bool active{};float thresholdDb{-24},ratio{2},rangeDb{6},attackMs{10},releaseMs{120},kneeDb{6};float swingDb{},excessDb{};};
+struct MultibandResult {
+    bool playingDetected{},bass{};
+    std::array<float,3> crossovers{};
+    std::array<MultibandBand,4> bands{};
+    int activeBands() const noexcept {int n=0;for(const auto& b:bands)n+=b.active;return n;}
+};
+// Crossovers per instrument and style: boom / body / mids / presence and fizz.
+inline std::array<float,3> multibandCrossovers(bool bass,Style style) noexcept {
+    if(bass)return {80,300,2000};
+    if(style==Style::metal)return {120,800,4500};
+    if(style==Style::clean)return {150,600,3000};
+    return {150,700,3500};
+}
+
+// samples: mono multiband input. A band acts when its level swings at least
+// 4 dB more than the other bands typically do (a booming note, a harsh pick
+// peak; the shared note decay cancels out). The reference excludes the band
+// itself, so a band that dominates the mix cannot hide its own swing. Static
+// balance is the Tone EQ's job: excess over the style target only deepens the
+// range of a band that already acts.
+inline MultibandResult analyseMultiband(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock) {
+    MultibandResult r;
+    const auto spectrum=measureSpectrum(samples,rate,bass);
+    r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
+    if(!r.playingDetected)return r;
+    r.crossovers=multibandCrossovers(r.bass,style);
+    for(auto& c:r.crossovers)c=std::min(c,float(rate*.4));
+    const auto target=alignedTarget(spectrum,style);
+    // Four bands through 24 dB/oct splits (two cascaded 12 dB/oct sections).
+    struct Section {EQCoefficients c;double z1{},z2{};double tick(double x){const double y=c.b0*x+z1;z1=c.b1*x-c.a1*y+z2;z2=c.b2*x-c.a2*y;return y;}};
+    const auto pair=[&](int type,float f){return std::array<Section,2>{Section{eqCoefficients(type,f,0,.70710678,rate)},Section{eqCoefficients(type,f,0,.70710678,rate)}};};
+    std::array<std::array<Section,2>,4> low{pair(4,r.crossovers[0]),pair(4,r.crossovers[1]),pair(4,r.crossovers[2]),{}};
+    std::array<std::array<Section,2>,4> high{std::array<Section,2>{},pair(3,r.crossovers[0]),pair(3,r.crossovers[1]),pair(3,r.crossovers[2])};
+    const int windowSamples=std::max(1,int(rate*.010));
+    std::array<std::vector<float>,4> bandRms;std::vector<float> fullRms;
+    std::array<double,4> energy{};double full=0;int n=0;
+    for(const float x:samples) {
+        for(int b=0;b<4;++b) {
+            double y=x;
+            if(b>0)for(auto& s:high[size_t(b)])y=s.tick(y);
+            if(b<3)for(auto& s:low[size_t(b)])y=s.tick(y);
+            energy[size_t(b)]+=y*y;
+        }
+        full+=double(x)*x;
+        if(++n==windowSamples) {
+            for(int b=0;b<4;++b){bandRms[size_t(b)].push_back(toDb(std::sqrt(energy[size_t(b)]/n)));energy[size_t(b)]=0;}
+            fullRms.push_back(toDb(std::sqrt(full/n)));full=0;n=0;
+        }
+    }
+    const float loud=percentile(fullRms,.90f);
+    std::vector<size_t> playing;for(size_t i=0;i<fullRms.size();++i)if(fullRms[i]>=loud-15.f && fullRms[i]>minimumPlayingDb)playing.push_back(i);
+    if(playing.size()<50){r.playingDetected=false;return r;}
+    const auto pick=[&](const std::vector<float>& v){std::vector<float> out;for(const auto i:playing)out.push_back(v[i]);return out;};
+    const auto playingFull=pick(fullRms);
+    // Swing over 100 ms (ten windows, playing ones only): a 10 ms window holds
+    // too few low-frequency cycles, so noise alone would spread its level.
+    const auto swingOf=[&](const std::vector<float>& level) {
+        std::vector<float> slow;double sum=0;int count=0;
+        for(const auto i:playing){sum+=std::pow(10.,level[i]/10.);if(++count==10){slow.push_back(float(10*std::log10(std::max(1e-12,sum/10))));sum=0;count=0;}}
+        return percentile(slow,.95f)-percentile(slow,.2f);
+    };
+    std::array<float,4> swing{};
+    for(int b=0;b<4;++b)swing[size_t(b)]=swingOf(bandRms[size_t(b)]);
+    const float releaseScale=style==Style::metal?.7f:style==Style::clean?1.3f:1.f;
+    constexpr std::array<float,4> attacks{30,20,10,5},releases{200,150,100,80};
+    for(int b=0;b<4;++b) {
+        auto& band=r.bands[size_t(b)];
+        const auto levels=pick(bandRms[size_t(b)]);
+        std::vector<float> others;for(int o=0;o<4;++o)if(o!=b)others.push_back(swing[size_t(o)]);
+        band.swingDb=swing[size_t(b)]-percentile(others,.5f);
+        const float lo=b==0?0.f:r.crossovers[size_t(b-1)],hi=b==3?1e9f:r.crossovers[size_t(b)];
+        double excess=0;int count=0;
+        for(int k=0;k<toneBandCount;++k){const float fc=toneBandCentres[size_t(k)];if(fc>=lo && fc<hi && fc<rate*.4 && spectrum.bandsDb[size_t(k)]>spectrum.strongestDb-45.f){excess+=spectrum.bandsDb[size_t(k)]-target[size_t(k)];++count;}}
+        band.excessDb=count?float(excess/count):0.f;
+        // Bands with almost no energy (a bass's top band) are left alone.
+        const bool audible=percentile(levels,.5f)>percentile(playingFull,.5f)-40.f;
+        band.active=audible && band.swingDb>=4.f;
+        if(!band.active)continue;
+        band.thresholdDb=std::round(std::clamp(percentile(levels,.75f),-72.f,0.f));
+        band.ratio=band.swingDb<6.f?2.f:band.swingDb<10.f?3.f:4.f;
+        band.rangeDb=std::clamp(std::round(.5f*band.swingDb+.5f*std::max(0.f,band.excessDb)+2.f),3.f,9.f);
+        band.attackMs=attacks[size_t(b)];band.releaseMs=std::round(releases[size_t(b)]*releaseScale);
+    }
     return r;
 }
 
