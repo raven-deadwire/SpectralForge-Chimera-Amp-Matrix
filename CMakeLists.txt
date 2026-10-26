@@ -435,6 +435,14 @@ target_sources(ChimeraIntegratedProcessorTests PRIVATE Tests/IntegratedProcessor
 target_include_directories(ChimeraIntegratedProcessorTests PRIVATE Source)
 target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
+
+# Room Core 1.3.3 plumbing contracts (docs/ROOM_CORE_1_3_3.md section 7).
+juce_add_console_app(ChimeraRoomCoreTests PRODUCT_NAME "Chimera Room Core Tests")
+target_sources(ChimeraRoomCoreTests PRIVATE Tests/RoomCoreTests.cpp)
+target_include_directories(ChimeraRoomCoreTests PRIVATE Source)
+target_link_libraries(ChimeraRoomCoreTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraRoomCoreTests COMMAND ChimeraRoomCoreTests)
+set_tests_properties(ChimeraRoomCoreTests PROPERTIES TIMEOUT 300)
 add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
 
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")

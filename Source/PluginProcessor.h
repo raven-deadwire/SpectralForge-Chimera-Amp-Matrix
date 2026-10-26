@@ -14,6 +14,7 @@
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
 #include "ExtraGates.h"
+#include "RoomCore.h"
 #include "AmpSelectionParameters.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
@@ -151,6 +152,10 @@ public:
     // does not enter the frozen parameter inventory; the audio thread reads the
     // atomic mirror.
     void setTransposeQuality(int mode);
+    // Room Core diagnostics (tests): samples run through the room and the
+    // last block's send-bus peak.
+    uint64_t roomProcessedSamples() const noexcept { return room.processedSamples(); }
+    float roomInputPeak() const noexcept { return room.lastInputPeak(); }
     int transposeQuality() const { return transposeQualityMode.load(); }
     spectralforge::PedalBoardState pedalBoardState() const { return boardParameters.read(); }
     void setPedalBoardEnabled(bool enabled);
@@ -222,6 +227,7 @@ private:
     spectralforge::CommonDynamics dynamics;
     spectralforge::MultibandDynamics multiband;
     spectralforge::DeEsser deesser;
+    spectralforge::RoomCore room;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
     spectralforge::Tuner tuner;

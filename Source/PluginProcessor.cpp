@@ -40,7 +40,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
-    gate2.bind(state);expander.bind(state);
+    gate2.bind(state);expander.bind(state);room.bind(state);
     syncTransposeQuality();
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
@@ -128,6 +128,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
     postRigGate.prepare(spec,maximumGateDelay);gate2.prepare(spec,maximumGateDelay);expander.prepare(spec,maximumGateDelay);
+    room.prepare(spec);
     gate2Gain.store(1);expanderGain.store(1);
     hostBypass.prepare(postFX.latency()+engine.latency()
         +juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency()));
@@ -218,7 +219,7 @@ void ChimeraProcessor::resetProcessingIfPending()
 {
     if(!resetPending.exchange(false)) return;
     engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();utilities.reset();
-    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();hostBypass.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();room.reset();hostBypass.reset();
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
@@ -302,13 +303,21 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
-    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
+    // Room Core: the engine fills the send bus only while the room is on.
+    const auto roomSends=room.sends();
+    juce::AudioBuffer<float>* roomBus=room.feeding() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
+    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
+                   roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
-    if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer);}
+    // Post-rig gates attenuate the send bus with the direct sum's own gain.
+    if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer,roomBus);}
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     // Post-rig order mirrors the pre-rig one: Gate > Gate 2 > Expander.
-    if(gate2.afterRig())gate2.apply(buffer);
-    if(expander.afterRig())expander.apply(buffer);
+    if(gate2.afterRig())gate2.apply(buffer,roomBus);
+    if(expander.afterRig())expander.apply(buffer,roomBus);
+    // The wet return joins after the gates and before Tone EQ, so a tail
+    // already in the room is not cut by a closing gate.
+    if(room.running())room.process(roomBus,buffer);
     gate2Gain.store(gate2.reduction());expanderGain.store(expander.reduction());
     measureStage(2,buffer);
     autoSetCaptureState.push(spectralforge::autoset::Tap::tone,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
@@ -456,6 +465,8 @@ spectralforge::appendCommonDynamicsParameters(p);
 spectralforge::appendMultibandParameters(p);
 spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
+// Room Core 1.3.3 (version hint 15) appends after the extra gates.
+spectralforge::appendRoomParameters(p);
 return p;
 }
 
