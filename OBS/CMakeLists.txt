@@ -188,7 +188,12 @@ if(APPLE)
     MACOSX_BUNDLE_GUI_IDENTIFIER "com.ravenforge.chimera-obs"
     MACOSX_BUNDLE_BUNDLE_NAME "chimera-obs"
     MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
-    MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+    # libobs is @rpath/libobs.framework: resolve it from OBS.app/Contents/Frameworks
+    # as OBS's own plugins do, never from this build machine's OBS download.
+    # Test executables built here provide their own LC_RPATH for that lookup.
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "@executable_path/../Frameworks")
 endif()
 target_compile_definitions(chimera-obs PRIVATE CHIMERA_OBS_VERSION="${PROJECT_VERSION}" CHIMERA_OBS_SOURCE="${chimera_obs_source}")
 target_compile_options(chimera-obs PRIVATE ${chimera_obs_warnings})
