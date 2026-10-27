@@ -16,6 +16,10 @@ struct ChimeraBetaTestAccess {
                                                    spectralforge::beta::Clock c) {
         return std::unique_ptr<ChimeraProcessor>(new ChimeraProcessor(m,c));
     }
+    static std::unique_ptr<ChimeraProcessor> create(const spectralforge::beta::Metadata& m,spectralforge::beta::Clock c,
+                                                   const spectralforge::beta::tester::Grant& g) {
+        return std::unique_ptr<ChimeraProcessor>(new ChimeraProcessor(m,c,g));
+    }
 };
 struct ChimeraSupportPanelTestAccess {
     static void tick(ChimeraSupportPanel& panel) {
@@ -366,10 +370,35 @@ void preservation(const juce::File& directory) {
     std::cout<<"PASS: expired binary/.chimera roundtrip, all host IDs/values, A/B, personal+embedded IR, paths, MIDI, editor/settings and teardown\n";
 }
 }
+// A verified tester code lifts the expiry: a new instance opened long after
+// expiry processes exactly like an unrestricted one and reports no expiry.
+void testerExtension() {
+    now=expiry+400*86400;
+    spectralforge::beta::tester::Grant grant;grant.valid=true;grant.name="Fixture Tester";
+    auto tester=ChimeraBetaTestAccess::create(beta,clockNow,grant);
+    auto reference=ChimeraBetaTestAccess::create(noRestriction,clockNow);
+    auto expired=ChimeraBetaTestAccess::create(beta,clockNow);
+    for(auto* p:{tester.get(),reference.get(),expired.get()}){sound(*p,0,0);prepare(*p,2,48000,128);}
+    require(tester->betaProcessingPermitted() && tester->betaStatus().status==spectralforge::beta::Status::testerExtended,
+            "tester code did not lift the expiry for a new instance");
+    require(tester->testerCodeHolder()=="Fixture Tester" && tester->betaNotice().contains("Beta tester code: Fixture Tester"),
+            "tester code holder missing from the beta notice");
+    require(!expired->betaProcessingPermitted() && expired->testerCodeHolder().isEmpty(),"control instance was not expired");
+    juce::MidiBuffer midi;juce::AudioBuffer<float> out(2,128),comparison(2,128),muted(2,128);
+    for(int i=0;i<8;++i) {
+        input(out,i);comparison.makeCopyOf(out);muted.makeCopyOf(out);
+        tester->processBlock(out,midi);reference->processBlock(comparison,midi);expired->processBlock(muted,midi);
+        for(int c=0;c<2;++c)for(int n=0;n<128;++n)require(out.getSample(c,n)==comparison.getSample(c,n),"tester instance differs from unrestricted audio");
+        require(muted.getMagnitude(0,128)==0,"expired control emitted audio");
+    }
+    now=expiry-1;
+    std::cout<<"PASS: tester code lifts expiry for new instances with unrestricted audio and notice\n";
+}
+
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==3 && juce::String(argv[1])=="--historical") {historical(juce::File(argv[2]));return 0;}
-        require(argc==2,"Expected evidence directory");const juce::File directory(argv[1]);require(directory.createDirectory().wasOk(),"Cannot create evidence directory");compiledIdentity(directory);settingsCountdown(directory);offlineUpdate();audioSafety();preservation(directory);return 0;}
+        require(argc==2,"Expected evidence directory");const juce::File directory(argv[1]);require(directory.createDirectory().wasOk(),"Cannot create evidence directory");compiledIdentity(directory);settingsCountdown(directory);offlineUpdate();audioSafety();testerExtension();preservation(directory);return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
