@@ -67,6 +67,7 @@ jobs:
           python Tools/test_weekly_publication.py
           python Tools/test_publication_evidence.py
           python Tests/test_packaging_version.py
+          python Tests/test_macos_pkg_hooks.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
@@ -90,10 +91,19 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
+    env:
+      # Beta tester code check secret (Tools/tester_code.py secret); never committed.
+      CHIMERA_TESTER_SECRET: ${{ secrets.CHIMERA_TESTER_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Require the beta tester code secret for release candidates
+        if: github.event_name != 'pull_request' && env.CHIMERA_TESTER_SECRET == ''
+        shell: bash
+        run: |
+          echo "::error::CHIMERA_TESTER_SECRET is not set. Release builds without it reject every beta tester code (docs/BETA_TESTER_CODES.ko.md)."
+          exit 1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -255,34 +265,62 @@ jobs:
         if: runner.os == 'macOS'
         run: python Tools/package_release.py macos
 
-      - name: Install the macOS package without and with the OBS filter choice
+      - name: Verify macOS OBS choices, process guards, ownership and preservation
         if: runner.os == 'macOS'
         run: |
-          pkg=$(ls dist/SpectralForge-Chimera-*-macos-universal.pkg)
-          plugins="$HOME/Library/Application Support/obs-studio/plugins"
-          test ! -e "$plugins/chimera-obs.plugin"
-          # No OBS.app on the runner: the OBS choice starts unselected.
-          sudo installer -pkg "$pkg" -target /
-          test -d "/Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3"
-          test ! -e "$plugins/chimera-obs.plugin"
-          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' \
-            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
-            '<plist version="1.0"><array><dict><key>attributeSetting</key><integer>1</integer>' \
-            '<key>choiceAttribute</key><string>selected</string><key>choiceIdentifier</key><string>obs</string></dict></array></plist>' \
-            > "$RUNNER_TEMP/obs-choice.plist"
-          sudo installer -pkg "$pkg" -target / -applyChoiceChangesXML "$RUNNER_TEMP/obs-choice.plist"
-          # Installed for the logged-in user, not root; libobs finds and registers it on both architectures.
-          test "$(stat -f %Su "$plugins/chimera-obs.plugin/Contents/MacOS/chimera-obs")" = "$(id -un)"
-          codesign --verify --deep --strict "$plugins/chimera-obs.plugin"
-          "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
-          "$RUNNER_TEMP/chimera-obs-x86_64/build/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
-          "/Library/Application Support/SpectralForge/Chimera/OBS/install.sh" --uninstall
-          test ! -e "$plugins/chimera-obs.plugin"
+          python Tools/verify_macos_obs_pkg.py \
+            --package "$(ls dist/SpectralForge-Chimera-*-macos-universal.pkg)" \
+            --arm-build "$RUNNER_TEMP/chimera-obs-arm64/build" \
+            --intel-build "$RUNNER_TEMP/chimera-obs-x86_64/build" \
+            --output build/macos-obs-pkg-verification
+
+      - name: Upload macOS OBS PKG verification
+        if: always() && runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-macOS-OBS-PKG-${{ env.CHIMERA_SOURCE_SHA }}
+          path: build/macos-obs-pkg-verification
+          if-no-files-found: warn
+
+      - name: Build, test and stage the optional OBS filter (OBS 30+, Ubuntu 24.04 libobs)
+        if: runner.os == 'Linux'
+        run: |
+          # The module needs libobs 30, which Ubuntu 22.04 does not ship: build and
+          # unit-test it in an Ubuntu 24.04 container. Its native installer is built
+          # here on the product's glibc baseline by stage_module.py.
+          docker run --rm -v "$PWD:/src" -w /src -e HOST_IDS="$(id -u):$(id -g)" -e CHIMERA_SOURCE_SHA ubuntu:24.04 bash -euc '
+            apt-get update -qq
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends cmake make g++ git ca-certificates libobs-dev >/dev/null
+            cmake -S OBS -B build-obs-linux -DCMAKE_BUILD_TYPE=Release -DCHIMERA_OBS_SOURCE_SHA="$CHIMERA_SOURCE_SHA"
+            cmake --build build-obs-linux --parallel 4
+            ctest --test-dir build-obs-linux --output-on-failure --no-tests=error
+            chown -R "$HOST_IDS" build-obs-linux'
+          python3 OBS/tools/stage_module.py linux --build build-obs-linux --output build/obs-linux-package \
+            --source-sha "$CHIMERA_SOURCE_SHA" --built-for "OBS 30.0.2 (Ubuntu 24.04 libobs)"
 
       - name: Package and verify Linux installers
         id: package_linux
         if: runner.os == 'Linux'
         run: python Tools/package_release.py linux
+
+      - name: Install the Linux TAR without and with the OBS filter
+        if: runner.os == 'Linux'
+        run: |
+          work="$RUNNER_TEMP/tar-obs"
+          mkdir -p "$work/home"
+          tar -C "$work" -xzf dist/SpectralForge-Chimera-*-linux-x86_64.tar.gz
+          root=$(ls -d "$work"/SpectralForge-Chimera-*-linux-x86_64)
+          plugins="$work/home/.config/obs-studio/plugins"
+          # Not a terminal: the question is not asked and the filter is not installed.
+          HOME="$work/home" XDG_CONFIG_HOME="$work/home/.config" sh "$root/install.sh" < /dev/null
+          test -x "$work/home/.local/bin/chimera-amp-matrix"
+          test ! -e "$plugins/chimera-obs"
+          HOME="$work/home" XDG_CONFIG_HOME="$work/home/.config" sh "$root/install.sh" --with-obs-filter
+          test -f "$plugins/chimera-obs/bin/64bit/chimera-obs.so"
+          cmp "$plugins/chimera-obs/bin/64bit/chimera-obs.so" build/obs-linux-package/chimera-obs/bin/64bit/chimera-obs.so
+          HOME="$work/home" XDG_CONFIG_HOME="$work/home/.config" sh "$root/usr/share/chimera-amp-matrix/obs-filter/install.sh" --uninstall
+          test ! -e "$plugins/chimera-obs/bin/64bit/chimera-obs.so"
+          if HOME="$work/home" XDG_CONFIG_HOME="$work/home/.config" sh "$root/install.sh" --obs; then exit 1; fi
 
       - name: Verify signed release cannot fall back to unsigned
         if: runner.os == 'Windows'
