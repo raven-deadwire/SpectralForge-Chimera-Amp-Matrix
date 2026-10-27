@@ -89,8 +89,7 @@ public:
         for(size_t i=0;i<cabs.size();++i)if(laneHeard[i] && !cabs[i].settled())return false;
         return true;
     }
-    // Audio thread: see Cab::setInstantSwap.
-    void setInstantCabinetSwap(bool value) noexcept { for(auto& cab:cabs) cab.setInstantSwap(value); }
+    void setInstantCabinetSwap(bool value) noexcept {for(auto& cab:cabs)cab.setInstantSwap(value);}
     float lowReduction() const {return lowCompressor.reduction();}
     void setDynamicsAnalysis(DynamicsAnalysis* value) noexcept {lowCompressor.setAnalysis(value);}
     int latency() const { return amps[0].latency(); }
@@ -135,7 +134,9 @@ public:
         const bool split=matrix || (mode==RoutingMode::dual && dualCross);
         dualMix.setTargetValue(juce::jlimit(0.f,1.f,blend));for(int n=0;n<buffer.getNumSamples();++n)blendCurve[(size_t)n]=dualMix.getNextValue();
         const int count = mode == RoutingMode::classic ? 1 : mode == RoutingMode::dual ? 2 : 3;
-        for(int i=count;i<3;++i)laneHeard[(size_t)i]=false;
+        for(int i=count;i<3;++i) {
+            laneHeard[(size_t)i]=false;cabs[i].setAudiblePriority(false);
+        }
         bool anySolo = false;
         for (int i = 0; i < count; ++i) anySolo = anySolo || states[i].solo;
         if (matrix) {
@@ -149,7 +150,15 @@ public:
         {
             const auto& state = states[i];
             const bool muted = state.mute || (anySolo && !state.solo);
-            laneHeard[(size_t)i]=!muted && state.cab;
+            // Include any remaining blend ramp; zero-weight paths must not delay
+            // a recall once their smoother reaches zero.
+            const bool weighted=!(mode==RoutingMode::dual && !dualCross)
+                || (i==0 ? (dualMix.getTargetValue()<1.f || dualMix.isSmoothing())
+                         : (dualMix.getTargetValue()>0.f || dualMix.isSmoothing()));
+            const bool lowAudible=!(matrix && i==0) || (state.ampEnabled && state.lowAmpMix>0.f)
+                || lowMix.getCurrentValue()>0.f;
+            laneHeard[(size_t)i]=!muted && state.cab && weighted && lowAudible;
+            cabs[i].setAudiblePriority(laneHeard[(size_t)i]);
             amps[i].setNative(state.native);
             amps[i].set(static_cast<AmpModel>(juce::jlimit(0,ampModelCount-1,state.amp)), matrix && i==0 ? 0.f : state.drive,state.ampChannel);
             if (split)

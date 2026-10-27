@@ -22,10 +22,12 @@ void IRLibrary::stop()
 {
     const lifecycle::Scope trace("ir.stop", this);
     requestStop(); stopThread(-1);
+    for(auto& cached:kernelCache)cached.clear();
 }
 bool IRLibrary::resourcesReleased() const noexcept
 {
     if (isThreadRunning()) return false;
+    for(const auto& cached:kernelCache)if(!cached.empty())return false;
     for (const auto* cab : cabs) if (cab->hasResources()) return false;
     return true;
 }
@@ -71,7 +73,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     if(asset)IRUserPreferences::apply(IRUserPreferences::read(),file,asset->metadata);
     { std::lock_guard<std::mutex> lock(mutex);
       errors[(size_t)lane]=error;
-      if(asset) { users[(size_t)lane]=std::move(asset); ++generations[(size_t)lane]; }
+      if(asset) { users[(size_t)lane]=std::move(asset); ++generations[(size_t)lane];cabs[(size_t)lane]->requestedGeneration.store(generations[(size_t)lane]); }
       ++displayGeneration[(size_t)lane];
     }
     if(error.isNotEmpty()) return juce::Result::fail(error);
@@ -94,8 +96,13 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     const originalCab::GenerationCancellation cancellation{&request,cancelObsolete
         ? +[](const void* context) {
             const auto& expected=*static_cast<const Request*>(context);
+            // A modeled response does not depend on the captured-source slot.
+            // Preserve completed model work when recall writes source after model;
+            // the final publication check still requires the full exact identity.
             return expected.library->threadShouldExit()
-                || !expected.library->requestIsCurrent(expected.lane,expected.source,expected.model);
+                || (expected.model!=0
+                    ? expected.library->cabs[expected.lane]->requestedModel.load()!=expected.model
+                    : !expected.library->requestIsCurrent(expected.lane,expected.source,expected.model));
         } : nullptr};
     cancellation.checkpoint();
     std::shared_ptr<Asset> asset;
@@ -106,59 +113,59 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     juce::AudioBuffer<float> samples;
     std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
     CachedModel generated{model,{},{}};
-    CachedModel* cachedModel=nullptr;
-    bool cacheGenerated=false;
     double rate=spec.sampleRate;
     if(model) {
-        auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
-        auto ready=std::find_if(pregenerated.begin(),pregenerated.end(),[&](const auto& item){return item.key==model;});
-        if(found==modelCache.end() && ready!=pregenerated.end()) {
-            generated.samples=std::move(ready->samples);pregenerated.erase(ready);
-            cachedModel=&generated;cacheGenerated=true;
+        bool found=false;
+        { std::lock_guard<std::mutex> lock(modelCacheMutex);
+          const auto item=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& entry){return entry.key==model;});
+          if(item!=modelCache.end()) {
+              generated.samples.makeCopyOf(item->samples);generated.prepared=item->prepared;found=true;
+          }
         }
-        else if(found==modelCache.end()) {
+        if(!found) {
             SF_CAB_PROFILE_SCOPE(ResponseGenerate);
             auto response=cabLayout::generate(model,rate,cancellation);
-            // Keep a new response private until its entire kernel is ready and
-            // the request remains current. Cancellation cannot evict useful
-            // responses or leave partial samples/spectra in the bounded cache.
             generated.samples.setSize(1,int(response.size()));
             generated.samples.copyFrom(0,0,response.data(),int(response.size()));
-            cachedModel=&generated;cacheGenerated=true;
         }
-        else cachedModel=&*found;
         cancellation.checkpoint();
         // Reuse only immutable spectra. The cache is cleared on every prepare,
         // so its model key is also bound to the current sample rate and block
         // size. Every published microphone still owns private input/history.
         if(Cab::Kernel::supportsPreparedModel(spec)) {
-            prepared=cachedModel->prepared;
-            if(!prepared)prepared=std::make_shared<const ModeledCabConvolution::Prepared>(cachedModel->samples,int(spec.maximumBlockSize),spec.numChannels==1);
+            prepared=generated.prepared;
+            if(!prepared)prepared=std::make_shared<const ModeledCabConvolution::Prepared>(generated.samples,int(spec.maximumBlockSize),spec.numChannels==1);
         }
         cancellation.checkpoint();
-        samples.makeCopyOf(cachedModel->samples);
+        samples.makeCopyOf(generated.samples);
     }
     else if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
     else { samples.setSize(1,1); samples.setSample(0,0,1.f); }
     auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model,prepared);
     kernel->hasIR = model != 0 || asset != nullptr;
     cancellation.checkpoint();
-    if(cachedModel && !cachedModel->prepared)cachedModel->prepared=std::move(prepared);
-    if(cacheGenerated) {
+    if(model) {
+        generated.prepared=std::move(prepared);
+        std::lock_guard<std::mutex> lock(modelCacheMutex);
+        const auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
+        if(found!=modelCache.end())modelCache.erase(found);
         modelCache.push_back(std::move(generated));
-        if(modelCache.size()>8)modelCache.pop_front();
+        // Two complete six-mic A/B states; rate/block/channel changes clear it.
+        const size_t capacity=(preparationPolicy==PreparationPolicy::audibleFirst
+            || preparationPolicy==PreparationPolicy::audibleCached) ? 12 : 8;
+        if(modelCache.size()>capacity)modelCache.pop_front();
     }
     return kernel;
 }
 void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<int,3>& sources)
 {
     const lifecycle::Scope trace("ir.prepare", this);
-    stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);scheduling={};
+    stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);cacheHits=0;scheduling={};
     for(int i=0;i<6;++i)
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
         unsigned generation;
-        { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
+        { std::lock_guard<std::mutex> lock(mutex); generation=generations[i];cabs[i]->requestedGeneration=generation; }
         cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation,cabs[i]->requestedModel.load()));
     }
     // IR generation/preparation is background work. Let the host's processing
@@ -181,87 +188,70 @@ void IRLibrary::run()
     for(int i=0;i<6;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); models[i]=cabs[i]->activeModel.load(); rejections[i]=cabs[i]->rejectedModels.load(); }
     while(!threadShouldExit())
     {
-        pregenerate(models);
-        for(int i=0;i<6 && !threadShouldExit();++i)
-        {
-            cabs[i]->collect();
+        std::array<int,6> order{0,1,2,3,4,5};
+        std::array<bool,6> audible{};
+        for(size_t i=0;i<audible.size();++i)audible[i]=cabs[i]->audiblePriority.load();
+        if(preparationPolicy!=PreparationPolicy::serial)
+            std::sort(order.begin(),order.end(),[&](int a,int b){return audible[a]!=audible[b] ? audible[a] : a<b;});
+        for(int i=0;i<6;++i) {
+            if(auto old=cabs[i]->takeRetired()) {
+                if(preparationPolicy==PreparationPolicy::audibleCached && old->modelKey!=0) {
+                    auto& cache=kernelCache[i];cache.push_back(std::move(old));
+                    while(cache.size()>2)cache.pop_front(); // destruction is worker-only
+                }
+            }
+        }
+        const auto needsWork=[&](int i) {
+            unsigned generation;
+            {std::lock_guard<std::mutex> lock(mutex);generation=generations[i];}
+            return cabs[i]->requestedSource.load()!=built[i] || cabs[i]->requestedModel.load()!=models[i]
+                || cabs[i]->rejectedModels.load()!=rejections[i]
+                || (cabs[i]->requestedSource.load()==3 && generation!=versions[i]);
+        };
+        size_t workCount=0;
+        for(int i:order)if(needsWork(i))order[workCount++]=i;
+        const auto service=[&](int i) {
             const int source=cabs[i]->requestedSource.load();
             unsigned generation;
             { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
             const auto model=cabs[i]->requestedModel.load();
             const auto rejected=cabs[i]->rejectedModels.load();
-            if(rejected==rejections[i] && source==built[i] && model==models[i] && (source!=3 || generation==versions[i])) continue;
+            if(rejected==rejections[i] && source==built[i] && model==models[i] && (source!=3 || generation==versions[i])) return;
             try {
-                auto kernel=build(i,source,generation,model,true);
-                if(threadShouldExit())break;
-                // Discard work when a newer request is already visible.
-                if(!requestIsCurrent(i,source,model))continue;
-                { std::lock_guard<std::mutex> lock(mutex); if(generation!=generations[i])continue; errors[i].clear(); }
+                std::unique_ptr<Cab::Kernel> kernel;
+                if(preparationPolicy==PreparationPolicy::audibleCached) {
+                    auto& cache=kernelCache[i];
+                    const auto found=std::find_if(cache.begin(),cache.end(),[&](const auto& k){
+                        return k->source==source && k->modelKey==model
+                            && (model!=0 || source!=3 || k->generation==generation);
+                    });
+                    if(found!=cache.end()) {
+                        kernel=std::move(*found);cache.erase(found);
+                        kernel->reset();kernel->generation=generation;++cacheHits;
+                    }
+                }
+                if(!kernel)kernel=build(i,source,generation,model,true);
+                if(threadShouldExit() || !requestIsCurrent(i,source,model))return;
+                { std::lock_guard<std::mutex> lock(mutex); if(generation!=generations[i])return; errors[i].clear(); }
                 cabs[i]->publish(std::move(kernel));
-                built[i]=source; versions[i]=generation; models[i]=model; rejections[i]=rejected;
+                built[i]=source;versions[i]=generation;models[i]=model;rejections[i]=rejected;
             }
-            catch(const originalCab::GenerationCancelled&) {
-                // Obsolete work/stop is expected, not a bad IR. Temporary
-                // response/kernel ownership unwinds here, on the worker only.
-                cancelledBuilds.fetch_add(1,std::memory_order_relaxed);
-            }
-            catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
+            catch(const originalCab::GenerationCancelled&) {cancelledBuilds.fetch_add(1,std::memory_order_relaxed);}
+            catch(const std::exception&) {std::lock_guard<std::mutex> lock(mutex);errors[i]="IR preparation failed. Recall remains muted until a valid cabinet is ready.";++displayGeneration[(size_t)i];}
+        };
+        for(size_t n=0;n<workCount && !threadShouldExit();) {
+            const int i=order[n++];
+            // Experimental only: at most two outstanding preparations, joined
+            // off the audio thread. No concurrent work on the same mic/cache.
+            if(preparationPolicy==PreparationPolicy::parallel && n<workCount) {
+                const int j=order[n++];
+                auto second=std::async(std::launch::async,[&service,j]{service(j);});
+                service(i);second.get();
+            } else service(i);
         }
-        pregenerated.clear();
-        wait(20);
+        wait(preparationPolicy==PreparationPolicy::serial ? 20 : 2); // bounded poll; atomic requests originate on the audio thread
     }
     for(auto* cab:cabs) cab->collect();
-}
-void IRLibrary::pregenerate(const std::array<uint64_t,6>& builtModels)
-{
-    // A recall can request a new modeled cabinet on several mics at once.
-    // Each response takes tens of milliseconds and the output stays muted
-    // until the heard ones are installed, so generate them side by side:
-    // one on this worker, the others on short-lived helpers at the same
-    // priority. A failed or cancelled helper leaves build() to generate.
-    struct Job {int lane{};uint64_t model{};std::vector<float> response;};
-    std::vector<Job> jobs;
-    for(int i=0;i<6;++i) {
-        const auto model=cabs[i]->requestedModel.load();
-        if(model==0 || model==builtModels[(size_t)i]) continue;
-        const auto same=[model](const auto& item){return item.key==model;};
-        if(std::any_of(modelCache.begin(),modelCache.end(),same)) continue;
-        if(std::any_of(jobs.begin(),jobs.end(),[model](const Job& job){return job.model==model;})) continue;
-        jobs.push_back({i,model,{}});
-    }
-    const int helpers=juce::jmin(int(jobs.size())-1,juce::SystemStats::getNumCpus()-1);
-    if(helpers<1) return;
-    struct Request {const IRLibrary* library;const Job* job;};
-    const auto generate=[this,rate=spec.sampleRate](Job& job) {
-        const Request request{this,&job};
-        // A response depends on the model only: a recall that sets the lane's
-        // source after its model does not make it obsolete.
-        const originalCab::GenerationCancellation cancellation{&request,+[](const void* context) {
-            const auto& r=*static_cast<const Request*>(context);
-            return r.library->threadShouldExit() || r.library->cabs[(size_t)r.job->lane]->requestedModel.load()!=r.job->model;
-        }};
-        try { job.response=cabLayout::generate(job.model,rate,cancellation); }
-        catch(...) { job.response.clear(); }
-    };
-    struct Helper final : juce::Thread {
-        std::function<void()> work;
-        explicit Helper(std::function<void()> w) : Thread("Chimera IR helper"), work(std::move(w)) {}
-        void run() override { work(); }
-    };
-    std::vector<std::unique_ptr<Helper>> running;
-    for(int h=1;h<=helpers;++h) {
-        running.push_back(std::make_unique<Helper>([&generate,&job=jobs[(size_t)h]]{generate(job);}));
-        if(!running.back()->startThread(Priority::low)) running.pop_back();
-    }
-    generate(jobs.front());
-    for(auto& helper:running) helper->waitForThreadToExit(-1);
-    for(auto& job:jobs) {
-        if(job.response.empty()) continue;
-        CachedModel item{job.model,{},{}};
-        item.samples.setSize(1,int(job.response.size()));
-        item.samples.copyFrom(0,0,job.response.data(),int(job.response.size()));
-        pregenerated.push_back(std::move(item));
-    }
 }
 juce::String IRLibrary::userName(int lane) const
 {
@@ -292,7 +282,7 @@ juce::String IRLibrary::status(int lane) const
             +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
     }
     const int source=cabs[lane]->requestedSource.load();
-    if(source==3 && !users[lane]) return "No user IR loaded. Filters only.";
+    if(source==3 && !users[lane]) return "No user IR loaded. Recall requires a valid IR.";
     const bool loading=cabs[lane]->activeSource.load()!=source ||
         (source==3 && cabs[lane]->activeGeneration.load()!=generations[lane]);
     if(loading) return source==3 && users[lane] ? users[lane]->metadata.shortLabel(users[lane]->name)+" | Preparing IR..." : "Preparing IR...";
@@ -327,13 +317,13 @@ void IRLibrary::restore(const juce::ValueTree& tree)
         if(lane<0 || lane>5) continue;
         const auto encoded=child.getProperty("data").toString();
         juce::MemoryBlock bytes;
-        if(encoded.length()>6*1024*1024 || !bytes.fromBase64Encoding(encoded)) messages[lane]="Saved IR is damaged. Filters only.";
+        if(encoded.length()>6*1024*1024 || !bytes.fromBase64Encoding(encoded)) messages[lane]="Saved IR is damaged. Recall requires a valid IR.";
         else restored[lane]=decode(bytes,child.getProperty("name").toString(),messages[lane]);
         if(restored[lane] && child.hasProperty("metadata"))restored[lane]->metadata=IRMetadata::fromJSON(juce::JSON::parse(child.getProperty("metadata").toString()));
     }
     { std::lock_guard<std::mutex> lock(mutex);
       users=std::move(restored); errors=std::move(messages);
-      for(auto& generation:generations) ++generation;
+      for(size_t i=0;i<generations.size();++i) {++generations[i];cabs[i]->requestedGeneration.store(generations[i]);}
       for(auto& generation:displayGeneration) ++generation;
     }
     notify();

@@ -1,5 +1,10 @@
 # Switch timing metrics
 
+2026-10-27 update: see [CAB recall readiness and comparison protocol](RECALL_CAB_READINESS_20261027.md).
+The response gate measures the beginning of a change, not acoustic recovery.
+The current probe adds acoustic onset/recovery, process CPU and callback overruns.
+Historical results below belong to their recorded source/protocol.
+
 "Gapless" is not "instant", and "no click" is not "no CPU spike". This
 document defines what Chimera measures when the sound is switched (amp
 channel, amp model, factory preset, A/B), so each property is reported on its

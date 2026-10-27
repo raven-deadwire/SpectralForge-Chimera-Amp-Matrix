@@ -3,7 +3,9 @@
 #include "PluginProcessor.h"
 #include "IRStateAssets.h"
 #include <algorithm>
+#if !CHIMERA_HEADLESS_RECALL
 #include "PluginEditor.h"
+#endif
 #include "FactoryPresets.h"
 #include "ReleaseInfo.h"
 #include "BetaLifecycleDisplay.h"
@@ -111,7 +113,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
     releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
-    lastProcessTicks.store(0);fadedSilent.store(true);
+    lastProcessTicks.store(0);fadedSilent.store(true);recallCabinetTimedOut.store(false);recallStateTimedOut.store(false);
+    switchPending.store(false);fadeRequested.store(false); // prepare installs the current state synchronously
     autoSetCaptureState.prepare(sr);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     // Install the restored panel state before Cab::prepare initializes its
@@ -173,11 +176,16 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         else {switchFade=SwitchFade::out;holdForSwitch=true;}
     }
     if(switchPending.exchange(false)) {
-        holdForSwitch=false;
-        // Nothing has played since prepareToPlay: there is no sound to fade.
-        if(!processedSincePrepare){resetProcessing(true);switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
+        holdForSwitch=false;recallStateTimedOut.store(false);
+        // A recall AFTER prepare still needs readiness, even before the first
+        // callback. A state loaded BEFORE prepare was installed synchronously.
+        if(!processedSincePrepare){
+            resetProcessing(true);switchFade=SwitchFade::wait;switchFadePosition=0;
+            switchWait=getLatencySamples()+int(rate*switchSettleSeconds);
+            switchCabinetBudget=int(rate*switchCabinetWaitSeconds);switchCabinetLate=false;recallCabinetTimedOut.store(false);
+        }
         else if(switchFade==SwitchFade::hold || switchFade==SwitchFade::wait) { // already silent
-            resetProcessing(true);switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);switchCabinetLate=false;
+            resetProcessing(true);switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);recallCabinetTimedOut.store(false);switchCabinetLate=false;
             if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
         }
         else {hostBypass.reset();switchFade=SwitchFade::out;}
@@ -208,11 +216,12 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
             std::array<float*,2> sub{};
             for(int c=0;c<buffer.getNumChannels();++c) sub[(size_t)c]=channels[(size_t)c]+done;
             juce::AudioBuffer<float> part(sub.data(),buffer.getNumChannels(),n);
-            // While a recall keeps the output muted, recalled cabinets install
-            // at once instead of crossfading 50 ms from the previous ones.
-            engine.setInstantCabinetSwap(switchFade==SwitchFade::wait);
+            // End-of-block readiness must not unmute earlier samples rendered
+            // through the old IR. Require readiness at both block boundaries.
+            engine.setInstantCabinetSwap(instantRecallCabinetSwap && switchFade==SwitchFade::wait);
+            const bool readyAtStart=switchFade!=SwitchFade::wait || engine.audibleCabinetsSettled();
             process(part);
-            applySwitchFade(part);
+            applySwitchFade(part,readyAtStart);
             done+=n;
         }
     }
@@ -253,31 +262,41 @@ void ChimeraProcessor::resetProcessingIfPending()
 {
     if(!resetPending.exchange(false)) return;
     resetProcessing(true);
-    // A host reset ends any switch fade: the reset sound plays at once.
-    if(switchFade!=SwitchFade::idle){switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
+    // Tail resets preserve an incomplete recall guard; an ordinary reset stays immediate.
+    if(switchFade==SwitchFade::wait) switchWait=getLatencySamples()+int(rate*switchSettleSeconds);
+    else if(switchFade!=SwitchFade::hold && switchFade!=SwitchFade::idle){switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
 }
 void ChimeraProcessor::resetProcessing(bool hostBypassToo)
 {
     engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();utilities.reset();
     toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();if(hostBypassToo)hostBypass.reset();
 }
-void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
+void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part,bool cabinetsReadyAtStart)
 {
     if(switchFade==SwitchFade::idle)return;
     const auto gain=[this]{return float(.5-.5*std::cos(juce::MathConstants<double>::pi*switchFadePosition/switchFadeLength));};
     for(int n=0;n<part.getNumSamples();++n) {
         float g=1;
         if(switchFade==SwitchFade::out){if(switchFadePosition>0)--switchFadePosition;g=gain();}
-        else if(switchFade==SwitchFade::hold){g=0;if(--switchHold<=0){switchFade=SwitchFade::in;switchFadePosition=0;holdForSwitch=false;}} // abandoned: no state change came
+        else if(switchFade==SwitchFade::hold){
+            g=0;
+            // An in-flight state transaction may be slow; its deadline cannot
+            // authorize partially applied parameters or the previous cabinet.
+            if(switchHold>0 && --switchHold==0)recallStateTimedOut.store(true);
+        }
         else if(switchFade==SwitchFade::wait){
             g=0;
             if(--switchWait<=0) {
-                // Re-check the cabinets every 64 samples while the budget lasts.
-                // A cabinet installed late (at once, no crossfade) gets the
-                // settle time again so the dynamics have heard it first.
-                if(switchCabinetBudget>0 && !engine.audibleCabinetsSettled()){switchWait=juce::jmin(64,switchCabinetBudget);switchCabinetBudget-=switchWait;switchCabinetLate=true;}
+                // A deadline is an error observation, not a fallback to the
+                // previous cabinet. Keep processing (no audio-thread waiting)
+                // and recover automatically only when the exact request is ready.
+                if(!cabinetsReadyAtStart || !engine.audibleCabinetsSettled()) {
+                    switchCabinetLate=instantRecallCabinetSwap;
+                    switchWait=64;switchCabinetBudget=juce::jmax(0,switchCabinetBudget-64);
+                    if(switchCabinetBudget==0)recallCabinetTimedOut.store(true);
+                }
                 else if(switchCabinetLate){switchCabinetLate=false;switchWait=juce::jmax(1,int(rate*switchSettleSeconds));}
-                else {switchFade=SwitchFade::in;switchFadePosition=0;}
+                else {switchFade=SwitchFade::in;switchFadePosition=0;recallCabinetTimedOut.store(false);}
             }
         }
         else if(switchFade==SwitchFade::in){if(++switchFadePosition>=switchFadeLength){switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;}g=gain();}
@@ -286,10 +305,10 @@ void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
     // The fade-out reached silence at the end of this part: reset now, before
     // the next sample, and stay muted while the cleared delay lines refill.
     if(switchFade==SwitchFade::out && switchFadePosition==0 && holdForSwitch) {
-        switchFade=SwitchFade::hold;switchHold=int(rate*.5);fadedSilent.store(true);
+        switchFade=SwitchFade::hold;switchHold=int(rate*.5);recallStateTimedOut.store(false);fadedSilent.store(true);
     } else if(switchFade==SwitchFade::out && switchFadePosition==0) {
         resetProcessing(false);
-        switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);switchCabinetLate=false;
+        switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);recallCabinetTimedOut.store(false);switchCabinetLate=false;
         if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
     }
 }
@@ -669,9 +688,13 @@ void ChimeraProcessor::copyComparison()
     comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
 }
 juce::AudioProcessorEditor* ChimeraProcessor::createEditor() {
+#if CHIMERA_HEADLESS_RECALL
+    return nullptr;
+#else
     auto* editor=new ChimeraEditor(*this);
     editor->setEasyMode(spectralforge::easy::Preference::startsEasy());
     return editor;
+#endif
 }
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new ChimeraProcessor(); }
 
@@ -906,6 +929,8 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     auto object=std::make_unique<juce::DynamicObject>();
     object->setProperty("schema",1);object->setProperty("version",spectralforge::release::version);
     object->setProperty("build_revision",spectralforge::release::revision);
+    object->setProperty("recall_cabinet_wait_exceeded",recallCabinetWaitExceeded());
+    object->setProperty("recall_state_wait_exceeded",recallStateWaitExceeded());
     object->setProperty("sample_rate",getSampleRate());object->setProperty("host_block_hint",getBlockSize());
     object->setProperty("channels",getTotalNumOutputChannels());object->setProperty("reported_latency_samples",getLatencySamples());
     object->setProperty("mode",int(globals[mode]->load()));object->setProperty("universal_board",boardParameters.enabled->load()>.5f);
