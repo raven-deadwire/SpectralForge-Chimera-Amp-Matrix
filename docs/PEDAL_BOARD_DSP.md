@@ -72,6 +72,7 @@ control names do not establish sound equivalence.
 | Para EQ (1.4 PRE Expansion A) | Three overlapping RBJ peaking bands (35–500 Hz, 250–5000 Hz, 1–20 kHz, ±15 dB, Q 0.6/1.4/4.0) and a 0–30 dB clean boost; smoothed, no added latency | Laid out after the published ParaEQ MKII controls; Q values are Chimera's; not a measured hardware model. See `PRE_EXPANSION_A_1_4.md` |
 | Multi Comp (1.4 PRE Expansion A) | Linked peak compressor, COMP 1:1–5:1, GAIN 0–15 dB, SENS −25 to +6 dB, 4 ms attack; Normal, Multiband (250 Hz LR4 split, independent bands, BALANCE) and TubeSim | Laid out after the published EBS MultiComp controls; crossover, release, knee and TubeSim curve are Chimera's; not a measured hardware model |
 | Tight Boost (1.4 PRE Expansion A) | One knob 0–22 dB; low cut 60→220 Hz and 1 kHz bell up to +4 dB as it rises; soft-knee saturation at 4× (drive-stage latency) | Laid out after the published Fortin 33 behaviour; curves and clipping are Chimera's; not a measured hardware model |
+| Power Wah (1.4 PRE Expansion A) | Band-pass wah (Q 4, 350 Hz–2.2 kHz, 25 ms treadle lag) and 0–40 dB clean boost with separate switches, wah then boost | Laid out after the published Power Wah Boost controls; sweep, Q and lag are Chimera's; not a measured hardware model |
 
 Default normalized positions are UI seeds, not hardware factory settings. The new
 board does not convert or overwrite the previous raw PRE bank. Controls known to

@@ -1,6 +1,6 @@
-# PRE Expansion A 1.4 — Para EQ, Multi Comp, Tight Boost
+# PRE Expansion A 1.4 — Para EQ, Multi Comp, Tight Boost, Power Wah
 
-Status: **three of six models implemented on `claude/pre-paraeq`**, covered by
+Status: **four of six models implemented on `claude/pre-paraeq`**, covered by
 `ChimeraPedalExpansionTests`. Roadmap: 1.4 PRE Expansion A, six models (Empress
 Heavy Menace; Tel-Ray Power Wah Boost; MXR MB301 Bass Synth; EBS MultiComp;
 Fortin 33; Empress ParaEQ MKII). These are development references; the
@@ -94,7 +94,23 @@ slot's fixed latency and every reported latency are unchanged. No
 allocation. An original boost laid out after the published behaviour, not a
 measured model of the pedal.
 
-## 5. Measurements (`ChimeraPedalExpansionTests`)
+## 5. Power Wah (model 43, `pre.powerwah`)
+
+Reference: Tel-Ray / Morley Power Wah Boost. Public specification used
+(Morley's page for the current reissue via search results, Soundhouse,
+effectsdatabase; the original manual was not readable from the container):
+
+| Hardware (published) | Chimera |
+|---|---|
+| Treadle wah and a clean boost, with separate WAH and BOOST switches, usable alone or together | POSITION (treadle, 0–10 on the panel), WAH (default on), BOOST ON (default off) |
+| Boost up to 40 dB (Morley's reissue page; other listings give 20 or 60 dB) | BOOST 0–40 dB (default 10 dB) |
+| Electro-optical wah control (no pot to wear) | A 25 ms lag on the treadle's log-frequency stands in for the optical response |
+| Sweep range, Q, filter type: **not published** | Chimera choices: 0 dB-peak band-pass, Q 4, 350 Hz–2.2 kHz logarithmic; coefficients every 8 samples; wah then boost |
+
+No added latency, no allocation. An original wah and boost laid out after
+the published controls, not a measured model of the pedal.
+
+## 6. Measurements (`ChimeraPedalExpansionTests`)
 
 - Steady-state sine gain against the analytic response, four settings
   (low +15 dB wide at 35 Hz; mid −15 dB narrow; high +10 dB at 20 kHz,
@@ -119,15 +135,19 @@ measured model of the pedal.
   (knob 0/11/22 dB, 60 Hz–4 kHz); 80 Hz sits 1.2 dB below 1 kHz at 0 dB and
   21.6 dB below at 22 dB. Largest 2nd/3rd harmonic for a −20 dBFS 1 kHz input:
   −151 dBc at 0 dB, −19.5 dBc at 22 dB.
-- 100 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
-  5, Tight Boost 1) at the end of the list, version 16; every released
+- Power Wah: the response peak sits within 0.44 % of the treadle centre at
+  five positions, the sweep is monotonic over 350 Hz–2.2 kHz, measured gain
+  equals the analytic response within 0.009 dB; BOOST alone is exactly 40 dB,
+  WAH and BOOST off is transparent, both combine; the treadle reaches 63 % of
+  a jump in 25.0 ms.
+- 125 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
+  5, Tight Boost 1, Power Wah 4) at the end of the list, version 16; every released
   parameter keeps its index. A project without them restores their defaults.
 
-## 6. Not done
+## 7. Not done
 
 - Listening on real DI; DAW automation and recall.
 - Dedicated pedal artwork (the card uses the generic workbench style).
-- The other three Expansion A models (Heavy Menace, Power Wah Boost, Bass
-  Synth).
+- The other two Expansion A models (Heavy Menace, Bass Synth).
 - A mode-change click measurement for Multi Comp (the fade is in place but
   not measured).

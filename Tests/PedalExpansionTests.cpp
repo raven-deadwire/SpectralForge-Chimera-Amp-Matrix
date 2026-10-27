@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==43,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==44,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4)");
     int seen=0;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -241,6 +241,44 @@ void tightBoostResponse() {
     require(tb.latency()==drive.latency(),"Tight Boost changes the PRE slot latency");
     std::cout<<"PASS Tight Boost: knob = gain at 1 kHz, measured = analytic, low end tightens, harmonics only when hot, slot latency unchanged\n";
 }
+// ---- Power Wah ----
+Controls wah(float position,float boostDb,bool wahOn,bool boostOn){Controls c{};c[0]=position;c[1]=boostDb;c[2]=wahOn?1.f:0.f;c[3]=boostOn?1.f:0.f;return c;}
+double wahGainDb(PedalPowerWah& w,const Controls& c,double hz,double rate=48000) {
+    w.reset();juce::AudioBuffer<float> b(2,256);double in=0,out=0;long t=0;
+    for(int block=0;block<int(rate*.5/256);++block){
+        for(int n=0;n<256;++n,++t){const float x=.01f*float(std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/rate));b.setSample(0,n,x);b.setSample(1,n,x);if(block>int(rate*.25/256))in+=double(x)*x;}
+        w.process(b,c);if(block>int(rate*.25/256))for(int n=0;n<256;++n)out+=double(b.getSample(0,n))*b.getSample(0,n);
+    }
+    return 10*std::log10(out/in);
+}
+void powerWahResponse() {
+    const auto& m=pedalModel(powerWah);
+    require(juce::String(m.id)=="pre.powerwah" && juce::String(m.name)=="Power Wah" && m.controlCount==4 && pedalMenuEntries[powerWah].kind==PedalMenuKind::wah,"Power Wah catalog entry");
+    PedalPowerWah w;w.prepare(48000);
+    // The measured peak of the response sits at the treadle's centre; the
+    // sweep is monotonic from 350 Hz to 2.2 kHz.
+    double previous=0,worstPeak=0,worstGain=0;
+    for(const float position:{0.f,.25f,.5f,.75f,1.f}) {
+        const auto c=wah(position,0,true,false);double bestHz=0,best=-1e9;
+        for(double hz=250;hz<3200;hz*=1.01){const double g=w.magnitudeDb(c,hz);if(g>best){best=g;bestHz=hz;}}
+        const double target=PedalPowerWah::centre(position);
+        worstPeak=std::max(worstPeak,std::abs(bestHz/target-1));
+        require(bestHz>previous,"The wah sweep is not monotonic");previous=bestHz;
+        for(const double hz:{target*.5,target,target*2})worstGain=std::max(worstGain,std::abs(wahGainDb(w,c,hz)-w.magnitudeDb(c,hz)));
+    }
+    std::cout<<"MEASURE Power Wah: analytic peak within "<<100*worstPeak<<" % of the treadle centre (350 Hz-2.2 kHz); measured vs analytic gain "<<worstGain<<" dB\n";
+    require(worstPeak<.011 && worstGain<.05,"Power Wah response differs from its design");
+    // Boost alone is exact; wah off is transparent; both combine.
+    require(std::abs(wahGainDb(w,wah(.5f,0,false,false),1000.))<1e-3,"Wah off, boost off is not transparent");
+    require(std::abs(wahGainDb(w,wah(.5f,40,false,true),1000.)-40)<1e-3,"Boost alone is not 40 dB");
+    {const auto c=wah(.5f,12,true,true);require(std::abs(wahGainDb(w,c,PedalPowerWah::centre(.5f))-12)<.05,"Wah and boost do not combine");}
+    // Treadle lag: a jump reaches 63 % of its log-frequency change in ~25 ms.
+    {w.reset();juce::AudioBuffer<float> b(2,1);auto c=wah(0,0,true,false);w.process(b,c);c[0]=1;int n63=-1;
+     const double from=std::log(PedalPowerWah::centre(0)),to=std::log(PedalPowerWah::centre(1));
+     for(int n=0;n<4800 && n63<0;++n){w.process(b,c);if((std::log(w.currentCentre())-from)/(to-from)>=.632)n63=n+1;}
+     const double ms=1000.*n63/48000;std::cout<<"MEASURE Power Wah treadle lag to 63 %: "<<ms<<" ms\n";require(std::abs(ms-25)<1,"Treadle lag is not about 25 ms");}
+    std::cout<<"PASS Power Wah: sweep 350 Hz-2.2 kHz at the treadle centre, measured = analytic, boost exact, wah off transparent, 25 ms treadle lag\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -254,12 +292,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i)tb.process(b,22.f*float(i%11)/10.f);
     countAllocations=false;require(allocations==0,"Tight Boost allocates while processing");
-    std::cout<<"PASS Para EQ, Multi Comp and Tight Boost: no allocation while automating or switching modes\n";
+    PedalPowerWah pw;pw.prepare(48000);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i)pw.process(b,wah(float(i%10)/9.f,20,i%3!=0,i%2==0));
+    countAllocations=false;require(allocations==0,"Power Wah allocates while processing");
+    std::cout<<"PASS Para EQ, Multi Comp, Tight Boost and Power Wah: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }
