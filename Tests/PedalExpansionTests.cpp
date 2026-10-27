@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47,octaveFuzz=48;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47,octaveFuzz=48,violetRage=49;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==49,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==50,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10+7),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9), Violet Rage (6)");
     int seen=0,lastA=-1,firstB=total;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -492,6 +492,47 @@ void octaveFuzzResponse() {
     require(f.latency()==drive.latency(),"Octave Fuzz changes the PRE slot latency");
     std::cout<<"PASS Octave Fuzz: VOLUME to +1.6 dB, sub one octave down low-passed, octave up and its switch and 20 dB GAIN trim, 40 dB FUZZ range, TONE, SUB INTO FUZZ, slot latency unchanged\n";
 }
+// ---- Violet Rage (PRE Expansion B) ----
+Controls violet(float volume,float gain,float bass,float middle,float treble,int aggression)
+    {Controls c{};c[0]=volume;c[1]=gain;c[2]=bass;c[3]=middle;c[4]=treble;c[5]=float(aggression);return c;}
+std::vector<float> renderViolet(PedalVioletRage& v,const Controls& c,double hz,double db,double seconds=.5) {
+    v.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;
+    for(int block=0;block<int(seconds*48000/256);++block){
+        for(int n=0;n<256;++n,++t){const float x=float(juce::Decibels::decibelsToGain(db)*std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/48000.));b.setSample(0,n,x);b.setSample(1,n,x);}
+        v.process(b,c);for(int n=0;n<256;++n)out.push_back(b.getSample(0,n));
+    }
+    return out;
+}
+void violetRageResponse() {
+    const auto& m=pedalModel(violetRage);
+    require(juce::String(m.id)=="pre.violetrage" && juce::String(m.name)=="Violet Rage" && m.controlCount==6 && pedalMenuEntries[violetRage].kind==PedalMenuKind::distortion,"Violet Rage catalog entry");
+    PedalVioletRage v;v.prepare(48000,256);
+    const auto small=[&](const Controls& c,double hz){return toneDb(renderViolet(v,c,hz,-90),hz)+90;};
+    // BASS, MIDDLE and TREBLE after the clipping: measured EQ = the tone stack (small signal).
+    double worst=0;
+    for(const auto& c:{violet(-12,.5f,12,0,0,0),violet(-12,.5f,0,-12,0,0),violet(-12,.5f,-6,9,12,0),violet(-12,.5f,9,-6,-12,0)})
+        for(const double hz:{80.,200.,700.,1500.,3000.,6000.})
+            worst=std::max(worst,std::abs(small(c,hz)-small(violet(-12,.5f,0,0,0,0),hz)-v.toneStackDb(c,hz)));
+    std::cout<<"MEASURE Violet Rage tone stack measured vs analytic (small signal, 80 Hz-6 kHz): largest error "<<worst<<" dB\n";
+    require(worst<.05,"Violet Rage tone stack differs from its design");
+    // GAIN range and AGGRESSION (small signal, so drive adds 1:1); VOLUME exact.
+    const double gainSpan=small(violet(-12,1,0,0,0,0),1000.)-small(violet(-12,0,0,0,0,0),1000.);
+    const double redStep=small(violet(-12,0,0,0,0,1),1000.)-small(violet(-12,0,0,0,0,0),1000.),blueStep=small(violet(-12,0,0,0,0,2),1000.)-small(violet(-12,0,0,0,0,0),1000.);
+    const double volume=small(violet(6,.5f,0,0,0,0),1000.)-small(violet(-24,.5f,0,0,0,0),1000.);
+    std::cout<<"MEASURE Violet Rage small-signal: GAIN span "<<gainSpan<<" dB, AGGRESSION red +"<<redStep<<" dB, blue +"<<blueStep<<" dB, VOLUME span "<<volume<<" dB\n";
+    require(std::abs(gainSpan-34)<.1 && std::abs(redStep-8)<.1 && std::abs(blueStep-16)<.1 && std::abs(volume-30)<.05,"GAIN, AGGRESSION or VOLUME differ from the design");
+    // Low end tightened before the clipping; distortion grows with GAIN and AGGRESSION.
+    {const double tight=small(violet(-12,.5f,0,0,0,0),40.)-small(violet(-12,.5f,0,0,0,0),400.);
+     std::cout<<"MEASURE Violet Rage 40 Hz re 400 Hz (small signal): "<<tight<<" dB\n";
+     require(tight<-15,"Violet Rage does not tighten the low end");}
+    const auto distortion=[&](float gain,int aggression){return harmonicsDb(renderViolet(v,violet(-12,gain,0,0,0,aggression),200.,-30),200.);};
+    const double low=distortion(0,0),mid=distortion(.5f,0),red=distortion(.5f,1),blue=distortion(.5f,2);
+    std::cout<<"MEASURE Violet Rage harmonics 2-5 re fundamental (-30 dBFS 200 Hz): gain 0 "<<low<<", gain 0.5 "<<mid<<", red "<<red<<", blue "<<blue<<" dB\n";
+    require(mid>low+6 && red>mid && blue>red,"Distortion does not grow with GAIN and AGGRESSION");
+    PedalNewDrive drive;drive.prepare({48000,256,2});
+    require(v.latency()==drive.latency(),"Violet Rage changes the PRE slot latency");
+    std::cout<<"PASS Violet Rage: tone stack = design, 34 dB GAIN, AGGRESSION red/blue, VOLUME exact, tight low end, distortion grows, slot latency unchanged\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -529,12 +570,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=(i%4==0?0.f:.2f)*float(std::sin(.03*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}of.process(b,octave(-6,float(i%10)/9.f,float(i%7)/6.f,.5f,.5f,i%3!=0,i%2==0,float(i%5)*5.f,.5f));}
     countAllocations=false;require(allocations==0,"Octave Fuzz allocates while processing");
+    PedalVioletRage vr;vr.prepare(48000,128);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i)vr.process(b,violet(-12,float(i%10)/9.f,float(i%5)*6-12,float(i%3)*12-12,float(i%7)*4-12,i%3));
+    countAllocations=false;require(allocations==0,"Violet Rage allocates while processing");
     std::cout<<"PASS Expansion A and B pedals: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();octaveFuzzResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();octaveFuzzResponse();violetRageResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

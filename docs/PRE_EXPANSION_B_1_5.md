@@ -1,6 +1,6 @@
-# PRE Expansion B 1.5 — Seven EQ, Multi Wah, Octave Fuzz
+# PRE Expansion B 1.5 — Seven EQ, Multi Wah, Octave Fuzz, Violet Rage
 
-Status: **three of six models implemented on `claude/pre-expansion-b`**
+Status: **four of six models implemented on `claude/pre-expansion-b`**
 (based on `claude/pre-paraeq`), covered by `ChimeraPedalExpansionTests`.
 Roadmap: 1.5 PRE Expansion B, six models (Revv G3; Wampler Dracarys; MXR
 Slash Octave Fuzz; Dunlop 535Q; BOSS GE-7; DigiTech Whammy). These are
@@ -80,7 +80,24 @@ PRE slot latency is unchanged. The sub is monophonic (single notes). No
 allocation. An original octave fuzz laid out after the published controls,
 not a measured model of the pedal.
 
-## 5. Measurements (`ChimeraPedalExpansionTests`)
+## 5. Violet Rage (model 49, `pre.violetrage`)
+
+Reference: Revv G3. Public specification used (Premier Guitar and
+guitar.com reviews, GAK and effectsdatabase listings):
+
+| Hardware (published) | Chimera |
+|---|---|
+| VOLUME, GAIN | VOLUME −24 to +6 dB; GAIN 6–40 dB of drive |
+| BASS, MIDDLE, TREBLE | RBJ low shelf 100 Hz, peak 700 Hz (Q 0.7), high shelf 3 kHz, ±12 dB each, after the clipping |
+| AGGRESSION, three positions (off, red, blue), adding gain and volume at two intensities | OFF; RED +6 dB gain, +2 dB volume; BLUE +12 dB gain, +4 dB volume. Which position is stronger is not stated in a spec; BLUE as the stronger follows one review's description and is an interpretation |
+| "Tight lows, present highs" (review wording) | 90 Hz 2-pole high-pass before the clipping, 150 Hz coupling between the two stages, 7.5 kHz low-pass after the EQ |
+| Amounts, clipping, filter shapes: **not published** | Chimera choices above |
+
+Two soft-clip stages at 4x; PRE slot latency unchanged; no allocation. An
+original distortion laid out after the published controls, not a measured
+model of the pedal or of the amp channel it follows.
+
+## 6. Measurements (`ChimeraPedalExpansionTests`)
 
 - Flat: transparent (error below 1e−4 dB).
 - Each band at ±15 dB gives exactly ±15 dB at its centre (error 6e−13 dB);
@@ -100,11 +117,15 @@ not a measured model of the pedal.
   3 kHz by 30.9 dB; harmonics 2–5 −50.1 dB (FUZZ 0, −40 dBFS) against
   −8.4 dB (FUZZ max, −20 dBFS); SUB INTO FUZZ puts the 110 Hz sub through
   the fuzz (−14.9 dBFS, none without the sub).
-- 350 appended parameters in total (Expansion A 225 at version 16, then
-  Seven EQ 45, Multi Wah 30 and Octave Fuzz 50 at version 17).
+- Violet Rage: BASS/MIDDLE/TREBLE measured through the drive equal the
+  analytic tone stack within 3e−7 dB (small signal, 80 Hz–6 kHz); GAIN
+  spans 34.0 dB, RED adds 8.0 dB and BLUE 16.0 dB (gain plus volume), VOLUME
+  spans 30.0 dB; 40 Hz sits 25.5 dB below 400 Hz; harmonics 2–5 at −30 dBFS
+  200 Hz: −45.0 dB (GAIN 0), −22.9 dB (0.5), −16.2 dB (RED), −12.6 dB (BLUE).
+- 385 appended parameters in total (Expansion A 225 at version 16, then
+  Seven EQ 45, Multi Wah 30, Octave Fuzz 50 and Violet Rage 35 at version 17).
 
-## 6. Not done
+## 7. Not done
 
-- The other three Expansion B models (Revv G3, Wampler Dracarys, DigiTech
-  Whammy).
+- The other two Expansion B models (Wampler Dracarys, DigiTech Whammy).
 - Listening on real DI; DAW automation and recall.
