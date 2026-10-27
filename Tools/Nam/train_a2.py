@@ -79,6 +79,9 @@ def main():
     ap.add_argument('--center-training-output',action='store_true',help='Train the same zero-history-corrected response that is exported')
     ap.add_argument('--amplitude-weight',type=float,default=0.,help='Legacy loss: weight each sample by 1+A*|target|/window peak, so loud passages count more')
     ap.add_argument('--overshoot-weight',type=float,default=0.,help='Legacy loss: penalize output beyond the window\'s target peak (attack overshoot)')
+    ap.add_argument('--peak-weight',default='',help='Legacy loss, per channel as Name=weight,...: penalize each crop\'s output peak '
+      'beyond its target peak, as a squared fraction of the target peak. The profile\'s peak level limit is set by a few attack samples, '
+      'which a per-sample penalty averages away')
     ap.add_argument('--diagnostic-extra-dilations',help='Comma-separated dilations appended (kernel 6) to the A2 layer array. '
       'Diagnostic only: the result is not an A2 model, cannot load in the target player and is exported as Diagnostic-*.nam')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
@@ -88,7 +91,12 @@ def main():
     if args.warm_start_final and not args.warm_start:raise ValueError('--warm-start-final needs --warm-start')
     if args.keep_passed and not (args.warm_start or args.resume):raise ValueError('--keep-passed needs --warm-start')
     if args.amplitude_weight<0 or args.overshoot_weight<0:raise ValueError('Loss weights must be nonnegative')
-    if args.recipe!='legacy' and (args.amplitude_weight or args.overshoot_weight):raise ValueError('Loss weights apply to the legacy recipe only')
+    names=[v[0] for v in VOICES];peak_weights=[0.]*len(VOICES)
+    for item in filter(None,args.peak_weight.split(',')):
+        name,_,w=item.partition('=')
+        if name not in names or float(w)<0:raise ValueError(f'Bad --peak-weight entry: {item}')
+        peak_weights[names.index(name)]=float(w)
+    if args.recipe!='legacy' and (args.amplitude_weight or args.overshoot_weight or any(peak_weights)):raise ValueError('Loss weights apply to the legacy recipe only')
     if min(args.steps,args.batch,args.frames,args.threads,args.lr,args.lr_half_life)<=0:raise ValueError('Positive training budget and optimizer settings required')
     manifest=verify_audio_manifest(args.data)
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
@@ -106,6 +114,7 @@ def main():
     x=np.load(args.data/'train/input.npy',mmap_mode='r');ys=[np.load(args.data/'train'/f'{v[0]}.npy',mmap_mode='r') for v in VOICES]
     gains=training_output_gains(np.stack(ys)) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
     gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
+    peak_weight_tensor=torch.tensor(peak_weights,dtype=torch.float32)[None,:]
     # Notes are scaled to exactly -6 or -3 dBFS peak; -6.1 keeps the -6 dBFS ones.
     loud_samples=np.flatnonzero(np.abs(x[rf:len(x)-args.frames])>=10**(-6.1/20))+rf
     if args.loud_fraction and not len(loud_samples):raise ValueError('No input at or above -6 dBFS for --loud-fraction')
@@ -125,7 +134,7 @@ def main():
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
-      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'loud_fraction':args.loud_fraction,
+      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'peak_weight':dict(zip(names,peak_weights)),'loud_fraction':args.loud_fraction,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
@@ -269,6 +278,9 @@ def main():
             loss+=.1*((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power).mean()
             if args.overshoot_weight:
                 loss+=args.overshoot_weight*(torch.relu(pred.abs()-peak).square().mean(dim=-1)/power).mean()
+            if any(peak_weights):
+                crop_peak=peak.squeeze(-1)
+                loss+=(peak_weight_tensor*(torch.relu(pred.abs().amax(dim=-1)-crop_peak)/crop_peak).square()).mean()
         if not torch.isfinite(loss):raise RuntimeError('Nonfinite training loss')
         opt.zero_grad();loss.backward()
         if args.recipe=='legacy':torch.nn.utils.clip_grad_norm_(model.parameters(),5.)
