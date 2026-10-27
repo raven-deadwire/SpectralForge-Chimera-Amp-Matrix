@@ -21,12 +21,14 @@ std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
 }
 
 ChimeraProcessor::ChimeraProcessor()
-    : ChimeraProcessor(spectralforge::beta::compiledMetadata(), spectralforge::beta::utcNow) {}
+    : ChimeraProcessor(spectralforge::beta::compiledMetadata(), spectralforge::beta::utcNow,
+                       spectralforge::beta::tester::Store::load()) {}
 
-ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock)
+ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock,
+                                   const spectralforge::beta::tester::Grant& tester)
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
-      betaClock(clock), betaLifecycle(metadata,clock())
+      betaClock(clock), betaLifecycle(metadata,clock(),tester.valid), testerHolder(tester.valid ? tester.name : juce::String{})
 {
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
@@ -56,6 +58,30 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
 }
+void ChimeraProcessor::recheckBetaClock()
+{
+    // Also picks up a tester code entered in another Chimera instance.
+    if(const auto stored=spectralforge::beta::tester::Store::load(); stored.valid && !betaLifecycle.testerExtension()) {
+        testerHolder=stored.name;
+        betaLifecycle.setTesterExtension(true);
+    }
+    (void)betaLifecycle.recoverFromClockCorrection(betaClock());
+}
+spectralforge::beta::tester::Grant ChimeraProcessor::applyTesterCode(const juce::String& code)
+{
+    const auto grant=spectralforge::beta::tester::Store::save(code);
+    if(grant.valid) {
+        testerHolder=grant.name;
+        betaLifecycle.setTesterExtension(true);
+    }
+    return grant;
+}
+void ChimeraProcessor::removeTesterCode()
+{
+    spectralforge::beta::tester::Store::clear();
+    testerHolder.clear();
+    betaLifecycle.setTesterExtension(false);
+}
 juce::String ChimeraProcessor::betaNotice() const
 {
     using Status=spectralforge::beta::Status;
@@ -82,6 +108,7 @@ juce::String ChimeraProcessor::betaNotice() const
                 ? "\nSystem clock is invalid. Check the clock; this instance keeps processing."
                 : "\nSystem clock is invalid. This instance remains muted. Correct the clock and choose RECHECK CLOCK.";break;
         case Status::configurationError:text+="\nInvalid beta build metadata: output is muted. Install a qualified successor.";break;
+        case Status::testerExtended:text+="\nBeta tester code: "+testerHolder+". This build and later betas do not expire on this computer.";break;
     }
     if(!betaProcessingPermitted() && (current.status==Status::valid || current.status==Status::warning))
         text+="\nThis instance is still muted. After correcting the system clock, choose RECHECK CLOCK.";
