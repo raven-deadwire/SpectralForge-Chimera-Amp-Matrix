@@ -7,6 +7,7 @@
 #include "FactoryPresets.h"
 #include "ReleaseInfo.h"
 #include "BetaLifecycleDisplay.h"
+#include "StandaloneDiagnostics.h"
 
 namespace {
 std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
@@ -20,12 +21,14 @@ std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
 }
 
 ChimeraProcessor::ChimeraProcessor()
-    : ChimeraProcessor(spectralforge::beta::compiledMetadata(), spectralforge::beta::utcNow) {}
+    : ChimeraProcessor(spectralforge::beta::compiledMetadata(), spectralforge::beta::utcNow,
+                       spectralforge::beta::tester::Store::load()) {}
 
-ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock)
+ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock,
+                                   const spectralforge::beta::tester::Grant& tester)
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
-      betaClock(clock), betaLifecycle(metadata,clock())
+      betaClock(clock), betaLifecycle(metadata,clock(),tester.valid), testerHolder(tester.valid ? tester.name : juce::String{})
 {
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
@@ -55,6 +58,30 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
 }
+void ChimeraProcessor::recheckBetaClock()
+{
+    // Also picks up a tester code entered in another Chimera instance.
+    if(const auto stored=spectralforge::beta::tester::Store::load(); stored.valid && !betaLifecycle.testerExtension()) {
+        testerHolder=stored.name;
+        betaLifecycle.setTesterExtension(true);
+    }
+    (void)betaLifecycle.recoverFromClockCorrection(betaClock());
+}
+spectralforge::beta::tester::Grant ChimeraProcessor::applyTesterCode(const juce::String& code)
+{
+    const auto grant=spectralforge::beta::tester::Store::save(code);
+    if(grant.valid) {
+        testerHolder=grant.name;
+        betaLifecycle.setTesterExtension(true);
+    }
+    return grant;
+}
+void ChimeraProcessor::removeTesterCode()
+{
+    spectralforge::beta::tester::Store::clear();
+    testerHolder.clear();
+    betaLifecycle.setTesterExtension(false);
+}
 juce::String ChimeraProcessor::betaNotice() const
 {
     using Status=spectralforge::beta::Status;
@@ -81,6 +108,7 @@ juce::String ChimeraProcessor::betaNotice() const
                 ? "\nSystem clock is invalid. Check the clock; this instance keeps processing."
                 : "\nSystem clock is invalid. This instance remains muted. Correct the clock and choose RECHECK CLOCK.";break;
         case Status::configurationError:text+="\nInvalid beta build metadata: output is muted. Install a qualified successor.";break;
+        case Status::testerExtended:text+="\nBeta tester code: "+testerHolder+". This build and later betas do not expire on this computer.";break;
     }
     if(!betaProcessingPermitted() && (current.status==Status::valid || current.status==Status::warning))
         text+="\nThis instance is still muted. After correcting the system clock, choose RECHECK CLOCK.";
@@ -829,5 +857,17 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     for(int i=0;i<5;++i) {auto stage=std::make_unique<juce::DynamicObject>();stage->setProperty("stage",names[i]);
         stage->setProperty("rms_dbfs",juce::Decibels::gainToDecibels(stageRms[(size_t)i].load(),-120.f));
         stage->setProperty("peak_dbfs",juce::Decibels::gainToDecibels(stagePeaks[(size_t)i].load(),-120.f));stages.add(juce::var(stage.release()));}
-    object->setProperty("stages",stages);return juce::JSON::toString(juce::var(object.release()),false);
+    object->setProperty("stages",stages);
+   #if defined(JUCE_ASIO) && JUCE_ASIO
+    object->setProperty("asio_built",true);
+   #else
+    object->setProperty("asio_built",false);
+   #endif
+    if(spectralforge::standalone::audioDeviceDiagnostics) {
+        auto device=spectralforge::standalone::audioDeviceDiagnostics();
+        // Driver claim + Chimera's reported delay; not a measured loopback round trip.
+        spectralforge::standalone::addReportedLatency(device,getLatencySamples());
+        object->setProperty("audio_device",device);
+    }
+    return juce::JSON::toString(juce::var(object.release()),false);
 }

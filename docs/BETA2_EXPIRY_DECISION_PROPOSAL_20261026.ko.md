@@ -1,6 +1,6 @@
 # 1.3.2-beta.2 만료일 결정안 — 2026-10-26 KST
 
-P0 **베타 수명주기**의 첫 항목인 "beta.2 전용 만료일 결정"을 위한 안입니다. **이 문서는 승인이 아닙니다.** 소유자가 날짜를 승인하기 전까지 `Validation/beta-lifecycle-policy.json`은 바꾸지 않습니다.
+P0 **베타 수명주기**의 첫 항목인 "beta.2 전용 만료일 결정"을 위한 안입니다. **2026-10-26 13:38 KST 소유자가 B안을 승인했습니다**(6장). 정책 파일과 `RELEASE_CHANNEL`에 반영했습니다. 날짜 승인은 릴리즈 승인이 아니며, 4장의 검증은 그대로 남습니다.
 
 ## 1. 지켜야 할 규칙 (BETA_LIFECYCLE.md)
 
@@ -46,8 +46,8 @@ P0 **베타 수명주기**의 첫 항목인 "beta.2 전용 만료일 결정"을 
 
 | 단계 | 내용 | 확인 |
 |---|---|---|
-| 1. 정책 갱신 | `beta-lifecycle-policy.json`의 `version`을 `1.3.2-beta.2`로, `expires_at_utc`·`expiry_approved: true`를 승인한 값으로. `RELEASE_CHANNEL`을 `beta.2`로(같은 소스) | [ ] |
-| 2. 문서 | `BETA_LIFECYCLE.md` 표에 beta.2 값·승인 날짜 추가(beta.1 값은 이력으로 유지) | [ ] |
+| 1. 정책 갱신 | `beta-lifecycle-policy.json`의 `version`을 `1.3.2-beta.2`로, `expires_at_utc`·`expiry_approved: true`를 승인한 값으로. `RELEASE_CHANNEL`을 `beta.2`로(같은 소스) | [x] |
+| 2. 문서 | `BETA_LIFECYCLE.md` 표에 beta.2 값·승인 날짜 추가(beta.1 값은 이력으로 유지) | [x] |
 | 3. 자동 검증 | 수명주기 테스트(경계, 14일 경고, 카운트다운)와 정책·메타데이터 테스트가 새 날짜로 통과, 옛 정책 거부 검사 통과 | [ ] |
 | 4. 표시 일치 | SETTINGS(UTC·KST·남은 시간), `BETA_LIFECYCLE.txt`, 패키지 JSON, 릴리즈 노트가 같은 날짜 | [ ] |
 | 5. 실행 중 만료 | 이미 열린 인스턴스는 계속 소리, 만료 뒤 새 인스턴스는 무음·상태 보존, RECHECK CLOCK 복구 | [ ] |
@@ -65,7 +65,7 @@ P0 **베타 수명주기**의 첫 항목인 "beta.2 전용 만료일 결정"을 
 
 | 항목 | 값 |
 |---|---|
-| 승인한 안 | |
-| 만료 UTC / KST | |
-| 승인자 · 일시 (KST) | |
-| 비고(다시 정할 조건 등) | |
+| 승인한 안 | **B** |
+| 만료 UTC / KST | `2027-03-31T14:59:00Z` / 2027-03-31 23:59 KST (Unix `1806505140`) |
+| 승인자 · 일시 (KST) | 소유자 · 2026-10-26 13:38 |
+| 비고(다시 정할 조건 등) | 12/21 KST까지 공개되지 않으면 공개 전 재승인. 별도로 베타테스터용 무기한 연장 코드(테스터별 짧은 코드 `CHT1-이름-확인문자`, 이후 모든 베타 적용)를 제공하기로 함([BETA_LIFECYCLE.md](BETA_LIFECYCLE.md) 'Beta tester codes', [발급 안내](BETA_TESTER_CODES.ko.md)) |

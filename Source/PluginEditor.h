@@ -88,6 +88,7 @@ private:
     void browseIR(int,const juce::File&);
     void showInfo();
     void showSupport();
+    void showTesterCode();
     void showDiagnostics();
     void trackDialog(juce::DialogWindow*);
     void markPresetCustom();
@@ -100,6 +101,7 @@ private:
     void openSignalPath();
     std::unique_ptr<SignalPathView> signalPath;
     juce::Component::SafePointer<juce::DialogWindow> pathDialog;
+    std::unique_ptr<juce::AlertWindow> testerDialog;
     std::array<juce::String,3> pathSelections{{"cab","cab","cab"}};
     ChimeraProcessor& processor;
     // Declared before children so their images/peers die first. The last editor
@@ -163,6 +165,8 @@ private:
     juce::TextButton tunerOpen{"TUNER"},easyOpen{"EASY VIEW"};
     std::unique_ptr<EasyModeView> easyView;
     bool easyMode{};
+    int presetOrigin{}; // Factory preset (id) the current CUSTOM sound started from, or 0.
+    void publishAutoSetStatus();
     bool tunerViewOpen{};
     bool showRigControls{};
     int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.

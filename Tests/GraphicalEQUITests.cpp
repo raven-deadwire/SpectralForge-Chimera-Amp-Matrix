@@ -386,13 +386,19 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
     const uint64_t pendingAtStop=processor.graphicalEQ(1).analyzer.pendingSamples();
     const uint64_t hop=uint64_t(panel->analysisFFTSize()/4);
     const uint64_t maximumDrainWindows=(pendingAtStop+hop-1)/hop+1;
-    settle(100);
+    // Wait for conditions, not fixed durations: a loaded runner can stall the
+    // UI timer for over a second, leaving the drain or idle decay unfinished.
+    auto& fifo=processor.graphicalEQ(1).analyzer;
+    check(waitFor([&]{return fifo.pendingSamples()==0;}),"Stopped producer backlog was not consumed");
+    settle(20);
     const auto drained=panel->fftFrames();
     check(drained<=atStop+maximumDrainWindows,"Stopped producer triggered unbounded catch-up FFT work");
-    settle(400);
-    check(panel->fftFrames()==drained && panel->spectrumDB(false,peakBin)<=-119.9f
-              && panel->displaySpectrumDB(false,peakBin)<displayAtStop,
+    // Frames never decrease, so a fabricated frame keeps this false until the deadline.
+    check(waitFor([&]{return panel->fftFrames()==drained && panel->spectrumDB(false,peakBin)<=-119.9f
+                             && panel->displaySpectrumDB(false,peakBin)<displayAtStop;}),
           "Stopped audio did not decay on the native screen without fabricated FFT frames");
+    settle(100);
+    check(panel->fftFrames()==drained,"Stopped audio produced FFT frames after decaying");
     snapshot(editor,directory.getChildFile("eq-ui-stopped-source.png"));
     std::cout<<"PASS native synthetic anti-phase sine / independent IN-OUT layers / master-off / stopped-source decay\n";
 
