@@ -20,11 +20,16 @@ void changed(void*) { ++notifications; }
 
 // Runs the main run loop for the whole interval; a single runUntilDate can
 // return early once a source fires.
+int idleSlices = 0; // runMode returned NO: nothing to run in this mode
+
 void pump(double seconds) {
     NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:seconds];
     while ([deadline timeIntervalSinceNow] > 0) {
         NSDate* slice = [NSDate dateWithTimeIntervalSinceNow:0.05];
-        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[slice earlierDate:deadline]];
+        if (![[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[slice earlierDate:deadline]]) {
+            ++idleSlices;
+            [NSThread sleepForTimeInterval:0.01];
+        }
     }
 }
 
@@ -55,11 +60,19 @@ void run(const std::string& bundle) {
     check(window.contentView.frame.size.width >= 200 && window.contentView.frame.size.height >= 150,
           "window sized to the editor");
 
+    // Probes: does anything scheduled on the main run loop or queue run here?
+    __block int probeTimer = 0, probeQueue = 0;
+    NSTimer* probe = [NSTimer scheduledTimerWithTimeInterval:0.2 repeats:YES block:^(NSTimer*) { ++probeTimer; }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC / 5), dispatch_get_main_queue(), ^{ ++probeQueue; });
     notifications = 0;
+    idleSlices = 0;
     const CFAbsoluteTime started = CFAbsoluteTimeGetCurrent();
     pump(1.3);
+    [probe invalidate];
     const std::string synced = "edits are synced every 500 ms while open (" + std::to_string(notifications) +
-                               " in " + std::to_string(CFAbsoluteTimeGetCurrent() - started) + " s)";
+                               " in " + std::to_string(CFAbsoluteTimeGetCurrent() - started) +
+                               " s; probe timer " + std::to_string(probeTimer) + ", main queue " +
+                               std::to_string(probeQueue) + ", idle slices " + std::to_string(idleSlices) + ")";
     check(notifications >= 2, synced.c_str());
 
     // Opening again raises the same window rather than creating another.

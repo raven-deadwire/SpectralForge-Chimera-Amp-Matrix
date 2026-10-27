@@ -29,7 +29,7 @@ class EditorWindow : public U::Implements<U::Directly<IPlugFrame>> {
 public:
     NSWindow* window{nil};
     ChimeraOBSEditorDelegate* delegate{nil};
-    NSTimer* timer{nil};
+    dispatch_source_t timer{nil};
     IPtr<IPlugView> view;
     EditorChanged changed{};
     void* context{};
@@ -119,11 +119,12 @@ bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& tit
     if (view->getSize(&size) == kResultTrue) created->setContentSize(size);
     [created->window center];
     EditorWindow* raw = created;
-    // Common modes: edits keep syncing while a knob drag or menu is tracking.
-    created->timer = [NSTimer timerWithTimeInterval:syncInterval
-                                            repeats:YES
-                                              block:^(NSTimer*) { raw->notify(); }];
-    [[NSRunLoop mainRunLoop] addTimer:created->timer forMode:NSRunLoopCommonModes];
+    // A main-queue timer keeps syncing while a knob drag or menu is tracking.
+    created->timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    const auto interval = static_cast<uint64_t>(syncInterval * NSEC_PER_SEC);
+    dispatch_source_set_timer(created->timer, dispatch_time(DISPATCH_TIME_NOW, interval), interval, interval / 10);
+    dispatch_source_set_event_handler(created->timer, ^{ raw->notify(); });
+    dispatch_resume(created->timer);
     [created->window makeKeyAndOrderFront:nil];
     [NSApp activateIgnoringOtherApps:YES];
     window = created;
@@ -133,7 +134,7 @@ bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& tit
 void closeEditor(EditorWindow*& window) noexcept {
     if (window == nullptr) return;
     window->notify(); // last edits reach the settings before the view goes away
-    [window->timer invalidate];
+    if (window->timer != nil) dispatch_source_cancel(window->timer);
     window->timer = nil;
     window->detach();
     if (window->window != nil) {
