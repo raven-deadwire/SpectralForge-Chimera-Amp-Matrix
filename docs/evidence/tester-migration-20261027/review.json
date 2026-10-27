@@ -1,10 +1,33 @@
 {
   "schema": "spectralforge.chimera.tester-migration-review.v1",
-  "status": "blocked-incomplete-input",
+  "status": "verified-awaiting-activation",
   "expected_count": 5,
-  "verified_count": 2,
+  "verified_count": 5,
   "digests": [
+    "03c77c93de58e2fa3f18a305ad9eec6a9b0daaa785744237705894627a3e3cb9",
+    "1f35200aeb4c1c01c2604eb6fefbab137e5fd2ca77f996be9134d5627766af17",
     "8f45b3fab4e772afb29373f17e78e1b5ad936ea366edd69ed7aacf147533b307",
+    "9b1afc20fd465b53196b231990567755f87b97ace16d94d335ad6559d9ed838e",
     "a79992b2ab4d424a60604839eb39ec3e3550cd78d8466390f05b9179d3aff31a"
-  ]
+  ],
+  "audit_source_commit": "f68e9a64ca8ea6efa9b2a87741abd15e1dedc0fa",
+  "audit_batches": [
+    {
+      "source": "prior-readonly-draft-audit",
+      "digests": [
+        "8f45b3fab4e772afb29373f17e78e1b5ad936ea366edd69ed7aacf147533b307",
+        "a79992b2ab4d424a60604839eb39ec3e3550cd78d8466390f05b9179d3aff31a"
+      ]
+    },
+    {
+      "source": "user-provided-image",
+      "digests": [
+        "03c77c93de58e2fa3f18a305ad9eec6a9b0daaa785744237705894627a3e3cb9",
+        "1f35200aeb4c1c01c2604eb6fefbab137e5fd2ca77f996be9134d5627766af17",
+        "8f45b3fab4e772afb29373f17e78e1b5ad936ea366edd69ed7aacf147533b307",
+        "9b1afc20fd465b53196b231990567755f87b97ace16d94d335ad6559d9ed838e"
+      ]
+    }
+  ],
+  "overlap_count": 1
 }

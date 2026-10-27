@@ -313,9 +313,20 @@ class TesterCodeTests(unittest.TestCase):
             self.assertEqual(existing.read_text(encoding="utf-8"), "keep")
         self.assertEqual(production.read_bytes(), original)
 
-    def test_partial_review_is_not_an_allowlist(self):
+    def test_migration_review_is_not_an_allowlist(self):
         with self.assertRaises(ValueError):
             tc.load_allowlist(ROOT / "docs/evidence/tester-migration-20261027/review.json")
+
+    def test_reviewed_candidate_has_only_five_digests_and_rejects_public_fixtures(self):
+        evidence = ROOT / "docs/evidence/tester-migration-20261027"
+        candidate = tc.load_allowlist(evidence / "allowlist.candidate.json")
+        review = json.loads((evidence / "review.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(candidate), 5)
+        self.assertEqual(candidate, review["digests"])
+        for code in [CODE, OTHER, *self.legacy_migration_fixtures()]:
+            with self.assertRaises(ValueError):
+                tc.verify(code, candidate)
+        self.assertEqual(tc.load_allowlist(ROOT / "Validation/tester-code-allowlist.json"), [])
 
     def test_failed_native_migration_is_all_or_nothing_and_redacted(self):
         with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tmp:
