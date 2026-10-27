@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==47,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==48,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5)");
     int seen=0,lastA=-1,firstB=total;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -414,6 +414,37 @@ void sevenEQResponse() {
     require(worstCentre<1e-6 && worst<.02,"Seven EQ response differs from its design");
     std::cout<<"PASS Seven EQ: flat transparent, +-15 dB at each band (6.4 kHz shelf), LEVEL exact, measured = analytic\n";
 }
+// ---- Multi Wah (PRE Expansion B) ----
+Controls multi(float position,int range,float q,float boostDb,bool boostOn){Controls c{};c[0]=position;c[1]=float(range);c[2]=q;c[3]=boostDb;c[4]=boostOn?1.f:0.f;return c;}
+void multiWahResponse() {
+    const auto& m=pedalModel(multiWah);
+    require(juce::String(m.id)=="pre.multiwah" && juce::String(m.name)=="Multi Wah" && m.controlCount==5 && pedalMenuEntries[multiWah].kind==PedalMenuKind::wah,"Multi Wah catalog entry");
+    PedalMultiWah w;w.prepare(48000);
+    const auto measured=[&](const Controls& c,double hz){
+        w.reset();juce::AudioBuffer<float> b(2,256);double in=0,out=0;long t=0;
+        for(int block=0;block<int(48000*.5/256);++block){
+            for(int n=0;n<256;++n,++t){const float x=.01f*float(std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/48000.));b.setSample(0,n,x);b.setSample(1,n,x);if(block>int(48000*.25/256))in+=double(x)*x;}
+            w.process(b,c);if(block>int(48000*.25/256))for(int n=0;n<256;++n)out+=double(b.getSample(0,n))*b.getSample(0,n);
+        }
+        return 10*std::log10(out/in);};
+    // Each RANGE sweeps its published span: the response peak sits at the
+    // range's low end (heel) and high end (toe).
+    double worstEdge=0,worst=0;
+    for(int range=0;range<6;++range)for(const float position:{0.f,1.f}) {
+        const auto c=multi(position,range,1,0,false);double bestHz=0,best=-1e9;
+        for(double hz=150;hz<3000;hz*=1.002){const double g=w.magnitudeDb(c,hz);if(g>best){best=g;bestHz=hz;}}
+        const auto& r=PedalMultiWah::ranges[size_t(range)];
+        worstEdge=std::max(worstEdge,std::abs(bestHz/(position==0?r.low:r.high)-1));
+        worst=std::max(worst,std::abs(measured(c,bestHz)-w.magnitudeDb(c,bestHz)));
+    }
+    // 15 dB filter gain at maximum Q (boost off), less at minimum Q; Q narrows.
+    const double peakMax=w.magnitudeDb(multi(.5f,2,1,0,false),PedalMultiWah::centre(2,.5f)),peakMin=w.magnitudeDb(multi(.5f,2,0,0,false),PedalMultiWah::centre(2,.5f));
+    const double octaveMax=w.magnitudeDb(multi(.5f,2,1,0,false),2*PedalMultiWah::centre(2,.5f))-peakMax,octaveMin=w.magnitudeDb(multi(.5f,2,0,0,false),2*PedalMultiWah::centre(2,.5f))-peakMin;
+    std::cout<<"MEASURE Multi Wah: peak within "<<100*worstEdge<<" % of each RANGE's published ends; measured vs analytic "<<worst<<" dB; peak "<<peakMax<<" dB at max Q, "<<peakMin<<" dB at min Q; one octave up "<<octaveMax<<" / "<<octaveMin<<" dB\n";
+    require(worstEdge<.005 && worst<.05 && std::abs(peakMax-15)<1e-6 && peakMin<peakMax && octaveMax<octaveMin-6,"Multi Wah ranges, filter gain or Q differ from the design");
+    require(std::abs(measured(multi(.5f,2,0,16,true),PedalMultiWah::centre(2,.5f))-(peakMin+16))<.05,"BOOST does not add its 16 dB");
+    std::cout<<"PASS Multi Wah: six published sweep ranges, 15 dB at max Q, Q narrows, boost up to 16 dB, measured = analytic\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -443,12 +474,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i){g[size_t(i%7)]=-15.f+30.f*float(i%11)/10.f;g[7]=float(i%5)-2.f;se.process(b,g);}
     countAllocations=false;require(allocations==0,"Seven EQ allocates while processing");
+    PedalMultiWah mw;mw.prepare(48000);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i)mw.process(b,multi(float(i%9)/8.f,i%6,float(i%4)/3.f,8,i%2==0));
+    countAllocations=false;require(allocations==0,"Multi Wah allocates while processing");
     std::cout<<"PASS Expansion A and B pedals: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

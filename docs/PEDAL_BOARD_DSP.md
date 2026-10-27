@@ -76,6 +76,7 @@ control names do not establish sound equivalence.
 | Bass Synth (1.4 PRE Expansion A) | Monophonic zero-crossing tracker (30–1000 Hz, octave-error rejection), triangle/saw/square + sub + VOICE oscillators, envelope/LFO-swept resonant low-pass, input-following level and gate | Published MXR Bass Synth control set only; everything else is Chimera's; single notes, not a model of the pedal |
 | Dreadful Peril (1.4 PRE Expansion A) | Input gate (threshold, hysteresis, hold), WEIGHT pre-HP 300→30 Hz, 1–3 clipping stages at 4× (LITE/HEAVY/HEAVIER), LOW/MID (200 Hz–2.5 kHz)/HIGH, 35 Hz–17 kHz band limits | Laid out after the published Heavy Menace controls; stages, ranges and gate timing are Chimera's; not a measured hardware model |
 | Seven EQ (1.5 PRE Expansion B) | Seven bands 100 Hz–6.4 kHz ±15 dB (six peaking Q 1.4, 6.4 kHz high shelf) and LEVEL ±15 dB | Laid out after the published BOSS GE-7; Q and shelf slope are Chimera's; not a measured hardware model. See `PRE_EXPANSION_B_1_5.md` |
+| Multi Wah (1.5 PRE Expansion B) | Band-pass wah over six published 535Q ranges, Q 2–10 with 6–15 dB peak gain, 0–16 dB boost | Published ranges, filter gain and boost; Q span and gain law are Chimera's; not a measured hardware model |
 
 Default normalized positions are UI seeds, not hardware factory settings. The new
 board does not convert or overwrite the previous raw PRE bank. Controls known to

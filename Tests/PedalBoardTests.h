@@ -49,6 +49,7 @@ inline void run() {
             // Dreadful Peril: the GATE switch matters once the threshold reaches the signal.
             if(model==45 && control==9)instance.controls[6]=-20.f;
             if(model==45 && control==7)instance.controls[4]=9.f;   // MID FREQ moves a MID with gain
+            if(model==47 && control==3)instance.controls[4]=1.f;   // Multi Wah: BOOST level needs BOOST ON
             auto high=low;instance.controls[(size_t)control]=spec.controls[(size_t)control].minimum;
             high.instances[0].controls[(size_t)control]=spec.controls[(size_t)control].maximum;
             const float delta=difference(render(a,low,48000,256,70,true),render(b,high,48000,256,70,true));
