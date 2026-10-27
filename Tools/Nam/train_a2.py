@@ -72,6 +72,7 @@ def main():
     # state 24% worse than the final step for Nidhoggr. Full validation is the default.
     ap.add_argument('--validation-selection',choices=['window','full'],default='full')
     ap.add_argument('--warm-start',type=Path,help='Initialize from a prior run with the same architecture and frozen native source; reset optimizer and re-score validation')
+    ap.add_argument('--keep-passed',action='store_true',help='With --warm-start: a checkpoint is eligible only if it keeps every profile limit the starting model passes on validation')
     ap.add_argument('--warm-start-final',action='store_true',help='Warm-start from the prior run\'s final weights instead of its selected states')
     ap.add_argument('--loud-fraction',type=float,default=0.,help='Fraction of training crops containing input at or above -6 dBFS peak, where error concentrates')
     ap.add_argument('--tail-fraction',type=float,default=0.,help='Fraction of training windows drawn from the final captured decay')
@@ -85,6 +86,7 @@ def main():
     if not 0<=args.tail_fraction<=.25:raise ValueError('Tail fraction must be between 0 and .25')
     if not 0<=args.loud_fraction<=.75 or args.tail_fraction+args.loud_fraction>.8:raise ValueError('Loud fraction must be in [0, .75] and leave random crops')
     if args.warm_start_final and not args.warm_start:raise ValueError('--warm-start-final needs --warm-start')
+    if args.keep_passed and not (args.warm_start or args.resume):raise ValueError('--keep-passed needs --warm-start')
     if args.amplitude_weight<0 or args.overshoot_weight<0:raise ValueError('Loss weights must be nonnegative')
     if args.recipe!='legacy' and (args.amplitude_weight or args.overshoot_weight):raise ValueError('Loss weights apply to the legacy recipe only')
     if min(args.steps,args.batch,args.frames,args.threads,args.lr,args.lr_half_life)<=0:raise ValueError('Positive training budget and optimizer settings required')
@@ -123,7 +125,7 @@ def main():
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
-      'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'loud_fraction':args.loud_fraction,
+      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'loud_fraction':args.loud_fraction,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
@@ -141,10 +143,22 @@ def main():
         return warm*args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
     opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
     best_level_ok=[False]*5
+    keep_required=[[] for _ in VOICES]
+    def passed_limits(prediction,i):
+        """Each profile limit on full validation, judged separately."""
+        f=fidelity(prediction,vy[i],VOICES[i][0],vx)
+        def within(key,limit):return f[key] is not None and f[key]<=PROFILE[limit]
+        return {'full_esr':f['full_esr_pass'],'active_median':within('active_median','active_window_esr_median_max'),
+                'active_p95':within('active_p95','active_window_esr_p95_max'),'active_worst':within('active_worst','active_window_esr_worst_max'),
+                'quiet':f['quiet_pass'],'level':f['level_pass']}
     def level_ok(prediction,i):
-        """Export-consistent full-validation level within the quality profile's limits."""
+        """Eligibility: export-consistent level within the profile, and, with --keep-passed,
+        every limit the starting model passed still passed."""
         row=scores(prediction,vy[i])[0]
-        return abs(row['rms_error_db'])<=PROFILE['rms_error_max_db'] and abs(row['peak_error_db'])<=PROFILE['peak_error_max_db']
+        ok=abs(row['rms_error_db'])<=PROFILE['rms_error_max_db'] and abs(row['peak_error_db'])<=PROFILE['peak_error_max_db']
+        if ok and keep_required[i]:
+            limits=passed_limits(prediction,i);ok=all(limits[k] for k in keep_required[i])
+        return ok
     def better(i,ok,score):
         return (ok and not best_level_ok[i]) or (ok==best_level_ok[i] and score<best[i])
     selection_windows=[rf,6*48000,12*48000,18*48000,22*48000]
@@ -169,7 +183,7 @@ def main():
         if prior_config['identity']!=ck['identity']:raise RuntimeError('Resume checkpoint/config identity mismatch')
         train_cfg['warm_start']=prior_config.get('warm_start')
         model.load_state_dict(ck['model']);opt.load_state_dict(ck['optimizer']);start=ck['step'];best=ck['best'];weights=ck['best_weights'];best_steps=ck['best_steps']
-        best_level_ok=ck['best_level_ok']
+        best_level_ok=ck['best_level_ok'];keep_required=ck.get('keep_required',keep_required)
         # Re-score saved states with this code's metric; a checkpoint written by
         # an older selection metric must not be compared with new scores.
         for i,state in enumerate(weights):
@@ -210,14 +224,16 @@ def main():
             # Score the starting state with the same metric later steps are selected
             # by; full-signal and excerpt ESR values are not comparable.
             best[i]=selection_esr(sub,i)
-            best_level_ok[i]=level_ok(centered_prediction(sub,vx)/gains[i],i)
+            start_prediction=centered_prediction(sub,vx)/gains[i]
+            if args.keep_passed:keep_required[i]=sorted(k for k,v in passed_limits(start_prediction,i).items() if v)
+            best_level_ok[i]=level_ok(start_prediction,i)
             weights[i]=copy.deepcopy(sub.state_dict())
         # Zero denotes the warm-start candidate, not a newly trained checkpoint.
         best_steps=[0]*5
         write_json(args.out/'initialization.json',{'source_checkpoint_sha256':digest(args.warm_start/'checkpoint.pt'),
           'source_checkpoint_step':ck['step'],'source_selected_steps':ck['best_steps'],'optimizer':'reset identically in comparison arms',
           'raw_prediction_max_abs_delta':dict(zip([v[0] for v in VOICES],raw_deltas)),
-          'initial_validation_esr':dict(zip([v[0] for v in VOICES],best)),'initial_validation_metric':args.validation_selection,'gains':gains.tolist(),'seed':6405})
+          'initial_validation_esr':dict(zip([v[0] for v in VOICES],best)),'keep_required':dict(zip([v[0] for v in VOICES],keep_required)),'initial_validation_metric':args.validation_selection,'gains':gains.tolist(),'seed':6405})
     # Failed identity checks must not overwrite a recoverable run's configuration.
     write_json(args.out/'training-config.json',train_cfg)
     for group in opt.param_groups:group['lr']=learning_rate(start)
@@ -281,7 +297,7 @@ def main():
             write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'level_ok_by_channel':dict(zip([v[0] for v in VOICES],levels)),'windows':vals,'best_steps':best_steps,'best_level_ok':best_level_ok,'tone3000_fidelity':profile_metrics,
               'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start,'identity':identity,'checkpoint_step':step,'recipe':args.recipe})
             checkpoint_temporary=args.out/'checkpoint.pt.tmp'
-            torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'best_level_ok':best_level_ok,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
+            torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'best_level_ok':best_level_ok,'keep_required':keep_required,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
               'validation_selection':args.validation_selection,'recipe':args.recipe},checkpoint_temporary)
             checkpoint_temporary.replace(args.out/'checkpoint.pt')
             print(json.dumps({'step':step,'validation_esr':dict(zip([v[0] for v in VOICES],means)),'best_steps':best_steps}),flush=True)
