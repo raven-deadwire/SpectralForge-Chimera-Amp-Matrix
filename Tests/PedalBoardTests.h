@@ -89,7 +89,7 @@ inline void run() {
             state.instances[0].bypass=true;board.reset();const auto dry=render(board,state,rate);
             // Flat graphic EQ and Para EQ (gains 0, boost off) are intentionally
             // transparent at their defaults (ChimeraPedalExpansionTests checks it).
-            if(model!=31 && model!=40)require(difference(processed,dry)>1e-5f,"Available PRE model produces no audio response");
+            if(model!=31 && model!=40 && model!=46)require(difference(processed,dry)>1e-5f,"Available PRE model produces no audio response");
         }
         // A selected spectral octave owner adds its real frame delay, including
         // bypass; other slots retain only their small base transport delay.

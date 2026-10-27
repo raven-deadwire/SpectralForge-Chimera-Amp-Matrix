@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==46,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==47,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,17 +42,25 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10)");
-    int seen=0;
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8)");
+    int seen=0,lastA=-1,firstB=total;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
         const bool expansion=expansionID(parameter->paramID);
-        if(expansion){require(parameter->getParameterIndex()>=first && parameter->getVersionHint()==pedalExpansionParameterVersion,"A Para EQ parameter is not appended at version 16");++seen;}
+        if(expansion){
+            // PRE A (models 40-45) at version 16, then PRE B (46 on) at 17:
+            // a later group never sits between an earlier group's banks.
+            const int model=parameter->paramID.fromFirstOccurrenceOf("_m",false,false).getIntValue();
+            const int version=model<46?16:17;
+            require(parameter->getParameterIndex()>=first && parameter->getVersionHint()==version,"An expansion parameter is not appended at its group's version");
+            if(version==16)lastA=std::max(lastA,parameter->getParameterIndex());else firstB=std::min(firstB,parameter->getParameterIndex());
+            ++seen;}
         else require(parameter->getParameterIndex()<first,"A released parameter moved behind the Para EQ banks");
     }
-    require(seen==pedalExpansionParameterCount,"Para EQ banks incomplete");
+    require(seen==pedalExpansionParameterCount,"Expansion banks incomplete");
+    require(lastA<firstB,"A PRE B bank sits among the PRE A banks");
     for(int owner=0;owner<5;++owner)require(p->parameters().getParameter(pedalBypassID(owner,paraEQ))!=nullptr && p->parameters().getParameter(pedalControlID(owner,paraEQ,9))!=nullptr,"Para EQ bank missing for an owner");
-    std::cout<<"PASS expansion parameters: "<<pedalExpansionParameterCount<<" appended after every released parameter at version 16\n";
+    std::cout<<"PASS expansion parameters: "<<pedalExpansionParameterCount<<" appended after every released parameter, PRE A at version 16 then PRE B at 17\n";
 }
 // Steady-state gain of a sine through the EQ, in dB.
 double measuredDb(PedalParaEQ& eq,const Controls& c,double rate,double hz) {
@@ -378,6 +386,34 @@ void dreadfulPerilResponse() {
     require(h.latency()==drive.latency(),"Dreadful Peril changes the PRE slot latency");
     std::cout<<"PASS Dreadful Peril: small-signal = design, WEIGHT, distortion grows with GAIN and LITE/HEAVY/HEAVIER, gate holds noise and closes after notes, slot latency unchanged\n";
 }
+// ---- Seven EQ (PRE Expansion B) ----
+void sevenEQResponse() {
+    const auto& m=pedalModel(sevenEQ);
+    require(juce::String(m.id)=="pre.seveneq" && juce::String(m.name)=="Seven EQ" && m.controlCount==8 && pedalMenuEntries[sevenEQ].kind==PedalMenuKind::equalizer,"Seven EQ catalog entry");
+    PedalSevenEQ eq;eq.prepare(48000);
+    const auto measured=[&](const Controls& c,double hz){
+        eq.reset();juce::AudioBuffer<float> b(2,256);double in=0,out=0;long t=0;
+        for(int block=0;block<int(48000*.5/256);++block){
+            for(int n=0;n<256;++n,++t){const float x=.05f*float(std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/48000.));b.setSample(0,n,x);b.setSample(1,n,x);if(block>int(48000*.25/256))in+=double(x)*x;}
+            eq.process(b,c);if(block>int(48000*.25/256))for(int n=0;n<256;++n)out+=double(b.getSample(0,n))*b.getSample(0,n);
+        }
+        return 10*std::log10(out/in);};
+    // Flat is transparent; each slider gives +-15 dB at its band (the 6.4 kHz
+    // shelf at its plateau); LEVEL is exact; measured = analytic.
+    Controls flat{};require(std::abs(measured(flat,1000.))<1e-4,"Flat Seven EQ is not transparent");
+    double worstCentre=0,worst=0;
+    for(int b=0;b<7;++b)for(const float g:{15.f,-15.f}) {
+        Controls c{};c[size_t(b)]=g;
+        const double at=b<6?PedalSevenEQ::centres[size_t(b)]:16000.;
+        worstCentre=std::max(worstCentre,std::abs(eq.magnitudeDb(c,at)-g)*(b<6?1.:0.)+(b==6?std::max(0.,std::abs(g)-std::abs(eq.magnitudeDb(c,at))-1.):0.));
+        worst=std::max(worst,std::abs(measured(c,at>12000?8000.:at)-eq.magnitudeDb(c,at>12000?8000.:at)));
+    }
+    {Controls c{};c[7]=-15;require(std::abs(measured(c,500.)+15)<1e-3,"LEVEL is not exact");}
+    {Controls c{};c[0]=6;c[2]=-9;c[3]=12;c[5]=-4;c[6]=8;c[7]=3;for(const double hz:{80.,300.,800.,2500.,7000.})worst=std::max(worst,std::abs(measured(c,hz)-eq.magnitudeDb(c,hz)));}
+    std::cout<<"MEASURE Seven EQ: centre gain error "<<worstCentre<<" dB (shelf within 1 dB of 15 at 16 kHz), measured vs analytic "<<worst<<" dB\n";
+    require(worstCentre<1e-6 && worst<.02,"Seven EQ response differs from its design");
+    std::cout<<"PASS Seven EQ: flat transparent, +-15 dB at each band (6.4 kHz shelf), LEVEL exact, measured = analytic\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -403,12 +439,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=(i%4==0?0.f:.2f)*float(std::sin(.03*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}ht.process(b,peril(float(i%10)/9.f,.5f,-12,0,3,-3,-60,float(i%7)/6.f,i%3,i%2==0));}
     countAllocations=false;require(allocations==0,"Dreadful Peril allocates while processing");
-    std::cout<<"PASS all six Expansion A pedals: no allocation while automating or switching\n";
+    PedalSevenEQ se;se.prepare(48000);Controls g{};
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i){g[size_t(i%7)]=-15.f+30.f*float(i%11)/10.f;g[7]=float(i%5)-2.f;se.process(b,g);}
+    countAllocations=false;require(allocations==0,"Seven EQ allocates while processing");
+    std::cout<<"PASS Expansion A and B pedals: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

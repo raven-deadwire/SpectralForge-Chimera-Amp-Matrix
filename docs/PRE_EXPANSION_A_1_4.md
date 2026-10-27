@@ -22,6 +22,9 @@ its parameters between owners and shift every later host index. So:
 - Each further Expansion A model is one catalog entry
   (`Tools/generate_pedal_catalog.py`), one DSP branch and its tests; its
   banks append after the previous model's.
+- Later expansions append as their own group after this one (Expansion B:
+  models 46 on, version hint 17; see `PRE_EXPANSION_B_1_5.md` §1), so they
+  never move an Expansion A index.
 
 Merge note: `claude/room-core` appends the room parameters at version hint
 15 after the extra gates. If both land, the room block must stay before this

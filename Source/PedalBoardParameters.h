@@ -19,8 +19,13 @@ inline void addModelBank(juce::AudioProcessorValueTreeState::ParameterLayout& la
     }
 }
 }
-// Models from releasedPedalModelCount on (1.4 PRE Expansion A) append their
-// banks after every released parameter, at this version hint.
+// Models from releasedPedalModelCount on append their banks after every
+// released parameter, one expansion group after another (each group owner by
+// owner), so a later group never moves an earlier one's indices.
+struct PedalExpansionGroup { int firstModel,endModel,version; };
+inline constexpr std::array<PedalExpansionGroup,2> pedalExpansionGroups{{
+    {releasedPedalModelCount,46,16},   // 1.4 PRE Expansion A
+    {46,pedalModelCount,17}}};         // 1.5 PRE Expansion B
 inline constexpr int pedalExpansionParameterVersion=16;
 inline constexpr int pedalExpansionParameterCount=[]{int n=0;for(int model=releasedPedalModelCount;model<pedalModelCount;++model)n+=1+pedalModels[(size_t)model].controlCount;return pedalBoardCapacity*n;}();
 inline void addPedalBoardParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
@@ -36,8 +41,9 @@ inline void addPedalBoardParameters(juce::AudioProcessorValueTreeState::Paramete
     }
 }
 inline void appendPedalExpansionParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
-    for(int owner=0;owner<pedalBoardCapacity;++owner)
-        for(int model=releasedPedalModelCount;model<pedalModelCount;++model)pedal_detail::addModelBank(layout,owner,model,pedalExpansionParameterVersion);
+    for(const auto& group:pedalExpansionGroups)
+        for(int owner=0;owner<pedalBoardCapacity;++owner)
+            for(int model=group.firstModel;model<group.endModel;++model)pedal_detail::addModelBank(layout,owner,model,group.version);
 }
 struct PedalBoardParameterCache {
     std::atomic<float>* enabled{}; std::atomic<float>* lowTap{};
