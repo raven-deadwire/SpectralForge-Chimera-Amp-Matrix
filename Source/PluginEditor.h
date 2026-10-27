@@ -75,6 +75,7 @@ private:
     spectralforge::ui::Changed<std::array<double,4>> bandKey;
     spectralforge::ui::Changed<std::array<double,3>> tempoKey;
     spectralforge::ui::Changed<std::array<int,2>> inputMeterKey,outputMeterKey;
+    spectralforge::ui::Changed<std::array<int,4>> loudnessKey;
     spectralforge::ui::Changed<std::array<float,3>> tunerKey;
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
@@ -143,6 +144,8 @@ private:
     std::array<std::unique_ptr<SA>,8> globalAttachments;
     int betaUiTicks{25};
     juce::TextButton pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
+    // Integrated loudness and true-peak max of the output; click to reset.
+    juce::TextButton outputLoudness;
     std::array<std::unique_ptr<BA>,3> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;

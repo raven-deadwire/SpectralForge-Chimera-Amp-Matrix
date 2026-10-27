@@ -435,6 +435,12 @@ target_compile_definitions(ChimeraPedalOctaverTests PRIVATE JUCE_USE_CURL=0 JUCE
 target_link_libraries(ChimeraPedalOctaverTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPedalOctaverTests COMMAND ChimeraPedalOctaverTests)
 
+juce_add_console_app(ChimeraLoudnessMeterTests PRODUCT_NAME "Chimera Loudness Meter Tests")
+target_sources(ChimeraLoudnessMeterTests PRIVATE Tests/LoudnessMeterTests.cpp)
+target_include_directories(ChimeraLoudnessMeterTests PRIVATE Source)
+target_link_libraries(ChimeraLoudnessMeterTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraLoudnessMeterTests COMMAND ChimeraLoudnessMeterTests)
+
 foreach(native AmpNative PostNative)
   juce_add_console_app(Chimera${native}Tests PRODUCT_NAME "Chimera ${native} Tests")
   target_sources(Chimera${native}Tests PRIVATE Tests/${native}Tests.cpp)

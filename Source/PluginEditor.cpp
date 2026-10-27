@@ -209,6 +209,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         if(const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds()))
             size=spectralforge::ui::boundedEditorSize(size,display->userArea,spectralforge::ui::editorWindowChrome(*this));
         setViewSize(size,factor);};
+    add(outputLoudness);outputLoudness.setComponentID("outputLoudness");
+    outputLoudness.setColour(juce::TextButton::buttonColourId,juce::Colours::transparentBlack);
+    outputLoudness.onClick=[this]{processor.resetOutputLoudness();};
     add(info); info.setButtonText("SETTINGS"); info.onClick=[this]{
         juce::PopupMenu menu;
         menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
@@ -732,6 +735,16 @@ void ChimeraEditor::refreshMeters()
     const auto meterKey=[](float level) {return std::array<int,2>{{spectralforge::ui::tenth(juce::Decibels::gainToDecibels(level,-90.f)),level>=1.f?1:0}};};
     if(inputMeterKey.update(meterKey(processor.inputMeter())))repaintDesign({30,124,119,110});
     if(outputMeterKey.update(meterKey(processor.outputMeter())))repaintDesign({974,124,176,110});
+    {   // Studio loudness: integrated and true-peak max since reset; momentary
+        // and short-term in the tooltip. Updates every 100 ms in the processor.
+        const auto& meter=processor.outputLoudness();
+        const auto value=[](float v){return v<=spectralforge::LoudnessMeter::silent ? juce::String("--.-") : juce::String(v,1);};
+        if(loudnessKey.update({{tenth(meter.integrated()),tenth(meter.truePeak()),tenth(meter.momentary()),tenth(meter.shortTerm())}})) {
+            outputLoudness.setButtonText("I "+value(meter.integrated())+" LUFS  TP "+value(meter.truePeak())+" dBTP");
+            outputLoudness.setTooltip("Output loudness (ITU-R BS.1770-4 / EBU R128). Momentary "+value(meter.momentary())+", short-term "+value(meter.shortTerm())
+                +" LUFS. Integrated and true-peak maximum since the last reset; click to reset.");
+        }
+    }
     const double sr=processor.getSampleRate()>0?processor.getSampleRate():48000;
     const auto pitch=pitchOn.getToggleState()?"+ "+juce::String(1000.0*processor.pitchLatency()/sr,1)+" ms latency":juce::String("BYPASSED | zero added latency");
     if(pitchText.update(pitch))pitchStatus.setText(pitch,juce::dontSendNotification);
@@ -1026,7 +1039,7 @@ void ChimeraEditor::layoutControls()
     globalSliders[1].setBounds(244,126,167,28);
     globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
     globalSliders[7].setBounds(244,201,167,26);
-    globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);
+    globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);outputLoudness.setBounds(974,231,162,15);
     pitchStatus.setBounds(447,209,158,18);
     transposeMode.setBounds(447,229,158,20);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);

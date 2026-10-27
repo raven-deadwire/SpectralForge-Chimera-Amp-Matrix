@@ -138,6 +138,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
     releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     autoSetCaptureState.prepare(sr);
+    loudness.prepare(sr);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     // Install the restored panel state before Cab::prepare initializes its
     // smoothers. This also clears a previous A/B blend/bypass after reprepare;
@@ -225,6 +226,9 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         }
     } else if(betaOutputGain.getCurrentValue()==0.f) buffer.clear();
     if(!betaLifecycle.processingPermitted())outputPeak.store(0.f);
+    // Studio loudness of exactly what leaves the plugin: after the limiter,
+    // output trim and the lifecycle gain.
+    loudness.process(buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     if(buffer.getNumSamples()>0 && rate>0) {
         const double budget=buffer.getNumSamples()/rate;
         const float load=float(100.0*juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-started)/budget);
