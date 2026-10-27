@@ -119,9 +119,11 @@ bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& tit
     if (view->getSize(&size) == kResultTrue) created->setContentSize(size);
     [created->window center];
     EditorWindow* raw = created;
-    created->timer = [NSTimer scheduledTimerWithTimeInterval:syncInterval
-                                                     repeats:YES
-                                                       block:^(NSTimer*) { raw->notify(); }];
+    // Common modes: edits keep syncing while a knob drag or menu is tracking.
+    created->timer = [NSTimer timerWithTimeInterval:syncInterval
+                                            repeats:YES
+                                              block:^(NSTimer*) { raw->notify(); }];
+    [[NSRunLoop mainRunLoop] addTimer:created->timer forMode:NSRunLoopCommonModes];
     [created->window makeKeyAndOrderFront:nil];
     [NSApp activateIgnoringOtherApps:YES];
     window = created;

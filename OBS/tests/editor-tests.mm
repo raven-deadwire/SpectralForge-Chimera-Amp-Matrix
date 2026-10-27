@@ -18,8 +18,14 @@ void check(bool ok, const char* what) { if (!ok) throw std::runtime_error(what);
 int notifications = 0;
 void changed(void*) { ++notifications; }
 
+// Runs the main run loop for the whole interval; a single runUntilDate can
+// return early once a source fires.
 void pump(double seconds) {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:seconds]];
+    NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:seconds];
+    while ([deadline timeIntervalSinceNow] > 0) {
+        NSDate* slice = [NSDate dateWithTimeIntervalSinceNow:0.05];
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[slice earlierDate:deadline]];
+    }
 }
 
 NSWindow* windowTitled(NSString* title) {
@@ -50,8 +56,11 @@ void run(const std::string& bundle) {
           "window sized to the editor");
 
     notifications = 0;
+    const CFAbsoluteTime started = CFAbsoluteTimeGetCurrent();
     pump(1.3);
-    check(notifications >= 2, "edits are synced every 500 ms while open");
+    const std::string synced = "edits are synced every 500 ms while open (" + std::to_string(notifications) +
+                               " in " + std::to_string(CFAbsoluteTimeGetCurrent() - started) + " s)";
+    check(notifications >= 2, synced.c_str());
 
     // Opening again raises the same window rather than creating another.
     EditorWindow* same = editor;
