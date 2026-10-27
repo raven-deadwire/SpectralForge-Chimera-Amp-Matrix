@@ -475,6 +475,13 @@ target_sources(ChimeraCabExportTests PRIVATE Tests/CabExportTests.cpp)
 target_include_directories(ChimeraCabExportTests PRIVATE Source)
 target_link_libraries(ChimeraCabExportTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraCabExportTests COMMAND ChimeraCabExportTests "${CMAKE_BINARY_DIR}/cab-export")
+# Doubler mono-sum probe: comb response of L, R and the mono sum per spread.
+juce_add_console_app(ChimeraDoublerMonoProbe PRODUCT_NAME "Chimera Doubler Mono Probe")
+target_sources(ChimeraDoublerMonoProbe PRIVATE Tests/DoublerMonoProbe.cpp)
+target_include_directories(ChimeraDoublerMonoProbe PRIVATE Source)
+target_compile_definitions(ChimeraDoublerMonoProbe PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraDoublerMonoProbe PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraDoublerMonoProbe COMMAND ChimeraDoublerMonoProbe)
 
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)
