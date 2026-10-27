@@ -1,0 +1,86 @@
+UpdateCTestConfiguration  from :/workspace/scratch/1ae3efa460ca/chimera-review/build-autoset/DartConfiguration.tcl
+Test project /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 55
+    Start 55: ChimeraCommonDynamicsTests
+
+55: Test command: /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset/ChimeraCommonDynamicsTests_artefacts/Release/ChimeraCommonDynamicsTests
+55: Working Directory: /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset
+55: Test timeout computed to be: 10000000
+55: PASS exact default bypass; limiter ceiling, first-sample response, stereo link, GR and bypass at four rates
+55: PASS analytic hard/soft knee, measured compression and GR, stereo link, parallel alignment, attack and release
+55: PASS four shared nodes, deterministic duplicate recovery, two-bank measured dynamic cut/GR, selective detector, release and bypass
+55: PASS DI expander ratio, unity and finite attenuation range
+55: PASS production processor: Final EQ + output boost before limiter, oversized host blocks, output metering and unchanged latency
+55: PASS 40 append-only parameters, fixed indices/version hints, automation, project/A-B recall and legacy defaults
+55: PASS common dynamics contracts
+1/3 Test #55: ChimeraCommonDynamicsTests ..........   Passed    2.51 sec
+test 57
+    Start 57: ChimeraAutoSetTests
+
+57: Test command: /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset/ChimeraAutoSetTests_artefacts/Release/ChimeraAutoSetTests
+57: Working Directory: /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset
+57: Test timeout computed to be: 10000000
+57: PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations
+57: PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo
+57: PASS gate-stage edit history: 3 styles x unchanged/manual/host A-B-A, apply and undo
+57: PASS auto set rules: silence, quiet DI gain, gate threshold/range, unchanged steady input, noisy gate, compressor ratio/attack/makeup
+57: PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz
+57: PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release
+57: PASS attack safety: 72 protected synthetic attack cases, 18 sustained-brightness controls, 36 extended-range/distorted explicit-instrument cases, 9 auto-target ambiguity cases
+57: PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz
+57: PASS auto set gate stage rules: quiet amp leaves them off, amp hiss adds an Expander (clean/rock/metal ratios, deeper main gate), metal with headroom gets a post-rig gate and PRE Gate 2, no pause changes nothing
+57: PASS auto set capture: 10 ms windows at 44.1/48/96 kHz, louder-channel peak/RMS, mono tone tap, tap isolation, allocation-free audio path
+57: PASS explicit guitar/bass x three styles: manual de-esser/listen preserved, truthful summary, limiter release, apply/undo host notifications
+57: MEASURE auto set gates: rig noise -11.8006 dBFS, gap -12.01 dB, plan 1
+57: MEASURE auto set results: [Input + gate: input 0.0 > 10.5 dB; gate -65 > -53 dB, range Full] [Gate 2 + Expander: Expander after the rig at -53 dB, 2.0:1 up to 15 dB; gate closes below -71 dB (amp hiss -11.8006 dBFS)] [Tone EQ: guitar (estimate): 80 Hz +3.0, 160 Hz -6.0, 315 Hz -3.0, 630 Hz +4.5, 2.5 kHz -6.0, 5.0 kHz -6.0] [Compressor: off > -29 dB 2:1, attack 8 ms, makeup 0.0 dB] [Multiband: compressing high-mid 2:1, high 4:1] [De-esser + limiter: de-esser 5.6 kHz, -35 dB, up to 7 dB; limiter -1 dBFS (peaks -22.5)]
+57: AUTO SET synthetic DI (-18 dBFS notes, -72 dBFS noise): Applied (rock): Input 10.5 dB | Gate -53 dB, range Full | Expander -53 dB 2.0:1 | Tone EQ guitar (estimate): 6 moves | Comp -29 dB, 2:1, attack 8 ms, makeup 0.0 dB | Multiband high-mid 2:1, high 4:1 | De-esser 5.6 kHz, -35 dB, up to 7 dB | Limiter -1 dBFS (peaks -22.5 dBFS)
+57: AUTO SET multiband: band1 off swing -5.64624 excess 5.40233 band2 off swing -4.64986 excess 4.05777 band3 on swing 4.64986 excess 3.20236 band4 on swing 15.8201 excess 12.317
+57: AUTO SET finish: high-band excess 4.55755 dB, burst excess 1.71299 dB, output peak -22.5437 dBFS
+57: AUTO SET tone moves: 80Hz 3dB 160Hz -6dB 315Hz -3dB 630Hz 4.5dB 1250Hz 0dB 2500Hz -6dB 5000Hz -6dB | fit error 6.23233 -> 2.60906 dB
+57: PASS auto set controller: silence/no-audio failures, five passes on the real processor, input+gate+Tone EQ+compressor+multiband+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes, undo keeps newer edits
+57: PASS Auto Set
+2/3 Test #57: ChimeraAutoSetTests .................   Passed   21.90 sec
+test 58
+    Start 58: ChimeraMultibandDynamicsCoreTests
+
+58: Test command: /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset/ChimeraMultibandDynamicsCoreTests
+58: Working Directory: /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset
+58: Test timeout computed to be: 180
+58: PASS exact default and restored bypass; zero/ragged/oversized blocks, mono/stereo, four rates
+58: PASS LR4 magnitude reconstruction, magnitude error <= 0 dB; parallel mix flat across crossovers at four rates
+58: PASS weighted LR4 magnitude and exact raw endpoints; max amplitude error 6.995e-08
+58: CHARACTERIZATION 44100 Hz: 700 Hz global OFF min envelope 0 dB (fixed neutral bypass)
+58: CHARACTERIZATION 48000 Hz: 700 Hz global OFF min envelope -5.17719e-07 dB (fixed neutral bypass)
+58: CHARACTERIZATION 96000 Hz: 700 Hz global OFF min envelope -5.17719e-07 dB (fixed neutral bypass)
+58: CHARACTERIZATION 192000 Hz: 700 Hz global OFF min envelope -5.17719e-07 dB (fixed neutral bypass)
+58: PASS bypass ramp continuity/partition and exact endpoint; neutral samples unchanged
+58: PASS nonuniform extremes, four modes, Solo, crossover/mix motion and 3 ms reversals; exact partition/stereo
+58: band 1 measured dB: -5.89522 -0.10878 -0.000135113 -1.36743e-08
+58: band 2 measured dB: -0.052994 -5.52317 -0.15271 -1.91415e-05
+58: band 3 measured dB: -5.58157e-07 -0.138657 -5.38893 -0.0127779
+58: band 4 measured dB: -5.11244e-09 -6.94018e-06 -0.167383 -5.97452
+58: PASS four independent band cuts, linked stereo, range meters and band solo
+58: mode 0 gain -13.504 dB; expected -13.5; meter 13.5052
+58: mode 1 gain 15.0362 dB; expected 15; meter -15.0058
+58: mode 2 gain -10.0501 dB; expected -10; meter 10.0077
+58: mode 3 gain 10.0068 dB; expected 10; meter -10.007
+58: PASS measured four-mode slopes, soft knee, finite range, signed GR, attack and release
+58: PASS de-esser split-band selectivity, detector rejection, finite range, stereo link and listen at four rates
+58: PASS rapidly automated/reversed crossovers, finite host sanitation, bounded extra-channel handling; peak=0.239997
+58: PASS no callback allocations; all independent dynamics core contracts (1.98438 s test runtime)
+3/3 Test #58: ChimeraMultibandDynamicsCoreTests ...   Passed    1.99 sec
+
+The following tests passed:
+	ChimeraCommonDynamicsTests
+	ChimeraAutoSetTests
+	ChimeraMultibandDynamicsCoreTests
+
+100% tests passed out of 3
+
+Total Test time (real) =  26.39 sec

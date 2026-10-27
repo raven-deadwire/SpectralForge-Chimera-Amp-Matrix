@@ -585,12 +585,61 @@ void controllerEditHistory() {
     std::cout<<"PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo\n";
 }
 
+// Phase 5 also consumes the input pass: mixed-gain evidence must not change
+// any gate stage, including when host automation returns to the original value.
+void controllerGateStageEditHistory() {
+    const std::vector<juce::String> gateIDs{
+        "gateon","gatethreshold","gateRangeDb","gateAfterRig","gateMode",
+        "gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
+        "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"};
+    for(auto style:{Style::clean,Style::rock,Style::metal}) for(int edit=0;edit<3;++edit) {
+        auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+        Controller c(*p);c.setOptions({1,false,style,false,false,true});
+        auto values=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
+        const auto before=values();auto* input=p->parameters().getParameter("input");const float original=input->getValue();
+        double now=juce::Time::getMillisecondCounterHiRes();c.start();
+        for(int offset=0;offset<48000*14;offset+=256) {
+            float in[256],rig[256];
+            for(int n=0;n<256;++n) {
+                const int sample=offset+n;const bool playing=sample%96000<72000;
+                const float wave=std::sin(float(2*juce::MathConstants<double>::pi*1000*sample/48000.));
+                in[n]=wave*(playing?.1f:.0001f);rig[n]=wave*(playing?.2f:.001f);
+            }
+            // Mid-capture manual gesture and host-style notification-only A-B-A.
+            if(offset==256*500 && edit) {
+                if(edit==1)input->beginChangeGesture();
+                input->setValueNotifyingHost(input->convertTo0to1(3.f));input->setValueNotifyingHost(original);
+                if(edit==1)input->endChangeGesture();
+            }
+            const float* ins[]{in};const float* rigs[]{rig};
+            for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
+            p->autoSetCapture().push(Tap::rig,rigs,1,256);
+            now+=1000.*256/48000.;c.tick(now);
+        }
+        check(c.current().phase==Controller::Phase::done,"Gate-stage edit-history run did not finish");
+        if(!edit) {
+            check(values()!=before,"Gate-stage positive control did not apply a plan");
+            check(get(*p,style==Style::metal?"gate2On":"expOn")>.5f,"Gate-stage fixture did not exercise expected hard/soft plan");
+        } else {
+            check(input->getValue()==original,"Gate-stage run overwrote input A-B-A");
+            check(values()==before,"Gate stages used mixed-gain evidence after input A-B-A");
+        }
+        c.undo();
+        const auto afterUndo=values();
+        if(edit)check(afterUndo==before,"Undo changed gate stages kept after input A-B-A");
+        for(size_t i=0;i<before.size();++i)
+            check(near(afterUndo[i],before[i],.001f),"Gate-stage undo changed "+gateIDs[i].toStdString()+": "+std::to_string(before[i])+" > "+std::to_string(afterUndo[i]));
+        p->releaseResources();
+    }
+    std::cout<<"PASS gate-stage edit history: 3 styles x unchanged/manual/host A-B-A, apply and undo\n";
+}
+
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();captureWindows();controllerFinishPreservation();controllerIntegration();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();captureWindows();controllerFinishPreservation();controllerIntegration();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

@@ -210,6 +210,12 @@ private:
     // Phase 5: Gate 2 and the Expander from the rig noise heard in the input pass.
     void finishGateStages(const std::vector<Window>& measured,bool pauseHeard) {
         const auto addGateStep=[this](const juce::String& result,bool changed){steps.push_back({Phase::gates,result,changed});};
+        // This stage shares the input pass, so its rig/input comparison is
+        // invalid too if the user/host changed gain, even A -> B -> A. Check
+        // again here, after any callbacks from the main gate's writes.
+        if(!editsFor(*processor.parameters().getParameter("input")).unchanged(inputRevision)) {
+            addGateStep("kept (input edited while listening)",false);return;
+        }
         if(!pauseHeard){addGateStep("kept (no pause heard)",false);return;}
         const std::vector<Window> rig(rigWindows.begin()+std::min(rigWindows.size(),size_t(skipWindows)),rigWindows.end());
         const int lag=juce::roundToInt(double(std::max(0,processor.getLatencySamples()))/(rate()*.01));
