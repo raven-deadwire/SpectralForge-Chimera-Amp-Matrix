@@ -154,6 +154,7 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
 {
     const lifecycle::Scope trace("ir.prepare", this);
     stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);scheduling={};
+    warmFailed.fill(0); // A new preparation may fix an earlier generation failure.
     for(int i=0;i<6;++i)
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
@@ -223,11 +224,15 @@ void IRLibrary::keepWarm(const std::array<uint64_t,6>& models)
     { std::lock_guard<std::mutex> lock(mutex); if(models==warmModels) return; warmModels=models; warmRevision.fetch_add(1,std::memory_order_relaxed); }
     notify();
 }
+IRLibrary::WarmRequest IRLibrary::warmRequest() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return {warmModels,warmRevision.load(std::memory_order_relaxed)};
+}
 void IRLibrary::trimModelCache()
 {
     if(modelCache.size()<=modelCacheSize) return;
-    std::array<uint64_t,6> warm;
-    { std::lock_guard<std::mutex> lock(mutex); warm=warmModels; }
+    const auto warm=warmRequest().models;
     // Oldest first, but keep what the cabinets ask for now and what the next
     // recall will ask for while anything else can go. Snapshot the warm list
     // once so scanning candidates does not repeatedly acquire the shared mutex.
@@ -243,8 +248,7 @@ void IRLibrary::trimModelCache()
 }
 bool IRLibrary::warmOne()
 {
-    std::array<uint64_t,6> wanted;unsigned revision;
-    { std::lock_guard<std::mutex> lock(mutex); wanted=warmModels; revision=warmRevision.load(std::memory_order_relaxed); }
+    const auto [wanted,revision]=warmRequest();
     // Remember every model that failed for this list, not just the last one,
     // or two failing models would be retried in turn without end.
     if(warmFailedRevision!=revision){warmFailedRevision=revision;warmFailed.fill(0);}

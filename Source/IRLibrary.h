@@ -70,6 +70,7 @@ public:
     cabProfile::Counters* profileSink{};
 #endif
 private:
+    friend struct IRLibraryTestAccess;
     void run() override;
     bool requestIsCurrent(int lane,int source,uint64_t model) const noexcept;
     std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation, uint64_t model=0,
@@ -83,6 +84,8 @@ private:
     static constexpr size_t modelCacheSize=12;
     std::array<uint64_t,6> warmModels{}; // guarded by mutex
     std::atomic<unsigned> warmRevision{},warmedResponses{};
+    struct WarmRequest {std::array<uint64_t,6> models;unsigned revision;};
+    WarmRequest warmRequest() const;
     unsigned warmFailedRevision{}; // worker only, with warmFailed: models that failed
     std::array<uint64_t,6> warmFailed{}; // for this list; skipped until the list changes
     void trimModelCache();
