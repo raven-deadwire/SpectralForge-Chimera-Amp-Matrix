@@ -1,6 +1,6 @@
 # AAX release checklist — commercial Pro Tools
 
-Date: 2026-10-22 KST.
+Date: 2026-10-22 KST; PACE issuance/preflight update: 2026-10-27 KST.
 
 **Requirement (owner):** the next release must ship an AAX plug-in that loads in
 **commercial (retail) Pro Tools**, because the beta testers run commercial Pro
@@ -20,55 +20,47 @@ The AAX target already builds: JUCE 8.0.8 bundles the AAX SDK, so
 `-DCHIMERA_BUILD_AAX=ON` produces `SpectralForge Chimera.aaxplugin` with no extra
 SDK download. **But a plug-in built that way is unsigned, and commercial Pro
 Tools refuses to load an unsigned AAX.** Loading in retail Pro Tools requires a
-**PACE** signature. PACE enrollment is an external, account-gated (and paid)
-process that must be set up by the owner; it cannot be produced from a build
-environment alone.
+**PACE** signature. Publisher/admin setup and tool-license issuance are now
+confirmed (October 27); USB activation, certificate/tool setup, actual signing
+and retail host acceptance remain separate. Building alone proves none of them.
 
-## 1. One-time prerequisites (owner action — the real lead time)
+## 1. Issued access and remaining prerequisites
 
-- [ ] **Avid Developer registration** for RavenForge Luthier Intelligence (AAX
-      developer, manufacturer code `SpFg`, plug-in code `Chm1`, identifier
-      `audio.spectralforge.chimera` — already set in `CMakeLists.txt`).
-- [ ] **PACE Eden / developer account** and a **signing iLok** (USB or iLok
-      Cloud) authorized for AAX signing. This is the gating credential.
-- [ ] **`wraptool`** (PACE Developer signing tool) installed on the signing
-      machine, logged in to the PACE account.
-- [ ] Obtain the product's **WCGUID** (wrap GUID) assigned to this plug-in from
-      the PACE account; record it in the release notes, not in the repo.
-- [ ] Platform code-signing identities: **macOS** Apple Developer ID Application
-      certificate (for `codesign` + notarization); **Windows** an Authenticode
-      (OV/EV) certificate for the installer. PACE wrapping and OS code-signing
-      are separate steps — both are needed.
+Official PACE administrator and license-deposit emails received **2026-10-27
+08:15 KST** confirm LITE AAX digital-signing-only access, **one PACE Central
+Access and one Fusion SDK license**, both expiring **2027-11-01**. No exact
+expiry time/timezone is stated. This is unrelated to Chimera's beta expiry.
 
-Keep every credential (iLok, PACE account, certificates, WCGUID) **out of the
-repository**; reference them by name only.
+- [x] PACE publisher/admin setup and the two tool licenses issued.
+- [ ] USB iLok (second generation or newer) received and Central Access activated.
+- [ ] Fusion SDK activated to USB or supported iLok Cloud. This is **not**
+      separate AAX Cloud Signing service entitlement, nor proof of a signing
+      certificate. No Cloud Signing service grant is established.
+- [ ] PACE Central initial login and current signing tools/manual obtained.
+- [ ] Signing certificate and product WCGUID configured/verified privately.
+- [ ] Platform signing identities ready: macOS Developer ID Application,
+      appropriate installer signing/notarization credentials; Windows
+      Authenticode certificate or supported signing service. Confirm bundle
+      signing integration in the installed PACE manual, not just installer signing.
+- [ ] Pro Tools Developer Bundle issuance checked separately. Existing
+      **October 29 retry** remains; no duplicate application was sent here.
 
-### Enrollment path (how to register — start here)
+Do not repeat the completed Avid-to-PACE referral. The initial seven-business-day
+invitation estimate was never a post-submission review SLA; the derived November
+3 reply/chase date is withdrawn. Keep #171's successful application-stage iLok
+Validate history; unread mail does not establish account inactivity.
 
-Signing is performed by **PACE**, not Avid; Avid registration is the doorway
-that gets PACE to enroll you. The order matters. (Steps below are
-community-reported; pricing and procedure change, so confirm current details
-directly with Avid and PACE before committing.)
+PACE's initial setup: install current License Support/ILM, connect USB, activate
+Central Access onto USB, sign out and back into ILM using the same account, then
+use **PACE CENTRAL**. Activate Fusion SDK separately; use Central HELP/downloads
+for certificate, product and exact command setup. See the
+[preparation checklist](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md).
 
-1. **Register as an AAX developer with Avid** and email the Avid developer
-   authorization team at **`devauth@avid.com`**. Request a **Pro Tools Developer
-   Bundle** activation code too — a Developer build of Pro Tools loads *unsigned*
-   plug-ins, so you can test functionality before signing is in place.
-2. **Avid notifies PACE**, who enrol you in a developer signing plan. Cost
-   reports conflict (some say free for registered Avid developers, others
-   describe a paid/enterprise plan on the order of US$500/yr) — **confirm with
-   PACE directly.**
-3. **Get a physical iLok dongle** and have it authorised for AAX signing. A
-   developer reported the signing credential works only on a hardware iLok, not
-   iLok Cloud — plan for a USB iLok.
-4. **Install PACE `wraptool`** on the signing machine, log in to the PACE
-   account, and obtain this plug-in's **WCGUID** from that account.
-
-Lead-time note: steps 1–3 (Avid email → PACE enrolment → hardware iLok) are the
-long pole and are owner-only; the build (§2) is already ready. So the first
-actions are to send the Avid `devauth@avid.com` registration email and order a
-hardware iLok. Verification signal: an unsigned AAX in **retail** Pro Tools
-fails to load with error **-7054**; a correctly PACE-signed build clears it.
+Keep account IDs, personal email, private mail links, serials, WCGUIDs, passwords,
+tokens, keys and raw vendor logs outside the repository/CI artifacts. License
+issuance does not enable extra Fusion/White-Box protection or introduce end-user
+iLok licensing. Detailed PACE Central documentation was not accessible through
+the public web lookup; deployment flags remain to be verified on the signing machine.
 
 ## 2. Build the AAX target
 
@@ -92,28 +84,35 @@ Output: `build-aax/ChimeraAmpMatrix_artefacts/Release/AAX/SpectralForge Chimera.
 - [ ] macOS Universal `.aaxplugin` built (verify both arm64 + x86_64 slices).
 - [ ] `aax-native.yml` CI green for the AAX build on the release source.
 
-## 3. Code-sign the bundle (macOS) before PACE wrapping
+## 3. Freeze and check the signing input
 
-- [ ] macOS: `codesign` the `.aaxplugin` with the Developer ID Application
-      identity (the development ad-hoc `codesign --sign -` in
-      `AAX_NATIVE_DEVELOPMENT.md` is for local load only, **not** for release).
+- [ ] Confirm the trusted CI run and archive checksum for the exact candidate SHA.
+- [ ] Run `Tools/aax_native.py signing-preflight` with the extracted package,
+      target platform, full expected source SHA and `--require-approved-beta`
+      from that source checkout. See the [runbook](AAX_FIRST_SIGNING_RUNBOOK_20261027.ko.md).
+- [ ] Preserve the original unsigned archive and copy only the candidate bundle
+      to a private signing workspace. Check the copy's pre-sign hashes.
+- [ ] Confirm current PACE deployment and OS-signing options on each signing OS.
+      macOS ad-hoc `codesign --sign -` is not Developer ID or PACE signing.
 
 ## 4. PACE-sign for commercial Pro Tools (the gate)
 
-Sign the built bundle with `wraptool` using the PACE account and this plug-in's
-WCGUID. Representative shape (confirm exact flags against current PACE docs and
-your account):
-```sh
-wraptool sign --verbose --account <PACE_ACCOUNT> --wcguid <CHIMERA_WCGUID> \
-  --signid "<Developer ID Application: ...>" \          # macOS
-  --in  "…/SpectralForge Chimera.aaxplugin" \
-  --out "…/SpectralForge Chimera.aaxplugin"
-# Windows uses --keyfile/--keypassword (Authenticode) instead of --signid.
-```
-- [ ] AAX bundle PACE-signed (deployment signature, not a trial/dev-only
-      signature).
-- [ ] `wraptool verify` reports a valid signature on the signed bundle.
-- [ ] macOS: notarize the signed bundle / installer and staple.
+Use the installed SDK/HELP documentation for the actual deployment invocation,
+account authentication, WCGUID and OS-signing integration. The old speculative
+command (including Windows key/password flags and in-place output) is removed;
+it was not validated against provisioned tools. No executable signing command
+or credential collection is introduced by this update.
+
+- [ ] Final bundle PACE-signed with a deployment signature, not trial/dev-only.
+- [ ] PACE verification succeeds on that signed bundle.
+- [ ] Platform signature verification succeeds (macOS Developer ID seal included).
+- [ ] Record source, pre/post-sign hashes, tool versions and sanitized results.
+- [ ] macOS: notarize/staple the appropriate final installer; preserve the
+      bundle seal and verify again after installation.
+
+A successful input preflight always leaves PACE verification **NOT_RUN**,
+normal-host acceptance **false** and release approval **false**. It checks
+consistency only; it is not a provenance attestation or a signature verifier.
 
 ## 5. Install-path and packaging
 
@@ -122,9 +121,12 @@ Standard AAX locations (the release installer must place the signed bundle here)
 - macOS: `/Library/Application Support/Avid/Audio/Plug-Ins/`
 
 - [ ] Signed `.aaxplugin` packaged into the Windows installer and the macOS
-      installer at the paths above (extend `Tools/aax_native.py package` /
-      the installer scripts to include the signed AAX).
-- [ ] Installer itself OS-signed (Windows Authenticode; macOS notarized).
+      installer at the paths above. Signed native installer integration is
+      **not implemented**. Keep the existing development packager unsigned-only;
+      never flip its receipt flags to pass off a signed release as development.
+- [ ] Installer itself OS-signed (Windows Authenticode; macOS signed/notarized).
+- [ ] Install/update/remove and post-install PACE/platform signature verification
+      pass on the final native package, with the exact final hashes recorded.
 
 ## 6. Verification in commercial Pro Tools (acceptance — do not skip)
 
@@ -145,7 +147,7 @@ from out-of-scope into the release scope with this evidence cited.
 
 - This repo and CI can build and (in CI) compile-verify the AAX target, but
   **cannot PACE-sign**: signing needs the owner's PACE/iLok account on a signing
-  machine. That enrollment is the long-pole item — start §1 first.
+  machine. Issued licenses alone do not complete the remaining §1 setup.
 - AAX **Native** only (no DSP/HDX/TDM target here).
 - The beta expiry and lifecycle policy are reused and source-bound in the AAX
   package exactly as for VST3/AU/Standalone; the AAX build grants no new expiry.
@@ -155,3 +157,9 @@ from out-of-scope into the release scope with this evidence cited.
 `AAX_NATIVE_DEVELOPMENT.md`, `CMakeLists.txt` (`CHIMERA_BUILD_AAX`, AAX identity),
 `.github/workflows/aax-native.yml`, `Tools/aax_native.py`,
 `RELEASE_SCOPE_SNAPSHOT_20261022.md`.
+
+Official sources checked October 27: [PACE onboarding](https://paceap.com/getting-started-with-aax-code-signing-for-pro-tools-plugins/),
+[PACE signing platform](https://paceap.com/code-signing-platform/),
+[iLok License Manager](https://help.ilok.com/ilm_overview.html),
+[Avid AAX](https://developer.avid.com/aax/). Issuance details were verified from
+the two official emails; their private identifiers/content are not stored here.

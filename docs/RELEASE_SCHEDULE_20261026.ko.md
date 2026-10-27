@@ -1,6 +1,6 @@
 # 릴리즈 스케쥴 정리 — 2026-10-26 (KST)
 
-이 문서는 2026-10-26 기준 저장소·CI·메일 점검 결과를 반영한 **작업·판정 목표**입니다.
+이 문서는 2026-10-26 기준 저장소·CI 점검 결과와 **10/27 PACE 발급 후속 갱신**을 반영한 작업·판정 목표입니다. 비AAX 이력의 확인 시점은 그대로 유지합니다.
 공개 확정일이 아니며, 어떤 게이트도 PASS로 올리거나 출시를 승인하지 않습니다.
 버전 작업창의 권한 문서는 계속 [DEVELOPMENT_ROADMAP_2026_2027.md](DEVELOPMENT_ROADMAP_2026_2027.md)이고,
 중장기 재편성안은 Draft [#93](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/93)이 승인될 때까지 *제안* 상태입니다.
@@ -20,11 +20,11 @@ main에 병합된 아래 항목은 **아직 공개판에 포함되지 않았습�
 
 | 항목 | main 상태 | 남은 일 | 판단 |
 |---|---|---|---|
-| **Easy view** | 프리셋·6개 노브·Auto Set·튜너 간단 화면 병합 (#161) | 입력별 GAIN 연결·드래그 중 파라미터 변경 수정 [#164](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/164): 이전 커밋 Windows 실패 원인 확인, main 병합 커밋 CI 진행 중(실패 없음) | 보완 후 포함 |
+| **Easy view** | 프리셋·6개 노브·Auto Set·튜너 간단 화면 병합 (#161) | 입력별 GAIN 연결·드래그 중 파라미터 변경 수정 [#164](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/164): 이전 커밋 Windows 실패와 구분하여 `main` 대상 head `6f105d3a`의 동일 소스 CI 확인 중(미완료 검사를 PASS로 간주하지 않음) | 보완 후 포함 |
 | **Auto Set** | 입력/게이트 → Tone EQ → 컴프 → 멀티밴드 → De-esser/리미터 5단계, 진행·결과 표시 병합 | 피킹 어택 과감쇠·Undo의 수동 수정 덮어쓰기 수정 [#156](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/156): main 병합·로컬 테스트 통과, CI 대기 후 머지. Gate 2/Expander 단계 [#169](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/169)는 #156을 합쳐 테스트 통과, #156 다음에 머지 | 핵심 기능으로 포함 |
 | **다이내믹스·EQ** | 독립 4밴드, PRE/POST 동시 게이트, 별도 Expander, EQ 밴드 Dynamic, 프리셋 48개 조정 병합 (#163) | 실제 기타·베이스 청음, 기존 세션 복원 확인([청음 체크리스트](LISTENING_CHECKLIST_DYNAMICS_163.ko.md)) | 포함 후보 |
 | **Standalone 사용성** | 최대화/F11·Fit screen·노브 조작 통일·Windows ASIO 빌드 | 장치 진단·첫 실행 ASIO 선택 [#124](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/124): main 병합·로컬 테스트 통과, CI 대기 후 머지 | 포함 |
-| **OBS 애드온** | Windows·macOS/Linux, Python 없는 설치 도우미, 상태 복원·설치 보호, macOS PKG 선택 설치 병합 (#151/#157/#166) | 실제 OBS 장면 복원·다중 인스턴스·장시간 녹화. Linux는 별도 설치, DEB/TAR 통합은 후속 | 포함 후보 |
+| **OBS 애드온** | Windows·macOS/Linux, Python 없는 설치 도우미, 상태 복원·설치 보호, macOS PKG 선택 설치 병합 (#151/#157/#166) | 설치 보호 후속 [#167](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/167)의 동일 소스 macOS PKG 검증·통합. 실제 OBS 장면 복원·다중 인스턴스·장시간 녹화. Linux는 별도 설치, DEB/TAR 통합은 후속 | 포함 후보 |
 | **베타 잔여 기간 표시** | 정확한 잔여 시간·UTC/KST 표시 통합 | SETTINGS 헤더 [#126](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/126): main 병합, CI 대기 후 머지. beta.2 만료일·패키지 표시 일치 | 포함 |
 
 **Auto Set 검증 원칙:** 악기 자동 판별에 기대지 않고 **Guitar/Bass를 명시 선택**한 상태로 검증합니다.
@@ -39,7 +39,7 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 | **Transpose** | v3 연구·시험 기반 마련 (#154 병합), 제품 적용 미완 | **2.5ms는 PDC 보고값**이며 저역 실제 지연은 별개. 44.1kHz 실패, 저역·업시프트, 실제 DI·청음·DAW 검증. v4/1.25ms 절충안 [#155](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/155)는 음질·CPU 승인 보류이며, 연구 자료로만 main에 보관(제품 미적용). 11/2–11/6 [실제 DI 검증 계획](TRANSPOSE_V3_DI_VALIDATION_PLAN_20261026.ko.md) |
 | **FabFilter 참조 반영** | 화면·독자 DSP 상당 부분 진행 | 원본 응답·검출 시간·위상·미터 비교와 수용 판정. [#127](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/127)은 비교 도구일 뿐 측정 완료가 아님(main 병합·자체 테스트 통과, CI 후 머지 예정). 원본 플러그인 렌더와 비교는 미실시 |
 | **베타 수명주기** | beta.1 정책 커밋됨 | beta.2 전용 만료일 결정. 실행 중 만료·재실행·업데이트 후 프로젝트/IR 복원. **beta.1의 2027-02-11 만료일 자동 승계 금지**. [만료일 결정안](BETA2_EXPIRY_DECISION_PROPOSAL_20261026.ko.md)(권장 2027-03-31 23:59 KST, 미승인, 11/6까지 결정) |
-| **AAX Native** | 개발 빌드 가능 | PACE 승인(10/24 신청 접수 확인, 승인 회신 미확인, 보통 7영업일 → 11/3 전후 예상. iLok 계정 활성화·Developer 라이선스 재신청은 소유자 조치 필요) → iLok 준비 → 서명 → Windows/macOS 일반 Pro Tools 검증. [서명 준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) |
+| **AAX Native** | 개발 빌드 경로 유지, **10/27 08:15 KST PACE 관리자 설정·라이선스 지급 완료** | Central Access/Fusion SDK 각 1개, 만료 2027-11-01, AAX 서명 전용. USB 도착·활성화 미확인 → 첫 서명 → signed 설치기 → Windows/macOS 일반 Pro Tools 검증. **배포 기준 BLOCKED**. 11/3 회신 예상은 폐기. Pro Tools Developer Bundle은 별도 10/29 일정 유지. [준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) · [첫 서명 runbook](AAX_FIRST_SIGNING_RUNBOOK_20261027.ko.md) |
 
 ## 4. 단기 일정 (작업·판정 목표)
 
@@ -51,7 +51,7 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 | **11/9–11/13** | 통과한 변경을 최종 소스로 동결, 설치·상태 복원·성능 재검증 | **beta.2 공개 가능 여부 판정** |
 | **11/16–11/27** | 미달 항목 수정, EQ 편집 후속 기능, OBS/Linux 패키징·호환성 보완 | 주간 검증 빌드와 다음 업데이트 범위 |
 
-- AAX 트랙(PACE → iLok → 서명 → Pro Tools 검증)은 위 일정에 병행합니다. 외부 준비가 늦어지면 beta.2 공개 판단도 늦어집니다.
+- AAX는 PACE 발급 대기를 종료하고 **USB iLok 초기 설정 → 서명 → 최종 설치기 → 일반 Pro Tools 검증**을 병행합니다. USB 도착일은 미확인이므로 첫 서명일을 확정하지 않습니다. Fusion SDK의 iLok Cloud 활성화 지원은 별도 AAX Cloud Signing 서비스 권한이 아닙니다. 실제 검증이 늦어지면 beta.2 공개 판단도 늦어집니다.
 - 기존 10/23 목표는 지났습니다. **10/30에 자동으로 beta.3로 넘어가지 않습니다.** 공개는 P0 4개의 실제 결과로만 결정합니다.
 - 매주 실질적인 개선 빌드를 만드는 원칙은 유지합니다.
 
@@ -80,16 +80,28 @@ CI는 구독해 두었고, 50분 간격 재확인에서 통과한 PR부터 머�
 | [#176](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/176) | [Transpose v3 실제 DI 검증 계획 (11/2–11/6)](TRANSPOSE_V3_DI_VALIDATION_PLAN_20261026.ko.md) |
 | [#177](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/177) | [AAX 서명 준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) |
 
-### PR 정리 결과 (10/26 완료)
+### PR 정리 결과 (10/26 확인)
 
-닫은 PR은 브랜치를 지우지 않았으므로 필요하면 다시 열 수 있습니다. 각 PR에 닫은 이유를 코멘트로 남겼습니다.
+아래 닫은 PR은 브랜치를 지우지 않았으므로 필요하면 다시 열 수 있습니다. 각 PR에 닫은 이유를 코멘트로 남겼습니다.
+
+**#167은 현재 열린 설치 보호 후속 PR이며 중복 종료 목록에서 제외합니다.** 초기 #166과 겹쳤던 이력과 달리, 현재 `1c3fcd91`은 프로세스 재확인·console 사용자/home 검증·helper seal 확인·회귀 검사를 추가합니다. 현재 diff와 동일 head CI, 특히 실제 macOS PKG gate를 검토한 뒤 통합을 판단합니다.
 
 | 분류 | 닫은 PR |
 |---|---|
-| main에 이미 반영된 중복 | #167 (변경 파일 8개가 main과 동일) |
 | 공개된 beta.1로 대체된 이력 | #68, #70, #88, #90, #94 |
 | 과거 beta.3 계획 | #78, #84, #85, #87, #89, #91 |
 | 오래된 Transpose 연구 | #99, #125, #133, #150 (현재 기준은 #154·#155) |
+
+### #164 / #167 판정 근거 (2026-10-26 11:27 KST 확인)
+
+아래는 **확인 시점의 정확한 head** 기준입니다. 새 커밋이 올라오면 그 소스의 실행 결과를 다시 확인하며, 이전 실패를 현재 실패로 옮기거나 이전 성공을 현재 PASS로 승계하지 않습니다.
+
+| PR · 확인한 head | 확인 시점 CI | 보존할 구분 |
+|---|---|---|
+| #164 · `6f105d3a7b351a6f0e9cadceccfcc60e2f4f5669` | [전체 빌드 40256090473](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/40256090473) · [Windows 후보 40256090391](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/40256090391) 모두 queued | 이전 `1495b6c`의 Windows Easy preset 실패는 이력으로 보존. 현재 PR은 `main`을 대상으로 동기 프리셋 로딩 수정을 포함하지만, 현재 CI 통과나 실제 DAW 수용을 뜻하지 않음 |
+| #167 · `1c3fcd91a83cb68c3dc379c6abf9fab61a12d467` | [전체 빌드 40256359461](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/40256359461) pending, [튜너 통합 40256359377](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/40256359377) queued, [설치 안전성 40256359381](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/40256359381) success | #166의 성공은 이 후속 수정본의 검증이 아님. rollback 보호 범위는 사용자 OBS 필터이며 전체 PKG가 아님. GUI·실제 OBS·물리 Intel/macOS 12–14·서명/notarization 수용은 별도 |
+
+이 정정은 문서의 분류와 검증 기준만 바로잡습니다. PR 종료·병합·공개 배포를 승인하거나 릴리즈 게이트를 완화하지 않습니다.
 
 ## 5. 중장기 작업창 (Draft #93 재편성안 — 미승인)
 

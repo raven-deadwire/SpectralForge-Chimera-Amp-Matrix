@@ -1,90 +1,117 @@
-# AAX 서명 준비 체크리스트 — 2026-10-26 KST
+# AAX 서명 준비 체크리스트 — 2026-10-27 KST 갱신
 
-P0 **AAX Native**를 위해 PACE 승인 → iLok → 서명 → 일반(retail) Pro Tools 검증까지 남은 일을 한곳에 모은 진행표입니다. 절차의 근거와 명령은 기존 문서를 따릅니다.
+현재 단계는 **PACE 발급 완료 → USB iLok 초기 설정 → 첫 서명 → 일반(retail) Pro Tools 검증**입니다. 발급 완료는 AAX 배포 승인이나 실제 서명 완료가 아닙니다.
 
-- [AAX_RELEASE_CHECKLIST.md](AAX_RELEASE_CHECKLIST.md): 등록 경로, 빌드, codesign, `wraptool` 서명, 설치 경로, retail Pro Tools 검증(§1–§6)
-- [AAX_SIGNING_CI_DESIGN.md](AAX_SIGNING_CI_DESIGN.md): 서명 자동화 설계(자체 호스팅 runner, 보호된 환경, 비밀값)
-- [AAX_NATIVE_DEVELOPMENT.md](AAX_NATIVE_DEVELOPMENT.md): 서명 없는 개발 빌드
+- [AAX_RELEASE_CHECKLIST.md](AAX_RELEASE_CHECKLIST.md): 빌드·서명·설치·retail 수용 게이트
+- [AAX_FIRST_SIGNING_RUNBOOK_20261027.ko.md](AAX_FIRST_SIGNING_RUNBOOK_20261027.ko.md): 공식 초기 설정과 도구 대조, 첫 서명 인계
+- [AAX_SIGNING_CI_DESIGN.md](AAX_SIGNING_CI_DESIGN.md): 후속 자동화 설계
+- [AAX_NATIVE_DEVELOPMENT.md](AAX_NATIVE_DEVELOPMENT.md): unsigned 개발 빌드
 
-**원칙:** iLok, PACE 계정, 인증서, WCGUID 같은 자격 증명은 저장소에 넣지 않고 이름으로만 적습니다. 이 체크리스트의 항목이 모두 끝나기 전까지 AAX는 릴리즈 범위 밖(BLOCKED)입니다.
+**원칙:** 계정 ID·메일 주소·메일 원문/비공개 링크·iLok 시리얼·인증서/개인키·WCGUID·토큰·암호는 저장소와 CI 로그에 기록하지 않습니다. 실제 서명·최종 설치 패키지·일반 Pro Tools 검증 전까지 AAX 배포 기준은 **BLOCKED**입니다.
 
-## 0. 현재 상태 (메일 기준, 10/26 확인)
+## 0. 확인한 사실과 남은 상태
 
-| 날짜 (UTC) | 내용 | 상태 |
+**2026-10-27 08:15 KST** 수신한 PACE 관리자 계정 생성 및 라이선스 지급 공식 메일 두 건을 직접 확인했습니다.
+
+| 항목 | 확인 결과 | 이후 별도 확인 |
 |---|---|---|
-| 10/22 | Avid Audio SDK 팀에 PACE 서명 도구 신청, devauth에 Pro Tools Developer 라이선스 요청 | 보냄 |
-| 10/23 | Avid Audio SDK 팀: 요청을 PACE에 전달, **보통 7영업일 안에** PACE가 직접 회신 | 확인 |
-| 10/23 | PACE: AAX 코드 서명 도구 초대 메일 | 확인 |
-| 10/23 | devauth: Developer 라이선스 요청 메일 주소가 **AAX 개발자 DB에서 확인되지 않음**, Avid 개발자 계정 메일로 양식을 다시 내라는 회신 | **조치 필요** |
-| 10/24 | PACE: 서명 도구 신청 **접수 확인** | 승인 회신 대기 |
-| 10/24 | iLok.com 계정 등록, **활성화 메일 미확인**(읽지 않음) | **조치 필요** |
+| PACE AAX Code Signing publisher / 관리자 설정 | 완료 | 실제 PACE Central 로그인 미확인 |
+| 제공 범위 | LITE, AAX 디지털 서명 전용 Eden SDK 접근 | 전체 Fusion 보호 기능·White-Box 권한으로 확대 해석하지 않음 |
+| PACE Central Access | 1개 지급, 만료일 **2027-11-01** | 2세대 이상 USB iLok 활성화 미확인 |
+| Fusion SDK | 1개 지급, 만료일 **2027-11-01** | USB iLok 또는 iLok Cloud 활성화 미확인 |
+| USB iLok | 주문 이력만 있음 | 도착·세대·연결·활성화·서명 인증서 미확인 |
+| AAX Cloud Signing 서비스 | 별도 발급 근거 없음 | Fusion SDK의 Cloud 활성화 지원과 다른 권한 |
+| Pro Tools Developer Bundle | PACE와 별도 신청 사항 | 발급 미확인, 기존 **10/29** 재신청 일정 유지 |
+| 실제 서명 / retail Pro Tools / 최종 설치기 | 미완료 | Windows·macOS 각 검증 필요 |
 
-7영업일을 10/23부터 세면 **11/3 전후**가 PACE 회신 예상 시점입니다. 회신이 늦으면 서명·검증이 11/9–11/13 beta.2 판정 일정 안에 끝나지 않을 수 있습니다.
+만료 **날짜**만 확인됐으며 정확한 시각·시간대는 명시되지 않았습니다. Chimera 베타 만료일과 별개입니다.
 
-## 1. 지금 할 수 있는 일 (소유자, 승인 전)
+### 기존 #171의 정정과 이력 보존
 
-- [ ] **iLok 계정 활성화:** 10/24 iLok.com 활성화 메일의 링크로 계정을 활성화한다.
-- [ ] **Pro Tools Developer 라이선스 재신청:** devauth 회신대로 Avid 개발자 계정에 등록한 메일 주소로 양식을 다시 제출한다. Developer 빌드는 서명 없는 AAX를 불러올 수 있어서, 승인 전에 기능 점검이 가능하다.
-- [ ] **하드웨어 iLok 확보:** 서명 자격은 USB iLok에서만 동작한다는 보고가 있다(설계 문서 기준 "주문됨"). 도착 여부와 기기 시리얼을 기록한다(저장소에는 넣지 않음).
-- [ ] **PACE 회신 추적:** `noreply@paceap.com` 회신을 기다린다. 11/3까지 없으면 Avid Audio SDK 팀에 접수 번호와 함께 진행 상황을 문의한다.
-- [ ] **OS 서명 인증서:**
-  - [ ] macOS: Apple Developer Program 가입, **Developer ID Application** 인증서, 공증용 App Store Connect API 키(또는 Apple ID + 앱 전용 암호)
-  - [ ] Windows: Authenticode(OV/EV) 인증서 또는 서명 서비스. 설치 프로그램 서명용
-  - PACE 서명과 OS 코드 서명은 별개이며 둘 다 필요하다.
+- 10/22–10/24 UTC의 Avid 전달 → PACE 초대 → 신청 접수 이력은 보존합니다.
+- 초대 전 7영업일을 접수 후 심사 기한으로 재사용한 **11/3 회신 예상·문의 일정은 폐기**합니다. 승인 대기 항목은 이제 발급 완료로 대체됩니다.
+- 신청 단계 iLok **Validate 성공**은 기존 사용자 확인 이력입니다. 안읽음 메일만으로 미활성화를 추정하거나 계정을 다시 만들지 않습니다.
+- Validate, 라이선스 지급, USB 활성화, 서명 성공은 각각 다른 상태입니다.
+- #171의 #164/#167 분류·SHA별 CI 이력·비AAX P0·청음/DI 링크와 작업창은 보존합니다.
 
-## 2. 지금 할 수 있는 일 (개발, 승인 전)
+## 1. USB iLok 도착 전 준비
 
-- [ ] **빌드 확인:** 릴리즈 후보 소스에서 `aax-native.yml`이 통과하고, Windows x64·macOS Universal(arm64 + x86_64) `.aaxplugin`이 만들어진다.
-- [ ] **Developer 빌드 점검(라이선스가 나오면):** 서명 없는 개발 패키지(`Tools/aax_native.py package/install --acknowledge-developer-only`)를 Pro Tools Developer에서 불러 스캔·삽입·오디오·자동화·세션 복원을 미리 확인한다. retail 승인을 대신하지 않는다.
-- [ ] **서명 패키징 경로 준비:** 현재 `Tools/aax_native.py`는 서명 없는 개발 패키지만 다루고 `pace_signed: true`를 거부한다. 서명된 번들을 Windows·macOS 설치 프로그램의 표준 AAX 경로에 넣는 단계를 설계한다(구현은 서명 번들로 검증할 수 있을 때).
-  - Windows: `C:\Program Files\Common Files\Avid\Audio\Plug-Ins\`
-  - macOS: `/Library/Application Support/Avid/Audio/Plug-Ins/`
-- [ ] **서명 기계 결정:** 첫 서명은 iLok을 꽂은 로컬 기계에서 수동으로 할지, 자체 호스팅 runner(`ilok-signing` 레이블)를 먼저 만들지 정한다. CI 자동화(`aax-sign.yml`)는 실제 자격 증명으로 한 번 수동 서명에 성공한 뒤에 만든다.
+- [x] 공식 메일의 관리자 설정·라이선스 지급·범위·만료일 확인.
+- [x] CMake, AAX workflow, 개발 패키징과 공식 절차 대조(runbook 참조).
+- [x] 읽기 전용 `Tools/aax_native.py signing-preflight` 추가. 소스 SHA·플랫폼·버전·베타 정책/해시·번들 무결성을 검사하며 서명·계정 접속·설치를 실행하지 않음.
+- [ ] **최종 후보 소스의 네이티브 CI:** Windows x64·macOS Universal 실제 AAX 빌드, exports·공유 회귀·개발 ZIP 설치/제거. 과거 소스의 성공을 승계하지 않음.
+- [ ] 서명 기계의 OS·도구·인증서 준비 상태 확인. 이 Linux 작업 환경에서 사용자 Windows/macOS 설치 상태는 확인하지 못함.
+- [ ] 필요 시 최신 License Support/iLok License Manager 설치와 지급 라이선스 표시 확인. 지급과 활성화는 별도.
+- [ ] **10/29 Pro Tools Developer Bundle 재신청:** 최신 발급·중복 여부 확인 후 기존 별도 일정대로 진행. 이 변경에서 제출하지 않음.
+- [ ] Developer 라이선스 확보 후 unsigned 개발 패키지의 스캔·오디오·자동화·세션 복원 점검. retail 수용을 대신하지 않음.
 
-## 3. PACE 승인 후
+## 2. USB iLok 도착 후 공식 초기 설정
 
-- [ ] PACE 개발자 계정 로그인, **`wraptool` 설치**(Windows·macOS 서명 기계 각각)
-- [ ] iLok을 AAX 서명용으로 **인증**
-- [ ] 이 플러그인의 **WCGUID** 확인 후 릴리즈 기록에만 적기(저장소 제외)
-- [ ] 식별자 대조: 제조사 코드 `SpFg`, 플러그인 코드 `Chm1`, 번들 ID `audio.spectralforge.chimera`(`CMakeLists.txt`와 PACE 계정 등록값이 같은지)
-- [ ] 현재 `wraptool sign`의 **배포용(deployment) 서명** 옵션을 PACE 문서로 확인(체크리스트의 명령은 예시)
+10/27 PACE 관리자 안내 및 지급 메일 기준 순서입니다.
 
-## 4. 첫 서명 실행 (플랫폼별)
+1. 최신 License Support(iLok License Manager 포함)를 준비하고 기존 계정으로 로그인.
+2. **2세대 이상 USB iLok** 연결 후 **PACE Central Access**를 USB에 활성화.
+3. ILM에서 로그아웃한 뒤 **같은 계정**으로 다시 로그인.
+4. 계정 아래 **PACE CENTRAL** 버튼으로 접속.
+5. **Fusion SDK**를 USB iLok 또는 지원되는 iLok Cloud에 활성화. Cloud 활성화만으로 USB 서명 인증서나 별도 AAX Cloud Signing 서비스가 생기지는 않음.
+6. PACE Central HELP/다운로드에서 해당 계정용 AAX 서명 도구와 매뉴얼 확보.
+7. 매뉴얼대로 USB 서명 인증서·제품 설정·WCGUID 및 설치된 `wraptool`의 배포 서명/검증 옵션 확인. 실제 값은 비공개 자격 증명 저장소에만 보관.
+
+- [ ] 위 1–7의 실제 완료 확인.
+- [ ] 제조사 `SpFg`, 제품 `Chm1`, 번들/효과 ID `audio.spectralforge.chimera` 대조.
+- [ ] Windows Authenticode, macOS Developer ID Application 및 PKG용 Developer ID Installer·공증 자격 확인.
+- [ ] 갱신 시 ILM USB **Synchronize**로 라이선스와 서명 인증서를 갱신하는 절차 확인. `wraptool` 실행만으로 갱신되지 않음.
+
+## 3. 첫 서명 실행 (플랫폼별)
+
+첫 실행은 로컬 서명 기계에서 수동 검증하는 경로로 준비합니다. self-hosted 자동화는 실제 첫 서명 이후 별도 구현합니다.
 
 | 단계 | macOS Universal | Windows x64 |
 |---|---|---|
-| 1. 릴리즈 소스로 빌드 | [ ] | [ ] |
-| 2. Developer ID로 `codesign`(ad-hoc 아님) | [ ] | — |
-| 3. `wraptool sign`(배포용, WCGUID) | [ ] | [ ] |
-| 4. `wraptool verify` 통과 | [ ] | [ ] |
-| 5. `codesign --verify --deep --strict` | [ ] | — |
-| 6. 공증·staple | [ ] | — |
-| 7. 설치 프로그램에 포함, 설치 프로그램 OS 서명 | [ ] | [ ] |
+| 최종 소스·버전·베타 승인 일치 및 입력 preflight | [ ] | [ ] |
+| 설치된 PACE 매뉴얼의 OS/배포 서명 옵션 확정 | [ ] | [ ] |
+| 최종 번들 복사본에 PACE 배포 서명 | [ ] | [ ] |
+| PACE 및 OS 서명 검증 | [ ] | [ ] |
+| 최종 네이티브 설치기 통합, 설치기 서명/공증 | [ ] | [ ] |
+| 설치/업데이트/제거, 설치 후 PACE·OS 서명 재검증 | [ ] | [ ] |
 
-- 서명 기록(빌드 SHA, 서명 시각, 도구 버전, verify 출력)을 증거 폴더에 남긴다. 자격 증명 값은 남기지 않는다.
+서명 전후 소스 SHA·바이너리/패키지 SHA-256·도구 버전·결과를 각각 기록합니다. 원본 unsigned 패키지는 보존하고, 서명으로 바뀐 바이트를 기존 development receipt에 덮어쓰지 않습니다. 원시 vendor 로그는 비공개로 보관하고 공개 증거는 식별자·자격 증명을 제거한 결과 요약만 사용합니다.
 
-## 5. 일반(retail) Pro Tools 검증
+현재 `Tools/aax_native.py package`는 **unsigned development 전용**입니다. `pace_signed: true` 거부 보호를 유지합니다. Windows/macOS 최종 signed 설치기 통합은 아직 미구현입니다.
 
-Developer 빌드가 아닌 **일반 Pro Tools**와 일반 사용자 수준의 iLok 인증으로 확인합니다. 서명 없는 AAX는 오류 **-7054**로 거부되고, 올바르게 서명되면 이 오류가 사라집니다.
+## 4. 일반(retail) Pro Tools 검증
+
+서명된 **최종 설치 패키지**로 설치한 뒤 일반 Pro Tools에서 검사합니다. unsigned 거부(-7054 등)가 없다는 사실만으로 전체 수용 검증을 대체하지 않습니다. 서명 전용 권한은 Chimera 사용자에게 새 iLok 제품 라이선스를 요구한다는 뜻이 아닙니다.
 
 | 항목 | Windows | macOS Apple Silicon | macOS Intel(지원 주장 시) |
 |---|---|---|---|
-| 플러그인 스캔 통과(AAX Native), -7054 없음 | [ ] | [ ] | [ ] |
-| 모노·스테레오 트랙 삽입, 오디오 처리 | [ ] | [ ] | [ ] |
-| 파라미터 자동화 기록·재생 | [ ] | [ ] | [ ] |
-| 세션 저장·다시 열기, A/B·내장 IR 복원 | [ ] | [ ] | [ ] |
-| 베타 수명주기 표시가 VST3/AU와 같음(새 만료일 없음) | [ ] | [ ] | [ ] |
-| Pro Tools 버전·OS·테스터 환경 기록 | [ ] | [ ] | [ ] |
+| AAX Native 스캔·모노/스테레오 삽입·실제 오디오 | [ ] | [ ] | [ ] |
+| Classic/Dual/Matrix·bypass·샘플레이트/버퍼·PDC | [ ] | [ ] | [ ] |
+| 자동화 기록·재생, realtime/offline bounce | [ ] | [ ] | [ ] |
+| 세션 재열기·A/B·내장/개인/누락 IR 복원 | [ ] | [ ] | [ ] |
+| 베타 수명주기·업데이트·사용자 데이터 보존 | [ ] | [ ] | [ ] |
+| 다중 인스턴스·에디터 재열기·삭제/종료 안정성 | [ ] | [ ] | [ ] |
+| 소스·설치기 해시·Pro Tools·OS/CPU·환경 기록 | [ ] | [ ] | [ ] |
 
-모두 통과하면 릴리즈 스케쥴과 범위 문서에서 AAX를 범위 안으로 옮기고 이 증거를 인용합니다.
+실제 서명과 위 증거 확보 후 기존 릴리즈 게이트에 따라 판정합니다. 발급 확인·사전 점검·CI만으로 범위 문서를 PASS로 바꾸지 않습니다.
 
-## 6. 일정과 beta.2 영향
+## 5. 일정과 beta.2 영향
 
-| 목표 (KST) | 할 일 | 막히는 조건 |
+| 목표 (KST) | 할 일 | 남은 조건 |
 |---|---|---|
-| ~10/28 | iLok 활성화, Developer 라이선스 재신청, 인증서 신청 시작 | 소유자 조치 |
-| ~11/3 | PACE 회신(7영업일 기준) | 외부 |
-| 회신 후 2–3일 | `wraptool`·iLok 인증, macOS·Windows 첫 서명 | 하드웨어 iLok, 인증서 |
-| 11/9–11/13 | retail Pro Tools 검증, beta.2 판정 | 위 단계 완료 |
+| 10/27 | PACE 발급 반영, 도구 대조·사전 점검 준비 | 문서/도구 작업이며 서명 완료 아님 |
+| USB 도착 전 | 최종 소스 네이티브 빌드·개발 패키지 검증 | OS/toolchain·최종 후보 소스 |
+| 10/29 | 기존 Pro Tools Developer Bundle 재신청 일정 | 최신 승인·중복 확인, PACE와 별도 |
+| USB 도착·활성화·인증서 준비 후 | Central 초기 설정, 두 플랫폼 첫 서명 | 실제 하드웨어·도구·OS 자격 |
+| 11/9–11/13 | retail Pro Tools·설치기 검증 및 beta.2 판정 목표 유지 | 선행 증거 필요 |
 
-- PACE 회신이나 iLok·인증서 준비가 늦어 11/13까지 §5를 끝내지 못하면, P0 AAX는 미달입니다. 그 경우 beta.2 공개를 미룰지, AAX를 뺀 범위로 낼지 판정 회의에서 결정합니다.
+11/3 회신 예상 및 회신 후 2–3일의 임의 일정은 사용하지 않습니다. 목표일까지 하드웨어·서명·설치기·호스트 검증이 끝나지 않으면 P0 AAX는 미달입니다. 공개 연기 또는 범위 변경은 별도 판정이며 자동 승인되지 않습니다.
+
+## 근거
+
+- 2026-10-27 08:15 KST PACE 공식 관리자 생성 및 지급 메일 두 건을 직접 확인. 계정 정보·비공개 링크는 미수록.
+- [PACE 공식 시작 안내](https://paceap.com/getting-started-with-aax-code-signing-for-pro-tools-plugins/)
+- [PACE Code Signing Platform](https://paceap.com/code-signing-platform/)
+- [iLok License Manager 공식 안내](https://help.ilok.com/ilm_overview.html)
+- [Avid AAX SDK 공식 안내](https://developer.avid.com/aax/)
+- PACE Central 상세 매뉴얼은 이번 공개 웹 조회로 열지 못함. 실제 계정 HELP/설치 SDK 매뉴얼의 정확한 명령·제품 설정은 미검증 상태로 유지.
