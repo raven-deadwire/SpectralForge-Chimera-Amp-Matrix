@@ -1,6 +1,6 @@
-# PRE Expansion A 1.4 — Para EQ, Multi Comp, Tight Boost, Power Wah, Bass Synth
+# PRE Expansion A 1.4 — six models
 
-Status: **five of six models implemented on `claude/pre-paraeq`**, covered by
+Status: **all six models implemented on `claude/pre-paraeq`**, covered by
 `ChimeraPedalExpansionTests`. Roadmap: 1.4 PRE Expansion A, six models (Empress
 Heavy Menace; Tel-Ray Power Wah Boost; MXR MB301 Bass Synth; EBS MultiComp;
 Fortin 33; Empress ParaEQ MKII). These are development references; the
@@ -133,7 +133,28 @@ No added latency (the tracker follows about one period behind a note), no
 allocation. An original tracking synth with the published controls, not a
 model of the pedal's circuit or tracking.
 
-## 7. Measurements (`ChimeraPedalExpansionTests`)
+## 7. Heavy Threat (model 45, `pre.heavythreat`)
+
+Reference: Empress Heavy Menace. The public name follows the roadmap rule
+that it never receives the alias Hammer; "Threat" was chosen as a word close
+in meaning to the reference. Public specification used (Guitar World,
+Andertons, wrdtunes listings):
+
+| Hardware (published) | Chimera |
+|---|---|
+| GAIN, WEIGHT (a high-pass inside the distortion, not a post EQ), OUTPUT | GAIN: drive 6–42 dB; WEIGHT: pre-distortion 2nd-order high-pass 300 Hz → 30 Hz (more weight, more low end in); OUTPUT −24 to +6 dB |
+| LOW, MID, HIGH; MID FREQ 200 Hz–2.5 kHz | LOW shelf 100 Hz, MID bell Q 0.8 at 200 Hz–2.5 kHz, HIGH shelf 3 kHz, each ±12 dB, after the distortion |
+| Modes Lite(ish) / Heavy / Heavier | LITE: one soft asymmetric stage; HEAVY: plus a cubic stage; HEAVIER: plus a third; 120 Hz couplers with ×4 gain between stages; all at 4× oversampling |
+| Adaptive, switchable gate with its own threshold | GATE THRESHOLD −80 to −20 dBFS on the input before the distortion; opens above it, closes 6 dB below after a 10 ms hold, 0.5 ms attack, 40 ms release; GATE on/off |
+| Frequency response 35 Hz–17 kHz (−3 dB) | 2nd-order 35 Hz high-pass and 17 kHz low-pass at the output |
+| Gate key input, bypass modes | Not applicable in the plugin |
+
+The oversampling matches the existing drive stage's latency, so the slot
+and reported latencies are unchanged. No allocation. An original high-gain
+distortion laid out after the published controls, not a measured model of
+the pedal.
+
+## 8. Measurements (`ChimeraPedalExpansionTests`)
 
 - Steady-state sine gain against the analytic response, four settings
   (low +15 dB wide at 35 Hz; mid −15 dB narrow; high +10 dB at 20 kHz,
@@ -169,16 +190,26 @@ model of the pedal's circuit or tracking.
   saw 2nd −5.9 dB; triangle 3rd −19.2 dB. SUB MIX 1 brings 50 Hz from −120 to
   0 dB; VOICE adds 200 and 150 Hz; closing CUTOFF lowers the 3rd harmonic by
   16 dB. After a note stops the output is exactly silent 357 ms later.
-- 170 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
-  5, Tight Boost 1, Power Wah 4, Bass Synth 8) at the end of the list,
-  version 16; every released
+- Heavy Threat: small-signal gain (LITE, gate off, three EQ / WEIGHT / MID
+  FREQ / OUTPUT settings, 60 Hz–8 kHz) equals the analytic path within
+  0.00002 dB; full WEIGHT passes 60 Hz at least 10 dB more than none.
+  Harmonics 2–5 re the fundamental (−20 dBFS, 200 Hz): LITE gain 0.1
+  −36.0 dB, gain 0.6 −13.8 dB, HEAVY −8.6 dB, HEAVIER −8.2 dB (the last two
+  differ by only 0.3 dB on this measure: both are deep in saturation).
+  Gate at −60 dB: a −75 dBFS hum is held back completely (−40.4 dBFS with the
+  gate off); a −20 dBFS note plays at −9.7 dBFS peak and the output is
+  below −200 dBFS 200–300 ms after it stops.
+- 225 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
+  5, Tight Boost 1, Power Wah 4, Bass Synth 8, Heavy Threat 10) at the end of
+  the list, version 16; every released
   parameter keeps its index. A project without them restores their defaults.
 
-## 8. Not done
+## 9. Not done
 
 - Listening on real DI; DAW automation and recall.
 - Dedicated pedal artwork (the card uses the generic workbench style).
-- The last Expansion A model (Heavy Menace).
+- A clearer HEAVY / HEAVIER difference measure (compression, crest factor
+  or higher harmonics) and listening to decide the voicing.
 - Bass Synth with real bass DI: fast passages, open strings ringing,
   chords (not supported) and low-B tracking.
 - A mode-change click measurement for Multi Comp (the fade is in place but

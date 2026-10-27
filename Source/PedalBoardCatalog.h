@@ -5,7 +5,7 @@
 #include <cmath>
 #include <juce_core/juce_core.h>
 namespace spectralforge {
-inline constexpr int pedalBoardCapacity=5, pedalMaxControls=12, pedalModelCount=45;
+inline constexpr int pedalBoardCapacity=5, pedalMaxControls=12, pedalModelCount=46;
 // Models below this keep their parameters in the released layout; later ones append (PedalBoardParameters.h).
 inline constexpr int releasedPedalModelCount=40;
 struct PedalControlSpec { const char* id; const char* label; float minimum, maximum, initial, interval; bool connected; const char* choices; };
@@ -56,6 +56,7 @@ inline constexpr std::array<PedalModelSpec,pedalModelCount> pedalModels{{
  {"pre.tightboost","Tight Boost","BOOST",true,1,{{{"boost","BOOST",0.0f,22.0f,11.0f,0.001f,true,""}}}},
  {"pre.powerwah","Power Wah","WAH",true,4,{{{"position","POSITION",0.0f,1.0f,0.5f,0.001f,true,""},{"boost","BOOST",0.0f,40.0f,10.0f,0.001f,true,""},{"wah.on","WAH",0.0f,1.0f,1.0f,1.0f,true,"OFF|ON"},{"boost.on","BOOST ON",0.0f,1.0f,0.0f,1.0f,true,"OFF|ON"}}}},
  {"pre.basssynth","Bass Synth","PITCH",true,8,{{{"mix","MIX",0.0f,1.0f,0.7f,0.001f,true,""},{"sub","SUB MIX",0.0f,1.0f,0.3f,0.001f,true,""},{"cutoff","CUTOFF",0.0f,1.0f,0.45f,0.001f,true,""},{"resonance","RESONANCE",0.0f,1.0f,0.3f,0.001f,true,""},{"envelope","ENVELOPE",0.0f,1.0f,0.4f,0.001f,true,""},{"mod","MOD",0.0f,1.0f,0.0f,0.001f,true,""},{"shape","SHAPE",0.0f,2.0f,1.0f,1.0f,true,"TRIANGLE|SAW|SQUARE"},{"voice","VOICE",0.0f,1.0f,0.0f,1.0f,true,"OFF|ON"}}}},
+ {"pre.heavythreat","Heavy Threat","DRIVE",true,10,{{{"gain","GAIN",0.0f,1.0f,0.6f,0.001f,true,""},{"weight","WEIGHT",0.0f,1.0f,0.5f,0.001f,true,""},{"output","OUTPUT",-24.0f,6.0f,-12.0f,0.001f,true,""},{"low","LOW",-12.0f,12.0f,0.0f,0.001f,true,""},{"mid","MID",-12.0f,12.0f,0.0f,0.001f,true,""},{"high","HIGH",-12.0f,12.0f,0.0f,0.001f,true,""},{"gate.threshold","GATE THRESHOLD",-80.0f,-20.0f,-60.0f,0.001f,true,""},{"mid.freq","MID FREQ",0.0f,1.0f,0.5f,0.001f,true,""},{"mode","MODE",0.0f,2.0f,1.0f,1.0f,true,"LITE|HEAVY|HEAVIER"},{"gate.on","GATE",0.0f,1.0f,1.0f,1.0f,true,"OFF|ON"}}}},
 }};
 inline const PedalModelSpec& pedalModel(int model) { return pedalModels[(size_t)juce::jlimit(0,pedalModelCount-1,model)]; }
 inline juce::String pedalControlID(int owner,int model,int control) { return "board"+juce::String(owner)+"_m"+juce::String(model)+"_"+juce::String(pedalModel(model).controls[(size_t)control].id).replaceCharacter('.','_'); }
