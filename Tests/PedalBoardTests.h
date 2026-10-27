@@ -46,7 +46,7 @@ inline void run() {
             if(model==41 && control==4)instance.controls[3]=1.f;
             // Power Wah: the BOOST level acts once BOOST ON is set.
             if(model==43 && control==1)instance.controls[3]=1.f;
-            // Heavy Threat: the GATE switch matters once the threshold reaches the signal.
+            // Dreadful Peril: the GATE switch matters once the threshold reaches the signal.
             if(model==45 && control==9)instance.controls[6]=-20.f;
             if(model==45 && control==7)instance.controls[4]=9.f;   // MID FREQ moves a MID with gain
             auto high=low;instance.controls[(size_t)control]=spec.controls[(size_t)control].minimum;

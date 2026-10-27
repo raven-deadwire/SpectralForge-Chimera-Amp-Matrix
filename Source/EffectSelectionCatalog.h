@@ -55,7 +55,7 @@ inline constexpr std::array<PedalMenuEntry,pedalModelCount> pedalMenuEntries{{
     {"Tight Boost",PedalMenuKind::boost},
     {"Power Wah",PedalMenuKind::wah},
     {"Bass Synth",PedalMenuKind::pitch},
-    {"Heavy Threat",PedalMenuKind::distortion}
+    {"Dreadful Peril",PedalMenuKind::distortion}
 }};
 struct PedalMenuGroup { PedalMenuKind kind; const char* label; };
 inline constexpr std::array<PedalMenuGroup,10> pedalMenuGroups{{

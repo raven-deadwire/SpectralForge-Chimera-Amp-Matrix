@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,heavyThreat=45;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Heavy Threat (10)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10)");
     int seen=0;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -333,10 +333,10 @@ void bassSynthResponse() {
      require(ms<600 && bs.trackedHz()==0,"Bass Synth keeps sounding after the note stops");}
     std::cout<<"PASS Bass Synth: tracking within 1 % (no octave error), SHAPE harmonics, SUB, VOICE, CUTOFF, stops with the note\n";
 }
-// ---- Heavy Threat ----
-Controls threat(float gain,float weight,float output,float low,float mid,float high,float gate,float midFreq,int mode,bool gateOn)
+// ---- Dreadful Peril ----
+Controls peril(float gain,float weight,float output,float low,float mid,float high,float gate,float midFreq,int mode,bool gateOn)
     {Controls c{};c[0]=gain;c[1]=weight;c[2]=output;c[3]=low;c[4]=mid;c[5]=high;c[6]=gate;c[7]=midFreq;c[8]=float(mode);c[9]=gateOn?1.f:0.f;return c;}
-std::vector<float> renderThreat(PedalHeavyThreat& h,const Controls& c,double hz,double db,double seconds,double silence=0,double rate=48000) {
+std::vector<float> renderPeril(PedalDreadfulPeril& h,const Controls& c,double hz,double db,double seconds,double silence=0,double rate=48000) {
     h.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;const long playing=long(seconds*rate);
     for(int block=0;block<int((seconds+silence)*rate/256);++block){
         for(int n=0;n<256;++n,++t){const float x=t<playing?float(juce::Decibels::decibelsToGain(db)*std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/rate)):0.f;b.setSample(0,n,x);b.setSample(1,n,x);}
@@ -345,38 +345,38 @@ std::vector<float> renderThreat(PedalHeavyThreat& h,const Controls& c,double hz,
     return out;
 }
 double harmonicsDb(const std::vector<float>& x,double hz){double e=0;for(int k=2;k<=5;++k)e+=std::pow(10.,toneDb(x,k*hz)/10.);return 10*std::log10(e+1e-30)-toneDb(x,hz);}
-void heavyThreatResponse() {
-    const auto& m=pedalModel(heavyThreat);
-    require(juce::String(m.id)=="pre.heavythreat" && juce::String(m.name)=="Heavy Threat" && m.controlCount==10 && pedalMenuEntries[heavyThreat].kind==PedalMenuKind::distortion,"Heavy Threat catalog entry");
-    PedalHeavyThreat h;h.prepare(48000,256);
+void dreadfulPerilResponse() {
+    const auto& m=pedalModel(dreadfulPeril);
+    require(juce::String(m.id)=="pre.dreadfulperil" && juce::String(m.name)=="Dreadful Peril" && m.controlCount==10 && pedalMenuEntries[dreadfulPeril].kind==PedalMenuKind::distortion,"Dreadful Peril catalog entry");
+    PedalDreadfulPeril h;h.prepare(48000,256);
     // Small signal (LITE, gate off): measured = the filters, drive and stage slope.
     double worst=0;
-    for(const auto& c:{threat(0,.5f,-12,0,0,0,-60,.5f,0,false),threat(.3f,0,-6,9,-9,6,-60,0,0,false),threat(.1f,1,-18,-6,12,-12,-60,1,0,false)})
+    for(const auto& c:{peril(0,.5f,-12,0,0,0,-60,.5f,0,false),peril(.3f,0,-6,9,-9,6,-60,0,0,false),peril(.1f,1,-18,-6,12,-12,-60,1,0,false)})
         for(const double hz:{60.,100.,300.,700.,1000.,3000.,8000.})
-            worst=std::max(worst,std::abs(toneDb(renderThreat(h,c,hz,-70,.4),hz)+70-h.smallSignalDb(c,hz)));
-    std::cout<<"MEASURE Heavy Threat small-signal gain vs analytic (LITE, EQ/WEIGHT/MID FREQ/OUTPUT settings, 60 Hz-8 kHz): largest error "<<worst<<" dB\n";
-    require(worst<.1,"Heavy Threat small-signal response differs from its design");
-    {const auto light=threat(0,0,0,0,0,0,-60,.5f,0,false),heavyWeight=threat(0,1,0,0,0,0,-60,.5f,0,false);
+            worst=std::max(worst,std::abs(toneDb(renderPeril(h,c,hz,-70,.4),hz)+70-h.smallSignalDb(c,hz)));
+    std::cout<<"MEASURE Dreadful Peril small-signal gain vs analytic (LITE, EQ/WEIGHT/MID FREQ/OUTPUT settings, 60 Hz-8 kHz): largest error "<<worst<<" dB\n";
+    require(worst<.1,"Dreadful Peril small-signal response differs from its design");
+    {const auto light=peril(0,0,0,0,0,0,-60,.5f,0,false),heavyWeight=peril(0,1,0,0,0,0,-60,.5f,0,false);
      require(h.smallSignalDb(heavyWeight,60)-h.smallSignalDb(light,60)>10,"WEIGHT does not let more low end into the distortion");}
     // Distortion grows with GAIN and with the mode.
-    const auto distortion=[&](float gain,int mode){return harmonicsDb(renderThreat(h,threat(gain,.5f,-12,0,0,0,-60,.5f,mode,false),200.,-20,.5),200.);};
+    const auto distortion=[&](float gain,int mode){return harmonicsDb(renderPeril(h,peril(gain,.5f,-12,0,0,0,-60,.5f,mode,false),200.,-20,.5),200.);};
     const double liteLow=distortion(.1f,0),lite=distortion(.6f,0),heavyMode=distortion(.6f,1),heavier=distortion(.6f,2);
-    std::cout<<"MEASURE Heavy Threat harmonics 2-5 re fundamental (-20 dBFS 200 Hz): LITE gain 0.1 "<<liteLow<<", LITE 0.6 "<<lite<<", HEAVY "<<heavyMode<<", HEAVIER "<<heavier<<" dB\n";
+    std::cout<<"MEASURE Dreadful Peril harmonics 2-5 re fundamental (-20 dBFS 200 Hz): LITE gain 0.1 "<<liteLow<<", LITE 0.6 "<<lite<<", HEAVY "<<heavyMode<<", HEAVIER "<<heavier<<" dB\n";
     require(lite>liteLow+6 && heavyMode>lite && heavier>heavyMode,"Distortion does not grow with GAIN and mode");
     // Gate: noise below the threshold is held back, playing opens it, it
     // closes after the note, and GATE OFF passes everything.
-    {const double rms=[&]{const auto x=renderThreat(h,threat(.8f,.5f,-12,0,0,0,-60,.5f,1,true),300.,-75,.5);double e=0;for(size_t i=x.size()/2;i<x.size();++i)e+=double(x[i])*x[i];return 10*std::log10(e/double(x.size()/2)+1e-30);}();
-     const double open=[&]{const auto x=renderThreat(h,threat(.8f,.5f,-12,0,0,0,-60,.5f,1,false),300.,-75,.5);double e=0;for(size_t i=x.size()/2;i<x.size();++i)e+=double(x[i])*x[i];return 10*std::log10(e/double(x.size()/2)+1e-30);}();
-     std::cout<<"MEASURE Heavy Threat -75 dBFS hum with the gate at -60 dB: "<<rms<<" dBFS (gate off: "<<open<<" dBFS)\n";
+    {const double rms=[&]{const auto x=renderPeril(h,peril(.8f,.5f,-12,0,0,0,-60,.5f,1,true),300.,-75,.5);double e=0;for(size_t i=x.size()/2;i<x.size();++i)e+=double(x[i])*x[i];return 10*std::log10(e/double(x.size()/2)+1e-30);}();
+     const double open=[&]{const auto x=renderPeril(h,peril(.8f,.5f,-12,0,0,0,-60,.5f,1,false),300.,-75,.5);double e=0;for(size_t i=x.size()/2;i<x.size();++i)e+=double(x[i])*x[i];return 10*std::log10(e/double(x.size()/2)+1e-30);}();
+     std::cout<<"MEASURE Dreadful Peril -75 dBFS hum with the gate at -60 dB: "<<rms<<" dBFS (gate off: "<<open<<" dBFS)\n";
      require(open-rms>60,"The gate does not hold back sub-threshold noise");}
-    {const auto x=renderThreat(h,threat(.8f,.5f,-12,0,0,0,-60,.5f,1,true),300.,-20,.3,.3);
+    {const auto x=renderPeril(h,peril(.8f,.5f,-12,0,0,0,-60,.5f,1,true),300.,-20,.3,.3);
      double playing=0;for(size_t i=size_t(48000*.2);i<size_t(48000*.3);++i)playing=std::max(playing,double(std::abs(x[i])));
      float tail=0;for(size_t i=x.size()-size_t(48000*.1);i<x.size();++i)tail=std::max(tail,std::abs(x[i]));
-     std::cout<<"MEASURE Heavy Threat gate: playing peak "<<juce::Decibels::gainToDecibels(playing)<<" dBFS, 200-300 ms after the note "<<juce::Decibels::gainToDecibels(tail,-200.f)<<" dBFS\n";
+     std::cout<<"MEASURE Dreadful Peril gate: playing peak "<<juce::Decibels::gainToDecibels(playing)<<" dBFS, 200-300 ms after the note "<<juce::Decibels::gainToDecibels(tail,-200.f)<<" dBFS\n";
      require(playing>.05 && tail<1e-5f,"The gate does not pass playing and close after the note");}
     PedalNewDrive drive;drive.prepare({48000,256,2});
-    require(h.latency()==drive.latency(),"Heavy Threat changes the PRE slot latency");
-    std::cout<<"PASS Heavy Threat: small-signal = design, WEIGHT, distortion grows with GAIN and LITE/HEAVY/HEAVIER, gate holds noise and closes after notes, slot latency unchanged\n";
+    require(h.latency()==drive.latency(),"Dreadful Peril changes the PRE slot latency");
+    std::cout<<"PASS Dreadful Peril: small-signal = design, WEIGHT, distortion grows with GAIN and LITE/HEAVY/HEAVIER, gate holds noise and closes after notes, slot latency unchanged\n";
 }
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
@@ -399,16 +399,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=.2f*float(std::sin(.015*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}bs.process(b,synth(.7f,float(i%3)/2.f,float(i%5)/4.f,.3f,.4f,float(i%2),i%3,i%2==0));}
     countAllocations=false;require(allocations==0,"Bass Synth allocates while processing");
-    PedalHeavyThreat ht;ht.prepare(48000,128);
+    PedalDreadfulPeril ht;ht.prepare(48000,128);
     allocations=0;countAllocations=true;
-    for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=(i%4==0?0.f:.2f)*float(std::sin(.03*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}ht.process(b,threat(float(i%10)/9.f,.5f,-12,0,3,-3,-60,float(i%7)/6.f,i%3,i%2==0));}
-    countAllocations=false;require(allocations==0,"Heavy Threat allocates while processing");
+    for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=(i%4==0?0.f:.2f)*float(std::sin(.03*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}ht.process(b,peril(float(i%10)/9.f,.5f,-12,0,3,-3,-60,float(i%7)/6.f,i%3,i%2==0));}
+    countAllocations=false;require(allocations==0,"Dreadful Peril allocates while processing");
     std::cout<<"PASS all six Expansion A pedals: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();heavyThreatResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

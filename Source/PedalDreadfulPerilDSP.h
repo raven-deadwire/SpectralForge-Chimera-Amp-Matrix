@@ -8,14 +8,14 @@
 
 namespace spectralforge {
 
-// Heavy Threat (PRE model 45, docs/PRE_EXPANSION_A_1_4.md): an original
+// Dreadful Peril (PRE model 45, docs/PRE_EXPANSION_A_1_4.md): an original
 // high-gain distortion laid out after the published Empress Heavy Menace
 // controls: GAIN, WEIGHT (a high-pass inside the distortion), OUTPUT, LOW,
 // MID with a 200 Hz-2.5 kHz MID FREQ, HIGH, three modes (Lite / Heavy /
 // Heavier), an adaptive gate with its own threshold and switch, and a 35 Hz-
 // 17 kHz response. The clipping stages, ranges, filter shapes and gate timing
 // are Chimera choices; no hardware response is claimed.
-class PedalHeavyThreat {
+class PedalDreadfulPeril {
 public:
     enum Mode { lite = 0, heavy = 1, heavier = 2 };
     static constexpr float minimumDriveDb = 6.f, maximumDriveDb = 42.f;

@@ -133,11 +133,12 @@ No added latency (the tracker follows about one period behind a note), no
 allocation. An original tracking synth with the published controls, not a
 model of the pedal's circuit or tracking.
 
-## 7. Heavy Threat (model 45, `pre.heavythreat`)
+## 7. Dreadful Peril (model 45, `pre.dreadfulperil`)
 
-Reference: Empress Heavy Menace. The public name follows the roadmap rule
-that it never receives the alias Hammer; "Threat" was chosen as a word close
-in meaning to the reference. Public specification used (Guitar World,
+Reference: Empress Heavy Menace. Public name **Dreadful Peril**, chosen by
+the owner (2026-10-27) as words close in meaning to the reference; it
+follows the roadmap rule that it never receives the alias Hammer. Public
+specification used (Guitar World,
 Andertons, wrdtunes listings):
 
 | Hardware (published) | Chimera |
@@ -190,7 +191,7 @@ the pedal.
   saw 2nd −5.9 dB; triangle 3rd −19.2 dB. SUB MIX 1 brings 50 Hz from −120 to
   0 dB; VOICE adds 200 and 150 Hz; closing CUTOFF lowers the 3rd harmonic by
   16 dB. After a note stops the output is exactly silent 357 ms later.
-- Heavy Threat: small-signal gain (LITE, gate off, three EQ / WEIGHT / MID
+- Dreadful Peril: small-signal gain (LITE, gate off, three EQ / WEIGHT / MID
   FREQ / OUTPUT settings, 60 Hz–8 kHz) equals the analytic path within
   0.00002 dB; full WEIGHT passes 60 Hz at least 10 dB more than none.
   Harmonics 2–5 re the fundamental (−20 dBFS, 200 Hz): LITE gain 0.1
@@ -200,7 +201,7 @@ the pedal.
   gate off); a −20 dBFS note plays at −9.7 dBFS peak and the output is
   below −200 dBFS 200–300 ms after it stops.
 - 225 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
-  5, Tight Boost 1, Power Wah 4, Bass Synth 8, Heavy Threat 10) at the end of
+  5, Tight Boost 1, Power Wah 4, Bass Synth 8, Dreadful Peril 10) at the end of
   the list, version 16; every released
   parameter keeps its index. A project without them restores their defaults.
 

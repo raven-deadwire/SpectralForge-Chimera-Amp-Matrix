@@ -159,7 +159,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
         }
         else if(model==45 && index==7) {
-            c.slider.textFromValueFunction=[](double value){const float hz=spectralforge::PedalHeavyThreat::midHz(float(value));return hz>=1000.f?juce::String(hz/1000.f,2)+" kHz":juce::String(juce::roundToInt(hz))+" Hz";};
+            c.slider.textFromValueFunction=[](double value){const float hz=spectralforge::PedalDreadfulPeril::midHz(float(value));return hz>=1000.f?juce::String(hz/1000.f,2)+" kHz":juce::String(juce::roundToInt(hz))+" Hz";};
             c.slider.valueFromTextFunction=[](const juce::String& text){const double hz=juce::jlimit(200.,2500.,text.getDoubleValue()*(text.containsIgnoreCase("k")?1000.:1.));return std::log(hz/200.)/std::log(2500./200.);};
         }
         else if(model==40 || model==41 || model==42 || (model==43 && index==1) || (model==45 && index>=2 && index<=6)) {
