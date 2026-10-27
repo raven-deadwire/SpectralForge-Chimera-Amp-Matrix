@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "date": "2026-10-27",
+  "quality_profile": "nastrond-tone3000-fidelity-v2",
+  "source": "4ef21c16aed16fe2eb470ed21e5d9942224ab61e",
+  "data": {
+    "train_seconds": 7680,
+    "train_seeds": 16
+  },
+  "training": {
+    "warm_start": "continued-3840-20261026 selected models",
+    "steps": 40000,
+    "lr": 0.0005,
+    "lr_warmup": 1000,
+    "lr_half_life": 12000,
+    "frames": 4096,
+    "batch": 2,
+    "recipe": "legacy",
+    "tail_fraction": 0.1,
+    "center_training_output": true,
+    "selection": "full validation, level-gated",
+    "train_a2_commit": "2e46508",
+    "note": "container restart at step ~10,600; resumed from the step-10,500 checkpoint with identical loss"
+  },
+  "channels": {
+    "Fenrir": {
+      "validation": {
+        "full_esr": 0.018220888462797333,
+        "active_median": 0.009919007477572423,
+        "active_p95": 0.08059688770325947,
+        "active_worst": 0.27746095203098,
+        "quiet_worst_residual_rms_dbfs": -67.77218613855828,
+        "quiet_worst_residual_peak_dbfs": -50.69586752019227,
+        "rms_error_db": -0.04089136665376844,
+        "peak_error_db": -0.14385785167791632,
+        "active_pass": false,
+        "quiet_pass": false,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 39000,
+        "model_sha256": "ac2c596784a096965383e2dfcfa3bcfe3a67d9e184910950266359dda4b4894a"
+      },
+      "test": {
+        "full_esr": 0.019425334608228123,
+        "active_median": 0.011035659796365617,
+        "active_p95": 0.09349723262255574,
+        "active_worst": 0.20170015056637083,
+        "quiet_worst_residual_rms_dbfs": -88.77182873022267,
+        "quiet_worst_residual_peak_dbfs": -81.89199769975473,
+        "rms_error_db": -0.004659567992856273,
+        "peak_error_db": 0.4634232411291883,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    },
+    "Surtr": {
+      "validation": {
+        "full_esr": 0.01737063701310481,
+        "active_median": 0.011095255105352333,
+        "active_p95": 0.06505979589546411,
+        "active_worst": 0.13345326786208958,
+        "quiet_worst_residual_rms_dbfs": -77.5030063698417,
+        "quiet_worst_residual_peak_dbfs": -70.33658726823995,
+        "rms_error_db": -0.11468396431967609,
+        "peak_error_db": -0.38982414444487823,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 35500,
+        "model_sha256": "b30957cfb32ddb8db166bdf0f868bec78fbefb4f4b8f42965832a8e55617fc11"
+      },
+      "test": {
+        "full_esr": 0.01895484856775964,
+        "active_median": 0.011014899347050886,
+        "active_p95": 0.06748592428093154,
+        "active_worst": 0.2819999194338873,
+        "quiet_worst_residual_rms_dbfs": -76.80621926323363,
+        "quiet_worst_residual_peak_dbfs": -69.6160140936506,
+        "rms_error_db": -0.11105942249728695,
+        "peak_error_db": 0.30276825199839585,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    },
+    "Nidhoggr": {
+      "validation": {
+        "full_esr": 0.020514775166776984,
+        "active_median": 0.010658668474288509,
+        "active_p95": 0.10570607639842913,
+        "active_worst": 0.19496719757265968,
+        "quiet_worst_residual_rms_dbfs": -74.73419675895363,
+        "quiet_worst_residual_peak_dbfs": -67.26808916973121,
+        "rms_error_db": -0.05101407386675083,
+        "peak_error_db": 0.32371675095262376,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 39500,
+        "model_sha256": "c0dfd2c426cae9374a03754ed200a237b3ce14189abed4ea97f0d5ded51e5f31"
+      },
+      "test": {
+        "full_esr": 0.022899771268132318,
+        "active_median": 0.014553205820240334,
+        "active_p95": 0.07817766939249468,
+        "active_worst": 0.3788036645156926,
+        "quiet_worst_residual_rms_dbfs": -77.64801575354971,
+        "quiet_worst_residual_peak_dbfs": -70.89456014412673,
+        "rms_error_db": -0.062010094986677755,
+        "peak_error_db": 0.02045214593963074,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    },
+    "Fimbulvetr": {
+      "validation": {
+        "full_esr": 0.006780105301263965,
+        "active_median": 0.003520162667312536,
+        "active_p95": 0.024300058435591042,
+        "active_worst": 0.1516204134966762,
+        "quiet_worst_residual_rms_dbfs": -77.49798576449527,
+        "quiet_worst_residual_peak_dbfs": -70.11083201247972,
+        "rms_error_db": -0.020405059939742787,
+        "peak_error_db": 0.6861844679942966,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": true,
+        "fidelity_pass": false,
+        "selected_step": 29000,
+        "model_sha256": "9be87fd4bf27e78dff060140ab6958746549412781a9e1b33eff3f67181b9b58"
+      },
+      "test": {
+        "full_esr": 0.008208130669411243,
+        "active_median": 0.006174896004855841,
+        "active_p95": 0.025918298330360075,
+        "active_worst": 0.08755215666216155,
+        "quiet_worst_residual_rms_dbfs": -81.86555025450792,
+        "quiet_worst_residual_peak_dbfs": -75.37375013308353,
+        "rms_error_db": -0.04275509669782768,
+        "peak_error_db": 0.8991389332329653,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": true,
+        "fidelity_pass": false
+      }
+    },
+    "Ragnarok": {
+      "validation": {
+        "full_esr": 0.020586537925345805,
+        "active_median": 0.015025536062294915,
+        "active_p95": 0.08553353273810771,
+        "active_worst": 0.1757249041670234,
+        "quiet_worst_residual_rms_dbfs": -75.93027605278047,
+        "quiet_worst_residual_peak_dbfs": -67.810934949908,
+        "rms_error_db": -0.09589074244023799,
+        "peak_error_db": 1.9306266723508632,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 37500,
+        "model_sha256": "6e74a4a42df05bcb0f9ffe60ec2134c4feb3739d41c90f2a413a2d8dd88a735f"
+      },
+      "test": {
+        "full_esr": 0.02055253430380695,
+        "active_median": 0.014327018702061985,
+        "active_p95": 0.07655984409942602,
+        "active_worst": 0.27374906751075584,
+        "quiet_worst_residual_rms_dbfs": -70.24417926512534,
+        "quiet_worst_residual_peak_dbfs": -63.88000897566967,
+        "rms_error_db": -0.09450697744311576,
+        "peak_error_db": 1.4855408111104786,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    }
+  },
+  "release_approved": false
+}
