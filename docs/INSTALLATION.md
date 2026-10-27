@@ -85,8 +85,9 @@ sudo apt install ./SpectralForge-Chimera-1.3.2-beta.1-linux-x86_64.deb
 - Desktop launcher: SpectralForge Chimera
 - Manual: `/usr/share/doc/chimera-amp-matrix/MANUAL.html`
 - Uninstall: `sudo apt remove chimera-amp-matrix`; personal user data is not removed.
+- Optional OBS Studio filter (OBS 30 or later, e.g. Ubuntu 24.04+; not the OBS 27 of Ubuntu 22.04): the package carries it in `/usr/share/chimera-amp-matrix/obs-filter`. A package installation cannot ask, so add it for your user with `sh /usr/share/chimera-amp-matrix/obs-filter/install.sh` (close OBS first; `--uninstall` removes it). It goes to `~/.config/obs-studio/plugins/chimera-obs`. Remove that per-user copy before `apt remove` if you no longer want it.
 
-The tarball contains the same `usr` layout and a per-user `install.sh`. Extract it, read `RUNTIME-DEPENDENCIES.txt`, then run `sh install.sh` from the extracted directory. It installs only beneath your home directory: `~/.local/bin`, `~/.vst3`, and `~/.local/share`. Put `~/.local/bin` on PATH if starting it from a terminal. This archive does not bundle glibc or replace your system audio stack. It requires the listed runtime libraries; it is not an AppImage or a distribution-independent static binary.
+The tarball contains the same `usr` layout and a per-user `install.sh`. Extract it, read `RUNTIME-DEPENDENCIES.txt`, then run `sh install.sh` from the extracted directory. It installs only beneath your home directory: `~/.local/bin`, `~/.vst3`, and `~/.local/share`. Put `~/.local/bin` on PATH if starting it from a terminal. Run from a terminal, `install.sh` then asks whether to install the OBS Studio filter (OBS 30+) as well, preselected when OBS is found; answer in advance with `--with-obs-filter` or `--without-obs-filter`. Without a terminal it is not installed unless `--with-obs-filter` is given; add it later with `sh usr/share/chimera-amp-matrix/obs-filter/install.sh`. This archive does not bundle glibc or replace your system audio stack. It requires the listed runtime libraries; it is not an AppImage or a distribution-independent static binary.
 
 For an old manually copied plugin, remove only the obsolete `Chimera Amp Matrix.vst3` bundle after confirming the renamed bundle works. Avoid simultaneous system and per-user copies of the same plugin.
 
@@ -96,7 +97,7 @@ OBS users: see the [OBS + atkAudio VST3 setup and qualification guide](OBS_COMPA
 OBS's built-in VST2 filter does not load the Chimera VST3 bundle. The third-party
 VST3-host route is under compatibility testing, not certified here. The dedicated
 [Chimera OBS filter](OBS_ADDON_PLAN.md) is an optional choice in Windows Setup and the macOS PKG
-(development prototype; not yet in the Linux DEB/TAR, which use the separate OBS filter package).
+and is carried in the Linux DEB/TAR (TAR `install.sh` asks; DEB users run its `install.sh`). Development prototype.
 
 ## Document preservation (introduced in 1.3.1-beta.2)
 
@@ -129,4 +130,5 @@ These commands do not remove application or plugin bundles. Saved document copie
 
 설치 전 DAW와 Chimera를 종료합니다. Windows는 Setup, macOS는 universal PKG, Debian/Ubuntu는 DEB를 사용합니다. Linux TAR는 필요한 시스템 라이브러리를 별도로 요구하며 `install.sh`로 사용자 홈에 설치할 수 있습니다.
 Windows Setup과 macOS PKG는 OBS Studio용 Chimera 필터를 선택 항목으로 함께 설치할 수 있습니다(OBS가 있으면 미리 선택). macOS에서는 로그인한 사용자의 OBS 플러그인 폴더에 설치되며, OBS가 실행 중이면 설치를 시작하지 않습니다. 다른 사용자에게 추가하거나 제거하려면 그 사용자로 `/Library/Application Support/SpectralForge/Chimera/OBS/install.sh`(제거는 `--uninstall`)를 실행합니다.
+Linux TAR의 `install.sh`는 터미널에서 실행하면 OBS 필터(OBS 30 이상)도 설치할지 묻습니다(`--with-obs-filter`/`--without-obs-filter`로 미리 답할 수 있음). DEB는 설치 중에 물을 수 없으므로 필터를 `/usr/share/chimera-amp-matrix/obs-filter`에 넣어 두며, 원하면 OBS를 종료하고 `sh /usr/share/chimera-amp-matrix/obs-filter/install.sh`를 실행합니다. Ubuntu 22.04 기본 OBS(27)에서는 동작하지 않습니다.
 공개 베타는 아직 퍼블리셔 코드서명과 macOS 공증이 없습니다. 해시 일치는 파일 무결성 확인이며 서명과는 다릅니다. 기존 프로젝트를 복사해 보관한 뒤 새 버전의 모델 선택, IR과 자동화를 확인하세요. 개인 프리셋/IR은 제거 대상이 아닙니다.

@@ -1,4 +1,5 @@
 #include "KnobInteraction.h"
+#include <limits>
 #include "WindowFit.h"
 #include "CabRoom.h"
 #include "PresetOrder.h"
@@ -11,6 +12,7 @@
 #include "SupportPanel.h"
 #include "ReleaseInfo.h"
 #include "RackEffectDetailPanel.h"
+#include "BetaLifecycleDisplay.h"
 
 #ifndef CHIMERA_BUILD_REVISION
 #define CHIMERA_BUILD_REVISION "local"
@@ -48,6 +50,26 @@ void fillPresetMenu(juce::ComboBox& presets)
         }
         if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(groupIndex<2?category.fromFirstOccurrenceOf(" / ",false,false):category,group);
     }
+}
+// Factory-preset CUSTOM detection compares the sound, not the tuner: tuning
+// (or opening the tuner) must not turn a preset into CUSTOM.
+bool comparedForPreset(const juce::AudioProcessorParameter& parameter)
+{
+    const auto* withID=dynamic_cast<const juce::AudioProcessorParameterWithID*>(&parameter);
+    return withID==nullptr || !withID->paramID.startsWithIgnoreCase("tuner");
+}
+std::vector<float> presetSnapshot(juce::AudioProcessor& processor)
+{
+    std::vector<float> values;
+    for(auto* parameter:processor.getParameters())values.push_back(comparedForPreset(*parameter) ? parameter->getValue() : std::numeric_limits<float>::quiet_NaN());
+    return values;
+}
+bool presetEdited(juce::AudioProcessor& processor,const std::vector<float>& values)
+{
+    const auto& params=processor.getParameters();
+    if(values.size()!=size_t(params.size()))return true;
+    for(int i=0;i<params.size();++i)if(!std::isnan(values[(size_t)i]) && std::abs(params[i]->getValue()-values[(size_t)i])>1e-6f)return true;
+    return false;
 }
 void fitCabinetWindow(juce::Component::SafePointer<juce::DialogWindow> window,int remainingChecks=40)
 {
@@ -191,13 +213,16 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         juce::PopupMenu menu;
         menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
         menu.addSectionHeader(juce::String("Expiry UTC: ")+(CHIMERA_BETA_EXPIRY_UTC[0] ? CHIMERA_BETA_EXPIRY_UTC : "approval pending"));
+        if(CHIMERA_BETA_EXPIRY_KST[0])menu.addSectionHeader(juce::String("Expiry KST: ")+CHIMERA_BETA_EXPIRY_KST);
+        // Same single evaluation as the Beta / Updates notice; never a UI-owned clock.
+        menu.addSectionHeader(juce::String(spectralforge::beta::remainingText(processor.betaStatus())));
         menu.addItem(6,"Beta / Updates / Manual / Bug report...");menu.addItem(7,"Review / copy / save diagnostics...");menu.addSeparator();menu.addItem(1,"Save reference...");menu.addItem(2,"Load reference...");menu.addSeparator();menu.addItem(3,"About / IR credits");menu.addSeparator();menu.addItem(4,"Reset tuner A4 to 440 Hz");menu.addItem(5,"Clear MIDI assignments");
         const juce::Component::SafePointer<ChimeraEditor> safe(this);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
     info.setTooltip(processor.betaNotice());
     for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton}) add(*button);
-    compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
+    compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();presetOrigin=0;timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();presetOrigin=0;timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
     copyAB.setTooltip("Copy the active sound to the other slot. A/B stores all parameters and IR audio; both slots are saved with the project/reference file.");
     irLibraryButton.setComponentID("irlibrary");irLibraryButton.onClick=[this]{loadIR(0);};
@@ -243,10 +268,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     autoSetController->onStatus=[this](const spectralforge::autoset::Controller::Status& status) {
         using Controller=spectralforge::autoset::Controller;using Phase=Controller::Phase;
         // Every listening pass (Tone EQ, multiband and finish included) offers CANCEL.
-        const bool busy=autoSetController->busy();
-        const auto text=busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text;
-        dynamicsPanel->setAutoSetStatus(text,busy,status.canUndo);
-        if(easyView)easyView->setAutoSetStatus(text,busy,status.canUndo);
+        publishAutoSetStatus();const bool busy=autoSetController->busy();
         spectralforge::AutoSetReport report;
         report.listening=busy;report.finished=status.phase==Phase::done || status.phase==Phase::failed;
         for(const auto phase:status.passes)report.steps.add(Controller::phaseName(phase));
@@ -276,6 +298,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,juce::roundToInt(o.strength*100),o.locks});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
         autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,float(o.strength)/100.f,o.locks});
+        if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
@@ -352,7 +375,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
     presets.setName("Preset");fillPresetMenu(presets);
     presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
-    presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetValues.clear();for(auto* parameter:processor.getParameters())presetValues.push_back(parameter->getValue());presets.setTooltip(spectralforge::selectablePresetDescription(presets.getSelectedId()-1));updateModeUI();}};
+    presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetOrigin=presets.getSelectedId();presetValues=presetSnapshot(processor);presets.setTooltip(spectralforge::selectablePresetDescription(presets.getSelectedId()-1));updateModeUI();if(easyView)easyView->refreshNow();}};
     for(auto* button:{&doublerOn,&midi,&tap,&hostTempo,&metronome,&presetPrevious,&presetNext,&presetSave,&presetLoad,&delaySync})add(*button);
     presetPrevious.onClick=[this]{presets.setSelectedId(spectralforge::adjacentPreset(presets.getSelectedId()-1,-1)+1);};presetNext.onClick=[this]{presets.setSelectedId(spectralforge::adjacentPreset(presets.getSelectedId()-1,1)+1);};
     presetSave.onClick=[this]{referenceFile(true);};presetLoad.onClick=[this]{referenceFile(false);};tap.onClick=[this]{processor.tapTempo();};midi.onClick=[this]{midiMenu();};
@@ -594,7 +617,16 @@ bool ChimeraEditor::isInterestedInFileDrag(const juce::StringArray& files)
 }
 void ChimeraEditor::filesDropped(const juce::StringArray& files,int x,int y)
 {
-    if(!isInterestedInFileDrag(files) || page!=0) return;
+    if(!isInterestedInFileDrag(files)) return;
+    if(easyMode) {
+        // Easy view has its own layout: only a cabinet shown in its room
+        // takes the IR, never the knobs or preset area around it.
+        if(!easyView) return;
+        const int lane=easyView->laneAt(easyView->getLocalPoint(this,juce::Point<int>{x,y}));
+        if(lane>=0) { processor.loadIR(lane,juce::File(files[0])); timerCallback(); }
+        return;
+    }
+    if(page!=0) return;
     const auto point=canvas.getLocalPoint(this,juce::Point<int>{x,y});x=point.x;y=point.y;
     const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
     if(y<330 || y>742) return;
@@ -627,10 +659,10 @@ void ChimeraEditor::timerCallback()
     for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
     if(!spectralforge::ui::visible(*this)){stateDirty=true;return;}
-    if(easyMode && easyView)easyView->showPreset(presets.getSelectedId(),presets.getText());
+    if(easyMode && easyView)easyView->showPreset(presets.getSelectedId(),presets.getText(),presetOrigin);
 
     // The large factory-preset comparison is not a meter. Bound it to 5 Hz.
-    if(++presetCheckTick%5==0 && !presetValues.empty()) {const auto& params=processor.getParameters();bool changed=presetValues.size()!=size_t(params.size());for(int i=0;!changed && i<params.size();++i)changed=std::abs(params[i]->getValue()-presetValues[(size_t)i])>1e-6f;if(changed)markPresetCustom();}
+    if(++presetCheckTick%5==0 && !presetValues.empty() && presetEdited(processor,presetValues))markPresetCustom();
     const int current=(int)processor.parameters().getRawParameterValue("mode")->load();
     if(lastBoardEnabled!=(processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) || lastBoostAfterDrive!=(gainOrder.getSelectedId()==2) || lastEnvelopeFirst!=(preOrder.getSelectedId()==2) || current!=lastMode || lastDualCross!=(processor.parameters().getRawParameterValue("dualtype")->load()>.5f) || lastTuner!=(processor.parameters().getRawParameterValue("tuneron")->load()>.5f)) updateModeUI();
     signalPath->refresh();signalPath->select(pathSelections[size_t(current)]);
@@ -1045,7 +1077,7 @@ void ChimeraEditor::referenceFile(bool save)
             if(xml && xml->hasTagName("PARAMS")) {safe->processor.setStateInformation(data.getData(),(int)data.getSize());ok=true;}
         }
         if(!ok) juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Reference file",save ? "Could not save the reference file." : "This is not a valid Chimera reference file.","OK",safe);
-        if(ok) {safe->markPresetCustom();safe->presets.setSelectedId(0,juce::dontSendNotification);safe->presets.setText(file.getResult().getFileNameWithoutExtension(),juce::dontSendNotification);}
+        if(ok) {safe->markPresetCustom();safe->presetOrigin=0;safe->presets.setSelectedId(0,juce::dontSendNotification);safe->presets.setText(file.getResult().getFileNameWithoutExtension(),juce::dontSendNotification);}
         safe->timerCallback();
     });
 }
@@ -1113,13 +1145,20 @@ void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
         easyView->fillPresetMenu(fillPresetMenu);
         easyView->openFullEditor=[this]{setEasyMode(false,true);};
         // Load now so the Easy description never lags behind the choice.
-        easyView->choosePreset=[this](int id){presets.setSelectedId(id,juce::sendNotificationSync);easyView->showPreset(presets.getSelectedId(),presets.getText());};
+        easyView->choosePreset=[this](int id){presets.setSelectedId(id,juce::sendNotificationSync);easyView->showPreset(presets.getSelectedId(),presets.getText(),presetOrigin);};
         easyView->stepPreset=[this](int step){(step<0?presetPrevious:presetNext).onClick();};
         easyView->toggleTuner=[this]{tunerOpen.onClick();};
         easyView->autoSet=[this]{autoSetController->start();};
         easyView->autoCancel=[this]{autoSetController->cancel();};
         easyView->autoUndo=[this]{autoSetController->undo();};
-        easyView->setRoom(std::make_unique<CabRoomOverview>(processor));
+        easyView->chooseAutoOption=[this](int id){dynamicsPanel->chooseAutoOption(id);};
+        auto room=std::make_unique<CabRoomOverview>(processor);
+        auto* roomView=room.get();
+        easyView->setRoom(std::move(room),[roomView](int lane){return roomView->getRigBounds(lane);});
+        // A run may have started or finished in the full editor before this
+        // view existed; show its current state, not the constructor default.
+        {const auto& o=autoSetController->currentOptions();easyView->setAutoSetOptions(o.instrument,int(o.style),o.tone,o.finish,o.multiband);}
+        publishAutoSetStatus();
         scrollContent.addChildComponent(*easyView);
     }
     easyMode=easy;
@@ -1128,9 +1167,17 @@ void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
     canvas.setVisible(!easy);
     if(easyView) {
         easyView->setVisible(easy);
-        if(easy)easyView->showPreset(presets.getSelectedId(),presets.getText());
+        if(easy){easyView->showPreset(presets.getSelectedId(),presets.getText(),presetOrigin);easyView->refreshNow();}
     }
     resized();updateModeUI();
+}
+void ChimeraEditor::publishAutoSetStatus()
+{
+    // The controller decides which phases are running; every view follows it.
+    const auto& status=autoSetController->current();const bool busy=autoSetController->busy();
+    const auto text=busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text;
+    dynamicsPanel->setAutoSetStatus(text,busy,status.canUndo);
+    if(easyView)easyView->setAutoSetStatus(text,busy,status.canUndo);
 }
 void ChimeraEditor::markPresetCustom()
 {
