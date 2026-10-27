@@ -257,6 +257,11 @@ class PackagingVersionTests(unittest.TestCase):
         self.assertEqual(refs, {release.MACOS_PKG_ID: "SpectralForge-Chimera.pkg",
                                 release.MACOS_OBS_PKG_ID: "SpectralForge-Chimera-OBS.pkg"})
         self.assertEqual(tree.find("installation-check").get("script"), "obsClosed()")
+        self.assertEqual(tree.find("options").get("require-scripts"), "true")
+        self.assertEqual(tree.find("domains").attrib, {
+            "enable_localSystem": "true", "enable_anywhere": "false", "enable_currentUserHome": "false"})
+        self.assertEqual(tree.find("volume-check/allowed-os-versions/os-version").get("min"), "12.0")
+        self.assertEqual(tree.find("pkg-ref/must-close/app").get("id"), release.OBS_BUNDLE_ID)
         script = tree.find("script").text
         self.assertIn(release.OBS_BUNDLE_ID, script)
         self.assertIn("my.result.type = 'Fatal'", script)
@@ -272,6 +277,24 @@ class PackagingVersionTests(unittest.TestCase):
         self.write("build/obs-macos-package/chimera-obs-installer")
         with self.assertRaisesRegex(RuntimeError, "staged Universal OBS filter package"):
             release.obs_filter_macos(self.root / "stage", self.root / "build")
+
+    def test_linux_obs_package_requires_the_staged_filter(self):
+        self.write("build/obs-linux-package/chimera-obs-installer")
+        self.write("build/obs-linux-package/install.sh")
+        with self.assertRaisesRegex(RuntimeError, "staged OBS filter package"):
+            release.obs_filter_linux(self.root / "stage", self.root / "build")
+
+    @unittest.skipIf(sys.platform == "win32", "POSIX shell installer")
+    def test_linux_tar_install_rejects_unknown_options_before_changing_anything(self):
+        home = self.root / "home"
+        home.mkdir()
+        result = subprocess.run(["sh", str(ROOT / "Tools/install-linux.sh"), "--obs"], capture_output=True, text=True,
+                                env={"HOME": str(home), "PATH": "/usr/bin:/bin"})
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--with-obs-filter", result.stderr)
+        self.assertEqual(list(home.iterdir()), [])
+        script = (ROOT / "Tools/install-linux.sh").read_text(encoding="utf-8")
+        self.assertIn('CHIMERA_OBS_FILTER="$CHIMERA_SOURCE/' + release.OBS_LINUX_FOLDER + '"', script)
 
     def test_candidate_stage_inventory_and_versions_without_global_mutation(self):
         expected = version.identity(self.root, SHA)
