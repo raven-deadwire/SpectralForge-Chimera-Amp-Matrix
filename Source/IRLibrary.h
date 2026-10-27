@@ -83,7 +83,8 @@ private:
     static constexpr size_t modelCacheSize=12;
     std::array<uint64_t,6> warmModels{}; // guarded by mutex
     std::atomic<unsigned> warmRevision{},warmedResponses{};
-    std::pair<unsigned,uint64_t> warmFailed{}; // worker only: skip until the list changes
+    unsigned warmFailedRevision{}; // worker only, with warmFailed: models that failed
+    std::array<uint64_t,6> warmFailed{}; // for this list; skipped until the list changes
     void trimModelCache();
     bool warmOne();
     // Responses that helper threads generated for this worker pass; build()

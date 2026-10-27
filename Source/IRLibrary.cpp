@@ -218,8 +218,9 @@ void IRLibrary::run()
 }
 void IRLibrary::keepWarm(const std::array<uint64_t,6>& models)
 {
-    { std::lock_guard<std::mutex> lock(mutex); if(models==warmModels) return; warmModels=models; }
-    warmRevision.fetch_add(1,std::memory_order_relaxed);
+    // Bump the revision under the same lock so warmOne() never pairs the new
+    // list with the old revision.
+    { std::lock_guard<std::mutex> lock(mutex); if(models==warmModels) return; warmModels=models; warmRevision.fetch_add(1,std::memory_order_relaxed); }
     notify();
 }
 void IRLibrary::trimModelCache()
@@ -242,12 +243,15 @@ void IRLibrary::trimModelCache()
 }
 bool IRLibrary::warmOne()
 {
-    std::array<uint64_t,6> wanted;
-    { std::lock_guard<std::mutex> lock(mutex); wanted=warmModels; }
+    std::array<uint64_t,6> wanted;unsigned revision;
+    { std::lock_guard<std::mutex> lock(mutex); wanted=warmModels; revision=warmRevision.load(std::memory_order_relaxed); }
+    // Remember every model that failed for this list, not just the last one,
+    // or two failing models would be retried in turn without end.
+    if(warmFailedRevision!=revision){warmFailedRevision=revision;warmFailed.fill(0);}
     const auto cached=[this](uint64_t model){return std::any_of(modelCache.begin(),modelCache.end(),[model](const auto& item){return item.key==model;});};
-    const auto revision=warmRevision.load(std::memory_order_relaxed);
+    const auto failed=[this](uint64_t model){return std::find(warmFailed.begin(),warmFailed.end(),model)!=warmFailed.end();};
     const auto next=std::find_if(wanted.begin(),wanted.end(),[&](uint64_t model){
-        return model!=0 && !cached(model) && warmFailed!=std::pair<unsigned,uint64_t>{revision,model};});
+        return model!=0 && !cached(model) && !failed(model);});
     if(next==wanted.end()) return false;
     // Give way at once to a real request (a recall, an edit) or a new list.
     struct Context {const IRLibrary* library;unsigned revision;std::array<std::pair<int,uint64_t>,6> requests;};
@@ -273,7 +277,7 @@ bool IRLibrary::warmOne()
         warmedResponses.fetch_add(1,std::memory_order_relaxed);
     }
     catch(const originalCab::GenerationCancelled&) {}
-    catch(const std::exception&) { warmFailed={revision,*next}; }
+    catch(const std::exception&) { warmFailed[size_t(next-wanted.begin())]=*next; }
     return true;
 }
 void IRLibrary::pregenerate(const std::array<uint64_t,6>& builtModels)
