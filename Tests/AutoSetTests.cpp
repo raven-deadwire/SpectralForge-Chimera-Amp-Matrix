@@ -832,46 +832,95 @@ void controllerGateStageEditHistory() {
         "gateon","gatethreshold","gateRangeDb","gateAfterRig","gateMode",
         "gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
         "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"};
-    for(auto style:{Style::clean,Style::rock,Style::metal}) for(int edit=0;edit<3;++edit) {
-        auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
-        Controller c(*p);c.setOptions({1,false,style,false,false,true});
-        auto values=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
-        const auto before=values();auto* input=p->parameters().getParameter("input");const float original=input->getValue();
-        double now=juce::Time::getMillisecondCounterHiRes();c.start();
-        for(int offset=0;offset<48000*14;offset+=256) {
-            float in[256],rig[256];
-            for(int n=0;n<256;++n) {
-                const int sample=offset+n;const bool playing=sample%96000<72000;
-                const float wave=std::sin(float(2*juce::MathConstants<double>::pi*1000*sample/48000.));
-                in[n]=wave*(playing?.1f:.0001f);rig[n]=wave*(playing?.2f:.001f);
+    int cases=0;
+    for(auto style:{Style::clean,Style::rock,Style::metal}) for(float amount:{.25f,.5f,.75f,1.f}) {
+        std::vector<float> control;
+        // 0 control; 1/2 manual/host input A-B-A; 3 Gate lock + host edits;
+        // 4 gate host A-B-A during capture; 5 after apply; 6 options during
+        // capture; 7 newly selected Undo lock; 8 input locked, gate free;
+        // 9 Gate lock without host edits (separate lock-only control).
+        for(int edit=0;edit<10;++edit) {
+            auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+            Controller c(*p);
+            Controller::Options options{1,false,style,false,false,true,amount,
+                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u};
+            c.setOptions(options);
+            auto gateValues=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
+            auto gateABA=[&] {
+                for(const auto& id:gateIDs) {
+                    auto* q=p->parameters().getParameter(id);const float original=q->getValue();
+                    q->setValueNotifyingHost(original<.5f?1.f:0.f);q->setValueNotifyingHost(original);
+                }
+            };
+            if(edit==3 || edit==9)for(const auto& id:gateIDs)p->parameters().getParameter(id)->setValueNotifyingHost(.37f);
+            const auto before=gateValues();auto preserved=before;
+            auto* input=p->parameters().getParameter("input");const float original=input->getValue();
+            double now=juce::Time::getMillisecondCounterHiRes();c.start();
+            for(int offset=0;offset<48000*14;offset+=256) {
+                float in[256],rig[256];
+                for(int n=0;n<256;++n) {
+                    const int sample=offset+n;const bool playing=sample%96000<72000;
+                    const float wave=std::sin(float(2*juce::MathConstants<double>::pi*1000*sample/48000.));
+                    in[n]=wave*(playing?.1f:.0001f);rig[n]=wave*(playing?.2f:.001f);
+                }
+                if(offset==256*500) {
+                    if(edit==1 || edit==2) {
+                        if(edit==1)input->beginChangeGesture();
+                        input->setValueNotifyingHost(input->convertTo0to1(3.f));input->setValueNotifyingHost(original);
+                        if(edit==1)input->endChangeGesture();
+                    } else if(edit==3) {
+                        for(const auto& id:gateIDs)p->parameters().getParameter(id)->setValueNotifyingHost(.47f);
+                        preserved=gateValues();
+                    } else if(edit==4){gateABA();preserved=gateValues();}
+                    else if(edit==6) {
+                        auto next=options;next.gates=false;next.strength=amount==1.f?.25f:1.f;
+                        next.locks=Controller::lockGate;c.setOptions(next);
+                    }
+                }
+                const float* ins[]{in};const float* rigs[]{rig};
+                for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
+                p->autoSetCapture().push(Tap::rig,rigs,1,256);
+                now+=1000.*256/48000.;c.tick(now);
             }
-            // Mid-capture manual gesture and host-style notification-only A-B-A.
-            if(offset==256*500 && edit) {
-                if(edit==1)input->beginChangeGesture();
-                input->setValueNotifyingHost(input->convertTo0to1(3.f));input->setValueNotifyingHost(original);
-                if(edit==1)input->endChangeGesture();
+            check(c.current().phase==Controller::Phase::done,"Gate-stage matrix did not finish");
+            const auto applied=gateValues();
+            if(edit==1 || edit==2 || edit==3 || edit==4 || edit==9) {
+                check(applied==preserved,"Gate-stage apply overwrote input/gate edits or a Gate lock");
+                if(edit==1 || edit==2)check(input->getValue()==original,"Input A-B-A was overwritten");
+                if(edit==3 || edit==9)check(std::any_of(c.current().steps.begin(),c.current().steps.end(),
+                    [](const auto& s){return s.phase==Controller::Phase::gates && s.result=="kept (locked)" && !s.changed;}),
+                    "Gate lock was not reported as kept");
+            } else {
+                check(applied!=before && c.lastGateAnalysis().measured,"Gate-stage control did not apply measured evidence");
+                const bool hard=style==Style::metal;
+                check(get(*p,hard?"gate2On":"expOn")>.5f,"Gate-stage fixture did not exercise its hard/soft plan");
+                // The fixed signal has a -80 dBFS noise peak: the opening
+                // threshold is nine dB above it, at the ACTUAL input gain.
+                // Gate threshold is integer dB, so allow half a dB quantisation.
+                const float opening=get(*p,hard?"gatethreshold":"expThreshold");
+                check(near(opening,-71.f+get(*p,"input"),.51f),"Gate stages ignored the applied input gain");
+                check(near(get(*p,hard?"gate2RangeDb":"expRangeDb"),hard?18.f:15.f,.01f),
+                    "Strength weakened the gate-stage protection range");
+                if(hard)check(near(get(*p,"gate2Threshold"),opening-6.f,.01f),"Gate 2 threshold lost its main-gate offset");
+                if(edit==0)control=applied;
+                if(edit==6)check(applied==control,"Mid-run options changed the active gate plan");
+                if(edit==8)check(input->getValue()==original,"Locked input gain was changed");
             }
-            const float* ins[]{in};const float* rigs[]{rig};
-            for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
-            p->autoSetCapture().push(Tap::rig,rigs,1,256);
-            now+=1000.*256/48000.;c.tick(now);
+            if(edit==5)gateABA();
+            const auto undoProtected=gateValues();
+            if(edit==7){auto next=options;next.locks=Controller::lockGate;c.setOptions(next);}
+            c.undo();
+            const auto afterUndo=gateValues();
+            if(edit==5 || edit==6 || edit==7)
+                check(afterUndo==undoProtected,"Undo overwrote a newer host edit or newly selected Gate lock");
+            else if(edit==1 || edit==2 || edit==3 || edit==4 || edit==9)
+                check(afterUndo==preserved,"Undo changed preserved gate-stage values");
+            else for(size_t i=0;i<before.size();++i)
+                check(near(afterUndo[i],before[i],.001f),"Gate-stage Undo changed "+gateIDs[i].toStdString());
+            p->releaseResources();++cases;
         }
-        check(c.current().phase==Controller::Phase::done,"Gate-stage edit-history run did not finish");
-        if(!edit) {
-            check(values()!=before,"Gate-stage positive control did not apply a plan");
-            check(get(*p,style==Style::metal?"gate2On":"expOn")>.5f,"Gate-stage fixture did not exercise expected hard/soft plan");
-        } else {
-            check(input->getValue()==original,"Gate-stage run overwrote input A-B-A");
-            check(values()==before,"Gate stages used mixed-gain evidence after input A-B-A");
-        }
-        c.undo();
-        const auto afterUndo=values();
-        if(edit)check(afterUndo==before,"Undo changed gate stages kept after input A-B-A");
-        for(size_t i=0;i<before.size();++i)
-            check(near(afterUndo[i],before[i],.001f),"Gate-stage undo changed "+gateIDs[i].toStdString()+": "+std::to_string(before[i])+" > "+std::to_string(afterUndo[i]));
-        p->releaseResources();
     }
-    std::cout<<"PASS gate-stage edit history: 3 styles x unchanged/manual/host A-B-A, apply and undo\n";
+    std::cout<<"PASS gate-stage matrix: "<<cases<<" cases, three styles x four strengths x ten ownership/option modes; 21 gate parameters\n";
 }
 
 int main(int argc, char** argv) {
