@@ -610,6 +610,9 @@ int main(int argc,char** argv){try {
         for(int e=0;e<2;++e){auto* path=find<juce::TextButton>(*editor,e==0?"path.tone.eq":"path.final.eq");path->triggerClick();
             auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(waitFor([&]{return panel->isShowing()&&panel->isNavigationSelected();}),"Restored EQ navigation stale");
             auto* selector=find<juce::ComboBox>(*panel,eqID(e,-1,"band"));
+            // The panel rebuilds its band list on its next timer tick; a restore
+            // that adds bands is not selectable until then.
+            check(waitFor([&]{for(int b=0;b<12;++b)if(panel->isBandVisible(b)!=(selector->indexOfItemId(b+1)>=0))return false;return true;}),"Restored EQ band list stale");
             for(int b=0;b<12;++b){selector->setSelectedId(b+1,juce::sendNotificationSync);for(const char* field:{"frequency","gain","q"}){
                 auto* control=find<juce::Slider>(*panel,eqID(e,b,field));const float expected=get(*processor,eqID(e,b,field));
                 if(!control || std::abs(control->getValue()-expected)>=.02) {
