@@ -84,7 +84,6 @@ private:
     std::array<uint64_t,6> warmModels{}; // guarded by mutex
     std::atomic<unsigned> warmRevision{},warmedResponses{};
     std::pair<unsigned,uint64_t> warmFailed{}; // worker only: skip until the list changes
-    bool isWarm(uint64_t model) const;
     void trimModelCache();
     bool warmOne();
     // Responses that helper threads generated for this worker pass; build()

@@ -222,18 +222,17 @@ void IRLibrary::keepWarm(const std::array<uint64_t,6>& models)
     warmRevision.fetch_add(1,std::memory_order_relaxed);
     notify();
 }
-bool IRLibrary::isWarm(uint64_t model) const
-{
-    std::lock_guard<std::mutex> lock(mutex);
-    return model!=0 && std::find(warmModels.begin(),warmModels.end(),model)!=warmModels.end();
-}
 void IRLibrary::trimModelCache()
 {
+    if(modelCache.size()<=modelCacheSize) return;
+    std::array<uint64_t,6> warm;
+    { std::lock_guard<std::mutex> lock(mutex); warm=warmModels; }
     // Oldest first, but keep what the cabinets ask for now and what the next
-    // recall will ask for while anything else can go.
+    // recall will ask for while anything else can go. Snapshot the warm list
+    // once so scanning candidates does not repeatedly acquire the shared mutex.
     while(modelCache.size()>modelCacheSize) {
-        const auto keep=[this](uint64_t key){
-            if(isWarm(key)) return true;
+        const auto keep=[this,&warm](uint64_t key){
+            if(key!=0 && std::find(warm.begin(),warm.end(),key)!=warm.end()) return true;
             for(const auto* cab:cabs) if(cab->requestedModel.load()==key) return true;
             return false;
         };
