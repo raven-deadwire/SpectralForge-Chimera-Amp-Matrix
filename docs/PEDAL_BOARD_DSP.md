@@ -73,6 +73,7 @@ control names do not establish sound equivalence.
 | Multi Comp (1.4 PRE Expansion A) | Linked peak compressor, COMP 1:1–5:1, GAIN 0–15 dB, SENS −25 to +6 dB, 4 ms attack; Normal, Multiband (250 Hz LR4 split, independent bands, BALANCE) and TubeSim | Laid out after the published EBS MultiComp controls; crossover, release, knee and TubeSim curve are Chimera's; not a measured hardware model |
 | Tight Boost (1.4 PRE Expansion A) | One knob 0–22 dB; low cut 60→220 Hz and 1 kHz bell up to +4 dB as it rises; soft-knee saturation at 4× (drive-stage latency) | Laid out after the published Fortin 33 behaviour; curves and clipping are Chimera's; not a measured hardware model |
 | Power Wah (1.4 PRE Expansion A) | Band-pass wah (Q 4, 350 Hz–2.2 kHz, 25 ms treadle lag) and 0–40 dB clean boost with separate switches, wah then boost | Laid out after the published Power Wah Boost controls; sweep, Q and lag are Chimera's; not a measured hardware model |
+| Bass Synth (1.4 PRE Expansion A) | Monophonic zero-crossing tracker (30–1000 Hz, octave-error rejection), triangle/saw/square + sub + VOICE oscillators, envelope/LFO-swept resonant low-pass, input-following level and gate | Published MXR Bass Synth control set only; everything else is Chimera's; single notes, not a model of the pedal |
 
 Default normalized positions are UI seeds, not hardware factory settings. The new
 board does not convert or overwrite the previous raw PRE bank. Controls known to

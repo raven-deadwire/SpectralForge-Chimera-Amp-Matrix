@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==44,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==45,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8)");
     int seen=0;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -279,6 +279,60 @@ void powerWahResponse() {
      const double ms=1000.*n63/48000;std::cout<<"MEASURE Power Wah treadle lag to 63 %: "<<ms<<" ms\n";require(std::abs(ms-25)<1,"Treadle lag is not about 25 ms");}
     std::cout<<"PASS Power Wah: sweep 350 Hz-2.2 kHz at the treadle centre, measured = analytic, boost exact, wah off transparent, 25 ms treadle lag\n";
 }
+// ---- Bass Synth ----
+Controls synth(float mix,float sub,float cutoff,float resonance,float envelope,float mod,int shape,bool voice){Controls c{};c[0]=mix;c[1]=sub;c[2]=cutoff;c[3]=resonance;c[4]=envelope;c[5]=mod;c[6]=float(shape);c[7]=voice?1.f:0.f;return c;}
+// A steady bass-like note (falling harmonics, h2 weight selectable), then
+// `silence` seconds of nothing. Returns the output.
+std::vector<float> renderNote(PedalBassSynth& bs,const Controls& c,double hz,double seconds,double h2=.5,double silence=0,double rate=48000) {
+    bs.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;const long playing=long(seconds*rate);
+    for(int block=0;block<int((seconds+silence)*rate/256);++block){
+        for(int n=0;n<256;++n,++t){
+            double x=0;if(t<playing){const double w=juce::MathConstants<double>::twoPi*hz*double(t)/rate;x=.18*(std::sin(w)+h2*std::sin(2*w)+.33*std::sin(3*w)+.25*std::sin(4*w));}
+            b.setSample(0,n,float(x));b.setSample(1,n,float(x));
+        }
+        bs.process(b,c);for(int n=0;n<256;++n)out.push_back(b.getSample(0,n));
+    }
+    return out;
+}
+void bassSynthResponse() {
+    const auto& m=pedalModel(bassSynth);
+    require(juce::String(m.id)=="pre.basssynth" && juce::String(m.name)=="Bass Synth" && m.controlCount==8 && pedalMenuEntries[bassSynth].kind==PedalMenuKind::pitch,"Bass Synth catalog entry");
+    PedalBassSynth bs;bs.prepare(48000);
+    // Tracking, including a note whose 2nd harmonic is stronger than usual.
+    double worstTrack=0;
+    for(const double hz:{40.,50.,80.,110.,200.})for(const double h2:{.5,.9}) {
+        renderNote(bs,synth(1,0,1,0,0,0,PedalBassSynth::saw,false),hz,.4,h2);
+        worstTrack=std::max(worstTrack,std::abs(bs.trackedHz()/hz-1));
+    }
+    std::cout<<"MEASURE Bass Synth tracking 40-200 Hz (2nd harmonic 0.5 and 0.9): largest error "<<100*worstTrack<<" %\n";
+    require(worstTrack<.01,"Bass Synth does not track the note within 1 %");
+    // SHAPE: square has (almost) no even harmonics, saw does; triangle's
+    // upper harmonics fall faster than square's.
+    const auto rel=[&](const std::vector<float>& x,double f,double k){return toneDb(x,k*f)-toneDb(x,f);};
+    const auto open=[&](int shape,bool voice,float sub=0,float cutoff=1){return renderNote(bs,synth(1,sub,cutoff,0,0,0,shape,voice),100.,.6);};
+    const auto sq=open(PedalBassSynth::square,false),sw=open(PedalBassSynth::saw,false),tr=open(PedalBassSynth::triangle,false);
+    std::cout<<"MEASURE Bass Synth 2nd/3rd harmonic re fundamental: square "<<rel(sq,100,2)<<" / "<<rel(sq,100,3)<<", saw "<<rel(sw,100,2)<<" / "<<rel(sw,100,3)<<", triangle - / "<<rel(tr,100,3)<<" dB\n";
+    require(rel(sq,100,2)<-30 && rel(sw,100,2)>-9 && rel(tr,100,3)<rel(sq,100,3)-6,"SHAPE does not give its waveform's harmonics");
+    // SUB adds the octave below; VOICE adds the octave and fifth above.
+    const auto subbed=open(PedalBassSynth::square,false,1);
+    std::cout<<"MEASURE Bass Synth 50 Hz (sub) re 100 Hz: sub 0 "<<rel(sq,100,.5)<<", sub 1 "<<rel(subbed,100,.5)<<" dB\n";
+    require(rel(subbed,100,.5)-rel(sq,100,.5)>20,"SUB MIX does not add the octave below");
+    const auto voiced=open(PedalBassSynth::square,true);
+    require(rel(voiced,100,2)-rel(sq,100,2)>20 && rel(voiced,100,1.5)>-25,"VOICE does not add the octave and fifth above");
+    // CUTOFF closes the filter on the upper harmonics.
+    const auto dark=open(PedalBassSynth::saw,false,0,0);
+    std::cout<<"MEASURE Bass Synth 3rd harmonic re fundamental: cutoff open "<<rel(sw,100,3)<<", closed "<<rel(dark,100,3)<<" dB\n";
+    require(rel(dark,100,3)<rel(sw,100,3)-15,"CUTOFF does not darken the synth");
+    // The synth stops when the note stops.
+    // The synth follows the input level down (80 ms release), then the gate
+    // closes below -50 dBFS and the tracker lets go.
+    {const auto x=renderNote(bs,synth(1,1,1,0,0,0,PedalBassSynth::saw,true),80.,.4,.5,.8);
+     size_t silent=x.size();while(silent>0 && x[silent-1]==0.f)--silent;
+     const double ms=1000.*(double(silent)-48000*.4)/48000;
+     std::cout<<"MEASURE Bass Synth after the note stops: exactly silent "<<ms<<" ms later\n";
+     require(ms<600 && bs.trackedHz()==0,"Bass Synth keeps sounding after the note stops");}
+    std::cout<<"PASS Bass Synth: tracking within 1 % (no octave error), SHAPE harmonics, SUB, VOICE, CUTOFF, stops with the note\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -296,12 +350,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i)pw.process(b,wah(float(i%10)/9.f,20,i%3!=0,i%2==0));
     countAllocations=false;require(allocations==0,"Power Wah allocates while processing");
-    std::cout<<"PASS Para EQ, Multi Comp, Tight Boost and Power Wah: no allocation while automating or switching\n";
+    PedalBassSynth bs;bs.prepare(48000);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=.2f*float(std::sin(.015*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}bs.process(b,synth(.7f,float(i%3)/2.f,float(i%5)/4.f,.3f,.4f,float(i%2),i%3,i%2==0));}
+    countAllocations=false;require(allocations==0,"Bass Synth allocates while processing");
+    std::cout<<"PASS Para EQ, Multi Comp, Tight Boost, Power Wah and Bass Synth: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

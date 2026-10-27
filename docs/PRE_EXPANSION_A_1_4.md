@@ -1,6 +1,6 @@
-# PRE Expansion A 1.4 — Para EQ, Multi Comp, Tight Boost, Power Wah
+# PRE Expansion A 1.4 — Para EQ, Multi Comp, Tight Boost, Power Wah, Bass Synth
 
-Status: **four of six models implemented on `claude/pre-paraeq`**, covered by
+Status: **five of six models implemented on `claude/pre-paraeq`**, covered by
 `ChimeraPedalExpansionTests`. Roadmap: 1.4 PRE Expansion A, six models (Empress
 Heavy Menace; Tel-Ray Power Wah Boost; MXR MB301 Bass Synth; EBS MultiComp;
 Fortin 33; Empress ParaEQ MKII). These are development references; the
@@ -110,7 +110,30 @@ effectsdatabase; the original manual was not readable from the container):
 No added latency, no allocation. An original wah and boost laid out after
 the published controls, not a measured model of the pedal.
 
-## 6. Measurements (`ChimeraPedalExpansionTests`)
+## 6. Bass Synth (model 44, `pre.basssynth`)
+
+Reference: MXR Bass Synth (MB301). Public description used (retailer
+listings: Turramusic, Parkway Music; a settings guide at GuitarChalk; no
+numeric specification was found and the manufacturer's pages were not
+reachable): MIX, SUB MIX, CUTOFF, RESONANCE, ENVELOPE (filter response, from
+fast bounce to slow sweeps), MOD, SHAPE (triangle / sawtooth / square) and
+VOICE (additional harmonically tuned oscillators). The hardware notes that
+fast playing can make tracking glitch.
+
+Everything below the control names is a Chimera design:
+
+| Part | Chimera |
+|---|---|
+| Tracking | Mono sum, two-pole 600 Hz low-pass, 20 Hz DC block; positive crossings past a ±30 % hysteresis band measure each period (sub-sample interpolated); 30–1000 Hz; a jump is accepted only when two consecutive periods agree (rejects octave errors); single notes only |
+| Oscillators | SHAPE triangle / band-limited saw / band-limited square (PolyBLEP); SUB a square one octave down; VOICE adds the octave (×0.5) and fifth (×0.35) above |
+| Filter | TPT state-variable low-pass; CUTOFF 100 Hz–4 kHz, RESONANCE Q 0.7–8; ENVELOPE: a note onset opens the filter up to ×9 and it closes in 30 ms–1 s; MOD: 5 Hz LFO, up to ±1 octave |
+| Level | Follows the input (2 ms attack, 80 ms release); a gate closes below −50 dBFS; MIX blends dry and synth |
+
+No added latency (the tracker follows about one period behind a note), no
+allocation. An original tracking synth with the published controls, not a
+model of the pedal's circuit or tracking.
+
+## 7. Measurements (`ChimeraPedalExpansionTests`)
 
 - Steady-state sine gain against the analytic response, four settings
   (low +15 dB wide at 35 Hz; mid −15 dB narrow; high +10 dB at 20 kHz,
@@ -140,14 +163,23 @@ the published controls, not a measured model of the pedal.
   equals the analytic response within 0.009 dB; BOOST alone is exactly 40 dB,
   WAH and BOOST off is transparent, both combine; the treadle reaches 63 % of
   a jump in 25.0 ms.
-- 125 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
-  5, Tight Boost 1, Power Wah 4) at the end of the list, version 16; every released
+- Bass Synth: tracking at 40/50/80/110/200 Hz with a 2nd harmonic at 0.5
+  and 0.9 of the fundamental: largest error 0.00006 %, no octave error.
+  Harmonics re the fundamental at 100 Hz: square 2nd −39.2 dB, 3rd −9.5 dB;
+  saw 2nd −5.9 dB; triangle 3rd −19.2 dB. SUB MIX 1 brings 50 Hz from −120 to
+  0 dB; VOICE adds 200 and 150 Hz; closing CUTOFF lowers the 3rd harmonic by
+  16 dB. After a note stops the output is exactly silent 357 ms later.
+- 170 parameters (5 owners × (bypass + controls) for Para EQ 11, Multi Comp
+  5, Tight Boost 1, Power Wah 4, Bass Synth 8) at the end of the list,
+  version 16; every released
   parameter keeps its index. A project without them restores their defaults.
 
-## 7. Not done
+## 8. Not done
 
 - Listening on real DI; DAW automation and recall.
 - Dedicated pedal artwork (the card uses the generic workbench style).
-- The other two Expansion A models (Heavy Menace, Bass Synth).
+- The last Expansion A model (Heavy Menace).
+- Bass Synth with real bass DI: fast passages, open strings ringing,
+  chords (not supported) and low-B tracking.
 - A mode-change click measurement for Multi Comp (the fade is in place but
   not measured).
