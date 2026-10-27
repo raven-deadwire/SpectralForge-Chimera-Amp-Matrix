@@ -43,7 +43,7 @@ public:
 
     void prepare(double sampleRate) {
         rate = sampleRate;
-        length = int(std::ceil(rate * (windowSeconds[1] + .5 / 40.))) + 4;   // a whole-period window can reach half a 40 Hz period beyond the base
+        length = int(std::ceil(rate * (windowSeconds[1] + 1. / 40.))) + 4;   // an even-period window can reach one 40 Hz period beyond the base
         for (auto& line : lines) line.assign(size_t(length), 0.f);
         trackerPole = float(1. - std::exp(-juce::MathConstants<double>::twoPi * 650. / rate));
         envelopeRelease = float(std::exp(-1. / (rate * .05)));
@@ -52,7 +52,7 @@ public:
     }
     void reset() noexcept {
         for (auto& line : lines) std::fill(line.begin(), line.end(), 0.f);
-        write = 0; primed = false; activeMode = -1;
+        write = 0; primed = false; activeMode = -1; longest = 0.;
         low1 = low2 = envelope = previous = 0.f; armed = false; clock = 0.; lastCross = -1.; period = 0.;
         fade.setCurrentAndTargetValue(1.f);
     }
@@ -66,7 +66,7 @@ public:
             bend.setCurrentAndTargetValue(bend.getTargetValue()); dryLevel.setCurrentAndTargetValue(dryLevel.getTargetValue());
             activeMode = mode; primed = true;
             const double base = rate * windowSeconds[size_t(mode)];
-            taps = {{{base / 2, base}, {0., base}}};
+            taps = {{{base / 2, base}, {0., base}}}; longest = base;
         }
         // A CLASSIC / CHORDS change fades the shifted signal out, swaps the
         // mode and fades back in.
@@ -82,7 +82,7 @@ public:
             // while they crossfade; untracked input (chords) keeps the base
             // window. CHORDS uses the longer base.
             const double base = rate * windowSeconds[size_t(activeMode)];
-            const double window = period > 0. ? 2. * std::max(1., std::round(base / (2. * period))) * period : base;
+            const double window = std::min(double(length - 4), period > 0. ? 2. * std::max(1., std::round(base / (2. * period))) * period : base);
             const double ratio = std::pow(2., bend.getNextValue() / 12.);
             // Each tap's delay moves by (1 - ratio) per sample. Leaving its window
             // (where its gain is zero) it takes the current window and restarts
@@ -94,7 +94,7 @@ public:
                 auto& t = taps[i];
                 if (t.delay >= 0. && t.delay < t.window) continue;
                 const auto& other = taps[1 - i];
-                t.window = window;
+                t.window = window; longest = std::max(longest, window);
                 t.delay = juce::jlimit(0., window * (1. - 1e-9), step > 0. ? other.delay - window / 2 : other.delay + window / 2);
             }
             const float gainA = sine2(taps[0]), gainB = sine2(taps[1]), norm = 1.f / std::max(.5f, gainA + gainB);
@@ -108,8 +108,11 @@ public:
             if (++write == length) write = 0;
         }
     }
-    // Tracked input period in samples (0 when nothing is tracked; tests).
+    // Tracked input period in samples (0 when nothing is tracked), the longest
+    // window used since reset and the delay line's reach (tests).
     double trackedPeriod() const noexcept { return period; }
+    double longestWindow() const noexcept { return longest; }
+    double capacity() const noexcept { return double(length - 1); }
 
 private:
     struct Tap { double delay, window; };
@@ -140,7 +143,7 @@ private:
         const float f = float(position - i), a = line[size_t(i)], b = line[size_t(i + 1 == length ? 0 : i + 1)];
         return a + f * (b - a);
     }
-    double rate{48000.}, clock{}, lastCross{-1.}, period{};
+    double rate{48000.}, clock{}, lastCross{-1.}, period{}, longest{};
     int length{1}, write{}, activeMode{-1};
     bool primed{}, armed{};
     float trackerPole{}, envelopeRelease{}, low1{}, low2{}, envelope{}, previous{};

@@ -607,7 +607,19 @@ void pitchBendResponse() {
         worst=std::max(worst,std::abs(peakHz(x,target/1.113,target*1.113)/target-1));
         worstCentroid=std::max(worstCentroid,std::abs(peakHz(x,target/1.113,target*1.113,true)/target-1));
     }
-    std::cout<<"MEASURE Pitch Bend Whammy settings at the toe (82.4 and 220 Hz, CLASSIC and CHORDS, +24 to -36 semitones): peak error "<<100*worst<<" %, energy centroid error "<<100*worstCentroid<<" %\n";
+    // Low notes take the longest windows (up to one period beyond the base;
+    // 52 Hz in CHORDS: four periods, 77 ms): the taps stay inside the delay
+    // line, and pitch and level hold.
+    double longest=0;
+    for(const double hz:{41.2,52.,61.7})for(const int mode:{0,1}){
+        const double target=hz*2;
+        const auto x=renderBend(p,bendControls(1,1,mode),hz,1.5);
+        require(p.longestWindow()<=p.capacity(),"A window reaches beyond the delay line");
+        longest=std::max(longest,p.longestWindow());
+        require(std::abs(toneDb(x,target)-juce::Decibels::gainToDecibels(.25))<1.,"A low note's shifted level is wrong");
+        worst=std::max(worst,std::abs(peakHz(x,target/1.113,target*1.113)/target-1));}
+    require(longest>48000*(PedalPitchBend::windowSeconds[1]+.01),"The low-note test does not reach the longest windows");
+    std::cout<<"MEASURE Pitch Bend Whammy settings at the toe (82.4 and 220 Hz, CLASSIC and CHORDS, +24 to -36 semitones; OCT UP on 41.2-61.7 Hz): peak error "<<100*worst<<" %, energy centroid error "<<100*worstCentroid<<" %; longest window "<<1000*longest/48000<<" ms within the "<<1000*p.capacity()/48000<<" ms delay line\n";
     require(worst<.005 && worstCentroid<.01,"A Whammy setting misses its interval");
     // A chord (no single period): the base window, energy still centred on the interval.
     {std::vector<float> x;p.reset();juce::AudioBuffer<float> b(2,256);long t=0;

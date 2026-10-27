@@ -132,14 +132,16 @@ not reachable from this environment.
 How it shifts: two read taps on a delay line move at (1 − ratio) samples per
 sample, crossfaded half a window apart. The input period is tracked (40 Hz–
 1.5 kHz, low-passed zero crossings); on a tracked note the window is an even
-number of periods, so the taps read the note in phase while they crossfade
-(no splice sidebands); untracked input such as a chord keeps the base
-window. At exact unison (Whammy heel) the taps drift (at most about 17 cents)
+number of periods (at most one period, 25 ms, beyond the base), so the taps
+read the note in phase while they crossfade (no splice sidebands); untracked
+input such as a chord keeps the base window. The delay line holds the
+longest such window (85 ms); windows are also clamped to it. At exact unison (Whammy heel) the taps drift (at most about 17 cents)
 until one sits mid-window alone, so the heel is a clean delayed copy.
-Limits: the shifted signal lags by up to one window and this is not reported
+Limits: the shifted signal lags by up to one window (25–50 ms CLASSIC,
+60–85 ms CHORDS, longer windows on lower notes) and this is not reported
 as latency; after a note starts or the interval changes, phase alignment
 waits for each tap's next wrap (0.6 s for a 2-semitone shift of a 220 Hz
-note in CHORDS); the unison drift takes up to about 1.9 s (CLASSIC) or 3.6 s
+note in CHORDS); the unison drift takes up to about 2.5 s (CLASSIC) or 4.3 s
 (CHORDS) after returning to the heel (computed from the drift rate and the
 largest windows, not measured); chords show splice sidebands. No
 allocation (the delay lines are sized in `prepare`).
@@ -181,7 +183,11 @@ allocation (the delay lines are sized in `prepare`).
   (±1 dB); OCT UP on a 220 + 330 Hz chord (CHORDS): energy centred at 437.5
   and 658.8 Hz (−0.6 %, −0.2 %); heel after the toe: 220 Hz at −0.001 dB
   re input; a CLASSIC/CHORDS change mid-note has no sample step above the
-  steady signal's. During development a fixed 60 ms CHORDS window measured
+  steady signal's. OCT UP on 41.2, 52 and 61.7 Hz in both modes: pitch as
+  above, level within 1 dB, longest window 76.9 ms inside the 85.1 ms delay
+  line. (A first version sized the line for 72.5 ms; at 52 Hz in CHORDS it
+  read outside the buffer. The window-against-capacity check fails on that
+  version; the pitch and level checks alone did not catch it reliably.) During development a fixed 60 ms CHORDS window measured
   up to 8.1 % centroid error on these single notes, and whole- but odd-
   period windows (taps half a period out of phase) up to 3.8 % peak error;
   hence the even-period windows.

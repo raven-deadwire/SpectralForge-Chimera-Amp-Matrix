@@ -228,7 +228,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
                 card.attachment.reset();
                 if(model)card.attachment=bindPower(card.bypass,owner,model);
                 for(int c=0;c<6;++c)bind(card.controls[(size_t)c],owner,model,cardControl(model,c),false);
-                card.model.setTooltip(model==39?"Spectral octaver: about 43-46 ms processing delay. Dense low chords can lose fundamentals.":model==38?"Monophonic octave divider. Use single notes; chord tracking is not supported.":model==51?"Treadle pitch shifter. The shifted signal lags by up to 25 ms (Classic) or 60 ms (Chords).":"Choose a pedal by type. Each slot keeps its own settings.");
+                card.model.setTooltip(model==39?"Spectral octaver: about 43-46 ms processing delay. Dense low chords can lose fundamentals.":model==38?"Monophonic octave divider. Use single notes; chord tracking is not supported.":model==51?"Treadle pitch shifter. The shifted signal lags by up to one window: 25-50 ms (Classic) or 60-85 ms (Chords), longer on low notes.":"Choose a pedal by type. Each slot keeps its own settings.");
             }
             card.title.setText("SLOT "+juce::String(position+1)+"  /  "+(model?juce::String(spectralforge::pedalModel(model).controlCount)+" CONTROLS":"ADD A PEDAL"),juce::dontSendNotification);
             const bool visible=detailedOwner<0;
