@@ -514,6 +514,24 @@ float valueOf(const LockRun& run,const juce::String& id) {
     auto* parameter=reference->parameters().getParameter(id);check(parameter!=nullptr,"Unknown parameter "+id.toStdString());
     return parameter->convertFrom0to1(run.values[size_t(parameter->getParameterIndex())]);
 }
+void inputStrengthRounding() {
+    // Fixed decimal expectations, independent of the production formula.
+    // JUCE's 0.01 dB range may return a few ulps either side of a value
+    // after normalisation (including a slightly negative default zero).
+    struct Case {float before,proposed,strength,expected;};
+    const Case cases[]{
+        {0,10.5f,.25f,2.5f},{0,10.5f,.5f,5.5f},{0,10.5f,.75f,8},
+        {0,-10.5f,.5f,-5.5f},{1.01f,10.5f,.5f,6},
+        {-.01f,10.5f,.5f,5},{.01f,-10.5f,.5f,-5},
+        {1.23f,10.5f,.25f,3.5f},{1.23f,10.5f,.75f,8},
+        {-24,24,.25f,-12},{-24,24,.5f,0},{-24,24,.75f,12}
+    };
+    for(const auto& c:cases)for(float error:{-0.000003f,0.f,0.000003f})
+        check(scaledInputGainDb(c.before+error,c.proposed,c.strength)==c.expected,
+              "Input strength rounding changed at a parameter conversion boundary");
+    check(scaledInputGainDb(-.000003f,10.5f,1.f)==10.5f,"Full strength changed the proposal");
+    std::cout<<"PASS input strength rounding: decimal ties, negative gain, 0.01 dB settings and conversion error\n";
+}
 void controllerLocksAndStrength() {
     using P=Controller::Phase;
     const Controller::Options all{1,true,Style::rock,true,true};
@@ -528,7 +546,7 @@ void controllerLocksAndStrength() {
     check(half.status.phase==P::done && half.status.text.contains("50% strength"),"Half-strength run did not report its strength");
     const float inputBefore=valueOf(defaults,"input");
     const float inputFull=valueOf(full,"input"),inputHalf=valueOf(half,"input");
-    check(near(inputHalf,std::round((inputBefore+.5f*(inputFull-inputBefore))*2.f)*.5f,.01f),"Half strength did not halve the input gain change");
+    check(near(inputHalf,float(std::round((std::round(double(inputBefore)*100)+std::round(double(inputFull)*100))/100)*.5),.01f),"Half strength did not halve the input gain change");
     check(near(valueOf(half,"gatethreshold"),std::round(std::clamp(valueOf(full,"gatethreshold")+inputHalf-inputFull,-90.f,-15.f)),.51f),
           "Gate was not placed for the applied input gain");
     check(near(valueOf(half,"gateRangeDb"),valueOf(full,"gateRangeDb"),.01f),"Strength changed the gate range");
@@ -679,7 +697,7 @@ void controllerStrengthMatrix() {
         auto o=all;o.strength=amount;const auto r=runLocked(o);
         check(r.status.phase==Controller::Phase::done,"Strength matrix run incomplete");
         const float input=valueOf(r,"input"),base=valueOf(defaults,"input"),maximum=valueOf(full,"input");
-        check(near(input,std::round((base+amount*(maximum-base))*2)*.5f,.01f),"Strength did not scale the input delta");
+        check(near(input,float(std::round((std::round(double(base)*100)+double(amount)*(std::round(double(maximum)*100)-std::round(double(base)*100)))/50)*.5),.01f),"Strength did not scale the input delta");
         check(near(valueOf(r,"gatethreshold"),std::round(std::clamp(valueOf(full,"gatethreshold")+input-maximum,-90.f,-15.f)),.51f),"Gate did not follow scaled input");
         for(const auto* id:{"gateon","gateRangeDb","cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompDetector","mbOn","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3","deEsserOn","deEsserFrequency","deEsserThreshold","deEsserAttack","deEsserRelease","deEsserRatio","deEsserKnee","liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})
             check(near(valueOf(r,id),valueOf(full,id),.001f),std::string("Strength changed an unscaled control: ")+id);
@@ -757,7 +775,7 @@ int main(int argc, char** argv) {
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();captureWindows();controllerFinishPreservation();controllerIntegration();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();
+        parameterEditNotifications();controllerEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

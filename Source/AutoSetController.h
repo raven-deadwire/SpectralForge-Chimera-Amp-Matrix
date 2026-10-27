@@ -1,4 +1,5 @@
 #pragma once
+#include "AutoSetStrength.h"
 #include "PluginProcessor.h"
 #include "AutoSet.h"
 #include "AutoSetParameterEdits.h"
@@ -212,7 +213,7 @@ private:
         juce::String result;
         if(locked(lockInput)) {summary="Input locked";result="input kept (locked)";}
         else {
-            const float proposed=strength()>=1.f?r.inputGainDb:std::round((inputBefore+strength()*(r.inputGainDb-inputBefore))*2.f)*.5f;
+            const float proposed=scaledInputGainDb(inputBefore,r.inputGainDb,strength());
             set("input",proposed);
             const float applied=raw("input");
             summary="Input "+juce::String(applied,1)+" dB";
