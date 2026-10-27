@@ -78,3 +78,8 @@ values, not tuned against reference recordings or listening tests.
 - Detection can mistake a bass played only above the open D string for
   guitar, and a drop-tuned guitar through a full-range cab for bass. Choose
   the instrument in the options then.
+
+Auto is an estimate of the processed spectrum, not instrument identification.
+For low-tuned guitars and 5/6-string basses, explicitly choose Guitar/Bass.
+The finish pass now retains this uncertainty instead of inheriting the estimated
+Tone EQ label as an explicit instrument choice; see `AUTO_SET_PHASE3.md`.
