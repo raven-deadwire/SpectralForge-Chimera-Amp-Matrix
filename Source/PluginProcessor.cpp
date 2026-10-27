@@ -8,6 +8,7 @@
 #include "FactoryPresets.h"
 #include "ReleaseInfo.h"
 #include "BetaLifecycleDisplay.h"
+#include "StandaloneDiagnostics.h"
 
 namespace {
 std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
@@ -930,5 +931,17 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     for(int i=0;i<5;++i) {auto stage=std::make_unique<juce::DynamicObject>();stage->setProperty("stage",names[i]);
         stage->setProperty("rms_dbfs",juce::Decibels::gainToDecibels(stageRms[(size_t)i].load(),-120.f));
         stage->setProperty("peak_dbfs",juce::Decibels::gainToDecibels(stagePeaks[(size_t)i].load(),-120.f));stages.add(juce::var(stage.release()));}
-    object->setProperty("stages",stages);return juce::JSON::toString(juce::var(object.release()),false);
+    object->setProperty("stages",stages);
+   #if defined(JUCE_ASIO) && JUCE_ASIO
+    object->setProperty("asio_built",true);
+   #else
+    object->setProperty("asio_built",false);
+   #endif
+    if(spectralforge::standalone::audioDeviceDiagnostics) {
+        auto device=spectralforge::standalone::audioDeviceDiagnostics();
+        // Driver claim + Chimera's reported delay; not a measured loopback round trip.
+        spectralforge::standalone::addReportedLatency(device,getLatencySamples());
+        object->setProperty("audio_device",device);
+    }
+    return juce::JSON::toString(juce::var(object.release()),false);
 }
