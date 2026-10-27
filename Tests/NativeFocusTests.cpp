@@ -1,4 +1,10 @@
+#if defined(__linux__)
+ #define JUCE_GUI_BASICS_INCLUDE_XHEADERS 1
+#endif
 #include <juce_gui_basics/juce_gui_basics.h>
+#if defined(__linux__)
+ #include <juce_events/native/juce_EventLoopInternal_linux.h>
+#endif
 #include "NativeMessageLoop.h"
 #include <iostream>
 #include <memory>
@@ -18,9 +24,42 @@ juce::String currentFocusName()
     return "<none>";
 }
 
+#if defined(__linux__)
+// JUCE reads X events only when the display socket becomes readable. A focus
+// query (XGetInputFocus) is a round trip that can move FocusIn/FocusOut from
+// the socket into Xlib's queue, leaving nothing to wake that callback until
+// other X traffic arrives; a quiet test desktop has none. Hand already-queued
+// events to JUCE's X callback, as a host does when it forwards fd readiness.
+void dispatchQueuedXEvents()
+{
+    auto* windowSystem = juce::XWindowSystem::getInstanceWithoutCreating();
+    auto* display = windowSystem != nullptr ? windowSystem->getDisplay() : nullptr;
+    if (display == nullptr)
+        return;
+    auto* x11 = juce::X11Symbols::getInstance();
+    int queued = 0;
+    {
+        juce::XWindowSystemUtilities::ScopedXLock lock;
+        queued = x11->xEventsQueued(display, QueuedAlready);
+    }
+    if (queued > 0)
+        juce::LinuxEventLoopInternal::invokeEventLoopCallbackForFd(x11->xConnectionNumber(display));
+}
+#else
+void dispatchQueuedXEvents() {}
+#endif
+
 void dispatch(int milliseconds)
 {
-    require(chimeraTest::dispatchFor(milliseconds), "Native focus message loop exited");
+    const auto deadline = juce::Time::getMillisecondCounterHiRes() + milliseconds;
+    for (;;) {
+        dispatchQueuedXEvents();
+        const auto remaining = deadline - juce::Time::getMillisecondCounterHiRes();
+        if (remaining <= 0)
+            break;
+        require(chimeraTest::dispatchFor(juce::jmin(10, juce::jmax(1, int(remaining)))),
+                "Native focus message loop exited");
+    }
 }
 
 template<class Predicate>

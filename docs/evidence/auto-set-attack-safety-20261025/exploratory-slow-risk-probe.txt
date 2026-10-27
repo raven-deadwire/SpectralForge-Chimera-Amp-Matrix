@@ -1,0 +1,45 @@
+CLASS 44100 dropA_guitar bass=1
+CLASS 44100 bass5_lowB bass=1
+CLASS 44100 bass6_highC bass=0
+ATTACK 44100 mute=0 clip=0 rock on=0 spec=0.114177 burst=0.0244484 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=0 clip=0 clean on=0 spec=-1.88582 burst=0.0244484 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=0 clip=0 metal on=0 spec=1.29978 burst=0.0244484 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=0 clip=1 rock on=0 spec=0.106157 burst=0.10767 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=0 clip=1 clean on=0 spec=-1.89384 burst=0.10767 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=0 clip=1 metal on=0 spec=1.29176 burst=0.10767 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=1 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=1 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=1 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=1 clip=1 rock on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=1 clip=1 clean on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 44100 mute=1 clip=1 metal on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+CLASS 48000 dropA_guitar bass=1
+CLASS 48000 bass5_lowB bass=1
+CLASS 48000 bass6_highC bass=0
+ATTACK 48000 mute=0 clip=0 rock on=0 spec=-0.0569069 burst=0.0723801 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=0 clip=0 clean on=0 spec=-2.05691 burst=0.0723801 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=0 clip=0 metal on=0 spec=1.1287 burst=0.0723801 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=0 clip=1 rock on=0 spec=-0.0652172 burst=0.0900612 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=0 clip=1 clean on=0 spec=-2.06522 burst=0.0900612 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=0 clip=1 metal on=0 spec=1.12039 burst=0.0900612 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=1 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=1 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=1 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=1 clip=1 rock on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=1 clip=1 clean on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 48000 mute=1 clip=1 metal on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+CLASS 96000 dropA_guitar bass=1
+CLASS 96000 bass5_lowB bass=1
+CLASS 96000 bass6_highC bass=0
+ATTACK 96000 mute=0 clip=0 rock on=0 spec=0.472614 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=0 clip=0 clean on=0 spec=-1.52739 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=0 clip=0 metal on=1 spec=1.65822 burst=0 split=5600 range=4 maxGR=3.99889
+ATTACK 96000 mute=0 clip=1 rock on=0 spec=0.46098 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=0 clip=1 clean on=0 spec=-1.53902 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=0 clip=1 metal on=1 spec=1.64659 burst=0 split=5600 range=4 maxGR=3.99353
+ATTACK 96000 mute=1 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=1 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=1 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=1 clip=1 rock on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=1 clip=1 clean on=0 spec=0 burst=0 split=5600 range=6 maxGR=0
+ATTACK 96000 mute=1 clip=1 metal on=0 spec=0 burst=0 split=5600 range=6 maxGR=0

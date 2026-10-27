@@ -1,0 +1,49 @@
+{
+  "baseline_commit": "95dbd8b96a5b952c2a96c6ea95ff9bbc43c05408",
+  "baseline_auto_set_sha256": "985b31aabf0e5ad04d1db166bba28b0774b7d3d13da69d1e505deb177a293136",
+  "candidate_source_sha256": {
+    "Source/AutoSet.h": "140ba1c9044ba2aa9da1372dbc3d880944d3c6676dcb54abc808cf2cb39de40f",
+    "Source/AutoSetController.h": "2637388462091ef1a3946e6d9e64f1a491486fc902e0baa4daa3e53cdffcb1ab",
+    "Tests/AutoSetTests.cpp": "e87ed62ba3e32789a8f32e7af723079a81767ef31493724974640b93659a0d70",
+    "Source/MultibandDynamicsCore.h": "a91b2ab2fc64e9de3dc347d213c747bd09f6fb573a5de0c3bf39d3bde4e0e1ab",
+    "Source/PluginProcessor.cpp": "a2099001c0659679ab159c9ee5fc12eb14d2940861012b30eb54cfdf197e7537"
+  },
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce_base_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "validation": {
+    "auto_set_native": "PASS",
+    "common_dynamics_native": "PASS",
+    "multiband_dynamics_core_native": "PASS",
+    "protected_attack_cases": 72,
+    "sustained_positive_controls": 18,
+    "explicit_instrument_cases": 36,
+    "auto_target_ambiguity_cases": 9,
+    "real_DI_listening": "NOT_PERFORMED",
+    "real_DAW_automation": "NOT_PERFORMED",
+    "release_approved": false,
+    "cmake_build": "PASS",
+    "auto_set_ctest": {
+      "passed": 1,
+      "failed": 0,
+      "duration_seconds": 16.85
+    }
+  },
+  "before-risk-probe.txt": {
+    "cases": 36,
+    "enabled": 36,
+    "max_reduction_min_db": 8.21976,
+    "max_reduction_max_db": 8.95649
+  },
+  "after-risk-probe.txt": {
+    "cases": 36,
+    "enabled": 0,
+    "max_reduction_min_db": 0.0,
+    "max_reduction_max_db": 0.0
+  },
+  "exploratory-slow-risk-probe.txt": {
+    "cases": 36,
+    "enabled": 2,
+    "max_reduction_min_db": 0.0,
+    "max_reduction_max_db": 3.99889
+  }
+}

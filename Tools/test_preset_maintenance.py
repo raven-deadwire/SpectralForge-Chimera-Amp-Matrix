@@ -56,8 +56,13 @@ class SourceScope(unittest.TestCase):
         self.git("config", "user.email", "fixture@example.invalid")
         self.git("config", "commit.gpgsign", "false")
         self.git("config", "core.autocrlf", "false")
-        for name in ("Validation/release-policy.json", "Validation/ci-check-map.json", "Validation/waivers.json"):
+        for name in ("Validation/ci-check-map.json", "Validation/waivers.json"):
             self.write(name, (REAL_ROOT / name).read_bytes())
+        # The fixture is the published beta.1 source, whose strict policy is
+        # fingerprinted by the maintenance contract. The live policy has moved on
+        # to a later beta, so use the frozen beta.1 copy.
+        self.write("Validation/release-policy.json",
+                   (REAL_ROOT / "Tests/fixtures/release-policy-1.3.2-beta.1.json").read_bytes())
         self.write(contract.OLD_APPROVAL_PATH, b'{"not_yet_approved":true}\n')
         self.write("VERSION", b"1.3.2\n")
         self.write("RELEASE_CHANNEL", b"beta.1\n")

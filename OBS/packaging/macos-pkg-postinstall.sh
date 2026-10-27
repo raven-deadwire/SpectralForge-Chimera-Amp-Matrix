@@ -20,7 +20,18 @@ case "$user" in
         exit 0 ;;
 esac
 uid=$(/usr/bin/id -u "$user")
-home=$(/usr/bin/dscl . -read "/Users/$user" NFSHomeDirectory | /usr/bin/sed -n 's/^NFSHomeDirectory: //p')
+case "$uid" in
+    "" | *[!0-9]* | 0) echo "Chimera OBS filter: invalid user identity" >&2; exit 1 ;;
+esac
+record=$(/usr/bin/dscl . -read "/Users/$user" NFSHomeDirectory)
+home=$(printf '%s\n' "$record" | /usr/bin/sed -n 's/^NFSHomeDirectory: //p')
+case "$home" in
+    /*) ;;
+    *) echo "Chimera OBS filter: invalid home folder for $user" >&2; exit 1 ;;
+esac
 [ -d "$home" ] || { echo "Chimera OBS filter: no home folder for $user" >&2; exit 1; }
+# Verify the shipped executable before launching it. This checks its code seal,
+# not Developer ID identity or notarization.
+/usr/bin/codesign --verify --strict "$folder/chimera-obs-installer"
 exec /bin/launchctl asuser "$uid" /usr/bin/sudo -u "$user" /usr/bin/env -i HOME="$home" \
     PATH=/usr/bin:/bin:/usr/sbin:/sbin "$folder/chimera-obs-installer"
