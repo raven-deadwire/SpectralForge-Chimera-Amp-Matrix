@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47,octaveFuzz=48,violetRage=49;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47,octaveFuzz=48,violetRage=49,fireDrake=50;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==50,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==51,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10+7),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9), Violet Rage (6)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10+7+7),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9), Violet Rage (6), Fire Drake (6)");
     int seen=0,lastA=-1,firstB=total;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -533,6 +533,41 @@ void violetRageResponse() {
     require(v.latency()==drive.latency(),"Violet Rage changes the PRE slot latency");
     std::cout<<"PASS Violet Rage: tone stack = design, 34 dB GAIN, AGGRESSION red/blue, VOLUME exact, tight low end, distortion grows, slot latency unchanged\n";
 }
+// ---- Fire Drake (PRE Expansion B) ----
+std::vector<float> renderDrake(PedalFireDrake& d,const Controls& c,double hz,double db,double seconds=.5) {
+    d.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;
+    for(int block=0;block<int(seconds*48000/256);++block){
+        for(int n=0;n<256;++n,++t){const float x=float(juce::Decibels::decibelsToGain(db)*std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/48000.));b.setSample(0,n,x);b.setSample(1,n,x);}
+        d.process(b,c);for(int n=0;n<256;++n)out.push_back(b.getSample(0,n));
+    }
+    return out;
+}
+void fireDrakeResponse() {
+    const auto& m=pedalModel(fireDrake);
+    require(juce::String(m.id)=="pre.firedrake" && juce::String(m.name)=="Fire Drake" && m.controlCount==6 && pedalMenuEntries[fireDrake].kind==PedalMenuKind::distortion,"Fire Drake catalog entry");
+    PedalFireDrake d;d.prepare(48000,256);
+    // Same control layout as Violet Rage: volume, gain, bass, mids, treble, mode.
+    const auto small=[&](const Controls& c,double hz){return toneDb(renderDrake(d,c,hz,-90),hz)+90;};
+    double worst=0;
+    for(const int mode:{0,1})
+        for(const auto& c:{violet(-12,.5f,12,0,0,mode),violet(-12,.5f,0,-12,0,mode),violet(-12,.5f,-6,9,12,mode),violet(-12,.5f,9,-6,-12,mode)})
+            for(const double hz:{200.,800.,1500.,3000.,6000.})
+                worst=std::max(worst,std::abs(small(c,hz)-small(violet(-12,.5f,0,0,0,mode),hz)-d.eqDb(c,hz)));
+    std::cout<<"MEASURE Fire Drake active EQ measured vs analytic (small signal, both modes, 200 Hz-6 kHz): largest error "<<worst<<" dB\n";
+    require(worst<.05,"Fire Drake EQ differs from its design");
+    const double gainSpan=small(violet(-12,1,0,0,0,0),1000.)-small(violet(-12,0,0,0,0,0),1000.),volume=small(violet(6,.5f,0,0,0,0),1000.)-small(violet(-24,.5f,0,0,0,0),1000.);
+    const double tightLow=small(violet(-12,.5f,0,0,0,1),60.)-small(violet(-12,.5f,0,0,0,0),60.);
+    std::cout<<"MEASURE Fire Drake small-signal: GAIN span "<<gainSpan<<" dB, VOLUME span "<<volume<<" dB, TIGHT vs OPEN at 60 Hz "<<tightLow<<" dB\n";
+    require(std::abs(gainSpan-36)<.1 && std::abs(volume-30)<.05 && tightLow<-6,"GAIN, VOLUME or the TIGHT low cut differ from the design");
+    // TIGHT compresses more: a 30 dB louder input gains less output.
+    const auto swing=[&](int mode){return toneDb(renderDrake(d,violet(-12,.3f,0,0,0,mode),500.,-10),500.)-toneDb(renderDrake(d,violet(-12,.3f,0,0,0,mode),500.,-40),500.);};
+    const double openSwing=swing(0),tightSwing=swing(1);
+    std::cout<<"MEASURE Fire Drake output change for +30 dB input (500 Hz, GAIN 0.3): OPEN "<<openSwing<<" dB, TIGHT "<<tightSwing<<" dB\n";
+    require(tightSwing<openSwing-3,"TIGHT does not compress more than OPEN");
+    PedalNewDrive drive;drive.prepare({48000,256,2});
+    require(d.latency()==drive.latency(),"Fire Drake changes the PRE slot latency");
+    std::cout<<"PASS Fire Drake: active EQ = design in both modes, 36 dB GAIN, VOLUME exact, TIGHT cuts lows and compresses more, slot latency unchanged\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -574,12 +609,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i)vr.process(b,violet(-12,float(i%10)/9.f,float(i%5)*6-12,float(i%3)*12-12,float(i%7)*4-12,i%3));
     countAllocations=false;require(allocations==0,"Violet Rage allocates while processing");
+    PedalFireDrake fd;fd.prepare(48000,128);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i)fd.process(b,violet(-12,float(i%10)/9.f,float(i%5)*6-12,float(i%3)*12-12,float(i%7)*4-12,i%2));
+    countAllocations=false;require(allocations==0,"Fire Drake allocates while processing");
     std::cout<<"PASS Expansion A and B pedals: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();octaveFuzzResponse();violetRageResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();octaveFuzzResponse();violetRageResponse();fireDrakeResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

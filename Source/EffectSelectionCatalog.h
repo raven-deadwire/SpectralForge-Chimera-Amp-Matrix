@@ -59,7 +59,8 @@ inline constexpr std::array<PedalMenuEntry,pedalModelCount> pedalMenuEntries{{
     {"Seven EQ",PedalMenuKind::equalizer},
     {"Multi Wah",PedalMenuKind::wah},
     {"Octave Fuzz",PedalMenuKind::fuzz},
-    {"Violet Rage",PedalMenuKind::distortion}
+    {"Violet Rage",PedalMenuKind::distortion},
+    {"Fire Drake",PedalMenuKind::distortion}
 }};
 struct PedalMenuGroup { PedalMenuKind kind; const char* label; };
 inline constexpr std::array<PedalMenuGroup,10> pedalMenuGroups{{
@@ -98,7 +99,8 @@ inline const char* pedalDescription(int model) {
         "Seven-band graphic EQ / level",
         "Six-range wah / Q / boost",
         "Octave fuzz / sub into fuzz / octave up",
-        "Amp-style distortion / three-band EQ / aggression"
+        "Amp-style distortion / three-band EQ / aggression",
+        "High-gain distortion / active EQ / open-tight"
     }};
     return descriptions[(size_t)juce::jlimit(0,pedalModelCount-1,model)];
 }

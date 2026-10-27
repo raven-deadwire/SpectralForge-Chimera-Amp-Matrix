@@ -79,6 +79,7 @@ control names do not establish sound equivalence.
 | Multi Wah (1.5 PRE Expansion B) | Band-pass wah over six published 535Q ranges, Q 2–10 with 6–15 dB peak gain, 0–16 dB boost | Published ranges, filter gain and boost; Q span and gain law are Chimera's; not a measured hardware model |
 | Octave Fuzz (1.5 PRE Expansion B) | Flip-flop sub octave low-passed at 149 Hz, full-wave octave up with 20 dB GAIN and TONE trims, asymmetric soft-clip fuzz over a 40 dB range with TONE, SUB INTO FUZZ, all at 4x | Published SF01 controls, routing and ranges; divider, clipping, rectifier and tone curves are Chimera's; not a measured hardware model |
 | Violet Rage (1.5 PRE Expansion B) | 90 Hz tight high-pass, two soft-clip stages at 4x (6–40 dB GAIN), BASS/MIDDLE/TREBLE ±12 dB, AGGRESSION off/red/blue adding gain and volume | Published G3 controls; amounts, clipping and filter shapes are Chimera's; not a measured hardware model |
+| Fire Drake (1.5 PRE Expansion B) | Active BASS/MIDS/TREBLE ±12 dB before two soft-clip stages at 4x (12–48 dB GAIN); OPEN/TIGHT changes the pre-cut and second-stage compression | Published Dracarys controls and mode description; ranges, clipping and shapes are Chimera's; not a measured hardware model |
 
 Default normalized positions are UI seeds, not hardware factory settings. The new
 board does not convert or overwrite the previous raw PRE bank. Controls known to

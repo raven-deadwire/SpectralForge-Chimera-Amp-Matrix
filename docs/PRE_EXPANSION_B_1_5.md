@@ -1,6 +1,6 @@
-# PRE Expansion B 1.5 — Seven EQ, Multi Wah, Octave Fuzz, Violet Rage
+# PRE Expansion B 1.5 — Seven EQ, Multi Wah, Octave Fuzz, Violet Rage, Fire Drake
 
-Status: **four of six models implemented on `claude/pre-expansion-b`**
+Status: **five of six models implemented on `claude/pre-expansion-b`**
 (based on `claude/pre-paraeq`), covered by `ChimeraPedalExpansionTests`.
 Roadmap: 1.5 PRE Expansion B, six models (Revv G3; Wampler Dracarys; MXR
 Slash Octave Fuzz; Dunlop 535Q; BOSS GE-7; DigiTech Whammy). These are
@@ -97,7 +97,24 @@ Two soft-clip stages at 4x; PRE slot latency unchanged; no allocation. An
 original distortion laid out after the published controls, not a measured
 model of the pedal or of the amp channel it follows.
 
-## 6. Measurements (`ChimeraPedalExpansionTests`)
+## 6. Fire Drake (model 50, `pre.firedrake`)
+
+Reference: Wampler Dracarys. Public specification used (Wampler 2019
+manual excerpts via search results; Thomann, Drummond Musique listings).
+The manual PDF host is not reachable from this environment.
+
+| Hardware (published) | Chimera |
+|---|---|
+| VOLUME, GAIN | VOLUME −24 to +6 dB; GAIN 12–48 dB of drive |
+| Active BASS, MIDS, TREBLE; "react differently" per mode | RBJ low shelf 100 Hz, peak 800 Hz (Q 0.8), high shelf 2.5 kHz, ±12 dB each, ahead of the clipping, so they shape what distorts |
+| OPEN / TIGHT: two clipping modes; OPEN little compression, TIGHT more compression and sustain | OPEN: 60 Hz pre-cut, second stage at ×2; TIGHT: 150 Hz pre-cut, second stage at ×8 (same small-signal gain, more compression) |
+| EQ ranges, clipping, filter shapes: **not published** | Chimera choices above |
+
+Two soft-clip stages at 4x, 8 kHz low-pass after; PRE slot latency
+unchanged; no allocation. An original distortion laid out after the
+published controls, not a measured model of the pedal.
+
+## 7. Measurements (`ChimeraPedalExpansionTests`)
 
 - Flat: transparent (error below 1e−4 dB).
 - Each band at ±15 dB gives exactly ±15 dB at its centre (error 6e−13 dB);
@@ -122,10 +139,16 @@ model of the pedal or of the amp channel it follows.
   spans 34.0 dB, RED adds 8.0 dB and BLUE 16.0 dB (gain plus volume), VOLUME
   spans 30.0 dB; 40 Hz sits 25.5 dB below 400 Hz; harmonics 2–5 at −30 dBFS
   200 Hz: −45.0 dB (GAIN 0), −22.9 dB (0.5), −16.2 dB (RED), −12.6 dB (BLUE).
-- 385 appended parameters in total (Expansion A 225 at version 16, then
-  Seven EQ 45, Multi Wah 30, Octave Fuzz 50 and Violet Rage 35 at version 17).
+- Fire Drake: BASS/MIDS/TREBLE measured through the drive equal the
+  analytic EQ within 0.002 dB in both modes (small signal, 200 Hz–6 kHz);
+  GAIN spans 36.0 dB, VOLUME 30.0 dB; TIGHT is 13.0 dB lower than OPEN at
+  60 Hz; for a 30 dB louder input (500 Hz, GAIN 0.3) the output rises
+  13.3 dB in OPEN and 3.6 dB in TIGHT.
+- 420 appended parameters in total (Expansion A 225 at version 16, then
+  Seven EQ 45, Multi Wah 30, Octave Fuzz 50, Violet Rage 35 and Fire Drake
+  35 at version 17).
 
-## 7. Not done
+## 8. Not done
 
-- The other two Expansion B models (Wampler Dracarys, DigiTech Whammy).
+- The last Expansion B model (DigiTech Whammy).
 - Listening on real DI; DAW automation and recall.
