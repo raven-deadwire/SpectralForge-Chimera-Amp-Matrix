@@ -1,6 +1,6 @@
-# PRE Expansion B 1.5 — Seven EQ, Multi Wah, Octave Fuzz, Violet Rage, Fire Drake
+# PRE Expansion B 1.5 — Seven EQ, Multi Wah, Octave Fuzz, Violet Rage, Fire Drake, Pitch Bend
 
-Status: **five of six models implemented on `claude/pre-expansion-b`**
+Status: **all six models implemented on `claude/pre-expansion-b`**
 (based on `claude/pre-paraeq`), covered by `ChimeraPedalExpansionTests`.
 Roadmap: 1.5 PRE Expansion B, six models (Revv G3; Wampler Dracarys; MXR
 Slash Octave Fuzz; Dunlop 535Q; BOSS GE-7; DigiTech Whammy). These are
@@ -114,7 +114,37 @@ Two soft-clip stages at 4x, 8 kHz low-pass after; PRE slot latency
 unchanged; no allocation. An original distortion laid out after the
 published controls, not a measured model of the pedal.
 
-## 7. Measurements (`ChimeraPedalExpansionTests`)
+## 7. Pitch Bend (model 51, `pre.pitchbend`)
+
+Reference: DigiTech Whammy (5th generation). Public specification used
+(MusicRadar and Sound On Sound reviews; Adorama, Musik Produktiv, Thomann,
+Perfect Circuit listings). The manual PDFs (DigiTech, B&H, manualslib) are
+not reachable from this environment.
+
+| Hardware (published) | Chimera |
+|---|---|
+| One selector: 10 Whammy, 9 Harmony, 2 Detune settings (counts differ between listings; 10/9/2 is the most common) | SETTING with 21 entries in that split |
+| Interval names | Commonly published layout: 2 OCT UP, OCT UP, 5TH UP, 4TH UP, 2ND DN, 4TH DN, 5TH DN, OCT DN, 2 OCT DN, DIVE BOMB; harmony pairs 2ND–3RD UP, b3–3RD UP, 3RD–4TH UP, 4TH–5TH UP, 5TH–6TH UP, 5TH–7TH UP, 4TH–3RD DN, 5TH–4TH DN, OCT DN–OCT UP; DETUNE SHALLOW / DEEP. **Not checked against the manual itself** |
+| Treadle sets the bend | TREADLE: Whammy heel unison → toe interval (shifted signal only); Harmony heel first → toe second interval over the dry signal; Detune heel 0 → toe the detune, over dry |
+| CLASSIC (single notes) / CHORDS switch | Base window 25 ms / 60 ms; the change fades the shifted signal out and in (5 ms) |
+| Dive-bomb depth, detune amounts, algorithm: **not published** | DIVE BOMB −36 semitones; detune −10 / −25 cents; two crossfaded delay taps (sine² windows) |
+
+How it shifts: two read taps on a delay line move at (1 − ratio) samples per
+sample, crossfaded half a window apart. The input period is tracked (40 Hz–
+1.5 kHz, low-passed zero crossings); on a tracked note the window is an even
+number of periods, so the taps read the note in phase while they crossfade
+(no splice sidebands); untracked input such as a chord keeps the base
+window. At exact unison (Whammy heel) the taps drift (at most about 17 cents)
+until one sits mid-window alone, so the heel is a clean delayed copy.
+Limits: the shifted signal lags by up to one window and this is not reported
+as latency; after a note starts or the interval changes, phase alignment
+waits for each tap's next wrap (0.6 s for a 2-semitone shift of a 220 Hz
+note in CHORDS); the unison drift takes up to about 1.9 s (CLASSIC) or 3.6 s
+(CHORDS) after returning to the heel (computed from the drift rate and the
+largest windows, not measured); chords show splice sidebands. No
+allocation (the delay lines are sized in `prepare`).
+
+## 8. Measurements (`ChimeraPedalExpansionTests`)
 
 - Flat: transparent (error below 1e−4 dB).
 - Each band at ±15 dB gives exactly ±15 dB at its centre (error 6e−13 dB);
@@ -144,11 +174,23 @@ published controls, not a measured model of the pedal.
   GAIN spans 36.0 dB, VOLUME 30.0 dB; TIGHT is 13.0 dB lower than OPEN at
   60 Hz; for a 30 dB louder input (500 Hz, GAIN 0.3) the output rises
   13.3 dB in OPEN and 3.6 dB in TIGHT.
-- 420 appended parameters in total (Expansion A 225 at version 16, then
-  Seven EQ 45, Multi Wah 30, Octave Fuzz 50, Violet Rage 35 and Fire Drake
-  35 at version 17).
+- Pitch Bend: all ten Whammy settings at the toe, on 82.4 and 220 Hz, in
+  CLASSIC and CHORDS: spectral peak within 0.0053 % of the interval (the
+  search grid's resolution), energy centroid within 0.28 %; all nine
+  Harmony pairs at heel and toe within 0.0006 % with the dry signal intact
+  (±1 dB); OCT UP on a 220 + 330 Hz chord (CHORDS): energy centred at 437.5
+  and 658.8 Hz (−0.6 %, −0.2 %); heel after the toe: 220 Hz at −0.001 dB
+  re input; a CLASSIC/CHORDS change mid-note has no sample step above the
+  steady signal's. During development a fixed 60 ms CHORDS window measured
+  up to 8.1 % centroid error on these single notes, and whole- but odd-
+  period windows (taps half a period out of phase) up to 3.8 % peak error;
+  hence the even-period windows.
+- 440 appended parameters in total (Expansion A 225 at version 16, then
+  Seven EQ 45, Multi Wah 30, Octave Fuzz 50, Violet Rage 35, Fire Drake 35
+  and Pitch Bend 20 at version 17).
 
-## 8. Not done
+## 9. Not done
 
-- The last Expansion B model (DigiTech Whammy).
+- Checking the Pitch Bend interval list and the SF01, Dracarys and Whammy
+  details against the manuals themselves (not reachable here).
 - Listening on real DI; DAW automation and recall.

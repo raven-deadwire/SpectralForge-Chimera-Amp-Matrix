@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47,octaveFuzz=48,violetRage=49,fireDrake=50;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47,octaveFuzz=48,violetRage=49,fireDrake=50,pitchBend=51;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==51,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==52,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10+7+7),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9), Violet Rage (6), Fire Drake (6)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10+7+7+4),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9), Violet Rage (6), Fire Drake (6), Pitch Bend (3)");
     int seen=0,lastA=-1,firstB=total;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -568,6 +568,85 @@ void fireDrakeResponse() {
     require(d.latency()==drive.latency(),"Fire Drake changes the PRE slot latency");
     std::cout<<"PASS Fire Drake: active EQ = design in both modes, 36 dB GAIN, VOLUME exact, TIGHT cuts lows and compresses more, slot latency unchanged\n";
 }
+// ---- Pitch Bend (PRE Expansion B) ----
+Controls bendControls(float position,int setting,int mode){Controls c{};c[0]=position;c[1]=float(setting);c[2]=float(mode);return c;}
+std::vector<float> renderBend(PedalPitchBend& p,const Controls& c,double hz,double seconds=1.) {
+    p.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;
+    for(int block=0;block<int(seconds*48000/256);++block){
+        for(int n=0;n<256;++n,++t){const float x=.25f*float(std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/48000.));b.setSample(0,n,x);b.setSample(1,n,x);}
+        p.process(b,c);for(int n=0;n<256;++n)out.push_back(b.getSample(0,n));
+    }
+    return out;
+}
+// Hann-windowed Goertzel over the second half: the strongest frequency in [lo, hi].
+// centroid: the energy-weighted mean frequency in [lo, hi] instead. A coarse
+// scan, then the peak refined to 1/17 of its step.
+double peakHz(const std::vector<float>& x,double lo,double hi,bool centroid=false) {
+    const size_t start=x.size()/2,length=x.size()-start;
+    std::vector<double> h(length);for(size_t i=0;i<length;++i)h[i]=(.5-.5*std::cos(juce::MathConstants<double>::twoPi*double(i)/double(length)))*x[start+i];
+    const auto energy=[&](double hz){const double k=2*std::cos(juce::MathConstants<double>::twoPi*hz/48000.);double s1=0,s2=0;for(size_t i=0;i<length;++i){const double s0=h[i]+k*s1-s2;s2=s1;s1=s0;}return s1*s1+s2*s2-k*s1*s2;};
+    const double step=lo*2e-3;double best=0,bestHz=lo,sum=0,weighted=0;
+    for(double hz=lo;hz<=hi;hz+=step){const double e=energy(hz);if(e>best){best=e;bestHz=hz;}sum+=e;weighted+=e*hz;}
+    if(centroid)return weighted/sum;
+    const double coarse=bestHz;
+    for(double hz=coarse-step;hz<=coarse+step;hz+=step/17){const double e=energy(hz);if(e>best){best=e;bestHz=hz;}}
+    return bestHz;
+}
+void pitchBendResponse() {
+    const auto& m=pedalModel(pitchBend);
+    require(juce::String(m.id)=="pre.pitchbend" && juce::String(m.name)=="Pitch Bend" && m.controlCount==3 && pedalMenuEntries[pitchBend].kind==PedalMenuKind::pitch,"Pitch Bend catalog entry");
+    require(juce::StringArray::fromTokens(m.controls[1].choices,"|","").size()==PedalPitchBend::settingCount,"The SETTING list differs from the shifter's");
+    for(int i=0;i<PedalPitchBend::settingCount;++i)require(juce::StringArray::fromTokens(m.controls[1].choices,"|","")[i]==PedalPitchBend::settings[size_t(i)].name,"A SETTING name differs from the shifter's");
+    PedalPitchBend p;p.prepare(48000);
+    // Every Whammy setting at the toe, both modes, single notes (tracked,
+    // spliced in phase): the spectral peak and the energy centroid.
+    double worst=0,worstCentroid=0;
+    for(const int mode:{0,1})for(int setting=0;setting<10;++setting)for(const double hz:{82.4,220.}){
+        const double target=hz*std::pow(2.,PedalPitchBend::semitones(setting,1)/12.);
+        const auto x=renderBend(p,bendControls(1,setting,mode),hz,1.5);
+        worst=std::max(worst,std::abs(peakHz(x,target/1.113,target*1.113)/target-1));
+        worstCentroid=std::max(worstCentroid,std::abs(peakHz(x,target/1.113,target*1.113,true)/target-1));
+    }
+    std::cout<<"MEASURE Pitch Bend Whammy settings at the toe (82.4 and 220 Hz, CLASSIC and CHORDS, +24 to -36 semitones): peak error "<<100*worst<<" %, energy centroid error "<<100*worstCentroid<<" %\n";
+    require(worst<.005 && worstCentroid<.01,"A Whammy setting misses its interval");
+    // A chord (no single period): the base window, energy still centred on the interval.
+    {std::vector<float> x;p.reset();juce::AudioBuffer<float> b(2,256);long t=0;
+     for(int block=0;block<int(1.*48000/256);++block){
+         for(int n=0;n<256;++n,++t){const double ph=juce::MathConstants<double>::twoPi*double(t)/48000.;const float v=.15f*float(std::sin(220.*ph)+std::sin(330.*ph));b.setSample(0,n,v);b.setSample(1,n,v);}
+         p.process(b,bendControls(1,1,1));for(int n=0;n<256;++n)x.push_back(b.getSample(0,n));}
+     const double low=peakHz(x,440/1.08,440*1.08,true),high=peakHz(x,660/1.08,660*1.08,true);
+     std::cout<<"MEASURE Pitch Bend OCT UP on a 220+330 Hz chord (CHORDS): energy centroids "<<low<<" and "<<high<<" Hz\n";
+     require(std::abs(low/440-1)<.02 && std::abs(high/660-1)<.02,"A chord is not shifted by an octave");}
+    // Harmony: heel and toe intervals over the dry signal.
+    double harmonyWorst=0;
+    for(int setting=10;setting<19;++setting)for(const float position:{0.f,1.f}){
+        const double target=220.*std::pow(2.,PedalPitchBend::semitones(setting,position)/12.);
+        const auto x=renderBend(p,bendControls(position,setting,0),220.);
+        harmonyWorst=std::max(harmonyWorst,std::abs(peakHz(x,target/1.0413,target*1.0413)/target-1));
+        require(std::abs(toneDb(x,220.)-juce::Decibels::gainToDecibels(.25))<1.,"Harmony loses the dry signal");
+    }
+    std::cout<<"MEASURE Pitch Bend Harmony settings at heel and toe over the dry signal: largest pitch error "<<100*harmonyWorst<<" %\n";
+    require(harmonyWorst<.005,"A Harmony setting misses its interval");
+    require(PedalPitchBend::semitones(19,1)==-.1f && PedalPitchBend::semitones(20,1)==-.25f && PedalPitchBend::semitones(20,0)==0 && PedalPitchBend::semitones(1,.5f)==6,"Detune amounts or the treadle law differ from the design");
+    // Whammy at the heel is unison: one tap, the input's level, no comb,
+    // also after the treadle comes back from the toe.
+    {std::vector<float> x;p.reset();juce::AudioBuffer<float> b(2,256);long t=0;
+     for(int block=0;block<int(4.*48000/256);++block){
+         for(int n=0;n<256;++n,++t){const float v=.25f*float(std::sin(juce::MathConstants<double>::twoPi*220.*double(t)/48000.));b.setSample(0,n,v);b.setSample(1,n,v);}
+         p.process(b,bendControls(block<int(.5*48000/256)?1.f:0.f,1,0));for(int n=0;n<256;++n)x.push_back(b.getSample(0,n));}
+     const double level=toneDb(x,220.)-juce::Decibels::gainToDecibels(.25);
+     std::cout<<"MEASURE Pitch Bend heel after the toe (OCT UP, 1.5-3.5 s later): 220 Hz "<<level<<" dB re input\n";
+     require(std::abs(level)<.1,"The heel is not a clean unison");}
+    // A CLASSIC / CHORDS change mid-note does not jump.
+    {p.reset();juce::AudioBuffer<float> b(2,256);long t=0;float steady=0,across=0,last=0;
+     for(int block=0;block<int(1.*48000/256);++block){
+         for(int n=0;n<256;++n,++t){const float v=.25f*float(std::sin(juce::MathConstants<double>::twoPi*220.*double(t)/48000.));b.setSample(0,n,v);b.setSample(1,n,v);}
+         const bool switched=block>=int(.5*48000/256);p.process(b,bendControls(.6f,1,switched?1:0));
+         for(int n=0;n<256;++n){const float y=b.getSample(0,n),d=std::abs(y-last);last=y;if(block>20 && !switched)steady=std::max(steady,d);if(switched)across=std::max(across,d);}}
+     std::cout<<"MEASURE Pitch Bend mode change: largest sample step "<<across<<" against "<<steady<<" while steady\n";
+     require(across<1.2f*steady,"A CLASSIC / CHORDS change jumps");}
+    std::cout<<"PASS Pitch Bend: ten Whammy intervals in both modes, nine Harmony pairs over dry, detune amounts, clean unison heel, click-free mode change\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -613,12 +692,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i)fd.process(b,violet(-12,float(i%10)/9.f,float(i%5)*6-12,float(i%3)*12-12,float(i%7)*4-12,i%2));
     countAllocations=false;require(allocations==0,"Fire Drake allocates while processing");
+    PedalPitchBend pb;pb.prepare(48000);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=.2f*float(std::sin(.03*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}pb.process(b,bendControls(float(i%10)/9.f,i%21,(i/50)%2));}
+    countAllocations=false;require(allocations==0,"Pitch Bend allocates while processing");
     std::cout<<"PASS Expansion A and B pedals: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();octaveFuzzResponse();violetRageResponse();fireDrakeResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();octaveFuzzResponse();violetRageResponse();fireDrakeResponse();pitchBendResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

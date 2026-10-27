@@ -80,6 +80,7 @@ control names do not establish sound equivalence.
 | Octave Fuzz (1.5 PRE Expansion B) | Flip-flop sub octave low-passed at 149 Hz, full-wave octave up with 20 dB GAIN and TONE trims, asymmetric soft-clip fuzz over a 40 dB range with TONE, SUB INTO FUZZ, all at 4x | Published SF01 controls, routing and ranges; divider, clipping, rectifier and tone curves are Chimera's; not a measured hardware model |
 | Violet Rage (1.5 PRE Expansion B) | 90 Hz tight high-pass, two soft-clip stages at 4x (6–40 dB GAIN), BASS/MIDDLE/TREBLE ±12 dB, AGGRESSION off/red/blue adding gain and volume | Published G3 controls; amounts, clipping and filter shapes are Chimera's; not a measured hardware model |
 | Fire Drake (1.5 PRE Expansion B) | Active BASS/MIDS/TREBLE ±12 dB before two soft-clip stages at 4x (12–48 dB GAIN); OPEN/TIGHT changes the pre-cut and second-stage compression | Published Dracarys controls and mode description; ranges, clipping and shapes are Chimera's; not a measured hardware model |
+| Pitch Bend (1.5 PRE Expansion B) | Treadle pitch shifter: 10 Whammy, 9 Harmony, 2 Detune settings, CLASSIC/CHORDS windows (25/60 ms); two crossfaded taps, phase-locked to the tracked period on single notes | Published layout and controls; interval list unverified against the manual; algorithm and amounts are Chimera's; shifted signal lags up to one window (not reported) |
 
 Default normalized positions are UI seeds, not hardware factory settings. The new
 board does not convert or overwrite the previous raw PRE bank. Controls known to
