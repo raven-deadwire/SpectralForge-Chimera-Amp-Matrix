@@ -606,18 +606,28 @@ int main(int argc,char** argv){try {
     // The same visible editor must track automation, A/B and project recall for
     // every band in both banks, including values changed while another tab is open.
     for(int e=0;e<2;++e)for(int b=0;b<12;++b){set(*processor,eqID(e,b,"frequency"),float(180+e*43+b*319));set(*processor,eqID(e,b,"gain"),float(b-6+e));set(*processor,eqID(e,b,"q"),.5f+float(b)*.1f);}
-    const auto verifyBanks=[&]{
+    const auto verifyBanks=[&](const char* stage){
         for(int e=0;e<2;++e){auto* path=find<juce::TextButton>(*editor,e==0?"path.tone.eq":"path.final.eq");path->triggerClick();
             auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(waitFor([&]{return panel->isShowing()&&panel->isNavigationSelected();}),"Restored EQ navigation stale");
             auto* selector=find<juce::ComboBox>(*panel,eqID(e,-1,"band"));
+            // The panel rebuilds its band list on its next timer tick; a restore
+            // that adds bands is not selectable until then.
+            check(waitFor([&]{for(int b=0;b<12;++b)if(panel->isBandVisible(b)!=(selector->indexOfItemId(b+1)>=0))return false;return true;}),"Restored EQ band list stale");
             for(int b=0;b<12;++b){selector->setSelectedId(b+1,juce::sendNotificationSync);for(const char* field:{"frequency","gain","q"}){
-                auto* control=find<juce::Slider>(*panel,eqID(e,b,field));check(control && std::abs(control->getValue()-get(*processor,eqID(e,b,field)))<.02,"Restored or automated numeric EQ control is stale");
+                auto* control=find<juce::Slider>(*panel,eqID(e,b,field));const float expected=get(*processor,eqID(e,b,field));
+                if(!control || std::abs(control->getValue()-expected)>=.02) {
+                    // Name the stage and value so a platform-only failure can be traced from the CI log.
+                    const auto detail=juce::String("Restored or automated numeric EQ control is stale: stage=")+stage+" bank="+juce::String(e)+" band="+juce::String(b)
+                        +" field="+field+" slider="+(control?juce::String(control->getValue(),4)+" range=["+juce::String(control->getMinimum(),4)+","+juce::String(control->getMaximum(),4)+"]":juce::String("missing"))
+                        +" parameter="+juce::String(expected,4);
+                    check(false,detail.toRawUTF8());
+                }
             }}selector->setSelectedId(1,juce::sendNotificationSync);
         }
     };
-    verifyBanks();processor->copyComparison();juce::MemoryBlock saved;processor->getStateInformation(saved);
-    processor->selectComparison(1);for(int e=0;e<2;++e)for(int b=0;b<12;++b)set(*processor,eqID(e,b,"gain"),12);verifyBanks();
-    processor->selectComparison(0);verifyBanks();
+    verifyBanks("automation");processor->copyComparison();juce::MemoryBlock saved;processor->getStateInformation(saved);
+    processor->selectComparison(1);for(int e=0;e<2;++e)for(int b=0;b<12;++b)set(*processor,eqID(e,b,"gain"),12);verifyBanks("A/B select B");
+    processor->selectComparison(0);verifyBanks("A/B select A");
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"A/B bank recall changed a node");
     // A factory recipe now supplies active EQ bands. Select an unrelated old
     // Band 12 so the same editor must remove it and display the new recipe.
@@ -667,7 +677,7 @@ int main(int argc,char** argv){try {
         check(slot>=2?target==0:(target>0 && target!=graphicalEQBands && target!=2*graphicalEQBands),
               "Factory UI recall retained a stale dynamic assignment");
     }
-    processor->setStateInformation(saved.getData(),int(saved.getSize()));verifyBanks();
+    processor->setStateInformation(saved.getData(),int(saved.getSize()));verifyBanks("project restore");
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"Project recall changed a node");
     for(int mode:{1,2,0}){set(*processor,"mode",float(mode));settle(100);check(find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isNavigationSelected(),"Mode switch lost the global EQ selection");}
     // The compact signal strip has explicit Tone/Final targets, replacing the
