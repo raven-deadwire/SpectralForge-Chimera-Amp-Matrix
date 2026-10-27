@@ -44,6 +44,46 @@ class TesterAllowlistBuild(unittest.TestCase):
         self.assertIn("nullptr", header)
         self.assertNotIn(DUMMY_DIGEST, header)
 
+    def test_migration_review_cannot_become_build_input(self):
+        path = ROOT / "docs/evidence/tester-migration-20261027/review.json"
+        review = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(review["status"], "verified-awaiting-activation")
+        self.assertEqual(review["expected_count"], 5)
+        self.assertEqual(review["verified_count"], len(review["digests"]))
+        self.assertEqual(review["verified_count"], review["expected_count"])
+        self.assertEqual(len(set(review["digests"])), len(review["digests"]))
+        for value in review["digests"]:
+            self.assertRegex(value, r"^[0-9a-f]{64}$")
+        self.assertNotIn("CHT1-", path.read_text(encoding="utf-8"))
+        result, header = self.configure(review)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(header, "")
+
+    def test_five_digest_candidate_is_valid_but_not_a_product_input(self):
+        evidence = ROOT / "docs/evidence/tester-migration-20261027"
+        candidate = json.loads((evidence / "allowlist.candidate.json").read_text(encoding="utf-8"))
+        review = json.loads((evidence / "review.json").read_text(encoding="utf-8"))
+        first, second = [set(batch["digests"]) for batch in review["audit_batches"]]
+        self.assertEqual((len(first), len(second)), (2, 4))
+        self.assertEqual(len(first & second), review["overlap_count"])
+        self.assertEqual(review["overlap_count"], 1)
+        self.assertEqual(set(candidate["digests"]), first | second)
+        self.assertEqual(candidate["digests"], review["digests"])
+        self.assertEqual(len(candidate["digests"]), 5)
+        result, header = self.configure(candidate)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for digest in candidate["digests"]:
+            self.assertEqual(header.count(digest), 1)
+        self.assertNotIn("CHT1-", header)
+        # Only an isolated configure above uses the candidate. Default builds
+        # and release workflows keep the existing, empty production manifest.
+        production = ROOT / "Validation/tester-code-allowlist.json"
+        self.assertEqual(json.loads(production.read_text(encoding="utf-8"))["digests"], [])
+        for path in (ROOT / "CMakeLists.txt", ROOT / ".github/workflows/build.yml"):
+            body = path.read_text(encoding="utf-8")
+            self.assertIn("Validation/tester-code-allowlist.json", body)
+            self.assertNotIn("allowlist.candidate.json", body)
+
     def test_public_digest_is_the_only_generated_payload(self):
         result, header = self.configure({"schema": SCHEMA, "digests": [DUMMY_DIGEST]})
         self.assertEqual(result.returncode, 0, result.stderr)

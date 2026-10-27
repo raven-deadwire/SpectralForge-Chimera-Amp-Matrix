@@ -104,16 +104,94 @@ void storage() {
     require(!Store::load(file,key).valid,"corrupt store unlocked beta");
     directory.deleteRecursively();
 }
+
+// Shared by public fixtures and a private, file-only owner audit. Never print
+// the supplied code/name or persist it in a repository, evidence file or log.
+void migrationLifecycle(const juce::String& code, const Allowlist& key) {
+    const auto grant=verify(code,key);
+    require(grant.valid,"migration verification failed");
+    const auto normal=canonical(grant);
+    require(verify(" \t"+normal.toLowerCase()+"\r\n",key).valid,"migration typing aids failed");
+    const auto separator=normal.lastIndexOfChar('-');
+    const auto start=normal.substring(0,separator+1);
+    const auto check=normal.substring(separator+1);
+    for(const char one:{'I','L'})
+        require(verify(start+check.replaceCharacter('0','O').replaceCharacter('1',one),key).valid,
+                "migration check aliases failed");
+    require(!verify(normal,Allowlist{}).valid,"empty list accepted migration");
+    auto renamed=normal.replaceSection(5,1,normal[5]=='A' ? "B" : "A");
+    require(!verify(renamed,key).valid,"unapproved name accepted");
+    for(int position=0;position<checkLength;++position) {
+        const auto changed=check.replaceSection(position,1,check[position]=='0' ? "1" : "0");
+        require(!verify(start+changed,key).valid,"unapproved check mutation accepted");
+    }
+    const auto directory=juce::File::createTempFile("chimera-migration");
+    require(directory.createDirectory().wasOk(),"migration private directory failed");
+#if JUCE_MAC || JUCE_LINUX || JUCE_BSD
+    require(::chmod(directory.getFullPathName().toRawUTF8(),0700)==0,"migration directory permissions failed");
+#endif
+    struct Cleanup {juce::File directory; ~Cleanup(){directory.deleteRecursively();}} cleanup{directory};
+    const auto file=directory.getChildFile("code.txt");
+    require(Store::save(code,file,key).valid,"migration save failed");
+    require(!Store::save(renamed,file,key).valid && Store::load(file,key).valid,
+            "unapproved code replaced stored grant");
+    using namespace spectralforge::beta;
+    // Synthetic future metadata tests version independence, not release policy.
+    constexpr Metadata versions[]{
+        {"1.3.2-beta.2","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",1806505140,1209600,true},
+        {"9.0.0-beta.1","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",2100000000,1209600,true}};
+    for(const auto& version:versions) {
+        const auto loaded=Store::load(file,key);
+        InstanceLatch reopened(version,version.expiresAtUnix+1,loaded.valid);
+        require(reopened.processingPermitted() && reopened.observe(version.expiresAtUnix+1).status==Status::testerExtended,
+                "retained digest lost rights after beta update");
+    }
+    const auto later=versions[1];
+    const auto after=later.expiresAtUnix+1;
+    InstanceLatch active(later,after,Store::load(file,key).valid);
+    const auto copy=directory.getChildFile("other-computer.txt");
+    require(Store::save(code,copy,key).valid,"existing copy policy changed");
+    const auto blocked=directory.getChildFile("not-a-credential-file");
+    require(blocked.createDirectory().wasOk() && !Store::clear(blocked),"failed removal reported success");
+    require(Store::load(file,key).valid,"failed removal changed valid storage");
+    require(Store::clear(file) && Store::clear(file),"migration removal failed");
+    active.setTesterExtension(Store::load(file,key).valid);
+    require(active.processingPermitted() && active.observe(after).status==Status::expired,
+            "removal interrupted running instance or retained grant");
+    InstanceLatch reopened(later,after,Store::load(file,key).valid);
+    require(!reopened.processingPermitted(),"removed code survived restart");
+    require(Store::load(copy,key).valid,"local removal unexpectedly revoked copied code");
+    const Allowlist revoked{juce::String::repeatedString("a",64)};
+    require(!Store::load(copy,revoked).valid,"removed digest accepted by later build");
+    InstanceLatch revokedInstance(later,after,Store::load(copy,revoked).valid);
+    require(!revokedInstance.processingPermitted(),"revoked digest bypassed expiry");
+    require(Store::load(copy,key).valid,"new list modified old offline build rights");
+    auto invalid=later; invalid.sourceRevision="invalid";
+    InstanceLatch badBuild(invalid,after,Store::load(copy,key).valid);
+    require(!badBuild.processingPermitted() && badBuild.observe(after).status==Status::configurationError,
+            "migration bypassed metadata blocking");
+}
 }
 
 int main(int argc,char** argv) {
     try {
+        if(argc==4 && juce::String(argv[1])=="--audit-migration-code") {
+            const juce::File file(argv[3]);
+            require(!file.isSymbolicLink() && file.existsAsFile() && file.getSize()>0
+                    && file.getSize()<=maxPastedLength,"invalid private audit input");
+            migrationLifecycle(file.loadFileAsString(),Allowlist{juce::String(argv[2])});
+            std::cout<<"PASS: private migration lifecycle\n";
+            return 0;
+        }
         if(argc==4 && juce::String(argv[1])=="--verify-test-code") {
             Allowlist key{juce::String(argv[2])};
             return verify(juce::File(argv[3]).loadFileAsString(),key).valid ? 0 : 1;
         }
         require(argc==1,"unsupported test arguments");
         verification();storage();
+        for(const auto* code:{testercode::alphaCode,testercode::betaCode,testercode::gammaCode,
+                              testercode::shortestCode,testercode::longestCode})
+            migrationLifecycle(code,testAllowlist());
         std::cout<<"PASS: beta tester codes: digest allowlist, typing aids, no issuance secret, tampering, malformed input, storage\n";
         return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}

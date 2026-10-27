@@ -11,6 +11,7 @@ codes before building if later assignment without an update is needed.
   python Tools/tester_code.py issue --name TEST01 --private-out ~/tester.private.json
   python Tools/tester_code.py export --private-file ~/tester.private.json --out allowlist.json
   python Tools/tester_code.py verify --allowlist allowlist.json --code-file ~/code.txt
+  python Tools/tester_code.py migrate --private-file ~/selected.private.json --expected-count 5 --native-verifier /path/to/ChimeraTesterCodeTests --out review.json
 
 Issuance and export never print codes. Keep private files outside all Git
 checkouts, build inputs, artifacts and logs. Actual issuance and importing real
@@ -26,7 +27,9 @@ import os
 import re
 import secrets
 import stat
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 PREFIX = "CHT1"
@@ -181,6 +184,52 @@ def export_allowlist(private_files: list[Path], out: Path) -> None:
     write_json_exclusive(out, {"schema": SCHEMA, "digests": values}, private=False)
 
 
+def migrate(private_file: Path, expected_count: int, native_verifier: Path, out: Path) -> None:
+    """Audit owner-selected legacy codes, then stage digests without activating them.
+
+    Format validity is not proof of historical HMAC issuance. The private file
+    must contain only codes the owner has explicitly selected for migration.
+    No issuance secret is read and no replacement codes are generated.
+    """
+    production = Path(__file__).resolve().parents[1] / "Validation/tester-code-allowlist.json"
+    if out.resolve() in (production.resolve(), private_file.resolve()):
+        raise ValueError("Migration cannot replace production or private inputs")
+    if out.exists() or out.is_symlink():
+        raise ValueError("Migration output must be a new review file")
+    codes = load_private(private_file)
+    if not 1 <= expected_count <= MAX_ENTRIES or len(codes) != expected_count:
+        raise ValueError("Migration input count does not match the approved scope")
+    if len({code.split("-")[1] for code in codes}) != len(codes):
+        raise ValueError("Migration needs one code per selected tester")
+    retained = load_allowlist(production)
+    values = sorted(set(retained) | {digest(code) for code in codes})
+    validate_digests(values)
+    verifier = native_verifier.resolve(strict=True)
+    # A private temporary directory protects each code from its first write.
+    # Code values never enter command arguments or captured diagnostics.
+    with tempfile.TemporaryDirectory(prefix="chimera-migration-") as tmp:
+        root = Path(tmp)
+        ensure_private_location(root / "input.txt")
+        for index, code in enumerate(codes):
+            verify(code, values)
+            path = root / f"input-{index}.txt"
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(fd, "w", encoding="ascii") as stream:
+                stream.write(code)
+            try:
+                result = subprocess.run([str(verifier), "--audit-migration-code", digest(code), str(path)],
+                                        capture_output=True, timeout=30, check=False)
+            except (OSError, subprocess.SubprocessError):
+                raise ValueError("Native migration audit could not complete") from None
+            finally:
+                path.unlink()
+            if result.returncode != 0 or result.stdout.strip() != b"PASS: private migration lifecycle":
+                raise ValueError("Native migration audit failed")
+    # Nothing is written until every code passes. Existing grants are retained;
+    # changing the shipped list and release approval remain separate actions.
+    write_json_exclusive(out, {"schema": SCHEMA, "digests": values}, private=False)
+
+
 class PrivateArgumentParser(argparse.ArgumentParser):
     def error(self, message: str) -> None:
         # argparse normally echoes unknown argument values, which could be a
@@ -200,6 +249,11 @@ def main() -> int:
     check = sub.add_parser("verify", help="check a code file against a public allowlist")
     check.add_argument("--allowlist", required=True, type=Path)
     check.add_argument("--code-file", required=True, type=Path)
+    migration = sub.add_parser("migrate", help="audit selected existing codes and stage digest-only review data")
+    migration.add_argument("--private-file", required=True, type=Path)
+    migration.add_argument("--expected-count", required=True, type=int)
+    migration.add_argument("--native-verifier", required=True, type=Path)
+    migration.add_argument("--out", required=True, type=Path)
     args = parser.parse_args()
     if args.command == "issue":
         names = [check_name(name) for name in args.name]
@@ -214,6 +268,9 @@ def main() -> int:
     elif args.command == "export":
         export_allowlist(args.private_file, args.out)
         print("Public digest allowlist created. A build update is required to use new entries.")
+    elif args.command == "migrate":
+        migrate(args.private_file, args.expected_count, args.native_verifier, args.out)
+        print("Migration audit passed; digest-only review file created. Production was not changed.")
     else:
         verify(read_regular(args.code_file, MAX_PASTED), load_allowlist(args.allowlist))
         print("Registered tester code.")
