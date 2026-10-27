@@ -73,6 +73,25 @@ configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @O
 file(SHA256 "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json" CHIMERA_BETA_METADATA_SHA256)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
+# Beta tester codes (Source/TesterCode.h): the check secret comes from the
+# environment (a GitHub Actions secret for release builds) and is never committed.
+# Without it the build accepts no tester codes.
+set(CHIMERA_TESTER_SECRET_HEX "$ENV{CHIMERA_TESTER_SECRET}")
+string(STRIP "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
+string(TOLOWER "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
+if(CHIMERA_TESTER_SECRET_HEX AND NOT CHIMERA_TESTER_SECRET_HEX MATCHES "^[0-9a-f]+$")
+  message(FATAL_ERROR "CHIMERA_TESTER_SECRET must be hexadecimal (Tools/tester_code.py secret)")
+endif()
+string(LENGTH "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_LENGTH)
+if(CHIMERA_TESTER_SECRET_HEX AND CHIMERA_TESTER_SECRET_LENGTH LESS 32)
+  message(FATAL_ERROR "CHIMERA_TESTER_SECRET is too short (at least 16 bytes)")
+endif()
+if(CHIMERA_TESTER_SECRET_HEX)
+  message(STATUS "Beta tester codes: enabled")
+else()
+  message(STATUS "Beta tester codes: disabled (CHIMERA_TESTER_SECRET not set)")
+endif()
+configure_file(cmake/ChimeraTesterSecret.h.in generated/ChimeraTesterSecret.h @ONLY)
 # Keep source identity in the generated header shared by product and consumers.
 # A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
@@ -113,6 +132,13 @@ if(WIN32)
   endif()
 endif()
 enable_testing()
+juce_add_console_app(ChimeraStandaloneAudioDevicesTests PRODUCT_NAME "Chimera Standalone Audio Device Tests")
+target_sources(ChimeraStandaloneAudioDevicesTests PRIVATE Tests/StandaloneAudioDevicesTests.cpp)
+target_include_directories(ChimeraStandaloneAudioDevicesTests PRIVATE Source)
+target_compile_definitions(ChimeraStandaloneAudioDevicesTests PRIVATE JUCE_USE_CURL=0)
+target_link_libraries(ChimeraStandaloneAudioDevicesTests PRIVATE juce::juce_audio_devices)
+add_test(NAME ChimeraStandaloneAudioDevicesTests COMMAND ChimeraStandaloneAudioDevicesTests)
+set_tests_properties(ChimeraStandaloneAudioDevicesTests PROPERTIES TIMEOUT 120)
 if(CHIMERA_ASIO_ENABLED)
   juce_add_console_app(ChimeraAsioAvailabilityTests PRODUCT_NAME "Chimera ASIO Availability Tests")
   target_sources(ChimeraAsioAvailabilityTests PRIVATE Tests/AsioAvailabilityTests.cpp)
@@ -140,6 +166,12 @@ endif()
 add_executable(ChimeraBetaLifecycleTests Tests/BetaLifecycleTests.cpp)
 target_include_directories(ChimeraBetaLifecycleTests PRIVATE Source)
 add_test(NAME ChimeraBetaLifecycleTests COMMAND ChimeraBetaLifecycleTests)
+juce_add_console_app(ChimeraTesterCodeTests PRODUCT_NAME "Chimera Tester Code Tests")
+target_sources(ChimeraTesterCodeTests PRIVATE Tests/TesterCodeTests.cpp)
+target_include_directories(ChimeraTesterCodeTests PRIVATE Source Tests)
+target_compile_definitions(ChimeraTesterCodeTests PRIVATE JUCE_USE_CURL=0)
+target_link_libraries(ChimeraTesterCodeTests PRIVATE juce::juce_core juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraTesterCodeTests COMMAND ChimeraTesterCodeTests)
 
 # Link the real processor, serializer, editor and update panel. Inject only a
 # private test constructor clock; shipped factories always use compiled policy.
@@ -444,12 +476,29 @@ target_include_directories(ChimeraStateRecallAudioTests PRIVATE Source)
 target_link_libraries(ChimeraStateRecallAudioTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraStateRecallAudioTests COMMAND ChimeraStateRecallAudioTests)
 
+# Doubler mono-sum probe: comb response of L, R and the mono sum per spread.
+juce_add_console_app(ChimeraDoublerMonoProbe PRODUCT_NAME "Chimera Doubler Mono Probe")
+target_sources(ChimeraDoublerMonoProbe PRIVATE Tests/DoublerMonoProbe.cpp)
+target_include_directories(ChimeraDoublerMonoProbe PRIVATE Source)
+target_compile_definitions(ChimeraDoublerMonoProbe PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraDoublerMonoProbe PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraDoublerMonoProbe COMMAND ChimeraDoublerMonoProbe)
+
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)
 target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
 target_compile_definitions(ChimeraPitchRegressionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraPitchRegressionTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPitchRegressionTests COMMAND ChimeraPitchRegressionTests)
+# FabFilter black-box kit: renders kit signals through Chimera's production EQ and
+# clean compressor for comparison with a user's DAW renders. Build on request only:
+#   cmake --build build --target ChimeraKitProbe   (see docs/FABFILTER_BLACKBOX_KIT.md)
+juce_add_console_app(ChimeraKitProbe PRODUCT_NAME "ChimeraKitProbe")
+set_target_properties(ChimeraKitProbe PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_sources(ChimeraKitProbe PRIVATE Tools/FabFilterKit/ChimeraKitProbe.cpp)
+target_include_directories(ChimeraKitProbe PRIVATE Source)
+target_compile_definitions(ChimeraKitProbe PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraKitProbe PRIVATE juce::juce_audio_processors juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 
 # Optional measurement contracts: normal product builds do not need NumPy.
 option(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS "Enable NumPy measurement harness tests" OFF)
