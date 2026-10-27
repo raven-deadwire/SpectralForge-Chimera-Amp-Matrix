@@ -232,6 +232,122 @@ class TesterCodeTests(unittest.TestCase):
                                          expected_digest, str(path)], capture_output=True, timeout=5)
                 self.assertEqual(result.returncode, expected)
 
+    @staticmethod
+    def legacy_migration_fixtures():
+        # Old HMAC issuance with a PUBLIC test key, never an owner's secret.
+        result = []
+        for name in ("TEST01", "TEST02", "TEST03", "TEST04", "TEST05"):
+            mac = hmac.new(bytes(range(32)), f"chimera-tester-v1|{name}".encode("ascii"), hashlib.sha256).digest()
+            bits = int.from_bytes(mac[:4], "big")
+            check = "".join(tc.ALPHABET[(bits >> (27 - 5 * i)) & 31] for i in range(6))
+            result.append(f"CHT1-{name}-{check}")
+        return result
+
+    def test_migration_stages_only_digests_and_retains_existing_grants(self):
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tmp:
+            root = Path(tmp)
+            private, out = root / "selected.private.json", root / "review.json"
+            codes = self.legacy_migration_fixtures()
+            tc.write_private(private, codes)
+            before = private.read_bytes()
+            retained = tc.digest(OTHER)
+
+            def audit(arguments, **kwargs):
+                self.assertEqual(arguments[1], "--audit-migration-code")
+                self.assertTrue(all(code not in str(arguments) for code in codes))
+                path = Path(arguments[3])
+                self.assertIn(path.read_text(encoding="ascii"), codes)
+                if os.name == "posix":
+                    self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+                    self.assertEqual(stat.S_IMODE(path.parent.stat().st_mode), 0o700)
+                return SimpleNamespace(returncode=0, stdout=b"PASS: private migration lifecycle\n")
+
+            with patch.object(tc, "load_allowlist", return_value=[retained]), \
+                    patch.object(tc.subprocess, "run", side_effect=audit) as native, \
+                    patch.object(tc, "issue", side_effect=AssertionError("migration must not issue")):
+                result = self.cli("migrate", "--private-file", str(private), "--expected-count", "5",
+                                  "--native-verifier", sys.executable, "--out", str(out))
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(native.call_count, 5)
+            self.assertEqual(set(tc.load_allowlist(out)), {retained, *map(tc.digest, codes)})
+            self.assertEqual(private.read_bytes(), before)
+            public = out.read_text(encoding="utf-8") + result.stdout + result.stderr
+            for code in codes:
+                self.assertNotIn(code, public)
+                self.assertNotIn(code.split("-")[1], public)
+
+    def test_incomplete_migration_never_creates_partial_allowlist(self):
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tmp:
+            root = Path(tmp)
+            private, out = root / "two.private.json", root / "review.json"
+            tc.write_private(private, self.legacy_migration_fixtures()[:2])
+            with patch.object(tc.subprocess, "run") as native:
+                for count in (0, 5, tc.MAX_ENTRIES + 1):
+                    with self.assertRaises(ValueError):
+                        tc.migrate(private, count, Path(sys.executable), out)
+                native.assert_not_called()
+            self.assertFalse(out.exists())
+
+    def test_migration_rejects_canonical_duplicates_and_repeated_tester(self):
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tmp:
+            root = Path(tmp)
+            private, out = root / "input.private.json", root / "review.json"
+            for codes in ([CODE, CODE.lower()], [CODE, CODE[:-1] + "C"], [CODE, "[withheld]"]):
+                private.write_text(json.dumps({"schema": tc.PRIVATE_SCHEMA, "codes": codes}), encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    tc.migrate(private, 2, Path(sys.executable), out)
+                self.assertFalse(out.exists())
+
+    def test_migration_cannot_write_production_or_overwrite_inputs(self):
+        production = ROOT / "Validation/tester-code-allowlist.json"
+        original = production.read_bytes()
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tmp:
+            root = Path(tmp)
+            private, existing = root / "input.private.json", root / "review.json"
+            tc.write_private(private, [CODE])
+            existing.write_text("keep", encoding="utf-8")
+            for target in (production, private, existing):
+                with self.assertRaises(ValueError):
+                    tc.migrate(private, 1, Path(sys.executable), target)
+            self.assertEqual(tc.load_private(private), [CODE])
+            self.assertEqual(existing.read_text(encoding="utf-8"), "keep")
+        self.assertEqual(production.read_bytes(), original)
+
+    def test_partial_review_is_not_an_allowlist(self):
+        with self.assertRaises(ValueError):
+            tc.load_allowlist(ROOT / "docs/evidence/tester-migration-20261027/review.json")
+
+    def test_failed_native_migration_is_all_or_nothing_and_redacted(self):
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tmp:
+            root = Path(tmp)
+            private, out = root / "input.private.json", root / "review.json"
+            tc.write_private(private, [CODE, OTHER])
+            for failure in (SimpleNamespace(returncode=1, stdout=CODE.encode()),
+                            SimpleNamespace(returncode=0, stdout=b"wrong audit"),
+                            subprocess.TimeoutExpired([CODE], 30)):
+                good = SimpleNamespace(returncode=0, stdout=b"PASS: private migration lifecycle\n")
+                with patch.object(tc.subprocess, "run", side_effect=[good, failure]):
+                    result = self.cli("migrate", "--private-file", str(private), "--expected-count", "2",
+                                      "--native-verifier", sys.executable, "--out", str(out))
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn(CODE, result.stdout + result.stderr)
+                self.assertFalse(out.exists())
+            self.assertEqual(tc.load_private(private), [CODE, OTHER])
+
+    @unittest.skipUnless(os.environ.get("CHIMERA_TESTER_VERIFIER"), "native verifier supplied by CTest")
+    def test_five_legacy_fixtures_native_migration_lifecycle(self):
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tmp:
+            root = Path(tmp)
+            private, out = root / "input.private.json", root / "review.json"
+            codes = self.legacy_migration_fixtures()
+            tc.write_private(private, codes)
+            tc.migrate(private, 5, Path(os.environ["CHIMERA_TESTER_VERIFIER"]), out)
+            allowed = tc.load_allowlist(out)
+            for code in codes:
+                self.assertEqual(tc.verify(code, allowed), code.split("-")[1])
+            with self.assertRaises(ValueError):
+                tc.verify(CODE, allowed)
+
 
 if __name__ == "__main__":
     unittest.main()

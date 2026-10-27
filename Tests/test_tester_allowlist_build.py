@@ -44,6 +44,21 @@ class TesterAllowlistBuild(unittest.TestCase):
         self.assertIn("nullptr", header)
         self.assertNotIn(DUMMY_DIGEST, header)
 
+    def test_incomplete_migration_review_cannot_become_build_input(self):
+        path = ROOT / "docs/evidence/tester-migration-20261027/review.json"
+        review = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(review["status"], "blocked-incomplete-input")
+        self.assertEqual(review["expected_count"], 5)
+        self.assertEqual(review["verified_count"], len(review["digests"]))
+        self.assertLess(review["verified_count"], review["expected_count"])
+        self.assertEqual(len(set(review["digests"])), len(review["digests"]))
+        for value in review["digests"]:
+            self.assertRegex(value, r"^[0-9a-f]{64}$")
+        self.assertNotIn("CHT1-", path.read_text(encoding="utf-8"))
+        result, header = self.configure(review)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(header, "")
+
     def test_public_digest_is_the_only_generated_payload(self):
         result, header = self.configure({"schema": SCHEMA, "digests": [DUMMY_DIGEST]})
         self.assertEqual(result.returncode, 0, result.stderr)

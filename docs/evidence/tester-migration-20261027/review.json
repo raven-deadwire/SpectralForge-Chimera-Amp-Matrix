@@ -1,0 +1,10 @@
+{
+  "schema": "spectralforge.chimera.tester-migration-review.v1",
+  "status": "blocked-incomplete-input",
+  "expected_count": 5,
+  "verified_count": 2,
+  "digests": [
+    "8f45b3fab4e772afb29373f17e78e1b5ad936ea366edd69ed7aacf147533b307",
+    "a79992b2ab4d424a60604839eb39ec3e3550cd78d8466390f05b9179d3aff31a"
+  ]
+}
