@@ -15,6 +15,8 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Tools"))
 import aax_native as aax
+import beta_lifecycle
+import chimera_version
 
 
 def fixture(directory: Path, target="windows", revision=b"first") -> Path:
@@ -46,6 +48,133 @@ def fixture(directory: Path, target="windows", revision=b"first") -> Path:
         "normal_host_accepted": False, "release_approved": False,
         **aax.verify_bundle(bundle, target)})
     return directory
+
+
+class AAXSigningPreflightTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name).resolve()
+        self.source = Path(aax.__file__).resolve().parents[1]
+        self.sha = chimera_version.revision(self.source)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def candidate(self, target="windows", source=None):
+        source = source or self.source
+        package = fixture(self.root / target, target)
+        receipt = json.loads((package / aax.RECEIPT).read_text())
+        receipt.update(chimera_version.identity(source, self.sha))
+        receipt["private_extra"] = "must-not-appear-in-report"
+        aax.write_json(package / aax.RECEIPT, receipt)
+        beta = beta_lifecycle.configure_metadata(source, self.sha, qualification_only=True)
+        aax.write_json(package / "chimera-beta-lifecycle.json", beta)
+        aax.write_json(package / "chimera-build-version.json", {
+            **chimera_version.identity(source, self.sha),
+            "beta_lifecycle_sha256": aax.digest(package / "chimera-beta-lifecycle.json")})
+        return package
+
+    def test_both_targets_report_integrity_without_mutation_or_release_claim(self):
+        for target in ("windows", "macos"):
+            package = self.candidate(target)
+            before = {p: p.read_bytes() for p in package.rglob("*") if p.is_file()}
+            report = aax.signing_preflight(package, target, self.sha)
+            self.assertEqual(report["input_integrity"], "PASS")
+            self.assertEqual(report["pace_verification"], "NOT_RUN")
+            self.assertFalse(report["normal_host_accepted"])
+            self.assertFalse(report["release_approved"])
+            self.assertNotIn("must-not-appear", json.dumps(report))
+            self.assertNotIn(str(self.root), json.dumps(report))
+            self.assertEqual(before, {p: p.read_bytes() for p in package.rglob("*") if p.is_file()})
+
+    def test_reject_wrong_source_and_platform(self):
+        package = self.candidate()
+        for sha, target in (("0" * 40, "windows"), (self.sha[:10], "windows"), (self.sha, "macos")):
+            with self.subTest(sha=sha, target=target), self.assertRaises(ValueError):
+                aax.signing_preflight(package, target, sha)
+
+    def test_cli_dispatch_and_failure_exit(self):
+        package = self.candidate()
+        command = [sys.executable, str(self.source / "Tools/aax_native.py"),
+                   "signing-preflight", "--package", str(package),
+                   "--platform", "windows", "--expected-source", self.sha]
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        self.assertEqual(json.loads(result.stdout)["input_integrity"], "PASS")
+        command[-1] = "0" * 40
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+
+    def test_reject_receipt_and_build_identity_mismatch(self):
+        package = self.candidate()
+        for filename in (aax.RECEIPT, "chimera-build-version.json"):
+            path = package / filename
+            original = path.read_bytes()
+            metadata = json.loads(original)
+            metadata["source_sha"] = "0" * 40
+            aax.write_json(path, metadata)
+            with self.subTest(filename=filename), self.assertRaises(ValueError):
+                aax.signing_preflight(package, "windows", self.sha)
+            path.write_bytes(original)
+
+    def test_reject_changed_beta_bytes_even_if_json_unchanged(self):
+        package = self.candidate()
+        path = package / "chimera-beta-lifecycle.json"
+        path.write_bytes(path.read_bytes() + b"\n")
+        with self.assertRaises(ValueError): aax.signing_preflight(package, "windows", self.sha)
+
+    def test_reject_changed_beta_policy_even_with_matching_hash(self):
+        package = self.candidate()
+        path = package / "chimera-beta-lifecycle.json"
+        metadata = json.loads(path.read_text())
+        metadata["active_instance_grace"] = False
+        aax.write_json(path, metadata)
+        build_path = package / "chimera-build-version.json"
+        build = json.loads(build_path.read_text())
+        build["beta_lifecycle_sha256"] = aax.digest(path)
+        aax.write_json(build_path, build)
+        with self.assertRaises(ValueError): aax.signing_preflight(package, "windows", self.sha)
+
+    def test_reject_mutated_binary_and_premature_signed_claim(self):
+        package = self.candidate()
+        binary = package / aax.BUNDLE / "Contents/x64" / aax.BUNDLE
+        original = binary.read_bytes()
+        binary.write_bytes(original + b"changed")
+        with self.assertRaises(ValueError): aax.signing_preflight(package, "windows", self.sha)
+        binary.write_bytes(original)
+        receipt = json.loads((package / aax.RECEIPT).read_text())
+        receipt["pace_signed"] = True
+        aax.write_json(package / aax.RECEIPT, receipt)
+        with self.assertRaises(ValueError): aax.signing_preflight(package, "windows", self.sha)
+
+    def test_reject_missing_or_linked_metadata(self):
+        package = self.candidate()
+        path = package / "chimera-build-version.json"
+        moved = self.root / "outside.json"
+        path.rename(moved)
+        with self.assertRaises(OSError): aax.signing_preflight(package, "windows", self.sha)
+        try: path.symlink_to(moved)
+        except OSError: self.skipTest("Symlink creation unavailable")
+        with self.assertRaises(ValueError): aax.signing_preflight(package, "windows", self.sha)
+
+    def test_qualification_input_cannot_pass_deployment_beta_check(self):
+        source = self.root / "source"
+        (source / "Validation").mkdir(parents=True)
+        for name in ("VERSION", "RELEASE_CHANNEL", beta_lifecycle.POLICY_PATH):
+            shutil.copy2(self.source / name, source / name)
+        policy_path = source / beta_lifecycle.POLICY_PATH
+        policy = json.loads(policy_path.read_text())
+        policy.update(expiry_approved=False, expires_at_utc=None)
+        aax.write_json(policy_path, policy)
+        package = self.candidate(source=source)
+        with mock.patch.object(aax, "__file__", str(source / "Tools/aax_native.py")), \
+                mock.patch.object(chimera_version, "revision", return_value=self.sha):
+            report = aax.signing_preflight(package, "windows", self.sha)
+            self.assertEqual(report["beta_mode"], "qualification-only")
+            self.assertFalse(report["beta_expiry_approved"])
+            self.assertFalse(report["release_approved"])
+            with self.assertRaises(ValueError):
+                aax.signing_preflight(package, "windows", self.sha, require_approved_beta=True)
 
 
 class AAXPackagingTests(unittest.TestCase):
@@ -576,6 +705,9 @@ def native_packages(directory: Path, system=False):
                 mode = entry.external_attr >> 16
                 if mode: (package / entry.filename).chmod(mode & 0o777)
         assert aax.verify_package(package) == receipt
+        # Inspect the actual extracted native artifact without touching PACE.
+        preflight = aax.signing_preflight(package, receipt["platform"], chimera_version.revision())
+        aax.write_json(directory / "signing-preflight.json", preflight)
         destination = aax.system_root(receipt["platform"]) if system else root / "Avid/Audio/Plug-Ins"
         if system and ((destination / aax.BUNDLE).exists() or (destination / aax.RECEIPT).exists()):
             raise ValueError("System test requires a clean disposable runner; existing installation preserved")

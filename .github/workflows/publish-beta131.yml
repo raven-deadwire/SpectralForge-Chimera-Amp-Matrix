@@ -54,7 +54,29 @@ jobs:
           python Tools/test_publication_evidence.py
           python Tests/test_packaging_version.py
           python Tools/publish_release.py --dry-run --target-version "$TARGET_VERSION" --source-sha "$ACCEPTED_SHA"
+  release-gate:
+    # Dedicated fail-closed gate: any BLOCKED, missing, stale or malformed
+    # exact-source gate fails this job, and publish cannot start without it.
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && inputs.publish && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Require exact-source release-gate verdict PASS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_VERSION: ${{ inputs.target_version }}
+          ACCEPTED_SHA: ${{ inputs.source_sha }}
+        run: python Tools/publish_release.py --require-gate-pass --target-version "$TARGET_VERSION" --source-sha "$ACCEPTED_SHA" --wait-ci-seconds 5400
   publish:
+    needs: release-gate
     if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && inputs.publish && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-24.04
     timeout-minutes: 120

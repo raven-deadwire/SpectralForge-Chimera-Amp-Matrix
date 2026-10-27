@@ -1,6 +1,6 @@
 # 릴리즈 스케쥴 정리 — 2026-10-26 (KST)
 
-이 문서는 2026-10-26 기준 저장소·CI·메일 점검 결과를 반영한 **작업·판정 목표**입니다.
+이 문서는 2026-10-26 기준 저장소·CI 점검 결과와 **10/27 PACE 발급 후속 갱신**을 반영한 작업·판정 목표입니다. 비AAX 이력의 확인 시점은 그대로 유지합니다.
 공개 확정일이 아니며, 어떤 게이트도 PASS로 올리거나 출시를 승인하지 않습니다.
 버전 작업창의 권한 문서는 계속 [DEVELOPMENT_ROADMAP_2026_2027.md](DEVELOPMENT_ROADMAP_2026_2027.md)이고,
 중장기 재편성안은 Draft [#93](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/93)이 승인될 때까지 *제안* 상태입니다.
@@ -39,7 +39,7 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 | **Transpose** | v3 연구·시험 기반 마련 (#154 병합), 제품 적용 미완 | **2.5ms는 PDC 보고값**이며 저역 실제 지연은 별개. 44.1kHz 실패, 저역·업시프트, 실제 DI·청음·DAW 검증. v4/1.25ms 절충안 [#155](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/155)는 음질·CPU 승인 보류이며, 연구 자료로만 main에 보관(제품 미적용). 11/2–11/6 [실제 DI 검증 계획](TRANSPOSE_V3_DI_VALIDATION_PLAN_20261026.ko.md) |
 | **FabFilter 참조 반영** | 화면·독자 DSP 상당 부분 진행 | 원본 응답·검출 시간·위상·미터 비교와 수용 판정. [#127](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/127)은 비교 도구일 뿐 측정 완료가 아님(main 병합·자체 테스트 통과, CI 후 머지 예정). 원본 플러그인 렌더와 비교는 미실시 |
 | **베타 수명주기** | beta.1 정책 커밋됨 | beta.2 전용 만료일 결정. 실행 중 만료·재실행·업데이트 후 프로젝트/IR 복원. **beta.1의 2027-02-11 만료일 자동 승계 금지**. [만료일 결정안](BETA2_EXPIRY_DECISION_PROPOSAL_20261026.ko.md)(권장 2027-03-31 23:59 KST, 미승인, 11/6까지 결정) |
-| **AAX Native** | 개발 빌드 가능 | PACE 승인(10/24 신청 접수 확인, 승인과 구분. 초기 초대 안내의 7영업일을 접수 후 심사 기한으로 재사용하지 않음. iLok Validate 성공 확인, 별도 10/29 Developer Bundle 재신청 일정 유지) → iLok 준비 → 서명 → Windows/macOS 일반 Pro Tools 검증. [서명 준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) |
+| **AAX Native** | 개발 빌드 경로 유지, **10/27 08:15 KST PACE 관리자 설정·라이선스 지급 완료** | Central Access/Fusion SDK 각 1개, 만료 2027-11-01, AAX 서명 전용. USB 도착·활성화 미확인 → 첫 서명 → signed 설치기 → Windows/macOS 일반 Pro Tools 검증. **배포 기준 BLOCKED**. 11/3 회신 예상은 폐기. Pro Tools Developer Bundle은 별도 10/29 일정 유지. [준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) · [첫 서명 runbook](AAX_FIRST_SIGNING_RUNBOOK_20261027.ko.md) |
 
 ## 4. 단기 일정 (작업·판정 목표)
 
@@ -51,7 +51,7 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 | **11/9–11/13** | 통과한 변경을 최종 소스로 동결, 설치·상태 복원·성능 재검증 | **beta.2 공개 가능 여부 판정** |
 | **11/16–11/27** | 미달 항목 수정, EQ 편집 후속 기능, OBS/Linux 패키징·호환성 보완 | 주간 검증 빌드와 다음 업데이트 범위 |
 
-- AAX 트랙(PACE → iLok → 서명 → Pro Tools 검증)은 위 일정에 병행합니다. 외부 준비가 늦어지면 beta.2 공개 판단도 늦어집니다.
+- AAX는 PACE 발급 대기를 종료하고 **USB iLok 초기 설정 → 서명 → 최종 설치기 → 일반 Pro Tools 검증**을 병행합니다. USB 도착일은 미확인이므로 첫 서명일을 확정하지 않습니다. Fusion SDK의 iLok Cloud 활성화 지원은 별도 AAX Cloud Signing 서비스 권한이 아닙니다. 실제 검증이 늦어지면 beta.2 공개 판단도 늦어집니다.
 - 기존 10/23 목표는 지났습니다. **10/30에 자동으로 beta.3로 넘어가지 않습니다.** 공개는 P0 4개의 실제 결과로만 결정합니다.
 - 매주 실질적인 개선 빌드를 만드는 원칙은 유지합니다.
 

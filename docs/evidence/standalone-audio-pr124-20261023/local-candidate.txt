@@ -1,0 +1,3 @@
+PASS first run, saved ASIO/WASAPI reload, null/invalid settings, absent/busy/empty ASIO and exact fallback
+PASS live snapshot, reconfiguration, privacy, driver xruns vs callback overruns, CPU, closed/missing device
+PASS reported latency arithmetic at 44.1/48/96 kHz and missing/invalid values
