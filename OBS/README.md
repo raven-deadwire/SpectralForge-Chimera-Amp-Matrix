@@ -157,9 +157,17 @@ vst3="build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
   로그인한 사용자 권한으로 같은 `chimera-obs-installer`를 실행해 그 사용자의 OBS 플러그인 폴더에 설치한다(root 설치 거부·해시·서명 검사·원자 교체 동일).
   로그인한 사용자가 없거나 시동 디스크가 아니면 설치하지 않고 위 폴더의 `install.sh`를 안내한다.
 - OBS가 실행 중이면 설치 프로그램이 시작 단계에서 멈추고 아무것도 바꾸지 않는다(필터가 Chimera VST3를 불러온 상태일 수 있음).
+- 두 구성 요소의 `preinstall`에서도 OBS 프로세스를 다시 검사하며, 조회 실패도 차단한다. 설치가 끝날 때까지 OBS를 닫아 둬야 한다.
+- OBS 선택을 해제해도 앱·VST3·AU·설명서는 설치되며, 기존 사용자 필터를 제거하지 않는다. 필터 제거는 아래 명령을 별도로 실행한다.
+- GUI의 기본 선택은 Installer를 실행한 사용자의 홈을 기준으로 한다. root/MDM/`sudo installer`에서는 로그인한 사용자의 홈과 다를 수 있으므로 `-applyChoiceChangesXML`로 OBS 선택을 명시한다. 실제 필터 설치 대상은 콘솔 로그인 사용자다.
 - 다른 사용자 추가·제거는 그 사용자로 위 폴더의 `install.sh`(`--uninstall`)를 실행한다. PKG에는 제거 프로그램이 없다.
 - CI(`build.yml` macOS)는 실제 PKG를 설치해 기본 선택(러너에 OBS 없음)에서는 필터가 설치되지 않고, OBS 항목을 고르면
   로그인한 사용자 소유로 설치되어 Apple silicon·Intel(Rosetta) libobs 양쪽에서 등록되는지, `--uninstall`로 지워지는지 확인한다.
+- `Tools/verify_macos_obs_pkg.py`는 Apple CLI 선택 평가(OBS 없음/있음/기존 필터), 선택 해제 상태의 필수 앱·VST3·AU·설명서,
+  OBS 이름의 시험 프로세스 실행 중 차단과 기존 파일 보존, 손상된 업데이트 거부, 제거 후 장면·개인 프리셋·다른 플러그인 보존을 검사한다.
+  시험 코드 추가와 해당 커밋의 CI 통과는 별개다. GUI에서 실제 OBS를 실행하는 검증은 포함하지 않는다.
+- 실패 복구 범위: 네이티브 도우미는 **사용자 OBS 필터**의 원자 교체·복구를 수행한다. macOS PKG 전체(앱·VST3·AU·공용 OBS 패키지)를 하나의 트랜잭션으로 원복하지는 않는다.
+  후반 구성 요소에서 실패하면 앞선 구성 요소는 이미 업데이트됐을 수 있다. 오류 원인을 해결하고 같은 PKG를 다시 실행한다. 전체 PKG 실패·전원 차단 시 이전 버전 복구는 아직 보장하지 않는다.
 
 ## 설치 (Linux Chimera DEB/TAR)
 

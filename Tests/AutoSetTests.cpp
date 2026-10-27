@@ -250,6 +250,38 @@ void multibandRules() {
     std::cout<<"PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz\n";
 }
 
+// Phase 5: Gate 2 / Expander from the rig noise in the pause.
+void gateStageRules() {
+    // 6 s: playing at -18 dBFS input with a 1.5 s pause at -72 dBFS; the rig
+    // makes playing louder and the pause carries its own hiss.
+    const auto fixture=[](float rigPlayingDb,float rigNoiseDb,float pauseSeconds) {
+        std::vector<Window> input,rig;
+        for(int i=0;i<600;++i) {
+            const bool pause=i>=300 && i<300+int(pauseSeconds*100);
+            input.push_back(pause?Window{-70.f,-72.f}:Window{-18.f,-24.f});
+            rig.push_back(pause?Window{rigNoiseDb,rigNoiseDb-3.f}:Window{rigPlayingDb,rigPlayingDb-6.f});
+        }
+        return std::pair{input,rig};
+    };
+    using Plan=GateStagesResult::Plan;
+    {const auto [in,rig]=fixture(-12,-64,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::clean);
+     check(r.plan==Plan::soft && near(r.expanderRangeDb,14,.01f),"Faint hiss should get a shallower Expander range");}
+    {const auto [in,rig]=fixture(-12,-80,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::rock);
+     check(r.measured && r.plan==Plan::none && near(r.rigNoiseDb,-80,.01f),"A quiet amp still added Gate 2 or the Expander");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,2,-60,false,Style::rock);
+     check(r.plan==Plan::soft && r.expanderAfterRig && near(r.expanderThresholdDb,-60,.01f) && near(r.expanderRatio,2,.01f)
+           && near(r.expanderRangeDb,15,.01f) && near(r.mainThresholdDb,-78,.01f) && near(r.expanderReleaseMs,120,.01f),
+           "Rock with amp hiss did not get an after-rig Expander at the gate threshold and a deeper main gate");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::clean);
+     check(r.plan==Plan::soft && near(r.expanderRatio,1.5f,.01f) && near(r.mainThresholdDb,-84,.01f) && near(r.expanderReleaseMs,200,.01f),"Clean style did not get the gentler Expander");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::metal);
+     check(r.plan==Plan::hard && r.mainAfterRig && near(r.gate2ThresholdDb,-66,.01f) && near(r.gate2RangeDb,18,.01f),"Metal with a wide gap did not get a post-rig gate and a PRE Gate 2");}
+    {const auto [in,rig]=fixture(-40,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::metal);
+     check(r.plan==Plan::soft && near(r.expanderRatio,2.5f,.01f) && near(r.expanderRangeDb,15,.01f),"Metal with a narrow gap should fade tails with the Expander, not chop them");}
+    {const auto [in,rig]=fixture(-12,-50,0.f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::rock);
+     check(!r.measured && r.plan==Plan::none,"Gate stages were set without a pause");}
+    std::cout<<"PASS auto set gate stage rules: quiet amp leaves them off, amp hiss adds an Expander (clean/rock/metal ratios, deeper main gate), metal with headroom gets a post-rig gate and PRE Gate 2, no pause changes nothing\n";
+}
 void captureWindows() {
     for(double rate:{44100.,48000.,96000.}) {
         Capture capture;capture.prepare(rate);
@@ -274,6 +306,10 @@ void captureWindows() {
         std::vector<Window> other;capture.drain(Tap::compressor,other);
         check(other.empty(),"Inactive tap recorded windows");
         std::vector<float> tone;capture.drainSamples(tone);check(tone.empty(),"Inactive tone tap recorded samples");
+        capture.listen({Tap::input,Tap::rig});
+        capture.push(Tap::rig,channels,2,int(left.size()));capture.push(Tap::input,channels,2,int(left.size()));
+        std::vector<Window> rigOut,inOut;capture.drain(Tap::rig,rigOut);capture.drain(Tap::input,inOut);
+        check(rigOut.size()==inOut.size() && rigOut.size()>=99 && near(rigOut[10].peakDb,-6.02f,.3f),"Rig tap does not record windows alongside the input");
         capture.listen(Tap::tone);counting=true;allocations=0;
         capture.push(Tap::tone,channels,2,4096);capture.push(Tap::input,channels,2,4096);capture.push(Tap::deesser,channels,2,4096);
         counting=false;check(allocations==0,"Audio-thread tone capture allocated");
@@ -386,7 +422,9 @@ void controllerIntegration() {
     run(*p,c,&di,6.6,now);
     check(c.current().phase==Controller::Phase::tone && c.current().text.contains("2/5"),"First pass did not hand over to the Tone EQ pass");
     check(get(*p,"input")>4.f && get(*p,"input")<=12.01f,"Input gain was not raised toward the target");
-    check(get(*p,"gateon")>.5f && get(*p,"gatethreshold")>-70.f && get(*p,"gatethreshold")<-35.f,"Gate threshold was not placed above the noise floor");
+    // With an Expander (phase 5) it takes the threshold above the noise and the main gate sits below it.
+    const float placed=get(*p,"expOn")>.5f?get(*p,"expThreshold"):get(*p,"gatethreshold");
+    check(get(*p,"gateon")>.5f && placed>-70.f && placed<-35.f && get(*p,"gatethreshold")<=placed,"Gate threshold was not placed above the noise floor");
     run(*p,c,&di,6.6,now);
     check(c.current().phase==Controller::Phase::compressor,"Tone EQ pass did not hand over to the compressor pass");
     const auto& tone=c.lastToneAnalysis();
@@ -425,8 +463,16 @@ void controllerIntegration() {
         check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
         check(!sawTone,"Tone pass claimed an instrument before its analysis");
         const auto& steps=c.current().steps;
-        check(steps.size()==5 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[4].phase==Controller::Phase::finish
-              && steps[2].changed && steps[2].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        check(steps.size()==6 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
+              && steps[5].phase==Controller::Phase::finish && steps[3].changed && steps[3].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        // Gate 2 / Expander follow their analysis; the gates were held open only while the input pass listened.
+        const auto& gates=c.lastGateAnalysis();
+        check(gates.measured && (get(*p,"expOn")>.5f)==(gates.plan==GateStagesResult::Plan::soft) && (get(*p,"gate2On")>.5f)==(gates.plan==GateStagesResult::Plan::hard),
+              "Applied Gate 2 / Expander do not match the analysis");
+        if(gates.plan==GateStagesResult::Plan::soft)check(near(get(*p,"expThreshold"),gates.expanderThresholdDb,.01f) && near(get(*p,"gatethreshold"),gates.mainThresholdDb,.01f) && get(*p,"gateMode")<.5f,"Expander plan not applied");
+        bool sawHiss=false;for(const auto& s:statuses)sawHiss|=s.phase==Controller::Phase::input && s.heard.contains("Amp hiss");
+        check(sawHiss,"Input pass did not report the amp's hiss");
+        std::cout<<"MEASURE auto set gates: rig noise "<<gates.rigNoiseDb<<" dBFS, gap "<<gates.rigGapDb<<" dB, plan "<<int(gates.plan)<<'\n';
         std::cout<<"MEASURE auto set results:";for(const auto& step:steps)std::cout<<" ["<<Controller::phaseName(step.phase)<<": "<<step.result<<"]";std::cout<<'\n';
     }
     check(get(*p,"liveLimiterOn")>.5f && near(get(*p,"liveLimiterCeiling"),limiterCeilingDb,.01f) && near(get(*p,"liveLimiterRelease"),100.f,.01f),"Limiter was not set for the rock style");
@@ -534,7 +580,7 @@ void inputStrengthRounding() {
 }
 void controllerLocksAndStrength() {
     using P=Controller::Phase;
-    const Controller::Options all{1,true,Style::rock,true,true};
+    const Controller::Options all{1,true,Style::rock,true,true,false};
     const auto full=runLocked(all);
     check(full.status.phase==P::done && full.status.steps.size()==5,"Reference run did not complete five passes");
     check(valueOf(full,"gateon")>.5f,"Reference run did not place the gate");
@@ -578,6 +624,16 @@ void controllerLocksAndStrength() {
         check(gate->getValue()==gate->getDefaultValue(),"Undo did not restore the unlocked gate");
     });
     check(locked.status.phase==P::done,"Locked run did not complete");
+    // The gate lock also keeps the Gate 2 / Expander result step of the input pass.
+    {
+        auto gateOptions=all;gateOptions.gates=true;gateOptions.locks=Controller::lockGate;
+        const auto gated=runLocked(gateOptions);
+        const auto& gateSteps=gated.status.steps;
+        check(gated.status.phase==P::done && std::any_of(gateSteps.begin(),gateSteps.end(),[](const auto& s){return s.phase==P::gates && s.result=="kept (locked)" && !s.changed;}),
+              "Gate lock did not keep Gate 2 and the Expander");
+        for(const auto* id:{"gateon","gatethreshold","gateAfterRig","gateMode","gate2On","gate2Threshold","gate2RangeDb","expOn","expAfterRig","expThreshold","expRatio","expRangeDb"})
+            check(near(valueOf(gated,id),valueOf(defaults,id),1e-4f),std::string("Gate lock changed: ")+id);
+    }
     check((locked.status.passes==std::vector<P>{P::input,P::multiband,P::finish}),"Locked passes were not skipped");
     const auto& steps=locked.status.steps;
     check(steps.size()==5 && steps[1].phase==P::tone && steps[2].phase==P::compressor && steps[1].result=="kept (locked)" && steps[2].result=="kept (locked)"
@@ -679,7 +735,7 @@ void controllerEditHistory() {
 bool inLockedStage(const juce::String& id,Controller::Lock lock) {
     switch(lock) {
         case Controller::lockInput:return id=="input";
-        case Controller::lockGate:return id.startsWith("gate");
+        case Controller::lockGate:return id.startsWith("gate") || id.startsWith("exp"); // the gate lock covers Gate 2 and the Expander
         case Controller::lockTone:return id.startsWith("toneEQ_");
         case Controller::lockCompressor:return id.startsWith("cleanComp");
         case Controller::lockMultiband:return id.startsWith("mb");
@@ -689,7 +745,7 @@ bool inLockedStage(const juce::String& id,Controller::Lock lock) {
     return false;
 }
 void controllerStrengthMatrix() {
-    const Controller::Options all{1,true,Style::rock,true,true};
+    const Controller::Options all{1,true,Style::rock,true,true,false};
     const auto full=runLocked(all);
     const LockRun defaults{full.before,{},{}};
     check(valueOf(full,"mbOn")>.5f && valueOf(full,"deEsserOn")>.5f,"Strength matrix needs active positive controls");
@@ -717,7 +773,7 @@ void controllerStrengthMatrix() {
 }
 void controllerEveryLock() {
     for(const auto lock:Controller::lockOrder)for(float amount:{.25f,.5f,.75f,1.f}) {
-        Controller::Options o{1,true,Style::rock,true,true,amount,unsigned(lock)};
+        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock)};
         std::vector<int> lockedIndices;std::vector<float> seeded;bool editedDuringRun=false;
         const auto r=runLocked(o,[&](ChimeraProcessor& p,Controller& c){
             auto applied=values(p);
@@ -737,7 +793,7 @@ void controllerEveryLock() {
     }
     // Options changed during a run belong to the next run. Undo still uses the
     // run snapshot, while a newly selected lock additionally protects its stage.
-    Controller::Options initial{1,true,Style::rock,true,true,.5f,Controller::lockTone};
+    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone};
     bool changed=false;
     const auto baseline=runLocked(initial);
     const auto edited=runLocked(initial,[&](ChimeraProcessor& p,Controller& c){
@@ -759,7 +815,7 @@ void controllerAttackLockRegression() {
         }
         for(float amount:{.25f,.5f,.75f,1.f})for(unsigned finishLock:{0u,unsigned(Controller::lockDeEsser),unsigned(Controller::lockLimiter)}) {
             const unsigned upstream=Controller::lockInput|Controller::lockGate|Controller::lockTone|Controller::lockCompressor|Controller::lockMultiband;
-            const auto r=runLocked({1,true,style,true,true,amount,upstream|finishLock},[&](ChimeraProcessor& p,Controller& c){
+            const auto r=runLocked({1,true,style,true,true,false,amount,upstream|finishLock},[&](ChimeraProcessor& p,Controller& c){
                 check(c.lastFinishAnalysis().playingDetected && c.lastFinishAnalysis().protectedAttackWindows>0 && !c.lastFinishAnalysis().deEsser,"Locks or strength regressed pick attack protection");
                 check(get(p,"deEsserOn")<.5f,"Protected attack enabled the de-esser");
                 c.undo();check(get(p,"deEsserOn")<.5f,"Undo altered the protected attack state");
@@ -769,13 +825,61 @@ void controllerAttackLockRegression() {
     }
     std::cout<<"PASS attack/lock regression: "<<cases<<" controller cases, three styles x four strengths x de-esser/limiter lock modes\n";
 }
+// Phase 5 also consumes the input pass: mixed-gain evidence must not change
+// any gate stage, including when host automation returns to the original value.
+void controllerGateStageEditHistory() {
+    const std::vector<juce::String> gateIDs{
+        "gateon","gatethreshold","gateRangeDb","gateAfterRig","gateMode",
+        "gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
+        "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"};
+    for(auto style:{Style::clean,Style::rock,Style::metal}) for(int edit=0;edit<3;++edit) {
+        auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+        Controller c(*p);c.setOptions({1,false,style,false,false,true});
+        auto values=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
+        const auto before=values();auto* input=p->parameters().getParameter("input");const float original=input->getValue();
+        double now=juce::Time::getMillisecondCounterHiRes();c.start();
+        for(int offset=0;offset<48000*14;offset+=256) {
+            float in[256],rig[256];
+            for(int n=0;n<256;++n) {
+                const int sample=offset+n;const bool playing=sample%96000<72000;
+                const float wave=std::sin(float(2*juce::MathConstants<double>::pi*1000*sample/48000.));
+                in[n]=wave*(playing?.1f:.0001f);rig[n]=wave*(playing?.2f:.001f);
+            }
+            // Mid-capture manual gesture and host-style notification-only A-B-A.
+            if(offset==256*500 && edit) {
+                if(edit==1)input->beginChangeGesture();
+                input->setValueNotifyingHost(input->convertTo0to1(3.f));input->setValueNotifyingHost(original);
+                if(edit==1)input->endChangeGesture();
+            }
+            const float* ins[]{in};const float* rigs[]{rig};
+            for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
+            p->autoSetCapture().push(Tap::rig,rigs,1,256);
+            now+=1000.*256/48000.;c.tick(now);
+        }
+        check(c.current().phase==Controller::Phase::done,"Gate-stage edit-history run did not finish");
+        if(!edit) {
+            check(values()!=before,"Gate-stage positive control did not apply a plan");
+            check(get(*p,style==Style::metal?"gate2On":"expOn")>.5f,"Gate-stage fixture did not exercise expected hard/soft plan");
+        } else {
+            check(input->getValue()==original,"Gate-stage run overwrote input A-B-A");
+            check(values()==before,"Gate stages used mixed-gain evidence after input A-B-A");
+        }
+        c.undo();
+        const auto afterUndo=values();
+        if(edit)check(afterUndo==before,"Undo changed gate stages kept after input A-B-A");
+        for(size_t i=0;i<before.size();++i)
+            check(near(afterUndo[i],before[i],.001f),"Gate-stage undo changed "+gateIDs[i].toStdString()+": "+std::to_string(before[i])+" > "+std::to_string(afterUndo[i]));
+        p->releaseResources();
+    }
+    std::cout<<"PASS gate-stage edit history: 3 styles x unchanged/manual/host A-B-A, apply and undo\n";
+}
 
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

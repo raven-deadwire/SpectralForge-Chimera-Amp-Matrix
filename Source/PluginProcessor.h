@@ -19,6 +19,7 @@
 #include "PostNativeParameters.h"
 #include "GraphicalEQ.h"
 #include "BetaLifecycleRuntime.h"
+#include "TesterCode.h"
 #include "EQEditState.h"
 #include "EQCaptureBoundary.h"
 
@@ -36,7 +37,12 @@ public:
     spectralforge::beta::Evaluation betaStatus() const noexcept { return betaLifecycle.observe(betaClock()); }
     bool betaProcessingPermitted() const noexcept { return betaLifecycle.processingPermitted(); }
     juce::String betaNotice() const;
-    void recheckBetaClock() noexcept { (void)betaLifecycle.recoverFromClockCorrection(betaClock()); }
+    void recheckBetaClock();
+    // Message thread. A verified beta tester code lifts the expiry for this
+    // user on this computer (all later betas signed with the same key).
+    spectralforge::beta::tester::Grant applyTesterCode(const juce::String& code);
+    void removeTesterCode();
+    const juce::String& testerCodeHolder() const noexcept { return testerHolder; }
     void prepareToPlay(double,int) override;
     void releaseResources() override;
     // Diagnostic/test query. Host audio processing must already be stopped.
@@ -121,6 +127,8 @@ public:
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
     spectralforge::autoset::Capture& autoSetCapture() noexcept {return autoSetCaptureState;}
+    // Message thread: Auto Set holds all gates open while it listens to the rig's noise.
+    void setAutoSetGateBypass(bool bypass) noexcept {autoSetGateBypass.store(bypass,std::memory_order_relaxed);}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}
     float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
@@ -171,9 +179,11 @@ public:
     void activateNativePost(int section);
 private:
     friend struct ChimeraBetaTestAccess;
-    ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock);
+    ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock,
+                     const spectralforge::beta::tester::Grant& tester={});
     const spectralforge::beta::Clock betaClock;
     spectralforge::beta::InstanceLatch betaLifecycle;
+    juce::String testerHolder; // message thread only
     juce::SmoothedValue<float> betaOutputGain;
     spectralforge::AmpSelectionParameterCache ampSelection;
     spectralforge::AmpNativeParameterCache nativeAmps;
@@ -224,6 +234,7 @@ private:
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
+    std::atomic<bool> autoSetGateBypass{false};
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;

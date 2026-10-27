@@ -20,19 +20,21 @@ namespace spectralforge::autoset {
 // output limiter from what now reaches them.
 class Controller final : private juce::Timer {
 public:
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed};
+    // gates is a result step of the input pass, not a listening pass of its own.
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates};
     // Settings Auto Set must keep as they are: their parameters are neither
     // written nor restored by UNDO AUTO, and a pass whose outputs are all locked
-    // is skipped.
+    // is skipped. The gate lock also covers Gate 2 and the Expander.
     enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6};
     static constexpr std::array<Lock,7> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter};
     // strength (minimumStrength..1) scales how far each result moves the sound:
     // input gain change and Tone EQ gains scale, the compressor and multiband
-    // mix in parallel, the de-esser range scales. The gate is placed for the
+    // mix in parallel, the de-esser range scales. The gates are placed for the
     // applied input gain; the limiter protects the output and stays at full.
     static constexpr float minimumStrength=.1f;
-    // instrument: 0 detect, 1 guitar, 2 bass. tone/multiband/finish include the optional passes.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};float strength{1.f};unsigned locks{};};
+    // instrument: 0 detect, 1 guitar, 2 bass. tone/multiband/finish include the optional passes;
+    // gates sets Gate 2 and the Expander from the input pass.
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -46,7 +48,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -64,10 +66,12 @@ public:
         add(lockMultiband,{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3"});
         for(int b=0;b<multibandBandCount;++b)
             for(const auto* field:{"bypass","mode","threshold","range","ratio","attack","release","knee","makeup","solo"})touchedIDs.push_back({multibandID(b,field),lockMultiband});
+        add(lockGate,{"gateAfterRig","gateMode","gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
+                      "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"});
         for(const auto& item:touchedIDs)if(auto* parameter=processor.parameters().getParameter(item.first))
             editTrackers.push_back(std::make_unique<ParameterEdits>(*parameter));
     }
-    ~Controller() override {stopTimer();processor.autoSetCapture().listen(std::nullopt);}
+    ~Controller() override {stopTimer();stopListening();}
 
     // Execution options take effect at the next start(). Newly selected locks
     // additionally protect their stages from undo of the previous run.
@@ -81,7 +85,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();summary.clear();steps.clear();lastTone={};lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -95,7 +99,7 @@ public:
     }
     void cancel() {
         if(!busy())return;
-        stopTimer();processor.autoSetCapture().listen(std::nullopt);
+        stopTimer();stopListening();
         // Cancel only stops listening. Passes that already finished keep
         // their settings until UNDO restores the pre-run snapshot.
         publish(Phase::idle,0,changedSinceSnapshot() ? "Auto Set cancelled. Finished steps are kept; UNDO restores your previous settings."
@@ -120,6 +124,7 @@ public:
         const auto before=collected();
         if(samplePass())capture.drainSamples(samples);
         if(windowPass())capture.drain(windowTap(),windows);
+        if(status.phase==Phase::input)capture.drain(Tap::rig,rigWindows);
         if(lastAudioMs<0 || collected()!=before)lastAudioMs=nowMs;
         else if(nowMs-lastAudioMs>noAudioTimeoutMs){fail("No audio reached the plug-in. Start playback or play your instrument, then try again.");return;}
         const double measured=std::max(0.,double(collected())-double(samplePass()?skipSamples:skipWindows)),needed=passLength();
@@ -179,16 +184,19 @@ private:
     void beginPass(size_t index,int settle) {
         auto& capture=processor.autoSetCapture();
         capture.listen(std::nullopt);
-        std::vector<Window> discard;for(const auto t:{Tap::input,Tap::compressor,Tap::output})capture.drain(t,discard);
+        std::vector<Window> discard;for(const auto t:{Tap::input,Tap::compressor,Tap::output,Tap::rig})capture.drain(t,discard);
         std::vector<float> stale;capture.drainSamples(stale);
         flushLocked(passes[index]);
-        pass=index;windows.clear();samples.clear();lastAudioMs=-1; // timed from the first tick of the pass
+        pass=index;windows.clear();rigWindows.clear();samples.clear();lastAudioMs=-1; // timed from the first tick of the pass
         skipWindows=settle?settleWindows:0;skipSamples=settle?int(toneSettleSeconds*rate()):0;
         status.phase=passes[pass];
         if(status.phase==Phase::tone)capture.listen(Tap::tone);
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
         else if(status.phase==Phase::finish)capture.listen({Tap::deesser,Tap::output});
+        else if(status.phase==Phase::input && runOptions.gates)capture.listen({Tap::input,Tap::rig});
         else capture.listen(windowTap());
+        // Gate 2 / Expander need the rig's own noise: hold every gate open while the input pass listens.
+        processor.setAutoSetGateBypass(status.phase==Phase::input && runOptions.gates);
         publish(passes[pass],progress(0),passText(),0);
     }
     void nextPass() {if(pass+1<passes.size())beginPass(pass+1,1);else complete();}
@@ -238,7 +246,47 @@ private:
             result+="; gate "+juce::String(gateBefore,0)+" > "+juce::String(threshold,0)+" dB, range "+range;
         } else {summary+=" | Gate unchanged (no pause heard)";result+="; gate kept (no pause heard)";}
         addStep(result,true);
+        processor.setAutoSetGateBypass(false);
+        if(runOptions.gates)finishGateStages(measured,r.pausesDetected);
         nextPass();
+    }
+    // Phase 5: Gate 2 and the Expander from the rig noise heard in the input pass.
+    void finishGateStages(const std::vector<Window>& measured,bool pauseHeard) {
+        const auto addGateStep=[this](const juce::String& result,bool changed){steps.push_back({Phase::gates,result,changed});};
+        // This stage shares the input pass, so its rig/input comparison is
+        // invalid too if the user/host changed gain, even A -> B -> A. Check
+        // again here, after any callbacks from the main gate's writes.
+        if(!editsFor(*processor.parameters().getParameter("input")).unchanged(inputRevision)) {
+            addGateStep("kept (input edited while listening)",false);return;
+        }
+        if(locked(lockGate)){addGateStep("kept (locked)",false);return;}
+        if(!pauseHeard){addGateStep("kept (no pause heard)",false);return;}
+        const std::vector<Window> rig(rigWindows.begin()+std::min(rigWindows.size(),size_t(skipWindows)),rigWindows.end());
+        const int lag=juce::roundToInt(double(std::max(0,processor.getLatencySamples()))/(rate()*.01));
+        const auto r=analyseGateStages(measured,rig,lag,raw("gatethreshold"),raw("gateAfterRig")>.5f,runOptions.style);
+        lastGates=r;
+        const auto hiss="amp hiss "+juce::String(r.rigNoiseDb,0)+" dBFS";
+        if(!r.measured){addGateStep("kept (pause too short to measure the amp's hiss)",false);return;}
+        using Plan=GateStagesResult::Plan;
+        if(r.plan==Plan::none) {
+            set("gate2On",0);set("expOn",0);
+            summary+=" | Gate 2 / Expander off ("+hiss+")";addGateStep("off ("+hiss+", the main gate is enough)",false);return;
+        }
+        set("gateMode",0);
+        if(r.plan==Plan::hard) {
+            set("gateAfterRig",1);set("expOn",0);
+            set("gate2Mode",1);set("gate2Threshold",r.gate2ThresholdDb);set("gate2Ratio",2);set("gate2Attack",.5f);
+            set("gate2Hold",10);set("gate2Release",80);set("gate2RangeDb",r.gate2RangeDb);set("gate2On",1);
+            summary+=" | Gate after rig + PRE Gate 2 "+juce::String(r.gate2ThresholdDb,0)+" dB";
+            addGateStep("main gate after the rig; PRE Gate 2 "+juce::String(r.gate2ThresholdDb,0)+" dB, up to "+juce::String(r.gate2RangeDb,0)+" dB ("+hiss+")",true);
+            return;
+        }
+        set("gatethreshold",r.mainThresholdDb);set("gate2On",0);
+        set("expAfterRig",r.expanderAfterRig?1.f:0.f);set("expThreshold",r.expanderThresholdDb);set("expRatio",r.expanderRatio);
+        set("expAttack",2);set("expHold",std::max(10.f,raw("gatehold")));set("expRelease",r.expanderReleaseMs);set("expRangeDb",r.expanderRangeDb);set("expOn",1);
+        summary+=" | Expander "+juce::String(r.expanderThresholdDb,0)+" dB "+juce::String(r.expanderRatio,1)+":1";
+        addGateStep("Expander "+juce::String(r.expanderAfterRig?"after":"before")+" the rig at "+juce::String(r.expanderThresholdDb,0)+" dB, "
+                    +juce::String(r.expanderRatio,1)+":1 up to "+juce::String(r.expanderRangeDb,0)+" dB; gate closes below "+juce::String(r.mainThresholdDb,0)+" dB ("+hiss+")",true);
     }
     // Tone EQ bands assigned to a Dynamic EQ slot keep the user's node.
     std::vector<int> freeToneBands() const {
@@ -333,13 +381,14 @@ private:
         addStep(result,changed);
         complete();
     }
+    void stopListening() {processor.autoSetCapture().listen(std::nullopt);processor.setAutoSetGateBypass(false);}
     void complete() {
-        stopTimer();processor.autoSetCapture().listen(std::nullopt);flushLocked(Phase::done);
+        stopTimer();stopListening();flushLocked(Phase::done);
         publish(Phase::done,1,(manualEditsKept?juce::String("Auto Set suggestions (newer manual/host edits kept; "):juce::String("Applied ("))
                 +juce::String(styleName(runOptions.style))+(strength()<1.f?", "+juce::String(juce::roundToInt(strength()*100))+"% strength":juce::String())+"): "+summary,1);
     }
     void fail(const juce::String& text) {
-        stopTimer();processor.autoSetCapture().listen(std::nullopt);
+        stopTimer();stopListening();
         publish(Phase::failed,0,text,0);
     }
     void addStep(const juce::String& result,bool changed){steps.push_back({status.phase,result,changed});}
@@ -376,11 +425,17 @@ private:
         const bool playing=s.levelDb>minimumPlayingDb;
         switch(status.phase) {
             case Phase::input: {
-                s.listeningFor="Playing level and the noise between notes, for input gain and the gate";
+                s.listeningFor=runOptions.gates?"Playing level, the noise between notes and the amp's hiss (gates held open), for input gain, the gates and the Expander"
+                                            :"Playing level and the noise between notes, for input gain and the gate";
                 std::vector<float> rms;for(const auto& w:windows)rms.push_back(w.rmsDb);
                 const bool heardPlaying=rms.size()>=20 && percentile(rms,.9f)>minimumPlayingDb;
                 const bool heardPause=heardPlaying && percentile(rms,.9f)-percentile(rms,.1f)>=12.f;
                 s.heard=juce::String("Playing: ")+(heardPlaying?"heard":"not yet")+"  /  Pause: "+(heardPause?"heard":"not yet - leave a short gap");
+                if(heardPause && rigWindows.size()>=20) {
+                    // The quietest rig windows are the pause: roughly the hiss the amp adds.
+                    std::vector<float> rig;for(const auto& w:rigWindows)rig.push_back(w.peakDb);
+                    s.heard+="  /  Amp hiss: "+juce::String(percentile(rig,.1f),0)+" dBFS";
+                }
                 break;
             }
             case Phase::tone:s.listeningFor="Tone balance from lows to highs after the amp and cab, for the Tone EQ";break;
@@ -404,6 +459,7 @@ public:
     const ToneResult& lastToneAnalysis() const noexcept {return lastTone;}
     const FinishResult& lastFinishAnalysis() const noexcept {return lastFinish;}
     const MultibandResult& lastMultibandAnalysis() const noexcept {return lastMultiband;}
+    const GateStagesResult& lastGateAnalysis() const noexcept {return lastGates;}
 private:
     ChimeraProcessor& processor;
     std::vector<std::pair<juce::String,Lock>> touchedIDs;std::vector<Phase> lockedPhases;
@@ -414,9 +470,9 @@ private:
     std::vector<Snapshot> snapshot;
     bool manualEditsKept{};
     uint32_t inputRevision{};
-    std::vector<Window> windows;std::vector<float> samples;
+    std::vector<Window> windows,rigWindows;std::vector<float> samples;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
