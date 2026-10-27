@@ -8,7 +8,7 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
 **상태: 개발 시제품. Windows는 Chimera Setup, macOS(Universal: Apple silicon·Intel, macOS 12 이상)는 Chimera PKG의 선택 항목(서명·공증 없음)이며
-별도 사용자 설치 패키지도 있다. Linux x86_64는 CI가 만든 사용자 설치 패키지만 있다(F단계, 공개 배포 전). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
+별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
 
 ## 라이선스
 
@@ -157,9 +157,33 @@ vst3="build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
   로그인한 사용자 권한으로 같은 `chimera-obs-installer`를 실행해 그 사용자의 OBS 플러그인 폴더에 설치한다(root 설치 거부·해시·서명 검사·원자 교체 동일).
   로그인한 사용자가 없거나 시동 디스크가 아니면 설치하지 않고 위 폴더의 `install.sh`를 안내한다.
 - OBS가 실행 중이면 설치 프로그램이 시작 단계에서 멈추고 아무것도 바꾸지 않는다(필터가 Chimera VST3를 불러온 상태일 수 있음).
+- 두 구성 요소의 `preinstall`에서도 OBS 프로세스를 다시 검사하며, 조회 실패도 차단한다. 설치가 끝날 때까지 OBS를 닫아 둬야 한다.
+- OBS 선택을 해제해도 앱·VST3·AU·설명서는 설치되며, 기존 사용자 필터를 제거하지 않는다. 필터 제거는 아래 명령을 별도로 실행한다.
+- GUI의 기본 선택은 Installer를 실행한 사용자의 홈을 기준으로 한다. root/MDM/`sudo installer`에서는 로그인한 사용자의 홈과 다를 수 있으므로 `-applyChoiceChangesXML`로 OBS 선택을 명시한다. 실제 필터 설치 대상은 콘솔 로그인 사용자다.
 - 다른 사용자 추가·제거는 그 사용자로 위 폴더의 `install.sh`(`--uninstall`)를 실행한다. PKG에는 제거 프로그램이 없다.
 - CI(`build.yml` macOS)는 실제 PKG를 설치해 기본 선택(러너에 OBS 없음)에서는 필터가 설치되지 않고, OBS 항목을 고르면
   로그인한 사용자 소유로 설치되어 Apple silicon·Intel(Rosetta) libobs 양쪽에서 등록되는지, `--uninstall`로 지워지는지 확인한다.
+- `Tools/verify_macos_obs_pkg.py`는 Apple CLI 선택 평가(OBS 없음/있음/기존 필터), 선택 해제 상태의 필수 앱·VST3·AU·설명서,
+  OBS 이름의 시험 프로세스 실행 중 차단과 기존 파일 보존, 손상된 업데이트 거부, 제거 후 장면·개인 프리셋·다른 플러그인 보존을 검사한다.
+  시험 코드 추가와 해당 커밋의 CI 통과는 별개다. GUI에서 실제 OBS를 실행하는 검증은 포함하지 않는다.
+- 실패 복구 범위: 네이티브 도우미는 **사용자 OBS 필터**의 원자 교체·복구를 수행한다. macOS PKG 전체(앱·VST3·AU·공용 OBS 패키지)를 하나의 트랜잭션으로 원복하지는 않는다.
+  후반 구성 요소에서 실패하면 앞선 구성 요소는 이미 업데이트됐을 수 있다. 오류 원인을 해결하고 같은 PKG를 다시 실행한다. 전체 PKG 실패·전원 차단 시 이전 버전 복구는 아직 보장하지 않는다.
+
+## 설치 (Linux Chimera DEB/TAR)
+
+제품 Linux 빌드는 Ubuntu 22.04(glibc 2.35) 기준이지만 이 모듈은 libobs 30 이상이 필요하다(Ubuntu 22.04 기본 OBS는 27).
+그래서 `build.yml` Linux 작업이 모듈을 Ubuntu 24.04 컨테이너(libobs 30.0.2)에서 빌드하고 bridge·통계·base64 시험을 돌린 뒤,
+`stage_module.py linux`가 22.04 러너에서 설치 프로그램을 컴파일해(C 라이브러리만 필요) 위 Linux 사용자 패키지를 만든다.
+`package_release.py linux`는 이를 DEB와 TAR의 `usr/share/chimera-amp-matrix/obs-filter`에 그대로 넣는다(OBS가 읽는 위치가 아님).
+
+- TAR `install.sh`: 제품 설치 뒤 터미널이면 OBS 필터도 설치할지 묻는다(OBS 명령이나 `~/.config/obs-studio`가 있으면 기본 Y).
+  `--with-obs-filter`/`--without-obs-filter`로 미리 답할 수 있고, 터미널이 아니면 묻지 않고 설치하지 않는다.
+  필터 설치가 실패해도(OBS 실행 중 등) 제품은 설치된 상태이며, 이유와 다시 실행할 명령을 알리고 1로 끝난다.
+- DEB: 패키지 설치 중에는 물을 수 없으므로 사용자가 `sh /usr/share/chimera-amp-matrix/obs-filter/install.sh`를 실행한다.
+  설치 위치는 사용자별 `~/.config/obs-studio/plugins/chimera-obs`이며 `apt remove`는 이 사용자 사본을 지우지 않는다.
+- CI(`build.yml` Linux)는 실제 TAR을 임시 HOME에 풀어 터미널 없이 실행하면 필터가 설치되지 않는지, `--with-obs-filter`면
+  빌드한 모듈과 같은 바이트로 설치되는지, `--uninstall`로 지워지는지, 알 수 없는 옵션을 거부하는지 확인한다.
+  libobs 로드·VST3 호스트 시험은 같은 소스·같은 Ubuntu 24.04 libobs로 `obs-addon.yml` linux 작업이 맡는다.
 
 ## 설치 (Windows)
 

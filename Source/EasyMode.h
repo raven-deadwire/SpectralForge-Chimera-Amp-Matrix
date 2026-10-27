@@ -2,6 +2,7 @@
 #include "AmpNativeCatalog.h"
 #include <juce_core/juce_core.h>
 #include <array>
+#include <string_view>
 
 namespace spectralforge::easy {
 // Easy view is presentation only. Every knob edits an existing parameter of
@@ -27,9 +28,37 @@ inline std::span<const char* const> roleLabels(Role role) noexcept {
     }
     return {};
 }
-// Index of the head knob playing this role on the given channel, or -1.
-inline int ampControl(int model,int channel,Role role) noexcept {
+// Heads whose active knob depends on the input jack, or whose panel holds two
+// sections, are mapped explicitly. Easy view must edit the control the
+// selected input path actually plays through (checked against the DSP).
+inline int explicitAmpControl(int model,int route,Role role) noexcept {
+    const auto key=[model](std::string_view k){return ampNativeControlIndex(model,k);};
+    switch(model) {
+        case 1: // Brit Edge: HIGH TREBLE jacks 0-1, NORMAL jacks 2-3, JUMPED 4 plays both.
+            if(role==Role::gain)return route==2 || route==3 ? key("hw.normal") : key("hw.high_treble");
+            break;
+        case 19: // Monolith: NORMAL 0, BRILLIANT 1, JUMPED 2 plays both.
+            if(role==Role::gain)return route==0 ? key("hw.normal") : key("hw.brilliant");
+            break;
+        case 7: // Modern Bass: the knobs shape the amplifier section, not the drive section.
+            switch(role) {
+                case Role::gain:return key("hw.db751.gain");
+                case Role::bass:return key("hw.db751.bass");
+                case Role::middle:return key("hw.db751.mid");
+                case Role::treble:return key("hw.db751.treble");
+            }
+            break;
+        default:break;
+    }
+    return -2;
+}
+// Index of the head knob playing this role on the given channel and input
+// route, or -1. With JUMPED inputs GAIN edits the bright input's volume
+// (HIGH TREBLE / BRILLIANT); the other volume stays in the full editor.
+inline int ampControl(int model,int channel,int route,Role role) noexcept {
     const auto& panel=ampNativePanel(model);
+    if(const int explicitControl=explicitAmpControl(model,route,role);explicitControl!=-2)
+        return explicitControl>=0 && ampNativeControlVisible(model,explicitControl,channel) ? explicitControl : -1;
     for(const auto* wanted:roleLabels(role))
         for(int c=0;c<(int)panel.controls.size();++c) {
             const auto& control=panel.controls[(size_t)c];
@@ -37,6 +66,12 @@ inline int ampControl(int model,int channel,Role role) noexcept {
                && juce::String::fromUTF8(control.label).upToFirstOccurrenceOf(" / ",false,false)==wanted)return c;
         }
     return -1;
+}
+// Legacy-engine projects (native panel off) keep the original lane knobs.
+// The legacy EQ has two mid bands; MIDDLE edits the low mid.
+inline juce::String legacyControlID(int lane,Role role) {
+    constexpr std::array<const char*,roleCount> ids{"drive","bass","lowmid","treble"};
+    return ids[(size_t)role]+juce::String(lane+1);
 }
 // Matrix LOW is a compressed DI; its MID rig carries the main amp voice.
 inline int primaryLane(int mode) noexcept {return mode==2?1:0;}
