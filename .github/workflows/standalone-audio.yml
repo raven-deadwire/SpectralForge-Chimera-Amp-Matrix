@@ -1,0 +1,42 @@
+name: Standalone audio device contracts
+on:
+  pull_request:
+    paths:
+      - 'Source/Standalone*.h'
+      - 'Source/ChimeraStandaloneApp.cpp'
+      - 'Source/PluginProcessor.cpp'
+      - 'Tests/StandaloneAudioDevicesTests.cpp'
+      - 'CMakeLists.txt'
+      - '.github/workflows/standalone-audio.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: standalone-audio-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  devices:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev
+      - run: cmake -S . -B build-devices -DCMAKE_BUILD_TYPE=Release -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
+      - run: cmake --build build-devices --config Release --target ChimeraStandaloneAudioDevicesTests --parallel 2
+      - run: ctest --test-dir build-devices -C Release -R '^ChimeraStandaloneAudioDevicesTests$' --repeat until-fail:3 --verbose --no-tests=error --output-junit standalone-device-results.xml
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: StandaloneAudio-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            build-devices/standalone-device-results.xml
+            build-devices/Testing/Temporary/LastTest.log
+            build-devices/chimera-build-version.json
+          if-no-files-found: error
