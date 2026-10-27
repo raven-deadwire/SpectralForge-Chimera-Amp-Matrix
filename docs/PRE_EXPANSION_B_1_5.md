@@ -1,6 +1,6 @@
-# PRE Expansion B 1.5 — Seven EQ, Multi Wah
+# PRE Expansion B 1.5 — Seven EQ, Multi Wah, Octave Fuzz
 
-Status: **two of six models implemented on `claude/pre-expansion-b`**
+Status: **three of six models implemented on `claude/pre-expansion-b`**
 (based on `claude/pre-paraeq`), covered by `ChimeraPedalExpansionTests`.
 Roadmap: 1.5 PRE Expansion B, six models (Revv G3; Wampler Dracarys; MXR
 Slash Octave Fuzz; Dunlop 535Q; BOSS GE-7; DigiTech Whammy). These are
@@ -57,7 +57,30 @@ sheet PDF and manual text via search results; zZounds, Adorama listings):
 No latency, no allocation. An original wah laid out after the published
 ranges and controls, not a measured model of the pedal.
 
-## 4. Measurements (`ChimeraPedalExpansionTests`)
+## 4. Octave Fuzz (model 48, `pre.octavefuzz`)
+
+Reference: MXR SF01 Slash Octave Fuzz. Public specification used (Dunlop
+manual text and specifications via search results; Palen Music, Thomann
+listings). The manufacturer's PDF host is not reachable from this
+environment, so the manual was not read first-hand.
+
+| Hardware (published) | Chimera |
+|---|---|
+| VOLUME: the direct signal, or the main fuzz with SUB INTO FUZZ engaged; dry maximum gain +1.6 dB | VOLUME −60 to +1.6 dB, same routing |
+| FUZZ: fuzz gain, 40 dB range (only with SUB INTO FUZZ) | FUZZ 10–50 dB of drive into an asymmetric tanh clip (the 10 dB offset is Chimera's) |
+| TONE: brighter clockwise (fuzz only) | 2-pole low-pass 500 Hz–6 kHz |
+| SUB OCTAVE level; sub voice corner 149 Hz | Flip-flop divider on tracked zero crossings at the input envelope, RBJ low-pass at 149 Hz |
+| SUB INTO FUZZ switch: the sub voice goes into the fuzz | Switch, 20 ms crossfade between the clean and fuzz routes |
+| OCTAVE UP level, own footswitch | OCTAVE UP level and OCTAVE UP ON |
+| Internal octave-up GAIN (20 dB range) and TONE trims | UP GAIN 0–20 dB into a soft clip after a full-wave rectifier; UP TONE low-pass 1–8 kHz |
+| Divider, clipping, rectifier, tone curves: **not published** | Chimera choices above |
+
+Everything runs at 4x (the polyphase IIR used by the other drives), so the
+PRE slot latency is unchanged. The sub is monophonic (single notes). No
+allocation. An original octave fuzz laid out after the published controls,
+not a measured model of the pedal.
+
+## 5. Measurements (`ChimeraPedalExpansionTests`)
 
 - Flat: transparent (error below 1e−4 dB).
 - Each band at ±15 dB gives exactly ±15 dB at its centre (error 6e−13 dB);
@@ -69,11 +92,19 @@ ranges and controls, not a measured model of the pedal.
   the analytic response within 0.0002 dB; peak 15.0 dB at maximum Q, 6.0 dB
   at minimum; one octave above the centre −23.6 dB (max Q) against −10.0 dB
   (min Q); BOOST adds 16 dB.
-- 300 appended parameters in total (Expansion A 225 at version 16, then
-  Seven EQ 45 and Multi Wah 30 at version 17).
+- Octave Fuzz: VOLUME gives +1.6 dB and −60 dB on the direct signal
+  exactly; a 220 Hz note (−12 dBFS) gives its 110 Hz sub at −11.6 dBFS; the
+  sub of 880 Hz is 18.8 dB below that of 120 Hz (the 149 Hz low-pass);
+  OCTAVE UP turns 440 Hz into 880 Hz at −6.6 dBFS, silent when switched
+  off; UP GAIN spans 20.0 dB and FUZZ 40.0 dB (small signal); TONE moves
+  3 kHz by 30.9 dB; harmonics 2–5 −50.1 dB (FUZZ 0, −40 dBFS) against
+  −8.4 dB (FUZZ max, −20 dBFS); SUB INTO FUZZ puts the 110 Hz sub through
+  the fuzz (−14.9 dBFS, none without the sub).
+- 350 appended parameters in total (Expansion A 225 at version 16, then
+  Seven EQ 45, Multi Wah 30 and Octave Fuzz 50 at version 17).
 
-## 5. Not done
+## 6. Not done
 
-- The other four Expansion B models (Revv G3, Wampler Dracarys, MXR Slash
-  Octave Fuzz, DigiTech Whammy).
+- The other three Expansion B models (Revv G3, Wampler Dracarys, DigiTech
+  Whammy).
 - Listening on real DI; DAW automation and recall.

@@ -25,7 +25,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 
 namespace {
 using namespace spectralforge;
-constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47;
+constexpr int paraEQ=40,multiComp=41,tightBoost=42,powerWah=43,bassSynth=44,dreadfulPeril=45,sevenEQ=46,multiWah=47,octaveFuzz=48;
 bool expansionID(const juce::String& id){for(int m=releasedPedalModelCount;m<pedalModelCount;++m)if(id.startsWith("board") && id.contains("_m"+juce::String(m)+"_"))return true;return false;}
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
 using Controls=std::array<float,12>;
@@ -34,7 +34,7 @@ Controls neutral() {Controls c{};const auto i=defaultPedalInstance(paraEQ);for(s
 void catalogAndMenu() {
     const auto& m=pedalModel(paraEQ);
     require(juce::String(m.id)=="pre.paraeq" && juce::String(m.name)=="Para EQ" && m.implemented && m.controlCount==11,"Para EQ catalog entry");
-    require(releasedPedalModelCount==40 && pedalModelCount==48,"Model counts");
+    require(releasedPedalModelCount==40 && pedalModelCount==49,"Model counts");
     require(juce::String(pedalMenuName(paraEQ))=="Para EQ" && pedalMenuEntries[paraEQ].kind==PedalMenuKind::equalizer,"Para EQ is not in the Equalizer menu");
     const auto n=neutral();
     require(n[1]==0 && n[4]==0 && n[7]==0 && juce::roundToInt(n[2])==1 && n[10]<.5f,"Para EQ does not start flat with medium Q and boost off");
@@ -42,7 +42,7 @@ void catalogAndMenu() {
 }
 void parametersAppend() {
     auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
-    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5)");
+    require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9)");
     int seen=0,lastA=-1,firstB=total;
     for(auto* raw:p->getParameters()) {
         const auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);require(parameter!=nullptr,"Parameter without ID");
@@ -445,6 +445,53 @@ void multiWahResponse() {
     require(std::abs(measured(multi(.5f,2,0,16,true),PedalMultiWah::centre(2,.5f))-(peakMin+16))<.05,"BOOST does not add its 16 dB");
     std::cout<<"PASS Multi Wah: six published sweep ranges, 15 dB at max Q, Q narrows, boost up to 16 dB, measured = analytic\n";
 }
+// ---- Octave Fuzz (PRE Expansion B) ----
+Controls octave(float volume,float fuzz,float tone,float sub,float up,bool subIntoFuzz,bool upOn,float upGain,float upTone)
+    {Controls c{};c[0]=volume;c[1]=fuzz;c[2]=tone;c[3]=sub;c[4]=up;c[5]=subIntoFuzz?1.f:0.f;c[6]=upOn?1.f:0.f;c[7]=upGain;c[8]=upTone;return c;}
+std::vector<float> renderOctave(PedalOctaveFuzz& f,const Controls& c,double hz,double db,double seconds=.6) {
+    f.reset();std::vector<float> out;juce::AudioBuffer<float> b(2,256);long t=0;
+    for(int block=0;block<int(seconds*48000/256);++block){
+        for(int n=0;n<256;++n,++t){const float x=float(juce::Decibels::decibelsToGain(db)*std::sin(juce::MathConstants<double>::twoPi*hz*double(t)/48000.));b.setSample(0,n,x);b.setSample(1,n,x);}
+        f.process(b,c);for(int n=0;n<256;++n)out.push_back(b.getSample(0,n));
+    }
+    return out;
+}
+void octaveFuzzResponse() {
+    const auto& m=pedalModel(octaveFuzz);
+    require(juce::String(m.id)=="pre.octavefuzz" && juce::String(m.name)=="Octave Fuzz" && m.controlCount==9 && pedalMenuEntries[octaveFuzz].kind==PedalMenuKind::fuzz,"Octave Fuzz catalog entry");
+    PedalOctaveFuzz f;f.prepare(48000,256);
+    // Direct signal (SUB INTO FUZZ off, no octaves): VOLUME sets it, at most +1.6 dB.
+    const double dryMax=toneDb(renderOctave(f,octave(1.6f,.5f,.5f,0,0,false,false,10,.5f),1000.,-20),1000.)+20;
+    const double dryMin=toneDb(renderOctave(f,octave(-60,.5f,.5f,0,0,false,false,10,.5f),1000.,-20),1000.)+20;
+    std::cout<<"MEASURE Octave Fuzz direct signal: VOLUME max "<<dryMax<<" dB, min "<<dryMin<<" dB\n";
+    require(std::abs(dryMax-1.6)<.05 && std::abs(dryMin+60)<.1,"VOLUME does not set the direct signal up to +1.6 dB");
+    // Sub octave: half the input frequency, low-passed at 149 Hz.
+    {const auto x=renderOctave(f,octave(-60,.5f,.5f,1,0,false,false,10,.5f),220.,-12);
+     const double half=toneDb(x,110.),input=toneDb(x,220.);
+     const double low=toneDb(renderOctave(f,octave(-60,.5f,.5f,1,0,false,false,10,.5f),120.,-12),60.),high=toneDb(renderOctave(f,octave(-60,.5f,.5f,1,0,false,false,10,.5f),880.,-12),440.);
+     std::cout<<"MEASURE Octave Fuzz sub (-12 dBFS): 220 Hz in -> 110 Hz "<<half<<" dBFS, 220 Hz "<<input<<" dBFS; sub of 120 Hz "<<low<<", of 880 Hz "<<high<<" dBFS\n";
+     require(half>input+30 && half>-30,"SUB OCTAVE is not one octave down");
+     require(low>high+12,"The sub voice is not low-passed");}
+    // Octave up: twice the input frequency, OCTAVE UP ON switches it, the
+    // GAIN trim spans 20 dB (small signal).
+    {const auto on=renderOctave(f,octave(-60,.5f,.5f,0,1,false,true,10,1),440.,-12),off=renderOctave(f,octave(-60,.5f,.5f,0,1,false,false,10,1),440.,-12);
+     const double gainSpan=toneDb(renderOctave(f,octave(-60,.5f,.5f,0,1,false,true,20,1),440.,-80),880.)-toneDb(renderOctave(f,octave(-60,.5f,.5f,0,1,false,true,0,1),440.,-80),880.);
+     std::cout<<"MEASURE Octave Fuzz up (440 Hz -12 dBFS): 880 Hz "<<toneDb(on,880.)<<" dBFS, 440 Hz "<<toneDb(on,440.)<<" dBFS; switched off 880 Hz "<<toneDb(off,880.)<<" dBFS; GAIN trim span "<<gainSpan<<" dB\n";
+     require(toneDb(on,880.)>toneDb(on,440.)+25 && toneDb(off,880.)<toneDb(on,880.)-60 && std::abs(gainSpan-20)<.2,"OCTAVE UP, its switch or its GAIN trim differ from the design");}
+    // Fuzz: a 40 dB gain range (small signal), it saturates, TONE brightens.
+    {const auto small=[&](float fuzz,float tone,double hz){return toneDb(renderOctave(f,octave(0,fuzz,tone,0,0,true,false,10,.5f),hz,-90),hz)+90;};
+     const double span=small(1,.5f,500.)-small(0,.5f,500.),bright=small(.5f,1,3000.)-small(.5f,0,3000.);
+     const double soft=harmonicsDb(renderOctave(f,octave(0,0,.5f,0,0,true,false,10,.5f),200.,-40),200.),hard=harmonicsDb(renderOctave(f,octave(0,1,.5f,0,0,true,false,10,.5f),200.,-20),200.);
+     std::cout<<"MEASURE Octave Fuzz: FUZZ range "<<span<<" dB (small signal), TONE at 3 kHz "<<bright<<" dB, harmonics 2-5 re fundamental "<<soft<<" (FUZZ 0, -40 dBFS) / "<<hard<<" dB (FUZZ max, -20 dBFS)\n";
+     require(std::abs(span-PedalOctaveFuzz::fuzzRangeDb)<.1 && bright>15 && hard>soft+20 && hard>-10,"FUZZ range, saturation or TONE differ from the design");}
+    // SUB INTO FUZZ puts the sub voice through the fuzz.
+    {const double with=toneDb(renderOctave(f,octave(0,.5f,1,1,0,true,false,10,.5f),220.,-12),110.),without=toneDb(renderOctave(f,octave(0,.5f,1,0,0,true,false,10,.5f),220.,-12),110.);
+     std::cout<<"MEASURE Octave Fuzz SUB INTO FUZZ: 110 Hz with the sub "<<with<<" dBFS, without "<<without<<" dBFS\n";
+     require(with>without+30,"SUB INTO FUZZ does not drive the sub through the fuzz");}
+    PedalNewDrive drive;drive.prepare({48000,256,2});
+    require(f.latency()==drive.latency(),"Octave Fuzz changes the PRE slot latency");
+    std::cout<<"PASS Octave Fuzz: VOLUME to +1.6 dB, sub one octave down low-passed, octave up and its switch and 20 dB GAIN trim, 40 dB FUZZ range, TONE, SUB INTO FUZZ, slot latency unchanged\n";
+}
 void noAllocation() {
     PedalParaEQ eq;eq.prepare(48000);juce::AudioBuffer<float> b(2,128);auto c=neutral();
     allocations=0;countAllocations=true;
@@ -478,12 +525,16 @@ void noAllocation() {
     allocations=0;countAllocations=true;
     for(int i=0;i<200;++i)mw.process(b,multi(float(i%9)/8.f,i%6,float(i%4)/3.f,8,i%2==0));
     countAllocations=false;require(allocations==0,"Multi Wah allocates while processing");
+    PedalOctaveFuzz of;of.prepare(48000,128);
+    allocations=0;countAllocations=true;
+    for(int i=0;i<200;++i){for(int n=0;n<128;++n){const float x=(i%4==0?0.f:.2f)*float(std::sin(.03*(i*128+n)));b.setSample(0,n,x);b.setSample(1,n,x);}of.process(b,octave(-6,float(i%10)/9.f,float(i%7)/6.f,.5f,.5f,i%3!=0,i%2==0,float(i%5)*5.f,.5f));}
+    countAllocations=false;require(allocations==0,"Octave Fuzz allocates while processing");
     std::cout<<"PASS Expansion A and B pedals: no allocation while automating or switching\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();noAllocation();return 0;}
+    try {catalogAndMenu();parametersAppend();response();boardIntegration();oldProjects();multiCompCurve();multiCompModes();tightBoostResponse();powerWahResponse();bassSynthResponse();dreadfulPerilResponse();sevenEQResponse();multiWahResponse();octaveFuzzResponse();noAllocation();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

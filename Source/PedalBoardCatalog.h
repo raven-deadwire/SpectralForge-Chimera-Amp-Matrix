@@ -5,7 +5,7 @@
 #include <cmath>
 #include <juce_core/juce_core.h>
 namespace spectralforge {
-inline constexpr int pedalBoardCapacity=5, pedalMaxControls=12, pedalModelCount=48;
+inline constexpr int pedalBoardCapacity=5, pedalMaxControls=12, pedalModelCount=49;
 // Models below this keep their parameters in the released layout; later ones append (PedalBoardParameters.h).
 inline constexpr int releasedPedalModelCount=40;
 struct PedalControlSpec { const char* id; const char* label; float minimum, maximum, initial, interval; bool connected; const char* choices; };
@@ -59,6 +59,7 @@ inline constexpr std::array<PedalModelSpec,pedalModelCount> pedalModels{{
  {"pre.dreadfulperil","Dreadful Peril","DRIVE",true,10,{{{"gain","GAIN",0.0f,1.0f,0.6f,0.001f,true,""},{"weight","WEIGHT",0.0f,1.0f,0.5f,0.001f,true,""},{"output","OUTPUT",-24.0f,6.0f,-12.0f,0.001f,true,""},{"low","LOW",-12.0f,12.0f,0.0f,0.001f,true,""},{"mid","MID",-12.0f,12.0f,0.0f,0.001f,true,""},{"high","HIGH",-12.0f,12.0f,0.0f,0.001f,true,""},{"gate.threshold","GATE THRESHOLD",-80.0f,-20.0f,-60.0f,0.001f,true,""},{"mid.freq","MID FREQ",0.0f,1.0f,0.5f,0.001f,true,""},{"mode","MODE",0.0f,2.0f,1.0f,1.0f,true,"LITE|HEAVY|HEAVIER"},{"gate.on","GATE",0.0f,1.0f,1.0f,1.0f,true,"OFF|ON"}}}},
  {"pre.seveneq","Seven EQ","EQUALIZER",true,8,{{{"band.100","100 Hz",-15.0f,15.0f,0.0f,0.001f,true,""},{"band.200","200 Hz",-15.0f,15.0f,0.0f,0.001f,true,""},{"band.400","400 Hz",-15.0f,15.0f,0.0f,0.001f,true,""},{"band.800","800 Hz",-15.0f,15.0f,0.0f,0.001f,true,""},{"band.1600","1.6 kHz",-15.0f,15.0f,0.0f,0.001f,true,""},{"band.3200","3.2 kHz",-15.0f,15.0f,0.0f,0.001f,true,""},{"band.6400","6.4 kHz",-15.0f,15.0f,0.0f,0.001f,true,""},{"level","LEVEL",-15.0f,15.0f,0.0f,0.001f,true,""}}}},
  {"pre.multiwah","Multi Wah","WAH",true,5,{{{"position","POSITION",0.0f,1.0f,0.5f,0.001f,true,""},{"range","RANGE",0.0f,5.0f,2.0f,1.0f,true,"1|2|3|4|5|6"},{"q","Q",0.0f,1.0f,0.5f,0.001f,true,""},{"boost","BOOST",0.0f,16.0f,8.0f,0.001f,true,""},{"boost.on","BOOST ON",0.0f,1.0f,0.0f,1.0f,true,"OFF|ON"}}}},
+ {"pre.octavefuzz","Octave Fuzz","FUZZ",true,9,{{{"volume","VOLUME",-60.0f,1.6f,-6.0f,0.001f,true,""},{"fuzz","FUZZ",0.0f,1.0f,0.6f,0.001f,true,""},{"tone","TONE",0.0f,1.0f,0.5f,0.001f,true,""},{"sub","SUB OCTAVE",0.0f,1.0f,0.5f,0.001f,true,""},{"up","OCTAVE UP",0.0f,1.0f,0.5f,0.001f,true,""},{"sub.fuzz","SUB INTO FUZZ",0.0f,1.0f,1.0f,1.0f,true,"OFF|ON"},{"up.on","OCTAVE UP ON",0.0f,1.0f,0.0f,1.0f,true,"OFF|ON"},{"up.gain","UP GAIN",0.0f,20.0f,10.0f,0.001f,true,""},{"up.tone","UP TONE",0.0f,1.0f,0.5f,0.001f,true,""}}}},
 }};
 inline const PedalModelSpec& pedalModel(int model) { return pedalModels[(size_t)juce::jlimit(0,pedalModelCount-1,model)]; }
 inline juce::String pedalControlID(int owner,int model,int control) { return "board"+juce::String(owner)+"_m"+juce::String(model)+"_"+juce::String(pedalModel(model).controls[(size_t)control].id).replaceCharacter('.','_'); }
