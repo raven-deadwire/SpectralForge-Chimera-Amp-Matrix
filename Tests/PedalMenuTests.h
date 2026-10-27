@@ -217,7 +217,7 @@ inline void run() {
         }
         close->triggerClick();settle();
     }
-    check(fiveControlModels==7,"Five-knob regression did not cover every current five-control model");   // six released + Multi Comp
+    check(fiveControlModels==8,"Five-knob regression did not cover every current five-control model");   // six released + Multi Comp, Multi Wah
     // State/automation updates must not activate the compatibility audio path;
     // pressing an actual control key does activate it.
     first->selectMenuResult(28);settle();processor.setPedalBoardEnabled(false);

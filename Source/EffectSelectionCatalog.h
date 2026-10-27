@@ -99,10 +99,10 @@ inline const char* pedalDescription(int model) {
         "High-gain distortion / adaptive gate",
         "Seven-band graphic EQ / level",
         "Six-range wah / Q / boost",
-        "Octave fuzz / sub into fuzz / octave up",
-        "Amp-style distortion / three-band EQ / aggression",
-        "High-gain distortion / active EQ / open-tight",
-        "Treadle pitch shift / harmony / detune"
+        "Octave fuzz / sub / octave up",
+        "Amp-style distortion / aggression",
+        "High-gain distortion / open-tight",
+        "Pitch shift / harmony / detune"
     }};
     return descriptions[(size_t)juce::jlimit(0,pedalModelCount-1,model)];
 }

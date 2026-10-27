@@ -31,4 +31,10 @@ list(APPEND CHIMERA_MODEL_ARTWORK
     ppowerwah
     pbasssynth
     pdreadfulperil
+    pseveneq
+    pmultiwah
+    poctavefuzz
+    pvioletrage
+    pfiredrake
+    ppitchbend
 )

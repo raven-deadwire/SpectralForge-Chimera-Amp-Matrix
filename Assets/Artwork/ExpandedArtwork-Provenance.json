@@ -855,6 +855,156 @@
           "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
         }
       ]
+    },
+    {
+      "name": "pseveneq",
+      "model": 46,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "gloss",
+      "knobStyle": "black",
+      "brightFace": true,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pseveneq.jpg",
+          "bytes": 42442,
+          "sha256": "a4b44483edd8e042aeb8c69beb40031ad1e6a45d9d540e30731b886c5b9967e1"
+        },
+        {
+          "path": "Assets/Artwork/pseveneq-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "pmultiwah",
+      "model": 47,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "brushed",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pmultiwah.jpg",
+          "bytes": 44107,
+          "sha256": "e6539b3b9d3acffef9bda3fd9b7a3a0089796e2743e617368b2a0589da39855d"
+        },
+        {
+          "path": "Assets/Artwork/pmultiwah-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "poctavefuzz",
+      "model": 48,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "flake",
+      "knobStyle": "cream",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/poctavefuzz.jpg",
+          "bytes": 58362,
+          "sha256": "ba9f79275fb3f29eb897ac23fe9d71e68d83759da697f2b3a137ad00713da31a"
+        },
+        {
+          "path": "Assets/Artwork/poctavefuzz-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "pvioletrage",
+      "model": 49,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "hammer",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pvioletrage.jpg",
+          "bytes": 41005,
+          "sha256": "35014ef548b7e81c04d98547b640b0c6689b5b1d05fe210b2e3342a0a67b4428"
+        },
+        {
+          "path": "Assets/Artwork/pvioletrage-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "pfiredrake",
+      "model": 50,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "matte",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pfiredrake.jpg",
+          "bytes": 28099,
+          "sha256": "d38270ef644040486427036d825be2cdac7f85733c27d201652a2ef83e70ff68"
+        },
+        {
+          "path": "Assets/Artwork/pfiredrake-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "ppitchbend",
+      "model": 51,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "gloss",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/ppitchbend.jpg",
+          "bytes": 40931,
+          "sha256": "6b7e0e2682fd92de7d57292183d37fc7f1c251c541f57ca1dc41e1ad603679fc"
+        },
+        {
+          "path": "Assets/Artwork/ppitchbend-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
     }
   ],
   "processing": "ImageMagick resampling to repository skin dimensions; JPEG quality90 plus lossless 8-bit alpha plane. No manual painted graphics; each image generated independently.",

@@ -33,6 +33,12 @@ SKINS = [
     ('ppowerwah', 43, 'matte', (30, 32, 34), (150, 156, 160), 'treadle', 'silver', False),
     ('pbasssynth', 44, 'flake', (112, 176, 52), (24, 30, 24), 'pad', 'black', True),
     ('pdreadfulperil', 45, 'brushed', (64, 66, 70), (176, 28, 32), 'pad', 'silver', False),
+    ('pseveneq', 46, 'gloss', (232, 228, 214), (90, 94, 98), 'pad', 'black', True),
+    ('pmultiwah', 47, 'brushed', (104, 108, 114), None, 'treadle', 'silver', False),
+    ('poctavefuzz', 48, 'flake', (24, 132, 142), (220, 236, 232), 'pad', 'cream', False),
+    ('pvioletrage', 49, 'hammer', (100, 50, 146), (230, 210, 250), 'pad', 'silver', False),
+    ('pfiredrake', 50, 'matte', (26, 24, 24), (232, 96, 24), 'pad', 'silver', False),
+    ('ppitchbend', 51, 'gloss', (30, 84, 180), None, 'treadle', 'silver', False),
 ]
 
 
