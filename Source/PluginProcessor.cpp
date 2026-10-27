@@ -21,12 +21,14 @@ std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
 }
 
 ChimeraProcessor::ChimeraProcessor()
-    : ChimeraProcessor(spectralforge::beta::compiledMetadata(), spectralforge::beta::utcNow) {}
+    : ChimeraProcessor(spectralforge::beta::compiledMetadata(), spectralforge::beta::utcNow,
+                       spectralforge::beta::tester::Store::load()) {}
 
-ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock)
+ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock,
+                                   const spectralforge::beta::tester::Grant& tester)
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
-      betaClock(clock), betaLifecycle(metadata,clock())
+      betaClock(clock), betaLifecycle(metadata,clock(),tester.valid), testerHolder(tester.valid ? tester.name : juce::String{})
 {
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
@@ -56,6 +58,30 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
 }
+void ChimeraProcessor::recheckBetaClock()
+{
+    // Also picks up a tester code entered in another Chimera instance.
+    if(const auto stored=spectralforge::beta::tester::Store::load(); stored.valid && !betaLifecycle.testerExtension()) {
+        testerHolder=stored.name;
+        betaLifecycle.setTesterExtension(true);
+    }
+    (void)betaLifecycle.recoverFromClockCorrection(betaClock());
+}
+spectralforge::beta::tester::Grant ChimeraProcessor::applyTesterCode(const juce::String& code)
+{
+    const auto grant=spectralforge::beta::tester::Store::save(code);
+    if(grant.valid) {
+        testerHolder=grant.name;
+        betaLifecycle.setTesterExtension(true);
+    }
+    return grant;
+}
+void ChimeraProcessor::removeTesterCode()
+{
+    spectralforge::beta::tester::Store::clear();
+    testerHolder.clear();
+    betaLifecycle.setTesterExtension(false);
+}
 juce::String ChimeraProcessor::betaNotice() const
 {
     using Status=spectralforge::beta::Status;
@@ -82,6 +108,7 @@ juce::String ChimeraProcessor::betaNotice() const
                 ? "\nSystem clock is invalid. Check the clock; this instance keeps processing."
                 : "\nSystem clock is invalid. This instance remains muted. Correct the clock and choose RECHECK CLOCK.";break;
         case Status::configurationError:text+="\nInvalid beta build metadata: output is muted. Install a qualified successor.";break;
+        case Status::testerExtended:text+="\nBeta tester code: "+testerHolder+". This build and later betas do not expire on this computer.";break;
     }
     if(!betaProcessingPermitted() && (current.status==Status::valid || current.status==Status::warning))
         text+="\nThis instance is still muted. After correcting the system clock, choose RECHECK CLOCK.";
@@ -263,17 +290,20 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // below; switching is allocation-free and re-reports latency via line ~231.
     preFX.transpose.setMode(transposeQualityMode.load());
     const int preLatency=audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
-    postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
+    // Auto Set holds every gate open while it measures the noise the rig adds.
+    const bool gatesAllowed=!autoSetGateBypass.load(std::memory_order_relaxed);
+    const bool gateEnabled=gatesAllowed && value(gateOn)>.5f;
+    postRigGate.detect(buffer,gateEnabled,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     // Gate 2 and the Expander detect on the same clean input. Pre-rig units
     // apply here, ahead of the main gate: Expander > Gate 2 > Gate.
-    expander.detect(buffer,preLatency+engine.latency());gate2.detect(buffer,preLatency+engine.latency());
+    expander.detect(buffer,preLatency+engine.latency(),gatesAllowed);gate2.detect(buffer,preLatency+engine.latency(),gatesAllowed);
     if(!expander.afterRig())expander.apply(buffer);
     if(!gate2.afterRig())gate2.apply(buffer);
     if(audioBoard.enabled) {
-        preFX.gate.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),gateRange);
+        preFX.gate.process(buffer,!gateAtOutput && gateEnabled,value(threshold),value(release),value(hold),gateRange);
         preFX.transpose.process(buffer,pitching,(int)value(semitones));
         pedalBoard.process(buffer,audioBoard);
-    } else preFX.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx,gateRange);
+    } else preFX.process(buffer,!gateAtOutput && gateEnabled,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx,gateRange);
     boardReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : 0.f);
     preReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : preFX.compressor.reduction());
     measureStage(1,buffer);
@@ -305,6 +335,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
+    autoSetCaptureState.push(spectralforge::autoset::Tap::rig,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer);}
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     // Post-rig order mirrors the pre-rig one: Gate > Gate 2 > Expander.

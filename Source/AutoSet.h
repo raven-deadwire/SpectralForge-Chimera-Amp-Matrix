@@ -16,11 +16,12 @@ namespace spectralforge::autoset {
 // The audio thread only reduces or copies samples; all decisions run elsewhere.
 
 struct Window {float peakDb{-120.f},rmsDb{-120.f};};
-// input/compressor/output are reduced to 10 ms windows; tone, multiband and
+// input/compressor/output/rig are reduced to 10 ms windows; tone, multiband and
 // deesser keep mono samples for spectral analysis (amp/cab output before the
 // Tone EQ, the multiband input, the de-esser input). The sample taps share one
 // ring.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5};
+// rig: the amp/cab sum before any post-rig gate.
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6};
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -45,7 +46,7 @@ public:
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
         if(tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband){pushSamples(channels,channelCount,samples);return;}
-        auto& t=taps[size_t(tap)];
+        auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
             for(int c=0;c<std::min(2,channelCount);++c)x=std::max(x,double(std::abs(channels[c][n])));
@@ -63,8 +64,8 @@ public:
     }
     // Consumer thread.
     void drain(Tap tap,std::vector<Window>& out) noexcept {
-        if(int(tap)>=int(taps.size()))return;
-        auto& t=taps[size_t(tap)];
+        if(tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband)return;
+        auto& t=taps[windowIndex(tap)];
         int r=t.read.load(std::memory_order_relaxed);
         const int w=t.write.load(std::memory_order_acquire);
         while(r!=w){out.push_back(t.ring[size_t(r)]);r=(r+1)%capacity;}
@@ -76,6 +77,7 @@ public:
         sampleRead.store(w,std::memory_order_release);
     }
 private:
+    static size_t windowIndex(Tap tap) noexcept {return tap==Tap::rig?3:size_t(tap);}
     void pushSamples(const float* const* channels,int channelCount,int samples) noexcept {
         const int used=std::min(2,channelCount);
         auto w=sampleWrite.load(std::memory_order_relaxed);
@@ -90,7 +92,7 @@ private:
         std::array<Window,capacity> ring{};std::atomic<int> write{0},read{0};
         int count{};double peak{},energy{};
     };
-    std::array<TapState,3> taps;
+    std::array<TapState,4> taps;
     std::array<float,sampleCapacity> sampleRing{};
     std::atomic<uint32_t> sampleWrite{0},sampleRead{0}; // unsigned difference works across wrap
     std::atomic<int> active{0};
@@ -193,6 +195,62 @@ inline constexpr float toneStrength=.7f,toneMaxMoveDb=6.f,toneMinMoveDb=1.f;
 // Style shifts the instrument target (and the de-esser and limiter, below).
 enum class Style {rock=0,clean=1,metal=2};
 inline const char* styleName(Style style) noexcept {return style==Style::clean?"clean":style==Style::metal?"metal":"rock";}
+
+// Phase 5: Gate 2 and the Expander from the noise the rig adds. Measured in the
+// input pass with every gate held open: the input windows say when the player
+// pauses, the rig windows (amp/cab sum, before post-rig gates) how loud the
+// amp's hiss is then and how quiet the playing gets.
+inline constexpr float audibleRigHissDb=-66.f;
+struct GateStagesResult {
+    enum class Plan {none,soft,hard};
+    bool measured{};Plan plan{Plan::none};
+    float rigNoiseDb{-120.f},rigPlayingFloorDb{-120.f},rigGapDb{};
+    // soft: Expander at the main threshold, main gate deeper. hard: post-rig main gate, gentle PRE Gate 2.
+    bool mainAfterRig{};float mainThresholdDb{};
+    bool expanderAfterRig{};float expanderThresholdDb{},expanderRatio{2},expanderRangeDb{},expanderReleaseMs{};
+    float gate2ThresholdDb{},gate2RangeDb{};
+};
+// rigLagWindows: plug-in latency between the two taps, in 10 ms windows.
+inline GateStagesResult analyseGateStages(const std::vector<Window>& input,const std::vector<Window>& rig,int rigLagWindows,
+                                          float gateThresholdDb,bool gateAfterRig,Style style) {
+    GateStagesResult r;r.mainThresholdDb=gateThresholdDb;r.mainAfterRig=gateAfterRig;
+    std::vector<float> rms;for(const auto& w:input)rms.push_back(w.rmsDb);
+    if(rms.size()<50)return r;
+    const float loud=percentile(rms,.90f),quiet=percentile(rms,.10f);
+    if(loud<=minimumPlayingDb || loud-quiet<12.f)return r; // needs playing and a pause, like the gate
+    std::vector<float> noise,playing;
+    for(size_t i=0;i<input.size();++i) {
+        const size_t j=i+size_t(std::max(0,rigLagWindows));if(j>=rig.size())break;
+        // Skip windows next to a level change so the latency guess does not matter.
+        const auto steady=[&](auto test){for(size_t k=i>2?i-2:0;k<std::min(input.size(),i+3);++k)if(!test(input[k].rmsDb))return false;return true;};
+        if(steady([&](float x){return x<=quiet+3.f;}))noise.push_back(rig[j].peakDb);
+        else if(steady([&](float x){return x>=loud-12.f;}))playing.push_back(rig[j].peakDb);
+    }
+    if(noise.size()<10 || playing.size()<10)return r;
+    r.measured=true;
+    r.rigNoiseDb=percentile(noise,.90f);r.rigPlayingFloorDb=percentile(playing,.10f);r.rigGapDb=r.rigPlayingFloorDb-r.rigNoiseDb;
+    if(r.rigNoiseDb<=audibleRigHissDb && style!=Style::metal)return r; // the amp adds little hiss
+    if(style==Style::metal && r.rigGapDb>=24.f) {
+        // Tight: hard main gate after the rig cuts the amp's hiss; a gentle
+        // Gate 2 before it keeps the hiss from feeding the amp.
+        r.plan=GateStagesResult::Plan::hard;r.mainAfterRig=true;
+        r.gate2ThresholdDb=std::max(-90.f,gateThresholdDb-6.f);
+        r.gate2RangeDb=std::clamp(std::round(.5f*r.rigGapDb),9.f,18.f);
+        return r;
+    }
+    // Smooth: the Expander takes the gate threshold so tails fade instead of
+    // chopping; the main gate closes only once the Expander's range is used.
+    r.plan=GateStagesResult::Plan::soft;
+    r.expanderAfterRig=r.rigNoiseDb>audibleRigHissDb || gateAfterRig;
+    r.expanderRatio=style==Style::clean?1.5f:style==Style::metal?2.5f:2.f;
+    // Enough range to take the hiss toward -78 dBFS; the main gate removes the rest.
+    r.expanderRangeDb=std::clamp(std::round(r.rigNoiseDb+78.f),6.f,15.f);
+    r.expanderThresholdDb=gateThresholdDb;
+    r.expanderReleaseMs=style==Style::clean?200.f:style==Style::metal?80.f:120.f;
+    const float deeper=std::clamp(r.expanderRangeDb/(r.expanderRatio-1.f)+3.f,9.f,24.f);
+    r.mainThresholdDb=std::max(-90.f,gateThresholdDb-deeper);
+    return r;
+}
 
 template<size_t N> float interpolateCurve(const std::array<std::pair<float,float>,N>& curve,float frequency) {
     if(frequency<=curve.front().first)return curve.front().second;

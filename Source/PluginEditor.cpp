@@ -217,8 +217,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         // Same single evaluation as the Beta / Updates notice; never a UI-owned clock.
         menu.addSectionHeader(juce::String(spectralforge::beta::remainingText(processor.betaStatus())));
         menu.addItem(6,"Beta / Updates / Manual / Bug report...");menu.addItem(7,"Review / copy / save diagnostics...");menu.addSeparator();menu.addItem(1,"Save reference...");menu.addItem(2,"Load reference...");menu.addSeparator();menu.addItem(3,"About / IR credits");menu.addSeparator();menu.addItem(4,"Reset tuner A4 to 440 Hz");menu.addItem(5,"Clear MIDI assignments");
+        menu.addSeparator();menu.addItem(8,processor.testerCodeHolder().isEmpty() ? juce::String("Enter beta tester code...")
+                                                                              : "Beta tester code: "+processor.testerCodeHolder()+" (no expiry)...");
         const juce::Component::SafePointer<ChimeraEditor> safe(this);
-        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==8)safe->showTesterCode();else if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
     info.setTooltip(processor.betaNotice());
     for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton}) add(*button);
@@ -284,7 +286,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         using Phase=spectralforge::autoset::Controller::Phase;
         const auto route=spectralforge::signalPath::read(processor);
         switch(Phase(target)) {
-            case Phase::input:navigateSignalPath(*route.find("gate"));break;
+            case Phase::input:case Phase::gates:navigateSignalPath(*route.find("gate"));break;
             case Phase::tone:navigateSignalPath(*route.find("tone.eq"));break;
             case Phase::multiband:navigateSignalPath(*route.find("common.multiband"));break;
             case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
@@ -294,9 +296,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband});}
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
@@ -1106,6 +1108,30 @@ void ChimeraLookAndFeel::drawButtonText(juce::Graphics& g,juce::TextButton& butt
     juce::LookAndFeel_V4::drawButtonText(g,button,hover,down);
 }
 
+void ChimeraEditor::showTesterCode()
+{
+    const auto holder=processor.testerCodeHolder();
+    testerDialog=std::make_unique<juce::AlertWindow>("Beta tester code",
+        holder.isEmpty() ? juce::String("Type or paste the code you received as a beta tester, e.g. CHT1-NAME-XXXXXX. It removes the beta expiry on this computer for this and later beta versions.")
+                         : "Active for "+holder+". This and later beta versions do not expire on this computer.",
+        juce::MessageBoxIconType::NoIcon,this);
+    testerDialog->addTextEditor("code",{},"Code");
+    testerDialog->addButton("APPLY",1,juce::KeyPress(juce::KeyPress::returnKey));
+    if(holder.isNotEmpty())testerDialog->addButton("REMOVE",2);
+    testerDialog->addButton("CANCEL",0,juce::KeyPress(juce::KeyPress::escapeKey));
+    const juce::Component::SafePointer<ChimeraEditor> safe(this);
+    testerDialog->enterModalState(true,juce::ModalCallbackFunction::create([safe](int result){
+        if(!safe || !safe->testerDialog)return;
+        const auto code=safe->testerDialog->getTextEditorContents("code");
+        juce::MessageManager::callAsync([safe]{if(safe)safe->testerDialog.reset();});
+        juce::String message;
+        if(result==1){const auto grant=safe->processor.applyTesterCode(code);
+            message=grant.valid ? "Beta tester code accepted for "+grant.name+". This and later beta versions no longer expire on this computer." : grant.error;}
+        else if(result==2){safe->processor.removeTesterCode();message="Beta tester code removed. The beta expiry applies again to newly opened instances.";}
+        if(message.isNotEmpty())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Beta tester code",message,"OK",safe.getComponent());
+        safe->info.setTooltip(safe->processor.betaNotice());
+    }),false);
+}
 void ChimeraEditor::showSupport()
 {
     // A DAW must never join an HTTP operation while closing its plug-in view.
