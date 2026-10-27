@@ -469,6 +469,14 @@ target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix C
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
 add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
 
+# Doubler mono-sum probe: comb response of L, R and the mono sum per spread.
+juce_add_console_app(ChimeraDoublerMonoProbe PRODUCT_NAME "Chimera Doubler Mono Probe")
+target_sources(ChimeraDoublerMonoProbe PRIVATE Tests/DoublerMonoProbe.cpp)
+target_include_directories(ChimeraDoublerMonoProbe PRIVATE Source)
+target_compile_definitions(ChimeraDoublerMonoProbe PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraDoublerMonoProbe PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraDoublerMonoProbe COMMAND ChimeraDoublerMonoProbe)
+
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)
 target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
