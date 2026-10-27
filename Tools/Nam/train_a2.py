@@ -152,13 +152,14 @@ def main():
                 'active_p95':within('active_p95','active_window_esr_p95_max'),'active_worst':within('active_worst','active_window_esr_worst_max'),
                 'quiet':f['quiet_pass'],'level':f['level_pass']}
     def level_ok(prediction,i):
-        """Eligibility: export-consistent level within the profile, and, with --keep-passed,
-        every limit the starting model passed still passed."""
+        """Export-consistent level within the profile."""
         row=scores(prediction,vy[i])[0]
-        ok=abs(row['rms_error_db'])<=PROFILE['rms_error_max_db'] and abs(row['peak_error_db'])<=PROFILE['peak_error_max_db']
-        if ok and keep_required[i]:
-            limits=passed_limits(prediction,i);ok=all(limits[k] for k in keep_required[i])
-        return ok
+        return abs(row['rms_error_db'])<=PROFILE['rms_error_max_db'] and abs(row['peak_error_db'])<=PROFILE['peak_error_max_db']
+    def keeps_passed(prediction,i):
+        """With --keep-passed, every limit the starting model passed is still passed.
+        A hard gate, separate from level, so a start that fails level still keeps the rest."""
+        if not keep_required[i]:return True
+        limits=passed_limits(prediction,i);return all(limits[k] for k in keep_required[i])
     def better(i,ok,score):
         return (ok and not best_level_ok[i]) or (ok==best_level_ok[i] and score<best[i])
     selection_windows=[rf,6*48000,12*48000,18*48000,22*48000]
@@ -290,11 +291,12 @@ def main():
                 means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
             if args.validation_selection!='full':prediction=centered_prediction(model,vx)/gains[:,None]
             levels=[level_ok(prediction[i],i) for i in range(5)]
+            kept=[keeps_passed(prediction[i],i) for i in range(5)]
             for i,score in enumerate(means):
-                if better(i,levels[i],score):
+                if kept[i] and better(i,levels[i],score):
                     best[i]=score;best_level_ok[i]=levels[i];best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
             profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0],vx) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
-            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'level_ok_by_channel':dict(zip([v[0] for v in VOICES],levels)),'windows':vals,'best_steps':best_steps,'best_level_ok':best_level_ok,'tone3000_fidelity':profile_metrics,
+            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'level_ok_by_channel':dict(zip([v[0] for v in VOICES],levels)),'keeps_passed_by_channel':dict(zip([v[0] for v in VOICES],kept)),'windows':vals,'best_steps':best_steps,'best_level_ok':best_level_ok,'tone3000_fidelity':profile_metrics,
               'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start,'identity':identity,'checkpoint_step':step,'recipe':args.recipe})
             checkpoint_temporary=args.out/'checkpoint.pt.tmp'
             torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'best_level_ok':best_level_ok,'keep_required':keep_required,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
