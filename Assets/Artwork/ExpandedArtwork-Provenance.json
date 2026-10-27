@@ -705,6 +705,156 @@
           "sha256": "daa487a95ee23b4c3a045f63f556b8eade5b2a508d127200bd2ba3881273ad08"
         }
       ]
+    },
+    {
+      "name": "pparaeq",
+      "model": 40,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "brushed",
+      "knobStyle": "black",
+      "brightFace": true,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pparaeq.jpg",
+          "bytes": 57233,
+          "sha256": "10457fa5560d7377eff9b156a56d19c776c651ae17183f645a83c670e8e799e2"
+        },
+        {
+          "path": "Assets/Artwork/pparaeq-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "pmulticomp",
+      "model": 41,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "hammer",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pmulticomp.jpg",
+          "bytes": 35113,
+          "sha256": "3a4522d5f3f12251a195cc14083d7c73b87935489ff3227b688c04205b8133b0"
+        },
+        {
+          "path": "Assets/Artwork/pmulticomp-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "ptightboost",
+      "model": 42,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "flake",
+      "knobStyle": "black",
+      "brightFace": true,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/ptightboost.jpg",
+          "bytes": 68796,
+          "sha256": "6f719e4947cd427d7026180b65ad9fa745d109ffb160b893ac1e3575aa5ecd6a"
+        },
+        {
+          "path": "Assets/Artwork/ptightboost-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "ppowerwah",
+      "model": 43,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "matte",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/ppowerwah.jpg",
+          "bytes": 35506,
+          "sha256": "a0f50f45d9a8282e40191fa854c2cfc97f2a1fcb14487b89a9ac253cff3031de"
+        },
+        {
+          "path": "Assets/Artwork/ppowerwah-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "pbasssynth",
+      "model": 44,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "flake",
+      "knobStyle": "black",
+      "brightFace": true,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pbasssynth.jpg",
+          "bytes": 71081,
+          "sha256": "23d88836d9ef6b0dd01df43e85c516f0679e49c410536cf9260e0c96c33bf1f0"
+        },
+        {
+          "path": "Assets/Artwork/pbasssynth-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
+    },
+    {
+      "name": "pdreadfulperil",
+      "model": 45,
+      "kind": "pedal",
+      "generator": "Tools/generate_pedal_skins.py (procedural)",
+      "finish": "brushed",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "dimensions": [
+        440,
+        748
+      ],
+      "files": [
+        {
+          "path": "Assets/Artwork/pdreadfulperil.jpg",
+          "bytes": 41975,
+          "sha256": "09099b10035ba8296d650d49708bf53c6927a80aed7735bd4d9b4de8a7ff8945"
+        },
+        {
+          "path": "Assets/Artwork/pdreadfulperil-alpha.png",
+          "bytes": 1775,
+          "sha256": "b70d8a1718bf020a5fc010cd8297b809f5992244a3a424385891deaaf865338e"
+        }
+      ]
     }
   ],
   "processing": "ImageMagick resampling to repository skin dimensions; JPEG quality90 plus lossless 8-bit alpha plane. No manual painted graphics; each image generated independently.",

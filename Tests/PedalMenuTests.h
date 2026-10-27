@@ -93,7 +93,7 @@ inline void run() {
     }
     for(int count:found)check(count==1,"Pedal missing or duplicated across menu categories");
     check(ticked==1,"Selected pedal repeated across categories");
-    check(!selector.selectMenuResult(0) && !selector.selectMenuResult(41),"Invalid pedal menu result accepted");
+    check(!selector.selectMenuResult(0) && !selector.selectMenuResult(pedalModelCount+1),"Invalid pedal menu result accepted");
     for(int family=0;family<int(modelFamilies.size());++family) {
         const auto names=effectFamilyMenuNames(family);
         check(names.size()==modelFamilies[(size_t)family].count,"Rack effect alias inventory incomplete");
@@ -217,7 +217,7 @@ inline void run() {
         }
         close->triggerClick();settle();
     }
-    check(fiveControlModels==6,"Five-knob regression did not cover every current five-control model");
+    check(fiveControlModels==7,"Five-knob regression did not cover every current five-control model");   // six released + Multi Comp
     // State/automation updates must not activate the compatibility audio path;
     // pressing an actual control key does activate it.
     first->selectMenuResult(28);settle();processor.setPedalBoardEnabled(false);
@@ -241,6 +241,6 @@ inline void run() {
     for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible() && slider->getComponentID()==id)activeControl=slider;
     check(activeControl && activeControl->keyPressed(juce::KeyPress(juce::KeyPress::upKey)),"Pedal keyboard edit was not accepted");
     check(processor.pedalBoardState().enabled,"A deliberate keyboard pedal edit did not activate its audio path");
-    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models with real callbacks, creative 3 + 2 layouts, compressor spectrum editors, and user-only board activation\n";
+    std::cout<<"PASS pedal menus: "<<pedalModelCount-1<<" DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all "<<fiveControlModels<<" five-control models with real callbacks, creative 3 + 2 layouts, compressor spectrum editors, and user-only board activation\n";
 }
 }

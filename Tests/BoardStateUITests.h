@@ -155,7 +155,7 @@ inline void run(const juce::File& outputDirectory) {
         p.setPedalModel(3,6);p.setPedalModel(4,7);const auto full=p.pedalBoardState();
         require(!p.duplicatePedal(0),"A sixth pedal was admitted");
         equal(p.pedalBoardState(),full,"Rejected sixth pedal still mutated the board");
-        for(int invalid:{-1,40,255,1000}) {p.setPedalModel(0,invalid);equal(p.pedalBoardState(),full,"Invalid model changed the board");}
+        for(int invalid:{-1,pedalModelCount,255,1000}) {p.setPedalModel(0,invalid);equal(p.pedalBoardState(),full,"Invalid model changed the board");}
         p.setPedalModel(-1,26);p.setPedalModel(5,26);equal(p.pedalBoardState(),full,"Invalid owner changed the board");
         p.setPedalModel(4,0);require(p.pedalBoardState().instances[4].model==0,"Delete did not create Empty");
         require(p.duplicatePedal(0),"Empty owner could not be reused");
