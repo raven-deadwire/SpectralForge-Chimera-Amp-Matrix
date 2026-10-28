@@ -49,6 +49,8 @@ class CorrelationPitch {
     std::array<uint64_t,256> onsetSamples{};
     uint64_t processedSamples{};
     double minRead{}, maxRead{};
+    // Passive splice diagnostics for offline research; no influence on DSP.
+    std::array<double,5> lastSpliceInfo{}; // from age, to age, onset age, limit, applied
 
     float read(const std::vector<float>& ring, double age) const noexcept {
         double pos = double(write) - age;
@@ -117,11 +119,13 @@ class CorrelationPitch {
         const double lo=minimum+guard;
         double hi=maximum-guard;
         const double travel=(hi-lo)*.25;
+        const double onsetLimit=onsetAge-rate*reanchorGuard;
+        bool onsetLimited=false;
         // After an upshift re-anchor, a backward jump must not reach the
         // attack again (a repeated attack/flam) or the material before it.
         if(upshiftReset && delta<0) {
             const double limit=onsetAge-rate*reanchorGuard;
-            if(limit>=delay+travel)hi=std::min(hi,limit);
+            if(limit>=delay+travel){hi=std::min(hi,limit);onsetLimited=true;}
         }
         const int first=int(std::ceil(delta>0 ? lo : delay+travel));
         const int last=int(std::floor(delta>0 ? delay-travel : hi));
@@ -143,6 +147,7 @@ class CorrelationPitch {
             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
         }
         nextDelay=juce::jlimit(lo,hi,best);
+        lastSpliceInfo={delay,nextDelay,onsetAge,onsetLimit,onsetLimited?1.:0.};
         fadeIndex=0;fading=true;++spliceCount;
         spliceLog[size_t(spliceLogPosition)]=processedSamples;spliceLogPosition=(spliceLogPosition+1)%int(spliceLog.size());
         if(spliceFadeLength>0){activeWeights=spliceWeights.data();activeFade=spliceFadeLength;}
@@ -179,6 +184,7 @@ public:
         hfBuckets.fill(0);hfBucketPosition=hfBucketSamples=0;hfBucketPeak=hfRecentMax=0;
         detectorPosition=0;std::fill(detectorHistory.begin(),detectorHistory.end(),0);
         delay=nextDelay=minimum;minRead=maximum;maxRead=minimum;onsetAge=1.e9;resetAge=1<<30;resetPeak=0;heldSamples=0;
+        lastSpliceInfo.fill(0);
     }
     void setSemitones(int semitones) noexcept {
         const double newRatio=std::pow(2.,juce::jlimit(-12,12,semitones)/12.);
@@ -261,6 +267,7 @@ public:
     }
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
+    const auto& lastSplice() const noexcept {return lastSpliceInfo;}
     int onsetResets() const noexcept {return onsets;}
     const auto& onsetLocations() const noexcept {return onsetSamples;}
     double readMinimum() const noexcept {return minRead;}

@@ -42,6 +42,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
     objects = list(pool.map(compile_one, sources))
 for name, src in [('TransposeProbe', Path(__file__).with_name('TransposeProbe.cpp')),
                   ('CorrelationTests', Path(__file__).with_name('CorrelationTests.cpp')),
+                  *[(n, Path(__file__).with_name(n+'.cpp')) for n in ['SpliceTrace', 'BlockInvariance', 'UpshiftTailTests']],
                   *[(n, root/'Tests'/(n+'.cpp')) for n in ['PitchRegressionTests', 'StabilityTests', 'GateTests']]]:
     cmd = ['g++', *flags, str(src), *map(str, objects), '-ldl', '-lrt', '-lz', '-o', str(a.out/name)]
     commands.append(cmd)
@@ -49,4 +50,4 @@ for name, src in [('TransposeProbe', Path(__file__).with_name('TransposeProbe.cp
 manifest = {'juce_sha': sha, 'compiler': subprocess.check_output(['g++', '--version'], text=True),
             'commands': commands}
 (a.out/'build.json').write_text(json.dumps(manifest, indent=2))
-print('Built research probe and four native regression executables')
+print('Built research probe, diagnostics and native regression executables')

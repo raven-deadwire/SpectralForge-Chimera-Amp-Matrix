@@ -1,0 +1,28 @@
+{
+ "status": "FROZEN_BEFORE_CONFIRMATION_NO_FURTHER_TUNING",
+ "candidate": "g8h40",
+ "guard_ms": 8,
+ "hold_ms": 40,
+ "reason": "Only combined g8h40 improves worst late/main and >6dB count at every rate in discovery; modest improvement, not elimination or product acceptance.",
+ "confirmation_engines": [
+  "v3",
+  "v4",
+  "v3-g8h40",
+  "v4-g8h40"
+ ],
+ "seeds": [
+  281020261,
+  281020262
+ ],
+ "long_seed": 281020263,
+ "renderer_sha256": "ad0c969e8565fe3c68b1843bf42edf0297caebbde6d7469ac086e0364a786b44",
+ "source_sha256": {
+  "CorrelationPitch.h": "7002be6fc613adcb18a39e8bfe32a163672941a30d06f14996c87588f7c8dc29",
+  "TransientSplitPitch.h": "70aced739509a56af9ac7ef88dd5324f4672c35f968d4be81a7fff233dcd4367",
+  "UpshiftTailResearch.h": "d1734ef139489cf2fa54e3e0788cfeaec44162f51722d7c0c222109457781a5c",
+  "TransposeProbe.cpp": "9d4a5c3195e81d43d22386a6fa16184f5eb1e7f9dbefd1933c1159875de00811",
+  "upshift_tail_study.py": "fa4e2e255e568534f6a47c3bc45892f5ac8a01883da8ca7892dd0f1ac75028fe"
+ },
+ "future_DI_plan": "2026-11-02 v3 unchanged",
+ "product_engine": "unchanged"
+}

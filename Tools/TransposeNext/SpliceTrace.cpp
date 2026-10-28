@@ -4,6 +4,7 @@
 // splice and onset reset as JSON; writes the output like TransposeProbe.
 // usage: SpliceTrace in.f32 out.f32 rate shift v2|v3|v4
 #include "TransientSplitPitch.h"
+#include "UpshiftTailResearch.h"
 #include <fstream>
 #include <iostream>
 
@@ -11,20 +12,27 @@ int main(int argc,char** argv) {
     if(argc!=6){std::cerr<<"usage: SpliceTrace in.f32 out.f32 rate shift v2|v3|v4\n";return 1;}
     std::ifstream f(argv[1],std::ios::binary|std::ios::ate);const auto bytes=f.tellg();
     std::vector<float> x(size_t(bytes)/4),y(x.size());f.seekg(0);f.read(reinterpret_cast<char*>(x.data()),bytes);
-    const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);const bool v4=std::string(argv[5])=="v4",v3=v4||std::string(argv[5])=="v3";
+    const transposeNext::UpshiftTailResearch research(argv[5]);
+    const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);const bool v4=research.engine=="v4",v3=v4||research.engine=="v3";
+    if(!v3 && research.engine!="v2")throw std::invalid_argument("unknown trace engine");
     juce::ScopedNoDenormals noDenormals;
     transposeNext::TransientSplitPitch e;e.prepare({rate,1u,2},true,true,true,true,true,v3);e.setSincOutput(v4);e.setSemitones(shift);
+    research.apply(e,shift);
+    std::vector<std::array<double,6>> jumps;
     juce::AudioBuffer<float> in(2,1),out(2,1);std::vector<size_t> ts,bs,os;
     for(size_t n=0;n<x.size()/2;++n) {
         in.setSample(0,0,x[2*n]);in.setSample(1,0,x[2*n+1]);
         const int t0=e.transientSplices(),b0=e.bodySplices(),o0=e.onsetResets();
         e.process(in,out);
-        if(e.transientSplices()!=t0)ts.push_back(n);
+        if(e.transientSplices()!=t0){ts.push_back(n);const auto s=e.transientLastSplice();jumps.push_back({double(n),s[0],s[1],s[2],s[3],s[4]});}
         if(e.bodySplices()!=b0)bs.push_back(n);
         if(e.onsetResets()!=o0)os.push_back(n);
         y[2*n]=out.getSample(0,0);y[2*n+1]=out.getSample(1,0);
     }
     std::ofstream(argv[2],std::ios::binary).write(reinterpret_cast<const char*>(y.data()),std::streamsize(y.size()*4));
     auto list=[](const std::vector<size_t>& v){std::string s="[";for(size_t i=0;i<v.size();++i)s+=(i?",":"")+std::to_string(v[i]);return s+"]";};
-    std::cout<<"{\"transient_splices\":"<<list(ts)<<",\"body_splices\":"<<list(bs)<<",\"onset_resets\":"<<list(os)<<"}\n";
+    std::cout.precision(12);
+    std::cout<<"{\"transient_splices\":"<<list(ts)<<",\"body_splices\":"<<list(bs)<<",\"onset_resets\":"<<list(os)<<",\"transient_jumps\":[";
+    for(size_t i=0;i<jumps.size();++i){if(i)std::cout<<',';std::cout<<'[';for(size_t j=0;j<6;++j)std::cout<<(j?",":"")<<jumps[i][j];std::cout<<']';}
+    std::cout<<"]}\n";
 }

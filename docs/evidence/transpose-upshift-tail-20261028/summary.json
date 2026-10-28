@@ -1,0 +1,2870 @@
+{
+ "discovery-v3-g12h50": {
+  "targets": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "metric_version": 2,
+    "event_snr_min_db": 10,
+    "observed": {
+     "max_ms": 8.25,
+     "events": 5324
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T1_faint_attack",
+    "verdict": "REPORT",
+    "event_snr_below_db": 10,
+    "observed": {
+     "events": 412,
+     "max_ms": 7.875,
+     "over_10ms": 0
+    }
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.377,
+     "long_max_ms": 9.338
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 10.551,
+     "bass_B0": 14.456,
+     "bass_dropA_A0": 17.879,
+     "guitar_dropA_A1": 10.088
+    },
+    "verdict": "REPORT_WITHIN_CEILING"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 0,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "per_rate": {
+   "44100": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 8.027,
+       "events": 1788
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 124,
+       "max_ms": 7.8,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.377,
+       "long_max_ms": 9.325
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.488,
+       "bass_B0": 13.371,
+       "bass_dropA_A0": 17.879,
+       "guitar_dropA_A1": 9.735
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "48000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 8.25,
+       "events": 1792
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 120,
+       "max_ms": 7.875,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.302,
+       "long_max_ms": 9.338
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.504,
+       "bass_B0": 14.456,
+       "bass_dropA_A0": 15.997,
+       "guitar_dropA_A1": 10.088
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.0,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "96000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 8.042,
+       "events": 1744
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 168,
+       "max_ms": 7.708,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.342,
+       "long_max_ms": 9.097
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.551,
+       "bass_B0": 14.057,
+       "bass_dropA_A0": 15.682,
+       "guitar_dropA_A1": 9.727
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   }
+  },
+  "baseline_bit_equal": 0,
+  "render_count": 612,
+  "tails": {
+   "up/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -30.34510718964171,
+    "output_max_db": -6.513843736114657,
+    "excess_median_db": 5.4160726576944,
+    "excess_max_db": 28.656098457343145,
+    "excess_over_6db": 135
+   },
+   "up/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -30.34510718964171,
+    "output_max_db": -6.513843736114657,
+    "excess_median_db": 5.484344289952409,
+    "excess_max_db": 28.655819764258784,
+    "excess_over_6db": 135
+   },
+   "up/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -30.80148069269412,
+    "output_max_db": -7.263269502637985,
+    "excess_median_db": 5.53784033574944,
+    "excess_max_db": 28.632500925943635,
+    "excess_over_6db": 135
+   },
+   "up/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -30.80148069269412,
+    "output_max_db": -7.263269502637985,
+    "excess_median_db": 5.539507530852013,
+    "excess_max_db": 28.632500925943635,
+    "excess_over_6db": 136
+   },
+   "up/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -29.722909027758725,
+    "output_max_db": -10.554191604348766,
+    "excess_median_db": 4.496378893521081,
+    "excess_max_db": 27.18204834463367,
+    "excess_over_6db": 119
+   },
+   "up/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -29.722909027758725,
+    "output_max_db": -10.554191604348766,
+    "excess_median_db": 4.642099145194203,
+    "excess_max_db": 27.18204834463367,
+    "excess_over_6db": 119
+   },
+   "up/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -30.400077026047498,
+    "output_max_db": -6.513843736114657,
+    "excess_median_db": 5.157829761248447,
+    "excess_max_db": 28.656098457343145,
+    "excess_over_6db": 389
+   },
+   "up/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -30.370902647270654,
+    "output_max_db": -6.513843736114657,
+    "excess_median_db": 5.157578588053683,
+    "excess_max_db": 28.655819764258784,
+    "excess_over_6db": 390
+   },
+   "down/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -39.93589897491614,
+    "output_max_db": -19.537165347386335,
+    "excess_median_db": -4.3700580058067935,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -39.93271612265059,
+    "output_max_db": -19.520574313864653,
+    "excess_median_db": -4.349126928611916,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.669876961432752,
+    "excess_median_db": -6.0822619451619335,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.663282864444405,
+    "excess_median_db": -6.082263554802408,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.802351680946835,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734082635122931,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   },
+   "down/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.79984038978513,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734330819735151,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   }
+  }
+ },
+ "discovery-v3-g8": {
+  "targets": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "metric_version": 2,
+    "event_snr_min_db": 10,
+    "observed": {
+     "max_ms": 5.583,
+     "events": 5324
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T1_faint_attack",
+    "verdict": "REPORT",
+    "event_snr_below_db": 10,
+    "observed": {
+     "events": 412,
+     "max_ms": 5.188,
+     "over_10ms": 0
+    }
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.377,
+     "long_max_ms": 9.338
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 10.534,
+     "bass_B0": 14.425,
+     "bass_dropA_A0": 17.859,
+     "guitar_dropA_A1": 9.991
+    },
+    "verdict": "REPORT_WITHIN_CEILING"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 0,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "per_rate": {
+   "44100": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.397,
+       "events": 1788
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 124,
+       "max_ms": 5.147,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.377,
+       "long_max_ms": 9.325
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.486,
+       "bass_B0": 13.363,
+       "bass_dropA_A0": 17.859,
+       "guitar_dropA_A1": 9.746
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "48000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.583,
+       "events": 1792
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 120,
+       "max_ms": 5.188,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.302,
+       "long_max_ms": 9.338
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.487,
+       "bass_B0": 14.425,
+       "bass_dropA_A0": 15.943,
+       "guitar_dropA_A1": 9.991
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.0,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "96000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.552,
+       "events": 1744
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 168,
+       "max_ms": 5.135,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.342,
+       "long_max_ms": 9.097
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.534,
+       "bass_B0": 14.045,
+       "bass_dropA_A0": 15.619,
+       "guitar_dropA_A1": 9.667
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   }
+  },
+  "baseline_bit_equal": 0,
+  "render_count": 612,
+  "tails": {
+   "up/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -32.32442927998807,
+    "output_max_db": -8.071879514267422,
+    "excess_median_db": 5.878415000882839,
+    "excess_max_db": 16.564150667976264,
+    "excess_over_6db": 140
+   },
+   "up/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -32.32442927998807,
+    "output_max_db": -8.071879514267422,
+    "excess_median_db": 5.878415000882839,
+    "excess_max_db": 16.564150667976264,
+    "excess_over_6db": 140
+   },
+   "up/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -33.40693297267016,
+    "output_max_db": -4.631812416223902,
+    "excess_median_db": 5.730533439115154,
+    "excess_max_db": 15.062611509605219,
+    "excess_over_6db": 138
+   },
+   "up/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -33.40693297267016,
+    "output_max_db": -4.631812416223902,
+    "excess_median_db": 5.730533439115154,
+    "excess_max_db": 15.062611509605219,
+    "excess_over_6db": 138
+   },
+   "up/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -30.122651125137423,
+    "output_max_db": -8.828526739630135,
+    "excess_median_db": 5.244173980168137,
+    "excess_max_db": 12.387838653276567,
+    "excess_over_6db": 124
+   },
+   "up/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -30.122651125137423,
+    "output_max_db": -8.828526739630135,
+    "excess_median_db": 5.244259561738996,
+    "excess_max_db": 12.387838653276567,
+    "excess_over_6db": 124
+   },
+   "up/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -32.0998804583956,
+    "output_max_db": -4.631812416223902,
+    "excess_median_db": 5.692028872500065,
+    "excess_max_db": 16.564150667976264,
+    "excess_over_6db": 402
+   },
+   "up/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -32.0998804583956,
+    "output_max_db": -4.631812416223902,
+    "excess_median_db": 5.692104042722495,
+    "excess_max_db": 16.564150667976264,
+    "excess_over_6db": 402
+   },
+   "down/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -39.93589897491614,
+    "output_max_db": -19.537165347386335,
+    "excess_median_db": -4.3700580058067935,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -39.93271612265059,
+    "output_max_db": -19.520574313864653,
+    "excess_median_db": -4.349126928611916,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.669876961432752,
+    "excess_median_db": -6.0822619451619335,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.663282864444405,
+    "excess_median_db": -6.082263554802408,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.802351680946835,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734082635122931,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   },
+   "down/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.79984038978513,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734330819735151,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   }
+  }
+ },
+ "discovery-v3-g8h40": {
+  "targets": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "metric_version": 2,
+    "event_snr_min_db": 10,
+    "observed": {
+     "max_ms": 7.0,
+     "events": 5324
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T1_faint_attack",
+    "verdict": "REPORT",
+    "event_snr_below_db": 10,
+    "observed": {
+     "events": 412,
+     "max_ms": 6.771,
+     "over_10ms": 0
+    }
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.377,
+     "long_max_ms": 9.338
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 10.548,
+     "bass_B0": 14.447,
+     "bass_dropA_A0": 17.869,
+     "guitar_dropA_A1": 10.045
+    },
+    "verdict": "REPORT_WITHIN_CEILING"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 0,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "per_rate": {
+   "44100": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 6.939,
+       "events": 1788
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 124,
+       "max_ms": 6.712,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.377,
+       "long_max_ms": 9.325
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.482,
+       "bass_B0": 13.362,
+       "bass_dropA_A0": 17.869,
+       "guitar_dropA_A1": 9.698
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "48000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 6.938,
+       "events": 1792
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 120,
+       "max_ms": 6.771,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.302,
+       "long_max_ms": 9.338
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.504,
+       "bass_B0": 14.447,
+       "bass_dropA_A0": 15.977,
+       "guitar_dropA_A1": 10.045
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.0,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "96000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 7.0,
+       "events": 1744
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 168,
+       "max_ms": 6.625,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.342,
+       "long_max_ms": 9.097
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.548,
+       "bass_B0": 14.043,
+       "bass_dropA_A0": 15.647,
+       "guitar_dropA_A1": 9.685
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   }
+  },
+  "baseline_bit_equal": 0,
+  "render_count": 612,
+  "tails": {
+   "up/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -32.58411327369163,
+    "output_max_db": -11.427789205775278,
+    "excess_median_db": 5.6209243217210165,
+    "excess_max_db": 25.53691017396443,
+    "excess_over_6db": 139
+   },
+   "up/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -32.58411327369163,
+    "output_max_db": -11.427789205775278,
+    "excess_median_db": 5.672579496913761,
+    "excess_max_db": 25.536631480880068,
+    "excess_over_6db": 139
+   },
+   "up/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -33.82186052800172,
+    "output_max_db": -9.176437633641553,
+    "excess_median_db": 5.668722251968722,
+    "excess_max_db": 23.004051947563596,
+    "excess_over_6db": 137
+   },
+   "up/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -33.66420198969044,
+    "output_max_db": -9.176239305576056,
+    "excess_median_db": 5.668722251968722,
+    "excess_max_db": 23.004051947563596,
+    "excess_over_6db": 137
+   },
+   "up/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -31.28744856930319,
+    "output_max_db": -11.3817025790717,
+    "excess_median_db": 4.954274499800352,
+    "excess_max_db": 19.868069226771027,
+    "excess_over_6db": 111
+   },
+   "up/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -31.218517660788727,
+    "output_max_db": -11.3817025790717,
+    "excess_median_db": 4.954274499800352,
+    "excess_max_db": 19.868069226771027,
+    "excess_over_6db": 111
+   },
+   "up/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -32.71346307475197,
+    "output_max_db": -9.176437633641553,
+    "excess_median_db": 5.342718150048158,
+    "excess_max_db": 25.53691017396443,
+    "excess_over_6db": 387
+   },
+   "up/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -32.70665276812869,
+    "output_max_db": -9.176239305576056,
+    "excess_median_db": 5.367478537515561,
+    "excess_max_db": 25.536631480880068,
+    "excess_over_6db": 387
+   },
+   "down/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -39.93589897491614,
+    "output_max_db": -19.537165347386335,
+    "excess_median_db": -4.3700580058067935,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -39.93271612265059,
+    "output_max_db": -19.520574313864653,
+    "excess_median_db": -4.349126928611916,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.669876961432752,
+    "excess_median_db": -6.0822619451619335,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.663282864444405,
+    "excess_median_db": -6.082263554802408,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.802351680946835,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734082635122931,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   },
+   "down/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.79984038978513,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734330819735151,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   }
+  }
+ },
+ "discovery-v3-h40": {
+  "targets": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "metric_version": 2,
+    "event_snr_min_db": 10,
+    "observed": {
+     "max_ms": 7.0,
+     "events": 5324
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T1_faint_attack",
+    "verdict": "REPORT",
+    "event_snr_below_db": 10,
+    "observed": {
+     "events": 412,
+     "max_ms": 6.771,
+     "over_10ms": 0
+    }
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.377,
+     "long_max_ms": 9.338
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 10.548,
+     "bass_B0": 14.447,
+     "bass_dropA_A0": 17.869,
+     "guitar_dropA_A1": 10.045
+    },
+    "verdict": "REPORT_WITHIN_CEILING"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 0,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "per_rate": {
+   "44100": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 6.939,
+       "events": 1788
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 124,
+       "max_ms": 6.712,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.377,
+       "long_max_ms": 9.325
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.482,
+       "bass_B0": 13.362,
+       "bass_dropA_A0": 17.869,
+       "guitar_dropA_A1": 9.698
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "48000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 6.938,
+       "events": 1792
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 120,
+       "max_ms": 6.771,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.302,
+       "long_max_ms": 9.338
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.504,
+       "bass_B0": 14.447,
+       "bass_dropA_A0": 15.977,
+       "guitar_dropA_A1": 10.045
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.0,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "96000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 7.0,
+       "events": 1744
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 168,
+       "max_ms": 6.625,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.342,
+       "long_max_ms": 9.097
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.548,
+       "bass_B0": 14.043,
+       "bass_dropA_A0": 15.647,
+       "guitar_dropA_A1": 9.685
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   }
+  },
+  "baseline_bit_equal": 0,
+  "render_count": 612,
+  "tails": {
+   "up/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -30.584325723969872,
+    "output_max_db": -11.427789205775278,
+    "excess_median_db": 6.9594511920384345,
+    "excess_max_db": 25.53691017396443,
+    "excess_over_6db": 164
+   },
+   "up/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -30.584325723969872,
+    "output_max_db": -11.427789205775278,
+    "excess_median_db": 6.968755902443284,
+    "excess_max_db": 25.536631480880068,
+    "excess_over_6db": 164
+   },
+   "up/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -31.637462355494186,
+    "output_max_db": -9.176437633641553,
+    "excess_median_db": 7.107811927727555,
+    "excess_max_db": 23.161896598668562,
+    "excess_over_6db": 169
+   },
+   "up/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -31.637462355494186,
+    "output_max_db": -9.176239305576056,
+    "excess_median_db": 7.107811927727555,
+    "excess_max_db": 23.161896598668562,
+    "excess_over_6db": 169
+   },
+   "up/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -30.84586550648713,
+    "output_max_db": -11.3817025790717,
+    "excess_median_db": 5.630338781456468,
+    "excess_max_db": 21.75837174356134,
+    "excess_over_6db": 133
+   },
+   "up/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -30.84586550648713,
+    "output_max_db": -11.3817025790717,
+    "excess_median_db": 5.704951928128171,
+    "excess_max_db": 21.75837174356134,
+    "excess_over_6db": 133
+   },
+   "up/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -31.077364417671433,
+    "output_max_db": -9.176437633641553,
+    "excess_median_db": 6.562710511773156,
+    "excess_max_db": 25.53691017396443,
+    "excess_over_6db": 466
+   },
+   "up/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -31.053526114329877,
+    "output_max_db": -9.176239305576056,
+    "excess_median_db": 6.56524988619543,
+    "excess_max_db": 25.536631480880068,
+    "excess_over_6db": 466
+   },
+   "down/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -39.93589897491614,
+    "output_max_db": -19.537165347386335,
+    "excess_median_db": -4.3700580058067935,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -39.93271612265059,
+    "output_max_db": -19.520574313864653,
+    "excess_median_db": -4.349126928611916,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.669876961432752,
+    "excess_median_db": -6.0822619451619335,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.663282864444405,
+    "excess_median_db": -6.082263554802408,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.802351680946835,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734082635122931,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   },
+   "down/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.79984038978513,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734330819735151,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   }
+  }
+ },
+ "discovery-v3": {
+  "targets": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "metric_version": 2,
+    "event_snr_min_db": 10,
+    "observed": {
+     "max_ms": 5.583,
+     "events": 5324
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T1_faint_attack",
+    "verdict": "REPORT",
+    "event_snr_below_db": 10,
+    "observed": {
+     "events": 412,
+     "max_ms": 5.146,
+     "over_10ms": 0
+    }
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.377,
+     "long_max_ms": 9.338
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 10.542,
+     "bass_B0": 14.425,
+     "bass_dropA_A0": 17.859,
+     "guitar_dropA_A1": 10.008
+    },
+    "verdict": "REPORT_WITHIN_CEILING"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 0,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "per_rate": {
+   "44100": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.397,
+       "events": 1788
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 124,
+       "max_ms": 5.079,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.377,
+       "long_max_ms": 9.325
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.474,
+       "bass_B0": 13.362,
+       "bass_dropA_A0": 17.859,
+       "guitar_dropA_A1": 9.746
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "48000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.583,
+       "events": 1792
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 120,
+       "max_ms": 5.146,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.302,
+       "long_max_ms": 9.338
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.492,
+       "bass_B0": 14.425,
+       "bass_dropA_A0": 15.943,
+       "guitar_dropA_A1": 10.008
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.0,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "96000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.552,
+       "events": 1744
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 168,
+       "max_ms": 4.979,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.342,
+       "long_max_ms": 9.097
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.542,
+       "bass_B0": 14.045,
+       "bass_dropA_A0": 15.619,
+       "guitar_dropA_A1": 9.667
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   }
+  },
+  "baseline_bit_equal": 612,
+  "render_count": 612,
+  "tails": {
+   "up/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -30.908529887650033,
+    "output_max_db": -9.980654125604824,
+    "excess_median_db": 6.246950534166162,
+    "excess_max_db": 28.98323771741579,
+    "excess_over_6db": 148
+   },
+   "up/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -30.908529887650033,
+    "output_max_db": -9.980654125604824,
+    "excess_median_db": 6.246775701900331,
+    "excess_max_db": 28.98295902433143,
+    "excess_over_6db": 148
+   },
+   "up/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -32.11245575989571,
+    "output_max_db": -6.426956099849324,
+    "excess_median_db": 6.075709253897605,
+    "excess_max_db": 29.64196612275991,
+    "excess_over_6db": 148
+   },
+   "up/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -32.11245575989571,
+    "output_max_db": -6.426956099849324,
+    "excess_median_db": 6.075442081765958,
+    "excess_max_db": 29.64196612275991,
+    "excess_over_6db": 148
+   },
+   "up/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -29.31490502373932,
+    "output_max_db": -9.056400201150502,
+    "excess_median_db": 5.610487180422462,
+    "excess_max_db": 27.58773387082218,
+    "excess_over_6db": 135
+   },
+   "up/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -29.31490502373932,
+    "output_max_db": -9.056400201150502,
+    "excess_median_db": 5.610487180422462,
+    "excess_max_db": 27.58773387082218,
+    "excess_over_6db": 135
+   },
+   "up/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -30.729716642108148,
+    "output_max_db": -6.426956099849324,
+    "excess_median_db": 5.929801167366618,
+    "excess_max_db": 29.64196612275991,
+    "excess_over_6db": 431
+   },
+   "up/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -30.729716642108148,
+    "output_max_db": -6.426956099849324,
+    "excess_median_db": 5.929782169190755,
+    "excess_max_db": 29.64196612275991,
+    "excess_over_6db": 431
+   },
+   "down/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -39.93589897491614,
+    "output_max_db": -19.537165347386335,
+    "excess_median_db": -4.3700580058067935,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -39.93271612265059,
+    "output_max_db": -19.520574313864653,
+    "excess_median_db": -4.349126928611916,
+    "excess_max_db": 16.17660076006011,
+    "excess_over_6db": 52
+   },
+   "down/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -41.13596578269178,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -3.7283466057579417,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 50
+   },
+   "down/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.669876961432752,
+    "excess_median_db": -6.0822619451619335,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -41.47412898253135,
+    "output_max_db": -20.663282864444405,
+    "excess_median_db": -6.082263554802408,
+    "excess_max_db": 12.509717874831559,
+    "excess_over_6db": 25
+   },
+   "down/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.802351680946835,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734082635122931,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   },
+   "down/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.79984038978513,
+    "output_max_db": -13.160569491216163,
+    "excess_median_db": -4.734330819735151,
+    "excess_max_db": 16.258055248714932,
+    "excess_over_6db": 127
+   }
+  }
+ },
+ "discovery-v4": {
+  "targets": [
+   {
+    "id": "T1_attack",
+    "limit_ms": 10,
+    "metric_version": 2,
+    "event_snr_min_db": 10,
+    "observed": {
+     "max_ms": 5.583,
+     "events": 5324
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T1_faint_attack",
+    "verdict": "REPORT",
+    "event_snr_below_db": 10,
+    "observed": {
+     "events": 412,
+     "max_ms": 5.146,
+     "over_10ms": 0
+    }
+   },
+   {
+    "id": "T2_low_onset_down",
+    "limit_ms": 10,
+    "observed": {
+     "short_max_ms": 6.377,
+     "long_max_ms": 9.338
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T3_low_onset_up",
+    "regression_ceiling_ms": {
+     "short": 12.0,
+     "bass_B0": 15.5,
+     "bass_dropA_A0": 19.0,
+     "guitar_dropA_A1": 11.0
+    },
+    "observed": {
+     "short": 10.541,
+     "bass_B0": 14.425,
+     "bass_dropA_A0": 17.859,
+     "guitar_dropA_A1": 10.008
+    },
+    "verdict": "REPORT_WITHIN_CEILING"
+   },
+   {
+    "id": "T4_quality",
+    "limits": {
+     "steady_warble_max_cents": 1.0,
+     "steady_abs_error_max_cents": 1.0,
+     "unmatched_resets_max": 0,
+     "missed_events_max": 0,
+     "low_resets_on_markers_max": 0
+    },
+    "observed": {
+     "steady_warble_max_cents": 0.593,
+     "steady_abs_error_max_cents": 0.001,
+     "unmatched_resets": 0,
+     "missed_events": 0,
+     "low_resets_on_markers_or_sustain_after_startup": 0
+    },
+    "verdict": "PASS"
+   },
+   {
+    "id": "T5_realtime",
+    "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+    "observed": {
+     "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+    }
+   },
+   {
+    "id": "T6_external",
+    "verdict": "NOT_RUN",
+    "observed": {
+     "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+    }
+   }
+  ],
+  "per_rate": {
+   "44100": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.397,
+       "events": 1788
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 124,
+       "max_ms": 5.079,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.377,
+       "long_max_ms": 9.325
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.473,
+       "bass_B0": 13.363,
+       "bass_dropA_A0": 17.859,
+       "guitar_dropA_A1": 9.746
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "48000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.583,
+       "events": 1792
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 120,
+       "max_ms": 5.146,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.302,
+       "long_max_ms": 9.338
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.494,
+       "bass_B0": 14.425,
+       "bass_dropA_A0": 15.941,
+       "guitar_dropA_A1": 10.008
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.0,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   },
+   "96000": {
+    "targets": [
+     {
+      "id": "T1_attack",
+      "limit_ms": 10,
+      "metric_version": 2,
+      "event_snr_min_db": 10,
+      "observed": {
+       "max_ms": 5.552,
+       "events": 1744
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T1_faint_attack",
+      "verdict": "REPORT",
+      "event_snr_below_db": 10,
+      "observed": {
+       "events": 168,
+       "max_ms": 4.979,
+       "over_10ms": 0
+      }
+     },
+     {
+      "id": "T2_low_onset_down",
+      "limit_ms": 10,
+      "observed": {
+       "short_max_ms": 6.342,
+       "long_max_ms": 9.098
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T3_low_onset_up",
+      "regression_ceiling_ms": {
+       "short": 12.0,
+       "bass_B0": 15.5,
+       "bass_dropA_A0": 19.0,
+       "guitar_dropA_A1": 11.0
+      },
+      "observed": {
+       "short": 10.541,
+       "bass_B0": 14.045,
+       "bass_dropA_A0": 15.619,
+       "guitar_dropA_A1": 9.667
+      },
+      "verdict": "REPORT_WITHIN_CEILING"
+     },
+     {
+      "id": "T4_quality",
+      "limits": {
+       "steady_warble_max_cents": 1.0,
+       "steady_abs_error_max_cents": 1.0,
+       "unmatched_resets_max": 0,
+       "missed_events_max": 0,
+       "low_resets_on_markers_max": 0
+      },
+      "observed": {
+       "steady_warble_max_cents": 0.593,
+       "steady_abs_error_max_cents": 0.001,
+       "unmatched_resets": 0,
+       "missed_events": 0,
+       "low_resets_on_markers_or_sustain_after_startup": 0
+      },
+      "verdict": "PASS"
+     },
+     {
+      "id": "T5_realtime",
+      "verdict": "NOT_MEASURED_BY_THIS_SCRIPT",
+      "observed": {
+       "see": "docs/evidence/transpose-splice-search-cost-20261023 (worst deterministic callback 402-447 us at 48 kHz; shared-VM misses 0-3/10 runs)"
+      }
+     },
+     {
+      "id": "T6_external",
+      "verdict": "NOT_RUN",
+      "observed": {
+       "see": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+      }
+     }
+    ]
+   }
+  },
+  "baseline_bit_equal": 612,
+  "render_count": 612,
+  "tails": {
+   "up/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -31.2032418417572,
+    "output_max_db": -10.153222361656951,
+    "excess_median_db": 6.16966484823082,
+    "excess_max_db": 29.029268337753308,
+    "excess_over_6db": 149
+   },
+   "up/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -31.2032418417572,
+    "output_max_db": -10.152631549749255,
+    "excess_median_db": 6.169325503072306,
+    "excess_max_db": 29.028989644668947,
+    "excess_over_6db": 149
+   },
+   "up/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -31.987330967016163,
+    "output_max_db": -6.468302359431414,
+    "excess_median_db": 6.165702342331755,
+    "excess_max_db": 29.640289590499854,
+    "excess_over_6db": 149
+   },
+   "up/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -31.987330967016163,
+    "output_max_db": -6.468302359431414,
+    "excess_median_db": 6.165702342331755,
+    "excess_max_db": 29.640289590499854,
+    "excess_over_6db": 149
+   },
+   "up/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -29.385910146470618,
+    "output_max_db": -9.055782443449793,
+    "excess_median_db": 5.616095669183391,
+    "excess_max_db": 27.570694959663125,
+    "excess_over_6db": 133
+   },
+   "up/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -29.385910146470618,
+    "output_max_db": -9.055782443449793,
+    "excess_median_db": 5.616095669183391,
+    "excess_max_db": 27.570694959663125,
+    "excess_over_6db": 133
+   },
+   "up/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -30.86539780712942,
+    "output_max_db": -6.468302359431414,
+    "excess_median_db": 5.912177745689917,
+    "excess_max_db": 29.640289590499854,
+    "excess_over_6db": 431
+   },
+   "up/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -30.86539780712942,
+    "output_max_db": -6.468302359431414,
+    "excess_median_db": 5.91214224171496,
+    "excess_max_db": 29.640289590499854,
+    "excess_over_6db": 431
+   },
+   "down/44100/60": {
+    "events": 290,
+    "input_median_db": -38.69274331133748,
+    "output_median_db": -38.90377738437145,
+    "output_max_db": -19.965852295231517,
+    "excess_median_db": -4.414571249155976,
+    "excess_max_db": 15.832203397689078,
+    "excess_over_6db": 82
+   },
+   "down/44100/120": {
+    "events": 290,
+    "input_median_db": -38.692668689625215,
+    "output_median_db": -38.81313149915219,
+    "output_max_db": -19.956392937200064,
+    "excess_median_db": -4.414596297296097,
+    "excess_max_db": 15.832163152733408,
+    "excess_over_6db": 82
+   },
+   "down/48000/60": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -40.25593875758707,
+    "output_max_db": -13.398095809868346,
+    "excess_median_db": -4.056672348887737,
+    "excess_max_db": 16.289656652984092,
+    "excess_over_6db": 79
+   },
+   "down/48000/120": {
+    "events": 292,
+    "input_median_db": -38.83397409700922,
+    "output_median_db": -40.25593875758707,
+    "output_max_db": -13.398095809868346,
+    "excess_median_db": -4.056783302984314,
+    "excess_max_db": 16.289656652984092,
+    "excess_over_6db": 79
+   },
+   "down/96000/60": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -40.904421319640456,
+    "output_max_db": -20.71835022162236,
+    "excess_median_db": -6.08709809302519,
+    "excess_max_db": 12.551973908977637,
+    "excess_over_6db": 26
+   },
+   "down/96000/120": {
+    "events": 288,
+    "input_median_db": -35.8777091463316,
+    "output_median_db": -40.89915947402511,
+    "output_max_db": -20.71835022162236,
+    "excess_median_db": -6.087135206640621,
+    "excess_max_db": 12.551973908977637,
+    "excess_over_6db": 26
+   },
+   "down/all/60": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.13366091064173,
+    "output_max_db": -13.398095809868346,
+    "excess_median_db": -4.749974107083499,
+    "excess_max_db": 16.289656652984092,
+    "excess_over_6db": 187
+   },
+   "down/all/120": {
+    "events": 870,
+    "input_median_db": -37.42552684055852,
+    "output_median_db": -40.13366091064173,
+    "output_max_db": -13.398095809868346,
+    "excess_median_db": -4.750057774533115,
+    "excess_max_db": 16.289656652984092,
+    "excess_over_6db": 187
+   }
+  }
+ }
+}

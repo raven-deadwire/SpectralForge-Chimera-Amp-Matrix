@@ -2,6 +2,7 @@
 #include "RelativePhasePitch.h"
 #include "CorrelationPitch.h"
 #include "TransientSplitPitch.h"
+#include "UpshiftTailResearch.h"
 #include "GlobalDSP.h"
 #include <chrono>
 #include <fstream>
@@ -25,7 +26,8 @@ int main(int argc,char** argv) {
         const bool cpuTiming=argc==9;
         if(cpuTiming && std::string(argv[8])!="cpu")throw std::runtime_error("invalid timing flag");
         const double rate=std::stod(argv[3]);const int block=std::stoi(argv[4]),shift=std::stoi(argv[5]);
-        const std::string name=argv[6];
+        const transposeNext::UpshiftTailResearch research(argv[6]);
+        const std::string name=research.engine;
         if(rate<8000 || rate>192000 || block<1 || block>8192 || shift<-12 || shift>12)throw std::runtime_error("invalid config");
         const bool isSplit=name=="corr40-split" || name=="corr40-split-low" || name=="corr40-split-up" || name=="corr40-split-lpc"
             || name=="corr40-split-rt" || name=="corr40-split-v2" || name=="corr40-split-v3" || name=="corr40-split-v4";
@@ -55,6 +57,7 @@ int main(int argc,char** argv) {
                           v2,                                                                     // T1/T4 fixes
                           v3);                                                                    // sample-accurate hold
             split.setSincOutput(v4);
+            research.apply(split,shift);
             split.setSemitones(shift);
         }
         else {correlated.prepare(spec,name=="corr10"?10:40,name=="corr40-onset" || name=="corr40-novelty",name=="corr40-novelty");correlated.setSemitones(shift);}

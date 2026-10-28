@@ -134,6 +134,16 @@ public:
     }
     // Research (v4): windowed-sinc output reads on both paths; decisions as before.
     void setSincOutput(bool enabled) {body.setSincOutput(enabled);transient.setSincOutput(enabled);}
+    // Offline research hook, called only after prepare(). Does not alter the
+    // low path, detector, fades, search cost, or the default v3/v4 setup.
+    void setHighReanchorResearch(double guardMs, double holdMs) {
+        if (!upshift || !targeted || !std::isfinite(guardMs) || !std::isfinite(holdMs)
+            || guardMs < 4 || guardMs > 12 || holdMs < 25 || holdMs > 50)
+            throw std::invalid_argument("unsupported high-path re-anchor experiment");
+        transient.setReanchorGuard(guardMs);
+        transient.setUpshiftOnsetReset(true, holdMs);
+    }
+    auto transientLastSplice() const noexcept {return transient.lastSplice();}
     int lowOnsetResets() const noexcept {return lowResets;}
     void setSemitones(int n) noexcept {body.setSemitones(n);transient.setSemitones(n);shift=n;}
     int latency() const noexcept {return -1;}
