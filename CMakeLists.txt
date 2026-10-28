@@ -31,7 +31,8 @@ endif()
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
 set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png Assets/Artwork/aniflheimr.png
-    Assets/Artwork/acrystal.png Assets/Artwork/abluestack.png Assets/Artwork/aeightyfire.png Assets/Artwork/afortress.png Assets/Artwork/anorthlight.png)
+    Assets/Artwork/acrystal.png Assets/Artwork/abluestack.png Assets/Artwork/aeightyfire.png Assets/Artwork/afortress.png Assets/Artwork/anorthlight.png
+    Assets/Artwork/rpolar.png Assets/Artwork/rthrust.png Assets/Artwork/rdiode.png Assets/Artwork/rdiscrete.png Assets/Artwork/rdesk.png Assets/Artwork/rclear.png Assets/Artwork/rstepped.png Assets/Artwork/rair.png Assets/Artwork/rcurve.png)
 set(CHIMERA_MODEL_ARTWORK p808 pcentaur prat pm87 pdyna pdiamond pqtron pmutron pmuff pface pbender prc prange pmicro aglass abrit a515 arect amark asvt agk ahybrid rsslvca r1176 rla2a rn73 rv5 risa rssleq rn73eq rpultec rce2 rdimension rstone rmistress reddy rpulsar r2290 rre201 rmemory remt rlex rspring cmesa campeg cbassman cdelta pfet pmu pbddi pb3k pm82 paw3 pwool pfactory pep plpb achim30 aorange abassman asubway amatchless adumble aeich)
 include(Assets/Artwork/ExpandedArtwork.cmake OPTIONAL)
 foreach(model IN LISTS CHIMERA_MODEL_ARTWORK)
@@ -436,7 +437,7 @@ target_compile_definitions(ChimeraPedalOctaverTests PRIVATE JUCE_USE_CURL=0 JUCE
 target_link_libraries(ChimeraPedalOctaverTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPedalOctaverTests COMMAND ChimeraPedalOctaverTests)
 
-foreach(native AmpNative PostNative)
+foreach(native AmpNative PostNative PostExpansion)
   juce_add_console_app(Chimera${native}Tests PRODUCT_NAME "Chimera ${native} Tests")
   target_sources(Chimera${native}Tests PRIVATE Tests/${native}Tests.cpp)
   target_include_directories(Chimera${native}Tests PRIVATE Source)

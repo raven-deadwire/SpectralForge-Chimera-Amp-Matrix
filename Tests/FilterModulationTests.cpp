@@ -170,8 +170,9 @@ void realtimeAndParameters() {
     bool finite=true;for(float v:data)finite=finite&&std::isfinite(v);
     require(watchedAllocations==0 && finite,"Filter processing allocated or became non-finite");
     ChimeraProcessor processor;int seen=0;const int total=processor.getParameters().size();
+    const int later=total-spectralforge::postExpansionParameterCount();   // banks appended after the filters
     for(auto* raw:processor.getParameters())if(auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);id && id->paramID.startsWith("flt")){
-        require(raw->getVersionHint()==filterModulationParameterVersion && raw->getParameterIndex()>=total-filterModulationParameterCount,"Filter parameters are not appended last at their version");++seen;}
+        require(raw->getVersionHint()==filterModulationParameterVersion && raw->getParameterIndex()>=later-filterModulationParameterCount && raw->getParameterIndex()<later,"Filter parameters are not appended at their version");++seen;}
     require(seen==filterModulationParameterCount,"Filter parameter bank incomplete");
     std::cout<<"PASS no allocation while processing; "<<seen<<" parameters appended at version "<<filterModulationParameterVersion<<"\n";
 }

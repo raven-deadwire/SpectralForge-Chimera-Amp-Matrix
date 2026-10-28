@@ -107,7 +107,7 @@ void lastStage(){
     std::cout<<"PASS production processor: Final EQ + output boost before limiter, oversized host blocks, output metering and unchanged latency\n";
 }
 void state(ChimeraProcessor& p){
-    check(p.getParameters().size()==5026+multibandParameterCount+deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount,"Unexpected complete appended host count");
+    check(p.getParameters().size()==5026+multibandParameterCount+deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount(),"Unexpected complete appended host count");
     int ordinal=4986;for(int s=0;s<4;++s)for(const char* field:{"target","threshold","range","attack","release","ratio"}){
         auto* q=p.parameters().getParameter(dynamicSlotID(s,field));check(q->getParameterIndex()==ordinal++ && q->getVersionHint()==12,"Dynamic parameter order/version changed");check(q->isAutomatable()==(juce::String(field)!="target"),"Dynamic target automation contract");}
     for(const auto* id:{"cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompMix","cleanCompHP","cleanCompDetector","gateMode","gateRatio","gateAttack","liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"}){

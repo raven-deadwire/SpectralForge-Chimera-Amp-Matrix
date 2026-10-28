@@ -37,7 +37,7 @@ void checkArtwork()
     using namespace spectralforge::art;
     const juce::SharedResourcePointer<RasterBank> bank;
     const auto& images=bank->images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==96,
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==105,
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -68,9 +68,11 @@ void checkArtwork()
     for(int family:{1,2,7,8,9,10})
         for(int model=0;model<spectralforge::modelFamilies[(size_t)family].count;++model)
             require(racks.insert(rackStyle(family,model).surface).second,"Distinct POST references share one artwork surface");
+    for(int section=0;section<3;++section)for(int model=3;model<6;++model)
+        require(racks.insert(rackStyle(section+7,model).surface).second,"POST expansion model has no dedicated rack face");
     for(int model=26;model<spectralforge::pedalModelCount;++model)
         require(pedals.insert(boardPedalStyle(model).surface).second,"New pedal has no dedicated enclosure image");
-    require(heads.size()==size_t(spectralforge::ampModelCount) && pedals.size()==38 && racks.size()==21,"Model artwork mapping does not cover every reference");
+    require(heads.size()==size_t(spectralforge::ampModelCount) && pedals.size()==38 && racks.size()==30,"Model artwork mapping does not cover every reference");
     std::set<juce::String> nativeHeads;
     for(int model=spectralforge::legacyAmpModelCount;model<spectralforge::ampModelCount;++model) {
         require(bank->images[(size_t)headStyle(model).surface].isValid(),"New head has no dedicated raster artwork");
@@ -86,7 +88,7 @@ void checkArtwork()
     require(nativeHeads.size()==size_t(spectralforge::ampModelCount-spectralforge::legacyAmpModelCount),"Missing new amp artwork");
     for(auto surface:pedals)require(!heads.count(surface) && !racks.count(surface),"A pedal is using amp or rack artwork");
     for(auto surface:racks)require(!heads.count(surface),"A rack is using amplifier artwork");
-    std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces\n";
+    std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, 38 PRE enclosures (39 models), 30 unique POST surfaces\n";
     for(const auto* resource:{"chimerawordmark_png","spectralforgeemblem_png"}) {int bytes=0;const auto* data=ChimeraArtworkData::getNamedResource(resource,bytes);require(data && bytes>0 && juce::ImageFileFormat::loadFrom(data,(size_t)bytes).isValid(),"Brand image missing or undecodable");}
     int manualBytes=0;const auto* manual=ChimeraManualData::getNamedResource("MANUAL_html",manualBytes);require(manual && manualBytes>1000 && juce::String::fromUTF8(manual,manualBytes).contains("SpectralForge Chimera"),"Embedded offline manual missing");
 }
@@ -950,7 +952,7 @@ int main(int argc, char** argv)
                             if(section<3) {
                                 auto* panel=canvas->findChildWithID("postNativePanel"+juce::String(section));require(panel && panel->isVisible() && panel->getHeight()==64,"POST native modules do not share the compact rack overview");
                                 auto* model=dynamic_cast<juce::ComboBox*>(correctionUITests::find(*panel,spectralforge::postNativeModelID(section)));
-                                require(model && model->getNumItems()==3,"POST native section does not expose three models");
+                                require(model && model->getNumItems()==spectralforge::postNativeModelsPerSection,"POST native section does not expose all its models");
                                 for(int choice=0;choice<3;++choice){model->setSelectedId(choice+1,juce::sendNotificationSync);juce::MessageManager::getInstance()->runDispatchLoopUntil(60);saveSnapshot(editor,directory,"POST-native-"+juce::String(section)+"-"+juce::String(choice));}
                             } else {
                                 const int family=section==3?10:section==4?1:2;

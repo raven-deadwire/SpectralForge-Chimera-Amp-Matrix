@@ -4,11 +4,11 @@
 #include <array>
 #include <cmath>
 namespace spectralforge {
-inline constexpr int postNativeSectionCount=3, postNativeModelsPerSection=3, postNativeMaxControls=14;
+inline constexpr int postNativeSectionCount=3, postNativeModelsPerSection=6, postNativeReleasedModelsPerSection=3, postNativeMaxControls=14;
 enum class PostNativeControlKind { knob, choice, toggle };
 struct PostNativeControl { const char* id; const char* label; PostNativeControlKind kind; float minimum, maximum, initial, interval; const char* options; bool connected; const char* note; };
 struct PostNativeModel { const char* name; const char* reference; int controlCount; std::array<PostNativeControl,postNativeMaxControls> controls; };
-inline const std::array<PostNativeModel,9> postNativeModels{{
+inline const std::array<PostNativeModel,18> postNativeModels{{
     {"Console VCA","SSL XLogic G Series Compressor · 2005 Rev 0A",9, {{
         {"threshold","THRESHOLD",PostNativeControlKind::knob,-48.0f,0.0f,-18.0f,0.001f,"",true,"Digital implementation range; hardware taper uncalibrated."},
         {"makeup","MAKE-UP",PostNativeControlKind::knob,0.0f,20.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
@@ -36,6 +36,44 @@ inline const std::array<PostNativeModel,9> postNativeModels{{
         {"meter","METER",PostNativeControlKind::choice,0.0f,2.0f,1.0f,1.0f,"+4|GR|+10",true,""},
         {"r37","R37 · HF EMPHASIS",PostNativeControlKind::knob,0.0f,1.0f,1.0f,0.001f,"",true,"Clockwise is flat sidechain; not a front-panel attack control. Digital implementation range; hardware taper uncalibrated."},
     }}},
+    {"Polar Press","Eventide Omnipressor 2830*Au reissue",11, {{
+        {"input_cal","INPUT CAL",PostNativeControlKind::choice,0.0f,3.0f,0.0f,1.0f,"0 dB|-10 dB|-20 dB|-30 dB",true,""},
+        {"function","FUNCTION",PostNativeControlKind::knob,0.0f,1.0f,0.65f,0.001f,"",true,"Gate / expand / neutral at 12 o'clock / compress / reverse. Digital implementation range; hardware taper uncalibrated."},
+        {"threshold","THRESHOLD",PostNativeControlKind::knob,-25.0f,15.0f,-5.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"attack","ATTACK",PostNativeControlKind::knob,0.1f,100.0f,10.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"release","RELEASE",PostNativeControlKind::knob,1.0f,1000.0f,200.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"atten_limit","ATTEN LIMIT",PostNativeControlKind::knob,1.0f,30.0f,30.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"gain_limit","GAIN LIMIT",PostNativeControlKind::knob,1.0f,30.0f,6.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"bass_cut","BASS CUT",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"output","OUTPUT",PostNativeControlKind::knob,-20.0f,20.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"meter","METER",PostNativeControlKind::choice,0.0f,2.0f,1.0f,1.0f,"INPUT|GAIN|OUTPUT",true,""},
+        {"dynamics_in","IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
+    }}},
+    {"Thrust Bus","API 2500 stereo bus compressor",11, {{
+        {"threshold","THRESHOLD",PostNativeControlKind::knob,-20.0f,10.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"attack","ATTACK",PostNativeControlKind::choice,0.0f,6.0f,3.0f,1.0f,"0.03 ms|0.1 ms|0.3 ms|1 ms|3 ms|10 ms|30 ms",true,""},
+        {"ratio","RATIO",PostNativeControlKind::choice,0.0f,6.0f,3.0f,1.0f,"1.5:1|2:1|3:1|4:1|6:1|10:1|INF:1",true,""},
+        {"release","RELEASE",PostNativeControlKind::choice,0.0f,6.0f,3.0f,1.0f,"0.05 s|0.1 s|0.2 s|0.5 s|1 s|2 s|VAR",true,""},
+        {"release_var","VARIABLE RELEASE",PostNativeControlKind::knob,0.05f,3.0f,0.5f,0.001f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"knee","KNEE",PostNativeControlKind::choice,0.0f,2.0f,1.0f,1.0f,"HARD|MED|SOFT",true,""},
+        {"thrust","THRUST",PostNativeControlKind::choice,0.0f,2.0f,0.0f,1.0f,"NORM|MED|LOUD",true,""},
+        {"type","TYPE",PostNativeControlKind::choice,0.0f,1.0f,0.0f,1.0f,"NEW|OLD",true,""},
+        {"link","L/R LINK",PostNativeControlKind::knob,0.0f,100.0f,100.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"makeup","OUTPUT GAIN",PostNativeControlKind::knob,0.0f,20.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"compressor_in","IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
+    }}},
+    {"Diode Bridge","AMS Neve 33609/N diode-bridge compressor/limiter",10, {{
+        {"comp_threshold","COMP THRESHOLD",PostNativeControlKind::knob,-20.0f,10.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"comp_ratio","RATIO",PostNativeControlKind::choice,0.0f,4.0f,1.0f,1.0f,"1.5:1|2:1|3:1|4:1|6:1",true,""},
+        {"comp_recovery","COMP RECOVERY",PostNativeControlKind::choice,0.0f,5.0f,1.0f,1.0f,"100 ms|400 ms|800 ms|1.5 s|A1|A2",true,""},
+        {"comp_attack","COMP ATTACK",PostNativeControlKind::choice,0.0f,1.0f,1.0f,1.0f,"FAST|SLOW",true,""},
+        {"gain","GAIN",PostNativeControlKind::knob,0.0f,20.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"comp_in","COMP IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
+        {"limit_threshold","LIMIT THRESHOLD",PostNativeControlKind::knob,4.0f,15.0f,15.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"limit_recovery","LIMIT RECOVERY",PostNativeControlKind::choice,0.0f,4.0f,1.0f,1.0f,"100 ms|200 ms|800 ms|A1|A2",true,""},
+        {"limit_attack","LIMIT ATTACK",PostNativeControlKind::choice,0.0f,1.0f,0.0f,1.0f,"FAST|SLOW",true,""},
+        {"limit_in","LIMIT IN",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+    }}},
     {"Iron Colour","Neve 1073 Classic · preamplifier section",2, {{
         {"gain","MIC / LINE GAIN",PostNativeControlKind::choice,0.0f,20.0f,2.0f,1.0f,"LINE -10 dB|LINE -5 dB|LINE +0 dB|LINE +5 dB|LINE +10 dB|LINE +15 dB|LINE +20 dB|OFF|MIC +20 dB|MIC +25 dB|MIC +30 dB|MIC +35 dB|MIC +40 dB|MIC +45 dB|MIC +50 dB|MIC +55 dB|MIC +60 dB|MIC +65 dB|MIC +70 dB|MIC +75 dB|MIC +80 dB",true,""},
         {"phase","PHASE",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
@@ -62,6 +100,30 @@ inline const std::array<PostNativeModel,9> postNativeModels{{
         {"instrument_gain","GAIN",PostNativeControlKind::knob,10.0f,40.0f,10.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
         {"instrument_z","Z IN",PostNativeControlKind::choice,0.0f,1.0f,0.0f,1.0f,"LOW|HIGH",false,"Physical instrument loading requires a pickup/source circuit; unavailable for recorded audio."},
         {"post_insert","POST INSERT",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,"Meter source switches between input and processed output; no external insert."},
+    }}},
+    {"Discrete Lift","API 512c discrete mic/line preamp",5, {{
+        {"input","INPUT",PostNativeControlKind::choice,0.0f,1.0f,1.0f,1.0f,"MIC|LINE / INST",true,""},
+        {"gain","GAIN",PostNativeControlKind::knob,0.0f,65.0f,25.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"pad","PAD -20 dB",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"phase","PHASE",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"phantom","+48 V",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",false,"Physical phantom power; unavailable in a software insert."},
+    }}},
+    {"Desk Two","Chandler Limited TG2 preamp / DI",7, {{
+        {"input","INPUT",PostNativeControlKind::choice,0.0f,2.0f,1.0f,1.0f,"MIC|DI|LINE",true,""},
+        {"coarse_gain","COARSE GAIN",PostNativeControlKind::choice,0.0f,8.0f,4.0f,1.0f,"+20|+25|+30|+35|+40|+45|+50|+55|+60",true,""},
+        {"fine_gain","FINE GAIN",PostNativeControlKind::knob,-10.0f,10.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"output","OUTPUT",PostNativeControlKind::knob,-20.0f,0.0f,0.0f,0.001f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"load","LOAD",PostNativeControlKind::choice,0.0f,1.0f,1.0f,1.0f,"300 Ω|1200 Ω",false,"Physical microphone loading requires a source impedance model; unavailable for recorded audio."},
+        {"phase","PHASE",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"phantom","+48 V",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",false,"Physical phantom power; unavailable in a software insert."},
+    }}},
+    {"Clear Line","Grace Design m101 preamp / DI",6, {{
+        {"input","INPUT",PostNativeControlKind::choice,0.0f,1.0f,1.0f,1.0f,"MIC|HI-Z INST",true,""},
+        {"gain","GAIN",PostNativeControlKind::choice,0.0f,11.0f,4.0f,1.0f,"1|2|3|4|5|6|7|8|9|10|11|12",true,""},
+        {"trim","TRIM",PostNativeControlKind::knob,0.0f,10.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"high_pass","HPF 75 Hz",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"ribbon","RIBBON",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",false,"Ribbon mode changes microphone input impedance and phantom power; unavailable for recorded audio."},
+        {"phantom","+48 V",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",false,"Physical phantom power; unavailable in a software insert."},
     }}},
     {"Console Four","SSL E Series EQ · 500 Series / Brown-02 and Black-242",14, {{
         {"hf_gain","HF GAIN",PostNativeControlKind::knob,-18.0f,18.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
@@ -99,23 +161,63 @@ inline const std::array<PostNativeModel,9> postNativeModels{{
         {"hf_atten_frequency","ATTEN SEL",PostNativeControlKind::choice,0.0f,2.0f,0.0f,1.0f,"5 kHz|10 kHz|20 kHz",true,""},
         {"eq_in","IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
     }}},
+    {"Stepped EQ","API 550A three-band discrete EQ",10, {{
+        {"lf_frequency","LF FREQ",PostNativeControlKind::choice,0.0f,6.0f,3.0f,1.0f,"30 Hz|40 Hz|50 Hz|100 Hz|200 Hz|300 Hz|400 Hz",true,""},
+        {"lf_gain","LF GAIN",PostNativeControlKind::choice,0.0f,10.0f,5.0f,1.0f,"-12|-9|-6|-4|-2|0|+2|+4|+6|+9|+12",true,""},
+        {"lf_shelf","LF SHELF",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"mf_frequency","MF FREQ",PostNativeControlKind::choice,0.0f,6.0f,4.0f,1.0f,"200 Hz|400 Hz|600 Hz|800 Hz|1.5 kHz|3 kHz|5 kHz",true,""},
+        {"mf_gain","MF GAIN",PostNativeControlKind::choice,0.0f,10.0f,5.0f,1.0f,"-12|-9|-6|-4|-2|0|+2|+4|+6|+9|+12",true,""},
+        {"hf_frequency","HF FREQ",PostNativeControlKind::choice,0.0f,6.0f,3.0f,1.0f,"2.5 kHz|5 kHz|7 kHz|10 kHz|12.5 kHz|15 kHz|20 kHz",true,""},
+        {"hf_gain","HF GAIN",PostNativeControlKind::choice,0.0f,10.0f,5.0f,1.0f,"-12|-9|-6|-4|-2|0|+2|+4|+6|+9|+12",true,""},
+        {"hf_shelf","HF SHELF",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"filter","FILTER 50 Hz–15 kHz",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"eq_in","IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
+    }}},
+    {"Air Band","Maag Audio EQ4 with AIR BAND",8, {{
+        {"sub","SUB 10 Hz",PostNativeControlKind::knob,-4.5f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"b40","40 Hz",PostNativeControlKind::knob,-4.5f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"b160","160 Hz",PostNativeControlKind::knob,-4.5f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"b650","650 Hz",PostNativeControlKind::knob,-4.5f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"b2500","2.5 kHz",PostNativeControlKind::knob,-4.5f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"air_gain","AIR GAIN",PostNativeControlKind::knob,0.0f,20.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"air_frequency","AIR FREQ",PostNativeControlKind::choice,0.0f,6.0f,3.0f,1.0f,"OFF|2.5 kHz|5 kHz|10 kHz|15 kHz|20 kHz|40 kHz",true,""},
+        {"eq_in","IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
+    }}},
+    {"Curve Shaper","Chandler Limited Curve Bender",13, {{
+        {"treble_gain","TREBLE",PostNativeControlKind::knob,-15.0f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"treble_frequency","TREBLE FREQ",PostNativeControlKind::choice,0.0f,5.0f,2.0f,1.0f,"5 kHz|7 kHz|10 kHz|12 kHz|15 kHz|20 kHz",true,""},
+        {"treble_bell","TREBLE BELL",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"presence1_gain","PRESENCE 1",PostNativeControlKind::knob,-15.0f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"presence1_frequency","PRES 1 FREQ",PostNativeControlKind::choice,0.0f,7.0f,3.0f,1.0f,"0.8 kHz|1.2 kHz|1.8 kHz|2.8 kHz|3.6 kHz|4.2 kHz|6.5 kHz|8.1 kHz",true,""},
+        {"presence2_gain","PRESENCE 2",PostNativeControlKind::knob,-15.0f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"presence2_frequency","PRES 2 FREQ",PostNativeControlKind::choice,0.0f,7.0f,2.0f,1.0f,"0.3 kHz|0.4 kHz|0.5 kHz|0.8 kHz|1.2 kHz|1.8 kHz|2.8 kHz|3.6 kHz",true,""},
+        {"bass_gain","BASS",PostNativeControlKind::knob,-15.0f,15.0f,0.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
+        {"bass_frequency","BASS FREQ",PostNativeControlKind::choice,0.0f,6.0f,2.0f,1.0f,"35 Hz|50 Hz|70 Hz|91 Hz|150 Hz|200 Hz|300 Hz",true,""},
+        {"bass_bell","BASS BELL",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
+        {"high_pass","HPF",PostNativeControlKind::choice,0.0f,10.0f,0.0f,1.0f,"OFF|20 Hz|30 Hz|40 Hz|50 Hz|60 Hz|80 Hz|100 Hz|160 Hz|200 Hz|320 Hz",true,""},
+        {"low_pass","LPF",PostNativeControlKind::choice,0.0f,7.0f,0.0f,1.0f,"OFF|20 kHz|15 kHz|12 kHz|10 kHz|8 kHz|6 kHz|4 kHz",true,""},
+        {"eq_in","IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
+    }}},
 }};
-inline const PostNativeModel& postNativeModel(int section,int model) { return postNativeModels[static_cast<size_t>(juce::jlimit(0,2,section)*3+juce::jlimit(0,2,model))]; }
+inline const PostNativeModel& postNativeModel(int section,int model) { return postNativeModels[static_cast<size_t>(juce::jlimit(0,2,section)*6+juce::jlimit(0,5,model))]; }
 inline juce::String postNativePrefix(int section) { static const char* names[]{"bus","preamp","eq"}; return "pn_"+juce::String(names[juce::jlimit(0,2,section)]); }
 inline juce::String postNativeModeID(int s) { return postNativePrefix(s)+"_native"; }
 inline juce::String postNativeModelID(int s) { return postNativePrefix(s)+"_model"; }
+// The released selector covers models 0-2. The appended extension selects 3-5 (1-3; 0 defers to the selector).
+inline juce::String postNativeModelExtensionID(int s) { return postNativePrefix(s)+"_modelExt"; }
+inline int postNativeSelectedModel(float selector,float extension) noexcept { const int ext=std::isfinite(extension)?juce::roundToInt(extension):0; return ext>0?juce::jlimit(3,5,2+ext):juce::jlimit(0,2,std::isfinite(selector)?juce::roundToInt(selector):0); }
 inline juce::String postNativeBankPrefix(int s,int m) { return postNativePrefix(s)+"_m"+juce::String(m); }
 inline juce::String postNativeBypassID(int s,int m) { return postNativeBankPrefix(s,m)+"_bypass"; }
 inline juce::String postNativeTrimID(int s,int m) { return postNativeBankPrefix(s,m)+"_softwareTrim"; }
 inline juce::String postNativeLevelID(int s,int m) { return postNativeBankPrefix(s,m)+"_softwareLevel"; }
 inline juce::String postNativeControlID(int s,int m,int c) { return postNativeBankPrefix(s,m)+"_"+postNativeModel(s,m).controls[static_cast<size_t>(c)].id; }
 struct PostNativeBank { bool bypass{true}; float trimDb{},levelDb{}; std::array<float,postNativeMaxControls> values{}; };
-struct PostNativeSectionState { bool nativeEnabled{false}; int selected{}; std::array<PostNativeBank,3> banks{}; };
+struct PostNativeSectionState { bool nativeEnabled{false}; int selected{}; std::array<PostNativeBank,postNativeModelsPerSection> banks{}; };
 struct PostNativeState { std::array<PostNativeSectionState,3> sections{}; };
-inline PostNativeState defaultPostNativeState(bool nativeEnabled=true) { PostNativeState state; for(int s=0;s<3;++s) { state.sections[s].nativeEnabled=nativeEnabled; for(int m=0;m<3;++m)for(int c=0;c<postNativeModel(s,m).controlCount;++c)state.sections[s].banks[m].values[c]=postNativeModel(s,m).controls[c].initial; } return state; }
-inline void sanitisePostNativeState(PostNativeState& state) { for(int s=0;s<3;++s) { auto& section=state.sections[s]; section.selected=juce::jlimit(0,2,section.selected); for(int m=0;m<3;++m) { auto& bank=section.banks[m]; bank.trimDb=std::isfinite(bank.trimDb)?juce::jlimit(-24.f,24.f,bank.trimDb):0.f; bank.levelDb=std::isfinite(bank.levelDb)?juce::jlimit(-24.f,24.f,bank.levelDb):0.f; for(int c=0;c<postNativeModel(s,m).controlCount;++c) { const auto& spec=postNativeModel(s,m).controls[c]; float& value=bank.values[c]; value=std::isfinite(value)?juce::jlimit(spec.minimum,spec.maximum,value):spec.initial; if(spec.kind!=PostNativeControlKind::knob)value=std::round(value); if(!spec.connected)value=spec.initial; } } } }
+inline PostNativeState defaultPostNativeState(bool nativeEnabled=true) { PostNativeState state; for(int s=0;s<3;++s) { state.sections[s].nativeEnabled=nativeEnabled; for(int m=0;m<postNativeModelsPerSection;++m)for(int c=0;c<postNativeModel(s,m).controlCount;++c)state.sections[s].banks[m].values[c]=postNativeModel(s,m).controls[c].initial; } return state; }
+inline void sanitisePostNativeState(PostNativeState& state) { for(int s=0;s<3;++s) { auto& section=state.sections[s]; section.selected=juce::jlimit(0,postNativeModelsPerSection-1,section.selected); for(int m=0;m<postNativeModelsPerSection;++m) { auto& bank=section.banks[m]; bank.trimDb=std::isfinite(bank.trimDb)?juce::jlimit(-24.f,24.f,bank.trimDb):0.f; bank.levelDb=std::isfinite(bank.levelDb)?juce::jlimit(-24.f,24.f,bank.levelDb):0.f; for(int c=0;c<postNativeModel(s,m).controlCount;++c) { const auto& spec=postNativeModel(s,m).controls[c]; float& value=bank.values[c]; value=std::isfinite(value)?juce::jlimit(spec.minimum,spec.maximum,value):spec.initial; if(spec.kind!=PostNativeControlKind::knob)value=std::round(value); if(!spec.connected)value=spec.initial; } } } }
 inline const char* postNativeDescription(int section,int model) {
-    constexpr std::array<const char*,9> descriptions{{"Linked RMS compression","Fast peak compression","Optical gain levelling","Class-A colour preamp","High-headroom DI","Transformer colour preamp","Four-band console EQ","Inductor-style tone EQ","Broad tube-style shelves"}};
-    return descriptions[static_cast<size_t>(juce::jlimit(0,2,section)*3+juce::jlimit(0,2,model))];
+    constexpr std::array<const char*,18> descriptions{{"Linked RMS compression","Fast peak compression","Optical gain levelling","Function-controlled dynamics","Bus compression with thrust","Diode compressor and limiter","Class-A colour preamp","High-headroom DI","Transformer colour preamp","Discrete op-amp preamp","Transformer preamp and DI","Clean preamp and DI","Four-band console EQ","Inductor-style tone EQ","Broad tube-style shelves","Stepped proportional-Q EQ","Wide bands and air shelf","Four-band EQ with filters"}};
+    return descriptions[static_cast<size_t>(juce::jlimit(0,2,section)*6+juce::jlimit(0,5,model))];
 }
 } // namespace spectralforge

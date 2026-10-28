@@ -151,7 +151,8 @@ class PostFXChain {
     float busReduction{};
     DynamicsAnalysis* analysis{};
     template<class Legacy> void processRack(juce::AudioBuffer<float>& buffer,int section,const FXState& state,Legacy&& legacy) {
-        const bool useNative=state.postNative.sections[section].nativeEnabled;
+        // Expansion models (3-5) exist only on the native engine.
+        const bool useNative=state.postNative.sections[section].nativeEnabled || state.postNative.sections[section].selected>=postNativeReleasedModelsPerSection;
         const int requestedSource=analysis?analysis->postNativeSource.load(std::memory_order_relaxed):-1;
         DynamicsAnalysis::Scope capture(section==0 && (requestedSource<0 || requestedSource==int(useNative))?analysis:nullptr,DynamicsStage::postCompressor,buffer);
         auto& mix=nativeMix[section];

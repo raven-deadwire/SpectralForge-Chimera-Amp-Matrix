@@ -151,7 +151,7 @@ void studio() {
 }
 void processorParameters() {
     ChimeraProcessor p;int seen=0;const int total=p.getParameters().size();
-    const int later=total-spectralforge::referenceAmpParameterCount()-spectralforge::filterModulationParameterCount;   // banks appended after saturation
+    const int later=total-spectralforge::referenceAmpParameterCount()-spectralforge::filterModulationParameterCount-spectralforge::postExpansionParameterCount();   // banks appended after saturation
     for(auto* raw:p.getParameters())if(auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);id && id->paramID.startsWith("sat")){
         require(raw->getVersionHint()==saturationParameterVersion && raw->getParameterIndex()>=later-saturationParameterCount && raw->getParameterIndex()<later,"Saturation parameters are not appended at their version");++seen;}
     require(seen==saturationParameterCount,"Saturation parameter bank incomplete");

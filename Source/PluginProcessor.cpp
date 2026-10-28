@@ -499,6 +499,8 @@ spectralforge::appendSaturationParameters(p);
 spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstReferenceAmpModel,spectralforge::ampModelCount,spectralforge::referenceAmpParameterVersion);
 // 1.7 two-filter modulation, version hint 21.
 spectralforge::appendFilterModulationParameters(p);
+// 1.7 POST expansion, version hint 22.
+spectralforge::appendPostExpansionParameters(p);
 return p;
 }
 
@@ -720,6 +722,7 @@ void ChimeraProcessor::seedNativeSelections(bool seedBoard,bool seedAmps,bool se
         const int model=juce::jlimit(0,2,(int)modelParameters[(size_t)(7+s)]->load());
         setRawParameter(spectralforge::postNativeModeID(s),0.f);
         setRawParameter(spectralforge::postNativeModelID(s),float(model));
+        setRawParameter(spectralforge::postNativeModelExtensionID(s),0.f);
         setRawParameter(spectralforge::postNativeBypassID(s,model),state.getRawParameterValue(postOn[s])->load()>.5f?0.f:1.f);
     }
     if(!seedBoard)return;

@@ -112,7 +112,7 @@ inline Snapshot read(ChimeraProcessor& p) {
     add("common.deesser","DE-ESSER",Target::dynamics,382,510,on("deEsserOn"),{},-1,-1,"Split-band high-frequency attenuation after multiband dynamics, before the POST rack. Open its spectrum and detector controls.");edge(previous,"common.deesser");previous="common.deesser";
     for(int position=0;position<6;++position){
         const std::array<int,6> families{7,8,9,10,1,2};const int family=families[size_t(position)];juce::String label=effectFamilyMenuName(family,int(v(modelFamilies[size_t(family)].parameter)));bool active=on(enable[size_t(family)]);
-        if(position<3&&on(postNativeModeID(position))){const int model=juce::jlimit(0,2,int(v(postNativeModelID(position))));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
+        if(position<3&&(on(postNativeModeID(position))||v(postNativeModelExtensionID(position))>.5f)){const int model=postNativeSelectedModel(v(postNativeModelID(position)),v(postNativeModelExtensionID(position)));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
         const auto id="post.section"+juce::String(position);add(id,label,Target::post,position<5?504+position*122:992,position<5?510:580,active,{},-1,position);edge(previous,id);previous=id;
     }
     add("utilities","DOUBLER / CLICK",Target::utilities,870,580,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");

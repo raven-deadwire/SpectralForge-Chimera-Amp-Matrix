@@ -106,15 +106,15 @@ inline void inside(juce::Component& root,juce::Component& control,const char* me
 inline void postModelPresentation(PostNativePanel& panel,int section,int selected) {
     auto* model=find<juce::ComboBox>(panel,spectralforge::postNativeModelID(section));
     require(model && model->getRootMenu(),"POST model menu missing");
-    std::array<int,3> found{};int items=0;
+    std::array<int,spectralforge::postNativeModelsPerSection> found{};int items=0;
     for(juce::PopupMenu::MenuItemIterator it(*model->getRootMenu(),false);it.next();) {
         const auto& item=it.getItem();
         require(item.subMenu==nullptr && !item.isSectionHeader && !item.isSeparator,"Single-family POST menu has an unnecessary category step");
-        require(item.itemID>=1 && item.itemID<=3 && item.isEnabled,"POST model menu contains an invalid or unavailable model");
+        require(item.itemID>=1 && item.itemID<=spectralforge::postNativeModelsPerSection && item.isEnabled,"POST model menu contains an invalid or unavailable model");
         require(item.text==juce::String::fromUTF8(spectralforge::postNativeModel(section,item.itemID-1).name),"POST dropdown must contain only product aliases");
         ++found[(size_t)item.itemID-1];++items;
     }
-    require(items==3 && found[0]==1 && found[1]==1 && found[2]==1,"Flat POST menu omits or duplicates a model");
+    require(items==spectralforge::postNativeModelsPerSection && std::all_of(found.begin(),found.end(),[](int n){return n==1;}),"Flat POST menu omits or duplicates a model");
     auto* reference=find<juce::Label>(panel,"postNativeReference"+juce::String(section));
     require(reference && reference->isVisible() && reference->getText()==spectralforge::postNativeDescription(section,selected),"POST caption must describe the selected sound");
     publicNameTests::componentText(panel,"POST panel");
@@ -196,11 +196,12 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
             auto* compact=find<PostNativePanel>(canvas,"postNativePanel"+juce::String(section));require(compact && compact->isVisible(),"POST rack does not show all three native modules together");
             require(compact->getHeight()==64,"POST rack row no longer matches the compact hardware layout");inside(editor,*compact,"Compact POST module exceeds scaled editor bounds");
             auto* compactModel=find<juce::ComboBox>(*compact,spectralforge::postNativeModelID(section));require(compactModel!=nullptr,"Compact POST model selector missing");
-            for(int model=0;model<3;++model) {
+            for(int model=0;model<spectralforge::postNativeModelsPerSection;++model) {
                 compactModel->setSelectedId(model+1,juce::sendNotificationSync);settle();const auto& spec=spectralforge::postNativeModel(section,model);
                 require(compactModel->getText()==spec.name,"POST model list contains a hardware reference");
                 postModelPresentation(*compact,section,model);
-                require((int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load()==model,"POST model did not reach audio state");
+                require(spectralforge::postNativeSelectedModel(processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load(),
+                            processor.parameters().getRawParameterValue(spectralforge::postNativeModelExtensionID(section))->load())==model,"POST model did not reach audio state");
                 std::vector<NativeControlView*> overview;views(*compact,overview);int shown=0;
                 for(auto* view:overview)if(view->isVisible()){++shown;inside(*compact,*view,"Compact POST control is clipped");inside(editor,*view,"Compact POST control exceeds scaled editor bounds");}
                 require(shown>=4 && shown<=5,"POST rows must retain their primary controls");

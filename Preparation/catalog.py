@@ -89,6 +89,12 @@ def build_catalog():
     for key,name,priority in planned_amps:
         models.append(dict(id="planned.amp."+key,name=name,reference=name,category="AMP",location="rig",
                            status="not_implemented",priority=priority,active=key!="engl",controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
+    # 1.7 POST expansion: three new models per BUS COMP / PREAMP / EQUALIZER section.
+    for key,name,category in (("bus.3","Eventide Omnipressor","BUS COMP"),("bus.4","API 2500","BUS COMP"),("bus.5","Neve 33609","BUS COMP"),
+                              ("preamp.3","API 512c","PREAMP"),("preamp.4","Chandler TG2","PREAMP"),("preamp.5","Grace m101","PREAMP"),
+                              ("eq.3","API 550A","EQUALIZER"),("eq.4","Maag EQ4","EQUALIZER"),("eq.5","Chandler Curve Bender","EQUALIZER")):
+        models.append(dict(id="planned.post."+key,name=name,reference=name,category=category,location="post",status="not_implemented",
+                           controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
     def add(key,name,category,controls,source=None,status="documented_labels_unimplemented_dsp"):
         models.append(dict(id="planned."+key,name=name,reference=name,category=category,location="pre",status="not_implemented",
                            controls_status=status,controls=controls,sources=[source] if source else [],audio_in_prototype=False))
