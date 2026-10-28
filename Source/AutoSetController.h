@@ -1,6 +1,8 @@
 #pragma once
 #include "PluginProcessor.h"
 #include "AutoSet.h"
+#include "AutoSetParameterEdits.h"
+#include <memory>
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <functional>
 #include <utility>
@@ -54,6 +56,8 @@ public:
             for(const auto* field:{"bypass","mode","threshold","range","ratio","attack","release","knee","makeup","solo"})touchedIDs.add(multibandID(b,field));
         for(const auto* id:{"gateAfterRig","gateMode","gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
                             "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"})touchedIDs.add(id);
+        for(const auto& id:touchedIDs)if(auto* parameter=processor.parameters().getParameter(id))
+            editTrackers.push_back(std::make_unique<ParameterEdits>(*parameter));
     }
     ~Controller() override {stopTimer();stopListening();}
 
@@ -62,11 +66,13 @@ public:
     const Options& currentOptions() const noexcept {return options;}
     void start() {
         if(busy())return;
+        runOptions=options;
+        inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
         snapshot.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastFinish={};lastMultiband={};manualEditsKept=false;
-        for(const auto& id:touchedIDs)if(auto* parameter=processor.parameters().getParameter(id))snapshot.push_back({parameter,parameter->getValue(),parameter->getValue(),false});
-        passes={Phase::input};if(options.tone)passes.push_back(Phase::tone);passes.push_back(Phase::compressor);
-        if(options.multiband)passes.push_back(Phase::multiband);
-        if(options.finish)passes.push_back(Phase::finish);
+        for(const auto& id:touchedIDs)if(auto* parameter=processor.parameters().getParameter(id))snapshot.push_back(takeSnapshot(*parameter));
+        passes={Phase::input};if(runOptions.tone)passes.push_back(Phase::tone);passes.push_back(Phase::compressor);
+        if(runOptions.multiband)passes.push_back(Phase::multiband);
+        if(runOptions.finish)passes.push_back(Phase::finish);
         beginPass(0,0);
         startTimerHz(20);
     }
@@ -82,8 +88,8 @@ public:
         if(busy() || snapshot.empty())return;
         // Only restore writes owned by this run. A later manual/host edit,
         // including a change to an untouched optional stage, belongs to the user.
-        for(auto& entry:snapshot)if(entry.written && entry.parameter->getValue()==entry.lastWritten)
-            setNormalised(*entry.parameter,entry.before);
+        for(auto& entry:snapshot)if(entry.written && owned(entry))
+            setNormalised(entry,entry.before);
         snapshot.clear();
         publish(Phase::idle,0,"Undid Auto Set; newer edits were kept.",0);
     }
@@ -117,16 +123,27 @@ private:
         if(auto* parameter=processor.parameters().getParameter(id)) {
             const auto entry=std::find_if(snapshot.begin(),snapshot.end(),[&](const auto& e){return e.parameter==parameter;});
             if(entry==snapshot.end())return;
-            // Do not overwrite a manual/automation edit made while listening.
-            if(parameter->getValue()!=(entry->written?entry->lastWritten:entry->before)){manualEditsKept=true;return;}
+            // A value returning to its old position is still an external edit.
+            if(!owned(*entry)){manualEditsKept=true;return;}
             const auto before=parameter->getValue();
-            setNormalised(*parameter,parameter->convertTo0to1(value));
+            if(!setNormalised(*entry,parameter->convertTo0to1(value))){manualEditsKept=true;return;}
             if(parameter->getValue()!=before){entry->lastWritten=parameter->getValue();entry->written=true;}
         }
     }
-    static void setNormalised(juce::RangedAudioParameter& parameter,float normalised) {
-        if(parameter.getValue()==normalised)return;
-        parameter.beginChangeGesture();parameter.setValueNotifyingHost(normalised);parameter.endChangeGesture();
+    struct Snapshot {juce::RangedAudioParameter* parameter;float before,lastWritten;bool written;ParameterEdits* edits;uint32_t revision;};
+    ParameterEdits& editsFor(juce::RangedAudioParameter& parameter) const {
+        const auto it=std::find_if(editTrackers.begin(),editTrackers.end(),[&](const auto& e){return &e->parameter==&parameter;});
+        jassert(it!=editTrackers.end());return **it;
+    }
+    Snapshot takeSnapshot(juce::RangedAudioParameter& parameter) const {
+        auto& edits=editsFor(parameter);const auto revision=edits.revision();const auto value=parameter.getValue();
+        return {&parameter,value,value,false,&edits,revision};
+    }
+    static bool owned(const Snapshot& entry) {
+        return entry.edits->unchanged(entry.revision) && entry.parameter->getValue()==(entry.written?entry.lastWritten:entry.before);
+    }
+    static bool setNormalised(Snapshot& entry,float normalised) {
+        return entry.edits->write(normalised,entry.written?entry.lastWritten:entry.before,entry.revision);
     }
     bool samplePass() const noexcept {return status.phase==Phase::tone || status.phase==Phase::multiband || status.phase==Phase::finish;}
     bool windowPass() const noexcept {return status.phase==Phase::input || status.phase==Phase::compressor || status.phase==Phase::finish;}
@@ -135,7 +152,7 @@ private:
     double rate() const noexcept {return processor.getSampleRate()>0?processor.getSampleRate():48000.;}
     double passLength() const noexcept {return samplePass()?toneSeconds*rate():double(windowsPerPass);}
     std::optional<bool> chosenBass() const noexcept {
-        if(options.instrument!=0)return options.instrument==2;
+        if(runOptions.instrument!=0)return runOptions.instrument==2;
         if(lastTone.playingDetected)return lastTone.bass;
         return std::nullopt;
     }
@@ -150,10 +167,10 @@ private:
         if(status.phase==Phase::tone)capture.listen(Tap::tone);
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
         else if(status.phase==Phase::finish)capture.listen({Tap::deesser,Tap::output});
-        else if(status.phase==Phase::input && options.gates)capture.listen({Tap::input,Tap::rig});
+        else if(status.phase==Phase::input && runOptions.gates)capture.listen({Tap::input,Tap::rig});
         else capture.listen(windowTap());
         // Gate 2 / Expander need the rig's own noise: hold every gate open while the input pass listens.
-        processor.setAutoSetGateBypass(status.phase==Phase::input && options.gates);
+        processor.setAutoSetGateBypass(status.phase==Phase::input && runOptions.gates);
         publish(passes[pass],progress(0),passText(),0);
     }
     void nextPass() {beginPass(pass+1,1);}
@@ -171,9 +188,15 @@ private:
         if(!r.playingDetected){fail("No playing detected. Check the input level and try again.");return;}
         const float inputBefore=raw("input"),gateBefore=raw("gatethreshold");
         set("input",r.inputGainDb);
-        summary="Input "+juce::String(r.inputGainDb,1)+" dB";
-        juce::String result="input "+juce::String(inputBefore,1)+" > "+juce::String(r.inputGainDb,1)+" dB";
-        if(r.pausesDetected) {
+        const float applied=raw("input");
+        summary="Input "+juce::String(applied,1)+" dB";
+        juce::String result="input "+juce::String(inputBefore,1)+" > "+juce::String(applied,1)+" dB";
+        if(!editsFor(*processor.parameters().getParameter("input")).unchanged(inputRevision)) {
+            // The capture can contain multiple gain settings. A single shift
+            // cannot reconstruct its noise/playing percentiles safely.
+            summary+=" | Gate unchanged (input edited while listening)";
+            result+="; gate kept (input edited while listening)";
+        } else if(r.pausesDetected) {
             set("gatethreshold",r.gateThresholdDb);set("gateRangeDb",r.gateRangeDb);set("gateon",1);
             const auto range=r.gateRangeDb>=96.f?juce::String("Full"):juce::String(r.gateRangeDb,0)+" dB";
             summary+=" | Gate "+juce::String(r.gateThresholdDb,0)+" dB, range "+range;
@@ -181,16 +204,22 @@ private:
         } else {summary+=" | Gate unchanged (no pause heard)";result+="; gate kept (no pause heard)";}
         addStep(result,true);
         processor.setAutoSetGateBypass(false);
-        if(options.gates)finishGateStages(measured,r.pausesDetected);
+        if(runOptions.gates)finishGateStages(measured,r.pausesDetected);
         nextPass();
     }
     // Phase 5: Gate 2 and the Expander from the rig noise heard in the input pass.
     void finishGateStages(const std::vector<Window>& measured,bool pauseHeard) {
         const auto addGateStep=[this](const juce::String& result,bool changed){steps.push_back({Phase::gates,result,changed});};
+        // This stage shares the input pass, so its rig/input comparison is
+        // invalid too if the user/host changed gain, even A -> B -> A. Check
+        // again here, after any callbacks from the main gate's writes.
+        if(!editsFor(*processor.parameters().getParameter("input")).unchanged(inputRevision)) {
+            addGateStep("kept (input edited while listening)",false);return;
+        }
         if(!pauseHeard){addGateStep("kept (no pause heard)",false);return;}
         const std::vector<Window> rig(rigWindows.begin()+std::min(rigWindows.size(),size_t(skipWindows)),rigWindows.end());
         const int lag=juce::roundToInt(double(std::max(0,processor.getLatencySamples()))/(rate()*.01));
-        const auto r=analyseGateStages(measured,rig,lag,raw("gatethreshold"),raw("gateAfterRig")>.5f,options.style);
+        const auto r=analyseGateStages(measured,rig,lag,raw("gatethreshold"),raw("gateAfterRig")>.5f,runOptions.style);
         lastGates=r;
         const auto hiss="amp hiss "+juce::String(r.rigNoiseDb,0)+" dBFS";
         if(!r.measured){addGateStep("kept (pause too short to measure the amp's hiss)",false);return;}
@@ -223,7 +252,7 @@ private:
         return bands;
     }
     void finishTone(const std::vector<float>& measured) {
-        const auto r=analyseTone(measured,rate(),chosenBass(),options.style);
+        const auto r=analyseTone(measured,rate(),chosenBass(),runOptions.style);
         lastTone=r;
         if(!r.playingDetected){summary+=" | Tone EQ unchanged (no playing)";addStep("kept (no playing heard)",false);}
         else if(r.activeMoves()==0){summary+=" | Tone EQ unchanged ("+juce::String(r.bass?"bass":"guitar")+" already near target)";addStep("kept ("+juce::String(r.bass?"bass":"guitar")+" already near the target)",false);}
@@ -239,10 +268,10 @@ private:
             }
             for(;next<bands.size();++next)set(eqID(0,bands[next],"enabled"),0);
             set(eqID(0,-1,"bypass"),0);
-            summary+=" | Tone EQ "+juce::String(r.bass?"bass":"guitar")+(options.instrument==0?" (estimate)":"")+": "+juce::String(r.activeMoves())+" moves";
+            summary+=" | Tone EQ "+juce::String(r.bass?"bass":"guitar")+(runOptions.instrument==0?" (estimate)":"")+": "+juce::String(r.activeMoves())+" moves";
             juce::StringArray moves;
             for(const auto& move:r.moves)if(move.gainDb!=0.f)moves.add((move.frequency>=1000.f?juce::String(move.frequency/1000.f,1)+" kHz":juce::String(juce::roundToInt(move.frequency))+" Hz")+" "+(move.gainDb>0?"+":"")+juce::String(move.gainDb,1));
-            addStep(juce::String(r.bass?"bass":"guitar")+(options.instrument==0?" (estimate)":"")+": "+moves.joinIntoString(", "),true);
+            addStep(juce::String(r.bass?"bass":"guitar")+(runOptions.instrument==0?" (estimate)":"")+": "+moves.joinIntoString(", "),true);
         }
         nextPass();
     }
@@ -260,7 +289,7 @@ private:
         if(pass+1<passes.size())nextPass();else complete();
     }
     void finishMultiband(const std::vector<float>& measured) {
-        const auto r=analyseMultiband(measured,rate(),chosenBass(),options.style);
+        const auto r=analyseMultiband(measured,rate(),chosenBass(),runOptions.style);
         lastMultiband=r;
         if(!r.playingDetected){summary+=" | Multiband unchanged (no playing)";addStep("kept (no playing heard)",false);}
         else if(r.activeBands()==0){summary+=" | Multiband unchanged (bands balanced)";addStep("kept (bands already even)",false);}
@@ -285,8 +314,8 @@ private:
     }
     void finishOutput(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows) {
         // Preserve uncertainty: a Tone EQ heuristic is not an explicit choice.
-        const std::optional<bool> instrument=options.instrument==0?std::nullopt:std::optional<bool>(options.instrument==2);
-        const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),instrument,options.style);
+        const std::optional<bool> instrument=runOptions.instrument==0?std::nullopt:std::optional<bool>(runOptions.instrument==2);
+        const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),instrument,runOptions.style);
         lastFinish=r;
         juce::String result;bool changed=false;
         if(!r.playingDetected){summary+=" | De-esser unchanged (no playing)";result="de-esser kept (no playing heard)";}
@@ -309,7 +338,7 @@ private:
     void complete() {
         stopTimer();stopListening();
         publish(Phase::done,1,(manualEditsKept?juce::String("Auto Set suggestions (newer manual/host edits kept; "):juce::String("Applied ("))
-                +juce::String(styleName(options.style))+"): "+summary,1);
+                +juce::String(styleName(runOptions.style))+"): "+summary,1);
     }
     void fail(const juce::String& text) {
         stopTimer();stopListening();
@@ -348,7 +377,7 @@ private:
         const bool playing=s.levelDb>minimumPlayingDb;
         switch(status.phase) {
             case Phase::input: {
-                s.listeningFor=options.gates?"Playing level, the noise between notes and the amp's hiss (gates held open), for input gain, the gates and the Expander"
+                s.listeningFor=runOptions.gates?"Playing level, the noise between notes and the amp's hiss (gates held open), for input gain, the gates and the Expander"
                                             :"Playing level and the noise between notes, for input gain and the gate";
                 std::vector<float> rms;for(const auto& w:windows)rms.push_back(w.rmsDb);
                 const bool heardPlaying=rms.size()>=20 && percentile(rms,.9f)>minimumPlayingDb;
@@ -369,11 +398,11 @@ private:
         }
         if(status.phase!=Phase::input)s.heard=playing?"Playing: heard":"Playing: not yet";
         if(status.phase==Phase::input || status.phase==Phase::tone || status.phase==Phase::multiband)
-            if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(options.instrument==0?" (detected)":"");
+            if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(runOptions.instrument==0?" (detected)":"");
     }
     static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish;}
     bool changedSinceSnapshot() const {
-        for(const auto& entry:snapshot)if(entry.written && entry.parameter->getValue()==entry.lastWritten && entry.lastWritten!=entry.before)return true;
+        for(const auto& entry:snapshot)if(entry.written && owned(entry) && entry.lastWritten!=entry.before)return true;
         return false;
     }
 
@@ -388,10 +417,11 @@ private:
     juce::StringArray touchedIDs;
     Status status;
     std::vector<Phase> passes{Phase::input,Phase::compressor};size_t pass{};
-    Options options;
-    struct Snapshot {juce::RangedAudioParameter* parameter;float before,lastWritten;bool written;};
+    Options options,runOptions;
+    std::vector<std::unique_ptr<ParameterEdits>> editTrackers;
     std::vector<Snapshot> snapshot;
     bool manualEditsKept{};
+    uint32_t inputRevision{};
     std::vector<Window> windows,rigWindows;std::vector<float> samples;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
     juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;FinishResult lastFinish;MultibandResult lastMultiband;
