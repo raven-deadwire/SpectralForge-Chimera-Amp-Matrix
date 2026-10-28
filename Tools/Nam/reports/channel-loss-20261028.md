@@ -23,7 +23,7 @@ Ragnarok peak weight 1.5, and `--keep-passed`.
 
 - **Matching the loss to full ESR does not move it.** Three channels found no
   step better than their start, and the two that did improved by 0.4% and 4%
-  on validation. Mean test full ESR moves from 0.0175 to 0.0174. The gap to
+  on validation. Mean test full ESR moves from 0.0175 to 0.0173. The gap to
   the 0.01 limit is not a loss-weighting problem.
 - **Fimbulvetr's gain does not hold on test.** Its validation ESR fell 4%, but
   test ESR is unchanged and its test peak rose to +1.07 dB, outside ±1 dB,
