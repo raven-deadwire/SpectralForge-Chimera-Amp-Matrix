@@ -13,6 +13,7 @@
 #include "WindowFit.h"
 #include "StandaloneDiagnostics.h"
 #include "StandaloneAudioDevices.h"
+#include "StandaloneInput.h"
 #include "PluginEditor.h"
 
 namespace spectralforge {
@@ -90,12 +91,22 @@ public:
     void anotherInstanceStarted(const juce::String&) override {}
     void initialise(const juce::String&) override {
         standalone::audioDeviceDiagnostics=&spectralforge::audioDeviceDiagnostics;
-        if(!juce::Desktop::getInstance().getDisplays().displays.isEmpty())
+        standalone::inputMute=&inputMute;
+        if(!juce::Desktop::getInstance().getDisplays().displays.isEmpty()) {
+            // The window shows JUCE's "input is muted" bar only if this flag is
+            // set while it builds its content; the editors show InputGuide
+            // instead. Restore it so Audio/MIDI Settings keeps its
+            // "Mute audio input" switch.
+            auto holder=createPluginHolder();
+            const bool feedbackLoop=holder->processorHasPotentialFeedbackLoop;
+            holder->processorHasPotentialFeedbackLoop=false;
             mainWindow=std::make_unique<ChimeraStandaloneWindow>(getApplicationName(),
-                juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),createPluginHolder());
+                juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),std::move(holder));
+            mainWindow->pluginHolder->processorHasPotentialFeedbackLoop=feedbackLoop;
+        }
         if(mainWindow)mainWindow->setVisible(true);else pluginHolder=createPluginHolder();
     }
-    void shutdown() override {standalone::audioDeviceDiagnostics=nullptr;pluginHolder=nullptr;mainWindow=nullptr;appProperties.saveIfNeeded();}
+    void shutdown() override {standalone::audioDeviceDiagnostics=nullptr;standalone::inputMute=nullptr;pluginHolder=nullptr;mainWindow=nullptr;appProperties.saveIfNeeded();}
     void systemRequestedQuit() override {
         if(pluginHolder)pluginHolder->savePluginState();
         if(mainWindow)mainWindow->pluginHolder->savePluginState();
@@ -117,7 +128,13 @@ private:
        #endif
         return holder;
     }
+    static juce::StandalonePluginHolder* activeHolder() {return juce::StandalonePluginHolder::getInstance();}
     juce::ApplicationProperties appProperties;
+    // Only a holder that can feed back starts muted; otherwise there is nothing to explain.
+    standalone::InputMute inputMute{
+        []{auto* h=activeHolder();return h!=nullptr && h->processorHasPotentialFeedbackLoop && (bool)h->getMuteInputValue().getValue();},
+        []{if(auto* h=activeHolder())h->getMuteInputValue().setValue(false);},
+        []{if(auto* h=activeHolder())h->showAudioSettingsDialog();}};
     std::unique_ptr<ChimeraStandaloneWindow> mainWindow;
     std::unique_ptr<juce::StandalonePluginHolder> pluginHolder;
 };
