@@ -111,6 +111,7 @@ juce::Font ChimeraLookAndFeel::getComboBoxFont(juce::ComboBox&) { return juce::F
 void ChimeraLookAndFeel::drawButtonBackground(juce::Graphics& g,juce::Button& button,const juce::Colour&,bool hover,bool down)
 {
     auto area=button.getLocalBounds().toFloat().reduced(.5f);
+    if((bool)button.getProperties()["readout"]) {if(button.hasKeyboardFocus(true)){g.setColour(accent);g.drawRoundedRectangle(area,2.f,1.f);}return;}
     if((bool)button.getProperties()["pedalPower"]) {
         auto colour=button.findColour(button.getToggleState()?juce::TextButton::buttonOnColourId:juce::TextButton::buttonColourId);
         if(!button.isEnabled())colour=colour.withMultipliedAlpha(.45f);else if(hover || down)colour=colour.brighter(.10f);
@@ -211,6 +212,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         setViewSize(size,factor);};
     add(outputLoudness);outputLoudness.setComponentID("outputLoudness");
     outputLoudness.setColour(juce::TextButton::buttonColourId,juce::Colours::transparentBlack);
+    outputLoudness.getProperties().set("readout",true);outputLoudness.setButtonText("I --.- LUFS  TP --.- dBTP");
     outputLoudness.onClick=[this]{processor.resetOutputLoudness();};
     add(info); info.setButtonText("SETTINGS"); info.onClick=[this]{
         juce::PopupMenu menu;
@@ -1118,6 +1120,8 @@ void ChimeraLookAndFeel::drawButtonText(juce::Graphics& g,juce::TextButton& butt
 {
     if((bool)button.getProperties()["footswitch"]) {g.setColour(background.withAlpha(.8f));g.fillRoundedRectangle(button.getWidth()*.5f-19,float(button.getHeight()-13),38,13,2);g.setFont(juce::FontOptions(9.f));g.setColour(ink);g.drawText(button.getButtonText(),0,button.getHeight()-13,button.getWidth(),13,juce::Justification::centred);return;}
     if((bool)button.getProperties()["utilityDock"]){g.setColour(button.getToggleState()||(bool)button.getProperties()["utilityActive"]?background:ink);g.setFont(getTextButtonFont(button,button.getHeight()));g.drawFittedText(button.getButtonText(),button.getLocalBounds().reduced(5),juce::Justification::centred,1);return;}
+    // Output loudness readout: plain caption text, like the dBFS line above it.
+    if((bool)button.getProperties()["readout"]){g.setFont(juce::FontOptions(9.5f));g.setColour(hover?ink:muted);g.drawFittedText(button.getButtonText(),button.getLocalBounds().withTrimmedLeft(2),juce::Justification::centredLeft,1,1.f);return;}
     juce::LookAndFeel_V4::drawButtonText(g,button,hover,down);
 }
 
