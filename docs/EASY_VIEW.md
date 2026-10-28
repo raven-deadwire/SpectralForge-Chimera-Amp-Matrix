@@ -55,6 +55,16 @@ Easy view uses the full editor's preset loading. When you change a preset's
 sound, the menu shows the preset name followed by *(edited)*. Using the tuner
 does not count as an edit.
 
+## Guitar input in the standalone app
+
+The standalone app starts with its audio input muted, so a laptop's speakers
+cannot howl through its microphone. While the input is muted, Easy view (at
+the top) and the full editor (over the logo) say so and offer two buttons:
+**AUDIO SETTINGS** to choose the interface, and **INPUT ON** to unmute. Use
+headphones before pressing INPUT ON. The guide disappears once the input is
+on; "Mute audio input" in AUDIO SETTINGS turns it back off. Plug-ins never
+show this guide.
+
 ## What it does not change
 
 - No host parameter was added. Every Easy knob is the same parameter as the

@@ -1065,7 +1065,7 @@ void ChimeraEditor::layoutControls()
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
     midi.setBounds(182,748,66,28);tap.setBounds(256,748,56,28);tempo.setBounds(320,748,132,28);hostTempo.setBounds(460,748,112,28);metronome.setBounds(580,748,126,28);
     easyOpen.setBounds(714,748,86,28);
-    inputGuide.setBounds(16,6,456,56);
+    inputGuide.setBounds(16,2,456,60);
     for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
