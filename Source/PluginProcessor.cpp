@@ -8,6 +8,7 @@
 #include "ReleaseInfo.h"
 #include "BetaLifecycleDisplay.h"
 #include "StandaloneDiagnostics.h"
+#include "../Shared/ChimeraCapturePolicy.h"
 
 namespace {
 std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
@@ -18,6 +19,19 @@ std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
     if(model==21)return {1,0};
     return {model>=spectralforge::legacyAmpModelCount?juce::jlimit(0,(int)panel.channels.size()-1,channel):panel.defaultChannel,0};
 }
+}
+
+void ChimeraProcessor::setIHostApplication(Steinberg::FUnknown* host)
+{
+    // Queried during VST3 controller connection, before the OBS bridge can
+    // prepare/process. Never infer capture state from a host name or playhead.
+    void* policy=nullptr;
+    if(host && host->queryInterface(spectralforge::chimeraCapturePolicyId,&policy)==Steinberg::kResultOk && policy) {
+        auto* capture=static_cast<spectralforge::IChimeraCapturePolicy*>(policy);
+        levelMatch.lockCaptureSafe();
+        capture->acknowledgeCapturePolicy();
+        capture->release();
+    }
 }
 
 ChimeraProcessor::ChimeraProcessor()
@@ -299,17 +313,20 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // below; switching is allocation-free and re-reports latency via line ~231.
     preFX.transpose.setMode(transposeQualityMode.load());
     const int preLatency=audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
-    postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
+    // Auto Set holds every gate open while it measures the noise the rig adds.
+    const bool gatesAllowed=!autoSetGateBypass.load(std::memory_order_relaxed);
+    const bool gateEnabled=gatesAllowed && value(gateOn)>.5f;
+    postRigGate.detect(buffer,gateEnabled,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     // Gate 2 and the Expander detect on the same clean input. Pre-rig units
     // apply here, ahead of the main gate: Expander > Gate 2 > Gate.
-    expander.detect(buffer,preLatency+engine.latency());gate2.detect(buffer,preLatency+engine.latency());
+    expander.detect(buffer,preLatency+engine.latency(),gatesAllowed);gate2.detect(buffer,preLatency+engine.latency(),gatesAllowed);
     if(!expander.afterRig())expander.apply(buffer);
     if(!gate2.afterRig())gate2.apply(buffer);
     if(audioBoard.enabled) {
-        preFX.gate.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),gateRange);
+        preFX.gate.process(buffer,!gateAtOutput && gateEnabled,value(threshold),value(release),value(hold),gateRange);
         preFX.transpose.process(buffer,pitching,(int)value(semitones));
         pedalBoard.process(buffer,audioBoard);
-    } else preFX.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx,gateRange);
+    } else preFX.process(buffer,!gateAtOutput && gateEnabled,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx,gateRange);
     boardReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : 0.f);
     preReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : preFX.compressor.reduction());
     measureStage(1,buffer);
@@ -341,6 +358,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
+    autoSetCaptureState.push(spectralforge::autoset::Tap::rig,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer);}
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     // Post-rig order mirrors the pre-rig one: Gate > Gate 2 > Expander.

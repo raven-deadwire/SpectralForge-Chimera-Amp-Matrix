@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "ABLevelMatch.h"
+#include "../Shared/ChimeraCapturePolicy.h"
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -221,8 +222,15 @@ void ramps() {
         m.prepare(sr,channels);m.setEnabled(true);
         feed(0,.01f,int(2*sr));feed(1,1.f,int(2*sr));
         require(std::abs(m.appliedDb()+24.f)<.001f,"24 dB cap changed with rate, block size or channel");
+        m.setCaptureSafe(true);m.setEnabled(true);
+        juce::AudioBuffer<float> protectedBlock(channels,size);
+        for(int c=0;c<channels;++c)for(int i=0;i<size;++i)protectedBlock.setSample(c,i,(i&1)?-.123f:.234f);
+        juce::AudioBuffer<float> original;original.makeCopyOf(protectedBlock);
+        m.protectOutput(false);m.process(protectedBlock,1);
+        for(int c=0;c<channels;++c)require(std::memcmp(protectedBlock.getReadPointer(c),original.getReadPointer(c),size*sizeof(float))==0,"Capture safety left attenuated samples after the 24 dB cut");
+        require(!m.enabled() && m.appliedDb()==0,"Capture safety failed to clear the maximum cut");
     }
-    std::cout<<"PASS ramps: ON/OFF/A/B sample ramps at 44.1/48/96 kHz, 1/64/257/1024 samples, mono/stereo\n";
+    std::cout<<"PASS ramps/capture: ON/OFF/A/B ramps and first protected block at 44.1/48/96 kHz, 1/64/257/1024 samples, mono/stereo\n";
 }
 
 struct RecordingPlayHead : juce::AudioPlayHead {
@@ -232,6 +240,67 @@ struct RecordingPlayHead : juce::AudioPlayHead {
         PositionInfo p;p.setIsPlaying(recording);p.setIsRecording(recording);return p;
     }
 };
+
+// Exercise the production VST3 extension without inventing transport flags.
+struct CapturePolicyHost : spectralforge::IChimeraCapturePolicy {
+    int refs=1;bool acknowledged=false,supported=true;
+    Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID id,void** object) override {
+        *object=nullptr;
+        if(supported && Steinberg::FUnknownPrivate::iidEqual(id,spectralforge::chimeraCapturePolicyId)) {
+            *object=static_cast<spectralforge::IChimeraCapturePolicy*>(this);addRef();return Steinberg::kResultOk;
+        }
+        return Steinberg::kNoInterface;
+    }
+    Steinberg::uint32 PLUGIN_API addRef() override {return ++refs;}
+    Steinberg::uint32 PLUGIN_API release() override {return --refs;}
+    Steinberg::tresult PLUGIN_API acknowledgeCapturePolicy() override {acknowledged=true;return Steinberg::kResultOk;}
+};
+
+void captureSafety(bool hostLock) {
+    auto matched=std::make_unique<ChimeraProcessor>(),plain=std::make_unique<ChimeraProcessor>();
+    CapturePolicyHost host;
+    host.supported=false;
+    matched->getVST3ClientExtensions()->setIHostApplication(&host);
+    require(!matched->abLevelMatch().captureSafe() && !host.acknowledged,"Ordinary host was mistaken for a capture host");
+    for(auto* p:{matched.get(),plain.get()}) {
+        p->loadFactoryPreset(0);p->prepareToPlay(rate,block);
+        set(*p,"output",-7);Sine s{110};render(*p,2,s);
+        p->selectComparison(1);set(*p,"output",-1);render(*p,2,s);
+    }
+    Sine left{110},right{110};auto& match=matched->abLevelMatch();
+    match.setEnabled(true);render(*matched,.2,left);render(*plain,.2,right);
+    // Deliberately no playhead and realtime processing: unreported captures
+    // really do print the cut until an explicit safety policy is installed.
+    require(match.appliedDb()<-4 && !match.outputProtected(),"Unreported capture test did not expose the actual risk");
+    if(hostLock) {
+        host.supported=true;matched->getVST3ClientExtensions()->setIHostApplication(&host);
+        require(host.acknowledged && host.refs==1 && match.captureLocked(),"VST3 capture policy was not locked/acknowledged/released");
+        matched->getVST3ClientExtensions()->setIHostApplication(nullptr);
+        match.setCaptureSafe(false); // UI cannot unlock an OBS instance
+    } else match.setCaptureSafe(true);
+    require(match.outputProtected() && !match.enabled(),"Capture protection was not visible before the callback");
+    const auto before=match.loudness(1);
+    match.setEnabled(true);
+    std::vector<float> x,y;render(*matched,.1,left,&x);render(*plain,.1,right,&y);
+    require(x.size()==y.size() && std::memcmp(x.data(),y.data(),x.size()*sizeof(float))==0,"Capture lock printed a cut in the first block");
+    require(!match.enabled() && match.appliedDb()==0 && match.loudness(1)==before,"Capture lock allowed rearm or changed measurements");
+    juce::MemoryBlock saved;matched->getStateInformation(saved);
+    matched->setStateInformation(saved.getData(),int(saved.getSize()));matched->prepareToPlay(rate,block);
+    require(match.captureSafe(),"Restore/reprepare removed capture safety");
+    matched->selectComparison(0);matched->copyComparison();matched->selectComparison(1);
+    require(matched->comparisonSlot()==1,"Capture safety disabled A/B selection");
+    match.setEnabled(true);juce::AudioBuffer<float> b(2,block);b.clear();juce::MidiBuffer midi;
+    matched->processBlockBypassed(b,midi);
+    require(!match.enabled() && match.outputProtected(),"Bypass released capture protection");
+    if(!hostLock) {
+        match.setCaptureSafe(false);render(*matched,.1,left);
+        require(!match.enabled() && !match.outputProtected(),"Unlock automatically resumed MATCH");
+        match.setEnabled(true);require(match.enabled(),"Explicit comparison could not resume after manual unlock");
+    }
+    std::cout<<"PASS "<<(hostLock?"OBS policy":"manual capture safety")<<": first-block byte identity, rearm blocked, recall/prepare/bypass, A/B/COPY retained\n";
+}
+void manualCaptureSafety(){captureSafety(false);}
+void obsCaptureSafety(){captureSafety(true);}
 
 void recallSafety() {
     auto p=std::make_unique<ChimeraProcessor>();p->loadFactoryPreset(0);p->prepareToPlay(rate,block);Sine sine{110};
@@ -374,7 +443,7 @@ int main(int argc,char** argv)
         try {uiSafety();return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
     }
     int failures=0;
-    for(const auto test:{meter,match,processor,reprepare,ramps,edgeCases,recallSafety,restoreSafety,offlineSafety,recordingSafety,bypassSafety})
+    for(const auto test:{meter,match,processor,reprepare,ramps,edgeCases,recallSafety,restoreSafety,offlineSafety,recordingSafety,bypassSafety,manualCaptureSafety,obsCaptureSafety})
         try {test();}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';++failures;}
     return failures==0?0:1;
 }

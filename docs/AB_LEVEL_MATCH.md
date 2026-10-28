@@ -5,7 +5,10 @@ louder sound down to the quieter one for a level-matched tone comparison.
 
 **MATCH changes the plugin's output. It is not a separate monitor bus.**
 Turn it off before recording, exporting, freezing, resampling or capturing OBS
-output. Its first enable in each editor session displays this warning.
+output. Its first enable in each editor session displays this warning. For
+unreported capture, use **SETTINGS > Capture safety: lock MATCH off** before
+starting. This session lock survives project restore and audio-device restart,
+but is not saved into a project or preset; a new instance starts with MATCH off.
 
 ## Use and output protection
 
@@ -29,8 +32,36 @@ while protected so an offline render cannot contaminate the comparison.
 This protection depends on host information. A realtime bounce may look like
 ordinary playback, and some hosts do not report recording. OBS capture and
 external loopback recording are not visible to the plugin. **Those paths
-cannot be automatically protected: turn MATCH off manually.** Stopping or
+cannot be detected automatically: engage Capture safety manually before
+capture, or turn MATCH off and wait for its release to finish.** Stopping or
 restarting the audio device is also a new comparison session and turns it off.
+
+## Chimera OBS add-on
+
+The updated add-on **locks MATCH off for the entire hosted instance lifetime**,
+including idle/preview, streaming, recording, pause and replay buffer use.
+A/B selection and COPY remain available. There is no matched monitor bus.
+
+The host requests the versioned `IChimeraCapturePolicy` VST3 interface during
+initialization. Chimera installs its lifetime lock before acknowledging it;
+the add-on refuses to load a plugin that does not acknowledge. Update the
+VST3 and add-on together. With an unsupported VST3 the existing filter failure
+policy applies (mute by default, dry only when explicitly selected), and the
+load error explains the required update. The policy does not spoof recording
+or non-realtime processing and is never saved in scene/plugin state.
+
+An **older add-on**, third-party host, or desktop/loopback capture cannot supply
+this handshake. Do not assume that installing only the new VST3 protects those
+paths. Use the manual Capture safety lock there. `SAFE` means that comparison
+gain is blocked, **not that recording has been detected** and not a guarantee
+against clipping, other gain controls, routing errors or dropouts.
+
+Manual Capture safety takes effect no later than the next plugin callback;
+allow downstream host/device queues to drain before starting capture. It does
+not undo samples already sent downstream. Unlocking never re-enables MATCH.
+Like the host recording guard, it removes an existing cut immediately rather
+than printing a release ramp; engaging it during audible playback can step up
+by as much as 24 dB. Set it before a take/on-air session and check the level.
 
 ## Measurement and state lifecycle
 
@@ -55,6 +86,7 @@ restarting the audio device is also a new comparison session and turns it off.
 | Project/reference restore, including into an existing instance | Both invalidated; pending old COPY discarded | Off; old attenuation removed before the next output block |
 | `prepareToPlay`, same or different sample rate/channel layout | Both immediately cleared; pending commands discarded | Off and unity gain |
 | Switch to Easy view / close editor | Retained | Off, with normal 50 ms release; no hidden enabled comparison |
+| Manual Capture safety / OBS lifetime lock | Paused | Unity on the next callback; rearming blocked; lock survives prepare/restore |
 | Host-reported recording / non-realtime render | Paused; existing readings retained | Off and unity from first reported callback; no automatic resume |
 
 With MATCH settled off, with no cut required, or during print protection,
@@ -72,6 +104,8 @@ parameter IDs, A/B snapshots or saved project schemas are changed.
   sample blocks, mono/stereo;
 - device reprepare, preset replacement, A/B/COPY, project restore without
   another prepare call, and output identity with MATCH off;
+- explicit capture policy, acknowledgement/refcount balance, unsupported host,
+  session/lifetime locks and 24-condition first-block identity after a 24 dB cut;
 - simulated host recording/non-realtime flags: bit-exact output from the
   first protected sample, blocked rearming, and no automatic re-enable.
 

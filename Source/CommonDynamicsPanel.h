@@ -30,7 +30,7 @@ public:
         toggle(compOn,"COMPRESSOR ON","cleanCompOn");toggle(gateOn,"GATE ON","gateon",true);
         addChildComponent(autoSet);addChildComponent(autoOptions);addChildComponent(autoUndo);
         autoSet.setComponentID("commonDynamics.autoSet");autoOptions.setComponentID("commonDynamics.autoOptions");autoUndo.setComponentID("commonDynamics.autoUndo");autoUndo.setEnabled(false);
-        autoSet.setTooltip("Listen to about 30 seconds of playing and set input gain, the gate, the Tone EQ, the clean compressor, the multiband, the de-esser and the limiter. Include a short pause so the gate can hear the noise floor.");
+        autoSet.setTooltip("Listen to about 30 seconds of playing and set input gain, the gates and the Expander, the Tone EQ, the clean compressor, the multiband, the de-esser and the limiter. Include a short pause so the gate can hear the noise floor.");
         autoOptions.setTooltip("Auto Set options: instrument (detected, guitar or bass), style (rock, clean or metal) and which steps run.");
         autoUndo.setTooltip("Restore every setting Auto Set changed in its last run.");
         autoOptions.onClick=[this]{showAutoOptions();};updateAutoOptionsText();
@@ -148,14 +148,14 @@ public:
     std::function<void()> onDynamicEQRequested;
     std::function<void()> onAutoSet,onAutoCancel,onAutoUndo;
     // Presentation of the Auto Set options; the editor maps them to the controller.
-    struct AutoSetOptions {int instrument{0};bool tone{true};int style{0};bool finish{true};bool multiband{true};}; // instrument 0 detect/1 guitar/2 bass; style 0 rock/1 clean/2 metal
+    struct AutoSetOptions {int instrument{0};bool tone{true};int style{0};bool finish{true};bool multiband{true};bool gates{true};}; // instrument 0 detect/1 guitar/2 bass; style 0 rock/1 clean/2 metal
     std::function<void(const AutoSetOptions&)> onAutoOptionsChanged;
     void setAutoSetOptions(const AutoSetOptions& chosen){autoOptionsValue=chosen;updateAutoOptionsText();}
     const AutoSetOptions& autoSetOptions() const noexcept {return autoOptionsValue;}
-    // Menu ids: 1-3 instrument, 11-13 style, 21 Tone EQ, 22 de-esser + limiter, 23 multiband step.
+    // Menu ids: 1-3 instrument, 11-13 style, 21 Tone EQ, 22 de-esser + limiter, 23 multiband, 24 Gate 2 + Expander step.
     void chooseAutoOption(int id) {
         auto& o=autoOptionsValue;
-        if(id>=1 && id<=3)o.instrument=id-1;else if(id>=11 && id<=13)o.style=id-11;else if(id==21)o.tone=!o.tone;else if(id==22)o.finish=!o.finish;else if(id==23)o.multiband=!o.multiband;else return;
+        if(id>=1 && id<=3)o.instrument=id-1;else if(id>=11 && id<=13)o.style=id-11;else if(id==21)o.tone=!o.tone;else if(id==22)o.finish=!o.finish;else if(id==23)o.multiband=!o.multiband;else if(id==24)o.gates=!o.gates;else return;
         updateAutoOptionsText();if(onAutoOptionsChanged)onAutoOptionsChanged(o);
     }
     // Presentation only: the controller owns the measurement and parameter writes.
@@ -369,7 +369,7 @@ private:
         menu.addSectionHeader("Style");
         menu.addItem(11,"Rock",true,o.style==0);menu.addItem(12,"Clean",true,o.style==1);menu.addItem(13,"Metal",true,o.style==2);
         menu.addSectionHeader("Steps");
-        menu.addItem(21,"Tone EQ",true,o.tone);menu.addItem(23,"Multiband",true,o.multiband);menu.addItem(22,"De-esser and limiter",true,o.finish);
+        menu.addItem(24,"Gate 2 and Expander",true,o.gates);menu.addItem(21,"Tone EQ",true,o.tone);menu.addItem(23,"Multiband",true,o.multiband);menu.addItem(22,"De-esser and limiter",true,o.finish);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&autoOptions),[safe=juce::Component::SafePointer<CommonDynamicsPanel>(this)](int id){if(safe!=nullptr)safe->chooseAutoOption(id);});
     }
     bool autoPage() const noexcept {return page==Page::compressor || page==Page::gate;}

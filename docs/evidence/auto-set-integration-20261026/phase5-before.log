@@ -1,0 +1,15 @@
+Test project /workspace/scratch/1ae3efa460ca/chimera-review/build-autoset
+    Start 57: ChimeraAutoSetTests
+1/1 Test #57: ChimeraAutoSetTests ..............***Failed    0.44 sec
+PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations
+PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo
+FAIL: Gate stages used mixed-gain evidence after input A-B-A
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.45 sec
+
+The following tests FAILED:
+	 57 - ChimeraAutoSetTests (Failed)
+Errors while running CTest

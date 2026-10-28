@@ -27,10 +27,12 @@
 #include "AAXIdentity.h"
 #include "HostBypass.h"
 
-class ChimeraProcessor : public juce::AudioProcessor {
+class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
     ChimeraProcessor();
     ~ChimeraProcessor() override;
+    juce::VST3ClientExtensions* getVST3ClientExtensions() override { return this; }
+    void setIHostApplication(Steinberg::FUnknown*) override;
 #if CHIMERA_ROUTING_DIAGNOSTICS
     std::atomic<int> routingGateObserved{-1};
     std::atomic<uint64_t> routingBlocks{0};
@@ -128,6 +130,8 @@ public:
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
     spectralforge::autoset::Capture& autoSetCapture() noexcept {return autoSetCaptureState;}
+    // Message thread: Auto Set holds all gates open while it listens to the rig's noise.
+    void setAutoSetGateBypass(bool bypass) noexcept {autoSetGateBypass.store(bypass,std::memory_order_relaxed);}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}
     float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
@@ -237,6 +241,7 @@ private:
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
+    std::atomic<bool> autoSetGateBypass{false};
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     spectralforge::ABLevelMatch levelMatch;

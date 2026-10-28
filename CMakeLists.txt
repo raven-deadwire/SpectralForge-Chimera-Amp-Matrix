@@ -41,6 +41,7 @@ include(Assets/Artwork/HeadShells/HeadShellArtwork.cmake)
 juce_add_binary_data(ChimeraArtwork HEADER_NAME ChimeraArtworkData.h NAMESPACE ChimeraArtworkData SOURCES ${CHIMERA_ARTWORK})
 juce_add_binary_data(ChimeraManual HEADER_NAME ChimeraManualData.h NAMESPACE ChimeraManualData SOURCES docs/MANUAL.html)
 target_include_directories(ChimeraAmpMatrix PUBLIC Source)
+target_include_directories(ChimeraAmpMatrix SYSTEM PRIVATE "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
 execute_process(COMMAND git rev-parse HEAD WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
   OUTPUT_VARIABLE CHIMERA_SOURCE_SHA OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
 if(CHIMERA_SOURCE_SHA)
@@ -473,11 +474,18 @@ add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTest
 juce_add_console_app(ChimeraABLevelMatchTests PRODUCT_NAME "Chimera AB Level Match Tests")
 target_sources(ChimeraABLevelMatchTests PRIVATE Tests/ABLevelMatchTests.cpp)
 target_include_directories(ChimeraABLevelMatchTests PRIVATE Source)
+target_include_directories(ChimeraABLevelMatchTests SYSTEM PRIVATE "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
 target_link_libraries(ChimeraABLevelMatchTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraABLevelMatchTests COMMAND ChimeraABLevelMatchTests)
 add_test(NAME ChimeraABLevelMatchUITests COMMAND ChimeraABLevelMatchTests --ui)
 set_tests_properties(ChimeraABLevelMatchTests PROPERTIES TIMEOUT 180)
 set_tests_properties(ChimeraABLevelMatchUITests PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
+# Preset, A/B and project recall must render the same audio, not only restore settings.
+juce_add_console_app(ChimeraStateRecallAudioTests PRODUCT_NAME "Chimera State Recall Audio Tests")
+target_sources(ChimeraStateRecallAudioTests PRIVATE Tests/StateRecallAudioTests.cpp)
+target_include_directories(ChimeraStateRecallAudioTests PRIVATE Source)
+target_link_libraries(ChimeraStateRecallAudioTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraStateRecallAudioTests COMMAND ChimeraStateRecallAudioTests)
 
 # Doubler mono-sum probe: comb response of L, R and the mono sum per spread.
 juce_add_console_app(ChimeraDoublerMonoProbe PRODUCT_NAME "Chimera Doubler Mono Probe")

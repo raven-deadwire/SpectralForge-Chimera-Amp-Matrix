@@ -18,8 +18,15 @@ public:
     static constexpr double gateLufs=-60,maximumCutDb=24;
 
     // Message thread.
-    void setEnabled(bool on) noexcept {enabledFlag.store(on && !protectedFlag.load());}
-    bool enabled() const noexcept {return enabledFlag.load();}
+    void setEnabled(bool on) noexcept {enabledFlag.store(on && !outputProtected());}
+    bool enabled() const noexcept {return enabledFlag.load() && !outputProtected();}
+    // Message thread. Explicit protection for unreported captures; never saved.
+    // It survives prepare/restore. The OBS host can additionally lock it for
+    // this instance's lifetime, so UI actions cannot release broadcast safety.
+    void setCaptureSafe(bool on) noexcept {captureSafeFlag.store(on);if(on)setEnabled(false);}
+    void lockCaptureSafe() noexcept {captureLock.store(true);setEnabled(false);}
+    bool captureSafe() const noexcept {return captureLock.load() || captureSafeFlag.load();}
+    bool captureLocked() const noexcept {return captureLock.load();}
     // Forget both slots (a new project or reference was loaded).
     void forget() noexcept {setEnabled(false);copyRequested.store(-1);forgetRequested.store(true);}
     // A factory preset replaced only this slot. Keep the comparison reference.
@@ -32,11 +39,12 @@ public:
     float appliedDb() const noexcept {return applied.load();}
     // Measured loudness of a slot in LUFS, or NaN until it has been heard long enough.
     float loudness(int slot) const noexcept {return slots[size_t(slot&1)].lufs.load();}
-    bool outputProtected() const noexcept {return protectedFlag.load();}
+    bool outputProtected() const noexcept {return protectedFlag.load() || captureSafe();}
 
     // Audio thread, once per host callback (including host bypass). Never ramp
     // out here: even a release ramp would attenuate the beginning of a print.
     void protectOutput(bool printing) noexcept {
+        printing=printing || captureSafe();
         if(protectedFlag.exchange(printing)!=printing)restartMeasurement();
         if(printing){enabledFlag.store(false);resetGain();}
     }
@@ -69,7 +77,7 @@ public:
         }
         const bool switchedSinceLastBlock=switchRequested.exchange(false);
         if(slot!=lastSlot || switchedSinceLastBlock){lastSlot=slot;restartMeasurement();}
-        if(protectedFlag.load()){enabledFlag.store(false);resetGain();return;}
+        if(outputProtected()){enabledFlag.store(false);resetGain();return;}
         const int n=buffer.getNumSamples(),channels=juce::jmin(buffer.getNumChannels(),int(state.size()));
         if(n<=0)return;
         measure(buffer,channels,n,slots[size_t(slot)]);
@@ -135,6 +143,7 @@ private:
     std::array<Slot,2> slots;
     juce::SmoothedValue<float> gain;
     std::atomic<bool> enabledFlag{false},protectedFlag{false},forgetRequested{false},switchRequested{false};
+    std::atomic<bool> captureSafeFlag{false},captureLock{false};
     std::atomic<unsigned> invalidRequested{0};std::atomic<int> copyRequested{-1};
     std::atomic<float> applied{0};
 };

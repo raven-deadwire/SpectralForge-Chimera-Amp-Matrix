@@ -219,8 +219,12 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         menu.addItem(6,"Beta / Updates / Manual / Bug report...");menu.addItem(7,"Review / copy / save diagnostics...");menu.addSeparator();menu.addItem(1,"Save reference...");menu.addItem(2,"Load reference...");menu.addSeparator();menu.addItem(3,"About / IR credits");menu.addSeparator();menu.addItem(4,"Reset tuner A4 to 440 Hz");menu.addItem(5,"Clear MIDI assignments");
         menu.addSeparator();menu.addItem(8,processor.testerCodeHolder().isEmpty() ? juce::String("Enter beta tester code...")
                                                                               : "Beta tester code: "+processor.testerCodeHolder()+" (no expiry)...");
+        menu.addSeparator();
+        const auto& match=processor.abLevelMatch();
+        menu.addItem(9,match.captureLocked() ? "Capture safety: MATCH locked off by OBS" : "Capture safety: lock MATCH off",
+                     !match.captureLocked(),match.captureSafe());
         const juce::Component::SafePointer<ChimeraEditor> safe(this);
-        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==8)safe->showTesterCode();else if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==9){auto& match=safe->processor.abLevelMatch();match.setCaptureSafe(!match.captureSafe());safe->timerCallback();}else if(result==8)safe->showTesterCode();else if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
     info.setTooltip(processor.betaNotice());
     for(auto* button:{&compareA,&compareB,&copyAB,&matchAB,&irLibraryButton}) add(*button);
@@ -235,13 +239,13 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             .withIconType(juce::MessageBoxIconType::WarningIcon)
             .withTitle("MATCH changes the output")
             .withMessage("MATCH lowers the louder A/B sound at the plugin output. Turn it off before recording, exporting, freezing or OBS capture. "
-                         "Host-reported recording and offline rendering switch it off automatically. Realtime exports and unreported recording cannot be detected.")
+                         "Host-reported recording and offline rendering switch it off automatically. Realtime exports and unreported recording cannot be detected. Use SETTINGS > Capture safety to lock MATCH off for external capture.")
             .withButton("Enable MATCH").withButton("Cancel").withAssociatedComponent(this),
             [safe](int result){if(safe && result==1){safe->matchWarningAcknowledged=true;safe->processor.abLevelMatch().setEnabled(true);safe->timerCallback();}});
     };
     matchAB.setTooltip("Level-match A/B: while you play, measure both sounds and turn the louder one down to the quieter one, so you compare tone, not volume. "
                        "Changes plugin output; not a separate monitor bus. Turn off before printing (50 ms release). Host-reported recording/offline render disarms it immediately; "
-                       "realtime export, OBS capture and unreported recording cannot be detected. Not saved; off after project load or audio-device restart. SAFE means host print protection is active.");
+                       "External OBS capture and realtime exports cannot be detected. SETTINGS > Capture safety locks MATCH off. The updated Chimera OBS add-on locks it off automatically. SAFE means output protection, not detected recording. Not saved; off after project load or audio-device restart.");
     compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();presetOrigin=0;timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();presetOrigin=0;timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
     copyAB.setTooltip("Copy the active sound to the other slot. A/B stores all parameters and IR audio; both slots are saved with the project/reference file.");
@@ -304,7 +308,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         using Phase=spectralforge::autoset::Controller::Phase;
         const auto route=spectralforge::signalPath::read(processor);
         switch(Phase(target)) {
-            case Phase::input:navigateSignalPath(*route.find("gate"));break;
+            case Phase::input:case Phase::gates:navigateSignalPath(*route.find("gate"));break;
             case Phase::tone:navigateSignalPath(*route.find("tone.eq"));break;
             case Phase::multiband:navigateSignalPath(*route.find("common.multiband"));break;
             case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
@@ -314,9 +318,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband});}
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
