@@ -447,6 +447,7 @@ obs_properties_t* getProperties(void* data) {
     if (!runningTestedObsMajor())
         info += std::string("\n") + obs_module_text("Module.UntestedObs") + " " + obs_get_version_string();
     if (f->host.loaded()) {
+        info += std::string("\n") + obs_module_text("CaptureSafety");
         const auto& id = f->host.identity();
         const int samples = f->bridge.latencySamples();
         audio_t* audio = obs_get_audio();

@@ -7,11 +7,17 @@ on:
   pull_request:
     paths:
       - 'OBS/**'
+      - 'Shared/**'
+      - 'Source/ABLevelMatch.h'
+      - 'Source/PluginProcessor.*'
       - '.github/workflows/obs-addon.yml'
   push:
     branches: [main]
     paths:
       - 'OBS/**'
+      - 'Shared/**'
+      - 'Source/ABLevelMatch.h'
+      - 'Source/PluginProcessor.*'
       - '.github/workflows/obs-addon.yml'
   workflow_dispatch:
 concurrency:

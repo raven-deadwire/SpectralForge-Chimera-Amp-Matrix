@@ -1,0 +1,10 @@
+MEASURE lufs 997Hz=-3.01039 30Hz=-12.0053 4kHz=0.266726
+PASS meter: BS.1770 level, unheard slot unknown, K-weighting shape
+MEASURE match a=-29.0296 b=-29.0282 dB
+PASS match: louder sound cut to the quieter one, never boosted, off is bit-identical, silence gated, bounded cut, copy and forget
+MEASURE processor a=-39.5772 b=-39.5715 cut=-5.99017 dB
+PASS processor: A/B level match on the real output, not saved, forgotten on project load, off is bit-identical
+FAIL prepare retained old measurements at 44100
+PASS ramps: ON/OFF/A/B sample ramps at 44.1/48/96 kHz, 1/64/257/1024 samples, mono/stereo
+FAIL Factory preset retained the replaced slot's measurement
+FAIL Offline bounce printed MATCH attenuation (including first samples)
