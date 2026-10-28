@@ -92,8 +92,8 @@ inline void integratedWorkspaces(ChimeraProcessor& processor,ChimeraEditor& edit
     {
         signalPathTests::Writes writes;processor.addListener(&writes);
         using DynamicsPage=spectralforge::CommonDynamicsPanel::Page;
-        constexpr std::array<const char*,7> pages{"compressor","gate","expander","limiter","multiband","deesser","saturation"};
-        constexpr std::array<DynamicsPage,7> pageKinds{DynamicsPage::compressor,DynamicsPage::gate,DynamicsPage::expander,DynamicsPage::limiter,DynamicsPage::multiband,DynamicsPage::deesser,DynamicsPage::saturation};
+        constexpr std::array<const char*,8> pages{"compressor","gate","expander","limiter","multiband","deesser","saturation","filter"};
+        constexpr std::array<DynamicsPage,8> pageKinds{DynamicsPage::compressor,DynamicsPage::gate,DynamicsPage::expander,DynamicsPage::limiter,DynamicsPage::multiband,DynamicsPage::deesser,DynamicsPage::saturation,DynamicsPage::filter};
         for(size_t i=0;i<pages.size();++i) {
             auto* button=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(pages[i]));
             require(button,"Direct dynamics entry missing");

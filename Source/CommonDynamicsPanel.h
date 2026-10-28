@@ -1,6 +1,7 @@
 #pragma once
 #include "CommonDynamics.h"
 #include "ThreeBandSaturation.h"
+#include "FilterModulation.h"
 #include "DynamicsSpectrumPanel.h"
 #include "GraphicalEQPanel.h"
 #include "PostNativeCatalog.h"
@@ -15,15 +16,15 @@ namespace spectralforge {
 // parameter IDs and stay alive across navigation; no sound values are copied.
 class CommonDynamicsPanel final : public juce::Component,private juce::Timer {
 public:
-    enum class Page {compressor,gate,limiter,dynamicEQ,multiband,deesser,preCompressor,postCompressor,lowCompressor,expander,saturation};
+    enum class Page {compressor,gate,limiter,dynamicEQ,multiband,deesser,preCompressor,postCompressor,lowCompressor,expander,saturation,filter};
 
     // Dynamic EQ is edited on its Tone / Final EQ band; Page::dynamicEQ is kept
     // only so older navigation can be redirected there.
     CommonDynamicsPanel(juce::AudioProcessorValueTreeState& s,CommonDynamics& d,DynamicsAnalysis& analysis,EQCaptureBoundary& boundary)
         :state(s),dsp(d),spectrum(analysis,boundary) {
         setComponentID("commonDynamics.panel");setOpaque(true);addChildComponent(spectrum);
-        constexpr std::array<const char*,7> titles{"COMPRESSOR","GATE","EXPANDER","LIMITER","MULTIBAND","SATURATION","DE-ESSER"};
-        constexpr std::array<const char*,7> names{"compressor","gate","expander","limiter","multiband","saturation","deesser"};
+        constexpr std::array<const char*,8> titles{"COMPRESSOR","GATE","EXPANDER","LIMITER","MULTIBAND","SATURATION","FILTER","DE-ESSER"};
+        constexpr std::array<const char*,8> names{"compressor","gate","expander","limiter","multiband","saturation","filter","deesser"};
         for(size_t i=0;i<tabs.size();++i) {
             tabs[i].setButtonText(titles[i]);tabs[i].setComponentID("commonDynamics.page."+juce::String(names[i]));
             tabs[i].onClick=[this,i]{selectPage(tabPages[i]);};addAndMakeVisible(tabs[i]);
@@ -126,6 +127,33 @@ public:
             ui.type.setTooltip("Clean passes the band unchanged. Tape: soft symmetric. Tube: asymmetric (even harmonics). Clip: firm cubic clip.");
             control(ui.drive,saturationID(band,"drive"),"Drive dB");
         }
+        // Two-filter modulation (docs/FILTER_MODULATION_1_7.md).
+        toggle(fltOn,"FILTER ON","fltOn");
+        fltOn.setTooltip("Turn both filters on or off with a 10 ms crossfade. Off leaves the signal untouched.");
+        fltSelector.addItemList({"Filter A","Filter B"},1);
+        fltSelector.setComponentID("commonDynamics.filterUnit");fltSelector.setSelectedId(1,juce::dontSendNotification);addChildComponent(fltSelector);
+        fltSelector.onChange=[this]{selectedFilter=std::clamp(fltSelector.getSelectedId()-1,0,1);syncPage();refresh();};
+        choice(fltRouting,"fltRouting",filterRoutingNames());
+        fltRouting.setTooltip("Serial: A feeds B. Parallel: A and B both hear the input and are averaged.");
+        choice(fltLfoShape,"fltLfoShape",filterLfoShapeNames());choice(fltLfoSync,"fltLfoSync",filterLfoSyncNames());
+        fltLfoShape.setTooltip("LFO waveform shared by both filters.");
+        fltLfoSync.setTooltip("Free uses LFO Rate. A note value follows the host or Chimera tempo; the LFO is not locked to the bar position.");
+        control(fltMix,"fltMix","Mix %");control(fltOutput,"fltOutput","Output dB");
+        constexpr std::array<const char*,5> modIDs{"fltLfoRate","fltLfoStereo","fltEnvAttack","fltEnvRelease","fltEnvSensitivity"};
+        constexpr std::array<const char*,5> modNames{"LFO rate Hz","LFO stereo deg","Env attack ms","Env release ms","Env sensitivity dB"};
+        for(size_t i=0;i<fltMod.size();++i)control(fltMod[i],modIDs[i],modNames[i]);
+        fltMod[1].slider.setTooltip("Phase offset of the right channel's LFO; 180 sweeps the two channels in opposite directions.");
+        fltMod[4].slider.setTooltip("Gain into the envelope follower. The follower reaches full scale at 0 dBFS with 0 dB sensitivity.");
+        for(int f=0;f<filterCount;++f) {
+            auto& ui=fltUnits[size_t(f)];
+            toggle(ui.on,f==0?"FILTER A ON":"FILTER B ON",filterID(f,"on"));
+            choice(ui.type,filterID(f,"type"),filterTypeNames());choice(ui.slope,filterID(f,"slope"),filterSlopeNames());
+            constexpr std::array<const char*,4> fields{"cutoff","resonance","lfo","env"};
+            constexpr std::array<const char*,4> labels{"Cutoff Hz","Resonance %","LFO amount oct","Envelope amount oct"};
+            for(size_t i=0;i<ui.controls.size();++i)control(ui.controls[i],filterID(f,fields[i]),labels[i]);
+            ui.controls[2].slider.setTooltip("How far the LFO moves this cutoff, in octaves each way.");
+            ui.controls[3].slider.setTooltip("How far the envelope moves this cutoff at full level, in octaves. Negative values close it.");
+        }
         toggle(deEsserOn,"DE-ESSER ON","deEsserOn");toggle(deEsserListen,"LISTEN","deEsserListen");
         constexpr std::array<const char*,7> deIDs{"deEsserFrequency","deEsserThreshold","deEsserRange","deEsserRatio","deEsserAttack","deEsserRelease","deEsserKnee"};
         constexpr std::array<const char*,7> deNames{"Split frequency Hz","Threshold dB","Max cut dB","Ratio","Attack ms","Release ms","Knee dB"};
@@ -205,7 +233,7 @@ public:
         for(size_t i=0;i<tabs.size();++i)tabs[i].setBounds(12+int(i)*tabWidth,4,tabWidth-5,31);
         const int sideX=std::max(600,getWidth()-338),sideWidth=std::max(10,getWidth()-sideX-16),column=(sideWidth-12)/2;
         const int graphHeight=std::max(160,getHeight()-94);
-        spectrum.setBounds(8,84,sideX-16,page==Page::multiband?graphHeight-57:graphHeight);
+        spectrum.setBounds(8,84,sideX-16,page==Page::multiband || page==Page::filter?graphHeight-57:graphHeight);
         compOn.setBounds(18,45,148,28);detector.setBounds(176,45,100,28);
         gateSides[0].setBounds(18,45,74,28);gateSides[1].setBounds(96,45,80,28);
         gateOn.setBounds(184,45,96,28);gate2On.setBounds(184,45,96,28);gateMode.setBounds(288,45,104,28);gate2Mode.setBounds(288,45,104,28);
@@ -228,6 +256,14 @@ public:
         for(auto& band:satBands){band.type.setBounds(sideX,89,sideWidth,28);band.drive.bounds(sideX,130,sideWidth);}
         satMix.bounds(sideX,195,column);satOutput.bounds(sideX+column+12,195,column);
         for(int cross=0;cross<2;++cross)satCrossovers[size_t(cross)].bounds(18+cross*((sideX-32)/3),getHeight()-56,(sideX-32)/3-12);
+        fltOn.setBounds(18,45,153,28);fltSelector.setBounds(180,45,110,28);fltRouting.setBounds(298,45,150,28);
+        fltLfoShape.setBounds(456,45,96,28);fltLfoSync.setBounds(560,45,84,28);
+        for(auto& unit:fltUnits) {
+            unit.on.setBounds(sideX,89,column,28);unit.type.setBounds(sideX+column+12,89,column,28);unit.slope.setBounds(sideX,124,column,25);
+            for(size_t i=0;i<unit.controls.size();++i)unit.controls[i].bounds(sideX+int(i%2)*(column+12),158+int(i/2)*61,column);
+        }
+        fltMix.bounds(sideX,280,column);fltOutput.bounds(sideX+column+12,280,column);
+        {const int width=(sideX-32)/int(fltMod.size());for(size_t i=0;i<fltMod.size();++i)fltMod[i].bounds(18+int(i)*width,getHeight()-56,width-12);}
         deEsserOn.setBounds(18,45,150,28);deEsserListen.setBounds(178,45,104,28);
         autoSet.setBounds(sideX,getHeight()-40,100,28);autoOptions.setBounds(sideX+106,getHeight()-40,118,28);
         autoUndo.setBounds(sideX+230,getHeight()-40,std::max(1,sideWidth-230),28);updateAutoView();repaint();
@@ -239,10 +275,10 @@ public:
             const int sideX=std::max(600,getWidth()-338);g.drawVerticalLine(sideX-10,85.f,float(getHeight()-12));
             g.setFont(juce::FontOptions(12.f));g.setColour(muted);
             if(autoText.isNotEmpty() && autoPage())g.drawFittedText(autoText,532,41,std::max(1,getWidth()-770),38,juce::Justification::centredLeft,2);
-            else {const int x=page==Page::multiband?636:532;g.drawText(contextText(),x,47,std::max(1,getWidth()-770-(x-532)),25,juce::Justification::centredLeft);}
+            else {const int x=page==Page::multiband?636:page==Page::filter?652:532;g.drawText(contextText(),x,47,std::max(1,getWidth()-770-(x-532)),25,juce::Justification::centredLeft);}
             g.setColour(text);g.setFont(juce::FontOptions(14.f,juce::Font::bold));
             const auto meter=currentReduction<0?"GAIN "+juce::String(-currentReduction,1)+" dB":"GR "+juce::String(currentReduction,1)+" dB";
-            if(page!=Page::saturation)g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);   // saturation has no gain reduction
+            if(page!=Page::saturation && page!=Page::filter)g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);   // saturation has no gain reduction
             if(page==Page::limiter)drawNote(g,sideX,269,"SAMPLE-PEAK LIMITING\nStereo linked / zero lookahead\nTrue-peak protection is not measured.");
             if(page==Page::gate)drawNote(g,sideX,319,"Clean DI detector\nPRE and POST gates run together.\nRange controls maximum attenuation.");
             if(page==Page::expander)drawNote(g,sideX,319,"Clean DI detector\nRuns together with the gates.\nThe spectrum shows the main gate input.");
@@ -270,6 +306,7 @@ private:
             case Page::deesser:return DynamicsStage::deesser;case Page::preCompressor:return DynamicsStage::preCompressor;
             case Page::postCompressor:return DynamicsStage::postCompressor;case Page::lowCompressor:return DynamicsStage::lowCompressor;
             case Page::saturation:return DynamicsStage::saturation;
+            case Page::filter:return DynamicsStage::filter;
             default:return DynamicsStage::none;
         }
     }
@@ -324,6 +361,9 @@ private:
         for(int band=0;band<4;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);ui.channels.setVisible(showing);showControls(ui.controls,showing);}
         const bool sat=page==Page::saturation;satOn.setVisible(sat);satQuality.setVisible(sat);satBandSelector.setVisible(sat);satMix.show(sat);satOutput.show(sat);showControls(satCrossovers,sat);
         for(int band=0;band<3;++band){auto& ui=satBands[size_t(band)];const bool showing=sat && band==selectedSatBand;ui.type.setVisible(showing);ui.drive.show(showing);}
+        const bool flt=page==Page::filter;fltOn.setVisible(flt);fltSelector.setVisible(flt);fltRouting.setVisible(flt);fltLfoShape.setVisible(flt);fltLfoSync.setVisible(flt);
+        fltMix.show(flt);fltOutput.show(flt);showControls(fltMod,flt);
+        for(int f=0;f<filterCount;++f){auto& ui=fltUnits[size_t(f)];const bool showing=flt && f==selectedFilter;ui.on.setVisible(showing);ui.type.setVisible(showing);ui.slope.setVisible(showing);showControls(ui.controls,showing);}
         deEsserOn.setVisible(page==Page::deesser);deEsserListen.setVisible(page==Page::deesser);
         autoSet.setVisible(autoPage());autoOptions.setVisible(autoPage());autoUndo.setVisible(autoPage());showControls(deEsser,page==Page::deesser);
         if(page==Page::preCompressor)spectrum.setPreOwner(-1);
@@ -367,7 +407,11 @@ private:
             const std::array<float,2> cutoffs{raw("satCrossover1",200),raw("satCrossover2",2500)};
             for(int cross=0;cross<2;++cross)markers[size_t(cross)]={cutoffs[size_t(cross)],"X"+juce::String(cross+1)};count=2;
             spectrum.setBandHighlight(selectedSatBand==0?20.f:cutoffs[size_t(selectedSatBand-1)],selectedSatBand==2?20000.f:cutoffs[size_t(selectedSatBand)]);
+        } else if(page==Page::filter) {
+            for(int f=0;f<filterCount;++f)markers[size_t(f)]={raw(filterID(f,"cutoff"),f==0?1000.f:80.f),f==0?"A":"B"};count=filterCount;
+            spectrum.setBandHighlight(0,0);
         } else spectrum.setBandHighlight(0,0);
+        fltMod[0].slider.setEnabled(raw("fltLfoSync")<.5f);   // a synced LFO follows the tempo
         spectrum.setFrequencyMarkers(markers,count);
     }
     juce::RangedAudioParameter* markerParameterFor(int marker) {
@@ -375,6 +419,7 @@ private:
         if(page==Page::deesser && marker==0)return state.getParameter("deEsserFrequency");
         if(page==Page::multiband && marker>=0 && marker<3)return state.getParameter("mbCrossover"+juce::String(marker+1));
         if(page==Page::saturation && marker>=0 && marker<2)return state.getParameter("satCrossover"+juce::String(marker+1));
+        if(page==Page::filter && marker>=0 && marker<filterCount)return state.getParameter(filterID(marker,"cutoff"));
         return nullptr;
     }
     void endMarkerGesture(){if(markerParameter){markerParameter->endChangeGesture();markerParameter=nullptr;}}
@@ -387,6 +432,7 @@ private:
             case Page::multiband:return "4 bands / stereo linked";
             case Page::deesser:return "High-band dynamics";
             case Page::saturation:return raw("satQuality")>.5f?"3 bands / Studio 4x / after multiband":"3 bands / Live, no latency / after multiband";
+            case Page::filter:return "2 filters / after saturation";
             case Page::preCompressor:return sourceIsActive()?"Legacy PRE signal path":"Legacy PRE source inactive";
             case Page::postCompressor:return sourceIsActive()?"Legacy POST signal path":"Legacy POST source inactive";
             case Page::lowCompressor:return sourceIsActive()?"Matrix LOW DI branch":"Matrix LOW source inactive";
@@ -399,8 +445,11 @@ private:
     }
     void timerCallback() override {if(isShowing())refresh();}
     juce::AudioProcessorValueTreeState& state;CommonDynamics& dsp;DynamicsSpectrumPanel spectrum;
-    Page page{Page::compressor};std::array<juce::TextButton,7> tabs;
-    static constexpr std::array<Page,7> tabPages{Page::compressor,Page::gate,Page::expander,Page::limiter,Page::multiband,Page::saturation,Page::deesser};
+    Page page{Page::compressor};std::array<juce::TextButton,8> tabs;
+    static constexpr std::array<Page,8> tabPages{Page::compressor,Page::gate,Page::expander,Page::limiter,Page::multiband,Page::saturation,Page::filter,Page::deesser};
+    struct FltUnit {juce::TextButton on;juce::ComboBox type,slope;std::array<Control,4> controls;};
+    std::array<FltUnit,filterCount> fltUnits;Control fltMix,fltOutput;std::array<Control,5> fltMod;
+    juce::TextButton fltOn;juce::ComboBox fltSelector,fltRouting,fltLfoShape,fltLfoSync;int selectedFilter{};
     struct SatBand {juce::ComboBox type;Control drive;};
     std::array<SatBand,3> satBands;Control satMix,satOutput;std::array<Control,2> satCrossovers;
     juce::TextButton satOn;juce::ComboBox satQuality,satBandSelector;int selectedSatBand{};

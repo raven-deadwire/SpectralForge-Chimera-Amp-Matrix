@@ -323,16 +323,17 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
         if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);
     };
-    constexpr std::array<const char*,7> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER","SATURATION"};
-    constexpr std::array<const char*,7> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser","saturation"};
-    constexpr std::array<const char*,7> dynamicsHelp{
+    constexpr std::array<const char*,8> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER","SATURATION","FILTER"};
+    constexpr std::array<const char*,8> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser","saturation","filter"};
+    constexpr std::array<const char*,8> dynamicsHelp{
         "Open the gates: separate PRE RIG and POST RIG gates that can run together.",
         "Open the downward expander. It runs together with the gates, before or after the rig.",
         "Open the common compressor after Tone EQ. PRE, POST and Matrix LOW retain their own controls.",
         "Open the final-output sample-peak limiter.",
         "Open four-band dynamics and crossover controls.",
         "Open high-band de-esser controls.",
-        "Open three-band saturation: per-band type and drive, Live or Studio 4x."};
+        "Open three-band saturation: per-band type and drive, Live or Studio 4x.",
+        "Open the two-filter processor: LP/HP/BP/notch with LFO and envelope modulation."};
     for(size_t i=0;i<dynamicsEntries.size();++i) {
         auto& entry=dynamicsEntries[i];add(entry);
         entry.setButtonText(dynamicsTitles[i]);
@@ -1010,7 +1011,7 @@ void ChimeraEditor::layoutControls()
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
     for(auto& eq:eqPanels)eq->setBounds(20,330,1140,412);
     for(size_t i=0;i<dynamicsEntries.size();++i)
-        dynamicsEntries[i].setBounds(182+int(i%2)*118,110+int(i/2)*34,i==6?230:112,30);
+        dynamicsEntries[i].setBounds(182+int(i%2)*118,110+int(i/2)*34,112,30);
     dynamicsPanel->setBounds(20,330,1140,412);
     signalPath->setBounds(20,253,1140,44);
     precisionTuner->setBounds(20,330,1140,412);

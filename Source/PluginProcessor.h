@@ -6,6 +6,7 @@
 #include "AutoSet.h"
 #include "MultibandDynamics.h"
 #include "ThreeBandSaturation.h"
+#include "FilterModulation.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -233,6 +234,7 @@ private:
     spectralforge::CommonDynamics dynamics;
     spectralforge::MultibandDynamics multiband;
     spectralforge::ThreeBandSaturation saturation;
+    spectralforge::FilterModulation filterModulation;
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;

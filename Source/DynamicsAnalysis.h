@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace spectralforge {
-enum class DynamicsStage { none=-1, gate=0, compressor, limiter, multiband, deesser, preCompressor, postCompressor, lowCompressor, saturation };
+enum class DynamicsStage { none=-1, gate=0, compressor, limiter, multiband, deesser, preCompressor, postCompressor, lowCompressor, saturation, filter };
 
 // A single visible dynamics editor owns this analysis-only stream. Audio is
 // copied at the actual module boundary; no FFT, allocation or locking occurs
