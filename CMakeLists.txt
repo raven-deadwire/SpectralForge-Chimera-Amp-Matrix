@@ -97,6 +97,8 @@ configure_file(cmake/ChimeraTesterSecret.h.in generated/ChimeraTesterSecret.h @O
 # A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
 target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/ABLevelMatch.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
+
+target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/ParamIndex.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
 set(CHIMERA_USE_CURL 0)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CHIMERA_USE_CURL 1)
@@ -480,6 +482,14 @@ add_test(NAME ChimeraABLevelMatchTests COMMAND ChimeraABLevelMatchTests)
 add_test(NAME ChimeraABLevelMatchUITests COMMAND ChimeraABLevelMatchTests --ui)
 set_tests_properties(ChimeraABLevelMatchTests PROPERTIES TIMEOUT 180)
 set_tests_properties(ChimeraABLevelMatchUITests PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
+
+# Switch timing probe: response, settle, residual, click and CPU of channel,
+# amp model, preset and A/B switches (docs/SWITCH_TIMING_METRICS.md).
+juce_add_console_app(ChimeraSwitchTimingProbe PRODUCT_NAME "Chimera Switch Timing Probe")
+target_sources(ChimeraSwitchTimingProbe PRIVATE Tests/SwitchTimingProbe.cpp)
+target_include_directories(ChimeraSwitchTimingProbe PRIVATE Source)
+target_link_libraries(ChimeraSwitchTimingProbe PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraSwitchTimingProbe COMMAND ChimeraSwitchTimingProbe "${CMAKE_BINARY_DIR}/switch-timing.csv")
 # Preset, A/B and project recall must render the same audio, not only restore settings.
 juce_add_console_app(ChimeraStateRecallAudioTests PRODUCT_NAME "Chimera State Recall Audio Tests")
 target_sources(ChimeraStateRecallAudioTests PRIVATE Tests/StateRecallAudioTests.cpp)

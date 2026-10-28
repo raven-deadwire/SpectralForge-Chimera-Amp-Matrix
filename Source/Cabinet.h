@@ -81,6 +81,7 @@ private:
     float lastGainDb{std::numeric_limits<float>::quiet_NaN()};
     bool lastInvert{};
     int fadeRemaining{}, fadeLength{1};
+    bool instantSwap{};
     static void destroyKernel(Kernel* kernel)
     {
         if (kernel == nullptr) return;
@@ -155,6 +156,16 @@ public:
             *lp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(sr,high);
         cutRate=sr;lastLowCut=low;lastHighCut=high;
     }
+    // Audio thread: the requested IR/model is installed and its crossfade is
+    // over (the editor's "Ready"), for this mic and a blended second mic.
+    bool settled() const noexcept {
+        const bool self=pending.load()==nullptr && fadeRemaining==0
+            && activeSource.load()==requestedSource.load() && activeModel.load()==requestedModel.load();
+        return self && (!micB || blend<=0.f || micB->settled());
+    }
+    // Audio thread: while the output is muted for a recall, install a new
+    // kernel without the 50 ms crossfade; nothing of either kernel is heard.
+    void setInstantSwap(bool value) noexcept { instantSwap=value; if(micB) micB->setInstantSwap(value); }
     // Audio-thread diagnostic; never queried by the worker.
     int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)
@@ -173,6 +184,11 @@ public:
                 // A superseded model may have reached pending after the worker's
                 // final check. Retire it here without freeing or blocking audio.
                 if(next->modelKey!=requestedModel.load()) { retired.store(next); ++rejectedModels; }
+                else if(instantSwap) {
+                    // The worker frees the replaced kernel, as after a crossfade.
+                    retired.store(active); active=next;
+                    activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);
+                }
                 else {
                     fading=active; active=next;
                     activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);

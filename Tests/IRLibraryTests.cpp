@@ -1,10 +1,21 @@
 #include "IRCollection.h"
 #include "IRLibrary.h"
 #include "CabLayoutModel.h"
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <thread>
+
+namespace spectralforge {
+struct IRLibraryTestAccess {
+    // Exercise a single idle pass without starting a worker or racing its state.
+    static bool warmOne(IRLibrary& library) {return library.warmOne();}
+    static void sampleRate(IRLibrary& library,double rate) {library.spec.sampleRate=rate;}
+    static auto warmRequest(const IRLibrary& library) {return library.warmRequest();}
+};
+}
 
 namespace {
 void require(bool value,const char* message) {if(!value)throw std::runtime_error(message);}
@@ -132,6 +143,104 @@ void modelWorkerCancellation() {
     std::cout<<"PASS modeled_worker_cancellation cancelled_builds="<<abandoned
         <<" latest_six_mics=converged stop_us="<<stopUs<<" reprepare=synchronous resources=released\n";
 }
+
+void coherentWarmRequests() {
+    using Access=spectralforge::IRLibraryTestAccess;
+    std::array<spectralforge::Cab,3> cabinets;
+    spectralforge::IRLibrary library{{&cabinets[0],&cabinets[1],&cabinets[2]}};
+    constexpr unsigned updates=50000;
+    std::atomic<bool> start{},finished{};
+    std::thread writer([&] {
+        while(!start.load(std::memory_order_acquire))std::this_thread::yield();
+        for(unsigned revision=1;revision<=updates;++revision) {
+            std::array<uint64_t,6> models;models.fill(revision);
+            library.keepWarm(models);
+            library.keepWarm(models); // An identical request must not advance the revision.
+        }
+        finished.store(true,std::memory_order_release);
+    });
+    bool coherent=true;
+    unsigned snapshots=0;
+    start.store(true,std::memory_order_release);
+    do {
+        // Use the same snapshot operation as the worker while keepWarm writes.
+        const auto request=Access::warmRequest(library);
+        for(const auto model:request.models)coherent=coherent && model==request.revision;
+        ++snapshots;
+    } while(!finished.load(std::memory_order_acquire));
+    writer.join();
+    const auto last=Access::warmRequest(library);
+    require(coherent,"warm models and revision came from different requests");
+    require(last.revision==updates && last.models.front()==updates,"unchanged warm requests advanced the revision");
+    std::cout<<"PASS coherent_warm_requests updates="<<updates<<" snapshots="<<snapshots<<'\n';
+}
+
+void warmFailureSuppression() {
+    using Access=spectralforge::IRLibraryTestAccess;
+    namespace layout=spectralforge::cabLayout;
+    std::array<spectralforge::Cab,3> cabinets;
+    spectralforge::IRLibrary library{{&cabinets[0],&cabinets[1],&cabinets[2]}};
+    const auto keyAt=[](double position){return layout::key({{{true,0,0,0,1,.2,position,10},1,1,0},1,0});};
+    const auto a=keyAt(.31),b=keyAt(.32);
+    const std::array<uint64_t,6> two{a,b,a,0,b,0};
+    library.keepWarm(two);
+    // The real generator rejects this rate before allocating a response. No
+    // worker/host is started at an invalid rate, and no fake generator is used.
+    Access::sampleRate(library,6000);
+    require(Access::warmOne(library) && Access::warmOne(library),"two distinct failing models were not attempted");
+    require(!Access::warmOne(library),"failed warm models alternate forever instead of letting the worker wait");
+    library.keepWarm(two);
+    require(!Access::warmOne(library),"an unchanged warm request retried failed models");
+
+    const std::array<uint64_t,6> six{a,b,keyAt(.33),keyAt(.34),keyAt(.35),keyAt(.36)};
+    library.keepWarm(six);
+    for(size_t n=0;n<six.size();++n)
+        require(Access::warmOne(library),"a changed warm request did not retry every distinct model");
+    require(!Access::warmOne(library),"six failing models did not stop retrying");
+    require(library.warmedResponseCount()==0,"a failed generation was reported as warmed");
+
+    // A new prepare may fix the failure (e.g. a supported sample rate). It must
+    // retry the same list even though keepWarm has not advanced its revision.
+    for(auto& cabinet:cabinets)cabinet.prepare(spec);
+    library.prepare(spec,{0,0,0});
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+    while(library.warmedResponseCount()<six.size() && std::chrono::steady_clock::now()<deadline)
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    library.stop();
+    require(library.warmedResponseCount()==six.size(),"reprepare did not retry failed warm models");
+    for(const auto model:six)
+        require(library.cachesResponse(model),"a recovered warm model is missing from the cache");
+    std::cout<<"PASS warm_failure_suppression distinct=2,6 duplicates=skipped unchanged=no_retry changed=retry reprepare=recovered\n";
+}
+
+// The next A/B slot's modeled cabinets are generated while idle and survive
+// a burst of other models that would have pushed them out of a FIFO cache.
+void warmCacheForNextRecall() {
+    namespace layout=spectralforge::cabLayout;
+    const juce::dsp::ProcessSpec settings{48000,256,2};
+    std::array<spectralforge::Cab,3> cabinets;
+    spectralforge::IRLibrary library{{&cabinets[0],&cabinets[1],&cabinets[2]}};
+    const auto keyAt=[](double position){return layout::key({{{true,0,0,0,1,.2,position,10},1,1,0},1,0});};
+    const std::array<uint64_t,6> warm{keyAt(.31),keyAt(.32),0,keyAt(.33),0,0};
+    for(auto& cabinet:cabinets)cabinet.prepare(settings);
+    library.keepWarm(warm);
+    library.prepare(settings,{0,0,0});
+    const auto waitFor=[](auto done){const auto end=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+        while(!done() && std::chrono::steady_clock::now()<end)std::this_thread::sleep_for(std::chrono::milliseconds(5));return done();};
+    require(waitFor([&]{return library.warmedResponseCount()>=3;}),"idle worker did not warm the next recall's models");
+    // Fourteen other models through the cabinets, as a long edit would.
+    juce::AudioBuffer<float> audio(2,256);
+    for(int n=0;n<14;++n) {
+        const auto key=keyAt(.5+.01*n);cabinets[0].requestedModel=key;
+        require(waitFor([&]{audio.clear();cabinets[0].process(audio);return cabinets[0].activeModel.load()==key && cabinets[0].settled();}),
+                "worker did not install an edited model");
+    }
+    library.stop();
+    for(const auto model:warm)
+        require(model==0 || library.cachesResponse(model),"a warmed model was evicted by unrelated edits");
+    require(library.warmedResponseCount()==3,"warmed models were generated again");
+    std::cout<<"PASS warm_next_recall models=3 kept_after_edits=14\n";
+}
 }
 
 int main() {
@@ -172,6 +281,9 @@ int main() {
         equalAudio(audio,render(restored.cabinets[0]));
         require(restored.cabinets[1].activeSource.load()==0 && restored.cabinets[2].activeSource.load()==0,"IR restore changed unrelated lanes");
         modelWorkerCancellation();
+        coherentWarmRequests();
+        warmFailureSuppression();
+        warmCacheForNextRecall();
         std::cout<<"PASS: remove-from-list preserves source WAV, active convolution, embedded project bytes and bass classification; binary recall renders identical audio without the source file\n";
         return 0;
     } catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
