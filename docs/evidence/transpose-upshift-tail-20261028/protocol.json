@@ -1,0 +1,24 @@
+{
+  "status": "PRE_REGISTERED_BEFORE_NEW_CANDIDATE_RUNS",
+  "base_sha": "b3fe13d823b34dd5e8b3410dfb8aef36d92b5e24",
+  "scope": "synthetic research only; no Source/, research plugin, Nov 2 v3 DI plan, target thresholds or defaults changed",
+  "baseline": ["corr40-split-v3", "corr40-split-v4"],
+  "candidates": {
+    "g8": {"guard_ms": 8, "hold_ms": 25},
+    "h40": {"guard_ms": 4, "hold_ms": 40},
+    "g8h40": {"guard_ms": 8, "hold_ms": 40},
+    "g12h50": {"guard_ms": 12, "hold_ms": 50}
+  },
+  "candidate_scope": "high path only; renderer-only suffixes; shifts restricted to -2,-1,0,+1,+2",
+  "discovery": {"holdout_seeds": [8139, 20261024], "long_seed": 1},
+  "confirmation": {"holdout_seeds": [281020261, 281020262], "long_seed": 281020263, "rule": "freeze code and selection before confirmation; do not tune from confirmation results"},
+  "rates": [44100, 48000, 96000],
+  "shifts": [-2, -1, 1, 2],
+  "gates": "Unmodified Validation/transpose-latency-targets.json version 2. Any T1/T2/T4 failure or T3 ceiling breach rejects adoption.",
+  "tail_metrics": ["Original 15-60 ms / 0-15 ms HF peak ratio, input SNR >=10dB", "Extended 15-120 ms (stop 5ms before next event), to detect displaced echoes", "absolute output late/main ratio as well as excess over input; counts above +6dB are diagnostic, not an audibility gate"],
+  "selection": "Among candidates passing existing gates, prefer lower worst late/main HF ratio and fewer >6dB tail increases at every sample rate. If tradeoffs or regressions remain, keep all candidates research-only and report no safe replacement.",
+  "block_invariance": "All 3 rates, +/-1/+/-2, 3 representative inputs, 13 fixed/random partitions; exact float equality",
+  "cpu": "Thread CPU and wall time separately; alternate engines, 5 repetitions; 64/128 blocks, all 3 rates, +/-2; no hardware T5 PASS claim",
+  "high_frequency": "Reproduce PR202 ideal-shift reference residual metric separately for v3 and v4; interpolation independent from tail policy",
+  "listening": "NOT_RUN: no real DI supplied, no listening or DAW verdict"
+}
