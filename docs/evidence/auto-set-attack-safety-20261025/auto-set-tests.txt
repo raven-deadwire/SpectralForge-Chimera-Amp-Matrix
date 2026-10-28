@@ -1,0 +1,11 @@
+PASS auto set rules: silence, quiet DI gain, gate threshold/range, unchanged steady input, noisy gate, compressor ratio/attack/makeup
+PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz
+PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release
+PASS attack safety: 72 protected synthetic attack cases, 18 sustained-brightness controls, 36 extended-range/distorted explicit-instrument cases, 9 auto-target ambiguity cases
+PASS auto set capture: 10 ms windows at 44.1/48/96 kHz, louder-channel peak/RMS, mono tone tap, tap isolation, allocation-free audio path
+PASS explicit guitar/bass x three styles: manual de-esser/listen preserved, truthful summary, limiter release, apply/undo host notifications
+AUTO SET synthetic DI (-18 dBFS notes, -72 dBFS noise): Applied (rock): Input 10.5 dB | Gate -53 dB, range Full | Tone EQ guitar (estimate): 6 moves | Comp -29 dB, 2:1, attack 8 ms, makeup 0.0 dB | De-esser 4.5 kHz, -35 dB, up to 9 dB | Limiter -1 dBFS (peaks -20.4 dBFS)
+AUTO SET finish: high-band excess 9.88041 dB, burst excess 1.72379 dB, output peak -20.3554 dBFS
+AUTO SET tone moves: 80Hz 3dB 160Hz -6dB 315Hz -3.5dB 630Hz 4.5dB 1250Hz 0dB 2500Hz -6dB 5000Hz -6dB | fit error 6.17307 -> 2.62615 dB
+PASS auto set controller: silence/no-audio failures, four passes on the real processor, input+gate+Tone EQ+compressor+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes
+PASS Auto Set
