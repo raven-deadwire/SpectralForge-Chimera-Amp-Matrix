@@ -488,6 +488,7 @@ spectralforge::appendCommonDynamicsParameters(p);
 spectralforge::appendMultibandParameters(p);
 spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
+spectralforge::appendMultibandStereoParameters(p);
 return p;
 }
 

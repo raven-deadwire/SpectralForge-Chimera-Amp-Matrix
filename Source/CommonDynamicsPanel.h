@@ -86,6 +86,13 @@ public:
             control(crossovers[size_t(cross)],"mbCrossover"+juce::String(cross+1),"Crossover "+juce::String(cross+1)+" Hz");
             crossovers[size_t(cross)].slider.setTooltip("Target crossover. The boundaries stay ordered; the spectrum marker shows the applied frequency while changes settle.");
         }
+        // Stereo domain and detector link (docs/MULTIBAND_STEREO_1_5.md).
+        choice(mbStereo,"mbStereoMode",{"L/R","M/S"});
+        mbStereo.setTooltip("Process left/right, or mid/side (M = (L + R) / 2, S = (L - R) / 2). Changing it fades the stage out and back in (about 50 ms).");
+        mbLink.setSliderStyle(juce::Slider::LinearBar);mbLink.setComponentID("mbLink");mbLink.setTextValueSuffix(" % link");addChildComponent(mbLink);
+        if(state.getParameter("mbLink"))mbLinkAttachment=std::make_unique<SA>(state,"mbLink",mbLink);else mbLink.setEnabled(false);
+        mbLink.setNumDecimalPlacesToDisplay(0);
+        mbLink.setTooltip("Stereo link: at 100% both channels follow the louder detector (the original linked behaviour); at 0% each channel (or M and S) follows its own.");
         mbBandSelector.addItemList({"Band 1 / LOW","Band 2 / LOW MID","Band 3 / HIGH MID","Band 4 / HIGH"},1);
         mbBandSelector.setComponentID("commonDynamics.multibandBand");mbBandSelector.setSelectedId(1,juce::dontSendNotification);addChildComponent(mbBandSelector);
         mbBandSelector.onChange=[this]{selectedMBBand=std::clamp(mbBandSelector.getSelectedId()-1,0,3);syncPage();refresh();};
@@ -95,6 +102,8 @@ public:
             auto& ui=mbBands[size_t(band)];const auto prefix="mbBand"+juce::String(band+1)+"_";
             toggle(ui.bypass,"BYPASS BAND",prefix+"bypass");toggle(ui.solo,"SOLO BAND",prefix+"solo");
             choice(ui.mode,prefix+"mode",{"Downward compression","Upward compression","Downward expansion","Upward expansion"});
+            choice(ui.channels,prefix+"channels",{"Both channels","Mid only","Side only"});
+            ui.channels.setTooltip("Process this band on both channels, or only on mid/left or side/right. The other channel passes unchanged.");
             for(size_t field=0;field<mbFields.size();++field)control(ui.controls[field],prefix+mbFields[field],mbNames[field]);
             ui.bypass.setTooltip("Bypass this band's dynamics and makeup while keeping its crossover path and solo state. This preserves alignment with the other bands.");
             ui.controls[2].slider.setTooltip("Gain attack time constant in milliseconds. The selected Peak/RMS detector also affects the measured response time.");
@@ -189,9 +198,10 @@ public:
         grid(comp);grid(gate);grid(gate2);grid(expander);grid(pre);grid(post);grid(deEsser);
         ceiling.bounds(sideX,110,sideWidth);limitRelease.bounds(sideX,181,sideWidth);
         lowAmount.bounds(sideX,110,sideWidth);lowBlend.bounds(sideX,181,sideWidth);
-        mbOn.setBounds(18,45,153,28);mbBandSelector.setBounds(182,45,224,28);mbDetector.setBounds(417,45,100,28);
+        mbOn.setBounds(18,45,153,28);mbBandSelector.setBounds(180,45,170,28);mbDetector.setBounds(358,45,80,28);
+        mbStereo.setBounds(446,45,72,28);mbLink.setBounds(526,45,100,28);
         for(auto& band:mbBands) {
-            band.mode.setBounds(sideX,89,sideWidth,28);band.bypass.setBounds(sideX,124,column,25);band.solo.setBounds(sideX+column+12,124,column,25);
+            band.mode.setBounds(sideX,89,column,28);band.channels.setBounds(sideX+column+12,89,column,28);band.bypass.setBounds(sideX,124,column,25);band.solo.setBounds(sideX+column+12,124,column,25);
             for(size_t field=0;field<band.controls.size();++field)band.controls[field].bounds(sideX+int(field%2)*(column+12),158+int(field/2)*61,column);
         }
         mbMix.bounds(sideX+column+12,341,column);
@@ -208,7 +218,7 @@ public:
             const int sideX=std::max(600,getWidth()-338);g.drawVerticalLine(sideX-10,85.f,float(getHeight()-12));
             g.setFont(juce::FontOptions(12.f));g.setColour(muted);
             if(autoText.isNotEmpty() && autoPage())g.drawFittedText(autoText,532,41,std::max(1,getWidth()-770),38,juce::Justification::centredLeft,2);
-            else g.drawText(contextText(),532,47,std::max(1,getWidth()-770),25,juce::Justification::centredLeft);
+            else {const int x=page==Page::multiband?636:532;g.drawText(contextText(),x,47,std::max(1,getWidth()-770-(x-532)),25,juce::Justification::centredLeft);}
             g.setColour(text);g.setFont(juce::FontOptions(14.f,juce::Font::bold));
             const auto meter=currentReduction<0?"GAIN "+juce::String(-currentReduction,1)+" dB":"GR "+juce::String(currentReduction,1)+" dB";
             g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);
@@ -230,7 +240,7 @@ private:
         void bounds(int x,int y,int width){label.setBounds(x,y,width,18);slider.setBounds(x,y+20,width,29);}
         void show(bool visible){label.setVisible(visible);slider.setVisible(visible);}
     };
-    struct MBBand {juce::TextButton bypass,solo;juce::ComboBox mode;std::array<Control,7> controls;};
+    struct MBBand {juce::TextButton bypass,solo;juce::ComboBox mode,channels;std::array<Control,7> controls;};
     static bool isCompressorPage(Page selected){return selected==Page::compressor || selected==Page::preCompressor || selected==Page::postCompressor || selected==Page::lowCompressor;}
     static DynamicsStage stageFor(Page selected) {
         switch(selected) {
@@ -288,8 +298,8 @@ private:
         limiterOn.setVisible(page==Page::limiter);ceiling.show(page==Page::limiter);limitRelease.show(page==Page::limiter);
         preOn.setVisible(page==Page::preCompressor);postOn.setVisible(page==Page::postCompressor);showControls(pre,page==Page::preCompressor);showControls(post,page==Page::postCompressor);
         lowAmount.show(page==Page::lowCompressor);lowBlend.show(page==Page::lowCompressor);
-        const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbBandSelector.setVisible(mb);mbMix.show(mb);showControls(crossovers,mb);
-        for(int band=0;band<4;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);showControls(ui.controls,showing);}
+        const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbStereo.setVisible(mb);mbLink.setVisible(mb);mbBandSelector.setVisible(mb);mbMix.show(mb);showControls(crossovers,mb);
+        for(int band=0;band<4;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);ui.channels.setVisible(showing);showControls(ui.controls,showing);}
         deEsserOn.setVisible(page==Page::deesser);deEsserListen.setVisible(page==Page::deesser);
         autoSet.setVisible(autoPage());autoOptions.setVisible(autoPage());autoUndo.setVisible(autoPage());showControls(deEsser,page==Page::deesser);
         if(page==Page::preCompressor)spectrum.setPreOwner(-1);
@@ -297,6 +307,13 @@ private:
         spectrum.setVisible(true);spectrum.setStage(stageFor(page));resized();repaint();
     }
     void refresh() {
+        {   // Channel names follow the stereo domain.
+            const bool midSide=raw("mbStereoMode")>.5f;
+            if(midSide!=channelNamesMidSide) {
+                channelNamesMidSide=midSide;
+                for(auto& band:mbBands){band.channels.changeItemText(2,midSide?"Mid only":"Left only");band.channels.changeItemText(3,midSide?"Side only":"Right only");}
+            }
+        }
         const int sourceRoute=page==Page::gate?int(raw("gateAfterRig")>.5f):int(sourceIsActive());
         const int sourceKey=int(page)*2+sourceRoute;
         if(sourceKey!=observedSourceKey) {
@@ -354,7 +371,8 @@ private:
     juce::AudioProcessorValueTreeState& state;CommonDynamics& dsp;DynamicsSpectrumPanel spectrum;
     Page page{Page::compressor};std::array<juce::TextButton,6> tabs;
     static constexpr std::array<Page,6> tabPages{Page::compressor,Page::gate,Page::expander,Page::limiter,Page::multiband,Page::deesser};
-    juce::ComboBox detector,gateMode,gate2Mode,mbDetector,mbBandSelector;
+    juce::ComboBox detector,gateMode,gate2Mode,mbDetector,mbBandSelector,mbStereo;
+    juce::Slider mbLink;std::unique_ptr<SA> mbLinkAttachment;bool channelNamesMidSide{true};
     juce::TextButton gate2On,expanderOn,expanderPlacement;std::array<juce::TextButton,2> gateSides;
     juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen;
     juce::TextButton autoSet{"AUTO SET"},autoUndo{"UNDO AUTO"};juce::TextButton autoOptions;AutoSetOptions autoOptionsValue;juce::String autoText;bool autoBusy{};

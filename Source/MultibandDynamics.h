@@ -56,6 +56,26 @@ inline void appendMultibandParameters(juce::AudioProcessorValueTreeState::Parame
     }
 }
 
+// Stereo link and M/S (docs/MULTIBAND_STEREO_1_5.md): appended after every
+// released parameter at their own version; the defaults (L/R, 100 % link,
+// both channels) reproduce the original linked processing exactly.
+inline constexpr int multibandStereoParameterVersion = 18;
+inline constexpr int multibandStereoParameterCount = 2 + multibandBandCount;
+inline juce::StringArray multibandChannelNames() { return {"Both", "Mid / Left", "Side / Right"}; }
+inline void appendMultibandStereoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        juce::ParameterID{"mbStereoMode", multibandStereoParameterVersion}, "Multiband stereo mode",
+        juce::StringArray{"Left / Right", "Mid / Side"}, 0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{"mbLink", multibandStereoParameterVersion}, "Multiband stereo link",
+        juce::NormalisableRange<float>{0.f, 100.f, .1f}, 100.f,
+        juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float v, int) { return juce::String(juce::roundToInt(v)) + " %"; })));
+    for (int i = 0; i < multibandBandCount; ++i)
+        layout.add(std::make_unique<juce::AudioParameterChoice>(
+            juce::ParameterID{multibandID(i, "channels"), multibandStereoParameterVersion},
+            "Multiband band " + juce::String(i + 1) + " channels", multibandChannelNames(), 0));
+}
+
 class MultibandDynamics {
 public:
     static constexpr int latencySamples() noexcept { return MultibandDynamicsCore::latencySamples(); }
@@ -66,6 +86,10 @@ public:
         for (int band = 0; band < multibandBandCount; ++band)
             for (size_t field = 0; field < bandFields.size(); ++field)
                 parameters[size_t(band)][field] = state.getRawParameterValue(multibandID(band, bandFields[field]));
+        stereoMode = state.getRawParameterValue("mbStereoMode");
+        link = state.getRawParameterValue("mbLink");
+        for (int band = 0; band < multibandBandCount; ++band)
+            bandChannels[size_t(band)] = state.getRawParameterValue(multibandID(band, "channels"));
     }
 
     void prepare(double rate, int /*maximumBlockSize*/ = 0) noexcept {
@@ -105,11 +129,13 @@ public:
 
     MultibandBandSettings values(int band) const noexcept {
         const auto& p = parameters[size_t(std::clamp(band, 0, multibandBandCount - 1))];
+        const int b = std::clamp(band, 0, multibandBandCount - 1);
         return {read(p[0], 0.f, 1.f, 0.f) > .5f, int(read(p[1], 0.f, 3.f, 0.f)),
                 read(p[2], -72.f, 0.f, -24.f), read(p[3], 0.f, 36.f, 6.f),
                 read(p[4], 1.f, 20.f, 2.f), read(p[5], .1f, 200.f, 10.f),
                 read(p[6], 5.f, 2000.f, 120.f), read(p[7], 0.f, 24.f, 6.f),
-                read(p[8], -24.f, 24.f, 0.f), read(p[9], 0.f, 1.f, 0.f) > .5f};
+                read(p[8], -24.f, 24.f, 0.f), read(p[9], 0.f, 1.f, 0.f) > .5f,
+                juce::roundToInt(read(bandChannels[size_t(b)], 0.f, 2.f, 0.f))};
     }
 
 private:
@@ -122,6 +148,8 @@ private:
         s.on = enabled();
         s.mix = read(globals[1], 0.f, 1.f, 1.f);
         s.detector = int(read(globals[2], 0.f, 1.f, 1.f));
+        s.stereo = juce::roundToInt(read(stereoMode, 0.f, 1.f, 0.f));
+        s.link = read(link, 0.f, 100.f, 100.f) / 100.f;
         s.crossovers = crossovers();
         for (int i = 0; i < multibandBandCount; ++i) s.bands[size_t(i)] = values(i);
         return s;
@@ -139,6 +167,9 @@ private:
         "bypass", "mode", "threshold", "range", "ratio", "attack", "release", "knee", "makeup", "solo"};
     std::array<std::atomic<float>*, 6> globals{};
     std::array<std::array<std::atomic<float>*, 10>, multibandBandCount> parameters{};
+    std::atomic<float>* stereoMode{};
+    std::atomic<float>* link{};
+    std::array<std::atomic<float>*, multibandBandCount> bandChannels{};
     std::array<std::atomic<float>, multibandBandCount> meters{};
     std::array<std::atomic<float>, 3> applied{};
     std::atomic<double> uiRate{48000.};

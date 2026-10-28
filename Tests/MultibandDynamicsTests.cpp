@@ -42,7 +42,7 @@ float get(ChimeraProcessor& processor, const juce::String& id) {
 }
 
 void parameterContract(ChimeraProcessor& processor) {
-    check(processor.getParameters().size() == originalParameterCount + newParameterCount + extraGateParameterCount,
+    check(processor.getParameters().size() == originalParameterCount + newParameterCount + extraGateParameterCount+spectralforge::multibandStereoParameterCount,
           "New dynamics did not append exactly 55 parameters after the released prefix");
     check(processor.parameters().getParameter("liveLimiterRelease")->getParameterIndex() == 5025,
           "Released common-dynamics parameter moved");
