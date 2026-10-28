@@ -12,8 +12,13 @@ namespace spectralforge {
 // reflections from image sources of a declared rectangular room plus an
 // 8-line feedback delay network for the late decay. Stereo in, stereo wet
 // out (added to the output). All memory is allocated in prepare().
+// Room Advanced 1.8 shaping (docs/ROOM_ADVANCED_1_8.md). The defaults are
+// exactly the Room Core room: weights 1, decay 1x, diffusion 0.
+struct RoomShape { float early{1.f}, late{1.f}, diffusion{0.f}; };
+
 class RoomModel {
 public:
+    using Shape = RoomShape;
     enum Size { small = 0, medium = 1, large = 2 };
     struct Geometry { float length, width, height, rt60AtHalf; };
     // Declared rooms (metres) and the late RT60 at 50 % absorption.
@@ -46,6 +51,10 @@ public:
         const double longest = 2.3 * 3.0 * meanFreePath(large) / speedOfSound;
         lineCapacity = int(std::ceil(rate * longest)) + 2;
         for (auto& line : lines) line.assign(size_t(lineCapacity), 0.f);
+        // Four Schroeder all-passes per side for the diffusion blend.
+        static constexpr std::array<double, 4> diffuserSeconds{.0031, .0047, .0071, .0109};
+        for (size_t k = 0; k < diffusers[0].size(); ++k)
+            for (auto& side : diffusers) side[k].assign(size_t(std::max(2.0, std::round(rate * diffuserSeconds[k]))), 0.f);
         configure(medium, .5f);
         reset();
     }
@@ -55,11 +64,17 @@ public:
         lowpass.fill(0.f);
         earlyWrite = 0;
         lineWrite = 0;
+        for (auto& side : diffusers) for (auto& d : side) std::fill(d.begin(), d.end(), 0.f);
+        diffuserWrite = {};
     }
-    // Room size and absorption (0-1). Allocation-free; call per block.
-    void configure(int size, float absorption) noexcept {
+    // Room size, absorption (0-1) and the 1.8 decay scale (0.25-4, RT60
+    // multiplier). Allocation-free; call per block.
+    void configure(int size, float absorption, float decay = 1.f) noexcept {
         size = std::clamp(size, 0, 2);
         absorption = std::clamp(absorption, 0.f, 1.f);
+        decay = std::clamp(decay, .25f, 4.f);
+        if (decay != currentDecay && size == currentSize && absorption == currentAbsorption) currentAbsorption = -2.f;   // recompute, ramped
+        currentDecay = decay;
         if (size != currentSize) {
             currentSize = size;
             placeReflections();
@@ -71,8 +86,8 @@ public:
         }
         if (absorption == currentAbsorption) return;
         // A new size (or a fresh model) starts at its gains; an absorption
-        // change ramps to them across the next processed block.
-        const bool snap = currentAbsorption < 0.f;
+        // or decay change ramps to them across the next processed block.
+        const bool snap = currentAbsorption == -1.f;
         currentAbsorption = absorption;
         const float reflection = std::sqrt(1.f - wallAbsorption(absorption));
         for (int ear = 0; ear < 2; ++ear)
@@ -82,7 +97,7 @@ public:
             }
         // The damping low-pass also shortens the broadband decay: measured RT60
         // came out at 0.85-0.94 x the target, so line gains aim 1.12 x longer.
-        const double rt60 = 1.12 * geometry(size).rt60AtHalf * rt60Scale(absorption);
+        const double rt60 = 1.12 * geometry(size).rt60AtHalf * rt60Scale(absorption) * double(currentDecay);
         for (size_t i = 0; i < lines.size(); ++i)
             lineTarget[i] = float(std::pow(10.0, -3.0 * double(lineLength[i]) / (rt60 * rate)));
         dampingTarget = 1.f - std::exp(-juce::MathConstants<float>::twoPi * dampingCutoff(absorption) / float(rate));
@@ -91,7 +106,16 @@ public:
     }
     // Adds the wet room signal for `input` (1 or 2 channels) to `output`.
     // `inputGain` scales the excitation; `wetGain` the return.
-    void process(const float* const* input, float* const* output, int channels, int samples, float wetGain) noexcept {
+    // Starts the shaping at its target with no ramp: for a fresh or newly
+    // switched-in model, which has no earlier output to ramp from.
+    void snapShape(Shape shape) noexcept { earlyWeight = shape.early; lateWeight = shape.late; diffusionMix = shape.diffusion; }
+    void process(const float* const* input, float* const* output, int channels, int samples, float wetGain, Shape shape = {}) noexcept {
+        // Early/late weights and the diffusion blend move linearly across the
+        // block, like the absorption gains.
+        const float share = samples > 0 ? 1.f / float(samples) : 0.f;
+        const float earlyStep = (shape.early - earlyWeight) * share, lateStep = (shape.late - lateWeight) * share;
+        const float diffusionStep = (shape.diffusion - diffusionMix) * share;
+        const bool diffusing = diffusionMix > 0.f || shape.diffusion > 0.f;
         // Per-block absorption updates would step every gain at the block
         // edge, an audible zipper; they move linearly across the block instead.
         std::array<std::array<float, maxTaps>, 2> tapStep{};
@@ -112,7 +136,24 @@ public:
                 for (size_t i = 0; i < lines.size(); ++i) lineGain[i] += lineStep[i];
                 damping += dampingStep;
             }
+            earlyWeight += earlyStep;lateWeight += lateStep;diffusionMix += diffusionStep;
             const float left = input[0][n], right = channels > 1 ? input[1][n] : left;
+            // Diffusion blends the late network's excitation towards a copy
+            // smeared by four all-passes (g 0.7); 0 % leaves it untouched.
+            float lateLeftIn = left, lateRightIn = right;
+            if (diffusing) {
+                const auto diffuse = [this](int side, float x) {
+                    for (size_t k = 0; k < diffusers[size_t(side)].size(); ++k) {
+                        auto& line = diffusers[size_t(side)][k];auto& write = diffuserWrite[size_t(side)][k];
+                        const float delayed = line[write], v = x + .7f * delayed;
+                        line[write] = v;x = delayed - .7f * v;
+                        if (++write == line.size()) write = 0;
+                    }
+                    return x;
+                };
+                lateLeftIn = left + diffusionMix * (diffuse(0, left) - left);
+                lateRightIn = right + diffusionMix * (diffuse(1, right) - right);
+            }
             early[0][size_t(earlyWrite)] = left;
             early[1][size_t(earlyWrite)] = right;
             std::array<float, 2> reflections{};
@@ -139,17 +180,18 @@ public:
             const float householder = total * (2.f / float(lines.size()));
             float lateLeft = 0.f, lateRight = 0.f;
             for (size_t i = 0; i < lines.size(); ++i) {
-                const float excitation = (i & 1u) == 0 ? left : right;
+                const float excitation = (i & 1u) == 0 ? lateLeftIn : lateRightIn;
                 lines[i][size_t(lineWrite)] = out[i] - householder + excitation * lateInput;
                 lateLeft += out[i] * outputSign[0][i];
                 lateRight += out[i] * outputSign[1][i];
             }
             if (++lineWrite == lineCapacity) lineWrite = 0;
-            const float earlyGain = earlyLevel[size_t(currentSize)], lateGain = lateLevel[size_t(currentSize)];
+            const float earlyGain = earlyLevel[size_t(currentSize)] * earlyWeight, lateGain = lateLevel[size_t(currentSize)] * lateWeight;
             output[0][n] += wetGain * (reflections[0] * earlyGain + lateLeft * lateGain);
             if (channels > 1) output[1][n] += wetGain * (reflections[1] * earlyGain + lateRight * lateGain);
         }
         if (ramping && samples > 0) { tapGain = tapTarget; lineGain = lineTarget; damping = dampingTarget; ramping = false; }
+        if (samples > 0) { earlyWeight = shape.early; lateWeight = shape.late; diffusionMix = shape.diffusion; }
     }
 
     int size() const noexcept { return currentSize; }
@@ -208,7 +250,10 @@ private:
 
     double rate{48000.0};
     int currentSize{-1};
-    float currentAbsorption{-1.f};
+    float currentAbsorption{-1.f}, currentDecay{1.f};
+    float earlyWeight{1.f}, lateWeight{1.f}, diffusionMix{0.f};
+    std::array<std::array<std::vector<float>, 4>, 2> diffusers;
+    std::array<std::array<size_t, 4>, 2> diffuserWrite{};
     std::array<std::vector<float>, 2> early;
     int earlyLength{}, earlyWrite{};
     std::array<std::array<Tap, maxTaps>, 2> taps{};

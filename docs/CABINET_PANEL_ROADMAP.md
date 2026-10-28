@@ -14,7 +14,7 @@ without room-response parameters.
 | Assigned stage | Controls and result |
 |---|---|
 | 1.3.3 Room Core | Small / Medium / Large Room Size, per-rig Room Send, shared Absorption / Damping, Room Bypass and defined wet-return level; each control changes actual room audio. |
-| 1.8 Room Advanced | Early reflections, late decay, diffusion, room wet low/high cuts and stereo width. |
+| 1.8 Room Advanced | Early reflections, late decay, diffusion, room wet low/high cuts and stereo width. Implemented on `claude/room-advanced`: [ROOM_ADVANCED_1_8.md](ROOM_ADVANCED_1_8.md). |
 | 1.8 spatial stage | Declared modeled dimensions, wall/floor/ceiling absorption or material presets, cabinet-to-boundary placement and optional room-mic location independent of close Mic A/B. |
 
 Use one shared acoustic environment with one, two or three weighted rig sends

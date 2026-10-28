@@ -500,6 +500,9 @@ spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
 // Room Core 1.3.3 (version hint 15) appends after the extra gates.
 spectralforge::appendRoomParameters(p);
+// Room Advanced 1.8 (version hint 24) appends after every other bank; when
+// merged with the other 1.4-1.8 branches it stays last.
+spectralforge::appendRoomAdvancedParameters(p);
 return p;
 }
 

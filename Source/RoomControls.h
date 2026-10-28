@@ -26,6 +26,8 @@ class RoomControls : public juce::Component {
     std::unique_ptr<CA> sizeAttachment;
     Knob absorption, level;
     std::array<Knob, roomLaneCount> sends;
+    // Room Advanced 1.8: balance, decay, diffusion, wet cuts and width.
+    std::array<Knob, 6> advanced;
     int visibleSends{1};
 
     void setUp(Knob& knob, const juce::String& id, const juce::String& text, const juce::String& parameter,
@@ -74,6 +76,16 @@ public:
                   "roomSend" + juce::String(lane + 1),
                   "How much of rig " + juce::String(lane + 1) + "'s amp and cabinet goes into the room. "
                       "Matrix LOW sends only its AMP + CAB share; the DI stays dry.");
+        struct Spec { const char* id; const char* text; const char* parameter; const char* tooltip; };
+        static constexpr std::array<Spec, 6> specs{{
+            {"earlyLate", "EARLY / LATE", "roomEarlyLate", "Balance of early reflections and late tail. -100 % early only, 0 % the room as calibrated, +100 % tail only."},
+            {"decay", "DECAY", "roomDecay", "Late decay time relative to the size and absorption: 25 % to 400 %."},
+            {"diffusion", "DIFFUSION", "roomDiffusion", "Smears the sound entering the tail into a denser, smoother decay."},
+            {"lowCut", "LOW CUT", "roomLowCut", "Removes low frequencies from the room return only (12 dB/oct). 20 Hz is off."},
+            {"highCut", "HIGH CUT", "roomHighCut", "Removes high frequencies from the room return only (12 dB/oct). 20 kHz is off."},
+            {"width", "WIDTH", "roomWidth", "Stereo width of the room return: 0 % mono, 100 % as calibrated, 200 % wider."}}};
+        for (size_t i = 0; i < specs.size(); ++i)
+            setUp(advanced[i], specs[i].id, specs[i].text, specs[i].parameter, specs[i].tooltip);
     }
     ~RoomControls() override {
         powerAttachment.reset();
@@ -81,6 +93,7 @@ public:
         absorption.attachment.reset();
         level.attachment.reset();
         for (auto& send : sends) send.attachment.reset();
+        for (auto& knob : advanced) knob.attachment.reset();
     }
     // Rigs in the current routing mode (Classic 1, Dual 2, Matrix 3).
     void setRigCount(int count) {
@@ -93,10 +106,14 @@ public:
 
     void resized() override {
         auto area = getLocalBounds().reduced(8, 4);
-        const int rowHeight = juce::jmin(22, juce::jmax(16, area.getHeight() / 2 - 2));
+        const int rowHeight = juce::jmin(22, juce::jmax(16, area.getHeight() / 4 - 2));
         auto top = area.removeFromTop(rowHeight);
         area.removeFromTop(2);
         auto bottom = area.removeFromTop(rowHeight);
+        area.removeFromTop(4);
+        std::array<juce::Rectangle<int>, 2> extra{area.removeFromTop(rowHeight), {}};
+        area.removeFromTop(2);
+        extra[1] = area.removeFromTop(rowHeight);
         power.setBounds(top.removeFromLeft(64));
         top.removeFromLeft(8);
         size.setBounds(top.removeFromLeft(96));
@@ -116,6 +133,11 @@ public:
             send.label.setVisible(shown);
             send.slider.setVisible(shown);
             if (shown) place(send, bottom.removeFromLeft(sendWidth).withTrimmedRight(lane + 1 < visibleSends ? 12 : 0));
+        }
+        for (size_t i = 0; i < advanced.size(); ++i) {
+            auto& row = extra[i / 3];
+            const int cell = row.getWidth() / int(3 - i % 3);
+            place(advanced[i], row.removeFromLeft(cell).withTrimmedRight(i % 3 < 2 ? 12 : 0));
         }
     }
     void paint(juce::Graphics& g) override {

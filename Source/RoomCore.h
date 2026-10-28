@@ -33,6 +33,26 @@ inline void appendRoomParameters(juce::AudioProcessorValueTreeState::ParameterLa
         number("roomSend" + juce::String(lane + 1), "Rig " + juce::String(lane + 1) + " room send", 0.f, 100.f, 50.f, false);
 }
 
+// Room Advanced 1.8, first part (docs/ROOM_ADVANCED_1_8.md): early/late
+// balance, decay, diffusion, wet low/high cut and width. Appended after every
+// earlier bank at version hint 24; every default is the Room Core room, exactly.
+inline constexpr int roomAdvancedParameterVersion = 24;
+inline constexpr int roomAdvancedParameterCount = 6;
+inline void appendRoomAdvancedParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    const auto number = [&](const juce::String& id, const juce::String& name, float lo, float hi, float initial, float centre, const juce::String& unit) {
+        juce::NormalisableRange<float> range{lo, hi, .01f};
+        if (centre > lo && centre < hi) range.setSkewForCentre(centre);
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id, roomAdvancedParameterVersion}, name, range, initial,
+            juce::AudioParameterFloatAttributes().withStringFromValueFunction([unit](float v, int) { return juce::String(juce::roundToInt(v)) + unit; })));
+    };
+    number("roomEarlyLate", "Room early / late balance", -100.f, 100.f, 0.f, 0.f, " %");
+    number("roomDecay", "Room decay", 25.f, 400.f, 100.f, 100.f, " %");
+    number("roomDiffusion", "Room diffusion", 0.f, 100.f, 0.f, 0.f, " %");
+    number("roomLowCut", "Room low cut", 20.f, 1000.f, 20.f, 150.f, " Hz");
+    number("roomHighCut", "Room high cut", 1000.f, 20000.f, 20000.f, 5000.f, " Hz");
+    number("roomWidth", "Room width", 0.f, 200.f, 100.f, 0.f, " %");
+}
+
 class RoomCore {
 public:
     void bind(juce::AudioProcessorValueTreeState& state) {
@@ -42,6 +62,12 @@ public:
         returnDb = state.getRawParameterValue("roomReturn");
         for (int lane = 0; lane < roomLaneCount; ++lane)
             send[size_t(lane)] = state.getRawParameterValue("roomSend" + juce::String(lane + 1));
+        earlyLate = state.getRawParameterValue("roomEarlyLate");
+        decay = state.getRawParameterValue("roomDecay");
+        diffusion = state.getRawParameterValue("roomDiffusion");
+        lowCut = state.getRawParameterValue("roomLowCut");
+        highCut = state.getRawParameterValue("roomHighCut");
+        width = state.getRawParameterValue("roomWidth");
     }
     void prepare(const juce::dsp::ProcessSpec& spec) {
         rate = spec.sampleRate;
@@ -56,6 +82,8 @@ public:
         sizeFade.reset(rate, .05);
         oldOut.reset(rate, .25);
         feedGain.reset(rate, .02);
+        for (auto* v : {&lowMix, &highMix, &widthGain}) v->reset(rate, .02);
+        for (auto* v : {&lowHz, &highHz}) v->reset(rate, .02);
         reset();
     }
     void reset() noexcept {
@@ -72,7 +100,11 @@ public:
         absorptionSmooth.setCurrentAndTargetValue(readAbsorption());
         sizeFade.setCurrentAndTargetValue(1.f);
         oldOut.setCurrentAndTargetValue(0.f);
-        if (prepared) models[0].configure(readSize(), readAbsorption());
+        const auto a = readAdvanced();
+        lowMix.setCurrentAndTargetValue(a.lowOn ? 1.f : 0.f);highMix.setCurrentAndTargetValue(a.highOn ? 1.f : 0.f);
+        lowHz.setCurrentAndTargetValue(a.lowHz);highHz.setCurrentAndTargetValue(a.highHz);widthGain.setCurrentAndTargetValue(a.width);
+        lowFilter = {};highFilter = {};
+        if (prepared) { models[0].configure(readSize(), readAbsorption(), a.decay); models[0].snapShape(a.shape); }
         inputPeak.store(0.f, std::memory_order_relaxed);
     }
 
@@ -129,8 +161,10 @@ public:
         const int wanted = readSize();
         if (!fading && wanted != models[size_t(active)].size()) {
             const int next = 1 - active;
+            const auto shaping = readAdvanced();
             models[size_t(next)].reset();
-            models[size_t(next)].configure(wanted, absorptionSmooth.getCurrentValue());
+            models[size_t(next)].configure(wanted, absorptionSmooth.getCurrentValue(), shaping.decay);
+            models[size_t(next)].snapShape(shaping.shape);
             active = next;
             fading = true;
             sizeFade.setCurrentAndTargetValue(0.f);
@@ -141,8 +175,9 @@ public:
         absorptionSmooth.setTargetValue(readAbsorption());
         absorptionSmooth.skip(samples);
         const float absorbed = absorptionSmooth.getCurrentValue();
-        models[size_t(active)].configure(models[size_t(active)].size(), absorbed);
-        if (fading) models[size_t(1 - active)].configure(models[size_t(1 - active)].size(), absorbed);
+        const auto advanced = readAdvanced();
+        models[size_t(active)].configure(models[size_t(active)].size(), absorbed, advanced.decay);
+        if (fading) models[size_t(1 - active)].configure(models[size_t(1 - active)].size(), absorbed, advanced.decay);
         silence.setSize(channels, samples, false, false, true);
         const auto& source = input != nullptr ? *input : silence;
         for (auto& w : wet) { w.setSize(channels, samples, false, false, true); w.clear(); }
@@ -156,16 +191,50 @@ public:
                     feedIn[1].setSample(c, n, x * (1.f - mix));
                 }
             }
-            models[size_t(active)].process(feedIn[0].getArrayOfReadPointers(), wet[0].getArrayOfWritePointers(), channels, samples, 1.f);
-            models[size_t(1 - active)].process(feedIn[1].getArrayOfReadPointers(), wet[1].getArrayOfWritePointers(), channels, samples, 1.f);
+            models[size_t(active)].process(feedIn[0].getArrayOfReadPointers(), wet[0].getArrayOfWritePointers(), channels, samples, 1.f, advanced.shape);
+            models[size_t(1 - active)].process(feedIn[1].getArrayOfReadPointers(), wet[1].getArrayOfWritePointers(), channels, samples, 1.f, advanced.shape);
         }
-        else models[size_t(active)].process(source.getArrayOfReadPointers(), wet[0].getArrayOfWritePointers(), channels, samples, 1.f);
+        else models[size_t(active)].process(source.getArrayOfReadPointers(), wet[0].getArrayOfWritePointers(), channels, samples, 1.f, advanced.shape);
+        // Wet low/high cut (12 dB/oct) and width (mid/side). A cut at its end
+        // stop, or 100 % width, is switched out through a 20 ms mix, so the
+        // Room Core return stays sample-exact at the defaults.
+        lowMix.setTargetValue(advanced.lowOn ? 1.f : 0.f);highMix.setTargetValue(advanced.highOn ? 1.f : 0.f);
+        // A cut switched in from off starts at its own frequency (no sweep up
+        // from the end stop) on a cleared filter, faded in by its mix.
+        if (lowMix.getCurrentValue() <= 0.f && !lowMix.isSmoothing()) { lowHz.setCurrentAndTargetValue(advanced.lowHz); lowFilter = {}; }
+        if (highMix.getCurrentValue() <= 0.f && !highMix.isSmoothing()) { highHz.setCurrentAndTargetValue(advanced.highHz); highFilter = {}; }
+        lowHz.setTargetValue(advanced.lowHz);highHz.setTargetValue(advanced.highHz);widthGain.setTargetValue(advanced.width);
+        const bool shaping = lowMix.isSmoothing() || highMix.isSmoothing() || widthGain.isSmoothing() || lowMix.getCurrentValue() > 0.f
+            || highMix.getCurrentValue() > 0.f || widthGain.getCurrentValue() != 1.f;
         float wetPeak = 0.f;
         for (int n = 0; n < samples; ++n) {
             const float gain = returnGain.getNextValue();
             const float old = fading ? oldOut.getNextValue() : 0.f;
-            for (int c = 0; c < channels; ++c) {
-                const float value = gain * (wet[0].getSample(c, n) + old * wet[1].getSample(c, n));
+            if (!shaping) {
+                for (int c = 0; c < channels; ++c) {
+                    const float value = gain * (wet[0].getSample(c, n) + old * wet[1].getSample(c, n));
+                    output.addSample(c, n, value);
+                    wetPeak = std::max(wetPeak, std::abs(value));
+                }
+                continue;
+            }
+            // Smoothstep on the linear mix ramps: the fade has no slope corner
+            // at either end.
+            const auto ease = [](float m) { return m * m * (3.f - 2.f * m); };
+            const float lm = ease(lowMix.getNextValue()), hm = ease(highMix.getNextValue()), wg = widthGain.getNextValue();
+            const double gl = std::tan(juce::MathConstants<double>::pi * double(lowHz.getNextValue()) / rate);
+            const double gh = std::tan(juce::MathConstants<double>::pi * std::min(double(highHz.getNextValue()), rate * .45) / rate);
+            std::array<float, 2> v{};
+            for (int c = 0; c < channels && c < 2; ++c) {
+                float x = wet[0].getSample(c, n) + old * wet[1].getSample(c, n);
+                // A cut switched fully out drops its state, so switching it in starts clean.
+                if (lm > 0.f) x += lm * (float(lowFilter[size_t(c)].tick(x, gl)[2]) - x); else lowFilter[size_t(c)] = {};
+                if (hm > 0.f) x += hm * (float(highFilter[size_t(c)].tick(x, gh)[0]) - x); else highFilter[size_t(c)] = {};
+                v[size_t(c)] = x;
+            }
+            if (channels > 1) { const float mid = .5f * (v[0] + v[1]), side = .5f * (v[0] - v[1]) * wg; v[0] = mid + side; v[1] = mid - side; }
+            for (int c = 0; c < channels && c < 2; ++c) {
+                const float value = gain * v[size_t(c)];
                 output.addSample(c, n, value);
                 wetPeak = std::max(wetPeak, std::abs(value));
             }
@@ -182,7 +251,7 @@ public:
     // parameters only, so any thread may ask; zero with the room off.
     double tailSeconds() const noexcept {
         if (!feeding()) return 0.0;
-        return 2.0 * 1.1 * double(RoomModel::geometry(readSize()).rt60AtHalf * RoomModel::rt60Scale(readAbsorption())) + .1 + .05;
+        return 2.0 * 1.1 * double(RoomModel::geometry(readSize()).rt60AtHalf * RoomModel::rt60Scale(readAbsorption())) * double(readAdvanced().decay) + .1 + .05;
     }
     // Samples run through the room since prepare/reset: zero proves Room off
     // cost nothing.
@@ -196,6 +265,46 @@ private:
     int readSize() const noexcept { return size != nullptr ? juce::jlimit(0, 2, juce::roundToInt(size->load())) : 1; }
     float readAbsorption() const noexcept { return absorption != nullptr ? juce::jlimit(0.f, 1.f, absorption->load() * .01f) : .5f; }
     static constexpr float tailFloor = 1.e-6f;   // -120 dBFS
+    struct Advanced { RoomModel::Shape shape; float decay{1.f}; bool lowOn{}, highOn{}; float lowHz{20.f}, highHz{20000.f}, width{1.f}; };
+    Advanced readAdvanced() const noexcept {
+        const auto read = [](const std::atomic<float>* p, float lo, float hi, float fallback) {
+            const float v = p != nullptr ? p->load() : fallback;
+            return std::isfinite(v) ? juce::jlimit(lo, hi, v) : fallback;
+        };
+        Advanced a;
+        // -100 % keeps only the early reflections, +100 % only the late tail.
+        const float balance = read(earlyLate, -100.f, 100.f, 0.f) * .01f;
+        a.shape.early = juce::jlimit(0.f, 1.f, 1.f - balance);a.shape.late = juce::jlimit(0.f, 1.f, 1.f + balance);
+        a.shape.diffusion = read(diffusion, 0.f, 100.f, 0.f) * .01f;
+        // The skewed range returns 100 % as 99.99999; within half a step of
+        // 100 % the decay is exactly 1x, so the default room stays exact.
+        const float decayPercent = read(decay, 25.f, 400.f, 100.f);
+        a.decay = std::abs(decayPercent - 100.f) < .005f ? 1.f : decayPercent * .01f;
+        a.lowHz = read(lowCut, 20.f, 1000.f, 20.f);a.highHz = read(highCut, 1000.f, 20000.f, 20000.f);
+        a.lowOn = a.lowHz > 20.5f;a.highOn = a.highHz < 19950.f;
+        const float widthPercent = read(width, 0.f, 200.f, 100.f);
+        a.width = std::abs(widthPercent - 100.f) < .005f ? 1.f : widthPercent * .01f;
+        return a;
+    }
+    // Zero-delay-feedback state-variable filter (Q 0.707); returns {low, band, high}.
+    struct SVF {
+        double ic1{}, ic2{};
+        std::array<double, 3> tick(double x, double g) noexcept {
+            const double k = 1.41421356, a1 = 1. / (1. + g * (g + k)), a2 = g * a1, a3 = g * a2;
+            const double v3 = x - ic2, v1 = a1 * ic1 + a2 * v3, v2 = ic2 + a2 * ic1 + a3 * v3;
+            ic1 = 2. * v1 - ic1;ic2 = 2. * v2 - ic2;
+            return {v2, v1, x - k * v1 - v2};
+        }
+    };
+    std::atomic<float>* earlyLate{};
+    std::atomic<float>* decay{};
+    std::atomic<float>* diffusion{};
+    std::atomic<float>* lowCut{};
+    std::atomic<float>* highCut{};
+    std::atomic<float>* width{};
+    juce::SmoothedValue<float> lowMix, highMix, widthGain;
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Multiplicative> lowHz{20.f}, highHz{20000.f};
+    std::array<SVF, 2> lowFilter{}, highFilter{};
 
     std::atomic<float>* size{};
     std::atomic<float>* absorption{};

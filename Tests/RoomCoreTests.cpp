@@ -64,14 +64,14 @@ float settledPeak(ChimeraProcessor& p,double hz,float level,int& clock) {
 
 void parameterContract() {
     const auto p=std::make_unique<ChimeraProcessor>();
-    int index=p->getParameters().size()-spectralforge::roomParameterCount;
+    int index=p->getParameters().size()-spectralforge::roomParameterCount-spectralforge::roomAdvancedParameterCount;
     for(const auto* id:{"roomOn","roomSize","roomAbsorption","roomReturn","roomSend1","roomSend2","roomSend3"}) {
         const auto* parameter=p->parameters().getParameter(id);
         require(parameter && parameter->getParameterIndex()==index++ && parameter->getVersionHint()==spectralforge::roomParameterVersion && parameter->isAutomatable(),
-                "Room Core parameters must append last, in order, at version 15");
+                "Room Core parameters must append in order at version 15, before Room Advanced");
     }
     require(p->parameters().getRawParameterValue("roomOn")->load()<.5f,"The room must default to off");
-    std::cout<<"PASS Room Core parameters: 7 appended last at version 15, room off by default\n";
+    std::cout<<"PASS Room Core parameters: 7 appended in order at version 15, room off by default\n";
 }
 void roomOffIsIdentical() {
     auto plain=make(),changed=make();

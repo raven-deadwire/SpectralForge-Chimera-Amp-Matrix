@@ -311,7 +311,7 @@ public:
     }
     void openRoomControls() {
         auto controls=std::make_unique<spectralforge::cabRoom::RoomControls>(processor);
-        controls->setRigCount(activeRigCount());controls->setSize(620,60);
+        controls->setRigCount(activeRigCount());controls->setSize(620,112);
         juce::CallOutBox::launchAsynchronously(std::move(controls),roomButton.getScreenBounds(),nullptr);
     }
     int activeRigCount() const {return spectralforge::cabRoom::rigCount(processor);}
