@@ -1,4 +1,5 @@
 #pragma once
+#include "ParamIndex.h"
 #include "FactoryPresetLevels.h"
 #include "FactoryCabVoicing.h"
 #include "FactoryPresetFinishing.h"
@@ -40,17 +41,18 @@ inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeStat
     if(song<0 || song>=int(guitarSignatures.size()))return {};
     auto snapshot=state.copyState();
     snapshot.removeChild(snapshot.getChildWithName("ORIGINAL_PRESET"),nullptr);
+    ParamIndex byId(snapshot);
     for(auto* raw:state.processor.getParameters()) {
         auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw);
         if(!p)continue;
-        auto node=snapshot.getChildWithProperty("id",p->paramID);
-        if(!node.isValid()) {node=juce::ValueTree("PARAM");node.setProperty("id",p->paramID,nullptr);snapshot.appendChild(node,nullptr);}
+        auto node=byId[p->paramID];
+        if(!node.isValid()) {node=juce::ValueTree("PARAM");node.setProperty("id",p->paramID,nullptr);snapshot.appendChild(node,nullptr);byId.add(node);}
         node.setProperty("value",p->convertFrom0to1(p->getDefaultValue()),nullptr);
     }
     auto set=[&](const juce::String& id,float value) {
         auto* p=state.getParameter(id);
         jassert(p!=nullptr);
-        if(p) snapshot.getChildWithProperty("id",id).setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);
+        if(p) byId[id].setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);
     };
     const bool matrix=song>=2;
     set("mode",matrix?2.f:1.f);set("input",0);set("output",factoryOutputDb[size_t(factoryPresetCount+song)]);set("gateAfterRig",1);
@@ -121,7 +123,7 @@ inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeStat
     metadata.setProperty("formatVersion",2,nullptr);metadata.setProperty("acceptance","CANDIDATE_SYNTHETIC_ONLY",nullptr);
     metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);snapshot.appendChild(metadata,nullptr);
-    const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
+    const auto get=[&](const juce::String& id){return float(byId[id].getProperty("value"));};
     voiceFactoryCab(factoryPresetCount+song,get,set);
     voiceFactoryFinishing(factoryPresetCount+song,get,set);
     return snapshot;

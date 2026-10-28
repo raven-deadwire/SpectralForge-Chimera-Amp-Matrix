@@ -1,0 +1,13 @@
+Test project /workspace/scratch/4b62b0edff83/chimera/build-capture
+    Start 37: ChimeraABLevelMatchUITests
+1/1 Test #37: ChimeraABLevelMatchUITests .......***Failed    0.01 sec
+FAIL MATCH UI test requires a working native display (use Tools/run_linux_ui_tests.py on Linux)
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+	 37 - ChimeraABLevelMatchUITests (Failed)
+Errors while running CTest

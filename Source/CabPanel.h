@@ -53,11 +53,11 @@ private:
         juce::ComboBox cabinet, microphone;
         spectralforge::capturedCabArt::CabinetView cabinetImage;
         spectralforge::capturedCabArt::MicrophoneView microphoneImage;
-        juce::TextButton browse{"IR LIBRARY"}, invert{"POLARITY"};
+        juce::TextButton browse{"IR LIBRARY"}, invert{"POLARITY"},cutsOff{"CUTS OFF"};
         std::array<juce::Slider,4> sliders;
         std::array<juce::Label,4> labels;
         std::vector<std::unique_ptr<SA>> attachments;
-        std::unique_ptr<BA> polarity;
+        std::unique_ptr<BA> polarity,cutBypass;
     };
     std::array<Slot,2> slots;
     std::vector<spectralforge::IRCollection::Entry> entries;
@@ -164,10 +164,11 @@ private:
             // Keep its source selectors available for an intentional switch,
             // but do not let inactive IR controls edit the modeled mic's cuts.
             for(size_t k=0;k<slot.sliders.size();++k) {
-                slot.sliders[k].setEnabled(!inactiveIR);
-                slot.labels[k].setEnabled(!inactiveIR);
+                const bool enabled=!inactiveIR && (k<2 || !slot.cutsOff.getToggleState());
+                slot.sliders[k].setEnabled(enabled);
+                slot.labels[k].setEnabled(enabled);
             }
-            slot.invert.setEnabled(!inactiveIR);
+            slot.invert.setEnabled(!inactiveIR);slot.cutsOff.setEnabled(!inactiveIR);
             slot.cabinetImage.setActive(!modeled && !off);slot.microphoneImage.setActive(!modeled && !off);
             const auto name=processor.micName(lane,i);
             // Asset/metadata revisions also distinguish equal basenames. Kernel
@@ -253,7 +254,7 @@ public:
         cabinetTab.onClick=[this]{setView(View::cabinet);};irLoaderTab.onClick=[this]{setView(View::irLoader);};
         for(int i=0;i<2;++i) {
             auto& s=slots[i];s.title.setText(i ? "MIC B" : "MIC A",juce::dontSendNotification);
-            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.invert,&s.microphoneCaption})addAndMakeVisible(c);
+            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.invert,&s.cutsOff,&s.microphoneCaption})addAndMakeVisible(c);
             addAndMakeVisible(s.cabinetImage);addAndMakeVisible(s.microphoneImage);
             const auto componentPrefix=juce::String(i ? "cabB" : "cabA");
             s.cabinetImage.setComponentID(componentPrefix+"cabinetImage"+n);s.microphoneImage.setComponentID(componentPrefix+"micImage"+n);
@@ -296,6 +297,9 @@ public:
             s.invert.setColour(juce::TextButton::buttonOnColourId,juce::Colour(0xff21667a));
             s.invert.setTooltip("Invert this microphone's signal polarity");
             s.polarity=std::make_unique<BA>(processor.parameters(),prefix+"invert"+n,s.invert);
+            s.cutsOff.setComponentID(prefix+"cutsOff"+n);s.cutsOff.setClickingTogglesState(true);
+            s.cutsOff.setTooltip("Bypass this mic's low/high cuts. Enabled when loading an exported cabinet whose filters are already in the WAV.");
+            s.cutBypass=std::make_unique<BA>(processor.parameters(),prefix+"cutsOff"+n,s.cutsOff);
         }
         blendLabel.setText("MIC A  /  BLEND  /  MIC B",juce::dontSendNotification);addAndMakeVisible(blendLabel);addAndMakeVisible(blend);
         blendLabel.setFont(juce::FontOptions(12.f,juce::Font::bold));
@@ -368,7 +372,7 @@ public:
                 s.microphoneCaption.setBounds(x+16+stageWidthPixels-captionWidth,y+231,captionWidth,31);
                 s.cabinet.setBounds(x+16,y+280,width-32,28);s.microphone.setBounds(x+16,y+317,width-32,28);
                 s.reference.setBounds(x+16,y+347,width-32,22);
-                s.browse.setBounds(x+16,y+378,140,28);s.invert.setBounds(x+171,y+378,116,28);
+                s.browse.setBounds(x+16,y+378,140,28);s.invert.setBounds(x+171,y+378,116,28);s.cutsOff.setBounds(x+298,y+378,100,28);
                 for(int k=0;k<4;++k) {
                     s.labels[size_t(k)].setBounds(x+16,y+422+k*38,118,26);
                     s.sliders[size_t(k)].setBounds(x+140,y+422+k*38,width-156,26);
@@ -388,7 +392,7 @@ public:
                     s.labels[size_t(k)].setBounds(x,505+(k-2)*50,width,19);
                     s.sliders[size_t(k)].setBounds(x,525+(k-2)*50,width,26);
                 }
-                s.invert.setBounds(x,607,width,27);s.status.setBounds(x,642,width,42);
+                s.invert.setBounds(x,607,width/2-3,27);s.cutsOff.setBounds(x+width/2+3,607,width/2-3,27);s.status.setBounds(x,642,width,42);
             }
         }
         blendLabel.setBounds(20,getHeight()-42,215,28);blend.setBounds(235,getHeight()-42,getWidth()-255,28);

@@ -1,0 +1,18 @@
+{
+  "head_sha": "d1804e301754584545ac530e2769f6a72e84611a",
+  "run_id": 40322920228,
+  "attempt": 1,
+  "job_id": 121572168240,
+  "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/40322920228/job/121572168240",
+  "build_started": "2026-10-26T17:06:01Z",
+  "build_ended": "2026-10-26T18:06:13Z",
+  "build_seconds": 3612,
+  "errors": [
+    "2026-10-26T18:06:13.3428561Z ##[error]The action 'Build product and regression checks' has timed out after 60 minutes."
+  ],
+  "cab_test_executable_linked": [
+    "2026-10-26T17:19:38.1379635Z   ChimeraCabExportTests.vcxproj -> D:\\a\\SpectralForge-Chimera-Amp-Matrix\\SpectralForge-Chimera-Amp-Matrix\\build\\ChimeraCabExportTests_artefacts\\Release\\ChimeraCabExportTests.exe"
+  ],
+  "ctest": "skipped after timeout",
+  "conclusion": "incomplete build due to 60-minute step timeout; no compiler/linker errors matched in retrieved complete job log; no DSP test result"
+}

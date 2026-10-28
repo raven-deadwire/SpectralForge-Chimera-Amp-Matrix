@@ -1,0 +1,9 @@
+Test project /workspace/scratch/4b62b0edff83/chimera/build-capture
+    Start  2: ChimeraHostBypassTests
+1/2 Test  #2: ChimeraHostBypassTests ...........   Passed    0.01 sec
+    Start 36: ChimeraABLevelMatchTests
+2/2 Test #36: ChimeraABLevelMatchTests .........   Passed   26.10 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =  26.12 sec
