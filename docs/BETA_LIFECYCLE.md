@@ -11,7 +11,7 @@ historical `1.3.1-beta.3` candidate, not the current public release.
 | Policy field | Approved public v1.3.2-beta.1 value |
 | --- | --- |
 | Product / package version | `1.3.2` / `1.3.2-beta.1` |
-| UTC expiry (inclusive) | `2027-02-11T14:59:00Z` |
+| UTC expiry threshold (expired at or after) | `2027-02-11T14:59:00Z` |
 | Korea expiry | `2027-02-11 23:59:00 KST (UTC+09:00)` |
 | Unix expiry | `1802357940` |
 | Approval | `expiry_approved: true` |
@@ -36,7 +36,7 @@ historical record of the published release and its own approval.
 | Policy field | Approved 1.3.2-beta.2 value |
 | --- | --- |
 | Product / package version | `1.3.2` / `1.3.2-beta.2` |
-| UTC expiry (inclusive) | `2027-03-31T14:59:00Z` |
+| UTC expiry threshold (expired at or after) | `2027-03-31T14:59:00Z` |
 | Korea expiry | `2027-03-31 23:59:00 KST (UTC+09:00)` |
 | Unix expiry | `1806505140` |
 | Approval | `expiry_approved: true` |
@@ -55,15 +55,15 @@ The owner decided that beta testers receive a code that lifts the expiry
 indefinitely, for this and every later beta. Public users keep the approved
 expiry above.
 
-- **Code:** `CHT1-<NAME>-<CHECK>`, e.g. `CHT1-ZIEL-7K3Q9X`, names one tester
-  (2-16 letters/digits). `CHECK` is the first 30 bits of
-  HMAC-SHA256(secret, `chimera-tester-v1|NAME`) in Crockford base32, so one
-  code does not reveal another (`Source/TesterCode.h`, `Tools/tester_code.py`).
-  The secret reaches release builds only through the `CHIMERA_TESTER_SECRET`
-  GitHub Actions secret, read at configure time; it is never committed
-  (`*.private.json` is ignored and a test fails if a secret file appears). A
-  build without it accepts no codes, and non-PR runs of `build.yml` fail
-  without it. Lower case, spaces, and O/I/L typed for 0/1 are accepted.
+- **Code:** `CHT1-<NAME>-<CHECK>` retains the short name plus six-character
+  Crockford Base32 format. Only the owner's separate tool issues random codes.
+  The product contains approved SHA-256 digests of the canonical full code,
+  never an issuance secret or generator. The checked-in public manifest
+  `Validation/tester-code-allowlist.json` is deliberately empty, so default
+  builds reject every code until separately approved entries are added.
+  Existing HMAC codes are not automatically accepted: preserving a code requires
+  its full-code digest to be explicitly approved. Lower case, spaces, and
+  O/I/L typed for 0/1 are accepted. Plaintext codes stay outside Git and CI logs.
 - **Entry:** SETTINGS → *Enter beta tester code...*. Only a verified code is
   stored, per user and computer, in
   `<user application data>/SpectralForge/Chimera/beta-tester-code.txt`. It is
@@ -74,12 +74,16 @@ expiry above.
   unmutes the instance it is entered in; other open instances pick it up on
   *RECHECK CLOCK* or when reopened. Removing the code never mutes an instance
   that is already playing; the expiry applies again to newly opened instances.
-- **Limits:** a code does not override invalid build metadata. Codes cannot be
-  revoked offline, and a shared code works for whoever holds it; each code
-  names its tester so its origin is known. The secret is inside every release
-  binary, so someone who extracts it can make codes; changing the secret
-  invalidates every issued code in later builds. Like the expiry itself, this is
-  basic offline control, not tamper-proof DRM.
+- **Limits:** a code does not override invalid build metadata. A shared code
+  works for whoever holds it; its name is not proof of identity. The six-character
+  suffix is only 30 bits and publicly embedded hashes permit offline guessing.
+  This is limited beta-access management, not strong licensing or tamper-proof
+  DRM. There is no shared issuance secret to extract, but guessing, sharing and
+  binary patching remain possible. Immediate revocation of offline older
+  binaries is impossible. Keep approved digests in every later beta to preserve
+  the existing indefinite entitlement; adding new names/codes needs a new
+  approved manifest and build. A preincluded reserve code can be assigned later
+  without updating that build. No production code was issued in this change.
 - **Issuing:** see [BETA_TESTER_CODES.ko.md](BETA_TESTER_CODES.ko.md).
 
 ## Configuration and next-version identity
@@ -91,8 +95,10 @@ the only product identity. CMake generates `ChimeraBetaLifecycleBuild.h` and
 source of truth; the KST text in the header and distribution notice is derived
 from it using a fixed +09:00 offset.
 
-**The approved date above applies only to `1.3.2-beta.1`.** This implementation PR
-keeps that baseline version and policy unchanged. When preparing another version,
+**Each approved date applies only to its named version:** beta.1 expires at
+2027-02-11 23:59:00 KST; beta.2 at 2027-03-31 23:59:00 KST. The committed policy
+and release channel now describe beta.2; the published beta.1 source and packages
+remain unchanged. When preparing an additional version,
 update the policy version explicitly and leave `expires_at_utc: null` /
 `expiry_approved: false` until that version's exact date is approved. A changed
 source version with the old policy is rejected; no date or 90/120/180-day period

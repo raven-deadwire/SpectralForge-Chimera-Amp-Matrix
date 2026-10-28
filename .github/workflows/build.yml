@@ -67,6 +67,7 @@ jobs:
           python Tools/test_weekly_publication.py
           python Tools/test_publication_evidence.py
           python Tests/test_packaging_version.py
+          python Tests/test_tester_allowlist_build.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
@@ -90,22 +91,20 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
-    env:
-      # Beta tester code check secret (Tools/tester_code.py secret); never committed.
-      CHIMERA_TESTER_SECRET: ${{ secrets.CHIMERA_TESTER_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Require the beta tester code secret for release candidates
-        if: github.event_name != 'pull_request' && env.CHIMERA_TESTER_SECRET == ''
-        shell: bash
-        run: |
-          echo "::error::CHIMERA_TESTER_SECRET is not set. Release builds without it reject every beta tester code (docs/BETA_TESTER_CODES.ko.md)."
-          exit 1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Require approved tester allowlist for release candidates
+        # PR builds exercise the fail-closed empty list; publication preparation
+        # must not silently ship tester access disabled in place of the old gate.
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          python -c "from pathlib import Path; from Tools.tester_code import load_allowlist; import sys; sys.exit(0 if load_allowlist(Path('Validation/tester-code-allowlist.json')) else 'Release candidates require a separately approved nonempty tester allowlist; no credentials are issued automatically.')"
       - name: Resolve source version
         shell: bash
         run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"

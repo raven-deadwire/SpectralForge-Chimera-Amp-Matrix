@@ -73,25 +73,18 @@ configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @O
 file(SHA256 "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json" CHIMERA_BETA_METADATA_SHA256)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
-# Beta tester codes (Source/TesterCode.h): the check secret comes from the
-# environment (a GitHub Actions secret for release builds) and is never committed.
-# Without it the build accepts no tester codes.
-set(CHIMERA_TESTER_SECRET_HEX "$ENV{CHIMERA_TESTER_SECRET}")
-string(STRIP "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
-string(TOLOWER "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
-if(CHIMERA_TESTER_SECRET_HEX AND NOT CHIMERA_TESTER_SECRET_HEX MATCHES "^[0-9a-f]+$")
-  message(FATAL_ERROR "CHIMERA_TESTER_SECRET must be hexadecimal (Tools/tester_code.py secret)")
-endif()
-string(LENGTH "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_LENGTH)
-if(CHIMERA_TESTER_SECRET_HEX AND CHIMERA_TESTER_SECRET_LENGTH LESS 32)
-  message(FATAL_ERROR "CHIMERA_TESTER_SECRET is too short (at least 16 bytes)")
-endif()
-if(CHIMERA_TESTER_SECRET_HEX)
-  message(STATUS "Beta tester codes: enabled")
-else()
-  message(STATUS "Beta tester codes: disabled (CHIMERA_TESTER_SECRET not set)")
-endif()
-configure_file(cmake/ChimeraTesterSecret.h.in generated/ChimeraTesterSecret.h @ONLY)
+# Only preapproved public code digests reach the product. There is no issuance
+# secret, code generator, or network service in Chimera. The checked-in empty
+# manifest deliberately disables tester access until a separately approved list.
+include(cmake/ChimeraTesterAllowlist.cmake)
+chimera_configure_tester_allowlist(
+  "${CMAKE_CURRENT_SOURCE_DIR}/Validation/tester-code-allowlist.json"
+  "${CMAKE_BINARY_DIR}/generated/ChimeraTesterAllowlist.h")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Validation/tester-code-allowlist.json"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/ChimeraTesterAllowlist.cmake")
+# Remove an obsolete generated secret header when reusing a pre-allowlist build.
+file(REMOVE "${CMAKE_BINARY_DIR}/generated/ChimeraTesterSecret.h")
 # Keep source identity in the generated header shared by product and consumers.
 # A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
@@ -172,6 +165,11 @@ target_include_directories(ChimeraTesterCodeTests PRIVATE Source Tests)
 target_compile_definitions(ChimeraTesterCodeTests PRIVATE JUCE_USE_CURL=0)
 target_link_libraries(ChimeraTesterCodeTests PRIVATE juce::juce_core juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraTesterCodeTests COMMAND ChimeraTesterCodeTests)
+add_test(NAME ChimeraTesterCodeAllowlistBuildTests COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_tester_allowlist_build.py")
+add_test(NAME ChimeraTesterCodeToolTests COMMAND "${CMAKE_COMMAND}" -E env
+  "CHIMERA_TESTER_VERIFIER=$<TARGET_FILE:ChimeraTesterCodeTests>"
+  "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/test_tester_code.py")
 
 # Link the real processor, serializer, editor and update panel. Inject only a
 # private test constructor clock; shipped factories always use compiled policy.

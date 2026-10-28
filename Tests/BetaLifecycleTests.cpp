@@ -21,6 +21,13 @@ void require(bool condition, const char* message) {
 }
 
 int main() {
+    constexpr Metadata beta1{"1.3.2-beta.1", source, 1802357940, 1209600, true};
+    constexpr Metadata beta2{"1.3.2-beta.2", source, 1806505140, 1209600, true};
+    static_assert(spectralforge::beta::evaluate(beta1,1802357940).status==Status::expired);
+    static_assert(spectralforge::beta::evaluate(beta2,1802357940).status==Status::valid);
+    static_assert(spectralforge::beta::evaluate(beta2,1806505139).status==Status::warning);
+    static_assert(spectralforge::beta::evaluate(beta2,1806505140).status==Status::expired);
+    static_assert(spectralforge::beta::evaluate(beta2,1806505141).status==Status::expired);
     constexpr Metadata beta{"1.3.1-beta.2", source, 2'000'000, 100, true};
     constexpr Metadata stable{"1.3.1", source, 0, 0, false};
 
