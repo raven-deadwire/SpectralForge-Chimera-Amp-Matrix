@@ -265,6 +265,18 @@ class PackagingVersionTests(unittest.TestCase):
         script = tree.find("script").text
         self.assertIn(release.OBS_BUNDLE_ID, script)
         self.assertIn("my.result.type = 'Fatal'", script)
+        # The first installer page is the beginner welcome, in each language.
+        self.assertEqual(tree.find("welcome").get("file"), "Welcome.html")
+        for language in ("en", "ko"):
+            welcome = (release.MACOS_RESOURCES / f"{language}.lproj/Welcome.html").read_text(encoding="utf-8")
+            self.assertIn("AUTO SET", welcome)
+
+    def test_windows_setup_opens_with_the_beginner_welcome(self):
+        inno = (ROOT / "Installer/Chimera.iss").read_text(encoding="utf-8-sig")
+        self.assertIn("DisableWelcomePage=no\n", inno)
+        for language in ("english", "korean"):
+            self.assertIn(f"\n{language}.WelcomeLabel2=", inno)
+            self.assertIn(f"\n{language}.InfoBeforeLabel=", inno)
 
     def test_macos_obs_postinstall_installs_for_the_console_user_without_root(self):
         hook = (ROOT / "OBS/packaging/macos-pkg-postinstall.sh").read_text(encoding="utf-8")

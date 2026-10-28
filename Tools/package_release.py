@@ -181,6 +181,10 @@ MACOS_OBS_PKG_ID = "audio.spectralforge.chimera.obs"
 OBS_BUNDLE_ID = "com.obsproject.obs-studio"
 
 
+# Beginner welcome page shown first by macOS Installer, per system language.
+MACOS_RESOURCES = ROOT / "Installer/macOS"
+
+
 def macos_distribution(version: str) -> str:
     """productbuild Distribution: Chimera always, the OBS filter as a choice.
 
@@ -192,6 +196,7 @@ def macos_distribution(version: str) -> str:
     return f'''<?xml version="1.0" encoding="utf-8"?>
 <installer-gui-script minSpecVersion="2">
     <title>{PRODUCT}</title>
+    <welcome file="Welcome.html" mime-type="text/html"/>
     <options customize="always" require-scripts="true" hostArchitectures="arm64,x86_64"/>
     <domains enable_localSystem="true" enable_anywhere="false" enable_currentUserHome="false"/>
     <volume-check><allowed-os-versions><os-version min="12.0"/></allowed-os-versions></volume-check>
@@ -394,7 +399,8 @@ def macos(build: Path, dist: Path) -> None:
         distribution = Path(temporary) / "Distribution.xml"
         distribution.write_text(macos_distribution(IDENTITY["product_version"]), encoding="utf-8")
         package = dist / f"{PREFIX}-macos-universal.pkg"
-        run("productbuild", "--distribution", str(distribution), "--package-path", str(components_dir), str(package))
+        run("productbuild", "--distribution", str(distribution), "--resources", str(MACOS_RESOURCES),
+            "--package-path", str(components_dir), str(package))
         expanded = Path(temporary) / "expanded"
         run("pkgutil", "--expand-full", str(package), str(expanded))
         unpacked = expanded / "SpectralForge-Chimera.pkg/Payload"
@@ -423,6 +429,10 @@ def macos(build: Path, dist: Path) -> None:
         guard = expanded / "SpectralForge-Chimera-OBS.pkg/Scripts/preinstall"
         if not guard.is_file() or sha256(guard) != sha256(preinstall):
             raise RuntimeError("macOS OBS filter preinstall differs")
+        for welcome in sorted(MACOS_RESOURCES.glob("*.lproj/Welcome.html")):
+            packaged = expanded / "Resources" / welcome.relative_to(MACOS_RESOURCES)
+            if not packaged.is_file() or sha256(packaged) != sha256(welcome):
+                raise RuntimeError(f"macOS package welcome page differs: {welcome.parent.name}")
         packaged_distribution = (expanded / "Distribution").read_text(encoding="utf-8")
         if f'<pkg-ref id="{MACOS_OBS_PKG_ID}"/>' not in packaged_distribution or 'choice id="obs"' not in packaged_distribution:
             raise RuntimeError("macOS package is missing the OBS filter choice")
