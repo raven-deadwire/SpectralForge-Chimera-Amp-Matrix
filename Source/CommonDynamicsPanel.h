@@ -242,7 +242,7 @@ public:
             else {const int x=page==Page::multiband?636:532;g.drawText(contextText(),x,47,std::max(1,getWidth()-770-(x-532)),25,juce::Justification::centredLeft);}
             g.setColour(text);g.setFont(juce::FontOptions(14.f,juce::Font::bold));
             const auto meter=currentReduction<0?"GAIN "+juce::String(-currentReduction,1)+" dB":"GR "+juce::String(currentReduction,1)+" dB";
-            g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);
+            if(page!=Page::saturation)g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);   // saturation has no gain reduction
             if(page==Page::limiter)drawNote(g,sideX,269,"SAMPLE-PEAK LIMITING\nStereo linked / zero lookahead\nTrue-peak protection is not measured.");
             if(page==Page::gate)drawNote(g,sideX,319,"Clean DI detector\nPRE and POST gates run together.\nRange controls maximum attenuation.");
             if(page==Page::expander)drawNote(g,sideX,319,"Clean DI detector\nRuns together with the gates.\nThe spectrum shows the main gate input.");
