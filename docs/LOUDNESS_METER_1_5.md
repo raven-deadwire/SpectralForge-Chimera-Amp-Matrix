@@ -20,6 +20,10 @@ minimum requirements.
 - **Integrated:**
   - Gated over 400 ms blocks every 100 ms: an absolute gate at −70 LUFS, then a relative gate 10 LU below the mean of the blocks above it.
   - Blocks are kept in a fixed histogram (0.01 LU bins from −70 to +10 LUFS), so memory does not grow with the measuring time.
+- **Loudness range (EBU Tech 3342):**
+  - Built from the short-term values, one every 100 ms once 3 s are available.
+  - Values above −70 LUFS, then those within 20 LU of their power mean, count.
+  - LRA is their 95th minus 10th percentile, kept in a fixed histogram like the integrated value.
 - **True peak:**
   - The maximum of the samples and of 4× polyphase interpolation (2× from 176.4 kHz).
   - The interpolator is a 64-tap Hann-windowed sinc (16 taps per phase); one of its four phases is the sample itself.
@@ -38,7 +42,7 @@ reset during a programme therefore adds no step to the signal it sees.
 
 The OUTPUT panel shows one line: `I −23.0 LUFS  TP −1.0 dBTP`.
 
-- The tooltip adds the momentary and short-term values.
+- The tooltip adds the momentary and short-term values and the loudness range.
 - Clicking the line resets the meter.
 - `--.-` means nothing has been measured since the reset.
 
@@ -50,6 +54,10 @@ The OUTPUT panel shows one line: `I −23.0 LUFS  TP −1.0 dBTP`.
   - At 48 kHz, it is 0.021 LU.
   - At 96 kHz, it is 0.031 LU.
   - The requirement is 0.1 LU. Cases 1 and 2 also check momentary and short-term.
+- **EBU Tech 3342 cases 1–4** (−20/−30, −20/−15, −40/−20 and −50/−35/−20/−35/−50 dBFS steps):
+  - LRA within 4e−6 LU of 10, 5, 20 and 15 LU at 44.1/48/96 kHz (requirement ±1 LU).
+  - The values are this exact because the 10th and 95th percentiles fall on the steady tone levels themselves.
+  - A steady tone reads 0 LU.
 - **True peak, steady sines at −6 dBTP:**
   - Test set: 997 Hz to 15 kHz and fs/4, three start phases, at 44.1/48/96 kHz.
   - The largest error is 0.060 dB.
@@ -69,6 +77,6 @@ The OUTPUT panel shows one line: `I −23.0 LUFS  TP −1.0 dBTP`.
 
 ## Not done
 
-- Loudness range (LRA, EBU Tech 3342) and the remaining EBU 3341 cases: other channel layouts, the burst tests for momentary and short-term, and the published true-peak test files (not available here).
+- EBU 3342 cases 5 and 6 (programme files, not available here) and the remaining EBU 3341 cases: other channel layouts, the burst tests for momentary and short-term, and the published true-peak test files (not available here).
 - A selectable target or offset (e.g. −14/−16/−23), a history graph, and true-peak per channel.
 - Comparison against an external reference meter on programme material.

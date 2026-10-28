@@ -13,6 +13,7 @@ namespace spectralforge {
 // stages, derived for any sample rate from their analogue prototypes),
 // momentary (400 ms), short-term (3 s) and gated integrated loudness
 // (absolute -70 LUFS, relative -10 LU gate over 400 ms blocks every 100 ms),
+// loudness range (EBU Tech 3342, short-term values every 100 ms),
 // and the maximum true peak from 4x (2x from 176.4 kHz) polyphase
 // interpolation. Integrated loudness keeps a fixed-size histogram, so memory
 // does not grow with the measuring time. A meter only: it never changes the
@@ -32,6 +33,7 @@ public:
         factor = rate < 160000. ? 4 : 2;
         designInterpolator();
         histogram.assign(size_t(histogramBins), {});
+        rangeHistogram.assign(size_t(histogramBins), 0);
         clearFilters();
         reset();
         resetRequested.store(false);
@@ -74,6 +76,8 @@ public:
     float shortTerm() const noexcept { return shortTermLufs.load(); }
     float integrated() const noexcept { return integratedLufs.load(); }
     float truePeak() const noexcept { return truePeakDb.load(); }
+    // Loudness range in LU (EBU Tech 3342); 0 until short-term values exist.
+    float loudnessRange() const noexcept { return rangeLu.load(); }
     int oversampling() const noexcept { return factor; }
 
 private:
@@ -106,6 +110,8 @@ private:
         segments.fill(0.); segmentCount = 0; segmentFill = 0; segmentEnergy = 0.; next = 0;
         for (auto& b : histogram) b = {};
         gatedBlocks = 0; gatedEnergy = 0.; peak = 0.f;
+        for (auto& b : rangeHistogram) b = 0;
+        rangeValues = 0; rangeEnergy = 0.; rangeLu.store(0.f);
         momentaryLufs.store(silent); shortTermLufs.store(silent); integratedLufs.store(silent); truePeakDb.store(silent);
     }
     // 100 ms segment done: update momentary and short-term, add one 400 ms
@@ -130,7 +136,16 @@ private:
                 updateIntegrated();
             }
         }
-        if (segmentCount >= segmentsShort) shortTermLufs.store(lufs(mean(segmentsShort)));
+        if (segmentCount >= segmentsShort) {
+            const double block = mean(segmentsShort);
+            const float level = lufs(block);
+            shortTermLufs.store(level);
+            if (level > absoluteGate) {
+                rangeHistogram[size_t(juce::jlimit(0, histogramBins - 1, int((level - histogramLow) / histogramStep)))]++;
+                rangeValues++; rangeEnergy += block;
+                updateRange();
+            }
+        }
         truePeakDb.store(peak > 0.f ? float(20. * std::log10(double(peak))) : silent);
     }
     void updateIntegrated() noexcept {
@@ -140,6 +155,22 @@ private:
         const int first = juce::jlimit(0, histogramBins, int(std::ceil((threshold - histogramLow) / histogramStep)));
         for (int b = first; b < histogramBins; ++b) { count += histogram[size_t(b)].count; energy += histogram[size_t(b)].energy; }
         integratedLufs.store(count > 0 ? lufs(energy / double(count)) : silent);
+    }
+    // EBU Tech 3342: short-term values above -70 LUFS, then those within
+    // 20 LU of their power mean; LRA = 95th minus 10th percentile.
+    void updateRange() noexcept {
+        const float threshold = lufs(rangeEnergy / double(rangeValues)) - 20.f;
+        const int first = juce::jlimit(0, histogramBins, int(std::ceil((threshold - histogramLow) / histogramStep)));
+        long long total = 0;
+        for (int b = first; b < histogramBins; ++b) total += rangeHistogram[size_t(b)];
+        if (total == 0) { rangeLu.store(0.f); return; }
+        const auto percentile = [&](double fraction) {
+            const long long rank = juce::jlimit(1LL, total, (long long)std::ceil(fraction * double(total)));
+            long long seen = 0;
+            for (int b = first; b < histogramBins; ++b) if ((seen += rangeHistogram[size_t(b)]) >= rank) return histogramLow + (b + .5f) * histogramStep;
+            return histogramLow + (histogramBins - .5f) * histogramStep;
+        };
+        rangeLu.store(juce::jmax(0.f, percentile(.95) - percentile(.10)));
     }
     // Windowed-sinc interpolator, `factor` phases of tapsPerPhase taps.
     void designInterpolator() {
@@ -182,12 +213,15 @@ private:
     double segmentEnergy{}, gatedEnergy{};
     long long gatedBlocks{};
     std::vector<Bin> histogram;
+    std::vector<long long> rangeHistogram;
+    long long rangeValues{};
+    double rangeEnergy{};
     std::array<std::array<float, tapsPerPhase>, 4> phases{};
     std::array<std::array<float, tapsPerPhase>, 2> history{};
     std::array<int, 2> historyPosition{};
     float peak{};
     std::atomic<bool> resetRequested{false};
-    std::atomic<float> momentaryLufs{silent}, shortTermLufs{silent}, integratedLufs{silent}, truePeakDb{silent};
+    std::atomic<float> momentaryLufs{silent}, shortTermLufs{silent}, integratedLufs{silent}, truePeakDb{silent}, rangeLu{0.f};
 };
 
 } // namespace spectralforge

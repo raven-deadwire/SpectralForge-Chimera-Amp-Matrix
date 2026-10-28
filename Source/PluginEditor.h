@@ -75,7 +75,7 @@ private:
     spectralforge::ui::Changed<std::array<double,4>> bandKey;
     spectralforge::ui::Changed<std::array<double,3>> tempoKey;
     spectralforge::ui::Changed<std::array<int,2>> inputMeterKey,outputMeterKey;
-    spectralforge::ui::Changed<std::array<int,4>> loudnessKey;
+    spectralforge::ui::Changed<std::array<int,5>> loudnessKey;
     spectralforge::ui::Changed<std::array<float,3>> tunerKey;
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;

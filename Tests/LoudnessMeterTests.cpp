@@ -1,6 +1,7 @@
 // Studio loudness / true-peak meter (docs/LOUDNESS_METER_1_5.md): the
 // BS.1770-4 48 kHz K-weighting coefficients, EBU Tech 3341 minimum
-// requirements cases 1-5 (momentary, short-term, gated integrated loudness)
+// requirements cases 1-5 (momentary, short-term, gated integrated loudness),
+// EBU Tech 3342 loudness-range cases 1-4
 // at 44.1/48/96 kHz, true peak against analytic inter-sample peaks, mono,
 // reset and no allocation; the processor meters exactly its output.
 #include "PluginProcessor.h"
@@ -64,6 +65,22 @@ void ebu3341() {
     {LoudnessMeter m;m.prepare(48000);feed(m,48000,{{-23,10}},1);
      require(std::abs(m.integrated()+26.01)<.1,"Mono loudness is not the single-channel sum");}
     std::cout<<"PASS EBU Tech 3341 cases 1-5 (44.1/48/96 kHz), mono channel sum\n";
+}
+void ebu3342() {
+    // EBU Tech 3342 cases 1-4 (stereo 1 kHz tone steps); requirement +-1 LU.
+    for(const double rate:{44100.,48000.,96000.}) {
+        double worst=0;
+        const auto check=[&](const std::vector<Segment>& program,double expected,const char* message){
+            LoudnessMeter m;m.prepare(rate);feed(m,rate,program);const double e=std::abs(m.loudnessRange()-expected);
+            worst=std::max(worst,e);require(e<=1.,message);};
+        check({{-20,20},{-30,20}},10,"EBU 3342 case 1: LRA is not 10 LU");
+        check({{-20,20},{-15,20}},5,"EBU 3342 case 2: LRA is not 5 LU");
+        check({{-40,20},{-20,20}},20,"EBU 3342 case 3: LRA is not 20 LU");
+        check({{-50,20},{-35,20},{-20,20},{-35,20},{-50,20}},15,"EBU 3342 case 4: LRA is not 15 LU");
+        std::cout<<"MEASURE EBU Tech 3342 cases 1-4 at "<<rate<<" Hz: largest error "<<worst<<" LU (limit 1)\n";
+    }
+    {LoudnessMeter m;m.prepare(48000);feed(m,48000,{{-23,20}});require(m.loudnessRange()<.1,"A steady tone has a loudness range");}
+    std::cout<<"PASS EBU Tech 3342 cases 1-4 (44.1/48/96 kHz); a steady tone reads 0 LU\n";
 }
 void truePeak() {
     double worst=0,worstSampleGap=0;
@@ -130,6 +147,6 @@ void processorOutput() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {coefficients();ebu3341();truePeak();resetAndSilence();noAllocation();processorOutput();return 0;}
+    try {coefficients();ebu3341();ebu3342();truePeak();resetAndSilence();noAllocation();processorOutput();return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
 }

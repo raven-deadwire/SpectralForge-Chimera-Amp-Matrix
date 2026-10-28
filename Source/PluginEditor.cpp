@@ -741,10 +741,10 @@ void ChimeraEditor::refreshMeters()
         // and short-term in the tooltip. Updates every 100 ms in the processor.
         const auto& meter=processor.outputLoudness();
         const auto value=[](float v){return v<=spectralforge::LoudnessMeter::silent ? juce::String("--.-") : juce::String(v,1);};
-        if(loudnessKey.update({{tenth(meter.integrated()),tenth(meter.truePeak()),tenth(meter.momentary()),tenth(meter.shortTerm())}})) {
+        if(loudnessKey.update({{tenth(meter.integrated()),tenth(meter.truePeak()),tenth(meter.momentary()),tenth(meter.shortTerm()),tenth(meter.loudnessRange())}})) {
             outputLoudness.setButtonText("I "+value(meter.integrated())+" LUFS  TP "+value(meter.truePeak())+" dBTP");
             outputLoudness.setTooltip("Output loudness (ITU-R BS.1770-4 / EBU R128). Momentary "+value(meter.momentary())+", short-term "+value(meter.shortTerm())
-                +" LUFS. Integrated and true-peak maximum since the last reset; click to reset.");
+                +" LUFS, loudness range "+juce::String(meter.loudnessRange(),1)+" LU. Integrated, range and true-peak maximum since the last reset; click to reset.");
         }
     }
     const double sr=processor.getSampleRate()>0?processor.getSampleRate():48000;
