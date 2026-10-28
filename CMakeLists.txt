@@ -475,6 +475,13 @@ target_sources(ChimeraCabExportTests PRIVATE Tests/CabExportTests.cpp)
 target_include_directories(ChimeraCabExportTests PRIVATE Source)
 target_link_libraries(ChimeraCabExportTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraCabExportTests COMMAND ChimeraCabExportTests "${CMAKE_BINARY_DIR}/cab-export")
+# Preset, A/B and project recall must render the same audio, not only restore settings.
+juce_add_console_app(ChimeraStateRecallAudioTests PRODUCT_NAME "Chimera State Recall Audio Tests")
+target_sources(ChimeraStateRecallAudioTests PRIVATE Tests/StateRecallAudioTests.cpp)
+target_include_directories(ChimeraStateRecallAudioTests PRIVATE Source)
+target_link_libraries(ChimeraStateRecallAudioTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraStateRecallAudioTests COMMAND ChimeraStateRecallAudioTests)
+
 # Doubler mono-sum probe: comb response of L, R and the mono sum per spread.
 juce_add_console_app(ChimeraDoublerMonoProbe PRODUCT_NAME "Chimera Doubler Mono Probe")
 target_sources(ChimeraDoublerMonoProbe PRIVATE Tests/DoublerMonoProbe.cpp)

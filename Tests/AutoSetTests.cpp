@@ -5,6 +5,7 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
+#include <thread>
 
 static thread_local bool counting=false;
 static thread_local size_t allocations=0;
@@ -61,14 +62,14 @@ void analysisRules() {
 
 // Noise whose third-octave spectrum follows the target curve exactly, built
 // by inverse FFT with random phases and looped.
-std::vector<float> targetNoise(bool bass,double rate,double seconds,std::mt19937& random) {
+std::vector<float> targetNoise(bool bass,double rate,double seconds,std::mt19937& random,Style style=Style::rock) {
     constexpr int order=15,size=1<<order;
     juce::dsp::FFT fft(order);std::vector<float> spectrum(size_t(2*size));
     std::uniform_real_distribution<double> phase(0,2*juce::MathConstants<double>::pi);
     for(int k=1;k<size/2;++k) {
         const double f=k*rate/size;
         // Band power is the sum of bins; third-octave width grows with f.
-        const double magnitude=std::sqrt(std::pow(10.,toneTargetDb(bass,float(std::clamp(f,20.,20000.)))/10.)/f)*(f<35?0:1);
+        const double magnitude=std::sqrt(std::pow(10.,toneTargetDb(bass,float(std::clamp(f,20.,20000.)),style)/10.)/f)*(f<35?0:1);
         const double ph=phase(random);spectrum[size_t(2*k)]=float(magnitude*std::cos(ph));spectrum[size_t(2*k+1)]=float(magnitude*std::sin(ph));
     }
     fft.performRealOnlyInverseTransform(spectrum.data());
@@ -148,6 +149,84 @@ void finishRules() {
     std::cout<<"PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release\n";
 }
 
+float maximumReduction(const std::vector<float>& samples,double rate,const FinishResult& result) {
+    spectralforge::DeEsserCore core;core.prepare(rate);
+    core.setSettings({result.deEsser,result.frequency,result.thresholdDb,result.rangeDb,result.attackMs,result.releaseMs,result.ratio,result.kneeDb,false});
+    core.reset();float maximum=0;
+    for(float x:samples){float* channels[]{&x};core.process(channels,1,1);maximum=std::max(maximum,core.reduction());}
+    return maximum;
+}
+void riskProbe() {
+    for(double rate:{44100.,48000.,96000.}) {
+        for(const auto& f:std::vector<std::pair<const char*,std::array<double,3>>>{{"dropA_guitar",{55,65.406,82.407}},{"bass5_lowB",{30.868,41.203,55}},{"bass6_highC",{130.813,164.814,196}}}) {
+            const auto x=notes(rate,6,f.second,40);
+            const auto t=analyseTone(x,rate);
+            std::cout<<"CLASS "<<rate<<' '<<f.first<<" bass="<<t.bass<<"\n";
+        }
+        for(const bool muted:{false,true})for(const bool clipped:{false,true}) {
+            std::mt19937 random{417};auto x=targetNoise(false,rate,6,random);
+            for(size_t n=0;n<x.size();++n) {
+                const double t=double(n)/rate,cycle=std::fmod(t,.25);
+                const double env=std::exp(-cycle*(muted?45.:12.));
+                const double attack=cycle<.008?.16*std::sin(2*juce::MathConstants<double>::pi*6000*t)*std::exp(-cycle*500):0;
+                double y=x[n]*env+attack;
+                x[n]=float(clipped?.25*std::tanh(y*12):y);
+            }
+            for(auto style:{Style::rock,Style::clean,Style::metal}){
+                const auto f=analyseFinish(x,{},rate,false,style);
+                std::cout<<"ATTACK "<<rate<<" mute="<<muted<<" clip="<<clipped<<' '<<styleName(style)<<" on="<<f.deEsser<<" spec="<<f.spectralExcessDb<<" burst="<<f.burstExcessDb<<" split="<<f.frequency<<" range="<<f.rangeDb<<" overall="<<f.overallSpectralExcessDb<<" sustained="<<f.sustainedEvidence<<" protected="<<f.protectedAttackWindows<<" maxGR="<<maximumReduction(x,rate,f)<<"\n";
+            }
+        }
+    }
+}
+
+void attackSafetyRules() {
+    int protectedCases=0,positiveCases=0,overrideCases=0;
+    int ambiguityCases=0;
+    for(double rate:{44100.,48000.,96000.}) {
+        for(const auto fundamentals:std::vector<std::array<double,3>>{{55,65.406,82.407},{30.868,41.203,55},{130.813,164.814,196}}) {
+            for(bool clipped:{false,true}) {
+                auto x=notes(rate,6,fundamentals,40);
+                if(clipped)for(auto& v:x)v=.25f*std::tanh(v*12.f);
+                for(bool bass:{false,true}) {
+                    check(analyseTone(x,rate,bass).bass==bass && analyseFinish(x,{},rate,bass).bass==bass,"Extended-range/distorted playing overrode the explicit instrument");
+                    ++overrideCases;
+                }
+            }
+        }
+        for(unsigned seed:{417u,991u})for(bool muted:{false,true})for(bool clipped:{false,true})for(auto style:{Style::rock,Style::clean,Style::metal}) {
+            std::mt19937 random{seed};auto x=targetNoise(false,rate,6,random,style);
+            for(size_t n=0;n<x.size();++n) {
+                const double t=double(n)/rate,cycle=std::fmod(t+(seed==991u?.0037:0.),.25);
+                const double env=std::exp(-cycle*(muted?45.:12.));
+                const double attack=cycle<.008?.16*std::sin(2*juce::MathConstants<double>::pi*6000*t)*std::exp(-cycle*500):0;
+                const double y=x[n]*env+attack;x[n]=float(clipped?.25*std::tanh(y*12):y);
+            }
+            const auto f=analyseFinish(x,{},rate,false,style);
+            check(f.playingDetected && f.protectedAttackWindows>0 && !f.deEsser,"A body-coincident pick/palm-mute attack was automatically de-essed");
+            check(maximumReduction(x,rate,f)==0.f,"Protected attack received high-band gain reduction");++protectedCases;
+        }
+        // A low fundamental changes the heuristic label, not the on-target
+        // guitar high end. Auto must not inherit an unconfirmed bass cut.
+        for(auto style:{Style::rock,Style::clean,Style::metal}) {
+            std::mt19937 random{1229};auto x=targetNoise(false,rate,6,random,style);
+            for(size_t n=0;n<x.size();++n)x[n]+=float(.2*std::sin(2*juce::MathConstants<double>::pi*55*double(n)/rate));
+            const auto automatic=analyseFinish(x,{},rate,{},style);
+            check(automatic.bass && !automatic.deEsser && !analyseFinish(x,{},rate,false,style).deEsser,
+                  "Ambiguous low register imposed the darker bass de-esser target");
+            check(analyseFinish(x,{},rate,true,style).deEsser,"Explicit bass no longer uses its own style curve");++ambiguityCases;
+        }
+        // Positive controls for every style: steady excess must still be treated.
+        for(bool bass:{false,true})for(auto style:{Style::rock,Style::clean,Style::metal}) {
+            std::mt19937 random{1103};auto x=targetNoise(bass,rate,6,random,style);shelve(x,4000,8,rate);
+            const auto f=analyseFinish(x,{},rate,bass,style);
+            check(f.sustainedEvidence && f.deEsser && f.rangeDb>=3 && f.rangeDb<=9,"Sustained excessive brightness was lost by attack protection");
+            check(f.releaseMs==(style==Style::clean?120.f:style==Style::metal?50.f:80.f),"Style de-esser release changed");++positiveCases;
+        }
+    }
+    std::cout<<"PASS attack safety: "<<protectedCases<<" protected synthetic attack cases, "<<positiveCases<<" sustained-brightness controls, "<<overrideCases<<" extended-range/distorted explicit-instrument cases, "<<ambiguityCases<<" auto-target ambiguity cases\n";
+}
+
 void lowpass(std::vector<float>& x,double frequency,double rate) {
     for(int k=0;k<2;++k){const auto c=spectralforge::eqCoefficients(4,frequency,0,.707,rate);double z1=0,z2=0;for(auto& v:x){const double y=c.b0*v+z1;z1=c.b1*v-c.a1*y+z2;z2=c.b2*v-c.a2*y;v=float(y);}}
 }
@@ -171,6 +250,38 @@ void multibandRules() {
     std::cout<<"PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz\n";
 }
 
+// Phase 5: Gate 2 / Expander from the rig noise in the pause.
+void gateStageRules() {
+    // 6 s: playing at -18 dBFS input with a 1.5 s pause at -72 dBFS; the rig
+    // makes playing louder and the pause carries its own hiss.
+    const auto fixture=[](float rigPlayingDb,float rigNoiseDb,float pauseSeconds) {
+        std::vector<Window> input,rig;
+        for(int i=0;i<600;++i) {
+            const bool pause=i>=300 && i<300+int(pauseSeconds*100);
+            input.push_back(pause?Window{-70.f,-72.f}:Window{-18.f,-24.f});
+            rig.push_back(pause?Window{rigNoiseDb,rigNoiseDb-3.f}:Window{rigPlayingDb,rigPlayingDb-6.f});
+        }
+        return std::pair{input,rig};
+    };
+    using Plan=GateStagesResult::Plan;
+    {const auto [in,rig]=fixture(-12,-64,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::clean);
+     check(r.plan==Plan::soft && near(r.expanderRangeDb,14,.01f),"Faint hiss should get a shallower Expander range");}
+    {const auto [in,rig]=fixture(-12,-80,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::rock);
+     check(r.measured && r.plan==Plan::none && near(r.rigNoiseDb,-80,.01f),"A quiet amp still added Gate 2 or the Expander");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,2,-60,false,Style::rock);
+     check(r.plan==Plan::soft && r.expanderAfterRig && near(r.expanderThresholdDb,-60,.01f) && near(r.expanderRatio,2,.01f)
+           && near(r.expanderRangeDb,15,.01f) && near(r.mainThresholdDb,-78,.01f) && near(r.expanderReleaseMs,120,.01f),
+           "Rock with amp hiss did not get an after-rig Expander at the gate threshold and a deeper main gate");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::clean);
+     check(r.plan==Plan::soft && near(r.expanderRatio,1.5f,.01f) && near(r.mainThresholdDb,-84,.01f) && near(r.expanderReleaseMs,200,.01f),"Clean style did not get the gentler Expander");}
+    {const auto [in,rig]=fixture(-12,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::metal);
+     check(r.plan==Plan::hard && r.mainAfterRig && near(r.gate2ThresholdDb,-66,.01f) && near(r.gate2RangeDb,18,.01f),"Metal with a wide gap did not get a post-rig gate and a PRE Gate 2");}
+    {const auto [in,rig]=fixture(-40,-50,1.5f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::metal);
+     check(r.plan==Plan::soft && near(r.expanderRatio,2.5f,.01f) && near(r.expanderRangeDb,15,.01f),"Metal with a narrow gap should fade tails with the Expander, not chop them");}
+    {const auto [in,rig]=fixture(-12,-50,0.f);const auto r=analyseGateStages(in,rig,0,-60,false,Style::rock);
+     check(!r.measured && r.plan==Plan::none,"Gate stages were set without a pause");}
+    std::cout<<"PASS auto set gate stage rules: quiet amp leaves them off, amp hiss adds an Expander (clean/rock/metal ratios, deeper main gate), metal with headroom gets a post-rig gate and PRE Gate 2, no pause changes nothing\n";
+}
 void captureWindows() {
     for(double rate:{44100.,48000.,96000.}) {
         Capture capture;capture.prepare(rate);
@@ -195,6 +306,10 @@ void captureWindows() {
         std::vector<Window> other;capture.drain(Tap::compressor,other);
         check(other.empty(),"Inactive tap recorded windows");
         std::vector<float> tone;capture.drainSamples(tone);check(tone.empty(),"Inactive tone tap recorded samples");
+        capture.listen({Tap::input,Tap::rig});
+        capture.push(Tap::rig,channels,2,int(left.size()));capture.push(Tap::input,channels,2,int(left.size()));
+        std::vector<Window> rigOut,inOut;capture.drain(Tap::rig,rigOut);capture.drain(Tap::input,inOut);
+        check(rigOut.size()==inOut.size() && rigOut.size()>=99 && near(rigOut[10].peakDb,-6.02f,.3f),"Rig tap does not record windows alongside the input");
         capture.listen(Tap::tone);counting=true;allocations=0;
         capture.push(Tap::tone,channels,2,4096);capture.push(Tap::input,channels,2,4096);capture.push(Tap::deesser,channels,2,4096);
         counting=false;check(allocations==0,"Audio-thread tone capture allocated");
@@ -247,6 +362,40 @@ void run(ChimeraProcessor& p,Controller& c,DI* source,double seconds,double& now
     c.tick(now);
 }
 
+// Feed the production Capture/Controller seam to isolate parameter ownership
+// from amp voicing. The separate integration run below uses processBlock.
+void feedCapture(ChimeraProcessor& p,Controller& c,const std::vector<float>& x,double& now) {
+    for(size_t offset=0;offset<x.size();offset+=256) {
+        const int count=int(std::min(size_t(256),x.size()-offset));
+        const float* channels[]{x.data()+offset};
+        for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})
+            p.autoSetCapture().push(tap,channels,1,count);
+        now+=1000.*count/p.getSampleRate();c.tick(now);
+    }
+}
+void controllerFinishPreservation() {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+    const auto deesserValues=[&]{std::vector<float> out;for(auto* id:{"deEsserOn","deEsserFrequency","deEsserThreshold","deEsserRange","deEsserAttack","deEsserRelease","deEsserRatio","deEsserKnee","deEsserListen"})out.push_back(get(*p,id));return out;};
+    for(bool bass:{false,true})for(auto style:{Style::rock,Style::clean,Style::metal}) {
+        setRaw("deEsserOn",1);setRaw("deEsserFrequency",4700);setRaw("deEsserThreshold",-31);setRaw("deEsserRange",7);setRaw("deEsserListen",1);
+        const auto manual=deesserValues(),before=values(*p);std::mt19937 random{802};
+        const auto signal=targetNoise(bass,48000,6.5,random,style);
+        Controller c(*p);c.setOptions({bass?2:1,false,style,true,false});Gestures g;p->addListener(&g);
+        double now=juce::Time::getMillisecondCounterHiRes();c.start();
+        for(int pass=0;pass<3;++pass)feedCapture(*p,c,signal,now);
+        check(c.current().phase==Controller::Phase::done && c.lastFinishAnalysis().bass==bass,"Explicit instrument or three-pass controller failed");
+        check(!c.lastFinishAnalysis().deEsser && deesserValues()==manual && c.current().text.contains("De-esser unchanged"),"No-excess analysis changed a manual de-esser or misreported it as off");
+        const float expectedRelease=style==Style::clean?150.f:style==Style::metal?60.f:100.f;
+        check(near(get(*p,"liveLimiterRelease"),expectedRelease,.01f),"Style limiter release changed");
+        c.undo();const auto restored=values(*p);
+        for(size_t i=0;i<before.size();++i)check(near(before[i],restored[i],1e-6f),"Undo failed to restore the explicit style/instrument run");
+        check(g.begins==g.ends && g.begins>0,"Apply/undo host gestures unbalanced");p->removeListener(&g);
+    }
+    p->releaseResources();
+    std::cout<<"PASS explicit guitar/bass x three styles: manual de-esser/listen preserved, truthful summary, limiter release, apply/undo host notifications\n";
+}
+
 void controllerIntegration() {
     auto p=std::make_unique<ChimeraProcessor>();
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
@@ -273,7 +422,9 @@ void controllerIntegration() {
     run(*p,c,&di,6.6,now);
     check(c.current().phase==Controller::Phase::tone && c.current().text.contains("2/5"),"First pass did not hand over to the Tone EQ pass");
     check(get(*p,"input")>4.f && get(*p,"input")<=12.01f,"Input gain was not raised toward the target");
-    check(get(*p,"gateon")>.5f && get(*p,"gatethreshold")>-70.f && get(*p,"gatethreshold")<-35.f,"Gate threshold was not placed above the noise floor");
+    // With an Expander (phase 5) it takes the threshold above the noise and the main gate sits below it.
+    const float placed=get(*p,"expOn")>.5f?get(*p,"expThreshold"):get(*p,"gatethreshold");
+    check(get(*p,"gateon")>.5f && placed>-70.f && placed<-35.f && get(*p,"gatethreshold")<=placed,"Gate threshold was not placed above the noise floor");
     run(*p,c,&di,6.6,now);
     check(c.current().phase==Controller::Phase::compressor,"Tone EQ pass did not hand over to the compressor pass");
     const auto& tone=c.lastToneAnalysis();
@@ -312,8 +463,16 @@ void controllerIntegration() {
         check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
         check(!sawTone,"Tone pass claimed an instrument before its analysis");
         const auto& steps=c.current().steps;
-        check(steps.size()==5 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[4].phase==Controller::Phase::finish
-              && steps[2].changed && steps[2].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        check(steps.size()==6 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
+              && steps[5].phase==Controller::Phase::finish && steps[3].changed && steps[3].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        // Gate 2 / Expander follow their analysis; the gates were held open only while the input pass listened.
+        const auto& gates=c.lastGateAnalysis();
+        check(gates.measured && (get(*p,"expOn")>.5f)==(gates.plan==GateStagesResult::Plan::soft) && (get(*p,"gate2On")>.5f)==(gates.plan==GateStagesResult::Plan::hard),
+              "Applied Gate 2 / Expander do not match the analysis");
+        if(gates.plan==GateStagesResult::Plan::soft)check(near(get(*p,"expThreshold"),gates.expanderThresholdDb,.01f) && near(get(*p,"gatethreshold"),gates.mainThresholdDb,.01f) && get(*p,"gateMode")<.5f,"Expander plan not applied");
+        bool sawHiss=false;for(const auto& s:statuses)sawHiss|=s.phase==Controller::Phase::input && s.heard.contains("Amp hiss");
+        check(sawHiss,"Input pass did not report the amp's hiss");
+        std::cout<<"MEASURE auto set gates: rig noise "<<gates.rigNoiseDb<<" dBFS, gap "<<gates.rigGapDb<<" dB, plan "<<int(gates.plan)<<'\n';
         std::cout<<"MEASURE auto set results:";for(const auto& step:steps)std::cout<<" ["<<Controller::phaseName(step.phase)<<": "<<step.result<<"]";std::cout<<'\n';
     }
     check(get(*p,"liveLimiterOn")>.5f && near(get(*p,"liveLimiterCeiling"),limiterCeilingDb,.01f) && near(get(*p,"liveLimiterRelease"),100.f,.01f),"Limiter was not set for the rock style");
@@ -340,14 +499,147 @@ void controllerIntegration() {
     c.setOptions({0,false,Style::rock,false,false});c.start();
     check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the optional steps did not shorten Auto Set to two passes");
     c.cancel();check(values(*p)==restored,"Cancelling a run changed parameters");
-    std::cout<<"PASS auto set controller: silence/no-audio failures, five passes on the real processor, input+gate+Tone EQ+compressor+multiband+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes\n";
+    // Edits made while listening and after applying are not owned by Auto Set.
+    // Include an untouched optional stage: the old whole-snapshot undo lost it.
+    c.setOptions({1,false,Style::rock,false,false});c.start();
+    setRaw("input",3.f);setRaw("deEsserRange",11.f);
+    const float manualInput=get(*p,"input"),manualRange=get(*p,"deEsserRange");
+    run(*p,c,&di,14,now);
+    check(c.current().phase==Controller::Phase::done,"Ownership run did not complete");
+    check(get(*p,"input")==manualInput,"Auto Set overwrote an input edit made while listening");
+    setRaw("cleanCompThreshold",-17.f);
+    const float automatedThreshold=get(*p,"cleanCompThreshold");
+    p->addListener(&g);c.undo();p->removeListener(&g);
+    check(get(*p,"input")==manualInput && get(*p,"deEsserRange")==manualRange && get(*p,"cleanCompThreshold")==automatedThreshold,
+          "Undo overwrote a newer manual/host edit or an untouched optional stage");
+    check(g.begins==g.ends,"Undo left host gestures unbalanced");
+    std::cout<<"PASS auto set controller: silence/no-audio failures, five passes on the real processor, input+gate+Tone EQ+compressor+multiband+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes, undo keeps newer edits\n";
 }
 }
 
-int main() {
+void parameterEditNotifications() {
+    auto p=std::make_unique<ChimeraProcessor>();
+    auto* q=p->parameters().getParameter("input");
+    ParameterEdits edits(*q);
+    const auto original=q->getValue();
+    auto revision=edits.revision();
+    const float target=q->convertTo0to1(4.f);
+    check(edits.write(target,original,revision) && edits.unchanged(revision),"Auto Set's own notifications revoked ownership");
+    // Automation on another thread must not be hidden by a process-wide flag.
+    std::thread host([&]{q->setValueNotifyingHost(q->convertTo0to1(7.f));q->setValueNotifyingHost(target);});host.join();
+    check(!edits.unchanged(revision),"Host-thread A-B-A notifications were lost");
+    revision=edits.revision();
+    q->beginChangeGesture();
+    const auto touchedRevision=edits.revision();
+    check(!edits.write(original,target,touchedRevision),"An active user gesture was overwritten");
+    q->endChangeGesture();
+    check(!edits.unchanged(revision),"A same-value manual gesture was not an edit");
+    struct HostCallback final:juce::AudioProcessorListener {
+        std::function<void()> onBegin,onValue,onEnd;
+        void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+        void audioProcessorParameterChanged(juce::AudioProcessor*,int,float) override {if(onValue){auto f=std::move(onValue);onValue={};f();}}
+        void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int) override {if(onBegin){auto f=std::move(onBegin);onBegin={};f();}}
+        void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int) override {if(onEnd){auto f=std::move(onEnd);onEnd={};f();}}
+    } callback;
+    p->addListener(&callback);
+    const float hostValue=q->convertTo0to1(-3.f);
+    for(int when=0;when<3;++when) {
+        q->setValueNotifyingHost(original);revision=edits.revision();
+        auto action=[&]{q->setValueNotifyingHost(hostValue);};
+        if(when==0)callback.onBegin=action;else if(when==1)callback.onValue=action;else callback.onEnd=action;
+        check(!edits.write(target,original,revision) && q->getValue()==hostValue,"A reentrant host edit was overwritten or reclaimed");
+    }
+    p->removeListener(&callback);
+    // The added observer itself must not allocate in the host notification path.
+    allocations=0;counting=true;q->setValueNotifyingHost(original);counting=false;
+    check(allocations==0,"Parameter edit observation allocated on the audio thread");
+    std::cout<<"PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations\n";
+}
+
+void controllerEditHistory() {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    Controller c(*p);c.setOptions({1,false,Style::rock,false,false});
+    auto* input=p->parameters().getParameter("input");
+    auto* threshold=p->parameters().getParameter("cleanCompThreshold");
+    const float before=input->getValue();
+    const float gateBefore=get(*p,"gatethreshold");
+    double now=juce::Time::getMillisecondCounterHiRes();
+    DI di{48000,.126f,.00025f};std::vector<float> signal(48000*14);
+    for(auto& x:signal)x=di.next();
+    c.start();
+    // Manual A -> B -> A is still a user decision, even though its final
+    // value equals the snapshot. Host automation has the same notification path.
+    input->beginChangeGesture();
+    input->setValueNotifyingHost(input->convertTo0to1(3.f));
+    input->setValueNotifyingHost(before);input->endChangeGesture();
+    feedCapture(*p,c,signal,now);
+    check(c.current().phase==Controller::Phase::done,"Edit-history run did not finish");
+    check(input->getValue()==before,"Auto Set overwrote a manual A-B-A edit during listening");
+    check(get(*p,"gatethreshold")==gateBefore && c.current().text.contains("input edited while listening"),"Gate used a capture with changing input gain");
+    const float automated=threshold->getValue();
+    threshold->setValueNotifyingHost(threshold->convertTo0to1(-17.f));
+    threshold->setValueNotifyingHost(automated);
+    c.undo();
+    check(threshold->getValue()==automated,"Undo overwrote host automation that returned to Auto Set's value");
+    p->releaseResources();
+    std::cout<<"PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo\n";
+}
+
+// Phase 5 also consumes the input pass: mixed-gain evidence must not change
+// any gate stage, including when host automation returns to the original value.
+void controllerGateStageEditHistory() {
+    const std::vector<juce::String> gateIDs{
+        "gateon","gatethreshold","gateRangeDb","gateAfterRig","gateMode",
+        "gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
+        "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"};
+    for(auto style:{Style::clean,Style::rock,Style::metal}) for(int edit=0;edit<3;++edit) {
+        auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+        Controller c(*p);c.setOptions({1,false,style,false,false,true});
+        auto values=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
+        const auto before=values();auto* input=p->parameters().getParameter("input");const float original=input->getValue();
+        double now=juce::Time::getMillisecondCounterHiRes();c.start();
+        for(int offset=0;offset<48000*14;offset+=256) {
+            float in[256],rig[256];
+            for(int n=0;n<256;++n) {
+                const int sample=offset+n;const bool playing=sample%96000<72000;
+                const float wave=std::sin(float(2*juce::MathConstants<double>::pi*1000*sample/48000.));
+                in[n]=wave*(playing?.1f:.0001f);rig[n]=wave*(playing?.2f:.001f);
+            }
+            // Mid-capture manual gesture and host-style notification-only A-B-A.
+            if(offset==256*500 && edit) {
+                if(edit==1)input->beginChangeGesture();
+                input->setValueNotifyingHost(input->convertTo0to1(3.f));input->setValueNotifyingHost(original);
+                if(edit==1)input->endChangeGesture();
+            }
+            const float* ins[]{in};const float* rigs[]{rig};
+            for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
+            p->autoSetCapture().push(Tap::rig,rigs,1,256);
+            now+=1000.*256/48000.;c.tick(now);
+        }
+        check(c.current().phase==Controller::Phase::done,"Gate-stage edit-history run did not finish");
+        if(!edit) {
+            check(values()!=before,"Gate-stage positive control did not apply a plan");
+            check(get(*p,style==Style::metal?"gate2On":"expOn")>.5f,"Gate-stage fixture did not exercise expected hard/soft plan");
+        } else {
+            check(input->getValue()==original,"Gate-stage run overwrote input A-B-A");
+            check(values()==before,"Gate stages used mixed-gain evidence after input A-B-A");
+        }
+        c.undo();
+        const auto afterUndo=values();
+        if(edit)check(afterUndo==before,"Undo changed gate stages kept after input A-B-A");
+        for(size_t i=0;i<before.size();++i)
+            check(near(afterUndo[i],before[i],.001f),"Gate-stage undo changed "+gateIDs[i].toStdString()+": "+std::to_string(before[i])+" > "+std::to_string(afterUndo[i]));
+        p->releaseResources();
+    }
+    std::cout<<"PASS gate-stage edit history: 3 styles x unchanged/manual/host A-B-A, apply and undo\n";
+}
+
+int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
-        analysisRules();toneRules();finishRules();multibandRules();captureWindows();controllerIntegration();
+        if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
+        check(argc==1,"Unknown argument");
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();captureWindows();controllerFinishPreservation();controllerIntegration();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

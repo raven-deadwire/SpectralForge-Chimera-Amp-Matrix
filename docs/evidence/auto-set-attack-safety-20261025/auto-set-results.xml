@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="1"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="16"
+	timestamp="2026-10-25T19:02:53"
+	>
+	<testcase name="ChimeraAutoSetTests" classname="ChimeraAutoSetTests" time="16.8451" status="run">
+		<properties/>
+		<system-out>PASS auto set rules: silence, quiet DI gain, gate threshold/range, unchanged steady input, noisy gate, compressor ratio/attack/makeup
+PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz
+PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release
+PASS attack safety: 72 protected synthetic attack cases, 18 sustained-brightness controls, 36 extended-range/distorted explicit-instrument cases, 9 auto-target ambiguity cases
+PASS auto set capture: 10 ms windows at 44.1/48/96 kHz, louder-channel peak/RMS, mono tone tap, tap isolation, allocation-free audio path
+PASS explicit guitar/bass x three styles: manual de-esser/listen preserved, truthful summary, limiter release, apply/undo host notifications
+AUTO SET synthetic DI (-18 dBFS notes, -72 dBFS noise): Applied (rock): Input 10.5 d...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

@@ -136,6 +136,8 @@ public:
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
     spectralforge::autoset::Capture& autoSetCapture() noexcept {return autoSetCaptureState;}
+    // Message thread: Auto Set holds all gates open while it listens to the rig's noise.
+    void setAutoSetGateBypass(bool bypass) noexcept {autoSetGateBypass.store(bypass,std::memory_order_relaxed);}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}
     float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
@@ -243,6 +245,7 @@ private:
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
+    std::atomic<bool> autoSetGateBypass{false};
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;
