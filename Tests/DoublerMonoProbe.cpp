@@ -95,7 +95,7 @@ int main()
             for(size_t i=0;i<noise.size();++i)require(off.left[i]==noise[i] && off.right[i]==noise[i],"Doubler off changed the signal");
         }
         const auto pluck=plucks(4);const double dryAttack=attackDb(pluck);
-        std::cout<<"DOUBLER_PROTOCOL rate=48000 mix=0.35 left=0.55*spread right=spread mod=+/-0.25ms@0.13Hz noise=white8s welch=8192 bands=1/3oct\n";
+        std::cout<<"DOUBLER_PROTOCOL rate=48000 mix=0.35 left=0.55*spread right=spread mod=+/-0.25ms@0.13Hz noise=white8s welch=8192 bands=1/3oct mean_db=arithmetic_band_db rms_db=unweighted_broadband\n";
         for(const float spread:{1.f,3.f,6.f,10.f,15.f,20.f}) {
             const auto out=run(noise,true,spread);const auto mono=monoSum(out);
             // The dry path is not delayed: the strongest lag between input and
@@ -107,11 +107,14 @@ int main()
             }
             for(const auto& [name,signal]:std::vector<std::pair<const char*,std::vector<float>>>{{"left",out.left},{"right",out.right},{"mono",mono}}) {
                 const auto b=bands(spectrum(signal),inSpectrum);
+                double inputPower=0,outputPower=0;
+                for(size_t i=size_t(rate*.1);i<signal.size();++i){inputPower+=double(noise[i])*noise[i];outputPower+=double(signal[i])*signal[i];}
+                const double rmsDb=10*std::log10(outputPower/inputPower);
                 Band worst=b.front();double low=0;int lowCount=0;double total=0;
                 for(const auto& band:b){if(band.gainDb<worst.gainDb)worst=band;if(band.centre>=40 && band.centre<=160){low+=band.gainDb;++lowCount;}total+=band.gainDb;}
                 double spreadDb=0;for(const auto& band:b)spreadDb=std::max(spreadDb,std::abs(band.gainDb-total/double(b.size())));
                 std::cout<<"DOUBLER spread_ms="<<spread<<" signal="<<name<<" worst_band_hz="<<juce::roundToInt(worst.centre)<<" worst_db="<<juce::String(worst.gainDb,2)
-                         <<" low_40_160_db="<<juce::String(low/lowCount,2)<<" mean_db="<<juce::String(total/double(b.size()),2)<<" ripple_db="<<juce::String(spreadDb,2)<<'\n';
+                         <<" low_40_160_db="<<juce::String(low/lowCount,2)<<" mean_db="<<juce::String(total/double(b.size()),2)<<" rms_db="<<juce::String(rmsDb,2)<<" ripple_db="<<juce::String(spreadDb,2)<<'\n';
             }
             const auto pluckOut=run(pluck,true,spread);
             std::cout<<"DOUBLER spread_ms="<<spread<<" correlation_lr="<<juce::String(correlation(out.left,out.right),3)
