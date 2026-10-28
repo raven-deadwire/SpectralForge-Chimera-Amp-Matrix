@@ -1,0 +1,47 @@
+UpdateCTestConfiguration  from :/workspace/scratch/1ae3efa460ca/chimera-integration-1117/build-integration/DartConfiguration.tcl
+Test project /workspace/scratch/1ae3efa460ca/chimera-integration-1117/build-integration
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 36
+    Start 36: ChimeraStateRecallAudioTests
+
+36: Test command: /workspace/scratch/1ae3efa460ca/chimera-integration-1117/build-integration/ChimeraStateRecallAudioTests_artefacts/Release/ChimeraStateRecallAudioTests
+36: Working Directory: /workspace/scratch/1ae3efa460ca/chimera-integration-1117/build-integration
+36: Test timeout computed to be: 10000000
+36: MEASURE preset 0 loaded over 17 difference_db=-300 max_abs=0
+36: MEASURE preset 0 reloaded difference_db=-300 max_abs=0
+36: MEASURE preset 17 loaded over 33 difference_db=-300 max_abs=0
+36: MEASURE preset 17 reloaded difference_db=-300 max_abs=0
+36: MEASURE preset 33 loaded over 34 difference_db=-300 max_abs=0
+36: MEASURE preset 33 reloaded difference_db=-300 max_abs=0
+36: MEASURE preset 34 loaded over 38 difference_db=-300 max_abs=0
+36: MEASURE preset 34 reloaded difference_db=-300 max_abs=0
+36: MEASURE preset 38 loaded over 43 difference_db=-300 max_abs=0
+36: MEASURE preset 38 reloaded difference_db=-300 max_abs=0
+36: MEASURE preset 43 loaded over 0 difference_db=-300 max_abs=0
+36: MEASURE preset 43 reloaded difference_db=-300 max_abs=0
+36: PASS factory preset recall renders the same audio as a fresh load (6 presets)
+36: MEASURE empty B initialised from A difference_db=-300 max_abs=0
+36: MEASURE A/B recall of A difference_db=-300 max_abs=0
+36: MEASURE A/B recall of B difference_db=-300 max_abs=0
+36: MEASURE repeated A/B toggling difference_db=-300 max_abs=0
+36: PASS A/B recall renders the stored sound
+36: MEASURE A after copying B to A difference_db=-300 max_abs=0
+36: PASS A/B copy renders the copied sound
+36: MEASURE project restore of active B difference_db=-163.127 max_abs=2.98023e-08
+36: MEASURE project restore of stored A difference_db=-146.866 max_abs=1.11759e-08
+36: MEASURE project restore over a playing instance difference_db=-300 max_abs=0
+36: MEASURE second-generation project restore difference_db=-146.866 max_abs=1.11759e-08
+36: PASS project save/restore renders both A/B sounds
+1/1 Test #36: ChimeraStateRecallAudioTests .....   Passed   24.24 sec
+
+The following tests passed:
+	ChimeraStateRecallAudioTests
+
+100% tests passed out of 1
+
+Total Test time (real) =  24.24 sec
