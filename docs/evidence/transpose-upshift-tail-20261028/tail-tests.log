@@ -1,0 +1,1 @@
+PASS 240 candidate groups: finite output, causal/bounded reads, exact unity, deterministic reset, zero C++ process allocations, prepare restores defaults; +/-12 experiment rejected.

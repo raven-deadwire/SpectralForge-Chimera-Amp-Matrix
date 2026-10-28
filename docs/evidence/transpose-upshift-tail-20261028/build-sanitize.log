@@ -1,0 +1,21 @@
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o: in function `juce::dsp::loadStreamToBuffer(std::unique_ptr<juce::InputStream, std::default_delete<juce::InputStream> >, unsigned long)':
+juce_dsp.cpp:(.text+0x11cc5): undefined reference to `juce::AudioFormatManager::AudioFormatManager()'
+/usr/bin/ld: juce_dsp.cpp:(.text+0x11ccd): undefined reference to `juce::AudioFormatManager::registerBasicFormats()'
+/usr/bin/ld: juce_dsp.cpp:(.text+0x11d3a): undefined reference to `juce::AudioFormatManager::createReaderFor(std::unique_ptr<juce::InputStream, std::default_delete<juce::InputStream> >)'
+/usr/bin/ld: juce_dsp.cpp:(.text+0x121ee): undefined reference to `juce::AudioFormatReader::read(float* const*, int, long long, int)'
+/usr/bin/ld: juce_dsp.cpp:(.text+0x1238c): undefined reference to `juce::AudioFormatManager::~AudioFormatManager()'
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o: in function `juce::dsp::loadStreamToBuffer(std::unique_ptr<juce::InputStream, std::default_delete<juce::InputStream> >, unsigned long) [clone .cold]':
+juce_dsp.cpp:(.text.unlikely+0x556): undefined reference to `juce::AudioFormatManager::~AudioFormatManager()'
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o:(.data.rel+0x678): undefined reference to `typeinfo for juce::AudioFormatReader'
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o:(.data.rel+0x6d8): undefined reference to `typeinfo for juce::AudioFormatReader'
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o:(.data.rel+0x738): undefined reference to `typeinfo for juce::AudioFormatReader'
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o:(.data.rel+0x798): undefined reference to `typeinfo for juce::AudioFormatReader'
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o:(.data.rel+0x7f8): undefined reference to `typeinfo for juce::AudioFormatReader'
+/usr/bin/ld: /workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o:(.data.rel+0x9d8): more undefined references to `typeinfo for juce::AudioFormatReader' follow
+collect2: error: ld returned 1 exit status
+Traceback (most recent call last):
+  File "/workspace/scratch/2cfd3cfa1755/chimera/Tools/TransposeNext/build.py", line 49, in <module>
+    subprocess.run(cmd, check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['g++', '-std=c++20', '-O2', '-DNDEBUG', '-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1', '-DJUCE_USE_CURL=0', '-DJUCE_WEB_BROWSER=0', '-DJUCE_USE_FLAC=0', '-DJUCE_USE_OGGVORBIS=0', '-pthread', '-I/workspace/scratch/2cfd3cfa1755/juce/modules', '-I/workspace/scratch/2cfd3cfa1755/chimera/Source', '-fsanitize=address,undefined', '-fno-omit-frame-pointer', '/workspace/scratch/2cfd3cfa1755/chimera/Tools/TransposeNext/TransposeProbe.cpp', '/workspace/scratch/2cfd3cfa1755/build-sanitize/juce_core.o', '/workspace/scratch/2cfd3cfa1755/build-sanitize/juce_audio_basics.o', '/workspace/scratch/2cfd3cfa1755/build-sanitize/juce_audio_formats.o', '/workspace/scratch/2cfd3cfa1755/build-sanitize/juce_dsp.o', '/workspace/scratch/2cfd3cfa1755/build-sanitize/juce_core_CompilationTime.o', '-ldl', '-lrt', '-lz', '-o', '/workspace/scratch/2cfd3cfa1755/build-sanitize/TransposeProbe']' returned non-zero exit status 1.
