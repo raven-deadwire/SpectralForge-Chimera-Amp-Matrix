@@ -10,7 +10,7 @@ namespace spectralforge::cabRoom {
 // one shared room (on/off, size, absorption, return) and a send per rig that
 // exists in the current routing mode. Each control is attached to its host
 // parameter; showing or hiding the strip changes no audio setting.
-class RoomControls : public juce::Component {
+class RoomControls : public juce::Component, private juce::Timer {
     using SA = juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA = juce::AudioProcessorValueTreeState::ButtonAttachment;
     using CA = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
@@ -28,6 +28,16 @@ class RoomControls : public juce::Component {
     std::array<Knob, roomLaneCount> sends;
     // Room Advanced 1.8: balance, decay, diffusion, wet cuts and width.
     std::array<Knob, 6> advanced;
+    // Room Advanced 1.8 spatial stage: declared space switch, dimensions,
+    // surface materials, cabinet placement and the room-mic pair.
+    juce::TextButton space;
+    std::unique_ptr<BA> spaceAttachment;
+    std::array<Knob, 3> dimensions;
+    struct Surface { juce::Label label; juce::ComboBox box; std::unique_ptr<CA> attachment; };
+    std::array<Surface, 3> surfaces;
+    std::array<Knob, 3> cabinet;
+    std::array<Knob, 4> microphone;
+    bool spaceShown{};
     int visibleSends{1};
 
     void setUp(Knob& knob, const juce::String& id, const juce::String& text, const juce::String& parameter,
@@ -86,7 +96,70 @@ public:
             {"width", "WIDTH", "roomWidth", "Stereo width of the room return: 0 % mono, 100 % as calibrated, 200 % wider."}}};
         for (size_t i = 0; i < specs.size(); ++i)
             setUp(advanced[i], specs[i].id, specs[i].text, specs[i].parameter, specs[i].tooltip);
+        space.setComponentID("cabRoom.room.space");
+        space.setButtonText("SPACE");
+        space.setClickingTogglesState(true);
+        space.setTooltip("Use the declared room below (dimensions, surfaces, cabinet and mic positions) instead of Size and Absorption.");
+        space.setColour(juce::TextButton::buttonOnColourId, juce::Colour(0xffb29362));
+        addAndMakeVisible(space);
+        spaceAttachment = std::make_unique<BA>(processor.parameters(), "roomSpace", space);
+        static constexpr std::array<Spec, 3> dimensionSpecs{{
+            {"length", "LENGTH", "roomSpaceLength", "Room length, back wall to front wall: 2 to 30 m."},
+            {"roomWidth", "WIDTH (M)", "roomSpaceWidth", "Room width, wall to wall: 2 to 20 m."},
+            {"height", "HEIGHT", "roomSpaceHeight", "Room height, floor to ceiling: 2 to 10 m."}}};
+        for (size_t i = 0; i < dimensions.size(); ++i)
+            setUp(dimensions[i], dimensionSpecs[i].id, dimensionSpecs[i].text, dimensionSpecs[i].parameter, dimensionSpecs[i].tooltip);
+        static constexpr std::array<Spec, 3> surfaceSpecs{{
+            {"floor", "FLOOR", "roomFloor", "Floor material. Its absorption sets the floor bounce and, with the other surfaces, the decay."},
+            {"walls", "WALLS", "roomWalls", "Material of all four walls."},
+            {"ceiling", "CEILING", "roomCeiling", "Ceiling material."}}};
+        juce::StringArray names;
+        for (const auto& material : roomMaterials) names.add(material.name);
+        for (size_t i = 0; i < surfaces.size(); ++i) {
+            auto& surface = surfaces[i];
+            surface.label.setText(surfaceSpecs[i].text, juce::dontSendNotification);
+            surface.label.setFont(juce::FontOptions(10.f, juce::Font::bold));
+            surface.label.setColour(juce::Label::textColourId, juce::Colour(0xffc6bba8));
+            surface.label.setInterceptsMouseClicks(false, false);
+            surface.box.setComponentID(juce::String("cabRoom.room.") + surfaceSpecs[i].id);
+            surface.box.setTooltip(surfaceSpecs[i].tooltip);
+            surface.box.addItemList(names, 1);
+            addAndMakeVisible(surface.label);
+            addAndMakeVisible(surface.box);
+            surface.attachment = std::make_unique<CA>(processor.parameters(), surfaceSpecs[i].parameter, surface.box);
+        }
+        static constexpr std::array<Spec, 3> cabinetSpecs{{
+            {"cabDistance", "CAB TO WALL", "roomCabDistance", "Cabinet distance from the back wall, in metres."},
+            {"cabAcross", "CAB ACROSS", "roomCabAcross", "Cabinet position across the room: 5 % next to the left wall, 95 % next to the right."},
+            {"cabHeight", "CAB HEIGHT", "roomCabHeight", "Height of the speaker centre above the floor, in metres."}}};
+        for (size_t i = 0; i < cabinet.size(); ++i)
+            setUp(cabinet[i], cabinetSpecs[i].id, cabinetSpecs[i].text, cabinetSpecs[i].parameter, cabinetSpecs[i].tooltip);
+        static constexpr std::array<Spec, 4> micSpecs{{
+            {"micDistance", "MIC DIST", "roomMicDistance", "Room mic distance from the cabinet, towards the front wall, in metres. Independent of the close mics A and B."},
+            {"micAcross", "MIC ACROSS", "roomMicAcross", "Room mic position across the room."},
+            {"micHeight", "MIC HEIGHT", "roomMicHeight", "Room mic height above the floor, in metres."},
+            {"micSpacing", "SPACING", "roomMicSpacing", "Spacing of the room-mic pair, in metres. 0 gives identical early reflections in both channels."}}};
+        for (size_t i = 0; i < microphone.size(); ++i)
+            setUp(microphone[i], micSpecs[i].id, micSpecs[i].text, micSpecs[i].parameter, micSpecs[i].tooltip);
+        refreshSpace();
+        startTimerHz(10);
     }
+    // Size and Absorption have no effect while the declared space is on, and
+    // the space controls none while it is off.
+    void refreshSpace() {
+        const auto* raw = processor.parameters().getRawParameterValue("roomSpace");
+        const bool declared = raw != nullptr && raw->load() > .5f;
+        if (declared == spaceShown && isShowing()) return;
+        spaceShown = declared;
+        size.setEnabled(!declared);
+        absorption.slider.setEnabled(!declared);
+        for (auto* knob : {&dimensions[0], &dimensions[1], &dimensions[2], &cabinet[0], &cabinet[1], &cabinet[2],
+                           &microphone[0], &microphone[1], &microphone[2], &microphone[3]})
+            knob->slider.setEnabled(declared);
+        for (auto& surface : surfaces) surface.box.setEnabled(declared);
+    }
+    void timerCallback() override { refreshSpace(); }
+    bool spaceControlsEnabled() const noexcept { return spaceShown; }
     ~RoomControls() override {
         powerAttachment.reset();
         sizeAttachment.reset();
@@ -94,6 +167,12 @@ public:
         level.attachment.reset();
         for (auto& send : sends) send.attachment.reset();
         for (auto& knob : advanced) knob.attachment.reset();
+        stopTimer();
+        spaceAttachment.reset();
+        for (auto* group : {dimensions.data(), cabinet.data()})
+            for (size_t i = 0; i < 3; ++i) group[i].attachment.reset();
+        for (auto& knob : microphone) knob.attachment.reset();
+        for (auto& surface : surfaces) surface.attachment.reset();
     }
     // Rigs in the current routing mode (Classic 1, Dual 2, Matrix 3).
     void setRigCount(int count) {
@@ -106,7 +185,7 @@ public:
 
     void resized() override {
         auto area = getLocalBounds().reduced(8, 4);
-        const int rowHeight = juce::jmin(22, juce::jmax(16, area.getHeight() / 4 - 2));
+        const int rowHeight = juce::jmin(22, juce::jmax(16, area.getHeight() / 8 - 3));
         auto top = area.removeFromTop(rowHeight);
         area.removeFromTop(2);
         auto bottom = area.removeFromTop(rowHeight);
@@ -114,8 +193,13 @@ public:
         std::array<juce::Rectangle<int>, 2> extra{area.removeFromTop(rowHeight), {}};
         area.removeFromTop(2);
         extra[1] = area.removeFromTop(rowHeight);
+        area.removeFromTop(4);
+        std::array<juce::Rectangle<int>, 4> spatial{};
+        for (auto& row : spatial) { row = area.removeFromTop(rowHeight); area.removeFromTop(2); }
         power.setBounds(top.removeFromLeft(64));
-        top.removeFromLeft(8);
+        top.removeFromLeft(6);
+        space.setBounds(top.removeFromLeft(58));
+        top.removeFromLeft(6);
         size.setBounds(top.removeFromLeft(96));
         top.removeFromLeft(12);
         const auto place = [](Knob& knob, juce::Rectangle<int> cell) {
@@ -139,6 +223,21 @@ public:
             const int cell = row.getWidth() / int(3 - i % 3);
             place(advanced[i], row.removeFromLeft(cell).withTrimmedRight(i % 3 < 2 ? 12 : 0));
         }
+        const auto placeRow = [&](juce::Rectangle<int> row, Knob* knobs, int count) {
+            for (int i = 0; i < count; ++i) {
+                const int cell = row.getWidth() / (count - i);
+                place(knobs[i], row.removeFromLeft(cell).withTrimmedRight(i + 1 < count ? 12 : 0));
+            }
+        };
+        placeRow(spatial[0], dimensions.data(), 3);
+        auto materialsRow = spatial[1];
+        for (size_t i = 0; i < surfaces.size(); ++i) {
+            auto cell = materialsRow.removeFromLeft(materialsRow.getWidth() / int(surfaces.size() - i)).withTrimmedRight(i + 1 < surfaces.size() ? 12 : 0);
+            surfaces[i].label.setBounds(cell.removeFromLeft(juce::jmin(60, cell.getWidth() / 3)));
+            surfaces[i].box.setBounds(cell);
+        }
+        placeRow(spatial[2], cabinet.data(), 3);
+        placeRow(spatial[3], microphone.data(), 4);
     }
     void paint(juce::Graphics& g) override {
         g.setColour(juce::Colour(0xff151714).withAlpha(.82f));

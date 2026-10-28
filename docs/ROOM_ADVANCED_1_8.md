@@ -91,6 +91,7 @@ The controls live in two extra rows of the room callout in the CAB area.
 ## Not done
 
 - **The 1.8 spatial stage:** declared dimensions, wall/floor/ceiling materials,
-  cabinet-to-boundary placement, and a room mic independent of Mic A/B.
+  cabinet-to-boundary placement, and a room mic independent of Mic A/B. Now on
+  `claude/room-space`: [ROOM_SPACE_1_8.md](ROOM_SPACE_1_8.md).
 - **A decay law that holds 2× above 100 %:** the 200 % setting is 1.85×.
 - **Checks:** listening tests, and CPU measurement in a DAW.

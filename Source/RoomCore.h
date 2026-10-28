@@ -53,6 +53,36 @@ inline void appendRoomAdvancedParameters(juce::AudioProcessorValueTreeState::Par
     number("roomWidth", "Room width", 0.f, 200.f, 100.f, 0.f, " %");
 }
 
+// Room Advanced 1.8 spatial stage (docs/ROOM_SPACE_1_8.md): a declared room
+// (dimensions, floor / wall / ceiling materials), the cabinet's placement and a
+// spaced room-mic pair. Appended after Room Advanced at version hint 25; Space
+// off (the default) is the Size / Absorption room, exactly.
+inline constexpr int roomSpaceParameterVersion = 25;
+inline constexpr int roomSpaceParameterCount = 14;
+inline void appendRoomSpaceParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    const auto number = [&](const juce::String& id, const juce::String& name, float lo, float hi, float initial, const juce::String& unit, int decimals) {
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id, roomSpaceParameterVersion}, name, juce::NormalisableRange<float>{lo, hi, .01f}, initial,
+            juce::AudioParameterFloatAttributes().withStringFromValueFunction([unit, decimals](float v, int) { return juce::String(v, decimals) + unit; })));
+    };
+    juce::StringArray materials;
+    for (const auto& material : roomMaterials) materials.add(material.name);
+    const RoomSpace defaults;
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"roomSpace", roomSpaceParameterVersion}, "Room declared space", false));
+    number("roomSpaceLength", "Room length", 2.f, 30.f, defaults.length, " m", 1);
+    number("roomSpaceWidth", "Room width (dimension)", 2.f, 20.f, defaults.width, " m", 1);
+    number("roomSpaceHeight", "Room height", 2.f, 10.f, defaults.height, " m", 1);
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"roomFloor", roomSpaceParameterVersion}, "Room floor", materials, defaults.floor));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"roomWalls", roomSpaceParameterVersion}, "Room walls", materials, defaults.walls));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"roomCeiling", roomSpaceParameterVersion}, "Room ceiling", materials, defaults.ceiling));
+    number("roomCabDistance", "Room cabinet from back wall", .1f, 20.f, defaults.cabWall, " m", 2);
+    number("roomCabAcross", "Room cabinet across", 5.f, 95.f, defaults.cabAcross * 100.f, " %", 0);
+    number("roomCabHeight", "Room cabinet height", .1f, 3.f, defaults.cabHeight, " m", 2);
+    number("roomMicDistance", "Room mic distance", .3f, 20.f, defaults.micDistance, " m", 2);
+    number("roomMicAcross", "Room mic across", 5.f, 95.f, defaults.micAcross * 100.f, " %", 0);
+    number("roomMicHeight", "Room mic height", .3f, 4.f, defaults.micHeight, " m", 2);
+    number("roomMicSpacing", "Room mic spacing", 0.f, 2.f, defaults.micSpacing, " m", 2);
+}
+
 class RoomCore {
 public:
     void bind(juce::AudioProcessorValueTreeState& state) {
@@ -68,6 +98,10 @@ public:
         lowCut = state.getRawParameterValue("roomLowCut");
         highCut = state.getRawParameterValue("roomHighCut");
         width = state.getRawParameterValue("roomWidth");
+        spaceOn = state.getRawParameterValue("roomSpace");
+        static constexpr std::array<const char*, 13> spaceIDs{"roomSpaceLength", "roomSpaceWidth", "roomSpaceHeight", "roomFloor", "roomWalls", "roomCeiling",
+            "roomCabDistance", "roomCabAcross", "roomCabHeight", "roomMicDistance", "roomMicAcross", "roomMicHeight", "roomMicSpacing"};
+        for (size_t i = 0; i < spaceIDs.size(); ++i) spaceValues[i] = state.getRawParameterValue(spaceIDs[i]);
     }
     void prepare(const juce::dsp::ProcessSpec& spec) {
         rate = spec.sampleRate;
@@ -104,7 +138,11 @@ public:
         lowMix.setCurrentAndTargetValue(a.lowOn ? 1.f : 0.f);highMix.setCurrentAndTargetValue(a.highOn ? 1.f : 0.f);
         lowHz.setCurrentAndTargetValue(a.lowHz);highHz.setCurrentAndTargetValue(a.highHz);widthGain.setCurrentAndTargetValue(a.width);
         lowFilter = {};highFilter = {};
-        if (prepared) { models[0].configure(readSize(), readAbsorption(), a.decay); models[0].snapShape(a.shape); }
+        if (prepared) {
+            if (readSpaceOn()) models[0].configureSpace(readSpace(), a.decay);
+            else models[0].configure(readSize(), readAbsorption(), a.decay);
+            models[0].snapShape(a.shape);
+        }
         inputPeak.store(0.f, std::memory_order_relaxed);
     }
 
@@ -158,12 +196,23 @@ public:
         // 50 ms and fades the old room's output over 250 ms. Switching the
         // inputs or crossfading only the outputs would replay a hard edge at
         // every reflection tap.
+        // A declared room's geometry (dimensions, cabinet, mic), its surface
+        // materials (a step, not a continuous control) and Space on / off
+        // crossfade the same way. While a fade runs, each model keeps its
+        // room; a change made meanwhile starts the next fade.
         const int wanted = readSize();
-        if (!fading && wanted != models[size_t(active)].size()) {
+        const bool declaredWanted = readSpaceOn();
+        const auto declaredSpace = readSpace();
+        const auto& current = models[size_t(active)];
+        const bool relayout = declaredWanted ? current.size() != RoomModel::declared || !current.space().sameGeometry(declaredSpace)
+                                                   || !current.space().sameSurfaces(declaredSpace)
+                                             : wanted != current.size();
+        if (!fading && relayout) {
             const int next = 1 - active;
             const auto shaping = readAdvanced();
             models[size_t(next)].reset();
-            models[size_t(next)].configure(wanted, absorptionSmooth.getCurrentValue(), shaping.decay);
+            if (declaredWanted) models[size_t(next)].configureSpace(declaredSpace, shaping.decay);
+            else models[size_t(next)].configure(wanted, absorptionSmooth.getCurrentValue(), shaping.decay);
             models[size_t(next)].snapShape(shaping.shape);
             active = next;
             fading = true;
@@ -176,8 +225,12 @@ public:
         absorptionSmooth.skip(samples);
         const float absorbed = absorptionSmooth.getCurrentValue();
         const auto advanced = readAdvanced();
-        models[size_t(active)].configure(models[size_t(active)].size(), absorbed, advanced.decay);
-        if (fading) models[size_t(1 - active)].configure(models[size_t(1 - active)].size(), absorbed, advanced.decay);
+        const auto keepLayout = [&](RoomModel& model) {
+            if (model.size() != RoomModel::declared) model.configure(model.size(), absorbed, advanced.decay);
+            else model.configureSpace(model.space(), advanced.decay);   // its own room; only the decay follows
+        };
+        keepLayout(models[size_t(active)]);
+        if (fading) keepLayout(models[size_t(1 - active)]);
         silence.setSize(channels, samples, false, false, true);
         const auto& source = input != nullptr ? *input : silence;
         for (auto& w : wet) { w.setSize(channels, samples, false, false, true); w.clear(); }
@@ -251,6 +304,10 @@ public:
     // parameters only, so any thread may ask; zero with the room off.
     double tailSeconds() const noexcept {
         if (!feeding()) return 0.0;
+        if (readSpaceOn()) {
+            const auto space = readSpace();
+            return 2.0 * 1.1 * std::max(space.eyring(2), space.eyring(5)) * double(readAdvanced().decay) + .2 + .05;
+        }
         return 2.0 * 1.1 * double(RoomModel::geometry(readSize()).rt60AtHalf * RoomModel::rt60Scale(readAbsorption())) * double(readAdvanced().decay) + .1 + .05;
     }
     // Samples run through the room since prepare/reset: zero proves Room off
@@ -265,6 +322,25 @@ private:
     int readSize() const noexcept { return size != nullptr ? juce::jlimit(0, 2, juce::roundToInt(size->load())) : 1; }
     float readAbsorption() const noexcept { return absorption != nullptr ? juce::jlimit(0.f, 1.f, absorption->load() * .01f) : .5f; }
     static constexpr float tailFloor = 1.e-6f;   // -120 dBFS
+    bool readSpaceOn() const noexcept { return spaceOn != nullptr && spaceOn->load() > .5f; }
+    RoomModel::Space readSpace() const noexcept {
+        RoomModel::Space s;
+        const auto value = [this](size_t i, float lo, float hi, float fallback) {
+            const float v = spaceValues[i] != nullptr ? spaceValues[i]->load() : fallback;
+            return std::isfinite(v) ? juce::jlimit(lo, hi, v) : fallback;
+        };
+        const int last = int(roomMaterials.size()) - 1;
+        s.length = value(0, 2.f, 30.f, s.length);s.width = value(1, 2.f, 20.f, s.width);s.height = value(2, 2.f, 10.f, s.height);
+        s.floor = juce::roundToInt(value(3, 0.f, float(last), float(s.floor)));
+        s.walls = juce::roundToInt(value(4, 0.f, float(last), float(s.walls)));
+        s.ceiling = juce::roundToInt(value(5, 0.f, float(last), float(s.ceiling)));
+        s.cabWall = value(6, .1f, 20.f, s.cabWall);s.cabAcross = value(7, 5.f, 95.f, s.cabAcross * 100.f) * .01f;s.cabHeight = value(8, .1f, 3.f, s.cabHeight);
+        s.micDistance = value(9, .3f, 20.f, s.micDistance);s.micAcross = value(10, 5.f, 95.f, s.micAcross * 100.f) * .01f;
+        s.micHeight = value(11, .3f, 4.f, s.micHeight);s.micSpacing = value(12, 0.f, 2.f, s.micSpacing);
+        return s;
+    }
+    std::atomic<float>* spaceOn{};
+    std::array<std::atomic<float>*, 13> spaceValues{};
     struct Advanced { RoomModel::Shape shape; float decay{1.f}; bool lowOn{}, highOn{}; float lowHz{20.f}, highHz{20000.f}, width{1.f}; };
     Advanced readAdvanced() const noexcept {
         const auto read = [](const std::atomic<float>* p, float lo, float hi, float fallback) {
