@@ -1,5 +1,6 @@
 #pragma once
 #include "IRMetadata.h"
+#include "CabIRFormat.h"
 #include "IRUserPreferences.h"
 #include <juce_cryptography/juce_cryptography.h>
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -56,7 +57,8 @@ struct IRCollection {
         juce::AudioFormatManager formats;formats.registerFormat(new juce::WavAudioFormat(),true);formats.registerFormat(new juce::AiffAudioFormat(),false);
         auto reader=std::unique_ptr<juce::AudioFormatReader>(formats.createReaderFor(file));
         if(!reader) return "Cannot decode this WAV/AIFF file.";
-        if(reader->numChannels<1 || reader->numChannels>2 || reader->sampleRate<8000 || reader->sampleRate>384000 || reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate))
+        const bool cabinetExport=reader->metadataValues.getValue(juce::WavAudioFormat::bwavDescription,{})==cabinetExportWavTag;
+        if(reader->numChannels<1 || reader->numChannels>2 || reader->sampleRate<8000 || reader->sampleRate>384000 || reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate*(cabinetExport?2.:1.)))
             return "Use mono/stereo, 8-384 kHz, 8 samples to 1 second.";
         juce::AudioBuffer<float> block((int)reader->numChannels,1024);double energy=0;
         for(juce::int64 offset=0;offset<reader->lengthInSamples;offset+=1024) {
@@ -68,7 +70,7 @@ struct IRCollection {
                 energy+=double(value)*value;
             }
         }
-        return energy<1e-12 ? "IR is silent." : juce::String{};
+        return energy<1e-12 && !cabinetExport ? "IR is silent." : juce::String{};
     }
     static void labelEntries(std::vector<Entry>& entries) {
         // Repeated microphone positions and equal basenames remain distinct.
@@ -170,7 +172,8 @@ struct IRCollection {
         juce::AudioFormatManager formats;formats.registerFormat(new juce::WavAudioFormat(),true);formats.registerFormat(new juce::AiffAudioFormat(),false);
         auto reader=std::unique_ptr<juce::AudioFormatReader>(formats.createReaderFor(std::make_unique<juce::MemoryInputStream>(data,false)));
         if(!reader) return "Cannot decode this WAV/AIFF file.";
-        if(reader->numChannels<1 || reader->numChannels>2 || reader->sampleRate<8000 || reader->sampleRate>384000 || reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate))
+        const bool cabinetExport=reader->metadataValues.getValue(juce::WavAudioFormat::bwavDescription,{})==cabinetExportWavTag;
+        if(reader->numChannels<1 || reader->numChannels>2 || reader->sampleRate<8000 || reader->sampleRate>384000 || reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate*(cabinetExport?2.:1.)))
             return "Use mono/stereo, 8-384 kHz, 8 samples to 1 second.";
         juce::AudioBuffer<float> block((int)reader->numChannels,1024);double energy=0;
         for(juce::int64 offset=0;offset<reader->lengthInSamples;offset+=1024) {
@@ -182,7 +185,7 @@ struct IRCollection {
                 energy+=double(value)*value;
             }
         }
-        return energy<1e-12 ? "IR is silent." : juce::String{};
+        return energy<1e-12 && !cabinetExport ? "IR is silent." : juce::String{};
     }
 
     // User-initiated ZIP import has no bundled private catalog or pack promotion.

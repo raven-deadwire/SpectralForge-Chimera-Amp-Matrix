@@ -60,19 +60,21 @@ public:
         return get(1,0,1,0)>.5f;
     }
     // Call once per block on the clean input, before anything else processes it.
-    void detect(const juce::AudioBuffer<float>& cleanInput,int postRigDelaySamples){
+    // allowed=false holds the unit open (Auto Set measures the ungated rig).
+    void detect(const juce::AudioBuffer<float>& cleanInput,int postRigDelaySamples,bool allowed=true){
+        active=enabled() && allowed;
         const bool expander=unit==ExtraGateUnit::expander;
         gate.setMode(expander || get(8,0,1,0)>.5f,get(7,1,20,2),get(3,.1f,20,expander?2.f:.5f));
-        gate.detect(cleanInput,enabled(),get(2,-90,-15,expander?-55.f:-70.f),get(5,5,500,expander?150.f:80.f),get(4,0,150,expander?10.f:20.f),
+        gate.detect(cleanInput,active,get(2,-90,-15,expander?-55.f:-70.f),get(5,5,500,expander?150.f:80.f),get(4,0,150,expander?10.f:20.f),
                     afterRig()?postRigDelaySamples:0,get(6,0,NoiseGate::fullRangeDb,expander?24.f:NoiseGate::fullRangeDb));
     }
     // Unity gains are skipped once settled, so a disabled unit stays bit exact.
-    void apply(juce::AudioBuffer<float>& audio){if(enabled() || gate.reduction()<1.f)gate.apply(audio);}
+    void apply(juce::AudioBuffer<float>& audio){if(active || gate.reduction()<1.f)gate.apply(audio);}
     float reduction() const {return gate.reduction();}
 private:
     float get(size_t i,float lo,float hi,float fallback) const noexcept {
         if(!p[i])return fallback;const float x=p[i]->load();return std::isfinite(x)?juce::jlimit(lo,hi,x):fallback;
     }
-    ExtraGateUnit unit;PostRigGate gate;std::array<std::atomic<float>*,9> p{};
+    ExtraGateUnit unit;PostRigGate gate;bool active{};std::array<std::atomic<float>*,9> p{};
 };
 }

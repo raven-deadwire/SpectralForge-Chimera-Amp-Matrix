@@ -1,0 +1,4 @@
+PASS CTest producer refuses skipped, failed, missing, duplicate and unconfigured tests
+PASS: beta defers exactly two transpose goals; RC/stable retain every full-release check; all applicable hard gates fail closed.
+Produced concrete windows CTest evidence; release verdict=BLOCKED
+PASS UTF-8 owner policy works under simulated cp1252; synthetic fixture keeps release BLOCKED

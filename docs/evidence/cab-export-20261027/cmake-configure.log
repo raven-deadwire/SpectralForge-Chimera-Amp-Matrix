@@ -1,0 +1,21 @@
+-- Found PkgConfig: /workspace/scratch/1db1a1b13fb0/sysroot/usr/bin/pkg-config (found version "1.8.1")
+-- Checking for module 'alsa'
+--   Found alsa, version 1.2.11
+-- Checking for modules 'freetype2;fontconfig'
+--   Found freetype2, version 26.1.20
+--   Found fontconfig, version 2.15.0
+-- Checking for module 'gl'
+--   Found gl, version 1.2
+-- Checking for module 'libcurl'
+--   Found libcurl, version 8.5.0
+-- Checking for modules 'webkit2gtk-4.0;gtk+-x11-3.0'
+--   Package 'webkit2gtk-4.0', required by 'virtual:world', not found
+--   Package 'gtk+-x11-3.0', required by 'virtual:world', not found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Found Python3: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 (found suitable version "3.12.14", minimum required is "3.9") found components: Interpreter
+-- Found CURL: /usr/lib/x86_64-linux-gnu/libcurl.so (found version "8.5.0")
+-- Configuring done (24.1s)
+-- Generating done (3.0s)
+-- Build files have been written to: /workspace/scratch/679a7b0150eb/cmake-configure

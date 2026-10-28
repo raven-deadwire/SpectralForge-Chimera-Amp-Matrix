@@ -1,0 +1,27 @@
+{
+  "checked_at_kst": "2026-10-26T17:25:38.322343+09:00",
+  "base_pr_head": "368760a0b47f0495e3cd633e95d78118ad54f775",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "cmake": "cmake version 3.28.3",
+  "juce": "8.0.8 with repository-pinned JUCE patches",
+  "build": "Release, CHIMERA_BETA_QUALIFICATION_ONLY=ON",
+  "source_sha256": {
+    "CMakeLists.txt": "e710302e1daa93496c302755f866dd08b320879feb9356a6554110c83f9eb5f2",
+    "Source/ABLevelMatch.h": "b61d9b278ff1ebc42f5a4abf9582196720dace5f5b6d34000385cede7d90d1d7",
+    "Source/PluginProcessor.cpp": "2a6a60141792dcc0b4132c6baead0c170b5da11cd4d8fde6e399cd7ec8e1772f",
+    "Source/PluginProcessor.h": "45688fcb92fb1d1deaf350d954083e553117fe4d739584966a500421dd1774a3",
+    "Source/PluginEditor.cpp": "3e8ba9dc32e7df48f594ac46689f8f258a98585cf55f1d21194bbd205ea9ab16",
+    "Source/PluginEditor.h": "c3ae4d82be9e2c56173354866779012de396f682db92c881d94e6382e9cbb7b1",
+    "Tests/ABLevelMatchTests.cpp": "e7c3a5e4e30a3b4b36b18b064f4c3cb1ce1f40ae88d18bbe36d63b457ae69457"
+  },
+  "native_ctest": {
+    "passed": [
+      "ChimeraABLevelMatchTests",
+      "ChimeraHostBypassTests"
+    ],
+    "ui": "BLOCKED: no accessible native display",
+    "full_suite": "not rerun locally"
+  },
+  "actual_daw": "NOT TESTED"
+}

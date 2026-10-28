@@ -65,6 +65,16 @@ The universal app, VST3 and AU contain both arm64 and x86_64 code. Package insta
 - Optional OBS Studio filter: choose **OBS Studio filter** in the installer's package list (preselected when `/Applications/OBS.app` exists or the filter is already installed). It is installed for the logged-in user into `~/Library/Application Support/obs-studio/plugins/chimera-obs.plugin`, because OBS on macOS loads plugins only from each user's folder. The installer refuses to run while OBS Studio is open. To add it for another user or remove it, run `/Library/Application Support/SpectralForge/Chimera/OBS/install.sh` (or `--uninstall`) as that user.
 
 The unsigned, unnotarized beta can be blocked by Gatekeeper. Use only an intentionally downloaded, hash-verified official package and review macOS's security information. Do not disable system security globally. The beta is not represented as a frictionless signed public release.
+The PKG requires macOS 12 or later and installs on the startup system volume. Both components check for running OBS again before unpacking; an unknown process state blocks installation. Keep OBS closed until the installer finishes.
+Deselection leaves an existing OBS filter installed while updating the mandatory app, VST3, AU and manual. It is not an uninstall action. The GUI's initial selection uses the invoking user's home; for root/MDM/`sudo installer`, explicitly supply the OBS choice with `-applyChoiceChangesXML`. The postinstall targets the console login user, never root.
+The native helper's rollback protects the user's OBS filter, not the entire multi-component PKG. If a later component fails, earlier components may already be updated. Resolve the reported error and rerun the same PKG; a complete product rollback after failure or power loss is not certified.
+To remove only the macOS OBS filter, close OBS and run as its user:
+
+```sh
+"/Library/Application Support/SpectralForge/Chimera/OBS/install.sh" --uninstall
+```
+
+This preserves Chimera's app and audio plugins, OBS scenes, personal presets and other plugins. Each user removes their own filter. The shared package cache and Apple package receipt remain; there is no whole-product PKG uninstaller.
 If macOS requests microphone access, permit it for the standalone app or host you use for recording. Refresh the DAW plugin scan after installation.
 
 Before the renamed beta, macOS builds were distributed as loose bundles. If you manually copied `Chimera Amp Matrix.app`, `.vst3` or `.component`, remove those obsolete exact bundles after confirming the new version and backing up sessions; the pkg does not delete arbitrary manually installed folders.

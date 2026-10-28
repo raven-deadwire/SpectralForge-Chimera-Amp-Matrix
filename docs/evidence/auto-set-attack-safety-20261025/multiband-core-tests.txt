@@ -1,0 +1,22 @@
+PASS exact default and restored bypass; zero/ragged/oversized blocks, mono/stereo, four rates
+PASS LR4 magnitude reconstruction, magnitude error <= 0 dB; parallel mix flat across crossovers at four rates
+PASS weighted LR4 magnitude and exact raw endpoints; max amplitude error 6.995e-08
+CHARACTERIZATION 44100 Hz: 700 Hz global OFF min envelope 0 dB (fixed neutral bypass)
+CHARACTERIZATION 48000 Hz: 700 Hz global OFF min envelope -5.17719e-07 dB (fixed neutral bypass)
+CHARACTERIZATION 96000 Hz: 700 Hz global OFF min envelope -5.17719e-07 dB (fixed neutral bypass)
+CHARACTERIZATION 192000 Hz: 700 Hz global OFF min envelope -5.17719e-07 dB (fixed neutral bypass)
+PASS bypass ramp continuity/partition and exact endpoint; neutral samples unchanged
+PASS nonuniform extremes, four modes, Solo, crossover/mix motion and 3 ms reversals; exact partition/stereo
+band 1 measured dB: -5.89522 -0.10878 -0.000135113 -1.36743e-08
+band 2 measured dB: -0.052994 -5.52317 -0.15271 -1.91415e-05
+band 3 measured dB: -5.58157e-07 -0.138657 -5.38893 -0.0127779
+band 4 measured dB: -5.11244e-09 -6.94018e-06 -0.167383 -5.97452
+PASS four independent band cuts, linked stereo, range meters and band solo
+mode 0 gain -13.504 dB; expected -13.5; meter 13.5052
+mode 1 gain 15.0362 dB; expected 15; meter -15.0058
+mode 2 gain -10.0501 dB; expected -10; meter 10.0077
+mode 3 gain 10.0068 dB; expected 10; meter -10.007
+PASS measured four-mode slopes, soft knee, finite range, signed GR, attack and release
+PASS de-esser split-band selectivity, detector rejection, finite range, stereo link and listen at four rates
+PASS rapidly automated/reversed crossovers, finite host sanitation, bounded extra-channel handling; peak=0.239997
+PASS no callback allocations; all independent dynamics core contracts (1.85375 s test runtime)

@@ -1,0 +1,7 @@
+PASS exact default bypass; limiter ceiling, first-sample response, stereo link, GR and bypass at four rates
+PASS analytic hard/soft knee, measured compression and GR, stereo link, parallel alignment, attack and release
+PASS four shared nodes, deterministic duplicate recovery, two-bank measured dynamic cut/GR, selective detector, release and bypass
+PASS DI expander ratio, unity and finite attenuation range
+PASS production processor: Final EQ + output boost before limiter, oversized host blocks, output metering and unchanged latency
+PASS 40 append-only parameters, fixed indices/version hints, automation, project/A-B recall and legacy defaults
+PASS common dynamics contracts

@@ -82,12 +82,14 @@ private:
     juce::Label callbackLoad;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
+    void exportCabinet(int lane);
     void openCabWorkspace(int,bool focusRequested=false);
     void openAmpHead(int);
     void chooseIR(int,bool folder);
     void browseIR(int,const juce::File&);
     void showInfo();
     void showSupport();
+    void showTesterCode();
     void showDiagnostics();
     void trackDialog(juce::DialogWindow*);
     void markPresetCustom();
@@ -100,6 +102,7 @@ private:
     void openSignalPath();
     std::unique_ptr<SignalPathView> signalPath;
     juce::Component::SafePointer<juce::DialogWindow> pathDialog;
+    std::unique_ptr<juce::AlertWindow> testerDialog;
     std::array<juce::String,3> pathSelections{{"cab","cab","cab"}};
     ChimeraProcessor& processor;
     // Declared before children so their images/peers die first. The last editor
@@ -142,7 +145,9 @@ private:
     int betaUiTicks{25};
     juce::TextButton pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,3> globalButtons;
-    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
+    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},matchAB{"MATCH"},irLibraryButton{"IR LIBRARY"};
+    bool matchWarningAcknowledged{false};
+    juce::ScopedMessageBox matchWarning;
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     // Direct navigation only: these never toggle audio processing.
     static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,6> dynamicsEntryPages{

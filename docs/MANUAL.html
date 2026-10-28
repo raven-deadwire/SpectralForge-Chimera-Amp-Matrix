@@ -13,6 +13,7 @@ main{max-width:1240px;margin:auto;padding:42px 26px 90px}.topbar{display:flex;ju
 h1{font-size:52px;line-height:1.03;margin:10px 0 12px;letter-spacing:.03em}h2{margin-top:58px;padding-top:8px;color:var(--gold);font-size:27px;border-top:1px solid var(--line)}
 h3{font-size:21px;margin-top:30px}h4{font-size:17px;margin:0 0 7px}.lead{font-size:18px;color:#d8e0e6;max-width:84ch}.small{font-size:13px;color:var(--muted)}
 nav{display:flex;flex-wrap:wrap;gap:7px 16px;margin:24px 0 8px}nav a{color:var(--blue);font-size:14px;text-underline-offset:3px}
+.start{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:18px 20px;margin:22px 0}.start h2{margin:0 0 4px;border:0;padding:0}.start-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.start-step{background:var(--panel2);border-radius:8px;padding:14px 16px}.start-step b{display:block;color:var(--gold);margin-bottom:4px}.start-step p{margin:0 0 8px}.start-more{margin:12px 0 0;color:var(--muted)}
 .note,.warning,.tip{border-left:3px solid var(--gold);padding:13px 18px;background:var(--panel);margin:18px 0}.warning{border-left-color:var(--warn)}.tip{border-left-color:#8ab7c9}
 .flow{background:var(--panel);padding:14px 18px;border:1px solid var(--line);border-radius:7px;font-weight:700;overflow-wrap:anywhere}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:16px 0 28px;font-size:14px}.wide{min-width:900px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:10px 11px}th{background:var(--panel2);color:#f2f5f7}
@@ -22,19 +23,16 @@ nav{display:flex;flex-wrap:wrap;gap:7px 16px;margin:24px 0 8px}nav a{color:var(-
 .group-count{font-size:12px;color:var(--muted);font-weight:500}.section-intro{max-width:96ch}details{border:1px solid var(--line);border-radius:8px;background:var(--panel);margin:12px 0;padding:0 15px}summary{cursor:pointer;font-weight:800;padding:14px 0}
 code{background:var(--panel2);padding:2px 5px;border-radius:4px}.workflow-grid{display:grid;grid-template-columns:1fr;gap:14px}.workflow{display:block;background:var(--panel);border:1px solid var(--line);padding:17px 18px;border-radius:9px}.workflow h4{color:var(--gold);margin:0 0 6px;font-size:19px}.workflow-goal{margin:0;color:#d6dee4}.workflow-head{display:grid;grid-template-columns:minmax(330px,1.15fr) minmax(360px,1.85fr);gap:18px;align-items:start}.workflow-chain{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}.workflow-asset{width:86px;margin:0;text-align:center}.workflow-asset img{display:block;width:82px;height:82px;object-fit:contain;background:#0b0e11;border:1px solid #27323b;border-radius:7px;margin:auto}.workflow-asset figcaption{font-size:10.5px;line-height:1.25;color:var(--muted);margin-top:5px}.workflow-steps{margin-top:13px;border-top:1px solid var(--line)}.workflow-step{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:9px 0;border-bottom:1px solid rgba(52,65,76,.65)}.workflow-step:last-child{border-bottom:0}.workflow-step strong{color:#c8d6df}.workflow-note{margin:10px 0 0;color:#d9c28e;font-size:13px}.workflow-category{margin:28px 0 40px}.workflow-category-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px}.workflow-category-head h3{margin:0;color:var(--gold);font-size:22px}.workflow-category-head p{margin:0;color:var(--muted);font-size:13px;max-width:760px;text-align:right}.workflow-category-list{display:grid;grid-template-columns:1fr;gap:14px}
 footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:var(--muted)}
-@media(max-width:680px){main{padding:26px 14px 60px}h1{font-size:38px}.model-card{grid-template-columns:92px 1fr}.model-card img{width:92px;height:92px}.languages{position:static}.wide{min-width:760px}.workflow-head{grid-template-columns:1fr}.workflow-step{grid-template-columns:1fr;gap:3px}.workflow-chain{gap:6px}}
+@media(max-width:680px){main{padding:26px 14px 60px}h1{font-size:38px}.model-card{grid-template-columns:92px 1fr}.model-card img{width:92px;height:92px}.languages{position:static}.wide{min-width:760px}.workflow-head{grid-template-columns:1fr}.workflow-step{grid-template-columns:1fr;gap:3px}.workflow-chain{gap:6px}.start-grid{grid-template-columns:1fr}}
 @media print{body{background:#fff;color:#111}main{max-width:none;padding:0}.languages,nav{display:none}.model-card,.note,.warning,.tip,.flow,th,.workflow,details{background:#f2f2f2;color:#111}.model-card dd,.model-card h4{color:#111}h2,.eyebrow{color:#222}.model-card{break-inside:avoid}tr{break-inside:avoid}}
 </style>
 </head>
 <body><main>
 <header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">1.3.2 candidate · <code>1.3.2-beta.1</code> · <span data-k="counts"></span></p></div>
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
-<nav><a href="#release132">1.3.2</a><a href="#release131">1.3.1</a><a href="#easy" id="navEasy"></a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
+<nav><a href="#easy" id="navEasy"></a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#release132">1.3.2</a><a href="#release131">1.3.1</a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
+<section id="start" class="start"><h2 id="startTitle"></h2><div id="startBody" class="start-grid"></div><p class="start-more" id="startMore"></p></section>
 <p class="note" data-k="referenceNote"></p>
-<section id="release132"><h2 id="release132Title"></h2><div id="release132Body"></div></section>
-<section id="release131"><h2 id="release131Title"></h2><div id="release131Body"></div></section>
-<section id="release13"><h2 id="release13Title"></h2><div id="release13Body"></div></section>
-<section id="patch112"><h2>1.1.2 · Day-one patch</h2><div id="patch112Body"></div></section>
 <section id="easy"><h2 id="easyTitle"></h2><p class="section-intro" id="easyIntro"></p><div id="easyBody"></div></section>
 <section id="quick"><h2 data-k="quickTitle"></h2><div id="quickBody"></div></section>
 <section id="install"><h2 data-x="installTitle"></h2><div id="installBody"></div><h3 data-x="requirementsTitle"></h3><p class="section-intro" data-x="requirementsNote"></p><div id="requirementsBody"></div><h3 data-x="performanceTitle"></h3><div id="performanceBody"></div><p class="tip" data-x="performanceTip"></p></section>
@@ -50,6 +48,10 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="nastrond"><h2>1.2 · Náströnd</h2><div id="nastrondBody"></div></section>
 <section id="candidate111"><h2>1.1.2 · Guitar signatures</h2><div id="candidate111Body"></div></section>
 <section id="global"><h2 data-k="globalTitle"></h2><div id="globalBody"></div></section>
+<section id="release132"><h2 id="release132Title"></h2><div id="release132Body"></div></section>
+<section id="release131"><h2 id="release131Title"></h2><div id="release131Body"></div></section>
+<section id="release13"><h2 id="release13Title"></h2><div id="release13Body"></div></section>
+<section id="patch112"><h2>1.1.2 · Day-one patch</h2><div id="patch112Body"></div></section>
 <section id="host"><h2 data-x="hostTitle"></h2><p class="section-intro" data-x="hostIntro"></p><h3 data-x="hostCheckTitle"></h3><div id="hostCheckBody"></div><h3 data-x="updateTitle"></h3><div id="updateBody"></div><h3 data-x="bugTitle"></h3><div id="bugBody"></div></section>
 <section id="diag"><h2 data-k="diagTitle"></h2><div id="diagBody"></div></section>
 <section id="limits"><h2 data-k="limitsTitle"></h2><div id="limitsBody"></div></section>
@@ -61,7 +63,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 const ASSET='https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/v1.3.1-beta.1/Assets/Artwork/';
 const L={
 en:{
-subtitle:'Detailed user manual · Guitar & bass amp matrix / effects suite',counts:'25 active amp models · 39 PRE models · 21 POST models = 85 models · 48 factory & signature presets',
+subtitle:'User manual · Guitar and bass amp simulator',counts:'25 active amp models · 39 PRE models · 21 POST models = 85 models · 48 factory & signature presets',
 navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
 referenceNote:'Chimera model names identify each sound and processing role. Choose by character, controls and intended use; hardware equivalence is not claimed.',
 quickTitle:'01 · Quick start',signalTitle:'04 · Signal flow and routing',compareTitle:'05 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
@@ -90,7 +92,7 @@ workflows:[
 ]
 },
 de:{
-subtitle:'Ausführliches Benutzerhandbuch · Gitarren- und Bass-Amp-Matrix / Effektsuite',counts:'25 aktive Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle = 85 Modelle · 48 Werks- und Signature-Presets',
+subtitle:'Benutzerhandbuch · Gitarren- und Bass-Amp-Simulator',counts:'25 aktive Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle = 85 Modelle · 48 Werks- und Signature-Presets',
 navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
 referenceNote:'Chimera-Modellnamen kennzeichnen Klang und Aufgabe. Nach Charakter, Reglern und Einsatzzweck wählen; Hardware-Gleichwertigkeit wird nicht behauptet.',
 quickTitle:'01 · Schnellstart',signalTitle:'04 · Signalfluss und Routing',compareTitle:'05 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
@@ -119,7 +121,7 @@ workflows:[
 ]
 },
 ko:{
-subtitle:'상세 사용자 매뉴얼 · 기타·베이스 Amp Matrix / Effects Suite',counts:'활성 앰프 25종 · PRE 39종 · POST 21종 = 총 85종 · 팩토리·시그니처 프리셋 48개',
+subtitle:'사용자 매뉴얼 · 기타·베이스 앰프 시뮬레이터',counts:'활성 앰프 25종 · PRE 39종 · POST 21종 = 총 85종 · 팩토리·시그니처 프리셋 48개',
 navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
 referenceNote:'Chimera 모델명은 각 사운드와 처리 역할을 나타냅니다. 캐릭터·컨트롤·용도를 기준으로 선택하세요. 실물 하드웨어와의 동등성을 주장하지 않습니다.',
 quickTitle:'01 · 빠른 시작',signalTitle:'04 · 신호 흐름과 라우팅',compareTitle:'05 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
@@ -1764,6 +1766,23 @@ function render(){
    '이지 뷰는 호스트 파라미터를 추가하지 않으며, 화면 전환은 어떤 파라미터도 쓰지 않습니다. 수정한 프리셋은 이름 뒤에 (edited)가 붙습니다. IR 파일은 룸의 캐비닛 위에 끌어다 놓으면 불러옵니다. 페달, 두 앰프·대역 분할 라우팅, 캐비닛 세부 설정, EQ는 FULL EDITOR에서 다룹니다.'
   ]}
  };
+ const startHere={
+  en:{title:'New to Chimera? Start here',more:'Already using Chimera? See what changed in <a href="#release132">1.3.2</a> and <a href="#release131">1.3.1</a>.',steps:[
+   ['1 · Install','Close your DAW, run the installer, then load Chimera as a VST3/AU plug-in or open the standalone app.','#install','Installation'],
+   ['2 · Pick a sound','Chimera opens in Easy view. Choose a preset, then shape it with GAIN, BASS, MIDDLE, TREBLE, REVERB and VOLUME.','#easy','Easy view'],
+   ['3 · Get ready to play','Press AUTO SET and play for about half a minute to set your level, or TUNER to tune. FULL EDITOR opens pedals, two-amp rigs and EQ.','#quick','Quick start']]},
+  de:{title:'Neu bei Chimera? Hier beginnen',more:'Sie nutzen Chimera schon? Die Neuerungen stehen unter <a href="#release132">1.3.2</a> und <a href="#release131">1.3.1</a>.',steps:[
+   ['1 · Installieren','DAW schließen, Installer ausführen und Chimera als VST3/AU-Plug-in laden oder die Standalone-App öffnen.','#install','Installation'],
+   ['2 · Sound wählen','Chimera startet in der einfachen Ansicht. Preset wählen und mit GAIN, BASS, MIDDLE, TREBLE, REVERB und VOLUME anpassen.','#easy','Einfache Ansicht'],
+   ['3 · Bereit zum Spielen','AUTO SET drücken und etwa eine halbe Minute spielen, um den Pegel einzustellen, oder mit TUNER stimmen. FULL EDITOR öffnet Pedale, Zwei-Amp-Rigs und EQ.','#quick','Schnellstart']]},
+  ko:{title:'Chimera가 처음이라면 여기서 시작하세요',more:'이미 쓰고 계신가요? 바뀐 점은 <a href="#release132">1.3.2</a>, <a href="#release131">1.3.1</a>에서 볼 수 있습니다.',steps:[
+   ['1 · 설치','DAW를 닫고 설치 프로그램을 실행한 뒤, DAW에서 VST3/AU 플러그인으로 불러오거나 단독 앱을 엽니다.','#install','설치 안내'],
+   ['2 · 소리 고르기','Chimera는 이지 뷰로 열립니다. 프리셋을 고르고 GAIN, BASS, MIDDLE, TREBLE, REVERB, VOLUME으로 다듬으세요.','#easy','이지 뷰'],
+   ['3 · 연주 준비','AUTO SET을 누르고 30초쯤 연주하면 레벨을 맞춰 줍니다. TUNER로 튜닝하세요. 페달, 두 앰프, EQ는 FULL EDITOR에서 다룹니다.','#quick','빠른 시작']]}
+ };
+ document.getElementById('startTitle').textContent=startHere[lang].title;
+ document.getElementById('startMore').innerHTML=startHere[lang].more;
+ document.getElementById('startBody').innerHTML=startHere[lang].steps.map(([t,d,href,link])=>'<div class="start-step"><b>'+esc(t)+'</b><p>'+esc(d)+'</p><a href="'+href+'">'+esc(link)+' →</a></div>').join('');
  document.getElementById('navEasy').textContent=easyView[lang].nav;
  document.getElementById('easyTitle').textContent=easyView[lang].title;
  document.getElementById('easyIntro').textContent=easyView[lang].intro;

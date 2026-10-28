@@ -1,0 +1,1 @@
+FAIL: Auto Set overwrote a manual A-B-A edit during listening
