@@ -243,14 +243,17 @@ public:
     void setSincOutput(bool enabled) {
         sincTable.clear();if(!enabled)return;
         sincTable.resize(size_t(sincPhases)*sincTaps);
-        const double beta=8,norm=std::cyl_bessel_i(0.,beta);
+        // I0 by its power series (libc++ has no std::cyl_bessel_i); terms fall
+        // below 1e-17 of the sum well before 40 for arguments up to beta.
+        auto besselI0=[](double x){double sum=1,term=1;for(int i=1;i<40;++i){term*=x*x/(4.*i*i);sum+=term;if(term<1.e-17*sum)break;}return sum;};
+        const double beta=8,norm=besselI0(beta);
         for(int p=0;p<sincPhases;++p) {
             const double f=double(p)/sincPhases;double sum=0;
             float* k=sincTable.data()+size_t(p)*sincTaps;
             for(int j=0;j<sincTaps;++j) {
                 // tap j sits at offset (j - 7) from the integer sample; the read point is at +f.
                 const double d=(j-(sincTaps/2-1))-f, x=juce::MathConstants<double>::pi*d, r=d/(sincTaps/2+.5);
-                const double w=r*r<1?std::cyl_bessel_i(0.,beta*std::sqrt(1-r*r))/norm:0.;
+                const double w=r*r<1?besselI0(beta*std::sqrt(1-r*r))/norm:0.;
                 k[j]=float((std::abs(d)<1.e-12?1.:std::sin(x)/x)*w);sum+=k[j];
             }
             for(int j=0;j<sincTaps;++j)k[j]=float(k[j]/sum);
