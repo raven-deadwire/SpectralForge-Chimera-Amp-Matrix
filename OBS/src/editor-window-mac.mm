@@ -55,8 +55,13 @@ public:
     void contentResized() {
         if (!view || resizing) return;
         const NSSize s = window.contentView.frame.size;
-        ViewRect r{0, 0, static_cast<int32>(s.width), static_cast<int32>(s.height)};
-        if (view->checkSizeConstraint(&r) == kResultTrue) view->onSize(&r);
+        const ViewRect wanted{0, 0, static_cast<int32>(s.width), static_cast<int32>(s.height)};
+        ViewRect r = wanted;
+        // A view without size constraints still gets the new size; a constrained
+        // one may adjust it, and the window follows.
+        if (view->checkSizeConstraint(&r) != kResultTrue) r = wanted;
+        else if (r.getWidth() != wanted.getWidth() || r.getHeight() != wanted.getHeight()) setContentSize(r);
+        view->onSize(&r);
     }
 
     void detach() noexcept {
@@ -121,10 +126,12 @@ bool openEditor(EditorWindow*& window, ChimeraHost& host, const std::string& tit
     EditorWindow* raw = created;
     // A main-queue timer keeps syncing while a knob drag or menu is tracking.
     created->timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
-    const auto interval = static_cast<uint64_t>(syncInterval * NSEC_PER_SEC);
-    dispatch_source_set_timer(created->timer, dispatch_time(DISPATCH_TIME_NOW, interval), interval, interval / 10);
-    dispatch_source_set_event_handler(created->timer, ^{ raw->notify(); });
-    dispatch_resume(created->timer);
+    if (created->timer != nil) {
+        const auto interval = static_cast<uint64_t>(syncInterval * NSEC_PER_SEC);
+        dispatch_source_set_timer(created->timer, dispatch_time(DISPATCH_TIME_NOW, interval), interval, interval / 10);
+        dispatch_source_set_event_handler(created->timer, ^{ raw->notify(); });
+        dispatch_resume(created->timer);
+    }
     [created->window makeKeyAndOrderFront:nil];
     [NSApp activateIgnoringOtherApps:YES];
     window = created;
