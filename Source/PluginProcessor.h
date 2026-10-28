@@ -12,6 +12,7 @@
 #include "FXParameters.h"
 #include "IRLibrary.h"
 #include "PerformanceUtilities.h"
+#include "ABLevelMatch.h"
 #include "ParamIndex.h"
 #include "PedalBoardParameters.h"
 #include "PedalBoardDSP.h"
@@ -29,10 +30,12 @@
 #include "AAXIdentity.h"
 #include "HostBypass.h"
 
-class ChimeraProcessor : public juce::AudioProcessor {
+class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
     ChimeraProcessor();
     ~ChimeraProcessor() override;
+    juce::VST3ClientExtensions* getVST3ClientExtensions() override { return this; }
+    void setIHostApplication(Steinberg::FUnknown*) override;
 #if CHIMERA_ROUTING_DIAGNOSTICS
     std::atomic<int> routingGateObserved{-1};
     std::atomic<uint64_t> routingBlocks{0};
@@ -148,6 +151,9 @@ public:
     void selectComparison(int slot);
     void copyComparison();
     int comparisonSlot() const {return selectedComparison.load();}
+    // A/B comparison gain on the output, never saved (see ABLevelMatch.h).
+    spectralforge::ABLevelMatch& abLevelMatch() noexcept {return levelMatch;}
+    const spectralforge::ABLevelMatch& abLevelMatch() const noexcept {return levelMatch;}
     void loadFactoryPreset(int index);
     // Presentation invalidation only; never serialized or read by the DSP.
     uint64_t ampHeadRecallRevision() const noexcept {return headRecallRevision.load();}
@@ -211,6 +217,7 @@ private:
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
     void measureStage(int,const juce::AudioBuffer<float>&);
     void resetProcessingIfPending();
+    void updateComparisonProtection();
     void resetProcessing(bool hostBypassToo);
     void applySwitchFade(juce::AudioBuffer<float>&);
     void beginSwitch();
@@ -266,6 +273,7 @@ private:
     std::atomic<bool> autoSetGateBypass{false};
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
+    spectralforge::ABLevelMatch levelMatch;
     std::array<std::atomic<int>,128> midiMap;
     std::atomic<int> midiLearn{-1};
     std::atomic<bool> restartClick{false};

@@ -8,6 +8,7 @@
 #include "ReleaseInfo.h"
 #include "BetaLifecycleDisplay.h"
 #include "StandaloneDiagnostics.h"
+#include "../Shared/ChimeraCapturePolicy.h"
 
 namespace {
 std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
@@ -18,6 +19,19 @@ std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
     if(model==21)return {1,0};
     return {model>=spectralforge::legacyAmpModelCount?juce::jlimit(0,(int)panel.channels.size()-1,channel):panel.defaultChannel,0};
 }
+}
+
+void ChimeraProcessor::setIHostApplication(Steinberg::FUnknown* host)
+{
+    // Queried during VST3 controller connection, before the OBS bridge can
+    // prepare/process. Never infer capture state from a host name or playhead.
+    void* policy=nullptr;
+    if(host && host->queryInterface(spectralforge::chimeraCapturePolicyId,&policy)==Steinberg::kResultOk && policy) {
+        auto* capture=static_cast<spectralforge::IChimeraCapturePolicy*>(policy);
+        levelMatch.lockCaptureSafe();
+        capture->acknowledgeCapturePolicy();
+        capture->release();
+    }
 }
 
 ChimeraProcessor::ChimeraProcessor()
@@ -154,7 +168,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec);levelMatch.prepare(sr,int(spec.numChannels)); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
     dynamicsAnalysisState.prepare(sr,int(spec.maximumBlockSize));
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
@@ -193,6 +207,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
+    updateComparisonProtection();
     audioThread.store(std::hash<std::thread::id>{}(std::this_thread::get_id()),std::memory_order_relaxed);
     resetProcessingIfPending();
     if(fadeRequested.exchange(false)) {
@@ -267,6 +282,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
 {
+    updateComparisonProtection();
     resetProcessingIfPending();
     // Bypassed, the wet sound is not heard: a recall needs no fade.
     if(fadeRequested.exchange(false))fadedSilent.store(true);
@@ -276,6 +292,13 @@ void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juc
     // Use the currently reported delay; parameter changes take effect when the
     // wet graph next processes (or prepareToPlay is called), as before.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),getLatencySamples(),true);
+}
+void ChimeraProcessor::updateComparisonProtection()
+{
+    bool printing=isNonRealtime();
+    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())
+        printing=printing || position->getIsRecording();
+    levelMatch.protectOutput(printing);
 }
 void ChimeraProcessor::resetProcessingIfPending()
 {
@@ -445,6 +468,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     autoSetCaptureState.push(spectralforge::autoset::Tap::output,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::limiter,buffer);dynamics.limit(buffer);} // Last gain stage after output trim.
+    levelMatch.process(buffer,selectedComparison.load()); // Comparison output cut; meters show what is heard.
     for(int c=0;c<buffer.getNumChannels();++c)peak=juce::jmax(peak,buffer.getMagnitude(c,0,buffer.getNumSamples()));
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
     measureStage(4,buffer);
@@ -677,7 +701,7 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
     if(!spectralforge::irState::unpack(restored))return;
     const auto saved=restored.getChildWithName("COMPARISONS");
     { std::lock_guard<std::mutex> lock(comparisonMutex);
-      comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));
+      comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));levelMatch.forget();
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
@@ -693,7 +717,7 @@ void ChimeraProcessor::selectComparison(int slot)
       if(!comparisons[(size_t)slot].isValid()) comparisons[(size_t)slot]=current.createCopy();
       next=comparisons[(size_t)slot].createCopy();selectedComparison.store(slot);
     }
-    restoreCore(next);
+    restoreCore(next);levelMatch.switched();
     warmInactiveComparison();
 }
 void ChimeraProcessor::copyComparison()
@@ -701,7 +725,7 @@ void ChimeraProcessor::copyComparison()
     eqEditState.barrier();
     auto current=captureCore();
     { std::lock_guard<std::mutex> lock(comparisonMutex);
-      comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy(); }
+      comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();levelMatch.copied(selectedComparison.load()); }
     warmInactiveComparison();
 }
 void ChimeraProcessor::warmInactiveComparison()
@@ -741,6 +765,7 @@ void ChimeraProcessor::tapTempo() {
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
+    levelMatch.invalidate(selectedComparison.load());
     ++headRecallRevision;
     beginSwitch(); // the old sound fades out (and stays muted) while the snapshot is built
     {

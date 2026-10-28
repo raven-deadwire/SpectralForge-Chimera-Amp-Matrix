@@ -73,6 +73,15 @@ int main(int argc, char** argv) {
     const std::string bundle = argv[1];
     try {
         std::string error;
+        if(argc>2 && std::string(argv[2])=="--expect-policy-rejection") {
+            ChimeraHost incompatible;
+            if(argc>3)check(incompatible.load(argv[3],error),"Compatible preload: "+error);
+            error.clear();
+            check(!incompatible.load(bundle,error) && !incompatible.loaded(),"Unacknowledged capture policy was accepted");
+            check(error.find("capture safety")!=std::string::npos,"Missing capture-policy update explanation: "+error);
+            check(!incompatible.prepare(rate,2,capacity) && !incompatible.process(nullptr,2,16),"Rejected plugin could process audio");
+            std::cout<<"PASS unacknowledged VST3 rejected before prepare/process: "<<error<<'\n';return 0;
+        }
         {
             ChimeraHost missing;
             check(!missing.load(bundle + ".missing", error) && !error.empty() && !missing.loaded(), "missing bundle must be rejected");
@@ -82,6 +91,7 @@ int main(int argc, char** argv) {
         ChimeraHost a;
         error.clear();
         check(a.load(bundle, error), "load: " + error);
+        std::cout << "PASS real VST3 capture-policy acknowledgement before prepare/process\n";
         const auto id = a.identity();
         check(id.name == spectralforge::obs::chimeraClassName && id.vendor == spectralforge::obs::chimeraVendor, "identity");
         std::cout << "loaded " << id.name << " " << id.version << " (" << id.vendor << ", VST3 SDK " << id.sdkVersion << "), "

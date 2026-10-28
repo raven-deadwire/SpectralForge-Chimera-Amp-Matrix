@@ -41,6 +41,7 @@ include(Assets/Artwork/HeadShells/HeadShellArtwork.cmake)
 juce_add_binary_data(ChimeraArtwork HEADER_NAME ChimeraArtworkData.h NAMESPACE ChimeraArtworkData SOURCES ${CHIMERA_ARTWORK})
 juce_add_binary_data(ChimeraManual HEADER_NAME ChimeraManualData.h NAMESPACE ChimeraManualData SOURCES docs/MANUAL.html)
 target_include_directories(ChimeraAmpMatrix PUBLIC Source)
+target_include_directories(ChimeraAmpMatrix SYSTEM PRIVATE "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
 execute_process(COMMAND git rev-parse HEAD WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
   OUTPUT_VARIABLE CHIMERA_SOURCE_SHA OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
 if(CHIMERA_SOURCE_SHA)
@@ -95,6 +96,8 @@ configure_file(cmake/ChimeraTesterSecret.h.in generated/ChimeraTesterSecret.h @O
 # Keep source identity in the generated header shared by product and consumers.
 # A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
+target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/ABLevelMatch.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
+
 target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/ParamIndex.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
 set(CHIMERA_USE_CURL 0)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -468,6 +471,17 @@ target_include_directories(ChimeraIntegratedProcessorTests PRIVATE Source)
 target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
 add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
+
+# A/B level match: loudness meter, louder-to-quieter cut, never saved, off is bit-identical.
+juce_add_console_app(ChimeraABLevelMatchTests PRODUCT_NAME "Chimera AB Level Match Tests")
+target_sources(ChimeraABLevelMatchTests PRIVATE Tests/ABLevelMatchTests.cpp)
+target_include_directories(ChimeraABLevelMatchTests PRIVATE Source)
+target_include_directories(ChimeraABLevelMatchTests SYSTEM PRIVATE "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
+target_link_libraries(ChimeraABLevelMatchTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraABLevelMatchTests COMMAND ChimeraABLevelMatchTests)
+add_test(NAME ChimeraABLevelMatchUITests COMMAND ChimeraABLevelMatchTests --ui)
+set_tests_properties(ChimeraABLevelMatchTests PROPERTIES TIMEOUT 180)
+set_tests_properties(ChimeraABLevelMatchUITests PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
 
 # Switch timing probe: response, settle, residual, click and CPU of channel,
 # amp model, preset and A/B switches (docs/SWITCH_TIMING_METRICS.md).
