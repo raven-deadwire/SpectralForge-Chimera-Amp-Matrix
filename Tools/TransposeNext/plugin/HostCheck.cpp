@@ -1,11 +1,12 @@
 // Headless VST3 host check for the research Transpose plug-in (T6 DAW prep).
 // Loads the built .vst3 like a DAW does and compares its output with the
 // engine called directly (the TransposeProbe configuration, block 128).
-// usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3 out.json
+// usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3|v4 out.json
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "ResearchEngine.h"
 #include <fstream>
 #include <random>
+#include <bit>
 
 using namespace transposeResearchPlugin;
 using Signal=std::vector<float>; // stereo interleaved
@@ -41,7 +42,8 @@ juce::AudioProcessorParameter* param(juce::AudioPluginInstance& p,const juce::St
 }
 void setParams(juce::AudioPluginInstance& p,int shift,Engine e) {
     param(p,"Shift (semitones)")->setValue(float(shift+2)/4.f);
-    param(p,"Engine")->setValue(float(int(e))/2.f);
+    param(p,"Engine")->setValue(float(e==Engine::v4?2:int(e))/2.f);
+    param(p,"Low upshift floor (v4)")->setValue(e==Engine::v4?1.f:0.f);
 }
 
 // Blocks come from `next()`; `onBlock` may change parameters between blocks.
@@ -65,7 +67,13 @@ template<class Next> Signal render(juce::AudioPluginInstance& p,const Signal& x,
     return render(p,x,rate,maxBlock,next,[](int,size_t){});
 }
 double maxDiff(const Signal& a,const Signal& b) {
-    double d=0;for(size_t i=0;i<a.size();++i)d=std::max(d,double(std::abs(a[i]-b[i])));return d;
+    if(a.size()!=b.size())throw std::runtime_error("output length mismatch");
+    double d=0;for(size_t i=0;i<a.size();++i) {
+        if(!std::isfinite(a[i]) || !std::isfinite(b[i]))throw std::runtime_error("nonfinite output");
+        if(a[i]==b[i] && std::bit_cast<uint32_t>(a[i])!=std::bit_cast<uint32_t>(b[i]))
+            throw std::runtime_error("signed-zero bit mismatch");
+        d=std::max(d,double(std::abs(a[i]-b[i])));
+    }return d;
 }
 bool finite(const Signal& y,double& peak) {
     peak=0;for(float v:y){if(!std::isfinite(v))return false;peak=std::max(peak,double(std::abs(v)));}return true;
@@ -76,11 +84,11 @@ void pump(){juce::MessageManager::getInstance()->runDispatchLoopUntil(50);}
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
-        if(argc!=7)throw std::runtime_error("usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3 out.json");
+        if(argc!=7)throw std::runtime_error("usage: TransposeResearchHostCheck plugin.vst3 in.f32 rate shift baseline|v2|v3|v4 out.json");
         const juce::File plugin(juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]));
         const Signal x=readF32(argv[2]);const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);
-        const std::string en=argv[5];if(en!="baseline" && en!="v2" && en!="v3")throw std::runtime_error("engine must be baseline, v2 or v3");
-        const Engine e=en=="baseline"?Engine::baseline:en=="v2"?Engine::v2:Engine::v3;
+        const std::string en=argv[5];if(en!="baseline" && en!="v2" && en!="v3" && en!="v4")throw std::runtime_error("engine must be baseline, v2, v3 or v4");
+        const Engine e=en=="baseline"?Engine::baseline:en=="v2"?Engine::v2:en=="v3"?Engine::v3:Engine::v4;
         juce::VST3PluginFormat format;juce::OwnedArray<juce::PluginDescription> found;
         format.findAllTypesForFile(found,plugin.getFullPathName());
         if(found.isEmpty())throw std::runtime_error("no VST3 plug-in found in "+plugin.getFullPathName().toStdString());
@@ -97,6 +105,9 @@ int main(int argc,char** argv) {
         auto report=[&](const char* name,juce::var detail){obj->setProperty(name,detail);};
         const Signal ref=direct(x,rate,shift,e);
         auto p=create();
+        check("legacy_engine_normalization_preserved",param(*p,"Engine")->getNumSteps()==3
+              && param(*p,"Engine")->getValue()==float(e==Engine::v4?2:int(e))/2.f,
+              "unchanged 0 / 0.5 / 1 mapping for product / v2 / v3; v4 uses a new opt-in bool");
         report("plugin",found[0]->name+" "+found[0]->version+" ("+found[0]->pluginFormatName+")");
         report("io",juce::String(p->getTotalNumInputChannels())+"in/"+juce::String(p->getTotalNumOutputChannels())+"out");
 
@@ -130,6 +141,39 @@ int main(int argc,char** argv) {
         q->enableAllBuses();q->setStateInformation(state.getData(),int(state.getSize()));pump();
         const Signal restored=render(*q,x,rate,128,[]{return 128;});
         check("state_round_trip_bit_identical",maxDiff(restored,ref)==0,maxDiff(restored,ref));
+
+        // A pre-v4 session has no lowUpshiftFloor parameter. Restore that
+        // exact shape into a fresh instance; its old engine must stay selected.
+        auto legacyXml=juce::AudioProcessor::getXmlFromBinary(state.getData(),int(state.getSize()));
+        if(!legacyXml)throw std::runtime_error("invalid state XML");
+        auto* component=legacyXml->getChildByName("IComponent");
+        juce::MemoryBlock componentState;
+        if(component==nullptr || !componentState.fromBase64Encoding(component->getAllSubText()))
+            throw std::runtime_error("missing VST3 component state");
+        auto processorXml=juce::AudioProcessor::getXmlFromBinary(componentState.getData(),int(componentState.getSize()));
+        if(!processorXml || !processorXml->hasTagName("TransposeResearch"))throw std::runtime_error("invalid processor state");
+        int removed=0;
+        for(auto* child=processorXml->getFirstChildElement();child!=nullptr;) {
+            auto* next=child->getNextElement();
+            if(child->getStringAttribute("id")=="lowUpshiftFloor"){processorXml->removeChildElement(child,true);++removed;}
+            child=next;
+        }
+        if(removed!=1)throw std::runtime_error("legacy fixture did not remove exactly one opt-in parameter");
+        // Keep JUCE's VST3 private-state trailer byte-for-byte.
+        const auto xmlBytes=size_t(juce::ByteOrder::littleEndianInt(static_cast<const char*>(componentState.getData())+4))+9;
+        if(xmlBytes>componentState.getSize())throw std::runtime_error("invalid processor XML size");
+        juce::MemoryBlock legacyComponent;juce::AudioProcessor::copyXmlToBinary(*processorXml,legacyComponent);
+        legacyComponent.append(static_cast<const char*>(componentState.getData())+xmlBytes,componentState.getSize()-xmlBytes);
+        component->deleteAllChildElements();component->addTextElement(legacyComponent.toBase64Encoding());
+        juce::MemoryBlock legacyState;juce::AudioProcessor::copyXmlToBinary(*legacyXml,legacyState);
+        auto legacy=format.createInstanceFromDescription(*found[0],rate,128,error);
+        if(!legacy)throw std::runtime_error("legacy state instance failed");
+        legacy->enableAllBuses();legacy->setStateInformation(legacyState.getData(),int(legacyState.getSize()));pump();
+        const Engine legacyEngine=e==Engine::v4?Engine::v3:e;
+        const Signal legacyRef=direct(x,rate,shift,legacyEngine);
+        const Signal legacyRestored=render(*legacy,x,rate,128,[]{return 128;});
+        check("legacy_state_without_v4_option",maxDiff(legacyRestored,legacyRef)==0
+              && param(*legacy,"Low upshift floor (v4)")->getValue()==0.f,maxDiff(legacyRestored,legacyRef));
 
         // 5. Automation: shift changes every 50 ms and an engine switch, random blocks.
         const int every=int(rate*.05);size_t nextChange=0;int step=0;

@@ -1,0 +1,178 @@
+[
+  {
+    "engine": "env-floor125",
+    "input": "bass_B0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 2536,
+    "time_s": 1.6906666666666668,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.27,
+    "max_same_callback_us": 2053.67
+  },
+  {
+    "engine": "corr40-split-v4",
+    "input": "bass_B0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 889,
+    "time_s": 0.5926666666666667,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.159,
+    "max_same_callback_us": 2024.48
+  },
+  {
+    "engine": "corr40-split-v4",
+    "input": "bass_B0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 1389,
+    "time_s": 0.926,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.279,
+    "max_same_callback_us": 3127.66
+  },
+  {
+    "engine": "corr40-split-v4",
+    "input": "bass_B0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 1417,
+    "time_s": 0.9446666666666667,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.279,
+    "max_same_callback_us": 2471.2
+  },
+  {
+    "engine": "env-floor125",
+    "input": "bass_B0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 3907,
+    "time_s": 2.6046666666666667,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.129,
+    "max_same_callback_us": 2449.3
+  },
+  {
+    "engine": "corr40-split-v4",
+    "input": "bass_B0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 3913,
+    "time_s": 2.6086666666666667,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.419,
+    "max_same_callback_us": 813.349
+  },
+  {
+    "engine": "corr40-split-v3",
+    "input": "bass_B0/long_notes_seed104729",
+    "shift": 2,
+    "callback": 119,
+    "time_s": 0.07933333333333334,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 4.587,
+    "max_same_callback_us": 728.723
+  },
+  {
+    "engine": "corr40-split-v3",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 1524,
+    "time_s": 1.016,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.28,
+    "max_same_callback_us": 1121.66
+  },
+  {
+    "engine": "env-floor125",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 1906,
+    "time_s": 1.2706666666666666,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.469,
+    "max_same_callback_us": 1195.44
+  },
+  {
+    "engine": "env-floor125",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 1927,
+    "time_s": 1.2846666666666666,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.24,
+    "max_same_callback_us": 937.423
+  },
+  {
+    "engine": "env-floor125",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 2241,
+    "time_s": 1.494,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.16,
+    "max_same_callback_us": 2422.89
+  },
+  {
+    "engine": "corr40-split-v3",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 2435,
+    "time_s": 1.6233333333333333,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 4.607,
+    "max_same_callback_us": 1186.21
+  },
+  {
+    "engine": "corr40-split-v4",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 2481,
+    "time_s": 1.654,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 9.234,
+    "max_same_callback_us": 5165.14
+  },
+  {
+    "engine": "corr40-split-v3",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": -2,
+    "callback": 3441,
+    "time_s": 2.294,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.359,
+    "max_same_callback_us": 3366.95
+  },
+  {
+    "engine": "corr40-split-v3",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": 2,
+    "callback": 3706,
+    "time_s": 2.470666666666667,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.61,
+    "max_same_callback_us": 3476.87
+  },
+  {
+    "engine": "corr40-split-v3",
+    "input": "bass_dropA_A0/long_notes_seed104729",
+    "shift": 2,
+    "callback": 4099,
+    "time_s": 2.732666666666667,
+    "overrun_repeats": 1,
+    "repeats": 15,
+    "median_same_callback_us": 6.65,
+    "max_same_callback_us": 1617.61
+  }
+]

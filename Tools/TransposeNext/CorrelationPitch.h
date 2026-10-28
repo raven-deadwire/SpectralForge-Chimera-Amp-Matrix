@@ -10,6 +10,7 @@ namespace transposeNext {
 // frequency is used. This is not a fixed-latency, polyphonic product engine.
 // Window/search durations are declared engineering choices, not Neural DSP data.
 class CorrelationPitch {
+    friend struct CorrelationDiagnostics; // research-only, read-only trace harness
     std::array<std::vector<float>,2> audio, filtered;
     std::array<std::vector<double>,2> reference;
     std::array<float,2> low{};
@@ -18,6 +19,7 @@ class CorrelationPitch {
     std::vector<double> detectorHistory;
     int count{}, capacity{}, write{}, window{}, stride{}, fadeLength{}, fadeIndex{}, spliceFadeLength{}, activeFade{};
     double rate{}, ratio{1}, delta{}, minimum{}, maximum{}, delay{}, nextDelay{};
+    double upshiftMinimumMs{2.};
     float coefficient{};
     bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{}, externalPending{}, upshiftReset{};
     double upshiftHold{}, onsetAge{1.e9};
@@ -63,7 +65,7 @@ class CorrelationPitch {
     // between the harmonics of a bright sustain 5-34 dB above an ideally
     // shifted tone (docs/TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md). The
     // kernel is symmetric (no added delay) and needs 8 newer samples; the
-    // read age never goes below the 2 ms minimum.
+    // read age never goes below the minimum (2 ms, or 0.5 ms with setUpshiftMinimum).
     static constexpr int sincTaps=16, sincPhases=4096;
     std::vector<float> sincTable;
     float readOutput(const std::vector<float>& ring, double age) const noexcept {
@@ -160,6 +162,7 @@ public:
         peakDecay=std::exp(-1/(rate*.060));cooldownLength=int(rate*.045);
         detectorHistory.assign(size_t(std::ceil(rate*.001)),0);
         minimum=rate*.002;maximum=rate*boundMs*.001;
+        upshiftMinimumMs=2.;
         window=int(std::ceil(rate*.012));stride=juce::jmax(1,int(std::lround(rate/6000.)));
         fadeLength=juce::jmax(8,int(std::ceil(rate*.002)));
         capacity=int(std::ceil(maximum))+window+fadeLength+16;
@@ -184,6 +187,7 @@ public:
         const double newRatio=std::pow(2.,juce::jlimit(-12,12,semitones)/12.);
         if(newRatio!=ratio) {
             ratio=newRatio;delta=1-ratio;
+            minimum=(delta<0 && upshiftMinimumMs!=2.) ? rate*upshiftMinimumMs*.001 : rate*.002;
             // Preserve the current read position on automation. The sample
             // loop will schedule a bounded crossfade if a boundary is near.
         }
@@ -193,6 +197,15 @@ public:
     // lower boundary; the attack plays uninterrupted for that long, then the
     // ordinary splice returns it to the long-delay side.
     void setUpshiftOnsetReset(bool enabled, double holdMs=25) noexcept {upshiftReset=enabled;upshiftHold=rate*holdMs*.001;}
+    // Opt-in research: reduce only the upshift read-age floor. The existing
+    // |delta| * fade + 2-sample guard still protects the entire crossfade.
+    // No prediction, future reads, dry bypass, or change to downshift timing.
+    // Configure after prepare, before rendering; setSemitones preserves the
+    // current head on automation and changes the boundary for the next splice.
+    void setUpshiftMinimum(double ms) noexcept {
+        upshiftMinimumMs=juce::jlimit(.5,2.,ms);
+        minimum=(delta<0 && upshiftMinimumMs!=2.) ? rate*upshiftMinimumMs*.001 : rate*.002;
+    }
     // Research: smooth the novelty denominator (broadband energy) over a few
     // ms. At 0.3 ms it follows the waveform of a low sustained note, so a
     // weak pick landing near a waveform peak is masked by the 41 ms maximum

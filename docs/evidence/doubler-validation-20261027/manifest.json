@@ -1,0 +1,34 @@
+{
+  "baseline_190": "a553b9d359ab72efba28c07c53b09668387be7cf",
+  "baseline_192": "b46dab01548b8c86a9801c4c2ff643877bd742d6",
+  "source_sha256": {
+    "Source/PerformanceUtilities.h": "4f706c1af9f69df1cb6f683e2719d350a97bb296e3ddd4ed09b7c5cb17fdc718",
+    "Tests/DoublerValidationTests.cpp": "dca9c38677f86e2790fb391ddfcef0a83d7474e163f08c25a03e67ff15bf95b7",
+    "Tests/DoublerMonoProbe.cpp": "9e45ea429b54117c8113dcb0e8b5b6811b91e9cd62286cfffdc389a681d42245",
+    "Tests/CommonDynamicsTests.cpp": "eebd67a712051bdf81cf54f93449cbf755b2476cbfd8c43eac5e35e15a4efae3",
+    "Tests/DoublerBaselines/Doubler190.h": "a264278d2380b9087edf46d6013c176e7e5ed2f4c153fc4ae8ccff4bf06709ea",
+    "Tests/DoublerBaselines/Doubler192.h": "004f86b4dbb1068f058364009b26d4281aef31e2b2709d991d4cc5e35d92fd12",
+    "Tools/doubler_response_bounds.py": "7c3cdc53767c06cb2ea4745fd6337f314100cb0916b0097732949cb8fb2ac767",
+    "Tools/summarize_doubler_validation.py": "9d351ef29a4bec1c7d1d2426ee11029766c69293ba75d2a4edf1fbba2016b9a6",
+    "CMakeLists.txt": "89f695c8f25359e0e011858605c57a652e9141232d6bb360b2507f7874721c15"
+  },
+  "evidence_sha256": {
+    "common-dynamics-regression.txt": "4e84c3626e5035a7e55bcf677b02c411b2c6528654700ca60196aae76e372763",
+    "runner-diagnostics.txt": "613eb4c88d90a3a3c89c5c380768af050f25bd36499f6db19d0bb6e807c136d2",
+    "native-state-limiter.txt": "c2582ad5be0ee4c86b9b39281176f7913e8d9138d110e39a8a2950f2568ed33c",
+    "frozen-response.csv": "fa1908dd78b87c0680976ae12095ba89234b582cf4eb4a3e6525d56c1982c0a2",
+    "measurements.csv": "2965f1657e7df36e579dce529f1a254bfaf022de8b52d07bcef1108ca5cfc9eb",
+    "cpu-control.csv": "14de0ca8d68ba08659a301a30d4ea0e7f2cbba8e4bc943d9d9478ce3b969d6c7",
+    "cpu.csv": "4c3ab9bac083c1ae69c9e5805376ffbd120acb6b09dfd2bef7c3f0f5448ff8fb",
+    "contracts.txt": "bb6f9818dbf291f591de24c2b1c5f86a8a07dd1ac7e79b3a37248fc6ac3840fe",
+    "original-probe-fixed.txt": "e06515e22dcc253bc97759220bbd945277072d7a1d7d79519355e1a9e46e9641"
+  },
+  "focused_build": "GCC 13.3.0 -O3 -DNDEBUG; JUCE 8.0.8 real DSP modules",
+  "native_functional_build": "CMake Functional -O0 -DNDEBUG, actual processor; runtime status in report",
+  "measurement_scope": "synthetic only; no DI audition, no Windows/macOS execution; CPU attribution inconclusive",
+  "native_doubler_test_exit": 0,
+  "existing_common_dynamics": {
+    "assertions": "PASS",
+    "stock_xvfb_wrapper_exit": 1
+  }
+}

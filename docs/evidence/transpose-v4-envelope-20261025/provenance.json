@@ -1,0 +1,22 @@
+{
+  "base_commit": "be06fab38fef98aa7c51d2ab7a698917de167dc1",
+  "remote_registration_commit": "7b7f069dd5c7b54355fccda477a037b4766e981e",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "synthetic_only": true,
+  "product_Source_changed": false,
+  "original_T1_T4_scorers_changed": false,
+  "T6_default_changed": false,
+  "pr150_observed": "open draft be06fab",
+  "pr152_observed": "merged 95dbd8b96a5b952c2a96c6ea95ff9bbc43c05408",
+  "new_source_files_research_only": true,
+  "limitations": [
+    "No real DI or listening recordings were used",
+    "No Windows/macOS DAW run; no new VST3 host run in this follow-up",
+    "CPU Linux shared VM, CPU affinity is not dedicated hardware isolation",
+    "LeakSanitizer unsupported; ASan/UBSan research units only with detect_leaks=0",
+    "Initial reused-path parity artifact mismatch retained; unique-path 216-case rerun passed"
+  ]
+}

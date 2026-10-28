@@ -1,4 +1,5 @@
 #pragma once
+#include "ParamIndex.h"
 #include "OriginalAmpDefinition.h"
 #include "FactoryPresets.h"
 #include "FactoryPresetLevels.h"
@@ -45,12 +46,13 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
     auto snapshot=state.copyState();
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);
     snapshot.removeChild(snapshot.getChildWithName("ORIGINAL_PRESET"),nullptr);
+    ParamIndex byId(snapshot);
     for(auto* raw:state.processor.getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
-        auto node=snapshot.getChildWithProperty("id",p->paramID);
-        if(!node.isValid()){node=juce::ValueTree("PARAM");node.setProperty("id",p->paramID,nullptr);snapshot.appendChild(node,nullptr);}
+        auto node=byId[p->paramID];
+        if(!node.isValid()){node=juce::ValueTree("PARAM");node.setProperty("id",p->paramID,nullptr);snapshot.appendChild(node,nullptr);byId.add(node);}
         node.setProperty("value",p->convertFrom0to1(p->getDefaultValue()),nullptr);
     }
-    const auto set=[&](const juce::String& id,float value){auto* p=state.getParameter(id);jassert(p);if(p)snapshot.getChildWithProperty("id",id).setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);};
+    const auto set=[&](const juce::String& id,float value){auto* p=state.getParameter(id);jassert(p);if(p)byId[id].setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);};
     const auto& rig=originalRigPresets[size_t(preset)];
     set("mode",float(rig.mode));set("boardEnabled",1);set("boardLowTap",preset==4?1.f:0.f);
     set("input",0);set("output",factoryOutputDb[size_t(originalPresetStart+preset)]);
@@ -126,7 +128,7 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
     juce::ValueTree metadata("ORIGINAL_PRESET");metadata.setProperty("id",rig.id,nullptr);metadata.setProperty("name",juce::String::fromUTF8(rig.name),nullptr);
     metadata.setProperty("formatVersion",4,nullptr);
     metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);snapshot.appendChild(metadata,nullptr);
-    const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
+    const auto get=[&](const juce::String& id){return float(byId[id].getProperty("value"));};
     voiceFactoryCab(originalPresetStart+preset,get,set);
     voiceFactoryFinishing(originalPresetStart+preset,get,set);
     return snapshot;

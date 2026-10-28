@@ -1,0 +1,9 @@
+ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb

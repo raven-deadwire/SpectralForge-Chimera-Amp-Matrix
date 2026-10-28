@@ -313,8 +313,8 @@ int run(int argc,char** argv) {
         std::cout<<"PASS headless attribution accounting; cases="<<id<<"; native_ui=NOT_RUN; performance_acceptance=NOT_ASSESSED"<<std::endl;return 0;}
     auto editor=std::make_unique<ChimeraEditor>(*processor);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(60);
     auto* eqTab=tab(*editor,"EQ");check(eqTab,"Attribution EQ tab missing");eqTab->triggerClick();settle(40);
-    auto* finalBank=find<juce::TextButton>(*editor,"path.final.eq");check(finalBank,"Attribution final EQ selector missing");finalBank->triggerClick();settle(50);
-    check(find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isShowing(),"Attribution final EQ panel is hidden");
+    auto* finalBank=find<juce::TextButton>(*editor,"path.final.eq");check(finalBank,"Attribution final EQ selector missing");finalBank->triggerClick();
+    check(waitFor([&]{auto* panel=find<GraphicalEQPanel>(*editor,"finalEQ_panel");return panel!=nullptr && panel->isShowing();}),"Attribution final EQ panel is hidden");
     for(const auto& config:nativeCases)runCase(*processor,editor.get(),config,++id,summary,callbacks,updates);
     editor.reset();processor->releaseResources();
     check(manifest.good(),"Attribution method manifest write failed");

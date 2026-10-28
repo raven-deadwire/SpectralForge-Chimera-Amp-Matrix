@@ -41,6 +41,7 @@ include(Assets/Artwork/HeadShells/HeadShellArtwork.cmake)
 juce_add_binary_data(ChimeraArtwork HEADER_NAME ChimeraArtworkData.h NAMESPACE ChimeraArtworkData SOURCES ${CHIMERA_ARTWORK})
 juce_add_binary_data(ChimeraManual HEADER_NAME ChimeraManualData.h NAMESPACE ChimeraManualData SOURCES docs/MANUAL.html)
 target_include_directories(ChimeraAmpMatrix PUBLIC Source)
+target_include_directories(ChimeraAmpMatrix SYSTEM PRIVATE "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
 execute_process(COMMAND git rev-parse HEAD WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
   OUTPUT_VARIABLE CHIMERA_SOURCE_SHA OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
 if(CHIMERA_SOURCE_SHA)
@@ -95,7 +96,9 @@ configure_file(cmake/ChimeraTesterSecret.h.in generated/ChimeraTesterSecret.h @O
 # Keep source identity in the generated header shared by product and consumers.
 # A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
-target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
+target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/ABLevelMatch.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
+
+target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/ParamIndex.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
 set(CHIMERA_USE_CURL 0)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CHIMERA_USE_CURL 1)
@@ -469,6 +472,38 @@ target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix C
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
 add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
 
+# A/B level match: loudness meter, louder-to-quieter cut, never saved, off is bit-identical.
+juce_add_console_app(ChimeraABLevelMatchTests PRODUCT_NAME "Chimera AB Level Match Tests")
+target_sources(ChimeraABLevelMatchTests PRIVATE Tests/ABLevelMatchTests.cpp)
+target_include_directories(ChimeraABLevelMatchTests PRIVATE Source)
+target_include_directories(ChimeraABLevelMatchTests SYSTEM PRIVATE "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
+target_link_libraries(ChimeraABLevelMatchTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraABLevelMatchTests COMMAND ChimeraABLevelMatchTests)
+add_test(NAME ChimeraABLevelMatchUITests COMMAND ChimeraABLevelMatchTests --ui)
+set_tests_properties(ChimeraABLevelMatchTests PROPERTIES TIMEOUT 180)
+set_tests_properties(ChimeraABLevelMatchUITests PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
+
+# Switch timing probe: response, settle, residual, click and CPU of channel,
+# amp model, preset and A/B switches (docs/SWITCH_TIMING_METRICS.md).
+juce_add_console_app(ChimeraSwitchTimingProbe PRODUCT_NAME "Chimera Switch Timing Probe")
+target_sources(ChimeraSwitchTimingProbe PRIVATE Tests/SwitchTimingProbe.cpp)
+target_include_directories(ChimeraSwitchTimingProbe PRIVATE Source)
+target_link_libraries(ChimeraSwitchTimingProbe PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraSwitchTimingProbe COMMAND ChimeraSwitchTimingProbe "${CMAKE_BINARY_DIR}/switch-timing.csv")
+
+# CAB export: offline lane cabinet render, WAV round trip, convolution check.
+juce_add_console_app(ChimeraCabExportTests PRODUCT_NAME "Chimera CAB Export Tests")
+target_sources(ChimeraCabExportTests PRIVATE Tests/CabExportTests.cpp)
+target_include_directories(ChimeraCabExportTests PRIVATE Source)
+target_link_libraries(ChimeraCabExportTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraCabExportTests COMMAND ChimeraCabExportTests "${CMAKE_BINARY_DIR}/cab-export")
+# Preset, A/B and project recall must render the same audio, not only restore settings.
+juce_add_console_app(ChimeraStateRecallAudioTests PRODUCT_NAME "Chimera State Recall Audio Tests")
+target_sources(ChimeraStateRecallAudioTests PRIVATE Tests/StateRecallAudioTests.cpp)
+target_include_directories(ChimeraStateRecallAudioTests PRIVATE Source)
+target_link_libraries(ChimeraStateRecallAudioTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraStateRecallAudioTests COMMAND ChimeraStateRecallAudioTests)
+
 # Doubler mono-sum probe: comb response of L, R and the mono sum per spread.
 juce_add_console_app(ChimeraDoublerMonoProbe PRODUCT_NAME "Chimera Doubler Mono Probe")
 target_sources(ChimeraDoublerMonoProbe PRIVATE Tests/DoublerMonoProbe.cpp)
@@ -476,6 +511,16 @@ target_include_directories(ChimeraDoublerMonoProbe PRIVATE Source)
 target_compile_definitions(ChimeraDoublerMonoProbe PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraDoublerMonoProbe PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraDoublerMonoProbe COMMAND ChimeraDoublerMonoProbe)
+
+# Frozen #190/#192 kernels share the executable for numerical and CPU comparison.
+juce_add_console_app(ChimeraDoublerValidationTests PRODUCT_NAME "Chimera Doubler Validation")
+target_sources(ChimeraDoublerValidationTests PRIVATE Tests/DoublerValidationTests.cpp)
+target_include_directories(ChimeraDoublerValidationTests PRIVATE Source)
+target_compile_definitions(ChimeraDoublerValidationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraDoublerValidationTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraDoublerValidationTests COMMAND ChimeraDoublerValidationTests)
+set_tests_properties(ChimeraDoublerValidationTests PROPERTIES TIMEOUT 120)
+
 
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)
@@ -602,6 +647,8 @@ add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMA
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
 add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
+add_test(NAME ChimeraDoublerStateLimiterTests COMMAND ChimeraCommonDynamicsTests --doubler-only)
+set_tests_properties(ChimeraDoublerStateLimiterTests PROPERTIES TIMEOUT 240)
 add_test(NAME ChimeraMultibandDynamicsTests COMMAND ChimeraMultibandDynamicsTests)
 add_test(NAME ChimeraAutoSetTests COMMAND ChimeraAutoSetTests)
 add_executable(ChimeraMultibandDynamicsCoreTests Tests/MultibandDynamicsCoreTests.cpp)

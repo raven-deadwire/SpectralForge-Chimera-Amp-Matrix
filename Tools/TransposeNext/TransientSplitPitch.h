@@ -69,6 +69,7 @@ public:
 // transposed, never dry-mixed. Independent delays can colour the crossover.
 // This does NOT provide a common/fixed latency across frequency or host PDC.
 class TransientSplitPitch {
+    friend struct SplitDiagnostics; // research-only, read-only trace harness
     CorrelationPitch body, transient;
     juce::AudioBuffer<float> bodyIn, highIn, bodyOut, highOut, detector;
     struct Biquad {
@@ -103,7 +104,7 @@ class TransientSplitPitch {
     double lowFast{},lowFastCoefficient{},lowThreshold{};
     int lowHistoryPosition{},lowArmed{},lowWindowLength{},lowResets{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false, bool coordinate=false, bool targetFixes=false, bool sampleAccurateHold=false) {
+    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false, bool coordinate=false, bool targetFixes=false, bool sampleAccurateHold=false, bool lowUpshiftFloor=false) {
         lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;coordinated=coordinate;targeted=targetFixes;sampleHold=coordinate && sampleAccurateHold;predictor.prepare(spec.sampleRate);
         lowFastCoefficient=1-std::exp(-1/(spec.sampleRate*.001));
         lowWindowLength=int(spec.sampleRate*.012);
@@ -113,6 +114,7 @@ public:
         body.prepare(spec,40,false);
         transient.prepare(spec,40,true,true);
         body.setUpshiftOnsetReset(upshift);transient.setUpshiftOnsetReset(upshift);
+        if(lowUpshiftFloor)body.setUpshiftMinimum(.5);
         if(upshift)transient.setBroadSmoothing(4);
         if(coordinated)transient.setRetrigger(8);
         // T1/T4 fixes (2026-10-23 targets): a 4 ms high-path re-anchor guard

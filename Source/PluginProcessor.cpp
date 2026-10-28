@@ -1,6 +1,7 @@
 #include "GuitarSignaturePresets.h"
 #include "FactoryNativeVoicing.h"
 #include "PluginProcessor.h"
+#include "CabIRFile.h"
 #include "IRStateAssets.h"
 #include <algorithm>
 #include "PluginEditor.h"
@@ -8,6 +9,7 @@
 #include "ReleaseInfo.h"
 #include "BetaLifecycleDisplay.h"
 #include "StandaloneDiagnostics.h"
+#include "../Shared/ChimeraCapturePolicy.h"
 
 namespace {
 std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
@@ -18,6 +20,19 @@ std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
     if(model==21)return {1,0};
     return {model>=spectralforge::legacyAmpModelCount?juce::jlimit(0,(int)panel.channels.size()-1,channel):panel.defaultChannel,0};
 }
+}
+
+void ChimeraProcessor::setIHostApplication(Steinberg::FUnknown* host)
+{
+    // Queried during VST3 controller connection, before the OBS bridge can
+    // prepare/process. Never infer capture state from a host name or playhead.
+    void* policy=nullptr;
+    if(host && host->queryInterface(spectralforge::chimeraCapturePolicyId,&policy)==Steinberg::kResultOk && policy) {
+        auto* capture=static_cast<spectralforge::IChimeraCapturePolicy*>(policy);
+        levelMatch.lockCaptureSafe();
+        capture->acknowledgeCapturePolicy();
+        capture->release();
+    }
 }
 
 ChimeraProcessor::ChimeraProcessor()
@@ -35,7 +50,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     dynamics.bind(state);multiband.bind(state);deesser.bind(state);
     preFX.setAnalysis(&dynamicsAnalysisState);postFX.setAnalysis(&dynamicsAnalysisState);
     pedalBoard.setAnalysis(&dynamicsAnalysisState);engine.setDynamicsAnalysis(&dynamicsAnalysisState);
-    const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
+    const std::array<const char*,12> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype","cabAcutsOff","cabBcutsOff"};
     for(int i=0;i<3;++i) for(size_t j=0;j<cabIds.size();++j) cabPanelParameters[i][j]=state.getRawParameterValue(juce::String(cabIds[j])+juce::String(i+1));
     clearMidi();
     boardParameters.bind(state);
@@ -128,6 +143,7 @@ void ChimeraProcessor::releaseResources()
     // either, then reclaim ALL IR kernels while the plugin is still loaded.
     // Each juce::dsp::Convolution owns a further background loader: merely
     // stopping IRLibrary left those threads alive until member destruction.
+    lastProcessTicks.store(0); // stopped: a recall applies at once
     library.requestStop(); tuner.requestStop();
     library.stop(); tuner.stop();
     for (int lane=0; lane<3; ++lane) engine.cabinet(lane).clear();
@@ -137,6 +153,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
     releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
+    switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
+    lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     // Install the restored panel state before Cab::prepare initializes its
@@ -151,7 +169,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec);levelMatch.prepare(sr,int(spec.numChannels)); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
     dynamicsAnalysisState.prepare(sr,int(spec.maximumBlockSize));
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
@@ -190,7 +208,24 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
+    updateComparisonProtection();
+    audioThread.store(std::hash<std::thread::id>{}(std::this_thread::get_id()),std::memory_order_relaxed);
     resetProcessingIfPending();
+    if(fadeRequested.exchange(false)) {
+        // beginSwitch() waits for silence before it changes the state.
+        if(!processedSincePrepare || switchFade==SwitchFade::hold || switchFade==SwitchFade::wait)fadedSilent.store(true);
+        else {switchFade=SwitchFade::out;holdForSwitch=true;}
+    }
+    if(switchPending.exchange(false)) {
+        holdForSwitch=false;
+        // Nothing has played since prepareToPlay: there is no sound to fade.
+        if(!processedSincePrepare){resetProcessing(true);switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
+        else if(switchFade==SwitchFade::hold || switchFade==SwitchFade::wait) { // already silent
+            resetProcessing(true);switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);switchCabinetLate=false;
+            if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
+        }
+        else {hostBypass.reset();switchFade=SwitchFade::out;}
+    }
     // Capture before input gain/routing/effects, inside the callback CPU meter.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     for(const auto metadata:midi) {
@@ -210,9 +245,22 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         const int count=juce::jmin(maximumBlock,buffer.getNumSamples()-offset);
         std::array<float*,2> channels{};
         for(int c=0;c<buffer.getNumChannels();++c) channels[(size_t)c]=buffer.getWritePointer(c,offset);
-        juce::AudioBuffer<float> part(channels.data(),buffer.getNumChannels(),count);
-        process(part);
+        for(int done=0;done<count;) {
+            // Fade-out ends inside this chunk: process up to the reset point,
+            // reset, then process the rest with the recalled sound.
+            const int n=switchFade==SwitchFade::out?juce::jmin(count-done,juce::jmax(1,switchFadePosition)):count-done;
+            std::array<float*,2> sub{};
+            for(int c=0;c<buffer.getNumChannels();++c) sub[(size_t)c]=channels[(size_t)c]+done;
+            juce::AudioBuffer<float> part(sub.data(),buffer.getNumChannels(),n);
+            // While a recall keeps the output muted, recalled cabinets install
+            // at once instead of crossfading 50 ms from the previous ones.
+            engine.setInstantCabinetSwap(switchFade==SwitchFade::wait);
+            process(part);
+            applySwitchFade(part);
+            done+=n;
+        }
     }
+    processedSincePrepare=true;lastProcessTicks.store(juce::Time::getHighResolutionTicks());
     // The policy is constructed once, off the audio thread. Expiry cannot stop
     // an admitted instance, including recording or non-realtime rendering.
     // A newly expired instance keeps the complete graph/latency and emits zero;
@@ -235,18 +283,67 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
 {
+    updateComparisonProtection();
     resetProcessingIfPending();
+    // Bypassed, the wet sound is not heard: a recall needs no fade.
+    if(fadeRequested.exchange(false))fadedSilent.store(true);
+    if(switchPending.exchange(false)){resetProcessing(true);switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;holdForSwitch=false;}
     // JUCE AAX's MasterBypassID invokes this callback. Its default implementation
     // passes dry audio immediately even though PDC still uses our nonzero delay.
     // Use the currently reported delay; parameter changes take effect when the
     // wet graph next processes (or prepareToPlay is called), as before.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),getLatencySamples(),true);
 }
+void ChimeraProcessor::updateComparisonProtection()
+{
+    bool printing=isNonRealtime();
+    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())
+        printing=printing || position->getIsRecording();
+    levelMatch.protectOutput(printing);
+}
 void ChimeraProcessor::resetProcessingIfPending()
 {
     if(!resetPending.exchange(false)) return;
+    resetProcessing(true);
+    // A host reset ends any switch fade: the reset sound plays at once.
+    if(switchFade!=SwitchFade::idle){switchFade=SwitchFade::idle;switchFadePosition=switchFadeLength;}
+}
+void ChimeraProcessor::resetProcessing(bool hostBypassToo)
+{
     engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();utilities.reset();
-    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();hostBypass.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();if(hostBypassToo)hostBypass.reset();
+}
+void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
+{
+    if(switchFade==SwitchFade::idle)return;
+    const auto gain=[this]{return float(.5-.5*std::cos(juce::MathConstants<double>::pi*switchFadePosition/switchFadeLength));};
+    for(int n=0;n<part.getNumSamples();++n) {
+        float g=1;
+        if(switchFade==SwitchFade::out){if(switchFadePosition>0)--switchFadePosition;g=gain();}
+        else if(switchFade==SwitchFade::hold){g=0;if(--switchHold<=0){switchFade=SwitchFade::in;switchFadePosition=0;holdForSwitch=false;}} // abandoned: no state change came
+        else if(switchFade==SwitchFade::wait){
+            g=0;
+            if(--switchWait<=0) {
+                // Re-check the cabinets every 64 samples while the budget lasts.
+                // A cabinet installed late (at once, no crossfade) gets the
+                // settle time again so the dynamics have heard it first.
+                if(switchCabinetBudget>0 && !engine.audibleCabinetsSettled()){switchWait=juce::jmin(64,switchCabinetBudget);switchCabinetBudget-=switchWait;switchCabinetLate=true;}
+                else if(switchCabinetLate){switchCabinetLate=false;switchWait=juce::jmax(1,int(rate*switchSettleSeconds));}
+                else {switchFade=SwitchFade::in;switchFadePosition=0;}
+            }
+        }
+        else if(switchFade==SwitchFade::in){if(++switchFadePosition>=switchFadeLength){switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;}g=gain();}
+        for(int c=0;c<part.getNumChannels();++c)part.getWritePointer(c)[n]*=g;
+    }
+    // The fade-out reached silence at the end of this part: reset now, before
+    // the next sample, and stay muted while the cleared delay lines refill.
+    if(switchFade==SwitchFade::out && switchFadePosition==0 && holdForSwitch) {
+        switchFade=SwitchFade::hold;switchHold=int(rate*.5);fadedSilent.store(true);
+    } else if(switchFade==SwitchFade::out && switchFadePosition==0) {
+        resetProcessing(false);
+        switchWait=getLatencySamples()+int(rate*switchSettleSeconds);switchCabinetBudget=int(rate*switchCabinetWaitSeconds);switchCabinetLate=false;
+        if(switchWait>0)switchFade=SwitchFade::wait;else{switchFade=SwitchFade::in;switchFadePosition=0;}
+    }
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
@@ -324,12 +421,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         lane.mute=f(10)>.5f; lane.solo=f(11)>.5f; lane.polarity=f(12)>.5f; lane.cab=f(13)>.5f;
         lane.cabLow=f(14); lane.cabHigh=f(15); lane.ampEnabled=f(17)>.5f;
         engine.cabinet(i).requestedSource.store((int)f(16));
-        auto get=[&](int id){return cabPanelParameters[i][id]->load();};
-        auto& cab=engine.cabinet(i); auto* b=cab.secondMic();
-        cab.blend=spectralforge::cabMicRouting(originalCabParameters.values[i][3]->load()>.5f,originalCabParameters.values[i][8]->load()>.5f,int(laneParameters[i][16]->load()),int(get(9)),get(0)).blend;
-        cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
-        b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
-        b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));
+        applyCabinetParameters(i,engine.cabinet(i));
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
@@ -372,6 +464,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     autoSetCaptureState.push(spectralforge::autoset::Tap::output,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::limiter,buffer);dynamics.limit(buffer);} // Last gain stage after output trim.
+    levelMatch.process(buffer,selectedComparison.load()); // Comparison output cut; meters show what is heard.
     for(int c=0;c<buffer.getNumChannels();++c)peak=juce::jmax(peak,buffer.getMagnitude(c,0,buffer.getNumSamples()));
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
     measureStage(4,buffer);
@@ -381,15 +474,29 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     if(slot==0) return loadIR(lane,file);
     if(lane<0 || lane>2 || slot!=1) return juce::Result::fail("Invalid mic slot");
     auto result=library.importFile(lane+3,file);
+    if(result.wasOk()) {
+        const bool baked=library.userIsCabinetExport(lane+3);const auto n=juce::String(lane+1);
+        setRawParameter("cabBcutsOff"+n,baked?1.f:0.f);
+        if(baked)for(const auto* field:{"gain","delay","invert"})setRawParameter("cabB"+juce::String(field)+n,0);
+    }
     if(result.wasOk()) { setRawParameter(spectralforge::originalCabID(lane,"Bon"),0); setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
     return result;
 }
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
+    if(lane<0 || lane>2)return juce::Result::fail("Invalid lane");
     const auto result=library.importFile(lane,file);
     if(result.wasOk())
     {
         setRawParameter(spectralforge::originalCabID(lane,"Aon"),0);
+        const auto n=juce::String(lane+1);const bool baked=library.userIsCabinetExport(lane);
+        setRawParameter("cabAcutsOff"+n,baked?1.f:0.f);
+        if(baked) {
+            // This file already contains both mics, cuts, polarity and delays.
+            // Load it as one complete cabinet, with no second application.
+            setRawParameter("cab"+n,1);setRawParameter("cabblend"+n,0);
+            for(const auto* field:{"gain","delay","invert"})setRawParameter("cabA"+juce::String(field)+n,0);
+        }
         auto* parameter=state.getParameter("cabtype"+juce::String(lane+1));
         parameter->beginChangeGesture(); parameter->setValueNotifyingHost(parameter->convertTo0to1(3)); parameter->endChangeGesture();
         engine.cabinet(lane).requestedSource.store(3);
@@ -488,9 +595,100 @@ spectralforge::appendCommonDynamicsParameters(p);
 spectralforge::appendMultibandParameters(p);
 spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
+// Append-only; existing projects keep their cuts and normalization policy.
+for(int lane=1;lane<=3;++lane)for(const auto* mic:{"A","B"})
+    p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"cab"+juce::String(mic)+"cutsOff"+juce::String(lane),15},"Mic "+juce::String(mic)+" cuts bypass "+juce::String(lane),false));
 return p;
 }
 
+// One mapping from parameters to a cabinet, for the engine every block and
+// for the offline copy that renders/exports a lane's cabinet.
+void ChimeraProcessor::applyCabinetParameters(int lane,spectralforge::Cab& cab) const
+{
+    const auto get=[&](int id){return cabPanelParameters[lane][id]->load();};
+    auto* b=cab.secondMic();
+    cab.blend=spectralforge::cabMicRouting(originalCabParameters.values[lane][3]->load()>.5f,originalCabParameters.values[lane][8]->load()>.5f,int(laneParameters[lane][16]->load()),int(get(9)),get(0)).blend;
+    cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
+    b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
+    b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));
+    cab.bypassCuts=get(10)>.5f;b->bypassCuts=get(11)>.5f;
+}
+juce::AudioBuffer<float> ChimeraProcessor::renderCabinet(int lane,const juce::AudioBuffer<float>& input,double sampleRate) const
+{
+    lane=juce::jlimit(0,2,lane);
+    constexpr int block=512;
+    const juce::dsp::ProcessSpec spec{sampleRate,(juce::uint32)block,2};
+    std::array<spectralforge::Cab,3> cabs;
+    spectralforge::IRLibrary copy{{&cabs[0],&cabs[1],&cabs[2]}};
+    copy.restore(library.save()); // the project's own IRs, not the user folder
+    std::array<int,3> sources{};
+    for(int i=0;i<3;++i) {
+        auto& cab=cabs[(size_t)i];
+        if(i!=lane) {cab.requestedSource.store(0);cab.prepare(spec);continue;}
+        cab.requestedSource.store((int)laneParameters[i][16]->load());
+        cab.requestedModel.store(originalCabParameters.read(i,0));
+        cab.secondMic()->requestedModel.store(originalCabParameters.read(i,1));
+        applyCabinetParameters(i,cab);
+        cab.enable(laneParameters[i][13]->load()>.5f);
+        sources[(size_t)i]=cab.requestedSource.load();
+        cab.prepare(spec); // snaps gain, blend and delay smoothers to the values above
+        applyCabinetParameters(i,cab); // prepare resets filters; restore mic B cuts afterwards
+    }
+    copy.prepare(spec,sources); // builds every requested kernel before returning
+    copy.requestStop();copy.stop();
+    auto& cab=cabs[(size_t)lane];
+    cab.setCuts(laneParameters[lane][14]->load(),laneParameters[lane][15]->load());
+    juce::AudioBuffer<float> output(2,input.getNumSamples());output.clear();
+    for(int c=0;c<2;++c)output.copyFrom(c,0,input,juce::jmin(c,input.getNumChannels()-1),0,input.getNumSamples());
+    for(int offset=0;offset<output.getNumSamples();offset+=block) {
+        const int count=juce::jmin(block,output.getNumSamples()-offset);
+        std::array<float*,2> channels{output.getWritePointer(0,offset),output.getWritePointer(1,offset)};
+        juce::AudioBuffer<float> part(channels.data(),2,count);
+        cab.process(part);
+    }
+    for(auto& c:cabs)c.clear();
+    return output;
+}
+juce::AudioBuffer<float> ChimeraProcessor::cabinetImpulseResponse(int lane,double sampleRate,double maximumSeconds) const
+{
+    juce::AudioBuffer<float> impulse(1,juce::jmax(1,int(sampleRate*maximumSeconds)));impulse.clear();impulse.setSample(0,0,1.f);
+    auto ir=renderCabinet(lane,impulse,sampleRate);
+    // Bound the SUM of discarded samples, not each individual sample: a
+    // long quiet IIR tail can add coherently and move phase near a notch.
+    // This also bounds the discarded DFT magnitude at every frequency.
+    const float peak=juce::jmax(ir.getMagnitude(0,0,ir.getNumSamples()),ir.getMagnitude(1,0,ir.getNumSamples()));
+    double remaining=double(peak)*1.0e-7;int length=ir.getNumSamples();
+    while(length>int(sampleRate*.01)) {
+        const double tail=juce::jmax(std::abs(ir.getSample(0,length-1)),std::abs(ir.getSample(1,length-1)));
+        if(tail>remaining)break;
+        remaining-=tail;--length;
+    }
+    ir.setSize(2,length,true);
+    return ir;
+}
+juce::Result ChimeraProcessor::exportCabinetIR(int lane,const juce::File& file) const
+{
+    const double sampleRate=getSampleRate()>0 ? getSampleRate() : 48000.;
+    const auto ir=cabinetImpulseResponse(lane,sampleRate);
+    bool stereo=false;
+    for(int n=0;n<ir.getNumSamples() && !stereo;++n)stereo=ir.getSample(0,n)!=ir.getSample(1,n);
+    juce::AudioBuffer<float> out(stereo?2:1,ir.getNumSamples());
+    for(int c=0;c<out.getNumChannels();++c)out.copyFrom(c,0,ir,c,0,ir.getNumSamples());
+    if(file.isDirectory())return juce::Result::fail("The destination is a directory");
+    juce::MemoryBlock encoded;
+    {
+        auto stream=std::make_unique<juce::MemoryOutputStream>(encoded,false);
+        juce::StringPairArray metadata;
+        metadata.set(juce::WavAudioFormat::bwavDescription,spectralforge::IRLibrary::cabinetExportTag);
+        juce::WavAudioFormat wav;
+        std::unique_ptr<juce::AudioFormatWriter> writer(wav.createWriterFor(stream.get(),sampleRate,(unsigned)out.getNumChannels(),32,metadata,0));
+        if(!writer)return juce::Result::fail("Cannot create a WAV writer");
+        stream.release();
+        if(!writer->writeFromAudioSampleBuffer(out,0,out.getNumSamples()) || !writer->flush())
+            return juce::Result::fail("Cannot encode the IR samples");
+    }
+    return spectralforge::cabIRFile::writeAtomically(file,encoded);
+}
 void ChimeraProcessor::syncOriginalCabRequests()
 {
     for(int i=0;i<3;++i) {
@@ -544,23 +742,37 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
     comparisons[(size_t)active]=core;
     return true;
 }
+void ChimeraProcessor::beginSwitch()
+{
+    // Only while audio is running on another thread: offline loads, the audio
+    // thread itself and a stopped host change the state at once.
+    const auto last=lastProcessTicks.load();
+    if(last==0 || juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-last)>.2)return;
+    if(audioThread.load(std::memory_order_relaxed)==std::hash<std::thread::id>{}(std::this_thread::get_id()))return;
+    fadedSilent.store(false);fadeRequested.store(true);
+    // Bounded: the old sound needs 5 ms of audio; a stalled host costs at most 30 ms.
+    const auto deadline=juce::Time::getHighResolutionTicks()+juce::Time::secondsToHighResolutionTicks(.03);
+    while(!fadedSilent.load() && juce::Time::getHighResolutionTicks()<deadline)juce::Thread::sleep(1);
+}
 void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
     ++headRecallRevision;
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
+    beginSwitch(); // the old sound fades out (and stays muted) before any of the new state applies
     spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
     boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
-    const bool missingNative=!restored.getChildWithProperty("id",spectralforge::ampNativeModelID(0)).isValid();
-    const bool missingPost=!restored.getChildWithProperty("id",spectralforge::postNativeModelID(0)).isValid();
-    const bool missingBoard=!restored.getChildWithProperty("id",spectralforge::pedalModelID(0)).isValid();
-    const bool hasOriginalV1=restored.getChildWithProperty("id",spectralforge::ampNativeControlID(0,spectralforge::firstOriginalAmpModel,0)).isValid();
+    const spectralforge::ParamIndex restoredById(restored);
+    const bool missingNative=!restoredById[spectralforge::ampNativeModelID(0)].isValid();
+    const bool missingPost=!restoredById[spectralforge::postNativeModelID(0)].isValid();
+    const bool missingBoard=!restoredById[spectralforge::pedalModelID(0)].isValid();
+    const bool hasOriginalV1=restoredById[spectralforge::ampNativeControlID(0,spectralforge::firstOriginalAmpModel,0)].isValid();
     // Enumerate registered parameters via the current tree, but obtain every
     // missing value from the parameter definition, never from the session.
     const auto defaults=state.copyState();
     for(auto child:defaults)
     {
         const auto id=child.getProperty("id").toString();
-        if(id.isEmpty() || restored.getChildWithProperty("id",id).isValid()) continue;
+        if(id.isEmpty() || restoredById[id].isValid()) continue;
         auto* parameter=state.getParameter(id);if(!parameter) continue;
         float value=parameter->convertFrom0to1(parameter->getDefaultValue());
         // Old single-channel snapshots retain their exact transfer and saved
@@ -576,9 +788,10 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
-    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();resetPending.store(true);
+    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();switchPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
+    library.wake();
 }
 void ChimeraProcessor::setStateInformation(const void* data,int size)
 {
@@ -589,11 +802,12 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
     if(!spectralforge::irState::unpack(restored))return;
     const auto saved=restored.getChildWithName("COMPARISONS");
     { std::lock_guard<std::mutex> lock(comparisonMutex);
-      comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));
+      comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));levelMatch.forget();
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
     restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);restoreCore(restored);
+    warmInactiveComparison();
 }
 void ChimeraProcessor::selectComparison(int slot)
 {
@@ -604,13 +818,36 @@ void ChimeraProcessor::selectComparison(int slot)
       if(!comparisons[(size_t)slot].isValid()) comparisons[(size_t)slot]=current.createCopy();
       next=comparisons[(size_t)slot].createCopy();selectedComparison.store(slot);
     }
-    restoreCore(next);
+    restoreCore(next);levelMatch.switched();
+    warmInactiveComparison();
 }
 void ChimeraProcessor::copyComparison()
 {
     eqEditState.barrier();
-    auto current=captureCore();std::lock_guard<std::mutex> lock(comparisonMutex);
-    comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
+    auto current=captureCore();
+    { std::lock_guard<std::mutex> lock(comparisonMutex);
+      comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();levelMatch.copied(selectedComparison.load()); }
+    warmInactiveComparison();
+}
+void ChimeraProcessor::warmInactiveComparison()
+{
+    // The other A/B slot is the likeliest next recall: keep its modeled
+    // cabinets generated so switching to it installs them at once.
+    juce::ValueTree other;
+    { std::lock_guard<std::mutex> lock(comparisonMutex); other=comparisons[(size_t)(1-selectedComparison.load())]; }
+    std::array<uint64_t,6> models{};
+    if(other.isValid()) {
+        // Missing values take the parameter default, as restoreCore does.
+        const spectralforge::ParamIndex saved(other);
+        const auto get=[&](const juce::String& id) {
+            if(const auto node=saved[id];node.isValid()) return float(node.getProperty("value"));
+            auto* parameter=state.getParameter(id);
+            return parameter ? parameter->convertFrom0to1(parameter->getDefaultValue()) : 0.f;
+        };
+        for(int lane=0;lane<3;++lane)for(int mic=0;mic<2;++mic)
+            models[size_t(lane+3*mic)]=spectralforge::OriginalCabParameters::savedKey(lane,mic,get);
+    }
+    library.keepWarm(models);
 }
 juce::AudioProcessorEditor* ChimeraProcessor::createEditor() {
     auto* editor=new ChimeraEditor(*this);
@@ -629,7 +866,9 @@ void ChimeraProcessor::tapTempo() {
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
+    levelMatch.invalidate(selectedComparison.load());
     ++headRecallRevision;
+    beginSwitch(); // the old sound fades out (and stays muted) while the snapshot is built
     {
         const auto snapshot=spectralforge::isNiflheimrPreset(index)
             ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)
@@ -644,14 +883,15 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
         // Canonicalize host values as well as APVTS values. Bool/choice adapters
         // may already cache the snapped value of a noncanonical host write and
         // suppress an otherwise identical replaceState update.
+        const spectralforge::ParamIndex snapshotById(snapshot);
         for(auto* raw:getParameters())if(auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
-            const auto node=snapshot.getChildWithProperty("id",parameter->paramID);
+            const auto node=snapshotById[parameter->paramID];
             parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
         }
         boardUndo.clear();boardRedo.clear();
         // Factory recipes own their modeled CAB. Resolving a user's IR folder
         // here would bypass that cabinet and make recall machine-dependent.
-        resetPending.store(true);
+        switchPending.store(true);
     }
 }
 
@@ -774,9 +1014,9 @@ void ChimeraProcessor::rememberPedalEdit() {
 }
 void ChimeraProcessor::setPedalBoardEnabled(bool enabled) {
     if(boardParameters.read().enabled==enabled)return;
-    rememberPedalEdit();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
+    rememberPedalEdit();beginSwitch();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
     setRawParameter("boardEnabled",enabled?1.f:0.f);
-    boardEditSequence.fetch_add(1,std::memory_order_release);resetPending.store(true);
+    boardEditSequence.fetch_add(1,std::memory_order_release);switchPending.store(true);
 }
 void ChimeraProcessor::setPedalModel(int owner,int model) {
     if(owner<0 || owner>=5 || model<0 || model>=spectralforge::pedalModelCount || !spectralforge::pedalModel(model).implemented)return;

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
+#include <thread>
 
 static thread_local bool counting=false;
 static thread_local size_t allocations=0;
@@ -516,12 +517,418 @@ void controllerIntegration() {
 }
 }
 
+// Locks and strength. Fixtures feed the capture taps directly, so each run
+// analyses identical audio whatever the earlier passes applied: runs compare
+// exactly, isolating how results are written from how the amp responds. The
+// window taps hear the plucked DI; the multiband tap hears booming lows and the
+// de-esser tap a bright top (the multibandRules/finishRules fixtures), so both
+// stages engage.
+struct LockRun {std::vector<float> values;Controller::Status status;std::vector<float> before;};
+LockRun runLocked(const Controller::Options& options,const std::function<void(ChimeraProcessor&,Controller&)>& afterRun={},
+                  const std::function<void(ChimeraProcessor&,Controller&)>& beforeRun={},
+                  const std::function<void(ChimeraProcessor&,Controller&)>& duringRun={},
+                  const std::vector<float>* finishFixture=nullptr) {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    Controller c(*p);c.setOptions(options);
+    if(beforeRun)beforeRun(*p,c);
+    LockRun result;result.before=values(*p);
+    DI di{48000,.126f,.00025f};double now=juce::Time::getMillisecondCounterHiRes();
+    std::mt19937 random{41};
+    auto bright=targetNoise(false,48000,6,random);shelve(bright,4000,8,48000);
+    auto boom=targetNoise(false,48000,6,random);
+    {std::vector<float> low(boom.size());std::normal_distribution<float> noise(0,.3f);for(auto& v:low)v=noise(random);
+     lowpass(low,100,48000);for(size_t n=0;n<boom.size();++n)boom[n]+=low[n]*(std::fmod(double(n)/48000,.5)<.25?4.f:.25f);}
+    if(finishFixture)bright=*finishFixture;
+    std::vector<float> block(256);c.start();
+    for(int k=0;c.busy() && k<int(60*48000/256);++k) {
+        if(duringRun)duringRun(*p,c);
+        for(auto& x:block)x=di.next();
+        const size_t offset=size_t(k)*256%(bright.size()-256);
+        const float* channels[]{block.data()};const float* top[]{bright.data()+offset};const float* low[]{boom.data()+offset};
+        for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::output})p->autoSetCapture().push(tap,channels,1,256);
+        p->autoSetCapture().push(Tap::multiband,low,1,256);p->autoSetCapture().push(Tap::deesser,top,1,256);
+        now+=1000.*256/48000;c.tick(now);
+    }
+    check(!c.busy(),"Locked Auto Set run did not finish");
+    result.values=values(*p);result.status=c.current();
+    if(afterRun)afterRun(*p,c);
+    p->releaseResources();
+    return result;
+}
+float valueOf(const LockRun& run,const juce::String& id) {
+    static auto reference=std::make_unique<ChimeraProcessor>();
+    auto* parameter=reference->parameters().getParameter(id);check(parameter!=nullptr,"Unknown parameter "+id.toStdString());
+    return parameter->convertFrom0to1(run.values[size_t(parameter->getParameterIndex())]);
+}
+void inputStrengthRounding() {
+    // Fixed decimal expectations, independent of the production formula.
+    // JUCE's 0.01 dB range may return a few ulps either side of a value
+    // after normalisation (including a slightly negative default zero).
+    struct Case {float before,proposed,strength,expected;};
+    const Case cases[]{
+        {0,10.5f,.25f,2.5f},{0,10.5f,.5f,5.5f},{0,10.5f,.75f,8},
+        {0,-10.5f,.5f,-5.5f},{1.01f,10.5f,.5f,6},
+        {-.01f,10.5f,.5f,5},{.01f,-10.5f,.5f,-5},
+        {1.23f,10.5f,.25f,3.5f},{1.23f,10.5f,.75f,8},
+        {-24,24,.25f,-12},{-24,24,.5f,0},{-24,24,.75f,12}
+    };
+    for(const auto& c:cases)for(float error:{-0.000003f,0.f,0.000003f})
+        check(scaledInputGainDb(c.before+error,c.proposed,c.strength)==c.expected,
+              "Input strength rounding changed at a parameter conversion boundary");
+    check(scaledInputGainDb(-.000003f,10.5f,1.f)==10.5f,"Full strength changed the proposal");
+    std::cout<<"PASS input strength rounding: decimal ties, negative gain, 0.01 dB settings and conversion error\n";
+}
+void controllerLocksAndStrength() {
+    using P=Controller::Phase;
+    const Controller::Options all{1,true,Style::rock,true,true,false};
+    const auto full=runLocked(all);
+    check(full.status.phase==P::done && full.status.steps.size()==5,"Reference run did not complete five passes");
+    check(valueOf(full,"gateon")>.5f,"Reference run did not place the gate");
+    const LockRun defaults{full.before,{},{}};
+
+    // Strength 50%: the same analysis, written at half the amount.
+    auto halfOptions=all;halfOptions.strength=.5f;
+    const auto half=runLocked(halfOptions);
+    check(half.status.phase==P::done && half.status.text.contains("50% strength"),"Half-strength run did not report its strength");
+    const float inputBefore=valueOf(defaults,"input");
+    const float inputFull=valueOf(full,"input"),inputHalf=valueOf(half,"input");
+    check(near(inputHalf,float(std::round((std::round(double(inputBefore)*100)+std::round(double(inputFull)*100))/100)*.5),.01f),"Half strength did not halve the input gain change");
+    check(near(valueOf(half,"gatethreshold"),std::round(std::clamp(valueOf(full,"gatethreshold")+inputHalf-inputFull,-90.f,-15.f)),.51f),
+          "Gate was not placed for the applied input gain");
+    check(near(valueOf(half,"gateRangeDb"),valueOf(full,"gateRangeDb"),.01f),"Strength changed the gate range");
+    int toneBands=0;
+    for(int b=0;b<spectralforge::graphicalEQBands;++b) {
+        const auto id=[&](const char* field){return spectralforge::eqID(0,b,field);};
+        check((valueOf(full,id("enabled"))>.5f)==(valueOf(half,id("enabled"))>.5f),"Strength changed which Tone EQ bands are used");
+        if(valueOf(full,id("enabled"))<.5f)continue;
+        ++toneBands;
+        check(near(valueOf(half,id("gain")),.5f*valueOf(full,id("gain")),.02f) && near(valueOf(half,id("frequency")),valueOf(full,id("frequency")),.5f),
+              "Half strength did not halve a Tone EQ move");
+    }
+    check(near(valueOf(full,"cleanCompMix"),1.f,.001f) && near(valueOf(half,"cleanCompMix"),.5f,.01f)
+          && near(valueOf(half,"cleanCompRatio"),valueOf(full,"cleanCompRatio"),.01f),"Half strength did not mix the compressor in parallel");
+    // The fixture engages both stages, so their strength checks are not vacuous.
+    check(valueOf(full,"mbOn")>.5f && valueOf(full,"deEsserOn")>.5f,"Reference run did not engage the multiband and de-esser");
+    check(near(valueOf(half,"mbMix"),.5f,.01f),"Half strength did not mix the multiband in parallel");
+    check(near(valueOf(half,"deEsserRange"),.5f*valueOf(full,"deEsserRange"),.05f),"Half strength did not halve the de-esser range");
+    check(near(valueOf(half,"liveLimiterCeiling"),valueOf(full,"liveLimiterCeiling"),.01f),"Strength changed the output limiter");
+
+    // Locks: locked settings keep their values, their passes are skipped and
+    // reported in signal order, the unlocked rest matches the reference.
+    auto lockOptions=all;lockOptions.locks=Controller::lockInput|Controller::lockTone|Controller::lockCompressor|Controller::lockLimiter;
+    const auto locked=runLocked(lockOptions,[](ChimeraProcessor& p,Controller& c){
+        // A later edit to a locked setting survives UNDO AUTO.
+        auto* input=p.parameters().getParameter("input");input->setValueNotifyingHost(input->convertTo0to1(5.5f));
+        c.undo();check(near(get(p,"input"),5.5f,.01f),"Undo overwrote an edit to a locked setting");
+        auto* gate=p.parameters().getParameter("gateon");
+        check(gate->getValue()==gate->getDefaultValue(),"Undo did not restore the unlocked gate");
+    });
+    check(locked.status.phase==P::done,"Locked run did not complete");
+    // The gate lock also keeps the Gate 2 / Expander result step of the input pass.
+    {
+        auto gateOptions=all;gateOptions.gates=true;gateOptions.locks=Controller::lockGate;
+        const auto gated=runLocked(gateOptions);
+        const auto& gateSteps=gated.status.steps;
+        check(gated.status.phase==P::done && std::any_of(gateSteps.begin(),gateSteps.end(),[](const auto& s){return s.phase==P::gates && s.result=="kept (locked)" && !s.changed;}),
+              "Gate lock did not keep Gate 2 and the Expander");
+        for(const auto* id:{"gateon","gatethreshold","gateAfterRig","gateMode","gate2On","gate2Threshold","gate2RangeDb","expOn","expAfterRig","expThreshold","expRatio","expRangeDb"})
+            check(near(valueOf(gated,id),valueOf(defaults,id),1e-4f),std::string("Gate lock changed: ")+id);
+    }
+    check((locked.status.passes==std::vector<P>{P::input,P::multiband,P::finish}),"Locked passes were not skipped");
+    const auto& steps=locked.status.steps;
+    check(steps.size()==5 && steps[1].phase==P::tone && steps[2].phase==P::compressor && steps[1].result=="kept (locked)" && steps[2].result=="kept (locked)"
+          && !steps[1].changed && steps[0].result.contains("input kept (locked)") && steps[4].result.contains("limiter kept (locked)"),
+          "Locked passes are not reported in signal order");
+    for(const auto* id:{"input","cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompMix","liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})
+        check(near(valueOf(locked,id),valueOf(defaults,id),1e-4f),std::string("A locked setting changed: ")+id);
+    for(int b=0;b<spectralforge::graphicalEQBands;++b)for(const auto* field:{"enabled","frequency","gain","q","type"})
+        check(near(valueOf(locked,spectralforge::eqID(0,b,field)),valueOf(defaults,spectralforge::eqID(0,b,field)),1e-4f),"A locked Tone EQ band changed");
+    check(near(valueOf(locked,"gatethreshold"),std::round(std::clamp(valueOf(full,"gatethreshold")-inputFull,-90.f,-15.f)),.51f),
+          "Gate was not placed for the locked input gain");
+    check(near(valueOf(locked,"mbOn"),valueOf(full,"mbOn"),1e-4f) && near(valueOf(locked,"deEsserOn"),valueOf(full,"deEsserOn"),1e-4f)
+          && near(valueOf(locked,"deEsserRange"),valueOf(full,"deEsserRange"),1e-3f),"Unlocked stages differ from the reference run");
+
+    // Everything locked: nothing to run, nothing written.
+    {
+        auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);Controller c(*p);
+        auto o=all;for(const auto lock:Controller::lockOrder)o.locks|=lock;c.setOptions(o);
+        const auto before=values(*p);c.start();
+        check(!c.busy() && c.current().phase==P::failed && c.current().text.contains("locked") && values(*p)==before,"An all-locked run did not refuse cleanly");
+        o.strength=0;c.setOptions(o);check(near(c.currentOptions().strength,Controller::minimumStrength,1e-6f),"Strength below the minimum was accepted");
+        o.strength=std::numeric_limits<float>::quiet_NaN();c.setOptions(o);check(c.currentOptions().strength==1.f,"A non-finite strength was accepted");
+        p->releaseResources();
+    }
+    std::cout<<"PASS auto set locks and strength: "<<toneBands<<" Tone EQ moves halved, parallel comp/multiband mix, gate follows applied input, locked passes skipped and kept by undo\n";
+}
+
+void parameterEditNotifications() {
+    auto p=std::make_unique<ChimeraProcessor>();
+    auto* q=p->parameters().getParameter("input");
+    ParameterEdits edits(*q);
+    const auto original=q->getValue();
+    auto revision=edits.revision();
+    const float target=q->convertTo0to1(4.f);
+    check(edits.write(target,original,revision) && edits.unchanged(revision),"Auto Set's own notifications revoked ownership");
+    // Automation on another thread must not be hidden by a process-wide flag.
+    std::thread host([&]{q->setValueNotifyingHost(q->convertTo0to1(7.f));q->setValueNotifyingHost(target);});host.join();
+    check(!edits.unchanged(revision),"Host-thread A-B-A notifications were lost");
+    revision=edits.revision();
+    q->beginChangeGesture();
+    const auto touchedRevision=edits.revision();
+    check(!edits.write(original,target,touchedRevision),"An active user gesture was overwritten");
+    q->endChangeGesture();
+    check(!edits.unchanged(revision),"A same-value manual gesture was not an edit");
+    struct HostCallback final:juce::AudioProcessorListener {
+        std::function<void()> onBegin,onValue,onEnd;
+        void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+        void audioProcessorParameterChanged(juce::AudioProcessor*,int,float) override {if(onValue){auto f=std::move(onValue);onValue={};f();}}
+        void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int) override {if(onBegin){auto f=std::move(onBegin);onBegin={};f();}}
+        void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int) override {if(onEnd){auto f=std::move(onEnd);onEnd={};f();}}
+    } callback;
+    p->addListener(&callback);
+    const float hostValue=q->convertTo0to1(-3.f);
+    for(int when=0;when<3;++when) {
+        q->setValueNotifyingHost(original);revision=edits.revision();
+        auto action=[&]{q->setValueNotifyingHost(hostValue);};
+        if(when==0)callback.onBegin=action;else if(when==1)callback.onValue=action;else callback.onEnd=action;
+        check(!edits.write(target,original,revision) && q->getValue()==hostValue,"A reentrant host edit was overwritten or reclaimed");
+    }
+    p->removeListener(&callback);
+    // The added observer itself must not allocate in the host notification path.
+    allocations=0;counting=true;q->setValueNotifyingHost(original);counting=false;
+    check(allocations==0,"Parameter edit observation allocated on the audio thread");
+    std::cout<<"PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations\n";
+}
+
+void controllerEditHistory() {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    Controller c(*p);c.setOptions({1,false,Style::rock,false,false});
+    auto* input=p->parameters().getParameter("input");
+    auto* threshold=p->parameters().getParameter("cleanCompThreshold");
+    const float before=input->getValue();
+    const float gateBefore=get(*p,"gatethreshold");
+    double now=juce::Time::getMillisecondCounterHiRes();
+    DI di{48000,.126f,.00025f};std::vector<float> signal(48000*14);
+    for(auto& x:signal)x=di.next();
+    c.start();
+    // Manual A -> B -> A is still a user decision, even though its final
+    // value equals the snapshot. Host automation has the same notification path.
+    input->beginChangeGesture();
+    input->setValueNotifyingHost(input->convertTo0to1(3.f));
+    input->setValueNotifyingHost(before);input->endChangeGesture();
+    feedCapture(*p,c,signal,now);
+    check(c.current().phase==Controller::Phase::done,"Edit-history run did not finish");
+    check(input->getValue()==before,"Auto Set overwrote a manual A-B-A edit during listening");
+    check(get(*p,"gatethreshold")==gateBefore && c.current().text.contains("input edited while listening"),"Gate used a capture with changing input gain");
+    const float automated=threshold->getValue();
+    threshold->setValueNotifyingHost(threshold->convertTo0to1(-17.f));
+    threshold->setValueNotifyingHost(automated);
+    c.undo();
+    check(threshold->getValue()==automated,"Undo overwrote host automation that returned to Auto Set's value");
+    p->releaseResources();
+    std::cout<<"PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo\n";
+}
+
+
+// Keep these checks independent of the controller's touched-ID list: every
+// parameter in the user's locked stage (including manual-only controls) counts.
+bool inLockedStage(const juce::String& id,Controller::Lock lock) {
+    switch(lock) {
+        case Controller::lockInput:return id=="input";
+        case Controller::lockGate:return id.startsWith("gate") || id.startsWith("exp"); // the gate lock covers Gate 2 and the Expander
+        case Controller::lockTone:return id.startsWith("toneEQ_");
+        case Controller::lockCompressor:return id.startsWith("cleanComp");
+        case Controller::lockMultiband:return id.startsWith("mb");
+        case Controller::lockDeEsser:return id.startsWith("deEsser");
+        case Controller::lockLimiter:return id.startsWith("liveLimiter");
+    }
+    return false;
+}
+void controllerStrengthMatrix() {
+    const Controller::Options all{1,true,Style::rock,true,true,false};
+    const auto full=runLocked(all);
+    const LockRun defaults{full.before,{},{}};
+    check(valueOf(full,"mbOn")>.5f && valueOf(full,"deEsserOn")>.5f,"Strength matrix needs active positive controls");
+    for(float amount:{.25f,.5f,.75f,1.f}) {
+        auto o=all;o.strength=amount;const auto r=runLocked(o);
+        check(r.status.phase==Controller::Phase::done,"Strength matrix run incomplete");
+        const float input=valueOf(r,"input"),base=valueOf(defaults,"input"),maximum=valueOf(full,"input");
+        check(near(input,float(std::round((std::round(double(base)*100)+double(amount)*(std::round(double(maximum)*100)-std::round(double(base)*100)))/50)*.5),.01f),"Strength did not scale the input delta");
+        check(near(valueOf(r,"gatethreshold"),std::round(std::clamp(valueOf(full,"gatethreshold")+input-maximum,-90.f,-15.f)),.51f),"Gate did not follow scaled input");
+        for(const auto* id:{"gateon","gateRangeDb","cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompDetector","mbOn","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3","deEsserOn","deEsserFrequency","deEsserThreshold","deEsserAttack","deEsserRelease","deEsserRatio","deEsserKnee","liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})
+            check(near(valueOf(r,id),valueOf(full,id),.001f),std::string("Strength changed an unscaled control: ")+id);
+        check(near(valueOf(r,"cleanCompMix"),amount,.001f) && near(valueOf(r,"mbMix"),amount,.001f),"Parallel mix did not follow strength");
+        check(near(valueOf(r,"deEsserRange"),amount*valueOf(full,"deEsserRange"),.002f),"De-esser range did not follow strength");
+        int moves=0;
+        for(int b=0;b<spectralforge::graphicalEQBands;++b) {
+            const auto id=[&](const char* f){return spectralforge::eqID(0,b,f);};
+            for(const auto* f:{"enabled","type","frequency","q"})check(near(valueOf(r,id(f)),valueOf(full,id(f)),.001f),"Strength changed EQ shape or active nodes");
+            if(valueOf(full,id("enabled"))>.5f){++moves;check(near(valueOf(r,id("gain")),amount*valueOf(full,id("gain")),.002f),"Tone gain did not follow strength");}
+        }
+        check(moves>0,"Strength EQ checks were vacuous");
+        for(int b=0;b<4;++b)for(const auto* f:{"bypass","mode","threshold","range","ratio","attack","release","knee","makeup","solo"})
+            check(near(valueOf(r,spectralforge::multibandID(b,f)),valueOf(full,spectralforge::multibandID(b,f)),.001f),"Strength altered multiband settings instead of mix");
+    }
+    std::cout<<"PASS strength matrix: 25/50/75/100%, input/gate/EQ/comp/multiband/de-esser/limiter\n";
+}
+void controllerEveryLock() {
+    for(const auto lock:Controller::lockOrder)for(float amount:{.25f,.5f,.75f,1.f}) {
+        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock)};
+        std::vector<int> lockedIndices;std::vector<float> seeded;bool editedDuringRun=false;
+        const auto r=runLocked(o,[&](ChimeraProcessor& p,Controller& c){
+            auto applied=values(p);
+            for(int i:lockedIndices)check(applied[size_t(i)]==seeded[size_t(i)],"A locked stage changed during Auto Set");
+            // A host edit to every locked parameter is also outside Undo's scope.
+            for(int i:lockedIndices)p.getParameters()[i]->setValueNotifyingHost(.63f);
+            const auto automated=values(p);c.undo();const auto undone=values(p);
+            for(int i:lockedIndices)check(undone[size_t(i)]==automated[size_t(i)],"Undo changed a locked parameter's host edit");
+        },[&](ChimeraProcessor& p,Controller&){
+            for(auto* q:p.getParameters())if(auto* named=dynamic_cast<juce::AudioProcessorParameterWithID*>(q))
+                if(inLockedStage(named->paramID,lock)){lockedIndices.push_back(q->getParameterIndex());q->setValueNotifyingHost(.37f);}
+            seeded=values(p);
+        },[&](ChimeraProcessor& p,Controller&){
+            if(!editedDuringRun){for(int i:lockedIndices)p.getParameters()[i]->setValueNotifyingHost(.47f);seeded=values(p);editedDuringRun=true;}
+        });
+        check(!lockedIndices.empty() && r.status.phase==Controller::Phase::done,"Individual lock coverage did not run");
+    }
+    // Options changed during a run belong to the next run. Undo still uses the
+    // run snapshot, while a newly selected lock additionally protects its stage.
+    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone};
+    bool changed=false;
+    const auto baseline=runLocked(initial);
+    const auto edited=runLocked(initial,[&](ChimeraProcessor& p,Controller& c){
+        auto next=initial;next.locks=Controller::lockCompressor;c.setOptions(next);
+        const auto threshold=get(p,"cleanCompThreshold");c.undo();
+        check(get(p,"cleanCompThreshold")==threshold,"A newly locked stage was restored by Undo");
+    },{},[&](ChimeraProcessor&,Controller& c){if(!changed){auto next=initial;next.locks=127;next.strength=.25f;next.instrument=2;c.setOptions(next);changed=true;}});
+    check(baseline.values==edited.values && baseline.status.passes==edited.status.passes,"Changing options mutated an in-flight run");
+    std::cout<<"PASS all seven locks x four strengths: non-default values, host edits, undo, immutable run options, newly selected undo locks\n";
+}
+void controllerAttackLockRegression() {
+    int cases=0;
+    for(auto style:{Style::rock,Style::clean,Style::metal}) {
+        std::mt19937 random{417};auto attack=targetNoise(false,48000,6,random,style);
+        for(size_t n=0;n<attack.size();++n) {
+            const double t=double(n)/48000,cycle=std::fmod(t,.25);
+            const double pick=cycle<.008?.16*std::sin(2*juce::MathConstants<double>::pi*6000*t)*std::exp(-cycle*500):0;
+            attack[n]=float(attack[n]*std::exp(-cycle*45)+pick);
+        }
+        for(float amount:{.25f,.5f,.75f,1.f})for(unsigned finishLock:{0u,unsigned(Controller::lockDeEsser),unsigned(Controller::lockLimiter)}) {
+            const unsigned upstream=Controller::lockInput|Controller::lockGate|Controller::lockTone|Controller::lockCompressor|Controller::lockMultiband;
+            const auto r=runLocked({1,true,style,true,true,false,amount,upstream|finishLock},[&](ChimeraProcessor& p,Controller& c){
+                check(c.lastFinishAnalysis().playingDetected && c.lastFinishAnalysis().protectedAttackWindows>0 && !c.lastFinishAnalysis().deEsser,"Locks or strength regressed pick attack protection");
+                check(get(p,"deEsserOn")<.5f,"Protected attack enabled the de-esser");
+                c.undo();check(get(p,"deEsserOn")<.5f,"Undo altered the protected attack state");
+            },{},{},&attack);
+            check(r.status.phase==Controller::Phase::done,"Attack/lock regression did not finish");++cases;
+        }
+    }
+    std::cout<<"PASS attack/lock regression: "<<cases<<" controller cases, three styles x four strengths x de-esser/limiter lock modes\n";
+}
+// Phase 5 also consumes the input pass: mixed-gain evidence must not change
+// any gate stage, including when host automation returns to the original value.
+void controllerGateStageEditHistory() {
+    const std::vector<juce::String> gateIDs{
+        "gateon","gatethreshold","gateRangeDb","gateAfterRig","gateMode",
+        "gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
+        "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"};
+    int cases=0;
+    for(auto style:{Style::clean,Style::rock,Style::metal}) for(float amount:{.25f,.5f,.75f,1.f}) {
+        std::vector<float> control;
+        // 0 control; 1/2 manual/host input A-B-A; 3 Gate lock + host edits;
+        // 4 gate host A-B-A during capture; 5 after apply; 6 options during
+        // capture; 7 newly selected Undo lock; 8 input locked, gate free;
+        // 9 Gate lock without host edits (separate lock-only control).
+        for(int edit=0;edit<10;++edit) {
+            auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+            Controller c(*p);
+            Controller::Options options{1,false,style,false,false,true,amount,
+                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u};
+            c.setOptions(options);
+            auto gateValues=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
+            auto gateABA=[&] {
+                for(const auto& id:gateIDs) {
+                    auto* q=p->parameters().getParameter(id);const float original=q->getValue();
+                    q->setValueNotifyingHost(original<.5f?1.f:0.f);q->setValueNotifyingHost(original);
+                }
+            };
+            if(edit==3 || edit==9)for(const auto& id:gateIDs)p->parameters().getParameter(id)->setValueNotifyingHost(.37f);
+            const auto before=gateValues();auto preserved=before;
+            auto* input=p->parameters().getParameter("input");const float original=input->getValue();
+            double now=juce::Time::getMillisecondCounterHiRes();c.start();
+            for(int offset=0;offset<48000*14;offset+=256) {
+                float in[256],rig[256];
+                for(int n=0;n<256;++n) {
+                    const int sample=offset+n;const bool playing=sample%96000<72000;
+                    const float wave=std::sin(float(2*juce::MathConstants<double>::pi*1000*sample/48000.));
+                    in[n]=wave*(playing?.1f:.0001f);rig[n]=wave*(playing?.2f:.001f);
+                }
+                if(offset==256*500) {
+                    if(edit==1 || edit==2) {
+                        if(edit==1)input->beginChangeGesture();
+                        input->setValueNotifyingHost(input->convertTo0to1(3.f));input->setValueNotifyingHost(original);
+                        if(edit==1)input->endChangeGesture();
+                    } else if(edit==3) {
+                        for(const auto& id:gateIDs)p->parameters().getParameter(id)->setValueNotifyingHost(.47f);
+                        preserved=gateValues();
+                    } else if(edit==4){gateABA();preserved=gateValues();}
+                    else if(edit==6) {
+                        auto next=options;next.gates=false;next.strength=amount==1.f?.25f:1.f;
+                        next.locks=Controller::lockGate;c.setOptions(next);
+                    }
+                }
+                const float* ins[]{in};const float* rigs[]{rig};
+                for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
+                p->autoSetCapture().push(Tap::rig,rigs,1,256);
+                now+=1000.*256/48000.;c.tick(now);
+            }
+            check(c.current().phase==Controller::Phase::done,"Gate-stage matrix did not finish");
+            const auto applied=gateValues();
+            if(edit==1 || edit==2 || edit==3 || edit==4 || edit==9) {
+                check(applied==preserved,"Gate-stage apply overwrote input/gate edits or a Gate lock");
+                if(edit==1 || edit==2)check(input->getValue()==original,"Input A-B-A was overwritten");
+                if(edit==3 || edit==9)check(std::any_of(c.current().steps.begin(),c.current().steps.end(),
+                    [](const auto& s){return s.phase==Controller::Phase::gates && s.result=="kept (locked)" && !s.changed;}),
+                    "Gate lock was not reported as kept");
+            } else {
+                check(applied!=before && c.lastGateAnalysis().measured,"Gate-stage control did not apply measured evidence");
+                const bool hard=style==Style::metal;
+                check(get(*p,hard?"gate2On":"expOn")>.5f,"Gate-stage fixture did not exercise its hard/soft plan");
+                // The fixed signal has a -80 dBFS noise peak: the opening
+                // threshold is nine dB above it, at the ACTUAL input gain.
+                // Gate threshold is integer dB, so allow half a dB quantisation.
+                const float opening=get(*p,hard?"gatethreshold":"expThreshold");
+                check(near(opening,-71.f+get(*p,"input"),.51f),"Gate stages ignored the applied input gain");
+                check(near(get(*p,hard?"gate2RangeDb":"expRangeDb"),hard?18.f:15.f,.01f),
+                    "Strength weakened the gate-stage protection range");
+                if(hard)check(near(get(*p,"gate2Threshold"),opening-6.f,.01f),"Gate 2 threshold lost its main-gate offset");
+                if(edit==0)control=applied;
+                if(edit==6)check(applied==control,"Mid-run options changed the active gate plan");
+                if(edit==8)check(input->getValue()==original,"Locked input gain was changed");
+            }
+            if(edit==5)gateABA();
+            const auto undoProtected=gateValues();
+            if(edit==7){auto next=options;next.locks=Controller::lockGate;c.setOptions(next);}
+            c.undo();
+            const auto afterUndo=gateValues();
+            if(edit==5 || edit==6 || edit==7)
+                check(afterUndo==undoProtected,"Undo overwrote a newer host edit or newly selected Gate lock");
+            else if(edit==1 || edit==2 || edit==3 || edit==4 || edit==9)
+                check(afterUndo==preserved,"Undo changed preserved gate-stage values");
+            else for(size_t i=0;i<before.size();++i)
+                check(near(afterUndo[i],before[i],.001f),"Gate-stage Undo changed "+gateIDs[i].toStdString());
+            p->releaseResources();++cases;
+        }
+    }
+    std::cout<<"PASS gate-stage matrix: "<<cases<<" cases, three styles x four strengths x ten ownership/option modes; 21 gate parameters\n";
+}
+
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         check(argc==1,"Unknown argument");
-        analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();captureWindows();controllerFinishPreservation();controllerIntegration();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

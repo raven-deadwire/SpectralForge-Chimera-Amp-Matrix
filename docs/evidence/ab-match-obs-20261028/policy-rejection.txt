@@ -1,0 +1,1 @@
+PASS unacknowledged VST3 rejected before prepare/process: Chimera VST3 does not support capture safety. Update the Chimera VST3 and OBS add-on together; MATCH output protection could not be confirmed.

@@ -3,6 +3,7 @@
 #include "FactoryNativeVoicing.h"
 #include "FactoryCabVoicing.h"
 #include "PresetOrder.h"
+#include "ParamIndex.h"
 #include <iostream>
 #include <stdexcept>
 #include <iomanip>
@@ -324,6 +325,12 @@ void factoryCabContract(ChimeraProcessor& processor,int index,bool rendered=fals
     const bool dryGuitar=index==36||index==37;
     if(dryBass||dryGuitar)require(mode==2 && value("lowampmix")==0.f,"Factory CAB voicing changed the exact Matrix LOW dry path");
     OriginalCabParameters modeled;modeled.bind(processor.parameters());
+    // The key warmed for the inactive A/B slot, from a saved state, matches
+    // the key the audio thread requests for the same values.
+    const ParamIndex saved(processor.parameters().copyState());
+    const auto savedValue=[&](const juce::String& id){return float(saved[id].getProperty("value"));};
+    for(int lane=0;lane<3;++lane)for(int slot=0;slot<2;++slot)
+        require(OriginalCabParameters::savedKey(lane,slot,savedValue)==modeled.read(lane,slot),"Saved-state CAB model key differs from the live request");
     for(int lane=0;lane<3;++lane) {
         const auto suffix=juce::String(lane+1);
         const bool active=lane<lanes && !(lane==0 && (dryBass||dryGuitar));

@@ -1,0 +1,42 @@
+{
+  "legacy_engine_normalization_preserved": {
+    "pass": true,
+    "detail": "unchanged 0 / 0.5 / 1 mapping for product / v2 / v3; v4 uses a new opt-in bool"
+  },
+  "plugin": "Chimera Transpose Research 0.0.1 (VST3)",
+  "io": "2in/2out",
+  "fixed_block_128_bit_identical": {
+    "pass": true,
+    "detail": 0.0
+  },
+  "reported_latency": {
+    "pass": true,
+    "detail": "0 samples (expected 0)"
+  },
+  "variable_blocks_1_512_bit_identical": {
+    "pass": true,
+    "detail": 0.0
+  },
+  "large_block_max_abs_diff": {
+    "1024": 0.0,
+    "2048": 0.0,
+    "4096": 0.0
+  },
+  "reprepare_bit_identical": {
+    "pass": true,
+    "detail": 0.0
+  },
+  "state_round_trip_bit_identical": {
+    "pass": true,
+    "detail": 0.0
+  },
+  "legacy_state_without_v4_option": {
+    "pass": true,
+    "detail": 0.0
+  },
+  "automation_finite_bounded": {
+    "pass": true,
+    "detail": "peak 0.25362 vs input 0.25459"
+  },
+  "all_hard_checks_pass": true
+}

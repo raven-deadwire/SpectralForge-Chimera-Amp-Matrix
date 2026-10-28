@@ -1,0 +1,1524 @@
+{
+  "base_pr_head": "d1804e301754584545ac530e2769f6a72e84611a",
+  "cases": 27,
+  "failures": 0,
+  "summary": [
+    {
+      "sample_rate": 44100,
+      "cases": 9,
+      "failures": 0,
+      "reimport_max_magnitude_db": 0.00132132,
+      "reimport_max_phase_deg": 0.00785772,
+      "reimport_max_impulse_peak_shift_samples": 0.0,
+      "reimport_max_rms_level_difference_db": 1.89845e-05,
+      "worst_relative_null_db": -91.4022
+    },
+    {
+      "sample_rate": 48000,
+      "cases": 9,
+      "failures": 0,
+      "reimport_max_magnitude_db": 0.00551817,
+      "reimport_max_phase_deg": 0.0311329,
+      "reimport_max_impulse_peak_shift_samples": 0.0,
+      "reimport_max_rms_level_difference_db": 4.84044e-05,
+      "worst_relative_null_db": -89.2159
+    },
+    {
+      "sample_rate": 96000,
+      "cases": 9,
+      "failures": 0,
+      "reimport_max_magnitude_db": 0.00855176,
+      "reimport_max_phase_deg": 0.234426,
+      "reimport_max_impulse_peak_shift_samples": 0.0,
+      "reimport_max_rms_level_difference_db": 0.000153017,
+      "worst_relative_null_db": -78.0346
+    }
+  ],
+  "measurements": [
+    {
+      "rate": 44100,
+      "comparison": "44100/case0/lane0/block64/live-offline",
+      "null_db": -129.433,
+      "level_db": 2.17831e-07,
+      "magnitude_db": 0.000842806,
+      "phase_deg": 0.00521617,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case0/lane0/block64/noise",
+      "null_db": -133.367,
+      "level_db": 2.81953e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case0/lane0/block64/live-wav",
+      "null_db": -129.432,
+      "level_db": 2.17831e-07,
+      "magnitude_db": 0.000820029,
+      "phase_deg": 0.00491492,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case0/lane0/block64/reload",
+      "null_db": -128.7,
+      "level_db": 7.84272e-07,
+      "magnitude_db": 0.000849018,
+      "phase_deg": 0.00590035,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case0/lane0/block64/reload-noise",
+      "null_db": -91.4067,
+      "level_db": 1.78653e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case0/lane0/block64/history",
+      "null_db": -293.201,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case1/lane1/block257/live-offline",
+      "null_db": -134.516,
+      "level_db": 6.81629e-07,
+      "magnitude_db": 0.000935052,
+      "phase_deg": 0.00434717,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case1/lane1/block257/noise",
+      "null_db": -139.598,
+      "level_db": 3.05301e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case1/lane1/block257/live-wav",
+      "null_db": -134.514,
+      "level_db": 6.81629e-07,
+      "magnitude_db": 0.000894665,
+      "phase_deg": 0.0039788,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case1/lane1/block257/reload",
+      "null_db": -133.313,
+      "level_db": 1.3562e-07,
+      "magnitude_db": 0.00132132,
+      "phase_deg": 0.0065931,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case1/lane1/block257/reload-noise",
+      "null_db": -97.9396,
+      "level_db": 9.11154e-06,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case1/lane1/block257/history",
+      "null_db": -144.543,
+      "level_db": 1.87562e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case2/lane2/block1024/live-offline",
+      "null_db": -132.863,
+      "level_db": 6.1268e-07,
+      "magnitude_db": 0.000679274,
+      "phase_deg": 0.00381828,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case2/lane2/block1024/noise",
+      "null_db": -130.426,
+      "level_db": 9.75187e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case2/lane2/block1024/live-wav",
+      "null_db": -132.862,
+      "level_db": 6.1268e-07,
+      "magnitude_db": 0.000704127,
+      "phase_deg": 0.00446828,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case2/lane2/block1024/reload",
+      "null_db": -131.741,
+      "level_db": 1.63492e-07,
+      "magnitude_db": 0.000742959,
+      "phase_deg": 0.00519889,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case2/lane2/block1024/reload-noise",
+      "null_db": -98.1705,
+      "level_db": 1.89845e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case2/lane2/block1024/history",
+      "null_db": -292.202,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case3/lane0/block64/live-offline",
+      "null_db": -131.43,
+      "level_db": 6.19658e-07,
+      "magnitude_db": 0.000721213,
+      "phase_deg": 0.0058899,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case3/lane0/block64/noise",
+      "null_db": -132.174,
+      "level_db": 2.59598e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case3/lane0/block64/live-wav",
+      "null_db": -131.426,
+      "level_db": 6.19658e-07,
+      "magnitude_db": 0.000639878,
+      "phase_deg": 0.00493533,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case3/lane0/block64/reload",
+      "null_db": -130.295,
+      "level_db": 1.41214e-07,
+      "magnitude_db": 0.000791039,
+      "phase_deg": 0.00730418,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case3/lane0/block64/reload-noise",
+      "null_db": -93.0555,
+      "level_db": 5.35698e-06,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case3/lane0/block64/history",
+      "null_db": -290.388,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case4/lane1/block257/live-offline",
+      "null_db": -131.241,
+      "level_db": 8.76749e-07,
+      "magnitude_db": 0.000757908,
+      "phase_deg": 0.00453774,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case4/lane1/block257/noise",
+      "null_db": -137.633,
+      "level_db": 4.52163e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case4/lane1/block257/live-wav",
+      "null_db": -131.229,
+      "level_db": 8.76749e-07,
+      "magnitude_db": 0.000815887,
+      "phase_deg": 0.0053833,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case4/lane1/block257/reload",
+      "null_db": -130.073,
+      "level_db": 1.32542e-06,
+      "magnitude_db": 0.00124365,
+      "phase_deg": 0.00785772,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case4/lane1/block257/reload-noise",
+      "null_db": -92.3091,
+      "level_db": 1.01957e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case4/lane1/block257/restore",
+      "null_db": -130.073,
+      "level_db": 1.32542e-06,
+      "magnitude_db": 0.00124365,
+      "phase_deg": 0.00785772,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case4/lane1/block257/history",
+      "null_db": -141.275,
+      "level_db": 3.39517e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case5/lane2/block1024/live-offline",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case5/lane2/block1024/noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case5/lane2/block1024/live-wav",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case5/lane2/block1024/reload",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case5/lane2/block1024/reload-noise",
+      "null_db": -136.675,
+      "level_db": 4.34576e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case5/lane2/block1024/history",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case6/lane0/block64/live-offline",
+      "null_db": -126.847,
+      "level_db": 4.76647e-07,
+      "magnitude_db": 0.000942198,
+      "phase_deg": 0.00533948,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case6/lane0/block64/noise",
+      "null_db": -131.433,
+      "level_db": 1.23179e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case6/lane0/block64/live-wav",
+      "null_db": -126.849,
+      "level_db": 4.76647e-07,
+      "magnitude_db": 0.000996035,
+      "phase_deg": 0.00607287,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case6/lane0/block64/reload",
+      "null_db": -126.619,
+      "level_db": 1.80589e-07,
+      "magnitude_db": 0.000980505,
+      "phase_deg": 0.00684813,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case6/lane0/block64/reload-noise",
+      "null_db": -93.2919,
+      "level_db": 3.80747e-06,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case6/lane0/block64/history",
+      "null_db": -286.317,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case7/lane1/block257/live-offline",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case7/lane1/block257/noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case7/lane1/block257/live-wav",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case7/lane1/block257/reload",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case7/lane1/block257/reload-noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case7/lane1/block257/history",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case8/lane2/block1024/live-offline",
+      "null_db": -134.697,
+      "level_db": 2.29053e-07,
+      "magnitude_db": 0.000792665,
+      "phase_deg": 0.00439451,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case8/lane2/block1024/noise",
+      "null_db": -132.911,
+      "level_db": 1.08434e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case8/lane2/block1024/live-wav",
+      "null_db": -134.695,
+      "level_db": 2.29053e-07,
+      "magnitude_db": 0.000756421,
+      "phase_deg": 0.00439451,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case8/lane2/block1024/reload",
+      "null_db": -132.467,
+      "level_db": 4.22496e-07,
+      "magnitude_db": 0.00103291,
+      "phase_deg": 0.00674023,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case8/lane2/block1024/reload-noise",
+      "null_db": -91.4022,
+      "level_db": 1.78201e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 44100,
+      "comparison": "44100/case8/lane2/block1024/history",
+      "null_db": -293.201,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case0/lane0/block64/live-offline",
+      "null_db": -113.804,
+      "level_db": 7.64399e-07,
+      "magnitude_db": 0.00389031,
+      "phase_deg": 0.0164895,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case0/lane0/block64/noise",
+      "null_db": -132.982,
+      "level_db": 8.52902e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case0/lane0/block64/live-wav",
+      "null_db": -113.804,
+      "level_db": 7.64399e-07,
+      "magnitude_db": 0.00391411,
+      "phase_deg": 0.0172011,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case0/lane0/block64/reload",
+      "null_db": -113.788,
+      "level_db": 1.21723e-06,
+      "magnitude_db": 0.00384373,
+      "phase_deg": 0.0158727,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case0/lane0/block64/reload-noise",
+      "null_db": -89.2193,
+      "level_db": 4.83393e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case0/lane0/block64/history",
+      "null_db": -292.867,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case1/lane1/block257/live-offline",
+      "null_db": -142.85,
+      "level_db": 3.02949e-08,
+      "magnitude_db": 0.000632676,
+      "phase_deg": 0.00464034,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case1/lane1/block257/noise",
+      "null_db": -139.339,
+      "level_db": 1.20215e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case1/lane1/block257/live-wav",
+      "null_db": -142.84,
+      "level_db": 3.02949e-08,
+      "magnitude_db": 0.000693772,
+      "phase_deg": 0.00502784,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case1/lane1/block257/reload",
+      "null_db": -135.598,
+      "level_db": 4.74496e-07,
+      "magnitude_db": 0.000863081,
+      "phase_deg": 0.00837796,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case1/lane1/block257/reload-noise",
+      "null_db": -94.6261,
+      "level_db": 2.18034e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case1/lane1/block257/history",
+      "null_db": -143.856,
+      "level_db": 1.42368e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case2/lane2/block1024/live-offline",
+      "null_db": -132.127,
+      "level_db": 3.72249e-07,
+      "magnitude_db": 0.0011182,
+      "phase_deg": 0.00731048,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case2/lane2/block1024/noise",
+      "null_db": -129.777,
+      "level_db": 1.19544e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case2/lane2/block1024/live-wav",
+      "null_db": -132.126,
+      "level_db": 3.72249e-07,
+      "magnitude_db": 0.00115651,
+      "phase_deg": 0.00741047,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case2/lane2/block1024/reload",
+      "null_db": -130.828,
+      "level_db": 7.34607e-07,
+      "magnitude_db": 0.00102917,
+      "phase_deg": 0.00749019,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case2/lane2/block1024/reload-noise",
+      "null_db": -96.9167,
+      "level_db": 7.91855e-06,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case2/lane2/block1024/history",
+      "null_db": -292.41,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case3/lane0/block64/live-offline",
+      "null_db": -116.046,
+      "level_db": 1.39268e-07,
+      "magnitude_db": 0.00415008,
+      "phase_deg": 0.0297675,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case3/lane0/block64/noise",
+      "null_db": -131.648,
+      "level_db": 1.24427e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case3/lane0/block64/live-wav",
+      "null_db": -116.046,
+      "level_db": 1.39268e-07,
+      "magnitude_db": 0.00415215,
+      "phase_deg": 0.0296598,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case3/lane0/block64/reload",
+      "null_db": -116.023,
+      "level_db": 4.97351e-07,
+      "magnitude_db": 0.00414077,
+      "phase_deg": 0.0297432,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case3/lane0/block64/reload-noise",
+      "null_db": -91.8364,
+      "level_db": 1.85213e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case3/lane0/block64/history",
+      "null_db": -289.565,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case4/lane1/block257/live-offline",
+      "null_db": -128.361,
+      "level_db": 1.1384e-07,
+      "magnitude_db": 0.00083305,
+      "phase_deg": 0.00505608,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case4/lane1/block257/noise",
+      "null_db": -137.12,
+      "level_db": 1.63322e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case4/lane1/block257/live-wav",
+      "null_db": -128.359,
+      "level_db": 1.1384e-07,
+      "magnitude_db": 0.000911234,
+      "phase_deg": 0.00505608,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case4/lane1/block257/reload",
+      "null_db": -127.81,
+      "level_db": 3.9414e-07,
+      "magnitude_db": 0.000870848,
+      "phase_deg": 0.00544893,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case4/lane1/block257/reload-noise",
+      "null_db": -91.0355,
+      "level_db": 2.52219e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case4/lane1/block257/restore",
+      "null_db": -127.81,
+      "level_db": 3.9414e-07,
+      "magnitude_db": 0.000870848,
+      "phase_deg": 0.00544893,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case4/lane1/block257/history",
+      "null_db": -140.75,
+      "level_db": 2.64418e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case5/lane2/block1024/live-offline",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case5/lane2/block1024/noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case5/lane2/block1024/live-wav",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case5/lane2/block1024/reload",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case5/lane2/block1024/reload-noise",
+      "null_db": -136.675,
+      "level_db": 4.34576e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case5/lane2/block1024/history",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case6/lane0/block64/live-offline",
+      "null_db": -116.047,
+      "level_db": 1.36152e-07,
+      "magnitude_db": 0.00536502,
+      "phase_deg": 0.0311643,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case6/lane0/block64/noise",
+      "null_db": -131.254,
+      "level_db": 1.0062e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case6/lane0/block64/live-wav",
+      "null_db": -116.047,
+      "level_db": 1.36152e-07,
+      "magnitude_db": 0.00533087,
+      "phase_deg": 0.0312305,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case6/lane0/block64/reload",
+      "null_db": -116.023,
+      "level_db": 5.00871e-07,
+      "magnitude_db": 0.00551817,
+      "phase_deg": 0.0311329,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case6/lane0/block64/reload-noise",
+      "null_db": -92.8845,
+      "level_db": 1.73784e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case6/lane0/block64/history",
+      "null_db": -286.112,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case7/lane1/block257/live-offline",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case7/lane1/block257/noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case7/lane1/block257/live-wav",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case7/lane1/block257/reload",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case7/lane1/block257/reload-noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case7/lane1/block257/history",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case8/lane2/block1024/live-offline",
+      "null_db": -134.626,
+      "level_db": 2.03338e-07,
+      "magnitude_db": 0.00076412,
+      "phase_deg": 0.00473433,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case8/lane2/block1024/noise",
+      "null_db": -132.557,
+      "level_db": 1.097e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case8/lane2/block1024/live-wav",
+      "null_db": -134.625,
+      "level_db": 2.03338e-07,
+      "magnitude_db": 0.000751696,
+      "phase_deg": 0.00427387,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case8/lane2/block1024/reload",
+      "null_db": -132.611,
+      "level_db": 3.51753e-07,
+      "magnitude_db": 0.00101841,
+      "phase_deg": 0.00699538,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case8/lane2/block1024/reload-noise",
+      "null_db": -89.2159,
+      "level_db": 4.84044e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 48000,
+      "comparison": "48000/case8/lane2/block1024/history",
+      "null_db": -292.867,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case0/lane0/block64/live-offline",
+      "null_db": -108.944,
+      "level_db": 8.21961e-07,
+      "magnitude_db": 0.0048643,
+      "phase_deg": 0.0701087,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case0/lane0/block64/noise",
+      "null_db": -129.349,
+      "level_db": 1.37267e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case0/lane0/block64/live-wav",
+      "null_db": -108.944,
+      "level_db": 8.21961e-07,
+      "magnitude_db": 0.00486844,
+      "phase_deg": 0.0699135,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case0/lane0/block64/reload",
+      "null_db": -108.938,
+      "level_db": 4.06783e-07,
+      "magnitude_db": 0.00503576,
+      "phase_deg": 0.0677831,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case0/lane0/block64/reload-noise",
+      "null_db": -78.0346,
+      "level_db": 0.000153017,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case0/lane0/block64/history",
+      "null_db": -289.868,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case1/lane1/block257/live-offline",
+      "null_db": -139.716,
+      "level_db": 4.92821e-08,
+      "magnitude_db": 0.000435931,
+      "phase_deg": 0.00257021,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case1/lane1/block257/noise",
+      "null_db": -134.105,
+      "level_db": 1.24615e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case1/lane1/block257/live-wav",
+      "null_db": -139.715,
+      "level_db": 4.92821e-08,
+      "magnitude_db": 0.000435931,
+      "phase_deg": 0.00274402,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case1/lane1/block257/reload",
+      "null_db": -135.158,
+      "level_db": 2.85165e-07,
+      "magnitude_db": 0.00042659,
+      "phase_deg": 0.00407281,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case1/lane1/block257/reload-noise",
+      "null_db": -83.0658,
+      "level_db": 6.30177e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case1/lane1/block257/history",
+      "null_db": -136.79,
+      "level_db": 1.45944e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case2/lane2/block1024/live-offline",
+      "null_db": -125.696,
+      "level_db": 1.24012e-06,
+      "magnitude_db": 0.00106916,
+      "phase_deg": 0.00772675,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case2/lane2/block1024/noise",
+      "null_db": -124.339,
+      "level_db": 5.77302e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case2/lane2/block1024/live-wav",
+      "null_db": -125.696,
+      "level_db": 1.24012e-06,
+      "magnitude_db": 0.00107382,
+      "phase_deg": 0.00768042,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case2/lane2/block1024/reload",
+      "null_db": -125.069,
+      "level_db": 1.71512e-06,
+      "magnitude_db": 0.0011608,
+      "phase_deg": 0.00891594,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case2/lane2/block1024/reload-noise",
+      "null_db": -84.8672,
+      "level_db": 4.56657e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case2/lane2/block1024/history",
+      "null_db": -292.244,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case3/lane0/block64/live-offline",
+      "null_db": -107.757,
+      "level_db": 1.7292e-07,
+      "magnitude_db": 0.00482597,
+      "phase_deg": 0.0410472,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case3/lane0/block64/noise",
+      "null_db": -127.943,
+      "level_db": 2.09434e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case3/lane0/block64/live-wav",
+      "null_db": -107.757,
+      "level_db": 1.7292e-07,
+      "magnitude_db": 0.00482908,
+      "phase_deg": 0.0410985,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case3/lane0/block64/reload",
+      "null_db": -107.752,
+      "level_db": 4.91415e-07,
+      "magnitude_db": 0.00483529,
+      "phase_deg": 0.0411748,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case3/lane0/block64/reload-noise",
+      "null_db": -79.5108,
+      "level_db": 7.86676e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case3/lane0/block64/history",
+      "null_db": -290.885,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case4/lane1/block257/live-offline",
+      "null_db": -121.284,
+      "level_db": 4.62806e-08,
+      "magnitude_db": 0.000696822,
+      "phase_deg": 0.00452961,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case4/lane1/block257/noise",
+      "null_db": -132.914,
+      "level_db": 4.61875e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case4/lane1/block257/live-wav",
+      "null_db": -121.282,
+      "level_db": 4.62806e-08,
+      "magnitude_db": 0.000729954,
+      "phase_deg": 0.00415369,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case4/lane1/block257/reload",
+      "null_db": -121.15,
+      "level_db": 5.29968e-07,
+      "magnitude_db": 0.000831418,
+      "phase_deg": 0.00599888,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case4/lane1/block257/reload-noise",
+      "null_db": -79.3086,
+      "level_db": 8.1805e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case4/lane1/block257/restore",
+      "null_db": -121.15,
+      "level_db": 5.29968e-07,
+      "magnitude_db": 0.000831418,
+      "phase_deg": 0.00599888,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case4/lane1/block257/history",
+      "null_db": -135.731,
+      "level_db": 3.06261e-08,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case5/lane2/block1024/live-offline",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case5/lane2/block1024/noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case5/lane2/block1024/live-wav",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case5/lane2/block1024/reload",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case5/lane2/block1024/reload-noise",
+      "null_db": -136.675,
+      "level_db": 4.34576e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case5/lane2/block1024/history",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case6/lane0/block64/live-offline",
+      "null_db": -105.497,
+      "level_db": 3.10171e-07,
+      "magnitude_db": 0.0085502,
+      "phase_deg": 0.234172,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case6/lane0/block64/noise",
+      "null_db": -126.543,
+      "level_db": 3.03658e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case6/lane0/block64/live-wav",
+      "null_db": -105.497,
+      "level_db": 3.10171e-07,
+      "magnitude_db": 0.00854813,
+      "phase_deg": 0.234151,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case6/lane0/block64/reload",
+      "null_db": -105.493,
+      "level_db": 5.51883e-07,
+      "magnitude_db": 0.00855176,
+      "phase_deg": 0.234426,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case6/lane0/block64/reload-noise",
+      "null_db": -79.746,
+      "level_db": 6.46935e-05,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case6/lane0/block64/history",
+      "null_db": -286.927,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case7/lane1/block257/live-offline",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case7/lane1/block257/noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case7/lane1/block257/live-wav",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case7/lane1/block257/reload",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case7/lane1/block257/reload-noise",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case7/lane1/block257/history",
+      "null_db": -300.0,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case8/lane2/block1024/live-offline",
+      "null_db": -130.637,
+      "level_db": 6.8477e-08,
+      "magnitude_db": 0.000799395,
+      "phase_deg": 0.00369392,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case8/lane2/block1024/noise",
+      "null_db": -129.286,
+      "level_db": 1.52792e-07,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case8/lane2/block1024/live-wav",
+      "null_db": -130.636,
+      "level_db": 6.8477e-08,
+      "magnitude_db": 0.000769883,
+      "phase_deg": 0.00369392,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case8/lane2/block1024/reload",
+      "null_db": -129.533,
+      "level_db": 4.66747e-07,
+      "magnitude_db": 0.00109401,
+      "phase_deg": 0.00528493,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case8/lane2/block1024/reload-noise",
+      "null_db": -78.035,
+      "level_db": 0.000152976,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    },
+    {
+      "rate": 96000,
+      "comparison": "96000/case8/lane2/block1024/history",
+      "null_db": -289.868,
+      "level_db": 0.0,
+      "magnitude_db": 0.0,
+      "phase_deg": 0.0,
+      "delay_samples": 0.0
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2026 RavenForge Luthier Intelligence
 #include "chimera-host.hpp"
+#include "capture-host-application.hpp"
 
 #include "pluginterfaces/base/funknownimpl.h"
 #include "pluginterfaces/gui/iplugview.h"
@@ -72,7 +73,7 @@ bool fill(MemoryStream& stream, const std::vector<std::uint8_t>& bytes) {
 
 struct ChimeraHost::Impl {
     VST3::Hosting::Module::Ptr module;
-    IPtr<HostApplication> hostApplication = owned(new HostApplication());
+    IPtr<CaptureHostApplication> hostApplication;
     IPtr<ComponentHandler> handler = owned(new ComponentHandler());
     IPtr<IComponent> component;
     IPtr<IEditController> controller;
@@ -105,10 +106,13 @@ ChimeraHost::~ChimeraHost() { unload(); }
 bool ChimeraHost::load(const std::string& bundlePath, std::string& error) {
     unload();
     auto& m = *impl;
+    // A fresh acknowledgement per load: a previous compatible bundle must not
+    // authorize a different or older plugin on reload.
+    m.hostApplication = owned(new CaptureHostApplication());
     m.module = loadModule(bundlePath, error);
     if (!m.module) { if (error.empty()) error = "VST3 module could not be loaded"; return false; }
     const auto& factory = m.module->getFactory();
-    factory.setHostContext(m.hostApplication);
+    factory.setHostContext(static_cast<HostApplication*>(m.hostApplication.get()));
     const VST3::Hosting::ClassInfo* found = nullptr;
     const auto classes = factory.classInfos();
     for (const auto& info : classes)
@@ -117,7 +121,7 @@ bool ChimeraHost::load(const std::string& bundlePath, std::string& error) {
     m.identity = {bundlePath, found->name(), found->vendor(), found->version(), found->sdkVersion()};
 
     m.component = factory.createInstance<IComponent>(found->ID());
-    if (!m.component || m.component->initialize(m.hostApplication) != kResultOk) {
+    if (!m.component || m.component->initialize(static_cast<HostApplication*>(m.hostApplication.get())) != kResultOk) {
         error = "Chimera component failed to initialize"; m.component = nullptr; unload(); return false;
     }
     m.processor = U::cast<IAudioProcessor>(m.component);
@@ -125,7 +129,7 @@ bool ChimeraHost::load(const std::string& bundlePath, std::string& error) {
     if (m.component->getControllerClassId(controllerId) == kResultTrue) {
         m.controller = factory.createInstance<IEditController>(VST3::UID::fromTUID(controllerId));
         m.separateController = m.controller != nullptr;
-        if (m.controller && m.controller->initialize(m.hostApplication) != kResultOk) m.controller = nullptr;
+        if (m.controller && m.controller->initialize(static_cast<HostApplication*>(m.hostApplication.get())) != kResultOk) m.controller = nullptr;
     }
     if (!m.controller) { m.controller = U::cast<IEditController>(m.component); m.separateController = false; }
     if (!m.processor || !m.controller) { error = "Chimera does not expose an audio processor and controller"; unload(); return false; }
@@ -140,6 +144,10 @@ bool ChimeraHost::load(const std::string& bundlePath, std::string& error) {
             m.componentConnection->connect(controllerPoint);
             m.controllerConnection->connect(componentPoint);
         }
+    }
+    if (!m.hostApplication->capturePolicyAcknowledged()) {
+        error = "Chimera VST3 does not support capture safety. Update the Chimera VST3 and OBS add-on together; MATCH output protection could not be confirmed.";
+        unload();return false;
     }
     // A DAW host synchronises the controller with the processor's state.
     MemoryStream state;

@@ -81,6 +81,19 @@ struct OriginalCabParameters {
             layouts[lane][2]=state.getRawParameterValue(cabLayoutID(lane,"Bunit"));
         }
     }
+    // The model a saved state asks for on one mic, from its parameter values
+    // by ID (`get`), with the same fields as read(). Message thread: used to
+    // warm the IR cache for the A/B slot that is not playing.
+    template<class Get> static uint64_t savedKey(int lane,int slot,Get get) {
+        const juce::String mic=slot ? "B" : "A";
+        const auto value=[&](const juce::String& id){return float(get(id));};
+        if(value(originalCabID(lane,(mic+"on").toRawUTF8()))<.5f)return 0;
+        return cabLayout::key({{{true,int(value(originalCabID(lane,"design"))),int(value(originalCabID(lane,"rear"))),
+            int(value(originalCabID(lane,(mic+"mic").toRawUTF8()))),int(value(originalCabID(lane,(mic+"unit").toRawUTF8()))),
+            value(originalCabID(lane,"tweeter")),value(originalCabID(lane,(mic+"position").toRawUTF8())),value(originalCabID(lane,(mic+"distance").toRawUTF8()))},
+            int(value(cabExpansionID(lane,"driver"))),int(value(cabExpansionID(lane,(mic+"mic").toRawUTF8()))),int(value(cabExpansionID(lane,"tweeter")))},
+            int(value(cabLayoutID(lane,"layout"))),int(value(cabLayoutID(lane,(mic+"unit").toRawUTF8())))});
+    }
     uint64_t read(int lane,int slot) const noexcept {
         const auto& v=values[lane];const int offset=slot ? 8 : 3;
         if(v[offset]->load()<.5f)return 0;

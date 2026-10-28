@@ -1,0 +1,21 @@
+Test project /workspace/scratch/4b62b0edff83/chimera/build-obs-capture
+    Start 1: chimera-obs-bridge-tests
+1/5 Test #1: chimera-obs-bridge-tests .........   Passed    0.00 sec
+    Start 2: chimera-obs-stats-tests
+2/5 Test #2: chimera-obs-stats-tests ..........   Passed    0.00 sec
+    Start 3: chimera-obs-base64-tests
+3/5 Test #3: chimera-obs-base64-tests .........   Passed    0.00 sec
+    Start 4: chimera-obs-host-tests
+4/5 Test #4: chimera-obs-host-tests ...........   Passed    7.46 sec
+    Start 5: chimera-obs-filter-tests
+5/5 Test #5: chimera-obs-filter-tests .........***Failed    0.03 sec
+FAIL obs_startup
+
+
+80% tests passed, 1 tests failed out of 5
+
+Total Test time (real) =   7.50 sec
+
+The following tests FAILED:
+	  5 - chimera-obs-filter-tests (Failed)
+Errors while running CTest
