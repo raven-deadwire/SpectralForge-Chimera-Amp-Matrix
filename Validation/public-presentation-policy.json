@@ -157,7 +157,14 @@
     "m101",
     "Maag",
     "Mäag",
-    "EQ4"
+    "EQ4",
+    "UltraTap",
+    "Blackhole",
+    "Bricasti",
+    "Leslie",
+    "Uni-Vibe",
+    "Univibe",
+    "Strymon"
   ],
   "required_attribution_exceptions": {
     "THIRD_PARTY_NOTICES.md": [

@@ -92,7 +92,11 @@ def build_catalog():
     # 1.7 POST expansion: three new models per BUS COMP / PREAMP / EQUALIZER section.
     for key,name,category in (("bus.3","Eventide Omnipressor","BUS COMP"),("bus.4","API 2500","BUS COMP"),("bus.5","Neve 33609","BUS COMP"),
                               ("preamp.3","API 512c","PREAMP"),("preamp.4","Chandler TG2","PREAMP"),("preamp.5","Grace m101","PREAMP"),
-                              ("eq.3","API 550A","EQUALIZER"),("eq.4","Maag EQ4","EQUALIZER"),("eq.5","Chandler Curve Bender","EQUALIZER")):
+                              ("eq.3","API 550A","EQUALIZER"),("eq.4","Maag EQ4","EQUALIZER"),("eq.5","Chandler Curve Bender","EQUALIZER"),
+                              # 1.8 motion/space: appended to the shared-control DELAY / REVERB / MODULATION families.
+                              ("delay.3","Eventide UltraTap","DELAY"),("delay.4","Eventide Rose","DELAY"),("delay.5","Strymon DIG","DELAY"),
+                              ("reverb.3","Bricasti M7 reference","REVERB"),("reverb.4","Eventide Blackhole","REVERB"),("reverb.5","Non-linear gated reverb","REVERB"),
+                              ("mod.6","Leslie rotary speaker","MODULATION"),("mod.7","Uni-Vibe","MODULATION"),("mod.8","Ring modulator","MODULATION")):
         models.append(dict(id="planned.post."+key,name=name,reference=name,category=category,location="post",status="not_implemented",
                            controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
     def add(key,name,category,controls,source=None,status="documented_labels_unimplemented_dsp"):

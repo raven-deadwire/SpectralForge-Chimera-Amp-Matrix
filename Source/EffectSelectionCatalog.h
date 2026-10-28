@@ -85,7 +85,9 @@ inline const char* pedalDescription(int model) {
 inline const char* effectFamilyMenuName(int family,int model) {
     constexpr std::array<int,11> firstPedal{1,0,0,6,11,16,21,0,0,0,32};
     if(family<0 || family>=int(modelFamilies.size()))return "";
-    const auto& f=modelFamilies[(size_t)family];model=juce::jlimit(0,f.count-1,model);
+    const auto& f=modelFamilies[(size_t)family];
+    if(effectFamilyExtended(family) && model>=f.count)return modelInfo(family,model).name;
+    model=juce::jlimit(0,f.count-1,model);
     if(firstPedal[(size_t)family]>0)return pedalMenuName(firstPedal[(size_t)family]+model);
     // Rack algorithms have independent aliases; never concatenate reference
     // names into the selector, including when a native panel is selected.
@@ -103,7 +105,7 @@ inline const char* effectFamilyMenuName(int family,int model) {
 inline juce::StringArray effectFamilyMenuNames(int family) {
     juce::StringArray names;
     if(family>=0 && family<int(modelFamilies.size()))
-        for(int model=0;model<modelFamilies[(size_t)family].count;++model)names.add(effectFamilyMenuName(family,model));
+        for(int model=0;model<effectSelectableCount(family);++model)names.add(effectFamilyMenuName(family,model));
     return names;
 }
 }

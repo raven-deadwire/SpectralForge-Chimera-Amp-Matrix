@@ -357,10 +357,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         effect.header.setTooltip(descriptions[i]);add(effect.header);add(effect.scope);add(effect.description);add(effect.enabled);effect.enabled.setClickingTogglesState(true);
         effect.enabled.setComponentID(effectButtons[i]);effect.button=std::make_unique<BA>(p.parameters(),effectButtons[i],effect.enabled);
         effect.model.setName(juce::String(spectralforge::modelFamilies[i].category)+" model");effect.model.setComponentID(spectralforge::modelFamilies[i].parameter);const auto menuNames=spectralforge::effectFamilyMenuNames((int)i);
-        if(i==10){const std::array<const char*,5> groups{"Chorus","Phaser","Flanger","Vibrato","Tremolo"};for(int group=0;group<5;++group){juce::PopupMenu items;for(int m=0;m<menuNames.size();++m)if((m<2?0:m-1)==group)items.addItem(m+1,menuNames[m]);effect.model.getRootMenu()->addSubMenu(groups[(size_t)group],items);}}
-        else if(i==1 || i==2){const std::array<const char*,3> types=i==1?std::array<const char*,3>{"Digital","Tape","Analog"}:std::array<const char*,3>{"Plate","Hall","Spring"};for(int m=0;m<menuNames.size();++m){juce::PopupMenu items;items.addItem(m+1,menuNames[m]);effect.model.getRootMenu()->addSubMenu(types[(size_t)m],items);}}
+        if(i==1 || i==2 || i==10)spectralforge::buildExtendedEffectMenu(*effect.model.getRootMenu(),(int)i);
         else {effect.model.getRootMenu()->addSectionHeader(effectHeaders[i]);effect.model.addItemList(menuNames,1);}add(effect.model);
-        effect.modelAttachment=std::make_unique<CA>(p.parameters(),spectralforge::modelFamilies[i].parameter,effect.model);
+        if(spectralforge::effectFamilyExtended((int)i))effect.modelSync=std::make_unique<spectralforge::ExtendedEffectModelSync>(p.parameters(),(int)i,effect.model);
+        else effect.modelAttachment=std::make_unique<CA>(p.parameters(),spectralforge::modelFamilies[i].parameter,effect.model);
         effect.model.onChange=[this]{stateDirty=true;};
         const bool pedal=i==0 || (i>=3 && i<=6);effect.enabled.getProperties().set("footswitch",pedal);
         for(size_t k=0;k<5;++k) {

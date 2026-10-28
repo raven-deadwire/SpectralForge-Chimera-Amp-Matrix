@@ -42,6 +42,10 @@ post_native = read("Source/PostNativeCatalog.h")
 per_section = re.search(r"postNativeModelsPerSection=(\d+), postNativeReleasedModelsPerSection=(\d+)", post_native)
 if per_section:
     post_count += 3 * (int(per_section.group(1)) - int(per_section.group(2)))
+# 1.8 motion/space: models appended to DELAY / REVERB / MODULATION.
+extension = re.search(r"effectExtensionModels=(\d+)", models)
+if extension:
+    post_count += 3 * int(extension.group(1))
 
 preset_count_match = re.search(r"std::array<FactoryPreset,(\d+)>\s+factoryPresets", presets)
 assert preset_count_match, "factoryPresets array size not found"

@@ -152,7 +152,7 @@ void stripEQ(juce::ValueTree tree) {
 void hostParameterContract() {
     auto storage = std::make_unique<ChimeraProcessor>();
     auto& processor = *storage;
-    check(processor.getParameters().size() == 4967+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount(), "Unexpected total host-parameter count after append-only tuner/dynamics");
+    check(processor.getParameters().size() == 4967+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount, "Unexpected total host-parameter count after append-only tuner/dynamics");
     std::set<std::string> unique;
     for (auto* parameter : processor.getParameters()) {
         auto* identified = dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);

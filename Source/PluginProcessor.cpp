@@ -54,6 +54,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
     for(size_t i=0;i<modelParameters.size();++i)modelParameters[i]=state.getRawParameterValue(spectralforge::modelFamilies[i].parameter);
+    for(size_t i=0;i<modelParameters.size();++i)modelExtensionParameters[i]=spectralforge::effectFamilyExtended(int(i))?state.getRawParameterValue(spectralforge::effectExtensionID(int(i))):nullptr;
     const std::array<const char*,18> laneIds{"amp","drive","level","bass","lowmid","highmid","treble","presence","resonance","bandtone","mute","solo","polarity","cab","cablow","cabhigh","cabtype","ampon"};
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
@@ -270,7 +271,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     autoSetCaptureState.push(spectralforge::autoset::Tap::input,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     measureStage(0,buffer);
     tuner.push(buffer,value(tunerOn)>.5f);
-    auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
+    auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=modelExtensionParameters[i]?spectralforge::effectSelectedModel(int(i),modelParameters[i]->load(),modelExtensionParameters[i]->load()):(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     fx.postNative=nativePost.read();
     const bool pitching=value(pitchOn)>.5f && int(value(semitones))!=0;
     const auto before=boardEditSequence.load(std::memory_order_acquire);
@@ -501,6 +502,10 @@ spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstReferenceAmpMo
 spectralforge::appendFilterModulationParameters(p);
 // 1.7 POST expansion, version hint 22.
 spectralforge::appendPostExpansionParameters(p);
+// 1.8 POST motion/space: appended model extensions for DELAY / REVERB / MODULATION, version hint 23.
+for(int family:{1,2,10})
+    p.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{spectralforge::effectExtensionID(family),spectralforge::effectExtensionParameterVersion},
+        juce::String(spectralforge::modelFamilies[(size_t)family].category)+" model extension",0,15,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
 return p;
 }
 

@@ -249,11 +249,12 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
             auto window=open(canvas,"postExpand"+juce::String(section),"postEffectDetail"+juce::String(family));auto& panel=*spectralforge::ui::dialogContent(*window);
             require(&panel.getLookAndFeel()==&editor.getLookAndFeel(),"Time/modulation ALL lost the rack style");
             auto* model=find<juce::ComboBox>(panel,spectralforge::modelFamilies[(size_t)family].parameter);require(model!=nullptr,"Time/modulation ALL model selector missing");
-            for(int choice=0;choice<spectralforge::modelFamilies[(size_t)family].count;++choice) {
+            for(int choice=0;choice<spectralforge::effectSelectableCount(family);++choice) {
                 model->setSelectedId(choice+1,juce::sendNotificationSync);settle(35);
                 require(model->getText()==spectralforge::effectFamilyMenuName(family,choice),"Time/modulation ALL model list exposes a hardware name");
                 publicNameTests::componentText(panel,"time/modulation detail panel");
-                require((int)processor.parameters().getRawParameterValue(spectralforge::modelFamilies[(size_t)family].parameter)->load()==choice,"Time/modulation ALL model callback is disconnected");
+                require(spectralforge::effectSelectedModel(family,processor.parameters().getRawParameterValue(spectralforge::modelFamilies[(size_t)family].parameter)->load(),
+                            processor.parameters().getRawParameterValue(spectralforge::effectExtensionID(family))->load())==choice,"Time/modulation ALL model callback is disconnected");
             }
             const std::array<const char*,3> ids=family==10?std::array<const char*,3>{"chorusrate","chorusdepth","chorusmix"}:family==1?std::array<const char*,3>{"delaytime","delayfeedback","delaymix"}:std::array<const char*,3>{"reverbsize","reverbdamping","reverbmix"};
             std::vector<NativeControlView*> controls;views(panel,controls);require(controls.size()==(family==1?4u:3u),"Time/modulation ALL omitted a processor control");

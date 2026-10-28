@@ -5,8 +5,8 @@
   "model_counts": {
     "amp": 30,
     "pre": 39,
-    "post": 30,
-    "total": 99
+    "post": 39,
+    "total": 108
   },
   "preset_counts": {
     "factory": 31,
@@ -301,8 +301,8 @@
   "serialized_model_counts": {
     "amp": 31,
     "pre": 39,
-    "post": 30,
-    "total": 100
+    "post": 39,
+    "total": 109
   },
   "legacy_amp_indices": [
     16

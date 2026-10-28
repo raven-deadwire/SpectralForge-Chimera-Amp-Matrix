@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Procedural rack faces for the 1.7 POST expansion (models 3-5 per section).
+"""Procedural rack faces for the 1.7 POST expansion and the 1.8 motion/space models.
 
 Original Chimera fascias drawn from simple shapes with the working name; no
 manufacturer logo or trade dress. Live controls stay JUCE components; these
@@ -22,6 +22,16 @@ FACES = [
     ('rstepped', 'STEPPED EQ', (34, 36, 40), (90, 160, 220), 'slim'),
     ('rair', 'AIR BAND', (210, 206, 196), (40, 92, 160), 'dial'),
     ('rcurve', 'CURVE SHAPER', (60, 46, 40), (232, 196, 120), 'meters'),
+    # 1.8 motion/space
+    ('rtapcloud', 'TAP CLOUD', (30, 52, 60), (130, 210, 230), 'slim'),
+    ('rbloom', 'BLOOM DELAY', (96, 52, 78), (250, 200, 220), 'dial'),
+    ('rdualdig', 'DUAL DIGITAL', (34, 48, 66), (200, 220, 240), 'meters'),
+    ('rhallprime', 'HALL PRIME', (44, 50, 70), (210, 216, 236), 'slim'),
+    ('rvoid', 'VOID SPACE', (18, 14, 30), (170, 120, 240), 'dial'),
+    ('rgated', 'GATED ROOM', (96, 82, 54), (36, 30, 20), 'meters'),
+    ('rspin', 'SPIN CABINET', (110, 76, 46), (240, 222, 190), 'dial'),
+    ('rthrob', 'THROB VIBE', (70, 40, 86), (240, 200, 120), 'dial'),
+    ('rring', 'RING BELL', (86, 86, 40), (20, 20, 20), 'slim'),
 ]
 
 

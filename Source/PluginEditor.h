@@ -16,6 +16,7 @@
 #include "AutoSetController.h"
 #include "AccessibleViewport.h"
 #include "EasyModeView.h"
+#include "EffectModelSync.h"
 
 class CabRoomOverview;
 
@@ -181,6 +182,7 @@ private:
         juce::Label header,scope,description;
         juce::ComboBox model;
         std::unique_ptr<CA> modelAttachment;
+        std::unique_ptr<spectralforge::ExtendedEffectModelSync> modelSync; // DELAY / REVERB / MODULATION: released choice + extension
         juce::TextButton enabled{"ON"},expand{"ALL"};
         std::array<juce::Slider,5> controls;
         std::array<juce::Label,5> labels;

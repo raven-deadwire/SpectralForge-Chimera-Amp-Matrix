@@ -162,7 +162,7 @@ void historical(const juce::File& directory) {
         now=instant;auto p=ChimeraBetaTestAccess::create(beta,clockNow);p->setStateInformation(bytes.getData(),int(bytes.getSize()));
         for(int slot:{0,1,0}) {
             p->selectComparison(slot);const auto* rows=manifest[slot==0?"A":"B"].getArray();
-            require(rows && rows->size()==4967 && p->getParameters().size()==4967+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount(),"Historical or appended parameter inventory mismatch");
+            require(rows && rows->size()==4967 && p->getParameters().size()==4967+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount,"Historical or appended parameter inventory mismatch");
             for(const auto& row:*rows) {
                 auto* parameter=p->parameters().getParameter(row["id"].toString());
                 require(parameter && parameter->getParameterIndex()==int(row["ordinal"])

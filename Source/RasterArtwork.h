@@ -2,13 +2,14 @@
 #include <juce_graphics/juce_graphics.h>
 #include "ChimeraArtworkData.h"
 #include "AmpCatalog.h"
+#include "ModelCatalog.h"
 #include "LifecycleTrace.h"
 #include <array>
 
 namespace spectralforge::art {
 // Every selectable hardware reference has an original material/trim render.
 // Two Mu-Tron directions share their physical enclosure, not unrelated skins.
-enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, achim30, aorange, abassman, asubway, amatchless, adumble, aeich, acinder, airon, afourfold, aclassictube, amonolith, anightharvest, ahotlead, abluestorm, pyellowasym, pobsession, pplus, pdualcircuit, pmanualwah, pgraphiceq, pchorus, pdimension, pphase, pflange, pvibrato, ptremolo, pmonoctave, pspectraloctave, aspecialedition, anastrond, aniflheimr, acrystal, abluestack, aeightyfire, afortress, anorthlight, rpolar, rthrust, rdiode, rdiscrete, rdesk, rclear, rstepped, rair, rcurve, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
+enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, achim30, aorange, abassman, asubway, amatchless, adumble, aeich, acinder, airon, afourfold, aclassictube, amonolith, anightharvest, ahotlead, abluestorm, pyellowasym, pobsession, pplus, pdualcircuit, pmanualwah, pgraphiceq, pchorus, pdimension, pphase, pflange, pvibrato, ptremolo, pmonoctave, pspectraloctave, aspecialedition, anastrond, aniflheimr, acrystal, abluestack, aeightyfire, afortress, anorthlight, rpolar, rthrust, rdiode, rdiscrete, rdesk, rclear, rstepped, rair, rcurve, rtapcloud, rbloom, rdualdig, rhallprime, rvoid, rgated, rspin, rthrob, rring, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
 // Keep values stable: the editor styles working JUCE knobs from this palette.
 enum KnobStyle { black=0, cream=1, silver=2, gold=3, chrome=4, ssl=5, red=6, yellow=7, neve=8 };
 struct ModelStyle { Surface surface; int knobStyle; bool brightFace; };
@@ -117,7 +118,16 @@ inline ModelStyle surfaceStyle(Surface surface) {
         {Surface::rclear,black,true},
         {Surface::rstepped,black,false},
         {Surface::rair,black,true},
-        {Surface::rcurve,gold,false}
+        {Surface::rcurve,gold,false},
+        {Surface::rtapcloud,black,false},
+        {Surface::rbloom,silver,false},
+        {Surface::rdualdig,silver,false},
+        {Surface::rhallprime,silver,false},
+        {Surface::rvoid,black,false},
+        {Surface::rgated,black,true},
+        {Surface::rspin,cream,false},
+        {Surface::rthrob,gold,false},
+        {Surface::rring,black,true}
     }};
     return styles[static_cast<size_t>(surface)];
 }
@@ -126,10 +136,10 @@ struct RasterBank {
     RasterBank() {
         const lifecycle::Scope trace("artwork.bank.create", this);
         constexpr std::array<const char*,static_cast<size_t>(Surface::count)> names{
-            "ravenworkbench_jpg","ravenemblem_png","p808_jpg","pcentaur_jpg","prat_jpg","pm87_jpg","pdyna_jpg","pdiamond_jpg","pqtron_jpg","pmutron_jpg","pmuff_jpg","pface_jpg","pbender_jpg","prc_jpg","prange_jpg","pmicro_jpg","aglass_jpg","abrit_jpg","a515_jpg","arect_jpg","amark_jpg","asvt_jpg","agk_jpg","ahybrid_jpg","rsslvca_jpg","r1176_jpg","rla2a_jpg","rn73_jpg","rv5_jpg","risa_jpg","rssleq_jpg","rn73eq_jpg","rpultec_jpg","rce2_jpg","rdimension_jpg","rstone_jpg","rmistress_jpg","reddy_jpg","rpulsar_jpg","r2290_jpg","rre201_jpg","rmemory_jpg","remt_jpg","rlex_jpg","rspring_jpg","cmesa_jpg","campeg_jpg","cbassman_jpg","cdelta_jpg","pfet_jpg","pmu_jpg","pbddi_jpg","pb3k_jpg","pm82_jpg","paw3_jpg","pwool_jpg","pfactory_jpg","pep_jpg","plpb_jpg","achim30_jpg","aorange_jpg","abassman_jpg","asubway_jpg","amatchless_jpg","adumble_jpg","aeich_jpg","acinder_jpg","airon_jpg","afourfold_jpg","aclassictube_jpg","amonolith_jpg","anightharvest_jpg","ahotlead_jpg","abluestorm_jpg","pyellowasym_jpg","pobsession_jpg","pplus_jpg","pdualcircuit_jpg","pmanualwah_jpg","pgraphiceq_jpg","pchorus_jpg","pdimension_jpg","pphase_jpg","pflange_jpg","pvibrato_jpg","ptremolo_jpg","pmonoctave_jpg","pspectraloctave_jpg","aspecialedition_jpg","anastrond_png","aniflheimr_png","acrystal_png","abluestack_png","aeightyfire_png","afortress_png","anorthlight_png","rpolar_png","rthrust_png","rdiode_png","rdiscrete_png","rdesk_png","rclear_png","rstepped_png","rair_png","rcurve_png"
+            "ravenworkbench_jpg","ravenemblem_png","p808_jpg","pcentaur_jpg","prat_jpg","pm87_jpg","pdyna_jpg","pdiamond_jpg","pqtron_jpg","pmutron_jpg","pmuff_jpg","pface_jpg","pbender_jpg","prc_jpg","prange_jpg","pmicro_jpg","aglass_jpg","abrit_jpg","a515_jpg","arect_jpg","amark_jpg","asvt_jpg","agk_jpg","ahybrid_jpg","rsslvca_jpg","r1176_jpg","rla2a_jpg","rn73_jpg","rv5_jpg","risa_jpg","rssleq_jpg","rn73eq_jpg","rpultec_jpg","rce2_jpg","rdimension_jpg","rstone_jpg","rmistress_jpg","reddy_jpg","rpulsar_jpg","r2290_jpg","rre201_jpg","rmemory_jpg","remt_jpg","rlex_jpg","rspring_jpg","cmesa_jpg","campeg_jpg","cbassman_jpg","cdelta_jpg","pfet_jpg","pmu_jpg","pbddi_jpg","pb3k_jpg","pm82_jpg","paw3_jpg","pwool_jpg","pfactory_jpg","pep_jpg","plpb_jpg","achim30_jpg","aorange_jpg","abassman_jpg","asubway_jpg","amatchless_jpg","adumble_jpg","aeich_jpg","acinder_jpg","airon_jpg","afourfold_jpg","aclassictube_jpg","amonolith_jpg","anightharvest_jpg","ahotlead_jpg","abluestorm_jpg","pyellowasym_jpg","pobsession_jpg","pplus_jpg","pdualcircuit_jpg","pmanualwah_jpg","pgraphiceq_jpg","pchorus_jpg","pdimension_jpg","pphase_jpg","pflange_jpg","pvibrato_jpg","ptremolo_jpg","pmonoctave_jpg","pspectraloctave_jpg","aspecialedition_jpg","anastrond_png","aniflheimr_png","acrystal_png","abluestack_png","aeightyfire_png","afortress_png","anorthlight_png","rpolar_png","rthrust_png","rdiode_png","rdiscrete_png","rdesk_png","rclear_png","rstepped_png","rair_png","rcurve_png","rtapcloud_png","rbloom_png","rdualdig_png","rhallprime_png","rvoid_png","rgated_png","rspin_png","rthrob_png","rring_png"
         };
         constexpr std::array<const char*,static_cast<size_t>(Surface::count)> alphaNames{
-            nullptr,nullptr,"p808alpha_png","pcentauralpha_png","pratalpha_png","pm87alpha_png","pdynaalpha_png","pdiamondalpha_png","pqtronalpha_png","pmutronalpha_png","pmuffalpha_png","pfacealpha_png","pbenderalpha_png","prcalpha_png","prangealpha_png","pmicroalpha_png","aglassalpha_png","abritalpha_png","a515alpha_png","arectalpha_png","amarkalpha_png","asvtalpha_png","agkalpha_png","ahybridalpha_png","rsslvcaalpha_png","r1176alpha_png","rla2aalpha_png","rn73alpha_png","rv5alpha_png","risaalpha_png","rssleqalpha_png","rn73eqalpha_png","rpultecalpha_png","rce2alpha_png","rdimensionalpha_png","rstonealpha_png","rmistressalpha_png","reddyalpha_png","rpulsaralpha_png","r2290alpha_png","rre201alpha_png","rmemoryalpha_png","remtalpha_png","rlexalpha_png","rspringalpha_png","cmesaalpha_png","campegalpha_png","cbassmanalpha_png","cdeltaalpha_png","pfetalpha_png","pmualpha_png","pbddialpha_png","pb3kalpha_png","pm82alpha_png","paw3alpha_png","pwoolalpha_png","pfactoryalpha_png","pepalpha_png","plpbalpha_png","achim30alpha_png","aorangealpha_png","abassmanalpha_png","asubwayalpha_png","amatchlessalpha_png","adumblealpha_png","aeichalpha_png","acinderalpha_png","aironalpha_png","afourfoldalpha_png","aclassictubealpha_png","amonolithalpha_png","anightharvestalpha_png","ahotleadalpha_png","abluestormalpha_png","pyellowasymalpha_png","pobsessionalpha_png","pplusalpha_png","pdualcircuitalpha_png","pmanualwahalpha_png","pgraphiceqalpha_png","pchorusalpha_png","pdimensionalpha_png","pphasealpha_png","pflangealpha_png","pvibratoalpha_png","ptremoloalpha_png","pmonoctavealpha_png","pspectraloctavealpha_png","aspecialeditionalpha_png",nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr
+            nullptr,nullptr,"p808alpha_png","pcentauralpha_png","pratalpha_png","pm87alpha_png","pdynaalpha_png","pdiamondalpha_png","pqtronalpha_png","pmutronalpha_png","pmuffalpha_png","pfacealpha_png","pbenderalpha_png","prcalpha_png","prangealpha_png","pmicroalpha_png","aglassalpha_png","abritalpha_png","a515alpha_png","arectalpha_png","amarkalpha_png","asvtalpha_png","agkalpha_png","ahybridalpha_png","rsslvcaalpha_png","r1176alpha_png","rla2aalpha_png","rn73alpha_png","rv5alpha_png","risaalpha_png","rssleqalpha_png","rn73eqalpha_png","rpultecalpha_png","rce2alpha_png","rdimensionalpha_png","rstonealpha_png","rmistressalpha_png","reddyalpha_png","rpulsaralpha_png","r2290alpha_png","rre201alpha_png","rmemoryalpha_png","remtalpha_png","rlexalpha_png","rspringalpha_png","cmesaalpha_png","campegalpha_png","cbassmanalpha_png","cdeltaalpha_png","pfetalpha_png","pmualpha_png","pbddialpha_png","pb3kalpha_png","pm82alpha_png","paw3alpha_png","pwoolalpha_png","pfactoryalpha_png","pepalpha_png","plpbalpha_png","achim30alpha_png","aorangealpha_png","abassmanalpha_png","asubwayalpha_png","amatchlessalpha_png","adumblealpha_png","aeichalpha_png","acinderalpha_png","aironalpha_png","afourfoldalpha_png","aclassictubealpha_png","amonolithalpha_png","anightharvestalpha_png","ahotleadalpha_png","abluestormalpha_png","pyellowasymalpha_png","pobsessionalpha_png","pplusalpha_png","pdualcircuitalpha_png","pmanualwahalpha_png","pgraphiceqalpha_png","pchorusalpha_png","pdimensionalpha_png","pphasealpha_png","pflangealpha_png","pvibratoalpha_png","ptremoloalpha_png","pmonoctavealpha_png","pspectraloctavealpha_png","aspecialeditionalpha_png",nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr
         };
         for(size_t i=0;i<names.size();++i) {
             if(!names[i])continue;
@@ -186,6 +196,11 @@ inline ModelStyle modelStyle(int family,int model) {
     static constexpr std::array<std::array<Surface,3>,3> postExpansion{{
         {{S::rpolar,S::rthrust,S::rdiode}},{{S::rdiscrete,S::rdesk,S::rclear}},{{S::rstepped,S::rair,S::rcurve}}}};
     if(family>=7 && family<=9 && model>=3 && model<=5)return surfaceStyle(postExpansion[static_cast<size_t>(family-7)][static_cast<size_t>(model-3)]);
+    // 1.8 motion/space: appended DELAY / REVERB / MODULATION models.
+    static constexpr std::array<std::array<Surface,3>,3> motionSpace{{
+        {{S::rtapcloud,S::rbloom,S::rdualdig}},{{S::rhallprime,S::rvoid,S::rgated}},{{S::rspin,S::rthrob,S::rring}}}};
+    if(effectFamilyExtended(family) && model>=modelFamilies[static_cast<size_t>(family)].count && model<effectSelectableCount(family))
+        return surfaceStyle(motionSpace[static_cast<size_t>(effectExtensionSlot(family))][static_cast<size_t>(model-modelFamilies[static_cast<size_t>(family)].count)]);
     const auto f=static_cast<size_t>(juce::jlimit(0,10,family));
     return surfaceStyle(surfaces[f][static_cast<size_t>(juce::jlimit(0,counts[f]-1,model))]);
 }

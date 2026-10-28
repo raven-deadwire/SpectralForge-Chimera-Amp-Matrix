@@ -249,7 +249,7 @@ private:
     enum Extra {dualType,dualBlend,dualFrequency,inputMode,doublerOn,doublerTime,tempo,hostTempo,metronome,extraCount};
     std::array<std::atomic<float>*,extraCount> extras{};
     std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
-    std::array<std::atomic<float>*,11> modelParameters{};
+    std::array<std::atomic<float>*,11> modelParameters{},modelExtensionParameters{};
     std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{}, * preOrderParameter{}, * gainOrderParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};
