@@ -1,0 +1,69 @@
+{
+  "date_kst": "2026-10-25",
+  "timestamp_utc": "2026-10-25T09:52:25.105956+00:00",
+  "sources": {
+    "Tools/TransposeNext/BlockInvariance.cpp": "e742da71c060df33d3f14026dab681c21f49de361b095d4e0d830568138aaf22",
+    "Tools/TransposeNext/CorrelationPitch.h": "c46e2a421545aee68ad5d60d4d773aae7cc28c4618085f73623acf727dcfc438",
+    "Tools/TransposeNext/CorrelationTests.cpp": "9727d13fccd2ed56bfd453f87a7eed0a69f6c2454e8f3f3de97a711af2361efb",
+    "Tools/TransposeNext/EnvelopeBlocks.cpp": "5249888363a4071fcebcaeb29aa8d7e03bc6b3766c683f518e912cb97de389b3",
+    "Tools/TransposeNext/EnvelopeProbe.cpp": "b134ab74b6dd033bb4d0ced5e9a8ed73981f4b630ea6169a74882397e84b8fe1",
+    "Tools/TransposeNext/EnvelopeResearch.h": "7e2be56ec7dd144d2f0a856e7adf6df74a9697c1a3d39a7e6f849ebd640a194f",
+    "Tools/TransposeNext/EnvelopeTests.cpp": "473844429cfb71c03ddf8981e0fba8b4e30432292528c9ee8b9f2582f2dcb6b2",
+    "Tools/TransposeNext/EnvelopeTrace.cpp": "f84bf047da0c3635cb4a562a1dde06cb7873b235708c64c4db06c73618d412ba",
+    "Tools/TransposeNext/OnsetTrace.cpp": "77238eaab3397fc01a7635042666896cc5ff3a40f2e3812c89c33bb5b4d3c8a9",
+    "Tools/TransposeNext/RelativePhasePitch.h": "a0e68f39e154da6138de4ecf37d140f499f98460ea87674406943fedebfa342a",
+    "Tools/TransposeNext/SpliceCollision.cpp": "c43c18591288abce270ff4e96b187eb63f39916fd21480c4cb0f8fe8210356b9",
+    "Tools/TransposeNext/TransientSplitPitch.h": "62e2ddb20f48a06c9ea709434ebbef7e0eb7b4421928e86b1579bee1067e875b",
+    "Tools/TransposeNext/TransposeProbe.cpp": "9fdce88bc6bab51bb43bcd54cb6017850572046209b5f2acbf05d8c0001e7103",
+    "Tools/TransposeNext/build.py": "124338220aaab972257836a64bbb12045eed022dbe44b3b5309937260bc42f91",
+    "Tools/TransposeNext/build_envelope.py": "5602e07e1a33f817f28c42b5d480c8e80d744467411889e5c6d0f032c41eaf0d",
+    "Tools/TransposeNext/collect_evidence.py": "c4be788c123b058d89a296c74f3ad3c65ac0e8e0b6871792d4aaed9c61ef0c58",
+    "Tools/TransposeNext/di_validation.py": "e9dbfef2e54c71acc0100a43c6fdaa98dfe627bbfd61e786c28f9eb1ecca7141",
+    "Tools/TransposeNext/envelope_study.py": "d7a9ab0d261e38dbcfc7a330795877fc390c0641205c0aa6929c09eadd04fb27",
+    "Tools/TransposeNext/envelope_validation.py": "922311ef31bf0fe30309cd8c79064cbe09bebb1b014d0772a84fceed8b473957",
+    "Tools/TransposeNext/evaluate.py": "f6e9a16b51d690add067a35b84f6364b73a807c7c25d13b63db8730ce7f36a7f",
+    "Tools/TransposeNext/latency_targets.py": "891aade5e833b26fe914d1d932b122ad57ce168225adcec2d97947b82e7fdd65",
+    "Tools/TransposeNext/legacy_metrics.py": "8582eaeaba558584eb57af7e18935ea35380ffef142ab2d022b52d533277721a",
+    "Tools/TransposeNext/low_band_delay.py": "a7bfba478f78cc55d0d61e2c2b758a8cff79e4227740a78447c6469c6e9cbd53",
+    "Tools/TransposeNext/plot_results.py": "b2a7981e27fc67d52986746c6dbcec5399a1092dccd083e736583b6b326d9eba",
+    "Tools/TransposeNext/stress.py": "4021c585cc7aed78349fcccbd912851d40f46f3e6187cd4443cf0e452534e5be",
+    "Tools/TransposeNext/t6_host_check.py": "7939671a7eeb2bf5e5584d949fa02d9097b963541eb70e1a1f72e1c88d757eea",
+    "Tools/TransposeNext/t6_listening.py": "e4fdad0d856ba7d8f9b7bed0fbb36b5d995a8b2de3d542309a93efa3833f1fdb",
+    "Tools/TransposeNext/timing.py": "a77a46f69d9266c4eb4d75090f75b69e5fdc1b470fe57e88f1012c20afa323cf",
+    "Tools/TransposeNext/v4_validation.py": "136dee8b63bd48604253289cd506eec30e1b0cb1a3b720e0bba800b4158bebb9",
+    "Tools/TransposeNext/weak_attack_holdout.py": "27cc1425966cbe15cf49b45c0b287ee5bae0eb82376ddb71c911bc3c7c6deced",
+    "Tools/TransposeNext/weak_attack_study.py": "a2978394342ce97a132a91049cd98241c89ee9d529e4c6be13803e66ca92c62a",
+    "Validation/transpose-latency-targets.json": "aff449dff7a9ed4715f05f5d55005f57f956fb84db8df68d64fb47b0c1c592ce"
+  },
+  "binaries": {
+    "EnvelopeProbe": "c976850a410dcf3649ae44f2a3594cce1f8a70803c4d3f87e2e03c1f6fe2f5d6",
+    "EnvelopeTrace": "5fc1962031e572e81aa79f7306873fffca654dc53a51bfaf5af03db1564cf7b6",
+    "EnvelopeBlocks": "7e3339db426fc5f55cbc7de2dce9d81b610652eede79c9d1489be4b88a4a196f",
+    "EnvelopeTests": "7a7621881f165c48074b6a814af23b0db53ec5dfa2ae919492040f3466ef50b5"
+  },
+  "spec_sha256": "aff449dff7a9ed4715f05f5d55005f57f956fb84db8df68d64fb47b0c1c592ce",
+  "parent": "be06fab38fef98aa7c51d2ab7a698917de167dc1",
+  "candidate": "env-floor125",
+  "selection": "exploratory known-data max dip reduced; retain original 2ms fades, detector, hold, guard, sample hold; no gate threshold changes",
+  "fresh_within_this_task_holdout": [
+    524287,
+    786433,
+    999983
+  ],
+  "fresh_within_this_task_long": [
+    524309,
+    786457,
+    1000003
+  ],
+  "engines": [
+    "corr40-split-v3",
+    "corr40-split-v4",
+    "env-floor125"
+  ],
+  "rules": [
+    "Commit remote registration before targets or blocks; do not retune after new results",
+    "All inputs synthetic; old published seeds are development data",
+    "All failure rows retained; no product or T6 default changes"
+  ],
+  "cpu_plan": "Sequential 3 rates x blocks 64/128/256 x B0/A0 long104729 x shifts +/-2 x 3 repetitions x 3 engines; extra 96k/64 +/-2 B0/A0 12 balanced repetitions; preserve callback raw data, wall/thread clocks, splice counts, affinity and per-run hashes. Shared VM only."
+}

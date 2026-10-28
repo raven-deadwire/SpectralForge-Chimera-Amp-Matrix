@@ -1,0 +1,4 @@
+==27==Can't open /proc/26/task for reading.
+==26==LeakSanitizer has encountered a fatal error.
+==26==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==26==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)

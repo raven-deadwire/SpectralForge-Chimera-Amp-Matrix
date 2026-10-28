@@ -1,0 +1,21 @@
+{
+  "result": "FAILED reused-path parity harness; differing output lengths observed during investigation; not counted as DSP pass. Retried all 216 configurations with unique paths and explicit input/output byte-length validation, all passed. Cause of first harness artifact mismatch not established.",
+  "artifacts": {
+    "first-failure-trial-harness.f32": {
+      "bytes": 1058400,
+      "sha256": "4f5b40c3493c2586813a0acd8d93b5f8a22d97ef94dec6f0f486cb29a9be20fd"
+    },
+    "first-failure-cb.csv": {
+      "bytes": 17547,
+      "sha256": "19ffda53bd112d0f43cc79394ed3bfe23bced82ddc4a413c54c99f5538230e69"
+    },
+    "first-failure-in.f32": {
+      "bytes": 1058400,
+      "sha256": "9b92419415296ac436e4a67ded681c26367d373d9296677866d2a58183a94856"
+    },
+    "first-failure-original.f32": {
+      "bytes": 1152000,
+      "sha256": "5f1ecfeca4f68e2769aed40ca882f5f74aa15be86813cd8d0dca626b926e014c"
+    }
+  }
+}

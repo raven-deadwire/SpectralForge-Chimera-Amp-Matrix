@@ -259,3 +259,16 @@ Target spec version 2 makes this the T1 definition: `latency_targets.py` and
 `di_validation.py` gate T1 on events with SNR >= 10 dB and report fainter
 events as `T1_faint_attack` (no gate). Results without per-event SNR rows are
 scored as version 1 and labelled `metric_version: 1`; `--legacy-t1` forces it.
+
+## corr40-split-v4 (2026-10-25)
+
+Opt-in v3 follow-up: the body upshift read-age floor is 0.5 ms instead of
+2 ms; downshift timing, onset confirmation, fade guards, and sample-accurate
+splice holding are unchanged. Preregistered fresh seeds pass T1/T2/T4 and
+all original T3 ceilings (B0 long notes: v3 15.818 ms, v4 14.026 ms), with
+5,616 bit-identical block comparisons. This is research only: exploratory
+transient-envelope dips worsen in some cases and shared-VM 96 kHz/64-sample
+CPU misses remain. No real DI/listening/actual DAW or fixed PDC acceptance.
+The research plug-in retains the old engine selector and enables v4 through
+an additional default-off option while v3 is selected. Full evidence and
+reproduction scope: `docs/TRANSPOSE_V4_LOW_UPSHIFT_20261025.md`.
