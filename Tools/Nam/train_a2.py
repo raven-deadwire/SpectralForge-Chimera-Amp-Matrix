@@ -82,6 +82,10 @@ def main():
     ap.add_argument('--peak-weight',default='',help='Legacy loss, per channel as Name=weight,...: penalize each crop\'s output peak '
       'beyond its target peak, as a squared fraction of the target peak. The profile\'s peak level limit is set by a few attack samples, '
       'which a per-sample penalty averages away')
+    ap.add_argument('--tail-all-parts',action='store_true',help='Draw tail crops from the final decay of every combined capture part, '
+      'not only the end of the whole training signal')
+    ap.add_argument('--target-limits',default='',help='Per channel as Name=limit+limit,...: steps that pass these profile limits '
+      '(full_esr, active_median, active_p95, active_worst, quiet, level) are preferred, ahead of level and ESR')
     ap.add_argument('--diagnostic-extra-dilations',help='Comma-separated dilations appended (kernel 6) to the A2 layer array. '
       'Diagnostic only: the result is not an A2 model, cannot load in the target player and is exported as Diagnostic-*.nam')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
@@ -96,6 +100,12 @@ def main():
         name,_,w=item.partition('=')
         if name not in names or float(w)<0:raise ValueError(f'Bad --peak-weight entry: {item}')
         peak_weights[names.index(name)]=float(w)
+    target_limits=[[] for _ in VOICES]
+    for item in filter(None,args.target_limits.split(',')):
+        name,_,limits=item.partition('=');limits=limits.split('+')
+        if name not in names or not set(limits)<={'full_esr','active_median','active_p95','active_worst','quiet','level'}:
+            raise ValueError(f'Bad --target-limits entry: {item}')
+        target_limits[names.index(name)]=sorted(set(limits))
     if args.recipe!='legacy' and (args.amplitude_weight or args.overshoot_weight or any(peak_weights)):raise ValueError('Loss weights apply to the legacy recipe only')
     if min(args.steps,args.batch,args.frames,args.threads,args.lr,args.lr_half_life)<=0:raise ValueError('Positive training budget and optimizer settings required')
     manifest=verify_audio_manifest(args.data)
@@ -117,6 +127,9 @@ def main():
     peak_weight_tensor=torch.tensor(peak_weights,dtype=torch.float32)[None,:]
     # Notes are scaled to exactly -6 or -3 dBFS peak; -6.1 keeps the -6 dBFS ones.
     loud_samples=np.flatnonzero(np.abs(x[rf:len(x)-args.frames])>=10**(-6.1/20))+rf
+    # End of every capture part: each common.signal ends with 0.5 s of silence after the last note's decay.
+    part_ends=np.cumsum([r['train_samples'] for r in manifest.get('combined_from',[])]) if args.tail_all_parts else np.array([len(x)])
+    if args.tail_all_parts and (not len(part_ends) or part_ends[-1]!=len(x)):raise ValueError('--tail-all-parts needs a combined dataset')
     if args.loud_fraction and not len(loud_samples):raise ValueError('No input at or above -6 dBFS for --loud-fraction')
     epoch_steps=steps_per_virtual_epoch(len(x),rf,args.frames,args.batch)
     args.out.mkdir(parents=True,exist_ok=True)
@@ -134,7 +147,7 @@ def main():
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
-      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'peak_weight':dict(zip(names,peak_weights)),'loud_fraction':args.loud_fraction,
+      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'peak_weight':dict(zip(names,peak_weights)),'target_limits':dict(zip(names,target_limits)),'tail_all_parts':args.tail_all_parts,'loud_fraction':args.loud_fraction,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
@@ -169,7 +182,13 @@ def main():
         A hard gate, separate from level, so a start that fails level still keeps the rest."""
         if not keep_required[i]:return True
         limits=passed_limits(prediction,i);return all(limits[k] for k in keep_required[i])
-    def better(i,ok,score):
+    best_target_ok=[True]*5
+    def target_ok(prediction,i):
+        if not target_limits[i]:return True
+        limits=passed_limits(prediction,i);return all(limits[k] for k in target_limits[i])
+    def better(i,ok,score,target=True):
+        # Target limits rank first, then level, then ESR.
+        if target!=best_target_ok[i]:return target
         return (ok and not best_level_ok[i]) or (ok==best_level_ok[i] and score<best[i])
     selection_windows=[rf,6*48000,12*48000,18*48000,22*48000]
     def excerpt_predictions(net):
@@ -198,7 +217,8 @@ def main():
         # an older selection metric must not be compared with new scores.
         for i,state in enumerate(weights):
             sub=model.extract_submodel(i).eval();sub.load_state_dict(state)
-            best[i]=selection_esr(sub,i);best_level_ok[i]=level_ok(centered_prediction(sub,vx)/gains[i],i)
+            resumed=centered_prediction(sub,vx)/gains[i]
+            best[i]=selection_esr(sub,i);best_level_ok[i]=level_ok(resumed,i);best_target_ok[i]=target_ok(resumed,i)
         model.load_state_dict(ck['model'])
         rng.bit_generator.state=ck['rng'];torch.set_rng_state(ck['torch_rng'])
         if ck.get('validation_selection','window')!=args.validation_selection:
@@ -236,7 +256,7 @@ def main():
             best[i]=selection_esr(sub,i)
             start_prediction=centered_prediction(sub,vx)/gains[i]
             if args.keep_passed:keep_required[i]=sorted(k for k,v in passed_limits(start_prediction,i).items() if v)
-            best_level_ok[i]=level_ok(start_prediction,i)
+            best_level_ok[i]=level_ok(start_prediction,i);best_target_ok[i]=target_ok(start_prediction,i)
             weights[i]=copy.deepcopy(sub.state_dict())
         # Zero denotes the warm-start candidate, not a newly trained checkpoint.
         best_steps=[0]*5
@@ -260,7 +280,8 @@ def main():
         for j in range(args.batch):
             draw=rng.random()
             if draw<args.tail_fraction:
-                st[j]=rng.integers(max(rf,len(x)-round(.8*48000)),len(x)-args.frames)
+                end=int(part_ends[rng.integers(len(part_ends))])
+                st[j]=rng.integers(max(rf,end-round(.8*48000)),end-args.frames)
             elif draw<args.tail_fraction+args.loud_fraction:
                 # A crop whose output window contains one of the loud input samples.
                 k=loud_samples[rng.integers(len(loud_samples))]
@@ -304,11 +325,12 @@ def main():
             if args.validation_selection!='full':prediction=centered_prediction(model,vx)/gains[:,None]
             levels=[level_ok(prediction[i],i) for i in range(5)]
             kept=[keeps_passed(prediction[i],i) for i in range(5)]
+            targets=[target_ok(prediction[i],i) for i in range(5)]
             for i,score in enumerate(means):
-                if kept[i] and better(i,levels[i],score):
-                    best[i]=score;best_level_ok[i]=levels[i];best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
+                if kept[i] and better(i,levels[i],score,targets[i]):
+                    best[i]=score;best_level_ok[i]=levels[i];best_target_ok[i]=targets[i];best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
             profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0],vx) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
-            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'level_ok_by_channel':dict(zip([v[0] for v in VOICES],levels)),'keeps_passed_by_channel':dict(zip([v[0] for v in VOICES],kept)),'windows':vals,'best_steps':best_steps,'best_level_ok':best_level_ok,'tone3000_fidelity':profile_metrics,
+            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'level_ok_by_channel':dict(zip([v[0] for v in VOICES],levels)),'keeps_passed_by_channel':dict(zip([v[0] for v in VOICES],kept)),'target_ok_by_channel':dict(zip([v[0] for v in VOICES],targets)),'windows':vals,'best_steps':best_steps,'best_level_ok':best_level_ok,'tone3000_fidelity':profile_metrics,
               'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start,'identity':identity,'checkpoint_step':step,'recipe':args.recipe})
             checkpoint_temporary=args.out/'checkpoint.pt.tmp'
             torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'best_level_ok':best_level_ok,'keep_required':keep_required,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
