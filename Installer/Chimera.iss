@@ -39,6 +39,9 @@ AppPublisher=RavenForge Luthier Intelligence
 AppPublisherURL=https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
 DefaultDirName={autopf}\SpectralForge\Chimera Amp Matrix
 DefaultGroupName=SpectralForge\{#ProductName}
+; The welcome page tells beginners what Chimera is and what to do after
+; installing, before the beta notice.
+DisableWelcomePage=no
 DisableProgramGroupPage=yes
 DisableDirPage=no
 PrivilegesRequired=admin
@@ -157,9 +160,15 @@ Name: "{autodesktop}\SpectralForge Chimera"; Filename: "{app}\SpectralForge Chim
 Filename: "{app}\SpectralForge Chimera.exe"; Description: "{cm:LaunchProgram,SpectralForge Chimera}"; Components: standalone; Flags: nowait postinstall skipifsilent
 
 ; No wildcard deletion rules: user-created presets and IRs are never owned by Setup.
+[Messages]
+english.WelcomeLabel2=This installs [name/ver], a guitar and bass amp simulator. Use it as a VST3 plug-in in your DAW or as a standalone app.%n%nAfter installing:%n1. Open SpectralForge Chimera (or load it in your DAW).%n2. Pick a sound in Easy view.%n3. Press AUTO SET and play normally for about half a minute. Chimera sets your input level, noise gate and tone.%n%nIf you are not sure which options to choose, click Next on each page; the defaults work for most people.
+korean.WelcomeLabel2=[name/ver]을(를) 설치합니다. 기타·베이스용 앰프 시뮬레이터로, DAW에서 VST3 플러그인으로 쓰거나 단독 실행 앱으로 쓸 수 있습니다.%n%n설치한 뒤에는:%n1. SpectralForge Chimera를 엽니다(또는 DAW에서 불러옵니다).%n2. 이지 뷰에서 사운드를 고릅니다.%n3. AUTO SET을 누르고 30초쯤 평소처럼 연주하면 입력 레벨, 노이즈 게이트, 톤을 맞춰 줍니다.%n%n어떤 옵션을 골라야 할지 모르겠다면 각 화면에서 [다음]만 누르세요. 기본값으로 대부분 잘 동작합니다.
+english.InfoBeforeLabel=This is a free beta. After the expiry date below, Chimera opened from then on is muted; install an update to keep playing. Projects and presets can still be opened and saved.
+korean.InfoBeforeLabel=무료 베타 버전입니다. 아래 만료일이 지나면 그 뒤에 연 Chimera는 소리가 나지 않으니 업데이트를 설치하세요. 프로젝트와 프리셋은 계속 열고 저장할 수 있습니다.
+
 [CustomMessages]
-english.FullInstall=VST3, standalone application and reference tools
-korean.FullInstall=VST3, 단독 실행 앱 및 레퍼런스 도구
+english.FullInstall=Recommended: plug-in, standalone app and reference tools
+korean.FullInstall=권장: 플러그인, 단독 실행 앱, 레퍼런스 도구 모두 설치
 english.CustomInstall=Choose components
 korean.CustomInstall=설치할 구성 요소 선택
 english.Standalone=Standalone application
