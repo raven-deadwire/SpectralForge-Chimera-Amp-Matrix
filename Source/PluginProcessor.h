@@ -88,6 +88,15 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
     juce::Result loadIR(int lane,const juce::File& file);
     juce::Result loadMicIR(int lane,int slot,const juce::File& file);
+    // Message thread. Renders `input` through a copy of a lane's cabinet as it
+    // is now set up (modeled or captured IRs, mic A/B blend, gain, delay and
+    // polarity, low/high cuts, cabinet on/off) without touching the running
+    // engine. With an impulse as input, the result is the cabinet's IR.
+    juce::AudioBuffer<float> renderCabinet(int lane,const juce::AudioBuffer<float>& input,double sampleRate) const;
+    juce::AudioBuffer<float> cabinetImpulseResponse(int lane,double sampleRate,double maximumSeconds=2.0) const;
+    // Writes the lane's cabinet IR as a 32-bit float WAV at the session rate
+    // (48 kHz when none), mono when both channels match.
+    juce::Result exportCabinetIR(int lane,const juce::File& file) const;
     juce::String micName(int lane,int slot) const { return library.userName(lane+3*slot); }
     spectralforge::CabMicRouting micRouting(int lane) const {
         const auto n=juce::String(lane+1);
@@ -188,6 +197,7 @@ public:
     void activateNativePost(int section);
 private:
     friend struct ChimeraBetaTestAccess;
+    friend struct ChimeraCabExportTestAccess;
     ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock,
                      const spectralforge::beta::tester::Grant& tester={});
     const spectralforge::beta::Clock betaClock;
@@ -256,9 +266,10 @@ private:
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     spectralforge::EQEditState eqEditState{state};
     spectralforge::EQCaptureBoundary eqCaptureBoundaryState;
-    std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
+    std::array<std::array<std::atomic<float>*,12>,3> cabPanelParameters{};
     spectralforge::OriginalCabParameters originalCabParameters;
     void syncOriginalCabRequests();
+    void applyCabinetParameters(int lane,spectralforge::Cab& cab) const;
     spectralforge::Engine engine;
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;

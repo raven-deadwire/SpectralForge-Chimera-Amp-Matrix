@@ -1,5 +1,6 @@
 #pragma once
 #include "Cabinet.h"
+#include "CabIRFormat.h"
 #include "OriginalCabModel.h"
 #include <deque>
 #include "IRMetadata.h"
@@ -18,6 +19,7 @@ public:
         juce::String name;
         IRMetadata metadata;
         double rate{};
+        bool cabinetExport{};
     };
     explicit IRLibrary(std::array<Cab*,3> cabinets);
     ~IRLibrary() override;
@@ -51,6 +53,8 @@ public:
     // priority on Windows/macOS; on Linux it reports the requested value only.
     WorkerScheduling workerScheduling() const noexcept {return scheduling;}
     juce::Result importFile(int lane, const juce::File&);
+    bool userIsCabinetExport(int lane) const;
+    static constexpr const char* cabinetExportTag=cabinetExportWavTag;
     juce::String status(int lane) const;
     juce::String userName(int lane) const;
     IRMetadata metadata(int lane, int source, bool includeModeled=true) const;

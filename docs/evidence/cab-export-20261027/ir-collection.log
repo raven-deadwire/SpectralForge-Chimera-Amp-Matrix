@@ -1,0 +1,5 @@
+PASS: 20 stable microphone identities, 9/3/8 categories, original condenser branding, conservative metadata and filename matching
+PASS: release catalog contains only two attributed factory IRs; generic user import preserves bytes and metadata
+PASS: unspecified personal IRs, explicit persistent classification, folder/file precedence, equal-basename isolation, non-destructive remove/re-add, factory protection and embedded metadata roundtrip
+PASS: independent instrument/status/diameter filters, public factory-only catalog, explicit user imports, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit
+PASS tagged cabinet exports: two-second and cancellation/silent responses in file and embedded browser validation; untagged limits unchanged

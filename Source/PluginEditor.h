@@ -82,6 +82,7 @@ private:
     juce::Label callbackLoad;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
+    void exportCabinet(int lane);
     void openCabWorkspace(int,bool focusRequested=false);
     void openAmpHead(int);
     void chooseIR(int,bool folder);

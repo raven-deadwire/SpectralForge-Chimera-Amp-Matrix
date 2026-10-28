@@ -38,8 +38,9 @@ std::shared_ptr<IRLibrary::Asset> IRLibrary::decode(const juce::MemoryBlock& byt
     formats.registerFormat(new juce::AiffAudioFormat(),false);
     auto reader=std::unique_ptr<juce::AudioFormatReader>(formats.createReaderFor(std::make_unique<juce::MemoryInputStream>(bytes,false)));
     if(!reader) { error="Cannot decode this WAV/AIFF file. Previous IR kept."; return {}; }
+    const bool cabinetExport=reader->metadataValues.getValue(juce::WavAudioFormat::bwavDescription,{})==cabinetExportTag;
     if(reader->numChannels<1 || reader->numChannels>2 || reader->sampleRate<8000 || reader->sampleRate>384000 ||
-       reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate))
+       reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate*(cabinetExport?2.:1.)))
     { error="Use a mono/stereo IR, 8-384 kHz, up to 1 second."; return {}; }
     auto asset=std::make_shared<Asset>();
     asset->samples.setSize((int)reader->numChannels,(int)reader->lengthInSamples);
@@ -53,7 +54,8 @@ std::shared_ptr<IRLibrary::Asset> IRLibrary::decode(const juce::MemoryBlock& byt
             if(!std::isfinite(x) || std::abs(x)>32.f) { error="IR contains invalid samples."; return {}; }
             energy+=double(x)*x;
         }
-    if(energy<1e-12) { error="IR is silent. Previous IR kept."; return {}; }
+    if(energy<1e-12 && !cabinetExport) { error="IR is silent. Previous IR kept."; return {}; }
+    asset->cabinetExport=cabinetExport;
     asset->encoded=bytes; asset->rate=reader->sampleRate; asset->name=IRMetadata::leafName(name);
     asset->metadata=IRMetadata::filenameHints(asset->name);
     return asset;
@@ -140,7 +142,7 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     }
     else if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
     else { samples.setSize(1,1); samples.setSample(0,0,1.f); }
-    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model,prepared);
+    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model,prepared,asset && asset->cabinetExport);
     kernel->hasIR = model != 0 || asset != nullptr;
     cancellation.checkpoint();
     if(cachedModel && !cachedModel->prepared)cachedModel->prepared=std::move(prepared);
@@ -334,6 +336,11 @@ void IRLibrary::pregenerate(const std::array<uint64_t,6>& builtModels)
         item.samples.copyFrom(0,0,job.response.data(),int(job.response.size()));
         pregenerated.push_back(std::move(item));
     }
+}
+bool IRLibrary::userIsCabinetExport(int lane) const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return lane>=0 && lane<6 && users[(size_t)lane] && users[(size_t)lane]->cabinetExport;
 }
 juce::String IRLibrary::userName(int lane) const
 {

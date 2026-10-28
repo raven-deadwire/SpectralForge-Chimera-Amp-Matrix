@@ -4,14 +4,15 @@
 #include <stdexcept>
 namespace {
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
-void writeIR(const juce::File& file,bool silent=false) {
+void writeIR(const juce::File& file,bool silent=false,bool exported=false,int length=256) {
     auto stream=file.createOutputStream();require(stream!=nullptr,"Cannot create IR fixture");
     juce::WavAudioFormat format;
-    std::unique_ptr<juce::AudioFormatWriter> writer(format.createWriterFor(stream.release(),48000,1,24,{},0));
+    juce::StringPairArray metadata;if(exported)metadata.set(juce::WavAudioFormat::bwavDescription,spectralforge::cabinetExportWavTag);
+    std::unique_ptr<juce::AudioFormatWriter> writer(format.createWriterFor(stream.release(),48000,1,32,metadata,0));
     require(writer!=nullptr,"Cannot create WAV writer");
-    juce::AudioBuffer<float> samples(1,256);samples.clear();
+    juce::AudioBuffer<float> samples(1,length);samples.clear();
     if(!silent)samples.setSample(0,0,.5f);
-    require(writer->writeFromAudioSampleBuffer(samples,0,256),"Cannot write WAV fixture");
+    require(writer->writeFromAudioSampleBuffer(samples,0,length),"Cannot write WAV fixture");
 }
 }
 int main() {
@@ -167,6 +168,16 @@ int main() {
         rows=C::scan({capped},false,&report);
         require(rows.size()==512 && report.examinedFiles==512 && report.truncated,"Scan silently omitted files beyond its limit");
         std::cout<<"PASS: independent instrument/status/diameter filters, public factory-only catalog, explicit user imports, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit\n";
+        const auto exported=root.getChildFile("exported.wav");
+        for(bool silentExport:{false,true}) {
+            exported.deleteFile();writeIR(exported,silentExport,true,96000);
+            juce::MemoryBlock data;require(exported.loadFileAsData(data),"Read tagged export");
+            require(C::validateFile(exported).isEmpty() && C::validateEncodedIR(data).isEmpty(),"Tagged two-second/silent export rejected by browser or pack importer");
+            exported.deleteFile();writeIR(exported,silentExport,false,96000);
+            data.reset();require(exported.loadFileAsData(data),"Read ordinary long IR");
+            require(C::validateFile(exported).isNotEmpty() && C::validateEncodedIR(data).isNotEmpty(),"Ordinary IR duration policy changed");
+        }
+        std::cout<<"PASS tagged cabinet exports: two-second and cancellation/silent responses in file and embedded browser validation; untagged limits unchanged\n";
         return 0;
     } catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
 }

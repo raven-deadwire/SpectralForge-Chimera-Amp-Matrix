@@ -490,6 +490,13 @@ target_sources(ChimeraSwitchTimingProbe PRIVATE Tests/SwitchTimingProbe.cpp)
 target_include_directories(ChimeraSwitchTimingProbe PRIVATE Source)
 target_link_libraries(ChimeraSwitchTimingProbe PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraSwitchTimingProbe COMMAND ChimeraSwitchTimingProbe "${CMAKE_BINARY_DIR}/switch-timing.csv")
+
+# CAB export: offline lane cabinet render, WAV round trip, convolution check.
+juce_add_console_app(ChimeraCabExportTests PRODUCT_NAME "Chimera CAB Export Tests")
+target_sources(ChimeraCabExportTests PRIVATE Tests/CabExportTests.cpp)
+target_include_directories(ChimeraCabExportTests PRIVATE Source)
+target_link_libraries(ChimeraCabExportTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraCabExportTests COMMAND ChimeraCabExportTests "${CMAKE_BINARY_DIR}/cab-export")
 # Preset, A/B and project recall must render the same audio, not only restore settings.
 juce_add_console_app(ChimeraStateRecallAudioTests PRODUCT_NAME "Chimera State Recall Audio Tests")
 target_sources(ChimeraStateRecallAudioTests PRIVATE Tests/StateRecallAudioTests.cpp)

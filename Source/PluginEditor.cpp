@@ -1,3 +1,4 @@
+#include "CabIRFile.h"
 #include "KnobInteraction.h"
 #include <limits>
 #include "WindowFit.h"
@@ -482,7 +483,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             else {auto* model=processor.parameters().getParameter(spectralforge::originalCabID(i,"Aon"));model->beginChangeGesture();model->setValueNotifyingHost(0);model->endChangeGesture();auto* p=processor.parameters().getParameter("cabtype"+n);p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(float(source)));p->endChangeGesture();}
             timerCallback();
         };
-        lane.cabType.browse=[this,i]{loadIR(i);};lane.cabType.refresh();
+        lane.cabType.browse=[this,i]{loadIR(i);};lane.cabType.exportCabinet=[this,i]{exportCabinet(i);};lane.cabType.refresh();
         lane.cabType.setTooltip("Choose a built-in or installed cabinet IR directly. The menu refreshes when opened. Loaded IR audio is saved inside the project and A/B slots.");
         setupSlider(lane.cabLow,"Cab low cut"," Hz"); setupSlider(lane.cabHigh,"Cab high cut"," Hz");
         lane.cabLow.setNumDecimalPlacesToDisplay(0); lane.cabHigh.setNumDecimalPlacesToDisplay(0);
@@ -1093,6 +1094,30 @@ void ChimeraEditor::layoutControls()
     }
 }
 
+void ChimeraEditor::exportCabinet(int lane)
+{
+    // The cabinet as this rig hears it: IR or model, mic A/B blend, delay,
+    // polarity, cuts. Amp, effects and dynamics are not part of the file.
+    chooser=std::make_unique<juce::FileChooser>("Export cabinet IR (Rig "+juce::String(lane+1)+")",
+        juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("Chimera Rig "+juce::String(lane+1)+" cabinet.wav"),"*.wav");
+    const juce::Component::SafePointer<ChimeraEditor> safe(this);
+    chooser->launchAsync(juce::FileBrowserComponent::saveMode|juce::FileBrowserComponent::canSelectFiles|juce::FileBrowserComponent::warnAboutOverwriting,[safe,lane](const juce::FileChooser& chosen){
+        if(!safe || chosen.getResult()==juce::File{}) return;
+        const auto target=spectralforge::cabIRFile::wavDestination(chosen.getResult());
+        const auto save=[safe,lane,target](int accepted) {
+            if(!safe || accepted!=1)return;
+            const auto result=safe->processor.exportCabinetIR(lane,target);
+            if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Export cabinet IR",result.getErrorMessage(),"OK",safe);
+        };
+        // The native dialog confirmed the selected name, not a different name
+        // produced by appending/replacing its extension.
+        if(spectralforge::cabIRFile::needsAdditionalOverwriteConfirmation(chosen.getResult()))
+            juce::AlertWindow::showOkCancelBox(juce::MessageBoxIconType::QuestionIcon,
+                "Replace cabinet IR?",target.getFullPathName()+" already exists.","Replace","Cancel",
+                safe.getComponent(),juce::ModalCallbackFunction::create(save));
+        else save(1);
+    });
+}
 void ChimeraEditor::referenceFile(bool save)
 {
     chooser=std::make_unique<juce::FileChooser>(save ? "Save reference (A/B + embedded IRs)" : "Load reference",juce::File{},"*.chimera");
