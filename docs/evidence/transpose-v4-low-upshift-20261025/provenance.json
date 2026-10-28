@@ -1,0 +1,16 @@
+{
+  "original_source_commit": "5ebf46d7a26c08d639c5b4339afeee76b9ef2d70",
+  "registered_source_commit": "68a62530da410491460724515f83e9ab6cf83b3a",
+  "juce": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "binaries_sha256": {
+    "build/TransposeProbe-original": "b04e1e09945102ef7e3f314493ebc600b06383c27f4aae85a515896cbf3245ab",
+    "build/transpose-baseline/TransposeProbe": "c54039dab8dd14ac86a5a3d1985a659d708eddb2c6c0ee732a2332d8e042563a",
+    "build/transpose-baseline/BlockInvariance": "badf084900a7f445fa480a01d693a303a7f3c6903137590935a14b0fe49f2ea2",
+    "build/transpose-baseline/OnsetTrace": "f1b2a69d376b97361152ea82b35a75608db04ba4c1b1acd9ffec7397dc7e0ef7",
+    "build/CorrelationTests-sanitized": "4e041088ad3a3a17fb25844ed864fc4d0cf8923bb42ca03d4da7be30702eaf6c"
+  }
+}

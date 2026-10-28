@@ -1,0 +1,87 @@
+{
+  "purpose": "corr40-split-v4 low upshift read-age floor, untouched T1-T4 limits",
+  "execution_host_utc": "2026-10-24T20:10:53.335102+00:00",
+  "client_date_kst": "2026-10-25",
+  "base_commit": "5ebf46d7a26c08d639c5b4339afeee76b9ef2d70",
+  "sources_sha256": {
+    "Tools/TransposeNext/BlockInvariance.cpp": "e742da71c060df33d3f14026dab681c21f49de361b095d4e0d830568138aaf22",
+    "Tools/TransposeNext/CorrelationPitch.h": "c46e2a421545aee68ad5d60d4d773aae7cc28c4618085f73623acf727dcfc438",
+    "Tools/TransposeNext/CorrelationTests.cpp": "9727d13fccd2ed56bfd453f87a7eed0a69f6c2454e8f3f3de97a711af2361efb",
+    "Tools/TransposeNext/OnsetTrace.cpp": "77238eaab3397fc01a7635042666896cc5ff3a40f2e3812c89c33bb5b4d3c8a9",
+    "Tools/TransposeNext/RelativePhasePitch.h": "a0e68f39e154da6138de4ecf37d140f499f98460ea87674406943fedebfa342a",
+    "Tools/TransposeNext/SpliceCollision.cpp": "c43c18591288abce270ff4e96b187eb63f39916fd21480c4cb0f8fe8210356b9",
+    "Tools/TransposeNext/TransientSplitPitch.h": "62e2ddb20f48a06c9ea709434ebbef7e0eb7b4421928e86b1579bee1067e875b",
+    "Tools/TransposeNext/TransposeProbe.cpp": "9fdce88bc6bab51bb43bcd54cb6017850572046209b5f2acbf05d8c0001e7103",
+    "Tools/TransposeNext/build.py": "124338220aaab972257836a64bbb12045eed022dbe44b3b5309937260bc42f91",
+    "Tools/TransposeNext/collect_evidence.py": "c4be788c123b058d89a296c74f3ad3c65ac0e8e0b6871792d4aaed9c61ef0c58",
+    "Tools/TransposeNext/di_validation.py": "e9dbfef2e54c71acc0100a43c6fdaa98dfe627bbfd61e786c28f9eb1ecca7141",
+    "Tools/TransposeNext/evaluate.py": "f6e9a16b51d690add067a35b84f6364b73a807c7c25d13b63db8730ce7f36a7f",
+    "Tools/TransposeNext/latency_targets.py": "891aade5e833b26fe914d1d932b122ad57ce168225adcec2d97947b82e7fdd65",
+    "Tools/TransposeNext/legacy_metrics.py": "8582eaeaba558584eb57af7e18935ea35380ffef142ab2d022b52d533277721a",
+    "Tools/TransposeNext/low_band_delay.py": "a7bfba478f78cc55d0d61e2c2b758a8cff79e4227740a78447c6469c6e9cbd53",
+    "Tools/TransposeNext/plot_results.py": "b2a7981e27fc67d52986746c6dbcec5399a1092dccd083e736583b6b326d9eba",
+    "Tools/TransposeNext/plugin/CMakeLists.txt": "79b34c851aa23cefcae0c6a9f17c04678818be82769568ad7ac6a8276134a989",
+    "Tools/TransposeNext/plugin/HostCheck.cpp": "7d53aa94c6e27120e59c0b1f32f55eaeda4753f64fb496eb3c4126b0093e734b",
+    "Tools/TransposeNext/plugin/ResearchEngine.h": "13b21a1895771eaa7557e5fcbc8fdc6c640d01250c246b66a7b0f646af6782a2",
+    "Tools/TransposeNext/plugin/ResearchProcessor.cpp": "2d6be374a776fce66135174682c4f27f88b2315a9d047786c4a84952c039f32a",
+    "Tools/TransposeNext/stress.py": "4021c585cc7aed78349fcccbd912851d40f46f3e6187cd4443cf0e452534e5be",
+    "Tools/TransposeNext/t6_host_check.py": "0a002c55101de0f3146e9bcbf3fa86ace04285cbc5cb0f8361163b3987273fb9",
+    "Tools/TransposeNext/t6_listening.py": "e4fdad0d856ba7d8f9b7bed0fbb36b5d995a8b2de3d542309a93efa3833f1fdb",
+    "Tools/TransposeNext/timing.py": "a77a46f69d9266c4eb4d75090f75b69e5fdc1b470fe57e88f1012c20afa323cf",
+    "Tools/TransposeNext/v4_validation.py": "136dee8b63bd48604253289cd506eec30e1b0cb1a3b720e0bba800b4158bebb9",
+    "Tools/TransposeNext/weak_attack_holdout.py": "27cc1425966cbe15cf49b45c0b287ee5bae0eb82376ddb71c911bc3c7c6deced",
+    "Tools/TransposeNext/weak_attack_study.py": "a2978394342ce97a132a91049cd98241c89ee9d529e4c6be13803e66ca92c62a",
+    "Validation/transpose-latency-targets.json": "aff449dff7a9ed4715f05f5d55005f57f956fb84db8df68d64fb47b0c1c592ce"
+  },
+  "binaries_sha256": {
+    "TransposeProbe": "c54039dab8dd14ac86a5a3d1985a659d708eddb2c6c0ee732a2332d8e042563a",
+    "BlockInvariance": "badf084900a7f445fa480a01d693a303a7f3c6903137590935a14b0fe49f2ea2",
+    "OnsetTrace": "f1b2a69d376b97361152ea82b35a75608db04ba4c1b1acd9ffec7397dc7e0ef7"
+  },
+  "spec_sha256": "aff449dff7a9ed4715f05f5d55005f57f956fb84db8df68d64fb47b0c1c592ce",
+  "fresh_holdout_seeds": [
+    196613,
+    262147,
+    327673
+  ],
+  "fresh_long_seeds": [
+    104729,
+    130363,
+    155921
+  ],
+  "previously_seen_seeds": [
+    1,
+    8139,
+    20261024,
+    31415,
+    27182,
+    16180,
+    2718,
+    14142,
+    17320,
+    22360,
+    1414
+  ],
+  "rates": [
+    44100,
+    48000,
+    96000
+  ],
+  "shifts": [
+    -2,
+    -1,
+    1,
+    2
+  ],
+  "block": 128,
+  "candidate": "corr40-split-v4",
+  "reference": "corr40-split-v3",
+  "pass_rule": "T1/T2/T4 PASS; all original T3 ceilings unchanged; fresh-only and all-input verdicts; 13 block patterns bit-identical",
+  "cpu_plan": "Separate from builds/functional tests: v3/v4, 3 rates, 64/128/256 blocks, +/-2 st, 3 repetitions, B0 and A0 long notes first fresh seed; wall/thread CPU tails and all misses retained",
+  "rules": [
+    "Commit/push registration before rendering fresh seeds",
+    "Single run per phase; retain failure; no retuning after results",
+    "No real DI, listening or actual DAW evidence is claimed",
+    "No product integration or release"
+  ]
+}

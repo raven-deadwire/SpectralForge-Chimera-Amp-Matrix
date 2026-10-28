@@ -12,8 +12,10 @@ public:
           state(*this,nullptr,"TransposeResearch",{
               std::make_unique<juce::AudioParameterInt>(juce::ParameterID{"shift",1},"Shift (semitones)",-2,2,-2),
               std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"engine",1},"Engine",juce::StringArray{"Product baseline","corr40-split-v2","corr40-split-v3"},2),
-              std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"latency",1},"Latency report",juce::StringArray{"Live (0)","Fixed PDC"},0)}) {
+              std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"latency",1},"Latency report",juce::StringArray{"Live (0)","Fixed PDC"},0),
+              std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"lowUpshiftFloor",1},"Low upshift floor (v4)",false)}) {
         shift=state.getRawParameterValue("shift");engine=state.getRawParameterValue("engine");latencyMode=state.getRawParameterValue("latency");
+        lowFloor=state.getRawParameterValue("lowUpshiftFloor");
     }
     const juce::String getName() const override {return "Chimera Transpose Research";}
     bool acceptsMidi() const override {return false;}
@@ -88,9 +90,12 @@ private:
         const int size=bypassLine.getNumSamples();
         for(int i=0;i<b.getNumSamples();++i){for(int c=0;c<channels;++c)bypassLine.setSample(c,bypassWrite,b.getSample(c,i));bypassWrite=(bypassWrite+1)%size;}
     }
-    Engine engineNow() const {return Engine(juce::jlimit(0,2,int(std::lround(engine->load()))));}
+    Engine engineNow() const {
+        const auto selected=Engine(juce::jlimit(0,2,int(std::lround(engine->load()))));
+        return selected==Engine::v3 && lowFloor->load()>.5f ? Engine::v4 : selected;
+    }
     juce::AudioProcessorValueTreeState state;
-    std::atomic<float>* shift{};std::atomic<float>* engine{};std::atomic<float>* latencyMode{};
+    std::atomic<float>* shift{};std::atomic<float>* engine{};std::atomic<float>* latencyMode{};std::atomic<float>* lowFloor{};
     ResearchEngine dsp;juce::AudioBuffer<float> scratch;
     juce::AudioBuffer<float> bypassLine;int bypassWrite{};double sampleRate{48000};bool fixed{};
     int channels{2},capacity{1},applied{0};Engine active{Engine::v3};

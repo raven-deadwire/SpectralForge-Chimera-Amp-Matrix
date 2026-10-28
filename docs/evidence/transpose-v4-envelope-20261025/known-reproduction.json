@@ -1,0 +1,17 @@
+{
+  "entire_json_equal": true,
+  "summary": {
+    "corr40-split-v3": {
+      "known_B0_long_max_ms": 15.660965638318196,
+      "dip_extra_db_p90": 4.718192905170066,
+      "dip_extra_db_max": 14.590399097506854,
+      "dip_events": 252
+    },
+    "corr40-split-v4": {
+      "known_B0_long_max_ms": 13.696003190606383,
+      "dip_extra_db_p90": 4.860649108713539,
+      "dip_extra_db_max": 19.908263444835693,
+      "dip_events": 252
+    }
+  }
+}

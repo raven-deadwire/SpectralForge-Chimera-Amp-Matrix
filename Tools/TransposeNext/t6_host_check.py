@@ -16,9 +16,10 @@ from legacy_metrics import sha
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--plugin', type=Path, required=True); p.add_argument('--host-check', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True); p.add_argument('--rates', default='44100,48000,96000'); p.add_argument('--shifts', default='-2,-1,1,2'); p.add_argument('--engines', default='baseline,v2,v3')
+    p.add_argument("--no-xvfb", action="store_true", help="Run the headless host directly without a display server")
     a = p.parse_args(); a.out.mkdir(parents=True, exist_ok=True)
     # JUCE's GUI initialiser needs an X display on Linux even without an editor.
-    wrap = ['xvfb-run', '-a'] if os.name == 'posix' and not os.environ.get('DISPLAY') and shutil.which('xvfb-run') and os.uname().sysname == 'Linux' else []
+    wrap = ['xvfb-run', '-a'] if not a.no_xvfb and os.name == 'posix' and not os.environ.get('DISPLAY') and shutil.which('xvfb-run') and os.uname().sysname == 'Linux' else []
     rows = []
     with tempfile.TemporaryDirectory() as w:
         for rate in map(int, a.rates.split(',')):
@@ -28,6 +29,7 @@ def main():
                     for engine in a.engines.split(','):
                         for shift in map(int, a.shifts.split(',')):
                             jp = Path(w)/'r.json'
+                            jp.unlink(missing_ok=True)  # never reuse a prior run's result after a host failure
                             r = subprocess.run([*wrap, str(a.host_check), str(a.plugin), str(ip), str(rate), str(shift), engine, str(jp)], capture_output=True, text=True)
                             row = {'rate': rate, 'input': f'{inst}/{name}', 'engine': engine, 'shift': shift, 'exit': r.returncode}
                             row.update(json.loads(jp.read_text()) if jp.exists() else {'error': r.stderr[-500:]})
