@@ -1,0 +1,47 @@
+Internal ctest changing into directory: /workspace/scratch/34b4b4d03e6d/chimera/build
+UpdateCTestConfiguration  from :/workspace/scratch/34b4b4d03e6d/chimera/build/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/workspace/scratch/34b4b4d03e6d/chimera/build/DartConfiguration.tcl
+Test project /workspace/scratch/34b4b4d03e6d/chimera/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start  1: ChimeraHostBypassTests
+
+1: Test command: /workspace/scratch/34b4b4d03e6d/chimera/build/ChimeraHostBypassTests
+1: Working Directory: /workspace/scratch/34b4b4d03e6d/chimera/build
+1: Test timeout computed to be: 10000000
+1: PASS host bypass: exact delayed input, wet priming, mono/stereo, zero/dynamic delay, oversized blocks, reprepare and reset
+1/2 Test  #1: ChimeraHostBypassTests ...........   Passed    0.01 sec
+test 34
+    Start 34: ChimeraABLevelMatchTests
+
+34: Test command: /workspace/scratch/34b4b4d03e6d/chimera/build/ChimeraABLevelMatchTests_artefacts/Release/ChimeraABLevelMatchTests
+34: Working Directory: /workspace/scratch/34b4b4d03e6d/chimera/build
+34: Test timeout computed to be: 180
+34: MEASURE lufs 997Hz=-3.01039 30Hz=-12.0047 4kHz=0.266698
+34: PASS meter: BS.1770 level, unheard slot unknown, K-weighting shape
+34: MEASURE match a=-29.0296 b=-29.0271 dB
+34: PASS match: louder sound cut to the quieter one, never boosted, off is bit-identical, silence gated, bounded cut, copy and forget
+34: MEASURE processor a=-39.5772 b=-39.5732 cut=-5.99176 dB
+34: PASS processor: A/B level match on the real output, not saved, forgotten on project load, off is bit-identical
+34: PASS prepare: same-rate/device/channel/rate changes clear readings, pending COPY and MATCH
+34: PASS ramps: ON/OFF/A/B sample ramps at 44.1/48/96 kHz, 1/64/257/1024 samples, mono/stereo
+34: PASS edge cases: silence-only, OFF byte identity/signed zero, pending COPY ordering, rapid switch holdoff, print measurement freeze
+34: PASS recall: A/B retained, preset invalidates active only, COPY, existing-instance restore without prepare, repeated prepare
+34: PASS restore: used instance with active attenuation/pending COPY resets without prepare
+34: PASS offline: real processor bit-exact from first sample, rearm blocked, no automatic resume
+34: PASS recording: real processor bit-exact from first sample, rearm blocked, no automatic resume
+34: PASS host paths: bypass recording, unavailable transport, offline without playhead
+2/2 Test #34: ChimeraABLevelMatchTests .........   Passed   15.68 sec
+
+The following tests passed:
+	ChimeraHostBypassTests
+	ChimeraABLevelMatchTests
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  15.69 sec

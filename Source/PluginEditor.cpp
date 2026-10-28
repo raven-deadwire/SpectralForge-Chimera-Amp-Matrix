@@ -184,7 +184,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     tunerOpen.setTooltip("Open precision tuning, strobe, temperament and per-string targets. Opening starts tuning; closing stops tuning. Output mute follows your selected preference.");
     tunerOpen.onClick=[this]{tunerViewOpen=!tunerViewOpen;auto* parameter=processor.parameters().getParameter("tuneron");parameter->beginChangeGesture();parameter->setValueNotifyingHost(tunerViewOpen?1.f:0.f);parameter->endChangeGesture();updateModeUI();};
     add(easyOpen);easyOpen.setComponentID("easyOpen");easyOpen.setName("Open Easy view");
-    easyOpen.setTooltip("Switch to Easy view: presets, six main knobs, Auto Set and tuner. Your sound stays as it is.");
+    easyOpen.setTooltip("Switch to Easy view: presets, six main knobs, Auto Set and tuner. Your tone settings stay as they are; MATCH switches off.");
     easyOpen.onClick=[this]{setEasyMode(true,true);};
     add(boardPanel);add(preEngineStatus);
     preEngineStatus.setComponentID("preEngineStatus");
@@ -220,11 +220,33 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         menu.addItem(6,"Beta / Updates / Manual / Bug report...");menu.addItem(7,"Review / copy / save diagnostics...");menu.addSeparator();menu.addItem(1,"Save reference...");menu.addItem(2,"Load reference...");menu.addSeparator();menu.addItem(3,"About / IR credits");menu.addSeparator();menu.addItem(4,"Reset tuner A4 to 440 Hz");menu.addItem(5,"Clear MIDI assignments");
         menu.addSeparator();menu.addItem(8,processor.testerCodeHolder().isEmpty() ? juce::String("Enter beta tester code...")
                                                                               : "Beta tester code: "+processor.testerCodeHolder()+" (no expiry)...");
+        menu.addSeparator();
+        const auto& match=processor.abLevelMatch();
+        menu.addItem(9,match.captureLocked() ? "Capture safety: MATCH locked off by OBS" : "Capture safety: lock MATCH off",
+                     !match.captureLocked(),match.captureSafe());
         const juce::Component::SafePointer<ChimeraEditor> safe(this);
-        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==8)safe->showTesterCode();else if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==9){auto& match=safe->processor.abLevelMatch();match.setCaptureSafe(!match.captureSafe());safe->timerCallback();}else if(result==8)safe->showTesterCode();else if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
     info.setTooltip(processor.betaNotice());
-    for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton}) add(*button);
+    for(auto* button:{&compareA,&compareB,&copyAB,&matchAB,&irLibraryButton}) add(*button);
+    matchAB.setComponentID("ab.match");
+    matchAB.onClick=[this]{
+        auto& match=processor.abLevelMatch();
+        if(match.enabled()){match.setEnabled(false);timerCallback();return;}
+        if(match.outputProtected())return;
+        if(matchWarningAcknowledged){match.setEnabled(true);timerCallback();return;}
+        const juce::Component::SafePointer<ChimeraEditor> safe(this);
+        matchWarning=juce::AlertWindow::showScopedAsync(juce::MessageBoxOptions{}
+            .withIconType(juce::MessageBoxIconType::WarningIcon)
+            .withTitle("MATCH changes the output")
+            .withMessage("MATCH lowers the louder A/B sound at the plugin output. Turn it off before recording, exporting, freezing or OBS capture. "
+                         "Host-reported recording and offline rendering switch it off automatically. Realtime exports and unreported recording cannot be detected. Use SETTINGS > Capture safety to lock MATCH off for external capture.")
+            .withButton("Enable MATCH").withButton("Cancel").withAssociatedComponent(this),
+            [safe](int result){if(safe && result==1){safe->matchWarningAcknowledged=true;safe->processor.abLevelMatch().setEnabled(true);safe->timerCallback();}});
+    };
+    matchAB.setTooltip("Level-match A/B: while you play, measure both sounds and turn the louder one down to the quieter one, so you compare tone, not volume. "
+                       "Changes plugin output; not a separate monitor bus. Turn off before printing (50 ms release). Host-reported recording/offline render disarms it immediately; "
+                       "External OBS capture and realtime exports cannot be detected. SETTINGS > Capture safety locks MATCH off. The updated Chimera OBS add-on locks it off automatically. SAFE means output protection, not detected recording. Not saved; off after project load or audio-device restart.");
     compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();presetOrigin=0;timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();presetOrigin=0;timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
     copyAB.setTooltip("Copy the active sound to the other slot. A/B stores all parameters and IR audio; both slots are saved with the project/reference file.");
@@ -490,7 +512,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         initialSize=spectralforge::ui::boundedEditorSize(initialSize,display->userArea,{16,64});
     setSize(initialSize.x,initialSize.y); updateModeUI(); startTimerHz(25);
 }
-ChimeraEditor::~ChimeraEditor() { for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().removeParameterListener(id,this);cancelPendingUpdate();stopTimer(); chooser.reset(); for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();dialogs.clear();if(support)support->cancel();support.reset();setLookAndFeel(nullptr); }
+ChimeraEditor::~ChimeraEditor() { matchWarning.close();processor.abLevelMatch().setEnabled(false);for(const auto* id:{"mode","dualtype","tuneron","tunermute"})processor.parameters().removeParameterListener(id,this);cancelPendingUpdate();stopTimer(); chooser.reset(); for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();dialogs.clear();if(support)support->cancel();support.reset();setLookAndFeel(nullptr); }
 void ChimeraEditor::setupSlider(juce::Slider& slider,const juce::String& name,const juce::String& suffix)
 {
     slider.setName(name); slider.setTooltip(name); slider.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -691,6 +713,13 @@ void ChimeraEditor::refreshVisibleState()
         if(bandKey.update(next) || stateDirty)updateBandLabels();
     }
     compareA.setToggleState(processor.comparisonSlot()==0,juce::dontSendNotification);compareB.setToggleState(processor.comparisonSlot()==1,juce::dontSendNotification);
+    {   // MATCH shows the cut it applies to the active sound.
+        const auto& match=processor.abLevelMatch();const float cut=match.appliedDb();
+        matchAB.setEnabled(!match.outputProtected());
+        matchAB.setToggleState(match.enabled(),juce::dontSendNotification);
+        const auto text=match.outputProtected() ? juce::String("SAFE") : match.enabled() && cut<-.05f ? juce::String(cut,1) : juce::String("MATCH");
+        if(matchAB.getButtonText()!=text)matchAB.setButtonText(text);
+    }
     for(int i=0;i<3;++i) {
         auto& lane=lanes[(size_t)i];if(!lane.amp.isVisible())continue;
         const auto n=juce::String(i+1);const bool active=processor.parameters().getRawParameterValue("cab"+n)->load()>.5f;
@@ -912,7 +941,7 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     spectralforge::art::raster(g,spectralforge::art::Surface::workbench,{0,0,1180,780});
     g.setColour(background.withAlpha(.40f));g.fillRect(0,0,1180,780);
     g.setColour(accent.withAlpha(.7f));g.fillRect(20,20,2,36);
-    text(g,"SOUND A / B",490,11,121,14,8.5f,muted);
+    text(g,"SOUND A / B",490,11,163,14,8.5f,muted);
     if(brandEmblem.isValid())g.drawImageWithin(brandEmblem,25,5,62,60,juce::RectanglePlacement::centred);
     if(wordmark.isValid())g.drawImageWithin(wordmark,96,4,365,59,juce::RectanglePlacement::centred);
     else {text(g,"SPECTRALFORGE",106,5,350,15,10.f);text(g,"CHIMERA",103,17,360,45,36.f,ink);}
@@ -927,7 +956,7 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.inputMeter(),-90.f),1)+" dBFS",32,210,106,22,11.f,processor.inputMeter()>=1 ? juce::Colours::salmon : muted);
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.outputMeter(),-90.f),1)+" dBFS",976,210,152,22,11.f,processor.outputMeter()>=1 ? juce::Colours::salmon : muted);
     text(g,"INPUT MODE",638,88,108,16,9.f);text(g,"PRESET",770,88,160,16,9.f);
-    text(g,"MODE",634,8,170,22,10.f);
+    text(g,"MODE",664,8,140,22,10.f);
     if(page==2) {
         for(int position=3;position<6;++position) {
             const float y=330.f+position*69.f;const int family=rackOrder[(size_t)position];const auto& effect=effects[(size_t)family];
@@ -1016,9 +1045,9 @@ void ChimeraEditor::layoutControls()
     precisionTuner->setBounds(20,330,1140,412);
     preEngineStatus.setBounds(585,302,575,24);boardPanel.setBounds(20,330,1140,415);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
-    compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);
+    compareA.setBounds(490,30,28,28);compareB.setBounds(521,30,28,28);copyAB.setBounds(552,30,40,28);matchAB.setBounds(595,30,60,28);
     title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(808,748,86,28);
-    mode.setBounds(634,30,170,28);routingHelp.setBounds(20,302,278,24);
+    mode.setBounds(664,30,140,28);routingHelp.setBounds(20,302,278,24);
     dualType.setBounds(300,302,180,24);dualLabel.setBounds(494,303,130,22);dualBlend.setBounds(628,302,330,24);dualFrequency.setBounds(628,302,330,24);
     x1Label.setBounds(400,303,105,22);x1.setBounds(507,302,210,24);
     x2Label.setBounds(732,303,105,22);x2.setBounds(839,302,306,24);
@@ -1188,6 +1217,8 @@ void ChimeraEditor::trackDialog(juce::DialogWindow* dialog)
 }
 void ChimeraEditor::setEasyMode(bool easy,bool rememberChoice)
 {
+    // Easy view hides the comparison controls, so do not leave an invisible cut.
+    if(easy)processor.abLevelMatch().setEnabled(false);
     if(rememberChoice)spectralforge::easy::Preference::remember(easy);
     if(easy && !easyView) {
         easyView=std::make_unique<EasyModeView>(processor);

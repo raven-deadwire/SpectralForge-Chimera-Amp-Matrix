@@ -1,0 +1,7 @@
+Test project /workspace/scratch/4b62b0edff83/chimera/build-capture
+    Start 38: ChimeraStateRecallAudioTests
+1/1 Test #38: ChimeraStateRecallAudioTests .....   Passed   27.33 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =  27.33 sec

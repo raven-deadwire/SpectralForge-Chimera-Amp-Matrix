@@ -2,6 +2,8 @@
 #pragma once
 #include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <functional>
+#include <thread>
 #include "DynamicsAnalysis.h"
 #include "AutoSet.h"
 #include "MultibandDynamics.h"
@@ -10,6 +12,8 @@
 #include "FXParameters.h"
 #include "IRLibrary.h"
 #include "PerformanceUtilities.h"
+#include "ABLevelMatch.h"
+#include "ParamIndex.h"
 #include "PedalBoardParameters.h"
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
@@ -26,10 +30,12 @@
 #include "AAXIdentity.h"
 #include "HostBypass.h"
 
-class ChimeraProcessor : public juce::AudioProcessor {
+class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
     ChimeraProcessor();
     ~ChimeraProcessor() override;
+    juce::VST3ClientExtensions* getVST3ClientExtensions() override { return this; }
+    void setIHostApplication(Steinberg::FUnknown*) override;
 #if CHIMERA_ROUTING_DIAGNOSTICS
     std::atomic<int> routingGateObserved{-1};
     std::atomic<uint64_t> routingBlocks{0};
@@ -154,6 +160,9 @@ public:
     void selectComparison(int slot);
     void copyComparison();
     int comparisonSlot() const {return selectedComparison.load();}
+    // A/B comparison gain on the output, never saved (see ABLevelMatch.h).
+    spectralforge::ABLevelMatch& abLevelMatch() noexcept {return levelMatch;}
+    const spectralforge::ABLevelMatch& abLevelMatch() const noexcept {return levelMatch;}
     void loadFactoryPreset(int index);
     // Presentation invalidation only; never serialized or read by the DSP.
     uint64_t ampHeadRecallRevision() const noexcept {return headRecallRevision.load();}
@@ -218,15 +227,42 @@ private:
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
     void measureStage(int,const juce::AudioBuffer<float>&);
     void resetProcessingIfPending();
+    void updateComparisonProtection();
+    void resetProcessing(bool hostBypassToo);
+    void applySwitchFade(juce::AudioBuffer<float>&);
+    void beginSwitch();
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
     void syncTransposeQuality();
     void restoreCore(juce::ValueTree);
+    void warmInactiveComparison();
     std::array<juce::ValueTree,2> comparisons;
     std::mutex comparisonMutex;
     std::atomic<int> selectedComparison{0};
     std::atomic<uint64_t> headRecallRevision{0};
     std::atomic<bool> resetPending{false};
+    // A recalled sound (preset, A/B, project, board on/off) resets the DSP
+    // behind a short fade instead of cutting. While audio runs, beginSwitch()
+    // lets the old sound fade out (5 ms) before the state changes, since new
+    // parameters on the old DSP would already jump. Then: reset, mute for the
+    // reported latency (cleared delay lines), fade in (5 ms). Host reset()
+    // stays immediate, and so does the first block after prepareToPlay.
+    std::atomic<bool> switchPending{false},fadeRequested{false},fadedSilent{false};
+    std::atomic<juce::int64> lastProcessTicks{0};std::atomic<size_t> audioThread{0};
+    // After the reset, stay muted for the latency plus 20 ms while the new
+    // sound already runs: parameter smoothers ramp from the old sound's values
+    // and dynamics detectors start without gain reduction, so the first note
+    // would otherwise come out louder than the recalled sound.
+    static constexpr double switchSettleSeconds=.02;
+    // Then, if a cabinet that can be heard is still building the recalled IR
+    // or model on the worker (or crossfading to it), stay muted until it is
+    // ready, at most this long: otherwise the old cabinet plays first. While
+    // muted, a recalled cabinet installs without the 50 ms crossfade; one that
+    // arrives late gets the settle time again before the fade-in.
+    static constexpr double switchCabinetWaitSeconds=.5;
+    enum class SwitchFade {idle,out,hold,wait,in};
+    SwitchFade switchFade{SwitchFade::idle};int switchFadeLength{240},switchFadePosition{240},switchWait{},switchHold{},switchCabinetBudget{};
+    bool processedSincePrepare{},holdForSwitch{},switchCabinetLate{};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     spectralforge::EQEditState eqEditState{state};
     spectralforge::EQCaptureBoundary eqCaptureBoundaryState;
@@ -248,6 +284,7 @@ private:
     std::atomic<bool> autoSetGateBypass{false};
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
+    spectralforge::ABLevelMatch levelMatch;
     std::array<std::atomic<int>,128> midiMap;
     std::atomic<int> midiLearn{-1};
     std::atomic<bool> restartClick{false};

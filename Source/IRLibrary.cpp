@@ -113,7 +113,12 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     double rate=spec.sampleRate;
     if(model) {
         auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
-        if(found==modelCache.end()) {
+        auto ready=std::find_if(pregenerated.begin(),pregenerated.end(),[&](const auto& item){return item.key==model;});
+        if(found==modelCache.end() && ready!=pregenerated.end()) {
+            generated.samples=std::move(ready->samples);pregenerated.erase(ready);
+            cachedModel=&generated;cacheGenerated=true;
+        }
+        else if(found==modelCache.end()) {
             SF_CAB_PROFILE_SCOPE(ResponseGenerate);
             auto response=cabLayout::generate(model,rate,cancellation);
             // Keep a new response private until its entire kernel is ready and
@@ -143,7 +148,7 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     if(cachedModel && !cachedModel->prepared)cachedModel->prepared=std::move(prepared);
     if(cacheGenerated) {
         modelCache.push_back(std::move(generated));
-        if(modelCache.size()>8)modelCache.pop_front();
+        trimModelCache();
     }
     return kernel;
 }
@@ -151,6 +156,7 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
 {
     const lifecycle::Scope trace("ir.prepare", this);
     stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);scheduling={};
+    warmFailed.fill(0); // A new preparation may fix an earlier generation failure.
     for(int i=0;i<6;++i)
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
@@ -178,6 +184,8 @@ void IRLibrary::run()
     for(int i=0;i<6;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); models[i]=cabs[i]->activeModel.load(); rejections[i]=cabs[i]->rejectedModels.load(); }
     while(!threadShouldExit())
     {
+        pregenerate(models);
+        bool busy=false;
         for(int i=0;i<6 && !threadShouldExit();++i)
         {
             cabs[i]->collect();
@@ -187,6 +195,7 @@ void IRLibrary::run()
             const auto model=cabs[i]->requestedModel.load();
             const auto rejected=cabs[i]->rejectedModels.load();
             if(rejected==rejections[i] && source==built[i] && model==models[i] && (source!=3 || generation==versions[i])) continue;
+            busy=true;
             try {
                 auto kernel=build(i,source,generation,model,true);
                 if(threadShouldExit())break;
@@ -203,9 +212,130 @@ void IRLibrary::run()
             }
             catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
         }
+        pregenerated.clear();
+        // Idle: warm one response for the next recall, then look again.
+        if(!busy && !threadShouldExit() && warmOne()) continue;
         wait(20);
     }
     for(auto* cab:cabs) cab->collect();
+}
+void IRLibrary::keepWarm(const std::array<uint64_t,6>& models)
+{
+    // Bump the revision under the same lock so warmOne() never pairs the new
+    // list with the old revision.
+    { std::lock_guard<std::mutex> lock(mutex); if(models==warmModels) return; warmModels=models; warmRevision.fetch_add(1,std::memory_order_relaxed); }
+    notify();
+}
+IRLibrary::WarmRequest IRLibrary::warmRequest() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return {warmModels,warmRevision.load(std::memory_order_relaxed)};
+}
+void IRLibrary::trimModelCache()
+{
+    if(modelCache.size()<=modelCacheSize) return;
+    const auto warm=warmRequest().models;
+    // Oldest first, but keep what the cabinets ask for now and what the next
+    // recall will ask for while anything else can go. Snapshot the warm list
+    // once so scanning candidates does not repeatedly acquire the shared mutex.
+    while(modelCache.size()>modelCacheSize) {
+        const auto keep=[this,&warm](uint64_t key){
+            if(key!=0 && std::find(warm.begin(),warm.end(),key)!=warm.end()) return true;
+            for(const auto* cab:cabs) if(cab->requestedModel.load()==key) return true;
+            return false;
+        };
+        auto victim=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return !keep(item.key);});
+        modelCache.erase(victim!=modelCache.end() ? victim : modelCache.begin());
+    }
+}
+bool IRLibrary::warmOne()
+{
+    const auto [wanted,revision]=warmRequest();
+    // Remember every model that failed for this list, not just the last one,
+    // or two failing models would be retried in turn without end.
+    if(warmFailedRevision!=revision){warmFailedRevision=revision;warmFailed.fill(0);}
+    const auto cached=[this](uint64_t model){return std::any_of(modelCache.begin(),modelCache.end(),[model](const auto& item){return item.key==model;});};
+    const auto failed=[this](uint64_t model){return std::find(warmFailed.begin(),warmFailed.end(),model)!=warmFailed.end();};
+    const auto next=std::find_if(wanted.begin(),wanted.end(),[&](uint64_t model){
+        return model!=0 && !cached(model) && !failed(model);});
+    if(next==wanted.end()) return false;
+    // Give way at once to a real request (a recall, an edit) or a new list.
+    struct Context {const IRLibrary* library;unsigned revision;std::array<std::pair<int,uint64_t>,6> requests;};
+    Context context{this,revision,{}};
+    for(size_t i=0;i<6;++i) context.requests[i]={cabs[i]->requestedSource.load(),cabs[i]->requestedModel.load()};
+    const originalCab::GenerationCancellation cancellation{&context,+[](const void* value) {
+        const auto& c=*static_cast<const Context*>(value);
+        if(c.library->threadShouldExit() || c.library->warmRevision.load(std::memory_order_relaxed)!=c.revision) return true;
+        for(size_t i=0;i<6;++i)
+            if(c.requests[i]!=std::pair<int,uint64_t>{c.library->cabs[i]->requestedSource.load(),c.library->cabs[i]->requestedModel.load()}) return true;
+        return false;
+    }};
+    try {
+        const auto response=cabLayout::generate(*next,spec.sampleRate,cancellation);
+        CachedModel item{*next,{},{}};
+        item.samples.setSize(1,int(response.size()));
+        item.samples.copyFrom(0,0,response.data(),int(response.size()));
+        cancellation.checkpoint();
+        if(Cab::Kernel::supportsPreparedModel(spec))
+            item.prepared=std::make_shared<const ModeledCabConvolution::Prepared>(item.samples,int(spec.maximumBlockSize),spec.numChannels==1);
+        modelCache.push_back(std::move(item));
+        trimModelCache();
+        warmedResponses.fetch_add(1,std::memory_order_relaxed);
+    }
+    catch(const originalCab::GenerationCancelled&) {}
+    catch(const std::exception&) { warmFailed[size_t(next-wanted.begin())]=*next; }
+    return true;
+}
+void IRLibrary::pregenerate(const std::array<uint64_t,6>& builtModels)
+{
+    // A recall can request a new modeled cabinet on several mics at once.
+    // Each response takes tens of milliseconds and the output stays muted
+    // until the heard ones are installed, so generate them side by side:
+    // one on this worker, the others on short-lived helpers at the same
+    // priority. A failed or cancelled helper leaves build() to generate.
+    struct Job {int lane{};uint64_t model{};std::vector<float> response;};
+    std::vector<Job> jobs;
+    for(int i=0;i<6;++i) {
+        const auto model=cabs[i]->requestedModel.load();
+        if(model==0 || model==builtModels[(size_t)i]) continue;
+        const auto same=[model](const auto& item){return item.key==model;};
+        if(std::any_of(modelCache.begin(),modelCache.end(),same)) continue;
+        if(std::any_of(jobs.begin(),jobs.end(),[model](const Job& job){return job.model==model;})) continue;
+        jobs.push_back({i,model,{}});
+    }
+    const int helpers=juce::jmin(int(jobs.size())-1,juce::SystemStats::getNumCpus()-1);
+    if(helpers<1) return;
+    struct Request {const IRLibrary* library;const Job* job;};
+    const auto generate=[this,rate=spec.sampleRate](Job& job) {
+        const Request request{this,&job};
+        // A response depends on the model only: a recall that sets the lane's
+        // source after its model does not make it obsolete.
+        const originalCab::GenerationCancellation cancellation{&request,+[](const void* context) {
+            const auto& r=*static_cast<const Request*>(context);
+            return r.library->threadShouldExit() || r.library->cabs[(size_t)r.job->lane]->requestedModel.load()!=r.job->model;
+        }};
+        try { job.response=cabLayout::generate(job.model,rate,cancellation); }
+        catch(...) { job.response.clear(); }
+    };
+    struct Helper final : juce::Thread {
+        std::function<void()> work;
+        explicit Helper(std::function<void()> w) : Thread("Chimera IR helper"), work(std::move(w)) {}
+        void run() override { work(); }
+    };
+    std::vector<std::unique_ptr<Helper>> running;
+    for(int h=1;h<=helpers;++h) {
+        running.push_back(std::make_unique<Helper>([&generate,&job=jobs[(size_t)h]]{generate(job);}));
+        if(!running.back()->startThread(Priority::low)) running.pop_back();
+    }
+    generate(jobs.front());
+    for(auto& helper:running) helper->waitForThreadToExit(-1);
+    for(auto& job:jobs) {
+        if(job.response.empty()) continue;
+        CachedModel item{job.model,{},{}};
+        item.samples.setSize(1,int(job.response.size()));
+        item.samples.copyFrom(0,0,job.response.data(),int(job.response.size()));
+        pregenerated.push_back(std::move(item));
+    }
 }
 bool IRLibrary::userIsCabinetExport(int lane) const
 {
