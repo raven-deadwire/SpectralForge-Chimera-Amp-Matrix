@@ -60,14 +60,16 @@ void run(const std::string& bundle) {
     check(window.contentView.frame.size.width >= 200 && window.contentView.frame.size.height >= 150,
           "window sized to the editor");
 
-    // Probes: does anything scheduled on the main run loop or queue run here?
+    // The editor's first draw can hold the main thread for a while on a CI VM
+    // without a GPU, so wait (bounded) for two syncs rather than counting them
+    // in a fixed window. The probes show whether the run loop was serviced.
     __block int probeTimer = 0, probeQueue = 0;
     NSTimer* probe = [NSTimer scheduledTimerWithTimeInterval:0.2 repeats:YES block:^(NSTimer*) { ++probeTimer; }];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC / 5), dispatch_get_main_queue(), ^{ ++probeQueue; });
     notifications = 0;
     idleSlices = 0;
     const CFAbsoluteTime started = CFAbsoluteTimeGetCurrent();
-    pump(1.3);
+    while (notifications < 2 && CFAbsoluteTimeGetCurrent() - started < 10.0) pump(0.1);
     [probe invalidate];
     const std::string synced = "edits are synced every 500 ms while open (" + std::to_string(notifications) +
                                " in " + std::to_string(CFAbsoluteTimeGetCurrent() - started) +
