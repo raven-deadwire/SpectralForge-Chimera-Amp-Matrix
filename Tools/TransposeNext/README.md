@@ -259,3 +259,10 @@ Target spec version 2 makes this the T1 definition: `latency_targets.py` and
 `di_validation.py` gate T1 on events with SNR >= 10 dB and report fainter
 events as `T1_faint_attack` (no gate). Results without per-event SNR rows are
 scored as version 1 and labelled `metric_version: 1`; `--legacy-t1` forces it.
+
+`corr40-split-v4` is v3 plus 16-tap Kaiser-windowed sinc interpolation for the
+output reads only (`setSincOutput`); splice and onset decisions, and so T1-T4
+on the known seeds, equal v3. It removes most of the 1-8 kHz inter-harmonic
+residual that linear interpolation left on bright sustains (median excess
+over an ideally shifted tone +10 -> +0.5 dB at 44.1/48 kHz; CPU +13%). See
+`docs/TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md`.

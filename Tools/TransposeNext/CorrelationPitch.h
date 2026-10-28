@@ -57,6 +57,26 @@ class CorrelationPitch {
         const auto f = float(pos-i);
         return ring[size_t(i)] + f*(ring[size_t((i+1)%capacity)]-ring[size_t(i)]);
     }
+    // Output read (research, setSincOutput): 16-tap Kaiser-windowed sinc
+    // (beta 8, 4096 phases, nearest phase). Linear interpolation's
+    // fraction-dependent high-frequency loss and imaging left 1-8 kHz energy
+    // between the harmonics of a bright sustain 5-34 dB above an ideally
+    // shifted tone (docs/TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md). The
+    // kernel is symmetric (no added delay) and needs 8 newer samples; the
+    // read age never goes below the 2 ms minimum.
+    static constexpr int sincTaps=16, sincPhases=4096;
+    std::vector<float> sincTable;
+    float readOutput(const std::vector<float>& ring, double age) const noexcept {
+        if(sincTable.empty()) return read(ring,age);
+        double pos = double(write) - age;
+        if(pos < 0) pos += capacity;
+        int i = int(pos);
+        const float* k=sincTable.data()+size_t(std::min(sincPhases-1,int((pos-i)*sincPhases+.5)))*sincTaps;
+        i-=sincTaps/2-1;if(i<0)i+=capacity;
+        float s=0;
+        for(int j=0;j<sincTaps;++j){s+=k[j]*ring[size_t(i)];if(++i==capacity)i=0;}
+        return s;
+    }
     // Uncentred normalized squared mismatch includes amplitude differences.
     // Both channels contribute energy independently; antiphase stereo cannot
     // cancel the detector. Causality: only past samples, never future context.
@@ -217,6 +237,25 @@ public:
         spliceWeights.resize(size_t(spliceFadeLength));
         for(int i=0;i<spliceFadeLength;++i) spliceWeights[size_t(i)]=float(.5-.5*std::cos(juce::MathConstants<double>::pi*(i+1)/spliceFadeLength));
     }
+    // Research: windowed-sinc interpolation for the output reads only (the
+    // splice search keeps linear reads, so splice and onset decisions are
+    // unchanged). Call after prepare(), never from the audio thread.
+    void setSincOutput(bool enabled) {
+        sincTable.clear();if(!enabled)return;
+        sincTable.resize(size_t(sincPhases)*sincTaps);
+        const double beta=8,norm=std::cyl_bessel_i(0.,beta);
+        for(int p=0;p<sincPhases;++p) {
+            const double f=double(p)/sincPhases;double sum=0;
+            float* k=sincTable.data()+size_t(p)*sincTaps;
+            for(int j=0;j<sincTaps;++j) {
+                // tap j sits at offset (j - 7) from the integer sample; the read point is at +f.
+                const double d=(j-(sincTaps/2-1))-f, x=juce::MathConstants<double>::pi*d, r=d/(sincTaps/2+.5);
+                const double w=r*r<1?std::cyl_bessel_i(0.,beta*std::sqrt(1-r*r))/norm:0.;
+                k[j]=float((std::abs(d)<1.e-12?1.:std::sin(x)/x)*w);sum+=k[j];
+            }
+            for(int j=0;j<sincTaps;++j)k[j]=float(k[j]/sum);
+        }
+    }
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
@@ -331,8 +370,8 @@ public:
                 else if(due){heldSamples=0;splice();}
                 const float w=fading?activeWeights[fadeIndex]:0.f;
                 for(int c=0;c<count;++c) {
-                    const float old=read(audio[size_t(c)],delay);
-                    output.setSample(c,n,fading ? old+w*(read(audio[size_t(c)],nextDelay)-old) : old);
+                    const float old=readOutput(audio[size_t(c)],delay);
+                    output.setSample(c,n,fading ? old+w*(readOutput(audio[size_t(c)],nextDelay)-old) : old);
                 }
                 minRead=std::min(minRead, fading?std::min(delay,nextDelay):delay);
                 maxRead=std::max(maxRead, fading?std::max(delay,nextDelay):delay);

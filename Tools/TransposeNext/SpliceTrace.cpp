@@ -2,18 +2,18 @@
 // sample per call (v3 is block-invariant, so the output equals any block size)
 // and prints the sample index of every transient-path splice, body-path
 // splice and onset reset as JSON; writes the output like TransposeProbe.
-// usage: SpliceTrace in.f32 out.f32 rate shift v2|v3
+// usage: SpliceTrace in.f32 out.f32 rate shift v2|v3|v4
 #include "TransientSplitPitch.h"
 #include <fstream>
 #include <iostream>
 
 int main(int argc,char** argv) {
-    if(argc!=6){std::cerr<<"usage: SpliceTrace in.f32 out.f32 rate shift v2|v3\n";return 1;}
+    if(argc!=6){std::cerr<<"usage: SpliceTrace in.f32 out.f32 rate shift v2|v3|v4\n";return 1;}
     std::ifstream f(argv[1],std::ios::binary|std::ios::ate);const auto bytes=f.tellg();
     std::vector<float> x(size_t(bytes)/4),y(x.size());f.seekg(0);f.read(reinterpret_cast<char*>(x.data()),bytes);
-    const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);const bool v3=std::string(argv[5])=="v3";
+    const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);const bool v4=std::string(argv[5])=="v4",v3=v4||std::string(argv[5])=="v3";
     juce::ScopedNoDenormals noDenormals;
-    transposeNext::TransientSplitPitch e;e.prepare({rate,1u,2},true,true,true,true,true,v3);e.setSemitones(shift);
+    transposeNext::TransientSplitPitch e;e.prepare({rate,1u,2},true,true,true,true,true,v3);e.setSincOutput(v4);e.setSemitones(shift);
     juce::AudioBuffer<float> in(2,1),out(2,1);std::vector<size_t> ts,bs,os;
     for(size_t n=0;n<x.size()/2;++n) {
         in.setSample(0,0,x[2*n]);in.setSample(1,0,x[2*n+1]);
