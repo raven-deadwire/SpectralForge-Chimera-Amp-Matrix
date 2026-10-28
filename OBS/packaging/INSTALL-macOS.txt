@@ -11,8 +11,8 @@ macOS 12 이상과 OBS Studio(Apple silicon·Intel 공용 모듈, OBS 31.1.2 App
 3. 내려받은 파일이면 macOS가 격리 표시를 붙입니다. install.sh가 서명 확인 후 포함된 설치 프로그램과 설치 후보의 격리 표시만 지웁니다.
    이 모듈은 아직 Apple 공증을 받지 않았습니다(임시 서명).
 4. OBS를 시작하고 오디오 소스 → 필터 → SpectralForge Chimera를 추가합니다. 사용법은 README.txt.
-   macOS에서는 Chimera 에디터 창을 아직 열 수 없습니다. 속성 창 설정과 스크립트(chimera_set_parameter)로만
-   바꿀 수 있으며, 에디터는 이후 단계에서 추가합니다.
+   필터 속성의 "Chimera 에디터 열기"로 Chimera 화면을 별도 창에서 엽니다. 창을 닫아도 소리는 그대로이며
+   편집 내용은 장면에 저장됩니다.
 
 제거: ./install.sh --uninstall (설치 소유 파일만 지웁니다. 사용자 추가 파일과 OBS 장면은 남습니다).
 
@@ -21,7 +21,8 @@ Requires macOS 12 or later, the Chimera macOS VST3 and OBS Studio. One Universal
 (built and tested with OBS 31.1.2, Apple and Intel; Intel tested under Rosetta).
 Close OBS and run ./install.sh, which copies chimera-obs.plugin to ~/Library/Application Support/obs-studio/plugins
 and clears quarantine only on the verified installer helper and staged module. The module is ad-hoc signed and not notarized yet.
-The Chimera editor window is not available on macOS yet. Remove with ./install.sh --uninstall.
+Open the Chimera editor from the filter properties ("Open Chimera Editor"); closing it keeps the sound and saves edits to the scene.
+Remove with ./install.sh --uninstall.
 
 [설치 보호 / Installation safety]
 네이티브 설치 프로그램이 포함되어 있어 Python이나 컴파일러를 따로 설치할 필요가 없습니다. root로 실행하지 마세요. 설치·제거가 끝날 때까지 OBS를 종료 상태로 유지하세요.

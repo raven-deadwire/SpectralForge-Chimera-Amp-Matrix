@@ -25,7 +25,7 @@ JUCE는 쓰지 않는다.
 | `src/audio-bridge.hpp` | OBS planar 오디오 ↔ 엔진 실시간 경계, 입력 매핑, 실패 정책 | 오디오(할당·잠금 없음) |
 | `src/realtime-stats.hpp` | 실시간 처리 통계(부하·실시간 초과·입력 끊김·미처리 블록) | 오디오(쓰기), 아무 스레드(읽기) |
 | `src/chimera-host.*` | VST3 번들 식별·로딩, 버스/처리 준비, 상태, 파라미터 | UI(로딩), 오디오(처리) |
-| `src/editor-window-*.cpp` | Chimera 에디터 창(Windows HWND). 다른 OS는 미지원 표시 | UI |
+| `src/editor-window-*` | Chimera 에디터 창(Windows HWND, macOS NSWindow/NSView). Linux는 미지원 표시 | UI |
 | `tools/dll_exports_def.py` | Windows용 `obs.dll` export → `.def` (import lib 생성) | 빌드 |
 | `tools/build-macos-module.sh` | OBS 31.1.2 Apple/Intel 릴리스의 `libobs.framework`로 아키텍처별 `chimera-obs.plugin` 빌드·시험 | 빌드 |
 | `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
@@ -160,7 +160,7 @@ vst3="build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
   SIGKILL 복구는 시험하지만 실제 전원 차단/고장 난 저장장치의 내구성은 인증하지 않는다.
 - CI는 패키지를 실제 사용자 폴더에 설치하고, `chimera-obs-layout-tests`로 libobs가 그 위치에서 모듈을 찾아
   번역된 이름(`SpectralForge Chimera`)으로 등록하는지 확인한 뒤 제거까지 시험한다. macOS는 Apple silicon·Intel(Rosetta) libobs 양쪽에서 확인한다. Linux는 제거 뒤 사용자가 넣은 파일이 남는지도 본다.
-- macOS 번들은 임시(ad-hoc) 서명이며 Apple 공증 전이다. macOS 에디터 창, Flatpak·Snap OBS는 아직 지원하지 않는다. Intel 슬라이스는 Rosetta에서만 시험했다(실제 Intel Mac 미확인).
+- macOS 번들은 임시(ad-hoc) 서명이며 Apple 공증 전이다. Linux 에디터 창, Flatpak·Snap OBS는 아직 지원하지 않는다. Intel 슬라이스는 Rosetta에서만 시험했다(실제 Intel Mac 미확인).
 
 ## 설치 (macOS Chimera PKG)
 
@@ -274,13 +274,15 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 
 - 레벨 미터는 OBS 자체 오디오 믹서 미터(필터 적용 후)를 쓴다. 속성 창에는 실시간 미터를 넣지 않았다.
 - 개인 IR 파일이 없을 때의 처리는 Chimera 제품 동작을 따른다. 모듈은 상태를 그대로 전달할 뿐이다.
-- 에디터 편집의 장면 반영(500 ms 타이머)은 Windows 에디터 코드에 있으며 실제 OBS 앱에서는 아직 확인하지 않았다.
+- 에디터 편집의 장면 반영(500 ms 타이머)은 Windows·macOS 에디터 코드에 있으며 실제 OBS 앱에서는 아직 확인하지 않았다.
+  macOS 에디터 창은 `chimera-obs-editor-tests`가 실제 Chimera VST3로 CI(macOS 창 서버)에서 확인한다: 창 표시·뷰 부착·크기,
+  열린 동안 500 ms 동기화 호출, 닫기 버튼은 숨기기만 하고 마지막 편집을 동기화, 다시 열면 같은 창을 앞으로, `closeEditor`가 한 번 동기화 후 해제, 열기·닫기 반복.
 
 - OBS는 실행 중에 출력 샘플레이트·채널을 바꾸지 않는다(설정 변경은 재시작 후 적용). 실행 중 형식 변경 대응은
   실시간 경계 단위 시험으로만 확인했다. libobs는 소스가 살아 있는 동안 오디오를 다시 설정하면 그 소스의 변환을 갱신하지 않기 때문이다.
 - 필터는 OBS 타임스탬프를 바꾸지 않는다. 처리 지연(기본 상태 42 samples, 0.88 ms)은 영상과의 싱크에 그대로 더해지며,
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
-**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows 에디터 코드는 실행 검증 전),
+**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows 에디터 코드는 실행 검증 전, macOS는 OBS 밖 시험만),
 실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS·Linux 실제 OBS 앱에서의 확인. 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
