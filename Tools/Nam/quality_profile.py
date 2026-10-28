@@ -120,3 +120,60 @@ def fidelity(pred, ref, channel, inp):
     result['worst_active_windows'] = sorted((w for w in windows if w['active']), key=lambda w: w['esr'], reverse=True)[:5]
     result['quiet_window_details'] = [w for w in windows if not w['active']]
     return result
+
+
+# v3 (owner decision, 2026-10-28): an A2-bounded release profile. TONE3000
+# loads only A2 (width 3 or 8; reports/tone3000-a2-only-20261028.md), and every
+# training lever available at width 8 has been tried (reports/channel-loss-20261028.md).
+# v2 stays the reference-fidelity profile and is still reported; v3 only adds
+# a release gate. It changes the active and full-ESR limits per channel class
+# and keeps the quiet and level limits of v2 unchanged. Both the validation and
+# the reserved test signal must pass, and release also needs the owner's
+# instrument-DI listening acceptance, which no number replaces.
+RELEASE_V3 = {
+    'id': 'nastrond-tone3000-a2-release-v3',
+    'authority': 'project release policy for A2 in TONE3000; not a TONE3000 certification',
+    'measures': 'quality_profile.fidelity (profile v2 windows, anchors and memoryless rule)',
+    'splits_required': ['validation', 'test'],
+    'listening_acceptance_required': True,
+    'classes': {
+        # High-gain channels. A2 floor evidence: doubling data now gives -3.6%
+        # (mean test full ESR 0.0174 at 16,320 s, extrapolated floor about
+        # 0.017); width 32 (not A2) still left active p95 near 0.07.
+        'high_gain': {'channels': ['Fenrir', 'Surtr', 'Nidhoggr', 'Ragnarok'],
+                      'full_esr_max': .025, 'active_window_esr_median_max': .02,
+                      'active_window_esr_p95_max': .12, 'active_window_esr_worst_max': .40},
+        # Fimbulvetr already meets the v2 full-ESR limit; v3 keeps it.
+        'bloom': {'channels': ['Fimbulvetr'],
+                  'full_esr_max': .01, 'active_window_esr_median_max': .0075,
+                  'active_window_esr_p95_max': .03, 'active_window_esr_worst_max': .20},
+    },
+    'quiet_residual_rms_max_dbfs': PROFILE['quiet_residual_rms_max_dbfs'],
+    'quiet_residual_peak_max_dbfs': PROFILE['quiet_residual_peak_max_dbfs'],
+    'rms_error_max_db': PROFILE['rms_error_max_db'],
+    'peak_error_max_db': PROFILE['peak_error_max_db'],
+}
+
+
+def release_v3_limits(channel):
+    for spec in RELEASE_V3['classes'].values():
+        if channel in spec['channels']:
+            return spec
+    raise KeyError(f'No v3 class for channel {channel}')
+
+
+def release_v3_check(f, channel):
+    """Per-limit v3 verdict for one split, from a fidelity() result."""
+    c = release_v3_limits(channel)
+    checks = {
+        'full_esr': f['full_esr'] <= c['full_esr_max'],
+        'active_median': f['active_median'] is not None and f['active_median'] <= c['active_window_esr_median_max'],
+        'active_p95': f['active_p95'] is not None and f['active_p95'] <= c['active_window_esr_p95_max'],
+        'active_worst': f['active_worst'] is not None and f['active_worst'] <= c['active_window_esr_worst_max'],
+        'quiet': (f['quiet_worst_residual_rms_dbfs'] <= RELEASE_V3['quiet_residual_rms_max_dbfs']
+                  and f['quiet_worst_residual_peak_dbfs'] <= RELEASE_V3['quiet_residual_peak_max_dbfs']),
+        'level': (abs(f['rms_error_db']) <= RELEASE_V3['rms_error_max_db']
+                  and abs(f['peak_error_db']) <= RELEASE_V3['peak_error_max_db']),
+    }
+    checks = {k: bool(v) for k, v in checks.items()}
+    return {'profile': RELEASE_V3['id'], 'checks': checks, 'pass': all(checks.values())}
