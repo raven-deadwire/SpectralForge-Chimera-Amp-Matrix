@@ -74,7 +74,10 @@ class SpaceModule {
     Delay hallPre,spring;std::array<std::array<float,6>,2> dispersion{};std::array<float,2> springLow{};
     ModelMorph<3> morph;juce::SmoothedValue<float> mix;double rate{48000},phase{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;for(size_t i=0;i<2;++i){rooms[i].prepare(s);wet[i].setSize((int)s.numChannels,(int)s.maximumBlockSize);}hallPre.setMaximumDelayInSamples(int(rate*.1));spring.setMaximumDelayInSamples(int(rate*.2));hallPre.prepare(s);spring.prepare(s);morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
+    // juce::Reverb snaps its parameter smoothers to the last target on prepare.
+    // Restore the construction defaults first so every prepare starts the same
+    // ramp; otherwise a re-prepared instance renders differently from a new one.
+    void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;for(size_t i=0;i<2;++i){rooms[i].setParameters({});rooms[i].prepare(s);wet[i].setSize((int)s.numChannels,(int)s.maximumBlockSize);}hallPre.setMaximumDelayInSamples(int(rate*.1));spring.setMaximumDelayInSamples(int(rate*.2));hallPre.prepare(s);spring.prepare(s);morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
     void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);}
     void process(juce::AudioBuffer<float>& b,bool on,int model,float size,float damping,float amount) {
         morph.select(model);mix.setTargetValue(on ? amount : 0);
