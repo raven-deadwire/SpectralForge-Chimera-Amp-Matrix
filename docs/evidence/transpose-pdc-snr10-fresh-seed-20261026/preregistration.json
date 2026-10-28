@@ -1,0 +1,30 @@
+{
+ "purpose": "fresh-seed validation of the fixed-PDC contract for corr40-split-v3 with the per-event SNR rule (event SNR >= 10 dB), registered before any result on these seeds is seen",
+ "registered_at_utc": "2026-10-26T00:48:45+00:00",
+ "engine": "corr40-split-v3",
+ "engine_source_commit": "549e475 (engine headers, TransposeProbe.cpp, Source/PolyPitch.h and Source/GlobalDSP.h unchanged since)",
+ "renderer_sha256": "5625cb1f273a6bddbf397065af71a356dc68b644c121f6e757374d552fea650b",
+ "tools_commit": "47ccf36 (attack_snr.py, pdc_study.py, latency_targets.py)",
+ "fixed_report_ms": 2.5,
+ "fixed_report_samples": {"44100": 110, "48000": 120, "96000": 240},
+ "L_choice": "kept at 2.5 ms (the value the research plug-in reports). With the SNR rule on all earlier seeds (known 8139/20261024 + long 1, and 26457/31623/36056 + long 2236), the largest |attack residual| over the three rates is 3.083 ms at both L = 2.5 and L = 2.75 ms; the tie keeps the implemented value",
+ "metric": "per-event added delay of the 1-8 kHz 2 ms RMS attack peak (output minus input); counted only if (a) T1 whole-input validity holds (the input's own attack peaks all lie within 10 ms of their events) and (b) the event SNR is >= 10 dB (attack_snr.py: peak of the 1-8 kHz 2 ms RMS envelope within 10 ms after the event over its maximum 20-3 ms before the event); residual = added delay - L",
+ "fresh_holdout_seeds": [41421, 44721, 48990],
+ "fresh_long_note_seed": 3317,
+ "seeds_previously_used": [8139, 20261024, 1, 31415, 27182, 16180, 2718, 14142, 17320, 22360, 1414, 26457, 31623, 36056, 2236],
+ "pass_rule": {
+  "primary_pdc": "max |attack residual| <= 4.5 ms at each of 44.1/48/96 kHz (earlier-seed maximum 3.083 ms + 1.0 ms, rounded up to 0.5 ms; same threshold as the 2026-10-25 run)",
+  "secondary_t1": "latency_targets.py with --event-snr-min 10: T1 (attack peak lag <= 10 ms) passes; T2-T5 verdicts reported against the unchanged spec",
+  "report_only": "the same data without the SNR rule (default metric), residuals at L = 2.75 ms, number of events excluded by the SNR rule per rate and input kind, attack residual p5/p95, low-band onset residual (not compensated by L)"
+ },
+ "commands": [
+  "python pdc_study.py run --renderer <TransposeProbe> --out <pdc> --holdout-seeds 41421,44721,48990 --long-seed 3317",
+  "python pdc_study.py evaluate --out <pdc> --fixed-l 2.5 --event-snr-min 10",
+  "python latency_targets.py --renderer <TransposeProbe> --out <lt> --engine corr40-split-v3 --holdout-seeds 41421,44721,48990 --long-seed 3317 --event-snr-min 10"
+ ],
+ "rules": [
+  "single run; no change to L, metric, SNR threshold, residual threshold or inputs after seeing results",
+  "report every result, including failures",
+  "product Source/ and engine code unchanged"
+ ]
+}

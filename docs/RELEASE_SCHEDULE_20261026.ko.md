@@ -1,6 +1,6 @@
 # 릴리즈 스케쥴 정리 — 2026-10-26 (KST)
 
-이 문서는 2026-10-26 기준 저장소·CI·메일 점검 결과를 반영한 **작업·판정 목표**입니다.
+이 문서는 2026-10-26 기준 저장소·CI·메일 점검 결과(통합 진행은 10/27 15:30 KST 갱신)를 반영한 **작업·판정 목표**입니다.
 공개 확정일이 아니며, 어떤 게이트도 PASS로 올리거나 출시를 승인하지 않습니다.
 버전 작업창의 권한 문서는 계속 [DEVELOPMENT_ROADMAP_2026_2027.md](DEVELOPMENT_ROADMAP_2026_2027.md)이고,
 중장기 재편성안은 Draft [#93](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/93)이 승인될 때까지 *제안* 상태입니다.
@@ -9,7 +9,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 공개판 | **1.3.2-beta.1** (`VERSION` 1.3.2 / `RELEASE_CHANNEL` beta.1), 만료 2027-02-11 23:59 KST |
+| 공개판 | **1.3.2-beta.1**, 만료 2027-02-11 23:59 KST. main 소스는 #181 머지로 `RELEASE_CHANNEL` **beta.2** |
 | 별도 배포 | 팩토리 프리셋 유지보수판 `presets-2026.10.19.1` (엔진 바이트는 beta.1 고정) |
 | 다음 목표 | **1.3.2-beta.2** — 유지 |
 | 출시 시점 결정 요인 | **Transpose 검증**과 **AAX 서명·Pro Tools 테스트** |
@@ -20,12 +20,12 @@ main에 병합된 아래 항목은 **아직 공개판에 포함되지 않았습�
 
 | 항목 | main 상태 | 남은 일 | 판단 |
 |---|---|---|---|
-| **Easy view** | 프리셋·6개 노브·Auto Set·튜너 간단 화면 병합 (#161) | 입력별 GAIN 연결·드래그 중 파라미터 변경 수정 [#164](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/164): 이전 커밋 Windows 실패 원인 확인, main 병합 커밋으로 CI 재실행 중 | 보완 후 포함 |
-| **Auto Set** | 입력/게이트 → Tone EQ → 컴프 → 멀티밴드 → De-esser/리미터 5단계, 진행·결과 표시 병합 | 피킹 어택 과감쇠·Undo의 수동 수정 덮어쓰기 수정 [#156](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/156): main 병합·로컬 테스트 통과, CI 대기 후 머지. Gate 2/Expander 단계 [#169](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/169)는 신규 후보 | 핵심 기능으로 포함 |
+| **Easy view** | 프리셋·6개 노브·Auto Set·튜너 간단 화면 병합 (#161) | 입력별 GAIN 연결·드래그 중 파라미터 변경 수정 [#164](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/164) **머지(10/27)** | 포함 |
+| **Auto Set** | 입력/게이트 → Tone EQ → 컴프 → 멀티밴드 → De-esser/리미터 5단계, 진행·결과 표시 병합 | 피킹 어택 과감쇠·Undo의 수동 수정 덮어쓰기 수정 [#156](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/156): macOS EQ 플래키 수정(#185)을 포함한 main 병합 후 CI 재실행 중. Gate 2/Expander 단계 [#169](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/169)와 잠금·강도 [#182](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/182)는 #156 머지 후 main 병합·충돌 정리 필요 | 핵심 기능으로 포함 |
 | **다이내믹스·EQ** | 독립 4밴드, PRE/POST 동시 게이트, 별도 Expander, EQ 밴드 Dynamic, 프리셋 48개 조정 병합 (#163) | 실제 기타·베이스 청음, 기존 세션 복원 확인([청음 체크리스트](LISTENING_CHECKLIST_DYNAMICS_163.ko.md)) | 포함 후보 |
-| **Standalone 사용성** | 최대화/F11·Fit screen·노브 조작 통일·Windows ASIO 빌드 | 장치 진단·첫 실행 ASIO 선택 [#124](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/124): main 병합·로컬 테스트 통과, CI 대기 후 머지 | 포함 |
+| **Standalone 사용성** | 최대화/F11·Fit screen·노브 조작 통일·Windows ASIO 빌드 | 장치 진단·첫 실행 ASIO 선택 [#124](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/124) **머지(10/27)** | 포함 |
 | **OBS 애드온** | Windows·macOS/Linux, Python 없는 설치 도우미, 상태 복원·설치 보호, macOS PKG 선택 설치 병합 (#151/#157/#166) | 실제 OBS 장면 복원·다중 인스턴스·장시간 녹화. Linux는 별도 설치, DEB/TAR 통합은 후속 | 포함 후보 |
-| **베타 잔여 기간 표시** | 정확한 잔여 시간·UTC/KST 표시 통합 | SETTINGS 헤더 [#126](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/126): main 병합, CI 대기 후 머지. beta.2 만료일·패키지 표시 일치 | 포함 |
+| **베타 잔여 기간 표시** | 정확한 잔여 시간·UTC/KST 표시 통합 | SETTINGS 헤더 [#126](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/126) **머지(10/27)**. beta.2 만료일·패키지 표시 일치 확인 | 포함 |
 
 **Auto Set 검증 원칙:** 악기 자동 판별에 기대지 않고 **Guitar/Bass를 명시 선택**한 상태로 검증합니다.
 수정 후보에서도 합성 Drop A 기타 → 베이스, 고음역 6현 베이스 → 기타 오분류가 남아 있습니다.
@@ -36,16 +36,16 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 
 | P0 | 현재 | 남은 일 |
 |---|---|---|
-| **Transpose** | v3 연구·시험 기반 마련 (#154 병합), 제품 적용 미완 | **2.5ms는 PDC 보고값**이며 저역 실제 지연은 별개. 44.1kHz 실패, 저역·업시프트, 실제 DI·청음·DAW 검증. v4/1.25ms 절충안 [#155](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/155) 음질·CPU 승인 보류 |
-| **FabFilter 참조 반영** | 화면·독자 DSP 상당 부분 진행 | 원본 응답·검출 시간·위상·미터 비교와 수용 판정. [#127](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/127)은 비교 도구일 뿐 측정 완료가 아님 |
-| **베타 수명주기** | beta.1 정책 커밋됨 | beta.2 전용 만료일 결정. 실행 중 만료·재실행·업데이트 후 프로젝트/IR 복원. **beta.1의 2027-02-11 만료일 자동 승계 금지** |
-| **AAX Native** | 개발 빌드 가능 | PACE 승인(10/24 신청 접수 확인, 승인 회신 미확인) → iLok 준비 → 서명 → Windows/macOS 일반 Pro Tools 검증 |
+| **Transpose** | v3 연구·시험 기반 마련 (#154 병합), 제품 적용 미완 | **2.5ms는 PDC 보고값**이며 저역 실제 지연은 별개. 44.1kHz 실패, 저역·업시프트, 실제 DI·청음·DAW 검증. v4/1.25ms 절충안 [#155](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/155)는 음질·CPU 승인 보류이며, 연구 자료로만 main에 보관(제품 미적용). 11/2–11/6 [실제 DI 검증 계획](TRANSPOSE_V3_DI_VALIDATION_PLAN_20261026.ko.md) |
+| **FabFilter 참조 반영** | 화면·독자 DSP 상당 부분 진행 | 원본 응답·검출 시간·위상·미터 비교와 수용 판정. [#127](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/127)은 비교 도구일 뿐 측정 완료가 아님(**머지 10/27**). 원본 플러그인 렌더와 비교는 미실시 |
+| **베타 수명주기** | beta.2 만료일 **2027-03-31 23:59 KST 승인(10/26)**, 정책 파일·`RELEASE_CHANNEL` 반영 **머지(#181, 10/27)**([결정안](BETA2_EXPIRY_DECISION_PROPOSAL_20261026.ko.md)). `release_scope`는 beta.2로 옮겼고 준비·공개 승인은 아직 없음 | 실행 중 만료·재실행·beta.1에서 업데이트 후 프로젝트/IR 복원 검증. beta.1 만료일(2027-02-11)은 beta.1에만 적용. 베타테스터용 무기한 연장 코드(테스터별 짧은 코드 `CHT1-이름-확인문자`, 이후 모든 베타 적용) 머지([발급 안내](BETA_TESTER_CODES.ko.md)). **릴리스 빌드 전 GitHub Actions 시크릿 `CHIMERA_TESTER_SECRET` 등록 필요**(없으면 PR이 아닌 `build.yml` 실행이 실패). 실제 DAW 입력 확인 필요 |
+| **AAX Native** | 개발 빌드 가능 | PACE 승인(10/24 신청 접수 확인, 승인 회신 미확인, 보통 7영업일 → 11/3 전후 예상. iLok 계정 활성화·Developer 라이선스 재신청은 소유자 조치 필요) → iLok 준비 → 서명 → Windows/macOS 일반 Pro Tools 검증. [서명 준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) |
 
 ## 4. 단기 일정 (작업·판정 목표)
 
 | 기간 · KST | 우선 작업 | 완료 산출물 |
 |---|---|---|
-| **10/26–10/28** | #164 CI 해결, #156 Auto Set 안전성 수정·#124 장치 진단·#126 통합(아래 진행 상황), #169 검토, 중복·오래된 PR 정리(완료) | beta.2 통합 후보 소스와 포함 목록 |
+| **10/26–10/28** | #164·#124·#126·#127·#181·#185 머지 완료, #156·#169·#182·#155 통합 진행(아래 진행 상황), 중복·오래된 PR 정리(완료), 청음·DI·AAX 준비 문서(완료) | beta.2 통합 후보 소스와 포함 목록 |
 | **10/29–10/30** | 3OS 빌드·설치, 화면 전환·게이트·프리셋·개인 IR 회귀, OBS 실제 테스트 | **내부 테스트 빌드와 실패 목록** |
 | **11/2–11/6** | Transpose 실제 DI/DAW 검증, EQ·다이내믹스 원본 비교, Auto Set 청음 조정 | P0별 통과/미달 판정과 수정 범위 |
 | **11/9–11/13** | 통과한 변경을 최종 소스로 동결, 설치·상태 복원·성능 재검증 | **beta.2 공개 가능 여부 판정** |
@@ -55,17 +55,38 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 - 기존 10/23 목표는 지났습니다. **10/30에 자동으로 beta.3로 넘어가지 않습니다.** 공개는 P0 4개의 실제 결과로만 결정합니다.
 - 매주 실질적인 개선 빌드를 만드는 원칙은 유지합니다.
 
-### 통합 진행 상황 (2026-10-26 11:30 KST 기준)
+### 통합 진행 상황 (2026-10-27 15:30 KST 기준)
 
-각 PR에 최신 main을 병합했고, 충돌을 정리한 뒤 새 커밋으로 CI를 다시 돌리는 중입니다. **CI가 모두 통과하고 충돌이 없을 때만** main에 머지합니다. 아래 "로컬 확인"은 Linux에서 돌린 테스트이며, Windows·macOS와 UI 테스트는 CI 결과로 판정합니다.
+**CI가 모두 통과하고 충돌이 없을 때만** main에 머지합니다. GitHub Actions 러너 대기(특히 macOS)가 길어 한 PR의 CI에 10시간 이상 걸리고 있습니다. "로컬 확인"은 Linux에서 돌린 테스트이며, Windows·macOS와 UI 테스트는 CI 결과로 판정합니다.
 
-| PR | 내용 | 진행 | 로컬 확인 | 남은 일 |
-|---|---|---|---|---|
-| [#164](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/164) | Easy view 리뷰 수정 | main 병합 커밋 `6f105d3` CI 대기 | — | 이전 커밋의 Windows 실패(`ChimeraEasyModeUITests`의 "Easy preset did not load")는 Easy view 프리셋이 비동기로 로드되던 탓. main의 동기 로드가 `6f105d3`에 들어와 같은 테스트가 #161에서 Windows 포함 통과. Windows 재실행 결과 확인 필요 |
-| [#156](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/156) | Auto Set 공격음 보호·Undo 소유권 | main 병합 `a5d2460`, Draft 해제, CI 대기 | `ChimeraAutoSetTests` 전체 통과(5단계 통합 실행 포함) | CI green 시 머지. 악기 판별 오분류·실제 DI 청음·DAW 승인은 미해결로 유지 |
-| [#124](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/124) | Standalone 장치 진단·첫 실행 ASIO | main 병합 `3dc17a0`, CI 대기 | 장치 진단 테스트 3회 연속 통과, Standalone 빌드 통과 | CI green 시 머지. 실제 Windows 장치·loopback 지연 측정은 미실시, #113은 닫지 않음 |
-| [#126](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/126) | SETTINGS 헤더 KST·잔여 시간 | main 병합 `0141b81`(충돌 없음), CI 대기 | 변경 파일 컴파일 통과 | CI green 시 머지 |
-| [#169](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/169) | Auto Set 5단계(Gate 2·Expander) | 미검토 | — | #156 머지 후 충돌 여부와 함께 검토 |
+**머지 완료 (10/27)**
+
+| PR | 내용 |
+|---|---|
+| [#164](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/164) | Easy view 리뷰 수정(입력별 GAIN·드래그 중 변경) |
+| [#124](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/124) | Standalone 장치 진단·첫 실행 ASIO |
+| [#126](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/126) | SETTINGS 헤더 KST·잔여 시간 |
+| [#127](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/127) | FabFilter 블랙박스 비교 도구(측정은 미실시) |
+| [#185](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/185) | EQ 정지 후 감쇠 UI 테스트의 macOS 타이밍 플래키 수정(고정 대기 → 조건 대기) |
+| [#181](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/181) | beta.2 만료 승인 반영·`RELEASE_CHANNEL` beta.2·테스터별 짧은 연장 코드 `CHT1-이름-확인문자` |
+
+**진행 중**
+
+| PR | 내용 | 진행 | 남은 일 |
+|---|---|---|---|
+| [#156](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/156) | Auto Set 공격음 보호·Undo 소유권 | 이전 커밋 macOS 실패는 #185가 고친 EQ 플래키(Auto Set 테스트는 통과). #185 포함 main 병합 `1c8a319`, 로컬 EQ UI·Auto Set 테스트 통과, CI 대기 | CI green 시 머지. 악기 판별 오분류·실제 DI 청음·DAW 승인은 미해결 |
+| [#169](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/169) | Auto Set 5단계(Gate 2·Expander) | CI 일시 중지(러너 확보). #164 머지 후 main과 충돌 | #156 머지 후 main 병합·충돌 정리(Easy view 상태 표시와 5단계 모두 유지), 테스트 후 머지 |
+| [#182](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/182) | Auto Set 잠금·강도 | CI 일시 중지. macOS에서 실제 버그 발견: 강도 50%일 때 입력 게인 반올림이 0.25 dB 경계에서 갈림(0 dB 노브 값의 부동소수점 오차). 수정 커밋 준비(로컬, 미푸시), FMA 조건 재현·통과 | #156 머지 후 base를 main으로 변경, main 병합과 수정 함께 푸시, CI 후 머지 |
+| [#155](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/155) | Transpose v4 연구 자료(#150 포함) | CI 일시 중지(러너 확보) | CI 재실행 후 머지. 제품 Source·T6 기본값(v3) 불변, 승인 아님 |
+
+### 오늘 main에 들어간 문서
+
+| PR | 내용 |
+|---|---|
+| [#170](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/170) · [#172](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/172) | 이 릴리즈 스케쥴 작성과 통합 진행 상황 |
+| [#175](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/175) | [#163 다이내믹스·EQ 청음 체크리스트](LISTENING_CHECKLIST_DYNAMICS_163.ko.md) |
+| [#176](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/176) | [Transpose v3 실제 DI 검증 계획 (11/2–11/6)](TRANSPOSE_V3_DI_VALIDATION_PLAN_20261026.ko.md) |
+| [#177](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/177) | [AAX 서명 준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md) |
 
 ### PR 정리 결과 (10/26 완료)
 

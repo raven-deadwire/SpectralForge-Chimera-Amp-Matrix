@@ -11,6 +11,7 @@ inline std::string remainingText(const Evaluation& current) {
         case Status::notBeta: return "Remaining: unavailable (expiry not enabled).";
         case Status::clockUntrusted: return "Remaining: unavailable (check system clock).";
         case Status::configurationError: return "Remaining: unavailable (invalid beta metadata).";
+        case Status::testerExtended: return "Remaining: no expiry (beta tester code).";
         default: break;
     }
     const auto seconds = current.secondsRemaining > 0 ? current.secondsRemaining : 0;

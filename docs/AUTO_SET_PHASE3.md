@@ -24,7 +24,9 @@ signal order:
 4. Multiband (phase 4).
 5. De-esser and limiter: keep playing, with some hard picking.
 
-**UNDO AUTO** restores everything the run changed. Skewed parameters such as
+**UNDO AUTO** restores everything the run changed. It restores only parameters actually written by that run, and preserves later
+manual/host edits. Parameters edited while listening are not overwritten.
+Skewed parameters such as
 the de-esser frequency come back within float precision.
 
 ## Order
@@ -56,15 +58,21 @@ sets the de-esser release and the limiter release:
 
 | Step | Rule |
 |---|---|
-| Spectrum | Same playing-frame third-octave spectrum as the Tone EQ, compared with the aligned instrument + style target |
+| Spectrum | Third-octave spectrum from original, contiguous FFT frames outside protected note attacks; at least eight eligible playing frames required |
+| Instrument uncertainty | Explicit Guitar/Bass uses its original style target. Detect mode requires spectral excess above both aligned targets; an inferred Tone EQ label is not treated as a user choice |
 | Split frequency | Lower edge of the band between 2.5 and 8 kHz that is furthest above the target, 2.5–9 kHz, 100 Hz steps |
 | Spectral excess | Mean level above the target from the split to 10 kHz |
-| Burst excess | High band (two 12 dB/oct high-passes at the split) against full band: 95th percentile of each 10 ms window's rise over the median of its ±50 ms neighbours. Pick clicks and fizz spikes count; a note's normal decay does not |
-| On when | Spectral excess ≥ 2 dB (clean 3, metal 1.5), or burst excess ≥ 4 dB. Otherwise the de-esser is left off |
+| Note attacks | A ≥3 dB full-band rise AND ≥6 dB body rise (1.5 kHz, 24 dB/oct low-pass), versus the preceding 50 ms median, protects the previous 10 ms window and the current + following five windows. Startup is also protected |
+| Burst excess | Outside protected attacks, pair each high-band rise with the same window's nonnegative full-band rise, then take the 95th percentile. Require 20 eligible windows and high-band RMS above the loud full-band reference minus 45 dB |
+| On when | Spectral excess ≥ 2 dB (clean 3, metal 1.5), or burst excess ≥ 4 dB. Otherwise existing de-esser settings, including enabled state, are left unchanged |
 | Settings | Threshold at the 80th-percentile high-band window peak (−60…−6 dB); range = max(spectral, burst − 2) + 2 dB, 3–9 dB; ratio 4:1, attack 1 ms, knee 6 dB, release by style |
 
-When the Tone EQ (±6 dB per move) cannot remove all the excess brightness,
-the de-esser takes the remaining harsh peaks dynamically.
+The spectral limits, range, ratio, threshold percentile and style releases are
+unchanged. Overall attack-inclusive excess is retained as a diagnostic, but
+cannot independently enable the de-esser. Fast palm-muted playing may leave
+insufficient sustained evidence; Auto Set then abstains from spectral correction.
+HF-only clicks over a steady body remain detectable. This is a conservative
+rule, not a validated perceptual classifier.
 
 ## Limiter rules
 
@@ -80,8 +88,15 @@ the player's choice.
 - Silence is rejected.
 - A steady noise signal shaped like the target is left alone.
 - The same signal 8 dB brighter above 4 kHz is de-essed.
-- Short, high-frequency pick clicks over it are de-essed, with the metal
-  release.
+- Short, high-frequency clicks over a steady body are still de-essed.
+- 72 synthetic coincident note-attack cases (two seeds, timing offset, palm
+  mute, soft clipping, three styles and sample rates) are left unchanged.
+- 18 sustained-brightness positive controls and nine ambiguous auto-target
+  controls retain explicit style/instrument behavior.
+- 36 explicit-instrument checks cover Drop A, Low B and high-register bass,
+  with/without soft clipping. These do not establish auto-classification accuracy.
+- Manual enabled de-esser/listen values survive a no-excess result; apply/undo
+  emits balanced host gestures; newer edits and untouched stages survive undo.
 - Every setting stays within its limits at 44.1/48/96 kHz.
 - The limiter's peak percentile, over-ceiling share and style release are
   correct.
@@ -102,3 +117,9 @@ the ranges and the releases are starting values. They have not been tuned
 against reference recordings or listening tests. Genre presets beyond these
 three styles and loudness targets are not part of Auto Set. The multiband
 compressor was added in phase 4.
+
+## Audit evidence (2026-10-25)
+
+See [attack-safety audit](evidence/auto-set-attack-safety-20261025/README_KO.md).
+Synthetic tests do not grant real-DI listening or DAW acceptance. The instrument
+heuristic remains ambiguous for extended range and distorted inputs.

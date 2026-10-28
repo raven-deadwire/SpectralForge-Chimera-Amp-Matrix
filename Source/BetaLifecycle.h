@@ -12,7 +12,10 @@ enum class Status {
     warning,
     expired,
     clockUntrusted,
-    configurationError
+    configurationError,
+    // A verified beta tester code lifts the expiry (and its warning) for every
+    // beta build. It never overrides invalid build metadata.
+    testerExtended
 };
 
 struct Metadata {
@@ -42,11 +45,14 @@ constexpr bool hasBuildIdentity(const Metadata& metadata) noexcept {
         && isLowerHexSha(metadata.sourceRevision);
 }
 
-constexpr Evaluation evaluate(const Metadata& metadata, std::int64_t nowUnix) noexcept {
+constexpr Evaluation evaluate(const Metadata& metadata, std::int64_t nowUnix,
+                              bool testerExtension = false) noexcept {
     if (!metadata.betaBuild)
         return {Status::notBeta, 0};
     if (!hasBuildIdentity(metadata) || metadata.expiresAtUnix <= 0 || metadata.warningLeadSeconds < 0)
         return {Status::configurationError, 0};
+    if (testerExtension)
+        return {Status::testerExtended, 0};
     // A bad local clock must not create an irreversible offline lockout. The
     // caller presents a warning and may re-evaluate after the clock is fixed.
     if (nowUnix <= 0)
@@ -66,10 +72,11 @@ constexpr Evaluation evaluate(const Metadata& metadata, std::int64_t nowUnix) no
 class InstanceLatch final {
     static_assert(std::atomic_bool::is_always_lock_free, "Audio decision must be lock-free");
 public:
-    InstanceLatch(const Metadata& metadata, std::int64_t activatedAtUnix) noexcept
-        : metadata_(metadata), activation_(evaluate(metadata, activatedAtUnix)),
+    InstanceLatch(const Metadata& metadata, std::int64_t activatedAtUnix, bool testerExtension = false) noexcept
+        : metadata_(metadata), activation_(evaluate(metadata, activatedAtUnix, testerExtension)),
           processingPermitted_(activation_.status != Status::expired
-                               && activation_.status != Status::configurationError) {}
+                               && activation_.status != Status::configurationError),
+          testerExtension_(testerExtension) {}
 
     [[nodiscard]] bool processingPermitted() const noexcept {
         return processingPermitted_.load(std::memory_order_acquire);
@@ -79,8 +86,22 @@ public:
         return activation_;
     }
 
-    [[nodiscard]] constexpr Evaluation observe(std::int64_t nowUnix) const noexcept {
-        return evaluate(metadata_, nowUnix);
+    [[nodiscard]] Evaluation observe(std::int64_t nowUnix) const noexcept {
+        return evaluate(metadata_, nowUnix, testerExtension_.load(std::memory_order_acquire));
+    }
+
+    // Control thread: a tester code entered or confirmed after activation lifts
+    // the expiry for this instance too, unmuting it if expiry had muted it.
+    // Removing the code later never mutes an instance that is already playing.
+    bool setTesterExtension(bool granted) noexcept {
+        testerExtension_.store(granted, std::memory_order_release);
+        if (!granted || activation_.status == Status::configurationError || processingPermitted())
+            return false;
+        processingPermitted_.store(true, std::memory_order_release);
+        return true;
+    }
+    [[nodiscard]] bool testerExtension() const noexcept {
+        return testerExtension_.load(std::memory_order_acquire);
     }
 
     // An obviously corrected clock can recover an instance that was rejected
@@ -100,6 +121,7 @@ private:
     Metadata metadata_;
     Evaluation activation_;
     std::atomic_bool processingPermitted_{};
+    std::atomic_bool testerExtension_{};
 };
 
 } // namespace spectralforge::beta

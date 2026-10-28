@@ -100,5 +100,28 @@ int main() {
             "Clock rollback left a stale countdown");
     require(!corrected.processingPermitted(),"Displaying a corrected clock unmuted the instance");
 
-    std::cout << "PASS: beta lifecycle policy and active-instance latch\n";
+    // Beta tester code: lifts expiry and warning for every later time, never
+    // overrides invalid metadata, unmutes on grant, never mutes on removal.
+    static_assert(evaluate(beta, 9'999'999, true).status == Status::testerExtended);
+    static_assert(evaluate(beta, 1'999'950, true).status == Status::testerExtended);
+    static_assert(evaluate(missingExpiry, 9'999'999, true).status == Status::configurationError);
+    static_assert(evaluate(stable, 9'999'999, true).status == Status::notBeta);
+    require(InstanceLatch(beta, 9'999'999, true).processingPermitted(),
+            "a tester instance opened after expiry was muted");
+    InstanceLatch late(beta, 2'000'000);
+    require(!late.processingPermitted(), "expired instance not muted before the tester code");
+    require(late.setTesterExtension(true) && late.processingPermitted(),
+            "entering a tester code did not unmute an expired instance");
+    require(late.observe(9'999'999).status == Status::testerExtended && late.testerExtension(),
+            "tester extension not visible after entry");
+    require(!late.setTesterExtension(false) && late.processingPermitted(),
+            "removing a tester code muted an instance that was playing");
+    require(late.observe(2'000'001).status == Status::expired, "removed tester code still lifted the expiry");
+    InstanceLatch broken(missingExpiry, 1);
+    require(!broken.setTesterExtension(true) && !broken.processingPermitted(),
+            "tester code overrode invalid beta metadata");
+    require(remainingText(evaluate(beta, 9'999'999, true)) == "Remaining: no expiry (beta tester code).",
+            "tester extension showed a countdown");
+
+    std::cout << "PASS: beta lifecycle policy, active-instance latch and tester extension\n";
 }

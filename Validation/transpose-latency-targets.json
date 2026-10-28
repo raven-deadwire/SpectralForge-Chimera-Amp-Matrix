@@ -1,6 +1,6 @@
 {
- "version": 1,
- "date": "2026-10-23",
+ "version": 2,
+ "date": "2026-10-26",
  "status": "RESEARCH_TARGET_DEFINITION_SYNTHETIC_ONLY",
  "document": "docs/TRANSPOSE_LATENCY_TARGETS.md",
  "replaces": "single full-band added-latency <= 10 ms goal (#97 Transpose P0)",
@@ -24,8 +24,16 @@
    "id": "T1_attack",
    "kind": "gate",
    "limit_ms": 10,
-   "metric": "1-8 kHz 2 ms RMS attack peak lag, output minus input (PR100 scorer), max over valid events",
-   "applies_to": "all shifts; inputs whose own attack peak sits at the event"
+   "metric": "1-8 kHz 2 ms RMS attack peak lag, output minus input (PR100 scorer), max over counted events",
+   "applies_to": "all shifts; inputs whose own attack peaks all sit within 10 ms of their events; only events with event SNR >= event_snr_min_db",
+   "event_snr_min_db": 10,
+   "event_snr": "peak of the 1-8 kHz 2 ms RMS envelope within 10 ms after the event over its maximum 20-3 ms before the event (Tools/TransposeNext/attack_snr.py)"
+  },
+  {
+   "id": "T1_faint_attack",
+   "kind": "report",
+   "metric": "same lag as T1 for events with event SNR < event_snr_min_db in the same inputs",
+   "note": "not a timing gate: the peak search cannot locate an event this close to the band floor. Detection of these events stays in T4 (missed events, false resets)"
   },
   {
    "id": "T2_low_onset_down",
@@ -82,6 +90,15 @@
    "kind": "required_before_product",
    "verdict_here": "NOT_RUN",
    "note": "real DI recordings, listening, Windows/macOS DAW acceptance, fixed PDC contract, product engine integration"
+  }
+ ],
+ "amendments": [
+  {
+   "version": 2,
+   "date": "2026-10-26",
+   "change": "T1 split: the 10 ms gate counts only attack events with event SNR >= 10 dB (T1_attack); events below 10 dB are reported separately (T1_faint_attack, no gate)",
+   "reason": "docs/TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md: every attack-timing outlier so far came from events < 6 dB above the 1-8 kHz floor, where the peak search follows the floor; pre-registered fresh-seed run with this rule: docs/TRANSPOSE_PDC_SNR10_FRESH_SEED_20261026.md (all rates pass; the faint edge case itself did not recur there)",
+   "past_verdicts": "unchanged; results without per-event SNR rows are evaluated as version 1 and labelled so"
   }
  ]
 }

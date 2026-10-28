@@ -7,6 +7,7 @@ from contextlib import redirect_stdout
 import io
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 from types import SimpleNamespace
@@ -372,15 +373,19 @@ class CIContracts(unittest.TestCase):
         for index, (workflow, expected) in enumerate(publisher.WORKFLOWS.items()):
             run_id = RUN + index
             self.runs[workflow] = [dict(id=run_id, run_attempt=ATTEMPT, head_sha=self.release.source_sha,
+                path=".github/workflows/" + workflow,
                 event="pull_request", status="completed", conclusion="success",
                 repository={"full_name": publisher.transport.REPO},
                 head_repository={"full_name": publisher.transport.REPO})]
-            self.jobs[run_id] = [dict(name=name, status="completed", conclusion="success") for name in expected]
+            self.jobs[run_id] = [dict(name=name, status="completed", conclusion="success",
+                run_id=run_id, run_attempt=ATTEMPT, head_sha=self.release.source_sha) for name in expected]
         self.artifacts = [dict(id=index + 1, name=name, expired=False, size_in_bytes=123,
             workflow_run={"id": RUN, "head_sha": self.release.source_sha}, digest="sha256:" + "b" * 64)
             for index, name in enumerate((self.release.artifact_name, publisher.GATE_ARTIFACT_NAME))]
         self.api = Mock()
         self.api.pages.side_effect = self.pages
+        self.api.json.side_effect = lambda path: next(copy.deepcopy(run)
+            for runs in self.runs.values() for run in runs if run["id"] == int(path.split("/")[3]))
 
     def pages(self, path, key):
         if key == "workflow_runs":
@@ -406,7 +411,9 @@ class CIContracts(unittest.TestCase):
     def test_new_failed_pending_cancelled_run_never_falls_back_to_success(self):
         good = self.runs["build.yml"][0]
         for status, conclusion, error in (("completed", "failure", RuntimeError),
-                ("completed", "cancelled", RuntimeError), ("in_progress", None, publisher.CIPending)):
+                ("completed", "cancelled", RuntimeError), ("completed", "skipped", RuntimeError),
+                *((state, None, publisher.CIPending)
+                  for state in ("in_progress", "queued", "waiting", "pending", "requested"))):
             with self.subTest(status=status, conclusion=conclusion):
                 self.runs["build.yml"] = [good, {**good, "id": 999, "status": status, "conclusion": conclusion}]
                 with self.assertRaises(error):
@@ -425,7 +432,8 @@ class CIContracts(unittest.TestCase):
         good = copy.deepcopy(self.artifacts)
         for change in ({"name": "SpectralForge-Chimera-1.3.1-beta.1-Release-Candidate"},
                        {"workflow_run": {"id": RUN + 1, "head_sha": self.release.source_sha}},
-                       {"digest": ""}, {"size_in_bytes": 0}, {"expired": True}):
+                       {"digest": ""}, {"size_in_bytes": 0}, {"size_in_bytes": True},
+                       {"size_in_bytes": "123"}, {"id": True}, {"expired": True}, {"expired": "false"}):
             with self.subTest(change=change):
                 self.artifacts = [{**good[0], **change}, good[1]]
                 with self.assertRaises(RuntimeError):
@@ -433,6 +441,39 @@ class CIContracts(unittest.TestCase):
         self.artifacts = good + [good[0]]
         with self.assertRaises(RuntimeError):
             publisher.verify_ci(self.api, self.release)
+
+    def test_jobs_are_bound_to_the_selected_source_run_and_attempt(self):
+        original = copy.deepcopy(self.jobs[RUN])
+        for field, value in (("head_sha", "b" * 40), ("run_id", RUN + 1),
+                             ("run_attempt", ATTEMPT - 1), ("run_id", True),
+                             ("run_attempt", str(ATTEMPT)), ("run_attempt", None)):
+            with self.subTest(field=field, value=value):
+                self.jobs[RUN] = copy.deepcopy(original)
+                self.jobs[RUN][0][field] = value
+                with self.assertRaisesRegex(RuntimeError, "job identity"):
+                    publisher.verify_ci(self.api, self.release)
+
+    def test_workflow_identity_cannot_be_borrowed_from_another_workflow(self):
+        self.runs["build.yml"][0]["path"] = ".github/workflows/unrelated.yml"
+        with self.assertRaisesRegex(RuntimeError, "workflow identity"):
+            publisher.verify_ci(self.api, self.release)
+
+    def test_rerun_during_job_or_artifact_lookup_invalidates_the_snapshot(self):
+        original = copy.deepcopy(self.runs["build.yml"][0])
+        for change in ({"run_attempt": ATTEMPT + 1}, {"status": "in_progress", "conclusion": None},
+                       {"conclusion": "failure"}, {"head_sha": "b" * 40}):
+            with self.subTest(change=change):
+                self.api.json.side_effect = lambda path: (
+                    {**original, **change} if path == f"/actions/runs/{RUN}" else
+                    next(run for runs in self.runs.values() for run in runs
+                         if run["id"] == int(path.split("/")[3])))
+                with self.assertRaisesRegex(RuntimeError, "changed during verification"):
+                    publisher.verify_ci(self.api, self.release)
+
+    def test_jobs_are_requested_from_the_selected_attempt(self):
+        publisher.verify_ci(self.api, self.release)
+        for run_id in self.jobs:
+            self.api.pages.assert_any_call(f"/actions/runs/{run_id}/attempts/{ATTEMPT}/jobs", "jobs")
 
 
 class InvocationContracts(SourceFixture):
@@ -538,6 +579,119 @@ class InvocationContracts(SourceFixture):
         self.assertEqual(outcome, ["staged"])
 
 
+class ReleaseGateJobContracts(unittest.TestCase):
+    """The dedicated publication gate job fails unless the gate authorizes publication."""
+
+    def setUp(self):
+        self.release = publisher.Release("1.3.1-beta.2", "a" * 40)
+        self.ci = dict(runs={"build.yml": dict(id=RUN, run_attempt=ATTEMPT, head_sha=self.release.source_sha)},
+            candidate=dict(id=1, name=self.release.artifact_name, digest="sha256:" + "a" * 64, size_in_bytes=10),
+            gate=dict(id=2, name=publisher.GATE_ARTIFACT_NAME, digest="sha256:" + "b" * 64, size_in_bytes=10))
+        self.environment = dict(GITHUB_REPOSITORY=publisher.transport.REPO, GITHUB_EVENT_NAME="workflow_dispatch")
+        self.args = SimpleNamespace(candidate_dir=None, candidate_zip=None, artifact_json=None, gate_archive=None,
+            run_id=None, run_attempt=None, wait_ci_seconds=0)
+        self.api = Mock()
+        self.api.json.side_effect = AssertionError("gate job must not query or mutate releases")
+        self.receipt = {"fixture": "receipt"}
+
+    def run_gate(self, verdict, decision, error=None, approvals=None):
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher, "approval", return_value=self.receipt, side_effect=approvals), \
+             patch.object(publisher.transport, "GitHub", return_value=self.api), \
+             patch.object(publisher, "wait_for_ci", return_value=self.ci) as wait, \
+             patch.object(publisher, "verify_ci", return_value=self.ci), \
+             patch.object(publisher, "check_archive"), \
+             patch.object(publisher, "verify_release_gate_archive", return_value=(verdict, decision),
+                          side_effect=error) as verify, \
+             patch.object(publisher.transport, "publish") as publish, redirect_stdout(io.StringIO()):
+            try:
+                return publisher.require_gate_pass(self.args, self.release, {"policy_version": 4})
+            finally:
+                publish.assert_not_called()
+                wait.assert_called_once()
+                self.assertEqual(verify.call_args.args[2:], (RUN, ATTEMPT, {"policy_version": 4}, self.receipt))
+
+    def test_strict_pass_lets_the_gate_job_succeed(self):
+        verdict, _ = self.run_gate({"verdict": "PASS"},
+            {"publication_allowed": True, "decision": publisher.weekly_publication.STRICT_DECISION})
+        self.assertEqual(verdict["verdict"], "PASS")
+        self.api.download.assert_called_once()
+        self.assertEqual(self.api.download.call_args.args[0], "/actions/artifacts/2/zip")
+
+    def test_blocked_passes_only_under_the_owner_gap_decision_and_stays_blocked(self):
+        verdict, decision = self.run_gate({"verdict": "BLOCKED"},
+            {"publication_allowed": True, "decision": publisher.weekly_publication.GAP_DECISION})
+        self.assertEqual((verdict["verdict"], decision["decision"]),
+                         ("BLOCKED", publisher.weekly_publication.GAP_DECISION))
+        with self.assertRaisesRegex(RuntimeError, "not PASS"):
+            self.run_gate({"verdict": "BLOCKED"},
+                {"publication_allowed": True, "decision": publisher.weekly_publication.STRICT_DECISION})
+
+    def test_unauthorized_or_missing_decisions_fail_the_gate_job(self):
+        for decision in (None, {}, {"publication_allowed": False, "decision": "STRICT_PASS"},
+                         {"publication_allowed": "true", "decision": "STRICT_PASS"}):
+            with self.subTest(decision=decision), self.assertRaisesRegex(RuntimeError, "does not authorize"):
+                self.run_gate({"verdict": "PASS"}, decision)
+
+    def test_approval_replacement_during_gate_verification_cannot_succeed(self):
+        with self.assertRaisesRegex(RuntimeError, "approval changed"):
+            self.run_gate({"verdict": "PASS"},
+                {"publication_allowed": True, "decision": publisher.weekly_publication.STRICT_DECISION},
+                approvals=[self.receipt, {"fixture": "different receipt"}])
+
+    def test_blocked_stale_or_pending_gate_evidence_fails_the_gate_job(self):
+        for error in (RuntimeError("All required strict checks must PASS before publication"),
+                      RuntimeError("Release-gate identity mismatch")):
+            with self.subTest(error=error), self.assertRaisesRegex(RuntimeError, str(error)):
+                self.run_gate({"verdict": "PASS"}, {"publication_allowed": True}, error)
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher, "approval", return_value=self.receipt), \
+             patch.object(publisher.transport, "GitHub", return_value=self.api), \
+             patch.object(publisher, "wait_for_ci", side_effect=publisher.CIPending("still running")):
+            with self.assertRaises(publisher.CIPending):
+                publisher.require_gate_pass(self.args, self.release, {"policy_version": 4})
+
+    def test_missing_approval_local_overrides_and_non_dispatch_runs_never_reach_ci(self):
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher, "approval", side_effect=RuntimeError("Publication is not approved")), \
+             patch.object(publisher.transport, "GitHub") as api:
+            with self.assertRaisesRegex(RuntimeError, "not approved"):
+                publisher.require_gate_pass(self.args, self.release, {})
+            api.assert_not_called()
+        for field in ("candidate_dir", "candidate_zip", "artifact_json", "gate_archive", "run_id", "run_attempt"):
+            with self.subTest(field=field), patch.object(publisher.transport, "GitHub") as api:
+                setattr(self.args, field, 1)
+                with self.assertRaisesRegex(RuntimeError, "local override"):
+                    publisher.require_gate_pass(self.args, self.release, {})
+                api.assert_not_called()
+                setattr(self.args, field, None)
+        for bad in ({"GITHUB_EVENT_NAME": "push"}, {"GITHUB_REPOSITORY": "fork/repo"}):
+            with self.subTest(bad=bad), patch.dict(publisher.os.environ, {**self.environment, **bad}), \
+                 patch.object(publisher.transport, "GitHub") as api:
+                with self.assertRaisesRegex(RuntimeError, "manual publication workflow"):
+                    publisher.require_gate_pass(self.args, self.release, {})
+                api.assert_not_called()
+
+    def test_publish_job_depends_on_a_read_only_pass_gate_job(self):
+        workflow = (REAL_ROOT / publisher.WORKFLOW_PATH).read_text(encoding="utf-8")
+        header, jobs = workflow.split("\njobs:\n", 1)
+        self.assertIn("permissions:\n  contents: read\n  actions: read\n", header)
+        before, gate_job = jobs.split("\n  release-gate:\n", 1)
+        gate_job, publish_job = gate_job.split("\n  publish:\n", 1)
+        self.assertTrue(publish_job.startswith("    needs: release-gate\n"))
+        condition = lambda job: [line for line in job.splitlines() if line.startswith("    if: ")]
+        self.assertEqual(condition(gate_job), condition(publish_job))
+        self.assertEqual(len(condition(gate_job)), 1)
+        self.assertIn("inputs.publish", condition(gate_job)[0])
+        self.assertNotIn("permissions:", gate_job)
+        self.assertEqual(gate_job.count("Tools/publish_release.py --require-gate-pass "), 1)
+        self.assertNotIn("--publish", gate_job)
+        self.assertNotIn("continue-on-error", gate_job)
+        self.assertNotIn("continue-on-error", publish_job)
+        for bypass in ("always(", "failure(", "cancelled("):
+            self.assertNotIn(bypass, condition(publish_job)[0])
+
+
 class GateContracts(SourceFixture):
     def setUp(self):
         super().setUp()
@@ -591,6 +745,119 @@ class GateContracts(SourceFixture):
             mutation(self.verdict)
             with self.assertRaises(RuntimeError):
                 self.verify()
+
+    def receipt(self, decision):
+        receipt = publisher.read_json(self.root / publisher.APPROVAL_PATH)
+        receipt.update(version=self.release.version, product_version=self.release.product_version,
+            profile=self.release.profile, approved_product_source_sha=self.source,
+            strict_policy_sha256=publisher.weekly_publication.digest(self.policy),
+            ci_check_map_sha256=publisher.weekly_publication.digest(
+                publisher.read_json(self.root / "Validation/ci-check-map.json")),
+            decision=decision, release_approved=True, publication_authorized=True)
+        receipt["owner_acceptance"].update(approved=True, publication_authorized=True,
+            validation_gaps_accepted=decision == publisher.weekly_publication.GAP_DECISION,
+            instruction="Synthetic exact-source approval; never product approval",
+            context="Adversarial publication regression", scope=self.release.version + " / " + self.source)
+        if decision == publisher.weekly_publication.GAP_DECISION:
+            receipt["known_validation_gaps"] = publisher.read_json(
+                REAL_ROOT / "Validation/beta-publication-policy-1.3.1.json")["known_validation_gaps"]
+        return receipt
+
+    def run_entrypoint(self, receipt, *, publish=False, changed_ci=None, corrupt_digest=False):
+        """Mock only remote I/O: real receipt, ZIP, digest and evidence evaluators."""
+        self.write_json(self.root / publisher.APPROVAL_PATH, receipt)
+        ci = dict(runs={"build.yml": dict(id=RUN, run_attempt=ATTEMPT, head_sha=self.source)},
+            candidate=dict(id=1, name=self.release.artifact_name, digest="sha256:" + "a" * 64),
+            gate=dict(id=2, name=publisher.GATE_ARTIFACT_NAME,
+                digest="sha256:" + ("0" * 64 if corrupt_digest else publisher.sha256(self.archive)),
+                size_in_bytes=self.archive.stat().st_size))
+        api = Mock()
+        api.download.side_effect = lambda path, target: shutil.copyfile(self.archive, target)
+        controller = "c" * 40
+        def read_api(path, **kwargs):
+            self.assertFalse(kwargs, "No GitHub mutations are permitted in this test")
+            if path == "":
+                return dict(default_branch="main", full_name=publisher.transport.REPO)
+            if path == "/actions/runs/900":
+                return dict(head_sha=controller, head_branch="main", event="workflow_dispatch",
+                            path=publisher.WORKFLOW_PATH)
+            raise AssertionError(path)
+        api.json.side_effect = read_api
+        environment = dict(GITHUB_EVENT_NAME="workflow_dispatch", GITHUB_REPOSITORY=publisher.transport.REPO,
+            GITHUB_SHA=controller, GITHUB_REF="refs/heads/main", GITHUB_RUN_ID="900")
+        args = SimpleNamespace(candidate_dir=None, candidate_zip=None, artifact_json=None, gate_archive=None,
+            run_id=None, run_attempt=None, wait_ci_seconds=0, confirm=self.release.confirm)
+        with patch.dict(publisher.os.environ, environment), \
+             patch.object(publisher.transport, "GitHub", return_value=api), \
+             patch.object(publisher, "wait_for_ci", return_value=ci), \
+             patch.object(publisher, "verify_ci", return_value=changed_ci or ci), \
+             patch.object(publisher.transport, "publish") as mutation, \
+             patch.object(publisher.transport, "extract_candidate") as extract, redirect_stdout(io.StringIO()):
+            try:
+                if publish:
+                    return publisher.publish(args, self.release, self.policy,
+                        {"publication_controller_sha": controller})
+                return publisher.require_gate_pass(args, self.release, self.policy)
+            finally:
+                mutation.assert_not_called()
+                extract.assert_not_called()
+                self.assertTrue(all(call.args[0] == "/actions/artifacts/2/zip"
+                                    for call in api.download.call_args_list))
+
+    def test_real_blocked_archive_is_rejected_by_gate_and_publisher_without_gap_approval(self):
+        self.write_archive()
+        receipt = self.receipt(publisher.weekly_publication.STRICT_DECISION)
+        for live in (False, True):
+            with self.subTest(publish=live), self.assertRaises(RuntimeError):
+                self.run_entrypoint(receipt, publish=live)
+
+    def test_real_gap_approval_authorizes_only_the_exact_beta_and_retains_blocked(self):
+        self.write_archive()
+        receipt = self.receipt(publisher.weekly_publication.GAP_DECISION)
+        verdict, decision = self.run_entrypoint(receipt)
+        self.assertEqual(verdict["verdict"], "BLOCKED")
+        self.assertIs(decision["all_required_checks_passed"], False)
+        self.assertEqual(decision["revision"], self.verdict["revision"])
+        for key, value in (("version", "1.3.2-beta.1"), ("approved_product_source_sha", "b" * 40),
+                           ("profile", "full_release"), ("publication_authorized", False),
+                           ("release_approved", "true"), ("release_approved", 1)):
+            with self.subTest(key=key, value=value), self.assertRaises(RuntimeError):
+                self.run_entrypoint({**receipt, key: value})
+
+    def test_real_gate_rejects_stale_evidence_even_with_an_owner_gap_receipt(self):
+        receipt = self.receipt(publisher.weekly_publication.GAP_DECISION)
+        original = copy.deepcopy(self.verdict)
+        for change in ({"run_id": "999"}, {"run_attempt": "1"}, {"commit_sha": "b" * 40}):
+            self.verdict = copy.deepcopy(original)
+            self.verdict["revision"].update(change)
+            self.write_archive()
+            for live in (False, True):
+                with self.subTest(change=change, publish=live), self.assertRaises(RuntimeError):
+                    self.run_entrypoint(receipt, publish=live)
+        self.verdict = original
+        self.write_archive()
+        with self.assertRaisesRegex(RuntimeError, "SHA-256"):
+            self.run_entrypoint(receipt, corrupt_digest=True)
+
+    def test_real_gate_rejects_malformed_duplicate_and_nonfinite_json_before_publication(self):
+        receipt = self.receipt(publisher.weekly_publication.GAP_DECISION)
+        for content in ('{', '[]', 'null', 'true', '1', '{"verdict":"BLOCKED","verdict":"PASS"}',
+                        '{"counts":NaN}', '{"counts":Infinity}'):
+            with zipfile.ZipFile(self.archive, "w") as archive:
+                archive.writestr("release-gate.json", content)
+            for live in (False, True):
+                with self.subTest(content=content, publish=live), \
+                     self.assertRaises((RuntimeError, ValueError, TypeError)):
+                    self.run_entrypoint(receipt, publish=live)
+
+    def test_real_gate_cannot_succeed_if_ci_changes_during_archive_verification(self):
+        self.write_archive()
+        receipt = self.receipt(publisher.weekly_publication.GAP_DECISION)
+        changed = dict(runs={"build.yml": dict(id=RUN, run_attempt=ATTEMPT + 1)},
+                       gate=dict(id=2, digest="sha256:" + "b" * 64),
+                       candidate=dict(id=1, digest="sha256:" + "a" * 64))
+        with self.assertRaisesRegex(RuntimeError, "changed during gate"):
+            self.run_entrypoint(receipt, changed_ci=changed)
 
 
 class TransportContracts(unittest.TestCase):
