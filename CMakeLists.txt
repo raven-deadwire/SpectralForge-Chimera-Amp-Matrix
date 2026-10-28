@@ -454,6 +454,12 @@ target_compile_definitions(ChimeraGateProcessorTests PRIVATE JUCE_MODAL_LOOPS_PE
 target_link_libraries(ChimeraGateProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraGateProcessorTests COMMAND ChimeraGateProcessorTests)
 
+juce_add_console_app(ChimeraSaturationTests PRODUCT_NAME "Chimera Saturation Tests")
+target_sources(ChimeraSaturationTests PRIVATE Tests/SaturationTests.cpp)
+target_include_directories(ChimeraSaturationTests PRIVATE Source)
+target_link_libraries(ChimeraSaturationTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraSaturationTests COMMAND ChimeraSaturationTests)
+
 juce_add_console_app(ChimeraGateTests PRODUCT_NAME "Chimera Gate Tests")
 target_sources(ChimeraGateTests PRIVATE Tests/GateTests.cpp)
 target_include_directories(ChimeraGateTests PRIVATE Source)

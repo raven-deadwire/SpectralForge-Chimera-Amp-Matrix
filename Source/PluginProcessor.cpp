@@ -32,7 +32,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
 {
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
-    dynamics.bind(state);multiband.bind(state);deesser.bind(state);
+    dynamics.bind(state);multiband.bind(state);saturation.bind(state);deesser.bind(state);
     preFX.setAnalysis(&dynamicsAnalysisState);postFX.setAnalysis(&dynamicsAnalysisState);
     pedalBoard.setAnalysis(&dynamicsAnalysisState);engine.setDynamicsAnalysis(&dynamicsAnalysisState);
     const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
@@ -151,7 +151,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);saturation.prepare(sr,maximumBlock);deesser.prepare(sr);
     dynamicsAnalysisState.prepare(sr,int(spec.maximumBlockSize));
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
@@ -178,7 +178,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     // reported, so the host gets the active mode's delay from the first block.
     preFX.transpose.setMode(transposeQualityMode.load());
     const bool pitchActive=globals[pitchOn]->load()>.5f && int(globals[semitones]->load())!=0;
-    setLatencySamples(postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
+    setLatencySamples(saturation.latency()+postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
 }
 bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 {
@@ -246,7 +246,7 @@ void ChimeraProcessor::resetProcessingIfPending()
 {
     if(!resetPending.exchange(false)) return;
     engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();utilities.reset();
-    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();hostBypass.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();saturation.reset();deesser.reset();hostBypass.reset();
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
@@ -307,7 +307,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     boardReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : 0.f);
     preReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : preFX.compressor.reduction());
     measureStage(1,buffer);
-    const int latency=postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
+    const int latency=saturation.latency()+postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
     engine.setOversampling((int)value(os));
     syncOriginalCabRequests();
@@ -349,6 +349,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer);}
     autoSetCaptureState.push(spectralforge::autoset::Tap::multiband,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer);}
+    // Three-band saturation (docs/SATURATION_1_6.md): adds only what each band's
+    // curve changes; Off / Mix 0 / Clean bands leave the signal untouched.
+    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}
     autoSetCaptureState.push(spectralforge::autoset::Tap::deesser,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
     postFX.process(buffer,fx);
@@ -489,6 +492,7 @@ spectralforge::appendMultibandParameters(p);
 spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
 spectralforge::appendMultibandStereoParameters(p);
+spectralforge::appendSaturationParameters(p);
 return p;
 }
 

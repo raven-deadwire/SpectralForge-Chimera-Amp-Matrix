@@ -69,8 +69,8 @@ inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPane
     auto* measured=find<spectralforge::DynamicsSpectrumPanel>(panel,"commonDynamics.spectrum");
     require(measured && measured->isShowing(),"Selected dynamics page lost its spectrum");
     inside(editor,*measured,"Dynamics spectrum is clipped");require(measured->graphBounds().getHeight()>=150,"Dynamics graph was reduced to a meter strip");
-    const std::array<std::pair<Page,const char*>,6> exclusive{{{Page::compressor,"cleanCompThreshold"},{Page::gate,"commonDynamics.gatePre"},{Page::expander,"expThreshold"},
-        {Page::limiter,"liveLimiterCeiling"},{Page::multiband,"mbBand1_threshold"},{Page::deesser,"deEsserFrequency"}}};
+    const std::array<std::pair<Page,const char*>,7> exclusive{{{Page::compressor,"cleanCompThreshold"},{Page::gate,"commonDynamics.gatePre"},{Page::expander,"expThreshold"},
+        {Page::limiter,"liveLimiterCeiling"},{Page::multiband,"mbBand1_threshold"},{Page::saturation,"satMix"},{Page::deesser,"deEsserFrequency"}}};
     for(const auto& [owner,id]:exclusive) {
         auto* control=find(panel,id);
         require(control && control->isShowing()==(owner==page),"Unrelated dynamics controls remain on the selected page");
@@ -99,7 +99,9 @@ inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPane
         case Page::limiter:
             for(const auto* id:{"liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})visibleInside(editor,panel,id);break;
         case Page::multiband:
-            for(const auto* id:{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3","mbBand1_mode","mbBand1_bypass","mbBand1_solo","mbBand1_threshold","mbBand1_range","mbBand1_ratio","mbBand1_attack","mbBand1_release","mbBand1_knee","mbBand1_makeup"})visibleInside(editor,panel,id);break;
+            for(const auto* id:{"mbOn","mbMix","mbDetector","mbStereoMode","mbLink","mbCrossover1","mbCrossover2","mbCrossover3","mbBand1_mode","mbBand1_channels","mbBand1_bypass","mbBand1_solo","mbBand1_threshold","mbBand1_range","mbBand1_ratio","mbBand1_attack","mbBand1_release","mbBand1_knee","mbBand1_makeup"})visibleInside(editor,panel,id);break;
+        case Page::saturation:
+            for(const auto* id:{"satOn","satQuality","commonDynamics.saturationBand","satMix","satOutput","satCrossover1","satCrossover2","satBand1_type","satBand1_drive"})visibleInside(editor,panel,id);break;
         case Page::deesser:
             for(const auto* id:{"deEsserOn","deEsserListen","deEsserFrequency","deEsserThreshold","deEsserRange","deEsserRatio","deEsserAttack","deEsserRelease","deEsserKnee"})visibleInside(editor,panel,id);break;
         default:break;
@@ -217,9 +219,9 @@ inline void run(const juce::File& directory) {
     auto* measured=find<spectralforge::DynamicsSpectrumPanel>(*panel,"commonDynamics.spectrum");require(measured,"Dynamics analyzer missing");
     require(signalPathTests::values(p)==before && writes.changes==0 && writes.gestures==0,"Opening dynamics changed sound state or emitted gestures");
 
-    // Six dynamics workspaces, in tab order. Dynamic EQ is edited on its EQ band.
-    const std::array<std::pair<const char*,Page>,6> pages{{{"compressor",Page::compressor},{"gate",Page::gate},{"expander",Page::expander},
-        {"limiter",Page::limiter},{"multiband",Page::multiband},{"deesser",Page::deesser}}};
+    // Seven common-processor workspaces, in tab order. Dynamic EQ is edited on its EQ band.
+    const std::array<std::pair<const char*,Page>,7> pages{{{"compressor",Page::compressor},{"gate",Page::gate},{"expander",Page::expander},
+        {"limiter",Page::limiter},{"multiband",Page::multiband},{"saturation",Page::saturation},{"deesser",Page::deesser}}};
     for(int scale:{75,100,125,150}) {
         editor->setSize(1180*scale/100,780*scale/100);settle(35);
         for(size_t index=0;index<pages.size();++index) {

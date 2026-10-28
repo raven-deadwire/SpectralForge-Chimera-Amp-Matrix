@@ -5,6 +5,7 @@
 #include "DynamicsAnalysis.h"
 #include "AutoSet.h"
 #include "MultibandDynamics.h"
+#include "ThreeBandSaturation.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -231,6 +232,7 @@ private:
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;
     spectralforge::MultibandDynamics multiband;
+    spectralforge::ThreeBandSaturation saturation;
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;

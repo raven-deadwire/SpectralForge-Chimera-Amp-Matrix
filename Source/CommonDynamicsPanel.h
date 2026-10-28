@@ -1,5 +1,6 @@
 #pragma once
 #include "CommonDynamics.h"
+#include "ThreeBandSaturation.h"
 #include "DynamicsSpectrumPanel.h"
 #include "GraphicalEQPanel.h"
 #include "PostNativeCatalog.h"
@@ -14,15 +15,15 @@ namespace spectralforge {
 // parameter IDs and stay alive across navigation; no sound values are copied.
 class CommonDynamicsPanel final : public juce::Component,private juce::Timer {
 public:
-    enum class Page {compressor,gate,limiter,dynamicEQ,multiband,deesser,preCompressor,postCompressor,lowCompressor,expander};
+    enum class Page {compressor,gate,limiter,dynamicEQ,multiband,deesser,preCompressor,postCompressor,lowCompressor,expander,saturation};
 
     // Dynamic EQ is edited on its Tone / Final EQ band; Page::dynamicEQ is kept
     // only so older navigation can be redirected there.
     CommonDynamicsPanel(juce::AudioProcessorValueTreeState& s,CommonDynamics& d,DynamicsAnalysis& analysis,EQCaptureBoundary& boundary)
         :state(s),dsp(d),spectrum(analysis,boundary) {
         setComponentID("commonDynamics.panel");setOpaque(true);addChildComponent(spectrum);
-        constexpr std::array<const char*,6> titles{"COMPRESSOR","GATE","EXPANDER","LIMITER","MULTIBAND","DE-ESSER"};
-        constexpr std::array<const char*,6> names{"compressor","gate","expander","limiter","multiband","deesser"};
+        constexpr std::array<const char*,7> titles{"COMPRESSOR","GATE","EXPANDER","LIMITER","MULTIBAND","SATURATION","DE-ESSER"};
+        constexpr std::array<const char*,7> names{"compressor","gate","expander","limiter","multiband","saturation","deesser"};
         for(size_t i=0;i<tabs.size();++i) {
             tabs[i].setButtonText(titles[i]);tabs[i].setComponentID("commonDynamics.page."+juce::String(names[i]));
             tabs[i].onClick=[this,i]{selectPage(tabPages[i]);};addAndMakeVisible(tabs[i]);
@@ -108,6 +109,22 @@ public:
             ui.bypass.setTooltip("Bypass this band's dynamics and makeup while keeping its crossover path and solo state. This preserves alignment with the other bands.");
             ui.controls[2].slider.setTooltip("Gain attack time constant in milliseconds. The selected Peak/RMS detector also affects the measured response time.");
             ui.controls[3].slider.setTooltip("Gain release time constant in milliseconds. Detector recovery also contributes, so full recovery takes longer than this value.");
+        }
+        // Three-band saturation (docs/SATURATION_1_6.md).
+        toggle(satOn,"SATURATION ON","satOn");choice(satQuality,"satQuality",{"Live","Studio 4x"});
+        satOn.setTooltip("Switching moves through a phase-matched all-pass (about 35 ms), so no frequency cancels. Off leaves the signal untouched.");
+        satQuality.setTooltip("Live: no added latency. Studio 4x: oversampled (less aliasing), adds its latency while selected. Changing it fades the stage out and in.");
+        satBandSelector.addItemList({"Band 1 / LOW","Band 2 / MID","Band 3 / HIGH"},1);
+        satBandSelector.setComponentID("commonDynamics.saturationBand");satBandSelector.setSelectedId(1,juce::dontSendNotification);addChildComponent(satBandSelector);
+        satBandSelector.onChange=[this]{selectedSatBand=std::clamp(satBandSelector.getSelectedId()-1,0,2);syncPage();refresh();};
+        control(satMix,"satMix","Mix %");control(satOutput,"satOutput","Output dB");
+        satMix.slider.setTooltip("Amount of every band's change. 0% keeps all levels (the crossovers' phase rotation stays while the stage is on).");
+        for(int cross=0;cross<2;++cross)control(satCrossovers[size_t(cross)],"satCrossover"+juce::String(cross+1),"Crossover "+juce::String(cross+1)+" Hz");
+        for(int band=0;band<3;++band) {
+            auto& ui=satBands[size_t(band)];
+            choice(ui.type,saturationID(band,"type"),saturationTypeNames());
+            ui.type.setTooltip("Clean passes the band unchanged. Tape: soft symmetric. Tube: asymmetric (even harmonics). Clip: firm cubic clip.");
+            control(ui.drive,saturationID(band,"drive"),"Drive dB");
         }
         toggle(deEsserOn,"DE-ESSER ON","deEsserOn");toggle(deEsserListen,"LISTEN","deEsserListen");
         constexpr std::array<const char*,7> deIDs{"deEsserFrequency","deEsserThreshold","deEsserRange","deEsserRatio","deEsserAttack","deEsserRelease","deEsserKnee"};
@@ -207,6 +224,10 @@ public:
         mbMix.bounds(sideX+column+12,341,column);
         const int crossWidth=(sideX-32)/3;
         for(int cross=0;cross<3;++cross)crossovers[size_t(cross)].bounds(18+cross*crossWidth,getHeight()-56,crossWidth-12);
+        satOn.setBounds(18,45,153,28);satBandSelector.setBounds(180,45,170,28);satQuality.setBounds(358,45,110,28);
+        for(auto& band:satBands){band.type.setBounds(sideX,89,sideWidth,28);band.drive.bounds(sideX,130,sideWidth);}
+        satMix.bounds(sideX,195,column);satOutput.bounds(sideX+column+12,195,column);
+        for(int cross=0;cross<2;++cross)satCrossovers[size_t(cross)].bounds(18+cross*((sideX-32)/3),getHeight()-56,(sideX-32)/3-12);
         deEsserOn.setBounds(18,45,150,28);deEsserListen.setBounds(178,45,104,28);
         autoSet.setBounds(sideX,getHeight()-40,100,28);autoOptions.setBounds(sideX+106,getHeight()-40,118,28);
         autoUndo.setBounds(sideX+230,getHeight()-40,std::max(1,sideWidth-230),28);updateAutoView();repaint();
@@ -248,6 +269,7 @@ private:
             case Page::limiter:return DynamicsStage::limiter;case Page::multiband:return DynamicsStage::multiband;
             case Page::deesser:return DynamicsStage::deesser;case Page::preCompressor:return DynamicsStage::preCompressor;
             case Page::postCompressor:return DynamicsStage::postCompressor;case Page::lowCompressor:return DynamicsStage::lowCompressor;
+            case Page::saturation:return DynamicsStage::saturation;
             default:return DynamicsStage::none;
         }
     }
@@ -300,6 +322,8 @@ private:
         lowAmount.show(page==Page::lowCompressor);lowBlend.show(page==Page::lowCompressor);
         const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbStereo.setVisible(mb);mbLink.setVisible(mb);mbBandSelector.setVisible(mb);mbMix.show(mb);showControls(crossovers,mb);
         for(int band=0;band<4;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);ui.channels.setVisible(showing);showControls(ui.controls,showing);}
+        const bool sat=page==Page::saturation;satOn.setVisible(sat);satQuality.setVisible(sat);satBandSelector.setVisible(sat);satMix.show(sat);satOutput.show(sat);showControls(satCrossovers,sat);
+        for(int band=0;band<3;++band){auto& ui=satBands[size_t(band)];const bool showing=sat && band==selectedSatBand;ui.type.setVisible(showing);ui.drive.show(showing);}
         deEsserOn.setVisible(page==Page::deesser);deEsserListen.setVisible(page==Page::deesser);
         autoSet.setVisible(autoPage());autoOptions.setVisible(autoPage());autoUndo.setVisible(autoPage());showControls(deEsser,page==Page::deesser);
         if(page==Page::preCompressor)spectrum.setPreOwner(-1);
@@ -339,6 +363,10 @@ private:
             const auto cutoffs=effectiveCrossovers?effectiveCrossovers():std::array<float,3>{raw("mbCrossover1",120),raw("mbCrossover2",700),raw("mbCrossover3",3500)};
             for(int cross=0;cross<3;++cross)markers[size_t(cross)]={cutoffs[size_t(cross)],"X"+juce::String(cross+1)};count=3;
             spectrum.setBandHighlight(selectedMBBand==0?20.f:cutoffs[size_t(selectedMBBand-1)],selectedMBBand==3?20000.f:cutoffs[size_t(selectedMBBand)]);
+        } else if(page==Page::saturation) {
+            const std::array<float,2> cutoffs{raw("satCrossover1",200),raw("satCrossover2",2500)};
+            for(int cross=0;cross<2;++cross)markers[size_t(cross)]={cutoffs[size_t(cross)],"X"+juce::String(cross+1)};count=2;
+            spectrum.setBandHighlight(selectedSatBand==0?20.f:cutoffs[size_t(selectedSatBand-1)],selectedSatBand==2?20000.f:cutoffs[size_t(selectedSatBand)]);
         } else spectrum.setBandHighlight(0,0);
         spectrum.setFrequencyMarkers(markers,count);
     }
@@ -346,6 +374,7 @@ private:
         if(page==Page::compressor && marker==0)return state.getParameter("cleanCompHP");
         if(page==Page::deesser && marker==0)return state.getParameter("deEsserFrequency");
         if(page==Page::multiband && marker>=0 && marker<3)return state.getParameter("mbCrossover"+juce::String(marker+1));
+        if(page==Page::saturation && marker>=0 && marker<2)return state.getParameter("satCrossover"+juce::String(marker+1));
         return nullptr;
     }
     void endMarkerGesture(){if(markerParameter){markerParameter->endChangeGesture();markerParameter=nullptr;}}
@@ -357,6 +386,7 @@ private:
             case Page::limiter:return "Final output / sample peak";
             case Page::multiband:return "4 bands / stereo linked";
             case Page::deesser:return "High-band dynamics";
+            case Page::saturation:return raw("satQuality")>.5f?"3 bands / Studio 4x / after multiband":"3 bands / Live, no latency / after multiband";
             case Page::preCompressor:return sourceIsActive()?"Legacy PRE signal path":"Legacy PRE source inactive";
             case Page::postCompressor:return sourceIsActive()?"Legacy POST signal path":"Legacy POST source inactive";
             case Page::lowCompressor:return sourceIsActive()?"Matrix LOW DI branch":"Matrix LOW source inactive";
@@ -369,8 +399,11 @@ private:
     }
     void timerCallback() override {if(isShowing())refresh();}
     juce::AudioProcessorValueTreeState& state;CommonDynamics& dsp;DynamicsSpectrumPanel spectrum;
-    Page page{Page::compressor};std::array<juce::TextButton,6> tabs;
-    static constexpr std::array<Page,6> tabPages{Page::compressor,Page::gate,Page::expander,Page::limiter,Page::multiband,Page::deesser};
+    Page page{Page::compressor};std::array<juce::TextButton,7> tabs;
+    static constexpr std::array<Page,7> tabPages{Page::compressor,Page::gate,Page::expander,Page::limiter,Page::multiband,Page::saturation,Page::deesser};
+    struct SatBand {juce::ComboBox type;Control drive;};
+    std::array<SatBand,3> satBands;Control satMix,satOutput;std::array<Control,2> satCrossovers;
+    juce::TextButton satOn;juce::ComboBox satQuality,satBandSelector;int selectedSatBand{};
     juce::ComboBox detector,gateMode,gate2Mode,mbDetector,mbBandSelector,mbStereo;
     juce::Slider mbLink;std::unique_ptr<SA> mbLinkAttachment;bool channelNamesMidSide{true};
     juce::TextButton gate2On,expanderOn,expanderPlacement;std::array<juce::TextButton,2> gateSides;

@@ -142,7 +142,7 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
         auto* slider=named<juce::Slider>(editor,name);
         require(slider && !slider->isShowing(),"Gate parameters must be edited in the spectrum workspace");
     }
-    for(const auto* name:{"gate","expander","compressor","limiter","multiband","deesser"}) {
+    for(const auto* name:{"gate","expander","compressor","limiter","multiband","deesser","saturation"}) {
         auto* entry=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(name));
         require(entry && entry->isShowing() && entry->isEnabled() && !strip.isParentOf(entry),
                 "Direct dynamics entry is unavailable or duplicated in the signal path");
