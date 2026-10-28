@@ -30,7 +30,8 @@ if(CHIMERA_BUILD_AAX)
 endif()
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
-set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png Assets/Artwork/aniflheimr.png)
+set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png Assets/Artwork/aniflheimr.png
+    Assets/Artwork/acrystal.png Assets/Artwork/abluestack.png Assets/Artwork/aeightyfire.png Assets/Artwork/afortress.png Assets/Artwork/anorthlight.png)
 set(CHIMERA_MODEL_ARTWORK p808 pcentaur prat pm87 pdyna pdiamond pqtron pmutron pmuff pface pbender prc prange pmicro aglass abrit a515 arect amark asvt agk ahybrid rsslvca r1176 rla2a rn73 rv5 risa rssleq rn73eq rpultec rce2 rdimension rstone rmistress reddy rpulsar r2290 rre201 rmemory remt rlex rspring cmesa campeg cbassman cdelta pfet pmu pbddi pb3k pm82 paw3 pwool pfactory pep plpb achim30 aorange abassman asubway amatchless adumble aeich)
 include(Assets/Artwork/ExpandedArtwork.cmake OPTIONAL)
 foreach(model IN LISTS CHIMERA_MODEL_ARTWORK)
@@ -700,3 +701,8 @@ target_link_libraries(ChimeraFactoryPresetExport PRIVATE ChimeraAmpMatrix Chimer
 add_test(NAME ChimeraFactoryPresetExport COMMAND ChimeraFactoryPresetExport "${CMAKE_BINARY_DIR}/validation/preset-maintenance")
 set_tests_properties(ChimeraFactoryPresetExport PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
 # END CHIMERA PRESET MAINTENANCE EXPORTER
+juce_add_console_app(ChimeraReferenceAmpTests PRODUCT_NAME "Chimera Reference Amp Tests")
+target_sources(ChimeraReferenceAmpTests PRIVATE Tests/ReferenceAmpTests.cpp)
+target_include_directories(ChimeraReferenceAmpTests PRIVATE Source)
+target_link_libraries(ChimeraReferenceAmpTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraReferenceAmpTests COMMAND ChimeraReferenceAmpTests)

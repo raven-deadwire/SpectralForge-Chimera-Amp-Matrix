@@ -82,7 +82,10 @@ def build_catalog():
                   ("diezel-vh4","Diezel VH4 — reference pending","required"),("svt-cl","Ampeg SVT-CL","required"),
                   ("fortin","Fortin Evil Pumpkin","candidate"),("soldano","Soldano SLO-100 LTD OD","candidate"),
                   ("bogner","Bogner Uberschall Rev Blue","candidate"),("sunn","SUNN — Model T under review","required"),
-                  ("engl-e670fe","Special Edition / ENGL E670FE","required")]
+                  ("engl-e670fe","Special Edition / ENGL E670FE","required"),
+                  ("jc-120","Roland JC-120","candidate"),("1987x","Marshall 1987X","candidate"),
+                  ("jcm800-2203","Marshall JCM800 2203","candidate"),("dr103","Hiwatt DR103","candidate"),
+                  ("aurora","Vanderkley Aurora","candidate")]
     for key,name,priority in planned_amps:
         models.append(dict(id="planned.amp."+key,name=name,reference=name,category="AMP",location="rig",
                            status="not_implemented",priority=priority,active=key!="engl",controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))

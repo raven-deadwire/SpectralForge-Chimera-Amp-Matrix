@@ -76,6 +76,11 @@ inline void mapping() {
         return c>=0 ? std::string(spectralforge::ampNativePanel(model).controls[(size_t)c].key) : std::string{};};
     for(int route:{0,1,4})require(key(1,0,route,Role::gain)=="hw.high_treble","Brit Edge HIGH TREBLE / JUMPED GAIN must edit LOUDNESS I");
     for(int route:{2,3})require(key(1,0,route,Role::gain)=="hw.normal","Brit Edge NORMAL input GAIN must edit LOUDNESS II");
+    for(int route:{0,1,4})require(key(27,0,route,Role::gain)=="hw.high_treble","Bluestack 100 HIGH TREBLE / JUMPED GAIN must edit LOUDNESS I");
+    for(int route:{2,3})require(key(27,0,route,Role::gain)=="hw.normal","Bluestack 100 NORMAL input GAIN must edit LOUDNESS II");
+    require(key(28,0,0,Role::gain)=="hw.preamp","Eightyfire GAIN must edit PRE-AMP VOLUME");
+    for(int route:{0,1})require(key(29,0,route,Role::gain)=="hw.normal","Fortress 103 NORMAL input GAIN must edit NORMAL VOLUME");
+    for(int route:{2,3,4})require(key(29,0,route,Role::gain)=="hw.bright","Fortress 103 BRIGHT / JUMPED GAIN must edit BRIGHT VOLUME");
     require(key(19,0,0,Role::gain)=="hw.normal","Monolith NORMAL input GAIN must edit NORMAL");
     for(int route:{1,2})require(key(19,0,route,Role::gain)=="hw.brilliant","Monolith BRILLIANT / JUMPED GAIN must edit BRILLIANT");
     require(key(7,0,0,Role::gain)=="hw.db751.gain" && key(7,0,0,Role::bass)=="hw.db751.bass" && key(7,0,0,Role::middle)=="hw.db751.mid"

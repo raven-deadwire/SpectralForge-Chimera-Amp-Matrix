@@ -8,9 +8,9 @@ namespace ampCatalogTests {
 inline void run() {
     using namespace spectralforge;
     const auto check=[](bool value,const char* reason){if(!value)throw std::runtime_error(reason);};
-    static_assert(legacyAmpModelCount==15 && ampModelCount==26 && activeAmpModelCount==25 && static_cast<int>(AmpModel::modernBass)==7 && static_cast<int>(AmpModel::tastePunch)==14);
+    static_assert(legacyAmpModelCount==15 && ampModelCount==31 && activeAmpModelCount==30 && static_cast<int>(AmpModel::modernBass)==7 && static_cast<int>(AmpModel::tastePunch)==14);
     static_assert(static_cast<int>(AmpModel::ironCompact)==16 && static_cast<int>(AmpModel::specialEdition)==23);
-    static_assert(firstOriginalAmpModel==24 && niflheimrAmpModel==25);
+    static_assert(firstOriginalAmpModel==24 && niflheimrAmpModel==25 && firstReferenceAmpModel==26 && static_cast<int>(AmpModel::northlight)==30);
     check(legacyAmpNames().size()==15,"Legacy normalized host range changed");
     std::set<std::string> names;int guitars=0,basses=0;
     for(int i=0;i<ampModelCount;++i) {
@@ -22,11 +22,12 @@ inline void run() {
         check((ampPrimaryRoles[(size_t)i]==AmpRole::bass)==ampInfo(i).bass,"Bass amp primary category incorrect");
         guitars+=!ampInfo(i).bass;basses+=ampInfo(i).bass;
     }
-    check(guitars==18&&basses==8,"Serialized amp inventory incomplete");
+    check(guitars==22&&basses==9,"Serialized amp inventory incomplete");
     check(!ampIsActive(16)&&ampIsActive(23),"Ironball legacy / E670FE active policy broken");
     check(ampMatches(niflheimrAmpModel,AmpRole::highGain,AmpInstrument::bass),"Niflheimr missing from high-gain bass search");
+    check(ampMatches(static_cast<int>(AmpModel::northlight),AmpRole::clean,AmpInstrument::bass)&&ampMatches(static_cast<int>(AmpModel::crystal120),AmpRole::clean,AmpInstrument::guitar),"Reference heads missing from clean search");
     check(!ampMatches(-1)&&!ampMatches(ampModelCount),"Invalid index accepted");
     check(ampIndexFromMenuId(0)==-1&&ampIndexFromMenuId(1001)==-1,"Invalid popup item accepted");
-    std::cout<<"PASS: 26 serialized / 25 active Chimera heads, preserved 15-value legacy host range\n";
+    std::cout<<"PASS: 31 serialized / 30 active Chimera heads, preserved 15-value legacy host range\n";
 }
 }

@@ -411,6 +411,59 @@ inline constexpr Knob model25[]{
     {"blend","BLEND",0.6950f,0.8100f},
     {"master","MASTER",0.7930f,0.8100f},
 };
+// 26 — Crystal 120 (both channels share the four tone positions)
+inline constexpr Knob model26[]{
+    {"hw.ch1.volume","VOLUME",0.1000f,0.7700f},
+    {"hw.ch1.treble","TREBLE",0.2000f,0.7700f},
+    {"hw.ch1.middle","MIDDLE",0.3000f,0.7700f},
+    {"hw.ch1.bass","BASS",0.4000f,0.7700f},
+    {"hw.ch2.volume","VOLUME",0.1000f,0.7700f},
+    {"hw.ch2.treble","TREBLE",0.2000f,0.7700f},
+    {"hw.ch2.middle","MIDDLE",0.3000f,0.7700f},
+    {"hw.ch2.bass","BASS",0.4000f,0.7700f},
+    {"hw.ch2.distortion","DISTORTION",0.5200f,0.7700f},
+    {"hw.ch2.reverb","REVERB",0.6200f,0.7700f},
+    {"hw.ch2.speed","SPEED",0.7400f,0.7700f},
+    {"hw.ch2.depth","DEPTH",0.8400f,0.7700f},
+};
+// 27 — Bluestack 100
+inline constexpr Knob model27[]{
+    {"hw.presence","PRESENCE",0.1500f,0.7600f},
+    {"hw.bass","BASS",0.2900f,0.7600f},
+    {"hw.middle","MIDDLE",0.4300f,0.7600f},
+    {"hw.treble","TREBLE",0.5700f,0.7600f},
+    {"hw.normal","LOUDNESS II",0.7100f,0.7600f},
+    {"hw.high_treble","LOUDNESS I",0.8500f,0.7600f},
+};
+// 28 — Eightyfire
+inline constexpr Knob model28[]{
+    {"hw.presence","PRESENCE",0.1500f,0.7600f},
+    {"hw.bass","BASS",0.2900f,0.7600f},
+    {"hw.middle","MIDDLE",0.4300f,0.7600f},
+    {"hw.treble","TREBLE",0.5700f,0.7600f},
+    {"hw.master","MASTER",0.7100f,0.7600f},
+    {"hw.preamp","PRE-AMP",0.8500f,0.7600f},
+};
+// 29 — Fortress 103
+inline constexpr Knob model29[]{
+    {"hw.normal","NORMAL",0.1200f,0.7600f},
+    {"hw.bright","BRIGHT",0.2450f,0.7600f},
+    {"hw.bass","BASS",0.3700f,0.7600f},
+    {"hw.treble","TREBLE",0.4950f,0.7600f},
+    {"hw.middle","MIDDLE",0.6200f,0.7600f},
+    {"hw.presence","PRESENCE",0.7450f,0.7600f},
+    {"hw.master","MASTER",0.8700f,0.7600f},
+};
+// 30 — Northlight
+inline constexpr Knob model30[]{
+    {"hw.eq.low","LOW",0.1400f,0.6350f},
+    {"hw.eq.low_mid","LOW MID",0.2600f,0.6350f},
+    {"hw.eq.mid","MID",0.3800f,0.6350f},
+    {"hw.eq.high_mid","HIGH MID",0.5000f,0.6350f},
+    {"hw.eq.high","HIGH",0.6200f,0.6350f},
+    {"hw.damping","DAMPING",0.7600f,0.6350f},
+    {"hw.master","MASTER",0.8800f,0.6350f},
+};
 inline constexpr std::array<std::span<const Knob>,ampModelCount> modelKnobs{{
     model0, // Glass
     model1, // Brit Edge
@@ -437,7 +490,12 @@ inline constexpr std::array<std::span<const Knob>,ampModelCount> modelKnobs{{
     model22, // Blue Storm
     model23, // Special Edition
     model24, // Náströnd
-    model25 // Niflheimr
+    model25, // Niflheimr
+    model26, // Crystal 120
+    model27, // Bluestack 100
+    model28, // Eightyfire
+    model29, // Fortress 103
+    model30 // Northlight
 }};
 // Dial sizes are fitted per reviewed production plate. Tall single-row panels
 // and compact two-row panels have independent diameters and row spacing; keep
@@ -471,6 +529,12 @@ inline const std::array<FaceStyle,ampModelCount> faceStyles{{
     // The complete Niflheimr shell has a taller plate: size its two rows to
     // that usable area instead of retaining the old miniature 3.2% dials.
     {0.0560f,0.0950f,0xfff1ece0,{0.1700f,0.4850f,0.7030f,0.4070f},{.4053f,.5637f,.1894f,.0468f},{}}, // Niflheimr
+    // Procedural reference shells: one knob row on the lower plate.
+    {0.0450f,0.0920f,0xff191b18,{0.0300f,0.6200f,0.9400f,0.3400f},{},{}}, // Crystal 120
+    {0.0480f,0.1300f,0xff191b18,{0.0300f,0.6000f,0.9400f,0.3600f},{},{}}, // Bluestack 100
+    {0.0480f,0.1300f,0xff191b18,{0.0300f,0.6000f,0.9400f,0.3600f},{},{}}, // Eightyfire
+    {0.0450f,0.1150f,0xff191b18,{0.0300f,0.5800f,0.9400f,0.3800f},{},{}}, // Fortress 103
+    {0.0550f,0.1100f,0xfff1ece0,{0.0400f,0.3300f,0.9200f,0.6100f},{},{}}, // Northlight
 }};
 static_assert(modelKnobs.size()==ampModelCount && faceStyles.size()==ampModelCount);
 inline bool supported(int model) noexcept {return model>=0 && model<ampModelCount;}

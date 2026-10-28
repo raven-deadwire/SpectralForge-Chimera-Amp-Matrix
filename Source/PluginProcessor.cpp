@@ -493,6 +493,8 @@ spectralforge::appendDeEsserParameters(p);
 spectralforge::appendExtraGateParameters(p);
 spectralforge::appendMultibandStereoParameters(p);
 spectralforge::appendSaturationParameters(p);
+// 1.6 reference heads (models 26-30), version hint 20.
+spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstReferenceAmpModel,spectralforge::ampModelCount,spectralforge::referenceAmpParameterVersion);
 return p;
 }
 
