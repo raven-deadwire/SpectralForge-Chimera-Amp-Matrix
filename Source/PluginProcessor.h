@@ -216,6 +216,7 @@ private:
     juce::ValueTree captureCore();
     void syncTransposeQuality();
     void restoreCore(juce::ValueTree);
+    void warmInactiveComparison();
     std::array<juce::ValueTree,2> comparisons;
     std::mutex comparisonMutex;
     std::atomic<int> selectedComparison{0};

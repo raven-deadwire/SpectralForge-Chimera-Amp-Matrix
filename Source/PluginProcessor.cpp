@@ -678,6 +678,7 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
     restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);restoreCore(restored);
+    warmInactiveComparison();
 }
 void ChimeraProcessor::selectComparison(int slot)
 {
@@ -689,12 +690,35 @@ void ChimeraProcessor::selectComparison(int slot)
       next=comparisons[(size_t)slot].createCopy();selectedComparison.store(slot);
     }
     restoreCore(next);
+    warmInactiveComparison();
 }
 void ChimeraProcessor::copyComparison()
 {
     eqEditState.barrier();
-    auto current=captureCore();std::lock_guard<std::mutex> lock(comparisonMutex);
-    comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
+    auto current=captureCore();
+    { std::lock_guard<std::mutex> lock(comparisonMutex);
+      comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy(); }
+    warmInactiveComparison();
+}
+void ChimeraProcessor::warmInactiveComparison()
+{
+    // The other A/B slot is the likeliest next recall: keep its modeled
+    // cabinets generated so switching to it installs them at once.
+    juce::ValueTree other;
+    { std::lock_guard<std::mutex> lock(comparisonMutex); other=comparisons[(size_t)(1-selectedComparison.load())]; }
+    std::array<uint64_t,6> models{};
+    if(other.isValid()) {
+        // Missing values take the parameter default, as restoreCore does.
+        const spectralforge::ParamIndex saved(other);
+        const auto get=[&](const juce::String& id) {
+            if(const auto node=saved[id];node.isValid()) return float(node.getProperty("value"));
+            auto* parameter=state.getParameter(id);
+            return parameter ? parameter->convertFrom0to1(parameter->getDefaultValue()) : 0.f;
+        };
+        for(int lane=0;lane<3;++lane)for(int mic=0;mic<2;++mic)
+            models[size_t(lane+3*mic)]=spectralforge::OriginalCabParameters::savedKey(lane,mic,get);
+    }
+    library.keepWarm(models);
 }
 juce::AudioProcessorEditor* ChimeraProcessor::createEditor() {
     auto* editor=new ChimeraEditor(*this);
