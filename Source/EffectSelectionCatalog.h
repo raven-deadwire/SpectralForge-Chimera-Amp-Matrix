@@ -49,7 +49,19 @@ inline constexpr std::array<PedalMenuEntry,pedalModelCount> pedalMenuEntries{{
     {"Drift Vibrato",PedalMenuKind::modulation},
     {"Pulse Tremolo",PedalMenuKind::modulation},
     {"Mono Octaver",PedalMenuKind::pitch},
-    {"Spectral Octaver",PedalMenuKind::pitch}
+    {"Spectral Octaver",PedalMenuKind::pitch},
+    {"Para EQ",PedalMenuKind::equalizer},
+    {"Multi Comp",PedalMenuKind::compressor},
+    {"Tight Boost",PedalMenuKind::boost},
+    {"Power Wah",PedalMenuKind::wah},
+    {"Bass Synth",PedalMenuKind::pitch},
+    {"Dreadful Peril",PedalMenuKind::distortion},
+    {"Seven EQ",PedalMenuKind::equalizer},
+    {"Multi Wah",PedalMenuKind::wah},
+    {"Octave Fuzz",PedalMenuKind::fuzz},
+    {"Violet Rage",PedalMenuKind::distortion},
+    {"Fire Drake",PedalMenuKind::distortion},
+    {"Pitch Bend",PedalMenuKind::pitch}
 }};
 struct PedalMenuGroup { PedalMenuKind kind; const char* label; };
 inline constexpr std::array<PedalMenuGroup,10> pedalMenuGroups{{
@@ -78,7 +90,19 @@ inline const char* pedalDescription(int model) {
         "Hard-clipped drive", "Two drives / six routings",
         "Manual wah sweep", "Ten-band graphic equalizer", "Single-voice chorus", "Opposing stereo chorus",
         "Four-stage phase sweep", "Short-delay flange", "Pitch vibrato / wet blend", "Stereo amplitude modulation",
-        "Single-note octave divider", "Spectral octave layering"
+        "Single-note octave divider", "Spectral octave layering",
+        "Three-band parametric EQ / clean boost",
+        "Bass compressor / multiband / tube",
+        "Single-knob tight mid boost",
+        "Treadle wah / clean boost",
+        "Tracking bass synth / sub / filter",
+        "High-gain distortion / adaptive gate",
+        "Seven-band graphic EQ / level",
+        "Six-range wah / Q / boost",
+        "Octave fuzz / sub / octave up",
+        "Amp-style distortion / aggression",
+        "High-gain distortion / open-tight",
+        "Pitch shift / harmony / detune"
     }};
     return descriptions[(size_t)juce::jlimit(0,pedalModelCount-1,model)];
 }

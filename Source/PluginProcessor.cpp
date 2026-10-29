@@ -598,6 +598,8 @@ spectralforge::appendExtraGateParameters(p);
 // Append-only; existing projects keep their cuts and normalization policy.
 for(int lane=1;lane<=3;++lane)for(const auto* mic:{"A","B"})
     p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"cab"+juce::String(mic)+"cutsOff"+juce::String(lane),15},"Mic "+juce::String(mic)+" cuts bypass "+juce::String(lane),false));
+// 1.4 PRE Expansion A pedal banks (version 16).
+spectralforge::appendPedalExpansionParameters(p);
 return p;
 }
 

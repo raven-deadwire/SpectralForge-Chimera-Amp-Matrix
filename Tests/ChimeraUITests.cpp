@@ -37,7 +37,7 @@ void checkArtwork()
     using namespace spectralforge::art;
     const juce::SharedResourcePointer<RasterBank> bank;
     const auto& images=bank->images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==91,
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==size_t(91+spectralforge::pedalModelCount-spectralforge::releasedPedalModelCount),
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -70,7 +70,7 @@ void checkArtwork()
             require(racks.insert(rackStyle(family,model).surface).second,"Distinct POST references share one artwork surface");
     for(int model=26;model<spectralforge::pedalModelCount;++model)
         require(pedals.insert(boardPedalStyle(model).surface).second,"New pedal has no dedicated enclosure image");
-    require(heads.size()==size_t(spectralforge::ampModelCount) && pedals.size()==38 && racks.size()==21,"Model artwork mapping does not cover every reference");
+    require(heads.size()==size_t(spectralforge::ampModelCount) && pedals.size()==size_t(38+spectralforge::pedalModelCount-spectralforge::releasedPedalModelCount) && racks.size()==21,"Model artwork mapping does not cover every reference");
     std::set<juce::String> nativeHeads;
     for(int model=spectralforge::legacyAmpModelCount;model<spectralforge::ampModelCount;++model) {
         require(bank->images[(size_t)headStyle(model).surface].isValid(),"New head has no dedicated raster artwork");
@@ -86,7 +86,7 @@ void checkArtwork()
     require(nativeHeads.size()==size_t(spectralforge::ampModelCount-spectralforge::legacyAmpModelCount),"Missing new amp artwork");
     for(auto surface:pedals)require(!heads.count(surface) && !racks.count(surface),"A pedal is using amp or rack artwork");
     for(auto surface:racks)require(!heads.count(surface),"A rack is using amplifier artwork");
-    std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces\n";
+    std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, "<<pedals.size()<<" PRE enclosures ("<<spectralforge::pedalModelCount-1<<" models), 21 unique POST surfaces\n";
     for(const auto* resource:{"chimerawordmark_png","spectralforgeemblem_png"}) {int bytes=0;const auto* data=ChimeraArtworkData::getNamedResource(resource,bytes);require(data && bytes>0 && juce::ImageFileFormat::loadFrom(data,(size_t)bytes).isValid(),"Brand image missing or undecodable");}
     int manualBytes=0;const auto* manual=ChimeraManualData::getNamedResource("MANUAL_html",manualBytes);require(manual && manualBytes>1000 && juce::String::fromUTF8(manual,manualBytes).contains("SpectralForge Chimera"),"Embedded offline manual missing");
 }

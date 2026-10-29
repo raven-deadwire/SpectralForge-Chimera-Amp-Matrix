@@ -144,6 +144,29 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             c.slider.textFromValueFunction=[names](double value){return names[juce::jlimit(0,names.size()-1,juce::roundToInt(value))];};
             c.slider.valueFromTextFunction=[names](const juce::String& text){const int i=names.indexOf(text,true);return i>=0?double(i):text.getDoubleValue();};
         }
+        else if(model==40 && index%3==0 && index<9) {
+            // Para EQ frequency knobs: logarithmic across each band, shown in Hz.
+            const int band=index/3;
+            c.slider.textFromValueFunction=[band](double value){const float hz=spectralforge::PedalParaEQ::frequency(band,float(value));return hz>=1000.f?juce::String(hz/1000.f,2)+" kHz":juce::String(juce::roundToInt(hz))+" Hz";};
+            c.slider.valueFromTextFunction=[band](const juce::String& text){
+                const auto& range=spectralforge::PedalParaEQ::bands[size_t(band)];
+                const double hz=text.getDoubleValue()*(text.containsIgnoreCase("k")?1000.:1.);
+                return juce::jlimit(0.,1.,std::log(juce::jlimit(double(range.low),double(range.high),hz)/range.low)/std::log(double(range.high)/range.low));
+            };
+        }
+        else if(model==41 && index==0) {
+            c.slider.textFromValueFunction=[](double value){return juce::String(value,1)+":1";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
+        }
+        else if(model==45 && index==7) {
+            c.slider.textFromValueFunction=[](double value){const float hz=spectralforge::PedalDreadfulPeril::midHz(float(value));return hz>=1000.f?juce::String(hz/1000.f,2)+" kHz":juce::String(juce::roundToInt(hz))+" Hz";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){const double hz=juce::jlimit(200.,2500.,text.getDoubleValue()*(text.containsIgnoreCase("k")?1000.:1.));return std::log(hz/200.)/std::log(2500./200.);};
+        }
+        else if(model==40 || model==41 || model==42 || (model==43 && index==1) || (model==45 && index>=2 && index<=6) || model==46 || (model==47 && index==3) || (model==48 && (index==0 || index==7)) || ((model==49 || model==50) && index!=1 && index!=5)) {
+            // Para EQ gains and boost, Multi Comp gain, sens and balance are in dB.
+            c.slider.textFromValueFunction=[](double value){return (value>0?"+":"")+juce::String(value,1)+" dB";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
+        }
         else if(spec.minimum==0 && spec.maximum==1) {
             c.slider.textFromValueFunction=[](double value){return juce::String(value*10.,1);};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/10.;};
@@ -205,7 +228,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
                 card.attachment.reset();
                 if(model)card.attachment=bindPower(card.bypass,owner,model);
                 for(int c=0;c<6;++c)bind(card.controls[(size_t)c],owner,model,cardControl(model,c),false);
-                card.model.setTooltip(model==39?"Spectral octaver: about 43-46 ms processing delay. Dense low chords can lose fundamentals.":model==38?"Monophonic octave divider. Use single notes; chord tracking is not supported.":"Choose a pedal by type. Each slot keeps its own settings.");
+                card.model.setTooltip(model==39?"Spectral octaver: about 43-46 ms processing delay. Dense low chords can lose fundamentals.":model==38?"Monophonic octave divider. Use single notes; chord tracking is not supported.":model==51?"Treadle pitch shifter. The shifted signal lags by up to one window: 25-50 ms (Classic) or 60-85 ms (Chords), longer on low notes.":"Choose a pedal by type. Each slot keeps its own settings.");
             }
             card.title.setText("SLOT "+juce::String(position+1)+"  /  "+(model?juce::String(spectralforge::pedalModel(model).controlCount)+" CONTROLS":"ADD A PEDAL"),juce::dontSendNotification);
             const bool visible=detailedOwner<0;
