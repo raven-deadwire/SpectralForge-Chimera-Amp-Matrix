@@ -1,0 +1,57 @@
+{
+  "purpose": "fresh-seed re-validation of the corr40-split-v3-sinc high-band residual with a floor-corrected rule; registered before any tone of this seed is rendered",
+  "execution_host_utc": "2026-10-29T12:20:54.840484+00:00",
+  "client_date_kst": "2026-10-29",
+  "base_commit": "bba4a9d3e85142bd58dffb567dd69616db4fbe11",
+  "sources_sha256": {
+    "Tools/TransposeNext/residual_validation.py": "d0464bd89c1ec78d5244db135dad5796ee680a11d7e002e3a9e8776ec0455ef9",
+    "Tools/TransposeNext/v3sinc_validation.py": "384ee67407aecfabbbed3f3a0b9bd31495d572e4f05f75f3d5f0a9dd5357a4bc",
+    "Tools/TransposeNext/legacy_metrics.py": "8582eaeaba558584eb57af7e18935ea35380ffef142ab2d022b52d533277721a",
+    "Tools/TransposeNext/CorrelationPitch.h": "dfa38718a931a51940a744828dbed4a5935469ec05523d3a591e7e98a50b2624",
+    "Tools/TransposeNext/TransientSplitPitch.h": "efb9a579e5e1d73db57961b045384083c9546415939235fd5230f2e4e1149f8a",
+    "Tools/TransposeNext/TransposeProbe.cpp": "dcb0aca737315d30834905df67796e7d3d6d769dcb64662e1b70177f29c31234"
+  },
+  "binaries_sha256": {
+    "TransposeProbe": "ae2c9e758222418efc6098ab0f5ffd1ef8ca1db0c5da51876a1a690ebf30404a"
+  },
+  "binary_check": "v3 and v3-sinc output bit-identical to the 2026-10-29 validation build (8 renders)",
+  "replaces": "P5 of docs/evidence/transpose-v3sinc-fresh-seed-20261029/preregistration.json (verdict FAIL, kept)",
+  "fresh_seed": 86603,
+  "previously_used_residual_seeds": [
+    70711
+  ],
+  "tones_per_rate": 16,
+  "rates": [
+    44100,
+    48000,
+    96000
+  ],
+  "shifts": [
+    -2,
+    -1,
+    1,
+    2
+  ],
+  "inputs": "3 s harmonic tones to 8 kHz, f0 log-uniform 27.5-330 Hz, amplitude 1/h^tilt with tilt uniform 0.5-1.5, random phases; ideal reference = same harmonic set at f0*2^(shift/12)",
+  "metric": "1-8 kHz Welch (32768) energy farther than f0/4 from the harmonics; net residual = output inter-harmonic energy minus the ideal tone inter-harmonic energy, re output harmonic energy, in dB (floor -120 dB)",
+  "development_data": "rules were set after seeing the 2026-10-28 study tones (27.5-55 Hz) and the 2026-10-29 seed 70711 tones; on both, v3-sinc net median is -67 to -82 dB, 98-100 % of cases <= -50 dB, improvement 17-21 dB at 44.1/48 kHz, worst +0.2 dB vs v3",
+  "pass_rule": {
+    "R1": "per rate: v3-sinc median net residual <= -60 dB",
+    "R2": "per rate: at least 90 % of v3-sinc cases have net residual <= -50 dB",
+    "R3": "44.1 and 48 kHz: median (v3 net - v3-sinc net) >= 10 dB",
+    "R4": "per rate: no case with v3-sinc net residual > v3 net residual + 1 dB",
+    "overall": "R1-R4 all PASS"
+  },
+  "report_only": [
+    "excess over the ideal tone (old metric)",
+    "harmonic loss vs ideal",
+    "cases where both engines leave a residual above -40 dB re harmonics (engine-level, not interpolation)",
+    "cases clamped at the -120 dB floor"
+  ],
+  "rules": [
+    "Commit/push this registration before rendering seed 86603",
+    "Single run; keep the result whatever it is; no change of seed, thresholds or metric after results",
+    "Synthetic tones only; no listening or real DI claim",
+    "Product Source/ and engine code unchanged"
+  ]
+}

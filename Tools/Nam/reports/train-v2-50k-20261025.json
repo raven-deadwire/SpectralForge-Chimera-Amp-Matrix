@@ -1,0 +1,391 @@
+{
+  "schema": 1,
+  "date": "2026-10-25",
+  "quality_profile": "nastrond-tone3000-fidelity-v2",
+  "source": "4ef21c16aed16fe2eb470ed21e5d9942224ab61e",
+  "training": {
+    "train_seconds": 480,
+    "steps": 50000,
+    "lr": 0.004,
+    "lr_half_life": 20000,
+    "frames": 4096,
+    "batch": 2,
+    "recipe": "legacy",
+    "tail_fraction": 0.1,
+    "center_training_output": true,
+    "threads": 4,
+    "init": "from scratch",
+    "selection": "level-gated; excerpt ESR on DC-corrected output from step 30,500 (e37b69f). Steps 0-30,500 used raw-output excerpts; their best states were re-scored on resume.",
+    "final_train_loss": 0.024969060379080473,
+    "wall_clock_hours": 4.6
+  },
+  "selection_window_esr_by_step_after_fix": {
+    "31000": {
+      "Fenrir": 0.08683532011326014,
+      "Surtr": 0.07572722253599765,
+      "Nidhoggr": 0.0759040627653928,
+      "Fimbulvetr": 0.04533959538127239,
+      "Ragnarok": 0.10632362134566216
+    },
+    "31500": {
+      "Fenrir": 0.0631454974436327,
+      "Surtr": 0.06935111814425385,
+      "Nidhoggr": 0.0743145446095144,
+      "Fimbulvetr": 0.053166643833569616,
+      "Ragnarok": 0.09156121873629441
+    },
+    "32000": {
+      "Fenrir": 0.07072881902870913,
+      "Surtr": 0.07670768392587517,
+      "Nidhoggr": 0.09984709242924313,
+      "Fimbulvetr": 0.04839022195116114,
+      "Ragnarok": 0.07289645127208416
+    },
+    "32500": {
+      "Fenrir": 0.08115912796052123,
+      "Surtr": 0.12590186738701412,
+      "Nidhoggr": 0.07388162494313741,
+      "Fimbulvetr": 0.05789784462838201,
+      "Ragnarok": 0.09295212826732471
+    },
+    "33000": {
+      "Fenrir": 0.0859859005123807,
+      "Surtr": 0.09538131470896252,
+      "Nidhoggr": 0.06762551029538715,
+      "Fimbulvetr": 0.049143946403639095,
+      "Ragnarok": 0.10175925226378328
+    },
+    "33500": {
+      "Fenrir": 0.06612429085113375,
+      "Surtr": 0.07678118082051759,
+      "Nidhoggr": 0.07982707464651768,
+      "Fimbulvetr": 0.04964526483015674,
+      "Ragnarok": 0.08715637873638511
+    },
+    "34000": {
+      "Fenrir": 0.07655429336866083,
+      "Surtr": 0.08289377157417444,
+      "Nidhoggr": 0.06790314186177461,
+      "Fimbulvetr": 0.06443475475930531,
+      "Ragnarok": 0.08715859915146847
+    },
+    "34500": {
+      "Fenrir": 0.11679066376123978,
+      "Surtr": 0.07842881262313703,
+      "Nidhoggr": 0.07201179977960394,
+      "Fimbulvetr": 0.059424039068656676,
+      "Ragnarok": 0.07599112064445887
+    },
+    "35000": {
+      "Fenrir": 0.07460360159418782,
+      "Surtr": 0.0803353651057744,
+      "Nidhoggr": 0.07576571828905429,
+      "Fimbulvetr": 0.08157583578797463,
+      "Ragnarok": 0.0730773188683477
+    },
+    "35500": {
+      "Fenrir": 0.08643119376913058,
+      "Surtr": 0.08407116855099489,
+      "Nidhoggr": 0.06550963299511173,
+      "Fimbulvetr": 0.05259709457594068,
+      "Ragnarok": 0.07510950827128356
+    },
+    "36000": {
+      "Fenrir": 0.06141850565269578,
+      "Surtr": 0.07657141094654574,
+      "Nidhoggr": 0.07251379923029304,
+      "Fimbulvetr": 0.04538752949906845,
+      "Ragnarok": 0.06443057163634634
+    },
+    "36500": {
+      "Fenrir": 0.07956526613134575,
+      "Surtr": 0.08852585017069205,
+      "Nidhoggr": 0.06984380131400848,
+      "Fimbulvetr": 0.04342641323121253,
+      "Ragnarok": 0.07320373690525792
+    },
+    "37000": {
+      "Fenrir": 0.0684248763844191,
+      "Surtr": 0.0761158943445783,
+      "Nidhoggr": 0.06369971113768373,
+      "Fimbulvetr": 0.05200588005273894,
+      "Ragnarok": 0.07550638157256442
+    },
+    "37500": {
+      "Fenrir": 0.06955677471313212,
+      "Surtr": 0.08327794024119528,
+      "Nidhoggr": 0.07481666622017571,
+      "Fimbulvetr": 0.05897049174138698,
+      "Ragnarok": 0.07356723762315386
+    },
+    "38000": {
+      "Fenrir": 0.08002916077354258,
+      "Surtr": 0.09738663323276768,
+      "Nidhoggr": 0.08181398006129129,
+      "Fimbulvetr": 0.04424194519863598,
+      "Ragnarok": 0.07076572367687381
+    },
+    "38500": {
+      "Fenrir": 0.08629154024093162,
+      "Surtr": 0.07968628961903865,
+      "Nidhoggr": 0.07760881334523773,
+      "Fimbulvetr": 0.044377329348872674,
+      "Ragnarok": 0.06419796019583608
+    },
+    "39000": {
+      "Fenrir": 0.06927112287754063,
+      "Surtr": 0.0781435305925499,
+      "Nidhoggr": 0.06654273375580289,
+      "Fimbulvetr": 0.05536756477642761,
+      "Ragnarok": 0.0808485085692355
+    },
+    "39500": {
+      "Fenrir": 0.0683556174775956,
+      "Surtr": 0.09265678343906388,
+      "Nidhoggr": 0.07097551119052048,
+      "Fimbulvetr": 0.057911011508022116,
+      "Ragnarok": 0.09738241645393501
+    },
+    "40000": {
+      "Fenrir": 0.07790212795211145,
+      "Surtr": 0.09122890620827892,
+      "Nidhoggr": 0.08028977035458795,
+      "Fimbulvetr": 0.0560425479721775,
+      "Ragnarok": 0.0867814546791866
+    },
+    "40500": {
+      "Fenrir": 0.07781566167479473,
+      "Surtr": 0.08070605175781267,
+      "Nidhoggr": 0.06090589206582717,
+      "Fimbulvetr": 0.04054613862700894,
+      "Ragnarok": 0.06972270909727911
+    },
+    "41000": {
+      "Fenrir": 0.05983628281248302,
+      "Surtr": 0.07102319148527074,
+      "Nidhoggr": 0.06082018229355566,
+      "Fimbulvetr": 0.049612148050420864,
+      "Ragnarok": 0.08233174358403092
+    },
+    "41500": {
+      "Fenrir": 0.06385940457988548,
+      "Surtr": 0.08324323840574657,
+      "Nidhoggr": 0.07460494163546819,
+      "Fimbulvetr": 0.04938431748966711,
+      "Ragnarok": 0.0701177226168143
+    },
+    "42000": {
+      "Fenrir": 0.07515908463756918,
+      "Surtr": 0.0703778955995136,
+      "Nidhoggr": 0.08017622666110144,
+      "Fimbulvetr": 0.05434406133239268,
+      "Ragnarok": 0.08125396550439942
+    },
+    "42500": {
+      "Fenrir": 0.08070343529837128,
+      "Surtr": 0.08292326698112919,
+      "Nidhoggr": 0.07131507289515548,
+      "Fimbulvetr": 0.05543370812580095,
+      "Ragnarok": 0.09305672698865497
+    },
+    "43000": {
+      "Fenrir": 0.07885551625495704,
+      "Surtr": 0.07760797889369656,
+      "Nidhoggr": 0.07044067489675401,
+      "Fimbulvetr": 0.05017642503964278,
+      "Ragnarok": 0.08004539930233254
+    },
+    "43500": {
+      "Fenrir": 0.06979925345123825,
+      "Surtr": 0.07062730224163798,
+      "Nidhoggr": 0.06384188125037686,
+      "Fimbulvetr": 0.053892807803238726,
+      "Ragnarok": 0.06994891111979078
+    },
+    "44000": {
+      "Fenrir": 0.06656013060368929,
+      "Surtr": 0.06174220828338103,
+      "Nidhoggr": 0.06339603409450317,
+      "Fimbulvetr": 0.04827223637690011,
+      "Ragnarok": 0.07032862562688631
+    },
+    "44500": {
+      "Fenrir": 0.0613737593754521,
+      "Surtr": 0.06939273980857086,
+      "Nidhoggr": 0.07968215959116895,
+      "Fimbulvetr": 0.04855407721275636,
+      "Ragnarok": 0.06645463830118614
+    },
+    "45000": {
+      "Fenrir": 0.06050185197316014,
+      "Surtr": 0.07875436617066751,
+      "Nidhoggr": 0.070924372642928,
+      "Fimbulvetr": 0.042835070978782586,
+      "Ragnarok": 0.0828259332752078
+    },
+    "45500": {
+      "Fenrir": 0.08259102458335231,
+      "Surtr": 0.0661585975109805,
+      "Nidhoggr": 0.06608513466479235,
+      "Fimbulvetr": 0.05236517237507872,
+      "Ragnarok": 0.06727495928585799
+    },
+    "46000": {
+      "Fenrir": 0.07172935259384133,
+      "Surtr": 0.0830572597571361,
+      "Nidhoggr": 0.05556591088486389,
+      "Fimbulvetr": 0.056656743580701364,
+      "Ragnarok": 0.07937054675665627
+    },
+    "46500": {
+      "Fenrir": 0.07163453503493411,
+      "Surtr": 0.093415689488034,
+      "Nidhoggr": 0.07811143402281398,
+      "Fimbulvetr": 0.042397295002467514,
+      "Ragnarok": 0.06697422958954694
+    },
+    "47000": {
+      "Fenrir": 0.06148165658692417,
+      "Surtr": 0.06609170945023994,
+      "Nidhoggr": 0.06848646544755325,
+      "Fimbulvetr": 0.05527403888571316,
+      "Ragnarok": 0.05516602113683221
+    },
+    "47500": {
+      "Fenrir": 0.09057629453177696,
+      "Surtr": 0.09310038214382406,
+      "Nidhoggr": 0.10064052025032688,
+      "Fimbulvetr": 0.06209559876928215,
+      "Ragnarok": 0.0670665468863184
+    },
+    "48000": {
+      "Fenrir": 0.06896054514763077,
+      "Surtr": 0.06477414010975505,
+      "Nidhoggr": 0.06538033242954733,
+      "Fimbulvetr": 0.043319115569713365,
+      "Ragnarok": 0.0671555443451322
+    },
+    "48500": {
+      "Fenrir": 0.06767375036000213,
+      "Surtr": 0.08263943819241361,
+      "Nidhoggr": 0.07870160393850487,
+      "Fimbulvetr": 0.03832984134705068,
+      "Ragnarok": 0.06852906933299423
+    },
+    "49000": {
+      "Fenrir": 0.06219275160202781,
+      "Surtr": 0.0753804182346881,
+      "Nidhoggr": 0.06711255444272927,
+      "Fimbulvetr": 0.03854630793760323,
+      "Ragnarok": 0.07286926702017893
+    },
+    "49500": {
+      "Fenrir": 0.06791128404269543,
+      "Surtr": 0.08146332450596376,
+      "Nidhoggr": 0.07323705288928606,
+      "Fimbulvetr": 0.04536000987167491,
+      "Ragnarok": 0.0593065667136949
+    },
+    "50000": {
+      "Fenrir": 0.06320496190371248,
+      "Surtr": 0.06387105385827477,
+      "Nidhoggr": 0.0705399704163027,
+      "Fimbulvetr": 0.051234242629737504,
+      "Ragnarok": 0.073706307041511
+    }
+  },
+  "validation": {
+    "Fenrir": {
+      "full_esr": 0.033423037347095376,
+      "active_median": 0.01765623910153904,
+      "active_p95": 0.18318056797211213,
+      "active_worst": 0.3036825468289564,
+      "quiet_worst_residual_rms_dbfs": -69.29467379232389,
+      "quiet_worst_residual_peak_dbfs": -52.64386346248603,
+      "memoryless_worst_residual_rms_dbfs": -110.11316271463326,
+      "rms_error_db": -0.0584714315584047,
+      "peak_error_db": 0.13275219300170527,
+      "active_pass": false,
+      "quiet_pass": false,
+      "level_pass": true,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 41000,
+      "model_sha256": "688de0fc49039f1c3ee49ade4bcfe8721b99083a4fce383c6822eeff0b027afd"
+    },
+    "Surtr": {
+      "full_esr": 0.03554768047704442,
+      "active_median": 0.02144451793960319,
+      "active_p95": 0.14682411194844294,
+      "active_worst": 0.3879997653716127,
+      "quiet_worst_residual_rms_dbfs": -77.50277018819337,
+      "quiet_worst_residual_peak_dbfs": -70.33608056377165,
+      "memoryless_worst_residual_rms_dbfs": -86.98978273312537,
+      "rms_error_db": -0.09971885398506397,
+      "peak_error_db": -0.6670533781969299,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": true,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 44000,
+      "model_sha256": "1ed9eb19910e8b1c0897ff9dec0ac1e6822ec903e44b3f922a52eceb3286cc0f"
+    },
+    "Nidhoggr": {
+      "full_esr": 0.03693419424950711,
+      "active_median": 0.025815687617840182,
+      "active_p95": 0.14391045226117474,
+      "active_worst": 0.28681270122108143,
+      "quiet_worst_residual_rms_dbfs": -74.73370841717602,
+      "quiet_worst_residual_peak_dbfs": -67.26730399024053,
+      "memoryless_worst_residual_rms_dbfs": -84.46376075871684,
+      "rms_error_db": -0.22875248565695938,
+      "peak_error_db": 0.10665385679568296,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": true,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 46000,
+      "model_sha256": "4eb46f4e09b83f2c6b8418a9f8575663691eb1c3e4079956194d06717c25b686"
+    },
+    "Fimbulvetr": {
+      "full_esr": 0.01498267353153146,
+      "active_median": 0.0112815938766028,
+      "active_p95": 0.06450322310075671,
+      "active_worst": 0.19504460989136618,
+      "quiet_worst_residual_rms_dbfs": -77.4974609211653,
+      "quiet_worst_residual_peak_dbfs": -70.10973500251225,
+      "memoryless_worst_residual_rms_dbfs": -86.19352130042031,
+      "rms_error_db": -0.12653329444548095,
+      "peak_error_db": 0.7970927038214679,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": true,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 48500,
+      "model_sha256": "1194f523969d7c18aa51c8ac112bd2594d3e8df960d4ac5498eb2318f469e5f0"
+    },
+    "Ragnarok": {
+      "full_esr": 0.037252819123089254,
+      "active_median": 0.02581179074446762,
+      "active_p95": 0.15536377428932455,
+      "active_worst": 0.2931525614631583,
+      "quiet_worst_residual_rms_dbfs": -75.93091677575569,
+      "quiet_worst_residual_peak_dbfs": -67.81086446084946,
+      "memoryless_worst_residual_rms_dbfs": -88.00472113588495,
+      "rms_error_db": -0.07624274967092726,
+      "peak_error_db": 2.107032410256508,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": false,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 47000,
+      "model_sha256": "3b63cf223f020099c468218d8818ceb05e385a6559c418b030bff56d8a7ff4bd"
+    }
+  },
+  "release_approved": false,
+  "test_split": "not evaluated"
+}

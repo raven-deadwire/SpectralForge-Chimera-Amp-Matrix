@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "date": "2026-10-26",
+  "quality_profile": "nastrond-tone3000-fidelity-v2",
+  "source": "4ef21c16aed16fe2eb470ed21e5d9942224ab61e",
+  "data": {
+    "train_seconds": 3840,
+    "train_seeds": [
+      640500,
+      640509,
+      640518,
+      640527,
+      640536,
+      640545,
+      640554,
+      640563
+    ]
+  },
+  "training": {
+    "warm_start": "final-candidate-20261026 selected models",
+    "steps": 40000,
+    "lr": 0.0007,
+    "lr_half_life": 10000,
+    "frames": 4096,
+    "batch": 2,
+    "recipe": "legacy",
+    "tail_fraction": 0.1,
+    "center_training_output": true,
+    "selection": "full validation, level-gated",
+    "threads": 4
+  },
+  "channels": {
+    "Fenrir": {
+      "validation": {
+        "full_esr": 0.019725405827727433,
+        "active_median": 0.010499303250074301,
+        "active_p95": 0.08786153706261753,
+        "active_worst": 0.2788136170488617,
+        "quiet_worst_residual_rms_dbfs": -69.66859213708935,
+        "quiet_worst_residual_peak_dbfs": -53.933356832635525,
+        "rms_error_db": -0.09314515577403229,
+        "peak_error_db": -0.09622360812132236,
+        "active_pass": false,
+        "quiet_pass": false,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 38000,
+        "model_sha256": "0b8d25330090026d0a59c992a57714b4bb7b80305ee87d7257e008f1775533ec"
+      },
+      "test": {
+        "full_esr": 0.020365819953290933,
+        "active_median": 0.011475564480796344,
+        "active_p95": 0.09368294243136638,
+        "active_worst": 0.19816878678677502,
+        "quiet_worst_residual_rms_dbfs": -88.77246928423168,
+        "quiet_worst_residual_peak_dbfs": -81.8930490162689,
+        "rms_error_db": -0.06768871345889349,
+        "peak_error_db": 0.37115202073718656,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    },
+    "Surtr": {
+      "validation": {
+        "full_esr": 0.01860729023207362,
+        "active_median": 0.012600384313370853,
+        "active_p95": 0.06997688765567715,
+        "active_worst": 0.13759300753463735,
+        "quiet_worst_residual_rms_dbfs": -77.50282724733063,
+        "quiet_worst_residual_peak_dbfs": -70.33608056377165,
+        "rms_error_db": -0.10664793201715894,
+        "peak_error_db": -0.08740482752596179,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 39500,
+        "model_sha256": "d05e7c75d73932d815d969e9453b5d75351c9935d76eb10b6980158bd02ccb1a"
+      },
+      "test": {
+        "full_esr": 0.020476197941364075,
+        "active_median": 0.012314073951580594,
+        "active_p95": 0.06619370092146501,
+        "active_worst": 0.2800081519965208,
+        "quiet_worst_residual_rms_dbfs": -76.80181680544341,
+        "quiet_worst_residual_peak_dbfs": -69.61263350624978,
+        "rms_error_db": -0.08986228103901694,
+        "peak_error_db": 0.5113527600577399,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    },
+    "Nidhoggr": {
+      "validation": {
+        "full_esr": 0.022182848832325568,
+        "active_median": 0.011791871512396607,
+        "active_p95": 0.10475124061663119,
+        "active_worst": 0.2292426714943866,
+        "quiet_worst_residual_rms_dbfs": -74.73316682208598,
+        "quiet_worst_residual_peak_dbfs": -67.26732579982789,
+        "rms_error_db": -0.0844100246370928,
+        "peak_error_db": 0.2636417227554606,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 37000,
+        "model_sha256": "4e08d8fe827781eda374d822ec55cf1b8c4e9fb8c5b577675d5c8c6388ed60c4"
+      },
+      "test": {
+        "full_esr": 0.02505688492013078,
+        "active_median": 0.01568128461597667,
+        "active_p95": 0.0843970355791286,
+        "active_worst": 0.3957766058395409,
+        "quiet_worst_residual_rms_dbfs": -77.59234148421454,
+        "quiet_worst_residual_peak_dbfs": -70.73320219216109,
+        "rms_error_db": -0.09559444979155984,
+        "peak_error_db": 0.039513441756433565,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    },
+    "Fimbulvetr": {
+      "validation": {
+        "full_esr": 0.007460856940202891,
+        "active_median": 0.004011680431105299,
+        "active_p95": 0.02595616991400506,
+        "active_worst": 0.14357043471498676,
+        "quiet_worst_residual_rms_dbfs": -77.49666983005001,
+        "quiet_worst_residual_peak_dbfs": -70.10910248314231,
+        "rms_error_db": 0.009964242546794622,
+        "peak_error_db": 0.9610358629559883,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": true,
+        "fidelity_pass": false,
+        "selected_step": 33000,
+        "model_sha256": "b620c10a350db4cd689b58e39a7b5595a8467da7325fde350baba79853f4c3fb"
+      },
+      "test": {
+        "full_esr": 0.009102050778264785,
+        "active_median": 0.006875533926415816,
+        "active_p95": 0.030419555208578457,
+        "active_worst": 0.09300322901751613,
+        "quiet_worst_residual_rms_dbfs": -81.97415130903649,
+        "quiet_worst_residual_peak_dbfs": -75.50600322644793,
+        "rms_error_db": -0.0036980333263127996,
+        "peak_error_db": 0.7931315157267438,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": true,
+        "fidelity_pass": false
+      }
+    },
+    "Ragnarok": {
+      "validation": {
+        "full_esr": 0.02242415209170933,
+        "active_median": 0.016084364240857484,
+        "active_p95": 0.10299121837493774,
+        "active_worst": 0.2195103093741852,
+        "quiet_worst_residual_rms_dbfs": -75.92952539605156,
+        "quiet_worst_residual_peak_dbfs": -67.80873684204651,
+        "rms_error_db": -0.1478460360144247,
+        "peak_error_db": 1.8691644446925526,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 39500,
+        "model_sha256": "b5bdf83766c770873bd9aaf7994a0e5e7ea327b7eb0feb222f17cb9cd288ca2b"
+      },
+      "test": {
+        "full_esr": 0.021659104325266743,
+        "active_median": 0.014697816429616673,
+        "active_p95": 0.08647123862369725,
+        "active_worst": 0.43850916413318236,
+        "quiet_worst_residual_rms_dbfs": -70.2108712646847,
+        "quiet_worst_residual_peak_dbfs": -63.8364607733558,
+        "rms_error_db": -0.11499822048692954,
+        "peak_error_db": 1.876622100905303,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    }
+  },
+  "release_approved": false
+}
