@@ -6,6 +6,8 @@
 
 namespace spectralforge::signalPath {
 enum class Target { input, gate, transpose, tuner, pre, rigs, amp, cab, low, toneEQ, post, utilities, finalEQ, output, dynamics };
+// Node::section of the 1.9 CREATIVE slot (POST sections are 0-5).
+inline constexpr int creativeSection = 6;
 struct Node {
     juce::String id,label,status,detail;
     Target target{}; int lane{-1},section{-1}; bool active{true};
@@ -115,12 +117,18 @@ inline Snapshot read(ChimeraProcessor& p) {
         const int selected=effectFamilyExtended(family)?effectSelectedModel(family,v(modelFamilies[size_t(family)].parameter),v(effectExtensionID(family))):int(v(modelFamilies[size_t(family)].parameter));
         juce::String label=effectFamilyMenuName(family,selected);bool active=on(enable[size_t(family)]);
         if(position<3&&(on(postNativeModeID(position))||v(postNativeModelExtensionID(position))>.5f)){const int model=postNativeSelectedModel(v(postNativeModelID(position)),v(postNativeModelExtensionID(position)));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
-        const auto id="post.section"+juce::String(position);add(id,label,Target::post,position<5?504+position*122:992,position<5?510:580,active,{},-1,position);edge(previous,id);previous=id;
+        const auto id="post.section"+juce::String(position);add(id,label,Target::post,position<5?504+position*122:870,position<5?510:580,active,{},-1,position);edge(previous,id);previous=id;
+        // 1.9 CREATIVE slot (docs/CREATIVE_1_9.md) between DELAY and REVERB.
+        if(position==4){
+            const int creativeModel=juce::jlimit(0,creativeModelCount-1,int(v("creativeModel")));
+            add("post.creative",creativeModels[size_t(creativeModel)].name,Target::post,992,580,on("creativeOn"),{},-1,creativeSection,"CREATIVE slot after DELAY, before REVERB. Off leaves the signal untouched.");
+            edge(previous,"post.creative");previous="post.creative";
+        }
     }
-    add("utilities","DOUBLER / CLICK",Target::utilities,870,580,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
-    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,748,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
-    add("output","OUTPUT TRIM",Target::output,626,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
-    add("output.limiter","LIVE LIMITER",Target::dynamics,504,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Sample peak ceiling; no lookahead, additional latency or true-peak claim.");edge("output","output.limiter");
+    add("utilities","DOUBLER / CLICK",Target::utilities,748,580,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
+    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,626,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
+    add("output","OUTPUT TRIM",Target::output,504,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
+    add("output.limiter","LIVE LIMITER",Target::dynamics,382,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Sample peak ceiling; no lookahead, additional latency or true-peak claim.");edge("output","output.limiter");
     return s;
 }
 } // namespace spectralforge::signalPath

@@ -479,6 +479,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.load.setTooltip("Open the cabinet room, large cabinet/microphone editor and separate IR Loader.");
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
+    creativeStrip=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor);add(*creativeStrip);creativeStrip->onOpen=[this]{openCreativePanel();};
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
     setResizable(true,true); setResizeLimits(480,320,1770,1170);
@@ -581,7 +582,8 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
         case Target::post:
             if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}
-            else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
+            else if(node.section==spectralforge::signalPath::creativeSection){focus(creativeStrip->modelBox());}
+            else if(node.section>=3 && node.section<6){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
             break;
         default:break;
     }
@@ -869,6 +871,7 @@ void ChimeraEditor::updateModeUI()
         for(int k=0;k<5;++k){const bool visible=show && effect.attachments[(size_t)k]!=nullptr;effect.controls[k].setVisible(visible);effect.labels[k].setVisible(visible);}
     }
     for(auto& post:postPanels) {post->setVisible(page==2 && !tunerViewOpen);post->refreshIfNeeded();}
+    creativeStrip->setVisible(page==2 && !tunerViewOpen);
     for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(false);
     for(int i=0;i<3;++i)
     {
@@ -1036,6 +1039,7 @@ void ChimeraEditor::layoutControls()
     midi.setBounds(182,748,66,28);tap.setBounds(256,748,56,28);tempo.setBounds(320,748,132,28);hostTempo.setBounds(460,748,112,28);metronome.setBounds(580,748,126,28);
     easyOpen.setBounds(714,748,86,28);
     for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
+    creativeStrip->setBounds(310,302,850,24);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
         effect.header.setBounds(48,y+2,186,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
@@ -1209,4 +1213,11 @@ void ChimeraEditor::publishAutoSetStatus()
 void ChimeraEditor::markPresetCustom()
 {
     presetValues.clear();presets.setSelectedId(0,juce::dontSendNotification);presets.setText("CUSTOM",juce::dontSendNotification);presets.setTooltip("Edited sound or recalled reference. SAVE AS preserves the complete sound and embedded IRs.");
+}
+
+void ChimeraEditor::openCreativePanel()
+{
+    auto* full=new spectralforge::creativeUI::CreativePanel(processor);full->setLookAndFeel(&look);
+    juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="CHIMERA / CREATIVE";options.dialogBackgroundColour=panel;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
 }

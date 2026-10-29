@@ -17,6 +17,7 @@
 #include "AccessibleViewport.h"
 #include "EasyModeView.h"
 #include "EffectModelSync.h"
+#include "CreativePanel.h"
 
 class CabRoomOverview;
 
@@ -190,6 +191,8 @@ private:
         std::unique_ptr<BA> button;
     };
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
+    std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip;
+    void openCreativePanel();
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};

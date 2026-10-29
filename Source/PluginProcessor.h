@@ -7,6 +7,7 @@
 #include "MultibandDynamics.h"
 #include "ThreeBandSaturation.h"
 #include "FilterModulation.h"
+#include "CreativeFX.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -229,6 +230,7 @@ private:
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
+    spectralforge::CreativeFX creative;
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;

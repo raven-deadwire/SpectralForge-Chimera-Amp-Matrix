@@ -96,7 +96,11 @@ def build_catalog():
                               # 1.8 motion/space: appended to the shared-control DELAY / REVERB / MODULATION families.
                               ("delay.3","Eventide UltraTap","DELAY"),("delay.4","Eventide Rose","DELAY"),("delay.5","Strymon DIG","DELAY"),
                               ("reverb.3","Bricasti M7 reference","REVERB"),("reverb.4","Eventide Blackhole","REVERB"),("reverb.5","Non-linear gated reverb","REVERB"),
-                              ("mod.6","Leslie rotary speaker","MODULATION"),("mod.7","Uni-Vibe","MODULATION"),("mod.8","Ring modulator","MODULATION")):
+                              ("mod.6","Leslie rotary speaker","MODULATION"),("mod.7","Uni-Vibe","MODULATION"),("mod.8","Ring modulator","MODULATION"),
+                              # 1.9 CREATIVE: one POST slot after DELAY, before REVERB (development references).
+                              ("creative.0","Slicer","CREATIVE"),("creative.1","HarPeggiator","CREATIVE"),("creative.2","Time Warp","CREATIVE"),
+                              ("creative.3","Laser","CREATIVE"),("creative.4","Frequency Shifter","CREATIVE"),("creative.5","Dynamic Freeze","CREATIVE"),
+                              ("creative.6","Glitch","CREATIVE"),("creative.7","Bit Crusher","CREATIVE"),("creative.8","Granular Texture","CREATIVE")):
         models.append(dict(id="planned.post."+key,name=name,reference=name,category=category,location="post",status="not_implemented",
                            controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
     def add(key,name,category,controls,source=None,status="documented_labels_unimplemented_dsp"):

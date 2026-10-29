@@ -1,10 +1,12 @@
 #pragma once
+#include "PostInsert.h"
 #include "GlobalDSP.h"
 #include "StudioModules.h"
 #include "PostNativeDSP.h"
 
 namespace spectralforge {
 struct FXState {
+    double tempo{120};   // host / internal tempo for tempo-synced POST processors
     PostNativeState postNative=defaultPostNativeState(false);
     bool envelopeFirst{true};
     bool boostAfterDrive{false};
@@ -162,7 +164,10 @@ class PostFXChain {
         if(section==0)busReduction=useNative?native.reduction():compressor.reduction();
     }
     ModulationModule modulation;EchoModule echo;SpaceModule space;
+    PostInsert* creative{};
 public:
+    // 1.9 CREATIVE slot (docs/CREATIVE_1_9.md), owned by the processor: after DELAY, before REVERB.
+    void setCreative(PostInsert* slot) noexcept {creative=slot;}
     void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
     std::array<float,6> stagePeaks{};
     float compressorReduction() const {return busReduction;}
@@ -180,6 +185,7 @@ public:
         modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);
         stagePeaks[3]=buffer.getMagnitude(0,buffer.getNumSamples());
         echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);
+        if(creative)creative->process(buffer,state.tempo);
         stagePeaks[4]=buffer.getMagnitude(0,buffer.getNumSamples());
         space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);
         stagePeaks[5]=buffer.getMagnitude(0,buffer.getNumSamples());

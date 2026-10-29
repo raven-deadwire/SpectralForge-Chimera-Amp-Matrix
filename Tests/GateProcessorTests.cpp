@@ -95,7 +95,7 @@ void parameterContract(ChimeraProcessor& p)
     // Niflheimr appends six contexts with two selectors and five 14-control banks.
     // CAB then appends ten version-6 controls for each of the three lanes.
     constexpr int cabParameterCount=3*10;
-    const int expectedParameterCount=4323+6*(2+5*14)+cabParameterCount+spectralforge::originalCabParameterCount+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount+spectralforge::graphicalEQParameterCount+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount;
+    const int expectedParameterCount=4323+6*(2+5*14)+cabParameterCount+spectralforge::originalCabParameterCount+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount+spectralforge::graphicalEQParameterCount+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount+spectralforge::creativeParameterCount;
     require(range && range->getParameterIndex()==3890 && count==3686 && p.getParameters().size()==expectedParameterCount,"Gate Range ordinal or complete appended channel parameter count changed");
     require(range->getVersionHint()==2 && range->isAutomatable(),"Range AU version hint/automation changed");
     require(range->getText(1,0)=="Full" && range->getValueForText("Full")==1.f,"Host Full text does not round-trip");
@@ -225,7 +225,7 @@ double hissEnergy(ChimeraProcessor& p)
 void extraGates()
 {
     {
-        const auto storage=std::make_unique<ChimeraProcessor>();int index=storage->getParameters().size()-spectralforge::extraGateParameterCount-spectralforge::multibandStereoParameterCount-spectralforge::saturationParameterCount-spectralforge::referenceAmpParameterCount()-spectralforge::filterModulationParameterCount-spectralforge::postExpansionParameterCount()-spectralforge::effectExtensionParameterCount;
+        const auto storage=std::make_unique<ChimeraProcessor>();int index=storage->getParameters().size()-spectralforge::extraGateParameterCount-spectralforge::multibandStereoParameterCount-spectralforge::saturationParameterCount-spectralforge::referenceAmpParameterCount()-spectralforge::filterModulationParameterCount-spectralforge::postExpansionParameterCount()-spectralforge::effectExtensionParameterCount-spectralforge::creativeParameterCount;
         for(const auto* id:{"gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
                             "expOn","expAfterRig","expThreshold","expRatio","expAttack","expHold","expRelease","expRangeDb"}) {
             const auto* parameter=storage->parameters().getParameter(id);
