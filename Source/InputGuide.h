@@ -40,8 +40,8 @@ public:
     void resized() override {
         auto r=getLocalBounds().reduced(10,4);
         auto buttons=r.removeFromRight(120);
-        const int buttonHeight=(buttons.getHeight()-4)/2;
-        settings.setBounds(buttons.removeFromTop(buttonHeight));buttons.removeFromTop(4);
+        const int buttonHeight=juce::jmax(0,(buttons.getHeight()-4)/2);
+        settings.setBounds(buttons.removeFromTop(buttonHeight));buttons.removeFromTop(juce::jmin(4,buttons.getHeight()));
         unmute.setBounds(buttons);r.removeFromRight(10);
         message.setBounds(r);
     }
