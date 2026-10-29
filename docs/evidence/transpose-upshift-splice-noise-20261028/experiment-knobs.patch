@@ -1,0 +1,115 @@
+--- orig_cp.h	2026-10-28 01:57:46.136951921 +0000
++++ exp/CorrelationPitch.h	2026-10-28 01:39:31.270411957 +0000
+@@ -5,6 +5,7 @@
+ #include <stdexcept>
+ 
+ namespace transposeNext {
++struct Exp{static inline bool log=false;static inline std::vector<std::array<double,4>> jumps;static inline bool audioOnly=false;static inline int interp=0;static inline bool wideCost=false;static inline int costMode=0;};
+ // Independent research implementation of variable-rate reading with
+ // waveform-similarity splice selection. No reference plug-in code or oracle
+ // frequency is used. This is not a fixed-latency, polyphonic product engine.
+@@ -27,6 +28,7 @@
+     double hfBucketPeak{},hfRecentMax{};
+     int resetAge{1<<30}, peakWindow{};
+     bool holdSplices{}, reportAtDetection{};
++public: bool wideCostHere{}; private:
+     int heldSamples{};
+     // Sample-accurate hold (research): when set, a due downshift splice waits
+     // while `holdSource` spliced within the previous holdWindow samples. Only
+@@ -50,12 +52,23 @@
+     uint64_t processedSamples{};
+     double minRead{}, maxRead{};
+ 
+-    float read(const std::vector<float>& ring, double age) const noexcept {
++    float read(const std::vector<float>& ring, double age) const noexcept {return readI(ring,age,Exp::audioOnly?0:Exp::interp);}
++    float readAudio(const std::vector<float>& ring, double age) const noexcept {return readI(ring,age,Exp::interp);}
++    float readI(const std::vector<float>& ring, double age, int mode) const noexcept {
+         double pos = double(write) - age;
+         if(pos < 0) pos += capacity;
+         const auto i = int(pos);
+         const auto f = float(pos-i);
+-        return ring[size_t(i)] + f*(ring[size_t((i+1)%capacity)]-ring[size_t(i)]);
++        if(mode==0) return ring[size_t(i)] + f*(ring[size_t((i+1)%capacity)]-ring[size_t(i)]);
++        auto at=[&](int k){int j=(i+k)%capacity;if(j<0)j+=capacity;return ring[size_t(j)];};
++        if(mode==1){ // 4-point cubic Hermite
++            const float xm=at(-1),x0=at(0),x1=at(1),x2=at(2);
++            const float c1=.5f*(x1-xm),c2=xm-2.5f*x0+2.f*x1-.5f*x2,c3=.5f*(x2-xm)+1.5f*(x0-x1);
++            return ((c3*f+c2)*f+c1)*f+x0;}
++        // 16-tap Kaiser-windowed sinc
++        double s=0,ws=0;for(int k=-7;k<=8;++k){const double d=k-f;const double sinc=std::abs(d)<1e-9?1.:std::sin(juce::MathConstants<double>::pi*d)/(juce::MathConstants<double>::pi*d);
++            const double r=d/8.5;const double w=r*r<1?std::cyl_bessel_i(0.,8.*std::sqrt(1-r*r))/std::cyl_bessel_i(0.,8.):0.;s+=at(k)*sinc*w;ws+=sinc*w;}
++        return float(s/ws);
+     }
+     // Uncentred normalized squared mismatch includes amplitude differences.
+     // Both channels contribute energy independently; antiphase stereo cannot
+@@ -123,6 +136,7 @@
+             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
+         }
+         nextDelay=juce::jlimit(lo,hi,best);
++        if(Exp::log)Exp::jumps.push_back({double(processedSamples),delay,nextDelay,score});
+         fadeIndex=0;fading=true;++spliceCount;
+         spliceLog[size_t(spliceLogPosition)]=processedSamples;spliceLogPosition=(spliceLogPosition+1)%int(spliceLog.size());
+         if(spliceFadeLength>0){activeWeights=spliceWeights.data();activeFade=spliceFadeLength;}
+@@ -237,7 +251,7 @@
+                 inputEnergy+=double(detectorX)*detectorX;
+                 audio[size_t(c)][size_t(write)]=x;
+                 low[size_t(c)]+=coefficient*(x-low[size_t(c)]);
+-                filtered[size_t(c)][size_t(write)]=low[size_t(c)];
++                filtered[size_t(c)][size_t(write)]=wideCostHere?x:low[size_t(c)];
+                 double high=x-low[size_t(c)];
+                 if(innovationReset) {
+                     noveltyLow1[size_t(c)]+=noveltyCoefficient*(detectorX-noveltyLow1[size_t(c)]);
+@@ -331,8 +345,8 @@
+                 else if(due){heldSamples=0;splice();}
+                 const float w=fading?activeWeights[fadeIndex]:0.f;
+                 for(int c=0;c<count;++c) {
+-                    const float old=read(audio[size_t(c)],delay);
+-                    output.setSample(c,n,fading ? old+w*(read(audio[size_t(c)],nextDelay)-old) : old);
++                    const float old=readAudio(audio[size_t(c)],delay);
++                    output.setSample(c,n,fading ? old+w*(readAudio(audio[size_t(c)],nextDelay)-old) : old);
+                 }
+                 minRead=std::min(minRead, fading?std::min(delay,nextDelay):delay);
+                 maxRead=std::max(maxRead, fading?std::max(delay,nextDelay):delay);
+--- orig_ts.h	2026-10-28 01:57:46.144951921 +0000
++++ exp/TransientSplitPitch.h	2026-10-28 01:28:32.187534335 +0000
+@@ -1,4 +1,5 @@
+ #pragma once
++#include <cstdlib>
+ #include <algorithm>
+ #include <array>
+ #include <cmath>
+@@ -121,7 +122,7 @@
+         // residue below faint picks, and the relative floor rejects
+         // fade-out corner onsets. Onsets are reported at detection so the
+         // longer fade cannot delay the low-band confirmation window.
+-        if(targeted){transient.setReanchorGuard(4);transient.setSpliceFade(4);transient.setRelativeFloor(2.e-5);transient.setReportAtDetection(true);}
++        if(targeted){transient.setReanchorGuard(4);transient.setSpliceFade(std::getenv("TFADE")?std::atof(std::getenv("TFADE")):4);transient.wideCostHere=std::getenv("WIDE")!=nullptr;transient.setRelativeFloor(2.e-5);transient.setReportAtDetection(true);}
+         channels=int(spec.numChannels);capacity=std::max(1,int(spec.maximumBlockSize));
+         for(auto& b:lowpass)b.prepare(spec.sampleRate,false);
+         for(auto& b:highpass)b.prepare(spec.sampleRate,true);
+--- orig_st.cpp	2026-10-28 01:57:46.148951921 +0000
++++ exp/exp.cpp	2026-10-28 01:39:31.270860752 +0000
+@@ -4,6 +4,7 @@
+ // splice and onset reset as JSON; writes the output like TransposeProbe.
+ // usage: SpliceTrace in.f32 out.f32 rate shift v2|v3
+ #include "TransientSplitPitch.h"
++#include <cstdlib>
+ #include <fstream>
+ #include <iostream>
+ 
+@@ -12,7 +13,7 @@
+     std::ifstream f(argv[1],std::ios::binary|std::ios::ate);const auto bytes=f.tellg();
+     std::vector<float> x(size_t(bytes)/4),y(x.size());f.seekg(0);f.read(reinterpret_cast<char*>(x.data()),bytes);
+     const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);const bool v3=std::string(argv[5])=="v3";
+-    juce::ScopedNoDenormals noDenormals;
++    juce::ScopedNoDenormals noDenormals;if(std::getenv("INTERP"))transposeNext::Exp::interp=std::atoi(std::getenv("INTERP"));transposeNext::Exp::audioOnly=std::getenv("AUDIOONLY")!=nullptr;transposeNext::Exp::log=std::getenv("JUMPLOG")!=nullptr;
+     transposeNext::TransientSplitPitch e;e.prepare({rate,1u,2},true,true,true,true,true,v3);e.setSemitones(shift);
+     juce::AudioBuffer<float> in(2,1),out(2,1);std::vector<size_t> ts,bs,os;
+     for(size_t n=0;n<x.size()/2;++n) {
+@@ -26,5 +27,6 @@
+     }
+     std::ofstream(argv[2],std::ios::binary).write(reinterpret_cast<const char*>(y.data()),std::streamsize(y.size()*4));
+     auto list=[](const std::vector<size_t>& v){std::string s="[";for(size_t i=0;i<v.size();++i)s+=(i?",":"")+std::to_string(v[i]);return s+"]";};
++    if(transposeNext::Exp::log){std::ofstream j(std::getenv("JUMPLOG"));for(auto& q:transposeNext::Exp::jumps)j<<q[0]<<","<<q[1]<<","<<q[2]<<","<<q[3]<<"\n";}
+     std::cout<<"{\"transient_splices\":"<<list(ts)<<",\"body_splices\":"<<list(bs)<<",\"onset_resets\":"<<list(os)<<"}\n";
+ }

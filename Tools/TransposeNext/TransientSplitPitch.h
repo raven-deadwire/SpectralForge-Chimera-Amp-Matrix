@@ -134,6 +134,8 @@ public:
         body.reset();transient.reset();for(auto& b:lowpass)b.clear();for(auto& b:highpass)b.clear();
         std::fill(lowHistory.begin(),lowHistory.end(),0);predictor.reset();lowFast=lowThreshold=0;lowHistoryPosition=lowArmed=lowResets=0;
     }
+    // Research (v4): windowed-sinc output reads on both paths; decisions as before.
+    void setSincOutput(bool enabled) {body.setSincOutput(enabled);transient.setSincOutput(enabled);}
     int lowOnsetResets() const noexcept {return lowResets;}
     void setSemitones(int n) noexcept {body.setSemitones(n);transient.setSemitones(n);shift=n;}
     int latency() const noexcept {return -1;}

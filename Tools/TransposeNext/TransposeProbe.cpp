@@ -28,7 +28,7 @@ int main(int argc,char** argv) {
         const std::string name=argv[6];
         const bool isSplit=name.rfind("corr40-split",0)==0;
         if(rate<8000 || rate>192000 || block<1 || block>8192 || shift<-12 || shift>12)throw std::runtime_error("invalid config");
-        if(name!="baseline" && name!="relative" && name!="corr10" && name!="corr40" && name!="corr40-onset" && name!="corr40-novelty" && name!="corr40-split" && name!="corr40-split-low" && name!="corr40-split-up" && name!="corr40-split-lpc" && name!="corr40-split-rt" && name!="corr40-split-v2" && name!="corr40-split-v3" && name!="corr40-split-v4" && name!="wrapper" && name!="bypass")throw std::runtime_error("invalid engine");
+        if(name!="baseline" && name!="relative" && name!="corr10" && name!="corr40" && name!="corr40-onset" && name!="corr40-novelty" && name!="corr40-split" && name!="corr40-split-low" && name!="corr40-split-up" && name!="corr40-split-lpc" && name!="corr40-split-rt" && name!="corr40-split-v2" && name!="corr40-split-v3" && name!="corr40-split-v4" && name!="corr40-split-v3-sinc" && name!="wrapper" && name!="bypass")throw std::runtime_error("invalid engine");
         std::ifstream f(argv[1],std::ios::binary|std::ios::ate);
         if(!f)throw std::runtime_error("input missing");
         const auto bytes=f.tellg();if(bytes<=0 || bytes%8)throw std::runtime_error("expected stereo interleaved f32");
@@ -44,10 +44,12 @@ int main(int argc,char** argv) {
         else if(name=="relative"){relative.prepare(spec);relative.setSemitones(shift);nominal=relative.latency();}
         else if(name=="wrapper" || name=="bypass"){wrapper.prepare(spec);nominal=name=="wrapper"&&shift!=0?wrapper.latency():0;}
         else if(isSplit) {
-            const bool v2=name=="corr40-split-v2" || name=="corr40-split-v3" || name=="corr40-split-v4";
+            const bool sinc=name=="corr40-split-v3-sinc"; // v3 + windowed-sinc output reads
+            const bool v2=name=="corr40-split-v2" || name=="corr40-split-v3" || name=="corr40-split-v4" || sinc;
             split.prepare(spec,name!="corr40-split",name=="corr40-split-up"||name=="corr40-split-lpc"||name=="corr40-split-rt"||v2,
                           name=="corr40-split-lpc"||name=="corr40-split-rt"||v2,name=="corr40-split-rt"||v2,
-                          v2,name=="corr40-split-v3"||name=="corr40-split-v4",name=="corr40-split-v4");
+                          v2,name=="corr40-split-v3"||name=="corr40-split-v4"||sinc,name=="corr40-split-v4");
+            split.setSincOutput(sinc);
             split.setSemitones(shift);
         }
         else {correlated.prepare(spec,name=="corr10"?10:40,name=="corr40-onset" || name=="corr40-novelty",name=="corr40-novelty");correlated.setSemitones(shift);}

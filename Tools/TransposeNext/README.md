@@ -272,3 +272,12 @@ CPU misses remain. No real DI/listening/actual DAW or fixed PDC acceptance.
 The research plug-in retains the old engine selector and enables v4 through
 an additional default-off option while v3 is selected. Full evidence and
 reproduction scope: `docs/TRANSPOSE_V4_LOW_UPSHIFT_20261025.md`.
+
+## corr40-split-v3-sinc (2026-10-28)
+
+v3 plus 16-tap Kaiser-windowed sinc interpolation for the output reads only
+(`setSincOutput`); splice and onset decisions, and so T1-T4 on the known
+seeds, equal v3. It removes most of the 1-8 kHz inter-harmonic
+residual that linear interpolation left on bright sustains (median excess
+over an ideally shifted tone +10 -> +0.5 dB at 44.1/48 kHz; CPU +13%). See
+`docs/TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md`.

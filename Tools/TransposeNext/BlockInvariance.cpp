@@ -1,7 +1,7 @@
 // Research check: does a split engine's output depend on how the host splits
 // blocks? Renders one input with fixed and seeded random block sizes and prints
 // the largest difference from the fixed-128 render, per pattern (JSON).
-// usage: BlockInvariance in.f32 rate shift v2|v3|v4
+// usage: BlockInvariance in.f32 rate shift v2|v3|v4|v3-sinc
 #include "TransientSplitPitch.h"
 #include <fstream>
 #include <iostream>
@@ -10,10 +10,11 @@
 
 namespace {
 std::vector<float> x;
+bool sincOutput=false; // v3-sinc
 template<class Next> std::vector<float> render(double rate,int shift,int version,int maxBlock,Next next) {
     juce::ScopedNoDenormals noDenormals;
     transposeNext::TransientSplitPitch e;
-    e.prepare({rate,juce::uint32(maxBlock),2},true,true,true,true,true,version>=3,version>=4);e.setSemitones(shift);
+    e.prepare({rate,juce::uint32(maxBlock),2},true,true,true,true,true,version>=3,version>=4);e.setSincOutput(sincOutput);e.setSemitones(shift);
     const size_t frames=x.size()/2;std::vector<float> y(x.size());
     juce::AudioBuffer<float> in(2,maxBlock),out(2,maxBlock);
     for(size_t off=0;off<frames;) {
@@ -37,12 +38,13 @@ double maxDiff(const std::vector<float>& a,const std::vector<float>& b) {
 }
 
 int main(int argc,char** argv) {
-    if(argc!=5){std::cerr<<"usage: BlockInvariance in.f32 rate shift v2|v3|v4\n";return 1;}
+    if(argc!=5){std::cerr<<"usage: BlockInvariance in.f32 rate shift v2|v3|v4|v3-sinc\n";return 1;}
     std::ifstream f(argv[1],std::ios::binary|std::ios::ate);const auto bytes=f.tellg();
     x.resize(size_t(bytes)/4);f.seekg(0);f.read(reinterpret_cast<char*>(x.data()),bytes);
     const double rate=std::stod(argv[2]);const int shift=std::stoi(argv[3]);const std::string name=argv[4];
-    if(name!="v2" && name!="v3" && name!="v4")return 1;
-    const int version=name=="v4"?4:name=="v3"?3:2;
+    if(name!="v2" && name!="v3" && name!="v4" && name!="v3-sinc")return 1;
+    sincOutput=name=="v3-sinc";
+    const int version=name=="v4"?4:(name=="v3"||sincOutput)?3:2;
     const auto ref=render(rate,shift,version,128,[]{return 128;});
     std::cout<<"{";bool first=true;
     auto emit=[&](const std::string& k,double v){std::cout<<(first?"":",")<<'"'<<k<<"\":"<<v;first=false;};
