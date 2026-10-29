@@ -58,7 +58,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
-    gate2.bind(state);expander.bind(state);
+    gate2.bind(state);expander.bind(state);room.bind(state);
     syncTransposeQuality();
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
@@ -175,6 +175,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
     postRigGate.prepare(spec,maximumGateDelay);gate2.prepare(spec,maximumGateDelay);expander.prepare(spec,maximumGateDelay);
+    room.prepare(spec);
     gate2Gain.store(1);expanderGain.store(1);
     hostBypass.prepare(postFX.latency()+engine.latency()
         +juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency()));
@@ -313,7 +314,7 @@ void ChimeraProcessor::resetProcessingIfPending()
 void ChimeraProcessor::resetProcessing(bool hostBypassToo)
 {
     engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();creative.reset();synth.reset();utilities.reset();
-    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();saturation.reset();filterModulation.reset();deesser.reset();if(hostBypassToo)hostBypass.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();saturation.reset();filterModulation.reset();deesser.reset();room.reset();if(hostBypassToo)hostBypass.reset();
 }
 void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
 {
@@ -429,14 +430,23 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
-    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
+    // Room Core: the engine fills the send bus only while the room is on (or
+    // its send is fading out after Room off).
+    const auto roomSends=room.sends();
+    juce::AudioBuffer<float>* roomBus=room.wantsInput() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
+    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
+                   roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
     autoSetCaptureState.push(spectralforge::autoset::Tap::rig,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer);}
+    // Post-rig gates attenuate the send bus with the direct sum's own gain.
+    if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer,roomBus);}
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     // Post-rig order mirrors the pre-rig one: Gate > Gate 2 > Expander.
-    if(gate2.afterRig())gate2.apply(buffer);
-    if(expander.afterRig())expander.apply(buffer);
+    if(gate2.afterRig())gate2.apply(buffer,roomBus);
+    if(expander.afterRig())expander.apply(buffer,roomBus);
+    // The wet return joins after the gates and before Tone EQ, so a tail
+    // already in the room is not cut by a closing gate.
+    if(room.running())room.process(roomBus,buffer);
     gate2Gain.store(gate2.reduction());expanderGain.store(expander.reduction());
     // 1.10 SYNTH layer (docs/SYNTH_1_10.md): added in parallel after RIG SUM and the post-rig gates, before Tone EQ.
     synth.process(buffer);
@@ -609,6 +619,8 @@ spectralforge::appendExtraGateParameters(p);
 // Append-only; existing projects keep their cuts and normalization policy.
 for(int lane=1;lane<=3;++lane)for(const auto* mic:{"A","B"})
     p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"cab"+juce::String(mic)+"cutsOff"+juce::String(lane),15},"Mic "+juce::String(mic)+" cuts bypass "+juce::String(lane),false));
+// Room Core 1.3.3 (version hint 15, as the cut bypass) follows.
+spectralforge::appendRoomParameters(p);
 // 1.4 PRE Expansion A pedal banks (version 16).
 spectralforge::appendPedalExpansionParameters(p);
 spectralforge::appendMultibandStereoParameters(p);
@@ -623,6 +635,9 @@ spectralforge::appendPostExpansionParameters(p);
 for(int family:{1,2,10})
     p.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{spectralforge::effectExtensionID(family),spectralforge::effectExtensionParameterVersion},
         juce::String(spectralforge::modelFamilies[(size_t)family].category)+" model extension",0,15,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
+// Room Advanced 1.8 (version hint 24) and its spatial stage (25).
+spectralforge::appendRoomAdvancedParameters(p);
+spectralforge::appendRoomSpaceParameters(p);
 // 1.9 CREATIVE slot, version hint 26 (24 and 25 belong to Room Advanced).
 spectralforge::appendCreativeParameters(p);
 // 1.10 SYNTH layer, version hint 27.

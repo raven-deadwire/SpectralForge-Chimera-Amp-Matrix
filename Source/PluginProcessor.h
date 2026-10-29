@@ -22,6 +22,7 @@
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
 #include "ExtraGates.h"
+#include "RoomCore.h"
 #include "AmpSelectionParameters.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
@@ -80,7 +81,7 @@ public:
         double tail=1.1;
         if(fxParameters[4] && fxParameters[4]->load()>.5f) tail+=(fxParameters[48]->load()>.5f ? 1.5 : fxParameters[5]->load()*.001)*std::log(.001)/std::log(juce::jlimit(.0001f,.85f,fxParameters[6]->load()));
         if(fxParameters[8] && fxParameters[8]->load()>.5f) tail+=12.0;
-        return tail+toneEQ.tailSeconds()+finalEQ.tailSeconds();
+        return tail+toneEQ.tailSeconds()+finalEQ.tailSeconds()+room.tailSeconds();
     }
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
@@ -183,6 +184,10 @@ public:
     // does not enter the frozen parameter inventory; the audio thread reads the
     // atomic mirror.
     void setTransposeQuality(int mode);
+    // Room Core diagnostics (tests): samples run through the room and the
+    // last block's send-bus peak.
+    uint64_t roomProcessedSamples() const noexcept { return room.processedSamples(); }
+    float roomInputPeak() const noexcept { return room.lastInputPeak(); }
     int transposeQuality() const { return transposeQualityMode.load(); }
     spectralforge::PedalBoardState pedalBoardState() const { return boardParameters.read(); }
     void setPedalBoardEnabled(bool enabled);
@@ -290,6 +295,7 @@ private:
     spectralforge::ThreeBandSaturation saturation;
     spectralforge::FilterModulation filterModulation;
     spectralforge::DeEsser deesser;
+    spectralforge::RoomCore room;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
     std::atomic<bool> autoSetGateBypass{false};

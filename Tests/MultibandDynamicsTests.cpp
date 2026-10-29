@@ -42,7 +42,7 @@ float get(ChimeraProcessor& processor, const juce::String& id) {
 }
 
 void parameterContract(ChimeraProcessor& processor) {
-    check(processor.getParameters().size() == originalParameterCount + newParameterCount + extraGateParameterCount+6+spectralforge::pedalExpansionParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount+spectralforge::creativeParameterCount+spectralforge::synthParameterCount,
+    check(processor.getParameters().size() == originalParameterCount + newParameterCount + extraGateParameterCount+6+spectralforge::pedalExpansionParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount+spectralforge::creativeParameterCount+spectralforge::synthParameterCount+spectralforge::roomParameterCount+spectralforge::roomAdvancedParameterCount+spectralforge::roomSpaceParameterCount,
           "New dynamics did not append exactly 55 parameters after the released prefix");
     check(processor.parameters().getParameter("liveLimiterRelease")->getParameterIndex() == 5025,
           "Released common-dynamics parameter moved");
