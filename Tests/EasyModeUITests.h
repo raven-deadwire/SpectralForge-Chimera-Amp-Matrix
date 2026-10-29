@@ -317,9 +317,40 @@ inline void editorView(const juce::File& directory) {
     for(int scale:{75,150}){editor->setEasyMode(true);editor->setSize(1180*scale/100,780*scale/100);settle(60);signalPathTests::capture(*editor,directory,"easy-view-"+juce::String(scale));}
     editor.reset();p->releaseResources();
 }
+inline void inputGuide(const juce::File& directory) {
+    // Standalone starts muted against speaker feedback; both views explain it
+    // and offer the fix until the input is on.
+    bool muted=true;int settingsOpened=0;
+    spectralforge::standalone::InputMute input{[&]{return muted;},[&]{muted=false;},[&]{++settingsOpened;}};
+    struct Uninstall {~Uninstall(){spectralforge::standalone::inputMute=nullptr;}} uninstall;
+    auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);
+    auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
+    require(!find(*editor,"inputGuide")->isVisible(),"Plug-ins must not show the Standalone input guide");
+    spectralforge::standalone::inputMute=&input;
+    editor->setEasyMode(true);settle(400);
+    auto* view=find<EasyModeView>(*editor,"easyView");
+    auto* guide=find(*view,"inputGuide");require(guide && guide->isShowing(),"Easy view does not explain the muted input");
+    inside(*view,*guide,"Input guide outside Easy view");
+    for(auto* id:{"easy.fullEditor","easy.preset","easy.autoSet","easy.tuner"})
+        require(!guide->getBoundsInParent().intersects(find(*view,id)->getBoundsInParent()),"Input guide covers an Easy control");
+    signalPathTests::capture(*editor,directory,"easy-view-input-guide");
+    signalPathTests::click(*find<juce::TextButton>(*guide,"inputGuide.settings"));settle(50);
+    require(settingsOpened==1 && muted,"AUDIO SETTINGS must open the device settings without unmuting");
+    editor->setEasyMode(false);settle(400);
+    auto* fullGuide=find(*editor,"surface") ? find(*find(*editor,"surface"),"inputGuide") : nullptr;
+    require(fullGuide && fullGuide!=guide && fullGuide->isShowing(),"Full editor does not explain the muted input");
+    signalPathTests::capture(*editor,directory,"full-editor-input-guide");
+    signalPathTests::click(*find<juce::TextButton>(*fullGuide,"inputGuide.unmute"));settle(50);
+    require(!muted && !fullGuide->isVisible(),"INPUT ON did not unmute and hide the guide");
+    editor->setEasyMode(true);settle(400);
+    require(!guide->isVisible(),"Easy view still shows the guide with the input on");
+    muted=true;settle(400);
+    require(guide->isShowing(),"Muting again in the audio settings must bring the guide back");
+    editor.reset();p->releaseResources();
+}
 inline void run(const juce::File& directory) {
-    preference();mapping();firstBinding();routingAndGestures();laneTargets();fileDrop(directory);autoSetAndPresets();startupPath();editorView(directory);
+    preference();mapping();firstBinding();routingAndGestures();laneTargets();fileDrop(directory);autoSetAndPresets();startupPath();editorView(directory);inputGuide(directory);
     std::cout<<"PASS Easy view: preference, DSP-checked head mapping per input route, first binding, legacy projects, gestures across routing changes, "
-               "lane targets, file drops, Auto Set state and options, preset edits, startup path and sound-neutral switching\n";
+               "lane targets, file drops, Auto Set state and options, preset edits, startup path, sound-neutral switching and the Standalone input guide\n";
 }
 }

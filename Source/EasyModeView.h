@@ -2,6 +2,7 @@
 #include "EasyMode.h"
 #include "AmpCatalog.h"
 #include "GuitarSignaturePresets.h"
+#include "InputGuide.h"
 #include "KnobInteraction.h"
 #include "PluginProcessor.h"
 #include "PrecisionTunerPanel.h"
@@ -46,6 +47,7 @@ public:
         targetNote.setFont(juce::FontOptions(12.f,juce::Font::bold));targetNote.setColour(juce::Label::textColourId,warning);
         targetNote.setJustificationType(juce::Justification::centredRight);targetNote.setComponentID("easy.targetNote");
         for(auto* c:std::initializer_list<juce::Component*>{&full,&presets,&previous,&next,&description,&autoButton,&autoOptions,&undo,&autoStatus,&tuner,&ampName,&targetNote})addAndMakeVisible(*c);
+        addChildComponent(inputGuide);inputGuide.refresh();
         setAutoSetStatus({},false,false);setAutoSetOptions(0,0,true,true);
 
         constexpr std::array<const char*,knobCount> ids{"gain","bass","middle","treble","reverb","volume"};
@@ -149,6 +151,7 @@ public:
     void refreshNow() {cancelPendingUpdate();refresh();}
     void resized() override {
         full.setBounds(1000,18,160,34);
+        inputGuide.setBounds(472,6,518,56);
         previous.setBounds(40,108,40,36);presets.setBounds(88,108,560,36);next.setBounds(656,108,40,36);
         description.setBounds(40,148,656,30);
         autoButton.setBounds(730,106,118,40);autoOptions.setBounds(852,106,104,40);undo.setBounds(960,106,64,40);tuner.setBounds(1030,106,110,40);
@@ -358,4 +361,5 @@ private:
     std::unique_ptr<juce::Component> room;
     std::function<juce::Rectangle<int>(int)> rigBounds;
     TargetMarker marker;
+    InputGuide inputGuide;
 };

@@ -166,6 +166,7 @@ private:
     std::unique_ptr<CabRoomOverview> cabRoom;
     std::unique_ptr<PrecisionTunerPanel> precisionTuner;
     juce::TextButton tunerOpen{"TUNER"},easyOpen{"EASY VIEW"};
+    InputGuide inputGuide; // Standalone only, over the brand art while the input is muted
     std::unique_ptr<EasyModeView> easyView;
     bool easyMode{};
     int presetOrigin{}; // Factory preset (id) the current CUSTOM sound started from, or 0.
