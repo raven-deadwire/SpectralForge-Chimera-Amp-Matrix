@@ -1,0 +1,149 @@
+{
+  "purpose": "Measure how long the native Náströnd channels remember their input.",
+  "bridges_samples": [
+    6347,
+    32152,
+    96000,
+    240000
+  ],
+  "history_seeds": [
+    7202601,
+    7202602,
+    7202603,
+    7202604
+  ],
+  "test": "4 validation notes at -6/-3 dBFS peak",
+  "test_samples": 63650,
+  "channels": {
+    "Fenrir": {
+      "6347": {
+        "bridge_ms": 132.2,
+        "esr_to_mean_max": 6.751472761937966e-17,
+        "pairwise_esr_max": 1.6691739543880354e-16,
+        "pairwise_esr_mean": 1.2672283346921065e-16
+      },
+      "32152": {
+        "bridge_ms": 669.8,
+        "esr_to_mean_max": 3.4196065626452867e-19,
+        "pairwise_esr_max": 6.093081911582204e-19,
+        "pairwise_esr_mean": 3.046540955783546e-19
+      },
+      "96000": {
+        "bridge_ms": 2000.0,
+        "esr_to_mean_max": 3.9656484139218296e-19,
+        "pairwise_esr_max": 1.042660836749666e-18,
+        "pairwise_esr_mean": 6.22623383150824e-19
+      },
+      "240000": {
+        "bridge_ms": 5000.0,
+        "esr_to_mean_max": 3.418707586704151e-19,
+        "pairwise_esr_max": 6.077971543473117e-19,
+        "pairwise_esr_mean": 3.039026146798469e-19
+      }
+    },
+    "Surtr": {
+      "6347": {
+        "bridge_ms": 132.2,
+        "esr_to_mean_max": 1.1927690540655287e-12,
+        "pairwise_esr_max": 3.1592501303972464e-12,
+        "pairwise_esr_mean": 1.1745522679967454e-12
+      },
+      "32152": {
+        "bridge_ms": 669.8,
+        "esr_to_mean_max": 6.326819425029183e-19,
+        "pairwise_esr_max": 1.7749761893806072e-18,
+        "pairwise_esr_mean": 1.2156737963715866e-18
+      },
+      "96000": {
+        "bridge_ms": 2000.0,
+        "esr_to_mean_max": 3.74842384067559e-19,
+        "pairwise_esr_max": 6.673494467817173e-19,
+        "pairwise_esr_mean": 3.339636192552635e-19
+      },
+      "240000": {
+        "bridge_ms": 5000.0,
+        "esr_to_mean_max": 5.201208918792672e-19,
+        "pairwise_esr_max": 1.0556254885296137e-18,
+        "pairwise_esr_mean": 5.370574119263447e-19
+      }
+    },
+    "Nidhoggr": {
+      "6347": {
+        "bridge_ms": 132.2,
+        "esr_to_mean_max": 1.4480602251041457e-07,
+        "pairwise_esr_max": 4.605167774108892e-07,
+        "pairwise_esr_mean": 1.8023848365857072e-07
+      },
+      "32152": {
+        "bridge_ms": 669.8,
+        "esr_to_mean_max": 6.301396204154553e-11,
+        "pairwise_esr_max": 2.2908169998360722e-10,
+        "pairwise_esr_mean": 8.63366932675939e-11
+      },
+      "96000": {
+        "bridge_ms": 2000.0,
+        "esr_to_mean_max": 7.48297438962363e-19,
+        "pairwise_esr_max": 2.7390989824228355e-18,
+        "pairwise_esr_mean": 1.8660008730843754e-18
+      },
+      "240000": {
+        "bridge_ms": 5000.0,
+        "esr_to_mean_max": 1.5889554258820994e-19,
+        "pairwise_esr_max": 4.625628725896287e-19,
+        "pairwise_esr_mean": 2.8530600869096355e-19
+      }
+    },
+    "Fimbulvetr": {
+      "6347": {
+        "bridge_ms": 132.2,
+        "esr_to_mean_max": 4.060459533213364e-09,
+        "pairwise_esr_max": 1.1824333909031556e-08,
+        "pairwise_esr_mean": 4.410158261955582e-09
+      },
+      "32152": {
+        "bridge_ms": 669.8,
+        "esr_to_mean_max": 9.363554367001219e-15,
+        "pairwise_esr_max": 2.698303988798434e-14,
+        "pairwise_esr_mean": 1.0705581245226807e-14
+      },
+      "96000": {
+        "bridge_ms": 2000.0,
+        "esr_to_mean_max": 9.30883521789059e-19,
+        "pairwise_esr_max": 1.6549179578717185e-18,
+        "pairwise_esr_mean": 8.274631546663805e-19
+      },
+      "240000": {
+        "bridge_ms": 5000.0,
+        "esr_to_mean_max": 2.522001824675932e-19,
+        "pairwise_esr_max": 4.483558799429675e-19,
+        "pairwise_esr_mean": 2.2417793997135496e-19
+      }
+    },
+    "Ragnarok": {
+      "6347": {
+        "bridge_ms": 132.2,
+        "esr_to_mean_max": 8.527834821287783e-12,
+        "pairwise_esr_max": 2.315745540300512e-11,
+        "pairwise_esr_mean": 8.471595151432151e-12
+      },
+      "32152": {
+        "bridge_ms": 669.8,
+        "esr_to_mean_max": 5.2476225648059446e-20,
+        "pairwise_esr_max": 1.1853115461945002e-19,
+        "pairwise_esr_mean": 6.117387937065059e-20
+      },
+      "96000": {
+        "bridge_ms": 2000.0,
+        "esr_to_mean_max": 2.633722175060768e-20,
+        "pairwise_esr_max": 7.133345479216399e-20,
+        "pairwise_esr_mean": 4.2084615679489836e-20
+      },
+      "240000": {
+        "bridge_ms": 5000.0,
+        "esr_to_mean_max": 8.706758217180033e-21,
+        "pairwise_esr_max": 2.3636308405652554e-20,
+        "pairwise_esr_mean": 1.2567324041360548e-20
+      }
+    }
+  }
+}

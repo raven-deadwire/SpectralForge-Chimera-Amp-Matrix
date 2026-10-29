@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "date": "2026-10-29",
+  "profile": "nastrond-tone3000-a2-release-v3",
+  "fenrir": {
+    "validation": {
+      "metrics": {
+        "profile": "nastrond-tone3000-fidelity-v2",
+        "level_anchor": 0.10206878638516259,
+        "active_windows": 273,
+        "quiet_windows": 2,
+        "active_median": 0.009994017480964726,
+        "active_p95": 0.07815558770240502,
+        "active_worst": 0.2728196681595996,
+        "quiet_worst_residual_rms_dbfs": -76.34301613614394,
+        "quiet_worst_residual_peak_dbfs": -60.152637108115236,
+        "memoryless_samples": 23307,
+        "memoryless_worst_residual_rms_dbfs": -110.11347617290845,
+        "memoryless_worst_residual_peak_dbfs": -102.64673845632248,
+        "rms_error_db": -0.1518630020695805,
+        "peak_error_db": 0.28684252453011005,
+        "full_esr": 0.01842126220291742,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      },
+      "release_v3": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      }
+    },
+    "test": {
+      "metrics": {
+        "profile": "nastrond-tone3000-fidelity-v2",
+        "level_anchor": 0.10206878638516259,
+        "active_windows": 274,
+        "quiet_windows": 1,
+        "active_median": 0.011254935246518001,
+        "active_p95": 0.09319067846503275,
+        "active_worst": 0.19780712423600688,
+        "quiet_worst_residual_rms_dbfs": -88.7722160253999,
+        "quiet_worst_residual_peak_dbfs": -81.89488912659229,
+        "memoryless_samples": 23307,
+        "memoryless_worst_residual_rms_dbfs": -100.07621156722637,
+        "memoryless_worst_residual_peak_dbfs": -91.49895072015025,
+        "rms_error_db": -0.11644178387374865,
+        "peak_error_db": -0.162031139325423,
+        "full_esr": 0.019823341988191825,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      },
+      "release_v3": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      }
+    },
+    "selected_step": 16000,
+    "model_sha256": "23fb643947623f9d5f6ce5016bb930521d0ca91ed1f9eeaa2d5b4dffdec5fb92"
+  },
+  "package_v3_verdict": {
+    "Fenrir": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true
+    },
+    "Surtr": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true
+    },
+    "Nidhoggr": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true
+    },
+    "Fimbulvetr": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true
+    },
+    "Ragnarok": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true
+    }
+  },
+  "zip_sha256": "d08dd7daf3b13f4b8b998743ece3ed3cf17b43c1b8a6adb044bcaf8e74356198",
+  "training": [
+    "Fenrir"
+  ],
+  "listening_acceptance": "not performed",
+  "release_approved": false
+}

@@ -1,0 +1,349 @@
+{
+  "status": "BLOCKED_BY_FIXED_A2_MEMORY",
+  "protocol": "Existing validation and reserved synthetic inputs. No fitting, gain changes, time alignment, cropping, or altered thresholds.",
+  "source_commit": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+  "capture_manifest_sha256": "b741c9410c0d318bd2b5fe5788e4db2f1a0d2f48ef69155474c360c6dabdf634",
+  "target_player_commit": "ef6f178ae1ac6412b55fec6f058d86e640e5aaaf",
+  "target_core_commit": "1f42f88535884450104b8711d7595019afa0495b",
+  "player_source_hashes": {
+    "plugin/src/ProcessorModelLoader.cpp": "03765dcb1791ef13e0c59c82b7e15177ed2381497d36f4ebb61337ddea89414f",
+    "plugin/NeuralAmpModelerCore/NAM/wavenet/a2_fast.h": "c49b082b7a679d94c80338755060cf9cee69c06c1c1e8d6f65d888cdb159eea4",
+    "plugin/NeuralAmpModelerCore/NAM/wavenet/a2_fast.cpp": "d82160c01f6ebf54291eeae94908c21f686159a0d13bc59c184522039a642718"
+  },
+  "engine_tool_sha256": "26d0e6bdd4a5931c82e3d1dd88396c9d4b3cda1312da0d22d09dd2e84a424fe8",
+  "window_samples": 4096,
+  "worst_window_esr_threshold": 0.02,
+  "bound": "sum((reference[Z]-mean(reference[Z]))**2) / sum(reference**2), where Z has an entirely zero input receptive field",
+  "scope": "Bare A2 NAM at the target 48 kHz chain rate, without external EQ. Covers arbitrary model weights, including arbitrary zero-input bias. Does not prove a floor for active passages, another architecture, or a combined NAM-plus-filter comparison.",
+  "inputs": {
+    "validation": {
+      "input_sha256": "6342789050269e87bb2f1e2bc055c1e808c6ee5738b0ee9bf3d0928ef397885a",
+      "channels": {
+        "Fenrir": {
+          "model_sha256": "e0ac854f25d39f1455488158b5dd871af0ca98335a71378c842dbd1448bc4d4c",
+          "reference_sha256": "cbde313edbaa06ceea4cc2ddebe449347343a55c234f54ad60e5fda0c6cdb156",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 1.0155067442044414,
+              "packaged_native_rms_dbfs": -20.59459803698822,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.03579118656690648
+            }
+          ],
+          "gate_impossible_for_bare_a2": false
+        },
+        "Surtr": {
+          "model_sha256": "1aded548409691bb4ae3ff2b27424a7a3cf92bd5d13d567408887e73f4ea85e6",
+          "reference_sha256": "d4c8dc02fa2a47fcb47d6a3f8656f98f01956d7613959a77573cde265ba57ff3",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 0.9717304341483609,
+              "packaged_native_rms_dbfs": -21.13053447242944,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.07116892339989568
+            },
+            {
+              "start_sample": 1132747,
+              "start_seconds": 23.598895833333334,
+              "zero_history_samples": 2497,
+              "native_rms": 0.0013947066171879894,
+              "packaged_native_rms_dbfs": -77.99179334096651,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.17202426802496354,
+              "exceeds_unchanged_worst_window_gate": true,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 1.0000277714728103
+            }
+          ],
+          "gate_impossible_for_bare_a2": true
+        },
+        "Nidhoggr": {
+          "model_sha256": "8152d072b8c62a036be4a5098cbdb7a59d10b151b5ceccc6b13bc0fa1a59c837",
+          "reference_sha256": "4dcf3baccbf278ad49eef244173a22dee7c9421ab062c0e1c4a81790f42811ec",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 0.9320257713861906,
+              "packaged_native_rms_dbfs": -21.921341552830746,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.06685700034992301
+            },
+            {
+              "start_sample": 1132747,
+              "start_seconds": 23.598895833333334,
+              "zero_history_samples": 2497,
+              "native_rms": 0.0019960832387736606,
+              "packaged_native_rms_dbfs": -75.30632701889408,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.04841179891816448,
+              "exceeds_unchanged_worst_window_gate": true,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 1.0000581811922966
+            }
+          ],
+          "gate_impossible_for_bare_a2": true
+        },
+        "Fimbulvetr": {
+          "model_sha256": "d2e8b7c14c18fc0bd54ac5a201d4b08067636e7e0d17aed613773bdea4a34529",
+          "reference_sha256": "1664320bb98d95d5f180ed6a91cd274e667f38d5612feae75583cbe061917e10",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 0.922810506759893,
+              "packaged_native_rms_dbfs": -20.9432669681085,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.06116895655319348
+            },
+            {
+              "start_sample": 1132747,
+              "start_seconds": 23.598895833333334,
+              "zero_history_samples": 2497,
+              "native_rms": 0.0012398229992684182,
+              "packaged_native_rms_dbfs": -78.37832381087446,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.1825479749884004,
+              "exceeds_unchanged_worst_window_gate": true,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.9999919885218714
+            }
+          ],
+          "gate_impossible_for_bare_a2": true
+        },
+        "Ragnarok": {
+          "model_sha256": "5a6ba62128d65e2a262e979d996e532e1dedc4d3aaa8e5cf5409a6cdbf7d1350",
+          "reference_sha256": "e71b2b79719b6f3b4b33cb30eb70837e6a04f4038af28128a99f2bad9e833458",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 1.3143810166437095,
+              "packaged_native_rms_dbfs": -23.367739600462976,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.14663558415739872
+            }
+          ],
+          "gate_impossible_for_bare_a2": false
+        }
+      }
+    },
+    "test": {
+      "input_sha256": "b6f673f25ef328d8e2e037229a5cdbaefda97a0e553299198ecb9ac6388302fe",
+      "channels": {
+        "Fenrir": {
+          "model_sha256": "e0ac854f25d39f1455488158b5dd871af0ca98335a71378c842dbd1448bc4d4c",
+          "reference_sha256": "735188687813a4a736a6726b9774e7129e71eba83fc90c9ec973f9ccc4de1193",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 0.6015133538571504,
+              "packaged_native_rms_dbfs": -25.14334881073443,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.7551701452697815
+            }
+          ],
+          "gate_impossible_for_bare_a2": false
+        },
+        "Surtr": {
+          "model_sha256": "1aded548409691bb4ae3ff2b27424a7a3cf92bd5d13d567408887e73f4ea85e6",
+          "reference_sha256": "ecce0ccff02c4e53dd9a43b7e64c1c305b007244f3a65f9ca23f32392bf0996d",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 1.0722126989010747,
+              "packaged_native_rms_dbfs": -20.275831638394052,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.15463679897967583
+            },
+            {
+              "start_sample": 1132747,
+              "start_seconds": 23.598895833333334,
+              "zero_history_samples": 2497,
+              "native_rms": 0.00568609579449974,
+              "packaged_native_rms_dbfs": -65.78516712854491,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.01360272722993836,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 1.00219308458907
+            }
+          ],
+          "gate_impossible_for_bare_a2": false
+        },
+        "Nidhoggr": {
+          "model_sha256": "8152d072b8c62a036be4a5098cbdb7a59d10b151b5ceccc6b13bc0fa1a59c837",
+          "reference_sha256": "f00e77a1eac53d380848fc5c44639e33f5d65a3c9654ab27f7321c98bcbc51ed",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 0.9262826318649884,
+              "packaged_native_rms_dbfs": -21.975029557244813,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.1421165479412087
+            },
+            {
+              "start_sample": 1132747,
+              "start_seconds": 23.598895833333334,
+              "zero_history_samples": 2497,
+              "native_rms": 0.0025672275668986787,
+              "packaged_native_rms_dbfs": -73.12061262485761,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.04944561176689405,
+              "exceeds_unchanged_worst_window_gate": true,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.9922604374508959
+            }
+          ],
+          "gate_impossible_for_bare_a2": true
+        },
+        "Fimbulvetr": {
+          "model_sha256": "d2e8b7c14c18fc0bd54ac5a201d4b08067636e7e0d17aed613773bdea4a34529",
+          "reference_sha256": "ace2ce9b253495a9c6f0b433db7fc60f4de0048c31f621af7a67f28353cfa9e5",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 1.0239250314406154,
+              "packaged_native_rms_dbfs": -20.04015437714954,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.05766122240186493
+            },
+            {
+              "start_sample": 1132747,
+              "start_seconds": 23.598895833333334,
+              "zero_history_samples": 2497,
+              "native_rms": 0.0033826890150061785,
+              "packaged_native_rms_dbfs": -69.66027611812613,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.005435880566798063,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 1.0003631635204768
+            }
+          ],
+          "gate_impossible_for_bare_a2": false
+        },
+        "Ragnarok": {
+          "model_sha256": "5a6ba62128d65e2a262e979d996e532e1dedc4d3aaa8e5cf5409a6cdbf7d1350",
+          "reference_sha256": "21e570f01b0c001363999a438af708386fbdcb1435eeec1bb5dcf32ec1e3a7a3",
+          "rf_samples": 6347,
+          "rf_ms": 132.22916666666666,
+          "engine_a2_gate": true,
+          "zero_history_engine_peak_to_peak": 0.0,
+          "witnesses": [
+            {
+              "start_sample": 10443,
+              "start_seconds": 0.2175625,
+              "zero_history_samples": 1557,
+              "native_rms": 2.287580952928998,
+              "packaged_native_rms_dbfs": -18.55463572472353,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.0,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.2542069971089227
+            },
+            {
+              "start_sample": 1132747,
+              "start_seconds": 23.598895833333334,
+              "zero_history_samples": 2497,
+              "native_rms": 0.011475783487479968,
+              "packaged_native_rms_dbfs": -64.54651824408059,
+              "eligible_under_packaged_validation_floor": true,
+              "best_constant_esr_lower_bound": 0.009689310106455596,
+              "exceeds_unchanged_worst_window_gate": false,
+              "actual_a2_zero_history_peak_to_peak": 0.0,
+              "actual_a2_window_esr": 0.9921804484031701
+            }
+          ],
+          "gate_impossible_for_bare_a2": false
+        }
+      }
+    }
+  },
+  "additional_checks": {
+    "bound_arithmetic": "passed",
+    "zero_history_boundary": "passed",
+    "native_recapture": "Surtr validation output is bit-identical to frozen capture; renderer SHA256 matches manifest"
+  }
+}
