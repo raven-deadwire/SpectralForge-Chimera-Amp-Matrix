@@ -305,7 +305,10 @@ def main():
                 st[j]=int(np.clip(k-rng.integers(args.frames),rf,len(x)-args.frames-1))
         crop_digest.update(st.astype('<i8').tobytes())
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
-        yy=torch.from_numpy(np.stack([np.stack([y[s:s+args.frames] for y in ys]) for s in st]))*gain_tensor
+        # Untrained channels are zeros: reading them would only fill the page cache
+        # (the arrays exceed RAM) and their loss is masked out anyway.
+        yy=torch.from_numpy(np.stack([np.stack([y[s:s+args.frames] if channel_mask[c] else np.zeros(args.frames,dtype='<f4')
+                                                for c,y in enumerate(ys)]) for s in st]))*gain_tensor
         pred=export_consistent_prediction(model,xx) if args.center_training_output else model(xx,pad_start=False)
         if recipe_loss is not None:loss=recipe_loss(pred,yy)
         else:
