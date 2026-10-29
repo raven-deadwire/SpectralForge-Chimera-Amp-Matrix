@@ -8,6 +8,7 @@
 #include "SignalPathView.h"
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <complex>
 #include <iostream>
 #include <map>
@@ -184,11 +185,66 @@ void pathAndCommands() {
     require(view.buttonFor("final.eq")!=nullptr && dynamic_cast<SignalPathButton*>(view.buttonFor("final.eq"))->onPlacementMenu==nullptr,"A fixed block offers a placement menu");
     std::cout<<"PASS signal path follows the order; placement commands, Alt + arrows and Ctrl + Z; navigation writes nothing; fixed blocks stay fixed\n";
 }
+void dragging() {
+    // 1.5 drag in the ROUTING graph: preview while hovering, one command on drop.
+    auto p=make();SignalPathView view(*p,false);view.setSize(1140,650);
+    int navigated=0;view.navigate=[&](const signalPath::Node&){++navigated;};
+    struct Writes final : juce::AudioProcessorListener {
+        int changes{};void audioProcessorParameterChanged(juce::AudioProcessor*,int,float) override {++changes;}
+        void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+    } writes;
+    auto* button=dynamic_cast<SignalPathButton*>(view.buttonFor("common.comp"));require(button!=nullptr,"Clean compressor block missing");
+    const auto source=juce::Desktop::getInstance().getMainMouseSource();
+    const auto event=[&](juce::Point<int> inView,juce::Point<int> downInView,bool down){
+        const auto local=button->getLocalPoint(&view,inView).toFloat(),start=button->getLocalPoint(&view,downInView).toFloat();const auto now=juce::Time::getCurrentTime();
+        return juce::MouseEvent(source,local,juce::ModifierKeys(down?juce::ModifierKeys::leftButtonModifier:0),1,0,0,0,0,button,button,now,start,now,1,local.getDistanceFrom(start)>6);};
+    const auto centre=[&](const juce::String& id){return view.buttonFor(id)->getBoundsInParent().getCentre();};
+    const auto targets=view.dropTargets(OrderRegion::tone);require(targets.size()==6,"Six drop targets expected");
+    // Drag the compressor (position 2) over position 5 and drop.
+    const auto start=centre("common.comp");
+    p->addListener(&writes);
+    button->mouseDown(event(start,start,true));
+    button->mouseDrag(event(targets[3].getCentre(),start,true));
+    const int hover=view.dropPosition();
+    button->mouseDrag(event(targets[4].getCentre(),start,true));
+    const int hover2=view.dropPosition();const int writesWhileDragging=writes.changes;
+    // Optional evidence: SIGNAL_ORDER_SNAPSHOT=<directory> writes the graph mid-drag.
+    if(const char* dir=std::getenv("SIGNAL_ORDER_SNAPSHOT")){
+        juce::Image image(juce::Image::ARGB,1140,650,true);{juce::Graphics g(image);g.fillAll(juce::Colour(0xff171e20));g.drawImageAt(view.createComponentSnapshot(view.getLocalBounds(),true,1.f),0,0);}
+        auto out=juce::File(dir).getChildFile("signal_order_drag.png");out.deleteFile();auto stream=out.createOutputStream();
+        require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the drag snapshot");
+    }
+    button->mouseUp(event(targets[4].getCentre(),start,false));
+    p->removeListener(&writes);
+    const int landed=p->requestedOrder().tone.position(compressorModule);
+    require(hover==3 && hover2==4 && writesWhileDragging==0 && landed==4 && navigated==0,"Drag preview, write-free hover, drop or click suppression wrong");
+    require(p->undoOrder() && p->requestedOrder()==SignalOrder{} && !p->canUndoOrder(),"A drop is not exactly one undo step");
+    // Escape cancels, and the release after it does nothing.
+    button=dynamic_cast<SignalPathButton*>(view.buttonFor("common.comp"));
+    button->mouseDown(event(start,start,true));button->mouseDrag(event(targets[5].getCentre(),start,true));
+    require(button->keyPressed(juce::KeyPress(juce::KeyPress::escapeKey)) && view.draggingBlock().isEmpty(),"Escape did not cancel");
+    button->mouseUp(event(targets[5].getCentre(),start,false));
+    // Releasing over a fixed block (FINAL EQ) or far away cancels too.
+    button->mouseDown(event(start,start,true));button->mouseDrag(event(centre("final.eq"),start,true));const int overFixed=view.dropPosition();button->mouseUp(event(centre("final.eq"),start,false));
+    button->mouseDown(event(start,start,true));button->mouseDrag(event({1100,40},start,true));button->mouseUp(event({1100,40},start,false));
+    require(overFixed==-1 && p->requestedOrder()==SignalOrder{} && navigated==0,"A cancelled drag changed the order or navigated");
+    // A POST block only targets POST positions.
+    auto* reverb=dynamic_cast<SignalPathButton*>(view.buttonFor("post.section5"));
+    require(reverb!=nullptr && view.dropTargets(OrderRegion::post).size()==size_t(postModuleCount),"POST drop targets wrong");
+    // A plain click (under the drag threshold) still opens the editor.
+    button->mouseDown(event(start,start,true));button->mouseUp(event(start+juce::Point<int>(2,1),start,false));
+    juce::MessageManager::getInstance()->runDispatchLoopUntil(20);
+    std::cout<<"MEASURE drag: hover previews position "<<hover+1<<" then "<<hover2+1<<", "<<writesWhileDragging<<" parameter writes while hovering, dropped at position "<<landed+1
+             <<"; over FINAL EQ the target is "<<overFixed<<"; a 2-pixel press navigates "<<navigated<<" time\n";
+    require(navigated==1,"A click no longer opens the editor");
+    std::cout<<"PASS drag: preview only while hovering, one undoable command on drop, Escape / off-target cancel, clicks still navigate\n";
+}
+
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();}
+    try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

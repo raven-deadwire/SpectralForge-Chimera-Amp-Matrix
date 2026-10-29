@@ -18,7 +18,7 @@
 |---|---|---|---|---|
 | **1.3.3** | Room Core: Size·Absorption·Bypass, 리그별 Send, 실제 초기반사·잔향, 상태·자동화, LOW DI 분리 | 전부 ([ROOM_CORE_1_3_3.md](ROOM_CORE_1_3_3.md)) | 실제 DAW 자동화·복원, Windows 테스트 설치본, 청음 | — |
 | **1.4** | 독립 4밴드 다이내믹스, PRE A 6종, 첫 제한형 신호 순서 편집기 | 4밴드(main #163에 이미 있음), PRE A 6종 ([PRE_EXPANSION_A_1_4.md](PRE_EXPANSION_A_1_4.md)), 제한형 신호 순서 편집기 ([SIGNAL_ORDER_1_4.md](SIGNAL_ORDER_1_4.md), `claude/signal-order-editor`, 10/29 추가) | — | — |
-| **1.5** | PRE B 6종, 드래그 순서 UX, 별도 게이트로 M/S·외부 사이드체인·6밴드 확장 | PRE B 6종 ([PRE_EXPANSION_B_1_5.md](PRE_EXPANSION_B_1_5.md)), M/S·스테레오 링크 ([MULTIBAND_STEREO_1_5.md](MULTIBAND_STEREO_1_5.md)), 외부 사이드체인 ([SIDECHAIN_SYNTH_BUS.md](SIDECHAIN_SYNTH_BUS.md)) | **드래그 순서 UX**, **6밴드 다이내믹스 확장** | SYNTH 전용 출력 버스 (1.10 신스용, 사이드체인과 같은 버스 작업에 포함) |
+| **1.5** | PRE B 6종, 드래그 순서 UX, 별도 게이트로 M/S·외부 사이드체인·6밴드 확장 | PRE B 6종 ([PRE_EXPANSION_B_1_5.md](PRE_EXPANSION_B_1_5.md)), M/S·스테레오 링크 ([MULTIBAND_STEREO_1_5.md](MULTIBAND_STEREO_1_5.md)), 외부 사이드체인 ([SIDECHAIN_SYNTH_BUS.md](SIDECHAIN_SYNTH_BUS.md)), 드래그 순서 UX ([SIGNAL_ORDER_1_4.md](SIGNAL_ORDER_1_4.md), `claude/drag-order-ux`, 10/29 추가) | **6밴드 다이내믹스 확장** | SYNTH 전용 출력 버스 (1.10 신스용, 사이드체인과 같은 버스 작업에 포함) |
 | **1.6** | 레퍼런스 앰프 5종, 공통 3밴드 새추레이션 | 전부 ([REFERENCE_AMPS_1_6.md](REFERENCE_AMPS_1_6.md), [SATURATION_1_6.md](SATURATION_1_6.md)) | 매뉴얼 대조, 하드웨어 음색 일치, 사진 헤드 아트워크 | — |
 | **1.7** | POST Dynamics/Tone 9종, 공통 2필터 모듈레이션 | 전부 ([POST_EXPANSION_1_7.md](POST_EXPANSION_1_7.md), [FILTER_MODULATION_1_7.md](FILTER_MODULATION_1_7.md)) | Curve Bender Multiply 스위치, 2500/2500+ 차이 | — |
 | **1.8** | Motion/Space 9종, 고급 딜레이·리버브, Room Advanced 조건·공간 모델 | 9종 ([POST_MOTION_SPACE_1_8.md](POST_MOTION_SPACE_1_8.md)), Room Advanced ([ROOM_ADVANCED_1_8.md](ROOM_ADVANCED_1_8.md)), 공간 단계: 치수·재질·배치·룸 마이크 ([ROOM_SPACE_1_8.md](ROOM_SPACE_1_8.md)) | 모델별 세부 컨트롤(UltraTap Slurm/Chop, Blackhole Gravity 등), 룸 모드·지향성 | — |
@@ -49,6 +49,6 @@
 
 ## 남은 결정과 후속 작업
 
-- **로드맵 범위에서 빠진 항목** (위 표의 굵은 글씨): 1.5 드래그 순서 UX와 6밴드 확장, 1.9 확장 모듈레이션과 라우팅 다듬기, 1.10 실제 악기 트래킹 검증. 1.4 신호 순서 편집기는 10/29에 구현했습니다.
+- **로드맵 범위에서 빠진 항목** (위 표의 굵은 글씨): 1.5 6밴드 확장, 1.9 확장 모듈레이션과 라우팅 다듬기, 1.10 실제 악기 트래킹 검증. 1.4 신호 순서 편집기와 1.5 드래그 순서 UX는 10/29에 구현했습니다.
 - **공통 미완료:** 모든 버전에서 청음, DAW CPU, 설치본, 실제 호스트 확인이 남아 있습니다.
 - **로드맵 갱신 여부:** 1.10에 더 들어간 SYNTH 범위와 1.5의 SYNTH 버스를 로드맵 문서에 반영할지는 소유자가 정합니다.

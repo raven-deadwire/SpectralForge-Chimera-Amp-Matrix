@@ -1,12 +1,12 @@
 # 1.4 constrained signal-order editor
 
 Status: **implemented on `claude/signal-order-editor`**, stacked on
-`claude/integration-1-10`. This is the 1.4 "constrained order editor" stage
+`claude/integration-1-10`; **1.5 drag** on `claude/drag-order-ux`, stacked on
+it (see "Drag (1.5)"). This is the 1.4 "constrained order editor" stage
 of [SIGNAL_PATH_EDITOR.md](SIGNAL_PATH_EDITOR.md) and
 [DEVELOPMENT_ROADMAP_2026_2027.md](DEVELOPMENT_ROADMAP_2026_2027.md) (1.4:
 "first constrained signal-order editor"). Covered by `ChimeraSignalOrderTests`
-and the updated signal-path UI tests. Drag interaction is the 1.5 stage and
-is not part of this.
+and the updated signal-path UI tests.
 
 ## What can move
 
@@ -46,6 +46,31 @@ The ROUTING graph's movable blocks take the order commands.
   the path were missing them, although the audio ran them.
 - **SYNTH insert:** "Before tone / dynamics" (formerly "Before Tone EQ") joins
   the first block of the region, whichever module that is.
+
+## Drag (1.5)
+
+The specification's 1.5 stage is "drag with valid drop targets, preview
+placement, cancel, use keyboard and undo/redo; calls the already tested
+order command; no DSP rebuild during hover".
+
+- **Drag:** drag a movable block in the ROUTING graph more than 6 pixels.
+  - Every position of its own block is outlined.
+  - The position under the pointer is highlighted, with a caption such as
+    "CLEAN COMPRESSOR > POSITION 5".
+- **Drop:** releasing over a highlighted position is one placement command —
+  the same command as the menu — and one undo entry.
+- **Cancel:** the order stays as it was when the block is released away from
+  its block's positions (over a fixed block such as FINAL EQ, over another
+  region, or in empty space), or when Escape is pressed. The release after
+  Escape does nothing.
+- **No writes while hovering:** hovering writes no parameter and does not
+  touch the audio.
+- **Clicks:** a press that moves less than 6 pixels is still a click and opens
+  the block's editor; a drag does not.
+- **Keyboard and undo:** unchanged from 1.4 — Alt + arrows / Home / End, and
+  Ctrl + Z / Ctrl + Shift + Z.
+- **Evidence:** `SIGNAL_ORDER_SNAPSHOT=<dir>` makes `ChimeraSignalOrderTests`
+  write the graph mid-drag.
 
 ## State, automation and undo
 
@@ -101,6 +126,7 @@ The ROUTING graph's movable blocks take the order commands.
 | A/B | Each slot keeps its own order |
 | Old project (no order parameters) | Released order |
 | Stale slots (a duplicate) | The audio keeps its last valid order |
+| Drag | Hover previews positions 4 then 5 with no parameter writes; the drop lands at 5 as one undo step; Escape, FINAL EQ and empty space cancel; a 2-pixel press still opens the editor |
 | Signal path | Edges follow the order. No block overlaps after a move. SYNTH joins the first block. Commands, Alt + Right and Ctrl + Z work; navigation writes nothing; fixed blocks have no menu |
 
 The specification calls for a measurement of the transition's cost: the fade
@@ -109,7 +135,8 @@ while switching.
 
 ## Not done
 
-- **Interaction:** drag and drop with drop targets and a preview (1.5).
+- **Interaction:** dragging on the compact strip (it has no per-module
+  blocks), and touch-specific long-press handling.
 - **Placements:** advanced ones, such as a whole-wet compressor after POST
   (1.9).
 - **Checks:** pointer checks in hosts, listening to real tails during a move,
