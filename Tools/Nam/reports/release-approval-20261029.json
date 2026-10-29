@@ -1,0 +1,148 @@
+{
+  "profile": "nastrond-tone3000-a2-release-v3",
+  "approved_by": "owner",
+  "date": "2026-10-29",
+  "listening_acceptance": "owner reported listening acceptance complete for all five channels",
+  "v3_numbers": {
+    "Fenrir": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true,
+      "preset_restore_max_abs": 0.0
+    },
+    "Surtr": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true,
+      "preset_restore_max_abs": 0.0
+    },
+    "Nidhoggr": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true,
+      "preset_restore_max_abs": 0.0
+    },
+    "Fimbulvetr": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true,
+      "preset_restore_max_abs": 0.0
+    },
+    "Ragnarok": {
+      "validation": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "test": {
+        "profile": "nastrond-tone3000-a2-release-v3",
+        "checks": {
+          "full_esr": true,
+          "active_median": true,
+          "active_p95": true,
+          "active_worst": true,
+          "quiet": true,
+          "level": true
+        },
+        "pass": true
+      },
+      "numbers_pass": true,
+      "preset_restore_max_abs": 0.0
+    }
+  }
+}
