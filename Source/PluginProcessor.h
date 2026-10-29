@@ -7,6 +7,10 @@
 #include "DynamicsAnalysis.h"
 #include "AutoSet.h"
 #include "MultibandDynamics.h"
+#include "ThreeBandSaturation.h"
+#include "FilterModulation.h"
+#include "CreativeFX.h"
+#include "SynthLayer.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -68,6 +72,8 @@ public:
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "SpectralForge Chimera"; }
     bool acceptsMidi() const override { return true; }
+    // 1.10 SYNTH: the tracked guitar pitch (Hz, 0 when none), for the panel readout.
+    double synthTrackedFrequency() const noexcept { return synthTracked.load(std::memory_order_relaxed); }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override {
@@ -274,10 +280,15 @@ private:
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
+    spectralforge::CreativeFX creative;
+    spectralforge::SynthLayer synth;
+    std::atomic<double> synthTracked{0.0};
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;
     spectralforge::MultibandDynamics multiband;
+    spectralforge::ThreeBandSaturation saturation;
+    spectralforge::FilterModulation filterModulation;
     spectralforge::DeEsser deesser;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
@@ -293,7 +304,7 @@ private:
     enum Extra {dualType,dualBlend,dualFrequency,inputMode,doublerOn,doublerTime,tempo,hostTempo,metronome,extraCount};
     std::array<std::atomic<float>*,extraCount> extras{};
     std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
-    std::array<std::atomic<float>*,11> modelParameters{};
+    std::array<std::atomic<float>*,11> modelParameters{},modelExtensionParameters{};
     std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{}, * preOrderParameter{}, * gainOrderParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};

@@ -54,7 +54,10 @@ inline void run()
                     require(std::isfinite(x) && std::abs(x) < 8., "Amp voice non-finite or excessive level");
                     require(std::abs(split.getSample(1, n)) < 1e-10f, "Amp voice leaks to silent stereo channel");
                     worstPartition = juce::jmax(worstPartition, std::abs(x - larger.getSample(0, n)));
-                    worstStereo = juce::jmax(worstStereo, std::abs(double(larger.getSample(0, n) - larger.getSample(1, n))));
+                    // Crystal 120's default chorus sweeps its two outputs in opposite
+                    // directions by design; ReferenceAmpTests measures that spread.
+                    if (model != static_cast<int>(AmpModel::crystal120))
+                        worstStereo = juce::jmax(worstStereo, std::abs(double(larger.getSample(0, n) - larger.getSample(1, n))));
                 }
             }
             const auto corner = render(model, rate, 128, 2, false, true);

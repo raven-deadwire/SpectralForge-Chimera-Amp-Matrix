@@ -117,6 +117,108 @@ def rack_panels():
         ['https://pulsetechniques.com/products/tube-equalizers/eqp-1a/'],
         '저역 Boost/Atten을 동시에 저장하며 고역 Boost 주파수와 Atten 주파수를 분리합니다. 일반 Bass/Treble 노브로 통합하지 않습니다.',
         'Full panel-switch review, boost/atten interaction, bandwidth taper and tube amplifier response need further validation.',PARTIAL)
+    p.update(post_expansion_panels())
+    return p
+
+
+# 1.7 POST expansion: three models appended to each section (indices 3-5).
+# Panels follow published controls; manufacturer pages were not reachable from
+# the build environment, so each records the secondary sources consulted.
+def post_expansion_panels():
+    p={}
+    p['planned.post.bus.3'] = panel('Eventide Omnipressor 2830*Au reissue',[
+        choice('input_cal','INPUT CAL',['0 dB','-10 dB','-20 dB','-30 dB'],'INPUT'),
+        knob('function','FUNCTION','DYNAMICS',note='Gate / expand / neutral at 12 o\'clock / compress / reverse.'),
+        knob('threshold','THRESHOLD','DYNAMICS'),knob('attack','ATTACK','TIME'),knob('release','RELEASE','TIME'),
+        knob('atten_limit','ATTEN LIMIT','LIMITS'),knob('gain_limit','GAIN LIMIT','LIMITS'),
+        switch('bass_cut','BASS CUT','DYNAMICS'),knob('output','OUTPUT','OUTPUT'),
+        choice('meter','METER',['INPUT','GAIN','OUTPUT'],'OUTPUT',initial=1),switch('dynamics_in','IN','OUTPUT',initial=1)],
+        ['https://www.musicradar.com/reviews/tech/eventide-omnipressor-533112','https://vintageking.com/blog/hear-the-gear-eventide-omnipressor/'],
+        'Function 하나로 게이트·익스팬드·압축·역전(dynamic reversal)을 연속 조절합니다. Atten/Gain Limit이 Function보다 우선합니다. Meter는 소리에 영향이 없습니다.',
+        'Exact Function law, detector and Output range are authored; manufacturer manual not reachable from the build environment.',PARTIAL)
+    p['planned.post.bus.4'] = panel('API 2500 stereo bus compressor',[
+        knob('threshold','THRESHOLD','COMPRESSOR'),
+        choice('attack','ATTACK',['0.03 ms','0.1 ms','0.3 ms','1 ms','3 ms','10 ms','30 ms'],'COMPRESSOR',initial=3),
+        choice('ratio','RATIO',['1.5:1','2:1','3:1','4:1','6:1','10:1','INF:1'],'COMPRESSOR',initial=3),
+        choice('release','RELEASE',['0.05 s','0.1 s','0.2 s','0.5 s','1 s','2 s','VAR'],'COMPRESSOR',initial=3),
+        knob('release_var','VARIABLE RELEASE','COMPRESSOR'),
+        choice('knee','KNEE',['HARD','MED','SOFT'],'TONE',initial=1),choice('thrust','THRUST',['NORM','MED','LOUD'],'TONE'),
+        choice('type','TYPE',['NEW','OLD'],'TONE'),knob('link','L/R LINK','LINK'),knob('makeup','OUTPUT GAIN','OUTPUT'),
+        switch('compressor_in','IN','OUTPUT',initial=1)],
+        ['https://apiaudio.com/product/2500-stereo-compressor','https://www.manualslib.com/manual/3555411/Api-2500Plus.html?page=10'],
+        'Thrust(검출기 하이패스), Knee, New(feed-forward)/Old(feedback), 연속 L/R Link를 분리합니다. 2500+ 표기의 Attack/Ratio/Release 값을 사용합니다.',
+        'Link filters, exact Thrust curves and the threshold calibration are authored; 2500 vs 2500+ differences are not modelled.',PARTIAL)
+    p['planned.post.bus.5'] = panel('AMS Neve 33609/N diode-bridge compressor/limiter',[
+        knob('comp_threshold','COMP THRESHOLD','COMPRESSOR'),
+        choice('comp_ratio','RATIO',['1.5:1','2:1','3:1','4:1','6:1'],'COMPRESSOR',initial=1),
+        choice('comp_recovery','COMP RECOVERY',['100 ms','400 ms','800 ms','1.5 s','A1','A2'],'COMPRESSOR',initial=1),
+        choice('comp_attack','COMP ATTACK',['FAST','SLOW'],'COMPRESSOR',initial=1),
+        knob('gain','GAIN','COMPRESSOR'),switch('comp_in','COMP IN','COMPRESSOR',initial=1),
+        knob('limit_threshold','LIMIT THRESHOLD','LIMITER'),
+        choice('limit_recovery','LIMIT RECOVERY',['100 ms','200 ms','800 ms','A1','A2'],'LIMITER',initial=1),
+        choice('limit_attack','LIMIT ATTACK',['FAST','SLOW'],'LIMITER'),switch('limit_in','LIMIT IN','LIMITER')],
+        ['https://www.ams-neve.com/wp-content/uploads/2022/01/33609N1.0usermanual.pdf','https://vintageking.com/neve-33609-n-stereo-compressor'],
+        '압축기와 리미터를 별도 문턱·회복 시간·켜짐으로 둡니다. 비율 5단, 회복 4단+A1/A2. 다이오드 브리지 색채는 감쇠량에 비례하는 저차 왜곡으로 표현합니다.',
+        'Threshold scales, A1/A2 programme curves and diode-bridge distortion are authored; the official manual was not reachable.',PARTIAL)
+    p['planned.post.preamp.3'] = panel('API 512c discrete mic/line preamp',[
+        choice('input','INPUT',['MIC','LINE / INST'],'INPUT',initial=1),knob('gain','GAIN','INPUT'),
+        switch('pad','PAD -20 dB','INPUT'),switch('phase','PHASE','INPUT'),switch('phantom','+48 V','INPUT')],
+        ['https://apiaudio.com/product/512c-mic-pre','https://www.kmraudio.com/api-512c-mono-mic-line-pre.php'],
+        'Mic 65 dB / Line·Inst 45~50 dB(자료마다 다름), -20 dB 패드, 위상, +48 V. +48 V는 녹음된 신호에는 물리적 효과가 없습니다.',
+        '2520 op-amp and transformer behaviour are authored; +48 V is physical only.',PARTIAL)
+    p['planned.post.preamp.4'] = panel('Chandler Limited TG2 preamp / DI',[
+        choice('input','INPUT',['MIC','DI','LINE'],'INPUT',initial=1),
+        choice('coarse_gain','COARSE GAIN',['+20','+25','+30','+35','+40','+45','+50','+55','+60'],'GAIN',initial=4),
+        knob('fine_gain','FINE GAIN','GAIN'),knob('output','OUTPUT','OUTPUT'),
+        choice('load','LOAD',['300 Ω','1200 Ω'],'INPUT',initial=1),switch('phase','PHASE','INPUT'),switch('phantom','+48 V','INPUT')],
+        ['https://barryrudolph.com/utilities/chandlertg2.html','https://www.soundonsound.com/reviews/chandler-limited-tg2-500'],
+        'Coarse(+20~+60 dB, 5 dB 단계)과 Fine(±10 dB), Output을 분리합니다. 랙형 TG2의 앞면 DI 입력을 포함합니다.',
+        'Load needs a source-impedance model (physical only); transformer saturation and output stage are authored.',PARTIAL)
+    p['planned.post.preamp.5'] = panel('Grace Design m101 preamp / DI',[
+        choice('input','INPUT',['MIC','HI-Z INST'],'INPUT',initial=1),
+        choice('gain','GAIN',['1','2','3','4','5','6','7','8','9','10','11','12'],'GAIN',initial=4,),
+        knob('trim','TRIM','GAIN'),switch('high_pass','HPF 75 Hz','FILTER'),
+        switch('ribbon','RIBBON','INPUT'),switch('phantom','+48 V','INPUT')],
+        ['https://www.mcgill.ca/library/files/library/m101_manual_reva.pdf','https://proaudiodesign.com/products/grace-design-m101'],
+        '게인 12단(MIC 10~65 dB, INST -10~45 dB, 5 dB 단계), Trim 0~+10 dB, 75 Hz 12 dB/oct HPF. Ribbon 모드는 입력 임피던스·팬텀 전환이므로 녹음된 신호에는 물리적 효과가 없습니다.',
+        'Ribbon mode and +48 V are physical only; the amplifier is modelled as very low colouration (authored).',PARTIAL)
+    p['planned.post.eq.3'] = panel('API 550A three-band discrete EQ',[
+        choice('lf_frequency','LF FREQ',['30 Hz','40 Hz','50 Hz','100 Hz','200 Hz','300 Hz','400 Hz'],'LF',initial=3),
+        choice('lf_gain','LF GAIN',['-12','-9','-6','-4','-2','0','+2','+4','+6','+9','+12'],'LF',initial=5),
+        switch('lf_shelf','LF SHELF','LF'),
+        choice('mf_frequency','MF FREQ',['200 Hz','400 Hz','600 Hz','800 Hz','1.5 kHz','3 kHz','5 kHz'],'MF',initial=4),
+        choice('mf_gain','MF GAIN',['-12','-9','-6','-4','-2','0','+2','+4','+6','+9','+12'],'MF',initial=5),
+        choice('hf_frequency','HF FREQ',['2.5 kHz','5 kHz','7 kHz','10 kHz','12.5 kHz','15 kHz','20 kHz'],'HF',initial=3),
+        choice('hf_gain','HF GAIN',['-12','-9','-6','-4','-2','0','+2','+4','+6','+9','+12'],'HF',initial=5),
+        switch('hf_shelf','HF SHELF','HF'),switch('filter','FILTER 50 Hz–15 kHz','FILTER'),switch('eq_in','IN','EQ',initial=1)],
+        ['https://www.bhphotovideo.com/lit_files/981197.pdf','https://www.turramusic.com.au/products/api-550a'],
+        '3밴드 계단식 이득(±2/4/6/9/12 dB), LF/HF 피크·셸프 전환, 50 Hz~15 kHz 밴드패스 필터. 주파수 목록은 하드웨어 사양서 값입니다(자료마다 다름).',
+        'Proportional-Q law is authored; frequency lists differ between sources and follow the hardware spec sheet.',PARTIAL)
+    p['planned.post.eq.4'] = panel('Maag Audio EQ4 with AIR BAND',[
+        knob('sub','SUB 10 Hz','BANDS'),knob('b40','40 Hz','BANDS'),knob('b160','160 Hz','BANDS'),knob('b650','650 Hz','BANDS'),
+        knob('b2500','2.5 kHz','BANDS'),knob('air_gain','AIR GAIN','AIR BAND'),
+        choice('air_frequency','AIR FREQ',['OFF','2.5 kHz','5 kHz','10 kHz','15 kHz','20 kHz','40 kHz'],'AIR BAND',initial=3),
+        switch('eq_in','IN','EQ',initial=1)],
+        ['https://www.soundonsound.com/reviews/maag-audio-eq4','https://reverb.com/p/maag-audio-eq4'],
+        'Sub 10 Hz, 40/160/650 Hz 벨, 2.5 kHz 셸프(Q≈0.4, 약 3옥타브 폭), 최대 +15 dB / -4.5 dB. Air Band는 최대 +20 dB, 주파수 OFF~40 kHz.',
+        '40 kHz AIR is applied at the processing rate\'s upper limit; band shapes are authored from the published Q.',PARTIAL)
+    p['planned.post.eq.5'] = panel('Chandler Limited Curve Bender',[
+        knob('treble_gain','TREBLE','TREBLE'),
+        choice('treble_frequency','TREBLE FREQ',['5 kHz','7 kHz','10 kHz','12 kHz','15 kHz','20 kHz'],'TREBLE',initial=2),
+        switch('treble_bell','TREBLE BELL','TREBLE'),
+        knob('presence1_gain','PRESENCE 1','PRESENCE 1'),
+        choice('presence1_frequency','PRES 1 FREQ',['0.8 kHz','1.2 kHz','1.8 kHz','2.8 kHz','3.6 kHz','4.2 kHz','6.5 kHz','8.1 kHz'],'PRESENCE 1',initial=3),
+        knob('presence2_gain','PRESENCE 2','PRESENCE 2'),
+        choice('presence2_frequency','PRES 2 FREQ',['0.3 kHz','0.4 kHz','0.5 kHz','0.8 kHz','1.2 kHz','1.8 kHz','2.8 kHz','3.6 kHz'],'PRESENCE 2',initial=2),
+        knob('bass_gain','BASS','BASS'),
+        choice('bass_frequency','BASS FREQ',['35 Hz','50 Hz','70 Hz','91 Hz','150 Hz','200 Hz','300 Hz'],'BASS',initial=2),
+        switch('bass_bell','BASS BELL','BASS'),
+        choice('high_pass','HPF',['OFF','20 Hz','30 Hz','40 Hz','50 Hz','60 Hz','80 Hz','100 Hz','160 Hz','200 Hz','320 Hz'],'FILTER'),
+        choice('low_pass','LPF',['OFF','20 kHz','15 kHz','12 kHz','10 kHz','8 kHz','6 kHz','4 kHz'],'FILTER'),
+        switch('eq_in','IN','EQ',initial=1)],
+        ['https://chandlerlimited.com/wp-content/uploads/2012/12/curve-bender-half-db-manual.pdf','https://softube.com/user-manuals/chandler-limited-curve-bender'],
+        '4밴드 세미 파라메트릭(Bass/Treble 셸프·벨 전환), HPF/LPF. Bass·Presence 주파수와 HPF 값은 공개 매뉴얼 값, Treble·LPF 위치는 Chimera의 선택입니다.',
+        'Treble and LPF positions, band Q and the Multiply switch are not verified; Multiply is omitted.',PARTIAL)
     return p
 
 

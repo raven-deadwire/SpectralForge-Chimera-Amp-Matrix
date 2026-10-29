@@ -12,12 +12,12 @@ class AmpCatalogTests(unittest.TestCase):
         self.catalog=build_catalog()
         self.amps={m['id']:m for m in self.catalog['models'] if m['location']=='rig'}
     def keys(self, mid):return {c['id']:c for c in self.amps[mid]['controls']}
-    def test_23_active_24_serialized_amp_targets(self):
-        self.assertEqual(len(self.amps),24)
-        self.assertEqual(sum(m.get('active',True) for m in self.amps.values()),23)
+    def test_28_active_29_serialized_amp_targets(self):
+        self.assertEqual(len(self.amps),29)
+        self.assertEqual(sum(m.get('active',True) for m in self.amps.values()),28)
         self.assertFalse(self.amps['planned.amp.engl']['active'])
         self.assertTrue(self.amps['planned.amp.engl-e670fe']['active'])
-        self.assertEqual(len(self.catalog['models']),81)
+        self.assertEqual(len(self.catalog['models']),116)
     def test_all_existing_and_planned_have_model_specific_panels(self):
         self.assertEqual(set(self.amps),set(amp_panels()))
         for m in self.amps.values():self.assertTrue(m['controls']);self.assertTrue(m['amp_panel']['channels'])
@@ -136,6 +136,15 @@ class AmpCatalogTests(unittest.TestCase):
         with self.assertRaises(ValueError):validate_amp_panels(self.catalog['models'])
     def test_shared_parameter_ids_unique(self):
         for m in self.amps.values():self.assertEqual(len(m['controls']),len({c['id'] for c in m['controls']}))
+    def test_reference_heads_panels(self):
+        jc=self.keys('planned.amp.jc-120')
+        for k in ('hw.ch2.distortion','hw.ch2.reverb','hw.ch2.speed','hw.ch2.depth','hw.ch2.effect'):self.assertEqual(jc[k]['channels'],['ch2'])
+        self.assertEqual(jc['hw.ch2.effect']['options'],['OFF','CHORUS','VIBRATO'])
+        self.assertEqual(set(self.keys('planned.amp.1987x')),set(self.keys('legacy.amp.1')))
+        self.assertIn('hw.master',self.keys('planned.amp.jcm800-2203'));self.assertIn('hw.preamp',self.keys('planned.amp.jcm800-2203'))
+        self.assertEqual(len(self.amps['planned.amp.dr103']['amp_panel']['input_routes']),5)
+        aurora=self.amps['planned.amp.aurora'];self.assertEqual(aurora['amp_panel']['review_status'],PENDING)
+        self.assertFalse(any('gain' in k for k in self.keys('planned.amp.aurora')))
     def test_invalid_initial_channel_rejected(self):
         self.amps['legacy.amp.0']['amp_panel']['initial_channel']='absent'
         with self.assertRaises(ValueError):validate_amp_panels(self.catalog['models'])

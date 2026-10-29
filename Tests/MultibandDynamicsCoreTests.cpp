@@ -491,6 +491,98 @@ void automatedCrossoversAndInvalidParameters() {
 }
 }
 
+// Stereo link and M/S (docs/MULTIBAND_STEREO_1_5.md). Band 3 (700 Hz-3.5 kHz)
+// compresses; the others are bypassed.
+double toneAmplitude(const std::vector<double>& x, double rate, double hz, size_t start) {
+    double re = 0., im = 0.;
+    for (size_t i = start; i < x.size(); ++i) {const double w = 2. * pi * hz * double(i) / rate; re += x[i] * std::cos(w); im += x[i] * std::sin(w);}
+    return 2. * std::sqrt(re * re + im * im) / double(x.size() - start);
+}
+MultibandSettings stereoSettings(int stereo, float link, int channels) {
+    MultibandSettings s; s.on = true; s.mix = 1.f; s.detector = 1; s.stereo = stereo; s.link = link;
+    for (auto& b : s.bands) b.bypass = true;
+    auto& b = s.bands[2];
+    b.bypass = false; b.mode = 0; b.threshold = -40.f; b.ratio = 4.f; b.range = 24.f; b.knee = 0.f; b.attack = 1.f; b.release = 50.f; b.channels = channels;
+    return s;
+}
+// Two tones: `a` on the first channel (L or M) and `b` on the second (R or S).
+std::array<std::vector<float>, 2> pair(double rate, double seconds, double hzA, double dbA, double hzB, double dbB, bool midSide) {
+    const size_t length = size_t(rate * seconds);
+    std::array<std::vector<float>, 2> audio{std::vector<float>(length), std::vector<float>(length)};
+    const double ga = std::pow(10., dbA / 20.), gb = std::pow(10., dbB / 20.);
+    for (size_t i = 0; i < length; ++i) {
+        const double a = ga * std::sin(2. * pi * hzA * double(i) / rate), b = gb * std::sin(2. * pi * hzB * double(i) / rate);
+        audio[0][i] = float(midSide ? a + b : a); audio[1][i] = float(midSide ? a - b : b);
+    }
+    return audio;
+}
+void stereoLinkAndMidSide() {
+    constexpr double rate = 48000.;
+    const size_t tail = size_t(rate * 1.);
+    // Link: a loud left and a quiet right (below threshold).
+    double linked = 0., free = 0., half = 0., left = 0.;
+    for (const float link : {1.f, 0.f, .5f}) {
+        MultibandDynamicsCore core; core.prepare(rate); core.setSettings(stereoSettings(0, link, 0)); core.reset();
+        auto input = pair(rate, 1.5, 1000., -12., 1000., -48., false), output = input;
+        process(core, output, 2);
+        std::vector<double> inL(input[0].begin(), input[0].end()), inR(input[1].begin(), input[1].end()), outL(output[0].begin(), output[0].end()), outR(output[1].begin(), output[1].end());
+        const double l = 20. * std::log10(toneAmplitude(outL, rate, 1000., tail) / toneAmplitude(inL, rate, 1000., tail));
+        const double r = 20. * std::log10(toneAmplitude(outR, rate, 1000., tail) / toneAmplitude(inR, rate, 1000., tail));
+        (link == 1.f ? linked : link == 0.f ? free : half) = r;
+        if (link == 1.f) left = l;
+    }
+    std::cout << "MEASURE multiband link: loud left " << left << " dB; quiet right " << linked << " dB at 100 %, " << half << " dB at 50 %, " << free << " dB at 0 %\n";
+    check(std::abs(linked - left) < .05 && std::abs(free) < .05 && half < free - 1. && half > linked + 1., "Stereo link does not blend the detectors");
+    // M/S: a 1 kHz mid tone and a 1.5 kHz side tone, both loud; a band set to
+    // one of them leaves the other unchanged.
+    for (const int channels : {1, 2}) {
+        MultibandDynamicsCore core; core.prepare(rate); core.setSettings(stereoSettings(1, 1.f, channels)); core.reset();
+        auto input = pair(rate, 1.5, 1000., -12., 1500., -12., true), output = input;
+        process(core, output, 2);
+        std::vector<double> mid(output[0].size()), side(output[0].size());
+        for (size_t i = 0; i < mid.size(); ++i) {mid[i] = (double(output[0][i]) + output[1][i]) * .5; side[i] = (double(output[0][i]) - output[1][i]) * .5;}
+        const double m = 20. * std::log10(toneAmplitude(mid, rate, 1000., tail) / std::pow(10., -12. / 20.));
+        const double sd = 20. * std::log10(toneAmplitude(side, rate, 1500., tail) / std::pow(10., -12. / 20.));
+        std::cout << "MEASURE multiband M/S, band set to " << (channels == 1 ? "Mid" : "Side") << ": mid " << m << " dB, side " << sd << " dB\n";
+        check(channels == 1 ? (m < -6. && std::abs(sd) < .05) : (sd < -6. && std::abs(m) < .05), "A Mid- or Side-only band touches the other channel");
+    }
+    // M/S at unity returns the input: L/R -> M/S -> L/R rounds only where one
+    // channel is many orders of magnitude below the other.
+    {
+        auto settings = stereoSettings(1, 1.f, 0); settings.bands[2].bypass = true;
+        MultibandDynamicsCore core; core.prepare(rate); core.setSettings(settings); core.reset();
+        auto input = pair(rate, .5, 1000., -6., 1700., -9., false), output = input;
+        process(core, output, 2);
+        double worst = 0.;
+        for (size_t c = 0; c < 2; ++c) for (size_t i = 0; i < input[c].size(); ++i) worst = std::max(worst, std::abs(double(input[c][i]) - output[c][i]));
+        std::cout << "MEASURE multiband M/S at unity: largest |output - input| " << worst << "\n";
+        check(worst < 1e-12, "M/S at unity does not return the input");
+    }
+    // Switching L/R -> M/S mid-programme: fade out, 30 ms settle, fade in.
+    // During those ~50 ms the stage passes the input, so the level may rise to
+    // the unprocessed signal's; there must be no discontinuity: the output's
+    // second difference never exceeds the input's own.
+    {
+        MultibandDynamicsCore core; core.prepare(rate); core.setSettings(stereoSettings(0, 1.f, 0)); core.reset();
+        auto audio = pair(rate, 1.5, 1000., -12., 1500., -12., true);
+        const auto input = audio;
+        const auto curvature = [](const std::vector<float>& x, size_t from, size_t to) {
+            double m = 0.; for (size_t i = std::max<size_t>(from, 2); i < to; ++i) m = std::max(m, std::abs(double(x[i]) - 2. * x[i - 1] + x[i - 2])); return m; };
+        for (size_t offset = 0; offset < audio[0].size(); offset += 256) {
+            if (offset >= size_t(rate * .75)) core.setSettings(stereoSettings(1, 1.f, 2));
+            const int n = int(std::min<size_t>(256, audio[0].size() - offset));
+            float* buffers[2]{audio[0].data() + offset, audio[1].data() + offset};
+            countAllocations = true; core.process(buffers, 2, n); countAllocations = false;
+        }
+        const size_t from = size_t(rate * .75), to = size_t(rate * .9);
+        const double across = std::max(curvature(audio[0], from, to), curvature(audio[1], from, to));
+        const double reference = std::max(curvature(input[0], from, to), curvature(input[1], from, to));
+        std::cout << "MEASURE multiband L/R -> M/S switch: largest second difference during the change " << across << " (input's own " << reference << ")\n";
+        check(across <= 1.02 * reference, "Changing the stereo mode makes a discontinuity");
+    }
+    std::cout << "PASS multiband stereo link 0-100 %, Mid/Side-only bands, M/S at unity returns the input, click-free mode change\n";
+}
+
 int main() {
     try {
         const auto start = std::chrono::steady_clock::now();
@@ -503,6 +595,7 @@ int main() {
         curvesAndEnvelopes();
         deEsserSelectivity();
         automatedCrossoversAndInvalidParameters();
+        stereoLinkAndMidSide();
         check(allocations == 0, "Multiband or de-esser processing allocated memory");
         std::cout << "PASS no callback allocations; all independent dynamics core contracts ("
                   << std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count() << " s test runtime)\n";

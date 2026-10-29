@@ -19,7 +19,15 @@ Result render(int s,int m,PostNativeBank bank,int blockSize=128,double rate=4800
     result.meter=dsp.meter(s);result.gr=dsp.reduction(s);return result;
 }
 double difference(const Result& a,const Result& b){double sum=0;for(size_t i=4000;i<a.samples.size();++i){const double d=a.samples[i]-b.samples[i];sum+=d*d;}return std::sqrt(sum/(a.samples.size()-4000));}
-PostNativeBank usefulBank(int s,int m){auto b=defaultPostNativeState().sections[s].banks[m];b.bypass=false;if(s==0&&m==0){b.values[0]=-30;b.values[8]=1;}if(s==0&&m==1)b.values[0]=12;if(s==0&&m==2)b.values[1]=70;if(s==1&&m==1){b.values[1]=4;b.values[3]=1;}if(s==1&&m==2){b.values[0]=0;b.values[1]=2;}if(s==2&&m==0){b.values[0]=7;b.values[3]=9;b.values[6]=-8;b.values[9]=7;}if(s==2&&m==1){b.values[0]=7;b.values[1]=-8;b.values[3]=7;}if(s==2&&m==2){b.values[1]=6;b.values[2]=5;b.values[4]=7;b.values[6]=6;}return b;}
+PostNativeBank usefulBank(int s,int m){auto b=defaultPostNativeState().sections[s].banks[m];b.bypass=false;if(s==0&&m==0){b.values[0]=-30;b.values[8]=1;}if(s==0&&m==1)b.values[0]=12;if(s==0&&m==2)b.values[1]=70;if(s==1&&m==1){b.values[1]=4;b.values[3]=1;}if(s==1&&m==2){b.values[0]=0;b.values[1]=2;}if(s==2&&m==0){b.values[0]=7;b.values[3]=9;b.values[6]=-8;b.values[9]=7;}if(s==2&&m==1){b.values[0]=7;b.values[1]=-8;b.values[3]=7;}if(s==2&&m==2){b.values[1]=6;b.values[2]=5;b.values[4]=7;b.values[6]=6;}
+    // 1.7 expansion: engage the stages whose controls otherwise idle.
+    if(s==0&&m==3){b.values[2]=5;b.values[4]=20;}                // fast release: quiet gaps reach the gain limit
+    if(s==0&&m==4)b.values[3]=6;                                   // VAR release, so the variable time acts
+    if(s==0&&m==5){b.values[9]=1;b.values[6]=4;}                   // limiter in, low limit threshold
+    if(s==2&&m==3){b.values[1]=9;b.values[4]=8;b.values[6]=2;}     // +9 / +6 / -6 dB
+    if(s==2&&m==4){b.values[5]=10;b.values[0]=6;}                  // AIR gain, Sub boost
+    if(s==2&&m==5){b.values[0]=6;b.values[3]=5;b.values[5]=-5;b.values[7]=6;}
+    return b;}
 Result spatial(int family,int model,std::array<float,3> values) {
     ModulationModule mod;EchoModule echo;SpaceModule space;const juce::dsp::ProcessSpec spec{48000,128,2};
     mod.prepare(spec);echo.prepare(spec);space.prepare(spec);juce::AudioBuffer<float>b(2,128);Result result;
@@ -53,33 +61,37 @@ int main(){try{
     // host ID, including disabled hardware controls, must remain independent.
     std::set<std::string> ids;
     const auto addID=[&](const juce::String& id){check(ids.insert(id.toStdString()).second,"Duplicate POST host parameter: "+id.toStdString());};
-    for(int s=0;s<3;++s){addID(postNativeModeID(s));addID(postNativeModelID(s));for(int m=0;m<3;++m){addID(postNativeBypassID(s,m));addID(postNativeTrimID(s,m));addID(postNativeLevelID(s,m));for(int c=0;c<postNativeModel(s,m).controlCount;++c)addID(postNativeControlID(s,m,c));}}
-    check(ids.size()==105,"POST parameter inventory unexpectedly changed");
+    for(int s=0;s<3;++s){addID(postNativeModeID(s));addID(postNativeModelID(s));addID(postNativeModelExtensionID(s));for(int m=0;m<postNativeModelsPerSection;++m){addID(postNativeBypassID(s,m));addID(postNativeTrimID(s,m));addID(postNativeLevelID(s,m));for(int c=0;c<postNativeModel(s,m).controlCount;++c)addID(postNativeControlID(s,m,c));}}
+    size_t expansion=0;for(int s=0;s<3;++s){++expansion;for(int m=postNativeReleasedModelsPerSection;m<postNativeModelsPerSection;++m)expansion+=size_t(3+postNativeModel(s,m).controlCount);}
+    check(ids.size()==105+expansion,"POST parameter inventory unexpectedly changed");
     int controls=0,meters=0;double minimumControl=100;
-    for(int s=0;s<3;++s)for(int m=0;m<3;++m){const auto& model=postNativeModel(s,m);auto base=usefulBank(s,m);const auto reference=render(s,m,base);check(reference.leak==0,"stereo leakage");
+    for(int s=0;s<3;++s)for(int m=0;m<postNativeModelsPerSection;++m){const auto& model=postNativeModel(s,m);auto base=usefulBank(s,m);const auto reference=render(s,m,base);check(reference.leak==0,"stereo leakage");
         const auto partition=render(s,m,base,37);check(difference(reference,partition)<1.e-6,"host block dependence");
         for(int c=0;c<model.controlCount;++c){const auto& p=model.controls[c];if(!p.connected)continue;auto lo=base,hi=base;
             if(s==1&&m==2&&c==9)lo.values[0]=hi.values[0]=2; // Independent INST gain only acts on INST.
             lo.values[c]=p.minimum;hi.values[c]=p.maximum;
             const auto a=render(s,m,lo),b=render(s,m,hi);const double diff=difference(a,b);
             const bool meterOnly=std::string(p.id)=="meter"||(s==1&&m==2&&c==11);
+            // L/R LINK needs signal on both channels; this harness feeds the left only (ExpansionTests covers it).
+            if(s==0&&m==4&&std::string(p.id)=="link")continue;
             if(meterOnly){check(std::abs(a.meter-b.meter)>1.e-4||diff>1.e-5,"meter mode not connected");++meters;}
             else {std::cout<<"control "<<s<<"/"<<m<<" "<<p.id<<" residual="<<diff<<"\n";check(diff>1.e-6,"control not connected: "+std::string(model.name)+" / "+p.id);minimumControl=std::min(minimumControl,diff);++controls;}
         }
         auto bypass=base;bypass.bypass=true;const auto dry=render(s,m,bypass);for(size_t n=0;n<dry.samples.size();++n)check(dry.samples[n]==signal((int)n,48000),"bypass not exact");
-        if(s==0)check(reference.gr>.05f,"compressor GR missing");
+        // Polar Press boosts below its threshold; the last sample falls in a quiet gap (measured in PostExpansionTests).
+        if(s==0&&m!=3)check(reference.gr>.05f,"compressor GR missing");
     }
     int cases=0;float maximum=0;
     for(double rate:{44100.,48000.,96000.}){
         PostNativeDSP dsp;dsp.prepare({rate,128,2});auto state=defaultPostNativeState();juce::AudioBuffer<float> b(2,128);
-        for(int cycle=0;cycle<96;++cycle){for(int s=0;s<3;++s){auto& section=state.sections[s];section.selected=(cycle/4)%3;auto& bank=section.banks[section.selected];bank.bypass=(cycle%17)==0;bank.trimDb=(cycle%3-1)*24.f;bank.levelDb=(cycle%5==0)?24.f:0.f;for(int c=0;c<postNativeModel(s,section.selected).controlCount;++c){const auto& spec=postNativeModel(s,section.selected).controls[c];bank.values[c]=(cycle%2)?spec.minimum:spec.maximum;}}sanitisePostNativeState(state);
+        for(int cycle=0;cycle<96;++cycle){for(int s=0;s<3;++s){auto& section=state.sections[s];section.selected=(cycle/4)%postNativeModelsPerSection;auto& bank=section.banks[section.selected];bank.bypass=(cycle%17)==0;bank.trimDb=(cycle%3-1)*24.f;bank.levelDb=(cycle%5==0)?24.f:0.f;for(int c=0;c<postNativeModel(s,section.selected).controlCount;++c){const auto& spec=postNativeModel(s,section.selected).controls[c];bank.values[c]=(cycle%2)?spec.minimum:spec.maximum;}}sanitisePostNativeState(state);
             for(int n=0;n<128;++n){b.setSample(0,n,signal(cycle*128+n,rate)*4);b.setSample(1,n,-signal(cycle*128+n,rate)*2);}
             for(int s=0;s<3;++s)dsp.processSection(b,s,state.sections[s]);for(int c=0;c<2;++c)for(int n=0;n<128;++n){const float x=b.getSample(c,n);check(std::isfinite(x)&&std::abs(x)<=65,"stress overflow");maximum=std::max(maximum,std::abs(x));}++cases;
         }
     }
     // Reset eliminates prior model memory, and silence cannot generate signal.
-    for(int s=0;s<3;++s)for(int m=0;m<3;++m){PostNativeDSP dsp;dsp.prepare({48000,128,2});auto state=defaultPostNativeState();state.sections[s].selected=m;state.sections[s].banks[m]=usefulBank(s,m);juce::AudioBuffer<float>b(2,128);for(int k=0;k<20;++k){for(int c=0;c<2;++c)for(int n=0;n<128;++n)b.setSample(c,n,signal(k*128+n,48000));dsp.processSection(b,s,state.sections[s]);}dsp.reset();b.clear();dsp.processSection(b,s,state.sections[s]);check(b.getMagnitude(0,128)==0,"reset silence leakage");}
+    for(int s=0;s<3;++s)for(int m=0;m<postNativeModelsPerSection;++m){PostNativeDSP dsp;dsp.prepare({48000,128,2});auto state=defaultPostNativeState();state.sections[s].selected=m;state.sections[s].banks[m]=usefulBank(s,m);juce::AudioBuffer<float>b(2,128);for(int k=0;k<20;++k){for(int c=0;c<2;++c)for(int n=0;n<128;++n)b.setSample(c,n,signal(k*128+n,48000));dsp.processSection(b,s,state.sections[s]);}dsp.reset();b.clear();dsp.processSection(b,s,state.sections[s]);check(b.getMagnitude(0,128)==0,"reset silence leakage");}
     // POST retains the original fixed preamp latency even when its new bank is bypassed.
     {PostFXChain chain;chain.prepare({48000,128,2});FXState state;state.postNative=defaultPostNativeState();juce::AudioBuffer<float>b(2,128);b.clear();b.setSample(0,0,1);chain.process(b,state);int peak=0;for(int n=1;n<128;++n)if(std::abs(b.getSample(0,n))>std::abs(b.getSample(0,peak)))peak=n;check(peak==chain.latency(),"POST native preamp latency changed");}
-    std::cout<<"POST native PASS: models=9 audio_controls="<<controls<<" meter_controls="<<meters<<" min_control_residual="<<minimumControl<<" rate_switch_stress_blocks="<<cases<<" peak="<<maximum<<" stereo_leak=0\n";return 0;
+    std::cout<<"POST native PASS: models=18 audio_controls="<<controls<<" meter_controls="<<meters<<" min_control_residual="<<minimumControl<<" rate_switch_stress_blocks="<<cases<<" peak="<<maximum<<" stereo_leak=0\n";return 0;
 }catch(const std::exception& e){std::cerr<<"POST native FAIL: "<<e.what()<<"\n";return 1;}}

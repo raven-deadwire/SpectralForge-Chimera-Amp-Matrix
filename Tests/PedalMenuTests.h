@@ -96,7 +96,7 @@ inline void run() {
     check(!selector.selectMenuResult(0) && !selector.selectMenuResult(pedalModelCount+1),"Invalid pedal menu result accepted");
     for(int family=0;family<int(modelFamilies.size());++family) {
         const auto names=effectFamilyMenuNames(family);
-        check(names.size()==modelFamilies[(size_t)family].count,"Rack effect alias inventory incomplete");
+        check(names.size()==effectSelectableCount(family),"Rack effect alias inventory incomplete");
         for(int model=0;model<names.size();++model)
             check(!names[model].containsIgnoreCase(modelInfo(family,model).reference),"Rack selector exposes original reference");
     }

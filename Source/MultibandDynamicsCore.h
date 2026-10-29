@@ -27,12 +27,16 @@ struct MultibandBandSettings {
     float knee{6.f};
     float makeup{0.f};
     bool solo{false};
+    // 0: both channels, 1: mid (M/S) or left (L/R) only, 2: side or right only.
+    int channels{0};
 };
 
 struct MultibandSettings {
     bool on{false};
     float mix{1.f};
     int detector{1}; // 0: linked peak, 1: max of the two channel RMS detectors.
+    int stereo{0};   // 0: left/right, 1: mid/side (M = (L + R) / 2, S = (L - R) / 2).
+    float link{1.f}; // 1: both channels follow the louder detector; 0: each its own.
     std::array<float, 3> crossovers{120.f, 700.f, 3500.f};
     std::array<MultibandBandSettings, multibandBandCount> bands{};
 };
@@ -206,9 +210,29 @@ private:
 };
 
 struct Detector {
-    std::array<double, 2> energy{};
+    std::array<double, 2> energy{}, channelPeak{};
     double peak{};
-    void reset() noexcept { energy = {}; peak = 0.; }
+    void reset() noexcept { energy = {}; channelPeak = {}; peak = 0.; }
+    // Per-channel levels blended towards the louder one by `link` (amplitude).
+    // At link 1 both equal tick()'s linked level exactly: the maximum of
+    // per-channel peaks decayed alike is the shared decayed peak.
+    std::array<double, 2> levels(const std::array<double, 2>& sample, int channels, int mode,
+                                 double rmsCoefficient, double peakCoefficient, double link) noexcept {
+        std::array<double, 2> own{};
+        for (int c = 0; c < channels; ++c) {
+            const auto index = size_t(c);
+            const double x = sample[index];
+            energy[index] = rmsCoefficient * energy[index] + (1. - rmsCoefficient) * x * x;
+            if (energy[index] < 1.e-30) energy[index] = 0.;
+            channelPeak[index] = std::max(std::abs(x), channelPeak[index] * peakCoefficient);
+            if (channelPeak[index] < 1.e-30) channelPeak[index] = 0.;
+            own[index] = mode == 0 ? channelPeak[index] : std::sqrt(energy[index]);
+        }
+        if (channels == 1) { energy[1] = 0.; channelPeak[1] = 0.; return {own[0], own[0]}; }
+        const double linked = std::max(own[0], own[1]);
+        if (link >= 1.) return {linked, linked};
+        return {link * linked + (1. - link) * own[0], link * linked + (1. - link) * own[1]};
+    }
     double tick(const std::array<double, 2>& sample, int channels, int mode,
                 double rmsCoefficient, double peakCoefficient) noexcept {
         double peakSample = 0., maximumEnergy = 0.;
@@ -243,6 +267,7 @@ inline MultibandBandSettings sanitiseBand(MultibandBandSettings s) noexcept {
     s.release = float(finiteClamp(s.release, 5., 2000., 120.));
     s.knee = float(finiteClamp(s.knee, 0., 24., 6.));
     s.makeup = float(finiteClamp(s.makeup, -24., 24., 0.));
+    s.channels = std::clamp(s.channels, 0, 2);
     return s;
 }
 
@@ -256,6 +281,16 @@ public:
         initialized=false; countdown=0;
     }
     void invalidateSchedule() noexcept { countdown=0; }
+    // Gain schedule (not the filter states) shared by both channels while
+    // their band gains are equal; one calculation serves both.
+    void copySchedule(const MinimumPhaseSynthesis& o) noexcept {
+        weight=o.weight; overall=o.overall; targetGain=o.targetGain; gainStep=o.gainStep;
+        weightStep=o.weightStep; targetWeight=o.targetWeight; countdown=o.countdown; initialized=o.initialized;
+    }
+    bool sameSchedule(const MinimumPhaseSynthesis& o) const noexcept {
+        return weight==o.weight && overall==o.overall && targetGain==o.targetGain && gainStep==o.gainStep
+            && weightStep==o.weightStep && targetWeight==o.targetWeight && countdown==o.countdown && initialized==o.initialized;
+    }
     void unity() noexcept {
         weight={}; overall=1.; initialized=true; countdown=0;
     }
@@ -424,6 +459,8 @@ public:
         settings = next;
         settings.mix = float(finiteClamp(settings.mix, 0., 1., 1.));
         settings.detector = std::clamp(settings.detector, 0, 1);
+        settings.stereo = std::clamp(settings.stereo, 0, 1);
+        settings.link = float(finiteClamp(settings.link, 0., 1., 1.));
         settings.crossovers = validatedCrossovers(settings.crossovers, rate);
         for (auto& b : settings.bands) b = sanitiseBand(b);
     }
@@ -435,6 +472,7 @@ public:
         rate = validRate(sampleRate);
         setSettings(settings);
         rampSamples = std::max(1, int(std::ceil(rate * .01)));
+        settleSamples = std::max(1, int(std::ceil(rate * .03)));
         synthesisInterval = std::max(1, int(std::ceil(rate / 6000.)));
         rmsCoefficient = coefficient(rate, 5.);
         peakCoefficient = coefficient(rate, 30.);
@@ -447,18 +485,20 @@ public:
             frequencies[i].prepare(rate, settings.crossovers[i]);
         wet.reset(settings.on ? 1. : 0.);
         lastOn=settings.on;
+        domain = settings.stereo; switching = 0; settleLeft = 0;
         mix.reset(settings.mix);
         const bool solo = anySolo();
         for (size_t i = 0; i < bandState.size(); ++i) {
             auto& s = bandState[i];
             s.detector.reset();
-            s.gainDB = 0.;
+            s.gainDB = {};
             s.makeup.reset(settings.bands[i].makeup);
             s.wet.reset(settings.bands[i].bypass ? 0. : 1.);
             s.solo.reset(!solo || settings.bands[i].solo ? 1. : 0.);
         }
         meters = {};
-        synthesis.reset();
+        for (auto& synthesis : synth) synthesis.reset();
+        shared = true;
     }
 
     // In-place mono/stereo; extra channels are untouched. Size is independent
@@ -470,22 +510,33 @@ public:
         if (channels == 0 || sampleCount <= 0 || audio == nullptr) return;
         for (int c = 0; c < channels; ++c) if (audio[c] == nullptr) return;
 
-        if (settings.on && wet.value() == 0. && !wet.moving()) {
-            for (auto& split : splitter) split.reset();
-            for (auto& state : bandState) { state.detector.reset(); state.gainDB = 0.; }
+        // A stereo-domain change (L/R <-> M/S) while running fades the wet
+        // path out, swaps the domain, feeds the new domain silently for 30 ms
+        // so its filters settle, and fades back in. Switched off, it swaps at once.
+        const bool stereo = channels == 2;
+        if (settings.stereo != domain && switching == 0) {
+            if (!settings.on && !wet.moving()) domain = settings.stereo;
+            else switching = 1;
         }
-        if (settings.on != lastOn) { synthesis.invalidateSchedule(); lastOn=settings.on; }
-        wet.setTarget(settings.on ? 1. : 0., rampSamples);
+        if (settings.on && wet.value() == 0. && !wet.moving() && switching == 0) {
+            for (auto& split : splitter) split.reset();
+            for (auto& state : bandState) { state.detector.reset(); state.gainDB = {}; }
+        }
+        if (settings.on != lastOn) { for (auto& synthesis : synth) synthesis.invalidateSchedule(); lastOn=settings.on; }
+        wet.setTarget(settings.on && switching == 0 ? 1. : 0., rampSamples);
         if (!settings.on && !wet.moving()) {
             meters = {};
             std::array<const SVFCoefficients*,3> c{};
             // Keep only six fixed synthesis SVFs/channel warm. OFF samples are
             // never rewritten; analysis/detectors remain asleep until enabled.
-            synthesis.unity();
+            if (switching != 0) { domain = settings.stereo; switching = 0; }
+            for (auto& synthesis : synth) synthesis.unity();
+            shared = true;
             for(int n=0;n<sampleCount;++n) {
                 for(size_t i=0;i<3;++i)c[i]=&frequencies[i].next();
+                const auto in = domainInput(audio, channels, n, stereo);
                 for(int channel=0;channel<channels;++channel)
-                    synthesis.warm(std::isfinite(audio[channel][n])?audio[channel][n]:0.,channel,c);
+                    synth[size_t(channel)].warm(in[size_t(channel)],channel,c);
             }
             return;
         }
@@ -508,35 +559,39 @@ public:
             std::array<const SVFCoefficients*, 3> coefficients{};
             for (size_t i = 0; i < frequencies.size(); ++i)
                 coefficients[i] = &frequencies[i].next();
-            std::array<double, 2> dry{};
+            // Domain samples: L/R as they are, or M/S. In double, M + S and M - S
+            // return L and R except for rounding (below 1e-16) where one channel
+            // is many orders of magnitude smaller than the other.
+            const auto dry = domainInput(audio, channels, n, stereo);
             std::array<std::array<double, 4>, 2> samples{};
-            for (int c = 0; c < channels; ++c) {
-                const auto index = size_t(c);
-                dry[index] = std::isfinite(audio[c][n]) ? double(audio[c][n]) : 0.;
-                samples[index] = splitter[index].tick(dry[index], coefficients);
-            }
-            std::array<double, 4> gains{};
+            for (int c = 0; c < channels; ++c) samples[size_t(c)] = splitter[size_t(c)].tick(dry[size_t(c)], coefficients);
+            std::array<std::array<double, 4>, 2> gains{};
             const double parallel = mix.next();
             for (size_t i = 0; i < bandState.size(); ++i) {
                 auto& state = bandState[i];
                 const auto& v = settings.bands[i];
                 const std::array<double, 2> detectorInput{samples[0][i], samples[1][i]};
-                const double level = state.detector.tick(detectorInput, channels,
-                    settings.detector, rmsCoefficient, peakCoefficient);
-                const double desired = v.bypass ? 0. : dynamicsGainDB(levelDB(level), v);
-                const bool increasing = std::abs(desired) > std::abs(state.gainDB)
-                                     || desired * state.gainDB < 0.;
-                const double smoothing = increasing ? state.attack : state.release;
-                state.gainDB = desired + smoothing * (state.gainDB - desired);
-                if (std::abs(state.gainDB) < 1.e-10) state.gainDB = 0.;
+                const auto level = state.detector.levels(detectorInput, channels,
+                    settings.detector, rmsCoefficient, peakCoefficient, settings.link);
                 const double bandWet = state.wet.next();
                 const double makeup = state.makeup.next();
-                const double branch = gainFromDB(state.gainDB + makeup);
-                // The dry component is each identically phase-compensated band,
-                // not unfiltered input. Parallel mix therefore cannot comb.
-                const double gain = (1. + parallel * bandWet * (branch - 1.))
-                                  * state.solo.next();
-                gains[i] = gain;
+                const double solo = state.solo.next();
+                for (int c = 0; c < 2; ++c) {
+                    const auto index = size_t(c);
+                    // A band set to one channel leaves the other at unity (and
+                    // without makeup), so that channel passes unchanged.
+                    const bool processed = v.channels == 0 || v.channels == c + 1 || channels == 1;
+                    const double desired = v.bypass || !processed ? 0. : dynamicsGainDB(levelDB(level[index]), v);
+                    auto& g = state.gainDB[index];
+                    const bool increasing = std::abs(desired) > std::abs(g) || desired * g < 0.;
+                    const double smoothing = increasing ? state.attack : state.release;
+                    g = desired + smoothing * (g - desired);
+                    if (std::abs(g) < 1.e-10) g = 0.;
+                    const double branch = gainFromDB(g + (processed ? makeup : 0.));
+                    // The dry component is each identically phase-compensated band,
+                    // not unfiltered input. Parallel mix therefore cannot comb.
+                    gains[index][i] = (1. + parallel * bandWet * (branch - 1.)) * solo;
+                }
             }
             const double active = wet.next();
             // Approximately 6 kHz control rate at every sample rate; interpolation
@@ -547,20 +602,37 @@ public:
             const double future=fade(wet.valueAfter(length-1));
             const double amount=fade(active);
             auto forecast=gains;
-            for(size_t i=0;i<gains.size();++i) {
-                forecast[i]=1.+future*(gains[i]-1.);
-                gains[i]=1.+amount*(gains[i]-1.);
+            for(size_t c=0;c<2;++c)for(size_t i=0;i<4;++i) {
+                forecast[c][i]=1.+future*(gains[c][i]-1.);
+                gains[c][i]=1.+amount*(gains[c][i]-1.);
             }
-            synthesis.configure(gains, forecast, coefficients,length);
-            for (int c = 0; c < channels; ++c) {
-                const auto index = size_t(c);
-                const double result = synthesis.tick(dry[index], c, coefficients);
-                if(active>0.) audio[c][n] = safeOutput(result);
+            // Equal channel gains: one schedule for both (the linked default,
+            // bit-identical to a single shared synthesis).
+            if (shared && (channels == 1 || (gains[0] == gains[1] && forecast[0] == forecast[1]))) {
+                synth[0].configure(gains[0], forecast[0], coefficients, length);
+                synth[1].copySchedule(synth[0]);
+            } else {
+                for (size_t c = 0; c < 2; ++c) synth[c].configure(gains[c], forecast[c], coefficients, length);
+                shared = gains[0] == gains[1] && forecast[0] == forecast[1] && synth[0].sameSchedule(synth[1]);
+            }
+            std::array<double, 2> wetOut{};
+            for (int c = 0; c < channels; ++c) wetOut[size_t(c)] = synth[size_t(c)].tick(dry[size_t(c)], c, coefficients);
+            if (stereo && domain == 1) wetOut = {wetOut[0] + wetOut[1], wetOut[0] - wetOut[1]};
+            for (int c = 0; c < channels; ++c) if(active>0.) audio[c][n] = safeOutput(wetOut[size_t(c)]);
+            if (switching == 1 && wet.value() == 0. && !wet.moving()) {
+                // Faded out: change domain, settle silently, then fade in.
+                domain = settings.stereo; switching = 2; settleLeft = settleSamples;
+                for (auto& state : bandState) { state.detector.reset(); state.gainDB = {}; }
+            } else if (switching == 2 && --settleLeft <= 0) {
+                switching = 0;
+                if (settings.on) wet.setTarget(1., rampSamples);
             }
         }
         for(size_t i=0;i<bandState.size();++i) {
             const auto& state=bandState[i];
-            meters[i]=float(-levelDB(1.+mix.value()*state.wet.value()*(gainFromDB(state.gainDB)-1.)));
+            // The more reduced channel's change.
+            const double g = std::abs(state.gainDB[0]) >= std::abs(state.gainDB[1]) ? state.gainDB[0] : state.gainDB[1];
+            meters[i]=float(-levelDB(1.+mix.value()*state.wet.value()*(gainFromDB(g)-1.)));
         }
         if (!settings.on && !wet.moving()) meters = {};
     }
@@ -577,8 +649,15 @@ private:
     struct BandState {
         multiband_detail::Detector detector;
         multiband_detail::Ramp makeup, wet, solo;
-        double gainDB{}, attack{}, release{};
+        std::array<double, 2> gainDB{};
+        double attack{}, release{};
     };
+    std::array<double, 2> domainInput(float* const* audio, int channels, int n, bool stereo) const noexcept {
+        std::array<double, 2> x{};
+        for (int c = 0; c < channels; ++c) x[size_t(c)] = std::isfinite(audio[c][n]) ? double(audio[c][n]) : 0.;
+        if (stereo && domain == 1) return {(x[0] + x[1]) * .5, (x[0] - x[1]) * .5};
+        return x;
+    }
     bool anySolo() const noexcept {
         for (const auto& b : settings.bands) if (b.solo) return true;
         return false;
@@ -586,13 +665,14 @@ private:
 
     MultibandSettings settings{};
     double rate{48000.}, rmsCoefficient{}, peakCoefficient{};
-    int rampSamples{480}, synthesisInterval{8};
-    bool lastOn{};
+    int rampSamples{480}, synthesisInterval{8}, settleSamples{1440};
+    bool lastOn{}, shared{true};
+    int domain{0}, switching{0}, settleLeft{0};   // switching: 0 idle, 1 fading out, 2 settling
     std::array<multiband_detail::CrossoverFrequency, 3> frequencies;
     std::array<multiband_detail::FourBandSplit, 2> splitter;
     std::array<BandState, multibandBandCount> bandState;
     multiband_detail::Ramp wet, mix;
-    multiband_detail::MinimumPhaseSynthesis synthesis;
+    std::array<multiband_detail::MinimumPhaseSynthesis, 2> synth;
     std::array<float, multibandBandCount> meters{};
 };
 

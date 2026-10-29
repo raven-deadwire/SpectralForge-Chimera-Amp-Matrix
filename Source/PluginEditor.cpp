@@ -348,15 +348,17 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
         if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);
     };
-    constexpr std::array<const char*,6> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER"};
-    constexpr std::array<const char*,6> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser"};
-    constexpr std::array<const char*,6> dynamicsHelp{
+    constexpr std::array<const char*,8> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER","SATURATION","FILTER"};
+    constexpr std::array<const char*,8> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser","saturation","filter"};
+    constexpr std::array<const char*,8> dynamicsHelp{
         "Open the gates: separate PRE RIG and POST RIG gates that can run together.",
         "Open the downward expander. It runs together with the gates, before or after the rig.",
         "Open the common compressor after Tone EQ. PRE, POST and Matrix LOW retain their own controls.",
         "Open the final-output sample-peak limiter.",
         "Open four-band dynamics and crossover controls.",
-        "Open high-band de-esser controls."};
+        "Open high-band de-esser controls.",
+        "Open three-band saturation: per-band type and drive, Live or Studio 4x.",
+        "Open the two-filter processor: LP/HP/BP/notch with LFO and envelope modulation."};
     for(size_t i=0;i<dynamicsEntries.size();++i) {
         auto& entry=dynamicsEntries[i];add(entry);
         entry.setButtonText(dynamicsTitles[i]);
@@ -380,10 +382,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         effect.header.setTooltip(descriptions[i]);add(effect.header);add(effect.scope);add(effect.description);add(effect.enabled);effect.enabled.setClickingTogglesState(true);
         effect.enabled.setComponentID(effectButtons[i]);effect.button=std::make_unique<BA>(p.parameters(),effectButtons[i],effect.enabled);
         effect.model.setName(juce::String(spectralforge::modelFamilies[i].category)+" model");effect.model.setComponentID(spectralforge::modelFamilies[i].parameter);const auto menuNames=spectralforge::effectFamilyMenuNames((int)i);
-        if(i==10){const std::array<const char*,5> groups{"Chorus","Phaser","Flanger","Vibrato","Tremolo"};for(int group=0;group<5;++group){juce::PopupMenu items;for(int m=0;m<menuNames.size();++m)if((m<2?0:m-1)==group)items.addItem(m+1,menuNames[m]);effect.model.getRootMenu()->addSubMenu(groups[(size_t)group],items);}}
-        else if(i==1 || i==2){const std::array<const char*,3> types=i==1?std::array<const char*,3>{"Digital","Tape","Analog"}:std::array<const char*,3>{"Plate","Hall","Spring"};for(int m=0;m<menuNames.size();++m){juce::PopupMenu items;items.addItem(m+1,menuNames[m]);effect.model.getRootMenu()->addSubMenu(types[(size_t)m],items);}}
+        if(i==1 || i==2 || i==10)spectralforge::buildExtendedEffectMenu(*effect.model.getRootMenu(),(int)i);
         else {effect.model.getRootMenu()->addSectionHeader(effectHeaders[i]);effect.model.addItemList(menuNames,1);}add(effect.model);
-        effect.modelAttachment=std::make_unique<CA>(p.parameters(),spectralforge::modelFamilies[i].parameter,effect.model);
+        if(spectralforge::effectFamilyExtended((int)i))effect.modelSync=std::make_unique<spectralforge::ExtendedEffectModelSync>(p.parameters(),(int)i,effect.model);
+        else effect.modelAttachment=std::make_unique<CA>(p.parameters(),spectralforge::modelFamilies[i].parameter,effect.model);
         effect.model.onChange=[this]{stateDirty=true;};
         const bool pedal=i==0 || (i>=3 && i<=6);effect.enabled.getProperties().set("footswitch",pedal);
         for(size_t k=0;k<5;++k) {
@@ -502,6 +504,8 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.load.setTooltip("Open the cabinet room, large cabinet/microphone editor and separate IR Loader.");
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
+    creativeStrip=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor);add(*creativeStrip);creativeStrip->onOpen=[this]{openCreativePanel();};
+    synthStrip=std::make_unique<spectralforge::synthUI::SynthStrip>(processor);add(*synthStrip);synthStrip->onOpen=[this]{openSynthPanel();};
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
     setResizable(true,true); setResizeLimits(480,320,1770,1170);
@@ -563,6 +567,7 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
     switch(node.target){
         case Target::pre:page=1;break;
         case Target::post:page=2;break;
+        case Target::synth:page=0;break;
         case Target::toneEQ:case Target::finalEQ:page=3;selectedEQBank=node.target==Target::toneEQ?0:1;break;
         case Target::dynamics:page=3;dynamicsViewOpen=true;break;
         case Target::gate:page=3;dynamicsViewOpen=true;break;
@@ -601,10 +606,12 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::output:focus(globalSliders[6]);break;
         case Target::tuner:{if(!tunerViewOpen)tunerOpen.onClick();break;}
         case Target::utilities:focus(doublerTime);break;
+        case Target::synth:focus(synthStrip->modelBox());break;   // ALL on the strip opens the full panel
         case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
         case Target::post:
             if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}
-            else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
+            else if(node.section==spectralforge::signalPath::creativeSection){focus(creativeStrip->modelBox());}
+            else if(node.section>=3 && node.section<6){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
             break;
         default:break;
     }
@@ -899,6 +906,8 @@ void ChimeraEditor::updateModeUI()
         for(int k=0;k<5;++k){const bool visible=show && effect.attachments[(size_t)k]!=nullptr;effect.controls[k].setVisible(visible);effect.labels[k].setVisible(visible);}
     }
     for(auto& post:postPanels) {post->setVisible(page==2 && !tunerViewOpen);post->refreshIfNeeded();}
+    creativeStrip->setVisible(page==2 && !tunerViewOpen);
+    synthStrip->setVisible(page==0 && !tunerViewOpen && !(cabRoom && cabRoom->isVisible()));
     for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(false);
     for(int i=0;i<3;++i)
     {
@@ -1041,7 +1050,7 @@ void ChimeraEditor::layoutControls()
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
     for(auto& eq:eqPanels)eq->setBounds(20,330,1140,412);
     for(size_t i=0;i<dynamicsEntries.size();++i)
-        dynamicsEntries[i].setBounds(182+int(i%2)*118,112+int(i/2)*46,112,38);
+        dynamicsEntries[i].setBounds(182+int(i%2)*118,110+int(i/2)*34,112,30);
     dynamicsPanel->setBounds(20,330,1140,412);
     signalPath->setBounds(20,253,1140,44);
     precisionTuner->setBounds(20,330,1140,412);
@@ -1067,6 +1076,8 @@ void ChimeraEditor::layoutControls()
     easyOpen.setBounds(714,748,86,28);
     inputGuide.setBounds(16,2,456,60);
     for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
+    creativeStrip->setBounds(310,302,850,24);
+    synthStrip->setBounds(310,302,850,24);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
         effect.header.setBounds(48,y+2,186,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
@@ -1266,4 +1277,18 @@ void ChimeraEditor::publishAutoSetStatus()
 void ChimeraEditor::markPresetCustom()
 {
     presetValues.clear();presets.setSelectedId(0,juce::dontSendNotification);presets.setText("CUSTOM",juce::dontSendNotification);presets.setTooltip("Edited sound or recalled reference. SAVE AS preserves the complete sound and embedded IRs.");
+}
+
+void ChimeraEditor::openCreativePanel()
+{
+    auto* full=new spectralforge::creativeUI::CreativePanel(processor);full->setLookAndFeel(&look);
+    juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="CHIMERA / CREATIVE";options.dialogBackgroundColour=panel;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
+}
+
+void ChimeraEditor::openSynthPanel()
+{
+    auto* full=new spectralforge::synthUI::SynthPanel(processor);full->setLookAndFeel(&look);
+    juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="CHIMERA / SYNTH LAYER";options.dialogBackgroundColour=panel;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
 }

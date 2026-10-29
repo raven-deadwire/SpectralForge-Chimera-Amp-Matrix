@@ -1,10 +1,12 @@
 #pragma once
+#include "PostInsert.h"
 #include "GlobalDSP.h"
 #include "StudioModules.h"
 #include "PostNativeDSP.h"
 
 namespace spectralforge {
 struct FXState {
+    double tempo{120};   // host / internal tempo for tempo-synced POST processors
     PostNativeState postNative=defaultPostNativeState(false);
     bool envelopeFirst{true};
     bool boostAfterDrive{false};
@@ -151,7 +153,8 @@ class PostFXChain {
     float busReduction{};
     DynamicsAnalysis* analysis{};
     template<class Legacy> void processRack(juce::AudioBuffer<float>& buffer,int section,const FXState& state,Legacy&& legacy) {
-        const bool useNative=state.postNative.sections[section].nativeEnabled;
+        // Expansion models (3-5) exist only on the native engine.
+        const bool useNative=state.postNative.sections[section].nativeEnabled || state.postNative.sections[section].selected>=postNativeReleasedModelsPerSection;
         const int requestedSource=analysis?analysis->postNativeSource.load(std::memory_order_relaxed):-1;
         DynamicsAnalysis::Scope capture(section==0 && (requestedSource<0 || requestedSource==int(useNative))?analysis:nullptr,DynamicsStage::postCompressor,buffer);
         auto& mix=nativeMix[section];
@@ -161,7 +164,10 @@ class PostFXChain {
         if(section==0)busReduction=useNative?native.reduction():compressor.reduction();
     }
     ModulationModule modulation;EchoModule echo;SpaceModule space;
+    PostInsert* creative{};
 public:
+    // 1.9 CREATIVE slot (docs/CREATIVE_1_9.md), owned by the processor: after DELAY, before REVERB.
+    void setCreative(PostInsert* slot) noexcept {creative=slot;}
     void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
     std::array<float,6> stagePeaks{};
     float compressorReduction() const {return busReduction;}
@@ -179,6 +185,7 @@ public:
         modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);
         stagePeaks[3]=buffer.getMagnitude(0,buffer.getNumSamples());
         echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);
+        if(creative)creative->process(buffer,state.tempo);
         stagePeaks[4]=buffer.getMagnitude(0,buffer.getNumSamples());
         space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);
         stagePeaks[5]=buffer.getMagnitude(0,buffer.getNumSamples());

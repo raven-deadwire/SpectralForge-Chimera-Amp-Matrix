@@ -16,6 +16,9 @@
 #include "AutoSetController.h"
 #include "AccessibleViewport.h"
 #include "EasyModeView.h"
+#include "EffectModelSync.h"
+#include "CreativePanel.h"
+#include "SynthPanel.h"
 
 class CabRoomOverview;
 
@@ -150,14 +153,16 @@ private:
     juce::ScopedMessageBox matchWarning;
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     // Direct navigation only: these never toggle audio processing.
-    static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,6> dynamicsEntryPages{
+    static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,8> dynamicsEntryPages{
         spectralforge::CommonDynamicsPanel::Page::gate,
         spectralforge::CommonDynamicsPanel::Page::expander,
         spectralforge::CommonDynamicsPanel::Page::compressor,
         spectralforge::CommonDynamicsPanel::Page::limiter,
         spectralforge::CommonDynamicsPanel::Page::multiband,
-        spectralforge::CommonDynamicsPanel::Page::deesser};
-    std::array<juce::TextButton,6> dynamicsEntries;
+        spectralforge::CommonDynamicsPanel::Page::deesser,
+        spectralforge::CommonDynamicsPanel::Page::saturation,
+        spectralforge::CommonDynamicsPanel::Page::filter};
+    std::array<juce::TextButton,8> dynamicsEntries;
     void updateDynamicsEntries();
     std::unique_ptr<spectralforge::CommonDynamicsPanel> dynamicsPanel;
     std::unique_ptr<spectralforge::autoset::Controller> autoSetController; // after dynamicsPanel: destroyed first
@@ -183,6 +188,7 @@ private:
         juce::Label header,scope,description;
         juce::ComboBox model;
         std::unique_ptr<CA> modelAttachment;
+        std::unique_ptr<spectralforge::ExtendedEffectModelSync> modelSync; // DELAY / REVERB / MODULATION: released choice + extension
         juce::TextButton enabled{"ON"},expand{"ALL"};
         std::array<juce::Slider,5> controls;
         std::array<juce::Label,5> labels;
@@ -190,6 +196,10 @@ private:
         std::unique_ptr<BA> button;
     };
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
+    std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip;
+    void openCreativePanel();
+    std::unique_ptr<spectralforge::synthUI::SynthStrip> synthStrip;
+    void openSynthPanel();
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};
