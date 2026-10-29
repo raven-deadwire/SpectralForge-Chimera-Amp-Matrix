@@ -62,6 +62,27 @@ struct SignalOrder {
     bool operator==(const SignalOrder&) const = default;
 };
 
+// 1.9 routing polish (docs/MODULATION_1_9.md): named orders for each region,
+// applied as one order command (one undo entry).
+struct OrderPreset { const char* name; std::array<int, postModuleCount> slots; };
+inline const std::array<OrderPreset, 4>& tonePresets() {
+    static const std::array<OrderPreset, 4> presets{{
+        {"Released order", {toneEQModule, compressorModule, multibandModule, saturationModule, filterModule, deesserModule}},
+        {"Dynamics before Tone EQ", {compressorModule, multibandModule, toneEQModule, saturationModule, filterModule, deesserModule}},
+        {"Colour last (saturation and filter after the dynamics)", {toneEQModule, compressorModule, multibandModule, deesserModule, filterModule, saturationModule}},
+        {"De-ess first", {deesserModule, toneEQModule, compressorModule, multibandModule, saturationModule, filterModule}}}};
+    return presets;
+}
+inline const std::array<OrderPreset, 4>& postPresets() {
+    static const std::array<OrderPreset, 4> presets{{
+        {"Released order", {postDynamicsModule, postPreampModule, postEQModule, postModulationModule, postDelayModule, postCreativeModule, postReverbModule}},
+        {"POST EQ before dynamics", {postEQModule, postDynamicsModule, postPreampModule, postModulationModule, postDelayModule, postCreativeModule, postReverbModule}},
+        {"Modulation after the delay and reverb", {postDynamicsModule, postPreampModule, postEQModule, postDelayModule, postCreativeModule, postReverbModule, postModulationModule}},
+        {"Reverb into delay", {postDynamicsModule, postPreampModule, postEQModule, postModulationModule, postReverbModule, postDelayModule, postCreativeModule}}}};
+    return presets;
+}
+inline const std::array<OrderPreset, 4>& orderPresets(OrderRegion r) { return r == OrderRegion::tone ? tonePresets() : postPresets(); }
+
 // Click-safe change at a region's output: fade out (5 ms, raised cosine),
 // switch at silence, fade in (5 ms). The switch happens at a block boundary,
 // so a dip lasts at most 10 ms plus the rest of the block in which silence is

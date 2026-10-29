@@ -135,17 +135,26 @@ public:
         // Two-filter modulation (docs/FILTER_MODULATION_1_7.md).
         toggle(fltOn,"FILTER ON","fltOn");
         fltOn.setTooltip("Turn both filters on or off with a 10 ms crossfade. Off leaves the signal untouched.");
-        fltSelector.addItemList({"Filter A","Filter B"},1);
+        fltSelector.addItemList({"Filter A","Filter B","Modulation"},1);   // Modulation: the 1.9 LFO 2 / lock / retrigger / envelope source
         fltSelector.setComponentID("commonDynamics.filterUnit");fltSelector.setSelectedId(1,juce::dontSendNotification);addChildComponent(fltSelector);
-        fltSelector.onChange=[this]{selectedFilter=std::clamp(fltSelector.getSelectedId()-1,0,1);syncPage();refresh();};
+        fltSelector.onChange=[this]{selectedFilter=std::clamp(fltSelector.getSelectedId()-1,0,filterCount);syncPage();refresh();};
         choice(fltRouting,"fltRouting",filterRoutingNames());
         fltRouting.setTooltip("Serial: A feeds B. Parallel: A and B both hear the input and are averaged.");
         choice(fltLfoShape,"fltLfoShape",filterLfoShapeNames());choice(fltLfoSync,"fltLfoSync",filterLfoSyncNames());
         fltLfoShape.setTooltip("LFO waveform shared by both filters.");
-        fltLfoSync.setTooltip("Free uses LFO Rate. A note value follows the host or Chimera tempo; the LFO is not locked to the bar position.");
+        fltLfoSync.setTooltip("Free uses LFO Rate. A note value follows the host or Chimera tempo; LOCK TO BAR aligns it to the host position.");
+        // 1.9 expanded modulation (docs/MODULATION_1_9.md).
+        choice(fltLfo2Shape,"fltLfo2Shape",filterLfoShapeNames());choice(fltLfo2Sync,"fltLfo2Sync",filterLfoSyncNames());
+        fltLfo2Shape.setTooltip("LFO 2 waveform, shared by both filters (each has its own LFO 2 amount).");
+        fltLfo2Sync.setTooltip("Free uses LFO 2 rate; a note value follows the tempo.");
+        toggle(fltLock,"LOCK TO BAR","fltLfoLock");toggle(fltRetrigger,"RETRIGGER","fltLfoRetrigger");
+        fltLock.setTooltip("Synced LFOs follow the host's bar position while the transport plays, so they land on the same beat every pass.");
+        fltRetrigger.setTooltip("Restart both LFOs on each attack (when not locked to the bar).");
+        choice(fltEnvSource,"fltEnvSource",filterEnvelopeSourceNames());
+        fltEnvSource.setTooltip("The envelope follower listens to this processor's own signal, or to the plugin's Sidechain input when the host connects one.");
         control(fltMix,"fltMix","Mix %");control(fltOutput,"fltOutput","Output dB");
-        constexpr std::array<const char*,5> modIDs{"fltLfoRate","fltLfoStereo","fltEnvAttack","fltEnvRelease","fltEnvSensitivity"};
-        constexpr std::array<const char*,5> modNames{"LFO rate Hz","LFO stereo deg","Env attack ms","Env release ms","Env sensitivity dB"};
+        constexpr std::array<const char*,6> modIDs{"fltLfoRate","fltLfoStereo","fltEnvAttack","fltEnvRelease","fltEnvSensitivity","fltLfo2Rate"};
+        constexpr std::array<const char*,6> modNames{"LFO rate Hz","LFO stereo deg","Env attack ms","Env release ms","Env sensitivity dB","LFO 2 rate Hz"};
         for(size_t i=0;i<fltMod.size();++i)control(fltMod[i],modIDs[i],modNames[i]);
         fltMod[1].slider.setTooltip("Phase offset of the right channel's LFO; 180 sweeps the two channels in opposite directions.");
         fltMod[4].slider.setTooltip("Gain into the envelope follower. The follower reaches full scale at 0 dBFS with 0 dB sensitivity.");
@@ -153,11 +162,13 @@ public:
             auto& ui=fltUnits[size_t(f)];
             toggle(ui.on,f==0?"FILTER A ON":"FILTER B ON",filterID(f,"on"));
             choice(ui.type,filterID(f,"type"),filterTypeNames());choice(ui.slope,filterID(f,"slope"),filterSlopeNames());
-            constexpr std::array<const char*,4> fields{"cutoff","resonance","lfo","env"};
-            constexpr std::array<const char*,4> labels{"Cutoff Hz","Resonance %","LFO amount oct","Envelope amount oct"};
+            constexpr std::array<const char*,6> fields{"cutoff","resonance","lfo","env","lfo2","drive"};
+            constexpr std::array<const char*,6> labels{"Cutoff Hz","Resonance %","LFO amount oct","Envelope amount oct","LFO 2 amount oct","Drive %"};
             for(size_t i=0;i<ui.controls.size();++i)control(ui.controls[i],filterID(f,fields[i]),labels[i]);
             ui.controls[2].slider.setTooltip("How far the LFO moves this cutoff, in octaves each way.");
             ui.controls[3].slider.setTooltip("How far the envelope moves this cutoff at full level, in octaves. Negative values close it.");
+            ui.controls[4].slider.setTooltip("How far LFO 2 moves this cutoff, in octaves each way.");
+            ui.controls[5].slider.setTooltip("Soft saturation ahead of this filter, unity at full scale. 0 % is exact bypass.");
         }
         toggle(deEsserOn,"DE-ESSER ON","deEsserOn");toggle(deEsserListen,"LISTEN","deEsserListen");
         constexpr std::array<const char*,7> deIDs{"deEsserFrequency","deEsserThreshold","deEsserRange","deEsserRatio","deEsserAttack","deEsserRelease","deEsserKnee"};
@@ -275,7 +286,10 @@ public:
             unit.on.setBounds(sideX,89,column,28);unit.type.setBounds(sideX+column+12,89,column,28);unit.slope.setBounds(sideX,124,column,25);
             for(size_t i=0;i<unit.controls.size();++i)unit.controls[i].bounds(sideX+int(i%2)*(column+12),158+int(i/2)*61,column);
         }
-        fltMix.bounds(sideX,280,column);fltOutput.bounds(sideX+column+12,280,column);
+        fltMix.bounds(sideX,341,column);fltOutput.bounds(sideX+column+12,341,column);
+        // The Modulation view uses the side column the filter units use.
+        fltLfo2Shape.setBounds(sideX,89,column,28);fltLfo2Sync.setBounds(sideX+column+12,89,column,28);
+        fltLock.setBounds(sideX,124,column,28);fltRetrigger.setBounds(sideX+column+12,124,column,28);fltEnvSource.setBounds(sideX,160,sideWidth,28);
         {const int width=(sideX-32)/int(fltMod.size());for(size_t i=0;i<fltMod.size();++i)fltMod[i].bounds(18+int(i)*width,getHeight()-56,width-12);}
         deEsserOn.setBounds(18,45,150,28);deEsserListen.setBounds(178,45,104,28);
         autoSet.setBounds(sideX,getHeight()-40,100,28);autoOptions.setBounds(sideX+106,getHeight()-40,118,28);
@@ -377,6 +391,8 @@ private:
         for(int band=0;band<3;++band){auto& ui=satBands[size_t(band)];const bool showing=sat && band==selectedSatBand;ui.type.setVisible(showing);ui.drive.show(showing);}
         const bool flt=page==Page::filter;fltOn.setVisible(flt);fltSelector.setVisible(flt);fltRouting.setVisible(flt);fltLfoShape.setVisible(flt);fltLfoSync.setVisible(flt);
         fltMix.show(flt);fltOutput.show(flt);showControls(fltMod,flt);
+        for(juce::Component* c:{static_cast<juce::Component*>(&fltLfo2Shape),static_cast<juce::Component*>(&fltLfo2Sync),static_cast<juce::Component*>(&fltLock),static_cast<juce::Component*>(&fltRetrigger),static_cast<juce::Component*>(&fltEnvSource)})c->setVisible(flt && selectedFilter==filterCount);
+        fltMix.show(flt && selectedFilter<filterCount);fltOutput.show(flt && selectedFilter<filterCount);
         for(int f=0;f<filterCount;++f){auto& ui=fltUnits[size_t(f)];const bool showing=flt && f==selectedFilter;ui.on.setVisible(showing);ui.type.setVisible(showing);ui.slope.setVisible(showing);showControls(ui.controls,showing);}
         deEsserOn.setVisible(page==Page::deesser);deEsserListen.setVisible(page==Page::deesser);
         autoSet.setVisible(autoPage());autoOptions.setVisible(autoPage());autoUndo.setVisible(autoPage());showControls(deEsser,page==Page::deesser);
@@ -426,6 +442,7 @@ private:
             spectrum.setBandHighlight(0,0);
         } else spectrum.setBandHighlight(0,0);
         fltMod[0].slider.setEnabled(raw("fltLfoSync")<.5f);   // a synced LFO follows the tempo
+        fltMod[5].slider.setEnabled(raw("fltLfo2Sync")<.5f);
         spectrum.setFrequencyMarkers(markers,count);
     }
     juce::RangedAudioParameter* markerParameterFor(int marker) {
@@ -461,9 +478,9 @@ private:
     juce::AudioProcessorValueTreeState& state;CommonDynamics& dsp;DynamicsSpectrumPanel spectrum;
     Page page{Page::compressor};std::array<juce::TextButton,8> tabs;
     static constexpr std::array<Page,8> tabPages{Page::compressor,Page::gate,Page::expander,Page::limiter,Page::multiband,Page::saturation,Page::filter,Page::deesser};
-    struct FltUnit {juce::TextButton on;juce::ComboBox type,slope;std::array<Control,4> controls;};
-    std::array<FltUnit,filterCount> fltUnits;Control fltMix,fltOutput;std::array<Control,5> fltMod;
-    juce::TextButton fltOn;juce::ComboBox fltSelector,fltRouting,fltLfoShape,fltLfoSync;int selectedFilter{};
+    struct FltUnit {juce::TextButton on;juce::ComboBox type,slope;std::array<Control,6> controls;};
+    std::array<FltUnit,filterCount> fltUnits;Control fltMix,fltOutput;std::array<Control,6> fltMod;
+    juce::TextButton fltOn,fltLock,fltRetrigger;juce::ComboBox fltSelector,fltRouting,fltLfoShape,fltLfoSync,fltLfo2Shape,fltLfo2Sync,fltEnvSource;int selectedFilter{};
     struct SatBand {juce::ComboBox type;Control drive;};
     std::array<SatBand,3> satBands;Control satMix,satOutput;std::array<Control,2> satCrossovers;
     juce::TextButton satOn;juce::ComboBox satQuality,satBandSelector;int selectedSatBand{};

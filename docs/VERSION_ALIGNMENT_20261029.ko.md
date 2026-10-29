@@ -22,7 +22,7 @@
 | **1.6** | 레퍼런스 앰프 5종, 공통 3밴드 새추레이션 | 전부 ([REFERENCE_AMPS_1_6.md](REFERENCE_AMPS_1_6.md), [SATURATION_1_6.md](SATURATION_1_6.md)) | 매뉴얼 대조, 하드웨어 음색 일치, 사진 헤드 아트워크 | — |
 | **1.7** | POST Dynamics/Tone 9종, 공통 2필터 모듈레이션 | 전부 ([POST_EXPANSION_1_7.md](POST_EXPANSION_1_7.md), [FILTER_MODULATION_1_7.md](FILTER_MODULATION_1_7.md)) | Curve Bender Multiply 스위치, 2500/2500+ 차이 | — |
 | **1.8** | Motion/Space 9종, 고급 딜레이·리버브, Room Advanced 조건·공간 모델 | 9종 ([POST_MOTION_SPACE_1_8.md](POST_MOTION_SPACE_1_8.md)), Room Advanced ([ROOM_ADVANCED_1_8.md](ROOM_ADVANCED_1_8.md)), 공간 단계: 치수·재질·배치·룸 마이크 ([ROOM_SPACE_1_8.md](ROOM_SPACE_1_8.md)) | 모델별 세부 컨트롤(UltraTap Slurm/Chop, Blackhole Gravity 등), 룸 모드·지향성 | — |
-| **1.9** | Creative 9종, 확장 모듈레이션, 라우팅 다듬기 | 9종과 CREATIVE 슬롯 ([CREATIVE_1_9.md](CREATIVE_1_9.md)), 랙 페이스 아트워크 | **확장 모듈레이션**(필터 LFO 추가·엔벨로프 팔로워 등), **라우팅 다듬기** | — |
+| **1.9** | Creative 9종, 확장 모듈레이션, 라우팅 다듬기 | 9종과 CREATIVE 슬롯 ([CREATIVE_1_9.md](CREATIVE_1_9.md)), 랙 페이스 아트워크, 확장 모듈레이션과 라우팅 다듬기 ([MODULATION_1_9.md](MODULATION_1_9.md), `claude/modulation-1-9`, 10/29 추가) | — | — |
 | **1.10** | Dvergr Analog·Seidr Dynamic·Mimir Impact 신스 계층, 검증된 트래킹 통합 | 엔진 타입 3종, 트래킹, MIDI ([SYNTH_1_10.md](SYNTH_1_10.md), [SYNTH_PAGE.md](SYNTH_PAGE.md), [SYNTH_V2.md](SYNTH_V2.md)) | **실제 녹음 악기 트래킹 검증**(현재는 합성 신호만) | 전용 SYNTH 페이지, 오실레이터 3개, 샘플 오실레이터, 모듈레이션 매트릭스, 4개 삽입 위치 (소유자 요청) |
 
 ### 표기 차이
@@ -49,6 +49,6 @@
 
 ## 남은 결정과 후속 작업
 
-- **로드맵 범위에서 빠진 항목** (위 표의 굵은 글씨): 1.5 6밴드 확장, 1.9 확장 모듈레이션과 라우팅 다듬기, 1.10 실제 악기 트래킹 검증. 1.4 신호 순서 편집기와 1.5 드래그 순서 UX는 10/29에 구현했습니다.
+- **로드맵 범위에서 빠진 항목** (위 표의 굵은 글씨): 1.5 6밴드 확장, 1.10 실제 악기 트래킹 검증. 1.4 신호 순서 편집기, 1.5 드래그 순서 UX, 1.9 확장 모듈레이션과 라우팅 다듬기는 10/29에 구현했습니다.
 - **공통 미완료:** 모든 버전에서 청음, DAW CPU, 설치본, 실제 호스트 확인이 남아 있습니다.
 - **로드맵 갱신 여부:** 1.10에 더 들어간 SYNTH 범위와 1.5의 SYNTH 버스를 로드맵 문서에 반영할지는 소유자가 정합니다.

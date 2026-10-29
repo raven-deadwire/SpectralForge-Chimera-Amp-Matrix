@@ -102,7 +102,7 @@ public:
     void select(const juce::String& id){if(selected!=id){selected=id;updateSelection();}}
     // Order commands for a movable node (docs/SIGNAL_ORDER_1_4.md). Each one is
     // a processor edit with its own undo entry; navigation never calls them.
-    enum class OrderCommand {earlier,later,first,last,position,undo,redo,reset};
+    enum class OrderCommand {earlier,later,first,last,position,undo,redo,reset,preset};
     struct Placement {spectralforge::OrderRegion region;int module;};
     static std::optional<Placement> movable(const juce::String& id) {
         using spectralforge::OrderRegion;
@@ -122,6 +122,7 @@ public:
             case OrderCommand::undo:changed=processor.undoOrder();break;
             case OrderCommand::redo:changed=processor.redoOrder();break;
             case OrderCommand::reset:changed=processor.resetOrder(place->region);break;
+            case OrderCommand::preset:changed=processor.applyOrderPreset(place->region,position);break;
         }
         if(changed){refresh();if(auto* b=buttonFor(id))b->grabKeyboardFocus();}
         return changed;
@@ -321,6 +322,10 @@ private:
         menu.addItem(3,"Move to the start",at>0);menu.addItem(4,"Move to the end",at<count-1);
         for(int i=0;i<count;++i)positions.addItem(100+i,juce::String(i+1)+"  "+spectralforge::moduleName(place->region,slots[(size_t)i]),i!=at,i==at);
         menu.addSubMenu("Place at position",positions);
+        juce::PopupMenu presets;
+        {const auto& list=spectralforge::orderPresets(place->region);
+         for(size_t i=0;i<list.size();++i){bool same=true;for(int k=0;k<count;++k)same=same&&slots[(size_t)k]==list[i].slots[(size_t)k];presets.addItem(200+int(i),list[i].name,!same,same);}}
+        menu.addSubMenu("Order presets",presets);
         menu.addSeparator();
         menu.addItem(5,"Undo order change",processor.canUndoOrder());menu.addItem(6,"Redo order change",processor.canRedoOrder());
         menu.addItem(7,"Reset the "+region+" order");
@@ -328,6 +333,7 @@ private:
         auto* target=buttonFor(id);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(target),[safe,id](int result){
             if(!safe||result==0)return;
+            if(result>=200){safe->orderCommand(id,OrderCommand::preset,result-200);return;}
             if(result>=100){safe->orderCommand(id,OrderCommand::position,result-100);return;}
             static constexpr std::array<OrderCommand,7> commands{OrderCommand::earlier,OrderCommand::later,OrderCommand::first,OrderCommand::last,OrderCommand::undo,OrderCommand::redo,OrderCommand::reset};
             if(result>=1 && result<=7)safe->orderCommand(id,commands[(size_t)result-1]);

@@ -83,6 +83,7 @@ public:
     bool placeModule(spectralforge::OrderRegion region,int module,int position);
     bool moveModule(spectralforge::OrderRegion region,int module,int delta);
     bool resetOrder(spectralforge::OrderRegion region);
+    bool applyOrderPreset(spectralforge::OrderRegion region,int preset);
     bool undoOrder();bool redoOrder();
     bool canUndoOrder() const noexcept {return !orderUndo.empty();}
     bool canRedoOrder() const noexcept {return !orderRedo.empty();}
@@ -316,6 +317,7 @@ private:
     juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};float* busLeft{};float* busRight{};
     spectralforge::SignalOrderParameters signalOrder;spectralforge::SignalOrder activeOrder;   // activeOrder: audio thread
     spectralforge::OrderSwitch toneSwitch,postSwitch;
+    double hostPpq{std::numeric_limits<double>::quiet_NaN()},chunkPpq{std::numeric_limits<double>::quiet_NaN()};
     std::vector<spectralforge::SignalOrder> orderUndo,orderRedo;
     void writeOrder(const spectralforge::SignalOrder& order);
     bool commitOrder(const spectralforge::SignalOrder& next);

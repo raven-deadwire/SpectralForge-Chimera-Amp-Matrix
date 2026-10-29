@@ -89,5 +89,6 @@ parameters).
 
 - LFO phase locked to the host's bar position and a retrigger option.
 - More LFOs, envelope-follower sidechain, filter drive and further filter types
-  (planned for 1.9 "advanced modulation").
+  (planned for 1.9 "advanced modulation"). **Done in 1.9:** see
+  [MODULATION_1_9.md](MODULATION_1_9.md).
 - Listening tests, and CPU measurement in a DAW.

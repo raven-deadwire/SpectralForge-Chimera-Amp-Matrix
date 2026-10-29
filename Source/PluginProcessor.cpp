@@ -268,6 +268,10 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
     float bpm=extras[tempo]->load();
     if(extras[hostTempo]->load()>.5f) if(auto* playhead=getPlayHead()) if(const auto position=playhead->getPosition()) if(const auto hostBpm=position->getBpm()) bpm=juce::jlimit(40.f,240.f,float(*hostBpm));
     tempoMeter.store(bpm);
+    // Host position for bar-locked modulation (docs/MODULATION_1_9.md): known
+    // only while the transport plays.
+    hostPpq=std::numeric_limits<double>::quiet_NaN();
+    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())if(position->getIsPlaying())if(const auto ppq=position->getPpqPosition())hostPpq=*ppq;
     // Hosts may deliver blocks larger than prepareToPlay's hint. All DSP and
     // convolution buffers remain bounded to the prepared capacity.
     for(int offset=0;offset<buffer.getNumSamples();offset+=maximumBlock)
@@ -286,6 +290,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
             juce::AudioBuffer<float> key(keyBuffer.getArrayOfWritePointers(),juce::jmin(2,keyBus.getNumChannels()),n);
             for(int c=0;c<key.getNumChannels();++c)key.copyFrom(c,0,keyBus,c,offset+done,n);
             externalKey=key.getNumChannels()>0?&key:nullptr;
+            chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*tempoMeter.load()/60.0/rate:hostPpq;
             busLeft=synthBus.getNumChannels()>0?synthBus.getWritePointer(0,offset+done):nullptr;
             busRight=synthBus.getNumChannels()>1?synthBus.getWritePointer(1,offset+done):busLeft;
             // While a recall keeps the output muted, recalled cabinets install
@@ -527,7 +532,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
                 {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}break;
             // Two-filter modulation (docs/FILTER_MODULATION_1_7.md): off leaves the signal untouched.
             case spectralforge::filterModule:
-                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load());}break;
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,externalKey);}break;
             case spectralforge::deesserModule:tap(Tap::deesser);
                 {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}break;
             default:break;
@@ -613,6 +618,15 @@ bool ChimeraProcessor::resetOrder(spectralforge::OrderRegion region)
 {
     auto next=requestedOrder();
     if(region==spectralforge::OrderRegion::tone)next.tone=spectralforge::ToneOrder::initial();else next.post=spectralforge::PostOrder::initial();
+    return commitOrder(next);
+}
+bool ChimeraProcessor::applyOrderPreset(spectralforge::OrderRegion region,int preset)
+{
+    const auto& presets=spectralforge::orderPresets(region);
+    if(preset<0 || preset>=int(presets.size()))return false;
+    auto next=requestedOrder();
+    if(region==spectralforge::OrderRegion::tone)for(int i=0;i<spectralforge::toneModuleCount;++i)next.tone.slots[(size_t)i]=presets[(size_t)preset].slots[(size_t)i];
+    else for(int i=0;i<spectralforge::postModuleCount;++i)next.post.slots[(size_t)i]=presets[(size_t)preset].slots[(size_t)i];
     return commitOrder(next);
 }
 bool ChimeraProcessor::undoOrder()
@@ -788,6 +802,8 @@ spectralforge::appendSynthParameters(p);
 spectralforge::appendSidechainParameters(p);
 // 1.4 signal order: tone / dynamics block and POST rack positions, version hint 29.
 spectralforge::appendSignalOrderParameters(p);
+// 1.9 expanded filter modulation, version hint 30.
+spectralforge::appendFilterModulationExtensionParameters(p);
 return p;
 }
 
