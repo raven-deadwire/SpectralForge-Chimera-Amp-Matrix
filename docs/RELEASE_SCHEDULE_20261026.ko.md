@@ -1,6 +1,6 @@
 # 릴리즈 스케쥴 정리 — 2026-10-26 (KST)
 
-이 문서는 2026-10-26 기준 저장소·CI·메일 점검 결과(통합 진행은 10/29 04:30 KST 갱신)를 반영한 **작업·판정 목표**입니다.
+이 문서는 2026-10-26 기준 저장소·CI·메일 점검 결과(통합 진행은 10/29 22:00 KST 갱신)를 반영한 **작업·판정 목표**입니다.
 공개 확정일이 아니며, 어떤 게이트도 PASS로 올리거나 출시를 승인하지 않습니다.
 버전 작업창의 권한 문서는 계속 [DEVELOPMENT_ROADMAP_2026_2027.md](DEVELOPMENT_ROADMAP_2026_2027.md)이고,
 중장기 재편성안은 Draft [#93](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/93)이 승인될 때까지 *제안* 상태입니다.
@@ -55,7 +55,7 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 - 기존 10/23 목표는 지났습니다. **10/30에 자동으로 beta.3로 넘어가지 않습니다.** 공개는 P0 4개의 실제 결과로만 결정합니다.
 - 매주 실질적인 개선 빌드를 만드는 원칙은 유지합니다.
 
-### 통합 진행 상황 (2026-10-29 04:30 KST 기준)
+### 통합 진행 상황 (2026-10-29 22:00 KST 기준)
 
 **CI가 모두 통과하고 충돌이 없을 때만** main에 머지합니다. GitHub Actions 러너 대기(특히 macOS)가 길어 한 PR의 CI에 10시간 이상 걸리고 있습니다. "로컬 확인"은 Linux에서 돌린 테스트이며, Windows·macOS와 UI 테스트는 CI 결과로 판정합니다.
 
@@ -86,6 +86,15 @@ UI·OBS 준비 여부와 무관하게 빠지지 않습니다. [요구사항 #97]
 |---|---|
 | [#206](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/206) | 이 문서의 10/28 갱신과 Windows OBS 빌드 수정. #183 이후 MSVC `/W4 /WX`에서 `capture-host-application.hpp`의 `queryInterface` 인자 `iid`가 `IHostApplication::iid`를 가려(C4458) main의 `build (windows-latest)`·`windows-candidate`가 실패하던 문제. 인자 이름만 변경, 동작 불변. 같은 수정의 별도 PR #207은 중복이 되어 닫음 |
 | [#208](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/208) | macOS CI 플래키 수정: `ChimeraCabPanelStateTests`에서 러너 메인 루프가 1.5초 멈춰 CAB 화면 전환 클릭이 2.147초에 도착, 2초 대기 한도를 넘김. CAB UI 조건 대기 한도를 2초 → 10초로(조건이 맞으면 즉시 끝나므로 통과 시간은 그대로). 테스트 코드만 변경 |
+
+**같은 기간(10/29) main에 들어간 다른 PR (참고)**
+
+| 분류 | PR | 내용 |
+|---|---|---|
+| 초보자 안내 | [#203](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/203) · [#209](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/209) · [#214](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/214) | 설치 프로그램 첫 화면 환영 안내, Standalone 첫 실행 시 입력이 꺼져 있는 이유 안내, 모든 프리셋에 쉬운 설명 추가 |
+| OBS 에디터 창 | [#204](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/204) · [#211](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/211) · [#215](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/215) | OBS 필터에서 Chimera 에디터 창 열기: macOS(NSWindow/NSView), Linux(X11 임베드·GLib IRunLoop), Windows는 실제 Chimera VST3로 에디터 테스트 |
+| CI 안정화 | [#210](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/210) | 네이티브 UI 테스트 조건 대기 한도 2초 → 10초(#208과 같은 macOS 러너 정지 대응). 테스트 코드만 변경 |
+| Transpose 연구 | [#202](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/202) · [#212](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/212) | 업시프트 접합 잡음의 원인이 선형 보간임을 확인하고 sinc 출력 후보 v3-sinc 추가(기본값 꺼짐). 새 시드 검증에서 지연·검출·PDC·블록 비교는 통과했지만 고역 잔여 기준은 실패(기준 설정 오류로 판단). 제품 기본값 불변, 승인 아님 |
 
 남은 통합 PR은 없습니다. 악기 판별 오분류, 실제 DI 청음, DAW 자동화 승인은 머지와 별개로 미해결입니다.
 
