@@ -275,6 +275,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 - 레벨 미터는 OBS 자체 오디오 믹서 미터(필터 적용 후)를 쓴다. 속성 창에는 실시간 미터를 넣지 않았다.
 - 개인 IR 파일이 없을 때의 처리는 Chimera 제품 동작을 따른다. 모듈은 상태를 그대로 전달할 뿐이다.
 - 에디터 편집의 장면 반영(500 ms 타이머)은 Windows·macOS·Linux 에디터 코드에 있으며 실제 OBS 앱에서는 아직 확인하지 않았다.
+  Windows 에디터 창도 `chimera-obs-editor-tests`(Windows판)가 실제 Chimera VST3로 CI(Windows 데스크톱 세션)에서 아래 macOS 항목과 같은 동작을 확인한다.
   macOS 에디터 창은 `chimera-obs-editor-tests`가 실제 Chimera VST3로 CI(macOS 창 서버)에서 확인한다: 창 표시·뷰 부착·크기,
   열린 동안 500 ms 동기화 호출, 닫기 버튼은 숨기기만 하고 마지막 편집을 동기화, 다시 열면 같은 창을 앞으로, `closeEditor`가 한 번 동기화 후 해제, 열기·닫기 반복.
 - Linux 에디터 창은 X11 최상위 창에 Chimera 뷰를 `kPlatformTypeX11EmbedWindowID`로 붙인다. Linux에는 공용 이벤트 루프가 없어
@@ -289,6 +290,6 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 - 필터는 OBS 타임스탬프를 바꾸지 않는다. 처리 지연(기본 상태 42 samples, 0.88 ms)은 영상과의 싱크에 그대로 더해지며,
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
-**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows 에디터 코드는 실행 검증 전, macOS·Linux는 OBS 밖 시험만),
+**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows·macOS·Linux 모두 OBS 밖 시험만),
 실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS·Linux 실제 OBS 앱에서의 확인. 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
