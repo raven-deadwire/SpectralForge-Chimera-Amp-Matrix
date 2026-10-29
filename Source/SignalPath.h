@@ -5,7 +5,7 @@
 #include "CabLayoutModel.h"
 
 namespace spectralforge::signalPath {
-enum class Target { input, gate, transpose, tuner, pre, rigs, amp, cab, low, toneEQ, post, utilities, finalEQ, output, dynamics };
+enum class Target { input, gate, transpose, tuner, pre, rigs, amp, cab, low, toneEQ, post, utilities, finalEQ, output, dynamics, synth };
 // Node::section of the 1.9 CREATIVE slot (POST sections are 0-5).
 inline constexpr int creativeSection = 6;
 struct Node {
@@ -108,7 +108,12 @@ inline Snapshot read(ChimeraProcessor& p) {
         const bool active=!on(eqID(instance,-1,"bypass"));
         add(id,label,target,x,y,active,(active?juce::String("ACTIVE"):juce::String("BYPASSED"))+" / "+juce::String(enabled)+" BANDS",-1,-1,detail);
     };
-    addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,16,510,"12-band Tone EQ after rig sum and optional post-rig gate, before the POST rack.");edge(previous,"tone.eq");previous="tone.eq";
+    // 1.10 SYNTH layer (docs/SYNTH_1_10.md): tracks the clean input, adds in parallel before Tone EQ.
+    {const int layer=juce::jlimit(0,synthModelCount-1,int(v("synthModel")));
+     add("synth",synthModels[size_t(layer)].name,Target::synth,260,385,on("synthOn"),on("synthOn")?juce::String("SYNTH ")+synthSourceNames()[juce::jlimit(0,2,int(v("synthSource")))].toUpperCase():"BYPASSED",-1,-1,
+         "Synth layer played by the tracked clean input and/or MIDI notes, added after RIG SUM and the post-rig gates, before Tone EQ.");
+     edge("input","synth",true);}
+    addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,16,510,"12-band Tone EQ after rig sum and optional post-rig gate, before the POST rack.");edge(previous,"tone.eq");edge("synth","tone.eq");previous="tone.eq";
     add("common.comp","CLEAN COMP",Target::dynamics,138,510,on("cleanCompOn"),{},-1,-1,"Stereo-linked clean compression after Tone EQ, before POST. No added lookahead latency.");edge(previous,"common.comp");previous="common.comp";
     add("common.multiband","MULTIBAND",Target::dynamics,260,510,on("mbOn"),{},-1,-1,"Independent four-band dynamics after Clean Comp. Open its spectrum editor to adjust crossovers and each band's compression or expansion.");edge(previous,"common.multiband");previous="common.multiband";
     add("common.deesser","DE-ESSER",Target::dynamics,382,510,on("deEsserOn"),{},-1,-1,"Split-band high-frequency attenuation after multiband dynamics, before the POST rack. Open its spectrum and detector controls.");edge(previous,"common.deesser");previous="common.deesser";

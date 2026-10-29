@@ -10,7 +10,7 @@ class RackCatalogTests(unittest.TestCase):
         self.catalog=build_catalog();self.models={m['id']:m for m in self.catalog['models']};self.panels=rack_panels()
     def controls(self,mid):return {c['id']:c for c in self.models[mid]['controls']}
     def test_inventory_stable_and_pending_space_modulation(self):
-        self.assertEqual(len(self.models),113);self.assertEqual(len(self.panels),18)
+        self.assertEqual(len(self.models),116);self.assertEqual(len(self.panels),18)
         post=[m for m in self.models.values() if m['location']=='post'];self.assertEqual(len(post),48)
         self.assertEqual(sum('rack_panel' not in m for m in post),30)   # DELAY/REVERB/MODULATION and CREATIVE share controls
     def test_nine_models_keep_production_raw_index(self):

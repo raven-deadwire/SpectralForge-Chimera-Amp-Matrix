@@ -103,6 +103,10 @@ def build_catalog():
                               ("creative.6","Glitch","CREATIVE"),("creative.7","Bit Crusher","CREATIVE"),("creative.8","Granular Texture","CREATIVE")):
         models.append(dict(id="planned.post."+key,name=name,reference=name,category=category,location="post",status="not_implemented",
                            controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
+    # 1.10 SYNTH: three Chimera synth layers (own working names, no hardware reference).
+    for key,name in (("dvergr-analog","Dvergr Analog"),("seidr-dynamic","Seidr Dynamic"),("mimir-impact","Mimir Impact")):
+        models.append(dict(id="planned.synth."+key,name=name,reference=name,category="SYNTH",location="synth",status="not_implemented",
+                           controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
     def add(key,name,category,controls,source=None,status="documented_labels_unimplemented_dsp"):
         models.append(dict(id="planned."+key,name=name,reference=name,category=category,location="pre",status="not_implemented",
                            controls_status=status,controls=controls,sources=[source] if source else [],audio_in_prototype=False))

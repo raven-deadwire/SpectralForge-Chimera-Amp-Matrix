@@ -8,6 +8,7 @@
 #include "ThreeBandSaturation.h"
 #include "FilterModulation.h"
 #include "CreativeFX.h"
+#include "SynthLayer.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -65,6 +66,8 @@ public:
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "SpectralForge Chimera"; }
     bool acceptsMidi() const override { return true; }
+    // 1.10 SYNTH: the tracked guitar pitch (Hz, 0 when none), for the panel readout.
+    double synthTrackedFrequency() const noexcept { return synthTracked.load(std::memory_order_relaxed); }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override {
@@ -231,6 +234,8 @@ private:
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
     spectralforge::CreativeFX creative;
+    spectralforge::SynthLayer synth;
+    std::atomic<double> synthTracked{0.0};
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;

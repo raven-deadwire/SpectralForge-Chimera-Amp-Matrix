@@ -17,7 +17,7 @@ class AmpCatalogTests(unittest.TestCase):
         self.assertEqual(sum(m.get('active',True) for m in self.amps.values()),28)
         self.assertFalse(self.amps['planned.amp.engl']['active'])
         self.assertTrue(self.amps['planned.amp.engl-e670fe']['active'])
-        self.assertEqual(len(self.catalog['models']),113)
+        self.assertEqual(len(self.catalog['models']),116)
     def test_all_existing_and_planned_have_model_specific_panels(self):
         self.assertEqual(set(self.amps),set(amp_panels()))
         for m in self.amps.values():self.assertTrue(m['controls']);self.assertTrue(m['amp_panel']['channels'])
