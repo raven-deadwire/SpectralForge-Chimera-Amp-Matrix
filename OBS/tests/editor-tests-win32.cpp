@@ -53,12 +53,15 @@ struct Search {
     int matches = 0;
 };
 
-// All top-level windows with this title.
+// This process's top-level windows with this title.
 int find(const std::wstring& title, HWND& found) {
     Search s{title};
     EnumWindows(
         [](HWND hwnd, LPARAM data) -> BOOL {
             auto* search = reinterpret_cast<Search*>(data);
+            DWORD pid = 0;
+            GetWindowThreadProcessId(hwnd, &pid);
+            if (pid != GetCurrentProcessId()) return TRUE;
             wchar_t text[256] = {};
             GetWindowTextW(hwnd, text, 256);
             if (search->title == text) {
