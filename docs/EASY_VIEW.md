@@ -63,7 +63,19 @@ the top) and the full editor (over the logo) say so and offer two buttons:
 **AUDIO SETTINGS** to choose the interface, and **INPUT ON** to unmute. Use
 headphones before pressing INPUT ON. The guide disappears once the input is
 on; "Mute audio input" in AUDIO SETTINGS turns it back off. Plug-ins never
-show this guide.
+show this guide and do not run its polling timer. The safety explanation wraps
+at a fixed font size beside two vertically stacked buttons; it is not shrunk
+or replaced with an ellipsis to fit the header.
+
+The guide reflects the standalone holder's mute value, including a restored
+device preference. Opening settings, switching views, or restoring a preset
+does not turn input on. Polling continues in the standalone after unmuting so
+that muting again in Audio Settings brings the guide back.
+
+JUCE's **Options → Reset to default state** can also restore JUCE's own mute
+notification bar for the rest of the session. The Chimera guide and the Audio
+Settings mute switch remain functional; this change does not replace JUCE's
+reset implementation or alter its feedback prevention policy.
 
 ## What it does not change
 
