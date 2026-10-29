@@ -290,7 +290,7 @@ jobs:
           # here on the product's glibc baseline by stage_module.py.
           docker run --rm -v "$PWD:/src" -w /src -e HOST_IDS="$(id -u):$(id -g)" -e CHIMERA_SOURCE_SHA ubuntu:24.04 bash -euc '
             apt-get update -qq
-            DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends cmake make g++ git ca-certificates libobs-dev >/dev/null
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends cmake make g++ git ca-certificates pkg-config libglib2.0-dev libobs-dev >/dev/null
             cmake -S OBS -B build-obs-linux -DCMAKE_BUILD_TYPE=Release -DCHIMERA_OBS_SOURCE_SHA="$CHIMERA_SOURCE_SHA"
             cmake --build build-obs-linux --parallel 4
             ctest --test-dir build-obs-linux --output-on-failure --no-tests=error

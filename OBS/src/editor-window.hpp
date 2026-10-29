@@ -8,8 +8,8 @@ class ChimeraHost;
 class EditorWindow;
 
 // A top-level native window hosting Chimera's own VST3 editor. OBS UI thread
-// only. Windows (HWND) first; other platforms report unsupported until their
-// run-loop integration is implemented (Issue #131 stage F).
+// only: Windows (HWND), macOS (NSWindow/NSView), Linux (X11 window, with the
+// plug-in's run loop on the default GLib main context that OBS's Qt iterates).
 bool editorSupported() noexcept;
 // Called on the UI thread while the editor is open (every 500 ms) and when it
 // is hidden, so the owner can copy edited state into the scene settings.
