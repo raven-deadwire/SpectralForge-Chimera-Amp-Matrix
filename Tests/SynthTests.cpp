@@ -1,17 +1,19 @@
-// 1.10 SYNTH layer (docs/SYNTH_1_10.md): pitch-tracker accuracy, latency and
-// octave errors on guitar-range notes (low B to E5, including a weak
-// fundamental), MIDI pitch, the three layers' declared behaviour, the off
-// contract, allocation, and the processor / editor wiring.
+// SYNTH (docs/SYNTH_1_10.md, docs/SYNTH_PAGE.md): pitch tracker accuracy and
+// latency, the engine (tuning, wave morph, unison, sub / noise, filter against
+// its analytic response, envelopes, LFOs, the modulation matrix, FM,
+// polyphony, glide, guitar / MIDI precedence), the four insert points, the
+// off contract, allocation, patches and the SYNTH page.
 #include <juce_dsp/juce_dsp.h>
 #include "PluginProcessor.h"
 #include "SynthLayer.h"
-#include "SynthPanel.h"
+#include "SynthPage.h"
 #include "SignalPath.h"
 #include <algorithm>
 #include <cmath>
 #include <complex>
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <new>
 #include <stdexcept>
@@ -94,123 +96,249 @@ void tracker() {
     std::cout<<"PASS pitch tracker on sines, plucks and weak fundamentals from low B to E5\n";
 }
 
-struct Run {std::vector<float> l;SynthLayer* layer{};};
-// Renders the synth alone: `guitar(n)` is the tracked input, `midi` the notes per block.
-template<class Guitar,class Midi> std::vector<float> render(Host& h,int samples,Guitar guitar,Midi midi,SynthLayer* keep=nullptr) {
+
+// Renders the engine alone at the default insert (Before POST): guitar(n) is
+// the tracked input, midi(k, buffer) the events of block k.
+struct Out {std::vector<float> l,r;};
+template<class Guitar,class Midi> Out render(Host& h,int samples,Guitar guitar,Midi midi,SynthLayer* keep=nullptr,double tempo=120) {
     SynthLayer local;SynthLayer& s=keep?*keep:local;s.bind(h.state);s.prepare(rate,block);
-    std::vector<float> out;juce::AudioBuffer<float> in(2,block),o(2,block);juce::MidiBuffer m;
+    Out out;juce::AudioBuffer<float> in(2,block),o(2,block);juce::MidiBuffer m;
     for(int k=0;k*block<samples;++k){
         for(int n=0;n<block;++n){const float x=guitar(k*block+n);in.setSample(0,n,x);in.setSample(1,n,x);}
         m.clear();midi(k,m);o.clear();
-        countAllocations=true;s.handleMidi(m);s.analyse(in);s.process(o);countAllocations=false;
-        for(int n=0;n<block;++n)out.push_back(o.getSample(0,n));
+        countAllocations=true;s.handleMidi(m);s.analyse(in);s.render(block,tempo);s.addAt(SynthInsert::beforePost,o);countAllocations=false;
+        for(int n=0;n<block;++n){out.l.push_back(o.getSample(0,n));out.r.push_back(o.getSample(1,n));}
     }
     return out;
 }
 auto silence(){return [](int){return 0.f;};}
 auto noMidi(){return [](int,juce::MidiBuffer&){};}
-auto holdNote(int note,float velocity=1.f){return [=](int k,juce::MidiBuffer& m){if(k==0)m.addEvent(juce::MidiMessage::noteOn(1,note,velocity),0);};}
+auto hold(std::initializer_list<int> notes,float velocity=1.f){std::vector<int> v(notes);return [v,velocity](int k,juce::MidiBuffer& m){if(k==0)for(int n:v)m.addEvent(juce::MidiMessage::noteOn(1,n,velocity),0);};}
+// A clean test voice: osc A only, filter off, instant envelope, MIDI only.
+Host& clean(Host& h,float wave){
+    for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthOn",1},{"synthSource",2},{"synthFilterOn",0},{"synthOscAWave",wave},{"synthOscADetune",0},
+        {"synthAmpAttack",.5f},{"synthAmpSustain",100},{"synthWidth",0}})h.set(id,v);
+    return h;
+}
+double hz(double note){return 440*std::pow(2.0,(note-69)/12);}
+double harmonicDb(const std::vector<float>& x,double f,int k){return db(magnitude(x,12000,48000,f*k)/magnitude(x,12000,48000,f));}
 
-void gateAndMidi() {
-    // Tracking threshold: -50 dBFS under a -40 dBFS threshold stays silent; -20 dBFS plays.
+void tuningTest() {
+    struct Case{const char* name;std::vector<std::pair<const char*,float>> set;double expected;};
+    std::string line;bool ok=true;
+    for(const Case& c:{Case{"A3",{},220.0},Case{"osc octave +1",{{"synthOscAOctave",1}},440.0},Case{"semi +7",{{"synthOscASemi",7}},hz(64)},
+                        Case{"fine +50 ct",{{"synthOscAFine",50}},220*std::pow(2.0,.5/12)},Case{"global octave -1",{{"synthOctave",-1}},110.0}}){
+        Host h;clean(h,0);for(const auto& [id,v]:c.set)h.set(id,v);
+        const double f=peakNear(render(h,48000,silence(),hold({57})).l,12000,48000,c.expected);
+        line+=std::string(" ")+c.name+" "+juce::String(f,2).toStdString()+" Hz;";ok=ok&&std::abs(f/c.expected-1)<.0005;
+    }
+    Host b;clean(b,0);const double bent=peakNear(render(b,48000,silence(),[](int k,juce::MidiBuffer& m){if(k==0){m.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);m.addEvent(juce::MidiMessage::pitchWheel(1,16383),0);}}).l,12000,48000,247);
+    std::cout<<"MEASURE tuning:"<<line<<" bend +2 st "<<bent<<" Hz (246.94)\n";
+    require(ok && std::abs(bent-246.94)<.3,"Oscillator tuning wrong");
+    std::cout<<"PASS oscillator octave / semitone / fine / global octave / pitch bend\n";
+}
+
+void waveMorph() {
+    // Harmonic levels re the fundamental at 220 Hz: saw 1/k, square odd 1/k, triangle odd 1/k^2, sine none.
+    const auto run=[](float wave){Host h;clean(h,wave);return render(h,48000,silence(),hold({57})).l;};
+    const auto sine=run(0),tri=run(1),saw=run(2),square=run(3),mid=run(2.5f);
+    std::cout<<"MEASURE harmonics 2 / 3 (dB re 1): sine "<<harmonicDb(sine,220,2)<<" / "<<harmonicDb(sine,220,3)<<"; triangle "<<harmonicDb(tri,220,2)<<" / "<<harmonicDb(tri,220,3)
+             <<" (-inf / -19.1); saw "<<harmonicDb(saw,220,2)<<" / "<<harmonicDb(saw,220,3)<<" (-6.0 / -9.5); square "<<harmonicDb(square,220,2)<<" / "<<harmonicDb(square,220,3)
+             <<" (-inf / -9.5); saw-square 50 % "<<harmonicDb(mid,220,2)<<" / "<<harmonicDb(mid,220,3)<<"\n";
+    require(harmonicDb(sine,220,2)<-60 && harmonicDb(sine,220,3)<-60,"Sine is not pure");
+    require(harmonicDb(tri,220,2)<-40 && std::abs(harmonicDb(tri,220,3)+19.08)<.3,"Triangle harmonics wrong");
+    require(std::abs(harmonicDb(saw,220,2)+6.02)<.2 && std::abs(harmonicDb(saw,220,3)+9.54)<.2,"Saw harmonics wrong");
+    require(harmonicDb(square,220,2)<-40 && std::abs(harmonicDb(square,220,3)+9.54)<.2,"Square harmonics wrong");
+    require(harmonicDb(mid,220,2)<harmonicDb(saw,220,2)-4,"The wave position does not morph saw towards square");
+    // The display draws the same shapes the engine morphs.
+    double worst=0;for(double p=.01;p<1;p+=.05)worst=std::max(worst,std::abs(synthWaveDisplay(2.0,p)-(1-2*p)));
+    require(worst<1e-12,"Wave display differs from the saw it shows");
+    std::cout<<"PASS wave morph: sine, triangle, saw, square and the positions in between\n";
+}
+
+void unisonSubNoise() {
+    Host h;clean(h,2);h.set("synthOscAUnison",5);h.set("synthOscADetune",100);h.set("synthWidth",100);
+    const auto wide=render(h,48000,silence(),hold({57}));
+    double side=0,mid=0;for(size_t n=12000;n<48000;++n){side+=std::pow(wide.l[n]-wide.r[n],2);mid+=std::pow(wide.l[n]+wide.r[n],2);}
+    h.set("synthWidth",0);const auto narrow=render(h,48000,silence(),hold({57}));double same=0;for(size_t n=0;n<narrow.l.size();++n)same=std::max(same,double(std::abs(narrow.l[n]-narrow.r[n])));
+    Host s;clean(s,0);s.set("synthSubOn",1);s.set("synthSubLevel",100);const auto sub=render(s,48000,silence(),hold({57})).l;
+    const double subDb=db(magnitude(sub,12000,48000,110)/magnitude(sub,12000,48000,220));
+    Host n;clean(n,0);n.set("synthOscALevel",0);n.set("synthNoiseOn",1);n.set("synthNoiseLevel",100);const double noise=rms(render(n,48000,silence(),hold({57})).l,12000,48000);
+    std::cout<<"MEASURE unison 5 x 100 %: side/mid energy "<<side/mid<<" at width 100 %, largest L-R "<<same<<" at width 0 %; sub -1 oct "<<subDb<<" dB re the note; noise alone "<<db(noise)<<" dBFS\n";
+    require(side/mid>.05 && same==0 && std::abs(subDb-db(1.0/.8))<.5 && noise>1e-3,"Unison width, sub octave or noise wrong");
+    std::cout<<"PASS unison spread and width, sub oscillator, noise\n";
+}
+
+void filterResponse() {
+    // A 55 Hz saw through each filter type, relative to the same saw unfiltered, at its harmonics.
+    Host plain;clean(plain,2);const auto dry=render(plain,96000,silence(),hold({33})).l;
+    double worst=0;std::string line;
+    for(int type=0;type<6;++type){
+        Host h;clean(h,2);h.set("synthFilterOn",1);h.set("synthFilterType",float(type));h.set("synthCutoff",1000);h.set("synthResonance",30);
+        const auto wet=render(h,96000,silence(),hold({33})).l;double typeWorst=0;
+        for(int k:{2,5,9,18,36,72}){
+            const double f=55.0*k;const double measured=db(magnitude(wet,24000,96000,f)/magnitude(dry,24000,96000,f));
+            const double expected=db(synthFilterMagnitude(type,1000,.3,f,rate));
+            if(expected>-40)typeWorst=std::max(typeWorst,std::abs(measured-expected));
+        }
+        worst=std::max(worst,typeWorst);line+=" "+synthFilterTypeNames()[type].toStdString()+" "+juce::String(typeWorst,3).toStdString()+" dB;";
+    }
+    std::cout<<"MEASURE filter vs analytic response, cutoff 1 kHz / resonance 30 %, largest error at harmonics 110 Hz-4 kHz:"<<line<<"\n";
+    require(worst<.2,"Filter response differs from the curve the page draws");
+    std::cout<<"PASS six filter types match the analytic response shown on the page\n";
+}
+
+std::vector<double> envelope(const std::vector<float>& x,int frame){std::vector<double> e;for(size_t n=0;n+size_t(frame)<=x.size();n+=size_t(frame))e.push_back(rms(x,int(n),int(n)+frame)*std::sqrt(2.0));return e;}
+void envelopes() {
+    // Amp A 100 ms, D 200 ms, S 50 %, R 300 ms; note off at 1 s; 2 ms frames of a 2 kHz sine.
+    Host h;clean(h,0);h.set("synthAmpAttack",100);h.set("synthAmpDecay",200);h.set("synthAmpSustain",50);h.set("synthAmpRelease",300);
+    const auto out=render(h,int(rate*1.6),silence(),[](int k,juce::MidiBuffer& m){if(k==0)m.addEvent(juce::MidiMessage::noteOn(1,95,1.f),0);if(k==int(rate/block))m.addEvent(juce::MidiMessage::noteOff(1,95),0);}).l;
+    const auto e=envelope(out,96);const double peak=*std::max_element(e.begin(),e.end());
+    int reach=-1;for(size_t i=0;i<e.size();++i)if(e[i]>=.98*peak){reach=int(i);break;}
+    const double attack=(reach+.5)*2;
+    const SynthEnvelopeSettings s{.1,.2,.5,.3};
+    const double at250=e[125]/peak,expected250=synthEnvelopeLevel(s,.25,1.0),sustain=e[480]/peak;
+    const int off=int((double(int(rate/block)*block)/rate)*500);int gone=-1;for(size_t i=size_t(off);i<e.size();++i)if(e[i]<sustain*peak*1e-3){gone=int(i);break;}
+    const double release=(gone-off)*2.0;
+    std::cout<<"MEASURE amp envelope: attack to 98 % "<<attack<<" ms (98), level at 250 ms "<<db(at250)<<" dB (analytic "<<db(expected250)<<"), sustain "<<db(sustain)<<" dB (-6.02), release to -60 dB "<<release<<" ms (300)\n";
+    require(std::abs(attack-98)<5 && std::abs(db(at250)-db(expected250))<.3 && std::abs(db(sustain)+6.02)<.1 && std::abs(release-300)<15,"Amp envelope timing wrong");
+    std::cout<<"PASS ADSR attack, decay, sustain and release against the graph's formula\n";
+}
+
+void lfoAndMatrix() {
+    // LFO 1 (sine, 5 Hz) -> Pitch A at 10 % = +-2.4 st, on 880 Hz so every 10 ms window holds several cycles.
+    Host h;clean(h,0);h.set("synthLfo1Rate",5);h.set("synthMod1Source",float(modLfo1));h.set("synthMod1Target",float(targetPitchA));h.set("synthMod1Amount",10);
+    const auto out=render(h,96000,silence(),hold({81})).l;
+    double lo=1e9,hi=0;for(int n=4800;n+480<96000;n+=240){double first=-1,last=-1;int c=0;for(int i=n+1;i<n+480;++i)if(out[size_t(i-1)]<0&&out[size_t(i)]>=0){const double t=i-1+out[size_t(i-1)]/(out[size_t(i-1)]-out[size_t(i)]);if(first<0)first=t;last=t;++c;}if(c>2){const double f=(c-1)*rate/(last-first);lo=std::min(lo,f);hi=std::max(hi,f);}}
+    const double depth=12*std::log2(hi/lo)/2;
+    // LFO 2 synced to 1/4 at 120 BPM (2 Hz) -> Amp at 100 %.
+    Host a;clean(a,0);a.set("synthLfo2Sync",3);a.set("synthLfo2Shape",3);a.set("synthMod2Source",float(modLfo2));a.set("synthMod2Target",float(targetAmp));a.set("synthMod2Amount",100);
+    const auto am=envelope(render(a,96000,silence(),hold({81})).l,48);int rises=0,first=-1,last=-1;for(size_t i=1;i<am.size();++i)if(am[i-1]<.5&&am[i]>=.5){++rises;if(first<0)first=int(i);last=int(i);}
+    const double syncHz=rises>1?(rises-1)/((last-first)*.001):0;
+    // Env 2 -> Cutoff: the saw darkens as Env 2 decays.
+    Host f;clean(f,2);f.set("synthFilterOn",1);f.set("synthCutoff",300);f.set("synthModEnvDecay",300);f.set("synthMod3Source",float(modEnv2));f.set("synthMod3Target",float(targetCutoff));f.set("synthMod3Amount",80);
+    const auto sweep=render(f,48000,silence(),hold({45})).l;
+    const double early=magnitude(sweep,480,2400,1760)/magnitude(sweep,480,2400,110),late=magnitude(sweep,36000,48000,1760)/magnitude(sweep,36000,48000,110);
+    std::cout<<"MEASURE LFO 1 -> Pitch A 10 %: +-"<<depth<<" st (2.4); LFO 2 1/4 @ 120 BPM -> Amp: "<<syncHz<<" Hz (2); Env 2 -> Cutoff: 1760 Hz re 110 Hz "<<db(early)<<" dB early, "<<db(late)<<" dB late\n";
+    require(std::abs(depth-2.4)<.15 && std::abs(syncHz-2)<.05 && db(early)-db(late)>20,"LFO or modulation matrix wrong");
+    std::cout<<"PASS LFO rate and tempo sync, matrix routing to pitch, amp and cutoff\n";
+}
+
+void fmAndVoices() {
+    // FM: B (sine, octave +1, level 0) into A (sine): sidebands at 220 +- 440 Hz.
+    Host h;clean(h,0);h.set("synthOscBOn",1);h.set("synthOscBWave",0);h.set("synthOscBOctave",1);h.set("synthOscBLevel",0);
+    const auto none=render(h,48000,silence(),hold({57})).l;h.set("synthFM",25);const auto fm=render(h,48000,silence(),hold({57})).l;
+    const double before=db(magnitude(none,12000,48000,660)/magnitude(none,12000,48000,220)),after=db(magnitude(fm,12000,48000,660)/magnitude(fm,12000,48000,220));
+    // Polyphony: three notes, three peaks; five notes into four voices steal the oldest.
+    Host p;clean(p,0);p.set("synthVoices",4);
+    SynthLayer chord;const auto three=render(p,48000,silence(),hold({57,61,64}),&chord).l;
+    const double m1=magnitude(three,12000,48000,220),m2=magnitude(three,12000,48000,hz(61)),m3=magnitude(three,12000,48000,hz(64));
+    SynthLayer stolen;render(p,12000,silence(),hold({57,59,61,62,64}),&stolen);
+    // Mono legato glide (time constant 100 ms) from A3 to A4.
+    Host g;clean(g,0);g.set("synthVoices",1);g.set("synthGlide",100);
+    const auto glide=render(g,96000,silence(),[](int k,juce::MidiBuffer& m){if(k==0)m.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);if(k==94)m.addEvent(juce::MidiMessage::noteOn(1,69,1.f),0);}).l;
+    const int t=94*block;const double soon=peakNear(glide,t+240,t+1200,300),settled=peakNear(glide,t+48000,t+67200,440);   // glide is a time constant: 1 s is 10 of them
+    std::cout<<"MEASURE FM 25 %: 660 Hz sideband "<<before<<" -> "<<after<<" dB re the carrier; chord peaks "<<db(m1)<<" / "<<db(m2)<<" / "<<db(m3)<<" dBFS; 5 notes into 4 voices: "<<stolen.soundingVoices()
+             <<" sounding; glide 100 ms: "<<soon<<" Hz in the first 25 ms, "<<settled<<" Hz settled\n";
+    require(before<-60 && after>-25 && std::abs(db(m1)-db(m2))<.5 && std::abs(db(m1)-db(m3))<.5 && stolen.soundingVoices()==4 && soon>225 && soon<420 && std::abs(settled-440)<.5,"FM, polyphony or glide wrong");
+    std::cout<<"PASS FM B to A, polyphony and voice stealing, mono legato glide\n";
+}
+
+void guitarAndMidi() {
     const auto quiet=[](int n){return float(.00316*std::sin(2*pi*110*n/rate));};
     const auto loud=[](int n){return float(.1*std::sin(2*pi*110*n/rate));};
-    Host h;h.set("synthOn",1);h.set("synthSource",1);
-    const double under=rms(render(h,24000,quiet,noMidi()),12000,24000),over=rms(render(h,24000,loud,noMidi()),12000,24000);
-    // MIDI A3 = 220 Hz; octave -1 halves it; pitch bend +2 st.
-    Host m;m.set("synthOn",1);m.set("synthSource",2);m.set("synthCharacter",0);m.set("synthTone",100);
-    const auto a3=render(m,48000,silence(),holdNote(57));const double f=peakNear(a3,12000,48000,220);
-    m.set("synthOctave",-1);const double low=peakNear(render(m,48000,silence(),holdNote(57)),12000,48000,110);
-    m.set("synthOctave",0);const double bent=peakNear(render(m,48000,silence(),[](int k,juce::MidiBuffer& b){if(k==0){b.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);b.addEvent(juce::MidiMessage::pitchWheel(1,16383),0);}}),12000,48000,247);
-    std::cout<<"MEASURE threshold -40 dBFS: input -50 dBFS gives "<<db(under)<<" dBFS, -20 dBFS gives "<<db(over)<<" dBFS; MIDI A3 "<<f<<" Hz, octave -1 "<<low<<" Hz, bend +2 st "<<bent<<" Hz (246.9)\n";
-    require(under==0 && over>1e-3 && std::abs(f-220)<.3 && std::abs(low-110)<.3 && std::abs(bent-246.94)<.5,"Tracking threshold or MIDI pitch wrong");
-    std::cout<<"PASS tracking threshold, MIDI pitch, octave and bend\n";
+    Host h;clean(h,0);h.set("synthSource",1);
+    const double under=rms(render(h,24000,quiet,noMidi()).l,12000,24000);const auto played=render(h,48000,loud,noMidi()).l;
+    const double over=rms(played,12000,24000),guitarPitch=peakNear(played,24000,48000,110);
+    h.set("synthSource",0);const auto both=render(h,48000,loud,hold({69})).l;const double midiWins=peakNear(both,24000,48000,440),guitarAbsent=magnitude(both,24000,48000,110);
+    std::cout<<"MEASURE guitar: -50 dBFS under a -40 dBFS threshold "<<db(under)<<" dBFS, -20 dBFS plays "<<db(over)<<" dBFS at "<<guitarPitch<<" Hz; guitar + held MIDI A4: "<<midiWins<<" Hz, 110 Hz at "<<db(guitarAbsent)<<" dBFS\n";
+    require(under==0 && over>1e-3 && std::abs(guitarPitch-110)<.5 && std::abs(midiWins-440)<.5 && db(guitarAbsent)<-60,"Guitar tracking threshold or MIDI precedence wrong");
+    std::cout<<"PASS guitar tracking threshold and pitch, a held MIDI note wins\n";
 }
 
-void dvergr() {
-    Host h;h.set("synthOn",1);h.set("synthSource",2);h.set("synthModel",0);h.set("synthCharacter",0);h.set("synthTone",100);
-    const auto open=render(h,48000,silence(),holdNote(57));
-    const double fundamental=magnitude(open,12000,48000,220),subOctave=magnitude(open,12000,48000,110);
-    h.set("synthTone",0);const auto dark=render(h,48000,silence(),holdNote(57));
-    double hiOpen=0,hiDark=0;for(double hz=3080;hz<9000;hz+=220){hiOpen+=std::pow(magnitude(open,12000,48000,hz),2);hiDark+=std::pow(magnitude(dark,12000,48000,hz),2);}
-    std::cout<<"MEASURE Dvergr Analog: sub octave "<<db(subOctave/fundamental)<<" dB re the note; harmonics 3-9 kHz, Cutoff 0 vs 100 %: "<<10*std::log10(hiDark/hiOpen)<<" dB\n";
-    require(db(subOctave/fundamental)>-12 && 10*std::log10(hiDark/hiOpen)<-30,"Dvergr Analog sub octave or cutoff wrong");
-}
-
-void seidr() {
-    // Played by the guitar: louder playing opens the filter and raises the level.
-    Host h;h.set("synthOn",1);h.set("synthSource",1);h.set("synthModel",1);h.set("synthCharacter",100);h.set("synthTone",20);h.set("synthAttack",5);
-    const auto soft=render(h,48000,[](int n){return float(.03*std::sin(2*pi*110*n/rate));},noMidi());
-    const auto hard=render(h,48000,[](int n){return float(.25*std::sin(2*pi*110*n/rate));},noMidi());
-    const auto centroid=[](const std::vector<float>& x){double num=0,den=0;for(int k=1;k<=40;++k){const double m=magnitude(x,24000,48000,110.0*k);num+=110.0*k*m*m;den+=m*m;}return num/std::max(den,1e-30);};
-    const double cs=centroid(soft),ch=centroid(hard),ls=rms(soft,24000,48000),lh=rms(hard,24000,48000);
-    std::cout<<"MEASURE Seidr Dynamic, input -30 vs -12 dBFS: centroid "<<cs<<" -> "<<ch<<" Hz, level "<<db(ls)<<" -> "<<db(lh)<<" dBFS\n";
-    require(ch>cs*1.5 && lh>ls*2,"Seidr Dynamic does not follow the playing");
-}
-
-void mimir() {
-    // Release 500 ms: the strike decays 60 dB in 0.5 s, held or not; the FM index decays faster.
-    Host h;h.set("synthOn",1);h.set("synthSource",2);h.set("synthModel",2);h.set("synthRelease",500);h.set("synthAttack",1);h.set("synthTone",60);h.set("synthCharacter",30);
-    const auto out=render(h,int(rate*1.2),silence(),holdNote(57));
-    std::vector<double> level;for(int n=0;n+480<=int(out.size());n+=480)level.push_back(db(rms(out,n,n+480)));
-    const double top=*std::max_element(level.begin(),level.end());int a=-1,b=-1;
-    for(size_t i=0;i<level.size();++i){if(a<0&&level[i]<top-10)a=int(i);if(b<0&&level[i]<top-40){b=int(i);break;}}
-    require(a>0 && b>a,"Mimir Impact decay not measurable");
-    const double t60=60.0*(b-a)*.01/30.0;
-    const double earlySide=magnitude(out,240,1680,660)/magnitude(out,240,1680,220),lateSide=magnitude(out,int(rate*.15),int(rate*.25),660)/magnitude(out,int(rate*.15),int(rate*.25),220);
-    std::cout<<"MEASURE Mimir Impact: T60 "<<t60<<" s (Release 0.5 s); 660 Hz sideband re 220 Hz: "<<db(earlySide)<<" dB early, "<<db(lateSide)<<" dB at 150-250 ms\n";
-    require(std::abs(t60/.5-1)<.15 && db(earlySide)-db(lateSide)>20,"Mimir Impact decay or FM index envelope wrong");
-}
-
-void contract() {
-    // Off adds nothing and runs nothing; switching off releases, then idles.
+void contractAndPatches() {
     Host h;SynthLayer s;s.bind(h.state);s.prepare(rate,block);juce::AudioBuffer<float> in(2,block),o(2,block);juce::MidiBuffer m;m.addEvent(juce::MidiMessage::noteOn(1,60,1.f),0);
-    for(int n=0;n<block;++n){in.setSample(0,n,.3f);in.setSample(1,n,.3f);o.setSample(0,n,.1f);o.setSample(1,n,.1f);}
-    s.handleMidi(m);s.analyse(in);s.process(o);bool same=true;for(int n=0;n<block;++n)same=same&&o.getSample(0,n)==.1f&&o.getSample(1,n)==.1f;
+    for(int n=0;n<block;++n)for(int c=0;c<2;++c){in.setSample(c,n,.3f);o.setSample(c,n,.1f);}
+    s.handleMidi(m);s.analyse(in);s.render(block,120);for(int i=0;i<4;++i)s.addAt(SynthInsert(i),o);
+    bool same=true;for(int n=0;n<block;++n)same=same&&o.getSample(0,n)==.1f&&o.getSample(1,n)==.1f;
     require(same && !s.sounding(),"SYNTH off changed the signal");
-    h.set("synthOn",1);h.set("synthSource",2);h.set("synthRelease",100);int k=0;
-    for(;k<40;++k){o.clear();s.process(o);}
-    require(s.sounding(),"SYNTH does not sound on a held MIDI note");
-    h.set("synthOn",0);int idle=-1;for(int j=0;j<200;++j){o.clear();s.process(o);if(!s.sounding()){idle=j;break;}}
-    std::cout<<"MEASURE switched off while sounding: idle after "<<idle*block/rate*1000<<" ms (release 100 ms)\n";
-    require(idle>0,"SYNTH does not go idle after it is switched off");
-    // Extremes: every layer, octave +1, fast attack, max tone/character, loud guitar; bounded and allocation-free.
+    // Everything at once: eight voices, unison 7 on both oscillators, all eight slots, FM, drive.
     double peak=0;bool finite=true;allocations=0;
-    for(int model=0;model<3;++model){Host x;x.set("synthOn",1);x.set("synthModel",float(model));x.set("synthOctave",1);x.set("synthTone",100);x.set("synthCharacter",100);x.set("synthAttack",1);x.set("synthLevel",6);
-        const auto out=render(x,48000,[](int n){return pluck(82.407,n%24000);},holdNote(96));for(float v:out){finite=finite&&std::isfinite(v);peak=std::max(peak,double(std::abs(v)));}}
-    std::cout<<"MEASURE extremes: peak "<<peak<<", allocations "<<allocations<<"\n";
-    require(finite && peak<8 && allocations==0,"SYNTH unbounded or allocating");
-    std::cout<<"PASS off contract, release to idle, bounded extremes, allocation-free callback\n";
+    const auto patches=synthPatches();   // one copy: the loops below refer into it
+    for(int patch=0;patch<int(patches.size());++patch){
+        Host x;for(const auto& [id,v]:patches[size_t(patch)].values)x.set(id.toRawUTF8(),v);
+        x.set("synthOn",1);x.set("synthSource",0);x.set("synthVoices",8);x.set("synthOscAUnison",7);x.set("synthOscBOn",1);x.set("synthOscBUnison",7);x.set("synthDrive",100);x.set("synthResonance",100);
+        for(int slot=0;slot<synthModSlots;++slot){x.set(synthModID(slot,"Source").toRawUTF8(),float(1+slot%7));x.set(synthModID(slot,"Target").toRawUTF8(),float(1+slot%13));x.set(synthModID(slot,"Amount").toRawUTF8(),slot%2?100.f:-100.f);}
+        const auto out=render(x,48000,[](int n){return pluck(82.407,n%24000);},hold({48,52,55,60,64,67,72,76}));
+        for(size_t n=0;n<out.l.size();++n){finite=finite&&std::isfinite(out.l[n])&&std::isfinite(out.r[n]);peak=std::max({peak,double(std::abs(out.l[n])),double(std::abs(out.r[n]))});}
+    }
+    std::cout<<"MEASURE every patch at full load (8 voices x 2 x 7 unison, 8 slots, drive, resonance 100 %): peak "<<peak<<", allocations "<<allocations<<"\n";
+    require(finite && peak<=2.0 && allocations==0,"SYNTH unbounded or allocating at full load");
+    // The factory patches sound.
+    std::string line;
+    for(int patch=1;patch<int(patches.size());++patch){Host x;for(const auto& [id,v]:patches[size_t(patch)].values)x.set(id.toRawUTF8(),v);x.set("synthOn",1);x.set("synthSource",2);
+        const double level=rms(render(x,24000,silence(),hold({57})).l,2400,12000);line+=std::string(" ")+patches[size_t(patch)].name+" "+juce::String(db(level),1).toStdString()+" dBFS;";require(level>1e-3,"A factory patch is silent");}
+    std::cout<<"MEASURE factory patches, A3:"<<line<<"\n";
+    std::cout<<"PASS off contract, full load bounded and allocation-free, factory patches sound\n";
 }
 
-void processorAndEditor() {
-    const auto run=[](bool synthOn){auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(rate,block);p->prepareToPlay(rate,block);
+struct Writes final : juce::AudioProcessorListener {
+    std::map<int,int> changes;int gestures{};
+    void audioProcessorParameterChanged(juce::AudioProcessor*,int index,float) override {++changes[index];}
+    void audioProcessorChanged(juce::AudioProcessor*,const juce::AudioProcessorListener::ChangeDetails&) override {}
+    void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int) override {++gestures;}
+    void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int) override {++gestures;}
+};
+void processorInsertsAndPage() {
+    // Each insert point: silent input + MIDI A3 -> the synth reaches the output.
+    std::array<std::vector<float>,4> outputs;std::string line;
+    for(int insert=0;insert<4;++insert){
+        auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(rate,block);p->prepareToPlay(rate,block);
         auto set=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
-        if(synthOn){set("synthOn",1);set("synthSource",2);}
-        juce::AudioBuffer<float> b(2,block);std::vector<float> out;
-        for(int k=0;k<80;++k){juce::MidiBuffer midi;if(k==2)midi.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);b.clear();p->processBlock(b,midi);for(int n=0;n<block;++n)out.push_back(b.getSample(0,n));}
-        return out;};
-    const auto off=run(false),on=run(true);
-    const double quiet=rms(off,8000,20480),played=rms(on,8000,20480),pitch=peakNear(on,8000,20480,220);
-    std::cout<<"MEASURE processor, silent input + MIDI A3: off "<<db(quiet)<<" dBFS, on "<<db(played)<<" dBFS at "<<pitch<<" Hz\n";
-    require(played>quiet*100 && played>1e-3 && std::abs(pitch-220)<1,"SYNTH is not in the processor's signal chain");
-    auto p=std::make_unique<ChimeraProcessor>();const auto raw=[&](const char* id){return p->parameters().getRawParameterValue(id)->load();};
-    spectralforge::synthUI::SynthStrip strip(*p);strip.setSize(850,24);spectralforge::synthUI::SynthPanel panel(*p);
-    juce::Button* on2=nullptr;for(auto* c:strip.getChildren())if(c->getComponentID()=="synthStrip.on")on2=dynamic_cast<juce::Button*>(c);
-    require(on2!=nullptr,"SYNTH strip switch missing");
-    on2->setToggleState(true,juce::sendNotificationSync);strip.modelBox().setSelectedId(3,juce::sendNotificationSync);
-    require(raw("synthOn")>.5f && juce::roundToInt(raw("synthModel"))==2,"SYNTH strip is not attached");
-    panel.refreshModel();require(panel.controlLabel(3)=="STRIKE" && panel.controlLabel(4)=="RATIO","Panel labels do not follow the layer");
-    const auto path=spectralforge::signalPath::read(*p);const auto* node=path.find("synth");
-    bool edge=false;for(const auto& e:path.edges)edge|=e.from=="synth"&&e.to=="tone.eq";
-    require(node!=nullptr && node->label=="Mimir Impact" && node->active && edge,"Signal path lacks the SYNTH node before Tone EQ");
-    std::cout<<"PASS processor chain, strip and panel attached, labels per layer, signal-path node into Tone EQ\n";
+        set("synthOn",1);set("synthSource",2);set("synthInsert",float(insert));
+        juce::AudioBuffer<float> b(2,block);
+        for(int k=0;k<80;++k){juce::MidiBuffer midi;if(k==2)midi.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);b.clear();p->processBlock(b,midi);for(int n=0;n<block;++n)outputs[size_t(insert)].push_back(b.getSample(0,n));}
+        const auto path=spectralforge::signalPath::read(*p);static constexpr std::array<const char*,4> joins{"split","tone.eq","post.section0","utilities"};
+        bool edge=false;for(const auto& e:path.edges)edge|=e.from=="synth"&&e.to==joins[size_t(insert)];
+        require(edge,"The signal path does not show the synth at its insert point");
+        line+=" "+synthInsertNames()[insert].toStdString()+" "+juce::String(db(rms(outputs[size_t(insert)],8000,20480)),1).toStdString()+" dBFS (latency "+std::to_string(p->getLatencySamples())+");";
+        require(rms(outputs[size_t(insert)],8000,20480)>1e-3,"The synth does not reach the output from an insert point");
+    }
+    double ampDiffers=0;for(size_t n=8000;n<20480;++n)ampDiffers=std::max(ampDiffers,double(std::abs(outputs[0][n]-outputs[2][n])));
+    std::cout<<"MEASURE inserts, silent input + MIDI A3:"<<line<<" amp input vs before POST differ by up to "<<ampDiffers<<"\n";
+    require(ampDiffers>1e-3,"Amp input does not pass the synth through the amps");
+    // The page: attached controls, graph drags as single gestures, patches.
+    auto p=std::make_unique<ChimeraProcessor>();Writes writes;p->addListener(&writes);
+    spectralforge::synthUI::SynthPage page(*p);page.setSize(1140,438);
+    const auto index=[&](const char* id){return p->parameters().getParameter(id)->getParameterIndex();};
+    const auto raw=[&](const char* id){return p->parameters().getRawParameterValue(id)->load();};
+    for(const auto* id:{"synthOn","synthSource","synthInsert","synthOscAWave","synthCutoff","synthAmpAttack","synthLfo1Shape","synthMod1Source","synthMod1Amount","synthLevel"})
+        require(page.control(id)!=nullptr,std::string("SYNTH page control missing: ")+id);
+    require(writes.changes.empty(),"Opening the SYNTH page wrote a parameter");
+    auto& curve=page.filterCurve();
+    const auto drag=[&](juce::Component& c,juce::Point<float> from,juce::Point<float> to){
+        const auto source=juce::Desktop::getInstance().getMainMouseSource();const auto now=juce::Time::getCurrentTime();
+        const auto event=[&](juce::Point<float> at,bool down){return juce::MouseEvent(source,at,juce::ModifierKeys(down?juce::ModifierKeys::leftButtonModifier:0),1,0,0,0,0,&c,&c,now,from,now,1,false);};
+        c.mouseDown(event(from,true));c.mouseDrag(event(to,true));c.mouseUp(event(to,false));};
+    writes.gestures=0;writes.changes.clear();
+    drag(curve,{100,40},{float(curve.getWidth())*.75f,10});
+    const double expectedCutoff=spectralforge::synthUI::FilterCurve::hzForX(float(curve.getWidth())*.75f,float(curve.getWidth()));
+    std::cout<<"MEASURE filter-curve drag: cutoff "<<raw("synthCutoff")<<" Hz (pointer "<<expectedCutoff<<" Hz), resonance "<<raw("synthResonance")<<" %, gestures "<<writes.gestures<<"\n";
+    require(std::abs(raw("synthCutoff")/expectedCutoff-1)<.02 && raw("synthResonance")>80 && writes.gestures==4 && writes.changes.size()==2,"Filter-curve drag is not one gesture per parameter or misplaced");
+    writes.gestures=0;writes.changes.clear();
+    auto& env=page.envelopeGraph(0);const auto a=env.attackPoint();drag(env,a,{a.x+30,a.y});
+    require(raw("synthAmpAttack")>5 && writes.changes.size()==1 && writes.changes.count(index("synthAmpAttack")) && writes.gestures==2,"Envelope attack drag wrong");
+    writes.changes.clear();page.applyPatch(1);
+    require(juce::roundToInt(raw("synthSubOn"))==1 && std::abs(raw("synthCutoff")-1200)<1 && raw("synthOn")<.5f,"Patch did not apply (or switched the synth on)");
+    page.applyPatch(0);require(std::abs(raw("synthCutoff")-6000)<1 && raw("synthSubOn")<.5f,"Init patch did not restore the defaults");
+    p->removeListener(&writes);
+    std::cout<<"PASS inserts in the processor and the path, SYNTH page controls, graph drags as host gestures, patches\n";
 }
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();gateAndMidi();dvergr();seidr();mimir();contract();processorAndEditor();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();contractAndPatches();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

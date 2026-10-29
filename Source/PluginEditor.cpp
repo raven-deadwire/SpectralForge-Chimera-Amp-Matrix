@@ -505,7 +505,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
     creativeStrip=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor);add(*creativeStrip);creativeStrip->onOpen=[this]{openCreativePanel();};
-    synthStrip=std::make_unique<spectralforge::synthUI::SynthStrip>(processor);add(*synthStrip);synthStrip->onOpen=[this]{openSynthPanel();};
+    synthPage=std::make_unique<spectralforge::synthUI::SynthPage>(processor);add(*synthPage);
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
     setResizable(true,true); setResizeLimits(480,320,1770,1170);
@@ -567,7 +567,7 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
     switch(node.target){
         case Target::pre:page=1;break;
         case Target::post:page=2;break;
-        case Target::synth:page=0;break;
+        case Target::synth:page=4;break;
         case Target::toneEQ:case Target::finalEQ:page=3;selectedEQBank=node.target==Target::toneEQ?0:1;break;
         case Target::dynamics:page=3;dynamicsViewOpen=true;break;
         case Target::gate:page=3;dynamicsViewOpen=true;break;
@@ -606,7 +606,7 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::output:focus(globalSliders[6]);break;
         case Target::tuner:{if(!tunerViewOpen)tunerOpen.onClick();break;}
         case Target::utilities:focus(doublerTime);break;
-        case Target::synth:focus(synthStrip->modelBox());break;   // ALL on the strip opens the full panel
+        case Target::synth:if(auto* c=synthPage->control("synthOn"))focus(*c);break;
         case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
         case Target::post:
             if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}
@@ -874,7 +874,7 @@ void ChimeraEditor::updateModeUI()
     const int nextMode=(int)processor.parameters().getRawParameterValue("mode")->load();
     // PRE, POST and the two EQ banks are global. Changing routing mode keeps
     // their current editor open, so retain its matching path selection too.
-    if(nextMode!=lastMode && lastMode>=0 && page>=1 && page<=3)pathSelections[size_t(nextMode)]=pathSelections[size_t(lastMode)];
+    if(nextMode!=lastMode && lastMode>=0 && page>=1 && page<=4)pathSelections[size_t(nextMode)]=pathSelections[size_t(lastMode)];
     if(nextMode!=lastMode){showRigControls=false;if(page==0)pathSelections[size_t(nextMode)]="cab";}
     lastMode=nextMode;
     lastDualCross=processor.parameters().getRawParameterValue("dualtype")->load()>.5f;lastTuner=processor.parameters().getRawParameterValue("tuneron")->load()>.5f;
@@ -907,7 +907,7 @@ void ChimeraEditor::updateModeUI()
     }
     for(auto& post:postPanels) {post->setVisible(page==2 && !tunerViewOpen);post->refreshIfNeeded();}
     creativeStrip->setVisible(page==2 && !tunerViewOpen);
-    synthStrip->setVisible(page==0 && !tunerViewOpen && !(cabRoom && cabRoom->isVisible()));
+    synthPage->setVisible(page==4 && !tunerViewOpen);
     for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(false);
     for(int i=0;i<3;++i)
     {
@@ -929,7 +929,7 @@ void ChimeraEditor::updateModeUI()
     dualBlend.setVisible(lastMode==1 && !lastDualCross && page==0);dualFrequency.setVisible(lastMode==1 && lastDualCross && page==0);
     dualLabel.setText(lastDualCross ? "LOW / HIGH CROSSOVER" : "RIG 1 : RIG 2",juce::dontSendNotification);
     tunerOn.setVisible(false);tunerMute.setVisible(false);globalSliders[5].setVisible(false);delaySync.setVisible(page==2 && !tunerViewOpen);
-    routingHelp.setText(page==3 ? "TONE EQ > DYNAMICS > POST > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
+    routingHelp.setText(page==4 ? "SYNTH / GUITAR + MIDI" : page==3 ? "TONE EQ > DYNAMICS > POST > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
     precisionTuner->setVisible(tunerViewOpen);if(tunerViewOpen)precisionTuner->toFront(false);
     tunerOpen.setToggleState(tunerViewOpen,juce::dontSendNotification);
     tunerOpen.getProperties().set("utilityActive",tunerViewOpen);
@@ -1077,7 +1077,7 @@ void ChimeraEditor::layoutControls()
     inputGuide.setBounds(16,2,456,60);
     for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
     creativeStrip->setBounds(310,302,850,24);
-    synthStrip->setBounds(310,302,850,24);
+    synthPage->setBounds(20,302,1140,438);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
         effect.header.setBounds(48,y+2,186,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
@@ -1283,12 +1283,5 @@ void ChimeraEditor::openCreativePanel()
 {
     auto* full=new spectralforge::creativeUI::CreativePanel(processor);full->setLookAndFeel(&look);
     juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="CHIMERA / CREATIVE";options.dialogBackgroundColour=panel;
-    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
-}
-
-void ChimeraEditor::openSynthPanel()
-{
-    auto* full=new spectralforge::synthUI::SynthPanel(processor);full->setLookAndFeel(&look);
-    juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="CHIMERA / SYNTH LAYER";options.dialogBackgroundColour=panel;
     options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
 }

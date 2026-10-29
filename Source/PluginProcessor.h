@@ -75,6 +75,8 @@ public:
     bool acceptsMidi() const override { return true; }
     // 1.10 SYNTH: the tracked guitar pitch (Hz, 0 when none), for the panel readout.
     double synthTrackedFrequency() const noexcept { return synthTracked.load(std::memory_order_relaxed); }
+    // The synth engine, read by the SYNTH page (scope, LFO and tracking readouts).
+    const spectralforge::SynthLayer& synthEngine() const noexcept { return synth; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override {

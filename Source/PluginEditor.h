@@ -18,7 +18,7 @@
 #include "EasyModeView.h"
 #include "EffectModelSync.h"
 #include "CreativePanel.h"
-#include "SynthPanel.h"
+#include "SynthPage.h"
 
 class CabRoomOverview;
 
@@ -198,8 +198,7 @@ private:
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
     std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip;
     void openCreativePanel();
-    std::unique_ptr<spectralforge::synthUI::SynthStrip> synthStrip;
-    void openSynthPanel();
+    std::unique_ptr<spectralforge::synthUI::SynthPage> synthPage;   // page 4
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};

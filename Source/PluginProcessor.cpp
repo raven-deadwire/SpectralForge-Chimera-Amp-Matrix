@@ -371,6 +371,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     measureStage(0,buffer);
     tuner.push(buffer,value(tunerOn)>.5f);
     synth.analyse(buffer);   // 1.10 SYNTH tracks the clean input
+    synth.render(buffer.getNumSamples(),tempoMeter.load());   // rendered once, added at its insert point below
     synthTracked.store(synth.read().on?synth.pitchTracker().hz():0.0,std::memory_order_relaxed);
     auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=modelExtensionParameters[i]?spectralforge::effectSelectedModel(int(i),modelParameters[i]->load(),modelExtensionParameters[i]->load()):(int)modelParameters[i]->load();fx.tempo=tempoMeter.load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     fx.postNative=nativePost.read();
@@ -434,6 +435,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // its send is fading out after Room off).
     const auto roomSends=room.sends();
     juce::AudioBuffer<float>* roomBus=room.wantsInput() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
+    synth.addAt(spectralforge::SynthInsert::ampInput,buffer);   // SYNTH insert: into the amps, like a pedal
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
@@ -448,8 +450,8 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // already in the room is not cut by a closing gate.
     if(room.running())room.process(roomBus,buffer);
     gate2Gain.store(gate2.reduction());expanderGain.store(expander.reduction());
-    // 1.10 SYNTH layer (docs/SYNTH_1_10.md): added in parallel after RIG SUM and the post-rig gates, before Tone EQ.
-    synth.process(buffer);
+    // SYNTH insert (docs/SYNTH_PAGE.md): after RIG SUM and the post-rig gates, before Tone EQ.
+    synth.addAt(spectralforge::SynthInsert::beforeToneEQ,buffer);
     measureStage(2,buffer);
     autoSetCaptureState.push(spectralforge::autoset::Tap::tone,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     toneEQ.process(buffer);
@@ -464,7 +466,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load());}
     autoSetCaptureState.push(spectralforge::autoset::Tap::deesser,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
+    synth.addAt(spectralforge::SynthInsert::beforePost,buffer);
     postFX.process(buffer,fx);
+    synth.addAt(spectralforge::SynthInsert::afterPost,buffer);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
     for(int section=0;section<3;++section)nativePostMeters[(size_t)section].store(postFX.nativeMeter(section));

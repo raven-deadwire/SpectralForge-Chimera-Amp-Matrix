@@ -1,5 +1,7 @@
 # SYNTH layer — 1.10
 
+> **Superseded on `claude/synth-page`:** the engine, parameters and UI below were replaced by the SYNTH page and Serum-style engine in [SYNTH_PAGE.md](SYNTH_PAGE.md). The three layers are now factory patches. The tracker and its measurements below still apply.
+
 Status: **implemented on `claude/synth-layer`**, stacked on
 `claude/creative-fx`. Roadmap 1.10: Dvergr Analog, Seidr Dynamic and Mimir
 Impact. Covered by `ChimeraSynthTests`, with the inventory, native-state and

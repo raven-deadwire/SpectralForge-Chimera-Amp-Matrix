@@ -92,6 +92,7 @@ public:
             bool postActive=false;for(const auto& n:current.nodes)if(n.target==Target::post)postActive|=n.active;
             visible.push_back({"post","POST",postActive?"ACTIVE":"BYPASSED","Open the POST effects rack.",Target::post,-1,-1,postActive});
             add("final.eq");
+            if(const auto* n=current.find("synth"))visible.push_back({"synth","SYNTH",n->status,"Open the SYNTH page: oscillators, filter, envelopes, LFOs and modulation.",Target::synth,-1,-1,n->active});
         }else visible=current.nodes;
         std::vector<std::unique_ptr<juce::TextButton>> nextButtons;
         for(const auto& node:visible) {
@@ -197,6 +198,7 @@ private:
                 case Target::rigs:case Target::amp:case Target::low:editingStage="head";break;
                 case Target::cab:editingStage="cab";break;
                 case Target::post:editingStage="post";break;
+                case Target::synth:editingStage="synth";break;
                 case Target::dynamics:editingStage=selected=="output.limiter"?"final.eq":"tone.eq";break;
                 default:break;
             }

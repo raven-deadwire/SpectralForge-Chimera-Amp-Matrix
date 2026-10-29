@@ -81,7 +81,7 @@ inline void capture(juce::Component& root,const juce::File& folder,const juce::S
     require(staged.overwriteTargetFileWithTemporary(),"Cannot replace Signal Path snapshot");
     verify(file);
 }
-inline constexpr std::array<const char*,6> compactStages{"pre","head","cab","tone.eq","post","final.eq"};
+inline constexpr std::array<const char*,7> compactStages{"pre","head","cab","tone.eq","post","final.eq","synth"};
 inline juce::TextButton& pathButton(SignalPathView& view,const juce::String& id) {
     auto* button=find<juce::TextButton>(view,"path."+id);
     require(button,"Signal path navigation button missing");return *button;
@@ -95,7 +95,7 @@ inline void accessibleButton(juce::TextButton& button,const juce::String& label)
 }
 inline void compactContract(SignalPathView& strip,int mode) {
     int count=0;for(auto* child:strip.getChildren())if(child->getComponentID().startsWith("path."))++count;
-    require(count==int(compactStages.size()),"Compact workflow must contain exactly six editing stages");
+    require(count==int(compactStages.size()),"Compact workflow must contain exactly seven editing stages");
     require(strip.getHeight()>=44,"Primary navigation hit area is too small");
     int previousRight=0;
     for(size_t i=0;i<compactStages.size();++i) {
@@ -114,7 +114,7 @@ inline void compactContract(SignalPathView& strip,int mode) {
         require(pathButton(strip,id).getAccessibilityHandler()->getTitle().contains(mode==0?"CLASSIC":mode==1?"DUAL":"MATRIX"),
                 "HEAD/CAB accessible names lost the current routing-mode context");
     auto* expand=find<juce::TextButton>(strip,"signalPathExpand");
-    require(expand && expand->getButtonText()=="ROUTING" && expand->getExplicitFocusOrder()==7
+    require(expand && expand->getButtonText()=="ROUTING" && expand->getExplicitFocusOrder()==int(compactStages.size())+1
             && expand->isVisible() && expand->isEnabled() && expand->getWantsKeyboardFocus(),
             "Actual routing inspection is not the final accessible workflow action");
     inside(strip,*expand,"Routing inspection button is clipped");accessibleButton(*expand,"routing");
@@ -229,6 +229,8 @@ inline void compactDestination(juce::Component& editor,SignalPathView& strip,con
     }
     else if(id=="post")require(visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel"),
                                "POST workflow action did not open the rack");
+    else if(id=="synth")require(visible("synthPage") && !visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel") && !visible("finalEQ_panel"),
+                                "SYNTH workflow action did not open the SYNTH page alone");
     else {
         const bool tone=id=="tone.eq";
         auto* selected=find<spectralforge::GraphicalEQPanel>(editor,tone?"toneEQ_panel":"finalEQ_panel");
