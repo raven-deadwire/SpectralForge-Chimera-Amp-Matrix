@@ -298,7 +298,7 @@ inline void editorView(const juce::File& directory) {
     const int presetID=spectralforge::presetDisplayOrder()[0]+1;
     presets->setSelectedId(presetID,juce::sendNotificationSync);
     auto* description=find<juce::Label>(*view,"easy.presetDescription");
-    const auto expected=juce::String::fromUTF8(spectralforge::selectablePresetDescription(presetID-1));
+    const auto expected=juce::String::fromUTF8(spectralforge::selectablePresetSummary(presetID-1));
     require(description && expected.isNotEmpty() && description->getText()==expected,"Easy preset did not load");
     // A slow runner must not see the loaded preset flagged CUSTOM afterwards.
     const auto deadline=juce::Time::getMillisecondCounterHiRes()+1000.;

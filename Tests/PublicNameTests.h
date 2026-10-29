@@ -3,6 +3,7 @@
 #include "AmpNativeCatalog.h"
 #include "EffectSelectionCatalog.h"
 #include "GuitarSignaturePresets.h"
+#include "PresetSummaries.h"
 #include "PostNativeCatalog.h"
 #include <iostream>
 #include <stdexcept>
@@ -103,6 +104,9 @@ inline void catalogPresentation() {
     for(int preset=0;preset<selectablePresetCount;++preset) {
         safeText(juce::String::fromUTF8(selectablePresetName(preset)),"Factory preset name");
         safeText(juce::String::fromUTF8(selectablePresetDescription(preset)),"Factory preset description");
+        const auto summary=juce::String::fromUTF8(selectablePresetSummary(preset));
+        safeText(summary,"Factory preset summary");
+        if(summary.isEmpty() || summary.length()>=100)throw std::runtime_error("Preset summary must be one short Easy view line");
     }
 }
 inline void hostPresentation(juce::AudioProcessor& processor) {

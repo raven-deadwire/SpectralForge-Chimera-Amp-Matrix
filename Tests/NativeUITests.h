@@ -13,8 +13,11 @@
 namespace nativeUITests {
 inline void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}
 inline void settle(int ms=55){require(chimeraTest::dispatchFor(ms),"Native UI loop exited");}
+// Returns as soon as ready() holds; the deadline only bounds a real failure.
+// macOS runners can stall the main run loop for ~1 s per dispatch, so 2 s
+// was not enough for a posted click (as in #208 for the CAB waits).
 template<class Ready> void waitForNativeSpectrum(Ready&& ready,const char* failure) {
-    const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
     while(!ready()) {
         require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);
         settle(10);

@@ -281,3 +281,10 @@ seeds, equal v3. It removes most of the 1-8 kHz inter-harmonic
 residual that linear interpolation left on bright sustains (median excess
 over an ideally shifted tone +10 -> +0.5 dB at 44.1/48 kHz; CPU +13%). See
 `docs/TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md`.
+
+`v3sinc_validation.py` is the preregistered fresh-seed validation of v3-sinc
+against v3 (phases freeze/targets/pdc/residual/echo/blocks). Result
+(2026-10-29): latency targets, detections, fixed PDC and block invariance
+pass; the high-band residual rule fails because its +2 dB median threshold,
+taken from 27.5-55 Hz tones, was applied to 27.5-330 Hz tones. See
+`docs/TRANSPOSE_V3SINC_FRESH_SEED_20261029.md`.
