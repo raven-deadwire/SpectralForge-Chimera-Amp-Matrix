@@ -1,0 +1,405 @@
+{
+  "schema": 1,
+  "date": "2026-10-26",
+  "channel": "Fenrir",
+  "purpose": "Does WaveNet width limit accuracy? Widths above 8 are not A2; diagnostic only, nothing exported.",
+  "arms": {
+    "8": {
+      "parameters": 12145,
+      "receptive_field": 6347,
+      "is_a2_compatible": true,
+      "steps": 25000,
+      "lr": 0.004,
+      "lr_half_life": 6000,
+      "batch": 4,
+      "frames": 4096,
+      "seed": 6405,
+      "loss": "window-normalized MSE + .1 DC on zero-input-corrected output, tail fraction .1",
+      "evaluations": [
+        {
+          "full_esr": 0.0866045051301277,
+          "active_median": 0.05615928292238733,
+          "active_p95": 0.3500387796062238,
+          "loud_note_esr": 0.22477581724524498,
+          "quieter_note_esr": 0.054110430947997994,
+          "peak_error_db": 0.2916882012567772,
+          "step": 2500,
+          "train_loss": 0.08054134175553918,
+          "elapsed_seconds": 764.4
+        },
+        {
+          "full_esr": 0.06247783837028207,
+          "active_median": 0.04165436244781139,
+          "active_p95": 0.23768521083533947,
+          "loud_note_esr": 0.13790760636329652,
+          "quieter_note_esr": 0.0459292238468633,
+          "peak_error_db": -0.20366898607239925,
+          "step": 5000,
+          "train_loss": 0.06160481804050505,
+          "elapsed_seconds": 1532.6
+        },
+        {
+          "full_esr": 0.04580612917496941,
+          "active_median": 0.03240143077935993,
+          "active_p95": 0.15963491668473342,
+          "loud_note_esr": 0.10402472279965877,
+          "quieter_note_esr": 0.03371592479593614,
+          "peak_error_db": -0.1694169448982894,
+          "step": 7500,
+          "train_loss": 0.046818612817674875,
+          "elapsed_seconds": 2278.7
+        },
+        {
+          "full_esr": 0.0436106607161269,
+          "active_median": 0.024991035546178986,
+          "active_p95": 0.17571583060384788,
+          "loud_note_esr": 0.11827373914420605,
+          "quieter_note_esr": 0.023050043458009466,
+          "peak_error_db": -0.38235995042081683,
+          "step": 10000,
+          "train_loss": 0.03807528520841152,
+          "elapsed_seconds": 3027.8
+        },
+        {
+          "full_esr": 0.03474722808648839,
+          "active_median": 0.02268569611612475,
+          "active_p95": 0.1318961993228838,
+          "loud_note_esr": 0.08723053336143494,
+          "quieter_note_esr": 0.021759253433522058,
+          "peak_error_db": -0.503069269719397,
+          "step": 12500,
+          "train_loss": 0.033017021371982994,
+          "elapsed_seconds": 3780.1
+        },
+        {
+          "full_esr": 0.031900704791394646,
+          "active_median": 0.020169145491767106,
+          "active_p95": 0.13372090444325593,
+          "loud_note_esr": 0.08139724619686603,
+          "quieter_note_esr": 0.01976549833574716,
+          "peak_error_db": -0.4576554392549639,
+          "step": 15000,
+          "train_loss": 0.02706607813388109,
+          "elapsed_seconds": 4540.3
+        },
+        {
+          "full_esr": 0.03115492777512788,
+          "active_median": 0.01888540899744491,
+          "active_p95": 0.13098951906395032,
+          "loud_note_esr": 0.08075170256197453,
+          "quieter_note_esr": 0.019221308860270417,
+          "peak_error_db": -0.23234081694099729,
+          "step": 17500,
+          "train_loss": 0.02645784851908684,
+          "elapsed_seconds": 5320.7
+        },
+        {
+          "full_esr": 0.02812600437974508,
+          "active_median": 0.017257461707351856,
+          "active_p95": 0.11607884660332983,
+          "loud_note_esr": 0.07108513619750738,
+          "quieter_note_esr": 0.017685760634348673,
+          "peak_error_db": -0.34087689347948924,
+          "step": 20000,
+          "train_loss": 0.02168994408007711,
+          "elapsed_seconds": 6092.4
+        },
+        {
+          "full_esr": 0.028777589513823663,
+          "active_median": 0.017303515792984038,
+          "active_p95": 0.11853078270679675,
+          "loud_note_esr": 0.07536962330341339,
+          "quieter_note_esr": 0.01745507342960028,
+          "peak_error_db": -0.37427156232288006,
+          "step": 22500,
+          "train_loss": 0.021627292577642947,
+          "elapsed_seconds": 6894.2
+        },
+        {
+          "full_esr": 0.025598777418264294,
+          "active_median": 0.01620274816686781,
+          "active_p95": 0.09988716431377348,
+          "loud_note_esr": 0.06528222858905793,
+          "quieter_note_esr": 0.01631281420807628,
+          "peak_error_db": -0.1838036978070452,
+          "step": 25000,
+          "train_loss": 0.02060770732909441,
+          "elapsed_seconds": 7692.4
+        }
+      ]
+    },
+    "16": {
+      "parameters": 47201,
+      "receptive_field": 6347,
+      "is_a2_compatible": false,
+      "steps": 25000,
+      "lr": 0.004,
+      "lr_half_life": 6000,
+      "batch": 4,
+      "frames": 4096,
+      "seed": 6405,
+      "loss": "window-normalized MSE + .1 DC on zero-input-corrected output, tail fraction .1",
+      "evaluations": [
+        {
+          "full_esr": 0.07066324724480359,
+          "active_median": 0.04397292491114736,
+          "active_p95": 0.29379538163399727,
+          "loud_note_esr": 0.1712337166070938,
+          "quieter_note_esr": 0.05175306658972712,
+          "peak_error_db": -0.0038975045480675874,
+          "step": 2500,
+          "train_loss": 0.06558065740019083,
+          "elapsed_seconds": 1361.0
+        },
+        {
+          "full_esr": 0.05794678138660723,
+          "active_median": 0.033409343118138195,
+          "active_p95": 0.24018201015081833,
+          "loud_note_esr": 0.15620419681072234,
+          "quieter_note_esr": 0.04424751955358421,
+          "peak_error_db": 0.356516106750302,
+          "step": 5000,
+          "train_loss": 0.051027709851041436,
+          "elapsed_seconds": 2682.9
+        },
+        {
+          "full_esr": 0.03636110757205742,
+          "active_median": 0.021326904422692798,
+          "active_p95": 0.15350910209536686,
+          "loud_note_esr": 0.09562217146158218,
+          "quieter_note_esr": 0.02115916899021934,
+          "peak_error_db": 0.18237812082139904,
+          "step": 7500,
+          "train_loss": 0.03532516434881836,
+          "elapsed_seconds": 4010.6
+        },
+        {
+          "full_esr": 0.034797895699422765,
+          "active_median": 0.015595873058573401,
+          "active_p95": 0.17913278327128823,
+          "loud_note_esr": 0.11376885268837214,
+          "quieter_note_esr": 0.015215512748588534,
+          "peak_error_db": -0.05076042274590442,
+          "step": 10000,
+          "train_loss": 0.029270488946698606,
+          "elapsed_seconds": 5371.0
+        },
+        {
+          "full_esr": 0.028999911385053097,
+          "active_median": 0.013466229566752476,
+          "active_p95": 0.16467777787694604,
+          "loud_note_esr": 0.08834002651274205,
+          "quieter_note_esr": 0.015105580417987178,
+          "peak_error_db": -0.07691031669733484,
+          "step": 12500,
+          "train_loss": 0.02454626155272126,
+          "elapsed_seconds": 6758.7
+        },
+        {
+          "full_esr": 0.025320983757485493,
+          "active_median": 0.012204157947707402,
+          "active_p95": 0.13412319758740587,
+          "loud_note_esr": 0.0749309666454792,
+          "quieter_note_esr": 0.013023521614206187,
+          "peak_error_db": -0.44992948812191536,
+          "step": 15000,
+          "train_loss": 0.018771553392522036,
+          "elapsed_seconds": 8160.8
+        },
+        {
+          "full_esr": 0.021678697167003352,
+          "active_median": 0.009394364737117838,
+          "active_p95": 0.10520406290335368,
+          "loud_note_esr": 0.07462921738624573,
+          "quieter_note_esr": 0.009842758916099282,
+          "peak_error_db": 0.007409390383289249,
+          "step": 17500,
+          "train_loss": 0.017217118996195494,
+          "elapsed_seconds": 9578.1
+        },
+        {
+          "full_esr": 0.018662596839726067,
+          "active_median": 0.008743885117827005,
+          "active_p95": 0.09176807789988138,
+          "loud_note_esr": 0.056563304364681245,
+          "quieter_note_esr": 0.009761933319489746,
+          "peak_error_db": 0.44243152151621956,
+          "step": 20000,
+          "train_loss": 0.01338887926354073,
+          "elapsed_seconds": 11055.0
+        },
+        {
+          "full_esr": 0.019638861116019635,
+          "active_median": 0.009014547595808416,
+          "active_p95": 0.09472177129845036,
+          "loud_note_esr": 0.06238921377807856,
+          "quieter_note_esr": 0.00995268628877752,
+          "peak_error_db": 0.004058658778019364,
+          "step": 22500,
+          "train_loss": 0.012592206808621996,
+          "elapsed_seconds": 12501.6
+        },
+        {
+          "full_esr": 0.016768953028785116,
+          "active_median": 0.007508440096867851,
+          "active_p95": 0.08077423618305155,
+          "loud_note_esr": 0.05434281714260578,
+          "quieter_note_esr": 0.008447670624317491,
+          "peak_error_db": 0.46968796189436723,
+          "step": 25000,
+          "train_loss": 0.012000596094643698,
+          "elapsed_seconds": 13917.4
+        }
+      ]
+    },
+    "32": {
+      "parameters": 186049,
+      "receptive_field": 6347,
+      "is_a2_compatible": false,
+      "steps": 25000,
+      "lr": 0.004,
+      "lr_half_life": 6000,
+      "batch": 4,
+      "frames": 4096,
+      "seed": 6405,
+      "loss": "window-normalized MSE + .1 DC on zero-input-corrected output, tail fraction .1",
+      "evaluations": [
+        {
+          "full_esr": 0.07019235808999531,
+          "active_median": 0.03690564987674932,
+          "active_p95": 0.3133512411330226,
+          "loud_note_esr": 0.2081641938537359,
+          "quieter_note_esr": 0.0476940807831638,
+          "peak_error_db": 0.0252099878568135,
+          "step": 2500,
+          "train_loss": 0.07041721066646278,
+          "elapsed_seconds": 1977.0
+        },
+        {
+          "full_esr": 0.06185056385648088,
+          "active_median": 0.0373433548618078,
+          "active_p95": 0.261171525597952,
+          "loud_note_esr": 0.16269608587026596,
+          "quieter_note_esr": 0.05100096543045605,
+          "peak_error_db": 0.02159302600278501,
+          "step": 5000,
+          "train_loss": 0.053036097500473264,
+          "elapsed_seconds": 3907.5
+        },
+        {
+          "full_esr": 0.03458101948992584,
+          "active_median": 0.01969222440137583,
+          "active_p95": 0.1635685042514366,
+          "loud_note_esr": 0.09440684169530869,
+          "quieter_note_esr": 0.022559219313895002,
+          "peak_error_db": 0.7002268273414689,
+          "step": 7500,
+          "train_loss": 0.04055145576223731,
+          "elapsed_seconds": 5914.3
+        },
+        {
+          "full_esr": 0.02916510160259357,
+          "active_median": 0.014357256754401764,
+          "active_p95": 0.1331433659028713,
+          "loud_note_esr": 0.08939692992717027,
+          "quieter_note_esr": 0.016614926978945732,
+          "peak_error_db": -0.0451010997887451,
+          "step": 10000,
+          "train_loss": 0.02952234486769885,
+          "elapsed_seconds": 8003.7
+        },
+        {
+          "full_esr": 0.026387622121541793,
+          "active_median": 0.012545241029590636,
+          "active_p95": 0.14076674398456646,
+          "loud_note_esr": 0.08025743365287781,
+          "quieter_note_esr": 0.015158716013983768,
+          "peak_error_db": -0.04418230168023385,
+          "step": 12500,
+          "train_loss": 0.024793494588695467,
+          "elapsed_seconds": 10149.4
+        },
+        {
+          "full_esr": 0.023245910683492042,
+          "active_median": 0.011153871983860936,
+          "active_p95": 0.12227096390527327,
+          "loud_note_esr": 0.07111967466771603,
+          "quieter_note_esr": 0.013108869384535971,
+          "peak_error_db": -0.4920654050348947,
+          "step": 15000,
+          "train_loss": 0.018629684978164734,
+          "elapsed_seconds": 12341.3
+        },
+        {
+          "full_esr": 0.021188425087669025,
+          "active_median": 0.008493817856193771,
+          "active_p95": 0.1213065136990083,
+          "loud_note_esr": 0.07427360657602548,
+          "quieter_note_esr": 0.01025160018573789,
+          "peak_error_db": -0.07616620520540174,
+          "step": 17500,
+          "train_loss": 0.016090236744261348,
+          "elapsed_seconds": 14516.9
+        },
+        {
+          "full_esr": 0.01787782852117331,
+          "active_median": 0.007893693398370923,
+          "active_p95": 0.09031117527552518,
+          "loud_note_esr": 0.057456875964999196,
+          "quieter_note_esr": 0.009699543417595765,
+          "peak_error_db": -0.18446365114348495,
+          "step": 20000,
+          "train_loss": 0.011478690883144736,
+          "elapsed_seconds": 16729.1
+        },
+        {
+          "full_esr": 0.016516718188951385,
+          "active_median": 0.006873949200080753,
+          "active_p95": 0.09139199725031194,
+          "loud_note_esr": 0.05708913477137685,
+          "quieter_note_esr": 0.008247050662141512,
+          "peak_error_db": -0.05508334610310506,
+          "step": 22500,
+          "train_loss": 0.010643549299798907,
+          "elapsed_seconds": 18865.6
+        },
+        {
+          "full_esr": 0.014718334782902557,
+          "active_median": 0.006086180536054607,
+          "active_p95": 0.06850996700622647,
+          "loud_note_esr": 0.05109271267428994,
+          "quieter_note_esr": 0.00768770240521168,
+          "peak_error_db": 0.2506992295717385,
+          "step": 25000,
+          "train_loss": 0.00954825545370113,
+          "elapsed_seconds": 20795.7
+        }
+      ]
+    }
+  },
+  "cab_check": {
+    "models": "ld-control (A2, packed, final)",
+    "ir": "Assets/IRs/guitar_v30_sm57.wav resampled to 48 kHz",
+    "loud_note_error_energy_above_5k": {
+      "Fenrir": 0.18,
+      "Surtr": 0.21,
+      "Nidhoggr": 0.24,
+      "Fimbulvetr": 0.24,
+      "Ragnarok": 0.22
+    },
+    "full_esr_amp_only": {
+      "Fenrir": 0.0265,
+      "Surtr": 0.0261,
+      "Nidhoggr": 0.0288,
+      "Fimbulvetr": 0.0096,
+      "Ragnarok": 0.0285
+    },
+    "full_esr_through_cab": {
+      "Fenrir": 0.0269,
+      "Surtr": 0.0368,
+      "Nidhoggr": 0.0422,
+      "Fimbulvetr": 0.0148,
+      "Ragnarok": 0.0636
+    }
+  }
+}

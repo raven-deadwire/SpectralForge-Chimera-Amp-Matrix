@@ -247,7 +247,13 @@ if(NOT CHIMERA_OBS_TEST_BUNDLE STREQUAL "")
   target_link_libraries(chimera-obs-host-tests PRIVATE chimera-host)
   add_test(NAME chimera-obs-host-tests COMMAND chimera-obs-host-tests "${CHIMERA_OBS_TEST_BUNDLE}")
 
-  if(APPLE)
+  if(WIN32)
+    # Needs a desktop session, which CI's Windows runners provide.
+    add_executable(chimera-obs-editor-tests tests/editor-tests-win32.cpp)
+    target_compile_options(chimera-obs-editor-tests PRIVATE ${chimera_obs_warnings})
+    target_link_libraries(chimera-obs-editor-tests PRIVATE chimera-editor)
+    add_test(NAME chimera-obs-editor-tests COMMAND chimera-obs-editor-tests "${CHIMERA_OBS_TEST_BUNDLE}")
+  elseif(APPLE)
     # Needs the macOS window server, which CI's macOS runners provide.
     add_executable(chimera-obs-editor-tests tests/editor-tests.mm)
     target_compile_options(chimera-obs-editor-tests PRIVATE -fobjc-arc ${chimera_obs_warnings})

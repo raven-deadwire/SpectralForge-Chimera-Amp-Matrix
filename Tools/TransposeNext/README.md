@@ -288,3 +288,9 @@ against v3 (phases freeze/targets/pdc/residual/echo/blocks). Result
 pass; the high-band residual rule fails because its +2 dB median threshold,
 taken from 27.5-55 Hz tones, was applied to 27.5-330 Hz tones. See
 `docs/TRANSPOSE_V3SINC_FRESH_SEED_20261029.md`.
+
+`residual_validation.py` re-validates that residual with a preregistered
+floor-corrected rule (net inter-harmonic energy above the ideal tone's own
+floor). On fresh seed 86603 it passes at all three rates (v3-sinc median
+-70.6/-70.3/-79.0 dB re harmonics, 17-23 dB below v3). See
+`docs/TRANSPOSE_V3SINC_RESIDUAL_REVALIDATION_20261029.md`.
