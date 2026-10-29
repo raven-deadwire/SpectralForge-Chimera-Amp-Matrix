@@ -14,12 +14,24 @@
 
 | ID | 종류 | 내용 | 기준 |
 |---|---|---|---|
-| **T1** 고역 어택 | 관문 | 1–8kHz 2ms RMS 어택 peak의 추가 지연(출력 − 입력). 입력 자체 peak가 이벤트에 있는 경우만 센다 | 최대 ≤10ms |
+| **T1** 고역 어택 | 관문 | 1–8kHz 2ms RMS 어택 peak의 추가 지연(출력 − 입력). 입력 자체 peak가 이벤트에 있는 입력에서, **이벤트 SNR ≥ 10dB**인 이벤트만 센다 (버전 2) | 최대 ≤10ms |
+| **T1-약한 이벤트** | 보고 | T1과 같은 지연. 같은 입력에서 이벤트 SNR < 10dB인 이벤트만 따로 센다. 이 이벤트들의 검출(누락·오검출)은 T4에서 판정한다 | 관문 없음 (개수, 최대, 10ms 초과 수 보고) |
 | **T2** 다운시프트 저역 onset | 관문 | 음마다 120Hz 저역 에너지 무게중심의 추가 지연. −1/−2반음, 짧은 음과 긴 음(감쇠 80ms) | 최대 ≤10ms |
 | **T3** 업시프트 저역 onset | 보고 + 비회귀 상한 | T2와 같은 지표, +1/+2반음. 주기 정렬 접합의 하한(B0/A0 긴 음 19–21ms)을 함께 기록 | 아래 상한 이하 (품질 목표 아님) |
 | **T4** 품질·검출 | 관문 | 정상음 워블 p95–p5와 음정 오차. 모든 입력에서 onset 10ms 안 연결(누락·오검출). 마커·지속음 위 저역 재설정 | 워블 ≤1 cent, 오차 ≤1 cent, 누락 0, 오검출 0, 저역 재설정 0 |
 | **T5** 실시간 | 보고 | 결정적 최악 콜백 비용과 deadline 초과 | 별도 증거(이 스크립트에서 측정하지 않음) |
 | **T6** 외부 수용 | 제품화 전 필수 | 실제 DI 녹음과 청취, Windows/macOS DAW 수용, 고정 PDC 계약, 제품 엔진 통합 | 미실시 |
+
+**T1 분리 (버전 2, 2026-10-26).**
+
+- **분리한 이유:** 지금까지 어택 타이밍이 크게 튄 경우는 모두 이벤트가 1–8kHz 배경보다 6dB도 높지 않을 때였다(`TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`, 13,868 이벤트). 이런 이벤트에서는 peak 검색이 이벤트가 아니라 배경을 따라가서, 잰 지연에 의미가 없다.
+- **경계값:** 10dB다. 데이터상 경계(6dB)보다 보수적으로 잡았다.
+- **이벤트 SNR의 정의:** 이벤트 뒤 10ms 안의 1–8kHz 2ms RMS 최댓값을, 이벤트 20–3ms 전의 최댓값과 비교한 값이다(`attack_snr.py`).
+- **약한 이벤트를 어떻게 다루나:** 타이밍 관문에서만 뺀다. 마커 입력의 검출 판정(T4)과 저역 재설정 판정은 그대로다.
+- **적용한 첫 검증:** 사전 등록한 새 시드 재검증(`TRANSPOSE_PDC_SNR10_FRESH_SEED_20261026.md`)에서 v3의 T1은 5.53ms(6,860 이벤트)로 통과했다. 약한 이벤트는 412개였고 최대 5.15ms, 10ms를 넘은 것은 0개였다.
+- **과거 판정:** 바꾸지 않는다. 이벤트별 SNR이 저장되지 않은 이전 결과는 `latency_targets.py`가 버전 1 방식으로 판정하고 `metric_version: 1`로 표시한다. 버전 1 방식은 `--legacy-t1`로도 재현할 수 있다.
+- **실제 DI:** 같은 분리를 적용한다(`TRANSPOSE_T6_DI_PROTOCOL.md`). 녹음이 아직 없어서 영향을 받은 판정은 없다. 파이프라인 자체 점검(합성)은 분리 뒤에도 통과했다(T1 5.58ms, 이전과 같음).
+- **확인 기록:** `docs/evidence/transpose-t1-split-20261026/`. 버전 2 판정, `--legacy-t1` 판정, 이전 결과의 버전 1 판정, DI 자체 점검 결과가 들어 있다.
 
 **T3 비회귀 상한:**
 
@@ -62,6 +74,32 @@
 
 실제 DI 검증(T6의 일부) 절차와 도구는 `TRANSPOSE_T6_DI_PROTOCOL.md`에 있다. 녹음이 들어오면 사전 등록 뒤 같은 한계값으로 T1–T4를 판정한다. 청취·DAW 수용 준비와 연구용 플러그인 점검 결과는 `TRANSPOSE_T6_LISTENING_DAW.md`에 있다.
 
+그 점검에서 드러난 블록 분할 의존성은 `corr40-split-v3`(샘플 단위 접합 보류)로 해결했다. 그러나 사전 등록한 새 시드(14142/17320/22360, 긴 음 1414)에서 T3 B0 긴 음 업시프트가 15.66ms로 상한(15.5)을 넘었다. 같은 값이 v2에서도 나와, v3의 판정은 FAIL로 기록했다(`TRANSPOSE_V3_BLOCK_INVARIANT_20261024.md`).
+
+### 후보 용도 (2026-10-24 결정)
+
+| 후보 | 용도 | 근거 |
+|---|---|---|
+| `corr40-split-v3` | **T6 시험 후보.** 실제 DI 검증, 블라인드 청취, 연구용 플러그인과 DAW 점검에 쓴다 | DAW 블록 분할과 관계없이 출력이 비트 동일하다. 같은 바운스를 어느 버퍼 설정에서도 재현할 수 있어야 DAW 시험 결과를 비교할 수 있다 |
+| `corr40-split-v2` | 합성 지연 판정의 기록. 위 표의 값과 새 시드 검증 2회의 기준이다 | v3와 T1–T4 수치가 같다. 기존 시드는 모두 같았고, 새 시드 720개 렌더 중 출력이 다른 것은 다운시프트 5개뿐이었다 |
+
+**T3 알려진 한계.** 업시프트 저역 비회귀 상한은 바꾸지 않는다.
+
+- **초과 내용:** 새 시드 긴 음 1414에서 B0 +2반음이 15.66ms로, 상한 15.5ms를 넘었다. v2와 v3 모두 같은 값이다.
+- **기록 방식:** 두 후보 공통의 알려진 한계로 보고한다.
+- **여유가 작은 곳:** A0도 18.78ms로, 상한 19.0ms까지 0.22ms다.
+- **상한을 다시 정할 경우:** 여러 시드에서 잰 분포를 먼저 문서화한다. 결과를 통과시키려고 상한을 바꾸지 않는다.
+
+**고정 PDC (T6, 2026-10-25).** v3의 고정 보고 지연은 2.5ms로 정했다(`TRANSPOSE_T6_PDC_CONTRACT.md`). 사전 등록한 새 시드에서 보정 후 어택 오차는 48·96kHz에서 2.9ms로 통과했다. 44.1kHz는 약한 마커 입력 하나(v2도 같음) 때문에 53.2ms로 실패했다. 그 마커는 어택 측정 대역에서 배경과 구별되지 않았다. 이벤트별 SNR 기준(≥ 10dB)을 다음 검증부터 쓰자고 제안했다(`TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`). 이 기준으로 사전 등록한 새 시드 재검증(2026-10-26)에서는 세 표본률 모두 통과했다. 잔차 최대는 3.03 / 2.79 / 2.96ms다(`TRANSPOSE_PDC_SNR10_FRESH_SEED_20261026.md`).
+
+**고역 잔여 (2026-10-28).** 업시프트 '접합 잡음'을 조사했다(`TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md`).
+
+- 지속음 배경이 오른다는 관측은 측정 착시였다.
+- 밝은 지속음의 1–8kHz 고조파 사이 잔여는 주로 선형 보간에서 나왔다.
+- 출력 읽기만 16탭 윈도 sinc로 바꾼 연구 후보 `corr40-split-v3-sinc`는 잔여 초과량을 중앙값 +10 → +0.5dB로 줄였다. 기존 시드 T1–T4 판정은 v3와 같다.
+- 업시프트 뒤 마커 꼬리를 다시 읽는 현상은 별도 과제로 남았다.
+- 새 시드 검증(2026-10-29, `TRANSPOSE_V3SINC_FRESH_SEED_20261029.md`): v3-sinc의 T1–T4 판정과 검출은 새 시드에서도 v3와 같았다. 사전 등록한 고역 잔여 기준은 실패했다(기준 설정 오류). 44.1kHz 107Hz +1반음에서 v3에도 있는 −25dB 잔여를 새로 찾았다.
+
 제품 엔진은 onset 재설정 기능이 없다. 그래서 T4의 누락 수(2,232)는 검출 기준으로 의미가 없어 표에서 뺐다.
 
 ### 이 정의로 처음 드러난 실패 (`corr40-split-rt`, v2에서 수정)
@@ -91,6 +129,8 @@ python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/Tr
 python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/TransposeProbe --out build/latency-targets-baseline --engine baseline --rates 48000
 # 기준 JSON만 바꾼 뒤 기존 렌더 결과를 다시 판정:
 python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/TransposeProbe --out build/latency-targets --evaluate-only
+# 버전 1 방식(T1 분리 없음)으로 판정:
+python Tools/TransposeNext/latency_targets.py --renderer build/transpose-next/TransposeProbe --out build/latency-targets --evaluate-only --legacy-t1
 ```
 
 원자료: `docs/evidence/transpose-latency-targets-20261023/`(렌더별 결과와 판정, 실행 로그, `SHA256.json`).

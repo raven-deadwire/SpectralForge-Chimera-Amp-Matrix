@@ -23,7 +23,7 @@ public:
         }
         Kernel(juce::AudioBuffer<float> samples, double rate, const juce::dsp::ProcessSpec& spec,
                int type, unsigned revision, uint64_t model=0,
-               std::shared_ptr<const ModeledCabConvolution::Prepared> prepared={})
+               std::shared_ptr<const ModeledCabConvolution::Prepared> prepared={}, bool preserveLevel=false)
             : source(type), generation(revision), modelKey(model)
         {
             SF_CAB_PROFILE_SCOPE(KernelPrepare);
@@ -38,7 +38,7 @@ public:
             }
             convolution=std::make_unique<juce::dsp::Convolution>();
             convolution->loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
-                juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
+                juce::dsp::Convolution::Trim::no, (model || preserveLevel) ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
             convolution->prepare(spec); // Wait for this IR before it reaches audio.
         }
         int getLatency() const noexcept {return modeledConvolution ? modeledConvolution->getLatency() : convolution->getLatency();}
@@ -81,6 +81,7 @@ private:
     float lastGainDb{std::numeric_limits<float>::quiet_NaN()};
     bool lastInvert{};
     int fadeRemaining{}, fadeLength{1};
+    bool instantSwap{};
     static void destroyKernel(Kernel* kernel)
     {
         if (kernel == nullptr) return;
@@ -91,7 +92,7 @@ public:
     explicit Cab(bool child=false) { if(!child) micB=std::make_unique<Cab>(true); else requestedSource.store(0); }
     Cab* secondMic() const noexcept { return micB.get(); }
     float blend{}, gainDb{}, delayMs{};
-    bool invert{};
+    bool invert{}, bypassCuts{};
     ~Cab() { clear(); }
     void clear() // Only while processing and the worker are stopped.
     {
@@ -155,6 +156,16 @@ public:
             *lp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(sr,high);
         cutRate=sr;lastLowCut=low;lastHighCut=high;
     }
+    // Audio thread: the requested IR/model is installed and its crossfade is
+    // over (the editor's "Ready"), for this mic and a blended second mic.
+    bool settled() const noexcept {
+        const bool self=pending.load()==nullptr && fadeRemaining==0
+            && activeSource.load()==requestedSource.load() && activeModel.load()==requestedModel.load();
+        return self && (!micB || blend<=0.f || micB->settled());
+    }
+    // Audio thread: while the output is muted for a recall, install a new
+    // kernel without the 50 ms crossfade; nothing of either kernel is heard.
+    void setInstantSwap(bool value) noexcept { instantSwap=value; if(micB) micB->setInstantSwap(value); }
     // Audio-thread diagnostic; never queried by the worker.
     int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)
@@ -173,6 +184,11 @@ public:
                 // A superseded model may have reached pending after the worker's
                 // final check. Retire it here without freeing or blocking audio.
                 if(next->modelKey!=requestedModel.load()) { retired.store(next); ++rejectedModels; }
+                else if(instantSwap) {
+                    // The worker frees the replaced kernel, as after a crossfade.
+                    retired.store(active); active=next;
+                    activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);
+                }
                 else {
                     fading=active; active=next;
                     activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);
@@ -199,7 +215,7 @@ public:
         bWasRunning=renderB;
         juce::dsp::AudioBlock<float> block(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block);
-        { SF_CAB_PROFILE_SCOPE(Filters); hp.process(context); }
+        { SF_CAB_PROFILE_SCOPE(Filters); if(!bypassCuts)hp.process(context); }
         if(fadeRemaining>0) alternate.makeCopyOf(buffer,true);
         if(active) { SF_CAB_PROFILE_SCOPE(ActiveConvolution); active->process(buffer); }
         if(fadeRemaining>0)
@@ -213,7 +229,7 @@ public:
             }
             if(fadeRemaining==0) { retired.store(fading); fading=nullptr; }
         }
-        { SF_CAB_PROFILE_SCOPE(Filters); lp.process(context); }
+        { SF_CAB_PROFILE_SCOPE(Filters); if(!bypassCuts)lp.process(context); }
         SF_CAB_PROFILE_SCOPE(MicPost);
         if(lastGainDb!=gainDb || lastInvert!=invert) {
             micGain.setTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));

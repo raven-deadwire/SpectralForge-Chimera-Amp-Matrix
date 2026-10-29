@@ -1,0 +1,16 @@
+{
+ "README.txt": "e5e04eb9dcefc9a1beb2e50978f32789f617543e14958c734a4ad4cbf85dc692",
+ "block-invariance-v3sinc.jsonl": "617625e5276d833f84db6e5516a6b3bbe34dc9581f4bef80e8856212b69dc362",
+ "cpu-v3-v3sinc.json": "34a4e0fedbc4db1531a14cab20d05e6ca4e626414604070216749551ca887cf6",
+ "experiment-knobs.patch": "bf81e317befcabae1ea78766ac867d187788beb243f4d16ff7a07ef82cdd02fd",
+ "latency-targets-v3-known-seeds.json.gz": "890bb5623301d80be412221b61884200879fc457e4d8e216b0938571217e334f",
+ "latency-targets-v3sinc-known-seeds.json.gz": "b43ef750629fc05210a81e6434dfff8126cb55decd4fd9447d3d0da2935e8a8c",
+ "marker-echo-v3.json.gz": "29ebf0b11c420371fc210788ce4bc74b39cd33cabc4818865436fa8b96d6e4ac",
+ "marker-echo-v3sinc.json.gz": "a2e0e85c87528c0ea686893e5c3c56e04470d06f341898f243c5012e1565bd2f",
+ "marker_echo.py": "5d696765d1a9b1af19a3b15dda8a24162afa6934939a687d26cb050324b4f0f3",
+ "residual-v3-v3sinc.json": "b15dda794bf32c4a3c034a82f1985cd9e9dad5c90b011447ee37566a80ea5f7e",
+ "residual.py": "6cee8bcfe278fa239fdd0936555991de56ad44c0577a9b4e3d7980a2a97791f9",
+ "steady-floor-v3.json": "83da123d1cd1f0c908573edbcd669439bf9d56951b8aa6e7a87e17fc46821893",
+ "steady_floor.py": "8543ebf62a7e21269e2bf7a7b711f68d16159aeeb57113826c28ddeaa31c62a8",
+ "variant-experiments.json": "d22c2c836e4f1db8fe6e5cd828b4b11e1ac36c6d2de50499dc36f4306f1b4f1f"
+}

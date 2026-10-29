@@ -1,0 +1,1 @@
+FAIL MATCH UI test requires a working native display (use Tools/run_linux_ui_tests.py on Linux)

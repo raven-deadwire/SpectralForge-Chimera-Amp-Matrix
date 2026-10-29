@@ -1,17 +1,23 @@
 name: OBS add-on
-# GPL OBS module that hosts the installed Chimera VST3 (Issue #131). Each job
-# builds the product VST3 from this commit, then the module, and runs the
-# integration tests through libobs. Passing CI is not an OBS Studio UI,
+# GPL OBS module that hosts the installed Chimera VST3 (Issue #131). The
+# Windows, Linux and macOS jobs build the product VST3 from this commit, then
+# the module, run the integration tests through libobs, and package it. Passing CI is not an OBS Studio UI,
 # editor, broadcast or long-session acceptance; see OBS/README.md.
 on:
   pull_request:
     paths:
       - 'OBS/**'
+      - 'Shared/**'
+      - 'Source/ABLevelMatch.h'
+      - 'Source/PluginProcessor.*'
       - '.github/workflows/obs-addon.yml'
   push:
     branches: [main]
     paths:
       - 'OBS/**'
+      - 'Shared/**'
+      - 'Source/ABLevelMatch.h'
+      - 'Source/PluginProcessor.*'
       - '.github/workflows/obs-addon.yml'
   workflow_dispatch:
 concurrency:
@@ -20,6 +26,29 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  installer-safety:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Native installer without Python on user PATH, faults and data preservation
+        shell: bash
+        run: python3 OBS/tests/test_install_module.py 2>&1 | tee installer-safety.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: obs-installer-safety-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: installer-safety.txt
+          if-no-files-found: error
   linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
@@ -28,26 +57,51 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Install JUCE, libobs (Ubuntu 30.0.2) and display dependencies
-        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev mesa-common-dev libobs-dev xvfb
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev mesa-common-dev libobs-dev libglib2.0-dev pkg-config xvfb
       - name: Build the Chimera VST3 under test
         run: |
           cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build build --target ChimeraAmpMatrix_VST3 --parallel 4
       - name: Build the OBS module and tests
         run: |
-          cmake -S OBS -B build-obs -DCMAKE_BUILD_TYPE=Release -DCHIMERA_OBS_TEST_BUNDLE="$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+          cmake -S OBS -B build-obs -DCMAKE_BUILD_TYPE=Release -DCHIMERA_OBS_TEST_BUNDLE="$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            -DCHIMERA_OBS_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}"
           cmake --build build-obs --parallel 4
       - name: Bridge, host and headless libobs filter tests
         # libobs on Linux opens an X display even for audio-only use.
         run: xvfb-run -a ctest --test-dir build-obs --output-on-failure --no-tests=error
+      - name: Package, install for this user, load from the OBS plugin folder, uninstall
+        run: |
+          sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          package="package/chimera-obs-linux-x86_64"
+          python3 OBS/tools/stage_module.py linux --build build-obs --output "$package" --source-sha "$sha" --built-for "OBS 30.0.2 (Ubuntu 24.04 libobs)"
+          # The installer needs only the C library, like the OBS that will load the module.
+          ldd "$package/chimera-obs-installer"
+          if ldd "$package/chimera-obs-installer" | grep -E 'libstdc\+\+|libgcc_s'; then exit 1; fi
+          # The installer still needs glibc; it must not need a newer one than the
+          # module itself, or it would narrow the distributions that can install.
+          newest_glibc() { objdump -T "$1" | grep -oE 'GLIBC_[0-9]+\.[0-9]+' | sort -uV | tail -n1; }
+          helper_glibc="$(newest_glibc "$package/chimera-obs-installer")"
+          module_glibc="$(newest_glibc "$package/chimera-obs/bin/64bit/chimera-obs.so")"
+          echo "glibc required: installer $helper_glibc, module $module_glibc"
+          test "$(printf '%s\n' "$helper_glibc" "$module_glibc" | sort -V | tail -n1)" = "$module_glibc"
+          python3 OBS/tests/test_install_module.py --package "$package"
+          sh "$package/install.sh"
+          plugins="$HOME/.config/obs-studio/plugins"
+          # The shipped module must name its source commit, as SOURCE.txt does.
+          layout="$(xvfb-run -a build-obs/chimera-obs-layout-tests "$plugins/%module%/bin/64bit" "$plugins/%module%/data")"
+          echo "$layout"
+          grep -F "(source ${sha:0:10})" <<<"$layout"
+          echo "user file" > "$plugins/chimera-obs/user-notes.txt"
+          sh "$package/install.sh" --uninstall
+          test ! -e "$plugins/chimera-obs/bin/64bit/chimera-obs.so"
+          test -f "$plugins/chimera-obs/user-notes.txt"
+          rm -rf "$plugins/chimera-obs"
+          tar -C package -czf "package/chimera-obs-linux-x86_64-${sha:0:10}.tar.gz" chimera-obs-linux-x86_64
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-linux-x86_64-${{ github.event.pull_request.head.sha || github.sha }}
-          path: |
-            build-obs/chimera-obs.so
-            build-obs/data/
-            OBS/LICENSE
-            OBS/README.md
+          path: package/chimera-obs-linux-x86_64-*.tar.gz
           if-no-files-found: error
 
   windows:
@@ -78,8 +132,7 @@ jobs:
           if-no-files-found: error
 
   bridge:
-    # The realtime boundary has no libobs/VST3 dependency; macOS module
-    # packaging is plan stage F.
+    # The realtime boundary has no libobs/VST3 dependency.
     runs-on: macos-15
     timeout-minutes: 15
     steps:
@@ -90,3 +143,46 @@ jobs:
           cmake -S OBS -B build-obs -DCHIMERA_OBS_BUILD_MODULE=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build build-obs --parallel 3
           ctest --test-dir build-obs --output-on-failure --no-tests=error
+
+  macos:
+    # Plan stage F: one Universal bundle (Apple silicon and Intel) for macOS 12+,
+    # each architecture built and tested against its OBS 31.1.2 release.
+    runs-on: macos-15
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Rosetta for the Intel tests
+        run: |
+          arch -x86_64 /usr/bin/true 2>/dev/null || sudo softwareupdate --install-rosetta --agree-to-license
+          arch -x86_64 /usr/bin/true
+      - name: Build the Chimera VST3 under test (Universal, macOS 12.0 like the product)
+        run: |
+          cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+          cmake --build build --target ChimeraAmpMatrix_VST3 --parallel 3
+      - name: Build and test the OBS module against OBS 31.1.2 Apple (arm64)
+        run: ./OBS/tools/build-macos-module.sh "$RUNNER_TEMP/chimera-obs-arm64" arm64 "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+      - name: Build and test the OBS module against OBS 31.1.2 Intel (x86_64 under Rosetta)
+        run: ./OBS/tools/build-macos-module.sh "$RUNNER_TEMP/chimera-obs-x86_64" x86_64 "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3"
+      - name: Package Universal, install for this user, load from the OBS plugin folder on both architectures, uninstall
+        run: |
+          sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          arm="$RUNNER_TEMP/chimera-obs-arm64/build"
+          intel="$RUNNER_TEMP/chimera-obs-x86_64/build"
+          package="package/chimera-obs-macos-universal"
+          python3 OBS/tools/stage_module.py macos --build "$arm" --build-x86_64 "$intel" --output "$package" --source-sha "$sha" --built-for "OBS 31.1.2 (macOS Apple and Intel)"
+          python3 OBS/tests/test_install_module.py --package "$package"
+          sh "$package/install.sh"
+          plugins="$HOME/Library/Application Support/obs-studio/plugins"
+          "$arm/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
+          "$intel/chimera-obs-layout-tests" "$plugins/%module%.plugin/Contents/MacOS" "$plugins/%module%.plugin/Contents/Resources"
+          codesign --verify --strict "$plugins/chimera-obs.plugin"
+          sh "$package/install.sh" --uninstall
+          test ! -e "$plugins/chimera-obs.plugin"
+          ditto -c -k --keepParent "$package" "package/chimera-obs-macos-universal-${sha:0:10}.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-obs-macos-universal-${{ github.event.pull_request.head.sha || github.sha }}
+          path: package/chimera-obs-macos-universal-*.zip
+          if-no-files-found: error

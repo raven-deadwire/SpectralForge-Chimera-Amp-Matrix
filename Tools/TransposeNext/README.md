@@ -218,3 +218,73 @@ headless VST3 host check; `t6_host_check.py` runs it over rates x engines x
 shifts. Finding: corr40-split-v2 output depends on host block partitioning
 (the rt splice hold is decided per processing chunk). See
 `docs/TRANSPOSE_T6_LISTENING_DAW.md`.
+
+## corr40-split-v3 (2026-10-24)
+
+corr40-split-v2 with a sample-accurate body splice hold (`setHoldSource`): a
+due downshift splice waits while the transient path spliced within the
+previous 128 samples, counting only splices at or before the current sample,
+so output no longer depends on host block partitioning. `BlockInvariance`
+and `SpliceCollision` are the research checks. Earlier engines are
+bit-unchanged. Fresh-seed T3 exceeds the B0 ceiling exactly as v2 does. See
+`docs/TRANSPOSE_V3_BLOCK_INVARIANT_20261024.md`.
+
+Candidate roles (2026-10-24): corr40-split-v3 is the T6 candidate
+(`di_validation.py`, `t6_listening.py`, research plug-in default); v2 remains
+the synthetic-target record. T3's fresh-seed B0 exceedance is reported as a
+known limit shared by both; the ceiling is unchanged.
+
+## Fixed PDC study (2026-10-25)
+
+`pdc_study.py` measures per-event attack and low-band added delay of a
+variable-delay candidate and the residual a host leaves after compensating a
+fixed reported latency L (`--fixed-l` validates a chosen L). For v3, L = 2.5 ms
+(minimax attack residual at all rates); the research plug-in's `Latency
+report` = Fixed PDC reports it, and host bypass is delayed by the reported
+latency. See `docs/TRANSPOSE_T6_PDC_CONTRACT.md`.
+
+## Faint-marker analysis (2026-10-25)
+
+`attack_snr.py` gives each attack event's 1-8 kHz SNR (peak within 10 ms over
+the largest envelope 20-3 ms before). Events below 6 dB are indistinguishable
+from the band floor and produced every attack-timing outlier seen so far.
+`pdc_study.py evaluate --event-snr-min` applies a per-event floor (off by
+default there, so earlier PDC results reproduce); `latency_targets.py
+--event-snr-min` overrides the spec's T1 floor (10 dB since spec version 2). `SpliceTrace.cpp` logs splice and re-anchor
+sample positions. See `docs/TRANSPOSE_ATTACK_METRIC_FAINT_MARKERS_20261025.md`.
+The pre-registered fresh-seed run with the 10 dB floor (seeds 41421/44721/48990,
+long 3317; L = 2.5 ms) passed at all three rates (max residual 3.03 / 2.79 /
+2.96 ms against 4.5 ms): `docs/TRANSPOSE_PDC_SNR10_FRESH_SEED_20261026.md`.
+Target spec version 2 makes this the T1 definition: `latency_targets.py` and
+`di_validation.py` gate T1 on events with SNR >= 10 dB and report fainter
+events as `T1_faint_attack` (no gate). Results without per-event SNR rows are
+scored as version 1 and labelled `metric_version: 1`; `--legacy-t1` forces it.
+
+## corr40-split-v4 (2026-10-25)
+
+Opt-in v3 follow-up: the body upshift read-age floor is 0.5 ms instead of
+2 ms; downshift timing, onset confirmation, fade guards, and sample-accurate
+splice holding are unchanged. Preregistered fresh seeds pass T1/T2/T4 and
+all original T3 ceilings (B0 long notes: v3 15.818 ms, v4 14.026 ms), with
+5,616 bit-identical block comparisons. This is research only: exploratory
+transient-envelope dips worsen in some cases and shared-VM 96 kHz/64-sample
+CPU misses remain. No real DI/listening/actual DAW or fixed PDC acceptance.
+The research plug-in retains the old engine selector and enables v4 through
+an additional default-off option while v3 is selected. Full evidence and
+reproduction scope: `docs/TRANSPOSE_V4_LOW_UPSHIFT_20261025.md`.
+
+## corr40-split-v3-sinc (2026-10-28)
+
+v3 plus 16-tap Kaiser-windowed sinc interpolation for the output reads only
+(`setSincOutput`); splice and onset decisions, and so T1-T4 on the known
+seeds, equal v3. It removes most of the 1-8 kHz inter-harmonic
+residual that linear interpolation left on bright sustains (median excess
+over an ideally shifted tone +10 -> +0.5 dB at 44.1/48 kHz; CPU +13%). See
+`docs/TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md`.
+
+`v3sinc_validation.py` is the preregistered fresh-seed validation of v3-sinc
+against v3 (phases freeze/targets/pdc/residual/echo/blocks). Result
+(2026-10-29): latency targets, detections, fixed PDC and block invariance
+pass; the high-band residual rule fails because its +2 dB median threshold,
+taken from 27.5-55 Hz tones, was applied to 27.5-330 Hz tones. See
+`docs/TRANSPOSE_V3SINC_FRESH_SEED_20261029.md`.

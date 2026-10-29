@@ -10,6 +10,7 @@ namespace transposeNext {
 // frequency is used. This is not a fixed-latency, polyphonic product engine.
 // Window/search durations are declared engineering choices, not Neural DSP data.
 class CorrelationPitch {
+    friend struct CorrelationDiagnostics; // research-only, read-only trace harness
     std::array<std::vector<float>,2> audio, filtered;
     std::array<std::vector<double>,2> reference;
     std::array<float,2> low{};
@@ -18,6 +19,7 @@ class CorrelationPitch {
     std::vector<double> detectorHistory;
     int count{}, capacity{}, write{}, window{}, stride{}, fadeLength{}, fadeIndex{}, spliceFadeLength{}, activeFade{};
     double rate{}, ratio{1}, delta{}, minimum{}, maximum{}, delay{}, nextDelay{};
+    double upshiftMinimumMs{2.};
     float coefficient{};
     bool fading{}, active{}, onsetReset{}, innovationReset{}, pendingOnset{}, externalPending{}, upshiftReset{};
     double upshiftHold{}, onsetAge{1.e9};
@@ -28,6 +30,15 @@ class CorrelationPitch {
     int resetAge{1<<30}, peakWindow{};
     bool holdSplices{}, reportAtDetection{};
     int heldSamples{};
+    // Sample-accurate hold (research): when set, a due downshift splice waits
+    // while `holdSource` spliced within the previous holdWindow samples. Only
+    // splices at or before the current sample count, so the result does not
+    // depend on how the host splits blocks.
+    const CorrelationPitch* holdSource{};
+    uint64_t holdWindow{};
+    static constexpr uint64_t noSplice=~uint64_t{};
+    std::array<uint64_t,8> spliceLog{};
+    int spliceLogPosition{};
     std::array<float,2> noveltyLow1{},noveltyLow2{},noveltyLow3{},noveltyLow4{};
     float noveltyCoefficient{};
     std::array<double,41> peakBuckets{};
@@ -47,6 +58,26 @@ class CorrelationPitch {
         const auto i = int(pos);
         const auto f = float(pos-i);
         return ring[size_t(i)] + f*(ring[size_t((i+1)%capacity)]-ring[size_t(i)]);
+    }
+    // Output read (research, setSincOutput): 16-tap Kaiser-windowed sinc
+    // (beta 8, 4096 phases, nearest phase). Linear interpolation's
+    // fraction-dependent high-frequency loss and imaging left 1-8 kHz energy
+    // between the harmonics of a bright sustain 5-34 dB above an ideally
+    // shifted tone (docs/TRANSPOSE_UPSHIFT_SPLICE_NOISE_20261028.md). The
+    // kernel is symmetric (no added delay) and needs 8 newer samples; the
+    // read age never goes below the minimum (2 ms, or 0.5 ms with setUpshiftMinimum).
+    static constexpr int sincTaps=16, sincPhases=4096;
+    std::vector<float> sincTable;
+    float readOutput(const std::vector<float>& ring, double age) const noexcept {
+        if(sincTable.empty()) return read(ring,age);
+        double pos = double(write) - age;
+        if(pos < 0) pos += capacity;
+        int i = int(pos);
+        const float* k=sincTable.data()+size_t(std::min(sincPhases-1,int((pos-i)*sincPhases+.5)))*sincTaps;
+        i-=sincTaps/2-1;if(i<0)i+=capacity;
+        float s=0;
+        for(int j=0;j<sincTaps;++j){s+=k[j]*ring[size_t(i)];if(++i==capacity)i=0;}
+        return s;
     }
     // Uncentred normalized squared mismatch includes amplitude differences.
     // Both channels contribute energy independently; antiphase stereo cannot
@@ -115,6 +146,7 @@ class CorrelationPitch {
         }
         nextDelay=juce::jlimit(lo,hi,best);
         fadeIndex=0;fading=true;++spliceCount;
+        spliceLog[size_t(spliceLogPosition)]=processedSamples;spliceLogPosition=(spliceLogPosition+1)%int(spliceLog.size());
         if(spliceFadeLength>0){activeWeights=spliceWeights.data();activeFade=spliceFadeLength;}
         else{activeWeights=fadeWeights.data();activeFade=fadeLength;}
     }
@@ -130,6 +162,7 @@ public:
         peakDecay=std::exp(-1/(rate*.060));cooldownLength=int(rate*.045);
         detectorHistory.assign(size_t(std::ceil(rate*.001)),0);
         minimum=rate*.002;maximum=rate*boundMs*.001;
+        upshiftMinimumMs=2.;
         window=int(std::ceil(rate*.012));stride=juce::jmax(1,int(std::lround(rate/6000.)));
         fadeLength=juce::jmax(8,int(std::ceil(rate*.002)));
         capacity=int(std::ceil(maximum))+window+fadeLength+16;
@@ -143,7 +176,7 @@ public:
     }
     void reset() noexcept {
         for(auto* bank:{&audio,&filtered})for(auto& r:*bank)std::fill(r.begin(),r.end(),0);
-        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=0;fading=active=false;
+        low.fill(0);noveltyLow1.fill(0);noveltyLow2.fill(0);noveltyLow3.fill(0);noveltyLow4.fill(0);pendingOnset=externalPending=false;write=fadeIndex=spliceCount=0;spliceLog.fill(noSplice);spliceLogPosition=0;fading=active=false;
         fastEnergy=slowEnergy=broadEnergy=0;cooldown=onsets=0;processedSamples=0;onsetSamples.fill(0);
         peakBuckets.fill(0);peakBucketPosition=peakBucketSamples=0;bucketPeak=bucketMaximum=0;
         hfBuckets.fill(0);hfBucketPosition=hfBucketSamples=0;hfBucketPeak=hfRecentMax=0;
@@ -154,6 +187,7 @@ public:
         const double newRatio=std::pow(2.,juce::jlimit(-12,12,semitones)/12.);
         if(newRatio!=ratio) {
             ratio=newRatio;delta=1-ratio;
+            minimum=(delta<0 && upshiftMinimumMs!=2.) ? rate*upshiftMinimumMs*.001 : rate*.002;
             // Preserve the current read position on automation. The sample
             // loop will schedule a bounded crossfade if a boundary is near.
         }
@@ -163,6 +197,15 @@ public:
     // lower boundary; the attack plays uninterrupted for that long, then the
     // ordinary splice returns it to the long-delay side.
     void setUpshiftOnsetReset(bool enabled, double holdMs=25) noexcept {upshiftReset=enabled;upshiftHold=rate*holdMs*.001;}
+    // Opt-in research: reduce only the upshift read-age floor. The existing
+    // |delta| * fade + 2-sample guard still protects the entire crossfade.
+    // No prediction, future reads, dry bypass, or change to downshift timing.
+    // Configure after prepare, before rendering; setSemitones preserves the
+    // current head on automation and changes the boundary for the next splice.
+    void setUpshiftMinimum(double ms) noexcept {
+        upshiftMinimumMs=juce::jlimit(.5,2.,ms);
+        minimum=(delta<0 && upshiftMinimumMs!=2.) ? rate*upshiftMinimumMs*.001 : rate*.002;
+    }
     // Research: smooth the novelty denominator (broadband energy) over a few
     // ms. At 0.3 ms it follows the waveform of a low sustained note, so a
     // weak pick landing near a waveform peak is masked by the 41 ms maximum
@@ -179,6 +222,13 @@ public:
     // read head may overshoot by at most 32 samples of delay). Used so two paths never
     // run their ~0.5 ms correlation search in the same callback.
     void setSplicesHeld(bool held) noexcept {holdSplices=held;}
+    // Block-invariant alternative to setSplicesHeld (research). Pass nullptr to
+    // disable. Both paths must count the same samples (TransientSplitPitch).
+    void setHoldSource(const CorrelationPitch* source,int windowSamples) noexcept {holdSource=source;holdWindow=uint64_t(std::max(0,windowSamples));}
+    bool splicedWithin(uint64_t now,uint64_t window) const noexcept {
+        for(const auto t:spliceLog)if(t!=noSplice && t<=now && now-t<window)return true;
+        return false;
+    }
     // Research: after an upshift re-anchor, how far past the onset the next
     // backward jump must land (default 8 ms). Shorter lets a period-aligned
     // jump exist sooner; 0 re-reads the attack (flam).
@@ -199,6 +249,28 @@ public:
         spliceFadeLength=juce::jlimit(fadeLength,4*fadeLength,int(std::ceil(rate*ms*.001)));
         spliceWeights.resize(size_t(spliceFadeLength));
         for(int i=0;i<spliceFadeLength;++i) spliceWeights[size_t(i)]=float(.5-.5*std::cos(juce::MathConstants<double>::pi*(i+1)/spliceFadeLength));
+    }
+    // Research: windowed-sinc interpolation for the output reads only (the
+    // splice search keeps linear reads, so splice and onset decisions are
+    // unchanged). Call after prepare(), never from the audio thread.
+    void setSincOutput(bool enabled) {
+        sincTable.clear();if(!enabled)return;
+        sincTable.resize(size_t(sincPhases)*sincTaps);
+        // I0 by its power series (libc++ has no std::cyl_bessel_i); terms fall
+        // below 1e-17 of the sum well before 40 for arguments up to beta.
+        auto besselI0=[](double x){double sum=1,term=1;for(int i=1;i<40;++i){term*=x*x/(4.*i*i);sum+=term;if(term<1.e-17*sum)break;}return sum;};
+        const double beta=8,norm=besselI0(beta);
+        for(int p=0;p<sincPhases;++p) {
+            const double f=double(p)/sincPhases;double sum=0;
+            float* k=sincTable.data()+size_t(p)*sincTaps;
+            for(int j=0;j<sincTaps;++j) {
+                // tap j sits at offset (j - 7) from the integer sample; the read point is at +f.
+                const double d=(j-(sincTaps/2-1))-f, x=juce::MathConstants<double>::pi*d, r=d/(sincTaps/2+.5);
+                const double w=r*r<1?besselI0(beta*std::sqrt(1-r*r))/norm:0.;
+                k[j]=float((std::abs(d)<1.e-12?1.:std::sin(x)/x)*w);sum+=k[j];
+            }
+            for(int j=0;j<sincTaps;++j)k[j]=float(k[j]/sum);
+        }
     }
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
@@ -309,12 +381,13 @@ public:
                 const bool due=!fading && ((delta>0 && delay>=maximum-guard) || (delta<0 && delay<=minimum+guard));
                 // Downshift only: a late upshift splice measurably lengthens the
                 // next backward jump (+0.6 ms low-band centroid, guitar A1 +2).
-                if(due && holdSplices && delta>0 && heldSamples<int(32./delta))++heldSamples;
+                const bool held=holdSplices || (holdSource!=nullptr && holdSource->splicedWithin(processedSamples,holdWindow));
+                if(due && held && delta>0 && heldSamples<int(32./delta))++heldSamples;
                 else if(due){heldSamples=0;splice();}
                 const float w=fading?activeWeights[fadeIndex]:0.f;
                 for(int c=0;c<count;++c) {
-                    const float old=read(audio[size_t(c)],delay);
-                    output.setSample(c,n,fading ? old+w*(read(audio[size_t(c)],nextDelay)-old) : old);
+                    const float old=readOutput(audio[size_t(c)],delay);
+                    output.setSample(c,n,fading ? old+w*(readOutput(audio[size_t(c)],nextDelay)-old) : old);
                 }
                 minRead=std::min(minRead, fading?std::min(delay,nextDelay):delay);
                 maxRead=std::max(maxRead, fading?std::max(delay,nextDelay):delay);

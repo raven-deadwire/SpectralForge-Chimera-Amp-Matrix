@@ -141,7 +141,7 @@ struct Showing {
 inline void click(juce::Button& button,const std::function<bool()>& ready) {
     require(button.isVisible() && button.isEnabled(),"CAB navigation button is unavailable");
     // Observe the original asynchronous button path without forcing delivery,
-    // retrying the click, or changing dispatchUntil's two-second deadline.
+    // retrying the click, or shortening dispatchUntil's deadline.
     struct Observation {
         bool failureFence{};
         int buttonCalls{},observations{};

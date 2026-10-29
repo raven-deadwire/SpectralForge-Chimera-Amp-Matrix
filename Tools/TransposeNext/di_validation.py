@@ -22,6 +22,7 @@ from scipy import signal
 from scipy.ndimage import maximum_filter1d
 from scipy.io import wavfile
 from evaluate import attacks
+from attack_snr import event_snrs
 from legacy_metrics import tone_metrics, sha
 from weak_attack_holdout import lowband_extra, holdout_input
 from latency_targets import long_notes
@@ -211,6 +212,7 @@ def score_take(t, renderer, engine, shifts, block, before_ms, work):
                 extra = np.array(attacks(y, meta)['attack_lags_ms'])-np.array(before['attack_lags_ms'])
                 valid = np.array(before['attack_lags_ms']) <= 10
                 row['attack_valid_events'] = int(valid.sum()); row['attack_additional_ms'] = [float(v) for v in extra[valid]]
+                row['attack_event_snr_db'] = [s for s, ok in zip(event_snrs(x, on, rate), valid) if ok]
             if roles & {'short', 'long'}: row['lowband_additional_ms'] = lowband_extra(x, y, on, rate)
             if 'steady' in roles: row['steady'] = steady_relative(x[:, 0], y[:, 0], rate, on[0], s['f0_hint_hz'], shift)
             rows.append(row)
@@ -220,11 +222,16 @@ def score_take(t, renderer, engine, shifts, block, before_ms, work):
 def evaluate_di(spec, rows):
     """Real-DI verdicts. Same limits as the synthetic spec; adaptations are in the protocol doc."""
     T = {t['id']: t for t in spec['targets']}; out = []
-    att = [v for r in rows for v in r.get('attack_additional_ms', [])]
-    n_valid = sum(r.get('attack_valid_events', 0) for r in rows if r['shift'] == rows[0]['shift'])
+    # T1 split (spec version 2): the gate counts events at least event_snr_min_db
+    # above the 1-8 kHz floor; fainter events are reported, not gated.
+    snr_min = T['T1_attack']['event_snr_min_db']
+    ev = [(r['shift'], v, s) for r in rows for v, s in zip(r.get('attack_additional_ms', []), r.get('attack_event_snr_db', []))]
+    clear = [v for _, v, s in ev if s >= snr_min]; faint = [v for _, v, s in ev if s < snr_min]
+    n_clear = sum(1 for sh, _, s in ev if sh == rows[0]['shift'] and s >= snr_min)
     lim = T['T1_attack']['limit_ms']
-    out.append({'id': 'T1_attack', 'limit_ms': lim, 'observed': {'max_ms': round(max(att), 3) if att else None, 'valid_events_per_shift': n_valid},
-                'verdict': 'INSUFFICIENT' if n_valid < 20 else ('PASS' if max(att) <= lim else 'FAIL')})
+    out.append({'id': 'T1_attack', 'limit_ms': lim, 'event_snr_min_db': snr_min, 'observed': {'max_ms': round(max(clear), 3) if clear else None, 'counted_events_per_shift': n_clear},
+                'verdict': 'INSUFFICIENT' if n_clear < 20 else ('PASS' if max(clear) <= lim else 'FAIL')})
+    out.append({'id': 'T1_faint_attack', 'verdict': 'REPORT', 'observed': {'events': len(faint), 'max_ms': round(max(faint), 3) if faint else None}})
     def low(sel, shifts):
         v = [x for r in rows if sel(r) and r['shift'] in shifts for x in r.get('lowband_additional_ms', [])]
         return round(max(v), 3) if v else None
@@ -317,12 +324,12 @@ def main():
     s = sub.add_parser('label'); s.add_argument('--manifest', required=True); s.add_argument('--take', required=True); s.add_argument('--out', required=True); s.set_defaults(f=cmd_label)
     for name, f in (('freeze', cmd_freeze), ('run', cmd_run)):
         s = sub.add_parser(name); s.add_argument('--manifest', required=True); s.add_argument('--renderer', type=Path, required=True)
-        s.add_argument('--engine', default='corr40-split-v2')
+        s.add_argument('--engine', default='corr40-split-v3')
         if name == 'freeze': s.add_argument('--out', required=True)
         else: s.add_argument('--prereg', required=True); s.add_argument('--out', type=Path, required=True)
         s.set_defaults(f=f)
     s = sub.add_parser('selftest'); s.add_argument('--renderer', type=Path, required=True); s.add_argument('--out', type=Path, required=True)
-    s.add_argument('--engine', default='corr40-split-v2'); s.set_defaults(f=cmd_selftest)
+    s.add_argument('--engine', default='corr40-split-v3'); s.set_defaults(f=cmd_selftest)
     a = p.parse_args(); sys.exit(a.f(a))
 
 if __name__ == '__main__':

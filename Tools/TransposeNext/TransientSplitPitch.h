@@ -69,6 +69,7 @@ public:
 // transposed, never dry-mixed. Independent delays can colour the crossover.
 // This does NOT provide a common/fixed latency across frequency or host PDC.
 class TransientSplitPitch {
+    friend struct SplitDiagnostics; // research-only, read-only trace harness
     CorrelationPitch body, transient;
     juce::AudioBuffer<float> bodyIn, highIn, bodyOut, highOut, detector;
     struct Biquad {
@@ -95,7 +96,7 @@ class TransientSplitPitch {
     // marker over a sustained low note fails that test, so the body keeps its
     // trajectory (the warble case); a new low note passes. No resets when
     // the transient path sees no onset (tremolo, vibrato).
-    bool lowReset{},upshift{},predictive{},coordinated{},targeted{};
+    bool lowReset{},upshift{},predictive{},coordinated{},targeted{},sampleHold{};
     LowPredictor predictor;
     double fractionThreshold{};
     std::vector<uint8_t> lowFlags,broadFlags;
@@ -103,8 +104,8 @@ class TransientSplitPitch {
     double lowFast{},lowFastCoefficient{},lowThreshold{};
     int lowHistoryPosition{},lowArmed{},lowWindowLength{},lowResets{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false, bool coordinate=false, bool targetFixes=false) {
-        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;coordinated=coordinate;targeted=targetFixes;predictor.prepare(spec.sampleRate);
+    void prepare(const juce::dsp::ProcessSpec& spec, bool resetBodyOnLowOnset=false, bool resetOnUpshift=false, bool predictiveConfirm=false, bool coordinate=false, bool targetFixes=false, bool sampleAccurateHold=false, bool lowUpshiftFloor=false) {
+        lowReset=resetBodyOnLowOnset;upshift=resetOnUpshift;predictive=predictiveConfirm;coordinated=coordinate;targeted=targetFixes;sampleHold=coordinate && sampleAccurateHold;predictor.prepare(spec.sampleRate);
         lowFastCoefficient=1-std::exp(-1/(spec.sampleRate*.001));
         lowWindowLength=int(spec.sampleRate*.012);
         lowHistory.assign(size_t(std::ceil(spec.sampleRate*.025)),0);
@@ -113,6 +114,7 @@ public:
         body.prepare(spec,40,false);
         transient.prepare(spec,40,true,true);
         body.setUpshiftOnsetReset(upshift);transient.setUpshiftOnsetReset(upshift);
+        if(lowUpshiftFloor)body.setUpshiftMinimum(.5);
         if(upshift)transient.setBroadSmoothing(4);
         if(coordinated)transient.setRetrigger(8);
         // T1/T4 fixes (2026-10-23 targets): a 4 ms high-path re-anchor guard
@@ -132,10 +134,14 @@ public:
         body.reset();transient.reset();for(auto& b:lowpass)b.clear();for(auto& b:highpass)b.clear();
         std::fill(lowHistory.begin(),lowHistory.end(),0);predictor.reset();lowFast=lowThreshold=0;lowHistoryPosition=lowArmed=lowResets=0;
     }
+    // Research (v4): windowed-sinc output reads on both paths; decisions as before.
+    void setSincOutput(bool enabled) {body.setSincOutput(enabled);transient.setSincOutput(enabled);}
     int lowOnsetResets() const noexcept {return lowResets;}
     void setSemitones(int n) noexcept {body.setSemitones(n);transient.setSemitones(n);shift=n;}
     int latency() const noexcept {return -1;}
     int splices() const noexcept {return body.splices()+transient.splices();}
+    int bodySplices() const noexcept {return body.splices();}
+    int transientSplices() const noexcept {return transient.splices();}
     int onsetResets() const noexcept {return transient.onsetResets();}
     const auto& onsetLocations() const noexcept {return transient.onsetLocations();}
     double readMinimum() const noexcept {return std::min(body.readMinimum(),transient.readMinimum());}
@@ -153,8 +159,13 @@ public:
             const int transientSplices=transient.splices();
             transient.process(highIn,highOut,render,&detector,nullptr,lowReset?broadFlags.data():nullptr);
             // Coordinated (research): defer the body's splice search while the
-            // transient path spliced in this chunk.
-            if(coordinated)body.setSplicesHeld(transient.splices()!=transientSplices);
+            // transient path spliced in this chunk. The chunk is the host block,
+            // so output depends on block partitioning (T6 host check). The
+            // sample-accurate hold (v3) instead waits while the transient path
+            // spliced within the previous 128 samples, counting only splices at
+            // or before the current sample: block-invariant.
+            if(sampleHold)body.setHoldSource(&transient,holdWindowSamples);
+            else if(coordinated)body.setSplicesHeld(transient.splices()!=transientSplices);
             if(lowReset) for(int i=0;i<n;++i) {
                 double energy=0;for(int c=0;c<channels;++c){const double v=bodyIn.getSample(c,i);energy+=v*v;}
                 lowFast+=lowFastCoefficient*(energy/channels-lowFast);
@@ -182,6 +193,7 @@ public:
         }
     }
 private:
+    static constexpr int holdWindowSamples=128;
     int shift{};
 };
 }

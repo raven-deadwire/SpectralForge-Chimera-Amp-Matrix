@@ -1,0 +1,36 @@
+{
+  "date_kst": "2026-10-28",
+  "pr_head_before": "369107be345732c428d57ba051e31553a279d3e6",
+  "merged_main": "1d3e3458c22b5b1f0c65742ee8827dd9358ecc7f",
+  "local_build_revision": "49fe32388bf9ac3e53548a7ea797ad7912aec4e5",
+  "scope": "Linux GCC 13.3 Release qualification-only; working-tree source hashes below; not an installer or real OBS/DAW acceptance",
+  "source_sha256": {
+    "CMakeLists.txt": "e962b1c533c320b34c19f225a29889b5bf61e36704d2d1e61d7ecb58ac11aad9",
+    "Source/ABLevelMatch.h": "dd062d82b8fa65ad63bf9ed59da4c8d3eb17991325cbcd864a952fe811e0b5a2",
+    "Source/PluginProcessor.h": "0208fb74e743cfbaa1f8674febf6da673ac782ac051e05f0f6b93c21f27dbf51",
+    "Source/PluginProcessor.cpp": "2d4e75ba4513095d8b5da2aa6546eeaf02b11d380f83fe4380cd141c01741f14",
+    "Source/PluginEditor.cpp": "138cf28cf482378bef5d140e0ab7e95f4a38713e68a3ee5109b9ab019ba0220b",
+    "Tests/ABLevelMatchTests.cpp": "dcaba1638c59c607ea8f2a016db347fafdf117d704cd21ce367feb54e6188961",
+    "Shared/ChimeraCapturePolicy.h": "ab668b13ce0f2df3256b81a8338fd47af7f4bea5ff2c86c414c18cefe2b53348",
+    "OBS/src/capture-host-application.hpp": "e8b7f73b0c01295c979dd54bc95b1ca933cdfab8b247787005360ee794275c18",
+    "OBS/src/chimera-host.cpp": "2954f4d47d05c55edd05b35d468e5ad1d96d5b466200aebe27df134dbfef61a0",
+    "OBS/src/plugin-main.cpp": "a59038c056abaff6e2e31d8b1a2d7904a615e05d96c9b503cd277c105e8bd6cb",
+    "OBS/tests/chimera-host-tests.cpp": "b5bd22a9386fc6d028788062b198652417a8aee589fca981a1e9519a3198370e",
+    "OBS/CMakeLists.txt": "50af15131aec813e3f9517c810c006454a7adada03054991ae542cced67402dd",
+    ".github/workflows/obs-addon.yml": "5ee9a1ca50f3462c269ac11f9969d3eacc6da5fef327d73540b27f400048002a"
+  },
+  "evidence_sha256": {
+    "ui-unavailable.txt": "12b5af9669a07cfe8b0ce7c2f5b4b09c384422dce29914a24fa798f563f57a84",
+    "state-recall-ctest.txt": "8dc0d66e45c8967b54d8edd8cd319d21b4a9cc4a31ed5e1bdf1621ffde06f24a",
+    "policy-rejection.txt": "fb42eb78210776a29da771e6fa1648ddc77186322056607fe15f9bb72992c0c2",
+    "obs-ctest.txt": "2c11b4f03e88547b7c7f25d6c9dca3bbfc96fc5147e793a1fd7ab0324e4bc6c3",
+    "packaging.txt": "14022470297948b00e8d8a752385b0eed48b829b5882c8caabce8a505a881877",
+    "processor-ctest.txt": "f8bcd88c8b504053545c36c20085b603576ca0e7bbc9df4ae8d0614527b3b80a"
+  },
+  "limitations": [
+    "Native UI test fails: no usable X display",
+    "libobs filter test fails at obs_startup in the display environment",
+    "Windows/macOS and latest remote CI required",
+    "No OBS Studio GUI/recording/streaming/DAW/physical audio device execution"
+  ]
+}

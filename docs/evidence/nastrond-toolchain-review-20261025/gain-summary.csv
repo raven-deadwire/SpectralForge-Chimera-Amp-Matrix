@@ -1,0 +1,205 @@
+kind,family_or_state,model_id,name,variant,scope,gain_group,hz,growth_24db_input_db,thd_at_minus36_ratio
+Original,default,,default,digital_equal,amp_head,authored,100,0.5171000328704558,0.14019668379723102
+Original,default,,default,digital_equal,amp_head,authored,400,1.3022181185292965,0.5985957872681853
+Original,default,,default,digital_equal,amp_head,authored,1200,0.8364675959083918,0.6565372105033931
+Original,gain_max,,gain_max,digital_equal,amp_head,authored,100,-0.1581461467756924,0.13532221088587568
+Original,gain_max,,gain_max,digital_equal,amp_head,authored,400,0.7390455076734348,0.6293043528649772
+Original,gain_max,,gain_max,digital_equal,amp_head,authored,1200,0.3215772620412398,0.6698719446013283
+Original,fenrir,,fenrir,digital_equal,amp_head,authored,100,2.7168611798793787,0.08488367399171004
+Original,fenrir,,fenrir,digital_equal,amp_head,authored,400,1.778060959323101,0.571555806304035
+Original,fenrir,,fenrir,digital_equal,amp_head,authored,1200,1.1705816242488076,0.5650367858173315
+Original,surtr,,surtr,digital_equal,amp_head,authored,100,-0.195782371668205,0.17686578280281245
+Original,surtr,,surtr,digital_equal,amp_head,authored,400,0.4557420302705726,0.6130900191225443
+Original,surtr,,surtr,digital_equal,amp_head,authored,1200,0.1590457532642553,0.6163561098730632
+Original,nidhoggr,,nidhoggr,digital_equal,amp_head,authored,100,0.9295557944670207,0.1591005723667321
+Original,nidhoggr,,nidhoggr,digital_equal,amp_head,authored,400,1.8314113970769483,0.5732121913071758
+Original,nidhoggr,,nidhoggr,digital_equal,amp_head,authored,1200,1.5284156503697446,0.7094346321246229
+Original,fimbulvetr,,fimbulvetr,digital_equal,amp_head,authored,100,1.8277514084856925,0.20233037941410006
+Original,fimbulvetr,,fimbulvetr,digital_equal,amp_head,authored,400,2.2030893741569724,0.40305219927272334
+Original,fimbulvetr,,fimbulvetr,digital_equal,amp_head,authored,1200,2.5917980221570946,0.6237758935265288
+Original,ragnarok,,ragnarok,digital_equal,amp_head,authored,100,-0.13592384945229696,0.15009833769212086
+Original,ragnarok,,ragnarok,digital_equal,amp_head,authored,400,0.9186447126551442,0.6903926470592272
+Original,ragnarok,,ragnarok,digital_equal,amp_head,authored,1200,0.3872734208697963,0.8056803806570881
+Original,clank_0,,clank_0,digital_equal,amp_head,authored,100,0.28765621695147203,0.20171423911188038
+Original,clank_0,,clank_0,digital_equal,amp_head,authored,400,1.2346838037997152,0.6099644955499758
+Original,clank_0,,clank_0,digital_equal,amp_head,authored,1200,0.8186214933591103,0.6556356960300594
+Original,clank_1,,clank_1,digital_equal,amp_head,authored,100,1.3843180948255416,0.10614752298232968
+Original,clank_1,,clank_1,digital_equal,amp_head,authored,400,1.3777239835441684,0.5847325722063608
+Original,clank_1,,clank_1,digital_equal,amp_head,authored,1200,0.8563171547417436,0.6567473503466811
+Original,crush_0,,crush_0,digital_equal,amp_head,authored,100,19.026439924869255,0.013431874004189912
+Original,crush_0,,crush_0,digital_equal,amp_head,authored,400,15.780436783407076,0.05776468840334569
+Original,crush_0,,crush_0,digital_equal,amp_head,authored,1200,15.729474592901418,0.08786278829829174
+Original,crush_1,,crush_1,digital_equal,amp_head,authored,100,-0.2130109736575303,0.18033277619934243
+Original,crush_1,,crush_1,digital_equal,amp_head,authored,400,0.4503436630392841,0.647382726070486
+Original,crush_1,,crush_1,digital_equal,amp_head,authored,1200,0.14258701358182968,0.6910922819219016
+Original,impact_0,,impact_0,digital_equal,amp_head,authored,100,0.7039489864352362,0.1763097233873625
+Original,impact_0,,impact_0,digital_equal,amp_head,authored,400,0.9773987428498803,0.49112028769158966
+Original,impact_0,,impact_0,digital_equal,amp_head,authored,1200,0.7256039309971243,0.5393957092914279
+Original,impact_1,,impact_1,digital_equal,amp_head,authored,100,0.4311867886675671,0.12729554132264784
+Original,impact_1,,impact_1,digital_equal,amp_head,authored,400,1.516205357335945,0.6674361596850481
+Original,impact_1,,impact_1,digital_equal,amp_head,authored,1200,0.8994415323110516,0.7282872425795958
+Original,rot_0,,rot_0,digital_equal,amp_head,authored,100,0.45502834155987415,0.13968913533431312
+Original,rot_0,,rot_0,digital_equal,amp_head,authored,400,1.1135523162181968,0.564807385911088
+Original,rot_0,,rot_0,digital_equal,amp_head,authored,1200,0.7099812690173124,0.5884479554860602
+Original,rot_1,,rot_1,digital_equal,amp_head,authored,100,0.7600146647014814,0.14491637709683985
+Original,rot_1,,rot_1,digital_equal,amp_head,authored,400,1.7436562385246663,0.6525859377010197
+Original,rot_1,,rot_1,digital_equal,amp_head,authored,1200,1.161711192346667,0.7694993822542835
+Original,bloom_0,,bloom_0,digital_equal,amp_head,authored,100,0.9466722323324426,0.11395103681874301
+Original,bloom_0,,bloom_0,digital_equal,amp_head,authored,400,1.4211904953729615,0.6603628538489045
+Original,bloom_0,,bloom_0,digital_equal,amp_head,authored,1200,0.7451903068402856,0.6149069112775
+Original,bloom_1,,bloom_1,digital_equal,amp_head,authored,100,0.4675934109540574,0.19913902219560364
+Original,bloom_1,,bloom_1,digital_equal,amp_head,authored,400,1.0927534523964972,0.4980739457258984
+Original,bloom_1,,bloom_1,digital_equal,amp_head,authored,1200,1.020913619179824,0.7433813473358135
+Original,channel_fenrir,,channel_fenrir,digital_equal,amp_head,authored,100,1.0940558393098718,0.1359228546418366
+Original,channel_fenrir,,channel_fenrir,digital_equal,amp_head,authored,400,0.6264544533022423,0.6289539540374178
+Original,channel_fenrir,,channel_fenrir,digital_equal,amp_head,authored,1200,0.1373748316942356,0.5801191691577481
+Original,channel_fenrir_gain_max,,channel_fenrir_gain_max,digital_equal,amp_head,authored,100,0.20592934439354005,0.12200406936271399
+Original,channel_fenrir_gain_max,,channel_fenrir_gain_max,digital_equal,amp_head,authored,400,0.041880715157797566,0.7091386021484278
+Original,channel_fenrir_gain_max,,channel_fenrir_gain_max,digital_equal,amp_head,authored,1200,0.003443900356754792,0.5904369179839977
+Original,channel_fenrir_clank_0,,channel_fenrir_clank_0,digital_equal,amp_head,authored,100,-0.6728938315260331,0.1040629897663082
+Original,channel_fenrir_clank_0,,channel_fenrir_clank_0,digital_equal,amp_head,authored,400,0.5387438290548525,0.6932522706130558
+Original,channel_fenrir_clank_0,,channel_fenrir_clank_0,digital_equal,amp_head,authored,1200,0.11825079238658542,0.5763846983486061
+Original,channel_fenrir_clank_1,,channel_fenrir_clank_1,digital_equal,amp_head,authored,100,1.6572825347258004,0.14983951787479455
+Original,channel_fenrir_clank_1,,channel_fenrir_clank_1,digital_equal,amp_head,authored,400,0.5890271255312333,0.6037954226565849
+Original,channel_fenrir_clank_1,,channel_fenrir_clank_1,digital_equal,amp_head,authored,1200,0.1427898593042971,0.5805910044413386
+Original,channel_surtr,,channel_surtr,digital_equal,amp_head,authored,100,-0.05157980491524339,0.2551700661144754
+Original,channel_surtr,,channel_surtr,digital_equal,amp_head,authored,400,0.021759756727261992,0.6323868987149389
+Original,channel_surtr,,channel_surtr,digital_equal,amp_head,authored,1200,0.013372534718280704,0.601642081907663
+Original,channel_surtr_gain_max,,channel_surtr_gain_max,digital_equal,amp_head,authored,100,0.09343964519437087,0.2880320415763219
+Original,channel_surtr_gain_max,,channel_surtr_gain_max,digital_equal,amp_head,authored,400,0.009276490573245422,0.6300770654520804
+Original,channel_surtr_gain_max,,channel_surtr_gain_max,digital_equal,amp_head,authored,1200,0.01757759492678579,0.6019753175413202
+Original,channel_surtr_crush_0,,channel_surtr_crush_0,digital_equal,amp_head,authored,100,8.161981232028115,0.04756764337303171
+Original,channel_surtr_crush_0,,channel_surtr_crush_0,digital_equal,amp_head,authored,400,5.39118109188441,0.316184843992352
+Original,channel_surtr_crush_0,,channel_surtr_crush_0,digital_equal,amp_head,authored,1200,4.907732055726145,0.37531385397083206
+Original,channel_surtr_crush_1,,channel_surtr_crush_1,digital_equal,amp_head,authored,100,0.06353512912333814,0.278567214178962
+Original,channel_surtr_crush_1,,channel_surtr_crush_1,digital_equal,amp_head,authored,400,0.0056515766169416,0.6357839756278831
+Original,channel_surtr_crush_1,,channel_surtr_crush_1,digital_equal,amp_head,authored,1200,0.007893376122373175,0.6134548515250077
+Original,channel_nidhoggr,,channel_nidhoggr,digital_equal,amp_head,authored,100,0.10211895022086659,0.2657624453784672
+Original,channel_nidhoggr,,channel_nidhoggr,digital_equal,amp_head,authored,400,0.1129404885880233,0.6881895678954476
+Original,channel_nidhoggr,,channel_nidhoggr,digital_equal,amp_head,authored,1200,0.028885510889264096,1.0262224940292817
+Original,channel_nidhoggr_gain_max,,channel_nidhoggr_gain_max,digital_equal,amp_head,authored,100,0.06276057073510755,0.2776566920506514
+Original,channel_nidhoggr_gain_max,,channel_nidhoggr_gain_max,digital_equal,amp_head,authored,400,0.013986895776179509,0.6932477027055352
+Original,channel_nidhoggr_gain_max,,channel_nidhoggr_gain_max,digital_equal,amp_head,authored,1200,0.0073546974043948304,1.0289051916520993
+Original,channel_nidhoggr_rot_0,,channel_nidhoggr_rot_0,digital_equal,amp_head,authored,100,0.13232900206125442,0.26810163173119134
+Original,channel_nidhoggr_rot_0,,channel_nidhoggr_rot_0,digital_equal,amp_head,authored,400,0.07070273607824151,0.5993678905320665
+Original,channel_nidhoggr_rot_0,,channel_nidhoggr_rot_0,digital_equal,amp_head,authored,1200,0.02169577692905411,0.8660098315159142
+Original,channel_nidhoggr_rot_1,,channel_nidhoggr_rot_1,digital_equal,amp_head,authored,100,0.08709033544721856,0.2703166000520302
+Original,channel_nidhoggr_rot_1,,channel_nidhoggr_rot_1,digital_equal,amp_head,authored,400,0.15558565938449942,0.7373248320153217
+Original,channel_nidhoggr_rot_1,,channel_nidhoggr_rot_1,digital_equal,amp_head,authored,1200,0.03737037220031003,1.1122324882164898
+Original,channel_fimbulvetr,,channel_fimbulvetr,digital_equal,amp_head,authored,100,0.17111152015082998,0.17813727226592016
+Original,channel_fimbulvetr,,channel_fimbulvetr,digital_equal,amp_head,authored,400,1.02691727613364,0.8793611679319205
+Original,channel_fimbulvetr,,channel_fimbulvetr,digital_equal,amp_head,authored,1200,0.29218386054078826,0.8063587697540266
+Original,channel_fimbulvetr_gain_max,,channel_fimbulvetr_gain_max,digital_equal,amp_head,authored,100,0.16058669652980617,0.2118948728763606
+Original,channel_fimbulvetr_gain_max,,channel_fimbulvetr_gain_max,digital_equal,amp_head,authored,400,0.054505311252849964,0.8952180617292728
+Original,channel_fimbulvetr_gain_max,,channel_fimbulvetr_gain_max,digital_equal,amp_head,authored,1200,0.04378892798859739,0.8185850006206319
+Original,channel_fimbulvetr_bloom_0,,channel_fimbulvetr_bloom_0,digital_equal,amp_head,authored,100,-0.1266292533809928,0.10262586470547023
+Original,channel_fimbulvetr_bloom_0,,channel_fimbulvetr_bloom_0,digital_equal,amp_head,authored,400,0.8964647424557085,1.2044651179031585
+Original,channel_fimbulvetr_bloom_0,,channel_fimbulvetr_bloom_0,digital_equal,amp_head,authored,1200,0.11200304690369656,0.6351287313184625
+Original,channel_fimbulvetr_bloom_1,,channel_fimbulvetr_bloom_1,digital_equal,amp_head,authored,100,0.3048577399566226,0.1918303610713377
+Original,channel_fimbulvetr_bloom_1,,channel_fimbulvetr_bloom_1,digital_equal,amp_head,authored,400,0.9778944579131368,0.7957429689471693
+Original,channel_fimbulvetr_bloom_1,,channel_fimbulvetr_bloom_1,digital_equal,amp_head,authored,1200,0.3410327423839852,0.862838414711429
+Original,channel_ragnarok,,channel_ragnarok,digital_equal,amp_head,authored,100,0.07116577887852849,0.14235565467416555
+Original,channel_ragnarok,,channel_ragnarok,digital_equal,amp_head,authored,400,0.039889849673700795,0.8733183090535621
+Original,channel_ragnarok,,channel_ragnarok,digital_equal,amp_head,authored,1200,0.010272904092015311,1.0229052399910263
+Original,channel_ragnarok_gain_max,,channel_ragnarok_gain_max,digital_equal,amp_head,authored,100,0.18580356641181606,0.13895908445370372
+Original,channel_ragnarok_gain_max,,channel_ragnarok_gain_max,digital_equal,amp_head,authored,400,-0.0005344299762213289,0.864504226869708
+Original,channel_ragnarok_gain_max,,channel_ragnarok_gain_max,digital_equal,amp_head,authored,1200,0.011882433453585195,1.0211726159644665
+Original,channel_ragnarok_impact_0,,channel_ragnarok_impact_0,digital_equal,amp_head,authored,100,-0.03860347105733464,0.24420694191071407
+Original,channel_ragnarok_impact_0,,channel_ragnarok_impact_0,digital_equal,amp_head,authored,400,0.04166375251216614,0.7188980536622765
+Original,channel_ragnarok_impact_0,,channel_ragnarok_impact_0,digital_equal,amp_head,authored,1200,0.010902775934655606,1.0101596437574205
+Original,channel_ragnarok_impact_1,,channel_ragnarok_impact_1,digital_equal,amp_head,authored,100,0.11048129423680653,0.11325466478682543
+Original,channel_ragnarok_impact_1,,channel_ragnarok_impact_1,digital_equal,amp_head,authored,400,0.037642626928308776,0.9303428414386138
+Original,channel_ragnarok_impact_1,,channel_ragnarok_impact_1,digital_equal,amp_head,authored,1200,0.009942623180517973,1.0272346200061717
+Original,owner_dual_a,,owner_dual_a,digital_equal,amp_head,authored,100,-0.13826413549427663,0.1320322083698938
+Original,owner_dual_a,,owner_dual_a,digital_equal,amp_head,authored,400,0.7490649231159274,0.6381679646728662
+Original,owner_dual_a,,owner_dual_a,digital_equal,amp_head,authored,1200,0.3157862207933144,0.6634654618225413
+Original,owner_dual_b,,owner_dual_b,digital_equal,amp_head,authored,100,-0.07885675003642811,0.1827835422401932
+Original,owner_dual_b,,owner_dual_b,digital_equal,amp_head,authored,400,0.7619603541566526,0.6911415178014927
+Original,owner_dual_b,,owner_dual_b,digital_equal,amp_head,authored,1200,0.3112609189715121,1.048560412773475
+NAM,meshuggah,735033,Fortin unboosted bright,digital_equal,amp_cab,mid_gain_noon,100,-0.11985817670921506,0.14998566950933695
+NAM,meshuggah,735033,Fortin unboosted bright,digital_equal,amp_cab,mid_gain_noon,400,0.5335616544126331,0.9491601280482729
+NAM,meshuggah,735033,Fortin unboosted bright,digital_equal,amp_cab,mid_gain_noon,1200,-0.06433450259593698,0.7103806339598101
+NAM,meshuggah,735012,Fortin Meshuggah,digital_equal,amp_cab,mid_gain_noon,100,-0.03147778784810029,0.18794655230256915
+NAM,meshuggah,735012,Fortin Meshuggah,digital_equal,amp_cab,mid_gain_noon,400,0.11023883899472153,0.6251725038615643
+NAM,meshuggah,735012,Fortin Meshuggah,digital_equal,amp_cab,mid_gain_noon,1200,-0.2341777415386197,0.42911925528661155
+NAM,meshuggah,734757,Fortin boosted st 9 orange cab,digital_equal,amp_cab,boosted_context,100,-0.40042201363893426,0.2418382259258622
+NAM,meshuggah,734757,Fortin boosted st 9 orange cab,digital_equal,amp_cab,boosted_context,400,-0.07549585717371343,0.8727912088570338
+NAM,meshuggah,734757,Fortin boosted st 9 orange cab,digital_equal,amp_cab,boosted_context,1200,0.17135586052335583,0.42084654006284117
+NAM,meshuggah,734756,Fortin boosted st9,digital_equal,amp_cab,boosted_context,100,-0.42612788827137926,0.14250796532864018
+NAM,meshuggah,734756,Fortin boosted st9,digital_equal,amp_cab,boosted_context,400,-0.06789979697472504,0.8023570845231905
+NAM,meshuggah,734756,Fortin boosted st9,digital_equal,amp_cab,boosted_context,1200,0.08598442502438886,0.812855727355904
+NAM,meshuggah,734717,Fortin mids,digital_equal,amp_cab,mid_gain_noon,100,-0.23620971909392807,0.11526107605359687
+NAM,meshuggah,734717,Fortin mids,digital_equal,amp_cab,mid_gain_noon,400,0.3635271071519135,0.7096976550445783
+NAM,meshuggah,734717,Fortin mids,digital_equal,amp_cab,mid_gain_noon,1200,-0.02548752336951665,1.026895678355276
+NAM,meshuggah,734449,Fortin slight scoop,digital_equal,amp_cab,mid_gain_noon,100,-0.03886705874521468,0.1864474061527052
+NAM,meshuggah,734449,Fortin slight scoop,digital_equal,amp_cab,mid_gain_noon,400,0.16746614588724995,0.6118135757673486
+NAM,meshuggah,734449,Fortin slight scoop,digital_equal,amp_cab,mid_gain_noon,1200,-0.17450699574951756,0.419056374885824
+NAM,meshuggah,420066,Fortin Meshuggah  2,digital_equal,amp_cab,heavy_context,100,7.676992680433047,0.07100583065372323
+NAM,meshuggah,420066,Fortin Meshuggah  2,digital_equal,amp_cab,heavy_context,400,0.4367130713342604,0.6359436476768466
+NAM,meshuggah,420066,Fortin Meshuggah  2,digital_equal,amp_cab,heavy_context,1200,-0.5745095258753103,1.0131368474643627
+NAM,meshuggah,420065,Fortin Meshuggah 1,digital_equal,amp_cab,heavy_context,100,12.923372345132961,0.02186649121556486
+NAM,meshuggah,420065,Fortin Meshuggah 1,digital_equal,amp_cab,heavy_context,400,0.5286294925054058,0.9149223835931073
+NAM,meshuggah,420065,Fortin Meshuggah 1,digital_equal,amp_cab,heavy_context,1200,0.08541430034119557,1.1416277671008808
+NAM,vh4,569473,[AMP] DiZLVH4-CH3 Potty Time - DI,digital_equal,amp_head,high_gain,100,0.09078181657854323,0.18432353685689973
+NAM,vh4,569473,[AMP] DiZLVH4-CH3 Potty Time - DI,digital_equal,amp_head,high_gain,400,-0.48851217715229467,0.7864419538810612
+NAM,vh4,569473,[AMP] DiZLVH4-CH3 Potty Time - DI,digital_equal,amp_head,high_gain,1200,-0.3435255820751628,0.6876649127328848
+NAM,vh4,569473,[AMP] DiZLVH4-CH3 Potty Time - DI,metadata_11_5_dbu,amp_head,high_gain,100,4.774791581337464,0.15499405606530373
+NAM,vh4,569473,[AMP] DiZLVH4-CH3 Potty Time - DI,metadata_11_5_dbu,amp_head,high_gain,400,-0.32511565634443684,0.7659730884445463
+NAM,vh4,569473,[AMP] DiZLVH4-CH3 Potty Time - DI,metadata_11_5_dbu,amp_head,high_gain,1200,-0.8667276351416362,0.6505829883971587
+NAM,vh4,569474,[AMP] DiZLVH4-CH3 Physics - DI,digital_equal,amp_head,high_gain,100,-1.0281785459145585,0.1141680364918242
+NAM,vh4,569474,[AMP] DiZLVH4-CH3 Physics - DI,digital_equal,amp_head,high_gain,400,-0.37409557017857864,0.8982205249677577
+NAM,vh4,569474,[AMP] DiZLVH4-CH3 Physics - DI,digital_equal,amp_head,high_gain,1200,-0.14077079313369012,0.7939865835336218
+NAM,vh4,569474,[AMP] DiZLVH4-CH3 Physics - DI,metadata_11_5_dbu,amp_head,high_gain,100,3.264505759545809,0.10312567908983325
+NAM,vh4,569474,[AMP] DiZLVH4-CH3 Physics - DI,metadata_11_5_dbu,amp_head,high_gain,400,-0.49628935689763054,0.8903834983116309
+NAM,vh4,569474,[AMP] DiZLVH4-CH3 Physics - DI,metadata_11_5_dbu,amp_head,high_gain,1200,-0.7247929565004441,0.7561508639764073
+NAM,vh4,569477,[AMP] DiZLVH4-CH4 Lead the Way - DI,digital_equal,amp_head,high_gain,100,8.89884843274631,0.25222675365202246
+NAM,vh4,569477,[AMP] DiZLVH4-CH4 Lead the Way - DI,digital_equal,amp_head,high_gain,400,-0.6048148955952524,0.6503400511769365
+NAM,vh4,569477,[AMP] DiZLVH4-CH4 Lead the Way - DI,digital_equal,amp_head,high_gain,1200,-0.5350297025587025,0.5275149090870666
+NAM,vh4,569477,[AMP] DiZLVH4-CH4 Lead the Way - DI,metadata_11_5_dbu,amp_head,high_gain,100,17.06247048663402,0.2544552815598293
+NAM,vh4,569477,[AMP] DiZLVH4-CH4 Lead the Way - DI,metadata_11_5_dbu,amp_head,high_gain,400,0.04407071056419909,0.6073781286748771
+NAM,vh4,569477,[AMP] DiZLVH4-CH4 Lead the Way - DI,metadata_11_5_dbu,amp_head,high_gain,1200,-0.8136444431164644,0.5082496417723987
+NAM,twinjet,652432,Uberschall Twin Jet CH1 + Merciless Drive,digital_equal,amp_head,boosted_context,100,12.783183043140196,0.026894447969732352
+NAM,twinjet,652432,Uberschall Twin Jet CH1 + Merciless Drive,digital_equal,amp_head,boosted_context,400,1.9825256372461517,0.6272314705064547
+NAM,twinjet,652432,Uberschall Twin Jet CH1 + Merciless Drive,digital_equal,amp_head,boosted_context,1200,0.30785271033694883,0.8897789026001778
+NAM,twinjet,652433,Uberschall Twin Jet CH1,digital_equal,amp_head,context,100,15.053997903043316,0.009635756888761839
+NAM,twinjet,652433,Uberschall Twin Jet CH1,digital_equal,amp_head,context,400,7.774275694704368,0.5050918210187316
+NAM,twinjet,652433,Uberschall Twin Jet CH1,digital_equal,amp_head,context,1200,2.307107608787618,0.8184447228207491
+NAM,twinjet,652434,Uberschall Twin Jet CH2 v1 + Merciless Drive,digital_equal,amp_head,boosted_context,100,6.444961773211885,0.062155305796887085
+NAM,twinjet,652434,Uberschall Twin Jet CH2 v1 + Merciless Drive,digital_equal,amp_head,boosted_context,400,1.2846767810457393,0.6446526823123849
+NAM,twinjet,652434,Uberschall Twin Jet CH2 v1 + Merciless Drive,digital_equal,amp_head,boosted_context,1200,0.42613052449467403,0.7875150144791702
+NAM,twinjet,652435,Uberschall Twin Jet CH2 v2 + ST9Pro+,digital_equal,amp_head,boosted_context,100,3.0811366765945056,0.10445541179952117
+NAM,twinjet,652435,Uberschall Twin Jet CH2 v2 + ST9Pro+,digital_equal,amp_head,boosted_context,400,1.061715198506569,0.6239268152458733
+NAM,twinjet,652435,Uberschall Twin Jet CH2 v2 + ST9Pro+,digital_equal,amp_head,boosted_context,1200,0.24837655396716585,0.7935307930316908
+NAM,twinjet,652436,Uberschall Twin Jet CH2 v2,digital_equal,amp_head,high_gain,100,1.6756183079052107,0.1111792445519472
+NAM,twinjet,652436,Uberschall Twin Jet CH2 v2,digital_equal,amp_head,high_gain,400,1.5207188276650072,0.6060089861181855
+NAM,twinjet,652436,Uberschall Twin Jet CH2 v2,digital_equal,amp_head,high_gain,1200,0.6210688868525054,0.7848200726554647
+NAM,twinjet,652437,Uberschall Twin Jet CH2 v1,digital_equal,amp_head,high_gain,100,1.420709390110071,0.10031427021254503
+NAM,twinjet,652437,Uberschall Twin Jet CH2 v1,digital_equal,amp_head,high_gain,400,1.5785719978621557,0.6495192284581323
+NAM,twinjet,652437,Uberschall Twin Jet CH2 v1,digital_equal,amp_head,high_gain,1200,0.517126851090886,0.7951393574347027
+NAM,granophyre,403977,amp omega test nam 1(2),digital_equal,amp_head,unspecified_gain,100,3.704849981553311,0.07684612906594045
+NAM,granophyre,403977,amp omega test nam 1(2),digital_equal,amp_head,unspecified_gain,400,1.7802209879398525,1.065185934045832
+NAM,granophyre,403977,amp omega test nam 1(2),digital_equal,amp_head,unspecified_gain,1200,-0.12861238199603164,0.841368143047208
+NAM,granophyre,421075,Omega Granophyre  2000 epochs ,digital_equal,amp_head,unspecified_gain,100,3.9597189201016114,0.05404791272656821
+NAM,granophyre,421075,Omega Granophyre  2000 epochs ,digital_equal,amp_head,unspecified_gain,400,2.074879927705293,0.9999475095037652
+NAM,granophyre,421075,Omega Granophyre  2000 epochs ,digital_equal,amp_head,unspecified_gain,1200,0.37552467259033406,0.7983263012742423
+NAM,granophyre,421074,Omega test 100 epochs,digital_equal,amp_head,unspecified_gain,100,3.3865772860348073,0.06422833562530454
+NAM,granophyre,421074,Omega test 100 epochs,digital_equal,amp_head,unspecified_gain,400,2.5986328660804254,0.9941739617384524
+NAM,granophyre,421074,Omega test 100 epochs,digital_equal,amp_head,unspecified_gain,1200,0.38819082410336847,0.8216711928986563
+NAM,matamp,614727,Voice 3 Gain 10 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4,digital_equal,amp_head,high_gain,100,1.36486026884657,0.22372137186676774
+NAM,matamp,614727,Voice 3 Gain 10 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4,digital_equal,amp_head,high_gain,400,1.1153367495819424,0.4305127269431456
+NAM,matamp,614727,Voice 3 Gain 10 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4,digital_equal,amp_head,high_gain,1200,0.6039172445692991,0.9542465026693372
+NAM,matamp,614703,Voice 3 Gain 4 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4,digital_equal,amp_head,context,100,23.624803362381883,0.006558442003859213
+NAM,matamp,614703,Voice 3 Gain 4 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4,digital_equal,amp_head,context,400,23.368927492867098,0.012358743647828407
+NAM,matamp,614703,Voice 3 Gain 4 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4,digital_equal,amp_head,context,1200,22.52399328613428,0.06914552962916407
+NAM,matamp,561845,Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,high_gain,100,0.5660915792769181,0.2454329623466357
+NAM,matamp,561845,Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,high_gain,400,0.8861579237145456,0.3840688566214702
+NAM,matamp,561845,Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,high_gain,1200,0.8870163269667906,0.747791104550642
+NAM,matamp,561843,Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,context,100,23.56497910738244,0.010814293740646363
+NAM,matamp,561843,Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,context,400,22.882664495150088,0.020106139676950855
+NAM,matamp,561843,Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,context,1200,22.34983888244453,0.053772088219609
+NAM,matamp,543855,(Auto A2) Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,context,100,23.51777622792471,0.021903132929625445
+NAM,matamp,543855,(Auto A2) Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,context,400,22.64687114901731,0.016621019672812678
+NAM,matamp,543855,(Auto A2) Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,context,1200,22.508413982528786,0.06108809434159973
+NAM,matamp,543854,(Auto A2) Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,high_gain,100,0.47564634178795373,0.2512491973088113
+NAM,matamp,543854,(Auto A2) Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,high_gain,400,0.8002721077014314,0.3839613612058014
+NAM,matamp,543854,(Auto A2) Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor,digital_equal,amp_head,high_gain,1200,0.8752453968140621,0.7307519072926322

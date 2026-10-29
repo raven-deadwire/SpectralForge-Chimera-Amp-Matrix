@@ -1,0 +1,313 @@
+{
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "pinned_cpu": 0,
+  "engines": {
+    "corr40-split-v3": {
+      "renders": 156,
+      "callbacks": 414588,
+      "thread_misses": 8,
+      "wall_misses": 8,
+      "max_thread_us": 4054.99,
+      "max_wall_us": 4055.7
+    },
+    "corr40-split-v4": {
+      "renders": 156,
+      "callbacks": 414588,
+      "thread_misses": 5,
+      "wall_misses": 5,
+      "max_thread_us": 5165.14,
+      "max_wall_us": 5166.51
+    },
+    "env-floor125": {
+      "renders": 156,
+      "callbacks": 414588,
+      "thread_misses": 8,
+      "wall_misses": 8,
+      "max_thread_us": 5213.53,
+      "max_wall_us": 5215.03
+    }
+  },
+  "conditions": [
+    {
+      "rate": 44100,
+      "block": 64,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 8.180867571361722,
+        "p99_thread_us_median": 48.296739999999964,
+        "max_thread_us": 1211.73,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 8.176390734674778,
+        "p99_thread_us_median": 45.979719999999965,
+        "max_thread_us": 310.091,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 8.451182498830136,
+        "p99_thread_us_median": 50.659299999999995,
+        "max_thread_us": 2460.48,
+        "thread_misses": 2,
+        "wall_misses": 2,
+        "body_splices": 132,
+        "high_splices": 144
+      }
+    },
+    {
+      "rate": 44100,
+      "block": 128,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 16.205870439663236,
+        "p99_thread_us_median": 66.17155999999986,
+        "max_thread_us": 271.283,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 16.785295135640784,
+        "p99_thread_us_median": 67.90061999999995,
+        "max_thread_us": 1672.6,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 16.43746071094481,
+        "p99_thread_us_median": 68.66515999999987,
+        "max_thread_us": 589.045,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      }
+    },
+    {
+      "rate": 44100,
+      "block": 256,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 32.08424205607477,
+        "p99_thread_us_median": 85.32040999999992,
+        "max_thread_us": 526.792,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 31.8799261682243,
+        "p99_thread_us_median": 88.35501999999997,
+        "max_thread_us": 425.102,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 31.997785046728975,
+        "p99_thread_us_median": 88.19894999999983,
+        "max_thread_us": 2125.12,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 144
+      }
+    },
+    {
+      "rate": 48000,
+      "block": 64,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 8.008552903225809,
+        "p99_thread_us_median": 41.423479999999934,
+        "max_thread_us": 242.791,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 8.074699139784947,
+        "p99_thread_us_median": 36.856239999998664,
+        "max_thread_us": 375.438,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 7.72724,
+        "p99_thread_us_median": 35.344319999998916,
+        "max_thread_us": 525.031,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      }
+    },
+    {
+      "rate": 48000,
+      "block": 128,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 16.124626397248495,
+        "p99_thread_us_median": 61.030199999999994,
+        "max_thread_us": 4054.99,
+        "thread_misses": 1,
+        "wall_misses": 1,
+        "body_splices": 132,
+        "high_splices": 138
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 15.231651332760103,
+        "p99_thread_us_median": 61.01637999999998,
+        "max_thread_us": 443.389,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 15.978365864144456,
+        "p99_thread_us_median": 53.59835999999986,
+        "max_thread_us": 771.316,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      }
+    },
+    {
+      "rate": 48000,
+      "block": 256,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 31.301055841924402,
+        "p99_thread_us_median": 89.16767499999972,
+        "max_thread_us": 2703.16,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 33.78358591065292,
+        "p99_thread_us_median": 88.23373999999997,
+        "max_thread_us": 474.986,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 31.40934536082474,
+        "p99_thread_us_median": 80.70204499999957,
+        "max_thread_us": 1472.07,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 138
+      }
+    },
+    {
+      "rate": 96000,
+      "block": 64,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 6.537106774193548,
+        "p99_thread_us_median": 25.75450500000008,
+        "max_thread_us": 3476.87,
+        "thread_misses": 6,
+        "wall_misses": 6,
+        "body_splices": 660,
+        "high_splices": 675
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 6.428727419354839,
+        "p99_thread_us_median": 23.793010000000056,
+        "max_thread_us": 5165.14,
+        "thread_misses": 5,
+        "wall_misses": 5,
+        "body_splices": 660,
+        "high_splices": 675
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 6.460044731182796,
+        "p99_thread_us_median": 23.854705000000042,
+        "max_thread_us": 2449.3,
+        "thread_misses": 5,
+        "wall_misses": 5,
+        "body_splices": 660,
+        "high_splices": 675
+      }
+    },
+    {
+      "rate": 96000,
+      "block": 128,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 12.799410107526882,
+        "p99_thread_us_median": 58.72909999999999,
+        "max_thread_us": 2238.43,
+        "thread_misses": 1,
+        "wall_misses": 1,
+        "body_splices": 132,
+        "high_splices": 135
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 12.966590107526882,
+        "p99_thread_us_median": 58.50887999999986,
+        "max_thread_us": 260.808,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 135
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 12.777096344086022,
+        "p99_thread_us_median": 58.757299999999944,
+        "max_thread_us": 5213.53,
+        "thread_misses": 1,
+        "wall_misses": 1,
+        "body_splices": 132,
+        "high_splices": 135
+      }
+    },
+    {
+      "rate": 96000,
+      "block": 256,
+      "corr40-split-v3": {
+        "mean_thread_us_median": 25.14616852966466,
+        "p99_thread_us_median": 72.59686999999994,
+        "max_thread_us": 549.156,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 135
+      },
+      "corr40-split-v4": {
+        "mean_thread_us_median": 24.774797076526227,
+        "p99_thread_us_median": 70.76097999999996,
+        "max_thread_us": 1316.65,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 135
+      },
+      "env-floor125": {
+        "mean_thread_us_median": 25.30651891659501,
+        "p99_thread_us_median": 73.31127999999995,
+        "max_thread_us": 438.772,
+        "thread_misses": 0,
+        "wall_misses": 0,
+        "body_splices": 132,
+        "high_splices": 135
+      }
+    }
+  ],
+  "downshift_hash_groups": 78,
+  "downshift_mismatches": 0
+}

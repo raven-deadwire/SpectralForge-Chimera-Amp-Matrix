@@ -1,4 +1,5 @@
 #pragma once
+#include "ParamIndex.h"
 #include "FactoryPresets.h"
 #include "FactoryPresetLevels.h"
 #include "FactoryCabVoicing.h"
@@ -223,16 +224,17 @@ inline juce::ValueTree factoryNativeSnapshot(juce::AudioProcessorValueTreeState&
     if(index<0 || index>=factoryPresetCount)return {};
     auto snapshot=state.copyState();
     const auto previous=snapshot.createCopy();
+    ParamIndex byId(snapshot);const ParamIndex previousById(previous);
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);
     snapshot.removeChild(snapshot.getChildWithName("ORIGINAL_PRESET"),nullptr);
     for(auto* raw:state.processor.getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
         if(factoryPerformanceParameter(p->paramID))continue;
-        auto node=snapshot.getChildWithProperty("id",p->paramID);
-        if(!node.isValid()){node=juce::ValueTree("PARAM");node.setProperty("id",p->paramID,nullptr);snapshot.appendChild(node,nullptr);}
+        auto node=byId[p->paramID];
+        if(!node.isValid()){node=juce::ValueTree("PARAM");node.setProperty("id",p->paramID,nullptr);snapshot.appendChild(node,nullptr);byId.add(node);}
         node.setProperty("value",p->convertFrom0to1(p->getDefaultValue()),nullptr);
     }
-    const auto set=[&](const juce::String& id,float value){auto* p=state.getParameter(id);jassert(p);if(p)snapshot.getChildWithProperty("id",id).setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);};
-    const auto get=[&](const juce::String& id){const auto node=snapshot.getChildWithProperty("id",id);jassert(node.isValid());return float(node.getProperty("value"));};
+    const auto set=[&](const juce::String& id,float value){auto* p=state.getParameter(id);jassert(p);if(p)byId[id].setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);};
+    const auto get=[&](const juce::String& id){const auto node=byId[id];jassert(node.isValid());return float(node.getProperty("value"));};
     applyFactoryPreset(index,set);voiceFactoryNative(index,get,set);
     voiceFactoryCab(index,get,set);set("output",factoryOutputDb[size_t(index)]);
     voiceFactoryFinishing(index,get,set);
@@ -243,8 +245,8 @@ inline juce::ValueTree factoryNativeSnapshot(juce::AudioProcessorValueTreeState&
         const int selected=int(get(pedalModelID(owner)));
         for(int model=0;model<pedalModelCount;++model)if(model!=selected) {
             const auto preserve=[&](const juce::String& id) {
-                const auto old=previous.getChildWithProperty("id",id);
-                if(old.isValid())snapshot.getChildWithProperty("id",id).setProperty("value",old["value"],nullptr);
+                const auto old=previousById[id];
+                if(old.isValid())byId[id].setProperty("value",old["value"],nullptr);
             };
             preserve(pedalBypassID(owner,model));
             for(int c=0;c<pedalModel(model).controlCount;++c)preserve(pedalControlID(owner,model,c));

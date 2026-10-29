@@ -1,5 +1,6 @@
 #include "GlobalDSP.h"
 #include "Fixtures/Tuner20261013.h"
+#include <algorithm>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -63,12 +64,25 @@ private:
 // unit-buffered: streaming thousands of fields between routes lets the CI log
 // consumer compete with the next feeder/worker. Keep all records and clocks;
 // this removes diagnostic I/O interference, not OS scheduling from the gates.
+// The compact per-route summary is written last so it survives log tails.
 class DeferredRouteDiagnostics {
 public:
-    std::ostringstream stream, rows;
-    ~DeferredRouteDiagnostics() { std::cout << rows.str(); std::cerr << stream.str(); }
+    std::ostringstream stream, rows, summary;
+    ~DeferredRouteDiagnostics() { std::cout << rows.str(); std::cerr << stream.str() << summary.str(); }
 };
-struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{};};
+// Route gates are judged in audio time: the duration of input fed when the
+// deciding reading was taken (the read's nominal deadline), not the wall clock
+// at which a late-woken feeder got to read it. The feeder's lateness (wall read
+// minus that deadline) is recorded per read and judged separately: an attempt
+// whose feeder ran later than kFeederLateLimitMs at any read is not a valid
+// real-time measurement and is repeated, never passed. Tuner worker wake, poll
+// and compute delay still elapse while input is fed in real time, so they stay
+// in the audio-time result. See docs/TUNER_TIMING_ATTRIBUTION.md.
+constexpr double kFeederLateLimitMs=50;
+constexpr int kMaxRouteAttempts=3;
+struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{},
+    wallAcquire{-1},wallSettle{-1},acquireLate{-1},settleLate{-1},lateMax{},lateP99{};int feeds{};
+    bool feederValid() const {return lateMax<=kFeederLateLimitMs;}};
 template<class T> NativeResult native(double rate,int block,double hz,std::ostream& diagnostics){
     T tuner;
 #if CHIMERA_TUNER_TEST_HOOKS
@@ -81,6 +95,7 @@ template<class T> NativeResult native(double rate,int block,double hz,std::ostre
     const int total=int(rate*.6), step=int(rate*.30);
     struct FeedObservation {int offset;double push,observed;float hz,confidence;double sleepBegin,sleepEnd,readEnd;};
     std::vector<FeedObservation> feed;feed.reserve(size_t((total+block-1)/block));
+    std::vector<double> lateness;lateness.reserve(feed.capacity());
     for(;offset<total;offset+=block){
         const double wanted=offset>=step?hz*std::exp2(10./1200):hz;
         for(int n=0;n<block;++n){audio.setSample(0,n,tone(wanted,(offset+n)/rate,1));audio.setSample(1,n,-.7f*audio.getSample(0,n));}
@@ -98,10 +113,17 @@ template<class T> NativeResult native(double rate,int block,double hz,std::ostre
             std::chrono::duration<double,std::milli>(sleepBegin-start).count(),
             std::chrono::duration<double,std::milli>(sleepEnd-start).count(),
             std::chrono::duration<double,std::milli>(readEnd-start).count()});
-        if(offset<step && std::abs(e)<.5 && confidence>.9 && result.acquire<0)result.acquire=elapsed;
-        if(offset>=step){if(std::abs(e)<.5 && confidence>.9)++stable;else stable=0;if(stable>=3 && result.settle<0)result.settle=elapsed-1000*step/rate;result.cents=e;}
+        const double fed=1000.*(offset+block)/rate,late=std::max(0.,elapsed-fed);
+        lateness.push_back(late);
+        if(offset<step && std::abs(e)<.5 && confidence>.9 && result.acquire<0){result.acquire=fed;result.wallAcquire=elapsed;result.acquireLate=late;}
+        if(offset>=step){if(std::abs(e)<.5 && confidence>.9)++stable;else stable=0;
+            if(stable>=3 && result.settle<0){result.settle=fed-1000*step/rate;result.wallSettle=elapsed-1000*step/rate;result.settleLate=late;}
+            result.cents=e;}
     }
     feederQoS.restore();
+    std::sort(lateness.begin(),lateness.end());
+    result.feeds=int(lateness.size());
+    if(!lateness.empty()){result.lateMax=lateness.back();result.lateP99=lateness[size_t(.99*double(lateness.size()-1))];}
     tuner.push(audio,false); // must hide stale pitch immediately in the candidate
     if constexpr(std::is_same_v<T,spectralforge::Tuner>)require(tuner.frequency()==0,"Disabled tuner exposed stale reading");
     tuner.stop();require(tuner.stopped(),"Worker did not stop");
@@ -186,7 +208,9 @@ void stalledWorkerFreshness(){
             std::this_thread::sleep_until(start+std::chrono::microseconds((block+1)*5333));
         }
         require(std::abs(error(tuner.frequency(),110))<.1,"Stall fixture did not acquire");
-        tuner.pauseWorkerForTest(450);
+        // Long enough that a slow runner cannot reach the stale check after the
+        // pause has already ended; the resume wait below allows for it.
+        tuner.pauseWorkerForTest(1200);
         const auto requested=Clock::now();
         while(!tuner.workerPausedForTest() && Clock::now()-requested<std::chrono::milliseconds(250))
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -208,7 +232,7 @@ void stalledWorkerFreshness(){
             tuner.push(audio,true);
         }
         const auto expired=Clock::now();
-        while(tuner.completedWorkerIterationsForTest()==pausedIteration && Clock::now()-expired<std::chrono::milliseconds(500))
+        while(tuner.completedWorkerIterationsForTest()==pausedIteration && Clock::now()-expired<std::chrono::milliseconds(1500))
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         require(tuner.completedWorkerIterationsForTest()!=pausedIteration,"Worker did not resume after the pause");
         require(tuner.frequency()==0 && tuner.confidence()==0,"Expired queued input was republished after the worker resumed");
@@ -308,21 +332,43 @@ int main(int argc,char** argv){try{
         worst[kind]=std::max(worst[kind],std::abs(ce));baselineWorst[kind]=std::max(baselineWorst[kind],std::abs(be));++count;
         require(candidate.second>.9f&&std::abs(ce)<.1,"Synthetic candidate error exceeds 0.1 cent");
     }
-    int failedRoutes=0;
+    int failedRoutes=0,feederInvalidRoutes=0,repeatedAttempts=0;
     {
     DeferredRouteDiagnostics routeDiagnostics;
     auto& diagnostics=routeDiagnostics.stream;
-    diagnostics<<std::setprecision(10);
+    auto& summary=routeDiagnostics.summary;
+    diagnostics<<std::setprecision(10);summary<<std::setprecision(10);
+    summary<<"ROUTE_TIMING_HEADER,rate,block,hz,attempt,engine,acquire_audio_ms,settle_audio_ms,acquire_wall_ms,settle_wall_ms,"
+             "acquire_feeder_late_ms,settle_feeder_late_ms,feeder_late_max_ms,feeder_late_p99_ms,feeds,error_ct,feeder_valid\n";
     for(double rate:{44100.,48000.,96000.,192000.})for(int block:{64,256})for(double hz:{27.5,30.867706,82.406889,440.}){
-        const auto a=native<frozenTuner20261013::Tuner>(rate,block,hz,diagnostics),b=native<spectralforge::Tuner>(rate,block,hz,diagnostics);
+        NativeResult a,b;
+        for(int attempt=1;attempt<=kMaxRouteAttempts;++attempt){
+            diagnostics<<"ROUTE_ATTEMPT,"<<rate<<','<<block<<','<<hz<<','<<attempt<<'\n';
+            a=native<frozenTuner20261013::Tuner>(rate,block,hz,diagnostics);b=native<spectralforge::Tuner>(rate,block,hz,diagnostics);
+            for(const auto& pair:{std::make_pair("baseline",a),std::make_pair("new",b)}){const auto& r=pair.second;
+                summary<<"ROUTE_TIMING,"<<rate<<','<<block<<','<<hz<<','<<attempt<<','<<pair.first<<','<<r.acquire<<','<<r.settle<<','
+                    <<r.wallAcquire<<','<<r.wallSettle<<','<<r.acquireLate<<','<<r.settleLate<<','<<r.lateMax<<','<<r.lateP99<<','
+                    <<r.feeds<<','<<r.cents<<','<<r.feederValid()<<'\n';}
+            // Only the feeder's own lateness can repeat an attempt. A valid
+            // attempt is final, whether its tuner result passes or fails.
+            if(b.feederValid())break;
+            summary<<"FEEDER_LATE rate="<<rate<<" block="<<block<<" hz="<<hz<<" attempt="<<attempt<<" late_max_ms="<<b.lateMax
+                   <<" limit_ms="<<kFeederLateLimitMs<<" (attempt invalid, not judged)\n";
+            if(attempt<kMaxRouteAttempts)++repeatedAttempts;
+        }
         for(const auto& pair:{std::make_pair("baseline",a),std::make_pair("new",b)}){const auto& r=pair.second;routeDiagnostics.rows<<std::setprecision(10)<<"worker,"<<pair.first<<','<<rate<<','<<block<<','<<hz<<",1,"<<r.cents<<",0,0,"<<r.acquire<<','<<r.settle<<','<<r.pushUs<<'\n';}
-        if(!(b.acquire>0 && b.acquire<290 && b.settle>0 && b.settle<290 && std::abs(b.cents)<.1)){
-            ++failedRoutes;diagnostics<<std::setprecision(12)<<"ROUTE FAIL rate="<<rate<<" block="<<block<<" hz="<<hz<<" acquire="<<b.acquire<<" settle="<<b.settle<<" error="<<b.cents<<'\n';
+        if(!b.feederValid()){
+            ++feederInvalidRoutes;summary<<std::setprecision(12)<<"ROUTE FEEDER INVALID rate="<<rate<<" block="<<block<<" hz="<<hz<<" late_max_ms="<<b.lateMax<<'\n';
+        } else if(!(b.acquire>0 && b.acquire<290 && b.settle>0 && b.settle<290 && std::abs(b.cents)<.1)){
+            ++failedRoutes;summary<<std::setprecision(12)<<"ROUTE FAIL rate="<<rate<<" block="<<block<<" hz="<<hz<<" acquire="<<b.acquire<<" settle="<<b.settle<<" error="<<b.cents
+                <<" wall_acquire="<<b.wallAcquire<<" wall_settle="<<b.wallSettle<<" late_max_ms="<<b.lateMax<<'\n';
         }
     }
+    summary<<"ROUTE_TIMING_END,failed="<<failedRoutes<<",feeder_invalid="<<feederInvalidRoutes<<",repeated_attempts="<<repeatedAttempts<<'\n';
     } // Flush complete route evidence before lifecycle assertions can throw.
     channelContinuity();lifecycle();stalledWorkerFreshness();timingAttribution();
     require(failedRoutes==0,"Native acquisition/settle/accuracy gate failed; all route rows retained");
-    std::cerr<<"PASS "<<count<<" kernel cases and 32 native A/B routes. Synthetic sine/harmonic/exponential-decay maxima: "<<worst[0]<<' '<<worst[1]<<' '<<worst[2]<<" ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.\n";
+    require(feederInvalidRoutes==0,"Feeder lateness invalidated every attempt of a route; tuner timing not judged");
+    std::cerr<<"PASS "<<count<<" kernel cases and 32 native A/B routes (audio-time gates; "<<repeatedAttempts<<" feeder-late attempts repeated). Synthetic sine/harmonic/exponential-decay maxima: "<<worst[0]<<' '<<worst[1]<<' '<<worst[2]<<" ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.\n";
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
 

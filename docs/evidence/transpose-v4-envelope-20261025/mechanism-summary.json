@@ -1,0 +1,782 @@
+[
+  {
+    "input": "guitar_dropA_A1/alternating_velocity",
+    "note_1based": 12,
+    "rate": 48000,
+    "shift": 2,
+    "onset_sample": 58800,
+    "engines": {
+      "corr40-split-v3": {
+        "output_dip": {
+          "dip_db": 2.9700270839184033,
+          "trough_ms": 58.5,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.0017782297404582569,
+          "future_peak": 0.0025031635353727827
+        },
+        "input_dip": {
+          "dip_db": 16.609359710172964,
+          "trough_ms": 39.145833333333336,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.002675123834253816,
+          "future_peak": 0.018105556427322284
+        },
+        "extra_dip_db": -13.63933262625456,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 1.7569202463116924,
+          "trough_ms": 5.0625,
+          "future_peak_ms": 23.354166666666668,
+          "trough": 0.01047001621850422,
+          "future_peak": 0.01281720606845682
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 0.75,
+            "old_read_ms": 10.815666560378816,
+            "new_read_ms": 5.348141971019738
+          },
+          {
+            "time_ms": 75.25,
+            "old_read_ms": 10.938128608688148,
+            "new_read_ms": 5.348141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 25.75,
+            "old_read_ms": 2.2865907632851017,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 291.32550288695495,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": 0.5253102322641225,
+            "fade_interference_db": 0.22917947721956805
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": null,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.00490098912268877
+      },
+      "corr40-split-v4": {
+        "output_dip": {
+          "dip_db": 36.51762315500866,
+          "trough_ms": 59.125,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 1.8451103709188637e-05,
+          "future_peak": 0.001235672858936249
+        },
+        "input_dip": {
+          "dip_db": 16.609359710172964,
+          "trough_ms": 39.145833333333336,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.002675123834253816,
+          "future_peak": 0.018105556427322284
+        },
+        "extra_dip_db": 19.908263444835693,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 3.5439849897816296,
+          "trough_ms": 5.0,
+          "future_peak_ms": 22.4375,
+          "trough": 0.009260719626546263,
+          "future_peak": 0.013926564194511347
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 0.75,
+            "old_read_ms": 10.815666560378816,
+            "new_read_ms": 3.848141971019738
+          },
+          {
+            "time_ms": 75.25,
+            "old_read_ms": 10.938128608688148,
+            "new_read_ms": 3.848141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 25.75,
+            "old_read_ms": 0.7865907632852756,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 321.02550288695153,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": 0.554176716800894,
+            "fade_interference_db": 0.3785319549964107
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 1331,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.00490098912268877
+      },
+      "env-floor125": {
+        "output_dip": {
+          "dip_db": 4.641825966177241,
+          "trough_ms": 58.9375,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.0010021059527163746,
+          "future_peak": 0.0017100347672037634
+        },
+        "input_dip": {
+          "dip_db": 16.609359710172964,
+          "trough_ms": 39.145833333333336,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.002675123834253816,
+          "future_peak": 0.018105556427322284
+        },
+        "extra_dip_db": -11.967533743995723,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 2.6772494156034616,
+          "trough_ms": 5.0,
+          "future_peak_ms": 22.979166666666668,
+          "trough": 0.009928562060455946,
+          "future_peak": 0.013512908174580111
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 0.75,
+            "old_read_ms": 10.815666560378816,
+            "new_read_ms": 4.598141971019738
+          },
+          {
+            "time_ms": 75.25,
+            "old_read_ms": 10.938128608688148,
+            "new_read_ms": 4.598141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 25.75,
+            "old_read_ms": 1.5365907632851885,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 306.17550288695327,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": 0.5702903778096957,
+            "fade_interference_db": 0.29325118444796633
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 1331,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.00490098912268877
+      }
+    }
+  },
+  {
+    "input": "bass_B0/long1414",
+    "note_1based": 2,
+    "rate": 48000,
+    "shift": 2,
+    "onset_sample": 26400,
+    "engines": {
+      "corr40-split-v3": {
+        "output_dip": {
+          "dip_db": 10.25809484246775,
+          "trough_ms": 27.916666666666668,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.02500789965579957,
+          "future_peak": 0.08146704433861648
+        },
+        "input_dip": {
+          "dip_db": 1.785965370965625,
+          "trough_ms": 5.0,
+          "future_peak_ms": 25.666666666666668,
+          "trough": 0.07979458708422545,
+          "future_peak": 0.09801029587683291
+        },
+        "extra_dip_db": 8.472129471502125,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 10.258069905323666,
+          "trough_ms": 27.916666666666668,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.025014646953450077,
+          "future_peak": 0.08148879073477153
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.0,
+            "old_read_ms": 20.542658373195618,
+            "new_read_ms": 5.348141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.0,
+            "old_read_ms": 2.2865907632851017,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 163.50091034762477,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.9542172785283224,
+            "fade_interference_db": -1.2281485590541503
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": null,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.09543231874704361
+      },
+      "corr40-split-v4": {
+        "output_dip": {
+          "dip_db": 17.94945984689243,
+          "trough_ms": 27.291666666666668,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.010311879582163532,
+          "future_peak": 0.0814349483403702
+        },
+        "input_dip": {
+          "dip_db": 1.785965370965625,
+          "trough_ms": 5.0,
+          "future_peak_ms": 25.666666666666668,
+          "trough": 0.07979458708422545,
+          "future_peak": 0.09801029587683291
+        },
+        "extra_dip_db": 16.163494475926807,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 17.94627337285117,
+          "trough_ms": 27.291666666666668,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.010318660628831593,
+          "future_peak": 0.08145861051105163
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.0,
+            "old_read_ms": 19.51778891896402,
+            "new_read_ms": 3.848141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.0,
+            "old_read_ms": 0.7865907632852756,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 180.16947176501705,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.48411783127134433,
+            "fade_interference_db": -0.25134730270995215
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 1343,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.09543231874704361
+      },
+      "env-floor125": {
+        "output_dip": {
+          "dip_db": 13.133699355732052,
+          "trough_ms": 27.645833333333332,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.01795111485893831,
+          "future_peak": 0.08142849227874153
+        },
+        "input_dip": {
+          "dip_db": 1.785965370965625,
+          "trough_ms": 5.0,
+          "future_peak_ms": 25.666666666666668,
+          "trough": 0.07979458708422545,
+          "future_peak": 0.09801029587683291
+        },
+        "extra_dip_db": 11.347733984766426,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 13.132849374630899,
+          "trough_ms": 27.645833333333332,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.017957836579091228,
+          "future_peak": 0.0814510118404214
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.0,
+            "old_read_ms": 19.879961359146264,
+            "new_read_ms": 4.598141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.0,
+            "old_read_ms": 1.5365907632851885,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 171.83519105632092,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.8234301377519082,
+            "fade_interference_db": -0.7911960857600582
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 1343,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.09543231874704361
+      }
+    }
+  },
+  {
+    "input": "bass_B0/long1414",
+    "note_1based": 5,
+    "rate": 48000,
+    "shift": 2,
+    "onset_sample": 62400,
+    "engines": {
+      "corr40-split-v3": {
+        "output_dip": {
+          "dip_db": 7.963566798514249,
+          "trough_ms": 24.229166666666668,
+          "future_peak_ms": 58.770833333333336,
+          "trough": 0.03407842317927823,
+          "future_peak": 0.08524282450084845
+        },
+        "input_dip": {
+          "dip_db": 2.0010070587859268,
+          "trough_ms": 5.0,
+          "future_peak_ms": 30.854166666666668,
+          "trough": 0.07617784682946592,
+          "future_peak": 0.09591334692305105
+        },
+        "extra_dip_db": 5.962559739728322,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 7.964986851021295,
+          "trough_ms": 24.229166666666668,
+          "future_peak_ms": 58.770833333333336,
+          "trough": 0.0340777815140297,
+          "future_peak": 0.08525515664815671
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.0,
+            "old_read_ms": 17.204927271188758,
+            "new_read_ms": 5.348141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.0,
+            "old_read_ms": 2.2865907632851017,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 163.50091034762477,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.9959447693144916,
+            "fade_interference_db": -0.7850482456710112
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": null,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.08563733100891113
+      },
+      "corr40-split-v4": {
+        "output_dip": {
+          "dip_db": 15.598732399079069,
+          "trough_ms": 23.375,
+          "future_peak_ms": 59.020833333333336,
+          "trough": 0.014088998872658742,
+          "future_peak": 0.08488222484734408
+        },
+        "input_dip": {
+          "dip_db": 2.0010070587859268,
+          "trough_ms": 5.0,
+          "future_peak_ms": 30.854166666666668,
+          "trough": 0.07617784682946592,
+          "future_peak": 0.09591334692305105
+        },
+        "extra_dip_db": 13.597725340293142,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 15.600709928152492,
+          "trough_ms": 23.375,
+          "future_peak_ms": 59.020833333333336,
+          "trough": 0.014086979558005079,
+          "future_peak": 0.0848893837379217
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.0,
+            "old_read_ms": 15.386662778511083,
+            "new_read_ms": 3.848141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.0,
+            "old_read_ms": 0.7865907632852756,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 180.16947176501705,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.8432137324708273,
+            "fade_interference_db": -0.658131616647733
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 1343,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.08563733100891113
+      },
+      "env-floor125": {
+        "output_dip": {
+          "dip_db": 11.003373721774022,
+          "trough_ms": 23.833333333333332,
+          "future_peak_ms": 58.979166666666664,
+          "trough": 0.023955485885433257,
+          "future_peak": 0.0850302919262742
+        },
+        "input_dip": {
+          "dip_db": 2.0010070587859268,
+          "trough_ms": 5.0,
+          "future_peak_ms": 30.854166666666668,
+          "trough": 0.07617784682946592,
+          "future_peak": 0.09591334692305105
+        },
+        "extra_dip_db": 9.002366662988095,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 11.004871585343473,
+          "trough_ms": 23.833333333333332,
+          "future_peak_ms": 59.0,
+          "trough": 0.02395419217513226,
+          "future_peak": 0.08504036365475214
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.0,
+            "old_read_ms": 15.87585867145287,
+            "new_read_ms": 4.598141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.0,
+            "old_read_ms": 1.5365907632851885,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 171.83519105632092,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.9483472461881737,
+            "fade_interference_db": -0.8247709125771546
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 1343,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.08563733100891113
+      }
+    }
+  },
+  {
+    "input": "bass_B0/long1414",
+    "note_1based": 8,
+    "rate": 48000,
+    "shift": 2,
+    "onset_sample": 98400,
+    "engines": {
+      "corr40-split-v3": {
+        "output_dip": {
+          "dip_db": 6.016424657397401,
+          "trough_ms": 21.833333333333332,
+          "future_peak_ms": 58.291666666666664,
+          "trough": 0.04009005108042884,
+          "future_peak": 0.08014156932099292
+        },
+        "input_dip": {
+          "dip_db": 3.043887055706091,
+          "trough_ms": 5.0,
+          "future_peak_ms": 30.729166666666668,
+          "trough": 0.06860059389347853,
+          "future_peak": 0.0973917631666543
+        },
+        "extra_dip_db": 2.97253760169131,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 6.018051346497888,
+          "trough_ms": 21.833333333333332,
+          "future_peak_ms": 58.3125,
+          "trough": 0.040094441071642256,
+          "future_peak": 0.08016535700646464
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.875,
+            "old_read_ms": 17.151707050643278,
+            "new_read_ms": 5.348141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.875,
+            "old_read_ms": 2.2865907632851017,
+            "new_read_ms": 11.645833333333334,
+            "fundamental_jump_degrees": 104.0034063994261,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.6893791537153054,
+            "fade_interference_db": -0.6792084532147141
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": null,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.08908847719430923
+      },
+      "corr40-split-v4": {
+        "output_dip": {
+          "dip_db": 4.742470451987545,
+          "trough_ms": 22.083333333333332,
+          "future_peak_ms": 58.083333333333336,
+          "trough": 0.046333042104522264,
+          "future_peak": 0.07998606622082778
+        },
+        "input_dip": {
+          "dip_db": 3.043887055706091,
+          "trough_ms": 5.0,
+          "future_peak_ms": 30.729166666666668,
+          "trough": 0.06860059389347853,
+          "future_peak": 0.0973917631666543
+        },
+        "extra_dip_db": 1.698583396281454,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 4.743988744223123,
+          "trough_ms": 22.083333333333332,
+          "future_peak_ms": 58.083333333333336,
+          "trough": 0.04633802500149564,
+          "future_peak": 0.0800086526180038
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.875,
+            "old_read_ms": 15.667921254606501,
+            "new_read_ms": 3.848141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.875,
+            "old_read_ms": 0.7865907632852756,
+            "new_read_ms": 10.520833333333334,
+            "fundamental_jump_degrees": 108.17054675377273,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": 0.42977700909956157,
+            "fade_interference_db": 0.1235535257673894
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 2879,
+        "output_40_to70ms_bit_identical_to_v3": false,
+        "causal_one_period_rms_at59125ms": 0.08880483359098434
+      },
+      "env-floor125": {
+        "output_dip": {
+          "dip_db": 5.4015210501546935,
+          "trough_ms": 22.020833333333332,
+          "future_peak_ms": 58.270833333333336,
+          "trough": 0.042949513924378395,
+          "future_peak": 0.07998974377169668
+        },
+        "input_dip": {
+          "dip_db": 3.043887055706091,
+          "trough_ms": 5.0,
+          "future_peak_ms": 30.729166666666668,
+          "trough": 0.06860059389347853,
+          "future_peak": 0.0973917631666543
+        },
+        "extra_dip_db": 2.3576339944486024,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 5.403091094623696,
+          "trough_ms": 22.020833333333332,
+          "future_peak_ms": 58.291666666666664,
+          "trough": 0.04295424929864285,
+          "future_peak": 0.08001302468666856
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 1.875,
+            "old_read_ms": 16.629709660594273,
+            "new_read_ms": 4.598141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 26.875,
+            "old_read_ms": 1.5365907632851885,
+            "new_read_ms": 11.083333333333334,
+            "fundamental_jump_degrees": 106.0869765765994,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.31048206923893806,
+            "fade_interference_db": -0.16539243254930824
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 2879,
+        "output_40_to70ms_bit_identical_to_v3": false,
+        "causal_one_period_rms_at59125ms": 0.08895903080701828
+      }
+    }
+  },
+  {
+    "input": "bass_B0/long1414",
+    "note_1based": 10,
+    "rate": 48000,
+    "shift": 2,
+    "onset_sample": 122400,
+    "engines": {
+      "corr40-split-v3": {
+        "output_dip": {
+          "dip_db": 2.6491725793208265,
+          "trough_ms": 5.0,
+          "future_peak_ms": 53.229166666666664,
+          "trough": 0.06630612678377547,
+          "future_peak": 0.08995230338211546
+        },
+        "input_dip": {
+          "dip_db": 1.86553607937116,
+          "trough_ms": 5.0,
+          "future_peak_ms": 23.25,
+          "trough": 0.08336894955642134,
+          "future_peak": 0.10334301633661061
+        },
+        "extra_dip_db": 0.7836364999496666,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 2.6491725793208265,
+          "trough_ms": 5.0,
+          "future_peak_ms": 53.229166666666664,
+          "trough": 0.06630612678377547,
+          "future_peak": 0.08995230338211546
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 0.75,
+            "old_read_ms": 21.818069685305787,
+            "new_read_ms": 5.348141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 25.75,
+            "old_read_ms": 2.2865907632851017,
+            "new_read_ms": 11.645833333333334,
+            "fundamental_jump_degrees": 104.0034063994261,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": 0.9884629357397059,
+            "fade_interference_db": 1.1534553483535004
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": null,
+        "output_40_to70ms_bit_identical_to_v3": true,
+        "causal_one_period_rms_at59125ms": 0.08924520015716553
+      },
+      "corr40-split-v4": {
+        "output_dip": {
+          "dip_db": 17.09636813569635,
+          "trough_ms": 28.75,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.011636478836587324,
+          "future_peak": 0.0832990389399832
+        },
+        "input_dip": {
+          "dip_db": 1.86553607937116,
+          "trough_ms": 5.0,
+          "future_peak_ms": 23.25,
+          "trough": 0.08336894955642134,
+          "future_peak": 0.10334301633661061
+        },
+        "extra_dip_db": 15.230832056325188,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 17.09636813569635,
+          "trough_ms": 28.75,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.011636478836587324,
+          "future_peak": 0.0832990389399832
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 0.75,
+            "old_read_ms": 21.493822053002916,
+            "new_read_ms": 3.848141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 25.75,
+            "old_read_ms": 0.7865907632852756,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 180.16947176501705,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.893511331578467,
+            "fade_interference_db": -0.8336316266823413
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 2879,
+        "output_40_to70ms_bit_identical_to_v3": false,
+        "causal_one_period_rms_at59125ms": 0.09357165545225143
+      },
+      "env-floor125": {
+        "output_dip": {
+          "dip_db": 12.461791110706153,
+          "trough_ms": 28.833333333333332,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.019895274984178615,
+          "future_peak": 0.08352942689968595
+        },
+        "input_dip": {
+          "dip_db": 1.86553607937116,
+          "trough_ms": 5.0,
+          "future_peak_ms": 23.25,
+          "trough": 0.08336894955642134,
+          "future_peak": 0.10334301633661061
+        },
+        "extra_dip_db": 10.596255031334994,
+        "next_note_output_zeroed_dip": {
+          "dip_db": 12.461791110706153,
+          "trough_ms": 28.833333333333332,
+          "future_peak_ms": 59.979166666666664,
+          "trough": 0.019895274984178615,
+          "future_peak": 0.08352942689968595
+        },
+        "future_zeroed_identical_prefix": true,
+        "trace_reconstruction_max_abs": 0.0,
+        "trace_probe_max_abs": 0.0,
+        "resets": [
+          {
+            "time_ms": 0.75,
+            "old_read_ms": 21.8155279017019,
+            "new_read_ms": 4.598141971019738
+          }
+        ],
+        "splices": [
+          {
+            "time_ms": 25.75,
+            "old_read_ms": 1.5365907632851885,
+            "new_read_ms": 17.0,
+            "fundamental_jump_degrees": 171.83519105632092,
+            "fade_ms": 2.0,
+            "uncentered_tap_similarity": -0.996837495278543,
+            "fade_interference_db": -1.3288335219724772
+          }
+        ],
+        "last_different_sample_before60ms_vs_v3": 2879,
+        "output_40_to70ms_bit_identical_to_v3": false,
+        "causal_one_period_rms_at59125ms": 0.09357165545225143
+      }
+    }
+  }
+]

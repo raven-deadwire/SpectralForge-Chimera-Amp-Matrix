@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import tarfile
@@ -134,6 +135,15 @@ def lifecycle_documents(destination: Path, build: Path, *, version: dict | None 
 # contains no product DSP; its license and source location travel with it.
 OBS_MODULE = "obs-module"
 OBS_FILTER_DLL = "OBS/chimera-obs/bin/64bit/chimera-obs.dll"
+OBS_MODULE_FILES = frozenset({"bin/64bit/chimera-obs.dll", "data/locale/en-US.ini", "data/locale/ko-KR.ini"})
+
+
+def obs_module_version() -> str:
+    """The module version from OBS/CMakeLists.txt, also in the DLL's version resource."""
+    match = re.search(r"project\(chimera-obs VERSION (\d+\.\d+\.\d+)", (ROOT / "OBS/CMakeLists.txt").read_text(encoding="utf-8"))
+    if not match:
+        raise RuntimeError("OBS/CMakeLists.txt does not declare the module version")
+    return match.group(1)
 
 
 def obs_filter(destination: Path, build: Path, source_sha: str, *, required: bool) -> bool:
@@ -142,16 +152,127 @@ def obs_filter(destination: Path, build: Path, source_sha: str, *, required: boo
         if required:
             raise RuntimeError(f"Windows payload requires the OBS filter module: {module}")
         return False
+    actual = {p.relative_to(module).as_posix() for p in module.rglob("*") if p.is_file()}
+    if actual != OBS_MODULE_FILES or any(p.is_symlink() for p in module.rglob("*")):
+        raise RuntimeError(f"OBS module file inventory mismatch: missing={sorted(OBS_MODULE_FILES - actual)}, extra={sorted(actual - OBS_MODULE_FILES)}")
     target = destination / "OBS/chimera-obs"
     copy(module, target)
     copy(ROOT / "OBS/LICENSE", target / "LICENSE.txt")
+    copy(ROOT / "OBS/packaging/README.txt", target / "README.txt")
     (target / "SOURCE.txt").write_text(
         "SpectralForge Chimera OBS filter (chimera-obs)\n"
+        f"Module version: {obs_module_version()}\n"
         "License: GNU General Public License, version 2 or later (LICENSE.txt).\n"
         f"Corresponding source: https://github.com/{REPO}/tree/{source_sha}/OBS\n"
         "It loads the separately installed SpectralForge Chimera VST3 and contains none of\n"
         "the product's DSP, models, impulse responses or artwork.\n", encoding="utf-8")
     return True
+
+
+# OBS/tools/stage_module.py macos output: the Universal OBS filter package with
+# its native install helper. The .pkg installs it under OBS_MACOS_FOLDER and,
+# when the OBS choice is selected, into the logged-in user's OBS plugin folder
+# (OBS on macOS has no system-wide plugin folder).
+OBS_MACOS_PACKAGE = "obs-macos-package"
+OBS_MACOS_FOLDER = "Library/Application Support/SpectralForge/Chimera/OBS"
+OBS_MACOS_FILES = frozenset({"chimera-obs-installer", "install.sh", "INSTALL.txt", "README.txt", "payload-manifest.txt"})
+MACOS_PKG_ID = "audio.spectralforge.chimera"
+MACOS_OBS_PKG_ID = "audio.spectralforge.chimera.obs"
+OBS_BUNDLE_ID = "com.obsproject.obs-studio"
+
+
+# Beginner welcome page shown first by macOS Installer, per system language.
+MACOS_RESOURCES = ROOT / "Installer/macOS"
+
+
+def macos_distribution(version: str) -> str:
+    """productbuild Distribution: Chimera always, the OBS filter as a choice.
+
+    Like Windows Setup, the OBS choice is preselected when OBS Studio is in
+    /Applications or the filter is already installed for this user. Installing
+    while OBS runs is refused before anything changes: the filter may have the
+    Chimera VST3 loaded, and the helper would refuse a running OBS anyway.
+    """
+    return f'''<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>{PRODUCT}</title>
+    <welcome file="Welcome.html" mime-type="text/html"/>
+    <options customize="always" require-scripts="true" hostArchitectures="arm64,x86_64"/>
+    <domains enable_localSystem="true" enable_anywhere="false" enable_currentUserHome="false"/>
+    <volume-check><allowed-os-versions><os-version min="12.0"/></allowed-os-versions></volume-check>
+    <installation-check script="obsClosed()"/>
+    <script><![CDATA[
+function obsRunning() {{
+    var running = system.applications.fromIdentifier('{OBS_BUNDLE_ID}');
+    return running != null && running.length > 0;
+}}
+function obsClosed() {{
+    if (!obsRunning()) return true;
+    my.result.type = 'Fatal';
+    my.result.title = 'Close OBS Studio / OBS Studio를 종료하세요';
+    my.result.message = 'OBS Studio is running. Quit OBS Studio, then open this installer again. Nothing has been changed. / OBS Studio가 실행 중입니다. OBS를 종료한 뒤 설치 프로그램을 다시 여세요. 아무것도 바뀌지 않았습니다.';
+    return false;
+}}
+function obsPreselected() {{
+    var home = system.env.HOME;
+    return system.files.fileExistsAtPath('/Applications/OBS.app') ||
+        (home != null && system.files.fileExistsAtPath(home + '/Library/Application Support/obs-studio/plugins/chimera-obs.plugin'));
+}}
+]]></script>
+    <choices-outline>
+        <line choice="chimera"/>
+        <line choice="obs"/>
+    </choices-outline>
+    <choice id="chimera" title="{PRODUCT}" description="Standalone, VST3, AU and the offline manual." enabled="false" selected="true">
+        <pkg-ref id="{MACOS_PKG_ID}"/>
+    </choice>
+    <choice id="obs" title="OBS Studio filter / OBS Studio용 필터" start_selected="obsPreselected()"
+        description="Adds Filters &gt; SpectralForge Chimera to OBS Studio for the logged-in user (open-source GPL module that loads the VST3 above). Remove with {OBS_MACOS_FOLDER}/install.sh --uninstall. / 로그인한 사용자의 OBS Studio에 필터를 추가합니다(위 VST3를 불러오는 GPL 오픈소스 모듈). 제거: {OBS_MACOS_FOLDER}/install.sh --uninstall">
+        <pkg-ref id="{MACOS_OBS_PKG_ID}"/>
+    </choice>
+    <pkg-ref id="{MACOS_PKG_ID}" version="{version}">SpectralForge-Chimera.pkg</pkg-ref>
+    <pkg-ref id="{MACOS_OBS_PKG_ID}" version="{version}">SpectralForge-Chimera-OBS.pkg</pkg-ref>
+    <pkg-ref id="{MACOS_PKG_ID}"><must-close><app id="{OBS_BUNDLE_ID}"/></must-close></pkg-ref>
+</installer-gui-script>
+'''
+
+
+# OBS/tools/stage_module.py linux output, built for OBS 30+ (libobs 30.0.2, Ubuntu
+# 24.04). The DEB and TAR carry it inert under OBS_LINUX_FOLDER; the TAR
+# install.sh asks whether to run its per-user installer, DEB users run it.
+OBS_LINUX_PACKAGE = "obs-linux-package"
+OBS_LINUX_FOLDER = "usr/share/chimera-amp-matrix/obs-filter"
+OBS_LINUX_FILES = frozenset({"chimera-obs", "chimera-obs-installer", "install.sh", "INSTALL.txt", "payload-manifest.txt"})
+
+
+def obs_filter_linux(stage: Path, build: Path) -> Path:
+    package = build / OBS_LINUX_PACKAGE
+    top = {p.name for p in package.iterdir()} if package.is_dir() else set()
+    if top != OBS_LINUX_FILES or any(p.is_symlink() for p in package.rglob("*")):
+        raise RuntimeError(f"Linux payload requires the staged OBS filter package: {package} ({sorted(top)})")
+    helper = package / "chimera-obs-installer"
+    # Runs on the product's glibc baseline with no C++ runtime package.
+    if re.search(r"libstdc\+\+|libgcc_s|not found", run("ldd", str(helper))):
+        raise RuntimeError("OBS filter installer must need only the C library")
+    target = stage / OBS_LINUX_FOLDER
+    copy(package, target)
+    return target
+
+
+def obs_filter_macos(destination: Path, build: Path) -> Path:
+    """Stage the Universal OBS filter package (from stage_module.py) for the .pkg."""
+    package = build / OBS_MACOS_PACKAGE
+    plugin = package / "chimera-obs.plugin"
+    top = {p.name for p in package.iterdir()} if package.is_dir() else set()
+    if package.is_symlink() or top != OBS_MACOS_FILES | {"chimera-obs.plugin"} or any(p.is_symlink() for p in package.rglob("*")):
+        raise RuntimeError(f"macOS payload requires the staged Universal OBS filter package: {package} ({sorted(top)})")
+    for binary in (plugin / "Contents/MacOS/chimera-obs", package / "chimera-obs-installer"):
+        run("lipo", str(binary), "-verify_arch", "arm64", "x86_64")
+    run("codesign", "--verify", "--deep", "--strict", str(plugin))
+    run("codesign", "--verify", "--strict", str(package / "chimera-obs-installer"))
+    target = destination / OBS_MACOS_FOLDER
+    run("ditto", str(package), str(target))
+    return target
 
 
 def verify_stage(stage: Path, required: list[str], *, version: dict | None = None) -> None:
@@ -235,29 +356,54 @@ def macos(build: Path, dist: Path) -> None:
     verify_stage(stage, [f"Applications/{PRODUCT}.app/Contents/MacOS/{PRODUCT}",
                          "Library/Application Support/SpectralForge/Chimera/Documentation/MANUAL.html"])
     (stage / "payload-manifest.json").rename(docdir / "payload-manifest.json")
+    obs_stage = dist / f"{PREFIX}-macos-obs-payload"
+    obs_folder = obs_filter_macos(obs_stage, build)
     # pkgbuild's component relocatability is disabled: plugins must remain in host-scanned folders.
     with tempfile.TemporaryDirectory(prefix="chimera-pkg-") as temporary:
-        components = Path(temporary) / "components.plist"
-        run("pkgbuild", "--analyze", "--root", str(stage), str(components))
         import plistlib
-        info = plistlib.loads(components.read_bytes())
-        for item in info:
-            item["BundleIsRelocatable"] = False
-            item["BundleOverwriteAction"] = "upgrade"
-        components.write_bytes(plistlib.dumps(info))
+        components_dir = Path(temporary) / "components"
+        components_dir.mkdir()
+
+        def component(root: Path, name: str) -> Path:
+            plist = Path(temporary) / (name + ".plist")
+            run("pkgbuild", "--analyze", "--root", str(root), str(plist))
+            info = plistlib.loads(plist.read_bytes())
+            for item in info:
+                item["BundleIsRelocatable"] = False
+                item["BundleOverwriteAction"] = "upgrade"
+            plist.write_bytes(plistlib.dumps(info))
+            return plist
+
         scripts = Path(temporary) / "scripts"
         scripts.mkdir()
-        # Native executable hooks work without an optional Python installation.
-        # Preinstall protects changed bytes before the system installer unpacks.
-        for phase in ("preinstall", "postinstall"):
-            copy(maintenance, scripts / phase)
+        # Guard again immediately before unpacking, including CLI/component
+        # installs and OBS started after the Distribution check. Preserve the
+        # existing native document lifecycle after the process guard succeeds.
+        copy(maintenance, scripts / "document-maintenance")
+        copy(maintenance, scripts / "postinstall")
+        preinstall = ROOT / "Tools/macos-pkg-preinstall.sh"
+        copy(preinstall, scripts / "preinstall")
+        (scripts / "preinstall").chmod(0o755)
+        run("pkgbuild", "--root", str(stage), "--component-plist", str(component(stage, "chimera")),
+            "--scripts", str(scripts), "--identifier", MACOS_PKG_ID, "--version", IDENTITY["product_version"],
+            "--install-location", "/", str(components_dir / "SpectralForge-Chimera.pkg"))
+        obs_scripts = Path(temporary) / "obs-scripts"
+        obs_scripts.mkdir()
+        copy(preinstall, obs_scripts / "preinstall")
+        (obs_scripts / "preinstall").chmod(0o755)
+        copy(ROOT / "OBS/packaging/macos-pkg-postinstall.sh", obs_scripts / "postinstall")
+        (obs_scripts / "postinstall").chmod(0o755)
+        run("pkgbuild", "--root", str(obs_stage), "--component-plist", str(component(obs_stage, "obs")),
+            "--scripts", str(obs_scripts), "--identifier", MACOS_OBS_PKG_ID, "--version", IDENTITY["product_version"],
+            "--install-location", "/", str(components_dir / "SpectralForge-Chimera-OBS.pkg"))
+        distribution = Path(temporary) / "Distribution.xml"
+        distribution.write_text(macos_distribution(IDENTITY["product_version"]), encoding="utf-8")
         package = dist / f"{PREFIX}-macos-universal.pkg"
-        run("pkgbuild", "--root", str(stage), "--component-plist", str(components),
-            "--scripts", str(scripts),
-            "--identifier", "audio.spectralforge.chimera", "--version", IDENTITY["product_version"], "--install-location", "/", str(package))
+        run("productbuild", "--distribution", str(distribution), "--resources", str(MACOS_RESOURCES),
+            "--package-path", str(components_dir), str(package))
         expanded = Path(temporary) / "expanded"
         run("pkgutil", "--expand-full", str(package), str(expanded))
-        unpacked = expanded / "Payload"
+        unpacked = expanded / "SpectralForge-Chimera.pkg/Payload"
         for _, installed in bundles:
             original = installed / "Contents/MacOS" / PRODUCT
             extracted = unpacked / original.relative_to(stage)
@@ -267,15 +413,35 @@ def macos(build: Path, dist: Path) -> None:
             original = docdir / name
             if original.is_file() and sha256(unpacked / original.relative_to(stage)) != sha256(original):
                 raise RuntimeError(f"macOS beta lifecycle payload differs: {name}")
-        for phase in ("preinstall", "postinstall"):
-            packaged_script = expanded / "Scripts" / phase
-            if not packaged_script.is_file() or sha256(packaged_script) != sha256(maintenance):
+        for phase, original in (("preinstall", preinstall), ("postinstall", maintenance),
+                                ("document-maintenance", maintenance)):
+            packaged_script = expanded / "SpectralForge-Chimera.pkg/Scripts" / phase
+            if not packaged_script.is_file() or sha256(packaged_script) != sha256(original):
                 raise RuntimeError(f"macOS document lifecycle hook differs: {phase}")
+        obs_unpacked = expanded / "SpectralForge-Chimera-OBS.pkg/Payload"
+        for original in (p for p in obs_folder.rglob("*") if p.is_file()):
+            extracted = obs_unpacked / original.relative_to(obs_stage)
+            if not extracted.is_file() or sha256(extracted) != sha256(original):
+                raise RuntimeError(f"macOS OBS filter payload differs: {original}")
+        hook = expanded / "SpectralForge-Chimera-OBS.pkg/Scripts/postinstall"
+        if not hook.is_file() or sha256(hook) != sha256(ROOT / "OBS/packaging/macos-pkg-postinstall.sh"):
+            raise RuntimeError("macOS OBS filter postinstall differs")
+        guard = expanded / "SpectralForge-Chimera-OBS.pkg/Scripts/preinstall"
+        if not guard.is_file() or sha256(guard) != sha256(preinstall):
+            raise RuntimeError("macOS OBS filter preinstall differs")
+        for welcome in sorted(MACOS_RESOURCES.glob("*.lproj/Welcome.html")):
+            packaged = expanded / "Resources" / welcome.relative_to(MACOS_RESOURCES)
+            if not packaged.is_file() or sha256(packaged) != sha256(welcome):
+                raise RuntimeError(f"macOS package welcome page differs: {welcome.parent.name}")
+        packaged_distribution = (expanded / "Distribution").read_text(encoding="utf-8")
+        if f'<pkg-ref id="{MACOS_OBS_PKG_ID}"/>' not in packaged_distribution or 'choice id="obs"' not in packaged_distribution:
+            raise RuntimeError("macOS package is missing the OBS filter choice")
     checksum(package)
     (dist / "macOS-package-verification.txt").write_text(
         "PASS: Standalone, VST3 and AU contain arm64 + x86_64 slices.\n"
         "PASS: Built bundle code-seal verification and expanded pkg binary hashes.\n"
         "PASS: Fixed system install paths and offline manual packaged.\n"
+        "PASS: Optional OBS Studio filter choice: Universal chimera-obs.plugin and native helper hashes, postinstall hook.\n"
         "LIMIT: Developer ID signing, notarization, real hardware audio and actual install are not certified by these checks.\n",
         encoding="utf-8")
 
@@ -304,6 +470,7 @@ def linux(build: Path, dist: Path) -> None:
                        "Exec=chimera-amp-matrix\nIcon=chimera-amp-matrix\nTerminal=false\n"
                        "Categories=AudioVideo;Audio;\n", encoding="utf-8")
     vstbinary = plugin / "Contents/x86_64-linux/SpectralForge Chimera.so"
+    obs_folder = obs_filter_linux(stage, build)
     verify_stage(stage, ["usr/bin/chimera-amp-matrix", "usr/share/doc/chimera-amp-matrix/MANUAL.html",
                          "usr/libexec/chimera-document-maintenance",
                          f"usr/lib/vst3/{PRODUCT}.vst3/Contents/x86_64-linux/SpectralForge Chimera.so"])
@@ -336,7 +503,8 @@ def linux(build: Path, dist: Path) -> None:
         run("dpkg-deb", "--extract", str(package), str(extracted))
         beta_documents = [docdir / name for name in ("chimera-beta-lifecycle.json", "BETA_LIFECYCLE.txt")
                           if (docdir / name).is_file()]
-        for source in (executable, vstbinary, docdir / "MANUAL.html", *beta_documents):
+        for source in (executable, vstbinary, docdir / "MANUAL.html", *beta_documents,
+                       obs_folder / "chimera-obs/bin/64bit/chimera-obs.so", obs_folder / "chimera-obs-installer"):
             if sha256(source) != sha256(extracted / source.relative_to(stage)):
                 raise RuntimeError(f"Debian package payload differs: {source}")
         dependency_report = run("ldd", str(executable)) + run("ldd", str(vstbinary))
@@ -358,6 +526,7 @@ def linux(build: Path, dist: Path) -> None:
     checksum(portable)
     (dist / "Linux-package-verification.txt").write_text(
         "PASS: dpkg-deb extraction hashes match standalone, VST3 and manual.\n"
+        "PASS: Optional OBS Studio filter package (OBS 30+) carried in DEB and TAR; its installer needs only the C library.\n"
         "PASS: No unresolved builder runtime libraries.\nRuntime dependency metadata: " + depends + "\n"
         "LIMIT: Desktop audio, DAW scanning and installation on other distributions require manual verification.\n" + dependency_report,
         encoding="utf-8")

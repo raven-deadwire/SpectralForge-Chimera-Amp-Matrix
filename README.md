@@ -1,28 +1,37 @@
 # SpectralForge Chimera — Open Beta 1.3.2
 
-**SpectralForge Chimera** is a guitar and bass amp & effects suite built around a flexible multi-amp architecture.
+**SpectralForge Chimera** is a guitar and bass amp simulator: amps, cabinets, pedals and studio effects in one plug-in. Use it in your DAW (VST3 on Windows, macOS and Linux; AU on macOS) or as a standalone app.
 
-**[Published builds — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases)** · **[Manual · EN / DE / KR](docs/MANUAL.html)**
+**[Download — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases)** · **[Manual · EN / DE / KR](docs/MANUAL.html)** · **[Installation](docs/INSTALLATION.md)**
 
-As of 2026-10-18 KST, the public version is [`1.3.2-beta.1`](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1) (product `1.3.2`, source `3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`). Its approved expiry is **2027-02-11T14:59:00Z / 2027-02-11 23:59:00 KST**. The SETTINGS countdown improvement on this branch is not yet published; the beta.1 date does not approve any future version. See the [lifecycle policy](docs/BETA_LIFECYCLE.md). Direct head controls, revised model-specific knobs, Signal Path navigation and two graphical EQ stages extend the published 1.3.0 feature set. It contains **25 active amp heads, 39 PRE models and 21 POST models — 85 models in those three sections — plus 48 factory and signature presets**. Náströnd and Niflheimr each provide five Original channels. The expanded CAB section adds 14 speaker designs, 20 microphones, three tweeters and nine explicit enclosure layouts. The releases page lists available downloads and their validation records; the published 1.3.0 tag and packages remain unchanged. Product-wide manual acceptance remains incomplete; see the [release scope](docs/OPEN_BETA_RELEASE_NOTES.md). Model controls and musical roles use Chimera naming throughout the app and manual; [naming and saved sounds](docs/PUBLIC_PRODUCT_NAMING.md) explains the current presentation. The offline EN/DE/KO manual is available under SETTINGS → Manual. Windows publisher signing and macOS Developer ID signing/notarization remain pending.
+## Get started in three steps
 
-It works as a conventional single-amp simulator in **Classic Mode**, blends two complete amp rigs or splits low/high in **Dual Mode**, or splits the instrument signal into multiple frequency bands in **Matrix Mode**, blending a compressed LOW DI with a selectable head/cab beneath independent MID/HIGH rigs.
+1. **Install.** Download the installer for your computer from the [releases page](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases) and follow [Installation](docs/INSTALLATION.md). This open beta expires on **2027-02-11**; see [Beta status](#beta-status).
+2. **Pick a sound.** Open Chimera and choose a sound from the **PRESET** menu: 48 ready-made guitar and bass sounds, from clean to modern metal.
+3. **Make it yours.** Turn the amp's knobs to taste and set **OUTPUT** for overall loudness. **TUNER** is at the bottom left.
 
-With integrated **Pre FX, Post FX, amp models, cabinet/IR processing, and flexible signal routing**, Chimera is designed to cover everything from traditional guitar and bass tones to extended-range, modern metal, and experimental hybrid amp configurations.
+*Coming in the next build:* **Easy view**, a simpler start screen with the preset menu, six large knobs (GAIN, BASS, MIDDLE, TREBLE, REVERB, VOLUME) and the tuner, plus **AUTO SET**: play normally for about half a minute and Chimera sets your input level, noise gate and tone. Press **FULL EDITOR** for everything else. See [Easy view](docs/EASY_VIEW.md).
 
-**Core Modes**
+## Three ways to play
 
-* **Classic** — Traditional single amp and cabinet signal chain
-* **Dual** — Choose adjustable full-range Blend or a two-band LR4 Crossover
-* **Matrix** — Split the spectrum into LOW COMP + DI/head blend and MID/HIGH amp/cab rigs
+- **Classic:** one amp and one cabinet, like a normal amp. Start here.
+- **Dual:** two amps at once. Blend them, or let one take the lows and the other the highs.
+- **Matrix:** your signal split into low, middle and high bands, each with its own amp, plus a clean DI for the lows. Made for bass and extended-range guitar.
+
+Help is under **SETTINGS → Manual** inside the app, in English, German and Korean.
 
 **RavenForge Luthier Intelligence**
 *Forge your signal. Build your amp.*
+
+## Beta status
+
+As of 2026-10-18 KST, the public version is [`1.3.2-beta.1`](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.2-beta.1) (product `1.3.2`, source `3bec6c70a50bbb4021dcc6133f37e0c2fb3e9e58`). Its approved expiry is **2027-02-11T14:59:00Z / 2027-02-11 23:59:00 KST**. The SETTINGS countdown improvement on this branch is not yet published; the beta.1 date does not approve any future version. See the [lifecycle policy](docs/BETA_LIFECYCLE.md). Direct head controls, revised model-specific knobs, Signal Path navigation and two graphical EQ stages extend the published 1.3.0 feature set. It contains **25 active amp heads, 39 PRE models and 21 POST models — 85 models in those three sections — plus 48 factory and signature presets**. Náströnd and Niflheimr each provide five Original channels. The expanded CAB section adds 14 speaker designs, 20 microphones, three tweeters and nine explicit enclosure layouts. The releases page lists available downloads and their validation records; the published 1.3.0 tag and packages remain unchanged. Product-wide manual acceptance remains incomplete; see the [release scope](docs/OPEN_BETA_RELEASE_NOTES.md). Model controls and musical roles use Chimera naming throughout the app and manual; [naming and saved sounds](docs/PUBLIC_PRODUCT_NAMING.md) explains the current presentation. The offline EN/DE/KO manual is available under SETTINGS → Manual. Windows publisher signing and macOS Developer ID signing/notarization remain pending.
 
 ## Feature overview (includes the 1.3.1 baseline)
 
 Implemented signal path: **input → transpose / PRE pedalboard → rigs/cabinets → merge → Tone EQ → POST rack → doubler/metronome → Final EQ → output**. The gate can operate before transpose or after the rig merge, before Tone EQ. The chromatic tuner taps the input before the gate and transpose; optional auto-mute silences the output while tuning.
 
+- **Easy view** (not yet published; described under SETTINGS → Manual) is a simpler start screen for new players: a preset menu, the cabinet room, six large knobs (GAIN, BASS, MIDDLE, TREBLE, POST REVERB, OUTPUT), Auto Set and the tuner. Each knob edits the same setting as the full editor, and switching views writes no parameter. Chimera opens in Easy view the first time and afterwards in the view you last chose. See [Easy view](docs/EASY_VIEW.md).
 - Select a head in Classic, Dual or Matrix and open its enlarged front panel. Niflheimr has 14 knobs and five channels; Brit Edge has six knobs and five input paths. Direct control layouts cover all 26 catalog heads, including the retired Iron Compact reference; the selectable amp inventory remains 25. DETAILS opens the complete existing control panel.
 - Model-specific knobs follow the reference hardware’s shape, grip, cap and pointer, with distinct Original designs for Náströnd and Niflheimr. Larger labels and revised knob spacing improve legibility. Numeric values appear while adjusting or entering a value, keeping the idle head face clear.
 - Signal Path provides six editing stages: PRE → HEAD → CAB → TONE EQ → POST → FINAL EQ. HEAD opens the current mode's existing amp controls; CAB opens its inline cabinet room, where you can choose a lane for detailed editing. ROUTING opens the complete path with global utilities, branches and sums. Existing global controls remain available in their established locations, and navigation preserves the sound settings.

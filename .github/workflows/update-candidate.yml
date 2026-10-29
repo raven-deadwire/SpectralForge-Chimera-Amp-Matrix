@@ -121,7 +121,9 @@ jobs:
             build/lifecycle-baseline/baseline-verification.json
           if-no-files-found: warn
       - name: Build product and regression checks
-        timeout-minutes: 60
+        # Each test target compiles its own JUCE modules; on a slow hosted
+        # runner the full Release build has exceeded 60 minutes with no error.
+        timeout-minutes: 90
         run: cmake --build build --config Release --parallel 2
       - name: Record Windows execution environment before CTest
         timeout-minutes: 2

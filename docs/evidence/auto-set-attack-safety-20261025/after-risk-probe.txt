@@ -1,0 +1,45 @@
+CLASS 44100 dropA_guitar bass=1
+CLASS 44100 bass5_lowB bass=1
+CLASS 44100 bass6_highC bass=0
+ATTACK 44100 mute=0 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 overall=5.79155 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=0 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 overall=3.79155 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=0 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 overall=6.97716 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=0 clip=1 rock on=0 spec=0 burst=0.0574265 split=5600 range=6 overall=5.6176 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=0 clip=1 clean on=0 spec=0 burst=0.0574265 split=5600 range=6 overall=3.6176 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=0 clip=1 metal on=0 spec=0 burst=0.0574265 split=5600 range=6 overall=6.80321 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=1 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 overall=9.32844 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=1 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 overall=7.32844 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=1 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 overall=10.5141 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=1 clip=1 rock on=0 spec=0 burst=0 split=5600 range=6 overall=9.56602 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=1 clip=1 clean on=0 spec=0 burst=0 split=5600 range=6 overall=7.56602 sustained=0 protected=213 maxGR=0
+ATTACK 44100 mute=1 clip=1 metal on=0 spec=0 burst=0 split=5600 range=6 overall=10.7516 sustained=0 protected=213 maxGR=0
+CLASS 48000 dropA_guitar bass=1
+CLASS 48000 bass5_lowB bass=1
+CLASS 48000 bass6_highC bass=0
+ATTACK 48000 mute=0 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 overall=5.55519 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=0 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 overall=3.55519 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=0 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 overall=6.7408 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=0 clip=1 rock on=0 spec=0 burst=0.0900612 split=5600 range=6 overall=5.33471 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=0 clip=1 clean on=0 spec=0 burst=0.0900612 split=5600 range=6 overall=3.33471 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=0 clip=1 metal on=0 spec=0 burst=0.0900612 split=5600 range=6 overall=6.52032 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=1 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 overall=9.34876 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=1 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 overall=7.34876 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=1 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 overall=10.5344 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=1 clip=1 rock on=0 spec=0 burst=0 split=5600 range=6 overall=9.36928 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=1 clip=1 clean on=0 spec=0 burst=0 split=5600 range=6 overall=7.36928 sustained=0 protected=213 maxGR=0
+ATTACK 48000 mute=1 clip=1 metal on=0 spec=0 burst=0 split=5600 range=6 overall=10.5549 sustained=0 protected=213 maxGR=0
+CLASS 96000 dropA_guitar bass=1
+CLASS 96000 bass5_lowB bass=1
+CLASS 96000 bass6_highC bass=0
+ATTACK 96000 mute=0 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 overall=4.77967 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=0 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 overall=2.77967 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=0 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 overall=5.96528 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=0 clip=1 rock on=0 spec=0 burst=0 split=5600 range=6 overall=4.69695 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=0 clip=1 clean on=0 spec=0 burst=0 split=5600 range=6 overall=2.69695 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=0 clip=1 metal on=0 spec=0 burst=0 split=5600 range=6 overall=5.88255 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=1 clip=0 rock on=0 spec=0 burst=0 split=5600 range=6 overall=8.12596 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=1 clip=0 clean on=0 spec=0 burst=0 split=5600 range=6 overall=6.12596 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=1 clip=0 metal on=0 spec=0 burst=0 split=5600 range=6 overall=9.31157 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=1 clip=1 rock on=0 spec=0 burst=0 split=5600 range=6 overall=8.55163 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=1 clip=1 clean on=0 spec=0 burst=0 split=5600 range=6 overall=6.55162 sustained=0 protected=213 maxGR=0
+ATTACK 96000 mute=1 clip=1 metal on=0 spec=0 burst=0 split=5600 range=6 overall=9.73723 sustained=0 protected=213 maxGR=0

@@ -34,7 +34,11 @@ inline int itemContaining(const juce::ComboBox& menu,const juce::String& text,
     throw std::runtime_error("Missing microphone menu choice: "+text.toStdString()+" / "+capture.toStdString());
 }
 
-template<class Predicate> bool dispatchUntil(Predicate ready,int timeoutMs=2000) {
+// The deadline only bounds a failure: a passing wait returns as soon as the
+// condition holds. Shared CI runners can stall the main run loop for well over
+// a second (a 1.5 s stall delivered a CAB click at 2147 ms on macOS), so a
+// two-second budget failed correct code.
+template<class Predicate> bool dispatchUntil(Predicate ready,int timeoutMs=10000) {
     auto* messages=juce::MessageManager::getInstance();
     require(messages->isThisTheMessageThread(),"Microphone UI test must dispatch on the message thread");
     // JUCE decrements timer countdowns only on its timer thread. That thread

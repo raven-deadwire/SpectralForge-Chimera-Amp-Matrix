@@ -135,11 +135,45 @@ The publisher selects the newest exact-source run of each workflow. Missing,
 failed, cancelled or pending newer runs cannot fall back to an older success.
 Repository provenance, positive run/attempt identities, required jobs and unique
 unexpired artifacts with matching source/run, digest and size are required.
+Jobs are fetched from the selected run attempt, and their source SHA, run ID and
+attempt must match. The workflow path is checked, and run status/attempt is read
+again after job and artifact lookup. The read-only gate rechecks CI identities
+and the approval receipt after archive evaluation; a rerun or replacement blocks
+its success. The publisher retains its checks before staging and before public
+visibility. These are bounded snapshots, not an atomic lock on GitHub Actions.
 
 The complete strict report is recomputed from its per-check JSONs. Embedded
 platform manifests and their original raw files are hash-checked, source/run/
 attempt checked and used to regenerate the connected automatic checks. Missing
 raw evidence cannot be replaced by a summary claiming PASS.
+
+Publication mode runs a dedicated read-only `release-gate` job first
+(`publish_release.py --require-gate-pass`), and the `publish` job `needs:` it.
+The gate job waits for the same exact-source CI, downloads the consolidated gate
+artifact, recomputes it with the approval receipt and fails unless the result
+authorizes publication. A BLOCKED, missing, stale, malformed or pending gate
+fails the job, so publish never starts. The only BLOCKED result that passes is
+an explicit `OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS` receipt for that exact
+version and SHA; its strict verdict stays BLOCKED and is disclosed. The publish
+job repeats every check before staging. The PR/main `consolidate-release-gate`
+job still exits 0 for a valid BLOCKED result, because a PR has no external
+evidence; it only records the verdict and does not authorize anything.
+
+The approval receipt is trusted repository configuration, not a cryptographic
+proof of the owner's identity. Its review/access controls must prevent an
+unauthorized writer from fabricating approval or changing the workflow itself.
+An unchanged receipt cannot authorize another version, SHA, profile or policy.
+No wall-clock evidence TTL is imposed: freshness means the newest qualifying
+exact-source run, current attempt, unexpired artifact and matching policy. A
+same-source approval can be used with a newer successful CI attempt only after
+all evidence is recomputed for that attempt; old-attempt bytes are rejected.
+
+The owner-gap path is not a strict PASS implementation of issue #21 requirement
+3. It is the existing separate beta publication policy: 21 automatic PASS and
+107 specifically enumerated, unexecuted BLOCKED checks, including 42 hard gates.
+Observed failures, reduced inventories, RC/stable releases and arbitrary gaps
+cannot use this exception. Issue #21's external acceptance and undefined check
+work remains open. See [PR #159 audit](PR159_RELEASE_GATE_AUDIT_20261026.md).
 
 Five binary packages, all checksums, candidate source/attempt, portable payload,
 three platform feed entries, exact download URLs, source SHA and packaged notes

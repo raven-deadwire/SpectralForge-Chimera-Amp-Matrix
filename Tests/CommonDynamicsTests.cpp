@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
+#include <string>
 
 static thread_local bool counting=false;
 static thread_local size_t allocations=0;
@@ -107,7 +108,7 @@ void lastStage(){
     std::cout<<"PASS production processor: Final EQ + output boost before limiter, oversized host blocks, output metering and unchanged latency\n";
 }
 void state(ChimeraProcessor& p){
-    check(p.getParameters().size()==5026+multibandParameterCount+deEsserParameterCount,"Unexpected complete appended host count");
+    check(p.getParameters().size()==5026+multibandParameterCount+deEsserParameterCount+spectralforge::extraGateParameterCount+6,"Unexpected complete appended host count");
     int ordinal=4986;for(int s=0;s<4;++s)for(const char* field:{"target","threshold","range","attack","release","ratio"}){
         auto* q=p.parameters().getParameter(dynamicSlotID(s,field));check(q->getParameterIndex()==ordinal++ && q->getVersionHint()==12,"Dynamic parameter order/version changed");check(q->isAutomatable()==(juce::String(field)!="target"),"Dynamic target automation contract");}
     for(const auto* id:{"cleanCompOn","cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompMix","cleanCompHP","cleanCompDetector","gateMode","gateRatio","gateAttack","liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"}){
@@ -122,5 +123,42 @@ void state(ChimeraProcessor& p){
     check(get(*copy,"cleanCompOn")==0 && get(*copy,"liveLimiterOn")==0 && get(*copy,"gateMode")==0,"Legacy state inherited enabled dynamics");for(int i=0;i<4;++i)check(get(*copy,dynamicSlotID(i,"target"))==0,"Legacy state inherited a dynamic node");
     std::cout<<"PASS 40 append-only parameters, fixed indices/version hints, automation, project/A-B recall and legacy defaults\n";
 }
+// Real APVTS/state serializer and the production limiter, driven by the real
+// Doubler. Keeps unrelated amp/cab coloration out of the headroom measurement.
+void doublerContracts(){
+    auto p=std::make_unique<ChimeraProcessor>();auto restored=std::make_unique<ChimeraProcessor>();
+    auto* time=p->parameters().getParameter("doublertime");
+    check(time && time->getNormalisableRange().start==1 && time->getNormalisableRange().end==20,"Doubler parameter range changed");
+    check(get(*p,"doubleron")==0 && get(*p,"doublertime")==6,"Legacy Doubler defaults changed");
+    for(float spread:{1.f,3.f,6.f,10.f,15.f,20.f})for(float on:{0.f,1.f}){
+        set(*p,"doubleron",on);set(*p,"doublertime",spread);
+        juce::MemoryBlock saved;p->getStateInformation(saved);restored->setStateInformation(saved.getData(),int(saved.getSize()));
+        check(get(*restored,"doubleron")==on && std::abs(get(*restored,"doublertime")-spread)<.011f,"Doubler project roundtrip failed");
+    }
+    auto legacy=p->parameters().copyState();
+    for(int i=legacy.getNumChildren();--i>=0;){auto id=legacy.getChild(i).getProperty("id").toString();if(id=="doubleron"||id=="doublertime")legacy.removeChild(i,nullptr);}
+    juce::MemoryBlock old;juce::AudioProcessor::copyXmlToBinary(*legacy.createXml(),old);restored->setStateInformation(old.getData(),int(old.getSize()));
+    check(get(*restored,"doubleron")==0 && get(*restored,"doublertime")==6,"Absent legacy Doubler values did not default");
+    set(*p,"doubleron",1);set(*p,"doublertime",20);p->copyComparison();p->selectComparison(1);set(*p,"doublertime",1);p->selectComparison(0);
+    check(std::abs(get(*p,"doublertime")-20)<.011f,"Doubler A recall failed");p->selectComparison(1);check(std::abs(get(*p,"doublertime")-1)<.011f,"Doubler B recall failed");
+    for(double sr:{44100.,48000.,96000.})for(int spread=1;spread<=20;++spread){
+        PerformanceUtilities doubler;doubler.prepare({sr,128,2});auto& d=p->commonDynamics();
+        set(*p,"liveLimiterOn",1);set(*p,"liveLimiterCeiling",-1);d.prepare(sr);
+        juce::AudioBuffer<float> b(2,128);double prePeak=0,postPeak=0,maxGR=0;
+        for(int block=0;block<int(sr/128);++block){
+            fill(b,block*128,sr,.99,1000./spread);
+            counting=true;doubler.process(b,120,true,float(spread),false,false);counting=false;
+            prePeak=std::max(prePeak,double(b.getMagnitude(0,128)));
+            counting=true;d.limit(b);counting=false;
+            postPeak=std::max(postPeak,double(b.getMagnitude(0,128)));maxGR=std::max(maxGR,double(d.limitReduction.load()));
+        }
+        check(postPeak<=std::pow(10.,-.05)+2e-7,"Doubler exceeded enabled limiter sample ceiling");
+        if(prePeak>std::pow(10.,-.05)+.01)check(maxGR>0,"Doubler peak did not trigger limiter");
+        std::cout<<"DOUBLER_LIMITER rate="<<sr<<" spread="<<spread<<" pre_peak="<<prePeak<<" post_peak="<<postPeak<<" max_gr_db="<<maxGR<<'\n';
+    }
+    check(allocations==0,"Doubler/limiter allocated in audio callback");
+    std::cout<<"PASS Doubler project/A-B/legacy state; production limiter ceiling/GR; no callback allocations\n";
 }
-int main(){try{juce::ScopedJuceInitialiser_GUI gui;auto p=std::make_unique<ChimeraProcessor>();bypassAndLimiter(*p);compressor(*p);dynamicEQ(*p);expander();lastStage();state(*p);std::cout<<"PASS common dynamics contracts\n";return 0;}catch(const std::exception& e){counting=false;std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
+
+}
+int main(int argc,char** argv){try{juce::ScopedJuceInitialiser_GUI gui;if(argc>1 && std::string(argv[1])=="--doubler-only"){doublerContracts();return 0;}auto p=std::make_unique<ChimeraProcessor>();bypassAndLimiter(*p);compressor(*p);dynamicEQ(*p);expander();lastStage();state(*p);std::cout<<"PASS common dynamics contracts\n";return 0;}catch(const std::exception& e){counting=false;std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

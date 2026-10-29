@@ -13,8 +13,11 @@
 namespace nativeUITests {
 inline void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}
 inline void settle(int ms=55){require(chimeraTest::dispatchFor(ms),"Native UI loop exited");}
+// Returns as soon as ready() holds; the deadline only bounds a real failure.
+// macOS runners can stall the main run loop for ~1 s per dispatch, so 2 s
+// was not enough for a posted click (as in #208 for the CAB waits).
 template<class Ready> void waitForNativeSpectrum(Ready&& ready,const char* failure) {
-    const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
     while(!ready()) {
         require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);
         settle(10);
@@ -229,8 +232,11 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                         float target=0;
                         if(control.kind==spectralforge::PostNativeControlKind::knob){target=control.minimum+(control.maximum-control.minimum)*.61f;auto* slider=find<juce::Slider>(*view,id);require(slider!=nullptr,"POST knob widget missing");slider->setValue(target,juce::sendNotificationSync);target=(float)slider->getValue();}
                         else if(control.kind==spectralforge::PostNativeControlKind::choice){auto* choice=find<juce::ComboBox>(*view,id);require(choice!=nullptr,"POST choice widget missing");target=(float)(choice->getSelectedId()%choice->getNumItems());choice->setSelectedId((int)target+1,juce::sendNotificationSync);}
-                        else {auto* button=find<juce::TextButton>(*view,id);require(button!=nullptr,"POST switch widget missing");target=button->getToggleState()?0.f:1.f;button->triggerClick();settle(15);}
-                        require(std::abs(processor.parameters().getRawParameterValue(id)->load()-target)<.02f,"POST ALL original control callback did not reach audio state");
+                        else {auto* button=find<juce::TextButton>(*view,id);require(button!=nullptr,"POST switch widget missing");target=button->getToggleState()?0.f:1.f;button->triggerClick();}
+                        // A click is delivered through the message loop; wait for it rather than a fixed time.
+                        auto* value=processor.parameters().getRawParameterValue(id);
+                        for(int waited=0;std::abs(value->load()-target)>=.02f && waited<2000;waited+=15)settle(15);
+                        require(std::abs(value->load()-target)<.02f,"POST ALL original control callback did not reach audio state");
                     }
                     ++cases;
                 }

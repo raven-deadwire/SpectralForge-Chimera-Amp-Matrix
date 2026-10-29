@@ -5,7 +5,9 @@ T6(외부 수용) 중 **블라인드 청취**와 **DAW 수용**을 준비한 문
 비교 대상은 두 가지다.
 
 - **product:** 제품의 현재 Transpose 엔진(`Source/PolyPitch.h`, 바꾸지 않음)
-- **candidate:** 연구 후보 `corr40-split-v2`
+- **candidate:** 연구 후보 `corr40-split-v3`
+  - 2026-10-24에 v2에서 바꿨다. 블록 분할과 관계없이 출력이 같기 때문이다.
+  - T1–T4 수치는 v2와 같다(`TRANSPOSE_LATENCY_TARGETS.md` '후보 용도').
 
 고정 PDC 계약과 제품 엔진 통합은 이 문서 범위가 아니다. 여기 결과로 제품 DSP를 바꾸지 않는다.
 
@@ -68,6 +70,8 @@ python Tools/TransposeNext/t6_listening.py score --key ~/t6/listening/blind_key.
 
 ### 자체 점검 (합성 WAV, T6 증거 아님)
 
+후보를 v3로 바꾼 뒤 다시 실행했다. 시험 수, 음량 맞춤 이득, 채점 결과가 아래와 같았다(`docs/evidence/transpose-candidate-roles-20261024/`).
+
 `t6_listening.py selftest`로 실행했다. 실제 DI 검증 자체 점검의 합성 WAV 세 테이크를 사용했고, 결과는 다음과 같다.
 
 - ABX 72회, 쌍 비교 36회가 만들어졌다.
@@ -86,7 +90,8 @@ python Tools/TransposeNext/t6_listening.py score --key ~/t6/listening/blind_key.
 
 - **파라미터:**
   - `Shift`: −2…+2반음
-  - `Engine`: Product baseline / corr40-split-v2
+  - `Engine`: Product baseline / corr40-split-v2 / corr40-split-v3. 기본값은 v3다.
+  - `Latency report`: Live (0) / Fixed PDC(2.5ms). 2026-10-25에 추가했고, 근거는 `TRANSPOSE_T6_PDC_CONTRACT.md`에 있다. 호스트 바이패스는 보고 지연만큼 지연된다.
   - 엔진을 바꾸면 새 엔진을 초기화한다. 클릭이 날 수 있다.
 - **지연 보고:**
   - product는 FFT 창 길이를 보고한다(48kHz에서 2048샘플).
@@ -120,13 +125,13 @@ cd Tools/TransposeNext && python t6_host_check.py \
 
 ### 실제 DAW 점검표 (수동)
 
-`Validation/transpose-daw-acceptance-template.csv`에 12개 항목(D01–D12)을 정리했다.
+`Validation/transpose-daw-acceptance-template.csv`에 13개 항목(D01–D13)을 정리했다. D13(바이패스 정렬)은 2026-10-25에 추가했다.
 
 | 항목 | 내용 |
 |---|---|
 | D01 | 스캔·로드 |
 | D02–D03 | 오프라인 재현성, 기준 렌더와의 일치 |
-| D04–D05 | PDC 동작 |
+| D04–D05 | PDC 동작 (D05는 Fixed PDC 모드) |
 | D06 | 실시간 연주 체감 |
 | D07 | 자동화 |
 | D08 | 표본률 변경 |
@@ -134,6 +139,7 @@ cd Tools/TransposeNext && python t6_host_check.py \
 | D10 | 저장·복원 |
 | D11 | freeze·render |
 | D12 | CPU |
+| D13 | 바이패스 정렬 |
 
 **시험 환경:**
 
@@ -179,6 +185,8 @@ rt에서 추가된 기능은 '고역 경로가 이번 처리 구간에서 접합
 **처리.** 이 PR에서는 고치지 않는다. 판정을 블록과 무관하게 바꾸면(예: 고역 접합 뒤 고정 샘플 수 동안 보류) v2의 고정 블록 출력도 달라진다. 그러면 지금까지의 합성·새 시드 검증을 다시 해야 한다. 별도 후보로 만들어 새 시드로 다시 검증하는 것이 맞다.
 
 DAW 점검표 D09는 이 현상을 실제 DAW에서 확인하는 항목이다.
+
+**후속 (2026-10-24):** `corr40-split-v3`가 이 보류를 샘플 단위로 바꿨다. 호스트 점검 72회에서 가변·큰 블록 모두 비트 동일했다. 다만 새 시드 T3 판정은 v2와 같은 이유로 FAIL이다(`TRANSPOSE_V3_BLOCK_INVARIANT_20261024.md`). 연구용 플러그인의 `Engine`에 corr40-split-v3를 추가했다.
 
 ### 발견 2: denormal 처리
 

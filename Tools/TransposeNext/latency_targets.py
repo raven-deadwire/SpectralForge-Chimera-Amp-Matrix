@@ -14,6 +14,7 @@ from evaluate import attacks
 from legacy_metrics import tone_metrics, sha
 from weak_attack_study import FREQUENCIES, generate, event_detection
 from weak_attack_holdout import holdout_input, lowband_extra
+from attack_snr import event_snrs
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT/'Validation'/'transpose-latency-targets.json'
@@ -34,7 +35,7 @@ def long_notes(f0, rate, spacing=.25, decay=.08, n=10, seed=1):
         z[o:o+m] += signal.sosfilt(hp, click)
     return np.column_stack((z, -.65*z)).astype('<f4'), onsets
 
-def inputs(rate, holdout_seeds=(8139, 20261024), long_seed=1):
+def inputs(rate, holdout_seeds=(8139, 20261024), long_seed=1, long_seeds=None):
     """(key, x, meta, roles) for every scored input at one sample rate."""
     out = []
     for inst, f in FREQUENCIES.items():
@@ -48,8 +49,9 @@ def inputs(rate, holdout_seeds=(8139, 20261024), long_seed=1):
                                 ('random_markers', {'attack', 'markers'})]:
                 x, on = holdout_input(f, mode, seed, rate)
                 out.append((f'{inst}/holdout{seed}-{mode}', x, {'rate': rate, 'onsets': on, 'name': mode}, roles))
-        x, on = long_notes(f, rate, seed=long_seed)
-        out.append((f'{inst}/long_notes' if long_seed == 1 else f'{inst}/long_notes_seed{long_seed}', x, {'rate': rate, 'onsets': on, 'name': 'long_notes', 'fundamental_hz': f}, {'attack', 'long'}))
+        for seed in (long_seeds if long_seeds is not None else (long_seed,)):
+            x, on = long_notes(f, rate, seed=seed)
+            out.append((f'{inst}/long_notes' if seed == 1 else f'{inst}/long_notes_seed{seed}', x, {'rate': rate, 'onsets': on, 'name': 'long_notes', 'fundamental_hz': f}, {'attack', 'long'}))
     return out
 
 def main():
@@ -58,16 +60,20 @@ def main():
     p.add_argument('--evaluate-only', action='store_true', help='re-score an existing results.json against the current spec')
     # A fresh holdout: seeds never used to choose any candidate parameter.
     p.add_argument('--holdout-seeds', default='8139,20261024'); p.add_argument('--long-seed', type=int, default=1)
+    p.add_argument('--long-seeds', help='optional comma-separated long-note seeds; replaces --long-seed')
+    p.add_argument('--event-snr-min', type=float, help='T1: override the spec event SNR floor (dB; default from the spec, 10)')
+    p.add_argument('--legacy-t1', action='store_true', help='score T1 as spec version 1 (no SNR split), to reproduce earlier results')
     a = p.parse_args(); a.out.mkdir(parents=True, exist_ok=True); a.renderer = a.renderer.resolve()
     spec = json.loads(SPEC.read_text()); shifts = spec['conditions']['shifts']; block = spec['conditions']['block']
     if a.evaluate_only:
-        old = json.loads((a.out/'results.json').read_text()); rows = old['rows']; report = {**old['report'], **evaluate(spec, rows), 'spec_sha256': sha(SPEC)}
+        old = json.loads((a.out/'results.json').read_text()); rows = old['rows']; old['report'].pop('event_snr_min_db', None); report = {**old['report'], **evaluate(spec, rows, a.event_snr_min, a.legacy_t1), 'spec_sha256': sha(SPEC)}
         (a.out/'results.json').write_text(json.dumps({'report': report, 'rows': rows}, indent=1)+'\n')
         for t in report['targets']: print(t['id'], t['verdict'], json.dumps(t['observed'], ensure_ascii=False))
         return
     rows = []
     for rate in [int(r) for r in a.rates.split(',')]:
-        for key, x, meta, roles in inputs(rate, tuple(int(v) for v in a.holdout_seeds.split(',')), a.long_seed):
+        for key, x, meta, roles in inputs(rate, tuple(int(v) for v in a.holdout_seeds.split(',')), a.long_seed,
+                                      tuple(map(int,a.long_seeds.split(','))) if a.long_seeds else None):
             ip = a.out/'input.f32'; x.tofile(ip)
             before = attacks(x, meta) if 'attack' in roles else None
             for shift in shifts:
@@ -84,22 +90,37 @@ def main():
                     # peak must sit at its event; riff50's search window overlaps.
                     row['attack_metric_valid'] = bool(before['attack_lag_max_ms'] <= 10) and meta['name'] != 'riff50'
                     row['attack_additional_max_ms'] = float(max(extra))
+                    row['attack_added_ms'] = [float(v) for v in extra]; row['attack_event_snr_db'] = event_snrs(x, meta['onsets'], rate)
                 if roles & {'short', 'long'}: row['lowband_additional_ms'] = lowband_extra(x, y, meta['onsets'], rate)
                 if 'steady' in roles:
                     f = meta['fundamental_hz']*2**(shift/12); row['tone'] = tone_metrics(y, rate, f, .12)
                 rows.append(row)
             print(rate, key, flush=True)
-    report = evaluate(spec, rows)
+    report = evaluate(spec, rows, a.event_snr_min, a.legacy_t1)
     report.update(engine=a.engine, renderer_sha256=sha(a.renderer), platform=platform.platform(), spec_sha256=sha(SPEC),
                   synthetic_only=True, real_DI='NOT_AVAILABLE', actual_DAW='NOT_RUN', fixed_PDC='NOT_IMPLEMENTED')
     (a.out/'results.json').write_text(json.dumps({'report': report, 'rows': rows}, indent=1)+'\n')
     for t in report['targets']: print(t['id'], t['verdict'], json.dumps(t['observed'], ensure_ascii=False))
 
-def evaluate(spec, rows):
+def evaluate(spec, rows, event_snr_min=None, legacy_t1=False):
+    """Verdicts for every target. T1 uses the spec's event SNR floor unless
+    event_snr_min overrides it; legacy_t1 (or rows without per-event SNR)
+    scores T1 as spec version 1 did: the largest lag per valid case."""
     T = {t['id']: t for t in spec['targets']}; out = []
-    att = [r['attack_additional_max_ms'] for r in rows if r.get('attack_metric_valid')]
-    out.append({'id': 'T1_attack', 'limit_ms': T['T1_attack']['limit_ms'], 'observed': {'max_ms': round(max(att), 3), 'cases': len(att)},
-                'verdict': 'PASS' if max(att) <= T['T1_attack']['limit_ms'] else 'FAIL'})
+    snr_min = T['T1_attack'].get('event_snr_min_db') if event_snr_min is None else event_snr_min
+    valid = [r for r in rows if r.get('attack_metric_valid')]
+    if legacy_t1 or snr_min is None or not all('attack_event_snr_db' in r for r in valid):
+        att = [r['attack_additional_max_ms'] for r in valid]
+        out.append({'id': 'T1_attack', 'limit_ms': T['T1_attack']['limit_ms'], 'metric_version': 1, 'observed': {'max_ms': round(max(att), 3), 'cases': len(att)},
+                    'verdict': 'PASS' if max(att) <= T['T1_attack']['limit_ms'] else 'FAIL'})
+        out.append({'id': 'T1_faint_attack', 'verdict': 'NOT_SPLIT', 'observed': {'reason': 'version 1 metric' if legacy_t1 or snr_min is None else 'rows lack per-event SNR'}})
+    else:
+        pairs = [(v, s) for r in valid for v, s in zip(r['attack_added_ms'], r['attack_event_snr_db'])]
+        att = [v for v, s in pairs if s >= snr_min]; faint = [v for v, s in pairs if s < snr_min]
+        out.append({'id': 'T1_attack', 'limit_ms': T['T1_attack']['limit_ms'], 'metric_version': 2, 'event_snr_min_db': snr_min,
+                    'observed': {'max_ms': round(max(att), 3), 'events': len(att)}, 'verdict': 'PASS' if max(att) <= T['T1_attack']['limit_ms'] else 'FAIL'})
+        out.append({'id': 'T1_faint_attack', 'verdict': 'REPORT', 'event_snr_below_db': snr_min,
+                    'observed': {'events': len(faint), 'max_ms': round(max(faint), 3) if faint else None, 'over_10ms': sum(v > 10 for v in faint)}})
     def low(sel, shifts):
         v = [x for r in rows if sel(r) and r['shift'] in shifts for x in r['lowband_additional_ms']]
         return round(max(v), 3) if v else None

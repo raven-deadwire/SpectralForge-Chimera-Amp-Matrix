@@ -11,6 +11,9 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
 #include "WindowFit.h"
+#include "StandaloneDiagnostics.h"
+#include "StandaloneAudioDevices.h"
+#include "StandaloneInput.h"
 #include "PluginEditor.h"
 
 namespace spectralforge {
@@ -60,6 +63,14 @@ private:
     float restoredScale{};
 };
 
+// Device facts for the diagnostic snapshot. Driver-reported latency is what the
+// driver claims, not a measured round trip; xruns are -1 when unsupported.
+juce::var audioDeviceDiagnostics() {
+    auto* holder=juce::StandalonePluginHolder::getInstance();
+    if(holder==nullptr)return {};
+    return standalone::deviceSnapshot(holder->deviceManager,(bool)holder->getMuteInputValue().getValue());
+}
+
 class ChimeraStandaloneApp final : public juce::JUCEApplication {
 public:
     ChimeraStandaloneApp() {
@@ -79,12 +90,23 @@ public:
     bool moreThanOneInstanceAllowed() override {return true;}
     void anotherInstanceStarted(const juce::String&) override {}
     void initialise(const juce::String&) override {
-        if(!juce::Desktop::getInstance().getDisplays().displays.isEmpty())
+        standalone::audioDeviceDiagnostics=&spectralforge::audioDeviceDiagnostics;
+        standalone::inputMute=&inputMute;
+        if(!juce::Desktop::getInstance().getDisplays().displays.isEmpty()) {
+            // The window shows JUCE's "input is muted" bar only if this flag is
+            // set while it builds its content; the editors show InputGuide
+            // instead. Restore it so Audio/MIDI Settings keeps its
+            // "Mute audio input" switch.
+            auto holder=createPluginHolder();
+            const bool feedbackLoop=holder->processorHasPotentialFeedbackLoop;
+            holder->processorHasPotentialFeedbackLoop=false;
             mainWindow=std::make_unique<ChimeraStandaloneWindow>(getApplicationName(),
-                juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),createPluginHolder());
+                juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),std::move(holder));
+            mainWindow->pluginHolder->processorHasPotentialFeedbackLoop=feedbackLoop;
+        }
         if(mainWindow)mainWindow->setVisible(true);else pluginHolder=createPluginHolder();
     }
-    void shutdown() override {pluginHolder=nullptr;mainWindow=nullptr;appProperties.saveIfNeeded();}
+    void shutdown() override {standalone::audioDeviceDiagnostics=nullptr;standalone::inputMute=nullptr;pluginHolder=nullptr;mainWindow=nullptr;appProperties.saveIfNeeded();}
     void systemRequestedQuit() override {
         if(pluginHolder)pluginHolder->savePluginState();
         if(mainWindow)mainWindow->pluginHolder->savePluginState();
@@ -100,9 +122,19 @@ private:
        #else
         const juce::Array<juce::StandalonePluginHolder::PluginInOuts> channelConfig;
        #endif
-        return std::make_unique<juce::StandalonePluginHolder>(appProperties.getUserSettings(),false,juce::String{},nullptr,channelConfig,false);
+        auto holder=std::make_unique<juce::StandalonePluginHolder>(appProperties.getUserSettings(),false,juce::String{},nullptr,channelConfig,false);
+       #if JUCE_WINDOWS
+        standalone::preferAsioOnFirstRun(holder->deviceManager,holder->settings.get());
+       #endif
+        return holder;
     }
+    static juce::StandalonePluginHolder* activeHolder() {return juce::StandalonePluginHolder::getInstance();}
     juce::ApplicationProperties appProperties;
+    // Only a holder that can feed back starts muted; otherwise there is nothing to explain.
+    standalone::InputMute inputMute{
+        []{auto* h=activeHolder();return h!=nullptr && h->processorHasPotentialFeedbackLoop && (bool)h->getMuteInputValue().getValue();},
+        []{if(auto* h=activeHolder())h->getMuteInputValue().setValue(false);},
+        []{if(auto* h=activeHolder())h->showAudioSettingsDialog();}};
     std::unique_ptr<ChimeraStandaloneWindow> mainWindow;
     std::unique_ptr<juce::StandalonePluginHolder> pluginHolder;
 };

@@ -15,6 +15,7 @@
 #include "CommonDynamicsPanel.h"
 #include "AutoSetController.h"
 #include "AccessibleViewport.h"
+#include "EasyModeView.h"
 
 class CabRoomOverview;
 
@@ -45,6 +46,9 @@ public:
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
+    // Presentation only: Easy view edits the same parameters as the full editor.
+    void setEasyMode(bool easy,bool rememberChoice=false);
+    bool easyModeActive() const noexcept {return easyMode;}
 #if CHIMERA_ROUTING_DIAGNOSTICS
     struct RoutingProbe { uint64_t ticks{}, skipped{}, refreshed{}; double entered{}, finished{}; bool visible{}, messageThread{}; };
     const RoutingProbe& routingProbe() const noexcept { return routeProbe; }
@@ -78,12 +82,14 @@ private:
     juce::Label callbackLoad;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
+    void exportCabinet(int lane);
     void openCabWorkspace(int,bool focusRequested=false);
     void openAmpHead(int);
     void chooseIR(int,bool folder);
     void browseIR(int,const juce::File&);
     void showInfo();
     void showSupport();
+    void showTesterCode();
     void showDiagnostics();
     void trackDialog(juce::DialogWindow*);
     void markPresetCustom();
@@ -96,6 +102,7 @@ private:
     void openSignalPath();
     std::unique_ptr<SignalPathView> signalPath;
     juce::Component::SafePointer<juce::DialogWindow> pathDialog;
+    std::unique_ptr<juce::AlertWindow> testerDialog;
     std::array<juce::String,3> pathSelections{{"cab","cab","cab"}};
     ChimeraProcessor& processor;
     // Declared before children so their images/peers die first. The last editor
@@ -138,14 +145,16 @@ private:
     int betaUiTicks{25};
     juce::TextButton pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,3> globalButtons;
-    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
+    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},matchAB{"MATCH"},irLibraryButton{"IR LIBRARY"};
+    bool matchWarningAcknowledged{false};
+    juce::ScopedMessageBox matchWarning;
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     // Direct navigation only: these never toggle audio processing.
     static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,6> dynamicsEntryPages{
         spectralforge::CommonDynamicsPanel::Page::gate,
+        spectralforge::CommonDynamicsPanel::Page::expander,
         spectralforge::CommonDynamicsPanel::Page::compressor,
         spectralforge::CommonDynamicsPanel::Page::limiter,
-        spectralforge::CommonDynamicsPanel::Page::dynamicEQ,
         spectralforge::CommonDynamicsPanel::Page::multiband,
         spectralforge::CommonDynamicsPanel::Page::deesser};
     std::array<juce::TextButton,6> dynamicsEntries;
@@ -156,7 +165,12 @@ private:
     int selectedEQBank{}; // Presentation only; never a host parameter or sound-state edit.
     std::unique_ptr<CabRoomOverview> cabRoom;
     std::unique_ptr<PrecisionTunerPanel> precisionTuner;
-    juce::TextButton tunerOpen{"TUNER"};
+    juce::TextButton tunerOpen{"TUNER"},easyOpen{"EASY VIEW"};
+    InputGuide inputGuide; // Standalone only, over the brand art while the input is muted
+    std::unique_ptr<EasyModeView> easyView;
+    bool easyMode{};
+    int presetOrigin{}; // Factory preset (id) the current CUSTOM sound started from, or 0.
+    void publishAutoSetStatus();
     bool tunerViewOpen{};
     bool showRigControls{};
     int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.

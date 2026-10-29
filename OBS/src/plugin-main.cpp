@@ -8,12 +8,15 @@
 #include "base64.hpp"
 #include "chimera-host.hpp"
 #include "editor-window.hpp"
+#include "realtime-stats.hpp"
 
 #include <obs-module.h>
 #include <media-io/audio-io.h>
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -25,6 +28,13 @@ OBS_MODULE_USE_DEFAULT_LOCALE("chimera-obs", "en-US")
 MODULE_EXPORT const char* obs_module_description(void) {
     return "SpectralForge Chimera audio filter (hosts the installed Chimera VST3)";
 }
+
+#ifndef CHIMERA_OBS_VERSION
+#define CHIMERA_OBS_VERSION "0.0.0"
+#endif
+#ifndef CHIMERA_OBS_SOURCE
+#define CHIMERA_OBS_SOURCE "local"
+#endif
 
 namespace {
 using namespace spectralforge::obs;
@@ -46,7 +56,10 @@ struct Filter {
     obs_weak_source_t* weak{};
     ChimeraHost host;
     AudioBridge<ChimeraHost> bridge{host};
+    RealtimeStats stats;
     EditorWindow* editor{};
+    // UI thread. The source name for log lines, kept for teardown.
+    std::string name;
     std::string loadedPath, loadError;
     // UI thread. The component state (base64) last applied from or written to
     // the scene settings, and the edit count it reflects.
@@ -55,7 +68,7 @@ struct Filter {
     bool newerSchema{};
     // The filter outlives destroy() until every queued UI task has run.
     std::atomic<int> references{1};
-    std::atomic<bool> destroyed{false}, reprepareQueued{false};
+    std::atomic<bool> destroyed{false}, reprepareQueued{false}, reportQueued{false};
     ~Filter() { obs_weak_source_release(weak); }
 };
 
@@ -180,6 +193,7 @@ void editorChanged(void* data) {
 // UI thread. Reloads only when the bundle path changes; restores stored state
 // once per load, before the plugin is activated.
 void reload(Filter* f, obs_data_t* settings) {
+    f->name = obs_source_get_name(f->source);
     const std::string path = resolveBundle(settings);
     if (f->host.loaded() && path == f->loadedPath) {
         restoreState(f, settings);
@@ -230,8 +244,38 @@ void configure(Filter* f, obs_data_t* settings) {
     runOnUi(reloadTask, f);
 }
 
+std::string clockText(double seconds) {
+    const auto total = static_cast<long long>(seconds);
+    char text[32];
+    std::snprintf(text, sizeof(text), "%lld:%02lld:%02lld", total / 3600, total / 60 % 60, total % 60);
+    return text;
+}
+
+// One log line of realtime evidence for long recordings (add-on plan stage D).
+void logStats(const Filter* f, const char* when) {
+    const RealtimeSnapshot s = f->stats.snapshot();
+    blog(LOG_INFO, "[chimera-obs] '%s': %s: %s of audio, %llu blocks, Chimera load average %.1f%% peak %.1f%%, "
+         "20 ms windows over real time %llu, input gaps %llu (resumed after silence %llu), unprocessed blocks %llu",
+         f->name.c_str(), when, clockText(s.audioSeconds).c_str(), static_cast<unsigned long long>(s.blocks),
+         100.0 * s.averageLoad, 100.0 * s.peakLoad, static_cast<unsigned long long>(s.overruns),
+         static_cast<unsigned long long>(s.gaps), static_cast<unsigned long long>(s.restarts),
+         static_cast<unsigned long long>(s.unprocessed));
+}
+
+void reportTask(void* data) {
+    auto* f = static_cast<Filter*>(data);
+    if (obs_source_t* source = acquire(f)) {
+        f->name = obs_source_get_name(source);
+        logStats(f, "realtime");
+        obs_source_release(source);
+    }
+    f->reportQueued.store(false);
+    release(f);
+}
+
 void teardownTask(void* data) {
     auto* f = static_cast<Filter*>(data);
+    if (f->stats.snapshot().blocks > 0) logStats(f, "session total");
     closeEditor(f->editor);
     f->host.unload();
     // f->source is already gone here; OBS frees it after destroy() returns.
@@ -276,6 +320,21 @@ void procGetParameter(void* data, calldata_t* call) {
     calldata_set_bool(call, "ok", ok);
 }
 
+// Any thread: read-only counters, for a script that logs a long recording.
+//   void chimera_get_stats(out float audio_seconds, out int blocks, out float average_load, out float peak_load,
+//                          out int overruns, out int gaps, out int restarts, out int unprocessed)
+void procGetStats(void* data, calldata_t* call) {
+    const RealtimeSnapshot s = static_cast<Filter*>(data)->stats.snapshot();
+    calldata_set_float(call, "audio_seconds", s.audioSeconds);
+    calldata_set_int(call, "blocks", static_cast<long long>(s.blocks));
+    calldata_set_float(call, "average_load", s.averageLoad);
+    calldata_set_float(call, "peak_load", s.peakLoad);
+    calldata_set_int(call, "overruns", static_cast<long long>(s.overruns));
+    calldata_set_int(call, "gaps", static_cast<long long>(s.gaps));
+    calldata_set_int(call, "restarts", static_cast<long long>(s.restarts));
+    calldata_set_int(call, "unprocessed", static_cast<long long>(s.unprocessed));
+}
+
 // OBS skips a disabled filter entirely, so Chimera would still hold the delay,
 // reverb and cabinet tails of the audio from before it was disabled. Any
 // thread; the reset itself happens on the audio thread's next block.
@@ -285,6 +344,16 @@ void enabledChanged(void* data, calldata_t* call) {
 
 const char* getName(void*) { return obs_module_text("Chimera"); }
 
+// The OBS release whose libobs headers (and, on Windows, obs.dll) this module
+// was built and tested against; see the module identity line in the OBS log.
+constexpr unsigned builtMajor = LIBOBS_API_MAJOR_VER, builtMinor = LIBOBS_API_MINOR_VER, builtPatch = LIBOBS_API_PATCH_VER;
+
+std::string builtObsVersion() {
+    return std::to_string(builtMajor) + "." + std::to_string(builtMinor) + "." + std::to_string(builtPatch);
+}
+
+bool runningTestedObsMajor() { return (obs_get_version() >> 24) == builtMajor; }
+
 void* create(obs_data_t* settings, obs_source_t* source) {
     auto* f = new Filter();
     f->source = source;
@@ -292,6 +361,8 @@ void* create(obs_data_t* settings, obs_source_t* source) {
     proc_handler_t* procs = obs_source_get_proc_handler(source);
     proc_handler_add(procs, "void chimera_set_parameter(in int id, in float value, out bool ok)", procSetParameter, f);
     proc_handler_add(procs, "void chimera_get_parameter(in int id, out float value, out bool ok)", procGetParameter, f);
+    proc_handler_add(procs, "void chimera_get_stats(out float audio_seconds, out int blocks, out float average_load, "
+                     "out float peak_load, out int overruns, out int gaps, out int restarts, out int unprocessed)", procGetStats, f);
     signal_handler_connect(obs_source_get_signal_handler(source), "enable", enabledChanged, f);
     configure(f, settings);
     return f;
@@ -334,6 +405,11 @@ bool openEditorClicked(obs_properties_t*, obs_property_t*, void* data) {
     return false;
 }
 
+bool resetStatsClicked(obs_properties_t*, obs_property_t*, void* data) {
+    static_cast<Filter*>(data)->stats.requestReset();
+    return true;
+}
+
 const char* statusText(const Filter* f) {
     if (!f->host.loaded()) return obs_module_text("Status.NotLoaded");
     switch (f->bridge.status()) {
@@ -366,7 +442,12 @@ obs_properties_t* getProperties(void* data) {
     // Read-only diagnostics. OBS has no plugin delay compensation: this delay
     // is not corrected automatically (see the add-on plan, stage D).
     std::string info = std::string(obs_module_text("Status")) + ": " + statusText(f);
+    info += std::string("\n") + obs_module_text("Module") + " " CHIMERA_OBS_VERSION " (" CHIMERA_OBS_SOURCE ") · "
+        + obs_module_text("Module.BuiltFor") + " " + builtObsVersion();
+    if (!runningTestedObsMajor())
+        info += std::string("\n") + obs_module_text("Module.UntestedObs") + " " + obs_get_version_string();
     if (f->host.loaded()) {
+        info += std::string("\n") + obs_module_text("CaptureSafety");
         const auto& id = f->host.identity();
         const int samples = f->bridge.latencySamples();
         audio_t* audio = obs_get_audio();
@@ -378,6 +459,21 @@ obs_properties_t* getProperties(void* data) {
     }
     obs_property_t* status = obs_properties_add_text(props, "status_info", info.c_str(), OBS_TEXT_INFO);
     obs_property_text_set_info_word_wrap(status, true);
+
+    // Since Chimera first processed audio or the counters were reset. Shown when the
+    // properties open; also logged every 10 minutes of audio and at removal.
+    const RealtimeSnapshot s = f->stats.snapshot();
+    char load[64];
+    std::snprintf(load, sizeof(load), "%.1f%% / %.1f%%", 100.0 * s.averageLoad, 100.0 * s.peakLoad);
+    const std::string realtime = std::string(obs_module_text("Realtime")) + " (" + clockText(s.audioSeconds) + ")\n"
+        + obs_module_text("Realtime.Load") + ": " + load + "\n"
+        + obs_module_text("Realtime.Overruns") + ": " + std::to_string(s.overruns) + "\n"
+        + obs_module_text("Realtime.Gaps") + ": " + std::to_string(s.gaps) + " (" + obs_module_text("Realtime.Restarts") + " "
+        + std::to_string(s.restarts) + ")\n"
+        + obs_module_text("Realtime.Unprocessed") + ": " + std::to_string(s.unprocessed);
+    obs_property_t* stats = obs_properties_add_text(props, "realtime_info", realtime.c_str(), OBS_TEXT_INFO);
+    obs_property_text_set_info_word_wrap(stats, true);
+    obs_properties_add_button2(props, "reset_stats", obs_module_text("Realtime.Reset"), resetStatsClicked, f);
     return props;
 }
 
@@ -388,7 +484,17 @@ obs_audio_data* filterAudio(void* data, obs_audio_data* audio) {
     const double rate = output != nullptr ? audio_output_get_sample_rate(output) : 0.0;
     float* planes[MAX_AV_PLANES]{};
     for (int c = 0; c < channels && c < MAX_AV_PLANES; ++c) planes[c] = reinterpret_cast<float*>(audio->data[c]);
-    f->bridge.process(planes, channels, static_cast<int>(audio->frames), rate);
+    const int frames = static_cast<int>(audio->frames);
+    // Input that resumes after a second or more of silence (stopped device,
+    // paused media) must not start with Chimera's tails from before the gap.
+    if (f->stats.arrive(audio->timestamp, frames, rate) == InputGap::Restart) f->host.requestReset();
+    const auto started = std::chrono::steady_clock::now();
+    f->bridge.process(planes, channels, frames, rate);
+    const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - started).count();
+    // A progress line every 10 minutes of audio; queuing allocates, once per report.
+    if (f->stats.finish(frames, rate, elapsed, f->bridge.status() == BridgeStatus::Processing)
+        && !f->reportQueued.exchange(true))
+        runOnUi(reportTask, f);
     // OBS audio was reset to a new rate/layout: re-prepare off this thread.
     // Queuing allocates, but only once per format change, never per tick.
     if (f->bridge.needsPrepare() && !f->reprepareQueued.exchange(true)) runOnUi(reprepareTask, f);
@@ -411,5 +517,10 @@ bool obs_module_load(void) {
     info.filter_audio = filterAudio;
     obs_register_source(&info);
     blog(LOG_INFO, "[chimera-obs] registered %s", filterId);
+    blog(LOG_INFO, "[chimera-obs] module %s (source %s), built and tested for OBS %s, running OBS %s",
+         CHIMERA_OBS_VERSION, CHIMERA_OBS_SOURCE, builtObsVersion().c_str(), obs_get_version_string());
+    if (!runningTestedObsMajor())
+        blog(LOG_WARNING, "[chimera-obs] this OBS major version is not the one the module was tested with (%u); "
+             "report problems with the OBS and module versions above", builtMajor);
     return true;
 }

@@ -58,5 +58,5 @@ The targets (−9 dBFS peak, thresholds, ratios) are starting values chosen
 from the detectors' behaviour, not tuned against reference recordings.
 Listening tests with real DI captures across guitars/basses, pickups and
 interfaces are needed before release. Phase 2 (Tone EQ toward per-instrument
-target curves) and phase 3 (de-esser, limiter, genre targets) are not part of
-this prototype.
+target curves) is described in `AUTO_SET_PHASE2.md`; phase 3 (de-esser,
+limiter, genre targets) is not part of this prototype.

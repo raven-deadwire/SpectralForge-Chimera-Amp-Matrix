@@ -28,7 +28,20 @@ $companion = Join-Path (Split-Path -Parent $installerPath) "Chimera-Personal-IRs
 $registry = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1"
 # Optional OBS Studio filter task (GPL module, Issue #131) and its install path.
 $obsPlugin = Join-Path ([Environment]::GetFolderPath("CommonApplicationData")) "obs-studio\plugins\chimera-obs"
-foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion, $obsPlugin)) {
+# OBS user data and another plugin that Setup must never touch (stage E): a
+# scene collection holding a Chimera filter state, and a third-party plugin.
+$obsScene = Join-Path ([Environment]::GetFolderPath("ApplicationData")) "obs-studio\basic\scenes\Chimera Setup verification.json"
+$otherObsPlugin = Join-Path ([Environment]::GetFolderPath("CommonApplicationData")) "obs-studio\plugins\chimera-setup-verification-other"
+$obsUserFixtures = @{}
+$chimeraUserPaths = @(
+    (Join-Path ([Environment]::GetFolderPath("ApplicationData")) "SpectralForge/Chimera/ir-library.json"),
+    (Join-Path ([Environment]::GetFolderPath("ApplicationData")) "SpectralForge Chimera/SpectralForge Chimera.settings"),
+    (Join-Path ([Environment]::GetFolderPath("ApplicationData")) "SpectralForge/Chimera/Presets/CI-preserve.chimera")
+)
+foreach ($path in $chimeraUserPaths) {
+    if (Test-Path -LiteralPath $path) { throw "Refusing to overwrite existing user settings: $path" }
+}
+foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion, $obsPlugin, $obsScene, $otherObsPlugin)) {
     if (Test-Path -LiteralPath $path) { throw "Refusing to overwrite an existing installation: $path" }
 }
 $report = [Collections.Generic.List[string]]::new()
@@ -47,13 +60,21 @@ function Pass([string]$Message) {
 function Assert([bool]$Condition, [string]$Message) {
     if (!$Condition) { throw $Message }
 }
-function Run-SetupProcess([string]$Executable, [string[]]$Parameters) {
+function Run-SetupProcess([string]$Executable, [string[]]$Parameters, [int]$ExpectedExitCode = 0) {
     # Inno's uninstaller spawns a second phase. Wait for the whole process tree,
     # not just the launcher, before another install can reuse the same directory.
+    # The real app launch can legitimately save settings. Compare immediately
+    # around each installer operation so only installer mutations are judged.
+    $before = @{}
+    foreach ($path in $chimeraUserPaths) { $before[$path] = (Get-FileHash -LiteralPath $path).Hash }
     $process = Start-Process -FilePath $Executable -ArgumentList $Parameters -PassThru -Wait
-    Assert ($process.ExitCode -eq 0) "Installer process failed with exit code $($process.ExitCode)"
+    Assert ($process.ExitCode -eq $ExpectedExitCode) "Installer process exited with $($process.ExitCode); expected $ExpectedExitCode"
+    foreach ($path in $chimeraUserPaths) {
+        Assert ((Test-Path -LiteralPath $path) -and (Get-FileHash -LiteralPath $path).Hash -ceq $before[$path]) "Installer changed user settings/preset: $path"
+    }
 }
-function Install([string]$Name, [string]$Destination, [string]$Components, [string]$Vst3Directory = "", [string]$ObsTask = "") {
+function Install([string]$Name, [string]$Destination, [string]$Components, [string]$Vst3Directory = "", [string]$ObsTask = "",
+                 [int]$ExpectedExitCode = 0) {
     $parameters = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/LANG=korean",
         "/TYPE=custom", "/COMPONENTS=$Components", "/DIR=`"$Destination`"", "/LOG=`"$logPath/$Name.log`"")
     # "obsfilter" selects and "!obsfilter" deselects; empty keeps the previous answer.
@@ -62,7 +83,34 @@ function Install([string]$Name, [string]$Destination, [string]$Components, [stri
         $parameters += "/VST3DIR=`"$Vst3Directory`""
         $script:vst = Join-Path $Vst3Directory "SpectralForge Chimera.vst3"
     }
-    Run-SetupProcess $installerPath $parameters
+    Run-SetupProcess $installerPath $parameters $ExpectedExitCode
+}
+function Tree-Digest([string]$Path) {
+    if (!(Test-Path -LiteralPath $Path)) { return "" }
+    return (@(Get-ChildItem -LiteralPath $Path -Recurse -File | Sort-Object FullName |
+        ForEach-Object { "$([IO.Path]::GetRelativePath($Path, $_.FullName))=$((Get-FileHash -LiteralPath $_.FullName).Hash)" }) -join "`n")
+}
+function Check-ObsUserData {
+    foreach ($item in $obsUserFixtures.GetEnumerator()) {
+        Assert ((Tree-Digest $item.Key) -eq $item.Value -and (Tree-Digest $item.Key) -ne "") "Setup changed OBS user data or another plugin: $($item.Key)"
+    }
+}
+function Start-ObsProcessFixture {
+    # Name-only fixture, not the OBS application or an audio/GUI test.
+    $directory = Join-Path $env:RUNNER_TEMP "chimera-setup-running-obs"
+    New-Item -ItemType Directory -Force -Path $directory | Out-Null
+    $executable = Join-Path $directory "obs64.exe"
+    Copy-Item -LiteralPath (Join-Path $env:SystemRoot "System32\PING.EXE") -Destination $executable -Force
+    $process = Start-Process -FilePath $executable -ArgumentList @("-n", "600", "127.0.0.1") -WindowStyle Hidden -PassThru
+    Assert (!$process.HasExited) "OBS process fixture exited before the guard test"
+    return $process
+}
+function Install-Snapshot([string]$Destination) {
+    $entry = if (Test-Path -LiteralPath $registry) {
+        (Get-ItemProperty -LiteralPath $registry | Select-Object * -ExcludeProperty PS* | ConvertTo-Json -Compress)
+    } else { "absent" }
+    return (@((Tree-Digest $Destination), (Tree-Digest $vst), (Tree-Digest $obsPlugin),
+        (Tree-Digest $startMenu), (Tree-Digest $sharedIRs), $entry) -join "`n---`n")
 }
 function Equal-File([string]$Source, [string]$Destination) {
     Assert (Test-Path -LiteralPath $Destination -PathType Leaf) "Missing installed file: $Destination"
@@ -78,6 +126,7 @@ function Check-ObsFilter([bool]$Installed) {
         Assert (Test-Path -LiteralPath $path -PathType Leaf) "OBS user file was removed: $path"
         Assert ((Get-FileHash -LiteralPath $path).Hash -eq $obsUserFiles[$path]) "OBS user file changed: $path"
     }
+    Check-ObsUserData
     if (!$Installed) {
         # Setup owns the staged files and generated path hint, not the entire
         # directory: user presets/IRs/configuration may keep it non-empty.
@@ -196,6 +245,13 @@ function Check-AppShortcut([string]$Destination) {
     }
 }
 try {
+    foreach ($path in $chimeraUserPaths) {
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $path) | Out-Null
+        $data = if ($path.EndsWith('.settings')) { '<PROPERTIES><VALUE name="installer-preserve" val="fixture"/></PROPERTIES>' }
+                elseif ($path.EndsWith('.json')) { '{"version":1,"files":[],"folders":[]}' }
+                else { 'User-owned preset fixture' }
+        [IO.File]::WriteAllText($path, $data, [Text.UTF8Encoding]::new($false))
+    }
     & python $versionTool --manifest (Join-Path $stagePath "payload-manifest.json")
     Assert ($LASTEXITCODE -eq 0) "Installer payload version/source contract failed"
     Assert-ChimeraBinaryVersion $installerPath $payload.product_version
@@ -229,6 +285,28 @@ try {
         @{ cabinet = "CI synthetic Raven $label"; microphone = "SM57"; collection = "Raven" } |
             ConvertTo-Json | Set-Content -LiteralPath ($file + ".json")
         $ravenFixtures += $file
+    }
+    if ($obsOffered) {
+        $sceneDirectory = Split-Path -Parent $obsScene
+        New-Item -ItemType Directory -Force -Path $sceneDirectory, (Join-Path $otherObsPlugin "bin\64bit") | Out-Null
+        # A scene saved by the filter: its Chimera state lives in OBS's scene file, not in Setup's folders.
+        '{"name":"Chimera Setup verification","sources":[{"id":"spectralforge_chimera_filter","settings":{"chimera_obs_schema":1,"vst3_component_state":"Q0k="}}]}' |
+            Set-Content -LiteralPath $obsScene -Encoding utf8
+        "third-party OBS plugin fixture" | Set-Content -LiteralPath (Join-Path $otherObsPlugin "bin\64bit\other-plugin.dll")
+        $obsUserFixtures[$sceneDirectory] = Tree-Digest $sceneDirectory
+        $obsUserFixtures[$otherObsPlugin] = Tree-Digest $otherObsPlugin
+    }
+    if ($obsOffered) {
+        $runningObs = Start-ObsProcessFixture
+        try {
+            $before = Install-Snapshot $app
+            Install "00-obs-running-fresh" $app "vst3,standalone,reference" -ObsTask "obsfilter" -ExpectedExitCode 7
+            Assert ((Install-Snapshot $app) -ceq $before) "Blocked fresh install changed files or registration"
+            Check-ObsUserData
+            Pass "With OBS running, first-time selected install exits 7 before changing files or registration"
+        } finally {
+            if (!$runningObs.HasExited) { $runningObs.Kill(); $runningObs.WaitForExit() }
+        }
     }
     Install "00-full-without-obs-task" $app "vst3,standalone,reference"
     Check-Payload $app $true $true $true $false
@@ -284,6 +362,19 @@ try {
         Assert ($LASTEXITCODE -eq 0) "Cannot inspect exports: $obsBinary"
         Assert ([bool]($exports -match '\sobs_module_load\s*$')) "OBS filter does not export obs_module_load"
         Pass "OBS filter uses the static MSVC runtime and exports obs_module_load"
+        # The version users and bug reports see matches the staged module (SOURCE.txt).
+        $moduleLine = Select-String -LiteralPath (Join-Path $obsStage "SOURCE.txt") -Pattern '^Module version: (\d+\.\d+\.\d+)$'
+        Assert ($null -ne $moduleLine) "SOURCE.txt does not state the module version"
+        $moduleVersion = $moduleLine.Matches[0].Groups[1].Value
+        $expectedModuleProductVersion = "$moduleVersion ($($sourceSha.Substring(0, 10)))"
+        $sourceText = Get-Content -LiteralPath (Join-Path $obsStage "SOURCE.txt") -Raw
+        Assert ($sourceText.Contains("Corresponding source: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/tree/$sourceSha/OBS")) `
+            "OBS SOURCE.txt source does not match the installer payload source"
+        $info = [Diagnostics.FileVersionInfo]::GetVersionInfo($obsBinary)
+        Assert ($info.ProductName -eq "SpectralForge Chimera OBS filter" -and $info.FileVersion -eq $moduleVersion -and
+                $info.ProductVersion -ceq $expectedModuleProductVersion) `
+            "OBS filter version resource: '$($info.ProductName)' $($info.FileVersion) / $($info.ProductVersion); expected module $moduleVersion with its source commit"
+        Pass "OBS filter version resource: $($info.ProductName) $($info.ProductVersion)"
     }
 
     $module = [Runtime.InteropServices.NativeLibrary]::Load($vstBinary)
@@ -332,7 +423,7 @@ try {
     Assert ((Get-FileHash -LiteralPath $preservedReadme -Algorithm SHA256).Hash.ToLowerInvariant() -eq $modifiedReadmeHash) "Uninstall removed the user's preserved documentation"
     Equal-File (Join-Path $stagePath "THIRD_PARTY_NOTICES.md") (Join-Path $app "Documentation/THIRD_PARTY_NOTICES.md")
     Pass "Uninstall removes owned binaries, shortcut and Windows registration; preserves user files"
-    if ($obsOffered) { Pass "Repair keeps the OBS filter answer; uninstall removes owned payload and preserves OBS user settings, presets and IRs" }
+    if ($obsOffered) { Pass "Repair keeps the OBS filter answer; uninstall removes owned payload and preserves OBS user settings, presets, IRs, scenes and other plugins" }
 
     $custom = Join-Path $env:RUNNER_TEMP "Chimera 설치 검증"
     Assert (!(Test-Path -LiteralPath $custom)) "Custom test path already exists"
@@ -341,6 +432,30 @@ try {
     Install "04-vst3-only" $custom "vst3" $customVst3 -ObsTask "obsfilter"
     Check-Payload $custom $true $false $false $obsOffered
     Pass "Independent custom application and VST3 installation folders accept Unicode paths"
+    if ($obsOffered) {
+        # OBS has the filter loaded: Setup must stop before changing it, and the
+        # uninstaller must refuse, leaving the installation intact.
+        $runningObs = Start-ObsProcessFixture
+        try {
+            $before = Install-Snapshot $custom
+            # Exit code 7: the Preparing to Install stage stopped Setup.
+            foreach ($case in @(@{ Name = "update"; Task = "obsfilter" }, @{ Name = "repair"; Task = "" },
+                               @{ Name = "deselect"; Task = "!obsfilter" })) {
+                Install "04-obs-running-$($case.Name)" $custom "vst3" -ObsTask $case.Task -ExpectedExitCode 7
+                Assert ((Install-Snapshot $custom) -ceq $before) "Blocked $($case.Name) changed files or registration"
+                Check-ObsUserData
+            }
+            $uninstaller = (Get-ItemProperty -LiteralPath $registry).UninstallString.Trim('"')
+            $refused = Start-Process -FilePath $uninstaller -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART",
+                "/LOG=`"$logPath/04-obs-running-uninstall.log`"") -PassThru -Wait
+            Assert ($refused.ExitCode -ne 0) "Uninstall reported success while OBS was running"
+            Assert ((Install-Snapshot $custom) -ceq $before) "Blocked uninstall changed files or registration"
+            Check-Payload $custom $true $false $false $true
+            Pass "With OBS running, Setup stops before changing the filter (exit 7) and uninstall refuses (exit $($refused.ExitCode)); nothing changes"
+        } finally {
+            if (!$runningObs.HasExited) { $runningObs.Kill(); $runningObs.WaitForExit() }
+        }
+    }
     Install "04b-vst3-remembered-repair" $custom "vst3"
     Check-Payload $custom $true $false $false $obsOffered
     Pass "Repair remembers the selected VST3 folder without a /VST3DIR override"
@@ -368,6 +483,7 @@ try {
     Check-AppShortcut $custom
     Uninstall "07-standalone-uninstall" $custom
     Pass "Standalone-only selection and removal; no VST3 installed"
+    Pass "Every current Setup/repair/removal invocation preserved the existing AppData settings, IR library and preset bytes"
 
     # Run the separately reported, real public beta.1 Setup upgrade only after
     # every existing current-product installation and launch gate has passed.
@@ -381,6 +497,11 @@ try {
     $report.Add("FAIL: $($_.Exception.Message)")
     throw
 } finally {
+    # Remove only the OBS fixtures this script created.
+    if ($obsUserFixtures.Count) {
+        Remove-Item -LiteralPath $obsScene -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $otherObsPlugin -Recurse -Force -ErrorAction SilentlyContinue
+    }
     $report | Set-Content -LiteralPath (Join-Path $logPath "InstallerVerification.txt")
     @{ success = $success; source_sha = $sourceSha; run_id = $env:GITHUB_RUN_ID;
        actual_previous_release_upgrade_verified = $actualPreviousReleaseUpgradeVerified;
