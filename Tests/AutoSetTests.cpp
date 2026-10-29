@@ -250,6 +250,53 @@ void multibandRules() {
     std::cout<<"PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz\n";
 }
 
+// Phase 6: every note of a two-octave pentatonic scale from lowestHz in turn,
+// harmonics falling as 1/h; resonance adds a narrow +gainDb peak at
+// resonanceHz that only some notes excite (from E2, the 3rd harmonic of E2,
+// the 2nd of B2 and the fundamental of B3 fall on 247 Hz).
+std::vector<float> playedNotes(double rate,double seconds,std::mt19937& random,float resonanceHz=0,float gainDb=0,float lowestHz=82.41f) {
+    constexpr std::array<int,11> scale{0,3,5,7,10,12,15,17,19,22,24};
+    std::vector<float> x(size_t(rate*seconds));std::normal_distribution<float> hiss(0,.0005f);
+    const size_t noteLength=size_t(rate*.25);double f0=lowestHz;
+    for(size_t n=0;n<x.size();++n) {
+        if(n%noteLength==0)f0=lowestHz*std::pow(2.,scale[(n/noteLength*4)%scale.size()]/12.);
+        const double t=double(n%noteLength)/rate,env=std::exp(-t*6)*std::min(1.,t/.003);double v=0;
+        for(int h=1;h<=8;++h)if(f0*h<rate*.45)v+=std::sin(2*juce::MathConstants<double>::pi*f0*h*t)/h;
+        x[n]=float(.12*env*v)+hiss(random);
+    }
+    if(gainDb>0) {
+        auto c=spectralforge::eqCoefficients(0,resonanceHz,gainDb,8,rate);double z1=0,z2=0;
+        for(auto& v:x){const double y=c.b0*v+z1;z1=c.b1*v-c.a1*y+z2;z2=c.b2*v-c.a2*y;v=float(y);}
+    }
+    return x;
+}
+void dynamicEQRules() {
+    for(double rate:{44100.,48000.,96000.}) {
+        std::mt19937 random{41};
+        check(!analyseDynamicEQ(std::vector<float>(size_t(rate*6),0.f),rate).playingDetected,"Silence reported playing");
+        const auto even=analyseDynamicEQ(playedNotes(rate,6,random),rate,false);
+        check(even.playingDetected && even.nodes.empty(),"Evenly voiced notes got a Dynamic EQ node");
+        // A cabinet-like resonance at 250 Hz that some notes ring through.
+        const auto ringing=analyseDynamicEQ(playedNotes(rate,6,random,250,12),rate,false,Style::rock);
+        check(ringing.nodes.size()>=1 && near(ringing.nodes[0].frequency,250,1),"A 250 Hz resonance did not get a node there");
+        const auto& node=ringing.nodes[0];
+        check(node.thresholdDb<0 && node.ratio>=2 && node.ratio<=4 && node.rangeDb>=3 && node.rangeDb<=9 && near(node.attackMs,10,.01f) && near(node.releaseMs,150,.01f)
+              && near(node.q,dynamicEQQ,.001f),"Dynamic EQ node outside its rules");
+        // Style scales the release; an existing node nearby and no free slot both stop it.
+        const auto metal=analyseDynamicEQ(playedNotes(rate,6,random,250,12),rate,false,Style::metal);
+        check(!metal.nodes.empty() && near(metal.nodes[0].frequency,250,1) && near(metal.nodes[0].releaseMs,105,.01f),"Metal did not shorten the Dynamic EQ release");
+        const auto avoided=analyseDynamicEQ(playedNotes(rate,6,random,250,12),rate,false,Style::rock,{240.f});
+        check(std::none_of(avoided.nodes.begin(),avoided.nodes.end(),[](const auto& n){return std::abs(std::log2(n.frequency/240.f))<2.f/3.f;}),"A node was placed next to an existing one");
+        check(analyseDynamicEQ(playedNotes(rate,6,random,250,12),rate,false,Style::rock,{},0).nodes.empty(),"A node was placed without a free slot");
+        if(rate==48000.){
+            std::cout<<"MEASURE dynamic EQ excess (even):";for(int b=0;b<toneBandCount;++b)if(even.excessDb[size_t(b)]!=0)std::cout<<' '<<toneBandCentres[size_t(b)]<<':'<<even.excessDb[size_t(b)];
+            std::cout<<"\nMEASURE dynamic EQ excess (250 Hz ring):";for(int b=0;b<toneBandCount;++b)if(ringing.excessDb[size_t(b)]!=0)std::cout<<' '<<toneBandCentres[size_t(b)]<<':'<<ringing.excessDb[size_t(b)];
+            std::cout<<"\nMEASURE dynamic EQ node: "<<node.frequency<<" Hz, threshold "<<node.thresholdDb<<" dB, "<<node.ratio<<":1, up to "<<node.rangeDb<<" dB\n";
+        }
+    }
+    std::cout<<"PASS auto set dynamic EQ rules: silence, evenly voiced notes left alone, a 250 Hz resonance gets a node there within limits, metal release, existing nodes and slot count respected at 44.1/48/96 kHz\n";
+}
+
 // Phase 5: Gate 2 / Expander from the rig noise in the pause.
 void gateStageRules() {
     // 6 s: playing at -18 dBFS input with a 1.5 s pause at -72 dBFS; the rig
@@ -381,7 +428,7 @@ void controllerFinishPreservation() {
         setRaw("deEsserOn",1);setRaw("deEsserFrequency",4700);setRaw("deEsserThreshold",-31);setRaw("deEsserRange",7);setRaw("deEsserListen",1);
         const auto manual=deesserValues(),before=values(*p);std::mt19937 random{802};
         const auto signal=targetNoise(bass,48000,6.5,random,style);
-        Controller c(*p);c.setOptions({bass?2:1,false,style,true,false});Gestures g;p->addListener(&g);
+        Controller c(*p);c.setOptions({bass?2:1,false,style,true,false,true,1.f,0u,false});Gestures g;p->addListener(&g);
         double now=juce::Time::getMillisecondCounterHiRes();c.start();
         for(int pass=0;pass<3;++pass)feedCapture(*p,c,signal,now);
         check(c.current().phase==Controller::Phase::done && c.lastFinishAnalysis().bass==bass,"Explicit instrument or three-pass controller failed");
@@ -434,7 +481,17 @@ void controllerIntegration() {
     for(int b=0;b<spectralforge::graphicalEQBands;++b)if(b!=1 && get(*p,spectralforge::eqID(0,b,"enabled"))>.5f) {
         ++enabled;check(std::abs(get(*p,spectralforge::eqID(0,b,"gain")))<=toneMaxMoveDb+.01f,"Tone EQ move beyond the limit");
     }
-    check(enabled==tone.activeMoves() && (enabled==0 || get(*p,spectralforge::eqID(0,-1,"bypass"))<.5f),"Applied Tone EQ does not match the analysis");
+    // Phase 6 adds its 0 dB Dynamic EQ nodes on free bands, keeping the user's slot 1.
+    const auto& dynamic=c.lastDynamicAnalysis();
+    check(dynamic.playingDetected && dynamic.nodes.size()<=2,"Dynamic EQ step did not hear the guitar DI");
+    check(enabled==tone.activeMoves()+int(dynamic.nodes.size()) && (enabled==0 || get(*p,spectralforge::eqID(0,-1,"bypass"))<.5f),"Applied Tone EQ does not match the analysis");
+    check(near(get(*p,spectralforge::dynamicSlotID(0,"target")),2.f,.01f),"Auto Set reassigned the user's Dynamic EQ slot");
+    for(size_t i=0;i<dynamic.nodes.size();++i) {
+        const int target=juce::roundToInt(get(*p,spectralforge::dynamicSlotID(int(i)+1,"target")));
+        check(target>=1 && target<=12 && target!=2 && near(get(*p,spectralforge::eqID(0,target-1,"frequency")),dynamic.nodes[i].frequency,.5f)
+              && near(get(*p,spectralforge::eqID(0,target-1,"gain")),0.f,.01f) && near(get(*p,spectralforge::dynamicSlotID(int(i)+1,"threshold")),dynamic.nodes[i].thresholdDb,.01f),
+              "Dynamic EQ node does not match the analysis");
+    }
     run(*p,c,&di,7.0,now);
     check(c.current().phase==Controller::Phase::multiband && c.current().text.contains("4/5"),"Compressor pass did not hand over to the multiband pass");
     run(*p,c,&di,6.6,now);
@@ -463,8 +520,9 @@ void controllerIntegration() {
         check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
         check(!sawTone,"Tone pass claimed an instrument before its analysis");
         const auto& steps=c.current().steps;
-        check(steps.size()==6 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
-              && steps[5].phase==Controller::Phase::finish && steps[3].changed && steps[3].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        check(steps.size()==7 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
+              && steps[2].phase==Controller::Phase::tone && steps[3].phase==Controller::Phase::dynamicEQ && steps[3].changed==!dynamic.nodes.empty()
+              && steps[6].phase==Controller::Phase::finish && steps[4].changed && steps[4].result.contains(":1"),"Results do not list one row per pass with the applied values");
         // Gate 2 / Expander follow their analysis; the gates were held open only while the input pass listened.
         const auto& gates=c.lastGateAnalysis();
         check(gates.measured && (get(*p,"expOn")>.5f)==(gates.plan==GateStagesResult::Plan::soft) && (get(*p,"gate2On")>.5f)==(gates.plan==GateStagesResult::Plan::hard),
@@ -490,18 +548,18 @@ void controllerIntegration() {
     std::cout<<" | fit error "<<tone.errorBeforeDb<<" -> "<<tone.errorAfterDb<<" dB\n";
     const auto applied=values(*p);
     int changed=0;for(size_t i=0;i<before.size();++i)if(applied[i]!=before[i])++changed;
-    check(changed>=3 && changed<=31+5*spectralforge::graphicalEQBands+10*spectralforge::multibandBandCount,"Auto Set touched parameters outside its scope");
+    check(changed>=3 && changed<=31+5*spectralforge::graphicalEQBands+10*spectralforge::multibandBandCount+6*4,"Auto Set touched parameters outside its scope");
     c.undo();
     // Undo restores normalised values, which round-trip within float precision.
     const auto restored=values(*p);bool undone=restored.size()==before.size();
     for(size_t i=0;undone && i<before.size();++i)undone=near(restored[i],before[i],1e-6f);
     check(undone && !c.current().canUndo,"Undo did not restore every parameter");
-    c.setOptions({0,false,Style::rock,false,false});c.start();
+    c.setOptions({0,false,Style::rock,false,false,true,1.f,0u,false});c.start();
     check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the optional steps did not shorten Auto Set to two passes");
     c.cancel();check(values(*p)==restored,"Cancelling a run changed parameters");
     // Edits made while listening and after applying are not owned by Auto Set.
     // Include an untouched optional stage: the old whole-snapshot undo lost it.
-    c.setOptions({1,false,Style::rock,false,false});c.start();
+    c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false});c.start();
     setRaw("input",3.f);setRaw("deEsserRange",11.f);
     const float manualInput=get(*p,"input"),manualRange=get(*p,"deEsserRange");
     run(*p,c,&di,14,now);
@@ -580,7 +638,7 @@ void inputStrengthRounding() {
 }
 void controllerLocksAndStrength() {
     using P=Controller::Phase;
-    const Controller::Options all{1,true,Style::rock,true,true,false};
+    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false};
     const auto full=runLocked(all);
     check(full.status.phase==P::done && full.status.steps.size()==5,"Reference run did not complete five passes");
     check(valueOf(full,"gateon")>.5f,"Reference run did not place the gate");
@@ -661,6 +719,87 @@ void controllerLocksAndStrength() {
     std::cout<<"PASS auto set locks and strength: "<<toneBands<<" Tone EQ moves halved, parallel comp/multiband mix, gate follows applied input, locked passes skipped and kept by undo\n";
 }
 
+// Phase 6 on the controller: the Tone EQ pass hears notes that ring at 250 Hz.
+struct DynamicRun {std::vector<float> before,values;Controller::Status status;DynamicEQResult analysis;std::vector<float> undone;};
+DynamicRun runDynamic(const Controller::Options& options,const std::function<void(ChimeraProcessor&)>& prepare={}) {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    if(prepare)prepare(*p);
+    Controller c(*p);c.setOptions(options);
+    DynamicRun result;result.before=values(*p);
+    DI di{48000,.126f,.00025f};std::mt19937 random{43};const auto ringing=playedNotes(48000,6,random,250,12);
+    double now=juce::Time::getMillisecondCounterHiRes();std::vector<float> block(256);c.start();
+    for(int k=0;c.busy() && k<int(60*48000/256);++k) {
+        for(auto& x:block)x=di.next();
+        const float* channels[]{block.data()};const float* tone[]{ringing.data()+size_t(k)*256%(ringing.size()-256)};
+        for(auto tap:{Tap::input,Tap::compressor,Tap::output,Tap::multiband,Tap::deesser})p->autoSetCapture().push(tap,channels,1,256);
+        p->autoSetCapture().push(Tap::tone,tone,1,256);
+        now+=1000.*256/48000;c.tick(now);
+    }
+    check(!c.busy(),"Dynamic EQ run did not finish");
+    result.values=values(*p);result.status=c.current();result.analysis=c.lastDynamicAnalysis();
+    c.undo();result.undone=values(*p);p->releaseResources();
+    return result;
+}
+const Controller::Step* stepOf(const Controller::Status& status,Controller::Phase phase) {
+    for(const auto& step:status.steps)if(step.phase==phase)return &step;
+    return nullptr;
+}
+void controllerDynamicEQ() {
+    using P=Controller::Phase;
+    const auto value=[](const DynamicRun& r,const juce::String& id){return valueOf(LockRun{r.values,{},{}},id);};
+    // The Tone EQ and every Dynamic EQ slot, as stored before and after a run.
+    const auto eqUnchanged=[](const DynamicRun& r) {
+        static auto reference=std::make_unique<ChimeraProcessor>();
+        for(auto* q:reference->getParameters())if(auto* named=dynamic_cast<juce::AudioProcessorParameterWithID*>(q))
+            if((named->paramID.startsWith("toneEQ_") || named->paramID.startsWith("dynamicEQ")) && r.values[size_t(q->getParameterIndex())]!=r.before[size_t(q->getParameterIndex())])return false;
+        return true;
+    };
+    const auto undoneAll=[](const DynamicRun& r){for(size_t i=0;i<r.before.size();++i)if(!near(r.undone[i],r.before[i],1e-6f))return false;return true;};
+    // Tone EQ step off, defaults (bypassed Tone EQ, no bands): the pass still
+    // runs for the Dynamic EQ, which places a 0 dB node at 250 Hz on slot 1.
+    const Controller::Options dynamicOnly{1,false,Style::rock,false,false,false,1.f,0u,true};
+    const auto full=runDynamic(dynamicOnly);
+    check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::input,P::tone,P::compressor},"Dynamic EQ did not run the Tone EQ pass on its own");
+    const auto* step=stepOf(full.status,P::dynamicEQ);
+    check(step && step->changed && step->result.contains("250 Hz") && !stepOf(full.status,P::tone),"Dynamic EQ result row missing or wrong");
+    check(full.analysis.nodes.size()>=1 && near(full.analysis.nodes[0].frequency,250,1),"Controller analysis missed the 250 Hz ring");
+    const int target=juce::roundToInt(value(full,spectralforge::dynamicSlotID(0,"target")));
+    check(target>=1 && target<=12,"Slot 1 was not assigned to a Tone EQ band");
+    const auto band=[&](const DynamicRun& r,const char* f){return value(r,spectralforge::eqID(0,target-1,f));};
+    const auto& node=full.analysis.nodes[0];
+    check(near(band(full,"frequency"),250,.5f) && near(band(full,"gain"),0,.01f) && band(full,"enabled")>.5f && near(band(full,"type"),0,.01f) && near(band(full,"q"),node.q,.01f),"Tone EQ node does not match the analysis");
+    check(near(value(full,spectralforge::dynamicSlotID(0,"threshold")),node.thresholdDb,.01f) && near(value(full,spectralforge::dynamicSlotID(0,"range")),node.rangeDb,.01f)
+          && near(value(full,spectralforge::dynamicSlotID(0,"ratio")),node.ratio,.01f) && near(value(full,spectralforge::dynamicSlotID(0,"release")),node.releaseMs,.5f),"Dynamic EQ slot does not match the analysis");
+    check(value(full,spectralforge::eqID(0,-1,"bypass"))<.5f,"The Tone EQ was left bypassed");
+    int enabled=0;for(int b=0;b<spectralforge::graphicalEQBands;++b)enabled+=value(full,spectralforge::eqID(0,b,"enabled"))>.5f;
+    check(enabled==int(full.analysis.nodes.size()),"The Dynamic EQ step enabled bands beyond its nodes");
+    check(undoneAll(full),"UNDO AUTO did not restore the Dynamic EQ and Tone EQ");
+    // Strength scales the maximum cut only.
+    auto halfOptions=dynamicOnly;halfOptions.strength=.5f;
+    const auto half=runDynamic(halfOptions);
+    check(near(value(half,spectralforge::dynamicSlotID(0,"range")),.5f*node.rangeDb,.01f) && near(value(half,spectralforge::dynamicSlotID(0,"threshold")),node.thresholdDb,.01f),"Strength did not scale only the Dynamic EQ range");
+    // Every slot already assigned: nothing to place.
+    const auto busySlots=runDynamic(dynamicOnly,[](ChimeraProcessor& p){
+        for(int s=0;s<4;++s){auto* t=p.parameters().getParameter(spectralforge::dynamicSlotID(s,"target"));t->setValueNotifyingHost(t->convertTo0to1(float(13+s)));}});
+    step=stepOf(busySlots.status,P::dynamicEQ);
+    check(step && !step->changed && step->result.contains("all four") && eqUnchanged(busySlots),"Assigned slots were not kept");
+    // A user's curve behind a bypassed Tone EQ stays inaudible.
+    const auto bypassed=runDynamic(dynamicOnly,[](ChimeraProcessor& p){p.parameters().getParameter(spectralforge::eqID(0,3,"enabled"))->setValueNotifyingHost(1.f);});
+    step=stepOf(bypassed.status,P::dynamicEQ);
+    check(step && !step->changed && step->result.contains("bypassed") && eqUnchanged(bypassed),"A bypassed user curve was switched on");
+    // A Tone EQ lock keeps the Dynamic EQ too; its own lock keeps only it.
+    auto toneLocked=dynamicOnly;toneLocked.tone=true;toneLocked.locks=Controller::lockTone;
+    const auto locked=runDynamic(toneLocked);
+    check(locked.status.passes==std::vector<P>{P::input,P::compressor} && locked.status.steps.size()==4 && locked.status.steps[1].phase==P::tone
+          && locked.status.steps[2].phase==P::dynamicEQ && locked.status.steps[2].result=="kept (locked)","Tone EQ lock did not skip and report both steps in order");
+    auto dynamicLocked=dynamicOnly;dynamicLocked.tone=true;dynamicLocked.locks=Controller::lockDynamicEQ;
+    const auto ownLock=runDynamic(dynamicLocked);
+    check(ownLock.status.passes==std::vector<P>{P::input,P::tone,P::compressor} && ownLock.status.steps.size()==4 && ownLock.status.steps[1].phase==P::tone
+          && ownLock.status.steps[2].phase==P::dynamicEQ && ownLock.status.steps[2].result=="kept (locked)","Dynamic EQ lock did not keep only its step");
+    for(int s=0;s<4;++s)check(near(value(ownLock,spectralforge::dynamicSlotID(s,"target")),0,.01f),"A locked Dynamic EQ slot was assigned");
+    std::cout<<"MEASURE auto set dynamic EQ: "<<step->result<<" | "<<stepOf(full.status,P::dynamicEQ)->result<<'\n';
+    std::cout<<"PASS auto set dynamic EQ controller: runs the Tone EQ pass alone, 0 dB node at 250 Hz on a free band and slot, strength scales the cut, assigned slots and a bypassed curve kept, Tone EQ and Dynamic EQ locks, undo\n";
+}
 void parameterEditNotifications() {
     auto p=std::make_unique<ChimeraProcessor>();
     auto* q=p->parameters().getParameter("input");
@@ -702,7 +841,7 @@ void parameterEditNotifications() {
 
 void controllerEditHistory() {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
-    Controller c(*p);c.setOptions({1,false,Style::rock,false,false});
+    Controller c(*p);c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false});
     auto* input=p->parameters().getParameter("input");
     auto* threshold=p->parameters().getParameter("cleanCompThreshold");
     const float before=input->getValue();
@@ -741,11 +880,12 @@ bool inLockedStage(const juce::String& id,Controller::Lock lock) {
         case Controller::lockMultiband:return id.startsWith("mb");
         case Controller::lockDeEsser:return id.startsWith("deEsser");
         case Controller::lockLimiter:return id.startsWith("liveLimiter");
+        case Controller::lockDynamicEQ:return id.startsWith("dynamicEQ");
     }
     return false;
 }
 void controllerStrengthMatrix() {
-    const Controller::Options all{1,true,Style::rock,true,true,false};
+    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false};
     const auto full=runLocked(all);
     const LockRun defaults{full.before,{},{}};
     check(valueOf(full,"mbOn")>.5f && valueOf(full,"deEsserOn")>.5f,"Strength matrix needs active positive controls");
@@ -773,7 +913,7 @@ void controllerStrengthMatrix() {
 }
 void controllerEveryLock() {
     for(const auto lock:Controller::lockOrder)for(float amount:{.25f,.5f,.75f,1.f}) {
-        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock)};
+        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock),true};
         std::vector<int> lockedIndices;std::vector<float> seeded;bool editedDuringRun=false;
         const auto r=runLocked(o,[&](ChimeraProcessor& p,Controller& c){
             auto applied=values(p);
@@ -793,7 +933,7 @@ void controllerEveryLock() {
     }
     // Options changed during a run belong to the next run. Undo still uses the
     // run snapshot, while a newly selected lock additionally protects its stage.
-    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone};
+    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone,false};
     bool changed=false;
     const auto baseline=runLocked(initial);
     const auto edited=runLocked(initial,[&](ChimeraProcessor& p,Controller& c){
@@ -802,7 +942,7 @@ void controllerEveryLock() {
         check(get(p,"cleanCompThreshold")==threshold,"A newly locked stage was restored by Undo");
     },{},[&](ChimeraProcessor&,Controller& c){if(!changed){auto next=initial;next.locks=127;next.strength=.25f;next.instrument=2;c.setOptions(next);changed=true;}});
     check(baseline.values==edited.values && baseline.status.passes==edited.status.passes,"Changing options mutated an in-flight run");
-    std::cout<<"PASS all seven locks x four strengths: non-default values, host edits, undo, immutable run options, newly selected undo locks\n";
+    std::cout<<"PASS all eight locks x four strengths: non-default values, host edits, undo, immutable run options, newly selected undo locks\n";
 }
 void controllerAttackLockRegression() {
     int cases=0;
@@ -843,7 +983,7 @@ void controllerGateStageEditHistory() {
             auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
             Controller c(*p);
             Controller::Options options{1,false,style,false,false,true,amount,
-                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u};
+                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u,false};
             c.setOptions(options);
             auto gateValues=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
             auto gateABA=[&] {
@@ -928,7 +1068,7 @@ int main(int argc, char** argv) {
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

@@ -611,4 +611,87 @@ inline MultibandResult analyseMultiband(const std::vector<float>& samples,double
     return r;
 }
 
+// Dynamic EQ (phase 6): narrow resonances that come and go, at the Tone EQ
+// input (where the Dynamic EQ detector listens). A third-octave band acts when
+// its loudest moments stand above its neighbours' loudest moments (2/3 to 4/3
+// octave away on both sides, so a broad tilt cancels) and it also drops back
+// between them: a note that rings louder than the rest, a cabinet resonance a
+// few notes excite. A band that never drops back is static balance, the Tone
+// EQ's job.
+struct DynamicEQNode {float frequency{},q{3},thresholdDb{-24},ratio{2},rangeDb{6},attackMs{10},releaseMs{120},excessDb{};};
+struct DynamicEQResult {
+    bool playingDetected{},bass{};
+    std::vector<DynamicEQNode> nodes;          // strongest first
+    std::array<float,toneBandCount> excessDb{}; // per third-octave band, 0 where not evaluated
+};
+inline constexpr float dynamicEQQ=3.f,dynamicEQMinExcessDb=4.f,dynamicEQMinJumpDb=6.f;
+// avoid: centres of Dynamic EQ nodes already on the Tone EQ; maxNodes: free slots.
+inline DynamicEQResult analyseDynamicEQ(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock,
+                                        const std::vector<float>& avoid={},int maxNodes=2) {
+    DynamicEQResult r;
+    const auto spectrum=measureSpectrum(samples,rate,bass);
+    r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
+    if(!r.playingDetected)return r;
+    const float lo=r.bass?50.f:80.f,hi=std::min(r.bass?2500.f:4000.f,float(rate*.4));
+    std::vector<int> bands;for(int b=0;b<toneBandCount;++b)if(toneBandCentres[size_t(b)]<rate*.45)bands.push_back(b);
+    // The same band pass as the Dynamic EQ detector, read as 20 ms peaks
+    // (the detector's envelope decays over 20 ms).
+    struct Detector {EQCoefficients c;double z1{},z2{};double tick(double x){const double y=c.b0*x+z1;z1=c.b1*x-c.a1*y+z2;z2=c.b2*x-c.a2*y;return y;}};
+    std::vector<Detector> detectors;for(const int b:bands)detectors.push_back({eqCoefficients(6,toneBandCentres[size_t(b)],0,dynamicEQQ,rate)});
+    const int blockSamples=std::max(1,int(rate*.020));
+    // Band RMS decides (a pick's broadband click lights every band's peak);
+    // band peaks place the threshold the peak detector will compare with.
+    std::vector<std::vector<float>> peak(bands.size()),rms(bands.size());std::vector<float> fullPeak,fullRms;
+    std::vector<double> held(bands.size()),bandEnergy(bands.size());double fullHeld=0,energy=0;int n=0;
+    for(const float x:samples) {
+        for(size_t k=0;k<detectors.size();++k){const double y=detectors[k].tick(x);held[k]=std::max(held[k],std::abs(y));bandEnergy[k]+=y*y;}
+        fullHeld=std::max(fullHeld,double(std::abs(x)));energy+=double(x)*x;
+        if(++n==blockSamples) {
+            for(size_t k=0;k<held.size();++k){peak[k].push_back(toDb(held[k]));rms[k].push_back(toDb(std::sqrt(bandEnergy[k]/n)));held[k]=bandEnergy[k]=0;}
+            fullPeak.push_back(toDb(fullHeld));fullRms.push_back(toDb(std::sqrt(energy/n)));fullHeld=energy=0;n=0;
+        }
+    }
+    const float loud=percentile(fullRms,.90f);
+    std::vector<size_t> playing;for(size_t i=0;i<fullRms.size();++i)if(fullRms[i]>=loud-15.f && fullRms[i]>minimumPlayingDb)playing.push_back(i);
+    if(playing.size()<50){r.playingDetected=false;return r;}
+    std::vector<float> loudRms;for(const auto i:playing)loudRms.push_back(fullRms[i]);
+    const float fullTop=percentile(loudRms,.95f);
+    std::vector<std::vector<float>> levels(bands.size());std::vector<float> top(bands.size()),typical(bands.size());
+    for(size_t k=0;k<bands.size();++k) {
+        std::vector<float> energyLevels;
+        for(const auto i:playing){levels[k].push_back(peak[k][i]);energyLevels.push_back(rms[k][i]);}
+        top[k]=percentile(energyLevels,.95f);typical[k]=percentile(energyLevels,.5f);
+    }
+    struct Candidate {size_t k;float excess;};std::vector<Candidate> candidates;
+    for(size_t k=2;k+2<bands.size();++k) {
+        const float fc=toneBandCentres[size_t(bands[k])];
+        if(fc<lo || fc>hi)continue;
+        std::vector<float> neighbours;
+        for(size_t d=k>=4?k-4:0;d<=std::min(bands.size()-1,k+4);++d)if((d>k?d-k:k-d)>=2)neighbours.push_back(top[d]);
+        const float excess=top[k]-percentile(neighbours,.5f);
+        r.excessDb[size_t(bands[k])]=excess;
+        // It must come and go, and be loud enough to be heard ringing.
+        if(excess>=dynamicEQMinExcessDb && top[k]-typical[k]>=dynamicEQMinJumpDb && top[k]>=fullTop-24.f)candidates.push_back({k,excess});
+    }
+    std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return a.excess>b.excess;});
+    const auto apart=[](float a,float b){return std::abs(std::log2(a/b))>=2.f/3.f-1e-3f;};
+    std::vector<float> taken(avoid.begin(),avoid.end());
+    const float releaseScale=style==Style::metal?.7f:style==Style::clean?1.3f:1.f;
+    for(const auto& c:candidates) {
+        if(int(r.nodes.size())>=maxNodes)break;
+        const float fc=toneBandCentres[size_t(bands[c.k])];
+        if(!std::all_of(taken.begin(),taken.end(),[&](float f){return apart(f,fc);}))continue;
+        taken.push_back(fc);
+        DynamicEQNode node;node.frequency=fc;node.q=dynamicEQQ;node.excessDb=c.excess;
+        // Act on the loudest fifth of the band; deeper and firmer for stronger rings.
+        node.thresholdDb=std::round(std::clamp(percentile(levels[c.k],.80f),-72.f,0.f));
+        node.ratio=c.excess<6.f?2.f:c.excess<9.f?3.f:4.f;
+        node.rangeDb=std::clamp(std::round(c.excess-1.f),3.f,9.f);
+        node.attackMs=fc<250.f?20.f:fc<1500.f?10.f:5.f;
+        node.releaseMs=std::round((fc<250.f?250.f:fc<1500.f?150.f:80.f)*releaseScale);
+        r.nodes.push_back(node);
+    }
+    return r;
+}
+
 }
