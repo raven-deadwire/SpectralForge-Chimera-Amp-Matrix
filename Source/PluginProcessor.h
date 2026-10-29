@@ -97,6 +97,11 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
     juce::Result loadIR(int lane,const juce::File& file);
     juce::Result loadMicIR(int lane,int slot,const juce::File& file);
+    // SYNTH sample oscillators (docs/SYNTH_V2.md). Message thread. Loading
+    // switches the oscillator on in Sample mode and sets its root to the
+    // detected pitch (one host gesture each); the sample is saved in the state.
+    juce::Result loadSynthSample(int osc,const juce::File& file);
+    void clearSynthSample(int osc);
     // Message thread. Renders `input` through a copy of a lane's cabinet as it
     // is now set up (modeled or captured IRs, mic A/B blend, gain, delay and
     // polarity, low/high cuts, cabinet on/off) without touching the running

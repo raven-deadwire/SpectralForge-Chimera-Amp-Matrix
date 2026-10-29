@@ -6,6 +6,11 @@ three-layer synth (`docs/SYNTH_1_10.md`). That synth was not released, so its
 eleven parameters were redesigned. The three layers survive as factory
 patches. Covered by `ChimeraSynthTests` and the signal-path UI tests.
 
+> **Extended by `docs/SYNTH_V2.md`:** three engine types (Dvergr Analog,
+> Seidr Dynamic, Mimir Impact), a third oscillator, sample oscillators and
+> direct wave picking. The parameter count there is 100. The two-oscillator
+> layout described below is superseded.
+
 ## Owner's decisions (2026-10-29)
 
 - **Page:** a dedicated SYNTH page in the editor's stage tabs, in the manner of

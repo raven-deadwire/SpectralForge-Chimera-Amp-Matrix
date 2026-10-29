@@ -7,6 +7,7 @@
 #include "PluginProcessor.h"
 #include "SynthLayer.h"
 #include "SynthPage.h"
+#include "SynthSampleIO.h"
 #include "SignalPath.h"
 #include <algorithm>
 #include <cmath>
@@ -116,7 +117,7 @@ auto noMidi(){return [](int,juce::MidiBuffer&){};}
 auto hold(std::initializer_list<int> notes,float velocity=1.f){std::vector<int> v(notes);return [v,velocity](int k,juce::MidiBuffer& m){if(k==0)for(int n:v)m.addEvent(juce::MidiMessage::noteOn(1,n,velocity),0);};}
 // A clean test voice: osc A only, filter off, instant envelope, MIDI only.
 Host& clean(Host& h,float wave){
-    for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthOn",1},{"synthSource",2},{"synthFilterOn",0},{"synthOscAWave",wave},{"synthOscADetune",0},
+    for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthOn",1},{"synthSource",2},{"synthCharacter",0},{"synthFilterOn",0},{"synthOscAWave",wave},{"synthOscADetune",0},
         {"synthAmpAttack",.5f},{"synthAmpSustain",100},{"synthWidth",0}})h.set(id,v);
     return h;
 }
@@ -262,17 +263,17 @@ void contractAndPatches() {
     s.handleMidi(m);s.analyse(in);s.render(block,120);for(int i=0;i<4;++i)s.addAt(SynthInsert(i),o);
     bool same=true;for(int n=0;n<block;++n)same=same&&o.getSample(0,n)==.1f&&o.getSample(1,n)==.1f;
     require(same && !s.sounding(),"SYNTH off changed the signal");
-    // Everything at once: eight voices, unison 7 on both oscillators, all eight slots, FM, drive.
+    // Everything at once: eight voices, unison 7 on all three oscillators, all eight slots, FM, character, drive.
     double peak=0;bool finite=true;allocations=0;
     const auto patches=synthPatches();   // one copy: the loops below refer into it
     for(int patch=0;patch<int(patches.size());++patch){
         Host x;for(const auto& [id,v]:patches[size_t(patch)].values)x.set(id.toRawUTF8(),v);
-        x.set("synthOn",1);x.set("synthSource",0);x.set("synthVoices",8);x.set("synthOscAUnison",7);x.set("synthOscBOn",1);x.set("synthOscBUnison",7);x.set("synthDrive",100);x.set("synthResonance",100);
-        for(int slot=0;slot<synthModSlots;++slot){x.set(synthModID(slot,"Source").toRawUTF8(),float(1+slot%7));x.set(synthModID(slot,"Target").toRawUTF8(),float(1+slot%13));x.set(synthModID(slot,"Amount").toRawUTF8(),slot%2?100.f:-100.f);}
+        x.set("synthOn",1);x.set("synthSource",0);x.set("synthVoices",8);x.set("synthOscAUnison",7);x.set("synthOscBOn",1);x.set("synthOscBUnison",7);x.set("synthOscCOn",1);x.set("synthOscCUnison",7);x.set("synthCharacter",100);x.set("synthDrive",100);x.set("synthResonance",100);
+        for(int slot=0;slot<synthModSlots;++slot){x.set(synthModID(slot,"Source").toRawUTF8(),float(1+slot%7));x.set(synthModID(slot,"Target").toRawUTF8(),float(1+(slot*5)%(synthModTargetCount-1)));x.set(synthModID(slot,"Amount").toRawUTF8(),slot%2?100.f:-100.f);}
         const auto out=render(x,48000,[](int n){return pluck(82.407,n%24000);},hold({48,52,55,60,64,67,72,76}));
         for(size_t n=0;n<out.l.size();++n){finite=finite&&std::isfinite(out.l[n])&&std::isfinite(out.r[n]);peak=std::max({peak,double(std::abs(out.l[n])),double(std::abs(out.r[n]))});}
     }
-    std::cout<<"MEASURE every patch at full load (8 voices x 2 x 7 unison, 8 slots, drive, resonance 100 %): peak "<<peak<<", allocations "<<allocations<<"\n";
+    std::cout<<"MEASURE every patch at full load (8 voices x 3 x 7 unison, 8 slots, character, drive, resonance 100 %): peak "<<peak<<", allocations "<<allocations<<"\n";
     require(finite && peak<=2.0 && allocations==0,"SYNTH unbounded or allocating at full load");
     // The factory patches sound.
     std::string line;
@@ -280,6 +281,123 @@ void contractAndPatches() {
         const double level=rms(render(x,24000,silence(),hold({57})).l,2400,12000);line+=std::string(" ")+patches[size_t(patch)].name+" "+juce::String(db(level),1).toStdString()+" dBFS;";require(level>1e-3,"A factory patch is silent");}
     std::cout<<"MEASURE factory patches, A3:"<<line<<"\n";
     std::cout<<"PASS off contract, full load bounded and allocation-free, factory patches sound\n";
+}
+
+// Frequency of the strongest component near `near`, per window, from zero crossings of a pure tone.
+std::vector<double> crossingHz(const std::vector<float>& x,int from,int to,int window){
+    std::vector<double> result;
+    for(int n=from;n+window<=to;n+=window){double first=-1,last=-1;int c=0;
+        for(int i=n+1;i<n+window;++i)if(x[size_t(i-1)]<0&&x[size_t(i)]>=0){const double t=i-1+x[size_t(i-1)]/(x[size_t(i-1)]-x[size_t(i)]);if(first<0)first=t;last=t;++c;}
+        if(c>2)result.push_back((c-1)*rate/(last-first));}
+    return result;
+}
+void oscillatorC() {
+    // C alone at +7 semitones; then A + B + C at three pitches, each level its own.
+    Host h;clean(h,0);h.set("synthOscALevel",0);h.set("synthOscCOn",1);h.set("synthOscCWave",0);h.set("synthOscCSemi",7);h.set("synthOscCLevel",100);
+    const double c=peakNear(render(h,48000,silence(),hold({57})).l,12000,48000,hz(64));
+    Host m;clean(m,0);m.set("synthOscALevel",100);m.set("synthOscBOn",1);m.set("synthOscBWave",0);m.set("synthOscBOctave",1);m.set("synthOscBLevel",50);
+    m.set("synthOscCOn",1);m.set("synthOscCWave",0);m.set("synthOscCOctave",2);m.set("synthOscCLevel",25);
+    const auto mix=render(m,48000,silence(),hold({57})).l;
+    const double a=magnitude(mix,12000,48000,220),b=magnitude(mix,12000,48000,440),cc=magnitude(mix,12000,48000,880);
+    // Level C through the matrix: the wheel is 0, so only a fixed source works; use velocity 1 at -100 %.
+    m.set("synthMod1Source",float(modVelocity));m.set("synthMod1Target",float(targetLevelC));m.set("synthMod1Amount",-100);
+    const double muted=magnitude(render(m,48000,silence(),hold({57})).l,12000,48000,880);
+    std::cout<<"MEASURE osc C +7 st: "<<c<<" Hz ("<<hz(64)<<"); A / B / C at 100 / 50 / 25 %: "<<db(a)<<" / "<<db(b)<<" / "<<db(cc)<<" dBFS; velocity -> Level C -100 %: C at "<<db(muted)<<" dBFS\n";
+    require(std::abs(c/hz(64)-1)<.0005 && std::abs(db(b/a)-db(.5))<.1 && std::abs(db(cc/a)-db(.25))<.1 && db(muted)<-100,"Oscillator C tuning, mixing or modulation wrong");
+    std::cout<<"PASS third oscillator: tuning, mixing with A and B, its matrix target\n";
+}
+
+void engineTypes() {
+    // Character 0: the three types are the same plain voice, sample for sample.
+    std::array<std::vector<float>,3> plain;
+    for(int t=0;t<3;++t){Host h;clean(h,2);h.set("synthFilterOn",1);h.set("synthType",float(t));plain[size_t(t)]=render(h,24000,silence(),hold({57},.6f)).l;}
+    require(plain[0]==plain[1] && plain[0]==plain[2],"Engine types differ at character 0");
+    // Dvergr Analog: pitch drift of a sine over 4 s in 50 ms windows; a quiet voice keeps its level.
+    Host a;clean(a,0);a.set("synthType",float(synthAnalog));a.set("synthCharacter",100);
+    const auto drifting=render(a,int(rate*4),silence(),hold({81})).l;const auto f=crossingHz(drifting,4800,int(rate*4),2400);
+    double mean=0;for(double v:f)mean+=v;mean/=double(f.size());double spread=0;for(double v:f)spread+=std::pow(1200*std::log2(v/mean),2);spread=std::sqrt(spread/double(f.size()));
+    Host q0,q1;clean(q0,2);clean(q1,2);for(Host* q:{&q0,&q1})q->set("synthOscALevel",5);q1.set("synthType",float(synthAnalog));q1.set("synthCharacter",100);
+    const double quietChange=db(rms(render(q1,24000,silence(),hold({57})).l,4800,24000)/rms(render(q0,24000,silence(),hold({57})).l,4800,24000));
+    // Seidr Dynamic: velocity 0.2 against 1.0 into a 600 Hz low-pass. The waves move towards
+    // square, so brightness is read at an odd harmonic.
+    const auto dynamicAt=[](float velocity){Host h;clean(h,2);h.set("synthFilterOn",1);h.set("synthFilterType",0);h.set("synthCutoff",600);h.set("synthType",float(synthDynamic));h.set("synthCharacter",100);
+        const auto out=render(h,24000,silence(),hold({45},velocity)).l;return std::pair<double,double>{rms(out,4800,24000),magnitude(out,4800,24000,1650)/magnitude(out,4800,24000,110)};};
+    const auto soft=dynamicAt(.2f),hard=dynamicAt(1.f);
+    // The guitar's level does the same: -30 against -12 dBFS input.
+    const auto guitarAt=[](double amplitude){Host h;clean(h,2);h.set("synthSource",1);h.set("synthFilterOn",1);h.set("synthFilterType",0);h.set("synthCutoff",600);h.set("synthType",float(synthDynamic));h.set("synthCharacter",100);
+        const auto out=render(h,48000,[amplitude](int n){return float(amplitude*std::sin(2*pi*110*n/rate));},noMidi()).l;return magnitude(out,24000,48000,1650)/magnitude(out,24000,48000,110);};
+    const double guitarSoft=guitarAt(.0316),guitarHard=guitarAt(.25);
+    // Mimir Impact: osc A sine alone; the internal modulator at twice A puts a 660 Hz sideband on each attack.
+    Host m;clean(m,0);m.set("synthType",float(synthImpact));m.set("synthCharacter",100);
+    const auto struck=render(m,48000,silence(),hold({57})).l;
+    const double early=db(magnitude(struck,0,960,660)/magnitude(struck,0,960,220)),late=db(magnitude(struck,24000,48000,660)/magnitude(struck,24000,48000,220));
+    Host k;clean(k,0);k.set("synthOscALevel",0);k.set("synthType",float(synthImpact));k.set("synthCharacter",100);
+    const auto click=render(k,24000,silence(),hold({57})).l;const double clickEarly=rms(click,0,240),clickLate=rms(click,4800,24000);
+    std::cout<<"MEASURE Dvergr Analog 100 %: drift "<<spread<<" cents RMS over 4 s, level at osc 5 % "<<quietChange<<" dB; Seidr Dynamic 100 %: velocity 0.2 -> 1.0 level "<<db(soft.first)<<" -> "<<db(hard.first)
+             <<" dBFS, 1650 Hz (odd harmonic 15) re 110 Hz "<<db(soft.second)<<" -> "<<db(hard.second)<<" dB; guitar -30 -> -12 dBFS: "<<db(guitarSoft)<<" -> "<<db(guitarHard)<<" dB; Mimir Impact 100 %: 660 Hz sideband "<<early<<" dB in the first 20 ms, "
+             <<late<<" dB after 0.5 s; click "<<db(clickEarly)<<" dBFS in 5 ms, "<<db(clickLate)<<" dBFS after 100 ms\n";
+    require(spread>2 && spread<10 && std::abs(quietChange)<.1,"Dvergr Analog drift or small-signal level wrong");
+    require(hard.first>soft.first*2 && db(hard.second)-db(soft.second)>10 && db(guitarHard)-db(guitarSoft)>10,"Seidr Dynamic does not follow the playing level");
+    require(early>-15 && late<-50 && clickEarly>1e-2 && clickLate<1e-6,"Mimir Impact strike or click wrong");
+    std::cout<<"PASS three engine types: plain at character 0, analog drift, dynamic response, struck FM and click\n";
+}
+
+// A test sample: harmonics 1-6 at 1/k of `hz`, `seconds` long, at `sampleRate`.
+std::unique_ptr<SynthSample> tone(double hz,double seconds,double sampleRate,double rightHz=0){
+    juce::AudioBuffer<float> b(rightHz>0?2:1,int(seconds*sampleRate));
+    for(int c=0;c<b.getNumChannels();++c)for(int n=0;n<b.getNumSamples();++n){double v=0;const double f=c==0?hz:rightHz;for(int k=1;k<=(c==0?6:1);++k)v+=std::sin(2*pi*k*f*n/sampleRate)/k;b.setSample(c,n,float(.4*v));}
+    return synthSample::make(b,sampleRate,"tone");
+}
+void sampleOscillator() {
+    // Root detection from the audio.
+    const auto c4=tone(261.63,1.0,44100),g3=tone(196.0,1.0,44100);
+    require(c4 && g3,"Sample not built");
+    const int rootC=synthSample::rootNote(*c4),rootG=synthSample::rootNote(*g3);
+    // Playback: root C4 at 44.1 kHz, A4 played: 440 Hz.
+    const auto play=[&](std::unique_ptr<SynthSample> sample,std::vector<std::pair<const char*,float>> set,int note,int samples){
+        Host h;clean(h,0);h.set("synthOscAMode",1);h.set("synthOscARoot",60);for(const auto& [id,v]:set)h.set(id,v);
+        SynthLayer s;s.swapSample(0,std::move(sample));return render(h,samples,silence(),hold({note}),&s);};
+    const auto a4=play(tone(261.63,1.0,44100),{},69,int(rate*2)).l;
+    const double played=peakNear(a4,24000,48000,440),looped=rms(a4,int(rate*1.5),int(rate*2));
+    // One-shot, an octave up: a 1 s sample ends after 0.5 s. Start 50 %: after 0.25 s.
+    const auto once=play(tone(261.63,1.0,44100),{{"synthOscALoop",0}},72,int(rate)).l;
+    const auto half=play(tone(261.63,1.0,44100),{{"synthOscALoop",0},{"synthOscAStart",50}},72,int(rate)).l;
+    const auto lastSound=[](const std::vector<float>& x){int last=0;for(size_t n=0;n<x.size();++n)if(std::abs(x[n])>1e-6f)last=int(n);return last/rate;};
+    // Stereo: left 440 Hz, right 660 Hz, played at the root.
+    const auto stereo=play(tone(440,1.0,48000,660),{},60,48000);
+    const double leftOnly=db(magnitude(stereo.l,12000,48000,660)/magnitude(stereo.l,12000,48000,440)),rightOnly=db(magnitude(stereo.r,12000,48000,440)/magnitude(stereo.r,12000,48000,660));
+    // No sample loaded in Sample mode: silent.
+    Host e;clean(e,0);e.set("synthOscAMode",1);const double empty=rms(render(e,12000,silence(),hold({57})).l,0,12000);
+    std::cout<<"MEASURE sample: detected roots "<<synthNoteName(rootC)<<" ("<<c4->detectedHz<<" Hz), "<<synthNoteName(rootG)<<" ("<<g3->detectedHz<<" Hz); C4 sample at A4 "<<played<<" Hz (440), looped at 1.5-2 s "<<db(looped)
+             <<" dBFS; one-shot +1 oct ends at "<<lastSound(once)<<" s (0.5), from 50 % at "<<lastSound(half)<<" s (0.25); stereo L 660 Hz "<<leftOnly<<" dB, R 440 Hz "<<rightOnly<<" dB; empty slot "<<db(empty)<<" dBFS\n";
+    require(rootC==60 && rootG==55 && std::abs(played-440)<.5 && looped>1e-2,"Sample root detection, tuning or loop wrong");
+    require(std::abs(lastSound(once)-.5)<.01 && std::abs(lastSound(half)-.25)<.01,"Sample one-shot length or start wrong");
+    require(leftOnly<-60 && rightOnly<-60 && empty==0,"Stereo sample channels mixed, or an empty slot sounds");
+    std::cout<<"PASS sample oscillator: root detection, pitch, loop, one-shot, start, stereo, empty slot\n";
+}
+
+void sampleState() {
+    // Load from a file through the processor, save, restore into a new one.
+    const auto file=juce::File::createTempFile(".wav");
+    {juce::AudioBuffer<float> b(2,24000);for(int n=0;n<24000;++n){b.setSample(0,n,float(.5*std::sin(2*pi*196.0*n/48000)));b.setSample(1,n,float(.25*std::sin(2*pi*196.0*n/48000)));}
+     juce::WavAudioFormat wav;auto stream=file.createOutputStream();require(stream!=nullptr,"Cannot write the test WAV");
+     std::unique_ptr<juce::AudioFormatWriter> w(wav.createWriterFor(stream.get(),48000,2,24,{},0));require(w!=nullptr,"No WAV writer");stream.release();w->writeFromAudioSampleBuffer(b,0,24000);}
+    auto p=std::make_unique<ChimeraProcessor>();
+    require(p->loadSynthSample(1,file).wasOk(),"Sample did not load");
+    const auto raw=[](ChimeraProcessor& q,const char* id){return q.parameters().getRawParameterValue(id)->load();};
+    require(raw(*p,"synthOscBOn")>.5f && raw(*p,"synthOscBMode")>.5f && juce::roundToInt(raw(*p,"synthOscBRoot"))==55,"Loading did not switch osc B to its sample at the detected root");
+    juce::MemoryBlock saved;p->getStateInformation(saved);
+    auto q=std::make_unique<ChimeraProcessor>();q->setStateInformation(saved.getData(),int(saved.getSize()));
+    const auto* a=p->synthEngine().sample(1);const auto* b=q->synthEngine().sample(1);
+    require(a && b && a->length==b->length && b->stereo() && b->name==file.getFileNameWithoutExtension(),"Sample not restored");
+    double worst=0;for(int c=0;c<2;++c)for(int n=0;n<a->length;++n)worst=std::max(worst,double(std::abs(a->data[size_t(c)][size_t(n)]-b->data[size_t(c)][size_t(n)])));
+    // A project without samples clears them.
+    auto r=std::make_unique<ChimeraProcessor>();juce::MemoryBlock none;r->getStateInformation(none);q->setStateInformation(none.getData(),int(none.getSize()));
+    std::cout<<"MEASURE sample state: "<<saved.getSize()/1024<<" KiB with a 0.5 s stereo sample, largest round-trip error "<<db(worst)<<" dBFS (24-bit FLAC)\n";
+    require(worst<1e-6 && q->synthEngine().sample(1)==nullptr && juce::roundToInt(raw(*q,"synthOscBRoot"))==60,"Sample round trip inexact, or a sample survived a project without one");
+    p->clearSynthSample(1);require(p->synthEngine().sample(1)==nullptr && raw(*p,"synthOscBMode")<.5f,"Clear did not remove the sample");
+    file.deleteFile();
+    std::cout<<"PASS samples load through the processor, persist in the project (24-bit FLAC) and clear\n";
 }
 
 struct Writes final : juce::AudioProcessorListener {
@@ -331,6 +449,41 @@ void processorInsertsAndPage() {
     writes.changes.clear();page.applyPatch(1);
     require(juce::roundToInt(raw("synthSubOn"))==1 && std::abs(raw("synthCutoff")-1200)<1 && raw("synthOn")<.5f,"Patch did not apply (or switched the synth on)");
     page.applyPatch(0);require(std::abs(raw("synthCutoff")-6000)<1 && raw("synthSubOn")<.5f,"Init patch did not restore the defaults");
+    // Three oscillators, engine type buttons, wave picking, Wave / Sample controls.
+    for(const auto* id:{"synthOscCWave","synthOscCMode1","synthOscCLoad","synthOscCRoot","synthType2","synthCharacter","synthOscBShapes","synthOscCDisplay"})
+        require(page.control(id)!=nullptr,std::string("SYNTH page control missing: ")+id);
+    writes.gestures=0;writes.changes.clear();
+    static_cast<juce::Button*>(page.control("synthType2"))->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(20);
+    require(juce::roundToInt(raw("synthType"))==2 && writes.gestures==2 && writes.changes.size()==1,"Type button is not one gesture");
+    auto& shapes=page.waveShapes(1);const auto squareTile=shapes.tile(3).getCentre().toFloat();
+    writes.gestures=0;writes.changes.clear();drag(shapes,squareTile,squareTile);
+    const float squareValue=raw("synthOscBWave");
+    require(squareValue==3.f && writes.gestures==2 && writes.changes.size()==1,"Shape tile did not select square in one gesture");
+    auto& display=page.waveDisplay(1);
+    writes.gestures=0;writes.changes.clear();
+    drag(display,{float(display.getWidth())*.3f,10.f},{float(display.getWidth())*.5f,10.f});   // above the triangle tile, then the saw tile
+    const float morphed=raw("synthOscBWave");
+    require(std::abs(morphed-2.f)<.02f && writes.gestures==2,"Display drag does not morph to the shape below the pointer in one gesture");
+    require(page.control("synthOscBShapes")->isVisible() && !page.control("synthOscBLoad")->isVisible(),"Wave mode shows sample controls");
+    static_cast<juce::Button*>(page.control("synthOscBMode1"))->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(20);page.updateModes();
+    require(!page.control("synthOscBShapes")->isVisible() && page.control("synthOscBLoad")->isVisible() && page.control("synthOscBStart")->isVisible(),"Sample mode does not show its controls");
+    writes.changes.clear();page.applyPatch(3);
+    require(juce::roundToInt(raw("synthType"))==synthImpact && raw("synthOscBMode")<.5f && writes.changes.count(index("synthOscBRoot"))==0,"Mimir Impact patch: type, mode or kept root wrong");
+    // Optional evidence: SYNTH_PAGE_SNAPSHOT=<directory> writes the page, with a sample in osc B.
+    if(const char* dir=std::getenv("SYNTH_PAGE_SNAPSHOT")){
+        const auto wav=juce::File::createTempFile(".wav");
+        {juce::AudioBuffer<float> b(1,48000);for(int n=0;n<48000;++n)b.setSample(0,n,float(.6*std::exp(-n/12000.0)*std::sin(2*pi*196.0*n/48000)*(1+.3*std::sin(2*pi*3.0*n/48000))));
+         juce::WavAudioFormat format;auto stream=wav.createOutputStream();std::unique_ptr<juce::AudioFormatWriter> w(format.createWriterFor(stream.get(),48000,1,24,{},0));stream.release();w->writeFromAudioSampleBuffer(b,0,48000);}
+        require(p->loadSynthSample(1,wav).wasOk(),"Snapshot sample did not load");wav.deleteFile();
+        page.updateModes();page.resized();
+        for(const float scale:{1.f,1.5f}){
+            juce::Image image(juce::Image::ARGB,int(page.getWidth()*scale),int(page.getHeight()*scale),true);
+            {juce::Graphics g(image);g.fillAll(juce::Colour(0xff111616));g.drawImageAt(page.createComponentSnapshot(page.getLocalBounds(),true,scale),0,0);}   // on the editor's dark background
+            auto out=juce::File(dir).getChildFile("synth_page_"+juce::String(int(scale*100))+".png");out.deleteFile();
+            auto stream=out.createOutputStream();require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the SYNTH page snapshot");
+        }
+    }
+    std::cout<<"MEASURE page: square tile -> wave "<<squareValue<<", display drag to the saw tile -> "<<morphed<<"\n";
     p->removeListener(&writes);
     std::cout<<"PASS inserts in the processor and the path, SYNTH page controls, graph drags as host gestures, patches\n";
 }
@@ -338,7 +491,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();contractAndPatches();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();contractAndPatches();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

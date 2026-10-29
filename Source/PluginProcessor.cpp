@@ -3,6 +3,7 @@
 #include "PluginProcessor.h"
 #include "CabIRFile.h"
 #include "IRStateAssets.h"
+#include "SynthSampleIO.h"
 #include <algorithm>
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
@@ -507,6 +508,24 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     if(result.wasOk()) { setRawParameter(spectralforge::originalCabID(lane,"Bon"),0); setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
     return result;
 }
+juce::Result ChimeraProcessor::loadSynthSample(int osc,const juce::File& file)
+{
+    if(osc<0 || osc>=spectralforge::synthOscCount)return juce::Result::fail("Invalid oscillator");
+    std::unique_ptr<spectralforge::SynthSample> sample;
+    const auto result=spectralforge::synthSample::load(file,sample);
+    if(result.failed())return result;
+    const int root=spectralforge::synthSample::rootNote(*sample);
+    synth.swapSample(osc,std::move(sample));   // the replaced sample is destroyed here, on this thread
+    setRawParameter(spectralforge::synthOscID(osc,"On"),1);setRawParameter(spectralforge::synthOscID(osc,"Mode"),1);
+    setRawParameter(spectralforge::synthOscID(osc,"Root"),float(root));
+    return result;
+}
+void ChimeraProcessor::clearSynthSample(int osc)
+{
+    if(osc<0 || osc>=spectralforge::synthOscCount)return;
+    synth.swapSample(osc,nullptr);
+    setRawParameter(spectralforge::synthOscID(osc,"Mode"),0);
+}
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
     if(lane<0 || lane>2)return juce::Result::fail("Invalid lane");
@@ -786,6 +805,8 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
     saved.appendChild(slots,nullptr);
     juce::ValueTree midi("MIDI_MAP");for(int cc=0;cc<128;++cc) {const int index=midiMap[(size_t)cc].load();if(index<0 || index>=getParameters().size())continue;if(auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(getParameters()[index])) {juce::ValueTree item("CC");item.setProperty("cc",cc,nullptr);item.setProperty("id",parameter->paramID,nullptr);midi.appendChild(item,nullptr);}}
     saved.appendChild(midi,nullptr);
+    // SYNTH samples belong to the project, not to an A/B slot.
+    saved.appendChild(spectralforge::synthSample::save(synth),nullptr);
     if(!spectralforge::irState::serialize(saved,data))return false;
     comparisons[(size_t)active]=core;
     return true;
@@ -854,7 +875,10 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
-    restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);restoreCore(restored);
+    restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);
+    {auto loaded=spectralforge::synthSample::restore(restored.getChildWithName("SYNTH_SAMPLES"));
+     for(int o=0;o<spectralforge::synthOscCount;++o)synth.swapSample(o,std::move(loaded[(size_t)o]));}
+    restored.removeChild(restored.getChildWithName("SYNTH_SAMPLES"),nullptr);restoreCore(restored);
     warmInactiveComparison();
 }
 void ChimeraProcessor::selectComparison(int slot)
