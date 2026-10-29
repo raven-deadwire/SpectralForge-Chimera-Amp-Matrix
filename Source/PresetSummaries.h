@@ -50,12 +50,12 @@ inline constexpr std::array<const char*,48> presetSummaries{{
     "Groove-metal rhythm guitar: heavy, tight and dry.",
     "Death-metal rhythm guitar: crushing, focused and dry.",
     "Death-metal rhythm guitar: dark, heavy and dry.",
-    // Nastrond 38-42
-    "Very heavy, dry, djent-style metal rhythm.",
-    "Hot, sustained lead with echo and room.",
-    "Raw, aggressive grind with a sharp bite on top.",
-    "Thick, dark fuzz for slow sludge riffs, with a small dark room.",
-    "Huge, layered metal rhythm with a hard-hitting attack.",
+    // Nastrond guitar 38-42
+    "Very heavy, dry, djent-style metal rhythm guitar.",
+    "Hot, sustained guitar lead with echo and room.",
+    "Raw, aggressive grind guitar with a sharp bite on top.",
+    "Thick, dark fuzz guitar for slow sludge riffs, with a small dark room.",
+    "Huge, layered metal rhythm guitar with a hard-hitting attack.",
     // Niflheimr bass 43-47
     "Metal bass with controlled lows and a clear, clanky string attack.",
     "Death and grind bass: solid lows with a biting, distorted top.",
