@@ -178,7 +178,9 @@ def main():
         if args.recipe=='official-a2':return virtual_epoch_learning_rate(step,epoch_steps,initial=args.lr)
         warm=min(1.,step/args.lr_warmup) if args.lr_warmup else 1.
         return warm*args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
-    opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
+    # With --train-channels, untrained channels get zero gradients; weight decay
+    # would still shrink them, so it is off and their Adam updates stay zero.
+    opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7 if all(channel_mask) else 0.);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
     best_level_ok=[False]*5
     keep_required=[[] for _ in VOICES]
     def passed_limits(prediction,i):
