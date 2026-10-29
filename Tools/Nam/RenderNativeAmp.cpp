@@ -70,7 +70,7 @@ int main(int argc,char** argv) try {
     const auto job=juce::JSON::parse(juce::File(argv[3]));auto state=initial(job);
     std::ifstream in(argv[1],std::ios::binary|std::ios::ate);if(!in)throw std::runtime_error("Cannot open input");
     const auto bytes=in.tellg();if(bytes<=0 || bytes%4!=0 || bytes>rate*600LL*4)throw std::runtime_error("Invalid f32 length");
-    std::vector<float> samples(size_t(bytes)/4);in.seekg(0);in.read(reinterpret_cast<char*>(samples.data()),bytes);
+    std::vector<float> samples(size_t(bytes)/4);in.seekg(0);if(!in.read(reinterpret_cast<char*>(samples.data()),bytes))throw std::runtime_error("Cannot read input samples");
     for(float x:samples)if(!std::isfinite(x))throw std::runtime_error("Nonfinite input");
     Amp amp;amp.prepare({rate,blockSize,1});amp.setNative(state);amp.setOversampling(2);amp.reset();
     // Establish the same static state before capture. No sample-dependent alignment.

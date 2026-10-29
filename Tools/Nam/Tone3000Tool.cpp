@@ -71,7 +71,7 @@ void render(const char* modelPath,const char* inputPath,const char* outputPath,c
   NamEngine engine(std::move(instances),1);engine.setSlimmableSize(1);engine.prepare(block);
   BlockEq eq;configure(eq,job);
   std::ifstream in(inputPath,std::ios::binary|std::ios::ate);if(!in)throw std::runtime_error("Input open failed");const auto size=in.tellg();
-  if(size<=0 || size%4)throw std::runtime_error("Invalid float32 length");std::vector<float> x(static_cast<size_t>(size)/4);in.seekg(0);in.read(reinterpret_cast<char*>(x.data()),size);
+  if(size<=0 || size%4)throw std::runtime_error("Invalid float32 length");std::vector<float> x(static_cast<size_t>(size)/4);in.seekg(0);if(!in.read(reinterpret_cast<char*>(x.data()),size))throw std::runtime_error("Input read failed");
   double gain=1.;if(job.value("normalize",false)){
     double loud=engine.hasLoudness()?engine.getLoudness():-18.;
     if(!std::isfinite(loud)||loud < -100 || loud > 0)loud=-18.;
