@@ -22,6 +22,12 @@ within run-to-run noise, so the packaged Ragnarok is kept. No channel changes.
 
 ## Cause
 
+> **Correction, 2026-10-29:** fading the final note out did not remove this
+> failure, so the hard cut is not its cause
+> ([faded-heldout-20261029](faded-heldout-20261029.md)). The error is in the
+> native channel's low-level release after the input stops. The analysis below
+> is kept as it was written.
+
 The failing window starts at 23.51 s of the validation signal. The largest
 error, −53.3 dBFS, is 655 samples (14 ms) after the input's last nonzero sample.
 `common.signal` overwrites its last 0.5 s with digital zero, so the final note,

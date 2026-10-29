@@ -1,0 +1,401 @@
+{
+  "purpose": "Judge A2 models on held-out signals whose final note fades out instead of stopping dead.",
+  "fade_samples": 240,
+  "fade": "half-cosine ending where the final 0.5 s of silence begins",
+  "renderer_sha256": "af8ea0d6bd560a6c717ecd1bad3d0f7df1439de2671657ca51c3e2f5f604cad4",
+  "profile": "nastrond-tone3000-a2-release-v3",
+  "splits": {
+    "validation": {
+      "seed": 642203,
+      "changed_samples": 240,
+      "final_note_rms_dbfs_before_fade": -54.87171789220616
+    },
+    "test": {
+      "seed": 643906,
+      "changed_samples": 240,
+      "final_note_rms_dbfs_before_fade": -19.48116409224194
+    }
+  },
+  "channels": {
+    "Fenrir": {
+      "model_sha256": "669fd1983fdb8e06da595f3be46a3d6bf54e0105ddbd36317a72e52ad83d65d3",
+      "validation": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.10206878638516259,
+          "active_windows": 273,
+          "quiet_windows": 2,
+          "active_median": 0.009574865334941174,
+          "active_p95": 0.07450485568115735,
+          "active_worst": 0.27079170022228993,
+          "quiet_worst_residual_rms_dbfs": -71.91457088193822,
+          "quiet_worst_residual_peak_dbfs": -54.53665395612962,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -113.38030248003753,
+          "memoryless_worst_residual_peak_dbfs": -104.3957689885122,
+          "rms_error_db": -0.09812377806227138,
+          "peak_error_db": -0.20266600392990597,
+          "full_esr": 0.017071408741566776,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": true,
+            "quiet": false,
+            "level": true
+          },
+          "pass": false
+        }
+      },
+      "test": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.10206878638516259,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.01085271360584629,
+          "active_p95": 0.08682712910339362,
+          "active_worst": 0.661947894820126,
+          "quiet_worst_residual_rms_dbfs": -79.28164176828012,
+          "quiet_worst_residual_peak_dbfs": -72.85248664204875,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -90.51015162029783,
+          "memoryless_worst_residual_peak_dbfs": -82.50183176841418,
+          "rms_error_db": -0.07434524204084075,
+          "peak_error_db": 0.46141634384404817,
+          "full_esr": 0.018411414027180516,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": false,
+            "quiet": true,
+            "level": true
+          },
+          "pass": false
+        }
+      },
+      "release_v3_numbers_pass": false
+    },
+    "Surtr": {
+      "model_sha256": "e81e124876ee2286c69702314efe7f0d3b1f7f7eb4d0b23f3a53020cb7c8cd14",
+      "validation": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.09304512903584947,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.010915330448354209,
+          "active_p95": 0.06181745715590988,
+          "active_worst": 0.11671913994349087,
+          "quiet_worst_residual_rms_dbfs": -80.46481031876297,
+          "quiet_worst_residual_peak_dbfs": -73.99934790710921,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -89.73057445305804,
+          "memoryless_worst_residual_peak_dbfs": -81.84230078863362,
+          "rms_error_db": -0.028341770986865633,
+          "peak_error_db": -0.176031118240342,
+          "full_esr": 0.016589812426311457,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": true,
+            "quiet": true,
+            "level": true
+          },
+          "pass": true
+        }
+      },
+      "test": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.09304512903584947,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.010971411448319854,
+          "active_p95": 0.07082207033213013,
+          "active_worst": 0.30421261763244944,
+          "quiet_worst_residual_rms_dbfs": -79.43903209563003,
+          "quiet_worst_residual_peak_dbfs": -71.61329852752901,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -91.61045547632315,
+          "memoryless_worst_residual_peak_dbfs": -83.05449256576526,
+          "rms_error_db": -0.018567313496741678,
+          "peak_error_db": 0.2056398199878977,
+          "full_esr": 0.018992631887589484,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": true,
+            "quiet": true,
+            "level": true
+          },
+          "pass": true
+        }
+      },
+      "release_v3_numbers_pass": true
+    },
+    "Nidhoggr": {
+      "model_sha256": "a29d3c282c5fbda29ba26ba12a643fd7b85d3eee7140e75151a65c4ac465cbe0",
+      "validation": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.0912341002696015,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.009666248797659684,
+          "active_p95": 0.11039924085509954,
+          "active_worst": 0.28756902294179487,
+          "quiet_worst_residual_rms_dbfs": -78.36513312852335,
+          "quiet_worst_residual_peak_dbfs": -70.8636514225615,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -91.85515335938788,
+          "memoryless_worst_residual_peak_dbfs": -82.76468369604758,
+          "rms_error_db": -0.059396106064214305,
+          "peak_error_db": 0.27460509477994677,
+          "full_esr": 0.02021629566786315,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": true,
+            "quiet": true,
+            "level": true
+          },
+          "pass": true
+        }
+      },
+      "test": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.0912341002696015,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.014151501659401225,
+          "active_p95": 0.08041357776378007,
+          "active_worst": 0.3759787521051984,
+          "quiet_worst_residual_rms_dbfs": -78.04099555086182,
+          "quiet_worst_residual_peak_dbfs": -70.56600451688512,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -89.52975605560914,
+          "memoryless_worst_residual_peak_dbfs": -81.16941584753758,
+          "rms_error_db": -0.07332146893361258,
+          "peak_error_db": 0.0878233378344131,
+          "full_esr": 0.022461330454806406,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": true,
+            "quiet": true,
+            "level": true
+          },
+          "pass": true
+        }
+      },
+      "release_v3_numbers_pass": true
+    },
+    "Fimbulvetr": {
+      "model_sha256": "a48551ed6ee43309f10c8de47b78a83283e8047c85092c1ac6911a9e4be1e458",
+      "validation": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.09658538313914974,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.003520162667312536,
+          "active_p95": 0.024300058435591042,
+          "active_worst": 0.4450823428918231,
+          "quiet_worst_residual_rms_dbfs": -83.68073495419287,
+          "quiet_worst_residual_peak_dbfs": -77.22013056315839,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -97.71543887521425,
+          "memoryless_worst_residual_peak_dbfs": -88.78352605117443,
+          "rms_error_db": -0.02038387290124133,
+          "peak_error_db": 0.6861844679942966,
+          "full_esr": 0.006780457045125267,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": true,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": false,
+            "quiet": true,
+            "level": true
+          },
+          "pass": false
+        }
+      },
+      "test": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.09658538313914974,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.006284623927295666,
+          "active_p95": 0.025918298330360075,
+          "active_worst": 0.08755215666216155,
+          "quiet_worst_residual_rms_dbfs": -77.30517543099768,
+          "quiet_worst_residual_peak_dbfs": -69.94416674414272,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -87.71252936717156,
+          "memoryless_worst_residual_peak_dbfs": -79.57878681640315,
+          "rms_error_db": -0.04258604024015861,
+          "peak_error_db": 0.8991389332329653,
+          "full_esr": 0.008215814768582994,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": true,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": true,
+            "quiet": true,
+            "level": true
+          },
+          "pass": true
+        }
+      },
+      "release_v3_numbers_pass": false
+    },
+    "Ragnarok": {
+      "model_sha256": "c53b58fdf59cde835a9dfe6337c93f9fe58878eb50c214a778771bf9b3492491",
+      "validation": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.06924560647333675,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.016267474679975573,
+          "active_p95": 0.09474953511440959,
+          "active_worst": 0.80253604890845,
+          "quiet_worst_residual_rms_dbfs": -81.98333081858434,
+          "quiet_worst_residual_peak_dbfs": -73.72565608964047,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -92.49176260229582,
+          "memoryless_worst_residual_peak_dbfs": -84.28000872620721,
+          "rms_error_db": -0.0830662457947704,
+          "peak_error_db": 0.18512302732497687,
+          "full_esr": 0.021287923421802416,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": false,
+            "quiet": true,
+            "level": true
+          },
+          "pass": false
+        }
+      },
+      "test": {
+        "metrics": {
+          "profile": "nastrond-tone3000-fidelity-v2",
+          "level_anchor": 0.06924560647333675,
+          "active_windows": 274,
+          "quiet_windows": 1,
+          "active_median": 0.01525945234567131,
+          "active_p95": 0.06941964003937387,
+          "active_worst": 0.2120738169574837,
+          "quiet_worst_residual_rms_dbfs": -82.39004325993626,
+          "quiet_worst_residual_peak_dbfs": -73.58384840528575,
+          "memoryless_samples": 23308,
+          "memoryless_worst_residual_rms_dbfs": -91.65079015575046,
+          "memoryless_worst_residual_peak_dbfs": -83.81132593245376,
+          "rms_error_db": -0.09927781846452799,
+          "peak_error_db": 0.014052745233382069,
+          "full_esr": 0.01857294037149272,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "full_esr_pass": false,
+          "fidelity_pass": false
+        },
+        "release_v3": {
+          "profile": "nastrond-tone3000-a2-release-v3",
+          "checks": {
+            "full_esr": true,
+            "active_median": true,
+            "active_p95": true,
+            "active_worst": true,
+            "quiet": true,
+            "level": true
+          },
+          "pass": true
+        }
+      },
+      "release_v3_numbers_pass": false
+    }
+  }
+}
