@@ -119,6 +119,8 @@ def main():
     if args.recipe!='legacy' and (args.amplitude_weight or args.overshoot_weight or any(peak_weights)):raise ValueError('Loss weights apply to the legacy recipe only')
     if min(args.steps,args.batch,args.frames,args.threads,args.lr,args.lr_half_life)<=0:raise ValueError('Positive training budget and optimizer settings required')
     manifest=verify_audio_manifest(args.data)
+    # Weights decayed to ~1e-30 make denormal activations, which run several times slower on CPU.
+    torch.set_flush_denormal(True)
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
     template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
     extra=[int(d) for d in args.diagnostic_extra_dilations.split(',')] if args.diagnostic_extra_dilations else []
