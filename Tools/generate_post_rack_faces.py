@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Procedural rack faces for the 1.7 POST expansion and the 1.8 motion/space models.
+"""Procedural rack faces for the 1.7 POST expansion, the 1.8 motion/space models,
+and the 1.9 CREATIVE slot.
 
 Original Chimera fascias drawn from simple shapes with the working name; no
 manufacturer logo or trade dress. Live controls stay JUCE components; these
 images are the decorative strip behind the POST rack header.
-Run: python3 Tools/generate_post_rack_faces.py
+Run: python3 Tools/generate_post_rack_faces.py [name ...]   (no names: all faces)
 """
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
@@ -32,6 +33,16 @@ FACES = [
     ('rspin', 'SPIN CABINET', (110, 76, 46), (240, 222, 190), 'dial'),
     ('rthrob', 'THROB VIBE', (70, 40, 86), (240, 200, 120), 'dial'),
     ('rring', 'RING BELL', (86, 86, 40), (20, 20, 20), 'slim'),
+    # 1.9 CREATIVE
+    ('cslicer', 'GATE SLICER', (92, 40, 52), (246, 214, 220), 'steps'),
+    ('charmonizer', 'STEP HARMONIZER', (44, 54, 98), (214, 222, 250), 'steps'),
+    ('ctimebend', 'TIME BEND', (88, 76, 44), (244, 226, 170), 'dial'),
+    ('czap', 'ZAP SWEEP', (30, 70, 64), (140, 240, 210), 'wave'),
+    ('cfreqshift', 'FREQ SHIFT', (62, 40, 86), (220, 190, 250), 'wave'),
+    ('cfreeze', 'FREEZE HOLD', (38, 62, 92), (200, 230, 250), 'slim'),
+    ('cglitch', 'GLITCH STUTTER', (98, 62, 30), (250, 214, 170), 'steps'),
+    ('cbitcrush', 'BIT CRUSH', (62, 82, 44), (210, 240, 160), 'steps'),
+    ('cgrain', 'GRAIN CLOUD', (82, 50, 82), (240, 200, 240), 'dial'),
 ]
 
 
@@ -58,6 +69,16 @@ def face(name, label, body, accent, motif):
     elif motif == 'dial':   # one large central dial outline
         d.ellipse((150, 140, 300, 290), outline=accent + (255,), width=6)
         d.ellipse((205, 195, 245, 235), fill=accent + (255,))
+    elif motif == 'wave':   # oscilloscope window with a trace
+        d.rounded_rectangle((90, 140, 420, 300), 10, fill=(14, 20, 18, 255), outline=accent + (255,), width=4)
+        import math
+        points = [(100 + x, 220 - 55 * math.sin(x / 26.0) * math.exp(-x / 420.0)) for x in range(0, 310, 2)]
+        d.line(points, fill=accent + (255,), width=4)
+    elif motif == 'steps':   # step-sequencer lamps
+        for i in range(8):
+            x0 = 100 + i * 44
+            lit = i % 3 != 1
+            d.rounded_rectangle((x0, 200, x0 + 30, 260), 6, fill=(accent if lit else tuple(c // 3 for c in accent)) + (255,))
     else:   # slim module lines
         for i in range(6):
             d.rectangle((100 + i * 60, 150, 140 + i * 60, 300), outline=accent + (200,), width=3)
@@ -66,5 +87,8 @@ def face(name, label, body, accent, motif):
 
 
 if __name__ == '__main__':
+    import sys
+    wanted = set(sys.argv[1:])
     for f in FACES:
-        face(*f)
+        if not wanted or f[0] in wanted:
+            face(*f)

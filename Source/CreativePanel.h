@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "NativeControlView.h"
 #include "CreativeFX.h"
+#include "RasterArtwork.h"
 
 // 1.9 CREATIVE slot (docs/CREATIVE_1_9.md). CreativeStrip is the compact row
 // on the POST page (model, on/off, ALL); CreativePanel is the full editor it
@@ -36,9 +37,9 @@ public:
     ~CreativePanel() override {stopTimer();setLookAndFeel(nullptr);}
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff171b1b));
-        const auto& info=creativeModels[size_t(selected())];
-        g.setColour(juce::Colour(info.colour).withAlpha(.55f));g.fillRoundedRectangle(8,6,(float)getWidth()-16,64,4);
-        g.setColour(juce::Colour(0xff0d1010).withAlpha(.78f));g.fillRoundedRectangle(10,8,(float)getWidth()-20,60,4);
+        // The model's procedural face behind the header, dimmed so the controls stay legible.
+        art::rackSurface(g,{0,0,(float)getWidth(),78},art::creativeSurface(selected()));
+        g.setColour(juce::Colour(0xff0d1010).withAlpha(.82f));g.fillRoundedRectangle(8,6,(float)getWidth()-16,64,4);
     }
     void resized() override {
         title.setBounds(18,8,260,18);model.setBounds(18,29,330,25);character.setBounds(360,29,getWidth()-480,25);enabled.setBounds(getWidth()-104,24,85,28);
