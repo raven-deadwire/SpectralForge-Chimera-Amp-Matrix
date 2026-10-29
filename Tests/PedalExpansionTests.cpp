@@ -41,7 +41,10 @@ void catalogAndMenu() {
     std::cout<<"PASS Para EQ catalog: model 40, 11 controls, Equalizer menu, starts flat\n";
 }
 void parametersAppend() {
-    auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size(),first=total-pedalExpansionParameterCount;
+    auto p=std::make_unique<ChimeraProcessor>();const int total=p->getParameters().size();
+    // The banks need not be last: later releases append after them.
+    int first=-1;for(auto* raw:p->getParameters())if(const auto* q=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);q && expansionID(q->paramID)){first=raw->getParameterIndex();break;}
+    require(first>=0,"No expansion parameter found");
     require(pedalExpansionParameterCount==5*(12+6+2+5+9+11+9+6+10+7+7+4),"Expansion banks: 5 x (bypass + controls) for Para EQ (11), Multi Comp (5), Tight Boost (1), Power Wah (4), Bass Synth (8), Dreadful Peril (10), Seven EQ (8), Multi Wah (5), Octave Fuzz (9), Violet Rage (6), Fire Drake (6), Pitch Bend (3)");
     int seen=0,lastA=-1,firstB=total;
     for(auto* raw:p->getParameters()) {
@@ -55,12 +58,12 @@ void parametersAppend() {
             require(parameter->getParameterIndex()>=first && parameter->getVersionHint()==version,"An expansion parameter is not appended at its group's version");
             if(version==16)lastA=std::max(lastA,parameter->getParameterIndex());else firstB=std::min(firstB,parameter->getParameterIndex());
             ++seen;}
-        else require(parameter->getParameterIndex()<first,"A released parameter moved behind the Para EQ banks");
+        else require(parameter->getParameterIndex()<first || parameter->getParameterIndex()>=first+pedalExpansionParameterCount,"A parameter sits inside the PRE expansion banks");
     }
     require(seen==pedalExpansionParameterCount,"Expansion banks incomplete");
     require(lastA<firstB,"A PRE B bank sits among the PRE A banks");
     for(int owner=0;owner<5;++owner)require(p->parameters().getParameter(pedalBypassID(owner,paraEQ))!=nullptr && p->parameters().getParameter(pedalControlID(owner,paraEQ,9))!=nullptr,"Para EQ bank missing for an owner");
-    std::cout<<"PASS expansion parameters: "<<pedalExpansionParameterCount<<" appended after every released parameter, PRE A at version 16 then PRE B at 17\n";
+    std::cout<<"PASS expansion parameters: "<<pedalExpansionParameterCount<<" appended as one contiguous block after every released parameter, PRE A at version 16 then PRE B at 17\n";
 }
 // Steady-state gain of a sine through the EQ, in dB.
 double measuredDb(PedalParaEQ& eq,const Controls& c,double rate,double hz) {
