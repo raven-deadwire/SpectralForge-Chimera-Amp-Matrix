@@ -481,6 +481,7 @@ public:
 
     void reset() noexcept {
         for (auto& s : splitter) s.reset();
+        for (auto& s : keySplitter) s.reset();
         for (size_t i = 0; i < frequencies.size(); ++i)
             frequencies[i].prepare(rate, settings.crossovers[i]);
         wet.reset(settings.on ? 1. : 0.);
@@ -504,11 +505,17 @@ public:
     // In-place mono/stereo; extra channels are untouched. Size is independent
     // of a prepared maximum: zero, ragged, and oversized blocks are bounded.
     // All storage is fixed; no allocation, lock, logging or parameter lookup.
-    void process(float* const* audio, int channelCount, int sampleCount) noexcept {
+    // `key` (optional, `keyChannels` mono or stereo, `sampleCount` long) is an
+    // external detector input: it is split by its own crossovers and each
+    // band's detector reads the key's band instead of the signal's.
+    void process(float* const* audio, int channelCount, int sampleCount, const float* const* key = nullptr, int keyChannels = 0) noexcept {
         using namespace multiband_detail;
         const int channels = std::clamp(channelCount, 0, 2);
         if (channels == 0 || sampleCount <= 0 || audio == nullptr) return;
         for (int c = 0; c < channels; ++c) if (audio[c] == nullptr) return;
+        keyChannels = key != nullptr ? std::clamp(keyChannels, 0, 2) : 0;
+        if (keyChannels == 0) key = nullptr;
+        if ((key != nullptr) != keyed) { for (auto& split : keySplitter) split.reset(); keyed = key != nullptr; }
 
         // A stereo-domain change (L/R <-> M/S) while running fades the wet
         // path out, swaps the domain, feeds the new domain silently for 30 ms
@@ -565,12 +572,20 @@ public:
             const auto dry = domainInput(audio, channels, n, stereo);
             std::array<std::array<double, 4>, 2> samples{};
             for (int c = 0; c < channels; ++c) samples[size_t(c)] = splitter[size_t(c)].tick(dry[size_t(c)], coefficients);
+            std::array<std::array<double, 4>, 2> keySamples{};
+            if (key != nullptr) {
+                std::array<double, 2> k{};
+                for (int c = 0; c < channels; ++c) { const float x = key[std::min(c, keyChannels - 1)][n];k[size_t(c)] = std::isfinite(x) ? double(x) : 0.; }
+                if (stereo && domain == 1) k = {(k[0] + k[1]) * .5, (k[0] - k[1]) * .5};
+                for (int c = 0; c < channels; ++c) keySamples[size_t(c)] = keySplitter[size_t(c)].tick(k[size_t(c)], coefficients);
+            }
             std::array<std::array<double, 4>, 2> gains{};
             const double parallel = mix.next();
             for (size_t i = 0; i < bandState.size(); ++i) {
                 auto& state = bandState[i];
                 const auto& v = settings.bands[i];
-                const std::array<double, 2> detectorInput{samples[0][i], samples[1][i]};
+                const auto& source = key != nullptr ? keySamples : samples;
+                const std::array<double, 2> detectorInput{source[0][i], source[1][i]};
                 const auto level = state.detector.levels(detectorInput, channels,
                     settings.detector, rmsCoefficient, peakCoefficient, settings.link);
                 const double bandWet = state.wet.next();
@@ -669,7 +684,8 @@ private:
     bool lastOn{}, shared{true};
     int domain{0}, switching{0}, settleLeft{0};   // switching: 0 idle, 1 fading out, 2 settling
     std::array<multiband_detail::CrossoverFrequency, 3> frequencies;
-    std::array<multiband_detail::FourBandSplit, 2> splitter;
+    std::array<multiband_detail::FourBandSplit, 2> splitter, keySplitter;
+    bool keyed{};
     std::array<BandState, multibandBandCount> bandState;
     multiband_detail::Ramp wet, mix;
     std::array<multiband_detail::MinimumPhaseSynthesis, 2> synth;

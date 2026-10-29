@@ -83,7 +83,10 @@ public:
         if(knee>0 && over>-knee*.5 && over<knee*.5)return slope*(over+knee*.5)*(over+knee*.5)/(2*knee);
         return std::max(0.,over)*slope;
     }
-    void compress(juce::AudioBuffer<float>& audio) noexcept {
+    // An external key (the same length as `audio`) feeds the detector instead
+    // of the signal; mono or stereo.
+    void compress(juce::AudioBuffer<float>& audio,const juce::AudioBuffer<float>* key=nullptr) noexcept {
+        if(key!=nullptr && key->getNumSamples()!=audio.getNumSamples())key=nullptr;
         const bool on=get(0,0,1,0)>.5f;
         if(on && wet.getTargetValue()==0){hpIn={};hpOut={};energy=peakEnvelope=gr=0;}
         wet.setTargetValue(on?1.f:0.f);
@@ -95,7 +98,8 @@ public:
         makeup.setTargetValue(juce::Decibels::decibelsToGain(get(6,-12,24,0)));mix.setTargetValue(get(7,0,1,1));
         for(int n=0;n<audio.getNumSamples();++n){
             double detector=0;
-            for(int c=0;c<channels;++c){const auto i=size_t(c);const double x=audio.getSample(c,n);hpOut[i]=hp*(hpOut[i]+x-hpIn[i]);hpIn[i]=x;detector=std::max(detector,std::abs(hpOut[i]));}
+            const int detectorChannels=key!=nullptr?std::min(2,key->getNumChannels()):channels;
+            for(int c=0;c<detectorChannels;++c){const auto i=size_t(c);const double x=key!=nullptr?key->getSample(c,n):audio.getSample(c,n);hpOut[i]=hp*(hpOut[i]+x-hpIn[i]);hpIn[i]=x;detector=std::max(detector,std::abs(hpOut[i]));}
             energy=rms*energy+(1-rms)*detector*detector;peakEnvelope=std::max(detector,peakEnvelope*decay);
             const double level=useRMS?std::sqrt(energy):peakEnvelope;
             const double desired=compressionDB(20*std::log10(std::max(1e-12,level)),threshold,ratio,knee);

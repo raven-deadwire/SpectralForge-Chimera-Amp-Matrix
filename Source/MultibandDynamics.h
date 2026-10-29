@@ -101,10 +101,13 @@ public:
     }
     void reset() noexcept { core.setSettings(settings()); core.reset(); publish(); }
 
-    void process(juce::AudioBuffer<float>& audio) noexcept {
+    // `key`: optional external detector input, the same length as `audio`.
+    void process(juce::AudioBuffer<float>& audio, const juce::AudioBuffer<float>* key = nullptr) noexcept {
         const juce::ScopedNoDenormals noDenormals;
         core.setSettings(settings());
-        core.process(audio.getArrayOfWritePointers(), audio.getNumChannels(), audio.getNumSamples());
+        const bool keyed = key != nullptr && key->getNumSamples() == audio.getNumSamples();
+        core.process(audio.getArrayOfWritePointers(), audio.getNumChannels(), audio.getNumSamples(),
+                     keyed ? key->getArrayOfReadPointers() : nullptr, keyed ? key->getNumChannels() : 0);
         publish();
     }
 

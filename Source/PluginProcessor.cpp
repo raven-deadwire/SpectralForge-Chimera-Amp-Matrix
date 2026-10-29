@@ -43,7 +43,10 @@ ChimeraProcessor::ChimeraProcessor()
 ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock,
                                    const spectralforge::beta::tester::Grant& tester)
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
-                                      .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
+                                      .withOutput("Output",juce::AudioChannelSet::stereo(),true)
+                                      // Optional, off until the host enables them (docs/SIDECHAIN_SYNTH_BUS.md).
+                                      .withInput("Sidechain",juce::AudioChannelSet::stereo(),false)
+                                      .withOutput("Synth",juce::AudioChannelSet::stereo(),false)),
       betaClock(clock), betaLifecycle(metadata,clock(),tester.valid), testerHolder(tester.valid ? tester.name : juce::String{})
 {
     originalCabParameters.bind(state);
@@ -60,6 +63,8 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
     gate2.bind(state);expander.bind(state);room.bind(state);
+    synthOutput=state.getRawParameterValue("synthOutput");keyComp=state.getRawParameterValue("scKeyComp");
+    keyGates=state.getRawParameterValue("scKeyGates");keyMultiband=state.getRawParameterValue("scKeyMultiband");
     syncTransposeQuality();
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
@@ -158,7 +163,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
     lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
-    const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
+    const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)juce::jmax(1,getMainBusNumOutputChannels())};
+    keyBuffer.setSize(2,maximumBlock);keyBuffer.clear();
     // Install the restored panel state before Cab::prepare initializes its
     // smoothers. This also clears a previous A/B blend/bypass after reprepare;
     // the normal process() path still smooths live automation as before.
@@ -203,10 +209,24 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
 }
 bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 {
-    return (buses.getMainOutputChannelSet()==juce::AudioChannelSet::mono() || buses.getMainOutputChannelSet()==juce::AudioChannelSet::stereo()) &&
-            buses.getMainInputChannelSet()==buses.getMainOutputChannelSet();
+    const auto mono=juce::AudioChannelSet::mono(),stereo=juce::AudioChannelSet::stereo(),off=juce::AudioChannelSet::disabled();
+    // Main: mono or stereo, input equal to output. Sidechain: off, mono or
+    // stereo. Synth bus: off or stereo.
+    const auto sidechain=buses.inputBuses.size()>1?buses.getChannelSet(true,1):off;
+    const auto synthBus=buses.outputBuses.size()>1?buses.getChannelSet(false,1):off;
+    return (buses.getMainOutputChannelSet()==mono || buses.getMainOutputChannelSet()==stereo) &&
+            buses.getMainInputChannelSet()==buses.getMainOutputChannelSet() &&
+            (sidechain==off || sidechain==mono || sidechain==stereo) && (synthBus==off || synthBus==stereo) &&
+            buses.inputBuses.size()<=2 && buses.outputBuses.size()<=2;
 }
-void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
+juce::AudioBuffer<float> ChimeraProcessor::busBuffer(juce::AudioBuffer<float>& hostBuffer,bool input) const
+{
+    if(getBusCount(input)<2 || !getBus(input,1)->isEnabled() || getChannelCountOfBus(input,1)==0)return {};
+    const int first=getChannelIndexInProcessBlockBuffer(input,1,0),count=getChannelCountOfBus(input,1);
+    if(first+count>hostBuffer.getNumChannels())return {};
+    return {hostBuffer.getArrayOfWritePointers()+first,count,hostBuffer.getNumSamples()};
+}
+void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::MidiBuffer& midi)
 {
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
@@ -229,6 +249,11 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         }
         else {hostBypass.reset();switchFade=SwitchFade::out;}
     }
+    // The main bus, and the optional sidechain and SYNTH bus. Input and output
+    // buses share buffer channels: the sidechain's channels are the SYNTH
+    // bus's, so each chunk's key is copied out before its SYNTH bus is written.
+    auto buffer=getBusBuffer(hostBuffer,false,0);
+    const auto keyBus=busBuffer(hostBuffer,true);auto synthBus=busBuffer(hostBuffer,false);
     // Capture before input gain/routing/effects, inside the callback CPU meter.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     for(const auto metadata:midi) {
@@ -256,11 +281,22 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
             std::array<float*,2> sub{};
             for(int c=0;c<buffer.getNumChannels();++c) sub[(size_t)c]=channels[(size_t)c]+done;
             juce::AudioBuffer<float> part(sub.data(),buffer.getNumChannels(),n);
+            // This chunk's key, copied before the SYNTH bus overwrites it.
+            juce::AudioBuffer<float> key(keyBuffer.getArrayOfWritePointers(),juce::jmin(2,keyBus.getNumChannels()),n);
+            for(int c=0;c<key.getNumChannels();++c)key.copyFrom(c,0,keyBus,c,offset+done,n);
+            externalKey=key.getNumChannels()>0?&key:nullptr;
+            busLeft=synthBus.getNumChannels()>0?synthBus.getWritePointer(0,offset+done):nullptr;
+            busRight=synthBus.getNumChannels()>1?synthBus.getWritePointer(1,offset+done):busLeft;
             // While a recall keeps the output muted, recalled cabinets install
             // at once instead of crossfading 50 ms from the previous ones.
             engine.setInstantCabinetSwap(switchFade==SwitchFade::wait);
             process(part);
-            applySwitchFade(part);
+            externalKey=nullptr;
+            // The switch fade applies to the main and SYNTH bus together.
+            std::array<float*,4> faded{sub[0],sub[1]};int fadedChannels=buffer.getNumChannels();
+            if(busLeft!=nullptr){faded[(size_t)fadedChannels++]=busLeft;if(busRight!=busLeft)faded[(size_t)fadedChannels++]=busRight;}
+            juce::AudioBuffer<float> everything(faded.data(),fadedChannels,n);
+            applySwitchFade(everything);
             done+=n;
         }
     }
@@ -274,8 +310,9 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         for(int n=0;n<buffer.getNumSamples();++n) {
             const float gain=betaOutputGain.getNextValue();
             for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*gain);
+            for(int c=0;c<synthBus.getNumChannels();++c)synthBus.setSample(c,n,synthBus.getSample(c,n)*gain);
         }
-    } else if(betaOutputGain.getCurrentValue()==0.f) buffer.clear();
+    } else if(betaOutputGain.getCurrentValue()==0.f) {buffer.clear();synthBus.clear();}
     if(!betaLifecycle.processingPermitted())outputPeak.store(0.f);
     if(buffer.getNumSamples()>0 && rate>0) {
         const double budget=buffer.getNumSamples()/rate;
@@ -285,8 +322,10 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         cpuPeak.store(juce::jmax(load,cpuPeak.load()*decay));
     }
 }
-void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
+void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& hostBuffer,juce::MidiBuffer&)
 {
+    auto buffer=getBusBuffer(hostBuffer,false,0);
+    {auto synthBus=busBuffer(hostBuffer,false);synthBus.clear();}   // bypassed: no synth on its bus
     updateComparisonProtection();
     resetProcessingIfPending();
     // Bypassed, the wet sound is not heard: a recall needs no fade.
@@ -373,6 +412,11 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     tuner.push(buffer,value(tunerOn)>.5f);
     synth.analyse(buffer);   // 1.10 SYNTH tracks the clean input
     synth.render(buffer.getNumSamples(),tempoMeter.load());   // rendered once, added at its insert point below
+    {   // SYNTH output: the guitar mix, its own bus, or both. Without a SYNTH bus it stays in the mix.
+        const int output=juce::jlimit(0,2,juce::roundToInt(synthOutput->load()));const bool bus=busLeft!=nullptr;
+        synth.setOutputs(output!=1 || !bus,bus && output>=1);
+        if(bus)synth.writeBus(busLeft,busRight,buffer.getNumSamples());
+    }
     synthTracked.store(synth.read().on?synth.pitchTracker().hz():0.0,std::memory_order_relaxed);
     auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=modelExtensionParameters[i]?spectralforge::effectSelectedModel(int(i),modelParameters[i]->load(),modelExtensionParameters[i]->load()):(int)modelParameters[i]->load();fx.tempo=tempoMeter.load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     fx.postNative=nativePost.read();
@@ -397,10 +441,15 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // Auto Set holds every gate open while it measures the noise the rig adds.
     const bool gatesAllowed=!autoSetGateBypass.load(std::memory_order_relaxed);
     const bool gateEnabled=gatesAllowed && value(gateOn)>.5f;
-    postRigGate.detect(buffer,gateEnabled,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
+    // External key (docs/SIDECHAIN_SYNTH_BUS.md): each switched-on detector
+    // listens to the sidechain instead of the clean input.
+    const auto* gateKey=externalKey!=nullptr && keyGates->load()>.5f ? externalKey : nullptr;
+    const auto& gateDetector=gateKey!=nullptr ? *gateKey : static_cast<const juce::AudioBuffer<float>&>(buffer);
+    preFX.gate.setKey(gateKey);
+    postRigGate.detect(gateDetector,gateEnabled,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     // Gate 2 and the Expander detect on the same clean input. Pre-rig units
     // apply here, ahead of the main gate: Expander > Gate 2 > Gate.
-    expander.detect(buffer,preLatency+engine.latency(),gatesAllowed);gate2.detect(buffer,preLatency+engine.latency(),gatesAllowed);
+    expander.detect(gateDetector,preLatency+engine.latency(),gatesAllowed);gate2.detect(gateDetector,preLatency+engine.latency(),gatesAllowed);
     if(!expander.afterRig())expander.apply(buffer);
     if(!gate2.afterRig())gate2.apply(buffer);
     if(audioBoard.enabled) {
@@ -457,9 +506,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     autoSetCaptureState.push(spectralforge::autoset::Tap::tone,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     toneEQ.process(buffer);
     autoSetCaptureState.push(spectralforge::autoset::Tap::compressor,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer);}
+    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer,externalKey!=nullptr && keyComp->load()>.5f ? externalKey : nullptr);}
     autoSetCaptureState.push(spectralforge::autoset::Tap::multiband,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer);}
+    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer,externalKey!=nullptr && keyMultiband->load()>.5f ? externalKey : nullptr);}
     // Three-band saturation (docs/SATURATION_1_6.md): adds only what each band's
     // curve changes; Off / Mix 0 / Clean bands leave the signal untouched.
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}
@@ -468,7 +517,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     autoSetCaptureState.push(spectralforge::autoset::Tap::deesser,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
     synth.addAt(spectralforge::SynthInsert::beforePost,buffer);
+    postFX.setKey(externalKey);   // Console VCA's EXTERNAL SIDE-CHAIN switch decides
     postFX.process(buffer,fx);
+    postFX.setKey(nullptr);preFX.gate.setKey(nullptr);
     synth.addAt(spectralforge::SynthInsert::afterPost,buffer);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
@@ -665,6 +716,8 @@ spectralforge::appendRoomSpaceParameters(p);
 spectralforge::appendCreativeParameters(p);
 // 1.10 SYNTH layer, version hint 27.
 spectralforge::appendSynthParameters(p);
+// External sidechain keys and the SYNTH output choice, version hint 28.
+spectralforge::appendSidechainParameters(p);
 return p;
 }
 
@@ -1162,7 +1215,7 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     object->setProperty("schema",1);object->setProperty("version",spectralforge::release::version);
     object->setProperty("build_revision",spectralforge::release::revision);
     object->setProperty("sample_rate",getSampleRate());object->setProperty("host_block_hint",getBlockSize());
-    object->setProperty("channels",getTotalNumOutputChannels());object->setProperty("reported_latency_samples",getLatencySamples());
+    object->setProperty("channels",getMainBusNumOutputChannels());object->setProperty("reported_latency_samples",getLatencySamples());
     object->setProperty("mode",int(globals[mode]->load()));object->setProperty("universal_board",boardParameters.enabled->load()>.5f);
     object->setProperty("transpose_enabled",globals[pitchOn]->load()>.5f);object->setProperty("semitones",int(globals[semitones]->load()));
     object->setProperty("oversampling_index",int(globals[os]->load()));object->setProperty("output_trim_db",globals[output]->load());

@@ -74,6 +74,8 @@ int main(){try{
             const bool meterOnly=std::string(p.id)=="meter"||(s==1&&m==2&&c==11);
             // L/R LINK needs signal on both channels; this harness feeds the left only (ExpansionTests covers it).
             if(s==0&&m==4&&std::string(p.id)=="link")continue;
+            // EXTERNAL SIDE-CHAIN acts only with a key; ChimeraSidechainTests measures it.
+            if(std::string(p.id)=="external_sidechain")continue;
             if(meterOnly){check(std::abs(a.meter-b.meter)>1.e-4||diff>1.e-5,"meter mode not connected");++meters;}
             else {std::cout<<"control "<<s<<"/"<<m<<" "<<p.id<<" residual="<<diff<<"\n";check(diff>1.e-6,"control not connected: "+std::string(model.name)+" / "+p.id);minimumControl=std::min(minimumControl,diff);++controls;}
         }

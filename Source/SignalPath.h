@@ -132,7 +132,7 @@ inline Snapshot read(ChimeraProcessor& p) {
             edge(previous,"post.creative");previous="post.creative";
         }
     }
-    add("utilities","DOUBLER / CLICK",Target::utilities,748,580,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
+    add("utilities","DOUBLER / CLICK",Target::utilities,748,580,(on("doubleron")&&p.getMainBusNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getMainBusNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
     addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,626,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
     add("output","OUTPUT TRIM",Target::output,504,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
     add("output.limiter","LIVE LIMITER",Target::dynamics,382,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Sample peak ceiling; no lookahead, additional latency or true-peak claim.");edge("output","output.limiter");

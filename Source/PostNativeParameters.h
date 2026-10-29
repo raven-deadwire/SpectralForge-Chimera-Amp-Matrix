@@ -15,9 +15,13 @@ inline void addPostNativeParameters(juce::AudioProcessorValueTreeState::Paramete
             layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeLevelID(s,m),1},prefix+"software level",juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
             for(int c=0;c<model.controlCount;++c) {
                 const auto& p=model.controls[c];
+                // Released automation flags are fixed. EXTERNAL SIDE-CHAIN was
+                // released unconnected (not automatable) and keeps that flag now
+                // that it works (docs/SIDECHAIN_SYNTH_BUS.md).
+                const bool automatable=p.connected && juce::String(p.id)!="external_sidechain";
                 layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeControlID(s,m,c),1},prefix+juce::String::fromUTF8(p.label),
                     juce::NormalisableRange<float>(p.minimum,p.maximum,p.interval),p.initial,
-                    juce::AudioParameterFloatAttributes().withAutomatable(p.connected)));
+                    juce::AudioParameterFloatAttributes().withAutomatable(automatable)));
             }
         }
     }

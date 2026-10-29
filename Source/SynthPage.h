@@ -346,7 +346,7 @@ public:
         g.setColour(inkColour);g.setFont(juce::FontOptions(10.f,juce::Font::bold));
         g.drawText("TRACK  "+noteName(processor.synthTrackedFrequency()),getLocalBounds().reduced(6,2).removeFromTop(14),juce::Justification::centredLeft);
         g.setColour(mutedColour);g.setFont(juce::FontOptions(9.f));
-        g.drawText("CLARITY "+juce::String(tracker.clarity(),2)+"  VOICES "+juce::String(engine.soundingVoices()),getLocalBounds().reduced(6,2).withTrimmedTop(14).removeFromTop(12),juce::Justification::centredLeft);
+        g.drawText("CLARITY "+juce::String(tracker.clarity(),2)+"  VOICES "+juce::String(engine.soundingVoices())+(processor.synthBusEnabled()?"  SYNTH BUS ON":"  SYNTH BUS OFF IN HOST"),getLocalBounds().reduced(6,2).withTrimmedTop(14).removeFromTop(12),juce::Justification::centredLeft);
         const float level=juce::jlimit(0.f,1.f,float(juce::Decibels::gainToDecibels(tracker.rms(),-60.0)+60.0)/60.f);
         g.setColour(edgeColour);g.fillRect(6.f,30.f,r.getWidth()-12,4.f);g.setColour(traceColour);g.fillRect(6.f,30.f,(r.getWidth()-12)*level,4.f);
         std::array<float,512> samples{};engine.readScope(samples.data(),int(samples.size()));
@@ -429,6 +429,7 @@ public:
             row.amount=static_cast<juce::Slider*>(add(std::move(amount)));
         }
         // Scope and master
+        output=add(std::make_unique<Choice>(state,"synthOutput",synthOutputNames(),"Synth output: into the guitar mix at its insert point, to the plugin's SYNTH output bus, or both. Without a SYNTH bus (the host enables it) the synth stays in the mix."));
         addAndMakeVisible(scope);
         for(const auto& [id,text]:std::initializer_list<std::pair<const char*,const char*>>{{"synthLevel","LEVEL"},{"synthGlide","GLIDE"},{"synthWidth","WIDTH"},{"synthFM","FM B>A"},{"synthSensitivity","THRESH"}})
             masterKnobs.push_back(static_cast<Knob*>(add(std::make_unique<Knob>(state,id,text))));
@@ -506,7 +507,7 @@ public:
          subLevel->setBounds(sub.withTrimmedLeft(4));
          auto headNoise=r.removeFromTop(18);noiseOn->setBounds(headNoise.removeFromLeft(60));
          noiseColor->setBounds(r.removeFromLeft(r.getWidth()/2));noiseLevel->setBounds(r);}
-        {auto r=p[9].first.reduced(8,6);r.removeFromTop(16);scope.setBounds(r.removeFromTop(r.getHeight()-56));r.removeFromTop(4);
+        {auto r=p[9].first.reduced(8,6);auto title=r.removeFromTop(16);output->setBounds(title.removeFromLeft(title.getWidth()-110).withHeight(18));r.removeFromTop(3);scope.setBounds(r.removeFromTop(r.getHeight()-56));r.removeFromTop(4);
          for(size_t k=0;k<masterKnobs.size();++k)masterKnobs[k]->setBounds(r.removeFromLeft(r.getWidth()/int(masterKnobs.size()-k)));}
         updateModes();
     }
@@ -566,7 +567,7 @@ private:
     SynthLook look;   // declared first: destroyed after every child that uses it
     ChimeraProcessor& processor;juce::AudioProcessorValueTreeState& state;
     std::vector<std::unique_ptr<juce::Component>> owned;std::vector<juce::Component*> children;std::vector<Knob*> header;
-    juce::Component* on{};juce::Component* type{};juce::Slider* character{};juce::Component* source{};juce::Component* insert{};
+    juce::Component* on{};juce::Component* type{};juce::Component* output{};juce::Slider* character{};juce::Component* source{};juce::Component* insert{};
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> characterAttachment;
     juce::ComboBox patch;std::unique_ptr<juce::FileChooser> chooser;
     std::array<OscPanel,synthOscCount> oscPanels;

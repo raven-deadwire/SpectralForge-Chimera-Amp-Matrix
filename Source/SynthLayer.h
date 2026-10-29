@@ -403,7 +403,8 @@ public:
         lfoPhase = {};lfoHeld = {};lfoValue = {};seed = 0x2545f491u;clock = 0;
         guitarGate = false;guitarLevel = 0;onsetLevel = 0;active = false;renderedSamples = 0;
         const auto s = read();
-        for (int i = 0; i < synthInsertCount; ++i) gain[size_t(i)] = s.on && s.insert == i ? 1.f : 0.f;
+        for (int i = 0; i < synthInsertCount; ++i) gain[size_t(i)] = s.on && s.insert == i && toMain ? 1.f : 0.f;
+        busGain = s.on && toBus ? 1.f : 0.f;
         scopeWrite.store(0);
     }
     Settings read() const noexcept {
@@ -470,7 +471,7 @@ public:
         renderedSamples = 0;
         const auto s = read();
         if (samples > int(rendered[0].size())) return;
-        bool anyGain = false;for (const float g : gain) anyGain |= g > 0.f;
+        bool anyGain = busGain > 0.f;for (const float g : gain) anyGain |= g > 0.f;
         if (!s.on && !active && !anyGain) { pendingCount = 0;return; }
         active = true;
         const juce::SpinLock::ScopedTryLockType lock(sampleLock);
@@ -503,7 +504,7 @@ public:
     // over 20 ms; the synth joins only where its gain is non-zero.
     void addAt(SynthInsert point, juce::AudioBuffer<float>& buffer) noexcept {
         const int index = int(point);const auto s = read();
-        const float target = s.on && s.insert == index ? 1.f : 0.f;
+        const float target = s.on && s.insert == index && toMain ? 1.f : 0.f;
         float& g = gain[size_t(index)];
         if (renderedSamples <= 0) { g = target;return; }
         const int samples = std::min(renderedSamples, buffer.getNumSamples());
@@ -514,6 +515,22 @@ public:
             g = g < target ? std::min(target, g + step) : std::max(target, g - step);
             if (channels == 1) buffer.addSample(0, n, g * .5f * (rendered[0][size_t(n)] + rendered[1][size_t(n)]));
             else for (int c = 0; c < 2; ++c) buffer.addSample(c, n, g * rendered[size_t(c)][size_t(n)]);
+        }
+    }
+    // Where the synth goes this block: into the guitar at its insert point,
+    // to the SYNTH output bus, or both. Each change crossfades over 20 ms.
+    void setOutputs(bool main, bool bus) noexcept { toMain = main;toBus = bus; }
+    // Writes (replaces) the SYNTH bus channels for this block: the rendered
+    // synth, or silence. `right` may equal `left` for a mono bus.
+    void writeBus(float* left, float* right, int samples) noexcept {
+        const float target = toBus && read().on ? 1.f : 0.f;
+        const float step = float(1.0 / (.02 * rate));
+        const int ready = std::min(samples, renderedSamples);
+        for (int n = 0; n < samples; ++n) {
+            busGain = busGain < target ? std::min(target, busGain + step) : std::max(target, busGain - step);
+            const float l = n < ready ? busGain * rendered[0][size_t(n)] : 0.f, r = n < ready ? busGain * rendered[1][size_t(n)] : 0.f;
+            if (right == left || right == nullptr) left[n] = .5f * (l + r);
+            else { left[n] = l;right[n] = r; }
         }
     }
     const PitchTracker& pitchTracker() const noexcept { return tracker; }
@@ -836,6 +853,7 @@ private:
     bool guitarGate{}, active{};double guitarLevel{}, onsetLevel{};
     std::array<std::vector<float>, 2> rendered;int renderedSamples{};
     std::array<float, synthInsertCount> gain{};
+    bool toMain{true}, toBus{};float busGain{};
     std::array<std::atomic<float>, scopeLength> scope{};std::atomic<int> scopeWrite{0};
     juce::SpinLock sampleLock;
     std::array<std::unique_ptr<SynthSample>, synthOscCount> samples;

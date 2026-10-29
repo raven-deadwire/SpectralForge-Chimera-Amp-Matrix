@@ -11,6 +11,7 @@
 #include "FilterModulation.h"
 #include "CreativeFX.h"
 #include "SynthLayer.h"
+#include "Sidechain.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -75,6 +76,9 @@ public:
     bool acceptsMidi() const override { return true; }
     // 1.10 SYNTH: the tracked guitar pitch (Hz, 0 when none), for the panel readout.
     double synthTrackedFrequency() const noexcept { return synthTracked.load(std::memory_order_relaxed); }
+    // Whether the host has enabled the optional buses.
+    bool sidechainEnabled() const { return getBusCount(true)>1 && getBus(true,1)->isEnabled(); }
+    bool synthBusEnabled() const { return getBusCount(false)>1 && getBus(false,1)->isEnabled(); }
     // The synth engine, read by the SYNTH page (scope, LFO and tracking readouts).
     const spectralforge::SynthLayer& synthEngine() const noexcept { return synth; }
     bool producesMidi() const override { return false; }
@@ -295,6 +299,11 @@ private:
     spectralforge::CreativeFX creative;
     spectralforge::SynthLayer synth;
     std::atomic<double> synthTracked{0.0};
+    // Sidechain and SYNTH bus (docs/SIDECHAIN_SYNTH_BUS.md). The key and bus
+    // pointers are valid only while process() runs on one chunk.
+    juce::AudioBuffer<float> busBuffer(juce::AudioBuffer<float>& hostBuffer,bool input) const;
+    std::atomic<float>* synthOutput{};std::atomic<float>* keyComp{};std::atomic<float>* keyGates{};std::atomic<float>* keyMultiband{};
+    juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};float* busLeft{};float* busRight{};
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;

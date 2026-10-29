@@ -81,6 +81,11 @@ public:
         for(size_t i=0;i<post.size();++i)control(post[i],postIDs[i],postNames[i],true);
         control(lowAmount,"lowcomp","LOW compression",true);control(lowBlend,"lowampmix","LOW DI / amp mix",true);
 
+        // External sidechain keys (docs/SIDECHAIN_SYNTH_BUS.md).
+        toggle(compKey,"EXT KEY","scKeyComp");toggle(gateKey,"EXT KEY","scKeyGates");toggle(mbKey,"EXT KEY","scKeyMultiband");
+        compKey.setTooltip("Detect from the plugin's Sidechain input instead of the signal, when the host connects one.");
+        gateKey.setTooltip("The Gate, Gate 2 and the Expander detect from the plugin's Sidechain input instead of the clean input, when the host connects one.");
+        mbKey.setTooltip("Every band detects from the same band of the plugin's Sidechain input, when the host connects one.");
         toggle(mbOn,"MULTIBAND ON","mbOn");choice(mbDetector,"mbDetector",{"Peak","RMS"});control(mbMix,"mbMix","Parallel mix");
         mbOn.setTooltip("Turn the full multiband stage on or off with a smooth 10 ms transition. Off preserves the original samples.");
         mbMix.slider.setTooltip("Blend the unprocessed and processed band gains. At 0%, dynamics and makeup are removed; band solo remains active. With no solo selection, 0% returns the original samples.");
@@ -241,7 +246,8 @@ public:
         const int sideX=std::max(600,getWidth()-338),sideWidth=std::max(10,getWidth()-sideX-16),column=(sideWidth-12)/2;
         const int graphHeight=std::max(160,getHeight()-94);
         spectrum.setBounds(8,84,sideX-16,page==Page::multiband || page==Page::filter?graphHeight-57:graphHeight);
-        compOn.setBounds(18,45,148,28);detector.setBounds(176,45,100,28);
+        compOn.setBounds(18,45,148,28);detector.setBounds(176,45,100,28);compKey.setBounds(284,45,90,28);
+        gateKey.setBounds(page==Page::expander?294:532,45,90,28);mbKey.setBounds(634,45,90,28);
         gateSides[0].setBounds(18,45,74,28);gateSides[1].setBounds(96,45,80,28);
         gateOn.setBounds(184,45,96,28);gate2On.setBounds(184,45,96,28);gateMode.setBounds(288,45,104,28);gate2Mode.setBounds(288,45,104,28);
         gatePlacement.setBounds(400,45,124,28);expanderOn.setBounds(18,45,140,28);expanderPlacement.setBounds(168,45,118,28);
@@ -353,7 +359,8 @@ private:
     template<typename Controls> void showControls(Controls& controls,bool showing){for(auto& c:controls)c.show(showing);}
     void syncPage() {
         for(size_t i=0;i<tabs.size();++i)tabs[i].setToggleState(tabPages[i]==(isCompressorPage(page)?Page::compressor:page),juce::dontSendNotification);
-        compOn.setVisible(page==Page::compressor);detector.setVisible(page==Page::compressor);showControls(comp,page==Page::compressor);
+        compOn.setVisible(page==Page::compressor);detector.setVisible(page==Page::compressor);compKey.setVisible(page==Page::compressor);
+        gateKey.setVisible(page==Page::gate || page==Page::expander);mbKey.setVisible(page==Page::multiband);showControls(comp,page==Page::compressor);
         const bool gatePage=page==Page::gate,mainGate=mainGateShown();shownMainGate=mainGate;
         for(int side=0;side<2;++side){gateSides[size_t(side)].setVisible(gatePage);gateSides[size_t(side)].setToggleState(side==gateSide,juce::dontSendNotification);}
         gateOn.setVisible(gatePage && mainGate);gateMode.setVisible(gatePage && mainGate);showControls(gate,gatePage && mainGate);
@@ -463,7 +470,7 @@ private:
     juce::ComboBox detector,gateMode,gate2Mode,mbDetector,mbBandSelector,mbStereo;
     juce::Slider mbLink;std::unique_ptr<SA> mbLinkAttachment;bool channelNamesMidSide{true};
     juce::TextButton gate2On,expanderOn,expanderPlacement;std::array<juce::TextButton,2> gateSides;
-    juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen;
+    juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen,compKey,gateKey,mbKey;
     juce::TextButton autoSet{"AUTO SET"},autoUndo{"UNDO AUTO"};juce::TextButton autoOptions;AutoSetOptions autoOptionsValue;juce::String autoText;bool autoBusy{};
     void updateAutoOptionsText() {
         constexpr std::array<const char*,3> instruments{"Auto","Guitar","Bass"},styles{"Rock","Clean","Metal"};

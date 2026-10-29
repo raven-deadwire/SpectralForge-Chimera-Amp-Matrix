@@ -47,8 +47,8 @@ output joins the guitar is set by `synthInsert`:
     every point (`ChimeraSynthTests`, 48 kHz).
   - At Amp input, the synth also takes the amps' share of that latency.
 - **Separate output:** a synth-only output (like the SY-1000's sub outputs or
-  the GR-55's Guitar Out) would need an extra host output bus. It is left for
-  the external-sidechain bus work.
+  the GR-55's Guitar Out) is the optional SYNTH output bus; see
+  `docs/SIDECHAIN_SYNTH_BUS.md`.
 
 ### What other products do (survey, 2026-10-29)
 
@@ -240,7 +240,6 @@ Fixes made while testing:
   - Per-voice LFOs.
   - Wavetable import.
   - An effects section inside the synth.
-  - A synth-only output bus.
 - **Tracking evidence:** recorded guitar and bass, which the 1.10 tracking gate
   still requires.
 - **Latency:** an alignment option.

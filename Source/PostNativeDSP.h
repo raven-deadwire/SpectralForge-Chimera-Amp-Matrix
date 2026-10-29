@@ -197,7 +197,8 @@ struct Model {
             for(int c=0;c<channels;++c){float y=x[c]*gain;y-=colour*y*y*y/(1.f+y*y);x[c]=y;}
         }
     }
-    std::array<float,2> process(std::array<float,2> dry,int channels) noexcept {
+    // `key`: the external sidechain frame, used by Console VCA's EXTERNAL SIDE-CHAIN switch.
+    std::array<float,2> process(std::array<float,2> dry,int channels,const std::array<float,2>* key=nullptr) noexcept {
         frame();std::array<float,2> x=dry;for(int c=0;c<channels;++c)x[c]*=trim;
         const float inputPeak=juce::jmax(std::abs(x[0]),channels>1?std::abs(x[1]):0.f);meterInput=db(inputPeak);
         if(section==0 && index>2) {expansionDynamics(x,channels);}
@@ -207,7 +208,8 @@ struct Model {
             else if(index==1) {static constexpr float ratios[]{4,8,12,20,12};input=inputGain.get(v[0]);makeup=makeupGain.get(v[1]);attack=.0008f*std::pow(.025f,v[2]);release=1.1f*std::pow(.05f/1.1f,v[3]);const int r=juce::jlimit(0,4,integer(5));ratio=ratios[r];threshold=-18.f+1.5f*r;compOn=targets[4]<.5f;knee=r==4?12.f:2.f;if(r==4){attack*=1.f+.8f*slowMemory/12.f;release*=1.f+.12f*slowMemory;ratio=8.f+12.f*juce::jlimit(0.f,1.f,slowMemory/12.f);}preGain=input;}
             else {threshold=-8.f-.48f*v[1];ratio=integer(2)==0?3.f:20.f;attack=.01f;release=.06f+.04f*slowMemory;makeup=makeupGain.get(v[0]);knee=12;}
             float detector=0;
-            for(int c=0;c<channels;++c) {float d=x[c]*preGain;if(index==2){detectorLow[c]+=detectorLowPole*(d-detectorLow[c]);d+=(1.f-v[4])*3.f*(d-detectorLow[c]);}detector=juce::jmax(detector,d*d);}
+            const bool external=index==0 && key!=nullptr && targets[6]>.5f;
+            for(int c=0;c<channels;++c) {float d=(external?(*key)[c]:x[c])*preGain;if(index==2){detectorLow[c]+=detectorLowPole*(d-detectorLow[c]);d+=(1.f-v[4])*3.f*(d-detectorLow[c]);}detector=juce::jmax(detector,d*d);}
             power=detectorPole*power+(1-detectorPole)*detector;
             const float over=10.f*std::log10(juce::jmax(power,1.e-18f))-threshold;
             const float soft=over<-knee*.5f?0.f:over>knee*.5f?over:(over+knee*.5f)*(over+knee*.5f)/(2*knee);
@@ -251,6 +253,7 @@ class PostNativeDSP {
     std::array<std::array<juce::SmoothedValue<float>,postNativeModelsPerSection>,3> morph{};
     std::array<bool,3> selectedReady{};std::array<float,3> readings{{-120,-120,-120}},reductions{};
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> preampAlignment{128};
+    const juce::AudioBuffer<float>* key{};
 public:
     void prepare(const juce::dsp::ProcessSpec& spec,int preampLatency=0) {
         preampAlignment.prepare(spec);preampAlignment.setDelay(static_cast<float>(juce::jlimit(0,128,preampLatency)));
@@ -258,13 +261,17 @@ public:
     }
     void reset() noexcept {for(auto& section:engines)for(auto& model:section)model.reset();preampAlignment.reset();selectedReady={};readings={{-120,-120,-120}};reductions={};}
     float meter(int section) const noexcept {return readings[juce::jlimit(0,2,section)];}
+    // External sidechain for the block about to be processed (or none).
+    void setKey(const juce::AudioBuffer<float>* externalKey) noexcept {key=externalKey;}
     float reduction(int section=0) const noexcept {return reductions[juce::jlimit(0,2,section)];}
     void processSection(juce::AudioBuffer<float>& buffer,int section,const PostNativeSectionState& state) noexcept {
         const int s=juce::jlimit(0,2,section),selected=juce::jlimit(0,postNativeModelsPerSection-1,state.selected),channels=juce::jmin(2,buffer.getNumChannels());
+        const bool keyed=key!=nullptr && key->getNumChannels()>0 && key->getNumSamples()==buffer.getNumSamples();
         for(int m=0;m<postNativeModelsPerSection;++m){if(selectedReady[s]&&m==selected&&morph[s][m].getCurrentValue()<=0.f)engines[s][m].reset();engines[s][m].configure(state.banks[m]);if(!selectedReady[s])morph[s][m].setCurrentAndTargetValue(m==selected?1.f:0.f);else morph[s][m].setTargetValue(m==selected?1.f:0.f);}selectedReady[s]=true;
         for(int n=0;n<buffer.getNumSamples();++n) {
-            std::array<float,2> dry{},output{};for(int c=0;c<channels;++c)dry[c]=buffer.getSample(c,n);
-            for(int m=0;m<postNativeModelsPerSection;++m){const float weight=morph[s][m].getNextValue();if(weight>0.f || m==selected){const auto processed=engines[s][m].process(dry,channels);for(int c=0;c<channels;++c)output[c]+=weight*processed[c];}}
+            std::array<float,2> dry{},output{},frame{};for(int c=0;c<channels;++c)dry[c]=buffer.getSample(c,n);
+            if(keyed)for(int c=0;c<2;++c)frame[(size_t)c]=key->getSample(juce::jmin(c,key->getNumChannels()-1),n);
+            for(int m=0;m<postNativeModelsPerSection;++m){const float weight=morph[s][m].getNextValue();if(weight>0.f || m==selected){const auto processed=engines[s][m].process(dry,channels,keyed?&frame:nullptr);for(int c=0;c<channels;++c)output[c]+=weight*processed[c];}}
             for(int c=0;c<channels;++c){float value=output[c];if(s==1){preampAlignment.pushSample(c,value);value=preampAlignment.popSample(c);}buffer.setSample(c,n,value);}
         }
         readings[s]=engines[s][selected].meterDb;reductions[s]=engines[s][selected].reduction;

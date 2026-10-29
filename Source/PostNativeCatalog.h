@@ -16,7 +16,7 @@ inline const std::array<PostNativeModel,18> postNativeModels{{
         {"release","RELEASE",PostNativeControlKind::choice,0.0f,4.0f,1.0f,1.0f,"0.1 s|0.3 s|0.6 s|1.2 s|AUTO",true,""},
         {"ratio","RATIO",PostNativeControlKind::choice,0.0f,2.0f,1.0f,1.0f,"2:1|4:1|10:1",true,""},
         {"compressor_in","COMPRESSOR IN",PostNativeControlKind::toggle,0.0f,1.0f,1.0f,1.0f,"",true,""},
-        {"external_sidechain","EXTERNAL SIDE-CHAIN",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",false,"External sidechain bus is unavailable; internal stereo detector is used."},
+        {"external_sidechain","EXTERNAL SIDE-CHAIN",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,"Keys the detector from the plugin's Sidechain input when the host connects one; otherwise the internal stereo detector is used."},
         {"fade_rate","RATE",PostNativeControlKind::knob,1.0f,60.0f,10.0f,0.01f,"",true,"Digital implementation range; hardware taper uncalibrated."},
         {"auto_fade","AUTO FADE",PostNativeControlKind::toggle,0.0f,1.0f,0.0f,1.0f,"",true,""},
     }}},
