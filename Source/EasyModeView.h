@@ -2,6 +2,7 @@
 #include "EasyMode.h"
 #include "AmpCatalog.h"
 #include "GuitarSignaturePresets.h"
+#include "PresetSummaries.h"
 #include "InputGuide.h"
 #include "KnobInteraction.h"
 #include "PluginProcessor.h"
@@ -126,7 +127,7 @@ public:
         const auto shown=edited ? juce::String::fromUTF8(spectralforge::selectablePresetName(origin-1))+"  (edited)" : text;
         if(id>0){if(presets.getSelectedId()!=id)presets.setSelectedId(id,juce::dontSendNotification);}
         else if(presets.getSelectedId()!=0 || presets.getText()!=shown){presets.setSelectedId(0,juce::dontSendNotification);presets.setText(shown,juce::dontSendNotification);}
-        const auto next=id>0 ? juce::String::fromUTF8(spectralforge::selectablePresetDescription(id-1))
+        const auto next=id>0 ? juce::String::fromUTF8(spectralforge::selectablePresetSummary(id-1))
                        : edited ? juce::String("Changed from the preset. Use SAVE AS in the full editor to keep it as a file; pick the preset again to start over.")
                                 : juce::String("Your own sound. Use SAVE AS in the full editor to keep it as a file.");
         if(description.getText()!=next)description.setText(next,juce::dontSendNotification);

@@ -2,6 +2,11 @@
 
 The 48 factory presets are starting points for an instrument DI: 31 original presets, three bass signatures, four guitar signatures, five Náströnd presets and five Niflheimr presets. Their stored ordinals and category navigation remain unchanged; built-in display names now consistently use Chimera naming. ID30 is displayed as Modern Clean. The menu uses a fixed taxonomy: Guitar (Clean & Ambient / Edge & Rock / High Gain / Lead & Texture), Bass (Clean & Dynamics / Drive & Texture), Dual (Blend / Crossover), and Matrix (Bass / Experimental). Names identify Chimera's own DSP voicings and intended musical roles.
 
+Each preset also has a one-sentence plain summary in `Source/PresetSummaries.h`
+(what it sounds like and what it suits, without model names). Easy view shows
+that summary; the full editor's preset tooltip shows the summary followed by the
+technical description.
+
 Set interface gain first. Aim for normal playing peaks around **−12 to −6 dBFS** with Input at 0 dB; lower interface gain if the input clips. All factory presets start with global **OUTPUT at 0 dB**. Their cabinet microphone levels retain the authored CAB compensation without changing amp drive. Pickup output, playing and added gain can still change the final level. The Live limiter now starts at **−1 dBFS sample peak**; level-match Output when comparing sounds. The limiter cannot repair clipping at the interface and does not measure true peaks or loudness.
 
 Every active factory CAB path now uses a modeled cabinet, compatible speaker and microphone. Factory recall does not load the two embedded IRs or search for private capture files. The six intentionally dry Matrix LOW paths retain CAB bypass. Use CABINET to inspect the stored cabinet and microphone settings for each preset. User-imported IRs remain available for manual selection and saved-project recall; see [IR distribution](IR_DISTRIBUTION.md).

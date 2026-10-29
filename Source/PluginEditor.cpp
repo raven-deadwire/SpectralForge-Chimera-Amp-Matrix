@@ -5,6 +5,7 @@
 #include "CabRoom.h"
 #include "PresetOrder.h"
 #include "GuitarSignaturePresets.h"
+#include "PresetSummaries.h"
 #include "PluginEditor.h"
 #include "DiagnosticsPanel.h"
 #include "HardwareArtwork.h"
@@ -25,6 +26,11 @@ void style(juce::Label& label,float size=13.f,juce::Justification justification=
 {
     label.setFont(juce::FontOptions(size)); label.setColour(juce::Label::textColourId,ink);
     label.setJustificationType(justification);
+}
+// Plain sentence first for new players, then the full technical recipe.
+juce::String presetTooltip(int index) {
+    return juce::String::fromUTF8(spectralforge::selectablePresetSummary(index))+"\n\nDetails: "
+         +juce::String::fromUTF8(spectralforge::selectablePresetDescription(index));
 }
 juce::String frequency(float hz) { return hz>=1000 ? juce::String(hz/1000,2)+" kHz" : juce::String(juce::roundToInt(hz))+" Hz"; }
 void text(juce::Graphics& g,const juce::String& value,int x,int y,int width,int height,float size=12.f,juce::Colour colour=muted,
@@ -401,7 +407,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
     presets.setName("Preset");fillPresetMenu(presets);
     presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
-    presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetOrigin=presets.getSelectedId();presetValues=presetSnapshot(processor);presets.setTooltip(spectralforge::selectablePresetDescription(presets.getSelectedId()-1));updateModeUI();if(easyView)easyView->refreshNow();}};
+    presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetOrigin=presets.getSelectedId();presetValues=presetSnapshot(processor);presets.setTooltip(presetTooltip(presets.getSelectedId()-1));updateModeUI();if(easyView)easyView->refreshNow();}};
     for(auto* button:{&doublerOn,&midi,&tap,&hostTempo,&metronome,&presetPrevious,&presetNext,&presetSave,&presetLoad,&delaySync})add(*button);
     presetPrevious.onClick=[this]{presets.setSelectedId(spectralforge::adjacentPreset(presets.getSelectedId()-1,-1)+1);};presetNext.onClick=[this]{presets.setSelectedId(spectralforge::adjacentPreset(presets.getSelectedId()-1,1)+1);};
     presetSave.onClick=[this]{referenceFile(true);};presetLoad.onClick=[this]{referenceFile(false);};tap.onClick=[this]{processor.tapTempo();};midi.onClick=[this]{midiMenu();};
