@@ -22,7 +22,7 @@ bool opened = false;
 
 // Like obs_load_all_modules(), restricted to this module.
 void loadChimera(void*, const obs_module_info2* info) {
-    if (std::string(info->name) != "chimera-obs" || opened) return;
+    if (info->name == nullptr || std::string(info->name) != "chimera-obs" || opened) return;
     obs_module_t* module = nullptr;
     if (obs_open_module(&module, info->bin_path, info->data_path) != MODULE_SUCCESS) {
         std::cerr << "FAIL could not open " << info->bin_path << '\n';

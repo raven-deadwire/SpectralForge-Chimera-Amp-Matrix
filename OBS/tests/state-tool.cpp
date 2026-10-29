@@ -17,7 +17,8 @@
 using namespace spectralforge::obs;
 
 int main(int argc, char** argv) {
-    if (argc != 3 && argc != 4) {
+    const bool list = argc == 3 && std::string(argv[2]) == "--list";
+    if (!list && argc != 4) {
         std::cerr << "usage: chimera-obs-state-tool <bundle> --list | <parameter title> <normalized value>\n";
         return 2;
     }
@@ -33,7 +34,7 @@ int main(int argc, char** argv) {
         std::string title;
         int steps = 0;
         if (!host.parameterInfo(i, id, title, steps)) continue;
-        if (wanted == "--list") {
+        if (list) {
             std::cout << id << '\t' << steps << '\t' << host.parameter(id) << '\t' << title << '\n';
             continue;
         }
@@ -52,7 +53,7 @@ int main(int argc, char** argv) {
                   << "\", \"controller\": \"" << base64Encode(controller) << "\"}\n";
         return 0;
     }
-    if (wanted == "--list") return 0;
+    if (list) return 0;
     std::cerr << "FAIL no parameter titled '" << wanted << "'\n";
     return 1;
 }

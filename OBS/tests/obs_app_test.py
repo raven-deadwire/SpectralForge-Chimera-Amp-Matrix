@@ -85,7 +85,10 @@ class WebSocket:
         else:
             header += bytes([0x80 | 127]) + struct.pack("!Q", len(payload))
         mask = os.urandom(4)
-        self.sock.sendall(bytes(header) + mask + bytes(b ^ mask[i % 4] for i, b in enumerate(payload)))
+        # XOR as one big integer: no per-byte Python loop for ~700 KB Chimera states.
+        key = (mask * (len(payload) // 4 + 1))[:len(payload)]
+        masked = (int.from_bytes(payload, "big") ^ int.from_bytes(key, "big")).to_bytes(len(payload), "big")
+        self.sock.sendall(bytes(header) + mask + masked)
 
     def receive(self) -> dict:
         message = b""
@@ -125,6 +128,18 @@ class Obs:
             env=env, cwd=home, stdout=self.output, stderr=subprocess.STDOUT)
         self.ws = None
         self.next_id = 0
+        try:
+            self._connect(port, log)
+        except Exception:
+            # The caller never gets this object, so nothing else would stop OBS.
+            if self.ws is not None:
+                self.ws.close()
+            self.process.kill()
+            self.process.wait()
+            self.output.close()
+            raise
+
+    def _connect(self, port: int, log: Path) -> None:
         deadline = time.monotonic() + 60
         while self.ws is None:
             if self.process.poll() is not None:
