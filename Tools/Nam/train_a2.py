@@ -86,6 +86,12 @@ def main():
       'not only the end of the whole training signal')
     ap.add_argument('--target-limits',default='',help='Per channel as Name=limit+limit,...: steps that pass these profile limits '
       '(full_esr, active_median, active_p95, active_worst, quiet, level) are preferred, ahead of level and ESR')
+    ap.add_argument('--train-channels',default='',help='Comma-separated channels whose loss is used; the others get no gradient '
+      'and keep their starting models. Default: all')
+    ap.add_argument('--block-norm-samples',type=int,default=0,help='Legacy loss: also normalize error by the reference energy of each '
+      'block of this many samples, floored at --block-norm-floor-db below the channel\'s mean energy, so quiet decays inside loud crops count')
+    ap.add_argument('--block-norm-weight',type=float,default=.5)
+    ap.add_argument('--block-norm-floor-db',type=float,default=50.)
     ap.add_argument('--diagnostic-extra-dilations',help='Comma-separated dilations appended (kernel 6) to the A2 layer array. '
       'Diagnostic only: the result is not an A2 model, cannot load in the target player and is exported as Diagnostic-*.nam')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
@@ -100,6 +106,10 @@ def main():
         name,_,w=item.partition('=')
         if name not in names or float(w)<0:raise ValueError(f'Bad --peak-weight entry: {item}')
         peak_weights[names.index(name)]=float(w)
+    trained=[n.strip() for n in args.train_channels.split(',') if n.strip()] or names
+    if not set(trained)<=set(names):raise ValueError('Unknown --train-channels entry')
+    channel_mask=[1. if n in trained else 0. for n in names]
+    if args.block_norm_samples and (args.block_norm_samples<16 or args.frames%args.block_norm_samples):raise ValueError('--block-norm-samples must divide --frames')
     target_limits=[[] for _ in VOICES]
     for item in filter(None,args.target_limits.split(',')):
         name,_,limits=item.partition('=');limits=limits.split('+')
@@ -125,6 +135,10 @@ def main():
     gains=training_output_gains(np.stack(ys)) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
     gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
     peak_weight_tensor=torch.tensor(peak_weights,dtype=torch.float32)[None,:]
+    mask_tensor=torch.tensor(channel_mask,dtype=torch.float32)[None,:]
+    def masked_mean(term):
+        # term is [batch, channel]; untrained channels contribute nothing.
+        return (term*mask_tensor).sum()/(mask_tensor.sum()*term.shape[0])
     # Notes are scaled to exactly -6 or -3 dBFS peak; -6.1 keeps the -6 dBFS ones.
     loud_samples=np.flatnonzero(np.abs(x[rf:len(x)-args.frames])>=10**(-6.1/20))+rf
     # End of every capture part: each common.signal ends with 0.5 s of silence after the last note's decay.
@@ -147,7 +161,8 @@ def main():
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
-      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'peak_weight':dict(zip(names,peak_weights)),'target_limits':dict(zip(names,target_limits)),'tail_all_parts':args.tail_all_parts,'loud_fraction':args.loud_fraction,
+      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'peak_weight':dict(zip(names,peak_weights)),'target_limits':dict(zip(names,target_limits)),'tail_all_parts':args.tail_all_parts,'train_channels':trained,
+      'block_norm':{'samples':args.block_norm_samples,'weight':args.block_norm_weight,'floor_db':args.block_norm_floor_db} if args.block_norm_samples else None,'loud_fraction':args.loud_fraction,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
@@ -295,13 +310,17 @@ def main():
             power=yy.square().mean(dim=-1).clamp_min(.0001) if args.loss_normalization=='window' else channel_power
             peak=yy.abs().amax(dim=-1,keepdim=True).clamp_min(1e-6)
             weight=1+args.amplitude_weight*yy.abs()/peak
-            loss=(((pred-yy).square()*weight).mean(dim=-1)/weight.mean(dim=-1)/power).mean()
-            loss+=.1*((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power).mean()
+            loss=masked_mean(((pred-yy).square()*weight).mean(dim=-1)/weight.mean(dim=-1)/power)
+            loss+=.1*masked_mean((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power)
             if args.overshoot_weight:
-                loss+=args.overshoot_weight*(torch.relu(pred.abs()-peak).square().mean(dim=-1)/power).mean()
+                loss+=args.overshoot_weight*masked_mean(torch.relu(pred.abs()-peak).square().mean(dim=-1)/power)
+            if args.block_norm_samples:
+                shape=(*yy.shape[:2],-1,args.block_norm_samples)
+                block_power=yy.reshape(shape).square().mean(dim=-1).clamp_min(channel_power[...,None]*10**(-args.block_norm_floor_db/10))
+                loss+=args.block_norm_weight*masked_mean(((pred-yy).reshape(shape).square().mean(dim=-1)/block_power).mean(dim=-1))
             if any(peak_weights):
                 crop_peak=peak.squeeze(-1)
-                loss+=(peak_weight_tensor*(torch.relu(pred.abs().amax(dim=-1)-crop_peak)/crop_peak).square()).mean()
+                loss+=masked_mean(peak_weight_tensor*(torch.relu(pred.abs().amax(dim=-1)-crop_peak)/crop_peak).square())
         if not torch.isfinite(loss):raise RuntimeError('Nonfinite training loss')
         opt.zero_grad();loss.backward()
         if args.recipe=='legacy':torch.nn.utils.clip_grad_norm_(model.parameters(),5.)
