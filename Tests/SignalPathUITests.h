@@ -28,7 +28,7 @@ inline void topology(ChimeraProcessor& p) {
         int amps=0,cabs=0;for(const auto& n:s.nodes){amps+=n.id.startsWith("amp.context");cabs+=n.target==Target::cab;}
         require(amps==mode+1&&cabs==mode+1,"Path lane count differs from DSP");
         require(edge(s,"post.section0","post.section1")&&edge(s,"post.section4","post.creative")&&edge(s,"post.creative","post.section5")&&edge(s,"post.section5","utilities")&&edge(s,"utilities","final.eq")&&edge(s,"final.eq","output"),"POST / Final EQ order differs from DSP");
-        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","common.multiband")&&edge(s,"common.multiband","common.deesser")&&edge(s,"common.deesser","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
+        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","common.multiband")&&edge(s,"common.multiband","common.saturation")&&edge(s,"common.saturation","common.filter")&&edge(s,"common.filter","common.deesser")&&edge(s,"common.deesser","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
         require(s.find("tone.eq")->target==Target::toneEQ && s.find("final.eq")->target==Target::finalEQ,"EQ editor target mismatch");
         for(size_t i=0;i<s.nodes.size();++i)for(size_t j=i+1;j<s.nodes.size();++j)require(!s.nodes[i].bounds.intersects(s.nodes[j].bounds),"Expanded path blocks overlap");
         if(mode==2){require(edge(s,"low.comp","low.di")&&edge(s,"low.comp","amp.context3")&&edge(s,"amp.context3","cab.context3")&&edge(s,"cab.context3","low.blend")&&edge(s,"low.di","low.blend")&&edge(s,"low.blend","level.context3"),"Matrix LOW branch/blend order differs from DSP");require(!edge(s,"split","amp.context3"),"Wet PRE falsely feeds LOW");}
@@ -460,7 +460,7 @@ inline void run(const juce::File& folder) {
                 // A clean-input tap opens the Expander when it is the only unit
                 // there, or the only one switched on; otherwise its Gate 2 side.
                 const bool expanderTap=node.id.startsWith("gate.extra.") && (node.label=="EXPANDER" || node.status=="EXPANDER ON");
-                const auto expected=expanderTap?Page::expander:node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
+                const auto expected=expanderTap?Page::expander:node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="common.saturation"?Page::saturation:node.id=="common.filter"?Page::filter:node.id=="output.limiter"?Page::limiter:Page::compressor;
                 require(panel->selectedPage()==expected,"Signal path opened a different dynamics module");
             }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");

@@ -31,7 +31,7 @@ enum class SynthInsert { ampInput = 0, beforeToneEQ = 1, beforePost = 2, afterPo
 enum SynthType { synthAnalog, synthDynamic, synthImpact };
 inline juce::StringArray synthTypeNames() { return {"Dvergr Analog", "Seidr Dynamic", "Mimir Impact"}; }
 inline juce::StringArray synthSourceNames() { return {"Guitar + MIDI", "Guitar", "MIDI"}; }
-inline juce::StringArray synthInsertNames() { return {"Amp input", "Before Tone EQ", "Before POST", "After POST"}; }
+inline juce::StringArray synthInsertNames() { return {"Amp input", "Before tone / dynamics", "Before POST", "After POST"}; }
 inline juce::StringArray synthOscModeNames() { return {"Wave", "Sample"}; }
 inline juce::StringArray synthWaveNames() { return {"Sine", "Triangle", "Saw", "Square", "Pulse"}; }
 inline juce::StringArray synthFilterTypeNames() { return {"Low-pass 12", "Low-pass 24", "High-pass 12", "High-pass 24", "Band-pass", "Notch"}; }

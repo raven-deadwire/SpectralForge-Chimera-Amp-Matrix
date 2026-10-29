@@ -1,6 +1,7 @@
 #pragma once
 #include "SignalPath.h"
 #include "UIRefresh.h"
+#include <optional>
 
 // JUCE buttons activate on Return. Accept unmodified Space only while this
 // navigation button owns focus, without registering a host-wide shortcut.
@@ -16,10 +17,24 @@ public:
     }
 };
 // These navigation buttons have no APVTS attachments or audio-state writes.
+// A movable block (1.4, docs/SIGNAL_ORDER_1_4.md) also takes order commands:
+// right-click for the placement menu, Alt + arrows / Home / End to move it,
+// Ctrl + Z / Ctrl + Shift + Z to undo / redo order changes.
 class SignalPathButton final : public SignalPathNavigationButton {
 public:
     bool compact{},active{};juce::String label,status;
     spectralforge::signalPath::Target target{};
+    std::function<void()> onPlacementMenu;
+    std::function<bool(const juce::KeyPress&)> onOrderKey;
+    void mouseDown(const juce::MouseEvent& e) override {
+        if(e.mods.isPopupMenu() && onPlacementMenu){onPlacementMenu();return;}
+        SignalPathNavigationButton::mouseDown(e);
+    }
+    void mouseUp(const juce::MouseEvent& e) override {if(e.mods.isPopupMenu() && onPlacementMenu)return;SignalPathNavigationButton::mouseUp(e);}
+    bool keyPressed(const juce::KeyPress& key) override {
+        if(onOrderKey && onOrderKey(key))return true;
+        return SignalPathNavigationButton::keyPressed(key);
+    }
     void paintButton(juce::Graphics& g,bool hover,bool down) override {
         const auto area=getLocalBounds().toFloat().reduced(.5f);
         g.setColour(getToggleState()?juce::Colour(0xff416953):juce::Colour(hover||down?0xff2f4540:0xff222c30));g.fillRoundedRectangle(area,3);
@@ -64,6 +79,33 @@ public:
     std::function<juce::String()> selection;
     const spectralforge::signalPath::Snapshot& snapshot() const {return current;}
     void select(const juce::String& id){if(selected!=id){selected=id;updateSelection();}}
+    // Order commands for a movable node (docs/SIGNAL_ORDER_1_4.md). Each one is
+    // a processor edit with its own undo entry; navigation never calls them.
+    enum class OrderCommand {earlier,later,first,last,position,undo,redo,reset};
+    struct Placement {spectralforge::OrderRegion region;int module;};
+    static std::optional<Placement> movable(const juce::String& id) {
+        using spectralforge::OrderRegion;
+        for(const auto region:{OrderRegion::tone,OrderRegion::post})
+            for(int m=0;m<spectralforge::moduleCount(region);++m)if(spectralforge::moduleNodeID(region,m)==id)return Placement{region,m};
+        return std::nullopt;
+    }
+    bool orderCommand(const juce::String& id,OrderCommand command,int position=-1) {
+        const auto place=movable(id);if(!place)return false;
+        const int count=spectralforge::moduleCount(place->region);bool changed=false;
+        switch(command){
+            case OrderCommand::earlier:changed=processor.moveModule(place->region,place->module,-1);break;
+            case OrderCommand::later:changed=processor.moveModule(place->region,place->module,1);break;
+            case OrderCommand::first:changed=processor.placeModule(place->region,place->module,0);break;
+            case OrderCommand::last:changed=processor.placeModule(place->region,place->module,count-1);break;
+            case OrderCommand::position:changed=processor.placeModule(place->region,place->module,position);break;
+            case OrderCommand::undo:changed=processor.undoOrder();break;
+            case OrderCommand::redo:changed=processor.redoOrder();break;
+            case OrderCommand::reset:changed=processor.resetOrder(place->region);break;
+        }
+        if(changed){refresh();if(auto* b=buttonFor(id))b->grabKeyboardFocus();}
+        return changed;
+    }
+    juce::TextButton* buttonFor(const juce::String& id){for(auto& b:buttons)if(b->getComponentID()=="path."+id)return b.get();return nullptr;}
 #if CHIMERA_ROUTING_DIAGNOSTICS
     uint64_t refreshCalls{}; double refreshTime{};
 #endif
@@ -109,6 +151,12 @@ public:
             button->setWantsKeyboardFocus(true);
             button->setColour(juce::TextButton::textColourOffId,node.active?juce::Colour(0xffe5e1d4):juce::Colour(0xff9caaa5));
             button->onClick=[this,node]{selected=node.id;updateSelection();if(navigate)navigate(node);};
+            if(!compact){
+                const auto place=movable(node.id);
+                painted.onPlacementMenu=place?std::function<void()>([this,id=node.id]{showPlacementMenu(id);}):nullptr;
+                painted.onOrderKey=place?std::function<bool(const juce::KeyPress&)>([this,id=node.id](const juce::KeyPress& key){return orderKey(id,key);}):nullptr;
+                if(place)button->setTooltip(button->getTooltip()+"\nRight-click: placement menu. Alt + arrows: move. Ctrl + Z: undo.");
+            }
             button->setExplicitFocusOrder(int(nextButtons.size())+1);
             nextButtons.push_back(std::move(button));
         }
@@ -178,6 +226,42 @@ private:
     void handleAsyncUpdate() override {
         refresh();
         if(selection)select(selection());
+    }
+    bool orderKey(const juce::String& id,const juce::KeyPress& key) {
+        const auto mods=key.getModifiers();
+        if(mods.isAltDown() && !mods.isCommandDown()){
+            const int code=key.getKeyCode();
+            if(code==juce::KeyPress::leftKey||code==juce::KeyPress::upKey){orderCommand(id,OrderCommand::earlier);return true;}
+            if(code==juce::KeyPress::rightKey||code==juce::KeyPress::downKey){orderCommand(id,OrderCommand::later);return true;}
+            if(code==juce::KeyPress::homeKey){orderCommand(id,OrderCommand::first);return true;}
+            if(code==juce::KeyPress::endKey){orderCommand(id,OrderCommand::last);return true;}
+        }
+        if(mods.isCommandDown() && !mods.isAltDown() && (key.getKeyCode()=='Z' || key.getKeyCode()=='z')){orderCommand(id,mods.isShiftDown()?OrderCommand::redo:OrderCommand::undo);return true;}
+        return false;
+    }
+    void showPlacementMenu(const juce::String& id) {
+        const auto place=movable(id);if(!place)return;
+        const auto order=processor.requestedOrder();
+        const auto& slots=place->region==spectralforge::OrderRegion::tone?std::vector<int>(order.tone.slots.begin(),order.tone.slots.end()):std::vector<int>(order.post.slots.begin(),order.post.slots.end());
+        int at=0;for(size_t i=0;i<slots.size();++i)if(slots[i]==place->module)at=int(i);
+        const int count=int(slots.size());const auto region=place->region==spectralforge::OrderRegion::tone?juce::String("tone / dynamics block"):juce::String("POST rack");
+        juce::PopupMenu menu,positions;
+        menu.addSectionHeader(spectralforge::moduleName(place->region,place->module).toUpperCase()+"  ("+juce::String(at+1)+" of "+juce::String(count)+" in the "+region+")");
+        menu.addItem(1,"Move earlier",at>0);menu.addItem(2,"Move later",at<count-1);
+        menu.addItem(3,"Move to the start",at>0);menu.addItem(4,"Move to the end",at<count-1);
+        for(int i=0;i<count;++i)positions.addItem(100+i,juce::String(i+1)+"  "+spectralforge::moduleName(place->region,slots[(size_t)i]),i!=at,i==at);
+        menu.addSubMenu("Place at position",positions);
+        menu.addSeparator();
+        menu.addItem(5,"Undo order change",processor.canUndoOrder());menu.addItem(6,"Redo order change",processor.canRedoOrder());
+        menu.addItem(7,"Reset the "+region+" order");
+        juce::Component::SafePointer<SignalPathView> safe(this);
+        auto* target=buttonFor(id);
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(target),[safe,id](int result){
+            if(!safe||result==0)return;
+            if(result>=100){safe->orderCommand(id,OrderCommand::position,result-100);return;}
+            static constexpr std::array<OrderCommand,7> commands{OrderCommand::earlier,OrderCommand::later,OrderCommand::first,OrderCommand::last,OrderCommand::undo,OrderCommand::redo,OrderCommand::reset};
+            if(result>=1 && result<=7)safe->orderCommand(id,commands[(size_t)result-1]);
+        });
     }
     float graphScale() const {return juce::jmin(float(juce::jmax(1,getWidth()))/1140.f,float(juce::jmax(1,getHeight()))/650.f);}
     void timerCallback() override {if(spectralforge::ui::visible(*this)){refresh();if(selection)select(selection());}}

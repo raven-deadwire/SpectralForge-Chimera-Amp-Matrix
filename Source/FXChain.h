@@ -3,6 +3,7 @@
 #include "GlobalDSP.h"
 #include "StudioModules.h"
 #include "PostNativeDSP.h"
+#include "SignalOrder.h"
 
 namespace spectralforge {
 struct FXState {
@@ -176,20 +177,23 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);native.prepare(spec,preamp.latency());transition.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);for(auto& mix:nativeMix){mix.reset(spec.sampleRate,.02);mix.setCurrentAndTargetValue(0);}nativeReady={};busReduction=0;stagePeaks={};}
     int latency() const {return preamp.latency();}
     void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();native.reset();nativeReady={};busReduction=0;stagePeaks={};}
-    void process(juce::AudioBuffer<float>& buffer,const FXState& state) {
-        processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});
-        stagePeaks[0]=buffer.getMagnitude(0,buffer.getNumSamples());
-        processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});
-        stagePeaks[1]=buffer.getMagnitude(0,buffer.getNumSamples());
-        processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});
-        stagePeaks[2]=buffer.getMagnitude(0,buffer.getNumSamples());
-        modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);
-        stagePeaks[3]=buffer.getMagnitude(0,buffer.getNumSamples());
-        echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);
-        if(creative)creative->process(buffer,state.tempo);
-        stagePeaks[4]=buffer.getMagnitude(0,buffer.getNumSamples());
-        space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);
-        stagePeaks[5]=buffer.getMagnitude(0,buffer.getNumSamples());
+    // Runs the rack in `order` (docs/SIGNAL_ORDER_1_4.md); the default is the
+    // released order. Each meter reads its module's output; DELAY's meter
+    // includes CREATIVE when CREATIVE directly follows it, as before.
+    void process(juce::AudioBuffer<float>& buffer,const FXState& state,const PostOrder& order=PostOrder::initial()) {
+        const auto peak=[&](int i){stagePeaks[(size_t)i]=buffer.getMagnitude(0,buffer.getNumSamples());};
+        for(int slot=0;slot<postModuleCount;++slot) {
+            switch(order.slots[(size_t)slot]) {
+                case postDynamicsModule:processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});peak(0);break;
+                case postPreampModule:processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});peak(1);break;
+                case postEQModule:processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});peak(2);break;
+                case postModulationModule:modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);peak(3);break;
+                case postDelayModule:echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);peak(4);break;
+                case postCreativeModule:if(creative)creative->process(buffer,state.tempo);if(slot>0 && order.slots[(size_t)slot-1]==postDelayModule)peak(4);break;
+                case postReverbModule:space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);peak(5);break;
+                default:break;
+            }
+        }
     }
 };
 }

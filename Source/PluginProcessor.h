@@ -12,6 +12,7 @@
 #include "CreativeFX.h"
 #include "SynthLayer.h"
 #include "Sidechain.h"
+#include "SignalOrderParameters.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -76,6 +77,15 @@ public:
     bool acceptsMidi() const override { return true; }
     // 1.10 SYNTH: the tracked guitar pitch (Hz, 0 when none), for the panel readout.
     double synthTrackedFrequency() const noexcept { return synthTracked.load(std::memory_order_relaxed); }
+    // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md). Message thread. Each edit
+    // writes the slot parameters (one host gesture each) and can be undone.
+    spectralforge::SignalOrder requestedOrder() const noexcept { return signalOrder.read({}); }
+    bool placeModule(spectralforge::OrderRegion region,int module,int position);
+    bool moveModule(spectralforge::OrderRegion region,int module,int delta);
+    bool resetOrder(spectralforge::OrderRegion region);
+    bool undoOrder();bool redoOrder();
+    bool canUndoOrder() const noexcept {return !orderUndo.empty();}
+    bool canRedoOrder() const noexcept {return !orderRedo.empty();}
     // Whether the host has enabled the optional buses.
     bool sidechainEnabled() const { return getBusCount(true)>1 && getBus(true,1)->isEnabled(); }
     bool synthBusEnabled() const { return getBusCount(false)>1 && getBus(false,1)->isEnabled(); }
@@ -304,6 +314,11 @@ private:
     juce::AudioBuffer<float> busBuffer(juce::AudioBuffer<float>& hostBuffer,bool input) const;
     std::atomic<float>* synthOutput{};std::atomic<float>* keyComp{};std::atomic<float>* keyGates{};std::atomic<float>* keyMultiband{};
     juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};float* busLeft{};float* busRight{};
+    spectralforge::SignalOrderParameters signalOrder;spectralforge::SignalOrder activeOrder;   // activeOrder: audio thread
+    spectralforge::OrderSwitch toneSwitch,postSwitch;
+    std::vector<spectralforge::SignalOrder> orderUndo,orderRedo;
+    void writeOrder(const spectralforge::SignalOrder& order);
+    bool commitOrder(const spectralforge::SignalOrder& next);
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;

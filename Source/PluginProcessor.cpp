@@ -62,7 +62,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
-    gate2.bind(state);expander.bind(state);room.bind(state);
+    gate2.bind(state);expander.bind(state);room.bind(state);signalOrder.bind(state);activeOrder=signalOrder.read({});
     synthOutput=state.getRawParameterValue("synthOutput");keyComp=state.getRawParameterValue("scKeyComp");
     keyGates=state.getRawParameterValue("scKeyGates");keyMultiband=state.getRawParameterValue("scKeyMultiband");
     syncTransposeQuality();
@@ -183,6 +183,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
     postRigGate.prepare(spec,maximumGateDelay);gate2.prepare(spec,maximumGateDelay);expander.prepare(spec,maximumGateDelay);
     room.prepare(spec);
+    activeOrder=signalOrder.read(activeOrder);toneSwitch.prepare(sr);postSwitch.prepare(sr);
     gate2Gain.store(1);expanderGain.store(1);
     hostBypass.prepare(postFX.latency()+engine.latency()
         +juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency()));
@@ -501,25 +502,43 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     if(room.running())room.process(roomBus,buffer);
     gate2Gain.store(gate2.reduction());expanderGain.store(expander.reduction());
     // SYNTH insert (docs/SYNTH_PAGE.md): after RIG SUM and the post-rig gates, before Tone EQ.
-    synth.addAt(spectralforge::SynthInsert::beforeToneEQ,buffer);
+    // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): the tone / dynamics block and
+    // the POST rack run in their saved order. A change fades the region's
+    // output out and back in around the switch; with nothing audible yet it
+    // applies at once.
+    {const auto requested=signalOrder.read(activeOrder);
+     const bool immediate=!processedSincePrepare || switchFade==SwitchFade::hold || switchFade==SwitchFade::wait;
+     if(toneSwitch.begin(requested.tone!=activeOrder.tone,immediate))activeOrder.tone=requested.tone;
+     if(postSwitch.begin(requested.post!=activeOrder.post,immediate))activeOrder.post=requested.post;}
+    synth.addAt(spectralforge::SynthInsert::beforeToneEQ,buffer);   // at the start of the tone / dynamics block
     measureStage(2,buffer);
-    autoSetCaptureState.push(spectralforge::autoset::Tap::tone,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    toneEQ.process(buffer);
-    autoSetCaptureState.push(spectralforge::autoset::Tap::compressor,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer,externalKey!=nullptr && keyComp->load()>.5f ? externalKey : nullptr);}
-    autoSetCaptureState.push(spectralforge::autoset::Tap::multiband,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer,externalKey!=nullptr && keyMultiband->load()>.5f ? externalKey : nullptr);}
-    // Three-band saturation (docs/SATURATION_1_6.md): adds only what each band's
-    // curve changes; Off / Mix 0 / Clean bands leave the signal untouched.
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}
-    // Two-filter modulation (docs/FILTER_MODULATION_1_7.md): off leaves the signal untouched.
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load());}
-    autoSetCaptureState.push(spectralforge::autoset::Tap::deesser,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
+    for(const int module:activeOrder.tone.slots) {
+        using spectralforge::autoset::Tap;
+        const auto tap=[&](Tap t){autoSetCaptureState.push(t,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());};
+        switch(module) {
+            case spectralforge::toneEQModule:tap(Tap::tone);toneEQ.process(buffer);break;
+            case spectralforge::compressorModule:tap(Tap::compressor);
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer,externalKey!=nullptr && keyComp->load()>.5f ? externalKey : nullptr);}break;
+            case spectralforge::multibandModule:tap(Tap::multiband);
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer,externalKey!=nullptr && keyMultiband->load()>.5f ? externalKey : nullptr);}break;
+            // Three-band saturation (docs/SATURATION_1_6.md): adds only what each band's
+            // curve changes; Off / Mix 0 / Clean bands leave the signal untouched.
+            case spectralforge::saturationModule:
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}break;
+            // Two-filter modulation (docs/FILTER_MODULATION_1_7.md): off leaves the signal untouched.
+            case spectralforge::filterModule:
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load());}break;
+            case spectralforge::deesserModule:tap(Tap::deesser);
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}break;
+            default:break;
+        }
+    }
+    toneSwitch.apply(buffer);
     synth.addAt(spectralforge::SynthInsert::beforePost,buffer);
     postFX.setKey(externalKey);   // Console VCA's EXTERNAL SIDE-CHAIN switch decides
-    postFX.process(buffer,fx);
+    postFX.process(buffer,fx,activeOrder.post);
     postFX.setKey(nullptr);preFX.gate.setKey(nullptr);
+    postSwitch.apply(buffer);
     synth.addAt(spectralforge::SynthInsert::afterPost,buffer);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
@@ -558,6 +577,55 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     }
     if(result.wasOk()) { setRawParameter(spectralforge::originalCabID(lane,"Bon"),0); setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
     return result;
+}
+// 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): edits on the message thread.
+// Only slots that change are written; the audio thread ignores the brief
+// duplicate a partly written region can show and keeps its previous order.
+void ChimeraProcessor::writeOrder(const spectralforge::SignalOrder& order)
+{
+    using spectralforge::OrderRegion;
+    for(int i=0;i<spectralforge::toneModuleCount;++i){const auto id=spectralforge::orderSlotID(OrderRegion::tone,i);if(juce::roundToInt(state.getRawParameterValue(id)->load())!=order.tone.slots[(size_t)i])setRawParameter(id,float(order.tone.slots[(size_t)i]));}
+    for(int i=0;i<spectralforge::postModuleCount;++i){const auto id=spectralforge::orderSlotID(OrderRegion::post,i);if(juce::roundToInt(state.getRawParameterValue(id)->load())!=order.post.slots[(size_t)i])setRawParameter(id,float(order.post.slots[(size_t)i]));}
+}
+bool ChimeraProcessor::commitOrder(const spectralforge::SignalOrder& next)
+{
+    const auto current=requestedOrder();
+    if(next==current || !next.tone.valid() || !next.post.valid())return false;
+    orderUndo.push_back(current);if(orderUndo.size()>64)orderUndo.erase(orderUndo.begin());
+    orderRedo.clear();writeOrder(next);return true;
+}
+bool ChimeraProcessor::placeModule(spectralforge::OrderRegion region,int module,int position)
+{
+    if(module<0 || module>=spectralforge::moduleCount(region))return false;
+    auto next=requestedOrder();
+    if(region==spectralforge::OrderRegion::tone)next.tone=next.tone.placed(module,position);else next.post=next.post.placed(module,position);
+    return commitOrder(next);
+}
+bool ChimeraProcessor::moveModule(spectralforge::OrderRegion region,int module,int delta)
+{
+    const auto current=requestedOrder();
+    const int from=region==spectralforge::OrderRegion::tone?current.tone.position(module):current.post.position(module);
+    const int to=from+delta;
+    if(from<0 || to<0 || to>=spectralforge::moduleCount(region))return false;
+    return placeModule(region,module,to);
+}
+bool ChimeraProcessor::resetOrder(spectralforge::OrderRegion region)
+{
+    auto next=requestedOrder();
+    if(region==spectralforge::OrderRegion::tone)next.tone=spectralforge::ToneOrder::initial();else next.post=spectralforge::PostOrder::initial();
+    return commitOrder(next);
+}
+bool ChimeraProcessor::undoOrder()
+{
+    if(orderUndo.empty())return false;
+    const auto previous=orderUndo.back();orderUndo.pop_back();
+    orderRedo.push_back(requestedOrder());writeOrder(previous);return true;
+}
+bool ChimeraProcessor::redoOrder()
+{
+    if(orderRedo.empty())return false;
+    const auto next=orderRedo.back();orderRedo.pop_back();
+    orderUndo.push_back(requestedOrder());writeOrder(next);return true;
 }
 juce::Result ChimeraProcessor::loadSynthSample(int osc,const juce::File& file)
 {
@@ -718,6 +786,8 @@ spectralforge::appendCreativeParameters(p);
 spectralforge::appendSynthParameters(p);
 // External sidechain keys and the SYNTH output choice, version hint 28.
 spectralforge::appendSidechainParameters(p);
+// 1.4 signal order: tone / dynamics block and POST rack positions, version hint 29.
+spectralforge::appendSignalOrderParameters(p);
 return p;
 }
 
@@ -882,7 +952,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
     beginSwitch(); // the old sound fades out (and stays muted) before any of the new state applies
     spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
-    boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
+    boardUndo.clear();boardRedo.clear();orderUndo.clear();orderRedo.clear();midiLearn.store(-1);
     const spectralforge::ParamIndex restoredById(restored);
     const bool missingNative=!restoredById[spectralforge::ampNativeModelID(0)].isValid();
     const bool missingPost=!restoredById[spectralforge::postNativeModelID(0)].isValid();
@@ -1013,7 +1083,7 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             const auto node=snapshotById[parameter->paramID];
             parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
         }
-        boardUndo.clear();boardRedo.clear();
+        boardUndo.clear();boardRedo.clear();orderUndo.clear();orderRedo.clear();
         // Factory recipes own their modeled CAB. Resolving a user's IR folder
         // here would bypass that cabinet and make recall machine-dependent.
         switchPending.store(true);
