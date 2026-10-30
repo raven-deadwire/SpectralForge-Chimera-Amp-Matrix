@@ -131,9 +131,14 @@ void recall(ChimeraProcessor& processor) {
     restored->setStateInformation(state.getData(), int(state.getSize()));
     for (int i = originalParameterCount; i < processor.getParameters().size(); ++i) {
         const auto* p = dynamic_cast<juce::RangedAudioParameter*>(processor.getParameters()[i]);
+        // The arbitrary values above leave the signal-order slots with
+        // duplicates; restore replaces an order that is not a permutation by
+        // the default (docs/SIGNAL_ORDER_1_4.md), checked below.
+        if (p->paramID.startsWith("order")) continue;
         check(std::abs(get(*restored, p->paramID) - get(processor, p->paramID)) < .002f,
               "New dynamics parameter did not round-trip through a project state");
     }
+    check(restored->requestedOrder() == spectralforge::SignalOrder{}, "An invalid stored order did not restore as the default");
     processor.copyComparison();
     processor.selectComparison(1);
     set(processor, multibandID(1, "mode"), 1.f); set(processor, "deEsserListen", 0.f);
