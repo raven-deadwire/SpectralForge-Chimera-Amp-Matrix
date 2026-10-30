@@ -807,7 +807,11 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
     saved.appendChild(midi,nullptr);
     // SYNTH samples belong to the project, not to an A/B slot.
     saved.appendChild(spectralforge::synthSample::save(synth),nullptr);
-    if(!spectralforge::irState::serialize(saved,data))return false;
+    // Too large with the samples (64 MB budget): keep the project, without them.
+    if(!spectralforge::irState::serialize(saved,data)) {
+        saved.removeChild(saved.getChildWithName("SYNTH_SAMPLES"),nullptr);
+        if(!spectralforge::irState::serialize(saved,data))return false;
+    }
     comparisons[(size_t)active]=core;
     return true;
 }
@@ -876,9 +880,11 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
     restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);
-    {auto loaded=spectralforge::synthSample::restore(restored.getChildWithName("SYNTH_SAMPLES"));
-     for(int o=0;o<spectralforge::synthOscCount;++o)synth.swapSample(o,std::move(loaded[(size_t)o]));}
+    auto loaded=spectralforge::synthSample::restore(restored.getChildWithName("SYNTH_SAMPLES"));
     restored.removeChild(restored.getChildWithName("SYNTH_SAMPLES"),nullptr);restoreCore(restored);
+    // After restoreCore has started the switch, so the new samples are not
+    // heard through the old settings before the fade.
+    for(int o=0;o<spectralforge::synthOscCount;++o)synth.swapSample(o,std::move(loaded[(size_t)o]));
     warmInactiveComparison();
 }
 void ChimeraProcessor::selectComparison(int slot)

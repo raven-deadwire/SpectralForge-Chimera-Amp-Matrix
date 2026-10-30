@@ -136,6 +136,8 @@ struct SynthSample {
     std::array<std::vector<float>, 2> data;   // data[1] is empty for a mono sample
     std::array<std::pair<float, float>, overviewColumns> overview{};
     bool stereo() const noexcept { return !data[1].empty(); }
+    // The state's encoding (synthSample::save), made once: a sample never changes.
+    mutable juce::MemoryBlock encoded;mutable float encodedGain{1.f};
 };
 
 // Parameters. All automatable; every default is the Init patch.
@@ -551,6 +553,10 @@ private:
         // mode, the read position in sample frames.
         std::array<std::array<double, synthMaxUnison>, synthOscCount> phase{};double subPhase{}, impactPhase{};
         std::array<double, synthOscCount> drift{};
+        // The sample each oscillator last read (nullptr: wave, or restart). A
+        // different one - a mode change, a new sample, an attack - starts the
+        // read position at START.
+        std::array<const SynthSample*, synthOscCount> lastSample{};
         double struck{};   // samples since the last attack (Mimir Impact)
         Envelope amp, env2;
         std::array<std::array<std::array<double, 2>, 2>, 2> svf{};   // channel x stage x state
@@ -578,15 +584,9 @@ private:
     const SynthSample* samples_(int o) const noexcept { return samples[size_t(o)].get(); }
     static double noteHz(double note) noexcept { return 440.0 * std::pow(2.0, (note - 69.0) / 12.0); }
     float random() noexcept { seed = seed * 1664525u + 1013904223u;return float(seed >> 8) / 8388608.f - 1.f; }
-    // Sample oscillators start every attack at their start position.
-    void restartSamples(Voice& v, const Settings& s) const noexcept {
-        for (int o = 0; o < synthOscCount; ++o) {
-            const auto* sample = playing[size_t(o)];
-            if (s.osc[size_t(o)].mode != 1 || sample == nullptr) continue;
-            const double at = std::floor(double(s.osc[size_t(o)].start) * std::max(0, sample->length - 1));
-            for (auto& ph : v.phase[size_t(o)]) ph = at;
-        }
-    }
+    // Sample oscillators start every attack at their start position, also
+    // when the sample becomes readable only later in the note.
+    static void restartSamples(Voice& v) noexcept { v.lastSample = {}; }
     void startVoice(Voice& v, double hz, double velocity, int note, const Settings& s, bool legato) noexcept {
         const double target = hz * std::pow(2.0, double(s.octave));
         const bool glide = s.glideMs > 0 && v.active && v.hz > 0;
@@ -594,7 +594,7 @@ private:
         v.note = note;v.fromGuitar = note < 0;v.noteValue = note >= 0 ? (note - 60) / 24.0 : (12.0 * std::log2(std::max(hz, 1.0) / 261.63)) / 24.0;
         v.velocity = velocity;v.gate = true;v.age = ++clock;
         if (!v.active) { v.svf = {};for (auto& o : v.phase) for (auto& ph : o) ph = .5 * (random() + 1.f);v.drift = {};v.impactPhase = 0; }
-        if (!legato || !v.active) { v.amp.gateOn();v.env2.gateOn();v.struck = 0;restartSamples(v, s); }
+        if (!legato || !v.active) { v.amp.gateOn();v.env2.gateOn();v.struck = 0;restartSamples(v); }
         v.active = true;
     }
     void applyNotes(const Settings& s) noexcept {
@@ -756,6 +756,10 @@ private:
                 // Sample: the root note plays at the sample's own speed.
                 const double speed = sample->sampleRate / rate / noteHz(q.root);
                 const int loopStart = int(std::floor(double(q.start) * std::max(0, sample->length - 1)));
+                if (v.lastSample[size_t(o)] != sample) {
+                    for (auto& at : v.phase[size_t(o)]) at = loopStart;
+                    v.lastSample[size_t(o)] = sample;
+                }
                 for (int u = 0; u < n; ++u) {
                     const double position = n > 1 ? 2.0 * u / (n - 1) - 1.0 : 0.0;
                     const double hz = base * std::pow(2.0, spread * position / 1200.0);
@@ -771,6 +775,11 @@ private:
                     sum[1] += level * r * std::sqrt(2.0 * pan);
                 }
             } else {
+                if (v.lastSample[size_t(o)] != nullptr) {
+                    // Leaving Sample mode: the phase held a frame position.
+                    for (auto& ph : v.phase[size_t(o)]) ph -= std::floor(ph);
+                    v.lastSample[size_t(o)] = nullptr;
+                }
                 const double wave = std::clamp(double(q.wave) + m[size_t(targetWaveA + o)] + dynamicWave, 0.0, 4.0);
                 const double fmIndex = o == 0 ? std::max(0.0, s.fm * 8.0 + m[targetFM] + character * 6.0 * strike) : 0.0;
                 double modulator = oscB;
