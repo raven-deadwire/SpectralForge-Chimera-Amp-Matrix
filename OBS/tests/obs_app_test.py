@@ -179,9 +179,10 @@ class Layout:
             (self.plugin / "data" / "default-vst3-path.txt").write_text(str(vst3), encoding="utf-8")
         elif MACOS:
             self.vst3.mkdir(parents=True, exist_ok=True)
-            # ditto keeps the bundle's signature, as the Chimera installer does.
-            subprocess.run(["ditto", str(vst3), str(self.vst3 / vst3.name)], check=True)
+            # Set first: install() refused an existing bundle, so a failed copy is ours to remove.
             self.vst3_installed = self.vst3 / vst3.name
+            # ditto keeps the bundle's signature, as the Chimera installer does.
+            subprocess.run(["ditto", str(vst3), str(self.vst3_installed)], check=True)
         else:
             (self.cwd / ".vst3").mkdir()
             (self.cwd / ".vst3" / vst3.name).symlink_to(vst3)
