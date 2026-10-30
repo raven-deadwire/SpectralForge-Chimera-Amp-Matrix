@@ -2,6 +2,8 @@
 
 **상태: 입력 검증 도구 준비. 실제 PACE 서명·retail Pro Tools·signed 설치기 수용은 BLOCKED.**
 
+10/30 후속: Avid 개발 번들 코드는 10/29 01:45 KST 발급됐습니다. 등록·iLok 지급/활성화 및 Windows Developer 시험은 아직 미확인입니다. [별도 Windows 시험 절차](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md)를 따릅니다. Developer는 세션 저장이 불가하므로 저장/재열기는 signed 일반 Pro Tools에서 검증합니다.
+
 ## 1. 공식 절차와 구현의 대조
 
 기준: main `b7d08a72252a6aaf85104f62ed070ee25e5d4837`와 기존 Draft #171 `c3774af9850e5f73a52e0c29cb2b25326d270e5b`를 병합한 작업 소스. #171의 비AAX 정정과 기존 링크를 보존하며 같은 PR에 후속 변경을 추가합니다.
@@ -69,7 +71,7 @@ receipt의 자가 선언만으로 빌드 출처를 인증하지 않으므로 CI 
 - Linux에서 `python Tests/test_aax_native.py`: **40개 테스트 PASS**. CLI 실행/실패 종료, 입력 SHA/플랫폼 불일치, receipt/build 불일치, 베타 바이트·정책 변조, payload 변조, 잘못된 signed 주장, 누락/링크 metadata, qualification-only 배포 차단을 포함합니다.
 - 기존 개발 설치/복구·사용자 데이터 보존 테스트도 같은 실행에서 통과했습니다.
 - 이는 합성 번들/로컬 도구 검사입니다. **실제 Windows/macOS AAX 빌드·서명·설치기·Pro Tools 검증 결과로 확대하지 않습니다.** 최종 PR head CI는 해당 SHA의 Actions에서 별도 확인합니다.
-- #171 원본 비AAX 수정과 링크, P0 및 기존 10/29 Developer 재신청·11/9–11/13 판정 목표를 보존합니다. 승인 대기와 11/3 회신 예상은 발급 사실로 대체합니다.
+- #171 원본 비AAX 수정과 링크, P0 및 11/9–11/13 판정 목표를 보존합니다. 승인 대기와 11/3 회신 예상은 PACE 발급 사실로 대체합니다. 기존 10/29 Developer 재신청은 10/29 코드 발급으로 종료하고 등록·지급/활성화·호스트 시험으로 전환합니다.
 
 ## 공식 근거
 

@@ -1,6 +1,6 @@
 # AAX Native development foundation
 
-Foundation: 2026-10-18 KST; access/preflight update: 2026-10-27 KST. Related: [P0 issue #97](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/97).
+Foundation: 2026-10-18 KST; access/Developer-host update: 2026-10-30 KST. Related: [P0 issue #97](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/97).
 **Implementation candidate; no signed AAX release or Pro Tools acceptance.**
 
 The October 18 P0 supersedes the old October/November scheduling assumptions in
@@ -138,8 +138,9 @@ bytes, verify its signature after extraction and pass the host gate below.
 
 ## Access inventory and external dependencies
 
-The following inventory retains October 18 technical evidence with the PACE
-access row updated from the two official October 27 issuance emails. Absence of
+The following inventory retains October 18 technical evidence with PACE access
+updated from the October 27 official emails and Avid code issuance from the
+October 29 01:45 KST Devauth email, read on October 30. Absence of
 evidence does not mean the owner has no account elsewhere. No account was
 created, agreement accepted, approval requested or email sent by this change.
 
@@ -148,8 +149,8 @@ created, agreement accepted, approval requested or email sent by this change.
 | GitHub repository read/write + Actions | Connected repository access; Draft PR/CI available | Nothing in source implementation |
 | JUCE 8.0.8 bundled SDK | Retrieved and inspected at the pinned upstream SHA | Native build execution still required |
 | Local supported OS/toolchain | Linux x86_64; no local Windows/macOS SDK or Pro Tools | Local AAX compile/host test; use Actions for compile |
-| Avid developer / PACE referral | Referral reached PACE and publisher setup is now confirmed; do not reopen this completed referral | Pro Tools Developer entitlement remains a separate request |
-| Pro Tools Developer + iLok authorization | Issuance still unverified; existing October 29 retry remains separate | Unsigned Developer-host testing; never substitutes for retail acceptance |
+| Avid developer / PACE referral | Referral reached PACE and publisher setup is confirmed; do not reopen this completed referral | Pro Tools host licensing is separate from signing access |
+| Pro Tools Developer + iLok authorization | Developer Bundle activation code issued October 29 01:45 KST; October 29 retry superseded. Browser is at Avid sign-in; no code submitted in this task | Avid redemption, correct iLok destination, actual Intro/Developer Build/Prerelease deposits and activation remain unverified |
 | PACE AAX signing access | Publisher/admin created; Central Access and Fusion SDK licenses deposited October 27, one each, expiry 2027-11-01; LITE signing only | USB arrival/activation, certificate, wraptool installation and first signing unverified; no separate AAX Cloud Signing entitlement established |
 | Windows publisher certificate / Apple Developer ID + notarization | Not established by this task; repository workflow alone is not access evidence | Final platform installer qualification |
 | Normal Pro Tools on Windows, macOS Intel and Apple Silicon | No actual host sessions available | Signed release acceptance on those paths |
@@ -181,6 +182,14 @@ Historical enrollment route (do not repeat the completed Avid-to-PACE referral):
 Record exact source, archive/binary hashes, signing verification, OS/CPU,
 Pro Tools edition/version, interface/driver, rate/buffer, preset and route.
 Use actual Developer and normal signed-host columns, never one combined PASS.
+
+Follow the [Windows Developer test runbook](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md)
+for the selected unsigned CI artifact and first smoke test. Avid's issuance
+email requires launching regular Pro Tools before Pro Tools Developer and
+following that Developer download's ReadMe. Developer supports unsigned AAX
+and debugging, but **session saving is disabled**. Save/reopen acceptance belongs
+to signed AAX in normal Pro Tools. Bounce/export capability must be checked in
+the specific Developer build; unsupported operations stay NOT_SUPPORTED, never PASS.
 
 - Scan, load and remove mono/stereo inserts; Classic/Dual/Matrix and internal
   Dual Mono; sample-rate/buffer changes and bypass; realtime and offline bounce.

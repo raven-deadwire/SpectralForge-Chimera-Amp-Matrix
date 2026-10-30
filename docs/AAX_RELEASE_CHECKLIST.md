@@ -1,6 +1,6 @@
 # AAX release checklist — commercial Pro Tools
 
-Date: 2026-10-22 KST; PACE issuance/preflight update: 2026-10-27 KST.
+Date: 2026-10-22 KST; PACE/Avid issuance update: 2026-10-30 KST.
 
 **Requirement (owner):** the next release must ship an AAX plug-in that loads in
 **commercial (retail) Pro Tools**, because the beta testers run commercial Pro
@@ -42,8 +42,14 @@ expiry time/timezone is stated. This is unrelated to Chimera's beta expiry.
       appropriate installer signing/notarization credentials; Windows
       Authenticode certificate or supported signing service. Confirm bundle
       signing integration in the installed PACE manual, not just installer signing.
-- [ ] Pro Tools Developer Bundle issuance checked separately. Existing
-      **October 29 retry** remains; no duplicate application was sent here.
+- [x] Pro Tools Developer Bundle activation code issued **October 29, 01:45 KST**;
+      official Devauth email read October 30. The retry is superseded; no duplicate request sent.
+- [ ] Redeem in the Avid developer account and verify the intended iLok account.
+      Current browser is blocked at sign-in; no redemption is claimed.
+- [ ] Verify actual Pro Tools Intro, Developer Build and Prerelease deposits
+      and activation in ILM; receipt of an activation code is not a deposit.
+- [ ] Complete the [Windows unsigned Developer-host test](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md).
+      Developer cannot save sessions; save/reopen remains a signed normal-host gate.
 
 Do not repeat the completed Avid-to-PACE referral. The initial seven-business-day
 invitation estimate was never a post-submission review SLA; the derived November
