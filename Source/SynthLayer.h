@@ -521,7 +521,8 @@ public:
     }
     // Where the synth goes this block: into the guitar at its insert point,
     // to the SYNTH output bus, or both. Each change crossfades over 20 ms.
-    void setOutputs(bool main, bool bus) noexcept { toMain = main;toBus = bus; }
+    // Without a bus nothing ramps its gain down, so it is zero at once.
+    void setOutputs(bool main, bool bus) noexcept { toMain = main;toBus = bus;if (!bus) busGain = 0.f; }
     // Writes (replaces) the SYNTH bus channels for this block: the rendered
     // synth, or silence. `right` may equal `left` for a mono bus.
     void writeBus(float* left, float* right, int samples) noexcept {

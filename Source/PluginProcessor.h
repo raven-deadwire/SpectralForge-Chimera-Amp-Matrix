@@ -304,6 +304,9 @@ private:
     juce::AudioBuffer<float> busBuffer(juce::AudioBuffer<float>& hostBuffer,bool input) const;
     std::atomic<float>* synthOutput{};std::atomic<float>* keyComp{};std::atomic<float>* keyGates{};std::atomic<float>* keyMultiband{};
     juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};float* busLeft{};float* busRight{};
+    // The SYNTH bus is delayed by the reported latency, like the main output.
+    juce::AudioBuffer<float> busDelay;int busDelayWrite{};
+    void delaySynthBus(float* left,float* right,int samples) noexcept;
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;

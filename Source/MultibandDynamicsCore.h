@@ -527,6 +527,7 @@ public:
         }
         if (settings.on && wet.value() == 0. && !wet.moving() && switching == 0) {
             for (auto& split : splitter) split.reset();
+            for (auto& split : keySplitter) split.reset();   // no stale key state either
             for (auto& state : bandState) { state.detector.reset(); state.gainDB = {}; }
         }
         if (settings.on != lastOn) { for (auto& synthesis : synth) synthesis.invalidateSchedule(); lastOn=settings.on; }

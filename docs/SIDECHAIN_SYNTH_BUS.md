@@ -124,6 +124,18 @@ host has the bus on.
   0 allocations, finite output. A mono sidechain keys the gate the same as a
   stereo one (−79.4 dBFS).
 
+## Review fixes (10/30)
+
+- **Non-finite key samples:** a NaN or Inf sample on the sidechain used to
+  stick in the clean compressor's, the gates' and Console VCA's detector
+  state. The key is now cleaned when it is copied.
+- **SYNTH bus timing:** the host delays every output by the reported latency,
+  but the bus was written without that delay, so it played early by the
+  latency. The bus now goes through a delay of the reported latency (up to
+  1 s).
+- **Multiband key crossovers:** turning the multiband on also resets them.
+- **Bus gain:** without a bus it is zero at once, so the synth can go idle.
+
 ## Not done
 
 - **Hosts:** checks in real hosts, including AAX sidechain in Pro Tools,
