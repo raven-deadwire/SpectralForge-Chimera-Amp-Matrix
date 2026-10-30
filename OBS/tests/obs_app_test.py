@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Runs the real OBS Studio app with the installed Chimera filter (plan stages B, C, F on Linux).
+r"""Runs the real OBS Studio app with the installed Chimera filter (plan stages B, C, F).
 
-OBS runs under the current X display (CI: xvfb-run) with its own HOME, so the
-user's OBS configuration is never touched. The test drives OBS through its
-bundled obs-websocket:
+OBS never touches the user's configuration:
+- Linux: OBS runs under the current X display (CI: xvfb-run) with its own HOME.
+  The module goes to ~/.config/obs-studio/plugins and Chimera to ~/.vst3.
+- Windows: OBS runs in portable mode (configuration next to its bin folder).
+  The module goes to %ProgramData%\obs-studio\plugins, where Chimera Setup
+  installs it, and finds Chimera through default-vst3-path.txt, which Setup
+  writes. An existing installation there is never replaced.
+
+The test drives OBS through its bundled obs-websocket:
 
 1. Adds a media source playing a generated DI loop and the Chimera filter to it.
-   The filter must find Chimera in ~/.vst3 and load it.
+   The filter must find Chimera and load it.
 2. Records with the filter disabled, then enabled. Both recordings must carry
    sound, and the filtered one must differ from the dry one.
 3. Pushes a Chimera state saved by another host (lower output gain, written
    by chimera-obs-state-tool) through obs-websocket, as a preset script would.
    The next recording must be clearly quieter.
-4. Quits OBS (SIGINT, its normal shutdown). The scene file must hold exactly
+4. Quits OBS normally (SIGINT on Linux, closing the main window on Windows). The scene file must hold exactly
    that state. OBS starts again: the filter must come back with it and sound
    like the preset recording, not like the default.
 
@@ -42,6 +48,7 @@ SCENE = "Chimera OBS test"
 SOURCE = "DI loop"
 FILTER = "SpectralForge Chimera"
 RATE = 48000
+WINDOWS = sys.platform == "win32"
 PRESET_PARAMETER = "Output gain"  # default 0.625: the preset is clearly quieter
 PRESET_VALUE = 0.3
 
@@ -116,16 +123,77 @@ class WebSocket:
         self.sock.close()
 
 
-class Obs:
-    """One OBS Studio process with its own HOME, driven over obs-websocket."""
+class Layout:
+    """Where this OBS reads its configuration and the Chimera module."""
 
-    def __init__(self, obs: str, home: Path, port: int, log: Path):
-        self.home, self.port = home, port
-        env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / ".config"))
+    def __init__(self, obs: str, work: Path):
+        self.obs = obs
+        self.installed = False
+        if WINDOWS:
+            exe = Path(obs).resolve()
+            self.cwd = exe.parent  # OBS on Windows expects to start in bin\64bit
+            self.config = exe.parents[2] / "config" / "obs-studio"  # --portable
+            self.plugin = Path(os.environ["ProgramData"]) / "obs-studio" / "plugins" / "chimera-obs"
+            self.env = dict(os.environ)
+            self.options = ["--portable"]
+        else:
+            home = work / "home"
+            self.cwd = home
+            self.config = home / ".config" / "obs-studio"
+            self.plugin = self.config / "plugins" / "chimera-obs"
+            self.env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / ".config"))
+            self.options = []
+
+    def install(self, module: Path, vst3: Path) -> None:
+        if self.plugin.exists():
+            raise RuntimeError(f"{self.plugin} already exists; this test does not replace an installed filter")
+        if self.config.exists():
+            shutil.rmtree(self.config)
+        self.cwd.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(module, self.plugin, symlinks=True)
+        self.installed = True
+        if WINDOWS:
+            # What Chimera Setup writes when it installs the filter.
+            (self.plugin / "data" / "default-vst3-path.txt").write_text(str(vst3), encoding="utf-8")
+        else:
+            (self.cwd / ".vst3").mkdir()
+            (self.cwd / ".vst3" / vst3.name).symlink_to(vst3)
+
+    def uninstall(self) -> None:
+        if WINDOWS and self.installed:  # only what install() put there
+            shutil.rmtree(self.plugin)
+
+
+def close_windows(pid: int) -> int:
+    """Posts WM_CLOSE to the process's visible top-level windows, as the close button does."""
+    import ctypes
+    from ctypes import wintypes
+    user32 = ctypes.windll.user32
+    found = []
+    callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+    def visit(hwnd, _):
+        owner = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+        if owner.value == pid and user32.IsWindowVisible(hwnd):
+            found.append(hwnd)
+        return True
+
+    user32.EnumWindows(callback(visit), 0)
+    for hwnd in found:
+        user32.PostMessageW(hwnd, 0x0010, 0, 0)  # WM_CLOSE
+    return len(found)
+
+
+class Obs:
+    """One OBS Studio process with its own configuration, driven over obs-websocket."""
+
+    def __init__(self, layout: Layout, port: int, log: Path):
+        self.port = port
         self.output = log.open("w")
         self.process = subprocess.Popen(
-            [obs, "--multi", "--disable-shutdown-check", "--disable-missing-files-check"],
-            env=env, cwd=home, stdout=self.output, stderr=subprocess.STDOUT)
+            [layout.obs, *layout.options, "--multi", "--disable-shutdown-check", "--disable-missing-files-check"],
+            env=layout.env, cwd=layout.cwd, stdout=self.output, stderr=subprocess.STDOUT)
         self.ws = None
         self.next_id = 0
         try:
@@ -183,12 +251,16 @@ class Obs:
     def quit(self) -> None:
         if self.ws is not None:
             self.ws.close()
-        self.process.send_signal(signal.SIGINT)  # OBS's normal shutdown: saves the scene, unloads modules
+        # OBS's normal shutdown: saves the scene, unloads modules.
+        if WINDOWS:
+            check(close_windows(self.process.pid) > 0, "OBS main window found to close")
+        else:
+            self.process.send_signal(signal.SIGINT)
         try:
             code = self.process.wait(timeout=60)
         except subprocess.TimeoutExpired:
             self.process.kill()
-            raise RuntimeError("OBS did not shut down within 60 s of SIGINT")
+            raise RuntimeError("OBS did not shut down within 60 s of the close request")
         finally:
             self.output.close()
         check(code == 0, f"OBS exited cleanly (code {code})")
@@ -225,9 +297,12 @@ def write_di(path: Path, seconds: float = 2.0) -> None:
         w.writeframes(bytes(frames))
 
 
+FFMPEG = "ffmpeg"
+
+
 def decode(path: Path, skip: float = 1.0, seconds: float = 3.0) -> list[float]:
     raw = subprocess.run(
-        ["ffmpeg", "-v", "error", "-ss", str(skip), "-t", str(seconds), "-i", str(path), "-vn", "-ac", "1",
+        [FFMPEG, "-v", "error", "-ss", str(skip), "-t", str(seconds), "-i", str(path), "-vn", "-ac", "1",
          "-ar", str(RATE), "-f", "f32le", "-"], check=True, capture_output=True).stdout
     return list(struct.unpack(f"<{len(raw) // 4}f", raw))
 
@@ -265,8 +340,7 @@ def distance(a: list[float], b: list[float]) -> float:
     return sum(abs(p - q) for p, q in zip(a, b))
 
 
-def configure(home: Path, port: int, recordings: Path) -> None:
-    config = home / ".config" / "obs-studio"
+def configure(config: Path, port: int, recordings: Path) -> None:
     (config / "basic" / "profiles" / "Chimera").mkdir(parents=True, exist_ok=True)
     (config / "basic" / "scenes").mkdir(parents=True, exist_ok=True)
     glob = configparser.ConfigParser()
@@ -278,8 +352,10 @@ def configure(home: Path, port: int, recordings: Path) -> None:
                            "WarnBeforeStartingStream": "false", "WarnBeforeStoppingStream": "false"}
     glob["OBSWebSocket"] = {"FirstLoad": "false", "ServerEnabled": "true", "ServerPort": str(port),
                             "AlertsEnabled": "false", "AuthRequired": "false", "ServerPassword": ""}
-    with (config / "global.ini").open("w") as f:
-        glob.write(f, space_around_delimiters=False)
+    # OBS 31 keeps these in user.ini; OBS 30 in global.ini.
+    for name in ("global.ini", "user.ini"):
+        with (config / name).open("w") as f:
+            glob.write(f, space_around_delimiters=False)
     profile = configparser.ConfigParser()
     profile.optionxform = str
     profile["General"] = {"Name": "Chimera"}
@@ -303,19 +379,15 @@ def run(args: argparse.Namespace) -> None:
     work = Path(args.work).resolve()
     if work.exists():
         shutil.rmtree(work)
-    home = work / "home"
     recordings = work / "recordings"
     recordings.mkdir(parents=True)
-    plugins = home / ".config" / "obs-studio" / "plugins"
-    plugins.mkdir(parents=True)
-    shutil.copytree(Path(args.module).resolve(), plugins / "chimera-obs", symlinks=True)
-    (home / ".vst3").mkdir()
-    (home / ".vst3" / Path(args.vst3).name).symlink_to(Path(args.vst3).resolve())
+    layout = args.layout
+    layout.install(Path(args.module).resolve(), Path(args.vst3).resolve())
     port = free_port()
-    configure(home, port, recordings)
+    configure(layout.config, port, recordings)
     di = work / "di-loop.wav"
     write_di(di)
-    logs = home / ".config" / "obs-studio" / "logs"
+    logs = layout.config / "logs"
 
     preset = json.loads(subprocess.run([args.state_tool, str(Path(args.vst3).resolve()), PRESET_PARAMETER,
                                         str(PRESET_VALUE)], check=True, capture_output=True, text=True).stdout)
@@ -324,7 +396,7 @@ def run(args: argparse.Namespace) -> None:
         return "".join(p.read_text(errors="replace") for p in sorted(logs.glob("*.txt")))
 
     print("--- first OBS run: add the filter, record dry, default and preset", flush=True)
-    obs = Obs(args.obs, home, port, work / "obs-run-1.txt")
+    obs = Obs(layout, port, work / "obs-run-1.txt")
     try:
         version = obs.request("GetVersion")
         print(f"     OBS {version['obsVersion']}, obs-websocket {version['obsWebSocketVersion']}")
@@ -336,7 +408,7 @@ def run(args: argparse.Namespace) -> None:
         obs.request("CreateSourceFilter", {"sourceName": SOURCE, "filterName": FILTER, "filterKind": FILTER_KIND,
                                            "filterSettings": {}})
         wait_until(lambda: f"[chimera-obs] '{FILTER}': loaded " in log_text(),
-                   "the filter found Chimera in ~/.vst3 and loaded it")
+                   "the filter found Chimera and loaded it")
 
         obs.request("SetSourceFilterEnabled", {"sourceName": SOURCE, "filterName": FILTER, "filterEnabled": False})
         time.sleep(1)
@@ -369,14 +441,14 @@ def run(args: argparse.Namespace) -> None:
     preset_db = db("preset", "default")
     check(preset_db < -3.0, f"the pushed state applies: {preset_db:+.1f} dB against the default state")
 
-    scene = json.loads((home / ".config" / "obs-studio" / "basic" / "scenes" / "Chimera.json").read_text())
+    scene = json.loads((layout.config / "basic" / "scenes" / "Chimera.json").read_text(encoding="utf-8"))
     saved = [f for s in scene["sources"] if s["name"] == SOURCE for f in s.get("filters", []) if f["id"] == FILTER_KIND]
     check(len(saved) == 1, "the scene file stores the Chimera filter")
     check(saved[0]["settings"].get("vst3_component_state") == preset["component"],
           f"the scene file stores exactly the pushed Chimera state ('{preset['title']}')")
 
     print("--- second OBS run: the scene restores the filter", flush=True)
-    obs = Obs(args.obs, home, port, work / "obs-run-2.txt")
+    obs = Obs(layout, port, work / "obs-run-2.txt")
     try:
         wait_until(lambda: any(f["filterKind"] == FILTER_KIND for f in obs.request(
             "GetSourceFilterList", {"sourceName": SOURCE}, ok=False).get("filters", [])),
@@ -399,7 +471,7 @@ def run(args: argparse.Namespace) -> None:
     check(log.count("[chimera-obs] module ") == 2, "both runs log the Chimera module")
     check(log.count(f"[chimera-obs] '{FILTER}': session total") == 2, "both runs log the filter's session statistics")
     check(log.count("[chimera-obs] unloaded Chimera filter instance") == 2, "both runs unload the filter")
-    print("PASS real OBS Studio: Chimera loaded from ~/.vst3 by the filter, filtered and preset recordings differ, "
+    print(f"PASS real OBS Studio {version['obsVersion']}: Chimera found and loaded by the filter, filtered and preset recordings differ, "
           "the pushed state is saved in the scene and restored after a restart, clean shutdowns")
 
 
@@ -409,21 +481,27 @@ def main() -> int:
     parser.add_argument("--vst3", required=True, help="SpectralForge Chimera.vst3 bundle")
     parser.add_argument("--state-tool", required=True, help="chimera-obs-state-tool executable")
     parser.add_argument("--work", required=True, help="scratch directory (deleted first)")
-    parser.add_argument("--obs", default="obs", help="OBS Studio executable")
+    parser.add_argument("--obs", default="obs", help="OBS Studio executable (Windows: bin\\64bit\\obs64.exe "
+                        "of an unpacked release)")
+    parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for decoding the recordings")
     parser.add_argument("--seconds", type=float, default=6.0, help="length of each recording")
     args = parser.parse_args()
-    if not os.environ.get("DISPLAY"):
+    if not WINDOWS and not os.environ.get("DISPLAY"):
         print("FAIL no X display (run under xvfb-run)", file=sys.stderr)
         return 2
+    global FFMPEG
+    FFMPEG = args.ffmpeg
+    args.layout = Layout(args.obs, Path(args.work).resolve())
     try:
         run(args)
     except Exception as e:  # noqa: BLE001 - report every failure the same way
         print(f"FAIL {e}", file=sys.stderr)
-        work = Path(args.work)
-        for log in sorted((work / "home" / ".config" / "obs-studio" / "logs").glob("*.txt"))[-2:]:
+        for log in sorted((args.layout.config / "logs").glob("*.txt"))[-2:]:
             print(f"--- {log.name} (last 60 lines)", file=sys.stderr)
             print("\n".join(log.read_text(errors="replace").splitlines()[-60:]), file=sys.stderr)
         return 1
+    finally:
+        args.layout.uninstall()
     return 0
 
 
