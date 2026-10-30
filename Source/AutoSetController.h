@@ -91,7 +91,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -123,7 +123,11 @@ public:
         if(busy() || snapshot.empty())return;
         // Only restore writes owned by this run. A later manual/host edit,
         // including a change to an untouched optional stage, belongs to the user.
-        for(auto& entry:snapshot)if(entry.written && owned(entry) && !keptByCurrentLock(*entry.parameter))
+        // A slot and its Tone EQ band form one node. Freezing just the slot
+        // would leave it pointing at an undone/disabled band (or vice versa).
+        const auto preserved=preservedDynamicIDs();
+        for(auto& entry:snapshot)if(entry.written && owned(entry) && !keptByCurrentLock(*entry.parameter)
+                                  && !preserved.contains(entry.parameter->paramID))
             setNormalised(entry,entry.before);
         snapshot.clear();
         publish(Phase::idle,0,"Undid Auto Set; newer edits were kept.",0);
@@ -183,6 +187,15 @@ private:
     bool keptByCurrentLock(const juce::RangedAudioParameter& parameter) const {
         for(const auto& [id,lock]:touchedIDs)if(id==parameter.paramID)return (options.locks&lock)!=0;
         return false;
+    }
+    juce::StringArray preservedDynamicIDs() const {
+        juce::StringArray result;
+        for(const auto& group:dynamicNodeGroups) {
+            bool keep=(options.locks&(lockTone|lockDynamicEQ))!=0;
+            for(const auto& entry:snapshot)if(group.contains(entry.parameter->paramID) && !owned(entry))keep=true;
+            if(keep){result.addArray(group);result.addIfNotAlreadyThere(eqID(0,-1,"bypass"));}
+        }
+        return result;
     }
     bool samplePass() const noexcept {return status.phase==Phase::tone || status.phase==Phase::multiband || status.phase==Phase::finish;}
     bool windowPass() const noexcept {return status.phase==Phase::input || status.phase==Phase::compressor || status.phase==Phase::finish;}
@@ -351,6 +364,12 @@ private:
     // their frequencies avoided; at most two slots are filled per run.
     void finishDynamicEQ(const std::vector<float>& measured,bool curveWritten) {
         const auto addDynamicStep=[this](const juce::String& result,bool changed){steps.push_back({Phase::dynamicEQ,result,changed});};
+        // A touched-but-returned control is still a user decision. Do not
+        // construct a partial node around an edited band/slot or bypass.
+        for(const auto& entry:snapshot)
+            if((entry.parameter->paramID.startsWith("toneEQ_") || entry.parameter->paramID.startsWith("dynamicEQ")) && !owned(entry)) {
+                addDynamicStep("kept (EQ or slots edited while listening)",false);return;
+            }
         // Enabling a bypassed Tone EQ would also make the user's curve audible.
         if(!curveWritten && raw(eqID(0,-1,"bypass"))>.5f)
             for(int b=0;b<graphicalEQBands;++b)if(raw(eqID(0,b,"enabled"))>.5f){addDynamicStep("kept (the Tone EQ with your curve is bypassed)",false);return;}
@@ -368,12 +387,30 @@ private:
         for(size_t i=0;i<r.nodes.size();++i) {
             const auto& node=r.nodes[i];const int b=bands[i],slot=slots[i];
             const float range=node.rangeDb*strength();
+            juce::StringArray group;
+            for(const auto* field:{"type","frequency","q","gain","enabled"})group.add(eqID(0,b,field));
+            for(const auto* field:{"threshold","range","ratio","attack","release","target"})group.add(dynamicSlotID(slot,field));
+            // Reentrant host edits must not make a partially configured node
+            // audible. Restore only our writes; never roll back the host edit.
+            std::vector<Snapshot> previous;
+            for(const auto& entry:snapshot)if(group.contains(entry.parameter->paramID))previous.push_back(entry);
+            const auto intact=[&]{for(const auto& entry:snapshot)if((group.contains(entry.parameter->paramID) || entry.parameter->paramID==eqID(0,-1,"bypass")) && !owned(entry))return false;return true;};
+            const auto put=[&](const juce::String& id,float value){if(intact())set(id,value);};
             // A 0 dB bell: the node only cuts while its band is above threshold.
-            set(eqID(0,b,"type"),0);set(eqID(0,b,"frequency"),node.frequency);set(eqID(0,b,"q"),node.q);set(eqID(0,b,"gain"),0);set(eqID(0,b,"enabled"),1);
-            set(dynamicSlotID(slot,"threshold"),node.thresholdDb);set(dynamicSlotID(slot,"range"),range);set(dynamicSlotID(slot,"ratio"),node.ratio);
-            set(dynamicSlotID(slot,"attack"),node.attackMs);set(dynamicSlotID(slot,"release"),node.releaseMs);set(dynamicSlotID(slot,"target"),float(b+1));
+            put(eqID(0,b,"type"),0);put(eqID(0,b,"frequency"),node.frequency);put(eqID(0,b,"q"),node.q);put(eqID(0,b,"gain"),0);
+            put(dynamicSlotID(slot,"threshold"),node.thresholdDb);put(dynamicSlotID(slot,"range"),range);put(dynamicSlotID(slot,"ratio"),node.ratio);
+            put(dynamicSlotID(slot,"attack"),node.attackMs);put(dynamicSlotID(slot,"release"),node.releaseMs);
+            put(dynamicSlotID(slot,"target"),float(b+1));put(eqID(0,b,"enabled"),1);
+            if(!intact()) {
+                for(const auto& saved:previous)for(auto& entry:snapshot)if(entry.parameter==saved.parameter && owned(entry)) {
+                    if(setNormalised(entry,saved.lastWritten))entry=saved;
+                }
+                manualEditsKept=true;break;
+            }
+            dynamicNodeGroups.push_back(group);
             placed.add(frequencyText(node.frequency)+" above "+juce::String(node.thresholdDb,0)+" dB, "+juce::String(node.ratio,0)+":1 up to "+juce::String(range,0)+" dB");
         }
+        if(placed.isEmpty()){addDynamicStep("kept (EQ or slots edited while applying)",false);return;}
         set(eqID(0,-1,"bypass"),0);
         summary+=" | Dynamic EQ "+placed.joinIntoString(", ");
         addDynamicStep("Tone EQ "+placed.joinIntoString("; "),true);
@@ -512,7 +549,9 @@ private:
     }
     static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish;}
     bool changedSinceSnapshot() const {
-        for(const auto& entry:snapshot)if(entry.written && owned(entry) && !keptByCurrentLock(*entry.parameter) && entry.lastWritten!=entry.before)return true;
+        const auto preserved=preservedDynamicIDs();
+        for(const auto& entry:snapshot)if(entry.written && owned(entry) && !keptByCurrentLock(*entry.parameter)
+                                        && !preserved.contains(entry.parameter->paramID) && entry.lastWritten!=entry.before)return true;
         return false;
     }
 
@@ -531,6 +570,7 @@ private:
     Options options,runOptions;
     std::vector<std::unique_ptr<ParameterEdits>> editTrackers;
     std::vector<Snapshot> snapshot;
+    std::vector<juce::StringArray> dynamicNodeGroups;
     bool manualEditsKept{};
     uint32_t inputRevision{};
     std::vector<Window> windows,rigWindows;std::vector<float> samples;

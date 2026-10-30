@@ -1063,12 +1063,36 @@ void controllerGateStageEditHistory() {
     std::cout<<"PASS gate-stage matrix: "<<cases<<" cases, three styles x four strengths x ten ownership/option modes; 21 gate parameters\n";
 }
 
+#include "AutoSetDynamicEQRegression.h"
+#include "AutoSetDICommands.h"
+
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
+        if(argc==2 && std::string(argv[1])=="--dynamic-risk-probe"){dynamicRiskProbe();return 0;}
+        if(argc==2 && std::string(argv[1])=="--dynamic-ownership"){dynamicOwnershipRegression();return 0;}
+        if(argc==2 && std::string(argv[1])=="--dynamic-signals"){dynamicSignalRegression();return 0;}
+        if(argc==2 && std::string(argv[1])=="--dynamic-regression"){dynamicEQRules();controllerDynamicEQ();dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();return 0;}
+        if(argc==3 && std::string(argv[1])=="--dynamic-eq-fixtures") {
+            const juce::File dir(argv[2]);check(dir.createDirectory().wasOk(),"Fixture directory");
+            for(double rate:{44100.,48000.,96000.})for(int kind=0;kind<4;++kind) {
+                std::mt19937 rng{43};const auto x=kind==0?dynamicSustain(rate,27.5,false,true):kind==1?dynamicSustain(rate,82.4069,false,false):playedNotes(rate,6,rng,kind==3?250.f:0.f,kind==3?12.f:0.f);
+                juce::AudioBuffer<float> b(1,int(x.size()));b.copyFrom(0,0,x.data(),int(x.size()));
+                autoSetDI::write(dir.getChildFile(juce::String(int(rate))+"-"+juce::String(kind)+".wav"),b,rate);
+            }
+            return 0;
+        }
+        if(argc==5 && std::string(argv[1])=="--dynamic-eq-capture") {autoSetDI::capture(juce::File(argv[2]),juce::File(argv[3]),juce::File(argv[4]));return 0;}
+        if(argc==7 && std::string(argv[1])=="--dynamic-eq-wav") {
+            check(std::string(argv[3])=="guitar" || std::string(argv[3])=="bass","Instrument must be guitar or bass");
+            check(std::string(argv[4])=="rock" || std::string(argv[4])=="clean" || std::string(argv[4])=="metal","Unknown style");
+            const float strength=std::stof(argv[5]);check(strength>=.1f && strength<=1.f,"Strength must be 0.1..1");
+            autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
+        }
         check(argc==1,"Unknown argument");
         parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();
+        dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

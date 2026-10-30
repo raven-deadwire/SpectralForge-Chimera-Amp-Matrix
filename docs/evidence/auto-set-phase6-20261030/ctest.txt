@@ -1,0 +1,8 @@
+Internal ctest changing into directory: /workspace/scratch/55cccd4335dd/chimera/build-auto
+Test project /workspace/scratch/55cccd4335dd/chimera/build-auto
+    Start 64: ChimeraAutoSetTests
+1/1 Test #64: ChimeraAutoSetTests ..............   Passed   60.74 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  60.74 sec

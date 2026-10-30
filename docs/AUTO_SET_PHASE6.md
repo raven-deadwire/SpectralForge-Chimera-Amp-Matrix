@@ -22,8 +22,10 @@ neck, including the notes that tend to boom or honk.
   stay the same.
 - **Lock → Dynamic EQ** keeps the Dynamic EQ slots and skips the step. A
   **Tone EQ** lock skips it too, because the nodes live on Tone EQ bands.
-- **UNDO AUTO** restores the four Dynamic EQ slots and the Tone EQ bands the
-  step used.
+- **UNDO AUTO** restores the slots and Tone EQ bands the step used. A newly
+  selected Tone EQ/Dynamic EQ lock, or a newer edit to any part of an auto node,
+  preserves the complete node and the EQ bypass state. Editing an EQ/slot while
+  listening makes Phase 6 abstain; reentrant edits cannot leave a partial node active.
 
 ## Where the nodes go
 
@@ -55,13 +57,16 @@ peaks would hide the ring):
 - **excess** is the band's loud level minus the median loud level of its
   neighbours. The neighbours are 2/3 to 4/3 octave away, on both sides, so a
   broad tilt cancels.
+- **relative jump** is P95 minus median of `band RMS dB - full RMS dB`,
+  paired within each playing window. A normal note decay or common gain change
+  must not count as a band-specific event.
 
 ## Rules (`analyseDynamicEQ`)
 
 | | Rule |
 |---|---|
-| Searched range | guitar 80 Hz – 4 kHz, bass 50 Hz – 2.5 kHz (above that the de-esser works) |
-| A band acts when | excess ≥ 4 dB, loud − typical ≥ 6 dB (it comes and goes; a band that never drops back is the Tone EQ's job), and loud within 24 dB of the loudest playing |
+| Searched range | guitar 80 Hz – 4 kHz; bass effective 80 Hz – 2.5 kHz. The configured bass lower bound is 50 Hz, but the first two centres (50/63 Hz) lack lower neighbours and are skipped. No claim of direct 50/63 Hz detection. |
+| A band acts when | excess ≥ 4 dB, loud − typical ≥ 6 dB (it comes and goes; a band that never drops back is the Tone EQ's job), relative jump ≥ 6 dB, and loud within 24 dB of the loudest playing |
 | Order | strongest excess first, up to the free slots (at most two) |
 | Threshold | 80th percentile of the band's 20 ms peaks: it acts on the loudest fifth |
 | Ratio | 2:1 below 6 dB excess, 3:1 below 9 dB, else 4:1 |
@@ -105,3 +110,12 @@ peaks would hide the ring):
 The 4 dB excess, the 6 dB come-and-go limit, Q 3, the ratios, the cut range
 and the times are starting values. They have been checked on synthetic notes,
 not on real guitars, basses, cabinets or listening tests.
+
+## DI and application regressions
+
+See [the reproducible DI protocol](AUTO_SET_PHASE6_DI_REGRESSION.md) for the nine
+planned takes, fixed amp/cab captures, missing-input checks and before/after WAVs.
+`ChimeraAutoSetTests --dynamic-regression` exercises low A0/B0, high-gain sustain,
+common-envelope dynamics, positive ring controls, actual GraphicalEQ gain reduction,
+strength, user curves, linked node ownership and Undo. Synthetic controls do not
+stand in for real DI, real bass IR or listening acceptance.

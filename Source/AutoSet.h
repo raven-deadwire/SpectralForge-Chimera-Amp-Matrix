@@ -623,6 +623,7 @@ struct DynamicEQResult {
     bool playingDetected{},bass{};
     std::vector<DynamicEQNode> nodes;          // strongest first
     std::array<float,toneBandCount> excessDb{}; // per third-octave band, 0 where not evaluated
+    std::array<float,toneBandCount> relativeJumpDb{}; // time-paired band/full-band contrast
 };
 inline constexpr float dynamicEQQ=3.f,dynamicEQMinExcessDb=4.f,dynamicEQMinJumpDb=6.f;
 // avoid: centres of Dynamic EQ nodes already on the Tone EQ; maxNodes: free slots.
@@ -670,8 +671,15 @@ inline DynamicEQResult analyseDynamicEQ(const std::vector<float>& samples,double
         for(size_t d=k>=4?k-4:0;d<=std::min(bands.size()-1,k+4);++d)if((d>k?d-k:k-d)>=2)neighbours.push_back(top[d]);
         const float excess=top[k]-percentile(neighbours,.5f);
         r.excessDb[size_t(bands[k])]=excess;
-        // It must come and go, and be loud enough to be heard ringing.
-        if(excess>=dynamicEQMinExcessDb && top[k]-typical[k]>=dynamicEQMinJumpDb && top[k]>=fullTop-24.f)candidates.push_back({k,excess});
+        // A decaying fundamental or a louder pick changes every band together.
+        // Require the band's share of the SAME frame to change as well. Two
+        // independently ranked percentiles would compare different notes.
+        std::vector<float> contrast;
+        for(const auto i:playing)contrast.push_back(rms[k][i]-fullRms[i]);
+        const float jump=percentile(contrast,.95f)-percentile(contrast,.5f);
+        r.relativeJumpDb[size_t(bands[k])]=jump;
+        if(excess>=dynamicEQMinExcessDb && top[k]-typical[k]>=dynamicEQMinJumpDb
+           && jump>=dynamicEQMinJumpDb && top[k]>=fullTop-24.f)candidates.push_back({k,excess});
     }
     std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return a.excess>b.excess;});
     const auto apart=[](float a,float b){return std::abs(std::log2(a/b))>=2.f/3.f-1e-3f;};
