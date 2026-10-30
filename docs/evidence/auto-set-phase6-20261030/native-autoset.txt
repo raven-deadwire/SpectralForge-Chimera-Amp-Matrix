@@ -1,0 +1,64 @@
+Start testing: Oct 29 18:48 PDT
+----------------------------------------------------------
+64/74 Testing: ChimeraAutoSetTests
+64/74 Test: ChimeraAutoSetTests
+Command: "/workspace/scratch/55cccd4335dd/chimera/build-auto/ChimeraAutoSetTests_artefacts/Release/ChimeraAutoSetTests"
+Directory: /workspace/scratch/55cccd4335dd/chimera/build-auto
+"ChimeraAutoSetTests" start time: Oct 29 18:48 PDT
+Output:
+----------------------------------------------------------
+PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations
+PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo
+PASS gate-stage matrix: 120 cases, three styles x four strengths x ten ownership/option modes; 21 gate parameters
+PASS auto set rules: silence, quiet DI gain, gate threshold/range, unchanged steady input, noisy gate, compressor ratio/attack/makeup
+PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz
+PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release
+PASS attack safety: 72 protected synthetic attack cases, 18 sustained-brightness controls, 36 extended-range/distorted explicit-instrument cases, 9 auto-target ambiguity cases
+PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz
+PASS auto set gate stage rules: quiet amp leaves them off, amp hiss adds an Expander (clean/rock/metal ratios, deeper main gate), metal with headroom gets a post-rig gate and PRE Gate 2, no pause changes nothing
+MEASURE dynamic EQ excess (even): 80:-0.760639 100:0.0802097 125:0.288853 160:0.64143 200:0.139709 250:-0.0117512 315:-0.139709 400:-2.78823 500:-3.93992 630:-1.46728 800:-1.53251 1000:-2.19983 1250:-2.01385 1600:-2.37432 2000:-2.70041 2500:-4.31773 3150:-6.80175 4000:-7.45138
+MEASURE dynamic EQ excess (250 Hz ring): 80:-2.99856 100:-2.02658 125:-3.73938 160:2.02658 200:4.93312 250:8.00497 315:3.73938 400:-2.25705 500:-6.46824 630:-2.82256 800:-2.4783 1000:-2.8644 1250:-2.18188 1600:-2.69739 2000:-2.9656 2500:-4.28425 3150:-6.2259 4000:-6.71898
+MEASURE dynamic EQ node: 250 Hz, threshold -19 dB, 3:1, up to 7 dB
+PASS auto set dynamic EQ rules: silence, evenly voiced notes left alone, a 250 Hz resonance gets a node there within limits, metal release, existing nodes and slot count respected at 44.1/48/96 kHz
+PASS auto set capture: 10 ms windows at 44.1/48/96 kHz, louder-channel peak/RMS, mono tone tap, tap isolation, allocation-free audio path
+PASS explicit guitar/bass x three styles: manual de-esser/listen preserved, truthful summary, limiter release, apply/undo host notifications
+MEASURE auto set gates: rig noise -11.8006 dBFS, gap -12.01 dB, plan 1
+MEASURE auto set results: [Input + gate: input 0.0 > 10.5 dB; gate -65 > -53 dB, range Full] [Gate 2 + Expander: Expander after the rig at -53 dB, 2.0:1 up to 15 dB; gate closes below -71 dB (amp hiss -11.8006 dBFS)] [Tone EQ: guitar (estimate): 80 Hz +3.0, 160 Hz -6.0, 315 Hz -3.0, 630 Hz +4.5, 2.5 kHz -6.0, 5.0 kHz -6.0] [Dynamic EQ: Tone EQ 4.0 kHz above -20 dB, 2:1 up to 3 dB] [Compressor: off > -29 dB 2:1, attack 8 ms, makeup 0.0 dB] [Multiband: compressing high-mid 2:1, high 4:1] [De-esser + limiter: de-esser 5.6 kHz, -34 dB, up to 7 dB; limiter -1 dBFS (peaks -22.6)]
+AUTO SET synthetic DI (-18 dBFS notes, -72 dBFS noise): Applied (rock): Input 10.5 dB | Gate -53 dB, range Full | Expander -53 dB 2.0:1 | Tone EQ guitar (estimate): 6 moves | Dynamic EQ 4.0 kHz above -20 dB, 2:1 up to 3 dB | Comp -29 dB, 2:1, attack 8 ms, makeup 0.0 dB | Multiband high-mid 2:1, high 4:1 | De-esser 5.6 kHz, -34 dB, up to 7 dB | Limiter -1 dBFS (peaks -22.6 dBFS)
+AUTO SET multiband: band1 off swing -5.62256 excess 5.35178 band2 off swing -4.63768 excess 4.01831 band3 on swing 4.63768 excess 3.2552 band4 on swing 15.206 excess 12.1398
+AUTO SET finish: high-band excess 4.92321 dB, burst excess 1.68055 dB, output peak -22.6338 dBFS
+AUTO SET tone moves: 80Hz 3dB 160Hz -6dB 315Hz -3dB 630Hz 4.5dB 1250Hz 0dB 2500Hz -6dB 5000Hz -6dB | fit error 6.23233 -> 2.60906 dB
+PASS auto set controller: silence/no-audio failures, five passes on the real processor, input+gate+Tone EQ+compressor+multiband+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes, undo keeps newer edits
+PASS input strength rounding: decimal ties, negative gain, 0.01 dB settings and conversion error
+PASS auto set locks and strength: 4 Tone EQ moves halved, parallel comp/multiband mix, gate follows applied input, locked passes skipped and kept by undo
+PASS strength matrix: 25/50/75/100%, input/gate/EQ/comp/multiband/de-esser/limiter
+PASS all eight locks x four strengths: non-default values, host edits, undo, immutable run options, newly selected undo locks
+PASS attack/lock regression: 36 controller cases, three styles x four strengths x de-esser/limiter lock modes
+MEASURE auto set dynamic EQ: kept (the Tone EQ with your curve is bypassed) | Tone EQ 250 Hz above -18 dB, 3:1 up to 7 dB
+PASS auto set dynamic EQ controller: runs the Tone EQ pass alone, 0 dB node at 250 Hz on a free band and slot, strength scales the cut, assigned slots and a bypassed curve kept, Tone EQ and Dynamic EQ locks, undo
+PASS dynamic signal protection: 60 sustain/common-envelope cases and 12 extended-range scales
+PASS dynamic ownership: newly selected Tone/Dynamic locks preserve complete node and EQ bypass on UNDO
+DYNAMIC_RENDER rate=44100 strength=0.25 peakGR=1.75 A0delta=0
+DYNAMIC_RENDER rate=44100 strength=0.5 peakGR=3.49998 A0delta=0
+DYNAMIC_RENDER rate=44100 strength=0.75 peakGR=5.24666 A0delta=0
+DYNAMIC_RENDER rate=44100 strength=1 peakGR=6.18966 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=0.25 peakGR=1.75 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=0.5 peakGR=3.49998 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=0.75 peakGR=5.24687 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=1 peakGR=6.18545 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=0.25 peakGR=1.75 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=0.5 peakGR=3.49998 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=0.75 peakGR=5.24689 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=1 peakGR=6.18814 A0delta=0
+PASS dynamic placement ownership: EQ/slot/bypass A-B-A and reentrant host edit
+PASS active user static Tone curve, existing Tone/Final dynamic slots, free-slot placement and Undo
+PASS Auto Set
+<end of output>
+Test time =  60.74 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAutoSetTests" end time: Oct 29 18:49 PDT
+"ChimeraAutoSetTests" time elapsed: 00:01:00
+----------------------------------------------------------
+
+End testing: Oct 29 18:49 PDT
