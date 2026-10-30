@@ -166,18 +166,24 @@ class Layout:
 
     def uninstall(self, passed: bool) -> None:
         if WINDOWS and self.installed:  # only what install() put there
-            shutil.rmtree(self.plugin)
+            # A locked file must not replace the test's own result; say what is left instead.
+            shutil.rmtree(self.plugin, onexc=lambda _f, path, e: print(f"note: could not remove {path}: {e}"))
             if passed:  # a failed run keeps its logs for the CI artifact
                 shutil.rmtree(self.config, ignore_errors=True)
 
 
-def window_titles(pid: int) -> list[str]:
-    """Titles of the process's visible top-level windows (a dialog that blocks startup shows here)."""
+def top_level_windows(pid: int) -> list[tuple[int, str]]:
+    """The process's visible top-level windows as (handle, title); a dialog that blocks startup shows here."""
     import ctypes
     from ctypes import wintypes
-    user32 = ctypes.windll.user32
-    titles = []
+    # Typed prototypes: untyped ctypes calls pass a window handle as a 32-bit int.
+    user32 = ctypes.WinDLL("user32")
     callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    user32.EnumWindows.argtypes = [callback, wintypes.LPARAM]
+    user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+    user32.IsWindowVisible.argtypes = [wintypes.HWND]
+    user32.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+    found = []
 
     def visit(hwnd, _):
         owner = wintypes.DWORD()
@@ -185,11 +191,15 @@ def window_titles(pid: int) -> list[str]:
         if owner.value == pid and user32.IsWindowVisible(hwnd):
             buffer = ctypes.create_unicode_buffer(512)
             user32.GetWindowTextW(hwnd, buffer, 512)
-            titles.append(buffer.value)
+            found.append((hwnd, buffer.value))
         return True
 
     user32.EnumWindows(callback(visit), 0)
-    return titles
+    return found
+
+
+def window_titles(pid: int) -> list[str]:
+    return [title for _, title in top_level_windows(pid)]
 
 
 def dialog_text(pid: int) -> str:
@@ -219,21 +229,12 @@ def close_windows(pid: int) -> int:
     """Posts WM_CLOSE to the process's visible top-level windows, as the close button does."""
     import ctypes
     from ctypes import wintypes
-    user32 = ctypes.windll.user32
-    found = []
-    callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
-
-    def visit(hwnd, _):
-        owner = wintypes.DWORD()
-        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
-        if owner.value == pid and user32.IsWindowVisible(hwnd):
-            found.append(hwnd)
-        return True
-
-    user32.EnumWindows(callback(visit), 0)
-    for hwnd in found:
+    user32 = ctypes.WinDLL("user32")
+    user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+    windows = top_level_windows(pid)
+    for hwnd, _ in windows:
         user32.PostMessageW(hwnd, 0x0010, 0, 0)  # WM_CLOSE
-    return len(found)
+    return len(windows)
 
 
 class Obs:
@@ -433,7 +434,7 @@ def configure(config: Path, port: int, recordings: Path) -> None:
                             "AlertsEnabled": "false", "AuthRequired": "false", "ServerPassword": ""}
     # OBS 31 keeps these in user.ini; OBS 30 in global.ini.
     for name in ("global.ini", "user.ini"):
-        with (config / name).open("w") as f:
+        with (config / name).open("w", encoding="utf-8") as f:  # OBS reads UTF-8
             glob.write(f, space_around_delimiters=False)
     profile = configparser.ConfigParser()
     profile.optionxform = str
@@ -445,7 +446,7 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     # OBS stores paths with forward slashes on Windows too; backslashes read as a bad recording path.
     profile["SimpleOutput"] = {"FilePath": recordings.as_posix(), "RecFormat2": "mkv", "RecQuality": "Stream",
                                "StreamEncoder": "x264", "VBitrate": "300", "ABitrate": "160"}
-    with (config / "basic" / "profiles" / "Chimera" / "basic.ini").open("w") as f:
+    with (config / "basic" / "profiles" / "Chimera" / "basic.ini").open("w", encoding="utf-8") as f:
         profile.write(f, space_around_delimiters=False)
     # obs-websocket 5.5 (OBS 31) keeps its settings here instead of the ini files.
     websocket = config / "plugin_config" / "obs-websocket"
