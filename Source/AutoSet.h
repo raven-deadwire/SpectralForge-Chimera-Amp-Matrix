@@ -22,8 +22,10 @@ struct Window {float peakDb{-120.f},rmsDb{-120.f};};
 // input). The sample taps share one ring.
 // rig: the amp/cab sum before any post-rig gate. master: the same point as
 // output (after the Final EQ and output trim), as samples.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7};
-inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master;}
+// amp: the signal entering the amp (after the pre-amp effects), as samples in
+// a ring of its own, so it can listen alongside one other sample tap.
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8};
+inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp;}
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -37,7 +39,7 @@ public:
         windowSamples=std::max(1,int(sampleRate*.010));
         for(auto& t:taps){t.count=0;t.peak=0;t.energy=0;}
     }
-    // At most one sample tap at a time; window taps can listen alongside.
+    // At most one sample tap at a time besides Tap::amp; window taps can listen alongside.
     void listen(std::initializer_list<Tap> listened) noexcept {
         int mask=0;for(const auto tap:listened)mask|=1<<int(tap);
         active.store(mask,std::memory_order_release);
@@ -47,7 +49,8 @@ public:
     // Audio thread. Mirrors the clean compressor detector: max of the channels.
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
-        if(sampleTap(tap)){pushSamples(channels,channelCount,samples);return;}
+        if(tap==Tap::amp){pushSamples(ampRing,ampWrite,ampRead,channels,channelCount,samples);return;}
+        if(sampleTap(tap)){pushSamples(sampleRing,sampleWrite,sampleRead,channels,channelCount,samples);return;}
         auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
@@ -73,30 +76,33 @@ public:
         while(r!=w){out.push_back(t.ring[size_t(r)]);r=(r+1)%capacity;}
         t.read.store(r,std::memory_order_release);
     }
-    void drainSamples(std::vector<float>& out) {
-        const auto r=sampleRead.load(std::memory_order_relaxed),w=sampleWrite.load(std::memory_order_acquire);
-        for(auto i=r;i!=w;++i)out.push_back(sampleRing[i%sampleCapacity]);
-        sampleRead.store(w,std::memory_order_release);
-    }
+    void drainSamples(std::vector<float>& out) {drainRing(sampleRing,sampleWrite,sampleRead,out);}
+    void drainAmpSamples(std::vector<float>& out) {drainRing(ampRing,ampWrite,ampRead,out);}
 private:
     static size_t windowIndex(Tap tap) noexcept {return tap==Tap::rig?3:size_t(tap);}
-    void pushSamples(const float* const* channels,int channelCount,int samples) noexcept {
+    using Ring=std::array<float,sampleCapacity>;
+    static void pushSamples(Ring& ring,std::atomic<uint32_t>& write,const std::atomic<uint32_t>& read,const float* const* channels,int channelCount,int samples) noexcept {
         const int used=std::min(2,channelCount);
-        auto w=sampleWrite.load(std::memory_order_relaxed);
+        auto w=write.load(std::memory_order_relaxed);
         for(int n=0;n<samples;++n) {
-            if(w-sampleRead.load(std::memory_order_acquire)>=sampleCapacity)break;
+            if(w-read.load(std::memory_order_acquire)>=sampleCapacity)break;
             float x=0;for(int c=0;c<used;++c)x+=channels[c][n];
-            x/=float(used);sampleRing[w%sampleCapacity]=std::isfinite(x)?x:0.f;++w;
+            x/=float(used);ring[w%sampleCapacity]=std::isfinite(x)?x:0.f;++w;
         }
-        sampleWrite.store(w,std::memory_order_release);
+        write.store(w,std::memory_order_release);
+    }
+    static void drainRing(const Ring& ring,const std::atomic<uint32_t>& write,std::atomic<uint32_t>& read,std::vector<float>& out) {
+        const auto r=read.load(std::memory_order_relaxed),w=write.load(std::memory_order_acquire);
+        for(auto i=r;i!=w;++i)out.push_back(ring[i%sampleCapacity]);
+        read.store(w,std::memory_order_release);
     }
     struct TapState {
         std::array<Window,capacity> ring{};std::atomic<int> write{0},read{0};
         int count{};double peak{},energy{};
     };
     std::array<TapState,4> taps;
-    std::array<float,sampleCapacity> sampleRing{};
-    std::atomic<uint32_t> sampleWrite{0},sampleRead{0}; // unsigned difference works across wrap
+    Ring sampleRing{},ampRing{};
+    std::atomic<uint32_t> sampleWrite{0},sampleRead{0},ampWrite{0},ampRead{0}; // unsigned difference works across wrap
     std::atomic<int> active{0};
     int windowSamples{480};
 };
