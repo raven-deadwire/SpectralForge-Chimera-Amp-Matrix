@@ -92,6 +92,7 @@ def main():
       'block of this many samples, floored at --block-norm-floor-db below the channel\'s mean energy, so quiet decays inside loud crops count')
     ap.add_argument('--block-norm-weight',type=float,default=.5)
     ap.add_argument('--block-norm-floor-db',type=float,default=50.)
+    ap.add_argument('--width',type=int,choices=[3,8],default=8,help='A2 tier: 8 channels (A2-Full) or 3 (A2-Lite); TONE3000 ships both in one container')
     ap.add_argument('--diagnostic-extra-dilations',help='Comma-separated dilations appended (kernel 6) to the A2 layer array. '
       'Diagnostic only: the result is not an A2 model, cannot load in the target player and is exported as Diagnostic-*.nam')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
@@ -125,13 +126,14 @@ def main():
     # Weights decayed to ~1e-30 make denormal activations, which run several times slower on CPU.
     torch.set_flush_denormal(True)
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
-    template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
+    tiers=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels']
+    template=next(t['config'] for t in tiers if t['config']['layers_configs'][0]['channels']==args.width)
     extra=[int(d) for d in args.diagnostic_extra_dilations.split(',')] if args.diagnostic_extra_dilations else []
     if any(d<=0 for d in extra):raise ValueError('Diagnostic dilations must be positive')
     if extra:
         template=copy.deepcopy(template);layers=template['layers_configs'][0]
         layers['dilations']+=extra;layers['kernel_sizes']+=[6]*len(extra)
-    prefix='Diagnostic-' if extra else 'Nastrond-'
+    prefix='Diagnostic-' if extra else ('Nastrond-' if amp_of(json.loads((args.data/'manifest.json').read_text())['source'])=='nastrond' else 'Niflheimr-')
     cfg={'sample_rate':48000,'submodels':[{'name':v[0],'config':copy.deepcopy(template)} for v in VOICES]}
     model=PackedWaveNet.init_from_config(copy.deepcopy(cfg));enable_grouped(model)
     rf=model.receptive_field

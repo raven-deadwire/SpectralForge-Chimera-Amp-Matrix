@@ -22,6 +22,20 @@ void configure(BlockEq& eq,const Json& job) {
   for(int i=0;i<6;++i) if(!eq.setBandFromVar(i,(*bands)[i]))throw std::runtime_error("Invalid EQ band");
   eq.setEnabled(bool(e["enabled"]));eq.setPre(bool(e["pre"]));eq.prepare(48000);
 }
+// TONE3000's local-file A2 gate (ProcessorModelLoader namConfigIsA2): a bare
+// A2 WaveNet, or a SlimmableContainer whose every submodel is one. Returns the
+// tiers' channel counts in container order, or throws.
+std::vector<int> a2Tiers(const Json& model) {
+  const auto bare=[](const Json& m){int ch=0;
+    if(m.value("architecture","")!="WaveNet" || !m.contains("config") || !nam::wavenet::a2_fast::is_a2_shape(m.at("config"),&ch))
+      throw std::runtime_error("TONE3000 rejects non-A2 model");
+    return ch;};
+  if(model.value("architecture","")!="SlimmableContainer")return {bare(model)};
+  const auto& subs=model.at("config").at("submodels");
+  if(!subs.is_array() || subs.empty())throw std::runtime_error("TONE3000 rejects empty container");
+  std::vector<int> tiers;for(const auto& e:subs)tiers.push_back(bare(e.at("model")));
+  return tiers;
+}
 Json inspectPreset(const juce::File& file) {
   auto p=t3k::presetfile::read(file);auto header=t3k::presetfile::readHeader(file);
   if(!header.valid || !p.hasType("T3KPreset"))throw std::runtime_error("Invalid preset framing");
@@ -31,9 +45,9 @@ Json inspectPreset(const juce::File& file) {
     auto cache=b.getChildWithName("ModelCache");auto data=cache.getChild(0)["data"];
     const auto* bytes=data.getBinaryData();if(!bytes)throw std::runtime_error("Missing embedded NAM");
     auto model=Json::parse(static_cast<const char*>(bytes->getData()),static_cast<const char*>(bytes->getData())+bytes->getSize());
-    int channels=0;if(model.value("architecture","")!="WaveNet" || !nam::wavenet::a2_fast::is_a2_shape(model.at("config"),&channels))throw std::runtime_error("Embedded model fails TONE3000 A2 gate");
+    const auto tiers=a2Tiers(model);const int channels=tiers.back();
     BlockEq eq;eq.restoreFromValueTree(b.getChildWithName("Eq"));
-    results.push_back({{"embedded_bytes",bytes->getSize()},{"a2_channels",channels},{"normalize",bool(b["normalize"])},
+    results.push_back({{"embedded_bytes",bytes->getSize()},{"a2_channels",channels},{"a2_tiers",tiers},{"normalize",bool(b["normalize"])},
       {"input_gain_normalized",double(b["inputGain"])},{"output_gain_normalized",double(b["outputGain"])},
       {"eq",Json::parse(juce::JSON::toString(eq.toVar()).toStdString())}});
   }
@@ -64,11 +78,11 @@ void preset(const char* modelPath,const char* outputPath,const Json& job) {
   std::cout<<inspectPreset(juce::File(outputPath)).dump()<<'\n';
 }
 void render(const char* modelPath,const char* inputPath,const char* outputPath,const Json& job) {
-  const auto model=readJson(modelPath);int channels=0;
-  if(model.value("architecture","")!="WaveNet" || !nam::wavenet::a2_fast::is_a2_shape(model.at("config"),&channels))throw std::runtime_error("TONE3000 rejects non-A2 model");
+  const auto model=readJson(modelPath);const auto tiers=a2Tiers(model);
+  const double slim=job.value("slimmable_size",1.0);if(!(slim>=0 && slim<=1))throw std::runtime_error("Invalid slimmable size");
   const int block=job.value("block_size",64);if(block<1 || block>4096)throw std::runtime_error("Invalid block size");
   std::vector<std::unique_ptr<nam::DSP>> instances;instances.push_back(nam::get_dsp(std::filesystem::path(modelPath)));
-  NamEngine engine(std::move(instances),1);engine.setSlimmableSize(1);engine.prepare(block);
+  NamEngine engine(std::move(instances),1);engine.setSlimmableSize(slim);engine.prepare(block);
   BlockEq eq;configure(eq,job);
   std::ifstream in(inputPath,std::ios::binary|std::ios::ate);if(!in)throw std::runtime_error("Input open failed");const auto size=in.tellg();
   if(size<=0 || size%4)throw std::runtime_error("Invalid float32 length");std::vector<float> x(static_cast<size_t>(size)/4);in.seekg(0);if(!in.read(reinterpret_cast<char*>(x.data()),size))throw std::runtime_error("Input read failed");
@@ -84,7 +98,7 @@ void render(const char* modelPath,const char* inputPath,const char* outputPath,c
   double power=0,peak=0;for(const auto v:x){if(!std::isfinite(v))throw std::runtime_error("Nonfinite output");power+=double(v)*v;peak=std::max(peak,std::abs(double(v)));}
   std::ofstream out(outputPath,std::ios::binary);out.write(reinterpret_cast<const char*>(x.data()),size);if(!out)throw std::runtime_error("Output write failed");
   std::sort(times.begin(),times.end());const double p99=times[size_t((times.size()-1)*.99)];
-  std::cout<<Json({{"a2_gate",true},{"a2_channels",channels},{"sample_rate",engine.getModelSampleRate()},{"samples",x.size()},{"peak",peak},{"rms",std::sqrt(power/x.size())},
+  std::cout<<Json({{"a2_gate",true},{"a2_channels",tiers.back()},{"a2_tiers",tiers},{"slimmable_size",slim},{"sample_rate",engine.getModelSampleRate()},{"samples",x.size()},{"peak",peak},{"rms",std::sqrt(power/x.size())},
     {"normalize",job.value("normalize",false)},{"normalization_gain",gain},{"callback_p99_seconds",p99},{"p99_budget_ratio",p99*48000/block},{"deadline_misses",misses},
     {"eq",Json::parse(juce::JSON::toString(eq.toVar()).toStdString())}}).dump()<<'\n';
 }

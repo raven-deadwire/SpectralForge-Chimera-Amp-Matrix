@@ -25,7 +25,10 @@ def eq_for(name):
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--data',type=Path,required=True);ap.add_argument('--run',type=Path,required=True)
     ap.add_argument('--out',type=Path,required=True);ap.add_argument('--tool',type=Path,required=True)
-    ap.add_argument('--comparison',type=Path);ap.add_argument('--compatibility',type=Path);args=ap.parse_args()
+    ap.add_argument('--comparison',type=Path);ap.add_argument('--compatibility',type=Path)
+    ap.add_argument('--lite-run',type=Path,help='Run with the A2-Lite (3-channel) models; each file then becomes the TONE3000 '
+      'SlimmableContainer of Lite (slimmable size below 0.5) and Full, the format TONE3000 lists as A2')
+    args=ap.parse_args()
     torch.set_num_threads(2)
     if args.out.exists() and any(args.out.iterdir()):raise RuntimeError('Package output must be empty')
     for d in ['NAM','TONE3000-Presets','Settings','Validation','Audio','Training']:(args.out/d).mkdir(parents=True,exist_ok=True)
@@ -57,6 +60,22 @@ def main():
                'gain_after_initial_pad':calibration_gain,'normalize_in_preset':False}})
             original.export(args.out/'NAM',basename='Nastrond-'+name,include_snapshot=False,other_metadata=meta)
             model=init_from_nam(json.loads(path.read_text())).eval()
+            lite=None
+            if args.lite_run:
+                # Lite gets Full's fixed output scale, so switching tiers keeps the
+                # calibrated level; its own level error is reported, not hidden.
+                lite=init_from_nam(json.loads((args.lite_run/f'Nastrond-{name}.nam').read_text())).eval()
+                if lite._net._layer_arrays[0]._rechannel.out_channels!=3:raise RuntimeError(f'Not an A2-Lite model: {name}')
+                lite._net._head_scale*=output_scale
+                with tempfile.TemporaryDirectory() as tier_dir:
+                    lite.export(Path(tier_dir),basename='lite',include_snapshot=False,other_metadata=meta)
+                    lite_dict=json.loads((Path(tier_dir)/'lite.nam').read_text())
+                full_dict=json.loads(path.read_text())
+                container={'version':full_dict['version'],'metadata':dict(full_dict['metadata']),'architecture':'SlimmableContainer',
+                  'config':{'submodels':[{'max_value':.5,'model':lite_dict},{'max_value':1.,'model':full_dict}]},'weights':[],
+                  'sample_rate':full_dict.get('sample_rate',48000)}
+                container['metadata']['a2_tiers']={'lite':'3 channels, slimmable size below 0.5','full':'8 channels'}
+                path.write_text(json.dumps(container))
             subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(job_file)],text=True)
             measured=np.fromfile(rendered,dtype='<f4')[model.receptive_field:].astype(np.float64)
             calibrated_rms_db=10*math.log10(float(np.mean(measured**2)))
@@ -74,6 +93,17 @@ def main():
             max_abs=float(np.max(np.abs(cpp[model.receptive_field:]-python[model.receptive_field:])))
             parity['max_abs']=max_abs;parity['pass']=parity['residual_rms_dbfs']<=-80
             if not parity['pass']:raise RuntimeError(f'TONE3000 engine parity failed: {name}')
+            lite_report=None
+            if lite is not None:
+                write_json(job_file,{'block_size':64,'normalize':False,'slimmable_size':.25})
+                lite_runtime=json.loads(subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(job_file)],text=True))
+                if lite_runtime['a2_tiers']!=[3,8]:raise RuntimeError(f'Container tiers are not Lite+Full: {name}')
+                lite_cpp=np.fromfile(rendered,dtype='<f4');lite_parity=scores(lite_cpp,predict(lite,ax))[0]
+                lite_parity['pass']=lite_parity['residual_rms_dbfs']<=-80
+                if not lite_parity['pass']:raise RuntimeError(f'TONE3000 Lite engine parity failed: {name}')
+                lite_py=predict(lite,vx)
+                lite_report={'python_tone3000_parity':lite_parity,'engine':lite_runtime,
+                  'tone3000_fidelity':fidelity(lite_py/output_scale,reference/output_scale,name,vx)}
             np.zeros(48000,dtype='<f4').tofile(raw)
             subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(job_file)],text=True)
             quiet=np.fromfile(rendered,dtype='<f4')[model.receptive_field:]
@@ -98,7 +128,7 @@ def main():
             # inaccurate model's calibration rather than silently PCM-clip them.
             sf.write(args.out/'Audio'/f'{name}-Native-left-NAM-right.wav',np.stack([native,cpp],axis=1),48000,subtype='FLOAT')
             sf.write(args.out/'Audio'/f'{name}-TONE3000-EQ.wav',audition,48000,subtype='FLOAT')
-            reports[name]={'character':character,'model_sha256':digest(path),'preset_sha256':digest(preset),
+            reports[name]={'character':character,'model_sha256':digest(path),'preset_sha256':digest(preset),'lite':lite_report,
               'validation':stat,'python_tone3000_parity':parity,'silence_dbfs':silence_db,'engine':runtime,'preset':state,'eq_engine':eq_runtime,
               'reference_output_scale':output_scale,'level_calibration':dict(meta['level_calibration'],measured_final_rms_dbfs=calibrated_rms_db),
               'tone3000_fidelity':fidelity(py/output_scale,reference/output_scale,name,vx)}

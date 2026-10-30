@@ -26,7 +26,8 @@ def verify_audio_manifest(data):
         previous = split_inputs.setdefault(row['split'], row['input_sha256'])
         if previous != row['input_sha256']:
             raise RuntimeError('Channels do not share split input')
-    names = {'Fenrir', 'Surtr', 'Nidhoggr', 'Fimbulvetr', 'Ragnarok'}
+    from capture_channels import AMPS, amp_of
+    names = {v[0] for v in AMPS[amp_of(manifest.get('source', {}))]['voices']}
     splits = {'train', 'validation', 'test', 'audition'}
     if seen != {(s, n) for s in splits for n in names}:
         raise RuntimeError('Missing or unexpected capture')
