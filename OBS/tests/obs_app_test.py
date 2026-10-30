@@ -303,9 +303,18 @@ class Obs:
                     raise RuntimeError(f"{kind} failed: {status}")
                 return message["d"].get("responseData") or {}
 
+    def blocking_ui(self) -> str:
+        """What OBS shows on screen, when a dialog may be holding it (Windows only)."""
+        if not WINDOWS or self.process.poll() is not None:
+            return ""
+        return f" (OBS windows {window_titles(self.process.pid)}; text: {dialog_text(self.process.pid)})"
+
     def record(self, name: str, seconds: float) -> Path:
         self.request("StartRecord")
-        wait_until(lambda: self.request("GetRecordStatus")["outputActive"], f"{name} recording started", 15)
+        try:
+            wait_until(lambda: self.request("GetRecordStatus")["outputActive"], f"{name} recording started", 15)
+        except RuntimeError as e:
+            raise RuntimeError(f"{e}{self.blocking_ui()}") from None
         time.sleep(seconds)
         path = Path(self.request("StopRecord")["outputPath"])
         wait_until(lambda: not self.request("GetRecordStatus")["outputActive"], f"{name} recording stopped", 15)
@@ -581,9 +590,19 @@ def main() -> int:
                   f"{sorted(str(p.relative_to(args.layout.config)) for p in args.layout.config.rglob('*'))[:40]}",
                   file=sys.stderr)
         crashes = sorted((args.layout.config / "crashes").glob("*.txt"))[-1:]
-        for log in [*sorted(work.glob("obs-run-*.txt")), *crashes, *logs]:
+        for log in [*sorted(work.glob("obs-run-*.txt")), *crashes]:
             print(f"--- {log.name} (last 60 lines)", file=sys.stderr)
             print("\n".join(log.read_text(errors="replace").splitlines()[-60:]), file=sys.stderr)
+        keys = ("error", "warning", "fail", "record", "output", "encoder", "chimera")
+        for log in logs:
+            lines = [line for line in log.read_text(errors="replace").splitlines()
+                     if any(k in line.lower() for k in keys)]
+            print(f"--- {log.name}: error, output and Chimera lines", file=sys.stderr)
+            print("\n".join(lines[-80:]), file=sys.stderr)
+        # Kept for the CI artifact, which collects the work folder.
+        for folder in ("logs", "crashes"):
+            if (args.layout.config / folder).is_dir():
+                shutil.copytree(args.layout.config / folder, work / f"obs-{folder}", dirs_exist_ok=True)
         return 1
     finally:
         args.layout.uninstall(passed)

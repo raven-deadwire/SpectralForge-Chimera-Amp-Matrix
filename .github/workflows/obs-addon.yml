@@ -153,8 +153,8 @@ jobs:
           path: |
             ${{ runner.temp }}/obs-app/*.png
             ${{ runner.temp }}/obs-app/*.txt
-            ~/AppData/Roaming/obs-studio/logs/
-            ~/AppData/Roaming/obs-studio/crashes/
+            ${{ runner.temp }}/obs-app/obs-logs/
+            ${{ runner.temp }}/obs-app/obs-crashes/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
