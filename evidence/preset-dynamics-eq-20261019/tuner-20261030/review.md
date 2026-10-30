@@ -4,15 +4,15 @@
 
 ## 결정과 승인 범위
 
-450/500 ms 복원 대신 #205의 **1200 ms 워커 정지 / 1500 ms 재개 관찰 제한**을 유지한다. 소유자의 2026-10-30 요청은 다음 조건부 수정 지시를 포함한다.
+450/500 ms 복원 대신 #205의 **1200 ms 워커 정지 / 1500 ms 재개 관찰 제한**을 유지하는 수정 후보를 권고한다. **소유자의 명시적 검토 및 해시 재등록 승인은 대기 중이다.**
 
-> 장시간 대기를 유지하는 편이 타당하다면 테스트 내용과 검증 규칙을 확인한 뒤 승인 절차에 맞게 수정해줘. 해시 고정 검사를 제거하거나 우회하지 말아줘.
+이전 커밋 `10641acd2e7601e97cdcadc61d9c354aa57b505d`는 검증·수정 요청을 재등록 승인으로 해석했다. 후속 검토에서는 그 해석을 뒷받침하는 명시적 사용자 승인 원문을 확인하지 못했다. 사용자 요청에는 소유자 검토가 필요한 절차를 우회하지 말라는 제한이 있다. 따라서 이전의 승인 완료 표기를 정정하고, 승인된 해시를 `1371469c…`로 복원했다. 긴 시간값과 변조 거부 테스트는 검토 후보로 보존한다.
 
-이 지시에 따라 실제 변경, 원래 실패, 모든 assertion과 해시 계약을 검토한 뒤 아래 한 파일의 정확한 바이트만 재승인 범위로 기록한다. 승인 출처는 현재 소유자 요청이며, 별도의 GitHub APPROVE 리뷰를 받았다는 의미는 아니다. 과거 `49432103f2974d93cb760c39db5126979e3bb0bd`의 검토 기록 방식과 같이 고정값 옆에 근거를 연결했다.
+아래 새 해시는 **후보**이며 현재 승인값이 아니다. Draft 상태에서 정확한 후보·회귀 증거를 검토한 뒤 소유자가 승인해야 등록할 수 있다. 과거 승인이나 자동 검토 결과를 이번 승인으로 승계하지 않는다. 추가 비교 결과와 30회 실험은 [후속 검토](../../../docs/TUNER_STALL_REVIEW_20261030.md)에 있다.
 
 - 파일: `Tests/PrecisionTunerIntegrationTests.cpp`
 - 이전 SHA-256: `1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60`
-- 이번 SHA-256: `8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc`
+- 등록 대기 후보 SHA-256: `8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc`
 - #205의 파일을 바이트 단위로 재사용한다. CRLF도 보존한다. 줄바꿈 정규화로 해시를 맞추지 않는다.
 - 제품 DSP, 250 ms stale 유효기간, 280 ms stale 관찰 대기, 250 ms 정지 진입 확인, 290 ms 획득/안정화 기준, 0.1 cent 정확도, FIFO/generation 처리와 모든 assertion은 그대로다.
 - `verify_source_scope()`의 단일 SHA-256 비교와 실패 처리는 그대로다. 임의 변경 허용, 자동 재계산, 구/신 해시 동시 허용, skip을 추가하지 않는다.
@@ -45,7 +45,7 @@ macOS attempt 1 원본 artifact ID `12768324009`, 파일명 `PrecisionTuner-Work
 
 해시 자체도 계산했다. `4943210`과 원래 #222는 이전 해시와 일치한다. #205 및 확인한 main `a65be23141be26203cd8b49a93dff1895a7da2d2`는 새 파일 해시인데 pin은 이전 값이라 불일치한다. `preset-maintenance.yml`은 PR의 `preset-maintenance` 라벨을 조건으로 실행하므로 원래 #205/#222에서는 **skipped**였다. Python 단위시험 성공을 그 workflow 성공으로 쓰지 않는다.
 
-## 이번 로컬 검증
+## 10641ac에서 보고한 로컬 후보 검증
 
 환경: Linux, GCC 13.3, JUCE 8.0.8, Release, qualification-only. checkout `9163ec6`에 위 세 파일 변경을 적용한 로컬 빌드다. 빌드에 기록된 revision은 checkout SHA이며 이후 생성되는 GitHub 커밋의 배포 바이너리가 아니다.
 
@@ -81,4 +81,4 @@ python Tools/test_preset_maintenance.py
 
 별도 수정은 실패하는 GCC 15.2 환경에서 actual/expected/diff PNG, transform float 비트, 최초 차이 좌표·채널·최대 차이를 보존하는 진단부터 시작해야 한다. 검토 범위는 `CabHeadAppearanceTests.h`, `CabHeadView.h`, `AmpHeadShellMetadata.h`, embedded HeadShell assets 및 JUCE/software renderer·compiler 조건이다. 픽셀 허용오차 확대나 이미지 변경으로 먼저 성공시키지 않는다. 이 PR은 그 파일들과 검사 기준을 변경하지 않는다.
 
-새 커밋의 원격 CI는 별도로 확인해야 한다. 위 과거 CI 및 로컬 튜너 PASS를 새 커밋의 전체 CI PASS나 병합 승인으로 승계하지 않는다.
+승인값 복원 후 현재 Python 검사는 예상대로 해시 불일치 1건을 보고한다(22/23). 이는 승인 대기 차단이며 PASS로 취급하지 않는다. 새 커밋의 원격 CI는 별도로 확인해야 한다. 위 과거 CI 및 로컬 튜너 PASS를 새 커밋의 전체 CI PASS나 병합 승인으로 승계하지 않는다.
