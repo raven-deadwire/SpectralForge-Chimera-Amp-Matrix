@@ -321,6 +321,9 @@ private:
     std::vector<spectralforge::SignalOrder> orderUndo,orderRedo;
     void writeOrder(const spectralforge::SignalOrder& order);
     bool commitOrder(const spectralforge::SignalOrder& next);
+    // The SYNTH bus is delayed by the reported latency, like the main output.
+    juce::AudioBuffer<float> busDelay;int busDelayWrite{};
+    void delaySynthBus(float* left,float* right,int samples) noexcept;
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;

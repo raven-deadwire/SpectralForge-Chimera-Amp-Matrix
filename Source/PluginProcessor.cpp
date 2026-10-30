@@ -165,6 +165,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     autoSetCaptureState.prepare(sr);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)juce::jmax(1,getMainBusNumOutputChannels())};
     keyBuffer.setSize(2,maximumBlock);keyBuffer.clear();
+    busDelay.setSize(2,int(sr)+maximumBlock+1);busDelay.clear();busDelayWrite=0;   // up to 1 s of latency
     // Install the restored panel state before Cab::prepare initializes its
     // smoothers. This also clears a previous A/B blend/bypass after reprepare;
     // the normal process() path still smooths live automation as before.
@@ -288,7 +289,11 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
             juce::AudioBuffer<float> part(sub.data(),buffer.getNumChannels(),n);
             // This chunk's key, copied before the SYNTH bus overwrites it.
             juce::AudioBuffer<float> key(keyBuffer.getArrayOfWritePointers(),juce::jmin(2,keyBus.getNumChannels()),n);
-            for(int c=0;c<key.getNumChannels();++c)key.copyFrom(c,0,keyBus,c,offset+done,n);
+            for(int c=0;c<key.getNumChannels();++c){
+                key.copyFrom(c,0,keyBus,c,offset+done,n);
+                // A non-finite key sample would stick in the keyed detectors' state.
+                auto* k=key.getWritePointer(c);for(int i=0;i<n;++i)if(!std::isfinite(k[i]))k[i]=0.f;
+            }
             externalKey=key.getNumChannels()>0?&key:nullptr;
             chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*tempoMeter.load()/60.0/rate:hostPpq;
             busLeft=synthBus.getNumChannels()>0?synthBus.getWritePointer(0,offset+done):nullptr;
@@ -421,7 +426,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     {   // SYNTH output: the guitar mix, its own bus, or both. Without a SYNTH bus it stays in the mix.
         const int output=juce::jlimit(0,2,juce::roundToInt(synthOutput->load()));const bool bus=busLeft!=nullptr;
         synth.setOutputs(output!=1 || !bus,bus && output>=1);
-        if(bus)synth.writeBus(busLeft,busRight,buffer.getNumSamples());
+        if(bus){synth.writeBus(busLeft,busRight,buffer.getNumSamples());delaySynthBus(busLeft,busRight,buffer.getNumSamples());}
     }
     synthTracked.store(synth.read().on?synth.pitchTracker().hz():0.0,std::memory_order_relaxed);
     auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=modelExtensionParameters[i]?spectralforge::effectSelectedModel(int(i),modelParameters[i]->load(),modelExtensionParameters[i]->load()):(int)modelParameters[i]->load();fx.tempo=tempoMeter.load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
@@ -948,9 +953,29 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
     saved.appendChild(midi,nullptr);
     // SYNTH samples belong to the project, not to an A/B slot.
     saved.appendChild(spectralforge::synthSample::save(synth),nullptr);
-    if(!spectralforge::irState::serialize(saved,data))return false;
+    // Too large with the samples (64 MB budget): keep the project, without them.
+    if(!spectralforge::irState::serialize(saved,data)) {
+        saved.removeChild(saved.getChildWithName("SYNTH_SAMPLES"),nullptr);
+        if(!spectralforge::irState::serialize(saved,data))return false;
+    }
     comparisons[(size_t)active]=core;
     return true;
+}
+// The host compensates every output by the reported latency, so the SYNTH bus
+// (rendered without delay) is delayed by it too, staying aligned with the
+// main output and the timeline. Capacity: 1 s.
+void ChimeraProcessor::delaySynthBus(float* left,float* right,int samples) noexcept
+{
+    const int size=busDelay.getNumSamples();if(size<2)return;
+    const int latency=juce::jlimit(0,size-1,getLatencySamples());
+    if(latency==0)return;
+    auto* l=busDelay.getWritePointer(0);auto* r=busDelay.getWritePointer(1);
+    for(int n=0;n<samples;++n){
+        l[busDelayWrite]=left[n];r[busDelayWrite]=right!=nullptr?right[n]:left[n];
+        int read=busDelayWrite-latency;if(read<0)read+=size;
+        left[n]=l[read];if(right!=nullptr && right!=left)right[n]=r[read];
+        if(++busDelayWrite>=size)busDelayWrite=0;
+    }
 }
 void ChimeraProcessor::beginSwitch()
 {
@@ -1017,9 +1042,11 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
     restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);
-    {auto loaded=spectralforge::synthSample::restore(restored.getChildWithName("SYNTH_SAMPLES"));
-     for(int o=0;o<spectralforge::synthOscCount;++o)synth.swapSample(o,std::move(loaded[(size_t)o]));}
+    auto loaded=spectralforge::synthSample::restore(restored.getChildWithName("SYNTH_SAMPLES"));
     restored.removeChild(restored.getChildWithName("SYNTH_SAMPLES"),nullptr);restoreCore(restored);
+    // After restoreCore has started the switch, so the new samples are not
+    // heard through the old settings before the fade.
+    for(int o=0;o<spectralforge::synthOscCount;++o)synth.swapSample(o,std::move(loaded[(size_t)o]));
     warmInactiveComparison();
 }
 void ChimeraProcessor::selectComparison(int slot)

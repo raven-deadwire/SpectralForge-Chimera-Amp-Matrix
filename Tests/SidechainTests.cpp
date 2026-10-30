@@ -12,6 +12,7 @@
 #include <functional>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <new>
 #include <stdexcept>
@@ -171,6 +172,25 @@ void synthBus() {
     std::cout<<"PASS SYNTH output choice, fallback without a bus, shared channels, bypass\n";
 }
 
+// Review fixes (10/30): a non-finite key sample does not break the keyed
+// compressor; the SYNTH bus is delayed by the reported latency like the
+// main output.
+void reviewFixes() {
+    Rig r(true,false);r.set("cleanCompOn",1);r.set("cleanCompThreshold",0);r.set("cleanCompRatio",20);r.set("cleanCompAttack",1);r.set("cleanCompKnee",0);r.set("scKeyComp",1);
+    const int bad=int(.2*rate);
+    const auto key=[bad](int n){return n==bad?std::numeric_limits<float>::quiet_NaN():n==bad+1?std::numeric_limits<float>::infinity():float(4*std::sin(2*pi*220*n/rate));};
+    const auto out=r.run(1.5,sine(.0316,220),key).main;
+    const double keyed=rms(out,.6,1.5);bool finite=true;for(float x:out)finite=finite&&std::isfinite(x);
+    Rig b(false,true);b.set("synthOn",1);b.set("synthSource",2);b.set("synthOutput",2);
+    const auto played=b.run(.5,silent(),silent(),[](int k,juce::MidiBuffer& m){if(k==2)m.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);});
+    int onset=-1;for(size_t n=0;n<played.bus.size();++n)if(std::abs(played.bus[n])>1e-7f){onset=int(n);break;}
+    const int latency=b.p->getLatencySamples();
+    std::cout<<"MEASURE review fixes: keyed compressor after a NaN and an Inf key sample "<<db(keyed)<<" dBFS (main -30); SYNTH bus onset "<<onset-2*block<<" samples after the note, latency "<<latency<<"\n";
+    require(finite && db(keyed)<-38,"A non-finite key sample broke the keyed compressor");
+    require(latency>0 && std::abs(onset-2*block-latency)<=1,"The SYNTH bus is not delayed by the reported latency");
+    std::cout<<"PASS non-finite key samples are ignored; the SYNTH bus follows the reported latency\n";
+}
+
 void callback() {
     // Every key switch and both buses on, with a key and MIDI: no allocations after the first block.
     Rig r(true,true);for(const auto* id:{"scKeyComp","scKeyGates","scKeyMultiband","cleanCompOn","mbOn","synthOn"})r.set(id,1);r.set("synthOutput",2);r.set("synthSource",0);
@@ -187,7 +207,7 @@ void callback() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {layouts();compressorKey();gateKeys();multibandKey();consoleVcaKey();synthBus();callback();}
+    try {layouts();compressorKey();gateKeys();multibandKey();consoleVcaKey();synthBus();reviewFixes();callback();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

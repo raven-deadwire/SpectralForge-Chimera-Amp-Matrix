@@ -168,6 +168,27 @@ Fixes made while testing:
 - Seidr's waves move towards square, so the brightness test reads an odd
   harmonic; the 16th vanishes there.
 
+## Review fixes (10/30)
+
+- **Sample → Wave mid-note:** the Wave branch read the sample's frame
+  position as a phase, which spiked (up to 1e14 before the filter and
+  safety stage). Leaving Sample mode now wraps the phase.
+- **START:** a sample that becomes readable after the attack (a new sample
+  on a held note, a mode change, a sample swap in progress) now starts at
+  START. Each voice remembers the sample each oscillator last read.
+- **Project restore:** the restored samples are swapped in after the switch
+  fade has started, not before.
+- **State:**
+  - Peaks above full scale are scaled into range for the 24-bit FLAC and
+    restored with a stored gain; before, they were clipped.
+  - The encoding is cached on the sample, so hosts that ask for the state
+    often do not re-encode it each time.
+  - If the samples push the state past its 64 MB budget, the project is saved
+    without them instead of not at all.
+- **Not changed:** a host that saves or restores the state off the message
+  thread while the page loads a sample could race; the sample is read there
+  without the lock.
+
 ## Not done
 
 - **Wavetables:** wavetable import (cutting a sample into single cycles) and
