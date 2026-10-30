@@ -2,7 +2,7 @@
 
 **상태: 입력 검증 도구 준비. 실제 PACE 서명·retail Pro Tools·signed 설치기 수용은 BLOCKED.**
 
-10/30 후속: Avid 개발 번들 코드는 10/29 01:45 KST 발급됐습니다. 등록·iLok 지급/활성화 및 Windows Developer 시험은 아직 미확인입니다. [별도 Windows 시험 절차](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md)를 따릅니다. Developer는 세션 저장이 불가하므로 저장/재열기는 signed 일반 Pro Tools에서 검증합니다.
+10/30 후속: Avid 개발 번들 코드는 10/29 01:45 KST 발급됐습니다. 10/30 로그인·사용자 승인에 따른 약관 동의 후 Avid가 원문과 일치하는 코드를 invalid로 거부했습니다. 등록은 미완료이며 코드 상태 확인이 필요합니다. iLok 지급/활성화 및 Windows Developer 시험은 아직 미확인입니다. [별도 Windows 시험 절차](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md)를 따릅니다. Developer는 세션 저장이 불가하므로 저장/재열기는 signed 일반 Pro Tools에서 검증합니다.
 
 ## 1. 공식 절차와 구현의 대조
 

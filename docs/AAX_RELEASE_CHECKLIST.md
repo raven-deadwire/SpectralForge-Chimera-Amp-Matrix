@@ -45,7 +45,7 @@ expiry time/timezone is stated. This is unrelated to Chimera's beta expiry.
 - [x] Pro Tools Developer Bundle activation code issued **October 29, 01:45 KST**;
       official Devauth email read October 30. The retry is superseded; no duplicate request sent.
 - [ ] Redeem in the Avid developer account and verify the intended iLok account.
-      Sign-in completed and code submitted; Avid Software License Agreement confirmation is pending. No completed redemption is claimed.
+      Sign-in and user-authorized EULA acceptance completed. Avid then rejected the exact email code as invalid (October 30); no completed redemption is claimed. Resolve code status with Avid Devauth before retrying.
 - [ ] Verify actual Pro Tools Intro, Developer Build and Prerelease deposits
       and activation in ILM; receipt of an activation code is not a deposit.
 - [ ] Complete the [Windows unsigned Developer-host test](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md).

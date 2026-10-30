@@ -1,6 +1,6 @@
 # Windows AAX Developer 테스트 — 2026-10-30 KST
 
-**현재 결과: 준비 문서와 기존 CI 산출물 확인. Avid 등록·iLok 활성화·사용자 Windows 설치·실제 호스트 검증은 완료되지 않았습니다.**
+**현재 결과: Avid 로그인·승인된 약관 동의 후 코드가 invalid로 거부됐습니다. 개발자 다운로드 목록과 기존 CI 산출물은 확인했으나 Avid 등록·iLok 활성화·사용자 Windows 설치·실제 호스트 검증은 완료되지 않았습니다.**
 이 절차는 기존 unsigned AAX를 이용한 개발 시험이며 PACE 서명이나 공개 배포 승인을 대신하지 않습니다.
 
 ## 1. 실제로 확인한 범위
@@ -9,7 +9,8 @@
 |---|---|---|
 | PACE 관리자 및 도구 라이선스 | 10/27 08:15 KST 공식 메일: Central Access/Fusion SDK 각 1개, 2027-11-01 만료, AAX 서명 전용 | 발급 확인; 실제 ILM/USB 활성화 미확인 |
 | Avid 개발 번들 | 10/29 01:45 KST Devauth 발급 메일을 10/30 직접 확인 | 코드 발급 확인; 등록 완료 아님 |
-| Avid 계정 | 사용자 로그인 완료, 코드 제출 후 Avid Software License Agreement 화면 확인 | 약관 동의 대기; 등록 확정·iLok 대상 확인 미완료 |
+| Avid 계정 | 로그인 및 사용자 승인에 따른 약관 동의 후 invalid code 오류. 제출값은 발급 메일 원문과 일치 | BLOCKED_INVALID_CODE; 등록·iLok 대상 확인 미완료 |
+| Avid 다운로드 | 개발자 계정에서 Windows Developer 및 일반 Pro Tools 다운로드 목록 접근 | 버전 목록 확인; 다운로드·ReadMe 확인·설치 NOT_RUN |
 | Avid 라이선스 3종 | 발급 안내에 Intro / Developer Build / Prerelease 명시 | 실제 지급/활성화는 UNKNOWN |
 | Windows AAX 개발 패키지 | 아래 Actions run, 두 OS job의 성공 및 만료되지 않은 artifact 메타데이터 확인 | CI BUILT; 사용자 PC 설치/실행 NOT_RUN |
 | 로컬 제어 | 웹 브라우저만 연결, Windows 네이티브 앱·파일시스템 직접 접근 불가 | ILM, USB 연결, Pro Tools 실행 및 청감 검증 불가 |
@@ -17,6 +18,16 @@
 공개 문서에는 코드, 개인 이메일/메일 링크, 계정 ID, USB 시리얼, 라이선스 고유 ID, WCGUID, 개인키, 로그인 화면/계정 원문을 넣지 않습니다. 결과 공유 전 스크린샷과 로그의 식별자도 제거합니다.
 
 ## 2. Avid 등록과 ILM 확인
+
+### 10/30 실제 계정 작업 결과
+
+- 발급 대상 Avid 계정에 로그인하고, 사용자 승인 후 Software License Agreement의 `Agree and continue`를 눌렀습니다. 이어 `Sorry, the code you provided is invalid.` 오류가 표시됐습니다.
+- 입력값을 발급 메일 원문과 대조해 정확히 일치하고 숨은 공백이 없음을 확인했습니다. 원문 자체의 유효성·대상 계정 매핑·사용 이력은 알 수 없으므로 문자 교체나 반복 제출을 하지 않습니다.
+- My Products에는 Avid Link와 Pro Tools Intro가 보였으며 Intro는 `Claim and Activate` 상태였습니다. 이 표시는 iLok 지급/활성화의 증거가 아닙니다. Developer Bundle 등록 완료도 확인되지 않았습니다. Avid의 기본 iLok 계정은 연결되지 않은 상태였고 대상 선택 단계에는 도달하지 못했습니다.
+- 확인 범위의 후속 Devauth 메일에서 대체 코드는 발견되지 않았습니다. 다음 외부 조치는 기존 발급 메일에 코드 상태 확인/필요시 재발급을 요청하는 것입니다. 제공사에 메시지는 보내지 않았습니다.
+- 아래 등록 절차는 코드 문제 해결 후 계속합니다. 실제 ILM의 지급 상태는 계속 **UNKNOWN**이며 오류 화면만으로 미지급이라고 단정하지 않습니다.
+
+### 코드 문제 해결 후 절차
 
 1. [Avid 계정](https://my.avid.com)에 **발급 대상 개발자 계정**으로 로그인합니다. 비밀번호는 채팅이나 문서에 입력하지 않습니다.
 2. `Register Software With Code`에서 발급 메일의 코드를 사용합니다. 코드를 URL·터미널·GitHub/CI에 넣지 않습니다. 이미 등록됐다는 메시지가 나오면 반복 제출하지 말고 등록 제품과 ILM을 확인합니다.
@@ -36,7 +47,16 @@
 
 ## 3. Windows 호스트 준비
 
-1. [Avid 개발자 다운로드](https://my.avid.com/products/cppsdk)에서 Windows Developer 배포본과 함께 제공되는 `ReadMe.txt`를 확인합니다. 정확한 호스트 버전, 지원 Windows, 일반 Pro Tools와의 설치 관계는 이 배포본 기준으로 정합니다. 로그인 전에는 특정 버전을 추정하거나 비공개 다운로드 URL을 재배포하지 않습니다.
+10/30 로그인한 [개발자 다운로드 페이지](https://my.avid.com/products/cppsdk)에서 아래 Windows 항목을 확인했습니다. 이는 다운로드 목록 접근 확인이며 설치나 실행 성공이 아닙니다. 직접 다운로드 URL은 재배포하지 않습니다.
+
+| 항목 | 페이지 표시 | 현재 |
+|---|---|---|
+| Developer 후보 | Pro Tools Dev 2026.4.0 (Win), 2.18 GB | 목록 확인; 다운로드/ReadMe 확인/설치 NOT_RUN |
+| 일반 호스트 후보 | Pro Tools 2026.4.1 Win (ZIP), 4.34 GB | 목록 확인; 다운로드/ReadMe 확인/설치 NOT_RUN |
+
+두 버전의 설치 조합과 지원 Windows는 아직 ReadMe로 확인하지 않았습니다. 아래 순서로 호환성을 확인한 뒤 사용하며, 목록에 있던 prerelease beta를 이 시험의 기본 호스트로 선택하지 않습니다.
+
+1. [Avid 개발자 다운로드](https://my.avid.com/products/cppsdk)에서 Windows Developer 배포본과 함께 제공되는 `ReadMe.txt`를 확인합니다. 정확한 호스트 버전, 지원 Windows, 일반 Pro Tools와의 설치 관계는 이 배포본 기준으로 정합니다. 위 목록의 버전 조합을 호환성이 검증된 구성으로 간주하지 않습니다.
 2. 해당 ReadMe에 따라 일반 Pro Tools와 Developer를 준비합니다. Avid 발급 메일의 필수 순서대로 **일반 Pro Tools를 먼저 한 번 실행한 후 Developer**를 실행합니다.
 3. 오디오 인터페이스의 ASIO 드라이버를 선택하고 우선 48kHz / 128 samples로 설정합니다. 스피커/헤드폰 출력과 DI 입력 경로를 확인하고 중복 다이렉트 모니터링은 시험 결과와 구분합니다.
 4. Developer는 세션 저장이 비활성화됩니다. 필요하면 unsigned Chimera 설치 전에 일반 호스트에서 DI 오디오가 들어 있는 빈 시험 세션을 만들고 저장해 둡니다. 원본 음악 작업 세션을 시험용으로 덮어쓰지 않습니다.
@@ -149,7 +169,11 @@ windows_version / cpu: UNKNOWN
 pro_tools_edition / version: UNKNOWN
 interface / asio_driver: UNKNOWN
 sample_rate_hz / buffer_samples: UNKNOWN
-avid_redemption: PENDING_EULA_CONFIRMATION
+avid_eula: ACCEPTED_WITH_USER_AUTHORIZATION
+avid_redemption: BLOCKED_INVALID_CODE
+avid_code_matches_issuance_email: true
+avid_developer_download_listing: VERIFIED
+host_download_install: NOT_RUN
 ilok_intro / developer / prerelease_deposit: UNKNOWN
 host_license_activation: UNKNOWN
 pace_central_usb_activation / fusion_activation: UNKNOWN
@@ -158,12 +182,13 @@ developer_session_save: NOT_SUPPORTED
 signed_retail_session_restore: NOT_RUN
 pace_verification: NOT_RUN
 release_approved: false
-errors / observations / sanitized_evidence: NONE
+errors / observations / sanitized_evidence: Avid rejected exact-email code as invalid; local tests not run
 ```
 
 ## 근거
 
 - 10/27 PACE 관리자 생성·라이선스 지급 메일 및 10/29 Avid Devauth 개발 번들 발급 메일. 원문과 코드는 비공개로 유지.
+- 10/30 Avid 등록 오류·My Products·개발자 다운로드 목록의 브라우저 관찰. 오류 원인과 실제 iLok 지급 상태는 미확정.
 - [iLok 공식 라이선스/활성화 안내](https://help.ilok.com/faq_licenses.html), [Cloud 안내](https://help.ilok.com/faq_cloud.html).
 - [Avid AAX SDK Pro Tools Guide](https://learn-cdn.avid.com/AAX_SDK_2p1p1/Documentation/Doxygen/output/html/a00274.html)의 Developer 제한. 오래된 SDK 문서이므로 현재 설치 조건은 내려받은 빌드 ReadMe와 발급 메일을 우선.
 - 위 Actions run과 동일 소스의 `.github/workflows/aax-native.yml`, `Tools/aax_native.py`, `Source/PluginProcessor.cpp`의 파라미터 정의.

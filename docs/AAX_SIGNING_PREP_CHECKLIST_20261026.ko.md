@@ -25,9 +25,10 @@
 | Fusion SDK | 1개 지급, 만료일 **2027-11-01** | USB iLok 또는 iLok Cloud 활성화 미확인 |
 | USB iLok | 주문 이력만 있음 | 도착·세대·연결·활성화·서명 인증서 미확인 |
 | AAX Cloud Signing 서비스 | 별도 발급 근거 없음 | Fusion SDK의 Cloud 활성화 지원과 다른 권한 |
-| Pro Tools Developer Bundle 코드 | **10/29 01:45 KST 발급 확인** | 재신청 불필요. Avid 코드 등록·대상 iLok 계정 확인은 미완료 |
+| Pro Tools Developer Bundle 코드 | **10/29 01:45 KST 발급 확인** | 기존 재신청 일정 종료. 10/30 코드 거부 원인 확인 및 필요시 재발급이 선행되어야 함 |
 | Pro Tools Intro / Developer Build / Prerelease | 등록 후 지급될 라이선스 3종을 발급 메일에서 확인 | 실제 iLok 지급·활성화는 미확인 |
-| Avid 계정 작업(10/30) | 사용자 로그인 완료 후 발급 코드를 등록 폼에 제출, Avid Software License Agreement 화면 확인 | **약관 동의 대기**. 등록 확정·iLok 대상 확인·지급/활성화는 미완료 |
+| Avid 계정 작업(10/30) | 사용자 로그인 및 승인된 약관 동의 후 Avid가 코드를 invalid로 거부. 입력은 발급 메일 원문과 완전히 일치 | **BLOCKED_INVALID_CODE**. 등록·iLok 대상 확인·지급/활성화는 미완료 |
+| Windows 호스트 다운로드 | 로그인한 개발자 페이지에 Pro Tools Dev 2026.4.0 Win 및 일반 Pro Tools 2026.4.1 Win 표시 | 목록 접근 확인만 완료. 다운로드·ReadMe/호환성 확인·설치·실행은 미완료 |
 | 개발 빌드 CI | 소스 `340a6e081336c373f7bb3f6bf4ef44f823298797`, [run 41037134450](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/41037134450)의 Windows/macOS 두 작업 성공 | 이 SHA의 빌드·회귀·개발 설치 검사만 해당. 실제 Pro Tools 호스트 결과 아님 |
 | 실제 서명 / retail Pro Tools / 최종 설치기 | 미완료 | Windows·macOS 각 검증 필요 |
 
@@ -51,7 +52,7 @@
 - [ ] **최종 후보 소스의 네이티브 CI:** Windows x64·macOS Universal 실제 AAX 빌드, exports·공유 회귀·개발 ZIP 설치/제거. 과거 소스의 성공을 승계하지 않음.
 - [ ] 서명 기계의 OS·도구·인증서 준비 상태 확인. 이 Linux 작업 환경에서 사용자 Windows/macOS 설치 상태는 확인하지 못함.
 - [ ] 필요 시 최신 License Support/iLok License Manager 설치와 지급 라이선스 표시 확인. 지급과 활성화는 별도.
-- [ ] **Avid 등록:** 로그인 후 Register Software With Code에서 발급 코드를 등록하고 본인 iLok 계정을 확인. 이미 등록된 경우 재사용/재신청 대신 등록 제품·지급 상태 확인.
+- [ ] **Avid 등록:** 10/30 로그인·승인된 약관 동의까지 진행했으나 원문 코드가 invalid로 거부됨. Devauth에 코드 상태 확인/필요시 재발급을 요청한 뒤 등록하고 본인 iLok 계정을 확인. 코드 변형·반복 제출은 하지 않음. 제공사 메시지는 아직 보내지 않음.
 - [ ] **iLok 확인:** Intro / Developer Build / Prerelease의 실제 지급과 각 라이선스의 허용 위치·활성화를 별도로 확인. Avid 등록 화면만으로 ILM 확인을 대체하지 않음.
 - [ ] **Windows 호스트 준비:** 해당 Developer 배포본의 ReadMe에 맞춰 일반 Pro Tools를 먼저 실행하고 Developer 실행. Pro Tools 호스트 라이선스는 발급 안내상 USB 또는 Cloud 사용 가능하나 실제 Valid Locations 확인 필요. Central Access의 USB 요구와 구별.
 - [ ] **Developer 시험:** unsigned 개발 패키지의 스캔·모노/스테레오 삽입·실제 DI 오디오·자동화 기록/재생 확인. 현재 모두 NOT_RUN.
@@ -113,7 +114,7 @@
 |---|---|---|
 | 10/27 | PACE 발급 반영, 도구 대조·사전 점검 준비 | 문서/도구 작업이며 서명 완료 아님 |
 | USB 도착 전 | 최종 소스 네이티브 빌드·개발 패키지 검증 | OS/toolchain·최종 후보 소스 |
-| 10/29 발급 → 10/30 확인 | Pro Tools Developer Bundle 코드 발급 확인, 재신청 종료 | Avid 로그인·등록 → ILM 지급/활성화 → Windows 호스트 시험 필요 |
+| 10/29 발급 → 10/30 확인 | 코드 발급 확인, 기존 재신청 일정 종료. 로그인·약관 동의 후 invalid code 거부 | 코드 상태 확인/해결 → 등록 → ILM 지급/활성화 → Windows 호스트 시험 필요 |
 | USB 도착·활성화·인증서 준비 후 | Central 초기 설정, 두 플랫폼 첫 서명 | 실제 하드웨어·도구·OS 자격 |
 | 11/9–11/13 | retail Pro Tools·설치기 검증 및 beta.2 판정 목표 유지 | 선행 증거 필요 |
 
@@ -123,7 +124,7 @@
 
 - 2026-10-27 08:15 KST PACE 공식 관리자 생성 및 지급 메일 두 건을 직접 확인. 계정 정보·비공개 링크는 미수록.
 - 2026-10-29 01:45 KST Avid Devauth 공식 개발 번들 발급 메일 직접 확인. 코드·개인 메일 링크·iLok ID는 미수록.
-- 2026-10-30 브라우저에서 로그인 완료 및 코드 제출 후 약관 동의 대기 화면 확인. 위 CI run/아티팩트 메타데이터 확인. ILM·USB·Windows 네이티브 앱 접근 불가로 설치/활성화/호스트 시험 결과는 미확인.
+- 2026-10-30 브라우저에서 로그인·사용자 승인된 약관 동의 후 invalid code 오류 확인. 입력값은 발급 메일 원문과 완전히 일치. My Products의 Intro Claim and Activate 표시는 실제 라이선스 지급 근거가 아니며 Developer Bundle 등록 완료도 확인되지 않음. 개발자 다운로드 목록 및 위 CI run/아티팩트 메타데이터 확인. ILM·USB·Windows 네이티브 앱 접근 불가로 설치/활성화/호스트 시험 결과는 미확인.
 - [PACE 공식 시작 안내](https://paceap.com/getting-started-with-aax-code-signing-for-pro-tools-plugins/)
 - [PACE Code Signing Platform](https://paceap.com/code-signing-platform/)
 - [iLok License Manager 공식 안내](https://help.ilok.com/ilm_overview.html)
