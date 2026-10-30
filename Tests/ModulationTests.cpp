@@ -206,7 +206,28 @@ void reviewFixes() {
         double peak=0;for(int n=0;n<4800;++n)peak=std::max(peak,std::abs(f.process(0,4,0,500,.7071,rate,.9)));
         require(peak<1e-9,"Choosing the Comb replayed old audio");
     }
-    std::cout<<"PASS review fixes: bar lock at the host tempo, free LFO retrigger under lock, continuous drive, no stale Comb\n";
+    {   // Random with 180 deg stereo phase: the right channel steps half a cycle early, to the same values.
+        auto s=base();s.lfoShape=4;s.lfoRate=10;s.lfoStereoDeg=180;
+        FilterModulationCore c;c.prepare(rate);c.setInitialState(s);
+        juce::AudioBuffer<float> b(2,1);std::vector<double> left,right;
+        for(int n=0;n<9600;++n){b.clear();c.process(b.getArrayOfWritePointers(),2,1,s,120);left.push_back(c.lfoOutput(0,0));right.push_back(c.lfoOutput(0,1));}
+        int differ=0,off=0,compared=0;const int half=2400;   // half of a 10 Hz cycle at 48 kHz
+        for(size_t n=1000;n+half<left.size();++n){differ+=left[n]!=right[n];off+=std::abs(right[n]-left[n+half])>.02;++compared;}
+        std::cout<<"MEASURE Random 180 deg: channels differ at "<<differ<<" samples; right vs left half a cycle later off at "<<off<<" of "<<compared<<"\n";
+        require(differ>1000 && off<compared/100,"Random ignores the stereo phase");
+        auto mono=s;mono.lfoStereoDeg=0;FilterModulationCore d;d.prepare(rate);d.setInitialState(mono);int same=0;
+        for(int n=0;n<4800;++n){b.clear();d.process(b.getArrayOfWritePointers(),2,1,mono,120);same+=d.lfoOutput(0,0)==d.lfoOutput(0,1);}
+        require(same==4800,"Random at 0 deg differs between channels");
+    }
+    {   // Bar lock in 3/4: a 1/1 cycle (four quarter notes) restarts on each bar line.
+        auto s=base();s.lfoSync=1;s.lfoLock=true;
+        FilterModulationCore c;c.prepare(rate);c.setInitialState(s);juce::AudioBuffer<float> b(2,1);
+        const auto at=[&](double ppq,double barStart){b.clear();c.process(b.getArrayOfWritePointers(),2,1,s,120,ppq,nullptr,0,120,barStart,3.);return c.lfoPhase();};
+        require(filterSyncBeats[1]==4.,"1/1 is not four beats");
+        const double downbeat=at(3.,3.),inside=at(4.5,3.),nextBar=at(6.,6.),crossing=at(5.999,3.);
+        require(std::abs(downbeat)<1e-9 && std::abs(inside-.375)<1e-9 && std::abs(nextBar)<1e-9 && crossing>.7,"Bar lock does not count from the bar line");
+    }
+    std::cout<<"PASS review fixes: bar lock at the host tempo and from the bar line, free LFO retrigger under lock, continuous drive, no stale Comb, Random follows the stereo phase\n";
 }
 }
 

@@ -317,7 +317,7 @@ private:
     juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};float* busLeft{};float* busRight{};
     spectralforge::SignalOrderParameters signalOrder;spectralforge::SignalOrder activeOrder;   // activeOrder: audio thread
     spectralforge::OrderSwitch toneSwitch,postSwitch;
-    double hostPpq{std::numeric_limits<double>::quiet_NaN()},hostPpqBpm{std::numeric_limits<double>::quiet_NaN()},chunkPpq{std::numeric_limits<double>::quiet_NaN()};
+    double hostPpq{std::numeric_limits<double>::quiet_NaN()},hostPpqBpm{std::numeric_limits<double>::quiet_NaN()},hostBarStart{std::numeric_limits<double>::quiet_NaN()},hostBarBeats{},chunkPpq{std::numeric_limits<double>::quiet_NaN()};
     std::vector<spectralforge::SignalOrder> orderUndo,orderRedo;
     void writeOrder(const spectralforge::SignalOrder& order);
     bool commitOrder(const spectralforge::SignalOrder& next);

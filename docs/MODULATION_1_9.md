@@ -29,7 +29,10 @@ their defaults keep the 1.7 sound sample for sample (tested).
 | `fltA_drive`, `fltB_drive` | 0–100 % | 0 % | Soft saturation ahead of each filter |
 
 - **Random shape** (on both LFOs): a new value each cycle, through the same
-  2 ms smoothing as the square.
+  2 ms smoothing as the square. Each cycle's value is a hash of the cycle
+  number, so the right channel, shifted by the stereo phase, steps to the
+  same values half a cycle early at 180°. A retrigger draws new values; a
+  bar-locked loop repeats its values on every pass.
 - **Cutoff:** `cutoff × 2^(LFO amount × LFO 1 + LFO 2 amount × LFO 2 + envelope amount × env)`.
 - **Bar lock:** a synced LFO's phase is the host position (in quarter notes)
   divided by its cycle length, so it lands on the same beat on every pass.
@@ -38,8 +41,10 @@ their defaults keep the 1.7 sound sample for sample (tested).
   - The processor passes the position at each chunk's start; samples within
     a chunk advance from it at the host's tempo (not Chimera's tempo setting,
     which may differ when "Follow host tempo" is off).
-  - The phase counts from song position 0, not from the last bar line, so in
-    3/4 a 1/1 cycle (four quarter notes) does not restart on each bar.
+  - The phase counts from the host's last bar line (its time signature gives
+    the bar length), so every bar starts a cycle on its downbeat; a 1/1
+    cycle in 3/4 restarts on each bar. A host without bar information counts
+    from the song start.
 - **Retrigger:** an attack restarts both LFOs, and Random draws new values.
   An LFO locked to the bar is not restarted; the other one still is.
   - The detector is a fast follower (1 ms attack / 30 ms release) rising 4 dB
@@ -114,7 +119,6 @@ Found while testing:
 ## Not done
 
 - **Review notes (10/30):**
-  - Random ignores the LFO stereo phase: both channels step to the same value.
   - With Sidechain chosen, a host that enables the sidechain bus but routes
     nothing to it gives a silent envelope (the plugin cannot tell an unrouted
     bus from a silent key).
