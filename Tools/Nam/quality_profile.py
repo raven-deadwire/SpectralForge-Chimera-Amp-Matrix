@@ -20,6 +20,13 @@ ANCHORS = {
     'Nidhoggr': 0.0912341002696015,
     'Fimbulvetr': 0.09658538313914974,
     'Ragnarok': 0.06924560647333675,
+    # Niflheimr, frozen from its first capture (source 4ef21c16, factory rig
+    # voicings from Source/NiflheimrPresets.h), the same way.
+    'Hrimfaxi': 1.026574603253162,
+    'Garmr': 0.85329661379161748,
+    'Nidavellir': 0.9858497660667962,
+    'Ymir': 0.95418149288766951,
+    'Hel': 0.74470386143777512,
 }
 
 PROFILE = {
@@ -140,7 +147,10 @@ RELEASE_V3 = {
         # High-gain channels. A2 floor evidence: doubling data now gives -3.6%
         # (mean test full ESR 0.0174 at 16,320 s, extrapolated floor about
         # 0.017); width 32 (not A2) still left active p95 near 0.07.
-        'high_gain': {'channels': ['Fenrir', 'Surtr', 'Nidhoggr', 'Ragnarok'],
+        # Niflheimr's five driven bass channels are placed here before any of
+        # them is trained, so their release limits are not chosen from results.
+        'high_gain': {'channels': ['Fenrir', 'Surtr', 'Nidhoggr', 'Ragnarok',
+                                   'Hrimfaxi', 'Garmr', 'Nidavellir', 'Ymir', 'Hel'],
                       'full_esr_max': .025, 'active_window_esr_median_max': .02,
                       'active_window_esr_p95_max': .12, 'active_window_esr_worst_max': .40},
         # Fimbulvetr already meets the v2 full-ESR limit; v3 keeps it.

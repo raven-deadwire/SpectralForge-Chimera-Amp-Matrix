@@ -12,7 +12,7 @@ from nam.models.wavenet import WaveNet, PackedWaveNet
 from nam.models.wavenet._packed_conv import PackedConv1dBase
 from nam.models._from_nam import init_from_nam
 from common import digest, write_json
-from capture_channels import VOICES
+from capture_channels import VOICES, AMPS, amp_of, voices_for
 from quality_profile import PROFILE, fidelity
 from training_contract import verify_audio_manifest, training_identity
 from a2_recipe import (RECIPE, A2TrainingLoss, training_output_gains,
@@ -101,6 +101,9 @@ def main():
     if args.warm_start_final and not args.warm_start:raise ValueError('--warm-start-final needs --warm-start')
     if args.keep_passed and not (args.warm_start or args.resume):raise ValueError('--keep-passed needs --warm-start')
     if args.amplitude_weight<0 or args.overshoot_weight<0:raise ValueError('Loss weights must be nonnegative')
+    # The dataset decides the amp and its channels; Náströnd sets keep their old identity.
+    global VOICES
+    VOICES=voices_for(args.data)
     names=[v[0] for v in VOICES];peak_weights=[0.]*len(VOICES)
     for item in filter(None,args.peak_weight.split(',')):
         name,_,w=item.partition('=')
@@ -134,7 +137,10 @@ def main():
     rf=model.receptive_field
     # Memory-mapped: hour-scale training sets exceed RAM; crops read only what they use.
     x=np.load(args.data/'train/input.npy',mmap_mode='r');ys=[np.load(args.data/'train'/f'{v[0]}.npy',mmap_mode='r') for v in VOICES]
-    gains=training_output_gains(np.stack(ys)) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
+    # Legacy training scales targets to about 0.1 RMS: Náströnd's native output is
+    # near 1 RMS, Niflheimr's near 0.1, so the window-power floor bites at the same level.
+    legacy_gain=.1 if amp_of(json.loads((args.data/'manifest.json').read_text())['source'])=='nastrond' else 1.
+    gains=training_output_gains(np.stack(ys)) if args.recipe=='official-a2' else np.full(len(VOICES),legacy_gain)
     gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
     peak_weight_tensor=torch.tensor(peak_weights,dtype=torch.float32)[None,:]
     mask_tensor=torch.tensor(channel_mask,dtype=torch.float32)[None,:]
@@ -370,7 +376,7 @@ def main():
         with torch.inference_mode():dc=float(sub(torch.zeros(rf+512),pad_start=False)[-1])
         with torch.no_grad():sub._net._layer_arrays[-1]._head_rechannel.bias.sub_(dc/sub._net._head_scale)
         sub.export(args.out,basename=prefix+name,include_snapshot=False,other_metadata={
-          'name':'Náströnd '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
+          'name':AMPS[amp_of(source)]['display']+' '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
           'character':character,'source_commit':source['source_commit'],'status':'DIAGNOSTIC_NOT_A2_DO_NOT_SHIP' if extra else 'TEST_BUILD_PENDING_ACCEPTANCE',
           'channel':i,'cabinet_included':False,'head_bias_correction_output_units':dc})
         path=args.out/f'{prefix}{name}.nam';obj=json.loads(path.read_text());restored=init_from_nam(obj).eval()

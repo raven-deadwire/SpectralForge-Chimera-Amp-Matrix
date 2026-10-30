@@ -20,6 +20,24 @@ VOICES=[('Fenrir','Early bite, lean lows, fast firm recovery'),
  ('Nidhoggr','Uneven drive, asymmetric recovery'),
  ('Fimbulvetr','Broad body, yielding supply, open upper mids'),
  ('Ragnarok','Late-stage saturation, deep hit, stiff recovery')]
+# Niflheimr (bass). Each channel is captured at its factory rig voicing; the
+# renderer reads it from NiflheimrPresets.h and reports it in its catalog.
+NIFLHEIMR_VOICES=[('Hrimfaxi','Modern tight: controlled lows, clear string attack'),
+ ('Garmr','Death grind: upper-band bite'),
+ ('Nidavellir','Industrial bite: driven mids'),
+ ('Ymir','Slam impact: mid punch'),
+ ('Hel','Sludge mass: sustained doom fuzz')]
+AMPS={'nastrond':{'voices':VOICES,'display':'Náströnd'},'niflheimr':{'voices':NIFLHEIMR_VOICES,'display':'Niflheimr'}}
+
+
+def amp_of(source):
+    """The amp a capture's source record names; captures from before Niflheimr are Náströnd."""
+    return source.get('amp','nastrond')
+
+
+def voices_for(data):
+    """The channel list of a capture dataset directory."""
+    return AMPS[amp_of(json.loads((Path(data)/'manifest.json').read_text())['source'])]['voices']
 
 
 def channel_controls(catalog, channel):
@@ -29,12 +47,15 @@ def channel_controls(catalog, channel):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--renderer',type=Path,required=True);ap.add_argument('--out',type=Path,required=True)
+    ap.add_argument('--amp',choices=sorted(AMPS),default='nastrond')
     ap.add_argument('--workers',type=int,default=4);ap.add_argument('--train-seconds',type=float,default=96)
     ap.add_argument('--train-seed',type=int,default=640500,help='Training-split seed only; held-out splits keep their fixed seeds')
     ap.add_argument('--smoke-seconds',type=float,help='Shorten all splits for CI only; never a fidelity qualification');args=ap.parse_args()
     if args.smoke_seconds is not None and args.smoke_seconds < 2:raise ValueError('Smoke splits must be at least two seconds')
     if args.out.exists() and any(args.out.iterdir()):raise RuntimeError('Output directory must be empty')
-    args.out.mkdir(parents=True,exist_ok=True);catalog=json.loads(subprocess.check_output([str(args.renderer),'--catalog'],text=True))
+    args.out.mkdir(parents=True,exist_ok=True);catalog=json.loads(subprocess.check_output([str(args.renderer),'--catalog']+([args.amp] if args.amp!='nastrond' else []),text=True))
+    voices=AMPS[args.amp]['voices']
+    if len(catalog['channel_defaults'])!=len(voices):raise RuntimeError('Renderer channel count differs from the voice list')
     source_root=Path(__file__).resolve().parents[2];headers=[];pending=['Source/Amplifier.h']
     import re
     while pending:
@@ -50,13 +71,19 @@ def main():
     source={'source_commit':SOURCE,'source_hashes':{p:digest(source_root/p) for p in headers},'renderer_sha256':digest(args.renderer),
       'sample_rate':48000,'oversampling':4,'block_size':256,'alignment':'unshifted native output, including production latency',
       'input_trim_db':0,'output_trim_db':0,'cabinet':False,'pre_post_effects':False,'input_kind':'synthetic; not recorded instrument DI','train_seed':args.train_seed}
+    if args.amp!='nastrond':
+        # Náströnd source records stay as they were, so its warm starts still match.
+        voicing='Source/NiflheimrPresets.h'
+        source.update(amp=args.amp,voicing_source={voicing:digest(source_root/voicing)},voicing=catalog.get('channel_default_source'))
     jobs=[]
     for i,(split,seconds) in enumerate([('train',args.train_seconds),('validation',24),('test',24),('audition',8)]):
         if args.smoke_seconds is not None:seconds=args.smoke_seconds
         d=args.out/split;d.mkdir();x=signal(args.train_seed if split=='train' else 640500+i*1703,seconds)
         np.save(d/'input.npy',x);x.tofile(d/'input.f32');sf.write(d/'input.wav',x,48000,subtype='FLOAT')
-        for ch,(name,character) in enumerate(VOICES):
-            job={'channel':ch};write_json(d/(name+'.json'),job)
+        for ch,(name,character) in enumerate(voices):
+            job={'channel':ch}
+            if args.amp!='nastrond':job['amp']=args.amp
+            write_json(d/(name+'.json'),job)
             jobs.append((split,name,character,job,d,len(x)))
     def render(item):
         split,name,character,job,d,n=item;raw=d/(name+'.f32')
@@ -73,6 +100,6 @@ def main():
         for result in pool.map(render,jobs):
             captures.append(result);print(result['split'],result['name'],'captured',round(time.monotonic()-t,1),flush=True)
     write_json(args.out/'manifest.json',{'schema':1,'source':source,'catalog':catalog,'captures':captures,'elapsed_seconds':time.monotonic()-t})
-    write_json(args.out/'channel-settings.json',[{'name':n,'character':c,'channel':i,'controls':channel_controls(catalog,i)} for i,(n,c) in enumerate(VOICES)])
+    write_json(args.out/'channel-settings.json',[{'name':n,'character':c,'channel':i,'controls':channel_controls(catalog,i)} for i,(n,c) in enumerate(voices)])
 
 if __name__=='__main__':main()

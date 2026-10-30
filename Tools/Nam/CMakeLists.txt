@@ -27,5 +27,5 @@ juce_add_console_app(ChimeraNamRender PRODUCT_NAME "Chimera NAM Renderer")
 target_sources(ChimeraNamRender PRIVATE RenderNativeAmp.cpp)
 target_include_directories(ChimeraNamRender PRIVATE ../../Source)
 target_compile_definitions(ChimeraNamRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
-target_link_libraries(ChimeraNamRender PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+target_link_libraries(ChimeraNamRender PRIVATE juce::juce_dsp juce::juce_audio_processors PUBLIC juce::juce_recommended_config_flags)
 
