@@ -27,11 +27,27 @@ are automatable.
     one and fed both the same stereo signal while automating M/S, the
     crossovers, solo, on/off, link, mix and the sidechain key. The outputs were
     bit-identical.
+  - One deliberate change since (review, 10/30): turning the stage on now also
+    resets the sidechain key's crossovers, so stale key state cannot duck the
+    first milliseconds. Without a key the outputs stay bit-identical.
   - Bands 5 and 6 and crossovers 4 and 5 are ignored, even a band 5 solo
     (tested).
 - **Band-count change:** works like the L/R ↔ M/S change. The stage fades out
   (10 ms), swaps the layout, settles silently for 30 ms and fades back in.
   Switched off, it swaps at once.
+  - **Crossover safety (review, 10/30):** the first version could let the
+    live crossovers pass through each other. Four and six bands validate
+    crossover 3 differently, and only crossovers 4 and 5 jumped at the swap.
+    Where two crossovers meet, the synthesis residues are singular, and the
+    output reached 1e6 (1e15 at 22.05 kHz, where crossovers 4 and 5 could also
+    glide past Nyquist).
+  - Now five crossovers always follow the six-band validation of the raw
+    values, including while fading out to four. At a swap every crossover
+    starts at its new target. All crossovers glide at the same rate, so
+    ordered crossovers stay ordered.
+  - `ChimeraSixBandTests` repeats the reported cases and random band-count,
+    M/S and on/off toggles at 8 and 48 kHz. All peaks are below 3.2 with
+    ±24 dB makeup.
 - **Page:** the MULTIBAND page gains a 4 BANDS / 6 BANDS choice at the start of
   the crossover row.
   - With six bands the row shows five crossovers, the spectrum shows markers

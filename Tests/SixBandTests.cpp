@@ -271,6 +271,46 @@ void bandCountSwitch() {
     std::cout<<"PASS 4 -> 6 band switch: swapped "<<(switched-at)*1000./rate<<" ms after the change, largest second difference "<<curve<<" (input "<<inputCurve<<"); then 8 kHz "<<high<<" dB, 220 Hz "<<low<<" dB; 6 -> 4 at 220 Hz alone: "<<lowCurve<<" (input "<<lowInput<<")\n";
 }
 
+// Review (10/30): band-count changes must never let the live crossovers
+// cross (the synthesis residues are singular there) or leave the band.
+double peakOf(const Audio& a){double m=0;for(const auto& c:a)for(float x:c)m=std::max(m,double(std::abs(x)));return m;}
+void crossoverSafety() {
+    std::array<double,4> peaks{};
+    const auto noise=[](double rate,double seconds){Audio a{std::vector<float>(size_t(rate*seconds)),std::vector<float>(size_t(rate*seconds))};unsigned r=3;for(size_t i=0;i<a[0].size();++i){r=r*1664525u+1013904223u;a[0][i]=float((double(r>>8)/16777216.-.5)*.35);a[1][i]=a[0][i];}return a;};
+    {   // 6 -> 4 while on, crossover 3 at 16 kHz (six bands clamp it to 8.2 kHz), +-12 dB makeup.
+        auto s=six({120,700,16000,6000,11000});for(size_t b=0;b<6;++b)s.bands[b].makeup=b%2?12.f:-12.f;
+        MultibandDynamicsCore core;core.setSettings(s);core.prepare(48000);auto a=noise(48000,.6);
+        for(int k=0;k*256<int(a[0].size());++k){if(k==60){s.bandCount=4;core.setSettings(s);}float* p[2]{a[0].data()+k*256,a[1].data()+k*256};core.process(p,2,std::min(256,int(a[0].size())-k*256));}
+        peaks[0]=peakOf(a);
+    }
+    {   // Four bands on, off, switch to six while off, on again.
+        MultibandSettings s;s.on=true;s.crossovers={120,700,16000};for(size_t b=0;b<6;++b)s.bands[b].makeup=b%2?24.f:-24.f;
+        MultibandDynamicsCore core;core.setSettings(s);core.prepare(48000);auto a=noise(48000,.8);
+        for(int k=0;k*256<int(a[0].size());++k){if(k==40){s.on=false;core.setSettings(s);}if(k==60){s.bandCount=6;core.setSettings(s);}if(k==80){s.on=true;core.setSettings(s);}
+            float* p[2]{a[0].data()+k*256,a[1].data()+k*256};core.process(p,2,std::min(256,int(a[0].size())-k*256));}
+        peaks[1]=peakOf(a);
+    }
+    {   // 22.05 kHz, crossover 5 set to 12 kHz (above Nyquist), 6 -> 4.
+        auto s=six({120,700,3500,6000,12000});
+        MultibandDynamicsCore core;core.setSettings(s);core.prepare(22050);auto a=noise(22050,.4);
+        for(int k=0;k*256<int(a[0].size());++k){if(k==10){s.bandCount=4;core.setSettings(s);}float* p[2]{a[0].data()+k*256,a[1].data()+k*256};core.process(p,2,std::min(256,int(a[0].size())-k*256));}
+        peaks[2]=peakOf(a);
+    }
+    {   // Random band count, M/S and on/off every 3-40 ms at 8 and 48 kHz, crossovers at the limits.
+        for(double rate:{8000.,48000.}){
+            auto s=six({120,700,16000,16000,16000});for(size_t b=0;b<6;++b)s.bands[b].makeup=b%2?24.f:-24.f;
+            MultibandDynamicsCore core;core.setSettings(s);core.prepare(rate);auto a=noise(rate,2);unsigned r=11;
+            for(size_t off=0;off<a[0].size();){r=r*1664525u+1013904223u;const int n=int(rate*(.003+.037*double(r>>24)/255.));
+                s.bandCount=(r>>3)&1?6:4;s.stereo=int((r>>5)&1);s.on=((r>>7)&3)!=0;core.setSettings(s);
+                const int len=std::min(n,int(a[0].size()-off));float* p[2]{a[0].data()+off,a[1].data()+off};core.process(p,2,len);off+=size_t(len);}
+            peaks[3]=std::max(peaks[3],peakOf(a));
+        }
+    }
+    // +-24 dB makeup on 0.35 noise: about 6 at most; a crossing reaches 1e4 to 1e15.
+    require(peaks[0]<10 && peaks[1]<10 && peaks[2]<10 && peaks[3]<20,"A band-count change let the crossovers cross ("+std::to_string(peaks[0])+", "+std::to_string(peaks[1])+", "+std::to_string(peaks[2])+", "+std::to_string(peaks[3])+")");
+    std::cout<<"PASS band-count changes keep the crossovers ordered: peaks "<<peaks[0]<<" (6 -> 4 on), "<<peaks[1]<<" (changed while off), "<<peaks[2]<<" (22.05 kHz), "<<peaks[3]<<" (random toggles)\n";
+}
+
 void parametersStateAndProcessor() {
     auto owner=std::make_unique<ChimeraProcessor>();auto& processor=*owner;auto& state=processor.parameters();
     const int total=processor.getParameters().size();int seen=0;
@@ -330,7 +370,7 @@ void performance() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try{fourBandsIgnoreTheNewSettings();reconstruction();weightedMagnitude();equalUpperBandsMatchFour();bandIsolationSoloAndKey();automationStress();bandCountSwitch();parametersStateAndProcessor();performance();}
+    try{fourBandsIgnoreTheNewSettings();reconstruction();weightedMagnitude();equalUpperBandsMatchFour();bandIsolationSoloAndKey();automationStress();bandCountSwitch();crossoverSafety();parametersStateAndProcessor();performance();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
