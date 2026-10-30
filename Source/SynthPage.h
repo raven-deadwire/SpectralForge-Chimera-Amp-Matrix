@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "SynthLayer.h"
 #include "SynthSampleIO.h"
+#include "RasterArtwork.h"
 
 // The SYNTH page (docs/SYNTH_PAGE.md): oscillators with live wave displays, a
 // draggable filter response, draggable ADSR graphs, LFO shapes, the
@@ -450,6 +451,11 @@ public:
         updateModes();repaint();
     }
     void paint(juce::Graphics& g) override {
+        // The engine's strip behind the top bar (Tools/generate_post_rack_faces.py),
+        // dimmed under the controls, which name the engine.
+        shownType=juce::jlimit(0,2,juce::roundToInt(state.getRawParameterValue("synthType")->load()));
+        art::synthStrip(g,{0.f,0.f,float(getWidth()),26.f},shownType,false);
+        g.setColour(juce::Colours::black.withAlpha(.35f));g.fillRect(0,0,getWidth(),26);
         for(const auto& [area,title]:panels()){
             g.setColour(panelColour);g.fillRoundedRectangle(area.toFloat(),5);g.setColour(edgeColour);g.drawRoundedRectangle(area.toFloat().reduced(.5f),5,1);
             g.setColour(mutedColour);g.setFont(juce::FontOptions(10.f,juce::Font::bold));g.drawText(title,area.reduced(8,4).removeFromTop(14),juce::Justification::centredRight);
@@ -557,6 +563,7 @@ private:
     }
     void timerCallback() override {
         if(!isShowing())return;
+        if(const int t=juce::jlimit(0,2,juce::roundToInt(state.getRawParameterValue("synthType")->load()));t!=shownType){shownType=t;repaint(0,0,getWidth(),28);}
         updateModes();
         for(auto& p:oscPanels){p.display->repaint();p.shapes->repaint();}
         filter.repaint();ampEnvelope.repaint();modEnvelope.repaint();for(auto& l:lfoGraphs)l.repaint();scope.repaint();
@@ -567,6 +574,7 @@ private:
     SynthLook look;   // declared first: destroyed after every child that uses it
     ChimeraProcessor& processor;juce::AudioProcessorValueTreeState& state;
     std::vector<std::unique_ptr<juce::Component>> owned;std::vector<juce::Component*> children;std::vector<Knob*> header;
+    int shownType{};   // the engine whose strip is drawn
     juce::Component* on{};juce::Component* type{};juce::Component* output{};juce::Slider* character{};juce::Component* source{};juce::Component* insert{};
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> characterAttachment;
     juce::ComboBox patch;std::unique_ptr<juce::FileChooser> chooser;

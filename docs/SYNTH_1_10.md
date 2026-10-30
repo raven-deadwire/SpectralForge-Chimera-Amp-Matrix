@@ -155,5 +155,6 @@ The names are Chimera working names with no hardware reference.
   [TRACKING_1_10.md](TRACKING_1_10.md).
 - **Timing:** sample-accurate MIDI timing, and latency alignment with the rig.
 - **Range:** polyphonic tracking, and a mod wheel or aftertouch.
-- **Panel:** rack or panel artwork for the layers.
+- **Panel:** the SYNTH page shows each engine's strip (see
+  [SYNTH_V2.md](SYNTH_V2.md), Artwork). There are no separate rack faces.
 - **Checks:** listening tests, and CPU measurement in a DAW.
