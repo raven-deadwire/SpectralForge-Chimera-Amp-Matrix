@@ -208,9 +208,7 @@ void stalledWorkerFreshness(){
             std::this_thread::sleep_until(start+std::chrono::microseconds((block+1)*5333));
         }
         require(std::abs(error(tuner.frequency(),110))<.1,"Stall fixture did not acquire");
-        // Long enough that a slow runner cannot reach the stale check after the
-        // pause has already ended; the resume wait below allows for it.
-        tuner.pauseWorkerForTest(1200);
+        tuner.pauseWorkerForTest(450);
         const auto requested=Clock::now();
         while(!tuner.workerPausedForTest() && Clock::now()-requested<std::chrono::milliseconds(250))
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -232,7 +230,7 @@ void stalledWorkerFreshness(){
             tuner.push(audio,true);
         }
         const auto expired=Clock::now();
-        while(tuner.completedWorkerIterationsForTest()==pausedIteration && Clock::now()-expired<std::chrono::milliseconds(1500))
+        while(tuner.completedWorkerIterationsForTest()==pausedIteration && Clock::now()-expired<std::chrono::milliseconds(500))
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         require(tuner.completedWorkerIterationsForTest()!=pausedIteration,"Worker did not resume after the pause");
         require(tuner.frequency()==0 && tuner.confidence()==0,"Expired queued input was republished after the worker resumed");
