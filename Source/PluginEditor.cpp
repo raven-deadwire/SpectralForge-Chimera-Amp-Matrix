@@ -320,6 +320,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             case Phase::tone:case Phase::dynamicEQ:navigateSignalPath(*route.find("tone.eq"));break;
             case Phase::multiband:navigateSignalPath(*route.find("common.multiband"));break;
             case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
+            case Phase::level:navigateSignalPath(*route.find("final.eq"));break;
             default:navigateSignalPath(*route.find("common.comp"));break;
         }
     };
@@ -327,9 +328,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
     static_assert(spectralforge::CommonDynamicsPanel::autoLockNames.size()==spectralforge::autoset::Controller::lockOrder.size(),"Auto Set lock menu and controller locks differ");
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ});}
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});

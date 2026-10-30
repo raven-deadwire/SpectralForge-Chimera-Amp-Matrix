@@ -16,12 +16,14 @@ namespace spectralforge::autoset {
 // The audio thread only reduces or copies samples; all decisions run elsewhere.
 
 struct Window {float peakDb{-120.f},rmsDb{-120.f};};
-// input/compressor/output/rig are reduced to 10 ms windows; tone, multiband and
-// deesser keep mono samples for spectral analysis (amp/cab output before the
-// Tone EQ, the multiband input, the de-esser input). The sample taps share one
-// ring.
-// rig: the amp/cab sum before any post-rig gate.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6};
+// input/compressor/output/rig are reduced to 10 ms windows; tone, multiband,
+// deesser and master keep mono samples for spectral analysis (amp/cab output
+// before the Tone EQ, the multiband input, the de-esser input, the limiter
+// input). The sample taps share one ring.
+// rig: the amp/cab sum before any post-rig gate. master: the same point as
+// output (after the Final EQ and output trim), as samples.
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7};
+inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master;}
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -45,7 +47,7 @@ public:
     // Audio thread. Mirrors the clean compressor detector: max of the channels.
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
-        if(tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband){pushSamples(channels,channelCount,samples);return;}
+        if(sampleTap(tap)){pushSamples(channels,channelCount,samples);return;}
         auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
@@ -64,7 +66,7 @@ public:
     }
     // Consumer thread.
     void drain(Tap tap,std::vector<Window>& out) noexcept {
-        if(tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband)return;
+        if(sampleTap(tap))return;
         auto& t=taps[windowIndex(tap)];
         int r=t.read.load(std::memory_order_relaxed);
         const int w=t.write.load(std::memory_order_acquire);
@@ -699,6 +701,130 @@ inline DynamicEQResult analyseDynamicEQ(const std::vector<float>& samples,double
         node.releaseMs=std::round((fc<250.f?250.f:fc<1500.f?150.f:80.f)*releaseScale);
         r.nodes.push_back(node);
     }
+    return r;
+}
+
+// Final EQ and output level (phase 7), at the limiter input: after the Final
+// EQ and the output trim. Everything before has been set by then, so the
+// moves are small finishing corrections toward the style target and the trim
+// brings the loudness to a working level below the limiter ceiling.
+struct FinalMove {int type{};float frequency{},gainDb{},q{.70710678f};bool active{};};
+struct OutputResult {
+    bool playingDetected{},bass{};
+    // Rumble high pass (guitar), low-mid bell, air shelf; inactive moves are skipped.
+    std::array<FinalMove,3> moves{};
+    float rumbleExcessDb{},mudExcessDb{},airExcessDb{};
+    bool loudnessMeasured{};
+    float loudnessLufs{-70},peakDb{-120},eqLoudnessDeltaDb{},eqPeakDeltaDb{},trimChangeDb{};
+    bool peakLimited{}; // the trim was held back so the peaks stay below the limiter ceiling
+    int activeMoves() const noexcept {int n=0;for(const auto& m:moves)n+=m.active;return n;}
+};
+inline constexpr float outputTargetLufs=-18.f,outputMaxTrimChangeDb=12.f,outputMinTrimChangeDb=1.f,finalMaxMoveDb=3.f,finalMinMoveDb=1.f;
+// ITU-R BS.1770 K-weighting (pre-filter shelf and RLB high pass), redesigned
+// for any rate from the standard's 48 kHz analogue parameters.
+inline std::array<EQCoefficients,2> kWeighting(double rate) {
+    const double pi=juce::MathConstants<double>::pi;
+    double k=std::tan(pi*1681.974450955533/rate);const double q=.7071752369554196,vh=std::pow(10.,3.999843853973347/20.),vb=std::pow(vh,.4996667741545416);
+    double a0=1+k/q+k*k;
+    const EQCoefficients shelf{(vh+vb*k/q+k*k)/a0,2*(k*k-vh)/a0,(vh-vb*k/q+k*k)/a0,2*(k*k-1)/a0,(1-k/q+k*k)/a0};
+    k=std::tan(pi*38.13547087602444/rate);const double qh=.5003270373238773;a0=1+k/qh+k*k;
+    const EQCoefficients highPass{1,-2,1,2*(k*k-1)/a0,(1-k/qh+k*k)/a0};
+    return {shelf,highPass};
+}
+inline float finalResponseDb(const std::array<FinalMove,3>& moves,float frequency,double rate) {
+    double db=0;
+    for(const auto& m:moves)if(m.active)db+=20*std::log10(std::max(1e-9,eqCoefficients(m.type,m.frequency,m.gainDb,m.q,rate).magnitude(frequency,rate)));
+    return float(db);
+}
+// Gated integrated loudness (400 ms blocks, 75% overlap, -70 LUFS absolute
+// and -10 LU relative gates) of the mono channel mean, reported for the
+// stereo output it stands for (both channels equal: +3 dB).
+inline std::optional<float> integratedLoudness(const std::vector<float>& samples,double rate) {
+    auto k=kWeighting(rate);std::array<double,4> z{};
+    std::vector<double> squared(samples.size());
+    for(size_t n=0;n<samples.size();++n) {
+        double y=samples[n];
+        for(int s=0;s<2;++s){auto& c=k[size_t(s)];double& z1=z[size_t(2*s)];double& z2=z[size_t(2*s+1)];const double out=c.b0*y+z1;z1=c.b1*y-c.a1*out+z2;z2=c.b2*y-c.a2*out;y=out;}
+        squared[n]=y*y;
+    }
+    const size_t block=size_t(rate*.4),hop=size_t(rate*.1);
+    if(block==0 || hop==0 || samples.size()<block)return std::nullopt;
+    const auto lufs=[](double meanSquare){return -.691+10*std::log10(std::max(1e-30,2*meanSquare));};
+    std::vector<double> blocks;double sum=0;
+    for(size_t n=0;n<block;++n)sum+=squared[n];
+    for(size_t start=0;;start+=hop) {
+        if(lufs(sum/double(block))>-70)blocks.push_back(sum/double(block));
+        if(start+hop+block>squared.size())break;
+        for(size_t n=start;n<start+hop;++n)sum-=squared[n];
+        for(size_t n=start+block;n<start+block+hop;++n)sum+=squared[n];
+    }
+    if(blocks.size()<10)return std::nullopt;
+    double mean=0;for(const auto b:blocks)mean+=b;mean/=double(blocks.size());
+    const double relative=lufs(mean)-10;double gated=0;int count=0;
+    for(const auto b:blocks)if(lufs(b)>relative){gated+=b;++count;}
+    return count>=10?std::optional<float>(float(lufs(gated/count))):std::nullopt;
+}
+// samples: mono limiter input, at the current output trim.
+inline OutputResult analyseOutput(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock) {
+    OutputResult r;
+    const auto spectrum=measureSpectrum(samples,rate,bass);
+    r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
+    if(!r.playingDetected)return r;
+    // Align the style target on 630 Hz-2 kHz, above the low-mid region this
+    // pass judges, so a low-mid bump does not make the top look dark.
+    std::array<float,toneBandCount> target{};double offset=0;int reference=0;
+    for(int b=0;b<toneBandCount;++b) {
+        const float fc=toneBandCentres[size_t(b)];target[size_t(b)]=toneTargetDb(spectrum.bass,fc,style);
+        if(fc>=630 && fc<=2000){offset+=spectrum.bandsDb[size_t(b)]-target[size_t(b)];++reference;}
+    }
+    for(auto& t:target)t+=float(offset/reference);
+    const auto excess=[&](float lo,float hi) {
+        double sum=0;int count=0;
+        for(int b=0;b<toneBandCount;++b){const float fc=toneBandCentres[size_t(b)];
+            if(fc>=lo && fc<=hi && fc<rate*.4 && spectrum.bandsDb[size_t(b)]>spectrum.strongestDb-45.f){sum+=spectrum.bandsDb[size_t(b)]-target[size_t(b)];++count;}}
+        return count?std::optional<float>(float(sum/count)):std::nullopt;
+    };
+    const auto step=[](float db){const float g=std::round(std::clamp(db,-finalMaxMoveDb,finalMaxMoveDb)*2.f)*.5f;return std::abs(g)<finalMinMoveDb?0.f:g;};
+    // Rumble below a guitar's lowest note: a 12 dB/oct high pass at 70 Hz.
+    if(!r.bass)if(const auto e=excess(50,63)) {
+        r.rumbleExcessDb=*e;
+        if(*e>=3.f)r.moves[0]={3,70,0,.70710678f,true};
+    }
+    // Low-mid weight against the body above it: half the difference, up to 3 dB.
+    if(const auto mud=excess(250,400))if(const auto body=excess(630,1000)) {
+        r.mudExcessDb=*mud-*body;
+        if(const float g=step(-.5f*r.mudExcessDb);g!=0.f)r.moves[1]={0,315,g,1.f,true};
+    }
+    // Air: the top octave against the target, half the difference, up to 3 dB.
+    const float airLow=r.bass?4000.f:6300.f,airHigh=r.bass?6300.f:10000.f;
+    if(const auto air=excess(airLow,airHigh)) {
+        r.airExcessDb=*air;
+        if(const float g=step(-.5f*r.airExcessDb);g!=0.f)r.moves[2]={2,r.bass?5000.f:8000.f,g,.70710678f,true};
+    }
+    // Loudness and peaks as heard, then the change the moves make: band powers
+    // weighted by K-weighting, through the moves' response.
+    const auto loudness=integratedLoudness(samples,rate);
+    float peak=0;for(const float x:samples)peak=std::max(peak,std::abs(x));
+    r.peakDb=toDb(peak);
+    if(!loudness)return r;
+    r.loudnessMeasured=true;r.loudnessLufs=*loudness;
+    const auto k=kWeighting(rate);double before=0,after=0,peakGain=1;
+    for(int b=0;b<toneBandCount;++b) {
+        const float fc=toneBandCentres[size_t(b)];if(fc>=rate*.45)continue;
+        const double kw=k[0].magnitude(fc,rate)*k[1].magnitude(fc,rate),power=std::pow(10.,spectrum.bandsDb[size_t(b)]/10.)*kw*kw;
+        const double gain=std::pow(10.,finalResponseDb(r.moves,fc,rate)/20.);
+        before+=power;after+=power*gain*gain;
+        if(spectrum.bandsDb[size_t(b)]>spectrum.strongestDb-20.f)peakGain=std::max(peakGain,gain);
+    }
+    r.eqLoudnessDeltaDb=before>0?float(10*std::log10(after/before)):0.f;
+    r.eqPeakDeltaDb=float(20*std::log10(peakGain));
+    float change=outputTargetLufs-(r.loudnessLufs+r.eqLoudnessDeltaDb);
+    // Leave the peaks below the limiter's ceiling: the trim sets the level,
+    // the limiter only catches the occasional peak.
+    const float headroom=limiterCeilingDb-(r.peakDb+r.eqPeakDeltaDb);
+    if(change>headroom){change=headroom;r.peakLimited=true;}
+    change=std::round(std::clamp(change,-outputMaxTrimChangeDb,outputMaxTrimChangeDb)*2.f)*.5f;
+    r.trimChangeDb=std::abs(change)<outputMinTrimChangeDb?0.f:change;
     return r;
 }
 
