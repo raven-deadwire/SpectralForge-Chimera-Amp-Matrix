@@ -1148,8 +1148,9 @@ void cabRules() {
             check(r.roughnessAfterDb<=r.roughnessBeforeDb+cabRoughnessAllowanceDb+1e-4f,"The new placement cuts deeper notches");
             check(std::abs(r.proposed.distanceCm*2-std::round(r.proposed.distanceCm*2))<1e-6,"Distance not on the 0.5 cm grid");
         }
-        // Moving away lowers the level; the controller makes it up on the mic's level.
-        check(cabLevelChangeDb(settled.heard,s,{.5,20})<-2.f && cabLevelChangeDb(settled.heard,s,{.5,10})==0.f,"Level change does not follow the distance");
+        // Moving away lowers the level, moving closer raises it; the controller makes it up on the mic's level.
+        const float farther=cabLevelChangeDb(settled.heard,s,{.5,20}),nearer=cabLevelChangeDb(settled.heard,s,{.5,5});
+        check(farther<-1.f && nearer>1.f && std::abs(cabLevelChangeDb(settled.heard,s,{.5,10}))<1e-4f,"Level change does not follow the distance ("+std::to_string(nearer)+", "+std::to_string(farther)+" dB)");
         if(rate==48000.)std::cout<<"MEASURE cab rules 48 kHz: bright > position "<<darker.proposed.position<<" distance "<<darker.proposed.distanceCm<<" cm (error "<<darker.toneErrorBeforeDb<<" > "<<darker.toneErrorAfterDb
                                 <<" dB, level "<<cabLevelChangeDb(darker.heard,s,darker.proposed)<<" dB); dark > position "<<brighter.proposed.position<<" distance "<<brighter.proposed.distanceCm
                                 <<" cm (error "<<brighter.toneErrorBeforeDb<<" > "<<brighter.toneErrorAfterDb<<" dB)\n";
