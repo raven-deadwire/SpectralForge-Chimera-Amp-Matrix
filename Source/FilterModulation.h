@@ -215,17 +215,20 @@ public:
     }
     void reset() noexcept {
         for (auto& channel : filters) for (auto& f : channel) f.reset();
-        envelope = {}; squareState = {}; phase = {}; held = {}; armed = true; seed = 0x1234567u; onsetFast = onsetSlow = 0.;
+        envelope = {}; squareState = {}; phase = {}; cycleIndex = {}; randomBase = {}; armed = true; seed = 0x1234567u; onsetFast = onsetSlow = 0.;
     }
     bool idle() const noexcept { return fade.getCurrentValue() <= 0.f && !fade.isSmoothing(); }
     double lfoPhase(int lfo = 0) const noexcept { return phase[size_t(juce::jlimit(0, 1, lfo))]; }
+    // The last LFO value per channel (tests).
+    double lfoOutput(int lfo, int channel) const noexcept { return lastLfo[size_t(juce::jlimit(0, 1, lfo))][size_t(juce::jlimit(0, 1, channel))]; }
 
     // `ppq`: the host position in quarter notes at the block start (NaN when
     // there is none); `ppqBpm`: the host tempo that position advances at
     // (NaN: `bpm`). `key` / `keyChannels`: an external envelope source.
     void process(float* const* data, int channels, int samples, const FilterSettings& s, double bpm,
                  double ppq = std::numeric_limits<double>::quiet_NaN(), const float* const* key = nullptr, int keyChannels = 0,
-                 double ppqBpm = std::numeric_limits<double>::quiet_NaN()) noexcept {
+                 double ppqBpm = std::numeric_limits<double>::quiet_NaN(),
+                 double barStartPpq = std::numeric_limits<double>::quiet_NaN(), double barBeats = 0.) noexcept {
         fade.setTargetValue(s.on ? 1.f : 0.f);
         mix.setTargetValue(s.mix);
         output.setTargetValue(juce::Decibels::decibelsToGain(s.on ? s.outputDb : 0.f));
@@ -241,8 +244,9 @@ public:
             const double hz = sync[size_t(l)] > 0 && bpm > 0. ? bpm / 60. / filterSyncBeats[size_t(sync[size_t(l)])] : rates[size_t(l)];
             step[size_t(l)] = juce::jlimit(0., .5, hz / rate);
         }
-        // Bar lock: a synced LFO's phase is the host position divided by its
-        // cycle length, so it lands on the same beat every time.
+        // Bar lock: a synced LFO's phase is the position since the last bar
+        // line (the song start when the host gives no bar) divided by its
+        // cycle length, so every bar starts a cycle on its downbeat.
         const double positionBpm = std::isfinite(ppqBpm) && ppqBpm > 0. ? ppqBpm : bpm;
         const bool hostPosition = s.lfoLock && std::isfinite(ppq) && positionBpm > 0.;
         const double beatsPerSample = positionBpm / 60. / rate;
@@ -263,10 +267,19 @@ public:
             }
             for (int l = 0; l < 2; ++l)
                 if (hostPosition && sync[size_t(l)] > 0) {
-                    const double cycle = (ppq + n * beatsPerSample) / filterSyncBeats[size_t(sync[size_t(l)])];
-                    const double next = cycle - std::floor(cycle);
-                    if (next < phase[size_t(l)]) held[size_t(l)] = random();
-                    phase[size_t(l)] = next;
+                    double beats = ppq + n * beatsPerSample;
+                    double bar = 0.;   // whole bars since the song start (or 0)
+                    if (std::isfinite(barStartPpq) && barBeats > 0.) {
+                        beats -= barStartPpq;
+                        bar = std::floor(beats / barBeats);
+                        beats -= bar * barBeats;   // a bar line inside the block starts the next bar
+                    }
+                    const double cycle = beats / filterSyncBeats[size_t(sync[size_t(l)])];
+                    phase[size_t(l)] = cycle - std::floor(cycle);
+                    // Random holds one value per cycle; counting cycles from the
+                    // bar keeps a loop pass repeating the same values.
+                    const double barNumber = std::isfinite(barStartPpq) && barBeats > 0. ? std::round(barStartPpq / barBeats) + bar : 0.;
+                    cycleIndex[size_t(l)] = std::int64_t(std::floor(cycle)) + std::int64_t(barNumber) * 4096;
                 }
             double loudest = 0.;   // the loudest input this sample (the envelope's source)
             for (int c = 0; c < channels; ++c) {
@@ -281,12 +294,15 @@ public:
                 for (int l = 0; l < 2; ++l) {
                     double p = phase[size_t(l)] + (c == 1 ? offset : 0.);
                     p -= std::floor(p);
-                    double value = filter_detail::lfoValue(shape[size_t(l)], p, held[size_t(l)]);
+                    // Random: the value of the cycle this channel's shifted phase
+                    // is in, so the stereo phase offsets the steps as well.
+                    const std::int64_t cycleOfChannel = cycleIndex[size_t(l)] + (c == 1 && phase[size_t(l)] + offset >= 1. ? 1 : 0);
+                    double value = filter_detail::lfoValue(shape[size_t(l)], p, heldValue(l, cycleOfChannel));
                     // Square and Random step through a 2 ms one-pole so their edges do not click.
                     auto& smoothed = squareState[size_t(l)][size_t(c)];
                     smoothed += squareSmoothing * (value - smoothed);
                     if (shape[size_t(l)] == 2 || shape[size_t(l)] == 4) value = smoothed;
-                    lfo[size_t(l)] = value;
+                    lfo[size_t(l)] = value;lastLfo[size_t(l)][size_t(c)] = value;
                 }
                 const double env = juce::jmin(1., e);
                 std::array<double, filterCount> out{};
@@ -318,7 +334,7 @@ public:
             // A bar-locked LFO follows the host position instead.
             if (s.lfoRetrigger) {
                 if (armed && onsetFast > .01 && onsetFast > 1.6 * onsetSlow) {
-                    for (int l = 0; l < 2; ++l) if (!(hostPosition && sync[size_t(l)] > 0)) { phase[size_t(l)] = 0.; held[size_t(l)] = random(); }
+                    for (int l = 0; l < 2; ++l) if (!(hostPosition && sync[size_t(l)] > 0)) { phase[size_t(l)] = 0.;cycleIndex[size_t(l)] = 0;newRandomBase(l); }
                     armed = false;
                 }
                 else if (onsetFast < 1.15 * onsetSlow) armed = true;
@@ -326,15 +342,25 @@ public:
             for (int l = 0; l < 2; ++l)
                 if (!(hostPosition && sync[size_t(l)] > 0)) {
                     phase[size_t(l)] += step[size_t(l)];
-                    if (phase[size_t(l)] >= 1.) { phase[size_t(l)] -= 1.;held[size_t(l)] = random(); }
+                    if (phase[size_t(l)] >= 1.) { phase[size_t(l)] -= 1.;++cycleIndex[size_t(l)]; }
                 }
         }
     }
 
 private:
     double random() noexcept { seed = seed * 1664525u + 1013904223u;return double(seed >> 8) / 8388608. - 1.; }
+    void newRandomBase(int l) noexcept { random();randomBase[size_t(l)] = seed; }
+    // The Random shape's value for a cycle: a hash of the cycle number, so both
+    // channels (and a repeated loop) agree on the value of a given cycle.
+    double heldValue(int l, std::int64_t cycle) const noexcept {
+        std::uint64_t z = std::uint64_t(cycle) + 0x9E3779B97F4A7C15ull * (std::uint64_t(randomBase[size_t(l)]) + 1u + std::uint64_t(l));
+        z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;z ^= z >> 31;
+        return double(z >> 11) / 4503599627370496. - 1.;   // [-1, 1)
+    }
     double rate{48000.}, squareSmoothing{};
-    std::array<double, 2> phase{}, held{};
+    std::array<double, 2> phase{};
+    std::array<std::array<double, 2>, 2> lastLfo{};
+    std::array<std::int64_t, 2> cycleIndex{};std::array<std::uint32_t, 2> randomBase{};
     bool armed{true};std::uint32_t seed{0x1234567u};
     double onsetFast{}, onsetSlow{}, onsetFastAttack{}, onsetFastRelease{}, onsetSlowAttack{}, onsetSlowRelease{};
     std::array<std::array<filter_detail::Filter, filterCount>, 2> filters{};
@@ -361,7 +387,8 @@ public:
     // `ppq`: host position at the block start (NaN when unknown). `key`:
     // the external sidechain, used when the envelope source is Sidechain.
     void process(juce::AudioBuffer<float>& buffer, double bpm, double ppq = std::numeric_limits<double>::quiet_NaN(),
-                 const juce::AudioBuffer<float>* key = nullptr, double ppqBpm = std::numeric_limits<double>::quiet_NaN()) noexcept {
+                 const juce::AudioBuffer<float>* key = nullptr, double ppqBpm = std::numeric_limits<double>::quiet_NaN(),
+                 double barStartPpq = std::numeric_limits<double>::quiet_NaN(), double barBeats = 0.) noexcept {
         const auto s = settings();
         const int channels = juce::jmin(2, buffer.getNumChannels()), samples = buffer.getNumSamples();
         if (channels == 0 || samples == 0) return;
@@ -371,7 +398,7 @@ public:
         }
         const bool keyed = key != nullptr && key->getNumSamples() == samples && key->getNumChannels() > 0;
         core.process(buffer.getArrayOfWritePointers(), channels, samples, s, bpm, ppq,
-                     keyed ? key->getArrayOfReadPointers() : nullptr, keyed ? key->getNumChannels() : 0, ppqBpm);
+                     keyed ? key->getArrayOfReadPointers() : nullptr, keyed ? key->getNumChannels() : 0, ppqBpm, barStartPpq, barBeats);
     }
     FilterSettings settings() const noexcept {
         const auto read = [](const std::atomic<float>* p, float lo, float hi, float fallback) {
