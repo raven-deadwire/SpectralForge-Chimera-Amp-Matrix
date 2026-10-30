@@ -37,7 +37,7 @@ void checkArtwork()
     using namespace spectralforge::art;
     const juce::SharedResourcePointer<RasterBank> bank;
     const auto& images=bank->images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==size_t(123+spectralforge::pedalModelCount-spectralforge::releasedPedalModelCount),
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==size_t(126+spectralforge::pedalModelCount-spectralforge::releasedPedalModelCount),
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -75,6 +75,7 @@ void checkArtwork()
     // 1.9 CREATIVE: one face per model, distinct from every rack face.
     std::set<Surface> slotFaces;
     for(int model=0;model<spectralforge::creativeModelCount;++model)require(!racks.count(spectralforge::art::creativeSurface(model)) && slotFaces.insert(spectralforge::art::creativeSurface(model)).second,"CREATIVE model has no dedicated face");
+    {std::set<Surface> strips;for(int type=0;type<3;++type)require(spectralforge::art::synthSurface(type)!=Surface::workbench && strips.insert(spectralforge::art::synthSurface(type)).second && images[static_cast<size_t>(spectralforge::art::synthSurface(type))].isValid(),"SYNTH engine type has no strip");}   // 1.10 SYNTH strips
     for(int model=26;model<spectralforge::pedalModelCount;++model)
         require(pedals.insert(boardPedalStyle(model).surface).second,"New pedal has no dedicated enclosure image");
     require(heads.size()==size_t(spectralforge::ampModelCount) && pedals.size()==size_t(38+spectralforge::pedalModelCount-spectralforge::releasedPedalModelCount) && racks.size()==39,"Model artwork mapping does not cover every reference");

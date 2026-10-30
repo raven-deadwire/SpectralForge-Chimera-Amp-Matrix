@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Procedural rack faces for the 1.7 POST expansion, the 1.8 motion/space models,
-and the 1.9 CREATIVE slot.
+the 1.9 CREATIVE slot, and the 1.10 SYNTH page's engine strips.
 
 Original Chimera fascias drawn from simple shapes with the working name; no
 manufacturer logo or trade dress. Live controls stay JUCE components; these
@@ -86,9 +86,51 @@ def face(name, label, body, accent, motif):
     img.save(ROOT / 'Assets/Artwork' / f'{name}.png', optimize=True)
 
 
+# 1.10 SYNTH engine strips (docs/SYNTH_V2.md): a wide, low faceplate behind
+# the SYNTH page's top bar, one per engine type, named at its right end.
+SW, SH = 2800, 56
+STRIPS = [
+    ('sdvergr', 'DVERGR ANALOG', (54, 40, 30), (240, 168, 72), 'forge'),
+    ('sseidr', 'SEIDR DYNAMIC', (28, 42, 58), (150, 214, 236), 'weave'),
+    ('smimir', 'MIMIR IMPACT', (34, 30, 48), (214, 196, 250), 'strike'),
+]
+
+
+def strip(name, label, body, accent, motif):
+    import math
+    img = Image.new('RGBA', (SW, SH), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle((0, 0, SW - 1, SH - 1), 8, fill=body + (255,))
+    for y in range(2, SH - 2, 3):   # brushed finish
+        shade = tuple(min(255, max(0, c + (4 if y % 6 else -3))) for c in body)
+        d.line((6, y, SW - 6, y), fill=shade + (255,))
+    dim = tuple(int(c * .55 + b * .45) for c, b in zip(accent, body))
+    if motif == 'forge':   # rivets and glowing vent slots, like a warm valve chassis
+        for x in range(40, SW - 520, 120):
+            d.ellipse((x - 5, 10, x + 5, 20), fill=dim + (255,))
+            d.ellipse((x - 5, SH - 20, x + 5, SH - 10), fill=dim + (255,))
+            d.rounded_rectangle((x + 30, 18, x + 90, SH - 18), 6, fill=tuple(int(c * .35) for c in accent) + (255,), outline=dim + (255,), width=2)
+    elif motif == 'weave':   # interlaced waves: a playing-dependent sound
+        for k, phase in enumerate((0, 2.1, 4.2)):
+            points = [(x, SH / 2 + (14 - 3 * k) * math.sin(x / (60 + 25 * k) + phase)) for x in range(10, SW - 520, 6)]
+            d.line(points, fill=(dim if k else accent) + (255,), width=3 if k == 0 else 2)
+    else:   # concentric rings struck from points: a struck sound
+        for cx in range(80, SW - 560, 260):
+            for r, c in ((22, accent), (15, dim), (8, dim)):
+                d.ellipse((cx - r * 2, SH / 2 - r, cx + r * 2, SH / 2 + r), outline=c + (255,), width=2)
+            d.ellipse((cx - 4, SH / 2 - 4, cx + 4, SH / 2 + 4), fill=accent + (255,))
+    d.rectangle((SW - 500, 8, SW - 497, SH - 8), fill=accent + (255,))
+    font = ImageFont.truetype(FONT, 30)
+    d.text((SW - 480, (SH - 34) // 2), label, font=font, fill=accent + (255,))
+    img.save(ROOT / 'Assets/Artwork' / f'{name}.png', optimize=True)
+
+
 if __name__ == '__main__':
     import sys
     wanted = set(sys.argv[1:])
     for f in FACES:
         if not wanted or f[0] in wanted:
             face(*f)
+    for f in STRIPS:
+        if not wanted or f[0] in wanted:
+            strip(*f)

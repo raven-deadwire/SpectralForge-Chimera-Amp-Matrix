@@ -168,6 +168,23 @@ Fixes made while testing:
 - Seidr's waves move towards square, so the brightness test reads an odd
   harmonic; the 16th vanishes there.
 
+## Artwork
+
+Each engine type has its own strip behind the SYNTH page's top bar,
+dimmed under the controls. The type selector names the engine.
+
+| Type | Strip | Colours |
+|---|---|---|
+| Dvergr Analog | Rivets and glowing vent slots, like a warm valve chassis | Dark bronze, amber |
+| Seidr Dynamic | Interlaced waves (a sound that follows the playing) | Slate blue, ice blue |
+| Mimir Impact | Concentric rings struck from points (a struck sound) | Indigo, lilac |
+
+- **Source:** `Tools/generate_post_rack_faces.py` draws them (`sdvergr`,
+  `sseidr`, `smimir`, 2800 × 56).
+- **Name end:** the strips also carry the engine name at their right end
+  (`art::synthStrip(..., named=true)`). The page leaves it out: at the page
+  width of 1140 px, the top-bar controls cover it.
+- **Test:** `ChimeraUITests` checks that each type has its own embedded strip.
 ## Review fixes (10/30)
 
 - **Sample → Wave mid-note:** the Wave branch read the sample's frame
