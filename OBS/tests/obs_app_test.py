@@ -223,6 +223,18 @@ class Obs:
         check("authentication" not in hello["d"], "obs-websocket without authentication")
         self.ws.send({"op": 1, "d": {"rpcVersion": 1, "eventSubscriptions": 0}})
         check(self.ws.receive().get("op") == 2, "obs-websocket Identified")
+        # obs-websocket accepts connections before OBS has finished loading
+        # (requests then fail with code 207, "not ready").
+        wait_until(lambda: self._ready(), "OBS ready for requests", 60)
+
+    def _ready(self) -> bool:
+        self.next_id += 1
+        request_id = str(self.next_id)
+        self.ws.send({"op": 6, "d": {"requestType": "GetVersion", "requestId": request_id, "requestData": {}}})
+        while True:
+            message = self.ws.receive()
+            if message.get("op") == 7 and message["d"].get("requestId") == request_id:
+                return bool(message["d"]["requestStatus"].get("result"))
 
     def request(self, kind: str, data: dict | None = None, ok: bool = True) -> dict:
         self.next_id += 1
@@ -367,6 +379,12 @@ def configure(config: Path, port: int, recordings: Path) -> None:
                                "StreamEncoder": "x264", "VBitrate": "300", "ABitrate": "160"}
     with (config / "basic" / "profiles" / "Chimera" / "basic.ini").open("w") as f:
         profile.write(f, space_around_delimiters=False)
+    # obs-websocket 5.5 (OBS 31) keeps its settings here instead of the ini files.
+    websocket = config / "plugin_config" / "obs-websocket"
+    websocket.mkdir(parents=True, exist_ok=True)
+    (websocket / "config.json").write_text(json.dumps({
+        "alerts_enabled": False, "auth_required": False, "first_load": False, "server_enabled": True,
+        "server_password": "", "server_port": port}), encoding="utf-8")
 
 
 def free_port() -> int:
@@ -496,7 +514,13 @@ def main() -> int:
         run(args)
     except Exception as e:  # noqa: BLE001 - report every failure the same way
         print(f"FAIL {e}", file=sys.stderr)
-        for log in sorted((args.layout.config / "logs").glob("*.txt"))[-2:]:
+        work = Path(args.work).resolve()
+        logs = sorted((args.layout.config / "logs").glob("*.txt"))[-2:]
+        if not logs:
+            print(f"--- no OBS log in {args.layout.config / 'logs'}; config holds: "
+                  f"{sorted(str(p.relative_to(args.layout.config)) for p in args.layout.config.rglob('*'))[:40]}",
+                  file=sys.stderr)
+        for log in [*sorted(work.glob("obs-run-*.txt")), *logs]:
             print(f"--- {log.name} (last 60 lines)", file=sys.stderr)
             print("\n".join(log.read_text(errors="replace").splitlines()[-60:]), file=sys.stderr)
         return 1
