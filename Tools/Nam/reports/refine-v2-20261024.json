@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "date": "2026-10-24",
+  "quality_profile": "nastrond-tone3000-fidelity-v2",
+  "source": "4ef21c16aed16fe2eb470ed21e5d9942224ab61e",
+  "capture_manifest_sha256": "984320f2619937980db51e910bacc2f6e4e1d8c31f43e2e379b156e39dc011e5",
+  "warm_start": {
+    "from": "train-v2-20261024",
+    "checkpoint_sha256": "4d62aec90f24514fe6d4b42ca7fc9b376a6d772a5284d0c59e5af02e9d16c416",
+    "initial_selection_metric": "window",
+    "initial_selection_esr": {
+      "Fenrir": 0.21961115000436573,
+      "Surtr": 0.14504236789321165,
+      "Nidhoggr": 0.14171832263606476,
+      "Fimbulvetr": 0.07887516167398083,
+      "Ragnarok": 0.18536558046436755
+    }
+  },
+  "training": {
+    "train_seconds": 480,
+    "steps": 5000,
+    "lr": 0.001,
+    "lr_half_life": 2000,
+    "frames": 4096,
+    "batch": 2,
+    "recipe": "legacy",
+    "tail_fraction": 0.1,
+    "center_training_output": true,
+    "threads": 4,
+    "command": "train_a2.py --warm-start <train-v2 run> --steps 5000 --lr .001 --frames 4096 --threads 4 --batch 2 --recipe legacy --tail-fraction .1 --center-training-output",
+    "train_a2_commit": "829cf61 (warm-start selection-metric fix)"
+  },
+  "selection_window_esr_by_step": {
+    "500": {
+      "Fenrir": 0.29193819780422603,
+      "Surtr": 0.14076429003209875,
+      "Nidhoggr": 0.15690972989031868,
+      "Fimbulvetr": 0.07711846574021916,
+      "Ragnarok": 0.16646379334630262
+    },
+    "1000": {
+      "Fenrir": 0.32091670749813134,
+      "Surtr": 0.13926664672065506,
+      "Nidhoggr": 0.18379596571908113,
+      "Fimbulvetr": 0.07600023729555287,
+      "Ragnarok": 0.16527106399006
+    },
+    "1500": {
+      "Fenrir": 0.26914767821155705,
+      "Surtr": 0.13399755232624364,
+      "Nidhoggr": 0.1296575434481159,
+      "Fimbulvetr": 0.06796167425037472,
+      "Ragnarok": 0.1539209625563442
+    },
+    "2000": {
+      "Fenrir": 0.32733660931898284,
+      "Surtr": 0.12809241814610614,
+      "Nidhoggr": 0.10849363560733646,
+      "Fimbulvetr": 0.0770143878852658,
+      "Ragnarok": 0.1395466409517087
+    },
+    "2500": {
+      "Fenrir": 0.29983963874057373,
+      "Surtr": 0.1669515809872839,
+      "Nidhoggr": 0.1217893949807117,
+      "Fimbulvetr": 0.05365392841932657,
+      "Ragnarok": 0.1280302675685319
+    },
+    "3000": {
+      "Fenrir": 0.31219663372276363,
+      "Surtr": 0.13005076574567714,
+      "Nidhoggr": 0.1310038520512343,
+      "Fimbulvetr": 0.051971005087348,
+      "Ragnarok": 0.12132394373484738
+    },
+    "3500": {
+      "Fenrir": 0.2642613327507338,
+      "Surtr": 0.12279327524953165,
+      "Nidhoggr": 0.13222091046930448,
+      "Fimbulvetr": 0.06656071800700099,
+      "Ragnarok": 0.1202582382040878
+    },
+    "4000": {
+      "Fenrir": 0.2727609429147936,
+      "Surtr": 0.11719685478196303,
+      "Nidhoggr": 0.12179464343130184,
+      "Fimbulvetr": 0.06960193906954401,
+      "Ragnarok": 0.11214274844256553
+    },
+    "4500": {
+      "Fenrir": 0.2555270554503792,
+      "Surtr": 0.11107052626813334,
+      "Nidhoggr": 0.1268038243030949,
+      "Fimbulvetr": 0.05774865247823467,
+      "Ragnarok": 0.1076792472076353
+    },
+    "5000": {
+      "Fenrir": 0.27057063025161976,
+      "Surtr": 0.1131883894190151,
+      "Nidhoggr": 0.11880680515016659,
+      "Fimbulvetr": 0.049454465040509855,
+      "Ragnarok": 0.1100893380682999
+    }
+  },
+  "validation": {
+    "Fenrir": {
+      "full_esr": 0.10753817143527084,
+      "active_median": 0.06579111947273174,
+      "active_p95": 0.4380406354246264,
+      "active_worst": 0.7474042799106214,
+      "quiet_worst_residual_rms_dbfs": -61.87368804420774,
+      "quiet_worst_residual_peak_dbfs": -42.370806136992485,
+      "memoryless_worst_residual_rms_dbfs": -110.11339599258042,
+      "rms_error_db": -0.5068335912005751,
+      "peak_error_db": 0.35348604390424043,
+      "active_pass": false,
+      "quiet_pass": false,
+      "level_pass": false,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 0,
+      "model_sha256": "f1070e1e852095208f718697257cbcbb5be67f79615a194f62625634b3aad0e0"
+    },
+    "Surtr": {
+      "full_esr": 0.05709723709249558,
+      "active_median": 0.04319011271453417,
+      "active_p95": 0.20596505644720053,
+      "active_worst": 0.45618355934178145,
+      "quiet_worst_residual_rms_dbfs": -77.50287978932063,
+      "quiet_worst_residual_peak_dbfs": -70.33627750202898,
+      "memoryless_worst_residual_rms_dbfs": -86.98990965092379,
+      "rms_error_db": -0.19811264232839387,
+      "peak_error_db": 0.5728122073792807,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": true,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 4500,
+      "model_sha256": "94412b6ab380a0a0af94f8f1c46bb477200f80c22f483593f1f5b2b8e40b86ee"
+    },
+    "Nidhoggr": {
+      "full_esr": 0.07942542074665837,
+      "active_median": 0.06686947858150144,
+      "active_p95": 0.24806257926929431,
+      "active_worst": 0.48634985782228374,
+      "quiet_worst_residual_rms_dbfs": -74.73356845015742,
+      "quiet_worst_residual_peak_dbfs": -67.26748937344605,
+      "memoryless_worst_residual_rms_dbfs": -84.46352327056552,
+      "rms_error_db": -0.20458304450874243,
+      "peak_error_db": 1.2172241986747565,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": false,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 2000,
+      "model_sha256": "fa401fdfd0beb52aab76272d96e4848f4eadcd8df941c4c82b463a93edf354c9"
+    },
+    "Fimbulvetr": {
+      "full_esr": 0.02894207470532983,
+      "active_median": 0.016180445026587463,
+      "active_p95": 0.09459238985944733,
+      "active_worst": 0.26953742826570204,
+      "quiet_worst_residual_rms_dbfs": -77.4979074666417,
+      "quiet_worst_residual_peak_dbfs": -70.11084802827247,
+      "memoryless_worst_residual_rms_dbfs": -86.19362295289844,
+      "rms_error_db": -0.0037452404133146433,
+      "peak_error_db": -0.003170637146398647,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": true,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 5000,
+      "model_sha256": "7372a2b9052391c9d14e34e6e2063d8fddba603c07ad14d09e21eb6259480147"
+    },
+    "Ragnarok": {
+      "full_esr": 0.06751369987153502,
+      "active_median": 0.06864496896415237,
+      "active_p95": 0.2696935902423468,
+      "active_worst": 0.6063540190932705,
+      "quiet_worst_residual_rms_dbfs": -75.93144255130979,
+      "quiet_worst_residual_peak_dbfs": -67.81191304439047,
+      "memoryless_worst_residual_rms_dbfs": -88.00405455187646,
+      "rms_error_db": -0.14311021047031636,
+      "peak_error_db": 2.480886966417451,
+      "active_pass": false,
+      "quiet_pass": true,
+      "level_pass": false,
+      "full_esr_pass": false,
+      "fidelity_pass": false,
+      "selected_step": 4500,
+      "model_sha256": "e3621d9548f34f51e7b6c8dac66e04d9e583823ea39b683050339890aaa729ec"
+    }
+  },
+  "previous_full_esr": {
+    "Fenrir": 0.10753817143527084,
+    "Surtr": 0.08405136419259238,
+    "Nidhoggr": 0.10700599903486052,
+    "Fimbulvetr": 0.05026493126916512,
+    "Ragnarok": 0.14081869006270534
+  },
+  "release_approved": false,
+  "test_split": "not evaluated; held out for the final candidate"
+}

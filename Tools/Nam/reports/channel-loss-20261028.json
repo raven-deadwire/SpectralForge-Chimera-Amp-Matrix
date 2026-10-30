@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "date": "2026-10-28",
+  "quality_profile": "nastrond-tone3000-fidelity-v2",
+  "source": "4ef21c16aed16fe2eb470ed21e5d9942224ab61e",
+  "training": {
+    "warm_start": "peak-weight-20261027 selected models (the packaged set)",
+    "loss_normalization": "channel",
+    "peak_weight": {
+      "Ragnarok": 1.5
+    },
+    "keep_passed": true,
+    "loud_fraction": 0.25,
+    "steps": 20000,
+    "lr": 0.0002,
+    "lr_warmup": 1000,
+    "lr_half_life": 8000,
+    "frames": 4096,
+    "batch": 2,
+    "recipe": "legacy",
+    "tail_fraction": 0.1,
+    "center_training_output": true
+  },
+  "channels": {
+    "Fimbulvetr": {
+      "validation": {
+        "full_esr": 0.006533255697471993,
+        "active_median": 0.004486133897292695,
+        "active_p95": 0.02299997183355373,
+        "active_worst": 0.088990968956181,
+        "quiet_worst_residual_rms_dbfs": -77.4973513549483,
+        "quiet_worst_residual_peak_dbfs": -70.1096789546448,
+        "rms_error_db": -0.056075064849889,
+        "peak_error_db": 0.8952457657781849,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": true,
+        "fidelity_pass": false,
+        "selected_step": 11500,
+        "model_sha256": "145e7d5fcb3ea681b2589655727197c159bf1139acba42872c8e0f9300d4d427"
+      },
+      "test": {
+        "full_esr": 0.008218333650560836,
+        "active_median": 0.00631785379619224,
+        "active_p95": 0.02831834580395773,
+        "active_worst": 0.08413090566712263,
+        "quiet_worst_residual_rms_dbfs": -81.8963169318794,
+        "quiet_worst_residual_peak_dbfs": -75.40845918646185,
+        "rms_error_db": -0.0829685426201297,
+        "peak_error_db": 1.0653931057398278,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": true,
+        "fidelity_pass": false
+      }
+    },
+    "Ragnarok": {
+      "validation": {
+        "full_esr": 0.02128788950750778,
+        "active_median": 0.016232254538877458,
+        "active_p95": 0.09011777907327594,
+        "active_worst": 0.19965673753980476,
+        "quiet_worst_residual_rms_dbfs": -75.93080900302456,
+        "quiet_worst_residual_peak_dbfs": -67.81163987178952,
+        "rms_error_db": -0.08329567291366313,
+        "peak_error_db": 0.18512302732497687,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "selected_step": 19000,
+        "model_sha256": "c53b58fdf59cde835a9dfe6337c93f9fe58878eb50c214a778771bf9b3492491"
+      },
+      "test": {
+        "full_esr": 0.01855759482569124,
+        "active_median": 0.01525945234567131,
+        "active_p95": 0.06941964003937387,
+        "active_worst": 0.2120738169574837,
+        "quiet_worst_residual_rms_dbfs": -70.2554878482432,
+        "quiet_worst_residual_peak_dbfs": -63.89461369221124,
+        "rms_error_db": -0.099723936208862,
+        "peak_error_db": 0.014052745233382069,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false
+      }
+    }
+  },
+  "adopted": {
+    "Ragnarok": "this run, step 19000",
+    "Fimbulvetr": "not adopted: test peak +1.07 dB fails level",
+    "others": "no step beat the start"
+  },
+  "release_approved": false
+}

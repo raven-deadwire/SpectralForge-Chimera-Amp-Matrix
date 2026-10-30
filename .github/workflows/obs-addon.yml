@@ -56,8 +56,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Install JUCE, libobs (Ubuntu 30.0.2) and display dependencies
-        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev mesa-common-dev libobs-dev libglib2.0-dev pkg-config xvfb
+      - name: Install JUCE, libobs and OBS Studio (Ubuntu 30.0.2) and display dependencies
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev mesa-common-dev libobs-dev libglib2.0-dev pkg-config xvfb obs-studio ffmpeg
       - name: Build the Chimera VST3 under test
         run: |
           cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
@@ -98,6 +98,12 @@ jobs:
           test -f "$plugins/chimera-obs/user-notes.txt"
           rm -rf "$plugins/chimera-obs"
           tar -C package -czf "package/chimera-obs-linux-x86_64-${sha:0:10}.tar.gz" chimera-obs-linux-x86_64
+      - name: Real OBS Studio app - load the filter, record, push a preset, save, restart and restore
+        # OBS runs with its own HOME under Xvfb and is driven through its bundled obs-websocket.
+        run: |
+          xvfb-run -a python3 OBS/tests/obs_app_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool build-obs/chimera-obs-state-tool --work "$RUNNER_TEMP/obs-app"
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-linux-x86_64-${{ github.event.pull_request.head.sha || github.sha }}

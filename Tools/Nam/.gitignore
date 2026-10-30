@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pt
+*.nam
+*.npy
+*.f32
+*.wav
