@@ -173,16 +173,22 @@ public:
     std::array<float,6> stagePeaks{};
     float compressorReduction() const {return busReduction;}
     float nativeMeter(int section) const {return native.meter(section);}
-    void setKey(const juce::AudioBuffer<float>* key) noexcept {native.setKey(key);}
+    // `delayed`: the key delayed by the preamp's latency, for POST dynamics
+    // placed after the preamp (docs/SIGNAL_ORDER_1_4.md).
+    void setKey(const juce::AudioBuffer<float>* key,const juce::AudioBuffer<float>* delayed=nullptr) noexcept {keys={key,delayed!=nullptr?delayed:key};native.setKey(key);}
     void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);native.prepare(spec,preamp.latency());transition.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);for(auto& mix:nativeMix){mix.reset(spec.sampleRate,.02);mix.setCurrentAndTargetValue(0);}nativeReady={};busReduction=0;stagePeaks={};}
     int latency() const {return preamp.latency();}
+    std::array<const juce::AudioBuffer<float>*,2> keys{};
     void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();native.reset();nativeReady={};busReduction=0;stagePeaks={};}
     // Runs the rack in `order` (docs/SIGNAL_ORDER_1_4.md); the default is the
     // released order. Each meter reads its module's output; DELAY's meter
     // includes CREATIVE when CREATIVE directly follows it, as before.
     void process(juce::AudioBuffer<float>& buffer,const FXState& state,const PostOrder& order=PostOrder::initial()) {
         const auto peak=[&](int i){stagePeaks[(size_t)i]=buffer.getMagnitude(0,buffer.getNumSamples());};
+        bool preampBefore=false;
         for(int slot=0;slot<postModuleCount;++slot) {
+            if(order.slots[(size_t)slot]==postDynamicsModule)native.setKey(preampBefore?keys[1]:keys[0]);
+            if(order.slots[(size_t)slot]==postPreampModule)preampBefore=true;
             switch(order.slots[(size_t)slot]) {
                 case postDynamicsModule:processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});peak(0);break;
                 case postPreampModule:processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});peak(1);break;

@@ -1,6 +1,7 @@
 #include "CabMicRouting.h"
 #pragma once
 #include "OriginalCabParameters.h"
+#include "KeyDelay.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <functional>
 #include <thread>
@@ -314,7 +315,9 @@ private:
     // pointers are valid only while process() runs on one chunk.
     juce::AudioBuffer<float> busBuffer(juce::AudioBuffer<float>& hostBuffer,bool input) const;
     std::atomic<float>* synthOutput{};std::atomic<float>* keyComp{};std::atomic<float>* keyGates{};std::atomic<float>* keyMultiband{};
-    juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};float* busLeft{};float* busRight{};
+    juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};
+    // The key delayed by HQ saturation (tone region) and the POST preamp, for keyed modules placed after them.
+    spectralforge::KeyDelay toneKeyDelay,postKeyDelay;const juce::AudioBuffer<float>* toneKeyDelayed{};const juce::AudioBuffer<float>* postKeyDelayed{};float* busLeft{};float* busRight{};
     spectralforge::SignalOrderParameters signalOrder;spectralforge::SignalOrder activeOrder;   // activeOrder: audio thread
     spectralforge::OrderSwitch toneSwitch,postSwitch;
     double hostPpq{std::numeric_limits<double>::quiet_NaN()},hostPpqBpm{std::numeric_limits<double>::quiet_NaN()},hostBarStart{std::numeric_limits<double>::quiet_NaN()},hostBarBeats{},chunkPpq{std::numeric_limits<double>::quiet_NaN()};

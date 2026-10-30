@@ -265,11 +265,29 @@ void dragging() {
     std::cout<<"PASS drag: preview only while hovering, one undoable command on drop, Escape / off-target cancel, clicks still navigate\n";
 }
 
+// Review (10/30): keyed detectors placed after a module with latency read
+// the key delayed by it.
+void keyDelay() {
+    KeyDelay d;d.prepare(64,32);
+    juce::AudioBuffer<float> key(2,32);std::vector<float> got;int n0=0;
+    for(int chunk=0;chunk<6;++chunk){
+        const int n=chunk%2?32:17;key.setSize(2,n,false,false,true);
+        for(int i=0;i<n;++i){key.setSample(0,i,float(n0+i+1));key.setSample(1,i,-float(n0+i+1));}
+        const auto* out=d.process(&key,5);require(out!=nullptr && out!=&key && out->getNumSamples()==n,"Delayed key missing");
+        for(int i=0;i<n;++i)got.push_back(out->getSample(0,i));n0+=n;
+    }
+    bool exact=true;for(size_t i=0;i<got.size();++i)exact=exact&&got[i]==(i<5?0.f:float(i-5+1));
+    require(exact,"KeyDelay is not an exact 5-sample delay across ragged chunks");
+    require(d.process(&key,0)==&key && d.process(nullptr,5)==nullptr,"KeyDelay pass-through or no-key case wrong");
+    key.setSize(2,8,false,false,true);for(int i=0;i<8;++i){key.setSample(0,i,9);key.setSample(1,i,9);}
+    const auto* back=d.process(&key,5);require(back->getSample(0,0)==0.f && back->getSample(0,5)==9.f,"A returning key replayed old audio");
+    std::cout<<"PASS key delay: exact across ragged chunks, pass-through at 0, silence after the key returns\n";
+}
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();}
+    try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();keyDelay();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

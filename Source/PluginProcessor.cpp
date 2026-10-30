@@ -165,6 +165,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     autoSetCaptureState.prepare(sr);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)juce::jmax(1,getMainBusNumOutputChannels())};
     keyBuffer.setSize(2,maximumBlock);keyBuffer.clear();
+    toneKeyDelay.prepare(4096,maximumBlock);postKeyDelay.prepare(4096,maximumBlock);
     // Install the restored panel state before Cab::prepare initializes its
     // smoothers. This also clears a previous A/B blend/bypass after reprepare;
     // the normal process() path still smooths live automation as before.
@@ -298,6 +299,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
             juce::AudioBuffer<float> key(keyBuffer.getArrayOfWritePointers(),juce::jmin(2,keyBus.getNumChannels()),n);
             for(int c=0;c<key.getNumChannels();++c)key.copyFrom(c,0,keyBus,c,offset+done,n);
             externalKey=key.getNumChannels()>0?&key:nullptr;
+            toneKeyDelayed=toneKeyDelay.process(externalKey,saturation.latency());postKeyDelayed=postKeyDelay.process(externalKey,postFX.latency());
             chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*hostPpqBpm/60.0/rate:hostPpq;
             busLeft=synthBus.getNumChannels()>0?synthBus.getWritePointer(0,offset+done):nullptr;
             busRight=synthBus.getNumChannels()>1?synthBus.getWritePointer(1,offset+done):busLeft;
@@ -525,22 +527,24 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
      if(postSwitch.begin(requested.post!=activeOrder.post,immediate))activeOrder.post=requested.post;}
     synth.addAt(spectralforge::SynthInsert::beforeToneEQ,buffer);   // at the start of the tone / dynamics block
     measureStage(2,buffer);
+    bool latentBefore=false;   // HQ saturation ran ahead: keyed detectors read the key delayed to match
     for(const int module:activeOrder.tone.slots) {
         using spectralforge::autoset::Tap;
+        const auto* toneKey=latentBefore?toneKeyDelayed:externalKey;
         const auto tap=[&](Tap t){autoSetCaptureState.push(t,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());};
         switch(module) {
             case spectralforge::toneEQModule:tap(Tap::tone);toneEQ.process(buffer);break;
             case spectralforge::compressorModule:tap(Tap::compressor);
-                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer,externalKey!=nullptr && keyComp->load()>.5f ? externalKey : nullptr);}break;
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer,toneKey!=nullptr && keyComp->load()>.5f ? toneKey : nullptr);}break;
             case spectralforge::multibandModule:tap(Tap::multiband);
-                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer,externalKey!=nullptr && keyMultiband->load()>.5f ? externalKey : nullptr);}break;
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer,toneKey!=nullptr && keyMultiband->load()>.5f ? toneKey : nullptr);}break;
             // Three-band saturation (docs/SATURATION_1_6.md): adds only what each band's
             // curve changes; Off / Mix 0 / Clean bands leave the signal untouched.
             case spectralforge::saturationModule:
-                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}break;
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);latentBefore=saturation.latency()>0;}break;
             // Two-filter modulation (docs/FILTER_MODULATION_1_7.md): off leaves the signal untouched.
             case spectralforge::filterModule:
-                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,externalKey,hostPpqBpm,hostBarStart,hostBarBeats);}break;
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,toneKey,hostPpqBpm,hostBarStart,hostBarBeats);}break;
             case spectralforge::deesserModule:tap(Tap::deesser);
                 {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}break;
             default:break;
@@ -548,7 +552,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     toneSwitch.apply(buffer);
     synth.addAt(spectralforge::SynthInsert::beforePost,buffer);
-    postFX.setKey(externalKey);   // Console VCA's EXTERNAL SIDE-CHAIN switch decides
+    postFX.setKey(externalKey,postKeyDelayed);   // Console VCA's EXTERNAL SIDE-CHAIN switch decides
     postFX.process(buffer,fx,activeOrder.post);
     postFX.setKey(nullptr);preFX.gate.setKey(nullptr);
     postSwitch.apply(buffer);
