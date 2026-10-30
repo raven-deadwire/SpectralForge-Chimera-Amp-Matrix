@@ -168,11 +168,51 @@ void presetsAndProcessor() {
     require(allocations==0,"The modulation core allocated while processing");
     std::cout<<"PASS order presets (one undo step), the 1.9 bank, no allocation while processing\n";
 }
+// Review fixes: bar lock advances at the host tempo (not Chimera's); with lock
+// on, a free LFO still retriggers; drive starts at bypass continuously;
+// leaving the Comb does not replay stale state.
+void reviewFixes() {
+    {   // Host at 100 BPM, Chimera at 120: the locked phase continues across blocks without a jump.
+        auto s=base();s.lfoSync=3;s.lfoLock=true;
+        FilterModulationCore c;c.prepare(rate);c.setInitialState(s);
+        juce::AudioBuffer<float> b(2,block);b.clear();double worst=0,last=-1;
+        for(int k=0;k<20;++k){
+            const double ppq=4.+k*block*100./60./rate;
+            c.process(b.getArrayOfWritePointers(),2,block,s,120,ppq,nullptr,0,100);
+            const double expected=(ppq+(block-1)*100./60./rate)/filterSyncBeats[3];
+            worst=std::max(worst,std::abs(c.lfoPhase()-(expected-std::floor(expected))));
+            last=c.lfoPhase();
+        }
+        require(worst<1e-9 && last>=0,"Bar lock does not advance at the host tempo");
+    }
+    {   // Lock on, LFO 1 synced and locked, LFO 2 free: an attack restarts LFO 2.
+        auto s=base();s.lfoSync=3;s.lfoLock=true;s.lfo2Rate=3;s.lfoRetrigger=true;
+        FilterModulationCore c;c.prepare(rate);c.setInitialState(s);
+        juce::AudioBuffer<float> b(2,block);
+        for(int k=0;k<60;++k){for(int n=0;n<block;++n){const float x=k<30?0.f:float(.5*std::sin(2*pi*220*(k*block+n)/rate));b.setSample(0,n,x);b.setSample(1,n,x);}
+            c.process(b.getArrayOfWritePointers(),2,block,s,120,4.+k*block*2./rate,nullptr,0,120);
+            if(k==30)require(c.lfoPhase(1)<3.*block/rate+1e-9,"A free LFO 2 did not retrigger while LFO 1 is locked");}
+    }
+    {   // Drive at 0.1 %: small-signal gain within 0.01 dB of the bypass.
+        filter_detail::Filter f;f.prepare(rate);
+        double in=0,out=0;
+        for(int n=0;n<4800;++n){const double x=.001*std::sin(2*pi*220*n/rate);in+=x*x;const double y=f.process(x,0,0,20000,.7071,rate,0,.001);out+=y*y;}
+        require(std::abs(10*std::log10(out/in))<.05,"Drive is not continuous at 0 %");
+    }
+    {   // Comb, then Low-pass on silence, then Comb again: no stale echo.
+        filter_detail::Filter f;f.prepare(rate);
+        for(int n=0;n<4800;++n)f.process(.8*std::sin(2*pi*500*n/rate),4,0,500,.7071,rate,.9);
+        for(int n=0;n<9600;++n)f.process(0,0,0,1000,.7071,rate);
+        double peak=0;for(int n=0;n<4800;++n)peak=std::max(peak,std::abs(f.process(0,4,0,500,.7071,rate,.9)));
+        require(peak<1e-9,"Choosing the Comb replayed old audio");
+    }
+    std::cout<<"PASS review fixes: bar lock at the host tempo, free LFO retrigger under lock, continuous drive, no stale Comb\n";
+}
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {defaults();secondLfo();barLock();retrigger();sidechainEnvelope();drive();newTypes();presetsAndProcessor();}
+    try {defaults();secondLfo();barLock();retrigger();sidechainEnvelope();drive();newTypes();presetsAndProcessor();reviewFixes();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

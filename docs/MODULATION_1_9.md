@@ -14,7 +14,7 @@ Covered by `ChimeraModulationTests` and the inventory tests.
 
 ## Filter modulation
 
-Eleven parameters are appended at version hint 30. They are automatable, and
+Ten parameters are appended at version hint 30. They are automatable, and
 their defaults keep the 1.7 sound sample for sample (tested).
 
 | Parameter | Range | Default | What it does |
@@ -36,8 +36,12 @@ their defaults keep the 1.7 sound sample for sample (tested).
   - Free-rate LFOs, a stopped transport and a host without a position keep
     free-running.
   - The processor passes the position at each chunk's start; samples within
-    a chunk advance from it at the tempo.
+    a chunk advance from it at the host's tempo (not Chimera's tempo setting,
+    which may differ when "Follow host tempo" is off).
+  - The phase counts from song position 0, not from the last bar line, so in
+    3/4 a 1/1 cycle (four quarter notes) does not restart on each bar.
 - **Retrigger:** an attack restarts both LFOs, and Random draws new values.
+  An LFO locked to the bar is not restarted; the other one still is.
   - The detector is a fast follower (1 ms attack / 30 ms release) rising 4 dB
     above a slow one (30 / 300 ms), from above −40 dBFS. It re-arms once the
     fast follower settles within 1.2 dB of the slow one.
@@ -47,8 +51,13 @@ their defaults keep the 1.7 sound sample for sample (tested).
   ([SIDECHAIN_SYNTH_BUS.md](SIDECHAIN_SYNTH_BUS.md)), channel by channel. A
   mono key feeds both channels. Without a connected sidechain it uses the
   signal itself.
-- **Drive:** `tanh(d·x) / tanh(d)` with `d = 1 + 9 × drive`, which is unity at
-  full scale. 0 % is exact bypass.
+- **Drive:** `tanh(d·x) / tanh(d)` with `d = 10 × drive`, which is unity at
+  full scale and approaches the bypass continuously (0 % is exact bypass).
+  Quiet signals gain up to `d / tanh(d)` (+20 dB at 100 %). Drive is
+  smoothed over 20 ms.
+- **Type changes:** a filter's state-variable stages keep following the input
+  while it is a Comb, and the Comb's delay keeps the recent input otherwise,
+  so changing the type does not replay stale audio.
 
 ### Filter types
 
@@ -103,6 +112,14 @@ Found while testing:
   separate, with a 4 dB rise.
 
 ## Not done
+
+- **Review notes (10/30):**
+  - Random ignores the LFO stereo phase: both channels step to the same value.
+  - With Sidechain chosen, a host that enables the sidechain bus but routes
+    nothing to it gives a silent envelope (the plugin cannot tell an unrouted
+    bus from a silent key).
+  - Filter types and LFO shapes were added to the 1.7 choices. 1.7 is not
+    released, so no automation depends on the old 0–1 mapping.
 
 - **Modulation:** per-voice or per-band modulation, and a general modulation
   matrix for the common processors.

@@ -133,11 +133,20 @@ struct Filter {
     std::vector<float> comb;int write{};   // Comb: sized in prepare(), never in the audio callback
     void prepare(double rate) { comb.assign(size_t(rate / 10.) + 4, 0.f); write = 0; }
     // `resonance` (0-1) is the Comb's feedback; `drive` (0-1) a tanh stage
-    // ahead of the filter, unity at full scale (drive 0 is exact bypass).
+    // ahead of the filter, unity at full scale. d = 10 x drive, so the stage
+    // approaches the bypass (drive 0, exact) continuously.
     double process(double x, int type, int slope, double hz, double q, double rate, double resonance = 0., double drive = 0.) noexcept {
-        if (drive > 0.) { const double d = 1. + 9. * drive;x = std::tanh(d * x) / std::tanh(d); }
-        if (type == 4) return combTick(x, juce::jlimit(10., rate * .45, hz), resonance, rate);
+        if (drive > 0.) { const double d = 10. * drive;x = std::tanh(d * x) / std::tanh(d); }
         const double g = std::tan(juce::MathConstants<double>::pi * juce::jlimit(10., rate * .45, hz) / rate);
+        if (type == 4) {
+            // The SVF stages keep following the input, so leaving the Comb
+            // does not resume from stale state.
+            stages[0].tick(x, g, 1. / q);stages[1].tick(x, g, 1. / q);
+            return combTick(x, juce::jlimit(10., rate * .45, hz), resonance, rate);
+        }
+        // The Comb's delay keeps the recent input (no feedback), so choosing
+        // the Comb does not replay old audio.
+        if (comb.size() >= 4) { comb[size_t(write)] = float(x);write = (write + 1) % int(comb.size()); }
         const auto one = [&](SVF& svf, double input, double stageQ) {
             const auto out = svf.tick(input, g, 1. / stageQ);
             switch (type) {
@@ -186,6 +195,7 @@ public:
         rate = sampleRate;
         fade.reset(rate, .01); mix.reset(rate, .02); output.reset(rate, .02);
         for (auto& c : logCutoff) c.reset(rate, .02);
+        for (auto& c : drive) c.reset(rate, .02);
         for (auto& r : resonance) r.reset(rate, .02);
         squareSmoothing = 1. - std::exp(-1. / (rate * .002));
         const auto pole = [&](double seconds) { return 1. - std::exp(-1. / (rate * seconds)); };
@@ -200,6 +210,7 @@ public:
         for (int f = 0; f < filterCount; ++f) {
             logCutoff[size_t(f)].setCurrentAndTargetValue(std::log2(s.filters[size_t(f)].cutoff));
             resonance[size_t(f)].setCurrentAndTargetValue(s.filters[size_t(f)].resonance);
+            drive[size_t(f)].setCurrentAndTargetValue(s.filters[size_t(f)].drive);
         }
     }
     void reset() noexcept {
@@ -210,15 +221,18 @@ public:
     double lfoPhase(int lfo = 0) const noexcept { return phase[size_t(juce::jlimit(0, 1, lfo))]; }
 
     // `ppq`: the host position in quarter notes at the block start (NaN when
-    // there is none). `key` / `keyChannels`: an external envelope source.
+    // there is none); `ppqBpm`: the host tempo that position advances at
+    // (NaN: `bpm`). `key` / `keyChannels`: an external envelope source.
     void process(float* const* data, int channels, int samples, const FilterSettings& s, double bpm,
-                 double ppq = std::numeric_limits<double>::quiet_NaN(), const float* const* key = nullptr, int keyChannels = 0) noexcept {
+                 double ppq = std::numeric_limits<double>::quiet_NaN(), const float* const* key = nullptr, int keyChannels = 0,
+                 double ppqBpm = std::numeric_limits<double>::quiet_NaN()) noexcept {
         fade.setTargetValue(s.on ? 1.f : 0.f);
         mix.setTargetValue(s.mix);
         output.setTargetValue(juce::Decibels::decibelsToGain(s.on ? s.outputDb : 0.f));
         for (int f = 0; f < filterCount; ++f) {
             logCutoff[size_t(f)].setTargetValue(std::log2(s.filters[size_t(f)].cutoff));
             resonance[size_t(f)].setTargetValue(s.filters[size_t(f)].resonance);
+            drive[size_t(f)].setTargetValue(s.filters[size_t(f)].drive);
         }
         const std::array<int, 2> sync{s.lfoSync, s.lfo2Sync}, shape{s.lfoShape, s.lfo2Shape};
         const std::array<double, 2> rates{s.lfoRate, s.lfo2Rate};
@@ -229,8 +243,9 @@ public:
         }
         // Bar lock: a synced LFO's phase is the host position divided by its
         // cycle length, so it lands on the same beat every time.
-        const bool hostPosition = s.lfoLock && std::isfinite(ppq) && bpm > 0.;
-        const double beatsPerSample = bpm / 60. / rate;
+        const double positionBpm = std::isfinite(ppqBpm) && ppqBpm > 0. ? ppqBpm : bpm;
+        const bool hostPosition = s.lfoLock && std::isfinite(ppq) && positionBpm > 0.;
+        const double beatsPerSample = positionBpm / 60. / rate;
         const double attack = 1. - std::exp(-1. / (rate * s.envAttackMs * .001));
         const double release = 1. - std::exp(-1. / (rate * s.envReleaseMs * .001));
         const double sensitivity = juce::Decibels::decibelsToGain(double(s.envSensitivityDb));
@@ -239,10 +254,11 @@ public:
         const bool sidechain = s.envSource == 1 && key != nullptr && keyChannels > 0;
         for (int n = 0; n < samples; ++n) {
             const float g = fade.getNextValue(), wetMix = mix.getNextValue(), gain = output.getNextValue();
-            std::array<double, filterCount> octave{}, q{}, res{};
+            std::array<double, filterCount> octave{}, q{}, res{}, drv{};
             for (int f = 0; f < filterCount; ++f) {
                 octave[size_t(f)] = logCutoff[size_t(f)].getNextValue();
                 res[size_t(f)] = resonance[size_t(f)].getNextValue() * .01;
+                drv[size_t(f)] = drive[size_t(f)].getNextValue();   // 20 ms, so automating drive does not step
                 q[size_t(f)] = filter_detail::resonanceQ(res[size_t(f)]);
             }
             for (int l = 0; l < 2; ++l)
@@ -281,7 +297,7 @@ public:
                     const double input = s.routing == 0 ? y : x;
                     // A disabled filter keeps running on its input, so turning it on
                     // starts from a settled state; its output is simply not used.
-                    out[size_t(f)] = filters[size_t(c)][size_t(f)].process(input, unit.type, unit.slope, cutoff, q[size_t(f)], rate, res[size_t(f)], unit.drive);
+                    out[size_t(f)] = filters[size_t(c)][size_t(f)].process(input, unit.type, unit.slope, cutoff, q[size_t(f)], rate, res[size_t(f)], drv[size_t(f)]);
                     if (s.routing == 0 && unit.on) y = out[size_t(f)];
                 }
                 if (s.routing == 1) {
@@ -299,8 +315,12 @@ public:
             // fast follower settles within 1.2 dB of the slow one.
             onsetFast += (loudest > onsetFast ? onsetFastAttack : onsetFastRelease) * (loudest - onsetFast);
             onsetSlow += (loudest > onsetSlow ? onsetSlowAttack : onsetSlowRelease) * (loudest - onsetSlow);
-            if (s.lfoRetrigger && !hostPosition) {
-                if (armed && onsetFast > .01 && onsetFast > 1.6 * onsetSlow) { phase = {}; held = {random(), random()}; armed = false; }
+            // A bar-locked LFO follows the host position instead.
+            if (s.lfoRetrigger) {
+                if (armed && onsetFast > .01 && onsetFast > 1.6 * onsetSlow) {
+                    for (int l = 0; l < 2; ++l) if (!(hostPosition && sync[size_t(l)] > 0)) { phase[size_t(l)] = 0.; held[size_t(l)] = random(); }
+                    armed = false;
+                }
                 else if (onsetFast < 1.15 * onsetSlow) armed = true;
             }
             for (int l = 0; l < 2; ++l)
@@ -321,7 +341,7 @@ private:
     std::array<double, 2> envelope{};
     std::array<std::array<double, 2>, 2> squareState{};   // per LFO, per channel
     juce::SmoothedValue<float> fade, mix, output;
-    std::array<juce::SmoothedValue<float>, filterCount> logCutoff, resonance;
+    std::array<juce::SmoothedValue<float>, filterCount> logCutoff, resonance, drive;
 };
 
 class FilterModulation {
@@ -341,7 +361,7 @@ public:
     // `ppq`: host position at the block start (NaN when unknown). `key`:
     // the external sidechain, used when the envelope source is Sidechain.
     void process(juce::AudioBuffer<float>& buffer, double bpm, double ppq = std::numeric_limits<double>::quiet_NaN(),
-                 const juce::AudioBuffer<float>* key = nullptr) noexcept {
+                 const juce::AudioBuffer<float>* key = nullptr, double ppqBpm = std::numeric_limits<double>::quiet_NaN()) noexcept {
         const auto s = settings();
         const int channels = juce::jmin(2, buffer.getNumChannels()), samples = buffer.getNumSamples();
         if (channels == 0 || samples == 0) return;
@@ -351,7 +371,7 @@ public:
         }
         const bool keyed = key != nullptr && key->getNumSamples() == samples && key->getNumChannels() > 0;
         core.process(buffer.getArrayOfWritePointers(), channels, samples, s, bpm, ppq,
-                     keyed ? key->getArrayOfReadPointers() : nullptr, keyed ? key->getNumChannels() : 0);
+                     keyed ? key->getArrayOfReadPointers() : nullptr, keyed ? key->getNumChannels() : 0, ppqBpm);
     }
     FilterSettings settings() const noexcept {
         const auto read = [](const std::atomic<float>* p, float lo, float hi, float fallback) {

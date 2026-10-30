@@ -271,7 +271,9 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
     // Host position for bar-locked modulation (docs/MODULATION_1_9.md): known
     // only while the transport plays.
     hostPpq=std::numeric_limits<double>::quiet_NaN();
-    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())if(position->getIsPlaying())if(const auto ppq=position->getPpqPosition())hostPpq=*ppq;
+    hostPpqBpm=std::numeric_limits<double>::quiet_NaN();
+    // The position advances at the host's own tempo, whatever Chimera's tempo setting is.
+    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())if(position->getIsPlaying())if(const auto ppq=position->getPpqPosition())if(const auto hostBpm=position->getBpm())if(*hostBpm>0.){hostPpq=*ppq;hostPpqBpm=*hostBpm;}
     // Hosts may deliver blocks larger than prepareToPlay's hint. All DSP and
     // convolution buffers remain bounded to the prepared capacity.
     for(int offset=0;offset<buffer.getNumSamples();offset+=maximumBlock)
@@ -290,7 +292,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
             juce::AudioBuffer<float> key(keyBuffer.getArrayOfWritePointers(),juce::jmin(2,keyBus.getNumChannels()),n);
             for(int c=0;c<key.getNumChannels();++c)key.copyFrom(c,0,keyBus,c,offset+done,n);
             externalKey=key.getNumChannels()>0?&key:nullptr;
-            chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*tempoMeter.load()/60.0/rate:hostPpq;
+            chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*hostPpqBpm/60.0/rate:hostPpq;
             busLeft=synthBus.getNumChannels()>0?synthBus.getWritePointer(0,offset+done):nullptr;
             busRight=synthBus.getNumChannels()>1?synthBus.getWritePointer(1,offset+done):busLeft;
             // While a recall keeps the output muted, recalled cabinets install
@@ -532,7 +534,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
                 {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}break;
             // Two-filter modulation (docs/FILTER_MODULATION_1_7.md): off leaves the signal untouched.
             case spectralforge::filterModule:
-                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,externalKey);}break;
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,externalKey,hostPpqBpm);}break;
             case spectralforge::deesserModule:tap(Tap::deesser);
                 {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}break;
             default:break;
