@@ -1,0 +1,32 @@
+test_all_silent_segment (test_di_preflight.RecordingQC.test_all_silent_segment) ... ok
+test_audio_only_and_strict_exit (test_di_preflight.RecordingQC.test_audio_only_and_strict_exit) ... ok
+test_bad_audio_does_not_abort_other_takes (test_di_preflight.RecordingQC.test_bad_audio_does_not_abort_other_takes) ... ok
+test_bad_format (test_di_preflight.RecordingQC.test_bad_format) ... ok
+test_bounds_order_and_duplicate_segments (test_di_preflight.RecordingQC.test_bounds_order_and_duplicate_segments) ... ok
+test_comparison_empty (test_di_preflight.RecordingQC.test_comparison_empty) ... ok
+test_comparison_keeps_faint_outlier_and_quantization (test_di_preflight.RecordingQC.test_comparison_keeps_faint_outlier_and_quantization) ... ok
+test_declared_rate_mismatch (test_di_preflight.RecordingQC.test_declared_rate_mismatch) ... ok
+test_duplicate_take_and_missing_segment (test_di_preflight.RecordingQC.test_duplicate_take_and_missing_segment) ... ok
+test_empty_and_invalid_channel (test_di_preflight.RecordingQC.test_empty_and_invalid_channel) ... ok
+test_freeze_hashes_metadata_audio_and_helpers (test_di_preflight.RecordingQC.test_freeze_hashes_metadata_audio_and_helpers) ... ok
+test_half_second_mutes_and_hidden_edge_noise (test_di_preflight.RecordingQC.test_half_second_mutes_and_hidden_edge_noise) ... ok
+test_headroom_is_advisory (test_di_preflight.RecordingQC.test_headroom_is_advisory) ... ok
+test_host_failure_writes_report_and_exits_nonzero (test_di_preflight.RecordingQC.test_host_failure_writes_report_and_exits_nonzero) ... ok
+test_labels_order_bounds_and_mute (test_di_preflight.RecordingQC.test_labels_order_bounds_and_mute) ... ok
+test_native_rates_and_unmodified_hash (test_di_preflight.RecordingQC.test_native_rates_and_unmodified_hash) ... ok
+test_negative_full_scale_pcm16 (test_di_preflight.RecordingQC.test_negative_full_scale_pcm16) ... ok
+test_nine_take_profile_with_synthetic_files (test_di_preflight.RecordingQC.test_nine_take_profile_with_synthetic_files) ... ok
+test_nonfinite_is_json_safe (test_di_preflight.RecordingQC.test_nonfinite_is_json_safe) ... ok
+test_paths_resolve_from_manifest_and_bom (test_di_preflight.RecordingQC.test_paths_resolve_from_manifest_and_bom) ... ok
+test_pcm24_header_and_negative_clip (test_di_preflight.RecordingQC.test_pcm24_header_and_negative_clip) ... ok
+test_pcm32_clip (test_di_preflight.RecordingQC.test_pcm32_clip) ... ok
+test_qc_cannot_overwrite_inputs (test_di_preflight.RecordingQC.test_qc_cannot_overwrite_inputs) ... ok
+test_quiet_and_dc (test_di_preflight.RecordingQC.test_quiet_and_dc) ... ok
+test_short_missing_and_overlapping_mutes (test_di_preflight.RecordingQC.test_short_missing_and_overlapping_mutes) ... ok
+test_synthetic_cannot_freeze_as_real_di (test_di_preflight.RecordingQC.test_synthetic_cannot_freeze_as_real_di) ... ok
+test_template_and_nine_take_integrity (test_di_preflight.RecordingQC.test_template_and_nine_take_integrity) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 1.367s
+
+OK

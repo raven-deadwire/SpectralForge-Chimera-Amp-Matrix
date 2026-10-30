@@ -1,0 +1,77 @@
+{
+ "kind": "recording_input_QC_not_T6_evidence",
+ "status": "MISSING_INPUT",
+ "manifest_sha256": "e159231306481dac00948ab2db16b26f57d941e12ae82eab9939ecc1d21ea474",
+ "problems": [
+  "guitar-A1-48k: no recording (wav is null)",
+  "bass-B0-48k: no recording (wav is null)",
+  "bass-A0-48k: no recording (wav is null)",
+  "guitar-A1-44k1: no recording (wav is null)",
+  "bass-B0-44k1: no recording (wav is null)",
+  "bass-A0-44k1: no recording (wav is null)",
+  "guitar-A1-96k: no recording (wav is null)",
+  "bass-B0-96k: no recording (wav is null)",
+  "bass-A0-96k: no recording (wav is null)"
+ ],
+ "takes": [
+  {
+   "take": "guitar-A1-48k",
+   "declared_rate": 48000,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "bass-B0-48k",
+   "declared_rate": 48000,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "bass-A0-48k",
+   "declared_rate": 48000,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "guitar-A1-44k1",
+   "declared_rate": 44100,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "bass-B0-44k1",
+   "declared_rate": 44100,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "bass-A0-44k1",
+   "declared_rate": 44100,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "guitar-A1-96k",
+   "declared_rate": 96000,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "bass-B0-96k",
+   "declared_rate": 96000,
+   "audio": null,
+   "segments": []
+  },
+  {
+   "take": "bass-A0-96k",
+   "declared_rate": 96000,
+   "audio": null,
+   "segments": []
+  }
+ ],
+ "limitations": [
+  "No hardware, native-capture provenance, performance or sound-quality certification.",
+  "Native rate must be confirmed by the recorder; resampling cannot be ruled out from WAV headers.",
+  "Muted-edge RMS uses the existing -40 dB relative-to-segment-peak rule."
+ ]
+}

@@ -48,7 +48,10 @@ for name, src in [('TransposeProbe', Path(__file__).with_name('TransposeProbe.cp
     cmd = ['g++', *flags, str(src), *map(str, objects), '-ldl', '-lrt', '-lz', '-o', str(a.out/name)]
     commands.append(cmd)
     subprocess.run(cmd, check=True)
-manifest = {'juce_sha': sha, 'compiler': subprocess.check_output(['g++', '--version'], text=True),
+manifest = {'juce_sha': sha, 'source_git_commit': subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip(),
+            'research_source_sha256': {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in sorted([*Path(__file__).parent.glob('*.h'), Path(__file__), Path(__file__).with_name('TransposeProbe.cpp'), root/'Source/PolyPitch.h'])},
+            'compiler': subprocess.check_output(['g++', '--version'], text=True),
             'commands': commands}
 (a.out/'build.json').write_text(json.dumps(manifest, indent=2))
 print('Built research probe, diagnostics and four native regression executables')
