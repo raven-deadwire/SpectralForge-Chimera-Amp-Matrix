@@ -182,9 +182,16 @@ inline std::vector<Label> readLabels(const std::string& text) {
 }
 
 // Acceptance targets for notes inside the tracker's range (55-1400 Hz).
-struct Targets { double lockMs{60}, medianCents{10}, lagMs{25}, octaveShare{.02}, dropoutShare{.05}; double falseGateSeconds{.05}; };
+// Below 55 Hz (bass E1, B0) the tracker needs its long window, two cycles
+// at 27.5 Hz (73 ms): those notes may take 80 ms to lock. Up to B1 (62 Hz)
+// more inharmonic partials fall in the band, which reads the period short:
+// those notes may read 12 cents off.
+struct Targets { double lockMs{60}, medianCents{10}, lagMs{25}, octaveShare{.02}, dropoutShare{.05}; double falseGateSeconds{.05};
+                 double extendedBelowHz{55}, extendedLockMs{80}, lowBelowHz{62}, lowMedianCents{12}; };
 inline bool meets(const NoteResult& r, const Targets& t, bool legato) {
-    return r.lockMs >= 0 && r.lockMs <= t.lockMs && r.medianCents <= t.medianCents && r.lagMs <= t.lagMs && r.octaveShare <= t.octaveShare
+    const double pitch = r.label.pitchAt(r.label.start);
+    const double lockTarget = pitch < t.extendedBelowHz ? t.extendedLockMs : t.lockMs, centsTarget = pitch < t.lowBelowHz ? t.lowMedianCents : t.medianCents;
+    return r.lockMs >= 0 && r.lockMs <= lockTarget && r.medianCents <= centsTarget && r.lagMs <= t.lagMs && r.octaveShare <= t.octaveShare
         && r.dropoutShare <= t.dropoutShare && (legato ? r.attacks <= 1 : r.attacks == 1);
 }
 

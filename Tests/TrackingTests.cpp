@@ -3,6 +3,7 @@
 // the power chord are measured and reported, hum and hiss open no gate, and
 // the tool's label file and offline reference agree with the exact labels.
 #include "TrackingEvaluation.h"
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -48,11 +49,32 @@ void labelsAndReference() {
     require(found >= expected * 9 / 10 && worst < 15, "The offline reference misses steady notes");
     std::cout << "PASS label files, and the offline reference finds the steady notes\n";
 }
+
+// The long analysis runs only where the normal one finds nothing: count it
+// over a guitar note and a bass note, and time the tracker on both.
+void extendedRangeCost() {
+    const auto measure = [](const Performance& p) {
+        spectralforge::PitchTracker t;t.prepare(p.rate);
+        const auto start = std::chrono::steady_clock::now();
+        for (int rep = 0; rep < 8; ++rep) for (size_t at = 0; at + 64 <= p.audio.size(); at += 64) t.push(p.audio.data() + at, nullptr, 64);
+        const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+        const double frames = 8.0 * double(p.audio.size()) / (p.rate / 12000.0 * 64.0);
+        return std::pair<double, double>{double(t.extendedAnalyses()) / frames, seconds / (8.0 * double(p.audio.size()) / p.rate) * 100.0};
+    };
+    std::pair<double, double> guitar{}, bass{};
+    for (const auto& p : corpus()) {
+        if (p.name.rfind("E2 (open", 0) == 0) guitar = measure(p);
+        if (p.name.rfind("B0", 0) == 0) bass = measure(p);
+    }
+    std::cout << "MEASURE long analysis share / tracker CPU (% of one core): E2 guitar " << guitar.first * 100 << " % / " << guitar.second << " %; B0 bass " << bass.first * 100 << " % / " << bass.second << " %\n";
+    require(guitar.first < .1, "The long analysis runs during guitar notes");
+    std::cout << "PASS the long analysis is reserved for notes below the normal range\n";
+}
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try { corpusMeetsTargets();labelsAndReference(); }
+    try { corpusMeetsTargets();labelsAndReference();extendedRangeCost(); }
     catch (const std::exception& e) { std::cerr << "FAIL " << e.what() << "\n";return 1; }
     return 0;
 }

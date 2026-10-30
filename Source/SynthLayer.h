@@ -259,7 +259,11 @@ inline bool synthPatchKeeps(const juce::String& id) {
 // rejects single-frame octave slips. Allocation-free after prepare().
 class PitchTracker {
 public:
-    static constexpr double lowestHz = 55.0, highestHz = 1400.0;
+    // 55-1400 Hz in the normal analysis; down to 27.5 Hz (bass E1 41 Hz,
+    // five-string B0 31 Hz) in a longer one that runs only when the normal
+    // one finds no period (docs/TRACKING_1_10.md), so guitar notes keep their
+    // lock time and cost.
+    static constexpr double lowestHz = 55.0, highestHz = 1400.0, extendedLowestHz = 27.5;
     void prepare(double sampleRate) {
         rate = sampleRate;
         factor = std::max(1, int(std::lround(rate / 12000.0)));
@@ -267,9 +271,13 @@ public:
         tauMax = int(std::ceil(decimatedRate / lowestHz)) + 2;
         tauMin = std::max(2, int(std::floor(decimatedRate / highestHz)));
         window = tauMax;
-        ring.assign(size_t(1024), 0.f);
-        frame.assign(size_t(window + tauMax + 2), 0.f);
-        difference.assign(size_t(tauMax + 2), 0.f);
+        tauMaxLong = int(std::ceil(decimatedRate / extendedLowestHz)) + 2;
+        windowLong = tauMaxLong;
+        total = windowLong + tauMaxLong;
+        ringSize = 1;while (ringSize < total + 2) ringSize *= 2;
+        ring.assign(size_t(ringSize), 0.f);
+        frame.assign(size_t(total + 2), 0.f);
+        difference.assign(size_t(tauMaxLong + 2), 0.f);
         // Anti-alias: two cascaded biquad low-passes at 0.2 x the decimated rate.
         const auto c = juce::dsp::IIR::Coefficients<float>::makeLowPass(rate, decimatedRate * .2, .7071);
         for (auto& f : filters) { f.coefficients = c; f.reset(); }
@@ -287,7 +295,7 @@ public:
             for (auto& f : filters) x = f.processSample(x);
             if (++phase < factor) continue;
             phase = 0;
-            ring[size_t(write)] = x;write = (write + 1) & 1023;
+            ring[size_t(write)] = x;write = (write + 1) & (ringSize - 1);
             if (++hop >= 64) { hop = 0;analyse(); }
         }
     }
@@ -295,65 +303,84 @@ public:
     double clarity() const noexcept { return confidence; }
     double rms() const noexcept { return level; }
     int analysisWindowSamples() const noexcept { return (window + tauMax) * factor; }
+    // Analyses that used the long window (tests and the CPU check).
+    long long extendedAnalyses() const noexcept { return extended; }
 private:
     void analyse() noexcept {
-        const int length = window + tauMax;
-        for (int i = 0; i < length; ++i) frame[size_t(i)] = ring[size_t((write - length + i) & 1023)];
+        for (int i = 0; i < total; ++i) frame[size_t(i)] = ring[size_t((write - total + i) & (ringSize - 1))];
         double energy = 0;
-        for (int i = length - window; i < length; ++i) energy += double(frame[size_t(i)]) * frame[size_t(i)];
+        for (int i = total - window; i < total; ++i) energy += double(frame[size_t(i)]) * frame[size_t(i)];
         level = std::sqrt(energy / window);
+        double period = 0, clarity = 0;
+        bool found = search(window, tauMax, tauMin, period, clarity);
+        // Below the normal range: only when the normal analysis found no
+        // period and there is signal (above -50 dBFS, over hum and hiss).
+        if (!found && level > .0032) {
+            ++extended;
+            double longPeriod = 0, longClarity = 0;
+            if (search(windowLong, tauMaxLong, int(std::floor(decimatedRate / (lowestHz * 1.06))), longPeriod, longClarity)) { found = true;period = longPeriod;clarity = longClarity; }
+        }
+        if (!found) { confidence = clarity;return; }   // no clear period: keep the last pitch, report low clarity
+        const double estimate = decimatedRate / period;
+        confidence = clarity;
+        history = {history[1], history[2], estimate};
+        auto sorted = history;std::sort(sorted.begin(), sorted.end());
+        frequency = sorted[0] > 0 ? sorted[1] : estimate;
+    }
+    // YIN over the newest `w` samples against lags up to `t`, accepting the
+    // first dip from `from`. Returns the period in decimated samples.
+    bool search(int w, int t, int from, double& period, double& clarity) noexcept {
         // d(tau) over the newest window against tau samples earlier.
         double running = 0;
         int best = -1;
-        for (int tau = 1; tau <= tauMax; ++tau) {
+        for (int tau = 1; tau <= t; ++tau) {
             double d = 0;
-            for (int j = 0; j < window; ++j) { const double e = double(frame[size_t(length - window + j)]) - frame[size_t(length - window + j - tau)];d += e * e; }
+            for (int j = 0; j < w; ++j) { const double e = double(frame[size_t(total - w + j)]) - frame[size_t(total - w + j - tau)];d += e * e; }
             running += d;
             difference[size_t(tau)] = float(running > 0 ? d * tau / running : 1.0);
         }
-        for (int tau = tauMin; tau < tauMax; ++tau)
+        from = std::max(from, tauMin);
+        for (int tau = from; tau < t; ++tau)
             if (difference[size_t(tau)] < .15f) {
-                while (tau + 1 < tauMax && difference[size_t(tau + 1)] < difference[size_t(tau)]) ++tau;
+                while (tau + 1 < t && difference[size_t(tau + 1)] < difference[size_t(tau)]) ++tau;
                 best = tau;break;
             }
-        if (best < 0) {   // no clear period: keep the last pitch, report low clarity
-            int arg = tauMin;for (int tau = tauMin; tau < tauMax; ++tau) if (difference[size_t(tau)] < difference[size_t(arg)]) arg = tau;
-            confidence = 1.0 - difference[size_t(arg)];
-            return;
+        if (best < 0) {
+            int arg = from;for (int tau = from; tau < t; ++tau) if (difference[size_t(tau)] < difference[size_t(arg)]) arg = tau;
+            clarity = 1.0 - difference[size_t(arg)];
+            return false;
         }
         // Parabolic interpolation of the minimum.
         const double a = difference[size_t(best - 1)], b = difference[size_t(best)], c = difference[size_t(best + 1)];
         const double denominator = a - 2 * b + c, shift = std::abs(denominator) > 1e-12 ? .5 * (a - c) / denominator : 0.0;
-        double period = best + std::clamp(shift, -.5, .5);
+        period = best + std::clamp(shift, -.5, .5);
         // Short periods (high notes, ~9 lags at 1.3 kHz): a parabola over whole
         // lags is biased by up to ~11 cents. Refine over fractional lags
         // (+-0.25) of the raw difference with Hermite-interpolated delays.
         if (best < 48) {
             const double h = .25;
-            const double dm = shifted(period - h), d0 = shifted(period), dp = shifted(period + h), den = dm - 2 * d0 + dp;
+            const double dm = shifted(w, period - h), d0 = shifted(w, period), dp = shifted(w, period + h), den = dm - 2 * d0 + dp;
             if (den > 1e-15) period += std::clamp(.5 * h * (dm - dp) / den, -h, h);
         }
-        const double estimate = decimatedRate / period;
-        confidence = 1.0 - b;
-        history = {history[1], history[2], estimate};
-        auto sorted = history;std::sort(sorted.begin(), sorted.end());
-        frequency = sorted[0] > 0 ? sorted[1] : estimate;
+        clarity = 1.0 - b;
+        return true;
     }
     // The raw difference of the newest window against a fractional delay tau.
-    double shifted(double tau) const noexcept {
-        const int length = window + tauMax;double sum = 0;
-        for (int j = 0; j < window; ++j) {
-            const double at = double(length - window + j) - tau;
+    double shifted(int w, double tau) const noexcept {
+        double sum = 0;
+        for (int j = 0; j < w; ++j) {
+            const double at = double(total - w + j) - tau;
             const int i = int(std::floor(at));const double t = at - i;
-            const auto x = [&](int k) { return double(frame[size_t(std::clamp(k, 0, length - 1))]); };
+            const auto x = [&](int k) { return double(frame[size_t(std::clamp(k, 0, total - 1))]); };
             const double xm = x(i - 1), x0 = x(i), x1 = x(i + 1), x2 = x(i + 2);
             const double interpolated = x0 + .5 * t * (x1 - xm + t * (2 * xm - 5 * x0 + 4 * x1 - x2 + t * (3 * (x0 - x1) + x2 - xm)));
-            const double e = double(frame[size_t(length - window + j)]) - interpolated;sum += e * e;
+            const double e = double(frame[size_t(total - w + j)]) - interpolated;sum += e * e;
         }
         return sum;
     }
     double rate{48000}, decimatedRate{12000};
-    int factor{4}, tauMin{8}, tauMax{220}, window{220}, write{}, phase{}, hop{};
+    int factor{4}, tauMin{8}, tauMax{220}, window{220}, tauMaxLong{438}, windowLong{438}, total{876}, ringSize{1024}, write{}, phase{}, hop{};
+    long long extended{};
     std::vector<float> ring, frame, difference;
     std::array<juce::dsp::IIR::Filter<float>, 2> filters;
     double frequency{}, confidence{}, level{};

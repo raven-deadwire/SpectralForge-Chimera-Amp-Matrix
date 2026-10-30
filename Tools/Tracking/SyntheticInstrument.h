@@ -144,8 +144,14 @@ inline std::vector<Performance> corpus(double rate = 48000) {
     sustained("B1 (7-string low B)", noteHz(35));
     sustained("A1 (drop A)", noteHz(33));
     sustained("E2 (open low E)", noteHz(40));
-    sustained("E1 (bass open E, below range)", noteHz(28), true);
-    sustained("B0 (5-string bass low B, below range)", noteHz(23), true);
+    sustained("E1 (bass open E, 41.2 Hz)", noteHz(28));
+    sustained("B0 (5-string bass low B, 30.9 Hz)", noteHz(23));
+    // Bass line: 8ths at 120 BPM (250 ms), E1 G1 A1 B0, played legato-free.
+    {
+        const std::array<int, 4> midi{28, 31, 33, 23};std::vector<StringNote> n;std::vector<std::string> names;
+        for (int i = 0; i < 4; ++i) { n.push_back({.2 + .25 * i, .24, steady(noteHz(midi[size_t(i)])), .35});names.push_back(std::string("bass 8th ") + std::to_string(i + 1));}
+        single("bass 8ths at 120 BPM, E1 G1 A1 B0", n, 1.4, false, names);
+    }
     sustained("E4 (open high e)", noteHz(64));
     sustained("E6 (high e, 24th fret)", noteHz(88));
     // Bend: G3 up a whole tone over 150 ms from 250 ms, held.
