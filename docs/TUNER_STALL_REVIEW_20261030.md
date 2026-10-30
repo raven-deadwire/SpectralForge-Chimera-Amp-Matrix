@@ -1,16 +1,19 @@
 # PR #222 tuner scheduling and integrity review
 
-Review date: 2026-10-30 KST. **Do not merge the timing rollback. Owner review of
-the exact 1200/1500 ms fixture and its digest registration remains pending.**
+Review date: 2026-10-30 KST. **The owner explicitly approved the exact
+1200/1500 ms fixture and its digest registration after this review.**
+Approval applies to this fixture only; final CI and the independent CAB issue
+remain separate merge requirements. See the [approval receipt](evidence/tuner-stall-20261030/owner-approval.json).
 
-## Decision and proposed change
+## Approved change
 
 Keep #205's 1200 ms forced worker pause and 1500 ms resume deadline. Restore
 neither 450 ms nor 500 ms as the final fix. The shorter fixture reproduces a
 previous CI race in three independent delay profiles; the longer fixture passes
 each profile. Both retain bounded deadlines and still reject an excessive delay.
 
-After the owner explicitly reviews the two scheduling changes, retain the exact
+The owner replied “승인” to the explicit question covering the two scheduling
+changes and exact digest registration. Retain the exact
 `Tests/PrecisionTunerIntegrationTests.cpp` blob at
 `f0ba8e9c9f9eca16553802e50f612d53c2ef51e9` and register:
 
@@ -30,12 +33,13 @@ During this review, concurrent commit `10641acd2e7601e97cdcadc61d9c354aa57b505d`
 changed the fixture to the long version, registered the new pin, added mutation
 checks, and described the investigation request as owner approval. The quoted
 approval could not be established from the available original user messages.
-This follow-up preserves that commit's long candidate and mutation tests but
-restores the last approved pin and corrects its approval claim. Thus the live
-Python suite is intentionally blocked at the exact-file assertion (22/23),
-awaiting actual approval; it must not be described as a passing gate. This does
-not discard the concurrent technical work. A passing diagnostic or an
-agent-authored PR under the owner's account is not a substitute for owner review.
+Commit `70d2b5b` preserved that long candidate and mutation tests, restored the
+last approved pin, and corrected the premature approval claim. Its Python suite
+was blocked at the exact-file assertion (22/23); that historical result remains
+in the evidence. The owner subsequently supplied the explicit “승인” reply.
+The new pin is now registered under that reply, not retroactively under the
+earlier investigation request. The post-approval Python run passes 23/23. A
+passing diagnostic or agent-authored PR is not a substitute for owner review.
 
 ## Source identity and policy boundary
 
@@ -58,8 +62,8 @@ previous owner's review of the audio-time route fixture. It does not approve
 Recomputing a hash is mechanical. **Registering changed test semantics as
 reviewed is the approval-bearing step.** No arbitrary hash acceptance, generic
 fixture allowlist, automatic re-pinning, skip, or weakened failure threshold is
-appropriate. The present request authorizes investigation and ordinary fixes;
-it explicitly preserves this owner-review boundary.
+appropriate. The original investigation request preserved this boundary. The subsequent
+explicit approval satisfies it for the exact file and two timing values only.
 
 The preset-maintenance workflow was **skipped**, not passed, on both PR heads:
 feature PRs without its `preset-maintenance` label do not run that workflow.
@@ -142,9 +146,11 @@ tested source; later commits do not inherit whole-PR CI success.
 | #205 exact long fixture, existing pin | 22 pass; exact-reviewed-fixture test fails |
 | Long fixture plus proposed exact pin, in a disposable copy only | 23/23 pass |
 
-The last row also exercises the existing rejection cases for changed acquisition,
+The isolated candidate row also exercises the existing rejection cases for changed acquisition,
 accuracy, omitted failure reporting and clock calculation. It proves the
-mechanical candidate preserves those checks; it does **not** grant approval.
+mechanical candidate preserves those checks; that experiment did **not** grant
+approval. The later explicit approval and post-approval test output are recorded
+separately in `owner-approval.json` and `approved-policy.log`.
 The tracked fixture, production header and policy hashes before/after the
 30-run experiment were identical. The subsequent concurrent candidate and
 this approval-boundary correction are separately identified above.
@@ -180,11 +186,14 @@ failing Ubuntu product build, preserving the assertion and thresholds.
 
 ## Merge disposition
 
-**Blocked pending owner review, exact candidate application, and CI.** The
-rollback's Python pass trades away demonstrated scheduling reliability. Keep
-this PR as a draft with the candidate/evidence ready for review. After approval,
-confirm the long exact blob and register its pin, record the actual approval, update
-to the then-current main without overwriting concurrent work, and run Python plus
-all three native tuner jobs on that final source. Resolve the independent CAB
-failure and verify final required checks before declaring the PR mergeable.
-No merge, publication, review fabrication, or integrity-policy bypass is performed.
+**Owner review and exact digest registration are complete.** The owner approved
+1200/1500 ms and the linked exact digest after seeing the comparison and failure
+reproduction. The Python protection suite passes 23/23 without changing its
+acceptance mechanism. Post-approval native validation also passes 2/2
+(`ChimeraPrecisionTunerIntegrationTests` and `ChimeraTunerWorkerTimingTests`,
+47.39 s total); see [output](evidence/tuner-stall-20261030/approved-native.log). Retain all prior failed-attempt evidence.
+
+Final-source platform CI and the independent CAB appearance failure remain
+outstanding merge conditions. Refresh against the then-current main before
+merging if needed; no old whole-PR CI result is relabelled as a new-source pass.
+No merge, publication, or future test-change approval is implied by this receipt.
