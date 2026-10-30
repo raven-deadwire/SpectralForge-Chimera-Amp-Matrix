@@ -19,6 +19,8 @@
 #include <new>
 #include <stdexcept>
 #include <string>
+#include <thread>
+#include <atomic>
 #include <vector>
 
 namespace {thread_local bool countAllocations=false;thread_local size_t allocations=0;}
@@ -448,7 +450,19 @@ void reviewFixes() {
     require(spike<2*steady+.1,"Leaving Sample mode mid-note spiked");
     require(std::abs(ended-.5)<.02,"A late sample did not start at START");
     require(clipError<1e-5 && cached,"Sample above full scale clipped, or its encoding not cached");
-    std::cout<<"PASS Sample -> Wave without a spike, late sample from START, unclipped hot samples, cached encoding\n";
+    // A reference held while drawing survives a swap from another thread, and
+    // saving on one thread while another swaps samples is safe.
+    {
+        SynthLayer s;s.swapSample(0,tone(220,.2,48000));
+        const auto held=s.sharedSample(0);s.swapSample(0,nullptr);
+        require(held!=nullptr && held->length==int(.2*48000) && s.sample(0)==nullptr,"A held sample did not survive its replacement");
+        std::atomic<bool> done{false};std::atomic<int> saves{0};
+        std::thread saver([&]{while(!done.load()){const auto tree=synthSample::save(s);(void)tree;++saves;}});
+        for(int k=0;k<60;++k)s.swapSample(k%3,k%4==3?nullptr:tone(110+k,.05,48000));
+        done=true;saver.join();
+        require(saves.load()>0,"The saving thread did not run");
+    }
+    std::cout<<"PASS Sample -> Wave without a spike, late sample from START, unclipped hot samples, cached encoding, samples shared safely across threads\n";
 }
 
 struct Writes final : juce::AudioProcessorListener {
