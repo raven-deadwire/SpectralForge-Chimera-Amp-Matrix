@@ -131,6 +131,31 @@ jobs:
             -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
             -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
           Copy-Item OBS/LICENSE, OBS/README.md package/
+      - name: Real OBS Studio app (31.1.2) - load the filter from %ProgramData%, record, push a preset, save, restart and restore
+        # The release zip the module was just built against (hash checked by the build script).
+        shell: pwsh
+        run: |
+          $obs = Join-Path $env:RUNNER_TEMP "obs-app-obs"
+          Expand-Archive -LiteralPath (Join-Path $env:RUNNER_TEMP "chimera-obs/obs-31.1.2.zip") -DestinationPath $obs
+          python -m pip install --disable-pip-version-check imageio-ffmpeg==0.6.0
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          python OBS/tests/obs_app_test.py --obs (Join-Path $obs "bin/64bit/obs64.exe") --module package/chimera-obs `
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-app")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Keep the real OBS app test's screen and logs when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-app-test-windows-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/obs-app/*.png
+            ${{ runner.temp }}/obs-app/*.txt
+            ${{ runner.temp }}/obs-app/obs-logs/
+            ${{ runner.temp }}/obs-app/obs-crashes/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-windows-x64-${{ github.event.pull_request.head.sha || github.sha }}
