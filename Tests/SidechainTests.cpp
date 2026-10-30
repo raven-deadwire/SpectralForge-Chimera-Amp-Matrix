@@ -181,12 +181,14 @@ void reviewFixes() {
     const auto key=[bad](int n){return n==bad?std::numeric_limits<float>::quiet_NaN():n==bad+1?std::numeric_limits<float>::infinity():float(4*std::sin(2*pi*220*n/rate));};
     const auto out=r.run(1.5,sine(.0316,220),key).main;
     const double keyed=rms(out,.6,1.5);bool finite=true;for(float x:out)finite=finite&&std::isfinite(x);
+    Rig clean(true,false);for(const auto* id:{"cleanCompOn","scKeyComp"})clean.set(id,1);clean.set("cleanCompThreshold",0);clean.set("cleanCompRatio",20);clean.set("cleanCompAttack",1);clean.set("cleanCompKnee",0);
+    const double reference=rms(clean.run(1.5,sine(.0316,220),sine(4,220)).main,.6,1.5);
     Rig b(false,true);b.set("synthOn",1);b.set("synthSource",2);b.set("synthOutput",2);
     const auto played=b.run(.5,silent(),silent(),[](int k,juce::MidiBuffer& m){if(k==2)m.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);});
     int onset=-1;for(size_t n=0;n<played.bus.size();++n)if(std::abs(played.bus[n])>1e-7f){onset=int(n);break;}
     const int latency=b.p->getLatencySamples();
-    std::cout<<"MEASURE review fixes: keyed compressor after a NaN and an Inf key sample "<<db(keyed)<<" dBFS (main -30); SYNTH bus onset "<<onset-2*block<<" samples after the note, latency "<<latency<<"\n";
-    require(finite && db(keyed)<-38,"A non-finite key sample broke the keyed compressor");
+    std::cout<<"MEASURE review fixes: keyed compressor after a NaN and an Inf key sample "<<db(keyed)<<" dBFS (clean key "<<db(reference)<<"); SYNTH bus onset "<<onset-2*block<<" samples after the note, latency "<<latency<<"\n";
+    require(finite && std::abs(db(keyed/reference))<.1,"A non-finite key sample broke the keyed compressor");
     require(latency>0 && std::abs(onset-2*block-latency)<=1,"The SYNTH bus is not delayed by the reported latency");
     std::cout<<"PASS non-finite key samples are ignored; the SYNTH bus follows the reported latency\n";
 }
