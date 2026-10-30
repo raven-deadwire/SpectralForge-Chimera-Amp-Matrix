@@ -145,6 +145,17 @@ jobs:
             --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-app")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Keep the real OBS app test's screen and logs when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-app-test-windows-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/obs-app/*.png
+            ${{ runner.temp }}/obs-app/*.txt
+            ${{ runner.temp }}/obs-app-obs/config/obs-studio/logs/
+            ${{ runner.temp }}/obs-app-obs/config/obs-studio/crashes/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-windows-x64-${{ github.event.pull_request.head.sha || github.sha }}

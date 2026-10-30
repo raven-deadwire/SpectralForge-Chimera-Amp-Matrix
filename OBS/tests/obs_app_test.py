@@ -164,6 +164,37 @@ class Layout:
             shutil.rmtree(self.plugin)
 
 
+def window_titles(pid: int) -> list[str]:
+    """Titles of the process's visible top-level windows (a dialog that blocks startup shows here)."""
+    import ctypes
+    from ctypes import wintypes
+    user32 = ctypes.windll.user32
+    titles = []
+    callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+    def visit(hwnd, _):
+        owner = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+        if owner.value == pid and user32.IsWindowVisible(hwnd):
+            buffer = ctypes.create_unicode_buffer(512)
+            user32.GetWindowTextW(hwnd, buffer, 512)
+            titles.append(buffer.value)
+        return True
+
+    user32.EnumWindows(callback(visit), 0)
+    return titles
+
+
+def screenshot(path: Path) -> None:
+    """The whole desktop as PNG (CI uploads it on failure)."""
+    script = ("Add-Type -AssemblyName System.Windows.Forms,System.Drawing;"
+              "$b=[System.Windows.Forms.SystemInformation]::VirtualScreen;"
+              "$i=New-Object System.Drawing.Bitmap $b.Width,$b.Height;"
+              "$g=[System.Drawing.Graphics]::FromImage($i);$g.CopyFromScreen($b.Location,[System.Drawing.Point]::Empty,$b.Size);"
+              f"$i.Save('{path}')")
+    subprocess.run(["powershell", "-NoProfile", "-Command", script], check=False, timeout=60)
+
+
 def close_windows(pid: int) -> int:
     """Posts WM_CLOSE to the process's visible top-level windows, as the close button does."""
     import ctypes
@@ -199,6 +230,9 @@ class Obs:
         try:
             self._connect(port, log)
         except Exception:
+            if WINDOWS and self.process.poll() is None:
+                print(f"     OBS windows: {window_titles(self.process.pid)}", file=sys.stderr)
+                screenshot(log.with_suffix(".png"))
             # The caller never gets this object, so nothing else would stop OBS.
             if self.ws is not None:
                 self.ws.close()
@@ -520,7 +554,8 @@ def main() -> int:
             print(f"--- no OBS log in {args.layout.config / 'logs'}; config holds: "
                   f"{sorted(str(p.relative_to(args.layout.config)) for p in args.layout.config.rglob('*'))[:40]}",
                   file=sys.stderr)
-        for log in [*sorted(work.glob("obs-run-*.txt")), *logs]:
+        crashes = sorted((args.layout.config / "crashes").glob("*.txt"))[-1:]
+        for log in [*sorted(work.glob("obs-run-*.txt")), *crashes, *logs]:
             print(f"--- {log.name} (last 60 lines)", file=sys.stderr)
             print("\n".join(log.read_text(errors="replace").splitlines()[-60:]), file=sys.stderr)
         return 1
