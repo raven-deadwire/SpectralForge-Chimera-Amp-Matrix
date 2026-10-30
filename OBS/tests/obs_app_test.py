@@ -442,7 +442,8 @@ def configure(config: Path, port: int, recordings: Path) -> None:
                         "FPSType": "0", "FPSCommon": "30"}
     profile["Audio"] = {"SampleRate": str(RATE), "ChannelSetup": "Stereo"}
     profile["Output"] = {"Mode": "Simple"}
-    profile["SimpleOutput"] = {"FilePath": str(recordings), "RecFormat2": "mkv", "RecQuality": "Stream",
+    # OBS stores paths with forward slashes on Windows too; backslashes read as a bad recording path.
+    profile["SimpleOutput"] = {"FilePath": recordings.as_posix(), "RecFormat2": "mkv", "RecQuality": "Stream",
                                "StreamEncoder": "x264", "VBitrate": "300", "ABitrate": "160"}
     with (config / "basic" / "profiles" / "Chimera" / "basic.ini").open("w") as f:
         profile.write(f, space_around_delimiters=False)
