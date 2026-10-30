@@ -135,11 +135,17 @@ while switching.
 
 ## Not done
 
-- **Sidechain key timing (review, 10/30):** the sidechain key is not delayed
-  to match the modules placed before a keyed detector. Moving a module with
-  latency (HQ saturation, an oversampled POST preamp) ahead of the clean
-  compressor, the multiband or POST dynamics makes the key reach them that
-  much earlier.
+- **Sidechain key timing (review, 10/30), resolved:** keyed detectors placed
+  after a module with latency read the key delayed by it, so moving a module
+  does not change keyed timing.
+  - Tone / dynamics: after HQ saturation, the clean compressor, the multiband
+    and the filter envelope get the key delayed by the saturation latency.
+  - POST: dynamics placed after an oversampled preamp get it delayed by the
+    preamp latency.
+  - The delay (`Source/KeyDelay.h`) is fed every chunk, so it stays
+    continuous. A key that returns starts from silence.
+  - The rig's own latency stays a small look-ahead, as before
+    ([SIDECHAIN_SYNTH_BUS.md](SIDECHAIN_SYNTH_BUS.md)).
 
 - **Interaction:** dragging on the compact strip (it has no per-module
   blocks), and touch-specific long-press handling.
