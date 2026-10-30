@@ -9,7 +9,7 @@
 |---|---|---|
 | PACE 관리자 및 도구 라이선스 | 10/27 08:15 KST 공식 메일: Central Access/Fusion SDK 각 1개, 2027-11-01 만료, AAX 서명 전용 | 발급 확인; 실제 ILM/USB 활성화 미확인 |
 | Avid 개발 번들 | 10/29 01:45 KST Devauth 발급 메일을 10/30 직접 확인 | 코드 발급 확인; 등록 완료 아님 |
-| Avid 계정 | 연결 브라우저에서 my.avid.com 로그인 화면 확인 | 로그인 필요; 코드 입력/제출 없음 |
+| Avid 계정 | 사용자 로그인 완료, 코드 제출 후 Avid Software License Agreement 화면 확인 | 약관 동의 대기; 등록 확정·iLok 대상 확인 미완료 |
 | Avid 라이선스 3종 | 발급 안내에 Intro / Developer Build / Prerelease 명시 | 실제 지급/활성화는 UNKNOWN |
 | Windows AAX 개발 패키지 | 아래 Actions run, 두 OS job의 성공 및 만료되지 않은 artifact 메타데이터 확인 | CI BUILT; 사용자 PC 설치/실행 NOT_RUN |
 | 로컬 제어 | 웹 브라우저만 연결, Windows 네이티브 앱·파일시스템 직접 접근 불가 | ILM, USB 연결, Pro Tools 실행 및 청감 검증 불가 |
@@ -149,7 +149,7 @@ windows_version / cpu: UNKNOWN
 pro_tools_edition / version: UNKNOWN
 interface / asio_driver: UNKNOWN
 sample_rate_hz / buffer_samples: UNKNOWN
-avid_redemption: NOT_COMPLETED_IN_THIS_TASK
+avid_redemption: PENDING_EULA_CONFIRMATION
 ilok_intro / developer / prerelease_deposit: UNKNOWN
 host_license_activation: UNKNOWN
 pace_central_usb_activation / fusion_activation: UNKNOWN

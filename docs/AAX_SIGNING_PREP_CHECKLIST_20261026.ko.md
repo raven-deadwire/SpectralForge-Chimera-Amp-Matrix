@@ -27,7 +27,7 @@
 | AAX Cloud Signing 서비스 | 별도 발급 근거 없음 | Fusion SDK의 Cloud 활성화 지원과 다른 권한 |
 | Pro Tools Developer Bundle 코드 | **10/29 01:45 KST 발급 확인** | 재신청 불필요. Avid 코드 등록·대상 iLok 계정 확인은 미완료 |
 | Pro Tools Intro / Developer Build / Prerelease | 등록 후 지급될 라이선스 3종을 발급 메일에서 확인 | 실제 iLok 지급·활성화는 미확인 |
-| Avid 계정 작업(10/30) | 연결된 브라우저에서 로그인 화면까지 확인 | 로그인 필요; 이 작업에서 코드 입력·등록·약관 동의·라이선스 이전을 하지 않음 |
+| Avid 계정 작업(10/30) | 사용자 로그인 완료 후 발급 코드를 등록 폼에 제출, Avid Software License Agreement 화면 확인 | **약관 동의 대기**. 등록 확정·iLok 대상 확인·지급/활성화는 미완료 |
 | 개발 빌드 CI | 소스 `340a6e081336c373f7bb3f6bf4ef44f823298797`, [run 41037134450](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/41037134450)의 Windows/macOS 두 작업 성공 | 이 SHA의 빌드·회귀·개발 설치 검사만 해당. 실제 Pro Tools 호스트 결과 아님 |
 | 실제 서명 / retail Pro Tools / 최종 설치기 | 미완료 | Windows·macOS 각 검증 필요 |
 
@@ -123,7 +123,7 @@
 
 - 2026-10-27 08:15 KST PACE 공식 관리자 생성 및 지급 메일 두 건을 직접 확인. 계정 정보·비공개 링크는 미수록.
 - 2026-10-29 01:45 KST Avid Devauth 공식 개발 번들 발급 메일 직접 확인. 코드·개인 메일 링크·iLok ID는 미수록.
-- 2026-10-30 브라우저의 Avid 로그인 화면 및 위 CI run/아티팩트 메타데이터 확인. ILM·USB·Windows 네이티브 앱 접근 불가로 설치/활성화/호스트 시험 결과는 미확인.
+- 2026-10-30 브라우저에서 로그인 완료 및 코드 제출 후 약관 동의 대기 화면 확인. 위 CI run/아티팩트 메타데이터 확인. ILM·USB·Windows 네이티브 앱 접근 불가로 설치/활성화/호스트 시험 결과는 미확인.
 - [PACE 공식 시작 안내](https://paceap.com/getting-started-with-aax-code-signing-for-pro-tools-plugins/)
 - [PACE Code Signing Platform](https://paceap.com/code-signing-platform/)
 - [iLok License Manager 공식 안내](https://help.ilok.com/ilm_overview.html)
