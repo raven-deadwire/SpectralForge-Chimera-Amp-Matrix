@@ -748,7 +748,7 @@ inline std::optional<float> integratedLoudness(const std::vector<float>& samples
         squared[n]=y*y;
     }
     const size_t block=size_t(rate*.4),hop=size_t(rate*.1);
-    if(block==0 || samples.size()<block)return std::nullopt;
+    if(block==0 || hop==0 || samples.size()<block)return std::nullopt;
     const auto lufs=[](double meanSquare){return -.691+10*std::log10(std::max(1e-30,2*meanSquare));};
     std::vector<double> blocks;double sum=0;
     for(size_t n=0;n<block;++n)sum+=squared[n];
