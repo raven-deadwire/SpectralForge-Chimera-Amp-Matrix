@@ -322,6 +322,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
             case Phase::level:navigateSignalPath(*route.find("final.eq"));break;
             case Phase::amp:if(const auto* head=route.find("amp.context0"))navigateSignalPath(*head);break;
+            case Phase::cab:if(const auto* cab=route.find("cab.context0"))navigateSignalPath(*cab);break;
             default:navigateSignalPath(*route.find("common.comp"));break;
         }
     };
@@ -329,9 +330,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
     static_assert(spectralforge::CommonDynamicsPanel::autoLockNames.size()==spectralforge::autoset::Controller::lockOrder.size(),"Auto Set lock menu and controller locks differ");
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp});}
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp,o.cab});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level,o.amp});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level,o.amp,o.cab});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
