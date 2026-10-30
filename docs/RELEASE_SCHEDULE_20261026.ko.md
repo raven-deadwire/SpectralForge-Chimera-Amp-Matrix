@@ -11,6 +11,7 @@
 |---|---|
 | 공개판 | **1.3.2-beta.1**, 만료 2027-02-11 23:59 KST. main 소스는 #181 머지로 `RELEASE_CHANNEL` **beta.2** |
 | 별도 배포 | 팩토리 프리셋 유지보수판 `presets-2026.10.19.1` (엔진 바이트는 beta.1 고정) |
+| NAM 모델 | Náströnd·Niflheimr NAM은 **키메라와 별도로 출시하며 키메라 패키지에 포함하지 않습니다.** NAM의 승인·출시는 키메라 beta.2 판정과 별개입니다. Náströnd TONE3000 A2는 [#216](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/216)에서 release profile v3 기준 출시 승인 기록 |
 | 다음 목표 | **1.3.2-beta.2** — 유지 |
 | 출시 시점 결정 요인 | **Transpose 검증**과 **AAX 서명·Pro Tools 테스트** |
 
