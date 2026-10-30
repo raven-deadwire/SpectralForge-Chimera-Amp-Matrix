@@ -147,7 +147,30 @@ void recallAndUndo() {
     std::cout<<"MEASURE recall: restored order "<<(q->requestedOrder()==both?"equal":"different")<<", audio difference after restore "<<diff<<"; A/B slots "<<(slotB==both?"keep":"lose")<<" / "<<(slotA==SignalOrder{}?"keep":"lose")
              <<" their orders; old project -> "<<(r->requestedOrder()==SignalOrder{}?"released order":"other")<<"\n";
     require(diff==0 && slotB==both && slotA==SignalOrder{} && r->requestedOrder()==SignalOrder{},"Recall, A/B or old-project order wrong");
-    std::cout<<"PASS moves write only the order (complete gestures), undo / redo / reset, project, A/B and old-project recall\n";
+    // Every intermediate state of a multi-slot write is invalid (or the target):
+    // reset from a swapped order passes through no third valid order.
+    {
+        auto w=make();
+        w->placeModule(OrderRegion::tone,1,0);w->placeModule(OrderRegion::tone,3,2);w->placeModule(OrderRegion::tone,5,4);
+        const auto swapped=w->requestedOrder();require((swapped.tone.slots==std::array<int,toneModuleCount>{1,0,3,2,5,4}),"Swap not applied");
+        struct Watch final : juce::AudioProcessorListener {
+            ChimeraProcessor* q{};int thirdValid{};SignalOrder from,to;
+            void audioProcessorParameterChanged(juce::AudioProcessor*,int,float) override {
+                std::array<int,toneModuleCount> slots{};for(int i=0;i<toneModuleCount;++i)slots[size_t(i)]=juce::roundToInt(q->parameters().getRawParameterValue(orderSlotID(OrderRegion::tone,i))->load());
+                ToneOrder t;t.slots=slots;if(t.valid() && t!=from.tone && t!=to.tone)++thirdValid;}
+            void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+        } watch;watch.q=w.get();watch.from=swapped;watch.to=SignalOrder{};
+        w->addListener(&watch);require(w->resetOrder(OrderRegion::tone),"Reset refused");w->removeListener(&watch);
+        require(watch.thirdValid==0 && w->requestedOrder()==SignalOrder{},"A reset passed through a third valid order");
+        // A stored order that is not a permutation loads as the default order.
+        juce::MemoryBlock data;w->getStateInformation(data);
+        juce::ValueTree t;{auto x=w->getXmlFromBinary(data.getData(),int(data.getSize()));t=juce::ValueTree::fromXml(*x);}
+        for(auto child:t)if(child.getProperty("id").toString()=="orderTone2")child.setProperty("value",0,nullptr);   // duplicate of slot 1
+        juce::MemoryBlock bad;{auto x=t.createXml();juce::AudioProcessor::copyXmlToBinary(*x,bad);}
+        auto v=make();v->placeModule(OrderRegion::tone,deesserModule,0);v->setStateInformation(bad.getData(),int(bad.getSize()));
+        require(v->requestedOrder()==SignalOrder{} && juce::roundToInt(v->parameters().getRawParameterValue("orderTone2")->load())==1,"An invalid stored order was not replaced by the default");
+    }
+    std::cout<<"PASS moves write only the order (complete gestures), undo / redo / reset, project, A/B and old-project recall; no third order mid-write; invalid stored order -> default\n";
 }
 
 void staleInput() {
@@ -223,7 +246,9 @@ void dragging() {
     button=dynamic_cast<SignalPathButton*>(view.buttonFor("common.comp"));
     button->mouseDown(event(start,start,true));button->mouseDrag(event(targets[5].getCentre(),start,true));
     require(button->keyPressed(juce::KeyPress(juce::KeyPress::escapeKey)) && view.draggingBlock().isEmpty(),"Escape did not cancel");
-    button->mouseUp(event(targets[5].getCentre(),start,false));
+    button->mouseDrag(event(targets[4].getCentre(),start,true));   // moving on after Escape does not restart the drag
+    require(view.draggingBlock().isEmpty(),"A drag restarted after Escape");
+    button->mouseUp(event(targets[4].getCentre(),start,false));
     // Releasing over a fixed block (FINAL EQ) or far away cancels too.
     button->mouseDown(event(start,start,true));button->mouseDrag(event(centre("final.eq"),start,true));const int overFixed=view.dropPosition();button->mouseUp(event(centre("final.eq"),start,false));
     button->mouseDown(event(start,start,true));button->mouseDrag(event({1100,40},start,true));button->mouseUp(event({1100,40},start,false));

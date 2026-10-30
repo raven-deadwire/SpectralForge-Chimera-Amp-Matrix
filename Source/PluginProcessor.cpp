@@ -579,13 +579,28 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     return result;
 }
 // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): edits on the message thread.
-// Only slots that change are written; the audio thread ignores the brief
-// duplicate a partly written region can show and keeps its previous order.
+// Slots are written one at a time, and the audio thread keeps its previous
+// order while a region is not a permutation. The writes are ordered so that
+// every intermediate state is invalid: the first changed slot first takes
+// the second's current value (a duplicate), the others follow, and the first
+// changed slot is written last. So no third, valid order can be heard.
 void ChimeraProcessor::writeOrder(const spectralforge::SignalOrder& order)
 {
     using spectralforge::OrderRegion;
-    for(int i=0;i<spectralforge::toneModuleCount;++i){const auto id=spectralforge::orderSlotID(OrderRegion::tone,i);if(juce::roundToInt(state.getRawParameterValue(id)->load())!=order.tone.slots[(size_t)i])setRawParameter(id,float(order.tone.slots[(size_t)i]));}
-    for(int i=0;i<spectralforge::postModuleCount;++i){const auto id=spectralforge::orderSlotID(OrderRegion::post,i);if(juce::roundToInt(state.getRawParameterValue(id)->load())!=order.post.slots[(size_t)i])setRawParameter(id,float(order.post.slots[(size_t)i]));}
+    const auto write=[&](OrderRegion region,const int* target,int count){
+        std::array<int,8> changed{};int k=0;
+        const auto current=[&](int slot){return juce::roundToInt(state.getRawParameterValue(spectralforge::orderSlotID(region,slot))->load());};
+        const auto set=[&](int slot,int value){setRawParameter(spectralforge::orderSlotID(region,slot),float(value));};
+        for(int i=0;i<count;++i)if(current(i)!=target[i])changed[(size_t)k++]=i;
+        if(k==0)return;
+        if(k==1){set(changed[0],target[changed[0]]);return;}   // only from an invalid state
+        set(changed[0],current(changed[1]));
+        for(int j=2;j<k;++j)set(changed[(size_t)j],target[changed[(size_t)j]]);
+        set(changed[1],target[changed[1]]);
+        set(changed[0],target[changed[0]]);
+    };
+    write(OrderRegion::tone,order.tone.slots.data(),spectralforge::toneModuleCount);
+    write(OrderRegion::post,order.post.slots.data(),spectralforge::postModuleCount);
 }
 bool ChimeraProcessor::commitOrder(const spectralforge::SignalOrder& next)
 {
@@ -982,6 +997,10 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
     restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();switchPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
+    // A stored order that is not a permutation (partial or edited state) is
+    // replaced by the default, so the audio, the routing view and a fresh
+    // instance all agree.
+    writeOrder(signalOrder.read({}));
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
     library.wake();
 }

@@ -26,19 +26,20 @@ class SignalPathButton final : public SignalPathNavigationButton {
 public:
     bool compact{},active{};juce::String label,status;
     spectralforge::signalPath::Target target{};
-    bool drag{},swallowRelease{};
+    bool drag{},swallowRelease{},cancelled{};
     std::function<void()> onPlacementMenu;
     std::function<bool(const juce::KeyPress&)> onOrderKey;
     std::function<void(juce::Point<int>)> onDragMove;   // pointer in the parent view's coordinates
     std::function<void(bool commit)> onDragEnd;
     bool dragging() const noexcept {return drag;}
     void mouseDown(const juce::MouseEvent& e) override {
-        swallowRelease=false;
+        swallowRelease=false;cancelled=false;
         if(e.mods.isPopupMenu() && onPlacementMenu){onPlacementMenu();return;}
         SignalPathNavigationButton::mouseDown(e);
     }
     void mouseDrag(const juce::MouseEvent& e) override {
-        if(onDragMove && !e.mods.isPopupMenu() && (drag || e.getDistanceFromDragStart()>6)) {
+        // After Escape the gesture stays cancelled until the next press.
+        if(onDragMove && !e.mods.isPopupMenu() && !cancelled && (drag || e.getDistanceFromDragStart()>6)) {
             if(!drag){drag=true;setMouseCursor(juce::MouseCursor::DraggingHandCursor);}
             onDragMove(e.getEventRelativeTo(getParentComponent()).getPosition());return;
         }
@@ -51,7 +52,7 @@ public:
         SignalPathNavigationButton::mouseUp(e);
     }
     bool keyPressed(const juce::KeyPress& key) override {
-        if(drag && key.isKeyCode(juce::KeyPress::escapeKey)){finishDrag(false);swallowRelease=true;return true;}
+        if(drag && key.isKeyCode(juce::KeyPress::escapeKey)){finishDrag(false);swallowRelease=true;cancelled=true;return true;}
         if(onOrderKey && onOrderKey(key))return true;
         return SignalPathNavigationButton::keyPressed(key);
     }
@@ -306,7 +307,8 @@ private:
             if(code==juce::KeyPress::homeKey){orderCommand(id,OrderCommand::first);return true;}
             if(code==juce::KeyPress::endKey){orderCommand(id,OrderCommand::last);return true;}
         }
-        if(mods.isCommandDown() && !mods.isAltDown() && (key.getKeyCode()=='Z' || key.getKeyCode()=='z')){orderCommand(id,mods.isShiftDown()?OrderCommand::redo:OrderCommand::undo);return true;}
+        // Nothing to undo or redo: the key goes on to the host and the editor.
+        if(mods.isCommandDown() && !mods.isAltDown() && (key.getKeyCode()=='Z' || key.getKeyCode()=='z'))return orderCommand(id,mods.isShiftDown()?OrderCommand::redo:OrderCommand::undo);
         return false;
     }
     void showPlacementMenu(const juce::String& id) {
