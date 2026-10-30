@@ -400,6 +400,57 @@ void sampleState() {
     std::cout<<"PASS samples load through the processor, persist in the project (24-bit FLAC) and clear\n";
 }
 
+// Review fixes (10/30): leaving Sample mode mid-note does not read a frame
+// position as a wave phase; a sample that arrives after the attack starts at
+// START; peaks above full scale survive the 24-bit FLAC; the FLAC is cached.
+void reviewFixes() {
+    // Sample -> Wave while a note sounds (saw, filter on).
+    double spike=0,steady=0;
+    {
+        Host h;clean(h,1);h.set("synthFilterOn",1);h.set("synthOscAMode",1);h.set("synthOscARoot",60);
+        SynthLayer s;s.bind(h.state);s.prepare(rate,block);s.swapSample(0,tone(261.63,1.0,44100));
+        juce::AudioBuffer<float> in(2,block),o(2,block);in.clear();juce::MidiBuffer m;
+        for(int k=0;k<200;++k){
+            m.clear();if(k==0)m.addEvent(juce::MidiMessage::noteOn(1,60,1.f),0);
+            if(k==100)h.set("synthOscAMode",0);
+            o.clear();s.handleMidi(m);s.analyse(in);s.render(block,120);s.addAt(SynthInsert::beforePost,o);
+            const double peak=o.getMagnitude(0,0,block);
+            if(k>=100)spike=std::max(spike,peak);else if(k>=20)steady=std::max(steady,peak);
+        }
+    }
+    // A sample loaded 0.1 s into a held note, START 50 %, one-shot at its root: it ends 0.5 s later.
+    double ended=0;
+    {
+        Host h;clean(h,0);h.set("synthOscAMode",1);h.set("synthOscARoot",60);h.set("synthOscALoop",0);h.set("synthOscAStart",50);
+        SynthLayer s;s.bind(h.state);s.prepare(rate,block);
+        juce::AudioBuffer<float> in(2,block),o(2,block);in.clear();juce::MidiBuffer m;
+        const int loadAt=int(.1*rate/block);int last=0;
+        for(int k=0;k*block<int(rate*1.2);++k){
+            m.clear();if(k==0)m.addEvent(juce::MidiMessage::noteOn(1,60,1.f),0);
+            if(k==loadAt)s.swapSample(0,tone(261.63,1.0,48000));
+            o.clear();s.handleMidi(m);s.analyse(in);s.render(block,120);s.addAt(SynthInsert::beforePost,o);
+            for(int n=0;n<block;++n)if(std::abs(o.getSample(0,n))>1e-6f)last=k*block+n;
+        }
+        ended=last/rate-loadAt*block/rate;
+    }
+    // A float sample peaking at 2.0 round-trips unclipped; saving twice reuses the encoding.
+    double clipError=0;bool cached=false;
+    {
+        juce::AudioBuffer<float> b(1,24000);for(int n=0;n<24000;++n)b.setSample(0,n,float(2.0*std::sin(2*pi*220.0*n/48000)));
+        SynthLayer s;s.swapSample(0,synthSample::make(b,48000,"hot"));
+        const auto first=synthSample::save(s);const void* data=s.sample(0)->encoded.getData();
+        const auto second=synthSample::save(s);cached=s.sample(0)->encoded.getData()==data && first.isEquivalentTo(second);
+        auto loaded=synthSample::restore(second);
+        require(loaded[0]!=nullptr,"Hot sample not restored");
+        for(int n=0;n<24000;++n)clipError=std::max(clipError,double(std::abs(loaded[0]->data[0][size_t(n)]-s.sample(0)->data[0][size_t(n)])));
+    }
+    std::cout<<"MEASURE review fixes: Sample -> Wave peak "<<spike<<" (playing "<<steady<<"); late sample from 50 % ends after "<<ended<<" s (0.5); peak-2.0 round trip error "<<clipError<<"\n";
+    require(spike<2*steady+.1,"Leaving Sample mode mid-note spiked");
+    require(std::abs(ended-.5)<.02,"A late sample did not start at START");
+    require(clipError<1e-5 && cached,"Sample above full scale clipped, or its encoding not cached");
+    std::cout<<"PASS Sample -> Wave without a spike, late sample from START, unclipped hot samples, cached encoding\n";
+}
+
 struct Writes final : juce::AudioProcessorListener {
     std::map<int,int> changes;int gestures{};
     void audioProcessorParameterChanged(juce::AudioProcessor*,int index,float) override {++changes[index];}
@@ -491,7 +542,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();contractAndPatches();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

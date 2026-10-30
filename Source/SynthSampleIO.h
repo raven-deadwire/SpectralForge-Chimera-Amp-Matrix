@@ -58,23 +58,41 @@ inline juce::Result load(const juce::File& file, std::unique_ptr<SynthSample>& r
     return result != nullptr ? juce::Result::ok() : juce::Result::fail("The audio file could not be used");
 }
 
+// 24-bit FLAC of a sample. Peaks above full scale are scaled into range and
+// `gain` restores them (integer FLAC would clip them). Cached on the sample.
+inline bool encode(const SynthSample& sample) {
+    if (sample.encoded.getSize() > 0) return true;
+    float peak = 0.f;
+    for (const auto& channel : sample.data) for (const float x : channel) peak = std::max(peak, std::abs(x));
+    const float gain = peak > 1.f ? peak : 1.f;
+    std::array<std::vector<float>, 2> scaled;
+    const float* channels[2]{sample.data[0].data(), sample.stereo() ? sample.data[1].data() : nullptr};
+    if (gain > 1.f)
+        for (int c = 0; c < (sample.stereo() ? 2 : 1); ++c) {
+            scaled[size_t(c)].resize(sample.data[size_t(c)].size());
+            for (size_t n = 0; n < scaled[size_t(c)].size(); ++n) scaled[size_t(c)][n] = sample.data[size_t(c)][n] / gain;
+            channels[c] = scaled[size_t(c)].data();
+        }
+    juce::MemoryBlock encoded;
+    {
+        auto stream = std::make_unique<juce::MemoryOutputStream>(encoded, false);
+        juce::FlacAudioFormat flac;
+        std::unique_ptr<juce::AudioFormatWriter> writer(flac.createWriterFor(stream.get(), sample.sampleRate, sample.stereo() ? 2u : 1u, 24, {}, 0));
+        if (writer == nullptr) return false;
+        stream.release();
+        if (!writer->writeFromFloatArrays(channels, sample.stereo() ? 2 : 1, sample.length)) return false;
+    }
+    sample.encoded = std::move(encoded);sample.encodedGain = gain;
+    return true;
+}
 // State: one SAMPLE child per loaded oscillator, the audio as 24-bit FLAC.
 inline juce::ValueTree save(const SynthLayer& synth) {
     juce::ValueTree tree("SYNTH_SAMPLES");
     for (int o = 0; o < synthOscCount; ++o) {
-        const auto* sample = synth.sample(o);if (sample == nullptr) continue;
-        juce::MemoryBlock encoded;
-        {
-            auto stream = std::make_unique<juce::MemoryOutputStream>(encoded, false);
-            juce::FlacAudioFormat flac;
-            std::unique_ptr<juce::AudioFormatWriter> writer(flac.createWriterFor(stream.get(), sample->sampleRate, sample->stereo() ? 2u : 1u, 24, {}, 0));
-            if (writer == nullptr) continue;
-            stream.release();
-            const float* channels[2]{sample->data[0].data(), sample->stereo() ? sample->data[1].data() : nullptr};
-            if (!writer->writeFromFloatArrays(channels, sample->stereo() ? 2 : 1, sample->length)) continue;
-        }
+        const auto* sample = synth.sample(o);if (sample == nullptr || !encode(*sample)) continue;
         juce::ValueTree item("SAMPLE");
-        item.setProperty("osc", o, nullptr);item.setProperty("name", sample->name, nullptr);item.setProperty("flac", encoded, nullptr);
+        item.setProperty("osc", o, nullptr);item.setProperty("name", sample->name, nullptr);item.setProperty("flac", sample->encoded, nullptr);
+        if (sample->encodedGain != 1.f) item.setProperty("gain", sample->encodedGain, nullptr);
         tree.appendChild(item, nullptr);
     }
     return tree;
@@ -91,6 +109,8 @@ inline std::array<std::unique_ptr<SynthSample>, synthOscCount> restore(const juc
         if (reader == nullptr || reader->lengthInSamples > juce::int64(SynthSample::maximumSeconds * reader->sampleRate) + 1) continue;
         juce::AudioBuffer<float> audio(int(std::max(1u, reader->numChannels)), int(reader->lengthInSamples));
         if (!reader->read(&audio, 0, audio.getNumSamples(), 0, true, true)) continue;
+        const float gain = float(item.getProperty("gain", 1.f));
+        if (std::isfinite(gain) && gain > 1.f) audio.applyGain(gain);
         result[size_t(o)] = make(audio, reader->sampleRate, item.getProperty("name").toString());
     }
     return result;
