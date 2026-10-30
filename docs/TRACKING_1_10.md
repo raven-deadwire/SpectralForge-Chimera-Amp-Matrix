@@ -36,8 +36,13 @@ per 64 samples). For each labelled note:
 - the attack counts above;
 - at most 50 ms of false triggers per recording.
 
-Notes outside the range, and chords, are measured and reported as "out of
-scope".
+Notes below 55 Hz have their own targets:
+- **Lock:** they may take 80 ms. The long analysis needs two cycles at
+  27.5 Hz, which is 73 ms.
+- **Pitch:** notes up to 62 Hz (B1) may read up to 12 cents off, because more
+  inharmonic partials fall in the analysis band.
+
+Chords are measured and reported as "out of scope".
 
 ## Synthetic corpus
 
@@ -66,9 +71,9 @@ All 24 notes in range meet the targets:
 
 No note has octave errors or dropouts. Hum and hiss alone open no gate.
 
-- **Out of scope:** E1 (41.2 Hz, bass open E) and B0 (30.9 Hz, five-string
-  bass low B) are below the 55 Hz range and are not tracked. An E2 + B2
-  power chord is not tracked either (the mono tracker finds no clear period).
+- **Bass (extended range, below):** E1, B0 and a bass line.
+- **Out of scope:** an E2 + B2 power chord is not tracked (the mono tracker
+  finds no clear period).
 - **Inharmonicity:**
   - The low notes read 6–9 cents sharp. That comes from the string's
     inharmonicity: the stretched upper partials shorten the period both
@@ -94,6 +99,30 @@ No note has octave errors or dropouts. Hum and hiss alone open no gate.
     second pick.
   - A new attack is now ignored for 25 ms after the last one, while the level
     still rises.
+
+## Bass range (`claude/bass-tracking`)
+
+The tracker originally covered 55–1400 Hz, so bass E1 (41.2 Hz) and B0
+(30.9 Hz) were not tracked at all. It now reaches down to 27.5 Hz.
+- **Normal analysis:** unchanged (a window and maximum lag of 220 samples at
+  the 12 kHz analysis rate, 55 Hz).
+- **Long analysis:** a 438-sample window and maximum lag (27.5 Hz). It runs
+  only when the normal analysis finds no period and the level is above
+  −50 dBFS, over hum and hiss.
+- **What it accepts:** only periods below 58 Hz, so a guitar note is never
+  read by it.
+- **Guitar latency:** unchanged.
+
+| Note | Lock ms | Median cents | Without inharmonicity |
+|---|---|---|---|
+| E1, bass open E (41.2 Hz) | 61.3 | 7.5 | 0.1 |
+| B0, five-string low B (30.9 Hz) | 66.7 | 7.8 | 0.3 |
+| Bass 8ths at 120 BPM: E1, G1, A1, B0 | 41.3–74.0 | 10.2–10.6 | 0.0–0.1 |
+
+- **Cost:**
+  - On an E2 guitar note, the long analysis ran in 2.7 % of the frames
+    (around the attack), and the tracker took 0.96 % of one core.
+  - On a held B0 it ran in 63 % of the frames, and the tracker took 2.5 %.
 
 ## Checking a recording
 
@@ -141,5 +170,5 @@ ChimeraTrackingCheck --synthetic --write corpus/      # the corpus as WAV + CSV 
 
 - **Recorded instruments:** guitar and bass recordings, run through
   `ChimeraTrackingCheck`, with listening. This is the remaining 1.10 gate.
-- **Range:** notes below 55 Hz (bass E1 and B0) need a longer analysis window
-  or a different method. Polyphonic tracking stays out of scope.
+- **Range:** polyphonic tracking stays out of scope. Bass below 27.5 Hz (a
+  six-string bass's low F#0, for example) is not tracked.

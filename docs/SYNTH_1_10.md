@@ -49,7 +49,9 @@ Owner's decisions (2026-10-29):
     with parabolic interpolation.
   - **Rate:** the input is decimated to about 12 kHz behind two biquad
     low-passes. The tracker runs every 64 decimated samples (5.3 ms).
-  - **Range:** 55–1400 Hz. A seven-string low B is 61.7 Hz.
+  - **Range:** 55–1400 Hz, extended to 27.5 Hz for bass (E1 41.2 Hz, B0
+    30.9 Hz). The longer analysis runs only when the normal one finds no
+    period ([TRACKING_1_10.md](TRACKING_1_10.md)). A seven-string low B is 61.7 Hz.
   - **Smoothing:** a median of three estimates rejects single-frame octave
     slips.
   - **Note on:** while the tracked level is above THRESHOLD and the clarity is
