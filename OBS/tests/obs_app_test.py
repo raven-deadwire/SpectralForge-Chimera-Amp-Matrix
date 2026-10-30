@@ -185,6 +185,19 @@ def window_titles(pid: int) -> list[str]:
     return titles
 
 
+def dialog_text(pid: int) -> str:
+    """Everything UI Automation can read in the process's windows (a Win32 or Qt message box)."""
+    script = ("Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes;"
+              "$a=[System.Windows.Automation.AutomationElement];"
+              f"$c=New-Object System.Windows.Automation.PropertyCondition($a::ProcessIdProperty,{pid});"
+              "$w=$a::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children,$c);"
+              "foreach($e in $w){$e.FindAll([System.Windows.Automation.TreeScope]::Subtree,"
+              "[System.Windows.Automation.Condition]::TrueCondition)|%{$_.Current.Name}|?{$_}}")
+    result = subprocess.run(["powershell", "-NoProfile", "-Command", script], capture_output=True, text=True,
+                            timeout=60, check=False)
+    return " | ".join(line.strip() for line in result.stdout.splitlines() if line.strip())
+
+
 def screenshot(path: Path) -> None:
     """The whole desktop as PNG (CI uploads it on failure)."""
     script = ("Add-Type -AssemblyName System.Windows.Forms,System.Drawing;"
@@ -232,6 +245,7 @@ class Obs:
         except Exception:
             if WINDOWS and self.process.poll() is None:
                 print(f"     OBS windows: {window_titles(self.process.pid)}", file=sys.stderr)
+                print(f"     OBS window text: {dialog_text(self.process.pid)}", file=sys.stderr)
                 screenshot(log.with_suffix(".png"))
             # The caller never gets this object, so nothing else would stop OBS.
             if self.ws is not None:
@@ -391,7 +405,10 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     (config / "basic" / "scenes").mkdir(parents=True, exist_ok=True)
     glob = configparser.ConfigParser()
     glob.optionxform = str
-    glob["General"] = {"FirstRun": "false", "LastVersion": "503316482", "EnableAutoUpdates": "false"}
+    # Pre31Migrated: OBS 31 would otherwise move global.ini to user.ini and stop with
+    # an error dialog because user.ini (written below) already exists.
+    glob["General"] = {"FirstRun": "false", "LastVersion": "503316482", "EnableAutoUpdates": "false",
+                       "Pre31Migrated": "true"}
     glob["Basic"] = {"Profile": "Chimera", "ProfileDir": "Chimera", "SceneCollection": "Chimera",
                      "SceneCollectionFile": "Chimera", "ConfigOnNewProfile": "false"}
     glob["BasicWindow"] = {"ConfirmOnExit": "false", "WarnBeforeStoppingRecord": "false",
