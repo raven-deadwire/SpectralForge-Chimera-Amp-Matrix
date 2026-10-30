@@ -272,7 +272,9 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
     // Host position for bar-locked modulation (docs/MODULATION_1_9.md): known
     // only while the transport plays.
     hostPpq=std::numeric_limits<double>::quiet_NaN();
-    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())if(position->getIsPlaying())if(const auto ppq=position->getPpqPosition())hostPpq=*ppq;
+    hostPpqBpm=std::numeric_limits<double>::quiet_NaN();
+    // The position advances at the host's own tempo, whatever Chimera's tempo setting is.
+    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())if(position->getIsPlaying())if(const auto ppq=position->getPpqPosition())if(const auto hostBpm=position->getBpm())if(*hostBpm>0.){hostPpq=*ppq;hostPpqBpm=*hostBpm;}
     // Hosts may deliver blocks larger than prepareToPlay's hint. All DSP and
     // convolution buffers remain bounded to the prepared capacity.
     for(int offset=0;offset<buffer.getNumSamples();offset+=maximumBlock)
@@ -295,7 +297,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
                 auto* k=key.getWritePointer(c);for(int i=0;i<n;++i)if(!std::isfinite(k[i]))k[i]=0.f;
             }
             externalKey=key.getNumChannels()>0?&key:nullptr;
-            chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*tempoMeter.load()/60.0/rate:hostPpq;
+            chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*hostPpqBpm/60.0/rate:hostPpq;
             busLeft=synthBus.getNumChannels()>0?synthBus.getWritePointer(0,offset+done):nullptr;
             busRight=synthBus.getNumChannels()>1?synthBus.getWritePointer(1,offset+done):busLeft;
             // While a recall keeps the output muted, recalled cabinets install
@@ -537,7 +539,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
                 {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);}break;
             // Two-filter modulation (docs/FILTER_MODULATION_1_7.md): off leaves the signal untouched.
             case spectralforge::filterModule:
-                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,externalKey);}break;
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,externalKey,hostPpqBpm);}break;
             case spectralforge::deesserModule:tap(Tap::deesser);
                 {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}break;
             default:break;
@@ -589,13 +591,28 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     return result;
 }
 // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): edits on the message thread.
-// Only slots that change are written; the audio thread ignores the brief
-// duplicate a partly written region can show and keeps its previous order.
+// Slots are written one at a time, and the audio thread keeps its previous
+// order while a region is not a permutation. The writes are ordered so that
+// every intermediate state is invalid: the first changed slot first takes
+// the second's current value (a duplicate), the others follow, and the first
+// changed slot is written last. So no third, valid order can be heard.
 void ChimeraProcessor::writeOrder(const spectralforge::SignalOrder& order)
 {
     using spectralforge::OrderRegion;
-    for(int i=0;i<spectralforge::toneModuleCount;++i){const auto id=spectralforge::orderSlotID(OrderRegion::tone,i);if(juce::roundToInt(state.getRawParameterValue(id)->load())!=order.tone.slots[(size_t)i])setRawParameter(id,float(order.tone.slots[(size_t)i]));}
-    for(int i=0;i<spectralforge::postModuleCount;++i){const auto id=spectralforge::orderSlotID(OrderRegion::post,i);if(juce::roundToInt(state.getRawParameterValue(id)->load())!=order.post.slots[(size_t)i])setRawParameter(id,float(order.post.slots[(size_t)i]));}
+    const auto write=[&](OrderRegion region,const int* target,int count){
+        std::array<int,8> changed{};int k=0;
+        const auto current=[&](int slot){return juce::roundToInt(state.getRawParameterValue(spectralforge::orderSlotID(region,slot))->load());};
+        const auto set=[&](int slot,int value){setRawParameter(spectralforge::orderSlotID(region,slot),float(value));};
+        for(int i=0;i<count;++i)if(current(i)!=target[i])changed[(size_t)k++]=i;
+        if(k==0)return;
+        if(k==1){set(changed[0],target[changed[0]]);return;}   // only from an invalid state
+        set(changed[0],current(changed[1]));
+        for(int j=2;j<k;++j)set(changed[(size_t)j],target[changed[(size_t)j]]);
+        set(changed[1],target[changed[1]]);
+        set(changed[0],target[changed[0]]);
+    };
+    write(OrderRegion::tone,order.tone.slots.data(),spectralforge::toneModuleCount);
+    write(OrderRegion::post,order.post.slots.data(),spectralforge::postModuleCount);
 }
 bool ChimeraProcessor::commitOrder(const spectralforge::SignalOrder& next)
 {
@@ -1025,6 +1042,10 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
     restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();switchPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
+    // A stored order that is not a permutation (partial or edited state) is
+    // replaced by the default, so the audio, the routing view and a fresh
+    // instance all agree.
+    writeOrder(signalOrder.read({}));
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
     library.wake();
 }

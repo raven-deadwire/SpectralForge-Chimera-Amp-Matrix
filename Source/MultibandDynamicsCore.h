@@ -633,6 +633,12 @@ public:
         settings.stereo = std::clamp(settings.stereo, 0, 1);
         settings.link = float(finiteClamp(settings.link, 0., 1., 1.));
         settings.bandCount = settings.bandCount == 6 ? 6 : 4;
+        // Five-crossover processing always uses the six-band validation of
+        // the raw values, also while it fades out to four bands: mixing the
+        // two rule sets could make the live crossovers cross, where the
+        // synthesis residues are singular.
+        sixBandTargets = validatedSixBandCrossovers({settings.crossovers[0], settings.crossovers[1], settings.crossovers[2],
+                                                     settings.upperCrossovers[0], settings.upperCrossovers[1]}, rate);
         if (settings.bandCount == 6) {
             const auto all = validatedSixBandCrossovers({settings.crossovers[0], settings.crossovers[1], settings.crossovers[2],
                                                          settings.upperCrossovers[0], settings.upperCrossovers[1]}, rate);
@@ -661,6 +667,7 @@ public:
     }
 
     void reset() noexcept {
+        active = targetCrossovers();   // before the crossovers, which depend on it
         for (auto& s : splitter) s.reset();
         for (auto& s : keySplitter) s.reset();
         for (size_t i = 0; i < frequencies.size(); ++i)
@@ -874,18 +881,22 @@ private:
         return false;
     }
     int targetCrossovers() const noexcept { return settings.bandCount - 1; }
+    // The frequencies the processed crossovers move towards. Four bands keep
+    // the four-band rules (unchanged); five crossovers use the six-band set.
     double crossoverTarget(size_t i) const noexcept {
-        return i < 3 ? settings.crossovers[i] : settings.upperCrossovers[i - 3];
+        if (active == multibandMaxCrossovers) return sixBandTargets[i];
+        return i < 3 ? settings.crossovers[i] : sixBandTargets[i];
     }
     // Applies the pending stereo domain and band count. A band-count change
-    // starts the new filters from silence at their target frequencies.
+    // (at silence, or while off) starts every crossover at its new target,
+    // so the live crossovers are ordered and can never cross while they glide.
     void swapLayout() noexcept {
         domain = settings.stereo;
         if (targetCrossovers() == active) return;
         active = targetCrossovers();
         for (auto& s : splitter) s.reset();
         for (auto& s : keySplitter) s.reset();
-        for (size_t i = 3; i < frequencies.size(); ++i) frequencies[i].prepare(rate, crossoverTarget(i));
+        for (size_t i = 0; i < frequencies.size(); ++i) frequencies[i].prepare(rate, crossoverTarget(i));
         for (auto& synthesis : synth) synthesis.setCrossoverCount(active);
         for (auto& state : bandState) { state.detector.reset(); state.gainDB = {}; }
     }
@@ -896,6 +907,7 @@ private:
     bool lastOn{}, shared{true};
     int domain{0}, switching{0}, settleLeft{0};   // switching: 0 idle, 1 fading out, 2 settling
     int active{3};                                // crossovers being processed: 3 or 5
+    std::array<float, multibandMaxCrossovers> sixBandTargets{120.f, 700.f, 3500.f, 6000.f, 11000.f};
     std::array<multiband_detail::CrossoverFrequency, multibandMaxCrossovers> frequencies;
     std::array<multiband_detail::BandSplit, 2> splitter, keySplitter;
     bool keyed{};

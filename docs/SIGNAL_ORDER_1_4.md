@@ -135,6 +135,12 @@ while switching.
 
 ## Not done
 
+- **Sidechain key timing (review, 10/30):** the sidechain key is not delayed
+  to match the modules placed before a keyed detector. Moving a module with
+  latency (HQ saturation, an oversampled POST preamp) ahead of the clean
+  compressor, the multiband or POST dynamics makes the key reach them that
+  much earlier.
+
 - **Interaction:** dragging on the compact strip (it has no per-module
   blocks), and touch-specific long-press handling.
 - **Placements:** advanced ones, such as a whole-wet compressor after POST
