@@ -804,6 +804,8 @@ spectralforge::appendSidechainParameters(p);
 spectralforge::appendSignalOrderParameters(p);
 // 1.9 expanded filter modulation, version hint 30.
 spectralforge::appendFilterModulationExtensionParameters(p);
+// 1.5 six-band multiband expansion, version hint 31.
+spectralforge::appendMultibandSixBandParameters(p);
 return p;
 }
 

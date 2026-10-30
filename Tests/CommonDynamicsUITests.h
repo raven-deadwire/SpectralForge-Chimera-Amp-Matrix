@@ -299,6 +299,24 @@ inline void run(const juce::File& directory) {
         for(int other=1;other<=4;++other)if(other!=index)require(!find(*panel,"mbBand"+juce::String(other)+"_threshold")->isShowing(),"Multiband combines all four bands' controls");
     }
     require(signalPathTests::values(p)==bandBefore,"Multiband selection changed the sound");
+    {   // Six bands (docs/SIX_BAND_1_5.md): bands 5 and 6 and crossovers 4 and 5 appear; back to four hides them.
+        auto* count=p.parameters().getParameter("mbBandCount");require(count,"Band count parameter missing");
+        count->setValueNotifyingHost(1.f);settle(80);
+        require(band->isItemEnabled(6) && band->getItemText(5)=="Band 6 / AIR","Six-band selector entries missing");
+        band->setSelectedId(6,juce::sendNotificationSync);settle(30);
+        visibleInside(*editor,*panel,"mbBand6_threshold");visibleInside(*editor,*panel,"mbBand6_channels");
+        visibleInside(*editor,*panel,"mbCrossover4");visibleInside(*editor,*panel,"mbCrossover5");visibleInside(*editor,*panel,"mbBandCount");
+        require(!find(*panel,"mbBand4_threshold")->isShowing(),"Six bands combine band controls");
+        if(const char* dir=std::getenv("SIX_BAND_SNAPSHOT")){   // optional evidence
+            const auto image=panel->createComponentSnapshot(panel->getLocalBounds(),true,1.f);
+            auto out=juce::File(dir).getChildFile("six_band_panel.png");out.deleteFile();auto stream=out.createOutputStream();
+            require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the six-band snapshot");
+        }
+        count->setValueNotifyingHost(0.f);settle(80);
+        require(!band->isItemEnabled(5) && band->getSelectedId()==4,"Four bands kept band 5/6 selectable");
+        require(!find(*panel,"mbCrossover4")->isShowing() && !find(*panel,"mbBand6_threshold")->isShowing(),"Four bands show crossover 4 or band 6");
+        visibleInside(*editor,*panel,"mbBand4_threshold");
+    }
 
     // Native PRE/POST use the real current model's controls, not the inactive
     // legacy sliders. Check the root callbacks and the single-consumer lease.

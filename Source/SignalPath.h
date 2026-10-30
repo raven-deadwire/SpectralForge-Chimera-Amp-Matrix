@@ -130,7 +130,7 @@ inline Snapshot read(ChimeraProcessor& p) {
         switch(module){
             case toneEQModule:addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,x,y,"12-band Tone EQ. "+where+movable);break;
             case compressorModule:add("common.comp","CLEAN COMP",Target::dynamics,x,y,on("cleanCompOn"),{},-1,-1,"Stereo-linked clean compression, no added lookahead latency. "+where+movable);break;
-            case multibandModule:add("common.multiband","MULTIBAND",Target::dynamics,x,y,on("mbOn"),{},-1,-1,"Independent four-band dynamics. Open its spectrum editor to adjust crossovers and each band's compression or expansion. "+where+movable);break;
+            case multibandModule:add("common.multiband","MULTIBAND",Target::dynamics,x,y,on("mbOn"),{},-1,-1,"Independent four- or six-band dynamics. Open its spectrum editor to adjust crossovers and each band's compression or expansion. "+where+movable);break;
             case saturationModule:add("common.saturation","SATURATION",Target::dynamics,x,y,on("satOn"),{},-1,-1,"Three-band saturation. "+where+movable);break;
             case filterModule:add("common.filter","FILTER",Target::dynamics,x,y,on("fltOn"),{},-1,-1,"Two-filter modulation. "+where+movable);break;
             default:add("common.deesser","DE-ESSER",Target::dynamics,x,y,on("deEsserOn"),{},-1,-1,"Split-band high-frequency attenuation. "+where+movable);break;

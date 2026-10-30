@@ -170,11 +170,11 @@ void realtimeAndParameters() {
     bool finite=true;for(float v:data)finite=finite&&std::isfinite(v);
     require(watchedAllocations==0 && finite,"Filter processing allocated or became non-finite");
     ChimeraProcessor processor;int seen=0;const int total=processor.getParameters().size();
-    const int later=total-spectralforge::postExpansionParameterCount()-spectralforge::effectExtensionParameterCount-spectralforge::creativeParameterCount-(spectralforge::synthParameterCount+spectralforge::sidechainParameterCount+spectralforge::signalOrderParameterCount+spectralforge::filterModulationExtensionParameterCount)-spectralforge::roomAdvancedParameterCount-spectralforge::roomSpaceParameterCount;   // banks appended after the filters
+    const int later=total-spectralforge::postExpansionParameterCount()-spectralforge::effectExtensionParameterCount-spectralforge::creativeParameterCount-(spectralforge::synthParameterCount+spectralforge::sidechainParameterCount+spectralforge::signalOrderParameterCount+spectralforge::filterModulationExtensionParameterCount+spectralforge::multibandSixBandParameterCount)-spectralforge::roomAdvancedParameterCount-spectralforge::roomSpaceParameterCount;   // banks appended after the filters
     int extension=0;
     for(auto* raw:processor.getParameters())if(auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);id && id->paramID.startsWith("flt")){
         // The 1.9 extension (version 30, docs/MODULATION_1_9.md) is its own bank, last.
-        if(raw->getVersionHint()==filterModulationExtensionVersion){require(raw->getParameterIndex()>=total-filterModulationExtensionParameterCount,"1.9 filter parameters are not the last bank");++extension;continue;}
+        if(raw->getVersionHint()==filterModulationExtensionVersion){require(raw->getParameterIndex()>=total-spectralforge::multibandSixBandParameterCount-filterModulationExtensionParameterCount && raw->getParameterIndex()<total-spectralforge::multibandSixBandParameterCount,"1.9 filter parameters are not the last bank");++extension;continue;}
         require(raw->getVersionHint()==filterModulationParameterVersion && raw->getParameterIndex()>=later-filterModulationParameterCount && raw->getParameterIndex()<later,"Filter parameters are not appended at their version");++seen;}
     require(extension==filterModulationExtensionParameterCount,"1.9 filter bank incomplete");
     require(seen==filterModulationParameterCount,"Filter parameter bank incomplete");

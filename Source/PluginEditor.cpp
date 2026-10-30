@@ -332,7 +332,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
-    dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
+    dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled() && processorMB.activeBandCount()==processorMB.bandCount()?processorMB.appliedAllCrossovers():processorMB.allCrossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
         if(source==Page::preCompressor && processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) {

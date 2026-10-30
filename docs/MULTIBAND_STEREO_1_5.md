@@ -4,7 +4,8 @@ Status: **implemented on `claude/multiband-stereo`** (based on `main`).
 Roadmap: 1.5 "separately gated M/S". This is the stereo half of the Pro-MB
 audit gap in `docs/MULTIBAND_PRO_MB_AUDIT_20261020.md`, which lists external
 sidechain, the free detector band and M/S as not implemented. External
-sidechain, free detector bands and six bands remain open. Covered by
+sidechain ([SIDECHAIN_SYNTH_BUS.md](SIDECHAIN_SYNTH_BUS.md)) and six bands
+([SIX_BAND_1_5.md](SIX_BAND_1_5.md)) followed; free detector bands remain open. Covered by
 `ChimeraMultibandDynamicsCoreTests`.
 
 ## Controls
@@ -65,6 +66,6 @@ Band 3 is set to downward compression (−40 dB threshold, 4:1); the other bands
 ## Not done
 
 - **External sidechain:** needs a sidechain input bus and host layouts, which is a separate gate.
-- Free detector bands, six bands, and band output pan.
+- Free detector bands and band output pan. (Six bands: [SIX_BAND_1_5.md](SIX_BAND_1_5.md).)
 - A crossfade between both domains during a mode change, which would avoid the 50 ms without processing.
 - Listening tests.

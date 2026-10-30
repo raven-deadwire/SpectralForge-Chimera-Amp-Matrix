@@ -831,3 +831,11 @@ target_include_directories(ChimeraModulationTests PRIVATE Source)
 target_link_libraries(ChimeraModulationTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraModulationTests COMMAND ChimeraModulationTests)
 set_tests_properties(ChimeraModulationTests PROPERTIES TIMEOUT 600)
+
+# 1.5 six-band multiband expansion (docs/SIX_BAND_1_5.md).
+juce_add_console_app(ChimeraSixBandTests PRODUCT_NAME "Chimera Six Band Tests")
+target_sources(ChimeraSixBandTests PRIVATE Tests/SixBandTests.cpp)
+target_include_directories(ChimeraSixBandTests PRIVATE Source)
+target_link_libraries(ChimeraSixBandTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraSixBandTests COMMAND ChimeraSixBandTests)
+set_tests_properties(ChimeraSixBandTests PROPERTIES TIMEOUT 900 RUN_SERIAL TRUE)
