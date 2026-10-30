@@ -131,7 +131,7 @@ jobs:
             -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
             -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
           Copy-Item OBS/LICENSE, OBS/README.md package/
-      - name: Real OBS Studio app (31.1.2, portable) - load the filter, record, push a preset, save, restart and restore
+      - name: Real OBS Studio app (31.1.2) - load the filter from %ProgramData%, record, push a preset, save, restart and restore
         # The release zip the module was just built against (hash checked by the build script).
         shell: pwsh
         run: |
@@ -153,8 +153,8 @@ jobs:
           path: |
             ${{ runner.temp }}/obs-app/*.png
             ${{ runner.temp }}/obs-app/*.txt
-            ${{ runner.temp }}/obs-app-obs/config/obs-studio/logs/
-            ${{ runner.temp }}/obs-app-obs/config/obs-studio/crashes/
+            ~/AppData/Roaming/obs-studio/logs/
+            ~/AppData/Roaming/obs-studio/crashes/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:

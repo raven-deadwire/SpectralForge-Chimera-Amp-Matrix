@@ -5,8 +5,10 @@ r"""Runs the real OBS Studio app with the installed Chimera filter (plan stages 
 OBS never touches the user's configuration:
 - Linux: OBS runs under the current X display (CI: xvfb-run) with its own HOME.
   The module goes to ~/.config/obs-studio/plugins and Chimera to ~/.vst3.
-- Windows: OBS runs in portable mode (configuration next to its bin folder).
-  The module goes to %ProgramData%\obs-studio\plugins, where Chimera Setup
+- Windows: OBS runs as installed (portable mode would skip the plugin folder
+  below). Its configuration goes to %APPDATA%\obs-studio, so the test refuses
+  to run when that folder exists, and removes it after a passing run. The
+  module goes to %ProgramData%\obs-studio\plugins, where Chimera Setup
   installs it, and finds Chimera through default-vst3-path.txt, which Setup
   writes. An existing installation there is never replaced.
 
@@ -132,10 +134,11 @@ class Layout:
         if WINDOWS:
             exe = Path(obs).resolve()
             self.cwd = exe.parent  # OBS on Windows expects to start in bin\64bit
-            self.config = exe.parents[2] / "config" / "obs-studio"  # --portable
+            # Not --portable: portable OBS does not search %ProgramData%\obs-studio\plugins.
+            self.config = Path(os.environ["APPDATA"]) / "obs-studio"
             self.plugin = Path(os.environ["ProgramData"]) / "obs-studio" / "plugins" / "chimera-obs"
             self.env = dict(os.environ)
-            self.options = ["--portable"]
+            self.options = []
         else:
             home = work / "home"
             self.cwd = home
@@ -148,6 +151,8 @@ class Layout:
         if self.plugin.exists():
             raise RuntimeError(f"{self.plugin} already exists; this test does not replace an installed filter")
         if self.config.exists():
+            if WINDOWS:
+                raise RuntimeError(f"{self.config} already exists; this test does not touch an OBS configuration")
             shutil.rmtree(self.config)
         self.cwd.mkdir(parents=True, exist_ok=True)
         shutil.copytree(module, self.plugin, symlinks=True)
@@ -159,9 +164,11 @@ class Layout:
             (self.cwd / ".vst3").mkdir()
             (self.cwd / ".vst3" / vst3.name).symlink_to(vst3)
 
-    def uninstall(self) -> None:
+    def uninstall(self, passed: bool) -> None:
         if WINDOWS and self.installed:  # only what install() put there
             shutil.rmtree(self.plugin)
+            if passed:  # a failed run keeps its logs for the CI artifact
+                shutil.rmtree(self.config, ignore_errors=True)
 
 
 def window_titles(pid: int) -> list[str]:
@@ -551,7 +558,7 @@ def main() -> int:
     parser.add_argument("--state-tool", required=True, help="chimera-obs-state-tool executable")
     parser.add_argument("--work", required=True, help="scratch directory (deleted first)")
     parser.add_argument("--obs", default="obs", help="OBS Studio executable (Windows: bin\\64bit\\obs64.exe "
-                        "of an unpacked release)")
+                        "of an installed or unpacked release)")
     parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for decoding the recordings")
     parser.add_argument("--seconds", type=float, default=6.0, help="length of each recording")
     args = parser.parse_args()
@@ -561,8 +568,10 @@ def main() -> int:
     global FFMPEG
     FFMPEG = args.ffmpeg
     args.layout = Layout(args.obs, Path(args.work).resolve())
+    passed = False
     try:
         run(args)
+        passed = True
     except Exception as e:  # noqa: BLE001 - report every failure the same way
         print(f"FAIL {e}", file=sys.stderr)
         work = Path(args.work).resolve()
@@ -577,7 +586,7 @@ def main() -> int:
             print("\n".join(log.read_text(errors="replace").splitlines()[-60:]), file=sys.stderr)
         return 1
     finally:
-        args.layout.uninstall()
+        args.layout.uninstall(passed)
     return 0
 
 
