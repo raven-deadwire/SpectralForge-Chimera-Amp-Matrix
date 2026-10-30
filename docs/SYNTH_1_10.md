@@ -148,7 +148,9 @@ The names are Chimera working names with no hardware reference.
 ## Not done
 
 - **Tracking evidence:** recorded guitar/bass at low B, palm mutes and fast
-  passages. The roadmap's tracking research gate is still open.
+  passages. The roadmap's tracking research gate is still open. The
+  measurement, a synthetic corpus and the checking tool are in
+  [TRACKING_1_10.md](TRACKING_1_10.md).
 - **Timing:** sample-accurate MIDI timing, and latency alignment with the rig.
 - **Range:** polyphonic tracking, and a mod wheel or aftertouch.
 - **Panel:** rack or panel artwork for the layers.

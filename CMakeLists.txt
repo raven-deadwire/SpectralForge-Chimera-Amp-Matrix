@@ -839,3 +839,16 @@ target_include_directories(ChimeraSixBandTests PRIVATE Source)
 target_link_libraries(ChimeraSixBandTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraSixBandTests COMMAND ChimeraSixBandTests)
 set_tests_properties(ChimeraSixBandTests PROPERTIES TIMEOUT 900 RUN_SERIAL TRUE)
+
+# 1.10 tracking checks (docs/TRACKING_1_10.md): the synthetic corpus test and
+# the tool for recorded DI (ChimeraTrackingCheck --help).
+juce_add_console_app(ChimeraTrackingTests PRODUCT_NAME "Chimera Tracking Tests")
+target_sources(ChimeraTrackingTests PRIVATE Tests/TrackingTests.cpp)
+target_include_directories(ChimeraTrackingTests PRIVATE Source Tools/Tracking)
+target_link_libraries(ChimeraTrackingTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraTrackingTests COMMAND ChimeraTrackingTests)
+set_tests_properties(ChimeraTrackingTests PROPERTIES TIMEOUT 600)
+juce_add_console_app(ChimeraTrackingCheck PRODUCT_NAME "Chimera Tracking Check")
+target_sources(ChimeraTrackingCheck PRIVATE Tools/Tracking/TrackingCheck.cpp)
+target_include_directories(ChimeraTrackingCheck PRIVATE Source Tools/Tracking)
+target_link_libraries(ChimeraTrackingCheck PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)

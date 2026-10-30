@@ -324,11 +324,33 @@ private:
         // Parabolic interpolation of the minimum.
         const double a = difference[size_t(best - 1)], b = difference[size_t(best)], c = difference[size_t(best + 1)];
         const double denominator = a - 2 * b + c, shift = std::abs(denominator) > 1e-12 ? .5 * (a - c) / denominator : 0.0;
-        const double estimate = decimatedRate / (best + std::clamp(shift, -.5, .5));
+        double period = best + std::clamp(shift, -.5, .5);
+        // Short periods (high notes, ~9 lags at 1.3 kHz): a parabola over whole
+        // lags is biased by up to ~11 cents. Refine over fractional lags
+        // (+-0.25) of the raw difference with Hermite-interpolated delays.
+        if (best < 48) {
+            const double h = .25;
+            const double dm = shifted(period - h), d0 = shifted(period), dp = shifted(period + h), den = dm - 2 * d0 + dp;
+            if (den > 1e-15) period += std::clamp(.5 * h * (dm - dp) / den, -h, h);
+        }
+        const double estimate = decimatedRate / period;
         confidence = 1.0 - b;
         history = {history[1], history[2], estimate};
         auto sorted = history;std::sort(sorted.begin(), sorted.end());
         frequency = sorted[0] > 0 ? sorted[1] : estimate;
+    }
+    // The raw difference of the newest window against a fractional delay tau.
+    double shifted(double tau) const noexcept {
+        const int length = window + tauMax;double sum = 0;
+        for (int j = 0; j < window; ++j) {
+            const double at = double(length - window + j) - tau;
+            const int i = int(std::floor(at));const double t = at - i;
+            const auto x = [&](int k) { return double(frame[size_t(std::clamp(k, 0, length - 1))]); };
+            const double xm = x(i - 1), x0 = x(i), x1 = x(i + 1), x2 = x(i + 2);
+            const double interpolated = x0 + .5 * t * (x1 - xm + t * (2 * xm - 5 * x0 + 4 * x1 - x2 + t * (3 * (x0 - x1) + x2 - xm)));
+            const double e = double(frame[size_t(length - window + j)]) - interpolated;sum += e * e;
+        }
+        return sum;
     }
     double rate{48000}, decimatedRate{12000};
     int factor{4}, tauMin{8}, tauMax{220}, window{220}, write{}, phase{}, hop{};
@@ -401,7 +423,7 @@ public:
         guitar = Voice{};
         midiNotes = {};midiCount = 0;bend = 0;wheel = 0;midiVelocity = 0;midiOnset = false;
         lfoPhase = {};lfoHeld = {};lfoValue = {};seed = 0x2545f491u;clock = 0;
-        guitarGate = false;guitarLevel = 0;onsetLevel = 0;active = false;renderedSamples = 0;
+        guitarGate = false;guitarLevel = 0;onsetLevel = 0;active = false;renderedSamples = 0;attacks = 0;
         const auto s = read();
         for (int i = 0; i < synthInsertCount; ++i) gain[size_t(i)] = s.on && s.insert == i && toMain ? 1.f : 0.f;
         busGain = s.on && toBus ? 1.f : 0.f;
@@ -537,6 +559,10 @@ public:
     bool sounding() const noexcept { bool any = guitar.active;for (const auto& v : voices) any |= v.active;return active && any; }
     int soundingVoices() const noexcept { int n = guitar.active ? 1 : 0;for (const auto& v : voices) n += v.active ? 1 : 0;return n; }
     double voicePitch(int i) const noexcept { return i < 0 ? guitar.hz : voices[size_t(std::clamp(i, 0, synthMaxVoices - 1))].hz; }
+    // Guitar tracking state (docs/TRACKING_1_10.md): the gate, and the number
+    // of pick attacks that started the guitar voice since prepare().
+    bool guitarGateOpen() const noexcept { return guitarGate; }
+    int guitarAttacks() const noexcept { return attacks; }
     double lfoOutput(int i) const noexcept { return lfoValue[size_t(std::clamp(i, 0, 1))]; }
     // Copies the newest `count` scope samples (oldest first) for the page.
     void readScope(float* destination, int count) const noexcept {
@@ -652,13 +678,18 @@ private:
         const bool pitched = s.on && s.source != 2 && !midiHeld && tracker.rms() > threshold && tracker.hz() > 0 && tracker.clarity() > .8;
         guitarLevel = std::min(1.0, tracker.rms() / .25);
         if (pitched) {
-            const bool onset = !guitarGate || tracker.rms() > onsetLevel * 2.0;   // a 6 dB rise is a new pick attack
-            if (onset) startVoice(guitar, tracker.hz(), guitarLevel, -1, s, false);
+            // A 6 dB rise is a new pick attack, except within 25 ms of the last
+            // one: a high note locks while its attack is still rising.
+            const bool refractory = guitarGate && sinceAttack < .025 * rate;
+            const bool onset = !guitarGate || (!refractory && tracker.rms() > onsetLevel * 2.0);
+            if (onset) { startVoice(guitar, tracker.hz(), guitarLevel, -1, s, false);++attacks; }
             else guitar.targetHz = tracker.hz() * std::pow(2.0, double(s.octave));
             guitarGate = true;
-            if (onset) onsetLevel = tracker.rms();
+            if (onset) { onsetLevel = tracker.rms();sinceAttack = 0; }
+            else if (refractory) onsetLevel = std::max(onsetLevel, tracker.rms());
         } else if (guitarGate) { guitarGate = false;guitar.gate = false;guitar.amp.noteOff();guitar.env2.noteOff(); }
         onsetLevel = std::max(tracker.rms(), onsetLevel * std::exp(-double(samples) / (.05 * rate)));
+        sinceAttack += samples;
     }
     void advanceLfos(const Settings& s, double bpm) noexcept {
         for (int l = 0; l < 2; ++l) {
@@ -850,7 +881,7 @@ private:
     std::array<Pending, 64> pending{};int pendingCount{};
     std::array<double, 2> lfoPhase{}, lfoHeld{}, lfoValue{};
     std::uint32_t seed{0x2545f491u};std::uint64_t clock{};
-    bool guitarGate{}, active{};double guitarLevel{}, onsetLevel{};
+    bool guitarGate{}, active{};double guitarLevel{}, onsetLevel{};int attacks{}, sinceAttack{};
     std::array<std::vector<float>, 2> rendered;int renderedSamples{};
     std::array<float, synthInsertCount> gain{};
     bool toMain{true}, toBus{};float busGain{};
