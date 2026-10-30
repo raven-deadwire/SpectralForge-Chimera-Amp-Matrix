@@ -15,8 +15,7 @@ inline float raw(ChimeraProcessor& p,const juce::String& id){return p.parameters
 // about 1 s in the AppKit poll before the view refreshed.
 template<class Ready> void requireSoon(Ready&& ready,const char* failure) {
     const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
-    while(!ready() && juce::Time::getMillisecondCounterHiRes()<deadline)settle(20);
-    require(ready(),failure);
+    while(!ready()){require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);settle(20);}
 }
 inline void preference() {
     struct Temporary {
@@ -175,13 +174,14 @@ inline void laneTargets() {
     auto editor=openEditor(*p);editor->setEasyMode(true);settle(60);
     auto* view=find<EasyModeView>(*editor,"easyView");auto* note=find<juce::Label>(*view,"easy.targetNote");
     require(view->targetLane()==0 && note->getText().isEmpty(),"Classic target lane");
+    auto* amp=find<juce::Label>(*view,"easy.amp");require(amp!=nullptr,"Easy amp label missing");
     set(*p,"mode",1);
-    requireSoon([&]{return view->targetLane()==0 && find<juce::Label>(*view,"easy.amp")->getText().contains("amp 1 of 2");},"Dual must target and name amp 1");
+    requireSoon([&]{return view->targetLane()==0 && amp->getText().contains("amp 1 of 2");},"Dual must target and name amp 1");
     set(*p,"mute1",1);requireSoon([&]{return note->getText().contains("muted");},"Muted target lane not explained");set(*p,"mute1",0);
     set(*p,"solo2",1);requireSoon([&]{return note->getText().contains("soloed");},"Soloed other lane not explained");set(*p,"solo2",0);
     set(*p,"dualtype",0);set(*p,"dualblend",1);requireSoon([&]{return note->getText().contains("BLEND");},"Blend away from amp 1 not explained");set(*p,"dualblend",.5f);
     set(*p,"mode",2);
-    requireSoon([&]{return view->targetLane()==1 && find<juce::Label>(*view,"easy.amp")->getText().contains("MID amp");},"Matrix must target and name the MID amp");
+    requireSoon([&]{return view->targetLane()==1 && amp->getText().contains("MID amp");},"Matrix must target and name the MID amp");
     // Only the target lane's parameters move.
     const auto before=signalPathTests::values(*p);
     auto* gain=find<juce::Slider>(*view,"easy.knob.gain");
