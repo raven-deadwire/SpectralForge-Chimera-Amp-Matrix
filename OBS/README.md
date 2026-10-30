@@ -8,7 +8,7 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
 **상태: 개발 시제품. Windows는 Chimera Setup, macOS(Universal: Apple silicon·Intel, macOS 12 이상)는 Chimera PKG의 선택 항목(서명·공증 없음)이며
-별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전). 실제 OBS Studio 화면·에디터·방송 검증 미실행.**
+별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전). 실제 OBS Studio 앱은 Linux에서 자동 시험(필터·녹화·상태 저장/복원)만 했고, 화면 조작·에디터·방송 검증은 미실행.**
 
 ## 라이선스
 
@@ -30,6 +30,7 @@ JUCE는 쓰지 않는다.
 | `tools/build-macos-module.sh` | OBS 31.1.2 Apple/Intel 릴리스의 `libobs.framework`로 아키텍처별 `chimera-obs.plugin` 빌드·시험 | 빌드 |
 | `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
 | `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
+| `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
 
 - 이름이 `SpectralForge Chimera`이고 제작사가 `RavenForge Luthier Intelligence`인 VST3 클래스만 로드한다(범용 VST3 호스트 아님).
 - 경로를 비우면 Setup이 기록한 VST3 위치(`data/default-vst3-path.txt`, UTF-8)를 먼저 쓰고, 없으면 표준 설치 위치를 찾는다:
@@ -79,7 +80,7 @@ GPL 애드온은 기존대로 별도 VST3를 호스팅하며 제품 DSP를 링�
 | 처리하지 못한 블록 | Chimera가 없거나 준비 중·오류로 무음 또는 원음 통과한 블록 수 |
 
 OBS 로그에는 오디오 10분마다 한 줄, 필터를 제거할 때 전체 합계 한 줄이 남는다.
-OBS를 종료할 때 합계 줄이 남는지는 실제 OBS 앱에서 확인하지 않았으므로, 1시간 기록은 10분 줄로 판단한다.
+OBS를 정상 종료할 때도 합계 줄이 남는다(Linux 실제 OBS 30.0.2에서 확인). 강제 종료에서는 남지 않으므로 1시간 기록은 10분 줄로 판단한다.
 
 ```
 [chimera-obs] 'Guitar DI': realtime: 0:10:00 of audio, 28125 blocks, Chimera load average 3.1% peak 12.4%, 20 ms windows over real time 0, input gaps 0 (resumed after silence 0), unprocessed blocks 0
@@ -262,6 +263,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | Chimera 직접 처리 60초(무작위 블록) 20 ms 구간 실시간 초과 | 0회(2회 실행), 블록당 최대 약 6 ms | Linux x86_64, 4코어 |
 | Setup이 기록한 VST3 위치 파일(BOM·CRLF 포함)로 경로 없이 로딩, 파일 처리 제거 시 실패 | 통과 | libobs 30.0.2 (헤드리스) |
 | Windows MSVC 빌드·시험(OBS 31.1.2 `obs.dll`) | CI에서 실행 | 결과는 CI 기록 |
+| 실제 OBS Studio 앱(`obs_app_test.py`): 필터가 `~/.vst3`에서 Chimera 로딩, 필터 끔/켬 녹화 비교(−18.9 dB, 대역 분포 변화), obs-websocket으로 넣은 다른 호스트의 상태 적용(−15.6 dB), 장면 파일에 그 상태 그대로 저장, OBS 재시작 후 같은 소리(−15.6 dB), 두 번 모두 정상 종료·통계·해제 로그 | 통과(3회), CI(`obs-addon.yml` linux)에서도 실행 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb, obs-websocket 5.3.4) |
 | Setup: OBS 실행 중 설치·선택 해제 중단(종료 코드 7)·제거 거부, OBS 장면 파일·다른 플러그인 보존, DLL 버전 정보 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 | Setup 필터 선택 설치·복구 시 선택 유지·사용자 지정 유니코드 VST3 경로 기록·선택 해제 시 제거·제거 시 삭제, 정적 런타임 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 
@@ -290,6 +292,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 - 필터는 OBS 타임스탬프를 바꾸지 않는다. 처리 지연(기본 상태 42 samples, 0.88 ms)은 영상과의 싱크에 그대로 더해지며,
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
-**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창(Windows·macOS·Linux 모두 OBS 밖 시험만),
-실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정, OBS 32.x, macOS·Linux 실제 OBS 앱에서의 확인. 이 항목은 계획 C–F단계와
+**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux 앱 시험은
+obs-websocket으로 필터를 추가·설정하며 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정,
+OBS 32.x, Windows·macOS 실제 OBS 앱에서의 확인. 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
