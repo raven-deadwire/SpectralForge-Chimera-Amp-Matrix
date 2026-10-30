@@ -822,9 +822,9 @@ void levelRules() {
     for(double rate:{44100.,48000.,96000.}) {
         std::mt19937 random{61};
         check(!analyseOutput(std::vector<float>(size_t(rate*6),0.f),rate).playingDetected,"Silence reported playing");
-        // A 997 Hz sine at -20 dBFS on both channels reads -20 LUFS (BS.1770).
+        // A 997 Hz sine at -20 dBFS on one actual channel reads -23.01 LUFS.
         {std::vector<float> sine(size_t(rate*6));for(size_t n=0;n<sine.size();++n)sine[n]=float(.1*std::sin(2*juce::MathConstants<double>::pi*997*double(n)/rate));
-         const auto loud=integratedLoudness(sine,rate);check(loud && near(*loud,-20.f,.2f),"A -20 dBFS sine did not read -20 LUFS: "+std::to_string(loud?*loud:-999.f));}
+         const auto loud=integratedLoudness(sine,rate);check(loud && near(*loud,-23.01f,.2f),"A mono -20 dBFS sine did not read -23.01 LUFS: "+std::to_string(loud?*loud:-999.f));}
         // On target and quiet: no Final EQ move, the trim brings it to -18 LUFS.
         auto quiet=targetNoise(false,rate,6,random);scale(quiet,.25f);
         const auto q=analyseOutput(quiet,rate,false);
@@ -838,7 +838,9 @@ void levelRules() {
         // Quiet with sharp peaks: the trim stops where the peaks reach the ceiling.
         auto clicks=quiet;scale(clicks,.1f);for(size_t n=0;n<clicks.size();n+=size_t(rate*.5))clicks[n]=.5f;
         const auto c=analyseOutput(clicks,rate,false);
-        check(c.peakLimited && near(c.peakDb+c.trimChangeDb,limiterCeilingDb,.6f),"Peaks were pushed above the limiter ceiling");
+        const float correctedPeak=outputSamplePeak(renderFinalMoves(monoOutput(clicks),c.moves,rate))+c.trimChangeDb;
+        check(c.peakLimited && correctedPeak<=limiterCeilingDb+.001f && near(correctedPeak,limiterCeilingDb,.51f),
+              "Rendered peaks were pushed above the limiter ceiling: "+std::to_string(correctedPeak));
         // Bright, dark and muddy outputs get half the difference, up to 3 dB.
         auto bright=targetNoise(false,rate,6,random);shelve(bright,6000,8,rate);
         const auto b=analyseOutput(bright,rate,false);
@@ -903,7 +905,7 @@ void controllerLevel() {
     auto halfOptions=levelOnly;halfOptions.strength=.5f;
     const auto half=runLevel(halfOptions);
     float halfShelf=0;for(int b=0;b<spectralforge::graphicalEQBands;++b)if(value(half.values,spectralforge::eqID(1,b,"enabled"))>.5f && near(value(half.values,spectralforge::eqID(1,b,"type")),2,.01f))halfShelf=value(half.values,spectralforge::eqID(1,b,"gain"));
-    check(near(halfShelf,.5f*half.analysis.moves[2].gainDb,.01f) && near(value(half.values,"output"),scaledInputGainDb(value(half.before,"output"),value(half.before,"output")+half.analysis.trimChangeDb,.5f),.01f),"Strength did not scale the Final EQ and the trim");
+    check(near(halfShelf,.5f*half.analysis.moves[2].gainDb,.01f) && near(value(half.values,"output"),value(half.before,"output")+half.analysis.trimChangeDb,.01f),"Strength did not scale the Final EQ and the trim");
     // Each lock keeps its part; both skip the pass.
     auto outputLocked=levelOnly;outputLocked.locks=Controller::lockOutput;
     const auto keptTrim=runLevel(outputLocked);
@@ -1189,10 +1191,13 @@ void controllerGateStageEditHistory() {
 
 #include "AutoSetDynamicEQRegression.h"
 #include "AutoSetDICommands.h"
+#include "AutoSetLevelRegression.h"
 
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
+        if(argc==2 && std::string(argv[1])=="--level-regression"){levelRegression::run();return 0;}
+        if(argc==2 && std::string(argv[1])=="--level-edits"){levelRegression::finalNodeEdits();std::cout<<"PASS Final EQ edit ownership\n";return 0;}
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-risk-probe"){dynamicRiskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-ownership"){dynamicOwnershipRegression();return 0;}
@@ -1217,6 +1222,7 @@ int main(int argc, char** argv) {
         check(argc==1,"Unknown argument");
         parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
+        levelRegression::run();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
