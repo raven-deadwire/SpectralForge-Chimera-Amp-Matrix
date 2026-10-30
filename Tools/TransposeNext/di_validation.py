@@ -18,6 +18,7 @@ parts of T6 and are not measured here.
 import argparse, csv, json, platform, subprocess, sys, tempfile
 from pathlib import Path
 import numpy as np
+import scipy
 from scipy import signal
 from scipy.ndimage import maximum_filter1d
 from scipy.io import wavfile
@@ -27,6 +28,8 @@ from legacy_metrics import tone_metrics, sha
 from weak_attack_holdout import lowband_extra, holdout_input
 from latency_targets import long_notes
 from weak_attack_study import FREQUENCIES, generate
+from di_input import inspect_wav, inspect_segment, segment_structure, finite_number
+from di_comparison import summarize as comparison_summary
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT/'Validation'/'transpose-latency-targets.json'
@@ -40,33 +43,11 @@ EDGE_S = .2
 
 def read_wav(path, channel=0):
     """Mono float64 in [-1, 1], rate, and input checks. No resampling, no gain."""
-    rate, d = wavfile.read(path)
-    if d.ndim == 2: d = d[:, channel]
-    if d.dtype == np.int16: z, full = d/32768., np.abs(d).max() >= 32767
-    elif d.dtype == np.int32: z, full = d/2.**31, np.abs(d.astype(np.int64)).max() >= 2**31-256  # 24-bit is left-justified
-    elif d.dtype == np.float32: z, full = d.astype(float), np.abs(d).max() >= .999
-    else: raise ValueError(f'{path}: unsupported sample format {d.dtype}')
-    z = np.asarray(z, float); issues = []
-    if rate not in RATES: issues.append(f'sample rate {rate} not in {RATES}')
-    if full: issues.append('clipped (full-scale samples)')
-    if not np.all(np.isfinite(z)): issues.append('nonfinite samples')
-    peak = float(np.abs(z).max()) if len(z) else 0.
-    if peak < .01: issues.append(f'too quiet (peak {20*np.log10(max(peak, 1e-12)):.1f} dBFS < -40)')
-    # DC from the quietest 10% of 50 ms blocks; decaying low notes are not DC.
-    n = max(1, round(.05*rate)); blocks = z[:len(z)//n*n].reshape(-1, n) if len(z) >= n else z[None, :]
-    quiet = blocks[np.argsort((blocks**2).mean(1))[:max(1, len(blocks)//10)]]
-    if abs(float(quiet.mean())) > 1e-3: issues.append('DC offset > 1e-3')
-    if len(z) > 600*rate: issues.append('longer than 10 minutes')
+    z, rate, issues, _ = inspect_wav(path, channel)
     return z, rate, issues
 
 def segment_issues(z, rate, seg):
-    a, b = round(seg['start_s']*rate), round(seg['end_s']*rate); e = round(EDGE_S*rate); out = []
-    if a < 0 or b > len(z) or b-a < 4*e: return [f"{seg['id']}: bounds outside file or shorter than {4*EDGE_S}s"]
-    peak = np.abs(z[a:b]).max(); rms = lambda u: np.sqrt(np.mean(u*u))
-    for name, u in (('start', z[a:a+e]), ('end', z[b-e:b])):
-        if rms(u) > peak*10**(SILENCE_DB/20): out.append(f"{seg['id']}: {name} {EDGE_S}s not silent (muted strings required)")
-    if seg['kind'] == 'steady' and seg['end_s']-seg['start_s'] < 4.5: out.append(f"{seg['id']}: steady segment shorter than 4.5 s")
-    return out
+    return inspect_segment(z, rate, seg)[0]
 
 def reference_onsets(z, rate, rise_db=9., gap_ms=12., floor_db=-60., look_ms=40.):
     """Offline reference onsets for review. Not the engine's detector.
@@ -98,49 +79,136 @@ def reference_onsets(z, rate, rise_db=9., gap_ms=12., floor_db=-60., look_ms=40.
     return out
 
 def load_manifest(path):
-    m = json.loads(Path(path).read_text()); base = Path(path).resolve().parent
+    m = json.loads(Path(path).read_text(encoding='utf-8-sig')); base = Path(path).resolve().parent
     for t in m['takes']:
         for k in ('wav', 'labels'):
             if t.get(k): t[k+'_path'] = (base/t[k]).resolve()
     return m
 
 def read_labels(path):
-    with open(path, newline='') as f: return [int(r['sample']) for r in csv.DictReader(f) if r.get('keep', 'yes').strip().lower() in ('yes', 'y', '1', 'true')]
+    with open(path, newline='', encoding='utf-8-sig') as f: return [int(r['sample']) for r in csv.DictReader(f) if r.get('keep', 'yes').strip().lower() in ('yes', 'y', '1', 'true')]
 
-def check(m, need_labels=True):
-    """All blocking problems for a manifest; empty list means ready."""
+def check(m, need_labels=True, details=None):
+    """All blocking input problems; optional details contain measured QC, not DI scores."""
     p = []
     if not m.get('takes'): return ['no takes']
+    scheduled = bool(m.get('recording_plan'))
+    ids = [t.get('id') for t in m['takes']]
+    if len(ids) != len(set(ids)): p.append('duplicate take ids')
+    if scheduled:
+        plan = m['recording_plan']
+        expected = {(i, r) for i in FREQUENCIES for r in RATES}
+        actual = [(t.get('instrument'), t.get('rate')) for t in m['takes']]
+        if len(actual) != 9 or set(actual) != expected:
+            p.append('recording plan requires nine unique instrument/rate pairs (A1/B0/A0 x 44100/48000/96000)')
+        if plan.get('expected_takes') != 9 or plan.get('native_rates_hz') != list(RATES):
+            p.append('recording_plan must retain expected_takes=9 and native_rates_hz=[44100,48000,96000]')
+        if need_labels and m.get('status') == 'TEMPLATE_NO_RECORDING' and all(t.get('wav') for t in m['takes']):
+            p.append('update manifest status to RECORDED_DI after actual recording')
+    seen_audio = {}
     for t in m['takes']:
         tid = t.get('id', '?')
+        segs = t.get('segments', [])
+        structure = segment_structure(segs)
+        p += [f'{tid}/{v}' for v in structure]
+        if scheduled:
+            expected_segments = [('riff', 'riff'), ('dynamics', 'dynamics'), ('long', 'long'),
+                                 ('ghost', 'ghost'), ('steady-open', 'steady'),
+                                 ('steady-fret5', 'steady'), ('vibrato', 'guard')]
+            if [(s.get('id'), s.get('kind')) for s in segs] != expected_segments:
+                p.append(f'{tid}: seven required segments must retain their ids, kinds and order')
+            nominal = {'guitar_dropA_A1': 55.0, 'bass_B0': 30.87, 'bass_dropA_A0': 27.5}.get(t.get('instrument'))
+            if t.get('lowest_note') != {'guitar_dropA_A1': 'A1', 'bass_B0': 'B0', 'bass_dropA_A0': 'A0'}.get(t.get('instrument')) or t.get('lowest_f0_hz') != nominal:
+                p.append(f'{tid}: preserve the nominal A1/B0/A0 tuning reference')
+            fifth = {'guitar_dropA_A1': 73.42, 'bass_B0': 41.2, 'bass_dropA_A0': 36.71}.get(t.get('instrument'))
+            for seg in segs:
+                expected_hint = {'steady-open': nominal, 'steady-fret5': fifth}.get(seg.get('id'))
+                if expected_hint is not None and seg.get('f0_hint_hz') != expected_hint:
+                    p.append(f'{tid}/{seg["id"]}: preserve nominal f0_hint_hz={expected_hint}')
+        detail = {'take': tid, 'declared_rate': t.get('rate'), 'audio': None, 'segments': []}
+        if details is not None: details.append(detail)
         if not t.get('wav'): p.append(f'{tid}: no recording (wav is null)'); continue
-        if not t['wav_path'].exists(): p.append(f'{tid}: {t["wav_path"]} missing'); continue
-        z, rate, issues = read_wav(t['wav_path'], t.get('channel', 0)); p += [f'{tid}: {i}' for i in issues]
+        if not t['wav_path'].is_file(): p.append(f'{tid}: {t["wav_path"]} missing'); continue
+        try:
+            z, rate, issues, audio = inspect_wav(t['wav_path'], t.get('channel', 0))
+        except (ValueError, OSError, IndexError, EOFError) as exc:
+            p.append(f'{tid}: unreadable WAV: {exc}'); continue
+        detail['audio'] = dict(audio, path=str(t['wav_path']), sha256=sha(t['wav_path']))
+        if scheduled:
+            digest = detail['audio']['sha256']
+            if digest in seen_audio:
+                p.append(f'{tid}: WAV content reused from {seen_audio[digest]}; separate native takes required')
+            seen_audio[digest] = tid
+        p += [f'{tid}: {i}' for i in issues]
         if t.get('rate') and t['rate'] != rate: p.append(f'{tid}: manifest rate {t["rate"]} != file {rate}')
-        for s in t['segments']:
-            if s['kind'] not in ROLES: p.append(f"{tid}/{s['id']}: unknown kind {s['kind']}")
-            else: p += [f'{tid}/{i}' for i in segment_issues(z, rate, s)]
-            if s['kind'] == 'steady' and not s.get('f0_hint_hz'): p.append(f"{tid}/{s['id']}: steady needs f0_hint_hz")
-        if not need_labels: continue
-        if not t.get('labels') or not t['labels_path'].exists(): p.append(f'{tid}: no reviewed labels'); continue
-        if not t.get('labels_reviewed'): p.append(f'{tid}: labels_reviewed is false')
-        lab = read_labels(t['labels_path'])
-        for s in t['segments']:
-            n = sum(round(s['start_s']*rate) <= v < round(s['end_s']*rate) for v in lab)
-            if s['kind'] in MIN_NOTES and n < MIN_NOTES[s['kind']]: p.append(f"{tid}/{s['id']}: {n} labels < {MIN_NOTES[s['kind']]}")
-            if s['kind'] in ('steady', 'guard') and n != 1: p.append(f"{tid}/{s['id']}: {s['kind']} needs exactly one label, has {n}")
-            if s['kind'] == 'steady' and n == 1:
-                v = next(v for v in lab if round(s['start_s']*rate) <= v < round(s['end_s']*rate))
-                if v+round(3.25*rate) > round(s['end_s']*rate): p.append(f"{tid}/{s['id']}: steady note needs 3.25 s after its label inside the segment")
+        if scheduled:
+            if audio['channels'] != 1: p.append(f'{tid}: scheduled DI must be mono')
+            note = t.get('take_note', {})
+            required = ['instrument_model', 'pickup', 'volume_tone', 'strings_age', 'pick_or_finger',
+                        'interface', 'input_gain', 'player', 'date', 'tuning_low_to_high', 'string_gauges',
+                        'scale_length', 'di_chain', 'daw_version', 'driver', 'wav_format']
+            if need_labels: required += ['label_reviewer', 'labels_reviewed_at']
+            missing = [k for k in required if not isinstance(note.get(k), str) or not note[k].strip()]
+            if missing: p.append(f'{tid}: missing take_note fields: {", ".join(missing)}')
+            if type(note.get('buffer_samples')) is not int or note['buffer_samples'] <= 0:
+                p.append(f'{tid}: record positive buffer_samples')
+            if not finite_number(note.get('riff_bpm')) or not 120 <= note['riff_bpm'] <= 180:
+                p.append(f'{tid}: record riff_bpm in the planned 120..180 range')
+            if note.get('native_recording_confirmed') is not True or note.get('capture_rate_hz') != rate:
+                p.append(f'{tid}: confirm separate native recording and capture_rate_hz (WAV header cannot prove no resampling)')
+        for seg in segs:
+            if seg.get('kind') not in ROLES: p.append(f"{tid}/{seg.get('id')}: unknown kind {seg.get('kind')}")
+            else:
+                problems, qc = inspect_segment(z, rate, seg, require_mutes=scheduled)
+                p += [f'{tid}/{i}' for i in problems]; detail['segments'].append(qc)
+            if seg.get('kind') == 'steady' and (not finite_number(seg.get('f0_hint_hz')) or seg['f0_hint_hz'] <= 0):
+                p.append(f"{tid}/{seg.get('id')}: steady needs positive f0_hint_hz")
+        if not need_labels or structure: continue
+        if not t.get('labels') or not t['labels_path'].is_file(): p.append(f'{tid}: no reviewed labels'); continue
+        if t.get('labels_reviewed') is not True: p.append(f'{tid}: labels_reviewed is false')
+        try:
+            lab = read_labels(t['labels_path'])
+        except (ValueError, OSError, KeyError) as exc:
+            p.append(f'{tid}: unreadable labels: {exc}'); continue
+        detail['labels_sha256'] = sha(t['labels_path'])
+        if lab != sorted(set(lab)): p.append(f'{tid}: retained labels must be unique and ordered')
+        for v in lab:
+            if not 0 <= v < len(z) or sum(round(s['start_s']*rate) <= v < round(s['end_s']*rate) for s in segs) != 1:
+                p.append(f'{tid}: retained label {v} is outside a unique segment')
+        for seg in segs:
+            on = [v for v in lab if round(seg['start_s']*rate) <= v < round(seg['end_s']*rate)]
+            n = len(on); kind = seg.get('kind'); sid = seg.get('id')
+            if kind in MIN_NOTES and n < MIN_NOTES[kind]: p.append(f'{tid}/{sid}: {n} labels < {MIN_NOTES[kind]}')
+            if kind in ('steady', 'guard') and n != 1: p.append(f'{tid}/{sid}: {kind} needs exactly one label, has {n}')
+            if kind == 'steady' and n == 1 and on[0]+round(3.25*rate) > round(seg['end_s']*rate):
+                p.append(f'{tid}/{sid}: steady note needs 3.25 s after its label inside the segment')
+            before, after = seg.get('silence_before_end_s'), seg.get('silence_after_start_s')
+            if finite_number(before) and finite_number(after) and any(v < round(before*rate) or v >= round(after*rate) for v in on):
+                p.append(f'{tid}/{sid}: retained label lies in a declared mute')
     return p
 
 def cmd_plan(a):
-    m = load_manifest(a.manifest); p = check(m)
-    print(json.dumps({'status': 'READY_TO_FREEZE' if not p else 'MISSING_INPUT', 'problems': p}, ensure_ascii=False, indent=1))
-    return 0
+    m = load_manifest(a.manifest); details = []
+    if getattr(a, 'out', None):
+        inputs = {Path(a.manifest).resolve()} | {t[k] for t in m['takes'] for k in ('wav_path', 'labels_path') if k in t}
+        if Path(a.out).resolve() in inputs: sys.exit('--out must not overwrite a manifest, recording or label input')
+    audio_only = getattr(a, 'audio_only', False)
+    p = check(m, need_labels=not audio_only, details=details)
+    report = {'kind': 'recording_input_QC_not_T6_evidence',
+              'status': 'MISSING_INPUT' if p else ('AUDIO_INPUT_READY_LABELS_NOT_CHECKED' if audio_only else 'READY_TO_FREEZE'),
+              'manifest_sha256': sha(Path(a.manifest)), 'problems': p, 'takes': details,
+              'limitations': ['No hardware, native-capture provenance, performance or sound-quality certification.',
+                             'Native rate must be confirmed by the recorder; resampling cannot be ruled out from WAV headers.',
+                             'Muted-edge RMS uses the existing -40 dB relative-to-segment-peak rule.']}
+    text = json.dumps(report, ensure_ascii=False, indent=1, allow_nan=False)+'\n'
+    print(text, end='')
+    if getattr(a, 'out', None): Path(a.out).write_text(text, encoding='utf-8')
+    return 1 if p and getattr(a, 'strict', False) else 0
 
 def cmd_label(a):
     m = load_manifest(a.manifest); t = next(t for t in m['takes'] if t['id'] == a.take)
+    problems = check({**m, 'takes': [t], 'recording_plan': None}, need_labels=False)
+    if problems: sys.exit('not ready for labeling:\n  ' + '\n  '.join(problems))
     z, rate, issues = read_wav(t['wav_path'], t.get('channel', 0))
     if issues: sys.exit(f'{a.take}: ' + '; '.join(issues))
     rows = []
@@ -148,7 +216,7 @@ def cmd_label(a):
         lo, hi = round(s['start_s']*rate), round(s['end_s']*rate)
         for v, r in reference_onsets(z[lo:hi], rate):
             rows.append({'sample': lo+v, 'time_s': f'{(lo+v)/rate:.5f}', 'segment': s['id'], 'rise_db': f'{r:.1f}', 'keep': 'yes', 'note': ''})
-    with open(a.out, 'w', newline='') as f:
+    with open(a.out, 'x', newline='', encoding='utf-8') as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]) if rows else ['sample', 'time_s', 'segment', 'rise_db', 'keep', 'note']); w.writeheader(); w.writerows(rows)
     print(f'{len(rows)} candidate onsets -> {a.out}. Review every row by ear/eye; set keep=no for non-attacks, add missed attacks, then set labels_reviewed=true.')
     return 0
@@ -160,14 +228,22 @@ def git_commit():
 def freeze_record(m, manifest, renderer, engine):
     return {'manifest_sha256': sha(Path(manifest)), 'renderer_sha256': sha(Path(renderer)), 'spec_sha256': sha(SPEC), 'engine': engine,
             'protocol_sha256': sha(ROOT/'docs'/'TRANSPOSE_T6_DI_PROTOCOL.md'), 'script_sha256': sha(Path(__file__)),
+            'metric_sources_sha256': {str(p.relative_to(ROOT)): sha(p) for p in
+                [Path(__file__).with_name(n) for n in ('di_input.py', 'di_comparison.py', 'evaluate.py', 'attack_snr.py',
+                 'legacy_metrics.py', 'weak_attack_holdout.py', 'latency_targets.py', 'weak_attack_study.py', 'low_band_delay.py')]},
+            'pdc_contract_sha256': sha(ROOT/'docs'/'TRANSPOSE_T6_PDC_CONTRACT.md'),
+            'runtime_versions': {'python': platform.python_version(), 'numpy': np.__version__, 'scipy': scipy.__version__},
             'takes': {t['id']: {'wav_sha256': sha(t['wav_path']), 'labels_sha256': sha(t['labels_path'])} for t in m['takes']}}
 
 def cmd_freeze(a):
     m = load_manifest(a.manifest); p = check(m)
+    if m.get('status') in ('TEMPLATE_NO_RECORDING', 'SELFTEST_SYNTHETIC'):
+        p.append('freeze requires an actual recorded-DI manifest, not a template or synthetic selftest')
     if p: sys.exit('not ready:\n  ' + '\n  '.join(p))
     rec = {'kind': 'T6_real_DI_preregistration', 'git_commit': git_commit(), **freeze_record(m, a.manifest, a.renderer.resolve(), a.engine),
            'rules': ['one run per engine', 'no change to labels, segments, metrics, criteria or parameters after seeing results', 'all failures reported']}
-    Path(a.out).write_text(json.dumps(rec, indent=1)+'\n'); print(f'pre-registered -> {a.out}. Commit and push it before `run`.')
+    with open(a.out, 'x', encoding='utf-8') as f: f.write(json.dumps(rec, indent=1)+'\n')
+    print(f'pre-registered -> {a.out}. Commit and push it before `run`.')
     return 0
 
 def render(renderer, x, rate, block, shift, engine, work):
@@ -205,6 +281,8 @@ def score_take(t, renderer, engine, shifts, block, before_ms, work):
         for shift in shifts:
             y, native, ish, osh = render(renderer, x, rate, block, shift, engine, work)
             row = {'take': t['id'], 'instrument': t.get('instrument'), 'segment': s['id'], 'kind': s['kind'], 'rate': rate, 'shift': shift,
+                   'segment_start_sample': lo, 'segment_end_sample_exclusive': hi,
+                   'label_samples_wav': [lo+v for v in on],
                    'roles': sorted(roles), 'labels': len(on), 'input_sha256': ish, 'output_sha256': osh,
                    'onset_resets': native['onset_resets'], 'low_onset_resets': native.get('low_onset_resets'),
                    'onset_association': associate(native['onset_samples'], on, rate, before_ms)}
@@ -212,6 +290,7 @@ def score_take(t, renderer, engine, shifts, block, before_ms, work):
                 extra = np.array(attacks(y, meta)['attack_lags_ms'])-np.array(before['attack_lags_ms'])
                 valid = np.array(before['attack_lags_ms']) <= 10
                 row['attack_valid_events'] = int(valid.sum()); row['attack_additional_ms'] = [float(v) for v in extra[valid]]
+                row['attack_label_samples_wav'] = [lo+v for v, ok in zip(on, valid) if ok]
                 row['attack_event_snr_db'] = [s for s, ok in zip(event_snrs(x, on, rate), valid) if ok]
             if roles & {'short', 'long'}: row['lowband_additional_ms'] = lowband_extra(x, y, on, rate)
             if 'steady' in roles: row['steady'] = steady_relative(x[:, 0], y[:, 0], rate, on[0], s['f0_hint_hz'], shift)
@@ -255,23 +334,34 @@ def evaluate_di(spec, rows):
           and len(unmatched) <= q['unmatched_resets_max'] and missed <= q['missed_events_max'] and low_extra <= q['low_resets_on_markers_max'])
     out.append({'id': q['id'], 'observed': obs, 'verdict': 'INSUFFICIENT' if not st else ('PASS' if ok else 'FAIL')})
     out.append({'id': 'T5_realtime', 'verdict': 'NOT_MEASURED_BY_THIS_SCRIPT'})
-    out.append({'id': 'T6_external', 'verdict': 'PARTIAL', 'observed': {'real_DI_metrics': 'this report', 'listening': 'NOT_RUN', 'DAW': 'NOT_RUN', 'fixed_PDC': 'NOT_IMPLEMENTED', 'product_integration': 'NOT_RUN'}})
+    out.append({'id': 'T6_external', 'verdict': 'PARTIAL', 'observed': {'real_DI_metrics': 'this report', 'listening': 'NOT_RUN', 'DAW': 'NOT_RUN', 'fixed_PDC': 'NOT_TESTED_IN_DAW', 'product_integration': 'NOT_RUN'}})
     return {'targets': out}
 
 def cmd_run(a):
     m = load_manifest(a.manifest); p = check(m)
+    if m.get('status') in ('TEMPLATE_NO_RECORDING', 'SELFTEST_SYNTHETIC'):
+        p.append('run requires actual recorded DI')
     if p: sys.exit('not ready:\n  ' + '\n  '.join(p))
     renderer = a.renderer.resolve()
     pre = json.loads(Path(a.prereg).read_text()); now = freeze_record(m, a.manifest, renderer, a.engine)
     diff = [k for k in now if now[k] != pre.get(k)]
     if diff: sys.exit(f'differs from pre-registration: {diff}')
+    # Existing evidence must never be silently overwritten. A failed attempt is
+    # retained for review too; the one-run rule also applies across directories.
+    if a.out.exists() and any(a.out.iterdir()): sys.exit('output directory must be new or empty')
     spec = json.loads(SPEC.read_text()); a.out.mkdir(parents=True, exist_ok=True); rows = []
+    (a.out/'attempt.json').write_text(json.dumps({'engine': a.engine, 'prereg_sha256': sha(Path(a.prereg)),
+                                                'status': 'STARTED'}, indent=1)+'\n')
     with tempfile.TemporaryDirectory() as w:
         for t in m['takes']: rows += score_take(t, renderer, a.engine, spec['conditions']['shifts'], spec['conditions']['block'], m.get('label_tolerance_before_ms', 2.), Path(w))
     report = evaluate_di(spec, rows)
     report.update(engine=a.engine, renderer_sha256=sha(renderer), spec_sha256=sha(SPEC), platform=platform.platform(), real_DI=True,
-                  preregistered=sha(Path(a.prereg)), listening='NOT_RUN', actual_DAW='NOT_RUN', fixed_PDC='NOT_IMPLEMENTED')
+                  preregistered=sha(Path(a.prereg)), listening='NOT_RUN', actual_DAW='NOT_RUN', fixed_PDC='NOT_TESTED_IN_DAW',
+                  recording_metadata={t['id']: {k: v for k, v in t.items() if k not in ('wav_path', 'labels_path')} for t in m['takes']})
+    report['comparison'] = comparison_summary(rows, next(t['event_snr_min_db'] for t in spec['targets'] if t['id'] == 'T1_attack'))
     (a.out/'results.json').write_text(json.dumps({'report': report, 'rows': rows}, indent=1)+'\n')
+    (a.out/'attempt.json').write_text(json.dumps({'engine': a.engine, 'prereg_sha256': sha(Path(a.prereg)),
+                                                'status': 'MEASUREMENTS_WRITTEN', 'results_sha256': sha(a.out/'results.json')}, indent=1)+'\n')
     for t in report['targets']: print(t['id'], t['verdict'], json.dumps(t.get('observed', {}), ensure_ascii=False))
     return 0
 
@@ -315,12 +405,16 @@ def cmd_selftest(a):
         rows = []
         for t in m['takes']: rows += score_take(t, a.renderer.resolve(), a.engine, [-2, 2], 128, 2., Path(w))
     report['targets'] = evaluate_di(spec, rows)['targets']; v = {t['id']: t['verdict'] for t in report['targets']}
+    report['comparison'] = comparison_summary(rows, next(t['event_snr_min_db'] for t in spec['targets'] if t['id'] == 'T1_attack'))
     report['ok'] = bool(not p and all(l['within_1ms'] == l['truth'] for l in report['labeler']) and all(v[k] == 'PASS' for k in ('T1_attack', 'T2_low_onset_down', 'T4_quality')))
     (out/'selftest.json').write_text(json.dumps(report, indent=1)+'\n'); print(json.dumps(report, indent=1)); return 0 if report['ok'] else 1
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter); sub = p.add_subparsers(dest='cmd', required=True)
     s = sub.add_parser('plan'); s.add_argument('--manifest', required=True); s.set_defaults(f=cmd_plan)
+    s.add_argument('--out', help='write measured input QC JSON')
+    s.add_argument('--strict', action='store_true', help='exit 1 when inputs are incomplete or invalid')
+    s.add_argument('--audio-only', action='store_true', help='check recording before labels exist; never READY_TO_FREEZE')
     s = sub.add_parser('label'); s.add_argument('--manifest', required=True); s.add_argument('--take', required=True); s.add_argument('--out', required=True); s.set_defaults(f=cmd_label)
     for name, f in (('freeze', cmd_freeze), ('run', cmd_run)):
         s = sub.add_parser(name); s.add_argument('--manifest', required=True); s.add_argument('--renderer', type=Path, required=True)

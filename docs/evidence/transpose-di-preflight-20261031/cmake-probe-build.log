@@ -1,0 +1,8 @@
+[ 14%] Building CXX object CMakeFiles/TransposeProbe.dir/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/TransposeProbe.cpp.o
+[ 28%] Building CXX object CMakeFiles/TransposeProbe.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_dsp/juce_dsp.cpp.o
+[ 42%] Building CXX object CMakeFiles/TransposeProbe.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_formats/juce_audio_formats.cpp.o
+[ 57%] Building CXX object CMakeFiles/TransposeProbe.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_basics/juce_audio_basics.cpp.o
+[ 71%] Building CXX object CMakeFiles/TransposeProbe.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_core/juce_core.cpp.o
+[ 85%] Building CXX object CMakeFiles/TransposeProbe.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_core/juce_core_CompilationTime.cpp.o
+[100%] Linking CXX executable TransposeProbe_artefacts/Release/TransposeProbe
+[100%] Built target TransposeProbe
