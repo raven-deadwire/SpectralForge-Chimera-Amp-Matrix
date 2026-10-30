@@ -1,0 +1,18 @@
+{
+  "status": "MISSING_INPUT",
+  "errors": [],
+  "missing": [
+    "guitar-A1-48k: no recording",
+    "bass-B0-48k: no recording",
+    "bass-A0-48k: no recording",
+    "guitar-A1-44k1: no recording",
+    "bass-B0-44k1: no recording",
+    "bass-A0-44k1: no recording",
+    "guitar-A1-96k: no recording",
+    "bass-B0-96k: no recording",
+    "bass-A0-96k: no recording",
+    "profile bass-clean-ir: real cabinet IR and provenance required"
+  ],
+  "recording_test_completed": false,
+  "listening_completed": false
+}

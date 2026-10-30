@@ -8,14 +8,14 @@ shows the strength when it is below 100% and `*` when anything is locked.
 ## Locks
 
 **Lock (Auto Set keeps these)** lists Input gain, Gate, Tone EQ, Compressor,
-Multiband, De-esser and Limiter. A locked setting is not part of the run's
+Multiband, De-esser, Limiter and Dynamic EQ (phase 6, `AUTO_SET_PHASE6.md`). A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
 later edit to a locked setting survives undo. A lock selected after the run
 also protects its stage from undo; unlocking an originally locked stage does
 not add an undo entry.
 
 - A pass whose outputs are all locked is skipped: locking Tone EQ removes the
-  Tone EQ pass, locking Compressor removes the compressor pass, locking both
+  Tone EQ pass (and the Dynamic EQ step, whose nodes are Tone EQ bands), locking Compressor removes the compressor pass, locking both
   De-esser and Limiter removes the last pass. The input pass runs unless
   both Input gain and Gate are locked.
 - Skipped passes appear in the results as "kept (locked)", in signal order.
@@ -44,6 +44,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Input gain | The change: before + strength × (result − before), in 0.5 dB steps |
 | Gate | Not scaled (threshold follows the applied input gain) |
 | Tone EQ | Every band gain; frequency, Q and type unchanged |
+| Dynamic EQ | Maximum cut; frequency, threshold, ratio and times unchanged |
 | Compressor | Mix = strength (parallel); threshold, ratio and times unchanged |
 | Multiband | Mix = strength (parallel); bands unchanged |
 | De-esser | Range (maximum reduction) |

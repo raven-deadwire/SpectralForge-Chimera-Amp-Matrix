@@ -1,0 +1,4 @@
+BASELINE_SUSTAIN 44100 node=80 range=9
+BASELINE_SUSTAIN 48000 node=80 range=9
+BASELINE_SUSTAIN 96000 node=80 range=9
+BASELINE_UNDO target=1 bandEnabled=0 bypass=1

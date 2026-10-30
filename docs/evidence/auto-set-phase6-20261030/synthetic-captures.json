@@ -1,0 +1,90 @@
+{
+  "kind": "SYNTHETIC_ONLY",
+  "real_di_completed": false,
+  "listening_completed": false,
+  "renderer_sha256": "c2764092cb02a9068f234ec193365379b7390398913628c2fd85c6ebcc04552d",
+  "cases": [
+    {
+      "rate": 44100,
+      "profile": "guitar-highgain-amp",
+      "fixture_sha256": "f6dce3789c5025b821b1ef6bf308cdee57d9a7262e3ba9a7702fdbca77eb3376",
+      "profile_sha256": "845c29257320ce11e946d1050ef9ada605a7c32ed35d25e9b3118dae3df80e66",
+      "capture_sha256": "e14ae1dd79023b168c9ece87f1ba51050bde831767ae75c59e0cfebe2155ef85",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 44100,
+      "profile": "guitar-highgain-v30",
+      "fixture_sha256": "f6dce3789c5025b821b1ef6bf308cdee57d9a7262e3ba9a7702fdbca77eb3376",
+      "profile_sha256": "95c47e7c478a251683c2a44fcb09a9ee2ae37e54c2045f14e149e4052c66dc4c",
+      "capture_sha256": "04b983c0a987409bc6df4138c0b3f657bfae9b7afec2f5c0c91a61a2ebb9b18e",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 44100,
+      "profile": "bass-clean-amp",
+      "fixture_sha256": "a94b5cc648aebf2096e0c97f57eed32554df7587d3b92f2ba43a497bf233a14a",
+      "profile_sha256": "828d0d0d0af4431808adf400e1ad2eb05aba6b87015cf3bd68d72588cbf9d838",
+      "capture_sha256": "46912b1d0825edcf37cce5cffa431fc07dceac7f48931193033f2cc3c5cfe582",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 48000,
+      "profile": "guitar-highgain-amp",
+      "fixture_sha256": "3d9e378c1a21123f577aa282a4406c5cf3b359b385af49e6c26fb4ed5d04a1d0",
+      "profile_sha256": "845c29257320ce11e946d1050ef9ada605a7c32ed35d25e9b3118dae3df80e66",
+      "capture_sha256": "64b85642e3999317d58763ead1190614a3761f5bd723f16438b75a8ed56f3f52",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 48000,
+      "profile": "guitar-highgain-v30",
+      "fixture_sha256": "3d9e378c1a21123f577aa282a4406c5cf3b359b385af49e6c26fb4ed5d04a1d0",
+      "profile_sha256": "95c47e7c478a251683c2a44fcb09a9ee2ae37e54c2045f14e149e4052c66dc4c",
+      "capture_sha256": "8dbc7a2304a8e0a8f5a9f386c165c6a8e2e9b5ad6fdea9e69bae542ae55f4e41",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 48000,
+      "profile": "bass-clean-amp",
+      "fixture_sha256": "0ce25ef74e3bb9e3af937a5a726de5cd2925b5a569590d04db3a0c8394ee96e6",
+      "profile_sha256": "828d0d0d0af4431808adf400e1ad2eb05aba6b87015cf3bd68d72588cbf9d838",
+      "capture_sha256": "50f3b44f463f629a0e1cd353d0628d793c6746fe9dbda16a9cea40ada566b3fa",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 96000,
+      "profile": "guitar-highgain-amp",
+      "fixture_sha256": "dc4e13c364d064e4f1564f64599725467b3a2501c7c1cf4c9766dcab68616d76",
+      "profile_sha256": "845c29257320ce11e946d1050ef9ada605a7c32ed35d25e9b3118dae3df80e66",
+      "capture_sha256": "9950f420a37e59c8887ef9fe7d7f44e8d2c6dd89caab651c2d94ffe988d0d982",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 96000,
+      "profile": "guitar-highgain-v30",
+      "fixture_sha256": "dc4e13c364d064e4f1564f64599725467b3a2501c7c1cf4c9766dcab68616d76",
+      "profile_sha256": "95c47e7c478a251683c2a44fcb09a9ee2ae37e54c2045f14e149e4052c66dc4c",
+      "capture_sha256": "423b3350dcb44a78beb7f696b525632cecf5306fe59562bc4ec0fc1bcff34a36",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    },
+    {
+      "rate": 96000,
+      "profile": "bass-clean-amp",
+      "fixture_sha256": "900e67b44538fb25c5281d6cd78436d21a07dcda1c20ad4c4686cf11e8cff316",
+      "profile_sha256": "828d0d0d0af4431808adf400e1ad2eb05aba6b87015cf3bd68d72588cbf9d838",
+      "capture_sha256": "da2bf66d5ce8779965ff7b451ff87b6dba4b7c4e6338d23420f7800d650daf41",
+      "nodes": [],
+      "maximum_reduction_db": 0.0
+    }
+  ],
+  "status": "PASS"
+}
