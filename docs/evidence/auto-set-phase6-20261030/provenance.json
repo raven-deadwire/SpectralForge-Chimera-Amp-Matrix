@@ -1,0 +1,25 @@
+{
+  "base_commit": "0b5ed0bcd5867d3a980716b5fab4056ee5b81c83",
+  "qualification_only": true,
+  "tested_working_tree": {
+    "Source/AutoSet.h": "80d73e050de5dab094b4b7aed679b5a291eca77bfcca710bc0d7ed40bebe8769",
+    "Source/AutoSetController.h": "c0cac9c20f0f22e64a9843447e2243d814169f831e943cc34eca8160608bd378",
+    "Source/PluginProcessor.cpp": "88f74f112a85bf4447a348e4bc2286949c3bba911243b10fdaa62a03e6f730a6",
+    "Source/GraphicalEQ.h": "a03dadea405f5b9b574ef178297337006e4dd33b1aed50a48572177c27d03e96",
+    "Tests/AutoSetTests.cpp": "92ca0b79f1440cd0d0c72296741bc3ad0cdb51e03950c3cf5863147b1ce29305",
+    "Tests/AutoSetDynamicEQRegression.h": "e9fea2ebd52e680cf370ff6e508d52d41aa2201d9d3227a7a17624564b497302",
+    "Tests/AutoSetDICommands.h": "7794eb6845767d28d59a1ac0b18f89444080a80e2d4845b87a5d9821f0b2bed5",
+    "Tests/test_auto_set_di_regression.py": "801fc1f4b83919ff87907277c51cd97c938e84c3a9e926a386fe15ffbf3d03b9",
+    "Tools/AutoSet/di_regression.py": "33f15741b01ebac6909c269c6467ddc2d69d74dd6c9cda0335c6ff1ad1e2b94c",
+    "Tools/AutoSet/synthetic_capture_smoke.py": "9d3c733fed529daae4e98badbe98f0fc091fd327f7820fa5770e999ba6a11e90",
+    "Validation/transpose-di-take-template.json": "58679380b80a4f4b1d899e1cacb45297ed7d515f108c51d7db1ffbbeb26c03f9",
+    "Validation/auto-set-phase6/guitar-highgain-v30.json": "95c47e7c478a251683c2a44fcb09a9ee2ae37e54c2045f14e149e4052c66dc4c",
+    "Validation/auto-set-phase6/spec.json": "d081919490c8aa968d9f61d53788295e4a0ec531ecd40077ee3a8fae1eaed55b",
+    "Validation/auto-set-phase6/bass-clean-amp.json": "828d0d0d0af4431808adf400e1ad2eb05aba6b87015cf3bd68d72588cbf9d838",
+    "Validation/auto-set-phase6/bass-clean-ir.json": "4cd19e595deca082a4cce0ce2462727b464ddca14b587b6a7c1ac1ec872515da",
+    "Validation/auto-set-phase6/guitar-highgain-amp.json": "845c29257320ce11e946d1050ef9ada605a7c32ed35d25e9b3118dae3df80e66"
+  },
+  "renderer_sha256": "c2764092cb02a9068f234ec193365379b7390398913628c2fd85c6ebcc04552d",
+  "real_di_completed": false,
+  "listening_completed": false
+}

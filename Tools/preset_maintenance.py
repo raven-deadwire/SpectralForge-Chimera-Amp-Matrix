@@ -52,9 +52,10 @@ ALLOWED_TESTS = frozenset({"Tests/GateProcessorTests.cpp", "Tests/GraphicalEQEdi
 # The owner requested the PR108 macOS timing investigation. Permit only this
 # reviewed diagnostic-I/O change; do not allow arbitrary tuner fixture/gate edits.
 # Digest updated for the owner-reviewed audio-time route gate
-# (docs/TUNER_TIMING_ATTRIBUTION.md).
+# (docs/TUNER_TIMING_ATTRIBUTION.md), then for the owner-approved stalled-worker
+# timing of f0ba8e9 (pause 1200 ms, resume wait 1500 ms; approved 2026-10-30).
 TUNER_DIAGNOSTICS_PATH = "Tests/PrecisionTunerIntegrationTests.cpp"
-TUNER_DIAGNOSTICS_SHA256 = "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60"
+TUNER_DIAGNOSTICS_SHA256 = "8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc"
 ALLOWED_DOCS = frozenset({"docs/PRESETS.md", "docs/MANUAL.html", "docs/COMMON_DYNAMICS_1_3_2.md",
     "docs/GRAPHICAL_EQ_1_3_1.md", "docs/SIGNAL_EQ_INTEGRATION_1_3_1.md", "docs/PRESET_DYNAMICS_EQ.md"})
 ADDITIONS = frozenset({RECIPE_PATH, POLICY_PATH, WORKFLOW_PATH,

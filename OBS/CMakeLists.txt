@@ -247,6 +247,12 @@ if(NOT CHIMERA_OBS_TEST_BUNDLE STREQUAL "")
   target_link_libraries(chimera-obs-host-tests PRIVATE chimera-host)
   add_test(NAME chimera-obs-host-tests COMMAND chimera-obs-host-tests "${CHIMERA_OBS_TEST_BUNDLE}")
 
+  # Writes a non-default Chimera state for the real OBS app test (tests/obs_app_test.py).
+  add_executable(chimera-obs-state-tool tests/state-tool.cpp)
+  target_include_directories(chimera-obs-state-tool PRIVATE src)
+  target_compile_options(chimera-obs-state-tool PRIVATE ${chimera_obs_warnings})
+  target_link_libraries(chimera-obs-state-tool PRIVATE chimera-host)
+
   if(WIN32)
     # Needs a desktop session, which CI's Windows runners provide.
     add_executable(chimera-obs-editor-tests tests/editor-tests-win32.cpp)

@@ -62,6 +62,9 @@ juce::AudioBuffer<float> read(const juce::File& file,double rate,int channels) {
 void fixture(const juce::File& f,double rate,bool stereo,bool longTail=false) {
     juce::AudioBuffer<float> b(stereo?2:1,longTail?int(rate):2048);b.clear();
     for(int c=0;c<b.getNumChannels();++c){b.setSample(c,13+c*31,c?-.3f:.7f);b.setSample(c,103+c*43,c?.17f:-.23f);b.setSample(c,b.getNumSamples()-1,c?-.09f:.12f);}
+    // A FileOutputStream appends to an existing file: start each fixture empty,
+    // or a reused build folder grows the long IR past the 4 MB import limit.
+    require(!f.existsAsFile() || f.deleteFile(),"fixture cleanup");
     juce::WavAudioFormat format;std::unique_ptr<juce::AudioFormatWriter> w(format.createWriterFor(f.createOutputStream().release(),rate,(unsigned)b.getNumChannels(),32,{},0));require(w && w->writeFromAudioSampleBuffer(b,0,b.getNumSamples()),"fixture");
 }
 void configure(ChimeraProcessor& p,int lane,int kind,const juce::File& mono,const juce::File& stereo,const juce::File& longIR) {
