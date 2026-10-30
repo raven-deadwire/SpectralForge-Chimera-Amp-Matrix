@@ -10,6 +10,13 @@
 namespace easyModeUITests {
 using namespace nativeUITests;
 inline float raw(ChimeraProcessor& p,const juce::String& id){return p.parameters().getRawParameterValue(id)->load();}
+// Dispatches until ready() holds; the deadline only bounds a real failure.
+// A fixed settle failed on macOS runners whose main run loop stalled for
+// about 1 s in the AppKit poll before the view refreshed.
+template<class Ready> void requireSoon(Ready&& ready,const char* failure) {
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
+    while(!ready()){require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);settle(20);}
+}
 inline void preference() {
     struct Temporary {
         juce::File folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("Chimera-easy-preference",{},false);
@@ -114,9 +121,9 @@ inline void firstBinding() {
     }
     // Legacy-engine project: the head panel is off, so the classic lane
     // controls are what the amp plays through.
-    set(*p,spectralforge::ampNativeEnabledID(0),0);set(*p,"amp1",1);settle(60);
-    require(view->boundParameter(0)=="drive1" && view->boundParameter(1)=="bass1" && view->boundParameter(2)=="lowmid1" && view->boundParameter(3)=="treble1",
-            "Legacy-engine project did not bind the classic lane controls");
+    set(*p,spectralforge::ampNativeEnabledID(0),0);set(*p,"amp1",1);
+    requireSoon([&]{return view->boundParameter(0)=="drive1" && view->boundParameter(1)=="bass1" && view->boundParameter(2)=="lowmid1" && view->boundParameter(3)=="treble1";},
+                "Legacy-engine project did not bind the classic lane controls");
     auto* gain=find<juce::Slider>(*view,"easy.knob.gain");require(gain->isEnabled(),"Legacy GAIN disabled");
     gain->setValue(gain->proportionOfLengthToValue(.7),juce::sendNotificationSync);
     require(std::abs(p->parameters().getParameter("drive1")->getValue()-.7f)<.01f,"Legacy GAIN did not edit drive");
@@ -145,8 +152,7 @@ inline void routingAndGestures() {
         require(view->boundParameter(0)==highTreble,"GAIN rebound in the middle of a drag");
         gain->setValue(gain->proportionOfLengthToValue(.4),juce::sendNotificationSync);
     }
-    settle(40);
-    require(view->boundParameter(0)==normal,"GAIN did not rebind after the drag ended");
+    requireSoon([&]{return view->boundParameter(0)==normal;},"GAIN did not rebind after the drag ended");
     require(events.begins>0 && events.begins==events.ends && events.balanced(),"Drag across a routing change left a host gesture open");
     require(std::abs(p->parameters().getParameter(highTreble)->getValue()-.4f)<.01f,"Held drag stopped editing its own parameter");
 
@@ -168,13 +174,14 @@ inline void laneTargets() {
     auto editor=openEditor(*p);editor->setEasyMode(true);settle(60);
     auto* view=find<EasyModeView>(*editor,"easyView");auto* note=find<juce::Label>(*view,"easy.targetNote");
     require(view->targetLane()==0 && note->getText().isEmpty(),"Classic target lane");
-    set(*p,"mode",1);settle(60);
-    require(view->targetLane()==0 && find<juce::Label>(*view,"easy.amp")->getText().contains("amp 1 of 2"),"Dual must target and name amp 1");
-    set(*p,"mute1",1);settle(40);require(note->getText().contains("muted"),"Muted target lane not explained");set(*p,"mute1",0);
-    set(*p,"solo2",1);settle(40);require(note->getText().contains("soloed"),"Soloed other lane not explained");set(*p,"solo2",0);
-    set(*p,"dualtype",0);set(*p,"dualblend",1);settle(40);require(note->getText().contains("BLEND"),"Blend away from amp 1 not explained");set(*p,"dualblend",.5f);
-    set(*p,"mode",2);settle(60);
-    require(view->targetLane()==1 && find<juce::Label>(*view,"easy.amp")->getText().contains("MID amp"),"Matrix must target and name the MID amp");
+    auto* amp=find<juce::Label>(*view,"easy.amp");require(amp!=nullptr,"Easy amp label missing");
+    set(*p,"mode",1);
+    requireSoon([&]{return view->targetLane()==0 && amp->getText().contains("amp 1 of 2");},"Dual must target and name amp 1");
+    set(*p,"mute1",1);requireSoon([&]{return note->getText().contains("muted");},"Muted target lane not explained");set(*p,"mute1",0);
+    set(*p,"solo2",1);requireSoon([&]{return note->getText().contains("soloed");},"Soloed other lane not explained");set(*p,"solo2",0);
+    set(*p,"dualtype",0);set(*p,"dualblend",1);requireSoon([&]{return note->getText().contains("BLEND");},"Blend away from amp 1 not explained");set(*p,"dualblend",.5f);
+    set(*p,"mode",2);
+    requireSoon([&]{return view->targetLane()==1 && amp->getText().contains("MID amp");},"Matrix must target and name the MID amp");
     // Only the target lane's parameters move.
     const auto before=signalPathTests::values(*p);
     auto* gain=find<juce::Slider>(*view,"easy.knob.gain");
@@ -228,9 +235,9 @@ inline void autoSetAndPresets() {
     const int id=spectralforge::presetDisplayOrder()[0]+1;presets->setSelectedId(id,juce::sendNotificationSync);settle(150);
     auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);settle(300);signalPathTests::click(*tuner);settle(300);
     require(presets->getSelectedId()==id,"Using the tuner turned the preset into CUSTOM");
-    auto* volume=find<juce::Slider>(*view,"easy.knob.volume");volume->setValue(volume->getValue()-3,juce::sendNotificationSync);settle(400);
-    require(presets->getSelectedId()==0 && presets->getText().contains(spectralforge::selectablePresetName(id-1)) && presets->getText().contains("edited"),
-            "Edited preset lost its name in Easy view");
+    auto* volume=find<juce::Slider>(*view,"easy.knob.volume");volume->setValue(volume->getValue()-3,juce::sendNotificationSync);
+    requireSoon([&]{return presets->getSelectedId()==0 && presets->getText().contains(spectralforge::selectablePresetName(id-1)) && presets->getText().contains("edited");},
+                "Edited preset lost its name in Easy view");
     editor.reset();p->releaseResources();
 }
 inline void startupPath() {
