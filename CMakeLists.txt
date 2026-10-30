@@ -655,6 +655,17 @@ add_test(NAME ChimeraDoublerStateLimiterTests COMMAND ChimeraCommonDynamicsTests
 set_tests_properties(ChimeraDoublerStateLimiterTests PROPERTIES TIMEOUT 240)
 add_test(NAME ChimeraMultibandDynamicsTests COMMAND ChimeraMultibandDynamicsTests)
 add_test(NAME ChimeraAutoSetTests COMMAND ChimeraAutoSetTests)
+# Optional independent BS.1770 oracle. This test dependency is never linked
+# into the product; CI installs libebur128-dev and requires the target.
+option(CHIMERA_LOUDNESS_REFERENCE_TESTS "Compare Auto Set with libebur128" OFF)
+if(CHIMERA_LOUDNESS_REFERENCE_TESTS)
+  find_path(EBUR128_INCLUDE_DIR ebur128.h REQUIRED)
+  find_library(EBUR128_LIBRARY ebur128 REQUIRED)
+  add_executable(ChimeraAutoSetLoudnessReferenceTests Tests/AutoSetLoudnessReferenceTests.cpp)
+  target_include_directories(ChimeraAutoSetLoudnessReferenceTests PRIVATE Source ${EBUR128_INCLUDE_DIR})
+  target_link_libraries(ChimeraAutoSetLoudnessReferenceTests PRIVATE ${EBUR128_LIBRARY})
+  add_test(NAME ChimeraAutoSetLoudnessReferenceTests COMMAND ChimeraAutoSetLoudnessReferenceTests)
+endif()
 add_executable(ChimeraMultibandDynamicsCoreTests Tests/MultibandDynamicsCoreTests.cpp)
 target_include_directories(ChimeraMultibandDynamicsCoreTests PRIVATE Source)
 target_compile_features(ChimeraMultibandDynamicsCoreTests PRIVATE cxx_std_20)

@@ -1,5 +1,6 @@
 #pragma once
 #include "GraphicalEQ.h"
+#include "AutoSetLoudness.h"
 #include <juce_dsp/juce_dsp.h>
 #include <algorithm>
 #include <array>
@@ -7,6 +8,7 @@
 #include <initializer_list>
 #include <cmath>
 #include <optional>
+#include <memory>
 #include <vector>
 
 namespace spectralforge::autoset {
@@ -16,10 +18,9 @@ namespace spectralforge::autoset {
 // The audio thread only reduces or copies samples; all decisions run elsewhere.
 
 struct Window {float peakDb{-120.f},rmsDb{-120.f};};
-// input/compressor/output/rig are reduced to 10 ms windows; tone, multiband,
-// deesser and master keep mono samples for spectral analysis (amp/cab output
-// before the Tone EQ, the multiband input, the de-esser input, the limiter
-// input). The sample taps share one ring.
+// input/compressor/output/rig are reduced to 10 ms windows. tone, multiband
+// and deesser retain mono samples at their stage inputs; master retains both
+// output channels at the limiter input. Sample taps share one ring.
 // rig: the amp/cab sum before any post-rig gate. master: the same point as
 // output (after the Final EQ and output trim), as samples.
 enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7};
@@ -47,7 +48,7 @@ public:
     // Audio thread. Mirrors the clean compressor detector: max of the channels.
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
-        if(sampleTap(tap)){pushSamples(channels,channelCount,samples);return;}
+        if(sampleTap(tap)){pushSamples(tap,channels,channelCount,samples);return;}
         auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
@@ -78,15 +79,23 @@ public:
         for(auto i=r;i!=w;++i)out.push_back(sampleRing[i%sampleCapacity]);
         sampleRead.store(w,std::memory_order_release);
     }
+    void drainOutput(std::vector<OutputFrame>& out) {
+        const auto r=sampleRead.load(std::memory_order_relaxed),w=sampleWrite.load(std::memory_order_acquire);
+        for(auto i=r;i!=w;++i)out.push_back({sampleRing[i%sampleCapacity],(*rightSampleRing)[i%sampleCapacity]});
+        sampleRead.store(w,std::memory_order_release);
+    }
 private:
     static size_t windowIndex(Tap tap) noexcept {return tap==Tap::rig?3:size_t(tap);}
-    void pushSamples(const float* const* channels,int channelCount,int samples) noexcept {
+    void pushSamples(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         const int used=std::min(2,channelCount);
         auto w=sampleWrite.load(std::memory_order_relaxed);
         for(int n=0;n<samples;++n) {
             if(w-sampleRead.load(std::memory_order_acquire)>=sampleCapacity)break;
-            float x=0;for(int c=0;c<used;++c)x+=channels[c][n];
-            x/=float(used);sampleRing[w%sampleCapacity]=std::isfinite(x)?x:0.f;++w;
+            float x=channels[0][n],right=0;
+            if(tap==Tap::master)right=used==2?channels[1][n]:0.f;
+            else {for(int c=1;c<used;++c)x+=channels[c][n];x/=float(used);}
+            sampleRing[w%sampleCapacity]=std::isfinite(x)?x:0.f;
+            (*rightSampleRing)[w%sampleCapacity]=std::isfinite(right)?right:0.f;++w;
         }
         sampleWrite.store(w,std::memory_order_release);
     }
@@ -96,6 +105,7 @@ private:
     };
     std::array<TapState,4> taps;
     std::array<float,sampleCapacity> sampleRing{};
+    std::unique_ptr<std::array<float,sampleCapacity>> rightSampleRing=std::make_unique<std::array<float,sampleCapacity>>();
     std::atomic<uint32_t> sampleWrite{0},sampleRead{0}; // unsigned difference works across wrap
     std::atomic<int> active{0};
     int windowSamples{480};
@@ -716,59 +726,36 @@ struct OutputResult {
     float rumbleExcessDb{},mudExcessDb{},airExcessDb{};
     bool loudnessMeasured{};
     float loudnessLufs{-70},peakDb{-120},eqLoudnessDeltaDb{},eqPeakDeltaDb{},trimChangeDb{};
-    bool peakLimited{}; // the trim was held back so the peaks stay below the limiter ceiling
+    bool peakLimited{},peakUnresolved{}; // locks/range may prevent reaching the sample-peak ceiling
+    float predictedLufs{-70},predictedPeakDb{-120};
     int activeMoves() const noexcept {int n=0;for(const auto& m:moves)n+=m.active;return n;}
 };
 inline constexpr float outputTargetLufs=-18.f,outputMaxTrimChangeDb=12.f,outputMinTrimChangeDb=1.f,finalMaxMoveDb=3.f,finalMinMoveDb=1.f;
-// ITU-R BS.1770 K-weighting (pre-filter shelf and RLB high pass), redesigned
-// for any rate from the standard's 48 kHz analogue parameters.
-inline std::array<EQCoefficients,2> kWeighting(double rate) {
-    const double pi=juce::MathConstants<double>::pi;
-    double k=std::tan(pi*1681.974450955533/rate);const double q=.7071752369554196,vh=std::pow(10.,3.999843853973347/20.),vb=std::pow(vh,.4996667741545416);
-    double a0=1+k/q+k*k;
-    const EQCoefficients shelf{(vh+vb*k/q+k*k)/a0,2*(k*k-vh)/a0,(vh-vb*k/q+k*k)/a0,2*(k*k-1)/a0,(1-k/q+k*k)/a0};
-    k=std::tan(pi*38.13547087602444/rate);const double qh=.5003270373238773;a0=1+k/qh+k*k;
-    const EQCoefficients highPass{1,-2,1,2*(k*k-1)/a0,(1-k/qh+k*k)/a0};
-    return {shelf,highPass};
-}
 inline float finalResponseDb(const std::array<FinalMove,3>& moves,float frequency,double rate) {
     double db=0;
     for(const auto& m:moves)if(m.active)db+=20*std::log10(std::max(1e-9,eqCoefficients(m.type,m.frequency,m.gainDb,m.q,rate).magnitude(frequency,rate)));
     return float(db);
 }
-// Gated integrated loudness (400 ms blocks, 75% overlap, -70 LUFS absolute
-// and -10 LU relative gates) of the mono channel mean, reported for the
-// stereo output it stands for (both channels equal: +3 dB).
-inline std::optional<float> integratedLoudness(const std::vector<float>& samples,double rate) {
-    auto k=kWeighting(rate);std::array<double,4> z{};
-    std::vector<double> squared(samples.size());
-    for(size_t n=0;n<samples.size();++n) {
-        double y=samples[n];
-        for(int s=0;s<2;++s){auto& c=k[size_t(s)];double& z1=z[size_t(2*s)];double& z2=z[size_t(2*s+1)];const double out=c.b0*y+z1;z1=c.b1*y-c.a1*out+z2;z2=c.b2*y-c.a2*out;y=out;}
-        squared[n]=y*y;
+// Voicing uses summed channel powers, so phase and pan cannot hide a band.
+inline Spectrum measureOutputSpectrum(const std::vector<OutputFrame>& samples,double rate,std::optional<bool> bass) {
+    std::array<Spectrum,2> measured;
+    for(size_t c=0;c<2;++c) {
+        std::vector<float> channel;channel.reserve(samples.size());
+        for(const auto& frame:samples)channel.push_back(frame[c]);
+        measured[c]=measureSpectrum(channel,rate,bass);
     }
-    const size_t block=size_t(rate*.4),hop=size_t(rate*.1);
-    if(block==0 || hop==0 || samples.size()<block)return std::nullopt;
-    const auto lufs=[](double meanSquare){return -.691+10*std::log10(std::max(1e-30,2*meanSquare));};
-    std::vector<double> blocks;double sum=0;
-    for(size_t n=0;n<block;++n)sum+=squared[n];
-    for(size_t start=0;;start+=hop) {
-        if(lufs(sum/double(block))>-70)blocks.push_back(sum/double(block));
-        if(start+hop+block>squared.size())break;
-        for(size_t n=start;n<start+hop;++n)sum-=squared[n];
-        for(size_t n=start+block;n<start+block+hop;++n)sum+=squared[n];
+    if(!measured[0].playing)return measured[1];
+    if(!measured[1].playing)return measured[0];
+    Spectrum result;result.playing=true;
+    result.bass=bass.value_or(measured[0].strongestDb>=measured[1].strongestDb?measured[0].bass:measured[1].bass);
+    for(size_t b=0;b<result.bandsDb.size();++b) {
+        result.bandsDb[b]=float(10*std::log10(std::pow(10.,measured[0].bandsDb[b]/10.)+std::pow(10.,measured[1].bandsDb[b]/10.)));
+        result.strongestDb=std::max(result.strongestDb,result.bandsDb[b]);
     }
-    if(blocks.size()<10)return std::nullopt;
-    double mean=0;for(const auto b:blocks)mean+=b;mean/=double(blocks.size());
-    const double relative=lufs(mean)-10;double gated=0;int count=0;
-    for(const auto b:blocks)if(lufs(b)>relative){gated+=b;++count;}
-    return count>=10?std::optional<float>(float(lufs(gated/count))):std::nullopt;
+    return result;
 }
-// samples: mono limiter input, at the current output trim.
-inline OutputResult analyseOutput(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock) {
-    OutputResult r;
-    const auto spectrum=measureSpectrum(samples,rate,bass);
-    r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
+inline OutputResult analyseFinalVoicing(const Spectrum& spectrum,double rate,Style style) {
+    OutputResult r;r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
     if(!r.playingDetected)return r;
     // Align the style target on 630 Hz-2 kHz, above the low-mid region this
     // pass judges, so a low-mid bump does not make the top look dark.
@@ -801,31 +788,62 @@ inline OutputResult analyseOutput(const std::vector<float>& samples,double rate,
         r.airExcessDb=*air;
         if(const float g=step(-.5f*r.airExcessDb);g!=0.f)r.moves[2]={2,r.bass?5000.f:8000.f,g,.70710678f,true};
     }
-    // Loudness and peaks as heard, then the change the moves make: band powers
-    // weighted by K-weighting, through the moves' response.
-    const auto loudness=integratedLoudness(samples,rate);
-    float peak=0;for(const float x:samples)peak=std::max(peak,std::abs(x));
-    r.peakDb=toDb(peak);
-    if(!loudness)return r;
-    r.loudnessMeasured=true;r.loudnessLufs=*loudness;
-    const auto k=kWeighting(rate);double before=0,after=0,peakGain=1;
-    for(int b=0;b<toneBandCount;++b) {
-        const float fc=toneBandCentres[size_t(b)];if(fc>=rate*.45)continue;
-        const double kw=k[0].magnitude(fc,rate)*k[1].magnitude(fc,rate),power=std::pow(10.,spectrum.bandsDb[size_t(b)]/10.)*kw*kw;
-        const double gain=std::pow(10.,finalResponseDb(r.moves,fc,rate)/20.);
-        before+=power;after+=power*gain*gain;
-        if(spectrum.bandsDb[size_t(b)]>spectrum.strongestDb-20.f)peakGain=std::max(peakGain,gain);
-    }
-    r.eqLoudnessDeltaDb=before>0?float(10*std::log10(after/before)):0.f;
-    r.eqPeakDeltaDb=float(20*std::log10(peakGain));
-    float change=outputTargetLufs-(r.loudnessLufs+r.eqLoudnessDeltaDb);
-    // Leave the peaks below the limiter's ceiling: the trim sets the level,
-    // the limiter only catches the occasional peak.
-    const float headroom=limiterCeilingDb-(r.peakDb+r.eqPeakDeltaDb);
-    if(change>headroom){change=headroom;r.peakLimited=true;}
-    change=std::round(std::clamp(change,-outputMaxTrimChangeDb,outputMaxTrimChangeDb)*2.f)*.5f;
-    r.trimChangeDb=std::abs(change)<outputMinTrimChangeDb?0.f:change;
     return r;
+}
+// Render only the NEW, actually applicable static moves on the captured audio.
+// This captures transient overshoot and gating changes missed by band estimates.
+inline std::vector<OutputFrame> renderFinalMoves(const std::vector<OutputFrame>& samples,
+                                                const std::array<FinalMove,3>& moves,double rate) {
+    auto rendered=samples;
+    for(const auto& move:moves)if(move.active) {
+        const auto c=eqCoefficients(move.type,move.frequency,move.gainDb,move.q,rate);
+        std::array<std::array<double,2>,2> z{};
+        for(auto& frame:rendered)for(size_t channel=0;channel<2;++channel) {
+            const double x=frame[channel],y=c.b0*x+z[channel][0];
+            z[channel][0]=c.b1*x-c.a1*y+z[channel][1];z[channel][1]=c.b2*x-c.a2*y;
+            frame[channel]=float(y);
+        }
+    }
+    return rendered;
+}
+inline float outputSamplePeak(const std::vector<OutputFrame>& samples) {
+    float peak=0;for(const auto& frame:samples)for(const auto x:frame)peak=std::max(peak,std::abs(x));
+    return toDb(peak);
+}
+inline void planOutputCorrection(OutputResult& r,const std::vector<OutputFrame>& samples,double rate,
+                                 const std::array<FinalMove,3>& appliedMoves,float strength=1,float trimBefore=0,bool trimLocked=false) {
+    const auto before=measureLoudness(samples,rate);
+    const auto rendered=renderFinalMoves(samples,appliedMoves,rate);
+    const auto after=measureLoudness(rendered,rate);
+    r.loudnessMeasured=r.playingDetected && before.lufs && after.lufs && before.gatedBlocks>=10 && after.gatedBlocks>=10;
+    r.loudnessLufs=before.lufs.value_or(-70.f);r.peakDb=outputSamplePeak(samples);
+    r.eqLoudnessDeltaDb=before.lufs && after.lufs?*after.lufs-*before.lufs:0.f;
+    r.eqPeakDeltaDb=outputSamplePeak(rendered)-r.peakDb;
+    const float headroom=limiterCeilingDb-outputSamplePeak(rendered);
+    float change=r.loudnessMeasured?std::clamp(outputTargetLufs-*after.lufs,-outputMaxTrimChangeDb,outputMaxTrimChangeDb):0.f;
+    change=std::round(change*2.f)*.5f;
+    if(std::abs(change)<outputMinTrimChangeDb)change=0;
+    change=std::round(change*strength*2.f)*.5f;
+    // Peak safety has priority over strength, the 1 dB deadband and rounding.
+    // Round toward attenuation; a +0.24 dB round-up can already break the ceiling.
+    r.peakLimited=change>headroom;
+    if(r.peakLimited)change=std::floor(headroom*2.f)*.5f;
+    change=std::clamp(change,-outputMaxTrimChangeDb,outputMaxTrimChangeDb);
+    const float trim=trimLocked?trimBefore:std::clamp(trimBefore+change,-36.f,12.f);
+    r.trimChangeDb=trim-trimBefore;
+    r.peakUnresolved=outputSamplePeak(rendered)+r.trimChangeDb>limiterCeilingDb+.001f;
+    r.predictedLufs=after.lufs.value_or(-70.f)+r.trimChangeDb;
+    r.predictedPeakDb=outputSamplePeak(rendered)+r.trimChangeDb;
+}
+inline OutputResult analyseOutput(const std::vector<OutputFrame>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock) {
+    if(!std::isfinite(rate) || rate<8000 || rate>768000)return {};
+    auto r=analyseFinalVoicing(measureOutputSpectrum(samples,rate,bass),rate,style);
+    planOutputCorrection(r,samples,rate,r.moves);
+    return r;
+}
+// A vector of samples is one actual output channel, not an implied stereo pair.
+inline OutputResult analyseOutput(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock) {
+    return analyseOutput(monoOutput(samples),rate,bass,style);
 }
 
 }
