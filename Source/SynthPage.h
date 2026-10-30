@@ -176,7 +176,7 @@ public:
             g.setColour(mutedColour);g.drawText(synthWaveLabel(position()).toUpperCase(),getLocalBounds().reduced(6,2),juce::Justification::topRight);
             return;
         }
-        const auto* sample=processor.synthEngine().sample(osc);
+        const auto sample=processor.synthEngine().sharedSample(osc);   // kept alive while drawn
         if(sample==nullptr){g.setColour(mutedColour);g.drawText("DROP AN AUDIO FILE OR PRESS LOAD",getLocalBounds(),juce::Justification::centred);return;}
         const float h=r.getHeight()*.42f,cx=r.getCentreY(),w=r.getWidth()-8;
         const float startX=r.getX()+4+w*start.value()*.01f;
@@ -457,7 +457,7 @@ public:
         g.setFont(juce::FontOptions(9.f));
         for(int o=0;o<synthOscCount;++o){
             const auto& p=oscPanels[size_t(o)];if(!p.loop->isVisible())continue;
-            const auto* sample=processor.synthEngine().sample(o);
+            const auto sample=processor.synthEngine().sharedSample(o);
             const auto area=p.shapes->getBounds().withTrimmedLeft(p.loop->getWidth()+p.root->getWidth()+8);
             g.setColour(mutedColour);
             g.drawText(sample==nullptr?juce::String("NO SAMPLE"):sample->detectedHz>0?"FOUND "+juce::String(sample->detectedHz,1)+" Hz":juce::String("NO PITCH FOUND"),area,juce::Justification::centredLeft);

@@ -185,9 +185,11 @@ Fixes made while testing:
     often do not re-encode it each time.
   - If the samples push the state past its 64 MB budget, the project is saved
     without them instead of not at all.
-- **Not changed:** a host that saves or restores the state off the message
-  thread while the page loads a sample could race; the sample is read there
-  without the lock.
+- **Threads:** samples are shared references. The page and the state save
+  hold a reference while they use a sample, so a host that saves or restores
+  the state on another thread while the page loads one cannot free it under
+  them. The audio thread still reads through its non-blocking try-lock and
+  never holds a reference, so it never frees a sample.
 
 ## Not done
 
