@@ -61,6 +61,7 @@ inline juce::Result load(const juce::File& file, std::unique_ptr<SynthSample>& r
 // 24-bit FLAC of a sample. Peaks above full scale are scaled into range and
 // `gain` restores them (integer FLAC would clip them). Cached on the sample.
 inline bool encode(const SynthSample& sample) {
+    const std::lock_guard<std::mutex> lock(sample.encodeMutex);
     if (sample.encoded.getSize() > 0) return true;
     float peak = 0.f;
     for (const auto& channel : sample.data) for (const float x : channel) peak = std::max(peak, std::abs(x));
@@ -89,7 +90,7 @@ inline bool encode(const SynthSample& sample) {
 inline juce::ValueTree save(const SynthLayer& synth) {
     juce::ValueTree tree("SYNTH_SAMPLES");
     for (int o = 0; o < synthOscCount; ++o) {
-        const auto* sample = synth.sample(o);if (sample == nullptr || !encode(*sample)) continue;
+        const auto sample = synth.sharedSample(o);if (sample == nullptr || !encode(*sample)) continue;
         juce::ValueTree item("SAMPLE");
         item.setProperty("osc", o, nullptr);item.setProperty("name", sample->name, nullptr);item.setProperty("flac", sample->encoded, nullptr);
         if (sample->encodedGain != 1.f) item.setProperty("gain", sample->encodedGain, nullptr);

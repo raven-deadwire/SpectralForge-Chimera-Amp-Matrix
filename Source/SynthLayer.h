@@ -8,6 +8,7 @@
 #include <cmath>
 #include <complex>
 #include <memory>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -136,8 +137,9 @@ struct SynthSample {
     std::array<std::vector<float>, 2> data;   // data[1] is empty for a mono sample
     std::array<std::pair<float, float>, overviewColumns> overview{};
     bool stereo() const noexcept { return !data[1].empty(); }
-    // The state's encoding (synthSample::save), made once: a sample never changes.
-    mutable juce::MemoryBlock encoded;mutable float encodedGain{1.f};
+    // The state's encoding (synthSample::save), made once: a sample never
+    // changes. The mutex covers two threads saving at once.
+    mutable juce::MemoryBlock encoded;mutable float encodedGain{1.f};mutable std::mutex encodeMutex;
 };
 
 // Parameters. All automatable; every default is the Init patch.
@@ -443,15 +445,24 @@ public:
         }
         return s;
     }
-    // Message thread: installs `next` (or none) in an oscillator and returns
-    // the sample it replaces, for the caller to destroy.
-    std::unique_ptr<SynthSample> swapSample(int osc, std::unique_ptr<SynthSample> next) {
-        const juce::SpinLock::ScopedLockType lock(sampleLock);
+    // Any thread but the audio thread: installs `next` (or none) in an
+    // oscillator and returns the sample it replaces. The audio thread never
+    // holds a reference, so the last owner (the caller, or a page still
+    // drawing it) frees it, never the audio thread.
+    std::shared_ptr<const SynthSample> swapSample(int osc, std::shared_ptr<const SynthSample> next) {
+        const juce::SpinLock::ScopedLockType audio(sampleLock);
+        const juce::SpinLock::ScopedLockType reference(referenceLock);
         std::swap(samples[size_t(juce::jlimit(0, synthOscCount - 1, osc))], next);
         return next;
     }
-    // Message thread (the only writer): the oscillator's sample, or null.
-    const SynthSample* sample(int osc) const noexcept { return samples[size_t(juce::jlimit(0, synthOscCount - 1, osc))].get(); }
+    // Any thread but the audio thread: a reference that keeps the sample alive
+    // while it is drawn or saved, even if another thread replaces it.
+    std::shared_ptr<const SynthSample> sharedSample(int osc) const {
+        const juce::SpinLock::ScopedLockType reference(referenceLock);
+        return samples[size_t(juce::jlimit(0, synthOscCount - 1, osc))];
+    }
+    // The oscillator's sample, or null; valid until the next swap (tests).
+    const SynthSample* sample(int osc) const noexcept { return sharedSample(osc).get(); }
     // Host MIDI for this block, applied at the block start.
     void handleMidi(const juce::MidiBuffer& midi) noexcept {
         for (const auto metadata : midi) {
@@ -865,8 +876,9 @@ private:
     std::array<float, synthInsertCount> gain{};
     bool toMain{true}, toBus{};float busGain{};
     std::array<std::atomic<float>, scopeLength> scope{};std::atomic<int> scopeWrite{0};
-    juce::SpinLock sampleLock;
-    std::array<std::unique_ptr<SynthSample>, synthOscCount> samples;
+    juce::SpinLock sampleLock;               // the audio thread's try-lock for a block
+    mutable juce::SpinLock referenceLock;    // copying a reference (never the audio thread)
+    std::array<std::shared_ptr<const SynthSample>, synthOscCount> samples;
     std::array<const SynthSample*, synthOscCount> playing{};   // valid during render() only
 };
 
