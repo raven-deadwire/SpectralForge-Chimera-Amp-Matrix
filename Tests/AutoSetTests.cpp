@@ -331,7 +331,8 @@ void gateStageRules() {
 }
 void captureWindows() {
     for(double rate:{44100.,48000.,96000.}) {
-        Capture capture;capture.prepare(rate);
+        // Two 512 KB sample rings: on the heap, as in the processor (a 1 MB stack overflows).
+        auto owned=std::make_unique<Capture>();auto& capture=*owned;capture.prepare(rate);
         std::vector<float> left(static_cast<size_t>(rate)),right(static_cast<size_t>(rate));
         for(size_t n=0;n<left.size();++n){left[n]=float(.5*std::sin(2*juce::MathConstants<double>::pi*220*double(n)/rate));right[n]=.25f*left[n];}
         const float* channels[2]{left.data(),right.data()};
