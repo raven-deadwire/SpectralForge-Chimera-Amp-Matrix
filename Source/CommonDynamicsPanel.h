@@ -89,7 +89,7 @@ public:
         toggle(mbOn,"MULTIBAND ON","mbOn");choice(mbDetector,"mbDetector",{"Peak","RMS"});control(mbMix,"mbMix","Parallel mix");
         mbOn.setTooltip("Turn the full multiband stage on or off with a smooth 10 ms transition. Off preserves the original samples.");
         mbMix.slider.setTooltip("Blend the unprocessed and processed band gains. At 0%, dynamics and makeup are removed; band solo remains active. With no solo selection, 0% returns the original samples.");
-        for(int cross=0;cross<3;++cross) {
+        for(int cross=0;cross<multibandMaxCrossovers;++cross) {
             control(crossovers[size_t(cross)],"mbCrossover"+juce::String(cross+1),"Crossover "+juce::String(cross+1)+" Hz");
             crossovers[size_t(cross)].slider.setTooltip("Target crossover. The boundaries stay ordered; the spectrum marker shows the applied frequency while changes settle.");
         }
@@ -100,12 +100,16 @@ public:
         if(state.getParameter("mbLink"))mbLinkAttachment=std::make_unique<SA>(state,"mbLink",mbLink);else mbLink.setEnabled(false);
         mbLink.setNumDecimalPlacesToDisplay(0);
         mbLink.setTooltip("Stereo link: at 100% both channels follow the louder detector (the original linked behaviour); at 0% each channel (or M and S) follows its own.");
-        mbBandSelector.addItemList({"Band 1 / LOW","Band 2 / LOW MID","Band 3 / HIGH MID","Band 4 / HIGH"},1);
+        mbBandSelector.addItemList({"Band 1 / LOW","Band 2 / LOW MID","Band 3 / HIGH MID","Band 4 / HIGH","Band 5","Band 6"},1);
         mbBandSelector.setComponentID("commonDynamics.multibandBand");mbBandSelector.setSelectedId(1,juce::dontSendNotification);addChildComponent(mbBandSelector);
-        mbBandSelector.onChange=[this]{selectedMBBand=std::clamp(mbBandSelector.getSelectedId()-1,0,3);syncPage();refresh();};
+        mbBandSelector.onChange=[this]{selectedMBBand=std::clamp(mbBandSelector.getSelectedId()-1,0,shownMBBands-1);syncPage();refresh();};
+        // Six-band expansion (docs/SIX_BAND_1_5.md).
+        choice(mbBandCount,"mbBandCount",{"4 BANDS","6 BANDS"});
+        mbBandCount.setTooltip("Four or six bands. Six adds crossovers 4 and 5 above crossover 3, and bands 5 and 6. Changing it fades the stage out and back in (about 50 ms).");
+        applyMBBandCount(4);
         constexpr std::array<const char*,7> mbFields{"threshold","ratio","attack","release","range","knee","makeup"};
         constexpr std::array<const char*,7> mbNames{"Threshold dB","Ratio","Attack ms","Release ms","Range dB","Knee dB","Makeup dB"};
-        for(int band=0;band<4;++band) {
+        for(int band=0;band<multibandMaxBandCount;++band) {
             auto& ui=mbBands[size_t(band)];const auto prefix="mbBand"+juce::String(band+1)+"_";
             toggle(ui.bypass,"BYPASS BAND",prefix+"bypass");toggle(ui.solo,"SOLO BAND",prefix+"solo");
             choice(ui.mode,prefix+"mode",{"Downward compression","Upward compression","Downward expansion","Upward expansion"});
@@ -210,7 +214,7 @@ public:
         if(onPageSelected)onPageSelected(next);
     }
     void setMeterProvider(std::function<float(DynamicsStage)> provider){meterProvider=std::move(provider);}
-    void setMultibandProviders(std::function<std::array<float,3>()> crossoverProvider,std::function<float(int)> reductionProvider) {
+    void setMultibandProviders(std::function<std::array<float,multibandMaxCrossovers>()> crossoverProvider,std::function<float(int)> reductionProvider) {
         effectiveCrossovers=std::move(crossoverProvider);mbReductionProvider=std::move(reductionProvider);
     }
     std::function<void(Page)> onPageSelected;
@@ -274,8 +278,10 @@ public:
             for(size_t field=0;field<band.controls.size();++field)band.controls[field].bounds(sideX+int(field%2)*(column+12),158+int(field/2)*61,column);
         }
         mbMix.bounds(sideX+column+12,341,column);
-        const int crossWidth=(sideX-32)/3;
-        for(int cross=0;cross<3;++cross)crossovers[size_t(cross)].bounds(18+cross*crossWidth,getHeight()-56,crossWidth-12);
+        // Bottom row: the band count, then the active crossovers.
+        mbBandCount.setBounds(18,getHeight()-36,96,28);
+        const int crossCount=shownMBBands-1,crossWidth=(sideX-32-108)/crossCount;
+        for(int cross=0;cross<crossCount;++cross)crossovers[size_t(cross)].bounds(126+cross*crossWidth,getHeight()-56,crossWidth-12);
         satOn.setBounds(18,45,153,28);satBandSelector.setBounds(180,45,170,28);satQuality.setBounds(358,45,110,28);
         for(auto& band:satBands){band.type.setBounds(sideX,89,sideWidth,28);band.drive.bounds(sideX,130,sideWidth);}
         satMix.bounds(sideX,195,column);satOutput.bounds(sideX+column+12,195,column);
@@ -302,7 +308,7 @@ public:
             const int sideX=std::max(600,getWidth()-338);g.drawVerticalLine(sideX-10,85.f,float(getHeight()-12));
             g.setFont(juce::FontOptions(12.f));g.setColour(muted);
             if(autoText.isNotEmpty() && autoPage())g.drawFittedText(autoText,532,41,std::max(1,getWidth()-770),38,juce::Justification::centredLeft,2);
-            else {const int x=page==Page::multiband?636:page==Page::filter?652:532;g.drawText(contextText(),x,47,std::max(1,getWidth()-770-(x-532)),25,juce::Justification::centredLeft);}
+            else {const int x=page==Page::multiband?732:page==Page::filter?652:532;g.drawText(contextText(),x,47,std::max(1,getWidth()-770-(x-532)),25,juce::Justification::centredLeft);}
             g.setColour(text);g.setFont(juce::FontOptions(14.f,juce::Font::bold));
             const auto meter=currentReduction<0?"GAIN "+juce::String(-currentReduction,1)+" dB":"GR "+juce::String(currentReduction,1)+" dB";
             if(page!=Page::saturation && page!=Page::filter)g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);   // saturation has no gain reduction
@@ -385,8 +391,9 @@ private:
         limiterOn.setVisible(page==Page::limiter);ceiling.show(page==Page::limiter);limitRelease.show(page==Page::limiter);
         preOn.setVisible(page==Page::preCompressor);postOn.setVisible(page==Page::postCompressor);showControls(pre,page==Page::preCompressor);showControls(post,page==Page::postCompressor);
         lowAmount.show(page==Page::lowCompressor);lowBlend.show(page==Page::lowCompressor);
-        const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbStereo.setVisible(mb);mbLink.setVisible(mb);mbBandSelector.setVisible(mb);mbMix.show(mb);showControls(crossovers,mb);
-        for(int band=0;band<4;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);ui.channels.setVisible(showing);showControls(ui.controls,showing);}
+        const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbStereo.setVisible(mb);mbLink.setVisible(mb);mbBandSelector.setVisible(mb);mbBandCount.setVisible(mb);mbMix.show(mb);
+        for(int cross=0;cross<multibandMaxCrossovers;++cross)crossovers[size_t(cross)].show(mb && cross<shownMBBands-1);
+        for(int band=0;band<multibandMaxBandCount;++band){auto& ui=mbBands[size_t(band)];const bool showing=mb && band==selectedMBBand;ui.bypass.setVisible(showing);ui.solo.setVisible(showing);ui.mode.setVisible(showing);ui.channels.setVisible(showing);showControls(ui.controls,showing);}
         const bool sat=page==Page::saturation;satOn.setVisible(sat);satQuality.setVisible(sat);satBandSelector.setVisible(sat);satMix.show(sat);satOutput.show(sat);showControls(satCrossovers,sat);
         for(int band=0;band<3;++band){auto& ui=satBands[size_t(band)];const bool showing=sat && band==selectedSatBand;ui.type.setVisible(showing);ui.drive.show(showing);}
         const bool flt=page==Page::filter;fltOn.setVisible(flt);fltSelector.setVisible(flt);fltRouting.setVisible(flt);fltLfoShape.setVisible(flt);fltLfoSync.setVisible(flt);
@@ -401,6 +408,7 @@ private:
         spectrum.setVisible(true);spectrum.setStage(stageFor(page));resized();repaint();
     }
     void refresh() {
+        if(const int count=raw("mbBandCount")>.5f?6:4;count!=shownMBBands){applyMBBandCount(count);syncPage();}
         {   // Channel names follow the stereo domain.
             const bool midSide=raw("mbStereoMode")>.5f;
             if(midSide!=channelNamesMidSide) {
@@ -426,13 +434,14 @@ private:
         else if(page==Page::limiter)reduction=dsp.limitReduction.load();
         reduction=sourceIsActive() && std::isfinite(reduction)?reduction:0;
         if(std::abs(reduction-currentReduction)>.049f){currentReduction=reduction;repaint(getWidth()-230,42,218,33);}
-        std::array<DynamicsSpectrumPanel::FrequencyMarker,3> markers{};int count=0;
+        std::array<DynamicsSpectrumPanel::FrequencyMarker,DynamicsSpectrumPanel::maxFrequencyMarkers> markers{};int count=0;
         if(page==Page::compressor){markers[0]={raw("cleanCompHP",20),"Detector HP"};count=1;spectrum.setBandHighlight(0,0);}
         else if(page==Page::deesser){const float frequency=raw("deEsserFrequency",6000);markers[0]={frequency,"Split"};count=1;spectrum.setBandHighlight(frequency,20000);}
         else if(page==Page::multiband) {
-            const auto cutoffs=effectiveCrossovers?effectiveCrossovers():std::array<float,3>{raw("mbCrossover1",120),raw("mbCrossover2",700),raw("mbCrossover3",3500)};
-            for(int cross=0;cross<3;++cross)markers[size_t(cross)]={cutoffs[size_t(cross)],"X"+juce::String(cross+1)};count=3;
-            spectrum.setBandHighlight(selectedMBBand==0?20.f:cutoffs[size_t(selectedMBBand-1)],selectedMBBand==3?20000.f:cutoffs[size_t(selectedMBBand)]);
+            const auto cutoffs=effectiveCrossovers?effectiveCrossovers():std::array<float,multibandMaxCrossovers>{raw("mbCrossover1",120),raw("mbCrossover2",700),raw("mbCrossover3",3500),raw("mbCrossover4",6000),raw("mbCrossover5",11000)};
+            count=shownMBBands-1;
+            for(int cross=0;cross<count;++cross)markers[size_t(cross)]={cutoffs[size_t(cross)],"X"+juce::String(cross+1)};
+            spectrum.setBandHighlight(selectedMBBand==0?20.f:cutoffs[size_t(selectedMBBand-1)],selectedMBBand==count?20000.f:cutoffs[size_t(selectedMBBand)]);
         } else if(page==Page::saturation) {
             const std::array<float,2> cutoffs{raw("satCrossover1",200),raw("satCrossover2",2500)};
             for(int cross=0;cross<2;++cross)markers[size_t(cross)]={cutoffs[size_t(cross)],"X"+juce::String(cross+1)};count=2;
@@ -448,7 +457,7 @@ private:
     juce::RangedAudioParameter* markerParameterFor(int marker) {
         if(page==Page::compressor && marker==0)return state.getParameter("cleanCompHP");
         if(page==Page::deesser && marker==0)return state.getParameter("deEsserFrequency");
-        if(page==Page::multiband && marker>=0 && marker<3)return state.getParameter("mbCrossover"+juce::String(marker+1));
+        if(page==Page::multiband && marker>=0 && marker<shownMBBands-1)return state.getParameter("mbCrossover"+juce::String(marker+1));
         if(page==Page::saturation && marker>=0 && marker<2)return state.getParameter("satCrossover"+juce::String(marker+1));
         if(page==Page::filter && marker>=0 && marker<filterCount)return state.getParameter(filterID(marker,"cutoff"));
         return nullptr;
@@ -460,7 +469,7 @@ private:
             case Page::gate:return gateSide==0?"PRE RIG / clean DI detection / before PRE":"POST RIG / clean DI detection / after rig";
             case Page::expander:return raw("expAfterRig")>.5f?"Expander / clean DI detection / after rig":"Expander / clean DI detection / before rig";
             case Page::limiter:return "Final output / sample peak";
-            case Page::multiband:return "4 bands / stereo linked";
+            case Page::multiband:return juce::String(shownMBBands)+" bands / stereo linked";
             case Page::deesser:return "High-band dynamics";
             case Page::saturation:return raw("satQuality")>.5f?"3 bands / Studio 4x / after multiband":"3 bands / Live, no latency / after multiband";
             case Page::filter:return "2 filters / after saturation";
@@ -484,7 +493,19 @@ private:
     struct SatBand {juce::ComboBox type;Control drive;};
     std::array<SatBand,3> satBands;Control satMix,satOutput;std::array<Control,2> satCrossovers;
     juce::TextButton satOn;juce::ComboBox satQuality,satBandSelector;int selectedSatBand{};
-    juce::ComboBox detector,gateMode,gate2Mode,mbDetector,mbBandSelector,mbStereo;
+    juce::ComboBox detector,gateMode,gate2Mode,mbDetector,mbBandSelector,mbStereo,mbBandCount;int shownMBBands{4};
+    // Band names and the selectable bands follow the band count.
+    void applyMBBandCount(int count) {
+        shownMBBands=count==6?6:4;
+        constexpr std::array<const char*,4> four{"Band 1 / LOW","Band 2 / LOW MID","Band 3 / HIGH MID","Band 4 / HIGH"};
+        constexpr std::array<const char*,6> six{"Band 1 / LOW","Band 2 / LOW MID","Band 3 / MID","Band 4 / HIGH MID","Band 5 / PRESENCE","Band 6 / AIR"};
+        for(int band=0;band<multibandMaxBandCount;++band) {
+            mbBandSelector.changeItemText(band+1,shownMBBands==6?six[size_t(band)]:band<4?four[size_t(band)]:"");
+            mbBandSelector.setItemEnabled(band+1,band<shownMBBands);
+        }
+        if(selectedMBBand>=shownMBBands){selectedMBBand=shownMBBands-1;mbBandSelector.setSelectedId(shownMBBands,juce::dontSendNotification);}
+        else mbBandSelector.setSelectedId(selectedMBBand+1,juce::dontSendNotification);   // refreshes the shown name
+    }
     juce::Slider mbLink;std::unique_ptr<SA> mbLinkAttachment;bool channelNamesMidSide{true};
     juce::TextButton gate2On,expanderOn,expanderPlacement;std::array<juce::TextButton,2> gateSides;
     juce::TextButton compOn,gateOn,gatePlacement,limiterOn,preOn,postOn,mbOn,deEsserOn,deEsserListen,compKey,gateKey,mbKey;
@@ -519,10 +540,10 @@ private:
     }
     AutoSetView autoView;bool autoDismissed{};
     std::array<Control,8> comp;std::array<Control,6> gate;std::array<Control,6> gate2;std::array<Control,6> expander;std::array<Control,3> pre;std::array<Control,5> post;
-    Control ceiling,limitRelease,lowAmount,lowBlend,mbMix;std::array<Control,3> crossovers;std::array<Control,7> deEsser;
-    std::array<MBBand,4> mbBands;
+    Control ceiling,limitRelease,lowAmount,lowBlend,mbMix;std::array<Control,multibandMaxCrossovers> crossovers;std::array<Control,7> deEsser;
+    std::array<MBBand,multibandMaxBandCount> mbBands;
     std::vector<std::unique_ptr<BA>> buttons;std::vector<std::unique_ptr<CA>> choices;
-    std::function<float(DynamicsStage)> meterProvider;std::function<std::array<float,3>()> effectiveCrossovers;std::function<float(int)> mbReductionProvider,gateUnitMeterProvider;
+    std::function<float(DynamicsStage)> meterProvider;std::function<std::array<float,multibandMaxCrossovers>()> effectiveCrossovers;std::function<float(int)> mbReductionProvider,gateUnitMeterProvider;
     juce::RangedAudioParameter* markerParameter{};int selectedMBBand{},gateSide{},observedSourceKey{-1};bool shownMainGate{true};float currentReduction{};
 };
 }

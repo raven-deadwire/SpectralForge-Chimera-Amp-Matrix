@@ -63,7 +63,7 @@ public:
         for(int b=0;b<graphicalEQBands;++b)for(const auto* field:{"enabled","frequency","gain","q","type"})touchedIDs.push_back({eqID(0,b,field),lockTone});
         add(lockDeEsser,{"deEsserOn","deEsserFrequency","deEsserThreshold","deEsserRange","deEsserAttack","deEsserRelease","deEsserRatio","deEsserKnee"});
         add(lockLimiter,{"liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"});
-        add(lockMultiband,{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3"});
+        add(lockMultiband,{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3","mbBandCount"});
         for(int b=0;b<multibandBandCount;++b)
             for(const auto* field:{"bypass","mode","threshold","range","ratio","attack","release","knee","makeup","solo"})touchedIDs.push_back({multibandID(b,field),lockMultiband});
         add(lockGate,{"gateAfterRig","gateMode","gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
@@ -339,6 +339,8 @@ private:
         else if(r.activeBands()==0){summary+=" | Multiband unchanged (bands balanced)";addStep("kept (bands already even)",false);}
         else {
             constexpr std::array<const char*,4> names{"low","low-mid","high-mid","high"};
+            // The analysis designs four bands (docs/SIX_BAND_1_5.md).
+            set("mbBandCount",0);
             for(int c=0;c<3;++c)set("mbCrossover"+juce::String(c+1),r.crossovers[size_t(c)]);
             juce::StringArray acting;
             for(int b=0;b<multibandBandCount;++b) {
