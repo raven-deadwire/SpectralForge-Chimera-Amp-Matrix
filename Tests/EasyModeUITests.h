@@ -318,35 +318,97 @@ inline void editorView(const juce::File& directory) {
     editor.reset();p->releaseResources();
 }
 inline void inputGuide(const juce::File& directory) {
-    // Standalone starts muted against speaker feedback; both views explain it
-    // and offer the fix until the input is on.
-    bool muted=true;int settingsOpened=0;
-    spectralforge::standalone::InputMute input{[&]{return muted;},[&]{muted=false;},[&]{++settingsOpened;}};
-    struct Uninstall {~Uninstall(){spectralforge::standalone::inputMute=nullptr;}} uninstall;
+    // The hook is installed before constructing the editor, as in the real app.
+    // This suite exercises the UI bridge, not physical device feedback safety.
+    bool muted=true;int settingsOpened=0,unmuteCalls=0;
+    spectralforge::standalone::InputMute input{[&]{return muted;},[&]{muted=false;++unmuteCalls;},[&]{++settingsOpened;}};
+    struct RestoreHook {
+        spectralforge::standalone::InputMute* previous=spectralforge::standalone::inputMute;
+        ~RestoreHook(){spectralforge::standalone::inputMute=previous;}
+    } restoreHook;
+    spectralforge::standalone::inputMute=nullptr;
     auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);
-    auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
-    require(!find(*editor,"inputGuide")->isVisible(),"Plug-ins must not show the Standalone input guide");
+    const auto fullGuide=[](ChimeraEditor& editor) {
+        auto* surface=find(editor,"surface");require(surface!=nullptr,"Full editor surface missing");
+        auto* guide=find<InputGuide>(*surface,"inputGuide");require(guide!=nullptr,"Full input guide missing");return guide;
+    };
+    const auto easyGuide=[](ChimeraEditor& editor) {
+        auto* view=find<EasyModeView>(editor,"easyView");require(view!=nullptr,"Easy view missing");
+        auto* guide=find<InputGuide>(*view,"inputGuide");require(guide!=nullptr,"Easy input guide missing");return guide;
+    };
+    const auto checkLayout=[](InputGuide& guide) {
+        auto* text=find<juce::Label>(guide,"inputGuide.text");
+        auto* settings=find<juce::TextButton>(guide,"inputGuide.settings");
+        auto* on=find<juce::TextButton>(guide,"inputGuide.unmute");
+        require(text && settings && on,"Input guide content missing");
+        for(auto* c:std::initializer_list<juce::Component*>{text,settings,on})inside(guide,*c,"Input guide child clipped");
+        require(!text->getBounds().intersects(settings->getBounds()) && !text->getBounds().intersects(on->getBounds())
+                && !settings->getBounds().intersects(on->getBounds()),"Input guide content overlaps");
+        const auto& layout=guide.messageLayout();
+        require(layout.getNumLines()>1,"Safety explanation must wrap");
+        require(layout.getWidth()<=float(text->getWidth())+.5f && layout.getHeight()<=float(text->getHeight())+.5f,
+                "Safety explanation exceeds its text bounds");
+        require(layout.getLine(0).stringRange.getStart()==0
+                && layout.getLine(layout.getNumLines()-1).stringRange.getEnd()==text->getText().length(),
+                "Safety explanation lost its beginning or end");
+        for(int line=0;line<layout.getNumLines();++line)
+            for(auto* run:layout.getLine(line).runs)
+                require(std::abs(run->font.getHeight()-12.5f)<.01f && std::abs(run->font.getHorizontalScale()-1.f)<.01f,
+                        "Safety explanation was shrunk to fit");
+    };
+    {
+        auto editor=openEditor(*p);editor->setEasyMode(true);settle(300);
+        for(auto* guide:{fullGuide(*editor),easyGuide(*editor)})
+            require(!guide->isVisible() && !guide->isPollingInput(),"Plug-in input guides must stay hidden and timer-free");
+        editor->setEasyMode(false);settle(300);
+        require(!fullGuide(*editor)->isPollingInput(),"Switching plug-in views started an input timer");
+    }
     spectralforge::standalone::inputMute=&input;
-    editor->setEasyMode(true);settle(400);
-    auto* view=find<EasyModeView>(*editor,"easyView");
-    auto* guide=find(*view,"inputGuide");require(guide && guide->isShowing(),"Easy view does not explain the muted input");
-    inside(*view,*guide,"Input guide outside Easy view");
-    for(auto* id:{"easy.fullEditor","easy.preset","easy.autoSet","easy.tuner"})
-        require(!guide->getBoundsInParent().intersects(find(*view,id)->getBoundsInParent()),"Input guide covers an Easy control");
-    signalPathTests::capture(*editor,directory,"easy-view-input-guide");
-    signalPathTests::click(*find<juce::TextButton>(*guide,"inputGuide.settings"));settle(50);
-    require(settingsOpened==1 && muted,"AUDIO SETTINGS must open the device settings without unmuting");
-    editor->setEasyMode(false);settle(400);
-    auto* fullGuide=find(*editor,"surface") ? find(*find(*editor,"surface"),"inputGuide") : nullptr;
-    require(fullGuide && fullGuide!=guide && fullGuide->isShowing(),"Full editor does not explain the muted input");
-    signalPathTests::capture(*editor,directory,"full-editor-input-guide");
-    signalPathTests::click(*find<juce::TextButton>(*fullGuide,"inputGuide.unmute"));settle(50);
-    require(!muted && !fullGuide->isVisible(),"INPUT ON did not unmute and hide the guide");
-    editor->setEasyMode(true);settle(400);
-    require(!guide->isVisible(),"Easy view still shows the guide with the input on");
-    muted=true;settle(400);
-    require(guide->isShowing(),"Muting again in the audio settings must bring the guide back");
+    auto editor=openEditor(*p);editor->setEasyMode(true);settle(400);
+    auto* guide=easyGuide(*editor);auto* full=fullGuide(*editor);
+    require(muted && unmuteCalls==0,"Constructing a guide must preserve the muted default");
+    for(bool easy:{true,false}) {
+        editor->setEasyMode(easy);settle(400);
+        auto* active=easy?guide:full;
+        require(active->isShowing() && active->isPollingInput(),"Active view does not explain muted input");
+        for(int scale:{75,100,125,150}) {
+            editor->setViewSize({1180*scale/100,780*scale/100},float(scale)/100.f);settle(60);
+            checkLayout(*active);inside(*editor,*active,"Scaled guide exceeds the editor");
+            signalPathTests::capture(*editor,directory,(easy?"easy-input-guide-":"full-input-guide-")+juce::String(scale));
+        }
+        if(easy) {
+            auto* view=find<EasyModeView>(*editor,"easyView");
+            for(auto* id:{"easy.fullEditor","easy.preset","easy.autoSet","easy.tuner"})
+                require(!active->getBoundsInParent().intersects(find(*view,id)->getBoundsInParent()),"Input guide covers an Easy control");
+        }
+        signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.settings"));settle(80);
+        require(settingsOpened==(easy?1:2) && muted && unmuteCalls==(easy?0:1),"AUDIO SETTINGS must not unmute");
+        signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.unmute"));settle(400);
+        require(!muted && !guide->isVisible() && !full->isVisible(),"INPUT ON must hide both guides");
+        require(guide->isPollingInput() && full->isPollingInput(),"Standalone must still observe re-muting");
+        muted=true;settle(400);
+        require(guide->isVisible() && full->isVisible(),"Muting in settings must restore both guides");
+    }
+    // Device settings may unmute directly, without the guide button.
+    muted=false;settle(400);
+    require(!guide->isVisible() && !full->isVisible() && unmuteCalls==2,"Settings unmute did not propagate");
+    // Preset/project restore is independent of the device's mute policy.
+    juce::MemoryBlock state;p->getStateInformation(state);
+    for(bool restoredMute:{false,true}) {
+        muted=restoredMute;p->setStateInformation(state.getData(),int(state.getSize()));settle(400);
+        require(full->isVisible()==restoredMute && guide->isVisible()==restoredMute && muted==restoredMute,
+                "Project restore changed the device mute state or lost its guide");
+        // Recreating the editor must reflect the holder's already-restored value.
+        editor.reset();editor=openEditor(*p);editor->setEasyMode(true);settle(400);
+        guide=easyGuide(*editor);full=fullGuide(*editor);
+        require(full->isVisible()==restoredMute && guide->isVisible()==restoredMute && unmuteCalls==2,
+                "Recreated editor did not respect the restored device mute state");
+    }
+    spectralforge::standalone::inputMute=nullptr;settle(400);
+    for(auto* item:{guide,full})
+        require(!item->isVisible() && !item->isPollingInput(),"Removing the Standalone hook must stop polling");
     editor.reset();p->releaseResources();
+    std::cout<<"PASS input guide: complete fixed-size text at 75/100/125/150%, both buttons/views, plug-in timers, restore and re-mute\n";
 }
 inline void run(const juce::File& directory) {
     preference();mapping();firstBinding();routingAndGestures();laneTargets();fileDrop(directory);autoSetAndPresets();startupPath();editorView(directory);inputGuide(directory);
