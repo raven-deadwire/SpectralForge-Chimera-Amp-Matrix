@@ -429,7 +429,7 @@ void controllerFinishPreservation() {
         setRaw("deEsserOn",1);setRaw("deEsserFrequency",4700);setRaw("deEsserThreshold",-31);setRaw("deEsserRange",7);setRaw("deEsserListen",1);
         const auto manual=deesserValues(),before=values(*p);std::mt19937 random{802};
         const auto signal=targetNoise(bass,48000,6.5,random,style);
-        Controller c(*p);c.setOptions({bass?2:1,false,style,true,false,true,1.f,0u,false,false,false,false});Gestures g;p->addListener(&g);
+        Controller c(*p);c.setOptions({bass?2:1,false,style,true,false,true,1.f,0u,false,false,false,false,false});Gestures g;p->addListener(&g);
         double now=juce::Time::getMillisecondCounterHiRes();c.start();
         for(int pass=0;pass<3;++pass)feedCapture(*p,c,signal,now);
         check(c.current().phase==Controller::Phase::done && c.lastFinishAnalysis().bass==bass,"Explicit instrument or three-pass controller failed");
@@ -468,18 +468,28 @@ void controllerIntegration() {
     DI di{48000,.126f,.00025f}; // notes peak ~ -18 dBFS, noise ~ -72 dBFS
     c.start();check(c.busy(),"Auto Set did not start listening");
     run(*p,c,&di,6.6,now);
-    check(c.current().phase==Controller::Phase::amp && c.current().text.contains("2/8"),"First pass did not hand over to the amp pass");
+    check(c.current().phase==Controller::Phase::boost && c.current().text.contains("2/9"),"First pass did not hand over to the boost pass");
     check(get(*p,"input")>4.f && get(*p,"input")<=12.01f,"Input gain was not raised toward the target");
     // With an Expander (phase 5) it takes the threshold above the noise and the main gate sits below it.
     const float placed=get(*p,"expOn")>.5f?get(*p,"expThreshold"):get(*p,"gatethreshold");
     check(get(*p,"gateon")>.5f && placed>-70.f && placed<-35.f && get(*p,"gatethreshold")<=placed,"Gate threshold was not placed above the noise floor");
+    {   // Phase 10 on the real processor: the default board is empty, so a boost may take its last slot.
+        run(*p,c,&di,6.6,now);
+        check(c.current().phase==Controller::Phase::amp && c.current().text.contains("3/9"),"Boost pass did not hand over to the amp pass");
+        const auto& boost=c.lastBoostAnalysis();
+        check(boost.playingDetected && !boost.bass,"Boost pass did not hear the guitar DI");
+        int placed=0;for(int owner=0;owner<spectralforge::pedalBoardCapacity;++owner)placed+=juce::roundToInt(get(*p,spectralforge::pedalModelID(owner)))==boostPedalModel;
+        check(placed==(boost.engaged?1:0),"Applied boost does not match the analysis");
+        std::cout<<"MEASURE auto set boost (processBlock): low end "<<boost.lowExcessBeforeDb<<" > "<<boost.lowExcessAfterDb<<" dB over the target, drive "<<boost.compressionBefore<<" > "<<boost.compressionAfter
+                 <<", engaged "<<boost.engaged<<'\n';
+    }
     {   // Phase 8 on the real processor: the default head, heard through processBlock.
         const int model=p->selectedAmpModel(0),channel=p->selectedAmpChannel(0),route=p->selectedAmpNativeRoute(0);
         const int gainControl=spectralforge::easy::ampControl(model,channel,route,spectralforge::easy::Role::gain);
         const auto gainID=spectralforge::ampNativeControlID(0,model,gainControl,channel);
         const float gainBefore=get(*p,gainID);
         run(*p,c,&di,6.6,now);
-        check(c.current().phase==Controller::Phase::cab && c.current().text.contains("3/8"),"Amp pass did not hand over to the cabinet mic pass");
+        check(c.current().phase==Controller::Phase::cab && c.current().text.contains("4/9"),"Amp pass did not hand over to the cabinet mic pass");
         const auto& amp=c.lastAmpAnalysis();
         check(amp.playingDetected && !amp.bass && amp.before[ampGain].present && near(amp.before[ampGain].value,gainBefore,1e-4f),"Amp pass did not hear the DI or the head's GAIN");
         check(near(get(*p,gainID),amp.proposed[ampGain].value,.011f*(amp.before[ampGain].maximum-amp.before[ampGain].minimum)),"Applied GAIN does not match the amp analysis");
@@ -488,7 +498,7 @@ void controllerIntegration() {
     }
     // Phase 9: the default cabinet plays a captured IR, which the pass keeps with the reason.
     run(*p,c,&di,6.6,now);
-    check(c.current().phase==Controller::Phase::tone && c.current().text.contains("4/8"),"Cabinet mic pass did not hand over to the Tone EQ pass");
+    check(c.current().phase==Controller::Phase::tone && c.current().text.contains("5/9"),"Cabinet mic pass did not hand over to the Tone EQ pass");
     run(*p,c,&di,6.6,now);
     check(c.current().phase==Controller::Phase::compressor,"Tone EQ pass did not hand over to the compressor pass");
     const auto& tone=c.lastToneAnalysis();
@@ -510,15 +520,15 @@ void controllerIntegration() {
               "Dynamic EQ node does not match the analysis");
     }
     run(*p,c,&di,7.0,now);
-    check(c.current().phase==Controller::Phase::multiband && c.current().text.contains("6/8"),"Compressor pass did not hand over to the multiband pass");
+    check(c.current().phase==Controller::Phase::multiband && c.current().text.contains("7/9"),"Compressor pass did not hand over to the multiband pass");
     run(*p,c,&di,6.6,now);
-    check(c.current().phase==Controller::Phase::finish && c.current().text.contains("7/8"),"Multiband pass did not hand over to the de-esser and limiter pass");
+    check(c.current().phase==Controller::Phase::finish && c.current().text.contains("8/9"),"Multiband pass did not hand over to the de-esser and limiter pass");
     const auto& mb=c.lastMultibandAnalysis();
     check(mb.playingDetected && (get(*p,"mbOn")>.5f)==(mb.activeBands()>0),"Multiband pass did not hear the guitar or did not apply its analysis");
     for(int b=0;b<4 && mb.activeBands()>0;++b)
         check((get(*p,spectralforge::multibandID(b,"bypass"))<.5f)==mb.bands[size_t(b)].active && get(*p,spectralforge::multibandID(b,"solo"))<.5f,"Multiband band state does not match the analysis");
     run(*p,c,&di,6.6,now);
-    check(c.current().phase==Controller::Phase::level && c.current().text.contains("8/8"),"De-esser and limiter pass did not hand over to the Final EQ and output pass");
+    check(c.current().phase==Controller::Phase::level && c.current().text.contains("9/9"),"De-esser and limiter pass did not hand over to the Final EQ and output pass");
     const float trimBefore=get(*p,"output");
     run(*p,c,&di,6.6,now);
     p->removeListener(&g);
@@ -539,8 +549,8 @@ void controllerIntegration() {
         bool sawInput=false,sawPause=false,sawTone=false,monotonic=true;double last=0;
         for(const auto& s:statuses) {
             if(s.pass<0)continue;
-            check(s.passes.size()==8 && s.phase==s.passes[size_t(s.pass)] && s.listeningFor.isNotEmpty() && s.heard.isNotEmpty(),"Listening status does not describe its pass");
-            check(near(float(s.totalSeconds),8*6.f+7*.3f,.01f) && s.passSeconds<=s.passTotalSeconds+1e-6,"Listening status has the wrong duration");
+            check(s.passes.size()==9 && s.phase==s.passes[size_t(s.pass)] && s.listeningFor.isNotEmpty() && s.heard.isNotEmpty(),"Listening status does not describe its pass");
+            check(near(float(s.totalSeconds),9*6.f+8*.3f,.01f) && s.passSeconds<=s.passTotalSeconds+1e-6,"Listening status has the wrong duration");
             monotonic&=s.seconds+1e-6>=last;last=s.seconds;
             sawInput|=s.phase==Controller::Phase::input && s.levelDb>-30.f && s.heard.contains("Playing: heard");
             sawPause|=s.heard.contains("Pause: heard");
@@ -549,11 +559,12 @@ void controllerIntegration() {
         check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
         check(!sawTone,"Tone pass claimed an instrument before its analysis");
         const auto& steps=c.current().steps;
-        check(steps.size()==10 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
-              && steps[2].phase==Controller::Phase::amp && steps[2].changed==(c.lastAmpAnalysis().changedKnobs()>0)
-              && steps[3].phase==Controller::Phase::cab && !steps[3].changed && steps[3].result.contains("captured IR")
-              && steps[4].phase==Controller::Phase::tone && steps[5].phase==Controller::Phase::dynamicEQ && steps[5].changed==!dynamic.nodes.empty()
-              && steps[8].phase==Controller::Phase::finish && steps[9].phase==Controller::Phase::level && steps[6].changed && steps[6].result.contains(":1"),"Results do not list one row per pass with the applied values");
+        check(steps.size()==11 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
+              && steps[2].phase==Controller::Phase::boost && steps[2].changed==c.lastBoostAnalysis().engaged
+              && steps[3].phase==Controller::Phase::amp && steps[3].changed==(c.lastAmpAnalysis().changedKnobs()>0)
+              && steps[4].phase==Controller::Phase::cab && !steps[4].changed && steps[4].result.contains("captured IR")
+              && steps[5].phase==Controller::Phase::tone && steps[6].phase==Controller::Phase::dynamicEQ && steps[6].changed==!dynamic.nodes.empty()
+              && steps[9].phase==Controller::Phase::finish && steps[10].phase==Controller::Phase::level && steps[7].changed && steps[7].result.contains(":1"),"Results do not list one row per pass with the applied values");
         // Gate 2 / Expander follow their analysis; the gates were held open only while the input pass listened.
         const auto& gates=c.lastGateAnalysis();
         check(gates.measured && (get(*p,"expOn")>.5f)==(gates.plan==GateStagesResult::Plan::soft) && (get(*p,"gate2On")>.5f)==(gates.plan==GateStagesResult::Plan::hard),
@@ -585,12 +596,12 @@ void controllerIntegration() {
     const auto restored=values(*p);bool undone=restored.size()==before.size();
     for(size_t i=0;undone && i<before.size();++i)undone=near(restored[i],before[i],1e-6f);
     check(undone && !c.current().canUndo,"Undo did not restore every parameter");
-    c.setOptions({0,false,Style::rock,false,false,true,1.f,0u,false,false,false,false});c.start();
+    c.setOptions({0,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false});c.start();
     check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the optional steps did not shorten Auto Set to two passes");
     c.cancel();check(values(*p)==restored,"Cancelling a run changed parameters");
     // Edits made while listening and after applying are not owned by Auto Set.
     // Include an untouched optional stage: the old whole-snapshot undo lost it.
-    c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false});c.start();
+    c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false});c.start();
     setRaw("input",3.f);setRaw("deEsserRange",11.f);
     const float manualInput=get(*p,"input"),manualRange=get(*p,"deEsserRange");
     run(*p,c,&di,14,now);
@@ -669,7 +680,7 @@ void inputStrengthRounding() {
 }
 void controllerLocksAndStrength() {
     using P=Controller::Phase;
-    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false};
+    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false,false};
     const auto full=runLocked(all);
     check(full.status.phase==P::done && full.status.steps.size()==5,"Reference run did not complete five passes");
     check(valueOf(full,"gateon")>.5f,"Reference run did not place the gate");
@@ -788,7 +799,7 @@ void controllerDynamicEQ() {
     const auto undoneAll=[](const DynamicRun& r){for(size_t i=0;i<r.before.size();++i)if(!near(r.undone[i],r.before[i],1e-6f))return false;return true;};
     // Tone EQ step off, defaults (bypassed Tone EQ, no bands): the pass still
     // runs for the Dynamic EQ, which places a 0 dB node at 250 Hz on slot 1.
-    const Controller::Options dynamicOnly{1,false,Style::rock,false,false,false,1.f,0u,true,false,false,false};
+    const Controller::Options dynamicOnly{1,false,Style::rock,false,false,false,1.f,0u,true,false,false,false,false};
     const auto full=runDynamic(dynamicOnly);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::input,P::tone,P::compressor},"Dynamic EQ did not run the Tone EQ pass on its own");
     const auto* step=stepOf(full.status,P::dynamicEQ);
@@ -903,7 +914,7 @@ LevelRun runLevel(const Controller::Options& options,const std::function<void(Ch
 void controllerLevel() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options levelOnly{1,false,Style::rock,false,false,false,1.f,0u,false,true,false,false};
+    const Controller::Options levelOnly{1,false,Style::rock,false,false,false,1.f,0u,false,true,false,false,false};
     const auto full=runLevel(levelOnly);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::input,P::compressor,P::level},"Final EQ and output did not run as the last pass");
     const auto* step=stepOf(full.status,P::level);
@@ -1056,7 +1067,7 @@ AmpRun runAmp(const Controller::Options& options,float gainFraction,const std::f
 void controllerAmp() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options ampOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,true,false};
+    const Controller::Options ampOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,true,false,false};
     const auto full=runAmp(ampOnly,.05f);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::amp);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::amp} && step && step->changed && step->result.contains("GAIN"),"Amp pass did not run or report");
@@ -1182,7 +1193,7 @@ CabRun runCab(const Controller::Options& options,const std::function<void(Chimer
 void controllerCab() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options cabOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true};
+    const Controller::Options cabOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false};
     const auto full=runCab(cabOnly);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::cab);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::cab} && step && step->changed && step->result.contains("mic A position"),"Cabinet mic pass did not run or report");
@@ -1218,6 +1229,104 @@ void controllerCab() {
           && value(onB.values,"ocab1_Aposition")==value(onB.before,"ocab1_Aposition"),"The heard mic B was not the one placed");
     std::cout<<"MEASURE auto set cab controller: "<<step->result<<'\n';
     std::cout<<"PASS auto set cab controller: cabinet mic pass alone, dark sound moves mic A toward the cap, level held, strength, lock, Dual, captured IR and blended mics kept, mic B, undo\n";
+}
+// Phase 10. The Tight 515 head with its GAIN at 80%, the plucked notes from the low E.
+spectralforge::AmpNativeState drivenHead(float gainFraction=.8f) {
+    auto state=spectralforge::defaultAmpNativeState(2);
+    const auto controls=roleControls(2,state.channel,state.inputRoute);
+    const auto& g=spectralforge::ampNativePanel(2).controls[size_t(controls[ampGain])];
+    state.values[size_t(controls[ampGain])]=g.minimum+gainFraction*(g.maximum-g.minimum);
+    return state;
+}
+void boostRules() {
+    std::mt19937 rng{93};const auto di=playedNotes(48000,ampRenderSeconds,rng);
+    const auto render=nativeBoostRenderer(drivenHead(),di,48000);
+    const std::vector<float> silence(di.size());
+    check(!analyseBoost(silence,48000,nativeBoostRenderer(drivenHead(),silence,48000),false,Style::metal).playingDetected,"Silence reported as playing");
+    // The pedal itself: a bass cut in front of the amp, unity at LEVEL 0.5.
+    const auto dry=render(std::nullopt),boosted=render(BoostSetting{0,.5f,.5f});
+    const auto dryLow=boostLowExcessDb(measureSpectrum(dry,48000,false),Style::rock),boostedLow=boostLowExcessDb(measureSpectrum(boosted,48000,false),Style::rock);
+    check(boostedLow<dryLow,"The Green Drive does not tighten the amp's low end");
+    // Metal on a loose low end: the boost goes in, tightens the low end and keeps the drive in reach.
+    const auto metal=analyseBoost(di,48000,render,false,Style::metal);
+    check(metal.playingDetected && !metal.bass && metal.lowExcessBeforeDb>boostLooseLowDb,"The driven head's low end is not loose with low notes");
+    check(metal.engaged && metal.lowExcessAfterDb<metal.lowExcessBeforeDb-boostMinTightenDb
+          && metal.compressionAfter<=std::max(metal.compressionBefore,metal.compressionTarget)+boostDriveAllowance+1e-6f,"Metal did not get a boost that tightens the low end");
+    check(std::find(boostDrives.begin(),boostDrives.end(),metal.setting.drive)!=boostDrives.end()
+          && std::find(boostLevels.begin(),boostLevels.end(),metal.setting.level)!=boostLevels.end() && metal.setting.tone==.5f,"Boost setting off the candidate grid");
+    // Clean style and bass get no boost.
+    check(!analyseBoost(di,48000,render,false,Style::clean).engaged,"A clean style got a boost");
+    check(!analyseBoost(di,48000,render,true,Style::metal).engaged,"A bass got a boost");
+    // Notes whose lows are already thin leave the amp tight: no boost.
+    auto thin=di;filter(thin,1,250,-24,.707,48000);
+    const auto tight=analyseBoost(thin,48000,nativeBoostRenderer(drivenHead(),thin,48000),false,Style::metal);
+    check(tight.playingDetected && tight.lowExcessBeforeDb<metal.lowExcessBeforeDb && !tight.engaged,"A tight low end got a boost");
+    std::cout<<"MEASURE boost rules: pedal low end "<<dryLow<<" > "<<boostedLow<<" dB; metal "<<metal.lowExcessBeforeDb<<" > "<<metal.lowExcessAfterDb<<" dB, drive "<<metal.compressionBefore<<" > "<<metal.compressionAfter
+             <<" (OVER DRIVE "<<metal.setting.drive<<", LEVEL "<<metal.setting.level<<"); thin lows "<<tight.lowExcessBeforeDb<<" dB\n";
+    std::cout<<"PASS auto set boost rules: silence, the pedal tightens the low end, metal engages within the drive limit, candidate grid, clean, bass and tight lows kept\n";
+}
+struct BoostRun {std::vector<float> before,values,undone;Controller::Status status;BoostResult analysis;};
+// The pass hears the DI going into the amp. Fixtures feed the taps directly.
+BoostRun runBoost(const Controller::Options& options,const std::function<void(ChimeraProcessor&)>& prepare={}) {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+    constexpr int model=2;
+    setRaw("mode",0);setRaw("ampon1",1);setRaw(spectralforge::ampNativeEnabledID(0),1);setRaw(spectralforge::ampNativeModelID(0),float(model));
+    const int channel=p->selectedAmpChannel(0),route=p->selectedAmpNativeRoute(0);
+    const auto controls=roleControls(model,channel,route);
+    {auto* gain=p->parameters().getParameter(spectralforge::ampNativeControlID(0,model,controls[ampGain],channel));gain->setValueNotifyingHost(.8f);}
+    if(prepare)prepare(*p);
+    Controller c(*p);c.setOptions(options);
+    BoostRun result;result.before=values(*p);
+    std::mt19937 rng{94};const auto di=playedNotes(48000,8,rng);
+    double ms=juce::Time::getMillisecondCounterHiRes();c.start();
+    for(size_t offset=0;c.busy() && offset+256<=di.size();offset+=256) {
+        const float* in[]{di.data()+offset};
+        for(auto tap:{Tap::amp,Tap::tone,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,in,1,256);
+        ms+=1000.*256/48000;c.tick(ms);
+    }
+    check(!c.busy(),"Boost run did not finish");
+    result.values=values(*p);result.status=c.current();result.analysis=c.lastBoostAnalysis();
+    c.undo();result.undone=values(*p);p->releaseResources();
+    return result;
+}
+void controllerBoost() {
+    using P=Controller::Phase;
+    const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
+    const Controller::Options boostOnly{1,false,Style::metal,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,true};
+    const auto full=runBoost(boostOnly);
+    const auto& a=full.analysis;const auto* step=stepOf(full.status,P::boost);
+    check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::boost} && step && step->changed && step->result.contains("Green Drive in slot 5"),"Boost pass did not run or report");
+    // The default board order puts owner 5 last, right before the amp.
+    const auto id=[](int c){return spectralforge::pedalControlID(4,boostPedalModel,c);};
+    check(a.engaged && near(value(full.values,spectralforge::pedalModelID(4)),float(boostPedalModel),.01f) && value(full.values,spectralforge::pedalBypassID(4,boostPedalModel))<.5f
+          && near(value(full.values,id(0)),a.setting.drive,.011f) && near(value(full.values,id(1)),a.setting.tone,.011f) && near(value(full.values,id(2)),a.setting.level,.011f),"Applied boost does not match the analysis");
+    for(int owner=0;owner<4;++owner)check(value(full.values,spectralforge::pedalModelID(owner))==value(full.before,spectralforge::pedalModelID(owner)),"Another board slot changed");
+    bool undone=true;for(size_t i=0;i<full.before.size();++i)undone&=near(full.undone[i],full.before[i],1e-6f);
+    check(undone,"UNDO AUTO did not remove the boost");
+    // Strength scales the drive and the level change in dB.
+    auto halfOptions=boostOnly;halfOptions.strength=.5f;
+    const auto half=runBoost(halfOptions);
+    const float levelDb=juce::Decibels::gainToDecibels(4*half.analysis.setting.level*half.analysis.setting.level);
+    check(near(value(half.values,id(0)),.5f*half.analysis.setting.drive,.011f) && near(value(half.values,id(2)),std::sqrt(juce::Decibels::decibelsToGain(.5f*levelDb)/4.f),.011f),"Strength did not scale the boost");
+    // The lock keeps the board and skips the pass.
+    auto lockedOptions=boostOnly;lockedOptions.locks=Controller::lockInput|Controller::lockGate|Controller::lockBoost;
+    const auto locked=runBoost(lockedOptions);
+    check(locked.status.passes==std::vector<P>{P::compressor} && stepOf(locked.status,P::boost) && stepOf(locked.status,P::boost)->result=="kept (locked)"
+          && value(locked.values,spectralforge::pedalModelID(4))==value(locked.before,spectralforge::pedalModelID(4)),"Boost lock did not keep the board");
+    // Kept, with the reason: clean style, a drive already on the board, no free last slot, Dual routing.
+    auto cleanOptions=boostOnly;cleanOptions.style=Style::clean;
+    const auto clean=runBoost(cleanOptions);
+    check(stepOf(clean.status,P::boost)->result.contains("clean style") && clean.values==clean.before,"A clean style got a boost");
+    const auto setter=[](juce::String id,float v){return [id,v](ChimeraProcessor& p){auto* q=p.parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};};
+    const auto drive=runBoost(boostOnly,setter(spectralforge::pedalModelID(0),3));
+    check(stepOf(drive.status,P::boost)->result.contains("already on the board") && drive.values==drive.before,"A boost was added next to a drive");
+    const auto chorus=runBoost(boostOnly,setter(spectralforge::pedalModelID(4),32)); // Classic Chorus
+    check(stepOf(chorus.status,P::boost)->result.contains("no free board slot") && chorus.values==chorus.before,"A boost went before a later pedal");
+    const auto dual=runBoost(boostOnly,setter("mode",1));
+    check(stepOf(dual.status,P::boost)->result.contains("Dual and Matrix") && dual.values==dual.before,"Dual routing got a boost");
+    std::cout<<"MEASURE auto set boost controller: "<<step->result<<'\n';
+    std::cout<<"PASS auto set boost controller: boost pass alone, Green Drive on the last free slot as analysed, strength, lock, clean, existing drive, occupied last slot and Dual kept, undo\n";
 }
 void parameterEditNotifications() {
     auto p=std::make_unique<ChimeraProcessor>();
@@ -1260,7 +1369,7 @@ void parameterEditNotifications() {
 
 void controllerEditHistory() {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
-    Controller c(*p);c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false});
+    Controller c(*p);c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false});
     auto* input=p->parameters().getParameter("input");
     auto* threshold=p->parameters().getParameter("cleanCompThreshold");
     const float before=input->getValue();
@@ -1316,12 +1425,13 @@ bool inLockedStage(const juce::String& id,Controller::Lock lock) {
         case Controller::lockFinalEQ:return id.startsWith("finalEQ_");
         case Controller::lockOutput:return id=="output";
         case Controller::lockAmp:return ampKnobIDs().contains(id);
+        case Controller::lockBoost:return id.startsWith("board") && (id.endsWith("Model") || id.contains("_m1_"));
         case Controller::lockCab:return id=="ocab1_Aposition" || id=="ocab1_Adistance" || id=="ocab1_Bposition" || id=="ocab1_Bdistance" || id=="cabAgain1" || id=="cabBgain1";
     }
     return false;
 }
 void controllerStrengthMatrix() {
-    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false};
+    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false,false};
     const auto full=runLocked(all);
     const LockRun defaults{full.before,{},{}};
     check(valueOf(full,"mbOn")>.5f && valueOf(full,"deEsserOn")>.5f,"Strength matrix needs active positive controls");
@@ -1350,7 +1460,7 @@ void controllerStrengthMatrix() {
 void controllerEveryLock() {
     for(const auto lock:Controller::lockOrder)for(float amount:{.25f,.5f,.75f,1.f}) {
         // The amp step runs only for its own lock (the fixtures feed no amp input), so it is skipped.
-        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock),true,true,lock==Controller::lockAmp,lock==Controller::lockCab};
+        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock),true,true,lock==Controller::lockAmp,lock==Controller::lockCab,lock==Controller::lockBoost};
         std::vector<int> lockedIndices;std::vector<float> seeded;bool editedDuringRun=false;
         const auto r=runLocked(o,[&](ChimeraProcessor& p,Controller& c){
             auto applied=values(p);
@@ -1370,7 +1480,7 @@ void controllerEveryLock() {
     }
     // Options changed during a run belong to the next run. Undo still uses the
     // run snapshot, while a newly selected lock additionally protects its stage.
-    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone,false,false,false,false};
+    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone,false,false,false,false,false};
     bool changed=false;
     const auto baseline=runLocked(initial);
     const auto edited=runLocked(initial,[&](ChimeraProcessor& p,Controller& c){
@@ -1379,7 +1489,7 @@ void controllerEveryLock() {
         check(get(p,"cleanCompThreshold")==threshold,"A newly locked stage was restored by Undo");
     },{},[&](ChimeraProcessor&,Controller& c){if(!changed){auto next=initial;next.locks=127;next.strength=.25f;next.amp=true;next.instrument=2;c.setOptions(next);changed=true;}});
     check(baseline.values==edited.values && baseline.status.passes==edited.status.passes,"Changing options mutated an in-flight run");
-    std::cout<<"PASS all eleven locks x four strengths: non-default values, host edits, undo, immutable run options, newly selected undo locks\n";
+    std::cout<<"PASS all thirteen locks x four strengths: non-default values, host edits, undo, immutable run options, newly selected undo locks\n";
 }
 void controllerAttackLockRegression() {
     int cases=0;
@@ -1420,7 +1530,7 @@ void controllerGateStageEditHistory() {
             auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
             Controller c(*p);
             Controller::Options options{1,false,style,false,false,true,amount,
-                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u,false,false,false,false};
+                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u,false,false,false,false,false};
             c.setOptions(options);
             auto gateValues=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
             auto gateABA=[&] {
@@ -1528,7 +1638,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();boostRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBoost();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}

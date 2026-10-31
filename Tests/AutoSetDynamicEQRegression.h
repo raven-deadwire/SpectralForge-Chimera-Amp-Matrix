@@ -36,7 +36,7 @@ void dynamicOwnershipRegression() {
     for(int mode=0;mode<4;++mode) {
         auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
         Controller c(*p);Controller::Options options{1,false,Style::rock,false,false,false,1.f,
-            Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false};
+            Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false,false};
         c.setOptions(options);c.start();std::mt19937 rng{43};double now=0;
         feedCapture(*p,c,playedNotes(48000,6.1,rng,250,12),now);
         check(c.current().phase==Controller::Phase::done && get(*p,spectralforge::dynamicSlotID(0,"target"))>0,
@@ -77,7 +77,7 @@ void dynamicSignalRegression() {
 void dynamicRenderRegression() {
     for(double rate:{44100.,48000.,96000.})for(float strength:{.25f,.5f,.75f,1.f}) {
         auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(rate,256);p->prepareToPlay(rate,256);
-        Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,strength,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false});
+        Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,strength,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false,false});
         std::mt19937 rng{43};const auto signal=playedNotes(rate,6.1,rng,250,12);double now=0;c.start();feedCapture(*p,c,signal,now);
         check(c.current().phase==Controller::Phase::done && !c.lastDynamicAnalysis().nodes.empty(),"Positive ring control placed no node");
         auto& eq=p->graphicalEQ(0);eq.reset();float peak=0;double inputEnergy=0,outputEnergy=0;
@@ -112,7 +112,7 @@ void dynamicRenderRegression() {
 void dynamicEditPlacementRegression() {
     for(int mode=0;mode<3;++mode) {
         auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
-        Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false});
+        Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false,false});
         c.start();const auto before=values(*p);
         const auto id=mode==0?spectralforge::eqID(0,0,"frequency"):mode==1?spectralforge::dynamicSlotID(0,"threshold"):spectralforge::eqID(0,-1,"bypass");
         auto* q=p->parameters().getParameter(id);const auto value=q->getValue();q->beginChangeGesture();
@@ -123,7 +123,7 @@ void dynamicEditPlacementRegression() {
     }
     // A host callback can edit a band synchronously during Auto Set's writes.
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
-    Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false});
+    Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false,false});
     struct Edit final:juce::AudioProcessorListener {
         ChimeraProcessor& processor;bool fired=false;explicit Edit(ChimeraProcessor& p):processor(p){}
         void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
@@ -146,7 +146,7 @@ void dynamicUserCurveRegression() {
     set(spectralforge::eqID(0,-1,"bypass"),0);
     for(int bank:{0,1})for(int b:{3,5}) {set(spectralforge::eqID(bank,b,"enabled"),1);set(spectralforge::eqID(bank,b,"frequency"),b==3?400:630);set(spectralforge::eqID(bank,b,"gain"),3);}
     set(spectralforge::dynamicSlotID(0,"target"),13);set(spectralforge::dynamicSlotID(1,"target"),6);
-    const auto before=values(*p);Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false});
+    const auto before=values(*p);Controller c(*p);c.setOptions({1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false,false});
     c.start();std::mt19937 rng{43};double now=0;feedCapture(*p,c,playedNotes(48000,6.1,rng,250,12),now);
     check(get(*p,spectralforge::dynamicSlotID(2,"target"))>0,"Free slot was not used beside preserved user nodes");
     for(auto* raw:p->getParameters())if(auto* q=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
