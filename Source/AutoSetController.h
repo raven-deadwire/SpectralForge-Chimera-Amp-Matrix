@@ -445,8 +445,11 @@ private:
     // The head's GAIN, tone, PRESENCE and RESONANCE controls with their values now.
     std::vector<std::pair<int,float>> headKnobs(const AmpTarget& t) const {
         std::vector<std::pair<int,float>> knobs;
-        const auto add=[&](int control){if(control>=0)if(processor.parameters().getParameter(ampNativeControlID(t.context,t.model,control,t.channel)))
-                                             knobs.push_back({control,raw(ampNativeControlID(t.context,t.model,control,t.channel))});};
+        const auto add=[&](int control) {
+            if(control<0)return;
+            const auto id=ampNativeControlID(t.context,t.model,control,t.channel);
+            if(processor.parameters().getParameter(id))knobs.push_back({control,raw(id)});
+        };
         for(int role=0;role<easy::roleCount;++role)add(easy::ampControl(t.model,t.channel,t.route,easy::Role(role)));
         for(int role=0;role<2;++role)add(powerControl(t.model,t.channel,role));
         return knobs;
