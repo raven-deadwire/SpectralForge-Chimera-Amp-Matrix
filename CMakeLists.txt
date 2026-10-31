@@ -461,6 +461,11 @@ target_sources(ChimeraTruePeakLimiterTests PRIVATE Tests/TruePeakLimiterTests.cp
 target_include_directories(ChimeraTruePeakLimiterTests PRIVATE Source)
 target_link_libraries(ChimeraTruePeakLimiterTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraTruePeakLimiterTests COMMAND ChimeraTruePeakLimiterTests)
+juce_add_console_app(ChimeraWholeProductTests PRODUCT_NAME "Chimera Whole Product Tests")
+target_sources(ChimeraWholeProductTests PRIVATE Tests/WholeProductTests.cpp)
+target_include_directories(ChimeraWholeProductTests PRIVATE Source)
+target_link_libraries(ChimeraWholeProductTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraWholeProductTests COMMAND ChimeraWholeProductTests)
 
 foreach(native AmpNative PostNative PostExpansion PostMotionSpace)
   juce_add_console_app(Chimera${native}Tests PRODUCT_NAME "Chimera ${native} Tests")
