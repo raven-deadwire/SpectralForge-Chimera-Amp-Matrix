@@ -45,9 +45,9 @@ public:
     juce::String betaNotice() const;
     void recheckBetaClock();
     // Message thread. A verified beta tester code lifts the expiry for this
-    // user on this computer (all later betas signed with the same key).
+    // user on this computer (all later betas built with the same secret).
     spectralforge::beta::tester::Grant applyTesterCode(const juce::String& code);
-    void removeTesterCode();
+    bool removeTesterCode();
     const juce::String& testerCodeHolder() const noexcept { return testerHolder; }
     void prepareToPlay(double,int) override;
     void releaseResources() override;
@@ -201,6 +201,8 @@ public:
     void activateNativePost(int section);
 private:
     friend struct ChimeraBetaTestAccess;
+    bool removeTesterCodeAt(const juce::File&);
+    void recheckTesterCode(const spectralforge::beta::tester::Grant&);
     friend struct ChimeraCabExportTestAccess;
     ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock,
                      const spectralforge::beta::tester::Grant& tester={});

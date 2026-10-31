@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import json
+import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -61,12 +63,79 @@ class TesterCodeTests(unittest.TestCase):
             run = lambda *a: subprocess.run([sys.executable, str(TOOL), *a], capture_output=True, text=True)
             made = run("secret", "--out", str(path))
             self.assertEqual(made.returncode, 0, made.stderr)
-            self.assertIn(json.loads(path.read_text())["secret"], made.stdout)
+            self.assertNotIn(json.loads(path.read_text())["secret"], made.stdout)
             self.assertNotEqual(run("secret", "--out", str(path)).returncode, 0)  # never overwrites
             issued = run("issue", "--secret", str(path), "--name", "Ziel", "--name", "Seo Mary")
             codes = issued.stdout.split()
             self.assertEqual(len(codes), 2, issued.stderr)
             self.assertEqual(run("verify", "--secret", str(path), "--code", codes[1]).stdout.strip(), "SEOMARY")
+
+    def test_invalid_paste_and_secret_fail_closed(self):
+        code = tc.issue(self.secret, "Ziel")
+        for bad in (" " * tc.MAX_PASTED + code, code + "\u00a0", "CHT1-ZIEL-가나다라마바",
+                    "CHT1-ZIEL-!!!!!!", "CHT1-ZIEL-SSSSSß", "A" * 5000):
+            with self.subTest(bad=bad[:40]), self.assertRaises(ValueError):
+                tc.verify(bad, self.secret)
+        for weak in (b"", bytes(15)):
+            with self.assertRaises(ValueError):
+                tc.issue(weak, "TESTER")
+            with self.assertRaises(ValueError):
+                tc.verify(code, weak)
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "malformed.json"
+            for value in (None, 123, "a" * 33, "g" * 64, "00" * 15):
+                p.write_text(json.dumps({"schema": tc.SCHEMA, "secret": value}))
+                with self.assertRaises(ValueError):
+                    tc.load_secret(p)
+
+    def test_secret_creation_is_private_exclusive_and_outside_git(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "test.private.json"
+            value = self.secret.hex()
+            old_mask = os.umask(0)
+            try:
+                tc.write_secret(target, value)
+            finally:
+                os.umask(old_mask)
+            if os.name == "posix":
+                self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o600)
+            original = target.read_bytes()
+            with self.assertRaises(FileExistsError):
+                tc.write_secret(target, value)
+            self.assertEqual(target.read_bytes(), original)
+            repo = root / "checkout"
+            (repo / ".git").mkdir(parents=True)
+            with self.assertRaises(ValueError):
+                tc.write_secret(repo / "ordinary-name.json", value)
+            if os.name == "posix":
+                link = root / "link.private.json"
+                link.symlink_to(target)
+                with self.assertRaises(FileExistsError):
+                    tc.write_secret(link, value)
+            shown = root / "explicit.private.json"
+            result = subprocess.run([sys.executable,str(TOOL),"secret","--out",str(shown),"--show-secret"], capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertIn(json.loads(shown.read_text())["secret"],result.stdout)
+
+    @unittest.skipUnless(os.environ.get("CHIMERA_TESTER_VERIFIER"), "native verifier supplied by CTest")
+    def test_native_verifier_matches_input_boundaries(self):
+        code = tc.issue(self.secret, "Ziel")
+        cases = [code, code.lower(), " " + code + "\n", " " * tc.MAX_PASTED + code,
+                 code + "\u00a0", "CHT1-ZIEL-가나다라마바", "CHT1-ZIEL-!!!!!!", "CHT1-X-000000",
+                 tc.issue(self.secret, "SS").replace("-SS-", "-ß-"),
+                 tc.issue(self.secret, "KELVIN").replace("-KELVIN-", "-KELVIN-")]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "code.txt"
+            for text in cases:
+                try:
+                    tc.verify(text,self.secret)
+                    expected = 0
+                except ValueError:
+                    expected = 1
+                path.write_text(text,encoding="utf-8")
+                result = subprocess.run([os.environ["CHIMERA_TESTER_VERIFIER"],"--verify-test-code",self.secret.hex(),str(path)],timeout=5)
+                self.assertEqual(result.returncode,expected)
 
     def test_no_secret_in_repository(self):
         for path in ROOT.rglob("*.json"):

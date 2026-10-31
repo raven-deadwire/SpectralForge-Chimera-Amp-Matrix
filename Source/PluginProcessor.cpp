@@ -75,11 +75,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
 }
 void ChimeraProcessor::recheckBetaClock()
 {
-    // Also picks up a tester code entered in another Chimera instance.
-    if(const auto stored=spectralforge::beta::tester::Store::load(); stored.valid && !betaLifecycle.testerExtension()) {
-        testerHolder=stored.name;
-        betaLifecycle.setTesterExtension(true);
-    }
+    recheckTesterCode(spectralforge::beta::tester::Store::load());
     (void)betaLifecycle.recoverFromClockCorrection(betaClock());
 }
 spectralforge::beta::tester::Grant ChimeraProcessor::applyTesterCode(const juce::String& code)
@@ -91,11 +87,22 @@ spectralforge::beta::tester::Grant ChimeraProcessor::applyTesterCode(const juce:
     }
     return grant;
 }
-void ChimeraProcessor::removeTesterCode()
+void ChimeraProcessor::recheckTesterCode(const spectralforge::beta::tester::Grant& stored)
 {
-    spectralforge::beta::tester::Store::clear();
-    testerHolder.clear();
-    betaLifecycle.setTesterExtension(false);
+    // Replacements and removal in another window update the notice too.
+    // InstanceLatch preserves audio already admitted for this instance.
+    testerHolder=stored.valid ? stored.name : juce::String{};
+    betaLifecycle.setTesterExtension(stored.valid);
+}
+bool ChimeraProcessor::removeTesterCode()
+{
+    return removeTesterCodeAt(spectralforge::beta::tester::Store::file());
+}
+bool ChimeraProcessor::removeTesterCodeAt(const juce::File& storage)
+{
+    if(!spectralforge::beta::tester::Store::clear(storage))return false;
+    recheckTesterCode({});
+    return true;
 }
 juce::String ChimeraProcessor::betaNotice() const
 {
