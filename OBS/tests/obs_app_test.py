@@ -11,6 +11,11 @@ OBS never touches the user's configuration:
   module goes to %ProgramData%\obs-studio\plugins, where Chimera Setup
   installs it, and finds Chimera through default-vst3-path.txt, which Setup
   writes. An existing installation there is never replaced.
+- macOS: OBS.app runs as installed, with its configuration in
+  ~/Library/Application Support/obs-studio (refused when it exists, removed
+  after a passing run, as on Windows). The module goes to its plugins folder,
+  where install.sh puts it, and Chimera to ~/Library/Audio/Plug-Ins/VST3,
+  which the filter searches first; an existing Chimera there is never replaced.
 
 The test drives OBS through its bundled obs-websocket:
 
@@ -21,7 +26,7 @@ The test drives OBS through its bundled obs-websocket:
 3. Pushes a Chimera state saved by another host (lower output gain, written
    by chimera-obs-state-tool) through obs-websocket, as a preset script would.
    The next recording must be clearly quieter.
-4. Quits OBS normally (SIGINT on Linux, closing the main window on Windows). The scene file must hold exactly
+4. Quits OBS normally (SIGINT on Linux and macOS, closing the main window on Windows). The scene file must hold exactly
    that state. OBS starts again: the filter must come back with it and sound
    like the preset recording, not like the default.
 
@@ -51,6 +56,7 @@ SOURCE = "DI loop"
 FILTER = "SpectralForge Chimera"
 RATE = 48000
 WINDOWS = sys.platform == "win32"
+MACOS = sys.platform == "darwin"
 PRESET_PARAMETER = "Output gain"  # default 0.625: the preset is clearly quieter
 PRESET_VALUE = 0.3
 
@@ -131,12 +137,21 @@ class Layout:
     def __init__(self, obs: str, work: Path):
         self.obs = obs
         self.installed = False
+        self.vst3_installed = None  # macOS: the Chimera copy install() made
         if WINDOWS:
             exe = Path(obs).resolve()
             self.cwd = exe.parent  # OBS on Windows expects to start in bin\64bit
             # Not --portable: portable OBS does not search %ProgramData%\obs-studio\plugins.
             self.config = Path(os.environ["APPDATA"]) / "obs-studio"
             self.plugin = Path(os.environ["ProgramData"]) / "obs-studio" / "plugins" / "chimera-obs"
+            self.env = dict(os.environ)
+            self.options = []
+        elif MACOS:
+            self.cwd = work
+            support = Path.home() / "Library" / "Application Support"
+            self.config = support / "obs-studio"
+            self.plugin = self.config / "plugins" / "chimera-obs.plugin"
+            self.vst3 = Path.home() / "Library" / "Audio" / "Plug-Ins" / "VST3"
             self.env = dict(os.environ)
             self.options = []
         else:
@@ -150,8 +165,10 @@ class Layout:
     def install(self, module: Path, vst3: Path) -> None:
         if self.plugin.exists():
             raise RuntimeError(f"{self.plugin} already exists; this test does not replace an installed filter")
+        if MACOS and (self.vst3 / vst3.name).exists():
+            raise RuntimeError(f"{self.vst3 / vst3.name} already exists; this test does not replace an installed Chimera")
         if self.config.exists():
-            if WINDOWS:
+            if WINDOWS or MACOS:
                 raise RuntimeError(f"{self.config} already exists; this test does not touch an OBS configuration")
             shutil.rmtree(self.config)
         self.cwd.mkdir(parents=True, exist_ok=True)
@@ -160,12 +177,20 @@ class Layout:
         if WINDOWS:
             # What Chimera Setup writes when it installs the filter.
             (self.plugin / "data" / "default-vst3-path.txt").write_text(str(vst3), encoding="utf-8")
+        elif MACOS:
+            self.vst3.mkdir(parents=True, exist_ok=True)
+            # Set first: install() refused an existing bundle, so a failed copy is ours to remove.
+            self.vst3_installed = self.vst3 / vst3.name
+            # ditto keeps the bundle's signature, as the Chimera installer does.
+            subprocess.run(["ditto", str(vst3), str(self.vst3_installed)], check=True)
         else:
             (self.cwd / ".vst3").mkdir()
             (self.cwd / ".vst3" / vst3.name).symlink_to(vst3)
 
     def uninstall(self, passed: bool) -> None:
-        if WINDOWS and self.installed:  # only what install() put there
+        if self.vst3_installed is not None:
+            shutil.rmtree(self.vst3_installed, onexc=lambda _f, path, e: print(f"note: could not remove {path}: {e}"))
+        if (WINDOWS or MACOS) and self.installed:  # only what install() put there
             # A locked file must not replace the test's own result; say what is left instead.
             shutil.rmtree(self.plugin, onexc=lambda _f, path, e: print(f"note: could not remove {path}: {e}"))
             if passed:  # a failed run keeps its logs for the CI artifact
@@ -217,6 +242,9 @@ def dialog_text(pid: int) -> str:
 
 def screenshot(path: Path) -> None:
     """The whole desktop as PNG (CI uploads it on failure)."""
+    if MACOS:
+        subprocess.run(["screencapture", "-x", str(path)], check=False, timeout=60)
+        return
     script = ("Add-Type -AssemblyName System.Windows.Forms,System.Drawing;"
               "$b=[System.Windows.Forms.SystemInformation]::VirtualScreen;"
               "$i=New-Object System.Drawing.Bitmap $b.Width,$b.Height;"
@@ -254,6 +282,7 @@ class Obs:
             if WINDOWS and self.process.poll() is None:
                 print(f"     OBS windows: {window_titles(self.process.pid)}", file=sys.stderr)
                 print(f"     OBS window text: {dialog_text(self.process.pid)}", file=sys.stderr)
+            if (WINDOWS or MACOS) and self.process.poll() is None:
                 screenshot(log.with_suffix(".png"))
             # The caller never gets this object, so nothing else would stop OBS.
             if self.ws is not None:
@@ -315,6 +344,8 @@ class Obs:
         try:
             wait_until(lambda: self.request("GetRecordStatus")["outputActive"], f"{name} recording started", 15)
         except RuntimeError as e:
+            if MACOS:
+                screenshot(Path(self.output.name).with_suffix(".png"))
             raise RuntimeError(f"{e}{self.blocking_ui()}") from None
         time.sleep(seconds)
         path = Path(self.request("StopRecord")["outputPath"])
@@ -424,8 +455,9 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     glob.optionxform = str
     # Pre31Migrated: OBS 31 would otherwise move global.ini to user.ini and stop with
     # an error dialog because user.ini (written below) already exists.
+    # MacOSPermissionsDialogLastShown: OBS on macOS would otherwise wait on its permissions dialog.
     glob["General"] = {"FirstRun": "false", "LastVersion": "503316482", "EnableAutoUpdates": "false",
-                       "Pre31Migrated": "true"}
+                       "Pre31Migrated": "true", "MacOSPermissionsDialogLastShown": "1"}
     glob["Basic"] = {"Profile": "Chimera", "ProfileDir": "Chimera", "SceneCollection": "Chimera",
                      "SceneCollectionFile": "Chimera", "ConfigOnNewProfile": "false"}
     glob["BasicWindow"] = {"ConfirmOnExit": "false", "WarnBeforeStoppingRecord": "false",
@@ -564,16 +596,16 @@ def run(args: argparse.Namespace) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--module", required=True, help="staged chimera-obs plugin directory (bin/, data/)")
+    parser.add_argument("--module", required=True, help="staged chimera-obs plugin directory (bin/, data/; macOS: chimera-obs.plugin)")
     parser.add_argument("--vst3", required=True, help="SpectralForge Chimera.vst3 bundle")
     parser.add_argument("--state-tool", required=True, help="chimera-obs-state-tool executable")
     parser.add_argument("--work", required=True, help="scratch directory (deleted first)")
     parser.add_argument("--obs", default="obs", help="OBS Studio executable (Windows: bin\\64bit\\obs64.exe "
-                        "of an installed or unpacked release)")
+                        "of an installed or unpacked release; macOS: OBS.app/Contents/MacOS/OBS)")
     parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for decoding the recordings")
     parser.add_argument("--seconds", type=float, default=6.0, help="length of each recording")
     args = parser.parse_args()
-    if not WINDOWS and not os.environ.get("DISPLAY"):
+    if not WINDOWS and not MACOS and not os.environ.get("DISPLAY"):
         print("FAIL no X display (run under xvfb-run)", file=sys.stderr)
         return 2
     global FFMPEG
