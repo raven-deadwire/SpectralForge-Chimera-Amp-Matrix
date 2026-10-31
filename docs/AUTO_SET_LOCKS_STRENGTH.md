@@ -12,8 +12,8 @@ Multiband, De-esser, Limiter, Dynamic EQ (phase 6, `AUTO_SET_PHASE6.md`), Final
 EQ and Output level (phase 7, `AUTO_SET_PHASE7.md`), Amp (phase 8,
 `AUTO_SET_PHASE8.md`: the head's GAIN, BASS, MIDDLE and TREBLE) and Cabinet
 mic (phase 9, `AUTO_SET_PHASE9.md`: the modeled mic's position, distance and
-level) and Boost pedal (phase 10, `AUTO_SET_PHASE10.md`: the Green Drive it
-places on the board). A locked setting is not part of the run's
+level) Boost pedal (phase 10, `AUTO_SET_PHASE10.md`: the Green Drive it
+places on the board) and Delay + reverb (phase 11, `AUTO_SET_PHASE11.md`). A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
 later edit to a locked setting survives undo. A lock selected after the run
 also protects its stage from undo; unlocking an originally locked stage does
@@ -56,6 +56,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Amp | Each knob change: before + strength × (result − before) |
 | Cabinet mic | The position and distance changes, as for Amp; the level holds the loudness of the applied placement |
 | Boost pedal | OVER DRIVE and the LEVEL change in dB (LEVEL 0.5 is unity); TONE unchanged |
+| Delay + reverb | The mix changes: before + strength × (result − before); time, feedback, size and damping unchanged |
 | Compressor | Mix = strength (parallel); threshold, ratio and times unchanged |
 | Multiband | Mix = strength (parallel); bands unchanged |
 | De-esser | Range (maximum reduction) |

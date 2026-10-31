@@ -172,6 +172,8 @@ public:
     void clearMidi();
     bool learningMidi() const {return midiLearn.load()>=0;}
     float currentTempo() const {return tempoMeter.load();}
+    // Zero when the latest audio callback had no usable HOST tempo.
+    float currentHostTempo() const {return hostTempoMeter.load();}
     void tapTempo();
     int pitchLatency() const { return preFX.transpose.latency(); }
     // Transpose quality/latency mode (0 Classic, 1 Low-Latency, 2 Tight). Stored
@@ -291,6 +293,7 @@ private:
     std::atomic<int> midiLearn{-1};
     std::atomic<bool> restartClick{false};
     std::atomic<float> tempoMeter{120};
+    std::atomic<float> hostTempoMeter{0};
     double lastTap{};std::array<double,4> tapIntervals{};int tapCount{};
     enum Extra {dualType,dualBlend,dualFrequency,inputMode,doublerOn,doublerTime,tempo,hostTempo,metronome,extraCount};
     std::array<std::atomic<float>*,extraCount> extras{};
