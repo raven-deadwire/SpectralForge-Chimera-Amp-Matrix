@@ -1,7 +1,7 @@
 # v3-sinc vs v3-sinc-edge on the residual tone sets of seeds 70711 (12 tones) and 86603 (16 tones).
 import sys,json,tempfile,numpy as np
 from pathlib import Path
-sys.path.insert(0,'/home/user/SpectralForge-Chimera-Amp-Matrix/Tools/TransposeNext')
+sys.path.insert(0,str(__import__('pathlib').Path(__file__).resolve().parents[3]/'Tools'/'TransposeNext'))
 import v3sinc_validation as V, residual_validation as R
 exe,out=sys.argv[1],sys.argv[2];rows=[]
 with tempfile.TemporaryDirectory() as tmp:

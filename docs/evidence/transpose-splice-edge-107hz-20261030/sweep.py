@@ -1,6 +1,6 @@
 # f0 sweep: transient-path jump error vs period, and v3-sinc net residual, per rate/shift.
 import sys,json,subprocess,numpy as np
-sys.path.insert(0,'/home/user/SpectralForge-Chimera-Amp-Matrix/Tools/TransposeNext')
+sys.path.insert(0,str(__import__('pathlib').Path(__file__).resolve().parents[3]/'Tools'/'TransposeNext'))
 import v3sinc_validation as V, residual_validation as R
 S=sys.argv[1];exe=sys.argv[2];out=sys.argv[3];eng=sys.argv[4] if len(sys.argv)>4 else 'v3-sinc'
 rng=np.random.default_rng(7)

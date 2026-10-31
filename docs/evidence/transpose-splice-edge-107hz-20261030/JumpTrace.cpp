@@ -16,8 +16,9 @@ struct CorrelationDiagnostics {
 }
 using namespace transposeNext;
 int main(int argc,char** argv){
-    if(argc!=6)return 1;
+    if(argc!=6){std::cerr<<"usage: JumpTrace in.f32 out.f32 rate shift v3|v3-sinc|v3-sinc-edge\n";return 1;}
     std::ifstream f(argv[1],std::ios::binary|std::ios::ate);const auto bytes=f.tellg();
+    if(!f || bytes<0){std::cerr<<"cannot read "<<argv[1]<<"\n";return 1;}
     std::vector<float> x(size_t(bytes)/4),y(x.size());f.seekg(0);f.read(reinterpret_cast<char*>(x.data()),bytes);
     const double rate=std::stod(argv[3]);const int shift=std::stoi(argv[4]);const std::string eng=argv[5];const bool sinc=eng.rfind("v3-sinc",0)==0;
     juce::ScopedNoDenormals nd;

@@ -2,7 +2,7 @@
 # transient-path minimum travel (hi-lo)/4. Flags splices whose jump sits on the
 # search-range edge [travel, travel+1) samples.
 import sys,json,subprocess,numpy as np
-sys.path.insert(0,'/home/user/SpectralForge-Chimera-Amp-Matrix/Tools/TransposeNext')
+sys.path.insert(0,str(__import__('pathlib').Path(__file__).resolve().parents[3]/'Tools'/'TransposeNext'))
 import v3sinc_validation as V, residual_validation as R
 S,exe,out=sys.argv[1],sys.argv[2],sys.argv[3];K=int(sys.argv[5]);TAG=sys.argv[6];eng=sys.argv[4] if len(sys.argv)>4 else 'v3-sinc'
 def travel(rate,sh):

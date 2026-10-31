@@ -148,4 +148,4 @@ python resid_sets.py <TransposeProbe> resid-setsT.json              # 70711·866
 python latency_targets.py --renderer <TransposeProbe> --engine corr40-split-v3-sinc-edge --out <lt>
 ```
 
-스크립트는 저장소 경로 `/home/user/SpectralForge-Chimera-Amp-Matrix/Tools/TransposeNext`를 import한다. 다른 위치에서 쓰려면 이 경로를 바꿔야 한다.
+스크립트는 자기 위치를 기준으로 저장소의 `Tools/TransposeNext`를 찾아 import한다. 저장소 안의 근거 폴더에서 그대로 실행하면 된다.
