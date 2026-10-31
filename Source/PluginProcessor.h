@@ -37,6 +37,7 @@
 
 #include "AAXIdentity.h"
 #include "HostBypass.h"
+#include "LoudnessMeter.h"
 
 class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
@@ -168,6 +169,9 @@ public:
     void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
+    // Studio loudness / true peak of the final output (docs/LOUDNESS_METER_1_5.md).
+    const spectralforge::LoudnessMeter& outputLoudness() const noexcept { return loudness; }
+    void resetOutputLoudness() noexcept { loudness.requestReset(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
@@ -358,6 +362,7 @@ private:
     std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};
     juce::SmoothedValue<float> inputGain, outputGain, tuningMute;
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
+    spectralforge::LoudnessMeter loudness;
     std::atomic<float> preReduction{0},postReduction{0};
     std::array<std::atomic<float>,6> postPeaks{};
     std::array<std::atomic<float>,3> nativePostMeters{};

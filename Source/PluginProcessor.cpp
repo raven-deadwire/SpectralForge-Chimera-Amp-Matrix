@@ -163,6 +163,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
     lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
+    loudness.prepare(sr);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)juce::jmax(1,getMainBusNumOutputChannels())};
     keyBuffer.setSize(2,maximumBlock);keyBuffer.clear();
     busDelay.setSize(2,int(sr)+maximumBlock+1);busDelay.clear();busDelayWrite=0;   // up to 1 s of latency
@@ -335,6 +336,9 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
         }
     } else if(betaOutputGain.getCurrentValue()==0.f) {buffer.clear();synthBus.clear();}
     if(!betaLifecycle.processingPermitted())outputPeak.store(0.f);
+    // Studio loudness of exactly what leaves the plugin: after the limiter,
+    // output trim and the lifecycle gain.
+    loudness.process(buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     if(buffer.getNumSamples()>0 && rate>0) {
         const double budget=buffer.getNumSamples()/rate;
         const float load=float(100.0*juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-started)/budget);
