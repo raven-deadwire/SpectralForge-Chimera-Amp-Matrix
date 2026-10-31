@@ -124,7 +124,7 @@ def burst_level(path: Path, start: float) -> float:
 
 def duration(path: Path) -> float:
     result = subprocess.run([app.FFMPEG, "-v", "info", "-i", str(path), "-f", "null", "-"],
-                            capture_output=True, text=True)
+                            check=True, capture_output=True, text=True)
     times = re.findall(r"time=(\d+):(\d\d):([\d.]+)", result.stderr)
     if not times:
         raise RuntimeError(f"could not read the length of {path.name}")
@@ -199,9 +199,11 @@ def run(args: argparse.Namespace) -> None:
               f"the session total covers the recording ({total[0]['h']}:{total[0]['m']}:{total[0]['s']} of audio)"
               if total else "the session total is logged")
     app.check(all(line["unprocessed"] == "0" for line in lines), "no unprocessed blocks in any line")
-    windows = seconds(total[0]) / 0.02
-    print(f"     20 ms windows over real time: {total[0]['overruns']} of about {windows:.0f} "
-          f"({100 * int(total[0]['overruns']) / windows:.3f}%), input gaps {total[0]['gaps']}")
+    # RealtimeStats closes a window after a whole source block crosses 20 ms.
+    # Large media-source blocks therefore make longer windows; audio seconds
+    # divided by 20 ms is not the number of windows actually measured.
+    print(f"     over-real-time windows (at least 20 ms of audio): {total[0]['overruns']}; "
+          f"input gaps {total[0]['gaps']}, source blocks {total[0]['blocks']}")
 
     first_offset, first_spread, first_pairs = sync(recording, 30)
     last_start = length - SEGMENT - 5
@@ -262,3 +264,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
