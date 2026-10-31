@@ -74,7 +74,7 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
     oversamplingAuto=state.getRawParameterValue("oversamplingAuto");
-    oversamplingChoiceListener.owner=this;if(auto* choice=state.getParameter("oversampling"))choice->addListener(&oversamplingChoiceListener);
+    oversamplingChoiceListener.owner=this;autoOffWriter.owner=this;if(auto* choice=state.getParameter("oversampling"))choice->addListener(&oversamplingChoiceListener);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
     for(size_t i=0;i<modelParameters.size();++i)modelParameters[i]=state.getRawParameterValue(spectralforge::modelFamilies[i].parameter);
     for(size_t i=0;i<modelParameters.size();++i)modelExtensionParameters[i]=spectralforge::effectFamilyExtended(int(i))?state.getRawParameterValue(spectralforge::effectExtensionID(int(i))):nullptr;
@@ -144,6 +144,7 @@ ChimeraProcessor::~ChimeraProcessor()
 {
     const spectralforge::lifecycle::Scope trace("processor.destroy", this);
     if(auto* choice=state.getParameter("oversampling"))choice->removeListener(&oversamplingChoiceListener);
+    autoOffWriter.cancelPendingUpdate();
     releaseResources();
 }
 void ChimeraProcessor::releaseResources()
@@ -162,7 +163,7 @@ void ChimeraProcessor::releaseResources()
 void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
-    releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
+    releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr;preparedRate.store(sr); maximumBlock=juce::jmax(1,block);
     switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
     lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
@@ -965,6 +966,10 @@ void ChimeraProcessor::syncOriginalCabRequests()
 juce::ValueTree ChimeraProcessor::captureCore()
 {
     auto saved=state.copyState();
+    // A host change of OVERSAMPLING whose Auto switch-off is still queued is
+    // saved as Auto off, as the audio already runs.
+    if(autoOffPending.load())
+        for(auto child:saved)if(child.getProperty("id").toString()=="oversamplingAuto")child.setProperty("value",0.f,nullptr);
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
     eqEditState.saveMetadata(saved);
@@ -1046,6 +1051,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     ++headRecallRevision;
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
     const RestoringScope restoring(restoringState);
+    autoOffPending.store(false);autoOffWriter.cancelPendingUpdate();   // the restored state decides Auto
     beginSwitch(); // the old sound fades out (and stays muted) before any of the new state applies
     spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
     boardUndo.clear();boardRedo.clear();orderUndo.clear();orderRedo.clear();midiLearn.store(-1);
@@ -1169,8 +1175,9 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
     ++headRecallRevision;
     beginSwitch(); // the old sound fades out (and stays muted) while the snapshot is built
     {
-        // A preset writes OVERSAMPLING 4x; that keeps the current Auto choice.
-        const RestoringScope restoring(restoringState);
+        // The snapshot resets OVERSAMPLING Auto to its default (on); its 4x
+        // write must not turn that off again.
+        const RestoringScope restoring(restoringState);autoOffPending.store(false);autoOffWriter.cancelPendingUpdate();
         const auto snapshot=spectralforge::isNiflheimrPreset(index)
             ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)
             : spectralforge::isOriginalPreset(index)
@@ -1197,11 +1204,19 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
 }
 
 int ChimeraProcessor::effectiveOversampling() const noexcept {
-    return spectralforge::effectiveOversamplingChoice(int(globals[os]->load()),oversamplingAuto!=nullptr && oversamplingAuto->load()>.5f,rate);   // the rate of the last prepareToPlay
+    const bool automatic=oversamplingAuto!=nullptr && oversamplingAuto->load()>.5f && !autoOffPending.load();
+    return spectralforge::effectiveOversamplingChoice(int(globals[os]->load()),automatic,preparedRate.load());   // the rate of the last prepareToPlay
 }
 void ChimeraProcessor::OversamplingChoiceListener::parameterValueChanged(int,float) {
     if(owner==nullptr || owner->restoringState.load()>0)return;
-    if(auto* automatic=owner->state.getParameter("oversamplingAuto"); automatic!=nullptr && automatic->getValue()>.5f)automatic->setValueNotifyingHost(0.f);
+    if(owner->oversamplingAuto==nullptr || owner->oversamplingAuto->load()<=.5f)return;
+    owner->autoOffPending.store(true);owner->autoOffWriter.triggerAsyncUpdate();
+}
+void ChimeraProcessor::AutoOffWriter::handleAsyncUpdate() {
+    if(owner==nullptr || !owner->autoOffPending.load())return;
+    if(auto* automatic=owner->state.getParameter("oversamplingAuto"); automatic!=nullptr && automatic->getValue()>.5f)
+        {automatic->beginChangeGesture();automatic->setValueNotifyingHost(0.f);automatic->endChangeGesture();}
+    owner->autoOffPending.store(false);
 }
 int ChimeraProcessor::ampContext(int lane) const noexcept {
     return spectralforge::ampNativeContext((int)globals[mode]->load(),lane);

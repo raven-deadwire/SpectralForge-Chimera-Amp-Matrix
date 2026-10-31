@@ -26,12 +26,16 @@ inline void appendTruePeakLimiterParameters(juce::AudioProcessorValueTreeState::
 // Detector: the interpolator the loudness meter uses (TruePeak.h) gives, per
 // input sample, the largest true-peak point within one sample of the input
 // `truePeakDelay` samples back. The gain that point needs is ceiling / peak.
-// Gain: a running minimum over `window + 2` of those needs, a release that
-// only lets the gain rise, then a `window`-long moving average. Every value
-// the average takes in is a minimum that covers the same three detector
-// points, so the averaged gain never exceeds what any of them needs: the
-// ramp down is finished when the peak arrives and has no step.
-// The audio is delayed by `window + truePeakDelay`; that is the latency.
+// Gain: a running minimum over `window + 2 + 2 * truePeakDelay` of those
+// needs, a release that only lets the gain rise, then a `window`-long moving
+// average. Every value the average takes in is a minimum that covers the
+// detector points within truePeakDelay + 1 samples on both sides of the
+// sample it is applied to, so the gain is flat (at or below what they need)
+// across the whole span an inter-sample peak is interpolated from: the ramp
+// down is finished before that span begins and has no step. (A minimum over
+// only the nearest three points left the gain sloping inside the span and
+// let fast releases overshoot by up to 0.006 dB.)
+// The audio is delayed by `window + 2 * truePeakDelay`; that is the latency.
 // With no reduction the gain is exactly 1 and the output is the input,
 // delayed, bit for bit.
 class TruePeakLimiter {
@@ -43,9 +47,9 @@ public:
         factor = truePeakFactor(sampleRate);
         phases = truePeakPhases(factor);
         window = std::max(1, juce::roundToInt(sampleRate * lookaheadSeconds));
-        delayLength = window + truePeakDelay;
+        delayLength = window + 2 * truePeakDelay;
         for (auto& d : delay) d.assign(size_t(delayLength), 0.f);
-        minimumSpan = window + 2;
+        minimumSpan = window + 2 + 2 * truePeakDelay;
         queueIndex.assign(size_t(minimumSpan + 1), 0);
         queueValue.assign(size_t(minimumSpan + 1), 1.);
         average.assign(size_t(window), 1.);
@@ -66,9 +70,9 @@ public:
         float peak = 0.f;
         for (int c = 0; c < channels; ++c)
             peak = std::max(peak, history[size_t(c)].push(frame[c], phases, factor));
-        // Aim 0.01 dB under the ceiling: the gain moves between the samples an
-        // inter-sample peak is built from, which can add a few thousandths of
-        // a dB (docs/TRUE_PEAK_LIMITER_1_5.md).
+        // Aim 0.01 dB under the ceiling, a reserve for float rounding and the
+        // gain's slope at the far ends of the flat span (measured worst
+        // -0.005 dB, docs/TRUE_PEAK_LIMITER_1_5.md).
         const double target = ceiling * margin;
         const double need = double(peak) > target ? target / double(peak) : 1.;
         // Running minimum over the last `minimumSpan` needs (monotonic queue).

@@ -725,6 +725,9 @@ void ChimeraEditor::showInfo()
 }
 void ChimeraEditor::syncOversamplingChoice()
 {
+    // Standalone's muted-input guide sits over the header; Auto Set cannot
+    // listen to a muted input anyway, so the header button waits for it.
+    headerAutoSet.setVisible(!inputGuide.isVisible());
     const auto& state=processor.parameters();
     const bool automatic=state.getRawParameterValue("oversamplingAuto")!=nullptr && state.getRawParameterValue("oversamplingAuto")->load()>.5f;
     const int stored=juce::jlimit(0,3,juce::roundToInt(state.getRawParameterValue("oversampling")->load()));

@@ -35,7 +35,7 @@ Host, installer and target-hardware acceptance stay separate.
 4. **Sample-rate and block changes:**
    - 44.1 kHz/512, 96/64, 192/256, back to 48/128.
    - No parameter moves.
-   - The Studio limiter's share of the latency follows the rate: 1 ms + 8 samples.
+   - The Studio limiter's share of the latency follows the rate: 1 ms + 16 samples.
 
 `CHIMERA_WHOLE_PRODUCT_PROFILE=matrix96` runs only the released Matrix defaults at 96 kHz / 128 for 1 s, for a profiler.
 

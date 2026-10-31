@@ -15,6 +15,9 @@ namespace cabSceneUITests {
 using namespace cabMicrophoneUITests;
 
 inline std::vector<float> parameterValues(const ChimeraProcessor& processor) {
+    // Let queued message-thread writes land first (an OVERSAMPLING change
+    // switches Auto off right after, docs/OVERSAMPLING_AUTO.md).
+    juce::MessageManager::getInstance()->runDispatchLoopUntil(5);
     std::vector<float> result;
     for(auto* parameter:processor.getParameters())result.push_back(parameter->getValue());
     return result;

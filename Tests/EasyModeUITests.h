@@ -408,11 +408,16 @@ inline void inputGuide(const juce::File& directory) {
             auto* view=find<EasyModeView>(*editor,"easyView");
             for(auto* id:{"easy.fullEditor","easy.preset","easy.autoSet","easy.tuner"})
                 require(!active->getBoundsInParent().intersects(find(*view,id)->getBoundsInParent()),"Input guide covers an Easy control");
+        } else {
+            // The header AUTO SET would sit under the guide: it waits until the input is on.
+            auto* header=find<juce::TextButton>(*editor,"header.autoSet");
+            require(header!=nullptr && !header->isVisible(),"Header AUTO SET shown under the muted-input guide");
         }
         signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.settings"));settle(80);
         require(settingsOpened==(easy?1:2) && muted && unmuteCalls==(easy?0:1),"AUDIO SETTINGS must not unmute");
         signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.unmute"));settle(400);
         require(!muted && !guide->isVisible() && !full->isVisible(),"INPUT ON must hide both guides");
+        if(!easy)require(find<juce::TextButton>(*editor,"header.autoSet")->isVisible(),"Header AUTO SET did not return with the input on");
         require(guide->isPollingInput() && full->isPollingInput(),"Standalone must still observe re-muting");
         muted=true;settle(400);
         require(guide->isVisible() && full->isVisible(),"Muting in settings must restore both guides");

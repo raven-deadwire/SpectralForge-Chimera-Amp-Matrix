@@ -371,6 +371,14 @@ private:
     // comparison or preset is being restored.
     std::atomic<float>* oversamplingAuto{};
     std::atomic<int> restoringState{0};
+    // A host write reaches the listener inside the wrapper's own callback,
+    // where a nested parameter write is not passed on to the host. So the
+    // audio stops following Auto at once (autoOffPending), and the switch
+    // itself is written afterwards on the message thread, where the host
+    // hears it.
+    std::atomic<bool> autoOffPending{false};
+    std::atomic<double> preparedRate{48000};
+    struct AutoOffWriter final : juce::AsyncUpdater {ChimeraProcessor* owner{};void handleAsyncUpdate() override;} autoOffWriter;
     struct OversamplingChoiceListener final : juce::AudioProcessorParameter::Listener {
         ChimeraProcessor* owner{};
         void parameterValueChanged(int,float) override;

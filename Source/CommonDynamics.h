@@ -75,7 +75,7 @@ class CommonDynamics {
 public:
     void bind(juce::AudioProcessorValueTreeState& state){for(size_t i=0;i<ids.size();++i)p[i]=state.getRawParameterValue(ids[i]);limiterMode=state.getRawParameterValue("limiterMode");}
     void prepare(double sr){rate=std::max(8000.,sr);wet.reset(rate,.005);makeup.reset(rate,.01);mix.reset(rate,.01);modeFade.reset(rate,.01);studio.prepare(rate);reset();}
-    void reset(){hpIn={};hpOut={};energy=peakEnvelope=gr=0;limiterGain=1;activeLimiterMode=wantedLimiterMode();studio.reset();modeFade.setCurrentAndTargetValue(1.f);wet.setCurrentAndTargetValue(get(0,0,1,0));makeup.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(get(6,-12,24,0)));mix.setCurrentAndTargetValue(get(7,0,1,1));compReduction.store(0);limitReduction.store(0);}
+    void reset(){hpIn={};hpOut={};energy=peakEnvelope=gr=0;limiterGain=1;refill=0;activeLimiterMode=wantedLimiterMode();studio.reset();modeFade.setCurrentAndTargetValue(1.f);wet.setCurrentAndTargetValue(get(0,0,1,0));makeup.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(get(6,-12,24,0)));mix.setCurrentAndTargetValue(get(7,0,1,1));compReduction.store(0);limitReduction.store(0);}
     bool expander() const noexcept{return get(10,0,1,0)>.5f;}
     float gateRatio() const noexcept{return get(11,1,20,2);}
     float gateAttack() const noexcept{return get(12,.1f,20,.5f);}
@@ -113,8 +113,9 @@ public:
     }
     // Live (0): the zero-latency sample-peak limiter. Studio (1): lookahead
     // true peak (TruePeakLimiter.h), latency reported while it is selected,
-    // on or off. A mode change fades the output out (10 ms), swaps, fades in;
-    // the processor reports the new latency from the swap.
+    // on or off. A mode change fades the output out (10 ms), swaps, and fades
+    // in (into Studio only once its lookahead line has refilled); the
+    // processor reports the new latency from the block after the swap.
     int limiterLatency() const noexcept{return activeLimiterMode.load()==1?studio.latency():0;}
     int limiterModeInUse() const noexcept{return activeLimiterMode.load();}
     void limit(juce::AudioBuffer<float>& audio) noexcept {
@@ -137,9 +138,11 @@ public:
                 gain=limiterGain;for(int c=0;c<channels;++c)frame[size_t(c)]=float(frame[size_t(c)]*limiterGain);
             }
             minimum=std::min(minimum,gain);
-            const float fade=modeFade.getNextValue();
+            // After a swap into Studio the lookahead line is empty: stay muted
+            // until it has refilled, then fade in from the delayed audio.
+            const float fade=refill>0?(--refill,0.f):modeFade.getNextValue();
             for(int c=0;c<channels;++c)audio.setSample(c,n,frame[size_t(c)]*fade);
-            if(wanted!=activeLimiterMode && fade<=0.f){activeLimiterMode=wanted;studio.reset();limiterGain=1;modeFade.setTargetValue(1.f);}
+            if(wanted!=activeLimiterMode && fade<=0.f){activeLimiterMode=wanted;studio.reset();limiterGain=1;refill=wanted==1?studio.latency():0;modeFade.setTargetValue(1.f);}
         }
         limitReduction.store(float(-20*std::log10(std::max(1e-12,minimum))));
     }
@@ -166,6 +169,6 @@ private:
 
     std::array<std::atomic<float>*,16> p{};double rate{48000},energy{},peakEnvelope{},gr{},limiterGain{1};
     std::array<double,2> hpIn{},hpOut{};juce::SmoothedValue<float> wet,makeup,mix,modeFade;
-    std::atomic<float>* limiterMode{};std::atomic<int> activeLimiterMode{0};TruePeakLimiter studio;   // the mode is read by the editor
+    std::atomic<float>* limiterMode{};std::atomic<int> activeLimiterMode{0};int refill{};TruePeakLimiter studio;   // the mode is read by the editor
 };
 }

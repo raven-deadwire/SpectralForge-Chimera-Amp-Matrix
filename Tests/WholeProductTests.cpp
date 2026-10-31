@@ -182,7 +182,7 @@ void rateAndBlockChanges(){
         require(finite,"non-finite output after a sample-rate change");
         const auto now=values(*p);for(size_t i=0;i<now.size();++i)require(now[i]==before[i],"a sample-rate change moved "+idOf(p->getParameters()[int(i)]));
         // The Studio limiter's share of the latency follows the rate.
-        const int limiter=juce::roundToInt(c.rate*.001)+8;
+        const int limiter=juce::roundToInt(c.rate*.001)+16;
         set(*p,"limiterMode",0);render(*p,c.rate,c.block,.05,0);const int live=p->getLatencySamples();
         set(*p,"limiterMode",1);render(*p,c.rate,c.block,.05,0);const int studio=p->getLatencySamples();
         std::cout<<"MEASURE "<<c.rate/1000.<<" kHz / "<<c.block<<": latency "<<studio<<" samples (Live "<<live<<")\n";
