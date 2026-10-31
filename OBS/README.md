@@ -31,6 +31,7 @@ JUCE는 쓰지 않는다.
 | `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
 | `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
+| `tests/obs_long_record_test.py` | 실제 OBS Studio 앱에서 필터를 거쳐 1시간 녹화(D단계): 10분 실시간 줄·합계, 시작/끝 영상 싱크, 소리 유지, OBS 통계 | 시험 |
 
 - 이름이 `SpectralForge Chimera`이고 제작사가 `RavenForge Luthier Intelligence`인 VST3 클래스만 로드한다(범용 VST3 호스트 아님).
 - 경로를 비우면 Setup이 기록한 VST3 위치(`data/default-vst3-path.txt`, UTF-8)를 먼저 쓰고, 없으면 표준 설치 위치를 찾는다:
@@ -81,6 +82,16 @@ GPL 애드온은 기존대로 별도 VST3를 호스팅하며 제품 DSP를 링�
 
 OBS 로그에는 오디오 10분마다 한 줄, 필터를 제거할 때 전체 합계 한 줄이 남는다.
 OBS를 정상 종료할 때도 합계 줄이 남는다(Linux 실제 OBS 30.0.2, Windows·macOS 실제 OBS 31.1.2에서 확인). 강제 종료에서는 남지 않으므로 1시간 기록은 10분 줄로 판단한다.
+
+`tests/obs_long_record_test.py`가 이 판단을 실제 OBS에서 자동으로 한다(CI `obs-long-recording.yml`, Linux OBS 30.0.2·Xvfb, 1시간 넘게 걸려 요청 시와 시험 변경 시에만 실행).
+2초마다 톤 0.25초와 흰 화면 3프레임이 함께 나오는 64분 파일 하나(반복 없음)를 필터를 거쳐 61분 녹화하고 다음을 확인한다.
+
+- 10분 실시간 줄과 합계가 3600초 이상의 필터 오디오를 담고 처리하지 못한 블록이 0(테스트 킷과 같은 규칙, 같은 정규식)
+- 녹화 처음과 끝 1분의 소리-화면 어긋남 차이가 1프레임(33 ms) 이하, 끝의 소리 크기가 처음과 1 dB 이내
+- 녹화 길이 1시간 이상, OBS 정상 종료
+
+부하·실시간 초과·입력 끊김과 OBS 통계(CPU·메모리·건너뛴 렌더/출력 프레임, 1분마다)는 출력과 요약 JSON(CI 아티팩트)으로만 남기고 사람이 판단한다.
+로컬 3분 실행(OBS 30.0.2): 어긋남 처음 +13.3 ms·끝 +13.6 ms, 실시간 초과 0, 입력 끊김 0, 메모리 367 MB 유지.
 
 ```
 [chimera-obs] 'Guitar DI': realtime: 0:10:00 of audio, 28125 blocks, Chimera load average 3.1% peak 12.4%, 20 ms windows over real time 0, input gaps 0 (resumed after silence 0), unprocessed blocks 0
@@ -295,6 +306,6 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
 **미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux·Windows·macOS 앱 시험은
-obs-websocket으로 필터를 추가·설정하며 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정,
+obs-websocket으로 필터를 추가·설정하며 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, Windows·macOS 실제 OBS 1시간 녹화(Linux만 자동),
 OBS 32.x, macOS Intel(Rosetta)에서의 실제 OBS 앱 확인. 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
