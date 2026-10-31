@@ -148,7 +148,10 @@ class SourceScope(unittest.TestCase):
         for old, new in ((b"b.acquire<290", b"b.acquire<400"),
                          (b"std::abs(b.cents)<.1", b"std::abs(b.cents)<1"),
                          (b'"ROUTE FAIL rate="', b'"route omitted="'),
-                         (b"const double elapsed=", b"const double elapsed=0*")):
+                         (b"const double elapsed=", b"const double elapsed=0*"),
+                         (b"pauseWorkerForTest(1200)", b"pauseWorkerForTest(450)"),
+                         (b"milliseconds(1500)", b"milliseconds(500)"),
+                         (b"milliseconds(280)", b"milliseconds(100)")):
             with self.subTest(mutation=old):
                 self.assertIn(old, reviewed)
                 self.write(contract.TUNER_DIAGNOSTICS_PATH, reviewed.replace(old, new, 1))

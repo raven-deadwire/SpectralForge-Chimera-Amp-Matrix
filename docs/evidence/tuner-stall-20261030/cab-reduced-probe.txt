@@ -1,0 +1,4 @@
+original check PASS
+width=240 changed=0 max_alpha_delta=0 actual_transform=0.171306207776,28.3511772156,4.02569580078 expected_transform=0.171306207776,28.3511772156,4.02569580078 source_equal=1
+width=640 changed=0 max_alpha_delta=0 actual_transform=0.45681655407,8.93647384644,-55.9314575195 expected_transform=0.45681655407,8.93647384644,-55.9314575195 source_equal=1
+width=1120 changed=0 max_alpha_delta=0 actual_transform=0.799428999424,-14.3611717224,-127.880065918 expected_transform=0.799428999424,-14.3611717224,-127.880065918 source_equal=1
