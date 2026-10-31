@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "date": "2026-10-31",
+  "format": "SlimmableContainer: A2-Lite (3 channels, max_value 0.5) + A2-Full (8 channels, max_value 1.0)",
+  "zip": "Nastrond-A2-TONE3000-LiteFull.zip",
+  "zip_sha256": "6db62d3731cdbcb5097a67fbbe732248cb54b8346088e0a1971b1bbf27f978b0",
+  "files": {
+    "NAM/Nastrond-Fenrir.nam": "61fca5a0ed99f16f7507bbd97191675bb9a726301613262290029e59f8978986",
+    "NAM/Nastrond-Fimbulvetr.nam": "e05d19e0b6b890c8899aca74d8992cc8a75de3f4194615178e77b7225b688f57",
+    "NAM/Nastrond-Nidhoggr.nam": "90ed1175ddad6c1ef98224b7d1dbd75452a9fd3a5afb0c875a6fad44f0566d92",
+    "NAM/Nastrond-Ragnarok.nam": "28468a5bc3af6e32cb64af89a5c31d5cd73b35d73c4aea670b7be643493440ca",
+    "NAM/Nastrond-Surtr.nam": "06f74a15a5e57f296b3c74f300d50670751219734b522cb51ae9c7485935c201",
+    "TONE3000-Presets/Nastrond-Fenrir.t3kpreset": "8ab80f3ba8574bfcc7093f412f4c97b9f52c92d71aee69bd0757ae4ef7da6d83",
+    "TONE3000-Presets/Nastrond-Fimbulvetr.t3kpreset": "1977494d94bf0cdc08f8693047b9587a0e80d73e94305acefb235c7b81c10e4a",
+    "TONE3000-Presets/Nastrond-Nidhoggr.t3kpreset": "bc4f788a6a57918677684d42dbf81bb51b9f8ea36330b19a7e0129102347fd74",
+    "TONE3000-Presets/Nastrond-Ragnarok.t3kpreset": "d11709b6a308e73f2a8c9f128b5afd77a88a79de3e89e489c7e77e75a50baa37",
+    "TONE3000-Presets/Nastrond-Surtr.t3kpreset": "05078799b7411960569a9b9c8cc1a4132da79ca30fd833c4547532ff00050ea2"
+  },
+  "full": "unchanged from release-approval-20261029 (kept-best-20261029)",
+  "lite": {
+    "Fenrir": {
+      "selected_step": 17500,
+      "validation": {
+        "full_esr": 0.05811175384274461,
+        "active_median": 0.04287732421652092,
+        "active_p95": 0.17254425303714058,
+        "active_worst": 0.31721084596156846,
+        "quiet_worst_residual_rms_dbfs": -73.93152112570053,
+        "quiet_worst_residual_peak_dbfs": -58.47849148607572,
+        "rms_error_db": -0.22686165684345658,
+        "peak_error_db": -0.36015160007554137,
+        "level_pass": true,
+        "quiet_pass": false
+      },
+      "test": {
+        "full_esr": 0.06372145969115517,
+        "active_median": 0.04808836183871852,
+        "active_p95": 0.2041408950701528,
+        "active_worst": 0.38991949878027093,
+        "quiet_worst_residual_rms_dbfs": -88.77244973470422,
+        "quiet_worst_residual_peak_dbfs": -81.89488912659229,
+        "rms_error_db": -0.22776931415321117,
+        "peak_error_db": -0.45606255386316086,
+        "level_pass": true,
+        "quiet_pass": true
+      }
+    },
+    "Surtr": {
+      "selected_step": 500,
+      "validation": {
+        "full_esr": 0.05747906622887532,
+        "active_median": 0.049992099186516425,
+        "active_p95": 0.18294320851931814,
+        "active_worst": 0.32698474837718766,
+        "quiet_worst_residual_rms_dbfs": -77.50310877033836,
+        "quiet_worst_residual_peak_dbfs": -70.33658726823995,
+        "rms_error_db": -0.16288720136741575,
+        "peak_error_db": -0.2772244922275977,
+        "level_pass": true,
+        "quiet_pass": true
+      },
+      "test": {
+        "full_esr": 0.056957515071700215,
+        "active_median": 0.049619385832564644,
+        "active_p95": 0.17300922697200039,
+        "active_worst": 0.3232452178404251,
+        "quiet_worst_residual_rms_dbfs": -76.79168933690063,
+        "quiet_worst_residual_peak_dbfs": -69.60404451851655,
+        "rms_error_db": -0.19438451015990532,
+        "peak_error_db": -0.377858746175761,
+        "level_pass": true,
+        "quiet_pass": true
+      }
+    },
+    "Nidhoggr": {
+      "selected_step": 0,
+      "validation": {
+        "full_esr": 0.060963591136197134,
+        "active_median": 0.03871435291250912,
+        "active_p95": 0.23185020696034,
+        "active_worst": 0.4032796025384516,
+        "quiet_worst_residual_rms_dbfs": -74.73341518379537,
+        "quiet_worst_residual_peak_dbfs": -67.26739122890551,
+        "rms_error_db": -0.24007538619041058,
+        "peak_error_db": 0.6188966226797863,
+        "level_pass": true,
+        "quiet_pass": true
+      },
+      "test": {
+        "full_esr": 0.060272712164222676,
+        "active_median": 0.049873198802287716,
+        "active_p95": 0.1679899015717085,
+        "active_worst": 0.41488289484857005,
+        "quiet_worst_residual_rms_dbfs": -77.56650967558951,
+        "quiet_worst_residual_peak_dbfs": -70.64674968690987,
+        "rms_error_db": -0.27043001211917306,
+        "peak_error_db": 0.2145435077093225,
+        "level_pass": true,
+        "quiet_pass": true
+      }
+    },
+    "Fimbulvetr": {
+      "selected_step": 500,
+      "validation": {
+        "full_esr": 0.02569021896671143,
+        "active_median": 0.017283310038120725,
+        "active_p95": 0.07315401350007229,
+        "active_worst": 0.2348426966897747,
+        "quiet_worst_residual_rms_dbfs": -77.4968778948948,
+        "quiet_worst_residual_peak_dbfs": -70.10974300941271,
+        "rms_error_db": -0.15828398768719476,
+        "peak_error_db": 0.631055283039462,
+        "level_pass": true,
+        "quiet_pass": true
+      },
+      "test": {
+        "full_esr": 0.028278465865724037,
+        "active_median": 0.02603325154405898,
+        "active_p95": 0.07704569257406002,
+        "active_worst": 0.1626549170159296,
+        "quiet_worst_residual_rms_dbfs": -81.8388128400229,
+        "quiet_worst_residual_peak_dbfs": -75.34069979430383,
+        "rms_error_db": -0.1948940432220086,
+        "peak_error_db": -0.03904825028814507,
+        "level_pass": true,
+        "quiet_pass": true
+      }
+    },
+    "Ragnarok": {
+      "selected_step": 16500,
+      "validation": {
+        "full_esr": 0.0708450414386122,
+        "active_median": 0.07232792015752823,
+        "active_p95": 0.2284092795335378,
+        "active_worst": 0.41290499536043124,
+        "quiet_worst_residual_rms_dbfs": -75.9294716624858,
+        "quiet_worst_residual_peak_dbfs": -67.81007149850278,
+        "rms_error_db": -0.3711932391347741,
+        "peak_error_db": 0.9366383422124187,
+        "level_pass": true,
+        "quiet_pass": true
+      },
+      "test": {
+        "full_esr": 0.08129121775960098,
+        "active_median": 0.07446112666078768,
+        "active_p95": 0.24481341440218335,
+        "active_worst": 1.1855556990979723,
+        "quiet_worst_residual_rms_dbfs": -70.2355848032397,
+        "quiet_worst_residual_peak_dbfs": -63.86811103204778,
+        "rms_error_db": -0.5653692238383918,
+        "peak_error_db": 0.33785960196762765,
+        "level_pass": false,
+        "quiet_pass": true
+      }
+    }
+  },
+  "tone3000": {
+    "listed_as_a2": true,
+    "lite_tier_audible_in_plugin": true,
+    "reported_by": "owner, 2026-10-31"
+  },
+  "lite_gate": "report only (owner decision): v3 applies to A2-Full"
+}

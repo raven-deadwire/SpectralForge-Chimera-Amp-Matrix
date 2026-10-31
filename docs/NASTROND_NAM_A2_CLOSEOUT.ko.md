@@ -27,6 +27,16 @@ Náströnd 제품 채널 5개의 NAM A2-Full 캡처와 TONE3000 프리셋이 **�
 - 모델·프리셋별 해시는 승인 보고서에 있습니다.
 - zip은 임시 세션에서 만들었습니다. zip 파일은 레포 밖에 따로 보관해야 하고, 해시는 이 문서가 영구 기록입니다.
 
+## 2026-10-31 갱신: A2-Lite + A2-Full
+
+처음 올린 패키지는 TONE3000에서 A2가 아닌 커스텀 모델로 분류됐습니다. TONE3000의 A2 형식은 A2-Lite(3채널)와 A2-Full(8채널) 두 크기를 하나로 묶은 `SlimmableContainer`인데, 첫 패키지에는 A2-Full만 들어 있었기 때문입니다. 지금은 채널마다 이 형식으로 묶어 배포합니다.
+
+- **A2-Full:** 바뀌지 않았고, 승인된 출시 모델 그대로입니다.
+- **A2-Lite:** 따로 학습했습니다. 판정 없이 수치만 기록하며, 검증 full ESR 0.026~0.071, 테스트 0.028~0.081입니다.
+- **배포 결과:** 새 패키지를 배포했고, TONE3000에서 **A2로 인식**됩니다. 플러그인의 NAM A2 Size를 A2-Lite로 바꾸면 소리가 달라지는 것도 확인했습니다.
+
+자세한 내용과 Lite 수치, 새 해시는 [tone3000-lite-full-20261031](../Tools/Nam/reports/tone3000-lite-full-20261031.md)에 있습니다. 배포한 zip은 `Nastrond-A2-TONE3000-LiteFull.zip`이고, SHA-256은 `6db62d3731cdbcb5097a67fbbe732248cb54b8346088e0a1971b1bbf27f978b0`입니다.
+
 ## 출시된 모델
 
 **공통 조건:** 모두 제품 기본값의 앰프 헤드 캡처입니다(캐비닛 없음, 48 kHz, A2-Full 8채널). 수치는 합성 검증·테스트 신호를 `quality_profile.fidelity`로 측정한 값입니다.
@@ -136,8 +146,8 @@ Náströnd 제품 채널 5개의 NAM A2-Full 캡처와 TONE3000 프리셋이 **�
 1. **빌드:** `Tools/Nam/ci-sources.json`에 고정된 JUCE와 TONE3000 플레이어 커밋으로 `Tools/Nam/CMakeLists.txt`를 사용해 `ChimeraNamRender`와 `ChimeraTone3000Tool`을 빌드합니다.
 2. **캡처:** `capture_channels.py --train-seed N`으로 480초 단위를 캡처합니다. 검증·테스트·청음용 시드는 고정돼 있습니다.
 3. **학습 데이터 늘리기:** `combine_captures.py`나 `append_captures.py`로 합칩니다. 렌더러가 한 번에 600초까지만 받기 때문입니다.
-4. **학습:** `train_a2.py --recipe legacy --center-training-output`으로 학습합니다. 최고 모델에서 이어서 학습할 때는 `--keep-passed`와 학습률 워밍업을 씁니다. 채널 하나만 고칠 때는 `--train-channels`, `--target-limits`, `--block-norm-samples`, `--peak-weight`를 함께 씁니다.
-5. **패키징과 검증:** `package_a2.py`로 패키지를 만들고, `ci_pipeline.compare_package`로 검증합니다.
+4. **학습:** `train_a2.py --recipe legacy --center-training-output`으로 A2-Full과 A2-Lite(`--width 3`)를 학습합니다. 최고 모델에서 이어서 학습할 때는 `--keep-passed`와 학습률 워밍업을 씁니다. 채널 하나만 고칠 때는 `--train-channels`, `--target-limits`, `--block-norm-samples`, `--peak-weight`를 함께 씁니다.
+5. **패키징과 검증:** `package_a2.py --lite-run`으로 패키지를 만들고, `ci_pipeline.compare_package`로 검증합니다. `--lite-run` 없이 만들면 TONE3000이 A2가 아닌 커스텀으로 분류합니다.
 6. **승인:** `approve_release.py`로 승인합니다. 모든 채널이 v3를 양쪽 신호에서 통과하지 않으면 승인을 거부하고, 오너의 청음 확인 내용을 기록합니다.
 
 **실무 메모**
@@ -147,6 +157,9 @@ Náströnd 제품 채널 5개의 NAM A2-Full 캡처와 TONE3000 프리셋이 **�
 
 ## 남은 과제
 
+- **A2-Lite:** Lite 청음 확인은 따로 기록되지 않았습니다. 기준을 넘는 항목이 두 개 있지만, Lite는 판정 없이 기록만 합니다.
+  - Fenrir Lite: 검증 조용한 구간 피크 −58.5 dBFS (한도 −60 dBFS)
+  - Ragnarok Lite: 테스트 RMS 레벨 −0.57 dB (한도 ±0.5 dB)
 - **청음 기록:** 오너의 청음 확인은 받은 그대로 기록했습니다. 어떤 방법이나 음원으로 들었는지는 기록에 없습니다.
 - **실사용 검증 없음:** GUI/DAW에서 실제로 써 보는 검증은 하지 않았습니다. 모든 측정은 합성 신호로 했고, 실제 악기 DI 녹음은 쓰지 않았습니다.
 - **조건이 바뀌면 다시 확인:**

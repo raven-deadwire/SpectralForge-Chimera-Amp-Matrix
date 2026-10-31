@@ -28,6 +28,23 @@ and preset hashes are in the approval report. Keep the zip outside the
 repository. It was built in an ephemeral session, and this document is the
 durable record of its hashes.
 
+## Update 2026-10-31: A2-Lite + A2-Full
+
+The first upload was listed by TONE3000 as a custom model. TONE3000's A2 is a
+`SlimmableContainer` of an A2-Lite (3-channel) and an A2-Full (8-channel) tier;
+the first package held A2-Full only. Each channel now ships as that container.
+
+- **A2-Full:** unchanged, still the approved release.
+- **A2-Lite:** trained separately. It is report-only, with validation full ESR
+  0.026 to 0.071 and test 0.028 to 0.081.
+- **Deployed:** the new package is live. TONE3000 lists it as **A2**, and
+  switching the plugin's NAM A2 Size to A2-Lite changes the sound.
+
+Details, Lite metrics and the new hashes:
+[tone3000-lite-full-20261031](../Tools/Nam/reports/tone3000-lite-full-20261031.md).
+The deployed zip is `Nastrond-A2-TONE3000-LiteFull.zip`, SHA-256
+`6db62d3731cdbcb5097a67fbbe732248cb54b8346088e0a1971b1bbf27f978b0`.
+
 ## Released models
 
 Each channel is an amp-head capture at its product defaults, with no cabinet,
@@ -176,11 +193,11 @@ steps:
    validation, test and audition seeds are fixed.
 3. **Grow the training set** with `combine_captures.py` or `append_captures.py`.
    The renderer accepts at most 600 s per input.
-4. **Train** with `train_a2.py --recipe legacy --center-training-output`,
+4. **Train** A2-Full and A2-Lite (`--width 3`) with `train_a2.py --recipe legacy --center-training-output`,
    warm-starting from the best models with `--keep-passed` and an LR warmup.
    For a single-channel fix, add `--train-channels`, `--target-limits`,
    `--block-norm-samples` or `--peak-weight`.
-5. **Package and verify** with `package_a2.py` and `ci_pipeline.compare_package`.
+5. **Package and verify** with `package_a2.py --lite-run` and `ci_pipeline.compare_package`. Without `--lite-run`, TONE3000 lists the file as custom, not A2.
 6. **Approve** with `approve_release.py`. It refuses unless every channel passes
    v3 on both splits, and it records the owner's listening statement.
 
@@ -194,6 +211,9 @@ Practical notes:
 
 ## Open items
 
+- **A2-Lite.** Its listening acceptance is not separately recorded. Fenrir
+  Lite misses the quiet peak limit on validation (−58.5 dBFS), and Ragnarok
+  Lite misses the RMS level limit on test (−0.57 dB). Lite is report-only.
 - **Listening record.** The owner's listening acceptance was recorded as stated,
   without its method or material.
 - **Real-world testing.** No GUI or DAW session test has been done, and no
