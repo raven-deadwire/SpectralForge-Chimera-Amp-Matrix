@@ -136,6 +136,8 @@ public:
     }
     // Research (v4): windowed-sinc output reads on both paths; decisions as before.
     void setSincOutput(bool enabled) {body.setSincOutput(enabled);transient.setSincOutput(enabled);}
+    // Research opt-in, OFF on construction. Never change the body search.
+    void setEdgeReject(bool e) noexcept {transient.setEdgeReject(e);}
     int lowOnsetResets() const noexcept {return lowResets;}
     void setSemitones(int n) noexcept {body.setSemitones(n);transient.setSemitones(n);shift=n;}
     int latency() const noexcept {return -1;}
