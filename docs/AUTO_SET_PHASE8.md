@@ -17,7 +17,8 @@ you normally would, soft and hard notes, so the pass hears your dynamics.
   after), then how much the amp flattens your dynamics, before, after and the
   style's target. Its SHOW button opens the amp head.
 - **Strength** scales each knob change: before + strength × change.
-- **Lock → Amp** keeps the knobs and skips the pass.
+- **Lock → Amp** keeps the knobs and skips the pass (it still runs for the
+  Presence + resonance step, phase 12, `AUTO_SET_PHASE12.md`).
 - **UNDO AUTO** restores the knobs.
 
 ## Where it applies
