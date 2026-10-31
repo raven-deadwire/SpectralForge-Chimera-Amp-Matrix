@@ -301,3 +301,14 @@ of the range, about 9.36 ms) without sub-sample refinement. Near f0 106.6-108.3 
 and its 2x/3x, splices then miss the period by up to 1.6 samples (high-band
 residual up to -23 dB re harmonics). An experimental fix is kept as a patch only;
 see `docs/TRANSPOSE_SPLICE_EDGE_107HZ_20261030.md`.
+
+## corr40-split-v3-sinc-edge (2026-10-31)
+
+v3-sinc plus the splice-search edge refine on the transient path only
+(`CorrelationPitch::setSpliceEdgeRefine`, `TransientSplitPitch::setSpliceEdgeRefine`,
+default off). An edge minimum whose cost keeps falling just outside the search
+range is rejected (the edge shrinks by one coarse step, at most twice more), and
+the parabolic refinement also runs on the range edges. With the option off every
+engine is bit-identical to before. `SpliceTrace` and `BlockInvariance` accept
+`v3-sinc-edge`; `edge_validation.py` is its preregistered fresh-seed validation
+against v3-sinc.

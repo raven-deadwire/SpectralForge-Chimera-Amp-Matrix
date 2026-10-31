@@ -136,6 +136,9 @@ public:
     }
     // Research (v4): windowed-sinc output reads on both paths; decisions as before.
     void setSincOutput(bool enabled) {body.setSincOutput(enabled);transient.setSincOutput(enabled);}
+    // Research: splice-search edge refine on the transient (high-band) path
+    // only; the body path's period-multiple jumps are unaffected by the issue.
+    void setSpliceEdgeRefine(bool enabled) noexcept {transient.setSpliceEdgeRefine(enabled);}
     int lowOnsetResets() const noexcept {return lowResets;}
     void setSemitones(int n) noexcept {body.setSemitones(n);transient.setSemitones(n);shift=n;}
     int latency() const noexcept {return -1;}
