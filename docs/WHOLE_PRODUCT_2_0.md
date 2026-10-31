@@ -74,9 +74,9 @@ For reference, Classic defaults measured 17% at 48 kHz and 35% at 96 kHz.
 - **The user's OVERSAMPLING choice already helps.** At 96 kHz / 128, 2× runs the amps at the same internal rate as the default 4× at 48 kHz:
   - Matrix defaults: 64% (from 88%).
   - Everything on: 102% (from 121–133%).
-- **Options for the owner. Neither is applied, because both change released audio:**
-  1. Choose the default OVERSAMPLING by host rate: 4× up to 48 kHz, 2× from 88.2 kHz. Saves about a quarter of a core at 96 kHz. It changes the 96 kHz sound of existing sessions unless it applies only to new ones.
-  2. A faster FFT for the cabinet convolution, e.g. a BSD-licensed one; FFTW is GPL. That is up to about 30% of the time. The output changes at the level of float rounding, around 1e−7, so it is no longer bit-identical to the release.
+- **Options for the owner:**
+  1. Choose the default OVERSAMPLING by host rate. **Done** as OVERSAMPLING Auto, for new instances only ([OVERSAMPLING_AUTO.md](OVERSAMPLING_AUTO.md)). A new Matrix instance at 96 kHz now measures 64%.
+  2. Not applied (it changes released audio): a faster FFT for the cabinet convolution, e.g. a BSD-licensed one; FFTW is GPL. That is up to about 30% of the time. The output changes at the level of float rounding, around 1e−7, so it is no longer bit-identical to the release.
   - Spreading the three rigs across threads would also help, but it adds real-time threading risk.
 - **Biggest appended costs** found by turning one switch off at a time (96 kHz):
   - Saturation (Studio 4×): about 6%.

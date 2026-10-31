@@ -142,7 +142,10 @@ private:
     std::array<std::unique_ptr<SA>,4> utilitySliders;
     std::array<std::unique_ptr<BA>,4> utilityButtons;
     juce::Slider x1,x2;
-    std::unique_ptr<CA> ma,qa;
+    std::unique_ptr<CA> ma;
+    // OVERSAMPLING: Auto plus the released 1x-8x choices (docs/OVERSAMPLING_AUTO.md).
+    static constexpr int oversamplingAutoItem=9;
+    void syncOversamplingChoice();
     std::unique_ptr<SA> a1,a2;
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;

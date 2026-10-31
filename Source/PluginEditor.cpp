@@ -203,8 +203,16 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     wordmark=loadBrand("chimerawordmark_png");brandEmblem=loadBrand("spectralforgeemblem_png");
     mode.setName("Routing Mode"); mode.addItemList({"CLASSIC","DUAL","MATRIX"},1); add(mode);
     mode.setTooltip("Classic: one full-range rig. Dual: two parallel rigs. Matrix: three input bands.");
-    quality.setName("Oversampling"); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
-    quality.setTooltip("Anti-aliasing for amplifier distortion. Higher factors use more CPU. Host latency stays constant.");
+    quality.setName("Oversampling"); quality.addItem("Auto",oversamplingAutoItem); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
+    quality.setTooltip("Anti-aliasing for amplifier distortion. Auto follows the sample rate: 4x at 44.1/48 kHz, 2x at 88.2/96 kHz, 1x from 176.4 kHz, so the amps run at about the same internal rate. Higher factors use more CPU. Host latency stays constant.");
+    quality.onChange=[this]{
+        const int id=quality.getSelectedId();if(id==0)return;
+        auto& state=processor.parameters();auto* automatic=state.getParameter("oversamplingAuto");auto* choice=state.getParameter("oversampling");
+        const auto write=[](juce::RangedAudioParameter* parameter,float value){if(parameter==nullptr)return;parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(value));parameter->endChangeGesture();};
+        if(id==oversamplingAutoItem){write(automatic,1.f);}
+        else {write(automatic,0.f);write(choice,float(id-1));}
+        syncOversamplingChoice();
+    };
     scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.addSeparator(); scale.addItem("Fit screen",fitScaleItem); scale.setSelectedId(2,juce::dontSendNotification); add(scale);
     scale.setTooltip(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone
                      ? "Interface size. Fit screen uses the largest readable size for this display; the window's maximise button or F11 toggles the same fit."
@@ -445,7 +453,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     style(routingHelp); add(routingHelp); style(x1Label,11.f); style(x2Label,11.f);
     x1Label.setText("LOW / MID",juce::dontSendNotification); x2Label.setText("MID / HIGH",juce::dontSendNotification);
     add(x1Label); add(x2Label); setupSlider(x1,"LOW / MID"," Hz"); setupSlider(x2,"MID / HIGH"," Hz"); add(x1); add(x2);
-    auto& state=p.parameters(); ma=std::make_unique<CA>(state,"mode",mode); qa=std::make_unique<CA>(state,"oversampling",quality);
+    auto& state=p.parameters(); ma=std::make_unique<CA>(state,"mode",mode); syncOversamplingChoice();
     a1=std::make_unique<SA>(state,"x1",x1); a2=std::make_unique<SA>(state,"x2",x2);
     const std::array<const char*,8> globalIds{"input","gatethreshold","gaterelease","gatehold","transpose","tunerref","output","gateRangeDb"};
     const std::array<const char*,8> globalNames{"Input gain","Gate threshold","Gate release","Gate hold","Transpose semitones","Tuner reference","Output gain","Gate range"};
@@ -693,8 +701,20 @@ void ChimeraEditor::showInfo()
     juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"SpectralForge Chimera",
         juce::String("SpectralForge Chimera | ")+spectralforge::release::displayVersion+"\nRavenForge Luthier Intelligence\nBuild "+CHIMERA_BUILD_REVISION+"\n\nAmp voices are algorithmic interpretations, not verified hardware replicas.\n\nFactory IRs: jesterdyne, CC BY 4.0\nEngl Celestion V30 SM57 center-01.wav\nhttps://freesound.org/s/116735/\nJensen Cab SM57 center.wav\nhttps://freesound.org/s/116743/\nhttps://creativecommons.org/licenses/by/4.0/\nFiles unchanged; normalised and resampled during playback.\n\nPitch: Chimera STFT / JUCE FFT\n\nComplete notices are supplied with the download.\n\n"+copyrightNotice,"OK",this);
 }
+void ChimeraEditor::syncOversamplingChoice()
+{
+    const auto& state=processor.parameters();
+    const bool automatic=state.getRawParameterValue("oversamplingAuto")!=nullptr && state.getRawParameterValue("oversamplingAuto")->load()>.5f;
+    const int stored=juce::jlimit(0,3,juce::roundToInt(state.getRawParameterValue("oversampling")->load()));
+    static constexpr std::array<const char*,4> names{"1x","2x","4x","8x"};
+    const juce::String text=juce::String("Auto (")+names[size_t(processor.effectiveOversampling())]+")";
+    if(quality.getItemText(0)!=text)quality.changeItemText(oversamplingAutoItem,text);
+    const int id=automatic?oversamplingAutoItem:stored+1;
+    if(quality.getSelectedId()!=id)quality.setSelectedId(id,juce::dontSendNotification);
+}
 void ChimeraEditor::timerCallback()
 {
+    syncOversamplingChoice();
 #if CHIMERA_ROUTING_DIAGNOSTICS
     ++routeProbe.ticks; routeProbe.entered=juce::Time::getMillisecondCounterHiRes();
     routeProbe.visible=spectralforge::ui::visible(*this);

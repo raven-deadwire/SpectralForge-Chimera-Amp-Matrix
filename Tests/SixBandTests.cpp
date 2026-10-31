@@ -315,7 +315,7 @@ void parametersStateAndProcessor() {
     auto owner=std::make_unique<ChimeraProcessor>();auto& processor=*owner;auto& state=processor.parameters();
     const int total=processor.getParameters().size();int seen=0;
     for(auto* raw:processor.getParameters())if(raw->getVersionHint()==multibandSixBandParameterVersion){
-        require(raw->getParameterIndex()>=total-truePeakLimiterParameterCount-multibandSixBandParameterCount,"Six-band bank is not last");++seen;}
+        require(raw->getParameterIndex()>=total-oversamplingAutoParameterCount-truePeakLimiterParameterCount-multibandSixBandParameterCount,"Six-band bank is not last");++seen;}
     require(seen==multibandSixBandParameterCount,"Six-band bank size");
     for(const char* id:{"mbBandCount","mbCrossover4","mbCrossover5","mbBand5_threshold","mbBand6_channels","mbBand6_solo"})require(state.getParameter(id)!=nullptr,std::string("Missing ")+id);
     require(state.getRawParameterValue("mbBandCount")->load()==0.f,"Default is not four bands");

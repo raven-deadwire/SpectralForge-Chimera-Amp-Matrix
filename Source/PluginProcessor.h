@@ -38,6 +38,7 @@
 #include "AAXIdentity.h"
 #include "HostBypass.h"
 #include "LoudnessMeter.h"
+#include "OversamplingAuto.h"
 
 class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
@@ -171,6 +172,8 @@ public:
     float outputMeter() const { return outputPeak.load(); }
     // Studio loudness / true peak of the final output (docs/LOUDNESS_METER_1_5.md).
     const spectralforge::LoudnessMeter& outputLoudness() const noexcept { return loudness; }
+    // The oversampling choice the amps run with (Auto or the stored choice).
+    int effectiveOversampling() const noexcept;
     void resetOutputLoudness() noexcept { loudness.requestReset(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
@@ -360,6 +363,17 @@ private:
     std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{}, * preOrderParameter{}, * gainOrderParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};
+    // OVERSAMPLING Auto (docs/OVERSAMPLING_AUTO.md): a change to the released
+    // "oversampling" parameter turns Auto off, except while a session,
+    // comparison or preset is being restored.
+    std::atomic<float>* oversamplingAuto{};
+    std::atomic<int> restoringState{0};
+    struct OversamplingChoiceListener final : juce::AudioProcessorParameter::Listener {
+        ChimeraProcessor* owner{};
+        void parameterValueChanged(int,float) override;
+        void parameterGestureChanged(int,bool) override {}
+    } oversamplingChoiceListener;
+    struct RestoringScope {std::atomic<int>& depth;explicit RestoringScope(std::atomic<int>& d):depth(d){++depth;}~RestoringScope(){--depth;}};
     std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};
     juce::SmoothedValue<float> inputGain, outputGain, tuningMute;
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};

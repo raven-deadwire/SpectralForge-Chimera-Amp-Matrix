@@ -137,7 +137,8 @@ double load(ChimeraProcessor& p,double rate,int block,double seconds,double* wor
 }
 std::unique_ptr<ChimeraProcessor> everythingOn(double rate,int block,unsigned seed){
     auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(rate,block);
-    randomise(*p,seed,true);set(*p,"mode",2);set(*p,"liveLimiterOn",1);set(*p,"limiterMode",1);return p;
+    randomise(*p,seed,true);set(*p,"mode",2);set(*p,"liveLimiterOn",1);set(*p,"limiterMode",1);
+    set(*p,"oversamplingAuto",0);set(*p,"oversampling",2);return p;   // the worst case: OVERSAMPLING 4x at every rate
 }
 // Two gates, on a shared machine whose speed varies (CPU acceptance on target
 // hardware is separate): everything on runs in real time at 48 kHz / 64, and
@@ -145,7 +146,8 @@ std::unique_ptr<ChimeraProcessor> everythingOn(double rate,int block,unsigned se
 // three quarters of a core at 96 kHz / 128 (measured 30-46%).
 void worstCaseCpu(){
     for(const auto& [rate,block]:{std::pair{48000.,64},std::pair{96000.,128}}){
-        auto defaults=std::make_unique<ChimeraProcessor>();defaults->prepareToPlay(rate,block);set(*defaults,"mode",2);
+        // The released defaults: OVERSAMPLING 4x (a new instance would use Auto).
+        auto defaults=std::make_unique<ChimeraProcessor>();defaults->prepareToPlay(rate,block);set(*defaults,"mode",2);set(*defaults,"oversamplingAuto",0);
         double baselineWorst=0;const double baseline=load(*defaults,rate,block,3.,&baselineWorst);
         double worst=0;
         for(unsigned seed:{21u,22u}){
@@ -160,6 +162,8 @@ void worstCaseCpu(){
             auto onTwo=everythingOn(rate,block,21);set(*onTwo,"oversampling",1);
             const double d2=load(*two,rate,block,3.),e2=load(*onTwo,rate,block,4.);
             std::cout<<"MEASURE 96 kHz / 128 with OVERSAMPLING 2x: released Matrix defaults "<<100.*d2<<"%, everything on "<<100.*e2<<"%\n";
+            auto fresh=std::make_unique<ChimeraProcessor>();fresh->prepareToPlay(rate,block);set(*fresh,"mode",2);
+            std::cout<<"MEASURE 96 kHz / 128, a new instance (OVERSAMPLING Auto = 2x) in Matrix: "<<100.*load(*fresh,rate,block,3.)<<"%\n";
         }
         if(rate<50000.)require(worst<1.,"everything on does not run in real time at 48 kHz / 64");
         else require(worst-baseline<.75,"the appended modules add more than three quarters of a core at 96 kHz");

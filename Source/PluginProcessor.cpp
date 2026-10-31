@@ -73,6 +73,8 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     gainOrderParameter=state.getRawParameterValue("gainorder");
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
+    oversamplingAuto=state.getRawParameterValue("oversamplingAuto");
+    oversamplingChoiceListener.owner=this;if(auto* choice=state.getParameter("oversampling"))choice->addListener(&oversamplingChoiceListener);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
     for(size_t i=0;i<modelParameters.size();++i)modelParameters[i]=state.getRawParameterValue(spectralforge::modelFamilies[i].parameter);
     for(size_t i=0;i<modelParameters.size();++i)modelExtensionParameters[i]=spectralforge::effectFamilyExtended(int(i))?state.getRawParameterValue(spectralforge::effectExtensionID(int(i))):nullptr;
@@ -141,6 +143,7 @@ juce::String ChimeraProcessor::betaNotice() const
 ChimeraProcessor::~ChimeraProcessor()
 {
     const spectralforge::lifecycle::Scope trace("processor.destroy", this);
+    if(auto* choice=state.getParameter("oversampling"))choice->removeListener(&oversamplingChoiceListener);
     releaseResources();
 }
 void ChimeraProcessor::releaseResources()
@@ -203,7 +206,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     tuningMute.setCurrentAndTargetValue(1);
     betaOutputGain.reset(sr,.050);
     betaOutputGain.setCurrentAndTargetValue(betaLifecycle.processingPermitted() ? 1.f : 0.f);
-    engine.setOversampling((int)globals[os]->load());
+    engine.setOversampling(effectiveOversampling());
     // Gate lookahead above is sized while the transposer is on its Classic
     // (largest) window; select the stored quality mode now, before latency is
     // reported, so the host gets the active mode's delay from the first block.
@@ -488,7 +491,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     measureStage(1,buffer);
     const int latency=saturation.latency()+dynamics.limiterLatency()+postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
-    engine.setOversampling((int)value(os));
+    engine.setOversampling(effectiveOversampling());
     syncOriginalCabRequests();
     std::array<spectralforge::LaneState,3> lanes{};
     for(int i=0;i<3;++i)
@@ -850,6 +853,8 @@ spectralforge::appendFilterModulationExtensionParameters(p);
 spectralforge::appendMultibandSixBandParameters(p);
 // 1.5 Studio true-peak limiter mode, version hint 32.
 spectralforge::appendTruePeakLimiterParameters(p);
+// OVERSAMPLING Auto, version hint 33.
+spectralforge::appendOversamplingAutoParameters(p);
 return p;
 }
 
@@ -1032,6 +1037,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
     ++headRecallRevision;
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
+    const RestoringScope restoring(restoringState);
     beginSwitch(); // the old sound fades out (and stays muted) before any of the new state applies
     spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
     boardUndo.clear();boardRedo.clear();orderUndo.clear();orderRedo.clear();midiLearn.store(-1);
@@ -1059,6 +1065,8 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         // Never inherit the current session's finite floor during migration.
         if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder" || id=="gainorder" || id=="boardEnabled") value=0;
         if((id.startsWith("nativeAmp_")&&id.endsWith("_enabled")) || (id.startsWith("pn_")&&id.endsWith("_native")))value=0;
+        // Sessions saved before OVERSAMPLING Auto keep their stored choice.
+        if(id=="oversamplingAuto")value=0;
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
@@ -1153,6 +1161,8 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
     ++headRecallRevision;
     beginSwitch(); // the old sound fades out (and stays muted) while the snapshot is built
     {
+        // A preset writes OVERSAMPLING 4x; that keeps the current Auto choice.
+        const RestoringScope restoring(restoringState);
         const auto snapshot=spectralforge::isNiflheimrPreset(index)
             ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)
             : spectralforge::isOriginalPreset(index)
@@ -1178,6 +1188,13 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
     }
 }
 
+int ChimeraProcessor::effectiveOversampling() const noexcept {
+    return spectralforge::effectiveOversamplingChoice(int(globals[os]->load()),oversamplingAuto!=nullptr && oversamplingAuto->load()>.5f,rate);   // the rate of the last prepareToPlay
+}
+void ChimeraProcessor::OversamplingChoiceListener::parameterValueChanged(int,float) {
+    if(owner==nullptr || owner->restoringState.load()>0)return;
+    if(auto* automatic=owner->state.getParameter("oversamplingAuto"); automatic!=nullptr && automatic->getValue()>.5f)automatic->setValueNotifyingHost(0.f);
+}
 int ChimeraProcessor::ampContext(int lane) const noexcept {
     return spectralforge::ampNativeContext((int)globals[mode]->load(),lane);
 }
@@ -1385,7 +1402,7 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     object->setProperty("channels",getMainBusNumOutputChannels());object->setProperty("reported_latency_samples",getLatencySamples());
     object->setProperty("mode",int(globals[mode]->load()));object->setProperty("universal_board",boardParameters.enabled->load()>.5f);
     object->setProperty("transpose_enabled",globals[pitchOn]->load()>.5f);object->setProperty("semitones",int(globals[semitones]->load()));
-    object->setProperty("oversampling_index",int(globals[os]->load()));object->setProperty("output_trim_db",globals[output]->load());
+    object->setProperty("oversampling_index",int(globals[os]->load()));object->setProperty("oversampling_auto",oversamplingAuto!=nullptr && oversamplingAuto->load()>.5f);object->setProperty("oversampling_effective_index",effectiveOversampling());object->setProperty("output_trim_db",globals[output]->load());
     object->setProperty("post_rig_gate",gateAfterRig->load()>.5f);object->setProperty("callback_average_percent",cpuAverage.load());
     object->setProperty("callback_peak_percent",cpuPeak.load());
     object->setProperty("tone_eq_average_percent",toneEQ.average.load());object->setProperty("tone_eq_peak_percent",toneEQ.peak.load());
