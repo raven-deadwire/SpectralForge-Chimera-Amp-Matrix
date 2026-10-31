@@ -121,6 +121,33 @@ inline Report evaluate(const std::string& name, const std::vector<Frame>& frames
     return report;
 }
 
+// The pitch of a steady note measured on its lowest partials: the segment
+// low-passed at 3.5 times the first estimate, its raw difference minimised
+// around that period (parabolic, at three points in the note), the median.
+// Stiff strings' stretched upper partials read the plain estimate sharp.
+inline double lowPartialHz(const std::vector<float>& x, double r, double start, double end, double estimate) {
+    const int first = std::max(0, int(start * r) - int(.05 * r)), last = std::min(int(x.size()), int(end * r));
+    if (last - first < int(.06 * r)) return estimate;
+    const double fc = std::min(3.5 * estimate, .2 * r), k = std::tan(pi * fc / r), q = .70710678, norm = 1 / (1 + k / q + k * k);
+    const double b0 = k * k * norm, b1 = 2 * b0, b2 = b0, a1 = 2 * (k * k - 1) * norm, a2 = (1 - k / q + k * k) * norm;
+    std::vector<double> y(size_t(last - first));double x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+    for (int n = first; n < last; ++n) { const double v = x[size_t(n)], o = b0 * v + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;x2 = x1;x1 = v;y2 = y1;y1 = o;y[size_t(n - first)] = o; }
+    const double period = r / estimate;const int w = int(std::ceil(period * 2));
+    std::vector<double> found;
+    for (const double at : {.35, .55, .75}) {
+        const int base = int(at * double(y.size()));
+        if (base - int(period * 1.1) - 2 < int(.05 * r) || base + w >= int(y.size())) continue;
+        const auto d = [&](int tau) { double sum = 0;for (int j = 0; j < w; ++j) { const double e = y[size_t(base + j)] - y[size_t(base + j - tau)];sum += e * e; }return sum; };
+        int best = int(std::lround(period));double bestValue = d(best);
+        for (int tau = int(period * .97); tau <= int(period * 1.03) + 1; ++tau) { const double v = d(tau);if (v < bestValue) { bestValue = v;best = tau; } }
+        const double a = d(best - 1), c = d(best + 1), den = a - 2 * bestValue + c;
+        found.push_back(r / (best + (den > 1e-18 ? std::clamp(.5 * (a - c) / den, -.5, .5) : 0.0)));
+    }
+    if (found.empty()) return estimate;
+    std::sort(found.begin(), found.end());
+    return found[found.size() / 2];
+}
+
 // Labels for a recording without a label file: an offline reference (YIN at
 // a 24 kHz analysis rate, 42 ms window, 5 ms hop, non-causal median of five)
 // segmented into notes where the pitch holds within 40 cents for 40 ms. They
@@ -153,7 +180,8 @@ inline std::vector<Label> referenceLabels(const std::vector<float>& audio, doubl
         size_t j = i;std::vector<double> run;
         while (j < smooth.size() && smooth[j] > 0 && std::abs(cents(smooth[j], smooth[i])) < 40) run.push_back(smooth[j++]);
         if (double(run.size()) * hopSeconds >= .04) {
-            std::sort(run.begin(), run.end());const double hz = run[run.size() / 2];
+            std::sort(run.begin(), run.end());
+            const double hz = lowPartialHz(x, r, double(i) * hopSeconds, double(j) * hopSeconds, run[run.size() / 2]);
             const int midi = int(std::lround(69 + 12 * std::log2(hz / 440)));
             labels.push_back({double(i) * hopSeconds, double(j) * hopSeconds, steady(hz), "reference MIDI " + std::to_string(midi), true});
         }
@@ -181,17 +209,15 @@ inline std::vector<Label> readLabels(const std::string& text) {
     return labels;
 }
 
-// Acceptance targets for notes inside the tracker's range (55-1400 Hz).
+// Acceptance targets for notes inside the tracker's range (27.5-1400 Hz).
 // Below 55 Hz (bass E1, B0) the tracker needs its long window, two cycles
-// at 27.5 Hz (73 ms): those notes may take 80 ms to lock. Up to B1 (62 Hz)
-// more inharmonic partials fall in the band, which reads the period short:
-// those notes may read 12 cents off.
+// at 27.5 Hz (73 ms): those notes may take 80 ms to lock.
 struct Targets { double lockMs{60}, medianCents{10}, lagMs{25}, octaveShare{.02}, dropoutShare{.05}; double falseGateSeconds{.05};
-                 double extendedBelowHz{55}, extendedLockMs{80}, lowBelowHz{62}, lowMedianCents{12}; };
+                 double extendedBelowHz{55}, extendedLockMs{80}; };
 inline bool meets(const NoteResult& r, const Targets& t, bool legato) {
     const double pitch = r.label.pitchAt(r.label.start);
-    const double lockTarget = pitch < t.extendedBelowHz ? t.extendedLockMs : t.lockMs, centsTarget = pitch < t.lowBelowHz ? t.lowMedianCents : t.medianCents;
-    return r.lockMs >= 0 && r.lockMs <= lockTarget && r.medianCents <= centsTarget && r.lagMs <= t.lagMs && r.octaveShare <= t.octaveShare
+    const double lockTarget = pitch < t.extendedBelowHz ? t.extendedLockMs : t.lockMs;
+    return r.lockMs >= 0 && r.lockMs <= lockTarget && r.medianCents <= t.medianCents && r.lagMs <= t.lagMs && r.octaveShare <= t.octaveShare
         && r.dropoutShare <= t.dropoutShare && (legato ? r.attacks <= 1 : r.attacks == 1);
 }
 

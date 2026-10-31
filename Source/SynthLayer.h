@@ -277,6 +277,7 @@ public:
         ringSize = 1;while (ringSize < total + 2) ringSize *= 2;
         ring.assign(size_t(ringSize), 0.f);
         frame.assign(size_t(total + 2), 0.f);
+        filtered.assign(size_t(total + 2), 0.0);
         difference.assign(size_t(tauMaxLong + 2), 0.f);
         // Anti-alias: two cascaded biquad low-passes at 0.2 x the decimated rate.
         const auto c = juce::dsp::IIR::Coefficients<float>::makeLowPass(rate, decimatedRate * .2, .7071);
@@ -311,16 +312,17 @@ private:
         double energy = 0;
         for (int i = total - window; i < total; ++i) energy += double(frame[size_t(i)]) * frame[size_t(i)];
         level = std::sqrt(energy / window);
-        double period = 0, clarity = 0;
+        double period = 0, clarity = 0;int used = window;
         bool found = search(window, tauMax, tauMin, period, clarity);
         // Below the normal range: only when the normal analysis found no
         // period and there is signal (above -50 dBFS, over hum and hiss).
         if (!found && level > .0032) {
             ++extended;
             double longPeriod = 0, longClarity = 0;
-            if (search(windowLong, tauMaxLong, int(std::floor(decimatedRate / (lowestHz * 1.06))), longPeriod, longClarity)) { found = true;period = longPeriod;clarity = longClarity; }
+            if (search(windowLong, tauMaxLong, int(std::floor(decimatedRate / (lowestHz * 1.06))), longPeriod, longClarity)) { found = true;period = longPeriod;clarity = longClarity;used = windowLong; }
         }
         if (!found) { confidence = clarity;return; }   // no clear period: keep the last pitch, report low clarity
+        if (decimatedRate / period < 250.) period = lowPartialPeriod(used, period);
         const double estimate = decimatedRate / period;
         confidence = clarity;
         history = {history[1], history[2], estimate};
@@ -365,6 +367,46 @@ private:
         clarity = 1.0 - b;
         return true;
     }
+    // Low notes: the stretched upper partials of a stiff (wound) string
+    // shorten the period the difference function finds, 6-11 cents sharp of
+    // the fundamental. Re-measure it on the frame low-passed at 3.5 times the
+    // estimate, where the lowest partials dominate, around the first estimate.
+    // Forward only: a filter delays a periodic signal but keeps its period, and
+    // its start-up settles at the oldest end of the frame, far from the window
+    // (a backward pass would start up at the newest end, inside the window).
+    double lowPartialPeriod(int w, double period) noexcept {
+        const double fc = std::min(3.5 * decimatedRate / period, .2 * decimatedRate);
+        const double k = std::tan(3.14159265358979323846 * fc / decimatedRate), q = .70710678, norm = 1.0 / (1.0 + k / q + k * k);
+        const double b0 = k * k * norm, b1 = 2 * b0, b2 = b0, a1 = 2 * (k * k - 1) * norm, a2 = (1 - k / q + k * k) * norm;
+        {
+            double x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+            for (int i = 0; i < total; ++i) {
+                const double x = double(frame[size_t(i)]);
+                const double y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+                x2 = x1;x1 = x;y2 = y1;y1 = y;filtered[size_t(i)] = y;
+            }
+        }
+        const auto difference = [&](double tau) {
+            double sum = 0;
+            for (int j = 0; j < w; ++j) {
+                const double at = double(total - w + j) - tau;
+                const int i = int(std::floor(at));const double t = at - i;
+                const auto x = [&](int m) { return filtered[size_t(std::clamp(m, 0, total - 1))]; };
+                const double xm = x(i - 1), x0 = x(i), x1 = x(i + 1), x2 = x(i + 2);
+                const double v = x0 + .5 * t * (x1 - xm + t * (2 * xm - 5 * x0 + 4 * x1 - x2 + t * (3 * (x0 - x1) + x2 - xm)));
+                const double e = filtered[size_t(total - w + j)] - v;sum += e * e;
+            }
+            return sum;
+        };
+        double p = period;
+        for (const double h : {1.0, .25}) {   // two parabolic steps, then a finer one
+            const double dm = difference(p - h), d0 = difference(p), dp = difference(p + h), den = dm - 2 * d0 + dp;
+            if (!(den > 1e-18)) break;
+            p += std::clamp(.5 * h * (dm - dp) / den, -h, h);
+        }
+        // Keep the first estimate if the refinement wandered (a different dip).
+        return std::abs(p - period) < .03 * period ? p : period;
+    }
     // The raw difference of the newest window against a fractional delay tau.
     double shifted(int w, double tau) const noexcept {
         double sum = 0;
@@ -381,7 +423,7 @@ private:
     double rate{48000}, decimatedRate{12000};
     int factor{4}, tauMin{8}, tauMax{220}, window{220}, tauMaxLong{438}, windowLong{438}, total{876}, ringSize{1024}, write{}, phase{}, hop{};
     long long extended{};
-    std::vector<float> ring, frame, difference;
+    std::vector<float> ring, frame, difference;std::vector<double> filtered;
     std::array<juce::dsp::IIR::Filter<float>, 2> filters;
     double frequency{}, confidence{}, level{};
     std::array<double, 3> history{};

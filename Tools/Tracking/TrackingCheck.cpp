@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     }
     if (framesTo != juce::File()) framesTo.replaceWithText(frameText);
     std::cout << markdown(reports, targets);
-    std::cout << "\nTargets (27.5-1400 Hz; below 55 Hz lock within " << targets.extendedLockMs << " ms, below 62 Hz median " << targets.lowMedianCents << " cents): lock within " << targets.lockMs << " ms, median error " << targets.medianCents << " cents after a tracking lag of at most " << targets.lagMs << " ms, octave errors "
+    std::cout << "\nTargets (27.5-1400 Hz; below 55 Hz lock within " << targets.extendedLockMs << " ms): lock within " << targets.lockMs << " ms, median error " << targets.medianCents << " cents after a tracking lag of at most " << targets.lagMs << " ms, octave errors "
               << targets.octaveShare * 100 << " %, dropouts " << targets.dropoutShare * 100 << " %, one attack per picked note (at most one for legato), gate open outside notes "
               << targets.falseGateSeconds * 1000 << " ms per recording.\n";
     return 0;
