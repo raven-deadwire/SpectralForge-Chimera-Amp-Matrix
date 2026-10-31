@@ -11,6 +11,22 @@
 
 namespace spectralforge::autoset {
 
+namespace detail {
+// Resolve every range before changing the proposal. A missing parameter means
+// this filter cannot be applied, so it must not influence output compensation.
+template <typename Lookup>
+bool legalFinalMove(FinalMove& move,Lookup&& lookup) {
+    auto* gain=lookup("gain");
+    auto* frequency=lookup("frequency");
+    auto* q=lookup("q");
+    if(!gain || !frequency || !q)return false;
+    move.gainDb=gain->getNormalisableRange().snapToLegalValue(move.gainDb);
+    move.frequency=frequency->getNormalisableRange().snapToLegalValue(move.frequency);
+    move.q=q->getNormalisableRange().snapToLegalValue(move.q);
+    return true;
+}
+}
+
 // Listening passes on the message thread, in signal order. Pass 1 sets input
 // gain and the gate from the signal after input gain; pass 2 (optional) sets
 // the Tone EQ from the amp/cab output at the new gain; pass 3 re-measures the
@@ -529,12 +545,12 @@ private:
             for(size_t i=0;i<r.moves.size();++i)if(r.moves[i].active && next<bands.size()) {
                 destinations[i]=bands[next++];appliedMoves[i]=r.moves[i];
                 if(appliedMoves[i].type!=3)appliedMoves[i].gainDb*=strength();
-                const auto legal=[&](const char* field,float value) {
-                    return processor.parameters().getParameter(eqID(1,destinations[i],field))->getNormalisableRange().snapToLegalValue(value);
-                };
-                appliedMoves[i].gainDb=legal("gain",appliedMoves[i].gainDb);
-                appliedMoves[i].frequency=legal("frequency",appliedMoves[i].frequency);
-                appliedMoves[i].q=legal("q",appliedMoves[i].q);
+                if(!detail::legalFinalMove(appliedMoves[i],[&](const char* field) {
+                    return processor.parameters().getParameter(eqID(1,destinations[i],field));
+                })) {
+                    appliedMoves[i]={};destinations[i]=-1;
+                    parts.addIfNotAlreadyThere("Final EQ correction skipped (parameter unavailable)");
+                }
             }
         }
         planOutputCorrection(r,measured,rate(),appliedMoves,strength(),trimBefore,locked(lockOutput));

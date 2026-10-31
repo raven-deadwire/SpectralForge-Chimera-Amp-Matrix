@@ -1,0 +1,29 @@
+{
+  "parent": "d531b81d92811750cb4106050f17d3e6eb7c05fc",
+  "main_merge_trial": "472b93e68d20bcad07a028cc67a17b50f8171838",
+  "environment": "Ubuntu 24.04; GCC 13.3.0; CMake 3.28.3; Release; qualification-only",
+  "libebur128": "1.2.6 (Ubuntu package)",
+  "source_sha256": {
+    "Source/AutoSetController.h": "b415a66b36c112a356e102cdd9b2d47bd4106619b0698eab65d298103c7a32fc",
+    "Tests/AutoSetLevelRegression.h": "a98a1876413f2ee46b84b692acc143f22d15566bda61879eb088c2e20a09e774",
+    "Tests/AutoSetLoudnessReferenceTests.cpp": "3cc022d38d602aa63980c056fd7ca6d4e0641b2a62116c9324937f001481dae3",
+    "Tests/AutoSetTests.cpp": "f96c703b76456f7ebda1466f38b1a4e33d71706c92b9f2d8bab1cc00aee463cd",
+    "CMakeLists.txt": "de40ad3c0e3683a39a0a34149262642f386b5bd7a9ed078ee095efe16356f664",
+    ".github/workflows/auto-set-level.yml": "57aa3b2624c536f56c9220efbdeadbb283ce575729df0fe64d12b45107fb6607"
+  },
+  "ctest": {
+    "passed": 4,
+    "failed": 0,
+    "seconds": 128.53
+  },
+  "reference": {
+    "cases": 144,
+    "failed": 0,
+    "max_finite_error_lu": 1.331909317e-06,
+    "csv_matches_existing": true
+  },
+  "sanitizers": {
+    "asan_ubsan_ownership": "PASS, detect_leaks=0",
+    "lsan": "Unavailable: process task access denied; no pass claimed"
+  }
+}

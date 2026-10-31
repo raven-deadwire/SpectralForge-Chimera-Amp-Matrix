@@ -3,6 +3,38 @@
 // The independent libebur128 comparison lives in a separate executable.
 namespace levelRegression {
 using Frames=std::vector<OutputFrame>;
+void parameterRanges() {
+    auto p=std::make_unique<ChimeraProcessor>();
+    const auto lookup=[&](const char* field) {return p->parameters().getParameter(spectralforge::eqID(1,0,field));};
+    const FinalMove proposal{0,315.37f,-1.234f,.71327f,true};
+    for(const char* missing:{"gain","frequency","q","all"}) {
+        auto move=proposal;
+        const auto available=[&](const char* field)->juce::RangedAudioParameter* {
+            if(std::string(missing)=="all" || std::string(missing)==field)return nullptr;
+            return lookup(field);
+        };
+        check(!spectralforge::autoset::detail::legalFinalMove(move,available),"Missing Final EQ parameter accepted");
+        check(move.gainDb==proposal.gainDb && move.frequency==proposal.frequency && move.q==proposal.q,
+              "Missing Final EQ parameter partially quantised a proposal");
+    }
+    auto missing=proposal;
+    check(!spectralforge::autoset::detail::legalFinalMove(missing,[&](const char* field) {
+        return p->parameters().getParameter(spectralforge::eqID(1,spectralforge::graphicalEQBands,field));
+    }),"Failed APVTS lookup was not handled");
+    // Compare directly to the pre-fix range operation, including endpoints,
+    // out-of-range values and fractional strengths used by the controller.
+    int cases=0;
+    for(float strength:{.1f,.25f,.5f,1.f})for(float value:{-100.f,-1.234f,0.f,.71327f,315.37f,30000.f}) {
+        auto move=proposal;move.gainDb=value*strength;move.frequency=value;move.q=value;
+        const float gain=lookup("gain")->getNormalisableRange().snapToLegalValue(move.gainDb);
+        const float frequency=lookup("frequency")->getNormalisableRange().snapToLegalValue(move.frequency);
+        const float q=lookup("q")->getNormalisableRange().snapToLegalValue(move.q);
+        check(spectralforge::autoset::detail::legalFinalMove(move,lookup),"Available Final EQ parameters rejected");
+        check(move.gainDb==gain && move.frequency==frequency && move.q==q && move.active && move.type==proposal.type,
+              "Normal Final EQ quantisation changed");++cases;
+    }
+    std::cout<<"PASS Final EQ parameter ranges: 5 missing-lookup cases, "<<cases<<" unchanged normal cases\n";
+}
 void set(ChimeraProcessor& p,const juce::String& id,float value) {
     auto* parameter=p.parameters().getParameter(id);parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
@@ -233,5 +265,5 @@ void finalNodeEdits() {
     for(int b=0;b<12;++b)check(get(*q,spectralforge::eqID(1,b,"enabled"))<.5f,"Partial Final EQ placement survived rollback");
     controller.undo();check(near(get(*q,"output"),-9.13f,.00001f),"Rollback/Undo reclaimed host output edit");q->releaseResources();
 }
-void run() {capture();processorBuses();correctionBoundaries();renderedMatrix();preservation();repeatedAndEdits();finalNodeEdits();}
+void run() {parameterRanges();capture();processorBuses();correctionBoundaries();renderedMatrix();preservation();repeatedAndEdits();finalNodeEdits();}
 }

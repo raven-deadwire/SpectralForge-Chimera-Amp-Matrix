@@ -1196,6 +1196,7 @@ void controllerGateStageEditHistory() {
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
+        if(argc==2 && std::string(argv[1])=="--level-parameters"){levelRegression::parameterRanges();return 0;}
         if(argc==2 && std::string(argv[1])=="--level-regression"){levelRegression::run();return 0;}
         if(argc==2 && std::string(argv[1])=="--level-edits"){levelRegression::finalNodeEdits();std::cout<<"PASS Final EQ edit ownership\n";return 0;}
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}

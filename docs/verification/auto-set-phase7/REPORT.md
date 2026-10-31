@@ -1,5 +1,9 @@
 # Auto Set Phase 7 independent validation
 
+**Review follow-up:** the two defensive fixes and new regression results are in
+[REVIEW_FOLLOWUP.md](REVIEW_FOLLOWUP.md). Its merge hold supersedes the initial
+assessment below; the original evidence is retained as a historical snapshot.
+
 Review date: 2026-10-31 KST. Baseline: `ad622ceffdd7404b12de4e473349b1104200048f`
 (PR #226, merged 2026-10-30 23:17:34 KST). This is a follow-up to that merged
 PR, not an update to its closed branch.
