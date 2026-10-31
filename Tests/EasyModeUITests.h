@@ -308,11 +308,17 @@ inline void editorView(const juce::File& directory) {
     require(presets->getSelectedId()==presetID && description->getText()==expected,"Easy preset was not kept after loading");
     signalPathTests::capture(*editor,directory,"easy-view");
 
-    auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);settle(150);
-    require(raw(*p,"tuneron")>.5f && find(*view,"precisionTuner")!=nullptr && !room->isVisible(),"Easy TUNER did not replace the room with the tuner");
+    auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);
+    require(raw(*p,"tuneron")>.5f,"Easy TUNER did not enable tuning");
+    // The parameter changes in the click handler; the Easy view follows on
+    // its timer. A stalled native event pump must not be mistaken for a lost click.
+    requireSoon([&]{return raw(*p,"tuneron")>.5f && find(*view,"precisionTuner")!=nullptr && !room->isVisible();},
+                "Easy TUNER did not replace the room with the tuner");
     signalPathTests::capture(*editor,directory,"easy-view-tuner");
-    signalPathTests::click(*tuner);settle(150);
-    require(raw(*p,"tuneron")<.5f && find(*view,"precisionTuner")==nullptr && room->isShowing(),"Easy TUNER did not close the tuner");
+    signalPathTests::click(*tuner);
+    require(raw(*p,"tuneron")<.5f,"Easy TUNER did not disable tuning");
+    requireSoon([&]{return raw(*p,"tuneron")<.5f && find(*view,"precisionTuner")==nullptr && room->isShowing();},
+                "Easy TUNER did not close the tuner");
 
     const auto edited=signalPathTests::values(*p);
     signalPathTests::Writes switching;p->addListener(&switching);
