@@ -39,8 +39,9 @@ The pass listens to the amp/cab output before the Tone EQ (`Tap::tone`), the
 same point as the Tone EQ pass, and measures its third-octave spectrum over
 the playing.
 
-The modeled cabinet's response is known: it is the curve the cabinet's IR is
-made from (`cabLayout::response`). For every candidate placement, the
+The modeled cabinet's continuous response is the curve its finite, tapered IR
+is made from (`cabLayout::response`). It is an approximation to that IR,
+especially at the lowest frequencies. For every candidate placement, the
 prediction is the heard spectrum plus the candidate's response minus the
 current one, band by band (the response's power averaged over eight points in
 each band). Everything else (the amp, the cuts, the room) stays in the heard
@@ -58,10 +59,19 @@ placements and checks the model's band difference against the rendered one.
   more than 0.5 dB.
 - **No new notches:** at a distance the cones interfere and cut deep notches.
   A candidate whose bands stray from their neighbours (RMS, 80 Hz – 6.3 kHz)
-  by more than 1 dB beyond the current placement is ruled out.
+  by more than 1 dB beyond the current placement is ruled out. A separate
+  1/96-octave check from 27.5 Hz to 6.3 kHz rejects an individual local peak
+  or notch that grows by more than 3 dB relative to its neighbours at
+  +/- 1/6 octave. Strength is checked again at the host-quantized placement
+  before any parameter is written; an unsafe intermediate placement is kept.
 - **Level:** moving the mic changes the level (farther is quieter). The mic's
-  level is set to hold the playing's loudness (80 Hz – 6.3 kHz) for the
-  placement actually applied, in 0.1 dB steps, within its −24 to +12 dB range.
+  level follows the full captured signal energy, including the 27.5 Hz
+  fundamental. Hann-windowed FFT energy is weighted by the response ratio of
+  the two actual generated IRs at each bin. This avoids assuming flat energy
+  inside a third-octave band near a cancellation notch. The compensation is
+  calculated for the placement actually applied, in 0.1 dB steps, within its
+  −24 to +12 dB range. This is RMS energy matching, not perceptual LUFS
+  matching; a gain-range limit can prevent complete compensation.
 
 ## Testing
 
@@ -92,8 +102,11 @@ placements and checks the model's band difference against the rendered one.
 
 The 0.35 position limit, the halving and doubling of the distance, the 0.5 dB
 threshold and the 1 dB notch allowance are starting values. They have been
-checked on synthetic noise, not on real guitars, basses,
-other cabinets or listening tests.
+checked on synthetic signals, including all nine authored cabinet layouts
+and Drop A bass tones (see `AUTO_SET_PHASE9_VALIDATION_20261031.md`).
+Real guitar/bass DI and listening tests remain unvalidated. The new 3 dB
+local-extrema limit is likewise an engineering safety bound, not a
+listening-approved threshold.
 
 The pass places one modeled mic. It does not choose the mic, the speaker or
 the cabinet, and it does not set a blend between two mics.

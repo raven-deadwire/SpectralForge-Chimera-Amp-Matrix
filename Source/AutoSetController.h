@@ -504,10 +504,16 @@ private:
         if(!r.changed()){keep(juce::String(r.bass?"bass":"guitar")+" "+styleName(runOptions.style)+" balance already near the target here");return;}
         const juce::String mic=t.mic?"B":"A";
         const auto positionID=originalCabID(0,(mic+"position").toRawUTF8()),distanceID=originalCabID(0,(mic+"distance").toRawUTF8()),gainID="cab"+mic+"gain1";
-        set(positionID,float(r.before.position+strength()*(r.proposed.position-r.before.position)));
-        set(distanceID,float(r.before.distanceCm+strength()*(r.proposed.distanceCm-r.before.distanceCm)));
+        const auto snap=[this](const juce::String& id,float value){const auto* p=processor.parameters().getParameter(id);return p->convertFrom0to1(p->convertTo0to1(value));};
+        const CabPlacement applied{snap(positionID,float(r.before.position+strength()*(r.proposed.position-r.before.position))),
+                                   snap(distanceID,float(r.before.distanceCm+strength()*(r.proposed.distanceCm-r.before.distanceCm)))};
+        // Interference is not monotonic between two safe endpoints. Check the
+        // host-quantized Strength placement before writing any of its controls.
+        if(!cabPlacementSafe(current,applied)){keep("the Strength placement adds a peak or notch");return;}
+        set(positionID,float(applied.position));
+        set(distanceID,float(applied.distanceCm));
         // Hold the loudness for the placement actually applied.
-        const float gainBefore=raw(gainID),change=cabLevelChangeDb(r.heard,current,{raw(positionID),raw(distanceID)});
+        const float gainBefore=raw(gainID),change=cabLevelChangeDb(r.energy,current,{raw(positionID),raw(distanceID)});
         set(gainID,std::round((gainBefore-change)*10.f)/10.f);
         const auto moves="mic "+mic+" position "+juce::String(r.before.position,2)+" > "+juce::String(raw(positionID),2)
                         +", distance "+juce::String(r.before.distanceCm,1)+" > "+juce::String(raw(distanceID),1)+" cm, level "

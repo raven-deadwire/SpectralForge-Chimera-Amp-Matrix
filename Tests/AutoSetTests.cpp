@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "AutoSetController.h"
+#include "AutoSetCabRegression.h"
 #include <juce_cryptography/juce_cryptography.h>
 #include <cstdlib>
 #include <iostream>
@@ -1160,10 +1161,10 @@ void cabRules() {
             check(std::abs(r.proposed.distanceCm*2-std::round(r.proposed.distanceCm*2))<1e-6,"Distance not on the 0.5 cm grid");
         }
         // Moving away lowers the level, moving closer raises it; the controller makes it up on the mic's level.
-        const float farther=cabLevelChangeDb(settled.heard,s,{.5,20}),nearer=cabLevelChangeDb(settled.heard,s,{.5,5});
-        check(farther<-1.f && nearer>1.f && std::abs(cabLevelChangeDb(settled.heard,s,{.5,10}))<1e-4f,"Level change does not follow the distance ("+std::to_string(nearer)+", "+std::to_string(farther)+" dB)");
+        const float farther=cabLevelChangeDb(settled.energy,s,{.5,20}),nearer=cabLevelChangeDb(settled.energy,s,{.5,5});
+        check(farther<-1.f && nearer>1.f && std::abs(cabLevelChangeDb(settled.energy,s,{.5,10}))<1e-4f,"Level change does not follow the distance ("+std::to_string(nearer)+", "+std::to_string(farther)+" dB)");
         if(rate==48000.)std::cout<<"MEASURE cab rules 48 kHz: bright > position "<<darker.proposed.position<<" distance "<<darker.proposed.distanceCm<<" cm (error "<<darker.toneErrorBeforeDb<<" > "<<darker.toneErrorAfterDb
-                                <<" dB, level "<<cabLevelChangeDb(darker.heard,s,darker.proposed)<<" dB); dark > position "<<brighter.proposed.position<<" distance "<<brighter.proposed.distanceCm
+                                <<" dB, level "<<cabLevelChangeDb(darker.energy,s,darker.proposed)<<" dB); dark > position "<<brighter.proposed.position<<" distance "<<brighter.proposed.distanceCm
                                 <<" cm (error "<<brighter.toneErrorBeforeDb<<" > "<<brighter.toneErrorAfterDb<<" dB)\n";
     }
     std::cout<<"PASS auto set cab rules at 44.1/48/96 kHz: model matches the rendered IR, silence, on-target kept, bright moves darker, dark toward the cap, move limits, roughness, level change\n";
@@ -1178,7 +1179,8 @@ CabRun runCab(const Controller::Options& options,const std::function<void(Chimer
     if(prepare)prepare(*p);
     Controller c(*p);c.setOptions(options);
     CabRun result;result.before=values(*p);result.gainBefore=get(*p,"cabAgain1");
-    std::mt19937 rng{92};auto post=targetNoise(false,48000,8,rng);shelve(post,3000,-8,48000);
+    std::mt19937 rng{92};auto post=targetNoise(options.instrument==2,48000,8,rng);shelve(post,3000,-8,48000);
+    if(options.instrument==2)for(size_t n=0;n<post.size();++n)post[n]+=.1f*float(std::sin(2*juce::MathConstants<double>::pi*27.5*n/48000));
     double ms=juce::Time::getMillisecondCounterHiRes();c.start();
     for(size_t offset=0;c.busy() && offset+256<=post.size();offset+=256) {
         const float* out[]{post.data()+offset};
@@ -1199,7 +1201,7 @@ void controllerCab() {
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::cab} && step && step->changed && step->result.contains("mic A position"),"Cabinet mic pass did not run or report");
     check(a.playingDetected && a.changed() && a.proposed.position<.5,"A dark sound did not move the modeled mic toward the cap");
     check(near(value(full.values,"ocab1_Aposition"),float(a.proposed.position),.0011f) && near(value(full.values,"ocab1_Adistance"),float(a.proposed.distanceCm),.051f),"Applied placement does not match the analysis");
-    const float level=cabLevelChangeDb(a.heard,modeledMic(.5,10),{value(full.values,"ocab1_Aposition"),value(full.values,"ocab1_Adistance")});
+    const float level=cabLevelChangeDb(a.energy,modeledMic(.5,10),{value(full.values,"ocab1_Aposition"),value(full.values,"ocab1_Adistance")});
     check(near(value(full.values,"cabAgain1"),std::round((full.gainBefore-level)*10.f)/10.f,.011f),"The mic's level does not hold the loudness");
     bool undone=true;for(size_t i=0;i<full.before.size();++i)undone&=near(full.undone[i],full.before[i],1e-6f);
     check(undone,"UNDO AUTO did not restore the mic placement and level");
@@ -1229,6 +1231,43 @@ void controllerCab() {
           && value(onB.values,"ocab1_Aposition")==value(onB.before,"ocab1_Aposition"),"The heard mic B was not the one placed");
     std::cout<<"MEASURE auto set cab controller: "<<step->result<<'\n';
     std::cout<<"PASS auto set cab controller: cabinet mic pass alone, dark sound moves mic A toward the cap, level held, strength, lock, Dual, captured IR and blended mics kept, mic B, undo\n";
+}
+void controllerBassCab() {
+    const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
+    int cases=0;
+    // One cone, six interfering cones, and 12-inch bass: both heard mics,
+    // every documented strength, full parameter snapshots on undo and lock.
+    for(int layout:{4,7,9})for(int mic:{0,1}) {
+        const auto current=cabRegression::settings(layout,spectralforge::cabLayout::count(layout)-1);
+        const auto setup=[&](ChimeraProcessor& p) {
+            const auto setRaw=[&](const juce::String& id,float v){auto* q=p.parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+            const juce::String letter=mic?"B":"A";
+            setRaw("lcab1_layout",float(layout));setRaw("xcab1_driver",float(current.voice.driver));
+            setRaw("xcab1_"+letter+"mic",float(current.voice.mic));setRaw("lcab1_"+letter+"unit",float(current.unit));
+            setRaw("ocab1_"+letter+"on",1);setRaw("ocab1_"+letter+"position",.5f);setRaw("ocab1_"+letter+"distance",10);
+            setRaw("cabblend1",float(mic));setRaw("cab"+letter+"gain1",-2);
+        };
+        Controller::Options options{2,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false};
+        for(float strength:{.25f,.5f,.75f,1.f}) {
+            options.strength=strength;
+            const auto run=runCab(options,setup);const auto& a=run.analysis;
+            const juce::String letter=mic?"B":"A",position="ocab1_"+letter+"position",distance="ocab1_"+letter+"distance",gain="cab"+letter+"gain1";
+            check(a.playingDetected && a.bass && a.changed(),"Bass fixture did not exercise a mic move");
+            check(near(value(run.values,position),float(.5+strength*(a.proposed.position-.5)),.0011f)
+                && near(value(run.values,distance),float(10+strength*(a.proposed.distanceCm-10)),.051f),"Bass Strength did not scale the applied placement");
+            const float change=cabLevelChangeDb(a.energy,current,{value(run.values,position),value(run.values,distance)});
+            check(near(value(run.values,gain),std::round((-2-change)*10.f)/10.f,.011f),"Bass mic level did not follow the applied Strength placement");
+            for(size_t k=0;k<run.before.size();++k)check(near(run.undone[k],run.before[k],1e-6f),"Bass UNDO AUTO did not restore all parameters");
+            const juce::String other=mic?"A":"B";
+            for(const auto& id:{"ocab1_"+other+"position","ocab1_"+other+"distance","cab"+other+"gain1"})
+                check(value(run.values,id)==value(run.before,id),"The unheard bass mic changed");
+            ++cases;
+        }
+        options.locks|=Controller::lockCab;
+        const auto locked=runCab(options,setup);
+        check(locked.values==locked.before && locked.undone==locked.before,"Bass mic lock changed parameters");
+    }
+    std::cout<<"PASS bass cabinet controller: "<<cases<<" moves, six lock cases, A/B, Strength, level and full-state undo\n";
 }
 // Phase 10. The Tight 515 head with its GAIN at 80%, the plucked notes from the low E.
 spectralforge::AmpNativeState drivenHead(float gainFraction=.8f) {
@@ -1616,6 +1655,7 @@ void controllerGateStageEditHistory() {
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
+        if(argc==2 && std::string(argv[1])=="--cab-regression"){cabRegression::run();cabRules();controllerCab();controllerBassCab();return 0;}
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-risk-probe"){dynamicRiskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-ownership"){dynamicOwnershipRegression();return 0;}
@@ -1638,7 +1678,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();boostRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBoost();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
