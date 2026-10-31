@@ -135,6 +135,21 @@ while switching.
 
 ## Not done
 
+- **Auto Set with a changed order (review, 10/31):**
+  - Its amp, cab and boost passes hear the rig alone (`Tap::cab`, after the
+    post-rig gates, before the Room return, the SYNTH and this block). The
+    Tone EQ, compressor, multiband and de-esser passes hear their module's
+    input.
+  - The passes still run in the released order: Tone EQ, compressor,
+    multiband, de-esser. With the multiband or de-esser moved ahead of the
+    Tone EQ or compressor, those earlier passes measure through the old
+    multiband / de-esser settings, which the later pass then changes.
+  - The compressor and multiband passes also ignore the sidechain key
+    switches.
+- **PRE board undo and Auto Set (from main):** phase 10 places its boost
+  pedal with plain parameter writes, not the board's edit path. One PRE UNDO
+  after an Auto Set run also removes the boost.
+
 - **Sidechain key timing (review, 10/30), resolved:** keyed detectors placed
   after a module with latency read the key delayed by it, so moving a module
   does not change keyed timing.

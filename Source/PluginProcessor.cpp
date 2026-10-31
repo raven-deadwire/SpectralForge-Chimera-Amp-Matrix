@@ -361,6 +361,7 @@ void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& hostBuffer
     // Use the currently reported delay; parameter changes take effect when the
     // wet graph next processes (or prepareToPlay is called), as before.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),getLatencySamples(),true);
+    loudness.process(buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());   // bypassed: still what leaves the plugin
 }
 void ChimeraProcessor::updateComparisonProtection()
 {
@@ -510,9 +511,10 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // its send is fading out after Room off).
     const auto roomSends=room.sends();
     juce::AudioBuffer<float>* roomBus=room.wantsInput() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
-    // Auto Set's amp tap reads the player's signal, before the SYNTH amp-input insert.
-    autoSetCaptureState.push(spectralforge::autoset::Tap::amp,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     synth.addAt(spectralforge::SynthInsert::ampInput,buffer);   // SYNTH insert: into the amps, like a pedal
+    // Auto Set's amp tap reads what the amps receive, the SYNTH insert included,
+    // so its offline amp render matches the amp the cab tap hears.
+    autoSetCaptureState.push(spectralforge::autoset::Tap::amp,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
@@ -523,6 +525,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // Post-rig order mirrors the pre-rig one: Gate > Gate 2 > Expander.
     if(gate2.afterRig())gate2.apply(buffer,roomBus);
     if(expander.afterRig())expander.apply(buffer,roomBus);
+    autoSetCaptureState.push(spectralforge::autoset::Tap::cab,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     // The wet return joins after the gates and before Tone EQ, so a tail
     // already in the room is not cut by a closing gate.
     if(room.running())room.process(roomBus,buffer);
