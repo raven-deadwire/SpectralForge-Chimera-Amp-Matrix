@@ -44,9 +44,9 @@ void labelsAndReference() {
         }
     }
     std::cout << "MEASURE offline reference: found " << found << " of " << expected << " steady notes, worst " << worst << " cents\n";
-    // The string model's inharmonicity reads low notes 6-9 cents sharp in both
-    // trackers (0.1-0.2 cents without it), so the bound is 15 cents.
-    require(found >= expected * 9 / 10 && worst < 15, "The offline reference misses steady notes");
+    // Both trackers measure low notes on their lowest partials, which removes
+    // most of the stiff string's sharp bias.
+    require(found >= expected * 9 / 10 && worst < 7, "The offline reference misses steady notes, or reads them off");   // measured 5.8 (10.8 before)
     std::cout << "PASS label files, and the offline reference finds the steady notes\n";
 }
 

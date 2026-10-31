@@ -39,8 +39,6 @@ per 64 samples). For each labelled note:
 Notes below 55 Hz have their own targets:
 - **Lock:** they may take 80 ms. The long analysis needs two cycles at
   27.5 Hz, which is 73 ms.
-- **Pitch:** notes up to 62 Hz (B1) may read up to 12 cents off, because more
-  inharmonic partials fall in the analysis band.
 
 Chords are measured and reported as "out of scope".
 
@@ -57,33 +55,46 @@ All 24 notes in range meet the targets:
 
 | Recording | Lock ms | Lag ms | Median cents | Attacks |
 |---|---|---|---|---|
-| B1 (7-string low B), 61.7 Hz | 34.7 | 0 | 7.6 | 1 |
-| A1 (drop A), 55 Hz | 40.0 | 0 | 7.2 | 1 |
-| E2 (open low E) | 29.3 | 0 | 6.4 | 1 |
+| B1 (7-string low B), 61.7 Hz | 34.7 | 0 | 1.0 | 1 |
+| A1 (drop A), 55 Hz | 40.0 | 0 | 1.1 | 1 |
+| E2 (open low E) | 29.3 | 0 | 0.9 | 1 |
 | E4 (open high e) | 13.3 | 0 | 1.2 | 1 |
 | E6 (24th fret), 1319 Hz | 2.7 | 0 | 0.4 | 1 |
-| G3 bend +2 semitones over 150 ms | 18.7 | 17 | 2.2 | 1 |
+| G3 bend +2 semitones over 150 ms | 18.7 | 17 | 0.8 | 1 |
 | E4 vibrato ±30 cents at 6 Hz | 13.3 | 18 | 1.5 | 1 |
-| A3 picked, B3 / C#4 hammer-ons, B3 pull-off | 18.7–26.0 | 0 | 2.1–3.4 | 1 each (the gate stays open) |
-| E2 palm-muted 16ths at 120 BPM (90 ms) | 30.0–34.7 | 0 | 2.9–3.6 | 1 each |
-| 16ths at 160 BPM (94 ms), A2 to E3 | 27.7–35.7 | 0 | 5.5–8.8 | 1 each |
-| A-string 12th-fret harmonic (220 Hz, even partials only) | 18.7 | 0 | 6.3 | 1 |
+| A3 picked, B3 / C#4 hammer-ons, B3 pull-off | 18.7–26.0 | 0 | 0.8–2.1 | 1 each (the gate stays open) |
+| E2 palm-muted 16ths at 120 BPM (90 ms) | 30.0–34.7 | 0 | 0.9–1.4 | 1 each |
+| 16ths at 160 BPM (94 ms), A2 to E3 | 26.8–34.4 | 0 | 0.9–1.1 | 1 each |
+| A-string 12th-fret harmonic (220 Hz, even partials only) | 18.7 | 0 | 2.1 | 1 |
 
 No note has octave errors or dropouts. Hum and hiss alone open no gate.
 
 - **Bass (extended range, below):** E1, B0 and a bass line.
 - **Out of scope:** an E2 + B2 power chord is not tracked (the mono tracker
   finds no clear period).
-- **Inharmonicity:**
-  - The low notes read 6–9 cents sharp. That comes from the string's
-    inharmonicity: the stretched upper partials shorten the period both
-    trackers find.
-  - With B = 0 the same notes read within 0.1–0.2 cents.
-  - Real wound strings are inharmonic too, so recorded low notes may show the
-    same bias. Whether the synth should follow the fundamental more closely is
-    a listening question.
+- **Inharmonicity:** the string's stretched upper partials used to shorten
+  the period the trackers found.
+  - The low notes read 6–11 cents sharp of the fundamental; with B = 0 they
+    read within 0.1–0.2 cents.
+  - Both trackers now measure notes below 250 Hz on their lowest partials
+    (see the next section). The figures above are with that change.
 
 ## Tracker changes found by the corpus
+
+- **Low notes (`claude/inharmonic-tracking`):**
+  - Below 250 Hz the tracker re-measures the period on the frame low-passed at
+    3.5 times the first estimate, where the lowest partials dominate. Two
+    parabolic steps of the raw difference run around the estimate, with
+    Hermite-interpolated delays, and the result is kept only within 3 % of the
+    estimate.
+  - The filter runs forward only. A filter delays a periodic signal but keeps
+    its period, and its start-up settles at the oldest end of the frame. A
+    first version also ran it backward; that start-up landed inside the
+    analysis window and read even pure sines 4–9 cents off.
+  - Low guitar notes went from 6.4–8.8 to 0.9–1.5 cents, bass from 7.5–10.6 to
+    1.2–4.8 cents. The tracker test's sines and plucks stay within 0.34 cents.
+  - CPU went from 0.96 % to 1.0–1.2 % of one core.
+  - The bass targets no longer need a looser pitch bound.
 
 - **High notes:**
   - At the 12 kHz analysis rate, E6 has a period of about 9 lags, and the
@@ -113,11 +124,11 @@ The tracker originally covered 55–1400 Hz, so bass E1 (41.2 Hz) and B0
   read by it.
 - **Guitar latency:** unchanged.
 
-| Note | Lock ms | Median cents | Without inharmonicity |
-|---|---|---|---|
-| E1, bass open E (41.2 Hz) | 61.3 | 7.5 | 0.1 |
-| B0, five-string low B (30.9 Hz) | 66.7 | 7.8 | 0.3 |
-| Bass 8ths at 120 BPM: E1, G1, A1, B0 | 41.3–74.0 | 10.2–10.6 | 0.0–0.1 |
+| Note | Lock ms | Median cents (low-partial measurement) | Before it | Without inharmonicity |
+|---|---|---|---|---|
+| E1, bass open E (41.2 Hz) | 61.3 | 1.5 | 7.5 | 0.1 |
+| B0, five-string low B (30.9 Hz) | 66.7 | 2.5 | 7.8 | 0.3 |
+| Bass 8ths at 120 BPM: E1, G1, A1, B0 | 41.3–74.0 | 1.2–4.8 | 10.2–10.6 | 0.0–0.1 |
 
 - **Cost:**
   - On an E2 guitar note, the long analysis ran in 2.7 % of the frames
@@ -162,7 +173,8 @@ ChimeraTrackingCheck --synthetic --write corpus/      # the corpus as WAV + CSV 
   - It cuts the recording into notes where the pitch holds within 40 cents for
     40 ms. On the corpus it found all 22 steady notes.
   - It labels steady notes only, not bends or vibrato.
-  - It shares the inharmonicity bias, so it is a cross-check, not ground
+  - It measures each note on its lowest partials too. Its worst error on the
+    corpus went from 10.8 to 5.8 cents. It is a cross-check, not ground
     truth.
 - **Report:** a Markdown table, as above, and the targets.
 
