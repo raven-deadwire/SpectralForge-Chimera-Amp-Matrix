@@ -53,6 +53,25 @@ inline double rmsDb(const std::vector<float>& signal) {
     double energy = 0; for (float x : signal) energy += double(x) * x;
     return 10 * std::log10(std::max(1e-30, energy / signal.size()));
 }
+inline void fftContract() {
+    // JUCE exposes interleaved complex bins, including Nyquist at [N,N+1].
+    // AppleFFT::mirrorResult unpacks vDSP's internal DC-imaginary storage.
+    // Using [1] here would read the DC imaginary part and lose Nyquist.
+    for(double rate:{44100.,48000.,96000.}) {
+        const int order=int(std::round(std::log2(rate/1.5))),size=1<<order;
+        juce::dsp::FFT fft(order);std::vector<float> bins(size_t(2*size));
+        for(int n=0;n<size;++n)bins[size_t(n)]=n%2?-1.f:1.f;
+        fft.performRealOnlyForwardTransform(bins.data());
+        require(std::abs(bins[size_t(size)]-size)<.01 && std::abs(bins[1])<.01
+            && std::abs(bins[size_t(size+1)])<.01,"JUCE real FFT Nyquist layout changed");
+        std::vector<float> post(size_t(2*size));
+        for(size_t n=0;n<post.size();++n)post[n]=n%2?-1.f:1.f;
+        const auto measured=measureCabEnergy(post,rate);
+        const double expected=3.*size*size/4.; // three overlapping Hann windows
+        require(std::abs(measured.power[size_t(size/2)]/expected-1)<1e-5,"CAB lost Nyquist energy");
+    }
+    std::cout<<"PASS cabinet JUCE FFT contract: Nyquist at N/N+1, captured energy retained\n";
+}
 inline std::vector<float> target(bool bass,double rate,int tilt) {
     constexpr int size=32768;
     juce::dsp::FFT fft(15);std::vector<float> bins(2*size);
@@ -96,6 +115,7 @@ inline void notches() {
     std::cout<<"PASS cabinet local extrema: "<<moves<<" moves, worst generated-IR addition="<<worst<<" dB\n";
 }
 inline void run() {
+    fftContract();
     double worstBand = 0, worstHarmonic = 0, worstLevel = 0;
     int pairs = 0, levels = 0;
     for (double rate : {44100., 48000., 96000.}) for (int index = 1; index <= 9; ++index) {

@@ -63,7 +63,7 @@ placements and checks the model's band difference against the rendered one.
   1/96-octave check from 27.5 Hz to 6.3 kHz rejects an individual local peak
   or notch that grows by more than 3 dB relative to its neighbours at
   +/- 1/6 octave. Strength is checked again at the host-quantized placement
-  before any parameter is written; an unsafe intermediate placement is kept.
+  before any parameter is written; if it is unsafe, the original placement is kept.
 - **Level:** moving the mic changes the level (farther is quieter). The mic's
   level follows the full captured signal energy, including the 27.5 Hz
   fundamental. Hann-windowed FFT energy is weighted by the response ratio of

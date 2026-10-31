@@ -88,9 +88,25 @@ At 44.1, 48 and 96 kHz:
   improve the predicted fit by more than 0.5 dB. The known 6x10 notch
   placement is explicitly rejected.
 
-These figures are local GCC 13.3 / JUCE 8.0.8 Release results for the acoustic
-regression. Full processor/controller and remote CI results are reported
+These figures are local GCC 13.3 / JUCE 8.0.8 Release results. The full
+processor-based `--cab-regression` also passes headlessly on production
+code commit `1f97278`,
+including the original CAB rules/controller and the new bass matrix below.
+This is processor/controller validation, not native-window or real-DAW testing.
+`ChimeraCabLayoutModelTests` passes (3.94 s). Remote CI results are reported
 on the follow-up PR, tied to its current head rather than inherited from #232.
+
+### FFT endpoint contract
+
+The PR's automated review suggested that JUCE returns Nyquist in float
+element 1. That is vDSP's internal packed representation, not JUCE's public
+output. JUCE 8.0.8 `juce_FFT.h` documents `2*N` floats with interleaved
+complex bins, and `AppleFFT::mirrorResult` explicitly moves Nyquist to
+complex bin `N/2` and clears DC's imaginary part. Thus floats `N` and `N+1`
+are valid, and float 1 is DC's imaginary component. No production change
+was made for that suggestion. A deterministic alternating-sample regression
+checks the public FFT result and the CAB energy measurement at all three
+rates, so the packed-layout substitution would fail the test.
 
 ### Controller preservation
 
