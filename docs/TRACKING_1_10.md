@@ -135,6 +135,38 @@ The tracker originally covered 55–1400 Hz, so bass E1 (41.2 Hz) and B0
     (around the attack), and the tracker took 0.96 % of one core.
   - On a held B0 it ran in 63 % of the frames, and the tracker took 2.5 %.
 
+## Review fixes (10/31)
+
+An independent review measured the tracker against the previous one (white
+noise and chords at 8–192 kHz, under ASan/UBSan), and found:
+- **Power chords:**
+  - A fifth's common fundamental (E2 + B2 → E1) is periodic. The long search
+    found it with high clarity in about 818 of 825 frames and opened the gate
+    there. The old tracker was silent.
+  - Its period now counts only if the fundamental is really present:
+    measured over the newest whole periods, its share of the power must
+    exceed −24 dB.
+  - Chords on D2, E2 and G2 now read below 55 Hz in 0 of 1797 frames.
+- **Cost:**
+  - Whenever the normal search failed (chords, noise), the long search ran
+    on every hop. That cost about 5 times the old tracker, sustained.
+  - It now runs on the frame at half rate, a quarter of the work. The
+    low-partial measurement restores the precision, with parabolic steps of
+    2, 0.5 and 0.125 lags.
+  - White noise now costs 1.5 % of one core, against 1.2 % for an E2 note.
+    A held B0 went from 2.75 % to 1.7 %.
+  - Bass accuracy improved to 0.9–2.4 cents median.
+- **Refinement guard:**
+  - The 3 % "different dip" guard could not fire at the usual rates.
+  - The refinement now keeps the first estimate when a step lands beyond its
+    own points.
+- **Counter:** `sinceAttack` saturates instead of overflowing after about 12
+  hours without an attack.
+- **Hum (not changed):** 50 Hz mains hum above about −50 dBFS is tracked as a
+  50 Hz note. Bass G1 (49 Hz) is too close to tell apart, and 60 Hz hum
+  already fell in the old 55 Hz range. Keep SENSITIVITY above the hum level;
+  the default is −40 dBFS.
+
 ## Checking a recording
 
 Record a clean DI:
