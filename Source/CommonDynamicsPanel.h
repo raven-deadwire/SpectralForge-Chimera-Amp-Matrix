@@ -38,7 +38,7 @@ public:
         autoOptions.onClick=[this]{showAutoOptions();};updateAutoOptionsText();
         autoSet.onClick=[this]{if(autoBusy){if(onAutoCancel)onAutoCancel();}else if(onAutoSet)onAutoSet();};
         autoUndo.onClick=[this]{if(onAutoUndo)onAutoUndo();};
-        toggle(limiterOn,"LIMITER ON","liveLimiterOn");toggle(gatePlacement,"SWAP PRE / POST","gateAfterRig",true);
+        toggle(limiterOn,"LIMITER ON","liveLimiterOn");choice(limiterModeBox,"limiterMode",limiterModeNames());toggle(gatePlacement,"SWAP PRE / POST","gateAfterRig",true);
         choice(detector,"cleanCompDetector",{"Peak","RMS"});choice(gateMode,"gateMode",{"Gate","Expander"});
         constexpr std::array<const char*,8> compIDs{"cleanCompThreshold","cleanCompRatio","cleanCompAttack","cleanCompRelease","cleanCompKnee","cleanCompMakeup","cleanCompMix","cleanCompHP"};
         constexpr std::array<const char*,8> compNames{"Threshold dB","Ratio","Attack ms","Release ms","Knee dB","Makeup dB","Parallel mix","Detector HP Hz"};
@@ -67,7 +67,7 @@ public:
         expander[1].slider.setTooltip("Downward expansion ratio below the threshold. Range limits the deepest cut.");
         control(ceiling,"liveLimiterCeiling","Ceiling dBFS");control(limitRelease,"liveLimiterRelease","Release ms");
         gatePlacement.setTooltip("Swap the PRE and POST gate settings between the two sides of the rig.");
-        limiterOn.setTooltip("Stereo-linked sample-peak limiter after output trim. No lookahead; intersample peaks are not measured.");
+        limiterOn.setTooltip("Stereo-linked limiter after output trim. Live: sample peak, no lookahead or latency. Studio true peak: 1 ms lookahead on 4x interpolated peaks; reports its latency while selected.");limiterModeBox.setTooltip("Live: zero-latency sample-peak ceiling. Studio true peak: the ceiling holds intersample peaks too (dBTP), with about 1.2 ms latency.");
         compOn.setTooltip("Clean stereo-linked compression after Tone EQ, before POST. Parallel mix blends aligned dry and compressed audio.");
 
         // The editor redirects native PRE/POST sources to their actual attached
@@ -266,7 +266,7 @@ public:
         gateSides[0].setBounds(18,45,74,28);gateSides[1].setBounds(96,45,80,28);
         gateOn.setBounds(184,45,96,28);gate2On.setBounds(184,45,96,28);gateMode.setBounds(288,45,104,28);gate2Mode.setBounds(288,45,104,28);
         gatePlacement.setBounds(400,45,124,28);expanderOn.setBounds(18,45,140,28);expanderPlacement.setBounds(168,45,118,28);
-        limiterOn.setBounds(18,45,160,28);preOn.setBounds(263,45,166,28);postOn.setBounds(263,45,166,28);
+        limiterOn.setBounds(18,45,160,28);limiterModeBox.setBounds(186,45,170,28);preOn.setBounds(263,45,166,28);postOn.setBounds(263,45,166,28);
         const auto grid=[&](auto& controls,int y=103){for(size_t i=0;i<controls.size();++i)controls[i].bounds(sideX+int(i%2)*(column+12),y+int(i/2)*66,column);};
         grid(comp);grid(gate);grid(gate2);grid(expander);grid(pre);grid(post);grid(deEsser);
         ceiling.bounds(sideX,110,sideWidth);limitRelease.bounds(sideX,181,sideWidth);
@@ -312,7 +312,7 @@ public:
             g.setColour(text);g.setFont(juce::FontOptions(14.f,juce::Font::bold));
             const auto meter=currentReduction<0?"GAIN "+juce::String(-currentReduction,1)+" dB":"GR "+juce::String(currentReduction,1)+" dB";
             if(page!=Page::saturation && page!=Page::filter)g.drawText(meter,getWidth()-222,46,204,27,juce::Justification::centredRight);   // saturation has no gain reduction
-            if(page==Page::limiter)drawNote(g,sideX,269,"SAMPLE-PEAK LIMITING\nStereo linked / zero lookahead\nTrue-peak protection is not measured.");
+            if(page==Page::limiter)drawNote(g,sideX,269,dsp.limiterModeInUse()==1?"TRUE-PEAK LIMITING\nStereo linked / 1 ms lookahead\nCeiling in dBTP (4x interpolated).":"SAMPLE-PEAK LIMITING\nStereo linked / zero lookahead\nStudio mode adds true-peak protection.");
             if(page==Page::gate)drawNote(g,sideX,319,"Clean DI detector\nPRE and POST gates run together.\nRange controls maximum attenuation.");
             if(page==Page::expander)drawNote(g,sideX,319,"Clean DI detector\nRuns together with the gates.\nThe spectrum shows the main gate input.");
             if(page==Page::lowCompressor)drawNote(g,sideX,271,raw("mode")>1.5f?"MATRIX LOW DI\nThe compressor acts on the clean LOW branch.":"MATRIX ROUTE INACTIVE\nSelect Matrix routing to hear this compressor.");
@@ -388,7 +388,7 @@ private:
         gatePlacement.setVisible(gatePage);
         const bool expanderPage=page==Page::expander;
         expanderOn.setVisible(expanderPage);expanderPlacement.setVisible(expanderPage);showControls(expander,expanderPage);
-        limiterOn.setVisible(page==Page::limiter);ceiling.show(page==Page::limiter);limitRelease.show(page==Page::limiter);
+        limiterOn.setVisible(page==Page::limiter);limiterModeBox.setVisible(page==Page::limiter);ceiling.show(page==Page::limiter);limitRelease.show(page==Page::limiter);
         preOn.setVisible(page==Page::preCompressor);postOn.setVisible(page==Page::postCompressor);showControls(pre,page==Page::preCompressor);showControls(post,page==Page::postCompressor);
         lowAmount.show(page==Page::lowCompressor);lowBlend.show(page==Page::lowCompressor);
         const bool mb=page==Page::multiband;mbOn.setVisible(mb);mbDetector.setVisible(mb);mbStereo.setVisible(mb);mbLink.setVisible(mb);mbBandSelector.setVisible(mb);mbBandCount.setVisible(mb);mbMix.show(mb);
@@ -468,7 +468,7 @@ private:
             case Page::compressor:return "After Tone EQ / before POST";
             case Page::gate:return gateSide==0?"PRE RIG / clean DI detection / before PRE":"POST RIG / clean DI detection / after rig";
             case Page::expander:return raw("expAfterRig")>.5f?"Expander / clean DI detection / after rig":"Expander / clean DI detection / before rig";
-            case Page::limiter:return "Final output / sample peak";
+            case Page::limiter:return dsp.limiterModeInUse()==1?"Final output / true peak":"Final output / sample peak";
             case Page::multiband:return juce::String(shownMBBands)+" bands / stereo linked";
             case Page::deesser:return "High-band dynamics";
             case Page::saturation:return raw("satQuality")>.5f?"3 bands / Studio 4x / after multiband":"3 bands / Live, no latency / after multiband";
@@ -493,7 +493,7 @@ private:
     struct SatBand {juce::ComboBox type;Control drive;};
     std::array<SatBand,3> satBands;Control satMix,satOutput;std::array<Control,2> satCrossovers;
     juce::TextButton satOn;juce::ComboBox satQuality,satBandSelector;int selectedSatBand{};
-    juce::ComboBox detector,gateMode,gate2Mode,mbDetector,mbBandSelector,mbStereo,mbBandCount;int shownMBBands{4};
+    juce::ComboBox limiterModeBox,detector,gateMode,gate2Mode,mbDetector,mbBandSelector,mbStereo,mbBandCount;int shownMBBands{4};
     // Band names and the selectable bands follow the band count.
     void applyMBBandCount(int count) {
         shownMBBands=count==6?6:4;

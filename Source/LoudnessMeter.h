@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_core/juce_core.h>
+#include "TruePeak.h"
 #include <array>
 #include <atomic>
 #include <cmath>
@@ -30,7 +31,7 @@ public:
         const auto k = kWeighting(rate);
         shelf = {k[0], k[1], k[2], k[3], k[4]};
         highPass = {k[5], k[6], k[7], k[8], k[9]};
-        factor = rate < 160000. ? 4 : 2;
+        factor = truePeakFactor(rate);
         designInterpolator();
         histogram.assign(size_t(histogramBins), {});
         rangeHistogram.assign(size_t(histogramBins), 0);
@@ -88,7 +89,6 @@ private:
     static constexpr int segmentsShort = 30, segmentsMomentary = 4;
     static constexpr float histogramLow = absoluteGate, histogramStep = .01f;
     static constexpr int histogramBins = int((10.f - histogramLow) / histogramStep) + 1;   // -70 to +10 LUFS
-    static constexpr int tapsPerPhase = 16;
 
     static double tick(const Coefficients& c, State& s, double x) noexcept {
         const double y = c.b0 * x + s.z1;
@@ -103,8 +103,7 @@ private:
     // a reset mid-programme keeps them, so it adds no step to the audio seen.
     void clearFilters() noexcept {
         for (auto& s : state) s = {};
-        for (auto& h : history) h.fill(0.f);
-        historyPosition.fill(0);
+        for (auto& h : history) h.clear();
     }
     void reset() noexcept {
         segments.fill(0.); segmentCount = 0; segmentFill = 0; segmentEnergy = 0.; next = 0;
@@ -172,37 +171,12 @@ private:
         };
         rangeLu.store(juce::jmax(0.f, percentile(.95) - percentile(.10)));
     }
-    // Windowed-sinc interpolator, `factor` phases of tapsPerPhase taps.
-    void designInterpolator() {
-        const int length = tapsPerPhase * factor;
-        // An integer centre puts the phases at 0, 1/factor, ... of a sample,
-        // so phase 0 is the sample itself.
-        const double centre = length / 2;
-        std::vector<double> h(static_cast<size_t>(length));
-        for (int k = 0; k < length; ++k) {
-            const double t = (k - centre) / factor, x = juce::MathConstants<double>::pi * t;
-            const double sinc = std::abs(t) < 1e-12 ? 1. : std::sin(x) / x;
-            const double w = .5 * (1. - std::cos(juce::MathConstants<double>::twoPi * k / length));   // Hann, symmetric about the centre
-            h[size_t(k)] = sinc * w;
-        }
-        for (int p = 0; p < factor; ++p) {
-            double sum = 0.;
-            for (int t = 0; t < tapsPerPhase; ++t) sum += h[size_t(t * factor + p)];
-            for (int t = 0; t < tapsPerPhase; ++t) phases[size_t(p)][size_t(t)] = float(h[size_t(t * factor + p)] / sum);
-        }
-    }
+    // The interpolator shared with the Studio limiter (TruePeak.h).
+    void designInterpolator() { phases = truePeakPhases(factor); }
     void peakTick(int channel, float x) noexcept {
-        auto& line = history[size_t(channel)];
-        line[size_t(historyPosition[size_t(channel)])] = x;
-        const int start = historyPosition[size_t(channel)];
-        historyPosition[size_t(channel)] = (start + 1) % tapsPerPhase;
         peak = juce::jmax(peak, std::abs(x));   // never below the sample peak
         if (factor == 1) return;
-        for (int p = 0; p < factor; ++p) {
-            float y = 0.f;
-            for (int t = 0; t < tapsPerPhase; ++t) y += phases[size_t(p)][size_t(t)] * line[size_t((start - t + tapsPerPhase) % tapsPerPhase)];
-            peak = juce::jmax(peak, std::abs(y));
-        }
+        peak = juce::jmax(peak, history[size_t(channel)].push(x, phases, factor));
     }
 
     double rate{48000.};
@@ -216,9 +190,8 @@ private:
     std::vector<long long> rangeHistogram;
     long long rangeValues{};
     double rangeEnergy{};
-    std::array<std::array<float, tapsPerPhase>, 4> phases{};
-    std::array<std::array<float, tapsPerPhase>, 2> history{};
-    std::array<int, 2> historyPosition{};
+    TruePeakPhases phases{};
+    std::array<TruePeakHistory, 2> history{};
     float peak{};
     std::atomic<bool> resetRequested{false};
     std::atomic<float> momentaryLufs{silent}, shortTermLufs{silent}, integratedLufs{silent}, truePeakDb{silent}, rangeLu{0.f};

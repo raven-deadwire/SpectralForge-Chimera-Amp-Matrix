@@ -5,8 +5,9 @@ Roadmap: "Target a Studio true-peak/LUFS candidate in 1.5, independently of
 Live limiter acceptance." Covered by `ChimeraLoudnessMeterTests`.
 
 This is a **meter**. It never changes the audio, adds no parameter and no
-latency. The Live limiter remains a sample-peak ceiling without lookahead or
-a true-peak claim.
+latency. The limiter's Live mode remains a sample-peak ceiling without
+lookahead or a true-peak claim; its Studio mode holds the true peak this meter
+reads ([TRUE_PEAK_LIMITER_1_5.md](TRUE_PEAK_LIMITER_1_5.md)).
 
 ## What it measures
 
