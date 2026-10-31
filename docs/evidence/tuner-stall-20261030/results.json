@@ -1,0 +1,335 @@
+{
+  "schema": "chimera.tuner-stall-scheduling-experiment.v1",
+  "source_sha": "9163ec6aa2d9591f592c6b4a8765b70bcc6f07bd",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "protected_before": {
+    "Tests/PrecisionTunerIntegrationTests.cpp": "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60",
+    "Source/GlobalDSP.h": "85269a3289d5a324404ce5c7e2212e80a92c09be35a7147f17f19d2021af1628",
+    "Tools/preset_maintenance.py": "10094c95329c8d65e4b81518b8f4d78135785c96a330436453df8acaff14c982"
+  },
+  "variants": {
+    "short": {
+      "fixture_ref": "9163ec6aa2d9591f592c6b4a8765b70bcc6f07bd",
+      "fixture_sha256": "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60",
+      "short-exact_sha256": "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60",
+      "short-delayed_sha256": "d3bcbaa483b2945e1995f25c2a5ccd64b2223ce2688b9ba459b7c260943c7c6e"
+    },
+    "long": {
+      "fixture_ref": "f0ba8e9c9f9eca16553802e50f612d53c2ef51e9",
+      "fixture_sha256": "8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc",
+      "long-exact_sha256": "8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc",
+      "long-delayed_sha256": "7f2359c5e999705d58df83a92ab84c6188b80ba7666ce391abab673450e9fd0b"
+    }
+  },
+  "results": [
+    {
+      "variant": "short",
+      "profile": "baseline",
+      "repeat": 1,
+      "exit_code": 0,
+      "seconds": 3.612,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "short-baseline-1.log"
+    },
+    {
+      "variant": "short",
+      "profile": "baseline",
+      "repeat": 2,
+      "exit_code": 0,
+      "seconds": 3.616,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "short-baseline-2.log"
+    },
+    {
+      "variant": "short",
+      "profile": "baseline",
+      "repeat": 3,
+      "exit_code": 0,
+      "seconds": 3.613,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "short-baseline-3.log"
+    },
+    {
+      "variant": "short",
+      "profile": "producer-8ms-per-block",
+      "repeat": 1,
+      "exit_code": 1,
+      "seconds": 3.39,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-producer-8ms-per-block-1.log"
+    },
+    {
+      "variant": "short",
+      "profile": "producer-8ms-per-block",
+      "repeat": 2,
+      "exit_code": 1,
+      "seconds": 3.394,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-producer-8ms-per-block-2.log"
+    },
+    {
+      "variant": "short",
+      "profile": "producer-8ms-per-block",
+      "repeat": 3,
+      "exit_code": 1,
+      "seconds": 3.393,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-producer-8ms-per-block-3.log"
+    },
+    {
+      "variant": "short",
+      "profile": "stale-sleep-270ms-overshoot",
+      "repeat": 1,
+      "exit_code": 1,
+      "seconds": 0.93,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-stale-sleep-270ms-overshoot-1.log"
+    },
+    {
+      "variant": "short",
+      "profile": "stale-sleep-270ms-overshoot",
+      "repeat": 2,
+      "exit_code": 1,
+      "seconds": 0.93,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-stale-sleep-270ms-overshoot-2.log"
+    },
+    {
+      "variant": "short",
+      "profile": "stale-sleep-270ms-overshoot",
+      "repeat": 3,
+      "exit_code": 1,
+      "seconds": 0.93,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-stale-sleep-270ms-overshoot-3.log"
+    },
+    {
+      "variant": "short",
+      "profile": "worker-resume-400ms-delay",
+      "repeat": 1,
+      "exit_code": 1,
+      "seconds": 1.231,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-worker-resume-400ms-delay-1.log"
+    },
+    {
+      "variant": "short",
+      "profile": "worker-resume-400ms-delay",
+      "repeat": 2,
+      "exit_code": 1,
+      "seconds": 1.235,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-worker-resume-400ms-delay-2.log"
+    },
+    {
+      "variant": "short",
+      "profile": "worker-resume-400ms-delay",
+      "repeat": 3,
+      "exit_code": 1,
+      "seconds": 1.23,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-worker-resume-400ms-delay-3.log"
+    },
+    {
+      "variant": "short",
+      "profile": "beyond-long-pause-budget",
+      "repeat": 1,
+      "exit_code": 1,
+      "seconds": 2.064,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-beyond-long-pause-budget-1.log"
+    },
+    {
+      "variant": "short",
+      "profile": "beyond-long-pause-budget",
+      "repeat": 2,
+      "exit_code": 1,
+      "seconds": 2.061,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-beyond-long-pause-budget-2.log"
+    },
+    {
+      "variant": "short",
+      "profile": "beyond-long-pause-budget",
+      "repeat": 3,
+      "exit_code": 1,
+      "seconds": 2.065,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "short-beyond-long-pause-budget-3.log"
+    },
+    {
+      "variant": "long",
+      "profile": "baseline",
+      "repeat": 1,
+      "exit_code": 0,
+      "seconds": 5.861,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-baseline-1.log"
+    },
+    {
+      "variant": "long",
+      "profile": "baseline",
+      "repeat": 2,
+      "exit_code": 0,
+      "seconds": 5.865,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-baseline-2.log"
+    },
+    {
+      "variant": "long",
+      "profile": "baseline",
+      "repeat": 3,
+      "exit_code": 0,
+      "seconds": 5.86,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-baseline-3.log"
+    },
+    {
+      "variant": "long",
+      "profile": "producer-8ms-per-block",
+      "repeat": 1,
+      "exit_code": 0,
+      "seconds": 5.866,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-producer-8ms-per-block-1.log"
+    },
+    {
+      "variant": "long",
+      "profile": "producer-8ms-per-block",
+      "repeat": 2,
+      "exit_code": 0,
+      "seconds": 5.866,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-producer-8ms-per-block-2.log"
+    },
+    {
+      "variant": "long",
+      "profile": "producer-8ms-per-block",
+      "repeat": 3,
+      "exit_code": 0,
+      "seconds": 5.865,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-producer-8ms-per-block-3.log"
+    },
+    {
+      "variant": "long",
+      "profile": "stale-sleep-270ms-overshoot",
+      "repeat": 1,
+      "exit_code": 0,
+      "seconds": 5.866,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-stale-sleep-270ms-overshoot-1.log"
+    },
+    {
+      "variant": "long",
+      "profile": "stale-sleep-270ms-overshoot",
+      "repeat": 2,
+      "exit_code": 0,
+      "seconds": 5.861,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-stale-sleep-270ms-overshoot-2.log"
+    },
+    {
+      "variant": "long",
+      "profile": "stale-sleep-270ms-overshoot",
+      "repeat": 3,
+      "exit_code": 0,
+      "seconds": 5.857,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-stale-sleep-270ms-overshoot-3.log"
+    },
+    {
+      "variant": "long",
+      "profile": "worker-resume-400ms-delay",
+      "repeat": 1,
+      "exit_code": 0,
+      "seconds": 7.063,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-worker-resume-400ms-delay-1.log"
+    },
+    {
+      "variant": "long",
+      "profile": "worker-resume-400ms-delay",
+      "repeat": 2,
+      "exit_code": 0,
+      "seconds": 7.067,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-worker-resume-400ms-delay-2.log"
+    },
+    {
+      "variant": "long",
+      "profile": "worker-resume-400ms-delay",
+      "repeat": 3,
+      "exit_code": 0,
+      "seconds": 7.065,
+      "expected_pass": true,
+      "matches_expectation": true,
+      "log": "long-worker-resume-400ms-delay-3.log"
+    },
+    {
+      "variant": "long",
+      "profile": "beyond-long-pause-budget",
+      "repeat": 1,
+      "exit_code": 1,
+      "seconds": 2.061,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "long-beyond-long-pause-budget-1.log"
+    },
+    {
+      "variant": "long",
+      "profile": "beyond-long-pause-budget",
+      "repeat": 2,
+      "exit_code": 1,
+      "seconds": 2.06,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "long-beyond-long-pause-budget-2.log"
+    },
+    {
+      "variant": "long",
+      "profile": "beyond-long-pause-budget",
+      "repeat": 3,
+      "exit_code": 1,
+      "seconds": 2.064,
+      "expected_pass": false,
+      "matches_expectation": true,
+      "log": "long-beyond-long-pause-budget-3.log"
+    }
+  ],
+  "owner_approval_granted": false,
+  "native_macos_windows_reproduced": false,
+  "protected_after": {
+    "Tests/PrecisionTunerIntegrationTests.cpp": "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60",
+    "Source/GlobalDSP.h": "85269a3289d5a324404ce5c7e2212e80a92c09be35a7147f17f19d2021af1628",
+    "Tools/preset_maintenance.py": "10094c95329c8d65e4b81518b8f4d78135785c96a330436453df8acaff14c982"
+  },
+  "matches_all_expectations": true
+}
