@@ -1,0 +1,21 @@
+{
+  "state": "RESEARCH_OPTION_ONLY_PRODUCT_ACCEPTANCE_BLOCKED",
+  "synthetic_only": true,
+  "original_hashes": "PASS",
+  "sinc_fresh_sweep": "PASS",
+  "T1_T2_T4": "PASS",
+  "T3": "REPORT_WITHIN_UNCHANGED_CEILINGS",
+  "lowband_max_abs_diff_ms": 0.0196,
+  "reset_counts_and_association": "PRESERVED",
+  "reset_application_timing": "CHANGED_13_CASES_15_EVENTS_PER_PAIR",
+  "first_detection_in_those_13_cases": "UNCHANGED",
+  "off_bit_parity": "PASS_216",
+  "block_invariance": "PASS_6048",
+  "contracts_ASan_UBSan": "PASS_180",
+  "leak_sanitizer": "ENVIRONMENT_FAILURE_NOT_VERIFIED",
+  "cpu": "INCONCLUSIVE_FOR_COST_ESTIMATE_NOT_REALTIME_ACCEPTANCE",
+  "real_DI": "NOT_RUN",
+  "listening": "NOT_RUN",
+  "actual_DAW": "NOT_RUN",
+  "product_Source": "UNCHANGED"
+}

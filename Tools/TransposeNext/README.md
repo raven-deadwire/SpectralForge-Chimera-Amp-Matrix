@@ -294,3 +294,16 @@ floor-corrected rule (net inter-harmonic energy above the ideal tone's own
 floor). On fresh seed 86603 it passes at all three rates (v3-sinc median
 -70.6/-70.3/-79.0 dB re harmonics, 17-23 dB below v3). See
 `docs/TRANSPOSE_V3SINC_RESIDUAL_REVALIDATION_20261029.md`.
+
+### High-band splice-edge experiment (default OFF)
+
+`corr40-split-v3-edge` and `corr40-split-v3-sinc-edge` opt into PR #234's
+boundary slope rejection and fractional refinement on the transient path
+only. Existing engine names and newly constructed engines leave it OFF.
+The product `Source/` and research-plugin UI/PDC are unchanged.
+
+`edge_validation.py` freezes source/binary hashes and fresh seeds before
+sweep, targets, block partition, original-binary parity and CPU comparisons.
+The independent report is `docs/TRANSPOSE_EDGE_INDEPENDENT_20261031.ko.md`.
+It retains individual residual/reset-timing regressions and separates
+synthetic evidence from missing real DI, listening and DAW acceptance.
