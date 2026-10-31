@@ -84,25 +84,7 @@ configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @O
 file(SHA256 "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json" CHIMERA_BETA_METADATA_SHA256)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
-# Beta tester codes (Source/TesterCode.h): the check secret comes from the
-# environment (a GitHub Actions secret for release builds) and is never committed.
-# Without it the build accepts no tester codes.
-set(CHIMERA_TESTER_SECRET_HEX "$ENV{CHIMERA_TESTER_SECRET}")
-string(STRIP "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
-string(TOLOWER "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_HEX)
-if(CHIMERA_TESTER_SECRET_HEX AND NOT CHIMERA_TESTER_SECRET_HEX MATCHES "^[0-9a-f]+$")
-  message(FATAL_ERROR "CHIMERA_TESTER_SECRET must be hexadecimal (Tools/tester_code.py secret)")
-endif()
-string(LENGTH "${CHIMERA_TESTER_SECRET_HEX}" CHIMERA_TESTER_SECRET_LENGTH)
-if(CHIMERA_TESTER_SECRET_HEX AND CHIMERA_TESTER_SECRET_LENGTH LESS 32)
-  message(FATAL_ERROR "CHIMERA_TESTER_SECRET is too short (at least 16 bytes)")
-endif()
-if(CHIMERA_TESTER_SECRET_HEX)
-  message(STATUS "Beta tester codes: enabled")
-else()
-  message(STATUS "Beta tester codes: disabled (CHIMERA_TESTER_SECRET not set)")
-endif()
-configure_file(cmake/ChimeraTesterSecret.h.in generated/ChimeraTesterSecret.h @ONLY)
+include(cmake/ChimeraTesterSecret.cmake)
 # Keep source identity in the generated header shared by product and consumers.
 # A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
@@ -185,6 +167,30 @@ target_include_directories(ChimeraTesterCodeTests PRIVATE Source Tests)
 target_compile_definitions(ChimeraTesterCodeTests PRIVATE JUCE_USE_CURL=0)
 target_link_libraries(ChimeraTesterCodeTests PRIVATE juce::juce_core juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraTesterCodeTests COMMAND ChimeraTesterCodeTests)
+set_tests_properties(ChimeraTesterCodeTests PROPERTIES TIMEOUT 30)
+add_test(NAME ChimeraTesterCodeInteropTests
+  COMMAND "${CMAKE_COMMAND}" -E env "CHIMERA_TESTER_VERIFIER=$<TARGET_FILE:ChimeraTesterCodeTests>"
+    "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/test_tester_code.py")
+add_test(NAME ChimeraTesterBuildTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/test_tester_build.py")
+
+# Compile the real verifier against headers produced by the same configure
+# function as the product. Public test fixtures never enable a product target.
+function(chimera_add_tester_configure_probe target secret expected)
+  set(fixture_dir "${CMAKE_BINARY_DIR}/${target}-fixture")
+  chimera_configure_tester_secret("${secret}" "${fixture_dir}" OFF)
+  juce_add_console_app(${target} PRODUCT_NAME "${target}")
+  target_sources(${target} PRIVATE Tests/TesterConfiguredTests.cpp)
+  target_include_directories(${target} BEFORE PRIVATE "${fixture_dir}" Source Tests)
+  target_compile_definitions(${target} PRIVATE JUCE_USE_CURL=0 CHIMERA_EXPECT_TESTER_ENABLED=${expected})
+  target_link_libraries(${target} PRIVATE juce::juce_core juce::juce_cryptography)
+  add_test(NAME ${target} COMMAND ${target})
+  add_dependencies(ChimeraTesterCodeTests ${target})
+endfunction()
+# TEST ONLY: bytes 0x10..0x2f, already public in TesterCodeFixtures.h.
+chimera_add_tester_configure_probe(ChimeraTesterConfiguredTests
+  "101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f" 1)
+chimera_add_tester_configure_probe(ChimeraTesterDisabledTests "" 0)
 
 # Link the real processor, serializer, editor and update panel. Inject only a
 # private test constructor clock; shipped factories always use compiled policy.

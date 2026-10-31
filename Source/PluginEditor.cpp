@@ -1199,7 +1199,9 @@ void ChimeraEditor::showTesterCode()
         juce::String message;
         if(result==1){const auto grant=safe->processor.applyTesterCode(code);
             message=grant.valid ? "Beta tester code accepted for "+grant.name+". This and later beta versions no longer expire on this computer." : grant.error;}
-        else if(result==2){safe->processor.removeTesterCode();message="Beta tester code removed. The beta expiry applies again to newly opened instances.";}
+        else if(result==2){message=safe->processor.removeTesterCode()
+            ? "Beta tester code removed. The beta expiry applies again to newly opened instances."
+            : "Could not remove the beta tester code from this computer. The stored code has not been removed.";}
         if(message.isNotEmpty())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Beta tester code",message,"OK",safe.getComponent());
         safe->info.setTooltip(safe->processor.betaNotice());
     }),false);

@@ -68,6 +68,7 @@ jobs:
           python Tools/test_publication_evidence.py
           python Tests/test_packaging_version.py
           python Tests/test_macos_pkg_hooks.py
+          python Tools/test_tester_build.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
@@ -93,19 +94,20 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
-    env:
-      # Beta tester code check secret (Tools/tester_code.py secret); never committed.
-      CHIMERA_TESTER_SECRET: ${{ secrets.CHIMERA_TESTER_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Require the beta tester code secret for release candidates
-        if: github.event_name != 'pull_request' && env.CHIMERA_TESTER_SECRET == ''
+        if: github.event_name != 'pull_request'
         shell: bash
+        env:
+          CHIMERA_TESTER_SECRET: ${{ github.event_name != 'pull_request' && secrets.CHIMERA_TESTER_SECRET || '' }}
         run: |
-          echo "::error::CHIMERA_TESTER_SECRET is not set. Release builds without it reject every beta tester code (docs/BETA_TESTER_CODES.ko.md)."
-          exit 1
+          if [ -z "$CHIMERA_TESTER_SECRET" ]; then
+            echo "::error::A beta tester secret is required for release candidates."
+            exit 1
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -132,6 +134,7 @@ jobs:
           python Tools/test_beta_publication.py
           python Tools/test_publish_beta131.py
           python Tools/test_beta_publication131.py
+          python Tools/test_tester_build.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
       - name: Check Windows packaging script syntax
@@ -155,13 +158,19 @@ jobs:
         run: python Tools/fetch_asio_sdk.py --dest "${{ runner.temp }}/asiosdk" --github-env --require-pin
       - name: Configure Windows with required ASIO
         if: runner.os == 'Windows'
-        run: cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCHIMERA_REQUIRE_ASIO=ON -DCMAKE_BUILD_TYPE=Release
+        env:
+          CHIMERA_TESTER_SECRET: ${{ github.event_name != 'pull_request' && secrets.CHIMERA_TESTER_SECRET || '' }}
+        run: cmake -S . -B build -DCHIMERA_REQUIRE_TESTER_SECRET=${{ github.event_name != 'pull_request' }} -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCHIMERA_REQUIRE_ASIO=ON -DCMAKE_BUILD_TYPE=Release
       - name: Configure Linux
         if: runner.os == 'Linux'
-        run: cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
+        env:
+          CHIMERA_TESTER_SECRET: ${{ github.event_name != 'pull_request' && secrets.CHIMERA_TESTER_SECRET || '' }}
+        run: cmake -S . -B build -DCHIMERA_REQUIRE_TESTER_SECRET=${{ github.event_name != 'pull_request' }} -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
       - name: Configure universal macOS
         if: runner.os == 'macOS'
-        run: cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+        env:
+          CHIMERA_TESTER_SECRET: ${{ github.event_name != 'pull_request' && secrets.CHIMERA_TESTER_SECRET || '' }}
+        run: cmake -S . -B build -DCHIMERA_REQUIRE_TESTER_SECRET=${{ github.event_name != 'pull_request' }} -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       - run: cmake --build build --config Release --parallel 2
       - name: Record configured CTest inventory
         run: ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
