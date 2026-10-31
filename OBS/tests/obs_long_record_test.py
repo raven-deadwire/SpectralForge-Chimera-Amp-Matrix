@@ -258,8 +258,11 @@ def main() -> int:
     finally:
         # Kept for the CI artifact on every run: on Windows and macOS a passing
         # run removes the OBS configuration, logs included.
-        if (args.layout.config / "logs").is_dir():
-            shutil.copytree(args.layout.config / "logs", Path(args.work).resolve() / "obs-logs", dirs_exist_ok=True)
+        try:
+            if (args.layout.config / "logs").is_dir():
+                shutil.copytree(args.layout.config / "logs", Path(args.work).resolve() / "obs-logs", dirs_exist_ok=True)
+        except OSError as e:  # must not keep the filter installed
+            print(f"note: could not keep the OBS logs: {e}", file=sys.stderr)
         args.layout.uninstall(passed)
     return 0
 

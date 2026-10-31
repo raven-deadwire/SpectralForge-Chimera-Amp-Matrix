@@ -68,8 +68,9 @@ class RecordingFailureTests(unittest.TestCase):
             for error in errors:
                 with self.subTest(error=type(error).__name__):
                     layout = Mock(config=Path(directory) / "config")
+                    # main() sets the FFmpeg path for the module; keep the one the other tests use.
                     argv = ["obs_long_record_test.py", "--module", "module", "--vst3", "plugin",
-                            "--work", directory]
+                            "--work", directory, "--ffmpeg", recording.app.FFMPEG]
                     with patch.object(sys, "argv", argv), patch.dict(os.environ, {"DISPLAY": ":test"}), \
                             patch.object(recording.app, "Layout", return_value=layout), \
                             patch.object(recording, "run", side_effect=error), \
