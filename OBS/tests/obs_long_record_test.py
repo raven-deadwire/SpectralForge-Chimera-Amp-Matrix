@@ -254,10 +254,15 @@ def main() -> int:
         for log in [*sorted(work.glob("obs-run*.txt")), *sorted((args.layout.config / "logs").glob("*.txt"))[-1:]]:
             print(f"--- {log.name} (last 60 lines)", file=sys.stderr)
             print("\n".join(log.read_text(errors="replace").splitlines()[-60:]), file=sys.stderr)
-        if (args.layout.config / "logs").is_dir():
-            shutil.copytree(args.layout.config / "logs", work / "obs-logs", dirs_exist_ok=True)
         return 1
     finally:
+        # Kept for the CI artifact on every run: on Windows and macOS a passing
+        # run removes the OBS configuration, logs included.
+        try:
+            if (args.layout.config / "logs").is_dir():
+                shutil.copytree(args.layout.config / "logs", Path(args.work).resolve() / "obs-logs", dirs_exist_ok=True)
+        except OSError as e:  # must not keep the filter installed
+            print(f"note: could not keep the OBS logs: {e}", file=sys.stderr)
         args.layout.uninstall(passed)
     return 0
 
