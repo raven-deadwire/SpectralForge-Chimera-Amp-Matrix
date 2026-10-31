@@ -281,6 +281,7 @@ public:
         ringSize = 1;while (ringSize < total + 2) ringSize *= 2;
         ring.assign(size_t(ringSize), 0.f);
         frame.assign(size_t(total + 2), 0.f);
+        half.assign(size_t(total / 2 + 2), 0.f);
         filtered.assign(size_t(total + 2), 0.0);
         difference.assign(size_t(tauMaxLong + 2), 0.f);
         // Anti-alias: two cascaded biquad low-passes at 0.2 x the decimated rate.
@@ -317,13 +318,20 @@ private:
         for (int i = total - window; i < total; ++i) energy += double(frame[size_t(i)]) * frame[size_t(i)];
         level = std::sqrt(energy / window);
         double period = 0, clarity = 0;int used = window;
-        bool found = search(window, tauMax, tauMin, period, clarity);
+        bool found = search(frame.data(), total, window, tauMax, tauMin, period, clarity);
         // Below the normal range: only when the normal analysis found no
         // period and there is signal (above -50 dBFS, over hum and hiss).
+        // The long search runs on the frame at half rate (a quarter of the
+        // work; the low-partial measurement below restores the precision),
+        // and its period counts only if the fundamental is really there: a
+        // chord's common fundamental (E2 + B2 -> E1) is periodic but silent.
         if (!found && level > .0032) {
             ++extended;
+            const int halfTotal = total / 2;
+            for (int i = 0; i < halfTotal; ++i) half[size_t(i)] = .5f * (frame[size_t(total - 2 * halfTotal + 2 * i)] + frame[size_t(total - 2 * halfTotal + 2 * i + 1)]);
             double longPeriod = 0, longClarity = 0;
-            if (search(windowLong, tauMaxLong, int(std::floor(decimatedRate / (lowestHz * 1.06))), longPeriod, longClarity)) { found = true;period = longPeriod;clarity = longClarity;used = windowLong; }
+            if (search(half.data(), halfTotal, windowLong / 2, tauMaxLong / 2, int(std::floor(decimatedRate / 2 / (lowestHz * 1.06))), longPeriod, longClarity)
+                && fundamentalShare(2 * longPeriod) > .004) { found = true;period = 2 * longPeriod;clarity = longClarity;used = windowLong; }
         }
         if (!found) { confidence = clarity;return; }   // no clear period: keep the last pitch, report low clarity
         if (decimatedRate / period < 250.) period = lowPartialPeriod(used, period);
@@ -333,15 +341,28 @@ private:
         auto sorted = history;std::sort(sorted.begin(), sorted.end());
         frequency = sorted[0] > 0 ? sorted[1] : estimate;
     }
-    // YIN over the newest `w` samples against lags up to `t`, accepting the
-    // first dip from `from`. Returns the period in decimated samples.
-    bool search(int w, int t, int from, double& period, double& clarity) noexcept {
+    // The share of the newest whole periods' power at the fundamental of
+    // `period` (-24 dB is 0.004). Whole periods, so harmonics project to zero.
+    double fundamentalShare(double period) const noexcept {
+        const int cycles = std::max(1, int(double(windowLong) / period)), n = std::min(total, int(std::lround(cycles * period)));
+        double c = 0, sn = 0, power = 0;
+        const double step = 6.283185307179586 / period;
+        for (int j = 0; j < n; ++j) {
+            const double x = frame[size_t(total - n + j)];
+            c += x * std::cos(step * j);sn += x * std::sin(step * j);power += x * x;
+        }
+        return power > 0 ? 2.0 * (c * c + sn * sn) / (double(n) * power) : 0.0;
+    }
+    // YIN over the newest `w` of `length` samples of `x` against lags up to
+    // `t`, accepting the first dip from `from`. Returns the period in samples
+    // of `x`.
+    bool search(const float* x, int length, int w, int t, int from, double& period, double& clarity) noexcept {
         // d(tau) over the newest window against tau samples earlier.
         double running = 0;
         int best = -1;
         for (int tau = 1; tau <= t; ++tau) {
             double d = 0;
-            for (int j = 0; j < w; ++j) { const double e = double(frame[size_t(total - w + j)]) - frame[size_t(total - w + j - tau)];d += e * e; }
+            for (int j = 0; j < w; ++j) { const double e = double(x[length - w + j]) - x[length - w + j - tau];d += e * e; }
             running += d;
             difference[size_t(tau)] = float(running > 0 ? d * tau / running : 1.0);
         }
@@ -363,7 +384,7 @@ private:
         // Short periods (high notes, ~9 lags at 1.3 kHz): a parabola over whole
         // lags is biased by up to ~11 cents. Refine over fractional lags
         // (+-0.25) of the raw difference with Hermite-interpolated delays.
-        if (best < 48) {
+        if (best < 48 && x == frame.data()) {
             const double h = .25;
             const double dm = shifted(w, period - h), d0 = shifted(w, period), dp = shifted(w, period + h), den = dm - 2 * d0 + dp;
             if (den > 1e-15) period += std::clamp(.5 * h * (dm - dp) / den, -h, h);
@@ -403,13 +424,15 @@ private:
             return sum;
         };
         double p = period;
-        for (const double h : {1.0, .25}) {   // two parabolic steps, then a finer one
+        for (const double h : {2.0, .5, .125}) {   // parabolic steps, each finer (the half-rate search can be a lag off)
             const double dm = difference(p - h), d0 = difference(p), dp = difference(p + h), den = dm - 2 * d0 + dp;
-            if (!(den > 1e-18)) break;
-            p += std::clamp(.5 * h * (dm - dp) / den, -h, h);
+            if (!(den > 1e-18)) return period;
+            const double step = .5 * h * (dm - dp) / den;
+            // A step beyond its points left the dip it started in: keep the estimate.
+            if (std::abs(step) > h) return period;
+            p += step;
         }
-        // Keep the first estimate if the refinement wandered (a different dip).
-        return std::abs(p - period) < .03 * period ? p : period;
+        return p;
     }
     // The raw difference of the newest window against a fractional delay tau.
     double shifted(int w, double tau) const noexcept {
@@ -427,7 +450,7 @@ private:
     double rate{48000}, decimatedRate{12000};
     int factor{4}, tauMin{8}, tauMax{220}, window{220}, tauMaxLong{438}, windowLong{438}, total{876}, ringSize{1024}, write{}, phase{}, hop{};
     long long extended{};
-    std::vector<float> ring, frame, difference;std::vector<double> filtered;
+    std::vector<float> ring, frame, half, difference;std::vector<double> filtered;
     std::array<juce::dsp::IIR::Filter<float>, 2> filters;
     double frequency{}, confidence{}, level{};
     std::array<double, 3> history{};
@@ -770,7 +793,7 @@ private:
             else if (refractory) onsetLevel = std::max(onsetLevel, tracker.rms());
         } else if (guitarGate) { guitarGate = false;guitar.gate = false;guitar.amp.noteOff();guitar.env2.noteOff(); }
         onsetLevel = std::max(tracker.rms(), onsetLevel * std::exp(-double(samples) / (.05 * rate)));
-        sinceAttack += samples;
+        sinceAttack = std::min(sinceAttack + samples, 1 << 30);   // saturates: no overflow when no attack comes
     }
     void advanceLfos(const Settings& s, double bpm) noexcept {
         for (int l = 0; l < 2; ++l) {
