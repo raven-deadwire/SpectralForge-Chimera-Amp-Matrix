@@ -506,6 +506,8 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // its send is fading out after Room off).
     const auto roomSends=room.sends();
     juce::AudioBuffer<float>* roomBus=room.wantsInput() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
+    // Auto Set's amp tap reads the player's signal, before the SYNTH amp-input insert.
+    autoSetCaptureState.push(spectralforge::autoset::Tap::amp,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     synth.addAt(spectralforge::SynthInsert::ampInput,buffer);   // SYNTH insert: into the amps, like a pedal
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
@@ -581,6 +583,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         }
     }
     autoSetCaptureState.push(spectralforge::autoset::Tap::output,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
+    autoSetCaptureState.push(spectralforge::autoset::Tap::master,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::limiter,buffer);dynamics.limit(buffer);} // Last gain stage after output trim.
     levelMatch.process(buffer,selectedComparison.load()); // Comparison output cut; meters show what is heard.
     for(int c=0;c<buffer.getNumChannels();++c)peak=juce::jmax(peak,buffer.getMagnitude(c,0,buffer.getNumSamples()));

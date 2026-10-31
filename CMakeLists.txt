@@ -9,6 +9,12 @@ if(MSVC)
   # Set this before JUCE creates its targets so every linked library agrees.
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # GCC fuses a*b+c across statements wherever the target has FMA, so the
+  # same expression can round differently in two call sites. Keep float
+  # results reproducible; pixel-exact head shell checks depend on it.
+  add_compile_options(-ffp-contract=off)
+endif()
 include(FetchContent)
 FetchContent_Declare(JUCE GIT_REPOSITORY https://github.com/juce-framework/JUCE.git GIT_TAG 8.0.8)
 FetchContent_MakeAvailable(JUCE)
