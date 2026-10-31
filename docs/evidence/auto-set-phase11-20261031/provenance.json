@@ -1,0 +1,31 @@
+{
+  "baseline_commit": "439a513a4b5e3678d722a4138003b0853420b369",
+  "baseline_cases": 72,
+  "baseline_delay_enabled": 45,
+  "baseline_enabled_bpm_error_over_5_percent": 36,
+  "synthetic_regression_cases": 216,
+  "regression_untrusted_delay_enabled": 0,
+  "regression_synced_delay_enabled": 108,
+  "scope": "synthetic audio, production Capture and analysis; no real DI or human listening",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "sha256": {
+    "Source/AutoSet.h": "184f4db96f475856bc77180535b24638ead946b340877810ab2b09c29a1f9548",
+    "Source/AutoSetSpace.h": "ac1f87cf5fa09b1346ef133aebbd80d18b9d6679fd1e8750e7b1d71a3d5191de",
+    "Source/AutoSetController.h": "167e2a2c9eecb851d259384f27e911b3d76721f4b4e60df0466c83df877f752f",
+    "Source/PluginProcessor.h": "a0fc54dcefcd0037fadfee3f2b04d912b61e7b90a8828c2239a7528e8f71639e",
+    "Source/PluginProcessor.cpp": "f67a9a56ef94092a670b468b32d6c9fa34e3723e310887cf6c5839ee19f2f6b2",
+    "Tests/AutoSetTests.cpp": "2df01e104df17b9f8cc5c7ae974b1633471977ceb531c6e6d404dabbe39e74f3",
+    "Tests/AutoSetSpaceFixtures.h": "736df52bec4f8cf6d8354bcf01a1ca84d454cf0306bb13a47e02e65d0a945830",
+    "Tests/AutoSetSpaceRegression.h": "fd5273699828efa96e14aadf6b51103e87df5092fe65874d77be4949ead7f54d"
+  },
+  "baseline_AutoSetSpace_sha256": "c0b01bab9b820eca1f5bfbfe444c7831f0e69132478938884f6526f9b4af9bc4",
+  "focused_native_tests": "PASS: --space-regression; real processor with mock host plus actual EchoModule impulse timing",
+  "fixture_wav_export": "PASS: 72 mono six-second WAV files; event score and manifest generated",
+  "full_regression": {
+    "test": "ChimeraAutoSetTests",
+    "status": "passed",
+    "seconds": 143.62,
+    "command": "ctest --test-dir build-review -R '^ChimeraAutoSetTests$' --output-on-failure"
+  }
+}

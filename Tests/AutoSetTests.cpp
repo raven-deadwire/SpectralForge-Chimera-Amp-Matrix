@@ -1342,15 +1342,15 @@ std::vector<Window> windowsOf(const std::vector<float>& x,double rate=48000) {
 }
 void spaceRules() {
     check(!analyseSpace(windowsOf(std::vector<float>(48000*6)),false,Style::rock).feel.measured,"Silence reported as playing");
-    // Sparse notes, one a second: the beat is the gap, clean guitar gets a wide reverb and a delay on the beat.
-    const auto sparse=analyseSpace(windowsOf(pluckedEvery(1000,6)),false,Style::clean);
+    // Sparse notes with an explicitly selected 60 BPM sync reference.
+    const auto sparse=analyseSpace(windowsOf(pluckedEvery(1000,6)),false,Style::clean,60);
     check(sparse.feel.measured && sparse.sparse && !sparse.dense && near(sparse.feel.onsetsPerSecond,1.f,.25f) && near(sparse.feel.beatMs,1000.f,20.f),"Sparse notes not measured as one a second");
     check(sparse.reverb.on && near(sparse.reverb.mix,.25f,.011f) && near(sparse.reverb.size,.6f,1e-6f) && sparse.delay.on && near(sparse.delay.timeMs,1000.f,20.f)
           && near(sparse.delay.mix,.18f,.011f) && near(sparse.delay.feedback,.3f,1e-6f),"Sparse clean guitar did not get a wide reverb and a delay on the beat");
     check(sparse.feel.pauseFraction>.2f && sparse.feel.sustainMs>200.f && sparse.feel.sustainMs<1000.f,"Pauses or ring not measured");
-    // A 300 ms gap is the beat; notes 200 ms apart fold to 400 ms (5 a second: no delay, too busy).
-    const auto eighths=analyseSpace(windowsOf(pluckedEvery(300,6,48000,12)),false,Style::rock);
-    check(near(eighths.feel.beatMs,300.f,15.f) && eighths.delay.on && near(eighths.delay.timeMs,300.f,15.f),"Beat not taken from the note gaps");
+    // A 300 ms diagnostic pulse plus explicit 200 BPM sync; a 200 ms pulse remains diagnostic only.
+    const auto eighths=analyseSpace(windowsOf(pluckedEvery(300,6,48000,12)),false,Style::rock,200);
+    check(near(eighths.feel.beatMs,300.f,15.f) && eighths.delay.on && near(eighths.delay.timeMs,300.f,15.f),"Diagnostic pulse or explicit sync reference was not measured");
     const auto quick=analyseSpace(windowsOf(pluckedEvery(200,6,48000,20)),false,Style::rock);
     check(near(quick.feel.beatMs,400.f,20.f) && !quick.dense && !quick.delay.on,"A 200 ms note gap was not folded to a 400 ms beat, or the busy part got a delay");
     // Dense riffing: the reverb tightens and no delay is added; metal is driest.
@@ -1362,11 +1362,15 @@ void spaceRules() {
     check(bass.reverb.on && near(bass.reverb.mix,.05f,.011f) && !bass.delay.on,"Bass was not kept nearly dry");
     std::cout<<"MEASURE space rules: sparse "<<sparse.feel.onsetsPerSecond<<" notes/s, beat "<<sparse.feel.beatMs<<" ms, ring "<<sparse.feel.sustainMs<<" ms, pauses "<<sparse.feel.pauseFraction
              <<"; dense "<<dense.feel.onsetsPerSecond<<" notes/s, reverb "<<dense.reverb.mix<<"\n";
-    std::cout<<"PASS auto set space rules: silence, sparse clean reverb and delay on the beat, beat folding, dense metal tight, metal no delay, bass nearly dry\n";
+    std::cout<<"PASS auto set space rules: silence, sparse clean reverb and delay on the beat, diagnostic beat folding, dense metal tight, metal no delay, bass nearly dry\n";
 }
 struct SpaceRun {std::vector<float> before,values,undone;Controller::Status status;SpaceResult analysis;};
 SpaceRun runSpace(const Controller::Options& options,const std::function<void(ChimeraProcessor&)>& prepare={}) {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    // This harness explicitly selects a known manual quarter-note tempo.
+    for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"delaysync",1},{"tempo",60}}) {
+        auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));
+    }
     if(prepare)prepare(*p);
     Controller c(*p);c.setOptions(options);
     SpaceRun result;result.before=values(*p);
@@ -1389,14 +1393,14 @@ void controllerSpace() {
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::space);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::input} && step && step->changed && step->result.contains("reverb on") && step->result.contains("delay on"),"Delay + reverb step did not run or report");
     check(value(full.values,"reverbon")>.5f && near(value(full.values,"reverbmix"),a.reverb.mix,.011f) && near(value(full.values,"reverbsize"),a.reverb.size,.011f)
-          && value(full.values,"delayon")>.5f && near(value(full.values,"delaytime"),a.delay.timeMs,1.f) && near(value(full.values,"delaymix"),a.delay.mix,.011f),"Applied delay and reverb do not match the analysis");
+          && value(full.values,"delayon")>.5f && value(full.values,"delaytime")==value(full.before,"delaytime") && near(value(full.values,"delaymix"),a.delay.mix,.011f),"Applied delay and reverb do not match the analysis");
     bool undone=true;for(size_t i=0;i<full.before.size();++i)undone&=near(full.undone[i],full.before[i],1e-6f);
     check(undone,"UNDO AUTO did not restore the delay and reverb");
     // Strength scales the mixes.
     auto halfOptions=spaceOnly;halfOptions.strength=.5f;
     const auto half=runSpace(halfOptions);
     check(near(value(half.values,"reverbmix"),std::round(.5f*half.analysis.reverb.mix*100.f)/100.f,.011f) && near(value(half.values,"delaymix"),std::round(.5f*half.analysis.delay.mix*100.f)/100.f,.011f),"Strength did not scale the mixes");
-    // A reverb the player has on keeps its size and damping; only its mix moves. A synced delay keeps the host tempo.
+    // A reverb the player has on keeps its size and damping; only its mix moves. A synced delay keeps the saved free-time value.
     const auto setter=[](std::initializer_list<std::pair<const char*,float>> pairs){std::vector<std::pair<const char*,float>> list(pairs);return [list](ChimeraProcessor& p){for(const auto& [id,v]:list){auto* q=p.parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));}};};
     const auto own=runSpace(spaceOnly,setter({{"reverbon",1},{"reverbsize",.9f},{"reverbdamping",.1f},{"reverbmix",.5f},{"delaysync",1}}));
     check(near(value(own.values,"reverbsize"),.9f,.011f) && near(value(own.values,"reverbdamping"),.1f,.011f) && near(value(own.values,"reverbmix"),own.analysis.reverb.mix,.011f)
@@ -1411,7 +1415,7 @@ void controllerSpace() {
     const auto skipped=runSpace(noInput);
     check(stepOf(skipped.status,P::space) && stepOf(skipped.status,P::space)->result.contains("input pass did not run"),"Missing input pass not reported");
     std::cout<<"MEASURE auto set space controller: "<<step->result<<'\n';
-    std::cout<<"PASS auto set space controller: step after the input pass, reverb and delay on the beat as analysed, strength, the player's reverb and synced delay kept, lock, no input pass, undo\n";
+    std::cout<<"PASS auto set space controller: step after the input pass, reverb and delay on the beat as analysed, strength, the player's reverb and saved free-time value kept, lock, no input pass, undo\n";
 }
 void parameterEditNotifications() {
     auto p=std::make_unique<ChimeraProcessor>();
@@ -1698,10 +1702,14 @@ void controllerGateStageEditHistory() {
 
 #include "AutoSetDynamicEQRegression.h"
 #include "AutoSetDICommands.h"
+#include "AutoSetSpaceRegression.h"
 
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
     try {
+        if(argc==2 && std::string(argv[1])=="--space-regression"){spaceRules();controllerSpace();spaceSignalRegression();spaceControllerRegression();return 0;}
+        if(argc==3 && std::string(argv[1])=="--space-report"){spaceSignalRegression(juce::File(argv[2]));return 0;}
+        if(argc==3 && std::string(argv[1])=="--space-fixtures"){spaceWriteFixtures(juce::File(argv[2]));return 0;}
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-risk-probe"){dynamicRiskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-ownership"){dynamicOwnershipRegression();return 0;}
@@ -1724,7 +1732,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBoost();controllerSpace();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}

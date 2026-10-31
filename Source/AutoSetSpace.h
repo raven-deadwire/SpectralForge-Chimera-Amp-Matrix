@@ -9,11 +9,12 @@ namespace spectralforge::autoset {
 // pauses between phrases and how long notes ring.
 // - Reverb: a style amount (clean wide, metal tight), less for dense playing
 //   whose notes would wash into each other, more for sparse playing.
-// - Delay: for clean and rock guitar that is not dense, timed to the playing's
-//   own beat (the median gap between notes, folded into 250 ms-1 s).
+// - Delay: for clean and rock guitar that is not dense, only with an explicit
+//   synced tempo. Onset gaps alone cannot identify the musical beat/subdivision.
 struct PlayingFeel {
     bool measured{};
     float onsetsPerSecond{},beatMs{},pauseFraction{},sustainMs{};
+    float peakOnsetsPerSecond{};
     int onsets{};
 };
 struct SpaceSetting {bool on{};float mix{},size{},damping{},timeMs{},feedback{};};
@@ -28,19 +29,27 @@ inline constexpr double spaceRefractoryMs=80,spaceMinBeatMs=250,spaceMaxBeatMs=1
 // within 24 dB of the loudest playing, at most one per 80 ms.
 inline PlayingFeel measurePlayingFeel(const std::vector<Window>& w,double windowMs=10) {
     PlayingFeel f;
-    if(w.size()<100)return f;
+    if(w.size()<100 || !std::isfinite(windowMs) || windowMs<=0)return f;
+    for(const auto& x:w)if(!std::isfinite(x.rmsDb))return f;
     std::vector<float> rms;for(const auto& x:w)rms.push_back(x.rmsDb);
     const float loud=percentile(rms,.95f);
     if(loud<minimumPlayingDb)return f;
     std::vector<size_t> onsets;
-    for(size_t i=3;i<w.size();++i) {
-        const float before=std::min({rms[i-1],rms[i-2],rms[i-3]});
+    for(size_t i=0;i<w.size();++i) {
+        float before=-120.f;
+        if(i>=3)before=std::min({rms[i-1],rms[i-2],rms[i-3]});
         if(rms[i]>loud-24.f && rms[i]-before>=spaceOnsetRiseDb && (onsets.empty() || double(i-onsets.back())*windowMs>=spaceRefractoryMs))onsets.push_back(i);
     }
     size_t pauses=0;for(const float r:rms)pauses+=r<loud-30.f;
     f.pauseFraction=float(pauses)/float(rms.size());
     f.onsets=int(onsets.size());
     f.onsetsPerSecond=float(onsets.size()/(double(w.size())*windowMs*.001));
+    // A long rest must not make a fast phrase eligible for a new delay.
+    // Half-open one-second windows avoid counting both boundary onsets.
+    for(size_t left=0,right=0;right<onsets.size();++right) {
+        while(double(onsets[right]-onsets[left])*windowMs>=1000.)++left;
+        f.peakOnsetsPerSecond=std::max(f.peakOnsetsPerSecond,float(right-left+1));
+    }
     // Ring: from each onset's peak (within 50 ms) to 20 dB below it, at most 2 s.
     std::vector<float> rings,gaps;
     for(size_t k=0;k<onsets.size();++k) {
@@ -52,6 +61,8 @@ inline PlayingFeel measurePlayingFeel(const std::vector<Window>& w,double window
     }
     if(!rings.empty())f.sustainMs=percentile(rings,.5f);
     if(gaps.size()>=3) {
+        // Diagnostic pulse candidate only, NOT a confident musical BPM.
+        // Even perfectly regular eighths and quarters are indistinguishable.
         double beat=percentile(gaps,.5f);
         while(beat<spaceMinBeatMs)beat*=2;
         while(beat>spaceMaxBeatMs)beat*=.5;
@@ -60,7 +71,7 @@ inline PlayingFeel measurePlayingFeel(const std::vector<Window>& w,double window
     f.measured=f.onsets>=2;
     return f;
 }
-inline SpaceResult analyseSpace(const std::vector<Window>& windows,bool bass,Style style) {
+inline SpaceResult analyseSpace(const std::vector<Window>& windows,bool bass,Style style,float syncedTempoBpm=0) {
     SpaceResult r;r.feel=measurePlayingFeel(windows);
     if(!r.feel.measured)return r;
     r.dense=r.feel.onsetsPerSecond>spaceDenseOnsets;
@@ -72,9 +83,12 @@ inline SpaceResult analyseSpace(const std::vector<Window>& windows,bool bass,Sty
     r.reverb.size=std::clamp((style==Style::clean?.5f:style==Style::metal?.25f:.35f)+(r.sparse?.1f:r.dense?-.1f:0.f),0.f,1.f);
     r.reverb.damping=style==Style::clean?.45f:style==Style::metal?.65f:.55f;
     r.reverb.on=r.reverb.mix>=.03f;
-    // Delay: guitar, clean or rock, not busy, with a beat to time it to.
-    if(!bass && style!=Style::metal && r.feel.onsetsPerSecond<=spaceDelayMaxOnsets && r.feel.beatMs>0) {
-        r.delay.on=true;r.delay.timeMs=std::round(r.feel.beatMs);
+    // Fail closed without a user-selected sync reference. IOI regularity is
+    // not confidence in metrical tempo (half/double and triplet ambiguity).
+    // Accept only the configured tempo range; never fold an out-of-range BPM.
+    if(!bass && style!=Style::metal && r.feel.peakOnsetsPerSecond<=spaceDelayMaxOnsets
+       && std::isfinite(syncedTempoBpm) && syncedTempoBpm>=40.f && syncedTempoBpm<=240.f) {
+        r.delay.on=true;r.delay.timeMs=60000.f/syncedTempoBpm;
         r.delay.feedback=style==Style::clean?.3f:.22f;
         r.delay.mix=std::round((style==Style::clean?.15f:.10f)*(r.sparse?1.2f:1.f)*100.f)/100.f;
     }

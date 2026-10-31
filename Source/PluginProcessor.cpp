@@ -156,6 +156,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
     lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
+    hostTempoMeter.store(0);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     // Install the restored panel state before Cab::prepare initializes its
     // smoothers. This also clears a previous A/B blend/bypass after reprepare;
@@ -236,7 +237,14 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         if(target>=0 && target<getParameters().size()) getParameters()[target]->setValueNotifyingHost(message.getControllerValue()/127.f);
     }
     float bpm=extras[tempo]->load();
-    if(extras[hostTempo]->load()>.5f) if(auto* playhead=getPlayHead()) if(const auto position=playhead->getPosition()) if(const auto hostBpm=position->getBpm()) bpm=juce::jlimit(40.f,240.f,float(*hostBpm));
+    float suppliedHostTempo=0;
+    if(extras[hostTempo]->load()>.5f) if(auto* playhead=getPlayHead()) if(const auto position=playhead->getPosition()) if(const auto hostBpm=position->getBpm()) {
+        if(std::isfinite(*hostBpm) && *hostBpm>0) {
+            bpm=juce::jlimit(40.f,240.f,float(*hostBpm));
+            if(*hostBpm>=40 && *hostBpm<=240)suppliedHostTempo=float(*hostBpm);
+        }
+    }
+    hostTempoMeter.store(suppliedHostTempo);
     tempoMeter.store(bpm);
     // Hosts may deliver blocks larger than prepareToPlay's hint. All DSP and
     // convolution buffers remain bounded to the prepared capacity.

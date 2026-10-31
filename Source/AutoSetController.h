@@ -496,10 +496,12 @@ private:
         const auto addSpaceStep=[this](const juce::String& result,bool changed){steps.push_back({Phase::space,result,changed});};
         if(spaceWindows.empty()){addSpaceStep("kept (the input pass did not run, so no playing was heard)",false);return;}
         const auto bass=chosenBass();
-        const auto r=analyseSpace(spaceWindows,bass.value_or(false),runOptions.style);
+        const bool synced=raw("delaysync")>.5f,host=raw("temposync")>.5f;
+        const float syncBpm=synced?(host?processor.currentHostTempo():raw("tempo")):0.f;
+        const auto r=analyseSpace(spaceWindows,bass.value_or(false),runOptions.style,syncBpm);
         lastSpace=r;
         if(!r.feel.measured){addSpaceStep("kept (too few notes to judge the playing)",false);return;}
-        const auto feel=juce::String(r.feel.onsetsPerSecond,1)+" notes/s"+(r.feel.beatMs>0?", beat "+juce::String(juce::roundToInt(r.feel.beatMs))+" ms":juce::String())
+        const auto feel=juce::String(r.feel.onsetsPerSecond,1)+" detected notes/s, peak "+juce::String(r.feel.peakOnsetsPerSecond,0)
                        +", "+juce::String(juce::roundToInt(r.feel.pauseFraction*100))+"% pauses";
         const auto scaled=[this](float before,float target){return std::round((before+strength()*(target-before))*100.f)/100.f;};
         juce::StringArray moves;
@@ -515,15 +517,21 @@ private:
             set("delaymix",scaled(before,target));
             if(raw("delaymix")!=before)moves.add("delay mix "+juce::String(before,2)+" > "+juce::String(raw("delaymix"),2));
         } else if(r.delay.on) {
-            if(raw("delaysync")<.5f)set("delaytime",r.delay.timeMs);
             set("delayfeedback",r.delay.feedback);set("delaymix",scaled(0,r.delay.mix));set("delayon",1);
-            moves.add("delay on: "+(raw("delaysync")>.5f?juce::String("host tempo"):juce::String(juce::roundToInt(raw("delaytime")))+" ms")
+            moves.add("delay on: "+juce::String(host?"host tempo ":"manual/TAP tempo ")+juce::String(syncBpm,1)+" BPM"
                       +", feedback "+juce::String(raw("delayfeedback"),2)+", mix "+juce::String(raw("delaymix"),2));
         }
+        juce::String delayReason;
+        if(raw("delayon")<=.5f) {
+            if(bass.value_or(false) || runOptions.style==Style::metal)delayReason="; delay kept off: style";
+            else if(r.feel.peakOnsetsPerSecond>spaceDelayMaxOnsets)delayReason="; delay kept off: fast phrase";
+            else if(!synced)delayReason="; delay kept off: onset gaps do not establish tempo; select DELAY SYNC";
+            else delayReason="; delay kept off: no usable sync tempo (40-240 BPM)";
+        }
         const auto who=juce::String(bass.value_or(false)?"bass":"guitar")+(bass?"":" (assumed)")+" "+styleName(runOptions.style);
-        if(moves.isEmpty()){summary+=" | Delay + reverb unchanged";addSpaceStep("kept ("+who+": "+feel+")",false);return;}
+        if(moves.isEmpty()){summary+=" | Delay + reverb unchanged";addSpaceStep("kept ("+who+": "+feel+")"+delayReason,false);return;}
         summary+=" | "+moves.joinIntoString(", ");
-        addSpaceStep(moves.joinIntoString("; ")+" ("+who+": "+feel+")",true);
+        addSpaceStep(moves.joinIntoString("; ")+" ("+who+": "+feel+")"+delayReason,true);
     }
     CabTarget cabTarget() const {
         CabTarget t;t.mode=juce::jlimit(0,2,juce::roundToInt(raw("mode")));t.on=raw("cab1")>.5f;
