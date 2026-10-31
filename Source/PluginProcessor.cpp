@@ -1319,13 +1319,22 @@ void ChimeraProcessor::setPedalModel(int owner,int model) {
     boardEditSequence.fetch_add(1,std::memory_order_release);
 }
 void ChimeraProcessor::movePedal(int owner,int direction) {
+    const auto board=boardParameters.read();
+    for(int i=0;i<5;++i)if(board.order[(size_t)i]==owner) {movePedalTo(owner,i+direction);return;}
+}
+// Takes the owner out of the order and inserts it at the destination; the
+// pedals between shift by one. One undo step; owners (and their parameter
+// banks and MIDI bindings) stay the same.
+void ChimeraProcessor::movePedalTo(int owner,int destination) {
     const auto board=boardParameters.read();int position=-1;
     for(int i=0;i<5;++i)if(board.order[(size_t)i]==owner)position=i;
-    const int destination=position+direction;
-    if(position<0 || destination<0 || destination>=5)return;
+    if(position<0 || destination<0 || destination>=5 || destination==position)return;
+    auto order=board.order;
+    const int step=destination>position?1:-1;
+    for(int i=position;i!=destination;i+=step)order[(size_t)i]=order[(size_t)(i+step)];
+    order[(size_t)destination]=owner;
     rememberPedalEdit();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
-    setRawParameter(spectralforge::pedalOrderID(position),float(board.order[(size_t)destination]));
-    setRawParameter(spectralforge::pedalOrderID(destination),float(owner));
+    for(int i=0;i<5;++i)if(order[(size_t)i]!=board.order[(size_t)i])setRawParameter(spectralforge::pedalOrderID(i),float(order[(size_t)i]));
     setRawParameter("boardEnabled",1);
     boardEditSequence.fetch_add(1,std::memory_order_release);
 }

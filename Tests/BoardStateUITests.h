@@ -143,6 +143,20 @@ inline void run(const juce::File& outputDirectory) {
         require(moved.instances[0].model==26 && moved.instances[1].model==31,"Move changed owner model identity");
         p.undoPedalEdit();equal(p.pedalBoardState(),initial,"Undo failed to restore order and controls");
         p.undoPedalEdit(true);equal(p.pedalBoardState(),moved,"Redo failed to restore order and controls");
+        {   // Insert-move (drag order): owner 1 from position 0 to 3 shifts the
+            // pedals between left by one; one undo step; owners keep their banks.
+            const auto before=p.pedalBoardState();
+            p.movePedalTo(before.order[0],3);const auto inserted=p.pedalBoardState();
+            require(inserted.order[3]==before.order[0] && inserted.order[0]==before.order[1] && inserted.order[1]==before.order[2]
+                    && inserted.order[2]==before.order[3] && inserted.order[4]==before.order[4],"Insert-move did not shift the pedals between");
+            require(std::abs(raw(p,driveID)-.173f)<1.e-5f && inserted.instances[0].model==26,"Insert-move changed an owner's bank");
+            p.movePedalTo(inserted.order[3],3);equal(p.pedalBoardState(),inserted,"Moving a pedal onto its own slot changed the board");
+            p.movePedalTo(inserted.order[4],0);const auto back=p.pedalBoardState();
+            require(back.order[0]==inserted.order[4] && back.order[1]==inserted.order[0] && back.order[4]==inserted.order[3],"Insert-move to the left did not shift right");
+            p.undoPedalEdit();equal(p.pedalBoardState(),inserted,"Undo did not restore the order before an insert-move");
+            p.undoPedalEdit();equal(p.pedalBoardState(),before,"One insert-move took more than one undo step");
+            p.movePedalTo(before.order[0],7);p.movePedalTo(9,1);equal(p.pedalBoardState(),before,"An invalid insert-move changed the board");
+        }
         require(p.duplicatePedal(0),"Duplicate into an empty owner failed");
         auto duplicated=p.pedalBoardState();
         require(duplicated.instances[2].model==26 && std::abs(duplicated.instances[2].controls[0]-.173f)<1.e-5f,

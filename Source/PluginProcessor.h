@@ -223,6 +223,7 @@ public:
     int pedalBoardLatencySamples()const{return pedalBoard.latency(boardParameters.read());}
     void setPedalModel(int owner,int model);
     void movePedal(int owner,int direction);
+    void movePedalTo(int owner,int destination);
     bool duplicatePedal(int owner);
     void undoPedalEdit(bool redo=false);
     float pedalReduction() const { return boardReduction.load(); }
