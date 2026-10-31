@@ -14,6 +14,9 @@ from unittest.mock import Mock, patch
 
 import obs_long_record_test as recording
 
+# CI on Windows and macOS provides FFmpeg outside PATH.
+recording.app.FFMPEG = os.environ.get("FFMPEG", recording.app.FFMPEG)
+
 REAL_RUN = subprocess.run
 
 

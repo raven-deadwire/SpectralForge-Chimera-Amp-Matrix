@@ -1,6 +1,7 @@
 name: OBS long recording
 # Plan stage D: an hour recorded through the Chimera OBS filter in the real
-# OBS Studio app (Ubuntu 30.0.2 under Xvfb), with the filter's realtime log
+# OBS Studio app (Ubuntu 30.0.2 under Xvfb, Windows 31.1.2 installed under
+# %ProgramData% as Chimera Setup does, macOS 31.1.2 Apple), with the filter's realtime log
 # lines, start/end audio/video sync and OBS's own statistics. It takes over an
 # hour, so it runs on request and when the test itself changes, not on every
 # OBS change (obs-addon.yml covers those). See OBS/README.md.
@@ -59,3 +60,92 @@ jobs:
             ${{ runner.temp }}/obs-long/home/.config/obs-studio/logs/
           if-no-files-found: ignore
 
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: FFmpeg for the marker file and the analysis
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check imageio-ffmpeg==0.6.0
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          "FFMPEG=$ffmpeg" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Check recording-analysis failure paths
+        run: python OBS/tests/test_obs_long_record_test.py
+      - name: Build the Chimera VST3 under test
+        run: |
+          cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
+          cmake --build build --config Release --target ChimeraAmpMatrix_VST3 --parallel 4
+      - name: Build the OBS module against OBS 31.1.2 (MSVC)
+        shell: pwsh
+        run: ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/chimera-obs -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
+      - name: Real OBS Studio app (31.1.2) - record an hour through the Chimera filter
+        shell: pwsh
+        run: |
+          $obs = Join-Path $env:RUNNER_TEMP "obs-long-obs"
+          Expand-Archive -LiteralPath (Join-Path $env:RUNNER_TEMP "chimera-obs/obs-31.1.2.zip") -DestinationPath $obs
+          python OBS/tests/obs_long_record_test.py --obs (Join-Path $obs "bin/64bit/obs64.exe") --module package/chimera-obs `
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --ffmpeg $env:FFMPEG --work (Join-Path $env:RUNNER_TEMP "obs-long") --minutes "${{ github.event.inputs.minutes || '61' }}"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Keep the summary and the OBS logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-long-recording-windows-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/obs-long/long-record-summary.json
+            ${{ runner.temp }}/obs-long/obs-run.txt
+            ${{ runner.temp }}/obs-long/obs-run.png
+            ${{ runner.temp }}/obs-long/obs-logs/
+          if-no-files-found: ignore
+
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: FFmpeg for the marker file and the analysis
+        run: |
+          python3 -m pip install --disable-pip-version-check imageio-ffmpeg==0.6.0
+          echo "FFMPEG=$(python3 -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')" >> "$GITHUB_ENV"
+      - name: Check recording-analysis failure paths
+        run: python3 OBS/tests/test_obs_long_record_test.py
+      - name: Build the Chimera VST3 under test (Universal, macOS 12.0 like the product)
+        run: |
+          cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+          cmake --build build --target ChimeraAmpMatrix_VST3 --parallel 3
+      - name: Build and stage the OBS module against OBS 31.1.2 Apple (arm64)
+        run: |
+          sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          ./OBS/tools/build-macos-module.sh "$RUNNER_TEMP/chimera-obs-arm64" arm64
+          python3 OBS/tools/stage_module.py macos --build "$RUNNER_TEMP/chimera-obs-arm64/build" --output package --source-sha "$sha" --built-for "OBS 31.1.2 (macOS Apple)"
+      - name: Real OBS Studio app (31.1.2 Apple) - record an hour through the Chimera filter
+        run: |
+          python3 OBS/tests/obs_long_record_test.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
+            --module package/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --ffmpeg "$FFMPEG" --work "$RUNNER_TEMP/obs-long" --minutes "${{ github.event.inputs.minutes || '61' }}"
+      - name: Keep the summary and the OBS logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-long-recording-macos-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/obs-long/long-record-summary.json
+            ${{ runner.temp }}/obs-long/obs-run.txt
+            ${{ runner.temp }}/obs-long/obs-run.png
+            ${{ runner.temp }}/obs-long/obs-logs/
+          if-no-files-found: ignore
