@@ -153,6 +153,14 @@ void worstCaseCpu(){
             std::cout<<"MEASURE everything on (Matrix, Studio limiter), "<<rate/1000.<<" kHz / "<<block<<", seed "<<seed<<": "<<100.*l<<"% of real time on one core, worst block "<<100.*worstBlock<<"% of its period\n";
         }
         std::cout<<"MEASURE released Matrix defaults, "<<rate/1000.<<" kHz / "<<block<<": "<<100.*baseline<<"% (worst block "<<100.*baselineWorst<<"% of its period); appended modules add "<<100.*(worst-baseline)<<"%\n";
+        if(rate>50000.){
+            // The user's OVERSAMPLING choice: 2x at 96 kHz runs the amps at the
+            // same internal rate as the default 4x at 48 kHz.
+            auto two=std::make_unique<ChimeraProcessor>();two->prepareToPlay(rate,block);set(*two,"mode",2);set(*two,"oversampling",1);
+            auto onTwo=everythingOn(rate,block,21);set(*onTwo,"oversampling",1);
+            const double d2=load(*two,rate,block,3.),e2=load(*onTwo,rate,block,4.);
+            std::cout<<"MEASURE 96 kHz / 128 with OVERSAMPLING 2x: released Matrix defaults "<<100.*d2<<"%, everything on "<<100.*e2<<"%\n";
+        }
         if(rate<50000.)require(worst<1.,"everything on does not run in real time at 48 kHz / 64");
         else require(worst-baseline<.75,"the appended modules add more than three quarters of a core at 96 kHz");
     }
@@ -224,6 +232,11 @@ void profile(){
 }
 
 int main(){
+    if(juce::SystemStats::getEnvironmentVariable("CHIMERA_WHOLE_PRODUCT_PROFILE",{})=="matrix96"){
+        // For a profiler: the released Matrix defaults at 96 kHz / 128, 1 s.
+        juce::ScopedJuceInitialiser_GUI init;auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(96000,128);set(*p,"mode",2);
+        std::cout<<"load "<<100*load(*p,96000,128,1.)<<"%\n";return 0;
+    }
     if(juce::SystemStats::getEnvironmentVariable("CHIMERA_WHOLE_PRODUCT_PROFILE",{}).isNotEmpty()){juce::ScopedJuceInitialiser_GUI init;profile();return 0;}
     juce::ScopedJuceInitialiser_GUI init;
     try{stateRoundTrip();everythingOnStaysBounded();worstCaseCpu();rateAndBlockChanges();return 0;}

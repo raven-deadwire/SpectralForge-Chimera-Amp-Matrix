@@ -37,6 +37,8 @@ Host, installer and target-hardware acceptance stay separate.
    - No parameter moves.
    - The Studio limiter's share of the latency follows the rate: 1 ms + 8 samples.
 
+`CHIMERA_WHOLE_PRODUCT_PROFILE=matrix96` runs only the released Matrix defaults at 96 kHz / 128 for 1 s, for a profiler.
+
 `CHIMERA_WHOLE_PRODUCT_PROFILE=1` runs a diagnostic instead of the tests:
 - the cost of each switch, by turning it off alone;
 - per-block time percentiles;
@@ -48,7 +50,8 @@ Host, installer and target-hardware acceptance stay separate.
 |---|---:|---:|
 | Released Matrix defaults (no appended module) | 43% | 87–95% |
 | Everything on, Matrix, Studio limiter | 60–71% | 121–133% |
-| What the appended modules add | 20–28% | 30–46% |
+| What the appended modules add | 16–28% | 30–46% |
+| OVERSAMPLING 2× (instead of the default 4×): Matrix defaults / everything on | — | 64% / 102% |
 
 For reference, Classic defaults measured 17% at 48 kHz and 35% at 96 kHz.
 
@@ -64,6 +67,17 @@ For reference, Classic defaults measured 17% at 48 kHz and 35% at 96 kHz.
 ## Findings for 2.0
 
 - **96 kHz Matrix exceeds one core here even before any appended module (87–95%).** The three-rig core engine at 96 kHz is the main cost. Everything on adds 30–46% on top. CPU acceptance at high rates on target hardware is still open. This was measured, not optimised.
+- **Where the 96 kHz Matrix time goes** (callgrind of the released Matrix defaults at 96 kHz / 128, 1 s, `CHIMERA_WHOLE_PRODUCT_PROFILE=matrix96`):
+  - **Amps, 37%:** the per-sample native amp model alone is 30%. It runs 2.3 M times a second: 3 rigs × 2 channels × 96 kHz × the default OVERSAMPLING 4×. So the amps compute at 384 kHz.
+  - **Cabinet IR convolution, 31%:** JUCE's partitioned convolution on its built-in fallback FFT (no IPP / vDSP / FFTW in this build). The IRs are twice as long in samples at 96 kHz.
+  - **POST, 12%;** oversampling filters, about 5%.
+- **The user's OVERSAMPLING choice already helps.** At 96 kHz / 128, 2× runs the amps at the same internal rate as the default 4× at 48 kHz:
+  - Matrix defaults: 64% (from 88%).
+  - Everything on: 102% (from 121–133%).
+- **Options for the owner. Neither is applied, because both change released audio:**
+  1. Choose the default OVERSAMPLING by host rate: 4× up to 48 kHz, 2× from 88.2 kHz. Saves about a quarter of a core at 96 kHz. It changes the 96 kHz sound of existing sessions unless it applies only to new ones.
+  2. A faster FFT for the cabinet convolution, e.g. a BSD-licensed one; FFTW is GPL. That is up to about 30% of the time. The output changes at the level of float rounding, around 1e−7, so it is no longer bit-identical to the release.
+  - Spreading the three rigs across threads would also help, but it adds real-time threading risk.
 - **Biggest appended costs** found by turning one switch off at a time (96 kHz):
   - Saturation (Studio 4×): about 6%.
   - Two-filter modulation: about 3%.
