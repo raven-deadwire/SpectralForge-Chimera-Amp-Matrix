@@ -1,0 +1,12 @@
+2 44100 -2 worst ref -29.0 cand -57.1
+2 44100 -1 worst ref -64.1 cand -64.1
+2 44100 1 worst ref -46.8 cand -66.3
+2 44100 2 worst ref -46.0 cand -58.6
+2 48000 -2 worst ref -58.6 cand -58.6
+2 48000 -1 worst ref -47.1 cand -62.8
+2 48000 1 worst ref -29.4 cand -61.4
+2 48000 2 worst ref -44.7 cand -61.1
+2 96000 -2 worst ref -63.5 cand -63.5
+2 96000 -1 worst ref -72.1 cand -72.1
+2 96000 1 worst ref -50.7 cand -75.0
+2 96000 2 worst ref -40.5 cand -68.8

@@ -1,0 +1,1086 @@
+{
+ "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+ "shared_vm": true,
+ "rows": [
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 12.799347956989246,
+   "p99_us": 35.26627999999976,
+   "max_us": 125.332
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 12.008423225806451,
+   "p99_us": 24.845639999999896,
+   "max_us": 85.099
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 11.836184516129032,
+   "p99_us": 28.05983999999982,
+   "max_us": 71.038
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 11.803692903225807,
+   "p99_us": 29.212599999999775,
+   "max_us": 129.099
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 11.51572258064516,
+   "p99_us": 22.923279999999988,
+   "max_us": 83.343
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 16.403221075268817,
+   "p99_us": 46.05531999999995,
+   "max_us": 148.667
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.19780688172043,
+   "p99_us": 60.01591999999885,
+   "max_us": 125.104
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 11.756769032258063,
+   "p99_us": 43.31263999999964,
+   "max_us": 95.308
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 12.623538494623656,
+   "p99_us": 42.97231999999991,
+   "max_us": 91.519
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 12.494669677419354,
+   "p99_us": 59.549719999998295,
+   "max_us": 296.377
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 12.148492473118282,
+   "p99_us": 47.39787999999926,
+   "max_us": 156.154
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.069260645161291,
+   "p99_us": 48.923759999999845,
+   "max_us": 111.009
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 14.171069247311827,
+   "p99_us": 65.22879999999994,
+   "max_us": 140.445
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.516901075268816,
+   "p99_us": 58.55335999999849,
+   "max_us": 115.963
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 17.75734623655914,
+   "p99_us": 73.53103999999985,
+   "max_us": 147.58
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 12.698363440860215,
+   "p99_us": 59.799119999999945,
+   "max_us": 132.755
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 12.867120860215055,
+   "p99_us": 56.643039999999026,
+   "max_us": 82.629
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.862264086021504,
+   "p99_us": 64.78059999999978,
+   "max_us": 132.467
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 36.194888220120376,
+   "p99_us": 84.12959999999978,
+   "max_us": 136.578
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 26.29802407566638,
+   "p99_us": 59.75245999999983,
+   "max_us": 138.3
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 25.764276870163375,
+   "p99_us": 60.22875999999996,
+   "max_us": 112.037
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 29.390359415305245,
+   "p99_us": 75.89273999999976,
+   "max_us": 197.332
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 28.73441702493551,
+   "p99_us": 68.14476,
+   "max_us": 558.903
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 26.02075150472915,
+   "p99_us": 64.08719999999998,
+   "max_us": 86.791
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 25.281284608770424,
+   "p99_us": 81.80225999999998,
+   "max_us": 107.52
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 28.326390369733453,
+   "p99_us": 87.04311999999999,
+   "max_us": 137.501
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 24.175287188306104,
+   "p99_us": 76.26919999999993,
+   "max_us": 265.09
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 34.89876698194325,
+   "p99_us": 118.25249999999994,
+   "max_us": 195.557
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 24.256627687016337,
+   "p99_us": 77.81754,
+   "max_us": 127.208
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 25.82193465176268,
+   "p99_us": 83.80671999999998,
+   "max_us": 134.613
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 30.598458297506447,
+   "p99_us": 86.27079999999935,
+   "max_us": 237.298
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 30.81761994840929,
+   "p99_us": 116.84927999999996,
+   "max_us": 281.297
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 25.985953568357697,
+   "p99_us": 83.43381999999994,
+   "max_us": 139.861
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 27.15149097162511,
+   "p99_us": 86.11506,
+   "max_us": 139.029
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 39.79352020636286,
+   "p99_us": 125.64783999999989,
+   "max_us": 198.186
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 25.16436027515047,
+   "p99_us": 81.95767999999998,
+   "max_us": 315.803
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.100096344086019,
+   "p99_us": 35.79847999999935,
+   "max_us": 288.664
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 11.732941505376344,
+   "p99_us": 27.803919999999906,
+   "max_us": 71.267
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.09812989247312,
+   "p99_us": 34.072239999999994,
+   "max_us": 85.009
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 12.012896774193548,
+   "p99_us": 25.77091999999995,
+   "max_us": 73.541
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 18.408501075268816,
+   "p99_us": 53.688719999999996,
+   "max_us": 295.054
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 17.24506451612903,
+   "p99_us": 53.6793599999999,
+   "max_us": 120.165
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 14.591611182795699,
+   "p99_us": 60.0898399999991,
+   "max_us": 106.08
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 14.841294193548386,
+   "p99_us": 63.70835999999783,
+   "max_us": 146.948
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.333049032258064,
+   "p99_us": 47.51339999999914,
+   "max_us": 95.701
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.14351311827957,
+   "p99_us": 51.61959999999994,
+   "max_us": 91.615
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 12.874948817204302,
+   "p99_us": 48.80363999999928,
+   "max_us": 127.477
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 14.27890322580645,
+   "p99_us": 62.40119999999924,
+   "max_us": 111.959
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 18.282472688172042,
+   "p99_us": 93.97835999999977,
+   "max_us": 275.462
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.446124301075269,
+   "p99_us": 65.32743999999914,
+   "max_us": 90.912
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 14.13128430107527,
+   "p99_us": 68.20163999999907,
+   "max_us": 124.079
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.270287741935485,
+   "p99_us": 65.69011999999928,
+   "max_us": 219.595
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.150755268817205,
+   "p99_us": 57.308279999997694,
+   "max_us": 95.998
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 64,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.71833376344086,
+   "p99_us": 52.41259999999959,
+   "max_us": 97.116
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 28.343381771281173,
+   "p99_us": 63.504759999999976,
+   "max_us": 128.898
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 23.96286758383491,
+   "p99_us": 46.16825999999995,
+   "max_us": 86.58
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 26.541329320722266,
+   "p99_us": 61.59409999999992,
+   "max_us": 116.743
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 24.813484092863288,
+   "p99_us": 55.70525999999997,
+   "max_us": 107.444
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 23.412163370593294,
+   "p99_us": 43.13859999999997,
+   "max_us": 89.669
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 24.560190885640584,
+   "p99_us": 54.20021999999984,
+   "max_us": 85.039
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 36.140813413585555,
+   "p99_us": 125.03231999999993,
+   "max_us": 172.714
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 27.745901977644028,
+   "p99_us": 88.51667999999958,
+   "max_us": 148.355
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 31.60844711951849,
+   "p99_us": 93.56617999999935,
+   "max_us": 141.103
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 25.829492691315565,
+   "p99_us": 85.52121999999993,
+   "max_us": 231.694
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 28.55922785898538,
+   "p99_us": 112.58028,
+   "max_us": 214.009
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 38.45231728288908,
+   "p99_us": 140.00739999999968,
+   "max_us": 176.865
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 31.555931212381772,
+   "p99_us": 99.96391999999965,
+   "max_us": 168.348
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 25.542175408426484,
+   "p99_us": 83.41205999999995,
+   "max_us": 132.36
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 27.492941530524504,
+   "p99_us": 89.09647999999999,
+   "max_us": 140.757
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 26.255165090283747,
+   "p99_us": 84.50465999999993,
+   "max_us": 138.711
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 25.450141874462595,
+   "p99_us": 85.03329999999977,
+   "max_us": 151.617
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "block": 128,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 30.797709372312987,
+   "p99_us": 100.86741999999934,
+   "max_us": 285.392
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.468280888888888,
+   "p99_us": 70.53534000000005,
+   "max_us": 109.907
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.556393555555555,
+   "p99_us": 70.46024,
+   "max_us": 114.761
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 15.277131555555556,
+   "p99_us": 70.63829000000001,
+   "max_us": 248.141
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 14.633338222222221,
+   "p99_us": 71.93961,
+   "max_us": 319.051
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 14.604434,
+   "p99_us": 71.65322,
+   "max_us": 176.645
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.508100888888888,
+   "p99_us": 70.37744,
+   "max_us": 146.566
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.721350222222222,
+   "p99_us": 68.8385200000002,
+   "max_us": 155.535
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 14.618063777777778,
+   "p99_us": 69.69935000000001,
+   "max_us": 418.134
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.609041111111111,
+   "p99_us": 68.25326000000001,
+   "max_us": 165.503
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.074856,
+   "p99_us": 65.37605000000013,
+   "max_us": 397.018
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.47444288888889,
+   "p99_us": 67.48917000000009,
+   "max_us": 308.75
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 13.635710444444445,
+   "p99_us": 69.86720000000004,
+   "max_us": 227.715
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.959342222222222,
+   "p99_us": 71.9402,
+   "max_us": 150.945
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 20.048549333333334,
+   "p99_us": 107.36282000000014,
+   "max_us": 234.61
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 14.380293777777778,
+   "p99_us": 72.39548000000008,
+   "max_us": 221.606
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 13.387830000000001,
+   "p99_us": 68.58560000000006,
+   "max_us": 151.973
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 14.133743777777777,
+   "p99_us": 72.11940000000003,
+   "max_us": 441.368
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 64,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 14.736808222222223,
+   "p99_us": 78.48371000000014,
+   "max_us": 192.137
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 26.52549377777778,
+   "p99_us": 86.24208,
+   "max_us": 163.243
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": -2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 27.96636488888889,
+   "p99_us": 90.56249999999979,
+   "max_us": 206.23
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 48.78288444444444,
+   "p99_us": 162.24808999999968,
+   "max_us": 215.702
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": -2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 25.94301911111111,
+   "p99_us": 85.632,
+   "max_us": 122.871
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 41.27287511111112,
+   "p99_us": 133.00798999999995,
+   "max_us": 184.26
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": -2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 26.79861288888889,
+   "p99_us": 91.00612,
+   "max_us": 159.788
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 41.28063688888889,
+   "p99_us": 126.1781999999994,
+   "max_us": 248.043
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 1,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 24.53258,
+   "p99_us": 83.8881599999999,
+   "max_us": 170.648
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 26.403564444444445,
+   "p99_us": 84.85250999999998,
+   "max_us": 196.149
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 1,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 26.22632488888889,
+   "p99_us": 86.68418999999982,
+   "max_us": 247.755
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 28.789933333333337,
+   "p99_us": 94.78306999999933,
+   "max_us": 300.646
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 1,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 23.89658355555555,
+   "p99_us": 80.38457999999994,
+   "max_us": 157.255
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 26.32546222222222,
+   "p99_us": 99.0770699999998,
+   "max_us": 182.925
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 2,
+   "repeat": 0,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 26.84466488888889,
+   "p99_us": 104.81018999999878,
+   "max_us": 191.516
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 27.78253022222222,
+   "p99_us": 117.27613999999933,
+   "max_us": 194.717
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 2,
+   "repeat": 1,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 25.776117777777777,
+   "p99_us": 104.93360999999891,
+   "max_us": 171.878
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc",
+   "mean_us": 32.71079644444445,
+   "p99_us": 140.65017999999964,
+   "max_us": 280.227
+  },
+  {
+   "input": "tone_fc_106.835Hz",
+   "block": 128,
+   "shift": 2,
+   "repeat": 2,
+   "engine": "corr40-split-v3-sinc-edge",
+   "mean_us": 37.05006311111111,
+   "p99_us": 153.3230299999994,
+   "max_us": 271.118
+  }
+ ]
+}

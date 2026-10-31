@@ -1,0 +1,224 @@
+{
+ "E1_sweep_worst": {
+  "pass": true,
+  "by": {
+   "44100/k1": {
+    "cand_worst_db": -54.05,
+    "ref_worst_db": -24.4,
+    "pass": true
+   },
+   "44100/k2": {
+    "cand_worst_db": -57.11,
+    "ref_worst_db": -29.0,
+    "pass": true
+   },
+   "44100/k3": {
+    "cand_worst_db": -62.15,
+    "ref_worst_db": -30.36,
+    "pass": true
+   },
+   "48000/k1": {
+    "cand_worst_db": -57.26,
+    "ref_worst_db": -26.54,
+    "pass": true
+   },
+   "48000/k2": {
+    "cand_worst_db": -58.64,
+    "ref_worst_db": -29.36,
+    "pass": true
+   },
+   "48000/k3": {
+    "cand_worst_db": -62.95,
+    "ref_worst_db": -43.35,
+    "pass": true
+   },
+   "96000/k1": {
+    "cand_worst_db": -67.74,
+    "ref_worst_db": -30.97,
+    "pass": true
+   },
+   "96000/k2": {
+    "cand_worst_db": -63.46,
+    "ref_worst_db": -40.5,
+    "pass": true
+   },
+   "96000/k3": {
+    "cand_worst_db": -77.51,
+    "ref_worst_db": -40.27,
+    "pass": true
+   }
+  }
+ },
+ "E2_sweep_median": {
+  "pass": true,
+  "by": {
+   "44100/k1": {
+    "median_change_db": 0.0,
+    "max_change_db": 8.78,
+    "pass": true
+   },
+   "44100/k2": {
+    "median_change_db": 0.0,
+    "max_change_db": 8.62,
+    "pass": true
+   },
+   "44100/k3": {
+    "median_change_db": 0.0,
+    "max_change_db": 8.55,
+    "pass": true
+   },
+   "48000/k1": {
+    "median_change_db": 0.0,
+    "max_change_db": 10.84,
+    "pass": true
+   },
+   "48000/k2": {
+    "median_change_db": 0.0,
+    "max_change_db": 21.39,
+    "pass": true
+   },
+   "48000/k3": {
+    "median_change_db": 0.0,
+    "max_change_db": 11.26,
+    "pass": true
+   },
+   "96000/k1": {
+    "median_change_db": 0.0,
+    "max_change_db": 25.74,
+    "pass": true
+   },
+   "96000/k2": {
+    "median_change_db": 0.0,
+    "max_change_db": 9.88,
+    "pass": true
+   },
+   "96000/k3": {
+    "median_change_db": 0.0,
+    "max_change_db": 6.11,
+    "pass": true
+   }
+  }
+ },
+ "E3_residual_set": {
+  "pass": true,
+  "by": {
+   "44100": {
+    "cases": 64,
+    "cand_median_db": -70.43,
+    "cand_share_le_-50": 1.0,
+    "ref_median_db": -70.43,
+    "median_minus_ref_db": 0.0,
+    "cand_max_db": -57.69,
+    "ref_max_db": -57.69,
+    "changed": 1,
+    "pass": true
+   },
+   "48000": {
+    "cases": 64,
+    "cand_median_db": -72.07,
+    "cand_share_le_-50": 1.0,
+    "ref_median_db": -72.07,
+    "median_minus_ref_db": 0.0,
+    "cand_max_db": -57.71,
+    "ref_max_db": -57.71,
+    "changed": 1,
+    "pass": true
+   },
+   "96000": {
+    "cases": 64,
+    "cand_median_db": -80.85,
+    "cand_share_le_-50": 1.0,
+    "ref_median_db": -80.85,
+    "median_minus_ref_db": 0.0,
+    "cand_max_db": -59.05,
+    "ref_max_db": -59.05,
+    "changed": 1,
+    "pass": true
+   }
+  }
+ },
+ "E4_targets": {
+  "all_inputs": {
+   "T1_attack": "PASS",
+   "T1_faint_attack": "REPORT",
+   "T2_low_onset_down": "PASS",
+   "T3_low_onset_up": "REPORT_WITHIN_CEILING",
+   "T4_quality": "PASS"
+  },
+  "fresh_only": {
+   "T1_attack": "PASS",
+   "T1_faint_attack": "REPORT",
+   "T2_low_onset_down": "PASS",
+   "T3_low_onset_up": "REPORT_WITHIN_CEILING",
+   "T4_quality": "PASS"
+  },
+  "count_differences": 0,
+  "lowband_abs_diff_max_ms": 0.0324,
+  "target_summary_abs_diff_ms": {
+   "T1_attack.max_ms": 0.0,
+   "T2_low_onset_down.short_max_ms": 0.0,
+   "T2_low_onset_down.long_max_ms": 0.0,
+   "T3_low_onset_up.short": 0.0,
+   "T3_low_onset_up.bass_B0": 0.0,
+   "T3_low_onset_up.bass_dropA_A0": 0.0,
+   "T3_low_onset_up.guitar_dropA_A1": 0.0
+  },
+  "pass": true
+ },
+ "E5_blocks": {
+  "cases": 432,
+  "patterns": 5616,
+  "nonzero": 0,
+  "max_diff": 0,
+  "verdict": "PASS",
+  "pass": true
+ },
+ "sweep_counts_report_only": {
+  "44100/k1": {
+   "ref_above_-50": 21,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "44100/k2": {
+   "ref_above_-50": 12,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "44100/k3": {
+   "ref_above_-50": 7,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "48000/k1": {
+   "ref_above_-50": 15,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "48000/k2": {
+   "ref_above_-50": 7,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "48000/k3": {
+   "ref_above_-50": 7,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "96000/k1": {
+   "ref_above_-50": 9,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "96000/k2": {
+   "ref_above_-50": 4,
+   "cand_above_-50": 0,
+   "points": 204
+  },
+  "96000/k3": {
+   "ref_above_-50": 5,
+   "cand_above_-50": 0,
+   "points": 204
+  }
+ },
+ "overall": "PASS"
+}

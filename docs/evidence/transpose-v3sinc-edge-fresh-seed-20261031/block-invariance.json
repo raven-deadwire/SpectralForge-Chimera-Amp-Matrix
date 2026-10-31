@@ -1,0 +1,8651 @@
+{
+ "summary": {
+  "cases": 432,
+  "patterns": 5616,
+  "nonzero": 0,
+  "max_diff": 0,
+  "verdict": "PASS"
+ },
+ "rows": [
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 44100,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 44100,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 44100,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 44100,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 48000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 48000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 48000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 48000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_B0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed4796",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5099",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "bass_dropA_A0/long_notes_seed5385",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout64807-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout67082-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_plucks",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_soft_after_loud",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/holdout69282-random_markers",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed4796",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5099",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 96000,
+   "shift": -2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 96000,
+   "shift": -1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 96000,
+   "shift": 1,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  },
+  {
+   "input": "guitar_dropA_A1/long_notes_seed5385",
+   "rate": 96000,
+   "shift": 2,
+   "max_diff": {
+    "fixed1": 0,
+    "fixed37": 0,
+    "fixed64": 0,
+    "fixed100": 0,
+    "fixed256": 0,
+    "fixed512": 0,
+    "fixed1024": 0,
+    "fixed2048": 0,
+    "fixed4096": 0,
+    "random512_seed1": 0,
+    "random512_seed2": 0,
+    "random512_seed3": 0,
+    "random4096": 0
+   }
+  }
+ ]
+}

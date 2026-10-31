@@ -311,4 +311,6 @@ range is rejected (the edge shrinks by one coarse step, at most twice more), and
 the parabolic refinement also runs on the range edges. With the option off every
 engine is bit-identical to before. `SpliceTrace` and `BlockInvariance` accept
 `v3-sinc-edge`; `edge_validation.py` is its preregistered fresh-seed validation
-against v3-sinc.
+against v3-sinc. Result (2026-10-31): E1-E5 pass; fc/2fc/3fc sweep cases above
+-50 dB drop from 87 to 0, T1-T3 values and detection counts equal v3-sinc. See
+`docs/TRANSPOSE_V3SINC_EDGE_FRESH_SEED_20261031.md`.
