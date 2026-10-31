@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <set>
 #include <stdexcept>
@@ -29,6 +30,48 @@ inline bool sameShellPixels(const juce::Image& left,const juce::Image& right) {
     for(int y=0;y<a.height;++y)for(int x=0;x<a.width;++x)
         if(a.getPixelColour(x,y)!=b.getPixelColour(x,y))return false;
     return true;
+}
+// Failure detail only: the pass/fail rule above stays exact. Records both
+// transforms bit for bit, the first and largest pixel differences, and keeps
+// actual/expected/diff images so a platform-only mismatch can be attributed.
+inline std::string describeShellMismatch(const juce::Image& actual,const juce::Image& expected,
+                                         const juce::AffineTransform& painted,const juce::AffineTransform& reference,
+                                         int model,float width) {
+    const auto bits=[](float value){std::uint32_t word;std::memcpy(&word,&value,sizeof word);
+        return juce::String::toHexString(static_cast<int>(word)).paddedLeft('0',8);};
+    const auto matrix=[&](const juce::AffineTransform& t){return bits(t.mat00)+" "+bits(t.mat01)+" "+bits(t.mat02)+" "
+        +bits(t.mat10)+" "+bits(t.mat11)+" "+bits(t.mat12);};
+    juce::String detail;
+    detail<<" width="<<width<<" paintTransform="<<matrix(painted)<<" referenceTransform="<<matrix(reference);
+    if(actual.getBounds()!=expected.getBounds())return (detail<<" boundsDiffer").toStdString();
+    juce::Image diff(juce::Image::ARGB,actual.getWidth(),actual.getHeight(),true,juce::SoftwareImageType{});
+    int count=0,largest=0;
+    {
+        const juce::Image::BitmapData a(actual,juce::Image::BitmapData::readOnly),b(expected,juce::Image::BitmapData::readOnly);
+        juce::Image::BitmapData d(diff,juce::Image::BitmapData::writeOnly);
+        for(int y=0;y<a.height;++y)for(int x=0;x<a.width;++x) {
+            const auto p=a.getPixelColour(x,y),q=b.getPixelColour(x,y);
+            if(p==q)continue;
+            const int delta=juce::jmax(std::abs(int(p.getAlpha())-int(q.getAlpha())),std::abs(int(p.getRed())-int(q.getRed())),
+                                       std::abs(int(p.getGreen())-int(q.getGreen())),std::abs(int(p.getBlue())-int(q.getBlue())));
+            if(count++==0)detail<<" first=("<<x<<","<<y<<") actual="<<p.toString()<<" expected="<<q.toString();
+            largest=juce::jmax(largest,delta);
+            d.setPixelColour(x,y,juce::Colour::greyLevel(float(delta)/255.f).withAlpha(juce::uint8(255)));
+        }
+    }
+    detail<<" differing="<<count<<"/"<<actual.getWidth()*actual.getHeight()<<" largestChannelDelta="<<largest;
+    const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("amp-head-snapshots").getChildFile("head-appearance-failure");
+    if(folder.createDirectory()) {
+        const auto stem="model-"+juce::String(model)+"-width-"+juce::String(juce::roundToInt(width));
+        for(const auto& [suffix,image]:{std::pair<const char*,const juce::Image*>{"actual",&actual},{"expected",&expected},{"diff",&diff}}) {
+            juce::PNGImageFormat png;
+            const auto file=folder.getChildFile(stem+"-"+suffix+".png");
+            file.deleteFile();
+            if(auto stream=file.createOutputStream())png.writeImageToStream(*image,*stream);
+        }
+        detail<<" images="<<folder.getFullPathName();
+    }
+    return detail.toStdString();
 }
 
 // Blank plate rectangles measured on the final raw assets by the visual
@@ -192,15 +235,17 @@ inline void checkHeadAppearance(std::initializer_list<int> selection={}) {
             juce::Image actual(juce::Image::ARGB,canvasWidth,canvasHeight,true,juce::SoftwareImageType{});
             juce::Image expected(juce::Image::ARGB,canvasWidth,canvasHeight,true,juce::SoftwareImageType{});
             {juce::Graphics g(actual);cabHead::paint(g,bounds,model);}
+            const auto reference=juce::AffineTransform::scale(scale).translated(offset.x,offset.y);
             {
                 juce::Graphics g(expected);g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
                 g.setColour(juce::Colours::white);
                 // Deliberately independent of geometry(). Draw the raw complete
                 // image once, uniformly aligned to its measured silhouette.
-                g.drawImageTransformed(original,juce::AffineTransform::scale(scale).translated(offset.x,offset.y));
+                g.drawImageTransformed(original,reference);
             }
-            headAppearanceCheck(sameShellPixels(actual,expected),model,
-                "Head paint adds, removes or distorts pixels outside the single authored shell (second roof/feet/handle)");
+            if(!sameShellPixels(actual,expected))
+                throw std::runtime_error("Head paint adds, removes or distorts pixels outside the single authored shell (second roof/feet/handle) [head model "
+                    +std::to_string(model)+"]"+describeShellMismatch(actual,expected,layout.sourceToView,reference,model,width));
             checkReviewedShellLandmarks(original,actual,scale,offset,model);
         }
         headAppearanceCheck(sameShellPixels(original,shell),model,"Rendering mutated the shared complete shell image");

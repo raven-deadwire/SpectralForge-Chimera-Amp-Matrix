@@ -10,6 +10,13 @@
 namespace easyModeUITests {
 using namespace nativeUITests;
 inline float raw(ChimeraProcessor& p,const juce::String& id){return p.parameters().getRawParameterValue(id)->load();}
+// Dispatches until ready() holds; the deadline only bounds a real failure.
+// A fixed settle failed on macOS runners whose main run loop stalled for
+// about 1 s in the AppKit poll before the view refreshed.
+template<class Ready> void requireSoon(Ready&& ready,const char* failure) {
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
+    while(!ready()){require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);settle(20);}
+}
 inline void preference() {
     struct Temporary {
         juce::File folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("Chimera-easy-preference",{},false);
@@ -114,9 +121,9 @@ inline void firstBinding() {
     }
     // Legacy-engine project: the head panel is off, so the classic lane
     // controls are what the amp plays through.
-    set(*p,spectralforge::ampNativeEnabledID(0),0);set(*p,"amp1",1);settle(60);
-    require(view->boundParameter(0)=="drive1" && view->boundParameter(1)=="bass1" && view->boundParameter(2)=="lowmid1" && view->boundParameter(3)=="treble1",
-            "Legacy-engine project did not bind the classic lane controls");
+    set(*p,spectralforge::ampNativeEnabledID(0),0);set(*p,"amp1",1);
+    requireSoon([&]{return view->boundParameter(0)=="drive1" && view->boundParameter(1)=="bass1" && view->boundParameter(2)=="lowmid1" && view->boundParameter(3)=="treble1";},
+                "Legacy-engine project did not bind the classic lane controls");
     auto* gain=find<juce::Slider>(*view,"easy.knob.gain");require(gain->isEnabled(),"Legacy GAIN disabled");
     gain->setValue(gain->proportionOfLengthToValue(.7),juce::sendNotificationSync);
     require(std::abs(p->parameters().getParameter("drive1")->getValue()-.7f)<.01f,"Legacy GAIN did not edit drive");
@@ -145,8 +152,7 @@ inline void routingAndGestures() {
         require(view->boundParameter(0)==highTreble,"GAIN rebound in the middle of a drag");
         gain->setValue(gain->proportionOfLengthToValue(.4),juce::sendNotificationSync);
     }
-    settle(40);
-    require(view->boundParameter(0)==normal,"GAIN did not rebind after the drag ended");
+    requireSoon([&]{return view->boundParameter(0)==normal;},"GAIN did not rebind after the drag ended");
     require(events.begins>0 && events.begins==events.ends && events.balanced(),"Drag across a routing change left a host gesture open");
     require(std::abs(p->parameters().getParameter(highTreble)->getValue()-.4f)<.01f,"Held drag stopped editing its own parameter");
 
@@ -168,13 +174,14 @@ inline void laneTargets() {
     auto editor=openEditor(*p);editor->setEasyMode(true);settle(60);
     auto* view=find<EasyModeView>(*editor,"easyView");auto* note=find<juce::Label>(*view,"easy.targetNote");
     require(view->targetLane()==0 && note->getText().isEmpty(),"Classic target lane");
-    set(*p,"mode",1);settle(60);
-    require(view->targetLane()==0 && find<juce::Label>(*view,"easy.amp")->getText().contains("amp 1 of 2"),"Dual must target and name amp 1");
-    set(*p,"mute1",1);settle(40);require(note->getText().contains("muted"),"Muted target lane not explained");set(*p,"mute1",0);
-    set(*p,"solo2",1);settle(40);require(note->getText().contains("soloed"),"Soloed other lane not explained");set(*p,"solo2",0);
-    set(*p,"dualtype",0);set(*p,"dualblend",1);settle(40);require(note->getText().contains("BLEND"),"Blend away from amp 1 not explained");set(*p,"dualblend",.5f);
-    set(*p,"mode",2);settle(60);
-    require(view->targetLane()==1 && find<juce::Label>(*view,"easy.amp")->getText().contains("MID amp"),"Matrix must target and name the MID amp");
+    auto* amp=find<juce::Label>(*view,"easy.amp");require(amp!=nullptr,"Easy amp label missing");
+    set(*p,"mode",1);
+    requireSoon([&]{return view->targetLane()==0 && amp->getText().contains("amp 1 of 2");},"Dual must target and name amp 1");
+    set(*p,"mute1",1);requireSoon([&]{return note->getText().contains("muted");},"Muted target lane not explained");set(*p,"mute1",0);
+    set(*p,"solo2",1);requireSoon([&]{return note->getText().contains("soloed");},"Soloed other lane not explained");set(*p,"solo2",0);
+    set(*p,"dualtype",0);set(*p,"dualblend",1);requireSoon([&]{return note->getText().contains("BLEND");},"Blend away from amp 1 not explained");set(*p,"dualblend",.5f);
+    set(*p,"mode",2);
+    requireSoon([&]{return view->targetLane()==1 && amp->getText().contains("MID amp");},"Matrix must target and name the MID amp");
     // Only the target lane's parameters move.
     const auto before=signalPathTests::values(*p);
     auto* gain=find<juce::Slider>(*view,"easy.knob.gain");
@@ -228,9 +235,9 @@ inline void autoSetAndPresets() {
     const int id=spectralforge::presetDisplayOrder()[0]+1;presets->setSelectedId(id,juce::sendNotificationSync);settle(150);
     auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);settle(300);signalPathTests::click(*tuner);settle(300);
     require(presets->getSelectedId()==id,"Using the tuner turned the preset into CUSTOM");
-    auto* volume=find<juce::Slider>(*view,"easy.knob.volume");volume->setValue(volume->getValue()-3,juce::sendNotificationSync);settle(400);
-    require(presets->getSelectedId()==0 && presets->getText().contains(spectralforge::selectablePresetName(id-1)) && presets->getText().contains("edited"),
-            "Edited preset lost its name in Easy view");
+    auto* volume=find<juce::Slider>(*view,"easy.knob.volume");volume->setValue(volume->getValue()-3,juce::sendNotificationSync);
+    requireSoon([&]{return presets->getSelectedId()==0 && presets->getText().contains(spectralforge::selectablePresetName(id-1)) && presets->getText().contains("edited");},
+                "Edited preset lost its name in Easy view");
     editor.reset();p->releaseResources();
 }
 inline void startupPath() {
@@ -301,11 +308,17 @@ inline void editorView(const juce::File& directory) {
     require(presets->getSelectedId()==presetID && description->getText()==expected,"Easy preset was not kept after loading");
     signalPathTests::capture(*editor,directory,"easy-view");
 
-    auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);settle(150);
-    require(raw(*p,"tuneron")>.5f && find(*view,"precisionTuner")!=nullptr && !room->isVisible(),"Easy TUNER did not replace the room with the tuner");
+    auto* tuner=find<juce::TextButton>(*view,"easy.tuner");signalPathTests::click(*tuner);
+    require(raw(*p,"tuneron")>.5f,"Easy TUNER did not enable tuning");
+    // The parameter changes in the click handler; the Easy view follows on
+    // its timer. A stalled native event pump must not be mistaken for a lost click.
+    requireSoon([&]{return raw(*p,"tuneron")>.5f && find(*view,"precisionTuner")!=nullptr && !room->isVisible();},
+                "Easy TUNER did not replace the room with the tuner");
     signalPathTests::capture(*editor,directory,"easy-view-tuner");
-    signalPathTests::click(*tuner);settle(150);
-    require(raw(*p,"tuneron")<.5f && find(*view,"precisionTuner")==nullptr && room->isShowing(),"Easy TUNER did not close the tuner");
+    signalPathTests::click(*tuner);
+    require(raw(*p,"tuneron")<.5f,"Easy TUNER did not disable tuning");
+    requireSoon([&]{return raw(*p,"tuneron")<.5f && find(*view,"precisionTuner")==nullptr && room->isShowing();},
+                "Easy TUNER did not close the tuner");
 
     const auto edited=signalPathTests::values(*p);
     signalPathTests::Writes switching;p->addListener(&switching);
@@ -318,35 +331,97 @@ inline void editorView(const juce::File& directory) {
     editor.reset();p->releaseResources();
 }
 inline void inputGuide(const juce::File& directory) {
-    // Standalone starts muted against speaker feedback; both views explain it
-    // and offer the fix until the input is on.
-    bool muted=true;int settingsOpened=0;
-    spectralforge::standalone::InputMute input{[&]{return muted;},[&]{muted=false;},[&]{++settingsOpened;}};
-    struct Uninstall {~Uninstall(){spectralforge::standalone::inputMute=nullptr;}} uninstall;
+    // The hook is installed before constructing the editor, as in the real app.
+    // This suite exercises the UI bridge, not physical device feedback safety.
+    bool muted=true;int settingsOpened=0,unmuteCalls=0;
+    spectralforge::standalone::InputMute input{[&]{return muted;},[&]{muted=false;++unmuteCalls;},[&]{++settingsOpened;}};
+    struct RestoreHook {
+        spectralforge::standalone::InputMute* previous=spectralforge::standalone::inputMute;
+        ~RestoreHook(){spectralforge::standalone::inputMute=previous;}
+    } restoreHook;
+    spectralforge::standalone::inputMute=nullptr;
     auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);
-    auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
-    require(!find(*editor,"inputGuide")->isVisible(),"Plug-ins must not show the Standalone input guide");
+    const auto fullGuide=[](ChimeraEditor& editor) {
+        auto* surface=find(editor,"surface");require(surface!=nullptr,"Full editor surface missing");
+        auto* guide=find<InputGuide>(*surface,"inputGuide");require(guide!=nullptr,"Full input guide missing");return guide;
+    };
+    const auto easyGuide=[](ChimeraEditor& editor) {
+        auto* view=find<EasyModeView>(editor,"easyView");require(view!=nullptr,"Easy view missing");
+        auto* guide=find<InputGuide>(*view,"inputGuide");require(guide!=nullptr,"Easy input guide missing");return guide;
+    };
+    const auto checkLayout=[](InputGuide& guide) {
+        auto* text=find<juce::Label>(guide,"inputGuide.text");
+        auto* settings=find<juce::TextButton>(guide,"inputGuide.settings");
+        auto* on=find<juce::TextButton>(guide,"inputGuide.unmute");
+        require(text && settings && on,"Input guide content missing");
+        for(auto* c:std::initializer_list<juce::Component*>{text,settings,on})inside(guide,*c,"Input guide child clipped");
+        require(!text->getBounds().intersects(settings->getBounds()) && !text->getBounds().intersects(on->getBounds())
+                && !settings->getBounds().intersects(on->getBounds()),"Input guide content overlaps");
+        const auto& layout=guide.messageLayout();
+        require(layout.getNumLines()>1,"Safety explanation must wrap");
+        require(layout.getWidth()<=float(text->getWidth())+.5f && layout.getHeight()<=float(text->getHeight())+.5f,
+                "Safety explanation exceeds its text bounds");
+        require(layout.getLine(0).stringRange.getStart()==0
+                && layout.getLine(layout.getNumLines()-1).stringRange.getEnd()==text->getText().length(),
+                "Safety explanation lost its beginning or end");
+        for(int line=0;line<layout.getNumLines();++line)
+            for(auto* run:layout.getLine(line).runs)
+                require(std::abs(run->font.getHeight()-12.5f)<.01f && std::abs(run->font.getHorizontalScale()-1.f)<.01f,
+                        "Safety explanation was shrunk to fit");
+    };
+    {
+        auto editor=openEditor(*p);editor->setEasyMode(true);settle(300);
+        for(auto* guide:{fullGuide(*editor),easyGuide(*editor)})
+            require(!guide->isVisible() && !guide->isPollingInput(),"Plug-in input guides must stay hidden and timer-free");
+        editor->setEasyMode(false);settle(300);
+        require(!fullGuide(*editor)->isPollingInput(),"Switching plug-in views started an input timer");
+    }
     spectralforge::standalone::inputMute=&input;
-    editor->setEasyMode(true);settle(400);
-    auto* view=find<EasyModeView>(*editor,"easyView");
-    auto* guide=find(*view,"inputGuide");require(guide && guide->isShowing(),"Easy view does not explain the muted input");
-    inside(*view,*guide,"Input guide outside Easy view");
-    for(auto* id:{"easy.fullEditor","easy.preset","easy.autoSet","easy.tuner"})
-        require(!guide->getBoundsInParent().intersects(find(*view,id)->getBoundsInParent()),"Input guide covers an Easy control");
-    signalPathTests::capture(*editor,directory,"easy-view-input-guide");
-    signalPathTests::click(*find<juce::TextButton>(*guide,"inputGuide.settings"));settle(50);
-    require(settingsOpened==1 && muted,"AUDIO SETTINGS must open the device settings without unmuting");
-    editor->setEasyMode(false);settle(400);
-    auto* fullGuide=find(*editor,"surface") ? find(*find(*editor,"surface"),"inputGuide") : nullptr;
-    require(fullGuide && fullGuide!=guide && fullGuide->isShowing(),"Full editor does not explain the muted input");
-    signalPathTests::capture(*editor,directory,"full-editor-input-guide");
-    signalPathTests::click(*find<juce::TextButton>(*fullGuide,"inputGuide.unmute"));settle(50);
-    require(!muted && !fullGuide->isVisible(),"INPUT ON did not unmute and hide the guide");
-    editor->setEasyMode(true);settle(400);
-    require(!guide->isVisible(),"Easy view still shows the guide with the input on");
-    muted=true;settle(400);
-    require(guide->isShowing(),"Muting again in the audio settings must bring the guide back");
+    auto editor=openEditor(*p);editor->setEasyMode(true);settle(400);
+    auto* guide=easyGuide(*editor);auto* full=fullGuide(*editor);
+    require(muted && unmuteCalls==0,"Constructing a guide must preserve the muted default");
+    for(bool easy:{true,false}) {
+        editor->setEasyMode(easy);settle(400);
+        auto* active=easy?guide:full;
+        require(active->isShowing() && active->isPollingInput(),"Active view does not explain muted input");
+        for(int scale:{75,100,125,150}) {
+            editor->setViewSize({1180*scale/100,780*scale/100},float(scale)/100.f);settle(60);
+            checkLayout(*active);inside(*editor,*active,"Scaled guide exceeds the editor");
+            signalPathTests::capture(*editor,directory,(easy?"easy-input-guide-":"full-input-guide-")+juce::String(scale));
+        }
+        if(easy) {
+            auto* view=find<EasyModeView>(*editor,"easyView");
+            for(auto* id:{"easy.fullEditor","easy.preset","easy.autoSet","easy.tuner"})
+                require(!active->getBoundsInParent().intersects(find(*view,id)->getBoundsInParent()),"Input guide covers an Easy control");
+        }
+        signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.settings"));settle(80);
+        require(settingsOpened==(easy?1:2) && muted && unmuteCalls==(easy?0:1),"AUDIO SETTINGS must not unmute");
+        signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.unmute"));settle(400);
+        require(!muted && !guide->isVisible() && !full->isVisible(),"INPUT ON must hide both guides");
+        require(guide->isPollingInput() && full->isPollingInput(),"Standalone must still observe re-muting");
+        muted=true;settle(400);
+        require(guide->isVisible() && full->isVisible(),"Muting in settings must restore both guides");
+    }
+    // Device settings may unmute directly, without the guide button.
+    muted=false;settle(400);
+    require(!guide->isVisible() && !full->isVisible() && unmuteCalls==2,"Settings unmute did not propagate");
+    // Preset/project restore is independent of the device's mute policy.
+    juce::MemoryBlock state;p->getStateInformation(state);
+    for(bool restoredMute:{false,true}) {
+        muted=restoredMute;p->setStateInformation(state.getData(),int(state.getSize()));settle(400);
+        require(full->isVisible()==restoredMute && guide->isVisible()==restoredMute && muted==restoredMute,
+                "Project restore changed the device mute state or lost its guide");
+        // Recreating the editor must reflect the holder's already-restored value.
+        editor.reset();editor=openEditor(*p);editor->setEasyMode(true);settle(400);
+        guide=easyGuide(*editor);full=fullGuide(*editor);
+        require(full->isVisible()==restoredMute && guide->isVisible()==restoredMute && unmuteCalls==2,
+                "Recreated editor did not respect the restored device mute state");
+    }
+    spectralforge::standalone::inputMute=nullptr;settle(400);
+    for(auto* item:{guide,full})
+        require(!item->isVisible() && !item->isPollingInput(),"Removing the Standalone hook must stop polling");
     editor.reset();p->releaseResources();
+    std::cout<<"PASS input guide: complete fixed-size text at 75/100/125/150%, both buttons/views, plug-in timers, restore and re-mute\n";
 }
 inline void run(const juce::File& directory) {
     preference();mapping();firstBinding();routingAndGestures();laneTargets();fileDrop(directory);autoSetAndPresets();startupPath();editorView(directory);inputGuide(directory);

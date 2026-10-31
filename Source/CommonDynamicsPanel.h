@@ -30,7 +30,7 @@ public:
         toggle(compOn,"COMPRESSOR ON","cleanCompOn");toggle(gateOn,"GATE ON","gateon",true);
         addChildComponent(autoSet);addChildComponent(autoOptions);addChildComponent(autoUndo);
         autoSet.setComponentID("commonDynamics.autoSet");autoOptions.setComponentID("commonDynamics.autoOptions");autoUndo.setComponentID("commonDynamics.autoUndo");autoUndo.setEnabled(false);
-        autoSet.setTooltip("Listen to about 30 seconds of playing and set input gain, the gates and the Expander, the Tone EQ, the clean compressor, the multiband, the de-esser and the limiter. Include a short pause so the gate can hear the noise floor.");
+        autoSet.setTooltip("Listen to about 52 seconds of playing and set input gain, the gates and the Expander, the amp's gain and tone knobs, where the cabinet mic sits, the Tone EQ and its Dynamic EQ, the clean compressor, the multiband, the de-esser and the limiter, then the Final EQ and the output level. Include a short pause so the gate can hear the noise floor.");
         autoOptions.setTooltip("Auto Set options: instrument (detected, guitar or bass), style (rock, clean or metal), which steps run, strength and locked settings.");
         autoUndo.setTooltip("Restore every setting Auto Set changed in its last run.");
         autoOptions.onClick=[this]{showAutoOptions();};updateAutoOptionsText();
@@ -150,17 +150,17 @@ public:
     // Presentation of the Auto Set options; the editor maps them to the controller.
     // instrument 0 detect/1 guitar/2 bass; style 0 rock/1 clean/2 metal; strength in percent;
     // locks: bit i keeps autoLockNames[i] as it is (the controller's Lock order).
-    struct AutoSetOptions {int instrument{0};bool tone{true};int style{0};bool finish{true};bool multiband{true};bool gates{true};int strength{100};unsigned locks{};};
-    static constexpr std::array<const char*,7> autoLockNames{"Input gain","Gate","Tone EQ","Compressor","Multiband","De-esser","Limiter"};
+    struct AutoSetOptions {int instrument{0};bool tone{true};int style{0};bool finish{true};bool multiband{true};bool gates{true};int strength{100};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};};
+    static constexpr std::array<const char*,12> autoLockNames{"Input gain","Gate","Tone EQ","Compressor","Multiband","De-esser","Limiter","Dynamic EQ","Final EQ","Output level","Amp","Cabinet mic"};
     static constexpr std::array<int,4> autoStrengths{100,75,50,25};
     std::function<void(const AutoSetOptions&)> onAutoOptionsChanged;
     void setAutoSetOptions(const AutoSetOptions& chosen){autoOptionsValue=chosen;updateAutoOptionsText();}
     const AutoSetOptions& autoSetOptions() const noexcept {return autoOptionsValue;}
     // Menu ids: 1-3 instrument, 11-13 style, 21 Tone EQ, 22 de-esser + limiter, 23 multiband step,
-    // 24 Gate 2 + Expander step, 31-34 strength, 41-47 locks.
+    // 24 Gate 2 + Expander step, 25 Dynamic EQ step, 26 Final EQ + output step, 27 amp step, 28 cabinet mic step, 31-34 strength, 41-52 locks.
     void chooseAutoOption(int id) {
         auto& o=autoOptionsValue;
-        if(id>=1 && id<=3)o.instrument=id-1;else if(id>=11 && id<=13)o.style=id-11;else if(id==21)o.tone=!o.tone;else if(id==22)o.finish=!o.finish;else if(id==23)o.multiband=!o.multiband;else if(id==24)o.gates=!o.gates;
+        if(id>=1 && id<=3)o.instrument=id-1;else if(id>=11 && id<=13)o.style=id-11;else if(id==21)o.tone=!o.tone;else if(id==22)o.finish=!o.finish;else if(id==23)o.multiband=!o.multiband;else if(id==24)o.gates=!o.gates;else if(id==25)o.dynamicEQ=!o.dynamicEQ;else if(id==26)o.level=!o.level;else if(id==27)o.amp=!o.amp;else if(id==28)o.cab=!o.cab;
         else if(id>=31 && id<31+int(autoStrengths.size()))o.strength=autoStrengths[size_t(id-31)];
         else if(id>=41 && id<41+int(autoLockNames.size()))o.locks^=1u<<(id-41);else return;
         updateAutoOptionsText();if(onAutoOptionsChanged)onAutoOptionsChanged(o);
@@ -378,7 +378,7 @@ private:
         menu.addSectionHeader("Style");
         menu.addItem(11,"Rock",true,o.style==0);menu.addItem(12,"Clean",true,o.style==1);menu.addItem(13,"Metal",true,o.style==2);
         menu.addSectionHeader("Steps");
-        menu.addItem(24,"Gate 2 and Expander",true,o.gates);menu.addItem(21,"Tone EQ",true,o.tone);menu.addItem(23,"Multiband",true,o.multiband);menu.addItem(22,"De-esser and limiter",true,o.finish);
+        menu.addItem(24,"Gate 2 and Expander",true,o.gates);menu.addItem(27,"Amp gain and tone",true,o.amp);menu.addItem(28,"Cabinet mic placement",true,o.cab);menu.addItem(21,"Tone EQ",true,o.tone);menu.addItem(25,"Dynamic EQ",true,o.dynamicEQ);menu.addItem(23,"Multiband",true,o.multiband);menu.addItem(22,"De-esser and limiter",true,o.finish);menu.addItem(26,"Final EQ and output level",true,o.level);
         menu.addSectionHeader("Strength");
         for(size_t i=0;i<autoStrengths.size();++i)menu.addItem(31+int(i),juce::String(autoStrengths[i])+"%",true,o.strength==autoStrengths[i]);
         menu.addSectionHeader("Lock (Auto Set keeps these)");

@@ -13,7 +13,6 @@ public:
         message.setText("No guitar sound? Input starts off to prevent speaker howl. Use headphones, then press INPUT ON.",
                         juce::dontSendNotification);
         message.setFont(juce::FontOptions(12.5f));message.setColour(juce::Label::textColourId,ink);
-        message.setJustificationType(juce::Justification::centredLeft);message.setMinimumHorizontalScale(.85f);
         settings.setComponentID("inputGuide.settings");settings.getProperties().set("utilityDock",true);
         settings.setTooltip("Choose the audio interface your guitar is plugged into and the output you listen on.");
         settings.onClick=[]{if(auto* input=spectralforge::standalone::inputMute)if(input->openAudioSettings)input->openAudioSettings();};
@@ -21,7 +20,7 @@ public:
         unmute.setTooltip("Turn the guitar input on. Use headphones: with speakers and a nearby microphone this can howl. Mute it again in AUDIO SETTINGS.");
         unmute.onClick=[this]{if(auto* input=spectralforge::standalone::inputMute)if(input->unmute)input->unmute();refresh();};
         for(auto* c:std::initializer_list<juce::Component*>{&message,&settings,&unmute})addAndMakeVisible(*c);
-        setVisible(false);refresh();startTimerHz(4);
+        setVisible(false);refresh();
     }
     ~InputGuide() override {stopTimer();}
 
@@ -30,16 +29,24 @@ public:
         return input!=nullptr && input->muted && input->muted();
     }
     void refresh() {
+        // A JUCE application may also be a plug-in host. Only Chimera's
+        // Standalone installs this hook, before constructing either editor.
+        if(spectralforge::standalone::inputMute!=nullptr) {
+            if(!isTimerRunning())startTimerHz(4);
+        } else stopTimer();
         const bool show=needed();
         if(show!=isVisible()){setVisible(show);if(show)toFront(false);}
     }
     void resized() override {
-        auto r=getLocalBounds().reduced(10,8);
-        const auto buttons=r.withSizeKeepingCentre(r.getWidth(),juce::jmin(r.getHeight(),32));
-        unmute.setBounds(r.removeFromRight(86).withY(buttons.getY()).withHeight(buttons.getHeight()));r.removeFromRight(8);
-        settings.setBounds(r.removeFromRight(120).withY(buttons.getY()).withHeight(buttons.getHeight()));r.removeFromRight(10);
+        auto r=getLocalBounds().reduced(10,4);
+        auto buttons=r.removeFromRight(120);
+        const int buttonHeight=juce::jmax(0,(buttons.getHeight()-4)/2);
+        settings.setBounds(buttons.removeFromTop(buttonHeight));buttons.removeFromTop(juce::jmin(4,buttons.getHeight()));
+        unmute.setBounds(buttons);r.removeFromRight(10);
         message.setBounds(r);
     }
+    bool isPollingInput() const {return isTimerRunning();}
+    const juce::TextLayout& messageLayout() const {return message.layout;}
     void paint(juce::Graphics& g) override {
         const auto area=getLocalBounds().toFloat().reduced(.5f);
         g.setColour(fill);g.fillRoundedRectangle(area,6);
@@ -47,8 +54,22 @@ public:
     }
 
 private:
+    // Label has no setMultiLine API in JUCE 8.0.8. Retain its accessible text
+    // but render a word-wrapped TextLayout, with no fitting, shrinking or
+    // ellipsis. The stacked buttons leave room for the whole safety message.
+    struct WrappedMessage final : juce::Label {
+        void resized() override {
+            juce::AttributedString text(getText());
+            text.setFont(getFont());text.setColour(findColour(juce::Label::textColourId));
+            text.setJustification(juce::Justification::centredLeft);
+            text.setWordWrap(juce::AttributedString::byWord);
+            layout.createLayout(text,float(juce::jmax(1,getWidth())));
+        }
+        void paint(juce::Graphics& g) override {layout.draw(g,getLocalBounds().toFloat());}
+        juce::TextLayout layout;
+    };
     void timerCallback() override {refresh();}
     static inline const juce::Colour fill{0xff2a2318},edge{0xffc4a678},ink{0xffe1dbce};
-    juce::Label message;
+    WrappedMessage message;
     juce::TextButton settings{"AUDIO SETTINGS"},unmute{"INPUT ON"};
 };

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "status": "TEMPLATE_NO_RECORDING",
+  "source": "../transpose-di-take-template.json",
+  "note": "Do not resample DI. Populate reviewed actual six-second window starts; no nominal time is recording evidence. Fill bass-clean-ir.json ir with a licensed mono bass IR path. Factory V30 is a test profile, not a bass reference. Native model defaults at the recorded source SHA are captured in capture.json. Controls/IRs must be frozen before evaluating results.",
+  "profiles": [
+    {
+      "id": "guitar-highgain-amp",
+      "instrument": "guitar",
+      "style": "metal",
+      "path": "guitar-highgain-amp.json",
+      "requires_real_ir": false
+    },
+    {
+      "id": "guitar-highgain-v30",
+      "instrument": "guitar",
+      "style": "metal",
+      "path": "guitar-highgain-v30.json",
+      "requires_real_ir": false
+    },
+    {
+      "id": "bass-clean-amp",
+      "instrument": "bass",
+      "style": "clean",
+      "path": "bass-clean-amp.json",
+      "requires_real_ir": false
+    },
+    {
+      "id": "bass-clean-ir",
+      "instrument": "bass",
+      "style": "clean",
+      "path": "bass-clean-ir.json",
+      "requires_real_ir": true
+    }
+  ],
+  "windows": {
+    "guitar-A1-48k": null,
+    "bass-B0-48k": null,
+    "bass-A0-48k": null,
+    "guitar-A1-44k1": null,
+    "bass-B0-44k1": null,
+    "bass-A0-44k1": null,
+    "guitar-A1-96k": null,
+    "bass-B0-96k": null,
+    "bass-A0-96k": null
+  }
+}

@@ -149,20 +149,20 @@ inline void autoSetEntry(ChimeraProcessor& p,spectralforge::CommonDynamicsPanel&
     const auto before=signalPathTests::values(p);
     require(!undo->isEnabled(),"Undo is available before any Auto Set");
     const auto defaults=panel.autoSetOptions();
-    require(defaults.instrument==0 && defaults.tone && defaults.style==0 && defaults.finish && defaults.multiband && tone->getButtonText()=="Auto / Rock","Auto Set options do not default to detect, rock, all steps");
+    require(defaults.instrument==0 && defaults.tone && defaults.style==0 && defaults.finish && defaults.multiband && defaults.dynamicEQ && defaults.level && defaults.amp && defaults.cab && tone->getButtonText()=="Auto / Rock","Auto Set options do not default to detect, rock, all steps");
     // The menu itself is a native popup; drive its item handler directly.
-    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(3);panel.chooseAutoOption(13);settle(20);
+    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(25);panel.chooseAutoOption(26);panel.chooseAutoOption(27);panel.chooseAutoOption(28);panel.chooseAutoOption(3);panel.chooseAutoOption(13);settle(20);
     require(tone->getButtonText()=="Bass / Metal","Options button does not show the chosen instrument and style");
     signalPathTests::click(*start);settle(30);
-    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/2") && !tone->isEnabled(),"Auto Set without the optional steps did not listen in two passes");
+    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/2") && !tone->isEnabled(),("Auto Set without the optional steps did not listen in two passes: "+panel.autoSetStatus()).toRawUTF8());
     signalPathTests::click(*start);settle(30);
-    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(1);panel.chooseAutoOption(11);settle(20);
+    panel.chooseAutoOption(21);panel.chooseAutoOption(22);panel.chooseAutoOption(23);panel.chooseAutoOption(25);panel.chooseAutoOption(26);panel.chooseAutoOption(27);panel.chooseAutoOption(28);panel.chooseAutoOption(1);panel.chooseAutoOption(11);settle(20);
     signalPathTests::click(*start);settle(30);
-    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/5") && tone->getButtonText()=="Auto / Rock","Auto Set did not enter listening with all five passes");
+    require(start->getButtonText()=="CANCEL" && panel.autoSetStatus().contains("Listening 1/8") && tone->getButtonText()=="Auto / Rock","Auto Set did not enter listening with all eight passes");
     {
         // The progress view names the step, what it listens for and the time it needs.
         auto* view=find<spectralforge::AutoSetView>(panel,"autoSet.view");
-        require(view && view->isShowing() && view->report().listening && view->report().steps.size()==5 && view->report().current==0
+        require(view && view->isShowing() && view->report().listening && view->report().steps.size()==8 && view->report().current==0
                 && view->report().listeningFor.isNotEmpty() && view->report().totalSeconds>30,"Auto Set progress view missing while listening");
         require(panel.getLocalBounds().contains(view->getBounds()),"Auto Set progress view is clipped");
     }

@@ -16,12 +16,16 @@ namespace spectralforge::autoset {
 // The audio thread only reduces or copies samples; all decisions run elsewhere.
 
 struct Window {float peakDb{-120.f},rmsDb{-120.f};};
-// input/compressor/output/rig are reduced to 10 ms windows; tone, multiband and
-// deesser keep mono samples for spectral analysis (amp/cab output before the
-// Tone EQ, the multiband input, the de-esser input). The sample taps share one
-// ring.
-// rig: the amp/cab sum before any post-rig gate.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6};
+// input/compressor/output/rig are reduced to 10 ms windows; tone, multiband,
+// deesser and master keep mono samples for spectral analysis (amp/cab output
+// before the Tone EQ, the multiband input, the de-esser input, the limiter
+// input). The sample taps share one ring.
+// rig: the amp/cab sum before any post-rig gate. master: the same point as
+// output (after the Final EQ and output trim), as samples.
+// amp: the signal entering the amp (after the pre-amp effects), as samples in
+// a ring of its own, so it can listen alongside one other sample tap.
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8};
+inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp;}
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -35,7 +39,7 @@ public:
         windowSamples=std::max(1,int(sampleRate*.010));
         for(auto& t:taps){t.count=0;t.peak=0;t.energy=0;}
     }
-    // At most one sample tap at a time; window taps can listen alongside.
+    // At most one sample tap at a time besides Tap::amp; window taps can listen alongside.
     void listen(std::initializer_list<Tap> listened) noexcept {
         int mask=0;for(const auto tap:listened)mask|=1<<int(tap);
         active.store(mask,std::memory_order_release);
@@ -45,7 +49,8 @@ public:
     // Audio thread. Mirrors the clean compressor detector: max of the channels.
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
-        if(tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband){pushSamples(channels,channelCount,samples);return;}
+        if(tap==Tap::amp){pushSamples(ampRing,ampWrite,ampRead,channels,channelCount,samples);return;}
+        if(sampleTap(tap)){pushSamples(sampleRing,sampleWrite,sampleRead,channels,channelCount,samples);return;}
         auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
@@ -64,37 +69,40 @@ public:
     }
     // Consumer thread.
     void drain(Tap tap,std::vector<Window>& out) noexcept {
-        if(tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband)return;
+        if(sampleTap(tap))return;
         auto& t=taps[windowIndex(tap)];
         int r=t.read.load(std::memory_order_relaxed);
         const int w=t.write.load(std::memory_order_acquire);
         while(r!=w){out.push_back(t.ring[size_t(r)]);r=(r+1)%capacity;}
         t.read.store(r,std::memory_order_release);
     }
-    void drainSamples(std::vector<float>& out) {
-        const auto r=sampleRead.load(std::memory_order_relaxed),w=sampleWrite.load(std::memory_order_acquire);
-        for(auto i=r;i!=w;++i)out.push_back(sampleRing[i%sampleCapacity]);
-        sampleRead.store(w,std::memory_order_release);
-    }
+    void drainSamples(std::vector<float>& out) {drainRing(sampleRing,sampleWrite,sampleRead,out);}
+    void drainAmpSamples(std::vector<float>& out) {drainRing(ampRing,ampWrite,ampRead,out);}
 private:
     static size_t windowIndex(Tap tap) noexcept {return tap==Tap::rig?3:size_t(tap);}
-    void pushSamples(const float* const* channels,int channelCount,int samples) noexcept {
+    using Ring=std::array<float,sampleCapacity>;
+    static void pushSamples(Ring& ring,std::atomic<uint32_t>& write,const std::atomic<uint32_t>& read,const float* const* channels,int channelCount,int samples) noexcept {
         const int used=std::min(2,channelCount);
-        auto w=sampleWrite.load(std::memory_order_relaxed);
+        auto w=write.load(std::memory_order_relaxed);
         for(int n=0;n<samples;++n) {
-            if(w-sampleRead.load(std::memory_order_acquire)>=sampleCapacity)break;
+            if(w-read.load(std::memory_order_acquire)>=sampleCapacity)break;
             float x=0;for(int c=0;c<used;++c)x+=channels[c][n];
-            x/=float(used);sampleRing[w%sampleCapacity]=std::isfinite(x)?x:0.f;++w;
+            x/=float(used);ring[w%sampleCapacity]=std::isfinite(x)?x:0.f;++w;
         }
-        sampleWrite.store(w,std::memory_order_release);
+        write.store(w,std::memory_order_release);
+    }
+    static void drainRing(const Ring& ring,const std::atomic<uint32_t>& write,std::atomic<uint32_t>& read,std::vector<float>& out) {
+        const auto r=read.load(std::memory_order_relaxed),w=write.load(std::memory_order_acquire);
+        for(auto i=r;i!=w;++i)out.push_back(ring[i%sampleCapacity]);
+        read.store(w,std::memory_order_release);
     }
     struct TapState {
         std::array<Window,capacity> ring{};std::atomic<int> write{0},read{0};
         int count{};double peak{},energy{};
     };
     std::array<TapState,4> taps;
-    std::array<float,sampleCapacity> sampleRing{};
-    std::atomic<uint32_t> sampleWrite{0},sampleRead{0}; // unsigned difference works across wrap
+    Ring sampleRing{},ampRing{};
+    std::atomic<uint32_t> sampleWrite{0},sampleRead{0},ampWrite{0},ampRead{0}; // unsigned difference works across wrap
     std::atomic<int> active{0};
     int windowSamples{480};
 };
@@ -608,6 +616,221 @@ inline MultibandResult analyseMultiband(const std::vector<float>& samples,double
         band.rangeDb=std::clamp(std::round(.5f*band.swingDb+.5f*std::max(0.f,band.excessDb)+2.f),3.f,9.f);
         band.attackMs=attacks[size_t(b)];band.releaseMs=std::round(releases[size_t(b)]*releaseScale);
     }
+    return r;
+}
+
+// Dynamic EQ (phase 6): narrow resonances that come and go, at the Tone EQ
+// input (where the Dynamic EQ detector listens). A third-octave band acts when
+// its loudest moments stand above its neighbours' loudest moments (2/3 to 4/3
+// octave away on both sides, so a broad tilt cancels) and it also drops back
+// between them: a note that rings louder than the rest, a cabinet resonance a
+// few notes excite. A band that never drops back is static balance, the Tone
+// EQ's job.
+struct DynamicEQNode {float frequency{},q{3},thresholdDb{-24},ratio{2},rangeDb{6},attackMs{10},releaseMs{120},excessDb{};};
+struct DynamicEQResult {
+    bool playingDetected{},bass{};
+    std::vector<DynamicEQNode> nodes;          // strongest first
+    std::array<float,toneBandCount> excessDb{}; // per third-octave band, 0 where not evaluated
+    std::array<float,toneBandCount> relativeJumpDb{}; // time-paired band/full-band contrast
+};
+inline constexpr float dynamicEQQ=3.f,dynamicEQMinExcessDb=4.f,dynamicEQMinJumpDb=6.f;
+// avoid: centres of Dynamic EQ nodes already on the Tone EQ; maxNodes: free slots.
+inline DynamicEQResult analyseDynamicEQ(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock,
+                                        const std::vector<float>& avoid={},int maxNodes=2) {
+    DynamicEQResult r;
+    const auto spectrum=measureSpectrum(samples,rate,bass);
+    r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
+    if(!r.playingDetected)return r;
+    const float lo=r.bass?50.f:80.f,hi=std::min(r.bass?2500.f:4000.f,float(rate*.4));
+    std::vector<int> bands;for(int b=0;b<toneBandCount;++b)if(toneBandCentres[size_t(b)]<rate*.45)bands.push_back(b);
+    // The same band pass as the Dynamic EQ detector, read as 20 ms peaks
+    // (the detector's envelope decays over 20 ms).
+    struct Detector {EQCoefficients c;double z1{},z2{};double tick(double x){const double y=c.b0*x+z1;z1=c.b1*x-c.a1*y+z2;z2=c.b2*x-c.a2*y;return y;}};
+    std::vector<Detector> detectors;for(const int b:bands)detectors.push_back({eqCoefficients(6,toneBandCentres[size_t(b)],0,dynamicEQQ,rate)});
+    const int blockSamples=std::max(1,int(rate*.020));
+    // Band RMS decides (a pick's broadband click lights every band's peak);
+    // band peaks place the threshold the peak detector will compare with.
+    std::vector<std::vector<float>> peak(bands.size()),rms(bands.size());std::vector<float> fullPeak,fullRms;
+    std::vector<double> held(bands.size()),bandEnergy(bands.size());double fullHeld=0,energy=0;int n=0;
+    for(const float x:samples) {
+        for(size_t k=0;k<detectors.size();++k){const double y=detectors[k].tick(x);held[k]=std::max(held[k],std::abs(y));bandEnergy[k]+=y*y;}
+        fullHeld=std::max(fullHeld,double(std::abs(x)));energy+=double(x)*x;
+        if(++n==blockSamples) {
+            for(size_t k=0;k<held.size();++k){peak[k].push_back(toDb(held[k]));rms[k].push_back(toDb(std::sqrt(bandEnergy[k]/n)));held[k]=bandEnergy[k]=0;}
+            fullPeak.push_back(toDb(fullHeld));fullRms.push_back(toDb(std::sqrt(energy/n)));fullHeld=energy=0;n=0;
+        }
+    }
+    const float loud=percentile(fullRms,.90f);
+    std::vector<size_t> playing;for(size_t i=0;i<fullRms.size();++i)if(fullRms[i]>=loud-15.f && fullRms[i]>minimumPlayingDb)playing.push_back(i);
+    if(playing.size()<50){r.playingDetected=false;return r;}
+    std::vector<float> loudRms;for(const auto i:playing)loudRms.push_back(fullRms[i]);
+    const float fullTop=percentile(loudRms,.95f);
+    std::vector<std::vector<float>> levels(bands.size());std::vector<float> top(bands.size()),typical(bands.size());
+    for(size_t k=0;k<bands.size();++k) {
+        std::vector<float> energyLevels;
+        for(const auto i:playing){levels[k].push_back(peak[k][i]);energyLevels.push_back(rms[k][i]);}
+        top[k]=percentile(energyLevels,.95f);typical[k]=percentile(energyLevels,.5f);
+    }
+    struct Candidate {size_t k;float excess;};std::vector<Candidate> candidates;
+    for(size_t k=2;k+2<bands.size();++k) {
+        const float fc=toneBandCentres[size_t(bands[k])];
+        if(fc<lo || fc>hi)continue;
+        std::vector<float> neighbours;
+        for(size_t d=k>=4?k-4:0;d<=std::min(bands.size()-1,k+4);++d)if((d>k?d-k:k-d)>=2)neighbours.push_back(top[d]);
+        const float excess=top[k]-percentile(neighbours,.5f);
+        r.excessDb[size_t(bands[k])]=excess;
+        // A decaying fundamental or a louder pick changes every band together.
+        // Require the band's share of the SAME frame to change as well. Two
+        // independently ranked percentiles would compare different notes.
+        std::vector<float> contrast;
+        for(const auto i:playing)contrast.push_back(rms[k][i]-fullRms[i]);
+        const float jump=percentile(contrast,.95f)-percentile(contrast,.5f);
+        r.relativeJumpDb[size_t(bands[k])]=jump;
+        if(excess>=dynamicEQMinExcessDb && top[k]-typical[k]>=dynamicEQMinJumpDb
+           && jump>=dynamicEQMinJumpDb && top[k]>=fullTop-24.f)candidates.push_back({k,excess});
+    }
+    std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return a.excess>b.excess;});
+    const auto apart=[](float a,float b){return std::abs(std::log2(a/b))>=2.f/3.f-1e-3f;};
+    std::vector<float> taken(avoid.begin(),avoid.end());
+    const float releaseScale=style==Style::metal?.7f:style==Style::clean?1.3f:1.f;
+    for(const auto& c:candidates) {
+        if(int(r.nodes.size())>=maxNodes)break;
+        const float fc=toneBandCentres[size_t(bands[c.k])];
+        if(!std::all_of(taken.begin(),taken.end(),[&](float f){return apart(f,fc);}))continue;
+        taken.push_back(fc);
+        DynamicEQNode node;node.frequency=fc;node.q=dynamicEQQ;node.excessDb=c.excess;
+        // Act on the loudest fifth of the band; deeper and firmer for stronger rings.
+        node.thresholdDb=std::round(std::clamp(percentile(levels[c.k],.80f),-72.f,0.f));
+        node.ratio=c.excess<6.f?2.f:c.excess<9.f?3.f:4.f;
+        node.rangeDb=std::clamp(std::round(c.excess-1.f),3.f,9.f);
+        node.attackMs=fc<250.f?20.f:fc<1500.f?10.f:5.f;
+        node.releaseMs=std::round((fc<250.f?250.f:fc<1500.f?150.f:80.f)*releaseScale);
+        r.nodes.push_back(node);
+    }
+    return r;
+}
+
+// Final EQ and output level (phase 7), at the limiter input: after the Final
+// EQ and the output trim. Everything before has been set by then, so the
+// moves are small finishing corrections toward the style target and the trim
+// brings the loudness to a working level below the limiter ceiling.
+struct FinalMove {int type{};float frequency{},gainDb{},q{.70710678f};bool active{};};
+struct OutputResult {
+    bool playingDetected{},bass{};
+    // Rumble high pass (guitar), low-mid bell, air shelf; inactive moves are skipped.
+    std::array<FinalMove,3> moves{};
+    float rumbleExcessDb{},mudExcessDb{},airExcessDb{};
+    bool loudnessMeasured{};
+    float loudnessLufs{-70},peakDb{-120},eqLoudnessDeltaDb{},eqPeakDeltaDb{},trimChangeDb{};
+    bool peakLimited{}; // the trim was held back so the peaks stay below the limiter ceiling
+    int activeMoves() const noexcept {int n=0;for(const auto& m:moves)n+=m.active;return n;}
+};
+inline constexpr float outputTargetLufs=-18.f,outputMaxTrimChangeDb=12.f,outputMinTrimChangeDb=1.f,finalMaxMoveDb=3.f,finalMinMoveDb=1.f;
+// ITU-R BS.1770 K-weighting (pre-filter shelf and RLB high pass), redesigned
+// for any rate from the standard's 48 kHz analogue parameters.
+inline std::array<EQCoefficients,2> kWeighting(double rate) {
+    const double pi=juce::MathConstants<double>::pi;
+    double k=std::tan(pi*1681.974450955533/rate);const double q=.7071752369554196,vh=std::pow(10.,3.999843853973347/20.),vb=std::pow(vh,.4996667741545416);
+    double a0=1+k/q+k*k;
+    const EQCoefficients shelf{(vh+vb*k/q+k*k)/a0,2*(k*k-vh)/a0,(vh-vb*k/q+k*k)/a0,2*(k*k-1)/a0,(1-k/q+k*k)/a0};
+    k=std::tan(pi*38.13547087602444/rate);const double qh=.5003270373238773;a0=1+k/qh+k*k;
+    const EQCoefficients highPass{1,-2,1,2*(k*k-1)/a0,(1-k/qh+k*k)/a0};
+    return {shelf,highPass};
+}
+inline float finalResponseDb(const std::array<FinalMove,3>& moves,float frequency,double rate) {
+    double db=0;
+    for(const auto& m:moves)if(m.active)db+=20*std::log10(std::max(1e-9,eqCoefficients(m.type,m.frequency,m.gainDb,m.q,rate).magnitude(frequency,rate)));
+    return float(db);
+}
+// Gated integrated loudness (400 ms blocks, 75% overlap, -70 LUFS absolute
+// and -10 LU relative gates) of the mono channel mean, reported for the
+// stereo output it stands for (both channels equal: +3 dB).
+inline std::optional<float> integratedLoudness(const std::vector<float>& samples,double rate) {
+    auto k=kWeighting(rate);std::array<double,4> z{};
+    std::vector<double> squared(samples.size());
+    for(size_t n=0;n<samples.size();++n) {
+        double y=samples[n];
+        for(int s=0;s<2;++s){auto& c=k[size_t(s)];double& z1=z[size_t(2*s)];double& z2=z[size_t(2*s+1)];const double out=c.b0*y+z1;z1=c.b1*y-c.a1*out+z2;z2=c.b2*y-c.a2*out;y=out;}
+        squared[n]=y*y;
+    }
+    const size_t block=size_t(rate*.4),hop=size_t(rate*.1);
+    if(block==0 || hop==0 || samples.size()<block)return std::nullopt;
+    const auto lufs=[](double meanSquare){return -.691+10*std::log10(std::max(1e-30,2*meanSquare));};
+    std::vector<double> blocks;double sum=0;
+    for(size_t n=0;n<block;++n)sum+=squared[n];
+    for(size_t start=0;;start+=hop) {
+        if(lufs(sum/double(block))>-70)blocks.push_back(sum/double(block));
+        if(start+hop+block>squared.size())break;
+        for(size_t n=start;n<start+hop;++n)sum-=squared[n];
+        for(size_t n=start+block;n<start+block+hop;++n)sum+=squared[n];
+    }
+    if(blocks.size()<10)return std::nullopt;
+    double mean=0;for(const auto b:blocks)mean+=b;mean/=double(blocks.size());
+    const double relative=lufs(mean)-10;double gated=0;int count=0;
+    for(const auto b:blocks)if(lufs(b)>relative){gated+=b;++count;}
+    return count>=10?std::optional<float>(float(lufs(gated/count))):std::nullopt;
+}
+// samples: mono limiter input, at the current output trim.
+inline OutputResult analyseOutput(const std::vector<float>& samples,double rate,std::optional<bool> bass={},Style style=Style::rock) {
+    OutputResult r;
+    const auto spectrum=measureSpectrum(samples,rate,bass);
+    r.playingDetected=spectrum.playing;r.bass=spectrum.bass;
+    if(!r.playingDetected)return r;
+    // Align the style target on 630 Hz-2 kHz, above the low-mid region this
+    // pass judges, so a low-mid bump does not make the top look dark.
+    std::array<float,toneBandCount> target{};double offset=0;int reference=0;
+    for(int b=0;b<toneBandCount;++b) {
+        const float fc=toneBandCentres[size_t(b)];target[size_t(b)]=toneTargetDb(spectrum.bass,fc,style);
+        if(fc>=630 && fc<=2000){offset+=spectrum.bandsDb[size_t(b)]-target[size_t(b)];++reference;}
+    }
+    for(auto& t:target)t+=float(offset/reference);
+    const auto excess=[&](float lo,float hi) {
+        double sum=0;int count=0;
+        for(int b=0;b<toneBandCount;++b){const float fc=toneBandCentres[size_t(b)];
+            if(fc>=lo && fc<=hi && fc<rate*.4 && spectrum.bandsDb[size_t(b)]>spectrum.strongestDb-45.f){sum+=spectrum.bandsDb[size_t(b)]-target[size_t(b)];++count;}}
+        return count?std::optional<float>(float(sum/count)):std::nullopt;
+    };
+    const auto step=[](float db){const float g=std::round(std::clamp(db,-finalMaxMoveDb,finalMaxMoveDb)*2.f)*.5f;return std::abs(g)<finalMinMoveDb?0.f:g;};
+    // Rumble below a guitar's lowest note: a 12 dB/oct high pass at 70 Hz.
+    if(!r.bass)if(const auto e=excess(50,63)) {
+        r.rumbleExcessDb=*e;
+        if(*e>=3.f)r.moves[0]={3,70,0,.70710678f,true};
+    }
+    // Low-mid weight against the body above it: half the difference, up to 3 dB.
+    if(const auto mud=excess(250,400))if(const auto body=excess(630,1000)) {
+        r.mudExcessDb=*mud-*body;
+        if(const float g=step(-.5f*r.mudExcessDb);g!=0.f)r.moves[1]={0,315,g,1.f,true};
+    }
+    // Air: the top octave against the target, half the difference, up to 3 dB.
+    const float airLow=r.bass?4000.f:6300.f,airHigh=r.bass?6300.f:10000.f;
+    if(const auto air=excess(airLow,airHigh)) {
+        r.airExcessDb=*air;
+        if(const float g=step(-.5f*r.airExcessDb);g!=0.f)r.moves[2]={2,r.bass?5000.f:8000.f,g,.70710678f,true};
+    }
+    // Loudness and peaks as heard, then the change the moves make: band powers
+    // weighted by K-weighting, through the moves' response.
+    const auto loudness=integratedLoudness(samples,rate);
+    float peak=0;for(const float x:samples)peak=std::max(peak,std::abs(x));
+    r.peakDb=toDb(peak);
+    if(!loudness)return r;
+    r.loudnessMeasured=true;r.loudnessLufs=*loudness;
+    const auto k=kWeighting(rate);double before=0,after=0,peakGain=1;
+    for(int b=0;b<toneBandCount;++b) {
+        const float fc=toneBandCentres[size_t(b)];if(fc>=rate*.45)continue;
+        const double kw=k[0].magnitude(fc,rate)*k[1].magnitude(fc,rate),power=std::pow(10.,spectrum.bandsDb[size_t(b)]/10.)*kw*kw;
+        const double gain=std::pow(10.,finalResponseDb(r.moves,fc,rate)/20.);
+        before+=power;after+=power*gain*gain;
+        if(spectrum.bandsDb[size_t(b)]>spectrum.strongestDb-20.f)peakGain=std::max(peakGain,gain);
+    }
+    r.eqLoudnessDeltaDb=before>0?float(10*std::log10(after/before)):0.f;
+    r.eqPeakDeltaDb=float(20*std::log10(peakGain));
+    float change=outputTargetLufs-(r.loudnessLufs+r.eqLoudnessDeltaDb);
+    // Leave the peaks below the limiter's ceiling: the trim sets the level,
+    // the limiter only catches the occasional peak.
+    const float headroom=limiterCeilingDb-(r.peakDb+r.eqPeakDeltaDb);
+    if(change>headroom){change=headroom;r.peakLimited=true;}
+    change=std::round(std::clamp(change,-outputMaxTrimChangeDb,outputMaxTrimChangeDb)*2.f)*.5f;
+    r.trimChangeDb=std::abs(change)<outputMinTrimChangeDb?0.f:change;
     return r;
 }
 

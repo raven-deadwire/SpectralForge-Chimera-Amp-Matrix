@@ -76,6 +76,8 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check numpy scipy
           python Tools/test_nastrond_nam.py
+      - name: Verify Auto Set DI input contracts
+        run: python Tests/test_auto_set_di_regression.py
       - name: Upload current-commit release-gate evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -494,11 +496,24 @@ jobs:
       - name: Resolve source version
         shell: bash
         run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
+      # Select only platform inputs. A wildcard also picks up this job's
+      # previous Release-Candidate output when the workflow is re-run.
       - uses: actions/download-artifact@v4
         with:
-          pattern: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-*
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64
           path: candidate
-          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup
+          path: candidate
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal
+          path: candidate
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64
+          path: candidate
       - name: Assemble update manifest from verified installers
         id: assemble
         shell: bash

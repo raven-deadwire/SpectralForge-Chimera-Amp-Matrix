@@ -131,6 +131,31 @@ jobs:
             -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
             -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
           Copy-Item OBS/LICENSE, OBS/README.md package/
+      - name: Real OBS Studio app (31.1.2) - load the filter from %ProgramData%, record, push a preset, save, restart and restore
+        # The release zip the module was just built against (hash checked by the build script).
+        shell: pwsh
+        run: |
+          $obs = Join-Path $env:RUNNER_TEMP "obs-app-obs"
+          Expand-Archive -LiteralPath (Join-Path $env:RUNNER_TEMP "chimera-obs/obs-31.1.2.zip") -DestinationPath $obs
+          python -m pip install --disable-pip-version-check imageio-ffmpeg==0.6.0
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          python OBS/tests/obs_app_test.py --obs (Join-Path $obs "bin/64bit/obs64.exe") --module package/chimera-obs `
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-app")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Keep the real OBS app test's screen and logs when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-app-test-windows-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/obs-app/*.png
+            ${{ runner.temp }}/obs-app/*.txt
+            ${{ runner.temp }}/obs-app/obs-logs/
+            ${{ runner.temp }}/obs-app/obs-crashes/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-windows-x64-${{ github.event.pull_request.head.sha || github.sha }}
@@ -187,6 +212,34 @@ jobs:
           sh "$package/install.sh" --uninstall
           test ! -e "$plugins/chimera-obs.plugin"
           ditto -c -k --keepParent "$package" "package/chimera-obs-macos-universal-${sha:0:10}.zip"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Real OBS Studio app (31.1.2 Apple) - load the Universal filter, record, push a preset, save, restart and restore
+        # The OBS.app the arm64 module was just built against (hash checked by the build script).
+        run: |
+          # The install step above leaves only the installer's lock; rmdir fails on anything else.
+          config="$HOME/Library/Application Support/obs-studio"
+          rm -f "$config/plugins/.chimera-obs-install.lock"
+          rmdir "$config/plugins" "$config"
+          python3 -m pip install --disable-pip-version-check imageio-ffmpeg==0.6.0
+          ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
+          python3 OBS/tests/obs_app_test.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
+            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
+            --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-app"
+      - name: Keep the real OBS app test's screen and logs when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-app-test-macos-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/obs-app/*.png
+            ${{ runner.temp }}/obs-app/*.txt
+            ${{ runner.temp }}/obs-app/obs-logs/
+            ${{ runner.temp }}/obs-app/obs-crashes/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-macos-universal-${{ github.event.pull_request.head.sha || github.sha }}
