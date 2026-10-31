@@ -113,7 +113,7 @@ ChimeraLookAndFeel::ChimeraLookAndFeel()
     setColour(juce::TextButton::textColourOffId,ink); setColour(juce::TextButton::textColourOnId,background);
     setColour(juce::TooltipWindow::backgroundColourId,ink); setColour(juce::TooltipWindow::textColourId,background);
 }
-juce::Font ChimeraLookAndFeel::getTextButtonFont(juce::TextButton& b,int) { return juce::FontOptions((bool)b.getProperties()["utilityDock"]?13.f:11.5f,juce::Font::bold); }
+juce::Font ChimeraLookAndFeel::getTextButtonFont(juce::TextButton& b,int) { return juce::FontOptions((bool)b.getProperties()["primaryAction"]?14.5f:(bool)b.getProperties()["utilityDock"]?13.f:11.5f,juce::Font::bold); }
 juce::Font ChimeraLookAndFeel::getComboBoxFont(juce::ComboBox&) { return juce::FontOptions(14.f); }
 void ChimeraLookAndFeel::drawButtonBackground(juce::Graphics& g,juce::Button& button,const juce::Colour&,bool hover,bool down)
 {
@@ -130,6 +130,17 @@ void ChimeraLookAndFeel::drawButtonBackground(juce::Graphics& g,juce::Button& bu
         g.setGradientFill({juce::Colour(0xffcfcbc0),x-18,y-18,juce::Colour(0xff525655),x+16,y+18,false});g.fillEllipse(x-18,y-18,36,36);
         g.setColour(juce::Colour(0xff303534));g.drawEllipse(x-15,y-15,30,30,2);
         g.setGradientFill({juce::Colour(0xffe2dfd4),x-10,y-12,juce::Colour(0xff878a80),x+10,y+11,false});g.fillEllipse(x-11,y-11+(down?2:0),22,22);return;
+    }
+    // AUTO SET: the one gold call to action, in the knob colour. While it
+    // listens it turns to a warm red CANCEL.
+    if((bool)button.getProperties()["primaryAction"]){
+        const bool busy=(bool)button.getProperties()["utilityActive"];
+        const float lift=!button.isEnabled()?0.f:down?-.08f:hover?.10f:0.f;
+        const auto top=(busy?juce::Colour(0xffd0715a):juce::Colour(0xffe9d39b)).brighter(lift),bottom=(busy?juce::Colour(0xff9c3f2f):juce::Colour(0xffb88f4f)).brighter(lift);
+        g.setColour(juce::Colours::black.withAlpha(.45f));g.fillRoundedRectangle(area.translated(0,1.5f),6);
+        g.setGradientFill({top,area.getX(),area.getY(),bottom,area.getX(),area.getBottom(),false});g.fillRoundedRectangle(area,6);
+        g.setColour(juce::Colours::white.withAlpha(.35f));g.drawLine(area.getX()+6,area.getY()+1.5f,area.getRight()-6,area.getY()+1.5f,1.f);
+        g.setColour(button.hasKeyboardFocus(true)?juce::Colours::white:(busy?juce::Colour(0xffe8a08c):juce::Colour(0xfff3e3b8)));g.drawRoundedRectangle(area,6,1.5f);return;
     }
     if((bool)button.getProperties()["utilityDock"]){
         const bool active=button.getToggleState()||(bool)button.getProperties()["utilityActive"];
@@ -348,6 +359,16 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
+    // The header AUTO SET is always in view: it starts (or cancels) Auto Set and
+    // opens the dynamics page that shows its progress, options and UNDO.
+    headerAutoSet.setComponentID("header.autoSet");headerAutoSet.getProperties().set("primaryAction",true);
+    headerAutoSet.setTooltip("AUTO SET: play for about a minute and Chimera sets input, gates, amp, cabinet mic, EQ, dynamics, delay/reverb and level for you. Options, results and UNDO open with it.");
+    headerAutoSet.onClick=[this]{
+        if(autoSetController->busy()){autoSetController->cancel();return;}
+        autoSetController->start();
+        const auto route=spectralforge::signalPath::read(processor);if(const auto* comp=route.find("common.comp"))navigateSignalPath(*comp);
+    };
+    add(headerAutoSet);
     static_assert(spectralforge::CommonDynamicsPanel::autoLockNames.size()==spectralforge::autoset::Controller::lockOrder.size(),"Auto Set lock menu and controller locks differ");
     {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
@@ -1106,6 +1127,7 @@ void ChimeraEditor::layoutControls()
     precisionTuner->setBounds(20,330,1140,412);
     preEngineStatus.setBounds(585,302,575,24);boardPanel.setBounds(20,330,1140,415);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
+    headerAutoSet.setBounds(404,14,78,44);
     compareA.setBounds(490,30,28,28);compareB.setBounds(521,30,28,28);copyAB.setBounds(552,30,40,28);matchAB.setBounds(595,30,60,28);
     title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(808,748,86,28);
     mode.setBounds(664,30,140,28);routingHelp.setBounds(20,302,278,24);
@@ -1222,6 +1244,11 @@ void ChimeraEditor::showIRDetails(int lane)
 void ChimeraLookAndFeel::drawButtonText(juce::Graphics& g,juce::TextButton& button,bool hover,bool down)
 {
     if((bool)button.getProperties()["footswitch"]) {g.setColour(background.withAlpha(.8f));g.fillRoundedRectangle(button.getWidth()*.5f-19,float(button.getHeight()-13),38,13,2);g.setFont(juce::FontOptions(9.f));g.setColour(ink);g.drawText(button.getButtonText(),0,button.getHeight()-13,button.getWidth(),13,juce::Justification::centred);return;}
+    if((bool)button.getProperties()["primaryAction"]){
+        const bool busy=(bool)button.getProperties()["utilityActive"];
+        g.setColour(busy?juce::Colours::white:juce::Colour(0xff1d1a14));g.setFont(getTextButtonFont(button,button.getHeight()));
+        g.drawFittedText(button.getButtonText(),button.getLocalBounds().reduced(4),juce::Justification::centred,2,.9f);return;
+    }
     if((bool)button.getProperties()["utilityDock"]){g.setColour(button.getToggleState()||(bool)button.getProperties()["utilityActive"]?background:ink);g.setFont(getTextButtonFont(button,button.getHeight()));g.drawFittedText(button.getButtonText(),button.getLocalBounds().reduced(5),juce::Justification::centred,1);return;}
     // Output loudness readout: plain caption text, like the dBFS line above it.
     if((bool)button.getProperties()["readout"]){g.setFont(juce::FontOptions(9.5f));g.setColour(hover?ink:muted);g.drawFittedText(button.getButtonText(),button.getLocalBounds().withTrimmedLeft(2),juce::Justification::centredLeft,1,1.f);return;}
@@ -1324,6 +1351,7 @@ void ChimeraEditor::publishAutoSetStatus()
     const auto& status=autoSetController->current();const bool busy=autoSetController->busy();
     const auto text=busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text;
     dynamicsPanel->setAutoSetStatus(text,busy,status.canUndo);
+    headerAutoSet.setButtonText(busy?"CANCEL":"AUTO SET");headerAutoSet.getProperties().set("utilityActive",busy);headerAutoSet.repaint();
     if(easyView)easyView->setAutoSetStatus(text,busy,status.canUndo);
 }
 void ChimeraEditor::markPresetCustom()

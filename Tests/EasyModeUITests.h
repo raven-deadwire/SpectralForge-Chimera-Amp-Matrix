@@ -222,6 +222,16 @@ inline void autoSetAndPresets() {
     auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);
     auto editor=openEditor(*p);
     // A run started in the full editor is shown by an Easy view created afterwards.
+    // The header AUTO SET is in view on every page: it starts Auto Set, opens
+    // the dynamics page with its progress, turns into CANCEL, and cancels.
+    {
+        auto* header=find<juce::TextButton>(*editor,"header.autoSet");require(header!=nullptr && header->isShowing(),"Header AUTO SET not visible");
+        auto* panelButton=find<juce::TextButton>(*editor,"commonDynamics.autoSet");
+        header->onClick();settle(20);
+        require(header->getButtonText()=="CANCEL" && panelButton!=nullptr && panelButton->isShowing(),"Header AUTO SET did not start Auto Set on the dynamics page");
+        header->onClick();settle(20);
+        require(header->getButtonText()=="AUTO SET","Header CANCEL did not stop Auto Set");
+    }
     auto* start=find<juce::TextButton>(*editor,"commonDynamics.autoSet");require(start!=nullptr,"Full editor AUTO SET missing");
     start->onClick();settle(20);
     editor->setEasyMode(true);settle(40);

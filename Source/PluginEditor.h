@@ -143,6 +143,7 @@ private:
     std::array<std::unique_ptr<BA>,4> utilityButtons;
     juce::Slider x1,x2;
     std::unique_ptr<CA> ma;
+    juce::TextButton headerAutoSet{"AUTO SET"};
     // OVERSAMPLING: Auto plus the released 1x-8x choices (docs/OVERSAMPLING_AUTO.md).
     static constexpr int oversamplingAutoItem=9;
     void syncOversamplingChoice();
