@@ -169,7 +169,7 @@ void historical(const juce::File& directory) {
                         && parameter->getVersionHint()==int(row["version_hint"]),"Historical automation ID/order changed");
                 require(std::abs(double(parameter->getValue())-double(row["value"]))<2e-6,"Historical A/B value changed");
             }
-            for(int i=4967;i<p->getParameters().size();++i){const auto* parameter=p->getParameters()[i];require(std::abs(parameter->getValue()-parameter->getDefaultValue())<2e-6,"Historical state inherited new tuner/dynamics values");}
+            for(int i=4967;i<p->getParameters().size();++i){const auto* parameter=p->getParameters()[i];/* OVERSAMPLING Auto restores off for a state saved before it existed (docs/OVERSAMPLING_AUTO.md). */const auto* ranged=dynamic_cast<const juce::RangedAudioParameter*>(parameter);const float expected=ranged!=nullptr && ranged->paramID=="oversamplingAuto"?0.f:parameter->getDefaultValue();require(std::abs(parameter->getValue()-expected)<2e-6,"Historical state inherited new tuner/dynamics values");}
         }
         juce::MemoryBlock saved;p->getStateInformation(saved);
         const auto xml=juce::AudioProcessor::getXmlFromBinary(saved.getData(),int(saved.getSize()));require(xml!=nullptr,"Historical state resave failed");
