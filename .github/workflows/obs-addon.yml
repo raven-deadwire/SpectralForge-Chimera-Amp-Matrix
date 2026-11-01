@@ -276,16 +276,22 @@ jobs:
           obs="$RUNNER_TEMP/obs-32-apple/OBS.app/Contents/MacOS/OBS"
           cfg="$HOME/Library/Application Support/obs-studio"
           vst3="$HOME/Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3"
-          sw_vers; codesign -d --entitlements - "$obs" 2>&1 | head -40
+          mkdir -p "$RUNNER_TEMP/diag-rec"
+          conf() {  # the app test's own configuration (no permissions dialog, websocket on); keeps plugins/
+            mkdir -p "$cfg"
+            find "$cfg" -mindepth 1 -maxdepth 1 ! -name plugins -exec rm -rf {} +
+            python3 -c "import sys; sys.path.insert(0, 'OBS/tests'); import obs_app_test as t, pathlib; t.configure(pathlib.Path(sys.argv[1]), t.free_port(), pathlib.Path(sys.argv[2]))" "$cfg" "$RUNNER_TEMP/diag-rec"
+          }
           attempt() {
             echo "=================== $1: plain run, 45 s"
+            conf
             set +e
             perl -e 'alarm 45; exec @ARGV' "$obs" --multi --disable-missing-files-check > "$RUNNER_TEMP/diag-$1.txt" 2>&1
             echo "exit status $? (142 = still running after 45 s)"
             pkill -9 -f obs-32-apple/OBS.app
-            tail -60 "$RUNNER_TEMP/diag-$1.txt"
-            for f in "$cfg"/logs/*.txt; do echo "--- $f"; tail -30 "$f"; done
+            tail -40 "$RUNNER_TEMP/diag-$1.txt"
             echo "=================== $1: under lldb, 45 s"
+            conf
             perl -e 'alarm 45; exec @ARGV' lldb --batch -o "process launch -- --multi --disable-missing-files-check" \
               -k "thread backtrace all" -k "process kill" -o quit -- "$obs" 2>&1 | grep -v '^\s*$' | grep -v '^\[' | tail -200
             pkill -9 -f obs-32-apple/OBS.app
@@ -294,7 +300,7 @@ jobs:
             set -e
           }
           attempt no-filter
-          mkdir -p "$cfg/plugins" "$(dirname "$vst3")"
+          mkdir -p "$RUNNER_TEMP/diag-rec" "$cfg/plugins" "$(dirname "$vst3")"
           ditto package/chimera-obs-macos-universal/chimera-obs.plugin "$cfg/plugins/chimera-obs.plugin"
           ditto "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" "$vst3"
           attempt with-filter
