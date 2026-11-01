@@ -31,6 +31,7 @@ JUCE는 쓰지 않는다.
 | `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
 | `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
+| `tests/obs_instances_test.py` | 실제 OBS Studio 앱에서 Chimera 필터 여러 개(C단계): 서로 다른 상태로 함께 처리, 필터 붙여넣기(전체·하나)로 상태 복사, 붙인 필터의 독립, 장면 저장·재시작 복원 | 시험 |
 | `tests/obs_long_record_test.py` | 실제 OBS Studio 앱에서 필터를 거쳐 1시간 녹화(D단계): 10분 실시간 줄·합계, 시작/끝 영상 싱크, 소리 유지, OBS 통계 | 시험 |
 
 - 이름이 `SpectralForge Chimera`이고 제작사가 `RavenForge Luthier Intelligence`인 VST3 클래스만 로드한다(범용 VST3 호스트 아님).
@@ -291,6 +292,8 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 실제 OBS Studio 앱(같은 시험, Windows): Setup과 같은 `%ProgramData%\obs-studio\plugins\chimera-obs`에서 필터 로딩, Setup이 기록하는 VST3 위치 파일로 Chimera 로딩, 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), 창 닫기로 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` windows)에서 통과 | OBS Studio 31.1.2 (Windows Server, 일반 설치 모드·%APPDATA% 설정) |
 | 실제 OBS Studio 앱(같은 시험, macOS): 배포할 Universal `chimera-obs.plugin`을 `install.sh`와 같은 `~/Library/Application Support/obs-studio/plugins`에서 로딩, `~/Library/Audio/Plug-Ins/VST3`의 Chimera 로딩, 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), SIGINT로 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` macos)에서 통과 | OBS Studio 31.1.2 Apple (macOS 15 arm64, obs-websocket 5.6.2) |
 | 실제 OBS Studio 앱(같은 시험, macOS Intel): 같은 Universal `chimera-obs.plugin`·Chimera를 x86_64 전용 OBS.app에서(OBS·필터 x86_64 부분·Chimera 모두 Rosetta로 실행, 실행 전 `lipo`로 x86_64 전용 확인) 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.8 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` macos)에서 통과 | OBS Studio 31.1.2 Intel (macOS 15 arm64 + Rosetta 2, obs-websocket 5.6.2). 실제 Intel Mac은 미실행 |
+| 실제 OBS Studio 앱(`obs_instances_test.py`): 같은 DI를 재생하는 미디어 소스 4개 중 A(기본 상태)·B(다른 호스트의 프리셋)에 Chimera 필터, 소스마다 따로 녹화(나머지는 음소거, 필터는 계속 처리): B가 A보다 −15.6 dB. 재시작 후 둘 다 같은 소리(±0.0 dB). 장면 스크립트(Lua)가 OBS의 `obs_source_copy_filters`(필터 붙여넣기)로 B의 필터를 C에, `obs_source_copy_single_filter`(필터 하나 붙여넣기)로 D에 복사: 두 필터 모두 Chimera 로딩·B의 상태·B와 같은 소리(±0.0 dB), A는 그대로. A의 상태를 D에 넣으면 D는 A 소리, B는 그대로(붙인 필터는 독립 인스턴스). 장면 파일에 소스별 상태 저장, 세 번째 실행에서 C는 B, D는 A 소리로 복원. 세 번 모두 정상 종료, 필터 인스턴스 10개 모두 해제 로그 | 통과(2회) | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
+| OBS의 "복제"(Duplicate)와 오디오 소스 | 해당 없음: OBS는 미디어·오디오 캡처 소스(`OBS_SOURCE_DO_NOT_DUPLICATE`)를 복제하지 않고 같은 소스를 한 번 더 참조하므로 필터 인스턴스가 새로 생기지 않는다(실제 OBS 30.0.2에서 확인). 복제되는 소스의 `obs_source_duplicate`는 헤드리스 시험이 확인 | 같은 환경 |
 | 실제 OBS Studio 앱(같은 시험, OBS 업데이트 후): OBS 31.1.2용으로 빌드한 같은 Windows 필터를 OBS 32.2.2(공식 배포 zip, SHA-256 확인)에서 로딩(필터가 빌드 대상과 다른 주 버전을 로그로 경고), 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` windows)에서 통과 | OBS Studio 32.2.2 (Windows Server, obs-websocket 5.7.4) |
 | 실제 OBS Studio 앱 OBS 32.2.2 macOS Apple | CI에서 실행 불가: OBS 32.2.2가 필터 없이도 시작 중 기본 장면을 만들 때 종료(SIGSEGV/SIGTRAP). lldb로 본 주 스레드: `QWidget::setCursor` → `QImage::toCGImage` → `CGImageCreate`(CoreGraphics 색 공간) — OBS·Qt 6.11과 이 CI 가상 머신(macOS 15.8, Apple Software Renderer)의 문제로 Chimera 필터와 무관. 필터 등록·버전 경고 로그까지는 정상 | macOS 15.8 arm64 CI 가상 머신 |
 | Setup: OBS 실행 중 설치·선택 해제 중단(종료 코드 7)·제거 거부, OBS 장면 파일·다른 플러그인 보존, DLL 버전 정보 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
@@ -322,6 +325,6 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
 **미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux·Windows·macOS 앱 시험은
-obs-websocket으로 필터를 추가·설정하며 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
+obs-websocket으로 필터를 추가·설정하고, 필터 붙여넣기는 메뉴가 부르는 OBS 함수를 Lua 스크립트로 부르며, 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
 macOS에서의 OBS 32.x(CI 가상 머신에서 OBS 32.2.2 자체가 시작 중 종료, Windows 32.2.2만 자동), 실제 Intel Mac에서의 확인(Apple silicon에서 Rosetta로 실행하는 시험만 자동). 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
