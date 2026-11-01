@@ -229,6 +229,18 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-app"
+      - name: Real OBS Studio app (31.1.2 Intel under Rosetta) - the same Universal filter, record, push a preset, save, restart and restore
+        # The Intel OBS.app the x86_64 module was built against: an x86_64-only
+        # binary, so macOS runs it, the filter and Chimera under Rosetta.
+        run: |
+          obs="$RUNNER_TEMP/chimera-obs-x86_64/OBS.app/Contents/MacOS/OBS"
+          test "$(lipo -archs "$obs")" = x86_64
+          ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
+          python3 OBS/tests/obs_app_test.py --obs "$obs" \
+            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool "$RUNNER_TEMP/chimera-obs-x86_64/build/chimera-obs-state-tool" \
+            --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-app-intel"
       - name: Keep the real OBS app test's screen and logs when it fails
         if: failure()
         uses: actions/upload-artifact@v4
@@ -239,6 +251,10 @@ jobs:
             ${{ runner.temp }}/obs-app/*.txt
             ${{ runner.temp }}/obs-app/obs-logs/
             ${{ runner.temp }}/obs-app/obs-crashes/
+            ${{ runner.temp }}/obs-app-intel/*.png
+            ${{ runner.temp }}/obs-app-intel/*.txt
+            ${{ runner.temp }}/obs-app-intel/obs-logs/
+            ${{ runner.temp }}/obs-app-intel/obs-crashes/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:

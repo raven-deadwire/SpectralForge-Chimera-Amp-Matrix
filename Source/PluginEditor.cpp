@@ -345,7 +345,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             case Phase::multiband:navigateSignalPath(*route.find("common.multiband"));break;
             case Phase::finish:navigateSignalPath(*route.find("common.deesser"));break;
             case Phase::level:navigateSignalPath(*route.find("final.eq"));break;
-            case Phase::amp:if(const auto* head=route.find("amp.context0"))navigateSignalPath(*head);break;
+            case Phase::amp:case Phase::power:if(const auto* head=route.find("amp.context0"))navigateSignalPath(*head);break;
             case Phase::cab:if(const auto* cab=route.find("cab.context0"))navigateSignalPath(*cab);break;
             case Phase::space:if(const auto* space=route.find("post.section5"))navigateSignalPath(*space);break;
             case Phase::boost:
@@ -370,9 +370,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     };
     add(headerAutoSet);
     static_assert(spectralforge::CommonDynamicsPanel::autoLockNames.size()==spectralforge::autoset::Controller::lockOrder.size(),"Auto Set lock menu and controller locks differ");
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space});}
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled() && processorMB.activeBandCount()==processorMB.bandCount()?processorMB.appliedAllCrossovers():processorMB.allCrossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
