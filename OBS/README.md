@@ -291,6 +291,8 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 실제 OBS Studio 앱(같은 시험, Windows): Setup과 같은 `%ProgramData%\obs-studio\plugins\chimera-obs`에서 필터 로딩, Setup이 기록하는 VST3 위치 파일로 Chimera 로딩, 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), 창 닫기로 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` windows)에서 통과 | OBS Studio 31.1.2 (Windows Server, 일반 설치 모드·%APPDATA% 설정) |
 | 실제 OBS Studio 앱(같은 시험, macOS): 배포할 Universal `chimera-obs.plugin`을 `install.sh`와 같은 `~/Library/Application Support/obs-studio/plugins`에서 로딩, `~/Library/Audio/Plug-Ins/VST3`의 Chimera 로딩, 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), SIGINT로 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` macos)에서 통과 | OBS Studio 31.1.2 Apple (macOS 15 arm64, obs-websocket 5.6.2) |
 | 실제 OBS Studio 앱(같은 시험, macOS Intel): 같은 Universal `chimera-obs.plugin`·Chimera를 x86_64 전용 OBS.app에서(OBS·필터 x86_64 부분·Chimera 모두 Rosetta로 실행, 실행 전 `lipo`로 x86_64 전용 확인) 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.8 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` macos)에서 통과 | OBS Studio 31.1.2 Intel (macOS 15 arm64 + Rosetta 2, obs-websocket 5.6.2). 실제 Intel Mac은 미실행 |
+| 실제 OBS Studio 앱(같은 시험, OBS 업데이트 후): OBS 31.1.2용으로 빌드한 같은 Windows 필터를 OBS 32.2.2(공식 배포 zip, SHA-256 확인)에서 로딩(필터가 빌드 대상과 다른 주 버전을 로그로 경고), 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` windows)에서 통과 | OBS Studio 32.2.2 (Windows Server, obs-websocket 5.7.4) |
+| 실제 OBS Studio 앱 OBS 32.2.2 macOS Apple | CI에서 실행 불가: OBS 32.2.2가 필터 없이도 시작 중 기본 장면을 만들 때 종료(SIGSEGV/SIGTRAP). lldb로 본 주 스레드: `QWidget::setCursor` → `QImage::toCGImage` → `CGImageCreate`(CoreGraphics 색 공간) — OBS·Qt 6.11과 이 CI 가상 머신(macOS 15.8, Apple Software Renderer)의 문제로 Chimera 필터와 무관. 필터 등록·버전 경고 로그까지는 정상 | macOS 15.8 arm64 CI 가상 머신 |
 | Setup: OBS 실행 중 설치·선택 해제 중단(종료 코드 7)·제거 거부, OBS 장면 파일·다른 플러그인 보존, DLL 버전 정보 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 | Setup 필터 선택 설치·복구 시 선택 유지·사용자 지정 유니코드 VST3 경로 기록·선택 해제 시 제거·제거 시 삭제, 정적 런타임 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 
@@ -321,5 +323,5 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 
 **미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux·Windows·macOS 앱 시험은
 obs-websocket으로 필터를 추가·설정하며 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
-OBS 32.x, 실제 Intel Mac에서의 확인(Apple silicon에서 Rosetta로 실행하는 시험만 자동). 이 항목은 계획 C–F단계와
+macOS에서의 OBS 32.x(CI 가상 머신에서 OBS 32.2.2 자체가 시작 중 종료, Windows 32.2.2만 자동), 실제 Intel Mac에서의 확인(Apple silicon에서 Rosetta로 실행하는 시험만 자동). 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
