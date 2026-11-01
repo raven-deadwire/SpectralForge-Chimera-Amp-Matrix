@@ -84,6 +84,8 @@ def main():
       'which a per-sample penalty averages away')
     ap.add_argument('--tail-all-parts',action='store_true',help='Draw tail crops from the final decay of every combined capture part, '
       'not only the end of the whole training signal')
+    ap.add_argument('--noise-end-fraction',type=float,default=0.,help='Fraction of crops around the end of each capture part\'s '
+      'broadband noise section (common.signal: n//3 to n//2), where loud excitation stops and the amp recovers')
     ap.add_argument('--target-limits',default='',help='Per channel as Name=limit+limit,...: steps that pass these profile limits '
       '(full_esr, active_median, active_p95, active_worst, quiet, level) are preferred, ahead of level and ESR')
     ap.add_argument('--train-channels',default='',help='Comma-separated channels whose loss is used; the others get no gradient '
@@ -152,7 +154,11 @@ def main():
     # Notes are scaled to exactly -6 or -3 dBFS peak; -6.1 keeps the -6 dBFS ones.
     loud_samples=np.flatnonzero(np.abs(x[rf:len(x)-args.frames])>=10**(-6.1/20))+rf
     # End of every capture part: each common.signal ends with 0.5 s of silence after the last note's decay.
-    part_ends=np.cumsum([r['train_samples'] for r in manifest.get('combined_from',[])]) if args.tail_all_parts else np.array([len(x)])
+    part_lengths=[r['train_samples'] for r in manifest.get('combined_from',[])]
+    part_ends=np.cumsum(part_lengths) if args.tail_all_parts else np.array([len(x)])
+    # common.signal fills n//3..n//2 with rising broadband noise, then returns to notes.
+    noise_ends=np.cumsum([0]+part_lengths[:-1])+np.array(part_lengths)//2 if part_lengths else np.array([len(x)//2])
+    if args.noise_end_fraction<0 or args.tail_fraction+args.loud_fraction+args.noise_end_fraction>.8:raise ValueError('Crop fractions must leave random crops')
     if args.tail_all_parts and (not len(part_ends) or part_ends[-1]!=len(x)):raise ValueError('--tail-all-parts needs a combined dataset')
     if args.loud_fraction and not len(loud_samples):raise ValueError('No input at or above -6 dBFS for --loud-fraction')
     epoch_steps=steps_per_virtual_epoch(len(x),rf,args.frames,args.batch)
@@ -171,7 +177,7 @@ def main():
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
-      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'peak_weight':dict(zip(names,peak_weights)),'target_limits':dict(zip(names,target_limits)),'tail_all_parts':args.tail_all_parts,'train_channels':trained,
+      'keep_passed':args.keep_passed,'amplitude_weight':args.amplitude_weight,'overshoot_weight':args.overshoot_weight,'peak_weight':dict(zip(names,peak_weights)),'target_limits':dict(zip(names,target_limits)),'tail_all_parts':args.tail_all_parts,'noise_end_fraction':args.noise_end_fraction,'train_channels':trained,
       'block_norm':{'samples':args.block_norm_samples,'weight':args.block_norm_weight,'floor_db':args.block_norm_floor_db} if args.block_norm_samples else None,'loud_fraction':args.loud_fraction,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
@@ -313,6 +319,10 @@ def main():
                 # A crop whose output window contains one of the loud input samples.
                 k=loud_samples[rng.integers(len(loud_samples))]
                 st[j]=int(np.clip(k-rng.integers(args.frames),rf,len(x)-args.frames-1))
+            elif draw<args.tail_fraction+args.loud_fraction+args.noise_end_fraction:
+                # From 0.1 s before the noise stops to 0.3 s after: the release and recovery.
+                end=int(noise_ends[rng.integers(len(noise_ends))])
+                st[j]=int(np.clip(end-round(.1*48000)-args.frames+rng.integers(round(.4*48000)),rf,len(x)-args.frames-1))
         crop_digest.update(st.astype('<i8').tobytes())
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
         # Untrained channels are zeros: reading them would only fill the page cache
