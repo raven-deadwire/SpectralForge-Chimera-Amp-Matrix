@@ -145,6 +145,21 @@ jobs:
             --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-app")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Real OBS Studio app (32.2.2) - the filter built for 31.1.2, as after an OBS update
+        shell: pwsh
+        run: |
+          $zip = Join-Path $env:RUNNER_TEMP "obs-32.2.2.zip"
+          Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip" -OutFile $zip
+          $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1") { throw "OBS 32.2.2 release hash mismatch: $hash" }
+          $obs = Join-Path $env:RUNNER_TEMP "obs-app-obs32"
+          Expand-Archive -LiteralPath $zip -DestinationPath $obs
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          python OBS/tests/obs_app_test.py --obs (Join-Path $obs "bin/64bit/obs64.exe") --module package/chimera-obs `
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-app-32")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Keep the real OBS app test's screen and logs when it fails
         if: failure()
         uses: actions/upload-artifact@v4
@@ -155,6 +170,10 @@ jobs:
             ${{ runner.temp }}/obs-app/*.txt
             ${{ runner.temp }}/obs-app/obs-logs/
             ${{ runner.temp }}/obs-app/obs-crashes/
+            ${{ runner.temp }}/obs-app-32/*.png
+            ${{ runner.temp }}/obs-app-32/*.txt
+            ${{ runner.temp }}/obs-app-32/obs-logs/
+            ${{ runner.temp }}/obs-app-32/obs-crashes/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:

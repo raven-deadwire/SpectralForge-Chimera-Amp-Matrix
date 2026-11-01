@@ -456,7 +456,8 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     # Pre31Migrated: OBS 31 would otherwise move global.ini to user.ini and stop with
     # an error dialog because user.ini (written below) already exists.
     # MacOSPermissionsDialogLastShown: OBS on macOS would otherwise wait on its permissions dialog.
-    glob["General"] = {"FirstRun": "false", "LastVersion": "503316482", "EnableAutoUpdates": "false",
+    # FirstRun true: OBS has run before, so it adds no default desktop/microphone capture.
+    glob["General"] = {"FirstRun": "true", "LastVersion": "503316482", "EnableAutoUpdates": "false",
                        "Pre31Migrated": "true", "MacOSPermissionsDialogLastShown": "1"}
     glob["Basic"] = {"Profile": "Chimera", "ProfileDir": "Chimera", "SceneCollection": "Chimera",
                      "SceneCollectionFile": "Chimera", "ConfigOnNewProfile": "false"}
