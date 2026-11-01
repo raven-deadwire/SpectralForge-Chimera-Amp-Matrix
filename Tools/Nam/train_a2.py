@@ -166,7 +166,7 @@ def main():
     source=manifest['source']
     train_cfg={'dataset_sha256':digest(args.data/'manifest.json'),'config':cfg,'sample_rate':48000,
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
-      'training_target_gain':gains.tolist() if args.recipe=='official-a2' else .1,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
+      'training_target_gain':gains.tolist() if args.recipe=='official-a2' else float(legacy_gain),'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
       'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
       'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin,'warmup_steps':args.lr_warmup},
       'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection,
