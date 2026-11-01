@@ -253,6 +253,18 @@ def screenshot(path: Path) -> None:
     subprocess.run(["powershell", "-NoProfile", "-Command", script], check=False, timeout=60)
 
 
+def print_crash_report(since: float) -> None:
+    """macOS writes a crashed app's report here; print the newest OBS one (crashing thread first)."""
+    reports = [p for p in (Path.home() / "Library" / "Logs" / "DiagnosticReports").glob("OBS*")
+               if p.stat().st_mtime >= since - 5]
+    if not reports:
+        print("     no macOS crash report for OBS", file=sys.stderr)
+        return
+    report = max(reports, key=lambda p: p.stat().st_mtime)
+    print(f"--- {report.name} (first 120 lines)", file=sys.stderr)
+    print("\n".join(report.read_text(errors="replace").splitlines()[:120]), file=sys.stderr)
+
+
 def close_windows(pid: int) -> int:
     """Posts WM_CLOSE to the process's visible top-level windows, as the close button does."""
     import ctypes
@@ -284,6 +296,8 @@ class Obs:
                 print(f"     OBS window text: {dialog_text(self.process.pid)}", file=sys.stderr)
             if (WINDOWS or MACOS) and self.process.poll() is None:
                 screenshot(log.with_suffix(".png"))
+            if MACOS and self.process.poll() is not None:
+                print_crash_report(self.started)
             # The caller never gets this object, so nothing else would stop OBS.
             if self.ws is not None:
                 self.ws.close()
@@ -293,6 +307,7 @@ class Obs:
             raise
 
     def _connect(self, port: int, log: Path) -> None:
+        self.started = time.time()
         deadline = time.monotonic() + 60
         while self.ws is None:
             if self.process.poll() is not None:
@@ -456,7 +471,8 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     # Pre31Migrated: OBS 31 would otherwise move global.ini to user.ini and stop with
     # an error dialog because user.ini (written below) already exists.
     # MacOSPermissionsDialogLastShown: OBS on macOS would otherwise wait on its permissions dialog.
-    glob["General"] = {"FirstRun": "false", "LastVersion": "503316482", "EnableAutoUpdates": "false",
+    # FirstRun true: OBS has run before, so it adds no default desktop/microphone capture.
+    glob["General"] = {"FirstRun": "true", "LastVersion": "503316482", "EnableAutoUpdates": "false",
                        "Pre31Migrated": "true", "MacOSPermissionsDialogLastShown": "1"}
     glob["Basic"] = {"Profile": "Chimera", "ProfileDir": "Chimera", "SceneCollection": "Chimera",
                      "SceneCollectionFile": "Chimera", "ConfigOnNewProfile": "false"}
