@@ -169,7 +169,8 @@ void realtimeAndParameters() {
     allocationWatch=true;for(int i=0;i<50;++i)core.process(p.data(),1,512,s,140);allocationWatch=false;
     bool finite=true;for(float v:data)finite=finite&&std::isfinite(v);
     require(watchedAllocations==0 && finite,"Filter processing allocated or became non-finite");
-    ChimeraProcessor processor;int seen=0;const int total=processor.getParameters().size();
+    auto owner=std::make_unique<ChimeraProcessor>();auto& processor=*owner;int seen=0;   // heap: larger than a Windows stack
+   const int total=processor.getParameters().size();
     const int later=total-spectralforge::postExpansionParameterCount()-spectralforge::effectExtensionParameterCount-spectralforge::creativeParameterCount-(spectralforge::synthParameterCount+spectralforge::sidechainParameterCount+spectralforge::signalOrderParameterCount+spectralforge::filterModulationExtensionParameterCount+spectralforge::multibandSixBandParameterCount+spectralforge::truePeakLimiterParameterCount+spectralforge::oversamplingAutoParameterCount)-spectralforge::roomAdvancedParameterCount-spectralforge::roomSpaceParameterCount;   // banks appended after the filters
     int extension=0;
     for(auto* raw:processor.getParameters())if(auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);id && id->paramID.startsWith("flt")){

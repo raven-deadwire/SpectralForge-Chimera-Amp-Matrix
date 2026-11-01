@@ -150,7 +150,8 @@ void studio() {
     std::cout<<"PASS Studio 4x: aliasing down, latency reported; Live: zero latency\n";
 }
 void processorParameters() {
-    ChimeraProcessor p;int seen=0;const int total=p.getParameters().size();
+    auto owner=std::make_unique<ChimeraProcessor>();auto& p=*owner;int seen=0;   // heap: larger than a Windows stack
+   const int total=p.getParameters().size();
     const int later=total-spectralforge::referenceAmpParameterCount()-spectralforge::filterModulationParameterCount-spectralforge::postExpansionParameterCount()-spectralforge::effectExtensionParameterCount-spectralforge::creativeParameterCount-(spectralforge::synthParameterCount+spectralforge::sidechainParameterCount+spectralforge::signalOrderParameterCount+spectralforge::filterModulationExtensionParameterCount+spectralforge::multibandSixBandParameterCount+spectralforge::truePeakLimiterParameterCount+spectralforge::oversamplingAutoParameterCount)-spectralforge::roomAdvancedParameterCount-spectralforge::roomSpaceParameterCount;   // banks appended after saturation
     for(auto* raw:p.getParameters())if(auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(raw);id && id->paramID.startsWith("sat")){
         require(raw->getVersionHint()==saturationParameterVersion && raw->getParameterIndex()>=later-saturationParameterCount && raw->getParameterIndex()<later,"Saturation parameters are not appended at their version");++seen;}

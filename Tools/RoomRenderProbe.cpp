@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     if (!reader) { std::cerr << "cannot read " << argv[1] << "\n"; return 1; }
     const int total = int(reader->lengthInSamples); const double rate = reader->sampleRate;
     juce::AudioBuffer<float> input(1, total); reader->read(&input, 0, total, 0, true, false);
-    ChimeraProcessor p;
+    auto owner=std::make_unique<ChimeraProcessor>();auto& p=*owner;   // heap: larger than a Windows stack
     for (int i = 3; i < argc; ++i) {
         const juce::String arg(argv[i]); const auto id = arg.upToFirstOccurrenceOf("=", false, false);
         auto* parameter = p.parameters().getParameter(id);

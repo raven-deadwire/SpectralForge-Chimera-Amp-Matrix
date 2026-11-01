@@ -68,7 +68,7 @@ struct Rig {
 double rms(const std::vector<float>& x,double from,double to){double e=0;const int a=int(from*rate),z=std::min(int(x.size()),int(to*rate));for(int n=a;n<z;++n)e+=double(x[size_t(n)])*x[size_t(n)];return std::sqrt(e/std::max(1,z-a));}
 
 void layouts() {
-    ChimeraProcessor p;
+    auto owner=std::make_unique<ChimeraProcessor>();auto& p=*owner;   // heap: larger than a Windows stack
     const auto mono=juce::AudioChannelSet::mono(),stereo=juce::AudioChannelSet::stereo(),off=juce::AudioChannelSet::disabled();
     auto layout=p.getBusesLayout();
     require(layout.getChannelSet(true,1)==off && layout.getChannelSet(false,1)==off,"The optional buses must start disabled");

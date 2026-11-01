@@ -129,7 +129,8 @@ void noAllocation() {
 // The processor's meter reads its final output: a separate meter fed the
 // same output blocks gives identical values; reset clears it.
 void processorOutput() {
-    ChimeraProcessor p;p.prepareToPlay(48000,256);juce::AudioBuffer<float> audio(2,256);juce::MidiBuffer midi;
+    // On the heap: the processor is larger than a Windows thread stack (1 MB).
+    auto owner=std::make_unique<ChimeraProcessor>();auto& p=*owner;p.prepareToPlay(48000,256);juce::AudioBuffer<float> audio(2,256);juce::MidiBuffer midi;
     LoudnessMeter reference;reference.prepare(48000);long t=0;
     for(int block=0;block<int(6*48000/256);++block){
         for(int n=0;n<256;++n,++t){const float x=.2f*float(std::sin(juce::MathConstants<double>::twoPi*220.*double(t)/48000.));audio.setSample(0,n,x);audio.setSample(1,n,x);}
