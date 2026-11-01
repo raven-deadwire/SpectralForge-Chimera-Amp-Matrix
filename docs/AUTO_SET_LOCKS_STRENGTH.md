@@ -8,7 +8,14 @@ shows the strength when it is below 100% and `*` when anything is locked.
 ## Locks
 
 **Lock (Auto Set keeps these)** lists Input gain, Gate, Tone EQ, Compressor,
-Multiband, De-esser, Limiter and Dynamic EQ (phase 6, `AUTO_SET_PHASE6.md`). A locked setting is not part of the run's
+Multiband, De-esser, Limiter, Dynamic EQ (phase 6, `AUTO_SET_PHASE6.md`), Final
+EQ and Output level (phase 7, `AUTO_SET_PHASE7.md`), Amp (phase 8,
+`AUTO_SET_PHASE8.md`: the head's GAIN, BASS, MIDDLE and TREBLE) and Cabinet
+mic (phase 9, `AUTO_SET_PHASE9.md`: the modeled mic's position, distance and
+level), Boost pedal (phase 10, `AUTO_SET_PHASE10.md`: the Green Drive it
+places on the board), Delay + reverb (phase 11, `AUTO_SET_PHASE11.md`) and
+Presence + resonance (phase 12, `AUTO_SET_PHASE12.md`: the head's PRESENCE
+and RESONANCE or DEPTH). A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
 later edit to a locked setting survives undo. A lock selected after the run
 also protects its stage from undo; unlocking an originally locked stage does
@@ -16,7 +23,8 @@ not add an undo entry.
 
 - A pass whose outputs are all locked is skipped: locking Tone EQ removes the
   Tone EQ pass (and the Dynamic EQ step, whose nodes are Tone EQ bands), locking Compressor removes the compressor pass, locking both
-  De-esser and Limiter removes the last pass. The input pass runs unless
+  De-esser and Limiter removes the de-esser and limiter pass, locking both Amp
+  and Presence + resonance removes the amp pass (it serves both steps), locking Cabinet mic removes the cabinet mic pass, locking Boost pedal removes the boost pass. The input pass runs unless
   both Input gain and Gate are locked.
 - Skipped passes appear in the results as "kept (locked)", in signal order.
   A partly locked pass says which part it kept ("input kept (locked)",
@@ -45,6 +53,13 @@ protection and mixed-gain capture abstention apply at every strength.
 | Gate | Not scaled (threshold follows the applied input gain) |
 | Tone EQ | Every band gain; frequency, Q and type unchanged |
 | Dynamic EQ | Maximum cut; frequency, threshold, ratio and times unchanged |
+| Final EQ | Every band gain; the high pass is on or off |
+| Output level | The trim change, as for input gain |
+| Amp | Each knob change: before + strength × (result − before) |
+| Presence + resonance | Each knob change, as for Amp |
+| Cabinet mic | The position and distance changes, as for Amp; the level holds the loudness of the applied placement |
+| Boost pedal | OVER DRIVE and the LEVEL change in dB (LEVEL 0.5 is unity); TONE unchanged |
+| Delay + reverb | The mix changes: before + strength × (result − before); time, feedback, size and damping unchanged |
 | Compressor | Mix = strength (parallel); threshold, ratio and times unchanged |
 | Multiband | Mix = strength (parallel); bands unchanged |
 | De-esser | Range (maximum reduction) |

@@ -1,0 +1,34 @@
+[OUTPUT] 
+Internal ctest changing into directory: /workspace/scratch/45f03a9efd67/chimera/build-review
+
+[HANDLER_OUTPUT] 
+Test project /workspace/scratch/45f03a9efd67/chimera/build-review
+
+    Start 70: ChimeraPrecisionTunerTests
+    Test #70: ChimeraPrecisionTunerTests ..............   Passed    3.46 sec
+    Start 70: ChimeraPrecisionTunerTests
+    Test #70: ChimeraPrecisionTunerTests ..............   Passed    3.57 sec
+    Start 70: ChimeraPrecisionTunerTests
+1/4 Test #70: ChimeraPrecisionTunerTests ..............   Passed    3.63 sec
+    Start 71: ChimeraPrecisionTunerIntegrationTests
+    Test #71: ChimeraPrecisionTunerIntegrationTests ...   Passed   47.26 sec
+    Start 71: ChimeraPrecisionTunerIntegrationTests
+    Test #71: ChimeraPrecisionTunerIntegrationTests ...   Passed   47.24 sec
+    Start 71: ChimeraPrecisionTunerIntegrationTests
+2/4 Test #71: ChimeraPrecisionTunerIntegrationTests ...   Passed   47.32 sec
+    Start 72: ChimeraTunerTimingTests
+    Test #72: ChimeraTunerTimingTests .................   Passed    0.00 sec
+    Start 72: ChimeraTunerTimingTests
+    Test #72: ChimeraTunerTimingTests .................   Passed    0.00 sec
+    Start 72: ChimeraTunerTimingTests
+3/4 Test #72: ChimeraTunerTimingTests .................   Passed    0.00 sec
+    Start 73: ChimeraTunerWorkerTimingTests
+    Test #73: ChimeraTunerWorkerTimingTests ...........   Passed    0.15 sec
+    Start 73: ChimeraTunerWorkerTimingTests
+    Test #73: ChimeraTunerWorkerTimingTests ...........   Passed    0.16 sec
+    Start 73: ChimeraTunerWorkerTimingTests
+4/4 Test #73: ChimeraTunerWorkerTimingTests ...........   Passed    0.16 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) = 152.96 sec

@@ -144,6 +144,8 @@ public:
     spectralforge::autoset::Capture& autoSetCapture() noexcept {return autoSetCaptureState;}
     // Message thread: Auto Set holds all gates open while it listens to the rig's noise.
     void setAutoSetGateBypass(bool bypass) noexcept {autoSetGateBypass.store(bypass,std::memory_order_relaxed);}
+    // The native amp settings a routing context plays with (Auto Set renders candidates offline).
+    spectralforge::AmpNativeState autoSetAmpState(int context) const noexcept {return nativeAmps.read(context);}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}
     float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
@@ -170,6 +172,8 @@ public:
     void clearMidi();
     bool learningMidi() const {return midiLearn.load()>=0;}
     float currentTempo() const {return tempoMeter.load();}
+    // Zero when the latest audio callback had no usable HOST tempo.
+    float currentHostTempo() const {return hostTempoMeter.load();}
     void tapTempo();
     int pitchLatency() const { return preFX.transpose.latency(); }
     // Transpose quality/latency mode (0 Classic, 1 Low-Latency, 2 Tight). Stored
@@ -289,6 +293,7 @@ private:
     std::atomic<int> midiLearn{-1};
     std::atomic<bool> restartClick{false};
     std::atomic<float> tempoMeter{120};
+    std::atomic<float> hostTempoMeter{0};
     double lastTap{};std::array<double,4> tapIntervals{};int tapCount{};
     enum Extra {dualType,dualBlend,dualFrequency,inputMode,doublerOn,doublerTime,tempo,hostTempo,metronome,extraCount};
     std::array<std::atomic<float>*,extraCount> extras{};

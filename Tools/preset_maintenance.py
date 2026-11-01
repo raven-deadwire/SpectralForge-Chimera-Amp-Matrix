@@ -53,8 +53,12 @@ ALLOWED_TESTS = frozenset({"Tests/GateProcessorTests.cpp", "Tests/GraphicalEQEdi
 # reviewed diagnostic-I/O change; do not allow arbitrary tuner fixture/gate edits.
 # Digest updated for the owner-reviewed audio-time route gate
 # (docs/TUNER_TIMING_ATTRIBUTION.md).
+# On 2026-10-30 the owner explicitly approved PR205's 1200/1500 ms waits
+# and this exact digest after reviewing the comparison and regression evidence.
+# Receipt: docs/evidence/tuner-stall-20261030/owner-approval.json.
+# Product gates and the exact-file, fail-closed comparison remain unchanged.
 TUNER_DIAGNOSTICS_PATH = "Tests/PrecisionTunerIntegrationTests.cpp"
-TUNER_DIAGNOSTICS_SHA256 = "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60"
+TUNER_DIAGNOSTICS_SHA256 = "8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc"
 ALLOWED_DOCS = frozenset({"docs/PRESETS.md", "docs/MANUAL.html", "docs/COMMON_DYNAMICS_1_3_2.md",
     "docs/GRAPHICAL_EQ_1_3_1.md", "docs/SIGNAL_EQ_INTEGRATION_1_3_1.md", "docs/PRESET_DYNAMICS_EQ.md"})
 ADDITIONS = frozenset({RECIPE_PATH, POLICY_PATH, WORKFLOW_PATH,

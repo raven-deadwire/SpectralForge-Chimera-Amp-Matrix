@@ -8,7 +8,7 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
 **상태: 개발 시제품. Windows는 Chimera Setup, macOS(Universal: Apple silicon·Intel, macOS 12 이상)는 Chimera PKG의 선택 항목(서명·공증 없음)이며
-별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전). 실제 OBS Studio 앱은 Linux·Windows에서 자동 시험(필터·녹화·상태 저장/복원)만 했고, 화면 조작·에디터·방송 검증은 미실행.**
+별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전). 실제 OBS Studio 앱은 Linux·Windows·macOS(Apple silicon)에서 자동 시험(필터·녹화·상태 저장/복원)만 했고, 화면 조작·에디터·방송 검증은 미실행.**
 
 ## 라이선스
 
@@ -31,6 +31,7 @@ JUCE는 쓰지 않는다.
 | `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
 | `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
+| `tests/obs_long_record_test.py` | 실제 OBS Studio 앱에서 필터를 거쳐 1시간 녹화(D단계): 10분 실시간 줄·합계, 시작/끝 영상 싱크, 소리 유지, OBS 통계 | 시험 |
 
 - 이름이 `SpectralForge Chimera`이고 제작사가 `RavenForge Luthier Intelligence`인 VST3 클래스만 로드한다(범용 VST3 호스트 아님).
 - 경로를 비우면 Setup이 기록한 VST3 위치(`data/default-vst3-path.txt`, UTF-8)를 먼저 쓰고, 없으면 표준 설치 위치를 찾는다:
@@ -80,7 +81,30 @@ GPL 애드온은 기존대로 별도 VST3를 호스팅하며 제품 DSP를 링�
 | 처리하지 못한 블록 | Chimera가 없거나 준비 중·오류로 무음 또는 원음 통과한 블록 수 |
 
 OBS 로그에는 오디오 10분마다 한 줄, 필터를 제거할 때 전체 합계 한 줄이 남는다.
-OBS를 정상 종료할 때도 합계 줄이 남는다(Linux 실제 OBS 30.0.2, Windows 실제 OBS 31.1.2에서 확인). 강제 종료에서는 남지 않으므로 1시간 기록은 10분 줄로 판단한다.
+OBS를 정상 종료할 때도 합계 줄이 남는다(Linux 실제 OBS 30.0.2, Windows·macOS 실제 OBS 31.1.2에서 확인). 강제 종료에서는 남지 않으므로 1시간 기록은 10분 줄로 판단한다.
+
+`tests/obs_long_record_test.py`가 이 판단을 실제 OBS에서 자동으로 한다(CI `obs-long-recording.yml`: Linux OBS 30.0.2·Xvfb, Windows OBS 31.1.2(Setup과 같은 `%ProgramData%` 설치), macOS OBS 31.1.2 Apple. 1시간 넘게 걸려 요청 시와 시험 변경 시에만 실행).
+2초마다 톤 0.25초와 흰 화면 3프레임이 함께 나오는 64분 파일 하나(반복 없음)를 필터를 거쳐 61분 녹화하고 다음을 확인한다.
+
+- 10분 실시간 줄과 합계가 3600초 이상의 필터 오디오를 담고 처리하지 못한 블록이 0(테스트 킷과 같은 규칙, 같은 정규식)
+- 녹화 처음과 끝 1분의 소리-화면 어긋남 차이가 1프레임(33 ms) 이하, 끝의 소리 크기가 처음과 1 dB 이내
+- 녹화 길이 1시간 이상, OBS 정상 종료
+
+부하·실시간 초과·입력 끊김과 OBS 통계(CPU·메모리·건너뛴 렌더/출력 프레임, 1분마다)는 출력과 요약 JSON(CI 아티팩트)으로만 남기고 사람이 판단한다.
+CI 61분 결과(실행 41201917701, 소스 56b935c, 가상 머신·파일 입력이며 실제 장비 방송 승인이 아니다):
+
+| | Linux OBS 30.0.2 | Windows OBS 31.1.2 | macOS OBS 31.1.2 Apple |
+|---|---|---|---|
+| 필터 오디오(합계) | 1:01:01 | 1:01:01 | 1:01:02 |
+| 처리하지 못한 블록 / 입력 끊김 | 0 / 0 | 0 / 0 | 0 / 0 |
+| 실시간 초과 구간 | 0 | 0 | 1(처음 10분 안, 최대 부하 114.5%) |
+| Chimera 부하 평균 / 최대 | 13.7% / 26.3%(#235 재실행) | 15.7% / 48.7% | 9.6% / 114.5% |
+| 소리-화면 어긋남 처음 → 끝 | −7.4 → −4.7 ms | −28.5 → −7.0 ms(+21.5 ms) | −28.7 → −28.9 ms(끝 27개 마커, 퍼짐 33 ms) |
+| 소리 크기 변화 | +0.00 dB | +0.00 dB | +0.00 dB |
+| 건너뛴 렌더 / 출력 프레임 | 19 / 0 | 15 / 0 | 16,250(15%) / 0 |
+
+macOS CI(GPU 없는 가상 머신)는 렌더 프레임을 많이 건너뛰었고 OBS `GetStats` CPU가 음수(평균 −15.3%)로 나와 그 값은 쓸 수 없다.
+Windows `GetStats` 메모리는 56 MB로 나와 다른 OS와 같은 기준의 값이 아닐 수 있다. 이 값들은 판정에 쓰지 않는다.
 
 ```
 [chimera-obs] 'Guitar DI': realtime: 0:10:00 of audio, 28125 blocks, Chimera load average 3.1% peak 12.4%, 20 ms windows over real time 0, input gaps 0 (resumed after silence 0), unprocessed blocks 0
@@ -265,6 +289,8 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | Windows MSVC 빌드·시험(OBS 31.1.2 `obs.dll`) | CI에서 실행 | 결과는 CI 기록 |
 | 실제 OBS Studio 앱(`obs_app_test.py`): 필터가 `~/.vst3`에서 Chimera 로딩, 필터 끔/켬 녹화 비교(−18.9 dB, 대역 분포 변화), obs-websocket으로 넣은 다른 호스트의 상태 적용(−15.6 dB), 장면 파일에 그 상태 그대로 저장, OBS 재시작 후 같은 소리(−15.6 dB), 두 번 모두 정상 종료·통계·해제 로그 | 통과(3회), CI(`obs-addon.yml` linux)에서도 실행 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb, obs-websocket 5.3.4) |
 | 실제 OBS Studio 앱(같은 시험, Windows): Setup과 같은 `%ProgramData%\obs-studio\plugins\chimera-obs`에서 필터 로딩, Setup이 기록하는 VST3 위치 파일로 Chimera 로딩, 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), 창 닫기로 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` windows)에서 통과 | OBS Studio 31.1.2 (Windows Server, 일반 설치 모드·%APPDATA% 설정) |
+| 실제 OBS Studio 앱(같은 시험, macOS): 배포할 Universal `chimera-obs.plugin`을 `install.sh`와 같은 `~/Library/Application Support/obs-studio/plugins`에서 로딩, `~/Library/Audio/Plug-Ins/VST3`의 Chimera 로딩, 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), SIGINT로 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` macos)에서 통과 | OBS Studio 31.1.2 Apple (macOS 15 arm64, obs-websocket 5.6.2) |
+| 실제 OBS Studio 앱(같은 시험, macOS Intel): 같은 Universal `chimera-obs.plugin`·Chimera를 x86_64 전용 OBS.app에서(OBS·필터 x86_64 부분·Chimera 모두 Rosetta로 실행, 실행 전 `lipo`로 x86_64 전용 확인) 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.8 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` macos)에서 통과 | OBS Studio 31.1.2 Intel (macOS 15 arm64 + Rosetta 2, obs-websocket 5.6.2). 실제 Intel Mac은 미실행 |
 | Setup: OBS 실행 중 설치·선택 해제 중단(종료 코드 7)·제거 거부, OBS 장면 파일·다른 플러그인 보존, DLL 버전 정보 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 | Setup 필터 선택 설치·복구 시 선택 유지·사용자 지정 유니코드 VST3 경로 기록·선택 해제 시 제거·제거 시 삭제, 정적 런타임 | CI(`Verify-WindowsInstaller.ps1`)에서 실행 | 결과는 CI 기록 |
 
@@ -293,7 +319,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 - 필터는 OBS 타임스탬프를 바꾸지 않는다. 처리 지연(기본 상태 42 samples, 0.88 ms)은 영상과의 싱크에 그대로 더해지며,
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다.
 
-**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux·Windows 앱 시험은
-obs-websocket으로 필터를 추가·설정하며 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 OBS 1시간 녹화와 시작/끝 영상 싱크 측정,
-OBS 32.x, macOS 실제 OBS 앱에서의 확인. 이 항목은 계획 C–F단계와
+**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux·Windows·macOS 앱 시험은
+obs-websocket으로 필터를 추가·설정하며 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
+OBS 32.x, 실제 Intel Mac에서의 확인(Apple silicon에서 Rosetta로 실행하는 시험만 자동). 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.

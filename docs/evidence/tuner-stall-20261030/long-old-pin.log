@@ -1,0 +1,16 @@
+....................F..
+======================================================================
+FAIL: test_only_exact_reviewed_tuner_diagnostics_are_accepted (__main__.SourceScope.test_only_exact_reviewed_tuner_diagnostics_are_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "[workspace]/candidate-policy-check/Tools/test_preset_maintenance.py", line 142, in test_only_exact_reviewed_tuner_diagnostics_are_accepted
+    self.assertEqual(contract.digest_bytes(reviewed), contract.TUNER_DIAGNOSTICS_SHA256)
+AssertionError: '8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc' != '1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60'
+- 8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc
++ 1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60
+
+
+----------------------------------------------------------------------
+Ran 23 tests in 2.006s
+
+FAILED (failures=1)
