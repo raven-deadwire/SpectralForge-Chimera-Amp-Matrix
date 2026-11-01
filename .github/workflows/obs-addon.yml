@@ -260,7 +260,7 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool "$RUNNER_TEMP/chimera-obs-x86_64/build/chimera-obs-state-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-app-intel"
-      - name: Real OBS Studio app (32.2.2 Apple) - the Universal filter built for 31.1.2, as after an OBS update
+      - name: OBS Studio 32.2.2 Apple
         run: |
           dmg="$RUNNER_TEMP/obs-32.2.2-apple.dmg"
           curl -fsSL -o "$dmg" "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-macOS-Apple.dmg"
@@ -270,6 +270,37 @@ jobs:
           hdiutil attach -nobrowse -readonly -mountpoint "$mount" "$dmg" >/dev/null
           ditto "$mount/OBS.app" "$RUNNER_TEMP/obs-32-apple/OBS.app"
           hdiutil detach "$mount" >/dev/null
+      - name: DIAGNOSTIC (temporary) - does OBS 32.2.2 Apple start on this runner without the filter, and with it?
+        continue-on-error: true
+        run: |
+          obs="$RUNNER_TEMP/obs-32-apple/OBS.app/Contents/MacOS/OBS"
+          cfg="$HOME/Library/Application Support/obs-studio"
+          vst3="$HOME/Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3"
+          sw_vers; codesign -d --entitlements - "$obs" 2>&1 | head -40
+          attempt() {
+            echo "=================== $1: plain run, 45 s"
+            set +e
+            perl -e 'alarm 45; exec @ARGV' "$obs" --multi --disable-missing-files-check > "$RUNNER_TEMP/diag-$1.txt" 2>&1
+            echo "exit status $? (142 = still running after 45 s)"
+            pkill -9 -f obs-32-apple/OBS.app
+            tail -60 "$RUNNER_TEMP/diag-$1.txt"
+            for f in "$cfg"/logs/*.txt; do echo "--- $f"; tail -30 "$f"; done
+            echo "=================== $1: under lldb, 45 s"
+            perl -e 'alarm 45; exec @ARGV' lldb --batch -o "process launch -- --multi --disable-missing-files-check" \
+              -k "thread backtrace all" -k "process kill" -o quit -- "$obs" 2>&1 | grep -v '^\s*$' | grep -v '^\[' | tail -200
+            pkill -9 -f obs-32-apple/OBS.app
+            ls -lt "$HOME/Library/Logs/DiagnosticReports" /Library/Logs/DiagnosticReports 2>&1 | head -20
+            rm -rf "$cfg"
+            set -e
+          }
+          attempt no-filter
+          mkdir -p "$cfg/plugins" "$(dirname "$vst3")"
+          ditto package/chimera-obs-macos-universal/chimera-obs.plugin "$cfg/plugins/chimera-obs.plugin"
+          ditto "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" "$vst3"
+          attempt with-filter
+          rm -rf "$vst3" "$cfg"
+      - name: Real OBS Studio app (32.2.2 Apple) - the Universal filter built for 31.1.2, as after an OBS update
+        run: |
           ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
           python3 OBS/tests/obs_app_test.py --obs "$RUNNER_TEMP/obs-32-apple/OBS.app/Contents/MacOS/OBS" \
             --module package/chimera-obs-macos-universal/chimera-obs.plugin \
