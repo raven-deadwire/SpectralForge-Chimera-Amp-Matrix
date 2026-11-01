@@ -161,7 +161,12 @@ def compare_package(out, tool):
     package, data = out / 'package', out / 'data'
     validation = json.loads((package / 'Validation/validation.json').read_text())
     require(validation['quality_profile'] == PROFILE, 'Package quality profile mismatch')
-    require(set(validation['channels']) == set(NAMES), 'Expected exactly five packaged channels')
+    # The package's amp decides its channels and file names; Náströnd keeps NAMES.
+    from capture_channels import AMPS, amp_of
+    amp = amp_of(json.loads((data / 'manifest.json').read_text())['source'])
+    names = tuple(v[0] for v in AMPS[amp]['voices'])
+    stem = 'Nastrond' if amp == 'nastrond' else AMPS[amp]['display']
+    require(set(validation['channels']) == set(names), 'Expected exactly five packaged channels')
     x = np.load(data / 'test/input.npy')
     raw, rendered = out / 'comparison-input.f32', out / 'comparison-output.f32'
     x.astype('<f4').tofile(raw)
@@ -170,10 +175,10 @@ def compare_package(out, tool):
     report = {'input_kind': 'reserved synthetic; not instrument DI', 'input_sha256': sha256(data / 'test/input.npy'),
               'protocol': 'Native vs final calibrated NAM; same fixed output scale, no fitted alignment or EQ',
               'legacy_thresholds': THRESHOLDS, 'quality_profile': PROFILE, 'channels': {}}
-    for name in NAMES:
+    for name in names:
         row = validation['channels'][name]
-        model = package / 'NAM' / f'Nastrond-{name}.nam'
-        preset = package / 'TONE3000-Presets' / f'Nastrond-{name}.t3kpreset'
+        model = package / 'NAM' / f'{stem}-{name}.nam'
+        preset = package / 'TONE3000-Presets' / f'{stem}-{name}.t3kpreset'
         require(sha256(model) == row['model_sha256'] and sha256(preset) == row['preset_sha256'], 'Package hash mismatch')
         runtime = json.loads(subprocess.check_output([str(tool), 'render', str(model), str(raw), str(rendered), str(job)], text=True))
         require(runtime['a2_gate'] and runtime['a2_channels'] == 8, 'Not A2-Full')
