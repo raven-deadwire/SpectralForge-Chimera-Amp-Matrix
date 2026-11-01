@@ -1,0 +1,160 @@
+{
+  "validation_date_kst": "2026-11-01",
+  "base_source_sha": "f371f0442312de279e305bacffb1ae4ed5dd1e97",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce_version": "8.0.8",
+  "compile_flags": "-O2 -DNDEBUG -ffp-contract=off",
+  "mode": "synthetic native DSP and non-GUI controller tests",
+  "real_di": false,
+  "listening": false,
+  "host_daw": false,
+  "product_oversampling": false,
+  "source_sha256": {
+    "CMakeLists.txt": "c654661141169155d528de893505d1f31ebea707c41289860cf85a29a070d4bb",
+    "Source/AutoSetPower.h": "c6bf94c3e10e2ce465c3cfab5e88a16eb1897a791886e4d78021b194c24e323d",
+    "Source/AutoSet.h": "184f4db96f475856bc77180535b24638ead946b340877810ab2b09c29a1f9548",
+    "Source/AutoSetAmp.h": "93a0d33d5cb551ab273f68fbcb9f419da2924b9d9cee435ef11f37aea9db0f9d",
+    "Source/AmpNativeDSP.h": "252b377c2bec73d6d3911744fd286eaa84b35c06f2e7bf6b0e5ec4c78c5c7ea8",
+    "Source/NiflheimrDSP.h": "07532a179721bce0f6f1878b6ac761ed11404d55c446140f42282f009fa894dd",
+    "Source/OriginalAmpDSP.h": "7595c2bf32af62d7b3863d0b9551139d319b7ec3b108a0053b34f6072559de3c",
+    "Source/CabLayoutModel.h": "f7abd4300e3f8e4fae2a08f60f3dfeae0e919626646cbc721f72fd14557785ea",
+    "Tests/AutoSetTests.cpp": "ac19ae92e07162271e2420320139c46408ffdea27c2e9023e87810a219667aef",
+    "Tests/AutoSetPowerBassRules.h": "14d2475f1082319f4ca9d9694aa4fe707f4faabbf061f31c3f3cf18a7feda223",
+    "Tests/AutoSetPowerBassControllerTests.h": "d76a048d893f59c219effed44f3b3cd2887991e5e8f575ae89964822fe984e91",
+    "Tests/AutoSetPowerBassProbe.cpp": "c4ad336dc351d298e9292ef9741aad747b8fec137d776e22004b16f05eada63a",
+    "Tools/summarize_auto_set_power_bass.py": "10fbf7680a1ea738d137121e123c4160466dc321a3a020b7fb910e0d9eaebb76"
+  },
+  "primary_measurement_build": {
+    "base_source_sha": "f371f0442312de279e305bacffb1ae4ed5dd1e97",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+    "juce_version": "8.0.8",
+    "flags": "-O2 -DNDEBUG -ffp-contract=off",
+    "synthetic_only": true,
+    "real_di_validated": false,
+    "listening_validated": false,
+    "files": {
+      "baseline_header": {
+        "path": "/tmp/chimera-phase12-baseline/AutoSetPower.h",
+        "sha256": "c5bb6b159c75f43330614e47616fd55fc8d3ef9082f6de75670b9fc03ece9278"
+      },
+      "candidate_header": {
+        "path": "/workspace/scratch/bb2818d27ab3/chimera/Source/AutoSetPower.h",
+        "sha256": "c6bf94c3e10e2ce465c3cfab5e88a16eb1897a791886e4d78021b194c24e323d"
+      },
+      "probe": {
+        "path": "/workspace/scratch/bb2818d27ab3/chimera/Tests/AutoSetPowerBassProbe.cpp",
+        "sha256": "8eaf1c61cc0c314bf1e2ea4717a1c88a9a01488fe5d610e660a7dadae0eaa986"
+      },
+      "rules": {
+        "path": "/workspace/scratch/bb2818d27ab3/chimera/Tests/AutoSetPowerBassRules.h",
+        "sha256": "14d2475f1082319f4ca9d9694aa4fe707f4faabbf061f31c3f3cf18a7feda223"
+      },
+      "controller": {
+        "path": "/workspace/scratch/bb2818d27ab3/chimera/Tests/AutoSetPowerBassControllerTests.h",
+        "sha256": "d76a048d893f59c219effed44f3b3cd2887991e5e8f575ae89964822fe984e91"
+      },
+      "baseline_binary": {
+        "path": "/tmp/chimera-phase12-probe-build/Phase12Baseline_artefacts/Release/Phase12Baseline",
+        "sha256": "1f8d05c22be995ff9948f4e640baab9026c9afa77fd084473e11d0529d86c4dc"
+      },
+      "candidate_binary": {
+        "path": "/tmp/phase12-candidate",
+        "sha256": "551b9f856b71239d38d75704b52fc0968093b00f4152dd1b6dc3e1e62f5c1535"
+      }
+    }
+  },
+  "filtered_measurement_build": {
+    "baseline": {
+      "commands": [
+        "/usr/bin/c++ -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1 -DJUCE_MODULE_AVAILABLE_juce_audio_formats=1 -DJUCE_MODULE_AVAILABLE_juce_core=1 -DJUCE_MODULE_AVAILABLE_juce_dsp=1 -DJUCE_MODULE_AVAILABLE_juce_events=1 -DJUCE_MODULE_AVAILABLE_juce_graphics=1 -DJUCE_STANDALONE_APPLICATION=1 -DJUCE_USE_CURL=0 -DJUCE_WEB_BROWSER=0 -DLINUX=1 -DNDEBUG=1 -D_NDEBUG=1 -I/tmp/chimera-phase12-probe-build/Phase12Baseline_artefacts/JuceLibraryCode -I/workspace/scratch/bb2818d27ab3/chimera/Source -I/workspace/scratch/bb2818d27ab3/juce/modules -I/usr/include/freetype2 -I/usr/include/libpng16 -O2 -DNDEBUG -std=gnu++20 -ffp-contract=off -O3 -MD -MT stress-baseline.cpp.o -MF stress-baseline.cpp.o.d -o stress-baseline.cpp.o -c /tmp/chimera-phase12-probe-source/stress-baseline.cpp",
+        "/usr/bin/c++ -O2 -DNDEBUG  stress-baseline.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_dsp/juce_dsp.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_audio_formats/juce_audio_formats.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_audio_basics/juce_audio_basics.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_core/juce_core.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_core/juce_core_CompilationTime.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics_Sheenbidi.c.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_events/juce_events.cpp.o -o /tmp/phase12-stress-baseline  /usr/lib/x86_64-linux-gnu/libfontconfig.so  /usr/lib/x86_64-linux-gnu/libfreetype.so  -lrt  -ldl  -lpthread"
+      ],
+      "header_sha256": "c5bb6b159c75f43330614e47616fd55fc8d3ef9082f6de75670b9fc03ece9278",
+      "binary_sha256": "ff3c6bfee4e7fc36e53859843c55958954474919431c53d2ab285a60e31033b1"
+    },
+    "candidate": {
+      "commands": [
+        "/usr/bin/c++ -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1 -DJUCE_MODULE_AVAILABLE_juce_audio_formats=1 -DJUCE_MODULE_AVAILABLE_juce_core=1 -DJUCE_MODULE_AVAILABLE_juce_dsp=1 -DJUCE_MODULE_AVAILABLE_juce_events=1 -DJUCE_MODULE_AVAILABLE_juce_graphics=1 -DJUCE_STANDALONE_APPLICATION=1 -DJUCE_USE_CURL=0 -DJUCE_WEB_BROWSER=0 -DLINUX=1 -DNDEBUG=1 -D_NDEBUG=1 -I/tmp/chimera-phase12-probe-build/Phase12Baseline_artefacts/JuceLibraryCode -I/workspace/scratch/bb2818d27ab3/chimera/Source -I/workspace/scratch/bb2818d27ab3/juce/modules -I/usr/include/freetype2 -I/usr/include/libpng16 -O2 -DNDEBUG -std=gnu++20 -ffp-contract=off -O3 -MD -MT stress-candidate.cpp.o -MF stress-candidate.cpp.o.d -o stress-candidate.cpp.o -c /tmp/chimera-phase12-probe-source/stress-candidate.cpp",
+        "/usr/bin/c++ -O2 -DNDEBUG  stress-candidate.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_dsp/juce_dsp.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_audio_formats/juce_audio_formats.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_audio_basics/juce_audio_basics.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_core/juce_core.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_core/juce_core_CompilationTime.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics_Sheenbidi.c.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_events/juce_events.cpp.o -o /tmp/phase12-stress-candidate  /usr/lib/x86_64-linux-gnu/libfontconfig.so  /usr/lib/x86_64-linux-gnu/libfreetype.so  -lrt  -ldl  -lpthread"
+      ],
+      "header_sha256": "c6bf94c3e10e2ce465c3cfab5e88a16eb1897a791886e4d78021b194c24e323d",
+      "binary_sha256": "57e3247345ba037874b4e5028de85b50bec9e85e41e363da397875b0c22722d3"
+    },
+    "probe_sha256": "c4ad336dc351d298e9292ef9741aad747b8fec137d776e22004b16f05eada63a"
+  },
+  "alternative_25_160": {
+    "header_sha256": "86b1c58799971c6c341336d1e48900a02d6fd4a9fee91d850f597ba5392fecd2",
+    "commands": [
+      "/usr/bin/c++ -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1 -DJUCE_MODULE_AVAILABLE_juce_audio_formats=1 -DJUCE_MODULE_AVAILABLE_juce_core=1 -DJUCE_MODULE_AVAILABLE_juce_dsp=1 -DJUCE_MODULE_AVAILABLE_juce_events=1 -DJUCE_MODULE_AVAILABLE_juce_graphics=1 -DJUCE_STANDALONE_APPLICATION=1 -DJUCE_USE_CURL=0 -DJUCE_WEB_BROWSER=0 -DLINUX=1 -DNDEBUG=1 -D_NDEBUG=1 -I/tmp/chimera-phase12-probe-build/Phase12Baseline_artefacts/JuceLibraryCode -I/workspace/scratch/bb2818d27ab3/chimera/Source -I/workspace/scratch/bb2818d27ab3/juce/modules -I/usr/include/freetype2 -I/usr/include/libpng16 -O2 -DNDEBUG -std=gnu++20 -ffp-contract=off -O3 -MD -MT alternative160.cpp.o -MF alternative160.cpp.o.d -o alternative160.cpp.o -c /tmp/chimera-phase12-probe-source/alternative160.cpp",
+      "/usr/bin/c++ -O2 -DNDEBUG  alternative160.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_dsp/juce_dsp.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_audio_formats/juce_audio_formats.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_audio_basics/juce_audio_basics.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_core/juce_core.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_core/juce_core_CompilationTime.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_graphics/juce_graphics_Sheenbidi.c.o CMakeFiles/Phase12Baseline.dir/workspace/scratch/bb2818d27ab3/juce/modules/juce_events/juce_events.cpp.o -o /tmp/phase12-alternative160  /usr/lib/x86_64-linux-gnu/libfontconfig.so  /usr/lib/x86_64-linux-gnu/libfreetype.so  -lrt  -ldl  -lpthread"
+    ],
+    "only_policy_change": "powerBassExcessDb low-band upper centre 100 -> 160 Hz"
+  },
+  "final_test_binary_sha256": "2a0b48608fe2dd8983d28e877f41a04508a7e86c3eb6f74465edf69c6f3f970d",
+  "final_probe_binary_sha256": "d178e2c25c57899fa1a7ec281c9d0b4c3b3552fbe490e10fafc53a331349fbdd",
+  "tests": {
+    "full_autoset": {
+      "command": "env -u DISPLAY build-phase12/ChimeraAutoSetTests_artefacts/Release/ChimeraAutoSetTests",
+      "exit_code": 0
+    },
+    "bass_rules": {
+      "exit_code": 0,
+      "cases": 27,
+      "extra_checks": "sparse playing, silence, short and non-finite inputs"
+    },
+    "bass_controller": {
+      "exit_code": 0,
+      "cases": 57
+    },
+    "no_total_guard_negative_control": {
+      "exit_code": 1,
+      "expected_failure": true
+    },
+    "baseline_primary": {
+      "exit_code": 0,
+      "cases": 240
+    },
+    "candidate_primary": {
+      "exit_code": 0,
+      "cases": 240
+    },
+    "baseline_driven": {
+      "exit_code": 0,
+      "cases": 72
+    },
+    "candidate_driven": {
+      "exit_code": 0,
+      "cases": 72
+    },
+    "alternative_25_160": {
+      "exit_code": 0,
+      "cases": 36
+    }
+  },
+  "notes": [
+    "The initial xvfb-run wrapper failed local-socket setup/cleanup despite child assertions. Final gates use actual console binary exits with DISPLAY unset; no GUI acceptance is claimed.",
+    "The probe filter CLI was added after the primary matrices; signal generation and measurement math were unchanged. Primary and filtered source/binary hashes are retained separately.",
+    "Primary measurements used an AutoSetPower.h snapshot before a comment-only clarification; final product rules and full controller suite use the recorded current source.",
+    "Timing columns were collected under concurrent build/test load and are not performance benchmarks."
+  ],
+  "evidence_sha256": {
+    "alternative-25-160.csv.gz": "332a42bb23b404348c939abe04f59892443c75a82b0220aa6aa0cbf5cc86ca8b",
+    "auto-detection-summary.json": "2e99cd0ec2730c88dafb4c88bab19e1666e1f2fdbb522185705e4ac36b17c807",
+    "auto-detection.csv": "160b90bacfc64981eaa4ab7eff1c17511cd05d65e36e20682aacf4e4f487aa7e",
+    "autoset-full.log.gz": "3c37ce0e17b7df4a6dd87c4758fe7550c24932c428eb158147be026e734d723a",
+    "baseline-driven-metal.csv.gz": "5b5c1f31157fcb459ba0e41ea2d6a7116e60643f554747e6089559ed9c1d99fe",
+    "baseline-rock.csv.gz": "b0e6a0c74083700f936763995e203454955c1c77f45bdf9b6bccc0efaf060b3d",
+    "candidate-driven-metal.csv.gz": "4b24e6848b5b7e84889ca2e87d6009aa70cd31c9dd3e70ff31444862884abc44",
+    "candidate-rock.csv.gz": "edb2008d34ef82dc6fc68b7496df8618320f36f5f214d9f22be11cf632ed413c",
+    "diagnostic-runner.cpp": "4320086b4851e07572f31ae816b6efe88978851b7af0fbe6f0a0f0a69a73e1f5",
+    "night-harvest-f0-detail-summary.json": "d7d6ba0278d242d2db9820fa45437a504a728a6b61117cdc878a5871c7238eb1",
+    "night-harvest-f0-detail.csv": "2a7640fcdefb70b0ccb3428bd94f641b1127db5676e50c2181894dcf0b239fe4",
+    "power-bass-controller-direct.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "power-bass-controller-direct.log": "183641db1a5786cf95a7fa144baa59e09f1c1423224a8c7ffa0cce68af6b8d51",
+    "power-bass-rules-no-total-guard.log": "4323f6cce88d247672030df3db0e873cb856a4a04ef2bd3e5842ba7f5a6f6725",
+    "power-bass-rules-product.log": "b56d33a5c9bb867ab8663c5d8d8590a3d9fe2a16c06635765180be7ed38cde8f",
+    "primary-comparison.json": "b6c4e40acd882c87cdb95ebad5e07316540000215cabb9ab2af589abc5214ffc",
+    "rules-mutation-provenance.json": "1953bb90f946af73471aa7245337f49605e9e01176c87c2ff553828bbac3d48a",
+    "stress-comparison.json": "d3af215a6373f4691d06636b893950b9b52e175341ae6da6df40aa9e66c49ab0"
+  }
+}

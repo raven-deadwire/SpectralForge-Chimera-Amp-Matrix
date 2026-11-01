@@ -1,0 +1,642 @@
+{
+  "baseline": {
+    "cases": 72,
+    "by_rate": {
+      "44100.0": 24,
+      "48000.0": 24,
+      "96000.0": 24
+    },
+    "by_family": {
+      "harmonic_gap": 72
+    },
+    "combined_error_increase": [],
+    "low_band_disagreements": [],
+    "niflheimr_gap_dry": [
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -21.85576439,
+          -17.32998657
+        ],
+        "wide25_100": [
+          -2.101011864,
+          -0.7764110814
+        ],
+        "f0_delta": 0.771540439999999,
+        "sub_delta": 0.7934705100000023
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -21.68074036,
+          -17.23716545
+        ],
+        "wide25_100": [
+          -2.442829435,
+          -0.90708403
+        ],
+        "f0_delta": 1.0051508699999978,
+        "sub_delta": 1.019293470000001
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -21.69652557,
+          -17.34239578
+        ],
+        "wide25_100": [
+          -2.11623205,
+          -0.7910944038
+        ],
+        "f0_delta": 0.7715223800000004,
+        "sub_delta": 0.7935825300000019
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -21.67245102,
+          -17.51939583
+        ],
+        "wide25_100": [
+          -2.433361353,
+          -0.8979113478
+        ],
+        "f0_delta": 1.005137359999999,
+        "sub_delta": 1.0194419100000012
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -21.7055645,
+          -17.34840965
+        ],
+        "wide25_100": [
+          -2.123212311,
+          -0.7948687664
+        ],
+        "f0_delta": 0.7715178700000003,
+        "sub_delta": 0.7935776399999988
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -21.68383598,
+          -17.52765465
+        ],
+        "wide25_100": [
+          -2.457787838,
+          -0.9175946692
+        ],
+        "f0_delta": 1.0051318299999998,
+        "sub_delta": 1.0194367799999995
+      }
+    ],
+    "by_head": {
+      "Tight 515": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          -0.15000000600000002,
+          0.25
+        ],
+        "f0_delta": [
+          -1.420518610000002,
+          1.04101335
+        ],
+        "sub_delta": [
+          -0.9753696299999994,
+          0.8156420700000027
+        ],
+        "largest_grid_sub_interaction": 0.6064484171,
+        "largest_grid_f0_interaction": 0.7169744063
+      },
+      "Cinder 120": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          0.30000001190000003,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -0.1589825100000013,
+          0.1703053799999985
+        ],
+        "sub_delta": [
+          -0.2145392500000014,
+          0.11522055000000009
+        ],
+        "largest_grid_sub_interaction": 0.03336484686,
+        "largest_grid_f0_interaction": 0.043005552
+      },
+      "Night Harvest": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          0.30000001190000003,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -10.153035460000005,
+          0.04819685000000362
+        ],
+        "sub_delta": [
+          -2.3609029999999933,
+          0.8049749000000048
+        ],
+        "largest_grid_sub_interaction": 0.5901417588,
+        "largest_grid_f0_interaction": 0.38509818
+      },
+      "Hot Lead": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "f0_delta": [
+          -0.29872986999999895,
+          0.23948476099999993
+        ],
+        "sub_delta": [
+          -0.2886635300000009,
+          0.25811045999999926
+        ],
+        "largest_grid_sub_interaction": 0.01854648578,
+        "largest_grid_f0_interaction": 0.0161855269
+      },
+      "Náströnd": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -1.9373745400000004,
+          1.9312857259999996
+        ],
+        "sub_delta": [
+          -2.2190535900000015,
+          1.9549317569999989
+        ],
+        "largest_grid_sub_interaction": 0.04305830901,
+        "largest_grid_f0_interaction": 0.05359906826
+      },
+      "Niflheimr": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          0.30000001190000003,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          0.7715178700000003,
+          1.0058777300000017
+        ],
+        "sub_delta": [
+          0.7934705100000023,
+          1.053469799999995
+        ],
+        "largest_grid_sub_interaction": 3.243921e-06,
+        "largest_grid_f0_interaction": 1.081770868e-06
+      }
+    },
+    "under_load_inner_analysis_ms": {
+      "min": 40.048902,
+      "median": 415.359918,
+      "max": 1693.389596
+    },
+    "max_total_render_calls": 14.0
+  },
+  "candidate": {
+    "cases": 72,
+    "by_rate": {
+      "44100.0": 24,
+      "48000.0": 24,
+      "96000.0": 24
+    },
+    "by_family": {
+      "harmonic_gap": 72
+    },
+    "combined_error_increase": [],
+    "low_band_disagreements": [],
+    "niflheimr_gap_dry": [
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.5
+        ],
+        "reported_low_error": [
+          -2.16817522,
+          -1.604980946
+        ],
+        "wide25_100": [
+          -2.101011864,
+          -1.533976676
+        ],
+        "f0_delta": -0.0005313700000009192,
+        "sub_delta": -0.0005445199999982719
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.5
+        ],
+        "reported_low_error": [
+          -2.384384632,
+          -1.852745533
+        ],
+        "wide25_100": [
+          -2.442829435,
+          -1.911202122
+        ],
+        "f0_delta": -0.0006714199999997561,
+        "sub_delta": -0.0006804799999997613
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.5
+        ],
+        "reported_low_error": [
+          -2.184616566,
+          -1.62011385
+        ],
+        "wide25_100": [
+          -2.11623205,
+          -1.546627393
+        ],
+        "f0_delta": -0.0005340099999990855,
+        "sub_delta": -0.0005481999999972231
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.5
+        ],
+        "reported_low_error": [
+          -2.424332142,
+          -1.890282154
+        ],
+        "wide25_100": [
+          -2.433361353,
+          -1.901876706
+        ],
+        "f0_delta": -0.0006749699999986092,
+        "sub_delta": -0.0006839300000009985
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.5
+        ],
+        "reported_low_error": [
+          -2.191811085,
+          -1.623341084
+        ],
+        "wide25_100": [
+          -2.123212311,
+          -1.549732344
+        ],
+        "f0_delta": -0.000546820000000281,
+        "sub_delta": -0.000560679999999536
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "metal",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.5
+        ],
+        "reported_low_error": [
+          -2.427769184,
+          -1.890743732
+        ],
+        "wide25_100": [
+          -2.457787838,
+          -1.921137147
+        ],
+        "f0_delta": -0.0006911199999990458,
+        "sub_delta": -0.0007010600000008083
+      }
+    ],
+    "by_head": {
+      "Tight 515": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          0.0,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -1.6767907999999991,
+          0.7326958099999992
+        ],
+        "sub_delta": [
+          -1.100863129999997,
+          0.7991022799999996
+        ],
+        "largest_grid_sub_interaction": 0.6064484171,
+        "largest_grid_f0_interaction": 0.7169744063
+      },
+      "Cinder 120": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          0.30000001190000003,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -0.1589825100000013,
+          0.1703053799999985
+        ],
+        "sub_delta": [
+          -0.2145392500000014,
+          0.11522055000000009
+        ],
+        "largest_grid_sub_interaction": 0.03336484686,
+        "largest_grid_f0_interaction": 0.043005552
+      },
+      "Night Harvest": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          0.30000001190000003,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -10.153035460000005,
+          0.04819685000000362
+        ],
+        "sub_delta": [
+          -2.3609029999999933,
+          0.8049749000000048
+        ],
+        "largest_grid_sub_interaction": 0.5901417588,
+        "largest_grid_f0_interaction": 0.38509818
+      },
+      "Hot Lead": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "f0_delta": [
+          -0.29872986999999895,
+          0.18457002199999994
+        ],
+        "sub_delta": [
+          -0.2962099570000003,
+          0.20158879000000063
+        ],
+        "largest_grid_sub_interaction": 0.01854648578,
+        "largest_grid_f0_interaction": 0.0161855269
+      },
+      "Náströnd": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          0.0,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          0.0,
+          1.9312857259999996
+        ],
+        "sub_delta": [
+          0.0,
+          1.9549317569999989
+        ],
+        "largest_grid_sub_interaction": 0.04305830901,
+        "largest_grid_f0_interaction": 0.05359906826
+      },
+      "Niflheimr": {
+        "cases": 12,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          0.0,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -0.0006911199999990458,
+          1.0058777300000017
+        ],
+        "sub_delta": [
+          -0.0007010600000008083,
+          1.053469799999995
+        ],
+        "largest_grid_sub_interaction": 3.243921e-06,
+        "largest_grid_f0_interaction": 1.081770868e-06
+      }
+    },
+    "under_load_inner_analysis_ms": {
+      "min": 101.933948,
+      "median": 533.461761,
+      "max": 1961.82234
+    },
+    "max_total_render_calls": 14.0
+  },
+  "comparison": {
+    "paired_cases": 72,
+    "changed_proposals": 25,
+    "new_wide_error_worse": 8,
+    "new_wide_error_better": 12
+  }
+}
