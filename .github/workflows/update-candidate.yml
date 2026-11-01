@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     # Keep build, full DSP/UI coverage and installer verification separately bounded.
     # The job budget also leaves time to preserve diagnostics after a step timeout.
-    timeout-minutes: 150
+    timeout-minutes: 270
     steps:
       - uses: actions/checkout@v4
         with:
@@ -123,14 +123,17 @@ jobs:
       - name: Build product and regression checks
         # Each test target compiles its own JUCE modules; on a slow hosted
         # runner the full Release build has exceeded 60 minutes with no error.
-        timeout-minutes: 90
+        # 45 console targets took 70 minutes (#243); the 1.3.3-1.10
+        # integration has 68, about 105 minutes, so the build, the tests and
+        # the job limits were raised together.
+        timeout-minutes: 150
         run: cmake --build build --config Release --parallel 2
       - name: Record Windows execution environment before CTest
         timeout-minutes: 2
         shell: pwsh
         run: ./Tools/Collect-WindowsRunnerContext.ps1 -OutputPath build/windows-runner-context.json
       - name: Execute DSP and actual JUCE UI tests
-        timeout-minutes: 60
+        timeout-minutes: 90
         shell: pwsh
         run: |
           $env:CHIMERA_LIFECYCLE_TRACE = Join-Path (Get-Location) "build/lifecycle-current-trace.log"
