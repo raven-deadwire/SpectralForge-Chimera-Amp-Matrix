@@ -55,7 +55,23 @@ against the same difference of the style's Tone EQ target:
 | | Guitar | Bass |
 |---|---|---|
 | **Bite** (PRESENCE) | 2–5 kHz against 400 Hz–1.6 kHz | 1.25–3.15 kHz against 400 Hz–1.6 kHz |
-| **Low end** (RESONANCE) | 63–160 Hz against 400 Hz–1.6 kHz | 40–100 Hz against 400 Hz–1.6 kHz |
+| **Low end** (RESONANCE) | 63–160 Hz against 400 Hz–1.6 kHz | 25–100 Hz against 400 Hz–1.6 kHz |
+
+Bass uses a Phase 12-only spectrum with additional 25, 31.5 and 40 Hz
+third-octave centres. The original shared spectrum starts at 50 Hz: its former
+nominal 40–100 Hz selection actually contained only 50, 63, 80 and 100 Hz.
+The new bass FFT has approximately 1.5 Hz bins and quarter-window hops so
+A0 (27.5 Hz) and B0 (30.8677 Hz) are measured consistently at 44.1, 48 and
+96 kHz. Knob decisions can still differ at the hard 1 dB acceptance
+boundary; see the sample-rate comparisons in the validation report.
+The original short-window playing gates still decide whether there
+is sufficient playing; the longer FFT does not impose a new note-duration
+requirement. Guitar and the other Auto Set phases keep their existing spectra.
+
+The existing bass target is reused, including its constant extrapolation below
+40 Hz. This is a provisional, synthetic-tested target extension, not a
+listening-approved bass voicing. The upper edge remains 100 Hz rather than
+including additional 125/160 Hz body bands.
 
 With guitar at rock or metal, too much low end counts double: a loose low end
 smears the distortion.
@@ -69,7 +85,9 @@ smears the distortion.
 - **Shared reference:** both balances use the same 400 Hz–1.6 kHz reference,
   so moving one knob also moves the other balance a little. A candidate that
   pushes the other balance past the tolerance, or past where it already was,
-  pays for that difference too.
+  pays for that difference too. In addition, the sum of both weighted errors
+  may not increase. Staying within the other balance's tolerance does not
+  authorize a worse combined result.
 - **Threshold:** the knob moves only if the best candidate improves its
   balance by more than 1 dB.
 - **Snap:** values snap to 1% of the knob's range.
@@ -103,6 +121,32 @@ smears the distortion.
   Presence + resonance row after the amp row.
 - **Locks (`controllerEveryLock`):** all fifteen locks at four strengths.
 
+### Extended-range bass regression
+
+`ChimeraAutoSetTests --power-bass-rules` covers known-amplitude A0/B0 and
+800 Hz references, neutral and positive correction controls, a coupled-control
+counterexample, one second of playing followed by two seconds of silence, and
+native Niflheimr inputs with a strong fundamental and weak harmonics 2–8.
+All of these run at 44.1, 48 and 96 kHz. Removing the combined-error guard
+makes the deliberately worsening interaction control fail.
+
+`ChimeraAutoSetTests --power-bass-controller` runs 57 synthetic controller
+cases on Tight 515 and Niflheimr: A0/B0, the three sample rates, 25/50/100%
+Strength, independent Power and Amp locks, UNDO AUTO, manual edits during and
+after the capture, and a newly selected undo lock. Both regression groups also
+run in the full test executable.
+
+`ChimeraAutoSetPowerBassProbe` produces an observational CSV using all six
+heads whose default channel exposes both controls, plus Niflheimr's other
+four channels. It compares dry native output and an authored Bass 4x10 cabinet
+kernel, and independently measures the fundamental, 25–40/40–100/100–250 Hz
+power, mid reference, RMS/peak/crest factor and control interaction. These are
+synthetic fixtures, not instrument DI or measured-cabinet recordings.
+
+The reproducible baseline/candidate results, alternative-band comparison and
+limitations are recorded in
+[`AUTO_SET_PHASE12_BASS_VALIDATION_20261101.ko.md`](AUTO_SET_PHASE12_BASS_VALIDATION_20261101.ko.md).
+
 ## Not yet validated
 
 The bands, the 1.5 dB tolerance, the 1 dB threshold, the 30% move limit and
@@ -110,8 +154,14 @@ the doubled low-end cost are starting values. They have been checked on
 synthetic plucked notes through native heads (without a cabinet in the
 controller fixture), not on real guitars, basses or listening tests.
 
+The result row's dB values describe the full proposed knob move; at partial
+Strength (or after a manual edit prevents a write), they are not a new render
+of the actual applied values. The controller regression checks the applied
+parameter interpolation and ownership separately.
+
 PRESENCE also changes how hard some heads' power stages clip; the step judges
-the spectrum only, not the drive. The offline render runs at the session rate
+the spectrum only, not the drive. The RMS-spread and crest measurements do not directly count internal clipping.
+The offline render runs at the session rate
 without the amp's oversampling. The analysis adds up to 14 renders of 3 seconds
 (two references and at most six candidates per knob) to the end of the amp
 pass, on the message thread.

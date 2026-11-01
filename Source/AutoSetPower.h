@@ -13,7 +13,7 @@ namespace spectralforge::autoset {
 // candidate's render plus that difference predicts what is heard.
 // - Bite: the 2-5 kHz level relative to 400 Hz-1.6 kHz (bass: 1.25-3.15 kHz),
 //   against the same difference of the style's target.
-// - Weight: the 63-160 Hz level relative to 400 Hz-1.6 kHz (bass: 40-100 Hz),
+// - Weight: the 63-160 Hz level relative to 400 Hz-1.6 kHz (bass: 25-100 Hz),
 //   against the target's. With guitar rock or metal gain, too much weight
 //   counts double: a loose low end smears the distortion.
 enum PowerRole {powerPresence=0,powerResonance=1};
@@ -49,11 +49,86 @@ inline float powerBandDb(const std::array<float,toneBandCount>& bands,float from
     return float(10*std::log10(std::max(power,1e-30)));
 }
 // How far a band's balance against 400 Hz-1.6 kHz sits above the style target's (dB).
+// This shared 24-band helper preserves the guitar calculation and the legacy
+// bass comparison (effectively 50-100 Hz). Production Phase 12 bass analysis
+// uses powerBassExcessDb below, whose spectrum includes the fundamentals.
 inline float powerExcessDb(const std::array<float,toneBandCount>& bands,int role,bool bass,Style style) {
     std::array<float,toneBandCount> target{};
     for(int b=0;b<toneBandCount;++b)target[size_t(b)]=toneTargetDb(bass,toneBandCentres[size_t(b)],style);
     const float from=role==powerPresence?(bass?1250.f:2000.f):(bass?40.f:63.f),to=role==powerPresence?(bass?3150.f:5000.f):(bass?100.f:160.f);
     const auto balance=[&](const std::array<float,toneBandCount>& x){return powerBandDb(x,from,to)-powerBandDb(x,400,1600);};
+    return balance(bands)-balance(target);
+}
+// Phase 12 needs the fundamental of extended-range basses. Do not add these
+// bands to the shared Tone EQ spectrum: that would also retune other phases.
+inline constexpr int powerBassBandCount=toneBandCount+3;
+inline constexpr auto powerBassBandCentres=[] {
+    std::array<float,powerBassBandCount> centres{25.f,31.5f,40.f};
+    for(int b=0;b<toneBandCount;++b)centres[size_t(b+3)]=toneBandCentres[size_t(b)];
+    return centres;
+}();
+struct PowerBassSpectrum {
+    bool measured{}; // spectral data available; the shared playing gate is separate
+    std::array<float,powerBassBandCount> bandsDb{};
+};
+inline PowerBassSpectrum measurePowerBassSpectrum(const std::vector<float>& samples,double rate) {
+    PowerBassSpectrum result;
+    if(!std::isfinite(rate) || rate<8000)return result;
+    // About 1.5 Hz bins resolve 25/31.5 Hz without the rate-dependent loss at
+    // the low edge of the old ~6 Hz FFT. Quarter hops overlap measurements in
+    // the three-second render. This helper measures a spectrum; analysePower
+    // keeps the original short-window playing gate for duration/confidence.
+    const int order=std::clamp(int(std::round(std::log2(rate/1.5))),12,18),size=1<<order,hop=size/4;
+    if(samples.size()<size_t(size))return result;
+    juce::dsp::FFT fft(order);
+    std::vector<float> window(static_cast<size_t>(size)),frame(static_cast<size_t>(2*size));
+    for(int n=0;n<size;++n)window[size_t(n)]=float(.5-.5*std::cos(2*juce::MathConstants<double>::pi*n/size));
+    std::array<std::pair<int,int>,powerBassBandCount> bins{};
+    const double edge=std::pow(2.,1./6.);
+    for(int b=0;b<powerBassBandCount;++b) {
+        const double fc=powerBassBandCentres[size_t(b)];
+        bins[size_t(b)]={std::max(1,int(std::ceil(fc/edge*size/rate))),std::min(size/2,int(std::ceil(fc*edge*size/rate)))};
+    }
+    struct Frame {float levelDb;std::array<double,powerBassBandCount> power;};
+    std::vector<Frame> frames;
+    for(size_t start=0;start+size_t(size)<=samples.size();start+=size_t(hop)) {
+        double energy=0;
+        for(int n=0;n<size;++n) {
+            const float x=samples[start+size_t(n)];
+            if(!std::isfinite(x))return result;
+            energy+=double(x)*x;frame[size_t(n)]=x*window[size_t(n)];
+        }
+        std::fill(frame.begin()+size,frame.end(),0.f);
+        fft.performFrequencyOnlyForwardTransform(frame.data(),true);
+        Frame f{toDb(std::sqrt(energy/size)),{}};
+        for(int b=0;b<powerBassBandCount;++b)
+            for(int k=bins[size_t(b)].first;k<bins[size_t(b)].second;++k)f.power[size_t(b)]+=double(frame[size_t(k)])*frame[size_t(k)];
+        frames.push_back(f);
+    }
+    std::vector<float> levels;for(const auto& f:frames)levels.push_back(f.levelDb);
+    const float loud=percentile(levels,.90f);
+    std::array<double,powerBassBandCount> power{};int used=0;
+    for(const auto& f:frames)if(f.levelDb>=loud-15.f && f.levelDb>minimumPlayingDb) {
+        ++used;for(int b=0;b<powerBassBandCount;++b)power[size_t(b)]+=f.power[size_t(b)];
+    }
+    result.measured=used>0;
+    if(result.measured)for(int b=0;b<powerBassBandCount;++b)
+        result.bandsDb[size_t(b)]=float(10*std::log10(std::max(1e-30,power[size_t(b)]/used)));
+    return result;
+}
+inline float powerBassBandDb(const std::array<float,powerBassBandCount>& bands,float from,float to) {
+    double power=0;
+    for(int b=0;b<powerBassBandCount;++b)if(powerBassBandCentres[size_t(b)]>=from && powerBassBandCentres[size_t(b)]<=to)
+        power+=std::pow(10.,bands[size_t(b)]/10.);
+    return float(10*std::log10(std::max(power,1e-30)));
+}
+inline float powerBassExcessDb(const std::array<float,powerBassBandCount>& bands,int role,Style style) {
+    std::array<float,powerBassBandCount> target{};
+    // Reuse the existing curve, including its constant extension below 40 Hz.
+    // That sub-bass target remains provisional pending DI and listening tests.
+    for(int b=0;b<powerBassBandCount;++b)target[size_t(b)]=toneTargetDb(true,powerBassBandCentres[size_t(b)],style);
+    const float from=role==powerPresence?1250.f:25.f,to=role==powerPresence?3150.f:100.f;
+    const auto balance=[&](const auto& x){return powerBassBandDb(x,from,to)-powerBassBandDb(x,400,1600);};
     return balance(bands)-balance(target);
 }
 // What a role's excess costs: too much low end counts double on driven guitar.
@@ -70,6 +145,7 @@ using PowerRenderer=std::function<std::vector<float>(const std::array<float,2>&)
 inline PowerResult analysePower(const std::vector<float>& input,const std::vector<float>& post,const std::vector<float>& playedAmp,double rate,
                                 const std::array<AmpKnob,2>& knobs,const PowerRenderer& render,std::optional<bool> bass={},Style style=Style::rock) {
     PowerResult r;r.before=knobs;r.proposed=knobs;
+    if(!std::isfinite(rate) || rate<8000)return r;
     const auto heard=measureSpectrum(post,rate,bass);
     std::vector<float> segment(input.begin(),input.begin()+std::min(input.size(),size_t(rate*ampRenderSeconds)));
     r.playingDetected=heard.playing && measureSpectrum(segment,rate,true).playing;
@@ -79,10 +155,23 @@ inline PowerResult analysePower(const std::vector<float>& input,const std::vecto
     if(!played.playing){r.playingDetected=false;return r;}
     std::array<float,toneBandCount> after{};
     for(int b=0;b<toneBandCount;++b)after[size_t(b)]=heard.bandsDb[size_t(b)]-played.bandsDb[size_t(b)];
+    std::array<float,powerBassBandCount> afterBass{};
+    if(r.bass) {
+        const auto heardBass=measurePowerBassSpectrum(post,rate),playedBass=measurePowerBassSpectrum(playedAmp,rate);
+        if(!heardBass.measured || !playedBass.measured){r.playingDetected=false;return r;}
+        for(int b=0;b<powerBassBandCount;++b)afterBass[size_t(b)]=heardBass.bandsDb[size_t(b)]-playedBass.bandsDb[size_t(b)];
+    }
     std::array<float,2> values{knobs[0].value,knobs[1].value};
     const auto excesses=[&](const std::array<float,2>& v) {
-        auto s=measureSpectrum(render(v),rate,r.bass);
         std::array<float,2> e{};
+        if(r.bass) {
+            auto s=measurePowerBassSpectrum(render(v),rate);
+            if(!s.measured){e.fill(1e9f);return e;}
+            for(int b=0;b<powerBassBandCount;++b)s.bandsDb[size_t(b)]+=afterBass[size_t(b)];
+            for(int role=0;role<2;++role)e[size_t(role)]=powerBassExcessDb(s.bandsDb,role,style);
+            return e;
+        }
+        auto s=measureSpectrum(render(v),rate,r.bass);
         if(!s.playing){e.fill(1e9f);return e;}
         for(int b=0;b<toneBandCount;++b)s.bandsDb[size_t(b)]+=after[size_t(b)];
         for(int role=0;role<2;++role)e[size_t(role)]=powerExcessDb(s.bandsDb,role,r.bass,style);
@@ -101,6 +190,9 @@ inline PowerResult analysePower(const std::vector<float>& input,const std::vecto
         const float allowed=std::max(powerCost(from[size_t(other)],other,r.bass,style),powerToleranceDb);
         return powerCost(e[size_t(role)],role,r.bass,style)+std::max(0.f,powerCost(e[size_t(other)],other,r.bass,style)-allowed);
     };
+    const auto totalCost=[&](const std::array<float,2>& e) {
+        return powerCost(e[0],0,r.bass,style)+powerCost(e[1],1,r.bass,style);
+    };
     for(int role=0;role<2;++role) {
         const auto& knob=knobs[size_t(role)];
         if(!knob.present || knob.maximum<=knob.minimum)continue;
@@ -118,6 +210,9 @@ inline PowerResult analysePower(const std::vector<float>& input,const std::vecto
             if(probe[size_t(role)]==previous)break; // reached the end of the knob
             previous=probe[size_t(role)];
             const auto e=excesses(probe);
+            // The other balance's tolerance is not permission to make the
+            // combined error worse, even when that other error stays <1.5 dB.
+            if(totalCost(e)>totalCost(from)+1e-5f)continue;
             if(const float cost=score(e,from,role);cost<best){best=cost;bestValues=probe;bestExcess=e;}
         }
         if(best<start-powerMinGainDb){values=bestValues;now=bestExcess;}
