@@ -55,16 +55,21 @@ local function press(pressed)
     local b = obs.obs_get_source_by_name("{B}")
     local c = obs.obs_get_source_by_name("{C}")
     local d = obs.obs_get_source_by_name("{D}")
-    local filter = obs.obs_source_get_filter_by_name(b, "{FILTER_B}")
-    obs.obs_source_copy_filters(c, b)
-    obs.obs_source_copy_single_filter(d, filter)
-    obs.script_log(obs.LOG_INFO, "chimera instances test: pasted the filters of '{B}' on '{C}' ("
-                   .. obs.obs_source_filter_count(c) .. ") and its Chimera filter on '{D}' ("
-                   .. obs.obs_source_filter_count(d) .. ")")
-    obs.obs_source_release(filter)
-    obs.obs_source_release(d)
-    obs.obs_source_release(c)
-    obs.obs_source_release(b)
+    local filter = b and obs.obs_source_get_filter_by_name(b, "{FILTER_B}")
+    if c and d and filter then
+        obs.obs_source_copy_filters(c, b)
+        obs.obs_source_copy_single_filter(d, filter)
+        obs.script_log(obs.LOG_INFO, "chimera instances test: pasted the filters of '{B}' on '{C}' ("
+                       .. obs.obs_source_filter_count(c) .. ") and its Chimera filter on '{D}' ("
+                       .. obs.obs_source_filter_count(d) .. ")")
+    else
+        obs.script_log(obs.LOG_WARNING, "chimera instances test: a source or the filter of '{B}' is missing")
+    end
+    -- Every reference taken above is released, or OBS would wait for it on shutdown.
+    local held = {{filter, d, c, b}}
+    for i = 1, 4 do  -- not ipairs: it would stop at the first missing one
+        if held[i] then obs.obs_source_release(held[i]) end
+    end
 end
 
 function script_load(settings)
