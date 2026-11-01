@@ -301,8 +301,12 @@ inline void run(const juce::File& directory) {
     require(signalPathTests::values(p)==bandBefore,"Multiband selection changed the sound");
     {   // Six bands (docs/SIX_BAND_1_5.md): bands 5 and 6 and crossovers 4 and 5 appear; back to four hides them.
         auto* count=p.parameters().getParameter("mbBandCount");require(count,"Band count parameter missing");
-        count->setValueNotifyingHost(1.f);settle(80);
-        require(band->isItemEnabled(6) && band->getItemText(5)=="Band 6 / AIR","Six-band selector entries missing");
+        // The panel picks the band count up on its refresh timer; macOS runners
+        // can stall the run loop for about a second, so wait for it.
+        const auto soon=[](auto&& ready,const char* failure){const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
+            while(!ready()){require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);settle(20);}};
+        count->setValueNotifyingHost(1.f);
+        soon([&]{return band->isItemEnabled(6) && band->getItemText(5)=="Band 6 / AIR";},"Six-band selector entries missing");
         band->setSelectedId(6,juce::sendNotificationSync);settle(30);
         visibleInside(*editor,*panel,"mbBand6_threshold");visibleInside(*editor,*panel,"mbBand6_channels");
         visibleInside(*editor,*panel,"mbCrossover4");visibleInside(*editor,*panel,"mbCrossover5");visibleInside(*editor,*panel,"mbBandCount");
@@ -312,8 +316,8 @@ inline void run(const juce::File& directory) {
             auto out=juce::File(dir).getChildFile("six_band_panel.png");out.deleteFile();auto stream=out.createOutputStream();
             require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the six-band snapshot");
         }
-        count->setValueNotifyingHost(0.f);settle(80);
-        require(!band->isItemEnabled(5) && band->getSelectedId()==4,"Four bands kept band 5/6 selectable");
+        count->setValueNotifyingHost(0.f);
+        soon([&]{return !band->isItemEnabled(5) && band->getSelectedId()==4;},"Four bands kept band 5/6 selectable");settle(30);
         require(!find(*panel,"mbCrossover4")->isShowing() && !find(*panel,"mbBand6_threshold")->isShowing(),"Four bands show crossover 4 or band 6");
         visibleInside(*editor,*panel,"mbBand4_threshold");
     }
