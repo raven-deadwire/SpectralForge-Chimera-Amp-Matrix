@@ -174,6 +174,9 @@ public:
     const spectralforge::LoudnessMeter& outputLoudness() const noexcept { return loudness; }
     // The oversampling choice the amps run with (Auto or the stored choice).
     int effectiveOversampling() const noexcept;
+    // Message thread: write a queued OVERSAMPLING Auto switch-off now instead
+    // of at the next message-loop turn (tests that snapshot parameters).
+    void flushPendingParameterWrites() {autoOffWriter.handleUpdateNowIfNeeded();}
     void resetOutputLoudness() noexcept { loudness.requestReset(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}

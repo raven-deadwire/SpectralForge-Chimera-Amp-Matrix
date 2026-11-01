@@ -18,7 +18,7 @@ void require(bool ok,const juce::String& message){if(!ok)throw std::runtime_erro
 void set(ChimeraProcessor& p,const char* id,float value){auto* q=p.parameters().getParameter(id);require(q!=nullptr,juce::String("missing ")+id);q->setValueNotifyingHost(q->convertTo0to1(value));}
 float raw(ChimeraProcessor& p,const char* id){return p.parameters().getRawParameterValue(id)->load();}
 // Auto is switched off on the message thread after a change to the choice.
-bool automatic(ChimeraProcessor& p){juce::MessageManager::getInstance()->runDispatchLoopUntil(5);return raw(p,"oversamplingAuto")>.5f;}
+bool automatic(ChimeraProcessor& p){p.flushPendingParameterWrites();return raw(p,"oversamplingAuto")>.5f;}
 
 std::vector<float> render(ChimeraProcessor& p,double rate,int block=128,double seconds=.6){
     p.prepareToPlay(rate,block);juce::AudioBuffer<float> b(2,block);juce::MidiBuffer midi;std::vector<float> out;
@@ -105,7 +105,7 @@ void hostHearsAutoOff(){
     require(p->effectiveOversampling()==3,"the host's choice is not used at once");
     {auto copy=std::make_unique<ChimeraProcessor>();copy->prepareToPlay(96000,128);restore(*copy,save(*p));   // saved before the switch-off is written
      require(raw(*copy,"oversamplingAuto")<.5f && copy->effectiveOversampling()==3,"a state saved right after a host change keeps Auto on");}
-    juce::MessageManager::getInstance()->runDispatchLoopUntil(20);
+    p->flushPendingParameterWrites();   // what the next message-loop turn does
     require(raw(*p,"oversamplingAuto")<.5f && host.heard.size()==1 && host.heard[0]==0.f,"the host was not told that Auto turned off");
     p->removeListener(&host);
     std::cout<<"PASS a host write of OVERSAMPLING uses the host's choice at once and tells the host Auto is off afterwards\n";
