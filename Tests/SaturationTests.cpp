@@ -124,8 +124,10 @@ void isolationAndSwitching() {
         Host h;for(int b=0;b<3;++b)h.set(saturationID(b,"type"),driven&&b==1?3.f:0.f);h.set(saturationID(1,"drive"),36);
         auto x=tones({{2500,-6}},1.);h.saturation.prepare(rate,256);std::vector<float> out;
         for(size_t off=0;off<x[0].size();off+=256){h.set("satOn",off>=size_t(.3*rate)&&off<size_t(.65*rate)?1.f:0.f);
-            juce::AudioBuffer<float> part(2,256);for(int c=0;c<2;++c)part.copyFrom(c,0,x[size_t(c)].data()+off,256);
-            h.saturation.process(part);out.insert(out.end(),part.getReadPointer(0),part.getReadPointer(0)+256);}
+            // The last block is shorter: 48000 samples are not a whole number of 256-sample blocks.
+            const int n=int(std::min<size_t>(256,x[0].size()-off));
+            juce::AudioBuffer<float> part(2,n);for(int c=0;c<2;++c)part.copyFrom(c,0,x[size_t(c)].data()+off,n);
+            h.saturation.process(part);out.insert(out.end(),part.getReadPointer(0),part.getReadPointer(0)+n);}
         const auto rms=[&](size_t a,size_t b){double e=0;for(size_t i=a;i<b;++i)e+=double(out[i])*out[i];return std::sqrt(e/double(b-a));};
         before=rms(size_t(.2*rate),size_t(.3*rate));after=rms(size_t(.5*rate),size_t(.6*rate));low=1e9;high=0;
         for(const size_t start:{size_t(.3*rate),size_t(.65*rate)})for(size_t w=start;w<start+size_t(.04*rate);w+=96){low=std::min(low,rms(w,w+96));high=std::max(high,rms(w,w+96));}};
@@ -161,6 +163,7 @@ void processorParameters() {
 }
 
 int main() {
+    std::cout<<std::unitbuf;   // every line reaches the log even if a subtest crashes
     juce::ScopedJuceInitialiser_GUI init;
     try {exactWhenNeutral();smallSignalAndCleanLow();typesAndDrive();isolationAndSwitching();studio();processorParameters();
          require(allocations==0,"Saturation allocates while processing");std::cout<<"PASS no allocation while processing\n";return 0;}
