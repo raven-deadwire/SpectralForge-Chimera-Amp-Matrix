@@ -44,7 +44,7 @@ OBS 오디오 필터 API를 외부 경계로 사용한다. 기존 오디오 엔�
 | C. 상태와 UI ✅ (실제 OBS 앱: 자동 시험으로 상태 적용·저장·재시작 복원 확인, 복제·다중 인스턴스·화면 조작 확인 전) | 전용 설정·공통 프리셋·IR·장면 상태 버전 | 저장/재시작/복제/다중 인스턴스 일치, 누락 IR 처리 |
 | D. 실시간·방송 (진행: 도구·헤드리스 시험 완료, Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple 실제 OBS 1시간 녹화 자동 시험(`obs-long-recording.yml`, CI 가상 머신), 실제 장비·오디오 장치 1시간 녹화 전) | 가변 블록/중단 재개/샘플레이트·채널 변경, 실시간 통계·로그, 테스트 킷 전용 필터 세션 | 1시간 녹화, 시작/끝 영상 싱크, CPU·메모리·드롭아웃 기록 |
 | E. 배포 (진행: Windows Setup 선택 설치·OBS 실행 중 보호·장면 보존·버전 표기·사용 안내, 서명 인증서 전) | 설치·업그레이드·제거·서명·사용 안내 | 사용자 장면/프리셋/IR 보존, 검증한 OBS 버전 명시 |
-| F. 다른 OS (진행: macOS Universal(Apple silicon·Intel, macOS 12+)·Linux x86_64 빌드·사용자 설치 패키지·설치 위치 시험, macOS Chimera PKG 선택 설치, Linux DEB/TAR 동봉, 에디터 창, Linux 실제 OBS 30.0.2·Windows·macOS(Apple silicon) 실제 OBS 31.1.2 앱 자동 시험(필터 로딩·녹화·상태 적용·저장·재시작 복원), macOS Intel 실제 앱 확인 전) | macOS/Linux별 빌드·패키지 | 해당 OS의 실제 OBS에서 B–E 재검증 |
+| F. 다른 OS (진행: macOS Universal(Apple silicon·Intel, macOS 12+)·Linux x86_64 빌드·사용자 설치 패키지·설치 위치 시험, macOS Chimera PKG 선택 설치, Linux DEB/TAR 동봉, 에디터 창, Linux 실제 OBS 30.0.2·Windows·macOS(Apple silicon, Intel 앱은 Rosetta) 실제 OBS 31.1.2 앱 자동 시험(필터 로딩·녹화·상태 적용·저장·재시작 복원), 실제 Intel Mac 확인 전) | macOS/Linux별 빌드·패키지 | 해당 OS의 실제 OBS에서 B–E 재검증 |
 
 DSP 처리용 버퍼는 준비 단계에서 확보한다. OBS planar audio와 프로세서의 채널/
 가변 블록 계약, 샘플레이트 변경 시 재준비, 소스 제거 시 오디오/UI/worker 종료
