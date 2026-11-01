@@ -396,7 +396,10 @@ public:
         s.a = juce::jlimit(0.f, 1.f, value(a, 50.f) * .01f);s.b = juce::jlimit(0.f, 1.f, value(b, 50.f) * .01f);s.c = juce::jlimit(0.f, 1.f, value(c, 50.f) * .01f);
         s.mix = juce::jlimit(0.f, 1.f, value(mix, 50.f) * .01f);
         s.sync = juce::jlimit(0, int(creativeSyncBeats.size()) - 1, juce::roundToInt(value(sync, 3.f)));
-        s.outputDb = juce::jlimit(-24.f, 12.f, value(output, 0.f));
+        // Back on the parameter's 0.01 dB grid: JUCE snaps -24 + 0.01 * 2400,
+        // which with fused multiply-add (Apple Silicon) leaves about -5e-7 dB
+        // for the 0 dB default, and Mix 0 would no longer be exact.
+        s.outputDb = std::round(juce::jlimit(-24.f, 12.f, value(output, 0.f)) * 100.f) * .01f;
         return s;
     }
     void process(juce::AudioBuffer<float>& buffer, double tempo) noexcept override {
