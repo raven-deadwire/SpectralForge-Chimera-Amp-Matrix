@@ -30,7 +30,7 @@ int main(){using namespace spectralforge;size_t callbacks=0;
 for(double rate:{44100.,48000.,96000.})for(int channels:{1,2}) {
     PostFXChain chain;chain.prepare({rate,1024,(juce::uint32)channels});FXState state;state.postNative=defaultPostNativeState();juce::AudioBuffer<float>b(channels,1024);
     for(int size:{64,256,1024}) {b.setSize(channels,size,false,false,true);
-        for(int k=0;k<60;++k) {for(int s=0;s<3;++s){auto& section=state.postNative.sections[s];section.selected=(k/3)%3;section.nativeEnabled=(k%11)!=0;auto& bank=section.banks[section.selected];bank.bypass=k%7==0;for(int c=0;c<postNativeModel(s,section.selected).controlCount;++c){const auto& p=postNativeModel(s,section.selected).controls[c];bank.values[c]=k%2?p.minimum:p.maximum;}}
+        for(int k=0;k<60;++k) {for(int s=0;s<3;++s){auto& section=state.postNative.sections[s];section.selected=(k/3)%postNativeModelsPerSection;section.nativeEnabled=(k%11)!=0;auto& bank=section.banks[section.selected];bank.bypass=k%7==0;for(int c=0;c<postNativeModel(s,section.selected).controlCount;++c){const auto& p=postNativeModel(s,section.selected).controls[c];bank.values[c]=k%2?p.minimum:p.maximum;}}
             for(int c=0;c<channels;++c)for(int n=0;n<size;++n)b.setSample(c,n,.1f*std::sin(float(k*size+n)*.075f));
             counting=true;chain.process(b,state);counting=false;++callbacks;
             for(int c=0;c<channels;++c)for(int n=0;n<size;++n)if(!std::isfinite(b.getSample(c,n))){std::cerr<<"FAIL nonfinite\n";return 1;}

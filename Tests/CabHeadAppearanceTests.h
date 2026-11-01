@@ -77,7 +77,7 @@ inline std::string describeShellMismatch(const juce::Image& actual,const juce::I
 // Blank plate rectangles measured on the final raw assets by the visual
 // review, independently of frontPlane or the runtime knob layout. Keep these
 // fixtures explicit: fitting a control onto grille/trim is a visual regression.
-inline constexpr std::array<spectralforge::headShell::PixelRect,26> reviewedHeadPlates{{
+inline constexpr std::array<spectralforge::headShell::PixelRect,31> reviewedHeadPlates{{
     {89,568,1596,135}, // 0
     {122,633,1292,158}, // 1
     {89,505,1599,187}, // 2
@@ -104,6 +104,12 @@ inline constexpr std::array<spectralforge::headShell::PixelRect,26> reviewedHead
     {97,604,1347,161}, // 23
     {108,522,1555,225}, // 24
     {77,509,1514,261}, // 25
+    // 26-30: plates written by Tools/generate_reference_head_shells.py.
+    {80,568,1512,212}, // 26
+    {80,548,1512,232}, // 27
+    {80,548,1512,232}, // 28
+    {80,540,1512,240}, // 29
+    {280,551,1112,199}, // 30
 }};
 inline juce::Rectangle<float> reviewedHeadPlate(int model) {
     return spectralforge::cabHead::pixels(reviewedHeadPlates[static_cast<size_t>(model)]);
@@ -181,7 +187,8 @@ inline void checkHeadAppearance(std::initializer_list<int> selection={}) {
             && spec.supportY<=measured.getBottom(),model,
             "Authored alpha bounds, front control plane or support baseline do not match the source");
         const bool expectedHandle=model!=int(AmpModel::solidPunch) && model!=int(AmpModel::modernBass)
-            && model!=int(AmpModel::subwayClean) && model!=int(AmpModel::tastePunch);
+            && model!=int(AmpModel::subwayClean) && model!=int(AmpModel::tastePunch)
+            && model!=int(AmpModel::northlight);
         headAppearanceCheck(spec.topHandle==expectedHandle && cabHead::hasTopHandle(model)==expectedHandle,model,
                             "A rack/desktop shell gained a handle or a carrying handle was omitted");
         const auto& native=ampNativePanel(model);

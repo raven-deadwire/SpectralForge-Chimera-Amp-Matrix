@@ -1,12 +1,19 @@
 #include "CabMicRouting.h"
 #pragma once
 #include "OriginalCabParameters.h"
+#include "KeyDelay.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <functional>
 #include <thread>
 #include "DynamicsAnalysis.h"
 #include "AutoSet.h"
 #include "MultibandDynamics.h"
+#include "ThreeBandSaturation.h"
+#include "FilterModulation.h"
+#include "CreativeFX.h"
+#include "SynthLayer.h"
+#include "Sidechain.h"
+#include "SignalOrderParameters.h"
 #include "DeEsser.h"
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -18,6 +25,7 @@
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
 #include "ExtraGates.h"
+#include "RoomCore.h"
 #include "AmpSelectionParameters.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
@@ -29,6 +37,8 @@
 
 #include "AAXIdentity.h"
 #include "HostBypass.h"
+#include "LoudnessMeter.h"
+#include "OversamplingAuto.h"
 
 class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
@@ -68,13 +78,30 @@ public:
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "SpectralForge Chimera"; }
     bool acceptsMidi() const override { return true; }
+    // 1.10 SYNTH: the tracked guitar pitch (Hz, 0 when none), for the panel readout.
+    double synthTrackedFrequency() const noexcept { return synthTracked.load(std::memory_order_relaxed); }
+    // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md). Message thread. Each edit
+    // writes the slot parameters (one host gesture each) and can be undone.
+    spectralforge::SignalOrder requestedOrder() const noexcept { return signalOrder.read({}); }
+    bool placeModule(spectralforge::OrderRegion region,int module,int position);
+    bool moveModule(spectralforge::OrderRegion region,int module,int delta);
+    bool resetOrder(spectralforge::OrderRegion region);
+    bool applyOrderPreset(spectralforge::OrderRegion region,int preset);
+    bool undoOrder();bool redoOrder();
+    bool canUndoOrder() const noexcept {return !orderUndo.empty();}
+    bool canRedoOrder() const noexcept {return !orderRedo.empty();}
+    // Whether the host has enabled the optional buses.
+    bool sidechainEnabled() const { return getBusCount(true)>1 && getBus(true,1)->isEnabled(); }
+    bool synthBusEnabled() const { return getBusCount(false)>1 && getBus(false,1)->isEnabled(); }
+    // The synth engine, read by the SYNTH page (scope, LFO and tracking readouts).
+    const spectralforge::SynthLayer& synthEngine() const noexcept { return synth; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override {
         double tail=1.1;
         if(fxParameters[4] && fxParameters[4]->load()>.5f) tail+=(fxParameters[48]->load()>.5f ? 1.5 : fxParameters[5]->load()*.001)*std::log(.001)/std::log(juce::jlimit(.0001f,.85f,fxParameters[6]->load()));
         if(fxParameters[8] && fxParameters[8]->load()>.5f) tail+=12.0;
-        return tail+toneEQ.tailSeconds()+finalEQ.tailSeconds();
+        return tail+toneEQ.tailSeconds()+finalEQ.tailSeconds()+room.tailSeconds();
     }
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
@@ -88,6 +115,11 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
     juce::Result loadIR(int lane,const juce::File& file);
     juce::Result loadMicIR(int lane,int slot,const juce::File& file);
+    // SYNTH sample oscillators (docs/SYNTH_V2.md). Message thread. Loading
+    // switches the oscillator on in Sample mode and sets its root to the
+    // detected pitch (one host gesture each); the sample is saved in the state.
+    juce::Result loadSynthSample(int osc,const juce::File& file);
+    void clearSynthSample(int osc);
     // Message thread. Renders `input` through a copy of a lane's cabinet as it
     // is now set up (modeled or captured IRs, mic A/B blend, gain, delay and
     // polarity, low/high cuts, cabinet on/off) without touching the running
@@ -138,6 +170,14 @@ public:
     void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
+    // Studio loudness / true peak of the final output (docs/LOUDNESS_METER_1_5.md).
+    const spectralforge::LoudnessMeter& outputLoudness() const noexcept { return loudness; }
+    // The oversampling choice the amps run with (Auto or the stored choice).
+    int effectiveOversampling() const noexcept;
+    // Message thread: write a queued OVERSAMPLING Auto switch-off now instead
+    // of at the next message-loop turn (tests that snapshot parameters).
+    void flushPendingParameterWrites() {autoOffWriter.handleUpdateNowIfNeeded();}
+    void resetOutputLoudness() noexcept { loudness.requestReset(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
@@ -181,12 +221,17 @@ public:
     // does not enter the frozen parameter inventory; the audio thread reads the
     // atomic mirror.
     void setTransposeQuality(int mode);
+    // Room Core diagnostics (tests): samples run through the room and the
+    // last block's send-bus peak.
+    uint64_t roomProcessedSamples() const noexcept { return room.processedSamples(); }
+    float roomInputPeak() const noexcept { return room.lastInputPeak(); }
     int transposeQuality() const { return transposeQualityMode.load(); }
     spectralforge::PedalBoardState pedalBoardState() const { return boardParameters.read(); }
     void setPedalBoardEnabled(bool enabled);
     int pedalBoardLatencySamples()const{return pedalBoard.latency(boardParameters.read());}
     void setPedalModel(int owner,int model);
     void movePedal(int owner,int direction);
+    void movePedalTo(int owner,int destination);
     bool duplicatePedal(int owner);
     void undoPedalEdit(bool redo=false);
     float pedalReduction() const { return boardReduction.load(); }
@@ -278,11 +323,33 @@ private:
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
+    spectralforge::CreativeFX creative;
+    spectralforge::SynthLayer synth;
+    std::atomic<double> synthTracked{0.0};
+    // Sidechain and SYNTH bus (docs/SIDECHAIN_SYNTH_BUS.md). The key and bus
+    // pointers are valid only while process() runs on one chunk.
+    juce::AudioBuffer<float> busBuffer(juce::AudioBuffer<float>& hostBuffer,bool input) const;
+    std::atomic<float>* synthOutput{};std::atomic<float>* keyComp{};std::atomic<float>* keyGates{};std::atomic<float>* keyMultiband{};
+    juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};
+    // The key delayed by HQ saturation (tone region) and the POST preamp, for keyed modules placed after them.
+    spectralforge::KeyDelay toneKeyDelay,postKeyDelay;const juce::AudioBuffer<float>* toneKeyDelayed{};const juce::AudioBuffer<float>* postKeyDelayed{};float* busLeft{};float* busRight{};
+    spectralforge::SignalOrderParameters signalOrder;spectralforge::SignalOrder activeOrder;   // activeOrder: audio thread
+    spectralforge::OrderSwitch toneSwitch,postSwitch;
+    double hostPpq{std::numeric_limits<double>::quiet_NaN()},hostPpqBpm{std::numeric_limits<double>::quiet_NaN()},hostBarStart{std::numeric_limits<double>::quiet_NaN()},hostBarBeats{},chunkPpq{std::numeric_limits<double>::quiet_NaN()};
+    std::vector<spectralforge::SignalOrder> orderUndo,orderRedo;
+    void writeOrder(const spectralforge::SignalOrder& order);
+    bool commitOrder(const spectralforge::SignalOrder& next);
+    // The SYNTH bus is delayed by the reported latency, like the main output.
+    juce::AudioBuffer<float> busDelay;int busDelayWrite{};
+    void delaySynthBus(float* left,float* right,int samples) noexcept;
     spectralforge::HostBypass hostBypass;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::CommonDynamics dynamics;
     spectralforge::MultibandDynamics multiband;
+    spectralforge::ThreeBandSaturation saturation;
+    spectralforge::FilterModulation filterModulation;
     spectralforge::DeEsser deesser;
+    spectralforge::RoomCore room;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
     std::atomic<bool> autoSetGateBypass{false};
@@ -298,13 +365,33 @@ private:
     enum Extra {dualType,dualBlend,dualFrequency,inputMode,doublerOn,doublerTime,tempo,hostTempo,metronome,extraCount};
     std::array<std::atomic<float>*,extraCount> extras{};
     std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
-    std::array<std::atomic<float>*,11> modelParameters{};
+    std::array<std::atomic<float>*,11> modelParameters{},modelExtensionParameters{};
     std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{}, * preOrderParameter{}, * gainOrderParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};
+    // OVERSAMPLING Auto (docs/OVERSAMPLING_AUTO.md): a change to the released
+    // "oversampling" parameter turns Auto off, except while a session,
+    // comparison or preset is being restored.
+    std::atomic<float>* oversamplingAuto{};
+    std::atomic<int> restoringState{0};
+    // A host write reaches the listener inside the wrapper's own callback,
+    // where a nested parameter write is not passed on to the host. So the
+    // audio stops following Auto at once (autoOffPending), and the switch
+    // itself is written afterwards on the message thread, where the host
+    // hears it.
+    std::atomic<bool> autoOffPending{false};
+    std::atomic<double> preparedRate{48000};
+    struct AutoOffWriter final : juce::AsyncUpdater {ChimeraProcessor* owner{};void handleAsyncUpdate() override;} autoOffWriter;
+    struct OversamplingChoiceListener final : juce::AudioProcessorParameter::Listener {
+        ChimeraProcessor* owner{};
+        void parameterValueChanged(int,float) override;
+        void parameterGestureChanged(int,bool) override {}
+    } oversamplingChoiceListener;
+    struct RestoringScope {std::atomic<int>& depth;explicit RestoringScope(std::atomic<int>& d):depth(d){++depth;}~RestoringScope(){--depth;}};
     std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};
     juce::SmoothedValue<float> inputGain, outputGain, tuningMute;
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
+    spectralforge::LoudnessMeter loudness;
     std::atomic<float> preReduction{0},postReduction{0};
     std::array<std::atomic<float>,6> postPeaks{};
     std::array<std::atomic<float>,3> nativePostMeters{};

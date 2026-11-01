@@ -83,6 +83,11 @@ inline void mapping() {
         return c>=0 ? std::string(spectralforge::ampNativePanel(model).controls[(size_t)c].key) : std::string{};};
     for(int route:{0,1,4})require(key(1,0,route,Role::gain)=="hw.high_treble","Brit Edge HIGH TREBLE / JUMPED GAIN must edit LOUDNESS I");
     for(int route:{2,3})require(key(1,0,route,Role::gain)=="hw.normal","Brit Edge NORMAL input GAIN must edit LOUDNESS II");
+    for(int route:{0,1,4})require(key(27,0,route,Role::gain)=="hw.high_treble","Bluestack 100 HIGH TREBLE / JUMPED GAIN must edit LOUDNESS I");
+    for(int route:{2,3})require(key(27,0,route,Role::gain)=="hw.normal","Bluestack 100 NORMAL input GAIN must edit LOUDNESS II");
+    require(key(28,0,0,Role::gain)=="hw.preamp","Eightyfire GAIN must edit PRE-AMP VOLUME");
+    for(int route:{0,1})require(key(29,0,route,Role::gain)=="hw.normal","Fortress 103 NORMAL input GAIN must edit NORMAL VOLUME");
+    for(int route:{2,3,4})require(key(29,0,route,Role::gain)=="hw.bright","Fortress 103 BRIGHT / JUMPED GAIN must edit BRIGHT VOLUME");
     require(key(19,0,0,Role::gain)=="hw.normal","Monolith NORMAL input GAIN must edit NORMAL");
     for(int route:{1,2})require(key(19,0,route,Role::gain)=="hw.brilliant","Monolith BRILLIANT / JUMPED GAIN must edit BRILLIANT");
     require(key(7,0,0,Role::gain)=="hw.db751.gain" && key(7,0,0,Role::bass)=="hw.db751.bass" && key(7,0,0,Role::middle)=="hw.db751.mid"
@@ -217,6 +222,16 @@ inline void autoSetAndPresets() {
     auto p=std::make_unique<ChimeraProcessor>();p->prepareToPlay(48000,256);
     auto editor=openEditor(*p);
     // A run started in the full editor is shown by an Easy view created afterwards.
+    // The header AUTO SET is in view on every page: it starts Auto Set, opens
+    // the dynamics page with its progress, turns into CANCEL, and cancels.
+    {
+        auto* header=find<juce::TextButton>(*editor,"header.autoSet");require(header!=nullptr && header->isShowing(),"Header AUTO SET not visible");
+        auto* panelButton=find<juce::TextButton>(*editor,"commonDynamics.autoSet");
+        header->onClick();settle(20);
+        require(header->getButtonText()=="CANCEL" && panelButton!=nullptr && panelButton->isShowing(),"Header AUTO SET did not start Auto Set on the dynamics page");
+        header->onClick();settle(20);
+        require(header->getButtonText()=="AUTO SET","Header CANCEL did not stop Auto Set");
+    }
     auto* start=find<juce::TextButton>(*editor,"commonDynamics.autoSet");require(start!=nullptr,"Full editor AUTO SET missing");
     start->onClick();settle(20);
     editor->setEasyMode(true);settle(40);
@@ -393,11 +408,16 @@ inline void inputGuide(const juce::File& directory) {
             auto* view=find<EasyModeView>(*editor,"easyView");
             for(auto* id:{"easy.fullEditor","easy.preset","easy.autoSet","easy.tuner"})
                 require(!active->getBoundsInParent().intersects(find(*view,id)->getBoundsInParent()),"Input guide covers an Easy control");
+        } else {
+            // The header AUTO SET would sit under the guide: it waits until the input is on.
+            auto* header=find<juce::TextButton>(*editor,"header.autoSet");
+            require(header!=nullptr && !header->isVisible(),"Header AUTO SET shown under the muted-input guide");
         }
         signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.settings"));settle(80);
         require(settingsOpened==(easy?1:2) && muted && unmuteCalls==(easy?0:1),"AUDIO SETTINGS must not unmute");
         signalPathTests::click(*find<juce::TextButton>(*active,"inputGuide.unmute"));settle(400);
         require(!muted && !guide->isVisible() && !full->isVisible(),"INPUT ON must hide both guides");
+        if(!easy)require(find<juce::TextButton>(*editor,"header.autoSet")->isVisible(),"Header AUTO SET did not return with the input on");
         require(guide->isPollingInput() && full->isPollingInput(),"Standalone must still observe re-muting");
         muted=true;settle(400);
         require(guide->isVisible() && full->isVisible(),"Muting in settings must restore both guides");

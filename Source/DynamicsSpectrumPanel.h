@@ -14,6 +14,7 @@ namespace spectralforge {
 class DynamicsSpectrumPanel final : public juce::Component, private juce::Timer {
 public:
     struct FrequencyMarker {float frequency{};juce::String label;};
+    static constexpr int maxFrequencyMarkers=5;   // six-band multiband: five crossovers
 
     DynamicsSpectrumPanel(DynamicsAnalysis& source,EQCaptureBoundary& boundary)
         :analysis(source),captureBoundary(boundary) {
@@ -97,8 +98,8 @@ public:
         freeze.setEnabled(frozen || spectrum.canFreezeSnapshot());
         rebuildPaths();updateCapture();repaint();
     }
-    void setFrequencyMarkers(const std::array<FrequencyMarker,3>& next,int count) {
-        count=std::clamp(count,0,3);bool changed=count!=markerCount;
+    void setFrequencyMarkers(const std::array<FrequencyMarker,maxFrequencyMarkers>& next,int count) {
+        count=std::clamp(count,0,maxFrequencyMarkers);bool changed=count!=markerCount;
         for(int i=0;i<count;++i)changed|=markers[size_t(i)].frequency!=next[size_t(i)].frequency || markers[size_t(i)].label!=next[size_t(i)].label;
         markers=next;markerCount=count;if(changed)repaint();
     }
@@ -271,6 +272,6 @@ private:
     int requestedPreOwner{-1},requestedPostSource{-1};
     juce::TextButton live,input,output,freeze;juce::ComboBox resolution,smoothing;
     std::array<juce::Path,2> paths,fills;juce::Path dashedInput;
-    std::array<FrequencyMarker,3> markers{};int markerCount{},draggedMarker{-1};float highlightLow{},highlightHigh{};
+    std::array<FrequencyMarker,maxFrequencyMarkers> markers{};int markerCount{},draggedMarker{-1};float highlightLow{},highlightHigh{};
 };
 }

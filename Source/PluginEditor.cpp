@@ -113,11 +113,12 @@ ChimeraLookAndFeel::ChimeraLookAndFeel()
     setColour(juce::TextButton::textColourOffId,ink); setColour(juce::TextButton::textColourOnId,background);
     setColour(juce::TooltipWindow::backgroundColourId,ink); setColour(juce::TooltipWindow::textColourId,background);
 }
-juce::Font ChimeraLookAndFeel::getTextButtonFont(juce::TextButton& b,int) { return juce::FontOptions((bool)b.getProperties()["utilityDock"]?13.f:11.5f,juce::Font::bold); }
+juce::Font ChimeraLookAndFeel::getTextButtonFont(juce::TextButton& b,int) { return juce::FontOptions((bool)b.getProperties()["primaryAction"]?14.5f:(bool)b.getProperties()["utilityDock"]?13.f:11.5f,juce::Font::bold); }
 juce::Font ChimeraLookAndFeel::getComboBoxFont(juce::ComboBox&) { return juce::FontOptions(14.f); }
 void ChimeraLookAndFeel::drawButtonBackground(juce::Graphics& g,juce::Button& button,const juce::Colour&,bool hover,bool down)
 {
     auto area=button.getLocalBounds().toFloat().reduced(.5f);
+    if((bool)button.getProperties()["readout"]) {if(button.hasKeyboardFocus(true)){g.setColour(accent);g.drawRoundedRectangle(area,2.f,1.f);}return;}
     if((bool)button.getProperties()["pedalPower"]) {
         auto colour=button.findColour(button.getToggleState()?juce::TextButton::buttonOnColourId:juce::TextButton::buttonColourId);
         if(!button.isEnabled())colour=colour.withMultipliedAlpha(.45f);else if(hover || down)colour=colour.brighter(.10f);
@@ -129,6 +130,17 @@ void ChimeraLookAndFeel::drawButtonBackground(juce::Graphics& g,juce::Button& bu
         g.setGradientFill({juce::Colour(0xffcfcbc0),x-18,y-18,juce::Colour(0xff525655),x+16,y+18,false});g.fillEllipse(x-18,y-18,36,36);
         g.setColour(juce::Colour(0xff303534));g.drawEllipse(x-15,y-15,30,30,2);
         g.setGradientFill({juce::Colour(0xffe2dfd4),x-10,y-12,juce::Colour(0xff878a80),x+10,y+11,false});g.fillEllipse(x-11,y-11+(down?2:0),22,22);return;
+    }
+    // AUTO SET: the one gold call to action, in the knob colour. While it
+    // listens it turns to a warm red CANCEL.
+    if((bool)button.getProperties()["primaryAction"]){
+        const bool busy=(bool)button.getProperties()["utilityActive"];
+        const float lift=!button.isEnabled()?0.f:down?-.08f:hover?.10f:0.f;
+        const auto top=(busy?juce::Colour(0xffd0715a):juce::Colour(0xffe9d39b)).brighter(lift),bottom=(busy?juce::Colour(0xff9c3f2f):juce::Colour(0xffb88f4f)).brighter(lift);
+        g.setColour(juce::Colours::black.withAlpha(.45f));g.fillRoundedRectangle(area.translated(0,1.5f),6);
+        g.setGradientFill({top,area.getX(),area.getY(),bottom,area.getX(),area.getBottom(),false});g.fillRoundedRectangle(area,6);
+        g.setColour(juce::Colours::white.withAlpha(.35f));g.drawLine(area.getX()+6,area.getY()+1.5f,area.getRight()-6,area.getY()+1.5f,1.f);
+        g.setColour(button.hasKeyboardFocus(true)?juce::Colours::white:(busy?juce::Colour(0xffe8a08c):juce::Colour(0xfff3e3b8)));g.drawRoundedRectangle(area,6,1.5f);return;
     }
     if((bool)button.getProperties()["utilityDock"]){
         const bool active=button.getToggleState()||(bool)button.getProperties()["utilityActive"];
@@ -202,8 +214,16 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     wordmark=loadBrand("chimerawordmark_png");brandEmblem=loadBrand("spectralforgeemblem_png");
     mode.setName("Routing Mode"); mode.addItemList({"CLASSIC","DUAL","MATRIX"},1); add(mode);
     mode.setTooltip("Classic: one full-range rig. Dual: two parallel rigs. Matrix: three input bands.");
-    quality.setName("Oversampling"); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
-    quality.setTooltip("Anti-aliasing for amplifier distortion. Higher factors use more CPU. Host latency stays constant.");
+    quality.setName("Oversampling"); quality.addItem("Auto",oversamplingAutoItem); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
+    quality.setTooltip("Anti-aliasing for amplifier distortion. Auto follows the sample rate: 4x at 44.1/48 kHz, 2x at 88.2/96 kHz, 1x from 176.4 kHz, so the amps run at about the same internal rate. Higher factors use more CPU. Host latency stays constant.");
+    quality.onChange=[this]{
+        const int id=quality.getSelectedId();if(id==0)return;
+        auto& state=processor.parameters();auto* automatic=state.getParameter("oversamplingAuto");auto* choice=state.getParameter("oversampling");
+        const auto write=[](juce::RangedAudioParameter* parameter,float value){if(parameter==nullptr)return;parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(value));parameter->endChangeGesture();};
+        if(id==oversamplingAutoItem){write(automatic,1.f);}
+        else {write(automatic,0.f);write(choice,float(id-1));}
+        syncOversamplingChoice();
+    };
     scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.addSeparator(); scale.addItem("Fit screen",fitScaleItem); scale.setSelectedId(2,juce::dontSendNotification); add(scale);
     scale.setTooltip(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone
                      ? "Interface size. Fit screen uses the largest readable size for this display; the window's maximise button or F11 toggles the same fit."
@@ -217,6 +237,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         if(const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds()))
             size=spectralforge::ui::boundedEditorSize(size,display->userArea,spectralforge::ui::editorWindowChrome(*this));
         setViewSize(size,factor);};
+    add(outputLoudness);outputLoudness.setComponentID("outputLoudness");
+    outputLoudness.setColour(juce::TextButton::buttonColourId,juce::Colours::transparentBlack);
+    outputLoudness.getProperties().set("readout",true);outputLoudness.setButtonText("I --.- LUFS  TP --.- dBTP");
+    outputLoudness.onClick=[this]{processor.resetOutputLoudness();};
     add(info); info.setButtonText("SETTINGS"); info.onClick=[this]{
         juce::PopupMenu menu;
         menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
@@ -335,13 +359,23 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onAutoSet=[this]{autoSetController->start();};
     dynamicsPanel->onAutoCancel=[this]{autoSetController->cancel();};
     dynamicsPanel->onAutoUndo=[this]{autoSetController->undo();};
+    // The header AUTO SET is always in view: it starts (or cancels) Auto Set and
+    // opens the dynamics page that shows its progress, options and UNDO.
+    headerAutoSet.setComponentID("header.autoSet");headerAutoSet.getProperties().set("primaryAction",true);
+    headerAutoSet.setTooltip("AUTO SET: play for about a minute and Chimera sets input, gates, amp, cabinet mic, EQ, dynamics, delay/reverb and level for you. Options, results and UNDO open with it.");
+    headerAutoSet.onClick=[this]{
+        if(autoSetController->busy()){autoSetController->cancel();return;}
+        autoSetController->start();
+        const auto route=spectralforge::signalPath::read(processor);if(const auto* comp=route.find("common.comp"))navigateSignalPath(*comp);
+    };
+    add(headerAutoSet);
     static_assert(spectralforge::CommonDynamicsPanel::autoLockNames.size()==spectralforge::autoset::Controller::lockOrder.size(),"Auto Set lock menu and controller locks differ");
     {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
         autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
-    dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled()?processorMB.appliedCrossovers():processorMB.crossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
+    dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled() && processorMB.activeBandCount()==processorMB.bandCount()?processorMB.appliedAllCrossovers():processorMB.allCrossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});
     dynamicsPanel->onCompressorSourceRequested=[this](spectralforge::CommonDynamicsPanel::Page source) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
         if(source==Page::preCompressor && processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) {
@@ -358,20 +392,22 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dynamicsPanel->onPageSelected=[this](spectralforge::CommonDynamicsPanel::Page selected) {
         using Page=spectralforge::CommonDynamicsPanel::Page;
         const auto* expanderAfter=processor.parameters().getRawParameterValue("expAfterRig");
-        const juce::String id=selected==Page::expander?(expanderAfter && expanderAfter->load()>.5f?"gate.extra.post":"gate.extra.pre"):selected==Page::gate?(dynamicsPanel->mainGateShown()?"gate":dynamicsPanel->selectedGateSide()==1?"gate.extra.post":"gate.extra.pre"):selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":"common.comp";
+        const juce::String id=selected==Page::expander?(expanderAfter && expanderAfter->load()>.5f?"gate.extra.post":"gate.extra.pre"):selected==Page::gate?(dynamicsPanel->mainGateShown()?"gate":dynamicsPanel->selectedGateSide()==1?"gate.extra.post":"gate.extra.pre"):selected==Page::limiter?"output.limiter":selected==Page::multiband?"common.multiband":selected==Page::deesser?"common.deesser":selected==Page::saturation?"common.saturation":selected==Page::filter?"common.filter":selected==Page::preCompressor?"pre.legacy3":selected==Page::postCompressor?"post.section0":selected==Page::lowCompressor?"low.comp":"common.comp";
         updateDynamicsEntries();
         pathSelections[size_t(juce::jlimit(0,2,lastMode))]=id;signalPath->select(id);
         if(pathDialog)if(auto* graph=dynamic_cast<SignalPathView*>(spectralforge::ui::dialogContent(*pathDialog)))graph->select(id);
     };
-    constexpr std::array<const char*,6> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER"};
-    constexpr std::array<const char*,6> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser"};
-    constexpr std::array<const char*,6> dynamicsHelp{
+    constexpr std::array<const char*,8> dynamicsTitles{"GATE","EXPANDER","COMPRESSOR","LIMITER","MULTIBAND","DE-ESSER","SATURATION","FILTER"};
+    constexpr std::array<const char*,8> dynamicsNames{"gate","expander","compressor","limiter","multiband","deesser","saturation","filter"};
+    constexpr std::array<const char*,8> dynamicsHelp{
         "Open the gates: separate PRE RIG and POST RIG gates that can run together.",
         "Open the downward expander. It runs together with the gates, before or after the rig.",
         "Open the common compressor after Tone EQ. PRE, POST and Matrix LOW retain their own controls.",
         "Open the final-output sample-peak limiter.",
         "Open four-band dynamics and crossover controls.",
-        "Open high-band de-esser controls."};
+        "Open high-band de-esser controls.",
+        "Open three-band saturation: per-band type and drive, Live or Studio 4x.",
+        "Open the two-filter processor: LP/HP/BP/notch with LFO and envelope modulation."};
     for(size_t i=0;i<dynamicsEntries.size();++i) {
         auto& entry=dynamicsEntries[i];add(entry);
         entry.setButtonText(dynamicsTitles[i]);
@@ -395,10 +431,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         effect.header.setTooltip(descriptions[i]);add(effect.header);add(effect.scope);add(effect.description);add(effect.enabled);effect.enabled.setClickingTogglesState(true);
         effect.enabled.setComponentID(effectButtons[i]);effect.button=std::make_unique<BA>(p.parameters(),effectButtons[i],effect.enabled);
         effect.model.setName(juce::String(spectralforge::modelFamilies[i].category)+" model");effect.model.setComponentID(spectralforge::modelFamilies[i].parameter);const auto menuNames=spectralforge::effectFamilyMenuNames((int)i);
-        if(i==10){const std::array<const char*,5> groups{"Chorus","Phaser","Flanger","Vibrato","Tremolo"};for(int group=0;group<5;++group){juce::PopupMenu items;for(int m=0;m<menuNames.size();++m)if((m<2?0:m-1)==group)items.addItem(m+1,menuNames[m]);effect.model.getRootMenu()->addSubMenu(groups[(size_t)group],items);}}
-        else if(i==1 || i==2){const std::array<const char*,3> types=i==1?std::array<const char*,3>{"Digital","Tape","Analog"}:std::array<const char*,3>{"Plate","Hall","Spring"};for(int m=0;m<menuNames.size();++m){juce::PopupMenu items;items.addItem(m+1,menuNames[m]);effect.model.getRootMenu()->addSubMenu(types[(size_t)m],items);}}
+        if(i==1 || i==2 || i==10)spectralforge::buildExtendedEffectMenu(*effect.model.getRootMenu(),(int)i);
         else {effect.model.getRootMenu()->addSectionHeader(effectHeaders[i]);effect.model.addItemList(menuNames,1);}add(effect.model);
-        effect.modelAttachment=std::make_unique<CA>(p.parameters(),spectralforge::modelFamilies[i].parameter,effect.model);
+        if(spectralforge::effectFamilyExtended((int)i))effect.modelSync=std::make_unique<spectralforge::ExtendedEffectModelSync>(p.parameters(),(int)i,effect.model);
+        else effect.modelAttachment=std::make_unique<CA>(p.parameters(),spectralforge::modelFamilies[i].parameter,effect.model);
         effect.model.onChange=[this]{stateDirty=true;};
         const bool pedal=i==0 || (i>=3 && i<=6);effect.enabled.getProperties().set("footswitch",pedal);
         for(size_t k=0;k<5;++k) {
@@ -439,7 +475,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     style(routingHelp); add(routingHelp); style(x1Label,11.f); style(x2Label,11.f);
     x1Label.setText("LOW / MID",juce::dontSendNotification); x2Label.setText("MID / HIGH",juce::dontSendNotification);
     add(x1Label); add(x2Label); setupSlider(x1,"LOW / MID"," Hz"); setupSlider(x2,"MID / HIGH"," Hz"); add(x1); add(x2);
-    auto& state=p.parameters(); ma=std::make_unique<CA>(state,"mode",mode); qa=std::make_unique<CA>(state,"oversampling",quality);
+    auto& state=p.parameters(); ma=std::make_unique<CA>(state,"mode",mode); syncOversamplingChoice();
     a1=std::make_unique<SA>(state,"x1",x1); a2=std::make_unique<SA>(state,"x2",x2);
     const std::array<const char*,8> globalIds{"input","gatethreshold","gaterelease","gatehold","transpose","tunerref","output","gateRangeDb"};
     const std::array<const char*,8> globalNames{"Input gain","Gate threshold","Gate release","Gate hold","Transpose semitones","Tuner reference","Output gain","Gate range"};
@@ -517,6 +553,8 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.load.setTooltip("Open the cabinet room, large cabinet/microphone editor and separate IR Loader.");
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
+    creativeStrip=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor);add(*creativeStrip);creativeStrip->onOpen=[this]{openCreativePanel();};
+    synthPage=std::make_unique<spectralforge::synthUI::SynthPage>(processor);add(*synthPage);
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
     setResizable(true,true); setResizeLimits(480,320,1770,1170);
@@ -578,6 +616,7 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
     switch(node.target){
         case Target::pre:page=1;break;
         case Target::post:page=2;break;
+        case Target::synth:page=4;break;
         case Target::toneEQ:case Target::finalEQ:page=3;selectedEQBank=node.target==Target::toneEQ?0:1;break;
         case Target::dynamics:page=3;dynamicsViewOpen=true;break;
         case Target::gate:page=3;dynamicsViewOpen=true;break;
@@ -595,7 +634,7 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::amp:if(node.lane>=0){focus(lanes[size_t(node.lane)].amp);if(auto* button=dynamic_cast<juce::TextButton*>(lanes[size_t(node.lane)].nativePanel->findChildWithID("ampExpand"+juce::String(node.lane+1))))button->onClick();}break;
         case Target::cab:if(node.lane>=0)openCabWorkspace(node.lane,true);break;
         case Target::dynamics:
-            dynamicsPanel->selectPage(node.id=="common.multiband"?DynamicsPage::multiband:node.id=="common.deesser"?DynamicsPage::deesser:node.id=="output.limiter"?DynamicsPage::limiter:DynamicsPage::compressor);
+            dynamicsPanel->selectPage(node.id=="common.multiband"?DynamicsPage::multiband:node.id=="common.deesser"?DynamicsPage::deesser:node.id=="common.saturation"?DynamicsPage::saturation:node.id=="common.filter"?DynamicsPage::filter:node.id=="output.limiter"?DynamicsPage::limiter:DynamicsPage::compressor);
             break;
         case Target::gate:{
             const auto& s=processor.parameters();
@@ -616,10 +655,12 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
         case Target::output:focus(globalSliders[6]);break;
         case Target::tuner:{if(!tunerViewOpen)tunerOpen.onClick();break;}
         case Target::utilities:focus(doublerTime);break;
+        case Target::synth:if(auto* c=synthPage->control("synthOn"))focus(*c);break;
         case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
         case Target::post:
             if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}
-            else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
+            else if(node.section==spectralforge::signalPath::creativeSection){focus(creativeStrip->modelBox());}
+            else if(node.section>=3 && node.section<6){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
             break;
         default:break;
     }
@@ -682,8 +723,23 @@ void ChimeraEditor::showInfo()
     juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"SpectralForge Chimera",
         juce::String("SpectralForge Chimera | ")+spectralforge::release::displayVersion+"\nRavenForge Luthier Intelligence\nBuild "+CHIMERA_BUILD_REVISION+"\n\nAmp voices are algorithmic interpretations, not verified hardware replicas.\n\nFactory IRs: jesterdyne, CC BY 4.0\nEngl Celestion V30 SM57 center-01.wav\nhttps://freesound.org/s/116735/\nJensen Cab SM57 center.wav\nhttps://freesound.org/s/116743/\nhttps://creativecommons.org/licenses/by/4.0/\nFiles unchanged; normalised and resampled during playback.\n\nPitch: Chimera STFT / JUCE FFT\n\nComplete notices are supplied with the download.\n\n"+copyrightNotice,"OK",this);
 }
+void ChimeraEditor::syncOversamplingChoice()
+{
+    // Standalone's muted-input guide sits over the header; Auto Set cannot
+    // listen to a muted input anyway, so the header button waits for it.
+    headerAutoSet.setVisible(!inputGuide.isVisible());
+    const auto& state=processor.parameters();
+    const bool automatic=state.getRawParameterValue("oversamplingAuto")!=nullptr && state.getRawParameterValue("oversamplingAuto")->load()>.5f;
+    const int stored=juce::jlimit(0,3,juce::roundToInt(state.getRawParameterValue("oversampling")->load()));
+    static constexpr std::array<const char*,4> names{"1x","2x","4x","8x"};
+    const juce::String text=juce::String("Auto (")+names[size_t(processor.effectiveOversampling())]+")";
+    if(quality.getItemText(0)!=text)quality.changeItemText(oversamplingAutoItem,text);
+    const int id=automatic?oversamplingAutoItem:stored+1;
+    if(quality.getSelectedId()!=id)quality.setSelectedId(id,juce::dontSendNotification);
+}
 void ChimeraEditor::timerCallback()
 {
+    syncOversamplingChoice();
 #if CHIMERA_ROUTING_DIAGNOSTICS
     ++routeProbe.ticks; routeProbe.entered=juce::Time::getMillisecondCounterHiRes();
     routeProbe.visible=spectralforge::ui::visible(*this);
@@ -779,6 +835,16 @@ void ChimeraEditor::refreshMeters()
     const auto meterKey=[](float level) {return std::array<int,2>{{spectralforge::ui::tenth(juce::Decibels::gainToDecibels(level,-90.f)),level>=1.f?1:0}};};
     if(inputMeterKey.update(meterKey(processor.inputMeter())))repaintDesign({30,124,119,110});
     if(outputMeterKey.update(meterKey(processor.outputMeter())))repaintDesign({974,124,176,110});
+    {   // Studio loudness: integrated and true-peak max since reset; momentary
+        // and short-term in the tooltip. Updates every 100 ms in the processor.
+        const auto& meter=processor.outputLoudness();
+        const auto value=[](float v){return v<=spectralforge::LoudnessMeter::silent ? juce::String("--.-") : juce::String(v,1);};
+        if(loudnessKey.update({{tenth(meter.integrated()),tenth(meter.truePeak()),tenth(meter.momentary()),tenth(meter.shortTerm()),tenth(meter.loudnessRange())}})) {
+            outputLoudness.setButtonText("I "+value(meter.integrated())+" LUFS  TP "+value(meter.truePeak())+" dBTP");
+            outputLoudness.setTooltip("Output loudness (ITU-R BS.1770-4 / EBU R128). Momentary "+value(meter.momentary())+", short-term "+value(meter.shortTerm())
+                +" LUFS, loudness range "+juce::String(meter.loudnessRange(),1)+" LU. Integrated, range and true-peak maximum since the last reset; click to reset.");
+        }
+    }
     const double sr=processor.getSampleRate()>0?processor.getSampleRate():48000;
     const auto pitch=pitchOn.getToggleState()?"+ "+juce::String(1000.0*processor.pitchLatency()/sr,1)+" ms latency":juce::String("BYPASSED | zero added latency");
     if(pitchText.update(pitch))pitchStatus.setText(pitch,juce::dontSendNotification);
@@ -882,7 +948,7 @@ void ChimeraEditor::updateModeUI()
     const int nextMode=(int)processor.parameters().getRawParameterValue("mode")->load();
     // PRE, POST and the two EQ banks are global. Changing routing mode keeps
     // their current editor open, so retain its matching path selection too.
-    if(nextMode!=lastMode && lastMode>=0 && page>=1 && page<=3)pathSelections[size_t(nextMode)]=pathSelections[size_t(lastMode)];
+    if(nextMode!=lastMode && lastMode>=0 && page>=1 && page<=4)pathSelections[size_t(nextMode)]=pathSelections[size_t(lastMode)];
     if(nextMode!=lastMode){showRigControls=false;if(page==0)pathSelections[size_t(nextMode)]="cab";}
     lastMode=nextMode;
     lastDualCross=processor.parameters().getRawParameterValue("dualtype")->load()>.5f;lastTuner=processor.parameters().getRawParameterValue("tuneron")->load()>.5f;
@@ -914,6 +980,8 @@ void ChimeraEditor::updateModeUI()
         for(int k=0;k<5;++k){const bool visible=show && effect.attachments[(size_t)k]!=nullptr;effect.controls[k].setVisible(visible);effect.labels[k].setVisible(visible);}
     }
     for(auto& post:postPanels) {post->setVisible(page==2 && !tunerViewOpen);post->refreshIfNeeded();}
+    creativeStrip->setVisible(page==2 && !tunerViewOpen);
+    synthPage->setVisible(page==4 && !tunerViewOpen);
     for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(false);
     for(int i=0;i<3;++i)
     {
@@ -935,7 +1003,7 @@ void ChimeraEditor::updateModeUI()
     dualBlend.setVisible(lastMode==1 && !lastDualCross && page==0);dualFrequency.setVisible(lastMode==1 && lastDualCross && page==0);
     dualLabel.setText(lastDualCross ? "LOW / HIGH CROSSOVER" : "RIG 1 : RIG 2",juce::dontSendNotification);
     tunerOn.setVisible(false);tunerMute.setVisible(false);globalSliders[5].setVisible(false);delaySync.setVisible(page==2 && !tunerViewOpen);
-    routingHelp.setText(page==3 ? "TONE EQ > DYNAMICS > POST > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
+    routingHelp.setText(page==4 ? "SYNTH / GUITAR + MIDI" : page==3 ? "TONE EQ > DYNAMICS > POST > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
     precisionTuner->setVisible(tunerViewOpen);if(tunerViewOpen)precisionTuner->toFront(false);
     tunerOpen.setToggleState(tunerViewOpen,juce::dontSendNotification);
     tunerOpen.getProperties().set("utilityActive",tunerViewOpen);
@@ -1056,12 +1124,13 @@ void ChimeraEditor::layoutControls()
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
     for(auto& eq:eqPanels)eq->setBounds(20,330,1140,412);
     for(size_t i=0;i<dynamicsEntries.size();++i)
-        dynamicsEntries[i].setBounds(182+int(i%2)*118,112+int(i/2)*46,112,38);
+        dynamicsEntries[i].setBounds(182+int(i%2)*118,110+int(i/2)*34,112,30);
     dynamicsPanel->setBounds(20,330,1140,412);
     signalPath->setBounds(20,253,1140,44);
     precisionTuner->setBounds(20,330,1140,412);
     preEngineStatus.setBounds(585,302,575,24);boardPanel.setBounds(20,330,1140,415);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
+    headerAutoSet.setBounds(404,14,78,44);
     compareA.setBounds(490,30,28,28);compareB.setBounds(521,30,28,28);copyAB.setBounds(552,30,40,28);matchAB.setBounds(595,30,60,28);
     title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(808,748,86,28);
     mode.setBounds(664,30,140,28);routingHelp.setBounds(20,302,278,24);
@@ -1073,7 +1142,7 @@ void ChimeraEditor::layoutControls()
     globalSliders[1].setBounds(244,126,167,28);
     globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
     globalSliders[7].setBounds(244,201,167,26);
-    globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);
+    globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);outputLoudness.setBounds(974,231,162,15);
     pitchStatus.setBounds(447,209,158,18);
     transposeMode.setBounds(447,229,158,20);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
@@ -1082,6 +1151,8 @@ void ChimeraEditor::layoutControls()
     easyOpen.setBounds(714,748,86,28);
     inputGuide.setBounds(16,2,456,60);
     for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
+    creativeStrip->setBounds(310,302,850,24);
+    synthPage->setBounds(20,302,1140,438);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
         effect.header.setBounds(48,y+2,186,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
@@ -1176,7 +1247,14 @@ void ChimeraEditor::showIRDetails(int lane)
 void ChimeraLookAndFeel::drawButtonText(juce::Graphics& g,juce::TextButton& button,bool hover,bool down)
 {
     if((bool)button.getProperties()["footswitch"]) {g.setColour(background.withAlpha(.8f));g.fillRoundedRectangle(button.getWidth()*.5f-19,float(button.getHeight()-13),38,13,2);g.setFont(juce::FontOptions(9.f));g.setColour(ink);g.drawText(button.getButtonText(),0,button.getHeight()-13,button.getWidth(),13,juce::Justification::centred);return;}
+    if((bool)button.getProperties()["primaryAction"]){
+        const bool busy=(bool)button.getProperties()["utilityActive"];
+        g.setColour(busy?juce::Colours::white:juce::Colour(0xff1d1a14));g.setFont(getTextButtonFont(button,button.getHeight()));
+        g.drawFittedText(button.getButtonText(),button.getLocalBounds().reduced(4),juce::Justification::centred,2,.9f);return;
+    }
     if((bool)button.getProperties()["utilityDock"]){g.setColour(button.getToggleState()||(bool)button.getProperties()["utilityActive"]?background:ink);g.setFont(getTextButtonFont(button,button.getHeight()));g.drawFittedText(button.getButtonText(),button.getLocalBounds().reduced(5),juce::Justification::centred,1);return;}
+    // Output loudness readout: plain caption text, like the dBFS line above it.
+    if((bool)button.getProperties()["readout"]){g.setFont(juce::FontOptions(9.5f));g.setColour(hover?ink:muted);g.drawFittedText(button.getButtonText(),button.getLocalBounds().withTrimmedLeft(2),juce::Justification::centredLeft,1,1.f);return;}
     juce::LookAndFeel_V4::drawButtonText(g,button,hover,down);
 }
 
@@ -1276,9 +1354,17 @@ void ChimeraEditor::publishAutoSetStatus()
     const auto& status=autoSetController->current();const bool busy=autoSetController->busy();
     const auto text=busy?status.text+"  "+juce::String(juce::roundToInt(status.progress*100))+"%":status.text;
     dynamicsPanel->setAutoSetStatus(text,busy,status.canUndo);
+    headerAutoSet.setButtonText(busy?"CANCEL":"AUTO SET");headerAutoSet.getProperties().set("utilityActive",busy);headerAutoSet.repaint();
     if(easyView)easyView->setAutoSetStatus(text,busy,status.canUndo);
 }
 void ChimeraEditor::markPresetCustom()
 {
     presetValues.clear();presets.setSelectedId(0,juce::dontSendNotification);presets.setText("CUSTOM",juce::dontSendNotification);presets.setTooltip("Edited sound or recalled reference. SAVE AS preserves the complete sound and embedded IRs.");
+}
+
+void ChimeraEditor::openCreativePanel()
+{
+    auto* full=new spectralforge::creativeUI::CreativePanel(processor);full->setLookAndFeel(&look);
+    juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle="CHIMERA / CREATIVE";options.dialogBackgroundColour=panel;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
 }

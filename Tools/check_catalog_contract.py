@@ -37,6 +37,15 @@ post_categories = ("DELAY", "REVERB", "BUS COMP", "PREAMP", "EQUALIZER", "MODULA
 missing = [category for category in post_categories if category not in families]
 assert not missing, f"POST categories missing from ModelCatalog: {missing}"
 post_count = sum(families[category] for category in post_categories)
+# 1.7 POST expansion: native-only models appended to the three rack sections.
+post_native = read("Source/PostNativeCatalog.h")
+per_section = re.search(r"postNativeModelsPerSection=(\d+), postNativeReleasedModelsPerSection=(\d+)", post_native)
+if per_section:
+    post_count += 3 * (int(per_section.group(1)) - int(per_section.group(2)))
+# 1.8 motion/space: models appended to DELAY / REVERB / MODULATION.
+extension = re.search(r"effectExtensionModels=(\d+)", models)
+if extension:
+    post_count += 3 * int(extension.group(1))
 
 preset_count_match = re.search(r"std::array<FactoryPreset,(\d+)>\s+factoryPresets", presets)
 assert preset_count_match, "factoryPresets array size not found"
@@ -44,13 +53,22 @@ preset_total = int(preset_count_match.group(1))
 signature_count = len(re.findall(r"\},\s*PresetKind::signature,", presets))
 factory_count = preset_total - signature_count
 
+# 1.9 CREATIVE slot and 1.10 SYNTH engine types (roadmap totals 129 and 132).
+creative_source = ROOT / "Source/CreativeFX.h"
+creative_match = re.search(r"creativeModelCount\s*=\s*(\d+)", creative_source.read_text(encoding="utf-8")) if creative_source.exists() else None
+creative_count = int(creative_match.group(1)) if creative_match else 0
+synth_source = ROOT / "Source/SynthLayer.h"
+synth_match = re.search(r"synthTypeNames\(\)\s*\{\s*return\s*\{([^}]*)\}", synth_source.read_text(encoding="utf-8")) if synth_source.exists() else None
+synth_count = len(re.findall(r'"[^"]+"', synth_match.group(1))) if synth_match else 0
+
 serialized_count = amp_count
 legacy_indices = CONTRACT.get("legacy_amp_indices", [])
 assert legacy_indices == [16] and "legacyHiddenAmpIndex = static_cast<int>(AmpModel::ironCompact)" in amp
 assert all(0 <= i < serialized_count for i in legacy_indices)
 amp_count -= len(legacy_indices)
 assert serialized_count == CONTRACT["serialized_model_counts"]["amp"]
-actual = {"amp": amp_count, "pre": pre_count, "post": post_count, "total": amp_count + pre_count + post_count}
+actual = {"amp": amp_count, "pre": pre_count, "post": post_count, "creative": creative_count, "synth": synth_count,
+          "total": amp_count + pre_count + post_count + creative_count + synth_count}
 expected = CONTRACT["model_counts"]
 assert actual == expected, f"model count contract mismatch: expected {expected}, got {actual}"
 
@@ -64,7 +82,7 @@ for preset_name in ("Finger Round", "G+B Air / Weight", "B+B Warm / Definition")
         f"{preset_name} no longer names the active Vintage Valve catalog model"
 
 print(
-    f"PASS: Chimera catalog contract {actual['total']} models = AMP {amp_count} + PRE {pre_count} + POST {post_count}; "
+    f"PASS: Chimera catalog contract {actual['total']} models = AMP {amp_count} + PRE {pre_count} + POST {post_count} + CREATIVE {creative_count} + SYNTH {synth_count}; "
     f"presets {factory_count}+{signature_count}"
 )
 

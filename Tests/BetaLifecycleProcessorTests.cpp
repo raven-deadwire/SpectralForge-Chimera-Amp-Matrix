@@ -162,14 +162,14 @@ void historical(const juce::File& directory) {
         now=instant;auto p=ChimeraBetaTestAccess::create(beta,clockNow);p->setStateInformation(bytes.getData(),int(bytes.getSize()));
         for(int slot:{0,1,0}) {
             p->selectComparison(slot);const auto* rows=manifest[slot==0?"A":"B"].getArray();
-            require(rows && rows->size()==4967 && p->getParameters().size()==4967+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+6,"Historical or appended parameter inventory mismatch");
+            require(rows && rows->size()==4967 && p->getParameters().size()==4967+19+spectralforge::commonDynamicsParameterCount+spectralforge::multibandParameterCount+spectralforge::deEsserParameterCount+spectralforge::extraGateParameterCount+6+spectralforge::pedalExpansionParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount+spectralforge::creativeParameterCount+(spectralforge::synthParameterCount+spectralforge::sidechainParameterCount+spectralforge::signalOrderParameterCount+spectralforge::filterModulationExtensionParameterCount+spectralforge::multibandSixBandParameterCount+spectralforge::truePeakLimiterParameterCount+spectralforge::oversamplingAutoParameterCount)+spectralforge::roomParameterCount+spectralforge::roomAdvancedParameterCount+spectralforge::roomSpaceParameterCount,"Historical or appended parameter inventory mismatch");
             for(const auto& row:*rows) {
                 auto* parameter=p->parameters().getParameter(row["id"].toString());
                 require(parameter && parameter->getParameterIndex()==int(row["ordinal"])
                         && parameter->getVersionHint()==int(row["version_hint"]),"Historical automation ID/order changed");
                 require(std::abs(double(parameter->getValue())-double(row["value"]))<2e-6,"Historical A/B value changed");
             }
-            for(int i=4967;i<p->getParameters().size();++i){const auto* parameter=p->getParameters()[i];require(std::abs(parameter->getValue()-parameter->getDefaultValue())<2e-6,"Historical state inherited new tuner/dynamics values");}
+            for(int i=4967;i<p->getParameters().size();++i){const auto* parameter=p->getParameters()[i];/* OVERSAMPLING Auto restores off for a state saved before it existed (docs/OVERSAMPLING_AUTO.md). */const auto* ranged=dynamic_cast<const juce::RangedAudioParameter*>(parameter);const float expected=ranged!=nullptr && ranged->paramID=="oversamplingAuto"?0.f:parameter->getDefaultValue();require(std::abs(parameter->getValue()-expected)<2e-6,"Historical state inherited new tuner/dynamics values");}
         }
         juce::MemoryBlock saved;p->getStateInformation(saved);
         const auto xml=juce::AudioProcessor::getXmlFromBinary(saved.getData(),int(saved.getSize()));require(xml!=nullptr,"Historical state resave failed");

@@ -83,6 +83,10 @@ inline Profile profileForModel(int model,const char* controlKey=nullptr) noexcep
         case AmpModel::blueStorm: return Profile::blackChickenhead;
         case AmpModel::specialEdition: return Profile::chromeDisc;
         case AmpModel::nastrond: case AmpModel::niflheimr: return Profile::originalNickel;
+        case AmpModel::crystal120: return Profile::blackSkirt;
+        case AmpModel::bluestack100: case AmpModel::eightyfire: return Profile::britishGold;
+        case AmpModel::fortress103: return Profile::blackPointer;
+        case AmpModel::northlight: return Profile::silverDisc;
         default: return Profile::blackSoftTouch;
     }
 }
@@ -342,7 +346,7 @@ void draw(juce::Graphics& g,juce::Rectangle<float> bounds,float value,float star
     const auto spec=profileSpec(profile);
     const auto size=bounds.getWidth();
     const auto c=juce::Point<float>{bounds.getCentreX(),bounds.getY()+detail::capCentreY*size};
-    const bool brightFace=model==1||model==5||model==8||model==9||model==10||model==12||model==13||model==14||model==17||model==19||model==21;
+    const bool brightFace=model==1||model==5||model==8||model==9||model==10||model==12||model==13||model==14||model==17||model==19||model==21||(model>=26&&model<=29);
     const auto scaleInk=juce::Colour(brightFace?0xff342f26:0xffd0c9b8).withAlpha(.68f);
     // Sparse engraved ticks belong to the panel plane, behind the projecting
     // body. They are not a glowing circular application control.

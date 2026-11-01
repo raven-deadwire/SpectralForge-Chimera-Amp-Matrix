@@ -1,6 +1,7 @@
 #pragma once
 #include "SignalPath.h"
 #include "UIRefresh.h"
+#include <optional>
 
 // JUCE buttons activate on Return. Accept unmodified Space only while this
 // navigation button owns focus, without registering a host-wide shortcut.
@@ -16,10 +17,46 @@ public:
     }
 };
 // These navigation buttons have no APVTS attachments or audio-state writes.
+// A movable block (1.4, docs/SIGNAL_ORDER_1_4.md) also takes order commands:
+// right-click for the placement menu, Alt + arrows / Home / End to move it,
+// Ctrl + Z / Ctrl + Shift + Z to undo / redo order changes. 1.5: drag it to
+// another position in its block; Escape or a release away from its block
+// cancels. A drag writes nothing until the drop.
 class SignalPathButton final : public SignalPathNavigationButton {
 public:
     bool compact{},active{};juce::String label,status;
     spectralforge::signalPath::Target target{};
+    bool drag{},swallowRelease{},cancelled{};
+    std::function<void()> onPlacementMenu;
+    std::function<bool(const juce::KeyPress&)> onOrderKey;
+    std::function<void(juce::Point<int>)> onDragMove;   // pointer in the parent view's coordinates
+    std::function<void(bool commit)> onDragEnd;
+    bool dragging() const noexcept {return drag;}
+    void mouseDown(const juce::MouseEvent& e) override {
+        swallowRelease=false;cancelled=false;
+        if(e.mods.isPopupMenu() && onPlacementMenu){onPlacementMenu();return;}
+        SignalPathNavigationButton::mouseDown(e);
+    }
+    void mouseDrag(const juce::MouseEvent& e) override {
+        // After Escape the gesture stays cancelled until the next press.
+        if(onDragMove && !e.mods.isPopupMenu() && !cancelled && (drag || e.getDistanceFromDragStart()>6)) {
+            if(!drag){drag=true;setMouseCursor(juce::MouseCursor::DraggingHandCursor);}
+            onDragMove(e.getEventRelativeTo(getParentComponent()).getPosition());return;
+        }
+        SignalPathNavigationButton::mouseDrag(e);
+    }
+    void mouseUp(const juce::MouseEvent& e) override {
+        if(e.mods.isPopupMenu() && onPlacementMenu)return;
+        if(drag){finishDrag(true);return;}   // a drag is not a click: it does not navigate
+        if(swallowRelease){swallowRelease=false;setState(juce::Button::buttonNormal);return;}   // released after Escape
+        SignalPathNavigationButton::mouseUp(e);
+    }
+    bool keyPressed(const juce::KeyPress& key) override {
+        if(drag && key.isKeyCode(juce::KeyPress::escapeKey)){finishDrag(false);swallowRelease=true;cancelled=true;return true;}
+        if(onOrderKey && onOrderKey(key))return true;
+        return SignalPathNavigationButton::keyPressed(key);
+    }
+    void finishDrag(bool commit){drag=false;setMouseCursor(juce::MouseCursor::NormalCursor);setState(juce::Button::buttonNormal);if(onDragEnd)onDragEnd(commit);}
     void paintButton(juce::Graphics& g,bool hover,bool down) override {
         const auto area=getLocalBounds().toFloat().reduced(.5f);
         g.setColour(getToggleState()?juce::Colour(0xff416953):juce::Colour(hover||down?0xff2f4540:0xff222c30));g.fillRoundedRectangle(area,3);
@@ -64,6 +101,81 @@ public:
     std::function<juce::String()> selection;
     const spectralforge::signalPath::Snapshot& snapshot() const {return current;}
     void select(const juce::String& id){if(selected!=id){selected=id;updateSelection();}}
+    // Order commands for a movable node (docs/SIGNAL_ORDER_1_4.md). Each one is
+    // a processor edit with its own undo entry; navigation never calls them.
+    enum class OrderCommand {earlier,later,first,last,position,undo,redo,reset,preset};
+    struct Placement {spectralforge::OrderRegion region;int module;};
+    static std::optional<Placement> movable(const juce::String& id) {
+        using spectralforge::OrderRegion;
+        for(const auto region:{OrderRegion::tone,OrderRegion::post})
+            for(int m=0;m<spectralforge::moduleCount(region);++m)if(spectralforge::moduleNodeID(region,m)==id)return Placement{region,m};
+        return std::nullopt;
+    }
+    bool orderCommand(const juce::String& id,OrderCommand command,int position=-1) {
+        const auto place=movable(id);if(!place)return false;
+        const int count=spectralforge::moduleCount(place->region);bool changed=false;
+        switch(command){
+            case OrderCommand::earlier:changed=processor.moveModule(place->region,place->module,-1);break;
+            case OrderCommand::later:changed=processor.moveModule(place->region,place->module,1);break;
+            case OrderCommand::first:changed=processor.placeModule(place->region,place->module,0);break;
+            case OrderCommand::last:changed=processor.placeModule(place->region,place->module,count-1);break;
+            case OrderCommand::position:changed=processor.placeModule(place->region,place->module,position);break;
+            case OrderCommand::undo:changed=processor.undoOrder();break;
+            case OrderCommand::redo:changed=processor.redoOrder();break;
+            case OrderCommand::reset:changed=processor.resetOrder(place->region);break;
+            case OrderCommand::preset:changed=processor.applyOrderPreset(place->region,position);break;
+        }
+        if(changed){refresh();if(auto* b=buttonFor(id))b->grabKeyboardFocus();}
+        return changed;
+    }
+    // 1.5 drag (docs/SIGNAL_ORDER_1_4.md): the valid drop targets are the
+    // positions of the dragged block's own region. Hovering only updates the
+    // preview; the drop is one placement command (one undo entry).
+    void dragTo(const juce::String& id,juce::Point<int> at) {
+        const auto place=movable(id);if(!place)return;
+        const auto targets=dropTargets(place->region);
+        // A target counts only under the pointer (with a small margin), so a
+        // release over another block or empty space cancels.
+        const int margin=juce::roundToInt(14.f*graphScale());int best=-1;
+        for(size_t i=0;i<targets.size();++i)if(targets[i].expanded(margin).contains(at)){best=int(i);break;}
+        dragId=id;dragPoint=at;dropSlot=best;repaint();
+    }
+    void endDrag(const juce::String& id,bool commit) {
+        const int slot=dropSlot;const bool wasDragging=dragId==id;
+        dragId={};dropSlot=-1;repaint();
+        if(!commit || !wasDragging || slot<0)return;
+        const auto place=movable(id);if(!place)return;
+        const auto order=processor.requestedOrder();
+        const int from=place->region==spectralforge::OrderRegion::tone?order.tone.position(place->module):order.post.position(place->module);
+        if(slot!=from)orderCommand(id,OrderCommand::position,slot);
+    }
+    // Scaled bounds of each position in a region, in its current order.
+    std::vector<juce::Rectangle<int>> dropTargets(spectralforge::OrderRegion region) const {
+        const auto order=processor.requestedOrder();std::vector<juce::Rectangle<int>> result;
+        for(int slot=0;slot<spectralforge::moduleCount(region);++slot){
+            const int module=region==spectralforge::OrderRegion::tone?order.tone.slots[(size_t)slot]:order.post.slots[(size_t)slot];
+            if(const auto* n=current.find(spectralforge::moduleNodeID(region,module)))result.push_back(n->bounds.toFloat().transformedBy(juce::AffineTransform::scale(graphScale())).getSmallestIntegerContainer());
+        }
+        return result;
+    }
+    const juce::String& draggingBlock() const noexcept {return dragId;}
+    int dropPosition() const noexcept {return dropSlot;}
+    void paintOverChildren(juce::Graphics& g) override {
+        if(compact || dragId.isEmpty())return;
+        const auto place=movable(dragId);if(!place)return;
+        const auto targets=dropTargets(place->region);
+        g.setColour(juce::Colour(0x60d7a35a));for(const auto& r:targets)g.drawRoundedRectangle(r.toFloat().expanded(2),4,1);   // every valid target
+        g.setFont(juce::FontOptions(11.f,juce::Font::bold));
+        if(dropSlot>=0 && dropSlot<int(targets.size())){
+            const auto r=targets[(size_t)dropSlot].toFloat().expanded(3);
+            g.setColour(juce::Colour(0xffd7a35a));g.drawRoundedRectangle(r,4,2.5f);
+            g.drawText(spectralforge::moduleName(place->region,place->module).toUpperCase()+" > POSITION "+juce::String(dropSlot+1),r.withY(r.getY()-18).withHeight(16).expanded(60,0),juce::Justification::centred);
+        } else {
+            g.setColour(juce::Colour(0xffacb6b2));
+            g.drawText("RELEASE HERE TO CANCEL",juce::Rectangle<int>(dragPoint.x-90,dragPoint.y-26,180,16),juce::Justification::centred);
+        }
+    }
+    juce::TextButton* buttonFor(const juce::String& id){for(auto& b:buttons)if(b->getComponentID()=="path."+id)return b.get();return nullptr;}
 #if CHIMERA_ROUTING_DIAGNOSTICS
     uint64_t refreshCalls{}; double refreshTime{};
 #endif
@@ -92,6 +204,7 @@ public:
             bool postActive=false;for(const auto& n:current.nodes)if(n.target==Target::post)postActive|=n.active;
             visible.push_back({"post","POST",postActive?"ACTIVE":"BYPASSED","Open the POST effects rack.",Target::post,-1,-1,postActive});
             add("final.eq");
+            if(const auto* n=current.find("synth"))visible.push_back({"synth","SYNTH",n->status,"Open the SYNTH page: oscillators, filter, envelopes, LFOs and modulation.",Target::synth,-1,-1,n->active});
         }else visible=current.nodes;
         std::vector<std::unique_ptr<juce::TextButton>> nextButtons;
         for(const auto& node:visible) {
@@ -108,6 +221,14 @@ public:
             button->setWantsKeyboardFocus(true);
             button->setColour(juce::TextButton::textColourOffId,node.active?juce::Colour(0xffe5e1d4):juce::Colour(0xff9caaa5));
             button->onClick=[this,node]{selected=node.id;updateSelection();if(navigate)navigate(node);};
+            if(!compact){
+                const auto place=movable(node.id);
+                painted.onPlacementMenu=place?std::function<void()>([this,id=node.id]{showPlacementMenu(id);}):nullptr;
+                painted.onOrderKey=place?std::function<bool(const juce::KeyPress&)>([this,id=node.id](const juce::KeyPress& key){return orderKey(id,key);}):nullptr;
+                painted.onDragMove=place?std::function<void(juce::Point<int>)>([this,id=node.id](juce::Point<int> at){dragTo(id,at);}):nullptr;
+                painted.onDragEnd=place?std::function<void(bool)>([this,id=node.id](bool commit){endDrag(id,commit);}):nullptr;
+                if(place)button->setTooltip(button->getTooltip()+"\nDrag within its block to move it (Escape cancels). Right-click: placement menu. Alt + arrows: move. Ctrl + Z: undo.");
+            }
             button->setExplicitFocusOrder(int(nextButtons.size())+1);
             nextButtons.push_back(std::move(button));
         }
@@ -178,6 +299,48 @@ private:
         refresh();
         if(selection)select(selection());
     }
+    bool orderKey(const juce::String& id,const juce::KeyPress& key) {
+        const auto mods=key.getModifiers();
+        if(mods.isAltDown() && !mods.isCommandDown()){
+            const int code=key.getKeyCode();
+            if(code==juce::KeyPress::leftKey||code==juce::KeyPress::upKey){orderCommand(id,OrderCommand::earlier);return true;}
+            if(code==juce::KeyPress::rightKey||code==juce::KeyPress::downKey){orderCommand(id,OrderCommand::later);return true;}
+            if(code==juce::KeyPress::homeKey){orderCommand(id,OrderCommand::first);return true;}
+            if(code==juce::KeyPress::endKey){orderCommand(id,OrderCommand::last);return true;}
+        }
+        // Nothing to undo or redo: the key goes on to the host and the editor.
+        if(mods.isCommandDown() && !mods.isAltDown() && (key.getKeyCode()=='Z' || key.getKeyCode()=='z'))return orderCommand(id,mods.isShiftDown()?OrderCommand::redo:OrderCommand::undo);
+        return false;
+    }
+    void showPlacementMenu(const juce::String& id) {
+        const auto place=movable(id);if(!place)return;
+        const auto order=processor.requestedOrder();
+        const auto& slots=place->region==spectralforge::OrderRegion::tone?std::vector<int>(order.tone.slots.begin(),order.tone.slots.end()):std::vector<int>(order.post.slots.begin(),order.post.slots.end());
+        int at=0;for(size_t i=0;i<slots.size();++i)if(slots[i]==place->module)at=int(i);
+        const int count=int(slots.size());const auto region=place->region==spectralforge::OrderRegion::tone?juce::String("tone / dynamics block"):juce::String("POST rack");
+        juce::PopupMenu menu,positions;
+        menu.addSectionHeader(spectralforge::moduleName(place->region,place->module).toUpperCase()+"  ("+juce::String(at+1)+" of "+juce::String(count)+" in the "+region+")");
+        menu.addItem(1,"Move earlier",at>0);menu.addItem(2,"Move later",at<count-1);
+        menu.addItem(3,"Move to the start",at>0);menu.addItem(4,"Move to the end",at<count-1);
+        for(int i=0;i<count;++i)positions.addItem(100+i,juce::String(i+1)+"  "+spectralforge::moduleName(place->region,slots[(size_t)i]),i!=at,i==at);
+        menu.addSubMenu("Place at position",positions);
+        juce::PopupMenu presets;
+        {const auto& list=spectralforge::orderPresets(place->region);
+         for(size_t i=0;i<list.size();++i){bool same=true;for(int k=0;k<count;++k)same=same&&slots[(size_t)k]==list[i].slots[(size_t)k];presets.addItem(200+int(i),list[i].name,!same,same);}}
+        menu.addSubMenu("Order presets",presets);
+        menu.addSeparator();
+        menu.addItem(5,"Undo order change",processor.canUndoOrder());menu.addItem(6,"Redo order change",processor.canRedoOrder());
+        menu.addItem(7,"Reset the "+region+" order");
+        juce::Component::SafePointer<SignalPathView> safe(this);
+        auto* target=buttonFor(id);
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(target),[safe,id](int result){
+            if(!safe||result==0)return;
+            if(result>=200){safe->orderCommand(id,OrderCommand::preset,result-200);return;}
+            if(result>=100){safe->orderCommand(id,OrderCommand::position,result-100);return;}
+            static constexpr std::array<OrderCommand,7> commands{OrderCommand::earlier,OrderCommand::later,OrderCommand::first,OrderCommand::last,OrderCommand::undo,OrderCommand::redo,OrderCommand::reset};
+            if(result>=1 && result<=7)safe->orderCommand(id,commands[(size_t)result-1]);
+        });
+    }
     float graphScale() const {return juce::jmin(float(juce::jmax(1,getWidth()))/1140.f,float(juce::jmax(1,getHeight()))/650.f);}
     void timerCallback() override {if(spectralforge::ui::visible(*this)){refresh();if(selection)select(selection());}}
     void updateSelection(){
@@ -197,6 +360,7 @@ private:
                 case Target::rigs:case Target::amp:case Target::low:editingStage="head";break;
                 case Target::cab:editingStage="cab";break;
                 case Target::post:editingStage="post";break;
+                case Target::synth:editingStage="synth";break;
                 case Target::dynamics:editingStage=selected=="output.limiter"?"final.eq":"tone.eq";break;
                 default:break;
             }
@@ -211,6 +375,7 @@ private:
     // editor timer or ComboBox attachments deliver their presentation update.
     static constexpr std::array<const char*,4> routingParameters{{"gateAfterRig","expAfterRig","mode","dualtype"}};
     ChimeraProcessor& processor;bool compact;juce::String selected;
+    juce::String dragId;juce::Point<int> dragPoint;int dropSlot{-1};
     spectralforge::signalPath::Snapshot current;
     std::vector<std::unique_ptr<juce::TextButton>> buttons;
     std::unique_ptr<juce::TextButton> expandButton;

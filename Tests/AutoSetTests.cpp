@@ -646,7 +646,7 @@ LockRun runLocked(const Controller::Options& options,const std::function<void(Ch
         for(auto& x:block)x=di.next();
         const size_t offset=size_t(k)*256%(bright.size()-256);
         const float* channels[]{block.data()};const float* top[]{bright.data()+offset};const float* low[]{boom.data()+offset};
-        for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::output,Tap::master})p->autoSetCapture().push(tap,channels,1,256);
+        for(auto tap:{Tap::input,Tap::tone,Tap::cab,Tap::compressor,Tap::output,Tap::master})p->autoSetCapture().push(tap,channels,1,256);
         p->autoSetCapture().push(Tap::multiband,low,1,256);p->autoSetCapture().push(Tap::deesser,top,1,256);
         now+=1000.*256/48000;c.tick(now);
     }
@@ -775,7 +775,7 @@ DynamicRun runDynamic(const Controller::Options& options,const std::function<voi
         for(auto& x:block)x=di.next();
         const float* channels[]{block.data()};const float* tone[]{ringing.data()+size_t(k)*256%(ringing.size()-256)};
         for(auto tap:{Tap::input,Tap::compressor,Tap::output,Tap::multiband,Tap::deesser})p->autoSetCapture().push(tap,channels,1,256);
-        p->autoSetCapture().push(Tap::tone,tone,1,256);
+        p->autoSetCapture().push(Tap::tone,tone,1,256);p->autoSetCapture().push(Tap::cab,tone,1,256);
         now+=1000.*256/48000;c.tick(now);
     }
     check(!c.busy(),"Dynamic EQ run did not finish");
@@ -903,7 +903,7 @@ LevelRun runLevel(const Controller::Options& options,const std::function<void(Ch
     for(int k=0;c.busy() && k<int(60*48000/256);++k) {
         for(auto& x:block)x=di.next();
         const float* channels[]{block.data()};const float* master[]{bright.data()+size_t(k)*256%(bright.size()-256)};
-        for(auto tap:{Tap::input,Tap::compressor,Tap::output,Tap::multiband,Tap::deesser,Tap::tone})p->autoSetCapture().push(tap,channels,1,256);
+        for(auto tap:{Tap::input,Tap::compressor,Tap::output,Tap::multiband,Tap::deesser,Tap::tone,Tap::cab})p->autoSetCapture().push(tap,channels,1,256);
         p->autoSetCapture().push(Tap::master,master,1,256);
         now+=1000.*256/48000;c.tick(now);
     }
@@ -1057,7 +1057,7 @@ AmpRun runAmp(const Controller::Options& options,float gainFraction,const std::f
     for(size_t offset=0;c.busy() && offset+256<=di.size();offset+=256) {
         const float* in[]{di.data()+offset};const float* out[]{post.data()+offset};
         p->autoSetCapture().push(Tap::amp,in,1,256);
-        for(auto tap:{Tap::tone,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,tap==Tap::tone?out:in,1,256);
+        for(auto tap:{Tap::cab,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,tap==Tap::cab?out:in,1,256);
         ms+=1000.*256/48000;c.tick(ms);
     }
     check(!c.busy(),"Amp run did not finish");
@@ -1170,7 +1170,7 @@ void cabRules() {
     std::cout<<"PASS auto set cab rules at 44.1/48/96 kHz: model matches the rendered IR, silence, on-target kept, bright moves darker, dark toward the cap, move limits, roughness, level change\n";
 }
 struct CabRun {std::vector<float> before,values,undone;Controller::Status status;CabResult analysis;float gainBefore{};};
-// The pass hears the amp/cab output (a dark fixture fed to Tap::tone) with
+// The pass hears the amp/cab output (a dark fixture fed to Tap::cab) with
 // the Classic routing's mic A modeled at position 0.5, 10 cm.
 CabRun runCab(const Controller::Options& options,const std::function<void(ChimeraProcessor&)>& prepare={}) {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
@@ -1183,7 +1183,7 @@ CabRun runCab(const Controller::Options& options,const std::function<void(Chimer
     double ms=juce::Time::getMillisecondCounterHiRes();c.start();
     for(size_t offset=0;c.busy() && offset+256<=post.size();offset+=256) {
         const float* out[]{post.data()+offset};
-        for(auto tap:{Tap::tone,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,out,1,256);
+        for(auto tap:{Tap::cab,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,out,1,256);
         ms+=1000.*256/48000;c.tick(ms);
     }
     check(!c.busy(),"Cab run did not finish");
@@ -1283,7 +1283,7 @@ BoostRun runBoost(const Controller::Options& options,const std::function<void(Ch
     double ms=juce::Time::getMillisecondCounterHiRes();c.start();
     for(size_t offset=0;c.busy() && offset+256<=di.size();offset+=256) {
         const float* in[]{di.data()+offset};
-        for(auto tap:{Tap::amp,Tap::tone,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,in,1,256);
+        for(auto tap:{Tap::amp,Tap::cab,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,in,1,256);
         ms+=1000.*256/48000;c.tick(ms);
     }
     check(!c.busy(),"Boost run did not finish");
@@ -1670,7 +1670,7 @@ void controllerGateStageEditHistory() {
                     }
                 }
                 const float* ins[]{in};const float* rigs[]{rig};
-                for(auto tap:{Tap::input,Tap::tone,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
+                for(auto tap:{Tap::input,Tap::tone,Tap::cab,Tap::compressor,Tap::deesser,Tap::output})p->autoSetCapture().push(tap,ins,1,256);
                 p->autoSetCapture().push(Tap::rig,rigs,1,256);
                 now+=1000.*256/48000.;c.tick(now);
             }

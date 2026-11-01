@@ -10,6 +10,9 @@
 namespace spectralforge {
 
 inline constexpr int multibandBandCount = 4;
+// Six-band expansion (docs/SIX_BAND_1_5.md): up to six bands, five crossovers.
+inline constexpr int multibandMaxBandCount = 6;
+inline constexpr int multibandMaxCrossovers = multibandMaxBandCount - 1;
 
 // Independent implementation. The four fixed, contiguous bands are an audio
 // processor; they are not the amplifier Matrix routes. No lookahead, FIR delay,
@@ -27,14 +30,22 @@ struct MultibandBandSettings {
     float knee{6.f};
     float makeup{0.f};
     bool solo{false};
+    // 0: both channels, 1: mid (M/S) or left (L/R) only, 2: side or right only.
+    int channels{0};
 };
 
 struct MultibandSettings {
     bool on{false};
     float mix{1.f};
     int detector{1}; // 0: linked peak, 1: max of the two channel RMS detectors.
+    int stereo{0};   // 0: left/right, 1: mid/side (M = (L + R) / 2, S = (L - R) / 2).
+    float link{1.f}; // 1: both channels follow the louder detector; 0: each its own.
     std::array<float, 3> crossovers{120.f, 700.f, 3500.f};
-    std::array<MultibandBandSettings, multibandBandCount> bands{};
+    std::array<MultibandBandSettings, multibandMaxBandCount> bands{};
+    // 4 or 6 bands. Crossovers 4 and 5 (`upperCrossovers`) and bands 5 and 6
+    // apply only with six; four bands process exactly as before.
+    int bandCount{4};
+    std::array<float, 2> upperCrossovers{6000.f, 11000.f};
 };
 
 namespace multiband_detail {
@@ -178,37 +189,67 @@ private:
     SVF first, low, high;
 };
 
-// L_i + H_i = A_i, where A_i is a second-order allpass. The compensated
-// cascade is [A3 A2 L1, A3 L2 H1, L3 H2 H1, H3 H2 H1]. Its unity-gain sum
-// is A3 A2 A1, not the misaligned sum from a naive three-way LR cascade.
+using CrossoverCoefficients = std::array<const SVFCoefficients*, multibandMaxCrossovers>;
+
+// L_i + H_i = A_i, where A_i is a second-order allpass. With three crossovers
+// the compensated cascade is [A3 A2 L1, A3 L2 H1, L3 H2 H1, H3 H2 H1]; with
+// K crossovers band k is L_k H_(k-1)..H_1 followed by A_(k+1)..A_K. Its
+// unity-gain sum is A_K..A_1, not the misaligned sum of a naive LR cascade.
 // Hence settled crossovers reconstruct with flat MAGNITUDE. They do rotate
 // phase: zero added sample delay does not mean linear/zero phase. Automation
 // is smoothed, but the LTI allpass identity is not claimed during motion.
-class FourBandSplit {
+// Three crossovers compute exactly what the original four-band split did.
+class BandSplit {
 public:
     void reset() noexcept {
         for (auto& s : split) s.reset();
         for (auto& a : compensation) a.reset();
     }
-    std::array<double, 4> tick(double input,
-                               const std::array<const SVFCoefficients*, 3>& c) noexcept {
-        const auto first = split[0].tick(input, *c[0]);
-        const auto second = split[1].tick(first[1], *c[1]);
-        const auto third = split[2].tick(second[1], *c[2]);
-        const double low = compensation[1].allpass(
-            compensation[0].allpass(first[0], *c[1]), *c[2]);
-        const double lowMid = compensation[2].allpass(second[0], *c[2]);
-        return {low, lowMid, third[0], third[1]};
+    std::array<double, multibandMaxBandCount> tick(double input, const CrossoverCoefficients& c,
+                                                   int crossovers) noexcept {
+        std::array<double, multibandMaxBandCount> band{};
+        double carry = input;
+        for (int i = 0; i < crossovers; ++i) {
+            const auto parts = split[size_t(i)].tick(carry, *c[size_t(i)]);
+            band[size_t(i)] = parts[0];
+            carry = parts[1];
+        }
+        band[size_t(crossovers)] = carry;
+        size_t stage = 0;
+        for (int k = 0; k + 1 < crossovers; ++k)
+            for (int j = k + 1; j < crossovers; ++j)
+                band[size_t(k)] = compensation[stage++].allpass(band[size_t(k)], *c[size_t(j)]);
+        return band;
     }
 private:
-    std::array<LinkwitzRileySplit, 3> split;
-    std::array<SVF, 3> compensation;
+    std::array<LinkwitzRileySplit, multibandMaxCrossovers> split;
+    std::array<SVF, multibandMaxCrossovers * (multibandMaxCrossovers - 1) / 2> compensation;
 };
 
 struct Detector {
-    std::array<double, 2> energy{};
+    std::array<double, 2> energy{}, channelPeak{};
     double peak{};
-    void reset() noexcept { energy = {}; peak = 0.; }
+    void reset() noexcept { energy = {}; channelPeak = {}; peak = 0.; }
+    // Per-channel levels blended towards the louder one by `link` (amplitude).
+    // At link 1 both equal tick()'s linked level exactly: the maximum of
+    // per-channel peaks decayed alike is the shared decayed peak.
+    std::array<double, 2> levels(const std::array<double, 2>& sample, int channels, int mode,
+                                 double rmsCoefficient, double peakCoefficient, double link) noexcept {
+        std::array<double, 2> own{};
+        for (int c = 0; c < channels; ++c) {
+            const auto index = size_t(c);
+            const double x = sample[index];
+            energy[index] = rmsCoefficient * energy[index] + (1. - rmsCoefficient) * x * x;
+            if (energy[index] < 1.e-30) energy[index] = 0.;
+            channelPeak[index] = std::max(std::abs(x), channelPeak[index] * peakCoefficient);
+            if (channelPeak[index] < 1.e-30) channelPeak[index] = 0.;
+            own[index] = mode == 0 ? channelPeak[index] : std::sqrt(energy[index]);
+        }
+        if (channels == 1) { energy[1] = 0.; channelPeak[1] = 0.; return {own[0], own[0]}; }
+        const double linked = std::max(own[0], own[1]);
+        if (link >= 1.) return {linked, linked};
+        return {link * linked + (1. - link) * own[0], link * linked + (1. - link) * own[1]};
+    }
     double tick(const std::array<double, 2>& sample, int channels, int mode,
                 double rmsCoefficient, double peakCoefficient) noexcept {
         double peakSample = 0., maximumEnergy = 0.;
@@ -243,31 +284,106 @@ inline MultibandBandSettings sanitiseBand(MultibandBandSettings s) noexcept {
     s.release = float(finiteClamp(s.release, 5., 2000., 120.));
     s.knee = float(finiteClamp(s.knee, 0., 24., 6.));
     s.makeup = float(finiteClamp(s.makeup, -24., 24., 0.));
+    s.channels = std::clamp(s.channels, 0, 2);
     return s;
+}
+
+// Roots of a monic real polynomial of degree 1..5 (Aberth-Ehrlich), started
+// from `roots` (previous solution or a guess). Returns false if the iteration
+// did not converge to finite roots. Complex arithmetic is written out: the
+// library operators' special-value handling costs several times more.
+inline bool aberthRoots(const std::array<double, multibandMaxCrossovers + 1>& monic, int degree,
+                        std::array<std::complex<double>, multibandMaxCrossovers>& roots,
+                        int iterations) noexcept {
+    std::array<double, multibandMaxCrossovers> re{}, im{};
+    for (int i = 0; i < degree; ++i) { re[size_t(i)] = roots[size_t(i)].real(); im[size_t(i)] = roots[size_t(i)].imag(); }
+    double previous = std::numeric_limits<double>::infinity();
+    bool converged = false;
+    for (int pass = 0; pass < iterations && !converged; ++pass) {
+        double largest = 0.;
+        for (int i = 0; i < degree; ++i) {
+            const double zr = re[size_t(i)], zi = im[size_t(i)];
+            double pr = 1., pi_ = 0., dr = 0., di = 0.;
+            for (int j = degree - 1; j >= 0; --j) {
+                const double nr = dr * zr - di * zi + pr, ni = dr * zi + di * zr + pi_;
+                dr = nr; di = ni;
+                const double qr = pr * zr - pi_ * zi + monic[size_t(j)], qi = pr * zi + pi_ * zr;
+                pr = qr; pi_ = qi;
+            }
+            if (pr == 0. && pi_ == 0.) continue;
+            const double dn = dr * dr + di * di;
+            if (!(dn > 0.)) return false;
+            const double rr = (pr * dr + pi_ * di) / dn, ri = (pi_ * dr - pr * di) / dn;   // p / p'
+            double sr = 0., si = 0.;                                                    // sum 1 / (z - z_j)
+            for (int j = 0; j < degree; ++j) if (j != i) {
+                const double ar = zr - re[size_t(j)], ai = zi - im[size_t(j)], an = ar * ar + ai * ai;
+                if (an > 0.) { sr += ar / an; si -= ai / an; }
+            }
+            const double er = 1. - (rr * sr - ri * si), ei = -(rr * si + ri * sr);       // 1 - ratio * sum
+            const double en = er * er + ei * ei;
+            if (!(en > 0.)) return false;
+            const double wr = (rr * er + ri * ei) / en, wi = (ri * er - rr * ei) / en;
+            if (!std::isfinite(wr) || !std::isfinite(wi)) return false;
+            re[size_t(i)] = zr - wr; im[size_t(i)] = zi - wi;
+            // A real root's imaginary part decays towards subnormal values,
+            // which are slow to compute with; it is zero to working precision.
+            if (std::abs(im[size_t(i)]) < 1.e-200 * std::abs(re[size_t(i)])) im[size_t(i)] = 0.;
+            const double size = re[size_t(i)] * re[size_t(i)] + im[size_t(i)] * im[size_t(i)];
+            largest = std::max(largest, std::sqrt((wr * wr + wi * wi) / std::max(1.e-300, size)));
+        }
+        // Converged, or stalled at rounding level (nearly equal roots limit
+        // the attainable step, about 1e-14 relative).
+        converged = largest < 1.e-13 || (largest < 1.e-8 && largest >= .5 * previous);
+        previous = largest;
+    }
+    for (int i = 0; i < degree; ++i) roots[size_t(i)] = {re[size_t(i)], im[size_t(i)]};
+    return converged;
 }
 
 // The LR4 analysis bank is unchanged. Its positive, phase-aligned band weights
 // have magnitude N(w^4)/D(w^4). Spectral factorisation preserves that magnitude
 // while choosing stable minimum-phase zeros. Unity gain is exact raw audio.
+// Three crossovers solve the cubic N in closed form (the original four-band
+// arithmetic); five solve the quintic numerically (Aberth-Ehrlich, warm-started
+// from the previous schedule) and take each root's two left-half-plane fourth
+// roots as zeros.
 class MinimumPhaseSynthesis {
 public:
     void reset() noexcept {
         for(auto& ch:filter)for(auto& pair:ch)for(auto& s:pair)s.reset();
-        initialized=false; countdown=0;
+        initialized=false; countdown=0; rootsValid=false;
     }
+    // 3 or 5 crossovers. A change resets the filters.
+    void setCrossoverCount(int count) noexcept {
+        count = count == 5 ? 5 : 3;
+        if (count != crossovers) { crossovers = count; reset(); weight={}; weightStep={}; targetWeight={}; }
+    }
+    int crossoverCount() const noexcept { return crossovers; }
     void invalidateSchedule() noexcept { countdown=0; }
+    // Gain schedule (not the filter states) shared by both channels while
+    // their band gains are equal; one calculation serves both.
+    void copySchedule(const MinimumPhaseSynthesis& o) noexcept {
+        weight=o.weight; overall=o.overall; targetGain=o.targetGain; gainStep=o.gainStep;
+        weightStep=o.weightStep; targetWeight=o.targetWeight; countdown=o.countdown; initialized=o.initialized;
+        roots=o.roots; rootsValid=o.rootsValid;
+    }
+    bool sameSchedule(const MinimumPhaseSynthesis& o) const noexcept {
+        return weight==o.weight && overall==o.overall && targetGain==o.targetGain && gainStep==o.gainStep
+            && weightStep==o.weightStep && targetWeight==o.targetWeight && countdown==o.countdown && initialized==o.initialized;
+    }
     void unity() noexcept {
         weight={}; overall=1.; initialized=true; countdown=0;
     }
-    void warm(double x,int channel,const std::array<const SVFCoefficients*,3>& c) noexcept {
-        for(size_t i=0;i<3;++i) {
+    void warm(double x,int channel,const CrossoverCoefficients& c) noexcept {
+        for(size_t i=0;i<size_t(crossovers);++i) {
             auto& pair=filter[size_t(channel)][i];
             pair[1].tick(pair[0].tick(x,*c[i]).low,*c[i]);
         }
     }
-    void configure(const std::array<double,4>& actual,
-                   const std::array<double,4>& forecast,
-                   const std::array<const SVFCoefficients*,3>& c, int length) noexcept {
+    void configure(const std::array<double,multibandMaxBandCount>& actual,
+                   const std::array<double,multibandMaxBandCount>& forecast,
+                   const CrossoverCoefficients& c, int length) noexcept {
+        const size_t k=size_t(crossovers);
         if(!initialized) {
             calculate(actual,c); initialized=true; countdown=0; weightStep={}; gainStep=0.;
             return;
@@ -275,92 +391,113 @@ public:
         if(countdown==0) {
             const auto previous=weight; const double previousGain=overall;
             calculate(forecast,c);
-            for(size_t i=0;i<3;++i)for(size_t j=0;j<4;++j)weightStep[i][j]=(weight[i][j]-previous[i][j])/length;
+            for(size_t i=0;i<k;++i)for(size_t j=0;j<4;++j)weightStep[i][j]=(weight[i][j]-previous[i][j])/length;
             gainStep=(overall-previousGain)/length;
             targetWeight=weight; targetGain=overall;
             weight=previous; overall=previousGain; countdown=length;
         }
-        for(size_t i=0;i<3;++i)for(size_t j=0;j<4;++j)weight[i][j]+=weightStep[i][j];
+        for(size_t i=0;i<k;++i)for(size_t j=0;j<4;++j)weight[i][j]+=weightStep[i][j];
         overall+=gainStep;
         if(--countdown==0){weight=targetWeight;overall=targetGain;}
     }
+    // Schedules whose quintic did not converge (the previous schedule is kept).
+    int solverFailures() const noexcept { return failures; }
 private:
-    void calculate(const std::array<double,4>& inputGain,
-                   const std::array<const SVFCoefficients*,3>& coefficients) noexcept {
-        std::array<double,3> g{},q{};
-        for(size_t i=0;i<3;++i)g[i]=coefficients[i]->a2/coefficients[i]->a1;
-        const double scale=g[1];
-        for(size_t i=0;i<3;++i){const double a=g[i]/scale;q[i]=a*a*a*a;}
-        std::array<double,4> gain{};
-        for(size_t i=0;i<4;++i)gain[i]=std::max(1.e-8,inputGain[i]);
-        overall=gain[3];
-        if(gain[0]==gain[1]&&gain[1]==gain[2]&&gain[2]==gain[3]) {
+    void calculate(const std::array<double,multibandMaxBandCount>& inputGain,
+                   const CrossoverCoefficients& coefficients) noexcept {
+        const size_t k=size_t(crossovers);
+        std::array<double,multibandMaxCrossovers> g{},q{};
+        for(size_t i=0;i<k;++i)g[i]=coefficients[i]->a2/coefficients[i]->a1;
+        const double scale=g[k/2];
+        for(size_t i=0;i<k;++i){const double a=g[i]/scale;q[i]=a*a*a*a;}
+        std::array<double,multibandMaxBandCount> gain{};
+        for(size_t i=0;i<=k;++i)gain[i]=std::max(1.e-8,inputGain[i]);
+        bool equal=true;
+        for(size_t i=1;i<=k;++i)equal=equal&&gain[i]==gain[0];
+        if(equal) {
+            overall=gain[k];
             weight={};
             return;
         }
-        const double a=(gain[0]*q[0]+gain[1]*q[1]+gain[2]*q[2])/gain[3];
-        const double b=(gain[0]*q[0]*(q[1]+q[2])+gain[1]*q[1]*q[2])/gain[3];
-        const double c=gain[0]*q[0]*q[1]*q[2]/gain[3];
-        // Scale the monic cubic, solve its largest-magnitude negative real root,
-        // then deflate using Vieta (avoids subtracting almost equal large roots).
-        const double norm=std::max({a,std::sqrt(b),std::cbrt(c),1.e-30});
-        const double aa=a/norm,bb=b/(norm*norm),cc=c/(norm*norm*norm);
-        const double p=bb-aa*aa/3.,r=2.*aa*aa*aa/27.-aa*bb/3.+cc;
-        const double d=r*r/4.+p*p*p/27.;
-        double root;
-        if(d>=0.) {
-            const double u=std::cbrt(-r*.5-std::copysign(std::sqrt(d),r));
-            root=u+(std::abs(u)>1.e-30?-p/(3.*u):0.)-aa/3.;
-        } else {
-            const double radius=2.*std::sqrt(-p/3.);
-            const double angle=std::acos(std::clamp(-r*.5/std::sqrt(-p*p*p/27.),-1.,1.))/3.;
-            root=radius*std::cos(angle+2.*pi/3.)-aa/3.;
-        }
-        for(int i=0;i<3;++i){
-            const double f=((root+aa)*root+bb)*root+cc;
-            const double derivative=(3.*root+2.*aa)*root+bb;
-            if(std::abs(derivative)>1.e-30)root-=f/derivative;
-        }
-        const double v=-cc/root, u=(v-bb)/root;
-        const double discriminant=u*u-4.*v;
-        // Each stable conjugate zero pair is [s^2 + B*s + C], used twice.
+        using C = std::complex<double>;
+        // Numerator at a pole and its derivative: overall * prod(zero factor)^2.
         std::array<std::array<double,2>,3> factors{};
-        const auto realFactor=[&](double value){
-            const double radius=std::sqrt(std::sqrt(std::max(0.,-value*norm)))*scale;
-            return std::array<double,2>{butterworthK*radius,radius*radius};
-        };
-        factors[0]=realFactor(root);
-        if(discriminant>=0.) {
-            const double second=(-u-std::sqrt(discriminant))*.5;
-            factors[1]=realFactor(second);
-            factors[2]=realFactor(v/second);
-        } else {
-            const double magnitude=std::sqrt(v);
-            const double radius=std::sqrt(std::sqrt(magnitude*norm))*scale;
-            const double halfCosine=std::sqrt(std::clamp((1.-u/(2.*magnitude))*.5,0.,1.));
-            const double cosine=std::sqrt((1.+halfCosine)*.5);
-            const double sine=std::sqrt((1.-halfCosine)*.5);
-            const double square=radius*radius;
-            factors[1]={2.*radius*sine,square};
-            factors[2]={2.*radius*cosine,square};
-        }
+        std::array<C,2*multibandMaxCrossovers> zeros{};
+        if(k==3) {
+            overall=gain[3];
+            const double a=(gain[0]*q[0]+gain[1]*q[1]+gain[2]*q[2])/gain[3];
+            const double b=(gain[0]*q[0]*(q[1]+q[2])+gain[1]*q[1]*q[2])/gain[3];
+            const double c=gain[0]*q[0]*q[1]*q[2]/gain[3];
+            // Scale the monic cubic, solve its largest-magnitude negative real root,
+            // then deflate using Vieta (avoids subtracting almost equal large roots).
+            const double norm=std::max({a,std::sqrt(b),std::cbrt(c),1.e-30});
+            const double aa=a/norm,bb=b/(norm*norm),cc=c/(norm*norm*norm);
+            const double p=bb-aa*aa/3.,r=2.*aa*aa*aa/27.-aa*bb/3.+cc;
+            const double d=r*r/4.+p*p*p/27.;
+            double root;
+            if(d>=0.) {
+                const double u=std::cbrt(-r*.5-std::copysign(std::sqrt(d),r));
+                root=u+(std::abs(u)>1.e-30?-p/(3.*u):0.)-aa/3.;
+            } else {
+                const double radius=2.*std::sqrt(-p/3.);
+                const double angle=std::acos(std::clamp(-r*.5/std::sqrt(-p*p*p/27.),-1.,1.))/3.;
+                root=radius*std::cos(angle+2.*pi/3.)-aa/3.;
+            }
+            for(int i=0;i<3;++i){
+                const double f=((root+aa)*root+bb)*root+cc;
+                const double derivative=(3.*root+2.*aa)*root+bb;
+                if(std::abs(derivative)>1.e-30)root-=f/derivative;
+            }
+            const double v=-cc/root, u=(v-bb)/root;
+            const double discriminant=u*u-4.*v;
+            // Each stable conjugate zero pair is [s^2 + B*s + C], used twice.
+            const auto realFactor=[&](double value){
+                const double radius=std::sqrt(std::sqrt(std::max(0.,-value*norm)))*scale;
+                return std::array<double,2>{butterworthK*radius,radius*radius};
+            };
+            factors[0]=realFactor(root);
+            if(discriminant>=0.) {
+                const double second=(-u-std::sqrt(discriminant))*.5;
+                factors[1]=realFactor(second);
+                factors[2]=realFactor(v/second);
+            } else {
+                const double magnitude=std::sqrt(v);
+                const double radius=std::sqrt(std::sqrt(magnitude*norm))*scale;
+                const double halfCosine=std::sqrt(std::clamp((1.-u/(2.*magnitude))*.5,0.,1.));
+                const double cosine=std::sqrt((1.+halfCosine)*.5);
+                const double sine=std::sqrt((1.-halfCosine)*.5);
+                const double square=radius*radius;
+                factors[1]={2.*radius*sine,square};
+                factors[2]={2.*radius*cosine,square};
+            }
+        } else if(!quinticZeros(gain,q,zeros)) {
+            ++failures;
+            return;   // keep the previous schedule
+        } else overall=gain[k];
         // Fixed parallel poles: the synthesis states depend only on the input,
         // never on gain automation. Residues avoid moving zeros between filter
         // sections and the energy injection of time-varying cascade numerators.
-        using C = std::complex<double>;
-        for(size_t i=0;i<3;++i) {
+        for(size_t i=0;i<k;++i) {
             const double gi=g[i]/scale;
             const C pole(-gi/butterworthK,gi/butterworthK);
             C numerator=overall, derivative=0.;
-            for(const auto& f:factors) {
-                const double b=f[0]/scale, c=f[1]/(scale*scale);
-                const C q=pole*pole+b*pole+c, dq=2.*pole+b;
-                derivative=derivative*q*q+numerator*2.*q*dq;
-                numerator*=q*q;
+            if(k==3) {
+                for(const auto& f:factors) {
+                    const double b=f[0]/scale, c=f[1]/(scale*scale);
+                    const C q=pole*pole+b*pole+c, dq=2.*pole+b;
+                    derivative=derivative*q*q+numerator*2.*q*dq;
+                    numerator*=q*q;
+                }
+            } else {
+                for(size_t z=0;z<2*k;++z) {
+                    const C linear=pole-zeros[z];
+                    derivative=derivative*linear*linear+numerator*2.*linear;
+                    numerator*=linear*linear;
+                }
             }
             const C separation=pole-std::conj(pole);
             C denominator=separation*separation, logDerivative=2./separation;
-            for(size_t j=0;j<3;++j) if(j!=i) {
+            for(size_t j=0;j<k;++j) if(j!=i) {
                 const double gj=g[j]/scale;
                 const C q=pole*pole+butterworthK*gj*pole+gj*gj;
                 denominator*=q*q;
@@ -375,10 +512,61 @@ private:
                 (2.*(second*conjugate*conjugate).real()-2.*second.real()*gi*gi)/(gi*gi*gi*gi)};
         }
     }
+    // Zeros (scaled s units) of the five-crossover numerator. N(x)/g5 is the
+    // monic quintic sum over k<5 of g_k q_k x^k prod_(i>k)(q_i + x), plus x^5;
+    // each root z of it contributes the two fourth roots of z with negative
+    // real part.
+    bool quinticZeros(const std::array<double,multibandMaxBandCount>& gain,
+                      const std::array<double,multibandMaxCrossovers>& q,
+                      std::array<std::complex<double>,2*multibandMaxCrossovers>& zeros) noexcept {
+        using C = std::complex<double>;
+        constexpr int degree=5;
+        std::array<double,degree+1> poly{};
+        poly[degree]=gain[degree];
+        for(int band=0;band<degree;++band) {
+            std::array<double,degree+1> term{};
+            term[size_t(band)]=gain[size_t(band)]*q[size_t(band)];
+            for(int i=band+1;i<degree;++i)
+                for(int j=degree;j>=0;--j)
+                    term[size_t(j)]=term[size_t(j)]*q[size_t(i)]+(j>0?term[size_t(j-1)]:0.);
+            for(int j=0;j<=degree;++j)poly[size_t(j)]+=term[size_t(j)];
+        }
+        for(int j=0;j<degree;++j)poly[size_t(j)]/=poly[degree];
+        // Scale the roots to about unit size: norm = max |a_j|^(1/(5-j)).
+        const double norm=std::max({std::abs(poly[4]),std::sqrt(std::abs(poly[3])),std::cbrt(std::abs(poly[2])),
+                                    std::sqrt(std::sqrt(std::abs(poly[1]))),std::pow(std::abs(poly[0]),.2),1.e-30});
+        std::array<double,degree+1> monic{};
+        double power=norm;
+        for(int j=degree-1;j>=0;--j){monic[size_t(j)]=poly[size_t(j)]/power;power*=norm;}
+        monic[degree]=1.;
+        auto start=roots;
+        bool solved=false;
+        if(rootsValid) {
+            for(auto& r:start)r/=norm;
+            solved=aberthRoots(monic,degree,start,24);
+        }
+        if(!solved) {
+            // The equal-gain roots are -q_i; rotated apart so complex roots are reachable.
+            for(size_t i=0;i<size_t(degree);++i)start[i]=std::polar(std::max(1.e-300,q[i]/norm),pi-.3-.1*double(i));
+            solved=aberthRoots(monic,degree,start,200);
+        }
+        if(!solved){rootsValid=false;return false;}
+        for(size_t i=0;i<size_t(degree);++i) {
+            roots[i]=start[i]*norm;
+            const double radius=std::sqrt(std::sqrt(std::abs(roots[i])));
+            const double angle=std::arg(roots[i]);
+            std::array<C,4> fourth{};
+            for(int m=0;m<4;++m)fourth[size_t(m)]=std::polar(radius,(angle+2.*pi*m)/4.);
+            std::sort(fourth.begin(),fourth.end(),[](const C& a,const C& b){return a.real()<b.real();});
+            zeros[2*i]=fourth[0]; zeros[2*i+1]=fourth[1];
+        }
+        rootsValid=true;
+        return true;
+    }
 public:
-    double tick(double x,int channel,const std::array<const SVFCoefficients*,3>& c) noexcept {
+    double tick(double x,int channel,const CrossoverCoefficients& c) noexcept {
         double y=overall*x;
-        for(size_t i=0;i<3;++i) {
+        for(size_t i=0;i<size_t(crossovers);++i) {
             auto& pair=filter[size_t(channel)][i];
             const auto first=pair[0].tick(x,*c[i]);
             const auto second=pair[1].tick(first.low,*c[i]);
@@ -389,12 +577,13 @@ public:
     }
 
 private:
-    std::array<std::array<std::array<SVF,2>,3>,2> filter{};
-    std::array<std::array<double,4>,3> weight{};
+    std::array<std::array<std::array<SVF,2>,multibandMaxCrossovers>,2> filter{};
+    std::array<std::array<double,4>,multibandMaxCrossovers> weight{};
     double overall{1.}, targetGain{1.}, gainStep{};
-    std::array<std::array<double,4>,3> weightStep{},targetWeight{};
-    int countdown{};
-    bool initialized{};
+    std::array<std::array<double,4>,multibandMaxCrossovers> weightStep{},targetWeight{};
+    std::array<std::complex<double>,multibandMaxCrossovers> roots{};
+    int countdown{}, crossovers{3}, failures{};
+    bool initialized{}, rootsValid{};
 };
 
 } // namespace multiband_detail
@@ -418,13 +607,48 @@ public:
                                    f1 * spacing, maximum);
         return {float(f0), float(f1), float(f2)};
     }
+    // Five ordered crossovers for six bands, the same rules (1.4 x spacing).
+    static std::array<float, multibandMaxCrossovers> validatedSixBandCrossovers(
+        std::array<float, multibandMaxCrossovers> input, double sampleRate) noexcept {
+        using namespace multiband_detail;
+        const double maximum = std::min(16000., .4 * validRate(sampleRate));
+        constexpr double spacing = 1.4;
+        constexpr std::array<double, multibandMaxCrossovers> defaults{120., 700., 3500., 6000., 11000.};
+        std::array<float, multibandMaxCrossovers> out{};
+        double previous = 0.;
+        for (size_t i = 0; i < out.size(); ++i) {
+            const double top = maximum / std::pow(spacing, double(out.size() - 1 - i));
+            const double low = i == 0 ? 40. : previous * spacing;
+            previous = std::clamp(finiteClamp(input[i], 40., maximum, defaults[i]), low, top);
+            out[i] = float(previous);
+        }
+        return out;
+    }
 
     void setSettings(const MultibandSettings& next) noexcept {
         using namespace multiband_detail;
         settings = next;
         settings.mix = float(finiteClamp(settings.mix, 0., 1., 1.));
         settings.detector = std::clamp(settings.detector, 0, 1);
-        settings.crossovers = validatedCrossovers(settings.crossovers, rate);
+        settings.stereo = std::clamp(settings.stereo, 0, 1);
+        settings.link = float(finiteClamp(settings.link, 0., 1., 1.));
+        settings.bandCount = settings.bandCount == 6 ? 6 : 4;
+        // Five-crossover processing always uses the six-band validation of
+        // the raw values, also while it fades out to four bands: mixing the
+        // two rule sets could make the live crossovers cross, where the
+        // synthesis residues are singular.
+        sixBandTargets = validatedSixBandCrossovers({settings.crossovers[0], settings.crossovers[1], settings.crossovers[2],
+                                                     settings.upperCrossovers[0], settings.upperCrossovers[1]}, rate);
+        if (settings.bandCount == 6) {
+            const auto all = validatedSixBandCrossovers({settings.crossovers[0], settings.crossovers[1], settings.crossovers[2],
+                                                         settings.upperCrossovers[0], settings.upperCrossovers[1]}, rate);
+            settings.crossovers = {all[0], all[1], all[2]};
+            settings.upperCrossovers = {all[3], all[4]};
+        } else {
+            settings.crossovers = validatedCrossovers(settings.crossovers, rate);
+            settings.upperCrossovers = {float(finiteClamp(settings.upperCrossovers[0], 40., 16000., 6000.)),
+                                        float(finiteClamp(settings.upperCrossovers[1], 40., 16000., 11000.))};
+        }
         for (auto& b : settings.bands) b = sanitiseBand(b);
     }
 
@@ -435,6 +659,7 @@ public:
         rate = validRate(sampleRate);
         setSettings(settings);
         rampSamples = std::max(1, int(std::ceil(rate * .01)));
+        settleSamples = std::max(1, int(std::ceil(rate * .03)));
         synthesisInterval = std::max(1, int(std::ceil(rate / 6000.)));
         rmsCoefficient = coefficient(rate, 5.);
         peakCoefficient = coefficient(rate, 30.);
@@ -442,57 +667,83 @@ public:
     }
 
     void reset() noexcept {
+        active = targetCrossovers();   // before the crossovers, which depend on it
         for (auto& s : splitter) s.reset();
+        for (auto& s : keySplitter) s.reset();
         for (size_t i = 0; i < frequencies.size(); ++i)
-            frequencies[i].prepare(rate, settings.crossovers[i]);
+            frequencies[i].prepare(rate, crossoverTarget(i));
         wet.reset(settings.on ? 1. : 0.);
         lastOn=settings.on;
+        domain = settings.stereo; switching = 0; settleLeft = 0;
+        active = targetCrossovers();
+        for (auto& synthesis : synth) synthesis.setCrossoverCount(active);
         mix.reset(settings.mix);
         const bool solo = anySolo();
         for (size_t i = 0; i < bandState.size(); ++i) {
             auto& s = bandState[i];
             s.detector.reset();
-            s.gainDB = 0.;
+            s.gainDB = {};
             s.makeup.reset(settings.bands[i].makeup);
             s.wet.reset(settings.bands[i].bypass ? 0. : 1.);
             s.solo.reset(!solo || settings.bands[i].solo ? 1. : 0.);
         }
         meters = {};
-        synthesis.reset();
+        for (auto& synthesis : synth) synthesis.reset();
+        shared = true;
     }
 
     // In-place mono/stereo; extra channels are untouched. Size is independent
     // of a prepared maximum: zero, ragged, and oversized blocks are bounded.
     // All storage is fixed; no allocation, lock, logging or parameter lookup.
-    void process(float* const* audio, int channelCount, int sampleCount) noexcept {
+    // `key` (optional, `keyChannels` mono or stereo, `sampleCount` long) is an
+    // external detector input: it is split by its own crossovers and each
+    // band's detector reads the key's band instead of the signal's.
+    void process(float* const* audio, int channelCount, int sampleCount, const float* const* key = nullptr, int keyChannels = 0) noexcept {
         using namespace multiband_detail;
         const int channels = std::clamp(channelCount, 0, 2);
         if (channels == 0 || sampleCount <= 0 || audio == nullptr) return;
         for (int c = 0; c < channels; ++c) if (audio[c] == nullptr) return;
+        keyChannels = key != nullptr ? std::clamp(keyChannels, 0, 2) : 0;
+        if (keyChannels == 0) key = nullptr;
+        if ((key != nullptr) != keyed) { for (auto& split : keySplitter) split.reset(); keyed = key != nullptr; }
 
-        if (settings.on && wet.value() == 0. && !wet.moving()) {
-            for (auto& split : splitter) split.reset();
-            for (auto& state : bandState) { state.detector.reset(); state.gainDB = 0.; }
+        // A stereo-domain change (L/R <-> M/S) or band-count change while
+        // running fades the wet path out, swaps the layout, feeds it silently
+        // for 30 ms so its filters settle, and fades back in. Switched off, it
+        // swaps at once.
+        const bool stereo = channels == 2;
+        if ((settings.stereo != domain || targetCrossovers() != active) && switching == 0) {
+            if (!settings.on && !wet.moving()) swapLayout();
+            else switching = 1;
         }
-        if (settings.on != lastOn) { synthesis.invalidateSchedule(); lastOn=settings.on; }
-        wet.setTarget(settings.on ? 1. : 0., rampSamples);
+        if (settings.on && wet.value() == 0. && !wet.moving() && switching == 0) {
+            for (auto& split : splitter) split.reset();
+            for (auto& split : keySplitter) split.reset();   // no stale key state either
+            for (auto& state : bandState) { state.detector.reset(); state.gainDB = {}; }
+        }
+        if (settings.on != lastOn) { for (auto& synthesis : synth) synthesis.invalidateSchedule(); lastOn=settings.on; }
+        wet.setTarget(settings.on && switching == 0 ? 1. : 0., rampSamples);
         if (!settings.on && !wet.moving()) {
             meters = {};
-            std::array<const SVFCoefficients*,3> c{};
-            // Keep only six fixed synthesis SVFs/channel warm. OFF samples are
-            // never rewritten; analysis/detectors remain asleep until enabled.
-            synthesis.unity();
+            CrossoverCoefficients c{};
+            // Keep only the fixed synthesis SVFs (two per crossover and channel)
+            // warm. OFF samples are never rewritten; analysis/detectors remain
+            // asleep until enabled.
+            if (switching != 0) { swapLayout(); switching = 0; }
+            for (auto& synthesis : synth) synthesis.unity();
+            shared = true;
             for(int n=0;n<sampleCount;++n) {
-                for(size_t i=0;i<3;++i)c[i]=&frequencies[i].next();
+                for(size_t i=0;i<size_t(active);++i)c[i]=&frequencies[i].next();
+                const auto in = domainInput(audio, channels, n, stereo);
                 for(int channel=0;channel<channels;++channel)
-                    synthesis.warm(std::isfinite(audio[channel][n])?audio[channel][n]:0.,channel,c);
+                    synth[size_t(channel)].warm(in[size_t(channel)],channel,c);
             }
             return;
         }
 
         mix.setTarget(settings.mix, rampSamples);
         for (size_t i = 0; i < frequencies.size(); ++i)
-            frequencies[i].setTarget(settings.crossovers[i]);
+            frequencies[i].setTarget(crossoverTarget(i));
         const bool solo = anySolo();
         for (size_t i = 0; i < bandState.size(); ++i) {
             auto& s = bandState[i];
@@ -505,38 +756,51 @@ public:
         }
 
         for (int n = 0; n < sampleCount; ++n) {
-            std::array<const SVFCoefficients*, 3> coefficients{};
-            for (size_t i = 0; i < frequencies.size(); ++i)
+            const size_t crossoverCount = size_t(active), bandCount = crossoverCount + 1;
+            CrossoverCoefficients coefficients{};
+            for (size_t i = 0; i < crossoverCount; ++i)
                 coefficients[i] = &frequencies[i].next();
-            std::array<double, 2> dry{};
-            std::array<std::array<double, 4>, 2> samples{};
-            for (int c = 0; c < channels; ++c) {
-                const auto index = size_t(c);
-                dry[index] = std::isfinite(audio[c][n]) ? double(audio[c][n]) : 0.;
-                samples[index] = splitter[index].tick(dry[index], coefficients);
+            // Domain samples: L/R as they are, or M/S. In double, M + S and M - S
+            // return L and R except for rounding (below 1e-16) where one channel
+            // is many orders of magnitude smaller than the other.
+            const auto dry = domainInput(audio, channels, n, stereo);
+            std::array<std::array<double, multibandMaxBandCount>, 2> samples{};
+            for (int c = 0; c < channels; ++c) samples[size_t(c)] = splitter[size_t(c)].tick(dry[size_t(c)], coefficients, active);
+            std::array<std::array<double, multibandMaxBandCount>, 2> keySamples{};
+            if (key != nullptr) {
+                std::array<double, 2> k{};
+                for (int c = 0; c < channels; ++c) { const float x = key[std::min(c, keyChannels - 1)][n];k[size_t(c)] = std::isfinite(x) ? double(x) : 0.; }
+                if (stereo && domain == 1) k = {(k[0] + k[1]) * .5, (k[0] - k[1]) * .5};
+                for (int c = 0; c < channels; ++c) keySamples[size_t(c)] = keySplitter[size_t(c)].tick(k[size_t(c)], coefficients, active);
             }
-            std::array<double, 4> gains{};
+            std::array<std::array<double, multibandMaxBandCount>, 2> gains{};
             const double parallel = mix.next();
-            for (size_t i = 0; i < bandState.size(); ++i) {
+            for (size_t i = 0; i < bandCount; ++i) {
                 auto& state = bandState[i];
                 const auto& v = settings.bands[i];
-                const std::array<double, 2> detectorInput{samples[0][i], samples[1][i]};
-                const double level = state.detector.tick(detectorInput, channels,
-                    settings.detector, rmsCoefficient, peakCoefficient);
-                const double desired = v.bypass ? 0. : dynamicsGainDB(levelDB(level), v);
-                const bool increasing = std::abs(desired) > std::abs(state.gainDB)
-                                     || desired * state.gainDB < 0.;
-                const double smoothing = increasing ? state.attack : state.release;
-                state.gainDB = desired + smoothing * (state.gainDB - desired);
-                if (std::abs(state.gainDB) < 1.e-10) state.gainDB = 0.;
+                const auto& source = key != nullptr ? keySamples : samples;
+                const std::array<double, 2> detectorInput{source[0][i], source[1][i]};
+                const auto level = state.detector.levels(detectorInput, channels,
+                    settings.detector, rmsCoefficient, peakCoefficient, settings.link);
                 const double bandWet = state.wet.next();
                 const double makeup = state.makeup.next();
-                const double branch = gainFromDB(state.gainDB + makeup);
-                // The dry component is each identically phase-compensated band,
-                // not unfiltered input. Parallel mix therefore cannot comb.
-                const double gain = (1. + parallel * bandWet * (branch - 1.))
-                                  * state.solo.next();
-                gains[i] = gain;
+                const double solo = state.solo.next();
+                for (int c = 0; c < 2; ++c) {
+                    const auto index = size_t(c);
+                    // A band set to one channel leaves the other at unity (and
+                    // without makeup), so that channel passes unchanged.
+                    const bool processed = v.channels == 0 || v.channels == c + 1 || channels == 1;
+                    const double desired = v.bypass || !processed ? 0. : dynamicsGainDB(levelDB(level[index]), v);
+                    auto& g = state.gainDB[index];
+                    const bool increasing = std::abs(desired) > std::abs(g) || desired * g < 0.;
+                    const double smoothing = increasing ? state.attack : state.release;
+                    g = desired + smoothing * (g - desired);
+                    if (std::abs(g) < 1.e-10) g = 0.;
+                    const double branch = gainFromDB(g + (processed ? makeup : 0.));
+                    // The dry component is each identically phase-compensated band,
+                    // not unfiltered input. Parallel mix therefore cannot comb.
+                    gains[index][i] = (1. + parallel * bandWet * (branch - 1.)) * solo;
+                }
             }
             const double active = wet.next();
             // Approximately 6 kHz control rate at every sample rate; interpolation
@@ -547,53 +811,110 @@ public:
             const double future=fade(wet.valueAfter(length-1));
             const double amount=fade(active);
             auto forecast=gains;
-            for(size_t i=0;i<gains.size();++i) {
-                forecast[i]=1.+future*(gains[i]-1.);
-                gains[i]=1.+amount*(gains[i]-1.);
+            for(size_t c=0;c<2;++c)for(size_t i=0;i<bandCount;++i) {
+                forecast[c][i]=1.+future*(gains[c][i]-1.);
+                gains[c][i]=1.+amount*(gains[c][i]-1.);
             }
-            synthesis.configure(gains, forecast, coefficients,length);
-            for (int c = 0; c < channels; ++c) {
-                const auto index = size_t(c);
-                const double result = synthesis.tick(dry[index], c, coefficients);
-                if(active>0.) audio[c][n] = safeOutput(result);
+            // Equal channel gains: one schedule for both (the linked default,
+            // bit-identical to a single shared synthesis).
+            if (shared && (channels == 1 || (gains[0] == gains[1] && forecast[0] == forecast[1]))) {
+                synth[0].configure(gains[0], forecast[0], coefficients, length);
+                synth[1].copySchedule(synth[0]);
+            } else {
+                for (size_t c = 0; c < 2; ++c) synth[c].configure(gains[c], forecast[c], coefficients, length);
+                shared = gains[0] == gains[1] && forecast[0] == forecast[1] && synth[0].sameSchedule(synth[1]);
+            }
+            std::array<double, 2> wetOut{};
+            for (int c = 0; c < channels; ++c) wetOut[size_t(c)] = synth[size_t(c)].tick(dry[size_t(c)], c, coefficients);
+            if (stereo && domain == 1) wetOut = {wetOut[0] + wetOut[1], wetOut[0] - wetOut[1]};
+            for (int c = 0; c < channels; ++c) if(active>0.) audio[c][n] = safeOutput(wetOut[size_t(c)]);
+            if (switching == 1 && wet.value() == 0. && !wet.moving()) {
+                // Faded out: change the layout, settle silently, then fade in.
+                swapLayout(); switching = 2; settleLeft = settleSamples;
+                for (auto& state : bandState) { state.detector.reset(); state.gainDB = {}; }
+            } else if (switching == 2 && --settleLeft <= 0) {
+                switching = 0;
+                if (settings.on) wet.setTarget(1., rampSamples);
             }
         }
-        for(size_t i=0;i<bandState.size();++i) {
+        meters = {};
+        for(size_t i=0;i<=size_t(active);++i) {
             const auto& state=bandState[i];
-            meters[i]=float(-levelDB(1.+mix.value()*state.wet.value()*(gainFromDB(state.gainDB)-1.)));
+            // The more reduced channel's change.
+            const double g = std::abs(state.gainDB[0]) >= std::abs(state.gainDB[1]) ? state.gainDB[0] : state.gainDB[1];
+            meters[i]=float(-levelDB(1.+mix.value()*state.wet.value()*(gainFromDB(g)-1.)));
         }
         if (!settings.on && !wet.moving()) meters = {};
     }
 
     float reduction(int band) const noexcept {
-        return meters[size_t(std::clamp(band, 0, multibandBandCount - 1))];
+        return meters[size_t(std::clamp(band, 0, multibandMaxBandCount - 1))];
     }
     std::array<float, 3> crossovers() const noexcept {
         return {frequencies[0].frequency(), frequencies[1].frequency(), frequencies[2].frequency()};
     }
+    // Applied crossovers 4 and 5 (their targets while four bands run).
+    std::array<float, 2> upperCrossovers() const noexcept {
+        if (active < multibandMaxCrossovers) return settings.upperCrossovers;
+        return {frequencies[3].frequency(), frequencies[4].frequency()};
+    }
+    // Bands being processed (the setting applies after its fade).
+    int activeBandCount() const noexcept { return active + 1; }
+    int synthesisSolverFailures() const noexcept { return synth[0].solverFailures() + synth[1].solverFailures(); }
     double sampleRate() const noexcept { return rate; }
 
 private:
     struct BandState {
         multiband_detail::Detector detector;
         multiband_detail::Ramp makeup, wet, solo;
-        double gainDB{}, attack{}, release{};
+        std::array<double, 2> gainDB{};
+        double attack{}, release{};
     };
+    std::array<double, 2> domainInput(float* const* audio, int channels, int n, bool stereo) const noexcept {
+        std::array<double, 2> x{};
+        for (int c = 0; c < channels; ++c) x[size_t(c)] = std::isfinite(audio[c][n]) ? double(audio[c][n]) : 0.;
+        if (stereo && domain == 1) return {(x[0] + x[1]) * .5, (x[0] - x[1]) * .5};
+        return x;
+    }
     bool anySolo() const noexcept {
-        for (const auto& b : settings.bands) if (b.solo) return true;
+        for (int i = 0; i <= active; ++i) if (settings.bands[size_t(i)].solo) return true;
         return false;
+    }
+    int targetCrossovers() const noexcept { return settings.bandCount - 1; }
+    // The frequencies the processed crossovers move towards. Four bands keep
+    // the four-band rules (unchanged); five crossovers use the six-band set.
+    double crossoverTarget(size_t i) const noexcept {
+        if (active == multibandMaxCrossovers) return sixBandTargets[i];
+        return i < 3 ? settings.crossovers[i] : sixBandTargets[i];
+    }
+    // Applies the pending stereo domain and band count. A band-count change
+    // (at silence, or while off) starts every crossover at its new target,
+    // so the live crossovers are ordered and can never cross while they glide.
+    void swapLayout() noexcept {
+        domain = settings.stereo;
+        if (targetCrossovers() == active) return;
+        active = targetCrossovers();
+        for (auto& s : splitter) s.reset();
+        for (auto& s : keySplitter) s.reset();
+        for (size_t i = 0; i < frequencies.size(); ++i) frequencies[i].prepare(rate, crossoverTarget(i));
+        for (auto& synthesis : synth) synthesis.setCrossoverCount(active);
+        for (auto& state : bandState) { state.detector.reset(); state.gainDB = {}; }
     }
 
     MultibandSettings settings{};
     double rate{48000.}, rmsCoefficient{}, peakCoefficient{};
-    int rampSamples{480}, synthesisInterval{8};
-    bool lastOn{};
-    std::array<multiband_detail::CrossoverFrequency, 3> frequencies;
-    std::array<multiband_detail::FourBandSplit, 2> splitter;
-    std::array<BandState, multibandBandCount> bandState;
+    int rampSamples{480}, synthesisInterval{8}, settleSamples{1440};
+    bool lastOn{}, shared{true};
+    int domain{0}, switching{0}, settleLeft{0};   // switching: 0 idle, 1 fading out, 2 settling
+    int active{3};                                // crossovers being processed: 3 or 5
+    std::array<float, multibandMaxCrossovers> sixBandTargets{120.f, 700.f, 3500.f, 6000.f, 11000.f};
+    std::array<multiband_detail::CrossoverFrequency, multibandMaxCrossovers> frequencies;
+    std::array<multiband_detail::BandSplit, 2> splitter, keySplitter;
+    bool keyed{};
+    std::array<BandState, multibandMaxBandCount> bandState;
     multiband_detail::Ramp wet, mix;
-    multiband_detail::MinimumPhaseSynthesis synthesis;
-    std::array<float, multibandBandCount> meters{};
+    std::array<multiband_detail::MinimumPhaseSynthesis, 2> synth;
+    std::array<float, multibandMaxBandCount> meters{};
 };
 
 struct DeEsserSettings {

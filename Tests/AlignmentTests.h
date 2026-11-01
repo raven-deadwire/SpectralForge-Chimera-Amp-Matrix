@@ -132,7 +132,9 @@ inline void lowBlend()
         double error=0;for(size_t i=0;i<half.size();++i) error=std::max(error,std::abs(double(half[i]-(di[i]+wet[i])*.5f)));
         require(error<2e-6,"LOW DI/amp merge has inconsistent timing or blend gain");
         require(nullPeak(wet,render(rate,os,1,1,5,false))<1e-6,"Hidden Classic drive changes Matrix LOW amp");
-        require(nullPeak(wet,render(rate,os,1,1,5,true))<1e-5,"Classic drive state leaks into Matrix LOW");
+        // A routing change fades and settles before Matrix starts, so the
+        // reference also comes from Classic, with the drive at zero there.
+        require(nullPeak(render(rate,os,1,0,5,true),render(rate,os,1,1,5,true))<1e-5,"Classic drive state leaks into Matrix LOW");
         require(nullPeak(di,wet)>.001,"LOW amp blend is not audible");
         require(nullPeak(wet,render(rate,os,1,0,7,false))>.0001,"LOW head selector is not connected");
         std::cout<<"MEASURE LOW DI/amp blend "<<rate<<" Hz / "<<(1<<os)<<"x: endpoint interpolation null "<<error<<"; drive fixed at zero\n";

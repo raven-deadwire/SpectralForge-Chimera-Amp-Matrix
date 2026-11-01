@@ -3,6 +3,7 @@
 #include "PluginProcessor.h"
 #include "CabIRFile.h"
 #include "IRStateAssets.h"
+#include "SynthSampleIO.h"
 #include <algorithm>
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
@@ -42,12 +43,15 @@ ChimeraProcessor::ChimeraProcessor()
 ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock,
                                    const spectralforge::beta::tester::Grant& tester)
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
-                                      .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
+                                      .withOutput("Output",juce::AudioChannelSet::stereo(),true)
+                                      // Optional, off until the host enables them (docs/SIDECHAIN_SYNTH_BUS.md).
+                                      .withInput("Sidechain",juce::AudioChannelSet::stereo(),false)
+                                      .withOutput("Synth",juce::AudioChannelSet::stereo(),false)),
       betaClock(clock), betaLifecycle(metadata,clock(),tester.valid), testerHolder(tester.valid ? tester.name : juce::String{})
 {
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
-    dynamics.bind(state);multiband.bind(state);deesser.bind(state);
+    dynamics.bind(state);multiband.bind(state);saturation.bind(state);filterModulation.bind(state);creative.bind(state);synth.bind(state);postFX.setCreative(&creative);deesser.bind(state);
     preFX.setAnalysis(&dynamicsAnalysisState);postFX.setAnalysis(&dynamicsAnalysisState);
     pedalBoard.setAnalysis(&dynamicsAnalysisState);engine.setDynamicsAnalysis(&dynamicsAnalysisState);
     const std::array<const char*,12> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype","cabAcutsOff","cabBcutsOff"};
@@ -58,7 +62,9 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
     gateRangeDb=state.getRawParameterValue("gateRangeDb");
-    gate2.bind(state);expander.bind(state);
+    gate2.bind(state);expander.bind(state);room.bind(state);signalOrder.bind(state);activeOrder=signalOrder.read({});
+    synthOutput=state.getRawParameterValue("synthOutput");keyComp=state.getRawParameterValue("scKeyComp");
+    keyGates=state.getRawParameterValue("scKeyGates");keyMultiband=state.getRawParameterValue("scKeyMultiband");
     syncTransposeQuality();
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
@@ -67,8 +73,11 @@ ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata
     gainOrderParameter=state.getRawParameterValue("gainorder");
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
+    oversamplingAuto=state.getRawParameterValue("oversamplingAuto");
+    oversamplingChoiceListener.owner=this;autoOffWriter.owner=this;if(auto* choice=state.getParameter("oversampling"))choice->addListener(&oversamplingChoiceListener);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
     for(size_t i=0;i<modelParameters.size();++i)modelParameters[i]=state.getRawParameterValue(spectralforge::modelFamilies[i].parameter);
+    for(size_t i=0;i<modelParameters.size();++i)modelExtensionParameters[i]=spectralforge::effectFamilyExtended(int(i))?state.getRawParameterValue(spectralforge::effectExtensionID(int(i))):nullptr;
     const std::array<const char*,18> laneIds{"amp","drive","level","bass","lowmid","highmid","treble","presence","resonance","bandtone","mute","solo","polarity","cab","cablow","cabhigh","cabtype","ampon"};
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
@@ -134,6 +143,8 @@ juce::String ChimeraProcessor::betaNotice() const
 ChimeraProcessor::~ChimeraProcessor()
 {
     const spectralforge::lifecycle::Scope trace("processor.destroy", this);
+    if(auto* choice=state.getParameter("oversampling"))choice->removeListener(&oversamplingChoiceListener);
+    autoOffWriter.cancelPendingUpdate();
     releaseResources();
 }
 void ChimeraProcessor::releaseResources()
@@ -152,12 +163,16 @@ void ChimeraProcessor::releaseResources()
 void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
-    releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
+    releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr;preparedRate.store(sr); maximumBlock=juce::jmax(1,block);
     switchFadeLength=juce::jmax(1,int(sr*.005));switchFadePosition=switchFadeLength;switchFade=SwitchFade::idle;processedSincePrepare=holdForSwitch=false;
     lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
+    loudness.prepare(sr);
     hostTempoMeter.store(0);
-    const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
+    const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)juce::jmax(1,getMainBusNumOutputChannels())};
+    keyBuffer.setSize(2,maximumBlock);keyBuffer.clear();
+    busDelay.setSize(2,int(sr)+maximumBlock+1);busDelay.clear();busDelayWrite=0;   // up to 1 s of latency
+    toneKeyDelay.prepare(4096,maximumBlock);postKeyDelay.prepare(4096,maximumBlock);
     // Install the restored panel state before Cab::prepare initializes its
     // smoothers. This also clears a previous A/B blend/bypass after reprepare;
     // the normal process() path still smooths live automation as before.
@@ -170,11 +185,13 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec);levelMatch.prepare(sr,int(spec.numChannels)); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);deesser.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);creative.prepare(spec);synth.prepare(sr,int(spec.maximumBlockSize));utilities.prepare(spec);levelMatch.prepare(sr,int(spec.numChannels)); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);dynamics.prepare(sr);multiband.prepare(sr);saturation.prepare(sr,maximumBlock);filterModulation.prepare(sr);deesser.prepare(sr);
     dynamicsAnalysisState.prepare(sr,int(spec.maximumBlockSize));
     audioBoard=boardParameters.read();
     const int maximumGateDelay=juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency();
     postRigGate.prepare(spec,maximumGateDelay);gate2.prepare(spec,maximumGateDelay);expander.prepare(spec,maximumGateDelay);
+    room.prepare(spec);
+    activeOrder=signalOrder.read(activeOrder);toneSwitch.prepare(sr);postSwitch.prepare(sr);
     gate2Gain.store(1);expanderGain.store(1);
     hostBypass.prepare(postFX.latency()+engine.latency()
         +juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency()));
@@ -191,20 +208,34 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     tuningMute.setCurrentAndTargetValue(1);
     betaOutputGain.reset(sr,.050);
     betaOutputGain.setCurrentAndTargetValue(betaLifecycle.processingPermitted() ? 1.f : 0.f);
-    engine.setOversampling((int)globals[os]->load());
+    engine.setOversampling(effectiveOversampling());
     // Gate lookahead above is sized while the transposer is on its Classic
     // (largest) window; select the stored quality mode now, before latency is
     // reported, so the host gets the active mode's delay from the first block.
     preFX.transpose.setMode(transposeQualityMode.load());
     const bool pitchActive=globals[pitchOn]->load()>.5f && int(globals[semitones]->load())!=0;
-    setLatencySamples(postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
+    setLatencySamples(saturation.latency()+dynamics.limiterLatency()+postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
 }
 bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 {
-    return (buses.getMainOutputChannelSet()==juce::AudioChannelSet::mono() || buses.getMainOutputChannelSet()==juce::AudioChannelSet::stereo()) &&
-            buses.getMainInputChannelSet()==buses.getMainOutputChannelSet();
+    const auto mono=juce::AudioChannelSet::mono(),stereo=juce::AudioChannelSet::stereo(),off=juce::AudioChannelSet::disabled();
+    // Main: mono or stereo, input equal to output. Sidechain: off, mono or
+    // stereo. Synth bus: off or stereo.
+    const auto sidechain=buses.inputBuses.size()>1?buses.getChannelSet(true,1):off;
+    const auto synthBus=buses.outputBuses.size()>1?buses.getChannelSet(false,1):off;
+    return (buses.getMainOutputChannelSet()==mono || buses.getMainOutputChannelSet()==stereo) &&
+            buses.getMainInputChannelSet()==buses.getMainOutputChannelSet() &&
+            (sidechain==off || sidechain==mono || sidechain==stereo) && (synthBus==off || synthBus==stereo) &&
+            buses.inputBuses.size()<=2 && buses.outputBuses.size()<=2;
 }
-void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
+juce::AudioBuffer<float> ChimeraProcessor::busBuffer(juce::AudioBuffer<float>& hostBuffer,bool input) const
+{
+    if(getBusCount(input)<2 || !getBus(input,1)->isEnabled() || getChannelCountOfBus(input,1)==0)return {};
+    const int first=getChannelIndexInProcessBlockBuffer(input,1,0),count=getChannelCountOfBus(input,1);
+    if(first+count>hostBuffer.getNumChannels())return {};
+    return {hostBuffer.getArrayOfWritePointers()+first,count,hostBuffer.getNumSamples()};
+}
+void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::MidiBuffer& midi)
 {
     spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
@@ -227,6 +258,11 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         }
         else {hostBypass.reset();switchFade=SwitchFade::out;}
     }
+    // The main bus, and the optional sidechain and SYNTH bus. Input and output
+    // buses share buffer channels: the sidechain's channels are the SYNTH
+    // bus's, so each chunk's key is copied out before its SYNTH bus is written.
+    auto buffer=getBusBuffer(hostBuffer,false,0);
+    const auto keyBus=busBuffer(hostBuffer,true);auto synthBus=busBuffer(hostBuffer,false);
     // Capture before input gain/routing/effects, inside the callback CPU meter.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),0,false);
     for(const auto metadata:midi) {
@@ -236,6 +272,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         const int target=midiMap[(size_t)cc].load();
         if(target>=0 && target<getParameters().size()) getParameters()[target]->setValueNotifyingHost(message.getControllerValue()/127.f);
     }
+    synth.handleMidi(midi);   // 1.10 SYNTH notes, applied at the block start
     float bpm=extras[tempo]->load();
     float suppliedHostTempo=0;
     if(extras[hostTempo]->load()>.5f) if(auto* playhead=getPlayHead()) if(const auto position=playhead->getPosition()) if(const auto hostBpm=position->getBpm()) {
@@ -246,6 +283,18 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
     }
     hostTempoMeter.store(suppliedHostTempo);
     tempoMeter.store(bpm);
+    // Host position for bar-locked modulation (docs/MODULATION_1_9.md): known
+    // only while the transport plays.
+    hostPpq=std::numeric_limits<double>::quiet_NaN();
+    hostPpqBpm=std::numeric_limits<double>::quiet_NaN();
+    // The position advances at the host's own tempo, whatever Chimera's tempo setting is.
+    hostBarStart=std::numeric_limits<double>::quiet_NaN();hostBarBeats=0.;
+    if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())if(position->getIsPlaying())if(const auto ppq=position->getPpqPosition())if(const auto hostBpm=position->getBpm())if(*hostBpm>0.){
+        hostPpq=*ppq;hostPpqBpm=*hostBpm;
+        // The bar the LFO lock counts from: the host's last bar line and bar length.
+        if(const auto bar=position->getPpqPositionOfLastBarStart())if(const auto signature=position->getTimeSignature())
+            if(signature->numerator>0 && signature->denominator>0){hostBarStart=*bar;hostBarBeats=4.0*signature->numerator/signature->denominator;}
+    }
     // Hosts may deliver blocks larger than prepareToPlay's hint. All DSP and
     // convolution buffers remain bounded to the prepared capacity.
     for(int offset=0;offset<buffer.getNumSamples();offset+=maximumBlock)
@@ -260,11 +309,28 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
             std::array<float*,2> sub{};
             for(int c=0;c<buffer.getNumChannels();++c) sub[(size_t)c]=channels[(size_t)c]+done;
             juce::AudioBuffer<float> part(sub.data(),buffer.getNumChannels(),n);
+            // This chunk's key, copied before the SYNTH bus overwrites it.
+            juce::AudioBuffer<float> key(keyBuffer.getArrayOfWritePointers(),juce::jmin(2,keyBus.getNumChannels()),n);
+            for(int c=0;c<key.getNumChannels();++c){
+                key.copyFrom(c,0,keyBus,c,offset+done,n);
+                // A non-finite key sample would stick in the keyed detectors' state.
+                auto* k=key.getWritePointer(c);for(int i=0;i<n;++i)if(!std::isfinite(k[i]))k[i]=0.f;
+            }
+            externalKey=key.getNumChannels()>0?&key:nullptr;
+            toneKeyDelayed=toneKeyDelay.process(externalKey,saturation.latency());postKeyDelayed=postKeyDelay.process(externalKey,postFX.latency());
+            chunkPpq=std::isfinite(hostPpq)?hostPpq+double(offset+done)*hostPpqBpm/60.0/rate:hostPpq;
+            busLeft=synthBus.getNumChannels()>0?synthBus.getWritePointer(0,offset+done):nullptr;
+            busRight=synthBus.getNumChannels()>1?synthBus.getWritePointer(1,offset+done):busLeft;
             // While a recall keeps the output muted, recalled cabinets install
             // at once instead of crossfading 50 ms from the previous ones.
             engine.setInstantCabinetSwap(switchFade==SwitchFade::wait);
             process(part);
-            applySwitchFade(part);
+            externalKey=nullptr;
+            // The switch fade applies to the main and SYNTH bus together.
+            std::array<float*,4> faded{sub[0],sub[1]};int fadedChannels=buffer.getNumChannels();
+            if(busLeft!=nullptr){faded[(size_t)fadedChannels++]=busLeft;if(busRight!=busLeft)faded[(size_t)fadedChannels++]=busRight;}
+            juce::AudioBuffer<float> everything(faded.data(),fadedChannels,n);
+            applySwitchFade(everything);
             done+=n;
         }
     }
@@ -278,9 +344,13 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         for(int n=0;n<buffer.getNumSamples();++n) {
             const float gain=betaOutputGain.getNextValue();
             for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*gain);
+            for(int c=0;c<synthBus.getNumChannels();++c)synthBus.setSample(c,n,synthBus.getSample(c,n)*gain);
         }
-    } else if(betaOutputGain.getCurrentValue()==0.f) buffer.clear();
+    } else if(betaOutputGain.getCurrentValue()==0.f) {buffer.clear();synthBus.clear();}
     if(!betaLifecycle.processingPermitted())outputPeak.store(0.f);
+    // Studio loudness of exactly what leaves the plugin: after the limiter,
+    // output trim and the lifecycle gain.
+    loudness.process(buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     if(buffer.getNumSamples()>0 && rate>0) {
         const double budget=buffer.getNumSamples()/rate;
         const float load=float(100.0*juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-started)/budget);
@@ -289,8 +359,10 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         cpuPeak.store(juce::jmax(load,cpuPeak.load()*decay));
     }
 }
-void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
+void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& hostBuffer,juce::MidiBuffer&)
 {
+    auto buffer=getBusBuffer(hostBuffer,false,0);
+    {auto synthBus=busBuffer(hostBuffer,false);synthBus.clear();}   // bypassed: no synth on its bus
     updateComparisonProtection();
     resetProcessingIfPending();
     // Bypassed, the wet sound is not heard: a recall needs no fade.
@@ -301,6 +373,7 @@ void ChimeraProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer,juc
     // Use the currently reported delay; parameter changes take effect when the
     // wet graph next processes (or prepareToPlay is called), as before.
     hostBypass.process(buffer.getArrayOfWritePointers(),buffer.getNumChannels(),buffer.getNumSamples(),getLatencySamples(),true);
+    loudness.process(buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());   // bypassed: still what leaves the plugin
 }
 void ChimeraProcessor::updateComparisonProtection()
 {
@@ -318,8 +391,8 @@ void ChimeraProcessor::resetProcessingIfPending()
 }
 void ChimeraProcessor::resetProcessing(bool hostBypassToo)
 {
-    engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();utilities.reset();
-    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();deesser.reset();if(hostBypassToo)hostBypass.reset();
+    engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();gate2.reset();expander.reset();postFX.reset();creative.reset();synth.reset();utilities.reset();
+    toneEQ.reset();finalEQ.reset();dynamics.reset();multiband.reset();saturation.reset();filterModulation.reset();deesser.reset();room.reset();if(hostBypassToo)hostBypass.reset();
 }
 void ChimeraProcessor::applySwitchFade(juce::AudioBuffer<float>& part)
 {
@@ -375,7 +448,15 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     autoSetCaptureState.push(spectralforge::autoset::Tap::input,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     measureStage(0,buffer);
     tuner.push(buffer,value(tunerOn)>.5f);
-    auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
+    synth.analyse(buffer);   // 1.10 SYNTH tracks the clean input
+    synth.render(buffer.getNumSamples(),tempoMeter.load());   // rendered once, added at its insert point below
+    {   // SYNTH output: the guitar mix, its own bus, or both. Without a SYNTH bus it stays in the mix.
+        const int output=juce::jlimit(0,2,juce::roundToInt(synthOutput->load()));const bool bus=busLeft!=nullptr;
+        synth.setOutputs(output!=1 || !bus,bus && output>=1);
+        if(bus){synth.writeBus(busLeft,busRight,buffer.getNumSamples());delaySynthBus(busLeft,busRight,buffer.getNumSamples());}
+    }
+    synthTracked.store(synth.read().on?synth.pitchTracker().hz():0.0,std::memory_order_relaxed);
+    auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=modelExtensionParameters[i]?spectralforge::effectSelectedModel(int(i),modelParameters[i]->load(),modelExtensionParameters[i]->load()):(int)modelParameters[i]->load();fx.tempo=tempoMeter.load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     fx.postNative=nativePost.read();
     const bool pitching=value(pitchOn)>.5f && int(value(semitones))!=0;
     const auto before=boardEditSequence.load(std::memory_order_acquire);
@@ -398,10 +479,15 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // Auto Set holds every gate open while it measures the noise the rig adds.
     const bool gatesAllowed=!autoSetGateBypass.load(std::memory_order_relaxed);
     const bool gateEnabled=gatesAllowed && value(gateOn)>.5f;
-    postRigGate.detect(buffer,gateEnabled,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
+    // External key (docs/SIDECHAIN_SYNTH_BUS.md): each switched-on detector
+    // listens to the sidechain instead of the clean input.
+    const auto* gateKey=externalKey!=nullptr && keyGates->load()>.5f ? externalKey : nullptr;
+    const auto& gateDetector=gateKey!=nullptr ? *gateKey : static_cast<const juce::AudioBuffer<float>&>(buffer);
+    preFX.gate.setKey(gateKey);
+    postRigGate.detect(gateDetector,gateEnabled,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     // Gate 2 and the Expander detect on the same clean input. Pre-rig units
     // apply here, ahead of the main gate: Expander > Gate 2 > Gate.
-    expander.detect(buffer,preLatency+engine.latency(),gatesAllowed);gate2.detect(buffer,preLatency+engine.latency(),gatesAllowed);
+    expander.detect(gateDetector,preLatency+engine.latency(),gatesAllowed);gate2.detect(gateDetector,preLatency+engine.latency(),gatesAllowed);
     if(!expander.afterRig())expander.apply(buffer);
     if(!gate2.afterRig())gate2.apply(buffer);
     if(audioBoard.enabled) {
@@ -412,9 +498,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     boardReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : 0.f);
     preReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : preFX.compressor.reduction());
     measureStage(1,buffer);
-    const int latency=postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
+    const int latency=saturation.latency()+dynamics.limiterLatency()+postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
-    engine.setOversampling((int)value(os));
+    engine.setOversampling(effectiveOversampling());
     syncOriginalCabRequests();
     std::array<spectralforge::LaneState,3> lanes{};
     for(int i=0;i<3;++i)
@@ -433,26 +519,70 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
+    // Room Core: the engine fills the send bus only while the room is on (or
+    // its send is fading out after Room off).
+    const auto roomSends=room.sends();
+    juce::AudioBuffer<float>* roomBus=room.wantsInput() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
+    synth.addAt(spectralforge::SynthInsert::ampInput,buffer);   // SYNTH insert: into the amps, like a pedal
+    // Auto Set's amp tap reads what the amps receive, the SYNTH insert included,
+    // so its offline amp render matches the amp the cab tap hears.
     autoSetCaptureState.push(spectralforge::autoset::Tap::amp,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
+    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
+                   roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
     autoSetCaptureState.push(spectralforge::autoset::Tap::rig,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer);}
+    // Post-rig gates attenuate the send bus with the direct sum's own gain.
+    if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer,roomBus);}
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     // Post-rig order mirrors the pre-rig one: Gate > Gate 2 > Expander.
-    if(gate2.afterRig())gate2.apply(buffer);
-    if(expander.afterRig())expander.apply(buffer);
+    if(gate2.afterRig())gate2.apply(buffer,roomBus);
+    if(expander.afterRig())expander.apply(buffer,roomBus);
+    autoSetCaptureState.push(spectralforge::autoset::Tap::cab,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
+    // The wet return joins after the gates and before Tone EQ, so a tail
+    // already in the room is not cut by a closing gate.
+    if(room.running())room.process(roomBus,buffer);
     gate2Gain.store(gate2.reduction());expanderGain.store(expander.reduction());
+    // SYNTH insert (docs/SYNTH_PAGE.md): after RIG SUM and the post-rig gates, before Tone EQ.
+    // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): the tone / dynamics block and
+    // the POST rack run in their saved order. A change fades the region's
+    // output out and back in around the switch; with nothing audible yet it
+    // applies at once.
+    {const auto requested=signalOrder.read(activeOrder);
+     const bool immediate=!processedSincePrepare || switchFade==SwitchFade::hold || switchFade==SwitchFade::wait;
+     if(toneSwitch.begin(requested.tone!=activeOrder.tone,immediate))activeOrder.tone=requested.tone;
+     if(postSwitch.begin(requested.post!=activeOrder.post,immediate))activeOrder.post=requested.post;}
+    synth.addAt(spectralforge::SynthInsert::beforeToneEQ,buffer);   // at the start of the tone / dynamics block
     measureStage(2,buffer);
-    autoSetCaptureState.push(spectralforge::autoset::Tap::tone,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    toneEQ.process(buffer);
-    autoSetCaptureState.push(spectralforge::autoset::Tap::compressor,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer);}
-    autoSetCaptureState.push(spectralforge::autoset::Tap::multiband,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer);}
-    autoSetCaptureState.push(spectralforge::autoset::Tap::deesser,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}
-    postFX.process(buffer,fx);
+    bool latentBefore=false;   // HQ saturation ran ahead: keyed detectors read the key delayed to match
+    for(const int module:activeOrder.tone.slots) {
+        using spectralforge::autoset::Tap;
+        const auto* toneKey=latentBefore?toneKeyDelayed:externalKey;
+        const auto tap=[&](Tap t){autoSetCaptureState.push(t,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());};
+        switch(module) {
+            case spectralforge::toneEQModule:tap(Tap::tone);toneEQ.process(buffer);break;
+            case spectralforge::compressorModule:tap(Tap::compressor);
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::compressor,buffer);dynamics.compress(buffer,toneKey!=nullptr && keyComp->load()>.5f ? toneKey : nullptr);}break;
+            case spectralforge::multibandModule:tap(Tap::multiband);
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::multiband,buffer);multiband.process(buffer,toneKey!=nullptr && keyMultiband->load()>.5f ? toneKey : nullptr);}break;
+            // Three-band saturation (docs/SATURATION_1_6.md): adds only what each band's
+            // curve changes; Off / Mix 0 / Clean bands leave the signal untouched.
+            case spectralforge::saturationModule:
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::saturation,buffer);saturation.process(buffer);latentBefore=saturation.latency()>0;}break;
+            // Two-filter modulation (docs/FILTER_MODULATION_1_7.md): off leaves the signal untouched.
+            case spectralforge::filterModule:
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::filter,buffer);filterModulation.process(buffer,tempoMeter.load(),chunkPpq,toneKey,hostPpqBpm,hostBarStart,hostBarBeats);}break;
+            case spectralforge::deesserModule:tap(Tap::deesser);
+                {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::deesser,buffer);deesser.process(buffer);}break;
+            default:break;
+        }
+    }
+    toneSwitch.apply(buffer);
+    synth.addAt(spectralforge::SynthInsert::beforePost,buffer);
+    postFX.setKey(externalKey,postKeyDelayed);   // Console VCA's EXTERNAL SIDE-CHAIN switch decides
+    postFX.process(buffer,fx,activeOrder.post);
+    postFX.setKey(nullptr);preFX.gate.setKey(nullptr);
+    postSwitch.apply(buffer);
+    synth.addAt(spectralforge::SynthInsert::afterPost,buffer);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
     for(int section=0;section<3;++section)nativePostMeters[(size_t)section].store(postFX.nativeMeter(section));
@@ -491,6 +621,97 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     }
     if(result.wasOk()) { setRawParameter(spectralforge::originalCabID(lane,"Bon"),0); setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
     return result;
+}
+// 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): edits on the message thread.
+// Slots are written one at a time, and the audio thread keeps its previous
+// order while a region is not a permutation. The writes are ordered so that
+// every intermediate state is invalid: the first changed slot first takes
+// the second's current value (a duplicate), the others follow, and the first
+// changed slot is written last. So no third, valid order can be heard.
+void ChimeraProcessor::writeOrder(const spectralforge::SignalOrder& order)
+{
+    using spectralforge::OrderRegion;
+    const auto write=[&](OrderRegion region,const int* target,int count){
+        std::array<int,8> changed{};int k=0;
+        const auto current=[&](int slot){return juce::roundToInt(state.getRawParameterValue(spectralforge::orderSlotID(region,slot))->load());};
+        const auto set=[&](int slot,int value){setRawParameter(spectralforge::orderSlotID(region,slot),float(value));};
+        for(int i=0;i<count;++i)if(current(i)!=target[i])changed[(size_t)k++]=i;
+        if(k==0)return;
+        if(k==1){set(changed[0],target[changed[0]]);return;}   // only from an invalid state
+        set(changed[0],current(changed[1]));
+        for(int j=2;j<k;++j)set(changed[(size_t)j],target[changed[(size_t)j]]);
+        set(changed[1],target[changed[1]]);
+        set(changed[0],target[changed[0]]);
+    };
+    write(OrderRegion::tone,order.tone.slots.data(),spectralforge::toneModuleCount);
+    write(OrderRegion::post,order.post.slots.data(),spectralforge::postModuleCount);
+}
+bool ChimeraProcessor::commitOrder(const spectralforge::SignalOrder& next)
+{
+    const auto current=requestedOrder();
+    if(next==current || !next.tone.valid() || !next.post.valid())return false;
+    orderUndo.push_back(current);if(orderUndo.size()>64)orderUndo.erase(orderUndo.begin());
+    orderRedo.clear();writeOrder(next);return true;
+}
+bool ChimeraProcessor::placeModule(spectralforge::OrderRegion region,int module,int position)
+{
+    if(module<0 || module>=spectralforge::moduleCount(region))return false;
+    auto next=requestedOrder();
+    if(region==spectralforge::OrderRegion::tone)next.tone=next.tone.placed(module,position);else next.post=next.post.placed(module,position);
+    return commitOrder(next);
+}
+bool ChimeraProcessor::moveModule(spectralforge::OrderRegion region,int module,int delta)
+{
+    const auto current=requestedOrder();
+    const int from=region==spectralforge::OrderRegion::tone?current.tone.position(module):current.post.position(module);
+    const int to=from+delta;
+    if(from<0 || to<0 || to>=spectralforge::moduleCount(region))return false;
+    return placeModule(region,module,to);
+}
+bool ChimeraProcessor::resetOrder(spectralforge::OrderRegion region)
+{
+    auto next=requestedOrder();
+    if(region==spectralforge::OrderRegion::tone)next.tone=spectralforge::ToneOrder::initial();else next.post=spectralforge::PostOrder::initial();
+    return commitOrder(next);
+}
+bool ChimeraProcessor::applyOrderPreset(spectralforge::OrderRegion region,int preset)
+{
+    const auto& presets=spectralforge::orderPresets(region);
+    if(preset<0 || preset>=int(presets.size()))return false;
+    auto next=requestedOrder();
+    if(region==spectralforge::OrderRegion::tone)for(int i=0;i<spectralforge::toneModuleCount;++i)next.tone.slots[(size_t)i]=presets[(size_t)preset].slots[(size_t)i];
+    else for(int i=0;i<spectralforge::postModuleCount;++i)next.post.slots[(size_t)i]=presets[(size_t)preset].slots[(size_t)i];
+    return commitOrder(next);
+}
+bool ChimeraProcessor::undoOrder()
+{
+    if(orderUndo.empty())return false;
+    const auto previous=orderUndo.back();orderUndo.pop_back();
+    orderRedo.push_back(requestedOrder());writeOrder(previous);return true;
+}
+bool ChimeraProcessor::redoOrder()
+{
+    if(orderRedo.empty())return false;
+    const auto next=orderRedo.back();orderRedo.pop_back();
+    orderUndo.push_back(requestedOrder());writeOrder(next);return true;
+}
+juce::Result ChimeraProcessor::loadSynthSample(int osc,const juce::File& file)
+{
+    if(osc<0 || osc>=spectralforge::synthOscCount)return juce::Result::fail("Invalid oscillator");
+    std::unique_ptr<spectralforge::SynthSample> sample;
+    const auto result=spectralforge::synthSample::load(file,sample);
+    if(result.failed())return result;
+    const int root=spectralforge::synthSample::rootNote(*sample);
+    synth.swapSample(osc,std::move(sample));   // the replaced sample is destroyed here, on this thread
+    setRawParameter(spectralforge::synthOscID(osc,"On"),1);setRawParameter(spectralforge::synthOscID(osc,"Mode"),1);
+    setRawParameter(spectralforge::synthOscID(osc,"Root"),float(root));
+    return result;
+}
+void ChimeraProcessor::clearSynthSample(int osc)
+{
+    if(osc<0 || osc>=spectralforge::synthOscCount)return;
+    synth.swapSample(osc,nullptr);
+    setRawParameter(spectralforge::synthOscID(osc,"Mode"),0);
 }
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
@@ -608,6 +829,41 @@ spectralforge::appendExtraGateParameters(p);
 // Append-only; existing projects keep their cuts and normalization policy.
 for(int lane=1;lane<=3;++lane)for(const auto* mic:{"A","B"})
     p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"cab"+juce::String(mic)+"cutsOff"+juce::String(lane),15},"Mic "+juce::String(mic)+" cuts bypass "+juce::String(lane),false));
+// Room Core 1.3.3 (version hint 15, as the cut bypass) follows.
+spectralforge::appendRoomParameters(p);
+// 1.4 PRE Expansion A pedal banks (version 16).
+spectralforge::appendPedalExpansionParameters(p);
+spectralforge::appendMultibandStereoParameters(p);
+spectralforge::appendSaturationParameters(p);
+// 1.6 reference heads (models 26-30), version hint 20.
+spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstReferenceAmpModel,spectralforge::ampModelCount,spectralforge::referenceAmpParameterVersion);
+// 1.7 two-filter modulation, version hint 21.
+spectralforge::appendFilterModulationParameters(p);
+// 1.7 POST expansion, version hint 22.
+spectralforge::appendPostExpansionParameters(p);
+// 1.8 POST motion/space: appended model extensions for DELAY / REVERB / MODULATION, version hint 23.
+for(int family:{1,2,10})
+    p.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{spectralforge::effectExtensionID(family),spectralforge::effectExtensionParameterVersion},
+        juce::String(spectralforge::modelFamilies[(size_t)family].category)+" model extension",0,15,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
+// Room Advanced 1.8 (version hint 24) and its spatial stage (25).
+spectralforge::appendRoomAdvancedParameters(p);
+spectralforge::appendRoomSpaceParameters(p);
+// 1.9 CREATIVE slot, version hint 26 (24 and 25 belong to Room Advanced).
+spectralforge::appendCreativeParameters(p);
+// 1.10 SYNTH layer, version hint 27.
+spectralforge::appendSynthParameters(p);
+// External sidechain keys and the SYNTH output choice, version hint 28.
+spectralforge::appendSidechainParameters(p);
+// 1.4 signal order: tone / dynamics block and POST rack positions, version hint 29.
+spectralforge::appendSignalOrderParameters(p);
+// 1.9 expanded filter modulation, version hint 30.
+spectralforge::appendFilterModulationExtensionParameters(p);
+// 1.5 six-band multiband expansion, version hint 31.
+spectralforge::appendMultibandSixBandParameters(p);
+// 1.5 Studio true-peak limiter mode, version hint 32.
+spectralforge::appendTruePeakLimiterParameters(p);
+// OVERSAMPLING Auto, version hint 33.
+spectralforge::appendOversamplingAutoParameters(p);
 return p;
 }
 
@@ -710,6 +966,10 @@ void ChimeraProcessor::syncOriginalCabRequests()
 juce::ValueTree ChimeraProcessor::captureCore()
 {
     auto saved=state.copyState();
+    // A host change of OVERSAMPLING whose Auto switch-off is still queued is
+    // saved as Auto off, as the audio already runs.
+    if(autoOffPending.load())
+        for(auto child:saved)if(child.getProperty("id").toString()=="oversamplingAuto")child.setProperty("value",0.f,nullptr);
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
     eqEditState.saveMetadata(saved);
@@ -748,9 +1008,31 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
     saved.appendChild(slots,nullptr);
     juce::ValueTree midi("MIDI_MAP");for(int cc=0;cc<128;++cc) {const int index=midiMap[(size_t)cc].load();if(index<0 || index>=getParameters().size())continue;if(auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(getParameters()[index])) {juce::ValueTree item("CC");item.setProperty("cc",cc,nullptr);item.setProperty("id",parameter->paramID,nullptr);midi.appendChild(item,nullptr);}}
     saved.appendChild(midi,nullptr);
-    if(!spectralforge::irState::serialize(saved,data))return false;
+    // SYNTH samples belong to the project, not to an A/B slot.
+    saved.appendChild(spectralforge::synthSample::save(synth),nullptr);
+    // Too large with the samples (64 MB budget): keep the project, without them.
+    if(!spectralforge::irState::serialize(saved,data)) {
+        saved.removeChild(saved.getChildWithName("SYNTH_SAMPLES"),nullptr);
+        if(!spectralforge::irState::serialize(saved,data))return false;
+    }
     comparisons[(size_t)active]=core;
     return true;
+}
+// The host compensates every output by the reported latency, so the SYNTH bus
+// (rendered without delay) is delayed by it too, staying aligned with the
+// main output and the timeline. Capacity: 1 s.
+void ChimeraProcessor::delaySynthBus(float* left,float* right,int samples) noexcept
+{
+    const int size=busDelay.getNumSamples();if(size<2)return;
+    const int latency=juce::jlimit(0,size-1,getLatencySamples());
+    if(latency==0)return;
+    auto* l=busDelay.getWritePointer(0);auto* r=busDelay.getWritePointer(1);
+    for(int n=0;n<samples;++n){
+        l[busDelayWrite]=left[n];r[busDelayWrite]=right!=nullptr?right[n]:left[n];
+        int read=busDelayWrite-latency;if(read<0)read+=size;
+        left[n]=l[read];if(right!=nullptr && right!=left)right[n]=r[read];
+        if(++busDelayWrite>=size)busDelayWrite=0;
+    }
 }
 void ChimeraProcessor::beginSwitch()
 {
@@ -768,9 +1050,11 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
     ++headRecallRevision;
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
+    const RestoringScope restoring(restoringState);
+    autoOffPending.store(false);autoOffWriter.cancelPendingUpdate();   // the restored state decides Auto
     beginSwitch(); // the old sound fades out (and stays muted) before any of the new state applies
     spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
-    boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
+    boardUndo.clear();boardRedo.clear();orderUndo.clear();orderRedo.clear();midiLearn.store(-1);
     const spectralforge::ParamIndex restoredById(restored);
     const bool missingNative=!restoredById[spectralforge::ampNativeModelID(0)].isValid();
     const bool missingPost=!restoredById[spectralforge::postNativeModelID(0)].isValid();
@@ -795,11 +1079,17 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         // Never inherit the current session's finite floor during migration.
         if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder" || id=="gainorder" || id=="boardEnabled") value=0;
         if((id.startsWith("nativeAmp_")&&id.endsWith("_enabled")) || (id.startsWith("pn_")&&id.endsWith("_native")))value=0;
+        // Sessions saved before OVERSAMPLING Auto keep their stored choice.
+        if(id=="oversamplingAuto")value=0;
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
     restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();syncTransposeQuality();switchPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
+    // A stored order that is not a permutation (partial or edited state) is
+    // replaced by the default, so the audio, the routing view and a fresh
+    // instance all agree.
+    writeOrder(signalOrder.read({}));
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
     library.wake();
 }
@@ -816,7 +1106,12 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}
     }
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
-    restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);restoreCore(restored);
+    restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);
+    auto loaded=spectralforge::synthSample::restore(restored.getChildWithName("SYNTH_SAMPLES"));
+    restored.removeChild(restored.getChildWithName("SYNTH_SAMPLES"),nullptr);restoreCore(restored);
+    // After restoreCore has started the switch, so the new samples are not
+    // heard through the old settings before the fade.
+    for(int o=0;o<spectralforge::synthOscCount;++o)synth.swapSample(o,std::move(loaded[(size_t)o]));
     warmInactiveComparison();
 }
 void ChimeraProcessor::selectComparison(int slot)
@@ -880,6 +1175,9 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
     ++headRecallRevision;
     beginSwitch(); // the old sound fades out (and stays muted) while the snapshot is built
     {
+        // The snapshot resets OVERSAMPLING Auto to its default (on); its 4x
+        // write must not turn that off again.
+        const RestoringScope restoring(restoringState);autoOffPending.store(false);autoOffWriter.cancelPendingUpdate();
         const auto snapshot=spectralforge::isNiflheimrPreset(index)
             ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)
             : spectralforge::isOriginalPreset(index)
@@ -898,13 +1196,28 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             const auto node=snapshotById[parameter->paramID];
             parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
         }
-        boardUndo.clear();boardRedo.clear();
+        boardUndo.clear();boardRedo.clear();orderUndo.clear();orderRedo.clear();
         // Factory recipes own their modeled CAB. Resolving a user's IR folder
         // here would bypass that cabinet and make recall machine-dependent.
         switchPending.store(true);
     }
 }
 
+int ChimeraProcessor::effectiveOversampling() const noexcept {
+    const bool automatic=oversamplingAuto!=nullptr && oversamplingAuto->load()>.5f && !autoOffPending.load();
+    return spectralforge::effectiveOversamplingChoice(int(globals[os]->load()),automatic,preparedRate.load());   // the rate of the last prepareToPlay
+}
+void ChimeraProcessor::OversamplingChoiceListener::parameterValueChanged(int,float) {
+    if(owner==nullptr || owner->restoringState.load()>0)return;
+    if(owner->oversamplingAuto==nullptr || owner->oversamplingAuto->load()<=.5f)return;
+    owner->autoOffPending.store(true);owner->autoOffWriter.triggerAsyncUpdate();
+}
+void ChimeraProcessor::AutoOffWriter::handleAsyncUpdate() {
+    if(owner==nullptr || !owner->autoOffPending.load())return;
+    if(auto* automatic=owner->state.getParameter("oversamplingAuto"); automatic!=nullptr && automatic->getValue()>.5f)
+        {automatic->beginChangeGesture();automatic->setValueNotifyingHost(0.f);automatic->endChangeGesture();}
+    owner->autoOffPending.store(false);
+}
 int ChimeraProcessor::ampContext(int lane) const noexcept {
     return spectralforge::ampNativeContext((int)globals[mode]->load(),lane);
 }
@@ -959,6 +1272,7 @@ void ChimeraProcessor::seedNativeSelections(bool seedBoard,bool seedAmps,bool se
         const int model=juce::jlimit(0,2,(int)modelParameters[(size_t)(7+s)]->load());
         setRawParameter(spectralforge::postNativeModeID(s),0.f);
         setRawParameter(spectralforge::postNativeModelID(s),float(model));
+        setRawParameter(spectralforge::postNativeModelExtensionID(s),0.f);
         setRawParameter(spectralforge::postNativeBypassID(s,model),state.getRawParameterValue(postOn[s])->load()>.5f?0.f:1.f);
     }
     if(!seedBoard)return;
@@ -1050,13 +1364,22 @@ void ChimeraProcessor::setPedalModel(int owner,int model) {
     boardEditSequence.fetch_add(1,std::memory_order_release);
 }
 void ChimeraProcessor::movePedal(int owner,int direction) {
+    const auto board=boardParameters.read();
+    for(int i=0;i<5;++i)if(board.order[(size_t)i]==owner) {movePedalTo(owner,i+direction);return;}
+}
+// Takes the owner out of the order and inserts it at the destination; the
+// pedals between shift by one. One undo step; owners (and their parameter
+// banks and MIDI bindings) stay the same.
+void ChimeraProcessor::movePedalTo(int owner,int destination) {
     const auto board=boardParameters.read();int position=-1;
     for(int i=0;i<5;++i)if(board.order[(size_t)i]==owner)position=i;
-    const int destination=position+direction;
-    if(position<0 || destination<0 || destination>=5)return;
+    if(position<0 || destination<0 || destination>=5 || destination==position)return;
+    auto order=board.order;
+    const int step=destination>position?1:-1;
+    for(int i=position;i!=destination;i+=step)order[(size_t)i]=order[(size_t)(i+step)];
+    order[(size_t)destination]=owner;
     rememberPedalEdit();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
-    setRawParameter(spectralforge::pedalOrderID(position),float(board.order[(size_t)destination]));
-    setRawParameter(spectralforge::pedalOrderID(destination),float(owner));
+    for(int i=0;i<5;++i)if(order[(size_t)i]!=board.order[(size_t)i])setRawParameter(spectralforge::pedalOrderID(i),float(order[(size_t)i]));
     setRawParameter("boardEnabled",1);
     boardEditSequence.fetch_add(1,std::memory_order_release);
 }
@@ -1099,10 +1422,10 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     object->setProperty("schema",1);object->setProperty("version",spectralforge::release::version);
     object->setProperty("build_revision",spectralforge::release::revision);
     object->setProperty("sample_rate",getSampleRate());object->setProperty("host_block_hint",getBlockSize());
-    object->setProperty("channels",getTotalNumOutputChannels());object->setProperty("reported_latency_samples",getLatencySamples());
+    object->setProperty("channels",getMainBusNumOutputChannels());object->setProperty("reported_latency_samples",getLatencySamples());
     object->setProperty("mode",int(globals[mode]->load()));object->setProperty("universal_board",boardParameters.enabled->load()>.5f);
     object->setProperty("transpose_enabled",globals[pitchOn]->load()>.5f);object->setProperty("semitones",int(globals[semitones]->load()));
-    object->setProperty("oversampling_index",int(globals[os]->load()));object->setProperty("output_trim_db",globals[output]->load());
+    object->setProperty("oversampling_index",int(globals[os]->load()));object->setProperty("oversampling_auto",oversamplingAuto!=nullptr && oversamplingAuto->load()>.5f);object->setProperty("oversampling_effective_index",effectiveOversampling());object->setProperty("output_trim_db",globals[output]->load());
     object->setProperty("post_rig_gate",gateAfterRig->load()>.5f);object->setProperty("callback_average_percent",cpuAverage.load());
     object->setProperty("callback_peak_percent",cpuPeak.load());
     object->setProperty("tone_eq_average_percent",toneEQ.average.load());object->setProperty("tone_eq_peak_percent",toneEQ.peak.load());

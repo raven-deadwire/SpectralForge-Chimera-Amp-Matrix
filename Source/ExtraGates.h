@@ -69,7 +69,7 @@ public:
                     afterRig()?postRigDelaySamples:0,get(6,0,NoiseGate::fullRangeDb,expander?24.f:NoiseGate::fullRangeDb));
     }
     // Unity gains are skipped once settled, so a disabled unit stays bit exact.
-    void apply(juce::AudioBuffer<float>& audio){if(active || gate.reduction()<1.f)gate.apply(audio);}
+    void apply(juce::AudioBuffer<float>& audio,juce::AudioBuffer<float>* roomBus=nullptr){if(active || gate.reduction()<1.f)gate.apply(audio,roomBus);}
     float reduction() const {return gate.reduction();}
 private:
     float get(size_t i,float lo,float hi,float fallback) const noexcept {

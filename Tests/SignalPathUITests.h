@@ -27,8 +27,8 @@ inline void topology(ChimeraProcessor& p) {
     for(int mode=0;mode<3;++mode)for(int dual=0;dual<2;++dual)for(int gate=0;gate<2;++gate){set(p,"mode",float(mode));set(p,"dualtype",float(dual));set(p,"gateAfterRig",float(gate));auto s=read(p);
         int amps=0,cabs=0;for(const auto& n:s.nodes){amps+=n.id.startsWith("amp.context");cabs+=n.target==Target::cab;}
         require(amps==mode+1&&cabs==mode+1,"Path lane count differs from DSP");
-        require(edge(s,"post.section0","post.section1")&&edge(s,"post.section4","post.section5")&&edge(s,"post.section5","utilities")&&edge(s,"utilities","final.eq")&&edge(s,"final.eq","output"),"POST / Final EQ order differs from DSP");
-        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","common.multiband")&&edge(s,"common.multiband","common.deesser")&&edge(s,"common.deesser","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
+        require(edge(s,"post.section0","post.section1")&&edge(s,"post.section4","post.creative")&&edge(s,"post.creative","post.section5")&&edge(s,"post.section5","utilities")&&edge(s,"utilities","final.eq")&&edge(s,"final.eq","output"),"POST / Final EQ order differs from DSP");
+        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","common.multiband")&&edge(s,"common.multiband","common.saturation")&&edge(s,"common.saturation","common.filter")&&edge(s,"common.filter","common.deesser")&&edge(s,"common.deesser","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
         require(s.find("tone.eq")->target==Target::toneEQ && s.find("final.eq")->target==Target::finalEQ,"EQ editor target mismatch");
         for(size_t i=0;i<s.nodes.size();++i)for(size_t j=i+1;j<s.nodes.size();++j)require(!s.nodes[i].bounds.intersects(s.nodes[j].bounds),"Expanded path blocks overlap");
         if(mode==2){require(edge(s,"low.comp","low.di")&&edge(s,"low.comp","amp.context3")&&edge(s,"amp.context3","cab.context3")&&edge(s,"cab.context3","low.blend")&&edge(s,"low.di","low.blend")&&edge(s,"low.blend","level.context3"),"Matrix LOW branch/blend order differs from DSP");require(!edge(s,"split","amp.context3"),"Wet PRE falsely feeds LOW");}
@@ -81,7 +81,7 @@ inline void capture(juce::Component& root,const juce::File& folder,const juce::S
     require(staged.overwriteTargetFileWithTemporary(),"Cannot replace Signal Path snapshot");
     verify(file);
 }
-inline constexpr std::array<const char*,6> compactStages{"pre","head","cab","tone.eq","post","final.eq"};
+inline constexpr std::array<const char*,7> compactStages{"pre","head","cab","tone.eq","post","final.eq","synth"};
 inline juce::TextButton& pathButton(SignalPathView& view,const juce::String& id) {
     auto* button=find<juce::TextButton>(view,"path."+id);
     require(button,"Signal path navigation button missing");return *button;
@@ -95,7 +95,7 @@ inline void accessibleButton(juce::TextButton& button,const juce::String& label)
 }
 inline void compactContract(SignalPathView& strip,int mode) {
     int count=0;for(auto* child:strip.getChildren())if(child->getComponentID().startsWith("path."))++count;
-    require(count==int(compactStages.size()),"Compact workflow must contain exactly six editing stages");
+    require(count==int(compactStages.size()),"Compact workflow must contain exactly seven editing stages");
     require(strip.getHeight()>=44,"Primary navigation hit area is too small");
     int previousRight=0;
     for(size_t i=0;i<compactStages.size();++i) {
@@ -114,7 +114,7 @@ inline void compactContract(SignalPathView& strip,int mode) {
         require(pathButton(strip,id).getAccessibilityHandler()->getTitle().contains(mode==0?"CLASSIC":mode==1?"DUAL":"MATRIX"),
                 "HEAD/CAB accessible names lost the current routing-mode context");
     auto* expand=find<juce::TextButton>(strip,"signalPathExpand");
-    require(expand && expand->getButtonText()=="ROUTING" && expand->getExplicitFocusOrder()==7
+    require(expand && expand->getButtonText()=="ROUTING" && expand->getExplicitFocusOrder()==int(compactStages.size())+1
             && expand->isVisible() && expand->isEnabled() && expand->getWantsKeyboardFocus(),
             "Actual routing inspection is not the final accessible workflow action");
     inside(strip,*expand,"Routing inspection button is clipped");accessibleButton(*expand,"routing");
@@ -142,7 +142,7 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
         auto* slider=named<juce::Slider>(editor,name);
         require(slider && !slider->isShowing(),"Gate parameters must be edited in the spectrum workspace");
     }
-    for(const auto* name:{"gate","expander","compressor","limiter","multiband","deesser"}) {
+    for(const auto* name:{"gate","expander","compressor","limiter","multiband","deesser","saturation","filter"}) {
         auto* entry=find<juce::TextButton>(editor,"commonDynamics.open."+juce::String(name));
         require(entry && entry->isShowing() && entry->isEnabled() && !strip.isParentOf(entry),
                 "Direct dynamics entry is unavailable or duplicated in the signal path");
@@ -229,6 +229,8 @@ inline void compactDestination(juce::Component& editor,SignalPathView& strip,con
     }
     else if(id=="post")require(visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel"),
                                "POST workflow action did not open the rack");
+    else if(id=="synth")require(visible("synthPage") && !visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel") && !visible("finalEQ_panel"),
+                                "SYNTH workflow action did not open the SYNTH page alone");
     else {
         const bool tone=id=="tone.eq";
         auto* selected=find<spectralforge::GraphicalEQPanel>(editor,tone?"toneEQ_panel":"finalEQ_panel");
@@ -458,7 +460,7 @@ inline void run(const juce::File& folder) {
                 // A clean-input tap opens the Expander when it is the only unit
                 // there, or the only one switched on; otherwise its Gate 2 side.
                 const bool expanderTap=node.id.startsWith("gate.extra.") && (node.label=="EXPANDER" || node.status=="EXPANDER ON");
-                const auto expected=expanderTap?Page::expander:node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="output.limiter"?Page::limiter:Page::compressor;
+                const auto expected=expanderTap?Page::expander:node.target==Target::gate?Page::gate:node.id=="common.multiband"?Page::multiband:node.id=="common.deesser"?Page::deesser:node.id=="common.saturation"?Page::saturation:node.id=="common.filter"?Page::filter:node.id=="output.limiter"?Page::limiter:Page::compressor;
                 require(panel->selectedPage()==expected,"Signal path opened a different dynamics module");
             }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");

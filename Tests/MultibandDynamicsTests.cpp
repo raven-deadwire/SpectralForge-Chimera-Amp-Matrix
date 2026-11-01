@@ -42,7 +42,7 @@ float get(ChimeraProcessor& processor, const juce::String& id) {
 }
 
 void parameterContract(ChimeraProcessor& processor) {
-    check(processor.getParameters().size() == originalParameterCount + newParameterCount + extraGateParameterCount+6,
+    check(processor.getParameters().size() == originalParameterCount + newParameterCount + extraGateParameterCount+6+spectralforge::pedalExpansionParameterCount+spectralforge::multibandStereoParameterCount+spectralforge::saturationParameterCount+spectralforge::referenceAmpParameterCount()+spectralforge::filterModulationParameterCount+spectralforge::postExpansionParameterCount()+spectralforge::effectExtensionParameterCount+spectralforge::creativeParameterCount+(spectralforge::synthParameterCount+spectralforge::sidechainParameterCount+spectralforge::signalOrderParameterCount+spectralforge::filterModulationExtensionParameterCount+spectralforge::multibandSixBandParameterCount+spectralforge::truePeakLimiterParameterCount+spectralforge::oversamplingAutoParameterCount)+spectralforge::roomParameterCount+spectralforge::roomAdvancedParameterCount+spectralforge::roomSpaceParameterCount,
           "New dynamics did not append exactly 55 parameters after the released prefix");
     check(processor.parameters().getParameter("liveLimiterRelease")->getParameterIndex() == 5025,
           "Released common-dynamics parameter moved");
@@ -131,9 +131,14 @@ void recall(ChimeraProcessor& processor) {
     restored->setStateInformation(state.getData(), int(state.getSize()));
     for (int i = originalParameterCount; i < processor.getParameters().size(); ++i) {
         const auto* p = dynamic_cast<juce::RangedAudioParameter*>(processor.getParameters()[i]);
+        // The arbitrary values above leave the signal-order slots with
+        // duplicates; restore replaces an order that is not a permutation by
+        // the default (docs/SIGNAL_ORDER_1_4.md), checked below.
+        if (p->paramID.startsWith("order")) continue;
         check(std::abs(get(*restored, p->paramID) - get(processor, p->paramID)) < .002f,
               "New dynamics parameter did not round-trip through a project state");
     }
+    check(restored->requestedOrder() == spectralforge::SignalOrder{}, "An invalid stored order did not restore as the default");
     processor.copyComparison();
     processor.selectComparison(1);
     set(processor, multibandID(1, "mode"), 1.f); set(processor, "deEsserListen", 0.f);
@@ -159,7 +164,10 @@ void recall(ChimeraProcessor& processor) {
     restored->setStateInformation(old.getData(), int(old.getSize()));
     for (int i = originalParameterCount; i < restored->getParameters().size(); ++i) {
         const auto* p = dynamic_cast<juce::RangedAudioParameter*>(restored->getParameters()[i]);
-        check(std::abs(p->getValue() - p->getDefaultValue()) < 1.e-5f,
+        // OVERSAMPLING Auto is the one appended value a legacy project does
+        // not take at its default: it restores off (docs/OVERSAMPLING_AUTO.md).
+        const float expected = p->paramID == "oversamplingAuto" ? 0.f : p->getDefaultValue();
+        check(std::abs(p->getValue() - expected) < 1.e-5f,
               "Legacy project inherited a new dynamics value from the previous session");
     }
     check(!restored->multibandDynamics().enabled() && !restored->deEsser().enabled(),

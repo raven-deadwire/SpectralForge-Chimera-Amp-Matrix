@@ -24,8 +24,12 @@ struct Window {float peakDb{-120.f},rmsDb{-120.f};};
 // output (after the Final EQ and output trim), as samples.
 // amp: the signal entering the amp (after the pre-amp effects), as samples in
 // a ring of its own, so it can listen alongside one other sample tap.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8};
-inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp;}
+// cab: the amp/cab output after the post-rig gates, before the Room return,
+// the SYNTH insert and the reorderable tone / dynamics block, so the amp,
+// cab and boost passes hear the rig alone wherever the Tone EQ is placed
+// (tone, the Tone EQ's input, moves with it; docs/SIGNAL_ORDER_1_4.md).
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8,cab=9};
+inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp || tap==Tap::cab;}
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 

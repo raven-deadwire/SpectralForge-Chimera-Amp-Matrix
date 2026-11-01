@@ -6,7 +6,7 @@
 namespace spectralforge::autoset {
 
 // Phase 8: the amp head's GAIN, BASS, MIDDLE and TREBLE. The pass captures the
-// signal entering the amp (Tap::amp) and the amp/cab output (Tap::tone) at the
+// signal entering the amp (Tap::amp) and the amp/cab output (Tap::cab; Tap::tone on main) at the
 // same time. Candidate knob settings are rendered offline through the same
 // native amp DSP, so each decision is checked on the player's own playing:
 // - GAIN: how much the amp compresses the playing's dynamics, against a style
