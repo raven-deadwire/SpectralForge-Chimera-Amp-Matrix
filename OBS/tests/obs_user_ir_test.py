@@ -68,7 +68,7 @@ def juce_base64(data: bytes) -> str:
     """juce::MemoryBlock::toBase64Encoding: "<size>.<6-bit groups, least significant bits first>"."""
     table = ".ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+"
     value = int.from_bytes(data, "little")
-    return f"{len(data)}." + "".join(table[(value >> (6 * i)) & 63] for i in range((len(data) * 8) // 6 + 3))
+    return f"{len(data)}." + "".join(table[(value >> (6 * i)) & 63] for i in range((len(data) * 8 + 5) // 6))
 
 
 def state_xml(component: str) -> tuple[bytes, str, bytes]:
