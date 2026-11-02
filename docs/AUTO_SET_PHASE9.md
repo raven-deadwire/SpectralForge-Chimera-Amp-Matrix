@@ -32,12 +32,17 @@ across the neck, as for the Tone EQ.
   between A and B).
 - If the cabinet or the mic (on, model, speaker, layout, unit, position,
   distance, blend) changes while the pass listens, nothing is changed.
+- Position, distance and level form one automatic placement. A user/host
+  edit to any of these controls, including a change returned to its starting
+  value or a held gesture, keeps the whole placement. If a host edits during
+  application, only Auto Set's partial writes are rolled back; the host edit
+  survives UNDO AUTO.
 
 ## Measurement
 
-The pass listens to the amp/cab output before the Tone EQ (`Tap::tone`), the
-same point as the Tone EQ pass, and measures its third-octave spectrum over
-the playing.
+The pass listens to the rig-only amp/cab output (`Tap::cab`), independently
+of the Tone EQ placement in the signal-order editor, and measures its
+third-octave spectrum over the playing.
 
 The modeled cabinet's continuous response is the curve its finite, tapered IR
 is made from (`cabLayout::response`). It is an approximation to that IR,
