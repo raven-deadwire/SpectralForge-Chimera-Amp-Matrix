@@ -34,6 +34,11 @@ ANCHORS = {
     'Nidhoggr-Cab': 0.4604326160851843,
     'Fimbulvetr-Cab': 1.0482073215227532,
     'Ragnarok-Cab': 0.5227749513254325,
+    'Hrimfaxi-Cab': 1.2870477911376528,
+    'Garmr-Cab': 0.7106043999049206,
+    'Nidavellir-Cab': 1.1204219626224925,
+    'Ymir-Cab': 1.072941030594342,
+    'Hel-Cab': 0.8636997875383903,
 }
 
 PROFILE = {

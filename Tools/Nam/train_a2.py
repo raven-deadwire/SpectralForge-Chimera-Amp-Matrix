@@ -168,6 +168,9 @@ def main():
     epoch_steps=steps_per_virtual_epoch(len(x),rf,args.frames,args.batch)
     args.out.mkdir(parents=True,exist_ok=True)
     source=manifest['source']
+    # Only this run's own anchors enter its identity, so freezing another
+    # channel's anchor later cannot break this run's resume.
+    run_profile=dict(PROFILE,source_output_scale={k:PROFILE['source_output_scale'][k] for k in (cab_key(v[0],source) for v in VOICES)})
     train_cfg={'dataset_sha256':digest(args.data/'manifest.json'),'config':cfg,'sample_rate':48000,
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
       'training_target_gain':gains.tolist() if args.recipe=='official-a2' else (gains.tolist() if head_cab else float(legacy_gain)),'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
@@ -177,7 +180,7 @@ def main():
       'recipe':args.recipe,'recipe_details':RECIPE if args.recipe=='official-a2' else {'loss':'normalized MSE + .1 normalized DC','clip_gradient_norm':5.},
       'sampling':'seeded random crops; matched across comparison arms, not upstream shuffled nonoverlapping epochs',
       'virtual_epoch_steps':epoch_steps,
-      'quality_profile':PROFILE,'tail_fraction':args.tail_fraction,
+      'quality_profile':run_profile,'tail_fraction':args.tail_fraction,
       'identity_version':2,'center_training_output':args.center_training_output,
       'selection':'level-gated: a checkpoint within the profile RMS/peak level limits always beats one outside them; ESR ranks within each group',
       'diagnostic_extra_dilations':extra or None,
@@ -408,7 +411,7 @@ def main():
         stats['tone3000_fidelity']=fidelity(prediction,vy[i],name,vx)
         results[name]=stats;np.save(args.out/f'{name}-validation.npy',prediction)
     write_json(args.out/'validation.json',{'channels':results,'thresholds':{'median_esr':.005,'p95_esr':.01,'worst_esr':.02},
-      'quality_profile':PROFILE,'input':'unseen synthetic validation excitation','test':'independent comparison is a separate step','real_DI':'not supplied',
+      'quality_profile':run_profile,'input':'unseen synthetic validation excitation','test':'independent comparison is a separate step','real_DI':'not supplied',
       'status':'TEST_BUILD_PENDING_ACCEPTANCE','checkpoint_step':args.steps,'identity':identity,'recipe':args.recipe,
       'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start})
     print(json.dumps({'stage':'exported','channels':results}),flush=True)
