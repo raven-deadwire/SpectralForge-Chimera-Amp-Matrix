@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="1"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="143"
+	timestamp="2026-10-31T23:28:01"
+	>
+	<testcase name="ChimeraAutoSetTests" classname="ChimeraAutoSetTests" time="143.616" status="run">
+		<properties/>
+		<system-out>PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations
+PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo
+PASS gate-stage matrix: 120 cases, three styles x four strengths x ten ownership/option modes; 21 gate parameters
+PASS auto set rules: silence, quiet DI gain, gate threshold/range, unchanged steady input, noisy gate, compressor ratio/attack/makeup
+PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz
+PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release
+PASS attack safety: 72 protected synthetic attack cases, 18 sustained-brightness controls, 36 extended-range/distorted explicit-instrument cases, 9 auto-target ambiguity cases
+PASS auto set multiband rules: crossovers p...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

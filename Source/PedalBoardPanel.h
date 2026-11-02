@@ -60,7 +60,15 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
     juce::Viewport detailViewport;
     std::unique_ptr<spectralforge::DynamicsSpectrumPanel> compressorSpectrum;
     int detailedOwner{-1},detailedModel{-1};
-    bool syncing{};
+    bool syncing{},dragging{};
+    int dragSource{-1},dragOwner{-1},dropPosition{-1};
+    juce::Point<int> dragPoint;
+    int handleAt(juce::Point<int> point) const {
+        if(detailedOwner>=0)return -1;
+        for(int position=0;position<5;++position)
+            if(dragHandleBounds(position).contains(point) && cards[(size_t)position].owner>=0 && cards[(size_t)position].modelId>0)return position;
+        return -1;
+    }
     spectralforge::ui::Changed<std::array<int,19>> refreshKey;
     spectralforge::ui::Changed<int> compressorSourceKey;
     spectralforge::ui::Changed<int> reductionKey;
@@ -144,6 +152,29 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             c.slider.textFromValueFunction=[names](double value){return names[juce::jlimit(0,names.size()-1,juce::roundToInt(value))];};
             c.slider.valueFromTextFunction=[names](const juce::String& text){const int i=names.indexOf(text,true);return i>=0?double(i):text.getDoubleValue();};
         }
+        else if(model==40 && index%3==0 && index<9) {
+            // Para EQ frequency knobs: logarithmic across each band, shown in Hz.
+            const int band=index/3;
+            c.slider.textFromValueFunction=[band](double value){const float hz=spectralforge::PedalParaEQ::frequency(band,float(value));return hz>=1000.f?juce::String(hz/1000.f,2)+" kHz":juce::String(juce::roundToInt(hz))+" Hz";};
+            c.slider.valueFromTextFunction=[band](const juce::String& text){
+                const auto& range=spectralforge::PedalParaEQ::bands[size_t(band)];
+                const double hz=text.getDoubleValue()*(text.containsIgnoreCase("k")?1000.:1.);
+                return juce::jlimit(0.,1.,std::log(juce::jlimit(double(range.low),double(range.high),hz)/range.low)/std::log(double(range.high)/range.low));
+            };
+        }
+        else if(model==41 && index==0) {
+            c.slider.textFromValueFunction=[](double value){return juce::String(value,1)+":1";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
+        }
+        else if(model==45 && index==7) {
+            c.slider.textFromValueFunction=[](double value){const float hz=spectralforge::PedalDreadfulPeril::midHz(float(value));return hz>=1000.f?juce::String(hz/1000.f,2)+" kHz":juce::String(juce::roundToInt(hz))+" Hz";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){const double hz=juce::jlimit(200.,2500.,text.getDoubleValue()*(text.containsIgnoreCase("k")?1000.:1.));return std::log(hz/200.)/std::log(2500./200.);};
+        }
+        else if(model==40 || model==41 || model==42 || (model==43 && index==1) || (model==45 && index>=2 && index<=6) || model==46 || (model==47 && index==3) || (model==48 && (index==0 || index==7)) || ((model==49 || model==50) && index!=1 && index!=5)) {
+            // Para EQ gains and boost, Multi Comp gain, sens and balance are in dB.
+            c.slider.textFromValueFunction=[](double value){return (value>0?"+":"")+juce::String(value,1)+" dB";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue();};
+        }
         else if(spec.minimum==0 && spec.maximum==1) {
             c.slider.textFromValueFunction=[](double value){return juce::String(value*10.,1);};
             c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/10.;};
@@ -205,7 +236,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
                 card.attachment.reset();
                 if(model)card.attachment=bindPower(card.bypass,owner,model);
                 for(int c=0;c<6;++c)bind(card.controls[(size_t)c],owner,model,cardControl(model,c),false);
-                card.model.setTooltip(model==39?"Spectral octaver: about 43-46 ms processing delay. Dense low chords can lose fundamentals.":model==38?"Monophonic octave divider. Use single notes; chord tracking is not supported.":"Choose a pedal by type. Each slot keeps its own settings.");
+                card.model.setTooltip(model==39?"Spectral octaver: about 43-46 ms processing delay. Dense low chords can lose fundamentals.":model==38?"Monophonic octave divider. Use single notes; chord tracking is not supported.":model==51?"Treadle pitch shifter. The shifted signal lags by up to one window: 25-50 ms (Classic) or 60-85 ms (Chords), longer on low notes.":"Choose a pedal by type. Each slot keeps its own settings.");
             }
             card.title.setText("SLOT "+juce::String(position+1)+"  /  "+(model?juce::String(spectralforge::pedalModel(model).controlCount)+" CONTROLS":"ADD A PEDAL"),juce::dontSendNotification);
             const bool visible=detailedOwner<0;
@@ -267,6 +298,9 @@ public:
             card.model.setComponentID("boardModelAt"+juce::String(position));
             card.reference.setComponentID("boardReferenceAt"+juce::String(position));
             card.title.setFont(juce::FontOptions(11.f));
+            // The title strip is the card's drag handle; the label lets the
+            // panel receive the pointer there.
+            card.title.setInterceptsMouseClicks(false,false);
             card.reference.setFont(juce::FontOptions(11.f));
             card.reference.setMinimumHorizontalScale(1.f);
             card.reference.setColour(juce::Label::textColourId,juce::Colour(0xffaeb8ab));
@@ -315,6 +349,36 @@ public:
         startTimerHz(10);refresh();
     }
     ~PedalBoardPanel() override {stopTimer();}
+    // Drag-to-reorder: press a pedal's title strip, drag sideways, release
+    // over another slot. The pedal is inserted there (the ones between shift
+    // over) as one undo step. Releasing outside the board cancels.
+    juce::Rectangle<int> dragHandleBounds(int position) const {return {position*230,46,220,22};}
+    bool isDraggingPedal() const noexcept {return dragging;}
+    int pedalDropPosition() const noexcept {return dragging?dropPosition:-1;}
+    void mouseMove(const juce::MouseEvent& e) override {setMouseCursor(handleAt(e.getPosition())>=0?juce::MouseCursor::DraggingHandCursor:juce::MouseCursor::NormalCursor);}
+    void mouseExit(const juce::MouseEvent&) override {if(!dragging)setMouseCursor(juce::MouseCursor::NormalCursor);}
+    void mouseDown(const juce::MouseEvent& e) override {
+        dragging=false;dragSource=handleAt(e.getPosition());
+        dragOwner=dragSource>=0?cards[(size_t)dragSource].owner:-1;dropPosition=dragSource;
+    }
+    void mouseDrag(const juce::MouseEvent& e) override {
+        if(dragSource<0)return;
+        if(!dragging && e.getDistanceFromDragStart()<6)return;
+        dragging=true;dragPoint=e.getPosition();
+        const int target=juce::jlimit(0,4,e.x/230);
+        if(target!=dropPosition){dropPosition=target;}
+        notice.setText(dropPosition==dragSource?"Release to keep the pedal in place.":"Release to move the pedal to slot "+juce::String(dropPosition+1)+". Moving across the LOW TAP changes the LOW input.",juce::dontSendNotification);
+        repaint();
+    }
+    void mouseUp(const juce::MouseEvent& e) override {
+        const bool drop=dragging && getLocalBounds().contains(e.getPosition()) && dropPosition!=dragSource && dragOwner>=0;
+        if(dragging && !drop)notice.setText("Move cancelled.",juce::dontSendNotification);
+        if(drop) {
+            processor.movePedalTo(dragOwner,dropPosition);
+            notice.setText("Order changed. Moving across the LOW TAP changes the LOW input.",juce::dontSendNotification);
+        }
+        dragging=false;dragSource=dragOwner=-1;refresh();repaint();
+    }
     void visibilityChanged() override {if(isVisible())refresh();}
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff171a19));
@@ -325,10 +389,33 @@ public:
             g.setColour(juce::Colour(0xff111513).withAlpha(.9f));g.fillRoundedRectangle(float(x+7),51,206,66,4);
             if(card.modelId==0) {g.setColour(juce::Colour(0xff8ea38f));g.setFont(juce::FontOptions(36.f));g.drawText("+",x+30,143,160,62,juce::Justification::centred);g.setFont(juce::FontOptions(12.f));g.drawText("Choose any pedal above",x+12,211,196,22,juce::Justification::centred);}
         }
+        if(detailedOwner<0)for(int i=0;i<5;++i)if(cards[(size_t)i].modelId>0) {
+            // Grip dots at the right of the title strip mark the drag handle.
+            g.setColour(juce::Colour(0xff8ea38f).withAlpha(.8f));
+            for(int r=0;r<3;++r)for(int c=0;c<2;++c)g.fillEllipse(float(i*230+200+c*5),float(53+r*5),2.5f,2.5f);
+        }
         g.setColour(juce::Colour(0xffc6d7bc));g.setFont(juce::FontOptions(11.f));
         g.drawText("GR "+juce::String(displayedReduction(),1)+" dB",842,7,86,25,juce::Justification::centredRight);
         const auto state=processor.pedalBoardState();int poly=0;for(const auto& instance:state.instances)if(instance.model==39)++poly;
         if(poly>0 && detailedOwner<0) {const double sampleRate=processor.getSampleRate()>0?processor.getSampleRate():48000;g.setColour(juce::Colour(0xffe6bb7b));g.drawText("PRE DELAY "+juce::String(1000.0*processor.pedalBoardLatencySamples()/sampleRate,1)+" ms / spectral octave",527,7,312,25,juce::Justification::centredLeft);}
+    }
+    // Drag feedback above the cards' controls.
+    void paintOverChildren(juce::Graphics& g) override {
+        if(dragging && detailedOwner<0) {
+            const int from=dragSource,to=dropPosition;
+            g.setColour(juce::Colours::black.withAlpha(.45f));g.fillRoundedRectangle(float(from*230),46,220,352,9);
+            if(to!=from) {
+                // The drop marker sits on the side of the target slot the pedal
+                // will take: before it when moving left, after it when moving right.
+                const float x=juce::jlimit(0.f,float(getWidth()-4),to<from?float(to*230)-5.f:float(to*230+220)+1.f);
+                g.setColour(juce::Colour(0xffe6bb7b));g.fillRoundedRectangle(x,46,4,352,2);
+            }
+            const auto name=juce::String(spectralforge::pedalModel(juce::jmax(0,cards[(size_t)from].modelId)).name);
+            const juce::Rectangle<float> tag(float(juce::jlimit(0,1140-160,dragPoint.x-80)),float(juce::jlimit(46,370,dragPoint.y-12)),160,24);
+            g.setColour(juce::Colour(0xff2b312d).withAlpha(.95f));g.fillRoundedRectangle(tag,5);
+            g.setColour(juce::Colour(0xffe6bb7b));g.drawRoundedRectangle(tag,5,1);
+            g.setFont(juce::FontOptions(12.f));g.drawText(name,tag,juce::Justification::centred);
+        }
     }
     void resized() override {
         undo.setBounds(0,5,61,25);redo.setBounds(67,5,61,25);tapLabel.setBounds(145,5,168,25);tap.setBounds(313,5,200,25);notice.setBounds(0,398,1140,17);

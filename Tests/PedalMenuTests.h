@@ -93,10 +93,10 @@ inline void run() {
     }
     for(int count:found)check(count==1,"Pedal missing or duplicated across menu categories");
     check(ticked==1,"Selected pedal repeated across categories");
-    check(!selector.selectMenuResult(0) && !selector.selectMenuResult(41),"Invalid pedal menu result accepted");
+    check(!selector.selectMenuResult(0) && !selector.selectMenuResult(pedalModelCount+1),"Invalid pedal menu result accepted");
     for(int family=0;family<int(modelFamilies.size());++family) {
         const auto names=effectFamilyMenuNames(family);
-        check(names.size()==modelFamilies[(size_t)family].count,"Rack effect alias inventory incomplete");
+        check(names.size()==effectSelectableCount(family),"Rack effect alias inventory incomplete");
         for(int model=0;model<names.size();++model)
             check(!names[model].containsIgnoreCase(modelInfo(family,model).reference),"Rack selector exposes original reference");
     }
@@ -217,7 +217,7 @@ inline void run() {
         }
         close->triggerClick();settle();
     }
-    check(fiveControlModels==6,"Five-knob regression did not cover every current five-control model");
+    check(fiveControlModels==8,"Five-knob regression did not cover every current five-control model");   // six released + Multi Comp, Multi Wah
     // State/automation updates must not activate the compatibility audio path;
     // pressing an actual control key does activate it.
     first->selectMenuResult(28);settle();processor.setPedalBoardEnabled(false);
@@ -241,6 +241,54 @@ inline void run() {
     for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible() && slider->getComponentID()==id)activeControl=slider;
     check(activeControl && activeControl->keyPressed(juce::KeyPress(juce::KeyPress::upKey)),"Pedal keyboard edit was not accepted");
     check(processor.pedalBoardState().enabled,"A deliberate keyboard pedal edit did not activate its audio path");
-    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models with real callbacks, creative 3 + 2 layouts, compressor spectrum editors, and user-only board activation\n";
+    {   // Drag to reorder: a real pointer gesture on the title strip.
+        const auto dragStorage=std::make_unique<ChimeraProcessor>();auto& dragProcessor=*dragStorage;
+        dragProcessor.setPedalModel(0,26);dragProcessor.setPedalModel(1,31);dragProcessor.setPedalModel(2,29);
+        PedalBoardPanel dragBoard(dragProcessor);dragBoard.setBounds(0,0,1140,416);dragBoard.setVisible(true);dragBoard.visibilityChanged();settle();
+        const auto source=juce::Desktop::getInstance().getMainMouseSource();const auto start=juce::Time::getCurrentTime();bool snapped=false;
+        const auto drag=[&](int from,juce::Point<int> to) {
+            const auto grab=dragBoard.dragHandleBounds(from).getCentre();
+            check(dragBoard.getComponentAt(grab)==&dragBoard,"A child covers the pedal drag handle");
+            const auto event=[&](juce::Point<int> point,bool dragged){return juce::MouseEvent(source,point.toFloat(),juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier),
+                1.f,0.f,0.f,0.f,0.f,&dragBoard,&dragBoard,juce::Time::getCurrentTime(),grab.toFloat(),start,1,dragged);};
+            dragBoard.mouseDown(event(grab,false));dragBoard.mouseDrag(event({(grab.x+to.x)/2,to.y},true));dragBoard.mouseDrag(event(to,true));
+            const int shown=dragBoard.pedalDropPosition();
+            // One mid-drag picture for review, beside the other UI snapshots.
+            if(const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");!snapped && directory.isDirectory()) {
+                snapped=true;const auto file=directory.getChildFile("PRE-board-drag.png");file.deleteFile();
+                if(auto stream=file.createOutputStream()){juce::PNGImageFormat png;png.writeImageToStream(dragBoard.createComponentSnapshot(dragBoard.getLocalBounds()),*stream);}
+            }
+            dragBoard.mouseUp(event(to,true));settle();return shown;};
+        const auto before=dragProcessor.pedalBoardState();
+        check(drag(0,{3*230+100,200})==3,"Dragging over slot 4 does not target it");
+        const auto after=dragProcessor.pedalBoardState();
+        check(after.order[3]==before.order[0] && after.order[0]==before.order[1] && after.order[1]==before.order[2] && after.order[2]==before.order[3],
+              "Dropping a dragged pedal did not insert it at the target slot");
+        check(dynamic_cast<juce::Label*>(dragBoard.findChildWithID("boardNotice"))->getText().contains("Order changed"),"A drop does not confirm the new order");
+        check(!dragBoard.isDraggingPedal(),"The drag stays active after release");
+        drag(3,{1*230+50,1000});
+        check(dragProcessor.pedalBoardState().order==after.order,"Releasing outside the board still moved the pedal");
+        drag(3,{3*230+40,120});
+        check(dragProcessor.pedalBoardState().order==after.order,"Releasing over its own slot moved the pedal");
+        {   // A short press is a click, not a move.
+            const auto grab=dragBoard.dragHandleBounds(3).getCentre();
+            const auto event=[&](juce::Point<int> point,bool dragged){return juce::MouseEvent(source,point.toFloat(),juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier),
+                1.f,0.f,0.f,0.f,0.f,&dragBoard,&dragBoard,juce::Time::getCurrentTime(),grab.toFloat(),start,1,dragged);};
+            dragBoard.mouseDown(event(grab,false));dragBoard.mouseDrag(event(grab.translated(3,0),true));
+            check(!dragBoard.isDraggingPedal(),"A 3 px wobble starts a drag");dragBoard.mouseUp(event(grab.translated(3,0),true));
+            check(dragProcessor.pedalBoardState().order==after.order,"A click on the handle moved the pedal");}
+        check(drag(3,{20,200})==0,"Dragging to the first slot does not target it");
+        const auto left=dragProcessor.pedalBoardState();
+        check(left.order[0]==before.order[0] && left.order[1]==before.order[1] && left.order[2]==before.order[2],"Dragging the pedal back did not restore the order");
+        dragProcessor.undoPedalEdit();check(dragProcessor.pedalBoardState().order==after.order,"A drag move is not one undo step");
+        // Empty slots have no handle.
+        const auto empty=dragBoard.dragHandleBounds(4).getCentre();
+        dragBoard.mouseDown(juce::MouseEvent(source,empty.toFloat(),juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier),1.f,0.f,0.f,0.f,0.f,&dragBoard,&dragBoard,juce::Time::getCurrentTime(),empty.toFloat(),start,1,false));
+        dragBoard.mouseDrag(juce::MouseEvent(source,juce::Point<float>(30.f,200.f),juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier),1.f,0.f,0.f,0.f,0.f,&dragBoard,&dragBoard,juce::Time::getCurrentTime(),empty.toFloat(),start,1,true));
+        check(!dragBoard.isDraggingPedal(),"An empty slot can be dragged");
+        dragBoard.mouseUp(juce::MouseEvent(source,juce::Point<float>(30.f,200.f),juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier),1.f,0.f,0.f,0.f,0.f,&dragBoard,&dragBoard,juce::Time::getCurrentTime(),empty.toFloat(),start,1,true));
+        check(dragProcessor.pedalBoardState().order==after.order,"Dragging an empty slot changed the order");
+    }
+    std::cout<<"PASS pedal menus: "<<pedalModelCount-1<<" DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all "<<fiveControlModels<<" five-control models with real callbacks, creative 3 + 2 layouts, compressor spectrum editors, and user-only board activation\n";
 }
 }

@@ -40,7 +40,12 @@ inline constexpr std::array headDimensions{
     HeadDimensions{.69000f, .28000f, .27000f, true }, // Blue Storm: authored legacy head envelope
     HeadDimensions{.71000f, .27000f, .29000f, false}, // Special Edition: E670FE
     HeadDimensions{.70000f, .27000f, .28500f, true }, // Nastroend: SpectralForge design envelope
-    HeadDimensions{.61000f, .24500f, .30000f, true }  // Niflheimr: SpectralForge design envelope
+    HeadDimensions{.61000f, .24500f, .30000f, true }, // Niflheimr: SpectralForge design envelope
+    HeadDimensions{.71000f, .26000f, .27000f, true }, // Crystal 120: authored head-format envelope (reference is a combo)
+    HeadDimensions{.74000f, .27500f, .21000f, true }, // Bluestack 100: authored 100 W head envelope
+    HeadDimensions{.74000f, .27500f, .21000f, true }, // Eightyfire: authored 100 W head envelope
+    HeadDimensions{.69000f, .27000f, .25000f, true }, // Fortress 103: authored head envelope
+    HeadDimensions{.33000f, .09000f, .25000f, true }  // Northlight: authored compact class-D envelope
 };
 static_assert(headDimensions.size() == static_cast<std::size_t>(ampModelCount),
               "Every AmpCatalog entry needs explicit physical display dimensions");

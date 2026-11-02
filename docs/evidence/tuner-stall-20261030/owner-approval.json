@@ -1,0 +1,35 @@
+{
+  "schema": "chimera.tuner-fixture-owner-review.v1",
+  "review_date_kst": "2026-10-30",
+  "status": "APPROVED",
+  "source": "Explicit user reply in the current conversation after the review linked below",
+  "user_reply": "승인",
+  "reviewed_pr": 222,
+  "reviewed_source_sha": "70d2b5bf172899f807700d4f151ddc0d44cca7e6",
+  "review_document": "docs/TUNER_STALL_REVIEW_20261030.md",
+  "approval_question": "1200/1500ms 변경과 해시 재등록을 승인하시겠습니까?",
+  "approved_file": "Tests/PrecisionTunerIntegrationTests.cpp",
+  "approved_sha256": "8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc",
+  "previous_sha256": "1371469c87ec73b0c2edd24d3daebc5342d026d2bdbdcf456be28581bc1ecd60",
+  "approved_changes": {
+    "worker_pause_ms": 1200,
+    "worker_resume_wait_ms": 1500,
+    "exact_digest_registration": true
+  },
+  "preserved_requirements": [
+    "250 ms observation expiry",
+    "280 ms stale observation wait",
+    "250 ms pause acknowledgement",
+    "290 ms acquisition/settling gate",
+    "0.1 cent accuracy gate",
+    "all assertions and failure reporting",
+    "single exact SHA256 acceptance; no automatic re-pinning"
+  ],
+  "not_granted": [
+    "merge approval",
+    "release/publication approval",
+    "CAB appearance acceptance",
+    "whole-main preset-only source acceptance",
+    "approval of future fixture edits"
+  ]
+}

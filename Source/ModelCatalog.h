@@ -20,6 +20,38 @@ inline constexpr std::array<ModelFamily,11> modelFamilies{{
  {"eqmodel","EQUALIZER",3,{{{"Console EQ","SSL E Series","Variable-Q mid / broad shelves",0xff414c54},{"Colour Shelves","Neve 1073","110 Hz / 12 kHz shelves",0xff354d64},{"Passive Tube","Pultec EQP-1A","Broad shelves / gentle mid contour",0xff586270}}}},
  {"modmodel","MODULATION",6,{{{"Classic Chorus","Boss CE-2","Single modulated delay",0xff477f97},{"Spatial Chorus","Roland Dimension D","Opposing stereo delay voices",0xff3c456b},{"Stone Phase","EHX Small Stone","Four swept allpass stages",0xff79635a},{"Tidal Flange","EHX Electric Mistress","Short delay / comb feedback",0xff517159},{"Drift Vibrato","EHX Eddy","Pitch modulation / wet blend",0xff425883},{"Pulse Tremolo","EHX Pulsar","Amplitude modulation / stereo motion",0xff71595c}}}}
 }};
+// Host choices keep their released counts: modelNames() feeds the released
+// AudioParameterChoice lists and must never grow.
 inline juce::StringArray modelNames(int family) {juce::StringArray names;const auto& f=modelFamilies[(size_t)family];for(int i=0;i<f.count;++i)names.add(f.models[(size_t)i].name);return names;}
-inline const ModelInfo& modelInfo(int family,int model) {const auto& f=modelFamilies[(size_t)family];return f.models[(size_t)juce::jlimit(0,f.count-1,model)];}
+// 1.8 POST motion/space (docs/POST_MOTION_SPACE_1_8.md): three models appended
+// to DELAY, REVERB and MODULATION, selected through an appended *Ext parameter.
+inline constexpr int effectExtensionParameterVersion=23, effectExtensionModels=3, effectExtensionParameterCount=3;
+inline constexpr std::array<std::array<ModelInfo,effectExtensionModels>,3> effectExtensionCatalog{{
+ {{{"Tap Cloud","Eventide UltraTap","Six spread taps / taper and spread",0xff3e6b7a},
+   {"Bloom Delay","Eventide Rose","Modulated repeats / drifting time",0xff8a4b6a},
+   {"Dual Digital","Strymon DIG","Two linked delay lines / clean repeats",0xff2f4f68}}},
+ {{{"Hall Prime","Bricasti M7 reference","Dense modulated hall / smooth decay",0xff3a4a66},
+   {"Void Space","Eventide Blackhole","Very long dark decay / wide modulation",0xff221c38},
+   {"Gated Room","Non-linear gated reverb reference","Dense burst / abrupt close",0xff6b5a3a}}},
+ {{{"Spin Cabinet","Leslie rotary speaker","Horn and drum rotation / Doppler and tremolo",0xff7a5a3a},
+   {"Throb Vibe","Uni-Vibe","Four lamp-swept phase stages",0xff5a3a6b},
+   {"Ring Bell","Ring modulator","Carrier multiply / bell-like sidebands",0xff6b6b3a}}}
+}};
+inline constexpr int effectExtensionSlot(int family) noexcept {return family==1?0:family==2?1:family==10?2:-1;}
+inline constexpr bool effectFamilyExtended(int family) noexcept {return effectExtensionSlot(family)>=0;}
+inline int effectSelectableCount(int family) {return modelFamilies[(size_t)family].count+(effectFamilyExtended(family)?effectExtensionModels:0);}
+inline juce::String effectExtensionID(int family) {return juce::String(modelFamilies[(size_t)family].parameter)+"Ext";}
+// Extension 0 defers to the released choice; 1-3 select the appended models.
+inline int effectSelectedModel(int family,float choice,float extension) noexcept {
+    const int count=modelFamilies[(size_t)family].count;
+    const int ext=std::isfinite(extension)?juce::roundToInt(extension):0;
+    if(effectFamilyExtended(family) && ext>0)return count+juce::jlimit(1,effectExtensionModels,ext)-1;
+    return juce::jlimit(0,count-1,std::isfinite(choice)?juce::roundToInt(choice):0);
+}
+inline const ModelInfo& modelInfo(int family,int model) {
+    const auto& f=modelFamilies[(size_t)family];
+    if(effectFamilyExtended(family) && model>=f.count)
+        return effectExtensionCatalog[(size_t)effectExtensionSlot(family)][(size_t)juce::jlimit(0,effectExtensionModels-1,model-f.count)];
+    return f.models[(size_t)juce::jlimit(0,f.count-1,model)];
+}
 }

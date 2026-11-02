@@ -23,8 +23,14 @@ struct Window {float peakDb{-120.f},rmsDb{-120.f};};
 // output channels at the limiter input. Sample taps share one ring.
 // rig: the amp/cab sum before any post-rig gate. master: the same point as
 // output (after the Final EQ and output trim), as samples.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7};
-inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master;}
+// amp: the signal entering the amp (after the pre-amp effects), as samples in
+// a ring of its own, so it can listen alongside one other sample tap.
+// cab: the amp/cab output after the post-rig gates, before the Room return,
+// the SYNTH insert and the reorderable tone / dynamics block, so the amp,
+// cab and boost passes hear the rig alone wherever the Tone EQ is placed
+// (tone, the Tone EQ's input, moves with it; docs/SIGNAL_ORDER_1_4.md).
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8,cab=9};
+inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp || tap==Tap::cab;}
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -38,7 +44,7 @@ public:
         windowSamples=std::max(1,int(sampleRate*.010));
         for(auto& t:taps){t.count=0;t.peak=0;t.energy=0;}
     }
-    // At most one sample tap at a time; window taps can listen alongside.
+    // At most one sample tap at a time besides Tap::amp; window taps can listen alongside.
     void listen(std::initializer_list<Tap> listened) noexcept {
         int mask=0;for(const auto tap:listened)mask|=1<<int(tap);
         active.store(mask,std::memory_order_release);
@@ -48,7 +54,8 @@ public:
     // Audio thread. Mirrors the clean compressor detector: max of the channels.
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
-        if(sampleTap(tap)){pushSamples(tap,channels,channelCount,samples);return;}
+        if(tap==Tap::amp){pushSamples(ampRing,ampWrite,ampRead,nullptr,false,channels,channelCount,samples);return;}
+        if(sampleTap(tap)){pushSamples(sampleRing,sampleWrite,sampleRead,rightSampleRing.get(),tap==Tap::master,channels,channelCount,samples);return;}
         auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {
             double x=0;
@@ -74,11 +81,8 @@ public:
         while(r!=w){out.push_back(t.ring[size_t(r)]);r=(r+1)%capacity;}
         t.read.store(r,std::memory_order_release);
     }
-    void drainSamples(std::vector<float>& out) {
-        const auto r=sampleRead.load(std::memory_order_relaxed),w=sampleWrite.load(std::memory_order_acquire);
-        for(auto i=r;i!=w;++i)out.push_back(sampleRing[i%sampleCapacity]);
-        sampleRead.store(w,std::memory_order_release);
-    }
+    void drainSamples(std::vector<float>& out) {drainRing(sampleRing,sampleWrite,sampleRead,out);}
+    void drainAmpSamples(std::vector<float>& out) {drainRing(ampRing,ampWrite,ampRead,out);}
     void drainOutput(std::vector<OutputFrame>& out) {
         const auto r=sampleRead.load(std::memory_order_relaxed),w=sampleWrite.load(std::memory_order_acquire);
         for(auto i=r;i!=w;++i)out.push_back({sampleRing[i%sampleCapacity],(*rightSampleRing)[i%sampleCapacity]});
@@ -86,27 +90,36 @@ public:
     }
 private:
     static size_t windowIndex(Tap tap) noexcept {return tap==Tap::rig?3:size_t(tap);}
-    void pushSamples(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
+    using Ring=std::array<float,sampleCapacity>;
+    // master keeps both output channels (left in ring, right in `right`); every
+    // other sample tap stores the mean of its first two channels.
+    static void pushSamples(Ring& ring,std::atomic<uint32_t>& write,const std::atomic<uint32_t>& read,Ring* right,bool stereo,const float* const* channels,int channelCount,int samples) noexcept {
         const int used=std::min(2,channelCount);
-        auto w=sampleWrite.load(std::memory_order_relaxed);
+        auto w=write.load(std::memory_order_relaxed);
         for(int n=0;n<samples;++n) {
-            if(w-sampleRead.load(std::memory_order_acquire)>=sampleCapacity)break;
-            float x=channels[0][n],right=0;
-            if(tap==Tap::master)right=used==2?channels[1][n]:0.f;
+            if(w-read.load(std::memory_order_acquire)>=sampleCapacity)break;
+            float x=channels[0][n],r=0;
+            if(stereo)r=used==2?channels[1][n]:0.f;
             else {for(int c=1;c<used;++c)x+=channels[c][n];x/=float(used);}
-            sampleRing[w%sampleCapacity]=std::isfinite(x)?x:0.f;
-            (*rightSampleRing)[w%sampleCapacity]=std::isfinite(right)?right:0.f;++w;
+            ring[w%sampleCapacity]=std::isfinite(x)?x:0.f;
+            if(right!=nullptr)(*right)[w%sampleCapacity]=std::isfinite(r)?r:0.f;
+            ++w;
         }
-        sampleWrite.store(w,std::memory_order_release);
+        write.store(w,std::memory_order_release);
+    }
+    static void drainRing(const Ring& ring,const std::atomic<uint32_t>& write,std::atomic<uint32_t>& read,std::vector<float>& out) {
+        const auto r=read.load(std::memory_order_relaxed),w=write.load(std::memory_order_acquire);
+        for(auto i=r;i!=w;++i)out.push_back(ring[i%sampleCapacity]);
+        read.store(w,std::memory_order_release);
     }
     struct TapState {
         std::array<Window,capacity> ring{};std::atomic<int> write{0},read{0};
         int count{};double peak{},energy{};
     };
     std::array<TapState,4> taps;
-    std::array<float,sampleCapacity> sampleRing{};
-    std::unique_ptr<std::array<float,sampleCapacity>> rightSampleRing=std::make_unique<std::array<float,sampleCapacity>>();
-    std::atomic<uint32_t> sampleWrite{0},sampleRead{0}; // unsigned difference works across wrap
+    Ring sampleRing{},ampRing{};
+    std::unique_ptr<Ring> rightSampleRing=std::make_unique<Ring>();
+    std::atomic<uint32_t> sampleWrite{0},sampleRead{0},ampWrite{0},ampRead{0}; // unsigned difference works across wrap
     std::atomic<int> active{0};
     int windowSamples{480};
 };

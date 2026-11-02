@@ -21,10 +21,16 @@ public:
         expand.setButtonText("ALL");expand.setComponentID("postExpand"+juce::String(section));expand.setTooltip(section==0?"Open all compressor controls with its live input/output spectrum":"Open all processor controls");expand.setVisible(!detailed);
         expand.onClick=[this]{openDetails();};
         model.setComponentID(spectralforge::postNativeModelID(section));model.setName(title.getText()+" model");
-        for(int m=0;m<3;++m)model.addItem(juce::String::fromUTF8(spectralforge::postNativeModel(section,m).name),m+1);
+        for(int m=0;m<spectralforge::postNativeModelsPerSection;++m)model.addItem(juce::String::fromUTF8(spectralforge::postNativeModel(section,m).name),m+1);
         bypass.setClickingTogglesState(true);
         if(!detailed){bypass.getProperties().set("pedalPower",true);bypass.setColour(juce::TextButton::buttonColourId,juce::Colour(0xff41654c));bypass.setColour(juce::TextButton::buttonOnColourId,juce::Colour(0xff353a39));bypass.setColour(juce::TextButton::textColourOffId,juce::Colour(0xffe1dbce));bypass.setColour(juce::TextButton::textColourOnId,juce::Colour(0xffb1b5b3));}
-        model.onChange=[this]{model.acceptSelection();processor.activateNativePost(section);if(auto* parameter=processor.parameters().getParameter(spectralforge::postNativeModelID(section))){parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1((float)(model.getSelectedId()-1)));parameter->endChangeGesture();}refresh();};
+        // Models 0-2 use the released selector (extension 0); 3-5 set the
+        // appended extension and leave the released selector untouched.
+        model.onChange=[this]{model.acceptSelection();processor.activateNativePost(section);const int chosen=model.getSelectedId()-1;
+            const auto write=[this](const juce::String& id,float value){if(auto* parameter=processor.parameters().getParameter(id)){parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(value));parameter->endChangeGesture();}};
+            if(chosen<spectralforge::postNativeReleasedModelsPerSection){write(spectralforge::postNativeModelID(section),(float)chosen);write(spectralforge::postNativeModelExtensionID(section),0.f);}
+            else write(spectralforge::postNativeModelExtensionID(section),(float)(chosen-spectralforge::postNativeReleasedModelsPerSection+1));
+            refresh();};
         bypass.onClick=[this]{processor.activateNativePost(section);if(bypassAttachment)bypassAttachment->setValueAsCompleteGesture(bypass.getToggleState()?1.f:0.f);updateBypass();};
         viewport.setComponentID("postNativeViewport"+juce::String(section));content.setComponentID("postNativeControls"+juce::String(section));
         viewport.setViewedComponent(&content,false);viewport.setScrollBarsShown(true,false);viewport.setScrollBarThickness(9);
@@ -37,6 +43,10 @@ public:
     }
     ~PostNativePanel() override {if(dialog)delete dialog.getComponent();setLookAndFeel(nullptr);}
     int selectedModel() const noexcept {return currentModel<0?0:currentModel;}
+    int selectedFromParameters() const {
+        const auto raw=[this](const juce::String& id){const auto* value=processor.parameters().getRawParameterValue(id);return value?value->load():0.f;};
+        return spectralforge::postNativeSelectedModel(raw(spectralforge::postNativeModelID(section)),raw(spectralforge::postNativeModelExtensionID(section)));
+    }
     void openDetails() {
         if(detailed){toFront(true);return;}
         if(dialog){dialog->toFront(true);return;}
@@ -53,16 +63,14 @@ public:
     void refreshIfNeeded() {
         if(dialog)if(auto* full=dynamic_cast<PostNativePanel*>(spectralforge::ui::dialogContent(*dialog)))full->refreshIfNeeded();
         if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
-        const int next=(int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load();
-        if(refreshKey.update(next))refresh();
+        if(refreshKey.update(selectedFromParameters()))refresh();
         else refreshMeter();
     }
     uint64_t stateRefreshCount() const noexcept {return refreshCount;}
     uint64_t meterRefreshCount() const noexcept {return meterCount;}
     void refresh() {
         ++refreshCount;
-        const auto* selected=processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section));
-        const int nextModel=selected?juce::jlimit(0,2,(int)selected->load()):0;
+        const int nextModel=selectedFromParameters();
         if(currentModel!=nextModel) {
             currentModel=nextModel;const auto& spec=spectralforge::postNativeModel(section,currentModel);model.resetSyncExplicit(currentModel+1);
             // Provenance stays in the catalog; the public caption explains the processor.
@@ -179,6 +187,13 @@ private:
     juce::Label title,reference,meterLabel,sourceStatus;juce::Viewport viewport;juce::Component content;
     std::unique_ptr<juce::ParameterAttachment> bypassAttachment;std::vector<std::unique_ptr<NativeControlView>> controls;
     std::vector<int> frontControls() const {
+        // 1.7 expansion models (3-5): the controls each panel leads with.
+        static const std::array<std::array<std::vector<int>,3>,3> expansion{{
+            {{{1,2,3,4,8},{0,2,1,3,9},{0,1,4,6}}},
+            {{{0,1,2,3},{0,1,2,3},{0,1,2,3}}},
+            {{{1,4,6,3,8},{1,2,3,4,5},{7,5,3,0,10}}}}};
+        if(selectedModel()>=spectralforge::postNativeReleasedModelsPerSection)
+            return expansion[size_t(juce::jlimit(0,2,section))][size_t(selectedModel()-spectralforge::postNativeReleasedModelsPerSection)];
         if(section==0){if(selectedModel()==0)return {0,2,3,4,1};if(selectedModel()==1)return {0,1,2,3,5};return {1,0,2,3};}
         if(section==1){if(selectedModel()==0)return {0,1,2,3};if(selectedModel()==1)return {0,1,2,3,8};return {0,1,3,9,13};}
         if(selectedModel()==0)return {9,6,3,0,15};if(selectedModel()==1)return {3,1,0,5,8};return {0,1,2,4,6};

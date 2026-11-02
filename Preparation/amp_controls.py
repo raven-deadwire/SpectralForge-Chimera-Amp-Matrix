@@ -301,8 +301,54 @@ def amp_panels():
         note='E670FE core controls from the official manual. Tube Driver replaces the four main paths; no invented Driver gain. All coefficients are authored, not capture-calibrated.',
         omitted='Internal reverb/noise gate and external loop/MIDI hardware are delegated to Chimera FX/global controls. Tube Driver EQ uses an authored passive-style insertion response; physical tone-control ownership/taper remains unverified. No selectable output-tube type or E670/Savage/Powerball equivalence is claimed.',
         scope='C Documentary for named functions; T.D. EQ insertion and all sonic coefficients remain pending exact E670FE validation.')
+    # 1.6 reference heads, appended as stable models 26-30 after the originals.
+    jc = []
+    for ch, label in [('ch1','CH1 / NORMAL'),('ch2','CH2 / EFFECT')]:
+        jc += knobs(f'hw.{ch}.','volume treble middle bass',label,[ch])
+        jc += [toggle(f'hw.{ch}.bright','BRIGHT',label,[ch])]
+    jc += knobs('hw.ch2.','distortion reverb','CH2 / EFFECT',['ch2'])
+    jc += knobs('hw.ch2.','speed depth','VIBRATO / CHORUS',['ch2'])
+    jc += [choice('hw.ch2.effect','EFFECT',['OFF','CHORUS','VIBRATO'],'VIBRATO / CHORUS',['ch2'],initial=1)]
+    p['planned.amp.jc-120'] = panel('Roland JC-120 Jazz Chorus — panel target',jc,
+        ['https://www.roland.com/no/products/jc-120/','https://www.guitarworld.com/features/how-rolands-jc-120-became-the-king-of-solid-state-guitar-amps',
+         'https://www.greentoe.com/product/Roland_JC-120'],
+        [('ch1','CH1 / NORMAL'),('ch2','CH2 / EFFECT')],initial='ch2',review=PARTIAL,
+        note='CH1은 Volume·3밴드·Bright, CH2는 여기에 Distortion·Reverb·Speed/Depth·효과 선택을 더합니다. Speed/Depth는 비브라토에만 작동하고 코러스는 고정 설정입니다. 제조사 매뉴얼 원문은 빌드 환경에서 열리지 않아 리테일/기사 자료로 대조했습니다.',
+        omitted='Footswitch jacks and the dry/wet two-speaker stereo split are not reproduced; the chorus is mixed into each output for mono compatibility.',
+        routes=['HIGH INPUT','LOW INPUT'])
+
+    p['planned.amp.1987x'] = panel('Marshall 1987X Plexi reissue — panel target',
+        knobs('hw.', [('high_treble','LOUDNESS I / HIGH TREBLE'),('normal','LOUDNESS II / NORMAL'),
+                     ('treble','TREBLE'),('middle','MIDDLE'),('bass','BASS'),('presence','PRESENCE')]),
+        ['https://www.marshall.com/us/en/product/1987x'],review=PARTIAL,
+        note='JTM45와 같은 두 입력 볼륨·무마스터 구조의 100 W 판입니다. 점퍼 입력은 소프트웨어 라우팅입니다.',
+        routes=['HIGH TREBLE HIGH','HIGH TREBLE LOW','NORMAL HIGH','NORMAL LOW','JUMPED — routing target'])
+
+    p['planned.amp.jcm800-2203'] = panel('Marshall JCM800 2203 — panel target',
+        knobs('hw.', [('presence','PRESENCE'),('bass','BASS'),('middle','MIDDLE'),('treble','TREBLE'),
+                     ('master','MASTER VOLUME'),('preamp','PRE-AMP VOLUME')]),
+        ['https://www.marshall.com/us/en/product/jcm800-2203'],review=PARTIAL,
+        note='단일 채널 Pre-amp Volume과 Master Volume, 공유 3밴드와 Presence. High/Low 입력은 라우팅입니다.',
+        routes=['HIGH INPUT','LOW INPUT'])
+
+    p['planned.amp.dr103'] = panel('Hiwatt DR103 Custom 100 — panel target',
+        knobs('hw.', [('normal','NORMAL VOLUME'),('bright','BRIGHT VOLUME'),('bass','BASS'),('treble','TREBLE'),
+                     ('middle','MIDDLE'),('presence','PRESENCE'),('master','MASTER VOLUME')]),
+        ['https://britampco.co.uk/shared-res/downloads/hiwatt-custom-shop-owners-manual.pdf','https://britampco.co.uk/hiwatt/shop/details/dr103-head/'],
+        review=PARTIAL,
+        note='Normal·Bright 두 입력 볼륨에 공유 EQ·Presence·Master. 현행 매뉴얼 표기는 Bright이며 초기 판의 Brilliant와 같은 경로입니다. Hi 입력이 Lo보다 밝고 레벨이 높습니다.',
+        routes=['NORMAL HI','NORMAL LO','BRIGHT HI','BRIGHT LO','JUMPED — routing target'])
+
+    aurora = [choice('hw.pad','PAD',['0 dB','-12 dB']),toggle('hw.eq_on','EQ','EQ',initial=1)]
+    aurora += knobs('hw.eq.',[('low','LOW'),('low_mid','LOW MID'),('mid','MID'),('high_mid','HIGH MID'),('high','HIGH')],'EQ')
+    aurora += [knob('hw.damping','DAMPING','POWER'),knob('hw.master','MASTER','POWER')]
+    p['planned.amp.aurora'] = panel('Vanderkley Aurora — target panel',aurora,
+        ['https://equipboard.com/items/vanderkley-aurora-bass-head','https://musicradar.com/reviews/vanderkley-spartan'],review=PENDING,
+        note='Class D 클린 베이스 헤드. 게인 노브 없이 Pad·EQ 켜기·5밴드·Damping·Master를 대상으로 둡니다. 공개 자료가 밴드 수(4/5)와 주파수에서 엇갈려 제조사 원문 대조가 남았습니다. 밴드 주파수는 Chimera의 선택입니다.',
+        omitted='Band count and centre frequencies, Damping law, DI/line outputs and rear controls require the manufacturer manual.')
+
     # Retain the released 1.1.2 default-gain calibration on regeneration.
-    defaults = {'legacy.amp.2': {'hw.lead.pre_gain': 0.68}, 'legacy.amp.3': {'hw.ch2.gain': 0.65, 'hw.ch2.mode': 1, 'hw.ch3.gain': 0.68, 'hw.ch3.mode': 2}, 'legacy.amp.4': {'hw.lead.gain': 0.72, 'hw.lead.drive': 0.65}, 'legacy.amp.9': {'hw.dirty.gain': 0.66}, 'planned.amp.zuta-gbg120': {'ch3.gain': 0.78, 'ch4.gain': 0.68}, 'planned.amp.diezel-vh4': {'hw.ch3.gain': 0.78, 'hw.ch4.gain': 0.72}, 'planned.amp.fortin': {'hw.ep.gain': 0.72, 'hw.kk.gain1': 0.68, 'hw.kk.gain2': 0.62}, 'planned.amp.soldano': {'hw.overdrive.preamp': 0.72}, 'planned.amp.bogner': {'hw.lead.gain': 0.7}, 'planned.amp.engl-e670fe': {'hw.lead1.gain': 0.72, 'hw.lead2.gain': 0.68, 'hw.hi_gain': 1}}
+    defaults = {'legacy.amp.2': {'hw.lead.pre_gain': 0.68}, 'legacy.amp.3': {'hw.ch2.gain': 0.65, 'hw.ch2.mode': 1, 'hw.ch3.gain': 0.68, 'hw.ch3.mode': 2}, 'legacy.amp.4': {'hw.lead.gain': 0.72, 'hw.lead.drive': 0.65}, 'legacy.amp.9': {'hw.dirty.gain': 0.66}, 'planned.amp.zuta-gbg120': {'ch3.gain': 0.78, 'ch4.gain': 0.68}, 'planned.amp.diezel-vh4': {'hw.ch3.gain': 0.78, 'hw.ch4.gain': 0.72}, 'planned.amp.fortin': {'hw.ep.gain': 0.72, 'hw.kk.gain1': 0.68, 'hw.kk.gain2': 0.62}, 'planned.amp.soldano': {'hw.overdrive.preamp': 0.72}, 'planned.amp.bogner': {'hw.lead.gain': 0.7}, 'planned.amp.engl-e670fe': {'hw.lead1.gain': 0.72, 'hw.lead2.gain': 0.68, 'hw.hi_gain': 1}, 'planned.amp.jc-120': {'hw.ch2.distortion': 0.0, 'hw.ch2.reverb': 0.25, 'hw.ch2.depth': 0.4}, 'planned.amp.1987x': {'hw.high_treble': 0.6, 'hw.normal': 0.35}, 'planned.amp.jcm800-2203': {'hw.preamp': 0.7}}
     for key, values in defaults.items():
         for control in p[key]["controls"]:
             if control["id"] in values:

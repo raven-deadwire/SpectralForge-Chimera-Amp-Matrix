@@ -5,8 +5,8 @@
   "developmentPullRequest": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/44",
   "supersededCompositionSource": "9995669df7a0058497f214d7380534cd80ebadcb",
   "supersessionReason": "The prior composition was rejected in visual review for missing upper-corner volume and artificial rear extensions on bass heads.",
-  "assetCount": 26,
-  "activeCatalogCount": 25,
+  "assetCount": 31,
+  "activeCatalogCount": 30,
   "legacyRecallModelIndex": 16,
   "coordinateConventions": {
     "pixelSize": "[width, height]",
@@ -800,6 +800,151 @@
         },
         "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
       }
+    },
+    {
+      "modelIndex": 26,
+      "modelName": "Crystal 120",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-26.png",
+      "identityReference": "Assets/Artwork/acrystal.png",
+      "sha256": "e52f9bd28ae34ee9d1503550506f35df7208a5ffac74f7a37c99055ec4c50628",
+      "byteLength": 21064,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        36,
+        96,
+        1601,
+        747
+      ],
+      "runtimeMetadataIndex": 26,
+      "generation": {
+        "tool": "Tools/generate_reference_head_shells.py",
+        "instructionRecord": {
+          "kind": "procedural_drawing",
+          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+        }
+      },
+      "postGenerationProcessing": "None. The script writes the production PNG directly."
+    },
+    {
+      "modelIndex": 27,
+      "modelName": "Bluestack 100",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-27.png",
+      "identityReference": "Assets/Artwork/abluestack.png",
+      "sha256": "9a35578136161a9e58865630b35cecd2880592ce0b89c476030a070fa1f2e129",
+      "byteLength": 21228,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        36,
+        76,
+        1601,
+        767
+      ],
+      "runtimeMetadataIndex": 27,
+      "generation": {
+        "tool": "Tools/generate_reference_head_shells.py",
+        "instructionRecord": {
+          "kind": "procedural_drawing",
+          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+        }
+      },
+      "postGenerationProcessing": "None. The script writes the production PNG directly."
+    },
+    {
+      "modelIndex": 28,
+      "modelName": "Eightyfire",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-28.png",
+      "identityReference": "Assets/Artwork/aeightyfire.png",
+      "sha256": "587c13ddf41cdbcc6ea5f6d8045e0b4d584cbc36d199c15707acedc5e1d3c1ab",
+      "byteLength": 17250,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        36,
+        76,
+        1601,
+        767
+      ],
+      "runtimeMetadataIndex": 28,
+      "generation": {
+        "tool": "Tools/generate_reference_head_shells.py",
+        "instructionRecord": {
+          "kind": "procedural_drawing",
+          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+        }
+      },
+      "postGenerationProcessing": "None. The script writes the production PNG directly."
+    },
+    {
+      "modelIndex": 29,
+      "modelName": "Fortress 103",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-29.png",
+      "identityReference": "Assets/Artwork/afortress.png",
+      "sha256": "ae875a3ab63b1328ca8173aa527d7e2bcd54df70a8e331ded25fd511f34e5aa8",
+      "byteLength": 20483,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        36,
+        86,
+        1601,
+        757
+      ],
+      "runtimeMetadataIndex": 29,
+      "generation": {
+        "tool": "Tools/generate_reference_head_shells.py",
+        "instructionRecord": {
+          "kind": "procedural_drawing",
+          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+        }
+      },
+      "postGenerationProcessing": "None. The script writes the production PNG directly."
+    },
+    {
+      "modelIndex": 30,
+      "modelName": "Northlight",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-30.png",
+      "identityReference": "Assets/Artwork/anorthlight.png",
+      "sha256": "42924b31afac7552a2072bc23e6da8015f202c0ddb1ce1e896349f34be696b55",
+      "byteLength": 13340,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        236,
+        420,
+        1201,
+        393
+      ],
+      "runtimeMetadataIndex": 30,
+      "generation": {
+        "tool": "Tools/generate_reference_head_shells.py",
+        "instructionRecord": {
+          "kind": "procedural_drawing",
+          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+        }
+      },
+      "postGenerationProcessing": "None. The script writes the production PNG directly."
     }
   ]
 }

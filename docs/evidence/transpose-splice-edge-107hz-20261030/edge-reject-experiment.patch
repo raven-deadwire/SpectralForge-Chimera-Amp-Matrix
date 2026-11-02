@@ -1,0 +1,99 @@
+--- a/Tools/TransposeNext/CorrelationPitch.h	2026-10-28 11:08:44.490769655 +0000
++++ b/Tools/TransposeNext/CorrelationPitch.h	2026-10-30 01:04:50.110004206 +0000
+@@ -28,7 +28,7 @@
+     int hfBucketPosition{},hfBucketSamples{};
+     double hfBucketPeak{},hfRecentMax{};
+     int resetAge{1<<30}, peakWindow{};
+-    bool holdSplices{}, reportAtDetection{};
++    bool holdSplices{}, reportAtDetection{}, edgeReject{};
+     int heldSamples{};
+     // Sample-accurate hold (research): when set, a due downshift splice waits
+     // while `holdSource` spliced within the previous holdWindow samples. Only
+@@ -125,21 +125,32 @@
+             const double limit=onsetAge-rate*reanchorGuard;
+             if(limit>=delay+travel)hi=std::min(hi,limit);
+         }
+-        const int first=int(std::ceil(delta>0 ? lo : delay+travel));
+-        const int last=int(std::floor(delta>0 ? delay-travel : hi));
++        int first=int(std::ceil(delta>0 ? lo : delay+travel));
++        int last=int(std::floor(delta>0 ? delay-travel : hi));
+         captureReference();
+         double best=delta>0 ? lo : hi, score=1.e100;
+         const int step=juce::jmax(1, int(std::lround(rate/12000.)));
+-        for(int d=first;d<=last;d+=step) {
+-            const double s=integerCost(d);
+-            if(s<score) {score=s;best=d;}
+-        }
+-        const int centre=int(best);
+-        for(int d=juce::jmax(first,centre-step);d<=juce::jmin(last,centre+step);++d) {
+-            const double s=integerCost(d);
+-            if(s<score) {score=s;best=d;}
++        for(int pass=0;pass<3;++pass) {
++            best=delta>0 ? lo : hi;score=1.e100;
++            for(int d=first;d<=last;d+=step) {
++                const double s=integerCost(d);
++                if(s<score) {score=s;best=d;}
++            }
++            const int centre=int(best);
++            for(int d=juce::jmax(first,centre-step);d<=juce::jmin(last,centre+step);++d) {
++                const double s=integerCost(d);
++                if(s<score) {score=s;best=d;}
++            }
++            // EXPERIMENT (edge reject): a minimum on the range edge whose cost
++            // still falls outside the range is a slope, not a period match.
++            if(!edgeReject || last-first<=2*step)break;
++            if(int(best)==first && integerCost(first-1)<score){first+=step;continue;}
++            if(int(best)==last && integerCost(last+1)<score){last-=step;continue;}
++            break;
+         }
+-        if(best>first && best<last) {
++        // EXPERIMENT (edge reject): refine at the range edges too; the cost one
++        // sample outside the search range is valid (only nextDelay is limited).
++        if((best>first && best<last) || edgeReject) {
+             const double left=integerCost(int(best)-1),right=integerCost(int(best)+1);
+             const double curve=left-2*score+right;
+             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
+@@ -272,6 +283,7 @@
+             for(int j=0;j<sincTaps;++j)k[j]=float(k[j]/sum);
+         }
+     }
++    void setEdgeReject(bool e) noexcept {edgeReject=e;}
+     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
+     int splices() const noexcept {return spliceCount;}
+     int onsetResets() const noexcept {return onsets;}
+--- a/Tools/TransposeNext/TransientSplitPitch.h	2026-10-28 11:07:40.592242884 +0000
++++ b/Tools/TransposeNext/TransientSplitPitch.h	2026-10-30 01:16:10.812964183 +0000
+@@ -136,6 +136,7 @@
+     }
+     // Research (v4): windowed-sinc output reads on both paths; decisions as before.
+     void setSincOutput(bool enabled) {body.setSincOutput(enabled);transient.setSincOutput(enabled);}
++    void setEdgeReject(bool e) noexcept {transient.setEdgeReject(e);}
+     int lowOnsetResets() const noexcept {return lowResets;}
+     void setSemitones(int n) noexcept {body.setSemitones(n);transient.setSemitones(n);shift=n;}
+     int latency() const noexcept {return -1;}
+--- a/Tools/TransposeNext/TransposeProbe.cpp	2026-10-28 11:08:19.403949767 +0000
++++ b/Tools/TransposeNext/TransposeProbe.cpp	2026-10-30 01:12:42.249909830 +0000
+@@ -28,7 +28,7 @@
+         const std::string name=argv[6];
+         const bool isSplit=name.rfind("corr40-split",0)==0;
+         if(rate<8000 || rate>192000 || block<1 || block>8192 || shift<-12 || shift>12)throw std::runtime_error("invalid config");
+-        if(name!="baseline" && name!="relative" && name!="corr10" && name!="corr40" && name!="corr40-onset" && name!="corr40-novelty" && name!="corr40-split" && name!="corr40-split-low" && name!="corr40-split-up" && name!="corr40-split-lpc" && name!="corr40-split-rt" && name!="corr40-split-v2" && name!="corr40-split-v3" && name!="corr40-split-v4" && name!="corr40-split-v3-sinc" && name!="wrapper" && name!="bypass")throw std::runtime_error("invalid engine");
++        if(name!="baseline" && name!="relative" && name!="corr10" && name!="corr40" && name!="corr40-onset" && name!="corr40-novelty" && name!="corr40-split" && name!="corr40-split-low" && name!="corr40-split-up" && name!="corr40-split-lpc" && name!="corr40-split-rt" && name!="corr40-split-v2" && name!="corr40-split-v3" && name!="corr40-split-v4" && name!="corr40-split-v3-sinc" && name!="corr40-split-v3-sinc-edge" && name!="wrapper" && name!="bypass")throw std::runtime_error("invalid engine");
+         std::ifstream f(argv[1],std::ios::binary|std::ios::ate);
+         if(!f)throw std::runtime_error("input missing");
+         const auto bytes=f.tellg();if(bytes<=0 || bytes%8)throw std::runtime_error("expected stereo interleaved f32");
+@@ -44,12 +44,12 @@
+         else if(name=="relative"){relative.prepare(spec);relative.setSemitones(shift);nominal=relative.latency();}
+         else if(name=="wrapper" || name=="bypass"){wrapper.prepare(spec);nominal=name=="wrapper"&&shift!=0?wrapper.latency():0;}
+         else if(isSplit) {
+-            const bool sinc=name=="corr40-split-v3-sinc"; // v3 + windowed-sinc output reads
++            const bool edge=name=="corr40-split-v3-sinc-edge";const bool sinc=name=="corr40-split-v3-sinc"||edge; // v3 + windowed-sinc output reads
+             const bool v2=name=="corr40-split-v2" || name=="corr40-split-v3" || name=="corr40-split-v4" || sinc;
+             split.prepare(spec,name!="corr40-split",name=="corr40-split-up"||name=="corr40-split-lpc"||name=="corr40-split-rt"||v2,
+                           name=="corr40-split-lpc"||name=="corr40-split-rt"||v2,name=="corr40-split-rt"||v2,
+                           v2,name=="corr40-split-v3"||name=="corr40-split-v4"||sinc,name=="corr40-split-v4");
+-            split.setSincOutput(sinc);
++            split.setSincOutput(sinc);split.setEdgeReject(edge);
+             split.setSemitones(shift);
+         }
+         else {correlated.prepare(spec,name=="corr10"?10:40,name=="corr40-onset" || name=="corr40-novelty",name=="corr40-novelty");correlated.setSemitones(shift);}

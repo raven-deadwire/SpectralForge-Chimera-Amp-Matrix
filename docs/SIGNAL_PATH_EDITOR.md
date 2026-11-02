@@ -3,6 +3,9 @@
 Updated 2026-10-11 KST. Planned from the owner's connected-icon SIGNAL PATH
 reference and request to open Chimera on the amplifier head.
 
+> **1.4 constrained order editor:** implemented on `claude/signal-order-editor`;
+> see [SIGNAL_ORDER_1_4.md](SIGNAL_ORDER_1_4.md).
+
 ## Product behavior
 
 A persistent strip shows the signal path and the selected editing area.

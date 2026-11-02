@@ -7,7 +7,8 @@ namespace spectralforge {
 enum class AmpModel : int {
     glass, britEdge, tight515, wideRect, liquidLead, ironTube, solidPunch, modernBass,
     chime30, orangeCrown, bassmanValve, subwayClean, matchChime, silkODS, tastePunch,
-    zutaCinder, ironCompact, fourChannel, classicTube, sunMonolith, evilHarvest, hotLead, blueStorm, specialEdition, nastrond, niflheimr, count
+    zutaCinder, ironCompact, fourChannel, classicTube, sunMonolith, evilHarvest, hotLead, blueStorm, specialEdition, nastrond, niflheimr,
+    crystal120, bluestack100, eightyfire, fortress103, northlight, count
 };
 inline constexpr int legacyAmpModelCount = 15;
 inline constexpr int ampModelCount = static_cast<int>(AmpModel::count);
@@ -16,6 +17,8 @@ inline constexpr int ampModelCount = static_cast<int>(AmpModel::count);
 inline constexpr int releasedNativeAmpModelCount = 23;
 inline constexpr int firstOriginalAmpModel = static_cast<int>(AmpModel::nastrond);
 inline constexpr int niflheimrAmpModel = static_cast<int>(AmpModel::niflheimr);
+// 1.6 reference heads follow both native originals; they run the shared native engine.
+inline constexpr int firstReferenceAmpModel = static_cast<int>(AmpModel::crystal120);
 inline constexpr int legacyHiddenAmpIndex = static_cast<int>(AmpModel::ironCompact);
 inline constexpr int activeAmpModelCount = ampModelCount - 1;
 constexpr bool ampIsActive(int model) { return model>=0 && model<ampModelCount && model!=legacyHiddenAmpIndex; }
@@ -47,7 +50,12 @@ inline constexpr std::array<AmpInfo, ampModelCount> ampCatalog{{
     {"Blue Storm", "Bogner Uberschall Rev Blue", "Clean and lead / dense low mids", false},
     {"Special Edition", "ENGL E670FE Founders Edition", "Five paths / Modern and Classic voicing", false},
     {"Náströnd", "SpectralForge Original", "Five-character high gain / tight attack and broad sustain", false},
-    {"Niflheimr", "SpectralForge Original", "Five-channel metal bass / protected lows and independent clean blend", true}
+    {"Niflheimr", "SpectralForge Original", "Five-channel metal bass / protected lows and independent clean blend", true},
+    {"Crystal 120", "Roland JC-120", "Solid-state stereo clean / chorus and vibrato", false},
+    {"Bluestack 100", "Marshall 1987X", "Non-master four-input British / loud breakup", false},
+    {"Eightyfire", "Marshall JCM800 2203", "Master-volume British drive / biting upper mids", false},
+    {"Fortress 103", "Hiwatt DR103", "High-headroom British power / firm clean", false},
+    {"Northlight", "Vanderkley Aurora", "Class-D clean bass / five-band active EQ", true}
 }};
 // Search metadata stays separate from the single primary category shown in the menu.
 // The original host parameter continues to use exactly 15 choices.
@@ -87,7 +95,12 @@ inline constexpr std::array<unsigned,ampModelCount> ampRoleTags{{
     AmpRole::clean|AmpRole::highGain,
     AmpRole::clean|AmpRole::crunch|AmpRole::lead|AmpRole::highGain,
     AmpRole::lead|AmpRole::highGain,
-    AmpRole::clean|AmpRole::highGain|AmpRole::bass
+    AmpRole::clean|AmpRole::highGain|AmpRole::bass,
+    roleBits(AmpRole::clean),                                      // Crystal 120
+    AmpRole::clean|AmpRole::crunch,                               // Bluestack 100
+    AmpRole::crunch|AmpRole::lead|AmpRole::highGain,               // Eightyfire
+    AmpRole::clean|AmpRole::crunch,                               // Fortress 103
+    AmpRole::clean|AmpRole::bass                                  // Northlight
 }};
 constexpr bool ampMatches(int index,AmpRole role=AmpRole::any,AmpInstrument instrument=AmpInstrument::any) {
     if(index<0 || index>=ampModelCount)return false;
@@ -104,7 +117,8 @@ inline constexpr std::array<AmpRole,ampModelCount> ampPrimaryRoles{{
     AmpRole::crunch, AmpRole::highGain, AmpRole::bass, AmpRole::bass,
     AmpRole::clean, AmpRole::lead, AmpRole::bass,
     AmpRole::highGain, AmpRole::highGain, AmpRole::highGain, AmpRole::bass,
-    AmpRole::crunch, AmpRole::highGain, AmpRole::lead, AmpRole::highGain, AmpRole::highGain, AmpRole::highGain, AmpRole::bass
+    AmpRole::crunch, AmpRole::highGain, AmpRole::lead, AmpRole::highGain, AmpRole::highGain, AmpRole::highGain, AmpRole::bass,
+    AmpRole::clean, AmpRole::crunch, AmpRole::lead, AmpRole::clean, AmpRole::bass
 }};
 inline const char* ampPrimaryRoleName(int model) {
     const auto role=ampPrimaryRoles[(size_t)juce::jlimit(0,ampModelCount-1,model)];
