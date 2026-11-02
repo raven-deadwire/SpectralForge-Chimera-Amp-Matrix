@@ -144,7 +144,11 @@ def main():
     # Legacy training scales targets to about 0.1 RMS: Náströnd's native output is
     # near 1 RMS, Niflheimr's near 0.1, so the window-power floor bites at the same level.
     legacy_gain=.1 if amp_of(json.loads((args.data/'manifest.json').read_text())['source'])=='nastrond' else 1.
-    gains=training_output_gains(np.stack(ys)) if args.recipe=='official-a2' else np.full(len(VOICES),legacy_gain)
+    head_cab=json.loads((args.data/'manifest.json').read_text())['source'].get('cabinet')
+    # A preset cabinet moves each channel's level by -9 to -30 dB, so head + cab
+    # targets use the frozen per-channel anchor (validation at -20 dBFS RMS).
+    legacy_gain=[PROFILE['source_output_scale'][v[0]+'-Cab'] for v in VOICES] if head_cab else legacy_gain
+    gains=training_output_gains(np.stack(ys)) if args.recipe=='official-a2' else np.asarray(np.broadcast_to(legacy_gain,(len(VOICES),)),dtype=np.float64)
     gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
     peak_weight_tensor=torch.tensor(peak_weights,dtype=torch.float32)[None,:]
     mask_tensor=torch.tensor(channel_mask,dtype=torch.float32)[None,:]
@@ -166,7 +170,7 @@ def main():
     source=manifest['source']
     train_cfg={'dataset_sha256':digest(args.data/'manifest.json'),'config':cfg,'sample_rate':48000,
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
-      'training_target_gain':gains.tolist() if args.recipe=='official-a2' else float(legacy_gain),'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
+      'training_target_gain':gains.tolist() if args.recipe=='official-a2' else (gains.tolist() if head_cab else float(legacy_gain)),'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
       'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
       'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin,'warmup_steps':args.lr_warmup},
       'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection,
