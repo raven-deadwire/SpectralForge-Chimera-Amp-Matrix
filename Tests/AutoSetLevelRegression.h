@@ -63,7 +63,9 @@ Frames signal(double rate,int kind,int channels=2) {
     return out;
 }
 Frames finalRender(ChimeraProcessor& p,const Frames& input,double rate,int channels=2) {
-    spectralforge::GraphicalEQ eq;eq.bind(p.parameters(),1);eq.prepare(rate);
+    // GraphicalEQ is large: on the heap, so the test fits Windows' 1 MB stack.
+    auto owned=std::make_unique<spectralforge::GraphicalEQ>();auto& eq=*owned;
+    eq.bind(p.parameters(),1);eq.prepare(rate);
     Frames out(input.size());const float gain=std::pow(10.f,get(p,"output")/20.f);
     for(size_t start=0;start<input.size();start+=256) {
         const int count=int(std::min(size_t(256),input.size()-start));
