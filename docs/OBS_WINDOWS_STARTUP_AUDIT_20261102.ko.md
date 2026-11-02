@@ -197,7 +197,7 @@ worker가 반환해야 풀리는 mutex를, worker는 UI 실행을 기다린다. 
 ## 원인에 맞춘 시험 준비 수정
 
 Windows의 시험 전용 observer 모듈이 실제 `OBS_FRONTEND_EVENT_FINISHED_LOADING`
-콜백을 기록하도록 하고, 기능 시험은 **해당 OBS 프로세스의** 완료 표식을 확인한 뒤
+콜백을 기록하도록 하고, OBS 32.2.2 기능 시험은 **해당 OBS 프로세스의** 완료 표식을 확인한 뒤
 장면 생성 요청을 보낸다. `GetVersion`만으로 frontend 준비를 판단하던 부분을
 보완하는 것이다. observer는 Chimera 모듈과 분리하며, 미설치/등록 대조군 양쪽에
 똑같이 설치한다. 제품 모듈 또는 배포 패키지에 포함하지 않는다.

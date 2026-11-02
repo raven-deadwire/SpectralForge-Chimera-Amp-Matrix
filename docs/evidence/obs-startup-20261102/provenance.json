@@ -27,9 +27,11 @@
     },
     {
       "name": "OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
-      "sha256": "7a4decaf260d6ad9d2063a3b4c349b7bfb49c4fe12229ac4146d0b805bbbb1f6",
-      "size": 61300736,
-      "url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64-PDBs.zip"
+      "sha256": "a2d2c16859ea3c2508f49c2b9a48b8ec630578334d301fbdf42718f6e473662a",
+      "size": 64011684,
+      "url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+      "verified_local_path": "evidence/obs32-debug/verified-assets/OBS-Studio-32.2.2-Windows-x64-PDBs-verified.zip",
+      "full_zip_crc_test": "passed"
     }
   ],
   "modules": [
@@ -58,7 +60,10 @@
       "pdb_info_age": 1,
       "pdb_dbi_age": 1,
       "pdb_matches_minidump": true,
-      "pdb_relative_path": "files/bin/64bit/obs64.pdb"
+      "pdb_relative_path": "files/bin/64bit/obs64.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
     },
     {
       "module": "ntdll.dll",
@@ -166,7 +171,10 @@
       "pdb_info_age": 1,
       "pdb_dbi_age": 1,
       "pdb_matches_minidump": true,
-      "pdb_relative_path": "files/bin/64bit/obs.pdb"
+      "pdb_relative_path": "files/bin/64bit/obs.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
     },
     {
       "module": "w32-pthreads.dll",
@@ -193,7 +201,10 @@
       "pdb_info_age": 1,
       "pdb_dbi_age": 1,
       "pdb_matches_minidump": true,
-      "pdb_relative_path": "files/bin/64bit/w32-pthreads.pdb"
+      "pdb_relative_path": "files/bin/64bit/w32-pthreads.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
     },
     {
       "module": "Qt6Core.dll",
@@ -242,7 +253,10 @@
       "pdb_info_age": 1,
       "pdb_dbi_age": 1,
       "pdb_matches_minidump": true,
-      "pdb_relative_path": "files/obs-plugins/64bit/obs-websocket.pdb"
+      "pdb_relative_path": "files/obs-plugins/64bit/obs-websocket.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
     }
   ],
   "tools": {
@@ -580,5 +594,67 @@
     "https://github.com/obsproject/obs-studio/blob/32.2.2/libobs/obs-source.c"
   ],
   "unwind_output_sha256": "38acbef9a65c2b4ecabdfd781dfba4938b68a842b672080a9098d25d97f38222",
-  "shutdown_unwind_output_sha256": "2c392759c6f67bfef6649b0a69d41fb4f4627bacd652e336b7e5f783724a3592"
+  "shutdown_unwind_output_sha256": "2c392759c6f67bfef6649b0a69d41fb4f4627bacd652e336b7e5f783724a3592",
+  "archive_integrity_recheck": {
+    "official_asset_id": 515013685,
+    "official_name": "OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+    "fresh_download_path": "evidence/obs32-debug/verified-assets/OBS-Studio-32.2.2-Windows-x64-PDBs-verified.zip",
+    "fresh_size": 64011684,
+    "fresh_sha256": "a2d2c16859ea3c2508f49c2b9a48b8ec630578334d301fbdf42718f6e473662a",
+    "fresh_crc_test": "passed",
+    "old_retained_path": "evidence/obs32-debug/OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+    "old_retained_size": 61300736,
+    "old_retained_sha256": "7a4decaf260d6ad9d2063a3b4c349b7bfb49c4fe12229ac4146d0b805bbbb1f6",
+    "old_retained_status": "truncated ZIP, missing central directory; cause unknown; not used as proof of official archive integrity",
+    "analysis_pdb_entry_comparison": [
+      {
+        "name": "bin/64bit/obs64.pdb",
+        "analysis_sha256": "4a8c888681b3c2cd2c21d74ae27dc42c4a0919ba25f3127512f65a55adc5fa57",
+        "official_pdbs": {
+          "sha256": "4a8c888681b3c2cd2c21d74ae27dc42c4a0919ba25f3127512f65a55adc5fa57",
+          "size": 45182976
+        },
+        "official_binaries": {
+          "sha256": "4a8c888681b3c2cd2c21d74ae27dc42c4a0919ba25f3127512f65a55adc5fa57",
+          "size": 45182976
+        }
+      },
+      {
+        "name": "bin/64bit/obs.pdb",
+        "analysis_sha256": "2de86f8b841eca4659934c1a7fcb0ebd0109d91810de3679f34d9f6d2d0b1fcd",
+        "official_pdbs": {
+          "sha256": "2de86f8b841eca4659934c1a7fcb0ebd0109d91810de3679f34d9f6d2d0b1fcd",
+          "size": 5738496
+        },
+        "official_binaries": {
+          "sha256": "2de86f8b841eca4659934c1a7fcb0ebd0109d91810de3679f34d9f6d2d0b1fcd",
+          "size": 5738496
+        }
+      },
+      {
+        "name": "bin/64bit/w32-pthreads.pdb",
+        "analysis_sha256": "4257d044f6c998bcd362e2e679fb77f9317e4b9eb8bc8267696a929bbd718e8c",
+        "official_pdbs": {
+          "sha256": "b34fd77e7ea12c2fe08bf42ee381854fd402143161f19a878f02395c625c12d5",
+          "size": 692224
+        },
+        "official_binaries": {
+          "sha256": "4257d044f6c998bcd362e2e679fb77f9317e4b9eb8bc8267696a929bbd718e8c",
+          "size": 126976
+        }
+      },
+      {
+        "name": "obs-plugins/64bit/obs-websocket.pdb",
+        "analysis_sha256": "36afe3219eb2c10fd40c0c1aea56899050614f77f1ab3d81b2be9527d331972a",
+        "official_pdbs": {
+          "sha256": "97dfab6d1d790fa7f707a1f511fe24aa2d08252d2d615adb76b6f6d153334f47",
+          "size": 19566592
+        },
+        "official_binaries": {
+          "sha256": "36afe3219eb2c10fd40c0c1aea56899050614f77f1ab3d81b2be9527d331972a",
+          "size": 3633152
+        }
+      }
+    ]
+  }
 }

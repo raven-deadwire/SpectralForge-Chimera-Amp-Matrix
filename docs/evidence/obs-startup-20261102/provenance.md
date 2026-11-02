@@ -72,3 +72,11 @@ The dump does not independently identify Windows kernel mutex ownership. The cir
 - [OBSBasic_SceneItems.cpp: synchronous scene callback to UI](https://github.com/obsproject/obs-studio/blob/32.2.2/frontend/widgets/OBSBasic_SceneItems.cpp#L205)
 
 The UI thread is still constructing AudioMixer and waits to connect the `source_create` signal. The WebSocket worker holds the same signal-dispatch path during `CreateScene` and waits for the UI's `AddScene` call. This reproduced host startup deadlock requires no Chimera module. There was no dump from the original #248 failure, so the original incident remains strongly consistent with this mechanism rather than independently stack-proven.
+
+## Archive integrity recheck
+
+A later audit found the first retained PDB ZIP truncated to 61,300,736 bytes (SHA-256 `7a4decaf260d6ad9d2063a3b4c349b7bfb49c4fe12229ac4146d0b805bbbb1f6`), with its central directory missing. The reason for this local truncation is unknown; no local repack was performed. That damaged file is not accepted as proof of the official PDB archive.
+
+A fresh download to a different path, `verified-assets/OBS-Studio-32.2.2-Windows-x64-PDBs-verified.zip`, is 64,011,684 bytes, hashes to the official release digest `a2d2c16859ea3c2508f49c2b9a48b8ec630578334d301fbdf42718f6e473662a`, and passes the complete ZIP CRC check.
+
+Separately, every OBS PDB actually used for this stack analysis was compared against the already-verified official **binary ZIP** (`4d6e40...`), which also includes PDBs. All four analysis PDBs match its entries byte for byte by SHA-256. `obs64.pdb` and `obs.pdb` are identical in both official archives. The `w32-pthreads.pdb` and `obs-websocket.pdb` used here are the smaller stripped PDBs from the binary ZIP; the dedicated PDB ZIP contains larger versions with the same matching CodeView identity. Their exact analysis hashes and source archive are recorded per module in JSON. The stack interpretation therefore does not depend on the damaged local ZIP or on substituting unmatched PDBs.
