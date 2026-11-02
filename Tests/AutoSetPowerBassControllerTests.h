@@ -84,7 +84,7 @@ Run run(double rate,double fundamental,int model,const Controller::Options& o,Ed
         }
         const float* in[]{input.data()+offset};const float* out[]{post.data()+offset};
         p->autoSetCapture().push(Tap::amp,in,1,256);
-        for(auto tap:{Tap::tone,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,tap==Tap::tone?out:in,1,256);
+        for(auto tap:{Tap::cab,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,tap==Tap::cab?out:in,1,256);
         ms+=1000.*256/rate;c.tick(ms);
     }
     check(!c.busy(),"Low-bass power controller did not finish at "+std::to_string(int(rate)));
