@@ -380,7 +380,7 @@ def main():
             for i,score in enumerate(means):
                 if kept[i] and better(i,levels[i],score,targets[i]):
                     best[i]=score;best_level_ok[i]=levels[i];best_target_ok[i]=targets[i];best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
-            profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0],vx) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
+            profile_metrics={v[0]:fidelity(prediction[i],vy[i],cab_key(v[0],source),vx) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
             write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'level_ok_by_channel':dict(zip([v[0] for v in VOICES],levels)),'keeps_passed_by_channel':dict(zip([v[0] for v in VOICES],kept)),'target_ok_by_channel':dict(zip([v[0] for v in VOICES],targets)),'windows':vals,'best_steps':best_steps,'best_level_ok':best_level_ok,'tone3000_fidelity':profile_metrics,
               'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start,'identity':identity,'checkpoint_step':step,'recipe':args.recipe})
             checkpoint_temporary=args.out/'checkpoint.pt.tmp'
@@ -395,7 +395,7 @@ def main():
         with torch.inference_mode():dc=float(sub(torch.zeros(rf+512),pad_start=False)[-1])
         with torch.no_grad():sub._net._layer_arrays[-1]._head_rechannel.bias.sub_(dc/sub._net._head_scale)
         sub.export(args.out,basename=prefix+name,include_snapshot=False,other_metadata={
-          'name':AMPS[amp_of(source)]['display']+' '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
+          'name':AMPS[amp_of(source)]['display']+' '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp_cab' if source.get('cabinet') else 'amp',
           'character':character,'source_commit':source['source_commit'],'status':'DIAGNOSTIC_NOT_A2_DO_NOT_SHIP' if extra else 'TEST_BUILD_PENDING_ACCEPTANCE',
           'channel':i,'cabinet_included':bool(source.get('cabinet')),'head_bias_correction_output_units':dc})
         path=args.out/f'{prefix}{name}.nam';obj=json.loads(path.read_text());restored=init_from_nam(obj).eval()
@@ -408,7 +408,7 @@ def main():
         stats.update({'selected_step':best_steps[i],'validation_window_esr_median':float(np.median(windows)),
           'validation_window_esr_p95':float(np.quantile(windows,.95)),'validation_window_esr_worst':float(max(windows)),
           'official_roundtrip_max_abs':delta,'sha256':digest(path),'head_bias_correction':dc})
-        stats['tone3000_fidelity']=fidelity(prediction,vy[i],name,vx)
+        stats['tone3000_fidelity']=fidelity(prediction,vy[i],cab_key(name,source),vx)
         results[name]=stats;np.save(args.out/f'{name}-validation.npy',prediction)
     write_json(args.out/'validation.json',{'channels':results,'thresholds':{'median_esr':.005,'p95_esr':.01,'worst_esr':.02},
       'quality_profile':run_profile,'input':'unseen synthetic validation excitation','test':'independent comparison is a separate step','real_DI':'not supplied',
