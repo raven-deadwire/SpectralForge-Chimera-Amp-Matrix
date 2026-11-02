@@ -1266,6 +1266,7 @@ void ChimeraEditor::showTesterCode()
                          : "Active for "+holder+". This and later beta versions do not expire on this computer.",
         juce::MessageBoxIconType::NoIcon,this);
     testerDialog->addTextEditor("code",{},"Code");
+    testerDialog->getTextEditor("code")->setInputRestrictions(spectralforge::beta::tester::maxPastedLength);
     testerDialog->addButton("APPLY",1,juce::KeyPress(juce::KeyPress::returnKey));
     if(holder.isNotEmpty())testerDialog->addButton("REMOVE",2);
     testerDialog->addButton("CANCEL",0,juce::KeyPress(juce::KeyPress::escapeKey));

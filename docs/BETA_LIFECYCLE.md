@@ -11,7 +11,7 @@ historical `1.3.1-beta.3` candidate, not the current public release.
 | Policy field | Approved public v1.3.2-beta.1 value |
 | --- | --- |
 | Product / package version | `1.3.2` / `1.3.2-beta.1` |
-| UTC expiry (inclusive) | `2027-02-11T14:59:00Z` |
+| UTC expiry threshold (expired at or after) | `2027-02-11T14:59:00Z` |
 | Korea expiry | `2027-02-11 23:59:00 KST (UTC+09:00)` |
 | Unix expiry | `1802357940` |
 | Approval | `expiry_approved: true` |
@@ -36,7 +36,7 @@ historical record of the published release and its own approval.
 | Policy field | Approved 1.3.2-beta.2 value |
 | --- | --- |
 | Product / package version | `1.3.2` / `1.3.2-beta.2` |
-| UTC expiry (inclusive) | `2027-03-31T14:59:00Z` |
+| UTC expiry threshold (expired at or after) | `2027-03-31T14:59:00Z` |
 | Korea expiry | `2027-03-31 23:59:00 KST (UTC+09:00)` |
 | Unix expiry | `1806505140` |
 | Approval | `expiry_approved: true` |
@@ -91,8 +91,10 @@ the only product identity. CMake generates `ChimeraBetaLifecycleBuild.h` and
 source of truth; the KST text in the header and distribution notice is derived
 from it using a fixed +09:00 offset.
 
-**The approved date above applies only to `1.3.2-beta.1`.** This implementation PR
-keeps that baseline version and policy unchanged. When preparing another version,
+**Each approved date applies only to its named version:** beta.1 expires at
+2027-02-11 23:59:00 KST; beta.2 at 2027-03-31 23:59:00 KST. The committed policy
+and release channel now describe beta.2; the published beta.1 source and packages
+remain unchanged. When preparing an additional version,
 update the policy version explicitly and leave `expires_at_utc: null` /
 `expiry_approved: false` until that version's exact date is approved. A changed
 source version with the old policy is rejected; no date or 90/120/180-day period
