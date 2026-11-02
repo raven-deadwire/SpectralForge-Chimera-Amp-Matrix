@@ -13,7 +13,12 @@ def metrics(**overrides):
 class ReleaseV3Tests(unittest.TestCase):
     def test_every_channel_has_one_class(self):
         names = [n for c in RELEASE_V3['classes'].values() for n in c['channels']]
-        self.assertEqual(sorted(names), sorted(PROFILE['source_output_scale']))
+        heads = [n for n in PROFILE['source_output_scale'] if not n.endswith('-Cab')]
+        self.assertEqual(sorted(names), sorted(heads))
+        # Every head + cab anchor belongs to a head channel and shares its class.
+        for n in PROFILE['source_output_scale']:
+            if n.endswith('-Cab'):
+                self.assertIs(release_v3_limits(n), release_v3_limits(n[:-4]))
 
     def test_v2_quiet_and_level_limits_are_kept(self):
         for key in ('quiet_residual_rms_max_dbfs', 'quiet_residual_peak_max_dbfs', 'rms_error_max_db', 'peak_error_max_db'):

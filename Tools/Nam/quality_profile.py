@@ -27,6 +27,13 @@ ANCHORS = {
     'Nidavellir': 0.9858497660667962,
     'Ymir': 0.95418149288766951,
     'Hel': 0.74470386143777512,
+    # Head + cab (each channel's factory rig lane cabinet, add_cabinet.py),
+    # frozen from the converted capture before any head + cab training.
+    'Fenrir-Cab': 0.4526834237013792,
+    'Surtr-Cab': 0.6537881080064918,
+    'Nidhoggr-Cab': 0.4604326160851843,
+    'Fimbulvetr-Cab': 1.0482073215227532,
+    'Ragnarok-Cab': 0.5227749513254325,
 }
 
 PROFILE = {
