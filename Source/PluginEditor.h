@@ -16,6 +16,9 @@
 #include "AutoSetController.h"
 #include "AccessibleViewport.h"
 #include "EasyModeView.h"
+#include "EffectModelSync.h"
+#include "CreativePanel.h"
+#include "SynthPage.h"
 
 class CabRoomOverview;
 
@@ -75,6 +78,7 @@ private:
     spectralforge::ui::Changed<std::array<double,4>> bandKey;
     spectralforge::ui::Changed<std::array<double,3>> tempoKey;
     spectralforge::ui::Changed<std::array<int,2>> inputMeterKey,outputMeterKey;
+    spectralforge::ui::Changed<std::array<int,5>> loudnessKey;
     spectralforge::ui::Changed<std::array<float,3>> tunerKey;
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
@@ -138,26 +142,34 @@ private:
     std::array<std::unique_ptr<SA>,4> utilitySliders;
     std::array<std::unique_ptr<BA>,4> utilityButtons;
     juce::Slider x1,x2;
-    std::unique_ptr<CA> ma,qa;
+    std::unique_ptr<CA> ma;
+    juce::TextButton headerAutoSet{"AUTO SET"};
+    // OVERSAMPLING: Auto plus the released 1x-8x choices (docs/OVERSAMPLING_AUTO.md).
+    static constexpr int oversamplingAutoItem=9;
+    void syncOversamplingChoice();
     std::unique_ptr<SA> a1,a2;
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;
     int betaUiTicks{25};
     juce::TextButton pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
+    // Integrated loudness and true-peak max of the output; click to reset.
+    juce::TextButton outputLoudness;
     std::array<std::unique_ptr<BA>,3> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},matchAB{"MATCH"},irLibraryButton{"IR LIBRARY"};
     bool matchWarningAcknowledged{false};
     juce::ScopedMessageBox matchWarning;
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     // Direct navigation only: these never toggle audio processing.
-    static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,6> dynamicsEntryPages{
+    static constexpr std::array<spectralforge::CommonDynamicsPanel::Page,8> dynamicsEntryPages{
         spectralforge::CommonDynamicsPanel::Page::gate,
         spectralforge::CommonDynamicsPanel::Page::expander,
         spectralforge::CommonDynamicsPanel::Page::compressor,
         spectralforge::CommonDynamicsPanel::Page::limiter,
         spectralforge::CommonDynamicsPanel::Page::multiband,
-        spectralforge::CommonDynamicsPanel::Page::deesser};
-    std::array<juce::TextButton,6> dynamicsEntries;
+        spectralforge::CommonDynamicsPanel::Page::deesser,
+        spectralforge::CommonDynamicsPanel::Page::saturation,
+        spectralforge::CommonDynamicsPanel::Page::filter};
+    std::array<juce::TextButton,8> dynamicsEntries;
     void updateDynamicsEntries();
     std::unique_ptr<spectralforge::CommonDynamicsPanel> dynamicsPanel;
     std::unique_ptr<spectralforge::autoset::Controller> autoSetController; // after dynamicsPanel: destroyed first
@@ -183,6 +195,7 @@ private:
         juce::Label header,scope,description;
         juce::ComboBox model;
         std::unique_ptr<CA> modelAttachment;
+        std::unique_ptr<spectralforge::ExtendedEffectModelSync> modelSync; // DELAY / REVERB / MODULATION: released choice + extension
         juce::TextButton enabled{"ON"},expand{"ALL"};
         std::array<juce::Slider,5> controls;
         std::array<juce::Label,5> labels;
@@ -190,6 +203,9 @@ private:
         std::unique_ptr<BA> button;
     };
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
+    std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip;
+    void openCreativePanel();
+    std::unique_ptr<spectralforge::synthUI::SynthPage> synthPage;   // page 4
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};

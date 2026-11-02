@@ -35,9 +35,14 @@ def main():
         old = tmp/'old'; old.mkdir()
         header = subprocess.check_output(['git', 'show', f'{BASE}:Source/MultibandDynamicsCore.h'], cwd=ROOT)
         (old/'MultibandDynamicsCore.h').write_bytes(header)
-        # Enforce that LR4 split/compensation and de-esser source remain intact.
+        # Enforce that the de-esser source remains intact. The LR4 split and
+        # compensation (struct SVFCoefficients .. struct Detector) were
+        # extended for six bands (docs/SIX_BAND_1_5.md), so their text no
+        # longer matches the pinned baseline; the four-band response is held
+        # by the baseline-vs-current numerical regressions below and, bit for
+        # bit, by ChimeraSixBandTests.
         before, after = header.decode(), (ROOT/sources[0]).read_text()
-        for start, end in [('struct SVFCoefficients', 'struct Detector'), ('struct DeEsserSettings', None)]:
+        for start, end in [('struct DeEsserSettings', None)]:
             segment = lambda s: s[s.index(start):s.index(end) if end else len(s)]
             assert segment(before) == segment(after), f'Unintended change: {start}'
         exes, benches = {}, {}

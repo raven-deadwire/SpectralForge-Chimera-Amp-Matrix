@@ -294,3 +294,10 @@ floor-corrected rule (net inter-harmonic energy above the ideal tone's own
 floor). On fresh seed 86603 it passes at all three rates (v3-sinc median
 -70.6/-70.3/-79.0 dB re harmonics, 17-23 dB below v3). See
 `docs/TRANSPOSE_V3SINC_RESIDUAL_REVALIDATION_20261029.md`.
+
+Known defect (v3 and v3-sinc, 2026-10-30): the transient path's splice
+search can take a minimum on the edge of its range (minimum travel = a quarter
+of the range, about 9.36 ms) without sub-sample refinement. Near f0 106.6-108.3 Hz
+and its 2x/3x, splices then miss the period by up to 1.6 samples (high-band
+residual up to -23 dB re harmonics). An experimental fix is kept as a patch only;
+see `docs/TRANSPOSE_SPLICE_EDGE_107HZ_20261030.md`.

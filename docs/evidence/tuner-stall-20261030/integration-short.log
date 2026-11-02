@@ -1,0 +1,8 @@
+Internal ctest changing into directory: [workspace]/chimera/build-review
+Test project [workspace]/chimera/build-review
+    Start 71: ChimeraPrecisionTunerIntegrationTests
+1/1 Test #71: ChimeraPrecisionTunerIntegrationTests ...   Passed   45.03 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  45.03 sec

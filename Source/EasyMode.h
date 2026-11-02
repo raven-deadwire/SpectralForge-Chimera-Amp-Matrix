@@ -34,11 +34,20 @@ inline std::span<const char* const> roleLabels(Role role) noexcept {
 inline int explicitAmpControl(int model,int route,Role role) noexcept {
     const auto key=[model](std::string_view k){return ampNativeControlIndex(model,k);};
     switch(model) {
-        case 1: // Brit Edge: HIGH TREBLE jacks 0-1, NORMAL jacks 2-3, JUMPED 4 plays both.
+        case 1: case 27: // Brit Edge / Bluestack 100: HIGH TREBLE jacks 0-1, NORMAL jacks 2-3, JUMPED 4 plays both.
             if(role==Role::gain)return route==2 || route==3 ? key("hw.normal") : key("hw.high_treble");
             break;
         case 19: // Monolith: NORMAL 0, BRILLIANT 1, JUMPED 2 plays both.
             if(role==Role::gain)return route==0 ? key("hw.normal") : key("hw.brilliant");
+            break;
+        case 28: // Eightyfire: Pre-amp Volume is the gain; Master stays in the full editor.
+            if(role==Role::gain)return key("hw.preamp");
+            break;
+        case 29: // Fortress 103: NORMAL jacks 0-1, BRIGHT jacks 2-3, JUMPED 4 plays both.
+            if(role==Role::gain)return route<2 ? key("hw.normal") : key("hw.bright");
+            break;
+        case 30: // Northlight has no gain stage: GAIN edits its Master.
+            if(role==Role::gain)return key("hw.master");
             break;
         case 7: // Modern Bass: the knobs shape the amplifier section, not the drive section.
             switch(role) {

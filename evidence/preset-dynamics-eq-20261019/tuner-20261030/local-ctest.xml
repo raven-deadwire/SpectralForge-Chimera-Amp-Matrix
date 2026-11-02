@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="4"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="152"
+	timestamp="2026-10-30T03:16:12"
+	>
+	<testcase name="ChimeraPrecisionTunerTests" classname="ChimeraPrecisionTunerTests" time="3.63326" status="run">
+		<properties/>
+		<system-out>PASS 18 weak-fundamental/decay/DC cases; bass string identities, invalid targets and strobe anti-alias
+PASS 576 pitch cases; worst absolute error 0.0599684 ct; profiles, custom/calibration, silence/DC/noise, strobe direction/dead-band
+PASS 1105 exact frequency/confidence comparisons against frozen 52f7 estimator
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPrecisionTunerIntegrationTests" classname="ChimeraPrecisionTunerIntegrationTests" time="47.3151" status="run">
+		<properties/>
+		<system-out>WORKER_QOS_REFERENCE,0
+TIMING_HEADER,rate,block,hz,index,generation,window_complete_ms,wake_ms,service_ms,estimate_begin_ms,estimate_end_ms,publish_ms,wake_delay_ms,service_delay_ms,preparation_ms,compute_ms,publication_ms,publish_age_ms,estimated_hz,confidence,published
+kind,engine,rate,block,hz,fixture,error_ct,confidence,compute_us,acquire_ms,step_settle_ms,push_max_us
+kernel,new,44100,0,16.35266118,0,-5.351135493e-06,1,4998.251,-1,-1,-1
+kernel,baseline,44100,0,16.35266118,0,99999,0,0,-1,-1,-1
+kernel,new,44100,0,16.35266118,1,-5.351135493e-06,1,4049.13,-1,-1,-1
+kernel,baseline,44100,0,16.35266118,1,99999,0,0,-1,-1,-1
+kernel,new,44100,0,16.35266118,2,-5.351135493e-06,1,5915.17,-1,-1,-1
+kernel,baseline,44100,0,16.35266118,2,99999,0,0,-1,-1,-1
+kernel,new,44100,0,23.12593505,0,-3.329366218e-05,1,5396.879,-1,-1,-1
+kernel,baseline,44100,0,23.12593505,0,99999,0,0,-1,-1,-1
+kernel,new,44100,0,23.12593505,1,-3.329366218e-05,1,3719.741,-1,-1,-1
+kernel,baseline,44100,0,23.12593505,1,99999,0,0,-1,-1,-1
+kernel,new,44100...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraTunerTimingTests" classname="ChimeraTunerTimingTests" time="0.00281032" status="run">
+		<properties/>
+		<system-out>PASS timing decomposition, wake/input overlap, bounded retention and reset
+</system-out>
+	</testcase>
+	<testcase name="ChimeraTunerWorkerTimingTests" classname="ChimeraTunerWorkerTimingTests" time="0.155153" status="run">
+		<properties/>
+		<system-out>WORKER_QOS_REFERENCE,0
+PASS first-window completion, delayed worker, compute, publish age and trace lifecycle
+</system-out>
+	</testcase>
+</testsuite>

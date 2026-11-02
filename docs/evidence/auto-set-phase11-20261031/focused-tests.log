@@ -1,0 +1,6 @@
+MEASURE space rules: sparse 1 notes/s, beat 1000 ms, ring 460 ms, pauses 0.25; dense 10 notes/s, reverb 0.04
+PASS auto set space rules: silence, sparse clean reverb and delay on the beat, diagnostic beat folding, dense metal tight, metal no delay, bass nearly dry
+MEASURE auto set space controller: reverb on: mix 0.25, size 0.60; delay on: manual/TAP tempo 60.0 BPM, feedback 0.30, mix 0.18 (guitar clean: 1.0 detected notes/s, peak 1, 25% pauses)
+PASS auto set space controller: step after the input pass, reverb and delay on the beat as analysed, strength, the player's reverb and saved free-time value kept, lock, no input pass, undo
+PASS space rhythm matrix: 216 synthetic cases, exact onsets, untrusted pulse blocked, busy bursts blocked, trusted sync exact
+PASS space controller: free-time guard, active effect state + undo, 5 host BPMs, 7 missing/invalid host cases, tempo changes and 9 echo impulse timings
