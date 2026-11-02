@@ -1,0 +1,955 @@
+{
+  "baseline": {
+    "cases": 240,
+    "by_rate": {
+      "44100.0": 80,
+      "48000.0": 80,
+      "96000.0": 80
+    },
+    "by_family": {
+      "harmonic_rich": 96,
+      "fundamental_dominant": 72,
+      "harmonic_gap": 72
+    },
+    "combined_error_increase": [],
+    "low_band_disagreements": [
+      {
+        "model": 21.0,
+        "channel": 1.0,
+        "rate": 44100.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Hot Lead",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.6999999881
+        ],
+        "reported_low_error": [
+          -3.165143013,
+          -0.02341556549
+        ],
+        "wide25_100": [
+          1.636596569,
+          3.022745656
+        ],
+        "f0_delta": 0.4789954899999991,
+        "sub_delta": 0.4848959799999992
+      },
+      {
+        "model": 21.0,
+        "channel": 1.0,
+        "rate": 48000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Hot Lead",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.6000000238
+        ],
+        "reported_low_error": [
+          -1.618519783,
+          -0.1817598343
+        ],
+        "wide25_100": [
+          0.9780393087,
+          1.643967897
+        ],
+        "f0_delta": 0.16378981999999986,
+        "sub_delta": 0.1686945299999998
+      },
+      {
+        "model": 21.0,
+        "channel": 1.0,
+        "rate": 48000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Hot Lead",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.6999999881
+        ],
+        "reported_low_error": [
+          -3.195427895,
+          -0.02943897247
+        ],
+        "wide25_100": [
+          1.635483159,
+          3.021774164
+        ],
+        "f0_delta": 0.4791853500000016,
+        "sub_delta": 0.48548358000000036
+      },
+      {
+        "model": 21.0,
+        "channel": 1.0,
+        "rate": 96000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Hot Lead",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.6000000238
+        ],
+        "reported_low_error": [
+          -1.623379707,
+          -0.1813707352
+        ],
+        "wide25_100": [
+          0.9818165254,
+          1.65299471
+        ],
+        "f0_delta": 0.16395742999999996,
+        "sub_delta": 0.16857883999999856
+      },
+      {
+        "model": 21.0,
+        "channel": 1.0,
+        "rate": 96000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Hot Lead",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.6999999881
+        ],
+        "reported_low_error": [
+          -3.203576088,
+          -0.03355884552
+        ],
+        "wide25_100": [
+          1.6376345,
+          3.027811331
+        ],
+        "f0_delta": 0.47910508000000007,
+        "sub_delta": 0.4847302899999999
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -18.23277664,
+          -13.38979626
+        ],
+        "wide25_100": [
+          1.373910368,
+          3.020918264
+        ],
+        "f0_delta": 0.7715404400000025,
+        "sub_delta": 0.7934700100000001
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -17.66632843,
+          -12.88378811
+        ],
+        "wide25_100": [
+          1.255239046,
+          3.125911895
+        ],
+        "f0_delta": 1.0051508699999978,
+        "sub_delta": 1.0192938200000015
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -18.09037399,
+          -13.41551495
+        ],
+        "wide25_100": [
+          1.360584414,
+          3.008583068
+        ],
+        "f0_delta": 0.7715223800000004,
+        "sub_delta": 0.7935830300000006
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -17.67376709,
+          -13.18155575
+        ],
+        "wide25_100": [
+          1.254783306,
+          3.127857677
+        ],
+        "f0_delta": 1.005137359999999,
+        "sub_delta": 1.019441669999999
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -18.09719086,
+          -13.41445637
+        ],
+        "wide25_100": [
+          1.355640488,
+          3.011793655
+        ],
+        "f0_delta": 0.7715178700000003,
+        "sub_delta": 0.7935780799999996
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -17.67778778,
+          -13.17754078
+        ],
+        "wide25_100": [
+          1.247758952,
+          3.129046004
+        ],
+        "f0_delta": 1.0051318299999998,
+        "sub_delta": 1.0194365699999999
+      }
+    ],
+    "niflheimr_gap_dry": [
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -18.23277664,
+          -13.38979626
+        ],
+        "wide25_100": [
+          1.373910368,
+          3.020918264
+        ],
+        "f0_delta": 0.7715404400000025,
+        "sub_delta": 0.7934700100000001
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -17.66632843,
+          -12.88378811
+        ],
+        "wide25_100": [
+          1.255239046,
+          3.125911895
+        ],
+        "f0_delta": 1.0051508699999978,
+        "sub_delta": 1.0192938200000015
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -18.09037399,
+          -13.41551495
+        ],
+        "wide25_100": [
+          1.360584414,
+          3.008583068
+        ],
+        "f0_delta": 0.7715223800000004,
+        "sub_delta": 0.7935830300000006
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -17.67376709,
+          -13.18155575
+        ],
+        "wide25_100": [
+          1.254783306,
+          3.127857677
+        ],
+        "f0_delta": 1.005137359999999,
+        "sub_delta": 1.019441669999999
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -18.09719086,
+          -13.41445637
+        ],
+        "wide25_100": [
+          1.355640488,
+          3.011793655
+        ],
+        "f0_delta": 0.7715178700000003,
+        "sub_delta": 0.7935780799999996
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.8000000119
+        ],
+        "reported_low_error": [
+          -17.67778778,
+          -13.17754078
+        ],
+        "wide25_100": [
+          1.247758952,
+          3.129046004
+        ],
+        "f0_delta": 1.0051318299999998,
+        "sub_delta": 1.0194365699999999
+      }
+    ],
+    "by_head": {
+      "Tight 515": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -3.0438064199999992,
+          0.2949310500000024
+        ],
+        "sub_delta": [
+          -2.565154899999996,
+          0.4303090600000026
+        ],
+        "largest_grid_sub_interaction": 0.4664280639,
+        "largest_grid_f0_interaction": 0.4999297112
+      },
+      "Cinder 120": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -3.106475809999999,
+          0.7466877499999995
+        ],
+        "sub_delta": [
+          -1.4430420300000009,
+          0.75714507
+        ],
+        "largest_grid_sub_interaction": 0.04135216267,
+        "largest_grid_f0_interaction": 0.04585655492
+      },
+      "Night Harvest": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          0.0,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -16.284127149999996,
+          3.4450969099999966
+        ],
+        "sub_delta": [
+          -2.906949990000001,
+          3.2086804600000036
+        ],
+        "largest_grid_sub_interaction": 0.6087395804,
+        "largest_grid_f0_interaction": 0.5703491839
+      },
+      "Hot Lead": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.19999998809999997
+        ],
+        "f0_delta": [
+          -0.9786877599999997,
+          0.4791853500000016
+        ],
+        "sub_delta": [
+          -1.1130102099999988,
+          0.48548358000000036
+        ],
+        "largest_grid_sub_interaction": 0.02455515721,
+        "largest_grid_f0_interaction": 0.04626224187
+      },
+      "Náströnd": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -2.7516808599999933,
+          2.1397154400000034
+        ],
+        "sub_delta": [
+          -2.8670147200000002,
+          2.1907799700000012
+        ],
+        "largest_grid_sub_interaction": 0.01613858103,
+        "largest_grid_f0_interaction": 0.0162420746
+      },
+      "Niflheimr": {
+        "cases": 60,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -1.8663296600000017,
+          1.0063578900000039
+        ],
+        "sub_delta": [
+          -1.9065528300000025,
+          1.0527450499999986
+        ],
+        "largest_grid_sub_interaction": 4.626623266e-06,
+        "largest_grid_f0_interaction": 9.110570929e-07
+      }
+    },
+    "under_load_inner_analysis_ms": {
+      "min": 40.650765,
+      "median": 398.7315165,
+      "max": 1701.497752
+    },
+    "max_total_render_calls": 14.0
+  },
+  "candidate": {
+    "cases": 240,
+    "by_rate": {
+      "44100.0": 80,
+      "48000.0": 80,
+      "96000.0": 80
+    },
+    "by_family": {
+      "harmonic_rich": 96,
+      "fundamental_dominant": 72,
+      "harmonic_gap": 72
+    },
+    "combined_error_increase": [],
+    "low_band_disagreements": [],
+    "niflheimr_gap_dry": [
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.200000003
+        ],
+        "reported_low_error": [
+          1.199692249,
+          0.58766222
+        ],
+        "wide25_100": [
+          1.373910368,
+          0.7774196958
+        ],
+        "f0_delta": -1.5044294199999975,
+        "sub_delta": -1.5306642299999993
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 44100.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.200000003
+        ],
+        "reported_low_error": [
+          1.29746294,
+          0.3307118416
+        ],
+        "wide25_100": [
+          1.255239046,
+          0.2848254691
+        ],
+        "f0_delta": -1.8665749399999996,
+        "sub_delta": -1.8788720000000012
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.200000003
+        ],
+        "reported_low_error": [
+          1.194618702,
+          0.5821690559
+        ],
+        "wide25_100": [
+          1.360584414,
+          0.7700042775
+        ],
+        "f0_delta": -1.5044205999999996,
+        "sub_delta": -1.5308005100000024
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 48000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.200000003
+        ],
+        "reported_low_error": [
+          1.282970905,
+          0.3176960945
+        ],
+        "wide25_100": [
+          1.254783306,
+          0.287129265
+        ],
+        "f0_delta": -1.866575019999999,
+        "sub_delta": -1.879112880000001
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 27.5,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.200000003
+        ],
+        "reported_low_error": [
+          1.187710285,
+          0.5852131844
+        ],
+        "wide25_100": [
+          1.355640488,
+          0.7751787899
+        ],
+        "f0_delta": -1.5044468799999997,
+        "sub_delta": -1.5308268900000037
+      },
+      {
+        "model": 25.0,
+        "channel": 0.0,
+        "rate": 96000.0,
+        "f0": 30.86770633,
+        "fixture": "harmonic_gap",
+        "cab": "dry_head",
+        "style": "rock",
+        "head": "Niflheimr",
+        "p": [
+          0.5,
+          0.200000003
+        ],
+        "r": [
+          0.5,
+          0.200000003
+        ],
+        "reported_low_error": [
+          1.277458668,
+          0.3221402168
+        ],
+        "wide25_100": [
+          1.247758952,
+          0.2901337835
+        ],
+        "f0_delta": -1.8666068399999993,
+        "sub_delta": -1.87914593
+      }
+    ],
+    "by_head": {
+      "Tight 515": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -3.0438064199999992,
+          1.5447653800000012
+        ],
+        "sub_delta": [
+          -2.000096769999999,
+          1.4885080799999955
+        ],
+        "largest_grid_sub_interaction": 0.4664280639,
+        "largest_grid_f0_interaction": 0.4999297112
+      },
+      "Cinder 120": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.25,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -3.08593003,
+          0.7466877499999995
+        ],
+        "sub_delta": [
+          -1.4756024499999967,
+          0.75714507
+        ],
+        "largest_grid_sub_interaction": 0.04135216267,
+        "largest_grid_f0_interaction": 0.04585655492
+      },
+      "Night Harvest": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          0.0,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -16.284127149999996,
+          3.4450969099999966
+        ],
+        "sub_delta": [
+          -2.906949990000001,
+          3.2086804600000036
+        ],
+        "largest_grid_sub_interaction": 0.6087395804,
+        "largest_grid_f0_interaction": 0.5703491839
+      },
+      "Hot Lead": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "f0_delta": [
+          -0.9786877599999997,
+          0.4729104100000008
+        ],
+        "sub_delta": [
+          -1.1130102099999988,
+          0.09036272000000167
+        ],
+        "largest_grid_sub_interaction": 0.02455515721,
+        "largest_grid_f0_interaction": 0.04626224187
+      },
+      "Náströnd": {
+        "cases": 36,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -2.7516808599999933,
+          2.1397154400000034
+        ],
+        "sub_delta": [
+          -2.8670147200000002,
+          2.1907799700000012
+        ],
+        "largest_grid_sub_interaction": 0.01613858103,
+        "largest_grid_f0_interaction": 0.0162420746
+      },
+      "Niflheimr": {
+        "cases": 60,
+        "p_moves": [
+          -0.299999997,
+          0.0
+        ],
+        "r_moves": [
+          -0.299999997,
+          0.30000001190000003
+        ],
+        "f0_delta": [
+          -1.8666068399999993,
+          1.0063578900000039
+        ],
+        "sub_delta": [
+          -1.9065528300000025,
+          1.0527450499999986
+        ],
+        "largest_grid_sub_interaction": 4.626623266e-06,
+        "largest_grid_f0_interaction": 9.110570929e-07
+      }
+    },
+    "under_load_inner_analysis_ms": {
+      "min": 61.42427,
+      "median": 485.8218715,
+      "max": 1899.259918
+    },
+    "max_total_render_calls": 14.0
+  },
+  "comparison": {
+    "paired_cases": 240,
+    "changed_proposals": 70,
+    "new_wide_error_worse": 0,
+    "new_wide_error_better": 66
+  }
+}

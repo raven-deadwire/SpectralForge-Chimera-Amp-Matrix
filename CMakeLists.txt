@@ -751,6 +751,13 @@ if(CHIMERA_LOUDNESS_REFERENCE_TESTS)
   add_test(NAME ChimeraAutoSetLoudnessReferenceTests COMMAND ChimeraAutoSetLoudnessReferenceTests)
   add_test(NAME ChimeraAutoSetReferenceOwnershipTests COMMAND ChimeraAutoSetLoudnessReferenceTests --failure-paths)
 endif()
+# Phase 12 low-bass synthetic measurements use the real native heads and
+# authored cabinet kernel without instantiating the product/UI.
+juce_add_console_app(ChimeraAutoSetPowerBassProbe PRODUCT_NAME "Chimera Auto Set Power Bass Probe")
+target_sources(ChimeraAutoSetPowerBassProbe PRIVATE Tests/AutoSetPowerBassProbe.cpp)
+target_include_directories(ChimeraAutoSetPowerBassProbe PRIVATE Source)
+target_compile_definitions(ChimeraAutoSetPowerBassProbe PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraAutoSetPowerBassProbe PRIVATE juce::juce_dsp juce::juce_graphics PUBLIC juce::juce_recommended_config_flags)
 add_executable(ChimeraMultibandDynamicsCoreTests Tests/MultibandDynamicsCoreTests.cpp)
 target_include_directories(ChimeraMultibandDynamicsCoreTests PRIVATE Source)
 target_compile_features(ChimeraMultibandDynamicsCoreTests PRIVATE cxx_std_20)
