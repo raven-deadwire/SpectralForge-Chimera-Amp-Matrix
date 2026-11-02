@@ -62,6 +62,8 @@ WINDOWS = sys.platform == "win32"
 MACOS = sys.platform == "darwin"
 PRESET_PARAMETER = "Output gain"  # default 0.625: the preset is clearly quieter
 PRESET_VALUE = 0.3
+STARTUP_OBSERVER = "chimera-obs-startup-observer"
+STARTUP_MARKER = f"[{STARTUP_OBSERVER}] frontend finished loading pid="
 
 
 class WebSocket:
@@ -151,6 +153,7 @@ class Layout:
     def __init__(self, obs: str, work: Path):
         self.obs = obs
         self.installed = False
+        self.startup_observer_installed = False
         self.vst3_installed = None  # macOS: the Chimera copy install() made
         if WINDOWS:
             exe = Path(obs).resolve()
@@ -175,6 +178,23 @@ class Layout:
             self.plugin = self.config / "plugins" / "chimera-obs"
             self.env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / ".config"))
             self.options = []
+        self.startup_observer = self.plugin.with_name(STARTUP_OBSERVER)
+
+    def install_startup_observer(self, staged: Path) -> None:
+        """An opt-in, test-only Windows frontend-event observer, separately owned."""
+        if not WINDOWS:
+            raise RuntimeError("the startup observer fixture requires native Windows OBS")
+        if self.config.exists() or self.config.is_symlink():
+            raise RuntimeError(f"{self.config} already exists; this test does not touch an OBS configuration")
+        if self.startup_observer.exists() or self.startup_observer.is_symlink():
+            raise RuntimeError(f"{self.startup_observer} already exists; refusing an installed startup observer")
+        if not (staged / "bin" / "64bit" / f"{STARTUP_OBSERVER}.dll").is_file() or not (staged / "data").is_dir():
+            raise RuntimeError(f"not a staged startup observer fixture: {staged}")
+        # Claim an absent destination before copying, so even partial installs
+        # are ours to remove. Never adopt an existing user/plugin directory.
+        self.startup_observer.mkdir(parents=True, exist_ok=False)
+        self.startup_observer_installed = True
+        shutil.copytree(staged, self.startup_observer, dirs_exist_ok=True)
 
     def install(self, module: Path, vst3: Path) -> None:
         if self.plugin.exists():
@@ -202,6 +222,10 @@ class Layout:
             (self.cwd / ".vst3" / vst3.name).symlink_to(vst3)
 
     def uninstall(self, passed: bool) -> None:
+        if self.startup_observer_installed:
+            shutil.rmtree(self.startup_observer,
+                          onexc=lambda _f, path, e: print(f"note: could not remove {path}: {e}"))
+            self.startup_observer_installed = self.startup_observer.exists()
         if self.vst3_installed is not None:
             shutil.rmtree(self.vst3_installed, onexc=lambda _f, path, e: print(f"note: could not remove {path}: {e}"))
         if (WINDOWS or MACOS) and self.installed:  # only what install() put there
@@ -295,6 +319,10 @@ class Obs:
         self.request_timeout = 30.0
         self.last_request = None
         self.port = port
+        # Logs may share a filename when OBS is restarted in the same second.
+        # A byte-prefix snapshot distinguishes appends from a truncated/reused
+        # log. PID matching additionally excludes unrelated process markers.
+        self._startup_logs = {path: path.read_bytes() for path in (layout.config / "logs").glob("*.txt")}
         self.output = log.open("w")
         self.process = subprocess.Popen(
             [layout.obs, *layout.options, "--multi", "--disable-shutdown-check", "--disable-missing-files-check"],
@@ -302,6 +330,8 @@ class Obs:
         self.ws = None
         self.next_id = 0
         self._trace("process-start", python=sys.version,
+                    startup_gate=("frontend-finished-observer" if getattr(layout, "startup_observer_installed", False)
+                                  else "websocket-ready"),
                     platform={"system": platform.system(), "release": platform.release(),
                               "version": platform.version(), "machine": platform.machine()},
                     environment={key: os.environ.get(key) for key in (
@@ -407,7 +437,7 @@ class Obs:
             self._trace("process-reaped", returncode=code)
 
     def _connect(self, port: int, log: Path) -> None:
-        deadline = time.monotonic() + 60
+        deadline = self.started + 60
         while self.ws is None:
             if self.process.poll() is not None:
                 raise RuntimeError(f"OBS exited during startup (code {self.process.returncode}); see {log}")
@@ -425,6 +455,36 @@ class Obs:
         # obs-websocket accepts connections before OBS has finished loading
         # (requests then fail with code 207, "not ready").
         wait_until(lambda: self._ready(), "OBS ready for requests", 60)
+        if getattr(self.layout, "startup_observer_installed", False):
+            self._wait_frontend_loaded(deadline)
+
+    def _frontend_finished(self) -> bool:
+        expected = f"{STARTUP_MARKER}{self.process.pid}".encode()
+        for path in (self.layout.config / "logs").glob("*.txt"):
+            try:
+                current = path.read_bytes()
+            except FileNotFoundError:  # OBS can rotate a log while being polled.
+                continue
+            previous = self._startup_logs.get(path, b"")
+            fresh = current[len(previous):] if current.startswith(previous) else current
+            if any(line.rstrip().endswith(expected) for line in fresh.splitlines()):
+                return True
+        return False
+
+    def _wait_frontend_loaded(self, deadline: float) -> None:
+        self._trace("startup-gate-wait", gate="frontend-finished-observer")
+        while True:
+            if self.process.poll() is not None:
+                raise RuntimeError(f"OBS exited before frontend finished loading (code {self.process.returncode})")
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise RuntimeError("OBS frontend FINISHED_LOADING marker was not observed within the 60 s startup budget")
+            if self._frontend_finished():
+                self._trace("startup-gate-pass", gate="frontend-finished-observer")
+                check(True, "OBS frontend finished loading (current-process observer event)")
+                return
+            # Poll an explicit event, without a timing-only sleep or another RPC.
+            time.sleep(min(0.05, remaining))
 
     def _ready(self) -> bool:
         return bool(self._exchange("GetVersion")["requestStatus"].get("result"))
@@ -658,6 +718,8 @@ def run(args: argparse.Namespace) -> None:
     recordings.mkdir(parents=True)
     layout = args.layout
     layout.install(Path(args.module).resolve(), Path(args.vst3).resolve())
+    if getattr(args, "startup_observer", None):
+        layout.install_startup_observer(Path(args.startup_observer).resolve())
     port = free_port()
     configure(layout.config, port, recordings)
     di = work / "di-loop.wav"
@@ -759,12 +821,15 @@ def main() -> int:
     parser.add_argument("--module", required=True, help="staged chimera-obs plugin directory (bin/, data/; macOS: chimera-obs.plugin)")
     parser.add_argument("--vst3", required=True, help="SpectralForge Chimera.vst3 bundle")
     parser.add_argument("--state-tool", required=True, help="chimera-obs-state-tool executable")
+    parser.add_argument("--startup-observer", help="optional staged Windows test fixture; wait for actual frontend FINISHED_LOADING")
     parser.add_argument("--work", required=True, help="scratch directory (deleted first)")
     parser.add_argument("--obs", default="obs", help="OBS Studio executable (Windows: bin\\64bit\\obs64.exe "
                         "of an installed or unpacked release; macOS: OBS.app/Contents/MacOS/OBS)")
     parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for decoding the recordings")
     parser.add_argument("--seconds", type=float, default=6.0, help="length of each recording")
     args = parser.parse_args()
+    if args.startup_observer and not WINDOWS:
+        parser.error("--startup-observer requires native Windows OBS")
     if not WINDOWS and not MACOS and not os.environ.get("DISPLAY"):
         print("FAIL no X display (run under xvfb-run)", file=sys.stderr)
         return 2

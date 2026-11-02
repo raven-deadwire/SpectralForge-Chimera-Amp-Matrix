@@ -59,6 +59,7 @@ class HarnessDiagnosticsTests(unittest.TestCase):
         self.obs._phase = "scene-setup"
         self.obs.request_timeout = 0.05
         self.obs.last_request = None
+        self.obs._startup_logs = {}
         self.obs.next_id = 0
         self.obs.ws = Replies([])
         self.obs.process = mock.Mock(pid=12345, returncode=None)
@@ -86,6 +87,65 @@ class HarnessDiagnosticsTests(unittest.TestCase):
         self.assertFalse(self.obs._ready())
         self.assertTrue(self.obs._ready())
         self.assertEqual([e["code"] for e in self.events() if e["event"] == "request-response"], [207, 100])
+
+    def test_successful_getversion_cannot_pass_observer_gate_without_finished_event(self):
+        self.obs.layout.startup_observer_installed = True
+        self.obs.started = time.monotonic() - 59.98
+        self.obs.ws = None
+        ws = Replies([{"op": 0, "d": {}}, {"op": 2}, reply()])
+        with mock.patch.object(app, "WebSocket", return_value=ws):
+            with self.assertRaisesRegex(RuntimeError, "FINISHED_LOADING marker"):
+                self.obs._connect(4455, self.obs.log)
+        self.assertEqual([m["d"]["requestType"] for m in ws.sent if m["op"] == 6], ["GetVersion"])
+        self.assertTrue(any(e.get("result") is True for e in self.events()))
+        self.assertNotIn("startup-gate-pass", [e["event"] for e in self.events()])
+
+    def test_observer_gate_waits_for_current_event_without_extra_rpc(self):
+        logs = self.obs.layout.config / "logs"
+        logs.mkdir(parents=True)
+        path = logs / "current.txt"
+        self.obs.layout.startup_observer_installed = True
+        self.obs.ws = None
+        ws = Replies([{"op": 0, "d": {}}, {"op": 2}, reply()])
+        with mock.patch.object(app, "WebSocket", return_value=ws), \
+             mock.patch.object(app.time, "sleep", side_effect=lambda _t: path.write_text(
+                 f"00:00:00.123: {app.STARTUP_MARKER}{self.obs.process.pid}\n")) as poll:
+            self.obs._connect(4455, self.obs.log)
+        poll.assert_called_once()
+        self.assertEqual([m["d"]["requestType"] for m in ws.sent if m["op"] == 6], ["GetVersion"])
+        self.assertEqual(self.events()[-1]["event"], "startup-gate-pass")
+
+    def test_unguarded_connection_retains_websocket_only_readiness(self):
+        self.obs.ws = None
+        ws = Replies([{"op": 0, "d": {}}, {"op": 2}, reply()])
+        with mock.patch.object(app, "WebSocket", return_value=ws):
+            self.obs._connect(4455, self.obs.log)
+        self.assertNotIn("startup-gate-wait", [e["event"] for e in self.events()])
+
+    def test_stale_or_other_process_marker_cannot_satisfy_gate(self):
+        logs = self.obs.layout.config / "logs"
+        logs.mkdir(parents=True)
+        path = logs / "same-second.txt"
+        marker = f"00:00:00.100: {app.STARTUP_MARKER}{self.obs.process.pid}\n".encode()
+        path.write_bytes(marker)
+        self.obs._startup_logs = {path: marker}
+        self.assertFalse(self.obs._frontend_finished())
+        # Same numeric prefix must not match a different PID.
+        path.write_bytes(marker + f"00:00:00.200: {app.STARTUP_MARKER}{self.obs.process.pid}0\n".encode())
+        self.assertFalse(self.obs._frontend_finished())
+        with path.open("ab") as log:
+            log.write(f"00:00:00.300: {app.STARTUP_MARKER}{self.obs.process.pid}\n".encode())
+        self.assertTrue(self.obs._frontend_finished())
+
+    def test_same_second_rewritten_log_accepts_only_new_marker(self):
+        logs = self.obs.layout.config / "logs"
+        logs.mkdir(parents=True)
+        path = logs / "same-second.txt"
+        previous = b"older startup\n" * 100
+        path.write_bytes(previous)
+        self.obs._startup_logs = {path: previous}
+        path.write_text(f"new startup\n00:00:00.456: {app.STARTUP_MARKER}{self.obs.process.pid}\n")
+        self.assertTrue(self.obs._frontend_finished())
 
     def test_negative_response_keeps_status_and_existing_ok_false_semantics(self):
         self.obs.ws = Replies([reply(result=False, code=600), reply("2", result=False, code=600)])
@@ -272,6 +332,52 @@ class HarnessDiagnosticsTests(unittest.TestCase):
         self.assertEqual(evidence["last_request"]["request_type"], "CreateScene")
         events = [e["event"] for e in self.events()]
         self.assertLess(events.index("evidence"), events.index("forced-kill"))
+
+
+class ObserverLayoutTests(unittest.TestCase):
+    def setUp(self):
+        self.work = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.enterContext(mock.patch.object(app, "WINDOWS", True))
+        self.enterContext(mock.patch.dict(app.os.environ, {"APPDATA": str(self.work / "appdata"),
+                                                         "ProgramData": str(self.work / "programdata")}))
+        self.layout = app.Layout(str(self.work / "obs64.exe"), self.work)
+        self.staged = self.work / "staged"
+        (self.staged / "bin" / "64bit").mkdir(parents=True)
+        (self.staged / "bin" / "64bit" / f"{app.STARTUP_OBSERVER}.dll").write_bytes(b"observer")
+        (self.staged / "data").mkdir()
+
+    def test_existing_observer_or_config_is_preserved_and_not_adopted(self):
+        for path in (self.layout.startup_observer, self.layout.config):
+            with self.subTest(path=path):
+                path.mkdir(parents=True)
+                user_file = path / "user.txt"
+                user_file.write_text("keep")
+                with self.assertRaisesRegex(RuntimeError, "already exists"):
+                    self.layout.install_startup_observer(self.staged)
+                self.layout.uninstall(False)
+                self.assertEqual(user_file.read_text(), "keep")
+                self.assertFalse(self.layout.startup_observer_installed)
+                user_file.unlink()
+                path.rmdir()
+
+    def test_observer_cleanup_is_separate_from_unowned_chimera_install(self):
+        self.layout.plugin.mkdir(parents=True)
+        user_file = self.layout.plugin / "user.txt"
+        user_file.write_text("keep")
+        self.layout.install_startup_observer(self.staged)
+        self.assertTrue(self.layout.startup_observer_installed)
+        self.layout.uninstall(False)
+        self.assertFalse(self.layout.startup_observer.exists())
+        self.assertFalse(self.layout.startup_observer_installed)
+        self.assertEqual(user_file.read_text(), "keep")
+
+    def test_partial_observer_copy_is_owned_for_cleanup(self):
+        with mock.patch.object(app.shutil, "copytree", side_effect=OSError("copy failed")):
+            with self.assertRaisesRegex(OSError, "copy failed"):
+                self.layout.install_startup_observer(self.staged)
+        self.assertTrue(self.layout.startup_observer_installed)
+        self.layout.uninstall(False)
+        self.assertFalse(self.layout.startup_observer.exists())
 
 
 if __name__ == "__main__":

@@ -138,6 +138,7 @@ def run_case(args, case: dict, folder: Path, metadata: dict) -> dict:
     folder.mkdir()
     result = {**case, "started_utc": datetime.now(timezone.utc).isoformat(),
               "stop_after": args.stop_after, "status": "failed", "safe_to_continue": True,
+              "startup_gate": "frontend-finished-observer" if getattr(args, "startup_observer", None) else "websocket-ready",
               "environment": metadata, "errors": []}
     layout = app.Layout(args.obs, folder)
     token = uuid.uuid4().hex
@@ -154,9 +155,13 @@ def run_case(args, case: dict, folder: Path, metadata: dict) -> dict:
         # overrides (Windows known-folder APIs need not honour such overrides).
         refuse_existing(layout.config)
         refuse_existing(layout.plugin)
+        refuse_existing(layout.startup_observer)
         if case["mode"] == "module":
             layout.install(Path(args.module), Path(args.vst3))
             (layout.plugin / OWNER).write_text(token, encoding="utf-8")
+        if getattr(args, "startup_observer", None):
+            layout.install_startup_observer(Path(args.startup_observer))
+            (layout.startup_observer / OWNER).write_text(token, encoding="utf-8")
         layout.config.mkdir(parents=True, exist_ok=False)
         (layout.config / OWNER).write_text(token, encoding="utf-8")
         config_owned = True
@@ -206,10 +211,16 @@ def run_case(args, case: dict, folder: Path, metadata: dict) -> dict:
             if stopped:
                 if layout.installed:
                     require_owned(layout.plugin, token)
+                if layout.startup_observer_installed:
+                    require_owned(layout.startup_observer, token)
+                if layout.installed or layout.startup_observer_installed:
                     layout.uninstall(False)
                     refuse_existing(layout.plugin)
+                    refuse_existing(layout.startup_observer)
                 elif layout.plugin.exists() or layout.plugin.is_symlink():
                     raise RuntimeError("unowned or partially installed Chimera module remains; stopping probe")
+                elif layout.startup_observer.exists() or layout.startup_observer.is_symlink():
+                    raise RuntimeError("unowned or partially installed startup observer remains; stopping probe")
                 if config_owned:
                     require_owned(layout.config, token)
                     shutil.rmtree(layout.config)
@@ -233,18 +244,24 @@ def run(args) -> dict:
     refuse_existing(work)
     args.obs = str(Path(args.obs).resolve())
     args.module = str(Path(args.module).resolve())
+    if getattr(args, "startup_observer", None):
+        args.startup_observer = str(Path(args.startup_observer).resolve())
     args.vst3 = str(Path(args.vst3).resolve()) if args.vst3 else str(work / "unavailable-chimera.vst3")
     if not Path(args.obs).is_file() or not Path(args.module).is_dir():
         raise RuntimeError("--obs must be an executable file and --module a staged module directory")
     layout = app.Layout(args.obs, work)
     refuse_existing(layout.config)
     refuse_existing(layout.plugin)
+    refuse_existing(layout.startup_observer)
     metadata = environment()
+    metadata["startup_gate"] = "frontend-finished-observer" if getattr(args, "startup_observer", None) else "websocket-ready"
     metadata["binaries"] = {"obs_executable": hash_path(Path(args.obs)),
                             "staged_module": hash_path(Path(args.module))}
     vst3 = Path(args.vst3)
     metadata["binaries"]["vst3"] = (hash_path(vst3) if vst3.exists() else
                                     {"path": str(vst3), "present": False, "loaded_by_probe": False})
+    if getattr(args, "startup_observer", None):
+        metadata["binaries"]["startup_observer"] = hash_path(Path(args.startup_observer))
     work.mkdir(parents=True, exist_ok=False)
     planned = case_order(args.repeats)
     summary = {"planned": planned, "cases": [], "aborted": False, "passed": False}
@@ -274,6 +291,7 @@ def main() -> int:
     parser.add_argument("--obs", required=True, help="native Windows bin/64bit/obs64.exe")
     parser.add_argument("--module", required=True, help="staged chimera-obs directory (bin/, data/)")
     parser.add_argument("--vst3", help="optional bundle path; default points to an unavailable bundle (no filter is created)")
+    parser.add_argument("--startup-observer", help="optional staged test-only observer; gate both controls on frontend FINISHED_LOADING")
     parser.add_argument("--work", required=True, help="new evidence directory; refuses an existing path")
     parser.add_argument("--repeats", type=repeat_count, default=3, help="paired observations, 1..10 (not retries)")
     parser.add_argument("--stop-after", choices=("version", "scene", "input"), default="input")

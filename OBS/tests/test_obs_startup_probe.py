@@ -32,6 +32,8 @@ class FakeObs:
     def __init__(self, layout, _port, log):
         self.layout = layout
         self.process = FakeProcess()
+        self.observer_present = layout.startup_observer.exists()
+        self.observer_enabled = layout.startup_observer_installed
         self.requests = []
         self.number = len(type(self).instances) + 1
         type(self).instances.append(self)
@@ -81,9 +83,11 @@ class StartupProbeTests(unittest.TestCase):
         self.obs = self.root / "obs64.exe"
         self.obs.write_bytes(b"obs")
         self.args = argparse.Namespace(obs=str(self.obs), module=str(self.module), vst3=None,
-                                       work=str(self.root / "evidence"), repeats=3, stop_after="input")
+                                       work=str(self.root / "evidence"), repeats=3, stop_after="input",
+                                       startup_observer=None)
         self.config = self.root / "appdata" / "obs-studio"
         self.plugin = self.root / "programdata" / "obs-studio" / "plugins" / "chimera-obs"
+        self.observer_plugin = self.plugin.with_name(probe.app.STARTUP_OBSERVER)
         FakeObs.instances = []
         FakeObs.failed_request_number = None
         FakeObs.failed_start_number = None
@@ -100,6 +104,13 @@ class StartupProbeTests(unittest.TestCase):
         self.stack.enter_context(patch.dict(os.environ, {"APPDATA": str(self.root / "appdata"),
                                                        "ProgramData": str(self.root / "programdata")}))
         self.stack.enter_context(contextlib.redirect_stderr(io.StringIO()))
+
+    def enable_observer(self):
+        staged = self.root / "staged-observer"
+        (staged / "bin" / "64bit").mkdir(parents=True)
+        (staged / "data").mkdir()
+        (staged / "bin" / "64bit" / f"{probe.app.STARTUP_OBSERVER}.dll").write_bytes(b"observer")
+        self.args.startup_observer = str(staged)
 
     def test_failure_is_retained_while_safe_alternating_cases_continue(self):
         FakeObs.failed_request_number = 1
@@ -140,7 +151,7 @@ class StartupProbeTests(unittest.TestCase):
         self.assertIn("instance activity", summary["cases"][1]["errors"][0]["message"])
 
     def test_existing_user_paths_are_refused_without_cleanup(self):
-        for path in (self.config, self.plugin, Path(self.args.work)):
+        for path in (self.config, self.plugin, self.observer_plugin, Path(self.args.work)):
             with self.subTest(path=path):
                 path.mkdir(parents=True)
                 marker = path / "user-file.txt"
@@ -153,6 +164,7 @@ class StartupProbeTests(unittest.TestCase):
                 path.rmdir()
 
     def test_unreaped_startup_failure_stops_and_keeps_owned_config_and_plugin(self):
+        self.enable_observer()
         FakeObs.failed_start_number = 2
         summary = probe.run(self.args)
         self.assertTrue(summary["aborted"])
@@ -161,6 +173,7 @@ class StartupProbeTests(unittest.TestCase):
         self.assertEqual(len(summary["not_run"]), 4)
         self.assertTrue((self.config / probe.OWNER).exists())
         self.assertTrue((self.plugin / probe.OWNER).exists())
+        self.assertTrue((self.observer_plugin / probe.OWNER).exists())
         self.assertTrue((Path(self.args.work) / "02-module" / "obs-config" / "logs" / "run.txt").exists())
 
     def test_initial_sequence_precedes_control_requests_and_never_creates_filter(self):
@@ -173,6 +186,25 @@ class StartupProbeTests(unittest.TestCase):
             self.assertNotIn("CreateSourceFilter", obs.requests)
             self.assertNotIn("StartRecord", obs.requests)
         self.assertFalse(Path(self.args.vst3).exists())
+        self.assertTrue(all(case["startup_gate"] == "websocket-ready" for case in summary["cases"]))
+        self.assertFalse(any(obs.observer_enabled for obs in FakeObs.instances))
+
+    def test_guarded_absent_and_module_cases_share_observer_and_cleanup_ownership(self):
+        self.enable_observer()
+        self.args.repeats = 1
+        summary = probe.run(self.args)
+        self.assertTrue(summary["passed"])
+        for obs, case in zip(FakeObs.instances, summary["cases"]):
+            self.assertTrue(obs.observer_present)
+            self.assertTrue(obs.observer_enabled)
+            self.assertEqual(case["startup_gate"], "frontend-finished-observer")
+            self.assertEqual(case["environment"]["startup_gate"], "frontend-finished-observer")
+            self.assertIn("startup_observer", case["environment"]["binaries"])
+            self.assertEqual(case["log_control"]["instance_log_entries"], 0)
+            self.assertNotIn("CreateSourceFilter", obs.requests)
+        self.assertFalse(self.observer_plugin.exists())
+        self.assertFalse(self.plugin.exists())
+        self.assertFalse(self.config.exists())
 
     def test_stop_after_version_does_not_enter_scene_or_input_paths(self):
         self.args.repeats = 1

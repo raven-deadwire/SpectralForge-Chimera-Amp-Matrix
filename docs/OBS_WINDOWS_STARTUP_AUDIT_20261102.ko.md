@@ -2,15 +2,18 @@
 
 ## 판정
 
-PR #248의 1차 Windows 실패는 WebSocket 연결과 `GetVersion` 응답 이후,
-초기 장면 설정 요청 경로에서 시작된 것으로 좁혀진다. `CreateScene` 또는
-`SetCurrentProgramScene`이 우선 조사 대상이다. 기존 로그에는 요청별 추적과
-네이티브 스택이 없어 정확한 요청 및 원인은 확정할 수 없다.
+초기 진단 보강 커밋 `6868afd8621f2d96262c12d67213cec5019ffe0a`의 native Windows
+대조 시험에서 같은 형태의 정지를 재현했다. **OBS 32.2.2의 `CreateScene` 요청이
+30초 동안 응답하지 않고, 이후 정상 종료도 60초를 초과했다. Chimera 모듈이
+없는 대조군에서도 재현됐다.** 필터 인스턴스와 VST3 엔진은 생성하지 않았다.
+따라서 이 정지는 Chimera 모듈·필터·DSP가 필수 원인인 결함으로 분류할 수 없다.
+새 재현의 native 스택과 일치하는 공식 소스에서 OBS frontend 시작과 WebSocket
+장면 생성 사이의 교착을 확인했다.
 
-최종 표시된 60초 종료 실패는 최초 오류의 신뢰할 수 있는 식별자가 아니다.
-기존 `finally: obs.quit()`에서 추가로 발생한 오류가 원래 예외를 가리고,
-`main()`은 최종 `str(e)`만 출력했다. 이 진단 결함은 코드와 회귀 시험으로
-확인했다. Chimera DSP 또는 필터 인스턴스 결함은 입증되지 않았다.
+원래 #248 실행에는 요청 추적과 스택이 없으므로 새 재현과 당시 정지가 동일한
+내부 스택이라는 소급 단정은 하지 않는다. 다만 새 재현의 요청·시간 경과·종료
+실패·로그 경계가 일치한다. 원래 최종 60초 종료 오류가 최초 예외를 가리던
+진단 결함도 회귀 시험과 재현 로그로 확인했다.
 
 ## 비교한 원본
 
@@ -70,9 +73,10 @@ workflow, 새 다중 인스턴스 시험 및 문서만 바뀌었음을 보여준
 강제 kill 직후 DLL 삭제 실패도 기록됐다. 기존 코드는 kill 후 wait하지 않아
 정리 경합이 가능하므로 이를 별도 제품 결함 증거로 쓰지 않는다.
 
-## 공식 소스로 확인한 가설
+## 공식 소스로 확인한 경쟁 조건 경로
 
-다음은 가능한 정지 경로이며 **당시 원인 확정이 아니다**.
+다음은 재현 증상과 일치하는 소스상의 순환 대기 경로다. 네이티브 스택 대조 결과와
+원래 #248 실행의 증거 한계를 구분한다.
 
 1. [obs-websocket 5.7.4 EventHandler](https://github.com/obsproject/obs-websocket/blob/5.7.4/src/eventhandler/EventHandler.cpp)는
    `SCENE_COLLECTION_CHANGED`에서 ready를 활성화한다. 이는 전체 frontend 초기화
@@ -91,8 +95,8 @@ workflow, 새 다중 인스턴스 시험 및 문서만 바뀌었음을 보여준
    잡는다. 타이밍이 겹치면 UI는 mutex를, WebSocket worker는 UI를 기다릴 수 있다.
 
 이 순환 대기는 Chimera 필터가 없어도 성립한다. OBS 31.1.2에는 새 `AudioMixer`
-클래스의 이 늦은 등록 경로가 없다. 원인 확정에는 정지한 프로세스의 양쪽
-스레드 스택이 필요하다. 알려진 upstream 버그로 단정하지 않는다.
+클래스의 이 늦은 등록 경로가 없다. 아래 신규 재현의 양쪽 스레드에서 이 경로를
+확인했다. 알려진 upstream 이슈 번호가 있는 버그로 단정하지 않는다.
 
 ## 이번 변경
 
@@ -135,9 +139,81 @@ CI의 독립 `startup-controls` 작업은 제품 VST3를 빌드하지 않고 OBS
 바이너리·runner image를 완전히 재현하는 시험은 아니다. 기존 제품 빌드 및 실제
 필터 녹음 시험도 별도로 유지한다.
 
+## 실제 재현 결과 — 진단 커밋 `6868afd`
+
+[Windows startup-controls 작업](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/41377205562/job/125059928546),
+[전체 증거 artifact](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/41377205562/artifacts/13111019789).
+러너는 원래 실패와 같은 image `20261021.278.1`이었다.
+
+| OBS | 모듈 조건 | 성공 | 실패 | 실패 요청 |
+|---|---|---:|---:|---|
+| 32.2.2 | Chimera 미설치 | 4 | 1 | `CreateScene`, id=3 |
+| 32.2.2 | 모듈 등록, 인스턴스 0 | 2 | 3 | 모두 `CreateScene`, id=3 |
+| 31.1.2 | Chimera 미설치 | 3 | 0 | 없음 |
+| 31.1.2 | 모듈 등록, 인스턴스 0 | 3 | 0 | 없음 |
+
+실패 case는 `03-module`, `06-module`, `09-absent`, `10-module`이다. 모두 원래
+30초 요청 timeout을 보존했으며 종료 60초 실패는 별도 note로 남았다. 모든
+관측에서 실제 모듈 등록 유무와 인스턴스 로그 부재를 확인했다. 특히 `09-absent`는
+Chimera 등록·모듈 로그 모두 없고 VST3 파일도 존재하지 않는다. 각 실패에서
+kill 전 thread minidump, PNG, 요청 trace, 전체 OBS 로그를 확보했다.
+
+표본 5회씩의 실패 수 차이로 모듈의 위험도 또는 실패 확률을 비교하지 않는다.
+앞선 실패를 성공으로 바꾸는 재실행도 하지 않았다. 전체 작업은 실패로 남겼다.
+같은 커밋의 별도 Windows 기능 작업은 image `20261030.294.1`에서 31.1.2/32.2.2
+실제 필터·녹음·복원 시험을 통과했다. 이 성공은 대조 시험의 4개 실패를 무효화하지 않는다.
+
+원본 증거 ZIP SHA-256:
+`b2cda823744cd68bd35336a9f289d1ac478da4784664c9a7f3f1475159e0776f`.
+OBS 32.2.2 `obs64.exe` SHA-256:
+`e79066670cd8e8b95662f4cd417c4fa6f5b0c77e856a7b41c7de0e00059ba6f2`.
+대조군 공통 staged Chimera DLL SHA-256:
+`8a281dd66704b61ae19550078f4aa9c8ddc946adacf914e55bd873d8b7be1985`.
+
+## 신규 재현의 스레드 증거
+
+`09-absent`의 요청 timeout 때와 종료 timeout 때 수집한 두 minidump를 실제 Windows
+x64 unwind 정보로 풀었다. 공식 32.2.2 바이너리·PDB와 dump의 timestamp,
+SizeOfImage, CodeView GUID/age를 대조했다. 주소를 stack에서 검색한 결과가 아니다.
+
+| 스레드 | 실제 대기 스택의 핵심 | 의미 |
+|---|---|---|
+| 메인/UI, TID 8420 | `pthread_mutex_lock` ← `signal_handler_connect_ref` ← `AudioMixer::AudioMixer` (`AudioMixer.cpp:208`) ← `OBSBasic::OBSInit` | frontend 초기화 중 `source_create` callback을 연결하려고 signal mutex를 기다림 |
+| WebSocket worker, TID 2404 | Qt 대기 ← `OBSBasic::SourceCreated` (`OBSBasic_SceneItems.cpp:205`) ← `signal_handler_signal` (`signal.c:305`) ← source/scene 생성 ← `RequestHandler::CreateScene` | signal callback을 실행하며 UI의 `AddScene` 완료를 기다림 |
+
+공식 `signal.c`는 callback 실행 중 해당 signal mutex를 보유한다. 따라서 UI는
+worker가 반환해야 풀리는 mutex를, worker는 UI 실행을 기다린다. 두 dump의
+시각은 02:26:31.010 / 02:27:36.529 UTC이며, **65.519초 뒤에도 두 스레드의
+전체 unwound PC 목록이 동일**했다. dump의 모듈 목록에도 Chimera가 없다.
+
+[주석 스택](evidence/obs-startup-20261102/annotated-stack.txt),
+[분석 방법·원본 식별·한계](evidence/obs-startup-20261102/provenance.md),
+[개별 dump·바이너리·PDB 해시와 프레임](evidence/obs-startup-20261102/provenance.json)을
+함께 보존한다. Qt PDB가 없어 Qt 프레임 이름은 가장 가까운 PE export와 offset으로
+표시했다. mutex owner를 Windows kernel에서 별도로 조회한 것은 아니며,
+순환 대기는 동시점의 두 실제 스택과 정확히 일치하는 소스의 lock 순서에 근거한다.
+원래 #248에는 이 dump가 없으므로 같은 내부 원인이라는 판단은 추론으로 구분한다.
+
+## 원인에 맞춘 시험 준비 수정
+
+Windows의 시험 전용 observer 모듈이 실제 `OBS_FRONTEND_EVENT_FINISHED_LOADING`
+콜백을 기록하도록 하고, 기능 시험은 **해당 OBS 프로세스의** 완료 표식을 확인한 뒤
+장면 생성 요청을 보낸다. `GetVersion`만으로 frontend 준비를 판단하던 부분을
+보완하는 것이다. observer는 Chimera 모듈과 분리하며, 미설치/등록 대조군 양쪽에
+똑같이 설치한다. 제품 모듈 또는 배포 패키지에 포함하지 않는다.
+
+시작 sleep이나 재시도, timeout 연장은 적용하지 않는다. 표식이 없으면 실패한다.
+원래 준비 조건의 재현은 `--startup-observer`를 생략하여 계속 실행할 수 있다.
+CI는 같은 observer를 사용하는 완료 조건을 검증하고, 앞선 무보완 재현 결과는
+위의 원본 실행과 artifact로 보존한다. 이 수정은 시험 클라이언트의 준비 조건
+보강이며 OBS 자체의 모든 외부 WebSocket 클라이언트 문제를 해결하는 패치는 아니다.
+
 ## 검증 상태
 
-로컬 Linux에서는 요청 timeout/예외 보존/정리, 대조군 안전성과 실패 보존을
-검증했다. native Windows OBS 및 Windows dump 생성 결과는 해당 PR의 CI로 기록한다.
-재현이 없더라도 안정성 또는 원인 해결 판정으로 확대하지 않는다. 이번 변경은
-제품 DSP 수정이나 OBS 자체 수정이 아니라 진단 결함 수정 및 재현 도구다.
+로컬 Linux에서 요청 deadline·최초 예외 보존·정리·대조군 안전성·실패 보존 및
+새 frontend gate 회귀 시험 30개를 통과했다. Windows 전용 실제 dump 생성 시험
+1개는 Linux에서 건너뛰며 앞선 native Windows CI에서 통과했다. 수정된 observer의
+native 빌드와 32.2.2/31.1.2 대조 시험 및 실제 필터 기능 시험 결과는 PR의 새 커밋
+CI에 기록한다. 이전 진단 커밋의 대조 시험 실패는 위 링크에 그대로 남긴다.
+소수 관측 통과를 일반적 안정성 인증으로 확대하지 않는다. 이번 변경은 제품 DSP
+또는 OBS 자체 수정이 아니라 시험 준비 조건·진단 결함 수정 및 재현 도구다.

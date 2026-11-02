@@ -32,6 +32,7 @@ JUCE는 쓰지 않는다.
 | `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
 | `tests/obs_startup_probe.py`, `tests/obs_windows_diagnostics.py` | Windows 시작 정지 대조 시험: 모듈 미설치/등록만 한 상태를 교대, 요청 추적·원래 오류·kill 전 thread dump 보존. [#248 조사](../docs/OBS_WINDOWS_STARTUP_AUDIT_20261102.ko.md) | 진단·회귀 |
+| `tests/startup-observer.cpp` | 선택적 Windows 시험 전용 모듈: 실제 frontend `FINISHED_LOADING` 이벤트를 PID와 함께 기록. OBS 32.2.2 장면 요청을 그 뒤로 제한하며 제품 배포에는 포함하지 않음 | 시작 준비 회귀 |
 | `tests/obs_instances_test.py` | 실제 OBS Studio 앱에서 Chimera 필터 여러 개(C단계): 서로 다른 상태로 함께 처리, 필터 붙여넣기(전체·하나)로 상태 복사, 붙인 필터의 독립, 장면 저장·재시작 복원 | 시험 |
 | `tests/obs_long_record_test.py` | 실제 OBS Studio 앱에서 필터를 거쳐 1시간 녹화(D단계): 10분 실시간 줄·합계, 시작/끝 영상 싱크, 소리 유지, OBS 통계 | 시험 |
 

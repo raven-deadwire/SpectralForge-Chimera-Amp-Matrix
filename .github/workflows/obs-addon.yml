@@ -47,6 +47,8 @@ jobs:
   startup-controls:
     # Independent of the product build: no VST3 and no filter instance. These
     # controls distinguish an OBS startup hang from Chimera DSP/instance work.
+    # Wait for FINISHED_LOADING via a separate test-only observer; the unguarded
+    # reproduction is preserved in run 41377205562 (4/10 failed, including absent).
     runs-on: windows-latest
     timeout-minutes: 35
     steps:
@@ -61,10 +63,11 @@ jobs:
         shell: pwsh
         run: |
           ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/startup-control/chimera-obs `
-            -WorkDirectory "$env:RUNNER_TEMP/obs-startup-build"
+            -WorkDirectory "$env:RUNNER_TEMP/obs-startup-build" `
+            -StartupObserverDirectory "$env:RUNNER_TEMP/startup-observer"
           Expand-Archive -LiteralPath "$env:RUNNER_TEMP/obs-startup-build/obs-31.1.2.zip" `
             -DestinationPath "$env:RUNNER_TEMP/obs-startup-31"
-      - name: OBS 32.2.2 - alternating absent/module controls, no filter instances
+      - name: OBS 32.2.2 - frontend-ready absent/module controls, no filter instances
         shell: pwsh
         run: |
           $zip = Join-Path $env:RUNNER_TEMP "obs-startup-32.zip"
@@ -73,14 +76,16 @@ jobs:
           if ($hash -ne "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1") { throw "OBS 32.2.2 release hash mismatch: $hash" }
           Expand-Archive -LiteralPath $zip -DestinationPath "$env:RUNNER_TEMP/obs-startup-32"
           python OBS/tests/obs_startup_probe.py --obs "$env:RUNNER_TEMP/obs-startup-32/bin/64bit/obs64.exe" `
-            --module package/startup-control/chimera-obs --work "$env:RUNNER_TEMP/obs-startup-results-32" --repeats 5
+            --module package/startup-control/chimera-obs --startup-observer "$env:RUNNER_TEMP/startup-observer" `
+            --work "$env:RUNNER_TEMP/obs-startup-results-32" --repeats 5
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: OBS 31.1.2 - same runner and module as the 32.2.2 controls
         if: ${{ !cancelled() && steps.module.outcome == 'success' }}
         shell: pwsh
         run: |
           python OBS/tests/obs_startup_probe.py --obs "$env:RUNNER_TEMP/obs-startup-31/bin/64bit/obs64.exe" `
-            --module package/startup-control/chimera-obs --work "$env:RUNNER_TEMP/obs-startup-results-31" --repeats 3
+            --module package/startup-control/chimera-obs --startup-observer "$env:RUNNER_TEMP/startup-observer" `
+            --work "$env:RUNNER_TEMP/obs-startup-results-31" --repeats 3
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Preserve every startup control, including successful and failed cases
         if: always()
@@ -216,7 +221,8 @@ jobs:
         run: |
           ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/chimera-obs `
             -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
-            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
+            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs" `
+            -StartupObserverDirectory "$env:RUNNER_TEMP/app-startup-observer"
           Copy-Item OBS/LICENSE, OBS/README.md package/
       - name: Real OBS Studio app (31.1.2) - load the filter from %ProgramData%, record, push a preset, save, restart and restore
         # The release zip the module was just built against (hash checked by the build script).
@@ -254,6 +260,7 @@ jobs:
           python OBS/tests/obs_app_test.py --obs (Join-Path $obs "bin/64bit/obs64.exe") --module package/chimera-obs `
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
             --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
+            --startup-observer "$env:RUNNER_TEMP/app-startup-observer" `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-app-32")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Preserve real OBS app request traces, logs and pre-kill evidence
