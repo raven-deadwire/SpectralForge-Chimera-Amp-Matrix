@@ -1,0 +1,84 @@
+{
+  "scope": "Synthetic source known to be A0/B0; unforced shared measureSpectrum classifier on native head or authored cabinet output; no production change.",
+  "cases": 216,
+  "classified_bass": 115,
+  "forced_bass": 216,
+  "playing": 216,
+  "groups": {
+    "head": {
+      "Tight 515": {
+        "classified_bass": 14,
+        "cases": 36
+      },
+      "Cinder 120": {
+        "classified_bass": 17,
+        "cases": 36
+      },
+      "Night Harvest": {
+        "classified_bass": 0,
+        "cases": 36
+      },
+      "Hot Lead": {
+        "classified_bass": 33,
+        "cases": 36
+      },
+      "Náströnd": {
+        "classified_bass": 15,
+        "cases": 36
+      },
+      "Niflheimr": {
+        "classified_bass": 36,
+        "cases": 36
+      }
+    },
+    "fixture": {
+      "harmonic_rich": {
+        "classified_bass": 48,
+        "cases": 72
+      },
+      "fundamental_dominant": {
+        "classified_bass": 41,
+        "cases": 72
+      },
+      "harmonic_gap": {
+        "classified_bass": 26,
+        "cases": 72
+      }
+    },
+    "cab": {
+      "0": {
+        "classified_bass": 70,
+        "cases": 108
+      },
+      "1": {
+        "classified_bass": 45,
+        "cases": 108
+      }
+    },
+    "rate": {
+      "44100": {
+        "classified_bass": 37,
+        "cases": 72
+      },
+      "48000": {
+        "classified_bass": 39,
+        "cases": 72
+      },
+      "96000": {
+        "classified_bass": 39,
+        "cases": 72
+      }
+    }
+  },
+  "limitations": [
+    "Default channels only; six modeled heads",
+    "No real DI, listening or classifier change",
+    "Primary bass correction matrix and controller tests explicitly choose Bass"
+  ],
+  "sha256": {
+    "/tmp/phase12-auto-detection.cpp": "50ec51d1d59e76ca4b1432b45dd169ebeb0aca181461a79e0c5caba00743ee97",
+    "/tmp/phase12-auto-detection": "bae4ec5f9a06dd643fddeb8e92fafc28c2d413d9ed7ed36d46e211e1b93fe3d6",
+    "/workspace/scratch/bb2818d27ab3/chimera/Tests/AutoSetPowerBassProbe.cpp": "c4ad336dc351d298e9292ef9741aad747b8fec137d776e22004b16f05eada63a",
+    "/workspace/scratch/bb2818d27ab3/chimera/Source/AutoSet.h": "184f4db96f475856bc77180535b24638ead946b340877810ab2b09c29a1f9548"
+  }
+}

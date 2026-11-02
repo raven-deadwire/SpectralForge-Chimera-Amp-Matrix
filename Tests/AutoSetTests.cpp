@@ -1719,6 +1719,8 @@ void controllerGateStageEditHistory() {
 #include "AutoSetDICommands.h"
 #include "AutoSetSpaceRegression.h"
 #include "AutoSetPowerTests.h"
+#include "AutoSetPowerBassControllerTests.h"
+#include "AutoSetPowerBassRules.h"
 
 int main(int argc, char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
@@ -1727,6 +1729,8 @@ int main(int argc, char** argv) {
         if(argc==3 && std::string(argv[1])=="--space-report"){spaceSignalRegression(juce::File(argv[2]));return 0;}
         if(argc==3 && std::string(argv[1])=="--space-fixtures"){spaceWriteFixtures(juce::File(argv[2]));return 0;}
         if(argc==2 && std::string(argv[1])=="--power"){powerRules();controllerPower();return 0;}
+        if(argc==2 && std::string(argv[1])=="--power-bass-controller"){controllerPowerBassRegression();return 0;}
+        if(argc==2 && std::string(argv[1])=="--power-bass-rules"){powerBassRules();return 0;}
         if(argc==2 && std::string(argv[1])=="--risk-probe"){riskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-risk-probe"){dynamicRiskProbe();return 0;}
         if(argc==2 && std::string(argv[1])=="--dynamic-ownership"){dynamicOwnershipRegression();return 0;}
@@ -1751,6 +1755,8 @@ int main(int argc, char** argv) {
         check(argc==1,"Unknown argument");
         parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
+        controllerPowerBassRegression();
+        powerBassRules();
         std::cout<<"PASS Auto Set\n";return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

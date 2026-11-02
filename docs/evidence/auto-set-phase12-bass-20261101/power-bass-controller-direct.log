@@ -1,0 +1,37 @@
+MEASURE bass power controller: Tight 515 rate=44100 f0=27.5 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Tight 515 rate=44100 f0=27.5 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Tight 515 rate=44100 f0=27.5 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Tight 515 rate=44100 f0=30.8677 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Tight 515 rate=44100 f0=30.8677 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Tight 515 rate=44100 f0=30.8677 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Niflheimr rate=44100 f0=27.5 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Niflheimr rate=44100 f0=27.5 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Niflheimr rate=44100 f0=27.5 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Niflheimr rate=44100 f0=30.8677 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Niflheimr rate=44100 f0=30.8677 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Niflheimr rate=44100 f0=30.8677 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Tight 515 rate=48000 f0=27.5 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Tight 515 rate=48000 f0=27.5 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Tight 515 rate=48000 f0=27.5 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Tight 515 rate=48000 f0=30.8677 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Tight 515 rate=48000 f0=30.8677 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Tight 515 rate=48000 f0=30.8677 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Niflheimr rate=48000 f0=27.5 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Niflheimr rate=48000 f0=27.5 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Niflheimr rate=48000 f0=27.5 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Niflheimr rate=48000 f0=30.8677 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Niflheimr rate=48000 f0=30.8677 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Niflheimr rate=48000 f0=30.8677 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Tight 515 rate=96000 f0=27.5 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Tight 515 rate=96000 f0=27.5 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Tight 515 rate=96000 f0=27.5 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Tight 515 rate=96000 f0=30.8677 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Tight 515 rate=96000 f0=30.8677 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Tight 515 rate=96000 f0=30.8677 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Niflheimr rate=96000 f0=27.5 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Niflheimr rate=96000 f0=27.5 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Niflheimr rate=96000 f0=27.5 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+MEASURE bass power controller: Niflheimr rate=96000 f0=30.8677 strength=1 presence=0.9 > 0.6 resonance=0.9 > 0.6
+MEASURE bass power controller: Niflheimr rate=96000 f0=30.8677 strength=0.5 presence=0.9 > 0.75 resonance=0.9 > 0.75
+MEASURE bass power controller: Niflheimr rate=96000 f0=30.8677 strength=0.25 presence=0.9 > 0.825 resonance=0.9 > 0.825
+PASS bass power controller: 57 synthetic cases; A0/B0, 44.1/48/96 kHz, Tight 515/Niflheimr, 25/50/100% strength, power/amp locks, undo and edit ownership

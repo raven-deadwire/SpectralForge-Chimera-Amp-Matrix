@@ -1,0 +1,39 @@
+{
+  "scope": "Exact Night Harvest channel0 proposal P0.5/R0.5 to P0.2/R0.8 on synthetic A0 harmonic_gap plus authored Bass4x10; fixedsettings rerender, not analysis rerun.",
+  "delta_db": [
+    {
+      "rate": 44100,
+      "coherent_f0_peak_db": -16.266366090000005,
+      "sub25_40_db": 0.24770696999999586,
+      "f0_pm0p5_rms_db": -16.26828556999999,
+      "f0_pm1_rms_db": -16.108179469999996,
+      "f0_pm2_rms_db": -10.460204500000003,
+      "f0_pm3_rms_db": -8.251539350000002,
+      "f0_pm5_rms_db": -5.526758970000003,
+      "f0_pm8_rms_db": -2.8479607599999923
+    },
+    {
+      "rate": 48000,
+      "coherent_f0_peak_db": -16.211380649999995,
+      "sub25_40_db": 0.35698850999999365,
+      "f0_pm0p5_rms_db": -16.38976772000001,
+      "f0_pm1_rms_db": -16.095386919999996,
+      "f0_pm2_rms_db": -10.327529310000003,
+      "f0_pm3_rms_db": -8.239722790000002,
+      "f0_pm5_rms_db": -5.512309950000002,
+      "f0_pm8_rms_db": -3.215407220000003
+    },
+    {
+      "rate": 96000,
+      "coherent_f0_peak_db": -16.09553638,
+      "sub25_40_db": 0.3885267499999969,
+      "f0_pm0p5_rms_db": -16.23959981,
+      "f0_pm1_rms_db": -15.942919860000003,
+      "f0_pm2_rms_db": -10.24031171,
+      "f0_pm3_rms_db": -8.143461899999991,
+      "f0_pm5_rms_db": -5.44987596,
+      "f0_pm8_rms_db": -3.1676461099999926
+    }
+  ],
+  "method": "Same Hann window and <=0.5Hz zero-padded FFT as main probe. f0\u00b1width integrated one-sided power; coherent f0 is peak amplitude."
+}
