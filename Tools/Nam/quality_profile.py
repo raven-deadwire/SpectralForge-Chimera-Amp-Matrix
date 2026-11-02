@@ -165,7 +165,14 @@ RELEASE_V3 = {
 }
 
 
+def cab_key(name, source):
+    """Anchor and class key: head + cab captures are '<Channel>-Cab'."""
+    return name + '-Cab' if source.get('cabinet') else name
+
+
 def release_v3_limits(channel):
+    # A head + cab channel keeps its head channel's class, fixed before training.
+    channel = channel[:-len('-Cab')] if channel.endswith('-Cab') else channel
     for spec in RELEASE_V3['classes'].values():
         if channel in spec['channels']:
             return spec

@@ -9,7 +9,7 @@ from nam.models._from_nam import init_from_nam
 from train_a2 import predict, scores
 from common import digest, write_json
 from capture_channels import AMPS, amp_of
-from quality_profile import PROFILE, fidelity
+from quality_profile import PROFILE, cab_key, fidelity
 
 # README channel rows; Náströnd's wording is unchanged from earlier packages.
 CHANNEL_ROWS={'nastrond':['| Fenrir | 타이트한 저역과 선명한 어택·클랭크 |','| Surtr | 조밀한 포화감과 앞으로 나오는 중음 |',
@@ -18,7 +18,7 @@ CHANNEL_ROWS={'nastrond':['| Fenrir | 타이트한 저역과 선명한 어택·�
     '| Nidavellir | 인더스트리얼: 금속성 미드 드라이브 (Heavy Pulse MID 레인) |','| Ymir | 슬램: 단단한 첫 타격과 미드 펀치 (Slam Punch MID 레인) |','| Hel | 슬러지·둠: 지속되는 퍼즈 (Doom Fuzz 보이싱) |']}
 KNOBS={'nastrond':13,'niflheimr':14}
 
-def eq_for(name):
+def eq_for(name,cab=False):
     # Real TONE3000 BlockEq roles: shelf/cut, four bells, shelf/cut.
     table={
       'Fenrir':[(100,-1,.7),(250,-1.5,1),(700,0,1),(1700,1.5,.9),(3500,.5,1.2),(8000,-.5,.7)],
@@ -34,6 +34,9 @@ def eq_for(name):
       'Ymir':[(80,1,.7),(250,-1,1),(800,1.5,.9),(2500,1,.9),(4500,0,1),(8000,-1,.7)],
       'Hel':[(80,0,.7),(250,-1,1),(600,.5,1),(1400,1,.9),(3000,.5,1),(8000,-.5,.7)]}
     types=['lowshelf','bell','bell','bell','bell','highshelf']
+    if cab:
+        # Head + cab: the preset cabinet is the voicing; the EQ block stays flat and off.
+        return {'enabled':False,'pre':False,'bands':[{'type':t,'freqHz':f,'gainDb':0.,'q':q} for t,(f,g,q) in zip(types,table[name])]}
     return {'enabled':True,'pre':False,'bands':[{'type':t,'freqHz':f,'gainDb':g,'q':q} for t,(f,g,q) in zip(types,table[name])]}
 
 def main():
@@ -50,6 +53,8 @@ def main():
     # The dataset decides the amp; Náströnd files, presets and IDs keep their names.
     amp=amp_of(manifest['source']);VOICES=AMPS[amp]['voices'];display=AMPS[amp]['display']
     stem='Nastrond' if amp=='nastrond' else AMPS[amp]['display'];prefix=stem+'-'
+    # Head + cab captures ship as their own pack: '-Cab' files, presets and IDs.
+    cab=bool(manifest['source'].get('cabinet'));suffix='-Cab' if cab else '';kind=f'{amp}-cab' if cab else amp
     prior=json.loads((args.run/'validation.json').read_text());capture_pad=.1
     vx=np.load(args.data/'validation/input.npy');ax=np.load(args.data/'audition/input.npy');reports={}
     sf.write(args.out/'Audio'/'Synthetic-DI-input.wav',ax,48000,subtype='FLOAT')
@@ -60,22 +65,22 @@ def main():
             # Start with safe headroom, then calibrate each fixed output scale
             # on the same validation input through the actual target EQ.
             original._net._head_scale*=capture_pad
-            meta={'name':display+' '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
+            meta={'name':display+' '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp_cab' if cab else 'amp',
               'source_commit':manifest['source']['source_commit'],'character':character,'channel':ch,
-              'capture_output_pad_db':-20,'cabinet_included':False,'source_kind':'software amp DSP',
+              'capture_output_pad_db':-20,'cabinet_included':cab,'source_kind':'software amp DSP',
               'status':'TEST_BUILD_PENDING_FIDELITY_AND_LISTENING_ACCEPTANCE','internally_parametric':False}
-            original.export(args.out/'NAM',basename=prefix+name,include_snapshot=False,other_metadata=meta)
-            path=args.out/'NAM'/f'{prefix}{name}.nam'
-            vx.tofile(raw);write_json(job_file,{'block_size':64,'normalize':False,'eq':eq_for(name)})
+            original.export(args.out/'NAM',basename=prefix+name+suffix,include_snapshot=False,other_metadata=meta)
+            path=args.out/'NAM'/f'{prefix}{name}{suffix}.nam'
+            vx.tofile(raw);write_json(job_file,{'block_size':64,'normalize':False,'eq':eq_for(name,cab)})
             subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(job_file)],text=True)
             calibration=np.fromfile(rendered,dtype='<f4')[original.receptive_field:]
             calibration_gain=.1/math.sqrt(float(np.mean(calibration.astype(np.float64)**2)))
             output_scale=capture_pad*calibration_gain
             original._net._head_scale*=calibration_gain
             meta.update({'capture_output_pad_db':20*math.log10(output_scale),'level_calibration':
-              {'input':'shared synthetic validation input','eq':'included TONE3000 POST EQ','target_rms_dbfs':-20,
+              {'input':'shared synthetic validation input','eq':'none (EQ block off)' if cab else 'included TONE3000 POST EQ','target_rms_dbfs':-20,
                'gain_after_initial_pad':calibration_gain,'normalize_in_preset':False}})
-            original.export(args.out/'NAM',basename=prefix+name,include_snapshot=False,other_metadata=meta)
+            original.export(args.out/'NAM',basename=prefix+name+suffix,include_snapshot=False,other_metadata=meta)
             model=init_from_nam(json.loads(path.read_text())).eval()
             lite=None
             if args.lite_run:
@@ -120,16 +125,16 @@ def main():
                 if not lite_parity['pass']:raise RuntimeError(f'TONE3000 Lite engine parity failed: {name}')
                 lite_py=predict(lite,vx)
                 lite_report={'python_tone3000_parity':lite_parity,'engine':lite_runtime,
-                  'tone3000_fidelity':fidelity(lite_py/output_scale,reference/output_scale,name,vx)}
+                  'tone3000_fidelity':fidelity(lite_py/output_scale,reference/output_scale,cab_key(name,manifest['source']),vx)}
             np.zeros(48000,dtype='<f4').tofile(raw)
             subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(job_file)],text=True)
             quiet=np.fromfile(rendered,dtype='<f4')[model.receptive_field:]
             silence_db=float(10*np.log10(max(float(np.mean(quiet**2)),1e-20)))
             # Encode and read back through TONE3000's own preset APIs.
-            job={'name':stem+' '+name+' Character','id':str(uuid.uuid5(uuid.NAMESPACE_URL,f'ravenforge/{amp}/a2/'+name)),
-                 'block_size':64,'normalize':False,'eq':eq_for(name)}
+            job={'name':stem+' '+name+(' Cab' if cab else ' Character'),'id':str(uuid.uuid5(uuid.NAMESPACE_URL,f'ravenforge/{kind}/a2/'+name)),
+                 'block_size':64,'normalize':False,'eq':eq_for(name,cab)}
             settings=args.out/'Settings'/f'{name}.json';write_json(settings,job)
-            preset=args.out/'TONE3000-Presets'/f'{prefix}{name}.t3kpreset'
+            preset=args.out/'TONE3000-Presets'/f'{prefix}{name}{suffix}.t3kpreset'
             state=json.loads(subprocess.check_output([str(args.tool),'preset',str(path),str(preset),str(settings)],text=True))
             # Ensure real serializer did not coerce away our intended EQ type/values.
             got=state['blocks'][0]['eq']
@@ -148,11 +153,11 @@ def main():
             reports[name]={'character':character,'model_sha256':digest(path),'preset_sha256':digest(preset),'lite':lite_report,
               'validation':stat,'python_tone3000_parity':parity,'silence_dbfs':silence_db,'engine':runtime,'preset':state,'eq_engine':eq_runtime,
               'reference_output_scale':output_scale,'level_calibration':dict(meta['level_calibration'],measured_final_rms_dbfs=calibrated_rms_db),
-              'tone3000_fidelity':fidelity(py/output_scale,reference/output_scale,name,vx)}
+              'tone3000_fidelity':fidelity(py/output_scale,reference/output_scale,cab_key(name,manifest['source']),vx)}
             print(json.dumps({'channel':name,'validation_esr':stat['esr'],'parity_dbfs':parity['residual_rms_dbfs'],'silence_dbfs':silence_db}),flush=True)
     report={'channels':reports,'source':manifest['source'],'target_player_commit':train['target_player_commit'],
       'target_core_commit':'1f42f88535884450104b8711d7595019afa0495b','format':'NAM 0.7.0, bare A2-Full WaveNet; 5 independent captures',
-      'reference_output_scale':'same fixed channel scale as NAM, recorded per channel','eq':'TONE3000 6-band POST EQ in presets; not baked into NAM',
+      'reference_output_scale':'same fixed channel scale as NAM, recorded per channel','eq':'none; the preset cabinet is in the NAM' if cab else 'TONE3000 6-band POST EQ in presets; not baked into NAM',
       'thresholds':{'window_esr_median':.005,'window_esr_p95':.01,'window_esr_worst':.02,'rms_error_db':.5,'peak_error_db':1,'silence_dbfs':-80},
       'final_test':'reserved; validation-based test build','real_DI_listening':'not performed: no recorded instrument DI available',
       'actual_GUI_DAW_test':'not performed; unmodified engine, EQ, A2 import predicate and preset APIs tested offline',

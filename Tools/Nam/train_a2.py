@@ -13,7 +13,7 @@ from nam.models.wavenet._packed_conv import PackedConv1dBase
 from nam.models._from_nam import init_from_nam
 from common import digest, write_json
 from capture_channels import VOICES, AMPS, amp_of, voices_for
-from quality_profile import PROFILE, fidelity
+from quality_profile import PROFILE, cab_key, fidelity
 from training_contract import verify_audio_manifest, training_identity
 from a2_recipe import (RECIPE, A2TrainingLoss, training_output_gains,
     rescale_output_head, steps_per_virtual_epoch, virtual_epoch_learning_rate)
@@ -201,7 +201,7 @@ def main():
     keep_required=[[] for _ in VOICES]
     def passed_limits(prediction,i):
         """Each profile limit on full validation, judged separately."""
-        f=fidelity(prediction,vy[i],VOICES[i][0],vx)
+        f=fidelity(prediction,vy[i],cab_key(VOICES[i][0],source),vx)
         def within(key,limit):return f[key] is not None and f[key]<=PROFILE[limit]
         return {'full_esr':f['full_esr_pass'],'active_median':within('active_median','active_window_esr_median_max'),
                 'active_p95':within('active_p95','active_window_esr_p95_max'),'active_worst':within('active_worst','active_window_esr_worst_max'),
@@ -390,7 +390,7 @@ def main():
         sub.export(args.out,basename=prefix+name,include_snapshot=False,other_metadata={
           'name':AMPS[amp_of(source)]['display']+' '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
           'character':character,'source_commit':source['source_commit'],'status':'DIAGNOSTIC_NOT_A2_DO_NOT_SHIP' if extra else 'TEST_BUILD_PENDING_ACCEPTANCE',
-          'channel':i,'cabinet_included':False,'head_bias_correction_output_units':dc})
+          'channel':i,'cabinet_included':bool(source.get('cabinet')),'head_bias_correction_output_units':dc})
         path=args.out/f'{prefix}{name}.nam';obj=json.loads(path.read_text());restored=init_from_nam(obj).eval()
         with torch.inference_mode():delta=float((sub(torch.from_numpy(vx[:32768]))-restored(torch.from_numpy(vx[:32768]))).abs().max())
         if not np.isfinite(delta) or delta>1e-6:raise RuntimeError('NAM roundtrip changed output')

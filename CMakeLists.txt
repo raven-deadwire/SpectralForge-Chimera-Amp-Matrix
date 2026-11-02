@@ -501,6 +501,13 @@ target_sources(ChimeraCabExportTests PRIVATE Tests/CabExportTests.cpp)
 target_include_directories(ChimeraCabExportTests PRIVATE Source)
 target_link_libraries(ChimeraCabExportTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraCabExportTests COMMAND ChimeraCabExportTests "${CMAKE_BINARY_DIR}/cab-export")
+if(CHIMERA_BUILD_NAM_TOOLS)
+  # Factory rig preset lane cabinet IRs, for head + cab NAM capture targets.
+  juce_add_console_app(ChimeraPresetCabs PRODUCT_NAME "Chimera Preset Cabs")
+  target_sources(ChimeraPresetCabs PRIVATE Tools/Nam/ExportPresetCabs.cpp)
+  target_include_directories(ChimeraPresetCabs PRIVATE Source)
+  target_link_libraries(ChimeraPresetCabs PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+endif()
 # Preset, A/B and project recall must render the same audio, not only restore settings.
 juce_add_console_app(ChimeraStateRecallAudioTests PRODUCT_NAME "Chimera State Recall Audio Tests")
 target_sources(ChimeraStateRecallAudioTests PRIVATE Tests/StateRecallAudioTests.cpp)
