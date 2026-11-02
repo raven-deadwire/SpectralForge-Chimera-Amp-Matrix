@@ -31,8 +31,8 @@ def run(executable):
             page.locator('#pedalTab').click();assert page.locator('.pedal').count()==5;assert page.locator('#ampLab').is_hidden()
         test('separate AMP tab preserves compact five-slot pedal board',tabs)
         def inventory():
-            assert page.locator('#ampModel option').count()==24
-            assert page.locator('#ampModel option:not(:disabled)').count()==23
+            assert page.locator('#ampModel option').count()==29
+            assert page.locator('#ampModel option:not(:disabled)').count()==28   # 23 + the five 1.6 reference heads
             assert page.locator('#ampModel option[value="planned.amp.engl"]').evaluate("e => e.disabled && e.matches(':disabled')")
             for mid in page.locator('#ampModel option:not(:disabled)').evaluate_all('(es)=>es.map(e=>e.value)'):
                 choose(mid);assert page.locator('#ampControls .control').count()>0

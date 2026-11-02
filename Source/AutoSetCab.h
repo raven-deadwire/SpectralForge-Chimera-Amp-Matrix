@@ -5,7 +5,7 @@
 namespace spectralforge::autoset {
 
 // Phase 9: the modeled cabinet mic's position (cap to edge) and distance.
-// The pass hears the amp/cab output (Tap::tone). The modeled cabinet's
+// The pass hears the amp/cab output (Tap::cab; Tap::tone on main). The modeled cabinet's
 // response is known exactly (cabLayout::response, the curve its IR is made
 // from), so a candidate placement predicts what would be heard: the heard
 // spectrum plus the candidate's response minus the current one, band by band.

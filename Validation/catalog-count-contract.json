@@ -1,12 +1,14 @@
 {
   "schema": "spectralforge.chimera.catalog-count-contract",
   "schema_version": 1,
-  "version": "1.3",
+  "version": "1.10",
   "model_counts": {
-    "amp": 25,
-    "pre": 39,
-    "post": 21,
-    "total": 85
+    "amp": 30,
+    "pre": 51,
+    "post": 39,
+    "creative": 9,
+    "synth": 3,
+    "total": 132
   },
   "preset_counts": {
     "factory": 31,
@@ -299,10 +301,12 @@
   },
   "reference_manifest_contract": "Validation/reference-manifest-contract.json",
   "serialized_model_counts": {
-    "amp": 26,
-    "pre": 39,
-    "post": 21,
-    "total": 86
+    "amp": 31,
+    "pre": 51,
+    "post": 39,
+    "creative": 9,
+    "synth": 3,
+    "total": 133
   },
   "legacy_amp_indices": [
     16

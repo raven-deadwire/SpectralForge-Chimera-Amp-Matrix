@@ -77,7 +77,7 @@ void spaceEchoTiming(double rate,float bpm) {
     check(maximum>.45f && std::abs(double(peak)-rate*60./bpm)<=1.1,"Synced echo sample timing");
 }
 void spaceControllerRegression() {
-    const Controller::Options only{1,false,Style::clean,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,true};
+    const Controller::Options only{1,false,Style::clean,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,true,false};
     const auto value=[](const std::vector<float>& v,const char* id){return valueOf(LockRun{v,{},{}},id);};
     const auto free=runSpace(only,[](ChimeraProcessor& p){spaceSet(p,"delaysync",0);spaceSet(p,"delaytime",417);});
     check(value(free.values,"delayon")==0 && value(free.values,"delaytime")==value(free.before,"delaytime"),"Untrusted beat changed free delay");

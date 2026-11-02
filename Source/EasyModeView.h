@@ -31,7 +31,7 @@ public:
         previous.onClick=[this]{if(stepPreset)stepPreset(-1);};next.onClick=[this]{if(stepPreset)stepPreset(1);};
         description.setFont(juce::FontOptions(13.f));description.setColour(juce::Label::textColourId,muted);
         description.setJustificationType(juce::Justification::topLeft);description.setComponentID("easy.presetDescription");
-        autoButton.setComponentID("easy.autoSet");autoButton.getProperties().set("utilityDock",true);
+        autoButton.setComponentID("easy.autoSet");autoButton.getProperties().set("utilityDock",true);autoButton.getProperties().set("primaryAction",true);
         autoButton.onClick=[this]{if(autoBusy){if(autoCancel)autoCancel();}else if(autoSet)autoSet();};
         autoOptions.setComponentID("easy.autoOptions");autoOptions.getProperties().set("utilityDock",true);
         autoOptions.setTooltip("Auto Set options: instrument (detected, guitar or bass), style (rock, clean or metal) and which steps run. Shared with the full editor.");
@@ -155,7 +155,7 @@ public:
         inputGuide.setBounds(472,6,518,56);
         previous.setBounds(40,108,40,36);presets.setBounds(88,108,560,36);next.setBounds(656,108,40,36);
         description.setBounds(40,148,656,30);
-        autoButton.setBounds(730,106,118,40);autoOptions.setBounds(852,106,104,40);undo.setBounds(960,106,64,40);tuner.setBounds(1030,106,110,40);
+        autoButton.setBounds(730,104,160,44);autoOptions.setBounds(896,106,100,40);undo.setBounds(1000,106,62,40);tuner.setBounds(1066,106,74,40);
         autoStatus.setBounds(730,150,410,30);
         if(room)room->setBounds(20,194,1140,262);
         marker.setBounds(20,194,1140,262);

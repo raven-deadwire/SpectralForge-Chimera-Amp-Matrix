@@ -124,6 +124,26 @@ struct Config {
     float hybridDrive{1}, hybridLevel{1}, hybridBlend{.5f}, hybridMaster{1};
     bool hybridDistortion{}, biamp{}, mute{}, solo{}, reverbPresent{};
     float highMaster{1}, lowMaster{1};
+    // Crystal 120 effect: fixed chorus and a Speed/Depth vibrato, each a
+    // modulated delay tap. Mix targets fade so the selector never clicks.
+    bool modulationPresent{};
+    float chorusMix{}, vibratoMix{}, vibratoRate{5}, vibratoDepthMs{};
+};
+// Linear-interpolated delay line for the chorus/vibrato taps. Storage is
+// sized in prepare; ticking never allocates.
+struct ModulatedDelay {
+    std::vector<float> buffer;
+    size_t write{};
+    void prepare(double rate) { buffer.assign(size_t(std::ceil(rate*.016))+4,0.f);write=0; }
+    void reset() noexcept { std::fill(buffer.begin(),buffer.end(),0.f);write=0; }
+    void push(float x) noexcept { if(buffer.empty())return;buffer[write]=x;if(++write>=buffer.size())write=0; }
+    float read(float delaySamples) const noexcept {
+        if(buffer.size()<4)return 0;
+        const float d=std::clamp(delaySamples,1.f,float(buffer.size()-3));
+        const auto whole=size_t(d);const float frac=d-float(whole);
+        const size_t n=buffer.size(),a=(write+n-1-whole)%n,b=(a+n-1)%n;
+        return buffer[a]+frac*(buffer[b]-buffer[a]);
+    }
 };
 struct Channel {
     std::array<Stage,6> stage{};
@@ -138,6 +158,8 @@ struct Channel {
     std::array<Coeff,3> captureCoeff{},captureDelta{};
     RC parallelLow, crossover, hybridLow, reservoirLow, dc;
     Spring spring;
+    ModulatedDelay modulation;
+    float chorusPhase{}, vibratoPhase{}, chorusMix{}, vibratoMix{}, vibratoDepthMs{};
     std::array<float,12> scalar{};
     float supply{}, detector{}, gate{1}, phase{};
     float hybridDrive{1},hybridLevel{1},hybridBlend{.5f},hybridMaster{1},highMaster{1},lowMaster{1},reverb{},tremDepth{};
@@ -170,7 +192,7 @@ struct Channel {
     }
     void clear(const Config& c) noexcept {
         stage={};pre={};post={};input={};output={};powerLow={};powerHigh={};captureContour={};parallelLow={};crossover={};hybridLow={};reservoirLow={};dc={};
-        spring.reset();scalar=c.scalar;smoothRemaining=0;supply=detector=phase=0;gate=1;hybridDrive=c.hybridDrive;hybridLevel=c.hybridLevel;hybridBlend=c.hybridBlend;hybridMaster=c.hybridMaster;highMaster=c.highMaster;lowMaster=c.lowMaster;reverb=c.reverb;tremDepth=c.tremDepth;
+        spring.reset();modulation.reset();chorusPhase=vibratoPhase=0;chorusMix=c.chorusMix;vibratoMix=c.vibratoMix;vibratoDepthMs=c.vibratoDepthMs;scalar=c.scalar;smoothRemaining=0;supply=detector=phase=0;gate=1;hybridDrive=c.hybridDrive;hybridLevel=c.hybridLevel;hybridBlend=c.hybridBlend;hybridMaster=c.hybridMaster;highMaster=c.highMaster;lowMaster=c.lowMaster;reverb=c.reverb;tremDepth=c.tremDepth;
         finishCoefficients(c);
     }
 };
@@ -185,7 +207,7 @@ class AmpNativeDSP {
     niflheimr::NiflheimrDSP niflheimrAmp;
     double rate{48000};
     bool valid{};
-    float smooth{}, gridAttack{}, gridRelease{}, cathodeRate{}, supplyAttack{}, supplyRelease{}, gateAttack{},gateRelease{}, dcPole{}, parallelPole{}, crossoverPole{}, verbDamping{},verbOutput{}, phaseStep{};
+    float smooth{}, gridAttack{}, gridRelease{}, cathodeRate{}, supplyAttack{}, supplyRelease{}, gateAttack{},gateRelease{}, dcPole{}, parallelPole{}, crossoverPole{}, verbDamping{},verbOutput{}, phaseStep{}, chorusStep{};
     void add(bool pre,int type,float hz,float amount=0.f,float q=.70710678f) noexcept {
         if(pre){if(config.preCount<int(config.pre.size()))config.pre[size_t(config.preCount++)]=D::make(rate,type,hz,amount,q);}
         else {if(config.postCount<int(config.post.size()))config.post[size_t(config.postCount++)]=D::make(rate,type,hz,amount,q);}
@@ -202,7 +224,7 @@ class AmpNativeDSP {
         if(s.model==firstOriginalAmpModel){original::State state;state.channel=s.channel;state.modern=s.originalModern;for(size_t i=0;i<original::controlCount;++i)state.values[i]=s.values[i];originalAmp.set(state);return;}
         if(s.model==niflheimrAmpModel){niflheimr::State state;state.channel=s.channel;for(size_t i=0;i<niflheimr::controlCount;++i)state.values[i]=s.values[i];niflheimrAmp.set(state);return;}
         const int c=s.channel,r=s.inputRoute;
-        config.reverbPresent=(s.model==0&&c==1)||s.model==4||s.model==8||s.model==9||s.model==16;
+        config.reverbPresent=(s.model==0&&c==1)||s.model==4||s.model==8||s.model==9||s.model==16||(s.model==26&&c==1);
         const auto a=[&s](int i){return s.values[size_t(i)];};
         float hp=28,lp=15000,bright=0,preLow=0;
         // Every panel has explicit positional bindings below. A control is
@@ -364,6 +386,45 @@ class AmpNativeDSP {
                 if(v("hw.mega_lo_punch")>.5f){add(true,3,95,3);add(false,2,85,1.5f,.8f);}
             }
             break; }
+        case 26: { // Crystal 120: solid-state two-channel clean, effects on CH2 only.
+            // Both channels keep the delay line filled, so a channel or effect
+            // change never reads stale audio.
+            const int b=c*5;config.modulationPresent=true;config.scalar[0]=volume(a(b));config.stages=c==1?3:2;
+            // Transistor stages run well below clipping; the output restores level.
+            config.stageGain={.5f,.5f,.5f,1,1,1};config.stageBias={.01f,-.01f,.01f,0,0,0};config.scalar[4]=c==1?8.f:4.f;
+            eq(true,a(b+3),a(b+2),a(b+1),100,700,3600,12);bright=a(b+4)*5;
+            config.scalar[8]=r==1?.5f:1.f;config.sag=.02f;config.powerDrive=.9f;config.powerBias=.005f;hp=20;lp=18000;
+            if(c==1) {
+                // Distortion opens a third, clipping stage; at zero it is unity.
+                config.scalar[1]=db(a(10)*30);config.reverb=a(11)*.7f;
+                const int effect=int(a(14));
+                config.chorusMix=effect==1?.5f:0.f;config.vibratoMix=effect==2?1.f:0.f;
+                config.vibratoRate=1.f+a(12)*9.f;config.vibratoDepthMs=a(13)*2.f;
+            }
+            break; }
+        case 27: { // Bluestack 100: four-input non-master 100 W panel, hotter than case 1.
+            config.topology=1;config.scalar[6]=(r==2||r==3||r==4)?volume(a(1)):0;config.scalar[7]=(r==0||r==1||r==4)?volume(a(0)):0;
+            config.scalar[8]=(r==1||r==3)?.5f:1.f;config.stages=2;config.stageGain={4.4f,2.6f,1,1,1,1};
+            eq(false,a(4),a(3),a(2),110,650,3200);presence(a(5),3300);hp=38;lp=11800;config.sag=.2f;config.powerDrive=1.9f;break; }
+        case 28: { // Eightyfire: Pre-amp Volume into a cold-biased clipper, Master after the stack.
+            config.stages=4;config.stageGain={3.f,2.4f,1.7f,1.3f,1,1};config.stageBias[1]=-.3f;
+            config.scalar[0]=gain(a(5));config.scalar[3]=volume(a(4));
+            eq(false,a(1),a(2),a(3),100,650,3300);presence(a(0),3000);
+            config.scalar[8]=r==1?.5f:1.f;hp=60;lp=11500;config.sag=.14f;config.powerDrive=1.6f;break; }
+        case 29: { // Fortress 103: Normal/Bright input paths, shared EQ, master, stiff supply.
+            config.topology=1;config.scalar[6]=(r==0||r==1||r==4)?volume(a(0)):0;config.scalar[7]=(r==2||r==3||r==4)?volume(a(1)):0;
+            config.scalar[8]=(r==1||r==3)?.5f:1.f;if(r==0||r==2)bright=1.5f;
+            config.stages=2;config.stageGain={2.4f,1.6f,1,1,1,1};
+            eq(false,a(2),a(4),a(3),100,700,3000);presence(a(5),3200);config.scalar[3]=volume(a(6));
+            hp=30;lp=13500;config.sag=.06f;config.powerDrive=1.1f;break; }
+        case 30: { // Northlight: clean class-D bass, no gain stage beyond unity.
+            config.scalar[8]=a(0)>.5f?db(-12):1.f;// A clean class-D head: no tube preamp stage, only the soft power limit.
+            config.stages=0;
+            if(a(1)>.5f){add(false,3,40,tone(a(2),15));add(false,2,250,tone(a(3),15),.8f);add(false,2,800,tone(a(4),15),.8f);add(false,2,2500,tone(a(5),15),.8f);add(false,4,8000,tone(a(6),15));}
+            // Lower damping leaves more low resonance; full damping is flat.
+            if(a(7)<.999f)add(false,2,75,(1-a(7))*6,1.f);
+            // The power stage runs at half drive; the output restores unity small-signal gain.
+            config.scalar[3]=volume(a(8));config.scalar[4]=2.f;hp=15;lp=20000;config.sag=.005f;config.powerDrive=.5f;config.powerBias=0;break; }
         default:break;
         }
         // Replace the generic +/-18 dB taper only in drive channels. Fixed
@@ -384,6 +445,7 @@ class AmpNativeDSP {
         case 20: if(c<2){driveChannel(a(c==0?2:3),36,6);if(c==1)config.scalar[1]=preampGain(a(4),16);}break;
         case 21: if(c==1)driveChannel(a(2),36,6);break;
         case 22: if(c==1)driveChannel(a(5),36,6);break;
+        case 28: driveChannel(a(5),36,6);break;
         case 23: if(c==2||c==3)driveChannel(ampNativeValue(s,c==2?"hw.lead1.gain":"hw.lead2.gain"),c==2?40.f:44.f,8);break;
         default:break;
         }
@@ -400,7 +462,7 @@ class AmpNativeDSP {
         config.lowPower=D::make(rate,3,85,0);config.highPower=D::make(rate,4,3000,0);
         for(int i=0;i<6;++i){config.stageHP[size_t(i)]=s.model==11?0.f:pole(rate,hp*(i==0?.65f:(1+.25f*i)));config.stageLP[size_t(i)]=pole(rate,lp*(1.45f-.06f*i));if(config.stageBias[size_t(i)]==0)config.stageBias[size_t(i)]=(i%2?-.07f:.06f)+float(s.model%4)*.013f;}
         parallelPole=pole(rate,s.model==20?480.f:800.f);crossoverPole=pole(rate,config.crossover);
-        verbDamping=pole(channels[0].spring.internalRate,1800+config.reverbTone*6500);verbOutput=pole(rate,1500+config.reverbTone*5500);phaseStep=float(6.283185307179586*config.tremRate/rate);
+        verbDamping=pole(channels[0].spring.internalRate,1800+config.reverbTone*6500);verbOutput=pole(rate,1500+config.reverbTone*5500);phaseStep=float(6.283185307179586*config.tremRate/rate);chorusStep=float(6.283185307179586*.8/rate);
     }
 public:
     void prepare(double sampleRate) {
@@ -409,7 +471,7 @@ public:
         supplyAttack=float(-std::expm1(-1./(rate*.006)));supplyRelease=float(-std::expm1(-1./(rate*.15)));gateAttack=float(-std::expm1(-1./(rate*.002)));gateRelease=float(-std::expm1(-1./(rate*.075)));dcPole=ampNativeDetail::pole(rate,5);
         originalAmp.prepare(rate);
         niflheimrAmp.prepare(rate);
-        for(auto& c:channels)c.spring.prepare(rate);
+        for(auto& c:channels){c.spring.prepare(rate);c.modulation.prepare(rate);}
         if(!valid)current=defaultAmpNativeState(0);
         configure(current);valid=true;reset();
     }
@@ -429,8 +491,8 @@ public:
         if(c.smoothRemaining>0){
         for(size_t i=0;i<c.scalar.size();++i)c.scalar[i]+=smooth*(p.scalar[i]-c.scalar[i]);
         const auto slew=[this](float& v,float target){v+=smooth*(target-v);};
-        slew(c.hybridDrive,p.hybridDrive);slew(c.hybridLevel,p.hybridLevel);slew(c.hybridBlend,p.hybridBlend);slew(c.hybridMaster,p.hybridMaster);slew(c.highMaster,p.highMaster);slew(c.lowMaster,p.lowMaster);slew(c.reverb,p.reverb);slew(c.tremDepth,p.tremDepth);
-        if(--c.smoothRemaining==0){c.scalar=p.scalar;c.hybridDrive=p.hybridDrive;c.hybridLevel=p.hybridLevel;c.hybridBlend=p.hybridBlend;c.hybridMaster=p.hybridMaster;c.highMaster=p.highMaster;c.lowMaster=p.lowMaster;c.reverb=p.reverb;c.tremDepth=p.tremDepth;}
+        slew(c.hybridDrive,p.hybridDrive);slew(c.hybridLevel,p.hybridLevel);slew(c.hybridBlend,p.hybridBlend);slew(c.hybridMaster,p.hybridMaster);slew(c.highMaster,p.highMaster);slew(c.lowMaster,p.lowMaster);slew(c.reverb,p.reverb);slew(c.tremDepth,p.tremDepth);slew(c.chorusMix,p.chorusMix);slew(c.vibratoMix,p.vibratoMix);slew(c.vibratoDepthMs,p.vibratoDepthMs);
+        if(--c.smoothRemaining==0){c.scalar=p.scalar;c.hybridDrive=p.hybridDrive;c.hybridLevel=p.hybridLevel;c.hybridBlend=p.hybridBlend;c.hybridMaster=p.hybridMaster;c.highMaster=p.highMaster;c.lowMaster=p.lowMaster;c.reverb=p.reverb;c.tremDepth=p.tremDepth;c.chorusMix=p.chorusMix;c.vibratoMix=p.vibratoMix;c.vibratoDepthMs=p.vibratoDepthMs;}
         }
         if(p.model==firstOriginalAmpModel)return originalAmp.tick(sample*c.scalar[9],stereoChannel)*c.scalar[10];
         if(p.model==niflheimrAmpModel)return niflheimrAmp.tick(sample*c.scalar[9],stereoChannel)*c.scalar[10];
@@ -463,6 +525,18 @@ public:
         for(size_t i=0;i<c.captureContour.size();++i)x=c.captureContour[i].tick(x,c.captureCoeff[i]);
         x*=c.scalar[11];
         if(p.reverbPresent)x+=c.reverb*c.spring.tick(x,verbDamping,verbOutput,p.reverbDecay);
+        if(p.modulationPresent) {
+            // Chorus: fixed 0.8 Hz sweep of 7 +/- 1.5 ms, half wet; the second
+            // output's sweep is inverted. Vibrato: 3 ms +/- depth, fully wet.
+            constexpr float twoPi=6.283185307f;
+            c.chorusPhase+=chorusStep;if(c.chorusPhase>=twoPi)c.chorusPhase-=twoPi;
+            c.vibratoPhase+=twoPi*p.vibratoRate/float(rate);if(c.vibratoPhase>=twoPi)c.vibratoPhase-=twoPi;
+            c.modulation.push(x);
+            const float ms=float(rate)*.001f,sign=stereoChannel==1?-1.f:1.f;
+            const float chorus=c.modulation.read(ms*(7.f+1.5f*sign*std::sin(c.chorusPhase)));
+            const float vibrato=c.modulation.read(ms*(3.f+c.vibratoDepthMs*std::sin(c.vibratoPhase)));
+            x=x*(1.f-c.chorusMix-c.vibratoMix)+chorus*c.chorusMix+vibrato*c.vibratoMix;
+        }
         c.phase+=phaseStep;if(c.phase>=6.283185307179586f)c.phase-=6.283185307179586f;
         if(c.tremDepth>1.e-6f)x*=1.f-c.tremDepth*(.5f+.5f*std::sin(c.phase));
         x*=c.scalar[4];

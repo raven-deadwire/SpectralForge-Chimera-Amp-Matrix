@@ -308,8 +308,13 @@ struct Instance
         }
         std::cout << "PARAMETERS " << count << " automated=" << targeted << std::endl;
         require (targeted == 3, "latency/oversampling/routing automation targets missing");
-        SpeakerArrangement arrangement = SpeakerArr::kStereo;
-        require (audio->setBusArrangements (&arrangement, 1, &arrangement, 1) == kResultOk, "stereo arrangement");
+        // A host passes an arrangement for every bus: the main bus plus the
+        // optional Sidechain input and Synth output (docs/SIDECHAIN_SYNTH_BUS.md).
+        // Only the main buses are activated below.
+        const auto inputBuses = component->getBusCount (kAudio, kInput), outputBuses = component->getBusCount (kAudio, kOutput);
+        require (inputBuses >= 1 && outputBuses >= 1, "audio bus count");
+        std::vector<SpeakerArrangement> inputArrangements ((size_t) inputBuses, SpeakerArr::kStereo), outputArrangements ((size_t) outputBuses, SpeakerArr::kStereo);
+        require (audio->setBusArrangements (inputArrangements.data(), inputBuses, outputArrangements.data(), outputBuses) == kResultOk, "stereo arrangement");
         require (component->activateBus (kAudio, kInput, 0, true) == kResultOk, "activate input");
         require (component->activateBus (kAudio, kOutput, 0, true) == kResultOk, "activate output");
         ProcessSetup setup { kRealtime, kSample32, 256, 48000.0 };

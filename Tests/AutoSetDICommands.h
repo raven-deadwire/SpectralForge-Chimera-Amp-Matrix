@@ -88,7 +88,7 @@ void analyse(const juce::File& input,bool bass,Style style,float strength,const 
     check(dir.createDirectory().wasOk(),"Output directory");
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(a.rate,256);p->prepareToPlay(a.rate,256);
     Controller controller(*p);
-    controller.setOptions({bass?2:1,false,style,false,false,false,strength,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false,false,false});
+    controller.setOptions({bass?2:1,false,style,false,false,false,strength,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,true,false,false,false,false,false,false});
     controller.start();double now=0;
     std::vector<float> signal(a.buffer.getReadPointer(0),a.buffer.getReadPointer(0)+a.buffer.getNumSamples());
     feedCapture(*p,controller,signal,now);

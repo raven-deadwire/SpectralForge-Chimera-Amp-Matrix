@@ -85,12 +85,12 @@ inline void catalogPresentation() {
     }
     safeText(juce::String::fromUTF8(pedalBoardDSPStatus),"PRE status");
     for(int family=0;family<int(modelFamilies.size());++family)
-        for(int model=0;model<modelFamilies[(size_t)family].count;++model) {
+        for(int model=0;model<effectSelectableCount(family);++model) {
             safeText(juce::String::fromUTF8(modelInfo(family,model).name),"Effect host choice");
             safeText(juce::String::fromUTF8(modelInfo(family,model).character),"Effect caption");
             safeText(juce::String::fromUTF8(effectFamilyMenuName(family,model)),"Effect selector");
         }
-    for(int section=0;section<3;++section)for(int model=0;model<3;++model) {
+    for(int section=0;section<3;++section)for(int model=0;model<postNativeModelsPerSection;++model) {
         const auto& spec=postNativeModel(section,model);
         safeText(juce::String::fromUTF8(spec.name),"POST alias");
         safeText(juce::String::fromUTF8(postNativeDescription(section,model)),"POST caption");
