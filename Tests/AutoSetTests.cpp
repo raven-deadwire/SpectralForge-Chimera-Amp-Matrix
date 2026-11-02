@@ -1248,7 +1248,7 @@ void controllerBassCab() {
             setRaw("ocab1_"+letter+"on",1);setRaw("ocab1_"+letter+"position",.5f);setRaw("ocab1_"+letter+"distance",10);
             setRaw("cabblend1",float(mic));setRaw("cab"+letter+"gain1",-2);
         };
-        Controller::Options options{2,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false};
+        Controller::Options options{2,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false,false,false};
         for(float strength:{.25f,.5f,.75f,1.f}) {
             options.strength=strength;
             const auto run=runCab(options,setup);const auto& a=run.analysis;
