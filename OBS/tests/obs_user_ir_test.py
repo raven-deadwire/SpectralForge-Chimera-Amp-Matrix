@@ -7,11 +7,12 @@ JUCE's base64 form), not as a path to the file, so an OBS scene carries the IR
 with it. Installs the filter as obs_app_test.py does (same layouts, same
 guards), then:
 
-1. Builds three Chimera states from one saved by another host
+1. Builds five Chimera states from one saved by another host
    (chimera-obs-state-tool): "Filters" uses the cabinet filters on all three
    cabinet lanes; "User IR" selects the user IR on all lanes and carries a
    400 Hz low-pass IR; "Damaged IR" selects the user IR but its IR data is
-   unreadable. Three media sources playing the same DI loop each get a Chimera
+   unreadable. Two more damaged cases carry a negative size prefix and a valid
+   JUCE encoding of invalid WAV bytes. Five media sources playing the same DI loop each get a Chimera
    filter with one of them, and each is recorded on its own (the others
    muted). User IR must remove nearly all energy above 500 Hz that Filters
    keeps. Damaged IR must sound like Filters: Chimera's documented fallback
@@ -35,6 +36,7 @@ import subprocess
 import sys
 import time
 import wave
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -42,7 +44,9 @@ sys.path.insert(0, str(HERE))
 import obs_app_test as app  # noqa: E402
 
 FILTERS, USER_IR, DAMAGED = "Filters", "User IR", "Damaged IR"
-SOURCES = [FILTERS, USER_IR, DAMAGED]
+DAMAGED_SIZE, DAMAGED_WAV = "Damaged size", "Damaged WAV"
+DAMAGED_SOURCES = [DAMAGED, DAMAGED_SIZE, DAMAGED_WAV]
+SOURCES = [FILTERS, USER_IR, *DAMAGED_SOURCES]
 IR_NAME = "Chimera OBS test low-pass"
 CUTOFF = 400.0  # Hz
 DEFAULT_OUTPUT_GAIN = 0.625  # Chimera's default (see obs_app_test.PRESET_PARAMETER)
@@ -101,6 +105,17 @@ def high_share(x: list[float]) -> float:
     return sum(app.band_profile(x)[3:])
 
 
+def check_embedded_ir(component: str, expected: str) -> None:
+    """Check original WAV bytes and live lane bindings in inline and pooled states."""
+    root = ET.fromstring(state_xml(component)[1])
+    assets = {a.get("sha256"): a.get("data") for a in root.findall("./IR_ASSETS/ASSET")}
+    irs = root.findall("./USER_IRS/IR")
+    app.check(len(irs) == 3 and {(i.get("lane"), i.get("slot", "0")) for i in irs}
+              == {("0", "0"), ("1", "0"), ("2", "0")}, "the saved IR keeps all three live lane bindings")
+    app.check(all(i.get("name") == IR_NAME and i.get("data", assets.get(i.get("asset"))) == expected for i in irs),
+              "the saved state holds the exact original WAV bytes on every live lane")
+
+
 def run(args: argparse.Namespace) -> None:
     work = Path(args.work).resolve()
     if work.exists():
@@ -119,9 +134,12 @@ def run(args: argparse.Namespace) -> None:
 
     base = json.loads(subprocess.run([args.state_tool, str(Path(args.vst3).resolve()), app.PRESET_PARAMETER,
                                       str(DEFAULT_OUTPUT_GAIN)], check=True, capture_output=True, text=True).stdout)
+    encoded_ir = juce_base64(low_pass_ir())
     states = {FILTERS: with_cabinet(base["component"], FILTERS_CHOICE, None),
-              USER_IR: with_cabinet(base["component"], USER_IR_CHOICE, juce_base64(low_pass_ir())),
-              DAMAGED: with_cabinet(base["component"], USER_IR_CHOICE, "@@ not JUCE base64 @@")}
+              USER_IR: with_cabinet(base["component"], USER_IR_CHOICE, encoded_ir),
+              DAMAGED: with_cabinet(base["component"], USER_IR_CHOICE, "@@ not JUCE base64 @@"),
+              DAMAGED_SIZE: with_cabinet(base["component"], USER_IR_CHOICE, "-1.A"),
+              DAMAGED_WAV: with_cabinet(base["component"], USER_IR_CHOICE, juce_base64(b"A" * 64))}
 
     def log_text() -> str:
         return "".join(p.read_text(errors="replace") for p in sorted(logs.glob("*.txt")))
@@ -137,14 +155,16 @@ def run(args: argparse.Namespace) -> None:
         return x
 
     def judge(take: dict[str, list[float]], when: str) -> None:
-        filters, user, damaged = (take[s] for s in SOURCES)
+        filters, user = take[FILTERS], take[USER_IR]
         check(high_share(user) < high_share(filters) / 5,
               f"{when}: the user IR low-passes the sound (above 500 Hz {high_share(user):.4f}, "
               f"cabinet filters {high_share(filters):.4f})")
-        shape = app.distance(app.band_profile(damaged), app.band_profile(filters))
-        level = 20 * math.log10(app.rms(damaged) / app.rms(filters))
-        check(shape < 0.02 and abs(level) < 1.0,
-              f"{when}: the damaged IR falls back to the cabinet filters (distance {shape:.3f}, {level:+.1f} dB)")
+        for source in DAMAGED_SOURCES:
+            damaged = take[source]
+            shape = app.distance(app.band_profile(damaged), app.band_profile(filters))
+            level = 20 * math.log10(app.rms(damaged) / app.rms(filters))
+            check(shape < 0.02 and abs(level) < 1.0,
+                  f"{when}: {source} falls back to the cabinet filters (distance {shape:.3f}, {level:+.1f} dB)")
 
     print("--- first OBS run: cabinet filters, a user IR in the state, a damaged user IR", flush=True)
     obs = app.Obs(layout, port, work / "obs-run-1.txt")
@@ -162,7 +182,7 @@ def run(args: argparse.Namespace) -> None:
                                                "filterSettings": {"vst3_component_state": states[source],
                                                                   "vst3_controller_state": base["controller"]}})
         app.wait_until(lambda: all(f"[chimera-obs] 'Chimera {s}': loaded " in log_text() for s in SOURCES),
-                       "all three filters found Chimera and loaded it")
+                       "all filters found Chimera and loaded it")
         first = {source: solo(obs, source) for source in SOURCES}
     finally:
         obs.quit()
@@ -171,26 +191,30 @@ def run(args: argparse.Namespace) -> None:
     scene = json.loads(scene_file.read_text(encoding="utf-8"))
     saved = {s["name"]: [f for f in s.get("filters", []) if f["id"] == app.FILTER_KIND] for s in scene["sources"]}
     check(all(len(saved.get(s, [])) == 1 for s in SOURCES), "the scene file stores one Chimera filter per source")
-    _, user_xml, _ = state_xml(saved[USER_IR][0]["settings"]["vst3_component_state"])
-    check(f'name="{IR_NAME}"' in user_xml, "the scene file holds the user IR itself in the filter's state")
+    check_embedded_ir(saved[USER_IR][0]["settings"]["vst3_component_state"], encoded_ir)
     check([p for p in work.rglob("*.wav") if p != di] == [], "no IR file exists on disk (the IR was never a file)")
 
     print("--- second OBS run: the scene restores the user IR from its own state", flush=True)
     obs = app.Obs(layout, port, work / "obs-run-2.txt")
     try:
         app.wait_until(lambda: all(log_text().count(f"[chimera-obs] 'Chimera {s}': loaded ") >= 2 for s in SOURCES),
-                       "all three restored filters loaded Chimera")
+                       "all restored filters loaded Chimera")
+        restored = obs.request("GetSourceFilter", {"sourceName": USER_IR, "filterName": f"Chimera {USER_IR}"})
+        check_embedded_ir(restored["filterSettings"]["vst3_component_state"], encoded_ir)
         second = {source: solo(obs, source) for source in SOURCES}
     finally:
         obs.quit()
     judge(second, "after the restart")
     user_level = 20 * math.log10(app.rms(second[USER_IR]) / app.rms(first[USER_IR]))
-    check(abs(user_level) < 1.0, f"after the restart the user IR sounds as before ({user_level:+.1f} dB)")
+    user_shape = app.distance(app.band_profile(second[USER_IR]), app.band_profile(first[USER_IR]))
+    check(abs(user_level) < 1.0 and user_shape < 0.02,
+          f"after the restart the user IR sounds as before ({user_level:+.1f} dB, distance {user_shape:.3f})")
 
     log = log_text()
     check(log.count("[chimera-obs] module ") == 2, "both runs log the Chimera module")
     unloads = log.count("[chimera-obs] unloaded Chimera filter instance")
-    check(unloads == 6, f"every filter instance is unloaded ({unloads} of 6)")
+    expected_unloads = 2 * len(SOURCES)
+    check(unloads == expected_unloads, f"every filter instance is unloaded ({unloads} of {expected_unloads})")
     print(f"PASS real OBS Studio {version['obsVersion']}: a user IR travels in the scene and is restored without its file, "
           "a damaged user IR falls back to the cabinet filters, clean shutdowns")
 

@@ -65,6 +65,31 @@ void equalAudio(const std::vector<float>& before,const std::vector<float>& after
     require(difference<1.e-7f,"Library removal or project recall changed loaded IR audio");
 }
 
+void damagedStateFallback(const juce::ValueTree& saved) {
+    Rig filters;filters.prepare();
+    const auto expected=render(filters.cabinets[0]);
+    juce::MemoryBlock notAudio(64);notAudio.fillWith(0x41);
+    const juce::String cases[]={"@@ not JUCE base64 @@","-1.A","4194305.A",
+        "2147483647.A","999999999999999999999.A",notAudio.toBase64Encoding(),"0."};
+    for(const auto& data:cases) {
+        Rig rig;rig.library.restore(saved);rig.prepare();
+        require(rig.library.userName(0).isNotEmpty(),"missing valid IR before damaged recall");
+        auto damaged=saved.createCopy();damaged.getChild(0).setProperty("data",data,nullptr);
+        // A valid second lane must survive rejection of the first lane.
+        auto healthy=saved.getChild(0).createCopy();healthy.setProperty("lane",1,nullptr);
+        damaged.appendChild(healthy,nullptr);
+        rig.library.restore(damaged);
+        require(rig.library.userName(0).isEmpty(),"damaged recall retained the previous IR");
+        require(rig.library.status(0).isNotEmpty(),"damaged recall has no error status");
+        require(rig.library.userName(1).isNotEmpty(),"damaged IR erased an unrelated valid lane");
+        rig.prepare();equalAudio(expected,render(rig.cabinets[0]));
+        auto resaved=rig.library.save();
+        require(resaved.getNumChildren()==1 && int(resaved.getChild(0)["lane"])==1,
+                "damaged IR survived resave or valid lane was dropped");
+    }
+    std::cout<<"PASS damaged_state_fallback cases=7 previous_IR=cleared valid_lane=preserved audio=filters\n";
+}
+
 void modelWorkerCancellation() {
     namespace layout=spectralforge::cabLayout;
     const juce::dsp::ProcessSpec settings{96000,64,1};
@@ -260,6 +285,7 @@ int main() {
         active.library.setMetadata(0,entries[0].tags);active.prepare();
         const auto audio=render(active.cabinets[0]);const auto saved=active.library.save();
         require(saved.getNumChildren()==1,"Loaded IR state has wrong lane count");
+        damagedStateFallback(saved);
         juce::MemoryBlock embedded;
         require(embedded.fromBase64Encoding(saved.getChild(0)["data"].toString()) && embedded==original,"Project changed original WAV bytes");
         require(C::remove(entries[0],preferences).wasOk(),"Cannot remove imported IR from isolated list");
