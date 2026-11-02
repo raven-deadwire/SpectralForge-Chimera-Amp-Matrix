@@ -26,6 +26,77 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  app-harness:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Request deadlines, primary failure preservation, cleanup and probe controls
+        working-directory: OBS/tests
+        run: python -m unittest -v test_obs_app_test test_obs_startup_probe test_obs_windows_diagnostics
+
+  startup-controls:
+    # Independent of the product build: no VST3 and no filter instance. These
+    # controls distinguish an OBS startup hang from Chimera DSP/instance work.
+    # Wait for FINISHED_LOADING via a separate test-only observer; the unguarded
+    # reproduction is preserved in run 41377205562 (4/10 failed, including absent).
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build only the OBS module against 31.1.2
+        id: module
+        shell: pwsh
+        run: |
+          ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/startup-control/chimera-obs `
+            -WorkDirectory "$env:RUNNER_TEMP/obs-startup-build" `
+            -StartupObserverDirectory "$env:RUNNER_TEMP/startup-observer"
+          Expand-Archive -LiteralPath "$env:RUNNER_TEMP/obs-startup-build/obs-31.1.2.zip" `
+            -DestinationPath "$env:RUNNER_TEMP/obs-startup-31"
+      - name: OBS 32.2.2 - frontend-ready absent/module controls, no filter instances
+        shell: pwsh
+        run: |
+          $zip = Join-Path $env:RUNNER_TEMP "obs-startup-32.zip"
+          Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip" -OutFile $zip
+          $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1") { throw "OBS 32.2.2 release hash mismatch: $hash" }
+          Expand-Archive -LiteralPath $zip -DestinationPath "$env:RUNNER_TEMP/obs-startup-32"
+          python OBS/tests/obs_startup_probe.py --obs "$env:RUNNER_TEMP/obs-startup-32/bin/64bit/obs64.exe" `
+            --module package/startup-control/chimera-obs --startup-observer "$env:RUNNER_TEMP/startup-observer" `
+            --work "$env:RUNNER_TEMP/obs-startup-results-32" --repeats 5
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: OBS 31.1.2 - same runner and module as the 32.2.2 controls
+        if: ${{ !cancelled() && steps.module.outcome == 'success' }}
+        shell: pwsh
+        run: |
+          python OBS/tests/obs_startup_probe.py --obs "$env:RUNNER_TEMP/obs-startup-31/bin/64bit/obs64.exe" `
+            --module package/startup-control/chimera-obs --startup-observer "$env:RUNNER_TEMP/startup-observer" `
+            --work "$env:RUNNER_TEMP/obs-startup-results-31" --repeats 3
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Preserve every startup control, including successful and failed cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-startup-controls-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/obs-startup-results-32/
+            ${{ runner.temp }}/obs-startup-results-31/
+          if-no-files-found: warn
+
   installer-safety:
     strategy:
       fail-fast: false
@@ -109,6 +180,22 @@ jobs:
           xvfb-run -a python3 OBS/tests/obs_instances_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool build-obs/chimera-obs-state-tool --work "$RUNNER_TEMP/obs-instances"
+      - name: Preserve real OBS app diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-app-diagnostics-linux-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/obs-app/*.txt
+            ${{ runner.temp }}/obs-app/*.jsonl
+            ${{ runner.temp }}/obs-app/*.json
+            ${{ runner.temp }}/obs-app/obs-logs/
+            ${{ runner.temp }}/obs-app/obs-crashes/
+            ${{ runner.temp }}/obs-instances/*.txt
+            ${{ runner.temp }}/obs-instances/*.jsonl
+            ${{ runner.temp }}/obs-instances/*.json
+            ${{ runner.temp }}/obs-instances/obs-logs/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-linux-x86_64-${{ github.event.pull_request.head.sha || github.sha }}
@@ -134,7 +221,8 @@ jobs:
         run: |
           ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/chimera-obs `
             -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
-            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
+            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs" `
+            -StartupObserverDirectory "$env:RUNNER_TEMP/app-startup-observer"
           Copy-Item OBS/LICENSE, OBS/README.md package/
       - name: Real OBS Studio app (31.1.2) - load the filter from %ProgramData%, record, push a preset, save, restart and restore
         # The release zip the module was just built against (hash checked by the build script).
@@ -172,23 +260,34 @@ jobs:
           python OBS/tests/obs_app_test.py --obs (Join-Path $obs "bin/64bit/obs64.exe") --module package/chimera-obs `
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
             --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
+            --startup-observer "$env:RUNNER_TEMP/app-startup-observer" `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-app-32")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: Keep the real OBS app test's screen and logs when it fails
-        if: failure()
+      - name: Preserve real OBS app request traces, logs and pre-kill evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: obs-app-test-windows-${{ github.event.pull_request.head.sha || github.sha }}
+          name: obs-app-test-windows-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/obs-app/*.png
             ${{ runner.temp }}/obs-app/*.txt
+            ${{ runner.temp }}/obs-app/*.jsonl
+            ${{ runner.temp }}/obs-app/*.json
+            ${{ runner.temp }}/obs-app/*.dmp
             ${{ runner.temp }}/obs-app/obs-logs/
             ${{ runner.temp }}/obs-app/obs-crashes/
             ${{ runner.temp }}/obs-app-32/*.png
             ${{ runner.temp }}/obs-app-32/*.txt
+            ${{ runner.temp }}/obs-app-32/*.jsonl
+            ${{ runner.temp }}/obs-app-32/*.json
+            ${{ runner.temp }}/obs-app-32/*.dmp
             ${{ runner.temp }}/obs-app-32/obs-logs/
             ${{ runner.temp }}/obs-app-32/obs-crashes/
             ${{ runner.temp }}/obs-instances/*.txt
+            ${{ runner.temp }}/obs-instances/*.jsonl
+            ${{ runner.temp }}/obs-instances/*.json
+            ${{ runner.temp }}/obs-instances/*.png
+            ${{ runner.temp }}/obs-instances/*.dmp
             ${{ runner.temp }}/obs-instances/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
@@ -284,21 +383,28 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool "$RUNNER_TEMP/chimera-obs-x86_64/build/chimera-obs-state-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-app-intel"
-      - name: Keep the real OBS app test's screen and logs when it fails
-        if: failure()
+      - name: Preserve real OBS app request traces, logs and pre-kill evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: obs-app-test-macos-${{ github.event.pull_request.head.sha || github.sha }}
+          name: obs-app-test-macos-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/obs-app/*.png
             ${{ runner.temp }}/obs-app/*.txt
+            ${{ runner.temp }}/obs-app/*.jsonl
+            ${{ runner.temp }}/obs-app/*.json
             ${{ runner.temp }}/obs-app/obs-logs/
             ${{ runner.temp }}/obs-app/obs-crashes/
             ${{ runner.temp }}/obs-app-intel/*.png
             ${{ runner.temp }}/obs-app-intel/*.txt
+            ${{ runner.temp }}/obs-app-intel/*.jsonl
+            ${{ runner.temp }}/obs-app-intel/*.json
             ${{ runner.temp }}/obs-app-intel/obs-logs/
             ${{ runner.temp }}/obs-app-intel/obs-crashes/
             ${{ runner.temp }}/obs-instances/*.txt
+            ${{ runner.temp }}/obs-instances/*.jsonl
+            ${{ runner.temp }}/obs-instances/*.json
+            ${{ runner.temp }}/obs-instances/*.png
             ${{ runner.temp }}/obs-instances/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
