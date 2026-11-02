@@ -40,6 +40,7 @@ import configparser
 import json
 import math
 import os
+import platform
 import shutil
 import signal
 import socket
@@ -47,7 +48,9 @@ import struct
 import subprocess
 import sys
 import time
+import traceback
 import wave
+from datetime import datetime, timezone
 from pathlib import Path
 
 FILTER_KIND = "spectralforge_chimera_filter"
@@ -65,6 +68,7 @@ class WebSocket:
     """Just enough of RFC 6455 for obs-websocket's JSON text messages."""
 
     def __init__(self, port: int, timeout: float):
+        self.timeout = timeout
         self.sock = socket.create_connection(("127.0.0.1", port), timeout=timeout)
         key = base64.b64encode(os.urandom(16)).decode()
         self.sock.sendall(
@@ -81,8 +85,16 @@ class WebSocket:
         if b" 101 " not in head.split(b"\r\n", 1)[0]:
             raise RuntimeError(f"obs-websocket refused the handshake: {head[:200]!r}")
 
-    def _read(self, n: int) -> bytes:
+    def _deadline(self, deadline: float) -> None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("obs-websocket request deadline expired")
+        self.sock.settimeout(remaining)
+
+    def _read(self, n: int, deadline: float) -> bytes:
+        self._deadline(deadline)  # Also bound reads satisfied from buffered frames.
         while len(self.buffer) < n:
+            self._deadline(deadline)
             chunk = self.sock.recv(65536)
             if not chunk:
                 raise RuntimeError("obs-websocket closed the connection")
@@ -90,7 +102,7 @@ class WebSocket:
         data, self.buffer = self.buffer[:n], self.buffer[n:]
         return data
 
-    def send(self, message: dict) -> None:
+    def send(self, message: dict, deadline: float | None = None) -> None:
         payload = json.dumps(message).encode()
         header = bytearray([0x81])
         if len(payload) < 126:
@@ -103,19 +115,21 @@ class WebSocket:
         # XOR as one big integer: no per-byte Python loop for ~700 KB Chimera states.
         key = (mask * (len(payload) // 4 + 1))[:len(payload)]
         masked = (int.from_bytes(payload, "big") ^ int.from_bytes(key, "big")).to_bytes(len(payload), "big")
+        self._deadline(deadline if deadline is not None else time.monotonic() + self.timeout)
         self.sock.sendall(bytes(header) + mask + masked)
 
-    def receive(self) -> dict:
+    def receive(self, deadline: float | None = None) -> dict:
+        deadline = deadline if deadline is not None else time.monotonic() + self.timeout
         message = b""
         while True:
-            first, second = self._read(2)
+            first, second = self._read(2, deadline)
             length = second & 0x7F
             if length == 126:
-                length = struct.unpack("!H", self._read(2))[0]
+                length = struct.unpack("!H", self._read(2, deadline))[0]
             elif length == 127:
-                length = struct.unpack("!Q", self._read(8))[0]
-            mask = self._read(4) if second & 0x80 else None
-            data = self._read(length)
+                length = struct.unpack("!Q", self._read(8, deadline))[0]
+            mask = self._read(4, deadline) if second & 0x80 else None
+            data = self._read(length, deadline)
             if mask:
                 data = bytes(b ^ mask[i % 4] for i, b in enumerate(data))
             opcode = first & 0x0F
@@ -227,7 +241,7 @@ def window_titles(pid: int) -> list[str]:
     return [title for _, title in top_level_windows(pid)]
 
 
-def dialog_text(pid: int) -> str:
+def dialog_text(pid: int, timeout: float = 5) -> str:
     """Everything UI Automation can read in the process's windows (a Win32 or Qt message box)."""
     script = ("Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes;"
               "$a=[System.Windows.Automation.AutomationElement];"
@@ -236,21 +250,25 @@ def dialog_text(pid: int) -> str:
               "foreach($e in $w){$e.FindAll([System.Windows.Automation.TreeScope]::Subtree,"
               "[System.Windows.Automation.Condition]::TrueCondition)|%{$_.Current.Name}|?{$_}}")
     result = subprocess.run(["powershell", "-NoProfile", "-Command", script], capture_output=True, text=True,
-                            timeout=60, check=False)
+                            timeout=timeout, check=False)
     return " | ".join(line.strip() for line in result.stdout.splitlines() if line.strip())
 
 
-def screenshot(path: Path) -> None:
+def screenshot(path: Path, timeout: float = 5) -> str:
     """The whole desktop as PNG (CI uploads it on failure)."""
     if MACOS:
-        subprocess.run(["screencapture", "-x", str(path)], check=False, timeout=60)
-        return
-    script = ("Add-Type -AssemblyName System.Windows.Forms,System.Drawing;"
-              "$b=[System.Windows.Forms.SystemInformation]::VirtualScreen;"
-              "$i=New-Object System.Drawing.Bitmap $b.Width,$b.Height;"
-              "$g=[System.Drawing.Graphics]::FromImage($i);$g.CopyFromScreen($b.Location,[System.Drawing.Point]::Empty,$b.Size);"
-              f"$i.Save('{path}')")
-    subprocess.run(["powershell", "-NoProfile", "-Command", script], check=False, timeout=60)
+        subprocess.run(["screencapture", "-x", str(path)], check=True, timeout=timeout)
+    else:
+        quoted_path = str(path).replace("'", "''")
+        script = ("Add-Type -AssemblyName System.Windows.Forms,System.Drawing;"
+                  "$b=[System.Windows.Forms.SystemInformation]::VirtualScreen;"
+                  "$i=New-Object System.Drawing.Bitmap $b.Width,$b.Height;"
+                  "$g=[System.Drawing.Graphics]::FromImage($i);$g.CopyFromScreen($b.Location,[System.Drawing.Point]::Empty,$b.Size);"
+                  f"$i.Save('{quoted_path}')")
+        subprocess.run(["powershell", "-NoProfile", "-Command", script], check=True, timeout=timeout)
+    if not path.is_file() or path.stat().st_size == 0:
+        raise RuntimeError(f"screenshot command did not write a PNG: {path}")
+    return str(path)
 
 
 def close_windows(pid: int) -> int:
@@ -269,6 +287,13 @@ class Obs:
     """One OBS Studio process with its own configuration, driven over obs-websocket."""
 
     def __init__(self, layout: Layout, port: int, log: Path):
+        self.layout = layout
+        self.log = log
+        self.trace_path = log.with_suffix(".events.jsonl")
+        self.started = time.monotonic()
+        self._phase = "startup"
+        self.request_timeout = 30.0
+        self.last_request = None
         self.port = port
         self.output = log.open("w")
         self.process = subprocess.Popen(
@@ -276,21 +301,110 @@ class Obs:
             env=layout.env, cwd=layout.cwd, stdout=self.output, stderr=subprocess.STDOUT)
         self.ws = None
         self.next_id = 0
+        self._trace("process-start", python=sys.version,
+                    platform={"system": platform.system(), "release": platform.release(),
+                              "version": platform.version(), "machine": platform.machine()},
+                    environment={key: os.environ.get(key) for key in (
+                        "ImageOS", "ImageVersion", "GITHUB_SHA", "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT")})
         try:
             self._connect(port, log)
-        except Exception:
-            if WINDOWS and self.process.poll() is None:
-                print(f"     OBS windows: {window_titles(self.process.pid)}", file=sys.stderr)
-                print(f"     OBS window text: {dialog_text(self.process.pid)}", file=sys.stderr)
-            if (WINDOWS or MACOS) and self.process.poll() is None:
-                screenshot(log.with_suffix(".png"))
+            self.phase("requests")
+        except Exception as error:
+            self.capture_evidence("startup-failure", error)
             # The caller never gets this object, so nothing else would stop OBS.
-            if self.ws is not None:
-                self.ws.close()
-            self.process.kill()
-            self.process.wait()
-            self.output.close()
+            try:
+                self._kill_and_reap()
+            except Exception as cleanup:
+                error.add_note(f"OBS startup cleanup also failed: {cleanup}")
+            finally:
+                self._close_handles()
             raise
+
+    def _trace(self, event: str, **fields) -> None:
+        """Metadata only: never record request/response payloads or plugin states."""
+        entry = {"utc": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+                 "elapsed_s": round(time.monotonic() - self.started, 6),
+                 "pid": self.process.pid, "phase": self._phase, "event": event, **fields}
+        line = json.dumps(entry, sort_keys=True)
+        print(f"obs-trace {line}", flush=True)
+        try:
+            with self.trace_path.open("a", encoding="utf-8") as output:
+                output.write(line + "\n")
+        except OSError as error:
+            print(f"note: could not write OBS trace: {error}", file=sys.stderr)
+
+    def phase(self, name: str) -> None:
+        self._phase = name
+        self._trace("phase")
+
+    def capture_evidence(self, reason: str, error: BaseException | None = None) -> None:
+        """Best-effort process/log evidence; diagnostic failures cannot replace the test result.
+
+        The dump helper has a 10 s limit, UI probes 5 s each. Keep two 4 MiB log tails
+        and one crash report, without copying the configuration or state data.
+        """
+        evidence = {"utc": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+                    "pid": self.process.pid, "returncode": self.process.poll(),
+                    "phase": self._phase, "reason": reason, "last_request": self.last_request,
+                    "error_type": type(error).__name__ if error is not None else None}
+        safe_reason = "".join(c if c.isalnum() or c == "-" else "_" for c in reason)
+        target = self.log.with_name(f"{self.log.stem}.{safe_reason}")
+
+        def attempt(label, action):
+            try:
+                evidence[label] = action()
+            except Exception as diagnostic_error:
+                evidence[label] = {"diagnostic_error": str(diagnostic_error)}
+
+        if self.process.poll() is None:
+            if WINDOWS:
+                attempt("minidump", lambda: subprocess.run(
+                    [sys.executable, str(Path(__file__).with_name("obs_windows_diagnostics.py")),
+                     "--pid", str(self.process.pid), "--output", str(target) + ".dmp"],
+                    capture_output=True, text=True, timeout=10, check=True).stdout.strip())
+                attempt("window_titles", lambda: window_titles(self.process.pid))
+                attempt("window_text", lambda: dialog_text(self.process.pid, timeout=5))
+            if WINDOWS or MACOS:
+                attempt("screenshot", lambda: screenshot(Path(str(target) + ".png"), timeout=5))
+
+        def copy_logs():
+            copied = []
+            for folder, count in (("logs", 2), ("crashes", 1)):
+                for source in sorted((self.layout.config / folder).glob("*.txt"))[-count:]:
+                    destination = self.log.parent / f"obs-{folder}" / source.name
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    with source.open("rb") as input_file:
+                        size = input_file.seek(0, 2)
+                        input_file.seek(max(0, size - 4 * 1024 * 1024))
+                        destination.write_bytes(input_file.read(4 * 1024 * 1024))
+                    copied.append({"file": str(destination), "tail_only": size > 4 * 1024 * 1024})
+            return copied
+
+        attempt("logs", copy_logs)
+        try:
+            Path(str(target) + ".json").write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
+        except OSError as diagnostic_error:
+            print(f"note: could not save OBS failure evidence: {diagnostic_error}", file=sys.stderr)
+        self._trace("evidence", reason=reason, error_type=evidence["error_type"])
+
+    def _close_handles(self) -> None:
+        for handle in (self.ws, self.output):
+            if handle is not None:
+                try:
+                    handle.close()
+                except Exception as error:
+                    print(f"note: could not close OBS handle: {error}", file=sys.stderr)
+
+    def _kill_and_reap(self) -> None:
+        try:
+            if self.process.poll() is None:
+                self._trace("forced-kill")
+                self.process.kill()
+        finally:
+            # kill() is asynchronous on some platforms; always wait before the
+            # module/config cleanup can delete files or another OBS can start.
+            code = self.process.wait(timeout=10)
+            self._trace("process-reaped", returncode=code)
 
     def _connect(self, port: int, log: Path) -> None:
         deadline = time.monotonic() + 60
@@ -313,25 +427,42 @@ class Obs:
         wait_until(lambda: self._ready(), "OBS ready for requests", 60)
 
     def _ready(self) -> bool:
+        return bool(self._exchange("GetVersion")["requestStatus"].get("result"))
+
+    def _exchange(self, kind: str, data: dict | None = None) -> dict:
         self.next_id += 1
         request_id = str(self.next_id)
-        self.ws.send({"op": 6, "d": {"requestType": "GetVersion", "requestId": request_id, "requestData": {}}})
-        while True:
-            message = self.ws.receive()
-            if message.get("op") == 7 and message["d"].get("requestId") == request_id:
-                return bool(message["d"]["requestStatus"].get("result"))
+        started = time.monotonic()
+        deadline = started + self.request_timeout
+        self.last_request = {"request_id": request_id, "request_type": kind, "state": "pending"}
+        self._trace("request-begin", **self.last_request)
+        try:
+            self.ws.send({"op": 6, "d": {"requestType": kind, "requestId": request_id,
+                                         "requestData": data or {}}}, deadline=deadline)
+            while True:
+                # A single deadline covers send, fragmented frames, ping and
+                # unrelated responses; receiving traffic cannot reset it.
+                message = self.ws.receive(deadline=deadline)
+                if message.get("op") == 7 and message["d"].get("requestId") == request_id:
+                    status = message["d"]["requestStatus"]
+                    self.last_request.update(state="response", result=bool(status.get("result")),
+                                             code=status.get("code"))
+                    self._trace("request-response", **self.last_request,
+                                duration_s=round(time.monotonic() - started, 6))
+                    return message["d"]
+        except Exception as error:
+            self.last_request.update(state="failed", error_type=type(error).__name__)
+            self._trace("request-failure", **self.last_request,
+                        duration_s=round(time.monotonic() - started, 6))
+            raise RuntimeError(f"OBS request {kind} id={request_id} failed after "
+                               f"{time.monotonic() - started:.3f} s: {type(error).__name__}: {error}") from error
 
     def request(self, kind: str, data: dict | None = None, ok: bool = True) -> dict:
-        self.next_id += 1
-        request_id = str(self.next_id)
-        self.ws.send({"op": 6, "d": {"requestType": kind, "requestId": request_id, "requestData": data or {}}})
-        while True:
-            message = self.ws.receive()
-            if message.get("op") == 7 and message["d"].get("requestId") == request_id:
-                status = message["d"]["requestStatus"]
-                if ok and not status.get("result"):
-                    raise RuntimeError(f"{kind} failed: {status}")
-                return message["d"].get("responseData") or {}
+        response = self._exchange(kind, data)
+        status = response["requestStatus"]
+        if ok and not status.get("result"):
+            raise RuntimeError(f"{kind} failed: {status}")
+        return response.get("responseData") or {}
 
     def blocking_ui(self) -> str:
         """What OBS shows on screen, when a dialog may be holding it (Windows only)."""
@@ -340,13 +471,13 @@ class Obs:
         return f" (OBS windows {window_titles(self.process.pid)}; text: {dialog_text(self.process.pid)})"
 
     def record(self, name: str, seconds: float) -> Path:
+        self.phase(f"record-{name}")
         self.request("StartRecord")
         try:
             wait_until(lambda: self.request("GetRecordStatus")["outputActive"], f"{name} recording started", 15)
-        except RuntimeError as e:
-            if MACOS:
-                screenshot(Path(self.output.name).with_suffix(".png"))
-            raise RuntimeError(f"{e}{self.blocking_ui()}") from None
+        except RuntimeError as error:
+            self.capture_evidence("record-failure", error)
+            raise
         time.sleep(seconds)
         path = Path(self.request("StopRecord")["outputPath"])
         wait_until(lambda: not self.request("GetRecordStatus")["outputActive"], f"{name} recording stopped", 15)
@@ -357,21 +488,45 @@ class Obs:
         return self.request("GetSourceFilter", {"sourceName": SOURCE, "filterName": FILTER})["filterSettings"]
 
     def quit(self) -> None:
-        if self.ws is not None:
-            self.ws.close()
-        # OBS's normal shutdown: saves the scene, unloads modules.
-        if WINDOWS:
-            check(close_windows(self.process.pid) > 0, "OBS main window found to close")
-        else:
-            self.process.send_signal(signal.SIGINT)
+        # Existing consumers use `finally: obs.quit()`. Preserve their primary
+        # error when normal shutdown ALSO fails (the PR #248 evidence gap).
+        primary = sys.exc_info()[1]
+        if primary is not None:
+            self.capture_evidence("test-failure", primary)
+        self.phase("shutdown")
         try:
-            code = self.process.wait(timeout=60)
-        except subprocess.TimeoutExpired:
-            self.process.kill()
-            raise RuntimeError("OBS did not shut down within 60 s of the close request")
+            if self.ws is not None:
+                self.ws.close()
+            if self.process.poll() is None:
+                # OBS's normal shutdown: saves the scene, unloads modules.
+                self._trace("close-request", method="WM_CLOSE" if WINDOWS else "SIGINT")
+                if WINDOWS:
+                    check(close_windows(self.process.pid) > 0, "OBS main window found to close")
+                else:
+                    self.process.send_signal(signal.SIGINT)
+            try:
+                code = self.process.wait(timeout=60)
+            except subprocess.TimeoutExpired as error:
+                raise RuntimeError("OBS did not shut down within 60 s of the close request") from error
+            self._trace("process-exit", returncode=code)
+            check(code == 0, f"OBS exited cleanly (code {code})")
+            # Windows writes its log in the config, which successful uninstall
+            # removes. Preserve the comparison evidence before caller cleanup.
+            # The process has exited, so this copies logs/metadata only.
+            self.capture_evidence("shutdown-complete")
+        except Exception as error:
+            self.capture_evidence("shutdown-failure", error)
+            try:
+                self._kill_and_reap()
+            except Exception as cleanup:
+                error.add_note(f"OBS force-stop also failed: {cleanup}")
+            if primary is None:
+                raise
+            note = f"OBS cleanup also failed: {error}"
+            primary.add_note(note)
+            print(f"note: {note}; preserving the original failure", file=sys.stderr, flush=True)
         finally:
-            self.output.close()
-        check(code == 0, f"OBS exited cleanly (code {code})")
+            self._close_handles()
 
 
 def check(ok: bool, what: str) -> None:
@@ -519,12 +674,15 @@ def run(args: argparse.Namespace) -> None:
     obs = Obs(layout, port, work / "obs-run-1.txt")
     try:
         version = obs.request("GetVersion")
-        print(f"     OBS {version['obsVersion']}, obs-websocket {version['obsWebSocketVersion']}")
+        print(f"     OBS {version['obsVersion']}, obs-websocket {version['obsWebSocketVersion']}", flush=True)
+        obs.phase("scene-setup")
         obs.request("CreateScene", {"sceneName": SCENE})
         obs.request("SetCurrentProgramScene", {"sceneName": SCENE})
+        obs.phase("input-setup")
         obs.request("CreateInput", {"sceneName": SCENE, "inputName": SOURCE, "inputKind": "ffmpeg_source",
                                     "inputSettings": {"is_local_file": True, "local_file": str(di), "looping": True,
                                                       "restart_on_activate": False}})
+        obs.phase("filter-create")
         obs.request("CreateSourceFilter", {"sourceName": SOURCE, "filterName": FILTER, "filterKind": FILTER_KIND,
                                            "filterSettings": {}})
         wait_until(lambda: f"[chimera-obs] '{FILTER}': loaded " in log_text(),
@@ -570,6 +728,7 @@ def run(args: argparse.Namespace) -> None:
     print("--- second OBS run: the scene restores the filter", flush=True)
     obs = Obs(layout, port, work / "obs-run-2.txt")
     try:
+        obs.phase("filter-restore")
         wait_until(lambda: any(f["filterKind"] == FILTER_KIND for f in obs.request(
             "GetSourceFilterList", {"sourceName": SOURCE}, ok=False).get("filters", [])),
             "the restored scene has the Chimera filter")
@@ -618,7 +777,12 @@ def main() -> int:
         passed = True
     except Exception as e:  # noqa: BLE001 - report every failure the same way
         print(f"FAIL {e}", file=sys.stderr)
+        traceback.print_exception(e)
         work = Path(args.work).resolve()
+        try:
+            (work / "failure-traceback.txt").write_text("".join(traceback.format_exception(e)), encoding="utf-8")
+        except OSError as diagnostic_error:
+            print(f"note: could not save failure traceback: {diagnostic_error}", file=sys.stderr)
         logs = sorted((args.layout.config / "logs").glob("*.txt"))[-2:]
         if not logs:
             print(f"--- no OBS log in {args.layout.config / 'logs'}; config holds: "
