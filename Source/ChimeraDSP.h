@@ -73,6 +73,11 @@ class Engine {
     bool previousDualCross{};
     juce::SmoothedValue<float> dualMix,lowMix;
     juce::AudioBuffer<float> lowDry;
+    // Room Core: the LOW lane's AMP/CAB share (mix x AMP/CAB, before the DI
+    // blend) is the only part of that lane that may excite the room.
+    juce::AudioBuffer<float> lowRoom;
+    std::array<juce::SmoothedValue<float>,3> roomSendGains;
+    bool roomFedLastBlock{};
     std::vector<float> blendCurve;
     LowCompressor lowCompressor;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> diAlignment{128};
@@ -80,6 +85,14 @@ class Engine {
     std::array<juce::AudioBuffer<float>,3> work;
     double sampleRate{48000.0};
     RoutingMode previousMode{static_cast<RoutingMode>(-1)};
+    // A routing change jumps between two different signal paths, and a reset
+    // path restarts with a hard onset that rings for ~5 ms. So the change
+    // fades the old routing out (10 ms), resets and switches, keeps the
+    // output muted while the new path settles (20 ms), then fades it in.
+    enum class Switch { idle, out, settle, in };
+    Switch switching{Switch::idle};
+    juce::SmoothedValue<float> switchGain;
+    int settleRemaining{}, settleLength{};
 public:
     Cab& cabinet(int lane) { return cabs[(size_t)lane]; }
     // Audio thread: every cabinet the last block could be heard through is
@@ -106,8 +119,11 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
         sampleRate = spec.sampleRate;previousMode=static_cast<RoutingMode>(-1);
+        switchGain.reset(spec.sampleRate,.01);switchGain.setCurrentAndTargetValue(1);switching=Switch::idle;settleLength=int(spec.sampleRate*.02);
         xo.prepare(spec);diXO.prepare(spec);dualXO.prepare(spec);
         lowMix.reset(spec.sampleRate,.02);lowMix.setCurrentAndTargetValue(0);lowDry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
+        lowRoom.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
+        for(auto& send:roomSendGains)send.reset(spec.sampleRate,.02);roomFedLastBlock=false;
         dualMix.reset(spec.sampleRate,.02);dualMix.setCurrentAndTargetValue(.5f);blendCurve.resize(spec.maximumBlockSize);lowCompressor.prepare(spec.sampleRate);
         for (auto& amp : amps) amp.prepare(spec);
         diAlignment.prepare(spec);diAlignment.setDelay(float(latency()));
@@ -125,12 +141,40 @@ public:
         for (auto& cab : cabs) cab.reset();
         for (auto& tone : bandTones) tone.reset();
     }
+    // roomBus (optional, Room Core): receives each lane's audible AMP/CAB
+    // contribution after lane level, polarity, mute/solo and Dual blend,
+    // times roomSends[lane]. Matrix LOW sends only its AMP/CAB share. Null
+    // (room off) leaves the processing exactly as without a room.
     void process(juce::AudioBuffer<float>& buffer, RoutingMode mode, float x1, float x2,
-                 const std::array<LaneState,3>& states, const juce::AudioBuffer<float>* cleanInput=nullptr, bool dualCross=false, float blend=.5f)
+                 const std::array<LaneState,3>& states, const juce::AudioBuffer<float>* cleanInput=nullptr, bool dualCross=false, float blend=.5f,
+                 juce::AudioBuffer<float>* roomBus=nullptr, const std::array<float,3>* roomSends=nullptr)
     {
-        const bool enteringLow=mode==RoutingMode::matrix && previousMode!=RoutingMode::matrix;
-        if (mode != previousMode || dualCross!=previousDualCross) { reset(); previousMode = mode; previousDualCross=dualCross; }
-        if(enteringLow) amps[0].setDriveImmediately(0);
+        const bool feedRoom=roomBus!=nullptr && roomSends!=nullptr;
+        if(feedRoom) {
+            roomBus->clear();
+            for(size_t i=0;i<roomSendGains.size();++i) {
+                if(roomFedLastBlock)roomSendGains[i].setTargetValue((*roomSends)[i]);
+                else roomSendGains[i].setCurrentAndTargetValue((*roomSends)[i]);
+            }
+            lowRoom.setSize(buffer.getNumChannels(),buffer.getNumSamples(),false,false,true);
+        }
+        roomFedLastBlock=feedRoom;
+        const auto adopt=[&]{
+            if(mode==RoutingMode::matrix && previousMode!=RoutingMode::matrix) amps[0].setDriveImmediately(0);
+            reset(); previousMode=mode; previousDualCross=dualCross;
+        };
+        const bool change=mode!=previousMode || dualCross!=previousDualCross;
+        if(previousMode==static_cast<RoutingMode>(-1)) adopt();   // after prepare: at once
+        else if(change) {
+            if(switching==Switch::idle || switching==Switch::in) {switching=Switch::out;switchGain.setTargetValue(0);}
+            // Switch once silent; a further change while settling switches again.
+            if((switching==Switch::out && !switchGain.isSmoothing()) || switching==Switch::settle) {
+                adopt();switching=Switch::settle;settleRemaining=settleLength;
+            }
+        }
+        else if(switching==Switch::out) {switching=Switch::in;switchGain.setTargetValue(1);}   // change undone
+        // Until the switch, the old routing keeps playing.
+        mode=previousMode; dualCross=previousDualCross;
         const bool matrix = mode == RoutingMode::matrix;
         const bool split=matrix || (mode==RoutingMode::dual && dualCross);
         dualMix.setTargetValue(juce::jlimit(0.f,1.f,blend));for(int n=0;n<buffer.getNumSamples();++n)blendCurve[(size_t)n]=dualMix.getNextValue();
@@ -175,8 +219,10 @@ public:
                 lowMix.setTargetValue(state.ampEnabled ? juce::jlimit(0.f,1.f,state.lowAmpMix) : 0.f);
                 for(int n=0;n<buffer.getNumSamples();++n) {
                     const float mix=lowMix.getNextValue();
-                    for(int c=0;c<buffer.getNumChannels();++c)
+                    for(int c=0;c<buffer.getNumChannels();++c) {
+                        if(feedRoom)lowRoom.setSample(c,n,work[i].getSample(c,n)*mix);
                         work[i].setSample(c,n,lowDry.getSample(c,n)*(1-mix)+work[i].getSample(c,n)*mix);
+                    }
                 }
             } else {
                 amps[i].process(work[i], !split,state.ampEnabled);
@@ -185,14 +231,34 @@ public:
                 cabs[i].process(work[i]);
             }
             levels[i].setTargetValue(muted ? 0.f : juce::Decibels::decibelsToGain(state.levelDb) * (state.polarity ? -1.f : 1.f));
+            const bool lowShare=matrix && i==0;
             for(int n=0;n<buffer.getNumSamples();++n) {
                 const float weight=mode==RoutingMode::dual && !dualCross ? (i==0 ? 1-blendCurve[(size_t)n] : blendCurve[(size_t)n]) : 1.f;
                 const float gain=levels[i].getNextValue()*weight;
-                for(int c=0;c<buffer.getNumChannels();++c) work[i].setSample(c,n,work[i].getSample(c,n)*gain);
+                if(feedRoom) {
+                    const float send=roomSendGains[(size_t)i].getNextValue();
+                    for(int c=0;c<buffer.getNumChannels();++c) {
+                        const float direct=work[i].getSample(c,n)*gain;
+                        work[i].setSample(c,n,direct);
+                        roomBus->addSample(c,n,(lowShare ? lowRoom.getSample(c,n)*gain : direct)*send);
+                    }
+                }
+                else for(int c=0;c<buffer.getNumChannels();++c) work[i].setSample(c,n,work[i].getSample(c,n)*gain);
             }
             for (int c = 0; c < buffer.getNumChannels(); ++c)
                 buffer.addFrom(c, 0, work[i], c, 0, buffer.getNumSamples(),
                                1.0f);
+        }
+        if(switching!=Switch::idle) {
+            for(int n=0;n<buffer.getNumSamples();++n) {
+                const float gain=switching==Switch::settle ? 0.f : switchGain.getNextValue();
+                for(int c=0;c<buffer.getNumChannels();++c) {
+                    buffer.setSample(c,n,buffer.getSample(c,n)*gain);
+                    if(feedRoom)roomBus->setSample(c,n,roomBus->getSample(c,n)*gain);
+                }
+            }
+            if(switching==Switch::settle && (settleRemaining-=buffer.getNumSamples())<=0) {switching=Switch::in;switchGain.setTargetValue(1);}
+            else if(switching==Switch::in && !switchGain.isSmoothing()) switching=Switch::idle;
         }
     }
 };

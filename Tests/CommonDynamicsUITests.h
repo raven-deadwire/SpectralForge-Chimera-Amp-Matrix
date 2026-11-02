@@ -69,8 +69,8 @@ inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPane
     auto* measured=find<spectralforge::DynamicsSpectrumPanel>(panel,"commonDynamics.spectrum");
     require(measured && measured->isShowing(),"Selected dynamics page lost its spectrum");
     inside(editor,*measured,"Dynamics spectrum is clipped");require(measured->graphBounds().getHeight()>=150,"Dynamics graph was reduced to a meter strip");
-    const std::array<std::pair<Page,const char*>,6> exclusive{{{Page::compressor,"cleanCompThreshold"},{Page::gate,"commonDynamics.gatePre"},{Page::expander,"expThreshold"},
-        {Page::limiter,"liveLimiterCeiling"},{Page::multiband,"mbBand1_threshold"},{Page::deesser,"deEsserFrequency"}}};
+    const std::array<std::pair<Page,const char*>,8> exclusive{{{Page::compressor,"cleanCompThreshold"},{Page::gate,"commonDynamics.gatePre"},{Page::expander,"expThreshold"},
+        {Page::limiter,"liveLimiterCeiling"},{Page::multiband,"mbBand1_threshold"},{Page::saturation,"satMix"},{Page::filter,"fltMix"},{Page::deesser,"deEsserFrequency"}}};
     for(const auto& [owner,id]:exclusive) {
         auto* control=find(panel,id);
         require(control && control->isShowing()==(owner==page),"Unrelated dynamics controls remain on the selected page");
@@ -99,7 +99,12 @@ inline void pageContract(ChimeraEditor& editor,spectralforge::CommonDynamicsPane
         case Page::limiter:
             for(const auto* id:{"liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"})visibleInside(editor,panel,id);break;
         case Page::multiband:
-            for(const auto* id:{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3","mbBand1_mode","mbBand1_bypass","mbBand1_solo","mbBand1_threshold","mbBand1_range","mbBand1_ratio","mbBand1_attack","mbBand1_release","mbBand1_knee","mbBand1_makeup"})visibleInside(editor,panel,id);break;
+            for(const auto* id:{"mbOn","mbMix","mbDetector","mbStereoMode","mbLink","mbCrossover1","mbCrossover2","mbCrossover3","mbBand1_mode","mbBand1_channels","mbBand1_bypass","mbBand1_solo","mbBand1_threshold","mbBand1_range","mbBand1_ratio","mbBand1_attack","mbBand1_release","mbBand1_knee","mbBand1_makeup"})visibleInside(editor,panel,id);break;
+        case Page::saturation:
+            for(const auto* id:{"satOn","satQuality","commonDynamics.saturationBand","satMix","satOutput","satCrossover1","satCrossover2","satBand1_type","satBand1_drive"})visibleInside(editor,panel,id);break;
+        case Page::filter:
+            for(const auto* id:{"fltOn","commonDynamics.filterUnit","fltRouting","fltLfoShape","fltLfoSync","fltMix","fltOutput","fltLfoRate","fltLfoStereo","fltEnvAttack","fltEnvRelease","fltEnvSensitivity",
+                                 "fltA_on","fltA_type","fltA_slope","fltA_cutoff","fltA_resonance","fltA_lfo","fltA_env"})visibleInside(editor,panel,id);break;
         case Page::deesser:
             for(const auto* id:{"deEsserOn","deEsserListen","deEsserFrequency","deEsserThreshold","deEsserRange","deEsserRatio","deEsserAttack","deEsserRelease","deEsserKnee"})visibleInside(editor,panel,id);break;
         default:break;
@@ -217,9 +222,9 @@ inline void run(const juce::File& directory) {
     auto* measured=find<spectralforge::DynamicsSpectrumPanel>(*panel,"commonDynamics.spectrum");require(measured,"Dynamics analyzer missing");
     require(signalPathTests::values(p)==before && writes.changes==0 && writes.gestures==0,"Opening dynamics changed sound state or emitted gestures");
 
-    // Six dynamics workspaces, in tab order. Dynamic EQ is edited on its EQ band.
-    const std::array<std::pair<const char*,Page>,6> pages{{{"compressor",Page::compressor},{"gate",Page::gate},{"expander",Page::expander},
-        {"limiter",Page::limiter},{"multiband",Page::multiband},{"deesser",Page::deesser}}};
+    // Eight common-processor workspaces, in tab order. Dynamic EQ is edited on its EQ band.
+    const std::array<std::pair<const char*,Page>,8> pages{{{"compressor",Page::compressor},{"gate",Page::gate},{"expander",Page::expander},
+        {"limiter",Page::limiter},{"multiband",Page::multiband},{"saturation",Page::saturation},{"filter",Page::filter},{"deesser",Page::deesser}}};
     for(int scale:{75,100,125,150}) {
         editor->setSize(1180*scale/100,780*scale/100);settle(35);
         for(size_t index=0;index<pages.size();++index) {
@@ -294,6 +299,28 @@ inline void run(const juce::File& directory) {
         for(int other=1;other<=4;++other)if(other!=index)require(!find(*panel,"mbBand"+juce::String(other)+"_threshold")->isShowing(),"Multiband combines all four bands' controls");
     }
     require(signalPathTests::values(p)==bandBefore,"Multiband selection changed the sound");
+    {   // Six bands (docs/SIX_BAND_1_5.md): bands 5 and 6 and crossovers 4 and 5 appear; back to four hides them.
+        auto* count=p.parameters().getParameter("mbBandCount");require(count,"Band count parameter missing");
+        // The panel picks the band count up on its refresh timer; macOS runners
+        // can stall the run loop for about a second, so wait for it.
+        const auto soon=[](auto&& ready,const char* failure){const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
+            while(!ready()){require(juce::Time::getMillisecondCounterHiRes()<deadline,failure);settle(20);}};
+        count->setValueNotifyingHost(1.f);
+        soon([&]{return band->isItemEnabled(6) && band->getItemText(5)=="Band 6 / AIR";},"Six-band selector entries missing");
+        band->setSelectedId(6,juce::sendNotificationSync);settle(30);
+        visibleInside(*editor,*panel,"mbBand6_threshold");visibleInside(*editor,*panel,"mbBand6_channels");
+        visibleInside(*editor,*panel,"mbCrossover4");visibleInside(*editor,*panel,"mbCrossover5");visibleInside(*editor,*panel,"mbBandCount");
+        require(!find(*panel,"mbBand4_threshold")->isShowing(),"Six bands combine band controls");
+        if(const char* dir=std::getenv("SIX_BAND_SNAPSHOT")){   // optional evidence
+            const auto image=panel->createComponentSnapshot(panel->getLocalBounds(),true,1.f);
+            auto out=juce::File(dir).getChildFile("six_band_panel.png");out.deleteFile();auto stream=out.createOutputStream();
+            require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the six-band snapshot");
+        }
+        count->setValueNotifyingHost(0.f);
+        soon([&]{return !band->isItemEnabled(5) && band->getSelectedId()==4;},"Four bands kept band 5/6 selectable");settle(30);
+        require(!find(*panel,"mbCrossover4")->isShowing() && !find(*panel,"mbBand6_threshold")->isShowing(),"Four bands show crossover 4 or band 6");
+        visibleInside(*editor,*panel,"mbBand4_threshold");
+    }
 
     // Native PRE/POST use the real current model's controls, not the inactive
     // legacy sliders. Check the root callbacks and the single-consumer lease.

@@ -31,11 +31,20 @@ comparable with v2 numbers.
 
 | Component | Revision |
 | --- | --- |
-| Chimera native DSP | `4ef21c16aed16fe2eb470ed21e5d9942224ab61e`, main with the five-channel revision (was `d9356044`, v1.2.0-beta.1, before 2026-10-24) |
+| Chimera native DSP | `fe28038cb2c227f1c0d8c1bee8ecae6d80fec0a2` since 2026-11-01 (the 1.3.3–1.10 integration branch, raven-deadwire/SpectralForge-Chimera-Amp-Matrix#245). It renders Náströnd bit for bit like `4ef21c16`, the capture source of the existing A2 data and reports; see below. Before that: `4ef21c16`, main with the five-channel revision (2026-10-24), and `d9356044`, v1.2.0-beta.1. |
 | JUCE | 8.0.8 |
 | sdatkinson/neural-amp-modeler | `0072676419459f5d39e36f5b9fd4172f28d62cbf` |
 | tone-3000/tone3000-plugin | `ef6f178ae1ac6412b55fec6f058d86e640e5aaaf` |
 | TONE3000's NAM core | `1f42f88535884450104b8711d7595019afa0495b` |
+
+### 2026-11-01 retarget (owner decision)
+
+- **Why:** the integration branch adds the five 1.6 reference heads. That changes three files in the renderer's include closure: `AmpNativeDSP.h`, `AmpNativeCatalog.h` and `AmpCatalog.h`.
+- **Evidence:** `compare_capture_render.py` builds nothing itself; it compares two `ChimeraNamRender` builds made from the same renderer source, one against each `Source/` tree.
+  - Both builds report the same catalogue.
+  - The run covered 105 jobs: Náströnd channels 0–4, each at its defaults and with 20 seeded random settings of all 13 controls. The input was 20 s of sweep, noise and plucks at three levels.
+  - All 105 outputs are byte-identical.
+- **Consequence:** existing captures, level anchors and reports made from `4ef21c16` stay valid. Their own `source` fields still name `4ef21c16`.
 | Python runtime used | Python 3.12, PyTorch 2.8.0 CPU |
 
 The target plugin's local-import gate accepts only A2 shapes. A legacy A1

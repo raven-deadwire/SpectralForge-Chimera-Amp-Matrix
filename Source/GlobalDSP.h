@@ -19,6 +19,7 @@ class NoiseGate {
     bool open{true};
     bool expand{};float expansionRatio{2},attackMs{.5f};
     DynamicsAnalysis* analysis{};
+    const juce::AudioBuffer<float>* key{};
 public:
     // 0..95.9 dB is a finite attenuation floor. 96 is the Full sentinel:
     // the original zero target, approached with the existing release curve.
@@ -33,8 +34,13 @@ public:
     void reset() { detector=0; gain=1; holdCounter=0; open=true; }
     float reduction() const { return gain; }
     void setMode(bool expander,float ratio,float attack) noexcept {expand=expander;expansionRatio=juce::jlimit(1.f,20.f,ratio);attackMs=juce::jlimit(.1f,20.f,attack);}
+    // An external key (the same length as the processed block) replaces the
+    // detector input; the gain still applies to the processed signal.
+    void setKey(const juce::AudioBuffer<float>* externalKey) noexcept {key=externalKey;}
     void process(juce::AudioBuffer<float>& buffer,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)
-    { DynamicsAnalysis::Scope capture(analysis,DynamicsStage::gate,buffer);processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
+    { DynamicsAnalysis::Scope capture(analysis,DynamicsStage::gate,buffer);
+      const bool keyed=key!=nullptr && key->getNumSamples()==buffer.getNumSamples();
+      processInternal(keyed?*key:buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
     // The same input detector can control a later gain stage without altering
     // the clean signal or deriving its envelope from distortion-generated noise.
     void detect(const juce::AudioBuffer<float>& buffer,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)
@@ -68,7 +74,7 @@ private:
             const float coefficient=target>gain ? attack : release;
             gain=target+(gain-target)*coefficient;
             if(envelope) envelope[n]=gain;
-            if(output)for(int c=0;c<buffer.getNumChannels();++c) output->setSample(c,n,buffer.getSample(c,n)*gain);
+            if(output)for(int c=0;c<output->getNumChannels();++c) output->setSample(c,n,output->getSample(c,n)*gain);
         }
     }
 };

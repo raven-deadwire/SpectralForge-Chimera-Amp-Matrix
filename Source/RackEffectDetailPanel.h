@@ -3,6 +3,7 @@
 #include "NativeControlView.h"
 #include "EffectSelectionCatalog.h"
 #include "HardwareArtwork.h"
+#include "EffectModelSync.h"
 
 // The three time/modulation processors retain their released parameter IDs.
 // A second set of attachments lets the rack overview and ALL panel stay in sync.
@@ -14,10 +15,8 @@ public:
         title.setFont(juce::FontOptions(13.f,juce::Font::bold));reference.setFont(juce::FontOptions(11.f));
         title.setText(spectralforge::modelFamilies[(size_t)family].category,juce::dontSendNotification);
         addAndMakeVisible(model);model.setComponentID(spectralforge::modelFamilies[(size_t)family].parameter);
-        const auto names=spectralforge::effectFamilyMenuNames(family);
-        if(family==10){const std::array<const char*,5> groups{"Chorus","Phaser","Flanger","Vibrato","Tremolo"};for(int group=0;group<5;++group){juce::PopupMenu items;for(int m=0;m<names.size();++m)if((m<2?0:m-1)==group)items.addItem(m+1,names[m]);model.getRootMenu()->addSubMenu(groups[(size_t)group],items);}}
-        else {const std::array<const char*,3> groups=family==1?std::array<const char*,3>{"Digital","Tape","Analog"}:std::array<const char*,3>{"Plate","Hall","Spring"};for(int m=0;m<names.size();++m){juce::PopupMenu items;items.addItem(m+1,names[m]);model.getRootMenu()->addSubMenu(groups[(size_t)m],items);}}
-        modelAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processor.parameters(),model.getComponentID(),model);
+        spectralforge::buildExtendedEffectMenu(*model.getRootMenu(),family);
+        modelSync=std::make_unique<spectralforge::ExtendedEffectModelSync>(processor.parameters(),family,model);
         model.onChange=[this]{refreshModel();};
         addAndMakeVisible(enabled);enabled.setClickingTogglesState(true);enabled.setComponentID(family==10?"choruson":family==1?"delayon":"reverbon");
         enabledAttachment=std::make_unique<juce::ParameterAttachment>(*processor.parameters().getParameter(enabled.getComponentID()),[this](float value){enabled.setToggleState(value>.5f,juce::dontSendNotification);enabled.setButtonText(value>.5f?"ON":"OFF");});enabledAttachment->sendInitialUpdate();
@@ -40,7 +39,7 @@ public:
     }
 private:
     ChimeraProcessor& processor;int family{};juce::Label title,reference;juce::ComboBox model;juce::TextButton enabled;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modelAttachment;
+    std::unique_ptr<spectralforge::ExtendedEffectModelSync> modelSync;
     std::unique_ptr<juce::ParameterAttachment> enabledAttachment;std::vector<std::unique_ptr<NativeControlView>> controls;
     void timerCallback() override {if(family==1 && !controls.empty()){controls.front()->slider.setEnabled(processor.parameters().getRawParameterValue("delaysync")->load()<.5f);controls.front()->slider.updateText();}}
     void refreshModel(){const int selected=juce::jmax(0,model.getSelectedId()-1);reference.setText(juce::String::fromUTF8(spectralforge::modelInfo(family,selected).character),juce::dontSendNotification);reference.setTooltip(reference.getText());for(auto& control:controls)control->slider.getProperties().set("knobStyle",spectralforge::art::rackStyle(family,selected).knobStyle);repaint();}

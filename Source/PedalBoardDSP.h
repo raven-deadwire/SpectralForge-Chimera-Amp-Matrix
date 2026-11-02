@@ -2,6 +2,18 @@
 #include "FXChain.h"
 #include "PedalBoardCatalog.h"
 #include "PedalOctaverDSP.h"
+#include "PedalParaEQDSP.h"
+#include "PedalMultiCompDSP.h"
+#include "PedalTightBoostDSP.h"
+#include "PedalPowerWahDSP.h"
+#include "PedalBassSynthDSP.h"
+#include "PedalDreadfulPerilDSP.h"
+#include "PedalSevenEQDSP.h"
+#include "PedalMultiWahDSP.h"
+#include "PedalOctaveFuzzDSP.h"
+#include "PedalVioletRageDSP.h"
+#include "PedalFireDrakeDSP.h"
+#include "PedalPitchBendDSP.h"
 
 namespace spectralforge {
 // These are original, experimental control curves. They do not transform the
@@ -76,6 +88,18 @@ class PedalEffectInstance {
     DriveModule drive;ColourModule fuzz;DynamicsModule compressor;BoostModule boost;ModulationModule modulation;
     PedalNewDrive newDrive;
     PedalMonoOctaver monoOctaver;PedalPolyOctaver polyOctaver;
+    PedalParaEQ paraEQ;
+    PedalMultiComp multiComp;
+    PedalTightBoost tightBoost;
+    PedalPowerWah powerWah;
+    PedalBassSynth bassSynth;
+    PedalDreadfulPeril dreadfulPeril;
+    PedalSevenEQ sevenEQ;
+    PedalMultiWah multiWah;
+    PedalOctaveFuzz octaveFuzz;
+    PedalVioletRage violetRage;
+    PedalFireDrake fireDrake;
+    PedalPitchBend pitchBend;
     std::array<std::array<F,2>,10> eq;
     juce::dsp::StateVariableTPTFilter<float> envelopeFilter;
     juce::AudioBuffer<float> dry,source;
@@ -187,12 +211,24 @@ class PedalEffectInstance {
         if(s.model>=32 && s.model<=37) {modulation.process(b,true,s.model-32,p[0],p[1],p[2]);return 0;}
         if(s.model==38) {monoOctaver.process(b,p[0],p[1],p[2]);return monoOctaver.latency();}
         if(s.model==39) {polyOctaver.process(b,p[0],p[1],p[2]);return polyOctaver.latency();}
+        if(s.model==40) {paraEQ.process(b,p);return 0;}
+        if(s.model==41) {multiComp.process(b,p);appliedGR=multiComp.reduction();return 0;}
+        if(s.model==42) {tightBoost.process(b,p[0]);return tightBoost.latency();}
+        if(s.model==43) {powerWah.process(b,p);return 0;}
+        if(s.model==44) {bassSynth.process(b,p);return 0;}
+        if(s.model==45) {dreadfulPeril.process(b,p);return dreadfulPeril.latency();}
+        if(s.model==46) {sevenEQ.process(b,p);return 0;}
+        if(s.model==47) {multiWah.process(b,p);return 0;}
+        if(s.model==48) {octaveFuzz.process(b,p);return octaveFuzz.latency();}
+        if(s.model==49) {violetRage.process(b,p);return violetRage.latency();}
+        if(s.model==50) {fireDrake.process(b,p);return fireDrake.latency();}
+        if(s.model==51) {pitchBend.process(b,p);return 0;}
         return 0;
     }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec) {
-        rate=spec.sampleRate;drive.prepare(spec);fuzz.prepare(spec);compressor.prepare(spec);boost.prepare(spec);modulation.prepare(spec);newDrive.prepare(spec);monoOctaver.prepare(spec);polyOctaver.prepare(spec);
-        fixedLatency=juce::jmax(drive.latency(),fuzz.latency(),newDrive.latency());
+        rate=spec.sampleRate;drive.prepare(spec);fuzz.prepare(spec);compressor.prepare(spec);boost.prepare(spec);modulation.prepare(spec);newDrive.prepare(spec);monoOctaver.prepare(spec);polyOctaver.prepare(spec);paraEQ.prepare(spec.sampleRate);multiComp.prepare(spec.sampleRate);tightBoost.prepare(spec.sampleRate,int(spec.maximumBlockSize));powerWah.prepare(spec.sampleRate);bassSynth.prepare(spec.sampleRate);dreadfulPeril.prepare(spec.sampleRate,int(spec.maximumBlockSize));sevenEQ.prepare(spec.sampleRate);multiWah.prepare(spec.sampleRate);octaveFuzz.prepare(spec.sampleRate,int(spec.maximumBlockSize));violetRage.prepare(spec.sampleRate,int(spec.maximumBlockSize));fireDrake.prepare(spec.sampleRate,int(spec.maximumBlockSize));pitchBend.prepare(spec.sampleRate);
+        fixedLatency=juce::jmax(juce::jmax(drive.latency(),fuzz.latency(),newDrive.latency()),juce::jmax(tightBoost.latency(),dreadfulPeril.latency(),juce::jmax(octaveFuzz.latency(),violetRage.latency(),fireDrake.latency())));
         dry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);source.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         dryDelay.setMaximumDelayInSamples(maximumLatency());dryDelay.prepare(spec);dryDelay.setDelay(float(fixedLatency));padding.prepare(spec);
         auto mono=spec;mono.numChannels=1;for(auto& bank:eq)for(auto& f:bank){*f.coefficients=C::makePeakFilter(rate,1000,.707f,1);f.prepare(mono);}
@@ -202,12 +238,12 @@ public:
     int latency(int model)const{return model==39?juce::jmax(fixedLatency,polyOctaver.latency()):fixedLatency;}
     int maximumLatency()const{return juce::jmax(fixedLatency,polyOctaver.latency());}
     float reduction()const{return appliedGR;}
-    void reset() {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelopeFilter.reset();dryDelay.reset();padding.reset();envelope=0;lastModel=0;filterClock=0;appliedGR=0;wet.setCurrentAndTargetValue(0);}
+    void reset() {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();paraEQ.reset();multiComp.reset();tightBoost.reset();powerWah.reset();bassSynth.reset();dreadfulPeril.reset();sevenEQ.reset();multiWah.reset();octaveFuzz.reset();violetRage.reset();fireDrake.reset();pitchBend.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelopeFilter.reset();dryDelay.reset();padding.reset();envelope=0;lastModel=0;filterClock=0;appliedGR=0;wet.setCurrentAndTargetValue(0);}
     void process(juce::AudioBuffer<float>& b,const PedalInstanceState& state) {
         const int slotLatency=latency(state.model);dryDelay.setDelay(float(slotLatency));
         source.makeCopyOf(b,true);dry.makeCopyOf(b,true);juce::dsp::AudioBlock<float> dryBlock(dry);juce::dsp::ProcessContextReplacing<float> dryContext(dryBlock);dryDelay.process(dryContext);
         const bool active=state.model>0 && state.model<pedalModelCount && pedalModel(state.model).implemented && !state.bypass;
-        if(lastModel!=state.model) {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();envelopeFilter.reset();padding.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelope=0;filterClock=0;wet.setCurrentAndTargetValue(0);lastModel=state.model;}
+        if(lastModel!=state.model) {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();paraEQ.reset();multiComp.reset();tightBoost.reset();powerWah.reset();bassSynth.reset();dreadfulPeril.reset();sevenEQ.reset();multiWah.reset();octaveFuzz.reset();violetRage.reset();fireDrake.reset();pitchBend.reset();envelopeFilter.reset();padding.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelope=0;filterClock=0;wet.setCurrentAndTargetValue(0);lastModel=state.model;}
         wet.setTargetValue(active?1.f:0.f);appliedGR=0;
         if(!active && !wet.isSmoothing()) {b.makeCopyOf(dry,true);return;} // Empty/bypassed: no effect DSP.
         const int native=processModel(b,state);padding.setDelay(float(juce::jmax(0,slotLatency-native)));
@@ -239,7 +275,7 @@ public:
             const auto owner=(size_t)state.order[(size_t)position];
             {
                 const int model=state.instances[owner].model;
-                DynamicsAnalysis::Scope capture(analysis && analysis->preOwner.load(std::memory_order_relaxed)==int(owner) && model>=6 && model<=10?analysis:nullptr,DynamicsStage::preCompressor,b);
+                DynamicsAnalysis::Scope capture(analysis && analysis->preOwner.load(std::memory_order_relaxed)==int(owner) && ((model>=6 && model<=10) || model==41)?analysis:nullptr,DynamicsStage::preCompressor,b);
                 instances[owner].process(b,state.instances[owner]);
             }
             ownerReduction[owner].store(instances[owner].reduction(),std::memory_order_relaxed);gr=juce::jmax(gr,instances[owner].reduction());

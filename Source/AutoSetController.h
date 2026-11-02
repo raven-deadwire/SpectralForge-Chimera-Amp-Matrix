@@ -87,7 +87,7 @@ public:
         for(int b=0;b<graphicalEQBands;++b)for(const auto* field:{"enabled","frequency","gain","q","type"})touchedIDs.push_back({eqID(0,b,field),lockTone});
         add(lockDeEsser,{"deEsserOn","deEsserFrequency","deEsserThreshold","deEsserRange","deEsserAttack","deEsserRelease","deEsserRatio","deEsserKnee"});
         add(lockLimiter,{"liveLimiterOn","liveLimiterCeiling","liveLimiterRelease"});
-        add(lockMultiband,{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3"});
+        add(lockMultiband,{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3","mbBandCount"});
         for(int b=0;b<multibandBandCount;++b)
             for(const auto* field:{"bypass","mode","threshold","range","ratio","attack","release","knee","makeup","solo"})touchedIDs.push_back({multibandID(b,field),lockMultiband});
         add(lockGate,{"gateAfterRig","gateMode","gate2On","gate2Mode","gate2Threshold","gate2Ratio","gate2Attack","gate2Hold","gate2Release","gate2RangeDb",
@@ -297,9 +297,11 @@ private:
         skipWindows=settle?settleWindows:0;skipSamples=settle?int(toneSettleSeconds*rate()):0;
         status.phase=passes[pass];
         if(status.phase==Phase::tone)capture.listen(Tap::tone);
-        else if(status.phase==Phase::amp){ampAtStart=ampTarget();capture.listen({Tap::amp,Tap::tone});}
-        else if(status.phase==Phase::cab){cabAtStart=cabTarget();capture.listen(Tap::tone);}
-        else if(status.phase==Phase::boost){boostAtStart=boostTarget();capture.listen({Tap::amp,Tap::tone});}
+        // The amp, cab and boost passes hear the rig alone (Tap::cab), wherever
+        // the signal-order editor puts the Tone EQ.
+        else if(status.phase==Phase::amp){ampAtStart=ampTarget();capture.listen({Tap::amp,Tap::cab});}
+        else if(status.phase==Phase::cab){cabAtStart=cabTarget();capture.listen(Tap::cab);}
+        else if(status.phase==Phase::boost){boostAtStart=boostTarget();capture.listen({Tap::amp,Tap::cab});}
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
         else if(status.phase==Phase::finish)capture.listen({Tap::deesser,Tap::output});
         else if(status.phase==Phase::level)capture.listen(Tap::master);
@@ -530,6 +532,11 @@ private:
             const int model=juce::jlimit(0,pedalModelCount-1,juce::roundToInt(raw(pedalModelID(owner))));t.models[size_t(owner)]=model;
             const juce::String category=pedalModel(model).category;
             if(model>0 && raw(pedalBypassID(owner,model))<.5f && (category=="DRIVE" || category=="FUZZ" || category=="BOOST"))t.driveOn=true;
+            // A pedal with its own BOOST switched on (Power Wah, Multi Wah, Para EQ) already boosts.
+            if(model>0 && raw(pedalBypassID(owner,model))<.5f) {
+                const auto& controls=pedalModel(model).controls;
+                for(int c=0;c<pedalModel(model).controlCount;++c)if(juce::String(controls[size_t(c)].id)=="boost.on" && raw(pedalControlID(owner,model,c))>.5f)t.driveOn=true;
+            }
         }
         // The pedal goes last, right before the amp: the last position, if it is empty.
         if(const int owner=t.order[size_t(pedalBoardCapacity-1)];owner>=0 && owner<pedalBoardCapacity && t.models[size_t(owner)]==0)t.owner=owner;
@@ -765,6 +772,8 @@ private:
         else if(r.activeBands()==0){summary+=" | Multiband unchanged (bands balanced)";addStep("kept (bands already even)",false);}
         else {
             constexpr std::array<const char*,4> names{"low","low-mid","high-mid","high"};
+            // The analysis designs four bands (docs/SIX_BAND_1_5.md).
+            set("mbBandCount",0);
             for(int c=0;c<3;++c)set("mbCrossover"+juce::String(c+1),r.crossovers[size_t(c)]);
             juce::StringArray acting;
             for(int b=0;b<multibandBandCount;++b) {

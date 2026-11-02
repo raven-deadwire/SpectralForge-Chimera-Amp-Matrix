@@ -25,7 +25,7 @@ def run(executable):
         test('three tabs remain mutually exclusive with five pedal slots',tabs)
         def inventory():
             for section in ['bus','preamp','eq']:
-                page.locator('#rackSection').select_option(section);assert page.locator('#rackModel option').count()==3
+                page.locator('#rackSection').select_option(section);assert page.locator('#rackModel option').count()==6   # 3 released + three 1.7 models per section
                 for i in range(3):page.locator('#rackModel').select_option(f'legacy.{section}.{i}');assert page.locator('[data-rack-control]').count()>0
         test('all nine rack panels render',inventory)
         def fet():

@@ -36,13 +36,17 @@ public:
             envelope.setSample(0,n,alignment.popSample(0));
         }
     }
-    void apply(juce::AudioBuffer<float>& output)
+    // also (optional): the Room Core send bus, attenuated by the same
+    // per-sample gain so a closed gate creates no new room input.
+    void apply(juce::AudioBuffer<float>& output,juce::AudioBuffer<float>* also=nullptr)
     {
         jassert(output.getNumSamples()==detectedSamples);
         if(output.getNumSamples()!=detectedSamples) return;
+        const bool second=also!=nullptr && also->getNumSamples()==detectedSamples;
         for(int n=0;n<detectedSamples;++n) {
             lastGain=envelope.getSample(0,n);
             for(int c=0;c<output.getNumChannels();++c)output.setSample(c,n,output.getSample(c,n)*lastGain);
+            if(second)for(int c=0;c<also->getNumChannels();++c)also->setSample(c,n,also->getSample(c,n)*lastGain);
         }
     }
     // Linear gain, matching the existing NoiseGate meter convention.

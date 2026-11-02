@@ -35,3 +35,11 @@ prompt are generation targets; measured output dimensions are recorded separatel
 Source-art review alone does not establish native UI or Studio One acceptance.
 Actual JUCE screenshots must be presented separately with their exact source
 commit and CI run, including platform and capture context.
+
+## Reference heads 26-30 (1.6)
+
+`head-shell-26.png` through `head-shell-30.png` are **procedural** drawings by
+`Tools/generate_reference_head_shells.py`, not AI-generated or photographic art.
+- They show original Chimera fascias carrying the working names, with no manufacturer logo or trade dress.
+- The script also writes their provenance entries and prints the metadata rows and reviewed plate fixtures.
+- Replacing them with photographic art keeps the same rules: one complete RGBA shell per model and a blank control plate.

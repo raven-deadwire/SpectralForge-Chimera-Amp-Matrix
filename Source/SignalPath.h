@@ -5,7 +5,9 @@
 #include "CabLayoutModel.h"
 
 namespace spectralforge::signalPath {
-enum class Target { input, gate, transpose, tuner, pre, rigs, amp, cab, low, toneEQ, post, utilities, finalEQ, output, dynamics };
+enum class Target { input, gate, transpose, tuner, pre, rigs, amp, cab, low, toneEQ, post, utilities, finalEQ, output, dynamics, synth };
+// Node::section of the 1.9 CREATIVE slot (POST sections are 0-5).
+inline constexpr int creativeSection = 6;
 struct Node {
     juce::String id,label,status,detail;
     Target target{}; int lane{-1},section{-1}; bool active{true};
@@ -101,24 +103,61 @@ inline Snapshot read(ChimeraProcessor& p) {
     previous="merge";
     if(postGate){add("gate","POST GATE",Target::gate,16,440,on("gateon"),{},-1,-1,"Detector: clean input before PRE; attenuation after AMP/CAB merge, before POST.");edge("input","gate",true);edge(previous,"gate");previous="gate";}
     extraGates(true,"gate.extra.post",138,385,"merge");
-    const auto addEQ=[&](int instance,const char* id,const char* label,Target target,int x,int y,const char* detail) {
+    const auto addEQ=[&](int instance,const char* id,const char* label,Target target,int x,int y,const juce::String& detail) {
         int enabled=0;for(int b=0;b<graphicalEQBands;++b)enabled+=on(eqID(instance,b,"enabled"));
         const bool active=!on(eqID(instance,-1,"bypass"));
         add(id,label,target,x,y,active,(active?juce::String("ACTIVE"):juce::String("BYPASSED"))+" / "+juce::String(enabled)+" BANDS",-1,-1,detail);
     };
-    addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,16,510,"12-band Tone EQ after rig sum and optional post-rig gate, before the POST rack.");edge(previous,"tone.eq");previous="tone.eq";
-    add("common.comp","CLEAN COMP",Target::dynamics,138,510,on("cleanCompOn"),{},-1,-1,"Stereo-linked clean compression after Tone EQ, before POST. No added lookahead latency.");edge(previous,"common.comp");previous="common.comp";
-    add("common.multiband","MULTIBAND",Target::dynamics,260,510,on("mbOn"),{},-1,-1,"Independent four-band dynamics after Clean Comp. Open its spectrum editor to adjust crossovers and each band's compression or expansion.");edge(previous,"common.multiband");previous="common.multiband";
-    add("common.deesser","DE-ESSER",Target::dynamics,382,510,on("deEsserOn"),{},-1,-1,"Split-band high-frequency attenuation after multiband dynamics, before the POST rack. Open its spectrum and detector controls.");edge(previous,"common.deesser");previous="common.deesser";
-    for(int position=0;position<6;++position){
-        const std::array<int,6> families{7,8,9,10,1,2};const int family=families[size_t(position)];juce::String label=effectFamilyMenuName(family,int(v(modelFamilies[size_t(family)].parameter)));bool active=on(enable[size_t(family)]);
-        if(position<3&&on(postNativeModeID(position))){const int model=juce::jlimit(0,2,int(v(postNativeModelID(position))));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
-        const auto id="post.section"+juce::String(position);add(id,label,Target::post,position<5?504+position*122:992,position<5?510:580,active,{},-1,position);edge(previous,id);previous=id;
+    // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): the tone / dynamics block
+    // and the POST rack are drawn in their saved order. The slots run along
+    // the lower rows; each module keeps its node ID wherever it is placed.
+    const auto order=p.requestedOrder();
+    static constexpr std::array<std::pair<int,int>,toneModuleCount+postModuleCount> slots{{
+        {16,510},{138,510},{260,510},{382,510},{504,510},{626,510},{748,510},{870,510},{992,510},{992,580},{870,580},{748,580},{626,580}}};
+    const juce::String toneFirst=moduleNodeID(OrderRegion::tone,order.tone.slots[0]),postFirst=moduleNodeID(OrderRegion::post,order.post.slots[0]);
+    // SYNTH (docs/SYNTH_PAGE.md): tracks the clean input and joins the rig at
+    // its insert point: into the amps, at the start of the tone / dynamics
+    // block, before or after POST.
+    {const int insert=juce::jlimit(0,synthInsertCount-1,int(v("synthInsert")));
+     const std::array<juce::String,synthInsertCount> joins{"split",toneFirst,postFirst,"utilities"};
+     add("synth","SYNTH",Target::synth,260,385,on("synthOn"),on("synthOn")?synthInsertNames()[insert].toUpperCase():"BYPASSED",-1,-1,
+         "Synth played by the tracked clean input and/or MIDI notes. It joins the signal "+synthInsertNames()[insert].toLowerCase()+".");
+     edge("input","synth",true);edge("synth",joins[size_t(insert)]);}
+    const juce::String movable=" Right-click (or Alt + arrow keys) to move it within its block.";
+    for(int slot=0;slot<toneModuleCount;++slot){
+        const auto [x,y]=slots[size_t(slot)];const int module=order.tone.slots[size_t(slot)];
+        const juce::String where="Position "+juce::String(slot+1)+" of the tone / dynamics block, after the rig sum and before POST.";
+        switch(module){
+            case toneEQModule:addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,x,y,"12-band Tone EQ. "+where+movable);break;
+            case compressorModule:add("common.comp","CLEAN COMP",Target::dynamics,x,y,on("cleanCompOn"),{},-1,-1,"Stereo-linked clean compression, no added lookahead latency. "+where+movable);break;
+            case multibandModule:add("common.multiband","MULTIBAND",Target::dynamics,x,y,on("mbOn"),{},-1,-1,"Independent four- or six-band dynamics. Open its spectrum editor to adjust crossovers and each band's compression or expansion. "+where+movable);break;
+            case saturationModule:add("common.saturation","SATURATION",Target::dynamics,x,y,on("satOn"),{},-1,-1,"Three-band saturation. "+where+movable);break;
+            case filterModule:add("common.filter","FILTER",Target::dynamics,x,y,on("fltOn"),{},-1,-1,"Two-filter modulation. "+where+movable);break;
+            default:add("common.deesser","DE-ESSER",Target::dynamics,x,y,on("deEsserOn"),{},-1,-1,"Split-band high-frequency attenuation. "+where+movable);break;
+        }
+        const auto id=moduleNodeID(OrderRegion::tone,module);edge(previous,id);previous=id;
     }
-    add("utilities","DOUBLER / CLICK",Target::utilities,870,580,(on("doubleron")&&p.getTotalNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getTotalNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
-    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,748,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
-    add("output","OUTPUT TRIM",Target::output,626,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
-    add("output.limiter","LIVE LIMITER",Target::dynamics,504,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Sample peak ceiling; no lookahead, additional latency or true-peak claim.");edge("output","output.limiter");
+    for(int slot=0;slot<postModuleCount;++slot){
+        const auto [x,y]=slots[size_t(toneModuleCount+slot)];const int module=order.post.slots[size_t(slot)];
+        const juce::String where=" Position "+juce::String(slot+1)+" of the POST rack."+movable;
+        if(module==postCreativeModule){
+            const int creativeModel=juce::jlimit(0,creativeModelCount-1,int(v("creativeModel")));
+            add("post.creative",creativeModels[size_t(creativeModel)].name,Target::post,x,y,on("creativeOn"),{},-1,creativeSection,"CREATIVE slot. Off leaves the signal untouched."+where);
+        } else {
+            // POST sections 0-5: dynamics, preamp, EQ, modulation, delay, reverb.
+            const int position=module<postCreativeModule?module:5;
+            const std::array<int,6> families{7,8,9,10,1,2};const int family=families[size_t(position)];
+            const int selected=effectFamilyExtended(family)?effectSelectedModel(family,v(modelFamilies[size_t(family)].parameter),v(effectExtensionID(family))):int(v(modelFamilies[size_t(family)].parameter));
+            juce::String label=effectFamilyMenuName(family,selected);bool active=on(enable[size_t(family)]);
+            if(position<3&&(on(postNativeModeID(position))||v(postNativeModelExtensionID(position))>.5f)){const int model=postNativeSelectedModel(v(postNativeModelID(position)),v(postNativeModelExtensionID(position)));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
+            add("post.section"+juce::String(position),label,Target::post,x,y,active,{},-1,position,juce::String(where).trimStart());
+        }
+        const auto id=moduleNodeID(OrderRegion::post,module);edge(previous,id);previous=id;
+    }
+    add("utilities","DOUBLER / CLICK",Target::utilities,504,580,(on("doubleron")&&p.getMainBusNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getMainBusNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
+    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,382,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
+    add("output","OUTPUT TRIM",Target::output,260,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
+    add("output.limiter","LIVE LIMITER",Target::dynamics,138,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Live: sample-peak ceiling, no lookahead or latency. Studio true peak: 1 ms lookahead, ceiling in dBTP, reported latency.");edge("output","output.limiter");
     return s;
 }
 } // namespace spectralforge::signalPath

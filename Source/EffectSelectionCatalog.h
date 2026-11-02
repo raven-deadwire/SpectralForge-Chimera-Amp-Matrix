@@ -49,7 +49,19 @@ inline constexpr std::array<PedalMenuEntry,pedalModelCount> pedalMenuEntries{{
     {"Drift Vibrato",PedalMenuKind::modulation},
     {"Pulse Tremolo",PedalMenuKind::modulation},
     {"Mono Octaver",PedalMenuKind::pitch},
-    {"Spectral Octaver",PedalMenuKind::pitch}
+    {"Spectral Octaver",PedalMenuKind::pitch},
+    {"Para EQ",PedalMenuKind::equalizer},
+    {"Multi Comp",PedalMenuKind::compressor},
+    {"Tight Boost",PedalMenuKind::boost},
+    {"Power Wah",PedalMenuKind::wah},
+    {"Bass Synth",PedalMenuKind::pitch},
+    {"Dreadful Peril",PedalMenuKind::distortion},
+    {"Seven EQ",PedalMenuKind::equalizer},
+    {"Multi Wah",PedalMenuKind::wah},
+    {"Octave Fuzz",PedalMenuKind::fuzz},
+    {"Violet Rage",PedalMenuKind::distortion},
+    {"Fire Drake",PedalMenuKind::distortion},
+    {"Pitch Bend",PedalMenuKind::pitch}
 }};
 struct PedalMenuGroup { PedalMenuKind kind; const char* label; };
 inline constexpr std::array<PedalMenuGroup,10> pedalMenuGroups{{
@@ -78,14 +90,28 @@ inline const char* pedalDescription(int model) {
         "Hard-clipped drive", "Two drives / six routings",
         "Manual wah sweep", "Ten-band graphic equalizer", "Single-voice chorus", "Opposing stereo chorus",
         "Four-stage phase sweep", "Short-delay flange", "Pitch vibrato / wet blend", "Stereo amplitude modulation",
-        "Single-note octave divider", "Spectral octave layering"
+        "Single-note octave divider", "Spectral octave layering",
+        "Three-band parametric EQ / clean boost",
+        "Bass compressor / multiband / tube",
+        "Single-knob tight mid boost",
+        "Treadle wah / clean boost",
+        "Tracking bass synth / sub / filter",
+        "High-gain distortion / adaptive gate",
+        "Seven-band graphic EQ / level",
+        "Six-range wah / Q / boost",
+        "Octave fuzz / sub / octave up",
+        "Amp-style distortion / aggression",
+        "High-gain distortion / open-tight",
+        "Pitch shift / harmony / detune"
     }};
     return descriptions[(size_t)juce::jlimit(0,pedalModelCount-1,model)];
 }
 inline const char* effectFamilyMenuName(int family,int model) {
     constexpr std::array<int,11> firstPedal{1,0,0,6,11,16,21,0,0,0,32};
     if(family<0 || family>=int(modelFamilies.size()))return "";
-    const auto& f=modelFamilies[(size_t)family];model=juce::jlimit(0,f.count-1,model);
+    const auto& f=modelFamilies[(size_t)family];
+    if(effectFamilyExtended(family) && model>=f.count)return modelInfo(family,model).name;
+    model=juce::jlimit(0,f.count-1,model);
     if(firstPedal[(size_t)family]>0)return pedalMenuName(firstPedal[(size_t)family]+model);
     // Rack algorithms have independent aliases; never concatenate reference
     // names into the selector, including when a native panel is selected.
@@ -103,7 +129,7 @@ inline const char* effectFamilyMenuName(int family,int model) {
 inline juce::StringArray effectFamilyMenuNames(int family) {
     juce::StringArray names;
     if(family>=0 && family<int(modelFamilies.size()))
-        for(int model=0;model<modelFamilies[(size_t)family].count;++model)names.add(effectFamilyMenuName(family,model));
+        for(int model=0;model<effectSelectableCount(family);++model)names.add(effectFamilyMenuName(family,model));
     return names;
 }
 }
