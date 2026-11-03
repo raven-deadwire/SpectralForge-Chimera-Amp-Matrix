@@ -197,6 +197,77 @@ void overlappingBandDrag(ChimeraProcessor& processor,GraphicalEQPanel& panel,juc
     selector.setSelectedId(previousSelection,juce::sendNotificationSync);
     std::cout<<"PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank="<<bank<<'\n';
 }
+juce::MouseEvent mouseWith(juce::Component& target,juce::Point<float> position,juce::Point<float> down,bool dragging,int modifiers) {
+    return {juce::Desktop::getInstance().getMainMouseSource(),position,juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier|modifiers),1.f,0.f,0.f,0.f,0.f,
+            &target,&target,juce::Time::getCurrentTime(),down,juce::Time::getCurrentTime(),1,dragging};
+}
+// Shift drags a node at a tenth of the pointer's travel; Alt / Option keeps a
+// drag to the axis it first moves along; pressing off centre does not move the
+// node; Shift on the wheel is a fine Q step. Each drag stays one gesture per field.
+void modifierDrag(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce::ComboBox& selector,int bank) {
+    selector.setSelectedId(1,juce::sendNotificationSync);
+    const auto reset=[&]{set(processor,eqID(bank,0,"type"),0);set(processor,eqID(bank,0,"enabled"),1);
+                         set(processor,eqID(bank,0,"frequency"),1000);set(processor,eqID(bank,0,"gain"),0);set(processor,eqID(bank,0,"q"),1);settle(60);};
+    const auto plot=panel.graphBounds();
+    const auto frequencyAt=[&](float x){return 20.f*std::pow(1000.f,std::clamp((x-plot.getX())/plot.getWidth(),0.f,1.f));};
+    const auto gainAt=[&](float y){return std::clamp((plot.getCentreY()-y)/plot.getHeight()*48.f,-24.f,24.f);};
+    const auto frequency=[&]{return get(processor,eqID(bank,0,"frequency"));};
+    const auto gain=[&]{return get(processor,eqID(bank,0,"gain"));};
+    const auto near=[](float a,float b,float tolerance){return std::abs(a-b)<=tolerance;};
+    // Host quantisation: 0.01 Hz-ish in this range and 0.01 dB-ish; allow both.
+    const auto sameFrequency=[&](float expected){return near(frequency(),expected,std::max(.05f,expected*2e-4f));};
+    const auto sameGain=[&](float expected){return near(gain(),expected,.02f);};
+    using MK=juce::ModifierKeys;
+    const auto drag=[&](juce::Point<float> press,std::initializer_list<std::pair<juce::Point<float>,int>> moves){
+        HostEvents events;auto* f=processor.parameters().getParameter(eqID(bank,0,"frequency"));auto* g=processor.parameters().getParameter(eqID(bank,0,"gain"));
+        f->addListener(&events);g->addListener(&events);
+        panel.mouseDown(mouse(panel,press,press,false));
+        juce::Point<float> last=press;
+        for(const auto& [point,mods]:moves){panel.mouseDrag(mouseWith(panel,point,press,true,mods));last=point;}
+        panel.mouseUp(mouse(panel,last,press,true));
+        f->removeListener(&events);g->removeListener(&events);
+        check(events.starts==2 && events.ends==2,"Modifier drag did not keep one balanced gesture per field");
+    };
+
+    reset();auto start=panel.nodePosition(0);
+    drag(start,{{start+juce::Point<float>(50,-20),MK::shiftModifier},{start+juce::Point<float>(100,-40),MK::shiftModifier}});
+    check(sameFrequency(frequencyAt(start.x+10)) && sameGain(gainAt(start.y-4)),"Shift drag did not move a tenth of the pointer travel");
+    check(frequency()<frequencyAt(start.x+20),"Shift drag moved at full speed");
+
+    reset();start=panel.nodePosition(0);
+    drag(start,{{start+juce::Point<float>(20,0),0},{start+juce::Point<float>(120,0),MK::shiftModifier}});
+    check(sameFrequency(frequencyAt(start.x+30)),"Pressing Shift mid-drag made the node jump");
+
+    reset();start=panel.nodePosition(0);
+    drag(start+juce::Point<float>(6,5),{{start+juce::Point<float>(6,5),0}});
+    check(sameFrequency(1000) && sameGain(0),"Pressing off a node's centre made it jump to the pointer");
+
+    reset();start=panel.nodePosition(0);
+    drag(start,{{start+juce::Point<float>(30,-5),MK::altModifier},{start+juce::Point<float>(60,-30),MK::altModifier}});
+    check(sameFrequency(frequencyAt(start.x+60)) && sameGain(0),"Alt drag along frequency changed gain");
+
+    reset();start=panel.nodePosition(0);
+    drag(start,{{start+juce::Point<float>(5,-30),MK::altModifier},{start+juce::Point<float>(40,-50),MK::altModifier}});
+    check(sameFrequency(1000) && sameGain(gainAt(start.y-50)),"Alt drag along gain changed frequency");
+
+    reset();start=panel.nodePosition(0);
+    drag(start,{{start+juce::Point<float>(2,-1),MK::altModifier}});
+    check(sameFrequency(1000) && sameGain(0),"Alt drag moved before choosing an axis");
+
+    reset();start=panel.nodePosition(0);
+    drag(start,{{start+juce::Point<float>(100,-40),MK::shiftModifier|MK::altModifier}});
+    check(sameFrequency(frequencyAt(start.x+10)) && sameGain(0),"Shift+Alt drag was not fine and frequency-only");
+
+    reset();
+    juce::MouseWheelDetails wheel{};wheel.deltaY=.2f;
+    panel.mouseWheelMove(mouseWith(panel,plot.getCentre(),plot.getCentre(),false,MK::shiftModifier),wheel);
+    const float fineQ=get(processor,eqID(bank,0,"q"));
+    reset();panel.mouseWheelMove(mouse(panel,plot.getCentre(),plot.getCentre(),false),wheel);
+    const float coarseQ=get(processor,eqID(bank,0,"q"));
+    check(near(fineQ,std::exp(.2f*.15f),.002f) && near(coarseQ,std::exp(.2f*1.5f),.005f),"Shift wheel was not a fine Q step");
+    reset();
+    std::cout<<"PASS EQ modifier drag: Shift fine (x0.1, no jump mid-drag), Alt one axis, off-centre press, Shift wheel Q bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -604,6 +675,7 @@ int main(int argc,char** argv){try {
         juce::MouseWheelDetails wheel{};wheel.deltaY=.2f;panel->mouseWheelMove(mouse(*panel,end,end,false),wheel);check(get(*processor,eqID(e,0,"q"))>1.25,"Wheel Q not connected");
         check(host.starts>=3 && host.starts==host.ends && host.changes>0,"Unbalanced/missing host gestures");frequency->removeListener(&host);gain->removeListener(&host);q->removeListener(&host);
         overlappingBandDrag(*processor,*panel,*selector,e);
+        modifierDrag(*processor,*panel,*selector,e);
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);
     }

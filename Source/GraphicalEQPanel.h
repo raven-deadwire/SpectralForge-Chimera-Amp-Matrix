@@ -315,11 +315,32 @@ public:
         }
         if(!event.mods.isLeftButtonDown())return;
         dragging=editing.beginEdit(instance,"Drag Band "+juce::String(selected+1));
-        if(dragging){editing.touchField(instance,selected,"frequency");if(gainApplicable())editing.touchField(instance,selected,"gain");}
+        if(dragging){
+            editing.touchField(instance,selected,"frequency");if(gainApplicable())editing.touchField(instance,selected,"gain");
+            dragAnchor=nodePosition(selected);dragPoint=dragAnchor;lastPointer=event.position;dragAxis=DragAxis::free;
+        }
     }
+    // Shift: fine (a tenth of the pointer's travel, like the knobs). Alt /
+    // Option: keep to the axis the drag first moves along (frequency or gain).
+    // The node moves by the pointer's travel from the press, so pressing off
+    // centre does not make it jump; Shift can change mid-drag without a jump.
     void mouseDrag(const juce::MouseEvent& event) override {
-        if(!dragging)return;write("frequency",xFrequency(event.position.x));if(gainApplicable())write("gain",yGain(event.position.y));rebuildResponse();repaint();
+        if(!dragging)return;
+        dragPoint+=(event.position-lastPointer)*(event.mods.isShiftDown()?fineDragScale:1.f);lastPointer=event.position;
+        auto target=dragPoint;
+        if(event.mods.isAltDown()) {
+            const auto travel=dragPoint-dragAnchor;
+            if(dragAxis==DragAxis::free && std::max(std::abs(travel.x),std::abs(travel.y))>=axisLockPixels)
+                dragAxis=std::abs(travel.x)>=std::abs(travel.y)?DragAxis::frequency:DragAxis::gain;
+            if(dragAxis==DragAxis::frequency)target.y=dragAnchor.y;
+            else if(dragAxis==DragAxis::gain)target.x=dragAnchor.x;
+            else target=dragAnchor;
+        } else dragAxis=DragAxis::free;
+        if(dragAxis!=DragAxis::gain)write("frequency",xFrequency(target.x));
+        if(gainApplicable() && dragAxis!=DragAxis::frequency)write("gain",yGain(target.y));
+        rebuildResponse();repaint();
     }
+    static constexpr float fineDragScale=.1f,axisLockPixels=4.f;
     void mouseUp(const juce::MouseEvent&) override {endDrag();}
     void mouseDoubleClick(const juce::MouseEvent& event) override {
         if(!event.mods.isLeftButtonDown() || !plot().contains(event.position))return;
@@ -328,7 +349,7 @@ public:
     }
     void mouseWheelMove(const juce::MouseEvent& event,const juce::MouseWheelDetails& wheel) override {
         if(!plot().contains(event.position) || selected<0)return;
-        discreteEdit(selected,"q",dsp.values(selected).q*std::exp(wheel.deltaY*1.5f),"Band Q");
+        discreteEdit(selected,"q",dsp.values(selected).q*std::exp(wheel.deltaY*(event.mods.isShiftDown()?.15f:1.5f)),"Band Q");
     }
     bool keyPressed(const juce::KeyPress& key) override {
         // Let a numeric TextEditor keep its own text-editing shortcuts.
@@ -609,6 +630,9 @@ private:
     }
     juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;EQEditState& editing;EQCaptureBoundary& captureBoundary;int instance,selected{-1};
     bool compactWorkspace{},hasDynamicRange{};
+    enum class DragAxis {free,frequency,gain};
+    DragAxis dragAxis{DragAxis::free};
+    juce::Point<float> dragAnchor,dragPoint,lastPointer;
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
     uint64_t lastExternalRevision{},pendingCaptureRequest{};
