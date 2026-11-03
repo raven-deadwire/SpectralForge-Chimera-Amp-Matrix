@@ -641,7 +641,8 @@ void contracts() {
         <<" private_cases="<<counts.privateCases<<" exact_float_samples="<<counts.exactSamples
         <<" fade_mix_samples="<<counts.mixedSamples
         <<" exact_bits=1 immutable_spectra=1 steps=1,3 partial=fixed,1,17,63,max,3 full_wraps=2"
-        <<" active=6 fading=3 fade_ms=50 latency=0\n";
+        <<" active=6 fading=3 fade_ms=50 latency=0"
+        <<" current_mac_path="<<Current::macPath()<<" reference_mac_path=sse_or_portable\n";
 }
 }
 }
