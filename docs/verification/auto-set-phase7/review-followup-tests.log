@@ -1,0 +1,274 @@
+Start testing: Oct 31 17:31 JST
+----------------------------------------------------------
+74/87 Testing: ChimeraAutoSetTests
+74/87 Test: ChimeraAutoSetTests
+Command: "/tmp/pr231-build/ChimeraAutoSetTests_artefacts/Release/ChimeraAutoSetTests"
+Directory: /tmp/pr231-build
+"ChimeraAutoSetTests" start time: Oct 31 17:31 JST
+Output:
+----------------------------------------------------------
+PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations
+PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo
+PASS gate-stage matrix: 120 cases, three styles x four strengths x ten ownership/option modes; 21 gate parameters
+PASS auto set rules: silence, quiet DI gain, gate threshold/range, unchanged steady input, noisy gate, compressor ratio/attack/makeup
+PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz
+PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release
+PASS attack safety: 72 protected synthetic attack cases, 18 sustained-brightness controls, 36 extended-range/distorted explicit-instrument cases, 9 auto-target ambiguity cases
+PASS auto set multiband rules: crossovers per instrument/style, silence, balanced signal left alone, booming lows compress only the low band within limits at 44.1/48/96 kHz
+PASS auto set gate stage rules: quiet amp leaves them off, amp hiss adds an Expander (clean/rock/metal ratios, deeper main gate), metal with headroom gets a post-rig gate and PRE Gate 2, no pause changes nothing
+MEASURE dynamic EQ excess (even): 80:-0.760639 100:0.0802097 125:0.288853 160:0.64143 200:0.139709 250:-0.0117512 315:-0.139709 400:-2.78823 500:-3.93992 630:-1.46728 800:-1.53251 1000:-2.19983 1250:-2.01385 1600:-2.37432 2000:-2.70041 2500:-4.31773 3150:-6.80175 4000:-7.45138
+MEASURE dynamic EQ excess (250 Hz ring): 80:-2.99856 100:-2.02658 125:-3.73938 160:2.02658 200:4.93312 250:8.00497 315:3.73938 400:-2.25705 500:-6.46824 630:-2.82256 800:-2.4783 1000:-2.8644 1250:-2.18188 1600:-2.69739 2000:-2.9656 2500:-4.28425 3150:-6.2259 4000:-6.71898
+MEASURE dynamic EQ node: 250 Hz, threshold -19 dB, 3:1, up to 7 dB
+PASS auto set dynamic EQ rules: silence, evenly voiced notes left alone, a 250 Hz resonance gets a node there within limits, metal release, existing nodes and slot count respected at 44.1/48/96 kHz
+MEASURE level rules: quiet -35.1922 LUFS -> 12 dB; hot -13.8151 -> -4; clicks peak -6.0206 -> 6.5; bright air -3 (excess 6.04926); dark 3; muddy -2.5 (excess 4.99363); rumble 4.14621 dB
+PASS auto set level rules: BS.1770 sine, on-target left alone and trimmed to -18 LUFS, loud trimmed down, peak headroom, bright/dark air, low-mid cut, guitar rumble high pass at 44.1/48/96 kHz
+PASS auto set capture: 10 ms windows at 44.1/48/96 kHz, louder-channel peak/RMS, mono tone tap, tap isolation, allocation-free audio path
+PASS explicit guitar/bass x three styles: manual de-esser/listen preserved, truthful summary, limiter release, apply/undo host notifications
+MEASURE auto set level: -33.6389 LUFS, peak -21.0672 dBFS, trim 12 dB, final moves 2 (rumble 0, mud 7.67715, air 10.6505)
+MEASURE auto set gates: rig noise -11.8006 dBFS, gap -12.01 dB, plan 1
+MEASURE auto set results: [Input + gate: input 0.0 > 10.5 dB; gate -65 > -53 dB, range Full] [Gate 2 + Expander: Expander after the rig at -53 dB, 2.0:1 up to 15 dB; gate closes below -71 dB (amp hiss -11.8006 dBFS)] [Tone EQ: guitar (estimate): 80 Hz +3.0, 160 Hz -6.0, 315 Hz -3.0, 630 Hz +4.5, 2.5 kHz -6.0, 5.0 kHz -6.0] [Dynamic EQ: Tone EQ 4.0 kHz above -20 dB, 2:1 up to 3 dB] [Compressor: off > -29 dB 2:1, attack 8 ms, makeup 0.0 dB] [Multiband: compressing high-mid 2:1, high 4:1] [De-esser + limiter: de-esser 5.6 kHz, -34 dB, up to 7 dB; limiter -1 dBFS (peaks -22.6)] [Final EQ + output: Final EQ 315 Hz -3.0, 8.0 kHz -3.0; output -6.0 > 6.0 dB (-33.6 LUFS heard)]
+AUTO SET synthetic DI (-18 dBFS notes, -72 dBFS noise): Applied (rock): Input 10.5 dB | Gate -53 dB, range Full | Expander -53 dB 2.0:1 | Tone EQ guitar (estimate): 6 moves | Dynamic EQ 4.0 kHz above -20 dB, 2:1 up to 3 dB | Comp -29 dB, 2:1, attack 8 ms, makeup 0.0 dB | Multiband high-mid 2:1, high 4:1 | De-esser 5.6 kHz, -34 dB, up to 7 dB | Limiter -1 dBFS (peaks -22.6 dBFS) | Final EQ 315 Hz -3.0, 8.0 kHz -3.0; output -6.0 > 6.0 dB (-33.6 LUFS heard)
+AUTO SET multiband: band1 off swing -5.62256 excess 5.35178 band2 off swing -4.63768 excess 4.01831 band3 on swing 4.63768 excess 3.2552 band4 on swing 15.206 excess 12.1398
+AUTO SET finish: high-band excess 4.92321 dB, burst excess 1.68055 dB, output peak -22.6338 dBFS
+AUTO SET tone moves: 80Hz 3dB 160Hz -6dB 315Hz -3dB 630Hz 4.5dB 1250Hz 0dB 2500Hz -6dB 5000Hz -6dB | fit error 6.23233 -> 2.60906 dB
+PASS auto set controller: silence/no-audio failures, five passes on the real processor, input+gate+Tone EQ+compressor+multiband+de-esser+limiter applied as host gestures, Dynamic EQ node kept, progress/summary, undo, optional passes, undo keeps newer edits
+PASS input strength rounding: decimal ties, negative gain, 0.01 dB settings and conversion error
+PASS auto set locks and strength: 4 Tone EQ moves halved, parallel comp/multiband mix, gate follows applied input, locked passes skipped and kept by undo
+PASS strength matrix: 25/50/75/100%, input/gate/EQ/comp/multiband/de-esser/limiter
+PASS all ten locks x four strengths: non-default values, host edits, undo, immutable run options, newly selected undo locks
+PASS attack/lock regression: 36 controller cases, three styles x four strengths x de-esser/limiter lock modes
+MEASURE auto set dynamic EQ: kept (the Tone EQ with your curve is bypassed) | Tone EQ 250 Hz above -18 dB, 3:1 up to 7 dB
+PASS auto set dynamic EQ controller: runs the Tone EQ pass alone, 0 dB node at 250 Hz on a free band and slot, strength scales the cut, assigned slots and a bypassed curve kept, Tone EQ and Dynamic EQ locks, undo
+MEASURE auto set level controller: Final EQ 8.0 kHz -3.0; output -6.0 > 6.0 dB (-35.0 LUFS heard)
+PASS auto set level controller: last pass, air shelf on a free Final EQ band, trim by the analysis, strength, Final EQ and output locks, bypassed curve kept, undo
+PASS dynamic signal protection: 60 sustain/common-envelope cases and 12 extended-range scales
+PASS dynamic ownership: newly selected Tone/Dynamic locks preserve complete node and EQ bypass on UNDO
+DYNAMIC_RENDER rate=44100 strength=0.25 peakGR=1.75 A0delta=0
+DYNAMIC_RENDER rate=44100 strength=0.5 peakGR=3.49998 A0delta=0
+DYNAMIC_RENDER rate=44100 strength=0.75 peakGR=5.24666 A0delta=0
+DYNAMIC_RENDER rate=44100 strength=1 peakGR=6.18966 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=0.25 peakGR=1.75 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=0.5 peakGR=3.49998 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=0.75 peakGR=5.24687 A0delta=0
+DYNAMIC_RENDER rate=48000 strength=1 peakGR=6.18545 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=0.25 peakGR=1.75 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=0.5 peakGR=3.49998 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=0.75 peakGR=5.24689 A0delta=0
+DYNAMIC_RENDER rate=96000 strength=1 peakGR=6.18814 A0delta=0
+PASS dynamic placement ownership: EQ/slot/bypass A-B-A and reentrant host edit
+PASS active user static Tone curve, existing Tone/Final dynamic slots, free-slot placement and Undo
+PASS Final EQ parameter ranges: 5 missing-lookup cases, 24 unchanged normal cases
+PASS phase 7 processor buses: 6 mono/stereo captures, 3 mono-to-stereo rejection contracts
+MEASURE phase7 signal=0 before=-32.0972 after=-20.1712 LUFS peak=-12.0556 dBFS trim=12 limited=0 unresolved=0
+MEASURE phase7 signal=1 before=-21.9382 after=-17.9382 LUFS peak=-17.9382 dBFS trim=4 limited=0 unresolved=0
+MEASURE phase7 signal=2 before=-21.5686 after=-20.0108 LUFS peak=-1.29889 dBFS trim=3.5 limited=1 unresolved=0
+MEASURE phase7 signal=3 before=-22.5155 after=-21.5918 LUFS peak=-1.26511 dBFS trim=1 limited=1 unresolved=0
+MEASURE phase7 signal=4 before=-31.1382 after=-30.5178 LUFS peak=-1.43445 dBFS trim=1 limited=1 unresolved=0
+PASS phase 7 rendered matrix: 30 cases, real Final EQ, mono/antiphase, tone/picking/peaks/bass
+PASS phase 7 preservation: 28 non-default curve, bypass, locks, slots and strength cases
+PASS phase 7 repeat and edit history: per-run Undo, A-B-A capture invalidation, newer output retained
+PASS Auto Set
+<end of output>
+Test time = 122.75 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAutoSetTests" end time: Oct 31 17:33 JST
+"ChimeraAutoSetTests" time elapsed: 00:02:02
+----------------------------------------------------------
+
+75/87 Testing: ChimeraAutoSetParameterSafetyTests
+75/87 Test: ChimeraAutoSetParameterSafetyTests
+Command: "/tmp/pr231-build/ChimeraAutoSetTests_artefacts/Release/ChimeraAutoSetTests" "--level-parameters"
+Directory: /tmp/pr231-build
+"ChimeraAutoSetParameterSafetyTests" start time: Oct 31 17:33 JST
+Output:
+----------------------------------------------------------
+PASS Final EQ parameter ranges: 5 missing-lookup cases, 24 unchanged normal cases
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAutoSetParameterSafetyTests" end time: Oct 31 17:33 JST
+"ChimeraAutoSetParameterSafetyTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+76/87 Testing: ChimeraAutoSetLoudnessReferenceTests
+76/87 Test: ChimeraAutoSetLoudnessReferenceTests
+Command: "/tmp/pr231-build/ChimeraAutoSetLoudnessReferenceTests"
+Directory: /tmp/pr231-build
+"ChimeraAutoSetLoudnessReferenceTests" start time: Oct 31 17:33 JST
+Output:
+----------------------------------------------------------
+PASS reference ownership: success, initialization failure, frame failure, measurement failure (4 cases)
+libebur128 1.2.6
+rate,signal,layout,reference_lufs,chimera_lufs,error_lu
+44100,997Hz,mono,-23.00751331,-23.00751305,2.665192049e-07
+44100,997Hz,dual_mono,-19.99721336,-19.99721336,7.503416555e-09
+44100,997Hz,left_only,-23.00751331,-23.00751305,2.665192049e-07
+44100,997Hz,antiphase,-19.99721336,-19.99721336,7.503416555e-09
+44100,997Hz,uncorrelated,-22.50427363,-22.50427437,7.336142289e-07
+44100,997Hz,unequal,-22.88378164,-22.88378143,2.050688401e-07
+44100,27.5Hz,mono,-23.42442188,-23.42442131,5.708882824e-07
+44100,27.5Hz,dual_mono,-20.41412192,-20.41412163,2.968656574e-07
+44100,27.5Hz,left_only,-23.42442188,-23.42442131,5.708882824e-07
+44100,27.5Hz,antiphase,-20.41412192,-20.41412163,2.968656574e-07
+44100,27.5Hz,uncorrelated,-22.87356744,-22.87356758,1.386370307e-07
+44100,27.5Hz,unequal,-23.30069021,-23.3006897,5.091834296e-07
+44100,bass_harmonics,mono,-24.72812614,-24.72812653,3.870301377e-07
+44100,bass_harmonics,dual_mono,-21.71782618,-21.71782684,6.610527628e-07
+44100,bass_harmonics,left_only,-24.72812614,-24.72812653,3.870301377e-07
+44100,bass_harmonics,antiphase,-21.71782618,-21.71782684,6.610527628e-07
+44100,bass_harmonics,uncorrelated,-23.99981533,-23.99981499,3.381149547e-07
+44100,bass_harmonics,unequal,-24.60439446,-24.60439491,4.489518943e-07
+44100,noise,mono,-27.67658321,-27.67658234,8.687993578e-07
+44100,noise,dual_mono,-24.66628325,-24.66628265,5.947767328e-07
+44100,noise,left_only,-27.67658321,-27.67658234,8.687993578e-07
+44100,noise,antiphase,-24.66628325,-24.66628265,5.947767328e-07
+44100,noise,uncorrelated,-26.34335837,-26.34335899,6.218578079e-07
+44100,noise,unequal,-27.55285153,-27.55285072,8.072595925e-07
+44100,picking,mono,-24.91942752,-24.91942787,3.553326557e-07
+44100,picking,dual_mono,-21.90912756,-21.90912819,6.293552772e-07
+44100,picking,left_only,-24.91942752,-24.91942787,3.553326557e-07
+44100,picking,antiphase,-21.90912756,-21.90912819,6.293552772e-07
+44100,picking,uncorrelated,-25.00593516,-25.00593567,5.118028774e-07
+44100,picking,unequal,-24.79569584,-24.79569626,4.17145678e-07
+44100,single_attack,mono,-18.60594733,-18.60594749,1.662854991e-07
+44100,single_attack,dual_mono,-15.59564737,-15.59564781,4.403081224e-07
+44100,single_attack,left_only,-18.60594733,-18.60594749,1.662854991e-07
+44100,single_attack,antiphase,-15.59564737,-15.59564781,4.403081224e-07
+44100,single_attack,uncorrelated,-28.0078306,-28.00782967,9.320306624e-07
+44100,single_attack,unequal,-18.48221565,-18.48221588,2.276641311e-07
+44100,gated,mono,-23.15989462,-23.15989494,3.224604406e-07
+44100,gated,dual_mono,-20.14959466,-20.14959526,5.964830621e-07
+44100,gated,left_only,-23.15989462,-23.15989494,3.224604406e-07
+44100,gated,antiphase,-20.14959466,-20.14959526,5.964830621e-07
+44100,gated,uncorrelated,-25.0955408,-25.095541,1.972819561e-07
+44100,gated,unequal,-23.03616295,-23.03616333,3.841016571e-07
+44100,silence,mono,-inf,unmeasured,0
+44100,silence,dual_mono,-inf,unmeasured,0
+44100,silence,left_only,-inf,unmeasured,0
+44100,silence,antiphase,-inf,unmeasured,0
+44100,silence,uncorrelated,-32.11355839,-32.11355972,1.331909317e-06
+44100,silence,unequal,-inf,unmeasured,0
+48000,997Hz,mono,-23.01027575,-23.01027489,8.665729823e-07
+48000,997Hz,dual_mono,-19.9999758,-19.9999752,5.925503572e-07
+48000,997Hz,left_only,-23.01027575,-23.01027489,8.665729823e-07
+48000,997Hz,antiphase,-19.9999758,-19.9999752,5.925503572e-07
+48000,997Hz,uncorrelated,-22.50491254,-22.50491333,7.875877976e-07
+48000,997Hz,unequal,-22.88654408,-22.88654327,8.051464029e-07
+48000,27.5Hz,mono,-23.42824154,-23.42824173,1.916927381e-07
+48000,27.5Hz,dual_mono,-20.41794158,-20.41794205,4.657153632e-07
+48000,27.5Hz,left_only,-23.42824154,-23.42824173,1.916927381e-07
+48000,27.5Hz,antiphase,-20.41794158,-20.41794205,4.657153632e-07
+48000,27.5Hz,uncorrelated,-22.8749487,-22.8749485,1.953340139e-07
+48000,27.5Hz,unequal,-23.30450986,-23.30451012,2.534384329e-07
+48000,bass_harmonics,mono,-24.73194678,-24.73194695,1.678309829e-07
+48000,bass_harmonics,dual_mono,-21.72164682,-21.72164726,4.418536079e-07
+48000,bass_harmonics,left_only,-24.73194678,-24.73194695,1.678309829e-07
+48000,bass_harmonics,antiphase,-21.72164682,-21.72164726,4.418536079e-07
+48000,bass_harmonics,uncorrelated,-24.00047576,-24.00047493,8.309732848e-07
+48000,bass_harmonics,unequal,-24.6082151,-24.60821533,2.293995145e-07
+48000,noise,mono,-27.65997586,-27.65997505,8.077263836e-07
+48000,noise,dual_mono,-24.6496759,-24.64967537,5.337037585e-07
+48000,noise,left_only,-27.65997586,-27.65997505,8.077263836e-07
+48000,noise,antiphase,-24.6496759,-24.64967537,5.337037585e-07
+48000,noise,uncorrelated,-26.32852994,-26.32852936,5.796775326e-07
+48000,noise,unequal,-27.53624418,-27.53624344,7.46190107e-07
+48000,picking,mono,-24.92325319,-24.92325401,8.24351563e-07
+48000,picking,dual_mono,-21.91295323,-21.91295242,8.089744448e-07
+48000,picking,left_only,-24.92325319,-24.92325401,8.24351563e-07
+48000,picking,antiphase,-21.91295323,-21.91295242,8.089744448e-07
+48000,picking,uncorrelated,-25.00577615,-25.00577545,7.020698511e-07
+48000,picking,unequal,-24.79952151,-24.7995224,8.856057931e-07
+48000,single_attack,mono,-18.60936105,-18.60936165,5.956364575e-07
+48000,single_attack,dual_mono,-15.5990611,-15.59906101,8.401523921e-08
+48000,single_attack,left_only,-18.60936105,-18.60936165,5.956364575e-07
+48000,single_attack,antiphase,-15.5990611,-15.59906101,8.401523921e-08
+48000,single_attack,uncorrelated,-28.00345452,-28.00345421,3.12819072e-07
+48000,single_attack,unequal,-18.48562938,-18.48563004,6.575594327e-07
+48000,gated,mono,-23.1626557,-23.16265488,8.223868413e-07
+48000,gated,dual_mono,-20.15235574,-20.15235519,5.483642163e-07
+48000,gated,left_only,-23.1626557,-23.16265488,8.223868413e-07
+48000,gated,antiphase,-20.15235574,-20.15235519,5.483642163e-07
+48000,gated,uncorrelated,-25.09444655,-25.09444618,3.653192628e-07
+48000,gated,unequal,-23.03892402,-23.03892326,7.607301704e-07
+48000,silence,mono,-inf,unmeasured,0
+48000,silence,dual_mono,-inf,unmeasured,0
+48000,silence,left_only,-inf,unmeasured,0
+48000,silence,antiphase,-inf,unmeasured,0
+48000,silence,uncorrelated,-32.09695105,-32.09695053,5.143916582e-07
+48000,silence,unequal,-inf,unmeasured,0
+96000,997Hz,mono,-23.02759958,-23.02759933,2.473811129e-07
+96000,997Hz,dual_mono,-20.01729963,-20.01729965,2.664151211e-08
+96000,997Hz,left_only,-23.02759958,-23.02759933,2.473811129e-07
+96000,997Hz,antiphase,-20.01729963,-20.01729965,2.664151211e-08
+96000,997Hz,uncorrelated,-22.51099276,-22.51099205,7.064761114e-07
+96000,997Hz,unequal,-22.90386791,-22.90386772,1.858859484e-07
+96000,27.5Hz,mono,-23.4498565,-23.4498558,6.951685911e-07
+96000,27.5Hz,dual_mono,-20.43955654,-20.43955612,4.211459661e-07
+96000,27.5Hz,left_only,-23.4498565,-23.4498558,6.951685911e-07
+96000,27.5Hz,antiphase,-20.43955654,-20.43955612,4.211459661e-07
+96000,27.5Hz,uncorrelated,-22.88379729,-22.88379669,6.007782645e-07
+96000,27.5Hz,unequal,-23.32612482,-23.32612419,6.334173861e-07
+96000,bass_harmonics,mono,-24.75356516,-24.75356483,3.221874323e-07
+96000,bass_harmonics,dual_mono,-21.7432652,-21.74326515,4.816481081e-08
+96000,bass_harmonics,left_only,-24.75356516,-24.75356483,3.221874323e-07
+96000,bass_harmonics,antiphase,-21.7432652,-21.74326515,4.816481081e-08
+96000,bass_harmonics,uncorrelated,-24.00555756,-24.00555801,4.501995363e-07
+96000,bass_harmonics,unequal,-24.62983348,-24.62983322,2.605449758e-07
+96000,noise,mono,-27.5760025,-27.57600212,3.793479699e-07
+96000,noise,dual_mono,-24.56570254,-24.56570244,1.053253449e-07
+96000,noise,left_only,-27.5760025,-27.57600212,3.793479699e-07
+96000,noise,antiphase,-24.56570254,-24.56570244,1.053253449e-07
+96000,noise,uncorrelated,-26.24244681,-26.2424469,8.706498633e-08
+96000,noise,unequal,-27.45227083,-27.45227051,3.178238188e-07
+96000,picking,mono,-24.94489292,-24.94489288,3.734708898e-08
+96000,picking,dual_mono,-21.93459296,-21.9345932,2.366755361e-07
+96000,picking,left_only,-24.94489292,-24.94489288,3.734708898e-08
+96000,picking,antiphase,-21.93459296,-21.9345932,2.366755361e-07
+96000,picking,uncorrelated,-25.00657821,-25.00657845,2.371626664e-07
+96000,picking,unequal,-24.82116125,-24.82116127,2.425343837e-08
+96000,single_attack,mono,-18.62883565,-18.62883568,2.672033972e-08
+96000,single_attack,dual_mono,-15.61853569,-15.618536,3.00742963e-07
+96000,single_attack,left_only,-18.62883565,-18.62883568,2.672033972e-08
+96000,single_attack,antiphase,-15.61853569,-15.618536,3.00742963e-07
+96000,single_attack,uncorrelated,-27.98232937,-27.98233032,9.529943128e-07
+96000,single_attack,unequal,-18.50510398,-18.50510406,8.835846899e-08
+96000,gated,mono,-23.17997134,-23.17997169,3.576890535e-07
+96000,gated,dual_mono,-20.16967138,-20.16967201,6.31711675e-07
+96000,gated,left_only,-23.17997134,-23.17997169,3.576890535e-07
+96000,gated,antiphase,-20.16967138,-20.16967201,6.31711675e-07
+96000,gated,uncorrelated,-25.09137488,-25.09137535,4.758067433e-07
+96000,gated,unequal,-23.05623966,-23.05624008,4.193470851e-07
+96000,silence,mono,-inf,unmeasured,0
+96000,silence,dual_mono,-inf,unmeasured,0
+96000,silence,left_only,-inf,unmeasured,0
+96000,silence,antiphase,-inf,unmeasured,0
+96000,silence,uncorrelated,-32.01297769,-32.0129776,8.636241233e-08
+96000,silence,unequal,-inf,unmeasured,0
+144 cases; 0 failures; max finite error 1.33191e-06 LU
+<end of output>
+Test time =   5.69 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAutoSetLoudnessReferenceTests" end time: Oct 31 17:33 JST
+"ChimeraAutoSetLoudnessReferenceTests" time elapsed: 00:00:05
+----------------------------------------------------------
+
+77/87 Testing: ChimeraAutoSetReferenceOwnershipTests
+77/87 Test: ChimeraAutoSetReferenceOwnershipTests
+Command: "/tmp/pr231-build/ChimeraAutoSetLoudnessReferenceTests" "--failure-paths"
+Directory: /tmp/pr231-build
+"ChimeraAutoSetReferenceOwnershipTests" start time: Oct 31 17:33 JST
+Output:
+----------------------------------------------------------
+PASS reference ownership: success, initialization failure, frame failure, measurement failure (4 cases)
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAutoSetReferenceOwnershipTests" end time: Oct 31 17:33 JST
+"ChimeraAutoSetReferenceOwnershipTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 31 17:33 JST

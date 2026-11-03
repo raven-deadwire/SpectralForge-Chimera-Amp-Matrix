@@ -1,0 +1,23 @@
+{
+  "baseline_commit": "ad622ceffdd7404b12de4e473349b1104200048f",
+  "reference": {
+    "name": "libebur128",
+    "version": "1.2.6",
+    "commit": "67b33abe1558160ed76ada1322329b0e9e058b02"
+  },
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "configuration": "Linux Release; JUCE 8.0.8; CHIMERA_UI_PROBES=ON; CHIMERA_BETA_QUALIFICATION_ONLY=ON; no display (DSP/controller tests)",
+  "test_results": {
+    "ChimeraAutoSetTests": "PASS (90.11 s)",
+    "ChimeraAutoSetLoudnessReferenceTests": "PASS (5.48 s)"
+  },
+  "source_sha256": {
+    "Source/AutoSet.h": "89998eb77783e00c32371e47ea824cd2d2e9c431ba20c314322212ee800ef914",
+    "Source/AutoSetController.h": "b51b5cb4a6c30f6d728009ce914e772727369ebc176c40df48644f02cb5f061a",
+    "Source/AutoSetLoudness.h": "f5203977cd109f720f3ccfb992e1ad223728e6bec713294ee1d29cc523d57edb",
+    "Tests/AutoSetTests.cpp": "5e1422280468ff9583752ef3e7978b7a08d163249dac909db256e7b84c2486c0",
+    "Tests/AutoSetLevelRegression.h": "b0551e69356d416843a8dbc1bdbc043be2a8458c5efe1f3074c9e2d982c8eef7",
+    "Tests/AutoSetLoudnessReferenceTests.cpp": "fa0860d9c919eb5c5606e1f11073fb9297266fa2263b697ff7cb750af1a4d174",
+    "Tools/run_auto_set_loudness_reference.py": "1c36a6b0e6f9c1d026ad0e449c7d5ad7049e8fa2b6f739fe6c47537417268f63"
+  }
+}
