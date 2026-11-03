@@ -148,6 +148,24 @@ class BetaLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unset"):
             beta_lifecycle.validate_metadata(pending, self.root, SHA, publication=True, now=self.now)
 
+    def test_committed_beta2_approval_is_distinct_from_published_beta1(self):
+        source = Path(__file__).resolve().parents[1]
+        policy = json.loads((source / beta_lifecycle.POLICY_PATH).read_text())
+        self.assertEqual((source / "VERSION").read_text().strip(), "1.3.2")
+        self.assertEqual((source / "RELEASE_CHANNEL").read_text().strip(), "beta.2")
+        self.assertEqual(policy["version"], "1.3.2-beta.2")
+        self.assertEqual(policy["expires_at_utc"], "2027-03-31T14:59:00Z")
+        self.assertIs(policy["expiry_approved"], True)
+        metadata = beta_lifecycle.configure_metadata(source, SHA, now=self.now)
+        self.assertEqual(metadata["expires_at_unix"], 1806505140)
+        self.assertEqual(beta_lifecycle.expiry_kst(metadata), "2027-03-31 23:59:00")
+        self.assertIn("2027-03-31T14:59:00Z", beta_lifecycle.notice(metadata))
+        # An immutable beta.1 policy cannot configure the beta.2 source.
+        (self.root / "VERSION").write_text("1.3.2\n")
+        self.policy(version="1.3.2-beta.1", expires_at_utc="2027-02-11T14:59:00Z", expiry_approved=True)
+        with self.assertRaisesRegex(ValueError, "version differs"):
+            beta_lifecycle.configure_metadata(self.root, SHA, now=self.now)
+
     def test_non_beta_build_is_isolated(self):
         (self.root / "RELEASE_CHANNEL").write_text("stable\n", encoding="utf-8")
         value = beta_lifecycle.configure_metadata(self.root, SHA, now=self.now)
