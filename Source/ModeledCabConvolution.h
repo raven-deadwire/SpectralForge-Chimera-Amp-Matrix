@@ -12,9 +12,10 @@
 #include <immintrin.h>
 #if defined(_MSC_VER) && !defined(__clang__)
 #include <intrin.h>
-#define SF_CAB_TARGET_AVX
+#define SF_CAB_TARGET_AVX __declspec(noinline)
 #else
-#define SF_CAB_TARGET_AVX __attribute__((target("avx")))
+#include <cpuid.h>
+#define SF_CAB_TARGET_AVX __attribute__((target("avx"), noinline))
 #endif
 #else
 #define SF_CAB_AVX_DISPATCH 0
@@ -34,16 +35,26 @@ inline bool detectAvx() noexcept
 {
 #if defined(_MSC_VER) && !defined(__clang__)
     int info[4]{};
+    __cpuid(info, 0);
+    if(info[0] < 1) return false;
     __cpuid(info, 1);
-    const bool osSaves = (info[2] & (1 << 27)) != 0, avx = (info[2] & (1 << 28)) != 0;
-    if(!osSaves || !avx) return false;
+    const unsigned int features = static_cast<unsigned int>(info[2]);
+#else
+    unsigned int eax{}, ebx{}, features{}, edx{};
+    if(!__get_cpuid(1, &eax, &ebx, &features, &edx)) return false;
+#endif
+    constexpr unsigned int required = (1u << 26) | (1u << 27) | (1u << 28);
+    if((features & required) != required) return false; // XSAVE, OSXSAVE, AVX
+#if defined(_MSC_VER) && !defined(__clang__)
     return (_xgetbv(0) & 6) == 6; // the OS saves XMM and YMM state
 #else
-    __builtin_cpu_init();
-    return __builtin_cpu_supports("avx"); // includes the OS XSAVE/YMM check
+    // Keep the detector at the baseline ISA: GCC's _xgetbv intrinsic needs
+    // -mxsave. Execute this instruction only after the OSXSAVE check above.
+    unsigned int xcr0Low{}, xcr0High{};
+    __asm__ volatile("xgetbv" : "=a"(xcr0Low), "=d"(xcr0High) : "c"(0));
+    return (xcr0Low & 6u) == 6u;
 #endif
 }
-inline const bool hasAvx = detectAvx();
 SF_CAB_TARGET_AVX inline void accumulateAvx(const float* __restrict input,const float* __restrict impulse,
                                             float* __restrict output,int bins) noexcept
 {
@@ -136,6 +147,11 @@ public:
         }
     };
 private:
+#if SF_CAB_AVX_DISPATCH
+    // Construction is worker-only; no CPU probing or lazy initialization
+    // is allowed in the audio callback.
+    const bool useAvx = cabSimd::detectAvx();
+#endif
     std::shared_ptr<const Prepared> prepared;
     const bool mono;
     const int blockSize, fftSize, bins, segments, inputSegments, inputSegmentStep;
@@ -165,7 +181,7 @@ private:
         // are disjoint; restrict makes that contract available to the compiler.
         // Keep the original arithmetic order and do not enable fast-math.
 #if SF_CAB_AVX_DISPATCH
-        if(cabSimd::hasAvx){cabSimd::accumulateAvx(input,impulse,output,bins);return;}
+        if(useAvx){cabSimd::accumulateAvx(input,impulse,output,bins);return;}
 #endif
         int i=0;
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
@@ -267,11 +283,11 @@ public:
     ModeledCabConvolution(const juce::AudioBuffer<float>& samples,int maximumBlockSize,bool monoInput=false)
         : ModeledCabConvolution(std::make_shared<const Prepared>(samples,maximumBlockSize,monoInput)) {}
     int getLatency() const noexcept {return 0;}
-    // Which multiply-accumulate path this machine runs (for test evidence).
+    // Test diagnostics only: probes the CPU; do not call from the audio thread.
     static const char* macPath() noexcept
     {
 #if SF_CAB_AVX_DISPATCH
-        return cabSimd::hasAvx ? "avx" : "sse";
+        return cabSimd::detectAvx() ? "avx" : "sse";
 #else
         return "portable";
 #endif
