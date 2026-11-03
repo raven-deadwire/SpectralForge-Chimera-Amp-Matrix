@@ -70,14 +70,17 @@ jobs:
             }
             $line = "{0,-22} exit {1}  {2,4} s" -f $label, $code, $seconds
             Write-Host $line
-            if ($code -ne 0) { Get-Content $log | Select-String "^FAIL" | ForEach-Object { Write-Host "    $_" } }
+            if ($code -ne 0) {
+              # Artifacts may not be reachable from where this is read: print the run's own report.
+              Get-Content $log | Select-String -NotMatch "^(info|debug|warning): " | Select-Object -Last 120 | ForEach-Object { Write-Host "    | $_" }
+            }
             return $line
           }
-          for ($i = 1; $i -le 6; $i++) {
+          for ($i = 1; $i -le 2; $i++) {
             $results += Run-One "pair$i-instances31" "OBS/tests/obs_instances_test.py" $obs31
             $results += Run-One "pair$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
-          for ($i = 1; $i -le 8; $i++) {
+          for ($i = 1; $i -le 3; $i++) {
             $results += Run-One "alone$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
           Write-Host "`n=== summary"
