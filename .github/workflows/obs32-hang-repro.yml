@@ -62,13 +62,16 @@ jobs:
             $seconds = [int]((Get-Date) - $started).TotalSeconds
             if ($code -ne 0) {
               # A failed run leaves OBS's configuration and the plugin behind; keep them, then clear for the next run.
-              Get-Process obs64 -ErrorAction SilentlyContinue | Stop-Process -Force
+              # Name what OBS left running (the last hang repeated in every later run), then end it all.
+              Get-Process | Where-Object { $_.ProcessName -match '^obs' } | ForEach-Object { Write-Host ("    left running: {0} {1}" -f $_.ProcessName, $_.Id) }
+              Get-Process | Where-Object { $_.ProcessName -match '^obs' } | Stop-Process -Force
               Start-Sleep 2
               $config = Join-Path $env:APPDATA "obs-studio"
               if (Test-Path $config) { Copy-Item -Recurse $config (Join-Path $work "appdata-obs-studio") -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force $config -ErrorAction SilentlyContinue }
               Remove-Item -Recurse -Force (Join-Path $env:ProgramData "obs-studio/plugins/chimera-obs") -ErrorAction SilentlyContinue
             }
-            $line = "{0,-22} exit {1}  {2,4} s" -f $label, $code, $seconds
+            $left = (Get-Process | Where-Object { $_.ProcessName -match '^obs' } | ForEach-Object { $_.ProcessName }) -join ','
+            $line = "{0,-22} exit {1}  {2,4} s  obs processes after: {3}" -f $label, $code, $seconds, $(if ($left) { $left } else { 'none' })
             Write-Host $line
             if ($code -ne 0) {
               # Artifacts may not be reachable from where this is read: print the run's own report.
@@ -76,11 +79,11 @@ jobs:
             }
             return $line
           }
-          for ($i = 1; $i -le 2; $i++) {
+          for ($i = 1; $i -le 0; $i++) {
             $results += Run-One "pair$i-instances31" "OBS/tests/obs_instances_test.py" $obs31
             $results += Run-One "pair$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
-          for ($i = 1; $i -le 3; $i++) {
+          for ($i = 1; $i -le 16; $i++) {
             $results += Run-One "alone$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
           Write-Host "`n=== summary"
