@@ -166,6 +166,11 @@ def compare_package(out, tool):
     amp = amp_of(json.loads((data / 'manifest.json').read_text())['source'])
     names = tuple(v[0] for v in AMPS[amp]['voices'])
     stem = 'Nastrond' if amp == 'nastrond' else AMPS[amp]['display']
+    # Head + cab packages: '-Cab' files, '<Channel>-Cab' anchors, EQ block off.
+    source = json.loads((data / 'manifest.json').read_text())['source']
+    cab = bool(source.get('cabinet'))
+    suffix = '-Cab' if cab else ''
+    from quality_profile import cab_key
     require(set(validation['channels']) == set(names), 'Expected exactly five packaged channels')
     x = np.load(data / 'test/input.npy')
     raw, rendered = out / 'comparison-input.f32', out / 'comparison-output.f32'
@@ -177,8 +182,8 @@ def compare_package(out, tool):
               'legacy_thresholds': THRESHOLDS, 'quality_profile': PROFILE, 'channels': {}}
     for name in names:
         row = validation['channels'][name]
-        model = package / 'NAM' / f'{stem}-{name}.nam'
-        preset = package / 'TONE3000-Presets' / f'{stem}-{name}.t3kpreset'
+        model = package / 'NAM' / f'{stem}-{name}{suffix}.nam'
+        preset = package / 'TONE3000-Presets' / f'{stem}-{name}{suffix}.t3kpreset'
         require(sha256(model) == row['model_sha256'] and sha256(preset) == row['preset_sha256'], 'Package hash mismatch')
         runtime = json.loads(subprocess.check_output([str(tool), 'render', str(model), str(raw), str(rendered), str(job)], text=True))
         require(runtime['a2_gate'] and runtime['a2_channels'] == 8, 'Not A2-Full')
@@ -195,12 +200,15 @@ def compare_package(out, tool):
         settings = package / 'Settings' / (name + '.json')
         subprocess.check_output([str(tool), 'render', str(model), str(raw), str(rendered), str(settings)])
         eq = np.fromfile(rendered, dtype='<f4')
-        require(float(np.max(np.abs(eq-y))) > 1e-7, 'EQ has no measured effect')
+        if cab:
+            require(float(np.max(np.abs(eq-y))) <= 1e-7, 'Head + cab settings must leave the EQ off')
+        else:
+            require(float(np.max(np.abs(eq-y))) > 1e-7, 'EQ has no measured effect')
         subprocess.check_output([str(tool), 'render-preset', str(preset), str(raw), str(rendered)])
         restored = np.fromfile(rendered, dtype='<f4')
         delta = float(np.max(np.abs(eq-restored)))
         require(math.isfinite(delta) and delta <= 1e-6, 'Saved preset audio does not restore')
-        quality = fidelity(y / row['reference_output_scale'], ref / row['reference_output_scale'], name, x)
+        quality = fidelity(y / row['reference_output_scale'], ref / row['reference_output_scale'], cab_key(name, source), x)
         report['channels'][name] = {'metrics': stat, 'legacy_all_relative_pass': numeric_pass(stat),
             'tone3000_fidelity': quality, 'numerical_pass': quality['fidelity_pass'],
             'model_sha256': sha256(model), 'preset_sha256': sha256(preset),
