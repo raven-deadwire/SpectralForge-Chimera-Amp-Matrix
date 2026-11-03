@@ -383,10 +383,11 @@ class Obs:
 def failure_text(e: BaseException) -> str:
     """The failure, and the one it interrupted: an OBS that will not quit in a cleanup
     `finally` must not hide why the test stopped."""
-    text = str(e)
-    if e.__context__ is not None and e.__context__ is not e:
-        text += f" (after: {e.__context__})"
-    return text
+    first, seen = e, {id(e)}
+    while first.__context__ is not None and id(first.__context__) not in seen:
+        first = first.__context__
+        seen.add(id(first))
+    return str(e) if first is e else f"{e} (first failure: {first})"
 
 
 def check(ok: bool, what: str) -> None:
