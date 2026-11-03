@@ -189,18 +189,22 @@ def main():
         if (args.run/file).exists():shutil.copy2(args.run/file,args.out/'Training'/file)
     # Text intentionally distinguishes a test build from release approval.
     lines=[f'# {display} — TONE3000 A2 테스트 패키지','',
-      '채널 캐릭터를 강조한 독립 NAM 5개와 TONE3000 파라메트릭 EQ 프리셋 5개입니다. 앰프 헤드 캡처이며 캐비닛 IR은 포함하지 않습니다.','',
+      ('앰프 헤드와 채널별 팩토리 프리셋 캐비닛을 함께 캡처한 독립 NAM 5개와 TONE3000 프리셋 5개입니다. 캐비닛이 NAM 안에 들어 있으므로 별도 캐비닛 IR 없이 사용합니다.' if cab else '채널 캐릭터를 강조한 독립 NAM 5개와 TONE3000 파라메트릭 EQ 프리셋 5개입니다. 앰프 헤드 캡처이며 캐비닛 IR은 포함하지 않습니다.'),'',
       '## 사용 방법','',
       '1. `NAM` 폴더의 `.nam` 파일을 TONE3000의 빈 블록으로 드래그합니다. 폴더 전체를 넣으면 Model에서 5개 채널을 선택할 수 있습니다. 파일에 고정 출력 보정이 있으므로 Normalize는 끕니다.',
-      '2. 앰프 뒤에 원하는 캐비닛 IR을 추가합니다.',
-      '3. EQ까지 적용하려면 `TONE3000-Presets`의 `.t3kpreset` 파일을 TONE3000의 사용자 Presets 폴더에 복사하고 플러그인 창을 다시 엽니다.',
-      '4. Your Presets에서 채널을 선택합니다. NAM 데이터와 6밴드 POST EQ가 프리셋 안에 포함되어 있어 오프라인으로 불러올 수 있습니다.','',
+      *(['2. 캐비닛이 이미 포함되어 있으므로 캐비닛 IR을 추가하지 않습니다.',
+         '3. 프리셋으로 쓰려면 `TONE3000-Presets`의 `.t3kpreset` 파일을 TONE3000의 사용자 Presets 폴더에 복사하고 플러그인 창을 다시 엽니다.',
+         '4. Your Presets에서 채널을 선택합니다. 프리셋의 EQ 블록은 꺼져 있습니다(캐비닛이 보이싱을 담당).'] if cab else
+        ['2. 앰프 뒤에 원하는 캐비닛 IR을 추가합니다.',
+         '3. EQ까지 적용하려면 `TONE3000-Presets`의 `.t3kpreset` 파일을 TONE3000의 사용자 Presets 폴더에 복사하고 플러그인 창을 다시 엽니다.',
+         '4. Your Presets에서 채널을 선택합니다. NAM 데이터와 6밴드 POST EQ가 프리셋 안에 포함되어 있어 오프라인으로 불러올 수 있습니다.']),'',
       '프리셋 위치: Windows `%APPDATA%/TONE3000/Presets`, macOS `~/Library/Application Support/TONE3000/Presets`, Linux `~/.config/TONE3000/Presets`.','',
-      '입력·출력은 0 dB, Mix는 100%, Normalize는 꺼져 있습니다. 같은 검증 입력과 채널별 POST EQ를 기준으로 -20 dBFS RMS가 되도록 NAM의 고정 출력 스케일을 보정했습니다. 연주와 음역에 따른 음량 차이는 남을 수 있습니다. 글로벌 EQ·피치·스프레드·게이트는 꺼져 있습니다. '+('각 파일에 A2-Full과 A2-Lite가 함께 들어 있으며, TONE3000의 NAM A2 Size로 고릅니다.' if args.lite_run else 'A2-Full 단일 모델이며 별도의 Lite 모델은 포함하지 않습니다.')+'','',
+      '입력·출력은 0 dB, Mix는 100%, Normalize는 꺼져 있습니다. 같은 검증 입력과 '+('EQ 없이' if cab else '채널별 POST EQ를 기준으로')+' -20 dBFS RMS가 되도록 NAM의 고정 출력 스케일을 보정했습니다. 연주와 음역에 따른 음량 차이는 남을 수 있습니다. 글로벌 EQ·피치·스프레드·게이트는 꺼져 있습니다. '+('각 파일에 A2-Full과 A2-Lite가 함께 들어 있으며, TONE3000의 NAM A2 Size로 고릅니다.' if args.lite_run else 'A2-Full 단일 모델이며 별도의 Lite 모델은 포함하지 않습니다.')+'','',
       '## 채널','',
       '| 파일 | 강조한 캐릭터 |','| --- | --- |',
       *CHANNEL_ROWS[amp],'',
-      'NAM에는 각 채널의 고정 앰프 세팅이 담겨 있습니다. 추가 조절은 TONE3000의 입력 게인과 파라메트릭 EQ로 합니다. Chimera의 '+str(KNOBS[amp])+'개 노브를 NAM 내부에서 가변 재현하는 모델은 아닙니다.','',
+      *([f'채널별 캐비닛은 해당 보이싱을 담당하는 팩토리 리그 프리셋 레인의 캐비닛입니다: '+', '.join(f"{n} = {c['rig_preset_name']} 레인 {c['lane']}" for n,c in manifest['source']['cabinet']['channels'].items())+'.',''] if cab else []),
+      'NAM에는 각 채널의 고정 앰프 세팅이 담겨 있습니다. 추가 조절은 TONE3000의 입력 게인'+('과 필요하면 EQ로' if cab else '과 파라메트릭 EQ로')+' 합니다. Chimera의 '+str(KNOBS[amp])+'개 노브를 NAM 내부에서 가변 재현하는 모델은 아닙니다.','',
       '## 검증 상태','',
       'TONE3000의 A2 판별, 실제 재생 엔진, EQ 및 프리셋 저장/복원 코드로 검증했습니다. 아직 테스트 빌드이며, 실제 악기 DI 청취와 GUI/DAW 실사용 검증은 완료되지 않았습니다.','',
       'TONE3000 호환을 유지하기로 한 결정에 따라 연주 구간과 미세한 잔향의 평가를 분리했습니다. 아래 수치는 TONE3000의 공식 인증 규격이 아닌 프로젝트 제작 기준입니다. 원본 RMS -60 dBFS 이상인 구간은 ESR 중앙값 0.005·p95 0.01·최대 0.02 이하를 요구합니다. 그보다 작은 구간은 잔차 RMS -70 dBFS·피크 -60 dBFS 이하를 요구합니다. 분류 레벨은 v0.2 기준으로 고정해, 새 파일의 출력 보정으로 평가 구간이 달라지지 않습니다.','',
@@ -209,12 +213,12 @@ def main():
         v=r['validation'];q=r['tone3000_fidelity'];lines.append(f'| {name} | {v["esr"]:.6f} | {q["active_median"]:.6f} | {q["active_p95"]:.6f} |')
     lines+=['','ESR은 낮을수록 오차가 작습니다. “음색 유사도 퍼센트”를 뜻하지 않습니다. '+('학습·체크포인트 선택에서 제외한 합성 테스트와 NAM 공식 V3 입력으로 이전 모델과 비교했습니다. 상세 결과는 `Validation/comparison.json`에 있습니다.' if comparison else '합성 신호로 학습·검증했으며, 최종 테스트 신호는 아직 사용하지 않았습니다.'),
       '',f'설계상 수치 기준 전체 통과: {"예" if report["numerical_accuracy_pass"] else "아니오 — 정식 릴리즈 승인 전 추가 개선 필요"}. 상세 수치와 미완료 항목은 `Validation/validation.json`에 있습니다.','',
-      '`Audio/*Native-left-NAM-right.wav`는 왼쪽 원본 DSP, 오른쪽 NAM 비교입니다. `*TONE3000-EQ.wav`는 채널 EQ와 고정 출력 보정을 적용한 합성 테스트 음원입니다. 모두 캐비닛 없는 앰프 신호입니다.','',
+      '`Audio/*Native-left-NAM-right.wav`는 왼쪽 원본 DSP, 오른쪽 NAM 비교입니다. '+('`*TONE3000-EQ.wav`는 프리셋 설정(EQ 꺼짐)과 고정 출력 보정을 적용한 합성 테스트 음원입니다. 모두 앰프와 캐비닛을 거친 신호입니다.' if cab else '`*TONE3000-EQ.wav`는 채널 EQ와 고정 출력 보정을 적용한 합성 테스트 음원입니다. 모두 캐비닛 없는 앰프 신호입니다.')+'','',
       '캡처는 Chimera v1.2.0-beta.1의 실제 4배 오버샘플링 앰프 경로를 사용했습니다. 원본의 지연을 유지해 인과적인 학습 대상으로 만들었습니다. 채널별 고정 출력 보정은 비교용 원본 DSP에도 똑같이 적용했습니다. 입력 드라이브는 바꾸지 않았습니다. TONE3000의 Normalize를 다시 켜면 이 출력 보정 효과가 달라집니다.','',
       'TONE3000 문서: https://www.tone3000.com/guides/tone3000-plugin',
       'NAM 학습기: https://github.com/sdatkinson/neural-amp-modeler',
       'TONE3000 플레이어: https://github.com/tone-3000/tone3000-plugin','',
-      'Náströnd/Chimera: RavenForge Luthier Intelligence. NAM 및 TONE3000과의 제휴·공식 인증을 뜻하지 않습니다.']
+      f'{display}/Chimera: RavenForge Luthier Intelligence. NAM 및 TONE3000과의 제휴·공식 인증을 뜻하지 않습니다.']
     lines+=['','## 지원 범위','',
       '현재 확인한 TONE3000은 A2 모델과 외부 파라메트릭 EQ를 지원합니다. 모델 내부의 게인·톤 노브가 가변되는 패러매틱 NAM 요구는 이 플레이어에서 충족되지 않습니다. 이 패키지를 패러매틱 NAM으로 표기하지 않습니다.',
       '음량 보정은 디지털 RMS 균형이며, 실제 하드웨어 전압을 측정한 dBu 캘리브레이션이 아닙니다. 재생 검증 조건은 48 kHz, 플레이어 추가 오버샘플링 없음입니다.']
