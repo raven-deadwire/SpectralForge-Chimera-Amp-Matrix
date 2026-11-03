@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import hmac
 import json
+import os
 import re
 import secrets
 import sys
@@ -32,11 +33,14 @@ DOMAIN = "chimera-tester-v1"
 ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"  # Crockford base32
 CHECK_LENGTH = 6
 MIN_NAME, MAX_NAME = 2, 16
+MAX_CODE, MAX_PASTED = 64, 256
 SCHEMA = "spectralforge.chimera.tester-secret.v1"
 
 
 def check_name(name: str) -> str:
     """Upper-case and drop spaces, dots and hyphens: "Seo Mary" -> "SEOMARY"."""
+    if not name.isascii():
+        raise ValueError("Tester name must contain ASCII letters or digits")
     normalised = re.sub(r"[\s.\-_]", "", name).upper()
     if not re.fullmatch(rf"[A-Z0-9]{{{MIN_NAME},{MAX_NAME}}}", normalised):
         raise ValueError(f"Tester name must be {MIN_NAME}-{MAX_NAME} letters A-Z or digits (got {name!r})")
@@ -50,19 +54,32 @@ def check(secret: bytes, name: str) -> str:
 
 
 def issue(secret: bytes, name: str) -> str:
+    if len(secret) < 16:
+        raise ValueError("Tester secret is too short")
     name = check_name(name)
     return f"{PREFIX}-{name}-{check(secret, name)}"
 
 
 def verify(code: str, secret: bytes) -> str:
     """Return the tester name, or raise ValueError. Mirrors tester::verify."""
-    parts = "".join(code.split()).split("-")
+    if len(secret) < 16:
+        raise ValueError("Tester codes are not enabled with this secret")
+    if not code.isascii():
+        raise ValueError("Tester code must contain ASCII characters")
+    if len(code) > MAX_PASTED:
+        raise ValueError("Pasted code is too long")
+    code = code.translate(str.maketrans("", "", " \t\r\n"))
+    if len(code) > MAX_CODE:
+        raise ValueError("Code is too long")
+    parts = code.split("-")
     if len(parts) != 3 or parts[0].upper() != PREFIX:
         raise ValueError("Not a Chimera beta tester code")
     name = parts[1].upper()
     if not re.fullmatch(rf"[A-Z0-9]{{{MIN_NAME},{MAX_NAME}}}", name) or len(parts[2]) != CHECK_LENGTH:
         raise ValueError("Incomplete tester code")
     typed = parts[2].upper().replace("O", "0").replace("I", "1").replace("L", "1")
+    if len(typed) != CHECK_LENGTH or any(c not in ALPHABET for c in typed):
+        raise ValueError("Invalid check characters")
     if not hmac.compare_digest(typed, check(secret, name)):
         raise ValueError("Check characters do not match this secret")
     return name
@@ -72,17 +89,34 @@ def load_secret(path: Path) -> bytes:
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict) or data.get("schema") != SCHEMA:
         raise ValueError("Not a Chimera tester secret file")
-    secret = bytes.fromhex(data["secret"])
+    value = data.get("secret")
+    if not isinstance(value, str) or not re.fullmatch(r"(?:[0-9a-fA-F]{2}){16,}", value):
+        raise ValueError("Tester secret must contain at least 16 complete hexadecimal bytes")
+    secret = bytes.fromhex(value)
     if len(secret) < 16:
         raise ValueError("Tester secret is too short")
     return secret
 
 
+def write_secret(path: Path, value: str) -> None:
+    resolved = path.resolve()
+    if any((parent / ".git").exists() for parent in (resolved.parent, *resolved.parents)):
+        raise ValueError("Keep the tester secret outside every Git checkout")
+    # No overwrite or symlink following; POSIX permissions protect the first byte.
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as stream:
+        json.dump({"schema": SCHEMA, "secret": value}, stream, indent=2)
+        stream.write("\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
-    make = sub.add_parser("secret", help="create a new secret file and print the CHIMERA_TESTER_SECRET value")
+    make = sub.add_parser("secret", help="create a new secret file")
     make.add_argument("--out", type=Path, required=True)
+    make.add_argument("--show-secret", action="store_true", help="explicitly print the secret for interactive setup; do not log")
     for command in ("issue", "verify"):
         p = sub.add_parser(command)
         p.add_argument("--secret", type=Path, required=True)
@@ -92,14 +126,14 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.command == "secret":
-        if args.out.exists():
+        if args.out.exists() or args.out.is_symlink():
             raise SystemExit(f"Refusing to overwrite {args.out}")
         value = secrets.token_bytes(32).hex()
-        args.out.write_text(json.dumps({"schema": SCHEMA, "secret": value}, indent=2) + "\n", encoding="utf-8")
-        args.out.chmod(0o600)
+        write_secret(args.out, value)
         print(f"Secret file: {args.out} (keep it offline; never commit)")
-        print("Set this as the CHIMERA_TESTER_SECRET GitHub Actions secret:")
-        print(value)
+        if args.show_secret:
+            print("Set this as the CHIMERA_TESTER_SECRET GitHub Actions secret:")
+            print(value)
     elif args.command == "issue":
         secret = load_secret(args.secret)
         for name in args.name:
@@ -112,6 +146,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except ValueError as error:
+    except (ValueError, OSError) as error:
         print(f"error: {error}", file=sys.stderr)
         sys.exit(1)
