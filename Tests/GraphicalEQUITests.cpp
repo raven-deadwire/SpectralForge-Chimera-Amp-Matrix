@@ -213,10 +213,10 @@ void modifierDrag(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce::Comb
     const auto gainAt=[&](float y){return std::clamp((plot.getCentreY()-y)/plot.getHeight()*48.f,-24.f,24.f);};
     const auto frequency=[&]{return get(processor,eqID(bank,0,"frequency"));};
     const auto gain=[&]{return get(processor,eqID(bank,0,"gain"));};
-    const auto near=[](float a,float b,float tolerance){return std::abs(a-b)<=tolerance;};
+    const auto within=[](float a,float b,float tolerance){return std::abs(a-b)<=tolerance;};
     // Host quantisation: 0.01 Hz-ish in this range and 0.01 dB-ish; allow both.
-    const auto sameFrequency=[&](float expected){return near(frequency(),expected,std::max(.05f,expected*2e-4f));};
-    const auto sameGain=[&](float expected){return near(gain(),expected,.02f);};
+    const auto sameFrequency=[&](float expected){return within(frequency(),expected,std::max(.05f,expected*2e-4f));};
+    const auto sameGain=[&](float expected){return within(gain(),expected,.02f);};
     using MK=juce::ModifierKeys;
     const auto drag=[&](juce::Point<float> press,std::initializer_list<std::pair<juce::Point<float>,int>> moves){
         HostEvents events;auto* f=processor.parameters().getParameter(eqID(bank,0,"frequency"));auto* g=processor.parameters().getParameter(eqID(bank,0,"gain"));
@@ -258,14 +258,17 @@ void modifierDrag(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce::Comb
     drag(start,{{start+juce::Point<float>(100,-40),MK::shiftModifier|MK::altModifier}});
     check(sameFrequency(frequencyAt(start.x+10)) && sameGain(0),"Shift+Alt drag was not fine and frequency-only");
 
-    reset();
+    // The panel drops the first edit after a host change it has not yet seen
+    // (its 25 Hz timer may not have run on a slow runner); let it see reset()
+    // first, as a press does before a drag.
+    reset();panel.selectBandForEditing(0);
     juce::MouseWheelDetails wheel{};wheel.deltaY=.2f;
     panel.mouseWheelMove(mouseWith(panel,plot.getCentre(),plot.getCentre(),false,MK::shiftModifier),wheel);
     const float fineQ=get(processor,eqID(bank,0,"q"));
-    reset();panel.mouseWheelMove(mouse(panel,plot.getCentre(),plot.getCentre(),false),wheel);
+    reset();panel.selectBandForEditing(0);panel.mouseWheelMove(mouse(panel,plot.getCentre(),plot.getCentre(),false),wheel);
     const float coarseQ=get(processor,eqID(bank,0,"q"));
-    check(near(fineQ,std::exp(.2f*.15f),.002f) && near(coarseQ,std::exp(.2f*1.5f),.005f),"Shift wheel was not a fine Q step");
-    reset();
+    check(within(fineQ,std::exp(.2f*.15f),.002f) && within(coarseQ,std::exp(.2f*1.5f),.005f),"Shift wheel was not a fine Q step");
+    reset();panel.selectBandForEditing(0);   // leave no unseen host change for the next test
     std::cout<<"PASS EQ modifier drag: Shift fine (x0.1, no jump mid-drag), Alt one axis, off-centre press, Shift wheel Q bank="<<bank<<'\n';
 }
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
