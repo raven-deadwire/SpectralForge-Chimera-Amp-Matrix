@@ -4,6 +4,7 @@ name: OBS 32.2.2 Windows hang repro (temporary)
 # (obs-addon run 41342999051, attempt 1, right after obs_instances_test on
 # 31.1.2). Repeat that sequence and the 32.2.2 app test alone, keeping every
 # run's screen, window text and logs. Not a gate.
+# Run 5: with What's New marked as shown (obs_app_test.configure).
 on:
   push:
     branches: [claude/quirky-fermi-b0k2ck]

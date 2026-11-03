@@ -384,7 +384,9 @@ def failure_text(e: BaseException) -> str:
     """The failure, and the one it interrupted: an OBS that will not quit in a cleanup
     `finally` must not hide why the test stopped."""
     first, seen = e, {id(e)}
-    while first.__context__ is not None and id(first.__context__) not in seen:
+    # `raise ... from None` (__suppress_context__) already says what the context was.
+    while (first.__context__ is not None and not first.__suppress_context__
+           and id(first.__context__) not in seen):
         first = first.__context__
         seen.add(id(first))
     return str(e) if first is e else f"{e} (first failure: {first})"
@@ -473,7 +475,12 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     # an error dialog because user.ini (written below) already exists.
     # MacOSPermissionsDialogLastShown: OBS on macOS would otherwise wait on its permissions dialog.
     # FirstRun true: OBS has run before, so it adds no default desktop/microphone capture.
+    # InfoLastVersion/InfoIncrement: "What's New" counts as already shown for every version.
+    # Otherwise OBS (Windows, macOS) fetches whatsnew.json after loading and, when it lists an
+    # entry newer than the last one shown, starts its browser for the dialog on the UI thread;
+    # OBS 32.2.2 on Windows CI then stopped answering obs-websocket and would not quit.
     glob["General"] = {"FirstRun": "true", "LastVersion": "503316482", "EnableAutoUpdates": "false",
+                       "InfoLastVersion": str(2**64 - 1), "InfoIncrement": str(2**31 - 1),
                        "Pre31Migrated": "true", "MacOSPermissionsDialogLastShown": "1"}
     glob["Basic"] = {"Profile": "Chimera", "ProfileDir": "Chimera", "SceneCollection": "Chimera",
                      "SceneCollectionFile": "Chimera", "ConfigOnNewProfile": "false"}
