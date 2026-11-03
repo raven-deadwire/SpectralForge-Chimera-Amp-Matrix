@@ -36,8 +36,7 @@ jobs:
       - name: Compare the two test binaries
         run: |
           for side in a b; do
-            exe=$(find build-$side -type f -perm -111 -name "Chimera Original CAB Tests" -path "*MacOS*" | head -1)
-            [ -n "$exe" ] || exe=$(find build-$side -type f -perm -111 -name "Chimera Original CAB Tests" | head -1)
+            exe="$PWD/build-$side/ChimeraOriginalCabIntegrationTests_artefacts/Release/ChimeraOriginalCabIntegrationTests"
             echo "$side: $exe"; shasum -a 256 "$exe"
             echo "$exe" > exe-$side.txt
           done
