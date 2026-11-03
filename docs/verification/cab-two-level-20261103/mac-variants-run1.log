@@ -1,0 +1,18 @@
+MAC_PROTOCOL bins=128 segments=86 input_banks=3 callbacks=1600 sleep_ms_every_8=1
+MAC mics=1 variant=base  repeat=0 p50_us=9.5 p99_us=47.7 ns_per_complex_mac=0.867
+MAC mics=1 variant=avx2  repeat=0 p50_us=6.2 p99_us=39.1 ns_per_complex_mac=0.564
+MAC mics=1 variant=fuse2 repeat=0 p50_us=9.2 p99_us=43.7 ns_per_complex_mac=0.835
+MAC mics=1 variant=fuse4 repeat=0 p50_us=10.6 p99_us=67.1 ns_per_complex_mac=0.965
+MAC mics=1 variant=base  repeat=1 p50_us=10.3 p99_us=40.6 ns_per_complex_mac=0.931
+MAC mics=1 variant=avx2  repeat=1 p50_us=7.1 p99_us=43.1 ns_per_complex_mac=0.644
+MAC mics=1 variant=fuse2 repeat=1 p50_us=7.6 p99_us=59.4 ns_per_complex_mac=0.694
+MAC mics=1 variant=fuse4 repeat=1 p50_us=9.8 p99_us=44.9 ns_per_complex_mac=0.892
+MAC mics=6 variant=base  repeat=0 p50_us=42.7 p99_us=121.9 ns_per_complex_mac=0.647
+MAC mics=6 variant=avx2  repeat=0 p50_us=39.3 p99_us=104.5 ns_per_complex_mac=0.595
+MAC mics=6 variant=fuse2 repeat=0 p50_us=57.4 p99_us=160.7 ns_per_complex_mac=0.869
+MAC mics=6 variant=fuse4 repeat=0 p50_us=63.1 p99_us=158.1 ns_per_complex_mac=0.956
+MAC mics=6 variant=base  repeat=1 p50_us=80.3 p99_us=209.6 ns_per_complex_mac=1.216
+MAC mics=6 variant=avx2  repeat=1 p50_us=33.3 p99_us=102.1 ns_per_complex_mac=0.504
+MAC mics=6 variant=fuse2 repeat=1 p50_us=71.8 p99_us=187.1 ns_per_complex_mac=1.087
+MAC mics=6 variant=fuse4 repeat=1 p50_us=80.6 p99_us=160.4 ns_per_complex_mac=1.220
+MAC_RESULT bit_identical mismatches=0

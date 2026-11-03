@@ -696,6 +696,13 @@ target_include_directories(ChimeraCabTwoLevelPrototype PRIVATE Source Tests)
 target_compile_definitions(ChimeraCabTwoLevelPrototype PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraCabTwoLevelPrototype PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 
+# PROTOTYPE: spectral multiply-accumulate variants (option a). Not in CTest.
+# GCC/Clang on x86-64 only (it times an AVX2 variant).
+if(NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+  add_executable(ChimeraCabMacPrototype EXCLUDE_FROM_ALL Tests/prototypes/CabMacBenchmark.cpp)
+  target_compile_options(ChimeraCabMacPrototype PRIVATE -O3 -ffp-contract=off)
+endif()
+
 juce_add_console_app(ChimeraOriginalCabRealtimeTests PRODUCT_NAME "Chimera CAB Realtime Regression Tests")
 target_sources(ChimeraOriginalCabRealtimeTests PRIVATE Tests/CabRealtimeRegressionTests.cpp)
 target_include_directories(ChimeraOriginalCabRealtimeTests PRIVATE Source)

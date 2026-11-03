@@ -124,6 +124,39 @@ tail : 나머지를 K 샘플 분할(2K FFT)로, 공유 작업 스레드가 한 K
 권장: **e를 유지하면서 a의 효과를 먼저 측정**한다. a는 지연·스레드 구조를 바꾸지 않아 위험이
 작다. b·c는 음색과 제품 범위에 관한 결정이다.
 
+## 6. a안 측정: spectral MAC 미세 최적화 (2026-11-03)
+
+`Tests/prototypes/CabMacBenchmark.cpp`(대상 `ChimeraCabMacPrototype`, `EXCLUDE_FROM_ALL`)는
+제품의 MAC 루프를 같은 데이터 모양·접근 순서(96 kHz/32/stereo: 128 bins, 86 분할, 3-뱅크 입력
+링, 마이크 두 모델 공유)로 떼어 내 변형을 비교한다. 모든 변형은 연산 순서를 유지하며
+기준과 **비트 단위로 같음**을 확인했다(전 변형 mismatch 0). 1,600 콜백 × 반복 10회, 8 콜백마다
+1 ms sleep(CAB 테스트와 같음), 위 로컬 x86-64 VM(L2 1 MiB/코어).
+
+| 마이크 | 변형 | p50 중앙값 | p99 중앙값 |
+|---|---|---|---|
+| 6 | base (제품 루프, SSE2 자동 벡터화) | 66.4 µs | 156.9 µs |
+| 6 | **avx2** (같은 루프, AVX2, FMA 없음) | **43.7 µs (−34%)** | **138.1 µs (−12%)** |
+| 6 | fuse2 (분할 2개 묶음) | 63.5 µs | 162.2 µs |
+| 6 | fuse4 (분할 4개 묶음) | 71.3 µs | 163.9 µs |
+| 1 | base / avx2 | 9.6 / 7.2 µs | 50.3 / 39.5 µs |
+
+해석:
+- **분할 묶음은 효과 없음.** 메모리 접근을 줄여도 빨라지지 않았다. 6마이크의 마이크당 시간(약 11 µs)도
+  1마이크(9.6 µs)보다 약 15%만 크다. 순수 대역폭 한계라기보다 계산·지연 시간 쪽 비중이 크다.
+- **AVX2가 가장 큰 개선**(중앙값 −34%)이며 결과가 비트 단위로 같다. 단, x86-64 전용이고 배포 바이너리는
+  SSE2 기준이므로 **런타임 CPU 판별(dispatch)**이 필요하다.
+- **p99는 p50보다 훨씬 덜 줄었다(−12%).** 1마이크에서도 p99가 p50의 약 5배다. 꼬리 시간은 sleep 이후
+  캐시·클럭이 식은 상태의 콜백에서 생기는 것으로 보이며(추정), 루프 효율로는 잘 줄지 않는다.
+- **CI 실패와의 관계:** 간헐 실패가 나는 러너는 `macos-15-arm64`(Apple Silicon)이다(#253 작업 로그 확인).
+  AVX2는 그 러너에 적용되지 않는다. arm64에서는 NEON 자동 벡터화 또는 Accelerate `vDSP_zvma` 같은
+  경로가 후보지만, 이 환경에 arm64 기기가 없어 **측정하지 못했다**. `vDSP_zvma`는 FMA를 쓸 수 있어
+  비트 동일성이 깨질 수 있으므로 별도 정확도 판정이 필요하다.
+
+판단: a안 중 **x86 AVX2 dispatch**는 Windows/Linux/Intel Mac 사용자에게 실제 이득이 있고 위험이 작은
+후보다(비트 동일, 지연·스레드 구조 불변). 그러나 **macOS arm64 CI의 간헐 실패를 해결하지는 못한다.**
+그 실패에는 e(재실행 유지)를 계속 적용하고, arm64 측정은 Apple Silicon 기기 또는 macOS CI에서
+벤치마크를 돌려야 한다.
+
 ## 재현
 
 ```
@@ -132,6 +165,7 @@ build/ChimeraCabTwoLevelPrototype_artefacts/Release/"Chimera CAB Two-Level Proto
 #   인자: 콜백 수, tail 분할 K (head = 2K). 종료 코드 1 = 정확도 실패 또는 late 샘플 존재.
 cmake --build build --target ChimeraCabProfiling
 build/ChimeraCabProfiling_artefacts/Release/* --expanded --extended-buffers   # 현재 엔진 단계별 비용
+cmake --build build --target ChimeraCabMacPrototype && build/ChimeraCabMacPrototype 1600   # a안 MAC 변형
 ```
 
 측정 소스: 프로토타입은 main `0b247dc` + 이 브랜치. 현재 엔진 단계 프로파일과 확장 타이밍
