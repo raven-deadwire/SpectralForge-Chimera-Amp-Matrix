@@ -26,7 +26,12 @@ jobs:
           cmake --build build --config Release --target ChimeraAmpMatrix_VST3 --parallel 4
       - name: Build the OBS module against OBS 31.1.2 (MSVC)
         shell: pwsh
-        run: ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/chimera-obs -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
+        # -TestBundle also builds (and runs) the module's tests, chimera-obs-state-tool among them.
+        run: |
+          ./OBS/tools/Build-WindowsModule.ps1 -OutputDirectory package/chimera-obs `
+            -TestBundle "build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            -WorkDirectory "$env:RUNNER_TEMP/chimera-obs"
+          if (-not (Test-Path (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe"))) { throw "no state tool" }
       - name: OBS 31.1.2 and 32.2.2
         shell: pwsh
         run: |
