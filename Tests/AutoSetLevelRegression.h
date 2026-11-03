@@ -267,5 +267,62 @@ void finalNodeEdits() {
     for(int b=0;b<12;++b)check(get(*q,spectralforge::eqID(1,b,"enabled"))<.5f,"Partial Final EQ placement survived rollback");
     controller.undo();check(near(get(*q,"output"),-9.13f,.00001f),"Rollback/Undo reclaimed host output edit");q->releaseResources();
 }
-void run() {parameterRanges();capture();processorBuses();correctionBoundaries();renderedMatrix();preservation();repeatedAndEdits();finalNodeEdits();}
+void applyEditTransactions() {
+    // Exercise real APVTS notifications at both ends of the level transaction.
+    // Locked controls remain read dependencies even though Auto Set cannot write them.
+    const auto input=signal(48000,0);int cases=0;
+    for(int scenario=0;scenario<4;++scenario)
+    for(int lock=0;lock<(scenario<2?2:1);++lock)
+    for(int event=1;event<=3;++event)
+    for(int kind=0;kind<3;++kind) {
+        auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+        // A quiet, tilted spectrum requests both EQ and positive trim. Seed a
+        // user curve for the output-only (Final EQ locked) case too.
+        if(scenario==1 && lock) {
+            set(*p,spectralforge::eqID(1,0,"enabled"),1);
+            set(*p,spectralforge::eqID(1,0,"frequency"),713);
+            set(*p,spectralforge::eqID(1,0,"gain"),1.21f);
+        }
+        const auto before=values(*p);auto expected=before;
+        const auto target=scenario==0 || scenario==3?juce::String("output"):
+            scenario==1?spectralforge::eqID(1,0,"frequency"):spectralforge::dynamicSlotID(0,"target");
+        const auto trigger=scenario==0?spectralforge::eqID(1,0,"enabled"):juce::String("output");
+        auto* parameter=p->parameters().getParameter(target);
+        struct HostEdit final:juce::AudioProcessorListener {
+            int trigger{},event{};bool fired{};std::function<void()> action;
+            void fire(int index,int when){if(!fired && index==trigger && event==when){fired=true;action();}}
+            void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+            void audioProcessorParameterChanged(juce::AudioProcessor*,int index,float) override {fire(index,2);}
+            void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int index) override {fire(index,1);}
+            void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int index) override {fire(index,3);}
+        } host;
+        host.trigger=p->parameters().getParameter(trigger)->getParameterIndex();host.event=event;
+        host.action=[&] {
+            const float old=parameter->getValue();
+            // kind 0: persistent edit, 1: A-B-A, 2: same-value notification.
+            if(kind<2)set(*p,target,scenario==1?1777.f:scenario==2?13.f:-9.13f);
+            if(kind>0)parameter->setValueNotifyingHost(old);
+            expected[size_t(parameter->getParameterIndex())]=parameter->getValue();
+        };
+        Controller controller(*p);
+        controller.setOptions(options(1,lock?(scenario==0?Controller::lockOutput:Controller::lockFinalEQ):0));
+        const auto capture=finalRender(*p,input,48000);
+        p->addListener(&host);feed(*p,controller,capture,48000);p->removeListener(&host);
+        check(host.fired,"Level transaction fixture did not reach its host callback");
+        const auto& step=controller.current().steps.back();
+        check(!step.changed && step.result.contains("edited while applying"),"Interrupted level transaction reported success");
+        check(!controller.lastLevelAnalysis().loudnessMeasured && controller.lastLevelAnalysis().trimChangeDb==0,
+              "Interrupted level transaction published a stale loudness/peak prediction");
+        const auto actual=values(*p);
+        for(size_t k=0;k<actual.size();++k)
+            check(near(actual[k],expected[k],1e-6f),"Level rollback lost a host edit, retained a partial write or changed another stage");
+        controller.undo();const auto undone=values(*p);
+        for(size_t k=0;k<undone.size();++k)
+            check(near(undone[k],expected[k],1e-6f),"Level Undo reclaimed a host edit after rollback");
+        p->releaseResources();++cases;
+    }
+    check(cases==54,"Level transaction coverage changed");
+    std::cout<<"PASS level apply transactions: "<<cases<<" begin/value/end callbacks, locked reads, A-B-A, same-value edits and Undo\n";
+}
+void run() {parameterRanges();capture();processorBuses();correctionBoundaries();renderedMatrix();preservation();repeatedAndEdits();finalNodeEdits();applyEditTransactions();}
 }

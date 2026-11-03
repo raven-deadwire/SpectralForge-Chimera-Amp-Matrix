@@ -1761,6 +1761,7 @@ void controllerGateStageEditHistory() {
 #include "AutoSetLevelRegression.h"
 #include "AutoSetSpaceRegression.h"
 #include "AutoSetPowerTests.h"
+#include "AutoSetCabEditTests.h"
 #include "AutoSetPowerBassControllerTests.h"
 #include "AutoSetPowerBassRules.h"
 
@@ -1769,8 +1770,9 @@ int main(int argc, char** argv) {
     try {
         if(argc==2 && std::string(argv[1])=="--level-parameters"){levelRegression::parameterRanges();return 0;}
         if(argc==2 && std::string(argv[1])=="--level-regression"){levelRegression::run();return 0;}
-        if(argc==2 && std::string(argv[1])=="--level-edits"){levelRegression::finalNodeEdits();std::cout<<"PASS Final EQ edit ownership\n";return 0;}
-        if(argc==2 && std::string(argv[1])=="--cab-regression"){cabRegression::run();cabRules();controllerCab();controllerBassCab();return 0;}
+        if(argc==2 && std::string(argv[1])=="--level-edits"){levelRegression::finalNodeEdits();levelRegression::applyEditTransactions();std::cout<<"PASS Final EQ edit ownership\n";return 0;}
+        if(argc==2 && std::string(argv[1])=="--cab-regression"){cabRegression::run();cabRules();controllerCab();controllerBassCab();controllerCabPlacementEdits();return 0;}
+        if(argc==2 && std::string(argv[1])=="--cab-edits"){controllerCabPlacementEdits();return 0;}
         if(argc==2 && std::string(argv[1])=="--space-regression"){spaceRules();controllerSpace();spaceSignalRegression();spaceControllerRegression();return 0;}
         if(argc==3 && std::string(argv[1])=="--space-report"){spaceSignalRegression(juce::File(argv[2]));return 0;}
         if(argc==3 && std::string(argv[1])=="--space-fixtures"){spaceWriteFixtures(juce::File(argv[2]));return 0;}
@@ -1802,6 +1804,7 @@ int main(int argc, char** argv) {
         parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
+        controllerCabPlacementEdits();
         controllerPowerBassRegression();
         powerBassRules();
         std::cout<<"PASS Auto Set\n";return 0;
