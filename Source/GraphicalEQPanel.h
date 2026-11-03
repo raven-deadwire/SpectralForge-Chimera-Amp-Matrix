@@ -318,6 +318,7 @@ public:
         if(dragging){
             editing.touchField(instance,selected,"frequency");if(gainApplicable())editing.touchField(instance,selected,"gain");
             dragAnchor=nodePosition(selected);dragPoint=dragAnchor;lastPointer=event.position;dragAxis=DragAxis::free;
+            dragAltDown=event.mods.isAltDown();
         }
     }
     // Shift: fine (a tenth of the pointer's travel, like the knobs). Alt /
@@ -326,6 +327,7 @@ public:
     // centre does not make it jump; Shift can change mid-drag without a jump.
     void mouseDrag(const juce::MouseEvent& event) override {
         if(!dragging)return;
+        updateDragModifiers(event.mods);
         dragPoint+=(event.position-lastPointer)*(event.mods.isShiftDown()?fineDragScale:1.f);lastPointer=event.position;
         auto target=dragPoint;
         if(event.mods.isAltDown()) {
@@ -339,6 +341,10 @@ public:
         if(dragAxis!=DragAxis::gain)write("frequency",xFrequency(target.x));
         if(gainApplicable() && dragAxis!=DragAxis::frequency)write("gain",yGain(target.y));
         rebuildResponse();repaint();
+    }
+    void modifierKeysChanged(const juce::ModifierKeys& modifiers) override {
+        updateDragModifiers(modifiers);
+        juce::Component::modifierKeysChanged(modifiers);
     }
     static constexpr float fineDragScale=.1f,axisLockPixels=4.f;
     void mouseUp(const juce::MouseEvent&) override {endDrag();}
@@ -372,6 +378,15 @@ private:
     float spectrumY(float db) const {return plot().getBottom()-(std::clamp(db,-96.f,0.f)+96)/96*plot().getHeight();}
     void write(const char* field,float value){if(selected>=0)editing.setValue(instance,selected,field,value);}
     bool gainApplicable() const {return selected>=0 && isBandVisible(selected) && dsp.values(selected).type<=2;}
+    void updateDragModifiers(const juce::ModifierKeys& modifiers) {
+        if(!dragging || dragAltDown==modifiers.isAltDown())return;
+        dragAltDown=modifiers.isAltDown();
+        // Start each lock/unlock segment at the displayed node. dragPoint also
+        // contains travel suppressed by the lock (or the 4 px dead zone), which
+        // must not become an audible jump when Alt changes. Keep lastPointer so
+        // movement arriving with the modifier change is still applied once.
+        dragAnchor=nodePosition(selected);dragPoint=dragAnchor;dragAxis=DragAxis::free;
+    }
     void endDrag(){if(dragging || sliderEditing){editing.endEdit();dragging=sliderEditing=false;updateHistoryControls();}}
     void drawNode(juce::Graphics& g,int band,bool chosen) const {
         const auto v=dsp.values(band);const auto p=nodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
@@ -632,6 +647,7 @@ private:
     bool compactWorkspace{},hasDynamicRange{};
     enum class DragAxis {free,frequency,gain};
     DragAxis dragAxis{DragAxis::free};
+    bool dragAltDown{};
     juce::Point<float> dragAnchor,dragPoint,lastPointer;
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};

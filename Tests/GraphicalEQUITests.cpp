@@ -271,6 +271,110 @@ void modifierDrag(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce::Comb
     reset();panel.selectBandForEditing(0);   // leave no unseen host change for the next test
     std::cout<<"PASS EQ modifier drag: Shift fine (x0.1, no jump mid-drag), Alt one axis, off-centre press, Shift wheel Q bank="<<bank<<'\n';
 }
+// Exercise actual panel callbacks and APVTS values at every input boundary.
+// Offsets are independent expected node travel in pixels, not the drag algorithm.
+int modifierTransitions(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    using MK=juce::ModifierKeys;
+    constexpr int alt=MK::altModifier,shift=MK::shiftModifier;
+    struct Step {juce::Point<float> pointer;int mods;juce::Point<float> node;bool keysOnly=false;};
+    struct Case {const char* name;int downMods;std::vector<Step> steps;};
+    const std::vector<Case> cases{
+        {"release frequency lock",alt,{{{30,-5},alt,{30,0}},{{60,-30},alt,{60,0}},
+            {{60,-30},0,{60,0}},{{70,-40},0,{70,-10}}}},
+        {"release gain lock",alt,{{{5,-30},alt,{0,-30}},{{40,-50},alt,{0,-50}},
+            {{40,-50},0,{0,-50}},{{50,-60},0,{10,-60}}}},
+        {"free then lock from current node",0,{{{20,-20},0,{20,-20}},{{20,-20},alt,{20,-20}},
+            {{23,-21},alt,{20,-20}},{{26,-21},alt,{26,-20}}}},
+        // No suppressed travel at release: isolate the stale relock threshold
+        // and axis decision from the independent unlock-position jump.
+        {"clean release then relock gain",alt,{{{30,0},alt,{30,0}},{{40,-10},0,{40,-10}},
+            {{40,-10},alt,{40,-10}},{{41,-12},alt,{40,-10}},{{41,-16},alt,{40,-16}}}},
+        {"clean release then relock frequency",alt,{{{0,-30},alt,{0,-30}},{{10,-40},0,{10,-40}},
+            {{10,-40},alt,{10,-40}},{{16,-41},alt,{16,-40}}}},
+        {"relock frequency then gain",alt,{{{30,-5},alt,{30,0}},{{40,-15},0,{40,-10}},
+            {{42,-16},alt,{40,-10}},{{46,-16},alt,{46,-10}},{{46,-16},0,{46,-10}},
+            {{46,-16},alt,{46,-10}},{{47,-22},alt,{46,-16}}}},
+        {"relock gain then frequency",alt,{{{5,-30},alt,{0,-30}},{{15,-40},0,{10,-40}},
+            {{16,-42},alt,{10,-40}},{{16,-46},alt,{10,-46}},{{16,-46},0,{10,-46}},
+            {{16,-46},alt,{10,-46}},{{22,-47},alt,{16,-46}}}},
+        {"release below lock threshold",alt,{{{2,-1},alt,{0,0}},{{2,-1},0,{0,0}},{{3,-2},0,{1,-1}}}},
+        {"Shift and Alt transitions",shift|alt,{{{30,-10},shift|alt,{0,0}},{{50,-20},shift|alt,{5,0}},
+            {{50,-20},alt,{5,0}},{{60,-60},alt,{15,0}},{{60,-60},shift|alt,{15,0}},
+            {{80,-80},shift|alt,{17,0}},{{80,-80},shift,{17,0}},{{90,-90},shift,{18,-1}},
+            {{90,-90},0,{18,-1}},{{100,-100},0,{28,-11}}}},
+        {"simultaneous moving transitions",0,{{{20,-10},0,{20,-10}},{{70,-30},shift|alt,{25,-10}},
+            {{80,-40},0,{35,-20}},{{81,-46},alt,{35,-26}}}},
+        {"stationary key callbacks rearm axis",alt,{{{30,-5},alt,{30,0}},{{60,-30},alt,{60,0}},
+            {{60,-30},0,{60,0},true},{{60,-30},alt,{60,0},true},
+            {{61,-32},alt,{60,0}},{{61,-36},alt,{60,-6}}}},
+        {"stationary Shift retains locked axis",alt,{{{30,-5},alt,{30,0}},
+            {{30,-5},shift|alt,{30,0},true},{{50,-105},shift|alt,{32,0}},
+            {{50,-105},alt,{32,0},true},{{55,-110},alt,{37,0}}}},
+        {"key release then moving relock",alt,{{{5,-30},alt,{0,-30}},{{40,-50},alt,{0,-50}},
+            {{40,-50},0,{0,-50},true},{{50,-60},0,{10,-60}},
+            {{50,-60},alt,{10,-60},true},{{56,-61},alt,{16,-60}}}}
+    };
+    struct Listen {
+        juce::RangedAudioParameter* parameter;HostEvents events;
+        explicit Listen(juce::RangedAudioParameter* p):parameter(p){parameter->addListener(&events);}
+        ~Listen(){parameter->removeListener(&events);}
+    };
+    int failures=0;
+    for(const auto& test:cases) {
+        // A real external update gives each case an empty history baseline.
+        set(processor,eqID(bank,0,"frequency"),900);
+        set(processor,eqID(bank,0,"type"),0);set(processor,eqID(bank,0,"enabled"),1);
+        set(processor,eqID(bank,0,"frequency"),1000);set(processor,eqID(bank,0,"gain"),0);
+        settle(60);panel.selectBandForEditing(0);
+        auto& history=processor.eqEditing();
+        check(!history.canUndo() && !history.canRedo(),"Modifier fixture did not clear external history");
+        Listen frequency(processor.parameters().getParameter(eqID(bank,0,"frequency")));
+        Listen gain(processor.parameters().getParameter(eqID(bank,0,"gain")));
+        Listen q(processor.parameters().getParameter(eqID(bank,0,"q")));
+        const float initialFrequency=frequency.parameter->getValue(),initialGain=gain.parameter->getValue();
+        const auto start=panel.nodePosition(0),press=start+juce::Point<float>(6,5);
+        auto last=press;
+        try {
+            panel.mouseDown(mouseWith(panel,press,press,false,test.downMods));
+            check(panel.nodePosition(0).getDistanceFrom(start)<.08f,"Off-centre modifier press moved the node");
+            for(size_t step=0;step<test.steps.size();++step) {
+                const auto& input=test.steps[step];last=press+input.pointer;
+                const int changes=frequency.events.changes+gain.events.changes;
+                if(input.keysOnly)panel.modifierKeysChanged(MK(MK::leftButtonModifier|input.mods));
+                else panel.mouseDrag(mouseWith(panel,last,press,true,input.mods));
+                check(!input.keysOnly || changes==frequency.events.changes+gain.events.changes,
+                      "Modifier-only callback notified host parameter values");
+                const auto actual=panel.nodePosition(0)-start;
+                if(actual.getDistanceFrom(input.node)>.08f) {
+                    std::cerr<<"MEASURE bank="<<bank<<" case="<<test.name<<" step="<<step
+                        <<" expected="<<input.node.x<<','<<input.node.y<<" actual="<<actual.x<<','<<actual.y<<'\n';
+                    throw std::runtime_error("Modifier transition broke node continuity or axis lock");
+                }
+                check(frequency.events.starts==1 && gain.events.starts==1
+                      && frequency.events.ends==0 && gain.events.ends==0,"Modifier transition split a host gesture");
+            }
+            panel.mouseUp(mouseWith(panel,last,press,true,0));
+            check(frequency.events.starts==1 && frequency.events.ends==1
+                  && gain.events.starts==1 && gain.events.ends==1,"Drag did not close each host gesture exactly once");
+            check(q.events.starts==0 && q.events.ends==0 && q.events.changes==0,"Node drag touched Q");
+            const float finalFrequency=frequency.parameter->getValue(),finalGain=gain.parameter->getValue();
+            check(history.undo(),"Modifier drag did not create an undo step");
+            check(frequency.parameter->getValue()==initialFrequency && gain.parameter->getValue()==initialGain,
+                  "One undo did not restore the complete modifier drag");
+            check(!history.canUndo() && history.canRedo(),"Modifier drag created more than one undo step");
+            check(history.redo(),"Modifier drag redo missing");
+            check(frequency.parameter->getValue()==finalFrequency && gain.parameter->getValue()==finalGain,
+                  "Redo did not restore both final parameter values");
+            check(!history.canRedo(),"Modifier drag created more than one redo step");
+            std::cout<<"PASS modifier transitions bank="<<bank<<" case="<<test.name<<'\n';
+        } catch(const std::exception& error) {
+            panel.mouseUp(mouseWith(panel,last,press,true,0));
+            ++failures;std::cerr<<"FAIL modifier transitions bank="<<bank<<" case="<<test.name<<": "<<error.what()<<'\n';
+        }
+    }
+    return failures;
+}
+
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -652,6 +756,19 @@ int main(int argc,char** argv){try {
     auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);check(editor->getPeer()!=nullptr,"No native UI peer");
     auto* eqTab=tab(*editor,"EQ");check(eqTab!=nullptr,"EQ navigation missing");eqTab->triggerClick();settle(80);
+    if(argc>1 && std::string(argv[1])=="--modifier-drag") {
+        int failures=0;
+        for(int bank=0;bank<2;++bank) {
+            auto* path=find<juce::TextButton>(*editor,bank==0?"path.tone.eq":"path.final.eq");path->triggerClick();
+            auto* panel=find<GraphicalEQPanel>(*editor,bank==0?"toneEQ_panel":"finalEQ_panel");
+            check(panel && waitFor([&]{return panel->isShowing();}),"Modifier fixture panel not visible");
+            set(*processor,eqID(bank,0,"enabled"),1);settle(80);panel->selectBandForEditing(0);
+            auto* selector=find<juce::ComboBox>(*panel,eqID(bank,-1,"band"));check(selector,"Modifier fixture selector missing");
+            modifierDrag(*processor,*panel,*selector,bank);
+            failures+=modifierTransitions(*processor,*panel,bank);
+        }
+        return failures==0?0:1;
+    }
     const juce::File directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>1?argv[1]:"eq-ui");directory.createDirectory();
     for(int e=0;e<2;++e){
         tab(*editor,"RIGS")->triggerClick();settle(80);
@@ -679,6 +796,7 @@ int main(int argc,char** argv){try {
         check(host.starts>=3 && host.starts==host.ends && host.changes>0,"Unbalanced/missing host gestures");frequency->removeListener(&host);gain->removeListener(&host);q->removeListener(&host);
         overlappingBandDrag(*processor,*panel,*selector,e);
         modifierDrag(*processor,*panel,*selector,e);
+        check(modifierTransitions(*processor,*panel,e)==0,"Modifier transition regression failed");
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);
     }
