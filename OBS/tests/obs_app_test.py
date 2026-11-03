@@ -326,7 +326,13 @@ class Obs:
         request_id = str(self.next_id)
         self.ws.send({"op": 6, "d": {"requestType": kind, "requestId": request_id, "requestData": data or {}}})
         while True:
-            message = self.ws.receive()
+            try:
+                message = self.ws.receive()
+            except TimeoutError:
+                # OBS runs most requests on its UI thread: no answer means that thread is stuck.
+                if (WINDOWS or MACOS) and self.process.poll() is None:
+                    screenshot(Path(self.output.name).with_suffix(f".{kind}.png"))
+                raise RuntimeError(f"{kind}: no answer from obs-websocket within 30 s{self.blocking_ui()}") from None
             if message.get("op") == 7 and message["d"].get("requestId") == request_id:
                 status = message["d"]["requestStatus"]
                 if ok and not status.get("result"):
@@ -372,6 +378,15 @@ class Obs:
         finally:
             self.output.close()
         check(code == 0, f"OBS exited cleanly (code {code})")
+
+
+def failure_text(e: BaseException) -> str:
+    """The failure, and the one it interrupted: an OBS that will not quit in a cleanup
+    `finally` must not hide why the test stopped."""
+    text = str(e)
+    if e.__context__ is not None and e.__context__ is not e:
+        text += f" (after: {e.__context__})"
+    return text
 
 
 def check(ok: bool, what: str) -> None:
@@ -617,7 +632,7 @@ def main() -> int:
         run(args)
         passed = True
     except Exception as e:  # noqa: BLE001 - report every failure the same way
-        print(f"FAIL {e}", file=sys.stderr)
+        print(f"FAIL {failure_text(e)}", file=sys.stderr)
         work = Path(args.work).resolve()
         logs = sorted((args.layout.config / "logs").glob("*.txt"))[-2:]
         if not logs:
