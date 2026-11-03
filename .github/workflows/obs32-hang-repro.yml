@@ -4,7 +4,7 @@ name: OBS 32.2.2 Windows hang repro (temporary)
 # (obs-addon run 41342999051, attempt 1, right after obs_instances_test on
 # 31.1.2). Repeat that sequence and the 32.2.2 app test alone, keeping every
 # run's screen, window text and logs. Not a gate.
-# Run 5: with What's New marked as shown (obs_app_test.configure).
+# Run 5 (What's New marked as shown) failed as often. Run 6: print the stuck OBS's thread stacks.
 on:
   push:
     branches: [claude/quirky-fermi-b0k2ck]
@@ -53,6 +53,9 @@ jobs:
           $obs32 = Join-Path $env:RUNNER_TEMP "obs32/bin/64bit/obs64.exe"
           $out = Join-Path $env:RUNNER_TEMP "repro"
           $results = @()
+          $script:fullReports = 0
+          $cdb = "${env:ProgramFiles(x86)}/Windows Kits/10/Debuggers/x64/cdb.exe"
+          Write-Host "cdb present: $(Test-Path $cdb)"
           function Run-One($label, $script, $obs) {
             $work = Join-Path $out $label
             $started = Get-Date
@@ -76,7 +79,10 @@ jobs:
             Write-Host $line
             if ($code -ne 0) {
               # Artifacts may not be reachable from where this is read: print the run's own report.
-              Get-Content $log | Select-String -NotMatch "^(info|debug|warning): " | Select-Object -Last 120 | ForEach-Object { Write-Host "    | $_" }
+              # The first two failed runs in full (thread stacks), later ones shortened.
+              $lines = Get-Content $log | Select-String -NotMatch "^(info|debug|warning): "
+              if ($script:fullReports -lt 2) { $script:fullReports++ } else { $lines = $lines | Select-Object -Last 120 }
+              $lines | ForEach-Object { Write-Host "    | $_" }
             }
             return $line
           }
@@ -84,7 +90,7 @@ jobs:
             $results += Run-One "pair$i-instances31" "OBS/tests/obs_instances_test.py" $obs31
             $results += Run-One "pair$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
-          for ($i = 1; $i -le 16; $i++) {
+          for ($i = 1; $i -le 6; $i++) {
             $results += Run-One "alone$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
           Write-Host "`n=== summary"

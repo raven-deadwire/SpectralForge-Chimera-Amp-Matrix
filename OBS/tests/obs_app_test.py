@@ -240,6 +240,18 @@ def dialog_text(pid: int) -> str:
     return " | ".join(line.strip() for line in result.stdout.splitlines() if line.strip())
 
 
+def thread_stacks(pid: int) -> str:
+    """Every thread's call stack of a stuck OBS (Windows, when the SDK's cdb debugger is installed)."""
+    kits = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Windows Kits" / "10"
+    cdb = kits / "Debuggers" / "x64" / "cdb.exe"
+    if not WINDOWS or not cdb.is_file():
+        return ""
+    # -pv: look without stopping or changing the process; export names stand in for symbols.
+    result = subprocess.run([str(cdb), "-pv", "-p", str(pid), "-c", "~*kn 40; qd"], capture_output=True,
+                            text=True, errors="replace", timeout=120, check=False)
+    return result.stdout
+
+
 def screenshot(path: Path) -> None:
     """The whole desktop as PNG (CI uploads it on failure)."""
     if MACOS:
@@ -331,6 +343,9 @@ class Obs:
             except TimeoutError:
                 # OBS runs most requests on its UI thread: no answer means that thread is stuck.
                 if (WINDOWS or MACOS) and self.process.poll() is None:
+                    stacks = thread_stacks(self.process.pid)
+                    if stacks:
+                        print(f"--- OBS thread stacks while {kind} had no answer\n{stacks}", flush=True)
                     screenshot(Path(self.output.name).with_suffix(f".{kind}.png"))
                 raise RuntimeError(f"{kind}: no answer from obs-websocket within 30 s{self.blocking_ui()}") from None
             if message.get("op") == 7 and message["d"].get("requestId") == request_id:
@@ -381,15 +396,15 @@ class Obs:
 
 
 def failure_text(e: BaseException) -> str:
-    """The failure, and the one it interrupted: an OBS that will not quit in a cleanup
-    `finally` must not hide why the test stopped."""
-    first, seen = e, {id(e)}
+    """The failure and the ones it interrupted, latest first: an OBS that will not quit in a
+    cleanup `finally` must not hide why the test stopped."""
+    chain, seen = [e], {id(e)}
     # `raise ... from None` (__suppress_context__) already says what the context was.
-    while (first.__context__ is not None and not first.__suppress_context__
-           and id(first.__context__) not in seen):
-        first = first.__context__
-        seen.add(id(first))
-    return str(e) if first is e else f"{e} (first failure: {first})"
+    while (chain[-1].__context__ is not None and not chain[-1].__suppress_context__
+           and id(chain[-1].__context__) not in seen):
+        chain.append(chain[-1].__context__)
+        seen.add(id(chain[-1]))
+    return str(e) + "".join(f" (while handling: {type(x).__name__}: {x})" for x in chain[1:])
 
 
 def check(ok: bool, what: str) -> None:
@@ -475,12 +490,7 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     # an error dialog because user.ini (written below) already exists.
     # MacOSPermissionsDialogLastShown: OBS on macOS would otherwise wait on its permissions dialog.
     # FirstRun true: OBS has run before, so it adds no default desktop/microphone capture.
-    # InfoLastVersion/InfoIncrement: "What's New" counts as already shown for every version.
-    # Otherwise OBS (Windows, macOS) fetches whatsnew.json after loading and, when it lists an
-    # entry newer than the last one shown, starts its browser for the dialog on the UI thread;
-    # OBS 32.2.2 on Windows CI then stopped answering obs-websocket and would not quit.
     glob["General"] = {"FirstRun": "true", "LastVersion": "503316482", "EnableAutoUpdates": "false",
-                       "InfoLastVersion": str(2**64 - 1), "InfoIncrement": str(2**31 - 1),
                        "Pre31Migrated": "true", "MacOSPermissionsDialogLastShown": "1"}
     glob["Basic"] = {"Profile": "Chimera", "ProfileDir": "Chimera", "SceneCollection": "Chimera",
                      "SceneCollectionFile": "Chimera", "ConfigOnNewProfile": "false"}
