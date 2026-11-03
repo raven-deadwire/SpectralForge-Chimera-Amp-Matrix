@@ -45,14 +45,14 @@ local function press_open_editor()
     local filter = source and obs.obs_source_get_filter_by_name(source, "{app.FILTER}")
     if filter then
         local props = obs.obs_source_properties(filter)
-        local button = obs.obs_properties_get(props, "open_editor")
+        local button = props and obs.obs_properties_get(props, "open_editor")
         if button then
             obs.obs_property_button_clicked(button, filter)
             obs.script_log(obs.LOG_INFO, "chimera editor test: pressed the open editor button")
         else
             obs.script_log(obs.LOG_WARNING, "chimera editor test: the filter has no open editor button")
         end
-        obs.obs_properties_destroy(props)
+        if props then obs.obs_properties_destroy(props) end
         obs.obs_source_release(filter)
     else
         obs.script_log(obs.LOG_WARNING, "chimera editor test: source or filter missing")
@@ -105,7 +105,7 @@ def run(args: argparse.Namespace) -> None:
                                         str(app.PRESET_VALUE)], check=True, capture_output=True, text=True).stdout)
 
     def log_text() -> str:
-        return "".join(p.read_text(errors="replace") for p in sorted(logs.glob("*.txt")))
+        return "".join(p.read_text(encoding="utf-8", errors="replace") for p in sorted(logs.glob("*.txt")))
 
     def count(line: str) -> int:
         return log_text().count(line)
@@ -213,7 +213,7 @@ def main() -> int:
         work = Path(args.work).resolve()
         for log in [*sorted(work.glob("obs-run-*.txt")), *sorted((args.layout.config / "logs").glob("*.txt"))[-1:]]:
             print(f"--- {log.name} (last 60 lines)", file=sys.stderr)
-            print("\n".join(log.read_text(errors="replace").splitlines()[-60:]), file=sys.stderr)
+            print("\n".join(log.read_text(encoding="utf-8", errors="replace").splitlines()[-60:]), file=sys.stderr)
         return 1
     finally:
         # Kept for the CI artifact: on Windows and macOS a passing run removes
