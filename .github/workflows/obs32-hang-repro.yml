@@ -4,7 +4,8 @@ name: OBS 32.2.2 Windows hang repro (temporary)
 # (obs-addon run 41342999051, attempt 1, right after obs_instances_test on
 # 31.1.2). Repeat that sequence and the 32.2.2 app test alone, keeping every
 # run's screen, window text and logs. Not a gate.
-# Run 5 (What's New marked as shown) failed as often. Run 6: print the stuck OBS's thread stacks.
+# Run 5 (What's New marked as shown) failed as often. Run 6's thread stacks showed
+# an OBS deadlock (requests before OBS finished loading). Run 7: the test waits for that.
 on:
   push:
     branches: [claude/quirky-fermi-b0k2ck]
@@ -90,7 +91,7 @@ jobs:
             $results += Run-One "pair$i-instances31" "OBS/tests/obs_instances_test.py" $obs31
             $results += Run-One "pair$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
-          for ($i = 1; $i -le 6; $i++) {
+          for ($i = 1; $i -le 12; $i++) {
             $results += Run-One "alone$i-app32" "OBS/tests/obs_app_test.py" $obs32
           }
           Write-Host "`n=== summary"

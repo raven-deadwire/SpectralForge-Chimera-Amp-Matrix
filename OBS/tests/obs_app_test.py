@@ -283,8 +283,12 @@ class Obs:
     def __init__(self, layout: Layout, port: int, log: Path):
         self.port = port
         self.output = log.open("w")
+        self.logs = layout.config / "logs"
+        self.earlier_logs = set(self.logs.glob("*.txt"))
+        # --websocket_debug: obs-websocket then logs when OBS has finished loading (see _connect).
         self.process = subprocess.Popen(
-            [layout.obs, *layout.options, "--multi", "--disable-shutdown-check", "--disable-missing-files-check"],
+            [layout.obs, *layout.options, "--multi", "--disable-shutdown-check", "--disable-missing-files-check",
+             "--websocket_debug"],
             env=layout.env, cwd=layout.cwd, stdout=self.output, stderr=subprocess.STDOUT)
         self.ws = None
         self.next_id = 0
@@ -323,6 +327,16 @@ class Obs:
         # obs-websocket accepts connections before OBS has finished loading
         # (requests then fail with code 207, "not ready").
         wait_until(lambda: self._ready(), "OBS ready for requests", 60)
+        # obs-websocket also counts OBS as ready once a scene collection is loaded, while
+        # OBS's UI thread is still starting up. A request that creates a source then can
+        # deadlock OBS (32.2.2 on Windows: the websocket thread holds the "source_create"
+        # signal while waiting for the UI thread, which waits for that signal's lock).
+        wait_until(self._finished_loading, "OBS finished loading", 60)
+
+    def _finished_loading(self) -> bool:
+        line = "[EventHandler::FrontendFinishedLoadingMultiHandler] OBS has finished loading"
+        return any(line in p.read_text(encoding="utf-8", errors="replace")
+                   for p in set(self.logs.glob("*.txt")) - self.earlier_logs)
 
     def _ready(self) -> bool:
         self.next_id += 1
