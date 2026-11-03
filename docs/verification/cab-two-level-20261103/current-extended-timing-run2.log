@@ -1,0 +1,122 @@
+TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=32 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=48.585 p99_us=165.816 thread_cpu_p99_us=154.943 max_us=4822.56 misses=4
+PHASE name=forced_six_slot_publication blocks=400 p50_us=66.337 p99_us=179.228 thread_cpu_p99_us=136.354 max_us=268.614 misses=0
+TIMING engine=expanded-v2 sr=44100 block=32 channels=1 three_cabs_six_mics p50_us=53.346 p99_us=165.816 thread_cpu_p99_us=151.466 max_us=4822.56 misses=4/1600 kernel_residual=4.65661287308e-09 peak=0.0202164724469 max_step=0.00178504758514
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=32 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=57.601 p99_us=193.477 thread_cpu_p99_us=182.164 max_us=2429.584 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=61.619 p99_us=245.805 thread_cpu_p99_us=187.755 max_us=973.567 misses=1
+TIMING engine=expanded-v2 sr=44100 block=32 channels=2 three_cabs_six_mics p50_us=58.708 p99_us=197.04 thread_cpu_p99_us=182.164 max_us=2429.584 misses=2/1600 kernel_residual=4.65661287308e-09 peak=0.0202164724469 max_step=0.00178504758514
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=65.834 p99_us=187.905 thread_cpu_p99_us=186.453 max_us=1103.883 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=62.56 p99_us=190.3 thread_cpu_p99_us=180.815 max_us=250.154 misses=0
+TIMING engine=expanded-v2 sr=44100 block=64 channels=1 three_cabs_six_mics p50_us=64.187 p99_us=187.905 thread_cpu_p99_us=183.578 max_us=1103.883 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164743096 max_step=0.0126605052501
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=108.479 p99_us=209.658 thread_cpu_p99_us=205.346 max_us=331.519 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=86.885 p99_us=235.044 thread_cpu_p99_us=237.715 max_us=351.944 misses=0
+TIMING engine=expanded-v2 sr=44100 block=64 channels=2 three_cabs_six_mics p50_us=106.787 p99_us=214.689 thread_cpu_p99_us=216.43 max_us=351.944 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.0126605043188
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=128 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=154.347 p99_us=457.976 thread_cpu_p99_us=407.439 max_us=1526.82 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=180.354 p99_us=360.823 thread_cpu_p99_us=350.106 max_us=461.137 misses=0
+TIMING engine=expanded-v2 sr=44100 block=128 channels=1 three_cabs_six_mics p50_us=155.292 p99_us=426.167 thread_cpu_p99_us=400.494 max_us=1526.82 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.00730991223827
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=128 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=236.232 p99_us=576.977 thread_cpu_p99_us=572.073 max_us=690.449 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=196.048 p99_us=389.284 thread_cpu_p99_us=377.229 max_us=1313.139 misses=0
+TIMING engine=expanded-v2 sr=44100 block=128 channels=2 three_cabs_six_mics p50_us=227.363 p99_us=558.481 thread_cpu_p99_us=561.641 max_us=1313.139 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.00730991177261
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=169.563 p99_us=521.11 thread_cpu_p99_us=504.686 max_us=3707.711 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=178.662 p99_us=353.133 thread_cpu_p99_us=354.834 max_us=563.66 misses=0
+TIMING engine=expanded-v2 sr=44100 block=256 channels=1 three_cabs_six_mics p50_us=170.292 p99_us=499.907 thread_cpu_p99_us=491.034 max_us=3707.711 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.0100013138726
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=230.504 p99_us=418.01 thread_cpu_p99_us=399.02 max_us=480.033 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=216.082 p99_us=473.563 thread_cpu_p99_us=437.432 max_us=601.453 misses=0
+TIMING engine=expanded-v2 sr=44100 block=256 channels=2 three_cabs_six_mics p50_us=226.915 p99_us=432.127 thread_cpu_p99_us=399.455999999 max_us=601.453 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164705843 max_step=0.0100013157353
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=512 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=288.897 p99_us=588.754 thread_cpu_p99_us=521.635 max_us=4079.18 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=281.016 p99_us=648.6 thread_cpu_p99_us=617.932 max_us=690.104 misses=0
+TIMING engine=expanded-v2 sr=44100 block=512 channels=1 three_cabs_six_mics p50_us=287.061 p99_us=621.327 thread_cpu_p99_us=570.687 max_us=4079.18 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164743096 max_step=0.00812447816133
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=512 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=402.14 p99_us=909.904 thread_cpu_p99_us=809.941 max_us=1797.306 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=377.51 p99_us=776.254 thread_cpu_p99_us=593.73 max_us=2943.375 misses=0
+TIMING engine=expanded-v2 sr=44100 block=512 channels=2 three_cabs_six_mics p50_us=393.977 p99_us=901.306 thread_cpu_p99_us=801.748000001 max_us=2943.375 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164743096 max_step=0.00812447816133
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=32 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=65.528 p99_us=148.879 thread_cpu_p99_us=151.615 max_us=188.743 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=48.772 p99_us=118.134 thread_cpu_p99_us=119.062 max_us=136.271 misses=0
+TIMING engine=expanded-v2 sr=48000 block=32 channels=1 three_cabs_six_mics p50_us=62.066 p99_us=146.223 thread_cpu_p99_us=147.943 max_us=188.743 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.00377811002545
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=32 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=62.192 p99_us=190.941 thread_cpu_p99_us=168.942 max_us=954.468 misses=2
+PHASE name=forced_six_slot_publication blocks=400 p50_us=69.9 p99_us=181.936 thread_cpu_p99_us=183.117 max_us=203.814 misses=0
+TIMING engine=expanded-v2 sr=48000 block=32 channels=2 three_cabs_six_mics p50_us=62.565 p99_us=185.917 thread_cpu_p99_us=177.723 max_us=954.468 misses=2/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00377811165527
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=99.268 p99_us=213.394 thread_cpu_p99_us=204.276000001 max_us=1201.552 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=63.847 p99_us=154.973 thread_cpu_p99_us=159.014 max_us=175.81 misses=0
+TIMING engine=expanded-v2 sr=48000 block=64 channels=1 three_cabs_six_mics p50_us=92.829 p99_us=198.083 thread_cpu_p99_us=198.424000001 max_us=1201.552 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.01145080477
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=91.282 p99_us=244.567 thread_cpu_p99_us=211.012 max_us=1151.988 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=80.854 p99_us=179.546 thread_cpu_p99_us=180.435000001 max_us=265.49 misses=0
+TIMING engine=expanded-v2 sr=48000 block=64 channels=2 three_cabs_six_mics p50_us=87.012 p99_us=213.643 thread_cpu_p99_us=202.898 max_us=1151.988 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227370381 max_step=0.0114508057013
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=128 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=158.088 p99_us=425.733 thread_cpu_p99_us=355.030999999 max_us=4353.729 misses=3
+PHASE name=forced_six_slot_publication blocks=400 p50_us=243.498 p99_us=453.754 thread_cpu_p99_us=488.055 max_us=557.712 misses=0
+TIMING engine=expanded-v2 sr=48000 block=128 channels=1 three_cabs_six_mics p50_us=167.939 p99_us=448.001 thread_cpu_p99_us=408.99 max_us=4353.729 misses=3/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.00825380161405
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=128 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=182.391 p99_us=354.354 thread_cpu_p99_us=338.479 max_us=553.282 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=236.833 p99_us=390.393 thread_cpu_p99_us=388.532000002 max_us=489.707 misses=0
+TIMING engine=expanded-v2 sr=48000 block=128 channels=2 three_cabs_six_mics p50_us=188.886 p99_us=371.842 thread_cpu_p99_us=365.470999999 max_us=553.282 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00825380347669
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=171.069 p99_us=380.231 thread_cpu_p99_us=372.773 max_us=637.792 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=186.583 p99_us=400.639 thread_cpu_p99_us=369.375 max_us=523.28 misses=0
+TIMING engine=expanded-v2 sr=48000 block=256 channels=1 three_cabs_six_mics p50_us=172.776 p99_us=389.434 thread_cpu_p99_us=369.375 max_us=637.792 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00707471929491
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=211.595 p99_us=420.973 thread_cpu_p99_us=383.263 max_us=1316.905 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=316.535 p99_us=584.006 thread_cpu_p99_us=585.823999999 max_us=2963.896 misses=0
+TIMING engine=expanded-v2 sr=48000 block=256 channels=2 three_cabs_six_mics p50_us=217.726 p99_us=509.64 thread_cpu_p99_us=480.315000001 max_us=2963.896 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00707471929491
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=512 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=318.294 p99_us=808.767 thread_cpu_p99_us=653.102 max_us=4785.208 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=277.719 p99_us=493.097 thread_cpu_p99_us=494.867999999 max_us=521.664 misses=0
+TIMING engine=expanded-v2 sr=48000 block=512 channels=1 three_cabs_six_mics p50_us=302.44 p99_us=755.108 thread_cpu_p99_us=623.701000001 max_us=4785.208 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227370381 max_step=0.00512470072135
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=512 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=363.16 p99_us=645.833 thread_cpu_p99_us=639.004999999 max_us=3572.599 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=359.716 p99_us=701.963 thread_cpu_p99_us=551.937999999 max_us=2387.639 misses=0
+TIMING engine=expanded-v2 sr=48000 block=512 channels=2 three_cabs_six_mics p50_us=361.466 p99_us=645.833 thread_cpu_p99_us=629.872 max_us=3572.599 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.00512470118701
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=32 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=65.388 p99_us=158.15 thread_cpu_p99_us=154.277999999 max_us=281.798 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=88.44 p99_us=155.041 thread_cpu_p99_us=157.187999999 max_us=166.511 misses=0
+TIMING engine=expanded-v2 sr=96000 block=32 channels=1 three_cabs_six_mics p50_us=78.321 p99_us=155.806 thread_cpu_p99_us=155.91 max_us=281.798 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517209157 max_step=0.00442692264915
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=32 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=117.487 p99_us=493.047 thread_cpu_p99_us=336.346000001 max_us=3533.95 misses=16
+PHASE name=forced_six_slot_publication blocks=400 p50_us=121.678 p99_us=325.225 thread_cpu_p99_us=243.136 max_us=948.916 misses=3
+TIMING engine=expanded-v2 sr=96000 block=32 channels=2 three_cabs_six_mics p50_us=118.874 p99_us=432.786 thread_cpu_p99_us=300.872 max_us=3533.95 misses=19/1600 kernel_residual=1.86264514923e-09 peak=0.015451724641 max_step=0.00442692497745
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=111.946 p99_us=249.313 thread_cpu_p99_us=250.704 max_us=298.485 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=115.373 p99_us=204.473 thread_cpu_p99_us=206.776999999 max_us=879.065 misses=1
+TIMING engine=expanded-v2 sr=96000 block=64 channels=1 three_cabs_six_mics p50_us=114.521 p99_us=247.62 thread_cpu_p99_us=249.061000001 max_us=879.065 misses=1/1600 kernel_residual=2.09547579288e-09 peak=0.0154517190531 max_step=0.00348461349495
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=113.559 p99_us=257.9 thread_cpu_p99_us=249.794 max_us=1577.69 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=123.283 p99_us=341.478 thread_cpu_p99_us=344.388999999 max_us=384.547 misses=0
+TIMING engine=expanded-v2 sr=96000 block=64 channels=2 three_cabs_six_mics p50_us=115.258 p99_us=303.148 thread_cpu_p99_us=304.399999999 max_us=1577.69 misses=1/1600 kernel_residual=2.09547579288e-09 peak=0.0154517209157 max_step=0.00348461326212
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=128 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=195.977 p99_us=644.686 thread_cpu_p99_us=629.674000002 max_us=2275.087 misses=2
+PHASE name=forced_six_slot_publication blocks=400 p50_us=173.618 p99_us=453.856 thread_cpu_p99_us=385.390000001 max_us=1077.848 misses=0
+TIMING engine=expanded-v2 sr=96000 block=128 channels=1 three_cabs_six_mics p50_us=188.19 p99_us=625.978 thread_cpu_p99_us=624.340999998 max_us=2275.087 misses=2/1600 kernel_residual=1.86264514923e-09 peak=0.0154517237097 max_step=0.00486831972376
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=128 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=212.325 p99_us=445.08 thread_cpu_p99_us=411.851 max_us=1173.607 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=212.43 p99_us=449.707 thread_cpu_p99_us=446.693999998 max_us=1021.335 misses=0
+TIMING engine=expanded-v2 sr=96000 block=128 channels=2 three_cabs_six_mics p50_us=212.372 p99_us=445.08 thread_cpu_p99_us=417.228999998 max_us=1173.607 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517218471 max_step=0.00486831972376
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=187.838 p99_us=407.292 thread_cpu_p99_us=385.796 max_us=1111.111 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=196.252 p99_us=402.037 thread_cpu_p99_us=390.609000001 max_us=871.861 misses=0
+TIMING engine=expanded-v2 sr=96000 block=256 channels=1 three_cabs_six_mics p50_us=190.481 p99_us=405.685 thread_cpu_p99_us=385.796 max_us=1111.111 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517209157 max_step=0.000991089502349
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=265.313 p99_us=491.441 thread_cpu_p99_us=473.318999998 max_us=2643.804 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=281.482 p99_us=753.59 thread_cpu_p99_us=691.386 max_us=1634.892 misses=0
+TIMING engine=expanded-v2 sr=96000 block=256 channels=2 three_cabs_six_mics p50_us=269.403 p99_us=653.84 thread_cpu_p99_us=595.816999998 max_us=2643.804 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517209157 max_step=0.000991089269519
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=512 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=323.9 p99_us=820.266 thread_cpu_p99_us=756.429000001 max_us=2976.01 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=400.085 p99_us=559.442 thread_cpu_p99_us=558.732999999 max_us=838.042 misses=0
+TIMING engine=expanded-v2 sr=96000 block=512 channels=1 three_cabs_six_mics p50_us=334.157 p99_us=783.639 thread_cpu_p99_us=732.296 max_us=2976.01 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517255723 max_step=0.00162917736452
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=512 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=418.909 p99_us=732.311 thread_cpu_p99_us=734.199999999 max_us=4310.453 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=400.312 p99_us=932.981 thread_cpu_p99_us=774.675000001 max_us=1876.098 misses=0
+TIMING engine=expanded-v2 sr=96000 block=512 channels=2 three_cabs_six_mics p50_us=410.947 p99_us=732.311 thread_cpu_p99_us=734.199999999 max_us=4310.453 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517237097 max_step=0.00162917748094
+CAB-only p99 exceeds one block period (runner CPU gate)

@@ -1,0 +1,662 @@
+TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=32 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=70.622 p99_us=172.786 thread_cpu_p99_us=173.859 max_us=1192.839 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=53.249 p99_us=129.062 thread_cpu_p99_us=127.786 max_us=147.777 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.336533333333 p50_us=0.247 p99_us=1.03 max_us=41.516
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.348503333333 p50_us=0.256 p99_us=0.889 max_us=62.512
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=3.76532833333 p50_us=3.201 p99_us=14.221 max_us=78.316
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=66.0965666667 p50_us=61.864 p99_us=144.432 max_us=1181.956
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=414 mean_us=3.60167166667 p50_us=0 p99_us=42.266 max_us=145.117
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=0.7935825 p50_us=0.728 p99_us=1.941 max_us=26.619
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7614 mean_us=22.6131975 p50_us=19.395 p99_us=74.469 max_us=1102.629
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7614 mean_us=22.3851875 p50_us=20.244 p99_us=79.315 max_us=144.002
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7614 mean_us=22.579885 p50_us=19.709 p99_us=80.438 max_us=117.66
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.206055 p50_us=0.191 p99_us=0.353 max_us=1.079
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.193665 p50_us=0.173 p99_us=0.459 max_us=1.406
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=3.08837 p50_us=2.896 p99_us=6.959 max_us=36.629
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=47.8253175 p50_us=42.42 p99_us=105.048 max_us=126.902
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=414 mean_us=7.802075 p50_us=0 p99_us=44.833 max_us=78.893
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.455135 p50_us=0.389 p99_us=1.262 max_us=1.877
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2814 mean_us=17.78584 p50_us=14.005 p99_us=63.849 max_us=90.288
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2814 mean_us=18.8425575 p50_us=15.362 p99_us=63.848 max_us=98.531
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2814 mean_us=17.5133075 p50_us=14.634 p99_us=52.166 max_us=77.634
+TIMING engine=expanded-v2 sr=44100 block=32 channels=1 three_cabs_six_mics p50_us=67.578 p99_us=160.965 thread_cpu_p99_us=160.226 max_us=1192.839 misses=1/1600 kernel_residual=4.65661287308e-09 peak=0.0202164724469 max_step=0.00178504758514
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=32 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=95.703 p99_us=221.228 thread_cpu_p99_us=205.773 max_us=1737.465 misses=4
+PHASE name=forced_six_slot_publication blocks=400 p50_us=82.319 p99_us=172.743 thread_cpu_p99_us=175.451 max_us=207.958 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.3470025 p50_us=0.283 p99_us=1.228 max_us=10.179
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.323884166667 p50_us=0.28 p99_us=0.809 max_us=10.214
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=6.42098166667 p50_us=5.721 p99_us=18.823 max_us=79.357
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=87.2150025 p50_us=85.765 p99_us=177.625 max_us=1724.999
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=414 mean_us=5.19431166667 p50_us=0 p99_us=52.331 max_us=88.258
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.34972416667 p50_us=1.079 p99_us=4.829 max_us=74.621
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7614 mean_us=24.4002316667 p50_us=24.228 p99_us=76.844 max_us=116.162
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7614 mean_us=25.9163575 p50_us=24.241 p99_us=79.227 max_us=1592.106
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7614 mean_us=39.4268658333 p50_us=34.461 p99_us=112.399 max_us=1052.11
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2305625 p50_us=0.211 p99_us=0.494 max_us=1.454
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2258075 p50_us=0.197 p99_us=0.646 max_us=2.016
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=6.672575 p50_us=5.445 p99_us=53.458 max_us=84.871
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=63.9951525 p50_us=57.159 p99_us=127.345 max_us=143.409
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=414 mean_us=11.2392375 p50_us=0 p99_us=80.653 max_us=85.997
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.9707525 p50_us=0.776 p99_us=2.053 max_us=52.756
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2814 mean_us=19.17131 p50_us=18.426 p99_us=65.383 max_us=72.712
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2814 mean_us=19.92654 p50_us=18.691 p99_us=65.125 max_us=79.35
+PROFILE engine=expanded-v2 sr=44100 block=32 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2814 mean_us=33.98794 p50_us=32.211 p99_us=92.912 max_us=104.205
+TIMING engine=expanded-v2 sr=44100 block=32 channels=2 three_cabs_six_mics p50_us=94.799 p99_us=208.091 thread_cpu_p99_us=204.559 max_us=1737.465 misses=4/1600 kernel_residual=4.65661287308e-09 peak=0.0202164724469 max_step=0.00178504758514
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=105.129 p99_us=203.462 thread_cpu_p99_us=195.266 max_us=3702.881 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=65.713 p99_us=169.281 thread_cpu_p99_us=170.433 max_us=293.456 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.295736666667 p50_us=0.256 p99_us=1.027 max_us=2.145
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.295315833333 p50_us=0.262 p99_us=0.908 max_us=8.352
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=6.3184925 p50_us=5.328 p99_us=30.145 max_us=215.284
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=95.8375583333 p50_us=93.824 p99_us=181.899 max_us=3690.672
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=210 mean_us=2.19953833333 p50_us=0 p99_us=44.801 max_us=118.706
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=0.854748333333 p50_us=0.818 p99_us=2.188 max_us=11.151
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7410 mean_us=35.7502558333 p50_us=33.786 p99_us=90.55 max_us=711.588
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7410 mean_us=36.5544433333 p50_us=34.713 p99_us=91.625 max_us=138.907
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7410 mean_us=23.521085 p50_us=19.951 p99_us=69.737 max_us=3606.426
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.20351 p50_us=0.193 p99_us=0.354 max_us=1.208
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.265515 p50_us=0.174 p99_us=0.791 max_us=30.326
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=5.1762025 p50_us=4.997 p99_us=7.604 max_us=47.017
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=64.0436225 p50_us=58.572 p99_us=110.925 max_us=244.021
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=210 mean_us=5.8328325 p50_us=0 p99_us=46.569 max_us=63.387
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.5153025 p50_us=0.45 p99_us=1.331 max_us=2.905
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2610 mean_us=25.5389025 p50_us=21.771 p99_us=63.765 max_us=201.588
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2610 mean_us=27.2211775 p50_us=22.914 p99_us=70.085 max_us=99.394
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2610 mean_us=15.5336525 p50_us=12.626 p99_us=43.429 max_us=117.23
+TIMING engine=expanded-v2 sr=44100 block=64 channels=1 three_cabs_six_mics p50_us=95.039 p99_us=199.324 thread_cpu_p99_us=193.089 max_us=3702.881 misses=1/1600 kernel_residual=3.72529029846e-09 peak=0.0202164743096 max_step=0.0126605052501
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=141.128 p99_us=292.861 thread_cpu_p99_us=284.909 max_us=2527.651 misses=2
+PHASE name=forced_six_slot_publication blocks=400 p50_us=115.244 p99_us=563.725 thread_cpu_p99_us=247.992 max_us=2602.955 misses=2
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.388833333333 p50_us=0.276 p99_us=1.223 max_us=32.138
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.383120833333 p50_us=0.281 p99_us=1.05 max_us=41.638
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=12.0809833333 p50_us=10.892 p99_us=53.147 max_us=591.38
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=120.871841667 p50_us=125.474 p99_us=237.449 max_us=2511.592
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=210 mean_us=3.8262075 p50_us=0 p99_us=70.26 max_us=144.222
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.5747825 p50_us=1.456 p99_us=3.692 max_us=33.593
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7410 mean_us=38.0023416667 p50_us=38.082 p99_us=91.101 max_us=2433.911
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7410 mean_us=36.086625 p50_us=37.927 p99_us=112.834 max_us=181.155
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7410 mean_us=46.643195 p50_us=44.075 p99_us=142.12 max_us=238.384
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2872425 p50_us=0.231 p99_us=1.015 max_us=8.133
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2427675 p50_us=0.207 p99_us=0.698 max_us=1.737
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=10.95812 p50_us=9.904 p99_us=54.194 max_us=73.786
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=108.50849 p50_us=83.482 p99_us=546.553 max_us=2585.938
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=210 mean_us=8.136135 p50_us=0 p99_us=81.756 max_us=112.118
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.13753 p50_us=1.068 p99_us=2.67 max_us=3.579
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2610 mean_us=32.066995 p50_us=30.41 p99_us=82.634 max_us=118.747
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2610 mean_us=38.1918425 p50_us=31.025 p99_us=89.732 max_us=2508.265
+PROFILE engine=expanded-v2 sr=44100 block=64 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2610 mean_us=43.22316 p50_us=33.546 p99_us=120.816 max_us=1913.058
+TIMING engine=expanded-v2 sr=44100 block=64 channels=2 three_cabs_six_mics p50_us=137.108 p99_us=292.861 thread_cpu_p99_us=280.539 max_us=2602.955 misses=4/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.0126605043188
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=128 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=256.311 p99_us=353.716 thread_cpu_p99_us=354.24 max_us=694.005 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=156.659 p99_us=300.504 thread_cpu_p99_us=301.927 max_us=398.898 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.345955 p50_us=0.278 p99_us=1.235 max_us=24.44
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.356375833333 p50_us=0.289 p99_us=0.91 max_us=32.414
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=10.6245375 p50_us=10.023 p99_us=38.035 max_us=90.056
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=214.997123333 p50_us=237.875 p99_us=330.106 max_us=531.135
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=108 mean_us=2.864805 p50_us=0 p99_us=77.59 max_us=505.03
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.31184666667 p50_us=1.286 p99_us=2.495 max_us=38.19
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7308 mean_us=95.1987958333 p50_us=104.048 p99_us=164.6 max_us=363.808
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7308 mean_us=96.734095 p50_us=105.61 p99_us=167.01 max_us=263.031
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7308 mean_us=22.6458325 p50_us=22.206 p99_us=70.232 max_us=463.005
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.221175 p50_us=0.198 p99_us=0.442 max_us=3.848
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2012975 p50_us=0.183 p99_us=0.472 max_us=1.645
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=9.9228275 p50_us=9.447 p99_us=33.528 max_us=53.734
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=152.7891275 p50_us=143.415 p99_us=261.761 max_us=312.967
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=108 mean_us=7.1294025 p50_us=0 p99_us=102.224 max_us=143.831
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.720495 p50_us=0.658 p99_us=1.797 max_us=3.659
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2508 mean_us=68.287565 p50_us=61.268 p99_us=129.318 max_us=131.661
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2508 mean_us=72.07941 p50_us=64.115 p99_us=136.74 max_us=198.021
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2508 mean_us=17.3213575 p50_us=14.349 p99_us=65.319 max_us=176.633
+TIMING engine=expanded-v2 sr=44100 block=128 channels=1 three_cabs_six_mics p50_us=205.158 p99_us=351.923 thread_cpu_p99_us=352.299 max_us=694.005 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.00730991223827
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=128 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=235.219 p99_us=502.474 thread_cpu_p99_us=489.791 max_us=1970.542 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=177.85 p99_us=363.68 thread_cpu_p99_us=352.146 max_us=1063.755 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.3645875 p50_us=0.267 p99_us=1.126 max_us=26.816
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.332469166667 p50_us=0.276 p99_us=1.118 max_us=10.925
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=21.0922608333 p50_us=19.133 p99_us=69.07 max_us=138.433
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=218.310745 p50_us=209.819 p99_us=361.631 max_us=1942.367
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=108 mean_us=4.03410083333 p50_us=0 p99_us=135.325 max_us=214.169
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=2.10872083333 p50_us=1.89 p99_us=6.937 max_us=50.595
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7308 mean_us=86.1296116667 p50_us=81.078 p99_us=185.514 max_us=267.668
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7308 mean_us=86.8865091667 p50_us=79.291 p99_us=180.88 max_us=1783.469
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7308 mean_us=44.1021975 p50_us=40.197 p99_us=113.392 max_us=569.057
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.260485 p50_us=0.222 p99_us=0.611 max_us=8.319
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2234 p50_us=0.2 p99_us=0.556 max_us=1.239
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=20.0890175 p50_us=18.397 p99_us=66.817 max_us=107.82
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=172.30309 p50_us=154.866 p99_us=291.484 max_us=1018.455
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=108 mean_us=7.910735 p50_us=0 p99_us=107.215 max_us=128.946
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.34806 p50_us=1.168 p99_us=3.381 max_us=20.388
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2508 mean_us=69.62258 p50_us=60.808 p99_us=134.107 max_us=181.872
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2508 mean_us=74.26822 p50_us=61.813 p99_us=156.658 max_us=887.619
+PROFILE engine=expanded-v2 sr=44100 block=128 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2508 mean_us=32.1370675 p50_us=26.82 p99_us=91.897 max_us=131.173
+TIMING engine=expanded-v2 sr=44100 block=128 channels=2 three_cabs_six_mics p50_us=217.929 p99_us=487.524 thread_cpu_p99_us=481.076 max_us=1970.542 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.00730991177261
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=258.044 p99_us=461.402 thread_cpu_p99_us=434.728999999 max_us=3381.693 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=283.132 p99_us=477.914 thread_cpu_p99_us=479.28 max_us=537.594 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.3416775 p50_us=0.281 p99_us=1.377 max_us=4.264
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.364369166667 p50_us=0.291 p99_us=1.272 max_us=8.195
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=20.1273733333 p50_us=18.534 p99_us=62.708 max_us=99.83
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=220.598396667 p50_us=231.558 p99_us=361.208 max_us=3354.47
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=54 mean_us=2.10474333333 p50_us=0 p99_us=128.264 max_us=185.109
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.63190583333 p50_us=1.573 p99_us=4.861 max_us=70.316
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7254 mean_us=91.984165 p50_us=96.498 p99_us=170.821 max_us=265.352
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7254 mean_us=95.6187483333 p50_us=97.352 p99_us=200.061 max_us=1172.194
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7254 mean_us=32.2346841667 p50_us=29.846 p99_us=86.323 max_us=3166.867
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.4188475 p50_us=0.317 p99_us=0.732 max_us=31.995
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.3382075 p50_us=0.325 p99_us=0.621 max_us=2.365
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=20.186935 p50_us=18.453 p99_us=69.359 max_us=88.437
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=272.6189775 p50_us=259.946 p99_us=355.944 max_us=391.354
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=54 mean_us=6.27379 p50_us=0 p99_us=140.843 max_us=188.894
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.9249375 p50_us=1.685 p99_us=4.151 max_us=33.787
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2454 mean_us=119.5858775 p50_us=112.248 p99_us=205.027 max_us=206.67
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2454 mean_us=122.1883925 p50_us=113.753 p99_us=202.153 max_us=228.386
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2454 mean_us=33.8099175 p50_us=30.263 p99_us=84.839 max_us=131.605
+TIMING engine=expanded-v2 sr=44100 block=256 channels=1 three_cabs_six_mics p50_us=276.916 p99_us=464.968 thread_cpu_p99_us=463.869 max_us=3381.693 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164724469 max_step=0.0100013138726
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=251.955 p99_us=519.702 thread_cpu_p99_us=499.837 max_us=1646.653 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=306.291 p99_us=1292.403 thread_cpu_p99_us=509.715000001 max_us=2814.116 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.404648333333 p50_us=0.266 p99_us=1.037 max_us=112.185
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.374760833333 p50_us=0.278 p99_us=0.743 max_us=46.144
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=38.7890316667 p50_us=35.93 p99_us=100.531 max_us=194.83
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=227.204855833 p50_us=201.54 p99_us=368.49 max_us=1599.628
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=54 mean_us=2.27757666667 p50_us=0 p99_us=141.092 max_us=273.34
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=2.46189166667 p50_us=2.221 p99_us=7.811 max_us=83.473
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7254 mean_us=84.8613875 p50_us=68.695 p99_us=185.358 max_us=356.329
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7254 mean_us=84.8037183333 p50_us=68.784 p99_us=174.233 max_us=230.694
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7254 mean_us=54.0198825 p50_us=47.813 p99_us=124.697 max_us=892.08
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.41466 p50_us=0.374 p99_us=0.741 max_us=14.202
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.4750875 p50_us=0.351 p99_us=0.883 max_us=40.123
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=40.0075575 p50_us=37.192 p99_us=109.373 max_us=232.554
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=272.796075 p50_us=256.371 p99_us=1216.218 max_us=2767.065
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=54 mean_us=4.8624425 p50_us=0 p99_us=128.23 max_us=158.285
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=3.49693 p50_us=3.175 p99_us=12.528 max_us=48.6
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2454 mean_us=96.0753725 p50_us=94.68 p99_us=178.656 max_us=190.932
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2454 mean_us=104.7496325 p50_us=93.005 p99_us=234.027 max_us=1386.99
+PROFILE engine=expanded-v2 sr=44100 block=256 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2454 mean_us=70.5117025 p50_us=58.984 p99_us=232.094 max_us=1429.829
+TIMING engine=expanded-v2 sr=44100 block=256 channels=2 three_cabs_six_mics p50_us=287.035 p99_us=531.312 thread_cpu_p99_us=499.837 max_us=2814.116 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164705843 max_step=0.0100013157353
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=512 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=297.044 p99_us=611.699 thread_cpu_p99_us=590.281 max_us=2804.809 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=467.198 p99_us=707.856 thread_cpu_p99_us=711.16 max_us=846.949 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.373570833333 p50_us=0.249 p99_us=1.171 max_us=81.647
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.311403333333 p50_us=0.24 p99_us=0.956 max_us=1.902
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=39.6536191667 p50_us=35.299 p99_us=87.54 max_us=933.389
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=300.5101425 p50_us=255.575 p99_us=548.064 max_us=2749.466
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=30 mean_us=1.02671333333 p50_us=0 p99_us=0 max_us=138.943
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=2.132545 p50_us=1.652 p99_us=6.522 max_us=65.625
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7230 mean_us=133.1877675 p50_us=108.026 p99_us=266.182 max_us=2561.366
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7230 mean_us=134.156320833 p50_us=108.73 p99_us=258.952 max_us=1877.764
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7230 mean_us=30.4391241667 p50_us=25.584 p99_us=83.951 max_us=176.564
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.36102 p50_us=0.328 p99_us=1.156 max_us=4.24
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.399655 p50_us=0.355 p99_us=0.891 max_us=2.221
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=40.2123925 p50_us=37.472 p99_us=87.785 max_us=196.553
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=406.471025 p50_us=420.127 p99_us=551.242 max_us=603.012
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=30 mean_us=5.1281775 p50_us=0 p99_us=219.472 max_us=256.078
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=3.1067825 p50_us=2.83 p99_us=9.233 max_us=70.28
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2430 mean_us=179.8845925 p50_us=179.383 p99_us=320.349 max_us=365.426
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2430 mean_us=185.897135 p50_us=185.688 p99_us=298.759 max_us=342.354
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2430 mean_us=40.24668 p50_us=39.625 p99_us=96.571 max_us=115.712
+TIMING engine=expanded-v2 sr=44100 block=512 channels=1 three_cabs_six_mics p50_us=322.684 p99_us=655.242 thread_cpu_p99_us=621.969000001 max_us=2804.809 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164743096 max_step=0.00812447816133
+PHASE_CONFIG engine=expanded-v2 sr=44100 block=512 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=398.345 p99_us=1071.93 thread_cpu_p99_us=810.537 max_us=3615.285 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=394.881 p99_us=1096.445 thread_cpu_p99_us=1100.407 max_us=1204.194 misses=0
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.362214166667 p50_us=0.282 p99_us=1.369 max_us=2
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.542595833333 p50_us=0.347 p99_us=1.266 max_us=141.13
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=78.2798583333 p50_us=71.438 p99_us=132.135 max_us=1361.961
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=371.1987725 p50_us=314.869 p99_us=866.605 max_us=3459.182
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=30 mean_us=1.90034416667 p50_us=0 p99_us=0 max_us=264.885
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=4.56852416667 p50_us=4.1 p99_us=15.004 max_us=65.1
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7230 mean_us=143.631249167 p50_us=118.441 p99_us=320.562 max_us=1372.101
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7230 mean_us=146.578925 p50_us=122.585 p99_us=284.538 max_us=3230.784
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7230 mean_us=74.344265 p50_us=67.222 p99_us=180.788 max_us=314.539
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.335815 p50_us=0.271 p99_us=0.947 max_us=1.575
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.375665 p50_us=0.28 p99_us=1.5 max_us=1.956
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=76.518755 p50_us=71.148 p99_us=130.285 max_us=136.221
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=366.0408375 p50_us=308.656 p99_us=983.328 max_us=1075.092
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=30 mean_us=3.98518 p50_us=0 p99_us=153.16 max_us=229.772
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=4.7254375 p50_us=3.53 p99_us=28.629 max_us=38.294
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2430 mean_us=137.149875 p50_us=111.259 p99_us=290.663 max_us=363.088
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2430 mean_us=137.6665 p50_us=115.673 p99_us=337.938 max_us=375.542
+PROFILE engine=expanded-v2 sr=44100 block=512 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2430 mean_us=85.5987875 p50_us=64.798 p99_us=353.136 max_us=392.535
+TIMING engine=expanded-v2 sr=44100 block=512 channels=2 three_cabs_six_mics p50_us=396.711 p99_us=1094.073 thread_cpu_p99_us=1040.805 max_us=3615.285 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0202164743096 max_step=0.00812447816133
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=32 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=67.104 p99_us=186.518 thread_cpu_p99_us=171.533 max_us=1936.963 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=51 p99_us=139.727 thread_cpu_p99_us=141.295 max_us=153.021 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.310428333333 p50_us=0.221 p99_us=1.132 max_us=17.193
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.2745875 p50_us=0.225 p99_us=0.894 max_us=5.31
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=3.5018075 p50_us=3.145 p99_us=9.421 max_us=51.237
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=62.1155316667 p50_us=54.47 p99_us=143.916 max_us=1923.7
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=450 mean_us=4.5022675 p50_us=0 p99_us=55.072 max_us=354.555
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=0.792685833333 p50_us=0.612 p99_us=2.218 max_us=75.428
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7650 mean_us=21.0399416667 p50_us=17.747 p99_us=67.072 max_us=1858.396
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7650 mean_us=20.7615316667 p50_us=18.656 p99_us=72.801 max_us=229.403
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7650 mean_us=22.7733933333 p50_us=19.995 p99_us=88.477 max_us=420.222
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2044675 p50_us=0.194 p99_us=0.334 max_us=1.547
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.18666 p50_us=0.171 p99_us=0.487 max_us=1.434
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=3.0401325 p50_us=2.91 p99_us=4.343 max_us=34.572
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=47.2436025 p50_us=43.26 p99_us=93.628 max_us=106.256
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=450 mean_us=8.851965 p50_us=0 p99_us=34.727 max_us=94.881
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.46131 p50_us=0.392 p99_us=1.144 max_us=8.419
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2850 mean_us=17.694905 p50_us=13.73 p99_us=62.94 max_us=79.617
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2850 mean_us=17.79107 p50_us=14.479 p99_us=31.114 max_us=60.51
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2850 mean_us=19.1163025 p50_us=14.668 p99_us=61.578 max_us=94.167
+TIMING engine=expanded-v2 sr=48000 block=32 channels=1 three_cabs_six_mics p50_us=65.991 p99_us=169.738 thread_cpu_p99_us=165.59 max_us=1936.963 misses=1/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.00377811002545
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=32 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=75.852 p99_us=211.951 thread_cpu_p99_us=181.060000001 max_us=2444.368 misses=3
+PHASE name=forced_six_slot_publication blocks=400 p50_us=91.172 p99_us=206.128 thread_cpu_p99_us=208.712000001 max_us=278.019 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.299951666667 p50_us=0.212 p99_us=0.988 max_us=12.568
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.270010833333 p50_us=0.218 p99_us=0.789 max_us=1.468
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=7.55581666667 p50_us=5.497 p99_us=17.201 max_us=1771.091
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=72.3986066667 p50_us=57.185 p99_us=156.053 max_us=2286.838
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=450 mean_us=4.87502333333 p50_us=0 p99_us=51.595 max_us=430.256
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.14251333333 p50_us=0.893 p99_us=3.404 max_us=61.545
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7650 mean_us=18.4986008333 p50_us=13.508 p99_us=72.354 max_us=178.285
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7650 mean_us=20.2596783333 p50_us=13.805 p99_us=70.558 max_us=2314.501
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7650 mean_us=36.376395 p50_us=29.022 p99_us=112.792 max_us=1696.553
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.26088 p50_us=0.246 p99_us=0.641 max_us=1.508
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.25258 p50_us=0.233 p99_us=0.737 max_us=2.412
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=6.3130275 p50_us=5.864 p99_us=16.799 max_us=67.722
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=78.23517 p50_us=76.846 p99_us=158.044 max_us=186.215
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=450 mean_us=12.8928675 p50_us=0 p99_us=80.12 max_us=94.79
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.0579325 p50_us=1.002 p99_us=2.204 max_us=9.347
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2850 mean_us=22.3906275 p50_us=20.166 p99_us=75.31 max_us=97.794
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2850 mean_us=22.2400075 p50_us=20.773 p99_us=84.316 max_us=89.424
+PROFILE engine=expanded-v2 sr=48000 block=32 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2850 mean_us=43.7683625 p50_us=37.233 p99_us=104.393 max_us=112.448
+TIMING engine=expanded-v2 sr=48000 block=32 channels=2 three_cabs_six_mics p50_us=85.606 p99_us=208.822 thread_cpu_p99_us=188.047 max_us=2444.368 misses=3/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00377811165527
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=69.263 p99_us=176.285 thread_cpu_p99_us=176.504999999 max_us=1403.056 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=69.014 p99_us=160.247 thread_cpu_p99_us=151.082 max_us=507.781 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.2594075 p50_us=0.198 p99_us=0.95 max_us=1.812
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.2545175 p50_us=0.215 p99_us=0.843 max_us=1.456
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=5.85595666667 p50_us=5.157 p99_us=22.403 max_us=64.792
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=76.2674075 p50_us=61.397 p99_us=159.797 max_us=1383.879
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=228 mean_us=2.40370333333 p50_us=0 p99_us=43.176 max_us=116.426
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=0.727405 p50_us=0.502 p99_us=1.905 max_us=30.341
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7428 mean_us=26.6948833333 p50_us=21.785 p99_us=74.923 max_us=369.532
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7428 mean_us=28.8411275 p50_us=22.925 p99_us=81.932 max_us=1142.016
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7428 mean_us=21.3126875 p50_us=14.804 p99_us=77.38 max_us=1289.832
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.20896 p50_us=0.194 p99_us=0.311 max_us=1.326
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.19694 p50_us=0.176 p99_us=0.424 max_us=1.662
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=5.52424 p50_us=5.05 p99_us=32.176 max_us=45.656
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=68.6434975 p50_us=60.379 p99_us=150.187 max_us=497.143
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=228 mean_us=6.2206375 p50_us=0 p99_us=45.702 max_us=71.822
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.56265 p50_us=0.474 p99_us=1.349 max_us=2.556
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2628 mean_us=26.45026 p50_us=21.868 p99_us=63.331 max_us=81.337
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2628 mean_us=29.29012 p50_us=22.933 p99_us=91.947 max_us=449.161
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2628 mean_us=17.488715 p50_us=14.444 p99_us=47.802 max_us=82.321
+TIMING engine=expanded-v2 sr=48000 block=64 channels=1 three_cabs_six_mics p50_us=69.222 p99_us=175.663 thread_cpu_p99_us=175.115 max_us=1403.056 misses=1/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.01145080477
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=86.44 p99_us=230.012 thread_cpu_p99_us=222.300999999 max_us=922.559 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=85.031 p99_us=246.183 thread_cpu_p99_us=201.108999999 max_us=284.612 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.264355 p50_us=0.203 p99_us=0.943 max_us=1.353
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.292465833333 p50_us=0.218 p99_us=0.724 max_us=38.185
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=10.5266875 p50_us=9.516 p99_us=42.058 max_us=65.712
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=87.6628316667 p50_us=73.089 p99_us=179.003 max_us=905.668
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=228 mean_us=3.05989 p50_us=0 p99_us=59.228 max_us=140.178
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.31123083333 p50_us=1.035 p99_us=4.569 max_us=50.314
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7428 mean_us=26.7509266667 p50_us=21.422 p99_us=80.359 max_us=757.943
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7428 mean_us=26.7728558333 p50_us=21.718 p99_us=83.49 max_us=124.284
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7428 mean_us=34.5988983333 p50_us=27.251 p99_us=93.187 max_us=206.647
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.217715 p50_us=0.202 p99_us=0.397 max_us=1.874
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.205605 p50_us=0.182 p99_us=0.472 max_us=1.974
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=9.6973 p50_us=9.409 p99_us=16.229 max_us=50.674
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=82.40215 p50_us=72.464 p99_us=181.912 max_us=269.523
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=228 mean_us=7.9745375 p50_us=0 p99_us=69.394 max_us=111.702
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.92274 p50_us=0.721 p99_us=2.228 max_us=32.332
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2628 mean_us=27.3983975 p50_us=21.365 p99_us=103.194 max_us=200.063
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2628 mean_us=26.538295 p50_us=21.966 p99_us=83.087 max_us=123.634
+PROFILE engine=expanded-v2 sr=48000 block=64 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2628 mean_us=34.0482025 p50_us=26.839 p99_us=112.782 max_us=207.781
+TIMING engine=expanded-v2 sr=48000 block=64 channels=2 three_cabs_six_mics p50_us=86.349 p99_us=231.258 thread_cpu_p99_us=216.453 max_us=922.559 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227370381 max_step=0.0114508057013
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=128 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=189.654 p99_us=430.098 thread_cpu_p99_us=423.729999999 max_us=7621.848 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=164.844 p99_us=343.716 thread_cpu_p99_us=318.919 max_us=2149.598 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.356583333333 p50_us=0.249 p99_us=1.377 max_us=40.029
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.297895833333 p50_us=0.247 p99_us=0.909 max_us=1.673
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=10.455355 p50_us=9.714 p99_us=35.207 max_us=70.547
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=201.225224167 p50_us=174.455 p99_us=325.62 max_us=7604.571
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=114 mean_us=3.8999725 p50_us=0 p99_us=119.937 max_us=159.979
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.3101625 p50_us=1.091 p99_us=3.497 max_us=57.26
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7314 mean_us=91.5205341667 p50_us=68.817 p99_us=188.029 max_us=7493.506
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7314 mean_us=86.81901 p50_us=69.5 p99_us=181.647 max_us=955.562
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7314 mean_us=23.7180683333 p50_us=20.719 p99_us=74.982 max_us=599.557
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2317875 p50_us=0.206 p99_us=0.509 max_us=1.432
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2308125 p50_us=0.203 p99_us=0.448 max_us=1.846
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=10.5346425 p50_us=9.457 p99_us=37.093 max_us=71.536
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=176.79184 p50_us=147.666 p99_us=301.391 max_us=2134.994
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=114 mean_us=7.682655 p50_us=0 p99_us=110.805 max_us=132.924
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.9089625 p50_us=0.753 p99_us=2.262 max_us=11.838
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2514 mean_us=76.865635 p50_us=62.414 p99_us=153.817 max_us=182.126
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2514 mean_us=84.9083375 p50_us=64.308 p99_us=160.403 max_us=2047.094
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2514 mean_us=20.0317625 p50_us=15.902 p99_us=55.766 max_us=98.78
+TIMING engine=expanded-v2 sr=48000 block=128 channels=1 three_cabs_six_mics p50_us=183.506 p99_us=427.159 thread_cpu_p99_us=415.911 max_us=7621.848 misses=1/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.00825380161405
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=128 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=208.012 p99_us=1281.913 thread_cpu_p99_us=418.6 max_us=4079.795 misses=5
+PHASE name=forced_six_slot_publication blocks=400 p50_us=299.489 p99_us=540.024 thread_cpu_p99_us=542.094000001 max_us=564.375 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.366069166667 p50_us=0.238 p99_us=1.188 max_us=35.422
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.395876666667 p50_us=0.238 p99_us=0.768 max_us=109.192
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=20.9707041667 p50_us=18.629 p99_us=62.063 max_us=306.428
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=218.5466975 p50_us=176.73 p99_us=1248.813 max_us=4042.418
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=114 mean_us=3.05705833333 p50_us=0 p99_us=88.002 max_us=318.358
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=2.42692416667 p50_us=1.817 p99_us=8.219 max_us=164.69
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7314 mean_us=86.50938 p50_us=63.418 p99_us=327.011 max_us=2354.447
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7314 mean_us=83.4101358333 p50_us=63.007 p99_us=242.324 max_us=3184.04
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7314 mean_us=47.1161966667 p50_us=37.779 p99_us=128.274 max_us=1944.037
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2891325 p50_us=0.293 p99_us=0.463 max_us=2.021
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.29485 p50_us=0.283 p99_us=0.711 max_us=2.403
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=20.81743 p50_us=19.667 p99_us=66.863 max_us=76.214
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=252.586645 p50_us=271.779 p99_us=364.896 max_us=405.133
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=114 mean_us=14.2867825 p50_us=0 p99_us=181.2 max_us=197.733
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=2.082845 p50_us=2.127 p99_us=4.685 max_us=14.661
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2514 mean_us=104.4856175 p50_us=106.505 p99_us=201.384 max_us=224.297
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2514 mean_us=105.5796525 p50_us=106.25 p99_us=206.646 max_us=220.628
+PROFILE engine=expanded-v2 sr=48000 block=128 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2514 mean_us=51.2460225 p50_us=49.829 p99_us=123.181 max_us=137.576
+TIMING engine=expanded-v2 sr=48000 block=128 channels=2 three_cabs_six_mics p50_us=217.941 p99_us=695.247 thread_cpu_p99_us=497.659 max_us=4079.795 misses=5/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00825380347669
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=186.206 p99_us=601.95 thread_cpu_p99_us=427.706 max_us=9013.68 misses=2
+PHASE name=forced_six_slot_publication blocks=400 p50_us=216.181 p99_us=566.267 thread_cpu_p99_us=490.608999999 max_us=1162.096 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.325764166667 p50_us=0.229 p99_us=1.159 max_us=28.083
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.319030833333 p50_us=0.237 p99_us=1.094 max_us=10.74
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=27.8822233333 p50_us=18.08 p99_us=74.137 max_us=8268.511
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=198.868714167 p50_us=159.739 p99_us=555.811 max_us=8451.844
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=60 mean_us=2.6416725 p50_us=0 p99_us=83.48 max_us=1191.338
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=2.22334 p50_us=1.112 p99_us=4.057 max_us=981.433
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7260 mean_us=87.0056891667 p50_us=62.11 p99_us=234.859 max_us=8238.754
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7260 mean_us=81.1399308333 p50_us=64.582 p99_us=169.735 max_us=1269.737
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7260 mean_us=30.6966275 p50_us=20.763 p99_us=130.079 max_us=1822.37
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.264675 p50_us=0.242 p99_us=0.539 max_us=1.326
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.3369575 p50_us=0.233 p99_us=0.726 max_us=29.384
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=19.4244525 p50_us=18.241 p99_us=52.542 max_us=68.643
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=208.003815 p50_us=184.229 p99_us=368.542 max_us=1139.071
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=60 mean_us=5.765895 p50_us=0 p99_us=157.407 max_us=240.286
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.29171 p50_us=1.255 p99_us=2.674 max_us=7.002
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2460 mean_us=88.27418 p50_us=82.45 p99_us=191.247 max_us=285.809
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2460 mean_us=93.5708425 p50_us=85.618 p99_us=245.645 max_us=1032.573
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2460 mean_us=29.1807125 p50_us=26.725 p99_us=93.096 max_us=109.425
+TIMING engine=expanded-v2 sr=48000 block=256 channels=1 three_cabs_six_mics p50_us=190.907 p99_us=583.63 thread_cpu_p99_us=429.709000001 max_us=9013.68 misses=2/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00707471929491
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=275.651 p99_us=472.481 thread_cpu_p99_us=451.308 max_us=563.51 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=311.672 p99_us=2304.366 thread_cpu_p99_us=496.608000001 max_us=2536.418 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.3550775 p50_us=0.295 p99_us=1.259 max_us=1.894
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.343541666667 p50_us=0.303 p99_us=0.874 max_us=10.86
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=39.7547733333 p50_us=36.195 p99_us=88.854 max_us=334.84
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=237.187215 p50_us=220.117 p99_us=391.036 max_us=463.665
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=60 mean_us=1.53687666667 p50_us=0 p99_us=80.943 max_us=162.487
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=3.20237 p50_us=2.656 p99_us=13.487 max_us=89.742
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7260 mean_us=88.2347725 p50_us=84.612 p99_us=171.224 max_us=235.053
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7260 mean_us=87.3546141667 p50_us=81.434 p99_us=172.405 max_us=218.451
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7260 mean_us=57.950455 p50_us=57.756 p99_us=129.278 max_us=224.281
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.301655 p50_us=0.272 p99_us=0.749 max_us=1.441
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.340365 p50_us=0.288 p99_us=1.159 max_us=8.934
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=45.62317 p50_us=36.467 p99_us=165.463 max_us=2093.041
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=276.6581675 p50_us=257.124 p99_us=2255.081 max_us=2487.794
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=60 mean_us=4.8295475 p50_us=0 p99_us=110.775 max_us=176.891
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=2.7807725 p50_us=2.8 p99_us=7.777 max_us=16.739
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2460 mean_us=102.2426275 p50_us=94.03 p99_us=213.569 max_us=2328.106
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2460 mean_us=105.5575925 p50_us=95.181 p99_us=256.424 max_us=2147.426
+PROFILE engine=expanded-v2 sr=48000 block=256 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2460 mean_us=63.060225 p50_us=63.123 p99_us=162.78 max_us=1110.39
+TIMING engine=expanded-v2 sr=48000 block=256 channels=2 three_cabs_six_mics p50_us=289.016 p99_us=509.711 thread_cpu_p99_us=459.723999999 max_us=2536.418 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227407634 max_step=0.00707471929491
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=512 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=285.939 p99_us=602.939 thread_cpu_p99_us=564.074999999 max_us=2618.081 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=279.396 p99_us=478.263 thread_cpu_p99_us=443.238 max_us=571.866 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.2803925 p50_us=0.236 p99_us=0.945 max_us=1.617
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.327115833333 p50_us=0.235 p99_us=0.842 max_us=37.481
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=38.4644583333 p50_us=35.065 p99_us=98.71 max_us=813.177
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=281.385301667 p50_us=242.572 p99_us=538.903 max_us=2553.448
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=30 mean_us=1.03292 p50_us=0 p99_us=0 max_us=147.548
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.99018166667 p50_us=1.519 p99_us=6.071 max_us=114.286
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7230 mean_us=125.324401667 p50_us=103.955 p99_us=283.598 max_us=2402.109
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7230 mean_us=124.9684975 p50_us=105.438 p99_us=270.156 max_us=1701.915
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7230 mean_us=28.8207216667 p50_us=24.707 p99_us=98.329 max_us=241.601
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2330775 p50_us=0.222 p99_us=0.463 max_us=1.278
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2984525 p50_us=0.199 p99_us=0.712 max_us=32.485
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=36.939895 p50_us=35.058 p99_us=72.637 max_us=111.127
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=253.79288 p50_us=239.391 p99_us=402.938 max_us=527.672
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=30 mean_us=3.3971 p50_us=0 p99_us=131.781 max_us=186.76
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.5659025 p50_us=1.466 p99_us=2.846 max_us=7.304
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2430 mean_us=111.9370875 p50_us=102.582 p99_us=212.808 max_us=286.119
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2430 mean_us=114.3263725 p50_us=105.226 p99_us=195.642 max_us=247.459
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2430 mean_us=27.584825 p50_us=24.156 p99_us=94.703 max_us=135.29
+TIMING engine=expanded-v2 sr=48000 block=512 channels=1 three_cabs_six_mics p50_us=282.488 p99_us=584.318 thread_cpu_p99_us=554.374 max_us=2618.081 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227370381 max_step=0.00512470072135
+PHASE_CONFIG engine=expanded-v2 sr=48000 block=512 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=362.722 p99_us=619.774 thread_cpu_p99_us=605.530999999 max_us=6728.627 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=375.717 p99_us=905.571 thread_cpu_p99_us=907.851 max_us=968.538 misses=0
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.314388333333 p50_us=0.261 p99_us=1.019 max_us=2.538
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.3984125 p50_us=0.284 p99_us=0.949 max_us=59.218
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=75.7932516667 p50_us=69.888 p99_us=136.825 max_us=909.245
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=313.4699775 p50_us=281.451 p99_us=517.972 max_us=6635.368
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=30 mean_us=1.19489583333 p50_us=0 p99_us=0 max_us=194.477
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=3.88104 p50_us=3.307 p99_us=11.758 max_us=52.53
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7230 mean_us=120.606311667 p50_us=104.082 p99_us=216.245 max_us=1352.711
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7230 mean_us=118.682235833 p50_us=102.722 p99_us=219.439 max_us=283.897
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7230 mean_us=67.7620741667 p50_us=55.356 p99_us=126.526 max_us=6389.905
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2726175 p50_us=0.243 p99_us=0.58 max_us=1.409
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2964225 p50_us=0.252 p99_us=0.919 max_us=3.008
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=74.01561 p50_us=69.798 p99_us=124.113 max_us=155.942
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=322.3227225 p50_us=293.434 p99_us=582.057 max_us=635.255
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=30 mean_us=6.64768 p50_us=0 p99_us=279.354 max_us=318.518
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=3.8574 p50_us=3.254 p99_us=15.494 max_us=37.473
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2430 mean_us=124.9656075 p50_us=101.583 p99_us=305.174 max_us=370.101
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2430 mean_us=124.351505 p50_us=101.393 p99_us=318.759 max_us=339.344
+PROFILE engine=expanded-v2 sr=48000 block=512 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2430 mean_us=72.463795 p50_us=63.922 p99_us=176.479 max_us=238.329
+TIMING engine=expanded-v2 sr=48000 block=512 channels=2 three_cabs_six_mics p50_us=364.669 p99_us=680.502 thread_cpu_p99_us=669.522 max_us=6728.627 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0188227389008 max_step=0.00512470118701
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=32 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=87.758 p99_us=179.166 thread_cpu_p99_us=179.629000001 max_us=1419.054 misses=2
+PHASE name=forced_six_slot_publication blocks=400 p50_us=91.945 p99_us=162.547 thread_cpu_p99_us=164.243999999 max_us=367.561 misses=1
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.318718333333 p50_us=0.218 p99_us=1.008 max_us=45.441
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.260881666667 p50_us=0.221 p99_us=0.69 max_us=1.809
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=3.58102166667 p50_us=3.212 p99_us=9.542 max_us=53.347
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=74.4672908333 p50_us=60.387 p99_us=152.021 max_us=1350.841
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=900 mean_us=8.76943416667 p50_us=0 p99_us=70.548 max_us=234.655
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=0.9164075 p50_us=0.578 p99_us=2.171 max_us=201.751
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=8100 mean_us=20.1738483333 p50_us=17.792 p99_us=69.703 max_us=1295.92
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=8100 mean_us=19.8244575 p50_us=17.548 p99_us=69.043 max_us=223.913
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=8100 mean_us=41.3511983333 p50_us=39.116 p99_us=103.661 max_us=442.338
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.21074 p50_us=0.204 p99_us=0.284 max_us=1.358
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.26873 p50_us=0.179 p99_us=0.525 max_us=29.463
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=3.4283325 p50_us=3.118 p99_us=9.527 max_us=44.112
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=62.2347525 p50_us=57.666 p99_us=108.107 max_us=321.546
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=900 mean_us=22.834375 p50_us=28.607 p99_us=70.619 max_us=74.53
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.4924325 p50_us=0.419 p99_us=1.402 max_us=3.508
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=3300 mean_us=20.085615 p50_us=20.451 p99_us=58.577 max_us=103.323
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=3300 mean_us=20.619725 p50_us=21.657 p99_us=50.5 max_us=68.18
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=3300 mean_us=42.60282 p50_us=42.235 p99_us=92.447 max_us=308.385
+TIMING engine=expanded-v2 sr=96000 block=32 channels=1 three_cabs_six_mics p50_us=91.226 p99_us=179.033 thread_cpu_p99_us=176.494999999 max_us=1419.054 misses=3/1600 kernel_residual=1.86264514923e-09 peak=0.0154517209157 max_step=0.00442692264915
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=32 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=135.257 p99_us=334.554 thread_cpu_p99_us=325.558999997 max_us=2041.586 misses=12
+PHASE name=forced_six_slot_publication blocks=400 p50_us=130.034 p99_us=229.213 thread_cpu_p99_us=231.609999999 max_us=428.429 misses=1
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.460095 p50_us=0.292 p99_us=1.003 max_us=61.217
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.3445725 p50_us=0.303 p99_us=0.898 max_us=10.093
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=6.80729916667 p50_us=6.233 p99_us=16.565 max_us=81.439
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=125.416449167 p50_us=121.413 p99_us=229.69 max_us=2025.636
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=900 mean_us=18.4126441667 p50_us=0 p99_us=119.165 max_us=169.343
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.48873666667 p50_us=1.428 p99_us=3.034 max_us=11.107
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=8100 mean_us=25.9335716667 p50_us=20.456 p99_us=85.401 max_us=1881.81
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=8100 mean_us=24.3567108333 p50_us=20.482 p99_us=83.84 max_us=107.021
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=8100 mean_us=90.2351408333 p50_us=77.12 p99_us=218.218 max_us=410.461
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.24302 p50_us=0.229 p99_us=0.429 max_us=1.289
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2478225 p50_us=0.24 p99_us=0.507 max_us=2.012
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=6.264145 p50_us=5.846 p99_us=16.121 max_us=44.236
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=90.9837 p50_us=82.97 p99_us=173.337 max_us=366.901
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=900 mean_us=32.01618 p50_us=37.653 p99_us=91.479 max_us=117.547
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.067165 p50_us=0.975 p99_us=2.048 max_us=8.858
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=3300 mean_us=21.0901525 p50_us=20.608 p99_us=71.86 max_us=116.879
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=3300 mean_us=21.5010775 p50_us=20.873 p99_us=66.642 max_us=288.233
+PROFILE engine=expanded-v2 sr=96000 block=32 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=3300 mean_us=77.7807675 p50_us=75.879 p99_us=156.223 max_us=190.344
+TIMING engine=expanded-v2 sr=96000 block=32 channels=2 three_cabs_six_mics p50_us=131.903 p99_us=325.166 thread_cpu_p99_us=321.614999998 max_us=2041.586 misses=13/1600 kernel_residual=1.86264514923e-09 peak=0.015451724641 max_step=0.00442692497745
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=109.666 p99_us=256.808 thread_cpu_p99_us=257.207000002 max_us=339.11 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=88.055 p99_us=193.983 thread_cpu_p99_us=166.355 max_us=326.134 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.2983925 p50_us=0.231 p99_us=0.993 max_us=9.437
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.289019166667 p50_us=0.237 p99_us=0.8 max_us=6.859
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=5.88368666667 p50_us=5.309 p99_us=16.252 max_us=69.184
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=103.523355833 p50_us=88.103 p99_us=202.131 max_us=324.752
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=450 mean_us=7.18071 p50_us=0 p99_us=106.348 max_us=239.681
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.02667666667 p50_us=0.844 p99_us=2.249 max_us=61.266
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7650 mean_us=33.50367 p50_us=23.799 p99_us=95.214 max_us=128.802
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7650 mean_us=35.2993283333 p50_us=24.763 p99_us=103.275 max_us=202.7
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7650 mean_us=39.6703483333 p50_us=35.546 p99_us=116.952 max_us=273.992
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2202325 p50_us=0.209 p99_us=0.327 max_us=1.329
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.1949 p50_us=0.18 p99_us=0.345 max_us=1.44
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=5.678935 p50_us=5.175 p99_us=11.33 max_us=125.859
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=79.2286775 p50_us=72.473 p99_us=138.422 max_us=315.101
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=450 mean_us=14.6092775 p50_us=0 p99_us=82.398 max_us=90.637
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=0.589355 p50_us=0.512 p99_us=1.373 max_us=2.707
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2850 mean_us=28.0224975 p50_us=22.177 p99_us=70.66 max_us=145.4
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2850 mean_us=30.4501825 p50_us=23.481 p99_us=77.582 max_us=248.045
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2850 mean_us=33.52425 p50_us=27.987 p99_us=82.71 max_us=107.904
+TIMING engine=expanded-v2 sr=96000 block=64 channels=1 three_cabs_six_mics p50_us=106.847 p99_us=252.539 thread_cpu_p99_us=248.291999999 max_us=339.11 misses=0/1600 kernel_residual=2.09547579288e-09 peak=0.0154517190531 max_step=0.00348461349495
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=114.257 p99_us=465.218 thread_cpu_p99_us=374.273000002 max_us=3524.301 misses=8
+PHASE name=forced_six_slot_publication blocks=400 p50_us=115.865 p99_us=263.563 thread_cpu_p99_us=249.972999997 max_us=297.956 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.379165833333 p50_us=0.221 p99_us=1.349 max_us=54.313
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.29136 p50_us=0.236 p99_us=0.745 max_us=10.507
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=11.6851233333 p50_us=9.946 p99_us=46.492 max_us=916.564
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=124.2652075 p50_us=99.166 p99_us=305.81 max_us=3368.398
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=450 mean_us=8.52914583333 p50_us=0 p99_us=118.092 max_us=387.368
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.70374083333 p50_us=1.387 p99_us=3.764 max_us=82.824
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7650 mean_us=32.9921625 p50_us=21.706 p99_us=89.815 max_us=3187.864
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7650 mean_us=28.3974025 p50_us=22.122 p99_us=83.639 max_us=184.743
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7650 mean_us=68.4899616667 p50_us=52.404 p99_us=230.19 max_us=1025.535
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.230295 p50_us=0.218 p99_us=0.408 max_us=1.226
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.311595 p50_us=0.199 p99_us=0.604 max_us=37.817
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=10.5512425 p50_us=9.961 p99_us=46.477 max_us=86.57
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=106.98625 p50_us=99.094 p99_us=182.607 max_us=201.353
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=450 mean_us=18.2072 p50_us=0 p99_us=84.131 max_us=139.503
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.250335 p50_us=1.064 p99_us=2.105 max_us=48.6
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2850 mean_us=27.077395 p50_us=22.115 p99_us=70.167 max_us=84.965
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2850 mean_us=28.22019 p50_us=22.386 p99_us=72.067 max_us=81.813
+PROFILE engine=expanded-v2 sr=96000 block=64 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2850 mean_us=67.0837225 p50_us=54.337 p99_us=153.886 max_us=185.992
+TIMING engine=expanded-v2 sr=96000 block=64 channels=2 three_cabs_six_mics p50_us=114.484 p99_us=393.96 thread_cpu_p99_us=339.727000002 max_us=3524.301 misses=8/1600 kernel_residual=2.09547579288e-09 peak=0.0154517209157 max_step=0.00348461326212
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=128 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=213.982 p99_us=423.487 thread_cpu_p99_us=377.186999999 max_us=1816.599 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=174.399 p99_us=408.002 thread_cpu_p99_us=349.873 max_us=431.498 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.3215575 p50_us=0.255 p99_us=1.09 max_us=18.481
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.359796666667 p50_us=0.251 p99_us=0.896 max_us=35.5
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=11.1370858333 p50_us=9.925 p99_us=48.305 max_us=213.396
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=210.9185975 p50_us=189.231 p99_us=393.935 max_us=1742.669
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=228 mean_us=5.84336333333 p50_us=0 p99_us=119.023 max_us=186.568
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=1.56281666667 p50_us=1.346 p99_us=3.539 max_us=53.492
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7428 mean_us=84.6036758333 p50_us=70.004 p99_us=182.031 max_us=1607.833
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7428 mean_us=86.5349516667 p50_us=72.723 p99_us=181.694 max_us=466.672
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7428 mean_us=42.4244383333 p50_us=36.295 p99_us=117.155 max_us=263.155
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.22351 p50_us=0.199 p99_us=0.395 max_us=1.355
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.2104975 p50_us=0.191 p99_us=0.536 max_us=1.279
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=10.691325 p50_us=9.631 p99_us=38.861 max_us=227.901
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=174.480435 p50_us=159.724 p99_us=364.612 max_us=416.492
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=228 mean_us=16.4552525 p50_us=0 p99_us=123.129 max_us=148.866
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=1.00315 p50_us=0.913 p99_us=2.546 max_us=7.307
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2628 mean_us=74.27199 p50_us=61.739 p99_us=191.817 max_us=307.535
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2628 mean_us=77.2974975 p50_us=64.696 p99_us=166.72 max_us=273.38
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2628 mean_us=36.95159 p50_us=30.81 p99_us=91.517 max_us=126.194
+TIMING engine=expanded-v2 sr=96000 block=128 channels=1 three_cabs_six_mics p50_us=205.889 p99_us=415.059 thread_cpu_p99_us=370.941999998 max_us=1816.599 misses=1/1600 kernel_residual=1.86264514923e-09 peak=0.0154517237097 max_step=0.00486831972376
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=128 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=348.988 p99_us=556.899 thread_cpu_p99_us=495.344000001 max_us=1947.543 misses=2
+PHASE name=forced_six_slot_publication blocks=400 p50_us=309.213 p99_us=529.642 thread_cpu_p99_us=518.515999999 max_us=854.064 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.4763725 p50_us=0.309 p99_us=1.122 max_us=82.857
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.483148333333 p50_us=0.337 p99_us=1.07 max_us=85.043
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=21.2389325 p50_us=19.436 p99_us=66.699 max_us=142.213
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=304.096789167 p50_us=316.058 p99_us=478.771 max_us=1680.884
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=228 mean_us=8.01697083333 p50_us=0 p99_us=143.352 max_us=388.314
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=3.33564083333 p50_us=3.067 p99_us=10.011 max_us=55.965
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7428 mean_us=98.8506025 p50_us=103.703 p99_us=180.774 max_us=1479.634
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7428 mean_us=98.3096483333 p50_us=102.921 p99_us=169.198 max_us=463.145
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7428 mean_us=109.040439167 p50_us=104.356 p99_us=234.853 max_us=840.158
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.3362925 p50_us=0.315 p99_us=1.03 max_us=1.728
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.4850475 p50_us=0.35 p99_us=0.997 max_us=38.326
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=21.0703275 p50_us=19.98 p99_us=62.6 max_us=68.654
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=258.415865 p50_us=267.462 p99_us=390.571 max_us=791.541
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=228 mean_us=23.4973075 p50_us=0 p99_us=167.866 max_us=206.08
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=3.19904 p50_us=3.061 p99_us=10.53 max_us=42.996
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2628 mean_us=90.768285 p50_us=93.015 p99_us=189.627 max_us=239.956
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2628 mean_us=93.029665 p50_us=92.537 p99_us=194.369 max_us=654.06
+PROFILE engine=expanded-v2 sr=96000 block=128 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2628 mean_us=92.168655 p50_us=83.482 p99_us=197.422 max_us=219.871
+TIMING engine=expanded-v2 sr=96000 block=128 channels=2 three_cabs_six_mics p50_us=341.704 p99_us=533.535 thread_cpu_p99_us=505.028000001 max_us=1947.543 misses=2/1600 kernel_residual=1.86264514923e-09 peak=0.0154517218471 max_step=0.00486831972376
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=257.532 p99_us=437.788 thread_cpu_p99_us=432.024999999 max_us=2964.864 misses=1
+PHASE name=forced_six_slot_publication blocks=400 p50_us=315.931 p99_us=650.318 thread_cpu_p99_us=605.899 max_us=738.074 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.407153333333 p50_us=0.283 p99_us=1.086 max_us=64.842
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.412699166667 p50_us=0.331 p99_us=1.068 max_us=35.286
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=20.3078975 p50_us=19.011 p99_us=63.544 max_us=81.663
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=231.827513333 p50_us=228.479 p99_us=389.719 max_us=2934.352
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=114 mean_us=3.5989825 p50_us=0 p99_us=116.934 max_us=161.872
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=2.03542916667 p50_us=1.988 p99_us=3.93 max_us=36.264
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7314 mean_us=87.6275758333 p50_us=82.264 p99_us=179.178 max_us=2729.705
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7314 mean_us=87.5042983333 p50_us=83.339 p99_us=183.476 max_us=221.515
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7314 mean_us=56.9443258333 p50_us=56.524 p99_us=129.755 max_us=215.159
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.4466725 p50_us=0.326 p99_us=0.858 max_us=35.408
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.443885 p50_us=0.389 p99_us=1.227 max_us=2.976
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=21.4306825 p50_us=19.74 p99_us=67.946 max_us=143.1
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=298.44097 p50_us=287.019 p99_us=468.531 max_us=621.719
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=114 mean_us=14.4666725 p50_us=0 p99_us=189.593 max_us=245.571
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=2.6139675 p50_us=2.306 p99_us=5.319 max_us=83.593
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2514 mean_us=115.1691075 p50_us=104.311 p99_us=229.068 max_us=284.812
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2514 mean_us=114.0127575 p50_us=105.04 p99_us=277.796 max_us=339.785
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2514 mean_us=79.4404275 p50_us=69.041 p99_us=188.137 max_us=263.227
+TIMING engine=expanded-v2 sr=96000 block=256 channels=1 three_cabs_six_mics p50_us=275.591 p99_us=521.159 thread_cpu_p99_us=516.381999999 max_us=2964.864 misses=1/1600 kernel_residual=1.86264514923e-09 peak=0.0154517209157 max_step=0.000991089502349
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=281.161 p99_us=471.921 thread_cpu_p99_us=474.011 max_us=594.246 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=374.702 p99_us=628.244 thread_cpu_p99_us=629.947000001 max_us=823.54 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.3400025 p50_us=0.275 p99_us=1.178 max_us=3.838
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.399201666667 p50_us=0.333 p99_us=1.016 max_us=5.975
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=39.1599025 p50_us=36.09 p99_us=85.382 max_us=135.31
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=252.644976667 p50_us=231.811 p99_us=416.051 max_us=528.927
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=114 mean_us=3.58740416667 p50_us=0 p99_us=114.823 max_us=195.459
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=3.85777083333 p50_us=3.12 p99_us=14.573 max_us=69.786
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7314 mean_us=76.0617491667 p50_us=63.12 p99_us=149.316 max_us=197.871
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7314 mean_us=76.2750316667 p50_us=62.518 p99_us=146.546 max_us=249.739
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7314 mean_us=98.9299341667 p50_us=86.663 p99_us=181.882 max_us=244.642
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.36305 p50_us=0.339 p99_us=0.742 max_us=1.816
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.4658725 p50_us=0.412 p99_us=1.031 max_us=2.277
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=40.48321 p50_us=37.319 p99_us=104.91 max_us=138.331
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=323.65629 p50_us=315.711 p99_us=477.457 max_us=579.433
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=114 mean_us=15.3072425 p50_us=0 p99_us=202.555 max_us=214.417
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=4.689715 p50_us=4.198 p99_us=14.378 max_us=57.284
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2514 mean_us=102.2093325 p50_us=92.681 p99_us=177.182 max_us=216.111
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2514 mean_us=100.015055 p50_us=91.53 p99_us=180.052 max_us=240.987
+PROFILE engine=expanded-v2 sr=96000 block=256 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2514 mean_us=129.3232825 p50_us=112.836 p99_us=268.787 max_us=428.812
+TIMING engine=expanded-v2 sr=96000 block=256 channels=2 three_cabs_six_mics p50_us=325.026 p99_us=570.169 thread_cpu_p99_us=573.515000001 max_us=823.54 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517209157 max_step=0.000991089269519
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=512 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=353.456 p99_us=718.742 thread_cpu_p99_us=673.168000001 max_us=4567.16 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=386.085 p99_us=908.642 thread_cpu_p99_us=910.545000002 max_us=1024.658 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.356400833333 p50_us=0.283 p99_us=1.184 max_us=1.931
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.394870833333 p50_us=0.31 p99_us=0.941 max_us=36.849
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=39.5745941667 p50_us=35.921 p99_us=93.186 max_us=700.16
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=352.725381667 p50_us=307.82 p99_us=611.814 max_us=4502.185
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=60 mean_us=3.22910916667 p50_us=0 p99_us=189.448 max_us=286.305
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=2.60303333333 p50_us=2.312 p99_us=8.05 max_us=62.684
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7260 mean_us=145.267059167 p50_us=123.701 p99_us=282.233 max_us=2505.243
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7260 mean_us=146.540455 p50_us=126.884 p99_us=306.149 max_us=1779.366
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7260 mean_us=59.4176625 p50_us=51.847 p99_us=137.584 max_us=1954.377
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.3119175 p50_us=0.286 p99_us=0.94 max_us=1.596
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.33105 p50_us=0.292 p99_us=1.055 max_us=2.447
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=38.6007625 p50_us=35.982 p99_us=100.482 max_us=123.122
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=384.7669375 p50_us=333.244 p99_us=612.973 max_us=655.564
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=60 mean_us=11.88983 p50_us=0 p99_us=298.207 max_us=356.475
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=2.635305 p50_us=2.608 p99_us=5.889 max_us=13.48
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2460 mean_us=162.6061725 p50_us=150.23 p99_us=342.033 max_us=410.755
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2460 mean_us=165.6011175 p50_us=150.705 p99_us=347.365 max_us=418.92
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=1 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2460 mean_us=63.613405 p50_us=62.343 p99_us=172.901 max_us=196.103
+TIMING engine=expanded-v2 sr=96000 block=512 channels=1 three_cabs_six_mics p50_us=356.322 p99_us=830.825 thread_cpu_p99_us=748.640000001 max_us=4567.16 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517255723 max_step=0.00162917736452
+PHASE_CONFIG engine=expanded-v2 sr=96000 block=512 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=473.93 p99_us=1023.243 thread_cpu_p99_us=1015.657 max_us=2189.63 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=422.927 p99_us=712.331 thread_cpu_p99_us=677.607999999 max_us=1168.647 misses=0
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=parameters callbacks=1200 calls=7200 mean_us=0.360201666667 p50_us=0.311 p99_us=1.046 max_us=4.103
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=kernel_swap callbacks=1200 calls=7200 mean_us=0.467285 p50_us=0.372 p99_us=1 max_us=39.563
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=filters callbacks=1200 calls=14400 mean_us=76.3771158333 p50_us=71.146 p99_us=140.344 max_us=205.342
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=active_convolution callbacks=1200 calls=7200 mean_us=425.315096667 p50_us=385.765 p99_us=659.091 max_us=2013.961
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=fading_convolution callbacks=1200 calls=60 mean_us=4.7772575 p50_us=0 p99_us=274.621 max_us=375.891
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=mic_post callbacks=1200 calls=7200 mean_us=5.30184333333 p50_us=4.933 p99_us=13.556 max_us=60.806
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=fft_forward callbacks=1200 calls=7260 mean_us=145.8466475 p50_us=138.917 p99_us=304.876 max_us=666.744
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=fft_inverse callbacks=1200 calls=7260 mean_us=145.366650833 p50_us=140.872 p99_us=301.451 max_us=376.245
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=worker_and_automation stage=spectral_mac callbacks=1200 calls=7260 mean_us=129.843453333 p50_us=127.116 p99_us=274.077 max_us=1236.582
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=parameters callbacks=400 calls=2400 mean_us=0.2725125 p50_us=0.247 p99_us=0.811 max_us=2.333
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=kernel_swap callbacks=400 calls=2400 mean_us=0.35286 p50_us=0.312 p99_us=0.95 max_us=2.446
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=filters callbacks=400 calls=4800 mean_us=74.52879 p50_us=70.006 p99_us=135.219 max_us=160.071
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=active_convolution callbacks=400 calls=2400 mean_us=343.70134 p50_us=331.637 p99_us=542.281 max_us=1079.242
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=fading_convolution callbacks=400 calls=60 mean_us=9.16904 p50_us=0 p99_us=205.89 max_us=260.321
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=mic_post callbacks=400 calls=2400 mean_us=4.582865 p50_us=4.086 p99_us=11.171 max_us=53.728
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=fft_forward callbacks=400 calls=2460 mean_us=114.00205 p50_us=101.955 p99_us=204.772 max_us=222.326
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=fft_inverse callbacks=400 calls=2460 mean_us=115.596965 p50_us=101.546 p99_us=206.714 max_us=862.466
+PROFILE engine=expanded-v2 sr=96000 block=512 channels=2 phase=forced_six_slot_publication stage=spectral_mac callbacks=400 calls=2460 mean_us=116.2010475 p50_us=105.11 p99_us=245.689 max_us=385.719
+TIMING engine=expanded-v2 sr=96000 block=512 channels=2 three_cabs_six_mics p50_us=438.945 p99_us=993.869 thread_cpu_p99_us=986.946000002 max_us=2189.63 misses=0/1600 kernel_residual=1.86264514923e-09 peak=0.0154517237097 max_step=0.00162917748094
+PASS original CAB integration and runner CPU gate

@@ -687,6 +687,15 @@ target_include_directories(ChimeraCabProfiling PRIVATE Source)
 target_compile_definitions(ChimeraCabProfiling PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0 CHIMERA_CAB_PROFILE=1)
 target_link_libraries(ChimeraCabProfiling PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
 
+# PROTOTYPE (docs/CAB_TWO_LEVEL_CONVOLUTION_DESIGN.md): two-level CAB
+# convolution benchmark. Excluded from the default build, CTest and the product.
+juce_add_console_app(ChimeraCabTwoLevelPrototype PRODUCT_NAME "Chimera CAB Two-Level Prototype")
+set_target_properties(ChimeraCabTwoLevelPrototype PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_sources(ChimeraCabTwoLevelPrototype PRIVATE Tests/prototypes/CabTwoLevelBenchmark.cpp)
+target_include_directories(ChimeraCabTwoLevelPrototype PRIVATE Source Tests)
+target_compile_definitions(ChimeraCabTwoLevelPrototype PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraCabTwoLevelPrototype PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+
 juce_add_console_app(ChimeraOriginalCabRealtimeTests PRODUCT_NAME "Chimera CAB Realtime Regression Tests")
 target_sources(ChimeraOriginalCabRealtimeTests PRIVATE Tests/CabRealtimeRegressionTests.cpp)
 target_include_directories(ChimeraOriginalCabRealtimeTests PRIVATE Source)
