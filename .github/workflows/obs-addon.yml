@@ -57,7 +57,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Install JUCE, libobs and OBS Studio (Ubuntu 30.0.2) and display dependencies
-        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev mesa-common-dev libobs-dev libglib2.0-dev pkg-config xvfb obs-studio ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev mesa-common-dev libobs-dev libglib2.0-dev pkg-config xvfb x11-utils obs-studio ffmpeg
       - name: Build the Chimera VST3 under test
         run: |
           cmake -S . -B build -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
@@ -114,6 +114,11 @@ jobs:
           xvfb-run -a python3 OBS/tests/obs_user_ir_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool build-obs/chimera-obs-state-tool --work "$RUNNER_TEMP/obs-user-ir"
+      - name: Real OBS Studio app - open Chimera's editor from the filter's button, record, quit with it open, restore
+        run: |
+          xvfb-run -a python3 OBS/tests/obs_editor_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool build-obs/chimera-obs-state-tool --work "$RUNNER_TEMP/obs-editor"
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-linux-x86_64-${{ github.event.pull_request.head.sha || github.sha }}
@@ -173,6 +178,15 @@ jobs:
             --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-user-ir")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Real OBS Studio app (31.1.2) - open Chimera's editor from the filter's button, record, quit with it open, restore
+        shell: pwsh
+        run: |
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          python OBS/tests/obs_editor_test.py --obs (Join-Path $env:RUNNER_TEMP "obs-app-obs/bin/64bit/obs64.exe") `
+            --module package/chimera-obs --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-editor")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Real OBS Studio app (32.2.2) - the filter built for 31.1.2, as after an OBS update
         shell: pwsh
         run: |
@@ -206,6 +220,8 @@ jobs:
             ${{ runner.temp }}/obs-instances/obs-logs/
             ${{ runner.temp }}/obs-user-ir/*.txt
             ${{ runner.temp }}/obs-user-ir/obs-logs/
+            ${{ runner.temp }}/obs-editor/*.txt
+            ${{ runner.temp }}/obs-editor/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
@@ -296,6 +312,14 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-user-ir"
+      - name: Real OBS Studio app (31.1.2 Apple) - open Chimera's editor from the filter's button, record, quit with it open, restore
+        run: |
+          ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
+          python3 OBS/tests/obs_editor_test.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
+            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
+            --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-editor"
       - name: Real OBS Studio app (31.1.2 Intel under Rosetta) - the same Universal filter, record, push a preset, save, restart and restore
         # The Intel OBS.app the x86_64 module was built against: an x86_64-only
         # binary, so macOS runs it, the filter and Chimera under Rosetta.
@@ -326,6 +350,8 @@ jobs:
             ${{ runner.temp }}/obs-instances/obs-logs/
             ${{ runner.temp }}/obs-user-ir/*.txt
             ${{ runner.temp }}/obs-user-ir/obs-logs/
+            ${{ runner.temp }}/obs-editor/*.txt
+            ${{ runner.temp }}/obs-editor/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
