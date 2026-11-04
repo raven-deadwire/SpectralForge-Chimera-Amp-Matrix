@@ -17,8 +17,8 @@ Lossless (16-bit PCM) recordings are made with the filter disabled and enabled:
 - enabled: the front pair's first non-zero sample comes after the centre's by the filter's
   delay, which must match the delay shown in the filter's properties (read by a scene
   script through obs_source_properties on the OBS UI thread), the same for every burst.
-  The time to 10% of the burst's level is printed as well: Chimera's dynamics shape how
-  fast a note is heard, which is not processing delay;
+  The time to 10% of the burst's level is printed as well: Chimera's processing makes a
+  burst rise over a few ms (also with its noise gate off), which is not processing delay;
 - in each recording the centre's audio-to-video offset holds within one video frame.
   OBS's own offset for a media source differs from one recording to the next (also with
   the filter disabled in both), so recordings are not compared with each other.
@@ -155,10 +155,13 @@ def pair(a: list[float], b: list[float], window: float) -> list[float]:
 def measure(path: Path, name: str) -> dict:
     """Delays of the front pair after the untouched centre, in samples: to the first
     non-zero sample (the filter's delay) and to 10% of the burst's level (when it is heard,
-    which Chimera's dynamics can shape), and the centre's audio-to-video offsets."""
+    which Chimera's processing shapes), and the centre's audio-to-video offsets."""
     t0, channels = audio_channels(path)
     centre = onsets(channels[2], FIRST_SAMPLE)
-    front = onsets(channels[0], FIRST_SAMPLE)
+    # The front pair's quiet between bursts, in case a build leaves idle noise there.
+    floor = max((abs(v) for c in centre for v in channels[0][c + int(0.6 * app.RATE):c + int(0.95 * app.RATE)]),
+                default=0.0)
+    front = onsets(channels[0], max(FIRST_SAMPLE, 2 * floor))
     heard = onsets(channels[0])
     check = app.check
     check(len(front) >= 4 and len(centre) >= 4, f"{name}: bursts found on the front and centre channels "
@@ -170,6 +173,13 @@ def measure(path: Path, name: str) -> dict:
     video = video_onsets(path)
     av = pair(video, [t0 + c / app.RATE for c in centre], PERIOD / 2)
     check(len(av) >= 4, f"{name}: video flashes paired with the centre bursts ({len(video)} flashes, {len(av)} paired)")
+    steps = {n: statistics.median(pair(centre, onsets(channels[0], (n - 0.5) / 32768), int(app.RATE * PERIOD / 4)) or [-1])
+             for n in (1, 2, 4, 16)}
+    print(f"     {name}: front after centre by 16-bit steps passed: "
+          + ", ".join(f"{n} step{'s' if n > 1 else ''} {d:+.0f}" for n, d in steps.items()))
+    if floor > FIRST_SAMPLE:
+        print(f"     {name}: the front pair is not silent between bursts (peak {floor:.2e}); onsets read above "
+              f"{2 * floor:.2e}")
     result = {"delay": statistics.median(delays), "delay_spread": max(delays) - min(delays),
               "heard": statistics.median(heard_delays), "av": statistics.median(av), "av_spread": max(av) - min(av)}
     print(f"     {name:9} front after centre: first sample {result['delay']:+.0f} samples "
