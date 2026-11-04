@@ -30,6 +30,10 @@ public:
         freezeToggle.setComponentID(eqID(e,-1,"freeze"));freezeToggle.setEnabled(false);addAndMakeVisible(freezeToggle);
         freezeToggle.setTooltip("Keep the last complete spectrum. Release to wait for a new full analysis window. Audio continues unchanged.");
         freezeToggle.onClick=[this]{setSnapshotFrozen(freezeToggle.getToggleState());};
+        peakToggle.setButtonText("PEAK");peakToggle.setClickingTogglesState(true);
+        peakToggle.setComponentID(eqID(e,-1,"peakHold"));addAndMakeVisible(peakToggle);
+        peakToggle.setTooltip("Hold the highest level reached at each frequency, drawn as a thin line. Turn off and on again to start a new hold. Display only; audio is unchanged.");
+        peakToggle.onClick=[this]{setPeakHold(peakToggle.getToggleState());};
         const auto editButton=[this,e](juce::TextButton& button,const char* title,const char* id) {
             button.setButtonText(title);button.setComponentID(eqID(e,-1,id));addAndMakeVisible(button);
         };
@@ -124,6 +128,14 @@ public:
         return -1;
     }
     bool isSnapshotFrozen() const noexcept {return spectrum.isFrozen();}
+    // Editor-local, like Freeze: never a host parameter, preset, A/B or undo step.
+    void setPeakHold(bool on) {
+        spectrum.setPeakHold(on);peakToggle.setToggleState(on,juce::dontSendNotification);
+        rebuildSpectrumPaths();repaint(plot().toNearestInt());
+    }
+    bool isPeakHold() const noexcept {return spectrum.isPeakHold();}
+    bool hasPeakHold() const noexcept {return spectrum.hasPeak();}
+    float peakSpectrumDB(bool output,int bin) const noexcept {return spectrum.peakDB(output,bin);}
     bool isWaitingForFreshCapture() const noexcept {return pendingCaptureRequest!=0;}
     void setSnapshotFrozen(bool frozen) {
         if(frozen==spectrum.isFrozen())return;
@@ -177,7 +189,7 @@ public:
     void resized() override {
         if(compactWorkspace) {
             analyzerToggle.setBounds(198,4,54,26);inputToggle.setBounds(258,4,44,26);outputToggle.setBounds(308,4,44,26);
-            freezeToggle.setBounds(360,4,96,26);resolution.setBounds(468,4,160,26);smoothing.setBounds(640,4,148,26);
+            freezeToggle.setBounds(360,4,80,26);peakToggle.setBounds(446,4,56,26);resolution.setBounds(510,4,140,26);smoothing.setBounds(658,4,138,26);
             bypass.setBounds(getWidth()-166,4,148,26);
             addButton.setBounds(56,34,84,25);deleteButton.setBounds(148,34,82,25);undoButton.setBounds(244,34,76,25);redoButton.setBounds(328,34,76,25);
             dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,124,25);
@@ -188,8 +200,8 @@ public:
         }
         // Logical workspace scales with the existing 75-150% editor canvas.
         analyzerToggle.setBounds(286,22,60,28);inputToggle.setBounds(354,22,46,28);outputToggle.setBounds(408,22,48,28);
-        freezeToggle.setBounds(465,22,109,28);
-        resolution.setBounds(592,22,172,28);smoothing.setBounds(780,22,156,28);
+        freezeToggle.setBounds(465,22,92,28);peakToggle.setBounds(565,22,64,28);
+        resolution.setBounds(639,22,160,28);smoothing.setBounds(809,22,148,28);
         bypass.setBounds(getWidth()-174,22,156,28);
         addButton.setBounds(56,68,88,27);deleteButton.setBounds(154,68,88,27);
         undoButton.setBounds(264,68,76,27);redoButton.setBounds(350,68,76,27);
@@ -251,15 +263,18 @@ public:
         g.drawText("dBFS",int(area.getRight())+9,compactWorkspace?51:87,42,15,juce::Justification::centredLeft);
         for(int db:{0,-24,-48,-72,-96})g.drawText(juce::String(db),int(area.getRight())+9,int(spectrumY(float(db)))-8,40,16,juce::Justification::centredLeft);
         g.saveState();g.reduceClipRegion(area.toNearestInt());
-        if((analyzerToggle.getToggleState() || spectrum.isFrozen()) && spectrum.hasData()) {
+        if((analyzerToggle.getToggleState() || spectrum.isFrozen()) && (spectrum.hasData() || spectrum.hasPeak())) {
             for(int stream=0;stream<2;++stream) {
                 if(!(stream==0?inputToggle:outputToggle).getToggleState())continue;
                 const auto colour=stream==0?in:out;
+                if(spectrum.hasData()) {
                 juce::ColourGradient fill(colour.withAlpha(stream==0?.23f:.27f),0.f,area.getY(),colour.withAlpha(.015f),0.f,area.getBottom(),false);
                 fill.addColour(.64,colour.withAlpha(.08f));g.setGradientFill(fill);g.fillPath(spectrumFills[(size_t)stream]);
                 g.setColour(colour.withAlpha(.055f));g.strokePath(spectrumPaths[(size_t)stream],juce::PathStrokeType(5.f));
                 g.setColour(colour.withAlpha(stream==0?.74f:.94f));
                 if(stream==0)g.fillPath(dashedInput);else g.strokePath(spectrumPaths[1],juce::PathStrokeType(1.7f));
+                }
+                if(spectrum.hasPeak()){g.setColour(colour.brighter(.35f).withAlpha(stream==0?.55f:.7f));g.strokePath(peakPaths[(size_t)stream],juce::PathStrokeType(1.f));}
             }
         }
         // Static settings, configured dynamic range and applied coefficients
@@ -606,9 +621,10 @@ private:
         for(auto it=lowEdge.rbegin();it!=lowEdge.rend();++it)dynamicRangeFill.lineTo(*it);
         dynamicRangeFill.closeSubPath();
     }
-    void clearSpectrumPaths(){for(auto& p:spectrumPaths)p.clear();for(auto& p:spectrumFills)p.clear();dashedInput.clear();}
+    void clearSpectrumPaths(){for(auto& p:spectrumPaths)p.clear();for(auto& p:spectrumFills)p.clear();for(auto& p:peakPaths)p.clear();dashedInput.clear();}
     void rebuildSpectrumPaths() {
-        const auto start=std::chrono::steady_clock::now();clearSpectrumPaths();if(!spectrum.hasData())return;
+        // A held peak outlives the decayed live line after the audio stops.
+        const auto start=std::chrono::steady_clock::now();clearSpectrumPaths();if(!spectrum.hasData() && !spectrum.hasPeak())return;
         const auto area=plot();const int width=int(area.getWidth());
         for(int stream=0;stream<2;++stream){
             auto& path=spectrumPaths[(size_t)stream];float lastX=area.getX();
@@ -616,6 +632,10 @@ private:
                 const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>spectrum.lastSampleRate()*.5)break;
                 const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db);
                 if(x==0)path.startNewSubPath(px,y);else path.lineTo(px,y);lastX=px;
+                if(spectrum.hasPeak()) {
+                    const float peakY=spectrumY(spectrum.peakDisplayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f)));
+                    if(x==0)peakPaths[(size_t)stream].startNewSubPath(px,peakY);else peakPaths[(size_t)stream].lineTo(px,peakY);
+                }
             }
             auto& fill=spectrumFills[(size_t)stream];fill=path;fill.lineTo(lastX,area.getBottom());fill.lineTo(area.getX(),area.getBottom());fill.closeSubPath();
         }
@@ -652,10 +672,10 @@ private:
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
     uint64_t lastExternalRevision{},pendingCaptureRequest{};
-    juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle,freezeToggle,addButton,deleteButton,undoButton,redoButton;
+    juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle,freezeToggle,peakToggle,addButton,deleteButton,undoButton,redoButton;
     juce::ComboBox selector,type,resolution,smoothing;std::array<juce::Slider,3> sliders;
     std::unique_ptr<PA> bypassAttachment,enabledAttachment,typeAttachment;std::array<std::unique_ptr<PA>,3> sliderAttachments;
-    juce::Path response,staticResponse,rangeResponse,dynamicRangeFill,dashedInput;std::array<juce::Path,2> spectrumPaths,spectrumFills;
+    juce::Path response,staticResponse,rangeResponse,dynamicRangeFill,dashedInput;std::array<juce::Path,2> spectrumPaths,spectrumFills,peakPaths;
     std::array<float,62> lastKey{};EQSpectrumAnalyzer spectrum;
     std::array<float,12> lastReductions{};std::array<int,4> lastDynamicTargets{};std::array<float,4> lastDynamicRanges{};
     static constexpr std::array<const char*,5> dynamicFields{"threshold","range","ratio","attack","release"};

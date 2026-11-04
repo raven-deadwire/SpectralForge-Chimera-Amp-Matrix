@@ -353,10 +353,67 @@ void audioAndParameterInvariance() {
 }
 }
 
+// Peak hold: a per-bin maximum of the displayed (smoothed) IN/OUT power.
+// It starts empty, only rises, survives Freeze, LIVE resets and idle decay,
+// and is cleared by turning it off or by a new FFT size or sample rate.
+void peakHold() {
+    for(int size:{2048,4096,8192}) {
+        const double rate=48000;
+        auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
+        configure(*analyzer,*fifo,size,rate);
+        check(!analyzer->isPeakHold() && !analyzer->hasPeak(),"Peak hold was on by default");
+        analyzer->setPeakHold(true);
+        check(analyzer->isPeakHold() && !analyzer->hasPeak() && analyzer->peakDB(true,43)==EQSpectrumAnalyzer::floorDB,"New peak hold was not empty");
+        // A loud tone at bin 43, then a quiet one at bin 97 for many windows.
+        fill(*fifo,size,0,size,43,.2f,.5f);analyzer->update(*fifo,rate);
+        check(analyzer->hasPeak(),"Peak hold did not record the first frame");
+        const float held43=analyzer->peakDB(true,43),held43in=analyzer->peakDB(false,43);
+        near(held43,analyzer->smoothedDB(true,43),1e-4,"Peak did not start at the displayed level");
+        const int windows=int(2.5*rate/(size/4)); // 2.5 s: the default 0.30 s release falls ~36 dB
+        for(int window=0;window<windows;++window){fill(*fifo,size/4,size+window*size/4,size,97,.02f,.5f);analyzer->update(*fifo,rate);}
+        check(analyzer->smoothedDB(true,43)<held43-20,"Fixture did not let the live line fall below the peak");
+        check(analyzer->peakDB(true,43)==held43 && analyzer->peakDB(false,43)==held43in,"Peak hold fell with the live spectrum");
+        near(analyzer->peakDB(true,97),analyzer->smoothedDB(true,97),1.5,"Peak hold did not follow a new quieter partial");
+        for(bool output:{false,true}) {
+            for(int bin=0;bin<=size/2;++bin)check(analyzer->peakDB(output,bin)>=analyzer->smoothedDB(output,bin),"Peak below the displayed level");
+            for(int pixel=0;pixel<181;++pixel) {
+                const double centre=20*std::pow(1000.,pixel/180.);
+                check(analyzer->peakDisplayDB(output,centre*.981,centre,centre*1.019)>=analyzer->displayDB(output,centre*.981,centre,centre*1.019),
+                      "Peak display pixel below the live pixel");
+            }
+        }
+        std::vector<float> before;for(int bin=0;bin<=size/2;++bin)before.push_back(analyzer->peakDB(true,bin));
+        const auto same=[&](const char* message){for(int bin=0;bin<=size/2;++bin)check(analyzer->peakDB(true,bin)==before[size_t(bin)],message);};
+        // Freeze and the incoming audio it discards leave the hold unchanged.
+        analyzer->setFrozen(true,*fifo);fill(*fifo,size,0,size,61,.5f,.5f);analyzer->update(*fifo,rate);
+        check(analyzer->hasPeak(),"Freeze hid the held peak");same("Freeze changed the held peak");
+        analyzer->setFrozen(false,*fifo);
+        // A LIVE / visibility reset keeps it.
+        analyzer->reset(*fifo);analyzer->update(*fifo,rate);same("A LIVE reset changed the held peak");
+        // Idle decay of the live line keeps it.
+        fill(*fifo,size,0,size,97,.02f,.5f);analyzer->update(*fifo,rate);
+        std::this_thread::sleep_for(std::chrono::milliseconds(210));analyzer->update(*fifo,rate);
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));analyzer->update(*fifo,rate);
+        check(analyzer->isIdle() && analyzer->peakDB(true,43)==held43,"Idle decay lowered the held peak");
+        // Off clears; on starts empty again.
+        analyzer->setPeakHold(false);check(!analyzer->hasPeak() && analyzer->peakDB(true,43)==EQSpectrumAnalyzer::floorDB,"Peak hold off did not clear");
+        analyzer->setPeakHold(true);check(!analyzer->hasPeak(),"Peak hold restarted with old maxima");
+        fill(*fifo,size,0,size,43,.2f,.5f);analyzer->update(*fifo,rate);check(analyzer->hasPeak(),"Restarted peak hold did not record");
+        // A new sample rate changes every bin's frequency: clear, then hold anew.
+        fill(*fifo,size,0,size,97,.02f,.5f);analyzer->update(*fifo,96000);
+        fill(*fifo,size,0,size,97,.02f,.5f);analyzer->update(*fifo,96000);
+        check(analyzer->hasPeak() && analyzer->peakDB(true,43)<held43-20,"A sample-rate change kept old-rate maxima");
+        // A new FFT size clears the hold.
+        analyzer->setFFTSize(size==4096?2048:4096);analyzer->reset(*fifo);
+        check(!analyzer->hasPeak(),"An FFT size change kept old-resolution maxima");
+        check(analyzer->isPeakHold(),"An FFT size change turned peak hold off");
+    }
+    std::cout<<"PASS EQ peak hold: starts empty, rises only, kept through Freeze/LIVE reset/idle decay, cleared by off, FFT size and sample rate (2048/4096/8192)\n";
+}
 int main() {
     try {
         juce::ScopedJuceInitialiser_GUI init;
-        emptyAndFreshWindow();immutableFrameAndMapping();malformedFramesAndRetainedMetadata();idleAndMixedBatch();strictCallbackFreshness();audioAndParameterInvariance();
+        emptyAndFreshWindow();immutableFrameAndMapping();malformedFramesAndRetainedMetadata();idleAndMixedBatch();strictCallbackFreshness();audioAndParameterInvariance();peakHold();
         std::cout<<"PASS October 23 Snapshot Freeze regression suite; real DAW/editor acceptance remains separate\n";return 0;
     } catch(const std::exception& error) {
         countAllocations=false;std::cerr<<"FAIL "<<error.what()<<'\n';return 1;

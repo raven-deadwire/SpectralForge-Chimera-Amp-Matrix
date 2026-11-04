@@ -80,6 +80,16 @@
 - Freeze는 에디터 표시 상태다. DSP 프리셋·전역 A/B·Undo 이력으로 취급하지 않는다. 에디터를 닫고 새로 만들면 캡처도 사라진다. 같은 에디터 내 A/B·프리셋 변경은 FROZEN 표시 아래 기존 캡처를 유지한다.
 - 최초 정상 프레임이 생기기 전에는 FREEZE 버튼을 비활성화한다. 정상 프레임이 이전 FFT/rate에서 생성된 경우 그 원래 좌표와 설정을 표시하고, 해제하면 사용자의 현재 live FFT/smoothing 선택으로 복귀한다.
 
+## Peak hold (2026-11-04, Issue #53)
+
+- 툴바의 **PEAK** 버튼으로 켜고 끈다. 기본값은 꺼짐이다. 켜면 빈 상태에서 시작하고, 끄면 지운다. "다시 시작"은 끄고 다시 켜는 것이다.
+- 켜진 동안 새로 완성된 분석 프레임마다 화면에 그려지는 스펙트럼(smoothed IN/OUT power)의 bin별 최댓값을 올린다. 값은 내려가지 않는다.
+- IN·OUT 표시가 켜진 쪽마다 얇은 선으로 그린다. 오디오가 멈춰 live 선이 사라진 뒤에도 남는다.
+- Freeze 중, 화면 숨김·LIVE 재시작, idle decay, 샘플 누락 복구에서는 유지한다. 이것들은 이미 측정한 값을 바꾸지 않는다.
+- FFT 해상도나 샘플레이트가 바뀌면 지운다. 같은 bin이 다른 주파수를 뜻하게 되기 때문이다. PEAK 자체는 켜진 채로 두고 새로 기록한다.
+- Freeze와 같은 에디터 표시 상태다. 호스트 파라미터·프리셋·전역 A/B·Undo·프로젝트 저장에 들어가지 않는다. 오디오 처리는 바꾸지 않는다.
+- 검증: `ChimeraEQSnapshotFreezeTests`의 `peakHold`(2048/4096/8192), `ChimeraGraphicalEQUITests`의 `peakToggle`(양쪽 EQ, 저장 상태 불변, 툴바 겹침·잘림 없음). 실제 DAW에서의 표시 확인은 별도다.
+
 ## 이 환경에서 자동 검증할 수 있는 항목
 
 1. `ChimeraGraphicalEQEditingTests`: 실제 processor의 모든 EQ 파라미터 계약, 점유/우회/삭제/재사용, 64작업 이력, 동기·별도 스레드·재진입 호스트 쓰기, binary project, A/B, legacy/malformed migration, 모든 공장 프리셋, 44.1/48/96/192 kHz 오디오 동등성.
