@@ -26,7 +26,21 @@ slots use definition defaults rather than dirty current-session values. The
 active EQ on new factory recalls. PRE graphic EQ and POST character EQ remain.
 
 Graph drag edits frequency and gain with balanced host gestures. Q uses a wheel
-gesture or numeric input. Gain is retained but disabled for pass, notch and band
+gesture or numeric input.
+
+Drag modifiers (2026-11-03, issue #53 "fine and axis-constrained editing"):
+
+| Modifier | Graph drag | Wheel |
+| --- | --- | --- |
+| none | node follows the pointer's travel | Q ×e^(1.5·Δ) |
+| Shift | a tenth of the pointer's travel, as for the knobs; pressing or releasing Shift mid-drag does not make the node jump | Q ×e^(0.15·Δ) |
+| Alt / Option | after 4 px of travel, only the axis the drag first moved along changes (frequency or gain); releasing Alt frees both axes | — |
+| Shift + Alt | fine and one axis | — |
+
+The node moves by the pointer's travel from the press, so pressing a node off
+its centre no longer snaps it to the pointer. A drag remains one undo step and
+one host gesture per field. The graph's hint line is unchanged; these are
+listed here and in the native UI regression (`modifierDrag`). Gain is retained but disabled for pass, notch and band
 pass types, since their gain is determined by the filter shape. Overlapping
 nodes remain individually reachable through the twelve-band selector.
 

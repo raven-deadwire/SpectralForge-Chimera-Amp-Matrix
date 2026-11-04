@@ -666,25 +666,45 @@ private:
         if(!t.on){keep("the cabinet is switched off");return;}
         if(t.mic<0){keep("two mics are blended; set the blend fully to one mic to let Auto Set place it");return;}
         if(t.key==0){keep(juce::String("mic ")+(t.mic?"B":"A")+" is a captured IR or filters; switch on its modeled mic to let Auto Set place it");return;}
+        const juce::String mic=t.mic?"B":"A";
+        const auto positionID=originalCabID(0,(mic+"position").toRawUTF8()),distanceID=originalCabID(0,(mic+"distance").toRawUTF8()),gainID="cab"+mic+"gain1";
+        const juce::StringArray controls{positionID,distanceID,gainID};
+        std::vector<Snapshot> previous;
+        for(const auto& entry:snapshot)if(controls.contains(entry.parameter->paramID))previous.push_back(entry);
+        const auto intact=[&]{
+            if(previous.size()!=3)return false;
+            for(const auto& entry:snapshot)if(controls.contains(entry.parameter->paramID) && !owned(entry))return false;
+            return true;
+        };
+        // Position, distance and level are one measured placement. Even an
+        // A-B-A edit must not leave just part of a safe candidate writable.
+        if(!intact()){manualEditsKept=true;keep("mic controls edited while listening");return;}
         const auto current=cabLayout::settings(t.key);
         const std::optional<bool> instrument=runOptions.instrument==0?std::nullopt:std::optional<bool>(runOptions.instrument==2);
         const auto r=analyseCab(post,rate(),current,instrument,runOptions.style);
         lastCab=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         if(!r.changed()){keep(juce::String(r.bass?"bass":"guitar")+" "+styleName(runOptions.style)+" balance already near the target here");return;}
-        const juce::String mic=t.mic?"B":"A";
-        const auto positionID=originalCabID(0,(mic+"position").toRawUTF8()),distanceID=originalCabID(0,(mic+"distance").toRawUTF8()),gainID="cab"+mic+"gain1";
         const auto snap=[this](const juce::String& id,float value){const auto* p=processor.parameters().getParameter(id);return p->convertFrom0to1(p->convertTo0to1(value));};
         const CabPlacement applied{snap(positionID,float(r.before.position+strength()*(r.proposed.position-r.before.position))),
                                    snap(distanceID,float(r.before.distanceCm+strength()*(r.proposed.distanceCm-r.before.distanceCm)))};
         // Interference is not monotonic between two safe endpoints. Check the
         // host-quantized Strength placement before writing any of its controls.
         if(!cabPlacementSafe(current,applied)){keep("the Strength placement adds a peak or notch");return;}
-        set(positionID,float(applied.position));
-        set(distanceID,float(applied.distanceCm));
+        const auto put=[&](const juce::String& id,float value){if(intact())set(id,value);};
+        put(positionID,float(applied.position));
+        put(distanceID,float(applied.distanceCm));
         // Hold the loudness for the placement actually applied.
         const float gainBefore=raw(gainID),change=cabLevelChangeDb(r.energy,current,{raw(positionID),raw(distanceID)});
-        set(gainID,std::round((gainBefore-change)*10.f)/10.f);
+        put(gainID,std::round((gainBefore-change)*10.f)/10.f);
+        // A host may edit synchronously from any change-gesture callback.
+        // Undo only our partial writes, retaining the host's value/history.
+        if(!intact()) {
+            for(const auto& saved:previous)for(auto& entry:snapshot)if(entry.parameter==saved.parameter && owned(entry)) {
+                if(setNormalised(entry,saved.lastWritten))entry=saved;
+            }
+            manualEditsKept=true;keep("mic controls edited while applying");return;
+        }
         const auto moves="mic "+mic+" position "+juce::String(r.before.position,2)+" > "+juce::String(raw(positionID),2)
                         +", distance "+juce::String(r.before.distanceCm,1)+" > "+juce::String(raw(distanceID),1)+" cm, level "
                         +juce::String(gainBefore,1)+" > "+juce::String(raw(gainID),1)+" dB";
@@ -897,32 +917,53 @@ private:
             planOutputCorrection(r,measured,rate(),appliedMoves,strength(),trimBefore,true);
         }
         const auto previous=snapshot;
+        // Read dependencies include locked controls, which are deliberately
+        // absent from the write/Undo snapshot. Own notifications do not advance
+        // these revisions; any host edit (including A-B-A) invalidates the plan.
+        const auto intact=[&] {
+            for(const auto& entry:levelReadSnapshot)
+                if(!entry.edits->unchanged(entry.revision))return false;
+            for(const auto& entry:snapshot)
+                if((entry.parameter->paramID.startsWith("finalEQ_") || entry.parameter->paramID.startsWith("dynamicEQ")
+                    || entry.parameter->paramID=="output") && !owned(entry))return false;
+            return true;
+        };
+        const auto put=[&](const juce::String& id,float value){if(intact())set(id,value);};
+        const auto rollback=[&] {
+            // Restore only this level pass's owned writes. Never rewind another
+            // phase or reclaim a value the host touched in an apply/rollback callback.
+            for(auto& entry:snapshot)
+                if((entry.parameter->paramID.startsWith("finalEQ_") || entry.parameter->paramID=="output") && owned(entry))
+                    for(const auto& saved:previous)if(saved.parameter==entry.parameter) {
+                        if(setNormalised(entry,saved.lastWritten))entry=saved;
+                        break;
+                    }
+            manualEditsKept=true;
+            addStep("kept (Final EQ or output edited while applying; run again)",false);
+            nextPass();
+        };
         juce::StringArray moves;
         std::vector<juce::StringArray> newGroups;
         for(size_t i=0;i<appliedMoves.size();++i)if(appliedMoves[i].active) {
             const int b=destinations[i];const auto& move=appliedMoves[i];
             juce::StringArray group;
             for(const char* field:{"type","frequency","q","gain","enabled"})group.add(eqID(1,b,field));
-            set(eqID(1,b,"type"),float(move.type));set(eqID(1,b,"frequency"),move.frequency);set(eqID(1,b,"q"),move.q);
-            set(eqID(1,b,"gain"),move.gainDb);set(eqID(1,b,"enabled"),1);
+            put(eqID(1,b,"type"),float(move.type));put(eqID(1,b,"frequency"),move.frequency);put(eqID(1,b,"q"),move.q);
+            put(eqID(1,b,"gain"),move.gainDb);put(eqID(1,b,"enabled"),1);
             newGroups.push_back(group);
             moves.add(move.type==3?"high pass "+frequencyText(move.frequency):frequencyText(move.frequency)+" "+juce::String(move.gainDb,1));
         }
-        if(!moves.isEmpty())set(eqID(1,-1,"bypass"),0);
-        // Re-entrant host edits must not leave a partially configured new band.
-        bool intact=true;
-        for(const auto& entry:snapshot)if(entry.parameter->paramID.startsWith("finalEQ_") || entry.parameter->paramID.startsWith("dynamicEQ") || entry.parameter->paramID=="output")intact&=owned(entry);
-        if(!intact) {
-            for(auto& entry:snapshot)if(entry.parameter->paramID.startsWith("finalEQ_") && owned(entry))
-                for(const auto& saved:previous)if(saved.parameter==entry.parameter && setNormalised(entry,saved.lastWritten)){entry=saved;break;}
-            manualEditsKept=true;addStep("kept (Final EQ or output edited while applying; run again)",false);nextPass();return;
-        }
-        finalNodeGroups.insert(finalNodeGroups.end(),newGroups.begin(),newGroups.end());
+        if(!moves.isEmpty())put(eqID(1,-1,"bypass"),0);
+        if(!intact()){rollback();return;}
         if(!moves.isEmpty()){parts.add("Final EQ "+moves.joinIntoString(", "));changed=true;}
         else if(parts.isEmpty())parts.add("Final EQ kept (already near the target)");
         if(locked(lockOutput))parts.add("output kept (locked)");
         else if(r.trimChangeDb!=0) {
-            set("output",trimBefore+r.trimChangeDb);
+            put("output",trimBefore+r.trimChangeDb);
+            // Output is the final write but can still re-enter the host and
+            // change an EQ, a locked dependency, or output itself. In that case
+            // the rendered loudness/peak prediction must not be published.
+            if(!intact()){rollback();return;}
             const float actual=raw("output")-trimBefore;
             r.predictedLufs+=actual-r.trimChangeDb;r.predictedPeakDb+=actual-r.trimChangeDb;r.trimChangeDb=actual;
             r.peakUnresolved=r.predictedPeakDb>limiterCeilingDb+.001f;
@@ -931,6 +972,8 @@ private:
             changed|=actual!=0;
         } else if(!r.loudnessMeasured)parts.add("output kept (too little steady playing to measure)");
         else parts.add("output kept (within adjustment limits)");
+        if(!intact()){rollback();return;}
+        finalNodeGroups.insert(finalNodeGroups.end(),newGroups.begin(),newGroups.end());
         if(r.peakUnresolved)parts.add("peak ceiling not reached (output lock or trim range); reduce level and run again");
         else if(r.peakLimited)parts.add("peak protection takes priority over loudness and strength");
         lastLevel=r;
