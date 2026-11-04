@@ -502,7 +502,8 @@ def distance(a: list[float], b: list[float]) -> float:
     return sum(abs(p - q) for p, q in zip(a, b))
 
 
-def configure(config: Path, port: int, recordings: Path) -> None:
+def configure(config: Path, port: int, recordings: Path, sample_rate: int = RATE, channels: str = "Stereo") -> None:
+    """OBS settings for the test; channels is OBS's ChannelSetup (Mono, Stereo, 2.1, 4.0, 4.1, 5.1, 7.1)."""
     (config / "basic" / "profiles" / "Chimera").mkdir(parents=True, exist_ok=True)
     (config / "basic" / "scenes").mkdir(parents=True, exist_ok=True)
     glob = configparser.ConfigParser()
@@ -528,7 +529,7 @@ def configure(config: Path, port: int, recordings: Path) -> None:
     profile["General"] = {"Name": "Chimera"}
     profile["Video"] = {"BaseCX": "320", "BaseCY": "180", "OutputCX": "320", "OutputCY": "180",
                         "FPSType": "0", "FPSCommon": "30"}
-    profile["Audio"] = {"SampleRate": str(RATE), "ChannelSetup": "Stereo"}
+    profile["Audio"] = {"SampleRate": str(sample_rate), "ChannelSetup": channels}
     profile["Output"] = {"Mode": "Simple"}
     # OBS stores paths with forward slashes on Windows too; backslashes read as a bad recording path.
     profile["SimpleOutput"] = {"FilePath": recordings.as_posix(), "RecFormat2": "mkv", "RecQuality": "Stream",
