@@ -247,8 +247,11 @@ def thread_stacks(pid: int) -> str:
     if not WINDOWS or not cdb.is_file():
         return ""
     # -pv: look without stopping or changing the process; export names stand in for symbols.
-    result = subprocess.run([str(cdb), "-pv", "-p", str(pid), "-c", "~*kn 40; qd"], capture_output=True,
-                            text=True, errors="replace", timeout=120, check=False)
+    try:
+        result = subprocess.run([str(cdb), "-pv", "-p", str(pid), "-c", "~*kn 40; qd"], capture_output=True,
+                                text=True, errors="replace", timeout=120, check=False)
+    except subprocess.TimeoutExpired:  # must not replace the failure it is called for
+        return "(cdb did not finish within 120 s)"
     return result.stdout
 
 
@@ -413,11 +416,15 @@ def failure_text(e: BaseException) -> str:
     """The failure and the ones it interrupted, latest first: an OBS that will not quit in a
     cleanup `finally` must not hide why the test stopped."""
     chain, seen = [e], {id(e)}
-    # `raise ... from None` (__suppress_context__) already says what the context was.
-    while (chain[-1].__context__ is not None and not chain[-1].__suppress_context__
-           and id(chain[-1].__context__) not in seen):
-        chain.append(chain[-1].__context__)
-        seen.add(id(chain[-1]))
+    while True:
+        # `raise ... from x` sets __cause__; `from None` (__suppress_context__) hides the context.
+        x = chain[-1].__cause__
+        if x is None and not chain[-1].__suppress_context__:
+            x = chain[-1].__context__
+        if x is None or id(x) in seen:
+            break
+        chain.append(x)
+        seen.add(id(x))
     return str(e) + "".join(f" (while handling: {type(x).__name__}: {x})" for x in chain[1:])
 
 
