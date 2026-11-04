@@ -249,7 +249,7 @@ def main() -> int:
         run(args)
         passed = True
     except Exception as e:  # noqa: BLE001 - report every failure the same way
-        print(f"FAIL {e}", file=sys.stderr)
+        print(f"FAIL {app.failure_text(e)}", file=sys.stderr)
         work = Path(args.work).resolve()
         for log in [*sorted(work.glob("obs-run*.txt")), *sorted((args.layout.config / "logs").glob("*.txt"))[-1:]]:
             print(f"--- {log.name} (last 60 lines)", file=sys.stderr)

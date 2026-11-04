@@ -240,6 +240,21 @@ def dialog_text(pid: int) -> str:
     return " | ".join(line.strip() for line in result.stdout.splitlines() if line.strip())
 
 
+def thread_stacks(pid: int) -> str:
+    """Every thread's call stack of a stuck OBS (Windows, when the SDK's cdb debugger is installed)."""
+    kits = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Windows Kits" / "10"
+    cdb = kits / "Debuggers" / "x64" / "cdb.exe"
+    if not WINDOWS or not cdb.is_file():
+        return ""
+    # -pv: look without stopping or changing the process; export names stand in for symbols.
+    try:
+        result = subprocess.run([str(cdb), "-pv", "-p", str(pid), "-c", "~*kn 40; qd"], capture_output=True,
+                                text=True, errors="replace", timeout=120, check=False)
+    except subprocess.TimeoutExpired:  # must not replace the failure it is called for
+        return "(cdb did not finish within 120 s)"
+    return result.stdout
+
+
 def screenshot(path: Path) -> None:
     """The whole desktop as PNG (CI uploads it on failure)."""
     if MACOS:
@@ -271,8 +286,12 @@ class Obs:
     def __init__(self, layout: Layout, port: int, log: Path):
         self.port = port
         self.output = log.open("w")
+        self.logs = layout.config / "logs"
+        self.earlier_logs = set(self.logs.glob("*.txt"))
+        # --websocket_debug: obs-websocket then logs when OBS has finished loading (see _connect).
         self.process = subprocess.Popen(
-            [layout.obs, *layout.options, "--multi", "--disable-shutdown-check", "--disable-missing-files-check"],
+            [layout.obs, *layout.options, "--multi", "--disable-shutdown-check", "--disable-missing-files-check",
+             "--websocket_debug"],
             env=layout.env, cwd=layout.cwd, stdout=self.output, stderr=subprocess.STDOUT)
         self.ws = None
         self.next_id = 0
@@ -311,6 +330,16 @@ class Obs:
         # obs-websocket accepts connections before OBS has finished loading
         # (requests then fail with code 207, "not ready").
         wait_until(lambda: self._ready(), "OBS ready for requests", 60)
+        # obs-websocket also counts OBS as ready once a scene collection is loaded, while
+        # OBS's UI thread is still starting up. A request that creates a source then can
+        # deadlock OBS (32.2.2 on Windows: the websocket thread holds the "source_create"
+        # signal while waiting for the UI thread, which waits for that signal's lock).
+        wait_until(self._finished_loading, "OBS finished loading", 60)
+
+    def _finished_loading(self) -> bool:
+        line = "[EventHandler::FrontendFinishedLoadingMultiHandler] OBS has finished loading"
+        return any(line in p.read_text(encoding="utf-8", errors="replace")
+                   for p in set(self.logs.glob("*.txt")) - self.earlier_logs)
 
     def _ready(self) -> bool:
         self.next_id += 1
@@ -326,7 +355,16 @@ class Obs:
         request_id = str(self.next_id)
         self.ws.send({"op": 6, "d": {"requestType": kind, "requestId": request_id, "requestData": data or {}}})
         while True:
-            message = self.ws.receive()
+            try:
+                message = self.ws.receive()
+            except TimeoutError:
+                # OBS runs most requests on its UI thread: no answer means that thread is stuck.
+                if (WINDOWS or MACOS) and self.process.poll() is None:
+                    stacks = thread_stacks(self.process.pid)
+                    if stacks:
+                        print(f"--- OBS thread stacks while {kind} had no answer\n{stacks}", flush=True)
+                    screenshot(Path(self.output.name).with_suffix(f".{kind}.png"))
+                raise RuntimeError(f"{kind}: no answer from obs-websocket within 30 s{self.blocking_ui()}") from None
             if message.get("op") == 7 and message["d"].get("requestId") == request_id:
                 status = message["d"]["requestStatus"]
                 if ok and not status.get("result"):
@@ -372,6 +410,22 @@ class Obs:
         finally:
             self.output.close()
         check(code == 0, f"OBS exited cleanly (code {code})")
+
+
+def failure_text(e: BaseException) -> str:
+    """The failure and the ones it interrupted, latest first: an OBS that will not quit in a
+    cleanup `finally` must not hide why the test stopped."""
+    chain, seen = [e], {id(e)}
+    while True:
+        # `raise ... from x` sets __cause__; `from None` (__suppress_context__) hides the context.
+        x = chain[-1].__cause__
+        if x is None and not chain[-1].__suppress_context__:
+            x = chain[-1].__context__
+        if x is None or id(x) in seen:
+            break
+        chain.append(x)
+        seen.add(id(x))
+    return str(e) + "".join(f" (while handling: {type(x).__name__}: {x})" for x in chain[1:])
 
 
 def check(ok: bool, what: str) -> None:
@@ -617,7 +671,7 @@ def main() -> int:
         run(args)
         passed = True
     except Exception as e:  # noqa: BLE001 - report every failure the same way
-        print(f"FAIL {e}", file=sys.stderr)
+        print(f"FAIL {failure_text(e)}", file=sys.stderr)
         work = Path(args.work).resolve()
         logs = sorted((args.layout.config / "logs").glob("*.txt"))[-2:]
         if not logs:
