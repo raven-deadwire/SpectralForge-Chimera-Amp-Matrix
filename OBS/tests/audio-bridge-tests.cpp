@@ -26,6 +26,23 @@ struct FakeEngine {
     int latency() const noexcept { return reportedLatency; }
 };
 
+// A failing processor is allowed to have already modified its in-place input.
+// Also changes the UI policy mid-call to check the tick uses one policy snapshot.
+struct PartialFailureEngine {
+    bool fail{}, switchPolicy{};
+    AudioBridge<PartialFailureEngine>* bridge{};
+    int calls{};
+    bool prepare(double, int, int) { calls = 0; return true; }
+    int latency() const noexcept { return 0; }
+    bool process(float* const* data, int channels, int frames) noexcept {
+        ++calls;
+        for (int c = 0; c < channels; ++c)
+            for (int n = 0; n < frames; ++n) data[c][n] *= 2.f;
+        if (switchPolicy) bridge->setFailurePolicy(FailurePolicy::Mute);
+        return !fail;
+    }
+};
+
 float input(int channel, int sample) { return static_cast<float>((sample * 37 + channel * 19) % 101 - 50) / 128.f; }
 
 struct Planes {
@@ -114,23 +131,104 @@ int main() {
           check(bridge.status() == BridgeStatus::Unprepared && p.at(1, 3) == 0.f, "suspended bridge never calls the engine"); }
         check(AudioBridge<FakeEngine>::latencyNanoseconds(48, 48000) == 1000000, "latency ns");
 
-        // Settings updates re-prepare while the OBS audio thread keeps calling:
-        // every tick must be either fully wet or muted, never half-prepared.
-        bridge.prepare(48000, 2, 512);
-        std::atomic<bool> stop{false}; std::atomic<int> torn{0};
-        std::thread audio([&] {
-            for (int t = 0; !stop.load(); ++t) {
-                Planes p(2, 480, t); bridge.process(p.pointers.data(), 2, 480, 48000);
-                const bool wet = p.at(0, 0) == 2.f * input(0, t), muted = p.at(0, 0) == 0.f && p.at(1, 479) == 0.f;
-                if (!wet && !muted) torn.fetch_add(1);
+        // Dry preserves the ORIGINAL input, including before input mapping, even
+        // when the engine writes output and then reports failure. Surround planes
+        // must remain untouched on both success and failure.
+        PartialFailureEngine partial;
+        AudioBridge<PartialFailureEngine> dryBridge(partial);
+        partial.bridge = &dryBridge;
+        for (int channels : {1, 2, 6}) {
+            for (auto m : {InputMapping::Stereo, InputMapping::LeftToBoth,
+                           InputMapping::RightToBoth, InputMapping::SumToBoth}) {
+                dryBridge.setFailurePolicy(FailurePolicy::Dry);
+                dryBridge.setInputMapping(m);
+                check(dryBridge.prepare(48000, channels, 64), "Dry prepare");
+                partial.fail = false;
+                Planes good(channels, 64);
+                check(dryBridge.process(good.pointers.data(), channels, 64, 48000), "Dry success result");
+                for (int c = 0; c < channels; ++c) for (int n = 0; n < 64; ++n) {
+                    float want = input(c, n);
+                    if (c < 2) {
+                        if (channels > 1 && m != InputMapping::Stereo)
+                            want = m == InputMapping::LeftToBoth ? input(0, n)
+                                 : m == InputMapping::RightToBoth ? input(1, n)
+                                 : 0.5f * (input(0, n) + input(1, n));
+                        want *= 2.f;
+                    }
+                    check(good.at(c, n) == want, "Dry successful mapping and surround");
+                }
+                partial.fail = true;
+                partial.switchPolicy = true;
+                Planes bad(channels, 64);
+                check(!dryBridge.process(bad.pointers.data(), channels, 64, 48000), "Dry failure result");
+                check(dryBridge.status() == BridgeStatus::EngineFailed, "Dry failure latches");
+                for (int c = 0; c < channels; ++c) for (int n = 0; n < 64; ++n)
+                    check(bad.at(c, n) == input(c, n), "Dry failure must retain unmapped original");
+                dryBridge.setFailurePolicy(FailurePolicy::Dry);
+                partial.switchPolicy = false;
+                const int calls = partial.calls;
+                Planes latched(channels, 64);
+                check(!dryBridge.process(latched.pointers.data(), channels, 64, 48000)
+                      && partial.calls == calls, "Dry latched failure never calls engine");
+                for (int c = 0; c < channels; ++c) for (int n = 0; n < 64; ++n)
+                    check(latched.at(c, n) == input(c, n), "Dry latched original");
             }
-        });
-        for (int i = 0; i < 2000; ++i) bridge.prepare(48000, 2, 256 + i % 512);
-        stop.store(true); audio.join();
-        check(torn.load() == 0 && bridge.status() == BridgeStatus::Processing, "concurrent prepare");
+        }
+        // A Dry tick cannot be committed in pieces. Oversized ticks bypass without
+        // invoking the engine, report unprocessed, and allow the next normal tick.
+        partial.fail = false;
+        dryBridge.setInputMapping(InputMapping::LeftToBoth);
+        dryBridge.prepare(48000, 6, 64);
+        { Planes p(6, 65);
+          check(!dryBridge.process(p.pointers.data(), 6, 65, 48000) && partial.calls == 0,
+                "oversized Dry bypass is unprocessed without engine call");
+          for (int c = 0; c < 6; ++c) for (int n = 0; n < 65; ++n)
+              check(p.at(c, n) == input(c, n), "oversized Dry must preserve all channels");
+          check(dryBridge.status() == BridgeStatus::Processing && !dryBridge.needsPrepare(),
+                "oversized Dry does not latch or request reprepare"); }
+        { Planes p(6, 64);
+          check(dryBridge.process(p.pointers.data(), 6, 64, 48000), "Dry resumes next bounded tick"); }
+        dryBridge.suspend();
+        { Planes p(6, 64);
+          check(!dryBridge.process(p.pointers.data(), 6, 64, 48000), "suspended Dry result");
+          for (int c = 0; c < 6; ++c) for (int n = 0; n < 64; ++n)
+              check(p.at(c, n) == input(c, n), "suspended Dry original"); }
+        dryBridge.setFailurePolicy(FailurePolicy::Mute);
+        dryBridge.prepare(48000, 6, 64);
+        partial.fail = true;
+        { Planes p(6, 65);
+          check(!dryBridge.process(p.pointers.data(), 6, 65, 48000), "Mute failure result");
+          for (int c = 0; c < 6; ++c) for (int n = 0; n < 65; ++n)
+              check(p.at(c, n) == 0.f, "Mute still silences entire tick and surround"); }
+
+        // Settings updates re-prepare while the OBS audio thread keeps calling:
+        // every sample must agree with the per-tick result (wet or policy
+        // fallback), never with a stale/concurrently updated global status.
+        for (auto tickPolicy : {FailurePolicy::Mute, FailurePolicy::Dry}) {
+            bridge.setFailurePolicy(tickPolicy);
+            bridge.prepare(48000, 2, 512);
+            std::atomic<bool> stop{false}, started{false}; std::atomic<int> torn{0};
+            std::thread audio([&] {
+                do {
+                    Planes p(2, 480, 17);
+                    const bool wet = bridge.process(p.pointers.data(), 2, 480, 48000);
+                    for (int c = 0; c < 2; ++c) for (int n = 0; n < 480; ++n) {
+                        const float want = wet ? 2.f * input(c, 17 + n)
+                                         : tickPolicy == FailurePolicy::Dry ? input(c, 17 + n) : 0.f;
+                        if (p.at(c, n) != want) torn.fetch_add(1);
+                    }
+                    started.store(true);
+                } while (!stop.load());
+            });
+            while (!started.load()) std::this_thread::yield();
+            for (int i = 0; i < 2000; ++i) bridge.prepare(48000, 2, 256 + i % 512);
+            stop.store(true); audio.join();
+            check(torn.load() == 0 && bridge.status() == BridgeStatus::Processing, "concurrent prepare");
+        }
 
         std::cout << "PASS OBS audio bridge: unprepared mute, 5.1 passthrough, chunking, input mapping, mono, format-change and "
-                     "engine-failure policies, latched failure, bounds, latency ns, concurrent re-prepare\n";
+                     "engine-failure policies, transactional Dry and mapping, oversized Dry bypass, per-tick results, "
+                     "latched failure, bounds, latency ns, concurrent re-prepare\n";
         return 0;
     } catch (const std::exception& e) { std::cerr << "FAIL " << e.what() << '\n'; return 1; }
 }

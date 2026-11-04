@@ -493,10 +493,10 @@ obs_audio_data* filterAudio(void* data, obs_audio_data* audio) {
     // paused media) must not start with Chimera's tails from before the gap.
     if (f->stats.arrive(audio->timestamp, frames, rate) == InputGap::Restart) f->host.requestReset();
     const auto started = std::chrono::steady_clock::now();
-    f->bridge.process(planes, channels, frames, rate);
+    const bool processed = f->bridge.process(planes, channels, frames, rate);
     const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - started).count();
     // A progress line every 10 minutes of audio; queuing allocates, once per report.
-    if (f->stats.finish(frames, rate, elapsed, f->bridge.status() == BridgeStatus::Processing)
+    if (f->stats.finish(frames, rate, elapsed, processed)
         && !f->reportQueued.exchange(true))
         runOnUi(reportTask, f);
     // OBS audio was reset to a new rate/layout: re-prepare off this thread.
