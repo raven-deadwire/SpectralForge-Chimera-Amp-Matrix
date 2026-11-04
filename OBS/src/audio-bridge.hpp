@@ -64,7 +64,10 @@ public:
         if (frames <= 0 || planes == nullptr) return;
         active.fetch_add(1);
         if (!ready.load()) {
-            fail(planes, obsChannels, frames, BridgeStatus::Unprepared);
+            // Mute or pass through, but leave the status alone: suspend() and a failed
+            // prepare() already set Unprepared, and a tick that saw ready == false just
+            // before a prepare() finished must not overwrite that prepare's Processing.
+            silence(planes, obsChannels, frames);
         } else if (obsChannels != hostChannels || sampleRate != rate || !planesPresent(planes, obsChannels)) {
             // Re-preparing allocates; the owner must do it off this thread.
             fail(planes, obsChannels, frames, BridgeStatus::FormatChanged);
@@ -116,6 +119,10 @@ private:
 
     void fail(float* const* planes, int obsChannels, int frames, BridgeStatus reason) noexcept {
         state.store(reason);
+        silence(planes, obsChannels, frames);
+    }
+
+    void silence(float* const* planes, int obsChannels, int frames) const noexcept {
         if (policy.load() == FailurePolicy::Dry) return;
         for (int c = 0; c < std::clamp(obsChannels, 0, maxPlanes); ++c)
             if (planes[c] != nullptr) std::fill(planes[c], planes[c] + frames, 0.f);
