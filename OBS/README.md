@@ -33,6 +33,7 @@ JUCE는 쓰지 않는다.
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
 | `tests/obs_instances_test.py` | 실제 OBS Studio 앱에서 Chimera 필터 여러 개(C단계): 서로 다른 상태로 함께 처리, 필터 붙여넣기(전체·하나)로 상태 복사, 붙인 필터의 독립, 장면 저장·재시작 복원 | 시험 |
 | `tests/obs_editor_test.py` | 실제 OBS Studio 앱에서 Chimera 에디터 창: 필터 속성 버튼 함수로 UI 스레드에서 열기·다시 올리기, 열린 동안 소리 유지, 열린 채 OBS 종료, 저장 상태 유지 | 시험 |
+| `tests/obs_formats_test.py` | 실제 OBS Studio 앱을 44.1 kHz 모노와 48 kHz 5.1로 실행: 필터 로딩·처리, 5.1에서 앞 좌우만 처리하고 나머지 4채널은 그대로 통과 | 시험 |
 | `tests/obs_user_ir_test.py` | 실제 OBS Studio 앱에서 사용자 IR(C단계): 상태에 든 IR이 장면과 함께 저장·복원(IR 파일 없이), 손상된 IR은 캐비닛 필터로 대체 | 시험 |
 | `tests/obs_long_record_test.py` | 실제 OBS Studio 앱에서 필터를 거쳐 1시간 녹화(D단계): 10분 실시간 줄·합계, 시작/끝 영상 싱크, 소리 유지, OBS 통계 | 시험 |
 
@@ -48,6 +49,10 @@ JUCE는 쓰지 않는다.
   (필터 설정 붙여넣기, 스크립트·obs-websocket의 프리셋 적용).
 - 장면 설정에는 형식 버전 `chimera_obs_schema`(현재 1)를 기록한다. 더 새 모듈이 저장한 장면은 상태를 적용하지도 덮어쓰지도 않는다.
 - Chimera가 없거나 처리 실패 시 기본은 **무음**, 선택 시 원음 통과. OBS 오디오 형식이 바뀌면 UI 스레드에서 다시 준비한다.
+  원음 통과(Dry)는 입력 매핑 전 원본을 보존한다. 작업 버퍼를 준비 스레드에서 미리 할당하고,
+  전체 tick의 처리에 성공했을 때만 출력에 반영한다. Dry에서 tick이 준비된 최대 프레임 수를 넘으면
+  DSP를 생략하고 원음 그대로 통과시키며 미처리 블록으로 센다. 다음 정상 크기 tick은 다시 처리한다.
+  기본 무음(Mute) 정책은 큰 tick을 청크로 나눠 처리하고, 도중 실패하면 전체 tick을 음소거한다.
 - OBS는 꺼진 필터를 처리하지 않으므로, 필터를 다시 켜면 Chimera에 남은 이전 소리의 꼬리(딜레이·리버브·캐비닛)를 지운다
   (`enable` 신호 → 다음 블록에서 VST3 `setProcessing(false/true)` → Chimera `reset()`). 이 동작은 `reset()`을 구현한 Chimera 빌드가 필요하다.
 - 입력이 1초 이상 끊겼다가 다시 들어오면(장치 정지·재연결, 미디어 일시정지) 같은 방식으로 이전 꼬리를 지운다.
@@ -81,7 +86,7 @@ GPL 애드온은 기존대로 별도 VST3를 호스팅하며 제품 DSP를 링�
 | Chimera 부하 평균 / 최대 | Chimera 처리 시간 ÷ 오디오 시간. 최대값과 실시간 초과는 오디오 20 ms 구간(OBS 오디오 한 틱 정도)마다 잰다 |
 | 실시간보다 오래 걸린 구간 | 20 ms 분량을 처리하는 데 20 ms보다 오래 걸린 구간 수. 드롭아웃 위험 신호 |
 | 입력 타임스탬프 끊김 | 앞 블록에서 예상한 시각과 5 ms 넘게 어긋난 횟수. 그중 1초 이상 끊긴 뒤 재개는 따로 센다 |
-| 처리하지 못한 블록 | Chimera가 없거나 준비 중·오류로 무음 또는 원음 통과한 블록 수 |
+| 처리하지 못한 블록 | Chimera가 없거나 준비 중·오류로 무음 또는 원음 통과한 블록 수. Dry에서 준비된 최대 프레임 수를 넘겨 원음 통과한 tick도 포함. 동시 재준비의 상태 표시와 독립적인 tick별 결과로 집계 |
 
 OBS 로그에는 오디오 10분마다 한 줄, 필터를 제거할 때 전체 합계 한 줄이 남는다.
 OBS를 정상 종료할 때도 합계 줄이 남는다(Linux 실제 OBS 30.0.2, Windows·macOS 실제 OBS 31.1.2에서 확인). 강제 종료에서는 남지 않으므로 1시간 기록은 10분 줄로 판단한다.
@@ -296,6 +301,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 실제 OBS Studio 앱(같은 시험, macOS Intel): 같은 Universal `chimera-obs.plugin`·Chimera를 x86_64 전용 OBS.app에서(OBS·필터 x86_64 부분·Chimera 모두 Rosetta로 실행, 실행 전 `lipo`로 x86_64 전용 확인) 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.8 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` macos)에서 통과 | OBS Studio 31.1.2 Intel (macOS 15 arm64 + Rosetta 2, obs-websocket 5.6.2). 실제 Intel Mac은 미실행 |
 | 실제 OBS Studio 앱(`obs_instances_test.py`): 같은 DI를 재생하는 미디어 소스 4개 중 A(기본 상태)·B(다른 호스트의 프리셋)에 Chimera 필터, 소스마다 따로 녹화(나머지는 음소거, 필터는 계속 처리): B가 A보다 −15.6 dB. 재시작 후 둘 다 같은 소리(±0.0 dB). 장면 스크립트(Lua)가 OBS의 `obs_source_copy_filters`(필터 붙여넣기)로 B의 필터를 C에, `obs_source_copy_single_filter`(필터 하나 붙여넣기)로 D에 복사: 두 필터 모두 Chimera 로딩·B의 상태·B와 같은 소리(±0.0 dB), A는 그대로. A의 상태를 D에 넣으면 D는 A 소리, B는 그대로(붙인 필터는 독립 인스턴스). 장면 파일에 소스별 상태 저장, 세 번째 실행에서 C는 B, D는 A 소리로 복원. 세 번 모두 정상 종료, 필터 인스턴스 10개 모두 해제 로그 | 통과(2회) | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
 | 실제 OBS Studio 앱(`obs_user_ir_test.py`): 다른 호스트가 저장한 상태에서 세 상태를 만들어 소스 3개에 각각 적용 — 캐비닛 필터, 사용자 IR(400 Hz 저역 통과, 상태의 `USER_IRS`에 WAV 바이트), 손상된 사용자 IR. 사용자 IR은 500 Hz 위 에너지 비율 0.0002(필터 0.0309), 손상된 IR은 필터와 같은 소리(거리 0.002, +0.0 dB). 장면 파일의 필터 상태에 IR 자체가 들어 있고 디스크에 IR 파일이 없는 상태로 재시작해도 같은 결과(사용자 IR +0.0 dB). 두 번 모두 정상 종료, 필터 인스턴스 6개 해제 | 통과 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
+| 실제 OBS Studio 앱(`obs_formats_test.py`): OBS 설정을 44.1 kHz 모노와 48 kHz 5.1로 바꿔 각각 실행(OBS 로그의 형식 확인), 무손실(PCM) 녹화로 필터 끔/켬 비교 — 모노는 스테레오 DI를 OBS가 합친 소리를 처리(−22.6 dB, 스펙트럼 거리 0.566). 5.1은 앞 좌우에 DI, 센터·LFE·뒤 좌우에 서로 다른 사인(440·55·660·880 Hz) — 앞 좌우는 처리(−18.9 dB), 나머지 4채널은 레벨 +0.0 dB·스펙트럼 거리 0.000이고 각 채널이 제 음을 유지(바뀜·섞임 없음). 두 실행 모두 미처리 블록 0, 필터 해제, 정상 종료 | 통과 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
 | 실제 OBS Studio 앱(`obs_editor_test.py`): 장면 스크립트(Lua)가 OBS 프론트엔드 이벤트(UI 스레드, 스튜디오 모드 켬/끔)에서 필터 속성 창의 "Chimera 에디터 열기" 버튼을 `obs_property_button_clicked`로 누름 — 필터가 에디터를 띄우고 필터 이름의 창이 하나(Linux X11 `xwininfo`, Windows 최상위 창; macOS는 로그만), 다시 누르면 같은 창을 올림(두 번째 창 없음), 열린 동안 녹음이 닫힌 때와 같음(+0.0 dB), 에디터를 연 채 OBS 종료 시 정상 종료(코드 0)·필터와 함께 에디터 닫힘, 다음 실행에서 같은 소리(−0.0 dB) | 통과 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
 | OBS의 "복제"(Duplicate)와 오디오 소스 | 해당 없음: OBS는 미디어·오디오 캡처 소스(`OBS_SOURCE_DO_NOT_DUPLICATE`)를 복제하지 않고 같은 소스를 한 번 더 참조하므로 필터 인스턴스가 새로 생기지 않는다(실제 OBS 30.0.2에서 확인). 복제되는 소스의 `obs_source_duplicate`는 헤드리스 시험이 확인 | 같은 환경 |
 | 실제 OBS Studio 앱(같은 시험, OBS 업데이트 후): OBS 31.1.2용으로 빌드한 같은 Windows 필터를 OBS 32.2.2(공식 배포 zip, SHA-256 확인)에서 로딩(필터가 빌드 대상과 다른 주 버전을 로그로 경고), 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` windows)에서 통과 | OBS Studio 32.2.2 (Windows Server, obs-websocket 5.7.4) |
@@ -326,6 +332,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
   오디오 처리와 상태 저장·복원에는 영향이 없다. `chimera-obs-editor-tests`(Linux판)가 실제 Chimera VST3로 CI(Xvfb)에서
   위 macOS 항목과 같은 동작과 UI 스레드가 아닐 때의 거부를 확인한다.
 
+- 44.1 kHz 모노와 48 kHz 5.1로 시작한 실제 OBS에서의 처리는 `obs_formats_test.py`가 확인한다.
 - OBS는 실행 중에 출력 샘플레이트·채널을 바꾸지 않는다(설정 변경은 재시작 후 적용). 실행 중 형식 변경 대응은
   실시간 경계 단위 시험으로만 확인했다. libobs는 소스가 살아 있는 동안 오디오를 다시 설정하면 그 소스의 변환을 갱신하지 않기 때문이다.
 - 필터는 OBS 타임스탬프를 바꾸지 않는다. 처리 지연(기본 상태 42 samples, 0.88 ms)은 영상과의 싱크에 그대로 더해지며,
