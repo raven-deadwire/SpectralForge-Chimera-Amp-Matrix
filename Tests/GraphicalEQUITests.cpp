@@ -398,6 +398,45 @@ void peakToggle(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     panel.setCompactWorkspace(false);settle(30);
     std::cout<<"PASS EQ PEAK toggle: off by default, on/off, not saved state; toolbar unclipped and non-overlapping (full and compact) bank="<<bank<<'\n';
 }
+void closeTo(float actual,float expected,float tolerance,const char* message) {
+    if(!(std::abs(actual-expected)<=tolerance)){std::cerr<<message<<": actual="<<actual<<" expected="<<expected<<'\n';check(false,message);}
+}
+// Display range (+/-6/12/24 dB view) and the cursor readout. View only:
+// band values, drags and saved state keep the parameter range.
+void displayRangeAndReadout(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce::ComboBox& selector,int bank) {
+    selector.setSelectedId(1,juce::sendNotificationSync);
+    set(processor,eqID(bank,0,"type"),0);set(processor,eqID(bank,0,"enabled"),1);
+    set(processor,eqID(bank,0,"frequency"),1000);set(processor,eqID(bank,0,"gain"),6);settle(60);panel.selectBandForEditing(0);
+    const auto plot=panel.graphBounds();
+    check(panel.displayRange()==24.f,"EQ display range default changed");
+    juce::MemoryBlock before;processor.getStateInformation(before);
+    closeTo(panel.nodePosition(0).y,plot.getCentreY()-plot.getHeight()/8,.6f,"+6 dB node misplaced at +/-24");
+    panel.setDisplayRange(12);check(panel.displayRange()==12.f,"Display range +/-12 not applied");
+    closeTo(panel.nodePosition(0).y,plot.getCentreY()-plot.getHeight()/4,.6f,"+6 dB node misplaced at +/-12");
+    panel.setDisplayRange(6);closeTo(panel.nodePosition(0).y,plot.getY(),.6f,"+6 dB node misplaced at +/-6");
+    panel.setDisplayRange(7);check(panel.displayRange()==24.f,"Unsupported display range was accepted");
+    juce::MemoryBlock after;processor.getStateInformation(after);check(before==after,"Display range changed saved state");
+    // A band beyond the view is drawn and hit at the graph edge; dragging it
+    // moves from its true value (no jump to the edge value).
+    set(processor,eqID(bank,0,"gain"),18);settle(60);panel.selectBandForEditing(0);panel.setDisplayRange(12);
+    const auto edge=panel.visibleNodePosition(0);closeTo(edge.y,plot.getY(),.6f,"Out-of-view band not pinned to the edge");
+    check(panel.nodePosition(0).y<plot.getY(),"Fixture band is not beyond the view");
+    panel.mouseDown(mouse(panel,edge,edge,false));
+    panel.mouseDrag(mouseWith(panel,edge+juce::Point<float>(30,0),edge,true,juce::ModifierKeys::altModifier));
+    panel.mouseDrag(mouseWith(panel,edge+juce::Point<float>(60,0),edge,true,juce::ModifierKeys::altModifier));
+    panel.mouseUp(mouse(panel,edge+juce::Point<float>(60,0),edge,true));
+    check(std::abs(get(processor,eqID(bank,0,"gain"))-18)<.02f && get(processor,eqID(bank,0,"frequency"))>1000,
+          "Dragging an out-of-view band jumped to the edge value");
+    // Readout: frequency and EQ dB at the cursor, empty outside the graph.
+    const juce::Point<float> at{plot.getX()+plot.getWidth()*(std::log(50.f)/std::log(1000.f)),plot.getCentreY()-plot.getHeight()/4};
+    const auto text=panel.readoutAt(at);
+    check(text.contains("1.00 kHz") && text.contains("+6.0 dB"),("Readout wrong: "+text).toRawUTF8());
+    check(panel.readoutAt({plot.getX()-5,plot.getCentreY()}).isEmpty(),"Readout outside the graph");
+    panel.mouseMove(mouse(panel,at,at,false));check(panel.hoverPosition()==at,"Hover position not tracked");
+    panel.mouseExit(mouse(panel,at,at,false));check(!plot.contains(panel.hoverPosition()),"Hover kept after leaving");
+    panel.setDisplayRange(24);set(processor,eqID(bank,0,"gain"),0);settle(60);panel.selectBandForEditing(0);
+    std::cout<<"PASS EQ display range +/-6/12/24 (view only, edge-pinned out-of-view node, true-value drag) and cursor readout bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -820,6 +859,7 @@ int main(int argc,char** argv){try {
         overlappingBandDrag(*processor,*panel,*selector,e);
         modifierDrag(*processor,*panel,*selector,e);
         peakToggle(*processor,*panel,e);
+        displayRangeAndReadout(*processor,*panel,*selector,e);
         check(modifierTransitions(*processor,*panel,e)==0,"Modifier transition regression failed");
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);
