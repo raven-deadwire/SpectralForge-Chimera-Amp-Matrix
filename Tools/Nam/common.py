@@ -10,13 +10,17 @@ SOURCE='4ef21c16aed16fe2eb470ed21e5d9942224ab61e'
 def digest(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def write_json(p, data): Path(p).write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')
 
-def signal(seed, seconds):
+NOTES=(27.5,30.8677,41.2034,55.,65.406,82.407,110.,146.832,220.,329.628)
+# Guitar range: fundamentals at or above an 8-string guitar's low F#1 (46.2 Hz).
+GUITAR_NOTES=tuple(f for f in NOTES if f>=46)
+
+def signal(seed, seconds, notes=NOTES):
     rng=np.random.default_rng(seed); n=round(seconds*RATE); x=np.zeros(n)
     # Plucked harmonic strings, noise bursts, multitone and long-decay probes.
     pos=0
     while pos<n:
         length=min(n-pos, int(RATE*rng.uniform(.18,1.1)))
-        t=np.arange(length)/RATE; f=rng.choice([27.5,30.8677,41.2034,55.,65.406,82.407,110.,146.832,220.,329.628])
+        t=np.arange(length)/RATE; f=rng.choice(list(notes))
         y=np.zeros(length)
         for k in range(1,min(70,int(9000/f))):
             y+=np.sin(2*np.pi*f*k*t+rng.uniform(-.4,.4))*np.exp(-t*(rng.uniform(1,5)+k*.12))/k**rng.uniform(1,1.7)
