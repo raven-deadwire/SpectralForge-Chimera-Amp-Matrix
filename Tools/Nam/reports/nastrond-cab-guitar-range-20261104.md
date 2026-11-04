@@ -47,3 +47,27 @@ therefore fixes the rule first and qualifies on new signals.
 The pack description must say that the head + cab models were qualified on
 guitar-range input (fundamentals 46 Hz and above), and that very low
 bass-range input is outside that qualification.
+
+## Result (added after the run; the rule above is unchanged)
+
+Choice on the new validation signal, then one evaluation of the new test
+signal (`nastrond-cab-guitar-range-selection-20261104.json`,
+`nastrond-cab-guitar-range-test-20261104.json`):
+
+| Channel | Chosen | Validation v3 | Test v3 | Test full ESR | Failing check |
+| --- | --- | --- | --- | ---: | --- |
+| Fenrir | ndc-refine5 | pass | fail | 0.0119 | test worst window 0.73 |
+| Surtr | ndc-refine4 | fail | fail | 0.0150 | validation quiet peak −60.9 dB; test worst 0.70 |
+| Nidhoggr | ndc-refine5 | fail | pass | 0.0104 | validation worst 1.00 |
+| Fimbulvetr | ndc-refine5 | fail | fail | 0.0045 | worst 1.00 / 1.82 |
+| Ragnarok | ndc-refine5 | fail | pass | 0.0143 | validation worst 0.62, quiet peak −58.7 dB |
+
+No channel passes both splits, so the head + cab pack does not qualify.
+
+Every failing worst window but one starts with the input already silent:
+the native amp keeps sounding after the last note (head output −39 to −58
+dBFS, 10 ms to 85 ms after the input stops), and the cabinet keeps those lows.
+A bare A2 sees 132 ms of input history and cannot carry that decay state
+(see ACCURACY-BLOCKER.md). The guitar-range rule removed the sub-46 Hz
+failures; this decay limit remains. The exception is Ragnarok's validation
+window at 72.9 s, inside a note.
