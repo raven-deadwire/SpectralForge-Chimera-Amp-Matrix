@@ -96,7 +96,7 @@ def video_onsets(path: Path) -> list[float]:
     """Timestamps of the first white frame of each flash."""
     result = subprocess.run([app.FFMPEG, "-v", "info", "-copyts", "-i", str(path), "-map", "0:v:0",
                              "-vf", "scale=8:8,format=gray,showinfo", "-f", "null", "-"],
-                            check=True, capture_output=True, text=True)
+                            check=True, capture_output=True, text=True, errors="replace")
     onsets, bright = [], False
     for line in result.stderr.splitlines():
         m = re.search(r"pts_time:\s*([\d.]+).*?mean:\[(\d+)", line)
@@ -180,7 +180,7 @@ def measure(path: Path, name: str) -> dict:
     reach = int(app.RATE * PERIOD / 4)  # a burst's start is looked for up to 250 ms after the centre's
     delays, heard_delays, floors, singles, steps = [], [], [], [], {1: [], 2: [], 4: [], 16: []}
     for c in centre:
-        floor = max((abs(v) for v in front_x[c - int(0.3 * app.RATE):c - int(0.02 * app.RATE)]), default=0.0)
+        floor = max((abs(v) for v in front_x[max(0, c - int(0.3 * app.RATE)):max(0, c - int(0.02 * app.RATE))]), default=0.0)
         floors.append(floor)
         first = first_above(front_x, c - reach, c + reach, max(FIRST_SAMPLE, 2 * floor), SUSTAIN)
         single = first_above(front_x, c - reach, c + reach, max(FIRST_SAMPLE, 2 * floor))

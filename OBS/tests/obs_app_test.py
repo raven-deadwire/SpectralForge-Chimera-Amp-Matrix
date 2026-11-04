@@ -439,7 +439,8 @@ def macos_crash_report(pid: int, wait: float = 20.0) -> str:
                     continue
                 lines.append(f"crashed thread {i} {thread.get('name', '')} {thread.get('queue', '')}")
                 for frame in thread.get("frames", [])[:40]:
-                    image = images[frame["imageIndex"]] if frame.get("imageIndex", -1) < len(images) else {}
+                    index = frame.get("imageIndex")
+                    image = images[index] if isinstance(index, int) and 0 <= index < len(images) else {}
                     lines.append(f"  {image.get('name', '?'):28} {frame.get('symbol', hex(frame.get('imageOffset', 0)))}"
                                  f"+{frame.get('symbolLocation', 0)}")
             return "\n".join(lines)
