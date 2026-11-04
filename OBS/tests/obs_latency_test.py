@@ -14,8 +14,8 @@ untouched, so in one recording the centre is a sample-exact reference for the fr
 Lossless (16-bit PCM) recordings are made with the filter disabled and enabled:
 
 - disabled: the front pair starts with the centre (calibration);
-- enabled: the front pair's first non-zero sample comes after the centre's by the filter's
-  delay, which must match the delay shown in the filter's properties (read by a scene
+- enabled: the front pair's output starts (non-zero for 16 samples in a row; isolated single
+  steps a few ms early, seen on macOS, do not count) after the centre's by the filter's delay, which must match the delay shown in the filter's properties (read by a scene
   script through obs_source_properties on the OBS UI thread), the same for every burst.
   The time to 10% of the burst's level is printed as well: Chimera's processing makes a
   burst rise over a few ms (also with its noise gate off), which is not processing delay;
@@ -152,18 +152,25 @@ def pair(a: list[float], b: list[float], window: float) -> list[float]:
     return out
 
 
-def first_above(x: list[float], start: int, stop: int, threshold: float) -> int | None:
-    """Index of the first sample in x[start:stop] louder than threshold."""
+SUSTAIN = 16  # samples in a row: an output starts when it stays above the threshold this long
+
+
+def first_above(x: list[float], start: int, stop: int, threshold: float, sustain: int = 1) -> int | None:
+    """Index of the first sample in x[start:stop] that begins `sustain` samples in a row louder
+    than threshold. With sustain > 1, isolated low-level samples ahead of a burst (seen on
+    macOS: single 16-bit steps up to a few ms early) do not count as its start."""
+    run = 0
     for i in range(max(0, start), min(len(x), stop)):
-        if abs(x[i]) > threshold:
-            return i
+        run = run + 1 if abs(x[i]) > threshold else 0
+        if run >= sustain:
+            return i - sustain + 1
     return None
 
 
 def measure(path: Path, name: str) -> dict:
     """Delays of the front pair after the untouched centre, in samples, for each centre burst:
-    to the first sample above the front pair's own level just before the burst (the filter's
-    delay; at least half a 16-bit step) and to 10% of the burst's level (when it is heard,
+    to where the front pair's output starts, staying above its own level just before the burst
+    (at least half a 16-bit step) for SUSTAIN samples in a row (the filter's delay) and to 10% of the burst's level (when it is heard,
     which Chimera's processing shapes), and the centre's audio-to-video offsets."""
     t0, channels = audio_channels(path)
     front_x = channels[0]
@@ -171,23 +178,27 @@ def measure(path: Path, name: str) -> dict:
     check = app.check
     check(len(centre) >= 4, f"{name}: bursts found on the centre channel ({len(centre)})")
     reach = int(app.RATE * PERIOD / 4)  # a burst's start is looked for up to 250 ms after the centre's
-    delays, heard_delays, floors, steps = [], [], [], {1: [], 2: [], 4: [], 16: []}
+    delays, heard_delays, floors, singles, steps = [], [], [], [], {1: [], 2: [], 4: [], 16: []}
     for c in centre:
         floor = max((abs(v) for v in front_x[c - int(0.3 * app.RATE):c - int(0.02 * app.RATE)]), default=0.0)
         floors.append(floor)
-        first = first_above(front_x, c - reach, c + reach, max(FIRST_SAMPLE, 2 * floor))
+        first = first_above(front_x, c - reach, c + reach, max(FIRST_SAMPLE, 2 * floor), SUSTAIN)
+        single = first_above(front_x, c - reach, c + reach, max(FIRST_SAMPLE, 2 * floor))
+        if single is not None:
+            singles.append(single - c)
         peak = max((abs(v) for v in front_x[c:c + reach]), default=0.0)
         heard = first_above(front_x, c - reach, c + reach, 0.1 * peak) if peak > 0 else None
         if first is not None and heard is not None:
             delays.append(first - c)
             heard_delays.append(heard - c)
         for n in steps:
-            at = first_above(front_x, c - reach, c + reach, max((n - 0.5) / 32768, 2 * floor))
+            at = first_above(front_x, c - reach, c + reach, max((n - 0.5) / 32768, 2 * floor), SUSTAIN)
             if at is not None:
                 steps[n].append(at - c)
     print(f"     {name}: front level before each burst {[f'{f:.1e}' for f in floors]}; front after centre by "
-          "16-bit steps passed: " + ", ".join(f"{n} {statistics.median(d):+.0f}" if d else f"{n} -"
-                                            for n, d in steps.items()))
+          f"16-bit steps passed for {SUSTAIN} samples: " + ", ".join(f"{n} {statistics.median(d):+.0f}" if d else f"{n} -"
+                                            for n, d in steps.items())
+          + f"; first single non-zero sample {sorted(singles)}")
     check(len(delays) >= 4, f"{name}: the front pair's start found for the centre bursts ({len(delays)} of {len(centre)})")
     video = video_onsets(path)
     av = pair(video, [t0 + c / app.RATE for c in centre], PERIOD / 2)
@@ -195,7 +206,7 @@ def measure(path: Path, name: str) -> dict:
     result = {"delay": statistics.median(delays), "delay_spread": max(delays) - min(delays),
               "heard": statistics.median(heard_delays), "av": statistics.median(av), "av_spread": max(av) - min(av),
               "floor": max(floors)}
-    print(f"     {name:9} front after centre: first sample {result['delay']:+.0f} samples "
+    print(f"     {name:9} front after centre: output starts {result['delay']:+.0f} samples "
           f"({1000 * result['delay'] / app.RATE:+.3f} ms, spread {result['delay_spread']:.0f}), "
           f"10% level {result['heard']:+.0f} samples; centre audio after video {1000 * result['av']:+.1f} ms "
           f"(spread {1000 * result['av_spread']:.1f} ms, {len(av)} flashes)")
@@ -274,8 +285,8 @@ def run(args: argparse.Namespace) -> None:
     check(off["delay"] == 0 and off["delay_spread"] == 0,
           f"with the filter disabled the front pair starts with the centre ({off['delay']:+.0f} samples)")
     measured = on["delay"]
-    # The first non-zero sample comes slightly after the reported delay: the processed
-    # signal needs a few samples to rise above one 16-bit step.
+    # The output starts slightly after the reported delay: the processed signal needs a
+    # few samples to rise above one 16-bit step.
     check(reported_samples <= measured <= reported_samples + args.tolerance,
           f"the measured filter delay matches the reported latency ({measured:+.0f} samples against "
           f"{reported_samples}, allowed {reported_samples} to {reported_samples + args.tolerance:g})")
