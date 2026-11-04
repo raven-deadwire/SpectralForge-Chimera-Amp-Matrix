@@ -17,6 +17,22 @@
 
 namespace spectralforge::autoset {
 
+namespace detail {
+// Resolve every range before changing the proposal. A missing parameter means
+// this filter cannot be applied, so it must not influence output compensation.
+template <typename Lookup>
+bool legalFinalMove(FinalMove& move,Lookup&& lookup) {
+    auto* gain=lookup("gain");
+    auto* frequency=lookup("frequency");
+    auto* q=lookup("q");
+    if(!gain || !frequency || !q)return false;
+    move.gainDb=gain->getNormalisableRange().snapToLegalValue(move.gainDb);
+    move.frequency=frequency->getNormalisableRange().snapToLegalValue(move.frequency);
+    move.q=q->getNormalisableRange().snapToLegalValue(move.q);
+    return true;
+}
+}
+
 // Listening passes on the message thread, in signal order. Pass 1 sets input
 // gain and the gate from the signal after input gain; pass 2 (optional) sets
 // the Tone EQ from the amp/cab output at the new gain; pass 3 re-measures the
@@ -145,7 +161,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -206,7 +222,8 @@ public:
         if(!busy())return;
         auto& capture=processor.autoSetCapture();
         const auto before=collected();
-        if(samplePass())capture.drainSamples(samples);
+        if(status.phase==Phase::level)capture.drainOutput(outputSamples);
+        else if(samplePass())capture.drainSamples(samples);
         if(status.phase==Phase::amp || status.phase==Phase::boost)capture.drainAmpSamples(ampSamples);
         if(windowPass())capture.drain(windowTap(),windows);
         if(status.phase==Phase::input)capture.drain(Tap::rig,rigWindows);
@@ -224,7 +241,7 @@ public:
         else if(status.phase==Phase::compressor)finishCompressor(measuredWindows);
         else if(status.phase==Phase::multiband)finishMultiband(measuredSamples);
         else if(status.phase==Phase::finish)finishOutput(measuredSamples,measuredWindows);
-        else finishLevel(measuredSamples);
+        else finishLevel(std::vector<OutputFrame>(outputSamples.begin()+std::min(outputSamples.size(),size_t(skipSamples)),outputSamples.end()));
     }
 private:
     void timerCallback() override {tick();}
@@ -274,12 +291,17 @@ private:
             for(const auto& entry:snapshot)if(group.contains(entry.parameter->paramID) && !owned(entry))keep=true;
             if(keep){result.addArray(group);result.addIfNotAlreadyThere(eqID(0,-1,"bypass"));}
         }
+        for(const auto& group:finalNodeGroups) {
+            bool keep=(options.locks&lockFinalEQ)!=0;
+            for(const auto& entry:snapshot)if((group.contains(entry.parameter->paramID) || entry.parameter->paramID==eqID(1,-1,"bypass")) && !owned(entry))keep=true;
+            if(keep){result.addArray(group);result.addIfNotAlreadyThere(eqID(1,-1,"bypass"));}
+        }
         return result;
     }
     bool samplePass() const noexcept {return samplePass(status.phase);}
     bool windowPass() const noexcept {return status.phase==Phase::input || status.phase==Phase::compressor || status.phase==Phase::finish;}
     Tap windowTap() const noexcept {return status.phase==Phase::input?Tap::input:status.phase==Phase::finish?Tap::output:Tap::compressor;}
-    size_t collected() const noexcept {return samplePass()?samples.size():windows.size();}
+    size_t collected() const noexcept {return status.phase==Phase::level?outputSamples.size():samplePass()?samples.size():windows.size();}
     double rate() const noexcept {return processor.getSampleRate()>0?processor.getSampleRate():48000.;}
     double passLength() const noexcept {return samplePass()?toneSeconds*rate():double(windowsPerPass);}
     std::optional<bool> chosenBass() const noexcept {
@@ -293,7 +315,7 @@ private:
         std::vector<Window> discard;for(const auto t:{Tap::input,Tap::compressor,Tap::output,Tap::rig})capture.drain(t,discard);
         std::vector<float> stale;capture.drainSamples(stale);capture.drainAmpSamples(stale);
         flushLocked(passes[index]);
-        pass=index;windows.clear();rigWindows.clear();samples.clear();ampSamples.clear();lastAudioMs=-1; // timed from the first tick of the pass
+        pass=index;windows.clear();rigWindows.clear();samples.clear();ampSamples.clear();outputSamples.clear();levelReadSnapshot.clear();lastAudioMs=-1; // timed from the first tick of the pass
         skipWindows=settle?settleWindows:0;skipSamples=settle?int(toneSettleSeconds*rate()):0;
         status.phase=passes[pass];
         if(status.phase==Phase::tone)capture.listen(Tap::tone);
@@ -304,7 +326,11 @@ private:
         else if(status.phase==Phase::boost){boostAtStart=boostTarget();capture.listen({Tap::amp,Tap::cab});}
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
         else if(status.phase==Phase::finish)capture.listen({Tap::deesser,Tap::output});
-        else if(status.phase==Phase::level)capture.listen(Tap::master);
+        else if(status.phase==Phase::level) {
+            for(const auto& tracker:editTrackers)if(tracker->parameter.paramID.startsWith("finalEQ_") || tracker->parameter.paramID.startsWith("dynamicEQ") || tracker->parameter.paramID=="output")
+                levelReadSnapshot.push_back(takeSnapshot(tracker->parameter));
+            capture.listen(Tap::master);
+        }
         else if(status.phase==Phase::input && runOptions.gates)capture.listen({Tap::input,Tap::rig});
         else capture.listen(windowTap());
         // Gate 2 / Expander need the rig's own noise: hold every gate open while the input pass listens.
@@ -640,19 +666,45 @@ private:
         if(!t.on){keep("the cabinet is switched off");return;}
         if(t.mic<0){keep("two mics are blended; set the blend fully to one mic to let Auto Set place it");return;}
         if(t.key==0){keep(juce::String("mic ")+(t.mic?"B":"A")+" is a captured IR or filters; switch on its modeled mic to let Auto Set place it");return;}
+        const juce::String mic=t.mic?"B":"A";
+        const auto positionID=originalCabID(0,(mic+"position").toRawUTF8()),distanceID=originalCabID(0,(mic+"distance").toRawUTF8()),gainID="cab"+mic+"gain1";
+        const juce::StringArray controls{positionID,distanceID,gainID};
+        std::vector<Snapshot> previous;
+        for(const auto& entry:snapshot)if(controls.contains(entry.parameter->paramID))previous.push_back(entry);
+        const auto intact=[&]{
+            if(previous.size()!=3)return false;
+            for(const auto& entry:snapshot)if(controls.contains(entry.parameter->paramID) && !owned(entry))return false;
+            return true;
+        };
+        // Position, distance and level are one measured placement. Even an
+        // A-B-A edit must not leave just part of a safe candidate writable.
+        if(!intact()){manualEditsKept=true;keep("mic controls edited while listening");return;}
         const auto current=cabLayout::settings(t.key);
         const std::optional<bool> instrument=runOptions.instrument==0?std::nullopt:std::optional<bool>(runOptions.instrument==2);
         const auto r=analyseCab(post,rate(),current,instrument,runOptions.style);
         lastCab=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         if(!r.changed()){keep(juce::String(r.bass?"bass":"guitar")+" "+styleName(runOptions.style)+" balance already near the target here");return;}
-        const juce::String mic=t.mic?"B":"A";
-        const auto positionID=originalCabID(0,(mic+"position").toRawUTF8()),distanceID=originalCabID(0,(mic+"distance").toRawUTF8()),gainID="cab"+mic+"gain1";
-        set(positionID,float(r.before.position+strength()*(r.proposed.position-r.before.position)));
-        set(distanceID,float(r.before.distanceCm+strength()*(r.proposed.distanceCm-r.before.distanceCm)));
+        const auto snap=[this](const juce::String& id,float value){const auto* p=processor.parameters().getParameter(id);return p->convertFrom0to1(p->convertTo0to1(value));};
+        const CabPlacement applied{snap(positionID,float(r.before.position+strength()*(r.proposed.position-r.before.position))),
+                                   snap(distanceID,float(r.before.distanceCm+strength()*(r.proposed.distanceCm-r.before.distanceCm)))};
+        // Interference is not monotonic between two safe endpoints. Check the
+        // host-quantized Strength placement before writing any of its controls.
+        if(!cabPlacementSafe(current,applied)){keep("the Strength placement adds a peak or notch");return;}
+        const auto put=[&](const juce::String& id,float value){if(intact())set(id,value);};
+        put(positionID,float(applied.position));
+        put(distanceID,float(applied.distanceCm));
         // Hold the loudness for the placement actually applied.
-        const float gainBefore=raw(gainID),change=cabLevelChangeDb(r.heard,current,{raw(positionID),raw(distanceID)});
-        set(gainID,std::round((gainBefore-change)*10.f)/10.f);
+        const float gainBefore=raw(gainID),change=cabLevelChangeDb(r.energy,current,{raw(positionID),raw(distanceID)});
+        put(gainID,std::round((gainBefore-change)*10.f)/10.f);
+        // A host may edit synchronously from any change-gesture callback.
+        // Undo only our partial writes, retaining the host's value/history.
+        if(!intact()) {
+            for(const auto& saved:previous)for(auto& entry:snapshot)if(entry.parameter==saved.parameter && owned(entry)) {
+                if(setNormalised(entry,saved.lastWritten))entry=saved;
+            }
+            manualEditsKept=true;keep("mic controls edited while applying");return;
+        }
         const auto moves="mic "+mic+" position "+juce::String(r.before.position,2)+" > "+juce::String(raw(positionID),2)
                         +", distance "+juce::String(r.before.distanceCm,1)+" > "+juce::String(raw(distanceID),1)+" cm, level "
                         +juce::String(gainBefore,1)+" > "+juce::String(raw(gainID),1)+" dB";
@@ -818,49 +870,114 @@ private:
     }
     // Phase 7: small Final EQ corrections and the output trim, measured at the
     // limiter input after everything else is set.
-    void finishLevel(const std::vector<float>& measured) {
-        const auto r=analyseOutput(measured,rate(),chosenBass(),runOptions.style);
-        lastLevel=r;
-        if(!r.playingDetected){summary+=" | Final EQ / output unchanged (no playing)";addStep("kept (no playing heard)",false);nextPass();return;}
+    void finishLevel(const std::vector<OutputFrame>& measured) {
+        // A changing EQ/trim makes the capture unsuitable for a new correction.
+        if(!std::all_of(levelReadSnapshot.begin(),levelReadSnapshot.end(),owned)) {
+            manualEditsKept=true;addStep("kept (Final EQ or output edited while listening; run again)",false);nextPass();return;
+        }
+        auto r=analyseFinalVoicing(measureOutputSpectrum(measured,rate(),chosenBass()),rate(),runOptions.style);
+        std::array<FinalMove,3> appliedMoves{};
+        std::array<int,3> destinations{-1,-1,-1};
         juce::StringArray parts;bool changed=false;
-        if(locked(lockFinalEQ))parts.add("Final EQ kept (locked)");
-        else if(r.activeMoves()==0)parts.add("Final EQ kept (already near the target)");
-        else {
-            // The user's curve behind a bypassed Final EQ must stay inaudible.
-            bool bypassedCurve=false;
-            if(raw(eqID(1,-1,"bypass"))>.5f)for(int b=0;b<graphicalEQBands;++b)bypassedCurve|=raw(eqID(1,b,"enabled"))>.5f;
-            std::array<bool,graphicalEQBands> dynamic{};
-            for(int s=0;s<4;++s){const int target=slotTarget(s);if(target>graphicalEQBands && target<=2*graphicalEQBands)dynamic[size_t(target-graphicalEQBands-1)]=true;}
-            std::vector<int> bands;for(int b=0;b<graphicalEQBands;++b)if(!dynamic[size_t(b)] && raw(eqID(1,b,"enabled"))<.5f)bands.push_back(b);
-            if(bypassedCurve)parts.add("Final EQ kept (your curve is bypassed)");
-            else if(bands.empty())parts.add("Final EQ kept (no free band)");
-            else {
-                juce::StringArray moves;size_t next=0;
-                for(const auto& move:r.moves) {
-                    if(!move.active || next>=bands.size())continue;
-                    const int b=bands[next++];const float gain=move.type==3?0.f:move.gainDb*strength();
-                    set(eqID(1,b,"type"),float(move.type));set(eqID(1,b,"frequency"),move.frequency);set(eqID(1,b,"q"),move.q);
-                    set(eqID(1,b,"gain"),gain);set(eqID(1,b,"enabled"),1);
-                    moves.add(move.type==3?"high pass "+frequencyText(move.frequency):frequencyText(move.frequency)+" "+(gain>0?"+":"")+juce::String(gain,1));
-                }
-                set(eqID(1,-1,"bypass"),0);
-                parts.add("Final EQ "+moves.joinIntoString(", "));changed=true;
+        const float trimBefore=raw("output");
+        bool bypassedCurve=false;
+        if(raw(eqID(1,-1,"bypass"))>.5f)for(int b=0;b<graphicalEQBands;++b)bypassedCurve|=raw(eqID(1,b,"enabled"))>.5f;
+        std::array<bool,graphicalEQBands> dynamic{};int lastDynamicBand=-1;
+        for(int slot=0;slot<4;++slot) {
+            const int target=slotTarget(slot);
+            if(target>graphicalEQBands && target<=2*graphicalEQBands) {
+                const int b=target-graphicalEQBands-1;dynamic[size_t(b)]=true;
+                if(raw(eqID(1,b,"enabled"))>.5f)lastDynamicBand=std::max(lastDynamicBand,b);
             }
         }
-        const float trimBefore=raw("output");
-        if(locked(lockOutput))parts.add("output kept (locked)");
-        else if(!r.loudnessMeasured)parts.add("output kept (too little steady playing to measure)");
-        else if(r.trimChangeDb==0.f)parts.add("output kept ("+juce::String(r.loudnessLufs,1)+" LUFS, near "+juce::String(outputTargetLufs,0)+")");
+        std::vector<int> bands;
+        // A new static filter must follow existing time-varying filters for
+        // replaying it after the measured Final EQ output to remain valid.
+        for(int b=lastDynamicBand+1;b<graphicalEQBands;++b)if(!dynamic[size_t(b)] && raw(eqID(1,b,"enabled"))<.5f)bands.push_back(b);
+        if(locked(lockFinalEQ))parts.add("Final EQ kept (locked)");
+        else if(bypassedCurve)parts.add("Final EQ kept (your curve is bypassed)");
+        else if(bands.empty())parts.add("Final EQ kept (no free band)");
         else {
-            set("output",scaledInputGainDb(trimBefore,trimBefore+r.trimChangeDb,strength()));
-            const float applied=raw("output");
-            parts.add("output "+juce::String(trimBefore,1)+" > "+juce::String(applied,1)+" dB ("+juce::String(r.loudnessLufs,1)+" LUFS"
-                      +(r.peakLimited?", held below the limiter ceiling":", toward "+juce::String(outputTargetLufs,0))+")");
-            changed|=applied!=trimBefore;
+            size_t next=0;
+            for(size_t i=0;i<r.moves.size();++i)if(r.moves[i].active && next<bands.size()) {
+                destinations[i]=bands[next++];appliedMoves[i]=r.moves[i];
+                if(appliedMoves[i].type!=3)appliedMoves[i].gainDb*=strength();
+                if(!detail::legalFinalMove(appliedMoves[i],[&](const char* field) {
+                    return processor.parameters().getParameter(eqID(1,destinations[i],field));
+                })) {
+                    appliedMoves[i]={};destinations[i]=-1;
+                    parts.addIfNotAlreadyThere("Final EQ correction skipped (parameter unavailable)");
+                }
+            }
         }
-        summary+=" | "+parts.joinIntoString("; ");
-        addStep(parts.joinIntoString("; "),changed);
-        nextPass();
+        planOutputCorrection(r,measured,rate(),appliedMoves,strength(),trimBefore,locked(lockOutput));
+        if(locked(lockOutput) && r.peakUnresolved && r.eqPeakDeltaDb>0) {
+            // A locked trim cannot compensate a new EQ transient/boost.
+            appliedMoves={};destinations={-1,-1,-1};parts.add("Final EQ kept (output lock leaves no peak headroom)");
+            planOutputCorrection(r,measured,rate(),appliedMoves,strength(),trimBefore,true);
+        }
+        const auto previous=snapshot;
+        // Read dependencies include locked controls, which are deliberately
+        // absent from the write/Undo snapshot. Own notifications do not advance
+        // these revisions; any host edit (including A-B-A) invalidates the plan.
+        const auto intact=[&] {
+            for(const auto& entry:levelReadSnapshot)
+                if(!entry.edits->unchanged(entry.revision))return false;
+            for(const auto& entry:snapshot)
+                if((entry.parameter->paramID.startsWith("finalEQ_") || entry.parameter->paramID.startsWith("dynamicEQ")
+                    || entry.parameter->paramID=="output") && !owned(entry))return false;
+            return true;
+        };
+        const auto put=[&](const juce::String& id,float value){if(intact())set(id,value);};
+        const auto rollback=[&] {
+            // Restore only this level pass's owned writes. Never rewind another
+            // phase or reclaim a value the host touched in an apply/rollback callback.
+            for(auto& entry:snapshot)
+                if((entry.parameter->paramID.startsWith("finalEQ_") || entry.parameter->paramID=="output") && owned(entry))
+                    for(const auto& saved:previous)if(saved.parameter==entry.parameter) {
+                        if(setNormalised(entry,saved.lastWritten))entry=saved;
+                        break;
+                    }
+            manualEditsKept=true;
+            addStep("kept (Final EQ or output edited while applying; run again)",false);
+            nextPass();
+        };
+        juce::StringArray moves;
+        std::vector<juce::StringArray> newGroups;
+        for(size_t i=0;i<appliedMoves.size();++i)if(appliedMoves[i].active) {
+            const int b=destinations[i];const auto& move=appliedMoves[i];
+            juce::StringArray group;
+            for(const char* field:{"type","frequency","q","gain","enabled"})group.add(eqID(1,b,field));
+            put(eqID(1,b,"type"),float(move.type));put(eqID(1,b,"frequency"),move.frequency);put(eqID(1,b,"q"),move.q);
+            put(eqID(1,b,"gain"),move.gainDb);put(eqID(1,b,"enabled"),1);
+            newGroups.push_back(group);
+            moves.add(move.type==3?"high pass "+frequencyText(move.frequency):frequencyText(move.frequency)+" "+juce::String(move.gainDb,1));
+        }
+        if(!moves.isEmpty())put(eqID(1,-1,"bypass"),0);
+        if(!intact()){rollback();return;}
+        if(!moves.isEmpty()){parts.add("Final EQ "+moves.joinIntoString(", "));changed=true;}
+        else if(parts.isEmpty())parts.add("Final EQ kept (already near the target)");
+        if(locked(lockOutput))parts.add("output kept (locked)");
+        else if(r.trimChangeDb!=0) {
+            put("output",trimBefore+r.trimChangeDb);
+            // Output is the final write but can still re-enter the host and
+            // change an EQ, a locked dependency, or output itself. In that case
+            // the rendered loudness/peak prediction must not be published.
+            if(!intact()){rollback();return;}
+            const float actual=raw("output")-trimBefore;
+            r.predictedLufs+=actual-r.trimChangeDb;r.predictedPeakDb+=actual-r.trimChangeDb;r.trimChangeDb=actual;
+            r.peakUnresolved=r.predictedPeakDb>limiterCeilingDb+.001f;
+            parts.add("output "+juce::String(trimBefore,1)+" > "+juce::String(raw("output"),1)+" dB"
+                      +(r.loudnessMeasured?" ("+juce::String(r.loudnessLufs,1)+" LUFS heard)":" (peak protection)"));
+            changed|=actual!=0;
+        } else if(!r.loudnessMeasured)parts.add("output kept (too little steady playing to measure)");
+        else parts.add("output kept (within adjustment limits)");
+        if(!intact()){rollback();return;}
+        finalNodeGroups.insert(finalNodeGroups.end(),newGroups.begin(),newGroups.end());
+        if(r.peakUnresolved)parts.add("peak ceiling not reached (output lock or trim range); reduce level and run again");
+        else if(r.peakLimited)parts.add("peak protection takes priority over loudness and strength");
+        lastLevel=r;
+        summary+=" | "+parts.joinIntoString("; ");addStep(parts.joinIntoString("; "),changed);nextPass();
     }
     void stopListening() {processor.autoSetCapture().listen(std::nullopt);processor.setAutoSetGateBypass(false);}
     void complete() {
@@ -900,6 +1017,8 @@ private:
             // Sample passes: peak of roughly the last 100 ms.
             const size_t span=size_t(rate()*.1);float peak=0;
             for(size_t i=samples.size()>span?samples.size()-span:0;i<samples.size();++i)peak=std::max(peak,std::abs(samples[i]));
+            if(status.phase==Phase::level)for(size_t i=outputSamples.size()>span?outputSamples.size()-span:0;i<outputSamples.size();++i)
+                for(const auto x:outputSamples[i])peak=std::max(peak,std::abs(x));
             s.levelDb=db(peak);
             if(status.phase==Phase::finish)for(size_t i=windows.size()>30?windows.size()-30:0;i<windows.size();++i)s.levelDb=std::max(s.levelDb,windows[i].peakDb);
         }
@@ -965,7 +1084,9 @@ private:
     Options options,runOptions;
     std::vector<std::unique_ptr<ParameterEdits>> editTrackers;
     std::vector<Snapshot> snapshot;
-    std::vector<juce::StringArray> dynamicNodeGroups;
+    std::vector<juce::StringArray> dynamicNodeGroups,finalNodeGroups;
+    std::vector<Snapshot> levelReadSnapshot;
+    std::vector<OutputFrame> outputSamples;
     bool manualEditsKept{};
     uint32_t inputRevision{};
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples;

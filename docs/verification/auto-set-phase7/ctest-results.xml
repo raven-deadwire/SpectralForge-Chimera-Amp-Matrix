@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="2"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="95"
+	timestamp="2026-10-30T08:57:29"
+	>
+	<testcase name="ChimeraAutoSetTests" classname="ChimeraAutoSetTests" time="90.1123" status="run">
+		<properties/>
+		<system-out>PASS parameter edit notifications: own gestures, host thread, same-value touch, begin/value/end reentrancy, zero allocations
+PASS Auto Set edit history: manual and host A-B-A changes survive apply and undo
+PASS gate-stage matrix: 120 cases, three styles x four strengths x ten ownership/option modes; 21 gate parameters
+PASS auto set rules: silence, quiet DI gain, gate threshold/range, unchanged steady input, noisy gate, compressor ratio/attack/makeup
+PASS auto set tone rules: silence, guitar/bass detection, on-target input left alone, dark/bright tilt corrected within +/-6 dB in 0.5 dB steps at 44.1/48/96 kHz
+PASS auto set finish rules: style targets, silence, steady on-target signal left alone, bright top and pick clicks de-essed within limits at 44.1/48/96 kHz, limiter peaks and style release
+PASS attack safety: 72 protected synthetic attack cases, 18 sustained-brightness controls, 36 extended-range/distorted explicit-instrument cases, 9 auto-target ambiguity cases
+PASS auto set multiband rules: crossovers p...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraAutoSetLoudnessReferenceTests" classname="ChimeraAutoSetLoudnessReferenceTests" time="5.47523" status="run">
+		<properties/>
+		<system-out>libebur128 1.2.6
+rate,signal,layout,reference_lufs,chimera_lufs,error_lu
+44100,997Hz,mono,-23.00751331,-23.00751305,2.665192049e-07
+44100,997Hz,dual_mono,-19.99721336,-19.99721336,7.503416555e-09
+44100,997Hz,left_only,-23.00751331,-23.00751305,2.665192049e-07
+44100,997Hz,antiphase,-19.99721336,-19.99721336,7.503416555e-09
+44100,997Hz,uncorrelated,-22.50427363,-22.50427437,7.336142289e-07
+44100,997Hz,unequal,-22.88378164,-22.88378143,2.050688401e-07
+44100,27.5Hz,mono,-23.42442188,-23.42442131,5.708882824e-07
+44100,27.5Hz,dual_mono,-20.41412192,-20.41412163,2.968656574e-07
+44100,27.5Hz,left_only,-23.42442188,-23.42442131,5.708882824e-07
+44100,27.5Hz,antiphase,-20.41412192,-20.41412163,2.968656574e-07
+44100,27.5Hz,uncorrelated,-22.87356744,-22.87356758,1.386370307e-07
+44100,27.5Hz,unequal,-23.30069021,-23.3006897,5.091834296e-07
+44100,bass_harmonics,mono,-24.72812614,-24.72812653,3.870301377e-07
+44100,bass_harmonics,dual_mono,-21.71782618,-21.71782684,6.610527628e-07
+44100,bass_harmonics,left_only,-24.72812614,-...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

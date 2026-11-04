@@ -276,6 +276,7 @@ void reportTask(void* data) {
 void teardownTask(void* data) {
     auto* f = static_cast<Filter*>(data);
     if (f->stats.snapshot().blocks > 0) logStats(f, "session total");
+    if (f->editor != nullptr) blog(LOG_INFO, "[chimera-obs] '%s': editor closed with the filter", f->name.c_str());
     closeEditor(f->editor);
     f->host.unload();
     // f->source is already gone here; OBS frees it after destroy() returns.
@@ -400,7 +401,10 @@ bool openEditorClicked(obs_properties_t*, obs_property_t*, void* data) {
     auto* f = static_cast<Filter*>(data);
     std::string error;
     if (!f->host.loaded()) error = f->loadError;
-    else if (openEditor(f->editor, f->host, obs_source_get_name(f->source), editorChanged, f, error)) return false;
+    else if (openEditor(f->editor, f->host, obs_source_get_name(f->source), editorChanged, f, error)) {
+        blog(LOG_INFO, "[chimera-obs] '%s': editor shown", obs_source_get_name(f->source));
+        return false;
+    }
     blog(LOG_WARNING, "[chimera-obs] '%s': editor: %s", obs_source_get_name(f->source), error.c_str());
     return false;
 }
