@@ -544,6 +544,17 @@ def configure(config: Path, port: int, recordings: Path, sample_rate: int = RATE
         "server_password": "", "server_port": port}), encoding="utf-8")
 
 
+def lossless_recordings(config: Path) -> None:
+    """Simple output records lossless (PCM audio) instead of AAC, for sample-level analysis."""
+    profile = configparser.ConfigParser()
+    profile.optionxform = str
+    basic = config / "basic" / "profiles" / "Chimera" / "basic.ini"
+    profile.read(basic, encoding="utf-8")
+    profile["SimpleOutput"]["RecQuality"] = "Lossless"
+    with basic.open("w", encoding="utf-8") as f:
+        profile.write(f, space_around_delimiters=False)
+
+
 def free_port() -> int:
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))

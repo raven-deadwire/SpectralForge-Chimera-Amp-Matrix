@@ -18,7 +18,6 @@ process every block (no unprocessed blocks in its session statistics) and unload
 OBS must exit cleanly.
 """
 import argparse
-import configparser
 import math
 import os
 import re
@@ -90,13 +89,7 @@ def run_format(args: argparse.Namespace, fmt: dict, port: int) -> None:
     app.configure(layout.config, port, recordings, fmt["rate"], fmt["setup"])
     # Lossless recordings (PCM audio): AAC at OBS's bitrate for six channels changes the
     # rear channels' level by more than a dB from one recording to the next.
-    profile = configparser.ConfigParser()
-    profile.optionxform = str
-    basic = layout.config / "basic" / "profiles" / "Chimera" / "basic.ini"
-    profile.read(basic, encoding="utf-8")
-    profile["SimpleOutput"]["RecQuality"] = "Lossless"
-    with basic.open("w", encoding="utf-8") as f:
-        profile.write(f, space_around_delimiters=False)
+    app.lossless_recordings(layout.config)
     if fmt["speakers"] == 6:
         loop = work / "surround-loop.wav"
         write_surround(loop)
