@@ -7,8 +7,80 @@
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 #include <xmmintrin.h>
 #endif
+#if (defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))) || ((defined(__GNUC__) || defined(__clang__)) && (defined(__x86_64__) || defined(__i386__)))
+#define SF_CAB_AVX_DISPATCH 1
+#include <immintrin.h>
+#if defined(_MSC_VER) && !defined(__clang__)
+#include <intrin.h>
+#define SF_CAB_TARGET_AVX __declspec(noinline)
+#else
+#include <cpuid.h>
+#define SF_CAB_TARGET_AVX __attribute__((target("avx"), noinline))
+#endif
+#else
+#define SF_CAB_AVX_DISPATCH 0
+#endif
 
 namespace spectralforge {
+#if SF_CAB_AVX_DISPATCH
+namespace cabSimd {
+// x86 release builds target SSE2. The spectral multiply-accumulate is the
+// largest CAB callback stage at small blocks (docs/CAB_TWO_LEVEL_CONVOLUTION_DESIGN.ko.md
+// section 6), so on CPUs and operating systems with AVX it runs eight lanes
+// wide. The operations and their order are the scalar/SSE ones: separate
+// multiplies and adds, no FMA (the "avx" target does not enable it), so the
+// result is bit-identical (Tests/CabRealtimeRegressionTests.cpp compares it
+// bit for bit with the frozen reference).
+inline bool detectAvx() noexcept
+{
+#if defined(_MSC_VER) && !defined(__clang__)
+    int info[4]{};
+    __cpuid(info, 0);
+    if(info[0] < 1) return false;
+    __cpuid(info, 1);
+    const unsigned int features = static_cast<unsigned int>(info[2]);
+#else
+    unsigned int eax{}, ebx{}, features{}, edx{};
+    if(!__get_cpuid(1, &eax, &ebx, &features, &edx)) return false;
+#endif
+    constexpr unsigned int required = (1u << 26) | (1u << 27) | (1u << 28);
+    if((features & required) != required) return false; // XSAVE, OSXSAVE, AVX
+#if defined(_MSC_VER) && !defined(__clang__)
+    return (_xgetbv(0) & 6) == 6; // the OS saves XMM and YMM state
+#else
+    // Keep the detector at the baseline ISA: GCC's _xgetbv intrinsic needs
+    // -mxsave. Execute this instruction only after the OSXSAVE check above.
+    unsigned int xcr0Low{}, xcr0High{};
+    __asm__ volatile("xgetbv" : "=a"(xcr0Low), "=d"(xcr0High) : "c"(0));
+    return (xcr0Low & 6u) == 6u;
+#endif
+}
+SF_CAB_TARGET_AVX inline void accumulateAvx(const float* __restrict input,const float* __restrict impulse,
+                                            float* __restrict output,int bins) noexcept
+{
+    int i=0;
+    for(;i+8<=bins;i+=8) {
+        const auto inputReal=_mm256_loadu_ps(input+i);
+        const auto inputImag=_mm256_loadu_ps(input+bins+i);
+        const auto impulseReal=_mm256_loadu_ps(impulse+i);
+        const auto impulseImag=_mm256_loadu_ps(impulse+bins+i);
+        const auto outputReal=_mm256_loadu_ps(output+i);
+        const auto outputImag=_mm256_loadu_ps(output+bins+i);
+        const auto real=_mm256_sub_ps(_mm256_add_ps(outputReal,_mm256_mul_ps(inputReal,impulseReal)),
+                                      _mm256_mul_ps(inputImag,impulseImag));
+        const auto imag=_mm256_add_ps(_mm256_add_ps(outputImag,_mm256_mul_ps(inputReal,impulseImag)),
+                                      _mm256_mul_ps(inputImag,impulseReal));
+        _mm256_storeu_ps(output+i,real);
+        _mm256_storeu_ps(output+bins+i,imag);
+    }
+    for(;i<bins;++i) {
+        const float re=(output[i]+input[i]*impulse[i])-input[bins+i]*impulse[bins+i];
+        const float im=(output[bins+i]+input[i]*impulse[bins+i])+input[bins+i]*impulse[i];
+        output[i]=re;output[bins+i]=im;
+    }
+}
+} // namespace cabSimd
+#endif
 // A modeled IR is mono and is applied independently to both input channels.
 // Linearity lets one complex convolution carry left + i * right: its real and
 // imaginary outputs are the two separate convolutions, not a stereo downmix.
@@ -75,6 +147,11 @@ public:
         }
     };
 private:
+#if SF_CAB_AVX_DISPATCH
+    // Construction is worker-only; no CPU probing or lazy initialization
+    // is allowed in the audio callback.
+    const bool useAvx = cabSimd::detectAvx();
+#endif
     std::shared_ptr<const Prepared> prepared;
     const bool mono;
     const int blockSize, fftSize, bins, segments, inputSegments, inputSegmentStep;
@@ -103,6 +180,9 @@ private:
         // once and read/write each output only once per partition. The buffers
         // are disjoint; restrict makes that contract available to the compiler.
         // Keep the original arithmetic order and do not enable fast-math.
+#if SF_CAB_AVX_DISPATCH
+        if(useAvx){cabSimd::accumulateAvx(input,impulse,output,bins);return;}
+#endif
         int i=0;
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
         // Native Windows profiling identified sustained spectral-MAC cost in
@@ -203,6 +283,15 @@ public:
     ModeledCabConvolution(const juce::AudioBuffer<float>& samples,int maximumBlockSize,bool monoInput=false)
         : ModeledCabConvolution(std::make_shared<const Prepared>(samples,maximumBlockSize,monoInput)) {}
     int getLatency() const noexcept {return 0;}
+    // Test diagnostics only: probes the CPU; do not call from the audio thread.
+    static const char* macPath() noexcept
+    {
+#if SF_CAB_AVX_DISPATCH
+        return cabSimd::detectAvx() ? "avx" : "sse";
+#else
+        return "portable";
+#endif
+    }
     void reset() noexcept
     {
         std::fill(inputSpectra.begin(),inputSpectra.end(),0.f);
