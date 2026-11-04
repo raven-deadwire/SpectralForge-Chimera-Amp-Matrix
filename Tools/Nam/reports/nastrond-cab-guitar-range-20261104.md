@@ -71,3 +71,19 @@ A bare A2 sees 132 ms of input history and cannot carry that decay state
 (see ACCURACY-BLOCKER.md). The guitar-range rule removed the sub-46 Hz
 failures; this decay limit remains. The exception is Ragnarok's validation
 window at 72.9 s, inside a note.
+
+## Owner decision (2026-11-04, after the result)
+
+The owner chose to release the Náströnd head + cab pack with the limitation
+disclosed, rather than hold it. This is a decision made after seeing the
+result, not a pass of the rule above, and is recorded as such.
+
+- **Models:** the per-channel choice above (Fenrir, Nidhoggr, Fimbulvetr and
+  Ragnarok from `ndc-refine5`, Surtr from `ndc-refine4`). A2-Lite from
+  `ndc-lite`, reported only.
+- **Disclosed limitation:** the decay the amp keeps after the input stops
+  (about the first 10 to 85 ms of silence after a loud note) can differ from
+  the native Chimera engine. Qualification evidence is guitar-range input
+  (fundamentals 46 Hz and above); bass-range input is outside it.
+- **Still required:** the owner's instrument-DI listening before release
+  approval.
