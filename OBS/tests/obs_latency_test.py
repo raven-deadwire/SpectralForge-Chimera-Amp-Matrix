@@ -152,36 +152,49 @@ def pair(a: list[float], b: list[float], window: float) -> list[float]:
     return out
 
 
+def first_above(x: list[float], start: int, stop: int, threshold: float) -> int | None:
+    """Index of the first sample in x[start:stop] louder than threshold."""
+    for i in range(max(0, start), min(len(x), stop)):
+        if abs(x[i]) > threshold:
+            return i
+    return None
+
+
 def measure(path: Path, name: str) -> dict:
-    """Delays of the front pair after the untouched centre, in samples: to the first
-    non-zero sample (the filter's delay) and to 10% of the burst's level (when it is heard,
+    """Delays of the front pair after the untouched centre, in samples, for each centre burst:
+    to the first sample above the front pair's own level just before the burst (the filter's
+    delay; at least half a 16-bit step) and to 10% of the burst's level (when it is heard,
     which Chimera's processing shapes), and the centre's audio-to-video offsets."""
     t0, channels = audio_channels(path)
+    front_x = channels[0]
     centre = onsets(channels[2], FIRST_SAMPLE)
-    # The front pair's quiet between bursts, in case a build leaves idle noise there.
-    floor = max((abs(v) for c in centre for v in channels[0][c + int(0.6 * app.RATE):c + int(0.95 * app.RATE)]),
-                default=0.0)
-    front = onsets(channels[0], max(FIRST_SAMPLE, 2 * floor))
-    heard = onsets(channels[0])
     check = app.check
-    check(len(front) >= 4 and len(centre) >= 4, f"{name}: bursts found on the front and centre channels "
-          f"({len(front)} and {len(centre)})")
-    window = int(app.RATE * PERIOD / 4)
-    delays = pair(centre, front, window)
-    heard_delays = pair(centre, heard, window)
-    check(len(delays) >= 4 and len(heard_delays) >= 4, f"{name}: front and centre bursts paired ({len(delays)})")
+    check(len(centre) >= 4, f"{name}: bursts found on the centre channel ({len(centre)})")
+    reach = int(app.RATE * PERIOD / 4)  # a burst's start is looked for up to 250 ms after the centre's
+    delays, heard_delays, floors, steps = [], [], [], {1: [], 2: [], 4: [], 16: []}
+    for c in centre:
+        floor = max((abs(v) for v in front_x[c - int(0.3 * app.RATE):c - int(0.02 * app.RATE)]), default=0.0)
+        floors.append(floor)
+        first = first_above(front_x, c - reach, c + reach, max(FIRST_SAMPLE, 2 * floor))
+        peak = max((abs(v) for v in front_x[c:c + reach]), default=0.0)
+        heard = first_above(front_x, c - reach, c + reach, 0.1 * peak) if peak > 0 else None
+        if first is not None and heard is not None:
+            delays.append(first - c)
+            heard_delays.append(heard - c)
+        for n in steps:
+            at = first_above(front_x, c - reach, c + reach, max((n - 0.5) / 32768, 2 * floor))
+            if at is not None:
+                steps[n].append(at - c)
+    print(f"     {name}: front level before each burst {[f'{f:.1e}' for f in floors]}; front after centre by "
+          "16-bit steps passed: " + ", ".join(f"{n} {statistics.median(d):+.0f}" if d else f"{n} -"
+                                            for n, d in steps.items()))
+    check(len(delays) >= 4, f"{name}: the front pair's start found for the centre bursts ({len(delays)} of {len(centre)})")
     video = video_onsets(path)
     av = pair(video, [t0 + c / app.RATE for c in centre], PERIOD / 2)
     check(len(av) >= 4, f"{name}: video flashes paired with the centre bursts ({len(video)} flashes, {len(av)} paired)")
-    steps = {n: statistics.median(pair(centre, onsets(channels[0], (n - 0.5) / 32768), int(app.RATE * PERIOD / 4)) or [-1])
-             for n in (1, 2, 4, 16)}
-    print(f"     {name}: front after centre by 16-bit steps passed: "
-          + ", ".join(f"{n} step{'s' if n > 1 else ''} {d:+.0f}" for n, d in steps.items()))
-    if floor > FIRST_SAMPLE:
-        print(f"     {name}: the front pair is not silent between bursts (peak {floor:.2e}); onsets read above "
-              f"{2 * floor:.2e}")
     result = {"delay": statistics.median(delays), "delay_spread": max(delays) - min(delays),
-              "heard": statistics.median(heard_delays), "av": statistics.median(av), "av_spread": max(av) - min(av)}
+              "heard": statistics.median(heard_delays), "av": statistics.median(av), "av_spread": max(av) - min(av),
+              "floor": max(floors)}
     print(f"     {name:9} front after centre: first sample {result['delay']:+.0f} samples "
           f"({1000 * result['delay'] / app.RATE:+.3f} ms, spread {result['delay_spread']:.0f}), "
           f"10% level {result['heard']:+.0f} samples; centre audio after video {1000 * result['av']:+.1f} ms "
