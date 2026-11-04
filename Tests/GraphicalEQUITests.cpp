@@ -375,6 +375,29 @@ int modifierTransitions(ChimeraProcessor& processor,GraphicalEQPanel& panel,int 
     return failures;
 }
 
+// PEAK toggle: editor-local display state; the toolbar keeps every control
+// visible and separate in both the full and the compact workspace layouts.
+void peakToggle(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    auto* peak=find<juce::TextButton>(panel,eqID(bank,-1,"peakHold"));
+    check(peak!=nullptr && !peak->getToggleState() && !panel.isPeakHold(),"PEAK toggle missing or on by default");
+    juce::MemoryBlock before;processor.getStateInformation(before);
+    peak->triggerClick();check(waitFor([&]{return panel.isPeakHold() && peak->getToggleState();}),"PEAK toggle did not turn peak hold on");
+    juce::MemoryBlock during;processor.getStateInformation(during);
+    check(before==during,"PEAK changed saved plug-in state");
+    peak->triggerClick();check(waitFor([&]{return !panel.isPeakHold() && !peak->getToggleState();}),"PEAK toggle did not turn peak hold off");
+    for(bool compact:{false,true}) {
+        panel.setCompactWorkspace(compact);settle(30);
+        std::vector<juce::Component*> toolbar;
+        for(const char* id:{"analyzer","inputSpectrum","outputSpectrum","freeze","peakHold","resolution","smoothing","bypass"}) {
+            auto* c=find<juce::Component>(panel,eqID(bank,-1,id));check(c!=nullptr && c->isVisible(),"EQ toolbar control missing");
+            check(panel.getLocalBounds().contains(c->getBounds()),"EQ toolbar control is clipped");toolbar.push_back(c);
+        }
+        for(size_t a=0;a<toolbar.size();++a)for(size_t b=a+1;b<toolbar.size();++b)
+            check(!toolbar[a]->getBounds().intersects(toolbar[b]->getBounds()),"EQ toolbar controls overlap");
+    }
+    panel.setCompactWorkspace(false);settle(30);
+    std::cout<<"PASS EQ PEAK toggle: off by default, on/off, not saved state; toolbar unclipped and non-overlapping (full and compact) bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -796,6 +819,7 @@ int main(int argc,char** argv){try {
         check(host.starts>=3 && host.starts==host.ends && host.changes>0,"Unbalanced/missing host gestures");frequency->removeListener(&host);gain->removeListener(&host);q->removeListener(&host);
         overlappingBandDrag(*processor,*panel,*selector,e);
         modifierDrag(*processor,*panel,*selector,e);
+        peakToggle(*processor,*panel,e);
         check(modifierTransitions(*processor,*panel,e)==0,"Modifier transition regression failed");
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);

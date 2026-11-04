@@ -35,7 +35,7 @@ public:
         if(frozen)return; // The snapshot's frequency mapping is immutable.
         size=size==2048?2048:size==8192?8192:4096;
         if(size==selectedSize)return;
-        selectedSize=size;makeWindow();clearHistory();pendingReset=true;
+        selectedSize=size;makeWindow();clearHistory();pendingReset=true;clearPeaks();
     }
     // Ballistics changes preserve the current spectrum and observation window.
     void setSmoothing(int selection) noexcept {if(!frozen)smoothing=std::clamp(selection,0,2);}
@@ -62,6 +62,20 @@ public:
     }
     bool isFrozen() const noexcept {return frozen;}
     bool canFreezeSnapshot() const noexcept {return completed.valid;}
+
+    // Peak hold (message thread, editor-local display state like Freeze; never
+    // a host parameter, preset, A/B or undo operation). While on, each new
+    // complete frame raises a per-bin maximum of the displayed (smoothed)
+    // power for both IN and OUT. Turning it on starts an empty hold; turning it
+    // off clears it. The hold survives Freeze, visibility/LIVE resets, idle
+    // decay and dropped-sample recovery, which do not change what was measured.
+    // It is cleared when the frequency mapping changes: FFT size or sample rate.
+    void setPeakHold(bool on) noexcept {if(on!=peakHold){peakHold=on;clearPeaks();}}
+    bool isPeakHold() const noexcept {return peakHold;}
+    bool hasPeak() const noexcept {return peakHold && peakValid && peakRate==lastSampleRate() && peakSize==fftSize();}
+    float peakDB(bool output,int bin) const noexcept {
+        return hasPeak()?powerDB(peakPower[output?1:0][(size_t)std::clamp(bin,0,peakSize/2)]):floorDB;
+    }
 
     void reset(EQAnalyzerFIFO& fifo) noexcept {
         resetSignalHistory(fifo);
@@ -181,8 +195,19 @@ public:
     // in that interval survive downsampling. At finer screen spacing, interpolate
     // measured bin power instead of repeating nearest-bin staircase segments.
     float displayDB(bool output,double lowHz,double centreHz,double highHz) const noexcept {
+        if(!hasData())return floorDB;
+        return displayFrom((frozen?completed.smooth:smoothPower)[output?1:0],lowHz,centreHz,highHz);
+    }
+    // The held maximum, mapped to pixels exactly as displayDB maps the live line.
+    float peakDisplayDB(bool output,double lowHz,double centreHz,double highHz) const noexcept {
+        if(!hasPeak())return floorDB;
+        return displayFrom(peakPower[output?1:0],lowHz,centreHz,highHz);
+    }
+
+private:
+    float displayFrom(const std::array<float,maximumBins>& powers,double lowHz,double centreHz,double highHz) const noexcept {
         const double displayRate=lastSampleRate();const int displaySize=fftSize();
-        if(!hasData() || displayRate<=0 || !std::isfinite(lowHz) ||
+        if(displayRate<=0 || !std::isfinite(lowHz) ||
            !std::isfinite(centreHz) || !std::isfinite(highHz))return floorDB;
         if(lowHz>highHz)std::swap(lowHz,highHz);
         const double nyquist=displayRate*.5;
@@ -191,7 +216,6 @@ public:
         const double lo=std::clamp(lowHz,0.,nyquist)*scale;
         const double hi=std::clamp(highHz,0.,nyquist)*scale;
         const double centre=std::clamp(centreHz,0.,nyquist)*scale;
-        const auto& powers=(frozen?completed.smooth:smoothPower)[output?1:0];
         float peak=std::max(interpolatedPower(powers,centre),
                             std::max(interpolatedPower(powers,lo),interpolatedPower(powers,hi)));
         const int first=std::max(0,int(std::ceil(lo))),last=std::min(displaySize/2,int(std::floor(hi)));
@@ -199,7 +223,6 @@ public:
         return powerDB(peak);
     }
 
-private:
     using Clock=std::chrono::steady_clock;
     using PowerBins=std::array<float,maximumBins>;
     struct CompletedFrame {
@@ -218,6 +241,10 @@ private:
     }
     bool finishUpdate(Clock::time_point started,bool changed) noexcept {
         lastUpdateMicros=std::chrono::duration<double,std::micro>(Clock::now()-started).count();return changed;
+    }
+    void clearPeaks() noexcept {
+        for(auto& p:peakPower)p.fill(floorPower);
+        peakValid=false;peakRate=0;peakSize=0;
     }
     void makeWindow() noexcept {
         double windowSum=0;
@@ -295,7 +322,16 @@ private:
             if(!smoothingInitialized)smooth=raw;
             else {const float coefficient=raw>smooth?attack:release;smooth=raw+coefficient*(smooth-raw);}
         }
-        validSpectrum=smoothingInitialized=true;++analysedFrames;return true;
+        validSpectrum=smoothingInitialized=true;++analysedFrames;
+        if(peakHold) {
+            if(peakValid && (peakRate!=sampleRate || peakSize!=selectedSize))clearPeaks();
+            for(int stream=0;stream<2;++stream)for(int bin=0;bin<bins;++bin) {
+                auto& held=peakPower[(size_t)stream][(size_t)bin];
+                held=std::max(held,smoothPower[(size_t)stream][(size_t)bin]);
+            }
+            peakRate=sampleRate;peakSize=selectedSize;peakValid=true;
+        }
+        return true;
     }
     void rememberCompletedFrame() noexcept {
         const int bins=selectedSize/2+1;
@@ -338,14 +374,15 @@ private:
     std::array<EQAnalyzerFrame,EQAnalyzerFIFO::capacity> staged{};
     std::array<float,maximumFFTSize> window{};
     std::array<float,2*maximumFFTSize> work{};
-    std::array<PowerBins,2> rawPower{},smoothPower{},candidatePower{};
+    std::array<PowerBins,2> rawPower{},smoothPower{},candidatePower{},peakPower{};
     CompletedFrame completed;
     int selectedSize{4096},smoothing{1},writePosition{},collected{},consecutiveValidSamples{};
     uint32_t lastConsumed{},lastPending{},lastWindows{};
     uint64_t analysedFrames{},samplesSinceTransform{},analysedSampleSpan{},observedDropped{},discontinuityCount{};
     uint64_t totalConsumed{},discarded{},updateCount{};
     double sampleRate{},interiorPowerGain{},lastTransformMicros{},lastUpdateMicros{};
-    double lastConsumerInterval{};
+    double lastConsumerInterval{},peakRate{};
+    int peakSize{};bool peakHold{},peakValid{};
     bool validSpectrum{},smoothingInitialized{},pendingReset{},idle{},previousUpdateValid{},frozen{},windowClockStarted{};
     Clock::time_point lastSamplesAt{Clock::now()},lastIdleDecayAt{lastSamplesAt};
     Clock::time_point previousUpdate{};
