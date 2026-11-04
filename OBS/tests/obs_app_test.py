@@ -409,7 +409,43 @@ class Obs:
             raise RuntimeError("OBS did not shut down within 60 s of the close request")
         finally:
             self.output.close()
+        if code != 0 and MACOS:
+            print(macos_crash_report(self.process.pid), file=sys.stderr, flush=True)
         check(code == 0, f"OBS exited cleanly (code {code})")
+
+
+def macos_crash_report(pid: int, wait: float = 20.0) -> str:
+    """The crashed thread of an OBS that died from a signal on macOS, from the report the
+    system writes to ~/Library/Logs/DiagnosticReports (it can take a few seconds)."""
+    reports = Path.home() / "Library" / "Logs" / "DiagnosticReports"
+    deadline = time.monotonic() + wait
+    while True:
+        for path in sorted(reports.glob("*.ips"), key=lambda p: p.stat().st_mtime, reverse=True):
+            try:
+                header, _, body = path.read_text(encoding="utf-8", errors="replace").partition("\n")
+                if json.loads(header).get("name") not in ("OBS", "obs") and f'"pid" : {pid}' not in body:
+                    continue
+                report = json.loads(body)
+            except (OSError, ValueError):
+                continue
+            if report.get("pid") != pid:
+                continue
+            images = report.get("usedImages", [])
+            exception = report.get("exception", {})
+            lines = [f"--- macOS crash report {path.name}: {exception.get('type')} {exception.get('signal')} "
+                     f"{exception.get('subtype', '')}"]
+            for i, thread in enumerate(report.get("threads", [])):
+                if not thread.get("triggered"):
+                    continue
+                lines.append(f"crashed thread {i} {thread.get('name', '')} {thread.get('queue', '')}")
+                for frame in thread.get("frames", [])[:40]:
+                    image = images[frame["imageIndex"]] if frame.get("imageIndex", -1) < len(images) else {}
+                    lines.append(f"  {image.get('name', '?'):28} {frame.get('symbol', hex(frame.get('imageOffset', 0)))}"
+                                 f"+{frame.get('symbolLocation', 0)}")
+            return "\n".join(lines)
+        if time.monotonic() > deadline:
+            return f"--- no macOS crash report for OBS pid {pid} in {reports}"
+        time.sleep(1)
 
 
 def failure_text(e: BaseException) -> str:
