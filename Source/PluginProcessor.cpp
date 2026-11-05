@@ -534,9 +534,17 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // Auto Set's amp tap reads what the amps receive, the SYNTH insert included,
     // so its offline amp render matches the amp the cab tap hears.
     autoSetCaptureState.push(spectralforge::autoset::Tap::amp,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
+    const bool captureLanes=value(mode)==1 && autoSetCaptureState.listening(spectralforge::autoset::Tap::lane1);
+    engine.setLaneCapture(captureLanes);
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
+    if(captureLanes && engine.laneCaptureFilled()) {
+        // Auto Set phase 13 hears each Dual rig before the blend.
+        const auto& first=engine.laneOutput(0);const auto& second=engine.laneOutput(1);
+        autoSetCaptureState.push(spectralforge::autoset::Tap::lane1,first.getArrayOfReadPointers(),first.getNumChannels(),first.getNumSamples());
+        autoSetCaptureState.push(spectralforge::autoset::Tap::lane2,second.getArrayOfReadPointers(),second.getNumChannels(),second.getNumSamples());
+    }
     autoSetCaptureState.push(spectralforge::autoset::Tap::rig,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     // Post-rig gates attenuate the send bus with the direct sum's own gain.
     if(gateAtOutput) {spectralforge::DynamicsAnalysis::Scope capture(&dynamicsAnalysisState,spectralforge::DynamicsStage::gate,buffer);postRigGate.apply(buffer,roomBus);}

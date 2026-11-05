@@ -135,6 +135,9 @@ public:
     }
     bool isPeakHold() const noexcept {return spectrum.isPeakHold();}
     bool hasPeakHold() const noexcept {return spectrum.hasPeak();}
+    // Test diagnostics: which spectrum paths the last rebuild produced.
+    bool liveSpectrumPathsBuilt() const noexcept {return !spectrumPaths[0].isEmpty() || !spectrumPaths[1].isEmpty() || !dashedInput.isEmpty();}
+    bool peakPathsBuilt() const noexcept {return !peakPaths[0].isEmpty() && !peakPaths[1].isEmpty();}
     float peakSpectrumDB(bool output,int bin) const noexcept {return spectrum.peakDB(output,bin);}
     bool isWaitingForFreshCapture() const noexcept {return pendingCaptureRequest!=0;}
     void setSnapshotFrozen(bool frozen) {
@@ -183,6 +186,36 @@ public:
         diagnosticObserver=nullptr;diagnosticContext=nullptr;diagnosticRenderPanel=true;startTimerHz(25);
     }
     juce::Rectangle<float> graphBounds() const noexcept {return plot();}
+    // EQ display range (editor-local, like Freeze/PEAK): the dB span of the
+    // graph's vertical half. Only the drawing scale changes; band values,
+    // drag deltas and host parameters keep their own range (+/-24 dB).
+    static constexpr std::array<float,3> displayRanges{6.f,12.f,24.f};
+    void setDisplayRange(float rangeDB) {
+        float chosen=24.f;for(float r:displayRanges)if(std::abs(r-rangeDB)<.01f)chosen=r;
+        if(chosen==displayRangeDB)return;
+        displayRangeDB=chosen;rebuildResponse();repaint();
+    }
+    float displayRange() const noexcept {return displayRangeDB;}
+    // Where a node is drawn and hit: its true position, kept inside the graph
+    // so a band beyond a narrow range stays reachable at the edge.
+    juce::Point<float> visibleNodePosition(int band) const {
+        auto p=nodePosition(band);const auto area=plot();p.y=std::clamp(p.y,area.getY(),area.getBottom());return p;
+    }
+    // Hover readout text for a graph point (empty outside the graph).
+    juce::String readoutAt(juce::Point<float> point) const {
+        const auto area=plot();if(!area.contains(point))return {};
+        const float hz=xFrequency(point.x);
+        juce::String text=(hz<1000?juce::String(hz,hz<100?1:0)+" Hz":juce::String(hz/1000,2)+" kHz")
+            +"   "+(yGain(point.y)>=0?"+":"")+juce::String(yGain(point.y),1)+" dB";
+        // Report only a spectrum that is drawn (same rule as paint): OUT when
+        // shown, else IN when shown, nothing when both are hidden.
+        const bool showOut=outputToggle.getToggleState(),showIn=inputToggle.getToggleState();
+        if((showOut || showIn) && (analyzerToggle.getToggleState() || spectrum.isFrozen()) && spectrum.hasData() && hz<spectrum.lastSampleRate()*.5) {
+            const float level=spectrum.displayDB(showOut,xFrequency(point.x-.5f),hz,xFrequency(point.x+.5f));
+            text+=juce::String("   ")+(showOut?"OUT ":"IN ")+juce::String(level,1)+" dBFS";
+        }
+        return text;
+    }
     juce::Point<float> nodePosition(int band) const {
         const auto v=dsp.values(band);return {frequencyX(v.frequency),gainY(v.type<=2?v.gain:0.f)};
     }
@@ -253,10 +286,13 @@ public:
             const auto x=frequencyX(f);g.setColour(grid);g.drawVerticalLine(juce::roundToInt(x),area.getY(),area.getBottom());
             g.setColour(muted);g.drawText(f<1000?juce::String(int(f)):juce::String(f/1000,0)+"k",int(x)-20,int(area.getBottom())+5,40,16,juce::Justification::centred);
         }
-        for(int db=-24;db<=24;db+=6) {
-            const auto y=gainY(float(db));g.setColour(juce::Colour(db==0?0xff617773:0xff283638));
-            g.drawHorizontalLine(juce::roundToInt(y),area.getX(),area.getRight());
-            if(db%12==0){g.setColour(muted);g.drawText((db>0?"+":"")+juce::String(db),5,int(y)-8,40,16,juce::Justification::centredRight);}
+        {
+            const int range=juce::roundToInt(displayRangeDB),step=range/4,label=range/2;
+            for(int db=-range;db<=range;db+=step) {
+                const auto y=gainY(float(db));g.setColour(juce::Colour(db==0?0xff617773:0xff283638));
+                g.drawHorizontalLine(juce::roundToInt(y),area.getX(),area.getRight());
+                if(db%label==0){g.setColour(muted);g.drawText((db>0?"+":"")+juce::String(db),5,int(y)-8,40,16,juce::Justification::centredRight);}
+            }
         }
         g.setColour(muted);g.setFont(juce::FontOptions(12.f));
         g.drawText("EQ dB",7,compactWorkspace?51:87,40,15,juce::Justification::centredRight);
@@ -290,6 +326,13 @@ public:
         g.setColour(juce::Colours::black.withAlpha(.42f));g.strokePath(response,juce::PathStrokeType(5.f));
         g.setColour(eq.withAlpha(dsp.isBypassed()?.38f:1.f));g.strokePath(response,juce::PathStrokeType(2.4f));
         g.restoreState();
+        if(const auto text=readoutAt(hoverPoint);text.isNotEmpty()) {
+            // Precise cursor readout, top-right of the graph (view only).
+            g.setFont(juce::FontOptions(12.f));const int width=juce::GlyphArrangement::getStringWidthInt(g.getCurrentFont(),text)+14;
+            const juce::Rectangle<int> box(int(area.getRight())-width-6,int(area.getY())+4,width,18);
+            g.setColour(juce::Colour(0xe0101b1e));g.fillRoundedRectangle(box.toFloat(),4.f);
+            g.setColour(juce::Colour(0xffd8e4df));g.drawText(text,box,juce::Justification::centred);
+        }
         for(int b=0;b<graphicalEQBands;++b)if(b!=selected && isBandVisible(b))drawNode(g,b,false);
         if(selected>=0 && isBandVisible(selected))drawNode(g,selected,true);
         if(!spectrum.hasData() || (!analyzerToggle.getToggleState() && !spectrum.isFrozen())) {
@@ -315,12 +358,25 @@ public:
         float distance=18;int closest=-1;
         const auto consider=[&](int band) {
             if(band<0 || !isBandVisible(band))return;
-            const float d=nodePosition(band).getDistanceFrom(event.position);
+            const float d=visibleNodePosition(band).getDistanceFrom(event.position);
             if(d<distance){distance=d;closest=band;}
         };
         consider(selected);
         for(int b=graphicalEQBands-1;b>=0;--b)if(b!=selected)consider(b);
-        if(closest<0)return;selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);
+        if(closest<0) {
+            // Right-click on empty graph: the display range (view only).
+            if(event.mods.isPopupMenu()) {
+                juce::PopupMenu menu;menu.addSectionHeader("EQ display range");
+                for(int i=0;i<int(displayRanges.size());++i)
+                    menu.addItem(i+1,"+/-"+juce::String(int(displayRanges[size_t(i)]))+" dB",true,displayRanges[size_t(i)]==displayRangeDB);
+                juce::Component::SafePointer<GraphicalEQPanel> safe(this);
+                menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe](int result){
+                    if(safe && result>0)safe->setDisplayRange(displayRanges[size_t(result-1)]);
+                });
+            }
+            return;
+        }
+        selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);
         if(event.mods.isPopupMenu()) {
             juce::PopupMenu menu;menu.addItem(1,"Delete Band "+juce::String(closest+1));
             const auto revision=editing.revision();juce::Component::SafePointer<GraphicalEQPanel> safe(this);
@@ -341,6 +397,7 @@ public:
     // The node moves by the pointer's travel from the press, so pressing off
     // centre does not make it jump; Shift can change mid-drag without a jump.
     void mouseDrag(const juce::MouseEvent& event) override {
+        setHover(event.position);
         if(!dragging)return;
         updateDragModifiers(event.mods);
         dragPoint+=(event.position-lastPointer)*(event.mods.isShiftDown()?fineDragScale:1.f);lastPointer=event.position;
@@ -363,9 +420,12 @@ public:
     }
     static constexpr float fineDragScale=.1f,axisLockPixels=4.f;
     void mouseUp(const juce::MouseEvent&) override {endDrag();}
+    void mouseMove(const juce::MouseEvent& event) override {setHover(event.position);}
+    void mouseExit(const juce::MouseEvent&) override {setHover({-1.f,-1.f});}
+    juce::Point<float> hoverPosition() const noexcept {return hoverPoint;}
     void mouseDoubleClick(const juce::MouseEvent& event) override {
         if(!event.mods.isLeftButtonDown() || !plot().contains(event.position))return;
-        for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b) && nodePosition(b).getDistanceFrom(event.position)<18.f)return;
+        for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b) && visibleNodePosition(b).getDistanceFrom(event.position)<18.f)return;
         createBand(xFrequency(event.position.x),yGain(event.position.y));
     }
     void mouseWheelMove(const juce::MouseEvent& event,const juce::MouseWheelDetails& wheel) override {
@@ -388,8 +448,8 @@ private:
     juce::Rectangle<float> plot() const noexcept {return {56,compactWorkspace?66.f:105.f,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-(compactWorkspace?140:195)-(dynamicRowShown?38:0)))};}
     float frequencyX(float hz) const {return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/20)/std::log(1000.f);}
     float xFrequency(float x) const {return 20*std::pow(1000.f,std::clamp((x-plot().getX())/std::max(1.f,plot().getWidth()),0.f,1.f));}
-    float gainY(float db) const {return plot().getCentreY()-db/48*plot().getHeight();}
-    float yGain(float y) const {return std::clamp((plot().getCentreY()-y)/std::max(1.f,plot().getHeight())*48,-24.f,24.f);}
+    float gainY(float db) const {return plot().getCentreY()-db/(2*displayRangeDB)*plot().getHeight();}
+    float yGain(float y) const {return std::clamp((plot().getCentreY()-y)/std::max(1.f,plot().getHeight())*2*displayRangeDB,-24.f,24.f);}
     float spectrumY(float db) const {return plot().getBottom()-(std::clamp(db,-96.f,0.f)+96)/96*plot().getHeight();}
     void write(const char* field,float value){if(selected>=0)editing.setValue(instance,selected,field,value);}
     bool gainApplicable() const {return selected>=0 && isBandVisible(selected) && dsp.values(selected).type<=2;}
@@ -402,9 +462,14 @@ private:
         // movement arriving with the modifier change is still applied once.
         dragAnchor=nodePosition(selected);dragPoint=dragAnchor;dragAxis=DragAxis::free;
     }
+    void setHover(juce::Point<float> point) {
+        if(!plot().contains(point))point={-1.f,-1.f};
+        if(point==hoverPoint)return;
+        hoverPoint=point;repaint(plot().toNearestInt().removeFromTop(24));
+    }
     void endDrag(){if(dragging || sliderEditing){editing.endEdit();dragging=sliderEditing=false;updateHistoryControls();}}
     void drawNode(juce::Graphics& g,int band,bool chosen) const {
-        const auto v=dsp.values(band);const auto p=nodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
+        const auto v=dsp.values(band);const auto p=visibleNodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
         const juce::Colour colour(chosen?0xfff0d39b:v.enabled?0xffb5d6c6:0xff718d8a);
         if(chosen){g.setColour(colour.withAlpha(.12f));g.fillEllipse(p.x-13,p.y-13,26,26);}
         g.setColour(juce::Colour(0xff101b1e));g.fillEllipse(p.x-r,p.y-r,2*r,2*r);
@@ -624,22 +689,29 @@ private:
     void clearSpectrumPaths(){for(auto& p:spectrumPaths)p.clear();for(auto& p:spectrumFills)p.clear();for(auto& p:peakPaths)p.clear();dashedInput.clear();}
     void rebuildSpectrumPaths() {
         // A held peak outlives the decayed live line after the audio stops.
-        const auto start=std::chrono::steady_clock::now();clearSpectrumPaths();if(!spectrum.hasData() && !spectrum.hasPeak())return;
+        // Build the live line, its fill and the dashed IN only while there is
+        // live (or frozen) data to draw; paint() draws nothing else.
+        const auto start=std::chrono::steady_clock::now();clearSpectrumPaths();
+        const bool live=spectrum.hasData(),peak=spectrum.hasPeak();if(!live && !peak)return;
         const auto area=plot();const int width=int(area.getWidth());
+        // The peak keeps its recorded rate while the current one is unknown (after a thaw).
+        const double nyquist=(live?spectrum.lastSampleRate():spectrum.peakSampleRate())*.5;
         for(int stream=0;stream<2;++stream){
             auto& path=spectrumPaths[(size_t)stream];float lastX=area.getX();
             for(int x=0;x<=width;++x){
-                const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>spectrum.lastSampleRate()*.5)break;
-                const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db);
-                if(x==0)path.startNewSubPath(px,y);else path.lineTo(px,y);lastX=px;
-                if(spectrum.hasPeak()) {
+                const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>nyquist)break;
+                if(live) {
+                    const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db);
+                    if(x==0)path.startNewSubPath(px,y);else path.lineTo(px,y);lastX=px;
+                }
+                if(peak) {
                     const float peakY=spectrumY(spectrum.peakDisplayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f)));
                     if(x==0)peakPaths[(size_t)stream].startNewSubPath(px,peakY);else peakPaths[(size_t)stream].lineTo(px,peakY);
                 }
             }
-            auto& fill=spectrumFills[(size_t)stream];fill=path;fill.lineTo(lastX,area.getBottom());fill.lineTo(area.getX(),area.getBottom());fill.closeSubPath();
+            if(live){auto& fill=spectrumFills[(size_t)stream];fill=path;fill.lineTo(lastX,area.getBottom());fill.lineTo(area.getX(),area.getBottom());fill.closeSubPath();}
         }
-        const float dashes[]{4.f,3.f};juce::PathStrokeType(1.25f).createDashedStroke(dashedInput,spectrumPaths[0],dashes,2);
+        if(live){const float dashes[]{4.f,3.f};juce::PathStrokeType(1.25f).createDashedStroke(dashedInput,spectrumPaths[0],dashes,2);}
         pathMicros=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();
     }
     void timerCallback() override {
@@ -665,6 +737,8 @@ private:
     }
     juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;EQEditState& editing;EQCaptureBoundary& captureBoundary;int instance,selected{-1};
     bool compactWorkspace{},hasDynamicRange{};
+    float displayRangeDB{24.f};
+    juce::Point<float> hoverPoint{-1.f,-1.f};
     enum class DragAxis {free,frequency,gain};
     DragAxis dragAxis{DragAxis::free};
     bool dragAltDown{};
