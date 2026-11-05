@@ -88,7 +88,7 @@ void controllerPower() {
     // The pass hears the head without a cabinet, so its top end is bright;
     // with PRESENCE at maximum, Auto Set brings it down.
     const auto bright=[&](ChimeraProcessor& p){presence=presenceID(p);p.parameters().getParameter(presence)->setValueNotifyingHost(1);};
-    const Controller::Options powerOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,true};
+    const Controller::Options powerOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,true,false};
     const auto full=runAmp(powerOnly,.3f,bright);
     const auto& r=full.power;const auto* step=stepOf(full.status,P::power);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::amp} && !stepOf(full.status,P::amp) && step && step->changed && step->result.contains("PRESENCE"),
