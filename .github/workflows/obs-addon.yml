@@ -403,6 +403,8 @@ jobs:
             --render-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-render-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-vst3-match"
       - name: Chimera outside OBS (Apple) - its own delay in float, for every block size and note position
+        # Also when the OBS comparison before it fails: its numbers are what tells the cause apart.
+        if: ${{ !cancelled() }}
         run: |
           python3 OBS/tests/render_latency_test.py --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --render-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-render-tool" --work "$RUNNER_TEMP/render-latency"
