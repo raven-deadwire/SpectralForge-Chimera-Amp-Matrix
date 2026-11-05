@@ -29,23 +29,26 @@ inline constexpr float cutMinGainDb=.5f,cutMoveFactor=2,cutBandLimitDb=24;
 inline constexpr int cutSteps=9;
 // The highest LOW cut for the instrument and style (Hz).
 inline float cutLowLimit(bool bass,Style style) noexcept {return bass?40.f:style==Style::metal?100.f:80.f;}
-// The power response at f of the cut the cabinet plays (Cab::setCuts: JUCE's
-// second-order high or low pass at the session rate).
-inline double cutPower(double f,double fc,bool lowCut,double rate) {
-    const auto c=lowCut?juce::dsp::IIR::ArrayCoefficients<float>::makeHighPass(rate,float(fc)):juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(rate,float(fc));
+// The cut the cabinet plays (Cab::setCuts: JUCE's second-order high or low
+// pass at the session rate), and its power response at f.
+inline auto cutCoefficients(double fc,bool lowCut,double rate) {
+    return lowCut?juce::dsp::IIR::ArrayCoefficients<float>::makeHighPass(rate,float(fc)):juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(rate,float(fc));
+}
+template<typename Coefficients> double cutPower(double f,const Coefficients& c,double rate) {
     const std::complex<double> z=std::polar(1.,-2*juce::MathConstants<double>::pi*f/rate);
     const auto num=double(c[0])+double(c[1])*z+double(c[2])*z*z,den=double(c[3])+double(c[4])*z+double(c[5])*z*z;
     return std::norm(num/den);
 }
 // A band's power change (dB) when a cut moves from `from` to `to`, eight points per band.
 inline float cutBandChangeDb(int band,double from,double to,bool lowCut,double rate) {
-    double now=0,next=0;
+    const auto now=cutCoefficients(from,lowCut,rate),next=cutCoefficients(to,lowCut,rate);
+    double before=0,after=0;
     for(int k=0;k<8;++k) {
         const double f=toneBandCentres[size_t(band)]*std::pow(2.,(k+.5)/24.-1./6.);
         if(f>=rate*.5)continue;
-        now+=cutPower(f,from,lowCut,rate);next+=cutPower(f,to,lowCut,rate);
+        before+=cutPower(f,now,rate);after+=cutPower(f,next,rate);
     }
-    return float(std::clamp(10*std::log10(std::max(next,1e-30)/std::max(now,1e-30)),-double(cutBandLimitDb),double(cutBandLimitDb)));
+    return float(std::clamp(10*std::log10(std::max(after,1e-30)/std::max(before,1e-30)),-double(cutBandLimitDb),double(cutBandLimitDb)));
 }
 // RMS distance from the aligned target over a region's bands with content.
 inline float cutRegionErrorDb(const std::array<float,toneBandCount>& bands,const std::array<float,toneBandCount>& target,float strongest,float from,float to,double rate) {
