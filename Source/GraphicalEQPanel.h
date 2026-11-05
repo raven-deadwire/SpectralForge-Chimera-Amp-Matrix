@@ -135,6 +135,9 @@ public:
     }
     bool isPeakHold() const noexcept {return spectrum.isPeakHold();}
     bool hasPeakHold() const noexcept {return spectrum.hasPeak();}
+    // Test diagnostics: which spectrum paths the last rebuild produced.
+    bool liveSpectrumPathsBuilt() const noexcept {return !spectrumPaths[0].isEmpty() || !spectrumPaths[1].isEmpty() || !dashedInput.isEmpty();}
+    bool peakPathsBuilt() const noexcept {return !peakPaths[0].isEmpty() && !peakPaths[1].isEmpty();}
     float peakSpectrumDB(bool output,int bin) const noexcept {return spectrum.peakDB(output,bin);}
     bool isWaitingForFreshCapture() const noexcept {return pendingCaptureRequest!=0;}
     void setSnapshotFrozen(bool frozen) {
@@ -624,22 +627,29 @@ private:
     void clearSpectrumPaths(){for(auto& p:spectrumPaths)p.clear();for(auto& p:spectrumFills)p.clear();for(auto& p:peakPaths)p.clear();dashedInput.clear();}
     void rebuildSpectrumPaths() {
         // A held peak outlives the decayed live line after the audio stops.
-        const auto start=std::chrono::steady_clock::now();clearSpectrumPaths();if(!spectrum.hasData() && !spectrum.hasPeak())return;
+        // Build the live line, its fill and the dashed IN only while there is
+        // live (or frozen) data to draw; paint() draws nothing else.
+        const auto start=std::chrono::steady_clock::now();clearSpectrumPaths();
+        const bool live=spectrum.hasData(),peak=spectrum.hasPeak();if(!live && !peak)return;
         const auto area=plot();const int width=int(area.getWidth());
+        // The peak keeps its recorded rate while the current one is unknown (after a thaw).
+        const double nyquist=(live?spectrum.lastSampleRate():spectrum.peakSampleRate())*.5;
         for(int stream=0;stream<2;++stream){
             auto& path=spectrumPaths[(size_t)stream];float lastX=area.getX();
             for(int x=0;x<=width;++x){
-                const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>spectrum.lastSampleRate()*.5)break;
-                const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db);
-                if(x==0)path.startNewSubPath(px,y);else path.lineTo(px,y);lastX=px;
-                if(spectrum.hasPeak()) {
+                const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>nyquist)break;
+                if(live) {
+                    const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db);
+                    if(x==0)path.startNewSubPath(px,y);else path.lineTo(px,y);lastX=px;
+                }
+                if(peak) {
                     const float peakY=spectrumY(spectrum.peakDisplayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f)));
                     if(x==0)peakPaths[(size_t)stream].startNewSubPath(px,peakY);else peakPaths[(size_t)stream].lineTo(px,peakY);
                 }
             }
-            auto& fill=spectrumFills[(size_t)stream];fill=path;fill.lineTo(lastX,area.getBottom());fill.lineTo(area.getX(),area.getBottom());fill.closeSubPath();
+            if(live){auto& fill=spectrumFills[(size_t)stream];fill=path;fill.lineTo(lastX,area.getBottom());fill.lineTo(area.getX(),area.getBottom());fill.closeSubPath();}
         }
-        const float dashes[]{4.f,3.f};juce::PathStrokeType(1.25f).createDashedStroke(dashedInput,spectrumPaths[0],dashes,2);
+        if(live){const float dashes[]{4.f,3.f};juce::PathStrokeType(1.25f).createDashedStroke(dashedInput,spectrumPaths[0],dashes,2);}
         pathMicros=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();
     }
     void timerCallback() override {

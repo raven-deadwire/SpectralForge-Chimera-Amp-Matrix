@@ -388,6 +388,9 @@ void peakHold() {
         analyzer->setFrozen(true,*fifo);fill(*fifo,size,0,size,61,.5f,.5f);analyzer->update(*fifo,rate);
         check(analyzer->hasPeak(),"Freeze hid the held peak");same("Freeze changed the held peak");
         analyzer->setFrozen(false,*fifo);
+        // Thawed with no audio yet: the rate is unknown; the hold stays shown on its own mapping.
+        check(analyzer->hasPeak() && analyzer->peakDB(true,43)==held43,"Thaw without audio hid the held peak");
+        {const double centre=43.*rate/size;check(analyzer->peakDisplayDB(true,centre*.99,centre,centre*1.01)>held43-6,"Thawed peak lost its frequency mapping");}
         // A LIVE / visibility reset keeps it.
         analyzer->reset(*fifo);analyzer->update(*fifo,rate);same("A LIVE reset changed the held peak");
         // Idle decay of the live line keeps it.
