@@ -11,7 +11,66 @@ std::vector<float> withCuts(std::vector<float> x,double rate,float low,float hig
     }
     return x;
 }
+// Drop A regression: compile in the normal --cuts and full test paths.
+// Actual JUCE float filters, not just the selector's band-response prediction.
+std::vector<float> dropACutRender(std::vector<float> x,double rate,float low,float high) {
+    for(const bool hp:{true,false}) {
+        juce::dsp::IIR::Filter<float> filter;
+        filter.coefficients=new juce::dsp::IIR::Coefficients<float>(cutCoefficients(hp?low:high,hp,rate));
+        filter.reset();for(auto& v:x)v=filter.processSample(v);
+    }
+    return x;
+}
+double dropAAmplitude(const std::vector<float>& x,double rate,double frequency) {
+    const size_t start=size_t(2*rate);std::complex<double> sum{};
+    const auto increment=std::polar(1.,-2*juce::MathConstants<double>::pi*frequency/rate);
+    auto phase=std::polar(1.,-2*juce::MathConstants<double>::pi*frequency*double(start)/rate);
+    for(size_t n=start;n<x.size();++n){sum+=double(x[n])*phase;phase*=increment;}
+    return 2*std::abs(sum)/double(x.size()-start);
+}
+void cutsDropA() {
+    int cases=0;
+    for(const double rate:{44100.,48000.,96000.})for(const bool bass:{false,true})
+    for(const Style style:{Style::rock,Style::clean,Style::metal})for(int fixture=0;fixture<4;++fixture) {
+        const double f0=bass?27.5:55.;std::vector<float> source(size_t(6*rate));
+        for(size_t n=0;n<source.size();++n) {
+            const double t=double(n)/rate;double value=0;
+            for(int h=1;h<=32;++h) {
+                const double level=(fixture==1 && h==1?.1:1.)/h;
+                value+=level*std::sin(2*juce::MathConstants<double>::pi*f0*h*t+.37*h);
+                if(fixture==3)value+=.6/h*std::sin(2*juce::MathConstants<double>::pi*f0*1.5*h*t+.23*h);
+            }
+            if(fixture==2)value*=std::exp(-3*std::fmod(t,.5));
+            source[n]=float(.1*value);
+        }
+        float low=bass?20.f:30.f;const float high=9000.f;bool settled=false;
+        for(int pass=0;pass<6;++pass) {
+            const auto heard=measureSpectrum(dropACutRender(source,rate,low,high),rate,bass);
+            const auto r=analyseCuts(heard,rate,low,high,{},style);
+            check(r.playingDetected,"Drop A fixture not detected as playing");
+            const auto rendered=dropACutRender(source,rate,r.lowAfter,high);
+            // Absolute attenuation from the cut filters, not incremental loss per run.
+            // Starting below the ceiling is essential: an existing user cut is preserved.
+            for(int h=1;h<=4;++h) {
+                const double loss=20*std::log10(dropAAmplitude(rendered,rate,h*f0)/dropAAmplitude(source,rate,h*f0));
+                check(loss>=-3.1,"Drop A cut loses >3.1 dB at harmonic "+std::to_string(h)+", rate "+std::to_string(rate)+", loss "+std::to_string(loss));
+            }
+            if(r.lowChanged())check(r.lowErrorAfterDb<r.lowErrorBeforeDb-cutMinGainDb,"Drop A cut did not improve target fit");
+            else {settled=true;break;}
+            low=r.lowAfter;
+        }
+        check(settled,"Drop A cuts did not settle within six passes");
+        // Already-higher settings must not be raised further by this fallback.
+        const float existing=bass?40.f:70.f;
+        const auto held=analyseCuts(measureSpectrum(dropACutRender(source,rate,existing,high),rate,bass),rate,existing,high,{},style);
+        check(held.lowAfter<=existing,"Drop A raised an already-high existing cut");
+        ++cases;
+    }
+    std::cout<<"PASS Drop A cuts: "<<cases<<" harmonic fixtures at 44.1/48/96 kHz, A1/A0 and first four harmonics <=3.1 dB cut loss, repeated passes, existing higher cuts never raised\n";
+}
+
 void cutsRules() {
+    cutsDropA();
     const std::array<float,toneBandCount> none{};
     for(double rate:{44100.,48000.,96000.}) {
         std::mt19937 rng{150};
@@ -40,19 +99,19 @@ void cutsRules() {
         check(runs<6 && settled<=cutLowLimit(false,Style::rock),"The LOW cut did not settle");
         // A thin low end (cut at 160 Hz): it falls.
         const auto thin=analyseCuts(measureSpectrum(withCuts(source,rate,160,9000),rate,false),rate,160,9000,none,Style::rock);
-        check(thin.lowChanged() && thin.lowAfter<160 && thin.lowAfter>=80-1e-3f,"A thin low end did not lower the LOW cut ("+std::to_string(thin.lowAfter)+" Hz, error "+std::to_string(thin.lowErrorBeforeDb)+" > "+std::to_string(thin.lowErrorAfterDb)+")");
+        check(thin.lowChanged() && thin.lowAfter<160 && thin.lowAfter<=cutLowLimit(false,Style::rock)+1e-3f,"A thin low end did not lower the LOW cut ("+std::to_string(thin.lowAfter)+" Hz, error "+std::to_string(thin.lowErrorBeforeDb)+" > "+std::to_string(thin.lowErrorAfterDb)+")");
         // Fizz: the HIGH cut falls; a dull top: it rises. Within an octave, on a 100 Hz grid.
         auto fizzy=source;shelve(fizzy,5000,12,rate);
         const auto fizz=analyseCuts(measureSpectrum(withCuts(fizzy,rate,70,14000),rate,false),rate,70,14000,none,Style::rock);
         check(fizz.highChanged() && fizz.highAfter<14000 && fizz.highAfter>=7000-1e-3f && std::fmod(fizz.highAfter,100.f)==0,"Fizz did not lower the HIGH cut");
         const auto dull=analyseCuts(measureSpectrum(withCuts(source,rate,70,3000),rate,false),rate,70,3000,none,Style::rock);
         check(dull.highChanged() && dull.highAfter>3000 && dull.highAfter<=6000+1e-3f,"A dull top did not raise the HIGH cut ("+std::to_string(dull.highAfter)+" Hz, error "+std::to_string(dull.highErrorBeforeDb)+" > "+std::to_string(dull.highErrorAfterDb)+")");
-        // Metal allows a tighter LOW cut than rock; bass keeps the low end open.
+        // Every style respects the Drop A preservation ceilings.
         const auto metal=analyseCuts(measureSpectrum(withCuts(boomy,rate,60,9000),rate,false),rate,60,9000,none,Style::metal);
-        check(metal.lowAfter<=cutLowLimit(false,Style::metal)+1e-3f,"Metal LOW cut past its limit");
+        check(metal.lowAfter<=60.f,"Metal raised an existing cut above the preservation ceiling");
         auto bassBoom=targetNoise(true,rate,6,rng);lowShelf(bassBoom,60,12,rate);
         const auto bass=analyseCuts(measureSpectrum(withCuts(bassBoom,rate,20,9000),rate,true),rate,20,9000,none,Style::rock);
-        check(bass.bass && bass.lowAfter<=cutLowLimit(true,Style::rock)+1e-3f,"Bass LOW cut past 40 Hz");
+        check(bass.bass && bass.lowAfter<=cutLowLimit(true,Style::rock)+1e-3f,"Bass LOW cut past the preservation limit");
         // The mic move phase 9 applies is counted: a boost the move adds below 160 Hz raises the cut further.
         std::array<float,toneBandCount> lift{};for(int b=0;b<toneBandCount;++b)lift[size_t(b)]=toneBandCentres[size_t(b)]<=125?6.f:0.f;
         const auto plain=analyseCuts(measureSpectrum(withCuts(source,rate,30,9000),rate,false),rate,30,9000,none,Style::rock);

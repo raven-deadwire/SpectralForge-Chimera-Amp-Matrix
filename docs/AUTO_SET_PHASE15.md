@@ -38,11 +38,12 @@ step, on by default.
 ## Rules (`analyseCuts`, `AutoSetCabCuts.h`)
 
 **How a new cut is predicted.** The cuts are second-order Butterworth filters
-(`Cab::setCuts`), so a new cut's effect is known exactly. Each third-octave
+(`Cab::setCuts`), so their per-frequency response is known. Each third-octave
 band moves by the new cut's power response minus the current one. This is the
 digital filter's own response, which bends near Nyquist, averaged over eight
 points per band. The heard spectrum plus those changes predicts what the Tone
-EQ pass will hear.
+EQ pass will hear. This band average is an approximation for tonal signals;
+rendered harmonic attenuation is checked separately.
 
 **The mic move.** If phase 9 moved the mic in the same pass, its band change
 (and the level that holds the loudness) is added first.
@@ -53,17 +54,27 @@ bands:
 
 | Cut | Bands | Range | Limit |
 |---|---|---|---|
-| LOW | guitar 50–160 Hz, bass 50–100 Hz | 20 Hz up | guitar 80 Hz (metal 100 Hz), bass 40 Hz |
+| LOW | guitar 50–160 Hz, bass 50–100 Hz | 20 Hz up | guitar 55 Hz, bass 25 Hz (all styles) |
 | HIGH | 5–10 kHz | guitar from 4 kHz, bass from 2.5 kHz | 20 kHz, or 0.45 × rate |
 
 **The search.**
 - **Candidates:** nine log-spaced values from half to twice the current cut,
   inside the range. The LOW cut snaps to 5 Hz and the HIGH cut to 100 Hz.
 - **A cut above its limit** can come down to the limit, even if that is less
-  than half.
+  than half. It is not forced down when that would worsen the target fit.
 - **When it moves:** a cut moves only when its region's fit improves by more
-  than 0.5 dB. Each run moves a cut by an octave at most. A large excess
+  than 0.5 dB. Except for an existing cut above the limit, each run moves a
+  cut by an octave at most. A large excess
   settles over a few runs.
+
+**Drop A fallback (no pitch detection).** The automatic LOW increase ceiling
+is the lowest supported fundamental, rounded down to the 5 Hz grid: guitar
+A1 = 55 Hz, bass A0 = 27.5 Hz -> 25 Hz. For a second-order Butterworth
+filter this limits cut-only loss to about 3 dB at those fundamentals when
+starting below the ceiling. All styles use the same protection. It does not
+identify notes or noise, force down an existing higher cut, change the
+cabinet default, or guarantee the response of the whole signal chain.
+The tradeoff is less aggressive automatic boom removal, particularly on bass.
 
 ## Testing
 
@@ -81,6 +92,12 @@ bands:
   - Metal and bass keep their LOW limits.
   - A mic move that lifts the lows is counted.
   - Silence reports no playing.
+- **Drop A (`cutsDropA`), 44.1, 48 and 96 kHz:** 72 fixtures combine guitar
+  A1 and bass A0, all three styles, sustained harmonics, weak fundamental,
+  plucked envelope and power chord. Actual JUCE float filters must retain
+  each of the first four harmonics within 3.1 dB of the source across
+  repeated runs starting below the ceiling. Existing higher cuts must not
+  increase. The original algorithm fails this regression.
 - **Controller (`controllerCuts`), real processor, fixtures fed to the cab
   tap:**
   - The step runs alone in the cabinet mic pass, and both applied cuts match
@@ -102,6 +119,11 @@ starting values. They have been checked on synthetic noise with filtered
 boom, thin lows, fizz and dull tops, not on real guitars, basses or listening
 tests.
 
-The LOW cut is judged against a target spectrum, not against the notes
-actually played. A drop-tuned guitar's low notes below 80 Hz are protected
-only by the limit.
+The LOW cut is judged against a target spectrum, not detected notes. The
+Drop A fallback is a conservative fixed policy; lower tunings are not covered.
+Automatic instrument detection can classify strong A1 guitar fundamentals
+as bass, so tests distinguish explicit instrument selection from Auto.
+See `AUTO_SET_PHASE15_DROP_A_VALIDATION.md` for measurements and scope.
+The proposal has local isolated analysis/rule-test validation only; its full
+processor/controller suite, Windows/macOS builds, real DI and listening
+validation remain pending.
