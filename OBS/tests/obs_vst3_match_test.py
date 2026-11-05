@@ -15,7 +15,13 @@ blocks, with Chimera's default state and then with a pushed preset, and compares
 - the difference (OBS minus reference) over the recording after Chimera's tails from before
   the recording started have died away: in each channel, with the default state and with
   the preset, no sample may differ by more than one step of the 16-bit recording (the
-  reference is not rounded to 16 bits, so half a step is expected);
+  reference is not rounded to 16 bits: half a step where OBS rounds to the nearest step, as
+  on Linux and Windows; on the macOS CI runner OBS's 16-bit conversion differs from the
+  nearest step by up to one, deterministically, also where Chimera's output is far below a
+  step);
+- that the recorded copy of the filter's input is the media file, sample for sample, note by
+  note: where OBS drops, repeats or shifts samples in the recording, the recorded input is
+  not what the filter received; the notes around such a break are reported and left out;
   in the OBS tick (1024 samples) before each note the difference is checked on its own,
   against a looser bound: on the macOS CI runner single steps leave the filter there,
   up to a tick ahead of the note, which Chimera outside OBS on the same runner does not
@@ -102,6 +108,25 @@ def onsets(x: list[float], start: int) -> list[int]:
     return found
 
 
+def input_breaks(recorded: list[float], media: list[float]) -> tuple[list[int], list[tuple[int, int]]]:
+    """Where the recording's copy of the filter's input stops being an unbroken run of the media
+    file (OBS dropped or repeated samples, or shifted the audio): per recorded note, its offset
+    into the media, and the recorded spans (two notes either side of a break) to leave out of
+    the comparison, since there the input the filter received and the recorded one differ."""
+    period = int(PERIOD * app.RATE)
+    media_notes = onsets(media, 0)
+    offsets, spans = [], []
+    for r in onsets(recorded, 0):
+        exact = [m - r for m in media_notes
+                 if recorded[r:r + period] == media[m:m + min(period, len(recorded) - r)]]
+        # Every note in the media file is the same, so keep the offset of the note before when it fits.
+        previous = offsets[-1] if offsets else None
+        offsets.append(previous if previous in exact else exact[0] if exact else None)
+        if not exact or (len(offsets) > 1 and offsets[-1] != offsets[-2]):
+            spans.append((r - period, r + period))
+    return offsets, spans
+
+
 def best_shift(obs: list[float], ref: list[float], at: int) -> int:
     """The shift (samples, positive: OBS later) that best lines the reference up with OBS
     over 0.2 s from a note's start."""
@@ -113,21 +138,23 @@ def best_shift(obs: list[float], ref: list[float], at: int) -> int:
     return min(range(-SHIFT, SHIFT + 1), key=error)
 
 
-def compare(obs: list[float], ref: list[float], shift: int, start: int, notes: list[int] = ()) -> dict:
+def compare(obs: list[float], ref: list[float], shift: int, start: int, notes: list[int] = (),
+            skip: list[tuple[int, int]] = ()) -> dict:
     """The difference over the recording from `start`. The OBS tick before each note (the
     1024 samples where, on the macOS CI runner, single 16-bit steps leave the filter ahead of
     the note but not Chimera outside OBS) is reported separately as `ahead_steps`."""
     stop = len(obs) - SHIFT
     ahead = {n for at in notes for n in range(at - BLOCK, at)}
-    diff = [obs[n] - ref[n - shift] for n in range(start, stop)]
+    # Spans where the recorded input is not what the filter received are left out (see input_breaks).
+    diff = [0.0 if any(a <= n < b for a, b in skip) else obs[n] - ref[n - shift] for n in range(start, stop)]
     signal = math.sqrt(sum(obs[n] ** 2 for n in range(start, stop)) / max(1, stop - start))
     residual = math.sqrt(sum(d * d for d in diff) / max(1, len(diff)))
     return {"signal": signal, "residual": residual,
             "db": 20 * math.log10(max(residual, 1e-12) / max(signal, 1e-12)),
             "max_steps": max(abs(d) for n, d in zip(range(start, stop), diff) if n not in ahead) * 32768,
             # Where the largest difference is (seconds into the recording), and the largest per second.
-            "worst_at": max((n for n in range(start, stop) if n not in ahead),
-                            key=lambda n: abs(obs[n] - ref[n - shift])) / app.RATE,
+            "worst_at": (start + max((k for k, n in enumerate(range(start, stop)) if n not in ahead),
+                                     key=lambda k: abs(diff[k]))) / app.RATE,
             "per_second": [round(max(abs(d) for d in diff[k:k + app.RATE]) * 32768, 1)
                            for k in range(0, len(diff), app.RATE)],
             "ahead_steps": max((abs(d) for n, d in zip(range(start, stop), diff) if n in ahead), default=0.0) * 32768}
@@ -201,8 +228,22 @@ def run(args: argparse.Namespace) -> None:
             print(f"     log: {line.strip()}")
     names = ("left", "right")
     results = {}
+    source = channels6(media)
     for name, path, state in (("default", default, None), ("preset", pushed, preset_file)):
         ch = channels6(path)
+        skip = []
+        for label, rec_c, media_c in (("centre", 2, 2), ("rear left", 4, 4)):
+            offsets, spans = input_breaks(ch[rec_c], source[media_c])
+            skip += spans
+            print(f"     {name}: the recorded {label} (the filter's input) per note, offset into the media file: "
+                  f"{offsets}{'' if not spans else f'; not an unbroken run around {[round(a / app.RATE + PERIOD, 2) for a, _ in spans]} s'}")
+            check(sum(o is not None for o in offsets) >= 2,
+                  f"{name}: the recorded {label} matches the media file sample for sample in at least two notes")
+        if skip:
+            print(f"     {name}: left out of the comparison (OBS broke the recorded input there): "
+                  f"{[(round(a / app.RATE, 2), round(b / app.RATE, 2)) for a, b in skip]} s")
+        kept = [n for n in onsets(ch[2], int(app.RATE * args.warmup)) if not any(a <= n < b for a, b in skip)]
+        check(len(kept) >= 2, f"{name}: at least two notes left to compare after {args.warmup:g} s ({len(kept)})")
         check(len(ch[0]) > app.RATE * (args.warmup + 2 * PERIOD), f"{name}: the recording is long enough ({len(ch[0])} frames)")
         reference, latency = render(args, ch[2], ch[4], state, work, name)
         start = int(app.RATE * args.warmup)
@@ -210,7 +251,7 @@ def run(args: argparse.Namespace) -> None:
             notes = onsets(input_x, start)
             check(len(notes) >= 2, f"{name} {names[i]}: notes found in the recording after {args.warmup:g} s ({len(notes)})")
             shift = best_shift(obs_x, ref_x, notes[0])
-            r = compare(obs_x, ref_x, shift, start, notes)
+            r = compare(obs_x, ref_x, shift, start, notes, skip)
             results[(name, i)] = dict(r, shift=shift, latency=latency)
             # Where the output starts around each note, in OBS's recording and outside OBS: the
             # same positions mean that whatever comes before a note comes from Chimera itself.
@@ -265,7 +306,7 @@ def main() -> int:
     parser.add_argument("--seconds", type=float, default=15.0, help="length of each recording")
     parser.add_argument("--warmup", type=float, default=6.0,
                         help="seconds of each recording left out of the comparison (Chimera's tails from before it)")
-    parser.add_argument("--max-steps", type=float, default=1.0,
+    parser.add_argument("--max-steps", type=float, default=1.01,
                         help="largest difference allowed from the reference, in steps of the 16-bit recording")
     parser.add_argument("--max-ahead-steps", type=float, default=2.0,
                         help="largest difference allowed in the OBS tick before a note (single steps the filter "
