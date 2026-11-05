@@ -253,6 +253,12 @@ if(NOT CHIMERA_OBS_TEST_BUNDLE STREQUAL "")
   target_compile_options(chimera-obs-state-tool PRIVATE ${chimera_obs_warnings})
   target_link_libraries(chimera-obs-state-tool PRIVATE chimera-host)
 
+  # Chimera outside OBS, the reference for the real OBS filter's output (tests/obs_vst3_match_test.py).
+  add_executable(chimera-obs-render-tool tests/render-tool.cpp)
+  target_include_directories(chimera-obs-render-tool PRIVATE src)
+  target_compile_options(chimera-obs-render-tool PRIVATE ${chimera_obs_warnings})
+  target_link_libraries(chimera-obs-render-tool PRIVATE chimera-host)
+
   if(WIN32)
     # Needs a desktop session, which CI's Windows runners provide.
     add_executable(chimera-obs-editor-tests tests/editor-tests-win32.cpp)

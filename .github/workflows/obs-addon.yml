@@ -129,6 +129,16 @@ jobs:
           xvfb-run -a python3 OBS/tests/obs_latency_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --work "$RUNNER_TEMP/obs-latency"
+      - name: Real OBS Studio app - the filter's output against the same Chimera VST3 outside OBS, default state and preset
+        run: |
+          xvfb-run -a python3 OBS/tests/obs_vst3_match_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool build-obs/chimera-obs-state-tool --render-tool build-obs/chimera-obs-render-tool \
+            --work "$RUNNER_TEMP/obs-vst3-match"
+      - name: Chimera outside OBS - its own delay in float, for every block size and note position
+        run: |
+          python3 OBS/tests/render_latency_test.py --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --render-tool build-obs/chimera-obs-render-tool --work "$RUNNER_TEMP/render-latency"
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-linux-x86_64-${{ github.event.pull_request.head.sha || github.sha }}
@@ -213,6 +223,23 @@ jobs:
             --module package/chimera-obs --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-latency")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Real OBS Studio app (31.1.2) - the filter's output against the same Chimera VST3 outside OBS, default state and preset
+        shell: pwsh
+        run: |
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          $tools = Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release"
+          python OBS/tests/obs_vst3_match_test.py --obs (Join-Path $env:RUNNER_TEMP "obs-app-obs/bin/64bit/obs64.exe") `
+            --module package/chimera-obs --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --state-tool (Join-Path $tools "chimera-obs-state-tool.exe") --render-tool (Join-Path $tools "chimera-obs-render-tool.exe") `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-vst3-match")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Chimera outside OBS - its own delay in float, for every block size and note position
+        shell: pwsh
+        run: |
+          python OBS/tests/render_latency_test.py --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --render-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-render-tool.exe") `
+            --work (Join-Path $env:RUNNER_TEMP "render-latency")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Real OBS Studio app (32.2.2) - the filter built for 31.1.2, as after an OBS update
         shell: pwsh
         run: |
@@ -252,6 +279,8 @@ jobs:
             ${{ runner.temp }}/obs-formats/obs-logs/
             ${{ runner.temp }}/obs-latency/*.txt
             ${{ runner.temp }}/obs-latency/obs-logs/
+            ${{ runner.temp }}/obs-vst3-match/*.txt
+            ${{ runner.temp }}/obs-vst3-match/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
@@ -364,6 +393,21 @@ jobs:
             --module package/chimera-obs-macos-universal/chimera-obs.plugin \
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-latency"
+      - name: Real OBS Studio app (31.1.2 Apple) - the filter's output against the same Chimera VST3 outside OBS, default state and preset
+        run: |
+          ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
+          python3 OBS/tests/obs_vst3_match_test.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
+            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
+            --render-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-render-tool" \
+            --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-vst3-match"
+      - name: Chimera outside OBS (Apple) - its own delay in float, for every block size and note position
+        # Also when the OBS comparison before it fails: its numbers are what tells the cause apart.
+        if: ${{ !cancelled() }}
+        run: |
+          python3 OBS/tests/render_latency_test.py --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --render-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-render-tool" --work "$RUNNER_TEMP/render-latency"
       - name: Real OBS Studio app (31.1.2 Intel under Rosetta) - the same Universal filter, record, push a preset, save, restart and restore
         # The Intel OBS.app the x86_64 module was built against: an x86_64-only
         # binary, so macOS runs it, the filter and Chimera under Rosetta.
@@ -400,6 +444,8 @@ jobs:
             ${{ runner.temp }}/obs-formats/obs-logs/
             ${{ runner.temp }}/obs-latency/*.txt
             ${{ runner.temp }}/obs-latency/obs-logs/
+            ${{ runner.temp }}/obs-vst3-match/*.txt
+            ${{ runner.temp }}/obs-vst3-match/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
