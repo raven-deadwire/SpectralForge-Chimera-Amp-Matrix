@@ -72,7 +72,14 @@ public:
     // It is cleared when the frequency mapping changes: FFT size or sample rate.
     void setPeakHold(bool on) noexcept {if(on!=peakHold){peakHold=on;clearPeaks();}}
     bool isPeakHold() const noexcept {return peakHold;}
-    bool hasPeak() const noexcept {return peakHold && peakValid && peakRate==lastSampleRate() && peakSize==fftSize();}
+    // An unknown current rate (after a thaw, before audio returns) keeps the
+    // hold visible on its own recorded mapping; a different known rate hides
+    // it until the next frame clears it.
+    bool hasPeak() const noexcept {
+        const double rate=lastSampleRate();
+        return peakHold && peakValid && peakSize==fftSize() && (rate<=0 || peakRate==rate);
+    }
+    double peakSampleRate() const noexcept {return hasPeak()?peakRate:0.;}
     float peakDB(bool output,int bin) const noexcept {
         return hasPeak()?powerDB(peakPower[output?1:0][(size_t)std::clamp(bin,0,peakSize/2)]):floorDB;
     }
@@ -196,17 +203,16 @@ public:
     // measured bin power instead of repeating nearest-bin staircase segments.
     float displayDB(bool output,double lowHz,double centreHz,double highHz) const noexcept {
         if(!hasData())return floorDB;
-        return displayFrom((frozen?completed.smooth:smoothPower)[output?1:0],lowHz,centreHz,highHz);
+        return displayFrom((frozen?completed.smooth:smoothPower)[output?1:0],lastSampleRate(),fftSize(),lowHz,centreHz,highHz);
     }
     // The held maximum, mapped to pixels exactly as displayDB maps the live line.
     float peakDisplayDB(bool output,double lowHz,double centreHz,double highHz) const noexcept {
         if(!hasPeak())return floorDB;
-        return displayFrom(peakPower[output?1:0],lowHz,centreHz,highHz);
+        return displayFrom(peakPower[output?1:0],peakRate,peakSize,lowHz,centreHz,highHz);
     }
 
 private:
-    float displayFrom(const std::array<float,maximumBins>& powers,double lowHz,double centreHz,double highHz) const noexcept {
-        const double displayRate=lastSampleRate();const int displaySize=fftSize();
+    float displayFrom(const std::array<float,maximumBins>& powers,double displayRate,int displaySize,double lowHz,double centreHz,double highHz) const noexcept {
         if(displayRate<=0 || !std::isfinite(lowHz) ||
            !std::isfinite(centreHz) || !std::isfinite(highHz))return floorDB;
         if(lowHz>highHz)std::swap(lowHz,highHz);
