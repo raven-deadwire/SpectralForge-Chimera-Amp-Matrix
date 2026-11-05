@@ -10,9 +10,10 @@ namespace spectralforge::autoset {
 // response minus the current one (the digital filter's own response, which
 // bends near Nyquist) predicts what would be heard.
 // - LOW: the lowest bands (guitar 50-160 Hz, bass 50-100 Hz) against the
-//   Tone EQ target aligned at 250 Hz-1 kHz. Rumble and boom below the
-//   instrument raise it; a thin low end lowers it. It never rises past the
-//   instrument's range (guitar 80 Hz, metal 100 Hz; bass 40 Hz).
+//   Tone EQ target aligned at 250 Hz-1 kHz. Excess low-band energy raises
+//   it; a thin low end lowers it. It never rises past the
+//   Drop A preservation ceiling (guitar 55 Hz; bass 25 Hz). Existing
+//   higher cuts are only lowered when the target fit also improves.
 // - HIGH: the top bands (5-10 kHz) against the target: fizz lowers it, a dull
 //   top raises it.
 // Each cut moves at most an octave, and only when its region's fit improves
@@ -27,8 +28,11 @@ struct CutResult {
 };
 inline constexpr float cutMinGainDb=.5f,cutMoveFactor=2,cutBandLimitDb=24;
 inline constexpr int cutSteps=9;
-// The highest LOW cut for the instrument and style (Hz).
-inline float cutLowLimit(bool bass,Style style) noexcept {return bass?40.f:style==Style::metal?100.f:80.f;}
+// Conservative fallback without pitch tracking: protect A1 (55 Hz) and
+// A0 (27.5 Hz) for every style. A Butterworth cutoff at or below the
+// fundamental loses at most about 3 dB there. Round down to the 5 Hz grid.
+// This bounds automatic increases, not an existing higher user cutoff.
+inline float cutLowLimit(bool bass,Style) noexcept {return bass?25.f:55.f;}
 // The cut the cabinet plays (Cab::setCuts: JUCE's second-order high or low
 // pass at the session rate), and its power response at f.
 inline auto cutCoefficients(double fc,bool lowCut,double rate) {
