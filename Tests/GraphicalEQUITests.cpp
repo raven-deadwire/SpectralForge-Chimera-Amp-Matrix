@@ -459,6 +459,55 @@ void displayRangeAndReadout(ChimeraProcessor& processor,GraphicalEQPanel& panel,
     panel.setDisplayRange(24);set(processor,eqID(bank,0,"gain"),0);settle(60);panel.selectBandForEditing(0);
     std::cout<<"PASS EQ display range +/-6/12/24 (view only, edge-pinned out-of-view node, true-value drag) and cursor readout bank="<<bank<<'\n';
 }
+// PEAK hold after the audio stops: the live spectrum has decayed away and
+// only the held peak is drawn. The rebuild must keep both peak lines and
+// build no live line, fill or dashed IN; Freeze, IN/OUT, resuming audio and
+// an FFT size change keep their behaviour. Times rebuildSpectrumPaths().
+void peakOnlyPaths(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    auto* input=find<juce::TextButton>(panel,eqID(bank,-1,"inputSpectrum"));
+    auto* output=find<juce::TextButton>(panel,eqID(bank,-1,"outputSpectrum"));
+    auto* resolution=find<juce::ComboBox>(panel,eqID(bank,-1,"resolution"));
+    check(input && output && resolution,"Analyzer controls missing");
+    const auto decayed=[&]{
+        const auto deadline=juce::Time::getMillisecondCounterHiRes()+20000;
+        while((panel.analyzerHasData() || !panel.hasPeakHold()) && juce::Time::getMillisecondCounterHiRes()<deadline)settle(50);
+        check(!panel.analyzerHasData() && panel.hasPeakHold(),"Live spectrum did not decay away while PEAK stayed held");
+    };
+    panel.setPeakHold(true);
+    {
+        SyntheticAudio audio(processor);
+        check(waitFor([&]{return panel.hasPeakHold() && panel.analyzerHasData();}),"PEAK fixture did not record live audio");
+        settle(300);check(panel.liveSpectrumPathsBuilt() && panel.peakPathsBuilt(),"Live audio did not build live and peak paths");
+    }
+    decayed();
+    panel.resized();check(!panel.liveSpectrumPathsBuilt() && panel.peakPathsBuilt(),"Peak-only rebuild built live paths or lost the peak");
+    std::vector<double> micros;
+    for(int n=0;n<200;++n){panel.resized();micros.push_back(panel.spectrumPathMicros());}
+    std::cout<<"MEASURE peak_only_path bank="<<bank<<" width="<<int(panel.graphBounds().getWidth())
+             <<" p50_us="<<percentile(micros,.5)<<" p99_us="<<percentile(micros,.99)<<'\n';
+    // IN/OUT only choose what is drawn: both peak lines stay built.
+    output->triggerClick();input->triggerClick();panel.resized();
+    check(!panel.liveSpectrumPathsBuilt() && panel.peakPathsBuilt(),"IN/OUT toggles changed the peak-only paths");
+    output->triggerClick();input->triggerClick();
+    // Freeze shows the last complete frame: live paths again, peak kept.
+    panel.setSnapshotFrozen(true);check(panel.isSnapshotFrozen(),"Peak-only state could not freeze its last frame");
+    check(panel.liveSpectrumPathsBuilt() && panel.peakPathsBuilt(),"Freeze did not draw its frame with the held peak");
+    panel.setSnapshotFrozen(false);
+    check(waitFor([&]{panel.resized();return panel.hasPeakHold() && !panel.analyzerHasData() && !panel.liveSpectrumPathsBuilt() && panel.peakPathsBuilt();}),
+          "Thaw without audio did not return to peak-only paths");
+    // Audio resumes: the live line is built again next to the peak.
+    {
+        SyntheticAudio audio(processor);
+        check(waitFor([&]{return panel.analyzerHasData() && panel.liveSpectrumPathsBuilt() && panel.peakPathsBuilt();}),"Resumed audio did not rebuild the live line");
+    }
+    decayed();
+    // A new FFT size clears the hold: nothing is left to build.
+    const int previous=resolution->getSelectedId();resolution->setSelectedId(previous==3?2:3,juce::sendNotificationSync);
+    panel.resized();check(!panel.hasPeakHold() && !panel.peakPathsBuilt() && !panel.liveSpectrumPathsBuilt(),"FFT size change kept peak or live paths");
+    resolution->setSelectedId(previous,juce::sendNotificationSync);
+    panel.setPeakHold(false);
+    std::cout<<"PASS EQ peak-only paths: no live line/fill/dashed IN without live data, both peak lines kept through IN/OUT and Freeze/thaw, live rebuilt on resumed audio, FFT size clears bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -916,6 +965,7 @@ int main(int argc,char** argv){try {
         overlappingBandDrag(*processor,*panel,*selector,e);
         modifierDrag(*processor,*panel,*selector,e);
         peakToggle(*processor,*panel,e);
+        peakOnlyPaths(*processor,*panel,e);
         displayRangeAndReadout(*processor,*panel,*selector,e);
         check(modifierTransitions(*processor,*panel,e)==0,"Modifier transition regression failed");
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
