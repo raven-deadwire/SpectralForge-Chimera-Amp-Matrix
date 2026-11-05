@@ -1771,6 +1771,7 @@ void controllerGateStageEditHistory() {
 #include "AutoSetWidthTests.h"
 #include "AutoSetCutsTests.h"
 #include "AutoSetBusTests.h"
+#include "AutoSetBusOrderControllerTests.h"
 #include "AutoSetCabEditTests.h"
 #include "AutoSetPowerBassControllerTests.h"
 #include "AutoSetPowerBassRules.h"
@@ -1788,6 +1789,8 @@ int main(int argc, char** argv) {
         if(argc==3 && std::string(argv[1])=="--space-fixtures"){spaceWriteFixtures(juce::File(argv[2]));return 0;}
         if(argc==2 && std::string(argv[1])=="--power"){powerRules();controllerPower();return 0;}
         if(argc==2 && std::string(argv[1])=="--bus"){busRules();controllerBus();return 0;}
+        if(argc==2 && std::string(argv[1])=="--bus-order"){controllerBusOrderSafety();return 0;}
+        if(argc==2 && std::string(argv[1])=="--bus-edits"){controllerBusApplySafety();return 0;}
         if(argc==2 && std::string(argv[1])=="--cuts"){cutsRules();controllerCuts();return 0;}
         if(argc==2 && std::string(argv[1])=="--width"){widthRules();controllerWidth();return 0;}
         if(argc==2 && std::string(argv[1])=="--dual"){dualRules();dualLaneCapture();controllerDual();return 0;}
@@ -1819,6 +1822,7 @@ int main(int argc, char** argv) {
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
         controllerCabPlacementEdits();
+        controllerBusOrderSafety();controllerBusApplySafety();
         controllerPowerBassRegression();
         powerBassRules();
         std::cout<<"PASS Auto Set\n";return 0;

@@ -744,6 +744,13 @@ add_test(NAME ChimeraDoublerStateLimiterTests COMMAND ChimeraCommonDynamicsTests
 set_tests_properties(ChimeraDoublerStateLimiterTests PROPERTIES TIMEOUT 240)
 add_test(NAME ChimeraMultibandDynamicsTests COMMAND ChimeraMultibandDynamicsTests)
 add_test(NAME ChimeraAutoSetTests COMMAND ChimeraAutoSetTests)
+juce_add_console_app(ChimeraAutoSetBusOrderDSPTests PRODUCT_NAME "Chimera Auto Set POST Order Regression")
+target_sources(ChimeraAutoSetBusOrderDSPTests PRIVATE Tests/AutoSetBusOrderDSPTests.cpp)
+target_include_directories(ChimeraAutoSetBusOrderDSPTests PRIVATE Source)
+target_compile_definitions(ChimeraAutoSetBusOrderDSPTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraAutoSetBusOrderDSPTests PRIVATE juce::juce_dsp juce::juce_graphics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraAutoSetBusOrderDSPTests COMMAND ChimeraAutoSetBusOrderDSPTests)
+set_tests_properties(ChimeraAutoSetBusOrderDSPTests PROPERTIES TIMEOUT 900)
 add_test(NAME ChimeraAutoSetParameterSafetyTests COMMAND ChimeraAutoSetTests --level-parameters)
 # Optional independent BS.1770 oracle. This test dependency is never linked
 # into the product; CI installs libebur128-dev and requires the target.

@@ -157,6 +157,11 @@ public:
         }
         for(const auto& item:touchedIDs)if(auto* parameter=processor.parameters().getParameter(item.first))
             editTrackers.push_back(std::make_unique<ParameterEdits>(*parameter));
+        // Read-only bus dependencies also need revisions (including A-B-A).
+        // Do not add them to touchedIDs: Auto Set/UNDO must never write them.
+        for(const auto& id:busReadIDs())if(auto* parameter=processor.parameters().getParameter(id))
+            if(std::none_of(editTrackers.begin(),editTrackers.end(),[&](const auto& t){return &t->parameter==parameter;}))
+                editTrackers.push_back(std::make_unique<ParameterEdits>(*parameter));
     }
     ~Controller() override {stopTimer();stopListening();}
 
@@ -360,7 +365,11 @@ private:
         // The Dual pass hears each rig before the blend (lane2 shares the amp tap's ring).
         else if(status.phase==Phase::dual){dualAtStart=dualTarget();capture.listen({Tap::lane1,Tap::lane2});}
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
-        else if(status.phase==Phase::finish){busAtStart=busTarget();capture.listen({Tap::deesser,Tap::output,Tap::post});}
+        else if(status.phase==Phase::finish){
+            busAtStart=busTarget();busReadSnapshot.clear();
+            for(const auto& id:busReadIDs())if(auto* p=processor.parameters().getParameter(id))busReadSnapshot.push_back(takeSnapshot(*p));
+            capture.listen({Tap::deesser,Tap::output,Tap::post});
+        }
         else if(status.phase==Phase::level) {
             for(const auto& tracker:editTrackers)if(tracker->parameter.paramID.startsWith("finalEQ_") || tracker->parameter.paramID.startsWith("dynamicEQ") || tracker->parameter.paramID=="output")
                 levelReadSnapshot.push_back(takeSnapshot(tracker->parameter));
@@ -1019,12 +1028,39 @@ private:
     // The POST bus section as phase 16 sees it: a change while listening voids the step.
     struct BusTarget {bool native{};int model{};bool operator==(const BusTarget&) const=default;};
     BusTarget busTarget() const {const auto s=processor.autoSetPostState().sections[0];return {s.nativeEnabled,s.selected};}
-    // Phase 16: the POST Console VCA as glue.
+    static juce::StringArray busWriteIDs() {
+        juce::StringArray ids{postNativeBypassID(0,0)};
+        for(const int c:{busThresholdControl,busMakeupControl,busAttackControl,busReleaseControl,busRatioControl,busInControl})
+            ids.add(postNativeControlID(0,0,c));
+        return ids;
+    }
+    static juce::StringArray busReadIDs() {
+        juce::StringArray ids{postNativeModeID(0),postNativeModelID(0),postNativeModelExtensionID(0),
+            postNativeBypassID(0,0),postNativeTrimID(0,0),postNativeLevelID(0,0)};
+        for(int c=0;c<postNativeModel(0,0).controlCount;++c)ids.add(postNativeControlID(0,0,c));
+        for(int slot=0;slot<postModuleCount;++slot)ids.add(orderSlotID(OrderRegion::post,slot));
+        return ids;
+    }
+    // Phase 16: the POST Console VCA as glue. The current model only hears
+    // the rack input, so require dynamics first, even for bypassed predecessors.
     void busStep(const std::vector<float>& postInput) {
         const auto keep=[this](const juce::String& why){summary+=" | Bus compressor unchanged ("+why+")";steps.push_back({Phase::bus,"kept ("+why+")",false});};
         const auto t=busTarget();
         if(locked(lockBus)){keep("locked");return;}
         if(!(t==busAtStart)){keep("POST bus section changed while listening");return;}
+        PostOrder order;
+        for(int slot=0;slot<postModuleCount;++slot)order.slots[size_t(slot)]=juce::roundToInt(raw(orderSlotID(OrderRegion::post,slot)));
+        if(!order.valid() || order.slots[0]!=postDynamicsModule){keep("POST dynamics must be first for bus Auto Set; order and controls kept");return;}
+        const auto controls=busWriteIDs();
+        const auto expectedReads=size_t(busReadIDs().size());
+        const auto intact=[&] {
+            if(busReadSnapshot.size()!=expectedReads)return false;
+            for(const auto& entry:busReadSnapshot)
+                if(!entry.edits->unchanged(entry.revision) || (!controls.contains(entry.parameter->paramID) && !owned(entry)))return false;
+            for(const auto& entry:snapshot)if(controls.contains(entry.parameter->paramID) && !owned(entry))return false;
+            return true;
+        };
+        if(!intact()){manualEditsKept=true;keep("POST order or bus controls edited while listening");return;}
         if(!t.native){keep("legacy POST engine: switch the bus section to native to let Auto Set set it");return;}
         if(t.model!=0){keep("the bus section plays "+juce::String(postNativeModel(0,t.model).name)+"; Auto Set sets the Console VCA");return;}
         const auto id=[](int c){return postNativeControlID(0,0,c);};
@@ -1038,15 +1074,27 @@ private:
         const auto glue="glue "+juce::String(r.glueBeforeDb,1)+" > "+juce::String(r.glueAfterDb,1)+" dB on loud passages (target "+juce::String(r.glueTargetDb,1)+" dB"+(r.reachable?")":", out of the threshold's reach)");
         if(!r.changed()){keep(juce::String(styleName(runOptions.style))+" glue already near the target: "+glue);return;}
         static constexpr const char* ratios[]{"2:1","4:1","10:1"};static constexpr const char* attacks[]{"0.1","0.3","1","3","10","30"};static constexpr const char* releases[]{"0.1 s","0.3 s","0.6 s","1.2 s","AUTO"};
+        const auto previous=snapshot;
+        const auto put=[&](const juce::String& id,float value){if(intact())set(id,value);};
         juce::String move;
         if(!on) {
-            set(id(busRatioControl),float(r.proposed.ratio));set(id(busAttackControl),float(r.proposed.attack));set(id(busReleaseControl),float(r.proposed.release));
-            set(id(busThresholdControl),r.proposed.threshold);set(id(busMakeupControl),r.proposed.makeup);set(id(busInControl),1);set(postNativeBypassID(0,0),0);
+            put(id(busRatioControl),float(r.proposed.ratio));put(id(busAttackControl),float(r.proposed.attack));put(id(busReleaseControl),float(r.proposed.release));
+            put(id(busThresholdControl),r.proposed.threshold);put(id(busMakeupControl),r.proposed.makeup);put(id(busInControl),1);put(postNativeBypassID(0,0),0);
             move="Console VCA in: threshold "+juce::String(raw(id(busThresholdControl)),1)+" dB, "+ratios[juce::jlimit(0,2,r.proposed.ratio)]+", attack "+attacks[juce::jlimit(0,5,r.proposed.attack)]
                 +" ms, release "+releases[juce::jlimit(0,4,r.proposed.release)]+", make-up "+juce::String(raw(id(busMakeupControl)),1)+" dB";
         } else {
-            set(id(busThresholdControl),r.proposed.threshold);set(id(busMakeupControl),r.proposed.makeup);
+            put(id(busThresholdControl),r.proposed.threshold);put(id(busMakeupControl),r.proposed.makeup);
             move="threshold "+juce::String(current.threshold,1)+" > "+juce::String(raw(id(busThresholdControl)),1)+" dB, make-up "+juce::String(current.makeup,1)+" > "+juce::String(raw(id(busMakeupControl)),1)+" dB";
+        }
+        if(!intact()) {
+            // Roll back only this transaction's still-owned writes. A host
+            // value/gesture callback retains ownership of everything it edits.
+            for(auto& entry:snapshot)if(controls.contains(entry.parameter->paramID) && owned(entry))
+                for(const auto& saved:previous)if(saved.parameter==entry.parameter) {
+                    if(setNormalised(entry,saved.lastWritten))entry=saved;
+                    break;
+                }
+            manualEditsKept=true;keep("POST order or bus controls edited while applying");return;
         }
         summary+=" | Bus "+move;
         steps.push_back({Phase::bus,move+"; "+glue,true});
@@ -1278,7 +1326,7 @@ private:
     std::vector<std::unique_ptr<ParameterEdits>> editTrackers;
     std::vector<Snapshot> snapshot;
     std::vector<juce::StringArray> dynamicNodeGroups,finalNodeGroups;
-    std::vector<Snapshot> levelReadSnapshot;
+    std::vector<Snapshot> levelReadSnapshot,busReadSnapshot;
     std::vector<OutputFrame> outputSamples;
     bool manualEditsKept{};
     uint32_t inputRevision{};
