@@ -508,6 +508,53 @@ void peakOnlyPaths(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank)
     panel.setPeakHold(false);
     std::cout<<"PASS EQ peak-only paths: no live line/fill/dashed IN without live data, both peak lines kept through IN/OUT and Freeze/thaw, live rebuilt on resumed audio, FFT size clears bank="<<bank<<'\n';
 }
+// Frequency view (full / 20 Hz-2 kHz / 20-500 Hz): view only. A band
+// outside a zoomed view is drawn and hit at the edge and drags from its
+// true frequency; saved state is unchanged.
+void frequencyViewZoom(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce::ComboBox& selector,int bank) {
+    selector.setSelectedId(1,juce::sendNotificationSync);
+    set(processor,eqID(bank,0,"type"),0);set(processor,eqID(bank,0,"enabled"),1);
+    set(processor,eqID(bank,0,"frequency"),100);set(processor,eqID(bank,0,"gain"),6);settle(60);panel.selectBandForEditing(0);
+    const auto plot=panel.graphBounds();
+    check(panel.frequencyViewIndex()==0,"Frequency view default changed");
+    juce::MemoryBlock before;processor.getStateInformation(before);
+    closeTo(panel.nodePosition(0).x,plot.getX()+plot.getWidth()*std::log(5.f)/std::log(1000.f),.6f,"100 Hz misplaced in the full view");
+    panel.setFrequencyView(2);check(panel.frequencyViewIndex()==2,"Bass view not applied");
+    closeTo(panel.nodePosition(0).x,plot.getX()+plot.getWidth()*std::log(5.f)/std::log(25.f),.6f,"100 Hz misplaced in the 20-500 Hz view");
+    panel.setFrequencyView(1);closeTo(panel.nodePosition(0).x,plot.getX()+plot.getWidth()*std::log(5.f)/std::log(100.f),.6f,"100 Hz misplaced in the 20 Hz-2 kHz view");
+    panel.setFrequencyView(7);check(panel.frequencyViewIndex()==0,"Unsupported frequency view was accepted");
+    for(int view:{2,1,0,2,0}){panel.setFrequencyView(view);settle(30);}
+    juce::MemoryBlock after;processor.getStateInformation(after);check(before==after,"Frequency view changed saved state");
+    // A 5 kHz band in the 20-500 Hz view: pinned to the right edge, and a
+    // gain-only (Alt) drag from there keeps its true frequency.
+    set(processor,eqID(bank,0,"frequency"),5000);settle(60);panel.selectBandForEditing(0);panel.setFrequencyView(2);
+    const auto edge=panel.visibleNodePosition(0);closeTo(edge.x,plot.getRight(),.6f,"Out-of-view band not pinned to the right edge");
+    check(panel.nodePosition(0).x>plot.getRight(),"Fixture band is not beyond the view");
+    const float gainBefore=get(processor,eqID(bank,0,"gain"));
+    panel.mouseDown(mouse(panel,edge,edge,false));
+    panel.mouseDrag(mouseWith(panel,edge+juce::Point<float>(0,-30),edge,true,juce::ModifierKeys::altModifier));
+    panel.mouseDrag(mouseWith(panel,edge+juce::Point<float>(0,-60),edge,true,juce::ModifierKeys::altModifier));
+    panel.mouseUp(mouse(panel,edge+juce::Point<float>(0,-60),edge,true));
+    check(std::abs(get(processor,eqID(bank,0,"frequency"))-5000)<1 && get(processor,eqID(bank,0,"gain"))>gainBefore,
+          "Dragging an out-of-view band jumped to the edge frequency");
+    // A -18 dB band in a +/-12 dB view is pinned to the bottom edge, which is
+    // also outside plot(); a frequency-only drag from there keeps its gain.
+    panel.setFrequencyView(0);set(processor,eqID(bank,0,"frequency"),1000);set(processor,eqID(bank,0,"gain"),-18);settle(60);
+    panel.selectBandForEditing(0);panel.setDisplayRange(12);
+    const auto bottom=panel.visibleNodePosition(0);closeTo(bottom.y,plot.getBottom(),.6f,"Out-of-view band not pinned to the bottom edge");
+    panel.mouseDown(mouse(panel,bottom,bottom,false));
+    panel.mouseDrag(mouseWith(panel,bottom+juce::Point<float>(30,0),bottom,true,juce::ModifierKeys::altModifier));
+    panel.mouseDrag(mouseWith(panel,bottom+juce::Point<float>(60,0),bottom,true,juce::ModifierKeys::altModifier));
+    panel.mouseUp(mouse(panel,bottom+juce::Point<float>(60,0),bottom,true));
+    check(std::abs(get(processor,eqID(bank,0,"gain"))+18)<.02f && get(processor,eqID(bank,0,"frequency"))>1000,
+          "A band pinned to the bottom edge could not be dragged from its true gain");
+    panel.setDisplayRange(24);panel.setFrequencyView(2);
+    // Readout follows the zoomed mapping.
+    const juce::Point<float> at{plot.getX()+plot.getWidth()*std::log(5.f)/std::log(25.f),plot.getCentreY()};
+    check(panel.readoutAt(at).contains("100 Hz"),("Zoomed readout wrong: "+panel.readoutAt(at)).toRawUTF8());
+    panel.setFrequencyView(0);set(processor,eqID(bank,0,"frequency"),1000);set(processor,eqID(bank,0,"gain"),0);settle(60);panel.selectBandForEditing(0);
+    std::cout<<"PASS EQ frequency view full/20 Hz-2 kHz/20-500 Hz (view only, edge-pinned out-of-view node, true-frequency drag, readout) bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -967,6 +1014,7 @@ int main(int argc,char** argv){try {
         peakToggle(*processor,*panel,e);
         peakOnlyPaths(*processor,*panel,e);
         displayRangeAndReadout(*processor,*panel,*selector,e);
+        frequencyViewZoom(*processor,*panel,*selector,e);
         check(modifierTransitions(*processor,*panel,e)==0,"Modifier transition regression failed");
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);
