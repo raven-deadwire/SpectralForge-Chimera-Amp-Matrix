@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Processes audio through the Chimera VST3 outside OBS, for obs_vst3_match_test.py:
 //   chimera-obs-render-tool <SpectralForge Chimera.vst3> <sample rate> <channels> <block frames>
-//                           <input.f32> <output.f32> [<state.json>]
+//                           <input.f32> <output.f32> [<state.json>] [--reset-at=<frame>,<frame>...]
 // Input and output are raw interleaved 32-bit float. state.json is what
 // chimera-obs-state-tool prints ({"component": ..., "controller": ...}); without
 // it Chimera keeps its default state, as a newly added OBS filter does.
+// --reset-at asks Chimera to drop its tails before each of those input frames,
+// as the OBS filter does when it is re-enabled or its input resumes after a stop.
 // Prints Chimera's reported latency in samples.
 #include "base64.hpp"
 #include "chimera-host.hpp"
@@ -16,6 +18,8 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <set>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -27,15 +31,32 @@ namespace {
 std::string field(const std::string& json, const std::string& key) {
     const auto at = json.find("\"" + key + "\"");
     if (at == std::string::npos) return {};
-    const auto open = json.find('"', json.find(':', at) + 1);
+    const auto colon = json.find(':', at);
+    if (colon == std::string::npos) return {};
+    const auto open = json.find('"', colon + 1);
     const auto close = json.find('"', open + 1);
     return open == std::string::npos || close == std::string::npos ? std::string{} : json.substr(open + 1, close - open - 1);
 }
 }
 
 int main(int argc, char** argv) {
-    if (argc != 7 && argc != 8) {
-        std::cerr << "usage: chimera-obs-render-tool <bundle> <rate> <channels> <block> <input.f32> <output.f32> [<state.json>]\n";
+    std::string statePath;
+    std::set<size_t> resets;
+    for (int i = 7; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if (arg.rfind("--reset-at=", 0) == 0) {
+            std::stringstream list(arg.substr(11));
+            for (std::string item; std::getline(list, item, ',');)
+                if (!item.empty()) resets.insert(static_cast<size_t>(std::stoull(item)));
+        } else if (statePath.empty()) {
+            statePath = arg;
+        } else {
+            argc = 0;  // an unexpected argument: print the usage
+        }
+    }
+    if (argc < 7) {
+        std::cerr << "usage: chimera-obs-render-tool <bundle> <rate> <channels> <block> <input.f32> <output.f32> "
+                     "[<state.json>] [--reset-at=<frame>,...]\n";
         return 2;
     }
     const double rate = std::atof(argv[2]);
@@ -46,6 +67,10 @@ int main(int argc, char** argv) {
         return 2;
     }
     std::ifstream in(argv[5], std::ios::binary);
+    if (!in) {
+        std::cerr << "FAIL could not open " << argv[5] << '\n';
+        return 1;
+    }
     std::vector<char> bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     const auto frames = bytes.size() / (sizeof(float) * static_cast<size_t>(channels));
     std::vector<std::vector<float>> audio(static_cast<size_t>(channels), std::vector<float>(frames));
@@ -59,13 +84,13 @@ int main(int argc, char** argv) {
         std::cerr << "FAIL load Chimera: " << error << '\n';
         return 1;
     }
-    if (argc == 8) {
-        std::ifstream stateFile(argv[7]);
+    if (!statePath.empty()) {
+        std::ifstream stateFile(statePath);
         const std::string json((std::istreambuf_iterator<char>(stateFile)), std::istreambuf_iterator<char>());
         const auto component = base64Decode(field(json, "component"));
         const auto controller = base64Decode(field(json, "controller"));
         if (!component || !controller || !host.setState(*component, *controller)) {
-            std::cerr << "FAIL could not apply the state in " << argv[7] << '\n';
+            std::cerr << "FAIL could not apply the state in " << statePath << '\n';
             return 1;
         }
     }
@@ -76,11 +101,16 @@ int main(int argc, char** argv) {
     }
     // Chimera loads IRs and models on background threads after prepare().
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-    for (size_t offset = 0; offset < frames; offset += static_cast<size_t>(block)) {
-        const int count = static_cast<int>(std::min(frames - offset, static_cast<size_t>(block)));
+    for (size_t offset = 0; offset < frames;) {
+        // A block ends early at a reset point, so the reset lands on that exact frame.
+        size_t end = std::min(frames, offset + static_cast<size_t>(block));
+        if (const auto next = resets.upper_bound(offset); next != resets.end() && *next < end) end = *next;
+        if (resets.count(offset)) host.requestReset();
+        const int count = static_cast<int>(end - offset);
         float* pointers[2]{audio[0].data() + offset, channels > 1 ? audio[1].data() + offset : nullptr};
+        offset = end;
         if (!host.process(pointers, channels, count)) {
-            std::cerr << "FAIL process at frame " << offset << '\n';
+            std::cerr << "FAIL process at frame " << offset - static_cast<size_t>(count) << '\n';
             return 1;
         }
     }
