@@ -153,3 +153,34 @@ particular surfaces.
   cabinet directivity and mic polar patterns.
 - **Panel:** a top-down room drawing showing the cabinet and mic positions.
 - **Checks:** listening tests, and CPU measurement in a DAW.
+
+## Materials on the room scenery (2026-11-05)
+
+With Room and Space both on, the cabinet-room scenery shows the chosen floor,
+wall and ceiling materials (`Source/RoomSpaceScenery.h`). Space off, or Room
+off, shows the photo unchanged.
+
+- The scenery is one fixed photo, so each surface region is recoloured per
+  pixel to the material, keeping the photo's own light pools and shading. The
+  material's pattern is drawn on top: concrete grain, running-bond brick,
+  plaster grain, board seams, wood planks or panels, carpet pile, curtain
+  folds, a ceiling-tile grid, or glass reflections.
+- Regions, measured on `room-studio.png` as fractions of its height: ceiling
+  light strip 0–2 % (also shown as a band fading into the top of the walls),
+  walls 2–61 %, skirting ledge 61–64 % (left as photographed), floor
+  64–100 %. On the floor, plank and tile lines follow the floor's perspective.
+- The photographed walls are timber slats and the floor is wood, so wood on
+  those surfaces is only lightly tinted.
+- The raven relief on the back wall stays as photographed under every wall
+  material. Its silhouette is found once on the full-resolution photo: the
+  slats only change brightness left to right, the feathers also up and down;
+  those edges, closed and hole-filled, give the shape, softened at the edge.
+- View only: the picture follows the parameters and never feeds the audio,
+  which RoomModel computes from the same parameters.
+- Tested in `ChimeraRoomSpaceTests` (`sceneryMaterials`): Space off leaves the
+  scenery unchanged, ten distinct floor materials, the light pool kept, the
+  ledge untouched, a material changes only its own surface, the relief keeps
+  its photographed pixels under a brick wall, and the room
+  overview follows the parameters and returns to the plain photo when Space
+  is turned off. `ChimeraRoomSnapshotProbe` renders the defaults and each
+  material for review.
