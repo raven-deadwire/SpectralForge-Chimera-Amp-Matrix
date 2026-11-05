@@ -36,6 +36,7 @@ JUCE는 쓰지 않는다.
 | `tests/obs_formats_test.py` | 실제 OBS Studio 앱을 44.1 kHz 모노와 48 kHz 5.1로 실행: 필터 로딩·처리, 5.1에서 앞 좌우만 처리하고 나머지 4채널은 그대로 통과 | 시험 |
 | `tests/obs_latency_test.py` | 실제 OBS Studio 앱 녹화에서 필터 처리 지연을 표본 단위로 측정해 속성 창에 보이는 지연과 비교, 녹화 안 영상·소리 싱크 유지 | 시험 |
 | `tests/obs_vst3_match_test.py`, `tests/render-tool.cpp` | 실제 OBS Studio 앱 녹화의 필터 출력을 같은 입력·같은 상태로 OBS 밖에서 처리한 Chimera VST3 출력과 표본 단위로 비교(기본 상태·적용한 프리셋) | 시험 |
+| `tests/render_latency_test.py` | OBS 밖 Chimera 자체 지연을 float로 측정: 디지털 무음 뒤 음에 대해 출력이 1e-6을 넘는 위치가 보고 지연 이상이고 블록 크기(1024·480·64)와 블록 안 위치에 무관한지, 음 앞 같은 블록 안의 출력 크기 기록 | 시험 |
 | `tests/obs_user_ir_test.py` | 실제 OBS Studio 앱에서 사용자 IR(C단계): 상태에 든 IR이 장면과 함께 저장·복원(IR 파일 없이), 손상된 IR은 캐비닛 필터로 대체 | 시험 |
 | `tests/obs_long_record_test.py` | 실제 OBS Studio 앱에서 필터를 거쳐 1시간 녹화(D단계): 10분 실시간 줄·합계, 시작/끝 영상 싱크, 소리 유지, OBS 통계 | 시험 |
 

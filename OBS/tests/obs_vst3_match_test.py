@@ -119,6 +119,17 @@ def compare(obs: list[float], ref: list[float], shift: int, start: int) -> dict:
             "max_steps": max(abs(d) for d in diff) * 32768}
 
 
+def first_outputs(x: list[float], notes: list[int], rounded: bool) -> list[int]:
+    """Per note: the first sample, from one OBS tick before the note, that a 16-bit recording
+    holds as non-zero (the reference is rounded as OBS rounds its recording), relative to the note."""
+    found = []
+    for at in notes:
+        hit = next((n for n in range(at - BLOCK, min(len(x), at + 400))
+                    if (round(x[n] * 32768) if rounded else x[n] * 32768) != 0), None)
+        found.append(hit - at if hit is not None else None)
+    return found
+
+
 def run(args: argparse.Namespace) -> None:
     work = Path(args.work).resolve()
     if work.exists():
@@ -182,6 +193,10 @@ def run(args: argparse.Namespace) -> None:
             shift = best_shift(obs_x, ref_x, notes[0])
             r = compare(obs_x, ref_x, shift, start)
             results[(name, i)] = dict(r, shift=shift, latency=latency)
+            # Where the output starts around each note, in OBS's recording and outside OBS: the
+            # same positions mean that whatever comes before a note comes from Chimera itself.
+            print(f"     {name:7} {names[i]:5}: first non-zero 16-bit sample per note: OBS "
+                  f"{first_outputs(obs_x, notes, False)}, reference {first_outputs(ref_x, notes, True)}")
             print(f"     {name:7} {names[i]:5}: OBS after the reference by {shift:+d} samples, processed RMS "
                   f"{r['signal']:.4f}, residual {r['db']:+.1f} dB (largest {r['max_steps']:.1f} 16-bit steps), "
                   f"Chimera latency {latency}")
