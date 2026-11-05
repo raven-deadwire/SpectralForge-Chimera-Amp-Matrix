@@ -410,12 +410,27 @@ void displayRangeAndReadout(ChimeraProcessor& processor,GraphicalEQPanel& panel,
     const auto plot=panel.graphBounds();
     check(panel.displayRange()==24.f,"EQ display range default changed");
     juce::MemoryBlock before;processor.getStateInformation(before);
+    // Every host parameter, the Undo/Redo stacks, the A/B slot and the edit
+    // revision must be untouched by switching the view range.
+    auto& history=processor.eqEditing();
+    std::vector<float> parametersBefore;for(auto* p:processor.getParameters())parametersBefore.push_back(p->getValue());
+    const bool undoBefore=history.canUndo(),redoBefore=history.canRedo();
+    const auto undoTextBefore=history.undoDescription(),redoTextBefore=history.redoDescription();
+    const int slotBefore=processor.comparisonSlot();const auto revisionBefore=history.revision();
     closeTo(panel.nodePosition(0).y,plot.getCentreY()-plot.getHeight()/8,.6f,"+6 dB node misplaced at +/-24");
     panel.setDisplayRange(12);check(panel.displayRange()==12.f,"Display range +/-12 not applied");
     closeTo(panel.nodePosition(0).y,plot.getCentreY()-plot.getHeight()/4,.6f,"+6 dB node misplaced at +/-12");
     panel.setDisplayRange(6);closeTo(panel.nodePosition(0).y,plot.getY(),.6f,"+6 dB node misplaced at +/-6");
     panel.setDisplayRange(7);check(panel.displayRange()==24.f,"Unsupported display range was accepted");
+    for(float range:{12.f,6.f,24.f,6.f,24.f}){panel.setDisplayRange(range);settle(30);}
     juce::MemoryBlock after;processor.getStateInformation(after);check(before==after,"Display range changed saved state");
+    {
+        size_t i=0;for(auto* p:processor.getParameters())check(p->getValue()==parametersBefore[i++],"Display range changed a host parameter");
+        check(history.canUndo()==undoBefore && history.canRedo()==redoBefore && history.undoDescription()==undoTextBefore
+              && history.redoDescription()==redoTextBefore,"Display range changed the Undo/Redo history");
+        check(processor.comparisonSlot()==slotBefore,"Display range changed the A/B slot");
+        check(history.revision()==revisionBefore,"Display range advanced the EQ edit revision");
+    }
     // A band beyond the view is drawn and hit at the graph edge; dragging it
     // moves from its true value (no jump to the edge value).
     set(processor,eqID(bank,0,"gain"),18);settle(60);panel.selectBandForEditing(0);panel.setDisplayRange(12);
@@ -427,6 +442,13 @@ void displayRangeAndReadout(ChimeraProcessor& processor,GraphicalEQPanel& panel,
     panel.mouseUp(mouse(panel,edge+juce::Point<float>(60,0),edge,true));
     check(std::abs(get(processor,eqID(bank,0,"gain"))-18)<.02f && get(processor,eqID(bank,0,"frequency"))>1000,
           "Dragging an out-of-view band jumped to the edge value");
+    // A drag in a narrow view is one ordinary Undo step on the true values;
+    // Undo/Redo do not change the view range.
+    const float dragged=get(processor,eqID(bank,0,"frequency"));
+    check(history.undo() && std::abs(get(processor,eqID(bank,0,"frequency"))-1000)<.02f && std::abs(get(processor,eqID(bank,0,"gain"))-18)<.02f,
+          "Undo of a narrow-view drag did not restore the true values");
+    check(history.redo() && std::abs(get(processor,eqID(bank,0,"frequency"))-dragged)<.02f,"Redo of a narrow-view drag failed");
+    check(panel.displayRange()==12.f,"Undo/Redo changed the display range");
     // Readout: frequency and EQ dB at the cursor, empty outside the graph.
     const juce::Point<float> at{plot.getX()+plot.getWidth()*(std::log(50.f)/std::log(1000.f)),plot.getCentreY()-plot.getHeight()/4};
     const auto text=panel.readoutAt(at);
@@ -558,8 +580,33 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
         auto* output=find<juce::TextButton>(*panel,eqID(e,-1,"outputSpectrum"));
         auto* master=find<juce::TextButton>(*panel,eqID(e,-1,"analyzer"));check(input && output && master,"Independent IN/OUT/LIVE controls missing");
         auto* freeze=find<juce::TextButton>(*panel,eqID(e,-1,"freeze"));
+        // Cursor readout at the 1007.8 Hz test tone: it may report only a
+        // spectrum layer the user has shown (OUT first, else IN, else none).
+        const auto readout=[&]{const auto p=panel->graphBounds();
+            return panel->readoutAt({p.getX()+p.getWidth()*float(std::log(1007.8125/20)/std::log(1000.)),p.getCentreY()});};
+        const auto readoutLevel=[](const juce::String& text,const char* label){return text.fromFirstOccurrenceOf(label,false,false).getFloatValue();};
+        const auto expectReadout=[&](const char* label,const char* stage){
+            const auto text=readout();const bool none=label==nullptr;
+            const bool ok=text.contains("kHz") && text.contains(" dB") && (none
+                ? !text.contains("dBFS") && !text.contains("OUT ") && !text.contains("IN ")
+                : text.contains(juce::String(label)+" ") && text.contains("dBFS") && (juce::String(label)=="OUT"?!text.contains("IN "):!text.contains("OUT ")));
+            if(!ok){std::cerr<<"READOUT bank="<<e<<" stage="<<stage<<" text="<<text<<'\n';check(false,"Cursor readout does not match the visible IN/OUT/LIVE/Freeze state");}
+            return text;
+        };
+        // triggerClick() is asynchronous: wait for the toggle to change.
+        const auto toggle=[&](juce::TextButton* button){const bool was=button->getToggleState();button->triggerClick();
+            check(waitFor([&]{return button->getToggleState()!=was;}),"Spectrum layer toggle did not change");};
+        check(input->getToggleState() && output->getToggleState() && master->getToggleState(),"Readout fixture does not start with LIVE, IN and OUT on");
         check(freeze && waitFor([&]{return freeze->isEnabled() && panel->analyzerHasData();}),"Snapshot Freeze did not become available");
+        expectReadout("OUT","live both");
         freeze->triggerClick();check(waitFor([&]{return panel->isSnapshotFrozen();}),"Freeze button did not hold a frame");
+        // Frozen: the readout reads the held frame, so it stays fixed, and it
+        // still follows the IN/OUT visibility of that frame.
+        const auto frozenReadout=expectReadout("OUT","frozen both");
+        toggle(output);expectReadout("IN","frozen in only");
+        toggle(input);expectReadout(nullptr,"frozen neither");
+        toggle(output);expectReadout("OUT","frozen out only");
+        toggle(input);
         const auto frozenFrames=panel->fftFrames();
         std::vector<float> frozen;
         for(int stream=0;stream<2;++stream)for(int bin=0;bin<=panel->analysisFFTSize()/2;++bin)frozen.push_back(panel->displaySpectrumDB(stream==1,bin));
@@ -570,6 +617,7 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
         check(panel->fftFrames()==frozenFrames && panel->isSnapshotFrozen(),"Freeze transformed data or was lost across bank navigation");
         size_t frozenIndex=0;for(int stream=0;stream<2;++stream)for(int bin=0;bin<=panel->analysisFFTSize()/2;++bin)
             check(panel->displaySpectrumDB(stream==1,bin)==frozen[frozenIndex++],"Frozen visible spectrum decayed or changed");
+        check(expectReadout("OUT","frozen after navigation")==frozenReadout,"Frozen cursor readout changed while the frame was held");
         snapshot(editor,directory.getChildFile("eq-ui-freeze-bank"+juce::String(e)+".png"));
         // Trigger directly on the message thread to inspect the immediate thaw
         // boundary before the synthetic producer can complete a fresh window.
@@ -586,13 +634,20 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
         const auto layerState=[&](const char* name){std::cout<<"NATIVE layer state bank="<<e<<' '<<name<<" hasData="<<panel->analyzerHasData()<<" frames="<<panel->fftFrames()<<" dropped="<<processor.graphicalEQ(e).analyzer.dropped.load()<<'\n';};
         layerState("both");
         const auto both=panel->createComponentSnapshot(panel->getLocalBounds());
+        const float outLevel=readoutLevel(expectReadout("OUT","live both"),"OUT ");
         output->triggerClick();check(waitFor([&]{return !output->getToggleState() && panel->analyzerHasData();}),"OUT toggle did not retain a valid audio observation");
+        const float inLevel=readoutLevel(expectReadout("IN","live in only"),"IN ");
+        // The band at the tone is +6 dB, so OUT must read clearly above IN:
+        // the readout is not swapping or mislabelling the two spectra.
+        if(!(outLevel-inLevel>3 && outLevel-inLevel<9)){std::cerr<<"READOUT bank="<<e<<" OUT="<<outLevel<<" IN="<<inLevel<<'\n';check(false,"Readout OUT/IN levels do not reflect the +6 dB EQ");}
         layerState("in_only");
         const auto inOnly=panel->createComponentSnapshot(panel->getLocalBounds());
         check(spectrumPixels(both,panel->graphBounds().toNearestInt(),true)>spectrumPixels(inOnly,panel->graphBounds().toNearestInt(),true)+30,
               "OUT visibility control did not remove the real output spectrum layer");
         input->triggerClick();check(waitFor([&]{return !input->getToggleState() && panel->analyzerHasData();}),"IN toggle did not retain a valid audio observation");
         layerState("neither");
+        check(panel->analyzerHasData(),"Readout fixture lost analyzer data with both layers hidden");
+        expectReadout(nullptr,"live neither");
         const auto neither=panel->createComponentSnapshot(panel->getLocalBounds());
         std::cout<<"NATIVE layer pixels bank="<<e<<" OUT both="<<spectrumPixels(both,panel->graphBounds().toNearestInt(),true)
                  <<" in_only="<<spectrumPixels(inOnly,panel->graphBounds().toNearestInt(),true)
@@ -603,8 +658,10 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
         saveImage(both,directory.getChildFile("eq-ui-toggle-bank"+juce::String(e)+"-both.png"));
         saveImage(inOnly,directory.getChildFile("eq-ui-toggle-bank"+juce::String(e)+"-in-only.png"));
         saveImage(neither,directory.getChildFile("eq-ui-toggle-bank"+juce::String(e)+"-neither.png"));
-        input->triggerClick();output->triggerClick();settle(50);
+        toggle(output);expectReadout("OUT","live out only");
+        toggle(input);expectReadout("OUT","live both again");
         master->triggerClick();check(waitFor([&]{return !processor.graphicalEQ(e).analyzer.enabled.load();}),"LIVE off still captures audio");
+        expectReadout(nullptr,"analyzer off");
         const auto stoppedFrames=panel->fftFrames();settle(180);check(panel->fftFrames()==stoppedFrames,"LIVE off still transforms samples");
         master->triggerClick();check(waitFor([&]{return panel->analyzerHasData() && panel->fftFrames()>stoppedFrames;}),"LIVE re-enable did not acquire fresh input");
     }
@@ -888,9 +945,15 @@ int main(int argc,char** argv){try {
             }}selector->setSelectedId(1,juce::sendNotificationSync);
         }
     };
+    // A narrow view range is editor state: A/B recall and factory presets
+    // neither reset it nor are changed by it.
+    const auto rangePanel=[&](int e){return find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");};
+    const auto expectRange=[&](float range,const char* message){for(int e=0;e<2;++e)check(rangePanel(e)->displayRange()==range,message);};
+    rangePanel(0)->setDisplayRange(12);rangePanel(1)->setDisplayRange(6);
     verifyBanks("automation");processor->copyComparison();juce::MemoryBlock saved;processor->getStateInformation(saved);
     processor->selectComparison(1);for(int e=0;e<2;++e)for(int b=0;b<12;++b)set(*processor,eqID(e,b,"gain"),12);verifyBanks("A/B select B");
     processor->selectComparison(0);verifyBanks("A/B select A");
+    check(rangePanel(0)->displayRange()==12.f && rangePanel(1)->displayRange()==6.f,"A/B recall changed the EQ display range");
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"A/B bank recall changed a node");
     // A factory recipe now supplies active EQ bands. Select an unrelated old
     // Band 12 so the same editor must remove it and display the new recipe.
@@ -912,6 +975,8 @@ int main(int argc,char** argv){try {
     check(factoryEdits.undo() && factoryEdits.canUndo() && factoryEdits.canRedo(),"Factory UI Undo/Redo fixture missing");
     processor->loadFactoryPreset(0);
     check(!factoryEdits.canUndo() && !factoryEdits.canRedo(),"Factory UI recall retained the previous EQ history");
+    check(rangePanel(0)->displayRange()==12.f && rangePanel(1)->displayRange()==6.f,"Factory preset recall changed the EQ display range");
+    for(int e=0;e<2;++e)rangePanel(e)->setDisplayRange(24);expectRange(24.f,"EQ display range did not return to +/-24");
     for(int e=0;e<2;++e){
         auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");
         auto* selector=find<juce::ComboBox>(*panel,eqID(e,-1,"band"));

@@ -204,9 +204,12 @@ public:
         const float hz=xFrequency(point.x);
         juce::String text=(hz<1000?juce::String(hz,hz<100?1:0)+" Hz":juce::String(hz/1000,2)+" kHz")
             +"   "+(yGain(point.y)>=0?"+":"")+juce::String(yGain(point.y),1)+" dB";
-        if((analyzerToggle.getToggleState() || spectrum.isFrozen()) && spectrum.hasData() && hz<spectrum.lastSampleRate()*.5) {
-            const float level=spectrum.displayDB(outputToggle.getToggleState(),xFrequency(point.x-.5f),hz,xFrequency(point.x+.5f));
-            text+=juce::String("   ")+(outputToggle.getToggleState()?"OUT ":"IN ")+juce::String(level,1)+" dBFS";
+        // Report only a spectrum that is drawn (same rule as paint): OUT when
+        // shown, else IN when shown, nothing when both are hidden.
+        const bool showOut=outputToggle.getToggleState(),showIn=inputToggle.getToggleState();
+        if((showOut || showIn) && (analyzerToggle.getToggleState() || spectrum.isFrozen()) && spectrum.hasData() && hz<spectrum.lastSampleRate()*.5) {
+            const float level=spectrum.displayDB(showOut,xFrequency(point.x-.5f),hz,xFrequency(point.x+.5f));
+            text+=juce::String("   ")+(showOut?"OUT ":"IN ")+juce::String(level,1)+" dBFS";
         }
         return text;
     }
