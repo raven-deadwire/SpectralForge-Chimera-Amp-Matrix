@@ -125,6 +125,11 @@ def compare(obs: list[float], ref: list[float], shift: int, start: int, notes: l
     return {"signal": signal, "residual": residual,
             "db": 20 * math.log10(max(residual, 1e-12) / max(signal, 1e-12)),
             "max_steps": max(abs(d) for n, d in zip(range(start, stop), diff) if n not in ahead) * 32768,
+            # Where the largest difference is (seconds into the recording), and the largest per second.
+            "worst_at": max((n for n in range(start, stop) if n not in ahead),
+                            key=lambda n: abs(obs[n] - ref[n - shift])) / app.RATE,
+            "per_second": [round(max(abs(d) for d in diff[k:k + app.RATE]) * 32768, 1)
+                           for k in range(0, len(diff), app.RATE)],
             "ahead_steps": max((abs(d) for n, d in zip(range(start, stop), diff) if n in ahead), default=0.0) * 32768}
 
 
@@ -189,6 +194,11 @@ def run(args: argparse.Namespace) -> None:
     finally:
         obs.quit()
 
+    # OBS's own account of the run: the filter's input gaps and OBS's audio buffering changes,
+    # either of which makes the recorded input differ from what the filter received in time.
+    for line in log_text().splitlines():
+        if "session total" in line or "audio buffering" in line or "Max audio buffering" in line:
+            print(f"     log: {line.strip()}")
     names = ("left", "right")
     results = {}
     for name, path, state in (("default", default, None), ("preset", pushed, preset_file)):
@@ -210,6 +220,8 @@ def run(args: argparse.Namespace) -> None:
                   f"{r['signal']:.4f}, residual {r['db']:+.1f} dB (largest {r['max_steps']:.2f} 16-bit steps, "
                   f"{r['ahead_steps']:.2f} in the OBS tick before a note), "
                   f"Chimera latency {latency}")
+            print(f"     {name:7} {names[i]:5}: largest difference at {r['worst_at']:.3f} s; largest per second from "
+                  f"{start / app.RATE:g} s, in 16-bit steps: {r['per_second']}")
         if name == "preset":
             # The same comparison against the default state's reference must fail clearly.
             wrong, _ = render(args, ch[2], ch[4], None, work, "preset-against-default")
