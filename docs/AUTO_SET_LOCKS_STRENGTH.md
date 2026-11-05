@@ -16,8 +16,9 @@ level), Boost pedal (phase 10, `AUTO_SET_PHASE10.md`: the Green Drive it
 places on the board), Delay + reverb (phase 11, `AUTO_SET_PHASE11.md`),
 Presence + resonance (phase 12, `AUTO_SET_PHASE12.md`: the head's PRESENCE
 and RESONANCE or DEPTH), Dual blend (phase 13, `AUTO_SET_PHASE13.md`: the
-Dual BLEND and CROSSOVER) and Stereo doubler (phase 14, `AUTO_SET_PHASE14.md`:
-DOUBLER and its spread). A locked setting is not part of the run's
+Dual BLEND and CROSSOVER), Stereo doubler (phase 14, `AUTO_SET_PHASE14.md`:
+DOUBLER and its spread) and Cabinet cuts (phase 15, `AUTO_SET_PHASE15.md`:
+the Classic rig's LOW and HIGH cuts). A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
 later edit to a locked setting survives undo. A lock selected after the run
 also protects its stage from undo; unlocking an originally locked stage does
@@ -26,7 +27,7 @@ not add an undo entry.
 - A pass whose outputs are all locked is skipped: locking Tone EQ removes the
   Tone EQ pass (and the Dynamic EQ step, whose nodes are Tone EQ bands), locking Compressor removes the compressor pass, locking both
   De-esser and Limiter removes the de-esser and limiter pass, locking both Amp
-  and Presence + resonance removes the amp pass (it serves both steps), locking Cabinet mic removes the cabinet mic pass, locking Boost pedal removes the boost pass, locking Dual blend removes the Dual pass. The input pass runs unless
+  and Presence + resonance removes the amp pass (it serves both steps), locking both Cabinet mic and Cabinet cuts removes the cabinet mic pass (it serves both steps), locking Boost pedal removes the boost pass, locking Dual blend removes the Dual pass. The input pass runs unless
   both Input gain and Gate are locked.
 - Skipped passes appear in the results as "kept (locked)", in signal order.
   A partly locked pass says which part it kept ("input kept (locked)",
@@ -61,6 +62,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Presence + resonance | Each knob change, as for Amp |
 | Dual blend | The BLEND or CROSSOVER change, as for Amp |
 | Stereo doubler | A spread change of a doubler that is on, as for Amp; switching it on is not scaled |
+| Cabinet cuts | Each cut's change in Hz, as for Amp |
 | Cabinet mic | The position and distance changes, as for Amp; the level holds the loudness of the applied placement |
 | Boost pedal | OVER DRIVE and the LEVEL change in dB (LEVEL 0.5 is unity); TONE unchanged |
 | Delay + reverb | The mix changes: before + strength × (result − before); time, feedback, size and damping unchanged |
