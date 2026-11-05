@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""The Chimera filter in a real OBS Studio recording against the same Chimera VST3 outside OBS (plan stage B).
+
+Installs the filter as obs_app_test.py does (same layouts, same guards), runs OBS at
+48 kHz 5.1 and plays one media file (not a loop): two different plucked notes, one on
+front left and one on front right, each repeated with silence in between. The same two
+notes are on the centre and rear left channels, which the filter passes through
+untouched, so each lossless (16-bit PCM) recording also holds the exact audio the filter
+received. The test feeds that audio to the same Chimera VST3 outside OBS (render-tool.cpp:
+the same VST3 hosting, without OBS, its buffers or the filter's bridge) in OBS-sized
+blocks, with Chimera's default state and then with a pushed preset, and compares:
+
+- the delay between OBS's processed front pair and the processed reference (expected 0);
+- the difference (OBS minus reference) over the recording after Chimera's tails from before
+  the recording started have died away: in each channel, with the default state and with
+  the preset, no sample may differ by more than one step of the 16-bit recording (the
+  reference is not rounded to 16 bits, so half a step is expected);
+- the preset recording against the reference rendered with the default state: the
+  residual must be large there, so the comparison tells Chimera states apart.
+
+The OBS log must show the filter loading Chimera and processing every block, and OBS
+must exit cleanly.
+"""
+import argparse
+import json
+import math
+import os
+import re
+import shutil
+import struct
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import obs_app_test as app  # noqa: E402
+
+PERIOD = 3.0  # seconds from one note to the next
+NOTE = 1.0  # seconds a note sounds; the rest of each period is silence
+MEDIA_SECONDS = 90.0
+BLOCK = 1024  # frames per OBS audio tick (AUDIO_OUTPUT_FRAMES)
+SHIFT = 200  # samples searched either way for the delay between OBS and the reference
+
+
+def note(freq: float) -> str:
+    """A plucked string: four harmonics, decaying, for NOTE seconds of every PERIOD."""
+    phase = f"mod(t,{PERIOD})"
+    tone = "+".join(f"sin(2*PI*{freq * k}*t)/{k}" for k in range(1, 5))
+    return f"if(lt({phase},{NOTE}),0.3*exp(-3*{phase})*({tone}),0)"
+
+
+def write_media(path: Path) -> None:
+    """5.1 at 48 kHz, 16-bit (FL FR FC LFE BL BR): note A on FL and FC, note B on FR and BL."""
+    a, b = note(110.0), note(164.81)
+    subprocess.run([app.FFMPEG, "-v", "error", "-y", "-f", "lavfi", "-i",
+                    f"aevalsrc=exprs='{a}|{b}|{a}|0|{b}|0':c=5.1:s={app.RATE}:d={MEDIA_SECONDS}",
+                    "-c:a", "pcm_s16le", str(path)], check=True)
+
+
+def channels6(path: Path) -> list[list[float]]:
+    raw = subprocess.run([app.FFMPEG, "-v", "error", "-i", str(path), "-map", "0:a:0", "-ac", "6",
+                          "-ar", str(app.RATE), "-f", "f32le", "-"], check=True, capture_output=True).stdout
+    samples = struct.unpack(f"<{len(raw) // 4}f", raw)
+    return [list(samples[c::6]) for c in range(6)]
+
+
+def render(args: argparse.Namespace, left: list[float], right: list[float], state: Path | None,
+           work: Path, name: str) -> tuple[list[list[float]], int]:
+    """The reference: the same input through Chimera outside OBS, in OBS-sized blocks."""
+    source, target = work / f"{name}-input.f32", work / f"{name}-reference.f32"
+    interleaved = [v for pair in zip(left, right) for v in pair]
+    source.write_bytes(struct.pack(f"<{len(interleaved)}f", *interleaved))
+    command = [args.render_tool, str(Path(args.vst3).resolve()), str(app.RATE), "2", str(BLOCK), str(source), str(target)]
+    if state is not None:
+        command.append(str(state))
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    if result.returncode:
+        raise RuntimeError(f"render tool failed: {result.stderr.strip() or result.stdout.strip()}")
+    latency = int(re.search(r"latency (\d+)", result.stdout).group(1))
+    raw = target.read_bytes()
+    samples = struct.unpack(f"<{len(raw) // 4}f", raw)
+    return [list(samples[0::2]), list(samples[1::2])], latency
+
+
+def onsets(x: list[float], start: int) -> list[int]:
+    """Where each note starts (first sample above 1% of full scale after 0.5 s of quiet)."""
+    found, quiet = [], 0
+    for n in range(start, len(x)):
+        if abs(x[n]) > 0.01:
+            if quiet >= app.RATE // 2:
+                found.append(n)
+            quiet = 0
+        else:
+            quiet += 1
+    return found
+
+
+def best_shift(obs: list[float], ref: list[float], at: int) -> int:
+    """The shift (samples, positive: OBS later) that best lines the reference up with OBS
+    over 0.2 s from a note's start."""
+    window = range(at, at + app.RATE // 5)
+
+    def error(s: int) -> float:
+        return sum((obs[n] - ref[n - s]) ** 2 for n in window)
+
+    return min(range(-SHIFT, SHIFT + 1), key=error)
+
+
+def compare(obs: list[float], ref: list[float], shift: int, start: int) -> dict:
+    stop = len(obs) - SHIFT
+    diff = [obs[n] - ref[n - shift] for n in range(start, stop)]
+    signal = math.sqrt(sum(obs[n] ** 2 for n in range(start, stop)) / max(1, stop - start))
+    residual = math.sqrt(sum(d * d for d in diff) / max(1, len(diff)))
+    return {"signal": signal, "residual": residual,
+            "db": 20 * math.log10(max(residual, 1e-12) / max(signal, 1e-12)),
+            "max_steps": max(abs(d) for d in diff) * 32768}
+
+
+def run(args: argparse.Namespace) -> None:
+    work = Path(args.work).resolve()
+    if work.exists():
+        shutil.rmtree(work)
+    recordings = work / "recordings"
+    recordings.mkdir(parents=True)
+    layout = args.layout
+    layout.install(Path(args.module).resolve(), Path(args.vst3).resolve())
+    port = app.free_port()
+    app.configure(layout.config, port, recordings, app.RATE, "5.1")
+    app.lossless_recordings(layout.config)
+    media = work / "notes.wav"
+    write_media(media)
+    preset = json.loads(subprocess.run([args.state_tool, str(Path(args.vst3).resolve()), app.PRESET_PARAMETER,
+                                        str(app.PRESET_VALUE)], check=True, capture_output=True, text=True).stdout)
+    preset_file = work / "preset.json"
+    preset_file.write_text(json.dumps(preset), encoding="utf-8")
+    check = app.check
+
+    logs = layout.config / "logs"
+    earlier = set(logs.glob("*.txt"))
+
+    def log_text() -> str:
+        return "".join(p.read_text(encoding="utf-8", errors="replace") for p in sorted(set(logs.glob("*.txt")) - earlier))
+
+    obs = app.Obs(layout, port, work / "obs-run.txt")
+    try:
+        version = obs.request("GetVersion")
+        print(f"     OBS {version['obsVersion']}, obs-websocket {version['obsWebSocketVersion']}")
+        check(re.search(r"speakers:\s*6\b", log_text()) is not None, "OBS opened its audio in 5.1")
+        obs.request("CreateScene", {"sceneName": app.SCENE})
+        obs.request("SetCurrentProgramScene", {"sceneName": app.SCENE})
+        obs.request("CreateInput", {"sceneName": app.SCENE, "inputName": app.SOURCE, "inputKind": "ffmpeg_source",
+                                    "inputSettings": {"is_local_file": True, "local_file": str(media), "looping": False,
+                                                      "restart_on_activate": False}})
+        obs.request("CreateSourceFilter", {"sourceName": app.SOURCE, "filterName": app.FILTER,
+                                           "filterKind": app.FILTER_KIND, "filterSettings": {}})
+        app.wait_until(lambda: f"[chimera-obs] '{app.FILTER}': loaded " in log_text(),
+                       "the filter found Chimera and loaded it")
+        time.sleep(1)
+        default = obs.record("default", args.seconds)
+        obs.request("SetSourceFilterSettings", {
+            "sourceName": app.SOURCE, "filterName": app.FILTER, "overlay": True,
+            "filterSettings": {"vst3_component_state": preset["component"],
+                               "vst3_controller_state": preset["controller"]}})
+        time.sleep(1)
+        pushed = obs.record("preset", args.seconds)
+    finally:
+        obs.quit()
+
+    names = ("left", "right")
+    results = {}
+    for name, path, state in (("default", default, None), ("preset", pushed, preset_file)):
+        ch = channels6(path)
+        check(len(ch[0]) > app.RATE * (args.warmup + 2 * PERIOD), f"{name}: the recording is long enough ({len(ch[0])} frames)")
+        reference, latency = render(args, ch[2], ch[4], state, work, name)
+        start = int(app.RATE * args.warmup)
+        for i, (obs_x, ref_x, input_x) in enumerate(zip((ch[0], ch[1]), reference, (ch[2], ch[4]))):
+            notes = onsets(input_x, start)
+            check(len(notes) >= 2, f"{name} {names[i]}: notes found in the recording after {args.warmup:g} s ({len(notes)})")
+            shift = best_shift(obs_x, ref_x, notes[0])
+            r = compare(obs_x, ref_x, shift, start)
+            results[(name, i)] = dict(r, shift=shift, latency=latency)
+            print(f"     {name:7} {names[i]:5}: OBS after the reference by {shift:+d} samples, processed RMS "
+                  f"{r['signal']:.4f}, residual {r['db']:+.1f} dB (largest {r['max_steps']:.1f} 16-bit steps), "
+                  f"Chimera latency {latency}")
+        if name == "preset":
+            # The same comparison against the default state's reference must fail clearly.
+            wrong, _ = render(args, ch[2], ch[4], None, work, "preset-against-default")
+            results["control"] = compare(ch[0], wrong[0], results[("preset", 0)]["shift"], start)
+            print(f"     control: preset recording against the default state's reference: residual "
+                  f"{results['control']['db']:+.1f} dB")
+
+    for (name, i), r in sorted((k, v) for k, v in results.items() if k != "control"):
+        check(r["shift"] == 0, f"{name} {names[i]}: OBS's processed audio lines up with the reference ({r['shift']:+d} samples)")
+        check(r["signal"] > 0.001, f"{name} {names[i]}: the processed audio carries sound (RMS {r['signal']:.4f})")
+        check(r["max_steps"] <= args.max_steps,
+              f"{name} {names[i]}: OBS's output matches Chimera outside OBS (largest difference "
+              f"{r['max_steps']:.2f} 16-bit steps, allowed {args.max_steps:g}; residual {r['db']:+.1f} dB)")
+    check(results["control"]["db"] > -20,
+          f"the comparison tells Chimera states apart (preset against default: {results['control']['db']:+.1f} dB)")
+
+    log = log_text()
+    check(log.count("[chimera-obs] module ") == 1, "the run logs the Chimera module")
+    totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
+    check(totals == ["0"], f"the filter processed every block (unprocessed: {totals})")
+    check(log.count("[chimera-obs] unloaded Chimera filter instance") == 1, "the filter instance is unloaded")
+    worst = max(r["max_steps"] for k, r in results.items() if k != "control")
+    print(f"PASS real OBS Studio {version['obsVersion']}: the filter's output matches the same Chimera VST3 outside "
+          f"OBS with the default state and a pushed preset, sample-aligned, within {worst:.2f} 16-bit steps in each "
+          f"channel; a different state differs by {results['control']['db']:+.1f} dB")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--module", required=True, help="staged chimera-obs plugin directory (macOS: chimera-obs.plugin)")
+    parser.add_argument("--vst3", required=True, help="SpectralForge Chimera.vst3 bundle")
+    parser.add_argument("--state-tool", required=True, help="chimera-obs-state-tool executable")
+    parser.add_argument("--render-tool", required=True, help="chimera-obs-render-tool executable")
+    parser.add_argument("--work", required=True, help="scratch directory (deleted first)")
+    parser.add_argument("--obs", default="obs", help="OBS Studio executable (as for obs_app_test.py)")
+    parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for the media file and the analysis")
+    parser.add_argument("--seconds", type=float, default=15.0, help="length of each recording")
+    parser.add_argument("--warmup", type=float, default=6.0,
+                        help="seconds of each recording left out of the comparison (Chimera's tails from before it)")
+    parser.add_argument("--max-steps", type=float, default=1.0,
+                        help="largest difference allowed from the reference, in steps of the 16-bit recording")
+    args = parser.parse_args()
+    if not app.WINDOWS and not app.MACOS and not os.environ.get("DISPLAY"):
+        print("FAIL no X display (run under xvfb-run)", file=sys.stderr)
+        return 2
+    app.FFMPEG = args.ffmpeg
+    args.layout = app.Layout(args.obs, Path(args.work).resolve())
+    passed = False
+    try:
+        run(args)
+        passed = True
+    except Exception as e:  # noqa: BLE001 - report every failure the same way
+        print(f"FAIL {app.failure_text(e)}", file=sys.stderr)
+        work = Path(args.work).resolve()
+        for log in [*sorted(work.glob("obs-run*.txt")), *sorted((args.layout.config / "logs").glob("*.txt"))[-1:]]:
+            print(f"--- {log.name} (last 60 lines)", file=sys.stderr)
+            print("\n".join(log.read_text(encoding="utf-8", errors="replace").splitlines()[-60:]), file=sys.stderr)
+        return 1
+    finally:
+        # Kept for the CI artifact: on Windows and macOS a passing run removes
+        # the OBS configuration, logs included.
+        try:
+            if (args.layout.config / "logs").is_dir():
+                shutil.copytree(args.layout.config / "logs", Path(args.work).resolve() / "obs-logs", dirs_exist_ok=True)
+        except OSError as e:  # must not keep the filter installed
+            print(f"note: could not keep the OBS logs: {e}", file=sys.stderr)
+        args.layout.uninstall(passed)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
