@@ -593,6 +593,8 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     toneSwitch.apply(buffer);
     synth.addAt(spectralforge::SynthInsert::beforePost,buffer);
+    // Auto Set phase 16 hears what enters the POST rack (its bus compressor first by default).
+    autoSetCaptureState.push(spectralforge::autoset::Tap::post,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     postFX.setKey(externalKey,postKeyDelayed);   // Console VCA's EXTERNAL SIDE-CHAIN switch decides
     postFX.process(buffer,fx,activeOrder.post);
     postFX.setKey(nullptr);preFX.gate.setKey(nullptr);
