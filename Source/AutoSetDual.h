@@ -30,8 +30,8 @@ inline constexpr float dualBlendMaxMove=.3f,dualBlendStep=.05f,dualMinGainDb=.5f
 inline constexpr float dualCrossMin=60,dualCrossMax=4000,dualCrossFactor=2,dualCrossRatioLimitDb=12;
 inline constexpr int dualCrossSteps=9;
 // Fourth-order Linkwitz-Riley power response at f for a split at fc.
-inline double dualLowPower(double f,double fc) noexcept {const double r=std::pow(f/fc,4.);return 1./((1.+r)*(1.+r));}
-inline double dualHighPower(double f,double fc) noexcept {const double r=std::pow(f/fc,4.);return r*r/((1.+r)*(1.+r));}
+inline double dualLowPower(double f,double fc) noexcept {const double q=f/fc,r=(q*q)*(q*q);return 1./((1.+r)*(1.+r));}
+inline double dualHighPower(double f,double fc) noexcept {const double q=f/fc,r=(q*q)*(q*q);return r*r/((1.+r)*(1.+r));}
 // A band's mean power ratio (dB) between splits at `to` and at `from`, eight points per band.
 inline float dualBandRatioDb(int band,double from,double to,bool high) {
     double now=0,next=0;
@@ -67,11 +67,17 @@ inline DualResult analyseDual(const std::vector<float>& rig1,const std::vector<f
     DualResult r;r.crossover=crossover;r.before=current;r.proposed=current;
     const size_t n=std::min(rig1.size(),rig2.size());
     if(n==0)return r;
-    std::vector<float> a(rig1.begin(),rig1.begin()+std::ptrdiff_t(n)),b(rig2.begin(),rig2.begin()+std::ptrdiff_t(n));
-    const auto mixAt=[&](float blend){std::vector<float> y(n);for(size_t i=0;i<n;++i)y[i]=(1-blend)*a[i]+blend*b[i];return y;};
-    std::vector<float> sum(n);for(size_t i=0;i<n;++i)sum[i]=a[i]+b[i];
+    // measureSpectrum reads whole vectors: copy only a rig longer than the other.
+    std::vector<float> trimmed1,trimmed2;
+    if(rig1.size()>n)trimmed1.assign(rig1.begin(),rig1.begin()+std::ptrdiff_t(n));
+    if(rig2.size()>n)trimmed2.assign(rig2.begin(),rig2.begin()+std::ptrdiff_t(n));
+    const auto& a=rig1.size()>n?trimmed1:rig1;const auto& b=rig2.size()>n?trimmed2:rig2;
+    // One buffer for every mix the analysis hears, rewritten in place.
+    std::vector<float> mix(n);
+    const auto mixAt=[&](float blend)->const std::vector<float>& {for(size_t i=0;i<n;++i)mix[i]=(1-blend)*a[i]+blend*b[i];return mix;};
+    const auto sumOf=[&]()->const std::vector<float>& {for(size_t i=0;i<n;++i)mix[i]=a[i]+b[i];return mix;};
     // The two rigs as heard now: in Blend weighted by the blend, in Crossover summed.
-    const auto heard=measureSpectrum(crossover?sum:mixAt(current),rate,bass);
+    const auto heard=measureSpectrum(crossover?sumOf():mixAt(current),rate,bass);
     r.playingDetected=heard.playing;
     if(!r.playingDetected)return r;
     r.bass=heard.bass;
@@ -83,8 +89,9 @@ inline DualResult analyseDual(const std::vector<float>& rig1,const std::vector<f
         const auto now=spectrumAt(current);
         r.toneErrorBeforeDb=ampToneErrorDb(now,style);r.toneErrorAfterDb=r.toneErrorBeforeDb;
         // Cancellation: the mix against the rigs' power sum at this blend.
-        const double sum=std::pow(1-current,2.)*dualFitPower(s1.bandsDb)+std::pow(current,2.)*dualFitPower(s2.bandsDb),mix=dualFitPower(now.bandsDb);
-        r.cancellationDb=sum>0 && mix>0?float(10*std::log10(sum/mix)):0.f;
+        const double w1=1-current,w2=current;
+        const double sum=w1*w1*dualFitPower(s1.bandsDb)+w2*w2*dualFitPower(s2.bandsDb),heardPower=dualFitPower(now.bandsDb);
+        r.cancellationDb=sum>0 && heardPower>0?float(10*std::log10(sum/heardPower)):0.f;
         float best=r.toneErrorBeforeDb,chosen=current;Spectrum bestSpectrum=now;
         const float low=std::max(0.f,current-dualBlendMaxMove),high=std::min(1.f,current+dualBlendMaxMove);
         for(int i=-6;i<=6;++i) {
@@ -95,7 +102,7 @@ inline DualResult analyseDual(const std::vector<float>& rig1,const std::vector<f
         }
         if(best<r.toneErrorBeforeDb-dualMinGainDb) {
             r.proposed=chosen;r.toneErrorAfterDb=best;
-            r.levelChangeDb=float(10*std::log10(std::max(dualFitPower(bestSpectrum.bandsDb),1e-30)/std::max(mix,1e-30)));
+            r.levelChangeDb=float(10*std::log10(std::max(dualFitPower(bestSpectrum.bandsDb),1e-30)/std::max(heardPower,1e-30)));
         }
         return r;
     }

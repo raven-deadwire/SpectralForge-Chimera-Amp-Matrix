@@ -104,7 +104,9 @@ void dualLaneCapture() {
 struct DualRun {std::vector<float> before,values,undone;Controller::Status status;DualResult analysis;};
 // Feeds the two rigs to the lane taps (and the playing to the window taps for
 // a compressor pass) of a real processor in Dual routing.
-DualRun runDual(const Controller::Options& options,const std::vector<float>& rig1,const std::vector<float>& rig2,const std::function<void(ChimeraProcessor&)>& prepare) {
+// during: called once, after the first tick (an edit while the pass listens).
+DualRun runDual(const Controller::Options& options,const std::vector<float>& rig1,const std::vector<float>& rig2,const std::function<void(ChimeraProcessor&)>& prepare,
+                const std::function<void(ChimeraProcessor&)>& during={}) {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
     prepare(*p);
     Controller c(*p);c.setOptions(options);
@@ -115,6 +117,7 @@ DualRun runDual(const Controller::Options& options,const std::vector<float>& rig
         p->autoSetCapture().push(Tap::lane1,a,1,256);p->autoSetCapture().push(Tap::lane2,b,1,256);
         for(auto tap:{Tap::input,Tap::compressor})p->autoSetCapture().push(tap,a,1,256);
         ms+=1000.*256/48000;c.tick(ms);
+        if(during && offset==0)during(*p);
     }
     check(!c.busy(),"Dual run did not finish");
     result.values=values(*p);result.status=c.current();result.analysis=c.lastDualAnalysis();
@@ -149,6 +152,13 @@ void controllerDual() {
     const auto classic=runDual(classicOptions,dark,even,[](ChimeraProcessor& p){p.parameters().getParameter("mode")->setValueNotifyingHost(0);});
     check(classic.status.passes==std::vector<P>{P::compressor} && stepOf(classic.status,P::dual)->result.contains("Classic or Matrix routing")
           && value(classic.values,"dualblend")==value(classic.before,"dualblend"),"Classic routing ran or changed the Dual blend");
+    // The Dual type or the routing changing while the pass listens keeps everything.
+    for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"dualtype",1},{"mode",2}}) {
+        const auto edited=runDual(dualOnly,dark,even,blendRig(.2f),[id,v](ChimeraProcessor& p){p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));});
+        check(stepOf(edited.status,P::dual)->result.contains("changed while listening") && !stepOf(edited.status,P::dual)->changed
+              && value(edited.values,"dualblend")==value(edited.before,"dualblend") && value(edited.values,"dualcross")==value(edited.before,"dualcross"),
+              std::string("An edit of ")+id+" while listening did not void the Dual pass");
+    }
     // A silent rig 2 keeps the blend.
     const auto silent=runDual(dualOnly,even,std::vector<float>(even.size()),blendRig(.5f));
     check(stepOf(silent.status,P::dual)->result.contains("rig 2 is silent") && silent.values==silent.before,"A silent rig 2 changed the blend");
@@ -162,5 +172,5 @@ void controllerDual() {
     check(crossStep && crossStep->changed && crossStep->result.contains("CROSSOVER") && cross.analysis.crossover && cross.analysis.proposed<800
           && near(value(cross.values,"dualcross"),cross.analysis.proposed,.5f) && value(cross.values,"dualblend")==value(cross.before,"dualblend"),"Crossover was not lowered as analysed");
     std::cout<<"MEASURE auto set dual controller: "<<step->result<<"; crossover: "<<crossStep->result<<'\n';
-    std::cout<<"PASS auto set dual controller: blend pass alone, strength, lock, Classic routing kept without a pass, silent rig, loud low rig lowers the crossover, undo\n";
+    std::cout<<"PASS auto set dual controller: blend pass alone, strength, lock, Classic routing kept without a pass, Dual type or routing edited while listening, silent rig, loud low rig lowers the crossover, undo\n";
 }
