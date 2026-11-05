@@ -1,4 +1,5 @@
 #include "IRLibrary.h"
+#include "IRStateEncoding.h"
 #include "IRUserPreferences.h"
 #include "ChimeraIRData.h"
 #include "CabLayoutModel.h"
@@ -406,7 +407,7 @@ void IRLibrary::restore(const juce::ValueTree& tree)
         if(lane<0 || lane>5) continue;
         const auto encoded=child.getProperty("data").toString();
         juce::MemoryBlock bytes;
-        if(encoded.length()>6*1024*1024 || !bytes.fromBase64Encoding(encoded)) messages[lane]="Saved IR is damaged. Filters only.";
+        if(!irState::decodeAsset(encoded,bytes)) messages[lane]="Saved IR is damaged. Filters only.";
         else restored[lane]=decode(bytes,child.getProperty("name").toString(),messages[lane]);
         if(restored[lane] && child.hasProperty("metadata"))restored[lane]->metadata=IRMetadata::fromJSON(juce::JSON::parse(child.getProperty("metadata").toString()));
     }
