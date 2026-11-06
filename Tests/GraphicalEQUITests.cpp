@@ -965,12 +965,18 @@ void fullProcessorNativeTiming(ChimeraProcessor& processor,ChimeraEditor& editor
 }
 #include "EQAttributionDiagnostics.h"
 #include "EQPendingInputTests.h"
+#include "EQBassZoomTests.h"
 int main(int argc,char** argv){try {
     juce::ScopedJuceInitialiser_GUI init;
     if(argc>1 && (std::string(argv[1])=="--attribution" || std::string(argv[1])=="--attribution-headless"))return eqAttribution::run(argc,argv);
     auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);check(editor->getPeer()!=nullptr,"No native UI peer");
     auto* eqTab=tab(*editor,"EQ");check(eqTab!=nullptr,"EQ navigation missing");eqTab->triggerClick();settle(80);
+    if(argc>1 && std::string(argv[1])=="--bass-zoom") {
+        const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>2?argv[2]:"eq-bass-zoom");
+        eqBassZoomTests::run(*processor,editor,directory);
+        return 0;
+    }
     if(argc>1 && std::string(argv[1])=="--modifier-drag") {
         int failures=0;
         for(int bank=0;bank<2;++bank) {

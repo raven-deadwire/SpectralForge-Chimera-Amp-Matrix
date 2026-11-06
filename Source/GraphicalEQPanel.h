@@ -207,6 +207,11 @@ public:
         frequencyView=view;rebuildResponse();rebuildSpectrumPaths();repaint();
     }
     int frequencyViewIndex() const noexcept {return frequencyView;}
+    // Ignore cancelled/unknown async menu results, including IDs in the gap.
+    void applyViewMenuResult(int result) {
+        if(result>=100 && result<100+int(frequencyViews.size()))setFrequencyView(result-100);
+        else if(result>=1 && result<=int(displayRanges.size()))setDisplayRange(displayRanges[size_t(result-1)]);
+    }
     // Where a node is drawn and hit: its true position, kept inside the graph
     // so a band beyond a narrow range stays reachable at the edge.
     juce::Point<float> visibleNodePosition(int band) const {
@@ -395,8 +400,7 @@ public:
                     menu.addItem(100+i,frequencyViews[size_t(i)].name,true,i==frequencyView);
                 juce::Component::SafePointer<GraphicalEQPanel> safe(this);
                 menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe](int result){
-                    if(!safe || result<=0)return;
-                    if(result>=100)safe->setFrequencyView(result-100);else safe->setDisplayRange(displayRanges[size_t(result-1)]);
+                    if(safe)safe->applyViewMenuResult(result);
                 });
             }
             return;

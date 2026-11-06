@@ -737,6 +737,8 @@ foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapsho
 endforeach()
 add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_BINARY_DIR}/eq-cpu.csv")
 add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
+add_test(NAME ChimeraGraphicalEQBassZoomTests COMMAND ChimeraGraphicalEQUITests --bass-zoom "${CMAKE_BINARY_DIR}/eq-bass-zoom")
+set_tests_properties(ChimeraGraphicalEQBassZoomTests PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE)
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
 add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
