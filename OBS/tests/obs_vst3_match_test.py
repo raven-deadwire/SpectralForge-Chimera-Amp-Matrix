@@ -138,6 +138,19 @@ def best_shift(obs: list[float], ref: list[float], at: int) -> int:
     return min(range(-SHIFT, SHIFT + 1), key=error)
 
 
+def alignment_notes(notes: list[int], skip: list[tuple[int, int]]) -> list[int]:
+    """Use a note only when its entire alignment window is retained."""
+    return [n for n in notes
+            if not any(a < n + app.RATE // 5 and b > n for a, b in skip)]
+
+
+def require_complete_comparison(results: dict) -> None:
+    """A broken recording cannot establish full output equivalence."""
+    if any(r["skipped_samples"] for k, r in results.items() if k != "control"):
+        raise RuntimeError("INCONCLUSIVE: recorded input is discontinuous; retained spans were analysed, "
+                           "but this recording cannot certify output equivalence (see diagnostics.json)")
+
+
 def compare(obs: list[float], ref: list[float], shift: int, start: int, notes: list[int] = (),
             skip: list[tuple[int, int]] = ()) -> dict:
     """The difference over the recording from `start`. The OBS tick before each note (the
@@ -146,10 +159,21 @@ def compare(obs: list[float], ref: list[float], shift: int, start: int, notes: l
     stop = len(obs) - SHIFT
     ahead = {n for at in notes for n in range(at - BLOCK, at)}
     # Spans where the recorded input is not what the filter received are left out (see input_breaks).
-    diff = [0.0 if any(a <= n < b for a, b in skip) else obs[n] - ref[n - shift] for n in range(start, stop)]
-    signal = math.sqrt(sum(obs[n] ** 2 for n in range(start, stop)) / max(1, stop - start))
-    residual = math.sqrt(sum(d * d for d in diff) / max(1, len(diff)))
+    raw = [obs[n] - ref[n - shift] for n in range(start, stop)]
+    excluded = [any(a <= n < b for a, b in skip) for n in range(start, stop)]
+    diff = [0.0 if omit else d for d, omit in zip(raw, excluded)]
+    count = max(1, len(raw) - sum(excluded))
+    signal = math.sqrt(sum(obs[n] ** 2 for n, omit in zip(range(start, stop), excluded) if not omit) / count)
+    residual = math.sqrt(sum(d * d for d in diff) / count)
+    worst = max(range(len(raw)), key=lambda k: abs(raw[k]))
+    sample = start + worst
     return {"signal": signal, "residual": residual,
+            "skipped_samples": sum(excluded), "compared_samples": len(raw) - sum(excluded),
+            "raw_max_steps": abs(raw[worst]) * 32768, "raw_worst_sample": sample,
+            "raw_worst_seconds": sample / app.RATE, "raw_worst_excluded": excluded[worst],
+            "raw_worst_obs": obs[sample], "raw_worst_reference": ref[sample - shift],
+            # This phase is relative to the reference file, not an observed OBS block boundary.
+            "reference_block_phase": (sample - shift) % BLOCK,
             "db": 20 * math.log10(max(residual, 1e-12) / max(signal, 1e-12)),
             "max_steps": max(abs(d) for n, d in zip(range(start, stop), diff) if n not in ahead) * 32768,
             # Where the largest difference is (seconds into the recording), and the largest per second.
@@ -228,6 +252,9 @@ def run(args: argparse.Namespace) -> None:
             print(f"     log: {line.strip()}")
     names = ("left", "right")
     results = {}
+    diagnostics = {"obs_version": version["obsVersion"], "rate": app.RATE, "block": BLOCK,
+                   "warmup_seconds": args.warmup, "max_steps": args.max_steps,
+                   "max_ahead_steps": args.max_ahead_steps, "channels": []}
     source = channels6(media)
     for name, path, state in (("default", default, None), ("preset", pushed, preset_file)):
         ch = channels6(path)
@@ -250,9 +277,19 @@ def run(args: argparse.Namespace) -> None:
         for i, (obs_x, ref_x, input_x) in enumerate(zip((ch[0], ch[1]), reference, (ch[2], ch[4]))):
             notes = onsets(input_x, start)
             check(len(notes) >= 2, f"{name} {names[i]}: notes found in the recording after {args.warmup:g} s ({len(notes)})")
-            shift = best_shift(obs_x, ref_x, notes[0])
+            usable = alignment_notes(notes, skip)
+            check(len(usable) >= 2, f"{name} {names[i]}: at least two retained alignment windows ({len(usable)})")
+            shift = best_shift(obs_x, ref_x, usable[0])
             r = compare(obs_x, ref_x, shift, start, notes, skip)
             results[(name, i)] = dict(r, shift=shift, latency=latency)
+            diagnostics["channels"].append(dict(r, recording=name, path=str(path), channel=names[i],
+                                               shift=shift, latency=latency, alignment_sample=usable[0],
+                                               notes=notes, excluded_spans=skip))
+            (work / "diagnostics.json").write_text(json.dumps(diagnostics, indent=2), encoding="utf-8")
+            print(f"     {name} {names[i]}: raw peak {r['raw_max_steps']:.5f} steps at sample "
+                  f"{r['raw_worst_sample']} ({r['raw_worst_seconds']:.6f} s), "
+                  f"excluded={r['raw_worst_excluded']}; {r['compared_samples']} compared, "
+                  f"{r['skipped_samples']} excluded samples")
             # Where the output starts around each note, in OBS's recording and outside OBS: the
             # same positions mean that whatever comes before a note comes from Chimera itself.
             print(f"     {name:7} {names[i]:5}: first non-zero 16-bit sample per note: OBS "
@@ -288,6 +325,7 @@ def run(args: argparse.Namespace) -> None:
     totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
     check(totals == ["0"], f"the filter processed every block (unprocessed: {totals})")
     check(log.count("[chimera-obs] unloaded Chimera filter instance") == 1, "the filter instance is unloaded")
+    require_complete_comparison(results)
     worst = max(r["max_steps"] for k, r in results.items() if k != "control")
     print(f"PASS real OBS Studio {version['obsVersion']}: the filter's output matches the same Chimera VST3 outside "
           f"OBS with the default state and a pushed preset, sample-aligned, within {worst:.2f} 16-bit steps in each "
@@ -342,3 +380,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
