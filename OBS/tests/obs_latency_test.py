@@ -314,7 +314,9 @@ def run(args: argparse.Namespace) -> None:
 
     log = log_text()
     totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
-    check(len(totals) == 2 and all(t == "0" for t in totals), f"the filter processed every block (unprocessed: {totals})")
+    # The filter logs a session total only after it has processed a block: the second run, which
+    # only reads the status and quits, can end before its first one (as on the Linux CI runner).
+    check(len(totals) in (1, 2) and all(t == "0" for t in totals), f"the filter processed every block (unprocessed: {totals})")
     check(log.count("[chimera-obs] unloaded Chimera filter instance") == 2, "both runs unload the filter")
     start = (f"the processed audio starts {measured:.0f} samples ({1000 * measured / app.RATE:.2f} ms) late"
              if on["silent_ahead"] else "the output's start is not exactly silent ahead (not compared)")

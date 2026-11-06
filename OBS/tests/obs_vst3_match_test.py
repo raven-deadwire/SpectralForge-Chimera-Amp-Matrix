@@ -33,6 +33,7 @@ The OBS log must show the filter loading Chimera and processing every block, and
 must exit cleanly.
 """
 import argparse
+import array
 import json
 import math
 import os
@@ -78,14 +79,16 @@ def channels6(path: Path) -> list[list[float]]:
 
 
 def render(args: argparse.Namespace, left: list[float], right: list[float], state: Path | None,
-           work: Path, name: str) -> tuple[list[list[float]], int]:
-    """The reference: the same input through Chimera outside OBS, in OBS-sized blocks."""
+           work: Path, name: str, resets: list[int] = ()) -> tuple[list[list[float]], int]:
+    """The reference: the same input through Chimera outside OBS, in OBS-sized blocks, with
+    Chimera's tails dropped before each frame in `resets` (as the filter drops them)."""
     source, target = work / f"{name}-input.f32", work / f"{name}-reference.f32"
-    interleaved = [v for pair in zip(left, right) for v in pair]
-    source.write_bytes(struct.pack(f"<{len(interleaved)}f", *interleaved))
+    source.write_bytes(array.array("f", (v for pair in zip(left, right) for v in pair)).tobytes())
     command = [args.render_tool, str(Path(args.vst3).resolve()), str(app.RATE), "2", str(BLOCK), str(source), str(target)]
     if state is not None:
         command.append(str(state))
+    if resets:
+        command.append("--reset-at=" + ",".join(str(n) for n in resets))
     result = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode:
         raise RuntimeError(f"render tool failed: {result.stderr.strip() or result.stdout.strip()}")
