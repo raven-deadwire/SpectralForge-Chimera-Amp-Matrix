@@ -31,11 +31,13 @@ struct Window {float peakDb{-120.f},rmsDb{-120.f};};
 // (tone, the Tone EQ's input, moves with it; docs/SIGNAL_ORDER_1_4.md).
 // lane1/lane2: each Dual rig's output before the Dual blend (phase 13), or
 // the Matrix LOW and MID lanes after their level (phase 17); lane3: the Matrix
-// HIGH lane, in a ring of its own; post: the POST rack's input (phase 16).
+// HIGH lane, in a ring of its own; post: the POST rack's input (phase 16);
+// micA/micB: the Classic cabinet's mic A and mic B before the A/B blend
+// (phase 18; micB shares lane3's ring).
 // lane2 and post share the amp tap's ring, so no two of amp, lane2 and post
 // are listened to together.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8,cab=9,lane1=10,lane2=11,post=12,lane3=13};
-inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp || tap==Tap::cab || tap==Tap::lane1 || tap==Tap::lane2 || tap==Tap::post || tap==Tap::lane3;}
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8,cab=9,lane1=10,lane2=11,post=12,lane3=13,micA=14,micB=15};
+inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp || tap==Tap::cab || tap==Tap::lane1 || tap==Tap::lane2 || tap==Tap::post || tap==Tap::lane3 || tap==Tap::micA || tap==Tap::micB;}
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -60,7 +62,7 @@ public:
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
         if(tap==Tap::amp || tap==Tap::lane2 || tap==Tap::post){pushSamples(ampRing,ampWrite,ampRead,nullptr,false,channels,channelCount,samples);return;}
-        if(tap==Tap::lane3){pushSamples(*laneRing,laneWrite,laneRead,nullptr,false,channels,channelCount,samples);return;}
+        if(tap==Tap::lane3 || tap==Tap::micB){pushSamples(*laneRing,laneWrite,laneRead,nullptr,false,channels,channelCount,samples);return;}
         if(sampleTap(tap)){pushSamples(sampleRing,sampleWrite,sampleRead,rightSampleRing.get(),tap==Tap::master,channels,channelCount,samples);return;}
         auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {

@@ -539,6 +539,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const int lanesWanted=value(mode)==1 && !matrixLanes ? 2 : value(mode)==2 && matrixLanes ? 3 : 0;
     const bool captureLanes=lanesWanted>0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::lane1);
     engine.setLaneCapture(captureLanes);
+    // Phase 18 listens to the Classic cabinet's mic A and mic B before their blend.
+    const bool captureMics=value(mode)==0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::micA);
+    engine.cabinet(0).setMicCapture(captureMics);
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
@@ -551,6 +554,12 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
             const auto& out=engine.laneOutput(lane);
             autoSetCaptureState.push(laneTaps[lane],out.getArrayOfReadPointers(),out.getNumChannels(),out.getNumSamples());
         }
+    }
+    // Only blocks that played Classic with mic B rendering (blend above 0).
+    if(captureMics && engine.cabinet(0).micsCaptured()) {
+        const auto& micA=engine.cabinet(0).micOutput(0);const auto& micB=engine.cabinet(0).micOutput(1);
+        autoSetCaptureState.push(spectralforge::autoset::Tap::micA,micA.getArrayOfReadPointers(),micA.getNumChannels(),micA.getNumSamples());
+        autoSetCaptureState.push(spectralforge::autoset::Tap::micB,micB.getArrayOfReadPointers(),micB.getNumChannels(),micB.getNumSamples());
     }
     autoSetCaptureState.push(spectralforge::autoset::Tap::rig,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     // Post-rig gates attenuate the send bus with the direct sum's own gain.
