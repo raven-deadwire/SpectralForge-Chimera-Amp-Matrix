@@ -75,8 +75,10 @@ inline float ampToneErrorDb(const Spectrum& predicted,Style style) {
 }
 // input: the signal entering the amp (at most ampRenderSeconds is rendered);
 // post: the amp/cab output heard at the same time; knobs: the current values.
+// played: the amp as it played while post was heard, when that differs from
+// render(knobs) (phase 20 switched the channel); null: render(knobs).
 inline AmpResult analyseAmp(const std::vector<float>& input,const std::vector<float>& post,double rate,const std::array<AmpKnob,4>& knobs,
-                            const AmpRenderer& render,std::optional<bool> bass={},Style style=Style::rock) {
+                            const AmpRenderer& render,std::optional<bool> bass={},Style style=Style::rock,const std::vector<float>* played=nullptr) {
     AmpResult r;r.before=knobs;r.proposed=knobs;
     const auto heard=measureSpectrum(post,rate,bass);
     std::vector<float> segment(input.begin(),input.begin()+std::min(input.size(),size_t(rate*ampRenderSeconds)));
@@ -106,7 +108,7 @@ inline AmpResult analyseAmp(const std::vector<float>& input,const std::vector<fl
     r.compressionAfter=setGain(r.compressionBefore);
     // The cabinet (and everything else after the amp) as heard: post minus the
     // amp rendered at the settings that were playing.
-    const auto renderedNow=measureSpectrum(render(initial),rate,r.bass);
+    const auto renderedNow=measureSpectrum(played?*played:render(initial),rate,r.bass);
     if(!renderedNow.playing){r.proposed[ampGain].value=values[ampGain];return r;}
     std::array<float,toneBandCount> after{};
     for(int b=0;b<toneBandCount;++b)after[size_t(b)]=heard.bandsDb[size_t(b)]-renderedNow.bandsDb[size_t(b)];
@@ -154,5 +156,72 @@ inline AmpRenderer nativeAmpRenderer(const AmpNativeState& state,const std::arra
         for(size_t n=0;n<input.size();++n)out[n]=dsp->tick(input[n],0);
         return out;
     };
+}
+// Phase 20: the head's channel. A channel's GAIN knob reaches only part of
+// the drive range: a clean channel cannot reach a metal drive, a lead channel
+// cannot stay clean. Before phase 8 sets GAIN, each channel of the head is
+// rendered on the captured playing, at its own knobs and at its GAIN's two
+// ends, to find the drive (ampCompression) it can reach. The channel moves
+// only when the current one cannot reach the style's drive target (within
+// the phase 8 tolerance) and another channel comes closer by more than that
+// tolerance; phase 8 then sets GAIN and tone on it. GAIN is probed at its
+// top and at 10% of its range, plus where it is; a render too quiet to be
+// heard as playing is left out.
+struct ChannelReach {bool present{};float now{},low{},high{};}; // drive at the channel's knobs, and its reachable range
+struct ChannelResult {
+    bool playingDetected{},bass{};
+    int before{-1},proposed{-1};
+    float target{};
+    std::vector<ChannelReach> reach;
+    float missBefore{},missAfter{};            // how far the target lies outside the reachable range
+    bool changed() const noexcept {return proposed!=before;}
+};
+// One channel: its GAIN knob (not present: no GAIN), and the amp rendered with
+// GAIN at a value (nullopt: the channel's own knobs).
+struct ChannelCandidate {AmpKnob gain;std::function<std::vector<float>(std::optional<float>)> render;};
+// The lowest GAIN probed, as a fraction of the knob's range.
+inline constexpr float channelLowGain=.1f;
+inline float channelMiss(const ChannelReach& c,float target) noexcept {
+    const float outside=target<c.low?c.low-target:target>c.high?target-c.high:0.f;
+    return std::max(0.f,outside-ampCompressionTolerance);
+}
+// input/post as analyseAmp; candidates: one per channel (an empty render: not a candidate).
+inline ChannelResult analyseChannel(const std::vector<float>& input,const std::vector<float>& post,double rate,int current,
+                                    const std::vector<ChannelCandidate>& candidates,std::optional<bool> bass={},Style style=Style::rock) {
+    ChannelResult r;r.before=r.proposed=current;
+    if(current<0 || current>=int(candidates.size()) || !candidates[size_t(current)].render)return r;
+    const auto heard=measureSpectrum(post,rate,bass);
+    const std::vector<float> segment(input.begin(),input.begin()+std::ptrdiff_t(std::min(input.size(),size_t(rate*ampRenderSeconds))));
+    r.playingDetected=heard.playing && measureSpectrum(segment,rate,true).playing;
+    if(!r.playingDetected)return r;
+    r.bass=heard.bass;r.target=ampCompressionTarget(r.bass,style);
+    r.reach.resize(candidates.size());
+    for(size_t c=0;c<candidates.size();++c) {
+        const auto& k=candidates[c];
+        if(!k.render)continue;
+        auto& reach=r.reach[c];
+        // A render too quiet to count as playing (GAIN near zero on many heads)
+        // would read as fully flattened: it is left out.
+        const auto drive=[&](std::optional<float> g)->std::optional<float> {
+            const auto out=k.render(g);
+            if(!measureSpectrum(out,rate,r.bass).playing)return std::nullopt;
+            return ampCompression(segment,out,rate);
+        };
+        std::vector<std::optional<float>> points{drive(std::nullopt)};
+        if(k.gain.present && k.gain.maximum>k.gain.minimum)
+            for(const float fraction:{channelLowGain,1.f})points.push_back(drive(k.gain.minimum+fraction*(k.gain.maximum-k.gain.minimum)));
+        if(!points[0])continue;
+        reach.present=true;reach.now=reach.low=reach.high=*points[0];
+        for(const auto& v:points)if(v){reach.low=std::min(reach.low,*v);reach.high=std::max(reach.high,*v);}
+    }
+    if(!r.reach[size_t(current)].present)return r;
+    r.missBefore=r.missAfter=channelMiss(r.reach[size_t(current)],r.target);
+    if(r.missBefore<=0)return r;
+    // The closest channel; ties keep the lower channel number.
+    int best=current;float bestMiss=r.missBefore;
+    for(size_t c=0;c<r.reach.size();++c)if(r.reach[c].present && int(c)!=current)
+        if(const float miss=channelMiss(r.reach[c],r.target);miss<bestMiss-1e-6f){bestMiss=miss;best=int(c);}
+    if(best!=current && bestMiss<=r.missBefore-ampCompressionTolerance){r.proposed=best;r.missAfter=bestMiss;}
+    return r;
 }
 } // namespace spectralforge::autoset

@@ -126,11 +126,12 @@ struct AmpNativeParameterCache {
         }
     }
     static float value(const std::atomic<float>* p,float fallback) noexcept { if(!p)return fallback;const float v=p->load(std::memory_order_relaxed);return std::isfinite(v)?v:fallback; }
-    AmpNativeState read(int context) const noexcept {
+    // channel: read that channel's state instead of the selected one (-1: the selected channel).
+    AmpNativeState read(int context,int channel=-1) const noexcept {
         context=juce::jlimit(0,ampNativeContextCount-1,context);const auto c=(size_t)context;
         const int raw=(int)std::round(juce::jlimit(0.f,255.f,value(models[c],2.f)));
         auto s=defaultAmpNativeState(raw<ampModelCount?raw:2);const auto m=(size_t)s.model;
-        s.soloEnabled=value(solo[c],0.f)>.5f;s.enabled=ampRequiresNative(s.model)||value(enabled[c],0.f)>.5f;s.channel=(int)std::round(juce::jlimit(0.f,15.f,value(channels[c][m],(float)s.channel)));
+        s.soloEnabled=value(solo[c],0.f)>.5f;s.enabled=ampRequiresNative(s.model)||value(enabled[c],0.f)>.5f;s.channel=channel>=0?juce::jlimit(0,15,channel):(int)std::round(juce::jlimit(0.f,15.f,value(channels[c][m],(float)s.channel)));
         s.inputRoute=(int)std::round(juce::jlimit(0.f,15.f,value(routes[c][m],0)));
         s.inputTrimDb=juce::jlimit(-24.f,24.f,value(inputTrim[c],0));s.outputLevelDb=juce::jlimit(-24.f,24.f,value(outputLevel[c],0));
         for(size_t k=0;k<ampNativePanel(s.model).controls.size();++k)s.values[k]=value(controls[c][m][k],s.values[k]);
