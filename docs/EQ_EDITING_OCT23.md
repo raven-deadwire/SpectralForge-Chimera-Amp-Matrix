@@ -108,6 +108,14 @@
 - 에디터 표시 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않으며 에디터를 다시 열면 Full로 돌아간다.
 - 검증: `ChimeraGraphicalEQUITests`의 `frequencyViewZoom`(양쪽 EQ). 보기별 노드 위치, 지원하지 않는 값 거부, 저장 상태 불변, 오른쪽 가장자리(5 kHz in 20–500 Hz)와 아래 가장자리(−18 dB in ±12 dB) 노드의 실제 값 기준 드래그, 확대 보기에서의 수치 표시를 확인한다. 메뉴 자체와 실제 DAW 표시는 자동 검증 범위 밖이다.
 
+## 분석기 기울기 (Analyzer tilt, 2026-11-06, Issue #53)
+
+- 그래프 빈 곳 오른쪽 클릭 메뉴의 **Analyzer tilt (pivot 1 kHz)**에서 **Flat**(기본), **3**, **4.5**, **6 dB/oct**를 고른다. IN/OUT 분석기 선과 PEAK 선을 1 kHz를 기준으로 옥타브당 그만큼 기울여 그린다(1 kHz 위는 올리고 아래는 내림). 고역으로 갈수록 내려가는 보통의 음악 스펙트럼을 평평하게 읽기 위한 것이다.
+- 그리는 것만 바뀐다. 분석 자체, 오디오, 커서 수치 표시의 dBFS(측정값 그대로)는 바뀌지 않는다. 기울기를 켜면 그래프 왼쪽 아래에 `Analyzer tilt +4.5 dB/oct @ 1 kHz`처럼 표시해, 선의 높이가 측정 dBFS와 다르다는 것을 알린다. 오른쪽 dBFS 눈금은 1 kHz에서의 값이다. 선은 0 dBFS 위와 −96 dBFS 아래에서 잘린다.
+- Freeze 중에도 고정된 프레임을 새 기울기로 다시 그린다.
+- 에디터 표시 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않으며 에디터를 다시 열면 Flat으로 돌아간다.
+- 검증: `ChimeraGraphicalEQUITests`의 `analyzerTilt`(양쪽 EQ). 실제 오디오로 만든 고정 프레임에서 100 Hz·400 Hz·1 kHz·4 kHz의 OUT 선과 PEAK 선이 기울기마다 정확히 `tilt × log2(f/1 kHz)` dB만큼 움직이는지(잘리는 점 제외), 수치 표시 불변, 지원하지 않는 값 거부, 메뉴 결과 처리(알 수 없는 ID 무시), 저장 상태 불변, Flat 복귀를 확인한다. 메뉴 자체와 실제 DAW 표시는 자동 검증 범위 밖이다.
+
 ## 이 환경에서 자동 검증할 수 있는 항목
 
 1. `ChimeraGraphicalEQEditingTests`: 실제 processor의 모든 EQ 파라미터 계약, 점유/우회/삭제/재사용, 64작업 이력, 동기·별도 스레드·재진입 호스트 쓰기, binary project, A/B, legacy/malformed migration, 모든 공장 프리셋, 44.1/48/96/192 kHz 오디오 동등성.

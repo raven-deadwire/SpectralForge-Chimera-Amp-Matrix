@@ -138,6 +138,14 @@ public:
     // Test diagnostics: which spectrum paths the last rebuild produced.
     bool liveSpectrumPathsBuilt() const noexcept {return !spectrumPaths[0].isEmpty() || !spectrumPaths[1].isEmpty() || !dashedInput.isEmpty();}
     bool peakPathsBuilt() const noexcept {return !peakPaths[0].isEmpty() && !peakPaths[1].isEmpty();}
+    // Diagnostics: y of the drawn live (or peak) line at the vertex nearest x; NaN when not built.
+    float drawnLineY(bool peak,int stream,float x) const {
+        const auto& path=(peak?peakPaths:spectrumPaths)[size_t(stream)];
+        float best=std::numeric_limits<float>::quiet_NaN(),distance=1.e9f;
+        for(juce::Path::Iterator it(path);it.next();)
+            if((it.elementType==juce::Path::Iterator::startNewSubPath || it.elementType==juce::Path::Iterator::lineTo) && std::abs(it.x1-x)<distance){distance=std::abs(it.x1-x);best=it.y1;}
+        return best;
+    }
     float peakSpectrumDB(bool output,int bin) const noexcept {return spectrum.peakDB(output,bin);}
     bool isWaitingForFreshCapture() const noexcept {return pendingCaptureRequest!=0;}
     void setSnapshotFrozen(bool frozen) {
@@ -207,9 +215,22 @@ public:
         frequencyView=view;rebuildResponse();rebuildSpectrumPaths();repaint();
     }
     int frequencyViewIndex() const noexcept {return frequencyView;}
+    // Analyzer tilt (editor-local, like the views): the IN/OUT and PEAK lines
+    // are drawn rising by this many dB per octave around 1 kHz, so a typical
+    // falling music spectrum reads flatter. Display only: the analysis, the
+    // cursor readout (measured dBFS) and the audio are unchanged.
+    static constexpr std::array<float,4> analyzerTilts{0.f,3.f,4.5f,6.f};
+    void setAnalyzerTilt(float dbPerOctave) {
+        float chosen=0.f;for(float t:analyzerTilts)if(std::abs(t-dbPerOctave)<.01f)chosen=t;
+        if(chosen==tiltDBPerOctave)return;
+        tiltDBPerOctave=chosen;rebuildSpectrumPaths();repaint();
+    }
+    float analyzerTilt() const noexcept {return tiltDBPerOctave;}
+    float analyzerTiltDB(float hz) const noexcept {return tiltDBPerOctave==0.f?0.f:tiltDBPerOctave*std::log2(std::max(1.f,hz)/1000.f);}
     // Ignore cancelled/unknown async menu results, including IDs in the gap.
     void applyViewMenuResult(int result) {
-        if(result>=100 && result<100+int(frequencyViews.size()))setFrequencyView(result-100);
+        if(result>=200 && result<200+int(analyzerTilts.size()))setAnalyzerTilt(analyzerTilts[size_t(result-200)]);
+        else if(result>=100 && result<100+int(frequencyViews.size()))setFrequencyView(result-100);
         else if(result>=1 && result<=int(displayRanges.size()))setDisplayRange(displayRanges[size_t(result-1)]);
     }
     // Where a node is drawn and hit: its true position, kept inside the graph
@@ -323,6 +344,11 @@ public:
         g.drawText("dBFS",int(area.getRight())+9,compactWorkspace?51:87,42,15,juce::Justification::centredLeft);
         for(int db:{0,-24,-48,-72,-96})g.drawText(juce::String(db),int(area.getRight())+9,int(spectrumY(float(db)))-8,40,16,juce::Justification::centredLeft);
         g.saveState();g.reduceClipRegion(area.toNearestInt());
+        if(tiltDBPerOctave!=0.f && (analyzerToggle.getToggleState() || spectrum.isFrozen())) {
+            // The analyzer lines are tilted: say so where the levels are read.
+            g.setColour(muted);g.setFont(juce::FontOptions(11.f));
+            g.drawText("Analyzer tilt +"+juce::String(tiltDBPerOctave,1)+" dB/oct @ 1 kHz",area.toNearestInt().reduced(8,6),juce::Justification::bottomLeft);
+        }
         if((analyzerToggle.getToggleState() || spectrum.isFrozen()) && (spectrum.hasData() || spectrum.hasPeak())) {
             for(int stream=0;stream<2;++stream) {
                 if(!(stream==0?inputToggle:outputToggle).getToggleState())continue;
@@ -398,6 +424,9 @@ public:
                 menu.addSectionHeader("Frequency view");
                 for(int i=0;i<int(frequencyViews.size());++i)
                     menu.addItem(100+i,frequencyViews[size_t(i)].name,true,i==frequencyView);
+                menu.addSectionHeader("Analyzer tilt (pivot 1 kHz)");
+                for(int i=0;i<int(analyzerTilts.size());++i)
+                    menu.addItem(200+i,i==0?juce::String("Flat"):juce::String(analyzerTilts[size_t(i)],1).trimCharactersAtEnd("0").trimCharactersAtEnd(".")+" dB/oct",true,analyzerTilts[size_t(i)]==tiltDBPerOctave);
                 juce::Component::SafePointer<GraphicalEQPanel> safe(this);
                 menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe](int result){
                     if(safe)safe->applyViewMenuResult(result);
@@ -738,12 +767,13 @@ private:
             auto& path=spectrumPaths[(size_t)stream];float lastX=area.getX();
             for(int x=0;x<=width;++x){
                 const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>nyquist)break;
+                const float tilt=analyzerTiltDB(centre);
                 if(live) {
-                    const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db);
+                    const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db+tilt);
                     if(x==0)path.startNewSubPath(px,y);else path.lineTo(px,y);lastX=px;
                 }
                 if(peak) {
-                    const float peakY=spectrumY(spectrum.peakDisplayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f)));
+                    const float peakY=spectrumY(spectrum.peakDisplayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f))+tilt);
                     if(x==0)peakPaths[(size_t)stream].startNewSubPath(px,peakY);else peakPaths[(size_t)stream].lineTo(px,peakY);
                 }
             }
@@ -777,6 +807,7 @@ private:
     bool compactWorkspace{},hasDynamicRange{};
     float displayRangeDB{24.f};
     int frequencyView{};
+    float tiltDBPerOctave{};
     static constexpr float nodeHitRadius=18.f;
     juce::Point<float> hoverPoint{-1.f,-1.f};
     enum class DragAxis {free,frequency,gain};
