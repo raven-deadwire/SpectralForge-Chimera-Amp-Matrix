@@ -43,6 +43,9 @@ void matrixRules() {
         const std::vector<float> silence(lanes.mid.size());
         const auto lonely=analyseMatrix(lanes.low,silence,lanes.high,rate,false);
         check(lonely.playingDetected && !lonely.heard[1] && !lonely.changed(),"A silent MID lane was moved");
+        // A silent LOW lane (the reference): MID and HIGH stay, even when they are out of balance.
+        const auto noLow=analyseMatrix(silence,quiet.mid,quiet.high,rate,false);
+        check(noLow.playingDetected && !noLow.heard[0] && !noLow.changed(),"Matrix levels moved without the LOW reference");
         check(!analyseMatrix(silence,silence,silence,rate).playingDetected,"Silence reported as playing");
         // One source split three ways: in polarity it adds back; MID inverted cancels at both crossovers.
         const auto x=targetNoise(false,rate,5,rng);
@@ -54,7 +57,7 @@ void matrixRules() {
                                 <<"); quiet MID "<<up.changeDb[0]<<"/"<<up.changeDb[1]<<" dB (error "<<up.toneErrorBeforeDb<<" > "<<up.toneErrorAfterDb<<", "<<up.evaluations<<" mixes); hot HIGH "<<down.changeDb[0]<<"/"<<down.changeDb[1]
                                 <<" dB; cancellation in phase "<<inPhase.cancellationDb<<" dB, MID inverted "<<cancel.cancellationDb<<" dB\n";
     }
-    std::cout<<"PASS auto set matrix rules at 44.1/48/96 kHz: exact mix, quiet MID up, hot HIGH down, LOW anchored, 6 dB limit on a 0.5 dB grid, control range, settles, silent lane, silence, crossover cancellation\n";
+    std::cout<<"PASS auto set matrix rules at 44.1/48/96 kHz: exact mix, quiet MID up, hot HIGH down, LOW anchored, 6 dB limit on a 0.5 dB grid, control range, settles, silent MID and LOW lanes, silence, crossover cancellation\n";
 }
 // The engine captures each Matrix lane after its level and polarity: the
 // three lanes add up to the Matrix output.
@@ -183,6 +186,9 @@ void controllerMatrix() {
     auto silentHigh=lanes;std::fill(silentHigh.high.begin(),silentHigh.high.end(),0.f);
     const auto silent=runMatrix(matrixOnly,silentHigh,matrixMode);
     check(stepOf(silent.status,P::matrix)->result.contains("HIGH lane is silent") && silent.values==silent.before,"A silent HIGH lane changed the levels");
+    auto silentLow=lanes;std::fill(silentLow.low.begin(),silentLow.low.end(),0.f);
+    const auto noLow=runMatrix(matrixOnly,silentLow,matrixMode);
+    check(stepOf(noLow.status,P::matrix)->result.contains("LOW lane is silent") && noLow.values==noLow.before,"A silent LOW lane changed the levels");
     std::cout<<"MEASURE auto set matrix controller: "<<step->result<<'\n';
-    std::cout<<"PASS auto set matrix controller: Matrix pass alone, native OUTPUT LEVEL and legacy LEVEL, strength, lock, Classic routing kept without a pass, routing or head edited while listening, manual edit kept, silent lane, undo\n";
+    std::cout<<"PASS auto set matrix controller: Matrix pass alone, native OUTPUT LEVEL and legacy LEVEL, strength, lock, Classic routing kept without a pass, routing or head edited while listening, manual edit kept, silent HIGH and LOW lanes, undo\n";
 }

@@ -19,6 +19,7 @@ namespace spectralforge::autoset {
 //   control's range; coordinate descent over 1 dB candidates, then a 0.5 dB
 //   refinement.
 // - A change is made only when the Tone EQ fit improves by more than 0.5 dB.
+// - Any lane not heard (muted or soloed away) keeps the levels.
 // - Cancellation (the mix more than 3 dB below the lanes' power sum in any
 //   third-octave band, 80 Hz-6.3 kHz) is reported, not fixed: polarity is
 //   left to the player.
@@ -74,7 +75,8 @@ inline MatrixResult analyseMatrix(const std::vector<float>& low,const std::vecto
         r.cancellationDb=std::max(r.cancellationDb,float(10*std::log10(sum/std::max(heardBand,1e-30))));
     }
     r.toneErrorBeforeDb=r.toneErrorAfterDb=ampToneErrorDb(now,style);
-    if(!r.heard[1] || !r.heard[2])return r;
+    // LOW is the reference: without it the balance would be set for a sound the player does not normally hear.
+    if(!r.heard[0] || !r.heard[1] || !r.heard[2])return r;
     std::array<float,2> best{},lo{},hi{};
     for(size_t k=0;k<2;++k){lo[k]=std::max(-matrixMaxMoveDb,std::min(0.f,room[k].first));hi[k]=std::min(matrixMaxMoveDb,std::max(0.f,room[k].second));}
     float bestError=r.toneErrorBeforeDb;Spectrum bestSpectrum=now;

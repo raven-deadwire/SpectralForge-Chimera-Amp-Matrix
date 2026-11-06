@@ -73,8 +73,10 @@ edits while the pass listens is kept.
   of the strongest), the mix is compared with the lanes' power sum. If it is
   more than 3 dB below in any band, the row adds "the lanes partly cancel at
   the crossovers": check polarity. A level change cannot fix polarity.
-- **Silent lane:** a MID or HIGH lane that is not heard (muted or soloed away)
-  keeps the levels, and the row names the lane.
+- **Silent lane:** a lane that is not heard (muted or soloed away) keeps the
+  levels, and the row names the lane. That includes LOW: without the
+  reference, the balance would be set for a sound the player does not
+  normally hear (MID and HIGH soloed, say).
 
 ## Testing
 
@@ -91,7 +93,8 @@ edits while the pass listens is kept.
   - Every move is within 6 dB and on the 0.5 dB grid.
   - A MID level at the top of its range is not raised.
   - Applying the result and running again settles (no move over 1 dB).
-  - A silent MID lane keeps the levels, and silence reports no playing.
+  - A silent MID lane, or a silent LOW lane with MID and HIGH out of balance,
+    keeps the levels, and silence reports no playing.
   - One source split three ways reports no cancellation in polarity; with MID
     inverted it reports over 3 dB (13.5 dB at 48 kHz).
 - **Capture (`matrixLaneCapture`):**
@@ -111,7 +114,7 @@ edits while the pass listens is kept.
   - Classic routing has no pass and says why.
   - Switching the routing, or a lane's head engine, while listening voids the
     pass; a level edited while listening is kept.
-  - A silent HIGH lane keeps the levels.
+  - A silent HIGH lane, and a silent LOW lane, keep the levels.
   - UNDO AUTO restores the levels.
 - **Full run (`controllerIntegration`, Classic routing):** eighteen result
   rows, with the Matrix row (kept, Classic routing) after the Dual row.
