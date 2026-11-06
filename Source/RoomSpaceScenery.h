@@ -137,7 +137,11 @@ inline juce::Image emblemMask(const juce::Image& photo) {
     const int w=x1-x0,h=y1-y0;if(w<8 || h<8)return mask;
     std::vector<float> lum(size_t(w*h)),tmp(size_t(w*h));
     const auto at=[w](int x,int y){return size_t(y*w+x);};
-    for(int y=0;y<h;++y)for(int x=0;x<w;++x){const auto c=photo.getPixelAt(x0+x,y0+y);lum[at(x,y)]=(c.getFloatRed()+c.getFloatGreen()+c.getFloatBlue())/3.f;}
+    {
+        // Read the photo once; keep the mask calculation and pixel coordinates unchanged.
+        const juce::Image::BitmapData pixels(photo,juce::Image::BitmapData::readOnly);
+        for(int y=0;y<h;++y)for(int x=0;x<w;++x){const auto c=pixels.getPixelColour(x0+x,y0+y);lum[at(x,y)]=(c.getFloatRed()+c.getFloatGreen()+c.getFloatBlue())/3.f;}
+    }
     // Light 1-4-6-4-1 smoothing, horizontal then vertical.
     constexpr float kernel[5]{1/16.f,4/16.f,6/16.f,4/16.f,1/16.f};
     for(int y=0;y<h;++y)for(int x=0;x<w;++x){float v=0;for(int k=-2;k<=2;++k)v+=kernel[k+2]*lum[at(juce::jlimit(0,w-1,x+k),y)];tmp[at(x,y)]=v;}

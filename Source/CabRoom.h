@@ -365,13 +365,13 @@ public:
     void rebuildSpaceLayer() {
         spaceLayer={};
         if(!spaceShown.on || getWidth()<=0 || getHeight()<=0 || !scenery->room.isValid())return;
-        spaceLayer=juce::Image(juce::Image::RGB,getWidth(),getHeight(),true);
+        spaceLayer=juce::Image(juce::Image::RGB,getWidth(),getHeight(),false);
         {
             juce::Graphics g(spaceLayer);g.fillAll(juce::Colour(0xff151714));
             g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
             g.drawImage(scenery->room,getLocalBounds().toFloat(),juce::RectanglePlacement::fillDestination|juce::RectanglePlacement::xMid|juce::RectanglePlacement::yBottom);
         }
-        const auto photographed=spaceLayer.createCopy();
+        const auto photographed=scenery->emblem.isValid() ? spaceLayer.createCopy() : juce::Image{};
         spectralforge::cabRoom::applySpaceMaterials(spaceLayer,sceneryRect(),spaceShown);
         if(scenery->emblem.isValid()) {
             juce::Image keep(juce::Image::SingleChannel,getWidth(),getHeight(),true);
