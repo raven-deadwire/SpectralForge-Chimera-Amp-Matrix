@@ -835,7 +835,7 @@ private:
         const auto r=analyseMatrix(low,mid,high,rate(),chosenInstrument(),runOptions.style,room);
         lastMatrix=r;
         if(!r.playingDetected){keep("no playing heard");return;}
-        if(!r.heard[1] || !r.heard[2]){keep(juce::String(!r.heard[1]?"the MID":"the HIGH")+" lane is silent (muted or soloed away)");return;}
+        if(!r.heard[0] || !r.heard[1] || !r.heard[2]){keep(juce::String(!r.heard[0]?"the LOW":!r.heard[1]?"the MID":"the HIGH")+" lane is silent (muted or soloed away)");return;}
         const auto fit="tone error "+juce::String(r.toneErrorBeforeDb,1)+" > "+juce::String(r.toneErrorAfterDb,1)+" dB";
         const auto cancel=r.cancellationDb>matrixCancellationDb?juce::String("; the lanes partly cancel at the crossovers (")+juce::String(r.cancellationDb,1)+" dB): check polarity":juce::String();
         if(!r.changed()){keep(juce::String(r.bass?"bass":"guitar")+" "+styleName(runOptions.style)+" lane balance already near the target"+cancel);return;}
