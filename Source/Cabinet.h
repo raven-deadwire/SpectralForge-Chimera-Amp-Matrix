@@ -72,6 +72,10 @@ private:
     bool on{true};
     std::unique_ptr<Cab> micB;
     juce::AudioBuffer<float> second, delayBuffer;
+    // Auto Set phase 18: mic A after its level, polarity and delay, before the
+    // A/B blend (mic B is `second`). Filled only while capturing (allocated in prepare).
+    juce::AudioBuffer<float> capturedA;
+    bool captureMics{}, micsFilled{};
     int delayWrite{};
     bool bWasRunning{};
     bool preferSecondSwap{};
@@ -91,6 +95,13 @@ private:
 public:
     explicit Cab(bool child=false) { if(!child) micB=std::make_unique<Cab>(true); else requestedSource.store(0); }
     Cab* secondMic() const noexcept { return micB.get(); }
+    // Audio thread: capture mic A and mic B, each before the A/B blend, in the next blocks.
+    void setMicCapture(bool value) noexcept { captureMics=value; }
+    // Audio thread, after process(): the last block filled both mics (mic B rendering, capture on).
+    bool micsCaptured() const noexcept { return micsFilled; }
+    // Audio thread, after process(): mic 0 (A) or 1 (B) of the last block, after its level,
+    // polarity and delay, before the blend and the cabinet's on/off fade.
+    const juce::AudioBuffer<float>& micOutput(int mic) const noexcept { return mic==0 ? capturedA : second; }
     float blend{}, gainDb{}, delayMs{};
     bool invert{}, bypassCuts{};
     ~Cab() { clear(); }
@@ -113,6 +124,7 @@ public:
         if(micB) micB->prepare(spec);
         bWasRunning=false; preferSecondSwap=false;
         second.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
+        capturedA.setSize((int)spec.numChannels,(int)spec.maximumBlockSize); micsFilled=false;
         delayBuffer.setSize((int)spec.numChannels,int(sr*.020)+2); delayBuffer.clear(); delayWrite=0;
         // A prepared/restored state owns its first sample. Ramping from unity
         // would briefly bypass saved attenuation or start an inverted mic with
@@ -213,6 +225,8 @@ public:
             if(serialiseModels && before!=micB->active)preferSecondSwap=false;
         }
         bWasRunning=renderB;
+        micsFilled=captureMics && renderB;
+        if(micsFilled) capturedA.setSize(buffer.getNumChannels(),buffer.getNumSamples(),false,false,true);
         juce::dsp::AudioBlock<float> block(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block);
         { SF_CAB_PROFILE_SCOPE(Filters); if(!bypassCuts)hp.process(context); }
@@ -259,6 +273,7 @@ public:
             // delay path. A settled non-unity gain needs only one vector pass.
             const float gain=micGain.getCurrentValue();
             if(gain!=1.f)buffer.applyGain(gain);
+            if(micsFilled)for(int c=0;c<buffer.getNumChannels();++c)capturedA.copyFrom(c,0,buffer,c,0,samples);
             if(micBlend.isSmoothing()) {
                 // Preserve the existing per-sample ramp, including the exact
                 // smoother progression when the second mic is not rendering.
@@ -286,6 +301,7 @@ public:
                 for(int c=0;c<buffer.getNumChannels();++c) {
                     delayBuffer.setSample(c,delayWrite,buffer.getSample(c,n));
                     const float a=gain*((1.f-fraction)*delayBuffer.getSample(c,read)+fraction*delayBuffer.getSample(c,previous));
+                    if(micsFilled)capturedA.setSample(c,n,a);
                     buffer.setSample(c,n,renderB ? (1.f-mix)*a+mix*second.getSample(c,n) : a);
                 }
                 if(++delayWrite==size)delayWrite=0;
