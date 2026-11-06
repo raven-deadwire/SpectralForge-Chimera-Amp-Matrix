@@ -49,6 +49,10 @@ STEP = 1 / 32768
 MEDIA_SECONDS = 60.0
 PAUSE_SECONDS = 1.5
 TAIL_STEPS = 16  # the control's tail must reach this, so the test can see a tail that was kept
+# The notes after the interruptions against Chimera outside OBS: the 16-bit conversion (up to
+# a step from nearest on the macOS CI runner) plus the float difference between the filter and
+# Chimera outside OBS, seen at about 0.1 step on Linux before any interruption.
+MATCH_STEPS = 1.25
 
 
 def write_media(path: Path) -> None:
@@ -212,16 +216,19 @@ def run(args: argparse.Namespace) -> None:
         check(without > TAIL_STEPS and with_reset <= 1.01,
               f"control ({name}): a kept tail would show ({without:.1f} steps), a dropped one does not ({with_reset:.2f})")
 
-    # The notes after the interruptions: as obs_vst3_match_test.py, against Chimera outside OBS.
-    reference, _ = match.render(args, centre, ch[4], None, work, "reference")
+    # The notes after the interruptions: as obs_vst3_match_test.py, against Chimera outside OBS,
+    # with its tails dropped where the filter dropped them: when it was re-enabled (to within
+    # an OBS tick, in the silence after the note) and at the first sample after the pause.
+    reference, _ = match.render(args, centre, ch[4], None, work, "reference", [on_at, resume_at])
     start_at = after - rate // 5
     shift = match.best_shift(front, reference[0], after)
     r = match.compare(front, reference[0], shift, start_at, [n for n in notes if n >= after],
                       [(pause_at - int(match.PERIOD * rate), next_note + int(match.NOTE * rate))])
     print(f"     notes after the re-enable (not around the pause): OBS after the reference by {shift:+d}, largest "
-          f"difference {r['max_steps']:.2f} steps, {r['ahead_steps']:.2f} in the tick before a note")
-    check(shift == 0 and r["max_steps"] <= 1.01 and r["ahead_steps"] <= 2,
-          f"after the interruption the filter's output matches Chimera outside OBS ({r['max_steps']:.2f} steps)")
+          f"difference {r['max_steps']:.2f} steps at {r['worst_at']:.2f} s, {r['ahead_steps']:.2f} in the tick before a note")
+    check(shift == 0 and r["max_steps"] <= MATCH_STEPS and r["ahead_steps"] <= 2,
+          f"after the interruption the filter's output matches Chimera outside OBS ({r['max_steps']:.2f} steps, "
+          f"allowed {MATCH_STEPS:g})")
 
     log = log_text()
     for line in log.splitlines():
