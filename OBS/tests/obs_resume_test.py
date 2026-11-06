@@ -221,11 +221,25 @@ def run(args: argparse.Namespace) -> None:
     # an OBS tick, in the silence after the note) and at the first sample after the pause.
     reference, _ = match.render(args, centre, ch[4], None, work, "reference", [on_at, resume_at])
     start_at = after - rate // 5
+    # Where OBS dropped, repeated or shifted samples in the recording (as obs_vst3_match_test.py
+    # finds them), the recorded input is not what the filter received: left out, as is the pause.
+    skip = [(pause_at - int(match.PERIOD * rate), next_note + int(match.NOTE * rate))]
+    source = match.channels6(media)
+    for label, c in (("centre", 2), ("rear left", 4)):
+        offsets, spans = match.input_breaks(ch[c], source[c])
+        print(f"     the recorded {label} (the filter's input) per note, offset into the media file: {offsets}")
+        skip += spans
+    if len(skip) > 1:
+        print(f"     left out besides the pause (OBS broke the recorded input there): "
+              f"{[(round(a / rate, 2), round(b / rate, 2)) for a, b in skip[1:]]} s")
+    compared = [n for n in notes if n >= after and not any(a <= n < b for a, b in skip)]
+    check(after in compared, f"the first note after the re-enable is compared (notes compared at "
+          f"{[round(n / rate, 2) for n in compared]} s)")
     shift = match.best_shift(front, reference[0], after)
-    r = match.compare(front, reference[0], shift, start_at, [n for n in notes if n >= after],
-                      [(pause_at - int(match.PERIOD * rate), next_note + int(match.NOTE * rate))])
+    r = match.compare(front, reference[0], shift, start_at, [n for n in notes if n >= after], skip)
     print(f"     notes after the re-enable (not around the pause): OBS after the reference by {shift:+d}, largest "
-          f"difference {r['max_steps']:.2f} steps at {r['worst_at']:.2f} s, {r['ahead_steps']:.2f} in the tick before a note")
+          f"difference {r['max_steps']:.2f} steps at {r['worst_at']:.2f} s, {r['ahead_steps']:.2f} in the tick before a note; "
+          f"largest per second from {start_at / rate:.1f} s: {r['per_second']}")
     check(shift == 0 and r["max_steps"] <= MATCH_STEPS and r["ahead_steps"] <= 2,
           f"after the interruption the filter's output matches Chimera outside OBS ({r['max_steps']:.2f} steps, "
           f"allowed {MATCH_STEPS:g})")
