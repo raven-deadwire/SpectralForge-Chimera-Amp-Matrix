@@ -146,7 +146,7 @@ void controllerMatrix() {
         return [list](ChimeraProcessor& p){for(const auto& [id,v]:list)p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));};};
     const auto midNative=spectralforge::ampNativeOutputLevelID(4),highNative=spectralforge::ampNativeOutputLevelID(5);
     const auto matrixMode=setter({{"mode",2}});
-    const Controller::Options matrixOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,true,false};
+    const Controller::Options matrixOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,true,false,false};
     // Native heads (the default): the lanes' OUTPUT LEVEL moves; LEVEL and LOW stay.
     const auto full=runMatrix(matrixOnly,lanes,matrixMode);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::matrix);

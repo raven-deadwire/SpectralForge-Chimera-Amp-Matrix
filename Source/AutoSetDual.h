@@ -126,4 +126,61 @@ inline DualResult analyseDual(const std::vector<float>& rig1,const std::vector<f
     }
     return r;
 }
+// Phase 19: the Dual rigs' levels, before the blend. In Dual Blend the BLEND
+// is the balance between the rigs; this step first matches rig 2's loudness
+// to rig 1's, so a 50% blend hears both rigs alike. Each rig is heard on its
+// own (Tap::lane1/lane2, after the rig's level), so the change is exact:
+// - Loudness: each rig's power in 80 Hz-6.3 kHz (the Tone EQ fit range).
+// - Rig 1 is the reference; rig 2's level moves by the difference, on a
+//   0.5 dB grid, at most 12 dB either way and within its control's range.
+// - It moves only when the rigs differ by more than 1 dB.
+// The mix's level change at the current blend is reported; the Final EQ and
+// output pass restores the loudness.
+struct RigLevelResult {
+    bool playingDetected{},bass{},rig1Heard{},rig2Heard{};
+    float rig1Db{},rig2Db{};                  // each rig's 80 Hz-6.3 kHz level as heard (dB)
+    float changeDb{};                         // rig 2's level change
+    bool limited{};                           // the limit or the control's range cut the change short
+    float levelChangeDb{};                    // the mix's 80 Hz-6.3 kHz level change at the current blend
+    float differenceDb() const noexcept {return rig1Db-rig2Db;}
+    bool changed() const noexcept {return changeDb!=0.f;}
+};
+inline constexpr float rigsMinDifferenceDb=1,rigsMaxMoveDb=12,rigsStepDb=.5f;
+inline constexpr double rigsSeconds=4;       // the first 4 s heard are compared
+// rig1/rig2: each rig as heard; blend: the Dual BLEND now (0-1); room: how
+// far rig 2's level may move (dB, {down, up}), from its control's range.
+inline RigLevelResult analyseRigLevels(const std::vector<float>& rig1,const std::vector<float>& rig2,double rate,float blend,
+                                       std::optional<bool> bass={},std::pair<float,float> room={-rigsMaxMoveDb,rigsMaxMoveDb}) {
+    RigLevelResult r;
+    const size_t n=std::min({rig1.size(),rig2.size(),size_t(rate*rigsSeconds)});
+    if(n==0)return r;
+    const std::vector<float> a(rig1.begin(),rig1.begin()+std::ptrdiff_t(n)),b(rig2.begin(),rig2.begin()+std::ptrdiff_t(n));
+    std::vector<float> mix(n);
+    const auto mixAt=[&](float g)->const std::vector<float>& {for(size_t i=0;i<n;++i)mix[i]=(1-blend)*a[i]+blend*g*b[i];return mix;};
+    // Both rigs together decide whether there is playing, and bass or guitar.
+    std::vector<float> both(n);for(size_t i=0;i<n;++i)both[i]=a[i]+b[i];
+    const auto heard=measureSpectrum(both,rate,bass);
+    r.playingDetected=heard.playing;
+    if(!r.playingDetected)return r;
+    r.bass=heard.bass;
+    const auto s1=measureSpectrum(a,rate,r.bass),s2=measureSpectrum(b,rate,r.bass);
+    r.rig1Heard=s1.playing;r.rig2Heard=s2.playing;
+    const auto db=[](double p){return float(10*std::log10(std::max(p,1e-30)));};
+    r.rig1Db=db(dualFitPower(s1.bandsDb));r.rig2Db=db(dualFitPower(s2.bandsDb));
+    if(!r.rig1Heard || !r.rig2Heard)return r;
+    const float difference=r.differenceDb();
+    if(std::abs(difference)<=rigsMinDifferenceDb)return r;
+    const float wanted=std::round(difference/rigsStepDb)*rigsStepDb;
+    const float lo=std::max(-rigsMaxMoveDb,std::min(0.f,room.first)),hi=std::min(rigsMaxMoveDb,std::max(0.f,room.second));
+    // Whole steps only, inside the room.
+    const float change=std::clamp(wanted,std::ceil(lo/rigsStepDb-1e-4f)*rigsStepDb,std::floor(hi/rigsStepDb+1e-4f)*rigsStepDb);
+    r.limited=change!=wanted;
+    r.changeDb=change;
+    if(r.changeDb!=0.f) {
+        const double before=dualFitPower(measureSpectrum(mixAt(1),rate,r.bass).bandsDb);
+        const double after=dualFitPower(measureSpectrum(mixAt(float(std::pow(10.,change/20.))),rate,r.bass).bandsDb);
+        r.levelChangeDb=db(after)-db(before);
+    }
+    return r;
+}
 } // namespace spectralforge::autoset

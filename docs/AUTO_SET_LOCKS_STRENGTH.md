@@ -20,9 +20,12 @@ Dual BLEND and CROSSOVER), Stereo doubler (phase 14, `AUTO_SET_PHASE14.md`:
 DOUBLER and its spread), Cabinet cuts (phase 15, `AUTO_SET_PHASE15.md`:
 the Classic rig's LOW and HIGH cuts), Bus compressor (phase 16,
 `AUTO_SET_PHASE16.md`: the POST Console VCA) Matrix levels (phase 17,
-`AUTO_SET_PHASE17.md`: the Matrix MID and HIGH lane levels) and Cabinet mic
+`AUTO_SET_PHASE17.md`: the Matrix MID and HIGH lane levels), Cabinet mic
 blend (phase 18, `AUTO_SET_PHASE18.md`: the Classic cabinet's mic delays,
-mic B polarity and A/B blend). A locked setting is not part of the run's
+mic B polarity and A/B blend) and Dual rig levels (phase 19,
+`AUTO_SET_PHASE19.md`: the Dual rig 2 LEVEL or its native head's OUTPUT
+LEVEL). LEVEL 2 is both the Dual rig 2 level and the Matrix MID lane level,
+so either the Dual rig levels or the Matrix levels lock keeps it. A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
 later edit to a locked setting survives undo. A lock selected after the run
 also protects its stage from undo; unlocking an originally locked stage does
@@ -31,7 +34,7 @@ not add an undo entry.
 - A pass whose outputs are all locked is skipped: locking Tone EQ removes the
   Tone EQ pass (and the Dynamic EQ step, whose nodes are Tone EQ bands), locking Compressor removes the compressor pass, locking both
   De-esser and Limiter (and Bus compressor, when that step is on) removes the de-esser and limiter pass, locking both Amp
-  and Presence + resonance removes the amp pass (it serves both steps), locking both Cabinet mic and Cabinet cuts removes the cabinet mic pass (it serves both steps), locking Boost pedal removes the boost pass, locking Dual blend removes the Dual pass, locking Matrix levels removes the Matrix pass, locking Cabinet mic blend removes the cabinet mics pass. The input pass runs unless
+  and Presence + resonance removes the amp pass (it serves both steps), locking both Cabinet mic and Cabinet cuts removes the cabinet mic pass (it serves both steps), locking Boost pedal removes the boost pass, locking both Dual blend and Dual rig levels removes the Dual pass (it serves both steps), locking Matrix levels removes the Matrix pass, locking Cabinet mic blend removes the cabinet mics pass. The input pass runs unless
   both Input gain and Gate are locked.
 - Skipped passes appear in the results as "kept (locked)", in signal order.
   A partly locked pass says which part it kept ("input kept (locked)",
@@ -65,6 +68,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Amp | Each knob change: before + strength × (result − before) |
 | Presence + resonance | Each knob change, as for Amp |
 | Dual blend | The BLEND or CROSSOVER change, as for Amp |
+| Dual rig levels | The rig 2 level change in dB, as for Amp; the blend step then hears rig 2 at the applied level |
 | Matrix levels | Each lane level change in dB, as for Amp |
 | Cabinet mic blend | The BLEND change, as for Amp; the mic delays and polarity are applied whole |
 | Stereo doubler | A spread change of a doubler that is on, as for Amp; switching it on is not scaled |
