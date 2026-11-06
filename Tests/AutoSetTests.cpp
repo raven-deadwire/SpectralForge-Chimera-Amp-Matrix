@@ -430,7 +430,7 @@ void controllerFinishPreservation() {
         setRaw("deEsserOn",1);setRaw("deEsserFrequency",4700);setRaw("deEsserThreshold",-31);setRaw("deEsserRange",7);setRaw("deEsserListen",1);
         const auto manual=deesserValues(),before=values(*p);std::mt19937 random{802};
         const auto signal=targetNoise(bass,48000,6.5,random,style);
-        Controller c(*p);c.setOptions({bass?2:1,false,style,true,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false});Gestures g;p->addListener(&g);
+        Controller c(*p);c.setOptions({bass?2:1,false,style,true,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false,false});Gestures g;p->addListener(&g);
         double now=juce::Time::getMillisecondCounterHiRes();c.start();
         for(int pass=0;pass<3;++pass)feedCapture(*p,c,signal,now);
         check(c.current().phase==Controller::Phase::done && c.lastFinishAnalysis().bass==bass,"Explicit instrument or three-pass controller failed");
@@ -560,7 +560,7 @@ void controllerIntegration() {
         check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
         check(!sawTone,"Tone pass claimed an instrument before its analysis");
         const auto& steps=c.current().steps;
-        check(steps.size()==16 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
+        check(steps.size()==17 && steps[0].phase==Controller::Phase::input && steps[0].result.contains("input") && steps[1].phase==Controller::Phase::gates
               && steps[2].phase==Controller::Phase::boost && steps[2].changed==c.lastBoostAnalysis().engaged
               && steps[3].phase==Controller::Phase::amp && steps[3].changed==(c.lastAmpAnalysis().changedKnobs()>0)
               && steps[4].phase==Controller::Phase::power && steps[4].changed==(c.lastPowerAnalysis().changedKnobs()>0)
@@ -568,7 +568,7 @@ void controllerIntegration() {
               && steps[6].phase==Controller::Phase::cuts && steps[6].changed==c.lastCutsAnalysis().changed()
               && steps[7].phase==Controller::Phase::dual && !steps[7].changed && steps[7].result.contains("Classic or Matrix routing")
               && steps[8].phase==Controller::Phase::tone && steps[9].phase==Controller::Phase::dynamicEQ && steps[9].changed==!dynamic.nodes.empty()
-              && steps[12].phase==Controller::Phase::finish && steps[13].phase==Controller::Phase::space && steps[14].phase==Controller::Phase::width && steps[15].phase==Controller::Phase::level && steps[10].changed && steps[10].result.contains(":1"),"Results do not list one row per pass with the applied values");
+              && steps[12].phase==Controller::Phase::finish && steps[13].phase==Controller::Phase::bus && steps[13].changed==c.lastBusAnalysis().changed() && steps[14].phase==Controller::Phase::space && steps[15].phase==Controller::Phase::width && steps[16].phase==Controller::Phase::level && steps[10].changed && steps[10].result.contains(":1"),"Results do not list one row per pass with the applied values");
         // Gate 2 / Expander follow their analysis; the gates were held open only while the input pass listened.
         const auto& gates=c.lastGateAnalysis();
         check(gates.measured && (get(*p,"expOn")>.5f)==(gates.plan==GateStagesResult::Plan::soft) && (get(*p,"gate2On")>.5f)==(gates.plan==GateStagesResult::Plan::hard),
@@ -600,12 +600,12 @@ void controllerIntegration() {
     const auto restored=values(*p);bool undone=restored.size()==before.size();
     for(size_t i=0;undone && i<before.size();++i)undone=near(restored[i],before[i],1e-6f);
     check(undone && !c.current().canUndo,"Undo did not restore every parameter");
-    c.setOptions({0,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false});c.start();
+    c.setOptions({0,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false,false});c.start();
     check(c.current().phase==Controller::Phase::input && c.current().text.contains("1/2"),"Excluding the optional steps did not shorten Auto Set to two passes");
     c.cancel();check(values(*p)==restored,"Cancelling a run changed parameters");
     // Edits made while listening and after applying are not owned by Auto Set.
     // Include an untouched optional stage: the old whole-snapshot undo lost it.
-    c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false});c.start();
+    c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false,false});c.start();
     setRaw("input",3.f);setRaw("deEsserRange",11.f);
     const float manualInput=get(*p,"input"),manualRange=get(*p,"deEsserRange");
     run(*p,c,&di,14,now);
@@ -684,7 +684,7 @@ void inputStrengthRounding() {
 }
 void controllerLocksAndStrength() {
     using P=Controller::Phase;
-    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false,false,false,false,false,false,false};
+    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false,false,false,false,false,false,false,false};
     const auto full=runLocked(all);
     check(full.status.phase==P::done && full.status.steps.size()==5,"Reference run did not complete five passes");
     check(valueOf(full,"gateon")>.5f,"Reference run did not place the gate");
@@ -803,7 +803,7 @@ void controllerDynamicEQ() {
     const auto undoneAll=[](const DynamicRun& r){for(size_t i=0;i<r.before.size();++i)if(!near(r.undone[i],r.before[i],1e-6f))return false;return true;};
     // Tone EQ step off, defaults (bypassed Tone EQ, no bands): the pass still
     // runs for the Dynamic EQ, which places a 0 dB node at 250 Hz on slot 1.
-    const Controller::Options dynamicOnly{1,false,Style::rock,false,false,false,1.f,0u,true,false,false,false,false,false,false,false,false,false};
+    const Controller::Options dynamicOnly{1,false,Style::rock,false,false,false,1.f,0u,true,false,false,false,false,false,false,false,false,false,false};
     const auto full=runDynamic(dynamicOnly);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::input,P::tone,P::compressor},"Dynamic EQ did not run the Tone EQ pass on its own");
     const auto* step=stepOf(full.status,P::dynamicEQ);
@@ -920,7 +920,7 @@ LevelRun runLevel(const Controller::Options& options,const std::function<void(Ch
 void controllerLevel() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options levelOnly{1,false,Style::rock,false,false,false,1.f,0u,false,true,false,false,false,false,false,false,false,false};
+    const Controller::Options levelOnly{1,false,Style::rock,false,false,false,1.f,0u,false,true,false,false,false,false,false,false,false,false,false};
     const auto full=runLevel(levelOnly);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::input,P::compressor,P::level},"Final EQ and output did not run as the last pass");
     const auto* step=stepOf(full.status,P::level);
@@ -1073,7 +1073,7 @@ AmpRun runAmp(const Controller::Options& options,float gainFraction,const std::f
 void controllerAmp() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options ampOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,true,false,false,false,false,false,false,false};
+    const Controller::Options ampOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,true,false,false,false,false,false,false,false,false};
     const auto full=runAmp(ampOnly,.05f);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::amp);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::amp} && step && step->changed && step->result.contains("GAIN"),"Amp pass did not run or report");
@@ -1200,7 +1200,7 @@ CabRun runCab(const Controller::Options& options,const std::function<void(Chimer
 void controllerCab() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options cabOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false,false,false,false,false,false};
+    const Controller::Options cabOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false,false,false,false,false,false,false};
     const auto full=runCab(cabOnly);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::cab);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::cab} && step && step->changed && step->result.contains("mic A position"),"Cabinet mic pass did not run or report");
@@ -1252,7 +1252,7 @@ void controllerBassCab() {
             setRaw("ocab1_"+letter+"on",1);setRaw("ocab1_"+letter+"position",.5f);setRaw("ocab1_"+letter+"distance",10);
             setRaw("cabblend1",float(mic));setRaw("cab"+letter+"gain1",-2);
         };
-        Controller::Options options{2,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false,false,false,false,false,false};
+        Controller::Options options{2,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false,false,false,false,false,false,false};
         for(float strength:{.25f,.5f,.75f,1.f}) {
             options.strength=strength;
             const auto run=runCab(options,setup);const auto& a=run.analysis;
@@ -1337,7 +1337,7 @@ BoostRun runBoost(const Controller::Options& options,const std::function<void(Ch
 void controllerBoost() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options boostOnly{1,false,Style::metal,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,true,false,false,false,false,false};
+    const Controller::Options boostOnly{1,false,Style::metal,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,true,false,false,false,false,false,false};
     const auto full=runBoost(boostOnly);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::boost);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::boost} && step && step->changed && step->result.contains("Green Drive in slot 5"),"Boost pass did not run or report");
@@ -1432,7 +1432,7 @@ SpaceRun runSpace(const Controller::Options& options,const std::function<void(Ch
 void controllerSpace() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
-    const Controller::Options spaceOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,true,false,false,false,false};
+    const Controller::Options spaceOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,true,false,false,false,false,false};
     const auto full=runSpace(spaceOnly);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::space);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::input} && step && step->changed && step->result.contains("reverb on") && step->result.contains("delay on"),"Delay + reverb step did not run or report");
@@ -1502,7 +1502,7 @@ void parameterEditNotifications() {
 
 void controllerEditHistory() {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
-    Controller c(*p);c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false});
+    Controller c(*p);c.setOptions({1,false,Style::rock,false,false,true,1.f,0u,false,false,false,false,false,false,false,false,false,false,false});
     auto* input=p->parameters().getParameter("input");
     auto* threshold=p->parameters().getParameter("cleanCompThreshold");
     const float before=input->getValue();
@@ -1575,6 +1575,7 @@ bool inLockedStage(const juce::String& id,Controller::Lock lock) {
         case Controller::lockDual:return id=="dualblend" || id=="dualcross";
         case Controller::lockWidth:return id=="doubleron" || id=="doublertime";
         case Controller::lockCuts:return id=="cablow1" || id=="cabhigh1";
+        case Controller::lockBus:return id.startsWith("pn_bus_m0_") && !id.endsWith("external_sidechain") && !id.endsWith("fade_rate") && !id.endsWith("auto_fade") && !id.endsWith("softwareTrim") && !id.endsWith("softwareLevel");
         case Controller::lockSpace:return id=="delayon" || id=="delaytime" || id=="delayfeedback" || id=="delaymix" || id=="reverbon" || id=="reverbsize" || id=="reverbdamping" || id=="reverbmix";
         case Controller::lockBoost:return id.startsWith("board") && (id.endsWith("Model") || id.contains("_m1_"));
         case Controller::lockCab:return id=="ocab1_Aposition" || id=="ocab1_Adistance" || id=="ocab1_Bposition" || id=="ocab1_Bdistance" || id=="cabAgain1" || id=="cabBgain1";
@@ -1582,7 +1583,7 @@ bool inLockedStage(const juce::String& id,Controller::Lock lock) {
     return false;
 }
 void controllerStrengthMatrix() {
-    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false,false,false,false,false,false,false};
+    const Controller::Options all{1,true,Style::rock,true,true,false,1.f,0u,false,false,false,false,false,false,false,false,false,false,false};
     const auto full=runLocked(all);
     const LockRun defaults{full.before,{},{}};
     check(valueOf(full,"mbOn")>.5f && valueOf(full,"deEsserOn")>.5f,"Strength matrix needs active positive controls");
@@ -1611,7 +1612,7 @@ void controllerStrengthMatrix() {
 void controllerEveryLock() {
     for(const auto lock:Controller::lockOrder)for(float amount:{.25f,.5f,.75f,1.f}) {
         // The amp step runs only for its own lock (the fixtures feed no amp input), so it is skipped.
-        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock),true,true,lock==Controller::lockAmp,lock==Controller::lockCab,lock==Controller::lockBoost,lock==Controller::lockSpace,lock==Controller::lockPower,lock==Controller::lockDual,lock==Controller::lockWidth,lock==Controller::lockCuts};
+        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock),true,true,lock==Controller::lockAmp,lock==Controller::lockCab,lock==Controller::lockBoost,lock==Controller::lockSpace,lock==Controller::lockPower,lock==Controller::lockDual,lock==Controller::lockWidth,lock==Controller::lockCuts,lock==Controller::lockBus};
         std::vector<int> lockedIndices;std::vector<float> seeded;bool editedDuringRun=false;
         const auto r=runLocked(o,[&](ChimeraProcessor& p,Controller& c){
             auto applied=values(p);
@@ -1631,7 +1632,7 @@ void controllerEveryLock() {
     }
     // Options changed during a run belong to the next run. Undo still uses the
     // run snapshot, while a newly selected lock additionally protects its stage.
-    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone,false,false,false,false,false,false,false,false,false,false};
+    Controller::Options initial{1,true,Style::rock,true,true,false,.5f,Controller::lockTone,false,false,false,false,false,false,false,false,false,false,false};
     bool changed=false;
     const auto baseline=runLocked(initial);
     const auto edited=runLocked(initial,[&](ChimeraProcessor& p,Controller& c){
@@ -1681,7 +1682,7 @@ void controllerGateStageEditHistory() {
             auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
             Controller c(*p);
             Controller::Options options{1,false,style,false,false,true,amount,
-                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u,false,false,false,false,false,false,false,false,false,false};
+                (edit==3 || edit==9)?unsigned(Controller::lockGate):edit==8?unsigned(Controller::lockInput):0u,false,false,false,false,false,false,false,false,false,false,false};
             c.setOptions(options);
             auto gateValues=[&]{std::vector<float> v;for(const auto& id:gateIDs)v.push_back(get(*p,id));return v;};
             auto gateABA=[&] {
@@ -1769,6 +1770,8 @@ void controllerGateStageEditHistory() {
 #include "AutoSetDualTests.h"
 #include "AutoSetWidthTests.h"
 #include "AutoSetCutsTests.h"
+#include "AutoSetBusTests.h"
+#include "AutoSetBusOrderControllerTests.h"
 #include "AutoSetCabEditTests.h"
 #include "AutoSetPowerBassControllerTests.h"
 #include "AutoSetPowerBassRules.h"
@@ -1785,6 +1788,9 @@ int main(int argc, char** argv) {
         if(argc==3 && std::string(argv[1])=="--space-report"){spaceSignalRegression(juce::File(argv[2]));return 0;}
         if(argc==3 && std::string(argv[1])=="--space-fixtures"){spaceWriteFixtures(juce::File(argv[2]));return 0;}
         if(argc==2 && std::string(argv[1])=="--power"){powerRules();controllerPower();return 0;}
+        if(argc==2 && std::string(argv[1])=="--bus"){busRules();controllerBus();return 0;}
+        if(argc==2 && std::string(argv[1])=="--bus-order"){controllerBusOrderSafety();return 0;}
+        if(argc==2 && std::string(argv[1])=="--bus-edits"){controllerBusApplySafety();return 0;}
         if(argc==2 && std::string(argv[1])=="--cuts"){cutsRules();controllerCuts();return 0;}
         if(argc==2 && std::string(argv[1])=="--width"){widthRules();controllerWidth();return 0;}
         if(argc==2 && std::string(argv[1])=="--dual"){dualRules();dualLaneCapture();controllerDual();return 0;}
@@ -1812,10 +1818,11 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();widthRules();controllerWidth();cutsRules();controllerCuts();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();widthRules();controllerWidth();cutsRules();controllerCuts();busRules();controllerBus();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
         controllerCabPlacementEdits();
+        controllerBusOrderSafety();controllerBusApplySafety();
         controllerPowerBassRegression();
         powerBassRules();
         std::cout<<"PASS Auto Set\n";return 0;

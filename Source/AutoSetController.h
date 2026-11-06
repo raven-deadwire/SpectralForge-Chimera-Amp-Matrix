@@ -10,6 +10,7 @@
 #include "AutoSetDual.h"
 #include "AutoSetWidth.h"
 #include "AutoSetCabCuts.h"
+#include "AutoSetBus.h"
 #include "EasyMode.h"
 #include "AutoSetParameterEdits.h"
 #include <memory>
@@ -55,13 +56,13 @@ class Controller final : private juce::Timer {
 public:
     // gates is a result step of the input pass, not a listening pass of its own.
     // dynamicEQ is a result step of the Tone EQ pass.
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus};
     // Settings Auto Set must keep as they are: their parameters are neither
     // written nor restored by UNDO AUTO, and a pass whose outputs are all locked
     // is skipped. The gate lock also covers Gate 2 and the Expander; the Tone EQ
     // lock also keeps the Dynamic EQ step, whose nodes are Tone EQ bands.
-    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17};
-    static constexpr std::array<Lock,18> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts};
+    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18};
+    static constexpr std::array<Lock,19> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus};
     // strength (minimumStrength..1) scales how far each result moves the sound:
     // input gain change and Tone EQ gains scale, the compressor and multiband
     // mix in parallel, the Dynamic EQ and de-esser ranges scale. The gates are placed for the
@@ -80,7 +81,8 @@ public:
     // dual sets the Dual BLEND or CROSSOVER in a pass of its own, in Dual routing only.
     // width sets the stereo doubler from the rig sound and the playing already heard.
     // cuts sets the Classic rig's cabinet LOW and HIGH cuts from the cabinet mic pass.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};};
+    // bus sets the POST Console VCA bus compressor from the de-esser + limiter pass.
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -94,7 +96,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -145,6 +147,8 @@ public:
             touchedIDs.push_back({"cab"+juce::String(mic)+"gain1",lockCab});
         }
         add(lockDual,{"dualblend","dualcross"});add(lockWidth,{"doubleron","doublertime"});add(lockCuts,{"cablow1","cabhigh1"});
+        touchedIDs.push_back({postNativeBypassID(0,0),lockBus});
+        for(const int c:{busThresholdControl,busMakeupControl,busAttackControl,busReleaseControl,busRatioControl,busInControl})touchedIDs.push_back({postNativeControlID(0,0,c),lockBus});
         add(lockSpace,{"delayon","delaytime","delayfeedback","delaymix","reverbon","reverbsize","reverbdamping","reverbmix"});
         // Phase 10 places the Green Drive on a free pedal board slot.
         for(int owner=0;owner<pedalBoardCapacity;++owner) {
@@ -153,6 +157,11 @@ public:
         }
         for(const auto& item:touchedIDs)if(auto* parameter=processor.parameters().getParameter(item.first))
             editTrackers.push_back(std::make_unique<ParameterEdits>(*parameter));
+        // Read-only bus dependencies also need revisions (including A-B-A).
+        // Do not add them to touchedIDs: Auto Set/UNDO must never write them.
+        for(const auto& id:busReadIDs())if(auto* parameter=processor.parameters().getParameter(id))
+            if(std::none_of(editTrackers.begin(),editTrackers.end(),[&](const auto& t){return &t->parameter==parameter;}))
+                editTrackers.push_back(std::make_unique<ParameterEdits>(*parameter));
     }
     ~Controller() override {stopTimer();stopListening();}
 
@@ -168,7 +177,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastWidth={};lastCuts={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -203,7 +212,13 @@ public:
             if(runOptions.dynamicEQ && !dynamicStepRuns())lockedPhases.push_back(Phase::dynamicEQ);
         }
         plan(Phase::compressor,true,lockCompressor);
-        plan(Phase::multiband,runOptions.multiband,lockMultiband);plan(Phase::finish,runOptions.finish,lockDeEsser|lockLimiter);
+        plan(Phase::multiband,runOptions.multiband,lockMultiband);
+        // The de-esser + limiter pass also hears the POST input for the bus compressor step.
+        if(finishStepRuns() || busStepRuns())passes.push_back(Phase::finish);
+        else {
+            if(runOptions.finish)lockedPhases.push_back(Phase::finish);
+            if(runOptions.bus)lockedPhases.push_back(Phase::bus);
+        }
         spacePending=runOptions.space && !locked(lockSpace);
         widthPending=runOptions.width && !locked(lockWidth);
         if(runOptions.space && locked(lockSpace))lockedPhases.push_back(Phase::space);
@@ -244,7 +259,7 @@ public:
         const auto before=collected();
         if(status.phase==Phase::level)capture.drainOutput(outputSamples);
         else if(samplePass())capture.drainSamples(samples);
-        if(status.phase==Phase::amp || status.phase==Phase::boost || status.phase==Phase::dual)capture.drainAmpSamples(ampSamples);
+        if(status.phase==Phase::amp || status.phase==Phase::boost || status.phase==Phase::dual || status.phase==Phase::finish)capture.drainAmpSamples(ampSamples);
         if(windowPass())capture.drain(windowTap(),windows);
         if(status.phase==Phase::input)capture.drain(Tap::rig,rigWindows);
         if(lastAudioMs<0 || collected()!=before)lastAudioMs=nowMs;
@@ -261,7 +276,7 @@ public:
         else if(status.phase==Phase::tone)finishTone(measuredSamples);
         else if(status.phase==Phase::compressor)finishCompressor(measuredWindows);
         else if(status.phase==Phase::multiband)finishMultiband(measuredSamples);
-        else if(status.phase==Phase::finish)finishOutput(measuredSamples,measuredWindows);
+        else if(status.phase==Phase::finish)finishOutput(measuredSamples,measuredWindows,{ampSamples.begin()+std::min(ampSamples.size(),size_t(skipSamples)),ampSamples.end()});
         else finishLevel(std::vector<OutputFrame>(outputSamples.begin()+std::min(outputSamples.size(),size_t(skipSamples)),outputSamples.end()));
     }
 private:
@@ -350,7 +365,11 @@ private:
         // The Dual pass hears each rig before the blend (lane2 shares the amp tap's ring).
         else if(status.phase==Phase::dual){dualAtStart=dualTarget();capture.listen({Tap::lane1,Tap::lane2});}
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
-        else if(status.phase==Phase::finish)capture.listen({Tap::deesser,Tap::output});
+        else if(status.phase==Phase::finish){
+            busAtStart=busTarget();busReadSnapshot.clear();
+            for(const auto& id:busReadIDs())if(auto* p=processor.parameters().getParameter(id))busReadSnapshot.push_back(takeSnapshot(*p));
+            capture.listen({Tap::deesser,Tap::output,Tap::post});
+        }
         else if(status.phase==Phase::level) {
             for(const auto& tracker:editTrackers)if(tracker->parameter.paramID.startsWith("finalEQ_") || tracker->parameter.paramID.startsWith("dynamicEQ") || tracker->parameter.paramID=="output")
                 levelReadSnapshot.push_back(takeSnapshot(tracker->parameter));
@@ -371,12 +390,14 @@ private:
     bool powerStepRuns() const noexcept {return runOptions.power && !locked(lockPower);}
     bool cabStepRuns() const noexcept {return runOptions.cab && !locked(lockCab);}
     bool cutsStepRuns() const noexcept {return runOptions.cuts && !locked(lockCuts);}
+    bool finishStepRuns() const noexcept {return runOptions.finish && (runOptions.locks&(lockDeEsser|lockLimiter))!=(lockDeEsser|lockLimiter);}
+    bool busStepRuns() const noexcept {return runOptions.bus && !locked(lockBus);}
     bool toneStepRuns() const noexcept {return runOptions.tone && !locked(lockTone);}
     bool dynamicStepRuns() const noexcept {return runOptions.dynamicEQ && !locked(lockDynamicEQ) && !locked(lockTone);}
     // Signal order of passes and result steps, for reporting skipped ones.
     static int order(Phase phase) noexcept {
         switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::amp:return 3;case Phase::power:return 4;case Phase::cab:return 5;case Phase::cuts:return 6;case Phase::dual:return 7;case Phase::tone:return 8;case Phase::dynamicEQ:return 9;
-            case Phase::compressor:return 10;case Phase::multiband:return 11;case Phase::finish:return 12;case Phase::space:return 13;case Phase::width:return 14;case Phase::level:return 15;default:return 16;}
+            case Phase::compressor:return 10;case Phase::multiband:return 11;case Phase::finish:return 12;case Phase::bus:return 13;case Phase::space:return 14;case Phase::width:return 15;case Phase::level:return 16;default:return 17;}
     }
     float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
@@ -394,7 +415,7 @@ private:
         if(status.phase==Phase::dual)return step+"keep playing as you normally would, across the neck, for the Dual "+juce::String(raw("dualtype")>.5f?"crossover":"blend")+"...";
         if(status.phase==Phase::tone)return step+"keep playing across the neck for the "+toneTarget()+"...";
         if(status.phase==Phase::multiband)return step+"keep playing, low notes and hard picking, for the multiband...";
-        if(status.phase==Phase::finish)return step+"keep playing, with some hard picking, for the de-esser and limiter...";
+        if(status.phase==Phase::finish)return step+"keep playing, with some hard picking, for the "+juce::String(finishStepRuns()&&busStepRuns()?"de-esser, limiter and bus compressor":busStepRuns()?"bus compressor":"de-esser and limiter")+"...";
         if(status.phase==Phase::level)return step+"keep playing as you normally would, for the Final EQ and output level...";
         return step+"keep playing for the compressor...";
     }
@@ -973,7 +994,14 @@ private:
         }
         if(pass+1<passes.size())nextPass();else complete();
     }
-    void finishOutput(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows) {
+    // The de-esser + limiter pass: phase 3 (de-esser and limiter), then phase 16
+    // (the bus compressor) from the POST input heard at the same time.
+    void finishOutput(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows,const std::vector<float>& postInput) {
+        if(runOptions.finish)finishStep(measuredSamples,measuredWindows);
+        if(runOptions.bus)busStep(postInput);
+        nextPass();
+    }
+    void finishStep(const std::vector<float>& measuredSamples,const std::vector<Window>& measuredWindows) {
         // Preserve uncertainty: a Tone EQ heuristic is not an explicit choice.
         const std::optional<bool> instrument=runOptions.instrument==0?std::nullopt:std::optional<bool>(runOptions.instrument==2);
         const auto r=analyseFinish(measuredSamples,measuredWindows,rate(),instrument,runOptions.style);
@@ -996,7 +1024,80 @@ private:
             result+="; limiter "+juce::String(r.ceilingDb,0)+" dBFS (peaks "+juce::String(r.outputPeakDb,1)+")";changed=true;
         }
         addStep(result,changed);
-        nextPass();
+    }
+    // The POST bus section as phase 16 sees it: a change while listening voids the step.
+    struct BusTarget {bool native{};int model{};bool operator==(const BusTarget&) const=default;};
+    BusTarget busTarget() const {const auto s=processor.autoSetPostState().sections[0];return {s.nativeEnabled,s.selected};}
+    static juce::StringArray busWriteIDs() {
+        juce::StringArray ids{postNativeBypassID(0,0)};
+        for(const int c:{busThresholdControl,busMakeupControl,busAttackControl,busReleaseControl,busRatioControl,busInControl})
+            ids.add(postNativeControlID(0,0,c));
+        return ids;
+    }
+    static juce::StringArray busReadIDs() {
+        juce::StringArray ids{postNativeModeID(0),postNativeModelID(0),postNativeModelExtensionID(0),
+            postNativeBypassID(0,0),postNativeTrimID(0,0),postNativeLevelID(0,0)};
+        for(int c=0;c<postNativeModel(0,0).controlCount;++c)ids.add(postNativeControlID(0,0,c));
+        for(int slot=0;slot<postModuleCount;++slot)ids.add(orderSlotID(OrderRegion::post,slot));
+        return ids;
+    }
+    // Phase 16: the POST Console VCA as glue. The current model only hears
+    // the rack input, so require dynamics first, even for bypassed predecessors.
+    void busStep(const std::vector<float>& postInput) {
+        const auto keep=[this](const juce::String& why){summary+=" | Bus compressor unchanged ("+why+")";steps.push_back({Phase::bus,"kept ("+why+")",false});};
+        const auto t=busTarget();
+        if(locked(lockBus)){keep("locked");return;}
+        if(!(t==busAtStart)){keep("POST bus section changed while listening");return;}
+        PostOrder order;
+        for(int slot=0;slot<postModuleCount;++slot)order.slots[size_t(slot)]=juce::roundToInt(raw(orderSlotID(OrderRegion::post,slot)));
+        if(!order.valid() || order.slots[0]!=postDynamicsModule){keep("POST dynamics must be first for bus Auto Set; order and controls kept");return;}
+        const auto controls=busWriteIDs();
+        const auto expectedReads=size_t(busReadIDs().size());
+        const auto intact=[&] {
+            if(busReadSnapshot.size()!=expectedReads)return false;
+            for(const auto& entry:busReadSnapshot)
+                if(!entry.edits->unchanged(entry.revision) || (!controls.contains(entry.parameter->paramID) && !owned(entry)))return false;
+            for(const auto& entry:snapshot)if(controls.contains(entry.parameter->paramID) && !owned(entry))return false;
+            return true;
+        };
+        if(!intact()){manualEditsKept=true;keep("POST order or bus controls edited while listening");return;}
+        if(!t.native){keep("legacy POST engine: switch the bus section to native to let Auto Set set it");return;}
+        if(t.model!=0){keep("the bus section plays "+juce::String(postNativeModel(0,t.model).name)+"; Auto Set sets the Console VCA");return;}
+        const auto id=[](int c){return postNativeControlID(0,0,c);};
+        if(raw(id(busSidechainControl))>.5f){keep("EXTERNAL SIDE-CHAIN is on: the bus compressor hears the key, not the playing");return;}
+        const bool on=raw(postNativeBypassID(0,0))<.5f && raw(id(busInControl))>.5f;
+        const BusSetting current{raw(id(busThresholdControl)),raw(id(busMakeupControl)),juce::roundToInt(raw(id(busAttackControl))),juce::roundToInt(raw(id(busReleaseControl))),juce::roundToInt(raw(id(busRatioControl)))};
+        std::vector<float> segment(postInput.begin(),postInput.begin()+std::ptrdiff_t(std::min(postInput.size(),size_t(rate()*busRenderSeconds))));
+        const auto r=analyseBus(segment,rate(),current,on,nativeBusRenderer(processor.autoSetPostState().sections[0],segment,rate()),runOptions.style,strength());
+        lastBus=r;
+        if(!r.playingDetected){keep("no playing heard");return;}
+        const auto glue="glue "+juce::String(r.glueBeforeDb,1)+" > "+juce::String(r.glueAfterDb,1)+" dB on loud passages (target "+juce::String(r.glueTargetDb,1)+" dB"+(r.reachable?")":", out of the threshold's reach)");
+        if(!r.changed()){keep(juce::String(styleName(runOptions.style))+" glue already near the target: "+glue);return;}
+        static constexpr const char* ratios[]{"2:1","4:1","10:1"};static constexpr const char* attacks[]{"0.1","0.3","1","3","10","30"};static constexpr const char* releases[]{"0.1 s","0.3 s","0.6 s","1.2 s","AUTO"};
+        const auto previous=snapshot;
+        const auto put=[&](const juce::String& id,float value){if(intact())set(id,value);};
+        juce::String move;
+        if(!on) {
+            put(id(busRatioControl),float(r.proposed.ratio));put(id(busAttackControl),float(r.proposed.attack));put(id(busReleaseControl),float(r.proposed.release));
+            put(id(busThresholdControl),r.proposed.threshold);put(id(busMakeupControl),r.proposed.makeup);put(id(busInControl),1);put(postNativeBypassID(0,0),0);
+            move="Console VCA in: threshold "+juce::String(raw(id(busThresholdControl)),1)+" dB, "+ratios[juce::jlimit(0,2,r.proposed.ratio)]+", attack "+attacks[juce::jlimit(0,5,r.proposed.attack)]
+                +" ms, release "+releases[juce::jlimit(0,4,r.proposed.release)]+", make-up "+juce::String(raw(id(busMakeupControl)),1)+" dB";
+        } else {
+            put(id(busThresholdControl),r.proposed.threshold);put(id(busMakeupControl),r.proposed.makeup);
+            move="threshold "+juce::String(current.threshold,1)+" > "+juce::String(raw(id(busThresholdControl)),1)+" dB, make-up "+juce::String(current.makeup,1)+" > "+juce::String(raw(id(busMakeupControl)),1)+" dB";
+        }
+        if(!intact()) {
+            // Roll back only this transaction's still-owned writes. A host
+            // value/gesture callback retains ownership of everything it edits.
+            for(auto& entry:snapshot)if(controls.contains(entry.parameter->paramID) && owned(entry))
+                for(const auto& saved:previous)if(saved.parameter==entry.parameter) {
+                    if(setNormalised(entry,saved.lastWritten))entry=saved;
+                    break;
+                }
+            manualEditsKept=true;keep("POST order or bus controls edited while applying");return;
+        }
+        summary+=" | Bus "+move;
+        steps.push_back({Phase::bus,move+"; "+glue,true});
     }
     // Phase 7: small Final EQ corrections and the output trim, measured at the
     // limiter input after everything else is set.
@@ -1174,7 +1275,9 @@ private:
                 break;
             case Phase::compressor:s.listeningFor="How much your level jumps between soft and hard notes, for the compressor";break;
             case Phase::multiband:s.listeningFor="Which frequency bands jump around more than the rest, for the multiband";break;
-            case Phase::finish:s.listeningFor="Harsh 4-10 kHz peaks and the loudest output peaks, for the de-esser and limiter";break;
+            case Phase::finish:s.listeningFor=finishStepRuns()?juce::String("Harsh 4-10 kHz peaks and the loudest output peaks, for the de-esser and limiter"):juce::String("Your level going into the POST rack");
+                if(busStepRuns())s.listeningFor+=finishStepRuns()?", and your level going into the POST rack, for the bus compressor":", for the bus compressor";
+                break;
             case Phase::level:s.listeningFor="The overall balance and loudness at the output, for the Final EQ and output level";break;
             case Phase::amp:s.listeningFor="Your playing going into the amp and the sound after the cab, for the amp's "+ampTargetText()+" knobs";break;
             case Phase::cab:s.listeningFor="Tone balance from lows to highs after the cab, for "+juce::String(cabStepRuns()&&cutsStepRuns()?"where the cabinet mic sits and the cab's cuts":cutsStepRuns()?"the cab's LOW and HIGH cuts":"where the cabinet mic sits");break;
@@ -1210,6 +1313,7 @@ public:
     const DualResult& lastDualAnalysis() const noexcept {return lastDual;}
     const WidthResult& lastWidthAnalysis() const noexcept {return lastWidth;}
     const CutResult& lastCutsAnalysis() const noexcept {return lastCuts;}
+    const BusResult& lastBusAnalysis() const noexcept {return lastBus;}
 private:
     ChimeraProcessor& processor;
     std::vector<std::pair<juce::String,Lock>> touchedIDs;
@@ -1222,14 +1326,14 @@ private:
     std::vector<std::unique_ptr<ParameterEdits>> editTrackers;
     std::vector<Snapshot> snapshot;
     std::vector<juce::StringArray> dynamicNodeGroups,finalNodeGroups;
-    std::vector<Snapshot> levelReadSnapshot;
+    std::vector<Snapshot> levelReadSnapshot,busReadSnapshot;
     std::vector<OutputFrame> outputSamples;
     bool manualEditsKept{};
     uint32_t inputRevision{};
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;WidthResult lastWidth;CutResult lastCuts;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
