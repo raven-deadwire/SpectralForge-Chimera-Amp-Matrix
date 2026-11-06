@@ -4,6 +4,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "PluginProcessor.h"
 #include "RoomControls.h"
+#include "CabRoom.h"
 #include "RoomCore.h"
 #include "reference/RoomCoreReleased.h"
 #include <algorithm>
@@ -209,9 +210,86 @@ void controls() {
 }
 }
 
+// Room Space materials on the room scenery (view only, RoomSpaceScenery.h).
+void sceneryMaterials() {
+    using namespace spectralforge::cabRoom;
+    // A lit synthetic photo: a horizontal light pool on a dark gradient.
+    juce::Image photo(juce::Image::RGB,600,220,true);
+    for(int y=0;y<photo.getHeight();++y)for(int x=0;x<photo.getWidth();++x) {
+        const float pool=std::exp(-std::pow((float(x)-300.f)/90.f,2.f)),v=.06f+.3f*pool+.1f*float(y)/220.f;
+        photo.setPixelAt(x,y,juce::Colour::fromFloatRGBA(v*1.1f,v*.8f,v*.55f,1.f));
+    }
+    const juce::Rectangle<float> full=photo.getBounds().toFloat();
+    const auto copy=[&]{return photo.createCopy();};
+    const auto meanColour=[](const juce::Image& image,juce::Rectangle<int> area){
+        double r=0,g=0,b=0;int n=0;
+        for(int y=area.getY();y<area.getBottom();++y)for(int x=area.getX();x<area.getRight();++x){const auto c=image.getPixelAt(x,y);r+=c.getFloatRed();g+=c.getFloatGreen();b+=c.getFloatBlue();++n;}
+        return std::array<double,3>{r/n,g/n,b/n};
+    };
+    const juce::Rectangle<int> floorArea{0,int(220*.7f),600,40},ledge{0,int(220*.615f),600,4},wallArea{0,int(220*.2f),600,40};
+    {auto off=copy();applySpaceMaterials(off,full,{});
+     for(int y=0;y<220;y+=7)for(int x=0;x<600;x+=7)require(off.getPixelAt(x,y)==photo.getPixelAt(x,y),"Space off changed the scenery");}
+    std::vector<std::array<double,3>> floors;
+    for(int m=0;m<int(spectralforge::roomMaterials.size());++m) {
+        auto image=copy();applySpaceMaterials(image,full,{true,m,m,m});
+        for(int y=ledge.getY();y<ledge.getBottom();++y)for(int x=0;x<600;x+=5)require(image.getPixelAt(x,y)==photo.getPixelAt(x,y),"The skirting ledge was recoloured");
+        floors.push_back(meanColour(image,floorArea));
+        // The light pool stays brighter than the dark side on every material.
+        const auto lit=meanColour(image,{280,floorArea.getY(),40,floorArea.getHeight()}),dark=meanColour(image,{0,floorArea.getY(),40,floorArea.getHeight()});
+        require(lit[0]+lit[1]+lit[2]>dark[0]+dark[1]+dark[2],"Material "+std::to_string(m)+" lost the photo's light pool");
+    }
+    for(size_t a=0;a<floors.size();++a)for(size_t b=a+1;b<floors.size();++b) {
+        const double d=std::abs(floors[a][0]-floors[b][0])+std::abs(floors[a][1]-floors[b][1])+std::abs(floors[a][2]-floors[b][2]);
+        require(d>.01,"Floor materials "+std::to_string(a)+" and "+std::to_string(b)+" look the same");
+    }
+    // Only the chosen surface changes.
+    auto wallsOnly=copy();applySpaceMaterials(wallsOnly,full,{true,-1,1,-1});
+    const auto wallMean=meanColour(wallsOnly,wallArea),photoWall=meanColour(photo,wallArea),floorMean=meanColour(wallsOnly,floorArea),photoFloor=meanColour(photo,floorArea);
+    require(std::abs(wallMean[0]-photoWall[0])>.02 && std::abs(floorMean[0]-photoFloor[0])<1e-6,"Wall material changed the floor or left the walls");
+    // The room overview follows the parameters; Space off draws the plain photo.
+    auto p=std::make_unique<ChimeraProcessor>();
+    const auto set=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+    CabRoomOverview view(*p);view.setSize(1140,412);view.refreshState();
+    require(!view.shownSpaceSurfaces().on,"Space materials shown with Space off");
+    const auto plain=view.createComponentSnapshot(view.getLocalBounds(),true,1.f);
+    set("roomOn",1);set("roomSpace",1);set("roomFloor",0);set("roomWalls",1);set("roomCeiling",8);view.refreshState();
+    const auto shown=view.shownSpaceSurfaces();
+    require(shown.on && shown.floor==0 && shown.walls==1 && shown.ceiling==8,"Room overview did not follow the Space materials");
+    const auto concrete=view.createComponentSnapshot(view.getLocalBounds(),true,1.f);
+    set("roomFloor",6);view.refreshState();require(view.shownSpaceSurfaces().floor==6,"Floor material change not followed");
+    const auto carpet=view.createComponentSnapshot(view.getLocalBounds(),true,1.f);
+    const juce::Rectangle<int> viewFloor{0,380,1140,20};
+    require(meanColour(concrete,viewFloor)!=meanColour(carpet,viewFloor),"Changing the floor material did not change the drawn floor");
+    // The raven relief keeps its photographed look: found on the photo, near
+    // the top centre, and drawn unchanged under a brick wall.
+    {
+        juce::SharedResourcePointer<ArtworkBank> bank;
+        require(bank->emblem.isValid() && bank->emblem.getBounds()==bank->room.getBounds(),"Emblem mask missing");
+        double sum=0,sx=0,sy=0;
+        for(int y=0;y<bank->emblem.getHeight();++y)for(int x=0;x<bank->emblem.getWidth();++x){const double a=bank->emblem.getPixelAt(x,y).getAlpha()/255.;sum+=a;sx+=a*x;sy+=a*y;}
+        const double area=sum/double(bank->emblem.getWidth()*bank->emblem.getHeight());
+        const double cx=sx/sum/bank->emblem.getWidth(),cy=sy/sum/bank->emblem.getHeight();
+        require(area>.005 && area<.04 && std::abs(cx-.5)<.03 && cy>.12 && cy<.3,
+                "Emblem mask misplaced: area="+std::to_string(area)+" centre="+std::to_string(cx)+","+std::to_string(cy));
+        const float scale=std::max(1140.f/float(bank->room.getWidth()),412.f/float(bank->room.getHeight()));
+        const float ox=(1140.f-float(bank->room.getWidth())*scale)*.5f,oy=412.f-float(bank->room.getHeight())*scale;
+        const juce::Rectangle<int> relief{int(ox+float(cx*bank->room.getWidth())*scale)-3,int(oy+float(cy*bank->room.getHeight())*scale)-3,6,6};
+        const juce::Rectangle<int> wallBeside{int(ox+.3f*float(bank->room.getWidth())*scale),relief.getY(),6,6};
+        set("roomWalls",1);view.refreshState();
+        const auto brick=view.createComponentSnapshot(view.getLocalBounds(),true,1.f);
+        const auto a=meanColour(brick,relief),b=meanColour(plain,relief);
+        require(std::abs(a[0]-b[0])+std::abs(a[1]-b[1])+std::abs(a[2]-b[2])<.02,"The raven relief took the wall material");
+        const auto c=meanColour(brick,wallBeside),d=meanColour(plain,wallBeside);
+        require(std::abs(c[0]-d[0])+std::abs(c[1]-d[1])+std::abs(c[2]-d[2])>.05,"The wall beside the relief kept the photo");
+    }
+    set("roomSpace",0);view.refreshState();require(!view.shownSpaceSurfaces().on,"Space off still shown");
+    const auto offAgain=view.createComponentSnapshot(view.getLocalBounds(),true,1.f);
+    require(meanColour(offAgain,viewFloor)==meanColour(plain,viewFloor),"Space off did not return to the plain scenery");
+    std::cout<<"PASS Room Space scenery: off unchanged, 10 distinct floor materials, light pool kept, ledge untouched, per-surface, raven relief kept, overview follows parameters\n";
+}
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {spaceOffIsRoomCore();imageSources();decayAndLevel();transitions();controls();}
+    try {spaceOffIsRoomCore();imageSources();decayAndLevel();transitions();controls();sceneryMaterials();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

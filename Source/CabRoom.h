@@ -9,25 +9,39 @@
 #include "HardwareArtwork.h"
 #include <functional>
 #include "RoomControls.h"
+#include "RoomSpaceScenery.h"
 
 namespace spectralforge::cabRoom {
 // This is scenery for navigating rigs. It has no audio/room-response parameter.
 struct ArtworkBank {
-    juce::Image room;
+    juce::Image room,emblem; // emblem: where the raven relief is (Space materials leave it as photographed)
     ArtworkBank() {
         jassert(juce::MessageManager::getInstance()->isThisTheMessageThread());
         int size=0;
         if(const auto* bytes=ChimeraArtworkData::getNamedResource("roomstudio_png",size)) {
             room=juce::ImageFileFormat::loadFrom(bytes,static_cast<size_t>(size));
             if(room.isValid()) {
+                // Found on the full-resolution photo, scaled with it.
+                emblem=spectralforge::cabRoom::emblemMask(room);
                 const double scale=juce::jmin(1.0,1152.0/room.getWidth(),576.0/room.getHeight());
-                if(scale<1.0)room=room.rescaled(juce::jmax(1,juce::roundToInt(room.getWidth()*scale)),
-                    juce::jmax(1,juce::roundToInt(room.getHeight()*scale)),juce::Graphics::highResamplingQuality);
+                if(scale<1.0) {
+                    const int w=juce::jmax(1,juce::roundToInt(room.getWidth()*scale)),h=juce::jmax(1,juce::roundToInt(room.getHeight()*scale));
+                    room=room.rescaled(w,h,juce::Graphics::highResamplingQuality);
+                    emblem=emblem.rescaled(w,h,juce::Graphics::highResamplingQuality);
+                }
             }
         }
     }
-    ~ArtworkBank() {room={};}
+    ~ArtworkBank() {room={};emblem={};}
 };
+inline SpaceSurfaces spaceSurfaces(ChimeraProcessor& processor) {
+    auto& p=processor.parameters();
+    const auto value=[&p](const char* id){auto* v=p.getRawParameterValue(id);return v ? v->load() : 0.f;};
+    SpaceSurfaces s;
+    s.on=value("roomOn")>.5f && value("roomSpace")>.5f;
+    if(s.on){s.floor=juce::roundToInt(value("roomFloor"));s.walls=juce::roundToInt(value("roomWalls"));s.ceiling=juce::roundToInt(value("roomCeiling"));}
+    return s;
+}
 inline int mode(ChimeraProcessor& processor) {
     return juce::jlimit(0,2,juce::roundToInt(processor.parameters().getRawParameterValue("mode")->load()));
 }
@@ -148,6 +162,10 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
     // call-out, so the calibrated rig/camera layout below keeps its bounds.
     juce::TextButton roomButton;
     juce::String roomButtonText;
+    // Room Space materials drawn over the scenery; rebuilt only when they or
+    // the size change (paint draws the cached layer).
+    spectralforge::cabRoom::SpaceSurfaces spaceShown;
+    juce::Image spaceLayer;
     struct RigState {
         int amp{-1},design{-1},driver{-1},layout{-1};
         bool bass{};
@@ -335,7 +353,37 @@ public:
         if(onCabinetSelected)onCabinetSelected(lane);
         return true;
     }
+    juce::Rectangle<float> sceneryRect() const {
+        if(!scenery->room.isValid())return {};
+        const auto bounds=getLocalBounds().toFloat();
+        const float scale=juce::jmax(bounds.getWidth()/float(scenery->room.getWidth()),bounds.getHeight()/float(scenery->room.getHeight()));
+        const float w=float(scenery->room.getWidth())*scale,h=float(scenery->room.getHeight())*scale;
+        return {bounds.getX()+(bounds.getWidth()-w)*.5f,bounds.getBottom()-h,w,h}; // fillDestination, xMid, yBottom
+    }
+    // The scenery with the Space materials applied, at component size; paint
+    // draws it in place of the plain photo.
+    void rebuildSpaceLayer() {
+        spaceLayer={};
+        if(!spaceShown.on || getWidth()<=0 || getHeight()<=0 || !scenery->room.isValid())return;
+        spaceLayer=juce::Image(juce::Image::RGB,getWidth(),getHeight(),false);
+        {
+            juce::Graphics g(spaceLayer);g.fillAll(juce::Colour(0xff151714));
+            g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
+            g.drawImage(scenery->room,getLocalBounds().toFloat(),juce::RectanglePlacement::fillDestination|juce::RectanglePlacement::xMid|juce::RectanglePlacement::yBottom);
+        }
+        const auto photographed=scenery->emblem.isValid() ? spaceLayer.createCopy() : juce::Image{};
+        spectralforge::cabRoom::applySpaceMaterials(spaceLayer,sceneryRect(),spaceShown);
+        if(scenery->emblem.isValid()) {
+            juce::Image keep(juce::Image::SingleChannel,getWidth(),getHeight(),true);
+            {juce::Graphics g(keep);g.drawImage(scenery->emblem,getLocalBounds().toFloat(),juce::RectanglePlacement::fillDestination|juce::RectanglePlacement::xMid|juce::RectanglePlacement::yBottom);}
+            spectralforge::cabRoom::restoreKept(spaceLayer,photographed,keep);
+        }
+    }
+    spectralforge::cabRoom::SpaceSurfaces shownSpaceSurfaces() const noexcept {return spaceShown;}
     void refreshState() {
+        if(const auto surfaces=spectralforge::cabRoom::spaceSurfaces(processor);!(surfaces==spaceShown)) {
+            spaceShown=surfaces;rebuildSpaceLayer();repaint();
+        }
         const int nextMode=spectralforge::cabRoom::mode(processor);
         if(currentMode!=nextMode) {currentMode=nextMode;resized();repaint();}
         lowBlend.setVisible(currentMode==2);
@@ -421,6 +469,7 @@ public:
         if(roomChanged)for(auto& rig:rigs)rig->repaint();
     }
     void resized() override {
+        rebuildSpaceLayer();
         const int count=activeRigCount();
         const int margin=juce::jmax(18,juce::roundToInt(getWidth()*.055f));
         const int gap=juce::jmax(12,juce::roundToInt(getWidth()*.03f));
@@ -439,7 +488,8 @@ public:
         if(scenery->room.isValid()) {
             g.setColour(juce::Colours::white);
             g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
-            g.drawImage(scenery->room,getLocalBounds().toFloat(),juce::RectanglePlacement::fillDestination|juce::RectanglePlacement::xMid|juce::RectanglePlacement::yBottom);
+            if(spaceLayer.isValid())g.drawImageAt(spaceLayer,0,0);
+            else g.drawImage(scenery->room,getLocalBounds().toFloat(),juce::RectanglePlacement::fillDestination|juce::RectanglePlacement::xMid|juce::RectanglePlacement::yBottom);
         }
         g.setGradientFill({juce::Colours::black.withAlpha(.42f),0.f,0.f,juce::Colours::black.withAlpha(0.f),0.f,90.f,false});
         g.fillRect(0,0,getWidth(),juce::jmin(90,getHeight()));
