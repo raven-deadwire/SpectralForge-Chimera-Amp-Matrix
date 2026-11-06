@@ -83,9 +83,10 @@ class Engine {
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> diAlignment{128};
     std::array<juce::AudioBuffer<float>,3> diBands;
     std::array<juce::AudioBuffer<float>,3> work;
-    // Auto Set phase 13: each Dual rig's output after its level, before the
-    // Dual blend weight. Filled only while capturing (allocated in prepare).
-    std::array<juce::AudioBuffer<float>,2> laneOut;bool captureLanes{},lanesCaptured{};
+    // Auto Set phases 13 and 17: each Dual rig's, or each Matrix lane's, output
+    // after its level and polarity, before the Dual blend weight. Filled only
+    // while capturing (allocated in prepare).
+    std::array<juce::AudioBuffer<float>,3> laneOut;bool captureLanes{};int lanesCaptured{};
     double sampleRate{48000.0};
     RoutingMode previousMode{static_cast<RoutingMode>(-1)};
     // A routing change jumps between two different signal paths, and a reset
@@ -98,12 +99,13 @@ class Engine {
     int settleRemaining{}, settleLength{};
 public:
     Cab& cabinet(int lane) { return cabs[(size_t)lane]; }
-    // Audio thread: capture each Dual rig's output in the next blocks.
+    // Audio thread: capture each Dual rig's, or each Matrix lane's, output in the next blocks.
     void setLaneCapture(bool value) noexcept { captureLanes=value; }
-    // Audio thread, after process(): rig `lane` (0 or 1) of the last Dual block.
-    const juce::AudioBuffer<float>& laneOutput(int lane) const noexcept { return laneOut[(size_t)juce::jlimit(0,1,lane)]; }
-    // Audio thread: the last block filled both rigs (Dual routing playing, capture on).
-    bool laneCaptureFilled() const noexcept { return lanesCaptured; }
+    // Audio thread, after process(): lane `lane` (Dual rig 0-1, Matrix LOW/MID/HIGH 0-2)
+    // of the last block, after its level and polarity and before the Dual blend.
+    const juce::AudioBuffer<float>& laneOutput(int lane) const noexcept { return laneOut[(size_t)juce::jlimit(0,2,lane)]; }
+    // Audio thread: lanes the last block filled (0; Dual playing 2; Matrix playing 3).
+    int laneCaptureCount() const noexcept { return lanesCaptured; }
     // Audio thread: every cabinet the last block could be heard through is
     // settled. Lanes outside the routing mode, muted lanes and lanes with the
     // cabinet off do not count.
@@ -188,7 +190,7 @@ public:
         mode=previousMode; dualCross=previousDualCross;
         const bool matrix = mode == RoutingMode::matrix;
         const bool split=matrix || (mode==RoutingMode::dual && dualCross);
-        lanesCaptured=captureLanes && mode==RoutingMode::dual;
+        lanesCaptured=!captureLanes || mode==RoutingMode::classic ? 0 : mode==RoutingMode::dual ? 2 : 3;
         dualMix.setTargetValue(juce::jlimit(0.f,1.f,blend));for(int n=0;n<buffer.getNumSamples();++n)blendCurve[(size_t)n]=dualMix.getNextValue();
         const int count = mode == RoutingMode::classic ? 1 : mode == RoutingMode::dual ? 2 : 3;
         for(int i=count;i<3;++i)laneHeard[(size_t)i]=false;
@@ -244,7 +246,7 @@ public:
             }
             levels[i].setTargetValue(muted ? 0.f : juce::Decibels::decibelsToGain(state.levelDb) * (state.polarity ? -1.f : 1.f));
             const bool lowShare=matrix && i==0;
-            const bool captureLane=captureLanes && mode==RoutingMode::dual && i<2;
+            const bool captureLane=i<lanesCaptured;
             if(captureLane) laneOut[(size_t)i].setSize(buffer.getNumChannels(),buffer.getNumSamples(),false,false,true);
             for(int n=0;n<buffer.getNumSamples();++n) {
                 const float weight=mode==RoutingMode::dual && !dualCross ? (i==0 ? 1-blendCurve[(size_t)n] : blendCurve[(size_t)n]) : 1.f;
