@@ -29,11 +29,13 @@ struct Window {float peakDb{-120.f},rmsDb{-120.f};};
 // the SYNTH insert and the reorderable tone / dynamics block, so the amp,
 // cab and boost passes hear the rig alone wherever the Tone EQ is placed
 // (tone, the Tone EQ's input, moves with it; docs/SIGNAL_ORDER_1_4.md).
-// lane1/lane2: each Dual rig's output before the Dual blend (phase 13); post:
-// the POST rack's input (phase 16). lane2 and post share the amp tap's ring,
-// so no two of amp, lane2 and post are listened to together.
-enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8,cab=9,lane1=10,lane2=11,post=12};
-inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp || tap==Tap::cab || tap==Tap::lane1 || tap==Tap::lane2 || tap==Tap::post;}
+// lane1/lane2: each Dual rig's output before the Dual blend (phase 13), or
+// the Matrix LOW and MID lanes after their level (phase 17); lane3: the Matrix
+// HIGH lane, in a ring of its own; post: the POST rack's input (phase 16).
+// lane2 and post share the amp tap's ring, so no two of amp, lane2 and post
+// are listened to together.
+enum class Tap {input=0,compressor=1,output=2,tone=3,deesser=4,multiband=5,rig=6,master=7,amp=8,cab=9,lane1=10,lane2=11,post=12,lane3=13};
+inline constexpr bool sampleTap(Tap tap) noexcept {return tap==Tap::tone || tap==Tap::deesser || tap==Tap::multiband || tap==Tap::master || tap==Tap::amp || tap==Tap::cab || tap==Tap::lane1 || tap==Tap::lane2 || tap==Tap::post || tap==Tap::lane3;}
 
 inline float toDb(double linear) noexcept {return float(20.0*std::log10(std::max(1e-6,linear)));}
 
@@ -58,6 +60,7 @@ public:
     void push(Tap tap,const float* const* channels,int channelCount,int samples) noexcept {
         if(!listening(tap) || channelCount<=0)return;
         if(tap==Tap::amp || tap==Tap::lane2 || tap==Tap::post){pushSamples(ampRing,ampWrite,ampRead,nullptr,false,channels,channelCount,samples);return;}
+        if(tap==Tap::lane3){pushSamples(*laneRing,laneWrite,laneRead,nullptr,false,channels,channelCount,samples);return;}
         if(sampleTap(tap)){pushSamples(sampleRing,sampleWrite,sampleRead,rightSampleRing.get(),tap==Tap::master,channels,channelCount,samples);return;}
         auto& t=taps[windowIndex(tap)];
         for(int n=0;n<samples;++n) {
@@ -86,6 +89,7 @@ public:
     }
     void drainSamples(std::vector<float>& out) {drainRing(sampleRing,sampleWrite,sampleRead,out);}
     void drainAmpSamples(std::vector<float>& out) {drainRing(ampRing,ampWrite,ampRead,out);}
+    void drainLaneSamples(std::vector<float>& out) {drainRing(*laneRing,laneWrite,laneRead,out);}
     void drainOutput(std::vector<OutputFrame>& out) {
         const auto r=sampleRead.load(std::memory_order_relaxed),w=sampleWrite.load(std::memory_order_acquire);
         for(auto i=r;i!=w;++i)out.push_back({sampleRing[i%sampleCapacity],(*rightSampleRing)[i%sampleCapacity]});
@@ -121,8 +125,8 @@ private:
     };
     std::array<TapState,4> taps;
     Ring sampleRing{},ampRing{};
-    std::unique_ptr<Ring> rightSampleRing=std::make_unique<Ring>();
-    std::atomic<uint32_t> sampleWrite{0},sampleRead{0},ampWrite{0},ampRead{0}; // unsigned difference works across wrap
+    std::unique_ptr<Ring> rightSampleRing=std::make_unique<Ring>(),laneRing=std::make_unique<Ring>();
+    std::atomic<uint32_t> sampleWrite{0},sampleRead{0},ampWrite{0},ampRead{0},laneWrite{0},laneRead{0}; // unsigned difference works across wrap
     std::atomic<int> active{0};
     int windowSamples{480};
 };

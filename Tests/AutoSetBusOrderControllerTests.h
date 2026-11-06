@@ -6,7 +6,7 @@ void controllerBusOrderSafety() {
     std::mt19937 rng{161};const auto x=dynamicPlaying(48000,10,rng);
     const Controller::Options options{1,false,Style::metal,false,false,false,.5f,
         Controller::lockInput|Controller::lockGate|Controller::lockCompressor,
-        false,false,false,false,false,false,false,false,false,false,true};
+        false,false,false,false,false,false,false,false,false,false,true,false};
     const auto set=[](ChimeraProcessor& p,const juce::String& id,float value){auto* q=p.parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(value));};
     int cases=0;
     // Both active and bypassed predecessors are intentionally unsupported.
@@ -50,7 +50,7 @@ void controllerBusApplySafety() {
         const auto before=values(*p);auto expected=before;
         Controller c(*p);c.setOptions({1,false,Style::metal,false,false,false,1.f,
             Controller::lockInput|Controller::lockGate|Controller::lockCompressor,
-            false,false,false,false,false,false,false,false,false,false,true});
+            false,false,false,false,false,false,false,false,false,false,true,false});
         struct HostEdit final:juce::AudioProcessorListener {
             int trigger{},event{};bool fired{};std::function<void()> action;
             void fire(int i,int e){if(!fired && i==trigger && event==e){fired=true;action();}}

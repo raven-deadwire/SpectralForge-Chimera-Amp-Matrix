@@ -66,7 +66,7 @@ void controllerWidth() {
     const auto rig=playedNotes(48000,8,rng);
     // Input pass: relaxed plucks; the Tone EQ pass hears the rig.
     const auto plucks=pluckedEvery(300,30);
-    const Controller::Options widthOnly{1,true,Style::rock,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,false,false,false,true,false,false};
+    const Controller::Options widthOnly{1,true,Style::rock,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,false,false,false,true,false,false,false};
     const auto full=runWidth(widthOnly,plucks,rig);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::width);
     check(full.status.phase==P::done && step && step->changed && step->result.contains("doubler on"),"Doubler step did not run or report");

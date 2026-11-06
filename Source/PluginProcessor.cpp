@@ -534,16 +534,23 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // Auto Set's amp tap reads what the amps receive, the SYNTH insert included,
     // so its offline amp render matches the amp the cab tap hears.
     autoSetCaptureState.push(spectralforge::autoset::Tap::amp,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    const bool captureLanes=value(mode)==1 && autoSetCaptureState.listening(spectralforge::autoset::Tap::lane1);
+    // Phase 13 listens to lane1+lane2 (Dual), phase 17 to lane1-lane3 (Matrix).
+    const bool matrixLanes=autoSetCaptureState.listening(spectralforge::autoset::Tap::lane3);
+    const int lanesWanted=value(mode)==1 && !matrixLanes ? 2 : value(mode)==2 && matrixLanes ? 3 : 0;
+    const bool captureLanes=lanesWanted>0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::lane1);
     engine.setLaneCapture(captureLanes);
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
-    if(captureLanes && engine.laneCaptureFilled()) {
-        // Auto Set phase 13 hears each Dual rig before the blend.
-        const auto& first=engine.laneOutput(0);const auto& second=engine.laneOutput(1);
-        autoSetCaptureState.push(spectralforge::autoset::Tap::lane1,first.getArrayOfReadPointers(),first.getNumChannels(),first.getNumSamples());
-        autoSetCaptureState.push(spectralforge::autoset::Tap::lane2,second.getArrayOfReadPointers(),second.getNumChannels(),second.getNumSamples());
+    // Pushed only for blocks that played the routing the pass listens to, so a
+    // routing switch while listening never mixes Dual rigs with Matrix lanes.
+    if(captureLanes && engine.laneCaptureCount()==lanesWanted) {
+        // Auto Set phase 13 hears each Dual rig before the blend; phase 17 each Matrix lane.
+        constexpr spectralforge::autoset::Tap laneTaps[]{spectralforge::autoset::Tap::lane1,spectralforge::autoset::Tap::lane2,spectralforge::autoset::Tap::lane3};
+        for(int lane=0;lane<lanesWanted;++lane) {
+            const auto& out=engine.laneOutput(lane);
+            autoSetCaptureState.push(laneTaps[lane],out.getArrayOfReadPointers(),out.getNumChannels(),out.getNumSamples());
+        }
     }
     autoSetCaptureState.push(spectralforge::autoset::Tap::rig,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     // Post-rig gates attenuate the send bus with the direct sum's own gain.
