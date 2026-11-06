@@ -37,11 +37,11 @@ inline constexpr double micsSeconds=4;
 // x shifted later by `samples` (negative: earlier), linear interpolation, zero outside.
 inline std::vector<float> micsShift(const std::vector<float>& x,double samples) {
     std::vector<float> y(x.size());
-    for(size_t n=0;n<y.size();++n) {
-        const double t=double(n)-samples;const auto i=std::floor(t);const float f=float(t-i);
-        const auto at=[&](double k){return k>=0 && k<double(x.size())?x[size_t(k)]:0.f;};
-        y[n]=(1-f)*at(i)+f*at(i+1);
-    }
+    // The shift is the same for every sample: y[n] = x[n + offset + f], with 0 <= f < 1.
+    const double whole=std::floor(-samples);
+    const auto offset=std::ptrdiff_t(whole);const float f=float(-samples-whole);
+    const auto at=[&](std::ptrdiff_t k){return k>=0 && k<std::ptrdiff_t(x.size())?x[size_t(k)]:0.f;};
+    for(size_t n=0;n<y.size();++n){const auto k=std::ptrdiff_t(n)+offset;y[n]=(1-f)*at(k)+f*at(k+1);}
     return y;
 }
 // Worst third-octave band, 80 Hz-6.3 kHz within 30 dB of the strongest, where
@@ -69,8 +69,9 @@ inline std::pair<double,float> micsCorrelate(const std::vector<float>& a,const s
     std::vector<float> fa(2*size),fb(2*size);
     std::copy(a.begin(),a.begin()+std::ptrdiff_t(used),fa.begin());std::copy(b.begin(),b.begin()+std::ptrdiff_t(used),fb.begin());
     fft.performRealOnlyForwardTransform(fa.data());fft.performRealOnlyForwardTransform(fb.data());
-    // conj(A) * B: its inverse is r(lag) = sum a[i] b[i+lag].
-    for(size_t k=0;k<size;++k) {
+    // conj(A) * B: its inverse is r(lag) = sum a[i] b[i+lag]. The inverse of a
+    // real signal reads only the non-negative bins, 0..size/2.
+    for(size_t k=0;k<=size/2;++k) {
         const std::complex<float> x(fa[2*k],fa[2*k+1]),y(fb[2*k],fb[2*k+1]);
         const auto p=std::conj(x)*y;fa[2*k]=p.real();fa[2*k+1]=p.imag();
     }
@@ -102,9 +103,10 @@ inline MicsResult analyseMics(const std::vector<float>& micA,const std::vector<f
     const size_t n=std::min({micA.size(),micB.size(),size_t(rate*micsSeconds)});
     if(n==0)return r;
     const std::vector<float> a(micA.begin(),micA.begin()+std::ptrdiff_t(n)),b(micB.begin(),micB.begin()+std::ptrdiff_t(n));
-    std::vector<float> mix(n);
-    const auto mixOf=[&](const std::vector<float>& x,const std::vector<float>& y,float w,size_t from,size_t to)->std::vector<float> {
-        std::vector<float> m(to-from);for(size_t i=from;i<to;++i)m[i-from]=(1-w)*x[i]+w*y[i];return m;
+    // One buffer for every mix the analysis hears, rewritten in place.
+    std::vector<float> mix;mix.reserve(n);
+    const auto mixOf=[&](const std::vector<float>& x,const std::vector<float>& y,float w,size_t from,size_t to)->const std::vector<float>& {
+        mix.resize(to-from);for(size_t i=from;i<to;++i)mix[i-from]=(1-w)*x[i]+w*y[i];return mix;
     };
     const auto now=measureSpectrum(mixOf(a,b,blend,0,n),rate,bass);
     r.playingDetected=now.playing;
@@ -130,7 +132,8 @@ inline MicsResult analyseMics(const std::vector<float>& micA,const std::vector<f
         const auto edge=size_t(std::ceil((std::abs(shiftA)+std::abs(shiftB))*rate*.001))+1;
         if(2*edge<n) {
             const auto trim=[&](const std::vector<float>& v){return std::vector<float>(v.begin()+std::ptrdiff_t(edge),v.end()-std::ptrdiff_t(edge));};
-            const auto before=measureSpectrum(mixOf(a,b,blend,edge,n-edge),rate,r.bass),after=measureSpectrum(mixOf(ax,by,blend,edge,n-edge),rate,r.bass);
+            const auto before=measureSpectrum(mixOf(a,b,blend,edge,n-edge),rate,r.bass);
+            const auto after=measureSpectrum(mixOf(ax,by,blend,edge,n-edge),rate,r.bass);
             const float cancelBefore=micsCancellationDb(before,measureSpectrum(trim(a),rate,r.bass),measureSpectrum(trim(b),rate,r.bass),blend);
             const float cancelAfter=micsCancellationDb(after,measureSpectrum(trim(ax),rate,r.bass),measureSpectrum(trim(by),rate,r.bass),blend);
             if(cancelBefore-cancelAfter>=micsAlignGainDb && (newA!=delayMs[0] || newB!=delayMs[1] || flip)) {
