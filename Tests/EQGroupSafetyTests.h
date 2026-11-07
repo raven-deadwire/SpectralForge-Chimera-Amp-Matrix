@@ -139,6 +139,13 @@ void groupSelectionAfterRemoval(int bank) {
     check(f.panel->selectionMask()==0b0010,"Outside band joined surviving selection");
     check(f.key(juce::KeyPress::deleteKey) && f.panel->isBandVisible(0) && f.panel->isBandVisible(3),"Following Delete reached outside original group");
 
+    GroupFixture vanished(bank);vanished.group();
+    check(vanished.processor->eqEditing().removeBands(bank,0b0110),"Vanished group fixture failed");
+    const auto survivors=vanished.state();
+    // Deliberately do not dispatch a timer between external removal and Delete.
+    vanished.key(juce::KeyPress::deleteKey);
+    check(vanished.state()==survivors,"Refresh redirected a stale group delete to an outside fallback");
+
     GroupFixture rejected(bank);rejected.group();const auto before=rejected.state();
     // Another editing owner has an active transaction; the panel must not
     // clear its selection when removeBands rejects this request.

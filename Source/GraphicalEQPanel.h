@@ -826,17 +826,19 @@ private:
         if(added>=0){groupMask=0;selectBand(added);grabKeyboardFocus();}rebuildResponse();repaint();
     }
     void deleteSelection() {
-        endDrag();refreshEditingState();
-        if(selectionCount()<=1){deleteSelectedBand();return;}
-        const auto mask=selectionMask();
+        endDrag();const auto mask=selectionMask();
         // Rejected edits (for example during restore) must not erase a valid
-        // group. Reconcile any externally removed members in either outcome.
-        if(editing.removeBands(instance,mask)){groupMask=0;++selectionGeneration;}
+        // group. Capture intent before refresh can choose an outside fallback
+        // when every selected member disappeared before the UI timer ran.
+        bool removed=false;
+        if(mask!=0) {
+            if((mask&(mask-1))==0) {
+                int band=0;while(((mask>>band)&1)==0)++band;
+                removed=editing.removeBand(instance,band);
+            } else removed=editing.removeBands(instance,mask);
+        }
+        if(removed){groupMask=0;++selectionGeneration;}
         refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
-    }
-    void deleteSelectedBand() {
-        endDrag();if(selected<0)return;
-        editing.removeBand(instance,selected);refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
     }
     void applyHistory(bool redo) {
         endDrag();const int bank=redo?editing.nextRedoBank():editing.nextUndoBank();
