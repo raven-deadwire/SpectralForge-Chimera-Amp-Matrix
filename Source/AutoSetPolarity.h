@@ -35,7 +35,7 @@ inline float polarityCancellationDb(const Spectrum& mix,const std::vector<Spectr
         double sum=0;
         for(size_t k=0;k<lanes.size();++k)if(lanes[k].playing)sum+=double(weights[k])*weights[k]*std::pow(10.,lanes[k].bandsDb[size_t(band)]/10.);
         if(sum<=0 || 10*std::log10(sum)<mix.strongestDb-30.f)continue;
-        worst=std::max(worst,float(10*std::log10(sum/std::max(std::pow(10.,mix.bandsDb[size_t(band)]/10.),1e-30))));
+        worst=std::max(worst,float(10*std::log10(sum)-std::max(mix.bandsDb[size_t(band)],-300.f)));
     }
     return worst;
 }
