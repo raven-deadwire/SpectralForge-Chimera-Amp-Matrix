@@ -1247,7 +1247,9 @@ private:
         if(source==3){keep("mic "+mic+" plays a user IR: choose IRs in the IR loader");return;}
         const auto v30=IRLibrary::factoryIR(0),jensen=IRLibrary::factoryIR(1);
         if(!v30 || !jensen){keep("the factory IRs could not be read");return;}
-        const auto r=analyseCabIR(post,rate(),source,{cabIRBandsDb(v30->samples,v30->rate),cabIRBandsDb(jensen->samples,jensen->rate)},chosenInstrument(),runOptions.style);
+        // The factory IRs are fixed for the process: their bands are computed once.
+        static const std::array<std::array<float,toneBandCount>,2> factoryBands{cabIRBandsDb(v30->samples,v30->rate),cabIRBandsDb(jensen->samples,jensen->rate)};
+        const auto r=analyseCabIR(post,rate(),source,factoryBands,chosenInstrument(),runOptions.style);
         lastCabIR=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         if(r.bass){keep("bass: both factory IRs are guitar cabinets");return;}
