@@ -698,40 +698,7 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     closeTo(get(processor,eqID(bank,3,"q")),1,.001f,"Group wheel Q changed a band outside the group");
     undoOnce("Group wheel Q was not undone in one step");
 
-    // Delete a group as one step; undo brings every band back.
-    check(key(juce::KeyPress::escapeKey,0),"Escape failed");click(1,0);click(2,command);check(panel.selectionMask()==0b0110,"Delete fixture selection wrong");
-    check(key(juce::KeyPress::deleteKey,0),"Delete not handled");
-    check(waitFor([&]{return panel.isBandVisible(0) && !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(3);}),"Group delete did not remove exactly the group");
-    check(get(processor,eqID(bank,1,"enabled"))==0 && get(processor,eqID(bank,2,"enabled"))==0,"Group delete left a band audible");
-    check(panel.selectionCount()==1,"Group delete left a stale group");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Group delete was not undone in one step");
-    for(int b=0;b<4;++b)unchanged(b,"Group delete undo did not restore values");
-    check(key('z',command|juce::ModifierKeys::shiftModifier) && waitFor([&]{return !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(0);}),"Group delete redo failed");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Second group delete undo failed");
-
-    // The top DELETE button removes the group, like the Delete key (one undo step).
-    key(juce::KeyPress::escapeKey,0);click(1,0);click(2,command);
-    auto* deleteButton=find<juce::TextButton>(panel,eqID(bank,-1,"deleteBand"));check(deleteButton!=nullptr,"Delete button missing");
-    deleteButton->triggerClick();
-    check(waitFor([&]{return panel.isBandVisible(0) && !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(3);}),"The DELETE button did not remove exactly the group");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"The DELETE button's group removal was not one undo step");
-    // The selected band disappears (deleted elsewhere): selection passes to a
-    // remaining group member, never to a band outside the group.
-    click(1,0);click(2,command);check(panel.selectionMask()==0b0110 && panel.selectedBand()==2,"Vanishing fixture selection wrong");
-    check(processor.eqEditing().removeBand(bank,2),"Fixture removal failed");
-    check(waitFor([&]{return !panel.isBandVisible(2) && panel.selectedBand()==1;}),"Selection did not pass to the remaining group member");
-    check(panel.selectionMask()==0b0010,("A band outside the group joined it: mask "+juce::String(panel.selectionMask())).toRawUTF8());
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(2);}),"Fixture removal undo failed");
-    for(int b=0;b<4;++b)unchanged(b,"Vanishing-selection fixture changed a value");
-    // Esc during a group drag ends the drag: later pointer moves write nothing.
-    click(0,0);click(1,command);
-    const auto grab=panel.visibleNodePosition(1);
-    panel.mouseDown(mouse(panel,grab,grab,false));panel.mouseDrag(mouse(panel,grab+juce::Point<float>(20,-10),grab,true));
-    const auto atEsc=std::array<float,2>{get(processor,eqID(bank,0,"frequency")),get(processor,eqID(bank,1,"frequency"))};
-    check(key(juce::KeyPress::escapeKey,0),"Escape during a group drag not handled");
-    panel.mouseDrag(mouse(panel,grab+juce::Point<float>(80,-40),grab,true));panel.mouseUp(mouse(panel,grab+juce::Point<float>(80,-40),grab,true));
-    check(get(processor,eqID(bank,0,"frequency"))==atEsc[0] && get(processor,eqID(bank,1,"frequency"))==atEsc[1],"A group drag kept writing after Escape");
-    undoOnce("The drag up to Escape was not one undo step");
+    check(key(juce::KeyPress::escapeKey,0),"Escape before single-selection checks failed");
     // A plain click outside the group, or the band chooser, starts over.
     check(panel.selectionCount()==1 && !key(juce::KeyPress::escapeKey,0),"Escape with one band selected was consumed");
     click(0,0);click(1,command);check(panel.selectionMask()==0b0011,"Two-band fixture wrong");
@@ -741,6 +708,8 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     chooser->setSelectedId(2,juce::sendNotificationSync);check(panel.selectionMask()==0b0010,"Band chooser kept the group");
     std::cout<<"PASS EQ group selection (Ctrl/Cmd+click, box, Ctrl/Cmd+A, Escape) and group drag/edge/Alt, wheel Q and delete as single undo steps bank="<<bank<<'\n';
 }
+#include "EQGroupSafetyTests.h"
+
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -1169,7 +1138,9 @@ int main(int argc,char** argv){try {
             auto* panel=find<GraphicalEQPanel>(*editor,bank==0?"toneEQ_panel":"finalEQ_panel");
             check(panel && waitFor([&]{return panel->isShowing();}),"Group fixture panel not visible");
             groupEditing(*processor,*panel,bank);
+            groupSafetyRegression(bank);
         }
+        groupCrossBankHistory();
         return 0;
     }
     if(argc>1 && std::string(argv[1])=="--modifier-drag") {
