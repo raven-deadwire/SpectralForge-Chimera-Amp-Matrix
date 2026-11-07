@@ -126,7 +126,7 @@ void controllerMics() {
         std::vector<std::pair<juce::String,float>> list(pairs);
         return [list](ChimeraProcessor& p){for(const auto& [id,v]:list)p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));};};
     const auto twoMics=setter({{"mode",0},{"cabblend1",.5f},{"cabBtype1",1}});
-    const Controller::Options micsOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false};
+    const Controller::Options micsOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false};
     const auto full=runMics(micsOnly,late,twoMics);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::mics);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::mics} && step && step->changed && step->result.contains("mic A DELAY") && step->result.contains("POLARITY inverted"),"Mics pass did not run alone or report");

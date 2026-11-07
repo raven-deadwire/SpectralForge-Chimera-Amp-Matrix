@@ -94,4 +94,28 @@ inline SpaceResult analyseSpace(const std::vector<Window>& windows,bool bass,Sty
     }
     return r;
 }
+// Phase 22: whether to turn on DELAY SYNC following the host tempo. The
+// delay + reverb step (phase 11) keeps the delay off without a sync tempo,
+// because onset gaps do not establish a metrical tempo. When the host reports
+// one (40-240 BPM, the range phase 11 accepts) and phase 11 would then add a
+// delay (not bass, not metal, no phrase faster than 4 notes a second), sync is
+// turned on, following the host tempo.
+struct TempoSyncResult {
+    PlayingFeel feel{};
+    bool hostTempo{},delayWanted{};
+    float bpm{};
+    const char* reason{""};
+    SpaceSetting delay{};
+};
+inline TempoSyncResult analyseTempoSync(const std::vector<Window>& windows,bool bass,Style style,float hostBpm) {
+    TempoSyncResult r;r.feel=measurePlayingFeel(windows);
+    if(!r.feel.measured)return r;
+    r.hostTempo=std::isfinite(hostBpm) && hostBpm>=40.f && hostBpm<=240.f;
+    if(!r.hostTempo)return r;
+    r.bpm=hostBpm;
+    const auto s=analyseSpace(windows,bass,style,hostBpm);
+    r.delay=s.delay;r.delayWanted=s.delay.on;
+    if(!r.delayWanted)r.reason=bass?"bass":style==Style::metal?"metal style":r.feel.peakOnsetsPerSecond>spaceDelayMaxOnsets?"fast phrase":"no delay for this playing";
+    return r;
+}
 } // namespace spectralforge::autoset
