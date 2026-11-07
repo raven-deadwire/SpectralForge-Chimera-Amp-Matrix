@@ -115,7 +115,7 @@ void matrixLaneCapture() {
     std::cout<<"MEASURE matrix native OUTPUT LEVEL +6 dB: lane gain "<<gainDb<<" dB, worst sample error "<<worstSample<<'\n';
     std::cout<<"PASS auto set matrix capture: lanes after level and polarity sum to the engine output; lane1-lane3 fed in Matrix for the Matrix pass only, Dual unchanged; native OUTPUT LEVEL is linear\n";
 }
-struct MatrixRun {std::vector<float> before,values,undone;Controller::Status status;MatrixResult analysis;};
+struct MatrixRun {std::vector<float> before,values,undone;Controller::Status status;MatrixResult analysis;PolarityResult polarity;};
 // Feeds the three lanes to the lane taps of a real processor (Matrix routing set by prepare).
 MatrixRun runMatrix(const Controller::Options& options,const MatrixLanes& lanes,const std::function<void(ChimeraProcessor&)>& prepare,
                     const std::function<void(ChimeraProcessor&)>& during={}) {
@@ -132,7 +132,7 @@ MatrixRun runMatrix(const Controller::Options& options,const MatrixLanes& lanes,
         if(during && offset==0)during(*p);
     }
     check(!c.busy(),"Matrix run did not finish");
-    result.values=values(*p);result.status=c.current();result.analysis=c.lastMatrixAnalysis();
+    result.values=values(*p);result.status=c.current();result.analysis=c.lastMatrixAnalysis();result.polarity=c.lastPolarityAnalysis();
     c.undo();result.undone=values(*p);p->releaseResources();
     return result;
 }
@@ -146,7 +146,7 @@ void controllerMatrix() {
         return [list](ChimeraProcessor& p){for(const auto& [id,v]:list)p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));};};
     const auto midNative=spectralforge::ampNativeOutputLevelID(4),highNative=spectralforge::ampNativeOutputLevelID(5);
     const auto matrixMode=setter({{"mode",2}});
-    const Controller::Options matrixOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false};
+    const Controller::Options matrixOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false};
     // Native heads (the default): the lanes' OUTPUT LEVEL moves; LEVEL and LOW stay.
     const auto full=runMatrix(matrixOnly,lanes,matrixMode);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::matrix);
