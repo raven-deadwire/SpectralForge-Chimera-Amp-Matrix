@@ -140,6 +140,18 @@ public:
         endEdit();return ok;
     }
 
+    // Delete several bands as one undo step (graph group selection).
+    bool removeBands(int bank,uint16_t mask) {
+        reconcile();if(interrupted || active || !validBank(bank))return false;
+        int count=0;for(int b=0;b<graphicalEQBands;++b)if((mask&bit(b)) && isOccupied(bank,b))++count;
+        if(count==0)return false;
+        if(!beginEdit(bank,"Delete "+juce::String(count)+" bands"))return false;
+        const uint16_t chosen=uint16_t(mask&occupiedMask(bank));bool ok=true;
+        for(int b=0;b<graphicalEQBands && ok;++b)if(chosen&bit(b))ok=setValue(bank,b,"enabled",0);
+        if(ok && alive(bank))setOccupied(bank,uint16_t(occupiedMask(bank)&~chosen));
+        endEdit();return ok;
+    }
+
     bool canUndo(){reconcile();return ready() && !undoStack.empty();}
     bool canRedo(){reconcile();return ready() && !redoStack.empty();}
     bool undo(){return replay(false);}

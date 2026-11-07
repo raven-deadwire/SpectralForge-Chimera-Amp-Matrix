@@ -602,6 +602,122 @@ void analyzerTilt(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     panel.setSnapshotFrozen(false);panel.setPeakHold(false);
     std::cout<<"PASS EQ analyzer tilt flat/3/4.5/6 dB/oct (live and peak lines shift exactly, readout measured, menu guard, saved state unchanged) comparisons="<<compared<<" bank="<<bank<<'\n';
 }
+// Group selection and group editing (Issue #53): Ctrl/Cmd+click, box
+// selection, Ctrl/Cmd+A and Escape; a group drag moves every member by the
+// same frequency ratio and gain change as one undo step with one host gesture
+// per field; wheel Q and Delete apply to the group as one undo step.
+// Selecting alone never changes saved state.
+void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    const std::array<float,4> hz{100.f,400.f,1600.f,6400.f},db{3.f,-3.f,6.f,0.f},types{0.f,0.f,0.f,3.f};
+    for(int b=0;b<12;++b)set(processor,eqID(bank,b,"enabled"),0);
+    for(int b=0;b<4;++b){set(processor,eqID(bank,b,"frequency"),hz[size_t(b)]);set(processor,eqID(bank,b,"gain"),db[size_t(b)]);
+        set(processor,eqID(bank,b,"q"),1);set(processor,eqID(bank,b,"type"),types[size_t(b)]);set(processor,eqID(bank,b,"enabled"),1);}
+    check(waitFor([&]{panel.selectBandForEditing(0);return panel.isBandVisible(3) && !panel.isBandVisible(4) && panel.selectedBand()==0;}),"Group fixture bands not visible");
+    panel.collapseSelection();
+    const auto plot=panel.graphBounds();const int command=juce::ModifierKeys::commandModifier;
+    const auto click=[&](int band,int modifiers){const auto at=panel.visibleNodePosition(band);
+        panel.mouseDown(mouseWith(panel,at,at,false,modifiers));panel.mouseUp(mouseWith(panel,at,at,false,modifiers));};
+    const auto box=[&](juce::Point<float> from,juce::Point<float> to,int modifiers){
+        panel.mouseDown(mouseWith(panel,from,from,false,modifiers));
+        panel.mouseDrag(mouseWith(panel,(from+to)*.5f,from,true,modifiers));panel.mouseDrag(mouseWith(panel,to,from,true,modifiers));
+        check(!panel.marqueeArea().isEmpty(),"Box selection was not drawn");
+        panel.mouseUp(mouseWith(panel,to,from,true,modifiers));check(panel.marqueeArea().isEmpty(),"Box selection stayed after release");};
+    const auto key=[&](int code,int modifiers){return panel.keyPressed(juce::KeyPress(code,juce::ModifierKeys(modifiers),0));};
+    const auto values=[&](int b){return std::array<float,4>{get(processor,eqID(bank,b,"frequency")),get(processor,eqID(bank,b,"gain")),get(processor,eqID(bank,b,"q")),get(processor,eqID(bank,b,"enabled"))};};
+    std::array<std::array<float,4>,4> original{};for(int b=0;b<4;++b)original[size_t(b)]=values(b);
+    const auto unchanged=[&](int b,const char* message){const auto now=values(b);
+        for(size_t i=0;i<4;++i)check(std::abs(now[i]-original[size_t(b)][i])<=std::max(.02f,std::abs(original[size_t(b)][i])*1.e-4f),message);};
+    const auto undoOnce=[&](const char* message){check(key('z',command),"Undo shortcut not handled");settle(40);for(int b=0;b<4;++b)unchanged(b,message);};
+    juce::MemoryBlock before;processor.getStateInformation(before);
+
+    // Selection only: Ctrl/Cmd+click toggles, the last added band is the selected one.
+    click(0,0);check(panel.selectionMask()==1 && panel.selectedBand()==0,"Plain click did not select one band");
+    click(1,command);click(2,command);check(panel.selectionMask()==0b0111 && panel.selectedBand()==2,"Ctrl/Cmd+click did not add bands");
+    click(2,command);check(panel.selectionMask()==0b0011 && panel.selectedBand()==0,"Removing the selected band did not pass selection on");
+    click(2,command);check(panel.selectionMask()==0b0111 && panel.selectedBand()==2,"Ctrl/Cmd+click did not re-add a band");
+    check(key('a',command) && panel.selectionMask()==0b1111,"Ctrl/Cmd+A did not select every band");
+    check(key(juce::KeyPress::escapeKey,0) && panel.selectionCount()==1,"Escape did not collapse the group");
+    const auto xAt=[&](float f){return plot.getX()+plot.getWidth()*std::log(f/20.f)/std::log(1000.f);};
+    box({xAt(70),plot.getY()+5},{xAt(600),plot.getBottom()-5},0);check(panel.selectionMask()==0b0011,"Box did not select the bands inside it");
+    box({xAt(1100),plot.getY()+5},{xAt(2500),plot.getBottom()-5},command);check(panel.selectionMask()==0b0111,"Ctrl/Cmd+box did not add to the group");
+    const auto empty=juce::Point<float>{xAt(11000),plot.getY()+8};
+    panel.mouseDown(mouse(panel,empty,empty,false));panel.mouseUp(mouse(panel,empty,empty,false));
+    check(panel.selectionMask()==0b0111,"A click on empty graph changed the group");
+    {   // Evidence image: three members ringed, band 3 plain, a box being drawn.
+        const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile("eq-group-edit");directory.createDirectory();
+        const juce::Point<float> a{xAt(3000),plot.getY()+10},b{xAt(15000),plot.getCentreY()+40};
+        panel.mouseDown(mouse(panel,a,a,false));panel.mouseDrag(mouse(panel,b,a,true));
+        saveImage(panel.createComponentSnapshot(panel.getLocalBounds()),directory.getChildFile("group_bank"+juce::String(bank)+".png"));
+        panel.mouseUp(mouse(panel,b,a,true));check(panel.selectionMask()==0b1000,"Evidence box did not select band 4 alone");
+        click(0,0);click(1,command);click(2,command);
+        check(panel.selectionMask()==0b0111,"Evidence box did not restore the group");
+    }
+    juce::MemoryBlock selected;processor.getStateInformation(selected);check(before==selected,"Selecting bands changed saved state");
+    for(int b=0;b<4;++b)unchanged(b,"Selecting bands changed a value");
+
+    // Group drag from a member: same ratio (x2) and gain change (+4 dB) for all.
+    HostEvents events;std::vector<juce::AudioProcessorParameter*> listened;
+    for(int b=0;b<4;++b)for(const char* field:{"frequency","gain"}){auto* parameter=processor.parameters().getParameter(eqID(bank,b,field));parameter->addListener(&events);listened.push_back(parameter);}
+    const auto start=panel.visibleNodePosition(1);const juce::Point<float> travel{plot.getWidth()*std::log(2.f)/std::log(1000.f),-plot.getHeight()*4.f/48.f};
+    panel.mouseDown(mouse(panel,start,start,false));check(panel.selectionMask()==0b0111 && panel.selectedBand()==1,"Pressing a member dropped the group");
+    for(int step=1;step<=4;++step)panel.mouseDrag(mouse(panel,start+travel*(float(step)/4.f),start,true));
+    panel.mouseUp(mouse(panel,start+travel,start,true));
+    for(auto* parameter:listened)parameter->removeListener(&events);
+    for(int b=0;b<3;++b){
+        closeTo(get(processor,eqID(bank,b,"frequency")),hz[size_t(b)]*2,hz[size_t(b)]*.004f,"Group drag ratio wrong");
+        closeTo(get(processor,eqID(bank,b,"gain")),db[size_t(b)]+4,.05f,"Group drag gain change wrong");
+    }
+    unchanged(3,"Group drag moved a band outside the group");
+    check(events.starts==6 && events.ends==6,("Group drag was not one gesture per field: starts="+juce::String(events.starts)+" ends="+juce::String(events.ends)).toRawUTF8());
+    undoOnce("Group drag was not undone in one step");
+    check(panel.selectionMask()==0b0111,"Undo dropped the group");
+
+    // A member at the range edge stops there; the others keep moving. HP has no gain.
+    check(key('a',command),"Ctrl/Cmd+A failed");const auto from=panel.visibleNodePosition(0);
+    const juce::Point<float> reach{plot.getWidth()*std::log(4.f)/std::log(1000.f),-plot.getHeight()*2.f/48.f};
+    panel.mouseDown(mouse(panel,from,from,false));panel.mouseDrag(mouse(panel,from+reach*.5f,from,true));panel.mouseDrag(mouse(panel,from+reach,from,true));panel.mouseUp(mouse(panel,from+reach,from,true));
+    closeTo(get(processor,eqID(bank,3,"frequency")),20000,1,"Group drag did not stop a member at 20 kHz");
+    closeTo(get(processor,eqID(bank,0,"frequency")),400,1.6f,"Group drag did not keep moving the others");
+    closeTo(get(processor,eqID(bank,3,"gain")),0,.01f,"Group drag changed the gain of a filter without gain");
+    undoOnce("Edge-limited group drag was not undone in one step");
+    // Alt keeps the group to the axis it first moves along.
+    const auto alt=panel.visibleNodePosition(0);
+    panel.mouseDown(mouseWith(panel,alt,alt,false,juce::ModifierKeys::altModifier));
+    panel.mouseDrag(mouseWith(panel,alt+juce::Point<float>(30,-4),alt,true,juce::ModifierKeys::altModifier));
+    panel.mouseDrag(mouseWith(panel,alt+juce::Point<float>(60,-8),alt,true,juce::ModifierKeys::altModifier));
+    panel.mouseUp(mouseWith(panel,alt+juce::Point<float>(60,-8),alt,true,juce::ModifierKeys::altModifier));
+    for(int b=0;b<4;++b)closeTo(get(processor,eqID(bank,b,"gain")),db[size_t(b)],.01f,"Alt group drag changed gain");
+    check(get(processor,eqID(bank,1,"frequency"))>hz[1]*1.05f,"Alt group drag did not move frequency");
+    undoOnce("Alt group drag was not undone in one step");
+
+    // Wheel Q on a group: the same factor for every member, one undo step.
+    check(key(juce::KeyPress::escapeKey,0),"Escape failed");click(0,0);click(1,command);click(2,command);
+    juce::MouseWheelDetails wheel{};wheel.deltaY=.2f;const auto over=panel.visibleNodePosition(2)+juce::Point<float>(0,30);
+    panel.mouseWheelMove(mouse(panel,over,over,false),wheel);
+    for(int b=0;b<3;++b)closeTo(get(processor,eqID(bank,b,"q")),std::exp(.3f),.01f,"Group wheel Q wrong");
+    closeTo(get(processor,eqID(bank,3,"q")),1,.001f,"Group wheel Q changed a band outside the group");
+    undoOnce("Group wheel Q was not undone in one step");
+
+    // Delete a group as one step; undo brings every band back.
+    check(key(juce::KeyPress::escapeKey,0),"Escape failed");click(1,0);click(2,command);check(panel.selectionMask()==0b0110,"Delete fixture selection wrong");
+    check(key(juce::KeyPress::deleteKey,0),"Delete not handled");
+    check(waitFor([&]{return panel.isBandVisible(0) && !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(3);}),"Group delete did not remove exactly the group");
+    check(get(processor,eqID(bank,1,"enabled"))==0 && get(processor,eqID(bank,2,"enabled"))==0,"Group delete left a band audible");
+    check(panel.selectionCount()==1,"Group delete left a stale group");
+    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Group delete was not undone in one step");
+    for(int b=0;b<4;++b)unchanged(b,"Group delete undo did not restore values");
+    check(key('z',command|juce::ModifierKeys::shiftModifier) && waitFor([&]{return !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(0);}),"Group delete redo failed");
+    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Second group delete undo failed");
+
+    // A plain click outside the group, or the band chooser, starts over.
+    check(panel.selectionCount()==1 && !key(juce::KeyPress::escapeKey,0),"Escape with one band selected was consumed");
+    click(0,0);click(1,command);check(panel.selectionMask()==0b0011,"Two-band fixture wrong");
+    click(3,0);check(panel.selectionMask()==0b1000,"Plain click on a non-member kept the group");
+    check(key('a',command),"Ctrl/Cmd+A failed");click(3,0);check(panel.selectionMask()==0b1111,"Plain click on a member dropped the group");
+    auto* chooser=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));check(chooser!=nullptr,"Band chooser missing");
+    chooser->setSelectedId(2,juce::sendNotificationSync);check(panel.selectionMask()==0b0010,"Band chooser kept the group");
+    std::cout<<"PASS EQ group selection (Ctrl/Cmd+click, box, Ctrl/Cmd+A, Escape) and group drag/edge/Alt, wheel Q and delete as single undo steps bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -1022,6 +1138,15 @@ int main(int argc,char** argv){try {
     if(argc>1 && std::string(argv[1])=="--bass-zoom") {
         const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>2?argv[2]:"eq-bass-zoom");
         eqBassZoomTests::run(*processor,editor,directory);
+        return 0;
+    }
+    if(argc>1 && std::string(argv[1])=="--group-edit") {
+        for(int bank=0;bank<2;++bank) {
+            auto* path=find<juce::TextButton>(*editor,bank==0?"path.tone.eq":"path.final.eq");check(path,"EQ path target missing");path->triggerClick();
+            auto* panel=find<GraphicalEQPanel>(*editor,bank==0?"toneEQ_panel":"finalEQ_panel");
+            check(panel && waitFor([&]{return panel->isShowing();}),"Group fixture panel not visible");
+            groupEditing(*processor,*panel,bank);
+        }
         return 0;
     }
     if(argc>1 && std::string(argv[1])=="--modifier-drag") {

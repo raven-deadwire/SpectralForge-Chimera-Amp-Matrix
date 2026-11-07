@@ -116,6 +116,15 @@
 - 에디터 표시 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않으며 에디터를 다시 열면 Flat으로 돌아간다.
 - 검증: `ChimeraGraphicalEQUITests`의 `analyzerTilt`(양쪽 EQ). 실제 오디오로 만든 고정 프레임에서 100 Hz·400 Hz·1 kHz·4 kHz의 OUT 선과 PEAK 선이 기울기마다 정확히 `tilt × log2(f/1 kHz)` dB만큼 움직이는지(잘리는 점 제외), 수치 표시 불변, 지원하지 않는 값 거부, 메뉴 결과 처리(알 수 없는 ID 무시), 저장 상태 불변, Flat 복귀를 확인한다. 메뉴 자체와 실제 DAW 표시는 자동 검증 범위 밖이다.
 
+## 여러 밴드 선택과 묶음 편집 (2026-11-07, Issue #53)
+
+- **선택:** 노드를 **Ctrl+클릭**(macOS는 **Cmd+클릭**)하면 묶음에 넣거나 뺀다. 그래프 빈 곳을 드래그하면 상자 안의 노드를 고르고(Ctrl/Cmd를 누르고 드래그하면 기존 묶음에 더함), **Ctrl/Cmd+A**는 보이는 밴드를 모두 고른다. **Esc**는 선택된 밴드 하나만 남긴다. 묶음 밖 노드를 그냥 누르거나 밴드 선택 목록에서 고르면 새로 시작한다. 빈 곳을 클릭만 하면(상자 없음) 선택은 그대로이고, 더블클릭은 여전히 밴드를 추가한다. 빈 상자는 선택된 밴드 하나만 남긴다.
+- **표시:** 묶음의 노드에는 고리를 두르고, 오른쪽 위 안내에 `3 bands selected  /  Delete removes  /  Esc clears`를 표시한다.
+- **묶음 드래그:** 묶음의 노드를 잡고 끌면 모든 밴드가 **같은 주파수 비율과 같은 dB 변화**로 함께 움직인다. 각 밴드는 자기 범위(20 Hz–20 kHz, ±24 dB)에서 멈추고 나머지는 계속 움직인다. 게인이 없는 필터(HP/LP 등)는 주파수만 움직인다. Shift(미세)와 Alt/Option(축 고정)은 한 밴드 드래그와 같다. 드래그 전체가 **Undo 한 단계**이고, 호스트에는 필드마다 제스처 한 쌍이다.
+- **휠(Q)과 삭제:** 묶음이 있으면 휠은 모든 밴드의 Q에 같은 배율을 곱하고, Delete/Backspace와 노드 오른쪽 클릭의 `Delete N Selected Bands`는 묶음 전체를 지운다. 둘 다 Undo 한 단계다. 아래쪽 밴드 컨트롤(주파수·게인·Q 숫자, 필터, 다이내믹)은 지금처럼 선택된 밴드 하나만 바꾼다.
+- 선택 자체는 에디터 표시 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않는다.
+- 검증: `ChimeraGraphicalEQGroupEditTests`(양쪽 EQ, `ChimeraGraphicalEQUITests --group-edit`). Ctrl/Cmd+클릭 추가·제거(선택 밴드를 빼면 다음 밴드로), Ctrl/Cmd+A, Esc, 상자 선택과 Ctrl/Cmd+상자, 빈 곳 클릭, 선택만으로 저장 상태 불변, 묶음 드래그의 비율 ×2·+4 dB와 묶음 밖 밴드 불변, 필드마다 제스처 한 쌍(6/6), 20 kHz에서 멈추는 밴드와 게인 없는 HP, Alt 축 고정, 휠 Q, 묶음 삭제와 Undo/Redo, 묶음 밖 클릭·밴드 목록으로 새로 시작을 확인하고 `eq-group-edit/group_bank*.png`를 남긴다. `ChimeraGraphicalEQEditingTests`의 `groupRemoval`은 여러 밴드 삭제가 Undo 한 단계로 튜닝까지 되돌아오는지, 없는 슬롯을 무시하는지 확인한다. 오른쪽 클릭 메뉴 자체와 실제 DAW·트랙패드 조작은 자동 검증 범위 밖이다.
+
 ## 이 환경에서 자동 검증할 수 있는 항목
 
 1. `ChimeraGraphicalEQEditingTests`: 실제 processor의 모든 EQ 파라미터 계약, 점유/우회/삭제/재사용, 64작업 이력, 동기·별도 스레드·재진입 호스트 쓰기, binary project, A/B, legacy/malformed migration, 모든 공장 프리셋, 44.1/48/96/192 kHz 오디오 동등성.

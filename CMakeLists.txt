@@ -739,6 +739,8 @@ add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_B
 add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraGraphicalEQBassZoomTests COMMAND ChimeraGraphicalEQUITests --bass-zoom "${CMAKE_BINARY_DIR}/eq-bass-zoom")
 set_tests_properties(ChimeraGraphicalEQBassZoomTests PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE)
+add_test(NAME ChimeraGraphicalEQGroupEditTests COMMAND ChimeraGraphicalEQUITests --group-edit)
+set_tests_properties(ChimeraGraphicalEQGroupEditTests PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE)
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
 add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
