@@ -101,7 +101,7 @@ void dualLaneCapture() {
     p->releaseResources();
     std::cout<<"PASS auto set dual capture: rigs after level and polarity, before the blend, sum to the engine output; taps fed in Dual routing only\n";
 }
-struct DualRun {std::vector<float> before,values,undone;Controller::Status status;DualResult analysis;};
+struct DualRun {std::vector<float> before,values,undone;Controller::Status status;DualResult analysis;RigLevelResult rigs;};
 // Feeds the two rigs to the lane taps (and the playing to the window taps for
 // a compressor pass) of a real processor in Dual routing.
 // during: called once, after the first tick (an edit while the pass listens).
@@ -120,7 +120,7 @@ DualRun runDual(const Controller::Options& options,const std::vector<float>& rig
         if(during && offset==0)during(*p);
     }
     check(!c.busy(),"Dual run did not finish");
-    result.values=values(*p);result.status=c.current();result.analysis=c.lastDualAnalysis();
+    result.values=values(*p);result.status=c.current();result.analysis=c.lastDualAnalysis();result.rigs=c.lastRigsAnalysis();
     c.undo();result.undone=values(*p);p->releaseResources();
     return result;
 }
@@ -133,7 +133,7 @@ void controllerDual() {
     const auto blendRig=[](float blend){return [blend](ChimeraProcessor& p) {
         for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"mode",1},{"dualtype",0},{"dualblend",blend}})
             p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));};};
-    const Controller::Options dualOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,true,false,false,false,false,false};
+    const Controller::Options dualOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,true,false,false,false,false,false,false};
     const auto full=runDual(dualOnly,dark,even,blendRig(.2f));
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::dual);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::dual} && step && step->changed && step->result.contains("BLEND"),"Dual pass did not run alone or report");
