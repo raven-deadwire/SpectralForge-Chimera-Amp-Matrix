@@ -22,7 +22,7 @@ void controllerCabPlacementEdits() {
             const auto current=spectralforge::cabLayout::settings(spectralforge::OriginalCabParameters::savedKey(0,mic,raw));
             const auto before=values(*p);auto expected=before;
             Controller c(*p);c.setOptions({2,false,Style::rock,false,false,false,strength,
-                Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false});
+                Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false});
             const auto edit=[&]{
                 auto* q=p->parameters().getParameter(controls[edited]);const float v=q->getValue();
                 expected[size_t(q->getParameterIndex())]=v;
