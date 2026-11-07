@@ -69,6 +69,8 @@ public:
     juce::ValueTree save() const;
     void restore(const juce::ValueTree&);
     static std::shared_ptr<Asset> decode(const juce::MemoryBlock&, const juce::String&, juce::String& error);
+    // The factory IRs as decoded (0 V30 / SM57, 1 Jensen / SM57), once per process; null for other indices.
+    static std::shared_ptr<const Asset> factoryIR(int index);
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
     // Set before prepare; inspect only after stop joins the worker.
     cabProfile::Counters* profileSink{};
