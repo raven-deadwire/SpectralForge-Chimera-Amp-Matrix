@@ -18,6 +18,7 @@ block, and reports:
   shapes and which is not delay.
 """
 import argparse
+import array
 import math
 import re
 import struct
@@ -40,7 +41,7 @@ def note(frames: int) -> list[float]:
 def render(tool: str, vst3: str, block: int, onset: int, work: Path) -> tuple[list[float], int]:
     x = [0.0] * onset + note(RATE // 2) + [0.0] * RATE
     source, target = work / "input.f32", work / "output.f32"
-    source.write_bytes(struct.pack(f"<{2 * len(x)}f", *(v for s in x for v in (s, s))))
+    source.write_bytes(array.array("f", (v for s in x for v in (s, s))).tobytes())
     result = subprocess.run([tool, vst3, str(RATE), "2", str(block), str(source), str(target)],
                             capture_output=True, text=True, check=False)
     if result.returncode:
@@ -62,8 +63,11 @@ def main() -> int:
         # The note at a block start, and half a block in (OBS's ticks do not line up with the audio).
         for onset in (SILENCE - SILENCE % block, SILENCE - SILENCE % block + block // 2):
             y, latency = render(args.render_tool, str(Path(args.vst3).resolve()), block, onset, work)
-            first = next(n - onset for n in range(onset, len(y)) if abs(y[n]) > FLOAT_THRESHOLD)
-            rise = next(n - onset for n in range(onset, len(y)) if abs(y[n]) > 16 * STEP)
+            first = next((n - onset for n in range(onset, len(y)) if abs(y[n]) > FLOAT_THRESHOLD), None)
+            rise = next((n - onset for n in range(onset, len(y)) if abs(y[n]) > 16 * STEP), None)
+            if first is None or rise is None:
+                failures.append(f"block {block}: Chimera's output never passed {FLOAT_THRESHOLD:g} or 16 steps after the note")
+                continue
             ahead = max(abs(v) for v in y[onset - block:onset])
             print(f"     block {block:4}, note {onset % block:3} into a block: output above {FLOAT_THRESHOLD:g} at "
                   f"{first:+d} samples, 16 steps at {rise:+d}, largest output before the note {ahead:.2g} "

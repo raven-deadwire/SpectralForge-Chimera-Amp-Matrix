@@ -196,10 +196,27 @@ public:
         displayRangeDB=chosen;rebuildResponse();repaint();
     }
     float displayRange() const noexcept {return displayRangeDB;}
+    // Frequency view (editor-local, like the display range): the graph's
+    // horizontal span. 0 = full 20 Hz-20 kHz, 1 = 20 Hz-2 kHz, 2 = 20-500 Hz
+    // for low-end work. Band values and drags keep the full 20 Hz-20 kHz range.
+    struct FrequencyView {float low,high;const char* name;};
+    static constexpr std::array<FrequencyView,3> frequencyViews{{{20.f,20000.f,"Full 20 Hz - 20 kHz"},{20.f,2000.f,"Low 20 Hz - 2 kHz"},{20.f,500.f,"Bass 20 - 500 Hz"}}};
+    void setFrequencyView(int view) {
+        view=(view>=0 && view<int(frequencyViews.size()))?view:0;
+        if(view==frequencyView)return;
+        frequencyView=view;rebuildResponse();rebuildSpectrumPaths();repaint();
+    }
+    int frequencyViewIndex() const noexcept {return frequencyView;}
+    // Ignore cancelled/unknown async menu results, including IDs in the gap.
+    void applyViewMenuResult(int result) {
+        if(result>=100 && result<100+int(frequencyViews.size()))setFrequencyView(result-100);
+        else if(result>=1 && result<=int(displayRanges.size()))setDisplayRange(displayRanges[size_t(result-1)]);
+    }
     // Where a node is drawn and hit: its true position, kept inside the graph
     // so a band beyond a narrow range stays reachable at the edge.
     juce::Point<float> visibleNodePosition(int band) const {
-        auto p=nodePosition(band);const auto area=plot();p.y=std::clamp(p.y,area.getY(),area.getBottom());return p;
+        auto p=nodePosition(band);const auto area=plot();
+        p.x=std::clamp(p.x,area.getX(),area.getRight());p.y=std::clamp(p.y,area.getY(),area.getBottom());return p;
     }
     // Hover readout text for a graph point (empty outside the graph).
     juce::String readoutAt(juce::Point<float> point) const {
@@ -282,9 +299,16 @@ public:
         g.setGradientFill({juce::Colour(0xff0b1216),area.getX(),area.getY(),juce::Colour(0xff142125),area.getX(),area.getBottom(),false});
         g.fillRect(area);
         g.setFont(juce::FontOptions(12.5f));
-        for(float f:{20.f,50.f,100.f,200.f,500.f,1000.f,2000.f,5000.f,10000.f,20000.f}) {
-            const auto x=frequencyX(f);g.setColour(grid);g.drawVerticalLine(juce::roundToInt(x),area.getY(),area.getBottom());
-            g.setColour(muted);g.drawText(f<1000?juce::String(int(f)):juce::String(f/1000,0)+"k",int(x)-20,int(area.getBottom())+5,40,16,juce::Justification::centred);
+        {
+            const auto& view=frequencyViews[size_t(frequencyView)];
+            // Zoomed views add intermediate lines; labels stay on the 1-2-5 series.
+            static constexpr std::array<float,19> lines{20,30,40,50,70,100,150,200,300,500,700,1000,1500,2000,5000,10000,20000,60,80};
+            for(float f:lines) {
+                const bool labelled=f==20||f==50||f==100||f==200||f==500||f==1000||f==2000||f==5000||f==10000||f==20000;
+                if(f<view.low || f>view.high || (!labelled && frequencyView==0))continue;
+                const auto x=frequencyX(f);g.setColour(grid);g.drawVerticalLine(juce::roundToInt(x),area.getY(),area.getBottom());
+                if(labelled){g.setColour(muted);g.drawText(f<1000?juce::String(int(f)):juce::String(f/1000,f==1500?1:0)+"k",int(x)-20,int(area.getBottom())+5,40,16,juce::Justification::centred);}
+            }
         }
         {
             const int range=juce::roundToInt(displayRangeDB),step=range/4,label=range/2;
@@ -350,7 +374,9 @@ public:
         if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,true,paintMicros);
     }
     void mouseDown(const juce::MouseEvent& event) override {
-        if(!plot().contains(event.position))return;
+        // Nodes pinned to the right/bottom edge (outside a zoomed view) sit on
+        // the excluded edge of plot(): accept a node radius around the graph.
+        if(!plot().expanded(nodeHitRadius).contains(event.position))return;
         refreshEditingState();grabKeyboardFocus();
         // Hit-test in the same front-to-back order as painting. The selected
         // node is drawn last; coincident nodes must not silently redirect its
@@ -365,13 +391,16 @@ public:
         for(int b=graphicalEQBands-1;b>=0;--b)if(b!=selected)consider(b);
         if(closest<0) {
             // Right-click on empty graph: the display range (view only).
-            if(event.mods.isPopupMenu()) {
+            if(event.mods.isPopupMenu() && plot().contains(event.position)) {
                 juce::PopupMenu menu;menu.addSectionHeader("EQ display range");
                 for(int i=0;i<int(displayRanges.size());++i)
                     menu.addItem(i+1,"+/-"+juce::String(int(displayRanges[size_t(i)]))+" dB",true,displayRanges[size_t(i)]==displayRangeDB);
+                menu.addSectionHeader("Frequency view");
+                for(int i=0;i<int(frequencyViews.size());++i)
+                    menu.addItem(100+i,frequencyViews[size_t(i)].name,true,i==frequencyView);
                 juce::Component::SafePointer<GraphicalEQPanel> safe(this);
                 menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe](int result){
-                    if(safe && result>0)safe->setDisplayRange(displayRanges[size_t(result-1)]);
+                    if(safe)safe->applyViewMenuResult(result);
                 });
             }
             return;
@@ -446,8 +475,17 @@ private:
     using PA=juce::ParameterAttachment;
     static constexpr std::array<const char*,3> editFields{"frequency","gain","q"};
     juce::Rectangle<float> plot() const noexcept {return {56,compactWorkspace?66.f:105.f,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-(compactWorkspace?140:195)-(dynamicRowShown?38:0)))};}
-    float frequencyX(float hz) const {return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/20)/std::log(1000.f);}
-    float xFrequency(float x) const {return 20*std::pow(1000.f,std::clamp((x-plot().getX())/std::max(1.f,plot().getWidth()),0.f,1.f));}
+    // Mapped through the current frequency view, but limited to the band
+    // range (20 Hz-20 kHz), not to the view: a drag from a band outside a
+    // zoomed view moves from its true frequency.
+    float frequencyX(float hz) const {
+        const auto& v=frequencyViews[size_t(frequencyView)];
+        return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/v.low)/std::log(v.high/v.low);
+    }
+    float xFrequency(float x) const {
+        const auto& v=frequencyViews[size_t(frequencyView)];
+        return std::clamp(v.low*std::pow(v.high/v.low,(x-plot().getX())/std::max(1.f,plot().getWidth())),20.f,20000.f);
+    }
     float gainY(float db) const {return plot().getCentreY()-db/(2*displayRangeDB)*plot().getHeight();}
     float yGain(float y) const {return std::clamp((plot().getCentreY()-y)/std::max(1.f,plot().getHeight())*2*displayRangeDB,-24.f,24.f);}
     float spectrumY(float db) const {return plot().getBottom()-(std::clamp(db,-96.f,0.f)+96)/96*plot().getHeight();}
@@ -738,6 +776,8 @@ private:
     juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;EQEditState& editing;EQCaptureBoundary& captureBoundary;int instance,selected{-1};
     bool compactWorkspace{},hasDynamicRange{};
     float displayRangeDB{24.f};
+    int frequencyView{};
+    static constexpr float nodeHitRadius=18.f;
     juce::Point<float> hoverPoint{-1.f,-1.f};
     enum class DragAxis {free,frequency,gain};
     DragAxis dragAxis{DragAxis::free};
