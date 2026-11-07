@@ -116,7 +116,8 @@ public:
     int selectedBand() const noexcept {return selected;}
     // Presentation only: reuse this editor inside the focused Dynamic EQ page.
     void setCompactWorkspace(bool compact) {if(compactWorkspace==compact)return;compactWorkspace=compact;endDrag();resized();}
-    void selectBandForEditing(int band) {refreshEditingState();if(band>=0 && band<graphicalEQBands && isBandVisible(band))selectBand(band);}
+    // An explicit single-band choice (host navigation, dynamics target) starts a new selection.
+    void selectBandForEditing(int band) {refreshEditingState();if(band>=0 && band<graphicalEQBands && isBandVisible(band)){groupMask=0;selectBand(band);}}
     void setNavigationSelected(bool chosen) {if(navigationSelected!=chosen){navigationSelected=chosen;repaint();}}
     bool isNavigationSelected() const noexcept {return navigationSelected;}
     void focusForNavigation() {if(isShowing()){if(selected>=0)sliders[0].grabKeyboardFocus();else grabKeyboardFocus();}}
@@ -142,12 +143,13 @@ public:
         } else {groupMask=uint16_t(groupMask|(1u<<band));selectBand(band);}
         repaint();
     }
+    // Changing the group ends a drag in progress: its members were captured at the press.
     void selectAllBands() {
-        groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))groupMask=uint16_t(groupMask|(1u<<b));
+        endDrag();groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))groupMask=uint16_t(groupMask|(1u<<b));
         if(groupMask!=0 && (selected<0 || !isBandVisible(selected))){for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){selectBand(b);break;}}
         repaint();
     }
-    void collapseSelection(){groupMask=0;repaint();}
+    void collapseSelection(){endDrag();groupMask=0;repaint();}
     // Bands whose drawn node lies inside area; add keeps the current group.
     void selectBandsIn(juce::Rectangle<float> area,bool add) {
         uint16_t found=0;int first=-1;
@@ -491,7 +493,7 @@ public:
             juce::PopupMenu menu;menu.addItem(1,count>1?"Delete "+juce::String(count)+" Selected Bands":"Delete Band "+juce::String(closest+1));
             const auto revision=editing.revision();juce::Component::SafePointer<GraphicalEQPanel> safe(this);
             menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe,closest,revision,mask](int result){
-                if(safe && result==1 && safe->editing.revision()==revision && safe->selected==closest && safe->selectionMask()==mask)safe->deleteSelection();
+                if(safe && result==1 && safe->isShowing() && safe->editing.revision()==revision && safe->selected==closest && safe->selectionMask()==mask)safe->deleteSelection();
             });return;
         }
         if(!event.mods.isLeftButtonDown())return;
@@ -762,7 +764,10 @@ private:
             lastOccupiedMask=mask;groupMask=uint16_t(groupMask&mask);selector.clear(juce::dontSendNotification);
             for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))selector.addItem("Band "+juce::String(b+1),b+1);
             int next=selected;
-            if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
+            // A removed selected band passes the selection to a remaining group
+            // member, never to a band outside the group (it would join the group).
+            if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands && next<0;++b)if((groupMask>>b)&1)next=b;
+                if(next<0)for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
             selectBand(next);repaint();
         }
         updateBandEnablement();updateHistoryControls();
@@ -790,7 +795,7 @@ private:
     }
     void createBand(float hz,float gain) {
         endDrag();const int added=editing.addBand(instance,hz,gain);refreshEditingState();
-        if(added>=0){selectBand(added);grabKeyboardFocus();}rebuildResponse();repaint();
+        if(added>=0){groupMask=0;selectBand(added);grabKeyboardFocus();}rebuildResponse();repaint();
     }
     void deleteSelection() {
         if(selectionCount()<=1){deleteSelectedBand();return;}
