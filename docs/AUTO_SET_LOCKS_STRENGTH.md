@@ -24,8 +24,10 @@ the Classic rig's LOW and HIGH cuts), Bus compressor (phase 16,
 blend (phase 18, `AUTO_SET_PHASE18.md`: the Classic cabinet's mic delays,
 mic B polarity and A/B blend), Dual rig levels (phase 19,
 `AUTO_SET_PHASE19.md`: the Dual rig 2 LEVEL or its native head's OUTPUT
-LEVEL) and Amp channel (phase 20, `AUTO_SET_PHASE20.md`: the Classic head's
-channel). LEVEL 2 is both the Dual rig 2 level and the Matrix MID lane level,
+LEVEL), Amp channel (phase 20, `AUTO_SET_PHASE20.md`: the Classic head's
+channel), Lane polarity (phase 21, `AUTO_SET_PHASE21.md`: the polarity of
+Dual rig 2 and of the Matrix MID and HIGH lanes) and Delay tempo sync (phase 22,
+`AUTO_SET_PHASE22.md`: DELAY SYNC and Follow host tempo). LEVEL 2 is both the Dual rig 2 level and the Matrix MID lane level,
 so either the Dual rig levels or the Matrix levels lock keeps it. A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
 later edit to a locked setting survives undo. A lock selected after the run
@@ -35,7 +37,7 @@ not add an undo entry.
 - A pass whose outputs are all locked is skipped: locking Tone EQ removes the
   Tone EQ pass (and the Dynamic EQ step, whose nodes are Tone EQ bands), locking Compressor removes the compressor pass, locking both
   De-esser and Limiter (and Bus compressor, when that step is on) removes the de-esser and limiter pass, locking Amp,
-  Presence + resonance and Amp channel removes the amp pass (it serves the three steps), locking both Cabinet mic and Cabinet cuts removes the cabinet mic pass (it serves both steps), locking Boost pedal removes the boost pass, locking both Dual blend and Dual rig levels removes the Dual pass (it serves both steps), locking Matrix levels removes the Matrix pass, locking Cabinet mic blend removes the cabinet mics pass. The input pass runs unless
+  Presence + resonance and Amp channel removes the amp pass (it serves the three steps), locking both Cabinet mic and Cabinet cuts removes the cabinet mic pass (it serves both steps), locking Boost pedal removes the boost pass, locking Dual blend, Dual rig levels and Lane polarity removes the Dual pass (it serves the three steps), locking Matrix levels and Lane polarity removes the Matrix pass (it serves both steps), locking Cabinet mic blend removes the cabinet mics pass. The input pass runs unless
   both Input gain and Gate are locked.
 - Skipped passes appear in the results as "kept (locked)", in signal order.
   A partly locked pass says which part it kept ("input kept (locked)",
@@ -69,6 +71,8 @@ protection and mixed-gain capture abstention apply at every strength.
 | Amp | Each knob change: before + strength × (result − before) |
 | Presence + resonance | Each knob change, as for Amp |
 | Amp channel | Not scaled: a channel is switched or kept |
+| Lane polarity | Not scaled: a lane is flipped or kept |
+| Delay tempo sync | Not scaled: sync is turned on or kept |
 | Dual blend | The BLEND or CROSSOVER change, as for Amp |
 | Dual rig levels | The rig 2 level change in dB, as for Amp; the blend step then hears rig 2 at the applied level |
 | Matrix levels | Each lane level change in dB, as for Amp |

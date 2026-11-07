@@ -175,7 +175,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     lastProcessTicks.store(0);fadedSilent.store(true);
     autoSetCaptureState.prepare(sr);
     loudness.prepare(sr);
-    hostTempoMeter.store(0);
+    hostTempoMeter.store(0);reportedHostTempoMeter.store(0);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)juce::jmax(1,getMainBusNumOutputChannels())};
     keyBuffer.setSize(2,maximumBlock);keyBuffer.clear();
     busDelay.setSize(2,int(sr)+maximumBlock+1);busDelay.clear();busDelayWrite=0;   // up to 1 s of latency
@@ -289,6 +289,12 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& hostBuffer,juce::M
         }
     }
     hostTempoMeter.store(suppliedHostTempo);
+    {
+        float reported=0;
+        if(auto* playhead=getPlayHead()) if(const auto position=playhead->getPosition()) if(const auto hostBpm=position->getBpm())
+            if(std::isfinite(*hostBpm) && *hostBpm>=40 && *hostBpm<=240)reported=float(*hostBpm);
+        reportedHostTempoMeter.store(reported);
+    }
     tempoMeter.store(bpm);
     // Host position for bar-locked modulation (docs/MODULATION_1_9.md): known
     // only while the transport plays.

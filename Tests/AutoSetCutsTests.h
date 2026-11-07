@@ -150,7 +150,7 @@ void controllerCuts() {
     std::mt19937 rng{151};
     auto boomy=targetNoise(false,48000,8,rng);lowShelf(boomy,100,12,48000);shelve(boomy,5000,12,48000);
     const auto post=withCuts(boomy,48000,30,14000);
-    const Controller::Options cutsOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false};
+    const Controller::Options cutsOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false};
     const auto full=runCuts(cutsOnly,post,30,14000);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::cuts);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::cab} && !stepOf(full.status,P::cab) && step && step->changed && step->result.contains("LOW") && step->result.contains("HIGH"),
