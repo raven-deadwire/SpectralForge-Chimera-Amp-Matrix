@@ -718,6 +718,37 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     chooser->setSelectedId(2,juce::sendNotificationSync);check(panel.selectionMask()==0b0010,"Band chooser kept the group");
     std::cout<<"PASS EQ group selection (Ctrl/Cmd+click, box, Ctrl/Cmd+A, Escape) and group drag/edge/Alt, wheel Q and delete as single undo steps bank="<<bank<<'\n';
 }
+// Band solo from the editor: the SOLO button and a middle-click on a node
+// solo while held; release, hiding the panel and choosing another band end it.
+void bandSoloUI(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    set(processor,eqID(bank,-1,"bypass"),0); // a bypassed EQ ends any solo
+    for(int b=0;b<12;++b)set(processor,eqID(bank,b,"enabled"),0);
+    for(int b=0;b<2;++b){set(processor,eqID(bank,b,"frequency"),b?4000.f:300.f);set(processor,eqID(bank,b,"type"),0);set(processor,eqID(bank,b,"enabled"),1);}
+    check(waitFor([&]{panel.selectBandForEditing(0);return panel.isBandVisible(1) && panel.selectedBand()==0;}),"Solo fixture bands not visible");
+    auto& eq=processor.graphicalEQ(bank);juce::AudioBuffer<float> buffer(2,256);
+    const auto heard=[&]{for(int k=0;k<6;++k){buffer.clear();eq.process(buffer);}return eq.auditionedBand();};
+    auto* solo=find<juce::TextButton>(panel,eqID(bank,-1,"solo"));check(solo && solo->isEnabled(),"SOLO button missing or disabled");
+    solo->setState(juce::Button::buttonDown);check(panel.auditioningBand()==0,"Holding SOLO did not start the editor's solo");check(heard()==0,"Holding SOLO did not solo the band in the DSP");
+    settle(120);check(heard()==0,"The editor did not keep a held solo alive");
+    solo->setState(juce::Button::buttonNormal);check(panel.auditioningBand()==-1 && heard()==-1,"Releasing SOLO did not end the solo");
+    // Middle-click and hold a node.
+    const auto node=panel.visibleNodePosition(1);
+    const juce::MouseEvent middle{juce::Desktop::getInstance().getMainMouseSource(),node,juce::ModifierKeys(juce::ModifierKeys::middleButtonModifier),1.f,0.f,0.f,0.f,0.f,
+                                  &panel,&panel,juce::Time::getCurrentTime(),node,juce::Time::getCurrentTime(),1,false};
+    panel.mouseDown(middle);check(panel.selectedBand()==1 && panel.auditioningBand()==1 && heard()==1,"Middle-click did not solo the node");
+    panel.mouseUp(middle);check(panel.auditioningBand()==-1 && heard()==-1,"Releasing the middle button did not end the solo");
+    // Hiding the editor and choosing another band end it.
+    solo->setState(juce::Button::buttonDown);check(heard()==1,"Solo fixture did not start");
+    panel.setVisible(false);check(panel.auditioningBand()==-1 && heard()==-1,"Hiding the editor kept the solo");
+    panel.setVisible(true);solo->setState(juce::Button::buttonNormal);settle(30);
+    solo->setState(juce::Button::buttonDown);check(heard()==1,"Solo fixture did not restart");
+    panel.selectBandForEditing(0);check(panel.auditioningBand()==-1 && heard()==-1,"Choosing another band kept the solo");
+    solo->setState(juce::Button::buttonNormal);
+    juce::MemoryBlock state;processor.getStateInformation(state);
+    solo->setState(juce::Button::buttonDown);heard();juce::MemoryBlock during;processor.getStateInformation(during);solo->setState(juce::Button::buttonNormal);heard();
+    check(state==during,"A solo changed saved state");
+    std::cout<<"PASS EQ band solo from the editor: SOLO button and middle-click hold, release, hidden editor and another band end it, saved state unchanged bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -1146,6 +1177,7 @@ int main(int argc,char** argv){try {
             auto* panel=find<GraphicalEQPanel>(*editor,bank==0?"toneEQ_panel":"finalEQ_panel");
             check(panel && waitFor([&]{return panel->isShowing();}),"Group fixture panel not visible");
             groupEditing(*processor,*panel,bank);
+            bandSoloUI(*processor,*panel,bank);
         }
         return 0;
     }

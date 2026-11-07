@@ -125,6 +125,34 @@
 - 선택 자체는 에디터 표시 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않는다.
 - 검증: `ChimeraGraphicalEQGroupEditTests`(양쪽 EQ, `ChimeraGraphicalEQUITests --group-edit`). Ctrl/Cmd+클릭 추가·제거(선택 밴드를 빼면 다음 밴드로), Ctrl/Cmd+A, Esc, 상자 선택과 Ctrl/Cmd+상자, 빈 곳 클릭, 선택만으로 저장 상태 불변, 묶음 드래그의 비율 ×2·+4 dB와 묶음 밖 밴드 불변, 필드마다 제스처 한 쌍(6/6), 20 kHz에서 멈추는 밴드와 게인 없는 HP, Alt 축 고정, 휠 Q, 묶음 삭제와 Undo/Redo, 묶음 밖 클릭·밴드 목록으로 새로 시작을 확인하고 `eq-group-edit/group_bank*.png`를 남긴다. `ChimeraGraphicalEQEditingTests`의 `groupRemoval`은 여러 밴드 삭제가 Undo 한 단계로 튜닝까지 되돌아오는지, 없는 슬롯을 무시하는지 확인한다. 오른쪽 클릭 메뉴 자체와 실제 DAW·트랙패드 조작은 자동 검증 범위 밖이다.
 
+## 밴드 순간 듣기 (SOLO, 2026-11-08, Issue #53)
+
+- **쓰는 법:** 밴드 줄의 **SOLO** 버튼을 누르고 있거나, 그래프의 노드를 **가운데 버튼으로 누르고 있는 동안** 그 밴드 영역만 들린다. 놓으면 EQ 전체 소리로 돌아온다.
+- **들리는 영역:** EQ를 거친 출력을 밴드 영역 필터에 통과시킨다.
+  - Bell, Notch, Band pass: 밴드 주파수와 Q의 밴드 패스(Q는 0.5–8로 제한)
+  - Low shelf, Low pass: 밴드 주파수의 로우 패스
+  - High shelf, High pass: 밴드 주파수의 하이 패스
+- **전환:** 들어가고 나올 때 15 ms 페이드로 클릭 없이 넘어간다. 다른 밴드로 바꿀 때는 먼저 페이드아웃한 뒤 바꾼다.
+- **반드시 돌아오는 장치:**
+  - 다음 경우에 에디터가 솔로를 끝낸다: 버튼이나 마우스를 놓을 때, 패널이 숨겨질 때, 다른 밴드를 고를 때, 밴드가 삭제될 때, 에디터가 닫힐 때.
+  - 에디터는 솔로 중에 25 Hz로 신호(heartbeat)를 보낸다. 이 신호가 0.4초 동안 오지 않으면(에디터가 멈추거나 사라진 경우) DSP가 스스로 페이드아웃한다.
+  - EQ 바이패스도 솔로를 끝낸다.
+  - 솔로가 끝난 뒤의 출력은 원래 EQ 출력과 비트 단위로 같다.
+- 에디터 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않으며, 호스트 자동화에도 보이지 않는다.
+- **검증:**
+  - `ChimeraGraphicalEQTests`의 `bandSolo`(DSP):
+    - 1 kHz Bell 솔로에서 대역 안/밖 전력비가 −7.7 dB에서 +7.6 dB로 바뀜
+    - High pass 밴드 솔로가 차단 주파수 아래를 자름
+    - 해제 후와 heartbeat 타임아웃 후 출력이 원래 EQ와 비트 단위로 같음
+    - 페이드 중 최대 샘플 변화 0.0041(평소 톤 0.0042)
+    - 바이패스가 솔로를 끝냄, 오디오 스레드에서 할당 없음
+  - `ChimeraGraphicalEQGroupEditTests`의 `bandSoloUI`(양쪽 EQ):
+    - SOLO 버튼 누름·떼기, 가운데 버튼 누름·떼기
+    - 패널 숨김과 다른 밴드 선택으로 종료
+    - 누르고 있는 동안 에디터가 heartbeat를 유지함
+    - 저장 상태 불변
+- **자동 검증 밖:** 실제 DAW에서의 청취, 마우스 가운데 버튼이 없는 트랙패드.
+
 ## 이 환경에서 자동 검증할 수 있는 항목
 
 1. `ChimeraGraphicalEQEditingTests`: 실제 processor의 모든 EQ 파라미터 계약, 점유/우회/삭제/재사용, 64작업 이력, 동기·별도 스레드·재진입 호스트 쓰기, binary project, A/B, legacy/malformed migration, 모든 공장 프리셋, 44.1/48/96/192 kHz 오디오 동등성.
