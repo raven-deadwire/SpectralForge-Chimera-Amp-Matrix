@@ -588,9 +588,13 @@ private:
                 if(cutsStepRuns())lockedPhases.push_back({Phase::cuts,why});
             } else if(p==Phase::mics)lockedPhases.push_back({Phase::mics,why});
             else if(p==Phase::dual) {
+                if(polarityStepRuns())lockedPhases.push_back({Phase::polarity,why});
                 if(rigsStepRuns())lockedPhases.push_back({Phase::rigs,why});
                 if(dualStepRuns())lockedPhases.push_back({Phase::dual,why});
-            } else if(p==Phase::matrix)lockedPhases.push_back({Phase::matrix,why});
+            } else if(p==Phase::matrix) {
+                if(polarityStepRuns())lockedPhases.push_back({Phase::polarity,why});
+                if(matrixStepRuns())lockedPhases.push_back({Phase::matrix,why});
+            }
             else remaining.push_back(p);
         }
         passes.resize(pass+1);passes.insert(passes.end(),remaining.begin(),remaining.end());
