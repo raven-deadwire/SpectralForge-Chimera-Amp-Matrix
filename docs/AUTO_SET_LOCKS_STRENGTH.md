@@ -68,7 +68,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Output level | The trim change, as for input gain |
 | Amp | Each knob change: before + strength × (result − before) |
 | Presence + resonance | Each knob change, as for Amp |
-| Amp channel | Not scaled: a channel is switched or kept |
+| Amp channel | Not scaled: a channel is switched or kept. The choice counts only the part of the GAIN move the amp step makes at this Strength (none when Amp gain and tone is off or locked). Off by default |
 | Dual blend | The BLEND or CROSSOVER change, as for Amp |
 | Dual rig levels | The rig 2 level change in dB, as for Amp; the blend step then hears rig 2 at the applied level |
 | Matrix levels | Each lane level change in dB, as for Amp |

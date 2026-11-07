@@ -88,7 +88,7 @@ public:
     // mics aligns the Classic cabinet's two blended mics and sets their blend, in a pass of its own.
     // rigs matches the Dual rig 2 level to rig 1 before the Dual blend, in the Dual pass.
     // channel picks the Classic head's channel before the amp step, in the amp pass.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{true};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -620,19 +620,30 @@ private:
                 std::array<float,4> v{};v[ampGain]=*g;return atGain(v);
             }};
         }
-        const auto r=analyseChannel(segment,post,rate(),t.channel,candidates,chosenInstrument(),runOptions.style);
+        // Judge each channel by what the amp step will do to it: nothing (off or
+        // locked), or Strength of the way to the target.
+        const auto r=analyseChannel(segment,post,rate(),t.channel,candidates,chosenInstrument(),runOptions.style,ampStepRuns(),strength());
         lastChannel=r;
         if(!r.playingDetected)return keep("no playing heard");
+        if(r.hold==ChannelHold::steadyPlaying)return keep("not enough difference between soft and hard playing to compare channels; play some soft and some hard notes");
+        if(r.hold==ChannelHold::quietSettings)return keep("too few audible GAIN settings on this channel to compare");
         const auto name=[&](int c){return juce::String::fromUTF8(panel.channels[size_t(c)]);};
         const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
-        const auto reach=[&](int c){const auto& x=r.reach[size_t(c)];return name(c)+" reaches "+pct(x.low)+"-"+pct(x.high);};
-        const auto target="drive target "+pct(r.target);
+        // What the amp step would leave each channel at, and why.
+        const auto reach=[&](int c){
+            const auto& x=r.reach[size_t(c)];
+            if(!r.gainAdjustable)return name(c)+" at its knobs "+pct(x.now);
+            const auto range=name(c)+" reaches "+pct(x.low)+"-"+pct(x.high);
+            return r.strength<1.f?range+" ("+pct(channelAchieved(x,r.target,true,r.strength))+" at this strength)":range;
+        };
+        const auto target="drive target "+pct(r.target)+(r.stillShort()?" (still short: the closest channel)":"")
+                         +(r.gainAdjustable?juce::String():juce::String("; judged at the knobs (the amp step is off or locked)"));
         if(!r.changed())return keep(r.missBefore<=0?reach(t.channel)+", "+target:reach(t.channel)+", "+target+"; no other channel comes closer");
         set(ampNativeChannelID(t.context,t.model),float(r.proposed));
         if(processor.selectedAmpChannel(0)!=r.proposed)return keep("channel edited while applying");
         const auto move="CHANNEL "+name(r.before)+" > "+name(r.proposed);
         summary+=" | Amp "+move;
-        steps.push_back({Phase::channel,move+"; "+reach(r.before)+", "+reach(r.proposed)+", "+target+" (the amp step sets GAIN on it)",true});
+        steps.push_back({Phase::channel,move+"; "+reach(r.before)+", "+reach(r.proposed)+", "+target+(r.gainAdjustable?" (the amp step sets GAIN on it)":""),true});
         return true;
     }
     // The head's GAIN, tone, PRESENCE and RESONANCE controls with their values now.
