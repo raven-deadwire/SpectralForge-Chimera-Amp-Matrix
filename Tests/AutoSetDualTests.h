@@ -133,7 +133,7 @@ void controllerDual() {
     const auto blendRig=[](float blend){return [blend](ChimeraProcessor& p) {
         for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"mode",1},{"dualtype",0},{"dualblend",blend}})
             p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));};};
-    const Controller::Options dualOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false};
+    const Controller::Options dualOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false};
     const auto full=runDual(dualOnly,dark,even,blendRig(.2f));
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::dual);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::dual} && step && step->changed && step->result.contains("BLEND"),"Dual pass did not run alone or report");

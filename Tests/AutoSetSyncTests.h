@@ -35,7 +35,7 @@ void controllerSync() {
             juce::AudioBuffer<float> io(2,256);io.clear();juce::MidiBuffer midi;p.processBlock(io,midi);
         };
     };
-    Controller::Options syncOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,true};
+    Controller::Options syncOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockCompressor,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,true,false};
     // Host at 90 BPM: sync goes on, following the host, and the delay + reverb step puts the delay on at that tempo.
     const auto full=runSpace(syncOnly,withHost(90));
     const auto* step=stepOf(full.status,P::sync);const auto* space=stepOf(full.status,P::space);
