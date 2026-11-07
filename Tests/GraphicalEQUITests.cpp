@@ -76,7 +76,7 @@ public:
     ~SyntheticAudio(){running.store(false);if(thread.joinable())thread.join();}
     void stop(){running.store(false);if(thread.joinable())thread.join();}
     std::atomic<double> frequency{1007.8125},amplitude{.1};
-    std::atomic<bool> pluck{false};
+    std::atomic<bool> pluck{false},noise{false}; // noise: deterministic white noise in place of the tone
     std::atomic<uint64_t> callbacks{0};
     const std::vector<double>& callbackMicrosAfterStop() const {return timings;}
 private:
@@ -88,6 +88,7 @@ private:
             const double hz=frequency.load(),level=amplitude.load();const bool harmonic=pluck.load();
             for(int n=0;n<128;++n) {
                 double value=std::sin(phase);
+                if(noise.load()){seed=seed*1664525u+1013904223u;value=double(seed>>8)/double(1u<<24)*2.-1.;}
                 if(harmonic) {
                     value+=.45*std::sin(phase*2)+.27*std::sin(phase*3)+.16*std::sin(phase*5)+.08*std::sin(phase*7);
                     const double age=std::fmod(double(total)/sampleRate,.65);value*=std::exp(-age/.18);
@@ -109,7 +110,7 @@ private:
             std::this_thread::sleep_until(deadline);
         }
     }
-    ChimeraProcessor& processor;bool fullRoute{};double sampleRate{48000};float rightGain{-1};std::atomic<bool> running{true};std::vector<double> timings;std::thread thread;
+    ChimeraProcessor& processor;bool fullRoute{};double sampleRate{48000};float rightGain{-1};std::atomic<bool> running{true};uint32_t seed{12345u};std::vector<double> timings;std::thread thread;
 };
 
 void pendingThawEditorRecreation(ChimeraProcessor& processor,std::unique_ptr<ChimeraEditor>& editor) {
@@ -554,6 +555,52 @@ void frequencyViewZoom(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce:
     check(panel.readoutAt(at).contains("100 Hz"),("Zoomed readout wrong: "+panel.readoutAt(at)).toRawUTF8());
     panel.setFrequencyView(0);set(processor,eqID(bank,0,"frequency"),1000);set(processor,eqID(bank,0,"gain"),0);settle(60);panel.selectBandForEditing(0);
     std::cout<<"PASS EQ frequency view full/20 Hz-2 kHz/20-500 Hz (view only, edge-pinned out-of-view node, true-frequency drag, readout) bank="<<bank<<'\n';
+}
+// Analyzer tilt (flat / 3 / 4.5 / 6 dB per octave around 1 kHz): the live
+// and PEAK lines move by exactly the tilt at each frequency; the readout
+// keeps the measured dBFS; saved state is unchanged. Uses a frozen frame.
+void analyzerTilt(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    const auto plot=panel.graphBounds();
+    check(panel.analyzerTilt()==0.f,"Analyzer tilt default is not flat");
+    panel.setPeakHold(true);
+    {
+        SyntheticAudio audio(processor);audio.noise.store(true);
+        check(waitFor([&]{return panel.analyzerHasData() && panel.hasPeakHold();}),"Tilt fixture did not record live audio");
+        settle(300);panel.setSnapshotFrozen(true);
+    }
+    check(panel.isSnapshotFrozen(),"Tilt fixture could not freeze a frame");panel.resized();
+    juce::MemoryBlock before;processor.getStateInformation(before);
+    const auto xAt=[&](float hz){return plot.getX()+plot.getWidth()*std::log(hz/20.f)/std::log(1000.f);};
+    const std::array<float,4> probes{100.f,400.f,1000.f,4000.f};
+    struct Sample{float live,peak;};std::array<Sample,4> flat{};std::array<juce::String,4> readouts;
+    for(size_t i=0;i<probes.size();++i){flat[i]={panel.drawnLineY(false,1,xAt(probes[i])),panel.drawnLineY(true,1,xAt(probes[i]))};readouts[i]=panel.readoutAt({xAt(probes[i]),plot.getCentreY()});}
+    const auto dbOf=[&](float y){return (plot.getBottom()-y)/plot.getHeight()*96.f-96.f;};
+    const auto unclamped=[&](float db){return db>-95.5f && db<-.5f;};
+    for(size_t i=0;i<probes.size();++i)std::cout<<"TILT_FIXTURE bank="<<bank<<" hz="<<probes[i]<<" live_db="<<dbOf(flat[i].live)<<" peak_db="<<dbOf(flat[i].peak)<<'\n';
+    int compared=0;
+    for(float tilt:{3.f,4.5f,6.f}) {
+        panel.setAnalyzerTilt(tilt);check(panel.analyzerTilt()==tilt,"Analyzer tilt not applied");
+        for(size_t i=0;i<probes.size();++i) {
+            const float shift=tilt*std::log2(probes[i]/1000.f);closeTo(panel.analyzerTiltDB(probes[i]),shift,1.e-4f,"Tilt dB wrong");
+            for(bool peak:{false,true}) {
+                const float base=peak?flat[i].peak:flat[i].live,now=panel.drawnLineY(peak,1,xAt(probes[i]));
+                check(std::isfinite(base) && std::isfinite(now),"Tilt fixture lines not built");
+                if(!unclamped(dbOf(base)) || !unclamped(dbOf(base)+shift))continue;
+                closeTo(dbOf(now)-dbOf(base),shift,.05f,"Tilted line moved by the wrong amount");++compared;
+            }
+            check(panel.readoutAt({xAt(probes[i]),plot.getCentreY()})==readouts[i],"Tilt changed the measured readout");
+        }
+    }
+    check(compared>=12,("Too few unclamped tilt comparisons: "+juce::String(compared)).toRawUTF8());
+    panel.setAnalyzerTilt(5.f);check(panel.analyzerTilt()==0.f,"Unsupported tilt was accepted");
+    panel.applyViewMenuResult(202);check(panel.analyzerTilt()==4.5f,"Tilt menu result not applied");
+    panel.applyViewMenuResult(299);panel.applyViewMenuResult(150);panel.applyViewMenuResult(0);
+    check(panel.analyzerTilt()==4.5f && panel.frequencyViewIndex()==0 && panel.displayRange()==24.f,"Unknown menu result changed the view");
+    juce::MemoryBlock after;processor.getStateInformation(after);check(before==after,"Analyzer tilt changed saved state");
+    panel.setAnalyzerTilt(0);
+    for(size_t i=0;i<probes.size();++i)closeTo(panel.drawnLineY(false,1,xAt(probes[i])),flat[i].live,.01f,"Flat tilt did not restore the line");
+    panel.setSnapshotFrozen(false);panel.setPeakHold(false);
+    std::cout<<"PASS EQ analyzer tilt flat/3/4.5/6 dB/oct (live and peak lines shift exactly, readout measured, menu guard, saved state unchanged) comparisons="<<compared<<" bank="<<bank<<'\n';
 }
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
@@ -1021,6 +1068,7 @@ int main(int argc,char** argv){try {
         peakOnlyPaths(*processor,*panel,e);
         displayRangeAndReadout(*processor,*panel,*selector,e);
         frequencyViewZoom(*processor,*panel,*selector,e);
+        analyzerTilt(*processor,*panel,e);
         check(modifierTransitions(*processor,*panel,e)==0,"Modifier transition regression failed");
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);
