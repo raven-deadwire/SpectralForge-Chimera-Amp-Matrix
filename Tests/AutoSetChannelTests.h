@@ -92,7 +92,7 @@ void controllerChannel() {
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
     constexpr int model=2,rhythm=0,lead=1; // RHYTHM reaches about 5-75% drive, LEAD about 42-90%
     const auto channelID=spectralforge::ampNativeChannelID(0,model);
-    Controller::Options channelOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false};
+    Controller::Options channelOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false};
     // Clean on LEAD: the channel moves to RHYTHM, alone in the amp pass.
     const auto full=runChannel(channelOnly,model,lead);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::channel);
