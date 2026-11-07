@@ -67,7 +67,7 @@ public:
             spectrum.setSmoothing(smoothing.getSelectedId()-1);
         };
         selector.setComponentID(eqID(e,-1,"band"));selector.setTextWhenNothingSelected("No bands");
-        selector.onChange=[this]{selectBand(selector.getSelectedId()-1);};addAndMakeVisible(selector);
+        selector.onChange=[this]{groupMask=0;selectBand(selector.getSelectedId()-1);};addAndMakeVisible(selector);
         enabled.setButtonText("BAND ON");enabled.setClickingTogglesState(true);addAndMakeVisible(enabled);
         enabled.onClick=[this]{if(selected>=0)discreteEdit(selected,"enabled",enabled.getToggleState()?1.f:0.f,"Band enable");};
         type.addItemList(eqFilterNames(),1);
@@ -122,6 +122,42 @@ public:
     void focusForNavigation() {if(isShowing()){if(selected>=0)sliders[0].grabKeyboardFocus();else grabKeyboardFocus();}}
     std::function<void(int)> onHistoryBankSelected;
     bool isBandVisible(int band) const noexcept {return editing.isOccupied(instance,band);}
+    // Group selection (editor-local, never saved): the selected band plus any
+    // bands added with Ctrl/Cmd+click, a box drag on empty graph or Ctrl/Cmd+A.
+    // A graph drag, the wheel (Q) and Delete then apply to every member as one
+    // undo step; the side controls keep editing the selected band only.
+    uint16_t selectionMask() const noexcept {
+        uint16_t mask=0;
+        for(int b=0;b<graphicalEQBands;++b)if(((groupMask>>b)&1) && isBandVisible(b))mask=uint16_t(mask|(1u<<b));
+        if(selected>=0 && isBandVisible(selected))mask=uint16_t(mask|(1u<<selected));
+        return mask;
+    }
+    int selectionCount() const noexcept {int n=0;for(auto m=selectionMask();m;m=uint16_t(m&(m-1)))++n;return n;}
+    void toggleBandInSelection(int band) {
+        if(band<0 || band>=graphicalEQBands || !isBandVisible(band))return;
+        groupMask=selectionMask();
+        if((groupMask>>band)&1) {
+            groupMask=uint16_t(groupMask&~(1u<<band));
+            if(band==selected) {int next=-1;for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){next=b;break;}if(next>=0)selectBand(next);else groupMask=uint16_t(1u<<band);}
+        } else {groupMask=uint16_t(groupMask|(1u<<band));selectBand(band);}
+        repaint();
+    }
+    void selectAllBands() {
+        groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))groupMask=uint16_t(groupMask|(1u<<b));
+        if(groupMask!=0 && (selected<0 || !isBandVisible(selected))){for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){selectBand(b);break;}}
+        repaint();
+    }
+    void collapseSelection(){groupMask=0;repaint();}
+    // Bands whose drawn node lies inside area; add keeps the current group.
+    void selectBandsIn(juce::Rectangle<float> area,bool add) {
+        uint16_t found=0;int first=-1;
+        for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b) && area.contains(visibleNodePosition(b))){found=uint16_t(found|(1u<<b));if(first<0)first=b;}
+        if(add){groupMask=uint16_t(selectionMask()|found);if((selected<0 || !isBandVisible(selected)) && first>=0)selectBand(first);}
+        else if(found==0)groupMask=0; // An empty box keeps only the selected band.
+        else{groupMask=found;selectBand(first);}
+        repaint();
+    }
+    juce::Rectangle<float> marqueeArea() const noexcept {return marqueeActive?juce::Rectangle<float>(marqueeStart,marqueeEnd):juce::Rectangle<float>();}
     // Shared dynamic slot (0-3) acting on this band, or -1.
     int dynamicSlotForBand(int band) const {
         for(int slot=0;slot<4;++slot)if(auto* target=state.getRawParameterValue(dynamicSlotID(slot,"target"));target && int(target->load())==instance*12+band+1)return slot;
@@ -308,7 +344,9 @@ public:
         g.setColour(spectrum.isFrozen()?out:muted);g.setFont(juce::FontOptions(12.5f));
         const auto hint=spectrum.isFrozen()
             ? (spectrum.hasData()?"Snapshot  /  "+juce::String(spectrum.lastSampleRate()/1000.,1)+" kHz  /  "+juce::String(spectrum.fftSize()):juce::String("Snapshot: no complete frame"))
-            : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another"):juce::String("Double-click to add  /  Delete to remove"));
+            : selectionCount()>1?juce::String(selectionCount())+" bands selected  /  Delete removes  /  Esc clears"
+            : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another")
+               :juce::String(groupHint));
         g.drawText(hint,680,72,getWidth()-736,20,juce::Justification::centredRight);
         } else {
             g.setColour(text);g.setFont(juce::FontOptions(16.f,juce::Font::bold));
@@ -383,8 +421,13 @@ public:
             g.setColour(juce::Colour(0xe0101b1e));g.fillRoundedRectangle(box.toFloat(),4.f);
             g.setColour(juce::Colour(0xffd8e4df));g.drawText(text,box,juce::Justification::centred);
         }
-        for(int b=0;b<graphicalEQBands;++b)if(b!=selected && isBandVisible(b))drawNode(g,b,false);
+        const auto members=selectionMask();
+        for(int b=0;b<graphicalEQBands;++b)if(b!=selected && isBandVisible(b))drawNode(g,b,false,((members>>b)&1)!=0);
         if(selected>=0 && isBandVisible(selected))drawNode(g,selected,true);
+        if(marqueeActive) {
+            const auto box=marqueeArea();g.setColour(juce::Colour(0xfff0d39b).withAlpha(.08f));g.fillRect(box);
+            g.setColour(juce::Colour(0xfff0d39b).withAlpha(.7f));g.drawRect(box,1.f);
+        }
         if(!spectrum.hasData() || (!analyzerToggle.getToggleState() && !spectrum.isFrozen())) {
             g.setColour(muted.withAlpha(.85f));g.setFont(juce::FontOptions(12.5f));
             g.drawText(spectrum.isFrozen()?"Snapshot: no complete frame":analyzerToggle.getToggleState()?"Waiting for fresh audio":"Analyzer off",int(area.getX())+10,int(area.getBottom())-24,260,18,juce::Justification::centredLeft);
@@ -417,6 +460,10 @@ public:
         for(int b=graphicalEQBands-1;b>=0;--b)if(b!=selected)consider(b);
         if(closest<0) {
             // Right-click on empty graph: the display range (view only).
+            if(event.mods.isLeftButtonDown() && !event.mods.isPopupMenu() && plot().contains(event.position)) {
+                // Box selection: drag on empty graph to select the nodes inside.
+                marqueeActive=true;marqueeAdd=event.mods.isCommandDown();marqueeStart=marqueeEnd=event.position;return;
+            }
             if(event.mods.isPopupMenu() && plot().contains(event.position)) {
                 juce::PopupMenu menu;menu.addSectionHeader("EQ display range");
                 for(int i=0;i<int(displayRanges.size());++i)
@@ -434,18 +481,26 @@ public:
             }
             return;
         }
+        // Ctrl/Cmd+click adds or removes a band from the group (no drag).
+        if(event.mods.isCommandDown() && event.mods.isLeftButtonDown() && !event.mods.isPopupMenu()){toggleBandInSelection(closest);return;}
+        // A plain press on a group member keeps the group; elsewhere it starts a new one.
+        if(!((selectionMask()>>closest)&1))groupMask=0;
         selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);
         if(event.mods.isPopupMenu()) {
-            juce::PopupMenu menu;menu.addItem(1,"Delete Band "+juce::String(closest+1));
+            const int count=selectionCount();const uint16_t mask=selectionMask();
+            juce::PopupMenu menu;menu.addItem(1,count>1?"Delete "+juce::String(count)+" Selected Bands":"Delete Band "+juce::String(closest+1));
             const auto revision=editing.revision();juce::Component::SafePointer<GraphicalEQPanel> safe(this);
-            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe,closest,revision](int result){
-                if(safe && result==1 && safe->editing.revision()==revision && safe->selected==closest)safe->deleteSelectedBand();
+            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe,closest,revision,mask](int result){
+                if(safe && result==1 && safe->editing.revision()==revision && safe->selected==closest && safe->selectionMask()==mask)safe->deleteSelection();
             });return;
         }
         if(!event.mods.isLeftButtonDown())return;
-        dragging=editing.beginEdit(instance,"Drag Band "+juce::String(selected+1));
+        const int count=selectionCount();
+        dragging=editing.beginEdit(instance,count>1?"Drag "+juce::String(count)+" Bands":"Drag Band "+juce::String(selected+1));
         if(dragging){
-            editing.touchField(instance,selected,"frequency");if(gainApplicable())editing.touchField(instance,selected,"gain");
+            groupDrag=count>1;
+            if(groupDrag)captureGroupStart();
+            else{editing.touchField(instance,selected,"frequency");if(gainApplicable())editing.touchField(instance,selected,"gain");}
             dragAnchor=nodePosition(selected);dragPoint=dragAnchor;lastPointer=event.position;dragAxis=DragAxis::free;
             dragAltDown=event.mods.isAltDown();
         }
@@ -456,6 +511,7 @@ public:
     // centre does not make it jump; Shift can change mid-drag without a jump.
     void mouseDrag(const juce::MouseEvent& event) override {
         setHover(event.position);
+        if(marqueeActive){marqueeEnd=plot().getConstrainedPoint(event.position);repaint();return;}
         if(!dragging)return;
         updateDragModifiers(event.mods);
         dragPoint+=(event.position-lastPointer)*(event.mods.isShiftDown()?fineDragScale:1.f);lastPointer=event.position;
@@ -468,8 +524,21 @@ public:
             else if(dragAxis==DragAxis::gain)target.x=dragAnchor.x;
             else target=dragAnchor;
         } else dragAxis=DragAxis::free;
-        if(dragAxis!=DragAxis::gain)write("frequency",xFrequency(target.x));
-        if(gainApplicable() && dragAxis!=DragAxis::frequency)write("gain",yGain(target.y));
+        if(groupDrag) {
+            // Every member moves by the same pointer travel: the same frequency
+            // ratio and the same gain change, each limited to its own range.
+            const auto& v=frequencyViews[size_t(frequencyView)];
+            const float ratio=std::pow(v.high/v.low,(target.x-dragAnchor.x)/std::max(1.f,plot().getWidth()));
+            const float gainChange=(dragAnchor.y-target.y)/std::max(1.f,plot().getHeight())*2*displayRangeDB;
+            for(int i=0;i<groupStartCount;++i) {
+                const auto& start=groupStart[size_t(i)];
+                if(dragAxis!=DragAxis::gain)editing.setValue(instance,start.band,"frequency",std::clamp(start.frequency*ratio,20.f,20000.f));
+                if(start.hasGain && dragAxis!=DragAxis::frequency)editing.setValue(instance,start.band,"gain",std::clamp(start.gain+gainChange,-24.f,24.f));
+            }
+        } else {
+            if(dragAxis!=DragAxis::gain)write("frequency",xFrequency(target.x));
+            if(gainApplicable() && dragAxis!=DragAxis::frequency)write("gain",yGain(target.y));
+        }
         rebuildResponse();repaint();
     }
     void modifierKeysChanged(const juce::ModifierKeys& modifiers) override {
@@ -477,7 +546,15 @@ public:
         juce::Component::modifierKeysChanged(modifiers);
     }
     static constexpr float fineDragScale=.1f,axisLockPixels=4.f;
-    void mouseUp(const juce::MouseEvent&) override {endDrag();}
+    void mouseUp(const juce::MouseEvent& event) override {
+        if(marqueeActive) {
+            marqueeEnd=plot().getConstrainedPoint(event.position);const auto area=marqueeArea();marqueeActive=false;
+            // A click without a box keeps the selection (a double-click adds a band).
+            if(area.getWidth()>=4 || area.getHeight()>=4)selectBandsIn(area,marqueeAdd);
+            repaint();return;
+        }
+        endDrag();
+    }
     void mouseMove(const juce::MouseEvent& event) override {setHover(event.position);}
     void mouseExit(const juce::MouseEvent&) override {setHover({-1.f,-1.f});}
     juce::Point<float> hoverPosition() const noexcept {return hoverPoint;}
@@ -488,7 +565,9 @@ public:
     }
     void mouseWheelMove(const juce::MouseEvent& event,const juce::MouseWheelDetails& wheel) override {
         if(!plot().contains(event.position) || selected<0)return;
-        discreteEdit(selected,"q",dsp.values(selected).q*std::exp(wheel.deltaY*(event.mods.isShiftDown()?.15f:1.5f)),"Band Q");
+        const float factor=std::exp(wheel.deltaY*(event.mods.isShiftDown()?.15f:1.5f));
+        if(selectionCount()>1){groupQEdit(factor);return;}
+        discreteEdit(selected,"q",dsp.values(selected).q*factor,"Band Q");
     }
     bool keyPressed(const juce::KeyPress& key) override {
         // Let a numeric TextEditor keep its own text-editing shortcuts.
@@ -496,8 +575,10 @@ public:
         if(key.getModifiers().isCommandDown() || key.getModifiers().isCtrlDown()) {
             if(key.getKeyCode()=='Z' || key.getKeyCode()=='z'){applyHistory(key.getModifiers().isShiftDown());return true;}
             if(key.getKeyCode()=='Y' || key.getKeyCode()=='y'){applyHistory(true);return true;}
+            if(key.getKeyCode()=='A' || key.getKeyCode()=='a'){selectAllBands();return true;}
         }
-        if(key.getKeyCode()==juce::KeyPress::deleteKey || key.getKeyCode()==juce::KeyPress::backspaceKey){deleteSelectedBand();return true;}
+        if(key.getKeyCode()==juce::KeyPress::escapeKey && selectionCount()>1){collapseSelection();return true;}
+        if(key.getKeyCode()==juce::KeyPress::deleteKey || key.getKeyCode()==juce::KeyPress::backspaceKey){deleteSelection();return true;}
         return false;
     }
 private:
@@ -528,15 +609,33 @@ private:
         // must not become an audible jump when Alt changes. Keep lastPointer so
         // movement arriving with the modifier change is still applied once.
         dragAnchor=nodePosition(selected);dragPoint=dragAnchor;dragAxis=DragAxis::free;
+        if(groupDrag)captureGroupStart();
+    }
+    // Each member's value at the start of a group drag (or lock segment).
+    void captureGroupStart() {
+        groupStartCount=0;const auto mask=selectionMask();
+        for(int b=0;b<graphicalEQBands;++b)if((mask>>b)&1) {
+            const auto v=dsp.values(b);auto& start=groupStart[size_t(groupStartCount++)];
+            start={b,v.frequency,v.gain,v.type<=2};
+            editing.touchField(instance,b,"frequency");if(start.hasGain)editing.touchField(instance,b,"gain");
+        }
+    }
+    void groupQEdit(float factor) {
+        if(cancelExternalInput()){syncDisplayedValues();return;}
+        const auto mask=selectionMask();
+        endDrag();if(!editing.beginEdit(instance,"Band Q ("+juce::String(selectionCount())+" bands)")){syncDisplayedValues();return;}
+        for(int b=0;b<graphicalEQBands;++b)if((mask>>b)&1)editing.setValue(instance,b,"q",dsp.values(b).q*factor);
+        editing.endEdit();syncDisplayedValues();rebuildResponse();repaint();
     }
     void setHover(juce::Point<float> point) {
         if(!plot().contains(point))point={-1.f,-1.f};
         if(point==hoverPoint)return;
         hoverPoint=point;repaint(plot().toNearestInt().removeFromTop(24));
     }
-    void endDrag(){if(dragging || sliderEditing){editing.endEdit();dragging=sliderEditing=false;updateHistoryControls();}}
-    void drawNode(juce::Graphics& g,int band,bool chosen) const {
+    void endDrag(){groupDrag=false;if(dragging || sliderEditing){editing.endEdit();dragging=sliderEditing=false;updateHistoryControls();}}
+    void drawNode(juce::Graphics& g,int band,bool chosen,bool member=false) const {
         const auto v=dsp.values(band);const auto p=visibleNodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
+        if(member || (chosen && selectionCount()>1)){g.setColour(juce::Colour(0xfff0d39b).withAlpha(.85f));g.drawEllipse(p.x-r-4,p.y-r-4,2*r+8,2*r+8,1.5f);}
         const juce::Colour colour(chosen?0xfff0d39b:v.enabled?0xffb5d6c6:0xff718d8a);
         if(chosen){g.setColour(colour.withAlpha(.12f));g.fillEllipse(p.x-13,p.y-13,26,26);}
         g.setColour(juce::Colour(0xff101b1e));g.fillEllipse(p.x-r,p.y-r,2*r,2*r);
@@ -660,7 +759,7 @@ private:
         cancelExternalInput();
         const auto mask=editing.occupiedMask(instance);
         if(mask!=lastOccupiedMask) {
-            lastOccupiedMask=mask;selector.clear(juce::dontSendNotification);
+            lastOccupiedMask=mask;groupMask=uint16_t(groupMask&mask);selector.clear(juce::dontSendNotification);
             for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))selector.addItem("Band "+juce::String(b+1),b+1);
             int next=selected;
             if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
@@ -693,6 +792,11 @@ private:
         endDrag();const int added=editing.addBand(instance,hz,gain);refreshEditingState();
         if(added>=0){selectBand(added);grabKeyboardFocus();}rebuildResponse();repaint();
     }
+    void deleteSelection() {
+        if(selectionCount()<=1){deleteSelectedBand();return;}
+        endDrag();const auto mask=selectionMask();groupMask=0;
+        editing.removeBands(instance,mask);refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
+    }
     void deleteSelectedBand() {
         endDrag();if(selected<0)return;
         editing.removeBand(instance,selected);refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
@@ -703,7 +807,7 @@ private:
         if(changed && bank>=0 && onHistoryBankSelected)onHistoryBankSelected(bank);
     }
     void updateAnalyzer() {
-        if(!isShowing())endDrag();
+        if(!isShowing()){endDrag();marqueeActive=false;}
         if(pendingCaptureRequest!=0) {
             dsp.analyzer.enabled.store(false);analyzerActive=false;
             if(!captureBoundary.isDrained(pendingCaptureRequest))return;
@@ -809,11 +913,19 @@ private:
     int frequencyView{};
     float tiltDBPerOctave{};
     static constexpr float nodeHitRadius=18.f;
+#if JUCE_MAC
+    static constexpr const char* groupHint="Double-click: add  /  Cmd-click or box: group";
+#else
+    static constexpr const char* groupHint="Double-click: add  /  Ctrl-click or box: group";
+#endif
     juce::Point<float> hoverPoint{-1.f,-1.f};
     enum class DragAxis {free,frequency,gain};
     DragAxis dragAxis{DragAxis::free};
     bool dragAltDown{};
     juce::Point<float> dragAnchor,dragPoint,lastPointer;
+    uint16_t groupMask{};bool groupDrag{},marqueeActive{},marqueeAdd{};juce::Point<float> marqueeStart,marqueeEnd;
+    struct GroupStart {int band{};float frequency{},gain{};bool hasGain{};};
+    std::array<GroupStart,graphicalEQBands> groupStart{};int groupStartCount{};
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
     uint64_t lastExternalRevision{},pendingCaptureRequest{};
