@@ -5,6 +5,7 @@
 #include "AutoSetInstrument.h"
 #include "AutoSetAmp.h"
 #include "AutoSetCab.h"
+#include "AutoSetCabIR.h"
 #include "AutoSetBoost.h"
 #include "AutoSetSpace.h"
 #include "AutoSetPower.h"
@@ -60,13 +61,13 @@ class Controller final : private juce::Timer {
 public:
     // gates is a result step of the input pass, not a listening pass of its own.
     // dynamicEQ is a result step of the Tone EQ pass.
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR};
     // Settings Auto Set must keep as they are: their parameters are neither
     // written nor restored by UNDO AUTO, and a pass whose outputs are all locked
     // is skipped. The gate lock also covers Gate 2 and the Expander; the Tone EQ
     // lock also keeps the Dynamic EQ step, whose nodes are Tone EQ bands.
-    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21,lockChannel=1u<<22,lockPolarity=1u<<23,lockSync=1u<<24};
-    static constexpr std::array<Lock,25> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs,lockChannel,lockPolarity,lockSync};
+    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21,lockChannel=1u<<22,lockPolarity=1u<<23,lockSync=1u<<24,lockCabIR=1u<<25};
+    static constexpr std::array<Lock,26> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs,lockChannel,lockPolarity,lockSync,lockCabIR};
     // strength (minimumStrength..1) scales how far each result moves the sound:
     // input gain change and Tone EQ gains scale, the compressor and multiband
     // mix in parallel, the Dynamic EQ and de-esser ranges scale. The gates are placed for the
@@ -91,8 +92,9 @@ public:
     // rigs matches the Dual rig 2 level to rig 1 before the Dual blend, in the Dual pass.
     // channel picks the Classic head's channel before the amp step, in the amp pass.
     // polarity flips Dual rig 2, or the Matrix MID and HIGH lanes, when they cancel, in the Dual or Matrix pass.
+    // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{true};bool polarity{true};bool sync{true};bool skipForVoiceOrDrums{false};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{true};bool polarity{true};bool sync{true};bool cabIR{true};bool skipForVoiceOrDrums{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -106,7 +108,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -168,6 +170,8 @@ public:
         add(lockPolarity,{"polarity2","polarity3"});
         // Phase 22 turns on the delay's tempo sync, following the host tempo.
         add(lockSync,{"delaysync","temposync"});
+        // Phase 23 chooses the Classic rig's factory IR for mic A or mic B.
+        add(lockCabIR,{"cabtype1","cabBtype1"});
         // Phase 19 writes the Dual rig 2 level: LEVEL 2 (above), or the Dual B
         // native head's OUTPUT LEVEL, which replaces it on a native head.
         touchedIDs.push_back({ampNativeOutputLevelID(ampNativeContext(1,1)),lockRigs});
@@ -204,7 +208,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};lastInstrument={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastCabIR={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -220,10 +224,11 @@ public:
             if(runOptions.amp)lockedPhases.push_back(Phase::amp);
             if(runOptions.power)lockedPhases.push_back(Phase::power);
         }
-        // The cabinet mic pass serves the mic step and the cabinet cuts step.
-        if(cabStepRuns() || cutsStepRuns())passes.push_back(Phase::cab);
+        // The cabinet mic pass serves the mic step, the cabinet IR step and the cabinet cuts step.
+        if(cabStepRuns() || cabIRStepRuns() || cutsStepRuns())passes.push_back(Phase::cab);
         else {
             if(runOptions.cab)lockedPhases.push_back(Phase::cab);
+            if(runOptions.cabIR)lockedPhases.push_back(Phase::cabIR);
             if(runOptions.cuts)lockedPhases.push_back(Phase::cuts);
         }
         // Phase 18 listens only to a Classic cabinet with both mics heard.
@@ -440,7 +445,7 @@ private:
         // The amp, cab and boost passes hear the rig alone (Tap::cab), wherever
         // the signal-order editor puts the Tone EQ.
         else if(status.phase==Phase::amp){ampAtStart=ampTarget();capture.listen({Tap::amp,Tap::cab});}
-        else if(status.phase==Phase::cab){cabAtStart=cabTarget();cutsAtStart={raw("cablow1"),raw("cabhigh1")};capture.listen(Tap::cab);}
+        else if(status.phase==Phase::cab){cabAtStart=cabTarget();cabIRAtStart=cabSources();cutsAtStart={raw("cablow1"),raw("cabhigh1")};capture.listen(Tap::cab);}
         else if(status.phase==Phase::boost){boostAtStart=boostTarget();capture.listen({Tap::amp,Tap::cab});}
         // The Dual pass hears each rig before the blend (lane2 shares the amp tap's ring).
         else if(status.phase==Phase::dual){dualAtStart=dualTarget();polarityAtStart=lanePolarity();capture.listen({Tap::lane1,Tap::lane2});}
@@ -477,6 +482,7 @@ private:
     bool powerStepRuns() const noexcept {return runOptions.power && !locked(lockPower);}
     bool cabStepRuns() const noexcept {return runOptions.cab && !locked(lockCab);}
     bool cutsStepRuns() const noexcept {return runOptions.cuts && !locked(lockCuts);}
+    bool cabIRStepRuns() const noexcept {return runOptions.cabIR && !locked(lockCabIR);}
     bool dualStepRuns() const noexcept {return runOptions.dual && !locked(lockDual);}
     bool matrixStepRuns() const noexcept {return runOptions.matrix && !locked(lockMatrix);}
     bool polarityStepRuns() const noexcept {return runOptions.polarity && !locked(lockPolarity);}
@@ -489,8 +495,8 @@ private:
     bool dynamicStepRuns() const noexcept {return runOptions.dynamicEQ && !locked(lockDynamicEQ) && !locked(lockTone);}
     // Signal order of passes and result steps, for reporting skipped ones.
     static int order(Phase phase) noexcept {
-        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::power:return 5;case Phase::cab:return 6;case Phase::cuts:return 7;case Phase::mics:return 8;case Phase::polarity:return 9;case Phase::rigs:return 10;case Phase::dual:return 11;case Phase::matrix:return 12;case Phase::tone:return 13;case Phase::dynamicEQ:return 14;
-            case Phase::compressor:return 15;case Phase::multiband:return 16;case Phase::finish:return 17;case Phase::bus:return 18;case Phase::sync:return 19;case Phase::space:return 20;case Phase::width:return 21;case Phase::level:return 22;default:return 23;}
+        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::power:return 5;case Phase::cab:return 6;case Phase::cabIR:return 7;case Phase::cuts:return 8;case Phase::mics:return 9;case Phase::polarity:return 10;case Phase::rigs:return 11;case Phase::dual:return 12;case Phase::matrix:return 13;case Phase::tone:return 14;case Phase::dynamicEQ:return 15;
+            case Phase::compressor:return 16;case Phase::multiband:return 17;case Phase::finish:return 18;case Phase::bus:return 19;case Phase::sync:return 20;case Phase::space:return 21;case Phase::width:return 22;case Phase::level:return 23;default:return 24;}
     }
     float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
@@ -503,7 +509,7 @@ private:
         const auto step="Listening "+juce::String(int(pass)+1)+"/"+juce::String(int(passes.size()))+": ";
         if(status.phase==Phase::input)return step+"play normally, including a short pause...";
         if(status.phase==Phase::amp)return step+"keep playing as you normally would, soft and hard, for the amp's "+ampTargetText()+"...";
-        if(status.phase==Phase::cab)return step+"keep playing across the neck for the "+juce::String(cabStepRuns()&&cutsStepRuns()?"cabinet mic and cuts":cutsStepRuns()?"cabinet cuts":"cabinet mic")+"...";
+        if(status.phase==Phase::cab)return step+"keep playing across the neck for the "+juce::String(cabStepRuns()&&cutsStepRuns()?"cabinet mic and cuts":cutsStepRuns()?"cabinet cuts":cabStepRuns()?"cabinet mic":"cabinet IR")+"...";
         if(status.phase==Phase::boost)return step+"keep playing, including low notes and chords, for the boost pedal...";
         if(status.phase==Phase::dual)return step+"keep playing as you normally would, across the neck, for the Dual "+juce::String(raw("dualtype")>.5f?"crossover":rigsStepRuns()&&dualStepRuns()?"rig levels and blend":rigsStepRuns()?"rig levels":"blend")+"...";
         if(status.phase==Phase::mics)return step+"keep playing across the neck, low notes and chords, for the cabinet's two mics...";
@@ -585,6 +591,7 @@ private:
                 if(powerStepRuns())lockedPhases.push_back({Phase::power,why});
             } else if(p==Phase::cab) {
                 if(cabStepRuns())lockedPhases.push_back({Phase::cab,why});
+                if(cabIRStepRuns())lockedPhases.push_back({Phase::cabIR,why});
                 if(cutsStepRuns())lockedPhases.push_back({Phase::cuts,why});
             } else if(p==Phase::mics)lockedPhases.push_back({Phase::mics,why});
             else if(p==Phase::dual) {
@@ -1170,9 +1177,11 @@ private:
     // own response, with the mic's level holding the loudness.
     // The cabinet mic pass: phase 9 (mic placement), then phase 15 (cuts),
     // which also counts in the mic move phase 9 applied.
+    // Phase 23 (factory IR) serves a mic phase 9 cannot place; its change also counts for the cuts.
     void finishCab(const std::vector<float>& post) {
         keepRigSound(post);cabMoveDb={};
         if(runOptions.cab)cabStep(post);
+        if(runOptions.cabIR)cabIRStep(post);
         if(runOptions.cuts)cutsStep(post);
         nextPass();
     }
@@ -1232,6 +1241,37 @@ private:
         // What the applied mic move adds to every band, for the cuts step.
         const auto nowBands=cabBandsDb(current),movedBands=cabBandsDb(withPlacement(current,{raw(positionID),raw(distanceID)}));
         for(int b=0;b<toneBandCount;++b)cabMoveDb[size_t(b)]=movedBands[size_t(b)]-nowBands[size_t(b)]+(raw(gainID)-gainBefore);
+    }
+    std::array<int,2> cabSources() const {return {juce::roundToInt(raw("cabtype1")),juce::roundToInt(raw("cabBtype1"))};}
+    // Phase 23: the heard mic's factory IR, V30 / SM57 or Jensen / SM57.
+    void cabIRStep(const std::vector<float>& post) {
+        const auto keep=[this](const juce::String& why){summary+=" | Cab IR unchanged ("+why+")";steps.push_back({Phase::cabIR,"kept ("+why+")",false});};
+        const auto t=cabTarget();
+        if(locked(lockCabIR)){keep("locked");return;}
+        if(!(t==cabAtStart) || cabSources()!=cabIRAtStart){keep("cabinet, mic or IR changed while listening");return;}
+        if(t.mode!=0){keep("Dual and Matrix routing: choose those rigs' IRs in the full editor");return;}
+        if(!t.on){keep("the cabinet is switched off");return;}
+        if(t.mic<0){keep("two mics are blended; set the blend fully to one mic to let Auto Set choose its IR");return;}
+        const juce::String mic=t.mic?"B":"A";
+        if(t.key!=0){keep("mic "+mic+" is a modeled mic: the cabinet mic step places it");return;}
+        const juce::String id=t.mic?"cabBtype1":"cabtype1";
+        const int source=cabIRAtStart[size_t(t.mic)];
+        if(source==0){keep("mic "+mic+" is filters only: choose an IR in the cabinet to let Auto Set compare them");return;}
+        if(source==3){keep("mic "+mic+" plays a user IR: choose IRs in the IR loader");return;}
+        const auto v30=IRLibrary::factoryIR(0),jensen=IRLibrary::factoryIR(1);
+        if(!v30 || !jensen){keep("the factory IRs could not be read");return;}
+        const auto r=analyseCabIR(post,rate(),source,{cabIRBandsDb(v30->samples,v30->rate),cabIRBandsDb(jensen->samples,jensen->rate)},chosenInstrument(),runOptions.style);
+        lastCabIR=r;
+        if(!r.playingDetected){keep("no playing heard");return;}
+        if(r.bass){keep("bass: both factory IRs are guitar cabinets");return;}
+        if(!r.changed()){keep("guitar "+juce::String(styleName(runOptions.style))+" balance already closest with "+cabIRName(source));return;}
+        set(id,float(r.proposed));
+        if(juce::roundToInt(raw(id))!=r.proposed){keep("IR source edited while applying");return;}
+        for(int b=0;b<toneBandCount;++b)cabMoveDb[size_t(b)]+=r.moveDb[size_t(b)];
+        const auto move="mic "+mic+" IR "+cabIRName(r.before)+" > "+cabIRName(r.proposed);
+        summary+=" | Cab "+move;
+        steps.push_back({Phase::cabIR,move+"; balance off by "+juce::String(r.toneErrorBeforeDb,1)+" > "+juce::String(r.toneErrorAfterDb,1)+" dB; level "
+            +(r.levelChangeDb>=0?"+":"")+juce::String(r.levelChangeDb,1)+" dB (the Final EQ + output step sets the level)",true});
     }
     // Phase 15: the Classic rig's cabinet LOW and HIGH cuts.
     void cutsStep(const std::vector<float>& post) {
@@ -1682,7 +1722,7 @@ private:
                 break;
             case Phase::level:s.listeningFor="The overall balance and loudness at the output, for the Final EQ and output level";break;
             case Phase::amp:s.listeningFor="Your playing going into the amp and the sound after the cab, for the amp's "+ampTargetText()+" knobs";break;
-            case Phase::cab:s.listeningFor="Tone balance from lows to highs after the cab, for "+juce::String(cabStepRuns()&&cutsStepRuns()?"where the cabinet mic sits and the cab's cuts":cutsStepRuns()?"the cab's LOW and HIGH cuts":"where the cabinet mic sits");break;
+            case Phase::cab:s.listeningFor="Tone balance from lows to highs after the cab, for "+juce::String(cabStepRuns()&&cutsStepRuns()?"where the cabinet mic sits and the cab's cuts":cutsStepRuns()?"the cab's LOW and HIGH cuts":cabStepRuns()?"where the cabinet mic sits":"which factory IR suits the playing");break;
             case Phase::boost:s.listeningFor="Your playing going into the amp, for whether a boost pedal tightens the amp's low end";break;
             case Phase::dual:s.listeningFor="Each Dual rig's sound on its own, for "+juce::String(rigsStepRuns()&&dualStepRuns()?"the rigs' levels and how they combine":rigsStepRuns()?"the rigs' levels":"how the two rigs combine");break;
             case Phase::mics:s.listeningFor="Each cabinet mic on its own, for their timing, polarity and blend";break;
@@ -1723,6 +1763,7 @@ public:
     const ChannelResult& lastChannelAnalysis() const noexcept {return lastChannel;}
     const PolarityResult& lastPolarityAnalysis() const noexcept {return lastPolarity;}
     const TempoSyncResult& lastSyncAnalysis() const noexcept {return lastSync;}
+    const CabIRResult& lastCabIRAnalysis() const noexcept {return lastCabIR;}
     const MatrixResult& lastMatrixAnalysis() const noexcept {return lastMatrix;}
     const MicsResult& lastMicsAnalysis() const noexcept {return lastMics;}
     const WidthResult& lastWidthAnalysis() const noexcept {return lastWidth;}
@@ -1747,7 +1788,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
