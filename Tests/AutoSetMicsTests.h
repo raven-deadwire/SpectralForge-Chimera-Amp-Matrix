@@ -74,18 +74,26 @@ void micsCapture() {
     // The processor feeds the mic taps in Classic routing with both mics heard, while they are listened to.
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
-    const auto capture=[&](int mode,float blend) {
+    const auto capture=[&](int mode,float blend,bool fed) {
         setRaw("mode",float(mode));setRaw("cabblend1",blend);setRaw("cabBtype1",1);
         juce::AudioBuffer<float> io(2,256);juce::MidiBuffer midi;
-        // Settle first: a new mic B source loads (and crossfades) its IR, routing switches fade.
-        for(int block=0;block<40;++block){for(int c=0;c<2;++c)io.copyFrom(c,0,x.data()+size_t(block%20)*256,256);p->processBlock(io,midi);}
-        p->autoSetCapture().listen({Tap::micA,Tap::micB});
-        for(int block=0;block<20;++block){for(int c=0;c<2;++c)io.copyFrom(c,0,x.data()+size_t(block)*256,256);p->processBlock(io,midi);}
-        std::vector<float> first,second;p->autoSetCapture().drainSamples(first);p->autoSetCapture().drainLaneSamples(second);
-        p->autoSetCapture().listen(std::nullopt);
-        return std::pair{first.size(),second.size()};
+        const auto run=[&](int blocks){for(int block=0;block<blocks;++block){for(int c=0;c<2;++c)io.copyFrom(c,0,x.data()+size_t(block%20)*256,256);p->processBlock(io,midi);}};
+        const auto listen20=[&] {
+            p->autoSetCapture().listen({Tap::micA,Tap::micB});run(20);
+            std::vector<float> first,second;p->autoSetCapture().drainSamples(first);p->autoSetCapture().drainLaneSamples(second);
+            p->autoSetCapture().listen(std::nullopt);
+            return std::pair{first.size(),second.size()};
+        };
+        // Settle first: routing switches and the blend fade. Mic B keeps rendering
+        // (and its tap stays fed) while its IR load is pending, and the IR worker
+        // runs in wall-clock time while these blocks run faster than real time, so
+        // the expected answer is waited for, up to 5 s; the last reading is kept.
+        run(40);
+        auto last=listen20();
+        for(int round=0;round<50 && (fed?last.first!=size_t(20*256):last.first!=0);++round){juce::Thread::sleep(100);run(20);last=listen20();}
+        return last;
     };
-    const auto both=capture(0,.5f),oneMic=capture(0,0),dual=capture(1,.5f);
+    const auto both=capture(0,.5f,true),oneMic=capture(0,0,false),dual=capture(1,.5f,false);
     check(both.first==20*256 && both.first==both.second && oneMic.first==0 && dual.first==0,"Mic taps not fed for a Classic two-mic cabinet only ("+std::to_string(both.first)+", "+std::to_string(oneMic.first)+", "+std::to_string(dual.first)+")");
     p->releaseResources();
     std::cout<<"PASS auto set mics capture: mic A after level, polarity and delay plus mic B sum to the cabinet output; taps fed in Classic with both mics heard only\n";
