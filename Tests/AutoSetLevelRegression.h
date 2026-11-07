@@ -41,7 +41,7 @@ void set(ChimeraProcessor& p,const juce::String& id,float value) {
 constexpr unsigned upstream=Controller::lockInput|Controller::lockGate|Controller::lockTone|Controller::lockCompressor
     |Controller::lockMultiband|Controller::lockDeEsser|Controller::lockLimiter|Controller::lockDynamicEQ;
 Controller::Options options(float strength=1,unsigned extra=0,bool bass=false) {
-    return {bass?2:1,false,Style::rock,false,false,false,strength,upstream|extra,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false};
+    return {bass?2:1,false,Style::rock,false,false,false,strength,upstream|extra,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
 }
 Frames signal(double rate,int kind,int channels=2) {
     Frames out(size_t(rate*6));std::mt19937 rng(7107);
