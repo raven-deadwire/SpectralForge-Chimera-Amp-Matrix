@@ -58,13 +58,13 @@ class Controller final : private juce::Timer {
 public:
     // gates is a result step of the input pass, not a listening pass of its own.
     // dynamicEQ is a result step of the Tone EQ pass.
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel};
     // Settings Auto Set must keep as they are: their parameters are neither
     // written nor restored by UNDO AUTO, and a pass whose outputs are all locked
     // is skipped. The gate lock also covers Gate 2 and the Expander; the Tone EQ
     // lock also keeps the Dynamic EQ step, whose nodes are Tone EQ bands.
-    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21};
-    static constexpr std::array<Lock,22> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs};
+    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21,lockChannel=1u<<22};
+    static constexpr std::array<Lock,23> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs,lockChannel};
     // strength (minimumStrength..1) scales how far each result moves the sound:
     // input gain change and Tone EQ gains scale, the compressor and multiband
     // mix in parallel, the Dynamic EQ and de-esser ranges scale. The gates are placed for the
@@ -87,7 +87,8 @@ public:
     // matrix sets the Matrix MID and HIGH lane levels in a pass of its own, in Matrix routing only.
     // mics aligns the Classic cabinet's two blended mics and sets their blend, in a pass of its own.
     // rigs matches the Dual rig 2 level to rig 1 before the Dual blend, in the Dual pass.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};};
+    // channel picks the Classic head's channel before the amp step, in the amp pass.
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{true};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -101,7 +102,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -137,6 +138,8 @@ public:
                             if(std::none_of(touchedIDs.begin(),touchedIDs.end(),[&](const auto& t){return t.first==id;}))touchedIDs.push_back({id,lockAmp});
                         }
         }
+        // Phase 20 writes the Classic routing's head channel, for every head.
+        for(int model=0;model<ampModelCount;++model)touchedIDs.push_back({ampNativeChannelID(ampNativeContext(0,0),model),lockChannel});
         // Phase 12 writes the same heads' PRESENCE and RESONANCE (or DEPTH).
         for(int model=0;model<ampModelCount;++model) {
             const auto& panel=ampNativePanel(model);
@@ -193,7 +196,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -203,8 +206,9 @@ public:
         plan(Phase::boost,runOptions.boost,lockBoost);
         // The amp pass serves the amp step and the presence + resonance step,
         // which renders the same capture through the head.
-        if(ampStepRuns() || powerStepRuns())passes.push_back(Phase::amp);
+        if(channelStepRuns() || ampStepRuns() || powerStepRuns())passes.push_back(Phase::amp);
         else {
+            if(runOptions.channel)lockedPhases.push_back(Phase::channel);
             if(runOptions.amp)lockedPhases.push_back(Phase::amp);
             if(runOptions.power)lockedPhases.push_back(Phase::power);
         }
@@ -438,6 +442,7 @@ private:
     }
     bool locked(unsigned lock) const noexcept {return (runOptions.locks&lock)!=0;}
     bool ampStepRuns() const noexcept {return runOptions.amp && !locked(lockAmp);}
+    bool channelStepRuns() const noexcept {return runOptions.channel && !locked(lockChannel);}
     bool powerStepRuns() const noexcept {return runOptions.power && !locked(lockPower);}
     bool cabStepRuns() const noexcept {return runOptions.cab && !locked(lockCab);}
     bool cutsStepRuns() const noexcept {return runOptions.cuts && !locked(lockCuts);}
@@ -451,8 +456,8 @@ private:
     bool dynamicStepRuns() const noexcept {return runOptions.dynamicEQ && !locked(lockDynamicEQ) && !locked(lockTone);}
     // Signal order of passes and result steps, for reporting skipped ones.
     static int order(Phase phase) noexcept {
-        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::amp:return 3;case Phase::power:return 4;case Phase::cab:return 5;case Phase::cuts:return 6;case Phase::mics:return 7;case Phase::rigs:return 8;case Phase::dual:return 9;case Phase::matrix:return 10;case Phase::tone:return 11;case Phase::dynamicEQ:return 12;
-            case Phase::compressor:return 13;case Phase::multiband:return 14;case Phase::finish:return 15;case Phase::bus:return 16;case Phase::space:return 17;case Phase::width:return 18;case Phase::level:return 19;default:return 20;}
+        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::power:return 5;case Phase::cab:return 6;case Phase::cuts:return 7;case Phase::mics:return 8;case Phase::rigs:return 9;case Phase::dual:return 10;case Phase::matrix:return 11;case Phase::tone:return 12;case Phase::dynamicEQ:return 13;
+            case Phase::compressor:return 14;case Phase::multiband:return 15;case Phase::finish:return 16;case Phase::bus:return 17;case Phase::space:return 18;case Phase::width:return 19;case Phase::level:return 20;default:return 21;}
     }
     float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
@@ -476,7 +481,10 @@ private:
         if(status.phase==Phase::level)return step+"keep playing as you normally would, for the Final EQ and output level...";
         return step+"keep playing for the compressor...";
     }
-    juce::String ampTargetText() const {return ampStepRuns()&&powerStepRuns()?"gain, tone, presence and resonance":powerStepRuns()?"presence and resonance":"gain and tone";}
+    juce::String ampTargetText() const {
+        const juce::String knobs=ampStepRuns()&&powerStepRuns()?"gain, tone, presence and resonance":powerStepRuns()?"presence and resonance":ampStepRuns()?"gain and tone":"";
+        return channelStepRuns()?(knobs.isEmpty()?juce::String("channel"):"channel, "+knobs):knobs;
+    }
     juce::String toneTarget() const {return toneStepRuns()&&dynamicStepRuns()?"Tone EQ and Dynamic EQ":dynamicStepRuns()?"Dynamic EQ":"Tone EQ";}
     float progress(float inPass) const {return (float(pass)+inPass)/float(passes.size());}
     void finishInput(const std::vector<Window>& measured) {
@@ -568,14 +576,64 @@ private:
     }
     // The amp pass: phase 8 (GAIN and tone knobs), then phase 12 (PRESENCE and
     // RESONANCE) on the knobs phase 8 left, both from the same capture.
+    // Phase 20 (the channel) runs first; the two knob steps then work on the
+    // channel it chose, against the head as it played.
     void finishAmp(const std::vector<float>& post,const std::vector<float>& input) {
         keepRigSound(post);
-        const auto t=ampTarget();
-        // The head as it played while the pass listened, before either step writes.
+        auto t=ampTarget();
+        // The head as it played while the pass listened, before any step writes.
         const auto played=processor.autoSetAmpState(t.context);const auto playedKnobs=headKnobs(t);
-        if(runOptions.amp)ampStep(t,played,post,input);
-        if(runOptions.power)powerStep(t,played,playedKnobs,post,input);
+        std::optional<std::vector<float>> playedAmp;
+        if(runOptions.channel && channelStep(t,post,input)) {
+            // The knob steps hear the new channel; the cabinet estimate keeps the head that played.
+            const auto segment=ampSegment(input);
+            playedAmp=nativeAmpRenderer(played,{-1,-1,-1,-1},segment,rate())({});
+            t=ampTarget();ampAtStart=t;
+        }
+        const auto state=playedAmp?processor.autoSetAmpState(t.context):played;
+        if(runOptions.amp)ampStep(t,state,post,input,playedAmp?&*playedAmp:nullptr);
+        if(runOptions.power)powerStep(t,played,state,playedKnobs,post,input);
         nextPass();
+    }
+    std::vector<float> ampSegment(const std::vector<float>& input) const {return {input.begin(),input.begin()+std::ptrdiff_t(std::min(input.size(),size_t(rate()*ampRenderSeconds)))};}
+    // Phase 20: the head's channel, from each channel rendered on the captured
+    // input. Returns whether it switched the channel.
+    bool channelStep(const AmpTarget& t,const std::vector<float>& post,const std::vector<float>& input) {
+        const auto keep=[this](const juce::String& why){summary+=" | Amp channel unchanged ("+why+")";steps.push_back({Phase::channel,"kept ("+why+")",false});return false;};
+        if(locked(lockChannel))return keep("locked");
+        if(const auto why=ampUnavailable(t);why.isNotEmpty())return keep(why);
+        const auto& panel=ampNativePanel(t.model);
+        if(panel.channels.size()<2)return keep("this head has one channel");
+        const auto segment=ampSegment(input);
+        std::vector<ChannelCandidate> candidates(panel.channels.size());
+        for(int c=0;c<int(panel.channels.size());++c) {
+            const auto state=processor.autoSetAmpState(t.context,c);
+            AmpKnob gain;std::array<int,4> controls{-1,-1,-1,-1};
+            if(const int control=easy::ampControl(t.model,c,t.route,easy::Role(ampGain));control>=0)
+                if(auto* parameter=processor.parameters().getParameter(ampNativeControlID(t.context,t.model,control,c))) {
+                    const auto range=parameter->getNormalisableRange();
+                    gain={true,state.values[size_t(control)],range.start,range.end};controls[ampGain]=control;
+                }
+            const auto fixed=nativeAmpRenderer(state,{-1,-1,-1,-1},segment,rate()),atGain=nativeAmpRenderer(state,controls,segment,rate());
+            candidates[size_t(c)]={gain,[fixed,atGain](std::optional<float> g){
+                if(!g)return fixed({});
+                std::array<float,4> v{};v[ampGain]=*g;return atGain(v);
+            }};
+        }
+        const auto r=analyseChannel(segment,post,rate(),t.channel,candidates,chosenInstrument(),runOptions.style);
+        lastChannel=r;
+        if(!r.playingDetected)return keep("no playing heard");
+        const auto name=[&](int c){return juce::String::fromUTF8(panel.channels[size_t(c)]);};
+        const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
+        const auto reach=[&](int c){const auto& x=r.reach[size_t(c)];return name(c)+" reaches "+pct(x.low)+"-"+pct(x.high);};
+        const auto target="drive target "+pct(r.target);
+        if(!r.changed())return keep(r.missBefore<=0?reach(t.channel)+", "+target:reach(t.channel)+", "+target+"; no other channel comes closer");
+        set(ampNativeChannelID(t.context,t.model),float(r.proposed));
+        if(processor.selectedAmpChannel(0)!=r.proposed)return keep("channel edited while applying");
+        const auto move="CHANNEL "+name(r.before)+" > "+name(r.proposed);
+        summary+=" | Amp "+move;
+        steps.push_back({Phase::channel,move+"; "+reach(r.before)+", "+reach(r.proposed)+", "+target+" (the amp step sets GAIN on it)",true});
+        return true;
     }
     // The head's GAIN, tone, PRESENCE and RESONANCE controls with their values now.
     std::vector<std::pair<int,float>> headKnobs(const AmpTarget& t) const {
@@ -591,7 +649,8 @@ private:
     }
     // Phase 8: the head's GAIN, BASS, MIDDLE and TREBLE, from candidates
     // rendered offline through the native amp on the captured input.
-    void ampStep(const AmpTarget& t,const AmpNativeState& played,const std::vector<float>& post,const std::vector<float>& input) {
+    // played: the head as it played, when the channel step switched channels.
+    void ampStep(const AmpTarget& t,const AmpNativeState& state,const std::vector<float>& post,const std::vector<float>& input,const std::vector<float>* played) {
         const auto keep=[this](const juce::String& why){summary+=" | Amp unchanged ("+why+")";addStep("kept ("+why+")",false);};
         if(locked(lockAmp)){keep("locked");return;}
         if(const auto why=ampUnavailable(t);why.isNotEmpty()){keep(why);return;}
@@ -605,7 +664,7 @@ private:
         }
         if(std::none_of(knobs.begin(),knobs.end(),[](const auto& k){return k.present;})){keep("this head has no GAIN or tone knobs on its current channel");return;}
         std::vector<float> segment(input.begin(),input.begin()+std::min(input.size(),size_t(rate()*ampRenderSeconds)));
-        const auto r=analyseAmp(segment,post,rate(),knobs,nativeAmpRenderer(played,controls,segment,rate()),chosenInstrument(),runOptions.style);
+        const auto r=analyseAmp(segment,post,rate(),knobs,nativeAmpRenderer(state,controls,segment,rate()),chosenInstrument(),runOptions.style,played);
         lastAmp=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         if(r.changedKnobs()==0){keep(juce::String(r.bass?"bass":"guitar")+" "+styleName(runOptions.style)+" drive and tone already near the target");return;}
@@ -624,7 +683,8 @@ private:
     // Phase 12: the head's PRESENCE and RESONANCE (or DEPTH), rendered on the
     // knobs the amp step left.
     // playedKnobs: the head's knobs while the pass listened (headKnobs).
-    void powerStep(const AmpTarget& t,const AmpNativeState& played,const std::vector<std::pair<int,float>>& playedKnobs,const std::vector<float>& post,const std::vector<float>& input) {
+    // played: the head as it played; state: the head the knobs are set on (another channel after phase 20).
+    void powerStep(const AmpTarget& t,const AmpNativeState& played,const AmpNativeState& state,const std::vector<std::pair<int,float>>& playedKnobs,const std::vector<float>& post,const std::vector<float>& input) {
         const auto keep=[this](const juce::String& why){summary+=" | Presence/resonance unchanged ("+why+")";steps.push_back({Phase::power,"kept ("+why+")",false});};
         if(locked(lockPower)){keep("locked");return;}
         if(const auto why=ampUnavailable(t);why.isNotEmpty()){keep(why);return;}
@@ -639,7 +699,7 @@ private:
         if(!knobs[0].present && !knobs[1].present){keep("this head has no PRESENCE or RESONANCE knob on its current channel");return;}
         std::vector<float> segment(input.begin(),input.begin()+std::min(input.size(),size_t(rate()*ampRenderSeconds)));
         const auto playedAmp=nativePowerRenderer(played,playedKnobs,{-1,-1},segment,rate())({0.f,0.f});
-        const auto r=analysePower(segment,post,playedAmp,rate(),knobs,nativePowerRenderer(played,headKnobs(t),controls,segment,rate()),chosenInstrument(),runOptions.style);
+        const auto r=analysePower(segment,post,playedAmp,rate(),knobs,nativePowerRenderer(state,headKnobs(t),controls,segment,rate()),chosenInstrument(),runOptions.style);
         lastPower=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         const auto balance=[&](int role){
@@ -1490,6 +1550,7 @@ public:
     const SpaceResult& lastSpaceAnalysis() const noexcept {return lastSpace;}
     const DualResult& lastDualAnalysis() const noexcept {return lastDual;}
     const RigLevelResult& lastRigsAnalysis() const noexcept {return lastRigs;}
+    const ChannelResult& lastChannelAnalysis() const noexcept {return lastChannel;}
     const MatrixResult& lastMatrixAnalysis() const noexcept {return lastMatrix;}
     const MicsResult& lastMicsAnalysis() const noexcept {return lastMics;}
     const WidthResult& lastWidthAnalysis() const noexcept {return lastWidth;}
@@ -1514,7 +1575,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }

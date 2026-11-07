@@ -185,7 +185,7 @@ public:
     // Message thread: Auto Set holds all gates open while it listens to the rig's noise.
     void setAutoSetGateBypass(bool bypass) noexcept {autoSetGateBypass.store(bypass,std::memory_order_relaxed);}
     // The native amp settings a routing context plays with (Auto Set renders candidates offline).
-    spectralforge::AmpNativeState autoSetAmpState(int context) const noexcept {return nativeAmps.read(context);}
+    spectralforge::AmpNativeState autoSetAmpState(int context,int channel=-1) const noexcept {return nativeAmps.read(context,channel);}
     spectralforge::PostNativeState autoSetPostState() const noexcept {return nativePost.read();}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}

@@ -69,7 +69,7 @@ void controllerBus() {
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
     const auto id=[](int c){return spectralforge::postNativeControlID(0,0,c);};
     std::mt19937 rng{161};const auto x=dynamicPlaying(48000,10,rng);
-    const Controller::Options busOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,true,false,false,false};
+    const Controller::Options busOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false};
     const auto full=runBus(busOnly,x);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::bus);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::finish} && !stepOf(full.status,P::finish) && step && step->changed && step->result.contains("Console VCA in"),
