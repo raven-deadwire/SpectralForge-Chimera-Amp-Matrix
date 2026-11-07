@@ -41,7 +41,7 @@ public:
         editButton(undoButton,"UNDO","undo");editButton(redoButton,"REDO","redo");
         addButton.setTooltip("Add a Bell band at 1 kHz, or double-click the graph at the frequency and gain you need.");
         deleteButton.setTooltip("Remove this band. BAND ON keeps a bypassed band available for editing.");
-        addButton.onClick=[this]{createBand(1000.f,0.f);};deleteButton.onClick=[this]{deleteSelectedBand();};
+        addButton.onClick=[this]{createBand(1000.f,0.f);};deleteButton.onClick=[this]{deleteSelection();};
         undoButton.onClick=[this]{applyHistory(false);};redoButton.onClick=[this]{applyHistory(true);};
         analyzerToggle.setTooltip("Run the selected EQ's live spectrum analyzer. Analysis does not change the sound.");
         inputToggle.setTooltip("Show the dashed input spectrum of this EQ, averaged by stereo power.");
@@ -135,7 +135,7 @@ public:
     int selectionCount() const noexcept {int n=0;for(auto m=selectionMask();m;m=uint16_t(m&(m-1)))++n;return n;}
     void toggleBandInSelection(int band) {
         if(band<0 || band>=graphicalEQBands || !isBandVisible(band))return;
-        groupMask=selectionMask();
+        endDrag();++selectionGeneration;groupMask=selectionMask();
         if((groupMask>>band)&1) {
             groupMask=uint16_t(groupMask&~(1u<<band));
             if(band==selected) {int next=-1;for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){next=b;break;}if(next>=0)selectBand(next);else groupMask=uint16_t(1u<<band);}
@@ -143,14 +143,14 @@ public:
         repaint();
     }
     void selectAllBands() {
-        groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))groupMask=uint16_t(groupMask|(1u<<b));
+        endDrag();++selectionGeneration;groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))groupMask=uint16_t(groupMask|(1u<<b));
         if(groupMask!=0 && (selected<0 || !isBandVisible(selected))){for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){selectBand(b);break;}}
         repaint();
     }
-    void collapseSelection(){groupMask=0;repaint();}
+    void collapseSelection(){endDrag();++selectionGeneration;groupMask=0;repaint();}
     // Bands whose drawn node lies inside area; add keeps the current group.
     void selectBandsIn(juce::Rectangle<float> area,bool add) {
-        uint16_t found=0;int first=-1;
+        ++selectionGeneration;uint16_t found=0;int first=-1;
         for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b) && area.contains(visibleNodePosition(b))){found=uint16_t(found|(1u<<b));if(first<0)first=b;}
         if(add){groupMask=uint16_t(selectionMask()|found);if((selected<0 || !isBandVisible(selected)) && first>=0)selectBand(first);}
         else if(found==0)groupMask=0; // An empty box keeps only the selected band.
@@ -489,9 +489,12 @@ public:
         if(event.mods.isPopupMenu()) {
             const int count=selectionCount();const uint16_t mask=selectionMask();
             juce::PopupMenu menu;menu.addItem(1,count>1?"Delete "+juce::String(count)+" Selected Bands":"Delete Band "+juce::String(closest+1));
-            const auto revision=editing.revision();juce::Component::SafePointer<GraphicalEQPanel> safe(this);
-            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe,closest,revision,mask](int result){
-                if(safe && result==1 && safe->editing.revision()==revision && safe->selected==closest && safe->selectionMask()==mask)safe->deleteSelection();
+            // Act only if nothing changed while the menu was open (a selection
+            // that changed and changed back still counts) and the panel shows.
+            const auto revision=editing.revision();const auto generation=selectionGeneration;juce::Component::SafePointer<GraphicalEQPanel> safe(this);
+            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe,closest,revision,mask,generation](int result){
+                if(safe && result==1 && safe->isShowing() && safe->editing.revision()==revision && safe->selectionGeneration==generation
+                   && safe->selected==closest && safe->selectionMask()==mask)safe->deleteSelection();
             });return;
         }
         if(!event.mods.isLeftButtonDown())return;
@@ -650,7 +653,7 @@ private:
     }
     void selectBand(int band) {
         cancelExternalInput();discardPendingNumericInput();
-        endDrag();selected=(band>=0 && band<graphicalEQBands && isBandVisible(band))?band:-1;
+        endDrag();++selectionGeneration;selected=(band>=0 && band<graphicalEQBands && isBandVisible(band))?band:-1;
         enabledAttachment.reset();typeAttachment.reset();for(auto& a:sliderAttachments)a.reset();
         selector.setSelectedId(selected+1,juce::dontSendNotification);
         if(selected<0) {
@@ -762,7 +765,10 @@ private:
             lastOccupiedMask=mask;groupMask=uint16_t(groupMask&mask);selector.clear(juce::dontSendNotification);
             for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))selector.addItem("Band "+juce::String(b+1),b+1);
             int next=selected;
-            if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
+            // The selected band went away: pass selection to a remaining group
+            // member, so a band outside the group never joins it.
+            if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands;++b)if(((groupMask>>b)&1) && isBandVisible(b)){next=b;break;}}
+            if(next<0){groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
             selectBand(next);repaint();
         }
         updateBandEnablement();updateHistoryControls();
@@ -923,7 +929,7 @@ private:
     DragAxis dragAxis{DragAxis::free};
     bool dragAltDown{};
     juce::Point<float> dragAnchor,dragPoint,lastPointer;
-    uint16_t groupMask{};bool groupDrag{},marqueeActive{},marqueeAdd{};juce::Point<float> marqueeStart,marqueeEnd;
+    uint64_t selectionGeneration{};uint16_t groupMask{};bool groupDrag{},marqueeActive{},marqueeAdd{};juce::Point<float> marqueeStart,marqueeEnd;
     struct GroupStart {int band{};float frequency{},gain{};bool hasGain{};};
     std::array<GroupStart,graphicalEQBands> groupStart{};int groupStartCount{};
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
