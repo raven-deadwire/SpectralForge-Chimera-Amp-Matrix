@@ -22,6 +22,18 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("chimera-obs", "en-US")
 
@@ -506,7 +518,27 @@ obs_audio_data* filterAudio(void* data, obs_audio_data* audio) {
 }
 }
 
+namespace {
+// OBS 31's obs_shutdown unloads the modules before it destroys the sources still alive
+// (one something held past clearing the scene: "Not all sources were cleared"), so such a
+// source's Chimera filter would be destroyed in an unloaded module (SIGSEGV on the macOS
+// CI runner). Keep this module loaded until the process exits.
+void pinModule() {
+#ifdef _WIN32
+    HMODULE self{};
+    const bool pinned = GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
+                                           reinterpret_cast<LPCWSTR>(&pinModule), &self) != 0;
+#else
+    Dl_info self{};
+    const bool pinned = dladdr(reinterpret_cast<void*>(&pinModule), &self) != 0 && self.dli_fname != nullptr
+                        && dlopen(self.dli_fname, RTLD_NOW | RTLD_NODELETE) != nullptr;
+#endif
+    if (!pinned) blog(LOG_WARNING, "[chimera-obs] could not keep the module loaded until OBS exits");
+}
+}
+
 bool obs_module_load(void) {
+    pinModule();
     obs_source_info info{};
     info.id = filterId;
     info.type = OBS_SOURCE_TYPE_FILTER;
