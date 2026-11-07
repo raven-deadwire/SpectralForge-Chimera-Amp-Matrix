@@ -1030,15 +1030,17 @@ private:
     // The Matrix pass: phase 21 (lane polarity), then phase 17 (MID and HIGH
     // levels), which hears the lanes at the polarity phase 21 set.
     void finishMatrix(const std::vector<float>& low,const std::vector<float>& midIn,const std::vector<float>& highIn) {
-        std::vector<float> mid=midIn,high=highIn;
+        // Copy a lane only when phase 21 flips it.
+        std::vector<float> flippedMid,flippedHigh;
+        const std::vector<float>* mid=&midIn;const std::vector<float>* high=&highIn;
         if(runOptions.polarity) {
             const auto flips=polarityStep({&low,&midIn,&highIn},{1.f,1.f,1.f},{"MID","HIGH"});
             if(flips.size()==2) {
-                if(flips[0])for(auto& v:mid)v=-v;
-                if(flips[1])for(auto& v:high)v=-v;
+                if(flips[0]){flippedMid=midIn;for(auto& v:flippedMid)v=-v;mid=&flippedMid;}
+                if(flips[1]){flippedHigh=highIn;for(auto& v:flippedHigh)v=-v;high=&flippedHigh;}
             }
         }
-        if(runOptions.matrix)matrixStep(low,mid,high);
+        if(runOptions.matrix)matrixStep(low,*mid,*high);
         nextPass();
     }
     void matrixStep(const std::vector<float>& low,const std::vector<float>& mid,const std::vector<float>& high) {
