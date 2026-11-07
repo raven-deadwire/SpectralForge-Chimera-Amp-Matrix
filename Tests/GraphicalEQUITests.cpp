@@ -674,8 +674,8 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
 
     // A member at the range edge stops there; the others keep moving. HP has no gain.
     check(key('a',command),"Ctrl/Cmd+A failed");const auto from=panel.visibleNodePosition(0);
-    const juce::Point<float> far{plot.getWidth()*std::log(4.f)/std::log(1000.f),-plot.getHeight()*2.f/48.f};
-    panel.mouseDown(mouse(panel,from,from,false));panel.mouseDrag(mouse(panel,from+far*.5f,from,true));panel.mouseDrag(mouse(panel,from+far,from,true));panel.mouseUp(mouse(panel,from+far,from,true));
+    const juce::Point<float> reach{plot.getWidth()*std::log(4.f)/std::log(1000.f),-plot.getHeight()*2.f/48.f};
+    panel.mouseDown(mouse(panel,from,from,false));panel.mouseDrag(mouse(panel,from+reach*.5f,from,true));panel.mouseDrag(mouse(panel,from+reach,from,true));panel.mouseUp(mouse(panel,from+reach,from,true));
     closeTo(get(processor,eqID(bank,3,"frequency")),20000,1,"Group drag did not stop a member at 20 kHz");
     closeTo(get(processor,eqID(bank,0,"frequency")),400,1.6f,"Group drag did not keep moving the others");
     closeTo(get(processor,eqID(bank,3,"gain")),0,.01f,"Group drag changed the gain of a filter without gain");
