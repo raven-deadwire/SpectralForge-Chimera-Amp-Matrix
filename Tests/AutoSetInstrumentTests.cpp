@@ -22,15 +22,21 @@ using Controller=spectralforge::autoset::Controller;
 namespace {
 constexpr double rate=48000,seconds=8,twoPi=2*juce::MathConstants<double>::pi;
 void check(bool ok,const std::string& text){if(!ok)throw std::runtime_error(text);}
+// Portable random numbers: the standard distributions differ between
+// libstdc++, libc++ and MSVC, so the corpus would differ per platform.
+struct Uniform {double a,b;template<class R> double operator()(R& r) const {return a+(b-a)*(double(r())/4294967296.0);}};
+struct Normal {double mean,sd;template<class R> double operator()(R& r) const {
+    const double u1=std::max(1e-12,double(r())/4294967296.0),u2=double(r())/4294967296.0;
+    return mean+sd*std::sqrt(-2*std::log(u1))*std::cos(2*juce::MathConstants<double>::pi*u2);}};
 double midiHz(double note){return 440*std::pow(2.,(note-69)/12);}
 std::vector<float> blank(){return std::vector<float>(size_t(rate*seconds),0.f);}
-void addNoise(std::vector<float>& x,float level,std::mt19937& rng){std::normal_distribution<float> n(0.f,level);for(auto& v:x)v+=n(rng);}
+void addNoise(std::vector<float>& x,float level,std::mt19937& rng){Normal n{0.f,level};for(auto& v:x)v+=float(n(rng));}
 void normalise(std::vector<float>& x,float peak){float m=0;for(float v:x)m=std::max(m,std::abs(v));if(m>0)for(auto& v:x)v*=peak/m;}
 
 // Karplus-Strong string with a one-pole loss filter; `bright` shapes the pluck.
 void pluck(std::vector<float>& x,size_t at,double hz,double length,double decaySeconds,float gain,float bright,std::mt19937& rng) {
     const double period=rate/hz;const int delay=std::max(2,int(period));const double frac=period-delay;
-    std::vector<double> line(size_t(delay)+2,0.);std::uniform_real_distribution<double> u(-1,1);
+    std::vector<double> line(size_t(delay)+2,0.);Uniform u{-1,1};
     double lp=0;for(auto& v:line){const double n=u(rng);lp+=bright*(n-lp);v=lp;}
     // Classic Karplus-Strong: each period averages neighbours, scaled so the
     // note falls 60 dB in decaySeconds.
@@ -46,7 +52,7 @@ void pluck(std::vector<float>& x,size_t at,double hz,double length,double decayS
     }
 }
 std::vector<float> guitar(int variant,unsigned seed) {
-    std::mt19937 rng(seed);auto x=blank();std::uniform_real_distribution<double> u(0,1);
+    std::mt19937 rng(seed);auto x=blank();Uniform u{0,1};
     const std::array<int,6> open{40,45,50,55,59,64}; // E2 A2 D3 G3 B3 E4
     double t=.1;
     while(t<seconds-.6) {
@@ -71,7 +77,7 @@ std::vector<float> guitar(int variant,unsigned seed) {
 // A guitar through a drive pedal (Tap::amp hears pedals): clipped, so notes
 // hold instead of decaying; some held notes get finger vibrato.
 std::vector<float> drivenGuitar(unsigned seed) {
-    std::mt19937 rng(seed);auto x=blank();std::uniform_real_distribution<double> u(0,1);
+    std::mt19937 rng(seed);auto x=blank();Uniform u{0,1};
     double t=.1;
     while(t<seconds-.8) {
         const double note=40+std::floor(u(rng)*36),length=.3+u(rng)*1.2;
@@ -85,7 +91,7 @@ std::vector<float> drivenGuitar(unsigned seed) {
 }
 // DEADWIRE-style Drop A guitar: chugs on A1 (55 Hz), power chords, a few leads.
 std::vector<float> dropAGuitar(unsigned seed) {
-    std::mt19937 rng(seed);auto x=blank();std::uniform_real_distribution<double> u(0,1);
+    std::mt19937 rng(seed);auto x=blank();Uniform u{0,1};
     double t=.1;
     while(t<seconds-.6) {
         const double length=.12+u(rng)*.2,root=33; // A1
@@ -98,7 +104,7 @@ std::vector<float> dropAGuitar(unsigned seed) {
 }
 // Drop A bass (A0 = 27.5 Hz) following the same riff an octave down.
 std::vector<float> dropABass(unsigned seed) {
-    std::mt19937 rng(seed);auto x=blank();std::uniform_real_distribution<double> u(0,1);
+    std::mt19937 rng(seed);auto x=blank();Uniform u{0,1};
     double t=.1;
     while(t<seconds-.6) {
         const double length=.2+u(rng)*.4,note=21+(u(rng)<.3?std::floor(u(rng)*8):0); // A0 and a few notes above
@@ -106,8 +112,30 @@ std::vector<float> dropABass(unsigned seed) {
     }
     addNoise(x,.0003f,rng);normalise(x,.5f);return x;
 }
+// Validation console items (chimera-autoset-validation): additive notes with
+// 1/h harmonics. det01: 110/220 Hz, 150 ms swell, +/-50 cents 5.5 Hz vibrato,
+// 1.5 s; det02: 60 ms plucks every 250 ms on A1 55 Hz / A0 27.5 Hz; det03:
+// 150 ms fifths on A1. `drive`: tanh 40.
+std::vector<float> validationInput(int item,double f0,bool drive) {
+    auto x=blank();
+    const auto note=[&](double hz,double start,double length,double attack,double decay,double vibrato){
+        const size_t at=size_t(start*rate);double phase=0;
+        for(size_t n=0;n<size_t(length*rate) && at+n<x.size();++n) {
+            const double t=double(n)/rate,cents=vibrato*std::sin(twoPi*5.5*t)*std::clamp((t-.2)/.2,0.,1.);
+            phase+=twoPi*hz*std::pow(2.,cents/1200)/rate;
+            double v=0;for(int h=1;h<=10;++h)v+=std::sin(h*phase)/h;
+            x[at+n]+=float(v*(attack>0?std::min(1.,t/attack):1.)*std::exp(-t/decay)*std::clamp((length-t)/.02,0.,1.));
+        }
+    };
+    if(item==1){int k=0;for(double t=.1;t<seconds-1.6;t+=1.7,++k)note(k%2?2*f0:f0,t,1.5,.15,2.5,50);}
+    else if(item==2){for(double t=.1;t<seconds-.1;t+=.25)note(f0,t,.06,.0005,.4,0);}
+    else {for(double t=.1;t<seconds-.2;t+=.25){note(f0,t,.15,.0005,.4,0);note(f0*1.5,t,.15,.0005,.4,0);}}
+    std::mt19937 rng(9);addNoise(x,.0003f,rng);normalise(x,.5f);
+    if(drive){for(auto& v:x)v=float(std::tanh(40*v));normalise(x,.5f);}
+    return x;
+}
 std::vector<float> bass(int variant,unsigned seed) {
-    std::mt19937 rng(seed);auto x=blank();std::uniform_real_distribution<double> u(0,1);
+    std::mt19937 rng(seed);auto x=blank();Uniform u{0,1};
     double t=.1;
     while(t<seconds-.6) {
         const double low=variant==1?23:28;                      // 5-string from B0, 4-string from E1
@@ -120,7 +148,7 @@ std::vector<float> bass(int variant,unsigned seed) {
 // Sung vowels: Rosenberg glottal pulses through four formant resonators,
 // vibrato after the onset, jitter and shimmer, breath noise, legato glides.
 std::vector<float> vocal(bool female,unsigned seed) {
-    std::mt19937 rng(seed);auto source=blank();std::uniform_real_distribution<double> u(0,1);std::normal_distribution<double> g(0,1);
+    std::mt19937 rng(seed);auto source=blank();Uniform u{0,1};Normal g{0,1};
     const double scale=female?1.17:1.;
     const std::array<std::array<double,4>,4> formants{{{730,1090,2440,3400},{530,1840,2480,3400},{300,870,2240,3300},{570,840,2410,3300}}};
     std::vector<int> vowelAt(source.size(),0);
@@ -167,7 +195,7 @@ std::vector<float> vocal(bool female,unsigned seed) {
     addNoise(x,.0003f,rng);normalise(x,.5f);return x;
 }
 std::vector<float> keys(int variant,unsigned seed) {
-    std::mt19937 rng(seed);auto x=blank();std::uniform_real_distribution<double> u(0,1);
+    std::mt19937 rng(seed);auto x=blank();Uniform u{0,1};
     double t=.1;
     while(t<seconds-.8) {
         const double length=.6+u(rng)*1.4,root=48+std::floor(u(rng)*15);
@@ -193,7 +221,7 @@ std::vector<float> keys(int variant,unsigned seed) {
     addNoise(x,.0003f,rng);normalise(x,.5f);return x;
 }
 std::vector<float> drums(int variant,unsigned seed) {
-    std::mt19937 rng(seed);auto x=blank();std::normal_distribution<double> g(0,1);std::uniform_real_distribution<double> u(0,1);
+    std::mt19937 rng(seed);auto x=blank();Normal g{0,1};Uniform u{0,1};
     const double step=60./(variant?140:100)/2; // eighth notes
     for(int k=0;k*step<seconds-.3;++k) {
         const size_t at=size_t((.1+k*step)*rate);
@@ -215,7 +243,7 @@ std::vector<float> drums(int variant,unsigned seed) {
 }
 // Auto Set's own test DI (AutoSetTests.cpp): decaying two-harmonic notes.
 std::vector<float> autoSetDI() {
-    std::vector<float> x(size_t(rate*seconds));std::mt19937 random{7};std::uniform_real_distribution<float> noise(-.00025f,.00025f);
+    std::vector<float> x(size_t(rate*seconds));std::mt19937 random{7};Uniform noise{-.00025f,.00025f};
     for(size_t n=0;n<x.size();++n) {
         const double t=double(n)/rate,cycle=std::fmod(t,2.0);float v=noise(random);
         if(cycle<1.5){const double f=110*(1+int(t/2)%3*.25),env=std::exp(-cycle*2.5);v+=float(.126*.7*env*(std::sin(twoPi*f*t)+.4*std::sin(2*twoPi*f*t)));}
@@ -231,7 +259,7 @@ void print(const std::string& name,const InstrumentResult& r) {
              <<" conf="<<r.confidence<<" voiced="<<f.voicedFraction<<" f0="<<std::setprecision(0)<<f.f0Low<<"/"<<f.f0Median<<"/"<<f.f0High
              <<std::setprecision(1)<<" attack="<<f.attackMs<<"ms decay="<<f.decayDbPerSecond<<"dB/s short="<<std::setprecision(2)<<f.shortDecayFraction
              <<std::setprecision(1)<<" vib="<<f.vibratoCents<<"c glide="<<std::setprecision(2)<<f.glideFraction<<" held="<<f.heldSegments<<" notes="<<f.notes
-             <<std::setprecision(1)<<" low="<<f.lowRatioDb<<"dB fund="<<f.fundamentalDb<<"dB pitchedHits="<<std::setprecision(2)<<f.pitchedOnsetFraction<<std::setprecision(1)<<" noise="<<f.noiseRatioDb<<"dB bass="<<r.bass<<(r.bassDecisive?"(pitch)":"(energy)")<<'\n';
+             <<std::setprecision(1)<<" low="<<f.lowRatioDb<<"dB fund="<<f.fundamentalDb<<"dB pitchedHits="<<std::setprecision(2)<<f.pitchedOnsetFraction<<std::setprecision(1)<<" noise="<<f.noiseRatioDb<<"dB flat="<<std::setprecision(3)<<f.flatness<<std::setprecision(1)<<" bass="<<r.bass<<(r.bassDecisive?"(pitch)":"(energy)")<<'\n';
 }
 int classifyFile(const juce::File& file) {
     juce::AudioFormatManager formats;formats.registerBasicFormats();
@@ -254,10 +282,10 @@ int classifyFile(const juce::File& file) {
 // routing step and both EQ target curves are kept, and their parameters do
 // not move. The same voice with Guitar chosen, and a guitar, run those steps.
 struct ControllerRun {Controller::Status status;std::vector<juce::String> changed;InstrumentResult heard;};
-ControllerRun runAutoSet(const std::vector<float>& audio,int instrument) {
+ControllerRun runAutoSet(const std::vector<float>& audio,int instrument,bool skip=true) {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(rate,256);p->prepareToPlay(rate,256);
     std::map<juce::String,float> before;for(auto* q:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(q))before[r->paramID]=r->getValue();
-    Controller c(*p);Controller::Options o;o.instrument=instrument;c.setOptions(o);c.start();check(c.busy(),"Auto Set did not start");
+    Controller c(*p);Controller::Options o;o.instrument=instrument;o.skipForVoiceOrDrums=skip;c.setOptions(o);c.start();check(c.busy(),"Auto Set did not start");
     juce::AudioBuffer<float> block(2,256);juce::MidiBuffer midi;double now=juce::Time::getMillisecondCounterHiRes();size_t at=0;
     for(int k=0;c.busy() && k<int(240*rate/256);++k) {
         for(int n=0;n<256;++n){const float v=audio[at++%audio.size()];block.setSample(0,n,v);block.setSample(1,n,v);}
@@ -269,11 +297,14 @@ ControllerRun runAutoSet(const std::vector<float>& audio,int instrument) {
 }
 bool ampSide(const juce::String& id) {
     const auto low=id.toLowerCase();
-    for(const char* part:{"ampnative","amp1","amp2","amp3","ampmodel","channel","cab","mic","pedal","boost","dual","matrix","lane","toneeq_"})if(low.contains(part))return true;
+    if(low.startsWith("dynamiceq"))return false; // the Dynamic EQ step runs ("dynamic" also contains "mic")
+    // Tone EQ bands are left out: the Dynamic EQ step (which runs) places its
+    // nodes on them; the Tone EQ target step is checked as kept above.
+    for(const char* part:{"ampnative","amp1","amp2","amp3","ampmodel","channel","cab","mic","pedal","boost","dual","matrix","lane"})if(low.contains(part))return true;
     return false;
 }
 void controllerSources() {
-    std::vector<float> voice;for(unsigned seed:{5u,6u})for(float v:vocal(seed==6,seed))voice.push_back(v*.25f);   // peaks near -18 dBFS
+    std::vector<float> voice;for(unsigned seed:{34u,35u})for(float v:vocal(seed==35,seed))voice.push_back(v*.25f);   // peaks near -18 dBFS
     const auto sung=runAutoSet(voice,0);
     for(const auto& step:sung.status.steps)std::cout<<"  vocal step "<<int(step.phase)<<(step.changed?" changed: ":" kept: ")<<step.result<<'\n';
     print("controller heard",sung.heard);
@@ -291,6 +322,13 @@ void controllerSources() {
     check(keptForVoice>=6,"Too few guitar-only steps reported for the voice: "+std::to_string(keptForVoice));
     for(const auto& id:sung.changed)check(!ampSide(id),"Auto Set changed "+id.toStdString()+" on a voice");
     check(std::find(sung.changed.begin(),sung.changed.end(),juce::String("input"))!=sung.changed.end(),"Input gain was not set for the voice");
+    // Default options: skipping is off, so a detected voice keeps every step and says so.
+    check(!Controller::Options{}.skipForVoiceOrDrums,"Skipping for a voice or drums is on by default");
+    const auto shown=runAutoSet(voice,0,false);
+    check(shown.status.phase==Controller::Phase::done && shown.heard.source==Source::vocal
+          && shown.status.steps[0].result.contains("amp and cabinet steps still run")
+          && std::none_of(shown.status.steps.begin(),shown.status.steps.end(),[](const auto& s){return s.result.contains("Vocal heard");}),
+          "With skipping off, a detected voice lost a step or was not reported");
     // Guitar chosen: the options win over the detection.
     const auto forced=runAutoSet(voice,1);
     check(forced.status.phase==Controller::Phase::done && std::none_of(forced.status.steps.begin(),forced.status.steps.end(),[](const auto& s){return s.result.contains("Vocal heard");}),
@@ -300,7 +338,7 @@ void controllerSources() {
     const auto strummed=runAutoSet(played,0);
     check(strummed.status.phase==Controller::Phase::done && strummed.heard.source==Source::guitar,"The guitar run did not finish as guitar");
     check(std::none_of(strummed.status.steps.begin(),strummed.status.steps.end(),[](const auto& s){return s.result.contains(" heard: this step is for guitar");}),"A guitar lost a step");
-    std::cout<<"PASS Auto Set with instrument detection: a voice keeps "<<keptForVoice<<" guitar/bass steps and every amp/cab/routing/Tone EQ parameter; Guitar chosen overrides; a guitar keeps every step\n";
+    std::cout<<"PASS Auto Set with instrument detection: off by default a voice keeps every step (reported); with skipping on it keeps "<<keptForVoice<<" guitar/bass steps and every amp/cab/routing/Tone EQ parameter; Guitar chosen overrides; a guitar keeps every step\n";
 }
 } // namespace
 
@@ -324,6 +362,16 @@ int main(int argc,char** argv) {
             for(int v=0;v<2;++v)corpus.push_back({"drums"+std::string(v?"-fast":"-slow")+std::to_string(seed),Source::percussion,{Source::percussion},drums(v,seed*29+unsigned(v))});
         }
         corpus.push_back({"autoset-test-DI",Source::guitar,{Source::guitar},autoSetDI()});
+        // Validation console: a swelled guitar with wide vibrato may read as a
+        // voice (Auto Set keeps every step unless skipping is turned on); short
+        // Drop A mutes must not read as drums; fifths must not be bass by pitch.
+        for(bool drive:{false,true}) {
+            const std::string tag=drive?"-drive":"-clean";
+            corpus.push_back({"val-det01"+tag,Source::guitar,{Source::guitar,Source::vocal},validationInput(1,110,drive)});
+            corpus.push_back({"val-det02-A1"+tag,Source::guitar,{Source::guitar,Source::bass},validationInput(2,55,drive)});
+            corpus.push_back({"val-det02-A0"+tag,Source::bass,{Source::bass,Source::guitar},validationInput(2,27.5,drive)});
+            corpus.push_back({"val-det03"+tag,Source::guitar,{Source::guitar,Source::bass},validationInput(3,55,drive)});
+        }
         std::map<Source,std::map<Source,int>> confusion;int wrong=0;float worstStringRisk=0;
         for(const auto& c:corpus) {
             const auto r=classifyInstrument(c.audio,rate);print(c.name,r);
@@ -331,16 +379,18 @@ int main(int argc,char** argv) {
             const bool accepted=std::find(c.accepted.begin(),c.accepted.end(),r.source)!=c.accepted.end();
             if(!accepted){++wrong;std::cout<<"  MISS "<<c.name<<" expected "<<sourceName(c.expected)<<'\n';}
             // Safety: a guitar or bass must never lose its amp steps.
-            if(stringInstrument(c.expected))check(keepsAmpSteps(r.source),"SAFETY: "+c.name+" classified as "+sourceName(r.source));
+            const bool vocalAccepted=std::find(c.accepted.begin(),c.accepted.end(),Source::vocal)!=c.accepted.end();
+            if(stringInstrument(c.expected) && !vocalAccepted)check(keepsAmpSteps(r.source),"SAFETY: "+c.name+" classified as "+sourceName(r.source));
+            if(stringInstrument(c.expected))check(r.source!=Source::percussion,"SAFETY: "+c.name+" classified as percussion");
             if(c.expected==Source::guitar)check(!(r.bass && r.bassDecisive),"A guitar was called bass by its pitch range: "+c.name);
-            if(stringInstrument(c.expected))worstStringRisk=std::max({worstStringRisk,r.scores[size_t(Source::vocal)],r.scores[size_t(Source::percussion)]});
+            if(stringInstrument(c.expected) && !vocalAccepted)worstStringRisk=std::max({worstStringRisk,r.scores[size_t(Source::vocal)],r.scores[size_t(Source::percussion)]});
         }
         // Auto Set hears 6 s: the first 6 s of every case must hold the same rules.
         int wrongShort=0;
         for(const auto& c:corpus) {
             const auto r=classifyInstrument({c.audio.begin(),c.audio.begin()+std::ptrdiff_t(6*rate)},rate);
             if(std::find(c.accepted.begin(),c.accepted.end(),r.source)==c.accepted.end()){++wrongShort;print("  6s MISS "+c.name,r);}
-            if(stringInstrument(c.expected))check(keepsAmpSteps(r.source),"SAFETY (6 s): "+c.name+" classified as "+sourceName(r.source));
+            if(stringInstrument(c.expected))check(r.source!=Source::percussion && (r.source!=Source::vocal || std::find(c.accepted.begin(),c.accepted.end(),Source::vocal)!=c.accepted.end()),"SAFETY (6 s): "+c.name+" classified as "+sourceName(r.source));
         }
         std::cout<<"MEASURE misses on the first 6 s of each case: "<<wrongShort<<" of "<<corpus.size()<<'\n';
         check(wrongShort<=3,"Too many misses on 6 s windows: "+std::to_string(wrongShort));

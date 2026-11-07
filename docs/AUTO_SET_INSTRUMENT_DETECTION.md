@@ -31,10 +31,15 @@ Rules (`classifyInstrument`):
   wavers (vibrato or jitter of 4–9+ cents) or glides; pitch 70 Hz–1.1 kHz.
 - **Keys / synth:** notes that hold at a steady pitch with a clean 3–8 kHz
   band.
-- **Percussion:** most hits unpitched and gone within 250 ms.
+- **Percussion:** most hits unpitched, gone within 250 ms, and broadband
+  (spectral flatness 200 Hz–8 kHz: synthetic drums 0.44–0.48, every pitched
+  source 0.22 or less, clipped or not). Mutes too short for the pitch tracker
+  (60 ms on A1 or A0) are line spectra and are not drums.
 - Otherwise **guitar or bass**:
-  - **Bass:** notes below 40 Hz. A Drop A guitar stops at A1 = 55 Hz and an
-    8-string in drop E at 41 Hz.
+  - **Bass:** notes below 40 Hz whose fundamental sounds (−25 dB or more of
+    the frame). A Drop A guitar stops at A1 = 55 Hz and an 8-string in drop E
+    at 41 Hz. A clipped fifth on A1 makes a real 27.5 Hz difference tone near
+    −37 dB, so it does not count.
   - **Guitar:** median at 220 Hz or above, or 90th percentile at 600 Hz or
     above.
   - **Between those:** the old low-energy cue decides, exactly as before. A
@@ -47,8 +52,14 @@ Rules (`classifyInstrument`):
 
 - The input step says what it heard, e.g. `heard Vocal (detected, 94%)`, and
   the status line shows it during the input, Tone EQ and multiband passes.
-- **Vocal or Percussion** (with *Instrument: detected*), Auto Set skips the
-  steps made for guitar and bass. Each one is reported as
+- **Skipping is opt-in (off by default).** With *Instrument: detected* and
+  the options' **Skip amp and cabinet steps for a detected voice or drums**
+  turned on, a Vocal or Percussion verdict makes Auto Set skip the steps made
+  for guitar and bass. With it off, the input step says what was heard and
+  that the amp and cabinet steps still run. Reason: a swelled guitar with wide
+  vibrato reads as a voice (validation item DET-01), and a wrong skip leaves a
+  guitar's amp and cabinet untouched.
+- **When skipping is on**, Auto Set skips the steps made for guitar and bass. Each one is reported as
   `kept (Vocal heard: this step is for guitar and bass; choose Guitar or Bass
   in the options to run it)`:
   - boost pedal, amp channel, amp gain/tone, presence/resonance;
@@ -131,3 +142,15 @@ the whole file. Use DI recordings (or the signal going into the amp).
   options. Detection does not replace that choice there.
 - **Detection uses the input pass only (6 s).** If it ran with no audio on the
   amp tap, the result is unknown and Auto Set behaves as before.
+
+## Validation console items (2026-11-07)
+
+Reproduced with `--classify` and added to the corpus (`val-det*`):
+
+| Item | Input | Before | Now |
+|---|---|---|---|
+| DET-01 | 110/220 Hz, 150 ms swell, ±50 cents 5.5 Hz vibrato | clean read Vocal | still Vocal when clean (Guitar with drive); skipping is now opt-in, so every step still runs by default |
+| DET-02 | 60 ms plucks every 250 ms on A1 55 Hz / A0 27.5 Hz, clean and tanh 40 | Percussion (all four) | Bass by the low-end cue (flatness 0.001–0.08 < drums' 0.44) |
+| DET-03 | 150 ms fifths on A1, clean and tanh 40 | drive read Bass *by pitch* (27.5 Hz, −36.5 dB) | low-end cue only (pitch call needs −25 dB) |
+
+DI-01 (real Drop A takes) is still open: no recording is registered.

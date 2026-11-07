@@ -89,7 +89,7 @@ public:
     // mics aligns the Classic cabinet's two blended mics and sets their blend, in a pass of its own.
     // rigs matches the Dual rig 2 level to rig 1 before the Dual blend, in the Dual pass.
     // channel picks the Classic head's channel before the amp step, in the amp pass.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{true};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{true};bool skipForVoiceOrDrums{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -407,7 +407,9 @@ private:
     }
     // Detected as a voice or drums (and not overridden in the options): the
     // amp, boost, cabinet, routing and guitar/bass EQ target steps stay out.
-    bool neutralSource() const noexcept {return runOptions.instrument==0 && lastInstrument.features.playing && !keepsAmpSteps(lastInstrument.source);}
+    // Off by default (a swelled guitar with wide vibrato can read as a voice):
+    // the options' "Skip amp and cabinet steps for a detected voice or drums" turns it on.
+    bool neutralSource() const noexcept {return runOptions.instrument==0 && runOptions.skipForVoiceOrDrums && lastInstrument.features.playing && !keepsAmpSteps(lastInstrument.source);}
     juce::String neutralWhy() const {return juce::String(sourceName(lastInstrument.source))+" heard: this step is for guitar and bass; choose Guitar or Bass in the options to run it";}
     void beginPass(size_t index,int settle) {
         auto& capture=processor.autoSetCapture();
@@ -530,6 +532,8 @@ private:
         } else {summary+=" | Gate unchanged (no pause heard)";result+="; gate kept (no pause heard)";}
         detectInstrument();
         if(lastInstrument.features.playing)result+="; heard "+instrumentText();
+        if(runOptions.instrument==0 && !runOptions.skipForVoiceOrDrums && lastInstrument.features.playing && !keepsAmpSteps(lastInstrument.source))
+            result+=" (amp and cabinet steps still run; the options can skip them for a voice or drums)";
         addStep(result,true);
         if(neutralSource())leaveGuitarSteps();
         processor.setAutoSetGateBypass(false);

@@ -43,6 +43,7 @@ struct InstrumentFeatures {
     float lowRatioDb{-120.f},noiseRatioDb{-120.f};        // <71 Hz vs body; 3-8 kHz noise floor vs body
     float fundamentalDb{-120.f};                          // median share of a pitched frame's power at its own pitch (dB)
     float pitchedOnsetFraction{};                         // hits whose first 100 ms are pitched
+    float flatness{};                                     // spectral flatness 200 Hz-8 kHz while playing (noise ~1, notes ~0)
     int notes{},heldSegments{};
 };
 struct InstrumentResult {
@@ -243,7 +244,7 @@ inline InstrumentResult classifyInstrument(const std::vector<float>& samples,dou
         juce::dsp::FFT fft(order);std::vector<float> buffer(static_cast<size_t>(2*size)),window(static_cast<size_t>(size));
         for(int n=0;n<size;++n)window[size_t(n)]=float(.5-.5*std::cos(2*juce::MathConstants<double>::pi*n/size));
         const auto bin=[&](double hz){return std::clamp(int(hz*size/rate),1,size/2);};
-        double low=0,body=0,noise=0;int used=0;
+        double low=0,body=0,noise=0,flat=0;int used=0;
         for(size_t start=0;start+size_t(size)<=samples.size();start+=size_t(size/2)) {
             double e=0;for(int n=0;n<size;++n){const float s=samples[start+size_t(n)];e+=double(s)*s;buffer[size_t(n)]=s*window[size_t(n)];}
             if(dbOf(e/size)<loud-15.f)continue;
@@ -253,9 +254,14 @@ inline InstrumentResult classifyInstrument(const std::vector<float>& samples,dou
             // Noise: the 3-8 kHz band's floor (its 20th-percentile bin), which harmonics do not fill.
             std::vector<float> band;for(int k=bin(3000);k<bin(std::min(8000.,rate*.45));++k)band.push_back(buffer[size_t(k)]*buffer[size_t(k)]);
             noise+=double(quantile(band,.2f))*double(band.size());
+            {   // Flatness: geometric over arithmetic mean of the power, 200 Hz-8 kHz.
+                double logSum=0,sum=0;int count=0;
+                for(int k=bin(200);k<bin(std::min(8000.,rate*.45));++k){const double p=double(buffer[size_t(k)])*buffer[size_t(k)]+1e-20;logSum+=std::log(p);sum+=p;++count;}
+                if(count>0)flat+=std::exp(logSum/count)/(sum/count);
+            }
             ++used;
         }
-        if(used>0){f.lowRatioDb=dbOf(low)-dbOf(body);f.noiseRatioDb=dbOf(noise)-dbOf(body);}
+        if(used>0){f.lowRatioDb=dbOf(low)-dbOf(body);f.noiseRatioDb=dbOf(noise)-dbOf(body);f.flatness=float(flat/used);}
     }
     // ---- Guitar or bass (also the answer for the other classes when unsure).
     // Pitch settles it only at the ends: notes below 40 Hz are a bass (a Drop A
@@ -266,8 +272,12 @@ inline InstrumentResult classifyInstrument(const std::vector<float>& samples,dou
     // options for down-tuned guitars and bass.
     // A chord's period gives a low "virtual" pitch with no energy there: trust
     // the pitch range only when the median pitch is actually sounding.
-    const bool pitched=voicedHz.size()>=30 && f.fundamentalDb>-40.f; // notes read -20..0 dB, chords -60 dB or less
-    if(pitched && f.f0Low<40.f){r.bass=true;r.bassDecisive=true;}
+    // Pitch is trusted when its fundamental sounds: notes read -23..0 dB, clean
+    // chords -55 dB or less; a clipped fifth makes a real difference tone near
+    // -37 dB, so the bass call by pitch needs -25 dB.
+    const bool pitched=voicedHz.size()>=30 && f.fundamentalDb>-40.f;
+    const bool lowPitchSounds=pitched && f.fundamentalDb>-25.f;
+    if(lowPitchSounds && f.f0Low<40.f){r.bass=true;r.bassDecisive=true;}
     else if(pitched && (f.f0Median>=220.f || f.f0High>=600.f)){r.bass=false;r.bassDecisive=true;}
     else r.bass=f.lowRatioDb>-12.f;
     // ---- Class scores (each a product of the class's cues).
@@ -285,8 +295,10 @@ inline InstrumentResult classifyInstrument(const std::vector<float>& samples,dou
     s[size_t(Source::vocal)]=sustained*slowAttack*std::min(1.f,vocalPitch)*voiced*vocalRange*enoughHeld;
     // Clean keys leave the 3-8 kHz floor empty; a clipped (driven) guitar fills it.
     s[size_t(Source::keys)]=sustained*steadyPitch*voiced*enoughHeld*(1.f-ramp(f.noiseRatioDb,-45.f,-35.f));
-    // Drums: most hits unpitched and gone within 250 ms (a palm-muted chug is pitched).
-    const float percussive=(1.f-ramp(f.pitchedOnsetFraction,.3f,.6f))*ramp(f.shortDecayFraction,.5f,.75f);
+    // Drums: most hits unpitched, gone within 250 ms, and broadband (snare and
+    // cymbals: flatness 0.44+). A mute too short to track (60 ms on A1/A0) is
+    // still a line spectrum (0.22 or less, clipped or not), so it is not drums.
+    const float percussive=(1.f-ramp(f.pitchedOnsetFraction,.3f,.6f))*ramp(f.shortDecayFraction,.5f,.75f)*ramp(f.flatness,.3f,.4f);
     s[size_t(Source::percussion)]=percussive*ramp(float(f.notes),4.f,8.f);
     const float stringScore=std::max(plucked,1.f-std::max({s[size_t(Source::vocal)],s[size_t(Source::keys)],s[size_t(Source::percussion)]}))
                             *(1.f-unvoiced*.5f)*(1.f-.6f*percussive);
