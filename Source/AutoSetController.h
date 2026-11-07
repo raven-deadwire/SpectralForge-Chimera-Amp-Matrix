@@ -615,7 +615,10 @@ private:
                     gain={true,state.values[size_t(control)],range.start,range.end};controls[ampGain]=control;
                 }
             const auto fixed=nativeAmpRenderer(state,{-1,-1,-1,-1},segment,rate()),atGain=nativeAmpRenderer(state,controls,segment,rate());
-            candidates[size_t(c)]={gain,[fixed,atGain](std::optional<float> g){return g?atGain({*g,0,0,0}):fixed({});}};
+            candidates[size_t(c)]={gain,[fixed,atGain](std::optional<float> g){
+                if(!g)return fixed({});
+                std::array<float,4> v{};v[ampGain]=*g;return atGain(v);
+            }};
         }
         const auto r=analyseChannel(segment,post,rate(),t.channel,candidates,chosenInstrument(),runOptions.style);
         lastChannel=r;

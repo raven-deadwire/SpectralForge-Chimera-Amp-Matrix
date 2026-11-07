@@ -181,9 +181,25 @@ struct ChannelResult {
 struct ChannelCandidate {AmpKnob gain;std::function<std::vector<float>(std::optional<float>)> render;};
 // The lowest GAIN probed, as a fraction of the knob's range.
 inline constexpr float channelLowGain=.1f;
+// How far the target lies outside a channel's reach (0: inside).
+inline float channelDistance(const ChannelReach& c,float target) noexcept {
+    return target<c.low?c.low-target:target>c.high?target-c.high:0.f;
+}
+// The same, beyond phase 8's tolerance (0: the channel reaches the target).
 inline float channelMiss(const ChannelReach& c,float target) noexcept {
-    const float outside=target<c.low?c.low-target:target>c.high?target-c.high:0.f;
-    return std::max(0.f,outside-ampCompressionTolerance);
+    return std::max(0.f,channelDistance(c,target)-ampCompressionTolerance);
+}
+// The channel to use: the current one when it reaches the target; otherwise
+// the closest channel, when it is closer than the current one by more than the
+// tolerance (distances, so the tolerance counts once). Ties keep the lower number.
+inline int channelChoice(const std::vector<ChannelReach>& reach,int current,float target) noexcept {
+    if(current<0 || current>=int(reach.size()) || !reach[size_t(current)].present)return current;
+    if(channelMiss(reach[size_t(current)],target)<=0)return current;
+    const float now=channelDistance(reach[size_t(current)],target);
+    int best=current;float bestDistance=now;
+    for(size_t c=0;c<reach.size();++c)if(reach[c].present && int(c)!=current)
+        if(const float d=channelDistance(reach[c],target);d<bestDistance-1e-6f){bestDistance=d;best=int(c);}
+    return best!=current && bestDistance<now-ampCompressionTolerance?best:current;
 }
 // input/post as analyseAmp; candidates: one per channel (an empty render: not a candidate).
 inline ChannelResult analyseChannel(const std::vector<float>& input,const std::vector<float>& post,double rate,int current,
@@ -216,12 +232,8 @@ inline ChannelResult analyseChannel(const std::vector<float>& input,const std::v
     }
     if(!r.reach[size_t(current)].present)return r;
     r.missBefore=r.missAfter=channelMiss(r.reach[size_t(current)],r.target);
-    if(r.missBefore<=0)return r;
-    // The closest channel; ties keep the lower channel number.
-    int best=current;float bestMiss=r.missBefore;
-    for(size_t c=0;c<r.reach.size();++c)if(r.reach[c].present && int(c)!=current)
-        if(const float miss=channelMiss(r.reach[c],r.target);miss<bestMiss-1e-6f){bestMiss=miss;best=int(c);}
-    if(best!=current && bestMiss<=r.missBefore-ampCompressionTolerance){r.proposed=best;r.missAfter=bestMiss;}
+    r.proposed=channelChoice(r.reach,current,r.target);
+    r.missAfter=channelMiss(r.reach[size_t(r.proposed)],r.target);
     return r;
 }
 } // namespace spectralforge::autoset

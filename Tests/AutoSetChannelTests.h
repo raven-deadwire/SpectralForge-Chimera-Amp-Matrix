@@ -15,18 +15,18 @@ void channelRules() {
         // A clean channel cannot reach a metal drive: the lead channel can.
         const auto toLead=at(0,Style::metal);
         check(toLead.playingDetected && !toLead.bass && near(toLead.target,.65f,1e-6f) && toLead.reach.size()==2 && toLead.reach[0].present && toLead.reach[1].present,"Channel analysis did not hear both channels");
-        check(toLead.reach[0].high<.65f-ampCompressionTolerance && toLead.missBefore>0 && toLead.changed() && toLead.proposed==1 && toLead.missAfter<=toLead.missBefore-ampCompressionTolerance,
+        check(toLead.reach[0].high<.65f-ampCompressionTolerance && toLead.missBefore>0 && toLead.changed() && toLead.proposed==1 && channelDistance(toLead.reach[1],toLead.target)<channelDistance(toLead.reach[0],toLead.target)-ampCompressionTolerance,
               "A clean channel short of a metal drive did not move to the lead channel");
         // A lead channel cannot stay clean: the clean channel can.
         const auto toClean=at(1,Style::clean);
-        check(toClean.reach[1].low>.15f+ampCompressionTolerance && toClean.changed() && toClean.proposed==0 && toClean.missAfter<=toClean.missBefore-ampCompressionTolerance,"A lead channel too driven for clean did not move to the clean channel (lead "+std::to_string(toClean.reach[1].low)+"-"+std::to_string(toClean.reach[1].high)+", clean "+std::to_string(toClean.reach[0].low)+"-"+std::to_string(toClean.reach[0].high)+")");
+        check(toClean.reach[1].low>.15f+ampCompressionTolerance && toClean.changed() && toClean.proposed==0 && channelDistance(toClean.reach[0],toClean.target)<channelDistance(toClean.reach[1],toClean.target)-ampCompressionTolerance,"A lead channel too driven for clean did not move to the clean channel (lead "+std::to_string(toClean.reach[1].low)+"-"+std::to_string(toClean.reach[1].high)+", clean "+std::to_string(toClean.reach[0].low)+"-"+std::to_string(toClean.reach[0].high)+")");
         // A channel that reaches the target stays.
         const std::vector<ChannelCandidate> wide{syntheticChannel(amp,5,0,10),lead};
         const auto stay=analyseChannel(di,wide[0].render(std::nullopt),rate,0,wide,false,Style::clean);
         check(!stay.changed() && stay.missBefore==0,"A channel that reaches the target was changed");
         const auto reach=[&](const ChannelReach& c,float t){return t>=c.low-ampCompressionTolerance && t<=c.high+ampCompressionTolerance;};
         const auto rock=at(1,Style::rock);
-        check(rock.changed()==(!reach(rock.reach[1],.45f) && channelMiss(rock.reach[0],.45f)<=channelMiss(rock.reach[1],.45f)-ampCompressionTolerance),"Rock kept or moved the lead channel against the reach");
+        check(rock.changed()==(!reach(rock.reach[1],.45f) && channelDistance(rock.reach[0],.45f)<channelDistance(rock.reach[1],.45f)-ampCompressionTolerance),"Rock kept or moved the lead channel against the reach");
         // The reach brackets the drive at the channel's own knobs, and follows GAIN.
         for(const auto& c:toLead.reach)check(c.low<=c.now+1e-6f && c.now<=c.high+1e-6f,"Channel reach does not contain its own drive");
         check(near(toLead.reach[0].now,ampCompression(di,amp({1.5f,5,5,5}),rate),1e-6f) && near(toLead.reach[0].high,ampCompression(di,amp({3,5,5,5}),rate),1e-6f),"Channel reach is not the rendered drive");
@@ -41,13 +41,24 @@ void channelRules() {
         const auto best=analyseChannel(di,clean.render(std::nullopt),rate,0,three,false,Style::metal);
         check(best.changed() && channelMiss(best.reach[size_t(best.proposed)],best.target)==best.missAfter && best.missAfter<=channelMiss(best.reach[1],best.target)
               && best.missAfter<=channelMiss(best.reach[2],best.target),"The closest channel was not chosen");
+        // The tolerance counts once: a channel 9% short of the target moves to one
+        // that reaches it (9% closer, more than the 8% tolerance).
+        if(rate==48000.) {
+            const auto reachOf=[](float low,float high){return ChannelReach{true,low,low,high};};
+            const float t=ampCompressionTarget(false,Style::metal);
+            check(channelChoice({reachOf(0,t-.09f),reachOf(.3f,.9f)},0,t)==1,"A channel 9% short did not move to one that reaches the target");
+            check(channelChoice({reachOf(0,t-.07f),reachOf(.3f,.9f)},0,t)==0,"A channel within the tolerance was moved");
+            check(channelChoice({reachOf(0,t-.12f),reachOf(0,t-.05f)},0,t)==0,"A channel only 7% closer was chosen");
+            check(channelChoice({reachOf(0,t-.20f),reachOf(0,t-.11f)},0,t)==1,"A channel 9% closer, still short, was not chosen");
+            check(channelChoice({reachOf(0,t-.20f),reachOf(.3f,.9f),reachOf(.3f,.9f)},0,t)==1,"A tie did not keep the lower channel");
+        }
         // Silence.
         const std::vector<float> silence(di.size());
         check(!analyseChannel(silence,silence,rate,0,both,false).playingDetected,"Silence reported as playing");
         if(rate==48000.)std::cout<<"MEASURE channel rules 48 kHz: clean reaches "<<toLead.reach[0].low<<"-"<<toLead.reach[0].high<<", lead "<<toLead.reach[1].low<<"-"<<toLead.reach[1].high
                                 <<"; metal clean > "<<toLead.proposed<<" (miss "<<toLead.missBefore<<" > "<<toLead.missAfter<<"); clean lead > "<<toClean.proposed<<"; rock on lead "<<(rock.changed()?"moved":"kept")<<'\n';
     }
-    std::cout<<"PASS auto set channel rules at 44.1/48/96 kHz: clean to lead for metal, lead to clean for clean, reaching channel kept, reach is the rendered drive, silent channel and single channel kept, closest of three, silence\n";
+    std::cout<<"PASS auto set channel rules at 44.1/48/96 kHz: clean to lead for metal, lead to clean for clean, reaching channel kept, reach is the rendered drive, silent channel and single channel kept, closest of three, tolerance counted once, silence\n";
 }
 struct ChannelRun {std::vector<float> before,values,undone;Controller::Status status;ChannelResult analysis;AmpResult amp;};
 // A real processor with native head `model` on `channel` in Classic routing; its
