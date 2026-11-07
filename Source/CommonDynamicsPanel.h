@@ -33,7 +33,7 @@ public:
         addChildComponent(autoSet);addChildComponent(autoOptions);addChildComponent(autoUndo);
         autoSet.setComponentID("commonDynamics.autoSet");autoOptions.setComponentID("commonDynamics.autoOptions");autoUndo.setComponentID("commonDynamics.autoUndo");autoUndo.setEnabled(false);
         autoSet.setTooltip("Listen to about 58 seconds of playing and set input gain, the gates and the Expander, a boost pedal in front of the amp, the amp's channel, gain, tone, presence and resonance knobs, the Dual rigs' levels and their blend or crossover when two rigs play, the Matrix MID and HIGH lane levels when three bands play, the cabinet's low and high cuts, where the cabinet mic sits, the timing, polarity and blend of two blended cabinet mics, the Tone EQ and its Dynamic EQ, the clean compressor, the multiband, the de-esser and the limiter, the POST bus compressor, the delay and reverb, the stereo doubler, then the Final EQ and the output level. Include a short pause so the gate can hear the noise floor.");
-        autoOptions.setTooltip("Auto Set options: instrument (detected, guitar or bass), style (rock, clean or metal), which steps run, strength and locked settings.");
+        autoOptions.setTooltip("Auto Set options: instrument (detected - guitar, bass, vocal, keys or drums - or choose guitar or bass), style (rock, clean or metal), which steps run, strength and locked settings.");
         autoUndo.setTooltip("Restore every setting Auto Set changed in its last run.");
         autoOptions.onClick=[this]{showAutoOptions();};updateAutoOptionsText();
         autoSet.onClick=[this]{if(autoBusy){if(onAutoCancel)onAutoCancel();}else if(onAutoSet)onAutoSet();};

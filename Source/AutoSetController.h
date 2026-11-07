@@ -2,6 +2,7 @@
 #include "AutoSetStrength.h"
 #include "PluginProcessor.h"
 #include "AutoSet.h"
+#include "AutoSetInstrument.h"
 #include "AutoSetAmp.h"
 #include "AutoSetCab.h"
 #include "AutoSetBoost.h"
@@ -196,7 +197,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};lastInstrument={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -305,7 +306,7 @@ public:
         if(status.phase==Phase::amp || status.phase==Phase::boost || status.phase==Phase::dual || status.phase==Phase::matrix || status.phase==Phase::finish)capture.drainAmpSamples(ampSamples);
         if(status.phase==Phase::matrix || status.phase==Phase::mics)capture.drainLaneSamples(laneSamples);
         if(windowPass())capture.drain(windowTap(),windows);
-        if(status.phase==Phase::input)capture.drain(Tap::rig,rigWindows);
+        if(status.phase==Phase::input){capture.drain(Tap::rig,rigWindows);capture.drainAmpSamples(ampSamples);}
         if(lastAudioMs<0 || collected()!=before)lastAudioMs=nowMs;
         else if(nowMs-lastAudioMs>noAudioTimeoutMs){fail("No audio reached the plug-in. Start playback or play your instrument, then try again.");return;}
         const double measured=std::max(0.,double(collected())-double(samplePass()?skipSamples:skipWindows)),needed=passLength();
@@ -395,9 +396,19 @@ private:
     double passLength() const noexcept {return samplePass()?toneSeconds*rate():double(windowsPerPass);}
     std::optional<bool> chosenBass() const noexcept {
         if(runOptions.instrument!=0)return runOptions.instrument==2;
+        if(const auto heard=detectedBass())return heard;
         if(lastTone.playingDetected)return lastTone.bass;
         return std::nullopt;
     }
+    // The input pass's detection, when its pitch range settled guitar or bass.
+    std::optional<bool> detectedBass() const noexcept {
+        if(stringInstrument(lastInstrument.source) && lastInstrument.bassDecisive)return lastInstrument.bass;
+        return std::nullopt;
+    }
+    // Detected as a voice or drums (and not overridden in the options): the
+    // amp, boost, cabinet, routing and guitar/bass EQ target steps stay out.
+    bool neutralSource() const noexcept {return runOptions.instrument==0 && lastInstrument.features.playing && !keepsAmpSteps(lastInstrument.source);}
+    juce::String neutralWhy() const {return juce::String(sourceName(lastInstrument.source))+" heard: this step is for guitar and bass; choose Guitar or Bass in the options to run it";}
     void beginPass(size_t index,int settle) {
         auto& capture=processor.autoSetCapture();
         capture.listen(std::nullopt);
@@ -430,7 +441,9 @@ private:
                 levelReadSnapshot.push_back(takeSnapshot(tracker->parameter));
             capture.listen(Tap::master);
         }
-        else if(status.phase==Phase::input && runOptions.gates)capture.listen({Tap::input,Tap::rig});
+        // The input pass also hears what goes into the amps, to tell which instrument is playing.
+        else if(status.phase==Phase::input && runOptions.gates)capture.listen({Tap::input,Tap::rig,Tap::amp});
+        else if(status.phase==Phase::input)capture.listen({Tap::input,Tap::amp});
         else capture.listen(windowTap());
         // Gate 2 / Expander need the rig's own noise: hold every gate open while the input pass listens.
         processor.setAutoSetGateBypass(status.phase==Phase::input && runOptions.gates);
@@ -515,11 +528,52 @@ private:
             summary+=" | Gate "+juce::String(threshold,0)+" dB, range "+range;
             result+="; gate "+juce::String(gateBefore,0)+" > "+juce::String(threshold,0)+" dB, range "+range;
         } else {summary+=" | Gate unchanged (no pause heard)";result+="; gate kept (no pause heard)";}
+        detectInstrument();
+        if(lastInstrument.features.playing)result+="; heard "+instrumentText();
         addStep(result,true);
+        if(neutralSource())leaveGuitarSteps();
         processor.setAutoSetGateBypass(false);
         if(runOptions.gates)finishGateStages(measured,r.pausesDetected);
         if(spacePending || widthPending)spaceWindows=measured;
         nextPass();
+    }
+    // What is plugged in, from the input pass's amp-tap audio (at most 12 s).
+    void detectInstrument() {
+        lastInstrument={};
+        if(ampSamples.size()<size_t(rate()))return;
+        const size_t keep=std::min(ampSamples.size(),size_t(12*rate()));
+        lastInstrument=classifyInstrument({ampSamples.end()-std::ptrdiff_t(keep),ampSamples.end()},rate());
+    }
+    juce::String instrumentText() const {
+        if(runOptions.instrument!=0)return runOptions.instrument==2?"Bass (chosen)":"Guitar (chosen)";
+        if(!lastInstrument.features.playing)return {};
+        return juce::String(sourceName(lastInstrument.source))+" (detected, "+juce::String(juce::roundToInt(lastInstrument.confidence*100))+"%)";
+    }
+    // A voice or drums: drop the passes that only serve guitar and bass, and
+    // report each of their steps as kept, in the usual order.
+    void leaveGuitarSteps() {
+        const auto why=neutralWhy();
+        std::vector<Phase> remaining;
+        for(size_t i=pass+1;i<passes.size();++i) {
+            const auto p=passes[i];
+            if(p==Phase::boost){if(runOptions.boost)lockedPhases.push_back({Phase::boost,why});}
+            else if(p==Phase::amp) {
+                if(channelStepRuns())lockedPhases.push_back({Phase::channel,why});
+                if(ampStepRuns())lockedPhases.push_back({Phase::amp,why});
+                if(powerStepRuns())lockedPhases.push_back({Phase::power,why});
+            } else if(p==Phase::cab) {
+                if(cabStepRuns())lockedPhases.push_back({Phase::cab,why});
+                if(cutsStepRuns())lockedPhases.push_back({Phase::cuts,why});
+            } else if(p==Phase::mics)lockedPhases.push_back({Phase::mics,why});
+            else if(p==Phase::dual) {
+                if(rigsStepRuns())lockedPhases.push_back({Phase::rigs,why});
+                if(dualStepRuns())lockedPhases.push_back({Phase::dual,why});
+            } else if(p==Phase::matrix)lockedPhases.push_back({Phase::matrix,why});
+            else remaining.push_back(p);
+        }
+        passes.resize(pass+1);passes.insert(passes.end(),remaining.begin(),remaining.end());
+        std::stable_sort(lockedPhases.begin(),lockedPhases.end(),[](const Skipped& a,const Skipped& b){return order(a.phase)<order(b.phase);});
+        summary+=" | "+juce::String(sourceName(lastInstrument.source))+" heard: amp and cabinet steps skipped";
     }
     // Phase 5: Gate 2 and the Expander from the rig noise heard in the input pass.
     void finishGateStages(const std::vector<Window>& measured,bool pauseHeard) {
@@ -717,7 +771,7 @@ private:
         summary+=" | Amp "+moves.joinIntoString(", ");
         steps.push_back({Phase::power,moves.joinIntoString(", ")+"; "+balances.joinIntoString(", ")+" from the target",true});
     }
-    std::optional<bool> chosenInstrument() const {return runOptions.instrument==0?std::nullopt:std::optional<bool>(runOptions.instrument==2);}
+    std::optional<bool> chosenInstrument() const {return runOptions.instrument==0?detectedBass():std::optional<bool>(runOptions.instrument==2);}
     BoostTarget boostTarget() const {
         BoostTarget t;t.amp=ampTarget();t.board=raw("boardEnabled")>.5f;
         for(int position=0;position<pedalBoardCapacity;++position)t.order[size_t(position)]=juce::roundToInt(raw(pedalOrderID(position)));
@@ -1112,6 +1166,7 @@ private:
         lastTone=r;
         bool curveWritten=false;
         if(!toneStepRuns()) {}
+        else if(neutralSource()){summary+=" | Tone EQ unchanged ("+juce::String(sourceName(lastInstrument.source))+" heard)";addStep("kept ("+neutralWhy()+")",false);}
         else if(!r.playingDetected){summary+=" | Tone EQ unchanged (no playing)";addStep("kept (no playing heard)",false);}
         else if(r.activeMoves()==0){summary+=" | Tone EQ unchanged ("+juce::String(r.bass?"bass":"guitar")+" already near target)";addStep("kept ("+juce::String(r.bass?"bass":"guitar")+" already near the target)",false);}
         else {
@@ -1364,6 +1419,7 @@ private:
         if(locked(lockFinalEQ))parts.add("Final EQ kept (locked)");
         else if(bypassedCurve)parts.add("Final EQ kept (your curve is bypassed)");
         else if(bands.empty())parts.add("Final EQ kept (no free band)");
+        else if(neutralSource())parts.add("Final EQ kept ("+juce::String(sourceName(lastInstrument.source))+" heard: its target is for guitar and bass)");
         else {
             size_t next=0;
             for(size_t i=0;i<r.moves.size();++i)if(r.moves[i].active && next<bands.size()) {
@@ -1525,7 +1581,10 @@ private:
         }
         if(status.phase!=Phase::input)s.heard=playing?"Playing: heard":"Playing: not yet";
         if(status.phase==Phase::input || status.phase==Phase::tone || status.phase==Phase::multiband)
-            if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(runOptions.instrument==0?" (detected)":"");
+        {
+            if(runOptions.instrument==0 && lastInstrument.features.playing)s.heard+="  /  "+instrumentText();
+            else if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(runOptions.instrument==0?" (detected)":"");
+        }
     }
     static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish || phase==Phase::level || phase==Phase::amp || phase==Phase::cab || phase==Phase::boost || phase==Phase::dual || phase==Phase::matrix || phase==Phase::mics;}
     bool changedSinceSnapshot() const {
@@ -1538,6 +1597,7 @@ private:
 public:
     // Last tone analysis, for tests and diagnostics.
     const ToneResult& lastToneAnalysis() const noexcept {return lastTone;}
+    const InstrumentResult& lastInstrumentDetection() const noexcept {return lastInstrument;}
     const FinishResult& lastFinishAnalysis() const noexcept {return lastFinish;}
     const MultibandResult& lastMultibandAnalysis() const noexcept {return lastMultiband;}
     const GateStagesResult& lastGateAnalysis() const noexcept {return lastGates;}
@@ -1575,7 +1635,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
