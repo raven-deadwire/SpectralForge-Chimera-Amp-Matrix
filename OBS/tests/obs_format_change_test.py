@@ -192,7 +192,9 @@ def main() -> int:
     parser.add_argument("--work", required=True, help="scratch directory (deleted first)")
     parser.add_argument("--obs", default="obs", help="OBS Studio executable (as for obs_app_test.py)")
     parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for the media file and the analysis")
-    parser.add_argument("--seconds", type=float, default=15.0, help="length of each recording")
+    # 24 s leaves six notes after the warm-up, so a break OBS puts in the recorded input (the
+    # two notes around it are left out; once on the macOS CI runner) still leaves notes to compare.
+    parser.add_argument("--seconds", type=float, default=24.0, help="length of each recording")
     parser.add_argument("--warmup", type=float, default=6.0,
                         help="seconds of each recording left out of the comparison (Chimera's tails from before it)")
     parser.add_argument("--max-ahead-steps", type=float, default=2.0,
