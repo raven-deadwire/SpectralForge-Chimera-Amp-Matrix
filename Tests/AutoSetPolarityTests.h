@@ -54,7 +54,7 @@ void controllerPolarity() {
         std::vector<std::pair<juce::String,float>> list(pairs);
         return [list](ChimeraProcessor& p){for(const auto& [id,v]:list)p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));};};
     const auto blendRig=setter({{"mode",1},{"dualtype",0},{"dualblend",.5f}});
-    Controller::Options polarityOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true};
+    Controller::Options polarityOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false};
     // Dual: rig 2 opposed to rig 1 flips, alone in the Dual pass.
     const auto full=runDual(polarityOnly,x,opposed,blendRig);
     const auto* step=stepOf(full.status,P::polarity);
