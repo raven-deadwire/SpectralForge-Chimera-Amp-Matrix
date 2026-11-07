@@ -315,7 +315,7 @@ void controllerSources() {
     for(const auto& step:sung.status.steps) {
         using P=Controller::Phase;
         const bool guitarOnly=step.phase==P::boost || step.phase==P::channel || step.phase==P::amp || step.phase==P::power || step.phase==P::cab || step.phase==P::cuts
-                           || step.phase==P::mics || step.phase==P::rigs || step.phase==P::dual || step.phase==P::matrix || step.phase==P::tone;
+                           || step.phase==P::mics || step.phase==P::rigs || step.phase==P::dual || step.phase==P::matrix || step.phase==P::polarity || step.phase==P::tone;
         if(guitarOnly){check(!step.changed,"A guitar-only step ran on a voice: "+step.result.toStdString());keptForVoice+=step.result.contains("Vocal heard");}
         if(step.phase==P::level)check(step.result.contains("Final EQ kept (Vocal heard"),"The Final EQ target ran on a voice: "+step.result.toStdString());
     }
