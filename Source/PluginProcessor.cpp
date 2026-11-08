@@ -394,6 +394,8 @@ void ChimeraProcessor::updateComparisonProtection()
     if(auto* playhead=getPlayHead())if(const auto position=playhead->getPosition())
         printing=printing || position->getIsRecording();
     levelMatch.protectOutput(printing);
+    // EQ band solo is a listening aid: never in a bounce or a recording.
+    toneEQ.setPrinting(printing);finalEQ.setPrinting(printing);
 }
 void ChimeraProcessor::resetProcessingIfPending()
 {
