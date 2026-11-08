@@ -164,53 +164,89 @@ inline AmpRenderer nativeAmpRenderer(const AmpNativeState& state,const std::arra
 // ends, to find the drive (ampCompression) it can reach. The channel moves
 // only when the current one cannot reach the style's drive target (within
 // the phase 8 tolerance) and another channel comes closer by more than that
-// tolerance; phase 8 then sets GAIN and tone on it. GAIN is probed at its
-// top and at 10% of its range, plus where it is; a render too quiet to be
-// heard as playing is left out.
-struct ChannelReach {bool present{};float now{},low{},high{};}; // drive at the channel's knobs, and its reachable range
+// tolerance; phase 8 then sets GAIN and tone on it.
+// GAIN is probed where it is and at 0, 5, 15, 40, 70 and 100% of its range
+// (so a channel that only needs a low GAIN is seen); a render too quiet to be
+// heard as playing is left out, and a channel counts when any probe is heard.
+// A channel is judged by the drive the amp step would actually leave it at:
+// at its own knobs when the amp step will not set GAIN (off or locked), and
+// only Strength of the way towards the target when Strength is below 100%.
+// The step holds, saying why, when the playing barely changes between soft
+// and hard notes (the drive measure needs 3 dB) or the current channel has
+// fewer than two audible GAIN settings to compare.
+struct ChannelReach {bool present{};float now{},low{},high{};int heard{};}; // drive at the channel's knobs, its reachable range, audible probes
+enum class ChannelHold {none,steadyPlaying,quietSettings};
 struct ChannelResult {
     bool playingDetected{},bass{};
     int before{-1},proposed{-1};
     float target{};
     std::vector<ChannelReach> reach;
-    float missBefore{},missAfter{};            // how far the target lies outside the reachable range
+    float missBefore{},missAfter{};            // how far the drive the amp step would leave lies beyond the tolerance
+    ChannelHold hold{ChannelHold::none};       // not enough information to judge: kept
+    bool gainAdjustable{true};float strength{1.f};
     bool changed() const noexcept {return proposed!=before;}
+    bool stillShort() const noexcept {return changed() && missAfter>0;} // moved to the closest channel, which still misses the target
 };
 // One channel: its GAIN knob (not present: no GAIN), and the amp rendered with
 // GAIN at a value (nullopt: the channel's own knobs).
 struct ChannelCandidate {AmpKnob gain;std::function<std::vector<float>(std::optional<float>)> render;};
-// The lowest GAIN probed, as a fraction of the knob's range.
-inline constexpr float channelLowGain=.1f;
+// GAIN probes, as fractions of the knob's range.
+inline constexpr std::array<float,6> channelGainProbes{0.f,.05f,.15f,.4f,.7f,1.f};
 // How far the target lies outside a channel's reach (0: inside).
 inline float channelDistance(const ChannelReach& c,float target) noexcept {
     return target<c.low?c.low-target:target>c.high?target-c.high:0.f;
 }
+// The drive the amp step would leave the channel at: the reachable drive
+// closest to the target, Strength of the way from where it is; where it is
+// when the amp step does not set GAIN.
+inline float channelAchieved(const ChannelReach& c,float target,bool gainAdjustable=true,float strength=1.f) noexcept {
+    if(!gainAdjustable)return c.now;
+    return c.now+std::clamp(strength,0.f,1.f)*(std::clamp(target,c.low,c.high)-c.now);
+}
+inline float channelGap(const ChannelReach& c,float target,bool gainAdjustable=true,float strength=1.f) noexcept {
+    return std::abs(channelAchieved(c,target,gainAdjustable,strength)-target);
+}
 // The same, beyond phase 8's tolerance (0: the channel reaches the target).
-inline float channelMiss(const ChannelReach& c,float target) noexcept {
-    return std::max(0.f,channelDistance(c,target)-ampCompressionTolerance);
+inline float channelMiss(const ChannelReach& c,float target,bool gainAdjustable=true,float strength=1.f) noexcept {
+    return std::max(0.f,channelGap(c,target,gainAdjustable,strength)-ampCompressionTolerance);
 }
 // The channel to use: the current one when it reaches the target; otherwise
 // the closest channel, when it is closer than the current one by more than the
 // tolerance (distances, so the tolerance counts once). Ties keep the lower number.
-inline int channelChoice(const std::vector<ChannelReach>& reach,int current,float target) noexcept {
+inline int channelChoice(const std::vector<ChannelReach>& reach,int current,float target,bool gainAdjustable=true,float strength=1.f) noexcept {
     if(current<0 || current>=int(reach.size()) || !reach[size_t(current)].present)return current;
-    if(channelMiss(reach[size_t(current)],target)<=0)return current;
-    const float now=channelDistance(reach[size_t(current)],target);
+    if(channelMiss(reach[size_t(current)],target,gainAdjustable,strength)<=0)return current;
+    const float now=channelGap(reach[size_t(current)],target,gainAdjustable,strength);
     int best=current;float bestDistance=now;
     for(size_t c=0;c<reach.size();++c)if(reach[c].present && int(c)!=current)
-        if(const float d=channelDistance(reach[c],target);d<bestDistance-1e-6f){bestDistance=d;best=int(c);}
+        if(const float d=channelGap(reach[c],target,gainAdjustable,strength);d<bestDistance-1e-6f){bestDistance=d;best=int(c);}
     return best!=current && bestDistance<now-ampCompressionTolerance?best:current;
 }
+// The soft-to-hard spread of the playing (dB), as ampCompression reads it.
+inline float playingSpreadDb(const std::vector<float>& input,double rate) {
+    const size_t block=size_t(std::max(1.,rate*.020)),start=size_t(rate*ampWarmupSeconds);
+    std::vector<float> in;
+    for(size_t b=start;b+block<=input.size();b+=block){double x=0;for(size_t n=b;n<b+block;++n)x+=double(input[n])*input[n];in.push_back(toDb(std::sqrt(x/double(block))));}
+    if(in.size()<20)return 0;
+    const float loud=percentile(in,.95f);std::vector<float> playing;
+    for(float v:in)if(v>loud-30.f && v>minimumPlayingDb)playing.push_back(v);
+    if(playing.size()<20)return 0;
+    return percentile(playing,.9f)-percentile(playing,.2f);
+}
 // input/post as analyseAmp; candidates: one per channel (an empty render: not a candidate).
+// gainAdjustable: the amp step will set GAIN; strength: how far it moves.
 inline ChannelResult analyseChannel(const std::vector<float>& input,const std::vector<float>& post,double rate,int current,
-                                    const std::vector<ChannelCandidate>& candidates,std::optional<bool> bass={},Style style=Style::rock) {
-    ChannelResult r;r.before=r.proposed=current;
+                                    const std::vector<ChannelCandidate>& candidates,std::optional<bool> bass={},Style style=Style::rock,
+                                    bool gainAdjustable=true,float strength=1.f) {
+    ChannelResult r;r.before=r.proposed=current;r.gainAdjustable=gainAdjustable;r.strength=std::clamp(strength,0.f,1.f);
     if(current<0 || current>=int(candidates.size()) || !candidates[size_t(current)].render)return r;
     const auto heard=measureSpectrum(post,rate,bass);
     const std::vector<float> segment(input.begin(),input.begin()+std::ptrdiff_t(std::min(input.size(),size_t(rate*ampRenderSeconds))));
     r.playingDetected=heard.playing && measureSpectrum(segment,rate,true).playing;
     if(!r.playingDetected)return r;
     r.bass=heard.bass;r.target=ampCompressionTarget(r.bass,style);
+    // Playing that barely moves between soft and hard notes gives no drive reading.
+    if(playingSpreadDb(segment,rate)<3.f){r.hold=ChannelHold::steadyPlaying;return r;}
     r.reach.resize(candidates.size());
     for(size_t c=0;c<candidates.size();++c) {
         const auto& k=candidates[c];
@@ -223,17 +259,33 @@ inline ChannelResult analyseChannel(const std::vector<float>& input,const std::v
             if(!measureSpectrum(out,rate,r.bass).playing)return std::nullopt;
             return ampCompression(segment,out,rate);
         };
-        std::vector<std::optional<float>> points{drive(std::nullopt)};
+        // (GAIN, drive) for every audible probe; the channel's own knobs first.
+        std::vector<std::pair<float,float>> points;
+        const auto own=drive(std::nullopt);
+        const float ownGain=k.gain.present?k.gain.value:0.f;
+        if(own)points.push_back({ownGain,*own});
         if(k.gain.present && k.gain.maximum>k.gain.minimum)
-            for(const float fraction:{channelLowGain,1.f})points.push_back(drive(k.gain.minimum+fraction*(k.gain.maximum-k.gain.minimum)));
-        if(!points[0])continue;
-        reach.present=true;reach.now=reach.low=reach.high=*points[0];
-        for(const auto& v:points)if(v){reach.low=std::min(reach.low,*v);reach.high=std::max(reach.high,*v);}
+            for(const float fraction:channelGainProbes) {
+                const float g=k.gain.minimum+fraction*(k.gain.maximum-k.gain.minimum);
+                if(const auto v=drive(g))points.push_back({g,*v});
+            }
+        if(points.empty())continue;
+        reach.present=true;reach.heard=int(points.size());reach.low=reach.high=points[0].second;
+        for(const auto& [g,v]:points){reach.low=std::min(reach.low,v);reach.high=std::max(reach.high,v);}
+        // Where it is: its own knobs, or (own GAIN too quiet) the nearest audible GAIN.
+        if(own)reach.now=*own;
+        else {
+            auto nearest=points.front();
+            for(const auto& point:points)if(std::abs(point.first-ownGain)<std::abs(nearest.first-ownGain))nearest=point;
+            reach.now=nearest.second;
+        }
     }
-    if(!r.reach[size_t(current)].present)return r;
-    r.missBefore=r.missAfter=channelMiss(r.reach[size_t(current)],r.target);
-    r.proposed=channelChoice(r.reach,current,r.target);
-    r.missAfter=channelMiss(r.reach[size_t(r.proposed)],r.target);
+    const auto& here=r.reach[size_t(current)];
+    if(!here.present)return r;
+    if(gainAdjustable && candidates[size_t(current)].gain.present && here.heard<2){r.hold=ChannelHold::quietSettings;return r;}
+    r.missBefore=r.missAfter=channelMiss(here,r.target,gainAdjustable,r.strength);
+    r.proposed=channelChoice(r.reach,current,r.target,gainAdjustable,r.strength);
+    r.missAfter=channelMiss(r.reach[size_t(r.proposed)],r.target,gainAdjustable,r.strength);
     return r;
 }
 } // namespace spectralforge::autoset
