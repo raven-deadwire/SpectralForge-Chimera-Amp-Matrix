@@ -963,6 +963,14 @@ private:
         for(size_t k=0;k<r.heard.size();++k)if(!r.heard[k])
             return keep(juce::String(k==0?(mode==1?"rig 1":"the LOW lane"):juce::String(names[k-1])+(mode==1?"":" lane"))+" is silent (muted or soloed away)");
         const auto db=[](float v){return juce::String(v,1)+" dB";};
+        const auto hz=[](float v){return juce::String(v,std::abs(v-std::round(v))>.01f?1:0)+" Hz";};
+        const juce::String group=mode==1?"rigs":"lanes";
+        if(r.delayHeld())
+            return keep(juce::String(names[size_t(r.delayLane-1)])+(mode==1?"":" lane")+" is "+juce::String(std::abs(r.delayMs),2)+" ms "+(r.delayMs>0?"late":"early")
+                        +(r.delayOpposed?" and opposed":"")+": a time offset, not polarity (cancellation "+db(r.cancellationBeforeDb)+", "+db(r.alignedDb)+" aligned); align the "+group+", then run again");
+        if(!r.changed() && r.harmHeld())
+            return keep("a flip would make "+hz(r.harmedHz)+" cancel by "+db(r.harmedDb)+": the "+group+" are opposed in some bands only (phase, not polarity; cancellation "
+                        +db(r.cancellationBeforeDb)+" at "+hz(r.worstBeforeHz)+")");
         if(!r.changed())return keep(r.cancellationBeforeDb<=polarityMinCancellationDb
             ?"the "+juce::String(mode==1?"rigs":"lanes")+" add up (worst band "+db(r.cancellationBeforeDb)+" below their sum)"
             :"a flip does not reduce the cancellation ("+db(r.cancellationBeforeDb)+"): check delay or crossover");
