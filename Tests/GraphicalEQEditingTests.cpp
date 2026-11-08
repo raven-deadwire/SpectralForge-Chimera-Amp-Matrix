@@ -317,35 +317,45 @@ void eqLocalAB() {
     auto storage = std::make_unique<ChimeraProcessor>();
     auto& processor = *storage; auto& edits = processor.eqEditing();
     const auto values = [&](int bank) {std::vector<float> v; for (int b = 0; b < graphicalEQBands; ++b) for (auto* f : {"enabled","frequency","gain","q","type"}) v.push_back(get(processor, bank, b, f)); return v;};
+    // Values within float rounding: platforms may differ in the last bits of a
+    // normalise/denormalise round trip.
+    const auto sameCurve = [](const std::vector<float>& a, const std::vector<float>& b, const char* what) {
+        for (size_t i = 0; i < a.size(); ++i) if (!near(a[i], b[i], std::max(.002f, std::abs(b[i]) * 1e-5f)))
+            check(false, std::string(what) + ": value " + std::to_string(i) + " is " + std::to_string(a[i]) + ", expected " + std::to_string(b[i]));
+    };
     check(edits.curveSlot(0) == 0 && edits.curveSlot(1) == 0 && !edits.hasStoredCurve(0, 0) && !edits.hasStoredCurve(0, 1), "Curves are not empty and on A at start");
     check(edits.addBand(0, 1000.f, 3.f) == 0, "Curve A fixture");
     hostSet(processor, 0, -1, "bypass", 1);
     const auto curveA = values(0); const auto finalBefore = values(1); const auto maskA = edits.occupiedMask(0);
     EQHostTrace trace(processor);
     // The first switch to B copies the current curve: nothing changes.
-    check(edits.selectCurve(0, 1) && edits.curveSlot(0) == 1 && values(0) == curveA && edits.hasStoredCurve(0, 0), "First switch to an empty B did not copy the curve");
+    check(edits.selectCurve(0, 1) && edits.curveSlot(0) == 1 && edits.hasStoredCurve(0, 0), "First switch to an empty B failed");sameCurve(values(0), curveA, "First switch to an empty B changed the curve");
     check(!edits.canUndo(), "Switching curves left undo history");
     check(edits.addBand(0, 200.f, -4.f) == 1, "Curve B fixture");
     localSet(processor, 0, 0, "gain", 6.f);
     const auto curveB = values(0); const auto maskB = edits.occupiedMask(0);
     check(maskB == 0b11 && maskA == 0b01, "Fixture masks wrong");
     // Back to A: band 2 leaves, band 1 returns to +3 dB; the bypass stays on.
-    check(edits.selectCurve(0, 0) && edits.curveSlot(0) == 0 && values(0) == curveA && edits.occupiedMask(0) == maskA, "Switching to A did not restore curve A");
+    check(edits.selectCurve(0, 0) && edits.curveSlot(0) == 0 && edits.occupiedMask(0) == maskA, "Switching to A did not restore curve A's bands");sameCurve(values(0), curveA, "Switching to A did not restore curve A");
     check(get(processor, 0, -1, "bypass") == 1.f, "Switching curves changed the EQ's bypass");
-    check(values(1) == finalBefore, "Switching the Tone EQ curve changed the Final EQ");
+    sameCurve(values(1), finalBefore, "Switching the Tone EQ curve changed the Final EQ");
     check(!edits.canUndo() && !edits.canRedo(), "Switching curves left history");
-    check(edits.selectCurve(0, 1) && values(0) == curveB && edits.occupiedMask(0) == maskB, "Switching back to B did not restore curve B");
+    check(edits.selectCurve(0, 1) && edits.occupiedMask(0) == maskB, "Switching back to B did not restore curve B's bands");sameCurve(values(0), curveB, "Switching back to B did not restore curve B");
     trace.balanced("Curve switching");
     // Copy B over A (nothing audible), then A is B.
     const auto beforeCopy = values(0);
-    check(edits.copyCurveToOtherSlot(0) && values(0) == beforeCopy && edits.selectCurve(0, 0) && values(0) == curveB, "Copy to the other slot did not store the curve");
+    check(edits.copyCurveToOtherSlot(0), "Copy to the other slot refused");sameCurve(values(0), beforeCopy, "Copy to the other slot changed the sound");
+    check(edits.selectCurve(0, 0), "Switch after copy failed");sameCurve(values(0), curveB, "Copy to the other slot did not store the curve");
     check(edits.selectCurve(0, 1), "Back to B failed");
     // Copy the Tone EQ curve to the Final EQ: one undo step there.
     check(edits.copyCurveToBank(0, 1), "Copy to the other EQ rejected");
     const auto copied = values(1);
     for (size_t i = 0; i < copied.size(); ++i) check(near(copied[i], curveB[i], std::max(.002f, std::abs(curveB[i]) * 1e-5f)), "Copied curve differs");
     check(edits.occupiedMask(1) == maskB && edits.canUndo() && edits.nextUndoBank() == 1, "Copy to the other EQ was not one undo step in it");
-    check(edits.undo() && values(1) == finalBefore && edits.occupiedMask(1) == 0, "Undo of the copy did not restore the Final EQ");
+    const auto finalMaskBefore = uint16_t(0);
+    check(edits.undo(), "Undo of the copy was refused");
+    sameCurve(values(1), finalBefore, "Undo of the copy did not restore the Final EQ");
+    check(edits.occupiedMask(1) == finalMaskBefore, "Undo of the copy did not restore the Final EQ's bands (mask " + std::to_string(edits.occupiedMask(1)) + ")");
     check(edits.redo() && edits.occupiedMask(1) == maskB, "Redo of the copy failed");
     trace.balanced("Curve copy");
     // Project round trip: slot and both curves.
