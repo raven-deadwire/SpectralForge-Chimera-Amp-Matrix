@@ -39,6 +39,23 @@ public:
         };
         editButton(addButton,"+ BAND","addBand");editButton(deleteButton,"DELETE","deleteBand");
         editButton(undoButton,"UNDO","undo");editButton(redoButton,"REDO","redo");
+        // EQ-local A/B: two curves for this EQ only (bands, not its bypass).
+        editButton(curveA,"A","curveA");editButton(curveB,"B","curveB");editButton(curveCopy,"COPY","curveCopy");
+        curveA.setClickingTogglesState(false);curveB.setClickingTogglesState(false);
+        curveA.setTooltip("Curve A of this EQ. A and B hold two band setups for this EQ alone (not the global A/B, not its bypass); switching clears this EQ's undo history.");
+        curveB.setTooltip("Curve B of this EQ. The first switch to an empty slot copies the current curve there.");
+        curveCopy.setTooltip("Copy this curve to the other slot, or to the other EQ (one undo step there).");
+        curveA.onClick=[this]{switchCurve(0);};curveB.onClick=[this]{switchCurve(1);};
+        curveCopy.onClick=[this]{
+            juce::PopupMenu menu;const int slot=editing.curveSlot(instance);const auto revision=editing.revision();
+            menu.addItem(1,juce::String("Copy ")+(slot==0?"A to B":"B to A"));
+            menu.addItem(2,juce::String("Copy this curve to the ")+(instance==0?"Final EQ":"Tone EQ"));
+            juce::Component::SafePointer<GraphicalEQPanel> safe(this);
+            // A late answer after a switch, recall or edit would copy the wrong way: ignore it.
+            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&curveCopy),[safe,slot,revision](int result){
+                if(safe && safe->isShowing() && safe->editing.curveSlot(safe->instance)==slot && safe->editing.revision()==revision)safe->applyCurveMenuResult(result);
+            });
+        };
         addButton.setTooltip("Add a Bell band at 1 kHz, or double-click the graph at the frequency and gain you need.");
         deleteButton.setTooltip("Remove this band. BAND ON keeps a bypassed band available for editing.");
         addButton.onClick=[this]{createBand(1000.f,0.f);};deleteButton.onClick=[this]{deleteSelectedBand();};
@@ -247,6 +264,20 @@ public:
         diagnosticObserver=nullptr;diagnosticContext=nullptr;diagnosticRenderPanel=true;startTimerHz(25);
     }
     juce::Rectangle<float> graphBounds() const noexcept {return plot();}
+    // EQ-local A/B (see EQEditState): switch, copy to the other slot (1) or
+    // to the other EQ (2).
+    bool switchCurve(int slot) {
+        endDrag();discardPendingNumericInput();
+        const bool ok=editing.selectCurve(instance,slot);
+        refreshEditingState();syncDisplayedValues();rebuildResponse();updateCurveControls();repaint();return ok;
+    }
+    void applyCurveMenuResult(int result) {
+        endDrag();
+        if(result==1)editing.copyCurveToOtherSlot(instance);
+        else if(result==2)editing.copyCurveToBank(instance,1-instance);
+        refreshEditingState();updateCurveControls();
+    }
+    int curveSlot() const {return editing.curveSlot(instance);}
     // EQ display range (editor-local, like Freeze/PEAK): the dB span of the
     // graph's vertical half. Only the drawing scale changes; band values,
     // drag deltas and host parameters keep their own range (+/-24 dB).
@@ -316,7 +347,8 @@ public:
             freezeToggle.setBounds(360,4,80,26);peakToggle.setBounds(446,4,56,26);resolution.setBounds(510,4,140,26);smoothing.setBounds(658,4,138,26);
             bypass.setBounds(getWidth()-166,4,148,26);
             addButton.setBounds(56,34,84,25);deleteButton.setBounds(148,34,82,25);undoButton.setBounds(244,34,76,25);redoButton.setBounds(328,34,76,25);
-            dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,124,25);
+            dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,100,25);
+            curveA.setBounds(612,34,30,25);curveB.setBounds(646,34,30,25);curveCopy.setBounds(680,34,58,25);
             const int y=getHeight()-33;layoutDynamicRow(y-37);
             selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,124,28);soloButton.setBounds(370,y,52,28);
             sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
@@ -329,7 +361,8 @@ public:
         bypass.setBounds(getWidth()-174,22,156,28);
         addButton.setBounds(56,68,88,27);deleteButton.setBounds(154,68,88,27);
         undoButton.setBounds(264,68,76,27);redoButton.setBounds(350,68,76,27);
-        dynamicToggle.setBounds(436,68,96,27);dynamicStatus.setBounds(540,68,130,27);
+        dynamicToggle.setBounds(436,68,96,27);dynamicStatus.setBounds(540,68,104,27);
+        curveA.setBounds(650,68,30,27);curveB.setBounds(684,68,30,27);curveCopy.setBounds(718,68,58,27);
         const int y=getHeight()-45;layoutDynamicRow(y-38);
         selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,124,28);soloButton.setBounds(370,y,52,28);
         sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
@@ -364,7 +397,7 @@ public:
             : selectionCount()>1?juce::String(selectionCount())+" bands selected  /  Delete removes  /  Esc clears"
             : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another")
                :juce::String(groupHint));
-        g.drawText(hint,680,72,getWidth()-736,20,juce::Justification::centredRight);
+        g.drawText(hint,786,72,getWidth()-842,20,juce::Justification::centredRight);
         } else {
             g.setColour(text);g.setFont(juce::FontOptions(16.f,juce::Font::bold));
             g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,5,170,25,juce::Justification::centredLeft);
@@ -775,8 +808,13 @@ private:
     void updateHistoryControls() {
         const int undoBank=editing.nextUndoBank(),redoBank=editing.nextRedoBank();
         undoButton.setEnabled(undoBank>=0);redoButton.setEnabled(redoBank>=0);
+        updateCurveControls();
         undoButton.setTooltip(undoBank>=0?"Undo "+juce::String(undoBank==0?"Tone EQ: ":"Final EQ: ")+editing.undoDescription():"No EQ edit to undo");
         redoButton.setTooltip(redoBank>=0?"Redo "+juce::String(redoBank==0?"Tone EQ: ":"Final EQ: ")+editing.redoDescription():"No EQ edit to redo");
+    }
+    void updateCurveControls() {
+        const int slot=editing.curveSlot(instance);
+        curveA.setToggleState(slot==0,juce::dontSendNotification);curveB.setToggleState(slot==1,juce::dontSendNotification);
     }
     void refreshEditingState() {
         cancelExternalInput();
@@ -956,6 +994,7 @@ private:
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
     uint64_t lastExternalRevision{},pendingCaptureRequest{};
+    juce::TextButton curveA,curveB,curveCopy;
     juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle,freezeToggle,peakToggle,addButton,deleteButton,undoButton,redoButton;
     juce::ComboBox selector,type,resolution,smoothing;std::array<juce::Slider,3> sliders;
     std::unique_ptr<PA> bypassAttachment,enabledAttachment,typeAttachment;std::array<std::unique_ptr<PA>,3> sliderAttachments;
