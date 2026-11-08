@@ -718,6 +718,26 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     chooser->setSelectedId(2,juce::sendNotificationSync);check(panel.selectionMask()==0b0010,"Band chooser kept the group");
     std::cout<<"PASS EQ group selection (Ctrl/Cmd+click, box, Ctrl/Cmd+A, Escape) and group drag/edge/Alt, wheel Q and delete as single undo steps bank="<<bank<<'\n';
 }
+// EQ-local A/B from the editor: the A/B buttons switch this EQ's curve and
+// show the slot; COPY to the other EQ copies its bands there.
+void curveABUI(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    auto* a=find<juce::TextButton>(panel,eqID(bank,-1,"curveA"));auto* b=find<juce::TextButton>(panel,eqID(bank,-1,"curveB"));
+    check(a && b && find<juce::TextButton>(panel,eqID(bank,-1,"curveCopy")),"A/B controls missing");
+    check(panel.curveSlot()==0 && a->getToggleState() && !b->getToggleState(),"A/B does not start on A");
+    const float gain=get(processor,eqID(bank,0,"gain"));
+    b->triggerClick();check(waitFor([&]{return panel.curveSlot()==1 && b->getToggleState() && !a->getToggleState();}),"B button did not switch");
+    set(processor,eqID(bank,0,"gain"),gain+5);settle(60);
+    a->triggerClick();check(waitFor([&]{return panel.curveSlot()==0 && std::abs(get(processor,eqID(bank,0,"gain"))-gain)<.02f;}),"A button did not restore curve A");
+    b->triggerClick();check(waitFor([&]{return std::abs(get(processor,eqID(bank,0,"gain"))-(gain+5))<.02f;}),"B button did not restore curve B");
+    a->triggerClick();check(waitFor([&]{return panel.curveSlot()==0;}),"A button did not switch back");
+    // Make the other EQ differ first (an identical copy is no change and no undo step).
+    set(processor,eqID(1-bank,0,"gain"),get(processor,eqID(bank,0,"gain"))-7);settle(60);
+    panel.applyCurveMenuResult(2);
+    check(std::abs(get(processor,eqID(1-bank,0,"gain"))-get(processor,eqID(bank,0,"gain")))<.02f,"COPY to the other EQ did not copy band 1's gain");
+    check(processor.eqEditing().occupiedMask(1-bank)==processor.eqEditing().occupiedMask(bank),"COPY to the other EQ did not copy the bands");
+    check(processor.eqEditing().undo(),"COPY to the other EQ was not undoable");
+    std::cout<<"PASS EQ A/B buttons: switch and show the slot, restore each curve, COPY to the other EQ is undoable bank="<<bank<<'\n';
+}
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -1146,6 +1166,7 @@ int main(int argc,char** argv){try {
             auto* panel=find<GraphicalEQPanel>(*editor,bank==0?"toneEQ_panel":"finalEQ_panel");
             check(panel && waitFor([&]{return panel->isShowing();}),"Group fixture panel not visible");
             groupEditing(*processor,*panel,bank);
+            curveABUI(*processor,*panel,bank);
         }
         return 0;
     }

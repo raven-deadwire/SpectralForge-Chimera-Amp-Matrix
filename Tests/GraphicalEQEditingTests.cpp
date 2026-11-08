@@ -308,6 +308,72 @@ void groupRemoval() {
     trace.balanced("Group removal");
     std::cout << "PASS group delete is one Undo/Redo step / absent slots ignored / tuning restored / balanced host gestures\n";
 }
+// EQ-local A/B: two curves per EQ, the bypass left alone; switching is a
+// recall (balanced gestures, no undo step, history cleared); copy to the other
+// slot changes nothing audible; copy to the other EQ is one undo step there;
+// curves survive a project round trip, travel with the global A/B slots, and
+// malformed curve data is ignored.
+void eqLocalAB() {
+    auto storage = std::make_unique<ChimeraProcessor>();
+    auto& processor = *storage; auto& edits = processor.eqEditing();
+    const auto values = [&](int bank) {std::vector<float> v; for (int b = 0; b < graphicalEQBands; ++b) for (auto* f : {"enabled","frequency","gain","q","type"}) v.push_back(get(processor, bank, b, f)); return v;};
+    check(edits.curveSlot(0) == 0 && edits.curveSlot(1) == 0 && !edits.hasStoredCurve(0, 0) && !edits.hasStoredCurve(0, 1), "Curves are not empty and on A at start");
+    check(edits.addBand(0, 1000.f, 3.f) == 0, "Curve A fixture");
+    hostSet(processor, 0, -1, "bypass", 1);
+    const auto curveA = values(0); const auto finalBefore = values(1); const auto maskA = edits.occupiedMask(0);
+    EQHostTrace trace(processor);
+    // The first switch to B copies the current curve: nothing changes.
+    check(edits.selectCurve(0, 1) && edits.curveSlot(0) == 1 && values(0) == curveA && edits.hasStoredCurve(0, 0), "First switch to an empty B did not copy the curve");
+    check(!edits.canUndo(), "Switching curves left undo history");
+    check(edits.addBand(0, 200.f, -4.f) == 1, "Curve B fixture");
+    localSet(processor, 0, 0, "gain", 6.f);
+    const auto curveB = values(0); const auto maskB = edits.occupiedMask(0);
+    check(maskB == 0b11 && maskA == 0b01, "Fixture masks wrong");
+    // Back to A: band 2 leaves, band 1 returns to +3 dB; the bypass stays on.
+    check(edits.selectCurve(0, 0) && edits.curveSlot(0) == 0 && values(0) == curveA && edits.occupiedMask(0) == maskA, "Switching to A did not restore curve A");
+    check(get(processor, 0, -1, "bypass") == 1.f, "Switching curves changed the EQ's bypass");
+    check(values(1) == finalBefore, "Switching the Tone EQ curve changed the Final EQ");
+    check(!edits.canUndo() && !edits.canRedo(), "Switching curves left history");
+    check(edits.selectCurve(0, 1) && values(0) == curveB && edits.occupiedMask(0) == maskB, "Switching back to B did not restore curve B");
+    trace.balanced("Curve switching");
+    // Copy B over A (nothing audible), then A is B.
+    const auto beforeCopy = values(0);
+    check(edits.copyCurveToOtherSlot(0) && values(0) == beforeCopy && edits.selectCurve(0, 0) && values(0) == curveB, "Copy to the other slot did not store the curve");
+    check(edits.selectCurve(0, 1), "Back to B failed");
+    // Copy the Tone EQ curve to the Final EQ: one undo step there.
+    check(edits.copyCurveToBank(0, 1), "Copy to the other EQ rejected");
+    const auto copied = values(1);
+    for (size_t i = 0; i < copied.size(); ++i) check(near(copied[i], curveB[i], std::max(.002f, std::abs(curveB[i]) * 1e-5f)), "Copied curve differs");
+    check(edits.occupiedMask(1) == maskB && edits.canUndo() && edits.nextUndoBank() == 1, "Copy to the other EQ was not one undo step in it");
+    check(edits.undo() && values(1) == finalBefore && edits.occupiedMask(1) == 0, "Undo of the copy did not restore the Final EQ");
+    check(edits.redo() && edits.occupiedMask(1) == maskB, "Redo of the copy failed");
+    trace.balanced("Curve copy");
+    // Project round trip: slot and both curves.
+    const auto saved = stateTree(processor);
+    auto copyStorage = std::make_unique<ChimeraProcessor>(); auto& reloaded = *copyStorage;
+    restore(reloaded, saved);
+    check(reloaded.eqEditing().curveSlot(0) == 1 && reloaded.eqEditing().hasStoredCurve(0, 0), "Project reload lost the curve slot or the stored curve");
+    check(reloaded.eqEditing().selectCurve(0, 0), "Reloaded switch failed");
+    for (int b = 0; b < graphicalEQBands; ++b) check(near(get(reloaded, 0, b, "gain"), get(processor, 0, b, "gain") * 0.f + curveB[size_t(b * 5 + 2)]), "Reloaded curve A differs");
+    // Global A/B: each global slot keeps its own EQ curves.
+    processor.selectComparison(1);
+    check(edits.selectCurve(0, 0) && edits.curveSlot(0) == 0, "Curve switch in global slot B failed");
+    processor.selectComparison(0);
+    check(edits.curveSlot(0) == 1, "Global A/B did not restore the EQ curve slot of global slot A");
+    processor.selectComparison(1);
+    check(edits.curveSlot(0) == 0, "Global A/B did not keep the EQ curve slot of global slot B");
+    processor.selectComparison(0);
+    // Malformed curve data is ignored; the rest of the project loads.
+    auto bad = stateTree(processor);
+    auto metadata = bad.getChildWithName("EQ_EDIT_STATE");
+    for (auto node : metadata) if (node.hasType("EQ_CURVE")) node.setProperty("values", "zz,1", nullptr);
+    metadata.setProperty("toneCurve", 7, nullptr);
+    auto badStorage = std::make_unique<ChimeraProcessor>(); restore(*badStorage, bad);
+    check(!badStorage->eqEditing().hasStoredCurve(0, 0) && !badStorage->eqEditing().hasStoredCurve(0, 1) && badStorage->eqEditing().curveSlot(0) == 0
+          && badStorage->eqEditing().occupiedMask(0) == edits.occupiedMask(0), "Malformed curve data was not ignored");
+    std::cout << "PASS EQ-local A/B: bypass kept, other EQ untouched, switch is a recall with balanced gestures, copy to slot / other EQ (one undo step), project round trip, per global A/B slot, malformed data ignored\n";
+}
+
 void externalOwnership() {
     auto storage = std::make_unique<ChimeraProcessor>();
     auto& processor = *storage; auto& edits = processor.eqEditing();
@@ -631,6 +697,7 @@ int main() {
         occupancyAndSlotReuse();
         transactionGrouping();
         groupRemoval();
+        eqLocalAB();
         externalOwnership();
         projectAndComparisonRecall();
         legacyAndMalformedMigration();

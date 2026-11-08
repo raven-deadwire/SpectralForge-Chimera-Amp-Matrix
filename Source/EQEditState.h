@@ -3,6 +3,7 @@
 #include <bitset>
 #include <cstring>
 #include <limits>
+#include <mutex>
 #include <optional>
 #include <vector>
 
@@ -152,6 +153,62 @@ public:
         endEdit();return ok;
     }
 
+    // One EQ curve: its band parameters (normalised) and band occupancy.
+    struct Curve {bool valid{};uint16_t mask{};std::array<float,parametersPerBank> values{};};
+    // EQ-local A/B (2026-11-08): each EQ keeps two curves, A and B. The curve
+    // is its 60 band parameters and band occupancy; the EQ's bypass is not
+    // part of it. Switching is a recall, like the global A/B: it writes the
+    // stored curve as host gestures, is not an undo step and clears the
+    // history (a barrier). The first switch to an empty slot copies the
+    // current curve there. Curves are saved with the project inside
+    // EQ_EDIT_STATE (older versions ignore them) and so also travel with
+    // each global A/B slot.
+    int curveSlot(int bank) const {std::lock_guard<std::mutex> lock(curveMutex);return validBank(bank)?activeCurve[(size_t)bank]:0;}
+    bool hasStoredCurve(int bank,int slot) const {
+        std::lock_guard<std::mutex> lock(curveMutex);
+        return validBank(bank) && (slot==0 || slot==1) && curves[(size_t)bank][(size_t)slot].valid;
+    }
+    bool selectCurve(int bank,int slot) {
+        reconcile();if(!validBank(bank) || (slot!=0 && slot!=1) || active || restoreDepth.load(std::memory_order_acquire)!=0)return false;
+        interrupted=false;
+        std::unique_lock<std::mutex> lock(curveMutex);
+        auto& current=activeCurve[(size_t)bank];if(slot==current)return true;
+        const Curve now{true,occupiedMask(bank),capture(bank)};
+        const Curve target=curves[(size_t)bank][(size_t)slot].valid?curves[(size_t)bank][(size_t)slot]:now;
+        curves[(size_t)bank][(size_t)current]=now;current=slot;
+        if(target.valid)curves[(size_t)bank][(size_t)slot]=target;
+        lock.unlock();
+        writeCurve(bank,target);
+        barrier();reconcile();notifyMetadataChange();
+        return true;
+    }
+    // Store the current curve in the other slot; nothing audible changes.
+    bool copyCurveToOtherSlot(int bank) {
+        if(!validBank(bank))return false;
+        {std::lock_guard<std::mutex> lock(curveMutex);curves[(size_t)bank][(size_t)(1-activeCurve[(size_t)bank])]={true,occupiedMask(bank),capture(bank)};}
+        notifyMetadataChange();return true;
+    }
+    // Replace the other EQ's curve with this one: one undo step in that EQ.
+    bool copyCurveToBank(int from,int to) {
+        reconcile();if(!validBank(from) || !validBank(to) || from==to || active || restoreDepth.load(std::memory_order_acquire)!=0)return false;
+        interrupted=false;
+        const auto source=capture(from);const uint16_t sourceMask=occupiedMask(from);
+        if(!beginEdit(to,juce::String("Copy ")+(from==0?"Tone":"Final")+" EQ curve"))return false;
+        // Publish every source node first (setValue only writes occupied
+        // slots), disable before retuning, and enable last, as undo does.
+        setOccupied(to,uint16_t(occupiedMask(to)|sourceMask));
+        bool ok=true;
+        for(int phase=0;phase<3 && ok;++phase)for(int band=0;band<graphicalEQBands && ok;++band)for(int field=0;field<5 && ok;++field) {
+            if(!isOccupied(to,band))continue; // vacant in both: stays vacant
+            const int index=1+5*band+field;const float normal=source[(size_t)index];
+            const int order=field==0?(normal>.5f?2:0):1;if(order!=phase)continue;
+            auto* parameter=binding(to,index).parameter;
+            ok=setValue(to,band,fields[(size_t)field],parameter->convertFrom0to1(normal));
+        }
+        if(ok && alive(to))setOccupied(to,uint16_t(sourceMask|enabledMask(to)));
+        endEdit();return ok;
+    }
+
     bool canUndo(){reconcile();return ready() && !undoStack.empty();}
     bool canRedo(){reconcile();return ready() && !redoStack.empty();}
     bool undo(){return replay(false);}
@@ -172,6 +229,17 @@ public:
         juce::ValueTree metadata("EQ_EDIT_STATE");metadata.setProperty("schema",1,nullptr);
         metadata.setProperty("toneOccupied",int(occupiedMask(0)),nullptr);
         metadata.setProperty("finalOccupied",int(occupiedMask(1)),nullptr);
+        {
+            std::lock_guard<std::mutex> lock(curveMutex);
+            metadata.setProperty("toneCurve",activeCurve[0],nullptr);metadata.setProperty("finalCurve",activeCurve[1],nullptr);
+            for(int bank=0;bank<2;++bank)for(int slot=0;slot<2;++slot)if(const auto& curve=curves[(size_t)bank][(size_t)slot];curve.valid) {
+                // Values as exact float bit patterns.
+                juce::StringArray bits;for(float v:curve.values){uint32_t b;std::memcpy(&b,&v,4);bits.add(juce::String::toHexString(juce::int64(b)));}
+                juce::ValueTree node("EQ_CURVE");node.setProperty("bank",bank,nullptr);node.setProperty("slot",slot,nullptr);
+                node.setProperty("mask",int(curve.mask),nullptr);node.setProperty("values",bits.joinIntoString(","),nullptr);
+                metadata.appendChild(node,nullptr);
+            }
+        }
         root.appendChild(metadata,nullptr);
     }
 
@@ -180,20 +248,56 @@ public:
         RestoreScope(EQEditState& owner,const juce::ValueTree& incoming,bool factory=false):edits(owner) {
             edits.restoreDepth.fetch_add(1,std::memory_order_acq_rel);edits.barrier();
             masks=factory?std::array<uint16_t,2>{0,0}:readMetadata(incoming);
+            if(!factory)readCurves(incoming,curves,slots);
         }
         ~RestoreScope() {
             for(int bank=0;bank<2;++bank)
                 edits.occupied[(size_t)bank].store(uint16_t(masks[(size_t)bank]|edits.enabledMask(bank)),std::memory_order_release);
+            {std::lock_guard<std::mutex> lock(edits.curveMutex);edits.curves=curves;edits.activeCurve=slots;}
             edits.barrier();edits.restoreDepth.fetch_sub(1,std::memory_order_acq_rel);
         }
         RestoreScope(const RestoreScope&)=delete;
         RestoreScope& operator=(const RestoreScope&)=delete;
     private:
         EQEditState& edits;std::array<uint16_t,2> masks{};
+        std::array<std::array<Curve,2>,2> curves{};std::array<int,2> slots{0,0};
     };
 
 private:
     inline static constexpr std::array<const char*,5> fields{"enabled","frequency","gain","q","type"};
+    // Write a stored curve (not the bypass) as one set of host gestures, in
+    // the same order undo uses; occupancy follows the stored mask.
+    void writeCurve(int bank,const Curve& target) {
+        const auto now=capture(bank);gestureBank=bank;
+        for(int i=1;i<parametersPerBank;++i)if(!sameBits(now[(size_t)i],target.values[(size_t)i])){gestures.set((size_t)i);binding(bank,i).parameter->beginChangeGesture();}
+        setOccupied(bank,uint16_t(occupiedMask(bank)|target.mask));
+        for(int phase=0;phase<3;++phase)for(int i=1;i<parametersPerBank;++i)if(gestures.test((size_t)i)) {
+            const bool enabled=(i-1)%5==0;const int order=enabled?(target.values[(size_t)i]>.5f?2:0):1;if(order!=phase)continue;
+            auto* parameter=binding(bank,i).parameter;
+            OwnWrite own(*this,binding(bank,i),target.values[(size_t)i]);parameter->setValueNotifyingHost(target.values[(size_t)i]);
+        }
+        endGestures();
+        setOccupied(bank,uint16_t(target.mask|enabledMask(bank)));
+    }
+    static void readCurves(const juce::ValueTree& root,std::array<std::array<Curve,2>,2>& curves,std::array<int,2>& slots) {
+        const auto metadata=root.getChildWithName("EQ_EDIT_STATE");if(!metadata.isValid())return;
+        constexpr std::array<const char*,2> keys{"toneCurve","finalCurve"};
+        for(int bank=0;bank<2;++bank){const int slot=int(metadata.getProperty(keys[(size_t)bank],0));slots[(size_t)bank]=slot==1?1:0;}
+        for(auto node:metadata) {
+            if(!node.hasType("EQ_CURVE"))continue;
+            const int bank=int(node.getProperty("bank",-1)),slot=int(node.getProperty("slot",-1)),mask=int(node.getProperty("mask",-1));
+            if(!validBank(bank) || (slot!=0 && slot!=1) || mask<0 || mask>allSlots)continue;
+            juce::StringArray bits;bits.addTokens(node.getProperty("values").toString(),",",{});
+            if(bits.size()!=parametersPerBank)continue;
+            Curve curve{true,uint16_t(mask),{}};bool ok=true;
+            for(int i=0;i<parametersPerBank && ok;++i) {
+                const auto text=bits[i].trim();if(text.isEmpty() || text.length()>8 || !text.containsOnly("0123456789abcdefABCDEF")){ok=false;break;}
+                const uint32_t b=uint32_t(text.getHexValue64());float v;std::memcpy(&v,&b,4);
+                ok=std::isfinite(v) && v>=0.f && v<=1.f;curve.values[(size_t)i]=v;
+            }
+            if(ok)curves[(size_t)bank][(size_t)slot]=curve;
+        }
+    }
     struct Binding {
         juce::String id;juce::RangedAudioParameter* parameter{};std::atomic<float>* raw{};
         int bank{},band{},field{},hostIndex{};
@@ -342,6 +446,7 @@ private:
     juce::AudioProcessorValueTreeState& state;
     std::array<Binding,graphicalEQParameterCount> bindings;
     std::array<std::atomic<uint16_t>,2> occupied{};
+    mutable std::mutex curveMutex;std::array<std::array<Curve,2>,2> curves{};std::array<int,2> activeCurve{0,0};
     std::atomic<uint64_t> epoch{1},presentationRevision{1};
     std::atomic<unsigned> restoreDepth{0};
     uint64_t observedEpoch{};std::optional<Action> active;

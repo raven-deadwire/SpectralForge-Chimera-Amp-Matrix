@@ -125,6 +125,27 @@
 - 선택 자체는 에디터 표시 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않는다.
 - 검증: `ChimeraGraphicalEQGroupEditTests`(양쪽 EQ, `ChimeraGraphicalEQUITests --group-edit`). Ctrl/Cmd+클릭 추가·제거(선택 밴드를 빼면 다음 밴드로), Ctrl/Cmd+A, Esc, 상자 선택과 Ctrl/Cmd+상자, 빈 곳 클릭, 선택만으로 저장 상태 불변, 묶음 드래그의 비율 ×2·+4 dB와 묶음 밖 밴드 불변, 필드마다 제스처 한 쌍(6/6), 20 kHz에서 멈추는 밴드와 게인 없는 HP, Alt 축 고정, 휠 Q, 묶음 삭제와 Undo/Redo, 묶음 밖 클릭·밴드 목록으로 새로 시작을 확인하고 `eq-group-edit/group_bank*.png`를 남긴다. `ChimeraGraphicalEQEditingTests`의 `groupRemoval`은 여러 밴드 삭제가 Undo 한 단계로 튜닝까지 되돌아오는지, 없는 슬롯을 무시하는지 확인한다. 오른쪽 클릭 메뉴 자체와 실제 DAW·트랙패드 조작은 자동 검증 범위 밖이다.
 
+## EQ별 A/B와 복사 (2026-11-08, Issue #53)
+
+- **A / B:** Tone EQ와 Final EQ는 각각 곡선 두 개(A, B)를 가진다.
+  - 곡선은 그 EQ의 밴드 파라미터 60개와 밴드 점유 상태다. EQ 바이패스와 다른 EQ는 포함하지 않는다.
+  - 처음 빈 슬롯으로 바꾸면 현재 곡선을 그 슬롯에 복사한다.
+- **전환은 불러오기다(전체 A/B와 같은 규칙):**
+  - 바뀐 밴드 값을 호스트 제스처로 쓴다. 쓰는 순서는 Undo와 같다: 끄기 → 값 → 켜기.
+  - Undo 단계가 아니고, 그 EQ의 Undo 기록을 비운다(barrier).
+- **COPY 메뉴:**
+  - "Copy A to B"(또는 B to A)는 현재 곡선을 다른 슬롯에 넣는다. 소리는 바뀌지 않는다.
+  - "Copy this curve to the Final EQ"(또는 Tone EQ)는 받는 EQ의 곡선을 바꾼다. 받는 EQ에서 **Undo 한 단계**다. 두 EQ 모두 빈 슬롯은 빈 채로 둔다.
+- **저장:**
+  - 활성 슬롯과 두 곡선은 `EQ_EDIT_STATE` 안의 선택 항목(`toneCurve`, `finalCurve`, `EQ_CURVE` 노드, 값은 float 비트 그대로)으로 프로젝트에 저장된다. 이전 버전은 이 항목을 무시한다.
+  - 전체 A/B 슬롯마다 따로 따라간다.
+  - 형식이 틀린 곡선 데이터는 버리고, 나머지 프로젝트는 그대로 불러온다.
+  - 공장 프리셋은 곡선을 비운다.
+- **검증:**
+  - `ChimeraGraphicalEQEditingTests`의 `eqLocalAB`: 바이패스 유지, 다른 EQ 불변, 전환 시 제스처 균형과 기록 비움, 슬롯 복사, 다른 EQ로 복사와 Undo/Redo, 프로젝트 저장·불러오기, 전체 A/B 슬롯별 보존, 손상 데이터 무시.
+  - `ChimeraGraphicalEQGroupEditTests`의 `curveABUI`(양쪽 EQ): A/B 버튼 표시와 전환, COPY to the other EQ와 그 Undo.
+- **자동 검증 밖:** COPY 팝업 메뉴 자체, 실제 DAW의 자동화 표시.
+
 ## 이 환경에서 자동 검증할 수 있는 항목
 
 1. `ChimeraGraphicalEQEditingTests`: 실제 processor의 모든 EQ 파라미터 계약, 점유/우회/삭제/재사용, 64작업 이력, 동기·별도 스레드·재진입 호스트 쓰기, binary project, A/B, legacy/malformed migration, 모든 공장 프리셋, 44.1/48/96/192 kHz 오디오 동등성.
