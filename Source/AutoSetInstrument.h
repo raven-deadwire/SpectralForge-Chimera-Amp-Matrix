@@ -100,7 +100,9 @@ inline std::vector<PitchFrame> trackPitch(const std::vector<float>& x12k,bool sh
         std::fill(buffer.begin(),buffer.end(),0.f);double energy=0;prefix[0]=0;
         for(int n=0;n<frame;++n){const float s=x12k[start+size_t(n)];buffer[size_t(n)]=s;energy+=double(s)*s;prefix[size_t(n+1)]=prefix[size_t(n)]+double(s)*s;}
         if(energy<=1e-12){out.push_back({});continue;}
-        // Autocorrelation through |FFT|^2 (real-only transform packs re/im pairs).
+        // Autocorrelation through |FFT|^2. JUCE's real-only forward transform returns
+        // interleaved re/im pairs (juce_FFT.h); the inverse rebuilds the negative
+        // frequencies from bins 0..N/2, so only those are squared.
         fft.performRealOnlyForwardTransform(buffer.data());
         for(int k=0;k<=fftSize/2;++k){const float re=buffer[size_t(2*k)],im=buffer[size_t(2*k+1)];buffer[size_t(2*k)]=re*re+im*im;buffer[size_t(2*k+1)]=0;}
         fft.performRealOnlyInverseTransform(buffer.data());
@@ -230,7 +232,7 @@ inline InstrumentResult classifyInstrument(const std::vector<float>& samples,dou
                 mean/=n;sum+=(cents[k]-mean)*(cents[k]-mean);
             }
             vibrato.push_back(float(std::sqrt(sum/double(cents.size()))));
-            const float head=quantile({cents.begin(),cents.begin()+5},.5f),tail=quantile({cents.end()-5,cents.end()},.5f);
+            const float head=quantile(std::vector<float>(cents.begin(),cents.begin()+5),.5f),tail=quantile(std::vector<float>(cents.end()-5,cents.end()),.5f);
             if(std::abs(tail-head)>=80.f)++glides;
             ++f.heldSegments;
         }

@@ -570,7 +570,7 @@ private:
         lastInstrument={};
         if(ampSamples.size()<size_t(rate()))return;
         const size_t keep=std::min(ampSamples.size(),size_t(12*rate()));
-        lastInstrument=classifyInstrument({ampSamples.end()-std::ptrdiff_t(keep),ampSamples.end()},rate());
+        lastInstrument=classifyInstrument(std::vector<float>(ampSamples.end()-std::ptrdiff_t(keep),ampSamples.end()),rate());
     }
     juce::String instrumentText() const {
         if(runOptions.instrument!=0)return runOptions.instrument==2?"Bass (chosen)":"Guitar (chosen)";
