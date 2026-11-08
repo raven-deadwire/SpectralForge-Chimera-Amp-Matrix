@@ -25,7 +25,7 @@ work=$(cd "$work" && pwd)
 
 dmg="$work/OBS-Studio-$obs_version-macOS-$flavor.dmg"
 if [ ! -f "$dmg" ]; then
-    curl -fsSL -o "$dmg" "https://github.com/obsproject/obs-studio/releases/download/$obs_version/OBS-Studio-$obs_version-macOS-$flavor.dmg"
+    curl -fsSL --retry 5 --retry-delay 30 --retry-all-errors -o "$dmg" "https://github.com/obsproject/obs-studio/releases/download/$obs_version/OBS-Studio-$obs_version-macOS-$flavor.dmg"
 fi
 actual=$(shasum -a 256 "$dmg" | cut -d' ' -f1)
 [ "$actual" = "$dmg_sha256" ] || { echo "OBS $obs_version $flavor release hash mismatch: $actual" >&2; exit 1; }

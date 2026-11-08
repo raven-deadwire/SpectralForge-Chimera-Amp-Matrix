@@ -3,6 +3,7 @@
 #pragma once
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <cstdint>
 #include <thread>
 #include <vector>
@@ -42,8 +43,14 @@ public:
         engineChannels = obsChannels >= 2 ? 2 : 1;
         // A whole Dry tick is transactional: never commit mapped/processed samples
         // until the engine succeeds. Allocate off the audio thread, even if the
-        // policy is currently Mute (it may change without re-preparing).
-        for (auto& channel : dryWork) channel.resize(static_cast<size_t>(capacity));
+        // policy is currently Mute (it may change without re-preparing). OBS hands
+        // a media source's audio to its filters in ticks larger than one output
+        // tick (about 4096 frames on Windows and macOS), so the work buffer holds
+        // up to a second; the engine still gets chunks of at most `capacity`. A rate
+        // outside (0, 1 MHz), NaN included, is not cast (the cast would be undefined).
+        const bool sensibleRate = sampleRate > 0.0 && sampleRate < 1000000.0;
+        dryCapacity = std::max(capacity, sensibleRate ? static_cast<int>(std::ceil(sampleRate)) : capacity);
+        for (auto& channel : dryWork) channel.resize(static_cast<size_t>(dryCapacity));
         const bool ok = sampleRate > 0 && obsChannels >= 1 && obsChannels <= maxPlanes
             && engine.prepare(sampleRate, engineChannels, capacity);
         latency.store(ok ? std::max(0, engine.latency()) : 0);
@@ -83,10 +90,10 @@ public:
         } else if (state.load() == BridgeStatus::EngineFailed) {
             fail(planes, obsChannels, frames, BridgeStatus::EngineFailed, tickPolicy);
         } else {
-            // Dry ticks larger than the prepared whole-tick capacity bypass DSP
+            // Dry ticks longer than the work buffer (a second) bypass DSP
             // unchanged, return false for statistics, and do not latch a fault.
             // Mute retains allocation-free chunking for arbitrarily large ticks.
-            if (tickPolicy == FailurePolicy::Dry && frames > capacity) {
+            if (tickPolicy == FailurePolicy::Dry && frames > dryCapacity) {
                 active.fetch_sub(1);
                 return false;
             }
@@ -159,7 +166,7 @@ private:
 
     Engine& engine;
     double rate{};
-    int hostChannels{}, engineChannels{1}, capacity{1};
+    int hostChannels{}, engineChannels{1}, capacity{1}, dryCapacity{1};
     std::vector<float> dryWork[2];
     std::atomic<bool> ready{false};
     std::atomic<int> active{0}, latency{0};
