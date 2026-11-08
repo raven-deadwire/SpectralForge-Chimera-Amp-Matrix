@@ -287,7 +287,7 @@ jobs:
         shell: pwsh
         run: |
           $zip = Join-Path $env:RUNNER_TEMP "obs-32.2.2.zip"
-          Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip" -OutFile $zip
+          Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip" -OutFile $zip -MaximumRetryCount 5 -RetryIntervalSec 30
           $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           if ($hash -ne "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1") { throw "OBS 32.2.2 release hash mismatch: $hash" }
           $obs = Join-Path $env:RUNNER_TEMP "obs-app-obs32"
