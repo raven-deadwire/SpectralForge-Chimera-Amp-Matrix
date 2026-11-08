@@ -2,6 +2,7 @@
 #include "GraphicalEQ.h"
 #include <bitset>
 #include <cstring>
+#include <algorithm>
 #include <limits>
 #include <mutex>
 #include <optional>
@@ -171,15 +172,22 @@ public:
     bool selectCurve(int bank,int slot) {
         reconcile();if(!validBank(bank) || (slot!=0 && slot!=1) || active || restoreDepth.load(std::memory_order_acquire)!=0)return false;
         interrupted=false;
-        std::unique_lock<std::mutex> lock(curveMutex);
-        auto& current=activeCurve[(size_t)bank];if(slot==current)return true;
-        const Curve now{true,occupiedMask(bank),capture(bank)};
-        const Curve target=curves[(size_t)bank][(size_t)slot].valid?curves[(size_t)bank][(size_t)slot]:now;
-        curves[(size_t)bank][(size_t)current]=now;current=slot;
-        if(target.valid)curves[(size_t)bank][(size_t)slot]=target;
-        lock.unlock();
-        writeCurve(bank,target);
-        barrier();reconcile();notifyMetadataChange();
+        Curve now,target;int current;
+        {
+            std::lock_guard<std::mutex> lock(curveMutex);
+            current=activeCurve[(size_t)bank];if(slot==current)return true;
+            now={true,occupiedMask(bank),capture(bank)};
+            target=curves[(size_t)bank][(size_t)slot].valid?curves[(size_t)bank][(size_t)slot]:now;
+        }
+        // A host or automation write during the switch wins: stop, keep the
+        // slot and the stored curves as they were.
+        if(!writeCurve(bank,target)){reconcile();notifyMetadataChange();return false;}
+        {
+            std::lock_guard<std::mutex> lock(curveMutex);
+            curves[(size_t)bank][(size_t)current]=now;curves[(size_t)bank][(size_t)slot]=target;activeCurve[(size_t)bank]=slot;
+        }
+        // A recall for this EQ: its history goes; the other EQ keeps its own.
+        clearHistory(bank);presentationRevision.fetch_add(1,std::memory_order_release);notifyMetadataChange();
         return true;
     }
     // Store the current curve in the other slot; nothing audible changes.
@@ -266,21 +274,47 @@ public:
 private:
     inline static constexpr std::array<const char*,5> fields{"enabled","frequency","gain","q","type"};
     // Write a stored curve (not the bypass) as one set of host gestures, in
-    // the same order undo uses; occupancy follows the stored mask.
-    void writeCurve(int bank,const Curve& target) {
-        const auto now=capture(bank);gestureBank=bank;
-        for(int i=1;i<parametersPerBank;++i)if(!sameBits(now[(size_t)i],target.values[(size_t)i])){gestures.set((size_t)i);binding(bank,i).parameter->beginChangeGesture();}
-        setOccupied(bank,uint16_t(occupiedMask(bank)|target.mask));
-        for(int phase=0;phase<3;++phase)for(int i=1;i<parametersPerBank;++i)if(gestures.test((size_t)i)) {
+    // the same order undo uses; occupancy follows the stored mask. Stops, and
+    // returns false, as soon as anything else writes an EQ parameter (the
+    // epoch moves) or a restore starts, as undo/redo do.
+    bool writeCurve(int bank,const Curve& target) {
+        const auto now=capture(bank);const uint16_t before=occupiedMask(bank);
+        const auto token=epoch.load(std::memory_order_acquire);
+        const auto intact=[&]{return token==epoch.load(std::memory_order_acquire) && restoreDepth.load(std::memory_order_acquire)==0;};
+        gestureBank=bank;
+        for(int i=1;i<parametersPerBank;++i)if(!sameBits(now[(size_t)i],target.values[(size_t)i])) {
+            if(!intact()){endGestures();return false;}
+            gestures.set((size_t)i);binding(bank,i).parameter->beginChangeGesture();
+        }
+        if(!intact()){endGestures();return false;}
+        setOccupied(bank,uint16_t(before|target.mask));
+        bool ok=true;
+        for(int phase=0;phase<3 && ok;++phase)for(int i=1;i<parametersPerBank;++i)if(gestures.test((size_t)i)) {
             const bool enabled=(i-1)%5==0;const int order=enabled?(target.values[(size_t)i]>.5f?2:0):1;if(order!=phase)continue;
+            if(!intact()){ok=false;break;}
             auto* parameter=binding(bank,i).parameter;
-            OwnWrite own(*this,binding(bank,i),target.values[(size_t)i]);parameter->setValueNotifyingHost(target.values[(size_t)i]);
+            {OwnWrite own(*this,binding(bank,i),target.values[(size_t)i]);parameter->setValueNotifyingHost(target.values[(size_t)i]);}
+            if(!intact() || !sameNormal(parameter->getValue(),target.values[(size_t)i])){ok=false;break;}
         }
         endGestures();
-        setOccupied(bank,uint16_t(target.mask|enabledMask(bank)));
+        ok=ok && intact();
+        setOccupied(bank,uint16_t((ok?target.mask:before)|enabledMask(bank)));
+        return ok;
+    }
+    void clearHistory(int bank) {
+        const auto other=[bank](const Action& action){return action.bank==bank;};
+        undoStack.erase(std::remove_if(undoStack.begin(),undoStack.end(),other),undoStack.end());
+        redoStack.erase(std::remove_if(redoStack.begin(),redoStack.end(),other),redoStack.end());
     }
     static void readCurves(const juce::ValueTree& root,std::array<std::array<Curve,2>,2>& curves,std::array<int,2>& slots) {
-        const auto metadata=root.getChildWithName("EQ_EDIT_STATE");if(!metadata.isValid())return;
+        // The same acceptance as the occupancy: exactly one EQ_EDIT_STATE of
+        // schema 1 with valid occupancy; anything else leaves both curves empty.
+        constexpr std::array<uint16_t,2> legacy{allSlots,allSlots};
+        int count=0;for(auto child:root)if(child.hasType("EQ_EDIT_STATE"))++count;
+        const auto metadata=root.getChildWithName("EQ_EDIT_STATE");
+        if(count!=1 || metadata.getProperty("schema").toString()!="1")return;
+        if(readMetadata(root)==legacy && !(metadata.getProperty("toneOccupied").toString()==juce::String(int(allSlots))
+                                           && metadata.getProperty("finalOccupied").toString()==juce::String(int(allSlots))))return;
         constexpr std::array<const char*,2> keys{"toneCurve","finalCurve"};
         for(int bank=0;bank<2;++bank){const int slot=int(metadata.getProperty(keys[(size_t)bank],0));slots[(size_t)bank]=slot==1?1:0;}
         for(auto node:metadata) {

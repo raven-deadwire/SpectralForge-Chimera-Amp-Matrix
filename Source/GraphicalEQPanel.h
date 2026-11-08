@@ -47,16 +47,26 @@ public:
         curveCopy.setTooltip("Copy this curve to the other slot, or to the other EQ (one undo step there).");
         curveA.onClick=[this]{switchCurve(0);};curveB.onClick=[this]{switchCurve(1);};
         curveCopy.onClick=[this]{
-            juce::PopupMenu menu;const int slot=editing.curveSlot(instance);
+            juce::PopupMenu menu;const int slot=editing.curveSlot(instance);const auto revision=editing.revision();
             menu.addItem(1,juce::String("Copy ")+(slot==0?"A to B":"B to A"));
             menu.addItem(2,juce::String("Copy this curve to the ")+(instance==0?"Final EQ":"Tone EQ"));
             juce::Component::SafePointer<GraphicalEQPanel> safe(this);
-            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&curveCopy),[safe](int result){if(safe && safe->isShowing())safe->applyCurveMenuResult(result);});
+            // A late answer after a switch, recall or edit would copy the wrong way: ignore it.
+            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&curveCopy),[safe,slot,revision](int result){
+                if(safe && safe->isShowing() && safe->editing.curveSlot(safe->instance)==slot && safe->editing.revision()==revision)safe->applyCurveMenuResult(result);
+            });
         };
         addButton.setTooltip("Add a Bell band at 1 kHz, or double-click the graph at the frequency and gain you need.");
         deleteButton.setTooltip("Remove this band. BAND ON keeps a bypassed band available for editing.");
         addButton.onClick=[this]{createBand(1000.f,0.f);};deleteButton.onClick=[this]{deleteSelectedBand();};
         undoButton.onClick=[this]{applyHistory(false);};redoButton.onClick=[this]{applyHistory(true);};
+        // Momentary band solo: hear only this band's region while held.
+        soloButton.setButtonText("SOLO");soloButton.setComponentID(eqID(e,-1,"solo"));addAndMakeVisible(soloButton);
+        soloButton.setTooltip("Hold to hear only this band's region; release to hear the full EQ again. Middle-click and hold a node in the graph does the same. Nothing is saved.");
+        soloButton.onStateChange=[this]{
+            if(soloButton.isDown()){if(auditioning<0)startAudition(selected,false);}
+            else if(auditioning>=0 && !auditionFromGraph)stopAudition();
+        };
         analyzerToggle.setTooltip("Run the selected EQ's live spectrum analyzer. Analysis does not change the sound.");
         inputToggle.setTooltip("Show the dashed input spectrum of this EQ, averaged by stereo power.");
         outputToggle.setTooltip(e==0?"Show the solid output spectrum of Tone EQ, before POST."
@@ -124,8 +134,18 @@ public:
         }
         refreshEditingState();updateResolutionTooltip();startTimerHz(25);
     }
-    ~GraphicalEQPanel() override {stopTimer();endDrag();dsp.analyzer.enabled.store(false);}
-    void visibilityChanged() override {if(!isShowing()){discardPendingNumericInput();endDrag();}updateAnalyzer();}
+    ~GraphicalEQPanel() override {stopTimer();endDrag();stopAudition();dsp.analyzer.enabled.store(false);}
+    void visibilityChanged() override {if(!isShowing()){discardPendingNumericInput();endDrag();stopAudition();}updateAnalyzer();}
+    // The band being soloed from this editor (-1: none).
+    int auditioningBand() const noexcept {return auditioning;}
+    void startAudition(int band,bool fromGraph) {
+        if(band<0 || band>=graphicalEQBands || !isBandVisible(band) || !isShowing())return;
+        auditioning=band;auditionFromGraph=fromGraph;dsp.setAudition(band);repaint();
+    }
+    void stopAudition() {
+        if(auditioning<0)return;
+        auditioning=-1;auditionFromGraph=false;dsp.setAudition(-1);repaint();
+    }
     void parentHierarchyChanged() override {updateAnalyzer();}
     int selectedBand() const noexcept {return selected;}
     // Presentation only: reuse this editor inside the focused Dynamic EQ page.
@@ -330,7 +350,7 @@ public:
             dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,100,25);
             curveA.setBounds(612,34,30,25);curveB.setBounds(646,34,30,25);curveCopy.setBounds(680,34,58,25);
             const int y=getHeight()-33;layoutDynamicRow(y-37);
-            selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
+            selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,124,28);soloButton.setBounds(370,y,52,28);
             sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
             rebuildResponse();rebuildSpectrumPaths();repaint();return;
         }
@@ -344,7 +364,7 @@ public:
         dynamicToggle.setBounds(436,68,96,27);dynamicStatus.setBounds(540,68,104,27);
         curveA.setBounds(650,68,30,27);curveB.setBounds(684,68,30,27);curveCopy.setBounds(718,68,58,27);
         const int y=getHeight()-45;layoutDynamicRow(y-38);
-        selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
+        selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,124,28);soloButton.setBounds(370,y,52,28);
         sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
         rebuildResponse();rebuildSpectrumPaths();repaint();
     }
@@ -511,6 +531,8 @@ public:
             }
             return;
         }
+        // Middle-click and hold on a node: solo that band until release.
+        if(event.mods.isMiddleButtonDown()){selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);startAudition(closest,true);return;}
         // Ctrl/Cmd+click adds or removes a band from the group (no drag).
         if(event.mods.isCommandDown() && event.mods.isLeftButtonDown() && !event.mods.isPopupMenu()){toggleBandInSelection(closest);return;}
         // A plain press on a group member keeps the group; elsewhere it starts a new one.
@@ -577,6 +599,7 @@ public:
     }
     static constexpr float fineDragScale=.1f,axisLockPixels=4.f;
     void mouseUp(const juce::MouseEvent& event) override {
+        if(auditioning>=0 && auditionFromGraph){stopAudition();return;}
         if(marqueeActive) {
             marqueeEnd=plot().getConstrainedPoint(event.position);const auto area=marqueeArea();marqueeActive=false;
             // A click without a box keeps the selection (a double-click adds a band).
@@ -665,6 +688,7 @@ private:
     void endDrag(){groupDrag=false;if(dragging || sliderEditing){editing.endEdit();dragging=sliderEditing=false;updateHistoryControls();}}
     void drawNode(juce::Graphics& g,int band,bool chosen,bool member=false) const {
         const auto v=dsp.values(band);const auto p=visibleNodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
+        if(band==auditioning){g.setColour(juce::Colour(0xfff0d39b));g.setFont(juce::FontOptions(10.f,juce::Font::bold));g.drawText("SOLO",int(p.x)-20,int(p.y)-r-18,40,12,juce::Justification::centred);}
         if(member || (chosen && selectionCount()>1)){g.setColour(juce::Colour(0xfff0d39b).withAlpha(.85f));g.drawEllipse(p.x-r-4,p.y-r-4,2*r+8,2*r+8,1.5f);}
         const juce::Colour colour(chosen?0xfff0d39b:v.enabled?0xffb5d6c6:0xff718d8a);
         if(chosen){g.setColour(colour.withAlpha(.12f));g.fillEllipse(p.x-13,p.y-13,26,26);}
@@ -680,6 +704,7 @@ private:
     }
     void selectBand(int band) {
         cancelExternalInput();discardPendingNumericInput();
+        if(auditioning>=0 && auditioning!=band)stopAudition();
         endDrag();selected=(band>=0 && band<graphicalEQBands && isBandVisible(band))?band:-1;
         enabledAttachment.reset();typeAttachment.reset();for(auto& a:sliderAttachments)a.reset();
         selector.setSelectedId(selected+1,juce::dontSendNotification);
@@ -717,7 +742,8 @@ private:
         const bool chosen=selected>=0 && isBandVisible(selected);
         selector.setEnabled(occupiedCount()>0);enabled.setEnabled(chosen);type.setEnabled(chosen);
         sliders[0].setEnabled(chosen);sliders[1].setEnabled(chosen && gainApplicable());sliders[2].setEnabled(chosen);
-        deleteButton.setEnabled(chosen);addButton.setEnabled(occupiedCount()<graphicalEQBands);
+        deleteButton.setEnabled(chosen);addButton.setEnabled(occupiedCount()<graphicalEQBands);soloButton.setEnabled(chosen);
+        if(auditioning>=0 && !isBandVisible(auditioning))stopAudition();
         updateDynamicControls();
     }
     // The dynamics row appears only for a band with DYNAMIC on; the graph
@@ -922,6 +948,9 @@ private:
         pathMicros=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();
     }
     void timerCallback() override {
+        // Keep a held solo alive; a hidden editor lets it go (the DSP also
+        // ends it by itself 400 ms after the last heartbeat).
+        if(auditioning>=0){if(isShowing())dsp.auditionHeartbeat();else stopAudition();}
         const auto diagnosticStart=diagnosticObserver?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
         updateAnalyzer();refreshEditingState();if(!isShowing())return;bool changed=false;
         freezeToggle.setEnabled(spectrum.isFrozen() || spectrum.canFreezeSnapshot());
@@ -958,6 +987,7 @@ private:
     DragAxis dragAxis{DragAxis::free};
     bool dragAltDown{};
     juce::Point<float> dragAnchor,dragPoint,lastPointer;
+    juce::TextButton soloButton;int auditioning{-1};bool auditionFromGraph{};
     uint16_t groupMask{};bool groupDrag{},marqueeActive{},marqueeAdd{};juce::Point<float> marqueeStart,marqueeEnd;
     struct GroupStart {int band{};float frequency{},gain{};bool hasGain{};};
     std::array<GroupStart,graphicalEQBands> groupStart{};int groupStartCount{};

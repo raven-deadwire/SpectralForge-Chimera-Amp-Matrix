@@ -308,6 +308,69 @@ void groupRemoval() {
     trace.balanced("Group removal");
     std::cout << "PASS group delete is one Undo/Redo step / absent slots ignored / tuning restored / balanced host gestures\n";
 }
+// Review regressions (#290): a host write during a switch wins and the slot
+// stays; a switch clears only its EQ's history; every combination of global
+// A/B x Tone/Final x local A/B keeps its own values and bands.
+void eqLocalABRegressions() {
+    {
+        auto storage = std::make_unique<ChimeraProcessor>(); auto& processor = *storage; auto& edits = processor.eqEditing();
+        check(edits.addBand(0, 1000.f, 3.f) == 0 && edits.selectCurve(0, 1), "Intervention fixture");
+        localSet(processor, 0, 0, "gain", 9.f);
+        // While switching back to A (+3 dB), automation writes -3 dB at the first gesture.
+        struct Intervene : juce::AudioProcessorParameter::Listener {
+            juce::RangedAudioParameter* gain{}; bool done{};
+            void parameterValueChanged(int, float) override {}
+            void parameterGestureChanged(int, bool starting) override {if (starting && !done) {done = true; gain->setValueNotifyingHost(gain->convertTo0to1(-3.f));}}
+        } intervene;
+        intervene.gain = processor.parameters().getParameter(eqID(0, 0, "gain"));
+        intervene.gain->addListener(&intervene);
+        const bool switched = edits.selectCurve(0, 0);
+        intervene.gain->removeListener(&intervene);
+        check(intervene.done, "Intervention fixture did not fire");
+        check(!switched, "A switch overwritten by automation reported success");
+        check(near(get(processor, 0, 0, "gain"), -3.f, .02f), "A switch overwrote a host write made during it");
+        check(edits.curveSlot(0) == 1, "A failed switch changed the slot");
+        check(edits.selectCurve(0, 0) && near(get(processor, 0, 0, "gain"), 3.f, .02f), "The stored curve A was lost after a failed switch");
+    }
+    {
+        auto storage = std::make_unique<ChimeraProcessor>(); auto& processor = *storage; auto& edits = processor.eqEditing();
+        check(edits.addBand(0, 1000.f, 3.f) == 0 && edits.addBand(1, 500.f, -2.f) == 0, "History fixture");
+        localSet(processor, 1, 0, "gain", 4.f);
+        check(edits.selectCurve(0, 1), "Tone switch failed");
+        check(edits.canUndo() && edits.nextUndoBank() == 1, "A Tone EQ switch cleared the Final EQ's history");
+        check(edits.undo() && near(get(processor, 1, 0, "gain"), -2.f, .02f), "The Final EQ's undo after a Tone switch failed");
+    }
+    {
+        // Distinct values and bands in every combination.
+        auto storage = std::make_unique<ChimeraProcessor>(); auto& processor = *storage; auto& edits = processor.eqEditing();
+        const auto gainOf = [](int global, int bank, int slot) {return float(-10 + global * 8 + bank * 4 + slot * 2);};
+        const auto bandsOf = [](int global, int bank, int slot) {return 1 + ((global + bank + slot) % 3);};
+        const auto build = [&](int global) {
+            for (int bank = 0; bank < 2; ++bank) for (int slot = 0; slot < 2; ++slot) {
+                check(edits.selectCurve(bank, slot), "Matrix switch failed");
+                for (int b = 0; b < graphicalEQBands; ++b) if (edits.isOccupied(bank, b)) check(edits.removeBand(bank, b), "Matrix clear failed");
+                for (int b = 0; b < bandsOf(global, bank, slot); ++b) check(edits.addBand(bank, 200.f * float(b + 1), gainOf(global, bank, slot)) == b, "Matrix band failed");
+            }
+        };
+        const auto verify = [&](ChimeraProcessor& p, int global, const char* stage) {
+            auto& e = p.eqEditing();
+            for (int bank = 0; bank < 2; ++bank) for (int slot : {0, 1, 0}) {
+                check(e.selectCurve(bank, slot), std::string(stage) + ": switch failed");
+                const int bands = bandsOf(global, bank, slot);
+                check(e.occupiedMask(bank) == uint16_t((1u << bands) - 1u), std::string(stage) + ": bands differ");
+                for (int b = 0; b < bands; ++b) check(near(get(p, bank, b, "gain"), gainOf(global, bank, slot), .02f), std::string(stage) + ": gain differs");
+            }
+        };
+        build(0); processor.selectComparison(1); build(1);
+        verify(processor, 1, "global B"); processor.selectComparison(0); verify(processor, 0, "global A");
+        processor.selectComparison(1); verify(processor, 1, "global B again"); processor.selectComparison(0);
+        const auto saved = stateTree(processor);
+        auto reloadStorage = std::make_unique<ChimeraProcessor>(); restore(*reloadStorage, saved);
+        verify(*reloadStorage, 0, "reloaded global A");
+    }
+    std::cout << "PASS EQ-local A/B review regressions: host write during a switch wins (slot kept), per-EQ history, global A/B x Tone/Final x local A/B distinct values and bands, project reload\n";
+}
+
 // EQ-local A/B: two curves per EQ, the bypass left alone; switching is a
 // recall (balanced gestures, no undo step, history cleared); copy to the other
 // slot changes nothing audible; copy to the other EQ is one undo step there;
@@ -381,6 +444,16 @@ void eqLocalAB() {
     auto badStorage = std::make_unique<ChimeraProcessor>(); restore(*badStorage, bad);
     check(!badStorage->eqEditing().hasStoredCurve(0, 0) && !badStorage->eqEditing().hasStoredCurve(0, 1) && badStorage->eqEditing().curveSlot(0) == 0
           && badStorage->eqEditing().occupiedMask(0) == edits.occupiedMask(0), "Malformed curve data was not ignored");
+    // An unknown metadata schema drops the curves with the occupancy.
+    {
+        auto future = stateTree(processor);
+        future.getChildWithName("EQ_EDIT_STATE").setProperty("schema", 2, nullptr);
+        auto futureStorage = std::make_unique<ChimeraProcessor>(); restore(*futureStorage, future);
+        check(!futureStorage->eqEditing().hasStoredCurve(0, 0) && !futureStorage->eqEditing().hasStoredCurve(0, 1)
+              && !futureStorage->eqEditing().hasStoredCurve(1, 0) && !futureStorage->eqEditing().hasStoredCurve(1, 1),
+              "An unknown metadata schema kept the A/B curves");
+    }
+    eqLocalABRegressions();
     std::cout << "PASS EQ-local A/B: bypass kept, other EQ untouched, switch is a recall with balanced gestures, copy to slot / other EQ (one undo step), project round trip, per global A/B slot, malformed data ignored\n";
 }
 
