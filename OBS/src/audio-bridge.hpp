@@ -46,8 +46,10 @@ public:
         // policy is currently Mute (it may change without re-preparing). OBS hands
         // a media source's audio to its filters in ticks larger than one output
         // tick (about 4096 frames on Windows and macOS), so the work buffer holds
-        // up to a second; the engine still gets chunks of at most `capacity`.
-        dryCapacity = std::max(capacity, sampleRate > 0 ? static_cast<int>(std::ceil(sampleRate)) : capacity);
+        // up to a second; the engine still gets chunks of at most `capacity`. A rate
+        // outside (0, 1 MHz), NaN included, is not cast (the cast would be undefined).
+        const bool sensibleRate = sampleRate > 0.0 && sampleRate < 1000000.0;
+        dryCapacity = std::max(capacity, sensibleRate ? static_cast<int>(std::ceil(sampleRate)) : capacity);
         for (auto& channel : dryWork) channel.resize(static_cast<size_t>(dryCapacity));
         const bool ok = sampleRate > 0 && obsChannels >= 1 && obsChannels <= maxPlanes
             && engine.prepare(sampleRate, engineChannels, capacity);
