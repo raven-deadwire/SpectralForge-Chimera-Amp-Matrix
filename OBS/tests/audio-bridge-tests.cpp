@@ -174,15 +174,24 @@ int main() {
                     check(latched.at(c, n) == input(c, n), "Dry latched original");
             }
         }
-        // A Dry tick cannot be committed in pieces. Oversized ticks bypass without
-        // invoking the engine, report unprocessed, and allow the next normal tick.
+        // A Dry tick cannot be committed in pieces. A tick larger than the prepared
+        // engine block (OBS hands media sources' audio to filters in ticks of about
+        // 4096 frames on Windows and macOS) is processed whole, in engine-sized
+        // chunks. Ticks over a second bypass without invoking the engine, report
+        // unprocessed, and allow the next normal tick.
         partial.fail = false;
         dryBridge.setInputMapping(InputMapping::LeftToBoth);
         dryBridge.prepare(48000, 6, 64);
-        { Planes p(6, 65);
-          check(!dryBridge.process(p.pointers.data(), 6, 65, 48000) && partial.calls == 0,
-                "oversized Dry bypass is unprocessed without engine call");
-          for (int c = 0; c < 6; ++c) for (int n = 0; n < 65; ++n)
+        { Planes p(6, 4096);
+          check(dryBridge.process(p.pointers.data(), 6, 4096, 48000) && partial.calls == 4096 / 64,
+                "Dry tick larger than the engine block is processed in engine-sized chunks");
+          for (int c = 0; c < 6; ++c) for (int n = 0; n < 4096; ++n)
+              check(p.at(c, n) == (c < 2 ? 2.f * input(0, n) : input(c, n)), "large Dry tick: mapped, processed, surround untouched"); }
+        partial.calls = 0;
+        { Planes p(6, 48001);
+          check(!dryBridge.process(p.pointers.data(), 6, 48001, 48000) && partial.calls == 0,
+                "Dry tick over a second bypasses without engine call");
+          for (int c = 0; c < 6; ++c) for (int n = 0; n < 48001; ++n)
               check(p.at(c, n) == input(c, n), "oversized Dry must preserve all channels");
           check(dryBridge.status() == BridgeStatus::Processing && !dryBridge.needsPrepare(),
                 "oversized Dry does not latch or request reprepare"); }
@@ -227,7 +236,7 @@ int main() {
         }
 
         std::cout << "PASS OBS audio bridge: unprepared mute, 5.1 passthrough, chunking, input mapping, mono, format-change and "
-                     "engine-failure policies, transactional Dry and mapping, oversized Dry bypass, per-tick results, "
+                     "engine-failure policies, transactional Dry and mapping, large Dry ticks chunked, over-a-second Dry bypass, per-tick results, "
                      "latched failure, bounds, latency ns, concurrent re-prepare\n";
         return 0;
     } catch (const std::exception& e) { std::cerr << "FAIL " << e.what() << '\n'; return 1; }
