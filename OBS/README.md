@@ -335,8 +335,10 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 
 - 레벨 미터는 OBS 자체 오디오 믹서 미터(필터 적용 후)를 쓴다. 속성 창에는 실시간 미터를 넣지 않았다.
 - 개인 IR은 Chimera가 파일 경로가 아니라 WAV 바이트를 자기 상태(`USER_IRS`)에 넣어 두므로 OBS 장면이 IR을 함께 가진다.
-  원래 IR 파일이 지워져도 소리는 같다(Chimera가 설치된 다른 PC로 장면을 옮길 때도 IR 파일은 필요 없다). 상태 안의 IR이 손상되면 Chimera는 그 칸을 캐비닛 필터로 처리한다
-  ("Saved IR is damaged. Filters only."). 모듈은 상태를 그대로 전달할 뿐이며, 두 동작 모두 `obs_user_ir_test.py`가 실제 OBS에서 확인한다.
+  원래 IR 파일이 지워져도 소리는 같다(Chimera가 설치된 다른 PC로 장면을 옮길 때도 IR 파일은 필요 없다). inline `USER_IRS`의 IR이 손상되면 해당 칸을 캐비닛 필터로 처리한다.
+  새 pooled 형식의 `IR_ASSETS` 무결성 검사가 실패하면 상태 전체를 적용하지 않고 현재 상태를 유지한다. 두 실패 처리는 구별한다.
+  `obs_user_ir_test.py`는 정상 IR 저장·복원과 inline 손상 IR의 필터 대체를 검사한다. 음수 길이·손상 WAV·원본 바이트 확인을 추가한 후속 검증 상태는
+  [`OBS_USER_IR_REVIEW_20261104.ko.md`](../docs/OBS_USER_IR_REVIEW_20261104.ko.md)를 따른다.
 - 실제 OBS 앱 안에서 에디터 창을 필터 버튼으로 열고·다시 올리고·연 채로 종료하는 것은 `obs_editor_test.py`가 확인한다.
   에디터 안에서 소리를 바꾼 편집이 장면에 반영되는 것(500 ms 타이머)은 Linux에서 `obs_editor_edit_test.py`가 확인한다: Xvfb에서 xdotool로
   EASY VIEW의 OUTPUT 노브를 마우스로 끌어 내리면 필터 설정의 상태가 바뀌고 소리가 작아지며, 장면에 저장되어 재시작 뒤에도 같다.

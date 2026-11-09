@@ -408,6 +408,13 @@ target_compile_definitions(ChimeraIRCollectionTests PRIVATE JUCE_USE_CURL=0 JUCE
 target_link_libraries(ChimeraIRCollectionTests PRIVATE juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraIRCollectionTests COMMAND ChimeraIRCollectionTests)
 
+juce_add_console_app(ChimeraIRStateEncodingTests PRODUCT_NAME "Chimera IR State Encoding Tests")
+target_sources(ChimeraIRStateEncodingTests PRIVATE Tests/IRStateEncodingTests.cpp)
+target_include_directories(ChimeraIRStateEncodingTests PRIVATE Source)
+target_compile_definitions(ChimeraIRStateEncodingTests PRIVATE JUCE_USE_CURL=0)
+target_link_libraries(ChimeraIRStateEncodingTests PRIVATE juce::juce_core)
+add_test(NAME ChimeraIRStateEncodingTests COMMAND ChimeraIRStateEncodingTests)
+
 # Removing an imported entry must not change the audio embedded in a session.
 juce_add_console_app(ChimeraIRLibraryTests PRODUCT_NAME "Chimera IR Library Tests")
 target_sources(ChimeraIRLibraryTests PRIVATE Tests/IRLibraryTests.cpp Source/IRLibrary.cpp)
