@@ -1216,10 +1216,13 @@ private:
         if(source==3){keep("mic "+mic+" plays a user IR: choose IRs in the IR loader");return;}
         const auto v30=IRLibrary::factoryIR(0),jensen=IRLibrary::factoryIR(1);
         if(!v30 || !jensen){keep("the factory IRs could not be read");return;}
-        const auto r=analyseCabIR(post,rate(),source,{cabIRBandsDb(v30->samples,v30->rate),cabIRBandsDb(jensen->samples,jensen->rate)},chosenInstrument(),runOptions.style);
+        const std::array<CabIRLow,2> low{cabIRLowResponse(v30->samples,v30->rate),cabIRLowResponse(jensen->samples,jensen->rate)};
+        const auto r=analyseCabIR(post,rate(),source,{cabIRBandsDb(v30->samples,v30->rate),cabIRBandsDb(jensen->samples,jensen->rate)},chosenInstrument(),runOptions.style,&low);
         lastCabIR=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         if(r.bass){keep("bass: both factory IRs are guitar cabinets");return;}
+        if(r.lowEndHeld){keep(juce::String(cabIRName(r.otherSource))+" would balance closer ("+juce::String(r.toneErrorBeforeDb,1)+" > "+juce::String(r.toneErrorAfterDb,1)
+                              +" dB) but cut 50-63 Hz, the low strings' fundamentals, by "+juce::String(-r.lowEndChangeDb,1)+" dB, to "+juce::String(-r.lowEndAfterDb,1)+" dB under the "+styleName(runOptions.style)+" target");return;}
         if(!r.changed()){keep("guitar "+juce::String(styleName(runOptions.style))+" balance already closest with "+cabIRName(source));return;}
         set(id,float(r.proposed));
         if(juce::roundToInt(raw(id))!=r.proposed){keep("IR source edited while applying");return;}
