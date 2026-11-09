@@ -28,7 +28,12 @@ struct GroupHostTrace {
         parameters[size_t(i)]->addListener(&events[size_t(i)]);
     }
     Event& event(int bank,int band,int field){return events[size_t(bank*61+1+band*5+field)];}
-    void balanced() const {for(const auto& e:events)check(!e.bad && e.depth==0 && e.starts==e.ends,"Unbalanced/nested per-parameter group gesture");}
+    bool open() const {for(const auto& e:events)if(e.depth!=0)return true;return false;}
+    void balanced() const {
+        for(size_t i=0;i<events.size();++i){const auto& e=events[i];
+            check(!e.bad && e.depth==0 && e.starts==e.ends,"Unbalanced/nested per-parameter group gesture: "+(parameters[i]?parameters[i]->getParameterID().toStdString():std::string("?"))
+                  +" starts "+std::to_string(e.starts)+", ends "+std::to_string(e.ends)+", depth "+std::to_string(e.depth)+(e.bad?", nested":""));}
+    }
     void quiet() const {for(const auto& e:events)check(e.starts==0 && e.ends==0 && e.changes==0,"Selection/menu cancellation notified a host parameter");}
 };
 
@@ -202,7 +207,9 @@ void groupDragInterruption(int bank) {
             auto* chooser=find<juce::ComboBox>(*f.panel,eqID(bank,-1,"band"));check(chooser!=nullptr,"Band chooser missing");
             chooser->setSelectedId(4,juce::sendNotificationSync);
         }
-        if(operation==7){set(*f.processor,eqID(1-bank,0,"gain"),7);settle(60);}
+        // External automation: the panel's timer sees it and ends the drag. Wait for that, not a fixed
+        // time: a busy runner may not dispatch the timer within a few tens of milliseconds.
+        if(operation==7){set(*f.processor,eqID(1-bank,0,"gain"),7);check(waitFor([&]{return !trace.open();}),"External automation did not end the group drag");}
         trace.balanced();
         for(int b=0;b<4;++b)for(int field=1;field<=2;++field)
             check(trace.event(bank,b,field).starts==(b<3?1:0),"Interrupted drag did not open exactly one gesture per member/field");
