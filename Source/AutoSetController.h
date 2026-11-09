@@ -92,10 +92,10 @@ public:
     // rigs matches the Dual rig 2 level to rig 1 before the Dual blend, in the Dual pass.
     // channel picks the Classic head's channel before the amp step, in the amp pass.
     // polarity flips Dual rig 2, or the Matrix MID and HIGH lanes, when they cancel, in the Dual or Matrix pass.
-    // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass.
+    // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass; off by default.
     // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{true};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -751,6 +751,7 @@ private:
         const auto r=analyseTrim(segment,post,rate(),trimAtStart[0],render,chosenInstrument(),runOptions.style);
         lastTrim=r;
         if(!r.playingDetected){keep("no playing heard");return;}
+        if(r.steady){keep("not enough difference between soft and hard playing to judge the drive; play some soft and some hard notes");return;}
         if(!r.rendered){keep("the head renders no playing at its knobs");return;}
         const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
         const auto db=[](float v){return (v>=0?"+":"")+juce::String(v,1)+" dB";};

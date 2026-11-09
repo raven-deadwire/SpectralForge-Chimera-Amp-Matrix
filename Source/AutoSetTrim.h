@@ -16,8 +16,11 @@ namespace spectralforge::autoset {
 //   drive comes closer to the target by more than half the tolerance (4%).
 // - OUTPUT LEVEL then holds the head's loudness: it moves by the loudness the
 //   trim adds, measured on the same renders.
+// - Kept when the playing changes less than 3 dB between soft and hard notes:
+//   the drive measure reads 0 there, which is not the same as clean, so it
+//   would push the trim up for nothing (as phase 20 holds the channel).
 struct TrimResult {
-    bool playingDetected{},bass{},rendered{};
+    bool playingDetected{},bass{},rendered{},steady{};
     float before{},proposed{};               // INPUT TRIM, dB
     float target{},driveBefore{},driveAfter{};
     float levelChangeDb{};                   // the head's loudness at the proposed trim against now
@@ -47,6 +50,7 @@ inline TrimResult analyseTrim(const std::vector<float>& input,const std::vector<
     r.playingDetected=heard.playing && measureSpectrum(segment,rate,true).playing;
     if(!r.playingDetected)return r;
     r.bass=heard.bass;r.target=ampCompressionTarget(r.bass,style);
+    if(playingSpreadDb(segment,rate)<3.f){r.steady=true;return r;}
     const auto drive=[&](float trim)->std::optional<std::pair<float,float>> {
         const auto out=render(trim);
         if(!measureSpectrum(out,rate,r.bass).playing)return std::nullopt;

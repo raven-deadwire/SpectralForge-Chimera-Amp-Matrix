@@ -33,6 +33,12 @@ void trimRules() {
         // GAIN at zero for metal: 12 dB is not enough; the move is kept with reachable=false, or kept when no closer.
         const auto [short_,shortRender]=at(0,0,Style::metal);
         check(!short_.reachable && short_.proposed<=trimMaxMoveDb,"Metal from GAIN 0 reported as reached");
+        // Steady playing (under 3 dB between soft and hard): the drive reads 0, so the trim is held.
+        std::vector<float> steadyIn(di.size());
+        for(size_t n=0;n<steadyIn.size();++n)steadyIn[n]=float(.2*std::sin(2*juce::MathConstants<double>::pi*110*double(n)/rate));
+        const auto steadyRender=syntheticTrim(steadyIn,rate,2);
+        const auto steady=analyseTrim(steadyIn,steadyRender(0),rate,0,steadyRender,false,Style::rock);
+        check(steady.playingDetected && steady.steady && !steady.changed() && !steady.rendered,"Steady playing moved the trim");
         // A silent render and silence.
         const auto mute=analyseTrim(di,upRender(0),rate,0,[&](float){return std::vector<float>(di.size());},false,Style::rock);
         check(mute.playingDetected && !mute.rendered && !mute.changed(),"A silent head was trimmed");
@@ -41,7 +47,7 @@ void trimRules() {
         if(rate==48000.)std::cout<<"MEASURE trim rules 48 kHz: rock GAIN 2 trim 0 > "<<up.proposed<<" dB (drive "<<up.driveBefore<<" > "<<up.driveAfter<<", loudness "<<up.levelChangeDb<<" dB); clean GAIN 6 trim 0 > "<<down.proposed
                                 <<" dB (drive "<<down.driveBefore<<" > "<<down.driveAfter<<"); metal GAIN 0 > "<<short_.proposed<<" dB (drive "<<short_.driveAfter<<", reached "<<short_.reachable<<")\n";
     }
-    std::cout<<"PASS auto set trim rules at 44.1/48/96 kHz: rises for a low drive, falls for a clean one, 0.5 dB grid within 12 dB and +-24 dB, rendered drive and loudness, within tolerance kept, short of the target reported, silent head and silence\n";
+    std::cout<<"PASS auto set trim rules at 44.1/48/96 kHz: steady playing held, rises for a low drive, falls for a clean one, 0.5 dB grid within 12 dB and +-24 dB, rendered drive and loudness, within tolerance kept, short of the target reported, silent head and silence\n";
 }
 struct TrimRun {std::vector<float> before,values,undone;Controller::Status status;TrimResult analysis;std::unique_ptr<ChimeraProcessor> processor;};
 // The model 2 head on RHYTHM in Classic routing with GAIN at `gainFraction` of its range.
@@ -77,6 +83,7 @@ void controllerTrim() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
     const auto trimID=spectralforge::ampNativeInputTrimID(0),outputID=spectralforge::ampNativeOutputLevelID(0);
+    check(!Controller::Options{}.trim && !spectralforge::CommonDynamicsPanel::AutoSetOptions{}.trim,"Amp input trim is on by default");
     Controller::Options trimOnly;
     trimOnly.instrument=1;trimOnly.style=Style::rock;trimOnly.strength=1.f;trimOnly.locks=Controller::lockInput|Controller::lockGate|Controller::lockCompressor;
     trimOnly.tone=trimOnly.finish=trimOnly.multiband=trimOnly.gates=trimOnly.dynamicEQ=trimOnly.level=trimOnly.amp=trimOnly.cab=trimOnly.boost=trimOnly.space=trimOnly.power=trimOnly.dual=trimOnly.width=trimOnly.cuts=trimOnly.bus=trimOnly.matrix=trimOnly.mics=trimOnly.rigs=trimOnly.channel=trimOnly.polarity=trimOnly.sync=trimOnly.cabIR=false;
@@ -124,5 +131,5 @@ void controllerTrim() {
     check(stepOf(edited.status,P::trim)->result.contains("edited while listening") && near(value(edited.values,trimID),3,.011f) && value(edited.values,outputID)==value(edited.before,outputID),"A trim edited while listening was overwritten");
     const auto dual=runTrim(trimOnly,0,[](ChimeraProcessor& p){p.parameters().getParameter("mode")->setValueNotifyingHost(p.parameters().getParameter("mode")->convertTo0to1(1));});
     check(stepOf(dual.status,P::trim)->result.contains("Dual and Matrix") && dual.values==dual.before,"Dual routing trim was changed");
-    std::cout<<"PASS auto set trim controller: trim alone in the amp pass rises for rock with GAIN at its bottom, OUTPUT LEVEL holds the loudness, rendered drive, strength, kept after an amp step that reaches the drive, GAIN locked, lock, edit while listening, Dual, undo\n";
+    std::cout<<"PASS auto set trim controller: off by default, trim alone in the amp pass rises for rock with GAIN at its bottom, OUTPUT LEVEL holds the loudness, rendered drive, strength, kept after an amp step that reaches the drive, GAIN locked, lock, edit while listening, Dual, undo\n";
 }

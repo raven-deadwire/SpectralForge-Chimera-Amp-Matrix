@@ -12,7 +12,10 @@ holds the head's loudness. Earlier phases are described in
 ## Use
 
 The options button next to **AUTO SET** has an **Amp input trim past the GAIN
-range** step, on by default, listed after **Amp gain and tone**.
+range** step, listed after **Amp gain and tone**. It is **off by default**, as
+the Amp channel step is (phase 20's safety review, 2026-11-07): a large trim
+changes how the head answers the picking, not only one drive number. Turn it
+on in the options to let Auto Set set the trim.
 
 - **When it runs:** in the amp pass, after the amp step and before the
   presence + resonance step. It adds no listening time; it alone also starts
@@ -41,6 +44,10 @@ range** step, on by default, listed after **Amp gain and tone**.
 - **Drive:** phase 8's measure (how much of the playing's level spread the
   head removes) against phase 8's target for the instrument and style
   (guitar 15% clean, 45% rock, 65% metal; bass 10%, 30%, 50%).
+- **Kept** when the playing changes less than 3 dB between soft and hard notes:
+  the drive measure reads 0 there, which is not the same as clean, and would
+  push the trim up for nothing ("play some soft and some hard notes"), as phase
+  20 holds the channel.
 - **Kept** when the drive at the current trim is within phase 8's ±8%.
 - Otherwise the trim is bisected toward the target, within 12 dB of where it
   is and within the control's ±24 dB, on a 0.5 dB grid (a render too quiet
@@ -68,9 +75,11 @@ range** step, on by default, listed after **Amp gain and tone**.
   - GAIN high for clean: the trim falls (0 > -7.5 dB, drive 46% > 15%).
   - At the reached trim: kept. From +20 dB the trim stays within +24 dB.
     GAIN at zero for metal is reported short of the target.
+  - Steady playing (a constant-level tone, under 3 dB soft to hard) is held.
   - A silent head and silence are kept.
 - **Controller (`controllerTrim`, real processor, model 2 on RHYTHM with GAIN
   at its bottom, rock):**
+  - The step is off by default (controller and options panel).
   - The step runs alone in the amp pass: INPUT TRIM +0.0 > +12.0 dB, OUTPUT
     LEVEL +0.0 > -10.0 dB, drive 2% > 21%. Rendered on the head as set, the
     drive is the analysed one and the loudness is within 0.002 dB of before.
@@ -80,8 +89,9 @@ range** step, on by default, listed after **Amp gain and tone**.
     locked, the trim moves.
   - The lock keeps both; the trim edited while listening and Dual routing are
     kept. UNDO AUTO restores both.
-- **Full run (`controllerIntegration`):** twenty-five result rows, with the
-  Amp input trim row after the Amp gain + tone row.
+- **Full run (`controllerIntegration`, with Amp channel and Amp input trim
+  turned on):** twenty-five result rows, with the Amp input trim row after the
+  Amp gain + tone row.
 - **Locks (`controllerEveryLock`):** all twenty-seven locks at four strengths.
 
 ## Not yet validated

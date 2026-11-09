@@ -463,7 +463,7 @@ void controllerIntegration() {
     }
     Controller c(*p);Gestures g;p->addListener(&g);
     // Amp channel selection is off by default; this run covers it, so turn it on.
-    {auto o=c.currentOptions();o.channel=true;c.setOptions(o);}
+    {auto o=c.currentOptions();o.channel=true;o.trim=true;c.setOptions(o);}
     const auto before=values(*p);std::vector<Controller::Status> statuses;c.onStatus=[&](const auto& s){statuses.push_back(s);};
     // The Dynamic EQ node on Tone band 2 is the user's. Compare with the stored
     // values: skewed ranges need not hold the literal set above bit-exactly.
