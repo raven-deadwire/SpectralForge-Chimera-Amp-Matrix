@@ -28,7 +28,7 @@ class CorrelationPitch {
     int hfBucketPosition{},hfBucketSamples{};
     double hfBucketPeak{},hfRecentMax{};
     int resetAge{1<<30}, peakWindow{};
-    bool holdSplices{}, reportAtDetection{};
+    bool holdSplices{}, reportAtDetection{}, edgeReject{};
     int heldSamples{};
     // Sample-accurate hold (research): when set, a due downshift splice waits
     // while `holdSource` spliced within the previous holdWindow samples. Only
@@ -125,21 +125,32 @@ class CorrelationPitch {
             const double limit=onsetAge-rate*reanchorGuard;
             if(limit>=delay+travel)hi=std::min(hi,limit);
         }
-        const int first=int(std::ceil(delta>0 ? lo : delay+travel));
-        const int last=int(std::floor(delta>0 ? delay-travel : hi));
+        int first=int(std::ceil(delta>0 ? lo : delay+travel));
+        int last=int(std::floor(delta>0 ? delay-travel : hi));
         captureReference();
         double best=delta>0 ? lo : hi, score=1.e100;
         const int step=juce::jmax(1, int(std::lround(rate/12000.)));
-        for(int d=first;d<=last;d+=step) {
-            const double s=integerCost(d);
-            if(s<score) {score=s;best=d;}
+        for(int pass=0;pass<3;++pass) {
+            best=delta>0 ? lo : hi;score=1.e100;
+            for(int d=first;d<=last;d+=step) {
+                const double s=integerCost(d);
+                if(s<score) {score=s;best=d;}
+            }
+            const int centre=int(best);
+            for(int d=juce::jmax(first,centre-step);d<=juce::jmin(last,centre+step);++d) {
+                const double s=integerCost(d);
+                if(s<score) {score=s;best=d;}
+            }
+            // EXPERIMENT (edge reject): a minimum on the range edge whose cost
+            // still falls outside the range is a slope, not a period match.
+            if(!edgeReject || last-first<=2*step)break;
+            if(int(best)==first && integerCost(first-1)<score){first+=step;continue;}
+            if(int(best)==last && integerCost(last+1)<score){last-=step;continue;}
+            break;
         }
-        const int centre=int(best);
-        for(int d=juce::jmax(first,centre-step);d<=juce::jmin(last,centre+step);++d) {
-            const double s=integerCost(d);
-            if(s<score) {score=s;best=d;}
-        }
-        if(best>first && best<last) {
+        // EXPERIMENT (edge reject): refine at the range edges too; the cost one
+        // sample outside the search range is valid (only nextDelay is limited).
+        if((best>first && best<last) || edgeReject) {
             const double left=integerCost(int(best)-1),right=integerCost(int(best)+1);
             const double curve=left-2*score+right;
             if(curve>1.e-12) best+=juce::jlimit(-.5,.5,.5*(left-right)/curve);
@@ -272,6 +283,7 @@ public:
             for(int j=0;j<sincTaps;++j)k[j]=float(k[j]/sum);
         }
     }
+    void setEdgeReject(bool e) noexcept {edgeReject=e;}
     int latency() const noexcept {return -1;} // Deliberately NOT advertised as 2/10/40 ms fixed PDC.
     int splices() const noexcept {return spliceCount;}
     int onsetResets() const noexcept {return onsets;}
