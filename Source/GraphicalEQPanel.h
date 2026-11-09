@@ -828,8 +828,15 @@ private:
             int next=selected;
             // A removed selected band passes the selection to a remaining group
             // member, never to a band outside the group (it would join the group).
-            if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands && next<0;++b)if((groupMask>>b)&1)next=b;
-                if(next<0)for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
+            if(next<0 || !isBandVisible(next)) {
+                next=-1;
+                for(int b=0;b<graphicalEQBands && next<0;++b)
+                    if((groupMask>>b)&1)next=b;
+                if(next<0) {
+                    for(int b=0;b<graphicalEQBands && next<0;++b)
+                        if(isBandVisible(b))next=b;
+                }
+            }
             selectBand(next);repaint();
         }
         updateBandEnablement();updateHistoryControls();
