@@ -36,19 +36,21 @@ No failed or unexecuted check is promoted to PASS.
 |---|---|
 | #283, #284, #295, #296, #297 | merged whole |
 | #272, #258, #252, #230 | merged whole |
-| #287 | merged whole, and its macOS gesture test fixed |
+| #287 | merged whole; its macOS gesture test fixed, and #283's single-band DELETE test removed (superseded by #287) |
 | #250 | merged whole |
 | #238 | merged whole (research tools; no product change) |
 | #171 | merged whole |
 | #199 | documents only (owner decision) |
-| #196 | audio-thread readiness rules only (owner decision) |
+| #196 | records only: its readiness rules were tried and left out (see below) |
 | #249 | the non-overlapping parts only (owner decision) |
 
 Notes on the "merged whole" rows:
 
 - **#284 and #297:** both appended an Auto Set option; both options are kept.
 - **#287:** the external-automation case now waits for the panel's timer
-  instead of a fixed 60 ms.
+  instead of a fixed 60 ms. #287 replaced #283's DELETE (the active band only)
+  with deleting the whole selection, so #283's single-band DELETE check is
+  removed; `groupDeleteEntryPoints` covers deletion now.
 - **#250:** its cabinet edit fix was already on main; it adds the Gate capture
   stabilisation and the review records.
 - **#171:** main's newer (11/04) AAX status is kept. The October 30
@@ -63,16 +65,17 @@ Notes on the "merged whole" rows:
   - the evidence files, because they hold digests of the five real codes,
     which can be reversed for a short code.
 
-### #196: audio-thread readiness rules only
+### #196: records only
 
-- **Included:**
-  - readiness is checked at both block boundaries before a recall unmutes;
-  - the generation of a user IR, and only the blended mics a recall hears;
-  - zero-weight paths no longer hold a recall;
-  - `RecallSafetyTests`.
-- **Kept from main:** the IR worker (warm cache and pregeneration).
-- **Not included:** the policies, kernel reuse and probe changes, whose
-  realtime qualification the PR itself records as blocked.
+- **Tried:** the audio-thread readiness rules (readiness at both block
+  boundaries, the stricter `Cab::settled()`, zero-weight paths) were merged
+  into this branch.
+- **Left out:** they broke an existing recall guarantee.
+  `ChimeraSignalOrderTests` measured an audio difference of 0.1475 between a
+  processor and its restored copy, which must be 0; reverting them restored 0.
+  Per the owner's rule for #196, they are not in 1.4.
+- **Kept:** the IR worker stays main's. #196's measurements remain as
+  records.
 
 ### #249: non-overlapping parts only
 

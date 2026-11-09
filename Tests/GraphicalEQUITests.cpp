@@ -707,18 +707,8 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     auto* chooser=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));check(chooser!=nullptr,"Band chooser missing");
     chooser->setSelectedId(2,juce::sendNotificationSync);check(panel.selectionMask()==0b0010,"Band chooser kept the group");
 
-    // DELETE (selected band only) inside a group passes the selection to a
-    // remaining member, so a following Delete never reaches a band outside it.
-    auto* remove=find<juce::TextButton>(panel,eqID(bank,-1,"deleteBand"));check(remove!=nullptr,"DELETE button missing");
-    click(1,0);click(2,command);check(panel.selectionMask()==0b0110 && panel.selectedBand()==2,"Single-delete fixture wrong");
-    remove->triggerClick();check(waitFor([&]{return !panel.isBandVisible(2);}),"DELETE did not remove the selected band");
-    check(panel.selectionMask()==0b0010 && panel.selectedBand()==1,
-          ("DELETE passed the selection outside the group: mask="+juce::String(panel.selectionMask())+" selected="+juce::String(panel.selectedBand())).toRawUTF8());
-    check(key(juce::KeyPress::deleteKey,0) && waitFor([&]{return !panel.isBandVisible(1);}),"Delete after DELETE failed");
-    check(panel.isBandVisible(0) && panel.isBandVisible(3) && get(processor,eqID(bank,0,"enabled"))==1,"Delete after DELETE removed a band outside the group");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1);}),"Undo of the second delete failed");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(2);}),"Undo of DELETE failed");
-    for(int b=0;b<4;++b)unchanged(b,"Single-delete undo did not restore values");
+    // Deletion with a group selected (every entry point, one undo step) is
+    // covered by groupDeleteEntryPoints in EQGroupSafetyTests.h (#287).
 
     // Escape during a group drag ends the drag: no member keeps moving, every
     // host gesture is closed, and the part already made is one undo step.
