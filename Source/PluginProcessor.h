@@ -240,8 +240,6 @@ public:
     void undoPedalEdit(bool redo=false);
     float pedalReduction() const { return boardReduction.load(); }
     juce::String diagnosticReport() const;
-    bool recallCabinetWaitExceeded() const noexcept {return recallCabinetTimedOut.load();}
-    bool recallStateWaitExceeded() const noexcept {return recallStateTimedOut.load();}
     int selectedAmpModel(int lane) const noexcept;
     int selectedAmpChannel(int lane) const noexcept;
     int selectedAmpNativeRoute(int lane) const noexcept;
@@ -255,7 +253,6 @@ private:
     bool removeTesterCodeAt(const juce::File&);
     void recheckTesterCode(const spectralforge::beta::tester::Grant&);
     friend struct ChimeraCabExportTestAccess;
-    friend struct ChimeraRecallTestAccess;
     ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock,
                      const spectralforge::beta::tester::Grant& tester={});
     const spectralforge::beta::Clock betaClock;
@@ -287,7 +284,7 @@ private:
     void resetProcessingIfPending();
     void updateComparisonProtection();
     void resetProcessing(bool hostBypassToo);
-    void applySwitchFade(juce::AudioBuffer<float>&,bool cabinetsReadyAtStart);
+    void applySwitchFade(juce::AudioBuffer<float>&);
     void beginSwitch();
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
@@ -304,8 +301,7 @@ private:
     // lets the old sound fade out (5 ms) before the state changes, since new
     // parameters on the old DSP would already jump. Then: reset, mute for the
     // reported latency (cleared delay lines), fade in (5 ms). Host reset()
-    // stays immediate except during an incomplete recall.
-    std::atomic<bool> recallCabinetTimedOut{false},recallStateTimedOut{false};
+    // stays immediate, and so does the first block after prepareToPlay.
     std::atomic<bool> switchPending{false},fadeRequested{false},fadedSilent{false};
     std::atomic<juce::int64> lastProcessTicks{0};std::atomic<size_t> audioThread{0};
     // After the reset, stay muted for the latency plus 20 ms while the new
@@ -315,12 +311,13 @@ private:
     static constexpr double switchSettleSeconds=.02;
     // Then, if a cabinet that can be heard is still building the recalled IR
     // or model on the worker (or crossfading to it), stay muted until it is
-    // ready. This is a diagnostic deadline, NEVER permission to play stale IRs.
+    // ready, at most this long: otherwise the old cabinet plays first. While
+    // muted, a recalled cabinet installs without the 50 ms crossfade; one that
+    // arrives late gets the settle time again before the fade-in.
     static constexpr double switchCabinetWaitSeconds=.5;
     enum class SwitchFade {idle,out,hold,wait,in};
     SwitchFade switchFade{SwitchFade::idle};int switchFadeLength{240},switchFadePosition{240},switchWait{},switchHold{},switchCabinetBudget{};
     bool processedSincePrepare{},holdForSwitch{},switchCabinetLate{};
-    bool instantRecallCabinetSwap{true}; // benchmark override only; product keeps #194 instant swaps
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     spectralforge::EQEditState eqEditState{state};
     spectralforge::EQCaptureBoundary eqCaptureBoundaryState;

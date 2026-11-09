@@ -1,15 +1,14 @@
 # Recall CAB readiness — 2026-10-27 KST
 
-> **1.4.0-beta.1 integration (2026-11-09):** only this PR's audio-thread
-> readiness rules are in the product: readiness at both block boundaries
-> before a recall unmutes, the user IR generation and blended-mic checks in
-> `Cab::settled()`, superseded kernels retired on a source or generation
-> mismatch, and zero-weight Dual/Matrix paths no longer holding a recall.
-> The IR worker keeps main's design (twelve-response warm cache and
-> pregeneration for the next recall). The preparation policies, the A/B
-> kernel reuse, the switch-timing probe changes and
-> `Tools/run_recall_comparison.py` described below are not included; the
-> measurements here are records of the #196 branch.
+> **1.4.0-beta.1 integration (2026-11-09):** not in the product. The
+> audio-thread readiness rules from this PR were tried on the 1.4 branch
+> (readiness at both block boundaries, the stricter `Cab::settled()`, the
+> zero-weight path rule) and broke an existing recall guarantee:
+> `ChimeraSignalOrderTests` found the restored processor's audio differing
+> from the original by 0.1475 (it must be identical); reverting them restored
+> 0. Per the owner's rule for this PR, they are left out of 1.4 and this
+> document is kept as a record of the #196 branch. The IR worker, policies and
+> probe changes were not taken either.
 
 Status: development candidate on PR #194 (`9d60312e13dbc0ef21a2db60f7041cce3afad791`), stacked on #188.
 Final source: `d7abb79c97ffd02fe4690eb2793a5473f9bddae9`. This is not release, listening, OBS, or DAW approval.
