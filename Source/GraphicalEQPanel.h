@@ -534,7 +534,8 @@ public:
             return;
         }
         // Middle-click and hold on a node: solo that band until release.
-        if(event.mods.isMiddleButtonDown()){selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);startAudition(closest,true);return;}
+        // Like a plain press, a node outside the group starts a new selection.
+        if(event.mods.isMiddleButtonDown()){if(!((selectionMask()>>closest)&1))groupMask=0;selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);startAudition(closest,true);return;}
         // Ctrl/Cmd+click adds or removes a band from the group (no drag).
         if(event.mods.isCommandDown() && event.mods.isLeftButtonDown() && !event.mods.isPopupMenu()){toggleBandInSelection(closest);return;}
         // A plain press on a group member keeps the group; elsewhere it starts a new one.

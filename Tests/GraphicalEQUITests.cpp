@@ -763,6 +763,17 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     for(int b=0;b<4;++b)unchanged(b,"+ BAND undo changed a fixture band");
     click(0,0);click(1,command);panel.selectBandForEditing(3);
     check(panel.selectionMask()==0b1000 && panel.selectedBand()==3,"Focusing one band kept the previous group");
+    // Middle-click (solo) on a node outside the group starts a new selection;
+    // on a member it keeps the group, like a plain press.
+    const auto middleAt=[&](int band){const auto at=panel.visibleNodePosition(band);
+        const juce::MouseEvent event{juce::Desktop::getInstance().getMainMouseSource(),at,juce::ModifierKeys(juce::ModifierKeys::middleButtonModifier),1.f,0.f,0.f,0.f,0.f,
+                                     &panel,&panel,juce::Time::getCurrentTime(),at,juce::Time::getCurrentTime(),1,false};
+        panel.mouseDown(event);panel.mouseUp(event);};
+    click(0,0);click(1,command);middleAt(3);
+    check(panel.selectionMask()==0b1000 && panel.selectedBand()==3,("Middle-click on a non-member kept the group: mask="+juce::String(panel.selectionMask())).toRawUTF8());
+    click(0,0);click(1,command);middleAt(0);check(panel.selectionMask()==0b0011 && panel.selectedBand()==0,"Middle-click on a member dropped the group");
+    check(panel.auditioningBand()==-1,"Middle-click solo stayed after release");
+    click(0,0);
     std::cout<<"PASS EQ group: DELETE inside a group keeps the selection in the group, Escape ends a group drag with balanced gestures, + BAND and band focus start a new selection bank="<<bank<<'\n';
     std::cout<<"PASS EQ group selection (Ctrl/Cmd+click, box, Ctrl/Cmd+A, Escape) and group drag/edge/Alt, wheel Q and delete as single undo steps bank="<<bank<<'\n';
 }
