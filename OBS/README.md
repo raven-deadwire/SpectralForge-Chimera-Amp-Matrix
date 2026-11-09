@@ -8,7 +8,10 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
 **상태: 개발 시제품. Windows는 Chimera Setup, macOS(Universal: Apple silicon·Intel, macOS 12 이상)는 Chimera PKG의 선택 항목(서명·공증 없음)이며
-별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전). 실제 OBS Studio 앱은 Linux·Windows·macOS(Apple silicon)에서 자동 시험(필터·녹화·상태 저장/복원)만 했고, 화면 조작·에디터·방송 검증은 미실행.**
+별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전).
+실제 OBS Studio 앱의 필터·녹화·상태 저장/복원·에디터 창 열기는 Linux·Windows·macOS(Apple silicon) 자동 시험 범위다.
+Linux는 OUTPUT 노브 마우스 편집·저장·재시작 복원도 자동 시험한다.
+Windows·macOS 에디터 내부 마우스 조작, 실제 PC의 필터 메뉴·속성 창 조작·오디오 장치·방송 수동 검증은 미실행.**
 
 ## 라이선스
 
@@ -33,6 +36,7 @@ JUCE는 쓰지 않는다.
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
 | `tests/obs_instances_test.py` | 실제 OBS Studio 앱에서 Chimera 필터 여러 개(C단계): 서로 다른 상태로 함께 처리, 필터 붙여넣기(전체·하나)로 상태 복사, 붙인 필터의 독립, 장면 저장·재시작 복원 | 시험 |
 | `tests/obs_editor_test.py` | 실제 OBS Studio 앱에서 Chimera 에디터 창: 필터 속성 버튼 함수로 UI 스레드에서 열기·다시 올리기, 열린 동안 소리 유지, 열린 채 OBS 종료, 저장 상태 유지 | 시험 |
+| `tests/obs_editor_edit_test.py` | 실제 OBS Studio 앱(Linux, Xvfb)에서 Chimera 에디터 창 안의 편집: 필터 버튼으로 연 에디터의 OUTPUT 노브를 xdotool 마우스 드래그로 내리면 필터의 OBS 설정(장면 상태)이 바뀌고 소리가 작아지는지, 에디터를 연 채 종료한 뒤 재시작해도 편집한 소리가 복원되는지 | 시험 |
 | `tests/obs_formats_test.py` | 실제 OBS Studio 앱을 44.1 kHz 모노와 48 kHz 5.1로 실행: 필터 로딩·처리, 5.1에서 앞 좌우만 처리하고 나머지 4채널은 그대로 통과 | 시험 |
 | `tests/obs_latency_test.py` | 실제 OBS Studio 앱 녹화에서 필터 처리 지연을 표본 단위로 측정해 속성 창에 보이는 지연과 비교, 녹화 안 영상·소리 싱크 유지 | 시험 |
 | `tests/obs_vst3_match_test.py`, `tests/render-tool.cpp` | 실제 OBS Studio 앱 녹화의 필터 출력을 같은 입력·같은 상태로 OBS 밖에서 처리한 Chimera VST3 출력과 표본 단위로 비교(기본 상태·적용한 프리셋) | 시험 |
@@ -315,6 +319,7 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 | 실제 OBS Studio 앱(`obs_failure_policy_test.py`): 48 kHz 5.1, 없는 Chimera 번들 지정 — 기본 정책(무음)은 새 필터의 기본값이고 6채널 모두 0 단계(통과 채널도 보내지 않음), 로그에 실패한 번들 경로. 원음 통과: 앞 좌우가 센터·뒤 왼쪽 입력 사본과 0 단계 차이. 경로를 비우면 표준 위치의 Chimera를 로드해 앞 좌우가 입력과 16240 단계 차이(처리됨). 다시 없는 번들 + 무음: 6채널 모두 0. 세션 합계(처음 처리한 블록부터 셈): 미처리 913 블록 | 통과 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
 | 실제 OBS Studio 앱(`obs_formats_test.py`): OBS 설정을 44.1 kHz 모노와 48 kHz 5.1로 바꿔 각각 실행(OBS 로그의 형식 확인), 무손실(PCM) 녹화로 필터 끔/켬 비교 — 모노는 스테레오 DI를 OBS가 합친 소리를 처리(−22.6 dB, 스펙트럼 거리 0.566). 5.1은 앞 좌우에 DI, 센터·LFE·뒤 좌우에 서로 다른 사인(440·55·660·880 Hz) — 앞 좌우는 처리(−18.9 dB), 나머지 4채널은 레벨 +0.0 dB·스펙트럼 거리 0.000이고 각 채널이 제 음을 유지(바뀜·섞임 없음). 두 실행 모두 미처리 블록 0, 필터 해제, 정상 종료 | 통과 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
 | 실제 OBS Studio 앱(`obs_editor_test.py`): 장면 스크립트(Lua)가 OBS 프론트엔드 이벤트(UI 스레드, 스튜디오 모드 켬/끔)에서 필터 속성 창의 "Chimera 에디터 열기" 버튼을 `obs_property_button_clicked`로 누름 — 필터가 에디터를 띄우고 필터 이름의 창이 하나(Linux X11 `xwininfo`, Windows 최상위 창; macOS는 로그만), 다시 누르면 같은 창을 올림(두 번째 창 없음), 열린 동안 녹음이 닫힌 때와 같음(+0.0 dB), 에디터를 연 채 OBS 종료 시 정상 종료(코드 0)·필터와 함께 에디터 닫힘, 다음 실행에서 같은 소리(−0.0 dB) | 통과 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2·Windows 31.1.2·macOS 31.1.2 Apple로 실행 |
+| 실제 OBS Studio 앱(`obs_editor_edit_test.py`): 기본 상태 필터를 녹음한 뒤, 필터 버튼으로 연 에디터(EASY VIEW, 1180×780)의 OUTPUT 노브(-6 dB)를 xdotool로 150픽셀 끌어 내림 — 필터 설정의 Chimera 상태가 바뀜, 녹음 -23.9 dB, 장면 파일에 같은 상태 저장, 에디터를 연 채 종료, 재시작 후 복원된 소리 -0.0 dB(편집한 소리와 같음) | 통과 | OBS Studio 30.0.2 (Ubuntu 24.04, Xvfb). CI(`obs-addon.yml`)에서 Linux 30.0.2로 실행 |
 | OBS의 "복제"(Duplicate)와 오디오 소스 | 해당 없음: OBS는 미디어·오디오 캡처 소스(`OBS_SOURCE_DO_NOT_DUPLICATE`)를 복제하지 않고 같은 소스를 한 번 더 참조하므로 필터 인스턴스가 새로 생기지 않는다(실제 OBS 30.0.2에서 확인). 복제되는 소스의 `obs_source_duplicate`는 헤드리스 시험이 확인 | 같은 환경 |
 | 실제 OBS Studio 앱(같은 시험, OBS 업데이트 후): OBS 31.1.2용으로 빌드한 같은 Windows 필터를 OBS 32.2.2(공식 배포 zip, SHA-256 확인)에서 로딩(필터가 빌드 대상과 다른 주 버전을 로그로 경고), 위와 같은 녹화·상태 적용·저장·재시작 복원(−18.9 dB, −15.6 dB, 재시작 후 −15.6 dB), 두 번 모두 정상 종료(코드 0)·통계·해제 로그 | CI(`obs-addon.yml` windows)에서 통과 | OBS Studio 32.2.2 (Windows Server, obs-websocket 5.7.4) |
 | 실제 OBS Studio 앱 OBS 32.2.2 macOS Apple | CI에서 실행 불가: OBS 32.2.2가 필터 없이도 시작 중 기본 장면을 만들 때 종료(SIGSEGV/SIGTRAP). lldb로 본 주 스레드: `QWidget::setCursor` → `QImage::toCGImage` → `CGImageCreate`(CoreGraphics 색 공간) — OBS·Qt 6.11과 이 CI 가상 머신(macOS 15.8, Apple Software Renderer)의 문제로 Chimera 필터와 무관. 필터 등록·버전 경고 로그까지는 정상 | macOS 15.8 arm64 CI 가상 머신 |
@@ -333,7 +338,9 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
   원래 IR 파일이 지워져도 소리는 같다(Chimera가 설치된 다른 PC로 장면을 옮길 때도 IR 파일은 필요 없다). 상태 안의 IR이 손상되면 Chimera는 그 칸을 캐비닛 필터로 처리한다
   ("Saved IR is damaged. Filters only."). 모듈은 상태를 그대로 전달할 뿐이며, 두 동작 모두 `obs_user_ir_test.py`가 실제 OBS에서 확인한다.
 - 실제 OBS 앱 안에서 에디터 창을 필터 버튼으로 열고·다시 올리고·연 채로 종료하는 것은 `obs_editor_test.py`가 확인한다.
-  에디터 안에서 소리를 바꾼 편집이 장면에 반영되는 것(500 ms 타이머)은 창을 조작해야 하므로 실제 OBS 앱에서는 아직 확인하지 않았다(수동 검사).
+  에디터 안에서 소리를 바꾼 편집이 장면에 반영되는 것(500 ms 타이머)은 Linux에서 `obs_editor_edit_test.py`가 확인한다: Xvfb에서 xdotool로
+  EASY VIEW의 OUTPUT 노브를 마우스로 끌어 내리면 필터 설정의 상태가 바뀌고 소리가 작아지며, 장면에 저장되어 재시작 뒤에도 같다.
+  Windows·macOS에서 에디터 안 편집은 아직 수동 검사다.
   Windows 에디터 창도 `chimera-obs-editor-tests`(Windows판)가 실제 Chimera VST3로 CI(Windows 데스크톱 세션)에서 아래 macOS 항목과 같은 동작을 확인한다.
   macOS 에디터 창은 `chimera-obs-editor-tests`가 실제 Chimera VST3로 CI(macOS 창 서버)에서 확인한다: 창 표시·뷰 부착·크기,
   열린 동안 500 ms 동기화 호출, 닫기 버튼은 숨기기만 하고 마지막 편집을 동기화, 다시 열면 같은 창을 앞으로, `closeEditor`가 한 번 동기화 후 해제, 열기·닫기 반복.
@@ -352,7 +359,9 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 - 같은 미디어 소스라도 OBS가 녹화마다 영상 대비 소리 위치를 다르게 시작하는 것을 관찰했다(로컬 OBS 30.0.2에서 필터를 끈 두 녹화가
   −134 ms와 −62 ms). 필터와 무관한 OBS 동작이며, 한 녹화 안에서는 일정하다.
 
-**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux·Windows·macOS 앱 시험은
-obs-websocket으로 필터를 추가·설정하고, 필터 붙여넣기는 메뉴가 부르는 OBS 함수를 Lua 스크립트로 부르며, 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
+**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창 조작과 Windows·macOS의 에디터 창 안 조작(Linux·Windows·macOS 앱 시험은
+obs-websocket으로 필터를 추가·설정하고, 필터 붙여넣기는 메뉴가 부르는 OBS 함수를 Lua 스크립트로 부른다. 화면을 직접 조작하는 시험은
+Linux 에디터 창 안 편집(`obs_editor_edit_test.py`, xdotool)뿐이다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
 macOS에서의 OBS 32.x(CI 가상 머신에서 OBS 32.2.2 자체가 시작 중 종료, Windows 32.2.2만 자동), 실제 Intel Mac에서의 확인(Apple silicon에서 Rosetta로 실행하는 시험만 자동). 이 항목은 계획 C–F단계와
-[#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다.
+[#131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131)의 수동 검사로 기록한다. 확인 항목은 [OBS_ADDON_MANUAL_CHECKLIST.ko.md](../docs/OBS_ADDON_MANUAL_CHECKLIST.ko.md)에 정리했다.
+atkAudio + Chimera VST3 호환 시험은 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)에 별도 기록하며, 전용 애드온의 CI·수동시험 결과로 대체하지 않는다.
