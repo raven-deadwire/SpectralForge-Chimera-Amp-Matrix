@@ -28,6 +28,14 @@ struct TrimResult {
     bool changed() const noexcept {return proposed!=before;}
 };
 inline constexpr float trimMaxMoveDb=12.f,trimLimitDb=24.f,trimGridDb=.5f,trimMinGain=ampCompressionTolerance*.5f;
+// A trim or level in dB for the result row, on its 0.1 dB display grid: the
+// sign follows the rounded value, so a value read back a hair below 0 shows
+// as +0.0 dB, not -0.0 dB.
+inline juce::String trimDbText(float v) {
+    float shown=std::round(v*10.f)/10.f;
+    if(shown==0.f)shown=0.f; // -0.0 too
+    return (shown>=0.f?"+":"")+juce::String(shown,1)+" dB";
+}
 // Trim (dB) -> the head's output for the analysed input.
 using TrimRenderer=std::function<std::vector<float>(float)>;
 // Loudness of the playing (blocks within 30 dB of the loudest), after the warm-up.

@@ -9,6 +9,9 @@ TrimRenderer syntheticTrim(const std::vector<float>& input,double rate,float gai
     };
 }
 void trimRules() {
+    // The row's dB text: the sign follows the rounded value (a trim read back a hair below 0 is +0.0 dB).
+    for(const auto& [v,text]:std::initializer_list<std::pair<float,const char*>>{{0.f,"+0.0 dB"},{-0.f,"+0.0 dB"},{-1e-6f,"+0.0 dB"},{-0.04f,"+0.0 dB"},{0.04f,"+0.0 dB"},{-0.05f,"-0.1 dB"},{12.f,"+12.0 dB"},{-10.f,"-10.0 dB"}})
+        check(trimDbText(v)==text,"Trim dB text for "+std::to_string(v)+" is "+trimDbText(v).toStdString()+", not "+text);
     for(double rate:{44100.,48000.,96000.}) {
         std::mt19937 rng{240};const auto di=playedNotes(rate,ampRenderSeconds,rng);
         const auto at=[&](float gain,float current,Style style){const auto render=syntheticTrim(di,rate,gain);return std::pair{analyseTrim(di,render(current),rate,current,render,false,style),render};};

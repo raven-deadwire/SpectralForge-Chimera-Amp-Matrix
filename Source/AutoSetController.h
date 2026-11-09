@@ -754,7 +754,7 @@ private:
         if(r.steady){keep("not enough difference between soft and hard playing to judge the drive; play some soft and some hard notes");return;}
         if(!r.rendered){keep("the head renders no playing at its knobs");return;}
         const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
-        const auto db=[](float v){return (v>=0?"+":"")+juce::String(v,1)+" dB";};
+        const auto db=[](float v){return trimDbText(v);};
         const auto target="target "+pct(r.target);
         if(!r.changed()){keep("drive "+pct(r.driveBefore)+", "+target+(r.reachable?"":"; INPUT TRIM within 12 dB does not come closer"));return;}
         set(trimID,r.before+strength()*(r.proposed-r.before));
