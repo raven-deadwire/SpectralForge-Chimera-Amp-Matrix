@@ -24,7 +24,7 @@ Controller::Options options(float strength=1.f) {
     Controller::Options o;
     o.instrument=2;o.style=Style::rock;o.strength=strength;
     o.tone=o.finish=o.multiband=o.gates=o.dynamicEQ=o.level=false;
-    o.amp=o.cab=o.boost=o.space=o.dual=o.width=o.cuts=o.bus=o.matrix=o.mics=o.rigs=o.channel=o.polarity=o.sync=o.cabIR=false;o.power=true;
+    o.amp=o.cab=o.boost=o.space=o.dual=o.width=o.cuts=o.bus=o.matrix=o.mics=o.rigs=o.channel=o.polarity=o.sync=o.cabIR=o.trim=false;o.power=true;
     o.locks=Controller::lockInput|Controller::lockGate|Controller::lockCompressor;
     return o;
 }

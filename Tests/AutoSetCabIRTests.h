@@ -193,7 +193,7 @@ void controllerCabIR() {
     const auto post=renderFactoryIR(irSuitedNoise(48000,8,rng,1,Style::rock),48000,0);
     Controller::Options irOnly;
     irOnly.instrument=1;irOnly.style=Style::rock;irOnly.strength=1.f;irOnly.locks=Controller::lockInput|Controller::lockGate|Controller::lockCompressor;
-    irOnly.tone=irOnly.finish=irOnly.multiband=irOnly.gates=irOnly.dynamicEQ=irOnly.level=irOnly.amp=irOnly.cab=irOnly.boost=irOnly.space=irOnly.power=irOnly.dual=irOnly.width=irOnly.cuts=irOnly.bus=irOnly.matrix=irOnly.mics=irOnly.rigs=irOnly.channel=irOnly.polarity=irOnly.sync=false;
+    irOnly.tone=irOnly.finish=irOnly.multiband=irOnly.gates=irOnly.dynamicEQ=irOnly.level=irOnly.amp=irOnly.cab=irOnly.boost=irOnly.space=irOnly.power=irOnly.dual=irOnly.width=irOnly.cuts=irOnly.bus=irOnly.matrix=irOnly.mics=irOnly.rigs=irOnly.channel=irOnly.polarity=irOnly.sync=irOnly.trim=false;
     irOnly.cabIR=true;
     const auto full=runCabIR(irOnly,post,1);
     const auto* step=stepOf(full.status,P::cabIR);

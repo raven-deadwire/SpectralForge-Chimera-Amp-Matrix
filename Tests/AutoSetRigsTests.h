@@ -61,7 +61,7 @@ void controllerRigs() {
         return [list](ChimeraProcessor& p){for(const auto& [id,v]:list)p.parameters().getParameter(id)->setValueNotifyingHost(p.parameters().getParameter(id)->convertTo0to1(v));};};
     const auto native2=spectralforge::ampNativeOutputLevelID(2);
     const auto blendRig=setter({{"mode",1},{"dualtype",0},{"dualblend",.5f}});
-    Controller::Options rigsOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false};
+    Controller::Options rigsOnly{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false};
     // Native heads (the default): rig 2's OUTPUT LEVEL moves; LEVEL 2 and rig 1 stay.
     const auto full=runDual(rigsOnly,one,quiet,blendRig);
     const auto& a=full.rigs;const auto* step=stepOf(full.status,P::rigs);
