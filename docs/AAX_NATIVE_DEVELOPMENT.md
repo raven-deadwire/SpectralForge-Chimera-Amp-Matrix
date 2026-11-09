@@ -1,6 +1,6 @@
 # AAX Native development foundation
 
-Date: 2026-10-18 KST. Related: [P0 issue #97](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/97).
+Foundation: 2026-10-18 KST; access/Developer-host update: 2026-10-30 KST. Related: [P0 issue #97](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/97).
 **Implementation candidate; no signed AAX release or Pro Tools acceptance.**
 
 The October 18 P0 supersedes the old October/November scheduling assumptions in
@@ -138,7 +138,9 @@ bytes, verify its signature after extraction and pass the host gate below.
 
 ## Access inventory and external dependencies
 
-The following inventory records evidence available on October 18; absence of
+The following inventory retains October 18 technical evidence with PACE access
+updated from the October 27 official emails and Avid code issuance from the
+October 29 01:45 KST Devauth email, read on October 30. Absence of
 evidence does not mean the owner has no account elsewhere. No account was
 created, agreement accepted, approval requested or email sent by this change.
 
@@ -147,13 +149,13 @@ created, agreement accepted, approval requested or email sent by this change.
 | GitHub repository read/write + Actions | Connected repository access; Draft PR/CI available | Nothing in source implementation |
 | JUCE 8.0.8 bundled SDK | Retrieved and inspected at the pinned upstream SHA | Native build execution still required |
 | Local supported OS/toolchain | Linux x86_64; no local Windows/macOS SDK or Pro Tools | Local AAX compile/host test; use Actions for compile |
-| Avid developer account / agreements | No approval evidence available | Developer downloads/authorization, publisher verification |
-| Pro Tools Developer + iLok authorization | No verified entitlement or usable host | Unsigned scan/playback and host acceptance |
-| PACE Eden tools, certificate or cloud-signing entitlement | No provisioned tool observed; access unverified | AAX signing |
+| Avid developer / PACE referral | Referral reached PACE and publisher setup is confirmed; do not reopen this completed referral | Pro Tools host licensing is separate from signing access |
+| Pro Tools Developer + iLok authorization | Developer Bundle activation code issued October 29 01:45 KST; October 29 retry superseded. User completed Avid sign-in and authorized EULA acceptance; after acceptance, Avid rejected the code as invalid. The submitted value exactly matches the issuance email | Redemption BLOCKED_INVALID_CODE; confirm code status with Avid Devauth before retrying. Correct iLok destination, actual Intro/Developer Build/Prerelease deposits and activation remain unverified |
+| PACE AAX signing access | Publisher/admin created; Central Access and Fusion SDK licenses deposited October 27, one each, expiry 2027-11-01; LITE signing only | USB arrival/activation, certificate, wraptool installation and first signing unverified; no separate AAX Cloud Signing entitlement established |
 | Windows publisher certificate / Apple Developer ID + notarization | Not established by this task; repository workflow alone is not access evidence | Final platform installer qualification |
 | Normal Pro Tools on Windows, macOS Intel and Apple Silicon | No actual host sessions available | Signed release acceptance on those paths |
 
-Official steps, independently checked October 18:
+Historical enrollment route (do not repeat the completed Avid-to-PACE referral):
 
 1. Register through [Avid AAX](https://developer.avid.com/aax/) and complete the
    applicable developer agreement. Avid directs commercialization/tool/license
@@ -181,6 +183,14 @@ Record exact source, archive/binary hashes, signing verification, OS/CPU,
 Pro Tools edition/version, interface/driver, rate/buffer, preset and route.
 Use actual Developer and normal signed-host columns, never one combined PASS.
 
+Follow the [Windows Developer test runbook](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md)
+for the selected unsigned CI artifact and first smoke test. Avid's issuance
+email requires launching regular Pro Tools before Pro Tools Developer and
+following that Developer download's ReadMe. Developer supports unsigned AAX
+and debugging, but **session saving is disabled**. Save/reopen acceptance belongs
+to signed AAX in normal Pro Tools. Bounce/export capability must be checked in
+the specific Developer build; unsupported operations stay NOT_SUPPORTED, never PASS.
+
 - Scan, load and remove mono/stereo inserts; Classic/Dual/Matrix and internal
   Dual Mono; sample-rate/buffer changes and bypass; realtime and offline bounce.
 - Parameter gestures and automation read/write; session save/reopen; presets,
@@ -198,3 +208,18 @@ runs shared regression tests, extracts the development ZIP, and exercises its
 installation lifecycle in isolated and disposable standard system paths.
 These checks cannot establish any Pro Tools host result. Record statuses as
 **BUILT → DEVELOPER-HOST VERIFIED → SIGNED NORMAL-HOST ACCEPTED → DELIVERED**.
+
+## Signing-input preflight (October 27)
+
+From the exact source checkout, run `Tools/aax_native.py signing-preflight` on
+an extracted, trusted unsigned package with `--package`, `--platform` and
+`--expected-source` (full SHA). Add `--require-approved-beta` for deployment
+input; qualification-only policy is then rejected. See the
+[first-signing runbook](AAX_FIRST_SIGNING_RUNBOOK_20261027.ko.md).
+
+This read-only command checks package hashes/architecture, receipt/build/source
+identity and beta metadata/policy. It never contacts PACE, reads credentials,
+installs or signs; output always leaves PACE/platform verification NOT_RUN and
+host/release acceptance false. It proves consistency, not authentic build
+provenance; independently verify the source-bound CI run and archive checksum.
+The native ZIP lifecycle tests also emit `signing-preflight.json` for CI.
