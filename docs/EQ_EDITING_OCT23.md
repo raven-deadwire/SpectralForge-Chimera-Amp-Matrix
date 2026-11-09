@@ -122,8 +122,39 @@
 - **표시:** 묶음의 노드에는 고리를 두르고, 오른쪽 위 안내에 `3 bands selected  /  Delete removes  /  Esc clears`를 표시한다.
 - **묶음 드래그:** 묶음의 노드를 잡고 끌면 모든 밴드가 **같은 주파수 비율과 같은 dB 변화**로 함께 움직인다. 각 밴드는 자기 범위(20 Hz–20 kHz, ±24 dB)에서 멈추고 나머지는 계속 움직인다. 게인이 없는 필터(HP/LP 등)는 주파수만 움직인다. Shift(미세)와 Alt/Option(축 고정)은 한 밴드 드래그와 같다. 드래그 전체가 **Undo 한 단계**이고, 호스트에는 필드마다 제스처 한 쌍이다.
 - **휠(Q)과 삭제:** 묶음이 있으면 휠은 모든 밴드의 Q에 같은 배율을 곱하고, Delete/Backspace와 노드 오른쪽 클릭의 `Delete N Selected Bands`는 묶음 전체를 지운다. 둘 다 Undo 한 단계다. 아래쪽 밴드 컨트롤(주파수·게인·Q 숫자, 필터, 다이내믹)은 지금처럼 선택된 밴드 하나만 바꾼다.
+- 상단 **DELETE** 버튼도 Delete/Backspace·노드 메뉴와 동일하게 선택 묶음을 지운다(Undo 한 단계). 여러 개 선택 시 `DELETE (N)`과 툴팁으로 삭제 개수를 표시한다. 선택이 없으면 비활성화한다. 숫자·필터·다이내믹 컨트롤은 활성 밴드 하나만 편집한다.
+- 선택된 밴드가 사라지면(다른 곳에서 삭제·Undo) 선택은 **묶음에 남은 밴드**로 넘어가며, 묶음 밖 밴드가 묶음에 들어오지 않는다(검증 콘솔 EQ-01).
+- Esc, Ctrl/Cmd+A, Ctrl/Cmd+클릭, 상자 선택, 명시적 단일 선택 전에 진행 중인 드래그와 호스트 제스처를 끝낸다. Esc로 상자 선택을 취소하면 뒤따르는 mouse-up이 선택을 다시 적용하지 않는다.
+- `+ BAND`·더블클릭 생성 성공 및 `selectBandForEditing()`은 해당 밴드만 선택한다. 생성 실패·잘못된 밴드 요청은 유효한 기존 그룹을 보존한다. 일부 멤버 삭제 시 남은 멤버를 유지하며, 삭제 요청 자체가 거부되어도 그룹을 미리 지우지 않는다.
+- 노드 메뉴는 SafePointer, 현재 표시 여부, 편집 revision, 선택 generation, 활성 밴드와 선택 mask를 함께 확인한다. A→B→A 및 숨김→재표시 후 오래된 메뉴 삭제를 거부한다. 단순 타이머 갱신/그리기는 선택 generation을 변경하지 않는다(EQ-02).
+- 드래그/Q Undo·Redo는 현재 선택 그룹을 유지한다. 삭제 Undo는 값과 점유를 복원하지만 삭제 전 선택 그룹까지 복원하지 않는다. 선택이 전부 사라진 뒤 다른 밴드 하나로 포커스를 넘기는 것은 기존 그룹에 그 밴드를 추가하는 동작과 구별한다.
 - 선택 자체는 에디터 표시 상태다. 파라미터·프리셋·A/B·Undo·저장 상태에 들어가지 않는다.
-- 검증: `ChimeraGraphicalEQGroupEditTests`(양쪽 EQ, `ChimeraGraphicalEQUITests --group-edit`). Ctrl/Cmd+클릭 추가·제거(선택 밴드를 빼면 다음 밴드로), Ctrl/Cmd+A, Esc, 상자 선택과 Ctrl/Cmd+상자, 빈 곳 클릭, 선택만으로 저장 상태 불변, 묶음 드래그의 비율 ×2·+4 dB와 묶음 밖 밴드 불변, 필드마다 제스처 한 쌍(6/6), 20 kHz에서 멈추는 밴드와 게인 없는 HP, Alt 축 고정, 휠 Q, 묶음 삭제와 Undo/Redo, 묶음 밖 클릭·밴드 목록으로 새로 시작을 확인하고 `eq-group-edit/group_bank*.png`를 남긴다. `ChimeraGraphicalEQEditingTests`의 `groupRemoval`은 여러 밴드 삭제가 Undo 한 단계로 튜닝까지 되돌아오는지, 없는 슬롯을 무시하는지 확인한다. 오른쪽 클릭 메뉴 자체와 실제 DAW·트랙패드 조작은 자동 검증 범위 밖이다.
+- 자동 검증은 `ChimeraGraphicalEQGroupEditTests`의 기존 비율·경계·축 고정 시험과 `Tests/EQGroupSafetyTests.h`의 독립 fixture를 사용한다. Tone/Final에 같은 시험을 적용하고, 공용 이력 순서만 교차 뱅크 시험으로 분리한다. `ChimeraGraphicalEQEditingTests::groupRemoval`은 양쪽 뱅크에서 점유/튜닝 복원·없는 슬롯 무시·파라미터별 제스처를 검증한다. 같은 삭제/Esc 시나리오를 두 PR에서 중복 이식하지 않는다.
+
+### 그룹 편집 통합 회귀시험 (2026-11-08)
+
+| ID | 자동 검증 위치 / 내용 | 실행 증거 |
+| --- | --- | --- |
+| R1 | `groupSingleSelectionSafety`: 생성/명시적 선택, 실패·잘못된 대상, 즉시 DELETE 개수/툴팁, 저장/호스트 파라미터 불변 | 해당 통합 HEAD의 CI 로그로 판정 |
+| R2 | `groupDeleteEntryPoints`: 버튼/Delete/Backspace/운영 메뉴 콜백 × 1/2/12개, 우회 밴드 포함, 정확한 Undo/Redo와 그룹 비복원 | 해당 통합 HEAD의 CI 로그로 판정 |
+| R3 | `groupSelectionAfterRemoval`: 부분 삭제 후 생존 멤버 선택, 외부 편집 소유권으로 삭제 거부 시 그룹 보존 | 해당 통합 HEAD의 CI 로그로 판정 |
+| R4 | 기존 `groupEditing` + `groupEditGestures`: 비율/경계/Alt, Bell/HP, 27.5/55 Hz, Q, 파라미터별 제스처와 Undo/Redo 시 그룹 유지 | 해당 통합 HEAD의 CI 로그로 판정 |
+| R5 | `groupDragInterruption`: Esc/전체 선택/토글/단일 선택/상자/숨김/목록/외부 자동화 후 쓰기 정지, 열린 제스처 없음, 이력 소유권 | 해당 통합 HEAD의 CI 로그로 판정 |
+| R6 | `groupMenuLifetime`: 취소, A→B→A, 숨김→재표시, 편집→Undo, 동일 값 복원 경계, 파괴된 패널의 운영 콜백 | OS 팝업의 실제 이벤트 순서는 별도 미검증 |
+| R7 | `groupCrossBankHistory`: 실제 에디터의 공용 Undo/Redo 순서·대상 뱅크 표시·양쪽 그룹 보존. 외부 소유권/프리셋/A-B 계약은 기존 엔진 시험 재사용 | 해당 통합 HEAD의 CI 로그로 판정 |
+| R8 | 아래 실제 호스트 체크리스트 | **미검증**: CI PASS를 DAW/청음 PASS로 승격하지 않음 |
+
+시험 추가 자체를 실행 PASS로 기록하지 않는다. 기존 PR의 성공 결과는 통합 커밋으로 자동 승계하지 않는다. 메뉴 시험은 실제 운영 콜백을 호출하지만 OS 팝업을 자동 클릭하지 않는다. EQ Undo 한 단계와 DAW 자체 Undo/자동화 타임라인은 별도이며, 샘플 단위의 원자적 다중 파라미터 적용을 주장하지 않는다.
+
+실제 호스트 검증 시 먼저 source HEAD·빌드/플러그인 형식·OS·DAW 버전·샘플레이트·버퍼·자동화 모드를 기록한다. 다음 항목은 모두 현재 **미검증**이다.
+
+- Windows 주 사용 DAW의 VST3에서 실제 Ctrl/Esc/Delete/Backspace, 상단 DELETE (N), 우클릭 메뉴의 A→B→A·창 숨김/재열기를 Tone/Final 각각 확인한다.
+- macOS 배포 대상에서는 Cmd·트랙패드·메뉴 이벤트 순서와 VST3/AU를 확인한다. AAX 배포 대상에서는 해당 통합 소스로 만든 AAX를 Pro Tools에서 별도 확인한다.
+- Read/Touch/Latch/Write 모드에서 드래그 중단 후 자동화가 붙잡힌 상태로 남지 않는지, 기존 자동화 값과 슬롯 ID를 덮거나 이동하지 않는지 기록한다.
+- Tone 편집→Final 편집→반대 화면에서 Undo/Redo, 프로젝트 재열기, A/B·프리셋 복원 후의 이력 경계와 유효한 선택을 확인한다.
+- 실제 7현 기타 Drop A(A1=55 Hz), 5현 베이스 Drop A(A0=27.5 Hz) DI로 Full/Bass 보기의 선택·삭제·복원을 확인한다. 단순 선택 조작의 오디오 불변과 삭제/Undo의 의도한 음색 변화·청음은 별도 판정한다.
+- 각 결과에 PASS/BLOCKED/미검증, 재현 조건, 화면/자동화·오디오 증거, 마지막 확인일을 남긴다.
+
 
 ## EQ별 A/B와 복사 (2026-11-08, Issue #53)
 

@@ -290,23 +290,41 @@ void transactionGrouping() {
 // Group delete (graph multi-selection): several bands leave in one step and
 // come back together, with their tuning; absent slots in the mask are ignored.
 void groupRemoval() {
-    auto storage = std::make_unique<ChimeraProcessor>();
-    auto& processor = *storage; auto& edits = processor.eqEditing();
-    EQHostTrace trace(processor);
-    for (int b = 0; b < 3; ++b) check(edits.addBand(0, 200.f * float(b + 1), float(b)) == b, "Group removal fixture");
-    localSet(processor, 0, 2, "q", 1.75f);
-    const auto history = edits.revision();
-    check(!edits.removeBands(0, uint16_t(1u << 5)), "Removing only absent slots created an operation");
-    check(edits.revision() == history, "An empty group removal changed history");
-    check(edits.removeBands(0, uint16_t((1u << 1) | (1u << 2) | (1u << 7))), "Group removal rejected");
-    check(edits.isOccupied(0, 0) && !edits.isOccupied(0, 1) && !edits.isOccupied(0, 2)
-          && get(processor, 0, 1, "enabled") == 0.f && get(processor, 0, 2, "enabled") == 0.f, "Group removal removed the wrong bands");
-    check(edits.undoDescription().contains("2 bands"), "Group removal description wrong");
-    check(edits.undo() && edits.isOccupied(0, 1) && edits.isOccupied(0, 2) && get(processor, 0, 1, "enabled") == 1.f
-          && get(processor, 0, 2, "enabled") == 1.f && near(get(processor, 0, 2, "q"), 1.75f), "Group removal was not undone in one step");
-    check(edits.redo() && !edits.isOccupied(0, 1) && !edits.isOccupied(0, 2) && edits.isOccupied(0, 0), "Group removal redo failed");
-    trace.balanced("Group removal");
-    std::cout << "PASS group delete is one Undo/Redo step / absent slots ignored / tuning restored / balanced host gestures\n";
+    for (int bank = 0; bank < 2; ++bank) {
+        auto storage = std::make_unique<ChimeraProcessor>();
+        auto& processor = *storage; auto& edits = processor.eqEditing();
+        EQHostTrace trace(processor);
+        for (int b = 0; b < 3; ++b)
+            check(edits.addBand(bank, 200.f * float(b + 1), float(b)) == b, "Group removal fixture");
+        localSet(processor, bank, 2, "q", 1.75f);
+        edits.barrier(); check(!edits.canUndo(), "Group removal baseline"); trace.clear();
+        const auto history = edits.revision();
+        check(!edits.removeBands(bank, uint16_t(1u << 5)), "Removing only absent slots created an operation");
+        check(edits.revision() == history && !edits.canUndo(), "Empty removal changed history");
+        const auto gestures = [&] {
+            trace.balanced("Group removal/undo/redo");
+            for (int e = 0; e < 2; ++e) for (int b = 0; b < graphicalEQBands; ++b)
+                for (const auto* field : fields) {
+                    const auto& event = trace.event(e, b, field);
+                    const int expected = e == bank && (b == 1 || b == 2) && std::string(field) == "enabled" ? 1 : 0;
+                    check(event.starts.load() == expected && event.ends.load() == expected,
+                          "Group deletion did not gesture exactly once per affected enabled parameter");
+                }
+            trace.clear();
+        };
+        check(edits.removeBands(bank, uint16_t((1u << 1) | (1u << 2) | (1u << 7))), "Group removal rejected");
+        check(edits.isOccupied(bank, 0) && !edits.isOccupied(bank, 1) && !edits.isOccupied(bank, 2)
+              && get(processor, bank, 1, "enabled") == 0.f && get(processor, bank, 2, "enabled") == 0.f,
+              "Group removal removed the wrong bands");
+        check(edits.undoDescription().contains("2 bands"), "Group removal description wrong"); gestures();
+        check(edits.undo() && edits.isOccupied(bank, 1) && edits.isOccupied(bank, 2)
+              && get(processor, bank, 1, "enabled") == 1.f && get(processor, bank, 2, "enabled") == 1.f
+              && near(get(processor, bank, 2, "q"), 1.75f) && !edits.canUndo(),
+              "Group removal was not undone in one step"); gestures();
+        check(edits.redo() && !edits.isOccupied(bank, 1) && !edits.isOccupied(bank, 2) && edits.isOccupied(bank, 0),
+              "Group removal redo failed"); gestures();
+    }
+    std::cout << "PASS both banks group delete: one Undo/Redo step / absent slots ignored / tuning restored / per-parameter gestures\n";
 }
 // Review regressions (#290): a host write during a switch wins and the slot
 // stays; a switch clears only its EQ's history; every combination of global
