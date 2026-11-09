@@ -179,7 +179,7 @@ int main(int argc,char** argv){try {
         require(kernelResidual<3e-6,"prepared kernel differs from generated acoustic response");
         for(auto& c:cabs)for(auto* slot:{&c,c.secondMic()}) {
             juce::AudioBuffer<float> samples(1,int(wave.size()));samples.copyFrom(0,0,wave.data(),int(wave.size()));
-            slot->requestedModel=nextKey;slot->publish(std::make_unique<Cab::Kernel>(std::move(samples),sr,spec,0,100,nextKey));
+            slot->requestedSource=0;slot->requestedModel=nextKey;slot->publish(std::make_unique<Cab::Kernel>(std::move(samples),sr,spec,0,100,nextKey));
         }
         for(int n=0;n<400;++n) {
             for(auto& lane:laneAudio)for(int ch=0;ch<channels;++ch)for(int k=0;k<block;++k)lane.setSample(ch,k,float(.05*std::sin(((n+1200)*block+k)*.07)));

@@ -351,7 +351,7 @@ double compareSixMicPublications(double rate,int maximum,int channels) {
         const size_t slot=size_t(mic);const auto& state=settings[slot];
         originalResponses[slot]=responseFor(mic,0);nextResponses[slot]=responseFor(mic,1);
         expectedKeys[slot]=modelKey(mic,0);
-        slots[slot]->setCuts(state.low,state.high);slots[slot]->requestedModel=expectedKeys[slot];
+        slots[slot]->setCuts(state.low,state.high);slots[slot]->requestedSource=0;slots[slot]->requestedModel=expectedKeys[slot];
         auto prepared=kernel(originalResponses[slot],expectedKeys[slot],1);
         require(prepared->getLatency()==0,"six-mic prepared response adds processing latency");
         slots[slot]->install(std::move(prepared));

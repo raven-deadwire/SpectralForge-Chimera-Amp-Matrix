@@ -84,7 +84,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     if(asset)IRUserPreferences::apply(IRUserPreferences::read(),file,asset->metadata);
     { std::lock_guard<std::mutex> lock(mutex);
       errors[(size_t)lane]=error;
-      if(asset) { users[(size_t)lane]=std::move(asset); ++generations[(size_t)lane]; }
+      if(asset) { users[(size_t)lane]=std::move(asset); ++generations[(size_t)lane];cabs[(size_t)lane]->requestedGeneration.store(generations[(size_t)lane]); }
       ++displayGeneration[(size_t)lane];
     }
     if(error.isNotEmpty()) return juce::Result::fail(error);
@@ -172,7 +172,7 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
         unsigned generation;
-        { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
+        { std::lock_guard<std::mutex> lock(mutex); generation=generations[i];cabs[i]->requestedGeneration=generation; }
         cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation,cabs[i]->requestedModel.load()));
     }
     // IR generation/preparation is background work. Let the host's processing
@@ -423,7 +423,7 @@ void IRLibrary::restore(const juce::ValueTree& tree)
     }
     { std::lock_guard<std::mutex> lock(mutex);
       users=std::move(restored); errors=std::move(messages);
-      for(auto& generation:generations) ++generation;
+      for(size_t i=0;i<generations.size();++i) {++generations[i];cabs[i]->requestedGeneration.store(generations[i]);}
       for(auto& generation:displayGeneration) ++generation;
     }
     notify();

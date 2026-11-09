@@ -1,0 +1,6 @@
+PASS prepared CAB fresh slot=0 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=1 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=0 start=0.252755 middle=0.382945
+PASS prepared CAB fresh slot=1 max_error=3.58721e-09
+PASS prepared CAB stop/change/reprepare slot=0 max_error=6.37842e-09
+PASS CAB runtime gain ramp slot=1 start=0.252755 middle=0.382945
