@@ -56,6 +56,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Output comparator fault-injection regressions
+        run: python3 OBS/tests/test_obs_vst3_match_test.py
       - name: Install JUCE, libobs and OBS Studio (Ubuntu 30.0.2) and display dependencies
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev mesa-common-dev libobs-dev libglib2.0-dev pkg-config xvfb x11-utils xdotool imagemagick obs-studio ffmpeg
       - name: Build the Chimera VST3 under test
@@ -140,6 +142,14 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool build-obs/chimera-obs-state-tool --render-tool build-obs/chimera-obs-render-tool \
             --work "$RUNNER_TEMP/obs-vst3-match"
+      - name: Keep output comparison evidence, including passing runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-vst3-match-linux-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/obs-vst3-match/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Chimera outside OBS - its own delay in float, for every block size and note position
         run: |
           python3 OBS/tests/render_latency_test.py --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
@@ -254,6 +264,14 @@ jobs:
             --state-tool (Join-Path $tools "chimera-obs-state-tool.exe") --render-tool (Join-Path $tools "chimera-obs-render-tool.exe") `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-vst3-match")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Keep output comparison evidence, including passing runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-vst3-match-windows-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/obs-vst3-match/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Chimera outside OBS - its own delay in float, for every block size and note position
         shell: pwsh
         run: |
@@ -465,6 +483,14 @@ jobs:
             --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
             --render-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-render-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-vst3-match"
+      - name: Keep output comparison evidence, including passing runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-vst3-match-macos-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/obs-vst3-match/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Chimera outside OBS (Apple) - its own delay in float, for every block size and note position
         # Also when the OBS comparison before it fails: its numbers are what tells the cause apart.
         if: ${{ !cancelled() }}
@@ -545,3 +571,4 @@ jobs:
           name: chimera-obs-macos-universal-${{ github.event.pull_request.head.sha || github.sha }}
           path: package/chimera-obs-macos-universal-*.zip
           if-no-files-found: error
+
