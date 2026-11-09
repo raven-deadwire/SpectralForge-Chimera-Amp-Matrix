@@ -281,7 +281,17 @@ inline void run(const juce::File& directory) {
     require(measured->isWaitingForFreshCapture() && !p.dynamicsAnalysis().fifo.enabled.load() && !measured->analyzerHasData(),"New stage accepted a late old-source callback");
     acknowledge(p);
     require(!measured->isWaitingForFreshCapture() && p.dynamicsAnalysis().fifo.pendingSamples()==0 && !measured->analyzerHasData(),"Acknowledged source transition retained old audio");
-    audio(p,3000.);require(measured->analyzerHasData() && measured->spectrumDB(false,256)>-35,"Gate did not acquire its own new input");
+    const auto beforeGateAudio=measured->fftFrames();
+    audio(p,3000.);
+    // This is a finite offline burst. A delayed native event pump can cross
+    // the analyzer's 120 ms idle grace and retire its live raw bins before
+    // the assertion. Exercise that delay, then inspect the last complete
+    // Gate frame. The source transition above invalidated the old snapshot.
+    settle(180);measured->setSnapshotFrozen(true);
+    require(measured->fftFrames()>beforeGateAudio && measured->isSnapshotFrozen()
+            && measured->analyzerHasData() && measured->spectrumDB(false,256)>-35,
+            "Gate did not acquire its own new input");
+    measured->setSnapshotFrozen(false);acknowledge(p);
     // A Dynamic EQ request opens the EQ holding the first dynamic band; the
     // hidden dynamics spectrum stops consuming.
     const auto gateFrames=measured->fftFrames();panel->selectPage(Page::dynamicEQ);settle(50);acknowledge(p);audio(p);
