@@ -817,7 +817,8 @@ private:
         if(r.steady){keep("not enough difference between soft and hard playing to judge the drive; play some soft and some hard notes");return;}
         if(!r.rendered){keep("the head renders no playing at its knobs");return;}
         const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
-        const auto db=[](float v){return (v>=0?"+":"")+juce::String(v,1)+" dB";};
+        // Rounded to the shown 0.1 dB first: a parameter read back as -0.00001 must print +0.0, not -0.0.
+        const auto db=[](float v){const float shown=std::round(v*10.f)/10.f+0.f;return (shown>=0?"+":"")+juce::String(shown,1)+" dB";};
         const auto target="target "+pct(r.target);
         if(!r.changed()){keep("drive "+pct(r.driveBefore)+", "+target+(r.reachable?"":"; INPUT TRIM within 12 dB does not come closer"));return;}
         set(trimID,r.before+strength()*(r.proposed-r.before));
