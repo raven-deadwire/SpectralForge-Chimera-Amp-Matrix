@@ -1,3 +1,30 @@
+# 1.4.0-beta.1 candidate (in preparation, not published)
+
+**1.4.0-beta.1** collects everything integrated on main since the public
+1.3.2-beta.1, from the 1.3.3 Room Core through the 1.10 SYNTH and the 2.0
+whole-product checks. Highlights:
+
+- the expanded model catalog (132), the signal-order editor, six-band
+  dynamics and the Studio true-peak limiter;
+- Graphical EQ group editing, band SOLO and per-EQ A/B;
+- the new Auto Set phases (polarity, delay sync, factory IR choice, input
+  detection);
+- Easy view, A/B MATCH and the OBS filter on three platforms.
+
+Approved expiry: **2027-05-31T14:59:00Z / 2027-05-31 23:59:00 KST**. Full notes:
+`docs/OPEN_BETA_1_4_RELEASE_NOTES.md`; candidate and evidence status:
+`docs/RELEASE_1_4_0_CANDIDATE.md` (both in the release's source).
+
+Not yet done:
+
+- exact-source qualification on all three platforms;
+- real DI listening and actual DAW/device acceptance;
+- signing and notarization;
+- the owner's publication decision.
+
+The disclosed validation gaps of 1.3.2-beta.1 below remain open. No
+unexecuted check is reported as passed.
+
 # Public 1.3.2-beta.1 and subsequent development
 
 Published on **2026-10-18 01:51:47 KST** from product source
