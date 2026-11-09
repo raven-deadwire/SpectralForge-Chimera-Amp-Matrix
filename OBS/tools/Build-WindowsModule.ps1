@@ -5,9 +5,12 @@
 # release's own obs.dll, with the libobs headers of the same release tag.
 # With -TestBundle, the module's tests run against that Chimera VST3 and the
 # release's obs.dll. Used by the OBS add-on, release and candidate workflows.
+# -StartupObserverDirectory builds a separate, test-only frontend observer.
+# Omit it for release/candidate packages; the fixture is never copied there.
 param(
     [Parameter(Mandatory = $true)][string]$OutputDirectory,
     [string]$TestBundle = "",
+    [string]$StartupObserverDirectory = "",
     [string]$ObsVersion = "31.1.2",
     [string]$ObsZipSha256 = "9513cd402936593a6a5500da5d2bd49e6cd04dce05509c7b7f48dd25c391d2d8",
     [string]$WorkDirectory = (Join-Path ([IO.Path]::GetTempPath()) "chimera-obs-build")
@@ -15,6 +18,17 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 if (!$IsWindows -or ![Environment]::Is64BitProcess) { throw "The OBS module build requires x64 Windows." }
+
+if ($StartupObserverDirectory) {
+    # Keep test fixtures outside the shipped module layout, even if a caller
+    # accidentally supplies identical or nested output directories.
+    $productPath = [IO.Path]::GetFullPath($OutputDirectory).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    $observerPath = [IO.Path]::GetFullPath($StartupObserverDirectory).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if ($productPath.StartsWith($observerPath, [StringComparison]::OrdinalIgnoreCase) -or
+        $observerPath.StartsWith($productPath, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Startup observer and product output directories must be separate and non-overlapping."
+    }
+}
 
 $source = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
 New-Item -ItemType Directory -Force -Path $WorkDirectory | Out-Null
@@ -39,6 +53,10 @@ if (!(Test-Path -LiteralPath (Join-Path $headers "libobs/obs-module.h"))) {
     git -C $headers sparse-checkout set libobs
     if ($LASTEXITCODE) { throw "Cannot check out the libobs headers." }
 }
+if ($StartupObserverDirectory) {
+    git -C $headers sparse-checkout add frontend/api
+    if ($LASTEXITCODE) { throw "Cannot check out the OBS frontend API headers." }
+}
 
 # obs.lib from the release obs.dll's export table.
 $def = Join-Path $work "obs.def"
@@ -51,6 +69,16 @@ if (!$libExe) { throw "lib.exe was not found." }
 & $libExe /nologo "/def:$def" /machine:x64 "/out:$lib"
 if ($LASTEXITCODE) { throw "lib.exe failed: $LASTEXITCODE" }
 
+if ($StartupObserverDirectory) {
+    # The observer calls the released frontend C API, not Qt/private UI code.
+    $frontendDef = Join-Path $work "obs-frontend-api.def"
+    $frontendLib = Join-Path $work "obs-frontend-api.lib"
+    python -I (Join-Path $PSScriptRoot "dll_exports_def.py") (Join-Path $obs "bin/64bit/obs-frontend-api.dll") $frontendDef
+    if ($LASTEXITCODE) { throw "Cannot read obs-frontend-api.dll exports." }
+    & $libExe /nologo "/def:$frontendDef" /machine:x64 "/out:$frontendLib"
+    if ($LASTEXITCODE) { throw "Frontend import library generation failed: $LASTEXITCODE" }
+}
+
 $build = Join-Path $work "build"
 # The module records the commit it was built from (version resource and OBS log).
 $sourceSha = (& git -C $source rev-parse HEAD).Trim()
@@ -58,6 +86,14 @@ if ($LASTEXITCODE -or $sourceSha -notmatch '^[0-9a-f]{40}$') { throw "Cannot rea
 $configure = @("-S", $source, "-B", $build, "-A", "x64",
     "-DCHIMERA_OBS_LIBOBS_INCLUDE_DIR=$(Join-Path $headers 'libobs')", "-DCHIMERA_OBS_LIBOBS_LIBRARY=$lib",
     "-DCHIMERA_OBS_SOURCE_SHA=$sourceSha")
+if ($StartupObserverDirectory) {
+    $configure += @("-DCHIMERA_OBS_BUILD_STARTUP_OBSERVER=ON",
+        "-DCHIMERA_OBS_FRONTEND_INCLUDE_DIR=$(Join-Path $headers 'frontend/api')",
+        "-DCHIMERA_OBS_FRONTEND_LIBRARY=$frontendLib")
+} else {
+    # Explicit OFF also clears an earlier opt-in in a reused build directory.
+    $configure += "-DCHIMERA_OBS_BUILD_STARTUP_OBSERVER=OFF"
+}
 if ($TestBundle) { $configure += "-DCHIMERA_OBS_TEST_BUNDLE=$((Resolve-Path -LiteralPath $TestBundle).Path)" }
 cmake @configure
 if ($LASTEXITCODE) { throw "OBS module configure failed." }
@@ -78,3 +114,10 @@ New-Item -ItemType Directory -Force -Path (Join-Path $OutputDirectory "bin/64bit
 Copy-Item -LiteralPath (Join-Path $build "Release/chimera-obs.dll") -Destination (Join-Path $OutputDirectory "bin/64bit/chimera-obs.dll") -Force
 Copy-Item -LiteralPath (Join-Path $source "data") -Destination $OutputDirectory -Recurse -Force
 Write-Host "OBS module for OBS ${ObsVersion}: $((Resolve-Path -LiteralPath $OutputDirectory).Path)"
+
+if ($StartupObserverDirectory) {
+    if (Test-Path -LiteralPath $StartupObserverDirectory) { Remove-Item -LiteralPath $StartupObserverDirectory -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path (Join-Path $StartupObserverDirectory "bin/64bit"), (Join-Path $StartupObserverDirectory "data") | Out-Null
+    Copy-Item -LiteralPath (Join-Path $build "Release/chimera-obs-startup-observer.dll") -Destination (Join-Path $StartupObserverDirectory "bin/64bit/chimera-obs-startup-observer.dll") -Force
+    Write-Host "Test-only startup observer for OBS ${ObsVersion}: $((Resolve-Path -LiteralPath $StartupObserverDirectory).Path)"
+}

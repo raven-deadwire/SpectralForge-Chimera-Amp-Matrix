@@ -34,6 +34,7 @@ JUCE는 쓰지 않는다.
 | `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
 | `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
+| `tests/obs_windows_diagnostics.py`, `tests/startup-observer.cpp` | Windows 시작 정지 진단: kill 전 thread dump 보존 도구, 선택적 시험 전용 모듈(실제 frontend `FINISHED_LOADING`을 PID와 함께 기록, `CHIMERA_OBS_BUILD_STARTUP_OBSERVER`, 기본 OFF, 배포 미포함). [#248 조사](../docs/OBS_WINDOWS_STARTUP_AUDIT_20261102.ko.md). #249의 대조 probe와 하네스 변경은 main의 시작 대기 방식과 겹쳐 넣지 않음 | 진단 |
 | `tests/obs_instances_test.py` | 실제 OBS Studio 앱에서 Chimera 필터 여러 개(C단계): 서로 다른 상태로 함께 처리, 필터 붙여넣기(전체·하나)로 상태 복사, 붙인 필터의 독립, 장면 저장·재시작 복원 | 시험 |
 | `tests/obs_editor_test.py` | 실제 OBS Studio 앱에서 Chimera 에디터 창: 필터 속성 버튼 함수로 UI 스레드에서 열기·다시 올리기, 열린 동안 소리 유지, 열린 채 OBS 종료, 저장 상태 유지 | 시험 |
 | `tests/obs_editor_edit_test.py` | 실제 OBS Studio 앱(Linux, Xvfb)에서 Chimera 에디터 창 안의 편집: 필터 버튼으로 연 에디터의 OUTPUT 노브를 xdotool 마우스 드래그로 내리면 필터의 OBS 설정(장면 상태)이 바뀌고 소리가 작아지는지, 에디터를 연 채 종료한 뒤 재시작해도 편집한 소리가 복원되는지 | 시험 |
