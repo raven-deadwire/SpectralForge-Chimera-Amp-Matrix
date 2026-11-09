@@ -1,5 +1,7 @@
 # Windows AAX Developer 테스트 — 2026-10-30 KST
 
+> **2026-11-04 갱신:** 아래 10/30 invalid code 장애는 11/3 21:10 KST 소유자의 발송 메일로 Avid 등록 완료·개발자 라이선스 iLok 지급이 보고되어 종료됐습니다(소유자 보고). 라이선스별 ILM 활성화와 Developer 실행은 아직 미확인입니다. 현재 상태: [준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md).
+
 **현재 결과: Avid 로그인·승인된 약관 동의 후 코드가 invalid로 거부됐습니다. 개발자 다운로드 목록과 기존 CI 산출물은 확인했으나 Avid 등록·iLok 활성화·사용자 Windows 설치·실제 호스트 검증은 완료되지 않았습니다.**
 이 절차는 기존 unsigned AAX를 이용한 개발 시험이며 PACE 서명이나 공개 배포 승인을 대신하지 않습니다.
 

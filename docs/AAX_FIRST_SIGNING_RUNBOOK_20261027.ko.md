@@ -1,5 +1,7 @@
 # 첫 AAX 서명 준비 및 인계 — 2026-10-27 KST
 
+> **2026-11-04 갱신:** 아래 10/30 invalid code 장애는 11/3 21:10 KST 소유자의 발송 메일로 Avid 등록 완료·개발자 라이선스 iLok 지급이 보고되어 종료됐습니다(소유자 보고). 라이선스별 ILM 활성화와 Developer 실행은 아직 미확인입니다. 현재 상태: [준비 체크리스트](AAX_SIGNING_PREP_CHECKLIST_20261026.ko.md).
+
 **상태: 입력 검증 도구 준비. 실제 PACE 서명·retail Pro Tools·signed 설치기 수용은 BLOCKED.**
 
 10/30 후속: Avid 개발 번들 코드는 10/29 01:45 KST 발급됐습니다. 10/30 로그인·사용자 승인에 따른 약관 동의 후 Avid가 원문과 일치하는 코드를 invalid로 거부했습니다. 등록은 미완료이며 코드 상태 확인이 필요합니다. iLok 지급/활성화 및 Windows Developer 시험은 아직 미확인입니다. [별도 Windows 시험 절차](AAX_WINDOWS_DEVELOPER_TEST_20261030.ko.md)를 따릅니다. Developer는 세션 저장이 불가하므로 저장/재열기는 signed 일반 Pro Tools에서 검증합니다.
