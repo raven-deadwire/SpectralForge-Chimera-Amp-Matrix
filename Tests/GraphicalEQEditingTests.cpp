@@ -308,6 +308,155 @@ void groupRemoval() {
     trace.balanced("Group removal");
     std::cout << "PASS group delete is one Undo/Redo step / absent slots ignored / tuning restored / balanced host gestures\n";
 }
+// Review regressions (#290): a host write during a switch wins and the slot
+// stays; a switch clears only its EQ's history; every combination of global
+// A/B x Tone/Final x local A/B keeps its own values and bands.
+void eqLocalABRegressions() {
+    {
+        auto storage = std::make_unique<ChimeraProcessor>(); auto& processor = *storage; auto& edits = processor.eqEditing();
+        check(edits.addBand(0, 1000.f, 3.f) == 0 && edits.selectCurve(0, 1), "Intervention fixture");
+        localSet(processor, 0, 0, "gain", 9.f);
+        // While switching back to A (+3 dB), automation writes -3 dB at the first gesture.
+        struct Intervene : juce::AudioProcessorParameter::Listener {
+            juce::RangedAudioParameter* gain{}; bool done{};
+            void parameterValueChanged(int, float) override {}
+            void parameterGestureChanged(int, bool starting) override {if (starting && !done) {done = true; gain->setValueNotifyingHost(gain->convertTo0to1(-3.f));}}
+        } intervene;
+        intervene.gain = processor.parameters().getParameter(eqID(0, 0, "gain"));
+        intervene.gain->addListener(&intervene);
+        const bool switched = edits.selectCurve(0, 0);
+        intervene.gain->removeListener(&intervene);
+        check(intervene.done, "Intervention fixture did not fire");
+        check(!switched, "A switch overwritten by automation reported success");
+        check(near(get(processor, 0, 0, "gain"), -3.f, .02f), "A switch overwrote a host write made during it");
+        check(edits.curveSlot(0) == 1, "A failed switch changed the slot");
+        check(edits.selectCurve(0, 0) && near(get(processor, 0, 0, "gain"), 3.f, .02f), "The stored curve A was lost after a failed switch");
+    }
+    {
+        auto storage = std::make_unique<ChimeraProcessor>(); auto& processor = *storage; auto& edits = processor.eqEditing();
+        check(edits.addBand(0, 1000.f, 3.f) == 0 && edits.addBand(1, 500.f, -2.f) == 0, "History fixture");
+        localSet(processor, 1, 0, "gain", 4.f);
+        check(edits.selectCurve(0, 1), "Tone switch failed");
+        check(edits.canUndo() && edits.nextUndoBank() == 1, "A Tone EQ switch cleared the Final EQ's history");
+        check(edits.undo() && near(get(processor, 1, 0, "gain"), -2.f, .02f), "The Final EQ's undo after a Tone switch failed");
+    }
+    {
+        // Distinct values and bands in every combination.
+        auto storage = std::make_unique<ChimeraProcessor>(); auto& processor = *storage; auto& edits = processor.eqEditing();
+        const auto gainOf = [](int global, int bank, int slot) {return float(-10 + global * 8 + bank * 4 + slot * 2);};
+        const auto bandsOf = [](int global, int bank, int slot) {return 1 + ((global + bank + slot) % 3);};
+        const auto build = [&](int global) {
+            for (int bank = 0; bank < 2; ++bank) for (int slot = 0; slot < 2; ++slot) {
+                check(edits.selectCurve(bank, slot), "Matrix switch failed");
+                for (int b = 0; b < graphicalEQBands; ++b) if (edits.isOccupied(bank, b)) check(edits.removeBand(bank, b), "Matrix clear failed");
+                for (int b = 0; b < bandsOf(global, bank, slot); ++b) check(edits.addBand(bank, 200.f * float(b + 1), gainOf(global, bank, slot)) == b, "Matrix band failed");
+            }
+        };
+        const auto verify = [&](ChimeraProcessor& p, int global, const char* stage) {
+            auto& e = p.eqEditing();
+            for (int bank = 0; bank < 2; ++bank) for (int slot : {0, 1, 0}) {
+                check(e.selectCurve(bank, slot), std::string(stage) + ": switch failed");
+                const int bands = bandsOf(global, bank, slot);
+                check(e.occupiedMask(bank) == uint16_t((1u << bands) - 1u), std::string(stage) + ": bands differ");
+                for (int b = 0; b < bands; ++b) check(near(get(p, bank, b, "gain"), gainOf(global, bank, slot), .02f), std::string(stage) + ": gain differs");
+            }
+        };
+        build(0); processor.selectComparison(1); build(1);
+        verify(processor, 1, "global B"); processor.selectComparison(0); verify(processor, 0, "global A");
+        processor.selectComparison(1); verify(processor, 1, "global B again"); processor.selectComparison(0);
+        const auto saved = stateTree(processor);
+        auto reloadStorage = std::make_unique<ChimeraProcessor>(); restore(*reloadStorage, saved);
+        verify(*reloadStorage, 0, "reloaded global A");
+    }
+    std::cout << "PASS EQ-local A/B review regressions: host write during a switch wins (slot kept), per-EQ history, global A/B x Tone/Final x local A/B distinct values and bands, project reload\n";
+}
+
+// EQ-local A/B: two curves per EQ, the bypass left alone; switching is a
+// recall (balanced gestures, no undo step, history cleared); copy to the other
+// slot changes nothing audible; copy to the other EQ is one undo step there;
+// curves survive a project round trip, travel with the global A/B slots, and
+// malformed curve data is ignored.
+void eqLocalAB() {
+    auto storage = std::make_unique<ChimeraProcessor>();
+    auto& processor = *storage; auto& edits = processor.eqEditing();
+    const auto values = [&](int bank) {std::vector<float> v; for (int b = 0; b < graphicalEQBands; ++b) for (auto* f : {"enabled","frequency","gain","q","type"}) v.push_back(get(processor, bank, b, f)); return v;};
+    // Values within float rounding: platforms may differ in the last bits of a
+    // normalise/denormalise round trip.
+    const auto sameCurve = [](const std::vector<float>& a, const std::vector<float>& b, const char* what) {
+        for (size_t i = 0; i < a.size(); ++i) if (!near(a[i], b[i], std::max(.002f, std::abs(b[i]) * 1e-5f)))
+            check(false, std::string(what) + ": value " + std::to_string(i) + " is " + std::to_string(a[i]) + ", expected " + std::to_string(b[i]));
+    };
+    check(edits.curveSlot(0) == 0 && edits.curveSlot(1) == 0 && !edits.hasStoredCurve(0, 0) && !edits.hasStoredCurve(0, 1), "Curves are not empty and on A at start");
+    check(edits.addBand(0, 1000.f, 3.f) == 0, "Curve A fixture");
+    hostSet(processor, 0, -1, "bypass", 1);
+    const auto curveA = values(0); const auto finalBefore = values(1); const auto maskA = edits.occupiedMask(0);
+    EQHostTrace trace(processor);
+    // The first switch to B copies the current curve: nothing changes.
+    check(edits.selectCurve(0, 1) && edits.curveSlot(0) == 1 && edits.hasStoredCurve(0, 0), "First switch to an empty B failed");sameCurve(values(0), curveA, "First switch to an empty B changed the curve");
+    check(!edits.canUndo(), "Switching curves left undo history");
+    check(edits.addBand(0, 200.f, -4.f) == 1, "Curve B fixture");
+    localSet(processor, 0, 0, "gain", 6.f);
+    const auto curveB = values(0); const auto maskB = edits.occupiedMask(0);
+    check(maskB == 0b11 && maskA == 0b01, "Fixture masks wrong");
+    // Back to A: band 2 leaves, band 1 returns to +3 dB; the bypass stays on.
+    check(edits.selectCurve(0, 0) && edits.curveSlot(0) == 0 && edits.occupiedMask(0) == maskA, "Switching to A did not restore curve A's bands");sameCurve(values(0), curveA, "Switching to A did not restore curve A");
+    check(get(processor, 0, -1, "bypass") == 1.f, "Switching curves changed the EQ's bypass");
+    sameCurve(values(1), finalBefore, "Switching the Tone EQ curve changed the Final EQ");
+    check(!edits.canUndo() && !edits.canRedo(), "Switching curves left history");
+    check(edits.selectCurve(0, 1) && edits.occupiedMask(0) == maskB, "Switching back to B did not restore curve B's bands");sameCurve(values(0), curveB, "Switching back to B did not restore curve B");
+    trace.balanced("Curve switching");
+    // Copy B over A (nothing audible), then A is B.
+    const auto beforeCopy = values(0);
+    check(edits.copyCurveToOtherSlot(0), "Copy to the other slot refused");sameCurve(values(0), beforeCopy, "Copy to the other slot changed the sound");
+    check(edits.selectCurve(0, 0), "Switch after copy failed");sameCurve(values(0), curveB, "Copy to the other slot did not store the curve");
+    check(edits.selectCurve(0, 1), "Back to B failed");
+    // Copy the Tone EQ curve to the Final EQ: one undo step there.
+    check(edits.copyCurveToBank(0, 1), "Copy to the other EQ rejected");
+    const auto copied = values(1);
+    for (size_t i = 0; i < copied.size(); ++i) check(near(copied[i], curveB[i], std::max(.002f, std::abs(curveB[i]) * 1e-5f)), "Copied curve differs");
+    check(edits.occupiedMask(1) == maskB && edits.canUndo() && edits.nextUndoBank() == 1, "Copy to the other EQ was not one undo step in it");
+    const auto finalMaskBefore = uint16_t(0);
+    check(edits.undo(), "Undo of the copy was refused");
+    sameCurve(values(1), finalBefore, "Undo of the copy did not restore the Final EQ");
+    check(edits.occupiedMask(1) == finalMaskBefore, "Undo of the copy did not restore the Final EQ's bands (mask " + std::to_string(edits.occupiedMask(1)) + ")");
+    check(edits.redo() && edits.occupiedMask(1) == maskB, "Redo of the copy failed");
+    trace.balanced("Curve copy");
+    // Project round trip: slot and both curves.
+    const auto saved = stateTree(processor);
+    auto copyStorage = std::make_unique<ChimeraProcessor>(); auto& reloaded = *copyStorage;
+    restore(reloaded, saved);
+    check(reloaded.eqEditing().curveSlot(0) == 1 && reloaded.eqEditing().hasStoredCurve(0, 0), "Project reload lost the curve slot or the stored curve");
+    check(reloaded.eqEditing().selectCurve(0, 0), "Reloaded switch failed");
+    for (int b = 0; b < graphicalEQBands; ++b) check(near(get(reloaded, 0, b, "gain"), get(processor, 0, b, "gain") * 0.f + curveB[size_t(b * 5 + 2)]), "Reloaded curve A differs");
+    // Global A/B: each global slot keeps its own EQ curves.
+    processor.selectComparison(1);
+    check(edits.selectCurve(0, 0) && edits.curveSlot(0) == 0, "Curve switch in global slot B failed");
+    processor.selectComparison(0);
+    check(edits.curveSlot(0) == 1, "Global A/B did not restore the EQ curve slot of global slot A");
+    processor.selectComparison(1);
+    check(edits.curveSlot(0) == 0, "Global A/B did not keep the EQ curve slot of global slot B");
+    processor.selectComparison(0);
+    // Malformed curve data is ignored; the rest of the project loads.
+    auto bad = stateTree(processor);
+    auto metadata = bad.getChildWithName("EQ_EDIT_STATE");
+    for (auto node : metadata) if (node.hasType("EQ_CURVE")) node.setProperty("values", "zz,1", nullptr);
+    metadata.setProperty("toneCurve", 7, nullptr);
+    auto badStorage = std::make_unique<ChimeraProcessor>(); restore(*badStorage, bad);
+    check(!badStorage->eqEditing().hasStoredCurve(0, 0) && !badStorage->eqEditing().hasStoredCurve(0, 1) && badStorage->eqEditing().curveSlot(0) == 0
+          && badStorage->eqEditing().occupiedMask(0) == edits.occupiedMask(0), "Malformed curve data was not ignored");
+    // An unknown metadata schema drops the curves with the occupancy.
+    {
+        auto future = stateTree(processor);
+        future.getChildWithName("EQ_EDIT_STATE").setProperty("schema", 2, nullptr);
+        auto futureStorage = std::make_unique<ChimeraProcessor>(); restore(*futureStorage, future);
+        check(!futureStorage->eqEditing().hasStoredCurve(0, 0) && !futureStorage->eqEditing().hasStoredCurve(0, 1)
+              && !futureStorage->eqEditing().hasStoredCurve(1, 0) && !futureStorage->eqEditing().hasStoredCurve(1, 1),
+              "An unknown metadata schema kept the A/B curves");
+    }
+    eqLocalABRegressions();
+    std::cout << "PASS EQ-local A/B: bypass kept, other EQ untouched, switch is a recall with balanced gestures, copy to slot / other EQ (one undo step), project round trip, per global A/B slot, malformed data ignored\n";
+}
+
 void externalOwnership() {
     auto storage = std::make_unique<ChimeraProcessor>();
     auto& processor = *storage; auto& edits = processor.eqEditing();
@@ -631,6 +780,7 @@ int main() {
         occupancyAndSlotReuse();
         transactionGrouping();
         groupRemoval();
+        eqLocalAB();
         externalOwnership();
         projectAndComparisonRecall();
         legacyAndMalformedMigration();

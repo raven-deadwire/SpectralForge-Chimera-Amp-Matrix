@@ -29,6 +29,16 @@ bool IRLibrary::resourcesReleased() const noexcept
     for (const auto* cab : cabs) if (cab->hasResources()) return false;
     return true;
 }
+std::shared_ptr<const IRLibrary::Asset> IRLibrary::factoryIR(int index)
+{
+    static const std::array<std::shared_ptr<const Asset>,2> assets=[] {
+        juce::String error;
+        return std::array<std::shared_ptr<const Asset>,2>{
+            decode(juce::MemoryBlock(ChimeraIRData::guitar_v30_sm57_wav,ChimeraIRData::guitar_v30_sm57_wavSize),IRMetadata::factoryFilename(0),error),
+            decode(juce::MemoryBlock(ChimeraIRData::guitar_jensen_sm57_wav,ChimeraIRData::guitar_jensen_sm57_wavSize),IRMetadata::factoryFilename(1),error)};
+    }();
+    return index==0 || index==1 ? assets[(size_t)index] : nullptr;
+}
 std::shared_ptr<IRLibrary::Asset> IRLibrary::decode(const juce::MemoryBlock& bytes, const juce::String& name, juce::String& error)
 {
     error.clear();

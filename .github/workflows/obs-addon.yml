@@ -144,6 +144,17 @@ jobs:
           xvfb-run -a python3 OBS/tests/obs_resume_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --render-tool build-obs/chimera-obs-render-tool --work "$RUNNER_TEMP/obs-resume"
+      - name: Real OBS Studio app - one saved filter restarted at 48 kHz 5.1, 44.1 kHz 7.1 and 48 kHz 5.1
+        run: |
+          xvfb-run -a python3 OBS/tests/obs_format_change_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool build-obs/chimera-obs-state-tool --render-tool build-obs/chimera-obs-render-tool \
+            --work "$RUNNER_TEMP/obs-format-change"
+      - name: Real OBS Studio app - what the filter sends when Chimera cannot process (Mute, Pass unprocessed)
+        run: |
+          xvfb-run -a python3 OBS/tests/obs_failure_policy_test.py --module package/chimera-obs-linux-x86_64/chimera-obs \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --work "$RUNNER_TEMP/obs-failure-policy"
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-obs-linux-x86_64-${{ github.event.pull_request.head.sha || github.sha }}
@@ -254,11 +265,29 @@ jobs:
             --render-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-render-tool.exe") `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-resume")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Real OBS Studio app (31.1.2) - one saved filter restarted at 48 kHz 5.1, 44.1 kHz 7.1 and 48 kHz 5.1
+        shell: pwsh
+        run: |
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          $tools = Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release"
+          python OBS/tests/obs_format_change_test.py --obs (Join-Path $env:RUNNER_TEMP "obs-app-obs/bin/64bit/obs64.exe") `
+            --module package/chimera-obs --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --state-tool (Join-Path $tools "chimera-obs-state-tool.exe") --render-tool (Join-Path $tools "chimera-obs-render-tool.exe") `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-format-change")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Real OBS Studio app (31.1.2) - what the filter sends when Chimera cannot process (Mute, Pass unprocessed)
+        shell: pwsh
+        run: |
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          python OBS/tests/obs_failure_policy_test.py --obs (Join-Path $env:RUNNER_TEMP "obs-app-obs/bin/64bit/obs64.exe") `
+            --module package/chimera-obs --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-failure-policy")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Real OBS Studio app (32.2.2) - the filter built for 31.1.2, as after an OBS update
         shell: pwsh
         run: |
           $zip = Join-Path $env:RUNNER_TEMP "obs-32.2.2.zip"
-          Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip" -OutFile $zip
+          Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip" -OutFile $zip -MaximumRetryCount 5 -RetryIntervalSec 30
           $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           if ($hash -ne "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1") { throw "OBS 32.2.2 release hash mismatch: $hash" }
           $obs = Join-Path $env:RUNNER_TEMP "obs-app-obs32"
@@ -297,6 +326,10 @@ jobs:
             ${{ runner.temp }}/obs-vst3-match/obs-logs/
             ${{ runner.temp }}/obs-resume/*.txt
             ${{ runner.temp }}/obs-resume/obs-logs/
+            ${{ runner.temp }}/obs-format-change/*.txt
+            ${{ runner.temp }}/obs-format-change/obs-logs/
+            ${{ runner.temp }}/obs-failure-policy/*.txt
+            ${{ runner.temp }}/obs-failure-policy/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
@@ -432,6 +465,22 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --render-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-render-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-resume"
+      - name: Real OBS Studio app (31.1.2 Apple) - one saved filter restarted at 48 kHz 5.1, 44.1 kHz 7.1 and 48 kHz 5.1
+        run: |
+          ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
+          python3 OBS/tests/obs_format_change_test.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
+            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
+            --render-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-render-tool" \
+            --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-format-change"
+      - name: Real OBS Studio app (31.1.2 Apple) - what the filter sends when Chimera cannot process (Mute, Pass unprocessed)
+        run: |
+          ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
+          python3 OBS/tests/obs_failure_policy_test.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
+            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-failure-policy"
       - name: Real OBS Studio app (31.1.2 Intel under Rosetta) - the same Universal filter, record, push a preset, save, restart and restore
         # The Intel OBS.app the x86_64 module was built against: an x86_64-only
         # binary, so macOS runs it, the filter and Chimera under Rosetta.
@@ -472,6 +521,10 @@ jobs:
             ${{ runner.temp }}/obs-vst3-match/obs-logs/
             ${{ runner.temp }}/obs-resume/*.txt
             ${{ runner.temp }}/obs-resume/obs-logs/
+            ${{ runner.temp }}/obs-format-change/*.txt
+            ${{ runner.temp }}/obs-format-change/obs-logs/
+            ${{ runner.temp }}/obs-failure-policy/*.txt
+            ${{ runner.temp }}/obs-failure-policy/obs-logs/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:

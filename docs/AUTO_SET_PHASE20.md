@@ -13,7 +13,8 @@ in the earlier phases.
 ## Use
 
 The options button next to **AUTO SET** has an **Amp channel selection**
-step, on by default, listed before **Amp gain and tone**.
+step, listed before **Amp gain and tone**. It is **off by default** (since
+2026-11-07, see *Safety review*): turn it on to let Auto Set switch channels.
 
 - **When it runs:** in the amp pass, before the amp step. It adds no
   listening time. Where it applies is as for phase 8: the Classic routing,
@@ -26,7 +27,10 @@ step, on by default, listed before **Amp gain and tone**.
   row, shows the channel before and after, the drive each reaches, and the
   style's drive target. When the channel stays, the row gives the current
   channel's reach. Its SHOW button opens the amp head.
-- **Strength:** not applied. A channel is switched or kept.
+- **Strength:** a channel is switched or kept, but the choice counts only
+  the part of the GAIN move the amp step will make at that Strength.
+- **Amp gain and tone off or locked:** the amp step will not set GAIN, so each
+  channel is judged at its own knobs only.
 - **Lock → Amp channel:** keeps the channel. Locking Amp, Presence +
   resonance and Amp channel skips the amp pass.
 - **UNDO AUTO:** restores the channel.
@@ -37,23 +41,35 @@ The amp pass's capture (phase 8): the first 3 seconds of the playing entering
 the amp, and the amp/cab output.
 
 - **Each channel** of the head is rendered offline through a fresh copy of
-  the native amp: at the channel's own knobs, with its GAIN at the top of its
-  range, and with GAIN at 10% of its range. Each channel's knobs are its own
-  stored values (per-channel heads keep a set for each channel).
+  the native amp: at the channel's own knobs, and with its GAIN at 0, 5, 15,
+  40, 70 and 100% of its range. Each channel's knobs are its own stored values
+  (per-channel heads keep a set for each channel).
 - **Drive:** phase 8's measure (how much of the playing's level spread the
   amp removes), on each render. A render too quiet to count as playing is left
   out: many heads are nearly silent with GAIN near zero, and silence would
-  read as fully flattened. The lowest and highest drive of a channel's renders
-  are its reach.
+  read as fully flattened. The lowest and highest drive of a channel's
+  audible renders are its reach. A channel counts when any render is audible,
+  even if its own stored GAIN is too quiet.
 - **Target:** phase 8's drive target for the instrument and style (guitar
   15% clean, 45% rock, 65% metal; bass 10%, 30%, 50%), with its ±8% tolerance.
 
 ## Rules
 
-- **Kept** when the current channel reaches the target (within ±8%).
-- Otherwise the channel whose reach comes closest to the target is chosen,
-  and only when it is closer than the current one by more than 8%. Ties keep
-  the lower channel number.
+- **Each channel is judged by the drive the amp step would leave it at.**
+  - With the amp step running at 100%, that is the reachable drive closest to
+    the target.
+  - At a lower Strength, it is that fraction of the way from the channel's
+    drive at its knobs.
+  - With the amp step off or locked, it is the drive at its knobs.
+- **Kept** when that leaves the current channel within ±8% of the target.
+- **Otherwise** the closest channel is chosen, and only when it is closer than
+  the current one by more than 8%. Ties keep the lower channel number. When
+  the chosen channel still misses the target, the row says "still short: the
+  closest channel".
+- **Kept, saying why, when there is not enough to judge:**
+  - the playing changes less than 3 dB between soft and hard notes (the
+    drive measure reads 0 there, which is not the same as clean);
+  - the current channel has fewer than two audible GAIN settings.
 - The amp step then sets GAIN and tone on the new channel, and the presence +
   resonance step its PRESENCE and RESONANCE. Both still estimate the cabinet
   from the head as it played (the amp/cab output minus the old channel
@@ -102,3 +118,34 @@ checked on a synthetic amp, the default head and one other head, with a
 synthetic DI, not on every head, a real DI or listening tests. A channel is
 judged by its drive only: channels also differ in voicing, which the tone
 knobs and the Tone EQ then work on.
+
+## Safety review (2026-11-07)
+
+A review of this phase for a Drop A band (DEADWIRE) found:
+- **Voicing is not preserved.** A channel is chosen by one drive number. Heads
+  like Náströnd and Niflheimr differ per channel in asymmetry, stage gain
+  distribution, low-end coupling, sag and the Niflheimr clean/low blend. A
+  channel with a similar drive can still change palm-mute tightness, tremolo
+  separation and lead sustain, which later EQ cannot restore.
+- **The choice depended on GAIN moves that might not happen.** It assumed the
+  full GAIN move even when Amp gain and tone was off, locked or at a lower
+  Strength.
+- **Information gaps.**
+  - A channel was dropped when its stored GAIN was quiet.
+  - GAIN below 10% was never probed.
+  - "No soft/hard difference" read the same as "clean".
+
+Changes:
+- **The step is off by default.** Turn it on in the options when a switch is
+  wanted. Lock → Amp channel still keeps the channel when the step is on.
+- **The choice uses the drive the amp step will actually leave:** it accounts
+  for Amp off or locked and for Strength, and probes GAIN at 0–100% in six
+  points. A quiet stored GAIN no longer drops a channel.
+- **It holds, and says why**, when the playing has too little soft/hard
+  difference or the current channel has fewer than two audible GAIN settings.
+  A switch that still misses the target is labelled.
+
+**Still open:** the drive target per style is the only criterion. There is no
+check of channel voicing, and channel ranges are measured only for Tight 515
+and Blue Storm (synthetic playing). For finished tones, keep the step off or
+lock Amp channel, and choose Guitar or Bass for down-tuned instruments.

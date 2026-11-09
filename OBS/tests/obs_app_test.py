@@ -371,6 +371,19 @@ class Obs:
                     raise RuntimeError(f"{kind} failed: {status}")
                 return message["d"].get("responseData") or {}
 
+    def stop_media(self) -> None:
+        """Stops every media source before OBS quits (macOS). OBS 31.1.2 on the macOS CI runner
+        sometimes keeps media sources past clearing the scene ("Not all sources were cleared"),
+        and their media thread then outputs audio after OBS freed its audio output: SIGSEGV in
+        obs_source_output_audio on mp_media_thread, after the Chimera filter's checks passed."""
+        try:
+            inputs = self.request("GetInputList", {"inputKind": "ffmpeg_source"}).get("inputs", [])
+            for item in inputs:
+                self.request("TriggerMediaInputAction", {"inputName": item["inputName"],
+                             "mediaAction": "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP"}, ok=False)
+        except (RuntimeError, OSError, KeyError) as e:
+            print(f"note: could not stop the media sources before quitting: {e}", file=sys.stderr, flush=True)
+
     def blocking_ui(self) -> str:
         """What OBS shows on screen, when a dialog may be holding it (Windows only)."""
         if not WINDOWS or self.process.poll() is not None:
@@ -396,6 +409,8 @@ class Obs:
 
     def quit(self) -> None:
         if self.ws is not None:
+            if MACOS and self.process.poll() is None:
+                self.stop_media()
             self.ws.close()
         # OBS's normal shutdown: saves the scene, unloads modules.
         if WINDOWS:

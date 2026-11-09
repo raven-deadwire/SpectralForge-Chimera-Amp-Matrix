@@ -51,6 +51,43 @@ void channelRules() {
             check(channelChoice({reachOf(0,t-.12f),reachOf(0,t-.05f)},0,t)==0,"A channel only 7% closer was chosen");
             check(channelChoice({reachOf(0,t-.20f),reachOf(0,t-.11f)},0,t)==1,"A channel 9% closer, still short, was not chosen");
             check(channelChoice({reachOf(0,t-.20f),reachOf(.3f,.9f),reachOf(.3f,.9f)},0,t)==1,"A tie did not keep the lower channel");
+            // The amp step off or locked: a channel is judged at its own knobs, so
+            // one that would reach the target only by its GAIN is not chosen.
+            const auto at=[](float now,float low,float high){return ChannelReach{true,now,low,high,7};};
+            check(channelChoice({at(.2f,.1f,.3f),at(.2f,.1f,.9f)},0,t,true)==1,"A channel reaching the target by GAIN was not chosen");
+            check(channelChoice({at(.2f,.1f,.3f),at(.2f,.1f,.9f)},0,t,false)==0,"With the amp step off, a channel was chosen for a GAIN it will not get");
+            check(channelChoice({at(.2f,.1f,.3f),at(.6f,.1f,.9f)},0,t,false)==1,"With the amp step off, a channel already near the target was not chosen");
+            // Strength: the amp step moves only part of the way, so a candidate must be closer at that strength.
+            check(channelChoice({at(.2f,.1f,.3f),at(.2f,.1f,.6f)},0,t,true,1.f)==1,"Full strength did not move to the reaching channel");
+            check(channelChoice({at(.2f,.1f,.3f),at(.2f,.1f,.6f)},0,t,true,.25f)==0,"A channel switch ignored a 25% strength");
+            check(near(channelAchieved(at(.2f,.1f,.6f),t,true,.25f),.3f,1e-6f) && near(channelAchieved(at(.2f,.1f,.6f),t,false,1.f),.2f,1e-6f),"Achieved drive wrong");
+        }
+        if(rate==48000.) {
+            // Low GAIN is probed (0 and 5% of the range), so a channel that only
+            // needs a low GAIN is seen reaching low drives.
+            const std::vector<ChannelCandidate> mid{syntheticChannel(amp,5,0,10),lead};
+            const auto low=analyseChannel(di,mid[0].render(std::nullopt),rate,0,mid,false,Style::clean);
+            check(low.reach[0].present && low.reach[0].heard>=6 && low.reach[0].low<=ampCompression(di,amp({.5f,5,5,5}),rate)+1e-6f,"GAIN below 10% was not probed");
+            // A channel whose own GAIN is too quiet still counts by its audible probes.
+            const ChannelCandidate quietOwn{{true,0,0,10},[amp,&di](std::optional<float> g){return g?amp({*g,5,5,5}):std::vector<float>(di.size());}};
+            const std::vector<ChannelCandidate> withQuiet{clean,quietOwn};
+            const auto quiet=analyseChannel(di,clean.render(std::nullopt),rate,0,withQuiet,false,Style::metal);
+            check(quiet.reach[1].present && quiet.reach[1].heard>=4 && quiet.changed() && quiet.proposed==1,"A channel with a quiet stored GAIN was left out");
+            // Only its own knobs audible: too little to compare, kept with the reason.
+            const ChannelCandidate onlyOwn{{true,1.5f,0,3},[amp,&di](std::optional<float> g){return g?std::vector<float>(di.size()):amp({1.5f,5,5,5});}};
+            const std::vector<ChannelCandidate> fewer{onlyOwn,lead};
+            const auto few=analyseChannel(di,onlyOwn.render(std::nullopt),rate,0,fewer,false,Style::metal);
+            check(few.hold==ChannelHold::quietSettings && !few.changed(),"One audible GAIN setting was judged");
+            // Playing without soft and hard notes cannot be compared: kept with the reason.
+            std::vector<float> steady(di.size());for(size_t n=0;n<steady.size();++n)steady[n]=float(.2*std::sin(2*juce::MathConstants<double>::pi*110*double(n)/rate));
+            const std::vector<ChannelCandidate> steadyBoth{syntheticChannel(syntheticAmp(steady,rate),1.5f,0,3),syntheticChannel(syntheticAmp(steady,rate),8.5f,7,10)};
+            const auto flat=analyseChannel(steady,steadyBoth[0].render(std::nullopt),rate,0,steadyBoth,false,Style::metal);
+            check(flat.playingDetected && flat.hold==ChannelHold::steadyPlaying && !flat.changed(),"Steady playing was judged");
+            // Strength and the amp step reach the analysis.
+            const auto partial=analyseChannel(di,clean.render(std::nullopt),rate,0,both,false,Style::metal,true,.25f);
+            check(near(partial.strength,.25f,1e-6f) && partial.proposed==channelChoice(partial.reach,0,partial.target,true,.25f),"Strength did not reach the channel choice");
+            const auto fixedKnobs=analyseChannel(di,clean.render(std::nullopt),rate,0,both,false,Style::metal,false);
+            check(!fixedKnobs.gainAdjustable && fixedKnobs.proposed==channelChoice(fixedKnobs.reach,0,fixedKnobs.target,false),"The amp step's absence did not reach the channel choice");
         }
         // Silence.
         const std::vector<float> silence(di.size());
@@ -58,7 +95,9 @@ void channelRules() {
         if(rate==48000.)std::cout<<"MEASURE channel rules 48 kHz: clean reaches "<<toLead.reach[0].low<<"-"<<toLead.reach[0].high<<", lead "<<toLead.reach[1].low<<"-"<<toLead.reach[1].high
                                 <<"; metal clean > "<<toLead.proposed<<" (miss "<<toLead.missBefore<<" > "<<toLead.missAfter<<"); clean lead > "<<toClean.proposed<<"; rock on lead "<<(rock.changed()?"moved":"kept")<<'\n';
     }
-    std::cout<<"PASS auto set channel rules at 44.1/48/96 kHz: clean to lead for metal, lead to clean for clean, reaching channel kept, reach is the rendered drive, silent channel and single channel kept, closest of three, tolerance counted once, silence\n";
+    // The step is off unless the user turns it on (it changes the head's voicing).
+    check(!Controller::Options{}.channel && !spectralforge::CommonDynamicsPanel::AutoSetOptions{}.channel,"Amp channel selection is on by default");
+    std::cout<<"PASS auto set channel rules at 44.1/48/96 kHz: clean to lead for metal, lead to clean for clean, reaching channel kept, reach is the rendered drive, silent channel and single channel kept, closest of three, tolerance counted once, silence; off by default, judged at the knobs without the amp step and at Strength, low GAIN probed, quiet stored GAIN counted, holds for steady playing and one audible setting\n";
 }
 struct ChannelRun {std::vector<float> before,values,undone;Controller::Status status;ChannelResult analysis;AmpResult amp;};
 // A real processor with native head `model` on `channel` in Classic routing; its
@@ -92,7 +131,7 @@ void controllerChannel() {
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
     constexpr int model=2,rhythm=0,lead=1; // RHYTHM reaches about 5-75% drive, LEAD about 42-90%
     const auto channelID=spectralforge::ampNativeChannelID(0,model);
-    Controller::Options channelOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true};
+    Controller::Options channelOnly{1,false,Style::clean,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false};
     // Clean on LEAD: the channel moves to RHYTHM, alone in the amp pass.
     const auto full=runChannel(channelOnly,model,lead);
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::channel);
@@ -101,24 +140,35 @@ void controllerChannel() {
     check(a.playingDetected && a.before==lead && a.proposed==rhythm && near(a.target,.15f,1e-6f) && juce::roundToInt(value(full.values,channelID))==rhythm,"Applied channel does not match the analysis");
     bool undone=true;for(size_t i=0;i<full.before.size();++i)undone&=near(full.undone[i],full.before[i],1e-6f);
     check(undone,"UNDO AUTO did not restore the channel");
-    // Rock on LEAD: LEAD reaches the drive, so it stays.
-    auto rockOptions=channelOnly;rockOptions.style=Style::rock;
+    // Without the amp step, each channel is judged at its own knobs.
+    check(step->result.contains("at its knobs") && step->result.contains("amp step is off or locked") && !a.gainAdjustable,"Without the amp step the channel was not judged at its knobs");
+    // Rock on LEAD with the amp step: LEAD's GAIN reaches the drive, so it stays.
+    auto rockOptions=channelOnly;rockOptions.style=Style::rock;rockOptions.amp=true;
     const auto rock=runChannel(rockOptions,model,lead);
-    check(!stepOf(rock.status,P::channel)->changed && stepOf(rock.status,P::channel)->result.contains("LEAD reaches") && rock.values==rock.before,"A channel that reaches the drive was changed");
-    // Strength does not scale a channel switch.
+    check(!stepOf(rock.status,P::channel)->changed && stepOf(rock.status,P::channel)->result.contains("LEAD reaches") && juce::roundToInt(value(rock.values,channelID))==lead,"A channel that reaches the drive was changed");
+    // A switch is not scaled by Strength (the amp step being off, its GAIN move does not count either).
     auto halfOptions=channelOnly;halfOptions.strength=.5f;
     const auto half=runChannel(halfOptions,model,lead);
     check(juce::roundToInt(value(half.values,channelID))==rhythm,"A channel switch was scaled by strength");
     // With the amp step: the channel row comes first and the amp step sets GAIN on the new channel.
+    // With the amp step, LEAD can be turned down (GAIN 0-5% is probed): Clean keeps LEAD.
     auto withAmp=channelOnly;withAmp.amp=true;
-    const auto both=runChannel(withAmp,model,lead);
+    const auto turnedDown=runChannel(withAmp,model,lead);
+    check(!stepOf(turnedDown.status,P::channel)->changed && juce::roundToInt(value(turnedDown.values,channelID))==lead && turnedDown.analysis.reach[size_t(lead)].low<=.15f+ampCompressionTolerance,
+          "Clean moved LEAD although its GAIN can come down to the target");
+    // Metal on a CLEAN channel that cannot reach it, with the amp step: the
+    // channel row comes first and the amp step sets GAIN on the new channel.
+    constexpr int heavyModel=22,heavyClean=0,heavyLead=1;
+    auto metalAmp=withAmp;metalAmp.style=Style::metal;
+    const auto both=runChannel(metalAmp,heavyModel,heavyClean);
     const auto& steps=both.status.steps;
     const auto channelRow=std::find_if(steps.begin(),steps.end(),[](const auto& s){return s.phase==P::channel;}),ampRow=std::find_if(steps.begin(),steps.end(),[](const auto& s){return s.phase==P::amp;});
-    check(channelRow!=steps.end() && ampRow!=steps.end() && channelRow<ampRow && channelRow->changed && !ampRow->result.contains("changed while listening"),"The channel row does not come before the amp row");
-    const auto controls=roleControls(model,rhythm,0);
-    const auto rhythmGain=spectralforge::ampNativeControlID(0,model,controls[ampGain],rhythm);
-    check(both.amp.playingDetected && near(both.amp.compressionBefore,both.analysis.reach[size_t(rhythm)].now,.02f)
-          && (!both.amp.changed(ampGain) || near(value(both.values,rhythmGain),both.amp.proposed[ampGain].value,.011f*(both.amp.before[ampGain].maximum-both.amp.before[ampGain].minimum))),
+    check(channelRow!=steps.end() && ampRow!=steps.end() && channelRow<ampRow && channelRow->changed && !ampRow->result.contains("changed while listening")
+          && juce::roundToInt(value(both.values,spectralforge::ampNativeChannelID(0,heavyModel)))==heavyLead,"The channel row does not come before the amp row");
+    const auto controls=roleControls(heavyModel,heavyLead,0);
+    const auto leadGain=spectralforge::ampNativeControlID(0,heavyModel,controls[ampGain],heavyLead);
+    check(both.amp.playingDetected && near(both.amp.compressionBefore,both.analysis.reach[size_t(heavyLead)].now,.02f)
+          && (!both.amp.changed(ampGain) || near(value(both.values,leadGain),both.amp.proposed[ampGain].value,.011f*(both.amp.before[ampGain].maximum-both.amp.before[ampGain].minimum))),
           "The amp step did not work on the new channel");
     // The lock keeps the channel and, alone, skips the pass.
     auto lockedOptions=channelOnly;lockedOptions.locks=Controller::lockInput|Controller::lockGate|Controller::lockChannel;
@@ -141,6 +191,6 @@ void controllerChannel() {
     auto metalOptions=freeOptions;metalOptions.style=Style::metal;
     const auto metal=runChannel(metalOptions,heavy,0);
     check(stepOf(metal.status,P::channel)->changed && juce::roundToInt(value(metal.values,spectralforge::ampNativeChannelID(0,heavy)))==1,"A clean channel short of a metal drive did not move");
-    std::cout<<"MEASURE auto set channel controller: "<<step->result<<"; with the amp step: "<<ampRow->result<<"; metal: "<<stepOf(metal.status,P::channel)->result<<'\n';
+    std::cout<<"MEASURE auto set channel controller: "<<step->result<<"; with the amp step: "<<channelRow->result<<" / "<<ampRow->result<<"; metal: "<<stepOf(metal.status,P::channel)->result<<'\n';
     std::cout<<"PASS auto set channel controller: channel step alone in the amp pass, clean moves LEAD to RHYTHM, rock keeps LEAD, strength not applied, amp step sets GAIN on the new channel, lock, one-channel head, Dual, edited while listening, metal moves CLEAN to LEAD, undo\n";
 }

@@ -74,6 +74,20 @@ public:
     }
     bool isBypassed() const noexcept {return bypass->load()>.5f;}
     double sampleRate() const noexcept {return uiRate.load();}
+    // Momentary band solo (editor-local, never saved): the EQ's output is
+    // passed through a filter on the band's region (band pass at its
+    // frequency and Q for bell, notch and band pass; low pass for low shelf
+    // and low pass; high pass for high shelf and high pass), with a 15 ms fade
+    // in and out. The editor must call auditionHeartbeat() while it listens:
+    // without one for 400 ms (editor closed, hidden or stalled) the audio
+    // returns to the normal EQ on its own. Bypass also ends it.
+    static constexpr double auditionTimeoutSeconds=.4;
+    void setAudition(int band) noexcept {auditionRequest.store(band>=0 && band<graphicalEQBands?band:-1);auditionHeartbeat();}
+    void auditionHeartbeat() noexcept {auditionBeat.store(std::chrono::steady_clock::now().time_since_epoch().count());}
+    int auditionedBand() const noexcept {return auditionPlaying.load();}
+    // Offline render or recording (the processor's "printing" state): a solo
+    // never reaches a bounce or a recorded take. Set by the audio thread.
+    void setPrinting(bool on) noexcept {printing.store(on,std::memory_order_relaxed);}
     float dynamicReduction(int band) const noexcept {return dynamicMeters[size_t(std::clamp(band,0,11))].load();}
     void prepare(double sr) noexcept {rate=std::max(8000.,sr);uiRate.store(rate);reset();average.store(0);peak.store(0);}
     void reset() noexcept {
@@ -87,6 +101,7 @@ public:
             b.current={};b.next={};b.current.coeff=eqCoefficients(v.type,v.frequency,v.gain,v.q,rate);
             b.detector={};b.reduction=b.envelope=0;b.detectorFrequency=b.detectorQ=0;dynamicMeters[size_t(i)].store(0);
         }
+        auditionMix.reset(rate,.015);auditionMix.setCurrentAndTargetValue(0);auditionBand=-1;auditionFilter.clear();auditionPlaying.store(-1);
     }
     void process(juce::AudioBuffer<float>& buffer) noexcept {
         const auto start=std::chrono::steady_clock::now();
@@ -98,9 +113,24 @@ public:
         wet.setTargetValue(bypassed?0.f:1.f);
         const bool analyze=analyzer.enabled.load(std::memory_order_relaxed);
         if(bypassed && !wet.isSmoothing()) {
+            auditionBand=-1;auditionMix.setCurrentAndTargetValue(0);auditionFilter.clear();auditionPlaying.store(-1);
             for(int i=0;i<graphicalEQBands;++i){bands[size_t(i)].reduction=bands[size_t(i)].envelope=0;bands[size_t(i)].detector.clear();dynamicMeters[size_t(i)].store(0);}
             if(analyze)for(int n=0;n<samples;++n) {const auto l=buffer.getSample(0,n),r=buffer.getSample(channels-1,n);analyzer.push({l,l,r,r});}
         } else {
+            // Band solo: the requested band while the editor keeps listening.
+            {
+                const auto beat=std::chrono::steady_clock::duration(auditionBeat.load());
+                // The callback's start time (already read for the CPU meter): no extra clock read.
+                const bool alive=std::chrono::duration<double>(start.time_since_epoch()-beat).count()<auditionTimeoutSeconds;
+                const int wanted=bypassed||!alive||printing.load(std::memory_order_relaxed)?-1:auditionRequest.load();
+                if(wanted!=auditionBand) {
+                    // Fade out first; switch (or stop) once silent of the old band.
+                    if(auditionMix.getCurrentValue()==0.f){auditionBand=wanted;auditionFilter.clear();}
+                    else auditionMix.setTargetValue(0.f);
+                }
+                if(auditionBand>=0 && wanted==auditionBand)auditionMix.setTargetValue(1.f);
+                auditionPlaying.store(auditionBand>=0 && auditionMix.getTargetValue()>0.f?auditionBand:-1);
+            }
             // Read atomic host values once per block; coefficient work uses a 32-sample clock.
             bool hasDynamics=false;
             const double detectorDecay=std::exp(-1./(rate*.02));
@@ -138,6 +168,11 @@ public:
                     b.current.coeff=eqCoefficients(b.type,f,g-b.reduction,q,rate);
                     if(b.fade.isSmoothing())b.next.coeff=eqCoefficients(b.nextType,f,g-b.reduction,q,rate);
                 }
+                if(clock==0 && auditionBand>=0) {
+                    const auto& b=bands[size_t(auditionBand)];
+                    const int t=b.type,soloType=t==1||t==4?4:t==2||t==3?3:6; // low pass / high pass / band pass
+                    auditionFilter.coeff=eqCoefficients(soloType,b.f.getCurrentValue(),0,soloType==6?std::clamp(b.q.getCurrentValue(),.5f,8.f):.70710678f,rate);
+                }
                 clock=(clock+1)%32;
                 const float globalWet=wet.getNextValue();
                 std::array<float,2> x{inputL,inputR};
@@ -150,8 +185,15 @@ public:
                     }
                     if(transitioning && !b.fade.isSmoothing()) {b.current=b.next;b.type=b.nextType;}
                 }
-                const float l=globalWet==0 ? inputL : inputL+globalWet*(x[0]-inputL);
-                const float r=channels==1 ? l : globalWet==0 ? inputR : inputR+globalWet*(x[1]-inputR);
+                float l=globalWet==0 ? inputL : inputL+globalWet*(x[0]-inputL);
+                float r=channels==1 ? l : globalWet==0 ? inputR : inputR+globalWet*(x[1]-inputR);
+                // Exactly the normal output when no solo is fading or held.
+                if(auditionBand>=0 && (auditionMix.isSmoothing() || auditionMix.getCurrentValue()>0.f)) {
+                    const float m=auditionMix.getNextValue();
+                    l+=m*(float(auditionFilter.tick(l,0))-l);
+                    if(channels==2)r+=m*(float(auditionFilter.tick(r,1))-r);else r=l;
+                    if(m==0.f && auditionMix.getTargetValue()==0.f && !auditionMix.isSmoothing())auditionFilter.clear();
+                }
                 buffer.setSample(0,n,l);if(channels==2)buffer.setSample(1,n,r);
                 if(analyze)analyzer.push({inputL,l,inputR,r});
             }
@@ -194,7 +236,10 @@ private:
     DynamicEQBindings dynamicParameters;std::array<std::atomic<float>,graphicalEQBands> dynamicMeters{};int bank{};
     std::atomic<float>* bypass{};
     std::array<std::array<std::atomic<float>*,5>,graphicalEQBands> params{};
-    juce::SmoothedValue<float> wet;
+    juce::SmoothedValue<float> wet,auditionMix;
+    Filter auditionFilter;int auditionBand{-1};
+    std::atomic<int> auditionRequest{-1},auditionPlaying{-1};std::atomic<bool> printing{false};
+    std::atomic<std::chrono::steady_clock::rep> auditionBeat{0};
     double rate{48000};std::atomic<double> uiRate{48000};int clock{};
 };
 }
