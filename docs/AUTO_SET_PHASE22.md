@@ -67,9 +67,23 @@ tempo** step, on by default, listed before **Delay and reverb**.
   rows, with the sync row (kept, no host tempo) before the delay + reverb row.
 - **Locks (`controllerEveryLock`):** all twenty-five locks at four strengths.
 
+- **Rendered timing (`syncTiming`, verification case DELAY-01):**
+  - The controller at a 100 BPM host: the rows say 100.0 BPM, and DELAY SYNC,
+    Follow host tempo and the delay are on.
+  - A real processor with the delay synced and following the host, a 10 ms
+    burst rendered: the echo comes 600 ms after it at 100 BPM (a quarter
+    note), 500 ms after the host moves to 120 BPM, and 667 ms (Chimera's
+    TEMPO, 90 BPM) when the host reports no tempo or NaN. All within 2 ms
+    (measured: 600, 500, 667, 667 ms at 48 kHz).
+
 ## Not yet validated
 
 Checked with a test host that reports a fixed tempo, not in real DAWs. The
 delay follows the host tempo from then on, also when the host changes it,
 which is what Follow host tempo does elsewhere in Chimera. A quarter-note
 delay is what phase 11 sets; other subdivisions are not chosen.
+
+A host tempo above 240 BPM (or under 40) is treated differently by the two
+paths: Auto Set takes it as no tempo and does not turn sync on, while the
+processor, once Follow host tempo is on, clamps it to 240 (or 40) BPM. This
+is unchanged and is not covered by `syncTiming`.
