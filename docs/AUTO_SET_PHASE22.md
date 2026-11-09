@@ -67,23 +67,130 @@ tempo** step, on by default, listed before **Delay and reverb**.
   rows, with the sync row (kept, no host tempo) before the delay + reverb row.
 - **Locks (`controllerEveryLock`):** all twenty-five locks at four strengths.
 
-- **Rendered timing (`syncTiming`, verification case DELAY-01):**
-  - The controller at a 100 BPM host: the rows say 100.0 BPM, and DELAY SYNC,
-    Follow host tempo and the delay are on.
-  - A real processor with the delay synced and following the host, a 10 ms
-    burst rendered: the echo comes 600 ms after it at 100 BPM (a quarter
-    note), 500 ms after the host moves to 120 BPM, and 667 ms (Chimera's
-    TEMPO, 90 BPM) when the host reports no tempo or NaN. All within 2 ms
-    (measured: 600, 500, 667, 667 ms at 48 kHz).
+- **Settled rendered timing (`syncTiming`, verification case DELAY-01):**
+  - Controller rows and switches are checked at 100 BPM.
+  - Existing 48 kHz measurements were 600 ms at 100 BPM, 500 ms after a
+    change to 120 BPM, and 667 ms with no BPM (internal TEMPO 90), within 2 ms.
+  - Correction to the original PR record: `TempoPlayHead` previously used
+    `if (bpm > 0)`, so its purported NaN measurement was another missing-BPM
+    measurement. It was not evidence that the processor received NaN.
+    Availability is now independent of value, and the fixture asserts that
+    an engaged BPM containing NaN actually reaches the playhead interface.
+  - This older test deliberately settles before measurement. Its PASS must
+    not be used as a transition-artifact or DAW playback qualification.
 
-## Not yet validated
+## Boundary, continuous-callback and state regressions
 
-Checked with a test host that reports a fixed tempo, not in real DAWs. The
-delay follows the host tempo from then on, also when the host changes it,
-which is what Follow host tempo does elsewhere in Chimera. A quarter-note
-delay is what phase 11 sets; other subdivisions are not chosen.
+`Tests/AutoSetSyncRegression.h` is included in the full suite and `--sync`.
+Use **`ChimeraAutoSetTests --sync-boundaries`** to run only the added coverage,
+without rerunning the original settled-tempo/controller cases.
 
-A host tempo above 240 BPM (or under 40) is treated differently by the two
-paths: Auto Set takes it as no tempo and does not turn sync on, while the
-processor, once Follow host tempo is on, clamps it to 240 (or 40) BPM. This
-is unchanged and is not covered by `syncTiming`.
+- **Rules:** 39.9, 40, 100, 120, 240 and 240.1 BPM exercise inclusive bounds.
+  Invalid numeric values remain distinct from unavailable host information.
+- **One continuous processor:** change BPM between audio blocks without
+  resetting, preparing again, or discarding a warm-up render. Check effective,
+  reported and followed tempo after every block; confirm internal TEMPO 90 is
+  not overwritten. Render and check every sample for finiteness, including
+  transition blocks. Each 2 s segment contains a burst at 300 ms, with an echo
+  search extending 1700 ms after the direct onset, so the 40 BPM / 1500 ms echo
+  fits. Settled echo timing has a +/-2 ms tolerance at 48 kHz.
+- **Host availability:** 100 -> missing BPM -> 120; missing PositionInfo;
+  detached playhead; real NaN, infinity, zero and negative BPM; recovery to a
+  valid host tempo. The fixture asserts numeric payload delivery.
+- **Live diagnostic signal:** a continuous 1 kHz tone survives 100 -> 120 ->
+  100, a single missing-BPM block, repeated missing blocks, a 100 -> 120 ramp,
+  and stopped/resumed transport with BPM still available. Test feedback 0 and
+  0.3. Assert the tempo-selection contract and finite output; log peak and
+  maximum adjacent-sample step across the complete stream.
+- **State:** save with internal TEMPO 90 / host 100; restore before and after
+  prepare, and over a used instance with different settings. Check restored
+  parameters and echoes under current host 120 or no BPM. Also restore manual
+  sync and free-time delay. Host BPM is reacquired, not saved as internal TEMPO.
+  These tests inspect the first callback's tempo/finiteness and later echo;
+  they do not certify that the first audible note survives a DAW's recall.
+
+The continuous stream's PASS means **tempo selection, finite output and
+settled timing**. The transient metrics are diagnostic, with no click,
+pitch, echo-count or subjective quality threshold. They must not be reported
+as artifact-free playback. The current EchoModule moves its read delay over
+35 ms; pitch changes and re-reading/skipping old buffer content are possible.
+Use the CI results/logs for the exact tested HEAD, not the original PR's local
+PASS, when reporting these new cases. This revision changes tests/docs only.
+
+## Expected boundary behavior (not new measurement results)
+
+Internal TEMPO is 90; DELAY SYNC and Follow host tempo are on for DSP timing.
+Auto Set's column assumes eligible sparse Clean/Rock guitar and both the delay
+and DELAY SYNC initially off.
+
+| Host input | Auto Set may select sync | Effective DSP BPM | Quarter-note echo |
+|---|---|---|---|
+| 39.9 | No | 40 (clamped) | 1500 ms |
+| 40 | Yes | 40 | 1500 ms |
+| 100 | Yes | 100 | 600 ms |
+| 120 | Yes | 120 | 500 ms |
+| 240 | Yes | 240 | 250 ms |
+| 240.1 | No | 240 (clamped) | 250 ms |
+| Missing BPM / position / playhead | No | 90 (internal) | 666.667 ms |
+| NaN, infinity, zero, negative BPM | No | 90 (internal) | 666.667 ms |
+| Stopped transport, valid BPM provided | BPM remains usable | Provided BPM | Corresponding interval |
+
+The out-of-range policy difference is intentionally preserved: Auto Set rejects
+it; an already-following processor clamps positive finite BPM to 40-240.
+`reportedHostTempo()` and `currentHostTempo()` are zero outside that range even
+when DSP uses a clamped tempo. A fallback can still be labelled HOST by the UI
+because that label follows the switch; this test/docs change does not fix it.
+Changing the DSP to fallback for 240.1 BPM would change existing audio from
+250 ms to 666.667 ms with TEMPO 90 and requires a separate behavior decision.
+
+## Studio One manual measurement checklist
+
+**Status: not run by this automated suite.** Record Studio One version,
+plugin format/build SHA, sample rate, device buffer and Dropout Protection.
+Use a copy of the DEADWIRE 100 BPM Song; manual delay sync is independent of
+Auto Set's refusal to add a new delay for Metal or bass.
+
+1. Use 48 kHz, initially 256 samples. Disable audio-event timestretch and use
+   seconds-based event positions so tempo edits do not move/stretch the probe.
+2. Set Precision Delay (including no expansion-model override), feedback 0,
+   mix 50%, DELAY SYNC on. Set internal TEMPO 90 before enabling HOST SYNC.
+   Disable reverb, modulation and other processing that obscures transients.
+3. Use a 10 ms / 1 kHz burst around -18 dBFS, separated by at least 3 s. In one
+   uninterrupted playback, hold each Tempo Track segment at least 6 s:
+   100 -> 120 -> 100 -> 40 -> 39.9 -> 40 -> 240 -> 240.1 -> 240 -> 100.
+   Confirm these are steps, not unintended ramps. The 100/120 sections check
+   recovery in this dynamic sequence, not a repeat of isolated fixed tests.
+4. For settled intervals, place bursts at least 100 ms after each change.
+   Measure direct-to-echo separation in the same output: samples / 48 = ms.
+   Expected intervals are in the table; +/-96 samples equals +/-2 ms. Do not
+   apply this steady-state criterion to a note already in the moving delay.
+5. In a separate take, leave a sustained 1 kHz signal or actual guitar DI
+   ringing across each 100 <-> 120 change. Test feedback 0 then 0.3. Preserve
+   at least 1 s on either side; inspect/listen for clicks, pitch movement,
+   duplicated/missing echoes and level spikes. Record timing and listening
+   outcomes separately. Also test a deliberate gradual tempo ramp.
+6. Capture explicit real-time export and offline export of the same sequence;
+   do not substitute Automatic for explicit real-time processing. Compare
+   with normal playback. Repeat the dynamic section at 64/1024 samples if the
+   baseline works, noting the actual host-processing buffer settings.
+7. Save, close Studio One completely, reopen and record the first playback as
+   well as settled playback. Confirm switches, internal TEMPO 90, and 600 ms
+   at host 100. Reuse the saved plugin state under host 120: expect 500 ms,
+   not a frozen 600 ms. Check stop/resume, seeking to a different tempo, and a
+   loop crossing 100/120. A cleared old delay tail is expected on state reset.
+8. With HOST SYNC off and DELAY SYNC on, save/reopen: internal 90 yields
+   666.667 ms. With DELAY SYNC off, the saved manual delay time must prevail.
+
+Studio One's Stop button or turning HOST SYNC off does **not** inject absent
+BPM, absent PositionInfo or NaN. Mark forced host-information-loss cases as
+not validated in Studio One unless an instrumented host adapter actually
+creates and logs them; the synthetic regression covers those inputs.
+
+## Remaining validation boundaries
+
+Real Studio One/VST3 playback and project lifecycle, first-note behavior,
+actual DI and listening remain unvalidated here. The synthetic transport flag
+is not a real DAW stop/resume or loop test. No claim is made about sample-exact
+intra-block tempo changes, delay musical-phase locking through a ramp, other
+sample rates, or other delay models. Auto Set chooses a quarter-note base
+time; multi-tap/modulated models need their own output expectations.

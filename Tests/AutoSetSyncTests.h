@@ -19,7 +19,15 @@ void syncRules() {
 // A host that reports a tempo (and nothing else).
 struct TempoPlayHead final : juce::AudioPlayHead {
     double bpm{};
-    juce::Optional<PositionInfo> getPosition() const override {PositionInfo p;if(bpm>0)p.setBpm(bpm);return p;}
+    bool provideBpm{true},providePosition{true},playing{true};
+    juce::Optional<PositionInfo> getPosition() const override {
+        if(!providePosition)return {};
+        PositionInfo p;p.setIsPlaying(playing);
+        // Availability and numeric validity are independent. In particular,
+        // NaN must reach the processor rather than turn into a missing BPM.
+        if(provideBpm)p.setBpm(bpm);
+        return p;
+    }
 };
 void controllerSync() {
     using P=Controller::Phase;
@@ -31,7 +39,7 @@ void controllerSync() {
         return [bpm,list](ChimeraProcessor& p){
             for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"delaysync",0},{"temposync",0}}){auto* q=p.parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));}
             for(const auto& [id,v]:list){auto* q=p.parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));}
-            host.bpm=bpm;p.setPlayHead(&host);
+            host.bpm=bpm;host.provideBpm=bpm!=0;p.setPlayHead(&host);
             juce::AudioBuffer<float> io(2,256);io.clear();juce::MidiBuffer midi;p.processBlock(io,midi);
         };
     };
@@ -110,8 +118,11 @@ void syncTiming() {
     echoMs(); // settle the delay time
     const double at100=echoMs();
     host.bpm=120;echoMs();const double at120=echoMs();
-    host.bpm=0;echoMs();const double noHost=echoMs();
-    host.bpm=std::numeric_limits<double>::quiet_NaN();echoMs();const double nanHost=echoMs();
+    host.provideBpm=false;echoMs();const double noHost=echoMs();
+    host.provideBpm=true;host.bpm=std::numeric_limits<double>::quiet_NaN();
+    const auto invalidPosition=host.getPosition();
+    check(invalidPosition && invalidPosition->getBpm() && std::isnan(*invalidPosition->getBpm()),"DELAY-01: the test host did not deliver NaN");
+    echoMs();const double nanHost=echoMs();
     p.setPlayHead(nullptr);p.releaseResources();
     check(std::abs(at100-600)<=2,"DELAY-01: the echo at 100 BPM came after "+std::to_string(at100)+" ms, not 600");
     check(std::abs(at120-500)<=2,"DELAY-01: the echo did not follow the host to 120 BPM ("+std::to_string(at120)+" ms)");
@@ -119,3 +130,4 @@ void syncTiming() {
     std::cout<<"MEASURE auto set sync timing: "<<step->result<<" | echo "<<at100<<" ms at 100 BPM, "<<at120<<" ms at 120 BPM, "<<noHost<<" ms with no host tempo and "<<nanHost<<" ms with NaN (TEMPO 90)\n";
     std::cout<<"PASS auto set sync timing (DELAY-01): 100 BPM rows and parameters, rendered echo at 600 ms, follows the host to 120 BPM, falls back to TEMPO without a host tempo\n";
 }
+
