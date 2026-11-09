@@ -31,8 +31,11 @@ struct GroupHostTrace {
     bool open() const {for(const auto& e:events)if(e.depth!=0)return true;return false;}
     void balanced() const {
         for(size_t i=0;i<events.size();++i){const auto& e=events[i];
-            check(!e.bad && e.depth==0 && e.starts==e.ends,"Unbalanced/nested per-parameter group gesture: "+(parameters[i]?parameters[i]->getParameterID().toStdString():std::string("?"))
-                  +" starts "+std::to_string(e.starts)+", ends "+std::to_string(e.ends)+", depth "+std::to_string(e.depth)+(e.bad?", nested":""));}
+            if(e.bad || e.depth!=0 || e.starts!=e.ends){
+                const std::string what="Unbalanced/nested per-parameter group gesture: "+(parameters[i]?parameters[i]->getParameterID().toStdString():std::string("?"))
+                  +" starts "+std::to_string(e.starts)+", ends "+std::to_string(e.ends)+", depth "+std::to_string(e.depth)+(e.bad?", nested":"");
+                check(false,what.c_str());
+            }}
     }
     void quiet() const {for(const auto& e:events)check(e.starts==0 && e.ends==0 && e.changes==0,"Selection/menu cancellation notified a host parameter");}
 };
