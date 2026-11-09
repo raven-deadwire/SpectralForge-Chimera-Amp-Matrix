@@ -7,8 +7,11 @@ CI의 실제 OBS 앱 자동 시험(`OBS/tests/obs_*_test.py`, `obs-addon.yml`·`
 - **CI가 이미 확인한 것:** 필터 로딩·녹화·상태 저장과 복원, 다중 인스턴스·붙여넣기, 사용자 IR, 에디터 창 열기, 44.1 kHz 모노·48 kHz 5.1,
   처리 지연과 A/V 싱크, OBS 밖 Chimera와의 표본 단위 일치, 중단·재개 꼬리 제거, 다른 샘플레이트·배치로 재시작, 처리 실패 시 무음/원음 통과,
   Linux의 에디터 안 편집, CI 가상 머신 1시간 녹화. 이 목록은 이를 반복하지 않습니다.
-- **판정:** 항목마다 **PASS / FAIL / 보류**를 적고, FAIL이면 재현 방법과 OBS 로그(도움말 → 로그 파일)를 함께 남깁니다.
-- **결과 기록:** [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)에 아래 0번의 기록과 함께 남깁니다.
+- **판정:** 항목마다 **PASS / FAIL / 보류**를 적고, 미실행은 **보류(미실행)**로 유지합니다. FAIL이면 재현 방법과 OBS 로그(도움말 → 로그 파일)를 함께 남깁니다.
+- **결과 기록:** 전용 OBS 애드온 시험은 [#131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131)에 아래 0번의 기록과 함께 남깁니다.
+- **별도 추적:** atkAudio + Chimera VST3 호환 시험은 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)에 기록하며, 두 경로의 결과를 서로 승계하지 않습니다.
+- **CI 자동시험 기록:** 실행 URL·attempt·시험 소스 SHA·OS/OBS 버전·job/항목·판정을 실제 PC 수동시험과 분리해 기록합니다. 이전 SHA의 CI 통과를 현재 HEAD의 통과로 표시하지 않습니다.
+- **실제 PC 수동시험 기록:** 확인일·0번의 환경/모듈 정보·항목별 판정·증거를 남깁니다. Windows·macOS 에디터 내부 마우스 조작과 실제 장비 시험은 직접 수행하기 전까지 보류(미실행)이며, CI 통과로 PASS 처리하지 않습니다.
 - 아래 화면 문구는 한국어 OBS 기준입니다(영어 OBS는 `OBS/data/locale/en-US.ini`의 같은 항목).
 
 ## 0. 준비와 기록

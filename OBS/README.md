@@ -8,7 +8,10 @@ OBS 오디오 필터 목록에 **SpectralForge Chimera**를 직접 추가하는 
 실행한다(구조 2, 소유자 결정 2026-10-23).
 
 **상태: 개발 시제품. Windows는 Chimera Setup, macOS(Universal: Apple silicon·Intel, macOS 12 이상)는 Chimera PKG의 선택 항목(서명·공증 없음)이며
-별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전). 실제 OBS Studio 앱은 Linux·Windows·macOS(Apple silicon)에서 자동 시험(필터·녹화·상태 저장/복원)만 했고, 화면 조작·에디터·방송 검증은 미실행.**
+별도 사용자 설치 패키지도 있다. Linux x86_64(OBS 30+)는 Chimera DEB/TAR에 동봉되며 TAR 설치 시 묻는다(F단계, 공개 배포 전).
+실제 OBS Studio 앱의 필터·녹화·상태 저장/복원·에디터 창 열기는 Linux·Windows·macOS(Apple silicon) 자동 시험 범위다.
+Linux는 OUTPUT 노브 마우스 편집·저장·재시작 복원도 자동 시험한다.
+Windows·macOS 에디터 내부 마우스 조작, 실제 PC의 필터 메뉴·속성 창 조작·오디오 장치·방송 수동 검증은 미실행.**
 
 ## 라이선스
 
@@ -360,4 +363,5 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 obs-websocket으로 필터를 추가·설정하고, 필터 붙여넣기는 메뉴가 부르는 OBS 함수를 Lua 스크립트로 부른다. 화면을 직접 조작하는 시험은
 Linux 에디터 창 안 편집(`obs_editor_edit_test.py`, xdotool)뿐이다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
 macOS에서의 OBS 32.x(CI 가상 머신에서 OBS 32.2.2 자체가 시작 중 종료, Windows 32.2.2만 자동), 실제 Intel Mac에서의 확인(Apple silicon에서 Rosetta로 실행하는 시험만 자동). 이 항목은 계획 C–F단계와
-[#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다. 확인 항목은 [OBS_ADDON_MANUAL_CHECKLIST.ko.md](../docs/OBS_ADDON_MANUAL_CHECKLIST.ko.md)에 정리했다.
+[#131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131)의 수동 검사로 기록한다. 확인 항목은 [OBS_ADDON_MANUAL_CHECKLIST.ko.md](../docs/OBS_ADDON_MANUAL_CHECKLIST.ko.md)에 정리했다.
+atkAudio + Chimera VST3 호환 시험은 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)에 별도 기록하며, 전용 애드온의 CI·수동시험 결과로 대체하지 않는다.
