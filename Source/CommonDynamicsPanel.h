@@ -33,7 +33,7 @@ public:
         addChildComponent(autoSet);addChildComponent(autoOptions);addChildComponent(autoUndo);
         autoSet.setComponentID("commonDynamics.autoSet");autoOptions.setComponentID("commonDynamics.autoOptions");autoUndo.setComponentID("commonDynamics.autoUndo");autoUndo.setEnabled(false);
         autoSet.setTooltip("Listen to about 58 seconds of playing and set input gain, the gates and the Expander, a boost pedal in front of the amp, the amp's channel, gain, tone, presence and resonance knobs, the Dual rigs' levels and their blend or crossover when two rigs play, the Matrix MID and HIGH lane levels when three bands play, the cabinet's low and high cuts, where the cabinet mic sits, the timing, polarity and blend of two blended cabinet mics, the Tone EQ and its Dynamic EQ, the clean compressor, the multiband, the de-esser and the limiter, the POST bus compressor, the delay and reverb, the stereo doubler, then the Final EQ and the output level. Include a short pause so the gate can hear the noise floor.");
-        autoOptions.setTooltip("Auto Set options: instrument (detected, guitar or bass), style (rock, clean or metal), which steps run, strength and locked settings.");
+        autoOptions.setTooltip("Auto Set options: instrument (detected - guitar, bass, vocal, keys or drums - or choose guitar or bass), style (rock, clean or metal), which steps run, strength and locked settings.");
         autoUndo.setTooltip("Restore every setting Auto Set changed in its last run.");
         autoOptions.onClick=[this]{showAutoOptions();};updateAutoOptionsText();
         autoSet.onClick=[this]{if(autoBusy){if(onAutoCancel)onAutoCancel();}else if(onAutoSet)onAutoSet();};
@@ -224,17 +224,17 @@ public:
     // Presentation of the Auto Set options; the editor maps them to the controller.
     // instrument 0 detect/1 guitar/2 bass; style 0 rock/1 clean/2 metal; strength in percent;
     // locks: bit i keeps autoLockNames[i] as it is (the controller's Lock order).
-    struct AutoSetOptions {int instrument{0};bool tone{true};int style{0};bool finish{true};bool multiband{true};bool gates{true};int strength{100};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};};
+    struct AutoSetOptions {int instrument{0};bool tone{true};int style{0};bool finish{true};bool multiband{true};bool gates{true};int strength{100};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool skipForVoiceOrDrums{false};};
     static constexpr std::array<const char*,26> autoLockNames{"Input gain","Gate","Tone EQ","Compressor","Multiband","De-esser","Limiter","Dynamic EQ","Final EQ","Output level","Amp","Cabinet mic","Boost pedal","Delay + reverb","Presence + resonance","Dual blend","Stereo doubler","Cabinet cuts","Bus compressor","Matrix levels","Cabinet mic blend","Dual rig levels","Amp channel","Lane polarity","Delay tempo sync","Cabinet IR"};
     static constexpr std::array<int,4> autoStrengths{100,75,50,25};
     std::function<void(const AutoSetOptions&)> onAutoOptionsChanged;
     void setAutoSetOptions(const AutoSetOptions& chosen){autoOptionsValue=chosen;updateAutoOptionsText();}
     const AutoSetOptions& autoSetOptions() const noexcept {return autoOptionsValue;}
     // Menu ids: 1-3 instrument, 11-13 style, 21 Tone EQ, 22 de-esser + limiter, 23 multiband step,
-    // 24 Gate 2 + Expander step, 25 Dynamic EQ step, 26 Final EQ + output step, 27 amp step, 28 cabinet mic step, 29 boost step, 30 delay + reverb step, 31-34 strength, 35 presence + resonance step, 36 Dual blend step, 37 stereo doubler step, 38 cabinet cuts step, 39 bus compressor step, 40 Matrix levels step, 41-66 locks, 70 cabinet mic blend step, 71 Dual rig levels step, 72 amp channel step, 73 lane polarity step, 74 delay tempo sync step, 75 cabinet IR step.
+    // 24 Gate 2 + Expander step, 25 Dynamic EQ step, 26 Final EQ + output step, 27 amp step, 28 cabinet mic step, 29 boost step, 30 delay + reverb step, 31-34 strength, 35 presence + resonance step, 36 Dual blend step, 37 stereo doubler step, 38 cabinet cuts step, 39 bus compressor step, 40 Matrix levels step, 41-66 locks, 70 cabinet mic blend step, 71 Dual rig levels step, 72 amp channel step, 73 lane polarity step, 74 delay tempo sync step, 75 cabinet IR step, 90 skip amp/cabinet steps for a detected voice or drums.
     void chooseAutoOption(int id) {
         auto& o=autoOptionsValue;
-        if(id>=1 && id<=3)o.instrument=id-1;else if(id>=11 && id<=13)o.style=id-11;else if(id==21)o.tone=!o.tone;else if(id==22)o.finish=!o.finish;else if(id==23)o.multiband=!o.multiband;else if(id==24)o.gates=!o.gates;else if(id==25)o.dynamicEQ=!o.dynamicEQ;else if(id==26)o.level=!o.level;else if(id==27)o.amp=!o.amp;else if(id==28)o.cab=!o.cab;else if(id==29)o.boost=!o.boost;else if(id==30)o.space=!o.space;else if(id==35)o.power=!o.power;else if(id==36)o.dual=!o.dual;else if(id==37)o.width=!o.width;else if(id==38)o.cuts=!o.cuts;else if(id==39)o.bus=!o.bus;else if(id==40)o.matrix=!o.matrix;else if(id==70)o.mics=!o.mics;else if(id==71)o.rigs=!o.rigs;else if(id==72)o.channel=!o.channel;else if(id==73)o.polarity=!o.polarity;else if(id==74)o.sync=!o.sync;else if(id==75)o.cabIR=!o.cabIR;
+        if(id>=1 && id<=3)o.instrument=id-1;else if(id>=11 && id<=13)o.style=id-11;else if(id==21)o.tone=!o.tone;else if(id==22)o.finish=!o.finish;else if(id==23)o.multiband=!o.multiband;else if(id==24)o.gates=!o.gates;else if(id==25)o.dynamicEQ=!o.dynamicEQ;else if(id==26)o.level=!o.level;else if(id==27)o.amp=!o.amp;else if(id==28)o.cab=!o.cab;else if(id==29)o.boost=!o.boost;else if(id==30)o.space=!o.space;else if(id==35)o.power=!o.power;else if(id==36)o.dual=!o.dual;else if(id==37)o.width=!o.width;else if(id==38)o.cuts=!o.cuts;else if(id==39)o.bus=!o.bus;else if(id==40)o.matrix=!o.matrix;else if(id==70)o.mics=!o.mics;else if(id==71)o.rigs=!o.rigs;else if(id==72)o.channel=!o.channel;else if(id==73)o.polarity=!o.polarity;else if(id==74)o.sync=!o.sync;else if(id==75)o.cabIR=!o.cabIR;else if(id==90)o.skipForVoiceOrDrums=!o.skipForVoiceOrDrums;
         else if(id>=31 && id<31+int(autoStrengths.size()))o.strength=autoStrengths[size_t(id-31)];
         else if(id>=41 && id<41+int(autoLockNames.size()))o.locks^=1u<<(id-41);else return;
         updateAutoOptionsText();if(onAutoOptionsChanged)onAutoOptionsChanged(o);
@@ -520,6 +520,7 @@ private:
         const auto& o=autoOptionsValue;juce::PopupMenu menu;
         menu.addSectionHeader("Instrument");
         menu.addItem(1,"Detect from playing",true,o.instrument==0);menu.addItem(2,"Guitar",true,o.instrument==1);menu.addItem(3,"Bass",true,o.instrument==2);
+        menu.addItem(90,"Skip amp and cabinet steps for a detected voice or drums",o.instrument==0,o.skipForVoiceOrDrums);
         menu.addSectionHeader("Style");
         menu.addItem(11,"Rock",true,o.style==0);menu.addItem(12,"Clean",true,o.style==1);menu.addItem(13,"Metal",true,o.style==2);
         menu.addSectionHeader("Steps");

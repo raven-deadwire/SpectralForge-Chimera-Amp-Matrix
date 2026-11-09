@@ -373,9 +373,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     };
     add(headerAutoSet);
     static_assert(spectralforge::CommonDynamicsPanel::autoLockNames.size()==spectralforge::autoset::Controller::lockOrder.size(),"Auto Set lock menu and controller locks differ");
-    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power,o.dual,o.width,o.cuts,o.bus,o.matrix,o.mics,o.rigs,o.channel,o.polarity,o.sync,o.cabIR});}
+    {const auto& o=autoSetController->currentOptions();dynamicsPanel->setAutoSetOptions({o.instrument,o.tone,int(o.style),o.finish,o.multiband,o.gates,juce::roundToInt(o.strength*100),o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power,o.dual,o.width,o.cuts,o.bus,o.matrix,o.mics,o.rigs,o.channel,o.polarity,o.sync,o.cabIR,o.skipForVoiceOrDrums});}
     dynamicsPanel->onAutoOptionsChanged=[this](const spectralforge::CommonDynamicsPanel::AutoSetOptions& o) {
-        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power,o.dual,o.width,o.cuts,o.bus,o.matrix,o.mics,o.rigs,o.channel,o.polarity,o.sync,o.cabIR});
+        autoSetController->setOptions({o.instrument,o.tone,spectralforge::autoset::Style(std::clamp(o.style,0,2)),o.finish,o.multiband,o.gates,float(o.strength)/100.f,o.locks,o.dynamicEQ,o.level,o.amp,o.cab,o.boost,o.space,o.power,o.dual,o.width,o.cuts,o.bus,o.matrix,o.mics,o.rigs,o.channel,o.polarity,o.sync,o.cabIR,o.skipForVoiceOrDrums});
         if(easyView)easyView->setAutoSetOptions(o.instrument,o.style,o.tone,o.finish,o.multiband);
     };
     dynamicsPanel->setMultibandProviders([this]{auto& processorMB=processor.multibandDynamics();return processorMB.enabled() && processorMB.activeBandCount()==processorMB.bandCount()?processorMB.appliedAllCrossovers():processorMB.allCrossovers();},[this](int band){return processor.multibandDynamics().reduction(band);});

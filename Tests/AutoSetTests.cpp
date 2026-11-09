@@ -564,7 +564,9 @@ void controllerIntegration() {
             monotonic&=s.seconds+1e-6>=last;last=s.seconds;
             sawInput|=s.phase==Controller::Phase::input && s.levelDb>-30.f && s.heard.contains("Playing: heard");
             sawPause|=s.heard.contains("Pause: heard");
-            sawTone|=s.phase==Controller::Phase::tone && s.heard.contains("Guitar");
+            // The input pass's instrument detection may be shown ("Guitar (detected, N%)");
+            // the Tone EQ's own guitar/bass estimate may not, before its analysis.
+            sawTone|=s.phase==Controller::Phase::tone && s.heard.contains("Guitar") && !s.heard.contains("(detected, ");
         }
         check(monotonic && sawInput && sawPause,"Listening status did not report the playing level, playing and the pause");
         check(!sawTone,"Tone pass claimed an instrument before its analysis");
