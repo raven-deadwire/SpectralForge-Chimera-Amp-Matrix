@@ -356,7 +356,8 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 - 같은 미디어 소스라도 OBS가 녹화마다 영상 대비 소리 위치를 다르게 시작하는 것을 관찰했다(로컬 OBS 30.0.2에서 필터를 끈 두 녹화가
   −134 ms와 −62 ms). 필터와 무관한 OBS 동작이며, 한 녹화 안에서는 일정하다.
 
-**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창·에디터 창 조작(Windows·macOS·Linux 모두 OBS 밖 시험만. Linux·Windows·macOS 앱 시험은
-obs-websocket으로 필터를 추가·설정하고, 필터 붙여넣기는 메뉴가 부르는 OBS 함수를 Lua 스크립트로 부르며, 화면은 누르지 않는다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
+**미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창 조작과 Windows·macOS의 에디터 창 안 조작(Linux·Windows·macOS 앱 시험은
+obs-websocket으로 필터를 추가·설정하고, 필터 붙여넣기는 메뉴가 부르는 OBS 함수를 Lua 스크립트로 부른다. 화면을 직접 조작하는 시험은
+Linux 에디터 창 안 편집(`obs_editor_edit_test.py`, xdotool)뿐이다), 실제 오디오 장치·DI 입력, 실제 장비(GPU·오디오 장치)에서의 1시간 녹화(CI 가상 머신만 자동),
 macOS에서의 OBS 32.x(CI 가상 머신에서 OBS 32.2.2 자체가 시작 중 종료, Windows 32.2.2만 자동), 실제 Intel Mac에서의 확인(Apple silicon에서 Rosetta로 실행하는 시험만 자동). 이 항목은 계획 C–F단계와
 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)의 수동 검사로 기록한다. 확인 항목은 [OBS_ADDON_MANUAL_CHECKLIST.ko.md](../docs/OBS_ADDON_MANUAL_CHECKLIST.ko.md)에 정리했다.
