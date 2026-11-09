@@ -25,11 +25,11 @@ P0 **Transpose** 판정에 필요한 실제 증거를 11/2–11/6 KST에 모으�
 
 | 항목 | 내용 | 확인 |
 |---|---|---|
-| 빌드 | `Tools/TransposeNext/build.py --juce <JUCE 8.0.8>`로 `TransposeProbe`·연구 플러그인(VST3/AU)·`TransposeResearchHostCheck` 빌드. 커밋 SHA 기록 | [ ] |
+| 빌드 | `python Tools/TransposeNext/build.py --juce <JUCE 8.0.8> --out build/transpose-next`는 GCC probe/회귀 실행 파일용. 연구 플러그인(VST3/AU)·`TransposeResearchHostCheck`는 별도 CMake 빌드. [사전 점검 실행서](TRANSPOSE_DI_PREFLIGHT_20261031.ko.md)의 플랫폼별 명령과 SHA 기록 사용 | [ ] |
 | 자체 점검 | `di_validation.py selftest`, `t6_listening.py selftest`, 헤드리스 호스트 점검이 기존 결과와 같은지 확인(라벨러 61/61, T4 오검출·누락 0) | [ ] |
 | 사람 | 기타 연주자 1명, 5현 베이스 연주자 1명(녹음·D06). 라벨 검토자 1명(엔진 출력을 보지 않는 사람). 청취자 3명 이상(기타 1·베이스 1 포함, 후보 의미를 모르는 사람). 진행자 1명(정답 키 보관) | [ ] |
 | 악기 | 기타 drop A(A1 55 Hz), 5현 베이스 B0(30.87 Hz), 5현 베이스 drop A(A0 27.5 Hz). 새 줄은 녹음 하루 전에 갈아 둔다 | [ ] |
-| 장비 | 오디오 인터페이스(48·96 kHz 지원), 드라이 DI 경로(앰프·이펙트 없음), 고정한 헤드폰 또는 모니터 | [ ] |
+| 장비 | 오디오 인터페이스(44.1·48·96 kHz 지원), 드라이 DI 경로(앰프·이펙트 없음), 고정한 헤드폰 또는 모니터 | [ ] |
 | DAW 기계 | Windows: Reaper + Cubase/Live/Studio One 중 1개 이상. macOS: Reaper + Logic(AU). 각 기계에 연구 플러그인 설치 | [ ] |
 | 녹음 목록 | `Validation/transpose-di-take-template.json`을 복사해 테이크·구간 시간을 채울 준비 | [ ] |
 
@@ -37,7 +37,7 @@ P0 **Transpose** 판정에 필요한 실제 증거를 11/2–11/6 KST에 모으�
 
 | 날짜 | 작업 | 산출물 | 결과를 보기 전/후 |
 |---|---|---|---|
-| **11/2 (월)** | 녹음: 테이크 3개 × 구간 7개(riff·dynamics·long·ghost·steady-open·steady-fret5·vibrato). **48 kHz 필수, 96 kHz 별도 녹음, 44.1 kHz도 녹음**(합성에서 PDC 판정이 44.1 kHz만 실패했으므로 실제 DI로 확인). `di_validation.py plan`으로 클리핑·무음 경계·구간 길이 점검 후 문제 구간은 당일 재녹음 | WAV, `takes.json`, `take_note` | 전 |
+| **11/2 (월)** | 녹음: 악기 조건 3개 × 네이티브 표본률 3개 = **9테이크**, 테이크마다 구간 7개(riff·dynamics·long·ghost·steady-open·steady-fret5·vibrato). **48 kHz 필수, 96 kHz 별도 녹음, 44.1 kHz도 녹음**(합성에서 PDC 판정이 44.1 kHz만 실패했으므로 실제 DI로 확인). `di_validation.py plan --audio-only --strict --out <QC.json>`으로 클리핑·레벨·DC·무음 경계·구간 길이 점검 후 문제 구간은 당일 재녹음 | WAV, `takes.json`, `take_note` | 전 |
 | **11/3 (화)** | `label`로 후보 생성 → 검토자가 모든 행을 듣고 확정(`labels_reviewed: true`). `freeze`로 사전 등록 파일을 만들어 **커밋·push**. 같은 날 `t6_listening.py prepare`로 청취 세트 생성(시드 기록), 정답 키는 진행자만 보관 | `preregistration.json`, 라벨 CSV, 청취 세트 | 전 |
 | **11/4 (수)** | `di_validation.py run`을 엔진마다 **한 번만** 실행. 청취자에게 세트 배포 | DI 결과 JSON | 후 |
 | **11/5 (목)** | DAW 점검표 D01–D13: D04·D05(PDC, D05는 Fixed PDC 2.5 ms), D06(64샘플 버퍼에서 실제 연주 체감, 연주자 2명), D08(44.1/48/96 kHz 전환), D12(CPU, 96 kHz/64), D13(바이패스 정렬). 청취 답안 회수 | DAW별 CSV, 청취 답안 | 후 |

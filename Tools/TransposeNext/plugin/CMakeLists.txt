@@ -13,6 +13,12 @@ set(JUCE_DIR "" CACHE PATH "JUCE 8.0.8 source (d6181bde38d858c283c3b7bf699ce6340
 if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")
   message(FATAL_ERROR "Set -DJUCE_DIR=<JUCE 8.0.8 source>")
 endif()
+execute_process(COMMAND git -C "${JUCE_DIR}" rev-parse HEAD
+  OUTPUT_VARIABLE JUCE_SOURCE_SHA OUTPUT_STRIP_TRAILING_WHITESPACE
+  RESULT_VARIABLE JUCE_GIT_RESULT)
+if(NOT JUCE_GIT_RESULT EQUAL 0 OR NOT JUCE_SOURCE_SHA STREQUAL "d6181bde38d858c283c3b7bf699ce6340c050b5d")
+  message(FATAL_ERROR "Research validation requires pinned JUCE 8.0.8 git checkout")
+endif()
 add_subdirectory("${JUCE_DIR}" juce)
 
 set(ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../..")
@@ -41,4 +47,13 @@ target_sources(TransposeResearchHostCheck PRIVATE HostCheck.cpp)
 target_include_directories(TransposeResearchHostCheck PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/.." "${ROOT}/Source")
 target_compile_definitions(TransposeResearchHostCheck PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_PLUGINHOST_VST3=1 JUCE_MODAL_LOOPS_PERMITTED=1)
 target_link_libraries(TransposeResearchHostCheck PRIVATE juce::juce_audio_utils juce::juce_dsp
+  PUBLIC juce::juce_recommended_config_flags)
+
+# Portable probe build for Windows/macOS as well as Linux. build.py remains
+# the existing GCC/O2 research path. Record the actual executable hash used.
+juce_add_console_app(TransposeProbe PRODUCT_NAME "TransposeProbe")
+target_sources(TransposeProbe PRIVATE ../TransposeProbe.cpp)
+target_include_directories(TransposeProbe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/.." "${ROOT}/Source")
+target_compile_definitions(TransposeProbe PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0)
+target_link_libraries(TransposeProbe PRIVATE juce::juce_dsp juce::juce_audio_formats
   PUBLIC juce::juce_recommended_config_flags)

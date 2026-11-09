@@ -1,0 +1,22 @@
+{
+ "kind": "preflight_execution_notes_not_real_DI",
+ "earlier_attempts": [
+  {
+   "command": "BlockInvariance (no arguments)",
+   "outcome": "usage error; corrected to long-note synthetic inputs at all three rates, v3 -2 semitones; 9 runs / 117 partition checks passed"
+  },
+  {
+   "command": "di_validation.py selftest (selftest-final directory)",
+   "outcome": "interrupted by PermissionError while the probe executable was being relinked; not a DSP result; build completed, then rerun separately as selftest-verified"
+  },
+  {
+   "command": "t6_host_check.py (default xvfb-run wrapper)",
+   "outcome": "Full xvfb-wrapped matrix completed: 144 nonzero exits, 144/144 embedded all_hard_checks_pass=true. Wrapper control xvfb-run -a true also exited 1 with no output. Direct identical host diagnostic exited 0. Full --no-xvfb rerun: 144/144 exit 0 and all hard checks passed. Both raw matrices and logs retained."
+  }
+ ],
+ "real_DI_files_supplied": 0,
+ "real_recording": "NOT_RUN",
+ "actual_DAW": "NOT_RUN",
+ "listening_humans": "NOT_RUN",
+ "hardware_readiness": "NOT_OBSERVED"
+}

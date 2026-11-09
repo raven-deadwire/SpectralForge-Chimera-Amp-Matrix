@@ -1,0 +1,166 @@
+{
+ "kind": "pipeline_selftest_synthetic_not_T6_evidence",
+ "labeler": [
+  {
+   "take": "bass_B0",
+   "truth": 61,
+   "found": 78,
+   "max_abs_error_ms": 0.271,
+   "within_1ms": 61,
+   "extra_candidates_s": [
+    1.0615,
+    1.1366,
+    1.2115,
+    1.2865,
+    1.3615,
+    1.4365,
+    1.5115,
+    1.5865,
+    1.6615,
+    1.7365,
+    1.8115,
+    1.8866,
+    1.9615,
+    2.0365,
+    2.1116,
+    2.1865,
+    17.5307
+   ]
+  },
+  {
+   "take": "bass_dropA_A0",
+   "truth": 61,
+   "found": 78,
+   "max_abs_error_ms": 0.188,
+   "within_1ms": 61,
+   "extra_candidates_s": [
+    1.0615,
+    1.1366,
+    1.2115,
+    1.2865,
+    1.3615,
+    1.4365,
+    1.5115,
+    1.5865,
+    1.6615,
+    1.7365,
+    1.8115,
+    1.8866,
+    1.9615,
+    2.0365,
+    2.1116,
+    2.1865,
+    17.5345
+   ]
+  },
+  {
+   "take": "guitar_dropA_A1",
+   "truth": 61,
+   "found": 78,
+   "max_abs_error_ms": 0.562,
+   "within_1ms": 61,
+   "extra_candidates_s": [
+    1.0615,
+    1.1366,
+    1.2115,
+    1.2865,
+    1.3615,
+    1.4365,
+    1.5115,
+    1.5865,
+    1.6615,
+    1.7365,
+    1.8115,
+    1.8866,
+    1.9615,
+    2.0365,
+    2.1116,
+    2.1865,
+    17.5173
+   ]
+  }
+ ],
+ "manifest_problems": [],
+ "targets": [
+  {
+   "id": "T1_attack",
+   "limit_ms": 10,
+   "event_snr_min_db": 10,
+   "observed": {
+    "max_ms": 5.583,
+    "counted_events_per_shift": 177
+   },
+   "verdict": "PASS"
+  },
+  {
+   "id": "T1_faint_attack",
+   "verdict": "REPORT",
+   "observed": {
+    "events": 0,
+    "max_ms": null
+   }
+  },
+  {
+   "id": "T2_low_onset_down",
+   "limit_ms": 10,
+   "observed": {
+    "short_max_ms": 6.28,
+    "long_max_ms": 9.338
+   },
+   "verdict": "PASS"
+  },
+  {
+   "id": "T3_low_onset_up",
+   "observed": {
+    "bass_B0": {
+     "short_max_ms": 7.569,
+     "long_max_ms": 14.425
+    },
+    "bass_dropA_A0": {
+     "short_max_ms": 7.234,
+     "long_max_ms": 15.943
+    },
+    "guitar_dropA_A1": {
+     "short_max_ms": 10.472,
+     "long_max_ms": 10.008
+    }
+   },
+   "synthetic_regression_ceiling_ms": {
+    "short": 12.0,
+    "bass_B0": 15.5,
+    "bass_dropA_A0": 19.0,
+    "guitar_dropA_A1": 11.0
+   },
+   "verdict": "REPORT"
+  },
+  {
+   "id": "T4_quality",
+   "observed": {
+    "steady_warble_added_max_cents": 0.297,
+    "steady_abs_error_max_cents": 0.0,
+    "unmatched_resets": 0,
+    "unmatched_where": [],
+    "missed_events": 0,
+    "low_resets_on_markers_or_sustain_after_first": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "id": "T5_realtime",
+   "verdict": "NOT_MEASURED_BY_THIS_SCRIPT"
+  },
+  {
+   "id": "T6_external",
+   "verdict": "PARTIAL",
+   "observed": {
+    "real_DI_metrics": "this report",
+    "listening": "NOT_RUN",
+    "DAW": "NOT_RUN",
+    "fixed_PDC": "NOT_TESTED_IN_DAW",
+    "product_integration": "NOT_RUN"
+   }
+  }
+ ],
+ "ok": true,
+ "full_report": "di-selftest.json.gz"
+}
