@@ -23,7 +23,7 @@ $work = (Resolve-Path -LiteralPath $WorkDirectory).Path
 # Pinned OBS release: binaries for the import library and tests.
 $zip = Join-Path $work "obs-$ObsVersion.zip"
 if (!(Test-Path -LiteralPath $zip)) {
-    Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/$ObsVersion/OBS-Studio-$ObsVersion-Windows-x64.zip" -OutFile $zip
+    Invoke-WebRequest "https://github.com/obsproject/obs-studio/releases/download/$ObsVersion/OBS-Studio-$ObsVersion-Windows-x64.zip" -OutFile $zip -MaximumRetryCount 5 -RetryIntervalSec 30
 }
 $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
 if ($hash -ne $ObsZipSha256) { throw "OBS $ObsVersion release hash mismatch: $hash" }

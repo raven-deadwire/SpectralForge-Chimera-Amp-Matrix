@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "AutoSetController.h"
+#include "CommonDynamicsPanel.h"
 #include "AutoSetCabRegression.h"
 #include <juce_cryptography/juce_cryptography.h>
 #include <cstdlib>
@@ -461,6 +462,8 @@ void controllerIntegration() {
         check(c.current().phase==Controller::Phase::failed && values(*p)==before,"Missing audio did not time out cleanly");
     }
     Controller c(*p);Gestures g;p->addListener(&g);
+    // Amp channel selection is off by default; this run covers it, so turn it on.
+    {auto o=c.currentOptions();o.channel=true;c.setOptions(o);}
     const auto before=values(*p);std::vector<Controller::Status> statuses;c.onStatus=[&](const auto& s){statuses.push_back(s);};
     // The Dynamic EQ node on Tone band 2 is the user's. Compare with the stored
     // values: skewed ranges need not hold the literal set above bit-exactly.
@@ -1827,7 +1830,7 @@ int main(int argc, char** argv) {
         if(argc==2 && std::string(argv[1])=="--mics"){micsRules();micsCapture();controllerMics();return 0;}
         if(argc==2 && std::string(argv[1])=="--rigs"){rigsRules();controllerRigs();return 0;}
         if(argc==2 && std::string(argv[1])=="--channel"){channelRules();controllerChannel();return 0;}
-        if(argc==2 && std::string(argv[1])=="--polarity"){polarityRules();controllerPolarity();return 0;}
+        if(argc==2 && std::string(argv[1])=="--polarity"){polarityRules();polarityRegressions();controllerPolarity();return 0;}
         if(argc==2 && std::string(argv[1])=="--sync"){syncRules();controllerSync();return 0;}
         if(argc==2 && std::string(argv[1])=="--cabir"){cabIRRules();controllerCabIR();return 0;}
         if(argc==2 && std::string(argv[1])=="--trim"){trimRules();controllerTrim();return 0;}
@@ -1856,7 +1859,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();controllerPolarity();syncRules();controllerSync();cabIRRules();controllerCabIR();trimRules();controllerTrim();widthRules();controllerWidth();cutsRules();controllerCuts();busRules();controllerBus();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();cabIRRules();controllerCabIR();trimRules();controllerTrim();widthRules();controllerWidth();cutsRules();controllerCuts();busRules();controllerBus();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
         controllerCabPlacementEdits();

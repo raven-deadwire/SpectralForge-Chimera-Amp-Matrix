@@ -95,7 +95,7 @@ public:
     // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass.
     // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{true};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{true};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{true};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -656,19 +656,30 @@ private:
                 std::array<float,4> v{};v[ampGain]=*g;return atGain(v);
             }};
         }
-        const auto r=analyseChannel(segment,post,rate(),t.channel,candidates,chosenInstrument(),runOptions.style);
+        // Judge each channel by what the amp step will do to it: nothing (off or
+        // locked), or Strength of the way to the target.
+        const auto r=analyseChannel(segment,post,rate(),t.channel,candidates,chosenInstrument(),runOptions.style,ampStepRuns(),strength());
         lastChannel=r;
         if(!r.playingDetected)return keep("no playing heard");
+        if(r.hold==ChannelHold::steadyPlaying)return keep("not enough difference between soft and hard playing to compare channels; play some soft and some hard notes");
+        if(r.hold==ChannelHold::quietSettings)return keep("too few audible GAIN settings on this channel to compare");
         const auto name=[&](int c){return juce::String::fromUTF8(panel.channels[size_t(c)]);};
         const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
-        const auto reach=[&](int c){const auto& x=r.reach[size_t(c)];return name(c)+" reaches "+pct(x.low)+"-"+pct(x.high);};
-        const auto target="drive target "+pct(r.target);
+        // What the amp step would leave each channel at, and why.
+        const auto reach=[&](int c){
+            const auto& x=r.reach[size_t(c)];
+            if(!r.gainAdjustable)return name(c)+" at its knobs "+pct(x.now);
+            const auto range=name(c)+" reaches "+pct(x.low)+"-"+pct(x.high);
+            return r.strength<1.f?range+" ("+pct(channelAchieved(x,r.target,true,r.strength))+" at this strength)":range;
+        };
+        const auto target="drive target "+pct(r.target)+(r.stillShort()?" (still short: the closest channel)":"")
+                         +(r.gainAdjustable?juce::String():juce::String("; judged at the knobs (the amp step is off or locked)"));
         if(!r.changed())return keep(r.missBefore<=0?reach(t.channel)+", "+target:reach(t.channel)+", "+target+"; no other channel comes closer");
         set(ampNativeChannelID(t.context,t.model),float(r.proposed));
         if(processor.selectedAmpChannel(0)!=r.proposed)return keep("channel edited while applying");
         const auto move="CHANNEL "+name(r.before)+" > "+name(r.proposed);
         summary+=" | Amp "+move;
-        steps.push_back({Phase::channel,move+"; "+reach(r.before)+", "+reach(r.proposed)+", "+target+" (the amp step sets GAIN on it)",true});
+        steps.push_back({Phase::channel,move+"; "+reach(r.before)+", "+reach(r.proposed)+", "+target+(r.gainAdjustable?" (the amp step sets GAIN on it)":""),true});
         return true;
     }
     // The head's GAIN, tone, PRESENCE and RESONANCE controls with their values now.
@@ -1004,6 +1015,14 @@ private:
         for(size_t k=0;k<r.heard.size();++k)if(!r.heard[k])
             return keep(juce::String(k==0?(mode==1?"rig 1":"the LOW lane"):juce::String(names[k-1])+(mode==1?"":" lane"))+" is silent (muted or soloed away)");
         const auto db=[](float v){return juce::String(v,1)+" dB";};
+        const auto hz=[](float v){return juce::String(v,std::abs(v-std::round(v))>.01f?1:0)+" Hz";};
+        const juce::String group=mode==1?"rigs":"lanes";
+        if(r.delayHeld())
+            return keep(juce::String(names[size_t(r.delayLane-1)])+(mode==1?"":" lane")+" is "+juce::String(std::abs(r.delayMs),2)+" ms "+(r.delayMs>0?"late":"early")
+                        +(r.delayOpposed?" and opposed":"")+": a time offset, not polarity (cancellation "+db(r.cancellationBeforeDb)+", "+db(r.alignedDb)+" aligned); align the "+group+", then run again");
+        if(!r.changed() && r.harmHeld())
+            return keep("a flip would make "+hz(r.harmedHz)+" cancel by "+db(r.harmedDb)+": the "+group+" are opposed in some bands only (phase, not polarity; cancellation "
+                        +db(r.cancellationBeforeDb)+" at "+hz(r.worstBeforeHz)+")");
         if(!r.changed())return keep(r.cancellationBeforeDb<=polarityMinCancellationDb
             ?"the "+juce::String(mode==1?"rigs":"lanes")+" add up (worst band "+db(r.cancellationBeforeDb)+" below their sum)"
             :"a flip does not reduce the cancellation ("+db(r.cancellationBeforeDb)+"): check delay or crossover");

@@ -72,7 +72,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Output level | The trim change, as for input gain |
 | Amp | Each knob change: before + strength × (result − before) |
 | Presence + resonance | Each knob change, as for Amp |
-| Amp channel | Not scaled: a channel is switched or kept |
+| Amp channel | Not scaled: a channel is switched or kept. The choice counts only the part of the GAIN move the amp step makes at this Strength (none when Amp gain and tone is off or locked). Off by default |
 | Lane polarity | Not scaled: a lane is flipped or kept |
 | Delay tempo sync | Not scaled: sync is turned on or kept |
 | Cabinet IR | Not scaled: an IR is switched or kept |

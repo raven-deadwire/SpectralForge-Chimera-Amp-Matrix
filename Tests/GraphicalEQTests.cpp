@@ -147,6 +147,82 @@ void placement() {
         p->releaseResources();std::cout<<"PASS route "<<route<<" analyzer node transfers and final output\n";
     }
 }
+// Momentary band solo: the region of the band only while held, the exact
+// EQ output once released, fades without steps, released by itself without
+// heartbeats, ended by bypass, allocation-free.
+void bandSolo() {
+    auto storage=std::make_unique<ChimeraProcessor>(),refStorage=std::make_unique<ChimeraProcessor>();auto& p=*storage;auto& ref=*refStorage;
+    for(auto* q:{&p,&ref}){for(int b=0;b<12;++b)set(*q,eqID(0,b,"enabled"),0);configure(*q,0,0,0,1000,3);configure(*q,0,1,3,120,0);q->graphicalEQ(0).prepare(48000);}
+    auto& eq=p.graphicalEQ(0);auto& reference=ref.graphicalEQ(0);
+    uint32_t seed=1;const auto noise=[&]{seed=seed*1664525u+1013904223u;return float(seed>>8)/float(1u<<24)*.2f-.1f;};
+    juce::AudioBuffer<float> a(2,256),b(2,256);int offset=0;
+    const auto block=[&](bool tone,double hz=300){
+        for(int n=0;n<256;++n){const float v=tone?float(.1*std::sin(2*juce::MathConstants<double>::pi*hz*(offset+n)/48000)):noise();a.setSample(0,n,v);a.setSample(1,n,v*.7f);}
+        offset+=256;b.makeCopyOf(a,true);countAllocations=true;eq.process(a);reference.process(b);countAllocations=false;
+    };
+    const auto same=[&]{for(int c=0;c<2;++c)for(int n=0;n<256;++n)if(a.getSample(c,n)!=b.getSample(c,n))return false;return true;};
+    const auto bandPower=[&](const std::vector<float>& x,double lo,double hi){
+        juce::dsp::FFT fft(13);std::vector<float> buf(16384,0.f);for(size_t n=0;n<8192 && n<x.size();++n)buf[n]=x[n]*float(.5-.5*std::cos(2*juce::MathConstants<double>::pi*double(n)/8192));
+        fft.performFrequencyOnlyForwardTransform(buf.data());double e=0;for(int k=int(lo*8192/48000);k<=int(hi*8192/48000);++k)e+=double(buf[size_t(k)])*buf[size_t(k)];return e;};
+    allocations=0;
+    for(int k=0;k<20;++k){block(false);check(same(),"Output differs before any solo");}
+    check(eq.auditionedBand()==-1,"Solo active before it was asked for");
+    // Solo the 1 kHz bell: the output keeps its 1 kHz region and loses the rest.
+    eq.setAudition(0);std::vector<float> solo,normal;
+    for(int k=0;k<80;++k){eq.auditionHeartbeat();block(false);if(k>=10)for(int n=0;n<256;++n){solo.push_back(a.getSample(0,n));normal.push_back(b.getSample(0,n));}}
+    check(eq.auditionedBand()==0,"The solo did not start");
+    const double soloRatio=bandPower(solo,700,1400)/std::max(1e-12,bandPower(solo,60,250)+bandPower(solo,5000,12000));
+    const double normalRatio=bandPower(normal,700,1400)/std::max(1e-12,bandPower(normal,60,250)+bandPower(normal,5000,12000));
+    std::cout<<"MEASURE band solo 1 kHz bell: in-band/out-of-band power "<<10*std::log10(normalRatio)<<" dB normal, "<<10*std::log10(soloRatio)<<" dB solo\n";
+    check(10*std::log10(soloRatio/normalRatio)>15,"The solo did not isolate the band's region");
+    // A high pass band solos its pass region (above 120 Hz).
+    eq.setAudition(1);std::vector<float> hp;for(int k=0;k<60;++k){eq.auditionHeartbeat();block(false);if(k>=20)for(int n=0;n<256;++n)hp.push_back(a.getSample(0,n));}
+    check(eq.auditionedBand()==1 && bandPower(hp,30,60)<bandPower(hp,1000,1030)*.5,"A high pass band's solo did not cut below it");
+    // Release: after the fade the output is exactly the EQ's again.
+    eq.setAudition(-1);for(int k=0;k<10;++k)block(false);
+    check(eq.auditionedBand()==-1,"The solo did not end");
+    for(int k=0;k<10;++k){block(false);check(same(),"Output after the solo is not exactly the EQ's");}
+    // Fades in and out without steps (a 300 Hz tone; its own slope is 0.004 per sample).
+    float steady=0,fading=0;float last=0;
+    for(int k=0;k<8;++k){block(true);for(int n=0;n<256;++n){steady=std::max(steady,std::abs(a.getSample(0,n)-last));last=a.getSample(0,n);}}
+    eq.setAudition(0);for(int k=0;k<8;++k){eq.auditionHeartbeat();block(true);for(int n=0;n<256;++n){fading=std::max(fading,std::abs(a.getSample(0,n)-last));last=a.getSample(0,n);}}
+    eq.setAudition(-1);for(int k=0;k<8;++k){block(true);for(int n=0;n<256;++n){fading=std::max(fading,std::abs(a.getSample(0,n)-last));last=a.getSample(0,n);}}
+    std::cout<<"MEASURE band solo fades: largest sample step "<<fading<<" (steady tone "<<steady<<")\n";
+    check(fading<=steady*1.25f,"A solo fade made a step");
+    // No heartbeat for longer than the timeout (editor gone): the solo ends by itself.
+    eq.setAudition(0);for(int k=0;k<4;++k)block(false);check(eq.auditionedBand()==0,"Solo fixture did not start");
+    std::this_thread::sleep_for(std::chrono::milliseconds(int(GraphicalEQ::auditionTimeoutSeconds*1000)+150));
+    for(int k=0;k<10;++k)block(false);
+    check(eq.auditionedBand()==-1,"The solo outlived its heartbeat");
+    for(int k=0;k<4;++k){block(false);check(same(),"Output after a timed-out solo is not exactly the EQ's");}
+    // Bypass ends it.
+    eq.setAudition(0);for(int k=0;k<4;++k){eq.auditionHeartbeat();block(false);}
+    set(p,eqID(0,-1,"bypass"),1);for(int k=0;k<10;++k){eq.auditionHeartbeat();block(false);}
+    check(eq.auditionedBand()==-1,"Bypass did not end the solo");
+    eq.setAudition(-1);set(p,eqID(0,-1,"bypass"),0);
+    // Printing (offline render or recording): a solo stops and stays off until printing ends.
+    eq.setAudition(0);for(int k=0;k<6;++k){eq.auditionHeartbeat();block(false);}check(eq.auditionedBand()==0,"Printing fixture did not solo");
+    eq.setPrinting(true);for(int k=0;k<10;++k){eq.auditionHeartbeat();block(false);}
+    check(eq.auditionedBand()==-1,"A solo continued while printing");
+    for(int k=0;k<4;++k){eq.auditionHeartbeat();block(false);check(same(),"Output while printing is not exactly the EQ's");}
+    eq.setPrinting(false);for(int k=0;k<6;++k){eq.auditionHeartbeat();block(false);}check(eq.auditionedBand()==0,"A held solo did not return after printing");
+    eq.setAudition(-1);for(int k=0;k<10;++k)block(false);
+    check(allocations==0,"Band solo allocated on the audio thread");
+    std::cout<<"PASS EQ band solo: band region only while held (bell, high pass), exact EQ output after release and after a 400 ms heartbeat timeout, fades without steps, ended by bypass and by printing, allocation-free\n";
+}
+// The processor marks offline rendering as printing: a held solo is not rendered.
+void soloNotRendered() {
+    auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;configure(p,0,0,0,1000,3);
+    p.setNonRealtime(true);p.prepareToPlay(48000,256);
+    auto& eq=p.graphicalEQ(0);eq.setAudition(0);
+    juce::AudioBuffer<float> b(2,256);juce::MidiBuffer midi;
+    for(int k=0;k<20;++k){eq.auditionHeartbeat();fill(b,k*256,48000,440,.05);p.processBlock(b,midi);}
+    check(eq.auditionedBand()==-1,"An offline render played a held band solo");
+    p.setNonRealtime(false);for(int k=0;k<20;++k){eq.auditionHeartbeat();fill(b,k*256,48000,440,.05);p.processBlock(b,midi);}
+    check(eq.auditionedBand()==0,"A held solo did not return in real time");
+    eq.setAudition(-1);p.releaseResources();
+    std::cout<<"PASS EQ band solo is not rendered offline (processor printing state)\n";
+}
 void benchmark(ChimeraProcessor& p,const char* path) {
     std::ofstream out(path);out<<"rate,block,channels,analyzer,p50_us,p99_us,budget_us\n";
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)configure(p,e,b,b%3,graphicalEQFrequencies[(size_t)b],b%2?2.f:-2.f,1);
@@ -161,6 +237,6 @@ void benchmark(ChimeraProcessor& p,const char* path) {
 }
 }
 int main(int argc,char** argv) {
-    try {juce::ScopedJuceInitialiser_GUI init;fifoContract();auto p=std::make_unique<ChimeraProcessor>();filters(*p);stateContract(*p);audioRestore();placement();benchmark(*p,argc>1?argv[1]:"eq-cpu.csv");return 0;}
+    try {juce::ScopedJuceInitialiser_GUI init;fifoContract();auto p=std::make_unique<ChimeraProcessor>();filters(*p);stateContract(*p);audioRestore();placement();bandSolo();soloNotRendered();benchmark(*p,argc>1?argv[1]:"eq-cpu.csv");return 0;}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }
