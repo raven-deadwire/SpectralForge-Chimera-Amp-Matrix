@@ -1,0 +1,660 @@
+{
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/41377205562",
+  "job_id": 125059928546,
+  "attempt": 1,
+  "artifact_id": 13111019789,
+  "artifact_sha256": "b2cda823744cd68bd35336a9f289d1ac478da4784664c9a7f3f1475159e0776f",
+  "case": "obs-startup-results-32/09-absent",
+  "process_pid": 6264,
+  "dumps": [
+    {
+      "name": "obs-run-1.test-failure.dmp",
+      "size": 234766,
+      "sha256": "4ce609808ba372e2350a15a1234c1fda705aa7832a1a9c86ae3216e9a50fd033"
+    },
+    {
+      "name": "obs-run-1.shutdown-failure.dmp",
+      "size": 234606,
+      "sha256": "3e58fc402ddd499a57a62dba267984bbb032a2c11a857483ea634657afee06bd"
+    }
+  ],
+  "official_archives": [
+    {
+      "name": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "size": 187851583,
+      "url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip"
+    },
+    {
+      "name": "OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+      "sha256": "a2d2c16859ea3c2508f49c2b9a48b8ec630578334d301fbdf42718f6e473662a",
+      "size": 64011684,
+      "url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+      "verified_local_path": "evidence/obs32-debug/verified-assets/OBS-Studio-32.2.2-Windows-x64-PDBs-verified.zip",
+      "full_zip_crc_test": "passed"
+    }
+  ],
+  "modules": [
+    {
+      "module": "obs64.exe",
+      "base_address": "0x7ff7e5b70000",
+      "binary_sha256": "e79066670cd8e8b95662f4cd417c4fa6f5b0c77e856a7b41c7de0e00059ba6f2",
+      "binary_relative_path": "files/bin/64bit/obs64.exe",
+      "minidump_image_timestamp": "0x2a4d196d",
+      "minidump_size_of_image": "0x55b000",
+      "minidump_codeview": {
+        "guid": "DEE6C0AE-F8AD-32D6-AEB4-2E2740C7BABD",
+        "age": 1,
+        "pdb_name": "obs64.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "DEE6C0AE-F8AD-32D6-AEB4-2E2740C7BABD",
+          "age": 1,
+          "pdb_name": "obs64.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "pdb_sha256": "4a8c888681b3c2cd2c21d74ae27dc42c4a0919ba25f3127512f65a55adc5fa57",
+      "pdb_guid": "DEE6C0AE-F8AD-32D6-AEB4-2E2740C7BABD",
+      "pdb_info_age": 1,
+      "pdb_dbi_age": 1,
+      "pdb_matches_minidump": true,
+      "pdb_relative_path": "files/bin/64bit/obs64.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
+    },
+    {
+      "module": "ntdll.dll",
+      "base_address": "0x7ffbdeae0000",
+      "binary_sha256": "160ef9b82e2895ef48fa031cb1cf683a8b123febf7cf7d5590cd3104864424b3",
+      "binary_relative_path": "system/ntdll.dll",
+      "minidump_image_timestamp": "0x64d8ddf5",
+      "minidump_size_of_image": "0x264000",
+      "minidump_codeview": {
+        "guid": "1DDBF17C-9C54-75D2-BA48-529CC231A3F4",
+        "age": 1,
+        "pdb_name": "ntdll.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "1DDBF17C-9C54-75D2-BA48-529CC231A3F4",
+          "age": 1,
+          "pdb_name": "ntdll.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "pdb_sha256": "8a8f2bbf6f99195c9fa05424aa5beabaa8b1deb45ce90abce1bd340e3e55dabd",
+      "pdb_guid": "1DDBF17C-9C54-75D2-BA48-529CC231A3F4",
+      "pdb_info_age": 4,
+      "pdb_dbi_age": 1,
+      "pdb_matches_minidump": true,
+      "pdb_relative_path": "system/ntdll.pdb"
+    },
+    {
+      "module": "kernel32.dll",
+      "base_address": "0x7ffbdd890000",
+      "binary_sha256": "601aaacb3bdcbea24aec832d08a2f12ec7046183b6f40d18d61458d5e7008991",
+      "binary_relative_path": "system/kernel32.dll",
+      "minidump_image_timestamp": "0x4ba5621e",
+      "minidump_size_of_image": "0xc9000",
+      "minidump_codeview": {
+        "guid": "8A22CC8C-860F-7E32-C71B-CDECA832C67B",
+        "age": 1,
+        "pdb_name": "kernel32.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "8A22CC8C-860F-7E32-C71B-CDECA832C67B",
+          "age": 1,
+          "pdb_name": "kernel32.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "pdb_sha256": "665a9f7704920b2ee1b474ae43cb89244e62f82a914e799719a9d41636e71a99",
+      "pdb_guid": "8A22CC8C-860F-7E32-C71B-CDECA832C67B",
+      "pdb_info_age": 3,
+      "pdb_dbi_age": 1,
+      "pdb_matches_minidump": true,
+      "pdb_relative_path": "system/kernel32.pdb"
+    },
+    {
+      "module": "KERNELBASE.dll",
+      "base_address": "0x7ffbdc150000",
+      "binary_sha256": "96c0459f0d73d728e5c13a10d83d840f56913ef7281d17370a5e1eb197faa450",
+      "binary_relative_path": "system/KERNELBASE.dll",
+      "minidump_image_timestamp": "0x3ddf2783",
+      "minidump_size_of_image": "0x3ed000",
+      "minidump_codeview": {
+        "guid": "CABDAC12-CA43-8C8B-4DC4-B60B7499C804",
+        "age": 1,
+        "pdb_name": "kernelbase.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "CABDAC12-CA43-8C8B-4DC4-B60B7499C804",
+          "age": 1,
+          "pdb_name": "kernelbase.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "pdb_sha256": "d6f7579d05b03becff2be0e252097f2a6b6aa433943a66bece5700fd6d745730",
+      "pdb_guid": "CABDAC12-CA43-8C8B-4DC4-B60B7499C804",
+      "pdb_info_age": 2,
+      "pdb_dbi_age": 1,
+      "pdb_matches_minidump": true,
+      "pdb_relative_path": "system/kernelbase.pdb"
+    },
+    {
+      "module": "obs.dll",
+      "base_address": "0x7ffbba0b0000",
+      "binary_sha256": "9b9a76f64a1d27262209f1cfbeaf6d57a175cc4e823c71882bb7d5b5ab99bdcf",
+      "binary_relative_path": "files/bin/64bit/obs.dll",
+      "minidump_image_timestamp": "0x3c81ff3e",
+      "minidump_size_of_image": "0x122000",
+      "minidump_codeview": {
+        "guid": "A929BD4E-6352-24B6-CB56-CC45C91E8911",
+        "age": 1,
+        "pdb_name": "obs.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "A929BD4E-6352-24B6-CB56-CC45C91E8911",
+          "age": 1,
+          "pdb_name": "obs.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "pdb_sha256": "2de86f8b841eca4659934c1a7fcb0ebd0109d91810de3679f34d9f6d2d0b1fcd",
+      "pdb_guid": "A929BD4E-6352-24B6-CB56-CC45C91E8911",
+      "pdb_info_age": 1,
+      "pdb_dbi_age": 1,
+      "pdb_matches_minidump": true,
+      "pdb_relative_path": "files/bin/64bit/obs.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
+    },
+    {
+      "module": "w32-pthreads.dll",
+      "base_address": "0x7ffbbf880000",
+      "binary_sha256": "c9a86555a0bc49a57e4fabb4d2ae384ce585bf744e41809df851b5395727a674",
+      "binary_relative_path": "files/bin/64bit/w32-pthreads.dll",
+      "minidump_image_timestamp": "0x6f36781",
+      "minidump_size_of_image": "0x12000",
+      "minidump_codeview": {
+        "guid": "4FBDC571-6BA6-E9A7-BEC6-1C6475495A3F",
+        "age": 1,
+        "pdb_name": "w32-pthreads.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "4FBDC571-6BA6-E9A7-BEC6-1C6475495A3F",
+          "age": 1,
+          "pdb_name": "w32-pthreads.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "pdb_sha256": "4257d044f6c998bcd362e2e679fb77f9317e4b9eb8bc8267696a929bbd718e8c",
+      "pdb_guid": "4FBDC571-6BA6-E9A7-BEC6-1C6475495A3F",
+      "pdb_info_age": 1,
+      "pdb_dbi_age": 1,
+      "pdb_matches_minidump": true,
+      "pdb_relative_path": "files/bin/64bit/w32-pthreads.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
+    },
+    {
+      "module": "Qt6Core.dll",
+      "base_address": "0x7ffb98920000",
+      "binary_sha256": "9fb890ddcd812ad721d2324071e8c7192f3bbf46b5e2cf5fe768579fa3279475",
+      "binary_relative_path": "files/bin/64bit/Qt6Core.dll",
+      "minidump_image_timestamp": "0x6a57004c",
+      "minidump_size_of_image": "0x9f6000",
+      "minidump_codeview": {
+        "guid": "6AAA221A-F8DB-4A23-A401-6CAE0E21C442",
+        "age": 1,
+        "pdb_name": "Qt6Core.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "6AAA221A-F8DB-4A23-A401-6CAE0E21C442",
+          "age": 1,
+          "pdb_name": "Qt6Core.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "symbols": "PE exports only; no matching PDB included for this module"
+    },
+    {
+      "module": "obs-websocket.dll",
+      "base_address": "0x7ffb97270000",
+      "binary_sha256": "041e7901f05623bae815be8680ca299510667dc62c671214d692a3d22d530541",
+      "binary_relative_path": "files/obs-plugins/64bit/obs-websocket.dll",
+      "minidump_image_timestamp": "0x88b39847",
+      "minidump_size_of_image": "0x12d000",
+      "minidump_codeview": {
+        "guid": "7794C3A0-19AB-47B9-C7AA-BE9C0529BC90",
+        "age": 1,
+        "pdb_name": "obs-websocket.pdb"
+      },
+      "pe_codeview": [
+        {
+          "guid": "7794C3A0-19AB-47B9-C7AA-BE9C0529BC90",
+          "age": 1,
+          "pdb_name": "obs-websocket.pdb"
+        }
+      ],
+      "pe_matches_minidump": true,
+      "pdb_sha256": "36afe3219eb2c10fd40c0c1aea56899050614f77f1ab3d81b2be9527d331972a",
+      "pdb_guid": "7794C3A0-19AB-47B9-C7AA-BE9C0529BC90",
+      "pdb_info_age": 1,
+      "pdb_dbi_age": 1,
+      "pdb_matches_minidump": true,
+      "pdb_relative_path": "files/obs-plugins/64bit/obs-websocket.pdb",
+      "analysis_pdb_source_archive": "OBS-Studio-32.2.2-Windows-x64.zip",
+      "analysis_pdb_source_archive_sha256": "4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+      "analysis_pdb_matches_binary_archive_entry": true
+    }
+  ],
+  "tools": {
+    "lldb": "Ubuntu LLVM 19.1.1 (19.1.1-1ubuntu1~24.04.2)",
+    "llvm_symbolizer": "same 19.1.1",
+    "llvm_pdbutil": "same 19.1.1"
+  },
+  "analysis": "Actual LLDB thread unwind using matching PE modules; separate PDB symbolization, no inline expansion; caller-PC-minus-one for source lines.",
+  "limitations": [
+    "Direct LLDB native PDB type parsing crashes in LazyRandomTypeCollection::getType; PDBs are hidden for unwinding.",
+    "llvm-symbolizer inline expansion at some call sites hits the same type parser bug, so --no-inlines is used.",
+    "No Qt6Core PDB was obtained; Qt frames shown via PE exports only.",
+    "No original PR248 minidump exists; new reproduced stack does not retrospectively prove exact original cause.",
+    "Mutex kernel ownership/address not independently inspected; cycle is derived from exact-source locking and two contemporaneous blocked stacks."
+  ],
+  "selected_threads": [
+    {
+      "lldb_thread": 1,
+      "windows_tid": 8420,
+      "same_pcs_in_shutdown_dump": true,
+      "frames": [
+        {
+          "frame": 0,
+          "pc": "0x00007ffbdec42344",
+          "lldb_export_display": "ntdll.dll`NtWaitForSingleObject + 20",
+          "module": "ntdll.dll",
+          "rva": "0x162344",
+          "symbol_lookup_rva": "0x162344",
+          "symbolizer_output": "ZwWaitForSingleObject\n??:0:0\n\n"
+        },
+        {
+          "frame": 1,
+          "pc": "0x00007ffbdc17d01f",
+          "lldb_export_display": "KERNELBASE.dll`WaitForSingleObjectEx + 175",
+          "module": "KERNELBASE.dll",
+          "rva": "0x2d01f",
+          "symbol_lookup_rva": "0x2d01e",
+          "symbolizer_output": "WaitForSingleObjectEx\n??:0:0\n\n"
+        },
+        {
+          "frame": 2,
+          "pc": "0x00007ffbbf8845ff",
+          "lldb_export_display": "w32-pthreads.dll`pthread_mutex_lock + 271",
+          "module": "w32-pthreads.dll",
+          "rva": "0x45ff",
+          "symbol_lookup_rva": "0x45fe",
+          "symbolizer_output": "pthread_mutex_lock\n??:0:0\n\n"
+        },
+        {
+          "frame": 3,
+          "pc": "0x00007ffbba14cbcf",
+          "lldb_export_display": "obs.dll`signal_handler_connect_ref + 143",
+          "module": "obs.dll",
+          "rva": "0x9cbcf",
+          "symbol_lookup_rva": "0x9cbce",
+          "symbolizer_output": "signal_handler_connect_ref\nD:\\a\\obs-studio\\obs-studio\\libobs\\callback\\signal.c:234:0\n\n"
+        },
+        {
+          "frame": 4,
+          "pc": "0x00007ff7e5b7fbb3",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0xfbb3",
+          "symbol_lookup_rva": "0xfbb2",
+          "symbolizer_output": "std::vector<class OBSSignal, class std::allocator<class OBSSignal>>::emplace_back<struct signal_handler *, char const (&)[14], void (__cdecl &)(void *, struct calldata *), class OBSBasic *>(struct signal_handler *&&, char const (&)[14], void (__cdecl &)(void *, struct calldata *), class OBSBasic *&&)\nC:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\include\\vector:927:0\n\n"
+        },
+        {
+          "frame": 5,
+          "pc": "0x00007ff7e5d431eb",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x1d31eb",
+          "symbol_lookup_rva": "0x1d31ea",
+          "symbolizer_output": "AudioMixer::AudioMixer(class QWidget *)\nD:\\a\\obs-studio\\obs-studio\\frontend\\widgets\\AudioMixer.cpp:208:0\n\n"
+        },
+        {
+          "frame": 6,
+          "pc": "0x00007ff7e5d66e11",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x1f6e11",
+          "symbol_lookup_rva": "0x1f6e10",
+          "symbolizer_output": "OBSBasic::OBSInit(void)\nD:\\a\\obs-studio\\obs-studio\\frontend\\widgets\\OBSBasic.cpp:1212:0\n\n"
+        },
+        {
+          "frame": 7,
+          "pc": "0x00007ff7e5e309e1",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x2c09e1",
+          "symbol_lookup_rva": "0x2c09e0",
+          "symbolizer_output": "OBSApp::OBSInit(void)\nD:\\a\\obs-studio\\obs-studio\\frontend\\OBSApp.cpp:1310:0\n\n"
+        },
+        {
+          "frame": 8,
+          "pc": "0x00007ff7e5e231c1",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x2b31c1",
+          "symbol_lookup_rva": "0x2b31c0",
+          "symbolizer_output": "run_program\nD:\\a\\obs-studio\\obs-studio\\frontend\\obs-main.cpp:686:0\n\n"
+        },
+        {
+          "frame": 9,
+          "pc": "0x00007ff7e5e24201",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x2b4201",
+          "symbol_lookup_rva": "0x2b4200",
+          "symbolizer_output": "main\nD:\\a\\obs-studio\\obs-studio\\frontend\\obs-main.cpp:1087:0\n\n"
+        },
+        {
+          "frame": 10,
+          "pc": "0x00007ff7e5e9c070",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x32c070",
+          "symbol_lookup_rva": "0x32c06f",
+          "symbolizer_output": "qtEntryPoint\nD:\\a\\obs-deps\\obs-deps\\windows_build_temp\\qt6\\qtbase\\src\\entrypoint\\qtentrypoint_win.cpp:45:0\n\n"
+        },
+        {
+          "frame": 11,
+          "pc": "0x00007ff7e5e9b699",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x32b699",
+          "symbol_lookup_rva": "0x32b698",
+          "symbolizer_output": "__scrt_common_main_seh\nD:\\a\\_work\\1\\s\\src\\vctools\\crt\\vcstartup\\src\\startup\\exe_common.inl:288:0\n\n"
+        },
+        {
+          "frame": 12,
+          "pc": "0x00007ffbdd8bdd37",
+          "lldb_export_display": "kernel32.dll`BaseThreadInitThunk + 23",
+          "module": "kernel32.dll",
+          "rva": "0x2dd37",
+          "symbol_lookup_rva": "0x2dd36",
+          "symbolizer_output": "BaseThreadInitThunk\n??:0:0\n\n"
+        },
+        {
+          "frame": 13,
+          "pc": "0x00007ffbdeb1f2bc",
+          "lldb_export_display": "ntdll.dll`RtlUserThreadStart + 44",
+          "module": "ntdll.dll",
+          "rva": "0x3f2bc",
+          "symbol_lookup_rva": "0x3f2bb",
+          "symbolizer_output": "RtlUserThreadStart\n??:0:0\n\n"
+        }
+      ]
+    },
+    {
+      "lldb_thread": 14,
+      "windows_tid": 2404,
+      "same_pcs_in_shutdown_dump": true,
+      "frames": [
+        {
+          "frame": 0,
+          "pc": "0x00007ffbdec45f14",
+          "lldb_export_display": "ntdll.dll`NtWaitForAlertByThreadId + 20",
+          "module": "ntdll.dll",
+          "rva": "0x165f14",
+          "symbol_lookup_rva": "0x165f14",
+          "symbolizer_output": "ZwWaitForAlertByThreadId\n??:0:0\n\n"
+        },
+        {
+          "frame": 1,
+          "pc": "0x00007ffbdeb152e3",
+          "lldb_export_display": "ntdll.dll`RtlWaitOnAddress + 531",
+          "module": "ntdll.dll",
+          "rva": "0x352e3",
+          "symbol_lookup_rva": "0x352e2",
+          "symbolizer_output": "RtlWaitOnAddress\n??:0:0\n\n"
+        },
+        {
+          "frame": 2,
+          "pc": "0x00007ffbdc22fe28",
+          "lldb_export_display": "KERNELBASE.dll`WaitOnAddress + 56",
+          "module": "KERNELBASE.dll",
+          "rva": "0xdfe28",
+          "symbol_lookup_rva": "0xdfe27",
+          "symbolizer_output": "WaitOnAddress\n??:0:0\n\n"
+        },
+        {
+          "frame": 3,
+          "pc": "0x00007ffb98b8567d",
+          "lldb_export_display": "Qt6Core.dll`void QLatch::waitInternal(int) + 61",
+          "module": "Qt6Core.dll",
+          "rva": "0x26567d",
+          "symbol_lookup_rva": "0x26567c",
+          "symbolizer_output": null
+        },
+        {
+          "frame": 4,
+          "pc": "0x00007ffb989d353b",
+          "lldb_export_display": "Qt6Core.dll`enum QMetaMethodInvoker::InvokeFailReason QMetaMethodInvoker::invokeImpl(class QMetaMethod, void *, enum Qt::ConnectionType, __int64, void const *const *, char const *const *, class QtPrivate::QMetaTypeInterface const *const *) + 3819",
+          "module": "Qt6Core.dll",
+          "rva": "0xb353b",
+          "symbol_lookup_rva": "0xb353a",
+          "symbolizer_output": null
+        },
+        {
+          "frame": 5,
+          "pc": "0x00007ffb989d3ad3",
+          "lldb_export_display": "Qt6Core.dll`bool QMetaObject::invokeMethodImpl(class QObject *, char const *, enum Qt::ConnectionType, __int64, void const *const *, char const *const *, class QtPrivate::QMetaTypeInterface const *const *) + 339",
+          "module": "Qt6Core.dll",
+          "rva": "0xb3ad3",
+          "symbol_lookup_rva": "0xb3ad2",
+          "symbolizer_output": null
+        },
+        {
+          "frame": 6,
+          "pc": "0x00007ff7e5da44bb",
+          "lldb_export_display": "obs64.exe",
+          "module": "obs64.exe",
+          "rva": "0x2344bb",
+          "symbol_lookup_rva": "0x2344ba",
+          "symbolizer_output": "OBSBasic::SourceCreated(void *, struct calldata *)\nD:\\a\\obs-studio\\obs-studio\\frontend\\widgets\\OBSBasic_SceneItems.cpp:205:0\n\n"
+        },
+        {
+          "frame": 7,
+          "pc": "0x00007ffbba14d0d6",
+          "lldb_export_display": "obs.dll`signal_handler_signal + 246",
+          "module": "obs.dll",
+          "rva": "0x9d0d6",
+          "symbol_lookup_rva": "0x9d0d5",
+          "symbolizer_output": "signal_handler_signal\nD:\\a\\obs-studio\\obs-studio\\libobs\\callback\\signal.c:305:0\n\n"
+        },
+        {
+          "frame": 8,
+          "pc": "0x00007ffbba1012a6",
+          "lldb_export_display": "obs.dll`obs_source_get_deinterlace_field_order + 422",
+          "module": "obs.dll",
+          "rva": "0x512a6",
+          "symbol_lookup_rva": "0x512a5",
+          "symbolizer_output": "obs_source_dosignal\nD:\\a\\obs-studio\\obs-studio\\libobs\\obs-internal.h:1039:0\n\n"
+        },
+        {
+          "frame": 9,
+          "pc": "0x00007ffbba106226",
+          "lldb_export_display": "obs.dll`obs_source_audio_output_capture_device_changed + 5414",
+          "module": "obs.dll",
+          "rva": "0x56226",
+          "symbol_lookup_rva": "0x56225",
+          "symbolizer_output": "obs_source_create_internal\nD:\\a\\obs-studio\\obs-studio\\libobs\\obs-source.c:509:0\n\n"
+        },
+        {
+          "frame": 10,
+          "pc": "0x00007ffbba0b8e61",
+          "lldb_export_display": "obs.dll`obs_canvas_scene_create + 49",
+          "module": "obs.dll",
+          "rva": "0x8e61",
+          "symbol_lookup_rva": "0x8e60",
+          "symbolizer_output": "obs_canvas_scene_create\nD:\\a\\obs-studio\\obs-studio\\libobs\\obs-canvas.c:486:0\n\n"
+        },
+        {
+          "frame": 11,
+          "pc": "0x00007ffb9731b080",
+          "lldb_export_display": "obs-websocket.dll`obs_module_unload + 627664",
+          "module": "obs-websocket.dll",
+          "rva": "0xab080",
+          "symbol_lookup_rva": "0xab07f",
+          "symbolizer_output": "RequestHandler::CreateScene(struct Request const &)\n??:0:0\n\n"
+        },
+        {
+          "frame": 12,
+          "pc": "0x00007ffb972f4c76",
+          "lldb_export_display": "obs-websocket.dll`obs_module_unload + 470982",
+          "module": "obs-websocket.dll",
+          "rva": "0x84c76",
+          "symbol_lookup_rva": "0x84c75",
+          "symbolizer_output": "RequestHandler::ProcessRequest(struct Request const &)\n??:0:0\n\n"
+        },
+        {
+          "frame": 13,
+          "pc": "0x00007ffb972e04ac",
+          "lldb_export_display": "obs-websocket.dll`obs_module_unload + 387068",
+          "module": "obs-websocket.dll",
+          "rva": "0x704ac",
+          "symbol_lookup_rva": "0x704ab",
+          "symbolizer_output": "WebSocketServer::ProcessMessage(class std::shared_ptr<class WebSocketSession>, struct WebSocketServer::ProcessResult &, enum WebSocketOpCode::WebSocketOpCode, class nlohmann::json_abi_v3_11_3::basic_json<class std::map, class std::vector, class std::basic_string<char, struct std::char_traits<char>, class std::allocator<char>>, bool, __int64, unsigned __int64, double, class std::allocator, struct nlohmann::json_abi_v3_11_3::adl_serializer, class std::vector<unsigned char, class std::allocator<unsigned char>>, void> &)\n??:0:0\n\n"
+        },
+        {
+          "frame": 14,
+          "pc": "0x00007ffb972a40eb",
+          "lldb_export_display": "obs-websocket.dll`obs_module_unload + 140347",
+          "module": "obs-websocket.dll",
+          "rva": "0x340eb",
+          "symbol_lookup_rva": "0x340ea",
+          "symbolizer_output": "`WebSocketServer::onMessage'::`2'::<lambda_1>::operator()\n??:0:0\n\n"
+        },
+        {
+          "frame": 15,
+          "pc": "0x00007ffb98ac09ec",
+          "lldb_export_display": "Qt6Core.dll`void QThreadPoolPrivate::reset(void) + 1068",
+          "module": "Qt6Core.dll",
+          "rva": "0x1a09ec",
+          "symbol_lookup_rva": "0x1a09eb",
+          "symbolizer_output": null
+        },
+        {
+          "frame": 16,
+          "pc": "0x00007ffb98b7f31b",
+          "lldb_export_display": "Qt6Core.dll`void QThread::start(enum QThread::Priority) + 1467",
+          "module": "Qt6Core.dll",
+          "rva": "0x25f31b",
+          "symbol_lookup_rva": "0x25f31a",
+          "symbolizer_output": null
+        },
+        {
+          "frame": 17,
+          "pc": "0x00007ffbdd8bdd37",
+          "lldb_export_display": "kernel32.dll`BaseThreadInitThunk + 23",
+          "module": "kernel32.dll",
+          "rva": "0x2dd37",
+          "symbol_lookup_rva": "0x2dd36",
+          "symbolizer_output": "BaseThreadInitThunk\n??:0:0\n\n"
+        },
+        {
+          "frame": 18,
+          "pc": "0x00007ffbdeb1f2bc",
+          "lldb_export_display": "ntdll.dll`RtlUserThreadStart + 44",
+          "module": "ntdll.dll",
+          "rva": "0x3f2bc",
+          "symbol_lookup_rva": "0x3f2bb",
+          "symbolizer_output": "RtlUserThreadStart\n??:0:0\n\n"
+        }
+      ]
+    }
+  ],
+  "chimera_modules_in_dump": [],
+  "source_urls": [
+    "https://github.com/obsproject/obs-studio/blob/32.2.2/frontend/widgets/AudioMixer.cpp",
+    "https://github.com/obsproject/obs-studio/blob/32.2.2/frontend/widgets/OBSBasic_SceneItems.cpp",
+    "https://github.com/obsproject/obs-studio/blob/32.2.2/frontend/widgets/OBSBasic.cpp",
+    "https://github.com/obsproject/obs-studio/blob/32.2.2/libobs/callback/signal.c",
+    "https://github.com/obsproject/obs-studio/blob/32.2.2/libobs/obs-source.c"
+  ],
+  "unwind_output_sha256": "38acbef9a65c2b4ecabdfd781dfba4938b68a842b672080a9098d25d97f38222",
+  "shutdown_unwind_output_sha256": "2c392759c6f67bfef6649b0a69d41fb4f4627bacd652e336b7e5f783724a3592",
+  "archive_integrity_recheck": {
+    "official_asset_id": 515013685,
+    "official_name": "OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+    "fresh_download_path": "evidence/obs32-debug/verified-assets/OBS-Studio-32.2.2-Windows-x64-PDBs-verified.zip",
+    "fresh_size": 64011684,
+    "fresh_sha256": "a2d2c16859ea3c2508f49c2b9a48b8ec630578334d301fbdf42718f6e473662a",
+    "fresh_crc_test": "passed",
+    "old_retained_path": "evidence/obs32-debug/OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+    "old_retained_size": 61300736,
+    "old_retained_sha256": "7a4decaf260d6ad9d2063a3b4c349b7bfb49c4fe12229ac4146d0b805bbbb1f6",
+    "old_retained_status": "truncated ZIP, missing central directory; cause unknown; not used as proof of official archive integrity",
+    "analysis_pdb_entry_comparison": [
+      {
+        "name": "bin/64bit/obs64.pdb",
+        "analysis_sha256": "4a8c888681b3c2cd2c21d74ae27dc42c4a0919ba25f3127512f65a55adc5fa57",
+        "official_pdbs": {
+          "sha256": "4a8c888681b3c2cd2c21d74ae27dc42c4a0919ba25f3127512f65a55adc5fa57",
+          "size": 45182976
+        },
+        "official_binaries": {
+          "sha256": "4a8c888681b3c2cd2c21d74ae27dc42c4a0919ba25f3127512f65a55adc5fa57",
+          "size": 45182976
+        }
+      },
+      {
+        "name": "bin/64bit/obs.pdb",
+        "analysis_sha256": "2de86f8b841eca4659934c1a7fcb0ebd0109d91810de3679f34d9f6d2d0b1fcd",
+        "official_pdbs": {
+          "sha256": "2de86f8b841eca4659934c1a7fcb0ebd0109d91810de3679f34d9f6d2d0b1fcd",
+          "size": 5738496
+        },
+        "official_binaries": {
+          "sha256": "2de86f8b841eca4659934c1a7fcb0ebd0109d91810de3679f34d9f6d2d0b1fcd",
+          "size": 5738496
+        }
+      },
+      {
+        "name": "bin/64bit/w32-pthreads.pdb",
+        "analysis_sha256": "4257d044f6c998bcd362e2e679fb77f9317e4b9eb8bc8267696a929bbd718e8c",
+        "official_pdbs": {
+          "sha256": "b34fd77e7ea12c2fe08bf42ee381854fd402143161f19a878f02395c625c12d5",
+          "size": 692224
+        },
+        "official_binaries": {
+          "sha256": "4257d044f6c998bcd362e2e679fb77f9317e4b9eb8bc8267696a929bbd718e8c",
+          "size": 126976
+        }
+      },
+      {
+        "name": "obs-plugins/64bit/obs-websocket.pdb",
+        "analysis_sha256": "36afe3219eb2c10fd40c0c1aea56899050614f77f1ab3d81b2be9527d331972a",
+        "official_pdbs": {
+          "sha256": "97dfab6d1d790fa7f707a1f511fe24aa2d08252d2d615adb76b6f6d153334f47",
+          "size": 19566592
+        },
+        "official_binaries": {
+          "sha256": "36afe3219eb2c10fd40c0c1aea56899050614f77f1ab3d81b2be9527d331972a",
+          "size": 3633152
+        }
+      }
+    ]
+  }
+}

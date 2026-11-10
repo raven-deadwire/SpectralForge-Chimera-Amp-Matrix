@@ -42,13 +42,35 @@ level and polarity, before the blend) are used, the first 4 seconds.
 - **Mix:** w0 × lane 0 + Σ sₖ × wₖ × lane k, with sₖ = ±1. The weights are
   the Dual blend (1 − blend, blend), or 1 for Dual Crossover and Matrix. A flip
   is the capture negated, so the prediction is the mix itself.
-- **Cancellation:** in each third-octave band (80 Hz – 6.3 kHz, within 30 dB
-  of the strongest), the weighted lanes' power sum against the mix; the worst
-  band counts, as in phase 17.
+- **Bands:** third octaves from **20 Hz** to 6.3 kHz, within 30 dB of the
+  lanes' strongest band. 20 Hz reaches a five-string bass in Drop A (A0,
+  27.5 Hz) and a seven-string guitar's A1 (55 Hz); the first version started
+  at 80 Hz and could not see a fundamental it cancelled.
+- **Frames:** every lane and every candidate mix are measured in the same
+  frames (Hann, about 1.5 Hz bins), chosen by the lanes' weighted level. A
+  mix that cancels to silence (an exact null) is still measured; "playing"
+  is decided by each lane on its own.
+- **Cancellation:** in each band, the weighted lanes' power sum against the
+  mix; the worst band counts (capped at 60 dB).
 - **Decision:** every sign combination of the lanes after the reference is
   tried. A flip is made only when the mix now cancels by more than 3 dB and
   the best combination cancels at least 1 dB less. Ties keep the current
   polarity.
+- **No band may lose:** a combination that makes any band cancel by more
+  than 3 dB, and by 1 dB more than now, is not used. Lanes opposed in some
+  bands only (for example the fundamental in polarity and the harmonics
+  opposed) differ in phase, not polarity: a flip only moves the loss to
+  another band. The row then says which band a flip would cancel.
+- **A time offset is not polarity:** for each lane after the reference, the
+  lag (up to ±10 ms) of its strongest correlation with the other lanes is
+  found. When the lane is the others shifted (coherence at least 0.9 at that
+  lag), and at that lag, at the sign of the match, the lanes add up (3 dB or
+  less) and cancel at least 1 dB less than the best flip (or than now, when
+  no flip is used), nothing flips. The row gives the offset ("rig 2 is
+  3.00 ms late …: align the rigs, then run again") and whether the lane is
+  also opposed. Auto Set does not move a lane in time. The coherence and
+  "add up" conditions keep a steady note, whose harmonics can partly line up
+  at some lag, from being reported as an offset.
 - **Kept, with the reason:** a silent lane; the routing, the Dual type or a
   lane's head changing while listening; a lane polarity edited while
   listening (or while applying).
@@ -83,10 +105,38 @@ level and polarity, before the blend) are used, the first 4 seconds.
   with the polarity row (kept, Classic routing) after the mic blend row.
 - **Locks (`controllerEveryLock`):** all twenty-four locks at four strengths.
 
+## Verification dashboard cases (POL-01, POL-02, POL-03)
+
+`ChimeraAutoSetTests --polarity` runs them (`polarityRegressions`) at 44.1,
+48 and 96 kHz, with A0 (27.5 Hz) and A1 (55 Hz) notes of eight harmonics
+(1/h):
+
+- **POL-01**, the fundamental in polarity and the harmonics opposed (lane 2
+  at 0.8, Dual blend 0.5): kept, and the row names the fundamental band a
+  flip would cancel. The fixture is checked independently (projection on a
+  sine at f0): the mix as kept holds the fundamental; the flipped mix loses
+  it by more than 12 dB. Also with the harmonics fully opposed, where a flip
+  would win the harmonic bands: still kept.
+- **POL-02**, lane 2 a copy of lane 1 at 0.8, 3 ms late, in polarity: kept,
+  reported as 3 ms late; late and opposed: kept, reported as late and
+  opposed.
+- **POL-03**, lane 1 = f0 + a 4 f0 marker, lane 2 = −0.8 f0 only: flips
+  (16 dB at the fundamental band before, under 1 dB after). An exact null
+  (the same lane opposed) is measured and flips. A fundamental 20 dB under
+  the marker counts; 40 dB under is outside the 30 dB range (a limit kept on
+  purpose: a band that weak decides nothing). Matrix at X1 60 Hz and X2
+  1.2 kHz with a low note: MID, HIGH and both inverted flip as expected; in
+  polarity nothing flips.
+- **Controller:** a 3 ms late rig 2 and band-only opposition are kept with
+  the reason; the parameters do not change.
+
 ## Not yet validated
 
-The 3 dB and 1 dB thresholds are starting values, checked on synthetic noise
-split by the same filters, not on real Dual rigs or Matrix lanes, a real DI or
-listening tests. Real rigs differ in delay and phase as well as polarity: a
-flip removes an opposed polarity, not a time offset, and the row says when no
-flip helps.
+The 3 dB and 1 dB thresholds, the 30 dB band range, the ±10 ms lag search
+and the 0.9 coherence are starting values, checked on synthetic signals (noise split by
+the same filters, harmonic tones), not on real Dual rigs or Matrix lanes, a
+real DI (the Drop A guitar and bass takes are not recorded yet) or
+listening tests. Until they are, **Lock → Lane polarity** keeps the current
+polarity. Real rigs differ in phase across the band (different cabinets and
+mics) as well as in polarity and delay: the step now holds in those cases
+instead of flipping, and says why.

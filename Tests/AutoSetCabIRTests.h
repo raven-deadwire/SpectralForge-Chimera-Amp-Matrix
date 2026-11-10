@@ -103,6 +103,67 @@ void cabIRRules() {
     std::cout<<"MEASURE cab IR rules: worst band prediction "<<worstPrediction<<" dB (80 Hz-6.3 kHz), worst level "<<worstLevel<<" dB, "<<switches<<" switch cases\n";
     std::cout<<"PASS auto set cab IR rules at 44.1/48/96 kHz: IR difference predicts the rendered switch, the suited IR is chosen from the other and kept, bass, filters/user IR and silence kept\n";
 }
+// IR-01: the switch is judged from 80 Hz, so the 50 and 63 Hz bands (a
+// seven-string's A1 in Drop A, 55 Hz) are kept apart: a switch that would cut
+// them by more than 3 dB, where the playing has them, is not made.
+void cabIRLowEnd() {
+    const auto bands=factoryIRBands();
+    std::array<CabIRLow,2> fine;for(int i=0;i<2;++i){const auto ir=spectralforge::IRLibrary::factoryIR(i);fine[size_t(i)]=cabIRLowResponse(ir->samples,ir->rate);}
+    for(const double hz:{46.2,55.,61.7})std::cout<<"MEASURE cab IR low end at "<<hz<<" Hz: Jensen - V30 (as loaded) "<<10*std::log10(cabIRLowAt(fine[1],hz)/cabIRLowAt(fine[0],hz))<<" dB\n";
+    const auto bandOf=[](float hz){int b=0;while(b+1<toneBandCount && toneBandCentres[size_t(b)]<hz-1)++b;return b;};
+    const int b50=bandOf(50),b63=bandOf(63),b80=bandOf(80);
+    std::cout<<"MEASURE cab IR low end: Jensen - V30 (as loaded) "<<bands[1][size_t(b50)]-bands[0][size_t(b50)]<<" dB at 50 Hz, "<<bands[1][size_t(b63)]-bands[0][size_t(b63)]<<" dB at 63 Hz, "
+             <<bands[1][size_t(b80)]-bands[0][size_t(b80)]<<" dB at 80 Hz\n";
+    float worstLow=0;
+    for(double rate:{44100.,48000.,96000.})for(int suited=0;suited<2;++suited) {
+        // Drop A guitar: the amp sound that suits one IR, with an A1 note (55 Hz, eight harmonics) on top.
+        std::mt19937 noise{uint32_t(240+suited)};
+        auto amp=irSuitedNoise(rate,6,noise,suited,Style::rock);
+        std::vector<float> ones;for(int h=1;h<=8;++h)ones.push_back(1.f/float(h));
+        const auto note=harmonicTone(rate,6,55,ones);
+        for(size_t i=0;i<amp.size();++i)amp[i]+=.5f*note[i];
+        const int other=1-suited;
+        const auto heardOther=renderFactoryIR(amp,rate,other),heardSuited=renderFactoryIR(amp,rate,suited);
+        const auto real=analyseCabIR(heardOther,rate,other+1,bands,std::optional<bool>(false),Style::rock,&fine);
+        // The predicted 50-63 Hz change matches the rendered switch.
+        const auto low=[&](const Spectrum& s){double p=0;for(const int b:{b50,b63})p+=std::pow(10.,s.bandsDb[size_t(b)]/10.);return 10*std::log10(p);};
+        const auto o=measureSpectrum(heardOther,rate,false),n=measureSpectrum(heardSuited,rate,false);
+        const float rendered=float(low(n)-low(o));
+        // The fundamental itself, measured independently (projection on a 55 Hz sine), against the prediction.
+        const float f0Rendered=projectionDb(heardSuited,rate,55)-projectionDb(heardOther,rate,55);
+        worstLow=std::max(worstLow,std::abs(f0Rendered-real.lowEndChangeDb));
+        check(real.lowEndChangeDb!=0.f,"The A1 note's low end was not counted");
+        // Playing whose low end sits at the target (no extra note), and the other IR with its 50 and 63 Hz
+        // bands 8 dB lower: the balance still favours it, but it would leave 50-63 Hz under the target: kept.
+        std::mt19937 at{uint32_t(240+suited)};
+        const auto onTarget=renderFactoryIR(irSuitedNoise(rate,6,at,suited,Style::rock),rate,other);
+        auto cut=bands;cut[size_t(suited)][size_t(b50)]-=8.f;cut[size_t(suited)][size_t(b63)]-=8.f;
+        const auto held=analyseCabIR(onTarget,rate,other+1,cut,std::optional<bool>(false),Style::rock);
+        check(held.playingDetected && !held.changed() && held.lowEndHeld && held.lowEndChangeDb<-cabIRMaxLowLossDb && held.lowEndAfterDb<-cabIRMaxLowLossDb
+              && held.toneErrorAfterDb<held.toneErrorBeforeDb-cabIRMinGainDb && held.otherSource==suited+1,
+              "IR-01: a switch that leaves 50-63 Hz under the target was made ("+std::to_string(held.lowEndChangeDb)+" dB, "+std::to_string(held.lowEndAfterDb)+" dB against the target)");
+        // The same through the fine responses (the controller's path): the IR the playing suits, 8 dB lower at 40-75 Hz.
+        auto fineCut=fine;for(auto& v:fineCut[size_t(suited)])v*=.15849f;
+        const auto heldFine=analyseCabIR(onTarget,rate,other+1,bands,std::optional<bool>(false),Style::rock,&fineCut);
+        const float base=analyseCabIR(onTarget,rate,other+1,bands,std::optional<bool>(false),Style::rock,&fine).lowEndChangeDb;
+        check(!heldFine.changed() && heldFine.lowEndHeld && std::abs(heldFine.lowEndChangeDb-(base-8.f))<.5f,
+              "IR-01: the fine path did not keep a switch that cuts 40-75 Hz by 8 dB more ("+std::to_string(base)+" > "+std::to_string(heldFine.lowEndChangeDb)+" dB)");
+        // The same cut with the A1 note on top: the low end stays above the target, so the balance decides.
+        const auto strong=analyseCabIR(heardOther,rate,other+1,cut,std::optional<bool>(false),Style::rock);
+        check(!strong.lowEndHeld || strong.lowEndAfterDb<-cabIRMaxLowLossDb,"Low end above the target was held");
+        // Without the A1 note (no playing below 71 Hz within 30 dB): the low end does not decide.
+        std::mt19937 again{uint32_t(240+suited)};
+        auto plain=irSuitedNoise(rate,6,again,suited,Style::rock);
+        juce::dsp::IIR::Filter<float> hp;hp.coefficients=juce::dsp::IIR::Coefficients<float>::makeHighPass(rate,160.);
+        for(int pass=0;pass<4;++pass){hp.reset();for(auto& v:plain)v=hp.processSample(v);}
+        const auto quiet=analyseCabIR(renderFactoryIR(plain,rate,other),rate,other+1,cut,std::optional<bool>(false),Style::rock);
+        check(!quiet.lowEndHeld && (quiet.lowEndChangeDb==0.f || quiet.lowEndChangeDb>=-cabIRMaxLowLossDb),"The low end decided for playing without it ("+std::to_string(quiet.lowEndChangeDb)+" dB)");
+        if(rate==48000.)std::cout<<"MEASURE cab IR low end 48 kHz, A1 note: "<<cabIRName(other+1)<<" > "<<cabIRName(suited+1)<<" 50-63 Hz "<<real.lowEndChangeDb<<" dB predicted, A1 "<<f0Rendered<<" dB rendered (third-octave bands "<<rendered
+                                <<" dB), "<<real.lowEndAfterDb<<" dB against the target, switch "<<(real.changed()?"made":"kept")<<"; on-target playing, 50/63 Hz 8 dB lower: "<<held.lowEndChangeDb<<" dB, "<<held.lowEndAfterDb<<" dB against the target, kept\n";
+    }
+    check(worstLow<1.f,"The A1 prediction is off by "+std::to_string(worstLow)+" dB");
+    std::cout<<"PASS auto set cab IR low end at 44.1/48/96 kHz: A1 change predicted within "<<worstLow<<" dB of the rendered note, a switch that cuts it by more than 3 dB to more than 3 dB under the target is kept, playing without low end not affected\n";
+}
 struct CabIRRun {std::vector<float> before,values,undone;Controller::Status status;CabIRResult analysis;};
 CabIRRun runCabIR(const Controller::Options& options,const std::vector<float>& post,int sourceA,const std::function<void(ChimeraProcessor&)>& prepare={},
                   const std::function<void(ChimeraProcessor&)>& during={}) {
@@ -132,7 +193,7 @@ void controllerCabIR() {
     const auto post=renderFactoryIR(irSuitedNoise(48000,8,rng,1,Style::rock),48000,0);
     Controller::Options irOnly;
     irOnly.instrument=1;irOnly.style=Style::rock;irOnly.strength=1.f;irOnly.locks=Controller::lockInput|Controller::lockGate|Controller::lockCompressor;
-    irOnly.tone=irOnly.finish=irOnly.multiband=irOnly.gates=irOnly.dynamicEQ=irOnly.level=irOnly.amp=irOnly.cab=irOnly.boost=irOnly.space=irOnly.power=irOnly.dual=irOnly.width=irOnly.cuts=irOnly.bus=irOnly.matrix=irOnly.mics=irOnly.rigs=irOnly.channel=irOnly.polarity=irOnly.sync=false;
+    irOnly.tone=irOnly.finish=irOnly.multiband=irOnly.gates=irOnly.dynamicEQ=irOnly.level=irOnly.amp=irOnly.cab=irOnly.boost=irOnly.space=irOnly.power=irOnly.dual=irOnly.width=irOnly.cuts=irOnly.bus=irOnly.matrix=irOnly.mics=irOnly.rigs=irOnly.channel=irOnly.polarity=irOnly.sync=irOnly.trim=false;
     irOnly.cabIR=true;
     const auto full=runCabIR(irOnly,post,1);
     const auto* step=stepOf(full.status,P::cabIR);

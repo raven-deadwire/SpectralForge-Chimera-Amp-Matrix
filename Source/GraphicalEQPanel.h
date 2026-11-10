@@ -39,9 +39,25 @@ public:
         };
         editButton(addButton,"+ BAND","addBand");editButton(deleteButton,"DELETE","deleteBand");
         editButton(undoButton,"UNDO","undo");editButton(redoButton,"REDO","redo");
+        // EQ-local A/B: two curves for this EQ only (bands, not its bypass).
+        editButton(curveA,"A","curveA");editButton(curveB,"B","curveB");editButton(curveCopy,"COPY","curveCopy");
+        curveA.setClickingTogglesState(false);curveB.setClickingTogglesState(false);
+        curveA.setTooltip("Curve A of this EQ. A and B hold two band setups for this EQ alone (not the global A/B, not its bypass); switching clears this EQ's undo history.");
+        curveB.setTooltip("Curve B of this EQ. The first switch to an empty slot copies the current curve there.");
+        curveCopy.setTooltip("Copy this curve to the other slot, or to the other EQ (one undo step there).");
+        curveA.onClick=[this]{switchCurve(0);};curveB.onClick=[this]{switchCurve(1);};
+        curveCopy.onClick=[this]{
+            juce::PopupMenu menu;const int slot=editing.curveSlot(instance);const auto revision=editing.revision();
+            menu.addItem(1,juce::String("Copy ")+(slot==0?"A to B":"B to A"));
+            menu.addItem(2,juce::String("Copy this curve to the ")+(instance==0?"Final EQ":"Tone EQ"));
+            juce::Component::SafePointer<GraphicalEQPanel> safe(this);
+            // A late answer after a switch, recall or edit would copy the wrong way: ignore it.
+            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&curveCopy),[safe,slot,revision](int result){
+                if(safe && safe->isShowing() && safe->editing.curveSlot(safe->instance)==slot && safe->editing.revision()==revision)safe->applyCurveMenuResult(result);
+            });
+        };
         addButton.setTooltip("Add a Bell band at 1 kHz, or double-click the graph at the frequency and gain you need.");
-        deleteButton.setTooltip("Remove this band. BAND ON keeps a bypassed band available for editing.");
-        addButton.onClick=[this]{createBand(1000.f,0.f);};deleteButton.onClick=[this]{deleteSelectedBand();};
+        addButton.onClick=[this]{createBand(1000.f,0.f);};deleteButton.onClick=[this]{deleteSelection();};
         undoButton.onClick=[this]{applyHistory(false);};redoButton.onClick=[this]{applyHistory(true);};
         // Momentary band solo: hear only this band's region while held.
         soloButton.setButtonText("SOLO");soloButton.setComponentID(eqID(e,-1,"solo"));addAndMakeVisible(soloButton);
@@ -74,7 +90,7 @@ public:
             spectrum.setSmoothing(smoothing.getSelectedId()-1);
         };
         selector.setComponentID(eqID(e,-1,"band"));selector.setTextWhenNothingSelected("No bands");
-        selector.onChange=[this]{groupMask=0;selectBand(selector.getSelectedId()-1);};addAndMakeVisible(selector);
+        selector.onChange=[this]{endDrag();groupMask=0;selectBand(selector.getSelectedId()-1);};addAndMakeVisible(selector);
         enabled.setButtonText("BAND ON");enabled.setClickingTogglesState(true);addAndMakeVisible(enabled);
         enabled.onClick=[this]{if(selected>=0)discreteEdit(selected,"enabled",enabled.getToggleState()?1.f:0.f,"Band enable");};
         type.addItemList(eqFilterNames(),1);
@@ -118,7 +134,7 @@ public:
         refreshEditingState();updateResolutionTooltip();startTimerHz(25);
     }
     ~GraphicalEQPanel() override {stopTimer();endDrag();stopAudition();dsp.analyzer.enabled.store(false);}
-    void visibilityChanged() override {if(!isShowing()){discardPendingNumericInput();endDrag();stopAudition();}updateAnalyzer();}
+    void visibilityChanged() override {if(!isShowing()){discardPendingNumericInput();beginSelectionChange();stopAudition();}updateAnalyzer();}
     // The band being soloed from this editor (-1: none).
     int auditioningBand() const noexcept {return auditioning;}
     void startAudition(int band,bool fromGraph) {
@@ -133,7 +149,14 @@ public:
     int selectedBand() const noexcept {return selected;}
     // Presentation only: reuse this editor inside the focused Dynamic EQ page.
     void setCompactWorkspace(bool compact) {if(compactWorkspace==compact)return;compactWorkspace=compact;endDrag();resized();}
-    void selectBandForEditing(int band) {refreshEditingState();if(band>=0 && band<graphicalEQBands && isBandVisible(band))selectBand(band);}
+    // Explicit navigation to a band is a single selection, including a member
+    // of the existing group. Invalid requests leave the selection intact.
+    void selectBandForEditing(int band) {
+        refreshEditingState();
+        if(band>=0 && band<graphicalEQBands && isBandVisible(band)) {
+            endDrag();groupMask=0;selectBand(band);
+        }
+    }
     void setNavigationSelected(bool chosen) {if(navigationSelected!=chosen){navigationSelected=chosen;repaint();}}
     bool isNavigationSelected() const noexcept {return navigationSelected;}
     void focusForNavigation() {if(isShowing()){if(selected>=0)sliders[0].grabKeyboardFocus();else grabKeyboardFocus();}}
@@ -152,29 +175,42 @@ public:
     int selectionCount() const noexcept {int n=0;for(auto m=selectionMask();m;m=uint16_t(m&(m-1)))++n;return n;}
     void toggleBandInSelection(int band) {
         if(band<0 || band>=graphicalEQBands || !isBandVisible(band))return;
-        groupMask=selectionMask();
+        beginSelectionChange();groupMask=selectionMask();
         if((groupMask>>band)&1) {
             groupMask=uint16_t(groupMask&~(1u<<band));
             if(band==selected) {int next=-1;for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){next=b;break;}if(next>=0)selectBand(next);else groupMask=uint16_t(1u<<band);}
         } else {groupMask=uint16_t(groupMask|(1u<<band));selectBand(band);}
-        repaint();
+        updateDeleteButton();repaint();
     }
+    // Changing the group ends a drag in progress: its members were captured at the press.
     void selectAllBands() {
-        groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))groupMask=uint16_t(groupMask|(1u<<b));
+        beginSelectionChange();groupMask=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))groupMask=uint16_t(groupMask|(1u<<b));
         if(groupMask!=0 && (selected<0 || !isBandVisible(selected))){for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){selectBand(b);break;}}
-        repaint();
+        updateDeleteButton();repaint();
     }
-    void collapseSelection(){groupMask=0;repaint();}
+    void collapseSelection(){beginSelectionChange();groupMask=0;updateDeleteButton();repaint();}
     // Bands whose drawn node lies inside area; add keeps the current group.
     void selectBandsIn(juce::Rectangle<float> area,bool add) {
-        uint16_t found=0;int first=-1;
+        beginSelectionChange();uint16_t found=0;int first=-1;
         for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b) && area.contains(visibleNodePosition(b))){found=uint16_t(found|(1u<<b));if(first<0)first=b;}
         if(add){groupMask=uint16_t(selectionMask()|found);if((selected<0 || !isBandVisible(selected)) && first>=0)selectBand(first);}
         else if(found==0)groupMask=0; // An empty box keeps only the selected band.
         else{groupMask=found;selectBand(first);}
-        repaint();
+        updateDeleteButton();repaint();
     }
     juce::Rectangle<float> marqueeArea() const noexcept {return marqueeActive?juce::Rectangle<float>(marqueeStart,marqueeEnd):juce::Rectangle<float>();}
+    // Share the production callback with deterministic lifetime tests. Capture
+    // identity as well as values: A -> B -> A must invalidate an old menu.
+    std::function<void(int)> makeDeleteMenuCallback() {
+        const auto revision=editing.revision(),generation=selectionGeneration;
+        const auto mask=selectionMask();const int band=selected;
+        juce::Component::SafePointer<GraphicalEQPanel> safe(this);
+        return [safe,revision,generation,mask,band](int result) {
+            if(safe && result==1 && safe->isShowing() && safe->editing.revision()==revision
+               && safe->selectionGeneration==generation && safe->selected==band
+               && safe->selectionMask()==mask)safe->deleteSelection();
+        };
+    }
     // Shared dynamic slot (0-3) acting on this band, or -1.
     int dynamicSlotForBand(int band) const {
         for(int slot=0;slot<4;++slot)if(auto* target=state.getRawParameterValue(dynamicSlotID(slot,"target"));target && int(target->load())==instance*12+band+1)return slot;
@@ -247,6 +283,20 @@ public:
         diagnosticObserver=nullptr;diagnosticContext=nullptr;diagnosticRenderPanel=true;startTimerHz(25);
     }
     juce::Rectangle<float> graphBounds() const noexcept {return plot();}
+    // EQ-local A/B (see EQEditState): switch, copy to the other slot (1) or
+    // to the other EQ (2).
+    bool switchCurve(int slot) {
+        endDrag();discardPendingNumericInput();
+        const bool ok=editing.selectCurve(instance,slot);
+        refreshEditingState();syncDisplayedValues();rebuildResponse();updateCurveControls();repaint();return ok;
+    }
+    void applyCurveMenuResult(int result) {
+        endDrag();
+        if(result==1)editing.copyCurveToOtherSlot(instance);
+        else if(result==2)editing.copyCurveToBank(instance,1-instance);
+        refreshEditingState();updateCurveControls();
+    }
+    int curveSlot() const {return editing.curveSlot(instance);}
     // EQ display range (editor-local, like Freeze/PEAK): the dB span of the
     // graph's vertical half. Only the drawing scale changes; band values,
     // drag deltas and host parameters keep their own range (+/-24 dB).
@@ -316,7 +366,8 @@ public:
             freezeToggle.setBounds(360,4,80,26);peakToggle.setBounds(446,4,56,26);resolution.setBounds(510,4,140,26);smoothing.setBounds(658,4,138,26);
             bypass.setBounds(getWidth()-166,4,148,26);
             addButton.setBounds(56,34,84,25);deleteButton.setBounds(148,34,82,25);undoButton.setBounds(244,34,76,25);redoButton.setBounds(328,34,76,25);
-            dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,124,25);
+            dynamicToggle.setBounds(412,34,88,25);dynamicStatus.setBounds(506,34,100,25);
+            curveA.setBounds(612,34,30,25);curveB.setBounds(646,34,30,25);curveCopy.setBounds(680,34,58,25);
             const int y=getHeight()-33;layoutDynamicRow(y-37);
             selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,124,28);soloButton.setBounds(370,y,52,28);
             sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
@@ -329,7 +380,8 @@ public:
         bypass.setBounds(getWidth()-174,22,156,28);
         addButton.setBounds(56,68,88,27);deleteButton.setBounds(154,68,88,27);
         undoButton.setBounds(264,68,76,27);redoButton.setBounds(350,68,76,27);
-        dynamicToggle.setBounds(436,68,96,27);dynamicStatus.setBounds(540,68,130,27);
+        dynamicToggle.setBounds(436,68,96,27);dynamicStatus.setBounds(540,68,104,27);
+        curveA.setBounds(650,68,30,27);curveB.setBounds(684,68,30,27);curveCopy.setBounds(718,68,58,27);
         const int y=getHeight()-45;layoutDynamicRow(y-38);
         selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,124,28);soloButton.setBounds(370,y,52,28);
         sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
@@ -364,7 +416,7 @@ public:
             : selectionCount()>1?juce::String(selectionCount())+" bands selected  /  Delete removes  /  Esc clears"
             : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another")
                :juce::String(groupHint));
-        g.drawText(hint,680,72,getWidth()-736,20,juce::Justification::centredRight);
+        g.drawText(hint,786,72,getWidth()-842,20,juce::Justification::centredRight);
         } else {
             g.setColour(text);g.setFont(juce::FontOptions(16.f,juce::Font::bold));
             g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,5,170,25,juce::Justification::centredLeft);
@@ -479,7 +531,7 @@ public:
             // Right-click on empty graph: the display range (view only).
             if(event.mods.isLeftButtonDown() && !event.mods.isPopupMenu() && plot().contains(event.position)) {
                 // Box selection: drag on empty graph to select the nodes inside.
-                marqueeActive=true;marqueeAdd=event.mods.isCommandDown();marqueeStart=marqueeEnd=event.position;return;
+                beginSelectionChange();marqueeActive=true;marqueeAdd=event.mods.isCommandDown();marqueeStart=marqueeEnd=event.position;return;
             }
             if(event.mods.isPopupMenu() && plot().contains(event.position)) {
                 juce::PopupMenu menu;menu.addSectionHeader("EQ display range");
@@ -499,19 +551,17 @@ public:
             return;
         }
         // Middle-click and hold on a node: solo that band until release.
-        if(event.mods.isMiddleButtonDown()){selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);startAudition(closest,true);return;}
+        // Like a plain press, a node outside the group starts a new selection.
+        if(event.mods.isMiddleButtonDown()){if(!((selectionMask()>>closest)&1))groupMask=0;selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);startAudition(closest,true);return;}
         // Ctrl/Cmd+click adds or removes a band from the group (no drag).
         if(event.mods.isCommandDown() && event.mods.isLeftButtonDown() && !event.mods.isPopupMenu()){toggleBandInSelection(closest);return;}
         // A plain press on a group member keeps the group; elsewhere it starts a new one.
         if(!((selectionMask()>>closest)&1))groupMask=0;
         selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);
         if(event.mods.isPopupMenu()) {
-            const int count=selectionCount();const uint16_t mask=selectionMask();
+            const int count=selectionCount();
             juce::PopupMenu menu;menu.addItem(1,count>1?"Delete "+juce::String(count)+" Selected Bands":"Delete Band "+juce::String(closest+1));
-            const auto revision=editing.revision();juce::Component::SafePointer<GraphicalEQPanel> safe(this);
-            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe,closest,revision,mask](int result){
-                if(safe && result==1 && safe->editing.revision()==revision && safe->selected==closest && safe->selectionMask()==mask)safe->deleteSelection();
-            });return;
+            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),makeDeleteMenuCallback());return;
         }
         if(!event.mods.isLeftButtonDown())return;
         const int count=selectionCount();
@@ -597,7 +647,7 @@ public:
             if(key.getKeyCode()=='Y' || key.getKeyCode()=='y'){applyHistory(true);return true;}
             if(key.getKeyCode()=='A' || key.getKeyCode()=='a'){selectAllBands();return true;}
         }
-        if(key.getKeyCode()==juce::KeyPress::escapeKey && selectionCount()>1){collapseSelection();return true;}
+        if(key.getKeyCode()==juce::KeyPress::escapeKey && (selectionCount()>1 || marqueeActive)){collapseSelection();return true;}
         if(key.getKeyCode()==juce::KeyPress::deleteKey || key.getKeyCode()==juce::KeyPress::backspaceKey){deleteSelection();return true;}
         return false;
     }
@@ -653,6 +703,7 @@ private:
         hoverPoint=point;repaint(plot().toNearestInt().removeFromTop(24));
     }
     void endDrag(){groupDrag=false;if(dragging || sliderEditing){editing.endEdit();dragging=sliderEditing=false;updateHistoryControls();}}
+    void beginSelectionChange(){endDrag();marqueeActive=false;++selectionGeneration;}
     void drawNode(juce::Graphics& g,int band,bool chosen,bool member=false) const {
         const auto v=dsp.values(band);const auto p=visibleNodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
         if(band==auditioning){g.setColour(juce::Colour(0xfff0d39b));g.setFont(juce::FontOptions(10.f,juce::Font::bold));g.drawText("SOLO",int(p.x)-20,int(p.y)-r-18,40,12,juce::Justification::centred);}
@@ -672,7 +723,7 @@ private:
     void selectBand(int band) {
         cancelExternalInput();discardPendingNumericInput();
         if(auditioning>=0 && auditioning!=band)stopAudition();
-        endDrag();selected=(band>=0 && band<graphicalEQBands && isBandVisible(band))?band:-1;
+        beginSelectionChange();selected=(band>=0 && band<graphicalEQBands && isBandVisible(band))?band:-1;
         enabledAttachment.reset();typeAttachment.reset();for(auto& a:sliderAttachments)a.reset();
         selector.setSelectedId(selected+1,juce::dontSendNotification);
         if(selected<0) {
@@ -709,9 +760,17 @@ private:
         const bool chosen=selected>=0 && isBandVisible(selected);
         selector.setEnabled(occupiedCount()>0);enabled.setEnabled(chosen);type.setEnabled(chosen);
         sliders[0].setEnabled(chosen);sliders[1].setEnabled(chosen && gainApplicable());sliders[2].setEnabled(chosen);
-        deleteButton.setEnabled(chosen);addButton.setEnabled(occupiedCount()<graphicalEQBands);soloButton.setEnabled(chosen);
+        updateDeleteButton();addButton.setEnabled(occupiedCount()<graphicalEQBands);soloButton.setEnabled(chosen);
         if(auditioning>=0 && !isBandVisible(auditioning))stopAudition();
         updateDynamicControls();
+    }
+    void updateDeleteButton() {
+        const int count=selectionCount();
+        deleteButton.setEnabled(count>0);
+        deleteButton.setButtonText(count>1?"DELETE ("+juce::String(count)+")":"DELETE");
+        deleteButton.setTooltip(count>1
+            ? "Remove all "+juce::String(count)+" selected bands in one Undo step. BAND ON bypasses only the active band."
+            : "Remove the selected band. BAND ON keeps a bypassed band available for editing.");
     }
     // The dynamics row appears only for a band with DYNAMIC on; the graph
     // keeps its full height otherwise.
@@ -775,8 +834,13 @@ private:
     void updateHistoryControls() {
         const int undoBank=editing.nextUndoBank(),redoBank=editing.nextRedoBank();
         undoButton.setEnabled(undoBank>=0);redoButton.setEnabled(redoBank>=0);
+        updateCurveControls();
         undoButton.setTooltip(undoBank>=0?"Undo "+juce::String(undoBank==0?"Tone EQ: ":"Final EQ: ")+editing.undoDescription():"No EQ edit to undo");
         redoButton.setTooltip(redoBank>=0?"Redo "+juce::String(redoBank==0?"Tone EQ: ":"Final EQ: ")+editing.redoDescription():"No EQ edit to redo");
+    }
+    void updateCurveControls() {
+        const int slot=editing.curveSlot(instance);
+        curveA.setToggleState(slot==0,juce::dontSendNotification);curveB.setToggleState(slot==1,juce::dontSendNotification);
     }
     void refreshEditingState() {
         cancelExternalInput();
@@ -785,7 +849,16 @@ private:
             lastOccupiedMask=mask;groupMask=uint16_t(groupMask&mask);selector.clear(juce::dontSendNotification);
             for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))selector.addItem("Band "+juce::String(b+1),b+1);
             int next=selected;
-            if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
+            // The selected band went away: pass selection to a remaining group
+            // member, so a band outside the group never joins it.
+            if(next<0 || !isBandVisible(next)) {
+                next=-1;
+                for(int b=0;b<graphicalEQBands;++b)if((groupMask>>b)&1){next=b;break;}
+            }
+            if(next<0) {
+                groupMask=0;
+                for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}
+            }
             selectBand(next);repaint();
         }
         updateBandEnablement();updateHistoryControls();
@@ -813,16 +886,22 @@ private:
     }
     void createBand(float hz,float gain) {
         endDrag();const int added=editing.addBand(instance,hz,gain);refreshEditingState();
-        if(added>=0){selectBand(added);grabKeyboardFocus();}rebuildResponse();repaint();
+        if(added>=0){groupMask=0;selectBand(added);grabKeyboardFocus();}rebuildResponse();repaint();
     }
     void deleteSelection() {
-        if(selectionCount()<=1){deleteSelectedBand();return;}
-        endDrag();const auto mask=selectionMask();groupMask=0;
-        editing.removeBands(instance,mask);refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
-    }
-    void deleteSelectedBand() {
-        endDrag();if(selected<0)return;
-        editing.removeBand(instance,selected);refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
+        endDrag();const auto mask=selectionMask();
+        // Rejected edits (for example during restore) must not erase a valid
+        // group. Capture intent before refresh can choose an outside fallback
+        // when every selected member disappeared before the UI timer ran.
+        bool removed=false;
+        if(mask!=0) {
+            if((mask&(mask-1))==0) {
+                int band=0;while(((mask>>band)&1)==0)++band;
+                removed=editing.removeBand(instance,band);
+            } else removed=editing.removeBands(instance,mask);
+        }
+        if(removed){groupMask=0;++selectionGeneration;}
+        refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
     }
     void applyHistory(bool redo) {
         endDrag();const int bank=redo?editing.nextRedoBank():editing.nextUndoBank();
@@ -950,12 +1029,13 @@ private:
     bool dragAltDown{};
     juce::Point<float> dragAnchor,dragPoint,lastPointer;
     juce::TextButton soloButton;int auditioning{-1};bool auditionFromGraph{};
-    uint16_t groupMask{};bool groupDrag{},marqueeActive{},marqueeAdd{};juce::Point<float> marqueeStart,marqueeEnd;
+    uint64_t selectionGeneration{};uint16_t groupMask{};bool groupDrag{},marqueeActive{},marqueeAdd{};juce::Point<float> marqueeStart,marqueeEnd;
     struct GroupStart {int band{};float frequency{},gain{};bool hasGain{};};
     std::array<GroupStart,graphicalEQBands> groupStart{};int groupStartCount{};
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
     uint64_t lastExternalRevision{},pendingCaptureRequest{};
+    juce::TextButton curveA,curveB,curveCopy;
     juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle,freezeToggle,peakToggle,addButton,deleteButton,undoButton,redoButton;
     juce::ComboBox selector,type,resolution,smoothing;std::array<juce::Slider,3> sliders;
     std::unique_ptr<PA> bypassAttachment,enabledAttachment,typeAttachment;std::array<std::unique_ptr<PA>,3> sliderAttachments;

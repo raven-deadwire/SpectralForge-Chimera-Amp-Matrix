@@ -698,17 +698,7 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     closeTo(get(processor,eqID(bank,3,"q")),1,.001f,"Group wheel Q changed a band outside the group");
     undoOnce("Group wheel Q was not undone in one step");
 
-    // Delete a group as one step; undo brings every band back.
-    check(key(juce::KeyPress::escapeKey,0),"Escape failed");click(1,0);click(2,command);check(panel.selectionMask()==0b0110,"Delete fixture selection wrong");
-    check(key(juce::KeyPress::deleteKey,0),"Delete not handled");
-    check(waitFor([&]{return panel.isBandVisible(0) && !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(3);}),"Group delete did not remove exactly the group");
-    check(get(processor,eqID(bank,1,"enabled"))==0 && get(processor,eqID(bank,2,"enabled"))==0,"Group delete left a band audible");
-    check(panel.selectionCount()==1,"Group delete left a stale group");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Group delete was not undone in one step");
-    for(int b=0;b<4;++b)unchanged(b,"Group delete undo did not restore values");
-    check(key('z',command|juce::ModifierKeys::shiftModifier) && waitFor([&]{return !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(0);}),"Group delete redo failed");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Second group delete undo failed");
-
+    check(key(juce::KeyPress::escapeKey,0),"Escape before single-selection checks failed");
     // A plain click outside the group, or the band chooser, starts over.
     check(panel.selectionCount()==1 && !key(juce::KeyPress::escapeKey,0),"Escape with one band selected was consumed");
     click(0,0);click(1,command);check(panel.selectionMask()==0b0011,"Two-band fixture wrong");
@@ -716,7 +706,76 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     check(key('a',command),"Ctrl/Cmd+A failed");click(3,0);check(panel.selectionMask()==0b1111,"Plain click on a member dropped the group");
     auto* chooser=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));check(chooser!=nullptr,"Band chooser missing");
     chooser->setSelectedId(2,juce::sendNotificationSync);check(panel.selectionMask()==0b0010,"Band chooser kept the group");
+
+    // Deletion with a group selected (every entry point, one undo step) is
+    // covered by groupDeleteEntryPoints in EQGroupSafetyTests.h (#287).
+
+    // Escape during a group drag ends the drag: no member keeps moving, every
+    // host gesture is closed, and the part already made is one undo step.
+    click(0,0);click(1,command);click(2,command);check(panel.selectionMask()==0b0111,"Escape-drag fixture wrong");
+    // The listener detaches on scope exit, also when a check below throws.
+    struct ListenedEvents : HostEvents {
+        std::vector<juce::AudioProcessorParameter*> parameters;
+        ~ListenedEvents() override {detach();}
+        void detach(){for(auto* parameter:parameters)parameter->removeListener(this);parameters.clear();}
+    } escapeEvents;
+    for(int b=0;b<4;++b)for(const char* field:{"frequency","gain"}){auto* parameter=processor.parameters().getParameter(eqID(bank,b,field));parameter->addListener(&escapeEvents);escapeEvents.parameters.push_back(parameter);}
+    const auto grab=panel.visibleNodePosition(1);
+    panel.mouseDown(mouse(panel,grab,grab,false));panel.mouseDrag(mouse(panel,grab+juce::Point<float>(30,-10),grab,true));
+    check(get(processor,eqID(bank,0,"frequency"))>hz[0]*1.01f,"Escape-drag fixture did not move the group");
+    check(key(juce::KeyPress::escapeKey,0) && panel.selectionCount()==1,"Escape during a drag did not collapse the group");
+    check(escapeEvents.starts==escapeEvents.ends,("Escape left a host gesture open: starts="+juce::String(escapeEvents.starts)+" ends="+juce::String(escapeEvents.ends)).toRawUTF8());
+    std::array<std::array<float,4>,4> atEscape{};for(int b=0;b<4;++b)atEscape[size_t(b)]=values(b);
+    panel.mouseDrag(mouse(panel,grab+juce::Point<float>(90,-40),grab,true));panel.mouseUp(mouse(panel,grab+juce::Point<float>(90,-40),grab,true));
+    escapeEvents.detach();
+    for(int b=0;b<4;++b){const auto now=values(b);for(size_t i=0;i<4;++i)check(now[i]==atEscape[size_t(b)][i],"A band kept moving after Escape ended the drag");}
+    check(escapeEvents.starts==escapeEvents.ends,"Host gestures unbalanced after the drag released");
+    undoOnce("The drag before Escape was not one undo step");
+
+    // An explicit single-band choice starts a new selection: + BAND and a
+    // host/navigation focus do not keep the previous group.
+    auto* addBand=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));check(addBand!=nullptr,"+ BAND button missing");
+    click(0,0);click(1,command);check(panel.selectionMask()==0b0011,"Add-band fixture wrong");
+    addBand->triggerClick();check(waitFor([&]{return panel.selectedBand()>=4;}),"+ BAND did not select the new band");
+    const int added=panel.selectedBand();
+    check(panel.selectionMask()==uint16_t(1u<<added),("+ BAND kept the previous group: mask="+juce::String(panel.selectionMask())).toRawUTF8());
+    check(key('z',command) && waitFor([&]{return !panel.isBandVisible(added);}),"Undo of + BAND failed");
+    for(int b=0;b<4;++b)unchanged(b,"+ BAND undo changed a fixture band");
+    click(0,0);click(1,command);panel.selectBandForEditing(3);
+    check(panel.selectionMask()==0b1000 && panel.selectedBand()==3,"Focusing one band kept the previous group");
+    // Middle-click (solo) on a node outside the group starts a new selection;
+    // on a member it keeps the group, like a plain press.
+    const auto middleAt=[&](int band){const auto at=panel.visibleNodePosition(band);
+        const juce::MouseEvent event{juce::Desktop::getInstance().getMainMouseSource(),at,juce::ModifierKeys(juce::ModifierKeys::middleButtonModifier),1.f,0.f,0.f,0.f,0.f,
+                                     &panel,&panel,juce::Time::getCurrentTime(),at,juce::Time::getCurrentTime(),1,false};
+        panel.mouseDown(event);panel.mouseUp(event);};
+    click(0,0);click(1,command);middleAt(3);
+    check(panel.selectionMask()==0b1000 && panel.selectedBand()==3,("Middle-click on a non-member kept the group: mask="+juce::String(panel.selectionMask())).toRawUTF8());
+    click(0,0);click(1,command);middleAt(0);check(panel.selectionMask()==0b0011 && panel.selectedBand()==0,"Middle-click on a member dropped the group");
+    check(panel.auditioningBand()==-1,"Middle-click solo stayed after release");
+    click(0,0);
+    std::cout<<"PASS EQ group: DELETE inside a group keeps the selection in the group, Escape ends a group drag with balanced gestures, + BAND and band focus start a new selection bank="<<bank<<'\n';
     std::cout<<"PASS EQ group selection (Ctrl/Cmd+click, box, Ctrl/Cmd+A, Escape) and group drag/edge/Alt, wheel Q and delete as single undo steps bank="<<bank<<'\n';
+}
+// EQ-local A/B from the editor: the A/B buttons switch this EQ's curve and
+// show the slot; COPY to the other EQ copies its bands there.
+void curveABUI(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    auto* a=find<juce::TextButton>(panel,eqID(bank,-1,"curveA"));auto* b=find<juce::TextButton>(panel,eqID(bank,-1,"curveB"));
+    check(a && b && find<juce::TextButton>(panel,eqID(bank,-1,"curveCopy")),"A/B controls missing");
+    check(panel.curveSlot()==0 && a->getToggleState() && !b->getToggleState(),"A/B does not start on A");
+    const float gain=get(processor,eqID(bank,0,"gain"));
+    b->triggerClick();check(waitFor([&]{return panel.curveSlot()==1 && b->getToggleState() && !a->getToggleState();}),"B button did not switch");
+    set(processor,eqID(bank,0,"gain"),gain+5);settle(60);
+    a->triggerClick();check(waitFor([&]{return panel.curveSlot()==0 && std::abs(get(processor,eqID(bank,0,"gain"))-gain)<.02f;}),"A button did not restore curve A");
+    b->triggerClick();check(waitFor([&]{return std::abs(get(processor,eqID(bank,0,"gain"))-(gain+5))<.02f;}),"B button did not restore curve B");
+    a->triggerClick();check(waitFor([&]{return panel.curveSlot()==0;}),"A button did not switch back");
+    // Make the other EQ differ first (an identical copy is no change and no undo step).
+    set(processor,eqID(1-bank,0,"gain"),get(processor,eqID(bank,0,"gain"))-7);settle(60);
+    panel.applyCurveMenuResult(2);
+    check(std::abs(get(processor,eqID(1-bank,0,"gain"))-get(processor,eqID(bank,0,"gain")))<.02f,"COPY to the other EQ did not copy band 1's gain");
+    check(processor.eqEditing().occupiedMask(1-bank)==processor.eqEditing().occupiedMask(bank),"COPY to the other EQ did not copy the bands");
+    check(processor.eqEditing().undo(),"COPY to the other EQ was not undoable");
+    std::cout<<"PASS EQ A/B buttons: switch and show the slot, restore each curve, COPY to the other EQ is undoable bank="<<bank<<'\n';
 }
 // Band solo from the editor: the SOLO button and a middle-click on a node
 // solo while held; release, hiding the panel and choosing another band end it.
@@ -749,6 +808,8 @@ void bandSoloUI(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     check(state==during,"A solo changed saved state");
     std::cout<<"PASS EQ band solo from the editor: SOLO button and middle-click hold, release, hidden editor and another band end it, saved state unchanged bank="<<bank<<'\n';
 }
+#include "EQGroupSafetyTests.h"
+
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -1177,8 +1238,11 @@ int main(int argc,char** argv){try {
             auto* panel=find<GraphicalEQPanel>(*editor,bank==0?"toneEQ_panel":"finalEQ_panel");
             check(panel && waitFor([&]{return panel->isShowing();}),"Group fixture panel not visible");
             groupEditing(*processor,*panel,bank);
+            curveABUI(*processor,*panel,bank);
             bandSoloUI(*processor,*panel,bank);
+            groupSafetyRegression(bank);
         }
+        groupCrossBankHistory();
         return 0;
     }
     if(argc>1 && std::string(argv[1])=="--modifier-drag") {

@@ -1,0 +1,39 @@
+{
+  "tests": [
+    {
+      "name": "safety",
+      "command": [
+        "/workspace/scratch/94b7ce57763f/chimera/build/ChimeraRecallSafetyTests_artefacts/Release/ChimeraRecallSafetyTests"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 17.21735127100692
+    },
+    {
+      "name": "ir-library",
+      "command": [
+        "/workspace/scratch/94b7ce57763f/chimera/build/ChimeraIRLibraryTests_artefacts/Release/ChimeraIRLibraryTests"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 1.2463850040003308
+    },
+    {
+      "name": "prepared-state",
+      "command": [
+        "/workspace/scratch/94b7ce57763f/chimera/build/ChimeraIntegratedProcessorTests_artefacts/Release/ChimeraIntegratedProcessorTests",
+        "--cab-prepared-state-only"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 3.382343963996391
+    },
+    {
+      "name": "cab-integration",
+      "command": [
+        "/workspace/scratch/94b7ce57763f/chimera/build/ChimeraOriginalCabIntegrationTests_artefacts/Release/ChimeraOriginalCabIntegrationTests"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 24.70134637299634
+    }
+  ],
+  "numeric_cab_oracle_identical_binary": true,
+  "full_integrated_final_default_run": false
+}

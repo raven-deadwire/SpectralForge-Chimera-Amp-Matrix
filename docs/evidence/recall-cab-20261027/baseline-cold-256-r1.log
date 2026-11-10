@@ -1,0 +1,6 @@
+SWITCH_PROTOCOL rate=48000 block=256 preroll_s=0.6 horizon_s=1 threshold_db=-40 time_effects=off
+SWITCH kind=preset name="preset 0 > 17" response_ms=10 settle_ms=417 residual_db@20/50/100/250=-1.6/-2.0/-1.6/-1.7 click_db=-7.1 click_at_ms=418 overshoot_db=0.0 gap_ms=401 cpu_ms p50=1.255 p99=2.704 switch=4.835 budget=5.333
+SWITCH kind=preset name="preset 17 > 33" response_ms=6 settle_ms=686 residual_db@20/50/100/250=-2.7/-4.1/2.8/-4.0 click_db=0.8 click_at_ms=684 overshoot_db=0.0 gap_ms=624 cpu_ms p50=2.108 p99=6.089 switch=12.156 budget=5.333
+SWITCH kind=ab name="A > B" response_ms=109 settle_ms=846 residual_db@20/50/100/250=-1.9/-0.0/5.3/-4.0 click_db=1.0 click_at_ms=844 overshoot_db=0.0 gap_ms=710 cpu_ms p50=1.207 p99=3.221 switch=18.921 budget=5.333
+SWITCH kind=ab name="A > B lane 3 solo" response_ms=16 settle_ms=544 residual_db@20/50/100/250=-10.1/-3.4/-1.6/-9.8 click_db=0.1 click_at_ms=524 overshoot_db=0.0 gap_ms=444 cpu_ms p50=1.176 p99=5.615 switch=46.115 budget=5.333
+FAIL ab "A > B" did not respond within 60 ms

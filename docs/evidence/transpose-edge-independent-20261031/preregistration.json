@@ -1,0 +1,96 @@
+{
+  "sources_sha256": {
+    "Tools/TransposeNext/BlockInvariance.cpp": "ae358ceea0458067ee9c8143d8562cabe5e721dc27d67457af5176231f2d260f",
+    "Tools/TransposeNext/CorrelationPitch.h": "dac84e57566c68e326b35510dcd6c5d55c5524091d25891cae686356fe94e806",
+    "Tools/TransposeNext/CorrelationTests.cpp": "9727d13fccd2ed56bfd453f87a7eed0a69f6c2454e8f3f3de97a711af2361efb",
+    "Tools/TransposeNext/EnvelopeBlocks.cpp": "5249888363a4071fcebcaeb29aa8d7e03bc6b3766c683f518e912cb97de389b3",
+    "Tools/TransposeNext/EnvelopeProbe.cpp": "b134ab74b6dd033bb4d0ced5e9a8ed73981f4b630ea6169a74882397e84b8fe1",
+    "Tools/TransposeNext/EnvelopeResearch.h": "7e2be56ec7dd144d2f0a856e7adf6df74a9697c1a3d39a7e6f849ebd640a194f",
+    "Tools/TransposeNext/EnvelopeTests.cpp": "473844429cfb71c03ddf8981e0fba8b4e30432292528c9ee8b9f2582f2dcb6b2",
+    "Tools/TransposeNext/EnvelopeTrace.cpp": "f84bf047da0c3635cb4a562a1dde06cb7873b235708c64c4db06c73618d412ba",
+    "Tools/TransposeNext/OnsetTrace.cpp": "77238eaab3397fc01a7635042666896cc5ff3a40f2e3812c89c33bb5b4d3c8a9",
+    "Tools/TransposeNext/RelativePhasePitch.h": "a0e68f39e154da6138de4ecf37d140f499f98460ea87674406943fedebfa342a",
+    "Tools/TransposeNext/SpliceCollision.cpp": "c43c18591288abce270ff4e96b187eb63f39916fd21480c4cb0f8fe8210356b9",
+    "Tools/TransposeNext/SpliceTrace.cpp": "d815475bef1683db0d90e8b8a61e583a069897fca4a2b9558f01690541c0fcad",
+    "Tools/TransposeNext/TransientSplitPitch.h": "b101ee479a842559a77e165b25d7bedba7b6c818927f42b2c47451c7c382ea3f",
+    "Tools/TransposeNext/TransposeProbe.cpp": "ca22e73dc217d49b85413400cfa8541a73a3d8ba456fa228c8f027bde4d94fe6",
+    "Tools/TransposeNext/attack_snr.py": "ca2f7be9bedcdccfbcf1e603f06e6ef512e921c4a6f94fc87306fe712fdbaccd",
+    "Tools/TransposeNext/build.py": "124338220aaab972257836a64bbb12045eed022dbe44b3b5309937260bc42f91",
+    "Tools/TransposeNext/build_envelope.py": "5602e07e1a33f817f28c42b5d480c8e80d744467411889e5c6d0f032c41eaf0d",
+    "Tools/TransposeNext/collect_evidence.py": "c4be788c123b058d89a296c74f3ad3c65ac0e8e0b6871792d4aaed9c61ef0c58",
+    "Tools/TransposeNext/di_validation.py": "329d7d7f9e19a2c4a716998df0890251ff511e9bd7da2c6f9fa46b015895d298",
+    "Tools/TransposeNext/edge_validation.py": "d1711c79698f81692142d94b916340ea91c8ede2061920c53ee566119cdef101",
+    "Tools/TransposeNext/envelope_study.py": "d7a9ab0d261e38dbcfc7a330795877fc390c0641205c0aa6929c09eadd04fb27",
+    "Tools/TransposeNext/envelope_validation.py": "922311ef31bf0fe30309cd8c79064cbe09bebb1b014d0772a84fceed8b473957",
+    "Tools/TransposeNext/evaluate.py": "f6e9a16b51d690add067a35b84f6364b73a807c7c25d13b63db8730ce7f36a7f",
+    "Tools/TransposeNext/latency_targets.py": "13a48718e20738525251720ca66c8487c76adad711c48dbfb9e66b28d0938aae",
+    "Tools/TransposeNext/legacy_metrics.py": "8582eaeaba558584eb57af7e18935ea35380ffef142ab2d022b52d533277721a",
+    "Tools/TransposeNext/low_band_delay.py": "a7bfba478f78cc55d0d61e2c2b758a8cff79e4227740a78447c6469c6e9cbd53",
+    "Tools/TransposeNext/pdc_study.py": "74ba6d55f3ff6c51362261873c0e1b98136d3c46a41555291bcc6a91dc12ddca",
+    "Tools/TransposeNext/plot_results.py": "b2a7981e27fc67d52986746c6dbcec5399a1092dccd083e736583b6b326d9eba",
+    "Tools/TransposeNext/residual_validation.py": "d0464bd89c1ec78d5244db135dad5796ee680a11d7e002e3a9e8776ec0455ef9",
+    "Tools/TransposeNext/stress.py": "4021c585cc7aed78349fcccbd912851d40f46f3e6187cd4443cf0e452534e5be",
+    "Tools/TransposeNext/t6_host_check.py": "7939671a7eeb2bf5e5584d949fa02d9097b963541eb70e1a1f72e1c88d757eea",
+    "Tools/TransposeNext/t6_listening.py": "66ca09bcdf0db17721cbe8c70f0be19e9d199c259797638a93a30114d15f7609",
+    "Tools/TransposeNext/timing.py": "a77a46f69d9266c4eb4d75090f75b69e5fdc1b470fe57e88f1012c20afa323cf",
+    "Tools/TransposeNext/v3sinc_validation.py": "384ee67407aecfabbbed3f3a0b9bd31495d572e4f05f75f3d5f0a9dd5357a4bc",
+    "Tools/TransposeNext/v4_validation.py": "136dee8b63bd48604253289cd506eec30e1b0cb1a3b720e0bba800b4158bebb9",
+    "Tools/TransposeNext/weak_attack_holdout.py": "27cc1425966cbe15cf49b45c0b287ee5bae0eb82376ddb71c911bc3c7c6deced",
+    "Tools/TransposeNext/weak_attack_study.py": "a2978394342ce97a132a91049cd98241c89ee9d529e4c6be13803e66ca92c62a",
+    "Validation/transpose-latency-targets.json": "345c287fbce0cfc2df6673b1143922bc7f43b1eebfca3176c2b6f67985afdcc4"
+  },
+  "binaries_sha256": {
+    "TransposeProbe": "f98c35a771af6d748c54c7f85b7c55853581ba1270b5198010a775ed7bce1b44",
+    "BlockInvariance": "93d5e1dfc8439231bfab22e837597c5d61e26f82f50ced2ebe5558d80f995851"
+  },
+  "baseline_sha256": "57449253f7283cedcb9155a87ddfa543a1f8479500a662a8a381ea4b85341fbc",
+  "spec_sha256": "345c287fbce0cfc2df6673b1143922bc7f43b1eebfca3176c2b6f67985afdcc4",
+  "base_commit": "472b93e68d20bcad07a028cc67a17b50f8171838",
+  "source_pr_sha": "3f28c3e09ec437a898868e5db0784acb30e33cdc",
+  "created_utc": "2026-10-31T08:16:41.116747+00:00",
+  "client_date_kst": "2026-10-31",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "holdout_seeds": [
+    2026103101,
+    2026103107
+  ],
+  "long_seeds": [
+    2026103113
+  ],
+  "sweep_seed": 2026103129,
+  "rates": [
+    44100,
+    48000,
+    96000
+  ],
+  "shifts": [
+    -2,
+    -1,
+    1,
+    2
+  ],
+  "engines": [
+    "corr40-split-v3",
+    "corr40-split-v3-edge",
+    "corr40-split-v3-sinc",
+    "corr40-split-v3-sinc-edge"
+  ],
+  "synthetic_only": true,
+  "rules": {
+    "sweep": "Each of fc/2fc/3fc +/-1/2/3 Hz, 51 points, new random phases. Sinc-edge worst net <= -50 dB at every rate/multiple. Report raw residual and all >1 dB regressions; no retuning.",
+    "targets": "Unchanged spec v2: T1/T2/T4 PASS, T3 within existing ceilings. Preserve failures on either arm. New holdout seeds and long seed, plus existing fixed controls.",
+    "lowband": "Max absolute delay difference <= 0.05 ms; report signed differences separately for B0/A0/A1.",
+    "onset": "No increased missed events/unmatched resets or changed reset counts; report association timing differences, do not hide them.",
+    "blocks": "All four modes: fixed 1,37,64,100,256,512,1024,2048,4096 and five seeded random patterns vs 128: bit-identical.",
+    "parity": "Candidate option OFF vs unmodified main binary: bit-identical output and decisions on 216 cases.",
+    "cpu": "Five alternating-order passes, all rates, +/- selected shifts (-2/+1), blocks64/128/256, B0/A0 plucks and all three edge regions. Thread CPU mean/p99/max, wall max and every overrun. Report only; shared Linux cannot certify a DAW."
+  },
+  "exclusions": [
+    "No product Source edits",
+    "No fixed PDC implementation",
+    "No real DI",
+    "No listening",
+    "No Windows/macOS DAW"
+  ],
+  "run_policy": "Commit/push before rendering. One phase run; retain failures. CPU alone after other work."
+}

@@ -1,0 +1,7 @@
+{
+ "command": "python Tools/TransposeNext/di_validation.py plan --manifest Validation/transpose-di-take-template.json --strict",
+ "exit_code": 1,
+ "expected": 1,
+ "status": "MISSING_INPUT",
+ "missing_recordings": 9
+}

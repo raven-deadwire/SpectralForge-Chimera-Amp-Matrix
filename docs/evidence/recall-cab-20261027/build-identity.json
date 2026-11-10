@@ -1,0 +1,24 @@
+{
+  "implementation_commit": "61690ebff18a9ea957f11ffdd2435b88b00c7061",
+  "base_commit": "9d60312e13dbc0ef21a2db60f7041cce3afad791",
+  "compiler": "GCC 13.3.0",
+  "juce": "8.0.8",
+  "configuration": "Release -O3",
+  "headless_recall_benchmarks": true,
+  "full_product_ui_build": false,
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "binary_sha256": {
+    "ChimeraSwitchTimingProbe": "ff79ca4ad7339b08a118ab744367f9f45f62b0fae3439d1d0a88e9b174337b8c",
+    "ChimeraRecallSafetyTests": "8b874e17f002f64b7206ab9ad7cbef62cd6cc716f56de98fbb94041fa0ce724e",
+    "ChimeraIRLibraryTests": "3e89d7d0eb4e357fa0adab37fb545b1b442de6d6c9991eb23494eb95dbfb8950",
+    "ChimeraIntegratedProcessorTests": "ec157bf18e981e940135679086109930e9e99db9ce98363644f0c390937e7c1d",
+    "ChimeraOriginalCabRealtimeTests": "f6bd8c2a9fb5cc247cb1f0359ad9d36691c9937665f77cc6e7e6f92de17d1123",
+    "ChimeraOriginalCabIntegrationTests": "f965d71b00cab1f260f912afbfd31d76e4e49d90349c99363455e16526a42ee8"
+  },
+  "physical_audio_device": false,
+  "windows": false,
+  "macos": false,
+  "obs": false,
+  "daw": false,
+  "listening_approved": false
+}

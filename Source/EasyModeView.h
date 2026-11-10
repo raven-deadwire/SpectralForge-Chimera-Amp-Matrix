@@ -34,7 +34,7 @@ public:
         autoButton.setComponentID("easy.autoSet");autoButton.getProperties().set("utilityDock",true);autoButton.getProperties().set("primaryAction",true);
         autoButton.onClick=[this]{if(autoBusy){if(autoCancel)autoCancel();}else if(autoSet)autoSet();};
         autoOptions.setComponentID("easy.autoOptions");autoOptions.getProperties().set("utilityDock",true);
-        autoOptions.setTooltip("Auto Set options: instrument (detected, guitar or bass), style (rock, clean or metal) and which steps run. Shared with the full editor.");
+        autoOptions.setTooltip("Auto Set options: instrument (detected - guitar, bass, vocal, keys or drums - or choose guitar or bass), style (rock, clean or metal) and which steps run. Shared with the full editor.");
         autoOptions.onClick=[this]{showAutoOptions();};
         undo.setComponentID("easy.autoUndo");undo.getProperties().set("utilityDock",true);undo.setTooltip("Restore the settings from before the last Auto Set run.");
         undo.onClick=[this]{if(autoUndo)autoUndo();};undo.setEnabled(false);undo.setAlpha(.4f);

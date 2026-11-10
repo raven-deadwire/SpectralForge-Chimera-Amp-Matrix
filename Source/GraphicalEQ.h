@@ -85,6 +85,9 @@ public:
     void setAudition(int band) noexcept {auditionRequest.store(band>=0 && band<graphicalEQBands?band:-1);auditionHeartbeat();}
     void auditionHeartbeat() noexcept {auditionBeat.store(std::chrono::steady_clock::now().time_since_epoch().count());}
     int auditionedBand() const noexcept {return auditionPlaying.load();}
+    // Offline render or recording (the processor's "printing" state): a solo
+    // never reaches a bounce or a recorded take. Set by the audio thread.
+    void setPrinting(bool on) noexcept {printing.store(on,std::memory_order_relaxed);}
     float dynamicReduction(int band) const noexcept {return dynamicMeters[size_t(std::clamp(band,0,11))].load();}
     void prepare(double sr) noexcept {rate=std::max(8000.,sr);uiRate.store(rate);reset();average.store(0);peak.store(0);}
     void reset() noexcept {
@@ -117,8 +120,9 @@ public:
             // Band solo: the requested band while the editor keeps listening.
             {
                 const auto beat=std::chrono::steady_clock::duration(auditionBeat.load());
-                const bool alive=std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()-beat).count()<auditionTimeoutSeconds;
-                const int wanted=bypassed||!alive?-1:auditionRequest.load();
+                // The callback's start time (already read for the CPU meter): no extra clock read.
+                const bool alive=std::chrono::duration<double>(start.time_since_epoch()-beat).count()<auditionTimeoutSeconds;
+                const int wanted=bypassed||!alive||printing.load(std::memory_order_relaxed)?-1:auditionRequest.load();
                 if(wanted!=auditionBand) {
                     // Fade out first; switch (or stop) once silent of the old band.
                     if(auditionMix.getCurrentValue()==0.f){auditionBand=wanted;auditionFilter.clear();}
@@ -234,7 +238,7 @@ private:
     std::array<std::array<std::atomic<float>*,5>,graphicalEQBands> params{};
     juce::SmoothedValue<float> wet,auditionMix;
     Filter auditionFilter;int auditionBand{-1};
-    std::atomic<int> auditionRequest{-1},auditionPlaying{-1};
+    std::atomic<int> auditionRequest{-1},auditionPlaying{-1};std::atomic<bool> printing{false};
     std::atomic<std::chrono::steady_clock::rep> auditionBeat{0};
     double rate{48000};std::atomic<double> uiRate{48000};int clock{};
 };

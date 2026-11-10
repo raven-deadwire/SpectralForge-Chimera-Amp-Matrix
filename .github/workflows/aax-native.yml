@@ -106,6 +106,7 @@ jobs:
             dist-aax/*.sha256
             dist-aax/native-install-results.json
             dist-aax/system-install-results.json
+            dist-aax/signing-preflight.json
             build-aax/aax-tests.xml
             build-aax/aax-exports.txt
             build-aax/chimera-build-version.json

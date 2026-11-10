@@ -34,6 +34,7 @@ JUCE는 쓰지 않는다.
 | `tools/stage_module.py`, `packaging/` | macOS·Linux 사용자 설치 패키지(설치 스크립트, 사용·설치 안내) | 빌드 |
 | `tests/obs-layout-tests.cpp` | 설치한 위치에서 OBS 방식대로 모듈을 찾아 등록되는지 확인 | 시험 |
 | `tests/obs_app_test.py`, `tests/state-tool.cpp` | 실제 OBS Studio 앱을 obs-websocket으로 조작: 필터 추가·녹화·상태 적용·장면 저장·재시작 복원 | 시험 |
+| `tests/obs_windows_diagnostics.py`, `tests/startup-observer.cpp` | Windows 시작 정지 진단: kill 전 thread dump 보존 도구, 선택적 시험 전용 모듈(실제 frontend `FINISHED_LOADING`을 PID와 함께 기록, `CHIMERA_OBS_BUILD_STARTUP_OBSERVER`, 기본 OFF, 배포 미포함). [#248 조사](../docs/OBS_WINDOWS_STARTUP_AUDIT_20261102.ko.md). #249의 대조 probe와 하네스 변경은 main의 시작 대기 방식과 겹쳐 넣지 않음 | 진단 |
 | `tests/obs_instances_test.py` | 실제 OBS Studio 앱에서 Chimera 필터 여러 개(C단계): 서로 다른 상태로 함께 처리, 필터 붙여넣기(전체·하나)로 상태 복사, 붙인 필터의 독립, 장면 저장·재시작 복원 | 시험 |
 | `tests/obs_editor_test.py` | 실제 OBS Studio 앱에서 Chimera 에디터 창: 필터 속성 버튼 함수로 UI 스레드에서 열기·다시 올리기, 열린 동안 소리 유지, 열린 채 OBS 종료, 저장 상태 유지 | 시험 |
 | `tests/obs_editor_edit_test.py` | 실제 OBS Studio 앱(Linux, Xvfb)에서 Chimera 에디터 창 안의 편집: 필터 버튼으로 연 에디터의 OUTPUT 노브를 xdotool 마우스 드래그로 내리면 필터의 OBS 설정(장면 상태)이 바뀌고 소리가 작아지는지, 에디터를 연 채 종료한 뒤 재시작해도 편집한 소리가 복원되는지 | 시험 |
@@ -335,8 +336,10 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
 
 - 레벨 미터는 OBS 자체 오디오 믹서 미터(필터 적용 후)를 쓴다. 속성 창에는 실시간 미터를 넣지 않았다.
 - 개인 IR은 Chimera가 파일 경로가 아니라 WAV 바이트를 자기 상태(`USER_IRS`)에 넣어 두므로 OBS 장면이 IR을 함께 가진다.
-  원래 IR 파일이 지워져도 소리는 같다(Chimera가 설치된 다른 PC로 장면을 옮길 때도 IR 파일은 필요 없다). 상태 안의 IR이 손상되면 Chimera는 그 칸을 캐비닛 필터로 처리한다
-  ("Saved IR is damaged. Filters only."). 모듈은 상태를 그대로 전달할 뿐이며, 두 동작 모두 `obs_user_ir_test.py`가 실제 OBS에서 확인한다.
+  원래 IR 파일이 지워져도 소리는 같다(Chimera가 설치된 다른 PC로 장면을 옮길 때도 IR 파일은 필요 없다). inline `USER_IRS`의 IR이 손상되면 해당 칸을 캐비닛 필터로 처리한다.
+  새 pooled 형식의 `IR_ASSETS` 무결성 검사가 실패하면 상태 전체를 적용하지 않고 현재 상태를 유지한다. 두 실패 처리는 구별한다.
+  `obs_user_ir_test.py`는 정상 IR 저장·복원과 inline 손상 IR의 필터 대체를 검사한다. 음수 길이·손상 WAV·원본 바이트 확인을 추가한 후속 검증 상태는
+  [`OBS_USER_IR_REVIEW_20261104.ko.md`](../docs/OBS_USER_IR_REVIEW_20261104.ko.md)를 따른다.
 - 실제 OBS 앱 안에서 에디터 창을 필터 버튼으로 열고·다시 올리고·연 채로 종료하는 것은 `obs_editor_test.py`가 확인한다.
   에디터 안에서 소리를 바꾼 편집이 장면에 반영되는 것(500 ms 타이머)은 Linux에서 `obs_editor_edit_test.py`가 확인한다: Xvfb에서 xdotool로
   EASY VIEW의 OUTPUT 노브를 마우스로 끌어 내리면 필터 설정의 상태가 바뀌고 소리가 작아지며, 장면에 저장되어 재시작 뒤에도 같다.
