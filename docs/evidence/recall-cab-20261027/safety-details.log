@@ -1,0 +1,21 @@
+Start testing: Oct 26 13:57 CDT
+----------------------------------------------------------
+35/66 Testing: ChimeraRecallSafetyTests
+35/66 Test: ChimeraRecallSafetyTests
+Command: "/workspace/scratch/94b7ce57763f/chimera/build/ChimeraRecallSafetyTests_artefacts/Release/ChimeraRecallSafetyTests"
+Directory: /workspace/scratch/94b7ce57763f/chimera/build
+"ChimeraRecallSafetyTests" start time: Oct 26 13:57 CDT
+Output:
+----------------------------------------------------------
+PASS recall safety 48000/64
+PASS recall safety 48000/128
+PASS recall safety 48000/256
+<end of output>
+Test time =  50.72 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraRecallSafetyTests" end time: Oct 26 13:57 CDT
+"ChimeraRecallSafetyTests" time elapsed: 00:00:50
+----------------------------------------------------------
+
+End testing: Oct 26 13:57 CDT

@@ -1,0 +1,87 @@
+OBS 32.2.2 / 09-absent: selected actual unwound threads
+Run 41377205562, attempt 1, job 125059928546; artifact 13111019789.
+Pre-close dump 2026-11-02 02:26:31.010 UTC; shutdown dump 02:27:36.529 UTC.
+No Chimera module in this process. Failed RPC: CreateScene, id 3.
+
+Method: LLDB 19.1.1 true x64 unwind with matching PE binaries, without PDBs in its search path.
+OBS/PDB symbolization is a separate llvm-symbolizer 19.1.1 --relative-address --no-inlines pass.
+Caller locations use unwound PC-1; frame 0 uses the current PC. Addresses below are original unwound PCs.
+This is not a scan for code-looking addresses on the stack. PE/PDB identity is in provenance.json.
+Both selected threads have identical complete unwound PC lists in the later shutdown dump.
+Qt6Core function names come from PE exports; no Qt PDB is claimed.
+
+Thread #1, Windows TID 8420 (0x20e4): main/UI thread: waits for source_create signal mutex during AudioMixer construction
+  #00 0x00007ffbdec42344 ntdll.dll+0x162344  ZwWaitForSingleObject
+      ??:0:0
+  #01 0x00007ffbdc17d01f KERNELBASE.dll+0x2d01f  WaitForSingleObjectEx
+      ??:0:0
+  #02 0x00007ffbbf8845ff w32-pthreads.dll+0x45ff  pthread_mutex_lock
+      ??:0:0
+  #03 0x00007ffbba14cbcf obs.dll+0x9cbcf  signal_handler_connect_ref
+      libobs/callback/signal.c:234:0
+  #04 0x00007ff7e5b7fbb3 obs64.exe+0xfbb3  std::vector<class OBSSignal, class std::allocator<class OBSSignal>>::emplace_back<struct signal_handler *, char const 
+      C:/Program Files/Microsoft Visual Studio/18/Enterprise/VC/Tools/MSVC/14.51.36231/include/vector:927:0
+  #05 0x00007ff7e5d431eb obs64.exe+0x1d31eb  AudioMixer::AudioMixer
+      frontend/widgets/AudioMixer.cpp:208:0
+  #06 0x00007ff7e5d66e11 obs64.exe+0x1f6e11  OBSBasic::OBSInit
+      frontend/widgets/OBSBasic.cpp:1212:0
+  #07 0x00007ff7e5e309e1 obs64.exe+0x2c09e1  OBSApp::OBSInit
+      frontend/OBSApp.cpp:1310:0
+  #08 0x00007ff7e5e231c1 obs64.exe+0x2b31c1  run_program
+      frontend/obs-main.cpp:686:0
+  #09 0x00007ff7e5e24201 obs64.exe+0x2b4201  main
+      frontend/obs-main.cpp:1087:0
+  #10 0x00007ff7e5e9c070 obs64.exe+0x32c070  qtEntryPoint
+      D:/a/obs-deps/obs-deps/windows_build_temp/qt6/qtbase/src/entrypoint/qtentrypoint_win.cpp:45:0
+  #11 0x00007ff7e5e9b699 obs64.exe+0x32b699  __scrt_common_main_seh
+      D:/a/_work/1/s/src/vctools/crt/vcstartup/src/startup/exe_common.inl:288:0
+  #12 0x00007ffbdd8bdd37 kernel32.dll+0x2dd37  BaseThreadInitThunk
+      ??:0:0
+  #13 0x00007ffbdeb1f2bc ntdll.dll+0x3f2bc  RtlUserThreadStart
+      ??:0:0
+
+Thread #14, Windows TID 2404 (0x964): WebSocket request worker: holds signal callback dispatch while waiting for UI AddScene
+  #00 0x00007ffbdec45f14 ntdll.dll+0x165f14  ZwWaitForAlertByThreadId
+      ??:0:0
+  #01 0x00007ffbdeb152e3 ntdll.dll+0x352e3  RtlWaitOnAddress
+      ??:0:0
+  #02 0x00007ffbdc22fe28 KERNELBASE.dll+0xdfe28  WaitOnAddress
+      ??:0:0
+  #03 0x00007ffb98b8567d Qt6Core.dll+0x26567d  nearest PE export: void QLatch::waitInternal(int) + 61
+  #04 0x00007ffb989d353b Qt6Core.dll+0xb353b  nearest PE export: enum QMetaMethodInvoker::InvokeFailReason QMetaMethodInvoker::invokeImpl(class QMetaMethod, void *, enum Qt::ConnectionType, __int64, void const *const *, char const *const *, class QtPrivate::QMetaTypeInterface const *const *) + 3819
+  #05 0x00007ffb989d3ad3 Qt6Core.dll+0xb3ad3  nearest PE export: bool QMetaObject::invokeMethodImpl(class QObject *, char const *, enum Qt::ConnectionType, __int64, void const *const *, char const *const *, class QtPrivate::QMetaTypeInterface const *const *) + 339
+  #06 0x00007ff7e5da44bb obs64.exe+0x2344bb  OBSBasic::SourceCreated
+      frontend/widgets/OBSBasic_SceneItems.cpp:205:0
+  #07 0x00007ffbba14d0d6 obs.dll+0x9d0d6  signal_handler_signal
+      libobs/callback/signal.c:305:0
+  #08 0x00007ffbba1012a6 obs.dll+0x512a6  obs_source_dosignal
+      libobs/obs-internal.h:1039:0
+  #09 0x00007ffbba106226 obs.dll+0x56226  obs_source_create_internal
+      libobs/obs-source.c:509:0
+  #10 0x00007ffbba0b8e61 obs.dll+0x8e61  obs_canvas_scene_create
+      libobs/obs-canvas.c:486:0
+  #11 0x00007ffb9731b080 obs-websocket.dll+0xab080  RequestHandler::CreateScene
+      ??:0:0
+  #12 0x00007ffb972f4c76 obs-websocket.dll+0x84c76  RequestHandler::ProcessRequest
+      ??:0:0
+  #13 0x00007ffb972e04ac obs-websocket.dll+0x704ac  WebSocketServer::ProcessMessage
+      ??:0:0
+  #14 0x00007ffb972a40eb obs-websocket.dll+0x340eb  `WebSocketServer::onMessage'::`2'::<lambda_1>::operator
+      ??:0:0
+  #15 0x00007ffb98ac09ec Qt6Core.dll+0x1a09ec  nearest PE export: void QThreadPoolPrivate::reset(void) + 1068
+  #16 0x00007ffb98b7f31b Qt6Core.dll+0x25f31b  nearest PE export: void QThread::start(enum QThread::Priority) + 1467
+  #17 0x00007ffbdd8bdd37 kernel32.dll+0x2dd37  BaseThreadInitThunk
+      ??:0:0
+  #18 0x00007ffbdeb1f2bc ntdll.dll+0x3f2bc  RtlUserThreadStart
+      ??:0:0
+
+Interpretation tied to matching official tag source:
+  AudioMixer.cpp:208 connects the global source_create signal on the main thread.
+  signal_handler_connect_ref -> signal_handler_connect_internal takes sig->mutex (signal.c:215).
+  signal_handler_signal holds that signal mutex while invoking callback (signal.c:298-305).
+  The worker is inside OBSBasic::SourceCreated -> QMetaObject::invokeMethod, waiting in Qt QLatch.
+  The main thread cannot complete AudioMixer startup because it waits on signal callback dispatch;
+  the worker cannot return from callback dispatch because it waits on the main thread.
+  This confirms the reproduced host startup circular wait without Chimera. It does not recover
+  the original PR #248 stack, for which no minidump exists. Mutex ownership was not independently
+  queried from Windows kernel objects; the lock cycle follows the two live stacks and exact source.

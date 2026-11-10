@@ -1,0 +1,103 @@
+[  2%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/ResearchProcessor.cpp.o
+[  4%] Building CXX object CMakeFiles/juce_vst3_helper.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/VST3/juce_VST3ManifestHelper.cpp.o
+In file included from /workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../TransientSplitPitch.h:5,
+                 from /workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/ResearchEngine.h:6,
+                 from /workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/ResearchProcessor.cpp:4:
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h: In member function ‘void transposeNext::CorrelationPitch::setSemitones(int)’:
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:188:20: warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe [-Wfloat-equal]
+  188 |         if(newRatio!=ratio) {
+      |            ~~~~~~~~^~~~~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:190:49: warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe [-Wfloat-equal]
+  190 |             minimum=(delta<0 && upshiftMinimumMs!=2.) ? rate*upshiftMinimumMs*.001 : rate*.002;
+      |                                 ~~~~~~~~~~~~~~~~^~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h: In member function ‘void transposeNext::CorrelationPitch::setUpshiftMinimum(double)’:
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:207:45: warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe [-Wfloat-equal]
+  207 |         minimum=(delta<0 && upshiftMinimumMs!=2.) ? rate*upshiftMinimumMs*.001 : rate*.002;
+      |                             ~~~~~~~~~~~~~~~~^~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h: In member function ‘bool transposeNext::CorrelationPitch::splicedWithin(uint64_t, uint64_t) const’:
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:228:46: warning: declaration of ‘window’ shadows a member of ‘transposeNext::CorrelationPitch’ [-Wshadow]
+  228 |     bool splicedWithin(uint64_t now,uint64_t window) const noexcept {
+      |                                     ~~~~~~~~~^~~~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:20:39: note: shadowed declaration is here
+   20 |     int count{}, capacity{}, write{}, window{}, stride{}, fadeLength{}, fadeIndex{}, spliceFadeLength{}, activeFade{};
+      |                                       ^~~~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h: In member function ‘void transposeNext::CorrelationPitch::setRelativeFloor(double)’:
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:240:34: warning: declaration of ‘ratio’ shadows a member of ‘transposeNext::CorrelationPitch’ [-Wshadow]
+  240 |     void setRelativeFloor(double ratio) noexcept {relativeFloor=ratio;}
+      |                           ~~~~~~~^~~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:21:20: note: shadowed declaration is here
+   21 |     double rate{}, ratio{1}, delta{}, minimum{}, maximum{}, delay{}, nextDelay{};
+      |                    ^~~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h: In member function ‘void transposeNext::CorrelationPitch::process(const juce::AudioBuffer<float>&, juce::AudioBuffer<float>&, bool, const juce::AudioBuffer<float>*, const uint8_t*, uint8_t*)’:
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/../CorrelationPitch.h:348:32: warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe [-Wfloat-equal]
+  348 |             if(!render || ratio==1.) {
+      |                           ~~~~~^~~~
+In file included from /workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/juce_audio_processors.h:154,
+                 from /workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_utils/juce_audio_utils.h:69,
+                 from /workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/ResearchProcessor.cpp:3:
+/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/processors/juce_AudioProcessor.h: At global scope:
+/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/processors/juce_AudioProcessor.h:313:18: warning: ‘virtual void juce::AudioProcessor::processBlockBypassed(juce::AudioBuffer<double>&, juce::MidiBuffer&)’ was hidden [-Woverloaded-virtual=]
+  313 |     virtual void processBlockBypassed (AudioBuffer<double>& buffer,
+      |                  ^~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/ResearchProcessor.cpp:67:10: note:   by ‘virtual void transposeResearchPlugin::Processor::processBlockBypassed(juce::AudioBuffer<float>&, juce::MidiBuffer&)’
+   67 |     void processBlockBypassed(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&) override {
+      |          ^~~~~~~~~~~~~~~~~~~~
+/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/processors/juce_AudioProcessor.h:289:18: warning: ‘virtual void juce::AudioProcessor::processBlock(juce::AudioBuffer<double>&, juce::MidiBuffer&)’ was hidden [-Woverloaded-virtual=]
+  289 |     virtual void processBlock (AudioBuffer<double>& buffer,
+      |                  ^~~~~~~~~~~~
+/workspace/scratch/3c54c28c6073/chimera/Tools/TransposeNext/plugin/ResearchProcessor.cpp:47:10: note:   by ‘virtual void transposeResearchPlugin::Processor::processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&)’
+   47 |     void processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&) override {
+      |          ^~~~~~~~~~~~
+[  6%] Linking CXX executable juce_vst3_helper
+[  6%] Built target juce_vst3_helper
+[  8%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/HostCheck.cpp.o
+[ 10%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/juce_audio_processors.cpp.o
+[ 12%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_utils/juce_audio_utils.cpp.o
+[ 14%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/juce_audio_processors.cpp.o
+[ 16%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
+[ 18%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
+[ 20%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_gui_extra/juce_gui_extra.cpp.o
+[ 22%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_gui_basics/juce_gui_basics.cpp.o
+[ 24%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
+[ 26%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
+[ 28%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_gui_extra/juce_gui_extra.cpp.o
+[ 30%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_gui_basics/juce_gui_basics.cpp.o
+[ 32%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_graphics/juce_graphics.cpp.o
+[ 34%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_graphics/juce_graphics.cpp.o
+[ 36%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
+[ 38%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
+[ 40%] Building C object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
+[ 42%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_events/juce_events.cpp.o
+[ 44%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_core/juce_core.cpp.o
+[ 46%] Building C object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
+[ 48%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_events/juce_events.cpp.o
+[ 51%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_core/juce_core_CompilationTime.cpp.o
+[ 53%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_data_structures/juce_data_structures.cpp.o
+[ 55%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_basics/juce_audio_basics.cpp.o
+[ 57%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_core/juce_core.cpp.o
+[ 59%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_utils/juce_audio_utils.cpp.o
+[ 61%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_formats/juce_audio_formats.cpp.o
+[ 63%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_core/juce_core_CompilationTime.cpp.o
+[ 65%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_data_structures/juce_data_structures.cpp.o
+[ 67%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_basics/juce_audio_basics.cpp.o
+[ 69%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_formats/juce_audio_formats.cpp.o
+[ 71%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_devices/juce_audio_devices.cpp.o
+[ 73%] Building CXX object CMakeFiles/ChimeraTransposeResearch.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_dsp/juce_dsp.cpp.o
+[ 75%] Linking CXX static library "ChimeraTransposeResearch_artefacts/Release/libChimera Transpose Research_SharedCode.a"
+[ 75%] Built target ChimeraTransposeResearch
+[ 77%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_AAX.cpp.o
+[ 79%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_AAX_utils.cpp.o
+[ 81%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_ARA.cpp.o
+[ 83%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_LV2.cpp.o
+[ 85%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_Standalone.cpp.o
+[ 87%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_Unity.cpp.o
+[ 89%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_VST2.cpp.o
+[ 91%] Building CXX object CMakeFiles/ChimeraTransposeResearch_VST3.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_plugin_client/juce_audio_plugin_client_VST3.cpp.o
+[ 93%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_audio_devices/juce_audio_devices.cpp.o
+[ 95%] Building CXX object CMakeFiles/TransposeResearchHostCheck.dir/workspace/scratch/3c54c28c6073/juce-8.0.8/modules/juce_dsp/juce_dsp.cpp.o
+[ 97%] Linking CXX shared module "ChimeraTransposeResearch_artefacts/Release/VST3/Chimera Transpose Research.vst3/Contents/x86_64-linux/Chimera Transpose Research.so"
+[100%] Linking CXX executable TransposeResearchHostCheck_artefacts/Release/TransposeResearchHostCheck
+removing moduleinfo.json
+creating /workspace/scratch/3c54c28c6073/chimera/build/transpose-plugin/ChimeraTransposeResearch_artefacts/Release/VST3/Chimera Transpose Research.vst3/Contents/Resources/moduleinfo.json
+[100%] Built target ChimeraTransposeResearch_VST3
+[100%] Built target TransposeResearchHostCheck

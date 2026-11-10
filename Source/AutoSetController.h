@@ -2,9 +2,11 @@
 #include "AutoSetStrength.h"
 #include "PluginProcessor.h"
 #include "AutoSet.h"
+#include "AutoSetInstrument.h"
 #include "AutoSetAmp.h"
 #include "AutoSetCab.h"
 #include "AutoSetCabIR.h"
+#include "AutoSetTrim.h"
 #include "AutoSetBoost.h"
 #include "AutoSetSpace.h"
 #include "AutoSetPower.h"
@@ -60,13 +62,13 @@ class Controller final : private juce::Timer {
 public:
     // gates is a result step of the input pass, not a listening pass of its own.
     // dynamicEQ is a result step of the Tone EQ pass.
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR,trim};
     // Settings Auto Set must keep as they are: their parameters are neither
     // written nor restored by UNDO AUTO, and a pass whose outputs are all locked
     // is skipped. The gate lock also covers Gate 2 and the Expander; the Tone EQ
     // lock also keeps the Dynamic EQ step, whose nodes are Tone EQ bands.
-    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21,lockChannel=1u<<22,lockPolarity=1u<<23,lockSync=1u<<24,lockCabIR=1u<<25};
-    static constexpr std::array<Lock,26> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs,lockChannel,lockPolarity,lockSync,lockCabIR};
+    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21,lockChannel=1u<<22,lockPolarity=1u<<23,lockSync=1u<<24,lockCabIR=1u<<25,lockTrim=1u<<26};
+    static constexpr std::array<Lock,27> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs,lockChannel,lockPolarity,lockSync,lockCabIR,lockTrim};
     // strength (minimumStrength..1) scales how far each result moves the sound:
     // input gain change and Tone EQ gains scale, the compressor and multiband
     // mix in parallel, the Dynamic EQ and de-esser ranges scale. The gates are placed for the
@@ -91,9 +93,10 @@ public:
     // rigs matches the Dual rig 2 level to rig 1 before the Dual blend, in the Dual pass.
     // channel picks the Classic head's channel before the amp step, in the amp pass.
     // polarity flips Dual rig 2, or the Matrix MID and HIGH lanes, when they cancel, in the Dual or Matrix pass.
+    // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass; off by default.
     // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool skipForVoiceOrDrums{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -107,7 +110,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";case Phase::trim:return "Amp input trim";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -171,6 +174,8 @@ public:
         add(lockSync,{"delaysync","temposync"});
         // Phase 23 chooses the Classic rig's factory IR for mic A or mic B.
         add(lockCabIR,{"cabtype1","cabBtype1"});
+        // Phase 24 writes the Classic head's INPUT TRIM and OUTPUT LEVEL.
+        for(const auto& id:{ampNativeInputTrimID(ampNativeContext(0,0)),ampNativeOutputLevelID(ampNativeContext(0,0))})touchedIDs.push_back({id,lockTrim});
         // Phase 19 writes the Dual rig 2 level: LEVEL 2 (above), or the Dual B
         // native head's OUTPUT LEVEL, which replaces it on a native head.
         touchedIDs.push_back({ampNativeOutputLevelID(ampNativeContext(1,1)),lockRigs});
@@ -207,7 +212,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastCabIR={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastCabIR={};lastTrim={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};lastInstrument={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -217,10 +222,11 @@ public:
         plan(Phase::boost,runOptions.boost,lockBoost);
         // The amp pass serves the amp step and the presence + resonance step,
         // which renders the same capture through the head.
-        if(channelStepRuns() || ampStepRuns() || powerStepRuns())passes.push_back(Phase::amp);
+        if(channelStepRuns() || ampStepRuns() || trimStepRuns() || powerStepRuns())passes.push_back(Phase::amp);
         else {
             if(runOptions.channel)lockedPhases.push_back(Phase::channel);
             if(runOptions.amp)lockedPhases.push_back(Phase::amp);
+            if(runOptions.trim)lockedPhases.push_back(Phase::trim);
             if(runOptions.power)lockedPhases.push_back(Phase::power);
         }
         // The cabinet mic pass serves the mic step, the cabinet IR step and the cabinet cuts step.
@@ -326,7 +332,7 @@ public:
         if(status.phase==Phase::amp || status.phase==Phase::boost || status.phase==Phase::dual || status.phase==Phase::matrix || status.phase==Phase::finish)capture.drainAmpSamples(ampSamples);
         if(status.phase==Phase::matrix || status.phase==Phase::mics)capture.drainLaneSamples(laneSamples);
         if(windowPass())capture.drain(windowTap(),windows);
-        if(status.phase==Phase::input)capture.drain(Tap::rig,rigWindows);
+        if(status.phase==Phase::input){capture.drain(Tap::rig,rigWindows);capture.drainAmpSamples(ampSamples);}
         if(lastAudioMs<0 || collected()!=before)lastAudioMs=nowMs;
         else if(nowMs-lastAudioMs>noAudioTimeoutMs){fail("No audio reached the plug-in. Start playback or play your instrument, then try again.");return;}
         const double measured=std::max(0.,double(collected())-double(samplePass()?skipSamples:skipWindows)),needed=passLength();
@@ -416,9 +422,21 @@ private:
     double passLength() const noexcept {return samplePass()?toneSeconds*rate():double(windowsPerPass);}
     std::optional<bool> chosenBass() const noexcept {
         if(runOptions.instrument!=0)return runOptions.instrument==2;
+        if(const auto heard=detectedBass())return heard;
         if(lastTone.playingDetected)return lastTone.bass;
         return std::nullopt;
     }
+    // The input pass's detection, when its pitch range settled guitar or bass.
+    std::optional<bool> detectedBass() const noexcept {
+        if(stringInstrument(lastInstrument.source) && lastInstrument.bassDecisive)return lastInstrument.bass;
+        return std::nullopt;
+    }
+    // Detected as a voice or drums (and not overridden in the options): the
+    // amp, boost, cabinet, routing and guitar/bass EQ target steps stay out.
+    // Off by default (a swelled guitar with wide vibrato can read as a voice):
+    // the options' "Skip amp and cabinet steps for a detected voice or drums" turns it on.
+    bool neutralSource() const noexcept {return runOptions.instrument==0 && runOptions.skipForVoiceOrDrums && lastInstrument.features.playing && !keepsAmpSteps(lastInstrument.source);}
+    juce::String neutralWhy() const {return juce::String(sourceName(lastInstrument.source))+" heard: this step is for guitar and bass; choose Guitar or Bass in the options to run it";}
     void beginPass(size_t index,int settle) {
         auto& capture=processor.autoSetCapture();
         capture.listen(std::nullopt);
@@ -431,7 +449,7 @@ private:
         if(status.phase==Phase::tone)capture.listen(Tap::tone);
         // The amp, cab and boost passes hear the rig alone (Tap::cab), wherever
         // the signal-order editor puts the Tone EQ.
-        else if(status.phase==Phase::amp){ampAtStart=ampTarget();capture.listen({Tap::amp,Tap::cab});}
+        else if(status.phase==Phase::amp){ampAtStart=ampTarget();trimAtStart={raw(ampNativeInputTrimID(ampAtStart.context)),raw(ampNativeOutputLevelID(ampAtStart.context))};capture.listen({Tap::amp,Tap::cab});}
         else if(status.phase==Phase::cab){cabAtStart=cabTarget();cabIRAtStart=cabSources();cutsAtStart={raw("cablow1"),raw("cabhigh1")};capture.listen(Tap::cab);}
         else if(status.phase==Phase::boost){boostAtStart=boostTarget();capture.listen({Tap::amp,Tap::cab});}
         // The Dual pass hears each rig before the blend (lane2 shares the amp tap's ring).
@@ -451,7 +469,9 @@ private:
                 levelReadSnapshot.push_back(takeSnapshot(tracker->parameter));
             capture.listen(Tap::master);
         }
-        else if(status.phase==Phase::input && runOptions.gates)capture.listen({Tap::input,Tap::rig});
+        // The input pass also hears what goes into the amps, to tell which instrument is playing.
+        else if(status.phase==Phase::input && runOptions.gates)capture.listen({Tap::input,Tap::rig,Tap::amp});
+        else if(status.phase==Phase::input)capture.listen({Tap::input,Tap::amp});
         else capture.listen(windowTap());
         // Gate 2 / Expander need the rig's own noise: hold every gate open while the input pass listens.
         processor.setAutoSetGateBypass(status.phase==Phase::input && runOptions.gates);
@@ -468,6 +488,7 @@ private:
     bool cabStepRuns() const noexcept {return runOptions.cab && !locked(lockCab);}
     bool cutsStepRuns() const noexcept {return runOptions.cuts && !locked(lockCuts);}
     bool cabIRStepRuns() const noexcept {return runOptions.cabIR && !locked(lockCabIR);}
+    bool trimStepRuns() const noexcept {return runOptions.trim && !locked(lockTrim);}
     bool dualStepRuns() const noexcept {return runOptions.dual && !locked(lockDual);}
     bool matrixStepRuns() const noexcept {return runOptions.matrix && !locked(lockMatrix);}
     bool polarityStepRuns() const noexcept {return runOptions.polarity && !locked(lockPolarity);}
@@ -480,8 +501,8 @@ private:
     bool dynamicStepRuns() const noexcept {return runOptions.dynamicEQ && !locked(lockDynamicEQ) && !locked(lockTone);}
     // Signal order of passes and result steps, for reporting skipped ones.
     static int order(Phase phase) noexcept {
-        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::power:return 5;case Phase::cab:return 6;case Phase::cabIR:return 7;case Phase::cuts:return 8;case Phase::mics:return 9;case Phase::polarity:return 10;case Phase::rigs:return 11;case Phase::dual:return 12;case Phase::matrix:return 13;case Phase::tone:return 14;case Phase::dynamicEQ:return 15;
-            case Phase::compressor:return 16;case Phase::multiband:return 17;case Phase::finish:return 18;case Phase::bus:return 19;case Phase::sync:return 20;case Phase::space:return 21;case Phase::width:return 22;case Phase::level:return 23;default:return 24;}
+        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::trim:return 5;case Phase::power:return 6;case Phase::cab:return 7;case Phase::cabIR:return 8;case Phase::cuts:return 9;case Phase::mics:return 10;case Phase::polarity:return 11;case Phase::rigs:return 12;case Phase::dual:return 13;case Phase::matrix:return 14;case Phase::tone:return 15;case Phase::dynamicEQ:return 16;
+            case Phase::compressor:return 17;case Phase::multiband:return 18;case Phase::finish:return 19;case Phase::bus:return 20;case Phase::sync:return 21;case Phase::space:return 22;case Phase::width:return 23;case Phase::level:return 24;default:return 25;}
     }
     float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
@@ -506,7 +527,8 @@ private:
         return step+"keep playing for the compressor...";
     }
     juce::String ampTargetText() const {
-        const juce::String knobs=ampStepRuns()&&powerStepRuns()?"gain, tone, presence and resonance":powerStepRuns()?"presence and resonance":ampStepRuns()?"gain and tone":"";
+        juce::String knobs=ampStepRuns()&&powerStepRuns()?"gain, tone, presence and resonance":powerStepRuns()?"presence and resonance":ampStepRuns()?"gain and tone":"";
+        if(trimStepRuns())knobs=knobs.isEmpty()?juce::String("input trim"):knobs+", input trim";
         return channelStepRuns()?(knobs.isEmpty()?juce::String("channel"):"channel, "+knobs):knobs;
     }
     juce::String toneTarget() const {return toneStepRuns()&&dynamicStepRuns()?"Tone EQ and Dynamic EQ":dynamicStepRuns()?"Dynamic EQ":"Tone EQ";}
@@ -539,11 +561,59 @@ private:
             summary+=" | Gate "+juce::String(threshold,0)+" dB, range "+range;
             result+="; gate "+juce::String(gateBefore,0)+" > "+juce::String(threshold,0)+" dB, range "+range;
         } else {summary+=" | Gate unchanged (no pause heard)";result+="; gate kept (no pause heard)";}
+        detectInstrument();
+        if(lastInstrument.features.playing)result+="; heard "+instrumentText();
+        if(runOptions.instrument==0 && !runOptions.skipForVoiceOrDrums && lastInstrument.features.playing && !keepsAmpSteps(lastInstrument.source))
+            result+=" (amp and cabinet steps still run; the options can skip them for a voice or drums)";
         addStep(result,true);
+        if(neutralSource())leaveGuitarSteps();
         processor.setAutoSetGateBypass(false);
         if(runOptions.gates)finishGateStages(measured,r.pausesDetected);
         if(spacePending || widthPending)spaceWindows=measured;
         nextPass();
+    }
+    // What is plugged in, from the input pass's amp-tap audio (at most 12 s).
+    void detectInstrument() {
+        lastInstrument={};
+        if(ampSamples.size()<size_t(rate()))return;
+        const size_t keep=std::min(ampSamples.size(),size_t(12*rate()));
+        lastInstrument=classifyInstrument(std::vector<float>(ampSamples.end()-std::ptrdiff_t(keep),ampSamples.end()),rate());
+    }
+    juce::String instrumentText() const {
+        if(runOptions.instrument!=0)return runOptions.instrument==2?"Bass (chosen)":"Guitar (chosen)";
+        if(!lastInstrument.features.playing)return {};
+        return juce::String(sourceName(lastInstrument.source))+" (detected, "+juce::String(juce::roundToInt(lastInstrument.confidence*100))+"%)";
+    }
+    // A voice or drums: drop the passes that only serve guitar and bass, and
+    // report each of their steps as kept, in the usual order.
+    void leaveGuitarSteps() {
+        const auto why=neutralWhy();
+        std::vector<Phase> remaining;
+        for(size_t i=pass+1;i<passes.size();++i) {
+            const auto p=passes[i];
+            if(p==Phase::boost){if(runOptions.boost)lockedPhases.push_back({Phase::boost,why});}
+            else if(p==Phase::amp) {
+                if(channelStepRuns())lockedPhases.push_back({Phase::channel,why});
+                if(ampStepRuns())lockedPhases.push_back({Phase::amp,why});
+                if(powerStepRuns())lockedPhases.push_back({Phase::power,why});
+            } else if(p==Phase::cab) {
+                if(cabStepRuns())lockedPhases.push_back({Phase::cab,why});
+                if(cabIRStepRuns())lockedPhases.push_back({Phase::cabIR,why});
+                if(cutsStepRuns())lockedPhases.push_back({Phase::cuts,why});
+            } else if(p==Phase::mics)lockedPhases.push_back({Phase::mics,why});
+            else if(p==Phase::dual) {
+                if(polarityStepRuns())lockedPhases.push_back({Phase::polarity,why});
+                if(rigsStepRuns())lockedPhases.push_back({Phase::rigs,why});
+                if(dualStepRuns())lockedPhases.push_back({Phase::dual,why});
+            } else if(p==Phase::matrix) {
+                if(polarityStepRuns())lockedPhases.push_back({Phase::polarity,why});
+                if(matrixStepRuns())lockedPhases.push_back({Phase::matrix,why});
+            }
+            else remaining.push_back(p);
+        }
+        passes.resize(pass+1);passes.insert(passes.end(),remaining.begin(),remaining.end());
+        std::stable_sort(lockedPhases.begin(),lockedPhases.end(),[](const Skipped& a,const Skipped& b){return order(a.phase)<order(b.phase);});
+        summary+=" | "+juce::String(sourceName(lastInstrument.source))+" heard: amp and cabinet steps skipped";
     }
     // Phase 5: Gate 2 and the Expander from the rig noise heard in the input pass.
     void finishGateStages(const std::vector<Window>& measured,bool pauseHeard) {
@@ -615,8 +685,13 @@ private:
             t=ampTarget();ampAtStart=t;
         }
         const auto state=playedAmp?processor.autoSetAmpState(t.context):played;
+        ampProposal.clear();
         if(runOptions.amp)ampStep(t,state,post,input,playedAmp?&*playedAmp:nullptr);
-        if(runOptions.power)powerStep(t,played,state,playedKnobs,post,input);
+        // Phase 24 after the amp step: the input trim takes the drive past GAIN's reach.
+        if(runOptions.trim)trimStep(t,post,input);
+        // The presence + resonance step renders the head at the trim and level now set.
+        auto powerState=state;powerState.inputTrimDb=raw(ampNativeInputTrimID(t.context));powerState.outputLevelDb=raw(ampNativeOutputLevelID(t.context));
+        if(runOptions.power)powerStep(t,played,powerState,playedKnobs,post,input);
         nextPass();
     }
     std::vector<float> ampSegment(const std::vector<float>& input) const {return {input.begin(),input.begin()+std::ptrdiff_t(std::min(input.size(),size_t(rate()*ampRenderSeconds)))};}
@@ -702,6 +777,8 @@ private:
         const auto r=analyseAmp(segment,post,rate(),knobs,nativeAmpRenderer(state,controls,segment,rate()),chosenInstrument(),runOptions.style,played);
         lastAmp=r;
         if(!r.playingDetected){keep("no playing heard");return;}
+        // The full-strength knobs, for the input trim step.
+        for(int role=0;role<easy::roleCount;++role)if(r.changed(role))ampProposal.push_back({controls[size_t(role)],r.proposed[size_t(role)].value});
         if(r.changedKnobs()==0){keep(juce::String(r.bass?"bass":"guitar")+" "+styleName(runOptions.style)+" drive and tone already near the target");return;}
         juce::StringArray moves;
         for(int role=0;role<easy::roleCount;++role)if(r.changed(role)) {
@@ -714,6 +791,46 @@ private:
                         +juce::String(juce::roundToInt(r.compressionTarget*100))+"%"+(r.gainReachable?")":", out of this knob's reach)");
         summary+=" | Amp "+moves.joinIntoString(", ");
         addStep(moves.joinIntoString(", ")+"; "+drive,true);
+    }
+    // Phase 24: the head's INPUT TRIM, rendered at the knobs the amp step
+    // proposed (at full strength, so a lower Strength is not made up by the trim),
+    // and OUTPUT LEVEL holding the head's loudness.
+    void trimStep(const AmpTarget& t,const std::vector<float>& post,const std::vector<float>& input) {
+        const auto keep=[this](const juce::String& why){summary+=" | Amp input trim unchanged ("+why+")";steps.push_back({Phase::trim,"kept ("+why+")",false});};
+        if(locked(lockTrim)){keep("locked");return;}
+        if(const auto why=ampUnavailable(t);why.isNotEmpty()){keep(why);return;}
+        const auto trimID=ampNativeInputTrimID(t.context),outputID=ampNativeOutputLevelID(t.context);
+        if(std::array<float,2>{raw(trimID),raw(outputID)}!=trimAtStart){manualEditsKept=true;keep("INPUT TRIM or OUTPUT LEVEL edited while listening");return;}
+        auto state=processor.autoSetAmpState(t.context);
+        for(const auto& [control,value]:ampProposal)if(control>=0)state.values[size_t(control)]=value;
+        const auto segment=ampSegment(input);
+        const auto render=[state,segment,rate=rate()](float trim) {
+            auto s=state;s.inputTrimDb=trim;
+            auto dsp=std::make_unique<AmpNativeDSP>();dsp->prepare(rate);dsp->set(s);dsp->reset();
+            std::vector<float> out(segment.size());
+            for(size_t n=0;n<segment.size();++n)out[n]=dsp->tick(segment[n],0);
+            return out;
+        };
+        const auto r=analyseTrim(segment,post,rate(),trimAtStart[0],render,chosenInstrument(),runOptions.style);
+        lastTrim=r;
+        if(!r.playingDetected){keep("no playing heard");return;}
+        if(r.steady){keep("not enough difference between soft and hard playing to judge the drive; play some soft and some hard notes");return;}
+        if(!r.rendered){keep("the head renders no playing at its knobs");return;}
+        const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
+        // Rounded to the shown 0.1 dB first: a parameter read back as -0.00001 must print +0.0, not -0.0.
+        const auto db=[](float v){const float shown=std::round(v*10.f)/10.f+0.f;return (shown>=0?"+":"")+juce::String(shown,1)+" dB";};
+        const auto target="target "+pct(r.target);
+        if(!r.changed()){keep("drive "+pct(r.driveBefore)+", "+target+(r.reachable?"":"; INPUT TRIM within 12 dB does not come closer"));return;}
+        set(trimID,r.before+strength()*(r.proposed-r.before));
+        const float applied=raw(trimID);
+        if(applied==r.before){keep("INPUT TRIM edited while applying");return;}
+        // Hold the loudness for the trim actually applied.
+        const float levelDb=applied==r.proposed?r.levelChangeDb:trimLoudnessDb(render(applied),rate())-trimLoudnessDb(render(r.before),rate());
+        const float outputBefore=raw(outputID);
+        set(outputID,juce::jlimit(-trimLimitDb,trimLimitDb,std::round((outputBefore-levelDb)*10.f)/10.f));
+        const auto move="INPUT TRIM "+db(r.before)+" > "+db(applied)+", OUTPUT LEVEL "+db(outputBefore)+" > "+db(raw(outputID));
+        summary+=" | Amp "+move;
+        steps.push_back({Phase::trim,move+"; drive "+pct(r.driveBefore)+" > "+pct(r.driveAfter)+" ("+target+(r.reachable?")":", still short at 12 dB)")+", loudness held",true});
     }
     // Phase 12: the head's PRESENCE and RESONANCE (or DEPTH), rendered on the
     // knobs the amp step left.
@@ -752,7 +869,7 @@ private:
         summary+=" | Amp "+moves.joinIntoString(", ");
         steps.push_back({Phase::power,moves.joinIntoString(", ")+"; "+balances.joinIntoString(", ")+" from the target",true});
     }
-    std::optional<bool> chosenInstrument() const {return runOptions.instrument==0?std::nullopt:std::optional<bool>(runOptions.instrument==2);}
+    std::optional<bool> chosenInstrument() const {return runOptions.instrument==0?detectedBass():std::optional<bool>(runOptions.instrument==2);}
     BoostTarget boostTarget() const {
         BoostTarget t;t.amp=ampTarget();t.board=raw("boardEnabled")>.5f;
         for(int position=0;position<pedalBoardCapacity;++position)t.order[size_t(position)]=juce::roundToInt(raw(pedalOrderID(position)));
@@ -1216,8 +1333,10 @@ private:
         if(source==3){keep("mic "+mic+" plays a user IR: choose IRs in the IR loader");return;}
         const auto v30=IRLibrary::factoryIR(0),jensen=IRLibrary::factoryIR(1);
         if(!v30 || !jensen){keep("the factory IRs could not be read");return;}
-        const std::array<CabIRLow,2> low{cabIRLowResponse(v30->samples,v30->rate),cabIRLowResponse(jensen->samples,jensen->rate)};
-        const auto r=analyseCabIR(post,rate(),source,{cabIRBandsDb(v30->samples,v30->rate),cabIRBandsDb(jensen->samples,jensen->rate)},chosenInstrument(),runOptions.style,&low);
+        // The factory IRs are fixed for the process: their bands and low-end responses are computed once.
+        static const std::array<std::array<float,toneBandCount>,2> factoryBands{cabIRBandsDb(v30->samples,v30->rate),cabIRBandsDb(jensen->samples,jensen->rate)};
+        static const std::array<CabIRLow,2> low{cabIRLowResponse(v30->samples,v30->rate),cabIRLowResponse(jensen->samples,jensen->rate)};
+        const auto r=analyseCabIR(post,rate(),source,factoryBands,chosenInstrument(),runOptions.style,&low);
         lastCabIR=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         if(r.bass){keep("bass: both factory IRs are guitar cabinets");return;}
@@ -1275,6 +1394,7 @@ private:
         lastTone=r;
         bool curveWritten=false;
         if(!toneStepRuns()) {}
+        else if(neutralSource()){summary+=" | Tone EQ unchanged ("+juce::String(sourceName(lastInstrument.source))+" heard)";addStep("kept ("+neutralWhy()+")",false);}
         else if(!r.playingDetected){summary+=" | Tone EQ unchanged (no playing)";addStep("kept (no playing heard)",false);}
         else if(r.activeMoves()==0){summary+=" | Tone EQ unchanged ("+juce::String(r.bass?"bass":"guitar")+" already near target)";addStep("kept ("+juce::String(r.bass?"bass":"guitar")+" already near the target)",false);}
         else {
@@ -1527,6 +1647,7 @@ private:
         if(locked(lockFinalEQ))parts.add("Final EQ kept (locked)");
         else if(bypassedCurve)parts.add("Final EQ kept (your curve is bypassed)");
         else if(bands.empty())parts.add("Final EQ kept (no free band)");
+        else if(neutralSource())parts.add("Final EQ kept ("+juce::String(sourceName(lastInstrument.source))+" heard: its target is for guitar and bass)");
         else {
             size_t next=0;
             for(size_t i=0;i<r.moves.size();++i)if(r.moves[i].active && next<bands.size()) {
@@ -1688,7 +1809,10 @@ private:
         }
         if(status.phase!=Phase::input)s.heard=playing?"Playing: heard":"Playing: not yet";
         if(status.phase==Phase::input || status.phase==Phase::tone || status.phase==Phase::multiband)
-            if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(runOptions.instrument==0?" (detected)":"");
+        {
+            if(runOptions.instrument==0 && lastInstrument.features.playing)s.heard+="  /  "+instrumentText();
+            else if(const auto bass=chosenBass();bass)s.heard+=juce::String("  /  ")+(*bass?"Bass":"Guitar")+(runOptions.instrument==0?" (detected)":"");
+        }
     }
     static bool busyPhase(Phase phase) noexcept {return phase==Phase::input || phase==Phase::tone || phase==Phase::compressor || phase==Phase::multiband || phase==Phase::finish || phase==Phase::level || phase==Phase::amp || phase==Phase::cab || phase==Phase::boost || phase==Phase::dual || phase==Phase::matrix || phase==Phase::mics;}
     bool changedSinceSnapshot() const {
@@ -1701,6 +1825,7 @@ private:
 public:
     // Last tone analysis, for tests and diagnostics.
     const ToneResult& lastToneAnalysis() const noexcept {return lastTone;}
+    const InstrumentResult& lastInstrumentDetection() const noexcept {return lastInstrument;}
     const FinishResult& lastFinishAnalysis() const noexcept {return lastFinish;}
     const MultibandResult& lastMultibandAnalysis() const noexcept {return lastMultiband;}
     const GateStagesResult& lastGateAnalysis() const noexcept {return lastGates;}
@@ -1717,6 +1842,7 @@ public:
     const PolarityResult& lastPolarityAnalysis() const noexcept {return lastPolarity;}
     const TempoSyncResult& lastSyncAnalysis() const noexcept {return lastSync;}
     const CabIRResult& lastCabIRAnalysis() const noexcept {return lastCabIR;}
+    const TrimResult& lastTrimAnalysis() const noexcept {return lastTrim;}
     const MatrixResult& lastMatrixAnalysis() const noexcept {return lastMatrix;}
     const MicsResult& lastMicsAnalysis() const noexcept {return lastMics;}
     const WidthResult& lastWidthAnalysis() const noexcept {return lastWidth;}
@@ -1741,7 +1867,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }

@@ -301,3 +301,16 @@ of the range, about 9.36 ms) without sub-sample refinement. Near f0 106.6-108.3 
 and its 2x/3x, splices then miss the period by up to 1.6 samples (high-band
 residual up to -23 dB re harmonics). An experimental fix is kept as a patch only;
 see `docs/TRANSPOSE_SPLICE_EDGE_107HZ_20261030.md`.
+
+### High-band splice-edge experiment (default OFF)
+
+`corr40-split-v3-edge` and `corr40-split-v3-sinc-edge` opt into PR #234's
+boundary slope rejection and fractional refinement on the transient path
+only. Existing engine names and newly constructed engines leave it OFF.
+The product `Source/` and research-plugin UI/PDC are unchanged.
+
+`edge_validation.py` freezes source/binary hashes and fresh seeds before
+sweep, targets, block partition, original-binary parity and CPU comparisons.
+The independent report is `docs/TRANSPOSE_EDGE_INDEPENDENT_20261031.ko.md`.
+It retains individual residual/reset-timing regressions and separates
+synthetic evidence from missing real DI, listening and DAW acceptance.

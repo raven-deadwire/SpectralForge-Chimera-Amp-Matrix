@@ -113,6 +113,50 @@ def verify_package(package: Path) -> dict:
     return receipt
 
 
+def signing_preflight(package_dir: Path, target: str, source_sha: str,
+                      require_approved_beta: bool = False) -> dict:
+    """Read-only input check from the candidate's source checkout, not signing.
+
+    A self-consistent development receipt is not proof of build provenance.
+    Obtain the package/hash from the trusted exact-source CI run separately.
+    This command never reads PACE credentials or executes vendor tools.
+    """
+    import beta_lifecycle
+    import chimera_version
+    root = Path(__file__).resolve().parents[1]
+    if source_sha != chimera_version.revision(root):
+        raise ValueError("Expected source must match the checked-out full SHA")
+    identity = chimera_version.identity(root, source_sha)
+    plain_path(package_dir)
+    for name in (RECEIPT, "chimera-build-version.json", "chimera-beta-lifecycle.json"):
+        plain_path(package_dir / name)
+    receipt = verify_package(package_dir)
+    if receipt["platform"] != target:
+        raise ValueError("AAX package platform differs from requested signing target")
+    chimera_version.validate_manifest(receipt, identity)
+    chimera_version.validate_build(package_dir, identity)
+    beta_path = package_dir / "chimera-beta-lifecycle.json"
+    beta = json.loads(beta_path.read_text(encoding="utf-8"))
+    build = json.loads((package_dir / "chimera-build-version.json").read_text(encoding="utf-8"))
+    if build.get("beta_lifecycle_sha256") != digest(beta_path):
+        raise ValueError("AAX beta metadata hash differs from configured build")
+    beta_lifecycle.validate_metadata(beta, root, source_sha,
+                                     publication=require_approved_beta)
+    # Deliberately allowlist report fields; never copy arbitrary metadata or
+    # local absolute paths into logs. None of these checks grants a release.
+    return {"schema": "spectralforge.chimera.aax-signing-preflight.v1",
+            **identity, "platform": target,
+            "architectures": receipt["architectures"],
+            "binary_sha256": receipt["binary_sha256"],
+            "receipt_sha256": digest(package_dir / RECEIPT),
+            "build_metadata_sha256": digest(package_dir / "chimera-build-version.json"),
+            "beta_metadata_sha256": digest(beta_path),
+            "beta_mode": beta["mode"], "beta_expiry_approved": beta["expiry_approved"],
+            "input_integrity": "PASS", "pace_verification": "NOT_RUN",
+            "platform_signature_verification": "NOT_RUN",
+            "normal_host_accepted": False, "release_approved": False}
+
+
 def package(build: Path, output: Path, target: str) -> Path:
     # These source modules are only needed by the builder, not by the installer.
     import beta_lifecycle
@@ -315,6 +359,12 @@ def main() -> None:
     pack.add_argument("--build", type=Path, required=True)
     pack.add_argument("--output", type=Path, required=True)
     pack.add_argument("--platform", choices=("windows", "macos"), required=True)
+    preflight = sub.add_parser("signing-preflight", help="Read-only candidate input checks; never signs")
+    preflight.add_argument("--package", type=Path, required=True)
+    preflight.add_argument("--platform", choices=("windows", "macos"), required=True)
+    preflight.add_argument("--expected-source", required=True)
+    preflight.add_argument("--require-approved-beta", action="store_true",
+                           help="Also reject qualification-only beta policy for deployment input")
     for action in ("install", "uninstall"):
         p = sub.add_parser(action)
         p.add_argument("--acknowledge-developer-only", action="store_true", required=True)
@@ -328,6 +378,9 @@ def main() -> None:
         print(json.dumps(verify_bundle(args.bundle, args.platform), indent=2))
     elif args.command == "package":
         print(package(args.build, args.output, args.platform))
+    elif args.command == "signing-preflight":
+        print(json.dumps(signing_preflight(args.package, args.platform, args.expected_source,
+                                          args.require_approved_beta), indent=2))
     elif args.command == "install":
         metadata = verify_package(args.package)
         install(args.package, args.root or system_root(metadata["platform"]))

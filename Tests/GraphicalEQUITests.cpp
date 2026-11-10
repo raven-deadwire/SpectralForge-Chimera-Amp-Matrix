@@ -698,17 +698,7 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     closeTo(get(processor,eqID(bank,3,"q")),1,.001f,"Group wheel Q changed a band outside the group");
     undoOnce("Group wheel Q was not undone in one step");
 
-    // Delete a group as one step; undo brings every band back.
-    check(key(juce::KeyPress::escapeKey,0),"Escape failed");click(1,0);click(2,command);check(panel.selectionMask()==0b0110,"Delete fixture selection wrong");
-    check(key(juce::KeyPress::deleteKey,0),"Delete not handled");
-    check(waitFor([&]{return panel.isBandVisible(0) && !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(3);}),"Group delete did not remove exactly the group");
-    check(get(processor,eqID(bank,1,"enabled"))==0 && get(processor,eqID(bank,2,"enabled"))==0,"Group delete left a band audible");
-    check(panel.selectionCount()==1,"Group delete left a stale group");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Group delete was not undone in one step");
-    for(int b=0;b<4;++b)unchanged(b,"Group delete undo did not restore values");
-    check(key('z',command|juce::ModifierKeys::shiftModifier) && waitFor([&]{return !panel.isBandVisible(1) && !panel.isBandVisible(2) && panel.isBandVisible(0);}),"Group delete redo failed");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1) && panel.isBandVisible(2);}),"Second group delete undo failed");
-
+    check(key(juce::KeyPress::escapeKey,0),"Escape before single-selection checks failed");
     // A plain click outside the group, or the band chooser, starts over.
     check(panel.selectionCount()==1 && !key(juce::KeyPress::escapeKey,0),"Escape with one band selected was consumed");
     click(0,0);click(1,command);check(panel.selectionMask()==0b0011,"Two-band fixture wrong");
@@ -717,18 +707,8 @@ void groupEditing(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) 
     auto* chooser=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));check(chooser!=nullptr,"Band chooser missing");
     chooser->setSelectedId(2,juce::sendNotificationSync);check(panel.selectionMask()==0b0010,"Band chooser kept the group");
 
-    // DELETE (selected band only) inside a group passes the selection to a
-    // remaining member, so a following Delete never reaches a band outside it.
-    auto* remove=find<juce::TextButton>(panel,eqID(bank,-1,"deleteBand"));check(remove!=nullptr,"DELETE button missing");
-    click(1,0);click(2,command);check(panel.selectionMask()==0b0110 && panel.selectedBand()==2,"Single-delete fixture wrong");
-    remove->triggerClick();check(waitFor([&]{return !panel.isBandVisible(2);}),"DELETE did not remove the selected band");
-    check(panel.selectionMask()==0b0010 && panel.selectedBand()==1,
-          ("DELETE passed the selection outside the group: mask="+juce::String(panel.selectionMask())+" selected="+juce::String(panel.selectedBand())).toRawUTF8());
-    check(key(juce::KeyPress::deleteKey,0) && waitFor([&]{return !panel.isBandVisible(1);}),"Delete after DELETE failed");
-    check(panel.isBandVisible(0) && panel.isBandVisible(3) && get(processor,eqID(bank,0,"enabled"))==1,"Delete after DELETE removed a band outside the group");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(1);}),"Undo of the second delete failed");
-    check(key('z',command) && waitFor([&]{return panel.isBandVisible(2);}),"Undo of DELETE failed");
-    for(int b=0;b<4;++b)unchanged(b,"Single-delete undo did not restore values");
+    // Deletion with a group selected (every entry point, one undo step) is
+    // covered by groupDeleteEntryPoints in EQGroupSafetyTests.h (#287).
 
     // Escape during a group drag ends the drag: no member keeps moving, every
     // host gesture is closed, and the part already made is one undo step.
@@ -828,6 +808,8 @@ void bandSoloUI(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     check(state==during,"A solo changed saved state");
     std::cout<<"PASS EQ band solo from the editor: SOLO button and middle-click hold, release, hidden editor and another band end it, saved state unchanged bank="<<bank<<'\n';
 }
+#include "EQGroupSafetyTests.h"
+
 void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
     auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
     auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
@@ -1258,7 +1240,9 @@ int main(int argc,char** argv){try {
             groupEditing(*processor,*panel,bank);
             curveABUI(*processor,*panel,bank);
             bandSoloUI(*processor,*panel,bank);
+            groupSafetyRegression(bank);
         }
+        groupCrossBankHistory();
         return 0;
     }
     if(argc>1 && std::string(argv[1])=="--modifier-drag") {

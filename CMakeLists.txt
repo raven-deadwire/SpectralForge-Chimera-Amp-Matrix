@@ -408,6 +408,13 @@ target_compile_definitions(ChimeraIRCollectionTests PRIVATE JUCE_USE_CURL=0 JUCE
 target_link_libraries(ChimeraIRCollectionTests PRIVATE juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraIRCollectionTests COMMAND ChimeraIRCollectionTests)
 
+juce_add_console_app(ChimeraIRStateEncodingTests PRODUCT_NAME "Chimera IR State Encoding Tests")
+target_sources(ChimeraIRStateEncodingTests PRIVATE Tests/IRStateEncodingTests.cpp)
+target_include_directories(ChimeraIRStateEncodingTests PRIVATE Source)
+target_compile_definitions(ChimeraIRStateEncodingTests PRIVATE JUCE_USE_CURL=0)
+target_link_libraries(ChimeraIRStateEncodingTests PRIVATE juce::juce_core)
+add_test(NAME ChimeraIRStateEncodingTests COMMAND ChimeraIRStateEncodingTests)
+
 # Removing an imported entry must not change the audio embedded in a session.
 juce_add_console_app(ChimeraIRLibraryTests PRODUCT_NAME "Chimera IR Library Tests")
 target_sources(ChimeraIRLibraryTests PRIVATE Tests/IRLibraryTests.cpp Source/IRLibrary.cpp)
@@ -756,6 +763,15 @@ target_link_libraries(ChimeraAutoSetBusOrderDSPTests PRIVATE juce::juce_dsp juce
 add_test(NAME ChimeraAutoSetBusOrderDSPTests COMMAND ChimeraAutoSetBusOrderDSPTests)
 set_tests_properties(ChimeraAutoSetBusOrderDSPTests PROPERTIES TIMEOUT 900)
 add_test(NAME ChimeraAutoSetParameterSafetyTests COMMAND ChimeraAutoSetTests --level-parameters)
+# Instrument detection (guitar / bass / vocal / keys / percussion) on a synthetic corpus.
+juce_add_console_app(ChimeraAutoSetInstrumentTests PRODUCT_NAME "Chimera Auto Set Instrument Detection Tests")
+target_sources(ChimeraAutoSetInstrumentTests PRIVATE Tests/AutoSetInstrumentTests.cpp)
+target_include_directories(ChimeraAutoSetInstrumentTests PRIVATE Source)
+target_compile_definitions(ChimeraAutoSetInstrumentTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
+target_link_libraries(ChimeraAutoSetInstrumentTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraAutoSetInstrumentTests COMMAND ChimeraAutoSetInstrumentTests)
+add_test(NAME ChimeraAutoSetInstrumentControllerTests COMMAND ChimeraAutoSetInstrumentTests --controller)
+set_tests_properties(ChimeraAutoSetInstrumentTests ChimeraAutoSetInstrumentControllerTests PROPERTIES TIMEOUT 600)
 # Optional independent BS.1770 oracle. This test dependency is never linked
 # into the product; CI installs libebur128-dev and requires the target.
 option(CHIMERA_LOUDNESS_REFERENCE_TESTS "Compare Auto Set with libebur128" OFF)

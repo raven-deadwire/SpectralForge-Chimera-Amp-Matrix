@@ -1,0 +1,59 @@
+{
+ "kind": "AUTOMATED_PREFLIGHT_ONLY_NOT_REAL_DI_ACCEPTANCE",
+ "review_date_kst": "2026-10-31",
+ "base_commit": "ad622ceffdd7404b12de4e473349b1104200048f",
+ "actual_DI_files": 0,
+ "template_status": "TEMPLATE_NO_RECORDING",
+ "input_regressions": {
+  "tests": 27,
+  "status": "PASS"
+ },
+ "di_pipeline": {
+  "labeler_per_instrument": "61/61",
+  "T1_T4_equal_before_after": true,
+  "cmake_probe_T1_T4_equal_gcc": true
+ },
+ "listening_pipeline": {
+  "abx_trials": 72,
+  "paired_trials": 36,
+  "simulated_listeners_only": true,
+  "status": "PASS"
+ },
+ "host_direct": {
+  "runs": 144,
+  "errors": 0,
+  "status": "PASS",
+  "option": "--no-xvfb"
+ },
+ "host_xvfb_wrapper": {
+  "runs": 144,
+  "nonzero_exits": 144,
+  "status": "ENVIRONMENT_WRAPPER_FAILURE",
+  "underlying_hard_checks_pass": 144
+ },
+ "correlation_regression_groups": 324,
+ "block_partition_checks": 117,
+ "historical_PDC_reanalysis_identical": true,
+ "historical_44100_max_abs_residual_ms": 53.237,
+ "not_run": [
+  "real recording",
+  "real DI timing and quality",
+  "human listening",
+  "Windows/macOS build and DAW acceptance",
+  "hardware and recording path inspection",
+  "D06 instrument feel",
+  "D12 device CPU"
+ ],
+ "implementation_sources_sha256": {
+  "Tools/TransposeNext/build.py": "97bddf6ac8fa846ee43cedbd42f09009458b50dcc008b134af0d9e2c242893a4",
+  "Tools/TransposeNext/di_validation.py": "fc085229df187c42a4e70a1e9163aaf72014420d25d0744b5536a1ca60243c57",
+  "Tools/TransposeNext/plugin/CMakeLists.txt": "7be04a1f9be8ddc377488f0925f065938e763901e522e6f21ee152494cd4e689",
+  "Tools/TransposeNext/t6_host_check.py": "4c86221dcf65d145830e399f9327fe5b6e336517cf3c6b2eb74aac78cb8d006b",
+  "Validation/transpose-di-take-template.json": "e159231306481dac00948ab2db16b26f57d941e12ae82eab9939ecc1d21ea474",
+  "docs/TRANSPOSE_V3_DI_VALIDATION_PLAN_20261026.ko.md": "bd30a046ba0e86d7ccf5c3d5a1e2bba76f13092a148c6a0a46765aaa97ec3e51",
+  "Tools/TransposeNext/di_input.py": "43ec734323b52362b7d688a82325e6e05d6462cc0ef226c5363dadb3698aeb04",
+  "Tools/TransposeNext/di_comparison.py": "3fa254946dd777a469db2eebe44d4f93f2ed28fa763a9a8f15b84841418d8be3",
+  "Tools/TransposeNext/test_di_preflight.py": "c23c4a12510ccd7a62e8e8403136767cc072e4f4af6dff132d5ea67239e96df2",
+  "docs/TRANSPOSE_DI_PREFLIGHT_20261031.ko.md": "64735e772ac3c5168a4bd4354cd043b5e54b1586e3e5e4f55f0f8d89c08de29f"
+ }
+}

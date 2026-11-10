@@ -1,0 +1,142 @@
+{
+ "kind": "synthetic_host_check_not_actual_DAW",
+ "runs": 144,
+ "errors": 144,
+ "plugin_files_sha256": {
+  "Contents/Resources/moduleinfo.json": "d2026cf04f9799e9202fc06927e0096df44eaaa8719e218e07619e7d501f5cf2",
+  "Contents/x86_64-linux/Chimera Transpose Research.so": "bb0109e587580d2371d33fd3b193d790f2923d751b810835190f85c9c1ec45d6"
+ },
+ "plugin_sha256": "bb0109e587580d2371d33fd3b193d790f2923d751b810835190f85c9c1ec45d6",
+ "plugin_bundle_sha256": "7be6b9f357d16ebd4a15cdf3cfa81d2dbab10944ed3cb091b91f44487a750d8b",
+ "plugin_bundle_hash_method": "sha256 of sorted JSON relative-path/file-sha256 map",
+ "host_check_sha256": "42e576b92afc8fb90ba9064a4a448246b0ea252307b3cf8225e3fd3577a2063b",
+ "checks": {
+  "baseline": {
+   "automation_finite_bounded": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "bypass_delay_equals_reported_latency": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "fixed_block_128_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "fixed_pdc_output_unchanged": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "fixed_pdc_reported_latency": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "legacy_engine_normalization_preserved": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "legacy_state_without_v4_option": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "reported_latency": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "reprepare_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "state_round_trip_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "variable_blocks_1_512_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "large_block_max_abs_diff": {
+    "nonzero": 0,
+    "of": 0,
+    "max": null
+   },
+   "variable_block_failures": []
+  },
+  "v3": {
+   "automation_finite_bounded": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "bypass_delay_equals_reported_latency": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "fixed_block_128_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "fixed_pdc_output_unchanged": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "fixed_pdc_reported_latency": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "legacy_engine_normalization_preserved": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "legacy_state_without_v4_option": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "reported_latency": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "reprepare_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "state_round_trip_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "variable_blocks_1_512_bit_identical": {
+    "pass": 0,
+    "of": 0,
+    "max_detail": null
+   },
+   "large_block_max_abs_diff": {
+    "nonzero": 0,
+    "of": 0,
+    "max": null
+   },
+   "variable_block_failures": []
+  }
+ },
+ "ok": false
+}

@@ -1,17 +1,17 @@
 #pragma once
+#include "IRStateEncoding.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_cryptography/juce_cryptography.h>
 
 namespace spectralforge::irState {
 inline constexpr size_t maxStateBytes=64u*1024u*1024u;
-inline constexpr size_t maxAssetBytes=4u*1024u*1024u;
 // Only USER_IRS payloads are pooled. Names, metadata and lane/slot bindings stay
 // in their own snapshots; identity is the SHA-256 of the original file bytes.
 inline bool pool(juce::ValueTree tree,juce::ValueTree assets) {
     if(tree.hasType("USER_IRS")) for(auto ir:tree) {
         juce::MemoryBlock bytes;
         const auto encoded=ir.getProperty("data").toString();
-        if(encoded.length()>6*1024*1024 || !bytes.fromBase64Encoding(encoded)
+        if(!decodeAsset(encoded,bytes)
             || bytes.getSize()==0 || bytes.getSize()>maxAssetBytes) return false;
         const auto hash=juce::SHA256(bytes).toHexString();
         auto asset=assets.getChildWithProperty("sha256",hash);
@@ -44,7 +44,7 @@ inline bool unpack(juce::ValueTree tree) {
         const auto hash=asset.getProperty("sha256").toString();
         const auto encoded=asset.getProperty("data").toString();juce::MemoryBlock bytes;
         if(!asset.hasType("ASSET") || hash.length()!=64 || hashes.contains(hash)
-            || encoded.length()>6*1024*1024 || !bytes.fromBase64Encoding(encoded)
+            || !decodeAsset(encoded,bytes)
             || bytes.getSize()==0 || bytes.getSize()>maxAssetBytes
             || juce::SHA256(bytes).toHexString()!=hash)return false;
         hashes.add(hash);

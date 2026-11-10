@@ -19,6 +19,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 option(CHIMERA_OBS_BUILD_MODULE "Build the OBS module (needs libobs and the VST3 SDK)" ON)
+option(CHIMERA_OBS_BUILD_STARTUP_OBSERVER "Build the Windows test-only frontend startup observer (never packaged)" OFF)
 set(CHIMERA_VST3_SDK_DIR "" CACHE PATH "Existing VST3 SDK checkout (empty: fetch the pinned MIT release)")
 set(CHIMERA_OBS_TEST_BUNDLE "" CACHE PATH "Chimera .vst3 bundle used by the integration tests")
 set(CHIMERA_OBS_SOURCE_SHA "" CACHE STRING "Source commit recorded in the module (empty: local build)")
@@ -162,6 +163,27 @@ if(NOT CHIMERA_OBS_LIBOBS_INCLUDE_DIR STREQUAL "")
 else()
   find_package(libobs REQUIRED)
 endif()
+
+# Optional Windows CI fixture: observe FINISHED_LOADING without changing the
+# shipped module or logging WebSocket payloads. Its staging directory is
+# separate from the product package, including in module-absent controls.
+if(CHIMERA_OBS_BUILD_STARTUP_OBSERVER)
+  if(NOT WIN32)
+    message(FATAL_ERROR "The startup observer fixture currently supports Windows only")
+  endif()
+  set(CHIMERA_OBS_FRONTEND_INCLUDE_DIR "" CACHE PATH "OBS frontend/api headers from the pinned release")
+  set(CHIMERA_OBS_FRONTEND_LIBRARY "" CACHE FILEPATH "Import library generated from the pinned obs-frontend-api.dll")
+  if(NOT EXISTS "${CHIMERA_OBS_FRONTEND_INCLUDE_DIR}/obs-frontend-api.h" OR
+     NOT EXISTS "${CHIMERA_OBS_FRONTEND_LIBRARY}")
+    message(FATAL_ERROR "Startup observer needs the pinned OBS frontend header and import library")
+  endif()
+  add_library(chimera-obs-startup-observer MODULE tests/startup-observer.cpp)
+  target_include_directories(chimera-obs-startup-observer SYSTEM PRIVATE "${CHIMERA_OBS_FRONTEND_INCLUDE_DIR}")
+  target_compile_options(chimera-obs-startup-observer PRIVATE ${chimera_obs_warnings})
+  target_link_libraries(chimera-obs-startup-observer PRIVATE OBS::libobs "${CHIMERA_OBS_FRONTEND_LIBRARY}")
+  set_target_properties(chimera-obs-startup-observer PROPERTIES PREFIX "")
+endif()
+
 # Chimera's own VST3 editor in a native top-level window (UI thread only). No
 # libobs dependency, so the editor tests link it without OBS.
 if(WIN32)

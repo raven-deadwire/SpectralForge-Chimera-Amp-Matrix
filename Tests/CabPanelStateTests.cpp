@@ -262,6 +262,20 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
     juce::AudioProcessor::copyXmlToBinary(*bad.createXml(),malformed);
     largeRestored->setStateInformation(malformed.getData(),int(malformed.getSize()));
     check(std::abs(largeRestored->parameters().getRawParameterValue("cabblend1")->load()-.73f)<1e-6f,"dangling reference preserves session");
+    // Size-prefix failures must reject pooled states before any parameters,
+    // personal IR bytes, metadata or A/B comparison snapshots are applied.
+    juce::MemoryBlock beforeRejected;
+    check(largeRestored->tryGetStateInformation(beforeRejected),"capture current session before rejection");
+    for(const char* encoded:{"-1.A","4194305.A","2147483647.A","999999999999999999999.A"}) {
+        bad=bigTree.createCopy();
+        bad.getChildWithName("IR_ASSETS").getChild(0).setProperty("data",encoded,nullptr);
+        juce::AudioProcessor::copyXmlToBinary(*bad.createXml(),malformed);
+        largeRestored->setStateInformation(malformed.getData(),int(malformed.getSize()));
+        juce::MemoryBlock afterRejected;
+        check(largeRestored->tryGetStateInformation(afterRejected),"capture current session after rejection");
+        check(afterRejected==beforeRejected,"pooled size rejection changed the complete current session");
+    }
+    std::cout<<"PASS pooled malformed prefixes: complete current session preserved, cases=4\n";
     // Force an actual UTF-8 serialized overflow, including multibyte text.
     check(spectralforge::irState::unpack(bigTree),"expand large test tree");
     bigTree.setProperty("oversize",juce::String::repeatedString("界",24*1024*1024),nullptr);

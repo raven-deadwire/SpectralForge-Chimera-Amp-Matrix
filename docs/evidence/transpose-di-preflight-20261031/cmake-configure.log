@@ -1,0 +1,11 @@
+-- Checking for modules 'webkit2gtk-4.0;gtk+-x11-3.0'
+--   Package 'webkit2gtk-4.0', required by 'virtual:world', not found
+--   Package 'gtk+-x11-3.0', required by 'virtual:world', not found
+-- Configuring juceaide
+-- Building juceaide
+-- Exporting juceaide
+-- Testing juceaide
+-- Finished setting up juceaide
+-- Configuring done (0.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: /workspace/scratch/3c54c28c6073/chimera/build/transpose-plugin

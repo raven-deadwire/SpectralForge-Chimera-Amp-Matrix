@@ -19,13 +19,13 @@
   "native_recording": "Record each take separately at its declared rate; do not resample another take. Dry mono DI, no amp/cab/gate/compressor/EQ/pitch effects or normalization. Keep interface input gain fixed within each take.",
   "paths": "Set wav and labels only to existing files. Relative paths resolve from the directory containing this manifest, not from the repository or shell working directory. Prefer forward slashes, including on Windows. Example naming only: audio/<take-id>.wav and labels/<take-id>-labels.csv; no such files are supplied.",
   "bounds": "start_s/end_s are seconds from the start of the original WAV and include the muted edges; the checked slice is [round(start_s*rate), round(end_s*rate)). Update them from the actual take; do not reset them to zero for each segment. Keep segments ordered, non-overlapping and inside the WAV.",
-  "silence": "Reserve at least 0.5 s of muted-string silence at both ends of every segment, including the first and last. Record the observed leading silence as [start_s, silence_before_end_s) and trailing silence as [silence_after_start_s, end_s), in WAV-relative seconds. The two added silence fields stay null until inspected; they are manual records, ignored by di_validation.py. The tool checks the first/last 0.2 s RMS is at least 40 dB below that segment's peak.",
+  "silence": "Reserve at least 0.5 s of muted-string silence at both ends of every segment, including the first and last. Record the observed leading silence as [start_s, silence_before_end_s) and trailing silence as [silence_after_start_s, end_s), in WAV-relative seconds. The silence fields stay null until inspected. plan checks each declared mute is at least 0.5 s and its RMS is at least 40 dB below the segment peak, alongside the original first/last 0.2 s check.",
   "timing": "The existing 0-86 s schedule is only a guide, with silence included. Keep riff <=20 s. Steady notes must ring >=5 s without vibrato; plan requires steady segments >=4.5 s and at least 3.25 s from the reviewed onset to segment end. Vibrato must last >=4 s after one attack, with no further picks.",
   "pitch": "lowest_note/lowest_f0_hz and steady f0_hint_hz are nominal tuning references, not measured pitch. Preserve the declared A1/B0/A0 and fifth-fret hints; record actual instrument/tuning details in take_note.",
-  "metadata": "Fill take_note from the actual recording session, including instrument, pickup/settings, strings, playing technique, signal path, interface/gain, DAW/driver/buffer, WAV format, tempo, player and date. The scheduled date is a plan, not a recorded date. Added metadata and silence fields do not change the validator or T1-T4 criteria.",
+  "metadata": "Fill take_note from the actual recording session, including instrument, pickup/settings, strings, playing technique, signal path, interface/gain, DAW/driver/buffer, WAV format, tempo, player and date. The scheduled date is a plan, not a recorded date. Confirm capture_rate_hz from the recording session and native_recording_confirmed only after verifying an independent capture without resampling. WAV headers alone cannot prove native capture. T1-T4 criteria are unchanged.",
   "labels": "Generate candidates with label, then review every row by ear and waveform without viewing engine output. Keep labels_reviewed false until completed. Record reviewer/date, set labels to the actual CSV and only then set labels_reviewed true. Retained labels: riff >=24, dynamics >=16, long >=10, ghost >=8, each steady/guard exactly 1.",
-  "plan": "Run plan before freeze. With wav=null it reports MISSING_INPUT and skips that take's audio/segment/label checks; exit code 0 alone does not mean ready. After recording, check sample-rate agreement, clipping, nonfinite samples, level, DC, duration, segment bounds/silence and reviewed labels. READY_TO_FREEZE is input readiness, not a T1-T4 PASS.",
-  "freeze": "Resolve all input problems and manually check metadata, all nine native recordings, >=0.5 s muted edges, riff duration and performance instructions before freeze. After freeze do not change labels, segments, metrics, criteria or parameters based on results; report every failure."
+  "plan": "Run plan --audio-only --strict --out input-qc.json immediately after recording; then full plan --strict after label review, before freeze. With wav=null it reports MISSING_INPUT and skips that take's audio/segment/label checks; exit code 0 alone does not mean ready. After recording, check sample-rate agreement, clipping, nonfinite samples, level, DC, duration, segment bounds/silence and reviewed labels. READY_TO_FREEZE is input readiness, not a T1-T4 PASS.",
+  "freeze": "Change status to RECORDED_DI only after actual recording. Resolve all input problems and manually check metadata, all nine native recordings, >=0.5 s muted edges, riff duration and performance instructions before freeze. After freeze do not change labels, segments, metrics, criteria or parameters based on results; report every failure."
  },
  "takes": [
   {
@@ -39,7 +39,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "palm-muted low-string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft picks on the low string, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -61,7 +61,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "low B string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft plucks on the low B, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -83,7 +83,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "low A string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft plucks on the low A, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -105,7 +105,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "palm-muted low-string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft picks on the low string, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -127,7 +127,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "low B string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft plucks on the low B, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -149,7 +149,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "low A string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft plucks on the low A, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -171,7 +171,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "palm-muted low-string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft picks on the low string, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -193,7 +193,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "low B string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft plucks on the low B, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
@@ -215,7 +215,7 @@
    "channel": 0,
    "labels": null,
    "labels_reviewed": false,
-   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": ""},
+   "take_note": {"instrument_model": "", "pickup": "", "volume_tone": "", "strings_age": "", "pick_or_finger": "", "interface": "", "input_gain": "", "player": "", "date": "", "tuning_low_to_high": "", "string_gauges": "", "scale_length": "", "di_chain": "", "daw_version": "", "driver": "", "buffer_samples": null, "wav_format": "", "riff_bpm": null, "label_reviewer": "", "labels_reviewed_at": "", "capture_rate_hz": null, "native_recording_confirmed": false},
    "segments": [
     {"id": "riff", "kind": "riff", "start_s": 0, "end_s": 20, "purpose": "low A string riff, 8th/16th notes at 120-180 BPM, >=24 notes", "silence_before_end_s": null, "silence_after_start_s": null},
     {"id": "dynamics", "kind": "dynamics", "start_s": 20, "end_s": 35, "purpose": "alternate loud and soft plucks on the low A, >=16 notes", "silence_before_end_s": null, "silence_after_start_s": null},
