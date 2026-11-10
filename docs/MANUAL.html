@@ -28,7 +28,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 </style>
 </head>
 <body><main>
-<header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">1.3.2 candidate · <code>1.3.2-beta.1</code> · <span data-k="counts"></span></p></div>
+<header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">1.4.0 candidate · <code>1.4.0-beta.1</code> · <span data-k="counts"></span></p></div>
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
 <nav><a href="#easy" id="navEasy"></a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#release132">1.3.2</a><a href="#release131">1.3.1</a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <section id="start" class="start"><h2 id="startTitle"></h2><div id="startBody" class="start-grid"></div><p class="start-more" id="startMore"></p></section>
@@ -48,6 +48,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="nastrond"><h2>1.2 · Náströnd</h2><div id="nastrondBody"></div></section>
 <section id="candidate111"><h2>1.1.2 · Guitar signatures</h2><div id="candidate111Body"></div></section>
 <section id="global"><h2 data-k="globalTitle"></h2><div id="globalBody"></div></section>
+<section id="release14"><h2 id="release14Title"></h2><div id="release14Body"></div></section>
 <section id="release132"><h2 id="release132Title"></h2><div id="release132Body"></div></section>
 <section id="release131"><h2 id="release131Title"></h2><div id="release131Body"></div></section>
 <section id="release13"><h2 id="release13Title"></h2><div id="release13Body"></div></section>
@@ -55,7 +56,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="host"><h2 data-x="hostTitle"></h2><p class="section-intro" data-x="hostIntro"></p><h3 data-x="hostCheckTitle"></h3><div id="hostCheckBody"></div><h3 data-x="updateTitle"></h3><div id="updateBody"></div><h3 data-x="bugTitle"></h3><div id="bugBody"></div></section>
 <section id="diag"><h2 data-k="diagTitle"></h2><div id="diagBody"></div></section>
 <section id="limits"><h2 data-k="limitsTitle"></h2><div id="limitsBody"></div></section>
-<footer><p>SpectralForge Chimera · 1.3.2 candidate · <code>1.3.2-beta.1</code><br>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br><span data-k="footer"></span></p></footer>
+<footer><p>SpectralForge Chimera · 1.4.0 candidate · <code>1.4.0-beta.1</code><br>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br><span data-k="footer"></span></p></footer>
 </main>
 <script>
 (function(){
@@ -63,7 +64,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 const ASSET='https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/v1.3.1-beta.1/Assets/Artwork/';
 const L={
 en:{
-subtitle:'User manual · Guitar and bass amp simulator',counts:'25 active amp models · 39 PRE models · 21 POST models = 85 models · 48 factory & signature presets',
+subtitle:'User manual · Guitar and bass amp simulator',counts:'1.4: 30 amp · 51 PRE · 39 POST · 9 CREATIVE · 3 SYNTH = 132 models · 48 factory & signature presets (the model chapters below still describe the 1.3 catalog of 85)',
 navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
 referenceNote:'Chimera model names identify each sound and processing role. Choose by character, controls and intended use; hardware equivalence is not claimed.',
 quickTitle:'01 · Quick start',signalTitle:'04 · Signal flow and routing',compareTitle:'05 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
@@ -92,7 +93,7 @@ workflows:[
 ]
 },
 de:{
-subtitle:'Benutzerhandbuch · Gitarren- und Bass-Amp-Simulator',counts:'25 aktive Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle = 85 Modelle · 48 Werks- und Signature-Presets',
+subtitle:'Benutzerhandbuch · Gitarren- und Bass-Amp-Simulator',counts:'1.4: 30 Amp · 51 PRE · 39 POST · 9 CREATIVE · 3 SYNTH = 132 Modelle · 48 Werks- und Signature-Presets (die Modellkapitel unten beschreiben noch den 1.3-Katalog mit 85)',
 navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
 referenceNote:'Chimera-Modellnamen kennzeichnen Klang und Aufgabe. Nach Charakter, Reglern und Einsatzzweck wählen; Hardware-Gleichwertigkeit wird nicht behauptet.',
 quickTitle:'01 · Schnellstart',signalTitle:'04 · Signalfluss und Routing',compareTitle:'05 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
@@ -121,7 +122,7 @@ workflows:[
 ]
 },
 ko:{
-subtitle:'사용자 매뉴얼 · 기타·베이스 앰프 시뮬레이터',counts:'활성 앰프 25종 · PRE 39종 · POST 21종 = 총 85종 · 팩토리·시그니처 프리셋 48개',
+subtitle:'사용자 매뉴얼 · 기타·베이스 앰프 시뮬레이터',counts:'1.4: 앰프 30 · PRE 51 · POST 39 · CREATIVE 9 · SYNTH 3 = 총 132종 · 팩토리·시그니처 프리셋 48개 (아래 모델 장은 아직 1.3 카탈로그 85종 기준)',
 navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
 referenceNote:'Chimera 모델명은 각 사운드와 처리 역할을 나타냅니다. 캐릭터·컨트롤·용도를 기준으로 선택하세요. 실물 하드웨어와의 동등성을 주장하지 않습니다.',
 quickTitle:'01 · 빠른 시작',signalTitle:'04 · 신호 흐름과 라우팅',compareTitle:'05 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
@@ -1719,6 +1720,41 @@ const RELEASE13={
 };
 
 function render(){
+ const release14={
+  en:{title:'1.4 candidate · New stages, SYNTH, Room and editing',items:[
+   'Models: 30 amps, 51 PRE, 39 POST, 9 CREATIVE and 3 SYNTH engines (132). New models are appended: saved projects keep their models and values. Two PRE groups add twelve pedals (heavy distortion, power wah + boost, bass synth, multiband comp, tight boost, parametric EQ; seven-band EQ, multi wah, octave fuzz, two high-gain drives, pitch bend). Every model is Chimera\'s own sound; hardware equivalence is not claimed.',
+   'Signal order: PRE and POST modules can be reordered within the allowed range, saved and undone, without a click. Drag pedals on the PRE board or modules in the ROUTING graph.',
+   'New processing: five reference amps, three-band saturation, two-filter modulation, nine POST models each for bus comp / preamp / EQ and for modulation / delay / reverb, nine CREATIVE effects, six-band multiband dynamics with stereo link and M/S, a Studio true-peak output limiter and a LUFS / true-peak meter. OVERSAMPLING Auto (new instances) chooses the factor from the host rate; saved projects keep theirs.',
+   'SYNTH page: three engines, three oscillators, sample mode, a mod matrix and four insert points, following the played pitch; an external sidechain input and a separate SYNTH output bus. Pitch tracking is checked on synthetic signals only.',
+   'Room: size, send and absorption (Room Core) and room conditions and placement (Room Advanced); the room scenery follows the Space materials.',
+   'Graphical EQ: select several bands (Ctrl/Cmd+click, box, Ctrl/Cmd+A) and edit them together; DELETE removes the whole selection in one undo step. Shift for fine drags, Alt to keep one axis; display range ±6/12/24 dB, cursor readout, low-frequency zoom, analyzer tilt and PEAK hold. Hold SOLO (or the middle mouse button on a node) to hear one band; a solo is never printed in a recording or an offline bounce. Tone EQ and Final EQ each have their own A/B curve and can copy it to the other EQ.',
+   'Auto Set: lock any step and choose a strength; UNDO AUTO restores everything. New steps: Dual/Matrix lane polarity (judged from 20 Hz; band-only opposition and time offsets are reported, not flipped), delay tempo sync, factory IR choice (keeps the low strings\' fundamentals), and input detection (guitar, bass, voice, keys or drums; shown, and optionally skips the amp and cabinet steps for voice or drums). Amp channel selection and amp INPUT TRIM are off by default. Thresholds are synthetic starting values: lock a step to keep your settings.',
+   'Also: A/B MATCH (level-matched comparison; it changes the output and is not applied while recording or rendering), cabinet export as a WAV IR, a shorter recall mute, Doubler low-fundamental protection, Standalone device diagnostics and first-run ASIO on Windows, and the OBS filter with its editor window on Windows, macOS and Linux.',
+   '1.4.0-beta.1 expires at 2027-05-31T14:59:00Z (23:59 KST); open instances keep sounding, new ones start muted with their state kept, and tester codes extend it. Real DI listening, actual DAW / device acceptance, signing / notarization and AAX remain open. This is a candidate, not a published release.'
+  ]},
+  de:{title:'1.4-Kandidat · Neue Stufen, SYNTH, Room und Bearbeitung',items:[
+   'Modelle: 30 Amps, 51 PRE, 39 POST, 9 CREATIVE und 3 SYNTH-Engines (132). Neue Modelle werden angehängt: gespeicherte Projekte behalten Modelle und Werte. Zwei PRE-Gruppen bringen zwölf Pedale (Heavy-Distortion, Power-Wah + Boost, Bass-Synth, Multiband-Kompressor, Tight-Boost, parametrischer EQ; Sieben-Band-EQ, Multi-Wah, Oktav-Fuzz, zwei High-Gain-Drives, Pitch-Bend). Jedes Modell ist ein eigener Chimera-Klang; eine Gleichwertigkeit mit Hardware wird nicht behauptet.',
+   'Signalreihenfolge: PRE- und POST-Module lassen sich im erlaubten Bereich umordnen, speichern und rückgängig machen, ohne Klick. Pedale auf dem PRE-Board oder Module im ROUTING-Graphen ziehen.',
+   'Neue Verarbeitung: fünf Referenz-Amps, Drei-Band-Sättigung, Zwei-Filter-Modulation, je neun POST-Modelle für Bus-Comp / Preamp / EQ und für Modulation / Delay / Hall, neun CREATIVE-Effekte, Sechs-Band-Dynamik mit Stereo-Link und M/S, ein Studio-True-Peak-Ausgangslimiter und ein LUFS-/True-Peak-Meter. OVERSAMPLING Auto (neue Instanzen) wählt den Faktor nach der Host-Rate; gespeicherte Projekte behalten ihren.',
+   'SYNTH-Seite: drei Engines, drei Oszillatoren, Sample-Modus, Mod-Matrix und vier Einfügepunkte, folgt der gespielten Tonhöhe; externer Sidechain-Eingang und eigener SYNTH-Ausgangsbus. Die Tonhöhenverfolgung ist nur mit synthetischen Signalen geprüft.',
+   'Room: Größe, Send und Absorption (Room Core) sowie Raumbedingungen und Aufstellung (Room Advanced); die Raumansicht folgt den Space-Materialien.',
+   'Graphical EQ: mehrere Bänder wählen (Strg/Cmd+Klick, Rahmen, Strg/Cmd+A) und gemeinsam bearbeiten; DELETE entfernt die ganze Auswahl in einem Undo-Schritt. Umschalt für feines Ziehen, Alt für eine Achse; Anzeigebereich ±6/12/24 dB, Cursoranzeige, Tiefen-Zoom, Analyzer-Neigung und PEAK-Hold. SOLO (oder mittlere Maustaste auf einem Knoten) halten, um ein Band zu hören; ein Solo landet nie in einer Aufnahme oder einem Offline-Bounce. Tone EQ und Final EQ haben je eine eigene A/B-Kurve und können sie zum anderen EQ kopieren.',
+   'Auto Set: jeden Schritt sperren und eine Stärke wählen; UNDO AUTO stellt alles wieder her. Neue Schritte: Polarität der Dual-/Matrix-Spuren (ab 20 Hz beurteilt; nur bandweise Gegenphase und Zeitversatz werden gemeldet, nicht umgepolt), Delay-Tempo-Sync, Wahl der Werks-IR (erhält die Grundtöne tiefer Saiten) und Eingangserkennung (Gitarre, Bass, Stimme, Tasten oder Schlagzeug; angezeigt, optional werden bei Stimme oder Schlagzeug Amp- und Box-Schritte übersprungen). Amp-Kanalwahl und Amp-INPUT-TRIM sind standardmäßig aus. Die Schwellen sind synthetische Startwerte: einen Schritt sperren, um eigene Einstellungen zu behalten.',
+   'Außerdem: A/B MATCH (pegelangeglichener Vergleich; ändert den Ausgang, gilt nicht beim Aufnehmen oder Rendern), Box-Export als WAV-IR, kürzere Stummschaltung beim Abrufen, Schutz tiefer Grundtöne im Doubler, Gerätediagnose im Standalone und ASIO beim ersten Start unter Windows sowie der OBS-Filter mit Editorfenster unter Windows, macOS und Linux.',
+   '1.4.0-beta.1 läuft am 2027-05-31T14:59:00Z (23:59 KST) ab; offene Instanzen klingen weiter, neue starten stumm mit erhaltenem Zustand, Tester-Codes verlängern. Echtes DI-Probehören, DAW-/Geräteabnahme, Signierung/Notarisierung und AAX sind offen. Dies ist ein Kandidat, keine Veröffentlichung.'
+  ]},
+  ko:{title:'1.4 후보 · 새 단계, SYNTH, Room, 편집',items:[
+   '모델: 앰프 30, PRE 51, POST 39, CREATIVE 9, SYNTH 엔진 3(총 132)입니다. 새 모델은 뒤에 추가되어 저장한 프로젝트의 모델과 값은 그대로입니다. PRE 두 묶음에 페달 12종이 더해졌습니다(헤비 디스토션, 파워 와우+부스트, 베이스 신스, 멀티밴드 컴프, 타이트 부스트, 파라메트릭 EQ; 7밴드 EQ, 멀티 와우, 옥타브 퍼즈, 하이게인 드라이브 2종, 피치 벤드). 모두 Chimera 고유 사운드이며 하드웨어와 같다고 주장하지 않습니다.',
+   '신호 순서: PRE·POST 모듈을 허용된 범위 안에서 바꾸고 저장·Undo할 수 있으며 클릭이 나지 않습니다. PRE 보드의 페달이나 ROUTING 그래프의 모듈을 끌어서 옮깁니다.',
+   '새 처리: 레퍼런스 앰프 5종, 3밴드 새추레이션, 2-필터 모듈레이션, 버스 컴프·프리앰프·EQ와 모듈레이션·딜레이·리버브 POST 각 9종, CREATIVE 이펙트 9종, 스테레오 링크·M/S가 있는 6밴드 멀티밴드 다이내믹스, Studio true-peak 출력 리미터와 LUFS·true-peak 미터. 새 인스턴스의 OVERSAMPLING Auto는 호스트 샘플레이트로 배율을 정하고, 저장한 프로젝트는 원래 배율을 씁니다.',
+   'SYNTH 페이지: 연주 음정을 따라가는 엔진 3종, 오실레이터 3개, 샘플 모드, 모드 매트릭스, 삽입 위치 4곳; 외부 사이드체인 입력과 별도 SYNTH 출력 버스. 음정 추적은 합성 신호로만 확인했습니다.',
+   'Room: 크기·Send·흡음(Room Core)과 실내 조건·배치(Room Advanced). 룸 배경은 Space 재질을 따릅니다.',
+   'Graphical EQ: 여러 밴드를 선택해(Ctrl/Cmd+클릭, 박스, Ctrl/Cmd+A) 함께 편집합니다. DELETE는 선택한 밴드 전체를 한 번의 Undo로 지웁니다. Shift로 미세 이동, Alt로 한 축만; 표시 범위 ±6/12/24 dB, 커서 표시, 저역 확대, 애널라이저 기울기, PEAK hold. SOLO(또는 노드에서 가운데 버튼)를 누르고 있는 동안 그 밴드만 들립니다. 녹음·오프라인 바운스에는 들어가지 않습니다. Tone EQ와 Final EQ는 각자 A/B 곡선을 갖고 다른 EQ로 복사할 수 있습니다.',
+   'Auto Set: 단계마다 잠금과 강도를 고르고 UNDO AUTO로 모두 되돌립니다. 새 단계: Dual/Matrix 레인 극성(20 Hz부터 판정, 일부 대역만 반대이거나 시간차가 있으면 반전하지 않고 알림), 딜레이 템포 동기화, 팩토리 IR 선택(저음현 기본음 유지), 입력 판별(기타·베이스·보컬·건반·드럼 표시, 보컬·드럼이면 앰프·캐비닛 단계를 건너뛰는 옵션). 앰프 채널 선택과 앰프 INPUT TRIM은 기본으로 꺼져 있습니다. 임계값은 합성 신호로 정한 시작값이니 내 설정을 지키려면 그 단계를 잠그세요.',
+   '그 밖에: A/B MATCH(레벨을 맞춰 비교. 출력 자체를 바꾸며 녹음·렌더 중에는 적용하지 않음), 캐비닛 WAV IR 내보내기, 리콜 음소거 단축, Doubler 저역 기본음 보호, Standalone 장치 진단과 Windows 첫 실행 ASIO, Windows·macOS·Linux OBS 필터와 편집기 창.',
+   '1.4.0-beta.1은 2027-05-31T14:59:00Z(23:59 KST)에 만료됩니다. 열려 있는 인스턴스는 계속 소리를 내고, 새 인스턴스는 상태를 지킨 채 무음으로 시작하며, 테스터 코드로 연장됩니다. 실제 DI 청음, 실제 DAW·장치 수용, 서명·공증, AAX는 남아 있습니다. 공개판이 아닌 후보입니다.'
+  ]}
+ };
  const release132={
   en:{title:'1.3.2 candidate · Navigation, tuner and common dynamics',items:[
    'Select PRE, HEAD, CAB, TONE EQ, POST or FINAL EQ directly in the signal strip. ROUTING opens the full signal inspector. The footer TUNER button opens its workspace without changing audio; START TUNING and MUTE OUTPUT control detection and mute separately.',
@@ -1772,15 +1808,15 @@ function render(){
   ]}
  };
  const startHere={
-  en:{title:'New to Chimera? Start here',more:'Already using Chimera? See what changed in <a href="#release132">1.3.2</a> and <a href="#release131">1.3.1</a>.',steps:[
+  en:{title:'New to Chimera? Start here',more:'Already using Chimera? See what changed in <a href="#release14">1.4</a>, <a href="#release132">1.3.2</a> and <a href="#release131">1.3.1</a>.',steps:[
    ['1 · Install','Close your DAW, run the installer, then load Chimera as a VST3/AU plug-in or open the standalone app.','#install','Installation'],
    ['2 · Pick a sound','Chimera opens in Easy view. Choose a preset, then shape it with GAIN, BASS, MIDDLE, TREBLE, REVERB and VOLUME.','#easy','Easy view'],
    ['3 · Get ready to play','Press AUTO SET and play for about half a minute to set your level, or TUNER to tune. FULL EDITOR opens pedals, two-amp rigs and EQ.','#quick','Quick start']]},
-  de:{title:'Neu bei Chimera? Hier beginnen',more:'Sie nutzen Chimera schon? Die Neuerungen stehen unter <a href="#release132">1.3.2</a> und <a href="#release131">1.3.1</a>.',steps:[
+  de:{title:'Neu bei Chimera? Hier beginnen',more:'Sie nutzen Chimera schon? Die Neuerungen stehen unter <a href="#release14">1.4</a>, <a href="#release132">1.3.2</a> und <a href="#release131">1.3.1</a>.',steps:[
    ['1 · Installieren','DAW schließen, Installer ausführen und Chimera als VST3/AU-Plug-in laden oder die Standalone-App öffnen.','#install','Installation'],
    ['2 · Sound wählen','Chimera startet in der einfachen Ansicht. Preset wählen und mit GAIN, BASS, MIDDLE, TREBLE, REVERB und VOLUME anpassen.','#easy','Einfache Ansicht'],
    ['3 · Bereit zum Spielen','AUTO SET drücken und etwa eine halbe Minute spielen, um den Pegel einzustellen, oder mit TUNER stimmen. FULL EDITOR öffnet Pedale, Zwei-Amp-Rigs und EQ.','#quick','Schnellstart']]},
-  ko:{title:'Chimera가 처음이라면 여기서 시작하세요',more:'이미 쓰고 계신가요? 바뀐 점은 <a href="#release132">1.3.2</a>, <a href="#release131">1.3.1</a>에서 볼 수 있습니다.',steps:[
+  ko:{title:'Chimera가 처음이라면 여기서 시작하세요',more:'이미 쓰고 계신가요? 바뀐 점은 <a href="#release14">1.4</a>, <a href="#release132">1.3.2</a>, <a href="#release131">1.3.1</a>에서 볼 수 있습니다.',steps:[
    ['1 · 설치','DAW를 닫고 설치 프로그램을 실행한 뒤, DAW에서 VST3/AU 플러그인으로 불러오거나 단독 앱을 엽니다.','#install','설치 안내'],
    ['2 · 소리 고르기','Chimera는 이지 뷰로 열립니다. 프리셋을 고르고 GAIN, BASS, MIDDLE, TREBLE, REVERB, VOLUME으로 다듬으세요.','#easy','이지 뷰'],
    ['3 · 연주 준비','AUTO SET을 누르고 30초쯤 연주하면 레벨을 맞춰 줍니다. TUNER로 튜닝하세요. 페달, 두 앰프, EQ는 FULL EDITOR에서 다룹니다.','#quick','빠른 시작']]}
@@ -1792,6 +1828,8 @@ function render(){
  document.getElementById('easyTitle').textContent=easyView[lang].title;
  document.getElementById('easyIntro').textContent=easyView[lang].intro;
  document.getElementById('easyBody').innerHTML=bullets(easyView[lang].items);
+ document.getElementById('release14Title').textContent=release14[lang].title;
+ document.getElementById('release14Body').innerHTML=bullets(release14[lang].items);
  document.getElementById('release132Title').textContent=release132[lang].title;
  document.getElementById('release132Body').innerHTML=bullets(release132[lang].items);
  document.getElementById("release131Title").textContent=RELEASE131[lang].title;
