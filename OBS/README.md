@@ -361,6 +361,11 @@ Chimera VST3는 평소처럼 `%CommonProgramFiles%\VST3`에 설치되어 있어�
   필요하면 OBS 소스의 싱크 오프셋으로 맞춘다. 실제 OBS 녹화에서 처리한 소리가 이만큼 늦는 것은 `obs_latency_test.py`가 확인한다.
 - 같은 미디어 소스라도 OBS가 녹화마다 영상 대비 소리 위치를 다르게 시작하는 것을 관찰했다(로컬 OBS 30.0.2에서 필터를 끈 두 녹화가
   −134 ms와 −62 ms). 필터와 무관한 OBS 동작이며, 한 녹화 안에서는 일정하다.
+- macOS CI 가상 머신의 OBS 31.1.2는 종료할 때 가끔(OBS 실행 약 15번에 한 번) 미디어 소스를 장면 정리 뒤까지 남기고("Not all sources
+  were cleared"), 모듈과 오디오 출력을 해제한 뒤에 그 소스를 정리하다 SIGSEGV로 끝난다(`mp_media_thread`의 `obs_source_output_audio`, 또는
+  `scene_destroy`에서 부른 obs-websocket 신호 처리기). 확인 항목이 모두 통과한 뒤였고 Chimera 모듈은 크래시 스택에 없었다. 미디어 소스만,
+  Chimera 필터, 녹화, 저장된 장면 복원을 조합한 진단 실행 33번에서는 한 번도 나지 않아 원인은 찾지 못했다. 앱 시험은 이 경우만
+  (SIGSEGV, 로그의 종료가 "Freeing OBS context data"까지 가고 소스가 남음, 크래시 스레드에 Chimera 없음) 경고를 남기고 정상 종료로 본다.
 
 **미실행**: OBS Studio 앱 안에서의 필터 메뉴·속성 창 조작과 Windows·macOS의 에디터 창 안 조작(Linux·Windows·macOS 앱 시험은
 obs-websocket으로 필터를 추가·설정하고, 필터 붙여넣기는 메뉴가 부르는 OBS 함수를 Lua 스크립트로 부른다. 화면을 직접 조작하는 시험은
