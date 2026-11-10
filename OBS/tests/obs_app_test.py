@@ -423,19 +423,24 @@ class Obs:
 
 
 def known_macos_shutdown_crash(code: int, report: str, log: str) -> bool:
-    """OBS 31.1.2 on the macOS CI runner sometimes keeps a media source past clearing the
-    scene at quit ("Not all sources were cleared") and destroys it only after it unloaded the
-    modules and freed the audio output, then dies with SIGSEGV: in obs_source_output_audio on
+    """OBS 31.1.2 on the macOS CI runner sometimes keeps sources past clearing the scene at
+    quit ("Not all sources were cleared") and destroys them only after it unloaded the modules
+    and freed the audio output, then dies with SIGSEGV: in obs_source_output_audio on
     mp_media_thread, or in obs-websocket's signal handler from scene_destroy. It hit tests whose
     checks had all passed, about once in fifteen OBS runs; OBS runs that only add a media
     source, a Chimera filter, a recording or a saved scene never showed it (33 runs). Only that
-    crash counts as a clean exit: SIGSEGV, the log's shutdown reached "Freeing OBS context data"
-    with a source left over, and Chimera's module is not in the crashed thread (a missing
-    report cannot show the thread; the log still has to match)."""
+    crash counts as a clean exit: SIGSEGV after the log's shutdown reported sources left over,
+    and either the crashed thread is one of those two OBS paths without Chimera in it, or no
+    report was written and the log got as far as "Freeing OBS context data"."""
     shutdown = log.rfind("==== Shutting down")
     tail = log[shutdown:] if shutdown >= 0 else ""
-    return (code == -11 and "Not all sources were cleared" in tail and "Freeing OBS context data" in tail
-            and "chimera" not in report.lower())
+    if code != -11 or "Not all sources were cleared" not in tail:
+        return False
+    if report.startswith("--- no macOS crash report"):
+        return "Freeing OBS context data" in tail
+    known_thread = ("obs_source_output_audio" in report and "mp_media_thread" in report) or \
+        ("scene_destroy" in report and "obs-websocket" in report)
+    return known_thread and "chimera" not in report.lower()
 
 
 def macos_crash_report(pid: int, wait: float = 20.0) -> str:
