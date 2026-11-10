@@ -409,15 +409,6 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-app"
-      - name: Diagnostic (31.1.2 Apple) - which sources outlive clearing the scene when OBS quits
-        # Reports only; the macOS shutdown crash it looks into is not a check of the filter.
-        if: always()
-        continue-on-error: true
-        run: |
-          python3 OBS/tests/obs_shutdown_probe.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
-            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
-            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
-            --work "$RUNNER_TEMP/obs-shutdown-probe" --runs 3
       - name: Real OBS Studio app (31.1.2 Apple) - two Chimera filters side by side, pasted filters, save, restart and restore
         run: |
           ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
