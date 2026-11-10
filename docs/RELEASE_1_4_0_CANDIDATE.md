@@ -109,10 +109,10 @@ they are added before the final source is frozen.
       1.4.0-beta.1 build (secret configured for the candidate build).
 - [ ] **Manual:** the EN/DE/KO manual describes the new pages (SYNTH, Room,
       signal order, EQ group editing / SOLO / per-EQ A/B, Auto Set phases).
-      Done: a 1.4 section in all three languages, the 132-model count and the
-      1.4.0-beta.1 header/footer. Open: per-model chapters for the 47 new
-      models (the PRE/AMP/POST chapters still describe the 1.3 catalog, and the
-      count line says so).
+      Done: a 1.4 section in all three languages, the 132-model count, the
+      1.4.0-beta.1 header/footer, and model cards for the 47 new models
+      (PRE 12, AMP 5, POST 18, a new CREATIVE 9 · SYNTH 3 chapter). Open: a
+      review of the new German and Korean descriptions by a native speaker.
 - [ ] **Strict evidence:** consolidated accurately; the deferred transpose
       checks and the real DI / DAW / listening gaps stay disclosed.
 - [ ] **Approval receipt:** a fresh weekly approval receipt binds the final
