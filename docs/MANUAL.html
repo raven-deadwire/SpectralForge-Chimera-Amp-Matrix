@@ -30,7 +30,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <body><main>
 <header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">1.4.0 candidate · <code>1.4.0-beta.1</code> · <span data-k="counts"></span></p></div>
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
-<nav><a href="#easy" id="navEasy"></a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#release132">1.3.2</a><a href="#release131">1.3.1</a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
+<nav><a href="#easy" id="navEasy"></a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#creative">CREATIVE / SYNTH</a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#release132">1.3.2</a><a href="#release131">1.3.1</a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <section id="start" class="start"><h2 id="startTitle"></h2><div id="startBody" class="start-grid"></div><p class="start-more" id="startMore"></p></section>
 <p class="note" data-k="referenceNote"></p>
 <section id="easy"><h2 id="easyTitle"></h2><p class="section-intro" id="easyIntro"></p><div id="easyBody"></div></section>
@@ -41,6 +41,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="compare"><h2 data-k="compareTitle"></h2><p class="section-intro" data-k="compareIntro"></p><h3 data-k="preFamilyTitle"></h3><div id="preFamilyTable"></div><h3 data-k="ampFamilyTitle"></h3><div id="ampFamilyTable"></div><h3 data-k="postFamilyTitle"></h3><div id="postFamilyTable"></div><h3 data-k="stageTitle"></h3><div id="stageTable"></div></section>
 <section id="pre"><h2 data-k="preTitle"></h2><p class="section-intro" data-k="preIntro"></p><div id="preModels"></div></section>
 <section id="amps"><h2 data-k="ampTitle"></h2><p class="section-intro" data-k="ampIntro"></p><div id="ampModels"></div><h3 data-x="ampRouteTitle"></h3><div id="ampRouteBody"></div></section>
+<section id="creative"><h2 data-k="creativeTitle"></h2><p class="section-intro" data-k="creativeIntro"></p><div id="creativeModels"></div><div id="synthModels"></div></section>
 <section id="post"><h2 data-k="postTitle"></h2><p class="flow">BUS COMP → PREAMP → EQ → MODULATION → DELAY → REVERB</p><p class="section-intro" data-k="postIntro"></p><div id="postModels"></div></section>
 <section id="ir"><h2 data-k="irTitle"></h2><div id="irBody"></div><h3 data-x="irLibraryTitle"></h3><div id="irDetailBody"></div><h3 data-x="irCreditsTitle"></h3><div id="irCreditsBody"></div></section>
 <section id="workflows"><h2 data-k="workflowTitle"></h2><div id="workflowBody" class="workflow-grid"></div></section>
@@ -64,14 +65,14 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 const ASSET='https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/v1.3.1-beta.1/Assets/Artwork/';
 const L={
 en:{
-subtitle:'User manual · Guitar and bass amp simulator',counts:'1.4: 30 amp · 51 PRE · 39 POST · 9 CREATIVE · 3 SYNTH = 132 models · 48 factory & signature presets (the model chapters below still describe the 1.3 catalog of 85)',
-navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
+subtitle:'User manual · Guitar and bass amp simulator',counts:'1.4: 30 amp · 51 PRE · 39 POST · 9 CREATIVE · 3 SYNTH = 132 models · 48 factory & signature presets',
+navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 51',navAmp:'AMP 30',navPost:'POST 39',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
 referenceNote:'Chimera model names identify each sound and processing role. Choose by character, controls and intended use; hardware equivalence is not claimed.',
 quickTitle:'01 · Quick start',signalTitle:'04 · Signal flow and routing',compareTitle:'05 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
 preFamilyTitle:'PRE families',ampFamilyTitle:'Amplifier families',postFamilyTitle:'POST families',stageTitle:'PRE / AMP / CAB / POST — different jobs',
-preTitle:'06 · PRE — 5-slot pedalboard / 39 models',preIntro:'Five slots can be filled, duplicated and reordered. During this beta, stop transport before model replacement or reorder when possible.',
-ampTitle:'07 · Amplifiers — 25 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
-postTitle:'08 · POST Rack — 21 models',postIntro:'POST processes the merged rig once. Use it for overall dynamics, colour, final EQ, modulation, delay and reverb.',
+preTitle:'06 · PRE — 5-slot pedalboard / 51 models',preIntro:'Five slots can be filled, duplicated and reordered. During this beta, stop transport before model replacement or reorder when possible.',
+ampTitle:'07 · Amplifiers — 30 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
+postTitle:'08 · POST Rack — 39 models',creativeTitle:'08b · CREATIVE 9 · SYNTH 3',creativeIntro:'CREATIVE effects are rhythmic, pitch and texture processors with three controls (A/B/C) each. The SYNTH engines are the starting points of the SYNTH page: they follow the played pitch and are layered with the guitar or bass.',postIntro:'POST processes the merged rig once. Use it for overall dynamics, colour, final EQ, modulation, delay and reverb.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Practical workflows',presetTitle:'11 · Factory presets / A·B / Save',globalTitle:'12 · Global controls',diagTitle:'14 · Diagnostics and troubleshooting',limitsTitle:'15 · Open Beta scope and known limits',
 
 footer:'Copyright © 2026 RavenForge Luthier Intelligence. Third-party software and included asset credits are retained in THIRD_PARTY_NOTICES.md.',
@@ -93,14 +94,14 @@ workflows:[
 ]
 },
 de:{
-subtitle:'Benutzerhandbuch · Gitarren- und Bass-Amp-Simulator',counts:'1.4: 30 Amp · 51 PRE · 39 POST · 9 CREATIVE · 3 SYNTH = 132 Modelle · 48 Werks- und Signature-Presets (die Modellkapitel unten beschreiben noch den 1.3-Katalog mit 85)',
-navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
+subtitle:'Benutzerhandbuch · Gitarren- und Bass-Amp-Simulator',counts:'1.4: 30 Amp · 51 PRE · 39 POST · 9 CREATIVE · 3 SYNTH = 132 Modelle · 48 Werks- und Signature-Presets',
+navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 51',navAmp:'AMP 30',navPost:'POST 39',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
 referenceNote:'Chimera-Modellnamen kennzeichnen Klang und Aufgabe. Nach Charakter, Reglern und Einsatzzweck wählen; Hardware-Gleichwertigkeit wird nicht behauptet.',
 quickTitle:'01 · Schnellstart',signalTitle:'04 · Signalfluss und Routing',compareTitle:'05 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
 preFamilyTitle:'PRE-Gruppen',ampFamilyTitle:'Amp-Gruppen',postFamilyTitle:'POST-Gruppen',stageTitle:'PRE / AMP / CAB / POST — unterschiedliche Aufgaben',
-preTitle:'06 · PRE — 5-Slot-Pedalboard / 39 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Modellwechsel und Reihenfolge sollten während dieser Beta möglichst bei gestopptem Transport geändert werden.',
-ampTitle:'07 · Verstärker — 25 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
-postTitle:'08 · POST-Rack — 21 Modelle',postIntro:'POST bearbeitet das zusammengeführte Rig einmal. Hier werden Gesamtdynamik, Farbe, EQ, Modulation, Delay und Reverb eingestellt.',
+preTitle:'06 · PRE — 5-Slot-Pedalboard / 51 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Modellwechsel und Reihenfolge sollten während dieser Beta möglichst bei gestopptem Transport geändert werden.',
+ampTitle:'07 · Verstärker — 30 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
+postTitle:'08 · POST-Rack — 39 Modelle',creativeTitle:'08b · CREATIVE 9 · SYNTH 3',creativeIntro:'CREATIVE-Effekte sind Rhythmus-, Tonhöhen- und Texturprozessoren mit je drei Reglern (A/B/C). Die SYNTH-Engines sind die Ausgangspunkte der SYNTH-Seite: Sie folgen der gespielten Tonhöhe und werden mit Gitarre oder Bass geschichtet.',postIntro:'POST bearbeitet das zusammengeführte Rig einmal. Hier werden Gesamtdynamik, Farbe, EQ, Modulation, Delay und Reverb eingestellt.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Praktische Workflows',presetTitle:'11 · Werks-Presets / A·B / Speichern',globalTitle:'12 · Globale Funktionen',diagTitle:'14 · Diagnose und Fehlerbehebung',limitsTitle:'15 · Open-Beta-Umfang und bekannte Grenzen',
 
 footer:'Copyright © 2026 RavenForge Luthier Intelligence. Hinweise zu Fremdsoftware und enthaltenen Assets stehen in THIRD_PARTY_NOTICES.md.',
@@ -122,14 +123,14 @@ workflows:[
 ]
 },
 ko:{
-subtitle:'사용자 매뉴얼 · 기타·베이스 앰프 시뮬레이터',counts:'1.4: 앰프 30 · PRE 51 · POST 39 · CREATIVE 9 · SYNTH 3 = 총 132종 · 팩토리·시그니처 프리셋 48개 (아래 모델 장은 아직 1.3 카탈로그 85종 기준)',
-navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
+subtitle:'사용자 매뉴얼 · 기타·베이스 앰프 시뮬레이터',counts:'1.4: 앰프 30 · PRE 51 · POST 39 · CREATIVE 9 · SYNTH 3 = 총 132종 · 팩토리·시그니처 프리셋 48개',
+navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 51',navAmp:'AMP 30',navPost:'POST 39',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
 referenceNote:'Chimera 모델명은 각 사운드와 처리 역할을 나타냅니다. 캐릭터·컨트롤·용도를 기준으로 선택하세요. 실물 하드웨어와의 동등성을 주장하지 않습니다.',
 quickTitle:'01 · 빠른 시작',signalTitle:'04 · 신호 흐름과 라우팅',compareTitle:'05 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
 preFamilyTitle:'PRE 모델군',ampFamilyTitle:'AMP 모델군',postFamilyTitle:'POST 모델군',stageTitle:'PRE / AMP / CAB / POST 역할 차이',
-preTitle:'06 · PRE — 5-slot Pedalboard / 39 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. 베타에서는 모델 교체·순서 변경 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
-ampTitle:'07 · Amplifier — 25 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
-postTitle:'08 · POST Rack — 21 Models',postIntro:'POST는 합산된 리그를 한 번 처리합니다. 전체 다이내믹·컬러·최종 EQ를 정리한 뒤 모듈레이션·딜레이·리버브로 움직임과 공간을 완성합니다.',
+preTitle:'06 · PRE — 5-slot Pedalboard / 51 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. 베타에서는 모델 교체·순서 변경 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
+ampTitle:'07 · Amplifier — 30 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
+postTitle:'08 · POST Rack — 39 Models',creativeTitle:'08b · CREATIVE 9 · SYNTH 3',creativeIntro:'CREATIVE 이펙트는 리듬·음정·텍스처를 다루는 처리기로, 각각 A/B/C 세 개의 컨트롤을 씁니다. SYNTH 엔진은 SYNTH 페이지의 출발점으로, 연주 음정을 따라가며 기타·베이스와 겹쳐 씁니다.',postIntro:'POST는 합산된 리그를 한 번 처리합니다. 전체 다이내믹·컬러·최종 EQ를 정리한 뒤 모듈레이션·딜레이·리버브로 움직임과 공간을 완성합니다.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · 실전 사용 예시',presetTitle:'11 · Factory Presets / A·B / Save',globalTitle:'12 · 공통 기능',diagTitle:'14 · Diagnostics / Troubleshooting',limitsTitle:'15 · Open Beta 범위와 알려진 한계',
 
 footer:'Copyright © 2026 RavenForge Luthier Intelligence. 동봉 소프트웨어와 에셋의 출처·라이선스는 THIRD_PARTY_NOTICES.md에 보존합니다.',
@@ -1094,7 +1095,19 @@ const PRE=[
 ["Modulation", "Drift Vibrato", "pvibrato.jpg", "Vibrato", "Pitch-centred movement", "Lo-fi, ambient", "Rate · Depth · Mix"],
 ["Modulation", "Pulse Tremolo", "ptremolo.jpg", "Tremolo", "Amplitude pulse / stereo motion", "Clean rhythmic effect", "Rate · Depth · Mix"],
 ["Pitch / Octave", "Mono Octaver", "pmonoctave.jpg", "Monophonic sub octave", "Immediate and simple; single-note oriented", "Bass riffs, synth bass", "Dry · Down1 · Down2"],
-["Pitch / Octave", "Spectral Octaver", "pspectraloctave.jpg", "Polyphonic octave", "Poly spectral layer with frame latency", "Chords and experimental texture", "Dry · Down · Up"]
+["Pitch / Octave", "Spectral Octaver", "pspectraloctave.jpg", "Polyphonic octave", "Poly spectral layer with frame latency", "Chords and experimental texture", "Dry · Down · Up"],
+["Equalizer", "Para EQ", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pparaeq.jpg", "Three-band parametric shaping + clean boost", "Overlapping bands, wide/medium/narrow Q", "Low-end and mid surgery before the amp, clean lift", "Low/Mid/High freq · gain · Q · Boost"],
+["Compressor", "Multi Comp", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pmulticomp.jpg", "Linked or two-band compression", "Firm peak control, multiband option at 250 Hz", "Bass evenness, tight low end with open highs", "Comp · Gain · Sens · Mode · Balance"],
+["Boost", "Tight Boost", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/ptightboost.jpg", "Tightening boost into high gain", "Low cut and upper-mid push grow with the knob", "Metal rhythm, low tunings", "Boost"],
+["Envelope / Wah", "Power Wah", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/ppowerwah.jpg", "Wah + clean boost in one", "Focused band-pass sweep, separate boost switch", "Lead accents, fixed-wah tone", "Position · Boost · Wah on · Boost on"],
+["Pitch / Octave", "Bass Synth", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pbasssynth.jpg", "Monophonic bass synthesizer", "Tracked oscillators, sub and resonant filter sweep", "Synth bass lines, octave-down textures", "Mix · Sub Mix · Cutoff · Resonance · Envelope · Mod · Shape · Voice"],
+["Overdrive / Distortion", "Dreadful Peril", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pdreadfulperil.jpg", "Gated high-gain distortion", "Weight control, one to three clipping stages", "Modern metal, djent, low tunings", "Gain · Weight · Output · Low/Mid/High · Gate · Mid Freq · Mode"],
+["Equalizer", "Seven EQ", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pseveneq.jpg", "Seven-band graphic EQ", "Fixed bands 100 Hz–6.4 kHz, high shelf on top", "Mid scoop or push, solo lift", "100 Hz–6.4 kHz · Level"],
+["Envelope / Wah", "Multi Wah", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pmultiwah.jpg", "Range-switchable wah + boost", "Adjustable sweep range and Q", "Funk, lead, bass wah", "Position · Range · Q · Boost · Boost on"],
+["Fuzz", "Octave Fuzz", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/poctavefuzz.jpg", "Fuzz with sub and upper octave", "Thick fuzz, octave up with its own gain and tone", "Leads, doom riffs, synth-like lines", "Volume · Fuzz · Tone · Sub Octave · Octave Up · Up Gain/Tone"],
+["Overdrive / Distortion", "Violet Rage", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pvioletrage.jpg", "High-gain drive with aggression control", "Tight, three-band, adjustable bite", "Modern rhythm and lead", "Volume · Gain · Bass · Middle · Treble · Aggression"],
+["Overdrive / Distortion", "Fire Drake", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/pfiredrake.jpg", "Hot-rodded British drive", "Dense upper mids, two voicing modes", "Classic and modern rock leads", "Volume · Gain · Bass · Mids · Treble · Mode"],
+["Pitch / Octave", "Pitch Bend", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/ppitchbend.jpg", "Expression pitch shifter", "Treadle-swept pitch, interval and mode select", "Dive bombs, whammy-style bends", "Treadle · Setting · Mode"],
 ];
 
 const AMP=[
@@ -1122,7 +1135,12 @@ const AMP=[
 ["Lead", "Hot Lead", "ahotlead.jpg", "Lead / high gain", "Smooth top, long sustain", "Hard rock / metal lead", "Normal/Overdrive · Preamp/Master · shared EQ · Presence/Depth"],
 ["High-Gain", "Blue Storm", "abluestorm.jpg", "Dense high gain", "Massive dense low mids", "Low-tuned wall tone", "Clean/Lead · Gain/EQ/Volume · Master"],
 ["High-Gain", "Náströnd", "anastrond.png", "Five-character high gain", "Tight attack, dense sustain, tunable bloom", "Metal rhythm, lead, low tuning", "GAIN · BASS · MID · TREBLE · MID FREQ · PRESENCE · DEPTH · MASTER · CLANK · CRUSH · IMPACT · ROT · BLOOM"],
-["Bass", "Niflheimr", "aniflheimr.png", "Five-channel Original bass amp", "Clean low foundation with five distinct drive voices", "Technical metal, death/grind, industrial, slam and sludge/doom", "GAIN · BASS · MID · TREBLE · MID FREQ · PRESENCE · DEPTH · MASTER · MASS · SPLIT · FANG · FOLD · THRUST · BLEND"]
+["Bass", "Niflheimr", "aniflheimr.png", "Five-channel Original bass amp", "Clean low foundation with five distinct drive voices", "Technical metal, death/grind, industrial, slam and sludge/doom", "GAIN · BASS · MID · TREBLE · MID FREQ · PRESENCE · DEPTH · MASTER · MASS · SPLIT · FANG · FOLD · THRUST · BLEND"],
+["Clean", "Crystal 120", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/acrystal.png", "Solid-state stereo clean", "Glassy, with built-in chorus and vibrato", "Clean, chorus parts, pedal platform", "CH1/CH2 · Volume · T/M/B · Bright · Distortion · Reverb · Effect"],
+["Crunch", "Bluestack 100", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/abluestack.png", "Non-master British crunch", "Loud breakup from four jumpable inputs", "Classic rock, cranked rhythm", "Loudness I/II · T/M/B · Presence · Jumped"],
+["Crunch", "Eightyfire", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/aeightyfire.png", "Master-volume British drive", "Biting upper mids, tight with a boost", "Hard rock, 80s metal rhythm", "Pre-amp Volume · Master · T/M/B · Presence"],
+["Clean", "Fortress 103", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/afortress.png", "High-headroom British clean", "Firm, loud clean with late breakup", "Clean, big chords, pedal platform", "Normal/Bright Volume · T/M/B · Presence · Master"],
+["Bass", "Northlight", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/anorthlight.png", "Class-D clean bass", "Hi-fi clean with five-band active EQ", "Modern clean bass, slap, extended range", "Pad · EQ · Low/Low Mid/Mid/High Mid/High · Damping · Master"],
 ];
 
 const POST=[
@@ -1146,7 +1164,41 @@ const POST=[
 ["Delay", "Analog Echo", "rmemory.jpg", "Dark analog delay", "Soft dark repeats", "Lead depth, texture", "Time · Feedback · Mix"],
 ["Reverb", "Studio Plate", "remt.jpg", "Dense plate", "Bright, smooth density", "Lead, clean", "Size · Damping · Mix"],
 ["Reverb", "Concert Hall", "rlex.jpg", "Large hall", "Deep modulated space", "Ambient, cinematic", "Size · Damping · Mix"],
-["Reverb", "Spring Tank", "rspring.jpg", "Spring reverb", "Splashy vintage resonance", "Clean / crunch", "Size · Damping · Mix"]
+["Reverb", "Spring Tank", "rspring.jpg", "Spring reverb", "Splashy vintage resonance", "Clean / crunch", "Size · Damping · Mix"],
+["Bus Compressor", "Polar Press", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rpolar.png", "Compressor / expander / limiter", "Bidirectional dynamics with limits", "Creative bus dynamics, upward expansion", "Function · Threshold · Attack · Release · Limits · Bass Cut · Output"],
+["Bus Compressor", "Thrust Bus", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rthrust.png", "Punchy bus compression", "Thrust high-pass in the detector, variable knee", "Rhythm bus, drums-style punch", "Threshold · Attack · Ratio · Release · Knee · Thrust · Type · Link · Output"],
+["Bus Compressor", "Diode Bridge", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rdiode.png", "Compressor + limiter pair", "Diode-bridge colour, auto recovery", "Dense rhythm bus, lead sustain", "Comp threshold/ratio/recovery/attack · Limiter · Gain"],
+["Preamp", "Discrete Lift", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rdiscrete.png", "Discrete preamp colour", "Punchy, forward mids", "Adding weight and push to the rig", "Input · Gain · Pad · Phase"],
+["Preamp", "Desk Two", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rdesk.png", "Console preamp drive", "Stepped gain into soft saturation", "Vintage desk colour, gentle drive", "Input · Coarse · Fine · Output · Phase"],
+["Preamp", "Clear Line", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rclear.png", "Transparent preamp", "Clean gain with a fixed high-pass", "Clean level setting, DI clarity", "Input · Gain · Trim · HPF"],
+["Equalizer", "Stepped EQ", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rstepped.png", "Three-band stepped EQ", "Proportional-Q bands, shelf switches", "Quick broad tone moves on the rig", "LF/MF/HF frequency · gain · Shelf · Filter"],
+["Equalizer", "Air Band", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rair.png", "Broad shelves + air band", "Wide low bands, open top end", "Adding air and clarity", "Sub/40/160/650 Hz · 2.5 kHz · Air gain/frequency"],
+["Equalizer", "Curve Shaper", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rcurve.png", "Character EQ", "Shelf-or-bell bass and treble, two presence bands", "Musical rig colour, tone sculpting", "Treble · Presence 1/2 · Bass · HPF · LPF"],
+["Modulation", "Spin Cabinet", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rspin.png", "Rotary speaker", "Horn and drum rotation with Doppler", "Organ-style leads, swirling chords", "Rate · Depth · Mix"],
+["Modulation", "Throb Vibe", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rthrob.png", "Lamp-swept phase vibe", "Uneven, throbbing phase sweep", "Psychedelic leads, chorus-mode blend", "Rate · Depth · Mix"],
+["Modulation", "Ring Bell", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rring.png", "Ring modulator", "Bell-like, inharmonic sidebands", "Sound design, metallic textures", "Rate · Depth (carrier) · Mix"],
+["Delay", "Tap Cloud", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rtapcloud.png", "Multi-tap delay", "Six spread taps with adjustable taper", "Rhythmic ambience, swells", "Time (span) · Feedback (taper) · Mix"],
+["Delay", "Bloom Delay", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rbloom.png", "Drifting modulated delay", "Band-limited, softly saturated repeats", "Ambient leads, lo-fi echoes", "Time · Feedback · Mix"],
+["Delay", "Dual Digital", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rdualdig.png", "Two linked delay lines", "Clean repeats at Time and ¾ Time", "Dotted-style rhythmic delays", "Time · Feedback · Mix"],
+["Reverb", "Hall Prime", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rhallprime.png", "Dense modulated hall", "Smooth long decay, light modulation", "Lead space, clean ambience", "Size · Damping · Mix"],
+["Reverb", "Void Space", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rvoid.png", "Huge ambient reverb", "Very long, dark, wide decay", "Drones, swells, post-rock", "Size · Damping · Mix"],
+["Reverb", "Gated Room", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/rgated.png", "Gated reverb", "Dense burst that closes abruptly", "Punchy rhythm space, 80s-style accents", "Size (hold) · Damping · Mix"],
+];
+const CREATIVE=[
+["Creative", "Gate Slicer", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/cslicer.png", "Rhythmic volume slicer", "Hard on/off chops, tempo-synced", "Stutter rhythms, trance gates", "Rate · Depth · Duty"],
+["Creative", "Step Harmonizer", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/charmonizer.png", "Stepped pitch sequencer", "Arpeggiated intervals with glide", "Arpeggio leads, sequences", "Step rate · Pattern · Glide"],
+["Creative", "Time Bend", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/ctimebend.png", "Cyclic pitch bend", "Warble up to tape-stop ramps", "Lo-fi wobble, tape-stop effects", "Cycle · Bend · Shape"],
+["Creative", "Zap Sweep", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/czap.png", "Triggered filter zap", "Resonant sweep on each attack", "Laser-like accents", "Sweep · Trigger · Resonance"],
+["Creative", "Freq Shift", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/cfreqshift.png", "Frequency shifter", "Inharmonic shift with feedback and stereo spread", "Sound design, barber-pole textures", "Shift · Feedback · Spread"],
+["Creative", "Freeze Hold", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/cfreeze.png", "Sound freeze", "Holds the played note as a pad", "Drones under riffs, ambient beds", "Hold · Trigger · Grain"],
+["Creative", "Glitch Stutter", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/cglitch.png", "Random stutter / reverse", "Tempo-synced repeats and reversals", "Glitch fills, IDM textures", "Step · Repeat chance · Reverse chance"],
+["Creative", "Bit Crush", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/cbitcrush.png", "Bit and sample-rate reduction", "Gritty digital distortion", "Lo-fi, chiptune textures", "Bits · Rate · Tone"],
+["Creative", "Grain Cloud", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/cgrain.png", "Granular texture", "Scattered grains with pitch spread", "Pads, shimmering clouds", "Density · Pitch scatter · Grain size"],
+];
+const SYNTH=[
+["SYNTH", "Dvergr Analog", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/sdvergr.png", "Analog-style synth engine", "Warm oscillators and a resonant filter", "Synth bass, leads doubled with guitar", "Oscillators 1–3 · Filter · Envelopes · LFO · Mod matrix"],
+["SYNTH", "Seidr Dynamic", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/sseidr.png", "Dynamic wavetable-style engine", "Playing-sensitive, evolving timbre", "Pads and textures that follow the playing", "Oscillators 1–3 · Filter · Envelopes · LFO · Mod matrix"],
+["SYNTH", "Mimir Impact", "https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/36f160bcf597178542a252e6ef136f788568ac63/Assets/Artwork/smimir.png", "Percussive impact engine", "Short, punchy transients and samples", "Hits, stabs, layered attacks", "Oscillators 1–3 · Sample · Filter · Envelopes"],
 ];
 
 const modelText={
@@ -1207,7 +1259,54 @@ const KO={
 'Console EQ':'콘솔 EQ','Clear and versatile':'명확하고 versatile','Problem-band correction, modern shaping':'문제 대역 교정, modern shaping','Musical EQ':'musical EQ','Broad and coloured':'넓고 컬러감 있음','Body / air correction':'body / air 보정','Broad tonal shaping':'넓은 tonal shaping','Smooth wide curves':'부드럽고 넓은 곡선','Low-end weight, high-end polish':'저역 weight, 고역 polish',
 'Stereo spread':'스테레오 spread','Dramatic movement':'강한 movement','Pitch motion':'pitch movement','Rhythmic movement':'리드미컬 movement',
 'Clean digital delay':'클린 디지털 딜레이','Clear precise repeats':'선명하고 정확한 repeat','Metal/lead, rhythmic delay':'메탈/lead, rhythmic delay','Vintage echo':'빈티지 echo','Filtered repeat, wow/flutter':'필터링 repeat, wow/flutter','Ambient, vintage lead':'ambient, vintage lead','Dark analog delay':'어두운 아날로그 딜레이','Soft dark repeats':'부드럽고 어두운 repeat','Lead depth, texture':'리드 depth, texture',
-'Dense plate':'dense plate','Bright, smooth density':'밝고 매끈한 밀도','Lead, clean':'리드, 클린','Large hall':'large hall','Deep modulated space':'깊고 modulated한 공간','Ambient, cinematic':'ambient, cinematic','Spring reverb':'spring reverb','Splashy vintage resonance':'튀는 빈티지 resonance','Clean / crunch':'클린 / 크런치'
+'Dense plate':'dense plate','Bright, smooth density':'밝고 매끈한 밀도','Lead, clean':'리드, 클린','Large hall':'large hall','Deep modulated space':'깊고 modulated한 공간','Ambient, cinematic':'ambient, cinematic','Spring reverb':'spring reverb','Splashy vintage resonance':'튀는 빈티지 resonance','Clean / crunch':'클린 / 크런치',
+"Three-band parametric shaping + clean boost":"3밴드 파라메트릭 + 클린 부스트","Overlapping bands, wide/medium/narrow Q":"겹치는 밴드, 넓음/중간/좁음 Q","Low-end and mid surgery before the amp, clean lift":"앰프 앞 저역·중역 정밀 보정, 클린 레벨 업",
+"Linked or two-band compression":"링크 또는 2밴드 컴프레션","Firm peak control, multiband option at 250 Hz":"단단한 피크 제어, 250 Hz 멀티밴드 옵션","Bass evenness, tight low end with open highs":"베이스 균일화, 저역은 단단하고 고역은 열린 소리",
+"Tightening boost into high gain":"하이게인 앞 조이는 부스트","Low cut and upper-mid push grow with the knob":"노브를 올릴수록 저역 컷과 중고역 강조가 커짐","Metal rhythm, low tunings":"메탈 리듬, 낮은 튜닝",
+"Wah + clean boost in one":"와우 + 클린 부스트 일체형","Focused band-pass sweep, separate boost switch":"집중된 밴드패스 스윕, 부스트 별도 스위치","Lead accents, fixed-wah tone":"리드 강조, 고정 와우 톤",
+"Monophonic bass synthesizer":"모노포닉 베이스 신스","Tracked oscillators, sub and resonant filter sweep":"음정 추적 오실레이터, 서브, 레조넌스 필터 스윕","Synth bass lines, octave-down textures":"신스 베이스 라인, 옥타브 다운 텍스처",
+"Gated high-gain distortion":"게이트 내장 하이게인 디스토션","Weight control, one to three clipping stages":"WEIGHT 조절, 1~3단 클리핑","Modern metal, djent, low tunings":"모던 메탈, 젠트, 낮은 튜닝",
+"Seven-band graphic EQ":"7밴드 그래픽 EQ","Fixed bands 100 Hz–6.4 kHz, high shelf on top":"100 Hz–6.4 kHz 고정 밴드, 최상단은 하이 셸프","Mid scoop or push, solo lift":"중역 스쿱/부스트, 솔로 레벨 업",
+"Range-switchable wah + boost":"범위 전환 와우 + 부스트","Adjustable sweep range and Q":"스윕 범위와 Q 조절","Funk, lead, bass wah":"펑크, 리드, 베이스 와우",
+"Fuzz with sub and upper octave":"서브·상위 옥타브가 있는 퍼즈","Thick fuzz, octave up with its own gain and tone":"두꺼운 퍼즈, 상위 옥타브는 별도 게인·톤","Leads, doom riffs, synth-like lines":"리드, 둠 리프, 신스 같은 라인",
+"High-gain drive with aggression control":"어그레션 조절 하이게인 드라이브","Tight, three-band, adjustable bite":"타이트한 3밴드, 공격성 조절","Modern rhythm and lead":"모던 리듬과 리드",
+"Hot-rodded British drive":"하이게인 브리티시 드라이브","Dense upper mids, two voicing modes":"밀도 높은 중고역, 2가지 보이싱","Classic and modern rock leads":"클래식·모던 록 리드",
+"Expression pitch shifter":"익스프레션 피치 시프터","Treadle-swept pitch, interval and mode select":"페달로 음정 이동, 음정 간격·모드 선택","Dive bombs, whammy-style bends":"다이브, 와미 스타일 벤드",
+"Solid-state stereo clean":"솔리드스테이트 스테레오 클린","Glassy, with built-in chorus and vibrato":"유리 같은 클린, 코러스·비브라토 내장","Clean, chorus parts, pedal platform":"클린, 코러스 파트, 페달 플랫폼",
+"Non-master British crunch":"마스터 볼륨 없는 브리티시 크런치","Loud breakup from four jumpable inputs":"4개 입력·점퍼, 볼륨으로 만드는 브레이크업","Classic rock, cranked rhythm":"클래식 록, 크게 민 리듬",
+"Master-volume British drive":"마스터 볼륨 브리티시 드라이브","Biting upper mids, tight with a boost":"쏘는 중고역, 부스트와 함께 타이트","Hard rock, 80s metal rhythm":"하드 록, 80년대 메탈 리듬",
+"High-headroom British clean":"헤드룸 큰 브리티시 클린","Firm, loud clean with late breakup":"단단하고 큰 클린, 늦은 브레이크업","Clean, big chords, pedal platform":"클린, 큰 코드, 페달 플랫폼",
+"Class-D clean bass":"D급 클린 베이스","Hi-fi clean with five-band active EQ":"5밴드 액티브 EQ의 하이파이 클린","Modern clean bass, slap, extended range":"모던 클린 베이스, 슬랩, 확장음역",
+"Compressor / expander / limiter":"컴프·익스팬더·리미터","Bidirectional dynamics with limits":"양방향 다이내믹스와 한계 설정","Creative bus dynamics, upward expansion":"창의적 버스 다이내믹스, 업워드 익스팬션",
+"Punchy bus compression":"펀치 있는 버스 컴프","Thrust high-pass in the detector, variable knee":"검출기 Thrust 하이패스, 가변 knee","Rhythm bus, drums-style punch":"리듬 버스, 드럼 같은 펀치",
+"Compressor + limiter pair":"컴프 + 리미터 조합","Diode-bridge colour, auto recovery":"다이오드 브리지 색채, 자동 복귀","Dense rhythm bus, lead sustain":"빽빽한 리듬 버스, 리드 서스테인",
+"Discrete preamp colour":"디스크리트 프리앰프 색채","Punchy, forward mids":"펀치 있고 앞으로 나오는 중역","Adding weight and push to the rig":"리그에 무게와 밀어주는 힘 추가",
+"Console preamp drive":"콘솔 프리앰프 드라이브","Stepped gain into soft saturation":"단계식 게인과 부드러운 포화","Vintage desk colour, gentle drive":"빈티지 콘솔 색채, 약한 드라이브",
+"Transparent preamp":"투명한 프리앰프","Clean gain with a fixed high-pass":"고정 하이패스가 있는 클린 게인","Clean level setting, DI clarity":"깨끗한 레벨 설정, DI 명료도",
+"Three-band stepped EQ":"3밴드 단계식 EQ","Proportional-Q bands, shelf switches":"비례 Q 밴드, 셸프 스위치","Quick broad tone moves on the rig":"리그 전체의 빠르고 넓은 톤 조정",
+"Broad shelves + air band":"넓은 셸프 + 에어 밴드","Wide low bands, open top end":"넓은 저역 밴드, 열린 고역","Adding air and clarity":"공기감과 명료도 추가",
+"Character EQ":"캐릭터 EQ","Shelf-or-bell bass and treble, two presence bands":"셸프/벨 전환 저역·고역, 프레즌스 2밴드","Musical rig colour, tone sculpting":"음악적인 리그 색채, 톤 다듬기",
+"Rotary speaker":"로터리 스피커","Horn and drum rotation with Doppler":"혼·드럼 회전과 도플러","Organ-style leads, swirling chords":"오르간 같은 리드, 소용돌이 코드",
+"Lamp-swept phase vibe":"램프 스윕 페이즈 바이브","Uneven, throbbing phase sweep":"고르지 않은 맥동 위상 스윕","Psychedelic leads, chorus-mode blend":"사이키델릭 리드, 코러스 모드 블렌드",
+"Ring modulator":"링 모듈레이터","Bell-like, inharmonic sidebands":"종소리 같은 비화성 측파대","Sound design, metallic textures":"사운드 디자인, 금속성 텍스처",
+"Multi-tap delay":"멀티탭 딜레이","Six spread taps with adjustable taper":"6개 탭, 크기 경사 조절","Rhythmic ambience, swells":"리듬감 있는 공간, 스웰",
+"Drifting modulated delay":"흔들리는 모듈레이션 딜레이","Band-limited, softly saturated repeats":"대역 제한·부드러운 포화의 반복음","Ambient leads, lo-fi echoes":"앰비언트 리드, 로파이 에코",
+"Two linked delay lines":"두 줄 연동 딜레이","Clean repeats at Time and ¾ Time":"Time과 ¾ Time의 깨끗한 반복음","Dotted-style rhythmic delays":"점음표 느낌의 리듬 딜레이",
+"Dense modulated hall":"밀도 높은 모듈레이션 홀","Smooth long decay, light modulation":"부드럽고 긴 잔향, 가벼운 모듈레이션","Lead space, clean ambience":"리드 공간감, 클린 앰비언스",
+"Huge ambient reverb":"거대한 앰비언트 리버브","Very long, dark, wide decay":"아주 길고 어둡고 넓은 잔향","Drones, swells, post-rock":"드론, 스웰, 포스트록",
+"Gated reverb":"게이트 리버브","Dense burst that closes abruptly":"빽빽하게 터졌다가 갑자기 닫힘","Punchy rhythm space, 80s-style accents":"펀치 있는 리듬 공간, 80년대식 강조",
+"Rhythmic volume slicer":"리듬 볼륨 슬라이서","Hard on/off chops, tempo-synced":"템포에 맞춘 강한 온·오프","Stutter rhythms, trance gates":"스터터 리듬, 트랜스 게이트",
+"Stepped pitch sequencer":"단계식 피치 시퀀서","Arpeggiated intervals with glide":"글라이드가 있는 아르페지오 음정","Arpeggio leads, sequences":"아르페지오 리드, 시퀀스",
+"Cyclic pitch bend":"주기적 피치 벤드","Warble up to tape-stop ramps":"워블부터 테이프 스톱 램프까지","Lo-fi wobble, tape-stop effects":"로파이 흔들림, 테이프 스톱",
+"Triggered filter zap":"트리거 필터 잽","Resonant sweep on each attack":"어택마다 레조넌스 스윕","Laser-like accents":"레이저 같은 강조",
+"Frequency shifter":"주파수 시프터","Inharmonic shift with feedback and stereo spread":"피드백·스테레오 확산이 있는 비화성 이동","Sound design, barber-pole textures":"사운드 디자인, 끝없이 오르는 텍스처",
+"Sound freeze":"사운드 프리즈","Holds the played note as a pad":"연주한 음을 패드처럼 유지","Drones under riffs, ambient beds":"리프 아래 드론, 앰비언트 배경",
+"Random stutter / reverse":"랜덤 스터터·리버스","Tempo-synced repeats and reversals":"템포에 맞춘 반복과 역재생","Glitch fills, IDM textures":"글리치 필인, IDM 텍스처",
+"Bit and sample-rate reduction":"비트·샘플레이트 축소","Gritty digital distortion":"거친 디지털 왜곡","Lo-fi, chiptune textures":"로파이, 칩튠 텍스처",
+"Granular texture":"그래뉼러 텍스처","Scattered grains with pitch spread":"음정이 퍼진 흩어진 그레인","Pads, shimmering clouds":"패드, 반짝이는 구름 같은 소리",
+"Analog-style synth engine":"아날로그 스타일 신스 엔진","Warm oscillators and a resonant filter":"따뜻한 오실레이터와 레조넌스 필터","Synth bass, leads doubled with guitar":"신스 베이스, 기타와 겹치는 리드",
+"Dynamic wavetable-style engine":"다이내믹 웨이브테이블 스타일 엔진","Playing-sensitive, evolving timbre":"연주에 반응해 변하는 음색","Pads and textures that follow the playing":"연주를 따라가는 패드와 텍스처",
+"Percussive impact engine":"타격감 있는 임팩트 엔진","Short, punchy transients and samples":"짧고 펀치 있는 트랜지언트와 샘플","Hits, stabs, layered attacks":"히트, 스탭, 어택 레이어",
 };
 const DE={
 'Precise dynamics control':'Präzise Dynamikkontrolle','Fast, comparatively transparent and tight':'Schnell, relativ transparent und tight','Bass, metal rhythm, Matrix LOW stabilisation':'Bass, Metal-Rhythmus, Matrix-LOW-Stabilisierung',
@@ -1261,7 +1360,54 @@ const DE={
 'Console EQ':'Console-EQ','Clear and versatile':'Klar und vielseitig','Problem-band correction, modern shaping':'Problembänder korrigieren, moderne Formung','Musical EQ':'Musikalischer EQ','Broad and coloured':'Breit und farbig','Body / air correction':'Body-/Air-Korrektur','Broad tonal shaping':'Breite Klangformung','Smooth wide curves':'Sanfte breite Kurven','Low-end weight, high-end polish':'Tiefengewicht, Höhenpolitur',
 'Stereo spread':'Stereo-Breite','Dramatic movement':'Dramatische Bewegung','Pitch motion':'Tonhöhenbewegung','Rhythmic movement':'Rhythmische Bewegung',
 'Clean digital delay':'Sauberes Digital-Delay','Clear precise repeats':'Klare präzise Wiederholungen','Metal/lead, rhythmic delay':'Metal/Lead, rhythmisches Delay','Vintage echo':'Vintage-Echo','Filtered repeat, wow/flutter':'Gefilterte Wiederholung, Wow/Flutter','Ambient, vintage lead':'Ambient, Vintage-Lead','Dark analog delay':'Dunkles Analog-Delay','Soft dark repeats':'Weiche dunkle Wiederholungen','Lead depth, texture':'Lead-Tiefe, Textur',
-'Dense plate':'Dichte Plate','Bright, smooth density':'Helle, glatte Dichte','Lead, clean':'Lead, Clean','Large hall':'Große Hall','Deep modulated space':'Tiefe modulierte Räumlichkeit','Ambient, cinematic':'Ambient, cinematisch','Spring reverb':'Federhall','Splashy vintage resonance':'Spritzige Vintage-Resonanz','Clean / crunch':'Clean / Crunch'
+'Dense plate':'Dichte Plate','Bright, smooth density':'Helle, glatte Dichte','Lead, clean':'Lead, Clean','Large hall':'Große Hall','Deep modulated space':'Tiefe modulierte Räumlichkeit','Ambient, cinematic':'Ambient, cinematisch','Spring reverb':'Federhall','Splashy vintage resonance':'Spritzige Vintage-Resonanz','Clean / crunch':'Clean / Crunch',
+"Three-band parametric shaping + clean boost":"Dreiband-parametrisch + Clean-Boost","Overlapping bands, wide/medium/narrow Q":"Überlappende Bänder, Q breit/mittel/schmal","Low-end and mid surgery before the amp, clean lift":"Bass- und Mittenkorrektur vor dem Amp, Clean-Lift",
+"Linked or two-band compression":"Verlinkte oder Zweiband-Kompression","Firm peak control, multiband option at 250 Hz":"Feste Spitzenkontrolle, Multiband-Option bei 250 Hz","Bass evenness, tight low end with open highs":"Gleichmäßiger Bass, festes Fundament mit offenen Höhen",
+"Tightening boost into high gain":"Straffender Boost vor High-Gain","Low cut and upper-mid push grow with the knob":"Bass-Cut und Hochmitten wachsen mit dem Regler","Metal rhythm, low tunings":"Metal-Rhythmus, tiefe Stimmungen",
+"Wah + clean boost in one":"Wah + Clean-Boost in einem","Focused band-pass sweep, separate boost switch":"Fokussierter Bandpass-Sweep, eigener Boost-Schalter","Lead accents, fixed-wah tone":"Lead-Akzente, fixierter Wah-Sound",
+"Monophonic bass synthesizer":"Monophoner Bass-Synthesizer","Tracked oscillators, sub and resonant filter sweep":"Getrackte Oszillatoren, Sub und resonanter Filter-Sweep","Synth bass lines, octave-down textures":"Synth-Basslinien, Oktave-tiefer-Texturen",
+"Gated high-gain distortion":"High-Gain-Distortion mit Gate","Weight control, one to three clipping stages":"Weight-Regler, ein bis drei Clipping-Stufen","Modern metal, djent, low tunings":"Moderner Metal, Djent, tiefe Stimmungen",
+"Seven-band graphic EQ":"Siebenband-Grafik-EQ","Fixed bands 100 Hz–6.4 kHz, high shelf on top":"Feste Bänder 100 Hz–6,4 kHz, oben High-Shelf","Mid scoop or push, solo lift":"Mitten absenken oder anheben, Solo-Lift",
+"Range-switchable wah + boost":"Wah mit Bereichswahl + Boost","Adjustable sweep range and Q":"Einstellbarer Sweep-Bereich und Q","Funk, lead, bass wah":"Funk, Lead, Bass-Wah",
+"Fuzz with sub and upper octave":"Fuzz mit Sub- und Oberoktave","Thick fuzz, octave up with its own gain and tone":"Dichter Fuzz, Oberoktave mit eigenem Gain und Ton","Leads, doom riffs, synth-like lines":"Leads, Doom-Riffs, synthartige Linien",
+"High-gain drive with aggression control":"High-Gain-Drive mit Aggression-Regler","Tight, three-band, adjustable bite":"Straff, Dreiband, einstellbarer Biss","Modern rhythm and lead":"Moderner Rhythmus und Lead",
+"Hot-rodded British drive":"Getunter britischer Drive","Dense upper mids, two voicing modes":"Dichte Hochmitten, zwei Voicings","Classic and modern rock leads":"Klassische und moderne Rock-Leads",
+"Expression pitch shifter":"Expression-Pitch-Shifter","Treadle-swept pitch, interval and mode select":"Pedalgesteuerte Tonhöhe, Intervall- und Modus-Wahl","Dive bombs, whammy-style bends":"Dive-Bombs, Whammy-artige Bends",
+"Solid-state stereo clean":"Transistor-Stereo-Clean","Glassy, with built-in chorus and vibrato":"Gläsern, mit eingebautem Chorus und Vibrato","Clean, chorus parts, pedal platform":"Clean, Chorus-Parts, Pedal-Plattform",
+"Non-master British crunch":"Britischer Crunch ohne Master","Loud breakup from four jumpable inputs":"Laute Zerre über vier brückbare Eingänge","Classic rock, cranked rhythm":"Classic Rock, aufgedrehter Rhythmus",
+"Master-volume British drive":"Britischer Drive mit Master","Biting upper mids, tight with a boost":"Bissige Hochmitten, straff mit Boost","Hard rock, 80s metal rhythm":"Hard Rock, 80er-Metal-Rhythmus",
+"High-headroom British clean":"Britischer Clean mit viel Headroom","Firm, loud clean with late breakup":"Fester, lauter Clean, spätes Anzerren","Clean, big chords, pedal platform":"Clean, große Akkorde, Pedal-Plattform",
+"Class-D clean bass":"Class-D-Clean-Bass","Hi-fi clean with five-band active EQ":"Hi-Fi-Clean mit Fünfband-Aktiv-EQ","Modern clean bass, slap, extended range":"Moderner Clean-Bass, Slap, erweiterter Tonumfang",
+"Compressor / expander / limiter":"Kompressor / Expander / Limiter","Bidirectional dynamics with limits":"Bidirektionale Dynamik mit Grenzen","Creative bus dynamics, upward expansion":"Kreative Bus-Dynamik, Aufwärtsexpansion",
+"Punchy bus compression":"Knackige Bus-Kompression","Thrust high-pass in the detector, variable knee":"Thrust-Hochpass im Detektor, variables Knee","Rhythm bus, drums-style punch":"Rhythmus-Bus, Punch",
+"Compressor + limiter pair":"Kompressor + Limiter","Diode-bridge colour, auto recovery":"Diodenbrücken-Färbung, Auto-Recovery","Dense rhythm bus, lead sustain":"Dichter Rhythmus-Bus, Lead-Sustain",
+"Discrete preamp colour":"Diskrete Vorverstärker-Färbung","Punchy, forward mids":"Knackig, präsente Mitten","Adding weight and push to the rig":"Gewicht und Druck für das Rig",
+"Console preamp drive":"Konsolen-Vorverstärker-Drive","Stepped gain into soft saturation":"Gestufter Gain in sanfte Sättigung","Vintage desk colour, gentle drive":"Vintage-Pult-Färbung, sanfter Drive",
+"Transparent preamp":"Transparenter Vorverstärker","Clean gain with a fixed high-pass":"Sauberer Gain mit festem Hochpass","Clean level setting, DI clarity":"Saubere Pegel, DI-Klarheit",
+"Three-band stepped EQ":"Dreiband-Stufen-EQ","Proportional-Q bands, shelf switches":"Bänder mit proportionalem Q, Shelf-Schalter","Quick broad tone moves on the rig":"Schnelle, breite Klangänderungen am Rig",
+"Broad shelves + air band":"Breite Shelves + Air-Band","Wide low bands, open top end":"Breite Tiefenbänder, offene Höhen","Adding air and clarity":"Luft und Klarheit hinzufügen",
+"Character EQ":"Charakter-EQ","Shelf-or-bell bass and treble, two presence bands":"Bass und Höhen als Shelf oder Glocke, zwei Präsenzbänder","Musical rig colour, tone sculpting":"Musikalische Rig-Färbung, Klangformung",
+"Rotary speaker":"Rotationslautsprecher","Horn and drum rotation with Doppler":"Horn- und Trommelrotation mit Doppler","Organ-style leads, swirling chords":"Orgelartige Leads, wirbelnde Akkorde",
+"Lamp-swept phase vibe":"Lampengesteuerter Phasen-Vibe","Uneven, throbbing phase sweep":"Ungleichmäßiger, pulsierender Phasen-Sweep","Psychedelic leads, chorus-mode blend":"Psychedelische Leads, Chorus-Mischung",
+"Ring modulator":"Ringmodulator","Bell-like, inharmonic sidebands":"Glockenartige, unharmonische Seitenbänder","Sound design, metallic textures":"Sounddesign, metallische Texturen",
+"Multi-tap delay":"Multi-Tap-Delay","Six spread taps with adjustable taper":"Sechs verteilte Taps mit einstellbarer Neigung","Rhythmic ambience, swells":"Rhythmische Ambience, Swells",
+"Drifting modulated delay":"Driftendes moduliertes Delay","Band-limited, softly saturated repeats":"Bandbegrenzte, sanft gesättigte Wiederholungen","Ambient leads, lo-fi echoes":"Ambient-Leads, Lo-Fi-Echos",
+"Two linked delay lines":"Zwei verbundene Delay-Linien","Clean repeats at Time and ¾ Time":"Saubere Wiederholungen bei Time und ¾ Time","Dotted-style rhythmic delays":"Punktierte Rhythmus-Delays",
+"Dense modulated hall":"Dichter modulierter Hall","Smooth long decay, light modulation":"Weiches langes Ausklingen, leichte Modulation","Lead space, clean ambience":"Lead-Raum, Clean-Ambience",
+"Huge ambient reverb":"Riesiger Ambient-Hall","Very long, dark, wide decay":"Sehr langes, dunkles, breites Ausklingen","Drones, swells, post-rock":"Drones, Swells, Post-Rock",
+"Gated reverb":"Gated Reverb","Dense burst that closes abruptly":"Dichter Ausbruch, der abrupt schließt","Punchy rhythm space, 80s-style accents":"Knackiger Rhythmus-Raum, 80er-Akzente",
+"Rhythmic volume slicer":"Rhythmischer Lautstärke-Slicer","Hard on/off chops, tempo-synced":"Harte Ein/Aus-Schnitte, tempo-synchron","Stutter rhythms, trance gates":"Stotter-Rhythmen, Trance-Gates",
+"Stepped pitch sequencer":"Gestufter Tonhöhen-Sequenzer","Arpeggiated intervals with glide":"Arpeggierte Intervalle mit Glide","Arpeggio leads, sequences":"Arpeggio-Leads, Sequenzen",
+"Cyclic pitch bend":"Zyklischer Pitch-Bend","Warble up to tape-stop ramps":"Vom Wabern bis zum Tape-Stop","Lo-fi wobble, tape-stop effects":"Lo-Fi-Wobble, Tape-Stop-Effekte",
+"Triggered filter zap":"Getriggerter Filter-Zap","Resonant sweep on each attack":"Resonanter Sweep bei jedem Anschlag","Laser-like accents":"Laserartige Akzente",
+"Frequency shifter":"Frequenzverschieber","Inharmonic shift with feedback and stereo spread":"Unharmonische Verschiebung mit Feedback und Stereo-Breite","Sound design, barber-pole textures":"Sounddesign, Barber-Pole-Texturen",
+"Sound freeze":"Klang-Freeze","Holds the played note as a pad":"Hält den gespielten Ton als Fläche","Drones under riffs, ambient beds":"Drones unter Riffs, Ambient-Flächen",
+"Random stutter / reverse":"Zufälliges Stottern / Rückwärts","Tempo-synced repeats and reversals":"Tempo-synchrone Wiederholungen und Umkehrungen","Glitch fills, IDM textures":"Glitch-Fills, IDM-Texturen",
+"Bit and sample-rate reduction":"Bit- und Sampleraten-Reduktion","Gritty digital distortion":"Rauer digitaler Verzerrer","Lo-fi, chiptune textures":"Lo-Fi, Chiptune-Texturen",
+"Granular texture":"Granulare Textur","Scattered grains with pitch spread":"Verstreute Grains mit Tonhöhenstreuung","Pads, shimmering clouds":"Flächen, schimmernde Wolken",
+"Analog-style synth engine":"Analog-Synth-Engine","Warm oscillators and a resonant filter":"Warme Oszillatoren und resonanter Filter","Synth bass, leads doubled with guitar":"Synth-Bass, Leads parallel zur Gitarre",
+"Dynamic wavetable-style engine":"Dynamische Wavetable-artige Engine","Playing-sensitive, evolving timbre":"Anschlagsabhängige, sich entwickelnde Klangfarbe","Pads and textures that follow the playing":"Flächen und Texturen, die dem Spiel folgen",
+"Percussive impact engine":"Perkussive Impact-Engine","Short, punchy transients and samples":"Kurze, knackige Transienten und Samples","Hits, stabs, layered attacks":"Hits, Stabs, geschichtete Anschläge",
 };
 
 Object.assign(KO,{"Five-channel Original bass amp": "5채널 Original 베이스 앰프", "Clean low foundation with five distinct drive voices": "깨끗한 저역 위에 구성하는 다섯 가지 드라이브 성향", "Technical metal, death/grind, industrial, slam and sludge/doom": "테크니컬 메탈·데스/그라인드·인더스트리얼·슬램·슬러지/둠"});
@@ -1279,7 +1425,7 @@ function renderModels(target,data){
  document.querySelector(target).innerHTML=groups.map(g=>{
    const rows=data.filter(x=>x[0]===g);
    return '<div class="model-group"><h3>'+esc(g)+' <span class="group-count">· '+rows.length+'</span></h3><div class="model-grid">'+rows.map(x=>
-   '<article class="model-card">'+(x[2]?'<img loading="lazy" decoding="async" src="'+ASSET+encodeURIComponent(x[2]).replace(/%2F/g,'/')+'" alt="'+esc(x[1])+'">':'<div style="height:110px;display:grid;place-content:center;background:#202522;color:#b9cbb7;text-align:center;letter-spacing:3px">NÁSTRÖND<br><small>SPECTRALFORGE ORIGINAL</small></div>')+'<div><h4>'+esc(x[1])+'</h4><dl>'+
+   '<article class="model-card">'+(x[2]?'<img loading="lazy" decoding="async" src="'+(/^https:/.test(x[2])?x[2]:ASSET+encodeURIComponent(x[2]).replace(/%2F/g,'/'))+'" alt="'+esc(x[1])+'">':'<div style="height:110px;display:grid;place-content:center;background:#202522;color:#b9cbb7;text-align:center;letter-spacing:3px">NÁSTRÖND<br><small>SPECTRALFORGE ORIGINAL</small></div>')+'<div><h4>'+esc(x[1])+'</h4><dl>'+
    '<dt>'+esc(L[lang].labels.role)+'</dt><dd>'+esc(loc(x[3]))+'</dd>'+
    '<dt>'+esc(L[lang].labels.character)+'</dt><dd>'+esc(loc(x[4]))+'</dd>'+
    '<dt>'+esc(L[lang].labels.use)+'</dt><dd>'+esc(loc(x[5]))+'</dd>'+
@@ -1882,7 +2028,7 @@ function render(){
  de:['Náströnd ist ein SpectralForge Original High-Gain-Amp mit fünf echten Kanälen: Fenrir für straffen Anschlag, Surtr für dichte Mitten, Níðhöggr für asymmetrischen Grind, Fimbulvetr für breite, nachgiebige Bässe und Ragnarök für einen festen Bassimpuls. Neue Kanäle starten mit GAIN und MASTER 5,0.', 'Jeder Kanal speichert seine 13 Regler separat. Beim ersten Aufruf erscheinen die Startwerte; beim Zurückschalten werden eigene Einstellungen geladen. ALL → RESET CHANNEL setzt nur den gewählten Kanal zurück. CLANK, CRUSH, IMPACT, ROT und BLOOM bleiben in jedem Kanal verfügbar.', 'Die fünf nach Kanälen benannten Beispiele werden durch Thall Rhythm, Molten Lead, Rotten Grind, Sludge Mass und Slam Impact ersetzt. Jedes Preset umfasst PRE / Amp / CAB / POST; Rotten Grind nutzt Dual und Slam Impact Matrix. In Open Beta 1.2 starteten alle 43 Presets mit OUTPUT 0 dB. Ambient Clean erhält seinen Pegel über POST Console VCA. Thall Rhythm BLOOM und Molten Lead ROT starten bei 7,5; Slam Impact nutzt Low DI Comp 0,5 und DI/AMP 75 %.', 'Náströnd wurde mit Open Beta 1.2 eingeführt. Synthetische Prüfungen decken Kanalunterschiede, Stabilität und Wiederherstellung ab; die abschließende Bewertung der neuen Klangabstimmung erfolgt mit echten Instrument-DIs und Hörtests.']
  };
  document.getElementById('nastrondBody').innerHTML=bullets(originalNotes[lang]);
- renderModels('#preModels',PRE);renderModels('#ampModels',AMP);renderModels('#postModels',POST);
+ renderModels('#preModels',PRE);renderModels('#ampModels',AMP);renderModels('#postModels',POST);renderModels('#creativeModels',CREATIVE);renderModels('#synthModels',SYNTH);
  document.getElementById('ampRouteBody').innerHTML=table(
    lang==='ko'?['모델','채널','입력 경로']:lang==='de'?['Modell','Kanäle','Eingangswege']:['Model','Channels','Input routes'],AMP_ROUTES);
  document.getElementById('irBody').innerHTML=bullets(L[lang].ir);
