@@ -1798,6 +1798,7 @@ void controllerGateStageEditHistory() {
 #include "AutoSetChannelTests.h"
 #include "AutoSetPolarityTests.h"
 #include "AutoSetSyncTests.h"
+#include "AutoSetSyncRegression.h"
 #include "AutoSetCabIRTests.h"
 #include "AutoSetTrimTests.h"
 #include "AutoSetWidthTests.h"
@@ -1831,7 +1832,8 @@ int main(int argc, char** argv) {
         if(argc==2 && std::string(argv[1])=="--rigs"){rigsRules();controllerRigs();return 0;}
         if(argc==2 && std::string(argv[1])=="--channel"){channelRules();controllerChannel();return 0;}
         if(argc==2 && std::string(argv[1])=="--polarity"){polarityRules();polarityRegressions();controllerPolarity();return 0;}
-        if(argc==2 && std::string(argv[1])=="--sync"){syncRules();controllerSync();return 0;}
+        if(argc==2 && std::string(argv[1])=="--sync-boundaries"){syncRegression::run();return 0;}
+        if(argc==2 && std::string(argv[1])=="--sync"){syncRules();controllerSync();syncTiming();syncRegression::run();return 0;}
         if(argc==2 && std::string(argv[1])=="--cabir-low"){cabIRLowEnd();return 0;}
         if(argc==2 && std::string(argv[1])=="--cabir"){cabIRRules();cabIRLowEnd();controllerCabIR();return 0;}
         if(argc==2 && std::string(argv[1])=="--trim"){trimRules();controllerTrim();return 0;}
@@ -1860,7 +1862,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();widthRules();controllerWidth();cutsRules();controllerCuts();busRules();controllerBus();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();syncTiming();syncRegression::run();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();widthRules();controllerWidth();cutsRules();controllerCuts();busRules();controllerBus();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
         controllerCabPlacementEdits();
