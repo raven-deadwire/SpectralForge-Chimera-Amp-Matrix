@@ -238,6 +238,14 @@ jobs:
             --state-tool (Join-Path $env:RUNNER_TEMP "chimera-obs/build/Release/chimera-obs-state-tool.exe") `
             --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-editor")
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Real OBS Studio app (31.1.2) - an edit made with the mouse in Chimera's editor, saved, restart and restore
+        shell: pwsh
+        run: |
+          $ffmpeg = python -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+          python OBS/tests/obs_editor_edit_test.py --obs (Join-Path $env:RUNNER_TEMP "obs-app-obs/bin/64bit/obs64.exe") `
+            --module package/chimera-obs --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" `
+            --ffmpeg $ffmpeg --work (Join-Path $env:RUNNER_TEMP "obs-editor-edit")
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Real OBS Studio app (31.1.2) - the filter with OBS at 44.1 kHz mono and 48 kHz 5.1
         shell: pwsh
         run: |
@@ -341,6 +349,9 @@ jobs:
             ${{ runner.temp }}/obs-user-ir/obs-logs/
             ${{ runner.temp }}/obs-editor/*.txt
             ${{ runner.temp }}/obs-editor/obs-logs/
+            ${{ runner.temp }}/obs-editor-edit/*.txt
+            ${{ runner.temp }}/obs-editor-edit/*.png
+            ${{ runner.temp }}/obs-editor-edit/obs-logs/
             ${{ runner.temp }}/obs-formats/*.txt
             ${{ runner.temp }}/obs-formats/obs-logs/
             ${{ runner.temp }}/obs-latency/*.txt

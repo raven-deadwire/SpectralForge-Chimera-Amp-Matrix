@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """An edit made in Chimera's editor window, opened from the filter in the real OBS Studio app (plan stage C).
 
-Linux only: the edit is a mouse drag sent with xdotool to the editor's X11 window (the
-test runs under Xvfb). Installs the filter as obs_app_test.py does, then:
+Linux and Windows: the edit is a mouse drag, sent with xdotool to the editor's X11 window
+under Xvfb on Linux and with SendInput to the editor's top-level window on Windows (the
+test moves the window so the knob is on the CI runner's small screen and raises it).
+Installs the filter as obs_app_test.py does, then:
 
 1. Adds the DI loop with a Chimera filter in its default state and records it.
 2. Starts OBS again with obs_editor_test.py's Lua script in the scene collection and opens
@@ -17,6 +19,7 @@ test runs under Xvfb). Installs the filter as obs_app_test.py does, then:
 A screenshot of the editor before and after the drag is kept in the work directory.
 """
 import argparse
+import ctypes
 import json
 import math
 import os
@@ -37,28 +40,129 @@ OUTPUT_KNOB = (1065, 585)
 DRAG_PIXELS = 150  # downward; Chimera's knobs turn down when dragged down
 
 
-def editor_window() -> str | None:
+def editor_window(pid: int) -> str | int | None:
+    """The editor's window: an X11 window id on Linux, a top-level window handle on Windows."""
+    if app.WINDOWS:
+        handles = [hwnd for hwnd, title in app.top_level_windows(pid) if title == app.FILTER]
+        return handles[-1] if handles else None
     ids = subprocess.run(["xdotool", "search", "--name", f"^{app.FILTER}$"], capture_output=True, text=True).stdout.split()
     return ids[-1] if ids else None
 
 
-def window_size(window: str) -> tuple[int, int]:
+def window_size(window: str | int) -> tuple[int, int]:
+    """The size of the window's content, where Chimera's editor draws."""
+    if app.WINDOWS:
+        rect = win32.RECT()
+        win32.user32.GetClientRect(window, ctypes.byref(rect))
+        return rect.right - rect.left, rect.bottom - rect.top
     shape = subprocess.run(["xdotool", "getwindowgeometry", "--shell", window], check=True, capture_output=True,
                            text=True).stdout
     values = dict(line.split("=", 1) for line in shape.split())
     return int(values["WIDTH"]), int(values["HEIGHT"])
 
 
-def screenshot(window: str, path: Path) -> None:
-    subprocess.run(["import", "-window", window, str(path)], check=False, capture_output=True)
+def screenshot(window: str | int, path: Path) -> None:
+    if not app.WINDOWS:
+        subprocess.run(["import", "-window", window, str(path)], check=False, capture_output=True)
+        return
+    left, top = win32.client_to_screen(window, 0, 0)
+    width, height = window_size(window)
+    script = ("Add-Type -AssemblyName System.Drawing;"
+              f"$b=New-Object System.Drawing.Bitmap {width},{height};"
+              "$g=[System.Drawing.Graphics]::FromImage($b);"
+              f"$g.CopyFromScreen({left},{top},0,0,$b.Size);"
+              f"$b.Save('{path}',[System.Drawing.Imaging.ImageFormat]::Png)")
+    subprocess.run(["powershell", "-NoProfile", "-Command", script], check=False, capture_output=True, timeout=60)
 
 
-def drag_down(window: str, x: int, y: int, pixels: int) -> None:
+def drag_down(window: str | int, x: int, y: int, pixels: int) -> None:
+    if app.WINDOWS:
+        win32.drag_down(window, x, y, pixels)
+        return
     subprocess.run(["xdotool", "mousemove", "--window", window, str(x), str(y), "mousedown", "1"], check=True)
     for _ in range(pixels // 10):
         subprocess.run(["xdotool", "mousemove_relative", "--", "0", "10"], check=True)
         time.sleep(0.03)
     subprocess.run(["xdotool", "mouseup", "1"], check=True)
+
+
+class Win32:
+    """The few user32 calls the Windows drag needs, with typed prototypes (a window handle is 64-bit)."""
+
+    def __init__(self) -> None:
+        from ctypes import wintypes
+        self.RECT = wintypes.RECT
+        self.POINT = wintypes.POINT
+        user32 = ctypes.WinDLL("user32", use_last_error=True)
+        # Screen pixels as OBS (DPI aware) lays the editor out, not scaled ones.
+        user32.SetProcessDpiAwarenessContext.argtypes = [ctypes.c_void_p]
+        user32.SetProcessDpiAwarenessContext(ctypes.c_void_p(-4))  # PER_MONITOR_AWARE_V2
+        HWND = wintypes.HWND
+        user32.GetClientRect.argtypes = [HWND, ctypes.POINTER(wintypes.RECT)]
+        user32.GetWindowRect.argtypes = [HWND, ctypes.POINTER(wintypes.RECT)]
+        user32.ClientToScreen.argtypes = [HWND, ctypes.POINTER(wintypes.POINT)]
+        user32.SetWindowPos.argtypes = [HWND, HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.UINT]
+        user32.SetForegroundWindow.argtypes = [HWND]
+        user32.WindowFromPoint.argtypes = [wintypes.POINT]
+        user32.WindowFromPoint.restype = HWND
+        user32.GetAncestor.argtypes = [HWND, wintypes.UINT]
+        user32.GetAncestor.restype = HWND
+        user32.GetSystemMetrics.argtypes = [ctypes.c_int]
+
+        class MOUSEINPUT(ctypes.Structure):
+            _fields_ = [("dx", wintypes.LONG), ("dy", wintypes.LONG), ("mouseData", wintypes.DWORD),
+                        ("dwFlags", wintypes.DWORD), ("time", wintypes.DWORD), ("dwExtraInfo", ctypes.c_size_t)]
+
+        class INPUT(ctypes.Structure):  # the union's largest member is MOUSEINPUT on 64-bit Windows
+            _fields_ = [("type", wintypes.DWORD), ("mi", MOUSEINPUT)]
+
+        self.INPUT, self.MOUSEINPUT = INPUT, MOUSEINPUT
+        user32.SendInput.argtypes = [wintypes.UINT, ctypes.POINTER(INPUT), ctypes.c_int]
+        self.user32 = user32
+
+    def client_to_screen(self, hwnd: int, x: int, y: int) -> tuple[int, int]:
+        point = self.POINT(x, y)
+        self.user32.ClientToScreen(hwnd, ctypes.byref(point))
+        return point.x, point.y
+
+    def mouse(self, flags: int, x: int, y: int) -> None:
+        # Absolute coordinates are 0..65535 across the primary screen.
+        width, height = self.user32.GetSystemMetrics(0), self.user32.GetSystemMetrics(1)
+        event = self.INPUT(0, self.MOUSEINPUT(round(x * 65535 / (width - 1)), round(y * 65535 / (height - 1)), 0,
+                                              flags | 0x8000 | 0x0001, 0, 0))  # ABSOLUTE | MOVE
+        sent = self.user32.SendInput(1, ctypes.byref(event), ctypes.sizeof(event))
+        app.check(sent == 1, f"Windows accepted the mouse input (error {ctypes.get_last_error()})")
+
+    def bring_into_view(self, hwnd: int, x: int, y: int, pixels: int) -> None:
+        """Put the window's point (x, y) on screen with room for the drag below it, above OBS's own windows."""
+        # The CI runner's screen can be smaller than the editor.
+        width, height = self.user32.GetSystemMetrics(0), self.user32.GetSystemMetrics(1)
+        window, (knob_x, knob_y) = self.RECT(), self.client_to_screen(hwnd, x, y)
+        self.user32.GetWindowRect(hwnd, ctypes.byref(window))
+        left = window.left + width // 2 - knob_x
+        top = window.top + max(0, (height - pixels) // 3) - knob_y
+        self.user32.SetWindowPos(hwnd, -1, left, top, 0, 0, 0x0001 | 0x0040)  # HWND_TOPMOST; NOSIZE | SHOWWINDOW
+        self.user32.SetForegroundWindow(hwnd)
+        time.sleep(1)  # the moved window repaints
+
+    def drag_down(self, hwnd: int, x: int, y: int, pixels: int) -> None:
+        width, height = self.user32.GetSystemMetrics(0), self.user32.GetSystemMetrics(1)
+        knob_x, knob_y = self.client_to_screen(hwnd, x, y)
+        print(f"     screen {width}x{height}, the OUTPUT knob at ({knob_x}, {knob_y})")
+        under = self.user32.WindowFromPoint(self.POINT(knob_x, knob_y))
+        app.check(under is not None and self.user32.GetAncestor(under, 2) == hwnd,  # GA_ROOT
+                  "the editor is the window under the OUTPUT knob")
+        self.mouse(0, knob_x, knob_y)
+        time.sleep(0.1)
+        self.mouse(0x0002, knob_x, knob_y)  # LEFTDOWN
+        for step in range(1, pixels // 10 + 1):
+            time.sleep(0.03)
+            self.mouse(0, knob_x, knob_y + 10 * step)
+        self.mouse(0x0004, knob_x, knob_y + pixels)  # LEFTUP
+        self.user32.SetWindowPos(hwnd, -2, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0010)  # HWND_NOTOPMOST; NOSIZE|NOMOVE|NOACTIVATE
+
+
+win32 = Win32() if app.WINDOWS else None
 
 
 def run(args: argparse.Namespace) -> None:
@@ -132,8 +236,10 @@ def run(args: argparse.Namespace) -> None:
         check(before != "", "the filter's settings hold Chimera's state")
         obs.request("SetStudioModeEnabled", {"studioModeEnabled": True})
         app.wait_until(lambda: count(f"[chimera-obs] '{app.FILTER}': editor shown") >= 1, "the filter showed Chimera's editor", 30)
-        app.wait_until(lambda: editor_window() is not None, "the editor's X11 window", 15)
-        window = editor_window()
+        app.wait_until(lambda: editor_window(obs.process.pid) is not None, "the editor's window", 15)
+        window = editor_window(obs.process.pid)
+        if app.WINDOWS:
+            win32.bring_into_view(window, *OUTPUT_KNOB, DRAG_PIXELS)
         time.sleep(2)  # the editor draws its first frame
         screenshot(window, work / "editor-before.png")
         size = window_size(window)
@@ -183,13 +289,14 @@ def main() -> int:
     parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for the analysis")
     parser.add_argument("--seconds", type=float, default=4.0, help="length of each recording")
     args = parser.parse_args()
-    if app.WINDOWS or app.MACOS:
-        print("FAIL this test drives the editor with xdotool under X11 (Linux only)", file=sys.stderr)
+    if app.MACOS:
+        print("FAIL this test drives the editor with xdotool (Linux) or SendInput (Windows), not on macOS",
+              file=sys.stderr)
         return 2
-    if not os.environ.get("DISPLAY"):
+    if not app.WINDOWS and not os.environ.get("DISPLAY"):
         print("FAIL no X display (run under xvfb-run)", file=sys.stderr)
         return 2
-    if shutil.which("xdotool") is None or shutil.which("import") is None:
+    if not app.WINDOWS and (shutil.which("xdotool") is None or shutil.which("import") is None):
         print("FAIL xdotool and ImageMagick's import are needed", file=sys.stderr)
         return 2
     app.FFMPEG = args.ffmpeg
