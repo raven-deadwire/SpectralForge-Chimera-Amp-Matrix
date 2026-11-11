@@ -1,6 +1,12 @@
 #pragma once
 #include "AutoSetMatrix.h"
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <complex>
+#include <cstddef>
+#include <optional>
+#include <vector>
 
 namespace spectralforge::autoset {
 
