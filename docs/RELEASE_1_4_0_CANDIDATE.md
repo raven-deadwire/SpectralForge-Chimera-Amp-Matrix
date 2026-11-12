@@ -14,11 +14,19 @@ The owner chose:
 
 For three PRs the owner decided the treatment below.
 
-**Preparation is authorized; publication is not.** Fresh exact-source
-qualification on Windows, macOS and Linux is still required, then owner
-acceptance and an explicit publication decision with a new source-bound
-receipt. The 1.3.2-beta.1 and 1.3.2-beta.2 authorizations do not carry over.
-No failed or unexecuted check is promoted to PASS.
+**Publication decision (2026-11-11/12, Asia/Seoul).** The owner instructed:
+"main CI 통과하면 공개 진행해줘", "CI 통과하면 #302 머지하고 공개 진행해줘",
+"CI 통과하면 #304 머지하고 공개 진행해줘" and "지금 돌고 있는 것들 끝나면 1.4버전
+릴리즈하고 홈페이지에 배포까지 진행 / 라이센스 유효기간 넣어서 / 나랑 테스터들은
+코드로 무기한 연장". The owner also approved updating the E1 coverage totals in
+the release gate to the 1.4 catalogue before publication. Publication still
+requires the latest exact-source workflows to succeed and a fresh source-bound
+receipt (`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`); the 1.3.2-beta.1 and
+1.3.2-beta.2 authorizations do not carry over. No failed or unexecuted check is
+promoted to PASS.
+
+**License period:** 2027-05-31 23:59 KST for everyone; a verified tester code
+(the owner's and the testers' HMAC codes) lifts the expiry with no end date.
 
 ## Source
 
