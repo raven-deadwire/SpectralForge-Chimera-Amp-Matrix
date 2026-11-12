@@ -34,9 +34,12 @@ sys.path.insert(0, str(HERE))
 import obs_app_test as app  # noqa: E402
 import obs_editor_test as editor  # noqa: E402
 
-# Chimera's EASY VIEW, the view the editor opens in: the OUTPUT knob's centre, in window pixels.
+# Chimera's EASY VIEW, the view the editor opens in: the OUTPUT knob's centre at 100 %, in window pixels.
 EDITOR_SIZE = (1180, 780)
 OUTPUT_KNOB = (1065, 585)
+# Chimera fits its editor to the screen and scales the view to the window (Source/WindowFit.h):
+# the scale is the window's width or height over EDITOR_SIZE, the smaller one, kept within these.
+EDITOR_SCALES = (0.75, 1.5)
 DRAG_PIXELS = 150  # downward; Chimera's knobs turn down when dragged down
 
 
@@ -47,6 +50,11 @@ def editor_window(pid: int) -> str | int | None:
         return handles[-1] if handles else None
     ids = subprocess.run(["xdotool", "search", "--name", f"^{app.FILTER}$"], capture_output=True, text=True).stdout.split()
     return ids[-1] if ids else None
+
+
+def editor_scale(size: tuple[int, int]) -> float:
+    """The scale Chimera draws its editor at in a window of this content size (fittedEditorScale)."""
+    return min(max(min(size[0] / EDITOR_SIZE[0], size[1] / EDITOR_SIZE[1]), EDITOR_SCALES[0]), EDITOR_SCALES[1])
 
 
 def window_size(window: str | int) -> tuple[int, int]:
@@ -238,14 +246,18 @@ def run(args: argparse.Namespace) -> None:
         app.wait_until(lambda: count(f"[chimera-obs] '{app.FILTER}': editor shown") >= 1, "the filter showed Chimera's editor", 30)
         app.wait_until(lambda: editor_window(obs.process.pid) is not None, "the editor's window", 15)
         window = editor_window(obs.process.pid)
-        if app.WINDOWS:
-            win32.bring_into_view(window, *OUTPUT_KNOB, DRAG_PIXELS)
-        time.sleep(2)  # the editor draws its first frame
-        screenshot(window, work / "editor-before.png")
+        time.sleep(2)  # the editor fits itself to the screen and draws its first frame
         size = window_size(window)
-        check(size == EDITOR_SIZE, f"the editor opened at its EASY VIEW size {EDITOR_SIZE[0]}x{EDITOR_SIZE[1]} "
-                                   f"({size[0]}x{size[1]}), where the test knows the OUTPUT knob")
-        drag_down(window, *OUTPUT_KNOB, DRAG_PIXELS)
+        scale = editor_scale(size)
+        # A window smaller than the whole scaled view scrolls it, and the test no longer knows where the knob is.
+        check(round(EDITOR_SIZE[0] * scale) <= size[0] and round(EDITOR_SIZE[1] * scale) <= size[1],
+              f"the editor shows its whole EASY VIEW ({size[0]}x{size[1]} at {scale:.0%})")
+        knob = (round(OUTPUT_KNOB[0] * scale), round(OUTPUT_KNOB[1] * scale))
+        print(f"     the editor at {size[0]}x{size[1]}, drawn at {scale:.0%}: the OUTPUT knob at {knob}")
+        if app.WINDOWS:
+            win32.bring_into_view(window, *knob, DRAG_PIXELS)
+        screenshot(window, work / "editor-before.png")
+        drag_down(window, *knob, DRAG_PIXELS)
         app.wait_until(lambda: component(obs) != before, "the edit in the editor reached the filter's OBS settings", 15)
         time.sleep(1)
         screenshot(window, work / "editor-after.png")
