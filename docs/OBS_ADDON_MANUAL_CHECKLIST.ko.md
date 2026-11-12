@@ -6,7 +6,7 @@ CI의 실제 OBS 앱 자동 시험(`OBS/tests/obs_*_test.py`, `obs-addon.yml`·`
 
 - **CI가 이미 확인한 것:** 필터 로딩·녹화·상태 저장과 복원, 다중 인스턴스·붙여넣기, 사용자 IR, 에디터 창 열기, 44.1 kHz 모노·48 kHz 5.1,
   처리 지연과 A/V 싱크, OBS 밖 Chimera와의 표본 단위 일치, 중단·재개 꼬리 제거, 다른 샘플레이트·배치로 재시작, 처리 실패 시 무음/원음 통과,
-  Linux의 에디터 안 편집, CI 가상 머신 1시간 녹화. 이 목록은 이를 반복하지 않습니다.
+  Linux·Windows의 에디터 안 OUTPUT 노브 편집, CI 가상 머신 1시간 녹화. 이 목록은 이를 반복하지 않습니다.
 - **판정:** 항목마다 **PASS / FAIL / 보류**를 적고, 미실행은 **보류(미실행)**로 유지합니다. FAIL이면 재현 방법과 OBS 로그(도움말 → 로그 파일)를 함께 남깁니다.
 - **결과 기록:** 전용 OBS 애드온 시험은 [#131](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/131)에 아래 0번의 기록과 함께 남깁니다.
 - **별도 추적:** atkAudio + Chimera VST3 호환 시험은 [#130](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/130)에 기록하며, 두 경로의 결과를 서로 승계하지 않습니다.
@@ -50,7 +50,8 @@ CI는 obs-websocket과 Lua 스크립트로 필터를 다루며 화면을 누르�
 
 ## 3. 에디터 창 (Windows·macOS)
 
-Linux의 에디터 안 편집은 `obs_editor_edit_test.py`가 자동으로 확인합니다.
+Linux·Windows에서 에디터의 OUTPUT 노브를 마우스로 바꾼 편집이 소리·장면·재시작 복원에 반영되는 것은 `obs_editor_edit_test.py`가 자동으로 확인합니다.
+Windows에서는 다른 노브·프리셋, 실제 화면 배율(125 % 등)에서의 편집을 아래 항목으로 확인합니다.
 
 - [ ] **열기·다시 올리기:** "Chimera 에디터 열기"를 누르면 창이 OBS 위에 열리고, 다시 누르면 같은 창이 앞으로 옵니다(두 번째 창이 생기지 않음).
 - [ ] **에디터 안 편집:** 에디터에서 노브·프리셋을 바꾸면 소리가 즉시 바뀌고, 에디터를 닫고 OBS를 다시 시작해도 바뀐 소리가 유지됩니다.
