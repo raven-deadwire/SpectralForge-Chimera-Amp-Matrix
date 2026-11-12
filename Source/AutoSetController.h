@@ -8,6 +8,7 @@
 #include "AutoSetCabIR.h"
 #include "AutoSetTrim.h"
 #include "AutoSetCrossover.h"
+#include "AutoSetRoom.h"
 #include "AutoSetBoost.h"
 #include "AutoSetSpace.h"
 #include "AutoSetPower.h"
@@ -63,13 +64,13 @@ class Controller final : private juce::Timer {
 public:
     // gates is a result step of the input pass, not a listening pass of its own.
     // dynamicEQ is a result step of the Tone EQ pass.
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR,trim,crossover};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR,trim,crossover,room};
     // Settings Auto Set must keep as they are: their parameters are neither
     // written nor restored by UNDO AUTO, and a pass whose outputs are all locked
     // is skipped. The gate lock also covers Gate 2 and the Expander; the Tone EQ
     // lock also keeps the Dynamic EQ step, whose nodes are Tone EQ bands.
-    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21,lockChannel=1u<<22,lockPolarity=1u<<23,lockSync=1u<<24,lockCabIR=1u<<25,lockTrim=1u<<26,lockCrossover=1u<<27};
-    static constexpr std::array<Lock,28> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs,lockChannel,lockPolarity,lockSync,lockCabIR,lockTrim,lockCrossover};
+    enum Lock : unsigned {lockInput=1u<<0,lockGate=1u<<1,lockTone=1u<<2,lockCompressor=1u<<3,lockMultiband=1u<<4,lockDeEsser=1u<<5,lockLimiter=1u<<6,lockDynamicEQ=1u<<7,lockFinalEQ=1u<<8,lockOutput=1u<<9,lockAmp=1u<<10,lockCab=1u<<11,lockBoost=1u<<12,lockSpace=1u<<13,lockPower=1u<<14,lockDual=1u<<15,lockWidth=1u<<16,lockCuts=1u<<17,lockBus=1u<<18,lockMatrix=1u<<19,lockMics=1u<<20,lockRigs=1u<<21,lockChannel=1u<<22,lockPolarity=1u<<23,lockSync=1u<<24,lockCabIR=1u<<25,lockTrim=1u<<26,lockCrossover=1u<<27,lockRoom=1u<<28};
+    static constexpr std::array<Lock,29> lockOrder{lockInput,lockGate,lockTone,lockCompressor,lockMultiband,lockDeEsser,lockLimiter,lockDynamicEQ,lockFinalEQ,lockOutput,lockAmp,lockCab,lockBoost,lockSpace,lockPower,lockDual,lockWidth,lockCuts,lockBus,lockMatrix,lockMics,lockRigs,lockChannel,lockPolarity,lockSync,lockCabIR,lockTrim,lockCrossover,lockRoom};
     // strength (minimumStrength..1) scales how far each result moves the sound:
     // input gain change and Tone EQ gains scale, the compressor and multiband
     // mix in parallel, the Dynamic EQ and de-esser ranges scale. The gates are placed for the
@@ -97,7 +98,7 @@ public:
     // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass; off by default.
     // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool skipForVoiceOrDrums{false};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool room{false};bool skipForVoiceOrDrums{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -111,7 +112,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";case Phase::trim:return "Amp input trim";case Phase::crossover:return "Matrix crossovers";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";case Phase::trim:return "Amp input trim";case Phase::crossover:return "Matrix crossovers";case Phase::room:return "Room ambience";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -177,6 +178,8 @@ public:
         add(lockCabIR,{"cabtype1","cabBtype1"});
         // Phase 25 moves the Matrix crossovers X1 and X2.
         add(lockCrossover,{"x1","x2"});
+        // Phase 26 sets the Room Core room (and opens its sends when all are at 0).
+        add(lockRoom,{"roomOn","roomSize","roomAbsorption","roomReturn","roomSend1","roomSend2","roomSend3"});
         // Phase 24 writes the Classic head's INPUT TRIM and OUTPUT LEVEL.
         for(const auto& id:{ampNativeInputTrimID(ampNativeContext(0,0)),ampNativeOutputLevelID(ampNativeContext(0,0))})touchedIDs.push_back({id,lockTrim});
         // Phase 19 writes the Dual rig 2 level: LEVEL 2 (above), or the Dual B
@@ -215,7 +218,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastCabIR={};lastTrim={};lastCrossover={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};lastInstrument={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastCabIR={};lastTrim={};lastCrossover={};lastRoom={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};lastInstrument={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -281,6 +284,10 @@ public:
                 else lockedPhases.push_back({Phase::crossover,"Classic or Dual routing: no Matrix crossovers"});
             }
         }
+        // Phase 26 is decided from the input pass, before the Tone EQ pass, so the later passes hear the room.
+        roomPending=roomStepRuns();
+        if(runOptions.room && locked(lockRoom))lockedPhases.push_back(Phase::room);
+        if(roomPending && (passes.empty() || passes.front()!=Phase::input)){roomPending=false;lockedPhases.push_back({Phase::room,"the input pass did not run, so no playing was heard"});}
         // The Tone EQ pass serves the Tone EQ step and the Dynamic EQ step,
         // whose nodes live on Tone EQ bands (so a Tone EQ lock keeps both).
         if(runOptions.tone || runOptions.dynamicEQ) {
@@ -487,6 +494,7 @@ private:
         publish(passes[pass],progress(0),passText(),0);
     }
     void nextPass() {
+        if(roomPending && (pass+1>=passes.size() || order(passes[pass+1])>order(Phase::room)))finishRoom();
         if(pass+1<passes.size() && passes[pass+1]==Phase::level){finishSpace();finishWidth();}
         if(pass+1<passes.size())beginPass(pass+1,1);else complete();
     }
@@ -499,6 +507,7 @@ private:
     bool cabIRStepRuns() const noexcept {return runOptions.cabIR && !locked(lockCabIR);}
     bool trimStepRuns() const noexcept {return runOptions.trim && !locked(lockTrim);}
     bool crossoverStepRuns() const noexcept {return runOptions.crossover && !locked(lockCrossover);}
+    bool roomStepRuns() const noexcept {return runOptions.room && !locked(lockRoom);}
     bool dualStepRuns() const noexcept {return runOptions.dual && !locked(lockDual);}
     bool matrixStepRuns() const noexcept {return runOptions.matrix && !locked(lockMatrix);}
     bool polarityStepRuns() const noexcept {return runOptions.polarity && !locked(lockPolarity);}
@@ -511,8 +520,8 @@ private:
     bool dynamicStepRuns() const noexcept {return runOptions.dynamicEQ && !locked(lockDynamicEQ) && !locked(lockTone);}
     // Signal order of passes and result steps, for reporting skipped ones.
     static int order(Phase phase) noexcept {
-        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::trim:return 5;case Phase::power:return 6;case Phase::cab:return 7;case Phase::cabIR:return 8;case Phase::cuts:return 9;case Phase::mics:return 10;case Phase::polarity:return 11;case Phase::rigs:return 12;case Phase::dual:return 13;case Phase::matrix:return 14;case Phase::crossover:return 15;case Phase::tone:return 16;case Phase::dynamicEQ:return 17;
-            case Phase::compressor:return 18;case Phase::multiband:return 19;case Phase::finish:return 20;case Phase::bus:return 21;case Phase::sync:return 22;case Phase::space:return 23;case Phase::width:return 24;case Phase::level:return 25;default:return 26;}
+        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::trim:return 5;case Phase::power:return 6;case Phase::cab:return 7;case Phase::cabIR:return 8;case Phase::cuts:return 9;case Phase::mics:return 10;case Phase::polarity:return 11;case Phase::rigs:return 12;case Phase::dual:return 13;case Phase::matrix:return 14;case Phase::crossover:return 15;case Phase::room:return 16;case Phase::tone:return 17;case Phase::dynamicEQ:return 18;
+            case Phase::compressor:return 19;case Phase::multiband:return 20;case Phase::finish:return 21;case Phase::bus:return 22;case Phase::sync:return 23;case Phase::space:return 24;case Phase::width:return 25;case Phase::level:return 26;default:return 27;}
     }
     float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
@@ -579,7 +588,7 @@ private:
         if(neutralSource())leaveGuitarSteps();
         processor.setAutoSetGateBypass(false);
         if(runOptions.gates)finishGateStages(measured,r.pausesDetected);
-        if(spacePending || widthPending)spaceWindows=measured;
+        if(spacePending || widthPending || roomPending)spaceWindows=measured;
         nextPass();
     }
     // What is plugged in, from the input pass's amp-tap audio (at most 12 s).
@@ -931,6 +940,48 @@ private:
         summary+=" | Boost "+placed;
         addStep(placed+"; "+low+" > "+juce::String(r.lowExcessAfterDb,1)+" dB",true);
         nextPass();
+    }
+    // Phase 26: the Room Core room from the playing the input pass heard. A room
+    // the player has on keeps its size, absorption, sends and Room Advanced;
+    // only its return moves toward the rule.
+    void finishRoom() {
+        if(!roomPending)return;
+        roomPending=false;flushLocked(Phase::room);
+        const auto keep=[this](const juce::String& why){summary+=" | Room unchanged ("+why+")";steps.push_back({Phase::room,"kept ("+why+")",false});};
+        if(spaceWindows.empty()){keep("the input pass did not run, so no playing was heard");return;}
+        const auto bass=chosenBass();
+        const auto r=analyseRoom(spaceWindows,bass.value_or(false),runOptions.style);
+        lastRoom=r;
+        if(!r.feel.measured){keep("too few notes to judge the playing");return;}
+        const auto db=[](float v){return juce::String(v,1)+" dB";};
+        const auto who=juce::String(bass.value_or(false)?"bass":"guitar")+(bass?"":" (assumed)")+" "+styleName(runOptions.style)+": "
+                      +juce::String(r.feel.onsetsPerSecond,1)+" detected notes/s"+(r.dense?", dense":r.sparse?", sparse":"");
+        const bool declared=raw("roomSpace")>.5f;
+        if(raw("roomOn")>.5f) {
+            const float before=raw("roomReturn");
+            set("roomReturn",roomReturnRounded(before+strength()*(r.room.returnDb-before)));
+            if(raw("roomReturn")==before){keep("your room is on; return "+db(before)+" already near "+db(r.room.returnDb)+" ("+who+")");return;}
+            const auto move="room return "+db(before)+" > "+db(raw("roomReturn"));
+            summary+=" | "+move;
+            steps.push_back({Phase::room,move+" (your room's size, absorption and sends kept; "+who+")",true});
+            return;
+        }
+        const float returnDb=roomNewReturn(r.room.returnDb,strength());
+        if(returnDb<roomReturnMinDb){keep("strength too low to open the room");return;}
+        // The switch first: a room switched by hand during the run stays as it is, with its settings.
+        set("roomOn",1);
+        if(raw("roomOn")<=.5f){keep("Room switched by hand during the run");return;}
+        if(!declared){set("roomSize",float(r.room.size));set("roomAbsorption",r.room.absorption);}
+        set("roomReturn",returnDb);
+        // The routing's rigs: Classic 1, Dual 2, Matrix 3. All sends at 0 would leave the room silent.
+        const int rigs=juce::jlimit(1,roomLaneCount,juce::roundToInt(raw("mode"))+1);
+        bool anySend=false;
+        for(int lane=1;lane<=rigs;++lane)anySend=anySend || raw("roomSend"+juce::String(lane))>0.f;
+        if(!anySend)for(int lane=1;lane<=rigs;++lane)set("roomSend"+juce::String(lane),roomOpenSend);
+        const auto move="room on: "+(declared?juce::String("declared space kept"):juce::String(roomSizeName(juce::roundToInt(raw("roomSize"))))+", absorption "+juce::String(juce::roundToInt(raw("roomAbsorption")))+"%")
+                       +", return "+db(raw("roomReturn"))+(anySend?juce::String():", sends "+juce::String(juce::roundToInt(roomOpenSend))+"%");
+        summary+=" | "+move;
+        steps.push_back({Phase::room,move+" ("+who+")",true});
     }
     // Phase 11: the POST delay and reverb from the playing the input pass heard.
     // An effect the player has on keeps its type and settings; only its mix moves.
@@ -1768,7 +1819,7 @@ private:
     }
     void stopListening() {processor.autoSetCapture().listen(std::nullopt);processor.setAutoSetGateBypass(false);}
     void complete() {
-        stopTimer();stopListening();finishSpace();finishWidth();flushLocked(Phase::done);
+        stopTimer();stopListening();finishRoom();finishSpace();finishWidth();flushLocked(Phase::done);
         publish(Phase::done,1,(manualEditsKept?juce::String("Auto Set suggestions (newer manual/host edits kept; "):juce::String("Applied ("))
                 +juce::String(styleName(runOptions.style))+(strength()<1.f?", "+juce::String(juce::roundToInt(strength()*100))+"% strength":juce::String())+"): "+summary,1);
     }
@@ -1880,6 +1931,7 @@ public:
     const CabIRResult& lastCabIRAnalysis() const noexcept {return lastCabIR;}
     const TrimResult& lastTrimAnalysis() const noexcept {return lastTrim;}
     const CrossoverResult& lastCrossoverAnalysis() const noexcept {return lastCrossover;}
+    const RoomResult& lastRoomAnalysis() const noexcept {return lastRoom;}
     const MatrixResult& lastMatrixAnalysis() const noexcept {return lastMatrix;}
     const MicsResult& lastMicsAnalysis() const noexcept {return lastMics;}
     const WidthResult& lastWidthAnalysis() const noexcept {return lastWidth;}
@@ -1904,7 +1956,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;CrossoverResult lastCrossover;std::array<float,2> crossoverAtStart{};std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;CrossoverResult lastCrossover;std::array<float,2> crossoverAtStart{};RoomResult lastRoom;bool roomPending{};std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }

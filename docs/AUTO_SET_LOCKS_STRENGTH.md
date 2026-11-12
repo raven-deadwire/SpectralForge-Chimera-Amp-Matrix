@@ -29,8 +29,9 @@ channel), Lane polarity (phase 21, `AUTO_SET_PHASE21.md`: the polarity of
 Dual rig 2 and of the Matrix MID and HIGH lanes), Delay tempo sync (phase 22,
 `AUTO_SET_PHASE22.md`: DELAY SYNC and Follow host tempo), Cabinet IR (phase 23,
 `AUTO_SET_PHASE23.md`: the factory IR of the Classic cabinet's mic A or mic B), Amp
-input trim (phase 24, `AUTO_SET_PHASE24.md`: the Classic head's INPUT TRIM and OUTPUT LEVEL) and Matrix
-crossovers (phase 25, `AUTO_SET_PHASE25.md`: X1 and X2). LEVEL 2 is both the Dual rig 2 level and the Matrix MID lane level,
+input trim (phase 24, `AUTO_SET_PHASE24.md`: the Classic head's INPUT TRIM and OUTPUT LEVEL), Matrix
+crossovers (phase 25, `AUTO_SET_PHASE25.md`: X1 and X2) and Room ambience (phase 26,
+`AUTO_SET_PHASE26.md`: the Room Core switch, size, absorption, return and sends). LEVEL 2 is both the Dual rig 2 level and the Matrix MID lane level,
 so either the Dual rig levels or the Matrix levels lock keeps it. A locked setting is not part of the run's
 snapshot, so Auto Set never writes it and **UNDO AUTO** never restores it: a
 later edit to a locked setting survives undo. A lock selected after the run
@@ -82,6 +83,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Dual rig levels | The rig 2 level change in dB, as for Amp; the blend step then hears rig 2 at the applied level |
 | Matrix levels | Each lane level change in dB, as for Amp |
 | Matrix crossovers | The X1 and X2 moves in octaves (each to the nearest 1 Hz) |
+| Room ambience | A room that is on: its return change in dB, as for Amp. A room that is off is opened with its return lowered by 20 log10(strength), as a mix scales (25%: -12 dB); below the return's -36 dB it stays off |
 | Cabinet mic blend | The BLEND change, as for Amp; the mic delays and polarity are applied whole |
 | Stereo doubler | A spread change of a doubler that is on, as for Amp; switching it on is not scaled |
 | Cabinet cuts | Each cut's change in Hz, as for Amp |
