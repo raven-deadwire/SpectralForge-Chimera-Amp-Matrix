@@ -1600,6 +1600,7 @@ bool inLockedStage(const juce::String& id,Controller::Lock lock) {
         case Controller::lockPolarity:return id=="polarity2" || id=="polarity3";
         case Controller::lockSync:return id=="delaysync" || id=="temposync";
         case Controller::lockCabIR:return id=="cabtype1" || id=="cabBtype1";
+        case Controller::lockCrossover:return id=="x1" || id=="x2";
         case Controller::lockTrim:return id==spectralforge::ampNativeInputTrimID(0) || id==spectralforge::ampNativeOutputLevelID(0);
         case Controller::lockBus:return id.startsWith("pn_bus_m0_") && !id.endsWith("external_sidechain") && !id.endsWith("fade_rate") && !id.endsWith("auto_fade") && !id.endsWith("softwareTrim") && !id.endsWith("softwareLevel");
         case Controller::lockSpace:return id=="delayon" || id=="delaytime" || id=="delayfeedback" || id=="delaymix" || id=="reverbon" || id=="reverbsize" || id=="reverbdamping" || id=="reverbmix";
@@ -1638,7 +1639,7 @@ void controllerStrengthMatrix() {
 void controllerEveryLock() {
     for(const auto lock:Controller::lockOrder)for(float amount:{.25f,.5f,.75f,1.f}) {
         // The amp step runs only for its own lock (the fixtures feed no amp input), so it is skipped.
-        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock),true,true,lock==Controller::lockAmp,lock==Controller::lockCab,lock==Controller::lockBoost,lock==Controller::lockSpace,lock==Controller::lockPower,lock==Controller::lockDual,lock==Controller::lockWidth,lock==Controller::lockCuts,lock==Controller::lockBus,lock==Controller::lockMatrix,lock==Controller::lockMics,lock==Controller::lockRigs,lock==Controller::lockChannel,lock==Controller::lockPolarity,lock==Controller::lockSync,lock==Controller::lockCabIR,lock==Controller::lockTrim};
+        Controller::Options o{1,true,Style::rock,true,true,false,amount,unsigned(lock),true,true,lock==Controller::lockAmp,lock==Controller::lockCab,lock==Controller::lockBoost,lock==Controller::lockSpace,lock==Controller::lockPower,lock==Controller::lockDual,lock==Controller::lockWidth,lock==Controller::lockCuts,lock==Controller::lockBus,lock==Controller::lockMatrix,lock==Controller::lockMics,lock==Controller::lockRigs,lock==Controller::lockChannel,lock==Controller::lockPolarity,lock==Controller::lockSync,lock==Controller::lockCabIR,lock==Controller::lockTrim,lock==Controller::lockCrossover};
         std::vector<int> lockedIndices;std::vector<float> seeded;bool editedDuringRun=false;
         const auto r=runLocked(o,[&](ChimeraProcessor& p,Controller& c){
             auto applied=values(p);
@@ -1795,6 +1796,7 @@ void controllerGateStageEditHistory() {
 #include "AutoSetPowerTests.h"
 #include "AutoSetDualTests.h"
 #include "AutoSetMatrixTests.h"
+#include "AutoSetCrossoverTests.h"
 #include "AutoSetMicsTests.h"
 #include "AutoSetRigsTests.h"
 #include "AutoSetChannelTests.h"
@@ -1839,6 +1841,7 @@ int main(int argc, char** argv) {
         if(argc==2 && std::string(argv[1])=="--cabir-low"){cabIRLowEnd();return 0;}
         if(argc==2 && std::string(argv[1])=="--cabir"){cabIRRules();cabIRLowEnd();controllerCabIR();return 0;}
         if(argc==2 && std::string(argv[1])=="--trim"){trimRules();controllerTrim();return 0;}
+        if(argc==2 && std::string(argv[1])=="--crossover"){crossoverRules();controllerCrossover();return 0;}
         if(argc==2 && std::string(argv[1])=="--integration"){controllerIntegration();return 0;}
         if(argc==2 && std::string(argv[1])=="--power-bass-controller"){controllerPowerBassRegression();return 0;}
         if(argc==2 && std::string(argv[1])=="--power-bass-rules"){powerBassRules();return 0;}
@@ -1864,7 +1867,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();syncTiming();syncRegression::run();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();widthRules();controllerWidth();cutsRules();controllerCuts();busRules();controllerBus();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();syncTiming();syncRegression::run();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();crossoverRules();controllerCrossover();widthRules();controllerWidth();cutsRules();controllerCuts();busRules();controllerBus();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
         controllerCabPlacementEdits();
