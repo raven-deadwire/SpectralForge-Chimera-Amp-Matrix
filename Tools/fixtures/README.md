@@ -49,3 +49,37 @@ approval for that exact version and source.
 receipt for synthetic approval tests. The live approval file may legitimately
 change in a reviewed controller commit; that change must not alter test setup
 or make the publisher's required regression suite demand an unapproved receipt.
+
+## 1.4 catalogue (E1 coverage totals)
+
+The 1.4.0-beta.1 product run
+[43100147222](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/43100147222)
+on `b7b7c54f00da3715683016433135178345a0524e` completed every test on all three
+platforms, but its consolidated result was **19 PASS / 109 BLOCKED**: `E1.DSP` and
+`E1.STATE_UI` still required the 1.3 totals (26 serialized / 25 active amps,
+407 controls) while the tests printed the 1.4 totals. The map now requires these
+exact 1.4 totals:
+
+- `ChimeraAmpNativeTests`: 31 serialized / 30 active models, 450 controls,
+  `CONTROL_RESPONSE count=450`, 201 sample-rate/channel routes, 463 isolated
+  inactive controls and 124 oversampling paths;
+- `ChimeraUITests`: 31 serialized panels, 134 channel cases, 2362 channel/control
+  visibility cases and 9 POST models / 306 controls.
+
+Check ownership, producers, platforms, control failures, allocation, gain/default,
+isolation, completion and legacy compatibility requirements are unchanged.
+
+`e1-ctest-1.4.log` holds the `ChimeraUITests`, `ChimeraAmpNativeTests` and
+`ChimeraGateProcessorTests` sections of `LastTest.log`, unmodified, from a local
+Linux Release build (`CHIMERA_UI_PROBES=ON`, Xvfb) whose `Source`, `Tests` and
+`CMakeLists.txt` are byte-identical to `b7b7c54`. Excerpt SHA-256
+`94959582ef911a0bc3ee505138c4e118551e5c2b02015330aa90c3e7c3a385df`. The CI
+artifacts could not be downloaded from this environment, so this fixture is a
+local run, not a CI receipt. Like the other excerpts it is a regression input
+only and certifies no source.
+
+`ci-check-map-1.3.json` freezes the map the 1.3.x publishers approved
+(`d59f7e55…20f`). Historical publishers and the preset-maintenance check of the
+published 1.3.2-beta.1 receipt validate against it. The weekly publisher pins the
+live map's digest separately, and the 6782 excerpts now serve as a negative
+fixture: complete 1.3 output cannot certify the 1.4 catalogue.
