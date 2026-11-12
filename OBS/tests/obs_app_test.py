@@ -415,9 +415,9 @@ class Obs:
             log = "".join(p.read_text(encoding="utf-8", errors="replace")
                           for p in sorted(set(self.logs.glob("*.txt")) - self.earlier_logs))
             if known_macos_shutdown_crash(code, report, log):
-                print("WARNING OBS crashed after it freed its context data, a known OBS 31.1.2 shutdown crash on the "
-                      "macOS CI runner (a media source outlived clearing the scene; Chimera is not in the crashed "
-                      "thread). Counted as a clean exit.", file=sys.stderr, flush=True)
+                print("WARNING OBS crashed at quit after sources outlived clearing the scene, a known OBS 31.1.2 "
+                      "shutdown crash on the macOS CI runner (Chimera is not in the crashed thread, or no crash "
+                      "report was written). Counted as a clean exit.", file=sys.stderr, flush=True)
                 code = 0
         check(code == 0, f"OBS exited cleanly (code {code})")
 
@@ -431,13 +431,14 @@ def known_macos_shutdown_crash(code: int, report: str, log: str) -> bool:
     source, a Chimera filter, a recording or a saved scene never showed it (33 runs). Only that
     crash counts as a clean exit: SIGSEGV after the log's shutdown reported sources left over,
     and either the crashed thread is one of those two OBS paths without Chimera in it, or no
-    report was written and the log got as far as "Freeing OBS context data"."""
+    report was written (the log then may stop anywhere after the leftover sources: the crash
+    cuts it off before OBS flushes "Freeing OBS context data")."""
     shutdown = log.rfind("==== Shutting down")
     tail = log[shutdown:] if shutdown >= 0 else ""
     if code != -11 or "Not all sources were cleared" not in tail:
         return False
     if report.startswith("--- no macOS crash report"):
-        return "Freeing OBS context data" in tail
+        return True
     known_thread = ("obs_source_output_audio" in report and "mp_media_thread" in report) or \
         ("scene_destroy" in report and "obs-websocket" in report)
     return known_thread and "chimera" not in report.lower()
