@@ -75,11 +75,12 @@ def screenshot(window: str | int, path: Path) -> None:
         return
     left, top = win32.client_to_screen(window, 0, 0)
     width, height = window_size(window)
+    quoted = str(path).replace("'", "''")  # a PowerShell single-quoted string
     script = ("Add-Type -AssemblyName System.Drawing;"
               f"$b=New-Object System.Drawing.Bitmap {width},{height};"
               "$g=[System.Drawing.Graphics]::FromImage($b);"
               f"$g.CopyFromScreen({left},{top},0,0,$b.Size);"
-              f"$b.Save('{path}',[System.Drawing.Imaging.ImageFormat]::Png)")
+              f"$b.Save('{quoted}',[System.Drawing.Imaging.ImageFormat]::Png)")
     subprocess.run(["powershell", "-NoProfile", "-Command", script], check=False, capture_output=True, timeout=60)
 
 
