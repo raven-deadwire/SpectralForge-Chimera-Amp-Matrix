@@ -21,7 +21,9 @@ blocks, with Chimera's default state and then with a pushed preset, and compares
   step);
 - that the recorded copy of the filter's input is the media file, sample for sample, note by
   note: where OBS drops, repeats or shifts samples in the recording, the recorded input is
-  not what the filter received; the notes around such a break are reported and left out;
+  not what the filter received; a recording with such a break is made once more (seen on the
+  macOS CI runner), and if the second one breaks too, the notes around the break are reported
+  and left out, and the result is inconclusive;
   in the OBS tick (1024 samples) before each note the difference is checked on its own,
   against a looser bound: on the macOS CI runner single steps leave the filter there,
   up to a tick ahead of the note, which Chimera outside OBS on the same runner does not
@@ -215,6 +217,7 @@ def run(args: argparse.Namespace) -> None:
                                         str(app.PRESET_VALUE)], check=True, capture_output=True, text=True).stdout)
     preset_file = work / "preset.json"
     preset_file.write_text(json.dumps(preset), encoding="utf-8")
+    source = channels6(media)
     check = app.check
 
     logs = layout.config / "logs"
@@ -238,13 +241,24 @@ def run(args: argparse.Namespace) -> None:
         app.wait_until(lambda: f"[chimera-obs] '{app.FILTER}': loaded " in log_text(),
                        "the filter found Chimera and loaded it")
         time.sleep(1)
-        default = obs.record("default", args.seconds)
+
+        def record(name: str) -> Path:
+            path = obs.record(name, args.seconds)
+            ch = channels6(path)
+            spans = [span for c in (2, 4) for span in input_breaks(ch[c], source[c])[1]]
+            if spans:
+                print(f"     {name}: OBS broke the recorded input around "
+                      f"{[round(a / app.RATE + PERIOD, 2) for a, _ in spans]} s; recording again", flush=True)
+                path = obs.record(f"{name} (again)", args.seconds)
+            return path
+
+        default = record("default")
         obs.request("SetSourceFilterSettings", {
             "sourceName": app.SOURCE, "filterName": app.FILTER, "overlay": True,
             "filterSettings": {"vst3_component_state": preset["component"],
                                "vst3_controller_state": preset["controller"]}})
         time.sleep(1)
-        pushed = obs.record("preset", args.seconds)
+        pushed = record("preset")
     finally:
         obs.quit()
 
@@ -258,7 +272,6 @@ def run(args: argparse.Namespace) -> None:
     diagnostics = {"obs_version": version["obsVersion"], "rate": app.RATE, "block": BLOCK,
                    "warmup_seconds": args.warmup, "max_steps": args.max_steps,
                    "max_ahead_steps": args.max_ahead_steps, "channels": []}
-    source = channels6(media)
     for name, path, state in (("default", default, None), ("preset", pushed, preset_file)):
         ch = channels6(path)
         skip = []
