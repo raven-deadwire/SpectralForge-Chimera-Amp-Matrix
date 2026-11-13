@@ -65,7 +65,7 @@ def editor_scale(size: tuple[int, int]) -> float:
 def window_size(window: str | int) -> tuple[int, int]:
     """The size of the window's content, where Chimera's editor draws."""
     if app.MACOS:
-        _, _, width, height = mac.frame(window)
+        _, _, width, height = mac.need_frame(window)
         return width, height - Mac.TITLE_BAR
     if app.WINDOWS:
         rect = win32.RECT()
@@ -79,7 +79,10 @@ def window_size(window: str | int) -> tuple[int, int]:
 
 def screenshot(window: str | int, path: Path) -> None:
     if app.MACOS:
-        x, y, width, height = mac.frame(window)
+        frame = mac.frame(window)
+        if frame is None:  # a missing screenshot must not replace the test's own result
+            return
+        x, y, width, height = frame
         subprocess.run(["screencapture", "-x", f"-R{x},{y},{width},{height}", str(path)], check=False,
                        capture_output=True, timeout=60)
         return
@@ -228,6 +231,12 @@ class Mac:
         x, y, width, height = (round(float(v)) for v in result.stdout.replace(",", " ").split())
         return x, y, width, height
 
+    def need_frame(self, pid: int) -> tuple[int, int, int, int]:
+        frame = self.frame(pid)
+        if frame is None:
+            raise RuntimeError(f"System Events could not read the editor's window: {self.error}")
+        return frame
+
     def screen(self) -> tuple[int, int]:
         bounds = self.services.CGDisplayBounds(self.services.CGMainDisplayID())
         return round(bounds.size.x), round(bounds.size.y)
@@ -256,7 +265,7 @@ class Mac:
         self.foundation.CFRelease(event)
 
     def drag_down(self, pid: int, x: int, y: int, pixels: int) -> None:
-        left, top, _, _ = self.frame(pid)
+        left, top, _, _ = self.need_frame(pid)
         knob_x, knob_y = left + x, top + self.TITLE_BAR + y
         width, height = self.screen()
         trusted = self.services.AXIsProcessTrusted()
