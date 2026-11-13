@@ -164,7 +164,9 @@ def verify_source_scope(source, policy, *, root=ROOT):
     # provenance of the unchanged engine, never a new-source product approval.
     weekly_publication.validate_approval(receipt, strict, BASE_SOURCE, version=BASE_VERSION,
         profile="beta_1_3", waivers=parse_json(blob(source, "Validation/waivers.json", root).decode()),
-        ci_check_map=parse_json(blob(source, "Validation/ci-check-map.json", root).decode()))
+        # The receipt approved the map at its own source (the frozen 1.3 map).
+        ci_check_map=parse_json(blob(BASE_SOURCE, "Validation/ci-check-map.json", root).decode()),
+        approved_ci_check_map_sha256=weekly_publication.historical.CI_CHECK_MAP_SHA256)
     changed = {name for name in base.keys() | current.keys() if base.get(name) != current.get(name)}
     require(set(WRAPPERS) | ADDITIONS | {"CMakeLists.txt"} <= changed,
             "Preset maintenance source or exporter is incomplete")

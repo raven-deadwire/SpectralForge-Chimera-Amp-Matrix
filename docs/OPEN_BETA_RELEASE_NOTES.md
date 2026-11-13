@@ -1,3 +1,33 @@
+# SpectralForge Chimera 1.4.0-beta.1 (open beta)
+
+**1.4.0-beta.1** collects everything integrated on main since the public
+1.3.2-beta.1, from the 1.3.3 Room Core through the 1.10 SYNTH and the 2.0
+whole-product checks. Highlights:
+
+- the expanded model catalog (AMP 30, PRE 51, POST 39, CREATIVE 9, SYNTH 3), the
+  signal-order editor, six-band dynamics and the Studio true-peak limiter;
+- Graphical EQ group editing, band SOLO and per-EQ A/B;
+- the new Auto Set phases (polarity, delay sync, factory IR choice, input
+  detection);
+- Easy view, A/B MATCH and the OBS filter on three platforms.
+
+**License period:** this beta expires at **2027-05-31T14:59:00Z /
+2027-05-31 23:59:00 KST**, with a warning from 14 days before. Instances already
+open keep running; instances opened after expiry keep their state with output
+muted. A verified beta tester code (SETTINGS → *Enter beta tester code...*) lifts
+the expiry on that computer with no end date.
+
+Validation status: the exact source passed the Windows, macOS and Linux product
+builds, CTest, package verification and candidate assembly. The strict report is
+21 PASS / 107 unexecuted BLOCKED, including 42 strict hard gates; the owner
+accepted publication with these disclosed gaps
+(`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). Real guitar/bass DI listening,
+Studio One and other real DAW/audio-device acceptance, publisher signing / macOS
+notarization and AAX in Pro Tools are not validated. This is not a stable or
+strict-validation pass. Full notes: `docs/OPEN_BETA_1_4_RELEASE_NOTES.md`.
+
+---
+
 # Public 1.3.2-beta.1 and subsequent development
 
 Published on **2026-10-18 01:51:47 KST** from product source

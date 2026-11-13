@@ -1,0 +1,289 @@
+19/115 Testing: ChimeraUITests
+19/115 Test: ChimeraUITests
+Command: "/home/user/wtREL/build/ChimeraUITests_artefacts/Release/ChimeraUITests" "/home/user/wtREL/build/ui-snapshots"
+Directory: /home/user/wtREL/build
+"ChimeraUITests" start time: Nov 12 09:54 UTC
+Output:
+----------------------------------------------------------
+RUN suite signal path
+PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=0
+Signal Path scenario 0 / 0
+ROUTING TRACE phase=parameters-set now=169056 rawGate=0 dspGate=-1 dspBlocks=0 directPost=0 cachedPost=0 cachedInput=1 ticks=6 skipped=0 refreshed=6 entered=168992 finished=168993 visible=1 messageThread=1 viewCalls=8 viewTime=168992 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=169059 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=6 skipped=0 refreshed=6 entered=168992 finished=168993 visible=1 messageThread=1 viewCalls=8 viewTime=168992 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=169159 rawGate=0 dspGate=0 dspBlocks=1 directPost=0 cachedPost=0 cachedInput=1 ticks=9 skipped=0 refreshed=9 entered=169143 finished=169143 visible=1 messageThread=1 viewCalls=12 viewTime=169143 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=169163 rawGate=1 dspGate=0 dspBlocks=1 directPost=1 cachedPost=0 cachedInput=1 ticks=9 skipped=0 refreshed=9 entered=169143 finished=169143 visible=1 messageThread=1 viewCalls=12 viewTime=169143 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=169163 rawGate=1 dspGate=1 dspBlocks=2 directPost=1 cachedPost=0 cachedInput=1 ticks=9 skipped=0 refreshed=9 entered=169143 finished=169143 visible=1 messageThread=1 viewCalls=12 viewTime=169143 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=169263 rawGate=1 dspGate=1 dspBlocks=2 directPost=1 cachedPost=1 cachedInput=1 ticks=11 skipped=0 refreshed=11 entered=169223 finished=169224 visible=1 messageThread=1 viewCalls=15 viewTime=169223 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=169301 rawGate=0 dspGate=1 dspBlocks=2 directPost=0 cachedPost=1 cachedInput=1 ticks=12 skipped=0 refreshed=12 entered=169266 finished=169266 visible=1 messageThread=1 viewCalls=16 viewTime=169266 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=169302 rawGate=0 dspGate=0 dspBlocks=3 directPost=0 cachedPost=1 cachedInput=1 ticks=12 skipped=0 refreshed=12 entered=169266 finished=169266 visible=1 messageThread=1 viewCalls=16 viewTime=169266 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=169403 rawGate=0 dspGate=0 dspBlocks=3 directPost=0 cachedPost=0 cachedInput=1 ticks=15 skipped=0 refreshed=15 entered=169383 finished=169384 visible=1 messageThread=1 viewCalls=20 viewTime=169383 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=169406 rawGate=1 dspGate=0 dspBlocks=3 directPost=1 cachedPost=0 cachedInput=1 ticks=15 skipped=0 refreshed=15 entered=169383 finished=169384 visible=1 messageThread=1 viewCalls=20 viewTime=169383 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=169408 rawGate=1 dspGate=1 dspBlocks=4 directPost=1 cachedPost=0 cachedInput=1 ticks=15 skipped=0 refreshed=15 entered=169383 finished=169384 visible=1 messageThread=1 viewCalls=20 viewTime=169383 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=169508 rawGate=1 dspGate=1 dspBlocks=4 directPost=1 cachedPost=1 cachedInput=1 ticks=18 skipped=0 refreshed=18 entered=169502 finished=169503 visible=1 messageThread=1 viewCalls=24 viewTime=169503 snapshotEqual=1
+Signal Path scenario 1 / 0
+ROUTING TRACE phase=parameters-set now=186553 rawGate=0 dspGate=1 dspBlocks=4 directPost=0 cachedPost=0 cachedInput=1 ticks=345 skipped=0 refreshed=345 entered=186532 finished=186532 visible=1 messageThread=1 viewCalls=570 viewTime=186532 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=186554 rawGate=0 dspGate=0 dspBlocks=5 directPost=0 cachedPost=0 cachedInput=1 ticks=345 skipped=0 refreshed=345 entered=186532 finished=186532 visible=1 messageThread=1 viewCalls=570 viewTime=186532 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=186654 rawGate=0 dspGate=0 dspBlocks=5 directPost=0 cachedPost=0 cachedInput=1 ticks=347 skipped=0 refreshed=347 entered=186651 finished=186651 visible=1 messageThread=1 viewCalls=573 viewTime=186651 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=186656 rawGate=1 dspGate=0 dspBlocks=5 directPost=1 cachedPost=0 cachedInput=1 ticks=347 skipped=0 refreshed=347 entered=186651 finished=186651 visible=1 messageThread=1 viewCalls=573 viewTime=186651 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=186657 rawGate=1 dspGate=1 dspBlocks=6 directPost=1 cachedPost=0 cachedInput=1 ticks=347 skipped=0 refreshed=347 entered=186651 finished=186651 visible=1 messageThread=1 viewCalls=573 viewTime=186651 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=186758 rawGate=1 dspGate=1 dspBlocks=6 directPost=1 cachedPost=1 cachedInput=1 ticks=349 skipped=0 refreshed=349 entered=186733 finished=186733 visible=1 messageThread=1 viewCalls=576 viewTime=186733 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=186798 rawGate=0 dspGate=1 dspBlocks=6 directPost=0 cachedPost=1 cachedInput=1 ticks=350 skipped=0 refreshed=350 entered=186772 finished=186773 visible=1 messageThread=1 viewCalls=577 viewTime=186772 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=186799 rawGate=0 dspGate=0 dspBlocks=7 directPost=0 cachedPost=1 cachedInput=1 ticks=350 skipped=0 refreshed=350 entered=186772 finished=186773 visible=1 messageThread=1 viewCalls=577 viewTime=186772 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=186899 rawGate=0 dspGate=0 dspBlocks=7 directPost=0 cachedPost=0 cachedInput=1 ticks=353 skipped=0 refreshed=353 entered=186895 finished=186896 visible=1 messageThread=1 viewCalls=581 viewTime=186896 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=186902 rawGate=1 dspGate=0 dspBlocks=7 directPost=1 cachedPost=0 cachedInput=1 ticks=353 skipped=0 refreshed=353 entered=186895 finished=186896 visible=1 messageThread=1 viewCalls=581 viewTime=186896 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=186903 rawGate=1 dspGate=1 dspBlocks=8 directPost=1 cachedPost=0 cachedInput=1 ticks=353 skipped=0 refreshed=353 entered=186895 finished=186896 visible=1 messageThread=1 viewCalls=581 viewTime=186896 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=187004 rawGate=1 dspGate=1 dspBlocks=8 directPost=1 cachedPost=1 cachedInput=1 ticks=355 skipped=0 refreshed=355 entered=186976 finished=186977 visible=1 messageThread=1 viewCalls=584 viewTime=186977 snapshotEqual=1
+Signal Path scenario 1 / 1
+ROUTING TRACE phase=parameters-set now=204502 rawGate=0 dspGate=1 dspBlocks=8 directPost=0 cachedPost=0 cachedInput=1 ticks=694 skipped=0 refreshed=694 entered=204473 finished=204474 visible=1 messageThread=1 viewCalls=1156 viewTime=204473 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=204503 rawGate=0 dspGate=0 dspBlocks=9 directPost=0 cachedPost=0 cachedInput=1 ticks=694 skipped=0 refreshed=694 entered=204473 finished=204474 visible=1 messageThread=1 viewCalls=1156 viewTime=204473 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=204604 rawGate=0 dspGate=0 dspBlocks=9 directPost=0 cachedPost=0 cachedInput=1 ticks=696 skipped=0 refreshed=696 entered=204590 finished=204590 visible=1 messageThread=1 viewCalls=1159 viewTime=204590 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=204609 rawGate=1 dspGate=0 dspBlocks=9 directPost=1 cachedPost=0 cachedInput=1 ticks=696 skipped=0 refreshed=696 entered=204590 finished=204590 visible=1 messageThread=1 viewCalls=1159 viewTime=204590 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=204611 rawGate=1 dspGate=1 dspBlocks=10 directPost=1 cachedPost=0 cachedInput=1 ticks=696 skipped=0 refreshed=696 entered=204590 finished=204590 visible=1 messageThread=1 viewCalls=1159 viewTime=204590 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=204713 rawGate=1 dspGate=1 dspBlocks=10 directPost=1 cachedPost=1 cachedInput=1 ticks=699 skipped=0 refreshed=699 entered=204711 finished=204711 visible=1 messageThread=1 viewCalls=1163 viewTime=204711 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=204751 rawGate=0 dspGate=1 dspBlocks=10 directPost=0 cachedPost=1 cachedInput=1 ticks=699 skipped=0 refreshed=699 entered=204711 finished=204711 visible=1 messageThread=1 viewCalls=1163 viewTime=204711 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=204752 rawGate=0 dspGate=0 dspBlocks=11 directPost=0 cachedPost=1 cachedInput=1 ticks=699 skipped=0 refreshed=699 entered=204711 finished=204711 visible=1 messageThread=1 viewCalls=1163 viewTime=204711 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=204852 rawGate=0 dspGate=0 dspBlocks=11 directPost=0 cachedPost=0 cachedInput=1 ticks=702 skipped=0 refreshed=702 entered=204832 finished=204832 visible=1 messageThread=1 viewCalls=1167 viewTime=204832 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=204854 rawGate=1 dspGate=0 dspBlocks=11 directPost=1 cachedPost=0 cachedInput=1 ticks=702 skipped=0 refreshed=702 entered=204832 finished=204832 visible=1 messageThread=1 viewCalls=1167 viewTime=204832 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=204854 rawGate=1 dspGate=1 dspBlocks=12 directPost=1 cachedPost=0 cachedInput=1 ticks=702 skipped=0 refreshed=702 entered=204832 finished=204832 visible=1 messageThread=1 viewCalls=1167 viewTime=204832 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=204955 rawGate=1 dspGate=1 dspBlocks=12 directPost=1 cachedPost=1 cachedInput=1 ticks=705 skipped=0 refreshed=705 entered=204952 finished=204952 visible=1 messageThread=1 viewCalls=1171 viewTime=204952 snapshotEqual=1
+Signal Path scenario 2 / 0
+ROUTING TRACE phase=parameters-set now=223117 rawGate=0 dspGate=1 dspBlocks=12 directPost=0 cachedPost=0 cachedInput=1 ticks=1049 skipped=0 refreshed=1049 entered=223101 finished=223101 visible=1 messageThread=1 viewCalls=1752 viewTime=223101 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=223118 rawGate=0 dspGate=0 dspBlocks=13 directPost=0 cachedPost=0 cachedInput=1 ticks=1049 skipped=0 refreshed=1049 entered=223101 finished=223101 visible=1 messageThread=1 viewCalls=1752 viewTime=223101 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=223219 rawGate=0 dspGate=0 dspBlocks=13 directPost=0 cachedPost=0 cachedInput=1 ticks=1051 skipped=0 refreshed=1051 entered=223204 finished=223205 visible=1 messageThread=1 viewCalls=1755 viewTime=223204 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=223222 rawGate=1 dspGate=0 dspBlocks=13 directPost=1 cachedPost=0 cachedInput=1 ticks=1051 skipped=0 refreshed=1051 entered=223204 finished=223205 visible=1 messageThread=1 viewCalls=1755 viewTime=223204 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=223223 rawGate=1 dspGate=1 dspBlocks=14 directPost=1 cachedPost=0 cachedInput=1 ticks=1051 skipped=0 refreshed=1051 entered=223204 finished=223205 visible=1 messageThread=1 viewCalls=1755 viewTime=223204 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=223324 rawGate=1 dspGate=1 dspBlocks=14 directPost=1 cachedPost=1 cachedInput=1 ticks=1053 skipped=0 refreshed=1053 entered=223284 finished=223285 visible=1 messageThread=1 viewCalls=1758 viewTime=223285 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=223362 rawGate=0 dspGate=1 dspBlocks=14 directPost=0 cachedPost=1 cachedInput=1 ticks=1054 skipped=0 refreshed=1054 entered=223327 finished=223328 visible=1 messageThread=1 viewCalls=1759 viewTime=223327 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=223363 rawGate=0 dspGate=0 dspBlocks=15 directPost=0 cachedPost=1 cachedInput=1 ticks=1054 skipped=0 refreshed=1054 entered=223327 finished=223328 visible=1 messageThread=1 viewCalls=1759 viewTime=223327 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=223464 rawGate=0 dspGate=0 dspBlocks=15 directPost=0 cachedPost=0 cachedInput=1 ticks=1057 skipped=0 refreshed=1057 entered=223446 finished=223447 visible=1 messageThread=1 viewCalls=1763 viewTime=223446 snapshotEqual=1
+ROUTING TRACE phase=parameters-set now=223467 rawGate=1 dspGate=0 dspBlocks=15 directPost=1 cachedPost=0 cachedInput=1 ticks=1057 skipped=0 refreshed=1057 entered=223446 finished=223447 visible=1 messageThread=1 viewCalls=1763 viewTime=223446 snapshotEqual=0
+ROUTING TRACE phase=audio-processed now=223468 rawGate=1 dspGate=1 dspBlocks=16 directPost=1 cachedPost=0 cachedInput=1 ticks=1057 skipped=0 refreshed=1057 entered=223446 finished=223447 visible=1 messageThread=1 viewCalls=1763 viewTime=223446 snapshotEqual=0
+ROUTING TRACE phase=messages-settled now=223569 rawGate=1 dspGate=1 dspBlocks=16 directPost=1 cachedPost=1 cachedInput=1 ticks=1060 skipped=0 refreshed=1060 entered=223565 finished=223566 visible=1 messageThread=1 viewCalls=1767 viewTime=223565 snapshotEqual=1
+Signal Path preset 0
+Signal Path preset 1
+Signal Path preset 2
+Signal Path preset 3
+Signal Path preset 4
+Signal Path preset 5
+Signal Path preset 6
+Signal Path preset 7
+Signal Path preset 8
+Signal Path preset 9
+Signal Path preset 10
+Signal Path preset 11
+Signal Path preset 12
+Signal Path preset 13
+Signal Path preset 14
+Signal Path preset 15
+Signal Path preset 16
+Signal Path preset 17
+Signal Path preset 18
+Signal Path preset 19
+Signal Path preset 20
+Signal Path preset 21
+Signal Path preset 22
+Signal Path preset 23
+Signal Path preset 24
+Signal Path preset 25
+Signal Path preset 26
+Signal Path preset 27
+Signal Path preset 28
+Signal Path preset 29
+Signal Path preset 30
+Signal Path preset 31
+Signal Path preset 32
+Signal Path preset 33
+Signal Path preset 34
+Signal Path preset 35
+Signal Path preset 36
+Signal Path preset 37
+Signal Path preset 38
+Signal Path preset 39
+Signal Path preset 40
+Signal Path preset 41
+Signal Path preset 42
+Signal Path preset 43
+Signal Path preset 44
+Signal Path preset 45
+Signal Path preset 46
+Signal Path preset 47
+Signal Path final automation / A-B restore
+Signal Path project restore
+Signal Path editor recreation
+PASS Signal Path: six-stage HEAD/CAB workflow / global utility retention / full routing inspection; Classic / Dual Blend & Crossover / Matrix LOW topology; native pointer, Tab/Shift-Tab/Return/Space and accessibility navigation; modified/unfocused Space isolation; host-write/gesture isolation; scales; automation/focus; preset/project/A-B/PRE engine restore; editor recreation
+RUN suite processor resource lifetime
+PASS: active tuner/three-lane IR switching, three release/reprepare cycles at 44.1/48/96 kHz, idempotent release and no live background resources before delete; slowest release 70.483 ms
+RUN suite artwork lifetime
+PASS: two editors share one artwork bank across paints; last editor releases it synchronously before GUI/DLL shutdown
+RUN suite amp selectors
+PASS: 30 active amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening
+RUN suite amp selection state
+PASS: legacy amp normalized/index/label compatibility; 8 appended models; independent lane/channel banks; binary and A/B recall; old-state and factory migration
+RUN suite pedal menus and power
+PASS pedal menus: 51 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all 8 five-control models with real callbacks, creative 3 + 2 layouts, compressor spectrum editors, and user-only board activation
+RUN suite native state
+Native B canonical POST value=7.000000000 (requested 7)
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+RUN suite UI refresh
+RUN UI refresh: construct processor and editor
+RUN UI refresh: idle state and page transitions
+RUN UI refresh: detached ALL window lifetimes
+RUN UI refresh: cabinet metadata invalidation
+RUN UI refresh: scaling and parameter preservation
+RUN UI refresh: native peer hide and reveal
+PASS UI refresh: stable state/metadata, hidden panels/editor, deferred model change, detached ALL windows, live meters, metadata-only invalidation, scaling 75/100/125/150 and parameter preservation
+RUN suite native panels
+PASS native dynamics: 5 PRE compressor models with stable reordered owners / 120 control cases, 3 POST models / 84 original control cases plus trim/level, Matrix LOW compression/blend, real IN/OUT spectra, inactive native/legacy isolation, scrollable controls, frozen source invalidation, navigation without parameter writes or gestures, and 75/100/125/150 percent layouts
+PASS public captions: selected amplifier captions use sound descriptions and satisfy the public-name policy
+PASS native UI: all 31 serialized amplifier panels at 100/75%, 134 channel cases, 2362 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 306 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks
+RUN suite correction UI
+PASS correction UI: directly editable five-slot PRE after fresh/old recall, alias-only amp menus with sound-description captions, 8 editor-to-audio DSP selections, native channel callbacks and isolated Matrix lane selectors; minimum RMS-matched processor residual 0.237669
+RUN suite editor lifetime
+PASS: 30 editor/pending-popup/processor lifetime cycles in 107603 ms (standalone harness, not a DAW shutdown test)
+RUN suite hosted support lifetime
+PASS: hosted Support browser-only layout, 24 no-service panel lifetimes and 6 real SETTINGS/Support editor teardowns without a message pump; slowest 27.731 ms (hosted UI harness, not a Studio One shutdown test)
+RUN suite board state
+BEGIN universal PRE state checks; Processor size 4846832 bytes (heap-owned like plugin instances)
+PASS board state: APVTS owner identity, move, independent duplicate, Empty, capacity and invalid-model guards
+PASS board state: Processor undo and redo restore structural snapshots
+PASS board state: Actual Processor binary state round trip of the universal board
+PASS board state: A/B board snapshots and both saved comparison slots
+PASS board state: M104 (model 28, 2 controls): all controls survive active binary round trip
+PASS board state: M104 (model 28, 2 controls): replacement and return restore every control
+PASS board state: M104 (model 28, 2 controls): inactive binary bank and return survive fresh-processor recall
+PASS board state: M104 (model 28, 2 controls): distinct active/inactive A/B banks and both serialized snapshots
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): all controls survive active binary round trip
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): replacement and return restore every control
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): inactive binary bank and return survive fresh-processor recall
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): distinct active/inactive A/B banks and both serialized snapshots
+PASS board state: Old project seeds current five-slot models/order/ON-OFF, preserves compatibility audio and raw parameters
+PASS board state: MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement
+PASS board state: Poly host latency/bypass/delete, zero-frame mono, native factory activation/model/bypass/order and inactive bank recall
+PASS universal PRE Processor/APVTS: state, A/B, MIDI, legacy, owner identity, capacity, undo/redo
+MEASURE CPU: 15.8694 percent average, 18.9875 percent peak (this runner)
+PASS: 138 decoded visible rasters; 31 unique heads, 50 PRE enclosures (51 models), 39 unique POST surfaces, 9 CREATIVE faces
+PASS: AMP/PRE/POST display and text-entry mappings preserve host values
+PASS: all factory preset host IDs/ranges, complete recall, performance preservation and invalid-index isolation
+PASS: global gain, oversized blocks, host latency, tuner mute, embedded IR, A/B and reference recall
+PASS: attributed factory-only catalog, manual import controls, private reference exclusion and invalid ZIP rejection
+PASS: actual pedal detail/return actions and all 12 EQ controls inside the fixed board at 100/75 percent
+PASS: mode controls, text, automation, state recall, legacy recall; PNGs in /home/user/wtREL/build/ui-snapshots
+<end of output>
+Test time = 410.00 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraUITests" end time: Nov 12 10:01 UTC
+"ChimeraUITests" time elapsed: 00:06:49
+----------------------------------------------------------
+
+49/115 Testing: ChimeraAmpNativeTests
+49/115 Test: ChimeraAmpNativeTests
+Command: "/home/user/wtREL/build/ChimeraAmpNativeTests_artefacts/Release/ChimeraAmpNativeTests"
+Directory: /home/user/wtREL/build
+"ChimeraAmpNativeTests" start time: Nov 12 10:01 UTC
+Output:
+----------------------------------------------------------
+PASS catalog 31 serialized / 30 active models, 450 controls, six contexts
+BASS_EQ_SPAN model=5 key=hw.ch1.midrange db=40.0006
+BASS_EQ_SPAN model=11 key=hw.lo_mid db=24.0042
+BASS_EQ_SPAN model=11 key=hw.hi_mid db=24.0046
+BASS_EQ_SPAN model=14 key=hw.lo_mid db=24.0004
+GAIN_RANGE model=2 channel=1 thd_low=0.0972533 thd_mid=0.81798
+GAIN_RANGE model=3 channel=2 thd_low=0.0337178 thd_mid=0.860835
+GAIN_RANGE model=4 channel=2 thd_low=0.105261 thd_mid=0.38229
+GAIN_RANGE model=9 channel=1 thd_low=0.115185 thd_mid=0.676277
+GAIN_RANGE model=13 channel=1 thd_low=0.00742875 thd_mid=0.313326
+GAIN_RANGE model=15 channel=2 thd_low=0.00965985 thd_mid=0.724905
+GAIN_RANGE model=17 channel=2 thd_low=0.0193037 thd_mid=0.790712
+GAIN_RANGE model=20 channel=0 thd_low=0.0139506 thd_mid=0.687601
+GAIN_RANGE model=21 channel=1 thd_low=0.00738925 thd_mid=0.629795
+GAIN_RANGE model=22 channel=1 thd_low=0.00945843 thd_mid=0.773345
+GAIN_RANGE model=23 channel=2 thd_low=0.00254538 thd_mid=0.751669
+GAIN_DEFAULT model=2 channel=1 weak_thd=0.80028 growth_db=0.978443
+GAIN_DEFAULT model=3 channel=2 weak_thd=0.828777 growth_db=1.60343
+GAIN_DEFAULT model=4 channel=2 weak_thd=0.376354 growth_db=0.274278
+GAIN_DEFAULT model=9 channel=1 weak_thd=0.656786 growth_db=0.82315
+GAIN_DEFAULT model=15 channel=2 weak_thd=0.68762 growth_db=3.11965
+GAIN_DEFAULT model=15 channel=3 weak_thd=0.7739 growth_db=0.93054
+GAIN_DEFAULT model=17 channel=2 weak_thd=0.786268 growth_db=1.49877
+GAIN_DEFAULT model=17 channel=3 weak_thd=0.429451 growth_db=1.48826
+GAIN_DEFAULT model=20 channel=0 weak_thd=0.657254 growth_db=1.53078
+GAIN_DEFAULT model=20 channel=1 weak_thd=0.792002 growth_db=0.62125
+GAIN_DEFAULT model=21 channel=1 weak_thd=0.605955 growth_db=1.77172
+GAIN_DEFAULT model=22 channel=1 weak_thd=0.736791 growth_db=2.02685
+GAIN_DEFAULT model=23 channel=2 weak_thd=0.724144 growth_db=2.52072
+GAIN_DEFAULT model=23 channel=3 weak_thd=0.637891 growth_db=1.60853
+PASS sample-rates/channel routes=201 peak=3.43593 allocations=0
+CONTROL_RESPONSE count=450 failures=0 minimum=9.14307e-06 at=15:gate_threshold
+PASS inactive channel controls isolated=463 output level ratio=1.99526
+PASS old/native engine transition first difference=0.000458091 allocations=0
+PASS trim_gate_residual=0 hidden_tank_difference=0 hidden_tank_reference=1.18507e-08 first15_coeff_edit_residual=0 edited_difference_energy=53.7931 transition_peak=0.197179
+PASS integrated native oversampling paths=124
+PASS AmpNativeTests
+<end of output>
+Test time =  12.67 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAmpNativeTests" end time: Nov 12 10:01 UTC
+"ChimeraAmpNativeTests" time elapsed: 00:00:12
+----------------------------------------------------------
+
+53/115 Testing: ChimeraGateProcessorTests
+53/115 Test: ChimeraGateProcessorTests
+Command: "/home/user/wtREL/build/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests"
+Directory: /home/user/wtREL/build
+"ChimeraGateProcessorTests" start time: Nov 12 10:01 UTC
+Output:
+----------------------------------------------------------
+ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+PASS public presentation: catalog captions, options and factory presets; 6207 actual host parameter names and 1157 choices; injected-name controls
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=0 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE extra gates mode=0 board=0 post=0 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+MEASURE extra gates mode=0 board=0 post=1 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+PASS extra gates mode 0 board 0: Gate 2 and Expander pre/post, together, and with a pre-rig main gate (-17.9998 dB)
+MEASURE extra gates mode=0 board=1 post=0 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+MEASURE extra gates mode=0 board=1 post=1 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+PASS extra gates mode 0 board 1: Gate 2 and Expander pre/post, together, and with a pre-rig main gate (-17.9998 dB)
+MEASURE extra gates mode=2 board=0 post=0 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+MEASURE extra gates mode=2 board=0 post=1 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+PASS extra gates mode 2 board 0: Gate 2 and Expander pre/post, together, and with a pre-rig main gate (-17.9998 dB)
+MEASURE extra gates mode=2 board=1 post=0 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+MEASURE extra gates mode=2 board=1 post=1 gate2_db=-23.9999 expander_db=-11.9999 both_db=-35.9998
+PASS extra gates mode 2 board 1: Gate 2 and Expander pre/post, together, and with a pre-rig main gate (-17.9998 dB)
+PASS actual processor POST delay and reverb tails remain audible with Full gate closed
+MEASURE host reset delay tail_energy=8.44538 after_reset=0
+MEASURE host reset reverb tail_energy=36.0647 after_reset=0
+PASS actual processor reset() drops POST delay and reverb tails without re-preparing
+<end of output>
+Test time =  21.91 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateProcessorTests" end time: Nov 12 10:02 UTC
+"ChimeraGateProcessorTests" time elapsed: 00:00:21
+----------------------------------------------------------

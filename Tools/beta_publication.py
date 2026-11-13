@@ -20,6 +20,9 @@ VERSION = "1.3.0-beta.1"
 DECISION = "OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS"
 STRICT_POLICY_SHA256 = "944c02099f1eaa23e6c5b6151becde62e696e18ef466805770de6e91b2f2015f"
 CI_CHECK_MAP_SHA256 = "d59f7e55cfcd16eaba5b712b959f10fd4d99846053f31fc821fdd5633f85420f"
+# The map this historical publisher approved, frozen when the live map's E1
+# coverage totals moved to the 1.4 catalogue. See Tools/fixtures/README.md.
+HISTORICAL_CI_CHECK_MAP = "Tools/fixtures/ci-check-map-1.3.json"
 ROOT = Path(__file__).resolve().parents[1]
 CI_IDS = frozenset(
     [f"A12.{n:02}" for n in range(1, 8)] + [f"A13.{n:02}" for n in range(1, 8)]
@@ -81,7 +84,7 @@ def evaluate(publication_policy, strict_policy, checks, strict_verdict,
             == publication_policy.get("strict_policy_sha256"),
             "Strict validation policy changed")
     waivers = gate.load_json(ROOT / "Validation/waivers.json") if waivers is None else waivers
-    ci_check_map = gate.load_json(ROOT / "Validation/ci-check-map.json") if ci_check_map is None else ci_check_map
+    ci_check_map = gate.load_json(ROOT / HISTORICAL_CI_CHECK_MAP) if ci_check_map is None else ci_check_map
     require(digest(ci_check_map) == CI_CHECK_MAP_SHA256
             == publication_policy.get("ci_check_map_sha256"), "CI ownership map changed")
     require(waivers == {"schema": "spectralforge.chimera.validation.waivers",
