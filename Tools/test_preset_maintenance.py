@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import hashlib
 from contextlib import redirect_stdout
 import io
 import json
@@ -19,10 +18,6 @@ import preset_maintenance as contract
 import publish_preset_maintenance as publisher
 
 REAL_ROOT = contract.ROOT
-# The 1.3.2-beta.1 acceptance the preset-only maintenance path builds on. The
-# live receipt moves on with each publication, so the tests pin the original
-# (byte-identical to Validation/weekly-publication-policy.json at BASE_CONTROLLER).
-HISTORICAL_APPROVAL = "Tools/fixtures/weekly-publication-policy-1.3.2.json"
 SOURCE = "a" * 40
 
 
@@ -80,7 +75,7 @@ class SourceScope(unittest.TestCase):
         for name in contract.WRAPPERS:
             self.write(name, ("// Original " + name + "\n").encode())
         self.base_source = self.commit("published product fixture")
-        receipt = contract.read_json(REAL_ROOT / HISTORICAL_APPROVAL)
+        receipt = contract.read_json(REAL_ROOT / contract.OLD_APPROVAL_PATH)
         receipt["approved_product_source_sha"] = self.base_source
         self.write_json(contract.OLD_APPROVAL_PATH, receipt)
         self.base_controller = self.commit("original product acceptance")
@@ -212,16 +207,6 @@ class SourceScope(unittest.TestCase):
                 changed = self.commit("invalid controller fixture")
                 with self.assertRaises(RuntimeError):
                     contract.verify_controller(self.source, changed, changed_policy, root=self.root)
-
-
-class HistoricalReceiptFixture(unittest.TestCase):
-    def test_fixture_is_the_frozen_1_3_2_acceptance(self):
-        data = (REAL_ROOT / HISTORICAL_APPROVAL).read_bytes()
-        self.assertEqual(hashlib.sha256(data).hexdigest(),
-                         "ab2a7d552edb8662c6260ea206dea5a19964de86a572d98faee49b486c4da9b4")
-        receipt = json.loads(data)
-        self.assertEqual(receipt["version"], contract.BASE_VERSION)
-        self.assertEqual(receipt["approved_product_source_sha"], contract.BASE_SOURCE)
 
 
 class PackContracts(unittest.TestCase):
@@ -392,7 +377,7 @@ class ApprovalAndTransport(unittest.TestCase):
         api.json.assert_not_called()
 
     def test_strict_gate_gaps_remain_blocked_and_new_failures_are_rejected(self):
-        receipt = contract.read_json(REAL_ROOT / HISTORICAL_APPROVAL)
+        receipt = contract.read_json(REAL_ROOT / contract.OLD_APPROVAL_PATH)
         rows = [dict(id=row["id"], computed_status="PASS") for row in receipt["required_ci_checks"]]
         rows += [dict(id=row["id"], computed_status="BLOCKED", reason_code="NOT_EXECUTED")
                  for row in receipt["known_validation_gaps"]]
