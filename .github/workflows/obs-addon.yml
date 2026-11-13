@@ -462,6 +462,13 @@ jobs:
             --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
             --state-tool "$RUNNER_TEMP/chimera-obs-arm64/build/chimera-obs-state-tool" \
             --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-editor"
+      - name: Real OBS Studio app (31.1.2 Apple) - an edit made with the mouse in Chimera's editor, saved, restart and restore
+        run: |
+          ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
+          python3 OBS/tests/obs_editor_edit_test.py --obs "$RUNNER_TEMP/chimera-obs-arm64/OBS.app/Contents/MacOS/OBS" \
+            --module package/chimera-obs-macos-universal/chimera-obs.plugin \
+            --vst3 "$PWD/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3" \
+            --ffmpeg "$ffmpeg" --work "$RUNNER_TEMP/obs-editor-edit"
       - name: Real OBS Studio app (31.1.2 Apple) - the filter with OBS at 44.1 kHz mono and 48 kHz 5.1
         run: |
           ffmpeg=$(python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())")
@@ -555,6 +562,9 @@ jobs:
             ${{ runner.temp }}/obs-user-ir/obs-logs/
             ${{ runner.temp }}/obs-editor/*.txt
             ${{ runner.temp }}/obs-editor/obs-logs/
+            ${{ runner.temp }}/obs-editor-edit/*.txt
+            ${{ runner.temp }}/obs-editor-edit/*.png
+            ${{ runner.temp }}/obs-editor-edit/obs-logs/
             ${{ runner.temp }}/obs-formats/*.txt
             ${{ runner.temp }}/obs-formats/obs-logs/
             ${{ runner.temp }}/obs-latency/*.txt

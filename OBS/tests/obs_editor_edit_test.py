@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """An edit made in Chimera's editor window, opened from the filter in the real OBS Studio app (plan stage C).
 
-Linux and Windows: the edit is a mouse drag, sent with xdotool to the editor's X11 window
-under Xvfb on Linux and with SendInput to the editor's top-level window on Windows (the
-test moves the window so the knob is on the CI runner's small screen and raises it).
+The edit is a mouse drag: sent with xdotool to the editor's X11 window under Xvfb on Linux,
+with SendInput to the editor's top-level window on Windows, and as Quartz events
+(CGEventPost) on macOS, where System Events finds, moves and raises the window (both need
+the Accessibility permission for the process running the test). On Windows and macOS the
+test moves the window so the knob is on the screen and raises it.
 Installs the filter as obs_app_test.py does, then:
 
 1. Adds the DI loop with a Chimera filter in its default state and records it.
@@ -44,7 +46,10 @@ DRAG_PIXELS = 150  # downward; Chimera's knobs turn down when dragged down
 
 
 def editor_window(pid: int) -> str | int | None:
-    """The editor's window: an X11 window id on Linux, a top-level window handle on Windows."""
+    """The editor's window: an X11 window id on Linux, a top-level window handle on Windows,
+    OBS's process id on macOS (System Events finds the window by the filter's name)."""
+    if app.MACOS:
+        return pid if mac.frame(pid) is not None else None
     if app.WINDOWS:
         handles = [hwnd for hwnd, title in app.top_level_windows(pid) if title == app.FILTER]
         return handles[-1] if handles else None
@@ -59,6 +64,9 @@ def editor_scale(size: tuple[int, int]) -> float:
 
 def window_size(window: str | int) -> tuple[int, int]:
     """The size of the window's content, where Chimera's editor draws."""
+    if app.MACOS:
+        _, _, width, height = mac.frame(window)
+        return width, height - Mac.TITLE_BAR
     if app.WINDOWS:
         rect = win32.RECT()
         win32.user32.GetClientRect(window, ctypes.byref(rect))
@@ -70,6 +78,11 @@ def window_size(window: str | int) -> tuple[int, int]:
 
 
 def screenshot(window: str | int, path: Path) -> None:
+    if app.MACOS:
+        x, y, width, height = mac.frame(window)
+        subprocess.run(["screencapture", "-x", f"-R{x},{y},{width},{height}", str(path)], check=False,
+                       capture_output=True, timeout=60)
+        return
     if not app.WINDOWS:
         subprocess.run(["import", "-window", window, str(path)], check=False, capture_output=True)
         return
@@ -85,6 +98,9 @@ def screenshot(window: str | int, path: Path) -> None:
 
 
 def drag_down(window: str | int, x: int, y: int, pixels: int) -> None:
+    if app.MACOS:
+        mac.drag_down(window, x, y, pixels)
+        return
     if app.WINDOWS:
         win32.drag_down(window, x, y, pixels)
         return
@@ -171,7 +187,92 @@ class Win32:
         self.user32.SetWindowPos(hwnd, -2, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0010)  # HWND_NOTOPMOST; NOSIZE|NOMOVE|NOACTIVATE
 
 
+class Mac:
+    """System Events (through osascript) for the editor's window, Quartz events for the drag.
+    Positions are in points from the top left of the main display, as both use them."""
+
+    TITLE_BAR = 28  # points: the title bar of a titled NSWindow (macOS 11 and later)
+
+    def __init__(self) -> None:
+        class CGPoint(ctypes.Structure):
+            _fields_ = [("x", ctypes.c_double), ("y", ctypes.c_double)]
+
+        class CGRect(ctypes.Structure):
+            _fields_ = [("origin", CGPoint), ("size", CGPoint)]
+
+        self.CGPoint = CGPoint
+        services = ctypes.CDLL("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")
+        foundation = ctypes.CDLL("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")
+        services.CGEventCreateMouseEvent.restype = ctypes.c_void_p
+        services.CGEventCreateMouseEvent.argtypes = [ctypes.c_void_p, ctypes.c_uint32, CGPoint, ctypes.c_uint32]
+        services.CGEventPost.argtypes = [ctypes.c_uint32, ctypes.c_void_p]
+        services.AXIsProcessTrusted.restype = ctypes.c_bool
+        services.CGMainDisplayID.restype = ctypes.c_uint32
+        services.CGDisplayBounds.restype = CGRect
+        services.CGDisplayBounds.argtypes = [ctypes.c_uint32]
+        foundation.CFRelease.argtypes = [ctypes.c_void_p]
+        self.services, self.foundation = services, foundation
+        self.error = ""
+
+    def window(self, pid: int, command: str) -> subprocess.CompletedProcess:
+        script = (f'tell application "System Events" to tell (first process whose unix id is {pid}) '
+                  f'to {command} window "{app.FILTER}"')
+        return subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=30, check=False)
+
+    def frame(self, pid: int) -> tuple[int, int, int, int] | None:
+        """The window's position and size (title bar included), or None (the reason in self.error)."""
+        result = self.window(pid, "get {position, size} of")
+        if result.returncode:
+            self.error = result.stderr.strip()
+            return None
+        x, y, width, height = (round(float(v)) for v in result.stdout.replace(",", " ").split())
+        return x, y, width, height
+
+    def screen(self) -> tuple[int, int]:
+        bounds = self.services.CGDisplayBounds(self.services.CGMainDisplayID())
+        return round(bounds.size.x), round(bounds.size.y)
+
+    def bring_into_view(self, pid: int, x: int, y: int, pixels: int) -> None:
+        """Put the content point (x, y) on screen with room for the drag below it, above OBS's windows."""
+        width, height = self.screen()
+        left = max(0, min(width // 2 - x, width - 100))
+        top = max(25, (height - pixels) // 3 - y - self.TITLE_BAR)  # below the menu bar
+        script = (f'tell application "System Events"\n'
+                  f'  tell (first process whose unix id is {pid})\n'
+                  f'    set frontmost to true\n'
+                  f'    set position of window "{app.FILTER}" to {{{left}, {top}}}\n'
+                  f'    perform action "AXRaise" of window "{app.FILTER}"\n'
+                  f'  end tell\n'
+                  f'end tell')
+        result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=30, check=False)
+        if result.returncode:
+            print(f"     note: could not move or raise the editor: {result.stderr.strip()}")
+        time.sleep(1)
+
+    def mouse(self, kind: int, x: float, y: float) -> None:
+        event = self.services.CGEventCreateMouseEvent(None, kind, self.CGPoint(x, y), 0)  # left button
+        app.check(event is not None, "Quartz made the mouse event")
+        self.services.CGEventPost(0, event)  # kCGHIDEventTap
+        self.foundation.CFRelease(event)
+
+    def drag_down(self, pid: int, x: int, y: int, pixels: int) -> None:
+        left, top, _, _ = self.frame(pid)
+        knob_x, knob_y = left + x, top + self.TITLE_BAR + y
+        width, height = self.screen()
+        trusted = self.services.AXIsProcessTrusted()
+        print(f"     screen {width}x{height} points, the OUTPUT knob at ({knob_x}, {knob_y}); "
+              f"Accessibility permission for this process: {trusted}")
+        self.mouse(5, knob_x, knob_y)  # kCGEventMouseMoved
+        time.sleep(0.1)
+        self.mouse(1, knob_x, knob_y)  # kCGEventLeftMouseDown
+        for step in range(1, pixels // 10 + 1):
+            time.sleep(0.03)
+            self.mouse(6, knob_x, knob_y + 10 * step)  # kCGEventLeftMouseDragged
+        self.mouse(2, knob_x, knob_y + pixels)  # kCGEventLeftMouseUp
+
+
 win32 = Win32() if app.WINDOWS else None
+mac = Mac() if app.MACOS else None
 
 
 def run(args: argparse.Namespace) -> None:
@@ -245,7 +346,10 @@ def run(args: argparse.Namespace) -> None:
         check(before != "", "the filter's settings hold Chimera's state")
         obs.request("SetStudioModeEnabled", {"studioModeEnabled": True})
         app.wait_until(lambda: count(f"[chimera-obs] '{app.FILTER}': editor shown") >= 1, "the filter showed Chimera's editor", 30)
-        app.wait_until(lambda: editor_window(obs.process.pid) is not None, "the editor's window", 15)
+        try:
+            app.wait_until(lambda: editor_window(obs.process.pid) is not None, "the editor's window", 15)
+        except RuntimeError as e:
+            raise RuntimeError(f"{e}{f' (System Events: {mac.error})' if app.MACOS and mac.error else ''}") from None
         window = editor_window(obs.process.pid)
         time.sleep(2)  # the editor fits itself to the screen and draws its first frame
         size = window_size(window)
@@ -257,6 +361,8 @@ def run(args: argparse.Namespace) -> None:
         print(f"     the editor at {size[0]}x{size[1]}, drawn at {scale:.0%}: the OUTPUT knob at {knob}")
         if app.WINDOWS:
             win32.bring_into_view(window, *knob, DRAG_PIXELS)
+        elif app.MACOS:
+            mac.bring_into_view(window, *knob, DRAG_PIXELS)
         screenshot(window, work / "editor-before.png")
         drag_down(window, *knob, DRAG_PIXELS)
         app.wait_until(lambda: component(obs) != before, "the edit in the editor reached the filter's OBS settings", 15)
@@ -302,14 +408,10 @@ def main() -> int:
     parser.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg executable for the analysis")
     parser.add_argument("--seconds", type=float, default=4.0, help="length of each recording")
     args = parser.parse_args()
-    if app.MACOS:
-        print("FAIL this test drives the editor with xdotool (Linux) or SendInput (Windows), not on macOS",
-              file=sys.stderr)
-        return 2
-    if not app.WINDOWS and not os.environ.get("DISPLAY"):
+    if not app.WINDOWS and not app.MACOS and not os.environ.get("DISPLAY"):
         print("FAIL no X display (run under xvfb-run)", file=sys.stderr)
         return 2
-    if not app.WINDOWS and (shutil.which("xdotool") is None or shutil.which("import") is None):
+    if not app.WINDOWS and not app.MACOS and (shutil.which("xdotool") is None or shutil.which("import") is None):
         print("FAIL xdotool and ImageMagick's import are needed", file=sys.stderr)
         return 2
     app.FFMPEG = args.ffmpeg
