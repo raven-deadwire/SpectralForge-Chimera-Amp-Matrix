@@ -19,11 +19,12 @@ class BetaPublication(unittest.TestCase):
         # Reuse the raw Windows/Linux/macOS/assembly fixture producer, rather
         # than constructing a summary-only PASS or bypassing strict evaluation.
         legacy_policy = gate.load_json(beta.ROOT / "Tools/fixtures/release-policy-1.3.1.json")
-        mapping = gate.load_json(beta.ROOT / "Validation/ci-check-map.json")["checks"]
+        mapping = gate.load_json(beta.ROOT / beta.HISTORICAL_CI_CHECK_MAP)["checks"]
         frozen = patch.object(fixtures.evidence, "configuration", return_value=(legacy_policy, mapping))
         frozen.start()
         self.addCleanup(frozen.stop)
         self.fixture = fixtures.Consolidation("test_actual_automatic_receipts_pass_only_owned_checks")
+        self.fixture.DSP_LOG = "Tools/fixtures/e1-ctest-6782.log"  # matches the frozen map
         self.fixture.setUp()
         self.addCleanup(self.fixture.doCleanups)
         self.strict, output = self.fixture.run_gate()
@@ -33,7 +34,7 @@ class BetaPublication(unittest.TestCase):
         self.policy["approved_product_source_sha"] = HEAD  # Synthetic fixture identity only.
         self.strict_policy = copy.deepcopy(self.fixture.policy)
         self.waivers = gate.load_json(beta.ROOT / "Validation/waivers.json")
-        self.mapping = gate.load_json(beta.ROOT / "Validation/ci-check-map.json")
+        self.mapping = gate.load_json(beta.ROOT / beta.HISTORICAL_CI_CHECK_MAP)
 
     def evaluate(self):
         return beta.evaluate(self.policy, self.strict_policy, self.checks, self.strict,

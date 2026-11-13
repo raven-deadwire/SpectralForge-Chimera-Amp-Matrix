@@ -21,7 +21,9 @@ Lossless (16-bit PCM) recordings are made with the filter disabled and enabled:
   burst rise over a few ms (also with its noise gate off), which is not processing delay;
 - in each recording the centre's audio-to-video offset holds within one video frame.
   OBS's own offset for a media source differs from one recording to the next (also with
-  the filter disabled in both), so recordings are not compared with each other.
+  the filter disabled in both), so recordings are not compared with each other. On the
+  macOS CI runner OBS sometimes records a flash a whole frame or two late (the offsets then
+  differ by whole frames, the audio itself is unbroken); such a recording is made once more.
 The OBS log must show the filter loading Chimera and processing every block, and OBS
 must exit cleanly.
 """
@@ -167,6 +169,18 @@ def first_above(x: list[float], start: int, stop: int, threshold: float, sustain
     return None
 
 
+def av_offsets(path: Path) -> list[float]:
+    """The centre's audio-to-video offset (seconds) at each flash."""
+    t0, channels = audio_channels(path)
+    return pair(video_onsets(path), [t0 + c / app.RATE for c in onsets(channels[2], FIRST_SAMPLE)], PERIOD / 2)
+
+
+def video_steps_only(av: list[float]) -> bool:
+    """The offsets differ by whole video frames (within 1 ms): OBS recorded a flash a frame
+    late, the audio is unbroken. A stalled or broken audio path shifts them by other amounts."""
+    return all(abs(d * FPS - round(d * FPS)) * 1000 / FPS <= 1.0 for d in (a - av[0] for a in av))
+
+
 def measure(path: Path, name: str) -> dict:
     """Delays of the front pair after the untouched centre, in samples, for each centre burst:
     to where the front pair's output starts, staying above its own level just before the burst
@@ -259,11 +273,21 @@ def run(args: argparse.Namespace) -> None:
         obs.request("SetSourceFilterEnabled", {"sourceName": app.SOURCE, "filterName": app.FILTER,
                                                "filterEnabled": False})
         time.sleep(1)
-        disabled = obs.record("disabled", args.seconds)
+
+        def record(name: str) -> Path:
+            path = obs.record(name, args.seconds)
+            av = av_offsets(path)
+            if len(av) >= 4 and max(av) - min(av) > 1 / FPS + 0.001 and video_steps_only(av):
+                print(f"     {name}: OBS recorded flashes whole frames late (offsets "
+                      f"{[round(1000 * a, 1) for a in av]} ms); recording again", flush=True)
+                path = obs.record(f"{name} (again)", args.seconds)
+            return path
+
+        disabled = record("disabled")
         obs.request("SetSourceFilterEnabled", {"sourceName": app.SOURCE, "filterName": app.FILTER,
                                                "filterEnabled": True})
         time.sleep(1)
-        enabled = obs.record("enabled", args.seconds)
+        enabled = record("enabled")
     finally:
         obs.quit()
 

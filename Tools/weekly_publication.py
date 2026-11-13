@@ -28,7 +28,10 @@ FULL_PROFILE = "full_release"
 CI_IDS = historical.CI_IDS
 GAP_IDS = historical.GAP_IDS
 TRANSPOSE_IDS = frozenset({"I2.PITCH_LIVE", "I2.PITCH_DI"})
-CI_CHECK_MAP_SHA256 = historical.CI_CHECK_MAP_SHA256
+# The live map. Ownership, producers and platforms are unchanged from the
+# historical map; only the E1 coverage totals follow the 1.4 catalogue
+# (31 serialized / 30 active amps). A historical approval keeps its own digest.
+CI_CHECK_MAP_SHA256 = "5adbf2843ba6f0223c67752f9577d2bc8d6561b10790d5e97cf0c367744edea1"
 # Version, channel and approval metadata can evolve without weakening a gate.
 # Changing any validation rule still requires a reviewed policy/code revision.
 VALIDATION_RULES_SHA256 = "8acd522fcf39d08b55bad079a5d706efc8e14e5a38730d3d77a699da610074fc"
@@ -74,7 +77,7 @@ def _positive_id(value):
 
 
 def validate_approval(publication_policy, strict_policy, source_sha, *, version, profile,
-                      waivers=None, ci_check_map=None):
+                      waivers=None, ci_check_map=None, approved_ci_check_map_sha256=CI_CHECK_MAP_SHA256):
     """Validate a fresh approval, without claiming CI or publication readiness.
 
     A full strict-policy digest binds the approval to its source metadata. An
@@ -126,7 +129,7 @@ def validate_approval(publication_policy, strict_policy, source_sha, *, version,
     waivers = gate.load_json(ROOT / "Validation/waivers.json") if waivers is None else waivers
     ci_check_map = gate.load_json(ROOT / "Validation/ci-check-map.json") if ci_check_map is None else ci_check_map
     require(_sha(publication_policy.get("ci_check_map_sha256"), 64)
-            and digest(ci_check_map) == publication_policy["ci_check_map_sha256"] == CI_CHECK_MAP_SHA256,
+            and digest(ci_check_map) == publication_policy["ci_check_map_sha256"] == approved_ci_check_map_sha256,
             "CI ownership map differs from the approved contract")
     require(waivers == {"schema": "spectralforge.chimera.validation.waivers",
                         "schema_version": 1, "waivers": []}, "Waivers must remain unchanged")

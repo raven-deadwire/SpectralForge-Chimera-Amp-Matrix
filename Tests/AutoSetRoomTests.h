@@ -104,7 +104,10 @@ void controllerRoom() {
     // A room the player has on keeps its size, absorption and sends; only its return moves (50%: halfway).
     const auto own=runRoom(half,setter({{"roomOn",1},{"roomSize",0},{"roomAbsorption",90},{"roomReturn",0},{"roomSend1",80}}));
     check(juce::roundToInt(value(own.values,"roomSize"))==0 && near(value(own.values,"roomAbsorption"),90.f,.01f) && near(value(own.values,"roomSend1"),80.f,.01f) && near(value(own.values,"roomReturn"),-4.f,.01f)
-          && stepOf(own.status,P::room)->result.startsWith("room return 0.0 dB > -4.0 dB"),"The player's room was changed beyond its return");
+          && stepOf(own.status,P::room)->result.startsWith("room return 0.0 dB > -4.0 dB"),
+          "The player's room was changed beyond its return: size "+std::to_string(value(own.values,"roomSize"))+", absorption "+std::to_string(value(own.values,"roomAbsorption"))
+          +", send 1 "+std::to_string(value(own.values,"roomSend1"))+", return "+std::to_string(value(own.before,"roomReturn"))+" > "+std::to_string(value(own.values,"roomReturn"))
+          +"; row: "+stepOf(own.status,P::room)->result.toStdString());
     // A declared space keeps its geometry: size and absorption are not written.
     const auto declared=runRoom(roomOnlyOptions(),setter({{"roomSpace",1},{"roomSize",0},{"roomAbsorption",70}}));
     check(value(declared.values,"roomOn")>.5f && juce::roundToInt(value(declared.values,"roomSize"))==0 && near(value(declared.values,"roomAbsorption"),70.f,.01f)

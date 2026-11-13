@@ -965,7 +965,8 @@ private:
         const auto r=analyseRoom(spaceWindows,bass.value_or(false),runOptions.style);
         lastRoom=r;
         if(!r.feel.measured){keep("too few notes to judge the playing");return;}
-        const auto db=[](float v){return juce::String(v,1)+" dB";};
+        // To 0.1 dB; a rounded zero prints without a sign (a dB parameter can read back as -0.0000001).
+        const auto db=[](float v){const float r=std::round(v*10.f)/10.f;return juce::String(r==0.f?0.f:r,1)+" dB";};
         const auto who=juce::String(bass.value_or(false)?"bass":"guitar")+(bass?"":" (assumed)")+" "+styleName(runOptions.style)+": "
                       +juce::String(r.feel.onsetsPerSecond,1)+" detected notes/s"+(r.dense?", dense":r.sparse?", sparse":"");
         const bool declared=raw("roomSpace")>.5f;

@@ -200,11 +200,16 @@ def run(args: argparse.Namespace) -> None:
     tail_at_pause = steps(front, pause_at - rate // 50, pause_at)
     print(f"     input resumed: front left in the last 20 ms before the pause {tail_at_pause:.1f} steps (Chimera's tail), "
           f"from the resume to the next note largest {left:.2f} steps")
-    # The note had ended in the recording: the filter's input (the centre copy) is silent before the pause.
-    input_before = steps(centre, pause_at - rate // 200, pause_at)
-    check(pause_at > before and input_before == 0 and tail_at_pause > TAIL_STEPS,
-          f"the media was paused after a note ended ({(pause_at - before) / rate:.3f} s after it started, input in the "
-          f"last 5 ms {input_before:.1f} steps), while Chimera's tail rang ({tail_at_pause:.1f} steps)")
+    # The note had ended in the recording: the filter's input (the centre copy) is silent from the
+    # note's end (NOTE after its first sample; the note stops there, not fading out) to the pause.
+    # The pause may land only a few ms after the note: the recorded audio trails the media cursor
+    # by a varying amount (on the macOS CI runner once 1 ms after the note's end).
+    input_end = before + int(match.NOTE * rate)
+    input_before = steps(centre, input_end, pause_at) if pause_at > input_end else None
+    check(input_before == 0 and tail_at_pause > TAIL_STEPS,
+          f"the media was paused after a note ended ({(pause_at - before) / rate:.3f} s after it started, input from "
+          f"the note's end to the pause {'-' if input_before is None else f'{input_before:.1f}'} steps), "
+          f"while Chimera's tail rang ({tail_at_pause:.1f} steps)")
     check(left <= 1.01, f"after the input resumes Chimera's tail from before the pause is gone (largest {left:.2f} steps)")
 
     # Control: the same input without the interrupted spans, through Chimera outside OBS.
