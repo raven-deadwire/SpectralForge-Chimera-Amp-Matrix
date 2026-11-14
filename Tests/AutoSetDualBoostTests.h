@@ -47,7 +47,7 @@ void controllerDualBoost() {
     };
     // Off by default: a Dual routing keeps the boost and names the option.
     const auto off=runBoost(boostOnly,dualRig(1,false,{true,true}));
-    check(stepOf(off.status,P::boost) && stepOf(off.status,P::boost)->result=="kept (Dual routing: switch on the Dual Blend boost option, or add a boost in the full editor)","A Dual routing without the option was not kept with the reason");
+    check(stepOf(off.status,P::boost) && stepOf(off.status,P::boost)->result=="kept (Dual and Matrix routing: add a boost in the full editor, or switch on the boost's Dual Blend option)","A Dual routing without the option was not kept with the reason");
     // Dual Blend with the option: the mix of the two driven rigs gets the pedal.
     const auto full=runBoost(dualOptions,dualRig(1,false,{true,true}));
     const auto& a=full.analysis;const auto* step=stepOf(full.status,P::boost);

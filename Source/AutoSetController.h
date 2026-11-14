@@ -1008,7 +1008,7 @@ private:
             if(!t.amp.on && !dual.rig2.on){keep("both amps are switched off");return;}
             if((t.amp.on && !t.amp.native) || (dual.rig2.on && !dual.rig2.native)){keep(juce::String(t.amp.on && !t.amp.native?"rig 1":"rig 2")+" uses the classic amp engine; switch its head panel on to let Auto Set judge a boost");return;}
         } else {
-            if(t.amp.mode!=0){keep(t.amp.mode==1?"Dual routing: switch on the Dual Blend boost option, or add a boost in the full editor":"Matrix routing: add a boost in the full editor");return;}
+            if(t.amp.mode!=0){keep(t.amp.mode==1?"Dual and Matrix routing: add a boost in the full editor, or switch on the boost's Dual Blend option":"Matrix routing: add a boost in the full editor");return;}
             if(!t.amp.on){keep("the amp is switched off");return;}
             if(!t.amp.native){keep("classic amp engine; switch the head panel on to let Auto Set judge a boost");return;}
         }

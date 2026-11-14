@@ -25,8 +25,8 @@ off, and the menu greys it then.
   drive far past the style's target.
 - **What it sets:** the Green Drive in the last free board slot, as phase 10.
 - **Kept, with the reason:**
-  - the option off in a Dual routing ("switch on the Dual Blend boost option,
-    or add a boost in the full editor");
+  - the option off in a Dual routing ("Dual and Matrix routing: add a boost in
+    the full editor, or switch on the boost's Dual Blend option");
   - Dual **Crossover** and the **Matrix** routing: the rigs or lanes play
     separate bands, so a boost before the split changes each band's drive
     differently;
