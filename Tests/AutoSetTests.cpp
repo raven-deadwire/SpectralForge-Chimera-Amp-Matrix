@@ -1603,7 +1603,8 @@ bool inLockedStage(const juce::String& id,Controller::Lock lock) {
         case Controller::lockCrossover:return id=="x1" || id=="x2";
         case Controller::lockLaneCuts:return id=="cablow2" || id=="cabhigh2" || id=="cablow3" || id=="cabhigh3";
         case Controller::lockRoom:return id=="roomOn" || id=="roomSize" || id=="roomAbsorption" || id=="roomReturn" || id=="roomSend1" || id=="roomSend2" || id=="roomSend3";
-        case Controller::lockTrim:return id==spectralforge::ampNativeInputTrimID(0) || id==spectralforge::ampNativeOutputLevelID(0);
+        case Controller::lockTrim:return id==spectralforge::ampNativeInputTrimID(0) || id==spectralforge::ampNativeOutputLevelID(0)
+            || id==spectralforge::ampNativeInputTrimID(1) || id==spectralforge::ampNativeInputTrimID(2) || id==spectralforge::ampNativeOutputLevelID(1); // phase 36: the Dual rigs
         case Controller::lockBus:return id.startsWith("pn_bus_m0_") && !id.endsWith("external_sidechain") && !id.endsWith("fade_rate") && !id.endsWith("auto_fade") && !id.endsWith("softwareTrim") && !id.endsWith("softwareLevel");
         case Controller::lockSpace:return id=="delayon" || id=="delaytime" || id=="delayfeedback" || id=="delaymix" || id=="reverbon" || id=="reverbsize" || id=="reverbdamping" || id=="reverbmix";
         case Controller::lockBoost:return id.startsWith("board") && (id.endsWith("Model") || id.contains("_m1_"));
@@ -1819,6 +1820,7 @@ void controllerGateStageEditHistory() {
 #include "AutoSetDualAmpTests.h"
 #include "AutoSetDualPowerTests.h"
 #include "AutoSetDualChannelTests.h"
+#include "AutoSetDualTrimTests.h"
 #include "AutoSetBusTests.h"
 #include "AutoSetBusOrderControllerTests.h"
 #include "AutoSetCabEditTests.h"
@@ -1864,6 +1866,7 @@ int main(int argc, char** argv) {
         if(argc==2 && std::string(argv[1])=="--dual-amp"){dualAmpCapture();controllerDualAmp();return 0;}
         if(argc==2 && std::string(argv[1])=="--dual-power"){controllerDualPower();return 0;}
         if(argc==2 && std::string(argv[1])=="--dual-channel"){controllerDualChannel();return 0;}
+        if(argc==2 && std::string(argv[1])=="--dual-trim"){controllerDualTrim();return 0;}
         if(argc==2 && std::string(argv[1])=="--integration"){controllerIntegration();return 0;}
         if(argc==2 && std::string(argv[1])=="--power-bass-controller"){controllerPowerBassRegression();return 0;}
         if(argc==2 && std::string(argv[1])=="--power-bass-rules"){powerBassRules();return 0;}
@@ -1889,7 +1892,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();syncTiming();syncRegression::run();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();crossoverRules();controllerCrossover();roomRules();controllerRoom();widthRules();controllerWidth();cutsRules();controllerCuts();laneCutsRules();controllerLaneCuts();rig1CutsRules();controllerRig1Cuts();laneIRRules();controllerLaneIR();laneMicRules();controllerLaneMic();laneMicsRules();laneMicsCapture();controllerLaneMics();dualBoostRules();controllerDualBoost();dualAmpCapture();controllerDualAmp();controllerDualPower();controllerDualChannel();busRules();controllerBus();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();syncTiming();syncRegression::run();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();crossoverRules();controllerCrossover();roomRules();controllerRoom();widthRules();controllerWidth();cutsRules();controllerCuts();laneCutsRules();controllerLaneCuts();rig1CutsRules();controllerRig1Cuts();laneIRRules();controllerLaneIR();laneMicRules();controllerLaneMic();laneMicsRules();laneMicsCapture();controllerLaneMics();dualBoostRules();controllerDualBoost();dualAmpCapture();controllerDualAmp();controllerDualPower();controllerDualChannel();controllerDualTrim();busRules();controllerBus();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
         controllerCabPlacementEdits();
