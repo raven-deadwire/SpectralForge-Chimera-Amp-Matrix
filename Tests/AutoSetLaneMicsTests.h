@@ -2,6 +2,12 @@
 // Phase 31: the two blended mics of each Dual rig's or Matrix lane's cabinet (docs/AUTO_SET_PHASE31.md).
 // Included by AutoSetTests.cpp after the mics tests (their helpers are used here).
 
+// MSVC only: these functions are compiled without optimisation. With them optimised, the Windows
+// compiler died while generating code for AutoSetTests.cpp (cl D8040, no diagnostic) from phase 29 on.
+// The analysis they call lives in Source/ and stays optimised.
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma optimize("",off)
+#endif
 void laneMicsRules() {
     for(const double rate:{44100.,48000.,96000.}) {
         std::mt19937 rng{310};
@@ -131,3 +137,6 @@ void controllerLaneMics() {
     std::cout<<"MEASURE auto set lane mics controller: rig 1: "<<step1->result<<" | crossover: "<<stepOf(crossover.status,P::laneMics1)->result<<'\n';
     std::cout<<"PASS auto set lane mics controller: off by default; a pass per Dual rig and Matrix lane; alignment whole, blend by strength; band-split lanes keep the blend; one mic, cabinet off, lock, Classic, edited; before the Dual pass; undo\n";
 }
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma optimize("",on)
+#endif
