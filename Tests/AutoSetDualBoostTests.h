@@ -2,10 +2,6 @@
 // Phase 32: the boost pedal in a Dual Blend, judged on the two rigs' mix (docs/AUTO_SET_PHASE32.md).
 // Included by AutoSetTests.cpp after the boost tests (their helpers are used here).
 
-// MSVC only: compiled without optimisation, as the other tests added since phase 29 (see AutoSetLaneIRTests.h).
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",off)
-#endif
 void dualBoostRules() {
     std::mt19937 rng{320};const auto di=playedNotes(48000,6,rng);
     const auto head=drivenHead();
@@ -72,6 +68,3 @@ void controllerDualBoost() {
     std::cout<<"MEASURE auto set dual boost controller: "<<step->result<<'\n';
     std::cout<<"PASS auto set dual boost controller: off by default (kept with the option named); Dual Blend judged on the mix; Crossover, classic engine and Matrix kept; Classic unchanged; undo\n";
 }
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",on)
-#endif

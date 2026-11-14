@@ -2,10 +2,6 @@
 // Phase 33: the GAIN and tone of both Dual Blend rigs' heads (docs/AUTO_SET_PHASE33.md).
 // Included by AutoSetTests.cpp after the amp tests (their helpers are used here).
 
-// MSVC only: compiled without optimisation, as the other tests added since phase 29 (see AutoSetLaneIRTests.h).
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",off)
-#endif
 // The rig tap hears the whole rig by default and one Dual rig alone when Auto Set asks for it.
 void dualAmpCapture() {
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
@@ -129,6 +125,3 @@ void controllerDualAmp() {
     std::cout<<"MEASURE auto set dual amp controller: rig 1: "<<step1->result<<" | rig 2: "<<step2->result<<'\n';
     std::cout<<"PASS auto set dual amp controller: off by default; a pass per Dual Blend rig; low GAIN raised, high GAIN not raised; strength; Amp lock; Crossover, Matrix, Classic, amp off, classic engine, edited; undo\n";
 }
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",on)
-#endif
