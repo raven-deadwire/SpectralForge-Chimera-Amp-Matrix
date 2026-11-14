@@ -85,7 +85,8 @@ inline LaneMicResult analyseLaneMics(const std::vector<const std::vector<float>*
     for(size_t bin=std::max<size_t>(1,size_t(std::ceil(laneMicFromHz/std::pow(2.,.5/laneMicStepsPerOctave)*double(size)/rate)));bin<=size/2;++bin) {
         const double hz=double(bin)*rate/double(size);
         if(hz>top)break;
-        const int step=int(std::lround(laneMicStepsPerOctave*std::log2(hz/laneMicFromHz))),band=bandOf(hz);
+        // The first bin can sit on the lower edge of step 0, where rounding could give -1.
+        const int step=std::max(0,int(std::lround(laneMicStepsPerOctave*std::log2(hz/laneMicFromHz)))),band=bandOf(hz);
         if(cells.empty() || cells.back().band!=band || cells.back().step!=step)cells.push_back({band,step,{}});
         auto& cross=cells.back().cross;
         for(size_t k=0;k<count;++k)for(size_t l=0;l<count;++l)cross[k][l]+=spectra[k][bin]*std::conj(spectra[l][bin]);
