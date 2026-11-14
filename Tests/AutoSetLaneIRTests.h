@@ -84,11 +84,22 @@ void controllerLaneIR() {}
 // The real processor's Dual rigs (the default heads) with the given cabinet sources for mic A of rig 1 and rig 2.
 std::pair<std::vector<float>,std::vector<float>> laneIRProcessorRigs(const std::vector<float>& x,int source1,int source2) {
     auto q=std::make_unique<ChimeraProcessor>();q->setRateAndBufferSizeDetails(48000,256);
+#ifdef CHIMERA_PROBE_KEEP_SETALL
     const auto setAll=[&]{
         for(const auto& [id,v]:std::initializer_list<std::pair<juce::String,float>>{{"mode",1},{"dualtype",0},{"dualblend",.5f},{"cab1",1},{"cab2",1},{"cabblend1",0},{"cabblend2",0},
                 {spectralforge::originalCabID(0,"Aon"),0},{spectralforge::originalCabID(1,"Aon"),0},{"cabtype1",float(source1)},{"cabtype2",float(source2)}})
             q->parameters().getParameter(id)->setValueNotifyingHost(q->parameters().getParameter(id)->convertTo0to1(v));
     };
+#else
+    const std::vector<std::pair<juce::String,float>> settings{{"mode",1.f},{"dualtype",0.f},{"dualblend",.5f},{"cab1",1.f},{"cab2",1.f},{"cabblend1",0.f},{"cabblend2",0.f},
+            {spectralforge::originalCabID(0,"Aon"),0.f},{spectralforge::originalCabID(1,"Aon"),0.f},{"cabtype1",float(source1)},{"cabtype2",float(source2)}};
+    const auto setAll=[&]{
+        for(const auto& setting:settings) {
+            auto* parameter=q->parameters().getParameter(setting.first);
+            parameter->setValueNotifyingHost(parameter->convertTo0to1(setting.second));
+        }
+    };
+#endif
     setAll();q->prepareToPlay(48000,256);setAll();
     juce::AudioBuffer<float> io(2,256);juce::MidiBuffer midi;
     size_t offset=0;
@@ -117,7 +128,14 @@ void controllerLaneIR() {
     const auto aOn0=spectralforge::originalCabID(0,"Aon"),aOn1=spectralforge::originalCabID(1,"Aon"),aOn2=spectralforge::originalCabID(2,"Aon"),bOn0=spectralforge::originalCabID(0,"Bon");
     // Dual, mic A of both rigs a factory IR: rig 1 the V30 (its playing suits the Jensen), rig 2 the Jensen.
     const auto dual=setter({{"mode",1},{"dualtype",0},{"dualblend",.5f},{"cab1",1},{"cab2",1},{"cabblend1",0},{"cabblend2",0},{aOn0,0},{aOn1,0},{"cabtype1",1},{"cabtype2",2}});
+    using Settings=std::vector<std::pair<juce::String,float>>;
+#ifdef CHIMERA_PROBE_KEEP_WITH
     const auto with=[&](std::initializer_list<std::pair<juce::String,float>> extra){const auto more=setter(extra);return [dual,more](ChimeraProcessor& p){dual(p);more(p);};};
+#else
+    const auto with=[&](const Settings& extra)->std::function<void(ChimeraProcessor&)> {
+        return [dual,extra](ChimeraProcessor& p){dual(p);for(const auto& setting:extra){auto* parameter=p.parameters().getParameter(setting.first);parameter->setValueNotifyingHost(parameter->convertTo0to1(setting.second));}};
+    };
+#endif
     const auto full=runDual(laneIROnlyOptions(),v1,j2,dual);
     const auto* step=stepOf(full.status,P::laneIR);
     check(full.status.phase==P::done && full.status.passes==std::vector<P>{P::dual} && step && step->changed && step->result.contains("rig 1 mic A IR V30 / SM57 > Jensen / SM57")
@@ -138,7 +156,11 @@ void controllerLaneIR() {
     auto lockedOptions=laneIROnlyOptions();lockedOptions.locks=Controller::lockCompressor|Controller::lockCabIR;
     const auto locked=runDual(lockedOptions,v1,j2,dual);
     check(stepOf(locked.status,P::laneIR) && stepOf(locked.status,P::laneIR)->result=="kept (locked)" && locked.status.passes==std::vector<P>{P::input} && source(locked.values,"cabtype1")==1,"The Cabinet IR lock did not keep the lane IRs or still listened");
+#if defined(CHIMERA_PROBE_KEEP_REASON) || defined(CHIMERA_PROBE_KEEP_WITH)
     const auto reason=[&](std::initializer_list<std::pair<juce::String,float>> extra,const char* text) {
+#else
+    const auto reason=[&](const Settings& extra,const char* text) {
+#endif
         const auto run=runDual(laneIROnlyOptions(),v1,j2,with(extra));
         const auto* s=stepOf(run.status,P::laneIR);
         check(s && !s->changed && s->result.contains(text) && source(run.values,"cabtype1")==source(run.before,"cabtype1"),std::string("Not kept as '")+text+"': "+(s?s->result.toStdString():std::string("no step")));

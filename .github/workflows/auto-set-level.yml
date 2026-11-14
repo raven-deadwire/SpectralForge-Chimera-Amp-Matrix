@@ -11,13 +11,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {name: control, cl: "", append: "", parallel: 2, targets: "ChimeraAutoSetTests ChimeraAutoSetBusOrderDSPTests ChimeraAutoSetInstrumentTests"}
-          - {name: alone, cl: "", append: "", parallel: 1, targets: "ChimeraAutoSetTests"}
-          - {name: alone-mp1, cl: "", append: "/MP1", parallel: 1, targets: "ChimeraAutoSetTests"}
-          - {name: no-lane-ir-tests, cl: "/DCHIMERA_PROBE_NO_LANE_IR_TESTS", append: "", parallel: 2, targets: "ChimeraAutoSetTests ChimeraAutoSetBusOrderDSPTests ChimeraAutoSetInstrumentTests"}
-          - {name: no-lane-ir-controller, cl: "/DCHIMERA_PROBE_NO_LANE_IR_CONTROLLER", append: "", parallel: 2, targets: "ChimeraAutoSetTests ChimeraAutoSetBusOrderDSPTests ChimeraAutoSetInstrumentTests"}
-          - {name: no-lane-ir-rules, cl: "/DCHIMERA_PROBE_NO_LANE_IR_RULES", append: "", parallel: 2, targets: "ChimeraAutoSetTests ChimeraAutoSetBusOrderDSPTests ChimeraAutoSetInstrumentTests"}
-          - {name: bigobj, cl: "/bigobj", append: "", parallel: 2, targets: "ChimeraAutoSetTests ChimeraAutoSetBusOrderDSPTests ChimeraAutoSetInstrumentTests"}
+          - {name: rewritten, cl: "", append: "", parallel: 2, targets: "ChimeraAutoSetTests ChimeraAutoSetBusOrderDSPTests ChimeraAutoSetInstrumentTests"}
+          - {name: keep-setall, cl: "/DCHIMERA_PROBE_KEEP_SETALL", append: "", parallel: 1, targets: "ChimeraAutoSetTests"}
+          - {name: keep-with, cl: "/DCHIMERA_PROBE_KEEP_WITH", append: "", parallel: 1, targets: "ChimeraAutoSetTests"}
+          - {name: keep-reason, cl: "/DCHIMERA_PROBE_KEEP_REASON", append: "", parallel: 1, targets: "ChimeraAutoSetTests"}
+          - {name: keep-all, cl: "/DCHIMERA_PROBE_KEEP_SETALL /DCHIMERA_PROBE_KEEP_WITH /DCHIMERA_PROBE_KEEP_REASON", append: "", parallel: 1, targets: "ChimeraAutoSetTests"}
     name: probe (${{ matrix.name }})
     runs-on: windows-latest
     timeout-minutes: 40
@@ -30,9 +28,10 @@ jobs:
       - shell: pwsh
         run: |
           $sw=[Diagnostics.Stopwatch]::StartNew()
-          cmake --build build-level --config Release --target ${{ matrix.targets }} --parallel ${{ matrix.parallel }} -- /v:minimal /clp:Summary
+          cmake --build build-level --config Release --target ${{ matrix.targets }} --parallel ${{ matrix.parallel }} -- /v:minimal /clp:Summary 2>&1 | Tee-Object -FilePath build.log
           $code=$LASTEXITCODE
           "PROBE ${{ matrix.name }}: build exit $code after $([int]$sw.Elapsed.TotalSeconds) s"
+          if(Test-Path build.log){ Select-String -Path build.log -Pattern "D8040|MSB6006|error C|fatal error" | Select-Object -First 5 | ForEach-Object { "PROBE error: $($_.Line)" } }
           Get-CimInstance Win32_OperatingSystem | ForEach-Object { "PROBE memory: total $([int]($_.TotalVisibleMemorySize/1MB)) GB, free $([int]($_.FreePhysicalMemory/1MB)) GB, commit limit $([int]($_.TotalVirtualMemorySize/1MB)) GB" }
           Get-CimInstance Win32_LogicalDisk | ForEach-Object { "PROBE disk $($_.DeviceID): free $([int]($_.FreeSpace/1GB)) GB" }
           exit $code
