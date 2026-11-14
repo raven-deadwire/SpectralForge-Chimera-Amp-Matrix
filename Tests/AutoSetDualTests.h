@@ -101,7 +101,7 @@ void dualLaneCapture() {
     p->releaseResources();
     std::cout<<"PASS auto set dual capture: rigs after level and polarity, before the blend, sum to the engine output; taps fed in Dual routing only\n";
 }
-struct DualRun {std::vector<float> before,values,undone;Controller::Status status;DualResult analysis;RigLevelResult rigs;PolarityResult polarity;LaneCutsResult laneCuts;};
+struct DualRun {std::vector<float> before,values,undone;Controller::Status status;DualResult analysis;RigLevelResult rigs;PolarityResult polarity;LaneCutsResult laneCuts;LaneIRResult laneIR;};
 // Feeds the two rigs to the lane taps (and the playing to the window taps for
 // a compressor pass) of a real processor in Dual routing.
 // during: called once, after the first tick (an edit while the pass listens).
@@ -120,7 +120,7 @@ DualRun runDual(const Controller::Options& options,const std::vector<float>& rig
         if(during && offset==0)during(*p);
     }
     check(!c.busy(),"Dual run did not finish");
-    result.values=values(*p);result.status=c.current();result.analysis=c.lastDualAnalysis();result.rigs=c.lastRigsAnalysis();result.polarity=c.lastPolarityAnalysis();result.laneCuts=c.lastLaneCutsAnalysis();
+    result.values=values(*p);result.status=c.current();result.analysis=c.lastDualAnalysis();result.rigs=c.lastRigsAnalysis();result.polarity=c.lastPolarityAnalysis();result.laneCuts=c.lastLaneCutsAnalysis();result.laneIR=c.lastLaneIRAnalysis();
     c.undo();result.undone=values(*p);p->releaseResources();
     return result;
 }

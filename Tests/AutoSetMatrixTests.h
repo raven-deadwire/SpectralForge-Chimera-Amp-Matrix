@@ -115,7 +115,7 @@ void matrixLaneCapture() {
     std::cout<<"MEASURE matrix native OUTPUT LEVEL +6 dB: lane gain "<<gainDb<<" dB, worst sample error "<<worstSample<<'\n';
     std::cout<<"PASS auto set matrix capture: lanes after level and polarity sum to the engine output; lane1-lane3 fed in Matrix for the Matrix pass only, Dual unchanged; native OUTPUT LEVEL is linear\n";
 }
-struct MatrixRun {std::vector<float> before,values,undone;Controller::Status status;MatrixResult analysis;PolarityResult polarity;CrossoverResult crossover;LaneCutsResult laneCuts;};
+struct MatrixRun {std::vector<float> before,values,undone;Controller::Status status;MatrixResult analysis;PolarityResult polarity;CrossoverResult crossover;LaneCutsResult laneCuts;LaneIRResult laneIR;};
 // Feeds the three lanes to the lane taps of a real processor (Matrix routing set by prepare).
 MatrixRun runMatrix(const Controller::Options& options,const MatrixLanes& lanes,const std::function<void(ChimeraProcessor&)>& prepare,
                     const std::function<void(ChimeraProcessor&)>& during={}) {
@@ -132,7 +132,7 @@ MatrixRun runMatrix(const Controller::Options& options,const MatrixLanes& lanes,
         if(during && offset==0)during(*p);
     }
     check(!c.busy(),"Matrix run did not finish");
-    result.values=values(*p);result.status=c.current();result.analysis=c.lastMatrixAnalysis();result.polarity=c.lastPolarityAnalysis();result.crossover=c.lastCrossoverAnalysis();result.laneCuts=c.lastLaneCutsAnalysis();
+    result.values=values(*p);result.status=c.current();result.analysis=c.lastMatrixAnalysis();result.polarity=c.lastPolarityAnalysis();result.crossover=c.lastCrossoverAnalysis();result.laneCuts=c.lastLaneCutsAnalysis();result.laneIR=c.lastLaneIRAnalysis();
     c.undo();result.undone=values(*p);p->releaseResources();
     return result;
 }
