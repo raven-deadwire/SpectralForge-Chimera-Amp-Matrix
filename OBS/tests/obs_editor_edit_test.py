@@ -402,8 +402,7 @@ def run(args: argparse.Namespace) -> None:
 
     log = log_text()
     check(log.count("[chimera-obs] module ") == 3, "all three runs log the Chimera module")
-    unloads = log.count("[chimera-obs] unloaded Chimera filter instance")
-    check(unloads == 3, f"every filter instance is unloaded ({unloads} of 3)")
+    app.check_unloaded(log, 3, "every filter instance is unloaded")
     print(f"PASS real OBS Studio {version['obsVersion']}: an edit made with the mouse in Chimera's editor window reaches "
           f"the filter's settings, changes the sound ({edited_db:+.1f} dB), is saved in the scene and restored after a restart")
 
