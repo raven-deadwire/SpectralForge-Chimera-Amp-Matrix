@@ -190,6 +190,67 @@ inline void reportPairs(std::ostream& out, const Configuration& config, const ch
     out << '\n';
 }
 
+// Deadline misses caused by the thread not running rather than by CAB work.
+// A callback's own work is estimated from its thread clock (CPU cycles on
+// Windows, thread CPU time elsewhere) relative to the route's median callback:
+// work / median work x median wall time. Cycles are only ever divided by
+// cycles of the same run; no fixed cycle rate is assumed. A miss is
+// "descheduled" when that estimate fits in half the block period: the rest of
+// its wall time went to the thread waiting for a CPU. A route whose misses are
+// all descheduled, and whose median callback is itself within half the
+// budget, may measure once more; a miss with heavy work (real CAB cost) or
+// without thread clocks never qualifies.
+inline constexpr double deschedulingWorkShare = .5;
+
+struct MissClassification
+{
+    size_t misses = 0, descheduled = 0;
+    double wallP50 = 0, wallP99 = 0, maxMissWorkUs = 0;
+    const char* workClock = "none";
+    bool clocksValid = false;
+
+    bool withinBudget(double budget) const noexcept { return wallP99 < budget; }
+    bool onlyDescheduling(double budget) const noexcept
+    {
+        return misses > 0 && clocksValid && descheduled == misses && wallP50 < budget * deschedulingWorkShare;
+    }
+};
+
+inline MissClassification classifyMisses(const std::vector<Sample>& samples, double budget)
+{
+    MissClassification result;
+    if (samples.empty()) return result;
+    std::vector<double> walls;
+    walls.reserve(samples.size());
+    for (const auto& sample : samples) walls.push_back(sample.wallUs);
+    std::sort(walls.begin(), walls.end());
+    result.wallP50 = walls[walls.size() / 2];
+    result.wallP99 = walls[size_t(double(walls.size()) * .99)];  // the gate's [1584] of 1600
+    const bool cycles = std::all_of(samples.begin(), samples.end(), [](const Sample& s) { return s.cyclesValid(); });
+    const bool cpu = std::all_of(samples.begin(), samples.end(), [](const Sample& s) { return s.cpuValid(); });
+    result.workClock = cycles ? "thread_cycles" : cpu ? "thread_cpu" : "none";
+    const auto work = [cycles](const Sample& s) { return cycles ? double(s.cycles()) : s.cpuUs(); };
+    std::vector<double> typical;
+    if (cycles || cpu)
+    {
+        typical.reserve(samples.size());
+        for (const auto& sample : samples) typical.push_back(work(sample));
+        std::sort(typical.begin(), typical.end());
+    }
+    const double median = typical.empty() ? 0 : typical[typical.size() / 2];
+    result.clocksValid = (cycles || cpu) && std::isfinite(median) && median > 0;
+    for (const auto& sample : samples)
+    {
+        if (!(sample.wallUs > budget)) continue;
+        ++result.misses;
+        if (!result.clocksValid) continue;
+        const double workUs = work(sample) / median * result.wallP50;
+        result.maxMissWorkUs = std::max(result.maxMissWorkUs, workUs);
+        if (workUs <= budget * deschedulingWorkShare) ++result.descheduled;
+    }
+    return result;
+}
+
 inline void writeCsv(std::ostream& out, const Configuration& config, const std::vector<Sample>& samples)
 {
     validate(samples);
