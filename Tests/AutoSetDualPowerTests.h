@@ -2,10 +2,6 @@
 // Phase 34: PRESENCE and RESONANCE of both Dual Blend rigs' heads (docs/AUTO_SET_PHASE34.md).
 // Included by AutoSetTests.cpp after the Dual amp tests (runDualAmp is used here).
 
-// MSVC only: compiled without optimisation, as the other tests added since phase 29 (see AutoSetLaneIRTests.h).
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",off)
-#endif
 void controllerDualPower() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
@@ -66,6 +62,3 @@ void controllerDualPower() {
     std::cout<<"MEASURE auto set dual power controller: rig 1: "<<step1->result<<" | rig 2: "<<step2->result<<'\n';
     std::cout<<"PASS auto set dual power controller: off by default; in each rig's pass, alone or after the rig's amp step; bright PRESENCE lowered; strength; each lock alone; Crossover, Matrix, Classic, amp off; undo\n";
 }
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",on)
-#endif
