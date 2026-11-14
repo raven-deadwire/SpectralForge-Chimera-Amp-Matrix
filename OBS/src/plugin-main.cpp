@@ -200,6 +200,14 @@ bool writeState(Filter* f, obs_data_t* settings, const std::string* replacing) {
     if (obs_data_get_int(settings, keySchema) > schemaVersion || f->newerSchema
         || !f->host.loaded() || !f->host.getState(component, controller)) return false;
     std::string encoded = base64Encode(component);
+    // Nothing changed since the last sync: the settings hold this state already,
+    // or a preset that another thread has just pushed and that is waiting for its
+    // reload. Either way there is nothing to write, and so nothing to overwrite
+    // (OBS saves often; most saves end here).
+    if (replacing == nullptr && encoded == f->syncedComponent) {
+        f->syncedEdits = f->host.editGeneration();
+        return true;
+    }
     const std::string encodedController = base64Encode(controller);
     // Reading and encoding Chimera's state takes milliseconds, and a script or
     // obs-websocket can push a preset into these settings from its own thread
