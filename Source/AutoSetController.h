@@ -104,7 +104,7 @@ public:
     // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass; off by default.
     // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool room{false};bool laneCuts{false};bool rig1Cuts{false};bool laneIR{false};bool laneMic{false};bool laneMics{false};bool skipForVoiceOrDrums{false};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool room{false};bool laneCuts{false};bool rig1Cuts{false};bool laneIR{false};bool laneMic{false};bool laneMics{false};bool dualBoost{false};bool skipForVoiceOrDrums{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -511,7 +511,7 @@ private:
         // the signal-order editor puts the Tone EQ.
         else if(status.phase==Phase::amp){ampAtStart=ampTarget();trimAtStart={raw(ampNativeInputTrimID(ampAtStart.context)),raw(ampNativeOutputLevelID(ampAtStart.context))};capture.listen({Tap::amp,Tap::cab});}
         else if(status.phase==Phase::cab){cabAtStart=cabTarget();cabIRAtStart=cabSources();cutsAtStart={raw("cablow1"),raw("cabhigh1")};capture.listen(Tap::cab);}
-        else if(status.phase==Phase::boost){boostAtStart=boostTarget();capture.listen({Tap::amp,Tap::cab});}
+        else if(status.phase==Phase::boost){boostAtStart=boostTarget();dualBoostAtStart=dualBoostTarget();capture.listen({Tap::amp,Tap::cab});}
         // The Dual pass hears each rig before the blend (lane2 shares the amp tap's ring).
         else if(status.phase==Phase::dual){dualAtStart=dualTarget();polarityAtStart=lanePolarity();laneCutsAtStart=laneCuts();rig1CutsAtStart=rig1Cuts();laneCabAtStart=laneCabs();laneMicGainAtStart=laneMicGains();capture.listen({Tap::lane1,Tap::lane2});}
         // The Matrix pass hears each lane (lane3 has a ring of its own).
@@ -982,6 +982,16 @@ private:
         if(const int owner=t.order[size_t(pedalBoardCapacity-1)];owner>=0 && owner<pedalBoardCapacity && t.models[size_t(owner)]==0)t.owner=owner;
         return t;
     }
+    // Phase 32: what a Dual Blend's boost is judged on besides rig 1's amp.
+    struct DualBoostTarget {AmpTarget rig2;bool crossover{},inverted{};float blend{};bool operator==(const DualBoostTarget&) const=default;};
+    DualBoostTarget dualBoostTarget() const {
+        DualBoostTarget d;
+        auto& t=d.rig2;t.mode=juce::jlimit(0,2,juce::roundToInt(raw("mode")));t.context=ampNativeContext(t.mode,1);
+        t.model=processor.selectedAmpModel(1);t.channel=processor.selectedAmpChannel(1);t.route=processor.selectedAmpNativeRoute(1);
+        t.native=ampRequiresNative(t.model) || raw(ampNativeEnabledID(t.context))>.5f;t.on=raw("ampon2")>.5f;
+        d.crossover=raw("dualtype")>.5f;d.inverted=raw("polarity2")>.5f;d.blend=raw("dualblend");
+        return d;
+    }
     // Phase 10: a Green Drive in front of a driven amp whose low end is loose,
     // from renders of the captured input through the pedal and the native amp.
     void finishBoost(const std::vector<float>& input) {
@@ -989,9 +999,19 @@ private:
         const auto t=boostTarget();
         if(locked(lockBoost)){keep("locked");return;}
         if(!(t==boostAtStart)){keep("pedal board or amp changed while listening");return;}
-        if(t.amp.mode!=0){keep("Dual and Matrix routing: add a boost in the full editor");return;}
-        if(!t.amp.on){keep("the amp is switched off");return;}
-        if(!t.amp.native){keep("classic amp engine; switch the head panel on to let Auto Set judge a boost");return;}
+        // Phase 32: in a Dual Blend the boost is judged on the two rigs' mix (off by default).
+        const bool dualBlend=t.amp.mode==1 && runOptions.dualBoost;
+        const auto dual=dualBoostTarget();
+        if(dualBlend) {
+            if(!(dual==dualBoostAtStart)){keep("Dual type, blend, polarity or rig 2's amp changed while listening");return;}
+            if(dual.crossover){keep("Dual Crossover: the rigs play separate bands; add a boost in the full editor");return;}
+            if(!t.amp.on && !dual.rig2.on){keep("both amps are switched off");return;}
+            if((t.amp.on && !t.amp.native) || (dual.rig2.on && !dual.rig2.native)){keep(juce::String(t.amp.on && !t.amp.native?"rig 1":"rig 2")+" uses the classic amp engine; switch its head panel on to let Auto Set judge a boost");return;}
+        } else {
+            if(t.amp.mode!=0){keep(t.amp.mode==1?"Dual routing: switch on the Dual Blend boost option, or add a boost in the full editor":"Matrix routing: add a boost in the full editor");return;}
+            if(!t.amp.on){keep("the amp is switched off");return;}
+            if(!t.amp.native){keep("classic amp engine; switch the head panel on to let Auto Set judge a boost");return;}
+        }
         if(runOptions.instrument==2){keep("bass: a boost is for driven guitar amps");return;}
         if(runOptions.style==Style::clean){keep("clean style: no boost in front of a clean amp");return;}
         if(!t.board){keep("the PRE pedal board is off");return;}
@@ -999,11 +1019,19 @@ private:
         if(t.owner<0){keep("no free board slot after your last pedal");return;}
         const std::optional<bool> instrument=runOptions.instrument==0?std::nullopt:std::optional<bool>(false);
         std::vector<float> segment(input.begin(),input.begin()+std::min(input.size(),size_t(rate()*ampRenderSeconds)));
-        const auto r=analyseBoost(segment,rate(),nativeBoostRenderer(processor.autoSetAmpState(t.amp.context),segment,rate()),instrument,runOptions.style);
+        BoostRenderer render;
+        if(!dualBlend)render=nativeBoostRenderer(processor.autoSetAmpState(t.amp.context),segment,rate());
+        else {
+            // A rig whose amp is off plays nothing; rig 2's polarity flips its sign in the mix.
+            const float weight1=t.amp.on?1.f-dual.blend:0.f,weight2=dual.rig2.on?(dual.inverted?-dual.blend:dual.blend):0.f;
+            render=blendedBoostRenderer(nativeBoostRenderer(processor.autoSetAmpState(t.amp.context),segment,rate()),
+                                        nativeBoostRenderer(processor.autoSetAmpState(dual.rig2.context),segment,rate()),weight1,weight2);
+        }
+        const auto r=analyseBoost(segment,rate(),render,instrument,runOptions.style);
         lastBoost=r;
         if(!r.playingDetected){keep("no playing heard");return;}
         if(r.bass){keep("bass: a boost is for driven guitar amps");return;}
-        const auto low="low end "+juce::String(r.lowExcessBeforeDb,1)+" dB over the target";
+        const auto low=juce::String(dualBlend?"the rigs' mix: low end ":"low end ")+juce::String(r.lowExcessBeforeDb,1)+" dB over the target";
         if(!r.engaged){keep(r.lowExcessBeforeDb<=boostLooseLowDb?"low end already tight":low+", a boost does not tighten it here");return;}
         // Strength scales the drive and the level change in dB (LEVEL 0.5 is unity).
         const float levelDb=juce::Decibels::gainToDecibels(4*r.setting.level*r.setting.level);
@@ -2283,7 +2311,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;CrossoverResult lastCrossover;std::array<float,2> crossoverAtStart{};RoomResult lastRoom;bool roomPending{};LaneCutsResult lastLaneCuts;std::array<float,4> laneCutsAtStart{};std::array<float,2> rig1CutsAtStart{};std::array<LaneCab,3> laneCabAtStart{};LaneIRResult lastLaneIR;std::array<float,6> laneMicGainAtStart{};LaneMicResult lastLaneMic;int laneMicsModeAtStart{};LaneCab laneMicsCabAtStart{};std::array<MicsResult,3> lastLaneMics{};std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;CrossoverResult lastCrossover;std::array<float,2> crossoverAtStart{};RoomResult lastRoom;bool roomPending{};LaneCutsResult lastLaneCuts;std::array<float,4> laneCutsAtStart{};std::array<float,2> rig1CutsAtStart{};std::array<LaneCab,3> laneCabAtStart{};LaneIRResult lastLaneIR;std::array<float,6> laneMicGainAtStart{};DualBoostTarget dualBoostAtStart{};LaneMicResult lastLaneMic;int laneMicsModeAtStart{};LaneCab laneMicsCabAtStart{};std::array<MicsResult,3> lastLaneMics{};std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
