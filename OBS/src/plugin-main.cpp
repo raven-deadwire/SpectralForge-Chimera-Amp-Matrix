@@ -173,6 +173,13 @@ bool writeState(Filter* f, obs_data_t* settings) {
     // the cached flag describes the last completed reload, not this request.
     if (obs_data_get_int(settings, keySchema) > schemaVersion || f->newerSchema
         || !f->host.loaded() || !f->host.getState(component, controller)) return false;
+    // Reading Chimera's state takes milliseconds, and a script or obs-websocket
+    // can push a preset into these settings from its own thread meanwhile (as
+    // when OBS saves the scene just after a filter was added). That preset has
+    // a reload queued behind this call: leave it in the settings for the
+    // reload to apply, instead of writing the older live sound over it.
+    const std::string incoming = obs_data_get_string(settings, keyComponent);
+    if (!incoming.empty() && incoming != f->syncedComponent) return false;
     f->syncedComponent = base64Encode(component);
     f->syncedEdits = f->host.editGeneration();
     obs_data_set_string(settings, keyComponent, f->syncedComponent.c_str());

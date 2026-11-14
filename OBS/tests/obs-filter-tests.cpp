@@ -458,6 +458,31 @@ int main(int argc, char** argv) {
         drainUi();
         check(near(getParameter(filter, paramId), target), "queued preset was lost after save");
 
+        // The same update can also land while a save is under way, between the
+        // save reading the settings and writing Chimera's state back into them
+        // (OBS saves the scene on its UI thread just as a script or
+        // obs-websocket pushes a preset). The preset must still win.
+        const std::string pushed = spectralforge::obs::base64Encode(component);
+        const int rounds = 60;
+        for (int round = 0; round < rounds; ++round) {
+            check(setParameter(filter, paramId, 0.31), "prepare concurrent preset save");
+            obs_data_t* racing = obs_data_create();
+            obs_data_set_string(racing, "vst3_component_state", pushed.c_str());
+            std::thread pusher([&] {
+                // From before the save starts to well into its read of Chimera's state.
+                std::this_thread::sleep_for(std::chrono::microseconds(50 * round));
+                obs_source_update(filter, racing);
+            });
+            obs_data_t* racingSaved = obs_save_source(filter);
+            pusher.join();
+            obs_data_release(racing);
+            obs_data_release(racingSaved);
+            drainUi();
+            check(near(getParameter(filter, paramId), target),
+                  "a preset pushed while the filter was being saved was lost (round " + std::to_string(round) + ")");
+        }
+        std::cout << "preset pushed during a save: applied in all " << rounds << " rounds\n";
+
         // 6. A scene from a newer module: its state is neither applied nor
         // overwritten on save.
         const std::string stored = spectralforge::obs::base64Encode(component);
