@@ -83,9 +83,3 @@ only and certifies no source.
 published 1.3.2-beta.1 receipt validate against it. The weekly publisher pins the
 live map's digest separately, and the 6782 excerpts now serve as a negative
 fixture: complete 1.3 output cannot certify the 1.4 catalogue.
-
-`weekly-publication-policy-1.3.2.json` freezes the 1.3.2-beta.1 owner acceptance
-receipt, byte-identical to `Validation/weekly-publication-policy.json` at the
-preset-maintenance base controller `ec6fd639` (SHA-256 `ab2a7d552edb8662c6260ea206dea5a19964de86a572d98faee49b486c4da9b4`). The live receipt
-now approves 1.4.0-beta.1, so `test_preset_maintenance.py` reads the historical
-acceptance from this file instead of the working tree.
