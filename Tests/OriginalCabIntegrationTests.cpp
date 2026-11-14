@@ -5,6 +5,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
+#include <string>
+#include <thread>
 #include <new>
 #include <stdexcept>
 thread_local bool watch=false;
@@ -30,17 +33,17 @@ std::vector<float> render(Cab& cab,const juce::dsp::ProcessSpec& spec) {
 double delta(const std::vector<float>& a,const std::vector<float>& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,std::abs(double(a[n]-b[n])));return d;}
 // Diagnostic partitions of the same 1600 measured callbacks. The acceptance
 // gate below still uses every original sample and the unchanged block budget.
-void reportPhase(const char* name,const std::vector<double>& times,const std::vector<double>& cpuTimes,
+void reportPhase(std::ostream& out,const char* name,const std::vector<double>& times,const std::vector<double>& cpuTimes,
                  size_t first,size_t last,double budget) {
     std::vector<double> wall(times.begin()+first,times.begin()+last),cpu(cpuTimes.begin()+first,cpuTimes.begin()+last);
     const auto misses=std::count_if(wall.begin(),wall.end(),[budget](double us){return us>budget;});
     std::sort(wall.begin(),wall.end());std::sort(cpu.begin(),cpu.end());
     const auto p99=size_t(double(wall.size())*.99);
-    std::cout<<"PHASE name="<<name<<" blocks="<<wall.size()<<" p50_us="<<wall[wall.size()/2]
+    out<<"PHASE name="<<name<<" blocks="<<wall.size()<<" p50_us="<<wall[wall.size()/2]
         <<" p99_us="<<wall[p99]<<" thread_cpu_p99_us="<<cpu[p99]<<" max_us="<<wall.back()<<" misses="<<misses<<'\n';
 }
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
-void reportProfile(const char* engine,double sr,int block,int channels,const char* phase,
+void reportProfile(std::ostream& out,const char* engine,double sr,int block,int channels,const char* phase,
                    const std::vector<cabProfile::Counters>& counters,size_t first,size_t last) {
     for(unsigned stage=0;stage<unsigned(cabProfile::Stage::Count);++stage) {
         std::vector<double> elapsed;elapsed.reserve(last-first);
@@ -51,16 +54,51 @@ void reportProfile(const char* engine,double sr,int block,int channels,const cha
         }
         if(!calls)continue;
         std::sort(elapsed.begin(),elapsed.end());
-        std::cout<<"PROFILE engine="<<engine<<" sr="<<sr<<" block="<<block<<" channels="<<channels
+        out<<"PROFILE engine="<<engine<<" sr="<<sr<<" block="<<block<<" channels="<<channels
             <<" phase="<<phase<<" stage="<<cabProfile::names[stage]<<" callbacks="<<elapsed.size()
             <<" calls="<<calls<<" mean_us="<<total/double(elapsed.size())<<" p50_us="<<elapsed[elapsed.size()/2]
             <<" p99_us="<<elapsed[size_t(double(elapsed.size())*.99)]<<" max_us="<<elapsed.back()<<'\n';
     }
 }
 #endif
+// The retry rule on synthetic callbacks: budget 1000 us, median callback 60 us of
+// wall time for 100 units of work, so a miss may hold up to 833 units (500 us).
+void deschedulingSelfCheck() {
+    const auto samples=[](double wall,double work,size_t misses,double missWall,double missWork) {
+        std::vector<cabTiming::Sample> out(cabTiming::measuredCallbacks);
+        for(size_t i=0;i<out.size();++i) {
+            const bool miss=i%100==7 && i/100<misses;
+            auto& s=out[i];s.index=i;s.wallUs=miss ? missWall : wall;
+            s.begin.cpuUs=double(i)*10000;s.end.cpuUs=s.begin.cpuUs+(miss ? missWork : work);
+        }
+        return out;
+    };
+    // Sixteen 5 ms misses with near-typical work (72 us): descheduled, may measure again.
+    auto c=cabTiming::classifyMisses(samples(60,100,16,5000,120),1000);
+    require(!c.withinBudget(1000) && c.misses==16 && c.descheduled==16 && c.onlyDescheduling(1000),"descheduled misses not recognised");
+    // The same misses with ten times the work (600 us): real CAB cost, no retry.
+    c=cabTiming::classifyMisses(samples(60,100,16,5000,1000),1000);
+    require(!c.withinBudget(1000) && c.descheduled==0 && !c.onlyDescheduling(1000),"heavy-work misses treated as descheduling");
+    // One heavy miss among descheduled ones: no retry.
+    auto mixed=samples(60,100,16,5000,120);mixed[7].end.cpuUs=mixed[7].begin.cpuUs+1000;
+    c=cabTiming::classifyMisses(mixed,1000);
+    require(c.descheduled==15 && !c.onlyDescheduling(1000),"a heavy miss was hidden by descheduled ones");
+    // A median callback over half the budget: no retry.
+    c=cabTiming::classifyMisses(samples(600,100,16,5000,120),1000);
+    require(!c.onlyDescheduling(1000),"a slow route qualified for a retry");
+    // No thread clock: no retry.
+    auto blind=samples(60,100,16,5000,120);for(auto& s:blind){s.begin.cpuUs=-1;s.end.cpuUs=-1;}
+    c=cabTiming::classifyMisses(blind,1000);
+    require(!c.clocksValid && !c.onlyDescheduling(1000),"a route without thread clocks qualified for a retry");
+    // Within budget: nothing to retry.
+    c=cabTiming::classifyMisses(samples(60,100,8,5000,120),1000);
+    require(c.withinBudget(1000),"budget verdict");
+    std::cout<<"PASS descheduling classifier: descheduled misses retried; heavy, mixed, slow-route and clockless misses not\n";
+}
 int main(int argc,char** argv){try {
     std::cout<<std::setprecision(12);
     require(!lifecycle::enabled(),"CAB timing requires lifecycle tracing disabled; run the isolated CTest entries");
+    deschedulingSelfCheck();
     std::cout<<"TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400\n";
     bool expanded=false,layouts=false,extendedBuffers=false;
     for(int i=1;i<argc;++i) {
@@ -76,9 +114,11 @@ int main(int argc,char** argv){try {
     timingSuite=extendedBuffers ? "profile-extended" : "profile";
     std::cout<<"PROFILE_PROTOCOL diagnostic_only=1 stage_clocks_add_overhead=1 parameter_refresh_per_callback=1 nested_stage_times=1\n";
 #endif
-    std::cout<<"PAIRED_TIMING_PROTOCOL thread_clock_evidence_only=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 "
+    // The verdict is still wall p99 against one block period. The thread clock
+    // only decides whether a failed route may measure once more (classifyMisses).
+    std::cout<<"PAIRED_TIMING_PROTOCOL thread_clock_use=retry_eligibility_only retry_limit=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 "
         "thread_clock_reads_per_callback=2 extra_measurement_overhead=1 "
-        "cycles_to_time=disabled thread_cpu_p99_is_independent=1 raw_samples=csv "
+        "cycles_to_time=disabled cycles_compared_with=route_median thread_cpu_p99_is_independent=1 raw_samples=csv "
         "thread_clock="
 #if defined(_WIN32)
         <<"QueryThreadCycleTime"
@@ -99,7 +139,28 @@ int main(int argc,char** argv){try {
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
     bool cpuWithinBudget=true,workerSchedulingValid=true;
     const std::vector<int> blocks=extendedBuffers ? std::vector<int>{32,64,128,256,512} : std::vector<int>{64,256};
-    for(double sr:{44100.,48000.,96000.})for(int block:blocks)for(int channels:{1,2}) {
+    // Passes 0 and 1 check the retry rule end to end on one route, with this
+    // platform's thread clock, before the measurement that counts (pass 2):
+    // twenty steady callbacks of the first attempt (every 50th from 200, after
+    // the warm-up and the automation storm) overrun by three block periods,
+    // asleep (no CPU work: must measure again) or spinning (CPU work: must fail
+    // without a retry). A wake-up on a busy runner can itself cost real work
+    // (cold caches), so the sleeping pass measures again when at least 18 of
+    // its misses are descheduled; the strict all-misses rule of pass 2 is
+    // covered by deschedulingSelfCheck. Their rows and CSVs carry their own names.
+    int selfTestRetries[2]{};bool selfTestWithin[2]{true,true};
+    for(int pass=0;pass<3;++pass) {
+    const bool selfTest=pass<2;
+    const std::string passSuite=selfTest ? std::string(timingSuite)+(pass==0 ? "-selftest-descheduled" : "-selftest-work") : std::string(timingSuite);
+    const std::vector<double> passRates=selfTest ? std::vector<double>{48000.} : std::vector<double>{44100.,48000.,96000.};
+    const std::vector<int> passBlocks=selfTest ? std::vector<int>{64} : blocks;
+    const std::vector<int> passChannels=selfTest ? std::vector<int>{1} : std::vector<int>{1,2};
+    for(double sr:passRates)for(int block:passBlocks)for(int channels:passChannels)
+    // A route measures once more only when its first p99 failure was the
+    // thread not running (classifyMisses); the second attempt's verdict stands.
+    for(int attempt=1;;++attempt) {
+        std::ostringstream out;out<<std::setprecision(12);
+        try {
         juce::dsp::ProcessSpec spec{sr,juce::uint32(block),juce::uint32(channels)};
         std::array<Cab,3> cabs;for(auto& c:cabs)c.prepare(spec);
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
@@ -143,6 +204,10 @@ int main(int argc,char** argv){try {
 #endif
             // Independent lane inputs; copying is outside this CAB-only measurement.
             for(int lane=0;lane<3;++lane)process(cabs[lane],laneAudio[lane]);
+            if(selfTest && attempt==1 && n>=200 && n%50==0) {
+                const auto until=std::chrono::steady_clock::now()+std::chrono::microseconds(int64_t(3e6*block/sr));
+                if(pass==0)std::this_thread::sleep_until(until);else while(std::chrono::steady_clock::now()<until){}
+            }
             const auto end=std::chrono::steady_clock::now();const auto clockAfter=cabTiming::readThreadClock();
             const double us=std::chrono::duration<double,std::micro>(end-start).count();
             timingSamples.push_back({size_t(n),us,clockBefore,clockAfter});
@@ -205,7 +270,7 @@ int main(int argc,char** argv){try {
         // this diagnostic contract, just as the wall gate reports all routes.
         workerSchedulingValid=workerSchedulingValid && scheduling.startSucceeded && scheduling.enteredRun
             && scheduling.observedPriority==int(juce::Thread::Priority::low);
-        std::cout<<"WORKER_SCHEDULING engine="<<engineName<<" suite="<<timingSuite
+        out<<"WORKER_SCHEDULING engine="<<engineName<<" suite="<<timingSuite
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels
             <<" start_succeeded="<<scheduling.startSucceeded<<" entered_run="<<scheduling.enteredRun
             <<" requested_juce_priority="<<int(juce::Thread::Priority::low)
@@ -216,34 +281,71 @@ int main(int argc,char** argv){try {
             <<" worker_priority_query=requested_only linux_nonrealtime_request_ignored=1"
 #endif
             ;
-        cabTiming::appendCallerScheduling(std::cout);std::cout<<'\n';
-        std::cout<<"WORKER_ACTIVITY engine="<<engineName<<" suite="<<timingSuite
+        cabTiming::appendCallerScheduling(out);out<<'\n';
+        out<<"WORKER_ACTIVITY engine="<<engineName<<" suite="<<timingSuite
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels
             <<" cancelled_builds="<<library.cancelledBuildCount()<<'\n';
-        const cabTiming::Configuration timingConfig{engineName,timingSuite,sr,block,channels};
+        // Decided before any evidence is written: a discarded attempt keeps its
+        // CSV and rows under distinct names, so each route still has exactly
+        // one TIMING / PHASE / PAIRED_TIMING row set and one CSV at its usual path.
+        const double budgetUs=1e6*block/sr;
+        const auto missClasses=cabTiming::classifyMisses(timingSamples,budgetUs);
+        const bool retry=attempt==1 && !missClasses.withinBudget(budgetUs)
+            && (pass==0 ? missClasses.clocksValid && missClasses.misses>=20 && missClasses.descheduled+2>=missClasses.misses
+                        : missClasses.onlyDescheduling(budgetUs));
+        // Every failed measurement says how its misses were classified.
+        if(!missClasses.withinBudget(budgetUs))
+            out<<"GATE_CLASSIFICATION engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" attempt="<<attempt
+                <<" p99_us="<<missClasses.wallP99<<" p50_us="<<missClasses.wallP50<<" budget_us="<<budgetUs
+                <<" misses="<<missClasses.misses<<" descheduled_misses="<<missClasses.descheduled
+                <<" work_clock="<<missClasses.workClock<<" clocks_valid="<<missClasses.clocksValid
+                <<" max_miss_estimated_work_us="<<missClasses.maxMissWorkUs
+                <<" work_limit_us="<<budgetUs*cabTiming::deschedulingWorkShare<<" measure_again="<<retry<<'\n';
+        const std::string suite=retry ? passSuite+"-discarded" : passSuite;
+        const cabTiming::Configuration timingConfig{engineName,suite.c_str(),sr,block,channels};
         const auto timingPath=cabTiming::saveCsv(timingConfig,timingSamples);
-        std::cout<<"TIMING_EVIDENCE engine="<<engineName<<" suite="<<timingSuite
+        out<<"TIMING_EVIDENCE engine="<<engineName<<" suite="<<suite
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" samples="<<timingSamples.size()
             <<" path="<<timingPath.generic_string()<<'\n';
-        cabTiming::reportPairs(std::cout,timingConfig,"all",timingSamples,0,1600);
-        cabTiming::reportPairs(std::cout,timingConfig,"worker_and_automation",timingSamples,0,1200);
-        cabTiming::reportPairs(std::cout,timingConfig,"forced_six_slot_publication",timingSamples,1200,1600);
-        std::cout<<"PHASE_CONFIG engine="<<engineName
+        cabTiming::reportPairs(out,timingConfig,"all",timingSamples,0,1600);
+        cabTiming::reportPairs(out,timingConfig,"worker_and_automation",timingSamples,0,1200);
+        cabTiming::reportPairs(out,timingConfig,"forced_six_slot_publication",timingSamples,1200,1600);
+        out<<"PHASE_CONFIG engine="<<engineName
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<'\n';
-        reportPhase("worker_and_automation",times,cpuTimes,0,1200,1e6*block/sr);
-        reportPhase("forced_six_slot_publication",times,cpuTimes,1200,1600,1e6*block/sr);
+        reportPhase(out,"worker_and_automation",times,cpuTimes,0,1200,1e6*block/sr);
+        reportPhase(out,"forced_six_slot_publication",times,cpuTimes,1200,1600,1e6*block/sr);
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
-        reportProfile(engineName,sr,block,channels,"worker_and_automation",blockProfiles,0,1200);
-        reportProfile(engineName,sr,block,channels,"forced_six_slot_publication",blockProfiles,1200,1600);
+        reportProfile(out,engineName,sr,block,channels,"worker_and_automation",blockProfiles,0,1200);
+        reportProfile(out,engineName,sr,block,channels,"forced_six_slot_publication",blockProfiles,1200,1600);
         for(unsigned stage=0;stage<unsigned(cabProfile::Stage::Count);++stage)if(workerProfile.calls[stage])
-            std::cout<<"WORKER_PROFILE engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels
+            out<<"WORKER_PROFILE engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels
                 <<" stage="<<cabProfile::names[stage]<<" calls="<<workerProfile.calls[stage]
                 <<" total_us="<<double(workerProfile.nanoseconds[stage])*.001<<'\n';
 #endif
         std::sort(times.begin(),times.end());std::sort(cpuTimes.begin(),cpuTimes.end());
-        cpuWithinBudget=cpuWithinBudget && times[1584]<1e6*block/sr;
-        std::cout<<"TIMING engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
+        out<<"TIMING engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
+        const char* prefix=selfTest ? "GATE_SELF_TEST " : "";
+        std::istringstream lines(out.str());
+        if(retry) {
+            for(std::string line;std::getline(lines,line);)std::cout<<prefix<<"DISCARDED_ATTEMPT "<<line<<'\n';
+            std::cout<<prefix<<"TIMING_RETRY engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels
+                <<" reason=descheduled first_p99_us="<<missClasses.wallP99<<" first_p50_us="<<missClasses.wallP50<<" budget_us="<<budgetUs
+                <<" misses="<<missClasses.misses<<" descheduled_misses="<<missClasses.descheduled
+                <<" work_clock="<<missClasses.workClock<<" max_miss_estimated_work_us="<<missClasses.maxMissWorkUs
+                <<" work_limit_us="<<budgetUs*cabTiming::deschedulingWorkShare<<" discarded_csv_suite="<<suite<<'\n';
+            if(selfTest)++selfTestRetries[pass];
+            continue;
+        }
+        for(std::string line;std::getline(lines,line);)std::cout<<prefix<<line<<'\n';
+        if(selfTest)selfTestWithin[pass]=missClasses.withinBudget(budgetUs);
+        else cpuWithinBudget=cpuWithinBudget && missClasses.withinBudget(budgetUs);
+        break;
+        } catch(...) {std::cout<<out.str();throw;}
     }
+    }
+    require(selfTestRetries[0]==1,"gate self-test: sleeping callbacks were not measured again as descheduling");
+    require(selfTestRetries[1]==0 && !selfTestWithin[1],"gate self-test: spinning callbacks passed the gate or were measured again");
+    std::cout<<"PASS gate self-test: sleeping overruns measured again once; spinning overruns failed without a retry\n";
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"CALLBACK callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";
     require(workerSchedulingValid,"IR worker did not start/run with the low priority request/observation");
