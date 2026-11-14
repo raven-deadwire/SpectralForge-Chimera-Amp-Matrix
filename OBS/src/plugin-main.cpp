@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -78,6 +79,11 @@ struct Filter {
     std::string syncedComponent;
     std::uint64_t syncedEdits{};
     bool newerSchema{};
+    // Any thread. The state (base64) of the latest update(), kept apart from the
+    // settings: a save on the UI thread can write the live sound over a preset
+    // that another thread has just pushed into them.
+    std::mutex pushedLock;
+    std::string pushedComponent, pushedController;
     // The filter outlives destroy() until every queued UI task has run.
     std::atomic<int> references{1};
     std::atomic<bool> destroyed{false}, reprepareQueued{false}, reportQueued{false};
@@ -142,21 +148,38 @@ std::string resolveBundle(obs_data_t* settings) {
 // UI thread. Applies the state in the settings when it differs from what this
 // filter last applied or wrote: scene load, a pasted/duplicated filter, or a
 // preset pushed by a script or obs-websocket.
+bool writeState(Filter* f, obs_data_t* settings);
+
 void restoreState(Filter* f, obs_data_t* settings) {
+    std::string pushed, pushedController;
+    {
+        std::lock_guard<std::mutex> guard(f->pushedLock);
+        pushed.swap(f->pushedComponent);
+        pushedController.swap(f->pushedController);
+    }
     f->newerSchema = obs_data_get_int(settings, keySchema) > schemaVersion;
     if (f->newerSchema) {
         blog(LOG_WARNING, "[chimera-obs] '%s': scene was saved by a newer Chimera OBS module; its Chimera state is "
              "kept but not applied", obs_source_get_name(f->source));
         return;
     }
-    const std::string encoded = obs_data_get_string(settings, keyComponent);
+    std::string encoded = obs_data_get_string(settings, keyComponent);
+    std::string encodedController = obs_data_get_string(settings, keyController);
+    // The settings no longer hold the preset of the latest update(): a save
+    // wrote the live sound over it. The preset still applies.
+    const bool overwritten = !pushed.empty() && pushed != f->syncedComponent && encoded == f->syncedComponent;
+    if (overwritten) {
+        encoded = std::move(pushed);
+        encodedController = std::move(pushedController);
+    }
     if (encoded.empty() || encoded == f->syncedComponent) return;
     const auto component = base64Decode(encoded);
-    const auto controller = base64Decode(obs_data_get_string(settings, keyController));
+    const auto controller = base64Decode(encodedController);
     if (component && !component->empty()
         && f->host.setState(*component, controller.value_or(std::vector<std::uint8_t>{}))) {
         f->syncedComponent = encoded;
         f->syncedEdits = f->host.editGeneration();
+        if (overwritten) writeState(f, settings); // the scene gets the preset back
         return;
     }
     blog(LOG_WARNING, "[chimera-obs] '%s': stored Chimera state was rejected; the current sound is kept",
@@ -173,17 +196,21 @@ bool writeState(Filter* f, obs_data_t* settings) {
     // the cached flag describes the last completed reload, not this request.
     if (obs_data_get_int(settings, keySchema) > schemaVersion || f->newerSchema
         || !f->host.loaded() || !f->host.getState(component, controller)) return false;
-    // Reading Chimera's state takes milliseconds, and a script or obs-websocket
-    // can push a preset into these settings from its own thread meanwhile (as
-    // when OBS saves the scene just after a filter was added). That preset has
-    // a reload queued behind this call: leave it in the settings for the
-    // reload to apply, instead of writing the older live sound over it.
+    std::string encoded = base64Encode(component);
+    const std::string encodedController = base64Encode(controller);
+    // Reading and encoding Chimera's state takes milliseconds, and a script or
+    // obs-websocket can push a preset into these settings from its own thread
+    // meanwhile (as when OBS saves the scene just after a filter was added).
+    // That preset has a reload queued behind this call: leave it in the
+    // settings for the reload to apply, instead of writing the older live
+    // sound over it. A push in the instant between this check and the write
+    // is still applied: update() keeps its own copy (Filter::pushedComponent).
     const std::string incoming = obs_data_get_string(settings, keyComponent);
     if (!incoming.empty() && incoming != f->syncedComponent) return false;
-    f->syncedComponent = base64Encode(component);
+    f->syncedComponent = std::move(encoded);
     f->syncedEdits = f->host.editGeneration();
     obs_data_set_string(settings, keyComponent, f->syncedComponent.c_str());
-    obs_data_set_string(settings, keyController, base64Encode(controller).c_str());
+    obs_data_set_string(settings, keyController, encodedController.c_str());
     obs_data_set_string(settings, keyVersion, f->host.identity().version.c_str());
     obs_data_set_int(settings, keySchema, schemaVersion);
     return true;
@@ -260,6 +287,11 @@ void configure(Filter* f, obs_data_t* settings) {
                                   ? static_cast<InputMapping>(mapping) : InputMapping::Stereo);
     f->bridge.setFailurePolicy(obs_data_get_int(settings, keyPolicy) == static_cast<long long>(FailurePolicy::Dry)
                                    ? FailurePolicy::Dry : FailurePolicy::Mute);
+    {
+        std::lock_guard<std::mutex> guard(f->pushedLock);
+        f->pushedComponent = obs_data_get_string(settings, keyComponent);
+        f->pushedController = obs_data_get_string(settings, keyController);
+    }
     runOnUi(reloadTask, f);
 }
 
