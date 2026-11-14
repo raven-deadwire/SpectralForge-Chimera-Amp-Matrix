@@ -2,6 +2,12 @@
 // Phase 29: the Dual rigs' and Matrix lanes' factory cabinet IRs (docs/AUTO_SET_PHASE29.md).
 // Included by AutoSetTests.cpp after the cabinet IR and lane cuts tests (their helpers are used here).
 
+// MSVC only: these functions are compiled without optimisation. With them optimised, the Windows
+// compiler died while generating code for AutoSetTests.cpp (cl D8040, no diagnostic) from phase 29 on.
+// The analysis they call lives in Source/ and stays optimised.
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma optimize("",off)
+#endif
 std::array<std::vector<float>,2> laneIRFactory(double rate) {
     std::array<std::vector<float>,2> loaded;
     for(int i=0;i<2;++i){const auto ir=spectralforge::IRLibrary::factoryIR(i);check(ir!=nullptr,"Factory IR missing");loaded[size_t(i)]=laneIRLoaded(ir->samples,ir->rate,rate);}
@@ -186,3 +192,6 @@ void controllerLaneIR() {
     std::cout<<"MEASURE auto set lane IR controller: "<<step->result<<" | Matrix: "<<matrixStep->result<<'\n';
     std::cout<<"PASS auto set lane IR controller: off by default; Dual rig 1 and Matrix LOW lane IRs; mic B; strength not applied; Cabinet IR lock; cabinet off, blended, modeled, filters only, user IR, silent, edited, bass, Classic; cuts wait after a switch; undo; real heads\n";
 }
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma optimize("",on)
+#endif
