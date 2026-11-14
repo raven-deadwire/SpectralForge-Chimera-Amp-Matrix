@@ -148,7 +148,7 @@ std::string resolveBundle(obs_data_t* settings) {
 // UI thread. Applies the state in the settings when it differs from what this
 // filter last applied or wrote: scene load, a pasted/duplicated filter, or a
 // preset pushed by a script or obs-websocket.
-bool writeState(Filter* f, obs_data_t* settings);
+bool writeState(Filter* f, obs_data_t* settings, const std::string* replacing = nullptr);
 
 void restoreState(Filter* f, obs_data_t* settings) {
     std::string pushed, pushedController;
@@ -168,6 +168,7 @@ void restoreState(Filter* f, obs_data_t* settings) {
     // The settings no longer hold the preset of the latest update(): a save
     // wrote the live sound over it. The preset still applies.
     const bool overwritten = !pushed.empty() && pushed != f->syncedComponent && encoded == f->syncedComponent;
+    const std::string stale = overwritten ? encoded : std::string();
     if (overwritten) {
         encoded = std::move(pushed);
         encodedController = std::move(pushedController);
@@ -179,7 +180,7 @@ void restoreState(Filter* f, obs_data_t* settings) {
         && f->host.setState(*component, controller.value_or(std::vector<std::uint8_t>{}))) {
         f->syncedComponent = encoded;
         f->syncedEdits = f->host.editGeneration();
-        if (overwritten) writeState(f, settings); // the scene gets the preset back
+        if (overwritten) writeState(f, settings, &stale); // the scene gets the preset back
         return;
     }
     blog(LOG_WARNING, "[chimera-obs] '%s': stored Chimera state was rejected; the current sound is kept",
@@ -189,7 +190,9 @@ void restoreState(Filter* f, obs_data_t* settings) {
 // Writes Chimera's current state into the scene settings. OBS copies a
 // filter's settings without calling save() when a source is duplicated or
 // filters are copied, so edits must reach the settings as they happen.
-bool writeState(Filter* f, obs_data_t* settings) {
+// `replacing`: the state the settings are known to hold, when it is not the
+// one this filter last synced (restoreState putting an overwritten preset back).
+bool writeState(Filter* f, obs_data_t* settings, const std::string* replacing) {
     std::vector<std::uint8_t> component, controller;
     // update() can queue a UI reload while OBS already exposes the new
     // settings to save() or a script edit. Check the actual settings too:
@@ -206,7 +209,7 @@ bool writeState(Filter* f, obs_data_t* settings) {
     // sound over it. A push in the instant between this check and the write
     // is still applied: update() keeps its own copy (Filter::pushedComponent).
     const std::string incoming = obs_data_get_string(settings, keyComponent);
-    if (!incoming.empty() && incoming != f->syncedComponent) return false;
+    if (!incoming.empty() && incoming != (replacing != nullptr ? *replacing : f->syncedComponent)) return false;
     f->syncedComponent = std::move(encoded);
     f->syncedEdits = f->host.editGeneration();
     obs_data_set_string(settings, keyComponent, f->syncedComponent.c_str());

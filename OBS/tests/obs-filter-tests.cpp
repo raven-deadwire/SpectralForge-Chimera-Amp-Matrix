@@ -480,8 +480,43 @@ int main(int argc, char** argv) {
             drainUi();
             check(near(getParameter(filter, paramId), target),
                   "a preset pushed while the filter was being saved was lost (round " + std::to_string(round) + ")");
+            // The scene must hold the preset too: the next save neither stores the
+            // old sound nor brings it back.
+            obs_data_t* afterSaved = obs_save_source(filter);
+            obs_data_t* afterSettings = obs_data_get_obj(afterSaved, "settings");
+            const auto afterState = spectralforge::obs::base64Decode(obs_data_get_string(afterSettings, "vst3_component_state"));
+            check(afterState && verify.setState(*afterState, {}) && near(verify.parameter(paramId), target)
+                      && near(getParameter(filter, paramId), target),
+                  "a preset pushed while the filter was being saved did not reach the scene (round "
+                      + std::to_string(round) + ")");
+            obs_data_release(afterSettings);
+            obs_data_release(afterSaved);
         }
         std::cout << "preset pushed during a save: applied in all " << rounds << " rounds\n";
+
+        // The narrowest case, forced: the save's write lands just after the push,
+        // so the settings hold the old sound again when the queued reload runs.
+        // The filter still applies the pushed preset and puts it back in the scene.
+        check(setParameter(filter, paramId, 0.31), "prepare overwritten preset");
+        obs_data_t* liveSettings = obs_source_get_settings(filter);
+        const std::string oldSound = obs_data_get_string(liveSettings, "vst3_component_state");
+        obs_data_t* overwrittenPreset = obs_data_create();
+        obs_data_set_string(overwrittenPreset, "vst3_component_state", pushed.c_str());
+        std::thread([&] { obs_source_update(filter, overwrittenPreset); }).join();
+        obs_data_release(overwrittenPreset);
+        obs_data_set_string(liveSettings, "vst3_component_state", oldSound.c_str()); // the racing save's write
+        obs_data_release(liveSettings);
+        drainUi();
+        check(near(getParameter(filter, paramId), target), "a preset overwritten by a racing save was not applied");
+        obs_data_t* writtenBackSaved = obs_save_source(filter);
+        obs_data_t* writtenBackSettings = obs_data_get_obj(writtenBackSaved, "settings");
+        const auto writtenBackState = spectralforge::obs::base64Decode(obs_data_get_string(writtenBackSettings, "vst3_component_state"));
+        check(writtenBackState && verify.setState(*writtenBackState, {}) && near(verify.parameter(paramId), target)
+                  && near(getParameter(filter, paramId), target),
+              "a preset overwritten by a racing save did not reach the scene, or the next save brought the old sound back");
+        obs_data_release(writtenBackSettings);
+        obs_data_release(writtenBackSaved);
+        std::cout << "preset overwritten by a racing save: applied and written back to the scene\n";
 
         // 6. A scene from a newer module: its state is neither applied nor
         // overwritten on save.
