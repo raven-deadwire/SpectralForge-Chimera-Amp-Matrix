@@ -2,10 +2,6 @@
 // Phase 35: the amp channel of both Dual Blend rigs' heads (docs/AUTO_SET_PHASE35.md).
 // Included by AutoSetTests.cpp after the Dual amp tests (runDualAmp is used here).
 
-// MSVC only: compiled without optimisation, as the other tests added since phase 29 (see AutoSetLaneIRTests.h).
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",off)
-#endif
 void controllerDualChannel() {
     using P=Controller::Phase;
     const auto value=[](const std::vector<float>& v,const juce::String& id){return valueOf(LockRun{v,{},{}},id);};
@@ -57,6 +53,3 @@ void controllerDualChannel() {
     std::cout<<"MEASURE auto set dual channel controller: rig 1: "<<step1->result<<'\n';
     std::cout<<"PASS auto set dual channel controller: off by default; in each rig's pass, alone or before the rig's amp step; clean LEAD > RHYTHM per rig; lock; Crossover, Matrix, Classic, amp off; undo\n";
 }
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",on)
-#endif
